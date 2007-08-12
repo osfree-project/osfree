@@ -1,0 +1,4 @@
+build.c(122): Warning! W106: Constant out of range - truncated
+build.c(122): Note! I2003: source conversion type is 'unsigned int '
+build.c(122): Note! I2004: target conversion type is 'short '
+build.c(122): Note! I2002: 'intel_short' defined in: build.c(79)

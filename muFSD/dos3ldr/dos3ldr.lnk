@@ -1,0 +1,5 @@
+SYSTEM dos
+OPTION MAP=dos3ldr.map
+NAME dos3ldr
+FILE dos3ldr.obj
+FILE readhd.obj

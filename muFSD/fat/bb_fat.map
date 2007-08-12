@@ -1,0 +1,174 @@
+Open Watcom Linker Version 1.3
+Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
+Created on:       07/01/21 02:46:08
+Executable Image: bb_fat.exe
+creating a DOS executable
+
+
+                        +------------+
+                        |   Groups   |
+                        +------------+
+
+Group                           Address              Size
+=====                           =======              ====
+
+DGROUP                          0000:0000            00002744
+
+
+
+                        +--------------+
+                        |   Segments   |
+                        +--------------+
+
+Segment                Class          Group          Address         Size
+=======                =====          =====          =======         ====
+
+_TEXT                  CODE           DGROUP         0000:0000       00000dec
+_DATA                  DATA           DGROUP         00de:000c       0000026b
+CONST                  DATA           DGROUP         0105:0008       000001ce
+CONST2                 DATA           DGROUP         0122:0006       00000102
+XIB                    DATA           DGROUP         0132:0008       00000000
+XI                     DATA           DGROUP         0132:0008       00000006
+XIE                    DATA           DGROUP         0132:000e       00000000
+YIB                    DATA           DGROUP         0132:000e       00000000
+YI                     DATA           DGROUP         0132:000e       00000000
+YIE                    DATA           DGROUP         0132:000e       00000000
+CONST                  CONST          DGROUP         0132:000e       00000000
+_BSS                   BSS            DGROUP         0132:000e       00000416
+mfs_stack              STACK          DGROUP         0174:0004       00001000
+
+
+                        +-----------------------+
+                        |   Absolute Segments   |
+                        +-----------------------+
+
+Segment                 Class           Address              Size
+=======                 =====           =======              ====
+
+BootSeg                                 07c0:0000           000001e2
+
+
+                        +----------------+
+                        |   Memory Map   |
+                        +----------------+
+
+* = unreferenced symbol
++ = symbol only referenced locally
+
+Address        Symbol
+=======        ======
+
+Module: l:\var\src\os2\boot\muFSD\fat\..\entry.obj(blackbox)
+0000:1744*     _microfsd_stack_bottom
+0000:2744      _microfsd_stack_top
+0000:0e31*     _disk_table
+0000:0000*     microfsd_entry
+0000:004c      __do_exit_with_msg__
+0000:0e47      _current_seg
+0000:0e49      _image_length
+Module: l:\var\src\os2\boot\muFSD\fat\..\start.obj(L:\var\src\os2\boot\muFSD\start.c)
+0000:004d      _mu_Start
+0000:0e4c+     _os2ldr_data
+0000:0e76+     _banner
+0000:0ebf*     _name_microfsd
+0000:0ecc+     _name_minifsd
+0000:0ed8+     _name_os2ldr
+0000:132e+     _os2ldr_data_ptr
+0000:1332+     _pbpb
+0000:1336*     _os2ldr
+0000:133a      _parm_cs
+0000:133c      _parm_ss
+0000:133e      _parm_ds
+0000:1340      _parm_es
+0000:1342+     _bios_device
+Module: l:\var\src\os2\boot\muFSD\fat\..\diskread.obj(L:\var\src\os2\boot\muFSD\diskread.asm)
+0000:02a0*     read_run
+0000:02bc      BIOS_READ_HD
+Module: l:\var\src\os2\boot\muFSD\fat\..\wrappers.obj(L:\var\src\os2\boot\muFSD\wrappers.asm)
+0000:02f4      stub_mu_Open
+0000:0331      stub_mu_Read
+0000:0376      stub_mu_Close
+0000:03a0      stub_mu_Terminate
+Module: l:\var\src\os2\boot\muFSD\fat\..\panic.obj(L:\var\src\os2\boot\muFSD\panic.c)
+0000:03ca      microfsd_panic_
+0000:1344      _scratch_buffer
+Module: l:\var\src\os2\boot\muFSD\fat\..\video.obj(L:\var\src\os2\boot\muFSD\video.asm)
+0000:048a      VIDEO_INIT
+0000:0434      VIDEO_CRLF
+0000:0464      VIDEO_OUTPUT
+Module: l:\var\src\os2\boot\muFSD\fat\..\vsprintf.obj(L:\var\src\os2\boot\muFSD\vsprintf.c)
+0000:049b+     strnlen_
+0000:04c0*     simple_strtoul_
+0000:0792      vsprintf_
+0000:0adf      sprintf_
+0000:0b1c+     outchar_comport_
+0000:0b4e      output_com_
+0000:0b82      printk_
+Module: l:\var\src\os2\boot\muFSD\fat\..\pathutil.obj(L:\var\src\os2\boot\muFSD\pathutil.c)
+0000:0be7*     DecoupePath_
+Module: l:\var\src\os2\boot\muFSD\fat\..\term.obj(L:\var\src\os2\boot\muFSD\term.c)
+0000:0c38      _mu_Terminate
+Module: l:\var\src\os2\boot\muFSD\fat\fat.obj(L:\var\src\os2\boot\muFSD\fat\fat.c)
+0000:0c4a      read_super_
+0000:0c51      _mu_Open
+0000:0c5c      _mu_Close
+0000:0c62      _mu_Read
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(stk)
+0000:0c73      __STK
+0000:0c8a*     __STKOVERFLOW_
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(cmodel)
+0000:0ca8      _small_code_
+0000:0ca8*     CodeModelMismatch
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(strlen)
+0000:0ca8      strlen_
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(istable)
+0000:1226      __IsTable
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(toupper)
+0000:0cbf      toupper_
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(i4m)
+0000:0cce*     __I4M
+0000:0cce      __U4M
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(i4d)
+0000:0ce6*     __I4D
+0000:0d2f      __U4D
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(xmsg)
+0000:0db3*     __exit_with_msg_
+0000:0db6      __fatal_runtime_error_
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(crwdata)
+0000:102c*     __curbrk
+0000:1034      __STACKLOW
+0000:1036*     __STACKTOP
+0000:1038*     __cbyte
+0000:103a*     __child
+0000:103c*     __no87
+0000:104a*     ___FPE_handler
+0000:102e*     __psp
+0000:103e*     __get_ovl_stack
+0000:1042*     __restore_ovl_stack
+0000:1046*     __close_ovl_file
+0000:104e*     __LpCmdLine
+0000:1052*     __LpPgmName
+0000:1030*     __osmajor
+0000:1031*     __osminor
+0000:1032*     __osmode
+0000:1033*     __HShift
+Module: l:\var\src\os2\boot\muFSD\fat\..\clibs.lib(enterdb)
+0000:0dd0      __EnterWVIDEO_
+0000:1056+     ___WD_Present
+
+
+                        +--------------------+
+                        |   Libraries Used   |
+                        +--------------------+
+
+l:\var\src\os2\boot\muFSD\fat\..\clibs.lib
+
+
+                        +-----------------------+
+                        |   Linker Statistics   |
+                        +-----------------------+
+
+Stack size:  1000 (4096.)
+Memory size:  2744 (10052.)
+Entry point address: 0000:0000
+Link time: 00:00.40

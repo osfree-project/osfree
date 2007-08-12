@@ -1,0 +1,237 @@
+Open Watcom Linker Version 1.3
+Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
+Created on:       07/03/20 22:31:34
+Executable Image: bb_ext2.exe
+creating a DOS executable
+
+
+                        +------------+
+                        |   Groups   |
+                        +------------+
+
+Group                           Address              Size
+=====                           =======              ====
+
+DGROUP                          0000:0000            000063fa
+
+
+
+                        +--------------+
+                        |   Segments   |
+                        +--------------+
+
+Segment                Class          Group          Address         Size
+=======                =====          =====          =======         ====
+
+_TEXT                  CODE           DGROUP         0000:0000       000027f4
+_DATA                  DATA           DGROUP         027f:0004       00000565
+CONST                  DATA           DGROUP         02d5:000a       00000cc2
+CONST2                 DATA           DGROUP         03a1:000c       00000102
+XIB                    DATA           DGROUP         03b1:000e       00000000
+XI                     DATA           DGROUP         03b1:000e       00000006
+XIE                    DATA           DGROUP         03b2:0004       00000000
+YIB                    DATA           DGROUP         03b2:0004       00000000
+YI                     DATA           DGROUP         03b2:0004       00000000
+YIE                    DATA           DGROUP         03b2:0004       00000000
+CONST                  CONST          DGROUP         03b2:0004       00000000
+_BSS                   BSS            DGROUP         03b2:0004       000018d6
+mfs_stack              STACK          DGROUP         053f:000a       00001000
+
+
+                        +-----------------------+
+                        |   Absolute Segments   |
+                        +-----------------------+
+
+Segment                 Class           Address              Size
+=======                 =====           =======              ====
+
+BootSeg                                 07c0:0000           000001e2
+
+
+                        +----------------+
+                        |   Memory Map   |
+                        +----------------+
+
+* = unreferenced symbol
++ = symbol only referenced locally
+
+Address        Symbol
+=======        ======
+
+Module: f:\var\src\os2\boot\muFSD\ext2\..\entry.obj(blackbox)
+0000:53fa*     _microfsd_stack_bottom
+0000:63fa      _microfsd_stack_top
+0000:2839*     _disk_table
+0000:0000*     microfsd_entry
+0000:004c      __do_exit_with_msg__
+0000:284f      _current_seg
+0000:2851      _image_length
+Module: f:\var\src\os2\boot\muFSD\ext2\..\start.obj(F:\var\src\os2\boot\muFSD\start.c)
+0000:004d      _mu_Start
+0000:2854+     _os2ldr_data
+0000:287e+     _banner
+0000:28c7*     _name_microfsd
+0000:28d4+     _name_minifsd
+0000:28e0+     _name_os2ldr
+0000:3b24+     _os2ldr_data_ptr
+0000:3b28      _pbpb
+0000:3b2c*     _os2ldr
+0000:3b30      _parm_cs
+0000:3b32      _parm_ss
+0000:3b34      _parm_ds
+0000:3b36      _parm_es
+0000:3b38      _bios_device
+Module: f:\var\src\os2\boot\muFSD\ext2\..\diskread.obj(F:\var\src\os2\boot\muFSD\diskread.asm)
+0000:0210*     read_run
+0000:022c      BIOS_READ_HD
+Module: f:\var\src\os2\boot\muFSD\ext2\..\wrappers.obj(F:\var\src\os2\boot\muFSD\wrappers.asm)
+0000:0264      stub_mu_Open
+0000:02a1      stub_mu_Read
+0000:02e6      stub_mu_Close
+0000:0310      stub_mu_Terminate
+Module: f:\var\src\os2\boot\muFSD\ext2\..\panic.obj(F:\var\src\os2\boot\muFSD\panic.c)
+0000:033a      microfsd_panic_
+0000:3b3a      _scratch_buffer
+Module: f:\var\src\os2\boot\muFSD\ext2\..\video.obj(F:\var\src\os2\boot\muFSD\video.asm)
+0000:03e4      VIDEO_INIT
+0000:038e      VIDEO_CRLF
+0000:03be      VIDEO_OUTPUT
+Module: f:\var\src\os2\boot\muFSD\ext2\..\vsprintf.obj(F:\var\src\os2\boot\muFSD\vsprintf.c)
+0000:03f5+     strnlen_
+0000:0414*     simple_strtoul_
+0000:06bb      vsprintf_
+0000:099d      sprintf_
+0000:09c8+     outchar_comport_
+0000:09fa      output_com_
+0000:0a2c      printk_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\pathutil.obj(F:\var\src\os2\boot\muFSD\pathutil.c)
+0000:0a78      DecoupePath_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\term.obj(F:\var\src\os2\boot\muFSD\term.c)
+0000:0ac9      _mu_Terminate
+Module: f:\var\src\os2\boot\muFSD\ext2\close.obj(F:\var\src\os2\boot\muFSD\ext2\close.c)
+0000:0ada      _mu_Close
+Module: f:\var\src\os2\boot\muFSD\ext2\dir.obj(F:\var\src\os2\boot\muFSD\ext2\dir.c)
+0000:0b25+     ext2_check_dir_entry_
+0000:0bcd+     ext2_readdir_
+0000:0dcc      VFS_readdir_
+Module: f:\var\src\os2\boot\muFSD\ext2\file.obj(F:\var\src\os2\boot\muFSD\ext2\file.c)
+0000:0e4f+     get_empty_filp_
+0000:0e85+     put_filp_
+0000:0eb8+     open_by_inode_
+0000:0ed5      vfs_close_
+0000:0f00      open_by_name_
+0000:0fb2+     ext2_file_read_
+0000:1277      VFS_read_
+0000:2a32      _flist
+Module: f:\var\src\os2\boot\muFSD\ext2\inode.obj(F:\var\src\os2\boot\muFSD\ext2\inode.c)
+0000:12ea      iget_
+0000:13b8      iput_
+0000:13de+     ext2_read_inode_
+0000:16c8+     inode_getblk_
+0000:16fb+     block_getblk_
+0000:175a      ext2_getblk_
+0000:19c2      ext2_bread_
+0000:2a40+     _ilist
+Module: f:\var\src\os2\boot\muFSD\ext2\open.obj(F:\var\src\os2\boot\muFSD\ext2\open.c)
+0000:1a1b      _mu_Open
+Module: f:\var\src\os2\boot\muFSD\ext2\read.obj(F:\var\src\os2\boot\muFSD\ext2\read.c)
+0000:1aa0      _mu_Read
+Module: f:\var\src\os2\boot\muFSD\ext2\super.obj(F:\var\src\os2\boot\muFSD\ext2\super.c)
+0000:1bcf      read_super_
+0000:1bdf*     ext2_read_super_
+0000:3f3a      _superblk
+Module: f:\var\src\os2\boot\muFSD\ext2\buffer.obj(F:\var\src\os2\boot\muFSD\ext2\buffer.c)
+0000:1e1e+     remove_from_hash_queue_
+0000:1eab+     add_to_hash_queue_
+0000:1f28+     get_hash_table_
+0000:1f60+     remove_from_used_list_
+0000:1fe8+     remove_from_free_list_
+0000:2069+     put_last_used_
+0000:20d9+     put_last_free_
+0000:2145      getblk_
+0000:21be      brelse_
+0000:21ee      bforget_
+0000:2231*     dumpblk_
+0000:2277      bread_
+0000:2cc0+     _hash_table
+0000:2cca+     _bhlist
+0000:2d24+     _used_list
+0000:2d26+     _free_list
+0000:3ffa+     _b_data
+Module: f:\var\src\os2\boot\muFSD\ext2\ll_rwblk.obj(F:\var\src\os2\boot\muFSD\ext2\ll_rwblk.c)
+0000:22b0+     stub_bios_read_hd_
+0000:2347      ll_rw_block_
+0000:2d28+     _b_size
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(stk)
+0000:255b      __STK
+0000:2572*     __STKOVERFLOW_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(cmodel)
+0000:2590      _small_code_
+0000:2590*     CodeModelMismatch
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(strlen)
+0000:2590      strlen_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(istable)
+0000:3a1c      __IsTable
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(toupper)
+0000:25a7      toupper_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(i4m)
+0000:25b6*     __I4M
+0000:25b6      __U4M
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(i4d)
+0000:25ce*     __I4D
+0000:2617      __U4D
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(memcpy)
+0000:269b      memcpy_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(memset)
+0000:26b8      memset_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(stricmp)
+0000:26d3      stricmp_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(fmemcpy)
+0000:270f      _fmemcpy_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(fmemset)
+0000:2734      _fmemset_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(strcpy)
+0000:274b      strcpy_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(fstrcat)
+0000:278a      _fstrcat_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(xmsg)
+0000:27ba*     __exit_with_msg_
+0000:27bd      __fatal_runtime_error_
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(crwdata)
+0000:2d2e*     __curbrk
+0000:2d36      __STACKLOW
+0000:2d38*     __STACKTOP
+0000:2d3a*     __cbyte
+0000:2d3c*     __child
+0000:2d3e*     __no87
+0000:2d4c*     ___FPE_handler
+0000:2d30*     __psp
+0000:2d40*     __get_ovl_stack
+0000:2d44*     __restore_ovl_stack
+0000:2d48*     __close_ovl_file
+0000:2d50*     __LpCmdLine
+0000:2d54*     __LpPgmName
+0000:2d32*     __osmajor
+0000:2d33*     __osminor
+0000:2d34*     __osmode
+0000:2d35*     __HShift
+Module: f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib(enterdb)
+0000:27d8      __EnterWVIDEO_
+0000:2d58+     ___WD_Present
+
+
+                        +--------------------+
+                        |   Libraries Used   |
+                        +--------------------+
+
+f:\var\src\os2\boot\muFSD\ext2\..\clibs.lib
+
+
+                        +-----------------------+
+                        |   Linker Statistics   |
+                        +-----------------------+
+
+Stack size:  1000 (4096.)
+Memory size:  63fa (25594.)
+Entry point address: 0000:0000
+Link time: 00:00.20

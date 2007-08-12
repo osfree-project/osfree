@@ -1,0 +1,69 @@
+#
+# A Makefile for Zlib
+# (c) osFree project,
+# valerius, 2006/10/30
+#
+
+!include ../../build.conf
+!include ../../mk/site.mk
+
+32_BITS  = 1
+ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..\include
+
+OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
+       uncompr.$(O) deflate.$(O) trees.$(O) zutil.$(O) &
+       inflate.$(O) infblock.$(O) inftrees.$(O) infcodes.$(O) &
+       infutil.$(O) inffast.$(O)
+
+!include ../../mk/bootseq.mk
+
+CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym
+
+all: libz.lib sub .SYMBOLIC
+
+sub: example.exe minigzip.exe .SYMBOLIC
+
+libz.lib: $(OBJS)
+ $(DC) $^@
+ $(LIB) -n -fo $^@ +$(OBJS)
+
+example.exe: example.$(O) libz.lib
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk LIBRARY libz
+ @%append $^&.lnk LIBRARY clib3r
+ @%append $^&.lnk FILE example.$(O)
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
+
+minigzip.exe: minigzip.$(O) libz.lib
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk LIBRARY libz
+ @%append $^&.lnk LIBRARY clib3r
+ @%append $^&.lnk FILE minigzip.$(O)
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
+
+!ifeq UNIX FALSE
+
+install: .SYMBOLIC
+ $(CP) libz.lib ..\lib
+
+!else
+
+install: .SYMBOLIC
+ $(CP) libz.lib ../lib
+
+!endif
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

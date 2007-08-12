@@ -1,0 +1,3 @@
+fat.c(21): Warning! W107: Missing return value for function 'mu_Open'
+fat.c(27): Warning! W107: Missing return value for function 'mu_Close'
+fat.c(33): Warning! W107: Missing return value for function 'mu_Read'

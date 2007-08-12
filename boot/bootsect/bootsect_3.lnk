@@ -1,0 +1,6 @@
+SYSTEM dos
+OPTION MAP=bootsect_3.map
+OPTION NODEFAULTLIBS
+NAME bootsect_3
+PATH f:\var\src\os2\boot\boot\bootsect
+FILE bootsect_3.obj

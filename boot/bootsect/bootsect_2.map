@@ -1,0 +1,65 @@
+Open Watcom Linker Version 1.3
+Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
+Created on:       07/03/20 22:31:33
+Executable Image: bootsect_2.exe
+creating a DOS executable
+
+
+                        +------------+
+                        |   Groups   |
+                        +------------+
+
+Group                           Address              Size
+=====                           =======              ====
+
+DGROUP                          0000:0000            00000200
+
+
+
+                        +--------------+
+                        |   Segments   |
+                        +--------------+
+
+Segment                Class          Group          Address         Size
+=======                =====          =====          =======         ====
+
+_TEXT                  CODE           DGROUP         0000:0000       00000000
+BootSeg                CODE           DGROUP         0000:0000       00000200
+_DATA                  DATA           DGROUP         0020:0000       00000000
+
+
+                        +-----------------------+
+                        |   Absolute Segments   |
+                        +-----------------------+
+
+Segment                 Class           Address              Size
+=======                 =====           =======              ====
+
+PktSeg                                  07e0:0000           00000011
+BIOSDataSeg                             0040:0000           0000001b
+IntVecSeg                               0000:0000           0000007c
+
+
+                        +----------------+
+                        |   Memory Map   |
+                        +----------------+
+
+* = unreferenced symbol
++ = symbol only referenced locally
+
+Address        Symbol
+=======        ======
+
+Module: f:\var\src\os2\boot\boot\bootsect\bootsect_2.obj(F:\var\src\os2\boot\boot\bootsect\bootsect.asm)
+0000:0000*     boot
+Warning! W1014: stack segment not found
+
+
+                        +-----------------------+
+                        |   Linker Statistics   |
+                        +-----------------------+
+
+Stack size:  1000 (4096.)
+Memory size:  0200 (512.)
+Entry point address: 0000:0000
+Link time: 00:00.20

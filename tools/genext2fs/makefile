@@ -1,0 +1,76 @@
+#
+# A Makefile for genext2fs
+# (c) osFree project,
+# valerius, 2006/10/30
+#
+
+32_BITS  = 1
+DEFINES  = -hw -d3 -d__OS2__ -d__WATCOM__
+DEFINES_UNIX = -hw -d3 -d__LINUX__ -d__WATCOM__
+
+ADD_COPT      = $(DEFINES) -i=.
+ADD_COPT_UNIX = $(DEFINES_UNIX) -i=.
+
+COPT_UNIX     = $(ADD_COPT_UNIX)
+
+!include ../../build.conf
+!include ../../mk/site.mk
+
+OBJS   = getline.$(O) strtof.$(O)
+OBJS_1 = genext2fs.$(O)
+OBJS_2 = genext2fs_u.$(O)
+
+!include ../../mk/bootseq.mk
+
+all: os2 linux .SYMBOLIC
+
+os2: genext2fs.exe .SYMBOLIC
+
+linux: genext2fs .SYMBOLIC
+
+genext2fs.exe: $(OBJS) $(OBJS_1)
+ @%create $^&.lnk
+ @%append $^&.lnk system os2v2
+ @%append $^&.lnk name $^&
+ @%append $^&.lnk option map=$^&.map
+ @for %%i in ($(OBJS) $(OBJS_1)) do @%append $^&.lnk FILE %%i
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
+
+genext2fs: $(OBJS) $(OBJS_2)
+ @%create $^&_u.lnk
+ @%append $^&_u.lnk system linux
+ @%append $^&_u.lnk name $^&
+ @%append $^&_u.lnk option map=$^&_u.map
+ @for %%i in ($(OBJS) $(OBJS_2)) do @%append $^&_u.lnk FILE %%i
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&_u.lnk $(LOG)
+
+!ifeq UNIX FALSE
+
+install: .SYMBOLIC
+ $(DC) ..\bin\genext2fs.exe $(BLACKHOLE)
+ $(DC) ..\bin\genext2fs $(BLACKHOLE)
+ $(CP) genext2fs.exe ..\bin $(BLACKHOLE)
+ $(RN) genext2fs.elf genext2fs $(BLACKHOLE)
+ $(CP) genext2fs ..\bin $(BLACKHOLE)
+
+!else
+
+install: .SYMBOLIC
+ $(DC) ../bin/genext2fs.exe $(BLACKHOLE)
+ $(DC) ../bin/genext2fs $(BLACKHOLE)
+ $(CP) genext2fs.exe ../bin $(BLACKHOLE)
+ $(RN) genext2fs.elf genext2fs $(BLACKHOLE)
+ $(CP) genext2fs ../bin $(BLACKHOLE)
+
+!endif
+
+genext2fs_u.$(O): genext2fs.c
+ $(SAY) Compiling $< $(LOG)
+ $(CC) $(COPT_UNIX) -fo=$^&.$(O) $< $(LOG)
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

@@ -1,0 +1,611 @@
+
+     osFree boot sequence project. (ideas about the boot
+               sequence and the bootloader).
+
+     In  this  text  we will try to discuss some problems about the way osFree
+must  load  from disk and the system initialization process. osFree is an OS/2
+clone,  so  it  must  follow the way of doing things of original OS/2. Also we
+must  borrow  the  good  ideas  from  OS/2  Warp  Connect PowerPC Edition (aka
+Workplace  OS),  as  it  was the 1st example of microkernel OS/2, and had some
+essential features for microkernel OS/2 system.
+
+First we will remember the original OS/2 boot sequence.
+
+
+
+1. Original OS/2 boot sequence
+
+     At  the  end of POST procedure the ROM BIOS initializes devices and gives
+control  to  int 19h interrupt routine, which loads 1st sector of the 1st boot
+device  (a floopy, HDD or another). If the device was the HDD, then the Master
+boot  record  (MBR) is  loaded  from  the 1st sector. The ROM BIOS loads it at
+address  0x7c0:0x0.  The  MBR  has a Non-System Bootstrap (NSB) in it, and the
+Partition  Table  (PT).  The  NSB code relocates MBR to 0x60:0x0 and loads the
+bootsector  of boot HDD partition at the same place (0x7c0:0x0) MBR was loaded
+first.  The  boot  partition is searched in the Partition Table (PT), which is
+embedded  in  the  MBR sector at the end of it. The PT contains four partition
+descriptors,  each  of  which has an active flag in the 1st byte of descriptor
+structure.  If  this byte is equal to 80h, the partition is active, if it is =
+00h, then partition is not active. MBR transfers control to the bootsector and
+the  bootsector  loads the operating system. This part of boot sequence is the
+same  in different PC OSes including Windows, OS/2 and Linux when loading from
+the active primary partition.
+
+     In  OS/2,  to  freely  choose  operating system, different from OS/2, IBM
+included  the  OS/2  Boot  manager.  The  boot manager is installed in a small
+primary  partition, which is marked active in PT. So, the MBR sector loads the
+bootsector   of  the  OS/2  boot  manager,  instead  of  the  bootsector  of a
+corresponding  OS. The boot manager gives a menu to user, from which he or she
+can  choose  a  partition  to continue booting from. So, the boot manager then
+loads a bootsector of OS boot partition at the same address 0x7c0:0x0.
+
+     The  bootsector  has a BPB (Boot Parameters Block) structure in it, which
+describes  some  important  parameters,  needed  to  properly  boot  from  the
+partition.  The  majority  of  them  is  specific  for  diskettes  and the FAT
+filesystem,  but some are essential for OS/2 to load properly. There are three
+essential  parameters  in  the  BPB  for  the  OS/2  boot  sequence.  They are
+HiddenSectors value, the physical boot device and the logical boot device. The
+latter  is  equivalent  to  the  boot  device drive letter and is important to
+properly  define  the  drive  letter  of the boot partition. The physical boot
+drive is the number of the boot physical device in the format of BIOS int 13h:
+The  value of 00h is for 1st diskette drive, 01h for 2nd diskette, 80h for the
+1st  hard  disk,  81h  --  the  2nd  hard disk and so on. The HiddenSectors is
+important  for  booting  OS/2  from  logical  disk  in extended partition. For
+primary  partitions,  it  is  equal  to  the  offset of the partition from the
+beginning of the HDD, but for logical disks it is for some reason equal to the
+number of sectors per track (63 for the modern hard drives). The HiddenSectors
+value  is  used  to  convert  local  sector  number (from the beginning of the
+partition) to the global sector address (from the beginning of the HDD). It is
+essential  for booting  OS  from the partition. For this reason, most OSes can
+load  only  from primary partition, like Windoze or FreeBSD. But IBM made OS/2
+to be loadable from logical partitions, as well as primary ones. For this, IBM
+bootmanager fixes the three above mentioned values in bootsector BPB, and only
+after  that  gives  control  to the bootsector. (This feature is required from
+boot  manager to properly load OS/2 from the logical partition. At present, it
+is  available  only  from three bootmanagers: IBM Bootmanager, VPart from Veit
+Kannegieser and AirBoot from Martin Kiewitz.)
+
+     After  receiving  control  from  MBR code or boot manager, the bootsector
+loads  the  so  called  blackbox  code  from the rest of the bootblock (the 15
+sectors after the bootsector in HPFS, and about 30 sectors in bootJFS) or from
+the  root  directory  from os2boot file in FAT. The blackbox is the Micro File
+System  Driver  (MicroFSD)  and  contains  several functions to open, read and
+close  files  from  the  root  directory  of  the  boot  drive.  Also  it  has
+initialization code and cleanup code. Only one file can be opened at one time,
+and in IBM blackboxes, only files in the root directory can be read.
+
+     The  blackbox  (aka MicroFSD) in its initialization part, loads two files
+from  disk:  os2ldr and os2boot. (os2boot in FAT contains the MicroFSD, but in
+other  filesystems,  it  contains  the  MiniFSD  code). The os2ldr is the OS/2
+kernel  loader.  It  is  independent  from  the  filesystem,  and only for FAT
+contains  a special code (the above mentioned functions to read files from the
+FAT partition, and some code to support memory dumping and hybernating from/to
+the  FAT partition). Besides that, os2ldr implements DosHlp functions (helpers
+for  the  OS/2  kernel),  so,  it  serves  like some sort of microkernel -- it
+implements  some  functions  the  kernel  depends  on.  Also,  os2ldr contains
+implementation  of  the  OEMHLP$  device  driver. (Yes, OEMHLP$ resides in the
+loader!). So, os2ldr is more than just OS loader :).
+
+     The  blackbox code transfers control to the os2ldr, and gives it the info
+about  memory layout and exports its filesystem functions (it gives the loader
+a  FileTable  structure, a pointer to the BPB, a physical boot device and some
+flags).  The  loader  then  relocates  itself  to the top of low memory, loads
+os2krnl  from  disk and applies required fixups (it does LX format parsing and
+placing  segments  to  required places and corrects addresses of functions and
+variables for proper linkage).
+
+     After  that,  control  is  given  to  os2krnl, and memory info along with
+os2boot MiniFSD image in memory is given to the kernel by the loader.
+
+     For  disk  reading,  os2krnl  uses  MiniFSD,  not  MicroFSD.  MicroFSD is
+intended  for  loader  to  work in real mode, and MiniFSD is for the kernel to
+work  in  protect  mode.  MiniFSD has the format of 16-bit NE dll. Its size is
+limited  to  62  Kbytes.  The system initialization sysinit routine of os2krnl
+loads  MiniFSD from its in-memory image. It is used at the 1st stage in system
+initialization  process  to  read  config.sys  and  load  base  device drivers
+(BASEDEV and PSD).
+
+     Before   the   kernel  loads  OS/2  disk  subsystem  drivers  (they  are:
+ibm1flpy.add,  ibm1s506.add,  --  disk  drivers,  an  ATAPI  filter to support
+CDROMs,  DASD  manager  (os2dasd.dmd),  volume manager (os2lvm.dmd)), the disk
+reading  is  performed by switching to real mode and calling int 13h BIOS disk
+read  functions.  When  disk subsystem drivers are loaded and initialized, the
+kernel  uses  them to read the disk, and for filesystem access it continues to
+use  the MiniFSD. It is the 1st phase of the system initialization process, as
+it  called  in  ifs.inf  documentation from IBM. At this phase the kernel uses
+MFS_*  MiniFSD  functions for filesystem access. They are very similiar to the
+MicroFSD  functions,  but  unlike  them, they work in protect mode. At the 2nd
+phase  the  kernel  links  MiniFSD  into  the IFS chain (it is the only IFS in
+chain),  calls  MFS_TERM  function  to complete phase 1 and in phase 2 it uses
+FS_*  functions from the MiniFSD,  so at this moment, MiniFSD is like ordinary
+IFS, but it supports only a minimum of FS_* funtions.
+
+     After  that, phase 3 begins. At this phase, the boot IFS is loaded, which
+replaces  MiniFSD  in  the  IFS  chain.  After  that  begins  a  full-featured
+filesystem  access.  The  system now can read from and write to files from any
+disk, it supports drive letters and can have many open files at the same time.
+At this phase, the kernel loads the required DLLs and can load ordinary device
+drivers (device=).
+
+     After  that,  the  system  continues  to  load  "device="  drivers,  then
+processes  "run="  and  "call="  statements,  and  then  "protshell="  to load
+pmshell (a session manager).
+
+
+
+2. Some info about OS/2 PPC load process.
+
+     I  have  no  PowerPC  box,  but  I have IBM's redbook "OS/2 Warp (PowerPC
+Edition)  A  first  look",  there  is  a  little paragraph about OS/2 PPC load
+sequence  in this book. This paragraph is very small and contains only a small
+piece  of  information.  Also  I  have  OS/2  PPC  config files for the loader
+(boot.cfg)  and  for  the  OS/2 server (config.sys). The most part of drivers,
+servers  and libraries is loaded from boot.cfg, and the config.sys is specific
+to  the  OS/2 personality. The config.sys file is very small. I can show these
+files in forum, if you interested.
+
+     As  written in IBM's redbook, the loader (bl_auto file in the root of the
+disk)  is  loaded by the PowerPC ROM directly from boot partition, there is no
+a  bootsector,  the  ROM  loads  the loader file immediately. The loader has a
+configuration  file  boot.cfg.  In  the config file, there are the microkernel
+file,  an  initial task and other files, which loader must load from disk into
+memory. These sevices loaded from boot.cfg are called Personality neutral (PN)
+services,  they  are  independent  from  OS/2  Personality  and include device
+drivers.
+
+     I  have no information about how the bootloader access files on disk, and
+if  there  is  an  equivalent  to  the MicroFSD in OS/2 PPC, but it seems that
+there  must  be something like MicroFSD, and it uses ROM functions to read the
+disk (analogous to the int 13h PC BIOS functions)
+
+     The  bootloader  loads  a  number  of  files into memory, then starts the
+microkernel  and  the  initial task. The initial task is called the bootstrap.
+The  bootloader passes the bootstrap some information along with the locations
+of  files  it  have  loaded in memory. The bootstrap acts as a file server for
+other servers. In other words, it gives access to the files the bootloader had
+loaded into memory. The bootstrap task has no device drivers in it, instead it
+has access to the files the bootloader has loaded into memory.
+
+     Then  the  bootstrap  do  the  following  (I will quote the text from the
+redbook):
+
+[===================begin quote=======================]
+1) It loads the Root Name Server
+2) Starts the default pager
+3) Starts the task manager
+4) Provides the file services, which will be used by Task Server
+5) Directs the Task Manager to start the personality neutral (PN) servers
+   required to bring up the dominant personality. PN servers include
+   Message Logger, Hardware Resource Manager (HRM), Bus Walkers, and
+   Device Drivers.
+6) Starts the Personality.
+
+The bootstrap task continues to behave as a file server until it terminates.
+[===================end quote=========================]
+
+     Then   OS/2  personality  starts.  The  OS/2  personality  server  parses
+config.sys and loads the OS/2 personality specific servers.
+
+     Device  drivers  are  not  specific  to the OS/2 personality, so they are
+started  by bootstrap and are in bootloader config file (boot.cfg), not in the
+config.sys file.
+
+
+
+     3.  L4  microkernel  load  process.  GNU  GRUB  bootloader
+                   and Multiboot specification.
+
+     The  L4  microkernel  can  be  started either in real or protect mode. If
+started  in  real  mode, it switches to protect mode by itself. The exact load
+procedure is described in the L4 API, version X.2 reference manual.
+
+     For loading the L4 microkernel, the GNU GRUB bootloader is commonly used.
+The  GRUB  defines  the  Multiboot  specification, which is intended to be the
+common  protocol  between  the OS kernel and the bootloader. At this time only
+GRUB  supports  the  multiboot  specification,  but it is possible to create a
+compatible  bootloader.  The multiboot compliant kernels include The HURD Mach
+kernel  (The  GNU  GRUB  is  the  official  GNU project bootloader, and it was
+created  specifically for  the  GNU HURD project. But it also suits for Linux,
+FreeBSD,  OpenBSD,  NetBSD,  MacOS X and L4). But L4 itself is not a multiboot
+kernel,  instead, it uses its own loader/bootstrapper which in L4Ka::Pistachio
+is kickstart, and in L4/Fiasco is rmgr.
+
+     The Multiboot specification requires from the kernel to have in its first
+8192  bytes  the  multiboot  header.  This header defines requirements for the
+loader  from  the kernel, such as: the load addresses of various segments of a
+kernel,  initial video mode and kernel entry point. The kernel executable file
+format  may  be any, the only requitement is to have the multiboot header. But
+GRUB  also directly supports the ELF and a.out formats. (But OS/2 (intel) uses
+LX format, and OS/2 PPC used ELF format).
+
+     The  bootloader  loads  a  kernel (kickstart in our case) and a number of
+additional  modules. The bootloader loads the kernel and applies fixups to it,
+but  modules  remain  untouched, the loader starts the kernel and passes to it
+the  pointer  to  Multiboot  structure. The GRUB leaves the kernel in a simple
+protected  mode  environment  with  paging  disabled,  A20  line  enabled  and
+Interrupt  Controller  remains  uninitialized. Also, the initial video mode is
+set.
+
+     The  Multiboot  structure  contains info about memory layout and modules.
+For  the  kernel  and  modules  there are  strings associated with them. These
+strings  can  be  used  as  command lines for kernel and modules, or just as a
+labels to identify modules.
+
+     In  L4Ka:Pistachio,  the  kickstart  bootstrapper  plays  the role of the
+multiboot kernel. It receives Multiboot structure from GRUB, and ELF-loads the
+L4  kernel  and  initial  servers.  Then it searches the Kernel Interface Page
+(KIP) inside the L4 image. It passes the multiboot info in Bootinfo structure,
+pointed  by  the  field  in  KIP.  Then kickstart fills the fields for initial
+servers  location  in  the KIP (initial servers are sigma0 and roottask, which
+were  passed  by  GRUB  as  multiboot modules). Then kickstart calls the entry
+point in L4 kernel.
+
+     In the case of L4/Fiasco the role of kickstart plays the resource manager
+(rmgr).  It  consists  of  two  stages.  Stage 1 is analogous to kickstart. It
+parses  the  config and loads L4 and servers. Stage 1 passes the configuration
+to  stage  2.  Stage  2  is  started by L4 and serves as a root server. But at
+present,  rmgr  is  divided  into 2 parts -- bootstrap and roottask, which are
+loaded as separate multiboot modules.
+
+     Then  L4 starts, relocates itself to the proper place in memory, and then
+starts  sigma0  and roottask. After that, the roottask can initialize the rest
+of the system.
+
+
+
+4. The FreeLdr project history and the proposed roadmap.
+
+     The  FreeLdr  project  was started in 1999 by David Zimmerli. He wrote an
+article     in      EDM/2      (The     Project     to     replace     OS2LDR:
+http://www.edm2.com/0705/freeldr/freeldr.html)   about  os2ldr  and  started a
+project to replace the os2ldr. It was a little COM format executable which was
+loaded  by  blackbox.  It  accepts  information  from  the blackbox (FileTable
+structure,  BPB  etc.),  and  uses  the blackbox to test its filesystem access
+functions. FreeLdr writes the received information to the screen and COM port.
+It calls Open function from the blackbox to show the size of os2krnl file. So,
+it  was  for  test  purposes only. Then, D. Zimmerli proposed to implement the
+part  of  os2ldr  functionality,  but  did  not  finish  it.  But sources were
+available from the EDM/2 article page.
+
+     Now  the  osFree  project took these sources, and used them as a starting
+point  of  an osFree loader implementation. The name of the loader remains the
+same, as it corresponds the osFree project name.
+
+     The  original sources were written in Turbo C/Turbo Assembler. The osFree
+project uses Watcom C and assembler, so the sources were ported to OpenWatcom.
+The  porters  are  Sascha  Schmidt  and  Yuri Prokushev. Now they combined the
+FreeLdr  sources  with a minimal set of routines from GRUB  needed to load and
+start  kickstart.  At present, the code links with GRUB functions, but doesn't
+work. The problem is with calling MicroFSD functions -- the mu_Open() function
+is  called,  but  there  is  some  problem with parameters passing and calling
+conventions.  So far, the code is being debugged. We use Bochs PC emulator and
+its embedded debugger to debug code. (The problem appears to be simple, but we
+had  no  developers  having  skills  in assembly language. And the program was
+being  debugged  by  debug  messages  only.  Now  we  have a debugger, so it's
+possible that the problem will be resolved soon ;-) ).
+
+     Now  I (Valery Sedletski, aka valerius) have some ideas about osFree boot
+sequence  and  bootloader design. The ideas were inspired by OS/2 PowerPC boot
+sequence  and GRUB bootloader. But the main source of ideas is, of course, the
+OS/2  (intel)  boot  sequence.  Also,  some  ideas  were  borrowed  from  Veit
+Kannegieser's os2csm config.sys editor and preprocessor.
+
+
+
+5. A note about OS2CSM.
+
+     Veit  Kannegieser wrote a program, called os2csm. It was inspired by some
+DOS  program,  which  modifies config.sys in memory. Os2csm installs itself in
+place  of  os2ldr, and renames os2ldr to os2ldr.bin. Os2csm hooks onto int 13h
+interrupt  handler  and  analyzes the information read through int 13 routine.
+The   config.sys   file  contains  directives,  analogous  to  C  preprocessor
+directives,  and  each  512  bytes  of  config.sys  file  (each disk sector of
+config.sys)  has  a  special  comment  with  a  special  signature  in it. The
+procedure,  which hooks onto int 13h interrupt handler, checks each sector for
+these signatures, and if it finds them, it assumes that the config.sys file is
+being  read. So, it substitutes preprocessor defines and patches config.sys on
+the fly.
+
+     The  config.sys  preprocessor  is  useful  to  substitute  some  parts of
+config.sys  by  some variables (aka preprocessor symbols). These variables can
+be obtained from menus, which are presented to user by os2csm. The os2csm then
+loads  os2ldr from the file os2ldr.bin; the loader starts the kernel. When the
+kernel  reads  config.sys,  os2csm  changes  it  on  the  fly, and substitutes
+variables.  So,  settings set by user substitute variables in config.sys. This
+way,  the  set  of  parameters   is  passed  to  the kernel through config.sys
+preprocessor.
+
+     OS2CSM  is  now  used  in  eCS  (in eCS demo disk and in eCS installation
+disk). You can download the demo disk from http://ecomstation.com.
+
+     We  can  use  this  idea in our bootloader, so, we may implement a simple
+preprocessor  with  syntax  similiar to the C preprocessor (or, even, PPWizard
+syntax).  I  propose  to  embed  this  preprocessor into loader and instead of
+hooking  onto int 13 routines, we can hook onto blackbox routines. The configs
+are  read  through blackbox (not minifsd, like in present OS/2!). I suggest to
+explicitly  mark  a  number  of files as configs in the loader config. So, the
+signatures  in each config.sys file sector are not needed. And also we can use
+more attractive and beautiful looking syntax instead of ugly os2csm syntax.
+
+     The   preprocessor   directives   may  include  analogues  to  "#define",
+"#include",  "#ifdef" etc., so, it will be possible to define symbols, include
+one  config  file  to  another,  and  to conditionally include files or define
+symbols.  So, the resulting config file can be flexibly constructed from parts
+and variables can be substituted in it.
+
+     The  preprocessor idea complements the GRUB idea of passing command lines
+to  a kernel and modules. That is, we suggest to use passing parameters to the
+kernel  as  multiboot command lines, as well as through substituting variables
+in config files. So, we combine these two approaches.
+
+
+
+6. Ideas about FreeLdr design.
+
+1)
+     First,  I  suggest  to  combine the functionality of OS/2 bootmanager and
+os2ldr  in  one  program.  I.e.,  the boot sequence must be like this: The MBR
+loads  an  active  partition, or the partition with a given number. (I already
+wrote  such  a  MBR  sector, it can load a bootsector from selected primary or
+logical  partition (yes, logical partitions are supported too!)). The bootable
+hard  disk number and the number of partition on it are written inside the MBR
+of  the first hard disk. (The bootable partition can reside on the same HDD as
+well as on the different HDD, than the 1st HDD we read MBR from).
+
+     So,  the MBR loads a boot sector from bootable partition. The boot sector
+loads  the  blackbox.  The blackbox loads our loader. Then, the loader starts.
+The  loader combines the functionality of a bootloader with functionality of a
+bootmanager:  after  having  been called from the blackbox, the loader shows a
+menu to the user. The user selects a menu item from it, each menu item defines
+an  OS  to  be  loaded  along with parameters, which are then passed to the OS
+kernel.  From  this  point, the loader/bootmanager is capable of executing the
+bootsectors  of  OSes, not supported directly by our loader, like windoze. The
+loader  only  loads  a  corresponding bootsector and executes it. But if an OS
+kernel is supported directly, then the loader can also pass some parameters to
+the kernel, through a config file or a command line parameters.
+
+     The  advantage  of  such  an approach is that we can choose an OS and its
+parameters  from  the  same  place,  it  is  a combined loader/bootmanager. An
+example:  in  present  OS/2  the  OS/2 bootmanager allows to choose an OS, and
+os2ldr  allows  to choose additional parameters -- it allows to press a hotkey
+to  bring  up  a  Recovery  choices menu. There are also many other parameters
+avaliabe  by  pressing  Alt-F1[F2,F3,...]. In our case, there is only one menu
+from which an OS and its parameters can be choosen, and additional menus, like
+Recovery    choices,    are    avaliable    from    the    same   place:   the
+bootloader/bootmanager menu. So, the advantage is an integration.
+
+     Also,  our  bootmanager  resides  on ordinary OS/2 partition, not special
+bootmanager  partition. For reading files it uses a microfsd. And all settings
+of the bootmanager/bootloader can be stored in ordinary text config files.
+
+     And  finally,  our  idea  of  hybrid loader/bootmanager allows us to load
+different  OS/2  kernel versions from the same partition. And not only kernel,
+any  system  component version can be selected from the same place -- they can
+be selected from within the bootmanager menu.
+
+For more details, read on.
+
+2)
+     The  loader present a menu to the user. Each menu item corresponds to the
+boot  script.  The script contains  commands  to ask additional info from user
+(i.e.,  this command shows a menu, user changes parameters, and parameters are
+returned  to  the loader. Then parameters constitute the loader "environment".
+The  environment  strings  can  substitute   variables  in  command  lines and
+config  files), to change current partition, to define variables etc. Also the
+boot script contains definition of files, loaded by the bootloader. The loader
+distinguishes  between executable files (the loader performs executable format
+parsing),  files  that  are  only  loaded by the loader, but its format is not
+parsed,  and config files. The files marked as configs are preprocessed by the
+preprocessor.
+
+     So, there are following config files: i) The loader menu definition file,
+it  contains  a  definition  of menu items. Each menu item has a loader script
+associated  with it. This config file is similar to the menu.lst file in GRUB.
+ii)  the  boot  scripts.  Each  script  is  referenced  or  included  by  menu
+definition  config.  Each script is similar to boot.cfg file in OS/2 PPC. iii)
+config.sys  file.  It is specific for OS/2 personality. These configs are read
+through microfsd calls and can be preprocessed. There may be additional config
+files  for  individual  servers. They also use the loader config preprocessing
+facilities,  so parameters defined in the loader script or the ones asked from
+user  may  substitute  variables in these config files. So we can flexibly set
+parameters of each system component from the bootmanager menu.
+
+     Also,  for  better  flexibility,  we  can  make  a  small  config for the
+blackbox.  When  the  blackbox  is  started by the bootsector, it may read its
+config  file,  from which it knows, what files it must load as the minifsd (it
+is  optional,  we  may not use minifsd, so it may be not necessary to load it)
+and freeldr main module. (See the next paragraph: The idea of modules).
+
+3)
+The idea of modules.
+
+     At  present  time, the loader is a COM file, so its size is limited to 64
+Kb.  To  include  more  functionality,  it  may  be  necessary  to  make  it a
+multi-segment  program,  so,  a  better EXE format must be used. Because it is
+16-bit real mode program, the DOS EXE format and, probably, OS/2 NE format are
+suitable  for  that.  The DOS EXE format seems to be the most simple, so it is
+simpler to implement FreeLdr as a DOS EXE file.
+
+     To keep the loader modular (to have possibility to load only needed parts
+of  it, and the possibility to load/unload parts of it at any time), I suggest
+to  implement  it as a set of modules. A module must work in real mode and can
+be implemented as a DOS EXE file. (We can't use DLL's in real mode, so we must
+design  a simple mechanism based on DOS EXE files). I propose a module to be a
+DOS  EXE  file  with  additional  header. The header helps to locate functions
+inside  the  EXE  file.  The header begins with a pointer to the ASCIIZ string
+which contains a module name. After this pointer follows a size of the header,
+then a size of the DOS executable after the header and then follows a table of
+structures, which can be described as:
+
+struct {
+   char *FuncName;
+   unsigned long EntryPoint;
+} *pFuncTable;
+
+     i.e.,  each structure defines a function in EXE file, it links a function
+name  with  its  offset  in the EXE file. This array of structures is followed
+by  a  string  table, which contains all the function names and a module name.
+Each  FuncName  pointer  points  to the sting in this string table. The header
+helps  to  locate  each  function  in  the EXE file. The function table can be
+generated from linker map file.
+
+     The  main  loader  module is loaded by microfsd. It has a DOS EXE format,
+so,  to  execute it, we must load it by some executable format loader. The DOS
+EXE  loader can be implemented as a DOS COM file. I suggest to concatenate the
+DOS  EXE  loader with the FreeLdr main module (the main module is glued to the
+tail  of  the  EXE  loader, this idea is borrowed from the MS NTLDR: the NTLDR
+consists  of  the  startup  COM file glued with the PE format executable). The
+FreeLdr  startup receives info from the blackbox, loads and relocates the main
+module  from  its  tail,  executes  and  passes  it  an info received from the
+blackbox.
+
+     The  main  module contains a mechanism to load  other  modules from files
+on  disk.  It  loads  a  module as a DOS EXE file, and links its header to the
+headers  list.  When  performing relocations to the module, the DOS EXE format
+loader  corrects  the  addresses  in   headers,  which are linked to the list.
+From  this  list, the main module can locate any function from any module. For
+that  purpose,  the  main  module  supplies a function to be called from other
+modules.  This  function takes a module name and a name of a function in it as
+parameters,  and returns an entry point to this function. This way, any module
+can  find  an  entry point to any function with given name in any other module
+with  given  name.  So,  we  have  a kind of name service, which can convert a
+function  name  to  its  address.  Any module can call any function in another
+module.
+
+     The  microfsd's,  loaders  for  different  file formats (DOS EXE, NE, LX,
+ELF), config file preprocessor etc. can be implemented as separate modules.
+
+4)
+     We can implement additional executable formats loaders for formats, other
+than ELF. (For example, LX, NE, PE(?)...). They can be implemented as separate
+modules
+
+5)
+     To  be possible to read files from other partition than a boot one, it is
+possible  to  implement  a blackbox switching. For that, the loader can have a
+command,  executed  from  the  boot  script, to change the current drive, like
+"root"  command  in  GRUB.  For  this, the loader loads a new microfsd for the
+changed  partition  filesystem. It updates the FileTable structure by pointers
+to  functions  in  the  new microfsd. It also loads BPB from the new partition
+bootsector (and  patches the HiddenSectors value, if needed). So, this feature
+can  give  the  loader  possibility  to  read  files  from several partitions,
+switching them.
+
+6)
+     I  propose  to  make  the  loader  capable  of loading standard multiboot
+kernels, L4 kernel (as a kind of a multiboot kernel), and custom kernels, like
+OS/2  kernel. Before, in this text the idea of modules was described. The idea
+is  to implement a loader as a set of loadable modules. Custom OS kernels, not
+compatible  with  multiboot  specification,  can be supported by custom loader
+module.  The  multiboot  support can also be implemented as a separate module.
+The module is loaded by the Freeldr main module. By writing support module for
+custom  kernel type, the developers from outside can extend our loader to load
+their  kernels. There may be, our loader will suit not only unix or OS/2 or L4
+kernels,  but  windoze and ReactOS kernels too. We can't expect uncle Billy to
+make  support  for  loading windoze kernel from our loader, but it is possible
+that ReactOS guys can make their kernel loadable from it. ;-)
+
+     The  part of the loader loaded by the blackbox is called the general part
+of  the  loader.  The general part contains only support functions for loading
+modules,  locating functions in them, the DOS EXE format loader, and some more
+functions.  It  passes  control  to  the  custom part along with interfaces to
+module  loader,  microfsd's,  and  the  info  obtained  from the blackbox of a
+bootable  partition.  The  custom  loader  part implements support for loading
+specific kind of kernel.
+
+a)
+     For  loading  multiboot  kernels, the multiboot specific part of a loader
+can be implemented as a separate module. Through it, we can load L4 kernel, as
+well as most unix kernels.
+
+b)
+     For  loading ordinary OS/2 kernels, there must be a specific custom part.
+This  custom  part  takes  from  general  part  the  info,  obtained  from the
+blackbox.  It loads os2ldr file from disk and passes this info to os2ldr. Then
+the  boot  process  continues  as  usual.  In  future,  the custom part can be
+extended,  so  it  will  fully  replace os2ldr functionality as David Zimmerli
+wanted -- his idea was exactly to replace os2ldr functionality.
+
+c)
+     For  loading  unsupported kernels, the loader can only load corresponding
+OS  bootsector,  and  give  control  to  it.  It  may be implemented like GRUB
+"chainloader" command.
+
+
+
+6. Suggested boot sequence.
+
+1) Do we need a MiniFSD?
+     If  we  look  at  the OS/2 PPC and L4 boot sequence, we may conclude that
+OS/2  PPC  bootloader and GRUB do similar things. They load a kernel and a set
+of  files  into  memory  and start the kernel. Then the bootstrap task, in 1st
+case,  and  a  root task in 2nd case, will start other tasks; the FreeLdr also
+must  do  equivalent  tasks.  As  at  this  moment  the  filesystem is not yet
+initialized,  the  bootstrap  or  root  task  can  only access files that were
+already loaded by the bootloader.
+
+     To  use a filesystem, we must first load the disk driver (ibm1s506.add or
+ibm1flpy.add),  dasd  manager,  volume manager and filesystem driver (or their
+equivalents  in our microkernel  system). Let assume that we can use a minifsd
+as  a  filesystem  driver. With L4, we can't use 16-bit programs as easy as in
+present  OS/2. So, our minifsd must be 32-bit. And 62 Kb limit for its size is
+not applicable here, as we use 32-bit programs.
+
+     As written in ifs.inf file from IBM, a minifsd has two modes of operation
+--  at  phase  1  and at phase 2 of boot process. Before phase 1, when minifsd
+initializes,  it  can  not call any dynalink calls (in MFS_INIT initialization
+routine).  Ordinary  IFS  in  its FS_INIT routine, can call external dlls. The
+only  external functions a minifsd can call are MFSH_* helpers called from the
+kernel.  The  full-featured  IFS's  can  call  a much wider number of external
+calls.  They  are FSH_* IFS helpers. (but, as I understood, the IFS can't call
+other  external  functions,  besides  FSH_*  calls  in routines other than its
+FS_INIT routine). For the IFS to be possible to call external DLLs at IFS init
+time,  the  dynamic  loading  support must be working and operational, and the
+DLLs itself must be available. They can be only loaded by minifsd (because IFS
+is not initialized yet) or they may be passed by the bootloader.
+
+     The  reason  why  minifsd  is used by the OS/2 (intel) boot process is to
+have  a  limited  filesystem  access  after the kernel switched into protected
+mode.  Before  the  OS/2  disk  subsystem drivers are loaded, the disk read is
+performed  by  temporarily  switching  into real mode and calling int 13h disk
+read functions. After the disk subsystem is loaded, the disk read is performed
+through OS/2 disk driver.
+
+     In  L4 or in OS/2 PPC, before disk drivers are loaded, we can't switch to
+real mode to call int 13 routines. Consequently, the disk drivers must be read
+through  the  microfsd  by  the  bootloader,  and  then they must be passed to
+roottask through memory. So, the disk drivers can be started from their memory
+images by the roottask.
+
+     But  then  why  we must use a minifsd? We can load the full-featured boot
+IFS  immediately,  and  before  that,  we  can start ELF format dynamic loader
+support  servers  and load all the DLLs boot IFS needs. All these files can be
+passed by the bootloader along with disk subsystem drivers.
+
+     So,  it  has  not  much  sense  to  use minifsd in L4 boot sequence, only
+microfsd  is  needed. And if we look at OS/2 PPC, then we will see that it has
+not  a minifsd and basedev's loading phase. Instead, all required services are
+passed  to  the  bootstrap  task  by  the bootloader. In our case, FreeLdr and
+kickstart  play  the role of OS/2 PPC bootloader, and roottask is analogous to
+the bootstrap task. So, we must make similar design solutions.
+
+2)
+     In  case  of  loading  L4,  the  loader  loads kickstart L4 bootstrapper.
+Kickstart  is  given  a set of modules by the bootloader through the multiboot
+structure.  The kickstart then passes this info in bootinfo structure, pointed
+by  the  field  in KIP. When L4 is started, it starts sigma0 and roottask. The
+roottask  can  obtain  info from bootinfo structure, which can be reached from
+the  KIP.  The  KIP  address  can be obtained through the KernelInterface() L4
+system  call.  So,  the  roottask  can  obtain  info  about modules, passed by
+kickstart.  Then  the  roottask  can  find  the needed modules in the bootinfo
+structure.  The  purpose  of  each  module  can  be  defined  through  strings
+associated  with  modules,  each  module  can  be marked by special tag, which
+defines  its  purpose  (e.g.,  the module contains a library, a config, a root
+name  server,  an  executable  files  loader  server.  etc.).  The  tag can be
+contained in string along with command line for this module. This way, an info
+about  modules  is  passed  from  loader  through  kickstart  to roottask, and
+roottask  can  find needed servers and load them in proper order. By that, the
+roottask can implement a funcionality of OS/2 PPC bootstrap task. The roottask
+first  starts  the  personality  neutral  (PN) services, then brings up the OS
+personalities (OS/2, L4Linux, etc.).
+

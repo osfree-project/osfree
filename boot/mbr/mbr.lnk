@@ -1,0 +1,6 @@
+SYSTEM dos
+OPTION MAP=mbr.map
+OPTION NODEFAULTLIBS
+NAME mbr
+PATH f:\var\src\os2\boot\boot\mbr
+FILE mbr.obj

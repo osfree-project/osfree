@@ -1,0 +1,39 @@
+Русский:
+Russian:
+
+Бутсектор и MBR для FreeLdr -- загрузчика OS/3.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+     Поправьте  build.conf  -- рядом лежат версии build.conf для OS/2, Linux и
+Windows.  Для  работы  скрипта tools\mkbin.cmd нужен интерпретатор языка REXX.
+Для   Linux  и  Windows  это  может  быть  Regina  REXX  --  самый  популярный
+интерпретатор.   Берется   на   http://regina-rexx.sourceforge.net/.  И  самое
+главное,  нужен компилятор OpenWatcom! ;) Автор пробовал как версию 1.3, так и
+более  новую  версию 1.5. Для установки переменных окружения перед компиляцией
+используйте скрипт setvars{.cmd -- для OS/2, .bat -- для Windows, и .sh -- для
+Linux}.
+
+[----------------------------------------------------------------------------]
+
+Английский:
+English:
+
+A bootsector and MBR loader for FreeLdr -- OS/3 loader.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+     For  compilation,  fix  build.conf  to  suit  your  system.  (There are 3
+versions  of  build.conf  for  OS/2, Linux and Windows in the root directory).
+OpenWatcom  compiler  is used for development. I tried OpenWatcom versions 1.3
+as  well  as  1.5.  Also,  for mkbin.cmd script a REXX language interpreter is
+needed.      For      Linux      and     Windows     users     Regina     REXX
+(http://regina-rexx.sourceforge.net/)  may  be  used.  Before compilation, for
+setting  environment  variables,  use  setvars{.cmd  --  for OS/2, .bat -- for
+Windows, and .sh -- for Linux}.
+
+Валерий В. Седлецкий, aka valerius,
+Valery V. Sedletski, aka valerius,
+(c) osFree project,
+http://www.osfree.org/
+
+--=={-- osFree, Open Source OS/2 Clone --}==--
+osFree(OS/3): The reincarnation of OS/2.

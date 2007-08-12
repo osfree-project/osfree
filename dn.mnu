@@ -1,0 +1,21 @@
+>1 Отправить изменения в репозиторий
+   < Введите имя и пароль
+   @cls
+   @set lang=ru_Ru
+   @call clean.cmd
+   @cls
+   @SET SVN_EDITOR=tedit.exe
+   @cd ..
+   @svn commit osfree --username %3 --password %4
+>1 Вывести отличия от репозитория
+   < Введите имя и пароль
+   @cls
+   @set lang=ru_Ru
+   @cd ..
+   @svn diff osfree --username %3 --password %4
+>1 Получить изменения из репозитория
+   < Введите имя и пароль
+   @cls
+   @set lang=ru_Ru
+   @cd ..
+   @svn checkout https://osfree.svn.sourceforge.net/svnroot/osfree --username %3 --password %4
