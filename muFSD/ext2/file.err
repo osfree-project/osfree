@@ -1,1 +1,3 @@
+c:\watcom\h\os2/os2.h(19): Error! E1091: This os2.h is for 32-bit development only!
+c:\_work\svn\osfree\include\muFSD\add.h(21): Error! E1100: Definition of macro 'MAKEP' not identical to previous definition
 file.c(392): Warning! W107: Missing return value for function 'VFS_read'

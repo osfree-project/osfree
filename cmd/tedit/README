@@ -1,0 +1,119 @@
+                      Welcome to THE, The Hessling Editor.
+
+INTRODUCTION
+------------
+
+THE is a full-screen character mode text editor based on the VM/CMS editor
+XEDIT and many features of KEDIT written by Mansfield Software.
+
+THE has currently been ported to the following platforms:
+- most Unix systems; text mode and native X11 application
+- OpenEdition on OS/390
+- Linux/390
+- 32bit DOS 
+- OS/2
+- Win32 
+- QNX
+- Amiga
+- BeOS
+- Mac OSX
+
+THE OS/2 port is similar to EPM, runs within an OS/2 command window and is
+HPFS aware. THE also uses the OS/2 Rexx interpreter to execute macro files.
+An extensive interface exists between THE and Rexx giving THE the complete
+power of Rexx.
+
+Rexx support in the DOS DPMI and VCPI ports, QNX, Amiga and BeOS ports is 
+provided by the free Rexx interpreter, Regina, which is available from
+http://regina-rexx.sourceforge.net
+THE OS/2 version uses the Rexx interpreter that is supplied with OS/2.
+The Win9x/NT/2k/XP ports can use one of several Rexx interpreters. THE uses
+the Rexx/Trans DLL which enables THE to find a suitable Rexx interpreter
+at runtime.
+
+For Unix ports, Rexx support is available with Regina (see above) and with
+REXX/imc (http://www.comlab.ox.ac.uk/oucl/users/ian.collier/Rexx/tarfiles.html)
+Under the AIX platform, THE can also use REXX/6000, available from IBM. The can
+also use Object Rexx on Linux or AIX.
+
+
+THELIST: A Mailing list for announcements and discussion of THE.
+---------------------------------------------------------------
+
+A mailing list has been created for discussion of THE. You can subscribe
+to it by sending an email message to listserv@uiuc.edu with the body of 
+the email message containing:
+
+SUBSCRIBE THELIST Your Name
+
+eg.
+SUBSCRIBE THELIST Joe Bloggs
+
+To send messages to other subscribers, send an email message to
+thelist@uiuc.edu
+
+
+Where to get THE
+----------------
+
+THE is distributed under the terms of the GNU General Public License.
+For more details see the file COPYING that should have accompanied this
+file.
+
+THE is available from:
+
+http://hessling-editor.sourceforge.net
+
+Files available:
+
+the??djg.zip            - version ?.? extended DOS (DPMI) executable and documentation
+the??vcp.zip            - version ?.? extended DOS (VCPI) executable and documentation
+the??_os2.zip           - version ?.? OS/2 executable and documentation
+the??_w32.zip           - version ?.? Win95/NT executable and documentation
+thesrc??.zip            - source code for version ?.?
+THE-?.?.tar.gz          - source code for version ?.?
+thehtm??.zip            - HTML documentation for version ?.?
+
+Pre-compiled binaries for various Unix systems are also available from 
+the site above.
+
+The HP-UX Porting and Archive Centre contains binary releases of THE for HP-UX 10
+and 11. See: http://hpux.ee.ualberta.ca/hppd/hpux/Editors/
+
+All zip files use Info-Zip's Zip 2.01.
+Also note that the source files will be in Unix format (LF only to end line)
+so unzipping under OS/2, DOS or Win9x/NT/2K/XP  use the -a switch.
+
+
+Notes on Source Distribution:
+----------------------------
+
+THE uses curses as its screen handler. This makes it portable but not 
+necessarily as fast as native screen handling routines.
+
+To compile the DOS, OS/2 and Win32 ports you need PDCurses 2.5 (or later); a
+public domain library of curses screen handling routines, of which I am 
+the current maintainer. PDCurses 2.5 is available from:
+
+http://pdcurses.sourceforge.net
+
+You also require PDCurses 2.5 (or later) for the X11 port.
+
+To assist with configuring THE to compile under Unix, a "configure" script
+is included. This script should be able to set up most, if not all
+requirements for compilation. Run configure with the --help switch to
+determine what configuration options are available.
+
+If you find bugs or major inconsistencies, please let me know. If you
+manage to compile and run on a different platform to the above, please
+send me any changes to the code and the makefile, so I can include the
+patches in the official release.
+
+Enjoy, Mark.
+
+------------------------------------------------------------------------
+ Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+ Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+ Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+ Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

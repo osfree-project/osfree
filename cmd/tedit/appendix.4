@@ -1,0 +1,440 @@
+/*man-start*********************************************************************
+
+
+========================================================================
+APPENDIX 4 - SYNTAX HIGHLIGHTING IN THE
+========================================================================
+
+This appendix contains details on syntax highlighting in THE.  Syntax
+highlighting is the mechanism by which different tokens within a file;
+usually containing source code, are displayed in different colours.
+
+The model THE uses for its syntax highlighting is based on the model
+used by KEDIT for Windows from Mansfield Software.  This model is extremely
+configurable and flexible. While most of the KEDIT features are implemented,
+THE also adds a couple of other features that make the syntax highlighting
+even better.
+
+This appendix concentrates on the format of THE language definition
+files. For a description of the commands that manipulate other aspects
+of syntax highlighting in THE, see the descriptions of the following
+commands:
+<SET AUTOCOLOR>, <SET COLORING>, <SET ECOLOR>, <SET PARSER>.
+
+==================
+Performance Impact
+==================
+
+Syntax highlighting in an editor comes at a cost; reduced performance.
+
+Because of the extra processing required to determine which characters are
+displayed in which colours, displaying the screen is slower.  As THE 
+recalculates the display colours after every displayable key is pressed,
+then you may notice a reduction in responsiveness.
+
+The more features that are specified in a TLD, the slower the syntax
+highlighting will be. To dynamically turn on or off the application of
+some headers within a TLD file, see the <SET HEADER> command.
+
+For those languages that allow paired comments (ie they can span multiple
+lines) performance is impacted even more.  This is because THE has to
+determine if the lines being displayed are within one of these multi-line
+comment pairs which may start before the first displayed line.
+
+THE will incorrectly display syntax highlighting in certain circumstances.
+This is because THE does not fully parse the complete file to determine
+the correct colours; that would be too slow.  Instead, THE checks the
+currently displayed lines and determines the syntax highlighting based
+on these lines.
+
+Where THE will get syntax highlighting wrong:
+
+If all displayed lines are within a multi-line comment block and neither
+the starting comment token nor the ending comment token are displayed. THE
+will treat the displayed lines as code.
+
+When the starting or ending comment tokens for multi-line comments are 
+part of a language string. 
+
+Also bear in mind that excluding large portions of the file with ALL, will
+dramatically slow down checking of multi-line comments.
+
+================================
+File Extensions Vs Magic Numbers
+================================
+A THE extension to the KEDIT syntax highlighting model is support for 
+<magic numbers>. (See <SET AUTOCOLOR> for more details).  For the default 
+<parser>s, where there might be a conflict between setting syntax highlighting
+based on a file extension or a <magic number>, the file extension mapping takes
+precedence.
+
+=============================
+THE Language Definition Files
+=============================
+
+THE Language Definition Files usually have a file extension of .tld.
+THE comes with a small number of sample TLD files. Look at these files in
+conjunction with the following descriptions to fully understand how to
+write your own TLD files.
+
+TLD files consist of several sections identified by header lines. Header
+lines start with a colon in column one.  Items within the particular header
+are listed on separate lines after the header to which they apply.
+Blank lines are ignored, and so are comments (* as first non-blank). Each
+item that can be repeated occurs on a separate line. The above definition 
+of what a TLD file looks like is expressed in the TLD file; tld.tld.
+
+Many items in a TLD are specified as a regular expression (RE).  THE supports a
+number of RE syntaxes for targets. All REs specified in a TLD are parsed using
+the EMACS syntax.  For details of RE usage in THE see Appendix 7.
+
+The purpose of each header and the valid contents are explained below.
+
+===========
+:identifier
+===========
+This section specifies, using a regular expression how a keyword in the
+language is defined.  The only item line contains three regular expressions
+separated by space characters.
+Syntax:
+   first_char_re other_char_re [last_char_re]
+Meaning of options:
+   first_char_re
+      This regular expression specifies the valid characters that an
+      identifier can begin with.
+   other_char_re
+      This regular expression specifies the valid characters that the
+      remainder of characters in an identifier can consist of.
+   last_char_re
+      This regular expression is optional. If specified, it states the
+      valid characters that an identifier can end with.
+
+=====
+:case
+=====
+This section defines whether the case of letters that make up identifiers in
+the language are case-sensitive or not. Only one of the items below can be 
+included.
+Syntax:
+   RESPECT | IGNORE
+Meaning of options:
+   respect 
+      case is relevant. The keywords 'if', 'IF' and 'If' are different.
+   ignore
+      case is irrelevant. The keywords 'if' and 'IF' are treated as the
+      same identifier.
+
+=======
+:option
+=======
+This section specifies different options that can affect other sections.
+The options below can all be included in the one TLD.
+Syntax:
+   REXX
+   PREPROCESSOR char
+   FUNCTION char BLANK | NOBLANK [DEFAULT ALTernate x]
+Meaning of options:
+   rexx 
+      specifies special processing for Rexx. eg. Functions defined in
+      the :functions section, are also highlighted if preceeded by CALL.
+   preprocessor char 
+      languages like C that have preprocessor identifiers usually begin 
+      with a special character (specified by 'char') to differentiate 
+      these types of keywords from others.
+   function char blank | noblank [default alternate x]
+      this option is used to identify how keywords specified in the
+      :function section are identified. 'char' specifies the character that
+      is used to start a function, usually '('. The 'blank' or 'noblank' 
+      argument determines if blank characters can appear between the function
+      identifier and the function start character. eg a Rexx function
+      call must be written without blanks between the function name and
+      the function start character: 'word('. In C 'word  (' or 'word(' 
+      are both valid syntax for a function call.
+      The optional "default alternate x" specifies the color in which 
+      functions that are NOT specified in the :function section are to
+      be displayed. See the explanation of alternate colors in the :function
+      section.
+      Without "default alternate x", the color of unknown functions is
+      not changed.
+
+=======
+:number
+=======
+This section specifies the format of numbers in the language. Most languages
+use a small number of generic types of numbers.
+Syntax:
+   REXX | C | COBOL
+Meaning of options:
+ECOLOR Value:
+      Numbers are displayed in the colour specified with ECOLOUR 'C'.
+
+=======
+:string
+=======
+This section specifies how strings within the language are defined.
+Multiple values may be specified, as many languages use both single and
+double quotes.
+Syntax:
+   SINGLE [BACKSLASH] | DOUBLE [BACKSLASH]
+Meaning of options:
+   single
+      Specifies that the language uses single quotes to identify a string.
+   double
+      Specifies that the language uses double quotes to identify a string.
+   backslash
+      Some languages require a backslash character immediately preceding
+      either a single or double quote to allow the quote to be included
+      in the string.
+ECOLOR Character:
+      For complete strings, the ECOLOUR character used is 'B'. For incomplete
+      strings, the ECOLOUR character used is 'S'.
+
+========
+:comment
+========
+This section specifies the format of comments. Both paired and line
+comments can be specified, as can multiple occurrences of each.
+Syntax:
+   PAIRED open_string close_string [NEST | NONEST]
+   LINE comment_string ANY | FIRSTNONBLANK | COLUMN n
+Meaning of options:
+   paired
+      These types of comments can span multiple lines. They have an opening
+      string and a closing string.
+   open_string
+      This defines the string that opens a paired comment.
+   close_string
+      This defines the string that closes a paired comment.
+   nest
+      Some languages allow paired comments to be nested. (not implemented)
+   nonest
+      Defining this indicates that the language does not allow nesting
+      of paired comments. The effect of this option will result in the 
+      first close_string to end the paired comment no matter how many 
+      open_string occurrences there are. (not implemented)
+   line
+      These type of comments cannot span multiple lines.  Everything on the
+      line after the comment_string is considered part of the comment.
+   comment_string
+      The string that defines a line comment.
+   any
+      For line comments, this indicates that the comment_string can occur
+      anywhere on the line, and all characters following it are part of
+      the comment.
+   firstnonblank
+      For line comments, this indicates that the comment_string can only
+      occur as the first non-blank of the line.
+   column n
+      For line comments, this indicates that the comment_string must
+      start in the specified column.
+ECOLOR Character:
+      Comments are displayed in the colour specified with ECOLOUR 'A'.
+
+========
+:keyword
+========
+This section specifies all of the identifiers that are to be considered
+language keywords. You must specific the :identifier section in the TLD 
+file before the :keyword section.
+Syntax:
+   keyword [ALTernate x] [TYPE x]
+Meaning of options:
+   keyword
+      This specifies the string that is considered to be a language
+      keyword.
+   alternate x
+      All keywords are displayed in the same colour, unless you use
+      this option to specify a different colour.  In KEDIT there are 
+      9 alternate colours that can be used; ECOLOUR 1 through 9. In THE
+      any ECOLOUR character can be used as an alternate colour.
+      'alternate' can be abbreviated to 'alt'.
+   type x
+      (not implemented)
+ECOLOR Character:
+      Unless overridden by the 'alternate' option, the keyword is displayed 
+      in the colour specified with ECOLOUR 'D'.
+
+=========
+:function
+=========
+This section specifies all of the identifiers that are to be considered
+functions.  Normally this is used for those functions that are builtin
+into the language, but can be any identifier. You specify the function
+identifier without the function char specified in the :option section.
+You must specify the :option and the :identifier sections in the TLD 
+file before the :function section.
+Syntax:
+   function [ALTernate x]
+Meaning of options:
+   function
+      This specifies the string that is considered to be a language
+      function.
+   alternate x
+      All functions are displayed in the same colour, unless you use
+      this option to specify a different colour.  In KEDIT there are 
+      9 alternate colours that can be used; ECOLOUR 1 through 9. In THE
+      any ECOLOUR character can be used as an alternate colour.
+      'alternate' can be abbreviated to 'alt'.
+ECOLOR Character:
+      Unless overridden by the 'alternate' option, the function is displayed
+      in the colour specified with ECOLOUR 'V'.
+
+=======
+:header
+=======
+This section specifies the format of headers. Headers are lines within a file
+that begin with a particular string and usually identify different parts of
+the file. They are similar to labels.
+Syntax:
+   LINE header_string ANY | FIRSTNONBLANK | COLUMN n
+Meaning of options:
+   header_string
+      The string that defines a header.
+   any
+      This indicates that the header_string can occur anywhere on the line, 
+      and all characters following it are part of the header.
+   firstnonblank
+      This indicates that the header_string can only occur as the first 
+      non-blank of the line.
+   column n
+      This indicates that the header_string must start in the specified column.
+ECOLOR Character:
+      Headers are displayed in the colour specified with ECOLOUR 'G'.
+
+======
+:label
+======
+This section specifies the format of labels. Labels are lines within a file
+that end with a particular string. They are similar to headers.
+Syntax:
+   DELIMITER label_string ANY | FIRSTNONBLANK | COLUMN n
+   COLUMN n
+Meaning of options:
+   label_string
+      The string that defines a label.
+   any
+      This indicates that the label_string can occur anywhere on the line, 
+      and all characters up to it are part of the label.
+   firstnonblank
+      This indicates that the label_string can only occur as the first 
+      non-blank of the line.
+   column n
+      As part of a DELIMITER label, this indicates that the label_string 
+      must start in the specified column. If specified by itself, then the
+      label does not require any special delimiter; the non-keyword that 
+      starts in the specified column is regarded as a label.
+ECOLOR Character:
+      Labels are displayed in the colour specified with ECOLOUR 'E'.
+
+=======
+:markup
+=======
+This section specifies the delimiters for a markup tag, and optionally
+the delimiters for references within a markup language.
+Syntax:
+   TAG tag_start tag_end [REFERENCE ref_start ref_end]
+Meaning of options:
+   tag_start
+      The character that specifies the start of a markup tag.
+   tag_end
+      The character that specifies the end of a markup tag.
+   ref_start
+      The character that specifies the start of a markup reference.
+   ref_end
+      The character that specifies the end of a markup reference.
+ECOLOR Character:
+      Tags are displayed in the colour specified with ECOLOUR 'T'.
+      References are displayed in the colour spceified with ECOLOUR 'U'.
+
+======
+:match
+======
+(Not implemented yet)
+
+=======
+:column
+=======
+This section specifies the range of columns in your file which is to have
+syntax highlighting applied.  For example, columns 1-6 and beyond column
+72 in a COBOL source file should be excluded from being parsed.
+Any number of EXCLUDE clauses are allowed.
+Note. Not all syntax checking respects excluded columns at this stage.
+Syntax:
+   EXCLUDE first_column last_column [ALTernate x]
+Meaning of options:
+   first_column
+      The first column to be excluded
+   last_column
+      The last column to be excluded. '*' can be used to specify to the end of
+      the line.
+   alternate x
+      All excluded characters are displayed in the same colour, unless you use
+      this option to specify a different colour.  In KEDIT there are 
+      9 alternate colours that can be used; ECOLOUR 1 through 9. In THE
+      any ECOLOUR character can be used as an alternate colour.
+      'alternate' can be abbreviated to 'alt'.
+ECOLOR Character:
+      Unless overridden by the 'alternate' option, the excluded characters
+      are displayed in the colour specified with COLOUR FILEAREA.
+
+============
+:postcompare
+============
+This section specifies items that are checked for after all other syntax
+checking has been completed.  This can be useful if you want to allow 
+user-defined datatypes or other code to be displayed in different colours.
+Syntax:
+   CLASS re [ALTernate x]
+   TEXT string [ALTernate x]
+Meaning of options:
+   re
+      This regular expression specifies the text to be highlighted.
+   string
+      This indicates the literal string to be highlighted.
+   alternate x
+      All matched postcompare characters are displayed in the same colour, 
+      unless you use this option to specify a different colour.  In KEDIT 
+      there are 9 alternate colours that can be used; ECOLOUR 1 through 9. 
+      In THE any ECOLOUR character can be used as an alternate colour.
+      'alternate' can be abbreviated to 'alt'.
+ECOLOR Character:
+      Unless overridden by the 'alternate' option, the matched characters
+      are displayed in the colour specified with ECOLOUR 'D'.
+
+===============
+Builtin Parsers
+===============
+THE includes a number of builtin syntax highlighting <parser>s.
+The following table lists the default <parser>s and the files they apply to:
+
+ +--------+-----------+----------------+
+ | Parser | Filemasks | "Magic Number" |
+ +--------+-----------+----------------+
+ | REXX   | *.rex     | rexx           |
+ |        | *.rexx    | regina         |
+ |        | *.cmd     | rxx            |
+ |        | *.the     |                |
+ |        | .therc    |                |
+ +--------+-----------+----------------+
+ | C      | *.c       |                |
+ |        | *.h       |                |
+ |        | *.cc      |                |
+ |        | *.hpp     |                |
+ |        | *.cpp     |                |
+ +--------+-----------+----------------+
+ | SH     |           | sh             |
+ |        |           | ksh            |
+ |        |           | bash           |
+ |        |           | zsh            |
+ +--------+-----------+----------------+
+ | TLD    | *.tld     |                |
+ +--------+-----------+----------------+
+ | HTML   | *.html    |                |
+ |        | *.htm     |                |
+ +--------+-----------+----------------+
+
+A Rexx macro is provided; tld2c.rex, to convert a .tld file into the C code
+that can be embedded in default.c. This enables you to configure THE with the
+default <parser>s that are more applicable for you.
+
+**man-end**********************************************************************/

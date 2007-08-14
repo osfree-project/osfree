@@ -5,7 +5,7 @@
 
 #
 # There are three variants of the bootsector.
-# 1st variant (bootsect_1.bin) supports only 
+# 1st variant (bootsect_1.bin) supports only
 # contiguous muFSD's, e.g., in a partition
 # boot block. The 2nd variant (bootsect.bin) is
 # suitable for loading muFSD from a fragmented
@@ -13,7 +13,7 @@
 # or foreign (like ext2fs etc.) filesystem
 # without a special boot block. (but the size of
 # file is limited to 64 Kb.) The 3rd variant is
-# suitable for loading fragmented files of 
+# suitable for loading fragmented files of
 # arbitrary size.
 #
 

@@ -1,0 +1,18 @@
+                Notes on Amiga version of THE
+                -----------------------------
+
+THE is built with gcc and ncurses on the Amiga. As a result, THE requires 
+version 48 or greater of ixemul.library, and the ncurses binary package
+which contains a valid terminfo entry.
+
+The ncurses binary package is: ncurses-4.2-bin.tar.gz
+
+If you don't already have some portion of the Geek Gadgets installed,
+you need to create an ASSIGN in your user-startup file for GG:. eg
+
+Assign GG: work:gg
+Set TERM amiga-h
+
+The Amiga port of ncurses does not provide for many key combinations, so
+you will be limited to 10 function keys, and the cursor keys.  This limitation
+also exists with uae :-(

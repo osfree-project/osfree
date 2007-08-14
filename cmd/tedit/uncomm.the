@@ -1,0 +1,124 @@
+/*
+$Id: uncomm.the,v 1.2 2001/01/04 09:42:28 mark Exp $
+*/
+/***********************************************************************/
+/* Description: REXX macro to uncomment lines.                         */
+/* Syntax:      uncomm [target]                                        */
+/* Notes:       This macro will uncomment lines based on the file      */
+/*              type or file name as per below:                        */
+/*               .c       - /* */                                      */
+/*               .h       - /* */                                      */
+/*               .rex     - /* */                                      */
+/*               .rexx    - /* */                                      */
+/*               .pas     - (* *)                                      */
+/*               .asm     - ;                                          */
+/*               .htm     - <!-- -->                                   */
+/*               .html    - <!-- -->                                   */
+/*               makefile - #                                          */
+/*               Makefile - #                                          */
+/*              Full XEDIT/KEDIT/THE targets are supported.            */
+/***********************************************************************/
+Trace o
+arg1 = Arg(1)
+noargs = Arg()
+forward = 1                  /* assume direction is forward by defualt */
+If noargs = 0 Then arg1 = '1'               /* no args - assume 1 line */
+'EXTRACT /LINE/SIZE/STAY/FTYPE/FNAME/LINEND'      /* get various stuff */
+current_line = line.1                   /* save current line for later */
+reply = valid_target(arg1)                 /* validate supplied target */
+If reply = 'ERROR' Then
+   Do
+     'EMSG Error: 17 Invalid target' arg1
+     Exit
+   End
+If reply = 'NOTFOUND' Then
+   Do
+     'EMSG Error: 17 Target not found' arg1
+     Exit
+   End
+'preserve'
+start_line = Word(reply,1)                        /* get starting line */
+nolines = Word(reply,2)                         /* get number of lines */
+If nolines < 0 Then Do                /* if target before current line */
+   forward = 0                    /* indicate direction to be backward */
+   nolines = nolines * -1                     /* make nolines positive */
+End
+':'||start_line                                    /* go to first line */
+totlines = 0                             /* reset changed line counter */
+Select
+  When ftype.1 = 'c' Then Do
+                     first_comment = '/*'
+                     last_comment = '*/'
+                     End
+  When ftype.1 = 'h' Then Do
+                     first_comment = '/*'
+                     last_comment = '*/'
+                     End
+  When ftype.1 = 'rex' Then Do
+                     first_comment = '/*'
+                     last_comment = '*/'
+                     End
+  When ftype.1 = 'rexx' Then Do
+                     first_comment = '/*'
+                     last_comment = '*/'
+                     End
+  When ftype.1 = 'pas' Then Do
+                     first_comment = '(*'
+                     last_comment = '*)'
+                     End
+  When ftype.1 = 'htm' | ftype.1 = 'html' Then Do
+                     first_comment = '<!--'
+                     last_comment = '-->'
+                     End
+  When ftype.1 = 'asm' Then Do
+                     first_comment = ';'
+                     last_comment = ''
+                     End
+  When ftype.1 = 'asm' Then Do
+                     first_comment = 'rem '
+                     last_comment = ''
+                     End
+  When fname.1 = 'makefile' Then Do
+                     first_comment = '#'
+                     last_comment = ''
+                     End
+  When fname.1 = 'Makefile' Then Do
+                     first_comment = '#'
+                     last_comment = ''
+                     End
+  Otherwise Do
+                     first_comment = '/*'
+                     last_comment = '*/'
+                     End
+End
+If fname.1 = 'makefile' |  fname.1 = 'Makefile' Then 'SET LINEND OFF'
+Do nolines
+   start = 0; end = 0
+   'EXTRACT /CURLINE/'                    /* get current line contents, etc.*/
+   If focustof(),                           /* ignore line if on TOF or EOF */
+   |  focuseof() Then nop
+   Else
+      Do
+        linelength = Length(curline.3)
+        len1 = Length(first_comment)
+        len2 = Length(last_comment)
+        If Substr(curline.3,1,len1) = first_comment Then start = 1
+        newlength = linelength - len2 + 1
+        If Substr(curline.3,newlength,len2) = last_comment Then end = 1
+        If start = 1 & end = 1 Then 
+           Do
+             newlength = linelength - (len1 + len2)
+             newline = Substr(curline.3,len1+1,newlength)
+             'REPLACE' newline
+             totlines = totlines + 1
+           End
+      End
+   If forward = 1 Then 'N'
+   Else 'U'
+   If rc \= 0 Then Leave
+End
+If fname.1 = 'makefile' |  fname.1 = 'Makefile' Then 'SET LINEND' linend.1 linend.2
+'EMSG' totlines 'lines uncommented'      /* say how many lines changed */
+If stay.1 = 'ON' Then ':'||current_line
+'restore'
+Return                                               /* go back to THE */

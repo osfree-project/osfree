@@ -1,0 +1,1 @@
+cmd_queryfsname.c(40): Warning! W131: No prototype found for function 'printf'

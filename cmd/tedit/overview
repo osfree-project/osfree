@@ -1,0 +1,198 @@
+/*man-start*********************************************************************
+                      THE - The Hessling Editor
+                            Version 3.0
+
+========================================================================
+INTRODUCTION
+========================================================================
+
+THE is a text editor that uses both command line commands and key bindings
+to operate. It is intended to be similar to the VM/CMS System Product 
+Editor, XEDIT and to KEDIT from Mansfield Software.
+
+THE was originally written to be used by people already familiar with the 
+above editors. For this reason, this document provides limited information 
+on using THE, and concentrates more on reference material, such as command
+syntax and configuration.
+
+========================================================================
+THE BASICS
+========================================================================
+
+The default screen displayed when THE starts consists of several areas:
+
+- a window which displays the contents of the file being editted. This is
+  the <filearea>,
+- a <command line> from which commands may be issued,
+- a <prefix area> which shows line numbers and from which prefix commands
+  can be issued
+- an <idline> which displays the file name, row/col etc. for the current 
+  file and
+- a <status line> which indicates global status info like number of files
+  being editted, time etc.
+
+When THE starts, the cursor is positioned on the <command line>. To move 
+between the <command line> and the <filearea>, the <CURSOR> HOME command is
+used. By default this command is bound to the HOME key (under DOS and OS/2),
+the DO key (on vt220s) and HOME (on xterms).
+
+To execute commands from the <command line> simply type the command and
+press the ENTER (or RETURN) key.
+
+To determine what keys are bound to what commands, execute the <SHOWKEY>
+command from the <command line>. As you press each key, THE will respond
+with the name of the key and any commands bound to that key.  To exit from
+the <SHOWKEY> command, press the spacebar.
+
+Key bindings may be changed for the current session by using the <DEFINE>
+command.  To keep key bindings between sessions, the <DEFINE> commands can
+be placed in a <profile> file, which is executed each time THE starts. For
+more information on this, see the next section; PROFILE FILE.
+
+It is possible to make THE look and behave more like either XEDIT or KEDIT.
+See the <SET COMPAT> command for further information.
+
+As mentioned before, this document provides little tutorial information. For
+those users who have a <REXX> enabled version of THE, a self-running
+demonstration <macro> is supplied which will provide a better explanation of
+the capabilities of THE, than any documentation could.  To run this demonstration,
+start THE as follows:
+
+     +------------------------------
+     the -p demo.the demo.txt
+     +------------------------------
+
+========================================================================
+COMMAND-LINE SWITCHES
+========================================================================
+
+THE recognises many command-line switches when starting THE.  All switches are
+specified with a single '-' followed by a single character. The case of this
+character is relevant. Some switches take extra parameters; those that take
+optional extra parameters are indicated by the extra parameter being stated
+below in '[]'. The purpose of each of the switches is as follows:
+
+- -n Run THE without any profile. Normally THE tries to find a profile
+  file and execute this on startup. This switch suppresses that search
+  and execute and runs THE in its default mode. This switch is useful for
+  determining if a bug in THE occurs only with certain user-specific
+  customisations.
+- -m On ports of THE that support colour, this switch forces THE into
+  monochrome mode. More a testing feature than a user feature.
+- -r This switch enabls THE to be run in readonly mode.  In this mode
+  commands that alter the contents of a file are invalid.
+- -s On Unix platforms, this switch enables the writing of a core file if
+  THE crashes.  Normally, THE traps any internal errors and exits gracefully.
+  This switch is a testing feature rather than a user feature.
+- -b When you want to use THE as a non-interactive tool for manipulating
+  the contents of one or mode files, this switch will disable any display
+  of file contents and disable keybord interaction. Normally used in
+  conjunction with a specific profile; see -p option.
+- -q Run quietly in batch mode. This will suppress the introductory
+  informative message displayed when errors are encountered running in batch.
+- -k[fmt]  Allows 'soft label keys'. This allows the display of one (or two)
+  lines at the bottom of the screen with 'buttons' intended to be used to
+  represent function keys. These 'soft label keys' can be manipulated with 
+  the <SET SLK> command.  The 'fmt' optional extra argument is a single digit
+  representing the format of the display of the 'buttons'.
+  o 1 - displays 8 'buttons' in a 4-4 layout
+  o 2 - displays 8 'buttons' in a 3-2-3 layout
+  o 3 - displays 12 'buttons' in a 4-4-4 layout
+  o 4 - displays 12 'buttons' in a 4-4-4 layout with an index line
+  o 5 - displays 10 'buttons' in a 5-5 layout
+  Not all platforms support all 5 format options.
+  On those ports of THE that are mouse-aware, the mouse can be pressed
+  on a 'button', and the command assigned the the coresponding function
+  key is executed.
+- -l line This switch specifies the line number to make current when THE 
+  starts.
+- -c col This switch specifies the column number to make current when THE 
+  starts.
+- -p profile Specifies the THE profile to run instead of the default
+  profile. See next section for further details.
+- -a profile_arg Specifies the arguments that are passed to the profile
+  specified with the -p switch.
+- -w width Specifies the maximum line width for a line in the current
+  edit session. Can be overridded with the <SET WIDTH> command.
+- -u display_width THE can run as a binary editor. Specifying this switch
+  tells THE to read in the file and display it in 'lines' that are
+  'display_width' long.  All end-of-line characters in the file are
+  ignored and are treated as other characters in the file.
+- -X X11_switches With the X11 port of THE, standard X11 switches can be
+  specified with this switch to dynamically configure the way THE displays
+  or behaves.  You can also specify XCurses-specific switches here as well.
+  For more information on the XCurses switches available, consult the
+  PDCurses documentation.
+- -1[dir] Tells THE to run in 'Single Instance Mode'. The first time THE is run with
+  the -1 switch, its starts as normal. Subsequent executions of THE with the same -1
+  command-line switch will not start a new instance of THE, rather it will edit
+  the file(s) specified on the command-line in the currently running instance
+  of THE.  You can optionally supply a directory with the -1 switch to specify where
+  the THE FIFO (.thefifo) is created. If not supplied, the THE FIFO is created
+  in the users $HOME directory.
+  This feature is currently only available with the X11 port of the
+  using XCurses 2.5 and greater.  If the first instance of THE with the -1
+  switch crashes for any reason, subsequent attempts to run THE with the same -1
+  switch will hang.  To fix this remove the FIFO and then run THE with the -1 
+  switch again.
+
+After all the above switches are stated on the command line, THE treats
+the remainder of the command line as files or directories to edit.
+
+========================================================================
+PROFILE FILE
+========================================================================
+
+Various session defaults may be changed on startup for an individual by
+using a <profile> file. This file contains various commands that set the
+current environment, including key bindings. This <profile> file can also be
+used to process commands in batch mode. 
+
+THE will always execute a default profile. Appendix 1 defines the name of
+the default profile on different platforms.
+
+An example of a profile might be to change all occurrences of 'alligator' 
+to 'crocodile' in the file 'file.ext' in batch mode, a <profile> file; 
+'prf.prf' with the following commands would be used:
+
+     +------------------------------
+     'c/alligator/crocodile/ * *'
+     'file'
+     +------------------------------
+
+and the command
+
+     +------------------------------
+     the -b -p prf.prf file.ext
+     +------------------------------
+
+would be issued.
+
+This changes the first string enclosed in delimiters (generally any
+non-alphabetic character not in the string itself) to
+the second string for every line (*) starting at the current line
+(0 initially) changing each occurrence on a line (*).
+
+Maybe you only want to change a string after the first line that contains
+the string 'donkey', but only change the second occurrence of that string.
+The profile commands would then be:
+
+     +------------------------------
+     '/donkey/'
+     'c/alligator/crocodile/ * 1 2'
+     'file'
+     +------------------------------
+
+The change command uses a <target> specification as its first parameter
+after the string details. A <target> can be a number of lines, an absolute
+line number, BLANK, ALL or a string.
+
+Number of line targets consist of either a positive integer, for
+referencing lines toward the end of the file, negative for referencing
+toward the start of the file or '*', which is all the remaining lines in
+the file or '-*' which is all lines toward the start of the file.
+
+An absolute line number in the form of ':n' is the line number in a file,
+starting with line number 1.
+
+**man-end**********************************************************************/

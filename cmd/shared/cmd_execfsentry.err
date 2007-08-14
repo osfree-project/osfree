@@ -1,0 +1,6 @@
+cmd_execfsentry.c(111): Warning! W112: Pointer truncated
+cmd_execfsentry.c(111): Note! I2003: source conversion type is 'char __far *'
+cmd_execfsentry.c(111): Note! I2004: target conversion type is 'char *'
+cmd_execfsentry.c(119): Warning! W112: Pointer truncated
+cmd_execfsentry.c(119): Note! I2003: source conversion type is 'char __far *'
+cmd_execfsentry.c(119): Note! I2004: target conversion type is 'char *'

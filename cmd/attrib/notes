@@ -1,0 +1,23 @@
+There's new syntax for attrib command (@todo: change oso*.txt!):
+attrib <params1> <files1> [params2] [files2]
+where files are files on which we will do attribute change, params1 works for
+files1, and params2 works for files2 and so on,
+thus /s which in IBM's attrib could be at the end, here can't!
+
+valid params are attrib operations and:
+ /s - recurse into subdir
+ /d - disables setting attributes for directories (only files will be processed) 
+
+attrib operations:
++ - setting
+- - resetting
+~ - inverting
+= - sets specified attrib resetting the rest
+
+if you specify more then one attrib operation, the higher priority has the last
+one eg.: -RH +S =A results in =A (wchich can be read as +A-RHS also)
+
+oh btw :) -- turns parameters scanning, so (unlike in IBM version) you can
+change attribs for eg "+s" file
+
+Have a fun :)

@@ -1,7 +1,7 @@
 @echo off
 
-set WATCOM=f:\dev\watcom
-set ROOT=l:\var\src\os2\boot
+set WATCOM=c:\watcom
+set ROOT=c:\_work\svn\osfree
 
 set TOOLS=%ROOT%\tools\bin
 set PATH=%WATCOM%\binp;%TOOLS%;%PATH%

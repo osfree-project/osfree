@@ -1,2 +1,3 @@
 inode.c(204): Warning! W107: Missing return value for function 'iget'
+inode.c(398): Warning! W124: Comparison result always 0
 inode.c(451): Warning! W107: Missing return value for function 'ext2_bread'

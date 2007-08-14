@@ -2,5 +2,5 @@ SYSTEM dos
 OPTION MAP=bootsect_2.map
 OPTION NODEFAULTLIBS
 NAME bootsect_2
-PATH f:\var\src\os2\boot\boot\bootsect
+PATH c:\_work\svn\osfree\boot\bootsect
 FILE bootsect_2.obj

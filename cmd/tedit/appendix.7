@@ -1,0 +1,250 @@
+/*man-start*********************************************************************
+
+
+========================================================================
+APPENDIX 7 - REGULAR EXPRESSIONS IN THE
+========================================================================
+
+This appendix contains details on regular expression usage in THE.  There are
+two places where THE uses regular expressions; in targets in commands like 
+<LOCATE> and <ALL>, and in the specification of patterns in THE Language
+Definition files used for syntax highlighting.
+
+THE uses the GNU Regular Expression Library to implement regular expressions. 
+This library has several different regular expression syntaxes that can be used
+when specifying targets.  
+
+Note that all pattern specifications used for syntax highlighting always uses 
+the EMACS regular expression syntax.
+
+The following table lists the features of each of the regular expression
+syntaxes that can be set via the <SET REGEXP> command.  Each feature in the
+table is explained later.
+
+This appendix is not intended to explain everything about regular expressions.
+If you want to find out more about GNU Regular Expressions, then view the on-line
+documentation at <http://www.hessling-editor.sf.net/doc/regex/regex/>.
+
+ +------------------------+----------------------------+
+ | Syntax                 | Features                   |
+ +------------------------+----------------------------+
+ | EMACS                  | None set                   |
+ +------------------------+----------------------------+
+ | AWK                    | BACKSLASH_ESCAPE_IN_LISTS  |
+ |                        | DOT_NOT_NULL               |
+ |                        | NO_BACKSLASH_PARENS        |
+ |                        | NO_BACKSLASH_REFS          |
+ |                        | NO_BACKSLASH_VBAR          |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | UNMATCHED_RIGHT_PAREND_ORD |
+ +------------------------+----------------------------+
+ | POSIX_AWK              | CHAR_CLASSES               |
+ |                        | DOT_NEWLINE                |
+ |                        | DOT_NOT_NULL               |
+ |                        | INTERVALS                  |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | CONTEXT_INDEP_ANCHORS      |
+ |                        | CONTEXT_INDEP_OPS          |
+ |                        | NO_BACKSLASH_BRACES        |
+ |                        | NO_BACKSLASH_PARENS        |
+ |                        | NO_BACKSLASH_VBAR          |
+ |                        | UNMATCHED_RIGHT_PAREN_ORD  |
+ |                        | BACKSLASH_ESCAPE_IN_LISTS  |
+ +------------------------+----------------------------+
+ | GREP                   | BACKSLASH_PLUS_QM          |
+ |                        | CHAR_CLASSES               |
+ |                        | HAT_LISTS_NOT_NEWLINE      |
+ |                        | INTERVALS                  |
+ |                        | NEWLINE_ALT                |
+ +------------------------+----------------------------+
+ | EGREP                  | CHAR_CLASSES               |
+ |                        | HAT_LISTS_NOT_NEWLINE      |
+ |                        | NEWLINE_ALT                |
+ |                        | CONTEXT_INDEP_ANCHORS      |
+ |                        | CONTEXT_INDEP_OPS          |
+ |                        | NO_BACKSLASH_PARENS        |
+ |                        | NO_BACKSLASH_VBAR          |
+ +------------------------+----------------------------+
+ | POSIX_EGREP            | CHAR_CLASSES               |
+ |                        | HAT_LISTS_NOT_NEWLINE      |
+ |                        | NEWLINE_ALT                |
+ |                        | CONTEXT_INDEP_ANCHORS      |
+ |                        | CONTEXT_INDEP_OPS          |
+ |                        | NO_BACKSLASH_PARENS        |
+ |                        | NO_BACKSLASH_VBAR          |
+ |                        | NO_BACKSLASH_BRACES        |
+ |                        | INTERVALS                  |
+ +------------------------+----------------------------+
+ | SED                    | CHAR_CLASSES               |
+ |                        | DOT_NEWLINE                |
+ |                        | DOT_NOT_NULL               |
+ |                        | INTERVALS                  |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | BACKSLASH_PLUS_QM          |
+ +------------------------+----------------------------+
+ | POSIX_BASIC            | CHAR_CLASSES               |
+ |                        | DOT_NEWLINE                |
+ |                        | DOT_NOT_NULL               |
+ |                        | INTERVALS                  |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | BACKSLASH_PLUS_QM          |
+ +------------------------+----------------------------+
+ | POSIX_MINIMAL_BASIC    | CHAR_CLASSES               |
+ |                        | DOT_NEWLINE                |
+ |                        | DOT_NOT_NULL               |
+ |                        | INTERVALS                  |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | LIMITED_OPS                |
+ +------------------------+----------------------------+
+ | POSIX_EXTENDED         | CHAR_CLASSES               |
+ |                        | DOT_NEWLINE                |
+ |                        | DOT_NOT_NULL               |
+ |                        | INTERVALS                  |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | CONTEXT_INDEP_ANCHORS      |
+ |                        | CONTEXT_INDEP_OPS          |
+ |                        | NO_BACKSLASH_BRACES        |
+ |                        | NO_BACKSLASH_PARENS        |
+ |                        | NO_BACKSLASH_VBAR          |
+ |                        | UNMATCHED_RIGHT_PAREN_ORD  |
+ +------------------------+----------------------------+
+ | POSIX_MINIMAL_EXTENDED | CHAR_CLASSES               |
+ |                        | DOT_NEWLINE                |
+ |                        | DOT_NOT_NULL               |
+ |                        | INTERVALS                  |
+ |                        | NO_EMPTY_RANGES            |
+ |                        | CONTEXT_INDEP_ANCHORS      |
+ |                        | CONTEXT_INVALID_OPS        |
+ |                        | NO_BACKSLASH_BRACES        |
+ |                        | NO_BACKSLASH_PARENS        |
+ |                        | NO_BACKSLASH_REFS          |
+ |                        | NO_BACKSLASH_VBAR          |
+ |                        | UNMATCHED_RIGHT_PAREN_ORD  |
+ +------------------------+----------------------------+
+
+============
+BACKSLASH_ESCAPE_IN_LISTS
+============
+If this feature is not set, then \ inside a bracket expression is
+literal.
+If set, then such a \ quotes the following character.
+
+============
+BACKSLASH_PLUS_QM
+============
+If this feature is not set, then + and ? are operators, and \+ and \? are
+literals. 
+If set, then \+ and \? are operators and + and ? are literals.
+
+============
+CHAR_CLASSES
+============
+If this feature is set, then character classes are supported.  
+They are:
+  [:alpha:], [:upper:], [:lower:],  [:digit:], [:alnum:], [:xdigit:],
+  [:space:], [:print:], [:punct:], [:graph:], and [:cntrl:].
+If not set, then character classes are not supported.
+
+============
+CONTEXT_INDEP_ANCHORS
+============
+If this feature is set, then ^ and $ are always anchors (outside bracket
+expressions, of course). 
+If this feature is not set, then it depends:
+     ^  is an anchor if it is at the beginning of a regular
+        expression or after an open-group or an alternation operator;
+     $  is an anchor if it is at the end of a regular expression, or
+        before a close-group or an alternation operator.  
+
+This feature could be (re)combined with CONTEXT_INDEP_OPS, because
+POSIX draft 11.2 says that * etc. in leading positions is undefined.
+
+============
+CONTEXT_INDEP_OPS
+============
+If this feature is set, then special characters are always special regardless 
+of where they are in the pattern.
+If this feature is not set, then special characters are special only in some 
+contexts; otherwise they are ordinary.  Specifically, * + ? and intervals 
+are only special when not after the beginning, open-group, or alternation operator.
+
+============
+CONTEXT_INVALID_OPS
+============
+If this feature is set, then *, +, ?, and { cannot be first in an RE or immediately
+after an alternation or begin-group operator.
+
+============
+DOT_NEWLINE
+============
+If this feature is set, then . matches newline. If not set, then it does not.
+
+============
+DOT_NOT_NULL
+============
+If this feature is set, then . does not match NUL. If not set, then it does.
+
+============
+HAT_LISTS_NOT_NEWLINE
+============
+If this feature is set, nonmatching lists [^...] do not match newline. 
+If not set, they do.
+
+============
+INTERVALS
+============
+If this feature is set, either \{...\} or {...} defines an interval, depending 
+on NO_BACKSLASH_BRACES. 
+If not set, \{, \}, {, and } are literals.
+
+============
+LIMITED_OPS
+============
+If this feature is set, +, ? and | are not recognized as operators.
+If not set, they are.
+
+============
+NEWLINE_ALT
+============
+If this feature is set, newline is an alternation operator.
+If not set, newline is literal.
+
+============
+NO_BACKSLASH_BRACES
+============
+If this feature is set, then `{...}' defines an interval, and \{ and \} are literals.
+If not set, then `\{...\}' defines an interval. 
+
+============
+NO_BACKSLASH_PARENS
+============
+If this feature is set, (...) defines a group, and \( and \) are literals.
+If not set, \(...\) defines a group, and ( and ) are literals.
+
+============
+NO_BACKSLASH_REFS
+============
+If this feature is set, then \<digit> matches <digit>. If not set, then \<digit> 
+is a back-reference.
+
+============
+NO_BACKSLASH_VBAR
+============
+If this feature is set, then | is an alternation operator, and \| is literal. 
+If not set, then \| is an alternation operator, and | is literal.
+
+============
+NO_EMPTY_RANGES
+============
+If this feature is set, then an ending range point collating higher than the starting 
+range point, as in [z-a], is invalid.
+If not set, then when ending range point collates higher than the starting range 
+point, the range is ignored.
+
+============
+UNMATCHED_RIGHT_PAREN_ORD
+============
+If this feature is set, then an unmatched ) is ordinary.
+If not set, then an unmatched ) is invalid.
+
+**man-end**********************************************************************/

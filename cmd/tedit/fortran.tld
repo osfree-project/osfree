@@ -1,0 +1,274 @@
+*
+* This file contains the THE Language Definition for FORTRAN
+* It is based heavily on Kedit's KLD file format.
+*
+* Name = FORTRAN
+*
+:case
+  ignore
+:option  
+  function ( blank
+:number
+  c
+:identifier
+  [a-zA-Z_$] [a-zA-Z0-9_$]
+:string
+  single backslash
+  double backslash
+:comment
+  line C column 1
+  line * column 1
+  line ! any
+:label
+* column 1
+:match  
+  ( )
+:keyword
+  ALLOCATABLE
+  ALLOCATE
+  ASSIGN
+  AUTOMATIC
+  BACKSPACE
+  BLOCK
+  BYTE
+  CALL
+  CASE
+  CHARACTER
+  CLOSE
+  COMMON
+  COMPLEX
+  CONTAINS
+  CONTINUE
+  CYCLE
+  DATA
+  DEALLOCATE
+  DIMENSION
+  DO
+  DOUBLE 
+  ELSE
+  ELSEWHERE
+  END
+  ENDFILE
+  ENTRY
+  EQUIVALENCE
+  EXIT
+  EXTERNAL
+  FORALL
+  FORMAT
+  FUNCTION
+  GOTO
+  IF
+  IMPLICIT
+  INQUIRE
+  INTEGER
+  INTENT
+  INTERFACE
+  INTRINSIC
+  LOGICAL
+  MODULE
+  NAMELIST
+  NULLIFY
+  OPEN
+  OPTIONAL
+  PARAMETER
+  PAUSE
+  POINTER
+  PRECISION
+  PRINT
+  PRIVATE
+  PROCEDURE
+  PROGRAM
+  PUBLIC
+  READ
+  REAL
+  RETURN
+  REWIND
+  SAVE
+  SELECT
+  SEQUENCE
+  STATIC
+  STOP
+  SUBROUTINE
+  TARGET
+  TYPE
+  USE
+  VIRTUAL
+  VOLATILE
+  WAIT
+  WHERE
+  WHILE
+  WRITE
+* Other keywords
+  ENDDO
+  ENDFORALL
+  ENDIF
+  ENDINTERFACE
+  ENDSELECT
+  ENDTYPE
+  ENDWHERE
+  GO
+  SELECTCASE
+  THEN
+  TO
+* Logical operators
+  AND
+  EQV
+  OR
+  NEQV
+  NOT
+  XOR
+* Relational operators
+  EQ
+  GT
+  GE
+  LE
+  LT
+  NE
+:function
+  ABORT
+  ABS
+  ACHAR
+  ACOS
+  ACOSD
+  ADJUSTL
+  ADJUSTR
+  AIMAG
+  AINT
+  ALL
+  ALLOCATED
+  ANINT
+  ANY
+  ASIN
+  ASIND
+  ASSOCIATED
+  ATAN
+  ATAND
+  ATAN2
+  ATAN2D
+  BIT_SIZE
+  BTEST
+  CEILING
+  CHAR
+  CMPLX
+  CONJG
+  COS
+  COSD
+  COSH
+  COUNT
+  CSHIFT
+  CVMGx
+  DATE_AND_TIME
+  DBLE
+  DCMPLX
+  DIGITS
+  DIM
+  DOT_PRODUCT
+  DPROD
+  EOSHIFT
+  EPSILON
+  ERF
+  ERFC
+  EXP
+  EXPONENT
+  FLOOR
+  FRACTION
+  GAMMA
+  GETENV
+  HFIX
+  HUGE
+  IACHAR
+  IAND
+  IBCLR
+  IBITS
+  IBSET
+  ICHAR
+  IEOR
+  ILEN
+  IMAG
+  INDEX
+  INT
+  IOR
+  ISHFT
+  ISHFTC
+  KIND
+  LBOUND
+  LEADZ
+  LEN
+  LEN_TRIM
+  LGAMMA
+  LGE
+  LGT
+  LLE
+  LLT
+  LOC
+  LOG
+  LOGICAL
+  LOG10
+  LSHIFT
+  MATMUL
+  MAX
+  MAXEXPONENT
+  MAXLOC
+  MAXVAL
+  MERGE
+  MIN
+  MINEXPONENT
+  MINLOC
+  MINVAL
+  MOD
+  MODULO
+  MVBITS
+  NEAREST
+  NINT
+  NOT
+  NUM_PARTHDS
+  NUM_USRTHDS
+  NUMBER_OF_PROCESSORS
+  PACK
+  PRECISION
+  PRESENT
+  PROCESSORS_SHAPE
+  PRODUCT
+  QCMPLX
+  QEXT
+  RADIX
+  RAND
+  RANDOM_NUMBER
+  RANDOM_SEED
+  RANGE
+  REAL
+  REPEAT
+  RESHAPE
+  RRSPACING
+  RSHIFT
+  SCALE
+  SCAN
+  SELECTED_INT_KIND
+  SELECTED_REAL_KIND
+  SET_EXPONENT
+  SHAPE
+  SIGN
+  SIGNAL
+  SIN
+  SIND
+  SINH
+  SIZE
+  SPACING
+  SPREAD
+  SQRT
+  SRAND
+  SUM
+  SYSTEM
+  SYSTEM_CLOCK
+  TAN
+  TAND
+  TANH
+  TINY
+  TRANSFER
+  TRANSPOSE
+  TRIM
+  UBOUND
+  UNPACK
+  VERIFY
+:column
+  exclude 2 7

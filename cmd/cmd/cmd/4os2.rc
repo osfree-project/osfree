@@ -1,0 +1,4 @@
+#define ID_APPNAME 1
+
+POINTER ID_APPNAME "..\\shared\\4os2.ico"
+

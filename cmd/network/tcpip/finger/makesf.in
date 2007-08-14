@@ -1,0 +1,13 @@
+:sf
+if not exist install.cmd goto b
+@echo copy sf.exe %1\safe_finger.exe >> install.cmd
+goto c
+:b
+@echo copy sf.exe %1\safe_finger.exe > install.cmd
+:c
+@echo #define FINGER_PATH "PATH=%1" > sf\sf.h.in
+sed -f sf/sf.sed sf/sf.h.in > sf/sf.h
+@echo on
+gcc -O2 -I./sf sf/sf.c -s
+@echo off
+:end

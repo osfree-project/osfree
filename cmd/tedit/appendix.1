@@ -1,0 +1,79 @@
+/*man-start*********************************************************************
+
+
+========================================================================
+APPENDIX 1 - ENVIRONMENT VARIABLES
+========================================================================
+
+THE uses the following environment variables:
+
+ THE_HOME_DIR - the directory in which THE looks for its help file(s) and macro(s)
+
+ THE_HELP_FILE - the fully qualified file name containing help information.
+
+ THE_PROFILE_FILE - the fully qualified file name for the default <profile> file.
+
+ THE_MACRO_PATH - a list of all directories in which THE is to look for <macro> files.
+
+
+-----------------------------------
+Environment Variable Use under UNIX
+-----------------------------------
+
+If no environment variable; THE_HOME_DIR, is set prior to starting THE,
+THE uses /usr/local/THE/ as the default value for ${THE_HOME_DIR} if running
+under Unix.  This can be changed when running the configure script. See
+the file INSTALL for further details.  
+
+The default value of THE_HELP_FILE is THE_Help.txt. With no environment 
+variables set, the help file to be looked for will be /usr/local/THE/THE_Help.txt.
+If THE_HOME_DIR environment variable was set to /usr/opt/etc or changed in
+the.c, the help file will be /usr/opt/etc/THE_Help.txt.
+
+The name of the default profile file is $HOME/.therc.
+
+The default value of THE_MACRO_PATH is ${THE_HOME_DIR}:. THE will look for 
+a macro file first in ${THE_HOME_DIR} and then in the current directory. 
+So with no environment variables set, THE looks for macros in 
+$(THE_HOME_DIR} first and if no file exists in that directory, THE will 
+look in the current directory. If the file does not exist in either of 
+these places, an error message will be displayed.
+The format of THE_MACRO_PATH is dir1:dir2:dir3 Each directory is seperated 
+by colons. By default, up to 20 directories may be specified. This can be 
+changed in the.h when building or by the <SET MACROPATH> command.
+
+
+-----------------------------------------------------
+Environment Variable Use under OS/2, DOS and Win95/NT
+-----------------------------------------------------
+
+                          *********
+
+Under some circumstances the following default behaviour does not occur.
+The reason is that THE.EXE sometimes cannot determine where it was run
+from.  This is a due to the different ways that different operating
+systems behave and how the C compiler used to build THE behaves.
+
+It is probably better to explicitly set the environment variables than
+hope that your particular environment will work as documented below.
+
+                          *********
+
+By default THE_HOME_DIR is set to the directory from which THE was 
+invoked. Assuming THE.EXE resides in d:\tools, THE_HOME_DIR will equate 
+to d:\tools\.
+
+The default value of THE_HELP_FILE is THE_Help.txt.
+
+The name of the default profile file is ${THE_HOME_DIR}profile.the.
+
+The default value of THE_MACRO_PATH is ${THE_HOME_DIR};. THE will look for
+a macro file first in THE_HOME_DIR and then in the current directory. So 
+with no environment variables set, THE first looks for macros in the 
+directory from which THE was invoked and then in the current directory. 
+If the file does not exist in either directory, an error message is displayed.
+The format of THE_MACRO_PATH is dir1;dir2;dir3 Each directory is seperated
+by semi-colons. By default, up to 20 directories may be specified. This can
+be changed by the <SET MACROPATH> command.
+
+**man-end**********************************************************************/

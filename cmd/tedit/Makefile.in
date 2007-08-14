@@ -1,0 +1,544 @@
+# Makefile for THE
+#
+# The variable 'srcdir' refers to the source-distribution, and can be set with
+# the configure script by "--srcdir=DIR".
+#
+
+SHELL		= /bin/sh
+THIS		= Makefile
+
+@SET_MAKE@
+
+VER=31
+VER_DOT=3.1
+THE_DIR=THE-$(VER_DOT)
+
+srcdir		= @srcdir@
+prefix		= @prefix@
+target		= @target@
+exec_prefix	= @exec_prefix@
+libdir		= @libdir@
+bindir		= @bindir@
+includedir		= @includedir@
+mandir		= @mandir@
+
+docdir		= $(srcdir)/doc
+contribdir		= $(srcdir)/contrib
+thisdir		=@thisdir@
+
+INSTALL		= $(srcdir)/install-sh
+
+HTML_EXT		= @HTML_EXT@
+
+CC		= @CC@
+CFLAGS		= @CFLAGS@
+LIBS		= @LIBS@
+
+BASE_INSTALL = @BASE_INSTALL@
+BASE_BINARY = @BASE_BINARY@
+
+INCDIR		= $(srcdir)
+CPPFLAGS	= -I. -I$(INCDIR) @DEFS@ @SYS_DEFS@ -DTHE_HOME_DIRECTORY=\"$(prefix)/share/THE/\"
+
+CCFLAGS		= -c $(CFLAGS) $(CPPFLAGS) @REXX_INCLUDES@ @MH_CURSES_INC@
+
+LINK		= @PURIFY@ $(CC)
+LDFLAGS		= @EEXTRA@ @LDOPT@ @LDFLAGS@ @MH_CURSES_LIB@ @REXX_LIBS@ $(LIBS) @MH_XLIBS@ @MH_EXTRA_LIBS@ @EFENCE_LD@
+
+################################################################################
+
+COMM = \
+	$(srcdir)/comm1.c \
+	$(srcdir)/comm2.c \
+	$(srcdir)/comm3.c \
+	$(srcdir)/comm4.c \
+	$(srcdir)/comm5.c
+
+COMMSOS = \
+	$(srcdir)/commsos.c
+
+COMMSET = \
+	$(srcdir)/commset1.c \
+	$(srcdir)/commset2.c
+
+QUERY = $(srcdir)/query.c
+
+APPENDIX1 = $(srcdir)/appendix.1 
+APPENDIX2 = $(srcdir)/appendix.2
+APPENDIX3 = $(srcdir)/appendix.3
+APPENDIX4 = $(srcdir)/appendix.4
+APPENDIX7 = $(srcdir)/appendix.7
+APPENDIX = $(APPENDIX1) $(APPENDIX2) $(APPENDIX3) $(APPENDIX4) $(APPENDIX7)
+
+GLOSSARY = $(srcdir)/glossary
+OVERVIEW = $(srcdir)/overview
+
+H0=	./config.h $(srcdir)/regex.h
+H1=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/defines.h $(srcdir)/proto.h
+H2=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/command.h $(srcdir)/defines.h $(srcdir)/proto.h $(srcdir)/getch.h $(srcdir)/key.h
+H3=	./config.h $(srcdir)/getch.h $(srcdir)/vars.h $(srcdir)/defines.h $(srcdir)/proto.h
+H4=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/query.h $(srcdir)/defines.h $(srcdir)/proto.h
+H5=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/thematch.h
+H6=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/directry.h $(srcdir)/defines.h $(srcdir)/proto.h
+H7=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/therexx.h $(srcdir)/proto.h $(srcdir)/defines.h $(srcdir)/query.h
+H8=	./config.h $(srcdir)/the.h $(srcdir)/vars.h $(srcdir)/therexx.h $(srcdir)/defines.h
+
+ARCHIVE_FILES = \
+	$(THE_DIR)/README $(THE_DIR)/INSTALL $(THE_DIR)/FAQ $(THE_DIR)/TODO $(THE_DIR)/COPYING $(THE_DIR)/HISTORY $(THE_DIR)/THE_Help.txt \
+	$(THE_DIR)/overview $(THE_DIR)/appendix.1 $(THE_DIR)/appendix.2 $(THE_DIR)/appendix.3 $(THE_DIR)/appendix.4 $(THE_DIR)/appendix.7 $(THE_DIR)/glossary $(THE_DIR)/README.OS2 $(THE_DIR)/README.Amiga \
+	$(THE_DIR)/box.c $(THE_DIR)/colour.c $(THE_DIR)/comm*.c $(THE_DIR)/cursor.c $(THE_DIR)/default.c $(THE_DIR)/directry.c \
+	$(THE_DIR)/edit.c $(THE_DIR)/error.c $(THE_DIR)/scroll.c $(THE_DIR)/column.c $(THE_DIR)/execute.c $(THE_DIR)/print.c $(THE_DIR)/alloca.c \
+	$(THE_DIR)/file.c $(THE_DIR)/thematch.c $(THE_DIR)/getch.c $(THE_DIR)/mygetopt.c $(THE_DIR)/linked.c $(THE_DIR)/mouse.c $(THE_DIR)/memory.c \
+	$(THE_DIR)/nonansi.c $(THE_DIR)/os2eas.c $(THE_DIR)/prefix.c $(THE_DIR)/query.c $(THE_DIR)/reserved.c $(THE_DIR)/parser.c $(THE_DIR)/regex.c \
+	$(THE_DIR)/rexx.c $(THE_DIR)/show.c $(THE_DIR)/single.c $(THE_DIR)/sort.c $(THE_DIR)/target.c $(THE_DIR)/the.c $(THE_DIR)/trace.c $(THE_DIR)/util.c \
+	$(THE_DIR)/command.h $(THE_DIR)/defines.h $(THE_DIR)/directry.h $(THE_DIR)/thematch.h $(THE_DIR)/getch.h $(THE_DIR)/vars.h $(THE_DIR)/regex.h $(THE_DIR)/mygetopt.h \
+	$(THE_DIR)/key.h $(THE_DIR)/query.h $(THE_DIR)/proto.h $(THE_DIR)/therexx.h $(THE_DIR)/the.h $(THE_DIR)/contrib/*.c \
+	$(THE_DIR)/manext.c $(THE_DIR)/*.rsp $(THE_DIR)/*.def $(THE_DIR)/*.diz $(THE_DIR)/files.rcs $(THE_DIR)/the*.xbm \
+	$(THE_DIR)/*.ico $(THE_DIR)/the.res $(THE_DIR)/*.rc $(THE_DIR)/the.eas $(THE_DIR)/doc/THE_Help* $(THE_DIR)/doc/*.htm $(THE_DIR)/doc/*.the \
+	$(THE_DIR)/append.the $(THE_DIR)/comm.the $(THE_DIR)/uncomm.the $(THE_DIR)/total.the $(THE_DIR)/match.the $(THE_DIR)/rm.the $(THE_DIR)/build.the $(THE_DIR)/setbuild.the $(THE_DIR)/nl.the \
+	$(THE_DIR)/words.the $(THE_DIR)/l.the $(THE_DIR)/compile.the $(THE_DIR)/spell.the $(THE_DIR)/demo.the $(THE_DIR)/demo.txt $(THE_DIR)/cua.the $(THE_DIR)/config.the $(THE_DIR)/tags.the \
+	$(THE_DIR)/Makefile.in $(THE_DIR)/configure $(THE_DIR)/config.h.in \
+	$(THE_DIR)/*.mak $(THE_DIR)/*.tld $(THE_DIR)/thedit.lnk $(THE_DIR)/the.1 \
+	$(THE_DIR)/config.guess $(THE_DIR)/config.sub $(THE_DIR)/install-sh \
+	$(THE_DIR)/aclocal.m4 $(THE_DIR)/configure.in $(THE_DIR)/common/accommon.m4 \
+	$(THE_DIR)/man2html.rex $(THE_DIR)/man2hv.rex $(THE_DIR)/makedist.cmd $(THE_DIR)/tld2c.rex
+################################################################################
+all:	the the.man THE_Help.txt
+
+the.man:	manext $(OVERVIEW) $(COMM) $(COMMSOS) $(COMMSET) $(QUERY) $(APPENDIX) $(GLOSSARY)
+	-chmod u+w *
+	-cp $(docdir)/* .
+	./manext $(OVERVIEW) $(COMM) $(COMMSOS) $(COMMSET) $(QUERY) $(APPENDIX) $(GLOSSARY) > the.man
+
+THE_Help.txt:	manext $(COMM) $(COMMSET) $(COMMSOS) $(docdir)/THE_Help_head $(docdir)/THE_Help_set $(docdir)/THE_Help_sos $(docdir)/THE_Help_tail
+	-chmod u+w *
+	-cp $(docdir)/* .
+	echo "                         THE Quick Reference" > THE_Help_part01
+	echo "                             Version $(VER_DOT)" > THE_Help_part02
+	cp THE_Help_head THE_Help_part03
+	./manext -q $(COMM) > THE_Help_part04
+	cp THE_Help_set THE_Help_part05
+	./manext -q $(COMMSET) > THE_Help_part06
+	cp THE_Help_sos THE_Help_part07
+	./manext -q $(COMMSOS) > THE_Help_part08
+	cp THE_Help_tail THE_Help_part09
+	cat THE_Help_part?? > THE_Help.txt
+	rm -f THE_Help_*
+
+html:	manext
+	-rm -f *$(HTML_EXT) *.man comm/* commsos/* commset/* misc/*
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) TOCSTART > index$(HTML_EXT)
+	./manext $(OVERVIEW) > overview.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) OVERVIEW overview.man index$(HTML_EXT) > overview$(HTML_EXT)
+	./manext $(COMM) > comm.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) COMM comm.man index$(HTML_EXT) > comm$(HTML_EXT)
+	./manext $(COMMSET) > commset.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) COMMSET commset.man index$(HTML_EXT) > commset$(HTML_EXT)
+	./manext $(COMMSOS) > commsos.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) COMMSOS commsos.man index$(HTML_EXT) > commsos$(HTML_EXT)
+	./manext $(QUERY) > query.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) QUERY    query.man index$(HTML_EXT)    > query$(HTML_EXT)
+	./manext $(GLOSSARY) > glossary.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) GLOSSARY glossary.man index$(HTML_EXT) > glossary$(HTML_EXT)
+	./manext $(APPENDIX1) > app1.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX1 app1.man index$(HTML_EXT) > app1$(HTML_EXT)
+	./manext $(APPENDIX2) > app2.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX2 app2.man index$(HTML_EXT) > app2$(HTML_EXT)
+	./manext $(APPENDIX3) > app3.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX3 app3.man index$(HTML_EXT) > app3$(HTML_EXT)
+	./manext $(APPENDIX4) > app4.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX4 app4.man index$(HTML_EXT) > app4$(HTML_EXT)
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX5 $(docdir)/app5.htm index$(HTML_EXT) > app5$(HTML_EXT)
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX6 $(docdir)/app6.htm index$(HTML_EXT) > app6$(HTML_EXT)
+	./manext $(APPENDIX7) > app7.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) APPENDIX7 app7.man index$(HTML_EXT) > app7$(HTML_EXT)
+	cp $(srcdir)/HISTORY history.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) HISTORY history.man index$(HTML_EXT) > history$(HTML_EXT)
+	cp $(srcdir)/THE_Help.txt quickref.man
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) QUICKREF quickref.man index$(HTML_EXT) > quickref$(HTML_EXT)
+	rexx $(srcdir)/man2html.rex $(HTML_EXT) $(VER_DOT) TOCEND >> index$(HTML_EXT)
+
+helpviewer:	manext
+	-rm -f *$(HTML_EXT) *.man comm/* commsos/* commset/* misc/*
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) TOCSTART 'junk' index$(HTML_EXT)
+	./manext $(OVERVIEW) > overview.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) OVERVIEW overview.man index$(HTML_EXT)
+	./manext $(COMM) > comm.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) COMM comm.man index$(HTML_EXT)
+	./manext $(COMMSET) > commset.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) COMMSET commset.man index$(HTML_EXT)
+	./manext $(COMMSOS) > commsos.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) COMMSOS commsos.man index$(HTML_EXT)
+	./manext $(QUERY) > query.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) QUERY    query.man index$(HTML_EXT)
+	./manext $(GLOSSARY) > glossary.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) GLOSSARY glossary.man index$(HTML_EXT)
+	./manext $(APPENDIX1) > app1.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX1 app1.man index$(HTML_EXT)
+	./manext $(APPENDIX2) > app2.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX2 app2.man index$(HTML_EXT)
+	./manext $(APPENDIX3) > app3.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX3 app3.man index$(HTML_EXT)
+	./manext $(APPENDIX4) > app4.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX4 app4.man index$(HTML_EXT)
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX5 $(docdir)/app5.htm index$(HTML_EXT)
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX6 $(docdir)/app6.htm index$(HTML_EXT)
+	./manext $(APPENDIX7) > app7.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) APPENDIX7 app7.man index$(HTML_EXT)
+	cp $(srcdir)/HISTORY history.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) HISTORY history.man index$(HTML_EXT)
+	cp $(srcdir)/THE_Help.txt quickref.man
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) QUICKREF quickref.man index$(HTML_EXT)
+	rexx $(srcdir)/man2hv.rex $(HTML_EXT) $(VER_DOT) TOCEND 'junk' index$(HTML_EXT)
+
+combined: html
+	the -w 15000 -b -p $(docdir)/preparecomb.the index$(HTML_EXT) overview$(HTML_EXT) comm$(HTML_EXT) commset$(HTML_EXT) commsos$(HTML_EXT) query$(HTML_EXT) glossary$(HTML_EXT) app1$(HTML_EXT) app2$(HTML_EXT) app3$(HTML_EXT) app4$(HTML_EXT) app5$(HTML_EXT) app6$(HTML_EXT) history$(HTML_EXT) quickref$(HTML_EXT)
+	cat index$(HTML_EXT).new overview$(HTML_EXT).new comm$(HTML_EXT).new commset$(HTML_EXT).new commsos$(HTML_EXT).new query$(HTML_EXT).new glossary$(HTML_EXT).new app1$(HTML_EXT).new app2$(HTML_EXT).new app3$(HTML_EXT).new app4$(HTML_EXT).new app5$(HTML_EXT).new app6$(HTML_EXT).new history$(HTML_EXT).new quickref$(HTML_EXT).new > THE-$(VER_DOT)$(HTML_EXT)
+
+website: helpviewer
+	-mkdir images
+	cp $(srcdir)/images/*.png images
+	-rm thedoc*.zip
+	zip -r thedoc$(VER) index.html images comm commset commsos misc
+
+install: $(BASE_INSTALL)
+
+installbase: the the.man THE_Help.txt
+	$(INSTALL) -m 755 -d $(bindir)
+	$(INSTALL) -m 755 -d $(prefix)/man/man1
+	$(INSTALL) -m 755 -d $(prefix)/share/THE
+	$(INSTALL) -m 755 -c ./the $(bindir)/the
+	$(INSTALL) -m 644 -c $(srcdir)/the.1 $(prefix)/man/man1/the.1
+	$(INSTALL) -m 644 -c ./THE_Help.txt $(prefix)/share/THE/THE_Help.txt
+	$(INSTALL) -m 644 -c $(srcdir)/append.the   $(prefix)/share/THE/append.the
+	$(INSTALL) -m 644 -c $(srcdir)/comm.the     $(prefix)/share/THE/comm.the
+	$(INSTALL) -m 644 -c $(srcdir)/build.the    $(prefix)/share/THE/build.the
+	$(INSTALL) -m 644 -c $(srcdir)/uncomm.the   $(prefix)/share/THE/uncomm.the
+	$(INSTALL) -m 644 -c $(srcdir)/total.the    $(prefix)/share/THE/total.the
+	$(INSTALL) -m 644 -c $(srcdir)/match.the    $(prefix)/share/THE/match.the
+	$(INSTALL) -m 644 -c $(srcdir)/rm.the       $(prefix)/share/THE/rm.the
+	$(INSTALL) -m 644 -c $(srcdir)/nl.the       $(prefix)/share/THE/nl.the
+	$(INSTALL) -m 644 -c $(srcdir)/words.the    $(prefix)/share/THE/words.the
+	$(INSTALL) -m 644 -c $(srcdir)/l.the        $(prefix)/share/THE/l.the
+	$(INSTALL) -m 644 -c $(srcdir)/compile.the  $(prefix)/share/THE/compile.the
+	$(INSTALL) -m 644 -c $(srcdir)/spell.the    $(prefix)/share/THE/spell.the
+	$(INSTALL) -m 644 -c $(srcdir)/demo.the     $(prefix)/share/THE/demo.the
+	$(INSTALL) -m 644 -c $(srcdir)/cua.the      $(prefix)/share/THE/cua.the
+	$(INSTALL) -m 644 -c $(srcdir)/config.the   $(prefix)/share/THE/config.the
+	$(INSTALL) -m 644 -c $(srcdir)/tags.the     $(prefix)/share/THE/tags.the
+	$(INSTALL) -m 644 -c $(srcdir)/c.tld        $(prefix)/share/THE/c.tld
+	$(INSTALL) -m 644 -c $(srcdir)/cobol.tld    $(prefix)/share/THE/cobol.tld
+	$(INSTALL) -m 644 -c $(srcdir)/csh.tld      $(prefix)/share/THE/csh.tld
+	$(INSTALL) -m 644 -c $(srcdir)/html.tld     $(prefix)/share/THE/html.tld
+	$(INSTALL) -m 644 -c $(srcdir)/m4.tld       $(prefix)/share/THE/m4.tld
+	$(INSTALL) -m 644 -c $(srcdir)/make.tld     $(prefix)/share/THE/make.tld
+	$(INSTALL) -m 644 -c $(srcdir)/opl.tld      $(prefix)/share/THE/opl.tld
+	$(INSTALL) -m 644 -c $(srcdir)/rexx.tld     $(prefix)/share/THE/rexx.tld
+	$(INSTALL) -m 644 -c $(srcdir)/sh.tld       $(prefix)/share/THE/sh.tld
+
+binary: $(BASE_BINARY)
+
+binarybase: the the.man THE_Help.txt
+	-rm -fr ./tmpdir
+	$(INSTALL) -m 755 -d ./tmpdir/bin
+	$(INSTALL) -m 755 -d ./tmpdir/man/man1
+	$(INSTALL) -m 755 -d ./tmpdir/share/THE
+	$(INSTALL) -m 755 -c ./the ./tmpdir/bin/the
+	$(INSTALL) -m 644 -c $(srcdir)/the.1 ./tmpdir/man/man1/the.1
+	$(INSTALL) -m 644 -c ./THE_Help.txt ./tmpdir/share/THE/THE_Help.txt
+	$(INSTALL) -m 644 -c $(srcdir)/append.the   ./tmpdir/share/THE/append.the
+	$(INSTALL) -m 644 -c $(srcdir)/comm.the     ./tmpdir/share/THE/comm.the
+	$(INSTALL) -m 644 -c $(srcdir)/build.the    ./tmpdir/share/THE/build.the
+	$(INSTALL) -m 644 -c $(srcdir)/uncomm.the   ./tmpdir/share/THE/uncomm.the
+	$(INSTALL) -m 644 -c $(srcdir)/total.the    ./tmpdir/share/THE/total.the
+	$(INSTALL) -m 644 -c $(srcdir)/match.the    ./tmpdir/share/THE/match.the
+	$(INSTALL) -m 644 -c $(srcdir)/rm.the       ./tmpdir/share/THE/rm.the
+	$(INSTALL) -m 644 -c $(srcdir)/nl.the       ./tmpdir/share/THE/nl.the
+	$(INSTALL) -m 644 -c $(srcdir)/words.the    ./tmpdir/share/THE/words.the
+	$(INSTALL) -m 644 -c $(srcdir)/l.the        ./tmpdir/share/THE/l.the
+	$(INSTALL) -m 644 -c $(srcdir)/compile.the  ./tmpdir/share/THE/compile.the
+	$(INSTALL) -m 644 -c $(srcdir)/spell.the    ./tmpdir/share/THE/spell.the
+	$(INSTALL) -m 644 -c $(srcdir)/demo.the     ./tmpdir/share/THE/demo.the
+	$(INSTALL) -m 644 -c $(srcdir)/cua.the      ./tmpdir/share/THE/cua.the
+	$(INSTALL) -m 644 -c $(srcdir)/config.the   ./tmpdir/share/THE/config.the
+	$(INSTALL) -m 644 -c $(srcdir)/tags.the     ./tmpdir/share/THE/tags.the
+	$(INSTALL) -m 644 -c $(srcdir)/c.tld        ./tmpdir/share/THE/c.tld
+	$(INSTALL) -m 644 -c $(srcdir)/cobol.tld    ./tmpdir/share/THE/cobol.tld
+	$(INSTALL) -m 644 -c $(srcdir)/csh.tld      ./tmpdir/share/THE/csh.tld
+	$(INSTALL) -m 644 -c $(srcdir)/html.tld     ./tmpdir/share/THE/html.tld
+	$(INSTALL) -m 644 -c $(srcdir)/m4.tld       ./tmpdir/share/THE/m4.tld
+	$(INSTALL) -m 644 -c $(srcdir)/make.tld     ./tmpdir/share/THE/make.tld
+	$(INSTALL) -m 644 -c $(srcdir)/opl.tld      ./tmpdir/share/THE/opl.tld
+	$(INSTALL) -m 644 -c $(srcdir)/rexx.tld     ./tmpdir/share/THE/rexx.tld
+	$(INSTALL) -m 644 -c $(srcdir)/sh.tld       ./tmpdir/share/THE/sh.tld
+	(cd ./tmpdir; \
+	tar cvf - * | gzip > ../THE-$(VER_DOT)-$(target).tgz )
+
+cygwinbinary: the the.man THE_Help.txt
+	-rm -fr ./tmpdir
+	$(INSTALL) -m 755 -d ./tmpdir/usr/bin
+	$(INSTALL) -m 755 -d ./tmpdir/usr/man/man1
+	$(INSTALL) -m 755 -d ./tmpdir/usr/share/THE
+	$(INSTALL) -m 755 -c ./the.exe ./tmpdir/usr/bin/the.exe
+	$(INSTALL) -m 644 -c $(srcdir)/the.1 ./tmpdir/usr/man/man1/the.1
+	$(INSTALL) -m 644 -c ./THE_Help.txt ./tmpdir/usr/share/THE/THE_Help.txt
+	$(INSTALL) -m 644 -c $(srcdir)/append.the   ./tmpdir/usr/share/THE/append.the
+	$(INSTALL) -m 644 -c $(srcdir)/comm.the     ./tmpdir/usr/share/THE/comm.the
+	$(INSTALL) -m 644 -c $(srcdir)/build.the    ./tmpdir/usr/share/THE/build.the
+	$(INSTALL) -m 644 -c $(srcdir)/uncomm.the   ./tmpdir/usr/share/THE/uncomm.the
+	$(INSTALL) -m 644 -c $(srcdir)/total.the    ./tmpdir/usr/share/THE/total.the
+	$(INSTALL) -m 644 -c $(srcdir)/match.the    ./tmpdir/usr/share/THE/match.the
+	$(INSTALL) -m 644 -c $(srcdir)/rm.the       ./tmpdir/usr/share/THE/rm.the
+	$(INSTALL) -m 644 -c $(srcdir)/nl.the       ./tmpdir/usr/share/THE/nl.the
+	$(INSTALL) -m 644 -c $(srcdir)/words.the    ./tmpdir/usr/share/THE/words.the
+	$(INSTALL) -m 644 -c $(srcdir)/l.the        ./tmpdir/usr/share/THE/l.the
+	$(INSTALL) -m 644 -c $(srcdir)/compile.the  ./tmpdir/usr/share/THE/compile.the
+	$(INSTALL) -m 644 -c $(srcdir)/spell.the    ./tmpdir/usr/share/THE/spell.the
+	$(INSTALL) -m 644 -c $(srcdir)/demo.the     ./tmpdir/usr/share/THE/demo.the
+	$(INSTALL) -m 644 -c $(srcdir)/cua.the      ./tmpdir/usr/share/THE/cua.the
+	$(INSTALL) -m 644 -c $(srcdir)/config.the   ./tmpdir/usr/share/THE/config.the
+	$(INSTALL) -m 644 -c $(srcdir)/tags.the     ./tmpdir/usr/share/THE/tags.the
+	$(INSTALL) -m 644 -c $(srcdir)/c.tld        ./tmpdir/usr/share/THE/c.tld
+	$(INSTALL) -m 644 -c $(srcdir)/cobol.tld    ./tmpdir/usr/share/THE/cobol.tld
+	$(INSTALL) -m 644 -c $(srcdir)/csh.tld      ./tmpdir/usr/share/THE/csh.tld
+	$(INSTALL) -m 644 -c $(srcdir)/html.tld     ./tmpdir/usr/share/THE/html.tld
+	$(INSTALL) -m 644 -c $(srcdir)/m4.tld       ./tmpdir/usr/share/THE/m4.tld
+	$(INSTALL) -m 644 -c $(srcdir)/make.tld     ./tmpdir/usr/share/THE/make.tld
+	$(INSTALL) -m 644 -c $(srcdir)/opl.tld      ./tmpdir/usr/share/THE/opl.tld
+	$(INSTALL) -m 644 -c $(srcdir)/rexx.tld     ./tmpdir/usr/share/THE/rexx.tld
+	$(INSTALL) -m 644 -c $(srcdir)/sh.tld       ./tmpdir/usr/share/THE/sh.tld
+	(cd ./tmpdir; \
+	tar cvf - * | gzip > ../THE-$(VER_DOT)-$(target).tgz )
+
+clean:
+	-rm -f *.o trace the manext *.man *$(HTML_EXT) *.new config.log config.cache config.status
+
+distclean: clean
+	-rm -f Makefile
+
+docclean:
+	-rm -fr *.man *$(HTML_EXT) *.png *.new misc comm commset commsos images
+
+mostlyclean: clean
+
+realclean: distclean
+
+#------------------------------------------------------------------------
+
+XTRA_OBJS = @MH_XTRA_OBJS@ @ALLOCA@
+
+OBJS =      \
+	box.o      \
+	colour.o   \
+	column.o   \
+	comm1.o    \
+	comm2.o    \
+	comm3.o    \
+	comm4.o    \
+	comm5.o    \
+	commset1.o \
+	commset2.o \
+	commsos.o  \
+	commutil.o \
+	cursor.o   \
+	default.o  \
+	directry.o \
+	edit.o     \
+	error.o    \
+	execute.o  \
+	file.o     \
+	thematch.o \
+	getch.o    \
+	linked.o   \
+	mouse.o    \
+	memory.o   \
+	nonansi.o  \
+	parser.o   \
+	prefix.o   \
+	print.o    \
+	query.o    \
+	regex.o    \
+	reserved.o \
+	rexx.o     \
+	scroll.o   \
+	show.o     \
+	single.o   \
+	sort.o     \
+	target.o   \
+	the.o      \
+	mygetopt.o \
+	util.o
+
+the: $(OBJS) $(XTRA_OBJS)
+	$(LINK) $(OBJS) $(XTRA_OBJS) -o the $(LDFLAGS)
+
+
+box.o: $(srcdir)/box.c $(H1)
+	$(CC) $(CCFLAGS) -o box.o $(srcdir)/box.c
+
+colour.o: $(srcdir)/colour.c $(H1)
+	$(CC) $(CCFLAGS) -o colour.o $(srcdir)/colour.c
+
+column.o: $(srcdir)/column.c $(H1)
+	$(CC) $(CCFLAGS) -o column.o $(srcdir)/column.c
+
+comm1.o: $(srcdir)/comm1.c $(H1)
+	$(CC) $(CCFLAGS) -o comm1.o $(srcdir)/comm1.c
+
+comm2.o: $(srcdir)/comm2.c $(H1)
+	$(CC) $(CCFLAGS) -o comm2.o $(srcdir)/comm2.c
+
+comm3.o: $(srcdir)/comm3.c $(H1)
+	$(CC) $(CCFLAGS) -o comm3.o $(srcdir)/comm3.c
+
+comm4.o: $(srcdir)/comm4.c $(H1)
+	$(CC) $(CCFLAGS) -o comm4.o $(srcdir)/comm4.c
+
+comm5.o: $(srcdir)/comm5.c $(H1)
+	$(CC) $(CCFLAGS) -o comm5.o $(srcdir)/comm5.c
+
+commset1.o: $(srcdir)/commset1.c $(H1)
+	$(CC) $(CCFLAGS) -o commset1.o $(srcdir)/commset1.c
+
+commset2.o: $(srcdir)/commset2.c $(H1)
+	$(CC) $(CCFLAGS) -o commset2.o $(srcdir)/commset2.c
+
+commsos.o: $(srcdir)/commsos.c $(H1)
+	$(CC) $(CCFLAGS) -o commsos.o $(srcdir)/commsos.c
+
+commutil.o: $(srcdir)/commutil.c $(H2)
+	$(CC) $(CCFLAGS) -o commutil.o $(srcdir)/commutil.c
+
+cursor.o: $(srcdir)/cursor.c $(H1)
+	$(CC) $(CCFLAGS) -o cursor.o $(srcdir)/cursor.c
+
+default.o: $(srcdir)/default.c $(H1)
+	$(CC) $(CCFLAGS) -o default.o $(srcdir)/default.c
+
+directry.o: $(srcdir)/directry.c $(H6)
+	$(CC) $(CCFLAGS) -o directry.o $(srcdir)/directry.c
+
+edit.o: $(srcdir)/edit.c $(H1)
+	$(CC) $(CCFLAGS) -o edit.o $(srcdir)/edit.c
+
+error.o: $(srcdir)/error.c $(H1)
+	$(CC) $(CCFLAGS) -o error.o $(srcdir)/error.c
+
+execute.o: $(srcdir)/execute.c $(H1)
+	$(CC) $(CCFLAGS) -o execute.o $(srcdir)/execute.c
+
+file.o: $(srcdir)/file.c $(H6)
+	$(CC) $(CCFLAGS) -o file.o $(srcdir)/file.c
+
+thematch.o: $(srcdir)/thematch.c $(H5)
+	$(CC) $(CCFLAGS) -o thematch.o $(srcdir)/thematch.c
+
+getch.o: $(srcdir)/getch.c $(H3)
+	$(CC) $(CCFLAGS) -o getch.o $(srcdir)/getch.c
+
+mygetopt.o: $(srcdir)/mygetopt.c $(H1)
+	$(CC) $(CCFLAGS) -o mygetopt.o $(srcdir)/mygetopt.c
+
+linked.o: $(srcdir)/linked.c $(H1)
+	$(CC) $(CCFLAGS) -o linked.o $(srcdir)/linked.c
+
+mouse.o: $(srcdir)/mouse.c $(H1)
+	$(CC) $(CCFLAGS) -o mouse.o $(srcdir)/mouse.c
+
+memory.o: $(srcdir)/memory.c $(H1)
+	$(CC) $(CCFLAGS) -o memory.o $(srcdir)/memory.c
+
+nonansi.o: $(srcdir)/nonansi.c $(H1)
+	$(CC) $(CCFLAGS) -o nonansi.o $(srcdir)/nonansi.c
+
+parser.o: $(srcdir)/parser.c $(H1)
+	$(CC) $(CCFLAGS) -o parser.o $(srcdir)/parser.c
+
+os2eas.o: $(srcdir)/os2eas.c $(H1)
+	$(CC) $(CCFLAGS) -o os2eas.o $(srcdir)/os2eas.c
+
+prefix.o: $(srcdir)/prefix.c $(H1)
+	$(CC) $(CCFLAGS) -o prefix.o $(srcdir)/prefix.c
+
+print.o: $(srcdir)/print.c $(H1)
+	$(CC) $(CCFLAGS) -o print.o $(srcdir)/print.c
+
+query.o: $(srcdir)/query.c $(H4)
+	$(CC) $(CCFLAGS) -o query.o $(srcdir)/query.c
+
+regex.o: $(srcdir)/regex.c $(H0)
+	$(CC) $(CCFLAGS) -o regex.o $(srcdir)/regex.c
+
+reserved.o: $(srcdir)/reserved.c $(H1)
+	$(CC) $(CCFLAGS) -o reserved.o $(srcdir)/reserved.c
+
+rexx.o: $(srcdir)/rexx.c $(H7)
+	$(CC) $(CCFLAGS) -o rexx.o $(srcdir)/rexx.c
+
+scroll.o: $(srcdir)/scroll.c $(H1)
+	$(CC) $(CCFLAGS) -o scroll.o $(srcdir)/scroll.c
+
+show.o: $(srcdir)/show.c $(H1)
+	$(CC) $(CCFLAGS) -o show.o $(srcdir)/show.c
+
+single.o: $(srcdir)/single.c $(H1)
+	$(CC) $(CCFLAGS) -o single.o $(srcdir)/single.c
+
+sort.o: $(srcdir)/sort.c $(H1)
+	$(CC) $(CCFLAGS) -o sort.o $(srcdir)/sort.c
+
+target.o: $(srcdir)/target.c $(H1)
+	$(CC) $(CCFLAGS) -o target.o $(srcdir)/target.c
+
+the.o: $(srcdir)/the.c $(H1)
+	$(CC) $(CCFLAGS) -o the.o $(srcdir)/the.c
+
+trace.o: $(srcdir)/trace.c $(H1)
+	$(CC) $(CCFLAGS) -o trace.o $(srcdir)/trace.c
+
+util.o: $(srcdir)/util.c $(H1)
+	$(CC) $(CCFLAGS) -o util.o $(srcdir)/util.c
+
+alloca.o: $(srcdir)/alloca.c
+	$(CC) $(CCFLAGS) -o alloca.o $(srcdir)/alloca.c
+
+
+manext: manext.o
+	$(LINK) manext.o -o manext
+
+manext.o: $(srcdir)/manext.c $(srcdir)/the.h
+	$(CC) $(CCFLAGS) -I$(srcdir) -o manext.o $(srcdir)/manext.c
+
+
+zip:
+	zip thesrc$(VER) README INSTALL FAQ TODO COPYING HISTORY THE_Help.txt
+	zip thesrc$(VER) overview appendix.1 appendix.2 appendix.3 appendix.4 appendix.7 glossary README.OS2 README.Amiga
+	zip thesrc$(VER) box.c colour.c comm*.c cursor.c default.c directry.c
+	zip thesrc$(VER) edit.c error.c scroll.c column.c execute.c print.c alloca.c
+	zip thesrc$(VER) file.c thematch.c getch.c mygetopt.c linked.c mouse.c memory.c
+	zip thesrc$(VER) nonansi.c os2eas.c prefix.c query.c reserved.c regex.c
+	zip thesrc$(VER) rexx.c show.c single.c sort.c target.c the.c trace.c util.c parser.c
+	zip thesrc$(VER) command.h defines.h directry.h thematch.h getch.h vars.h
+	zip thesrc$(VER) key.h query.h proto.h therexx.h the.h regex.h mygetopt.h
+	zip thesrc$(VER) manext.c *.rsp *.def *.diz files.rcs the*.xbm *.ico the.res *.rc the.eas
+	zip thesrc$(VER) append.the comm.the uncomm.the total.the match.the rm.the build.the nl.the
+	zip thesrc$(VER) words.the l.the compile.the spell.the demo.the demo.txt cua.the config.the tags.the
+	zip thesrc$(VER) Makefile.in configure config.h.in $(contribdir)/*.c
+	zip thesrc$(VER) *.tld *.mak thedit.lnk $(docdir)/THE_Help* $(docdir)/*.htm $(docdir)/*.the
+	zip thesrc$(VER) config.guess config.sub install-sh the.1
+	zip thesrc$(VER) aclocal.m4 configure.in
+	zip thesrc$(VER) man2html.rex man2hv.rex makedist.cmd tld2c.rex
+	zip thesrc$(VER) common/accommon.m4
+
+zzip:
+	(cd $(srcdir)/..; zip thesrc$(VER) $(ARCHIVE_FILES) )
+
+dist:
+	(cd $(srcdir)/..; tar cvf - \
+	$(ARCHIVE_FILES) \
+	| gzip > $(THE_DIR).tar.gz)
+
+tar:
+	(cd $(srcdir)/..; tar cvf - \
+	$(ARCHIVE_FILES) \
+	| compress > $(THE_DIR).tar.Z)

@@ -16,8 +16,8 @@ ALIAS parm_es=_parm_es
 ALIAS parm_ss=_parm_ss
 ALIAS output_com=output_com_
 NAME bb_ext2
-PATH f:\var\src\os2\boot\muFSD\ext2;f:\var\src\os2\boot\muFSD\ext2\..;f:\var\src\os2\boot\muFSD\ext2\..\lilo
-LIBPATH f:\var\src\os2\boot\muFSD\ext2\..
+PATH c:\_work\svn\osfree\muFSD\ext2;c:\_work\svn\osfree\muFSD\ext2\..;c:\_work\svn\osfree\muFSD\ext2\..\lilo
+LIBPATH c:\_work\svn\osfree\muFSD\ext2\..
 LIBRARY clibs.lib
 FILE entry.obj
 FILE start.obj

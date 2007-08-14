@@ -1,0 +1,272 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define this always; build number.  */
+/* When next build requires configure to be run again, increment this */
+/* Format is xxyy where xx is version, yy build number */
+#undef BUILD3001
+
+/* Define value of BSD_STANDOUT */
+#undef BSD_STANDOUT
+
+/* Define to int if no chtype defined in curses header.  */
+#ifndef chtype
+#undef chtype
+#endif
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+/* Define if curses library has this function */
+#undef HAVE_BEEP
+
+/* Define if curses library has this function */
+#undef HAVE_BOX
+
+/* Define if curses library has this function */
+#undef HAVE_WHLINE
+
+/* Define if the SVR4 curses is broken */
+#undef HAVE_BROKEN_SYSVR4_CURSES
+
+/* Define if linking with BSD curses variant */
+#undef HAVE_BSD_CURSES
+
+/* Define if curses library has this function */
+#undef HAVE_CBREAK
+
+/* Define if curses library has this function */
+#undef HAVE_CURS_SET
+
+/* Define if curses library has this function */
+#undef HAVE_DOUPDATE
+
+/* Define if curses library has this function */
+#undef HAVE_KEYPAD
+
+/* Define if curses library has this function */
+#undef HAVE_NOCBREAK
+
+/* Define if curses library has this function */
+#undef HAVE_NODELAY
+
+/* Define if curses library has this function */
+#undef HAVE_NOTIMEOUT
+
+/* Define if curses library has this function */
+#undef HAVE_UNGETCH
+
+/* Define if your compiler supports ANSI prototypes  */
+#undef HAVE_PROTO
+
+/* Define if curses library has this function */
+#undef HAVE_RAW
+
+/* Define if curses library has this function */
+#undef HAVE_RESET_PROG_MODE
+
+/* Define if curses library has this function */
+#undef HAVE_RESET_SHELL_MODE
+
+/* Define if curses library has this function */
+#undef HAVE_RESIZE_TERM
+
+/* Define if curses library has this function */
+#undef HAVE_SLK_INIT
+
+/* Define if curses library has this function */
+#undef HAVE_SLK_ATTRSET
+
+/* Define if curses library has this function */
+#undef HAVE_SB_INIT
+
+/* Define if curses library has this function */
+#undef HAVE_TOUCHLINE
+
+/* Define if curses library has this function */
+#undef HAVE_TYPEAHEAD
+
+/* Define if curses library has this  */
+#undef HAVE_WATTRSET
+
+/* Define if curses library has this  */
+#undef HAVE_WADDCHNSTR
+
+/* Define if curses library has this  */
+#undef HAVE_WBKGD
+
+/* Define if curses library has this function */
+#undef HAVE_WNOUTREFRESH
+
+/* Define if curses library has this function */
+#undef HAVE_WVLINE
+
+/* Define if not linking with REXX support  */
+#undef NOREXX
+
+/* Define if you need to in order for stat and other things to work.  */
+#undef _POSIX_SOURCE
+
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define if you can safely include both <sys/time.h> and <time.h>.  */
+#undef TIME_WITH_SYS_TIME
+
+/* Define if your <sys/time.h> declares struct tm.  */
+#undef TM_IN_SYS_TIME
+
+/* Define if compiling with TRACE information */
+#undef THE_TRACE
+
+/* Define if running on UNIX system.  */
+#undef UNIX
+
+/* Define if linking with Extended Curses.  */
+#undef USE_EXTCURSES
+
+/* Define if linking with nurses.  */
+#undef USE_NCURSES
+
+/* Define if linking with Regina REXX.  */
+#undef USE_REGINA
+
+/* Define if linking with Rexx/Trans.  */
+#undef USE_REXXTRANS
+
+/* Define if linking with REXX/6000.  */
+#undef USE_REXX6000
+
+/* Define if linking with REXX/imc.  */
+#undef USE_REXXIMC
+
+/* Define if linking with Object Rexx.  */
+#undef USE_OREXX
+
+/* Define if linking with uni-REXX.  */
+#undef USE_UNIREXX
+
+/* Define if linking with XCurses.  */
+#undef USE_XCURSES
+
+/* Define a value for the xterm program */
+#undef XTERM_PROGRAM
+
+/* Define if you have this function */
+#undef HAVE_ACL_GET
+
+/* Define if you have this function */
+#undef HAVE_GETACL
+
+/* Define if you have the strcasecmp function.  */
+#undef HAVE_STRCASECMP
+
+/* Define if you have the stricmp function.  */
+#undef HAVE_STRICMP
+
+/* Define if you have the strcmpi function.  */
+#undef HAVE_STRCMPI
+
+/* Define if you have the readlink function.  */
+#undef HAVE_READLINK
+
+/* Define if you have the select function.  */
+#undef HAVE_SELECT
+
+/* Define if you have the mkfifo function.  */
+#undef HAVE_MKFIFO
+
+/* Define if you have the rename function.  */
+#undef HAVE_RENAME
+
+/* Define if you have the lstat function.  */
+#undef HAVE_LSTAT
+
+/* Define if you have the chown function.  */
+#undef HAVE_CHOWN
+
+/* Define if you have the <ctype.h> header file.  */
+#undef HAVE_CTYPE_H
+
+/* Define if you have the <errno.h> header file.  */
+#undef HAVE_ERRNO_H
+
+/* Define if you have the <alloca.h> header file.  */
+#undef HAVE_ALLOCA_H
+
+/* Define if you have the <dirent.h> header file.  */
+#undef HAVE_DIRENT_H
+
+/* Define if you have the <fcntl.h> header file.  */
+#undef HAVE_FCNTL_H
+
+/* Define if you have the <memory.h> header file.  */
+#undef HAVE_MEMORY_H
+
+/* Define if you have the <stat.h> header file.  */
+#undef HAVE_STAT_H
+
+/* Define if you have the <stdarg.h> header file.  */
+#undef HAVE_STDARG_H
+
+/* Define if you have the <stdlib.h> header file.  */
+#undef HAVE_STDLIB_H
+
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+
+/* Define if you have the <time.h> header file.  */
+#undef HAVE_TIME_H
+
+/* Define if you have the <sys/acl.h> header file.  */
+#undef HAVE_SYS_ACL_H
+
+/* Define if you have the <sys/mode.h> header file.  */
+#undef HAVE_SYS_MODE_H
+
+/* Define if you have the <sys/file.h> header file.  */
+#undef HAVE_SYS_FILE_H
+
+/* Define if you have the <sys/stat.h> header file.  */
+#undef HAVE_SYS_STAT_H
+
+/* Define if you have the <sys/time.h> header file.  */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/types.h> header file.  */
+#undef HAVE_SYS_TYPES_H
+
+/* Define if you have the <sys/wait.h> header file.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define if you have the <sys/select.h> header file.  */
+#undef HAVE_SYS_SELECT_H
+
+/* Define if you have the <select.h> header file.  */
+#undef HAVE_SELECT_H
+
+/* Define if select() is in <time.h> header file.  */
+#undef HAVE_SELECT_IN_TIME_H
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Define if are on Digital Unix 4.0.  */
+#undef HAVE_BROKEN_SYS_ACL_H
+
+/* Define if WINDOW->_begy exists */
+#undef HAVE_UNDERSCORE_BEGY
+
+/* Define if WINDOW->begy exists */
+#undef HAVE_BEGY
+
+/* Define if WINDOW->_maxy exists */
+#undef HAVE_UNDERSCORE_MAXY
+
+/* Define if WINDOW->maxy exists */
+#undef HAVE_MAXY

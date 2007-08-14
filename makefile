@@ -7,7 +7,7 @@
 !include ./build.conf
 !include ./mk/site.mk
 
-DIRS = boot muFSD muIIF filesys freeldr
+DIRS = boot muFSD muIIF filesys freeldr cmd
 
 !include ./mk/bootseq.mk
 
@@ -88,7 +88,7 @@ fdd: .SYMBOLIC
             -b $(ROOT)\boot\bootsect\bootsect_1.bin    &
             -B $(TOOLS)\diskette.cfg                   &
             -f "$(ROOT)\muFSD\ext2\bb_ext2 $(ROOT)\flp.img"
- $(RN) flp.img $(IMGDIR) 
+ $(RN) flp.img $(IMGDIR)
 
 !endif
 

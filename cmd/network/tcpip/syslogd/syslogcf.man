@@ -1,0 +1,100 @@
+SYSLOG.CONF(5)             UNIX Programmer's Manual             SYSLOG.CONF(5)
+
+NAME
+     syslog.conf - syslogd(8) configuration file
+
+DESCRIPTION
+     The syslog.conf file is the configuration file for the syslogd(8) pro-
+     gram.  It consists of lines with two fields: the selector field which
+     specifies the types of messages and priorities to which the line applies,
+     and an action field which specifies the action to be taken if a message
+     syslogd received matches the selection criteria.  There may not be any
+     spaces in the action field.  The selector field is separated from the
+     action field by one or more tab or space characters (this is a departure
+     from the standard BSD way of doing things: both tabs and spaces may be
+     used to separate the selector from the action).
+
+
+     The Selector functions are encoded as a facility, a period (``.''), and a
+     level, with no intervening white-space.  Both the facility and the level
+     are case insensitive.
+
+     The facility describes the part of the system generating the message, and
+     is one of the following keywords: auth, authpriv, cron, daemon, kern,
+     lpr, mail, mark, news, syslog, user, uucp and local0 through local7.
+     These keywords (with the exception of mark) correspond to the similar
+     ``LOG_'' values specified to the openlog(3) and syslog(3) library rou-
+     tines.
+
+     The level describes the severity of the message, and is a keyword, op-
+     tionally preceded by an equals (``=''), from the following ordered list
+     (higher to lower): emerg, alert, crit, err, warning, notice, info, and
+     debug.  These keywords correspond to the similar (LOG_) values specified
+     to the syslog library routine.
+
+     See syslog(3) for a further descriptions of both the facility and level
+     keywords and their significance.
+
+     If a received message matches the specified facility and is of the speci-
+     fied level (or a higher level if level was specified without ``='') , the
+     action specified in the action field will be taken.
+
+     Multiple selectors may be specified for a single action by separating
+     them with semicolon (``;'') characters.  It is important to note, howev-
+     er, that each selector can modify the ones preceding it.
+
+     Multiple facilities may be specified for a single level by separating
+     them with comma (``,'') characters.
+
+     An asterisk (``*'') can be used to specify all facilities or all levels.
+
+     The special facility ``mark'' receives a message at priority ``info'' ev-
+     ery 20 minutes (see syslogd(8)).  This is not enabled by a facility field
+     containing an asterisk.
+
+     The special level ``none'' disables a particular facility.
+
+     The action field of each line specifies the action to be taken when the
+     selector field selects a message.  There are four forms:
+
+     o   A pathname (beginning with a leading slash).  Selected messages are
+         appended to the file.
+
+     o   A hostname (preceded by an at (``@'') sign).  Selected messages are
+         forwarded to the syslogd program on the named host.
+
+     o   The keyword ``CON''. Selected messages are written to stdout.
+
+     Blank lines and lines whose first non-blank character is a hash (``#'')
+     character are ignored.
+
+EXAMPLES
+     A configuration file might appear as follows:
+
+     # Log anything (except mail) of level info or higher.
+     # Don't log private authentication messages!
+     *.info;mail.none;authpriv.none                        c:\logs\messages
+
+     # Log debug messages only
+     *.=debug                                              c:\logs\debug
+
+     # Save mail and news errors of level err and higher in a
+     # special file.
+     uucp,news.crit                                        c:\logs\spoolerr
+
+FILES
+     %etc%\syslog.cnf  The syslogd(8) configuration file.
+
+BUGS
+     The effects of multiple selectors are sometimes not intuitive.  For exam-
+     ple ``mail.crit,*.err'' will select ``mail'' facility messages at the
+     level of ``err'' or higher, not at the level of ``crit'' or higher.
+
+SEE ALSO
+     syslog(3),  syslogd(8)
+
+HISTORY
+     The syslog.conf file format is currently under development.
+
+BSD Experimental                 May 10, 1991                                2
+

@@ -1,0 +1,12 @@
+/* This macro postprocesses a HTML file in preparation for combining */
+/* multiple HTML documents together. */
+html_ext = '.html'
+files = 'app1 app2 app3 app4 app5 comm commset commsos glossary history index overview query quickref'
+'extract /filename'
+'all\<a name\ & \</A>\'
+'nomsg c/"/"' || Changestr(' ',Translate(filename.1,'_','.'),'') || '_/ * 1'
+'all\<a href\ & \</A>\'
+Do i = 1 To Words(files)
+   'nomsg c/"' || Word(files,i) || html_ext || '#/"#' || Changestr(' ',Translate(Word(files,i)||html_ext,'_','.'),'') || '_/ * *'
+End
+'ffile' filename.1 || '.new'

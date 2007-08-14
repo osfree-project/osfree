@@ -1,0 +1,24 @@
+CC      = icc
+CFLAGS  = -Ti -Gm
+LFLAGS  = -Ti -Gm
+
+TCPLIBS = tcp32dll.lib so32dll.lib
+OBJS    = inetd.obj syslog.obj pwd.obj fix_env.obj getopt.obj
+
+all:      inetd.exe
+
+clean:
+  -del *.exe
+  -del *.obj
+
+inetd.exe: $(OBJS)
+  $(CC) $(LFLAGS) $(OBJS) $(TCPLIBS)
+
+.c.obj:
+  $(CC) -c $(CFLAGS) $<
+
+inetd.obj:   inetd.c   pwd.h syslog.h fix_env.h
+pwd.obj:     pwd.c     pwd.h
+syslog.obj:  syslog.c  syslog.h
+fix_env.obj: fix_env.c fix_env.h
+getopt.obj:  getopt.c  getopt.h

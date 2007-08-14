@@ -1,0 +1,62 @@
+*
+* This file contains the THE Language Definition for the m4 macro processor.
+* It is based heavily on Kedit's KLD file format.
+*
+* Name = M4
+*
+:case
+  respect
+:option
+  function ( noblank default alt 4
+:string
+  single backslash
+  double backslash
+:identifier
+  [a-zA-Z_] [a-zA-Z0-9_]
+:comment
+  line dnl any
+  line # any
+:keyword
+  break alt 4
+  case
+  cd alt 4
+  continue alt 4
+  do
+  done
+  echo alt 4
+  elif
+  else
+  esac
+  eval alt 4
+  exec alt 4
+  exit alt 4
+  export alt 4
+  fi
+  for
+  getopts alt 4
+  if
+  in
+  set alt 4
+  shift alt 4
+  test alt 4
+  then
+  trap alt 4
+  unset alt 4
+  until
+  while
+:function
+  AC_DEFUN alt 1
+  AC_CACHE_VAL
+  AC_TRY_EVAL
+  AC_MSG_CHECKING
+  AC_MSG_RESULT
+  AC_MSG_ERROR
+  AC_MSG_WARN
+  AC_DEFINE
+  AC_DEFINE_UNQUOTED
+  AC_TRY_COMPILE
+  AC_TRY_LINK
+  AC_SUBST
+  AC_REQUIRE
+  AC_TRY_RUN
+  AC_TRY_RUN_NATIVE

@@ -1,0 +1,37 @@
+# $Id: makefile,v 1.5 2004/08/16 04:51:09 prokushev Exp $
+
+ROOT=..\..\..
+
+DIR = $(ROOT)\bin\os2
+PROJ = ansi
+DESC = Control utility for ANSI
+OBJS = ansi.obj
+ADD_COPT = -i=..\include
+ADD_LIB = cmd_shared.lib,all_shared.lib
+
+!include $(ROOT)\makefile.inc
+
+all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
+
+$(DIR)\$(PROJ).exe: $(OBJS)
+ @%create $^&.lnk
+ @%append $^&.lnk $(LINKOPT)
+ @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
+ @%append $^&.lnk FORMAT OS2 LX PMCOMPATIBLE
+ @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^&.lnk OPTION STACK=65536
+ @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk LIBRARY $(LINKLIB)
+ @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
+ $(SAY) Linking $^@
+ @$(LINKER) @$^&.lnk $(LOG)
+
+# Clean all
+
+clean: .symbolic
+ @if exist *.obj @del *.obj
+ -@del /q *.sbr $(LOG)
+ -@del /q *.map $(LOG)
+ -@del /q *.err $(LOG)
+ -@del /q *.wmp $(LOG)
+ -@del /q *.lnk $(LOG)
