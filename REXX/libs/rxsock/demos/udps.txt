@@ -1,0 +1,20 @@
+The programs udps.cmd and udpc.cmd are examples of a UDP server and a
+UDP client, respectively.  They work together as a test for
+RXSOCK.DLL.  To run the tests:
+
+1.  Start the server by typing the following in a command window:
+   [d:\data\devl\rxlibs\rxsock] regina udps.cmd
+
+   A message will be printed telling you which port was assigned to
+   the socket.
+
+2.  Start the client by typing the following in a different command
+    window:
+   [d:\data\devl\rxlibs\rxsock] regina udpc.cmd 192.9.0.1 2000
+
+   Substitute your machine's IP address for 192.9.0.1 and the port
+   number reported in step 1 for 2000.
+
+The server will then display a message telling you what message it
+received.
+

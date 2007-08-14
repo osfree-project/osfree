@@ -1,0 +1,300 @@
+#
+# Makefile for RxSock Extensions
+#
+# The variable 'srcdir' refers to the source-distribution, and can be set with
+# the configure script by "--srcdir=DIR".
+#
+
+SHELL		= /bin/sh
+THIS		= Makefile
+
+@SET_MAKE@
+
+VER=@VER@
+VER_DOT=@VER_DOT@
+VER_DATE=@VER_DATE@
+PACKAGE_DIR=RxSock-$(VER_DOT)
+PACKAGE_NAME=rxsock
+
+basedir		= @srcdir@
+srcdir		= @srcdir@/source
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+libdir		= $(exec_prefix)/lib
+bindir		= $(exec_prefix)/bin
+includedir		= $(exec_prefix)/include
+sharedir = $(prefix)/share/rxsock
+docdir		= @srcdir@/doc
+demodir		= @srcdir@/demos
+thisdir		=@thisdir@
+commondir	= @srcdir@/common
+
+INSTALL		= @srcdir@/install-sh
+
+CC		= @CC@
+CFLAGS		= @CFLAGS@
+
+CEXTRA =           @CEXTRA@ @DLFCNINCDIR@
+DEBUG =            @DEBUG@
+DEBUGGING =        @DEBUGGING@
+EEXTRA =           @EEXTRA@
+OSAVE  =           @OSAVE@
+OBJ  =             @OBJ@
+EXE  =             @EXE@
+SHLPRE =           @SHLPRE@
+SHLPST =           @SHLPST@
+LIBPRE =           @LIBPRE@
+LIBPST =           @LIBPST@
+LIBEXE =           @LIBEXE@
+LIBFLAGS =         @LIBFLAGS@
+RANLIB =           @RANLIB@
+GETOPT  =          @GETOPT@
+DYN_COMP  =        @DYN_COMP@
+SYS_DEFS  =        @SYS_DEFS@
+LIBS  =            @LIBS@
+SHLIBS  =          @SHLIBS@ @DLFCNLIBDIR@
+LD_RXLIB1  =       @LD_RXLIB1@
+LD_RXLIB2  =       @REXX_LIBS@ @MH_EXTRA_LIBS@ -lc
+DYNAMIC_LDFLAGS  = @DYNAMIC_LDFLAGS@ $(EEXTRA)
+SHL_TARGETS  =     @SHL_TARGETS@
+O2SAVE  =          @O2SAVE@
+O2SHO  =           @O2SHO@
+CC2O   =           @CC2O@
+SAVE2O  =          @SAVE2O@
+PURIFY =           @PURIFY@
+RXPACKEXPORTS =    @RXPACKEXPORTS@
+RXPACKEXP =        @RXPACKEXP@
+BASE_INSTALL =     @BASE_INSTALL@
+BASE_BINARY =      @BASE_BINARY@
+
+INCDIR		= -I$(srcdir) -I$(commondir)
+CPPFLAGS	= -I. $(INCDIR) $(DEBUGGING) @DEFS@ @SYS_DEFS@
+
+CCFLAGS		= -c $(CFLAGS) $(CPPFLAGS) @REXX_INCLUDES@
+
+LINK		= @PURIFY@ $(CC)
+LDFLAGS		= $(DEBUG) @LDFLAGS@ @REXX_LIBS@ @MH_EXTRA_LIBS@ $(LIBS)
+
+################################################################################
+
+H1=config.h
+H2=$(commondir)/rxpack.h $(commondir)/rxdef.h $(srcdir)/conversions.h
+
+################################################################################
+all:	$(PACKAGE_NAME) $(LIBPRE)$(PACKAGE_NAME)$(LIBPST) $(SHL_TARGETS)
+
+clean:
+	-rm -f *.o *.sho $(PACKAGE_NAME)
+
+distclean: clean
+	-rm -f Makefile
+
+mostlyclean: clean
+
+realclean: distclean
+
+#------------------------------------------------------------------------
+
+CSRCFILES = $(PACKAGE_DIR)/common/getopt.c $(PACKAGE_DIR)/common/loader.c $(PACKAGE_DIR)/common/rxpack.c
+ZIPCSRCFILES = common/getopt.c common/loader.c common/rxpack.c
+
+HEADERS = $(PACKAGE_DIR)/common/defines.h $(PACKAGE_DIR)/common/rxdef.h $(PACKAGE_DIR)/common/rxpack.h 
+ZIPHEADERS = common/defines.h common/rxdef.h common/rxpack.h
+
+OFILES = loader.$(OBJ) conversions.$(OBJ) rxsock.$(OBJ) rxpack.$(OBJ)
+
+SHOFILES = conversions.sho rxsock.sho rxpack.sho
+
+LIBFILES = conversions.sho rxsock.sho
+
+
+$(PACKAGE_NAME): $(OFILES) $(GETOPT)
+	$(LINK) $(OFILES) $(XTRA_OBJS) -o $(PACKAGE_NAME) $(LDFLAGS)
+
+
+$(SHLPRE)$(PACKAGE_NAME)$(SHLPST): $(SHOFILES)
+	$(LD_RXLIB1) -o $@ $(SHOFILES) $(LD_RXLIB2)
+
+$(LIBPRE)$(PACKAGE_NAME)$(LIBPST): $(LIBFILES)
+	$(LIBEXE) $(LIBFLAGS) $@ $(LIBFILES)
+	-$(RANLIB) $@
+
+#
+# executable objects
+#
+rxpack.o: $(commondir)/rxpack.c $(H1) $(H2)
+	$(CC) $(CCFLAGS) -o rxpack.o $(commondir)/rxpack.c
+
+loader.o: $(commondir)/loader.c $(H1) $(H2)
+	$(CC) $(CCFLAGS) -o loader.o $(commondir)/loader.c
+
+rxsock.o: $(srcdir)/rxsock.c $(H1) $(H2)
+	$(CC) $(CCFLAGS) -o rxsock.o $(srcdir)/rxsock.c
+
+conversions.o: $(srcdir)/conversions.c $(H1) $(H2)
+	$(CC) $(CCFLAGS) -o conversions.o $(srcdir)/conversions.c
+
+getopt.o: $(commondir)/getopt.c $(H1)
+	$(CC) $(CCFLAGS) -o getopt.o $(commondir)/getopt.c
+
+#
+# shared library objects
+#
+rxpack.sho : $(commondir)/rxpack.c $(H1) $(H2)
+	$(O2SAVE)
+	$(CC) $(CCFLAGS) $(CC2O) $(DYN_COMP) $(commondir)/rxpack.c
+	$(O2SHO)
+	$(SAVE2O)
+
+rxsock.sho : $(srcdir)/rxsock.c $(H1) $(H2)
+	$(O2SAVE)
+	$(CC) $(CCFLAGS) $(CC2O) $(DYN_COMP) $(srcdir)/rxsock.c
+	$(O2SHO)
+	$(SAVE2O)
+
+conversions.sho : $(srcdir)/conversions.c $(H1) $(H2)
+	$(O2SAVE)
+	$(CC) $(CCFLAGS) $(CC2O) $(DYN_COMP) $(srcdir)/conversions.c
+	$(O2SHO)
+	$(SAVE2O)
+
+#
+# export file for AIX
+#
+$(PACKAGE_NAME).exp: $(srcdir)/rxsockw32.def $(srcdir)/def2exp.rexx
+	rexx $(srcdir)/def2exp.rexx $(srcdir)/rxsockw32.def $(PACKAGE_NAME).exp
+
+
+zip:
+	zip rxsock$(VER) README README.win32 COPYING-LIB difference.os2 $(ZIPCSRCFILES) $(ZIPHEADERS)
+	zip rxsock$(VER) Makefile.in configure config.h.in rxsock-config.in
+	zip rxsock$(VER) makefile.* file_id.* source/*.def source/*.ico source/*.rc rxsock.html
+	zip rxsock$(VER) config.guess config.sub install-sh
+	zip rxsock$(VER) aclocal.m4 configure.in def2exp.rexx preinst.rexx
+	zip rxsock$(VER) source/*.c source/*.h
+	zip rxsock$(VER) demos/*.cmd demos/*.txt demos/*.rex
+
+dist:
+	(cd $(basedir)/..; tar cvf - \
+	$(PACKAGE_DIR)/README $(PACKAGE_DIR)/README.win32 $(PACKAGE_DIR)/COPYING-LIB $(CSRCFILES) $(PACKAGE_DIR)/difference.os2 $(CSRCFILES) $(HEADERS) \
+	$(PACKAGE_DIR)/Makefile.in $(PACKAGE_DIR)/configure $(PACKAGE_DIR)/config.h.in $(PACKAGE_DIR)/rxsock-config.in \
+	$(PACKAGE_DIR)/makefile.* $(PACKAGE_DIR)/source/*.def $(PACKAGE_DIR)/source/*.ico $(PACKAGE_DIR)/source/*.rc \
+	$(PACKAGE_DIR)/config.guess $(PACKAGE_DIR)/config.sub $(PACKAGE_DIR)/install-sh \
+	$(PACKAGE_DIR)/aclocal.m4 $(PACKAGE_DIR)/configure.in $(PACKAGE_DIR)/def2exp.rexx $(PACKAGE_DIR)/preinst.rexx \
+	$(PACKAGE_DIR)/source/*.c $(PACKAGE_DIR)/source/*.h \
+	$(PACKAGE_DIR)/demos/*.cmd $(PACKAGE_DIR)/demos/*.txt $(PACKAGE_DIR)/demos/*.rex \
+	| gzip > $(PACKAGE_DIR).tar.gz)
+
+install: $(BASE_INSTALL)
+
+installbase: all
+	$(INSTALL) -m 755 -d $(bindir)
+	$(INSTALL) -m 755 -d $(libdir)
+	$(INSTALL) -m 755 -d $(sharedir)
+	$(INSTALL) -c -m 755 ./$(PACKAGE_NAME) $(bindir)/$(PACKAGE_NAME)
+	-$(INSTALL) -c -m 755 ./$(SHLPRE)$(PACKAGE_NAME)$(SHLPST) $(libdir)/$(SHLPRE)$(PACKAGE_NAME)$(SHLPST)
+	$(INSTALL) -c -m 755 ./$(LIBPRE)$(PACKAGE_NAME)$(LIBPST) $(libdir)/$(LIBPRE)$(PACKAGE_NAME)$(LIBPST)
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/tcpc.cmd $(sharedir)/tcpc.cmd
+	-chmod 755 $(sharedir)/tcpc.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/tcps.cmd $(sharedir)/tcps.cmd
+	-chmod 755 $(sharedir)/tcps.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/udpc.cmd $(sharedir)/udpc.cmd
+	-chmod 755 $(sharedir)/udpc.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/udps.cmd $(sharedir)/udps.cmd
+	-chmod 755 $(sharedir)/udps.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/davesim.rex $(sharedir)/davesim.rex
+	-chmod 755 $(sharedir)/davesim.rex
+	$(INSTALL) -c -m 644 $(demodir)/udps.txt $(sharedir)/udps.txt
+	$(INSTALL) -c -m 644 $(demodir)/tcps.txt $(sharedir)/tcps.txt
+	$(INSTALL) -c -m 644 $(demodir)/davesim.txt $(sharedir)/davesim.txt
+
+cygwininstall: all
+	$(INSTALL) -m 755 -d $(bindir)
+	$(INSTALL) -m 755 -d $(libdir)
+	$(INSTALL) -m 755 -d $(sharedir)
+	$(INSTALL) -c -m 755 ./$(PACKAGE_NAME).exe $(bindir)/$(PACKAGE_NAME).exe
+	-$(INSTALL) -c -m 755 ./$(SHLPRE)$(PACKAGE_NAME)$(SHLPST) $(bindir)/$(SHLPRE)$(PACKAGE_NAME)$(SHLPST)
+	$(INSTALL) -c -m 755 ./$(LIBPRE)$(PACKAGE_NAME)$(LIBPST) $(libdir)/$(LIBPRE)$(PACKAGE_NAME)$(LIBPST)
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/tcpc.cmd $(sharedir)/tcpc.cmd
+	-chmod 755 $(sharedir)/tcpc.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/tcps.cmd $(sharedir)/tcps.cmd
+	-chmod 755 $(sharedir)/tcps.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/udpc.cmd $(sharedir)/udpc.cmd
+	-chmod 755 $(sharedir)/udpc.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/udps.cmd $(sharedir)/udps.cmd
+	-chmod 755 $(sharedir)/udps.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/davesim.rex $(sharedir)/davesim.rex
+	-chmod 755 $(sharedir)/davesim.rex
+	$(INSTALL) -c -m 644 $(demodir)/udps.txt $(sharedir)/udps.txt
+	$(INSTALL) -c -m 644 $(demodir)/tcps.txt $(sharedir)/tcps.txt
+	$(INSTALL) -c -m 644 $(demodir)/davesim.txt $(sharedir)/davesim.txt
+
+beosinstall: all
+	$(INSTALL) -m 755 -d /boot/home/config/bin
+	$(INSTALL) -m 755 -d /boot/home/config/add-ons/rexx
+	$(INSTALL) -m 755 -c ./$(PACKAGE_NAME) /boot/home/config/bin/$(PACKAGE_NAME)
+	-$(INSTALL) -m 755 -c ./$(SHLPRE)$(PACKAGE_NAME)$(SHLPST) /boot/home/config/add-ons/rexx/$(SHLPRE)$(PACKAGE_NAME)$(SHLPST)
+	$(INSTALL) -m 755 -c ./$(LIBPRE)$(PACKAGE_NAME)$(LIBPST) /boot/home/config/lib/$(LIBPRE)$(PACKAGE_NAME)$(LIBPST)
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/tcpc.cmd $(sharedir)/tcpc.cmd
+	-chmod 755 $(sharedir)/tcpc.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/tcps.cmd $(sharedir)/tcps.cmd
+	-chmod 755 $(sharedir)/tcps.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/udpc.cmd $(sharedir)/udpc.cmd
+	-chmod 755 $(sharedir)/udpc.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/udps.cmd $(sharedir)/udps.cmd
+	-chmod 755 $(sharedir)/udps.cmd
+	./$(PACKAGE_NAME) $(basedir)/preinst.rexx $(bindir)/$(PACKAGE_NAME) $(demodir)/davesim.rex $(sharedir)/davesim.rex
+	-chmod 755 $(sharedir)/davesim.rex
+	$(INSTALL) -c -m 644 $(demodir)/udps.txt $(sharedir)/udps.txt
+	$(INSTALL) -c -m 644 $(demodir)/tcps.txt $(sharedir)/tcps.txt
+	$(INSTALL) -c -m 644 $(demodir)/davesim.txt $(sharedir)/davesim.txt
+
+binary: $(BASE_BINARY)
+
+binarybase: all
+	-rm -fr ./tmpdir
+	-mkdir -p ./tmpdir/bin
+	-mkdir -p ./tmpdir/lib
+	-mkdir -p ./tmpdir/rexx
+	-mkdir -p ./tmpdir/doc/rxsock
+	cp $(PACKAGE_NAME) ./tmpdir/bin
+	cp $(SHLPRE)$(PACKAGE_NAME)$(SHLPST) ./tmpdir/lib
+	cp $(LIBPRE)$(PACKAGE_NAME)$(LIBPST) ./tmpdir/lib
+	cp $(basedir)/COPYING-LIB ./tmpdir/doc/rxsock
+	cp $(basedir)/README ./tmpdir/doc/rxsock
+	cp $(demodir)/tcps.cmd ./tmpdir/rexx
+	cp $(demodir)/tcps.txt ./tmpdir/rexx
+	cp $(demodir)/tcpc.cmd ./tmpdir/rexx
+	cp $(demodir)/udps.cmd ./tmpdir/rexx
+	cp $(demodir)/udps.txt ./tmpdir/rexx
+	cp $(demodir)/udpc.cmd ./tmpdir/rexx
+	cp $(demodir)/davesim.rex ./tmpdir/rexx
+	cp $(demodir)/davesim.txt ./tmpdir/rexx
+	(cd ./tmpdir; \
+	tar cvf - * | gzip > ../$(PACKAGE_DIR).@target@.tgz )
+
+beosbinary: all
+	-rm -fr ./tmpdir
+	-mkdir -p ./tmpdir/bin
+	-mkdir -p ./tmpdir/add-ons/rexx
+	-mkdir -p ./tmpdir/doc/rxsock
+	cp $(PACKAGE_NAME) ./tmpdir/bin
+	cp $(SHLPRE)$(PACKAGE_NAME)$(SHLPST) ./tmpdir/add-ons/rexx
+	cp $(basedir)/COPYING-LIB ./tmpdir/doc/rxsock
+	cp $(basedir)/README ./tmpdir/doc/rxsock
+	cp $(demodir)/tcps.cmd ./tmpdir/rexx
+	cp $(demodir)/tcps.txt ./tmpdir/rexx
+	cp $(demodir)/tcpc.cmd ./tmpdir/rexx
+	cp $(demodir)/udps.cmd ./tmpdir/rexx
+	cp $(demodir)/udps.txt ./tmpdir/rexx
+	cp $(demodir)/udpc.cmd ./tmpdir/rexx
+	cp $(demodir)/davesim.rex ./tmpdir/rexx
+	cp $(demodir)/davesim.txt ./tmpdir/rexx
+	(cd ./tmpdir; \
+	zip -r $(PACKAGE_DIR).BeOS.zip * )
+
+rpm:
+	rpm -ta $(srcdir)/../RxSock-$(VER_DOT).tar.gz
+#
+# End of makefile
+#

@@ -1,0 +1,268 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(source/rxsock.c)
+AC_PREFIX_DEFAULT(/usr)
+
+VER="14"
+VER_DOT="1.4"
+VER_DATE="30-December-2003"
+AC_SUBST(VER)
+AC_SUBST(VER_DOT)
+AC_SUBST(VER_DATE)
+
+mymakefile="Makefile"
+
+dnl ---------------------- check for C compiler -----------------
+dnl Checks for one of the C compilers below - change if yours not there.
+CC_LIST="gcc acc cc c89"
+MH_PROG_CC
+
+AC_CONFIG_HEADER(config.h)
+AC_ISC_POSIX
+
+AC_CANONICAL_SYSTEM
+AC_PROG_GCC_TRADITIONAL
+AC_PROG_RANLIB
+
+on_qnx=no
+case "$target" in
+	*hp-hpux*) 
+		SYS_DEFS="-D_HPUX_SOURCE"
+		;;
+	*ibm-aix*)
+		SYS_DEFS="-D_ALL_SOURCE"
+		;;
+	*dec-osf4*)
+		AC_DEFINE(HAVE_BROKEN_SYS_ACL_H)
+		;;
+	*dec-osf*)
+		;;
+	*sequent-dynix*)
+		;;
+	*solaris*)
+		SYS_DEFS="-DBSD_COMP"
+		;;
+	sparc*sunos*)
+		;;
+	*linux*)
+		SYS_DEFS="-D__USE_BSD"
+		;;
+	*qnx*)
+		on_qnx=yes
+		SYS_DEFS="-Q"
+		;;
+esac
+AC_SUBST(SYS_DEFS)
+
+dnl ---------------------- check for REXX argument -----------------
+dnl allow --with-rexx for Rexx support
+AC_ARG_WITH(rexx,
+	[  --with-rexx=int         specify Rexx interpeter (rexxtrans|regina|rexximc|objrexx|unirexx|rexx6000)],
+	[with_rexx=$withval],
+	[with_rexx=no],
+)
+dnl allow --with-rexxincdir to specify where REXX header file is
+AC_ARG_WITH(rexxincdir,
+	[  --with-rexxincdir=DIR   specify where REXX header file is],
+	[with_rexxincdir=$withval],
+	[with_rexxincdir=no],
+)
+dnl allow --with-rexxlibdir to specify where REXX library file is
+AC_ARG_WITH(rexxlibdir,
+	[  --with-rexxlibdir=DIR   specify where REXX library file is],
+	[with_rexxlibdir=$withval],
+	[with_rexxlibdir=no],
+)
+CHECK_REXX
+
+dnl ---------------------- check packages -----------------------
+dnl 
+dnl Check for general libraries.
+dnl
+MH_LIBS_TO_CHECK="m s socket nls"
+MH_CHECK_LIB(${MH_LIBS_TO_CHECK})
+
+AC_SUBST(MH_EXTRA_LIBS)
+
+dnl --------------------- Check for other programs. ---------------
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+
+dnl -------------------- Checks for header files. -----------------
+AC_HEADER_STDC
+AC_CHECK_HEADERS( \
+	ctype.h \
+	assert.h \
+	sys/types.h \
+	sys/mode.h \
+	sys/stat.h \
+	sys/file.h \
+	sys/wait.h \
+	sys/time.h \
+	sys/socket.h \
+	sys/ioctl.h \
+	sys/select.h \
+	netinet/in.h \
+	arpa/inet.h \
+	socket.h \
+	netdb.h \
+	unistd.h \
+	dirent.h \
+	errno.h \
+	stdlib.h \
+	memory.h \
+	fcntl.h \
+	string.h \
+	stdarg.h \
+	stat.h \
+	time.h \
+	dlfcn.h \
+	dl.h \
+	)
+
+MH_HAVE_PROTO
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+MH_CHECK_CC_O
+
+dnl Checks for library functions.
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(getopt strerror gethostid)
+if test "$ac_cv_func_getopt_func" = no; then
+	GETOPT="getopt.o"
+	AC_SUBST(GETOPT)
+fi
+
+dnl --------------- allow --enable-debug to compile in debug mode --------
+AC_ARG_ENABLE(debug,
+	[  --enable-debug          turn on debugging],
+	[with_debug=$enableval],
+	[with_debug=no],
+)
+cflags_g="`echo $CFLAGS | grep -c '\-g'`"
+cflags_O="`echo $CFLAGS | grep -c '\-O'`"
+
+DEBUG=""
+DEBUGGING=""
+if test "$with_debug" = yes; then
+	DEBUG="-g"
+	DEBUGGING="-DDEBUG"
+	if test "$cflags_g" = "0"; then
+		CFLAGS="${CFLAGS} -g"
+	fi
+	if test "$cflags_O" != "0"; then
+		CFLAGS="`echo ${CFLAGS} | sed -e s/-O.//`"
+	fi
+else
+	if test "$cflags_O" = "0"; then
+		CFLAGS="${CFLAGS} -O"
+	fi
+	if test "$cflags_g" != "0"; then
+		CFLAGS="`echo ${CFLAGS} | sed -e s/-g//`"
+	fi
+fi
+AC_SUBST(DEBUG)
+AC_SUBST(DEBUGGING)
+
+dnl --------------- allow --enable-purify to enable linking with Purify
+AC_ARG_ENABLE(purify,
+	[  --enable-purify         link with Purify (TM)],
+	[with_purify=$enableval],
+	[with_purify=no],
+)
+if test "$with_purify" = yes; then
+	PURIFY="purify"
+else
+	PURIFY=""
+fi
+AC_SUBST(PURIFY)
+
+
+dnl --------------- allow --withdlfcnincdir to enable compiling with dlfcn.h under AIX 3/4.1
+AC_ARG_WITH(dlfcnincdir,
+	[  --with-dlfcnincdir      location of dlfcn.h (AIX only)],
+	[with_dlfcnincdir=$withval],
+	[with_dlfcnincdir=no],
+)
+if test "$with_dlfcnincdir" = no; then
+	DLFCNINCDIR=""
+else
+	DLFCNINCDIR="-I$with_dlfcnincdir"
+	HAVE_DLFCN_H="1"
+	AC_DEFINE(HAVE_DLFCN_H)
+fi
+AC_SUBST(DLFCNINCDIR)
+
+dnl --------------- allow --withdlfcnlibdir to enable compiling with dlfcn.h under AIX 3/4.1
+AC_ARG_WITH(dlfcnlibdir,
+	[  --with-dlfcnlibdir      location of libdl.a (AIX only)],
+	[with_dlfcnlibdir=$withval],
+	[with_dlfcnlibdir=no],
+)
+if test "$with_dlfcnlibdir" = no; then
+	DLFCNLIBDIR=""
+else
+	DLFCNLIBDIR="-L$with_dlfcnlibdir -ldl"
+fi
+AC_SUBST(DLFCNLIBDIR)
+
+
+dnl --------------- Force definition of pre-compiler macro UNIX ----------
+AC_DEFINE(UNIX)
+
+dnl --------------- Check how to make shared libraries -------------------
+MH_SHARED_LIBRARY(rxsock)
+
+dnl --------------- Get us an install package ----------------------------
+AC_PROG_INSTALL
+
+thisdir="`pwd`"
+AC_SUBST(thisdir)
+
+AC_SUBST($target)
+AC_OUTPUT($mymakefile rxsock-config)
+
+case "$target" in
+	*ibm-aix*)
+		mv Makefile.aix Makefile
+		AC_MSG_RESULT(renaming Makefile.aix to Makefile)
+		;;
+	*)
+		;;
+esac
+
+echo
+echo "RxSock has now been configured with the following options:"
+echo
+echo "                 Rexx Interpreter: $REXX_INT"
+if test "$with_rexxincdir" != no ; then
+echo "                  rexx headers in: $with_rexxincdir"
+else
+echo "                  rexx headers in: $mh_rexx_inc_dir"
+fi
+if test "$with_rexxlibdir" != no ; then
+echo "                rexx libraries in: $with_rexxlibdir"
+else
+echo "                rexx libraries in: $mh_rexx_lib_dir"
+fi
+myopts=""
+if test "$with_debug" = yes ; then
+	myopts="$myopts DEBUG"
+fi
+if test "$with_purify" = yes ; then
+	myopts="$myopts PURIFY"
+fi
+if test "$with_hpux_portable" = yes ; then
+	myopts="$myopts HPUX-PORTABLE"
+fi
+if test "$exec_prefix" = '${prefix}' ; then
+	macro_dir="$prefix"
+else
+	macro_dir="$exec_prefix"
+fi
+echo "                   Build options: $myopts"
+echo "     RxSock will be installed in: $macro_dir/lib"
+echo

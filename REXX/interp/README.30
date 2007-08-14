@@ -1,0 +1,134 @@
+                         Regina 3.0
+                        25 April 2002
+
+Changes in this release (from 2.2)
+----------------------------------
+
+o Fixed a bug with a crash under Win32 when trying to load a function
+  with rxfuncadd() and that function does not exist in the external function
+  package.
+o Added ANSI enhancements to ADDRESS command. Now supports full WITH options.
+  This feature implemented by Florian Grosse-Coosmann.
+o New port of Regina to EPOC32. Regina now runs on Psion 5mx/Revo/Revo Plus
+  and those mobile phones that run EPOC32 operating system. The RexxStart
+  package for EPOC32 also comes with an online Regina quick reference guide.
+o Added -a switch to specify that separate arguments should be passed to the
+  Rexx program. 
+  eg without the -a switch (default behaviour of all Rexx interpreters)
+     % rexx fred "this has spaces" mary
+  /**/
+  Parse Source . how .
+  Say how     /* -> COMMAND */
+  Say Arg(1)  /* -> fred this has spaces mary */
+  Say Arg(2)  /* -> */
+  Say Arg(3)  /* -> */
+  Say Arg()   /* -> 1 */
+     % rexx -a fred "this has spaces" mary
+  /**/
+  Parse Source . how .
+  Say how     /* -> SUBROUTINE */
+  Say Arg(1)  /* -> fred */
+  Say Arg(2)  /* -> this has spaces */
+  Say Arg(3)  /* -> mary */
+  Say Arg()   /* -> 3 */
+  You can determine how the Rexx program was called by checking the
+  second word in PARSE SOURCE as the above example shows.
+o Add regina-config creation under Un*x platforms. This is to simplify the
+  determination of what flags to use to build a program that links with Regina.
+o Files are now truncated properly with LINEOUT() on QNX 4.2x
+o Added UPPER instruction to ease porting from those platforms that support
+  the UPPER instruction.
+o TRACE command now supports numeric values when in interactive trace. TRACE with
+  a positive whole number will execute the number of clauses using the current TRACE
+  setting without any prompting. TRACE with a negative whole number will execute the
+  number of clauses without prompting, and with a temporary TRACE O in effect. TRACE 0
+  is the same as TRACE O.
+o Added 'T' option to TIME and DATE BIFs to return the current Unix time_t value.
+  'T' format can also be used in time and date conversions.
+o Slight change of behaviour when Regina looks for external functions in
+  directories PATH. Regina will no longer look for an external function
+  without an extension.  This is to allow Regina to allow operating system
+  commands to be called as functions: eg. a = 'ls'() will now work as it did
+  before the change to search PATH as well as REGINA_MACROS. If you have an
+  external routine called 'ls.rexx' in PATH, it will still find it!
+o Added new OPTION: STRICT_ANSI (replaces ANSI OPTION). If you specify STRICT_ANSI
+  in an OPTIONS statement, Regina will disallow any Regina functionality that is
+  not part of the ANSI standard. (This is an ongoing exercise).
+  Restrictions currently implemented:
+  - C and T options on DATE BIF
+  - J and T options on TIME BIF
+  - BIFs not allowed: 
+    ALLOCATED,BEEP,BUFTYPE,CD,CHDIR,CLOSE,CRYPT,DESBUF,DIRECTORY,DROPBUF,DUMPFILES,
+    DUMPTREE,DUMPVARS,EOF,All VMS F$ functions,FILESPEC,FIND,FINIS,FORK,FREELISTS,
+    GETENV,GETPATH,GETPID,GETTID,INDEX,JUSTIFY,LISTLEAKED,MAKEBUF,MEMORYSTATS,OPEN,
+    POPEN,SLEEP,STATE,TRACEBACK,UNAME,UNIXERROR,USERID
+  - Instructions not allowed:
+    UPPER
+    ADDRESS (env)
+  - Treating operating system commands as functions. eg: a = 'ls'() will
+    return an error 43.1.
+o Initial native language support added. This release allows for error
+  messages to be displayed in a user-selectable native language.
+  All native language error messages are contained in binary files (*.mtb) that
+  are built with the Regina executables from source files (*.mts).
+  The mechanism Regina uses to determine what native language to use to display
+  error messages depends on the operating system. 
+  On EPOC32, the language is supplied when installing; the selected language
+  is contained in default.mtb.
+  On all other platforms, Regina uses environment variables if you want to use a
+  language other than English. The English messages are built into the interpreter.
+  Up to 2 environment variables are used. 
+  REGINA_LANG environment variable can be set to an ISO 639, 2 character
+  language abbreviation as defined below. 
+
+  Abbrev Language       Translation By             EPOC32?
+     de  German         Floran Grosse-Coosmann        Y
+     es  Spanish        Pablo Garcia-Abia             Y
+     no  Norwegian      Vidar Tysse                   Y
+     pt  Portuguese     Susana and Brian Carpenter    Y
+  
+  If REGINA_LANG is not set, the default is "en".
+
+  REGINA_LANG_DIR is required if Regina does not know where the language files
+  will be at runtime.
+  Any binary distribution that includes an installation routine; RPM, Windows
+  InstallShield or EPOC32, will set the location of the .mtb files automatically. 
+  Similarly building and installing Regina on Unix-like platforms using 
+  configure;make install combination will also set the location automatically.  
+  All other platforms will require this environment variable to bet set manually.
+o Continuing addition of more sub-error reporting.
+o Added new command to RXQUEUE() BIF; TIMEOUT.  This allows the setting of a timeout
+  value on an external queue, so that a subsequent PULL from the queue can be made
+  to timeout after a certain period (specified in milliseconds), or wait indefinitely
+  (specify a timeout of 0).
+o When a Rexx program is run from the Win32 Explorer or from the Start->Run prompt,
+  Regina will display a prompt and require the user to press ENTER to close the
+  console window. This is to allow the output from the Rexx program to be seen.
+o Added binaries to create and execute tokenised code files. 
+o Fixed a crash with some combinations of compound variables, and minor bug
+  with TRACE. Fixed by Mark Wooding
+o Interactive tracing state now correctly remembered across subroutine
+  calls. Fixed by Mark Wooding
+o Changed error reporting of unmatched comments, as per feature Request:
+  #508788. Error message now reflects comment starting line rather than
+  end of file line.
+o Added '.rx' as a recognised file extension.
+o Fixed bug with negative values passed to TIME BIF.
+o Added capabilities to run Regina in "safe" mode.  This mode is useful for
+  running in an environment where the Rexx program should be
+  prevented from changing the environment in which it is running. eg as a
+  database procedural language. See README_SAFE for more information.
+o Added new builtin environments: REXX and REGINA, to allow Rexx programs
+  to be run in another process.
+o Fixed bug with rxstack when using timeouts on queues, and with deleting
+  lines off the queue when they are pulled off.
+o Fixed bug with FORK BIF on unsupported platforms.  It now correctly returns 1
+  instead of 0 if FORK unsupported.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

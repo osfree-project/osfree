@@ -1,0 +1,65 @@
+# Win32 Makefile for regutil
+# this makefile works with mingw gcc
+# you are meant to copy Makefile.mingw to the name Makefile, and
+# then type `make dist' to get an optimised version of the library
+
+#  The contents of this file are subject to the Mozilla Public License
+#  Version 1.0 (the "License"); you may not use this file except in
+#  compliance with the License. You may obtain a copy of the License at
+#  http://www.mozilla.org/MPL/
+
+#  Software distributed under the License is distributed on an "AS IS"
+#  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+#  License for the specific language governing rights and limitations
+#  under the License.
+
+#  The Original Code is regutil.
+
+#  The Initial Developer of the Original Code is Patrick TJ McPhee.
+#  Portions created by Patrick McPhee are Copyright © 1998, 2001
+#  Patrick TJ McPhee. All Rights Reserved.
+
+#  Contributors:
+
+# $Header: /netlabs.cvs/osfree/src/REXX/libs/rexxutil/Makefile.mingw,v 1.2 2004/08/21 14:48:38 prokushev Exp $
+#
+
+
+
+DEBUG=-g
+DOPT=-O6 -fno-stack-check -fomit-frame-pointer -fexpensive-optimizations -march=pentiumpro -msse
+INCDIR=../regina
+LIBDIR=../regina
+CDEFS=-DNOT_LIKE_IBM -DMAPVIEWOFFILE
+CFLAGS=$(OPT) $(DEBUG) $(CDEFS) -pipe -I$(INCDIR) -mdll
+LDFLAGS=-Wl,--enable-stdcall-fixup,--major-image-version=2,--minor-image-version=0 -s
+CC=gcc
+
+OBJS=regfilesys.o regini.o regmacrospace.o regscreen.o\
+ regsem.o regutil.o rxsupport.o random.o regstem.o regwin.o\
+ regunicode.o regcrypt.o
+
+all : rexxutil.dll
+
+
+rexxutil.dll : $(OBJS) regutil.def
+	$(CC) $(CFLAGS) $(LDFLAGS) -o rexxutil.dll $(OBJS) regutil.def -lkernel32 -ladvapi32 -L$(LIBDIR) -lregina -luser32
+
+regfilesys.o : regfilesys.c regutil.h rxproto.h
+regini.o : regini.c regutil.h rxproto.h
+regmacrospace.o : regmacrospace.c regutil.h rxproto.h
+regscreen.o : regscreen.c regutil.h rxproto.h
+regsem.o : regsem.c regutil.h rxproto.h
+regsysparm.o : regsysparm.c regutil.h rxproto.h
+regutil.o : regutil.c regutil.h rxproto.h
+rxsupport.o : rxsupport.c rxproto.h
+
+dist:
+	$(MAKE) -f Makefile.mingw $(MAKEFLAGS) OPT="$(DOPT)" DEBUG="" clean all
+
+
+clean:
+	-rm *.o
+	-rm *.lib
+	-rm *.dll
+	-rm *.exp

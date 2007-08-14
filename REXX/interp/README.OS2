@@ -1,0 +1,49 @@
+                        Regina 3.2
+                       for OS/2 2.0+
+
+This file contains 32 bit executables of the Regina Rexx interpreter for
+OS/2, and some sample programs, most of which are designed to test
+features of this interpreter.
+
+Regina is distributed under the GNU Library General Public Licence.
+See COPYING-LIB for details.
+
+This port of Regina is for use in OS/2 2.0 and above.
+
+The files in this archive are:
+
+README       - this file
+README.3x    - readme files for 3.x releases of Regina
+COPYING-LIB  - GNU Library General Public Licence
+file_id.diz  - Description file for BBS use
+rexx.exe     - Regina Rexx interpreter static executable
+regina.exe   - Regina Rexx interpreter executable (uses regina.dll)
+rxstack.exe  - Regina stack server executable
+rxqueue.exe  - Regina stack interface executable
+regina.dll   - Regina dynamic library
+regina.lib   - Import library for Visual Age C++ compiler
+rexx.lib     - Regina static library for Visual Age C++ compiler
+regina.a     - Import library for EMX
+rexx.a       - Regina static library for EMX
+rexxsaa.h    - Header file for access to regina.lib
+test1.dll    - Sample external function packages; used by dynfunc.rexx
+test2.dll
+demo\*.rexx  - Sample Rexx programs
+nls\*.mtb    - Native Language message files
+
+Copy the .EXE files into a directory in your PATH and copy the .DLL 
+files into a directory in your LIBPATH.
+
+If you want to have Regina error messages displayed in you native
+language, set the environment variable; REGINA_LANG to the two-character
+language abbreviation (the first two chracters of a file in the NLS 
+directory), and set REGINA_LANG_DIR to the directory containing the
+*.mtb files.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

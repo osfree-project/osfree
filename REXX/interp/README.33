@@ -1,0 +1,19 @@
+                          Regina 3.3
+                        23 August 2003
+
+Changes in this release (from 3.2)
+----------------------------------
+o Integration of Florian's Generic Call Interface (GCI) into Regina.
+  Supported platforms to date are Windows and Linux.
+o Other bug fixes on SF - find them
+o Fixed bug with TRACE F and its "conversion" into "N" on a subsequent call
+  to TRACE BIF.
+o Addition of Polish native language support courtesy of Bartosz Kozlowski.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

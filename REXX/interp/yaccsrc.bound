@@ -1,0 +1,115 @@
+ONLY(!) if you want to check bound overflows with EMX/GCC 2.7.2.1 you
+have to change some lines within yaccsrc.c. (or the skeleton file bison.simple
+if you really know what you are doing).
+If you are using checker (together with gcc -fcheck-memory-usage) look at
+the end of this file.
+
+Reason: The skeleton file will produce a bounds checking error. This is NOT
+a real error. The code uses initially a pointer to the first element BEFORE
+an array; the pointer will be incremented before the first use. This is a
+problem for the bounds checker. It detects an illegal pointer al the
+initialization and sets the value of the pointer to invalid (-1) the first
+assignment crashes the program.
+
+You will see here the patches in the function yyparse. First, look at the
+code near the beginning of the function and apply the following changes:
+
+Original:
+>  yystate = 0;
+>  yyerrstatus = 0;
+>  yynerrs = 0;
+>  yychar = YYEMPTY;             /* Cause a token to be read.  */
+>
+>  /* Initialize stack pointers.
+>     Waste one element of value and location stack
+>     so that they stay on the same level as the state stack.
+>     The wasted elements are never initialized.  */
+>
+>  yyssp = yyss - 1;
+>  yyvsp = yyvs;
+>#ifdef YYLSP_NEEDED
+>  yylsp = yyls;
+>#endif
+>
+>/* Push a new state, which is found in  yystate  .  */
+>/* In all cases, when you get here, the value and location stacks
+>   have just been pushed. so pushing a state here evens the stacks.  */
+>yynewstate:
+>
+>  *++yyssp = yystate;
+>
+>  if (yyssp >= yyss + yystacksize - 1)
+
+New:
+>  yystate = 0;
+>  yyerrstatus = 0;
+>  yynerrs = 0;
+>  yychar = YYEMPTY;             /* Cause a token to be read.  */
+>
+>  /* Initialize stack pointers.
+>     Waste one element of value and location stack
+>     so that they stay on the same level as the state stack.
+>     The wasted elements are never initialized.  */
+>
+>  yyssp = yyss;                 /* FGC: allow -fbounds-checking */
+>  yyvsp = yyvs;
+>#ifdef YYLSP_NEEDED
+>  yylsp = yyls;
+>#endif
+>
+>  goto yyfirststart;
+>
+>/* Push a new state, which is found in  yystate  .  */
+>/* In all cases, when you get here, the value and location stacks
+>   have just been pushed. so pushing a state here evens the stacks.  */
+>yynewstate:
+>
+>  ++yyssp;                                                  /* FGC */
+>yyfirststart:                                               /* FGC */
+>  *yyssp = (short) yystate;                                 /* FGC */
+>
+>  if (yyssp >= yyss + yystacksize - 1)
+
+Now, look at the end of yyparse.
+
+Original:
+>#if YYDEBUG != 0
+>  if (yydebug)
+>    {
+>      short *ssp1 = yyss - 1;
+>      fprintf (stderr, "state stack now");
+>      while (ssp1 != yyssp)
+>        fprintf (stderr, " %d", *++ssp1);
+>      fprintf (stderr, "\n");
+>    }
+>#endif
+
+New:
+>#if YYDEBUG != 0
+>  if (yydebug)
+>    {
+>      short *ssp1 = yyss;                                   /* FGC */
+>      fprintf (stderr, "state stack now");
+>      while (ssp1 != yyssp)
+>        fprintf (stderr, " %d", *++ssp1);
+>      fprintf (stderr, "\n");
+>    }
+>#endif
+
+NEVER use this code in a delevopement environment. There may be some
+problems with it, I never checked the changes in all conditions. Let's wait
+for the bison gurus to fix these problems by themselves.
+
+------------ THE FOLLOW CHANGES SHOULD BE APPLIED FOR CHECKER ONLY -------------
+Look at the beginning of yyparse and replace
+>  YYSTYPE yyval;                /*  the variable used to return         */
+with
+>  YYSTYPE yyval = 0;            /*  the variable used to return         */
+
+Furthermore, initialize yyvsa[0], e.g. add the line
+>  yyvsa[0] = 0;
+after the line
+>  yychar = YYEMPTY;
+
+
+That's OK in all circumstances and may be applied without any risk.

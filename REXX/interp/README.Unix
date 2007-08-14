@@ -1,0 +1,28 @@
+                              Regina 3.0 binaries
+
+This archive contains pre-compiled binaries of Regina 3.0.  The directory
+structure is set up to unpack into a base directory such as /usr/local.
+
+Regina is distributed under the GNU LIBRARY GENERAL PUBLIC LICENSE. See
+COPYING-LIB for details.
+
+On most platforms, it is necessary to include the directory where the shared
+libraries (including *.so|.sl|.a) reside; eg /usr/local/lib, to the 
+LD_LIBRARY_PATH environment variable.  
+
+Under AIX this environment variable is LIBPATH.
+
+Under HP-UX this environment variable is SHLIB_PATH.
+
+Under SGI this seems to be LD_LIBRARYN32_PATH.
+
+For more information on Regina, visit the Regina Home page at
+http://regina-rexx.sf.net
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

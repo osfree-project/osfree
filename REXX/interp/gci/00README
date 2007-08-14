@@ -1,0 +1,62 @@
+Hi!
+
+You are a beta tester! The current code is proved to may run on Linux/i86 or
+Windows/i86 with Regina. Try it and enjoy.
+
+You have to do:
+a) Linux using GNU C
+   check/change Makefile
+   "cp gci_convert.linux.i86 gci_convert.h"
+   "make"
+b) Windows using VC
+   check/change Makefile
+   "copy gci_convert.win32.vc gci_convert.h"
+   nmake
+c) other
+   check/change Makefile
+   check/change embedded.h
+   check/change gci_convert.h
+   copy/change gci_rexxbridge.c if you want a builtin support.
+   make
+
+*******************************************************************************
+*******************************************************************************
+*******************************************************************************
+
+This first version is a Rexx library version. Therefore the RxFuncDrop won't
+run. Use GciFuncDrop instead; RxFuncDrop will work for builtin GCI support
+only.
+
+*****
+
+Debugging can be enabled in a script by setting the system environment variable
+"_GCI_DUMP" to some value, e.g.
+        set _GCI_DUMP=1
+or
+        export _GCI_DUMP=1
+
+Debugging must have been enabled while compiling, too.
+
+*****
+
+GCI uses a special technique to allow both calling conventions stdcall and
+cdecl to run with each others name. Don't rely on it in different
+implementations.
+
+*****
+
+The Rexx variable GCI_RC will hold informations about the success of the
+execution of the call. The variable is resetted on each call to RxDefineFunc,
+GciDropFunc and the called functions. Its format is
+<error code> ": " <description> [ ": " <error location> ]
+
+Using GCI as an external package has the disadvantage of a restricted
+signalling. The single signal that can be thrown is "syntax error". The signal
+may or may not be thrown, always look at the variable GCI_RC.
+
+*****
+
+Have a look at the example Rexx script gci-try.rexx
+
+Cheers, Florian
+florian@grosse-coosmann.de

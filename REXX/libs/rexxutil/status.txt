@@ -1,0 +1,101 @@
+Status of Rexx Utils
+
+The port covers NT and Unix machines. My home system runs FreeBSD and
+OS/2, and I run OS/2, NT, Solaris, HP-UX, AIX, TRU64, Dynix, and Linux
+at work. I'm not touching OS/2, since IBM supplies rexxutil on that
+platform. I regularly use some of these routines on all of the platforms
+listed above.
+
+The list below breaks functions down by category, which happens to be the
+way they're grouped in the source code. `done' means a function
+currently works on NT and FreeBSD, and I expect it to work on other Posix
+platforms. A platform name means it's implemented for that platform, but
+not necessarily the others. /2 means it's done, but it's half-assed and
+should be done differently.
+
+File System
+
+sysfiledelete	done
+sysfilesearch	done
+sysfilesystemtype	NT, FreeBSD
+sysfiletree	done
+sysmkdir	done
+sysrmdir	done
+syssearchpath	done
+systempfilename	done
+
+Registry
+
+sysini		done
+
+Macro Space	[requires support for save/restore in Regina]
+
+sysaddrexxmacro		done
+sysclearrexxmacrospace	done
+sysdroprexxmacro	done
+sysloadrexxmacrospace	done
+sysqueryrexxmacro	done
+sysreorderrexxmacro	done
+syssaverexxmacrospace	done
+
+Terminal IO
+
+syscls		done
+syscurpos	done(Unix does not return a position)
+syscurstate	done
+sysgetkey	done
+systextscreenread	NT (Unix will not be done)
+systextscreensize	done
+
+Semaphores
+
+syscloseeventsem	done
+sysclosemutexsem	done
+syscreateeventsem	done
+syscreatemutexsem	done
+sysopeneventsem		done
+sysopenmutexsem		done
+sysposteventsem		done
+syspulseeventsem	done
+sysreleasemutexsem	done
+sysrequesetmutexsem	done
+sysreseteventsem	done
+syswaiteventsem		done
+syswaitnamedpipe	done
+
+System Parameters
+
+sysbootdrive	NT, some Unix
+syswinver	done
+sysos2ver	done
+sysdriveinfo	NT, some Unix
+sysdrivemap	NT
+syssetpriority	done
+syssleep	done [allows fractional times]
+sysswitchsession	done
+syssystemdirectory	done
+sysvolumelabel	done
+sysgeterrortext	done
+
+Windows Functions
+
+rxmessagebox	NT
+rxwinexec	NT
+
+Stem functions
+
+sysstemsort	done
+sysstemcopy	done
+sysstemdelete	done
+syssteminsert	done
+regstemdoover	done (by definition)
+regstemread	done (by definition)
+regstemwrite	done (by definition)
+regstemsearch	done (by definition)
+
+Conversion
+
+systounicode	done
+sysfromunicode	done
+syswinencryptfile	no
+syswindecryptfile	no

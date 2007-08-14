@@ -1,0 +1,82 @@
+                         Regina 0.08g
+                          7 Aug 1999
+
+
+Changes in this release (from 0.08f)
+------------------------------------
+
+o Fixed bugs as described in BUGS file.
+o Added QNX port.
+o Fixed sort order of results from POPEN BIF.
+o DOS, OS/2 and Win32 ports now process stdin, stdout and stderr in
+  binary mode. 08f only did this for Win32 platform, and only for
+  stdout and stderr.
+o Major change to lexical analyser; should be a bit faster.
+o More changes to BIFs for ANSI compliance.
+  LINES BIF now by default, returns 1 or 0 to indicate if there are
+  lines remaining in the stream.  To get the actual number of lines
+  (as Regina used to do), use LINES(stream,'C').
+o ERRORTEXT now allows for decimal arguments to generate sub-error
+  message text. eg. Errortext(40.1)
+o Fixed bug in STREAM QUERY DATETIME for files with timestamp in 21st
+  century.
+o Fixed a bug with the traceback on an error being out by one line when
+  the first line of the Rexx program is the special "#!" magic number.
+o Fixed a bug with repeated calls to RexxStart() API.  Regina would
+  run out of file handles.
+o Fixed bug with RexxRegisterFunctionExe/RexxDeregisterFunction calls.
+  The deregister function wouldn't completely remove references to the
+  specified external function, and the next call to register the
+  same function within the same process would fail.
+o Added new OPTIONS; ANSI and FAST_LINES_BIF_DEFAULT.  To get the old
+  default behaviour of Regina's LINES BIF, add the following line to
+  the start of your code:
+  OPTIONS NOFAST_LINES_BIF_DEFAULT
+  The ANSI option (on by default) includes FAST_LINES_BIF_DEFAULT.
+o The STREAM BIF SEEK command is now functional.
+o Fixed bug in RexxVariablePool interface which prevented getting a list
+  of all variables more than once. Fixed bug in execiser.c that expected
+  the previous behaviour.
+o When an error is returned from the STREAM BIF, it now reports errors
+  other than 2. ie the '2' in 'ERROR:2' is now replaced by the correct
+  error number.
+o Added DIRECTORY and BEEP BIFs of OS/2. BEEP doesn't work on all platforms.
+o Added OS/2 function FILESPEC; Win32 code courtesy of Mark Stern.
+o Fixed bug with checking for EOF on transient streams.
+o Fixed bug in RexxVariablePool API when retreiving a Rexx compound variable
+  that has a mixed or lower case stem value.  This same bug is in OS/2 Rexx!
+o Changed the method of determinig a random seed for RANDOM BIF if one not
+  supplied.
+o Combined the thread-safe version of Les Moull into the main source
+  distribution.  The thread-safe code is only implemented on the Win32
+  platform and only in the version of REXX.DLL supplied by Les.
+o Added new API functions; RexxFreeMemory(), to free the memory that the
+  interpreter allocates in calls to RexxVariablePool() etc. and
+  RexxAllocMemory() to allocate memory for passing return values longer
+  than 256 characters.
+o Changed behaviour of trace setting command line switches. The trace
+  character specified on the command line will set the trace setting for
+  the whole program and will result in all TRACE commands being ignored.
+o CONDITION('E') now returns the error number that caused the condition,
+  in decimal format suitable for passing to ERRORTEXT BIF. (see above)
+o Regina used to raise a NOTREADY condition if the last line of a file
+  was not terminated with an end-of-line (LF or CRLF).  This has now
+  been changed to treat an incomplete last line as a "normal" line.
+o Fixed bug with running instore macros which had internal subroutines.
+  An error in parsing caused the list of labels to be lost.
+
+Please report any bugs with this release of Regina to me.
+
+===========================================================================
+Many of the improvements in this release were done by Florian Grosse-Coosmann.
+I would like to thank him for his efforts in helping to make Regina a better
+interpreter.
+===========================================================================
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

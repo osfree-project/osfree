@@ -1,0 +1,38 @@
+# AIX Makefile for regutil
+#  The contents of this file are subject to the Mozilla Public License
+#  Version 1.0 (the "License"); you may not use this file except in
+#  compliance with the License. You may obtain a copy of the License at
+#  http://www.mozilla.org/MPL/
+
+#  Software distributed under the License is distributed on an "AS IS"
+#  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+#  License for the specific language governing rights and limitations
+#  under the License.
+
+#  The Original Code is regutil.
+
+#  The Initial Developer of the Original Code is Patrick TJ McPhee.
+#  Portions created by Patrick McPhee are Copyright © 1999, 2001
+#  Patrick TJ McPhee. All Rights Reserved.
+
+#  Contributors:
+
+# $Header: /netlabs.cvs/osfree/src/REXX/libs/rexxutil/Makefile.aix,v 1.3 2004/08/21 14:48:37 prokushev Exp $
+
+# flags for IBM's C compiler
+POPT=-O
+PCDEFS=-DAIX -DUSE_TERM_H -DUSE_STATFS -DINCL_STATVFS -DMMAP -DUSE_TERMCAP_DB -DHAS_WCHAR -DHAS_ICONV
+PCFLAGS=-fPIC -qro -qroconst
+PLDFLAGS=-bnoentry -bE:librexxutil.exp -bM:SRE -T512 -H512 -lc -L$(HOME)/regina -lregina -liconv
+PLIBS=-lcurses
+LIBFILE=shr
+
+librexxutil.a : librexxutil.exp librexxutil.so
+	ln -f librexxutil.so librexxutil.a
+
+librexxutil.exp : regutil.def
+	awk '/EXPORTS/ { print $$2 }' regutil.def > librexxutil.exp 
+
+include Makefile.inc
+
+dist : make -f Makefile.aix DEBUG='' OPT="$(POPT)"

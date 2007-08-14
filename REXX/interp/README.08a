@@ -1,0 +1,53 @@
+                       Regina 0.08a
+                      10 April 1997
+
+This is an "unofficial" release of the Regina Rexx Interpreter.
+
+The "unofficial" status is due to the fact that I am not the author
+nor the maintainer of this product.  The author, Anders Christensen,
+will not be surprised by this release, as I had indicated to him in
+September 1996, that I would be releasing this version. Most of the
+enhancements and fixes I made to Regina 0.07a (and which are
+incorporated in this release) were sent to Anders in August 1996,
+in the hope that he would be able to make an official release.
+As he has yet to do that I took it upon myself to enable
+others to benefit from the enhancements I have made to Regina.
+
+Explanation over; what's been done.
+
+Apart from several bug fixes, particularly in the API, this release
+include the following enhancements:
+
+o added new built-in functions per the ANSI standard:
+  countstr(), changestr()
+o modified the date() and time() functions, again per the ANSI
+  standard to support date and time conversions
+o enhanced the API to support external functions residing in shared
+  or synamic libraries, that can be loaded with the rxfuncadd()
+  built-in function.  Although Regina 0.07a could also do this, you
+  had to write your external function package in a way that only
+  Regina would recognise.  External function packages built for OS/2
+  can be ported simply to Regina.
+o ported Regina to Win32 and supplied it as a DLL.
+o added a DOS VCPI port (built using emx) that can be run under OS/2
+  and under DOS without the need for a DPMI memory manager.
+o shared libraries of Rexx external functions are now supported under
+  several Un*x platforms.  The rexx library can be built as a static
+  or dynamic library.
+o modified the source for the Regina curses external function package to
+  conform to a "standard" use of the API.  This curses external function
+  package can be built with XCurses (my port of PDCurses to X11)
+  enabling a Rexx program to display and control a native X11 window.
+
+Please report any bugs with this release of Regina to me, NOT to Anders.
+Most likely the bugs are of my origin, so I will attempt to fix them.
+As with previous bugs fixed by me, I will pass these fixes on to Anders.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+ Mark Hessling                 Email:             M.Hessling@qut.edu.au
+ PO Box 203                    Phone:                    +617 3802 0800
+ Bellara                          http://www.lightlink.com/hessling/
+ QLD 4507                      **** Maintainer PDCurses & REXX/SQL ****
+ Australia                     ************* Author of THE ************
++------------------------------------------------------------------------

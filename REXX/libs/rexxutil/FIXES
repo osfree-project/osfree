@@ -1,0 +1,147 @@
+List of changes
+
+1.2.6	link with libiconv on AIX (thanks to Peter Duempert)
+	changed handling of ALL: in SysIni -- it should now conform
+	 to the documentation and Object Rexx (reported by Heiko Scheidt)
+	place the cursor at the top of the screen in the win32 version of
+	 SysCls
+	fixed bug with end-of-line matches in RegStemSearch
+	added some support for the static linking features of Regina
+1.2.5	fixed crash retrieving unset values in SysIni on Unix
+	fixed crash when faced with non-existent directories in
+	 SysFileTree (regression in 1.2.3) (reported by Mark
+	 Hessling and Steffen H‰cker)
+	added missing exports to win32 and AIX builds (sys[sg]etfiledatetime,
+	 sysgeterrortext, sys(to|from)unicode, syswin(en|de)cryptfile
+	documented sysgeterrortext
+1.2.4	fixed serious bug in delete_chararray() -- almost none of the
+	memory was ever released. Fixed crash in new_chararray()
+	when memory allocation fails. Thanks to Florian Groﬂe-Coosmann
+	for identifying the problem and providing a great test case.
+1.2.3	fixed undersized buffer in SysSearchPath on HP-UX (reported by
+	 Kenneth Kahn)
+	fixed inconsistent reporting of space in SysDriveInfo() when
+	 SYSDI_RETURNS_BYTES is not defined (reported by Arthur T.)
+	fixed problems with combination control/alt/shift keys in
+	 SysGetKey() under NT
+	use realpath() to normalise the path, rather than doing it myself
+	cosmetic changes to manual
+	changes in the way variables are set and in the way numeric stems
+	 are handled
+1.2.2	fixed regression in SysFileTree (introduced in 1.2.0) -- subdirectory
+	 searching failed on Unix if the directory fails the selection
+	 criterion
+	changed code with HAS_WCHAR option to make it correct -- compile
+	 with this option on FreeBSD and Linux by default
+1.2.1	fixed compile flags for NT (resulted in problems with SysGetKey and
+	 RegStemRead) (reported by Mark Vilez, John C. Gallucci, Jr)
+	handle systems which don't define TIOCGWINSZ where I'm expecting it
+	 (reported by Stian Askmann)
+1.2.0	added SysToUnicode, SysFromUnicode, SysGetErrortext, and stubs for
+	SysWinDecryptFile and SysWinEncryptFile
+	fixed problem in SysFileTree -- it failed to return names for
+	 files in leaf directories on most Unix systems when using the FO
+	 flags
+	never return . or .. from SysFileTree
+	mark symbolic links, fifos, sockets, and special files in SysFileTree
+	fixed formatting of long directory output in SysFileTree
+	removed some compile-time warnings throughout
+	implemented sysbootdrive for FreeBSD and possibly other systems
+	revamped documentation for installation and building
+	adjusted some of the make files
+	worked around Linux compile problems in regscreenux.c
+	removed a number of compile-time warnings
+1.1.13	renamed addstr and adddummy to cha_addstr and cha_adddummy, removing
+	a conflict with curses. The user-visible problem was failure of
+	SysFileTree when called from THE (reported by M Hessling)
+1.1.12	added sysini for Unix
+	fixed bugs retrieving key and value names in sysini for NT
+	normalised returned paths for SysFileTree under Unix (reported by M
+	Hessling and Arne Hanssen)
+1.1.11	fixed bug loading files with multiples of 1000 lines in regstemread
+	fixed build problems on AIX
+1.1.10	fixed size of stem created by regstemread (reported by Peter
+	Duempert and Mark Hessling, with fix from Mark)
+	fixed error reading files using regstemread when the file starts
+	with a new-line (reported by Don E Groves, who also contributed
+	a substantial number of changes which I have not got around to
+	considering)
+	fixed potential continuous loop in SysTempFileName (reported by
+	Don E Groves, although I didn't adopt his fix)
+1.1.9	added rxmessagebox and rxwinexec for NT
+	added regstemsearch
+	fixed problems adding and deleting at the end of a stem
+	fixed some general problems with null termination in rxsupport 
+	reduced memory usage of regstemread
+	added Unix attribute support for SysFileTree
+	changed licencing terms
+1.1.8	fixed additional problems with stem routines
+	added NT version of SysIni (and started on Unix version, but ...)
+	fixed printf format strings for sysdriveinfo
+	added attribute support to the NT version fo sysfiletree
+	use memory-mapped I/O and bounded strings in sysfilesearch
+	fixed echo bug in sysgetkey for Unix
+	added sys/time.h to include list for sysscreenux.c (fixes compile problems
+	on some platforms)
+	consistently initialise screen handles in NT screen routines (fixes
+	intermittent failure of the routines, depending on call order)
+	added macro space routines (then made them not compile by default)
+	added syswaitnamedpipe (tested only for Unix)
+1.1.7	fixed additional problems with stem routines, which are now perfect
+	added NT versions of SysBootDrive, SysDriveMap, SysSetPriority,
+	SysSwitchSession, SysSystemDirectory, SysVolumeLabel
+	added volume label to sysdriveinfo
+	changed SysFileTree to allow c:\ as a pattern which matches all files in c:\
+	changed type bool to type rxbool due to increased reports of issues with
+	curses' bool type
+	added optional timeout parameter to sysgetkey
+	fixed bug with L-format to sysfiletree output on NT
+	thanks to Mark Hessling and Ruhsam Bernhard (?Bernhard Ruhsam?)
+1.1.6	fixed crash when retrieving values from a stem which has not been set
+	this comes up in sysfilesearch, sysstemdelete, and possibly other places
+1.1.5	fixed crash when sysfilesearch is called on a file which can't be opened
+	fixed file handle leak in sysfilesearch
+	added documentation for SysUtilVersion
+1.1.4	fixed bugs in sysstemdelete introduced when I made it more efficient
+1.1.3	compiled NT version of regstemread to use memory mapped I/O (fixes problem with
+	garbage at end of stem, and should improve performance and reduce memory)
+	made sysstemdelete more efficient
+	speculative fix to sub-directory searching on windows 98
+	fixed problem with whole-number arguments to syssleep
+1.1.2	added missing options to sysstemsort
+	added missing options to sysstemcopy
+	implemented semaphore functions for Unix
+	replace RTF version of documentation with PDF version
+1.1.1	fixed bug which led to crash in regstemread
+	added syssteminsert and sysstemdelete
+1.1.0	added new functions from IBM's v2 library: sysdumpvariables, sysqueryprocess,
+	sysstemcopy, sysstemdelete, syssteminsert, sysstemsort, sysutilversion,
+	sysversion
+	added some new stem functions which haven't got into IBM's library yet:
+	regstemdoover, regstemread, regstemwrite
+	substantial changes to key reading on NT
+	improvements to sysfilesystemtype
+	support for new L option in sysfiletree
+1.0.5	fixed bug with output of SysFileTree when no input directory is given
+	fixed big in SysSearchPath when the variable is not in the environment
+	use upper-case names when registering functions so it works with Rexx/IMC
+1.0.4	added documentation
+	fixed bugs in sysfiletree: option 'fs' didn't work for WIN32
+	in fact, sub-directory searching didn't work when the pattern
+	didn't match a directory name, and neither Unix nor WIN32 worked
+	from the root directory
+	added SysCopyObject, SysMoveObject and SysCreateShadow, which
+	I had previously thought weren't useful for non-OS/2 platforms
+	added SysTextScreenRead for WIN32
+	SysCurState for Unix would core dump if it was the first function
+	called
+	used the proper termios calls and #defines
+	included some example scripts
+	shipped the right Unix code
+	added semaphore routines for WIN32
+	added makefiles for a few more Unix machines
+1.0.3	make SysFileTree output the same as IBM's
+1.0.2	added SysFileTree for Win32
+	added status list	
+1.0.1	a few more functions, a few more bug fixes
+1.0.0	initial revision

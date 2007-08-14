@@ -1,0 +1,73 @@
+               Installation Notes for Regina
+               -----------------------------
+
+Please read ALL of these notes before building Regina! If you are
+building Regina under AIX 3.x or AIX 4.1.x, ensure you read the
+section at the end, titled "Building Regina under AIX"
+
+To install Regina, you first need to configure it.  This is done by
+executing the configure script provided in this archive.
+
+Generally all you need to run is "configure", but there are some
+options that can be passed to the configure script; use
+"configure --help" to view them.
+
+Once the configure script has been run, you can then type "make".
+This will create the following objects:
+
+ rexx            statically linked Regina Rexx interpreter
+ regina          dynamically linked Regina Rexx interpreter
+                 (this is the executable to use if you intend using rxfuncadd() )
+ libregina.a     static Regina library (also dynamic library under AIX)
+ libregina.sl    dynamic Regina library (for HPUX only)
+ libregina.so    dynamic Regina library (for all other OS's)
+ execiser        program to exercise Regina internals
+ test1.so|.sl|.a
+ test2.so|.sl|.a external function packages provided as examples on how
+                 to write external function packages and used by the
+                 dynfunc.rexx demo program.
+
+Once you have Regina compiled, it can then be installed.  By default, the
+Regina executables will be installed into /usr/local/bin and the libraries
+and external function packages (*.so|.sl|.a) will be installed into
+/usr/local/lib.  The base path "/usr/local" can be changed by adding the
+--prefix=path (where path is the base path) to the configure command.
+eg. to install Regina into /opt/bin and /opt/lib, configure --prefix=/opt ...
+
+On most platforms, it is necessary to include the directory where shared
+libraries (including *.so|.sl|.a) reside, to the LD_LIBRARY_PATH
+environment variable.  Under AIX this environment variable is LIBPATH.
+Under HP-UX this environment variable is SHLIB_PATH.
+Under SGI seems to be LD_LIBRARYN32_PATH.
+
+Building Regina under AIX
+-------------------------
+This section is only applicable to people building Regina under AIX
+3.x and AIX 4.1.x.
+
+To build a version of the Regina library that allows for the dynamic
+loading of external function packages, you will need a software package
+that emulates the common dlopen() suite of C functions.
+
+This package is dlfcn.tar.gz and should be available from the same place
+where you obtained Regina.
+dlfcn.tar.gz is written by Helios Software in Germany, and is freely
+available.  Please check the documentation that comes with dlfcn.tar.gz
+for details on how to build libdl.a and on any restrictions on the use
+of dlfcn.tar.gz.
+
+You will first need to build the library, libdl.a using the source code
+from dlfcn.tar.gz.
+
+When configuring Regina, there are two extra switches you will require:
+--with-dlfcnincdir="directory containing dlfcn.h"
+--with-dlfcnlibdir="directory containing libdl.a"
+
+Assuming you downloaded dlfcn.tar.gz and built it in /home/mark/dlfcn, then
+the "configure" command for Regina would be:
+  configure --with-dlfcnincdir=/home/mark/dlfcn --with-dlfcnlibdir=/home/mark/dlfcn
+
+No checking is done by the configure script to ensure that the header file
+and library actually exist in this directory. The first you will know
+about it if you specifies the paths incorrectly is a compilation or
+linking error.

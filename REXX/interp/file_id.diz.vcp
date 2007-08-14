@@ -1,0 +1,14 @@
+ 컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+          Regina Rexx Interpreter
+ Version 3.1     DOS/VCPI      rex31vcp.zip
+ ------------------------------------------
+ Port of Regina Rexx interpreter with SAA
+ Rexx API support.  DOS/VCPI version, runs
+ under DOS with VCPI memory manager (eg
+ EMM386.SYS)
+ Ports also available for OS/2, Win32, Unix,
+ Amiga, QNX, BeOS, Epoc32.
+ Freeware. Source available under GNU
+ Library General License in file
+ regina31.zip. See enclosed COPYING-LIB.
+ 컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴

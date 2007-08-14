@@ -1,0 +1,8 @@
+inputdirectory \regina\epoc32\
+outputdirectory \regina\epoc32\
+outputfile regina.hlp
+sourcefile regina
+orderfile regina.order
+graphicsdirectory \regina\epoc32\
+workingdirectory \regina\epoc32\
+customizationfile \regina\epoc32\uk.alc

@@ -1,0 +1,5 @@
+LIBRARY REXXMATH
+DESCRIPTION 'Rexx Math Library'
+
+EXPORTS
+ mathloadfuncs

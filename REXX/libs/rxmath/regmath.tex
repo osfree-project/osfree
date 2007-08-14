@@ -1,0 +1,507 @@
+%
+% Manual for RegMath
+% Copyright 2001, Patrick TJ McPhee
+% Distributed under the terms of the Mozilla Public Licence
+% You can obtain a copy of the licence at http://www.mozilla.org/MPL
+% The Original Code is regmath
+% The Initial Developer is Patrick TJ McPhee
+% $Header: C:/ptjm/rexx/math/tmp/RCS/regmath.tex 1.2 2001/11/04 23:10:00 ptjm Exp $
+%
+
+
+\documentclass{article}
+
+% if run through pdftex, use ps fonts and turn on hyperlinking
+\ifx\pdfoutput\undefined
+ \def\rarrow{\ensuremath{\to}}
+ \def\rxpicture#1{<picture omitted>}
+\else
+ \usepackage[pdftex,pdfborder=0 0 0]{hyperref}
+
+ \usepackage{mathptm}
+
+ % redefine some symbols to avoid embedding CM fonts
+ \font\bsfont=ptmr8r
+ \def\textbackslash{{\bsfont\char`\\}}
+ \font\symbol=psyr
+ \def\rarrow{{\symbol\char174}}
+
+ \pdfinfo { /Title (The Regina Rexx Interpreter -- Rexx Math Functions)
+  /Author (Patrick TJ McPhee)
+  /Subject (rxmath/amath User Guide)
+  /Keywords (rexx,regina,rxmath,amath)
+  /Copyright (Copyright © 2001, Patrick TJ McPhee)
+ }
+ \def\rxpicture#1{\begin{figure}[ht]\pdfximage{#1}\pdfrefximage\pdflastximage\end{figure}}
+\fi
+
+\def\bs{\textbackslash\penalty\hyphenpenalty}
+\def\_{\textunderscore\penalty\hyphenpenalty}
+\advance\textwidth by 1 in
+\advance\textheight by 1 in
+\advance\oddsidemargin by -.5in
+\advance\topmargin by -.5in
+\advance\labelwidth by 4 in
+
+\usepackage{makeidx}
+
+\makeindex
+
+\begin{document}
+\let\thepage\relax
+
+\title{The Regina Rexx Interpreter -- Math Functions}
+\author{Patrick TJ McPhee (ptjm@interlog.com)\\
+        DataMirror Corporation}
+\date{version 1.0.0, 27 October 2001}
+
+\maketitle
+
+\setcounter{page}{0}
+\eject
+\pagenumbering{roman}
+
+\tableofcontents
+
+\vfil\eject
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Introduction}
+
+This paper describes two function libraries which provide common
+trigonometric functions to rexx programs.
+Amath was written during the fall of 1998 in response to the newsgroup
+posting contained in the file amigamath.txt. It is my hope that this
+library is compatible with the amiga rexx math library. Rxmath was
+written during the the fall of 2001 to provide a library compatible with
+IBM's rxmath library, which had appeared earlier in the year.
+
+The libraries are little more than wrappers around the C math
+library---in particular they do not allow
+arbitrary-precision\index{precision!arbitrary}
+operations.
+If arbitrary-precision calculations are required, I recommend John
+Brock's\index{Brock!John} rxxmath\index{rxxmath} library, which is
+written in rexx, and which does provide
+arbitrary-precision support, at the expense of speed.
+
+The two libraries are functionally equivalent, with these exceptions.
+\begin{itemize}
+\item RxMath
+supports arguments in radians, degrees, or gradians, while amath
+accepts radians only;
+\item RxMath has a function which returns the value of $\pi$ (but $\pi =
+3.141592653897832\dots$);
+\item amath supports inverse hyperbolic functions on some (read: Unix) platforms;
+\item amath provides secant and cosecant functions (but these are easily derived
+from sine and cosine);
+\item amath provides ceil and floor functions (but these can be achieved using
+format(\thinspace)).
+\end{itemize}
+
+The functions are provided in hopes that they will be useful, but there
+is no warranty.
+
+\section{Housekeeping Functions}
+
+\subsection{MathLoadFuncs/MathDropFuncs}
+
+\index{Math!LoadFuncs}\index{Math!DropFuncs}In both libraries, the only exported
+function is called MathLoadFuncs. It must be loaded using RxFuncAdd\index{RxFuncAdd},
+then called to make the other functions available.
+It was my intention for MathLoadFuncs to query the rexx interpreter for the
+setting of numeric digits\index{precision!numeric digits}, ignoring subsequent changes
+to the setting, however there is no way to do this with the current
+Regina implementation, so it always ignores the numeric digits setting.
+
+To make the RxMath library functions available:
+
+\begin{verbatim}
+  call rxfuncadd 'mathloadfuncs', 'rxmath', 'mathloadfuncs'
+  call mathLoadFuncs
+\end{verbatim}
+
+while to make the amath library functions available:
+
+\begin{verbatim}
+  call rxfuncadd 'mathloadfuncs', 'rexxmath', 'mathloadfuncs'
+  call mathLoadFuncs
+\end{verbatim}
+
+It is possible to load both libraries in the same program, however the
+statements above reuse the function name `mathloadfuncs'. Since you
+only ever need to call the function once for each library, this doesn't
+matter, but if it bothers you, the third argument to rxFuncAdd is the
+name of the function within the rexx interpreter, and you can change it
+to anything you like.
+
+If you have an error loading these libraries\index{troubleshooting}
+(or any library), you can
+sometimes get useful information by calling the Regina-specific function
+rxfuncerrmsg:
+
+\begin{verbatim}
+  if rxfuncadd('mathloadfuncs', 'rexxmath', 'mathloadfuncs') then
+    say rxfuncerrmsg()
+  else
+    call mathLoadFuncs
+\end{verbatim}
+
+I know of a few problems which will prevent these libraries from loading:
+If you use rexx.exe\index{rexx.exe} from the Regina distribution,
+you cannot load external function libraries. You must use regina.exe\index{regina.exe}
+instead. The difference between the two programs is that rexx.exe has
+the Rexx interpreter linked into the executable, while regina.exe loads
+it from a shared library. Programs run faster in the statically linked
+interpreter, but it can't load function libraries (it's not technically
+possible on Windows, although it is on most Unix systems, Regina still doesn't
+allow it).
+
+If you are using the initial release of Windows 95, it does not
+include the file msvcrt.dll\index{msvcrt.dll}. You must get this file
+from Microsoft support. Many applications install it, but I find that
+unbelievable, since it's supposed to be part of the operating system.
+
+Most systems expect the first argument to rxfuncadd to exactly match the
+case of the function name in the shared library (it's all lower-case).
+Unix systems expect the second argument to match the case of the file
+name containing the shared object (which is generally all lower-case).
+More recent versions of Regina have a work-around to allow the case in
+the rxfuncadd call to differ from the actual case in the library.
+
+\begin{verbatim}
+  call mathDropFuncs
+\end{verbatim}
+
+After calling mathLoadFuncs, you can call mathDropFuncs to unregister all the
+functions. This is a useful operation with IBM interpreters, since they make
+function libraries global to all rexx programs, and there's no way to replace
+a library without unloading it first. There's no real value when using Regina.
+
+\section{RxMath Library}
+
+The RxMath Library is a straight copy of the interface of IBM's RxMath
+library, which appeared in March 2001. The implementation is based on IBM's
+documentation, while this manual is based on my reading of the C code about a
+month after implementation. It's shorter than IBM's manual, but I feel it's
+more informative, and it's got some slick diagrams.
+
+I expect that this library is fully compatible with IBM's library, with two
+exceptions: First, I do no error checking, so non-numeric arguments are
+silently converted to 0, while invalid arguments will generally result in a
+return code of NaN, rather than ERROR. Second, I never check the numeric
+digits\index{precision!numeric digits} setting, meaning a default precision of
+16 is in effect always. Most functions take precision as an argument, so lower
+precisions can be achieved either by adding 0 to the result, or by passing the
+desired precision to the function. I believe that the differences will result
+in a measurable improvement in performance.
+
+The function naming convention is `RxCalc' followed by a common abbreviation
+of the trigonometric function. Thus `sine' becomes `RxCalcSin'.
+
+\subsection{Trigonometric Functions}
+
+Trigonometric functions are functions on an angle\label{sec:trig}, $\theta$, which
+we typically define in terms of the cartesian co-ordinates, $(x,y)$,
+of some point $(r,\theta)$. $x$, $y$, and $r$ can be taken as the
+sides of a right-angled triangle, as shown in the figure.
+
+\rxpicture{rat.pdf}
+
+Because of the triangle thing, trigonometric functions are often used in
+geometrical applications. Because they have a boring periodic nature,
+they are also used in used in signal processing applications. For
+instance, sine waves are used at the start of `Lemmings' in the classic
+album {\it Pawn Hearts}\index{Vander Graaf Generator}.
+
+\rxpicture{sincos.pdf}
+
+In mathematics, angles are typically measured in radians\index{radian}.
+The size of the
+angle in radians is the ratio between the arc of a circle which subtends the
+angle and the radius of the circle. The traditional, non-mathematical
+measure of angles is in degrees\index{degree}, minutes, and seconds, which are a
+base-60 system, and so presumably go back to the Phonecians. There are
+360 degrees in a circle, 60 minutes in a degree, and 60 seconds in a
+minute, althought you don't need to know that, since the library takes
+degrees as decimal numbers. Finally, engineering calculations often use
+gradians\index{gradian}, which divide the circle into 400. The rxmath library accepts
+all three measures and can return all three types.
+
+Since calculations involving radians typically involve $\pi$, there's a
+function which returns it (see below for a description of the {\it precision}
+argument:
+\begin{quote}
+RxCalcPi\index{RxCalc!Pi}({\it precision})
+\end{quote}
+
+The calling sequences of each trigonometric function is the same, so
+I'll describe one, then give a list of all of them.
+
+\begin{quote}
+RxCalcSin({\it value}[, {\it type}][, {\it precision}]) {\rarrow} {\it
+result}
+\end{quote}
+
+RxCalcSin\index{RxCalc!Sin} takes an angle ({\it value}) and returns its
+sine.
+If {\it type} is not specified or begins with `d', {\it value} is
+taken to be in degrees; if {\it type} begins with `r', {\it value} is taken
+to be in radians; and if {\it type} begins with `g', {\it value} is taken to
+be in gradians. For the inverse functions, {\it type} determines the
+type of the return value.
+
+{\it precision} over-rides\index{precision!setting} the current setting of
+numeric digits\index{precision!numeric digits}. It must be a whole number
+between 1 and 16, inclusive. Note that in this implementation, numeric digits
+is intended to be checked once at the time MathLoadFuncs\index{Math!LoadFuncs}
+is called (but is in fact never checked, since the SAA API doesn't provide a
+way to do it).
+
+\begin{tabular}{lp{10cm}}
+RxCalcSin&{\it value} is an angle, and the function returns its sine;\\
+RxCalcArcSin\index{RxCalc!ArcSin}&{\it value} is a number in the range $-1,1$,
+and the function returns the angle in the range $-{\pi \over 2},{\pi \over
+2}$ whose sine is {\it value} (the inverse sine);\\
+RxCalcCos\index{RxCalc!Cos}&{\it value} is an angle, and the function
+returns its cosine;\\
+RxCalcArcCos\index{RxCalc!ArcCos}&{\it value} is a number in the range $-1,1$
+and the function returns its inverse cosine in the range $0,\pi$;\\
+RxCalcTan\index{RxCalc!Tan}&{\it value} is a number which is not a multiple
+of $\pi$, and the function returns its tangent;\\
+RxCalcArcTan\index{RxCalc!ArcTan}&{\it value} is a number, and the
+function returns its inverse tangent in the range $-{\pi\over 2},{\pi \over 2}$;\\
+RxCalcCotan\index{RxCalc!Cotan}&{\it value} is a number which is not a
+multiple of $\pi\over 2$, and the function returns its cotangent.\\
+\end{tabular}
+
+\subsection{Exponential Functions}
+
+\label{sec:exp}The natural logarithm\index{logarithm!natural} is the
+function $\log x = \int_1^x {1\over t}dt,\, x > 0$. It is the
+anti-derivative of $1 \over x$. The natural
+exponential\index{exponential!natural} function is its inverse function.
+It turns out that the natural exponential function is $e^x$\index{Euler,
+Leonhard}, where $e = \lim_{h\to 0}(1+h)^{1\over h}$. The exciting thing
+about the natural exponential function is that it is its own derivative.
+
+Most of the exponential and logarithmic functions follow this calling
+sequence:
+
+\begin{quote}
+RxCalcExp({\it value}[, {\it precision}]) {\rarrow} {\it result}
+\end{quote}
+
+RxCalcExp\index{RxCalc!Exp} takes {\it value}, a real number, and
+returns the natural exponent of the number.
+As with the trigonometric functions, {\it precision} can be used to
+override the numeric digits setting.
+
+\begin{tabular}{lp{10cm}}
+RxCalcExp&{\it value} is a real number, and the function returns its
+natural exponent;\\
+RxCalcLog\index{RxCalc!Log}&{\it value} is a positive real number, and the function
+returns its natural logaritm;\\
+RxCalcLog10\index{RxCalc!Log10}&{\it value} is a positive real number, and the function
+returns its base-10 logaritm\index{logarithm!base 10}. Logarithms for other bases\index{logarithm!other bases} can be obtained by dividing by
+10 and multiplying by the other number. {\it e.g.}, log2({\it value})
+is given by .2 * RxCalcLog10({\it value});\\
+RxCalcSqrt\index{RxCalc!Sqrt}&{\it value} is a positive real number, and
+the function returns its positive square root.\\
+\end{tabular}
+
+\begin{quote}
+RxCalcPower({\it base}, {\it exponent}[, {\it precision}]) {\rarrow} {\it result}
+\end{quote}
+
+RxCalcPower\index{RxCalc!Power} returns {\it base} raised to the {\it
+exponent}th power. The standard Rexx exponential operator ** accepts only
+whole-number exponents, but RxCalcPower accepts any real number for both the base
+and the exponent.
+
+\rxpicture{exp.pdf}
+
+\subsection{Hyperbolic Functions}
+
+\label{sec:hyper}Hyperbolic sine and cosine are the functions $\sinh x = {e^x -
+e^{-x}\over 2}$ and $\cosh x = {e^x + e^{-x} \over 2}$. The reason for
+the names is that $(\cos t, \sin t), 0 \le t \le 2\pi$ defines the
+circle $x^2 + y^2 = 1$, while $\cosh t, \sinh t), t \in {\bf R}$ defines
+one branch of the hyperbola $x^2 - y^2 = 1$. Hyperbolic cosine is used
+in calculating things like sag and motion through resistive media. I
+don't know what the other hyperbolic functions are good for, but they're
+defined similarly to the trigonometric functions.
+
+\begin{quote}
+RxCalcSinH({\it value}[, {\it precision}]) {\rarrow} {\it result}
+
+RxCalcCosH({\it value}[, {\it precision}]) {\rarrow} {\it result}
+
+RxCalcTanH({\it value}[, {\it precision}]) {\rarrow} {\it result}
+\end{quote}
+
+RxCalcSinH returns the hyperbolic sine of {\it value} to {\it precision}
+digits. Similarly, RxCalcCosH returns the hyperbolic cosine, and
+RxCalcTanH returns the hyperbolic tangent ($\sinh x \over \cosh x$).
+
+\section{AMath Library}
+
+As I mentioned in the introduction, the amiga math library is based on
+an almost anonymous newsgroup posting (reproduced in amigamath.txt), which
+describes a math library for Amiga Rexx. The function names were
+generally taken from the C math library, which probably got them from a
+ForTran math library. This is by way of saying that there isn't a naming
+convention.
+
+I don't know if they are compatible with the Amiga library, but they've
+been on offer for a few years without any bug reports, so they can't be
+all bad [in testing the library for this release, I discovered that a
+few functions simply couldn't be called, so I guess it's not that great
+after all].
+
+\subsection{Trigonometric Functions}
+
+Please see section \ref{sec:trig} for a general discussion of the
+trigonometric functions. The arguments to the amath trigonometric
+functions and the return codes of the inverse trigonometric functions
+are all in radians.
+Most of them follow this calling sequence:
+
+\begin{quote}
+Sin({\it value}) {\rarrow} {\it result}
+\end{quote}
+
+\begin{tabular}{lp{10cm}}
+Sin\index{Sin}&{\it value} is an angle, and the function returns its
+sine;\\
+ASin\index{ASin}&{\it value} is a number in the range $-1,1$,
+and the function returns the angle in the range $-{\pi \over 2},{\pi \over
+2}$ whose sine is {\it value} (the inverse sine);\\
+Cos\index{Cos}&{\it value} is an angle, and the function
+returns its cosine;\\
+ACos\index{ACos}&{\it value} is a number in the range $-1,1$
+and the function returns its inverse cosine in the range $0,\pi$;\\
+Tan\index{Tan}&{\it value} is a number which is not a multiple
+of $\pi$, and the function returns its tangent;\\
+CoT\index{CoT}&{\it value} is a number which is not a
+multiple of $\pi\over 2$, and the function returns its cotangent.\\
+CoTan\index{CoTan}&synonym for cot\\
+CSc\index{CSc}&{\it value} is an angle, and the function
+returns its cosecant;\\
+Sec\index{Sec}&{\it value} is an angle, and the function
+returns its secant;\\
+\end{tabular}
+
+The arctangent function has a slightly different syntax:
+
+\begin{quote}
+ATan\index{ATan}({\it value}[,{\it othervalue}) {\rarrow} {\it result}
+\end{quote}
+
+If {\it othervalue} is not specified, atan returns the inverse tangent
+of {\it value} in the range $-{\pi\over 2},{\pi \over 2}$. If {\it
+othervalue} is specified, atan returns the inverse tangent of $\it value
+\over othervalue$ in the range indicated by the signs of the arguments.
+If {\it value} is positive and {\it othervalue} is negative, ${\pi \over
+2} \le {\it result} \le \pi$.
+
+\subsection{Exponential Functions}
+
+Please see \ref{sec:exp} for an interesting and informative disquisition
+on the origins of the exponential functions.\footnote{But look no further
+than this section to find the word `disquisition', possibly making its
+first appearance in any software manual. Professional software companies
+actually pay people to remove words like that from their manuals. I
+can't afford to do that.}
+
+The exponential functions have the same prototype as all the other
+functions:
+
+\begin{quote}
+Exp\index{Exp}({\it value}) {\rarrow} {\it result}
+\end{quote}
+
+\begin{tabular}{lp{10cm}}
+Exp&{\it value} is a real number and the function returns its
+natural exponent;\\
+Log\index{Log}&{\it value} is a positive real number, and the function
+returns its natural logaritm;\\
+Log10\index{Log10}&{\it value} is a positive real number, and the function
+returns its base-10 logaritm. Logarithms for other bases can be obtained by dividing by
+10 and multiplying by the other number. {\it e.g.}, log2({\it value})
+is given by .2 * RxCalcLog10({\it value});\\
+Sqrt\index{Sqrt}&{\it value} is a positive real number, and
+the function returns its positive square root.\\
+\end{tabular}
+
+\begin{quote}
+Pow\index{Pow}({\it base}, {\it exponent}) {\rarrow} {\it result} 
+\end{quote}
+
+Pow returns {\it base} raised to the {\it
+exponent}th power. The standard Rexx exponential operator ** accepts only
+whole-number exponents, but pow accepts any real number for both the base
+and the exponent. It has two synonyms: Power\index{Power} and
+XtoY\index{XtoY}.
+
+\subsection{Hyperbolic Functions}
+
+The AMath library has the same hyperbolic functions described in
+\ref{sec:hyper}, but it adds inverse hyperbolics. The formulae
+for these are:
+
+$${\rm asinh} x = \ln\left(x + \sqrt{x^2+1}\right)$$
+$${\rm acosh} x = \ln\left(x + \sqrt{x^2-1}\right), x \ge 1$$
+$${\rm atanh} x = {1 \over 2}\ln\left({1 + x \over 1 - x}\right), -1 < x < 1$$
+
+\begin{tabular}{lp{10cm}}
+SinH\index{SinH}&{\it value} is a real number, and the function returns
+its hyperbolic sine;\\
+ASinH\index{ASinH}&{\it value} is a real number, and the function
+returns its inverse hyberbolic sine;\\
+CosH\index{CosH}&{\it value} is a real number, and the function returns
+its hyperbolic cosine;\\
+ACosH\index{ACosH}&{\it value} is a real number greater than or equal to
+1, and the function returns its inverse hyperbolic cosine;\\
+TanH\index{TanH}&{\it value} is a real number and the function returns
+its hyperbolic tangent;\\
+ATanH\index{ATanH}&{\it value} is a real number with absolute value less
+than 1 and the function returns its inverse hyperbolic tangent.\\
+\end{tabular}
+
+\subsection{Numerical Functions}
+
+The numerical functions are just miscellaneous functions, but calling
+them numerical sounds more like they were thought out carefully. As with
+almost every other function in this library, the calling sequence is:
+
+\begin{quote}
+Ceil({\it value}) {\rarrow} {\it result}
+\end{quote}
+
+\begin{tabular}{lp{10cm}}
+Ceil\index{Ceil}&{\it value} is a real number and the function returns
+the smallest integer greater than {\it value};\\
+Floor\index{Floor}&{\it value} is a real number and the function returns
+the largest integer greater than {\it value};\\
+Int\index{Int}&Synonym for Floor;\\
+NInt\index{NInt}&{\it value} is a real number and the function returns
+nearest integer;\\
+Fact\index{Fact}&{\it value} is an integer and the function returns
+its factorial.
+\end{tabular}
+
+\clearpage % or 
+\cleardoublepage
+
+\phantomsection % fixes the link anchor
+
+\addcontentsline{toc}{section}{
+\indexname}
+
+
+\printindex
+
+
+\end{document}

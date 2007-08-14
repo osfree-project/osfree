@@ -1,0 +1,67 @@
+                         Regina 2.2
+                        17 June 2001
+
+Changes in this release (from 2.1)
+----------------------------------
+
+o Added multiple, named queues designed to be compatible with OS/2
+  Rexx, but also provides cross machine/platform capabilities. ie
+  you can push lines on a named queue on say Linux, and pull them
+  off that queue from a Rexx program running under Windows.
+  Provides the BIF rxqueue(), the external stack server; rxstack, and
+  the external client application; rxqueue. rxstack is designed to run
+  as a daemon process on Unix platforms, and an NT Service under NT/2k.
+  Other platforms can run rxstack as a normal foreground program.
+o Updated documentation to version 2.2, to include changes from
+  0.08e up to 2.2. Base documentation now in StarWriter 5.2 format
+  rather than MS Word.
+o Fixed bug with input/output redirection on non-Unix platforms.
+  ie '>LIFO sort >FIFO' now works correctly.
+o Changes to rexxsaa.h to allow MingW32 compiler to link with VC++ built
+  regina.lib
+o Addition of SAA API calls; RexxCreateQueue(), RexxDeleteQueue(),
+  RexxAddQueue(), RexxPullQueue() and RexxQueryQueue().
+o Addition of Rexx Macro Space functions. These are stubs at the moment.
+o To comply with the File Hierarchy Standard (FHS), Regina program
+  files are installed, by default on Unix systems, in /usr directory, 
+  rather than /usr/local.
+  eg. /usr/bin/regina rather than /usr/local/bin/regina
+  To achieve the same behaviour as previous releases, 
+     configure --prefix=/usr/local
+o Removed UNION_EXIT #define in rexxsaa.h. This was baggage from old
+  versions of Regina, and is now not supported.
+o Win32 port now packaged as self-extracting InstallShield package.
+o Change to RexxStart() API function. When specifying a default environment
+  that is an internal environment, don't add a new one, but use the details
+  of the existing internal environment. This allows OS commands to be run
+  correctly.
+o Fixed the non-random bug with RANDOM BIF on non-Unix platforms. (Paul Barnett)
+o QNX RTP support added.
+o Fix for excessive copying of parameters for most BIFs. Speeds up functions
+  like LEFT and SUBSTR as reported by Dennis Baeris and others.
+  (Paul Barnett)
+o Internal change: save currentnode across calls to interpret() (Paul Barnett)
+o Minor change to code to cleanly build on Mac OS X.
+o Environment variable PATH now also used to find Rexx programs from the
+  command line and externally called programs.
+o Added new system exit handler; RXENV and subhandlers; RXENVSET and RXENVGET.
+  These system exits are called when the VALUE BIF is called to get or
+  set a variable in the external environment as opposed to the Rexx
+  variable pool.
+o Partial AtheOS port.
+o Added -v switch to Regina executables to display Regina version string.
+o UNAME BIF now reports correct Windows operating system name.
+o Full support for building Regina under Win32 Cygwin environment including
+  building DLLs.
+o Win32 Binary distribution now comes with import libraries for Cygwin,
+  Borland and MingW32 compilers.
+o Initial attempt of port to MacOS 8.1+ 68k.  Doesn't work yet!
+o Minor changes to allow Regina to run on 64bit machines.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

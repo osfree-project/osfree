@@ -1,0 +1,116 @@
+                         Regina 0.08e
+                         26 June 1998
+
+
+Changes in this release (from 0.08d)
+------------------------------------
+
+o Fixed a bug in Termination System Exit. It would not get called
+  if the Rexx program uses the EXIT instruction to terminate.
+o Fixed the problem in execiser where variables that have no value are
+  specified in lower case in System Exits, do not return their name
+  in upper case as thier default value.
+o The UNAME BIF now reports more useful information when running under
+  Windows NT or Windows 95.
+o Fixed a couple of crash situations when LEAVEing from a DO/END loop.
+  Thanks to Florian Grosse-Coosmann for supplying the fixes.
+o The Regina, curses interface and demo program hanoi.rexx have been
+  removed from this distribution.  They are distributed as a seperate
+  package under the name Rexx/Curses.
+o The BIFs LINES, CHARS, LINEIN, LINEOUT, CHARIN and CHAROUT now read
+  or write to/from stdout if the first parameter is the empty string.
+o The BIF POPEN now writes lines onto the stack in FIFO order rather
+  than LIFO order.
+o Added support for piping output of an operating system command to
+  RXQUEUE.  While Regina does not have an external queue, it is possible
+  to do:
+  /**/
+  'ls | rxqueue'
+  Do While Queued() > 0
+    Parse Pull line
+    Say line
+  End
+  The above support is identical to the current >FIFO redirection
+  support and is provided for portability in code (but not functionality)
+o Fixed OPTIONS support. Due to the way it was implemented, OPTIONS
+  would not work correctly on Intel-based machines.
+o Added two extra OPTIONS keywords: EXT_COMMANDS_AS_FUNCS and
+  STDOUT_FOR_STDERR.
+  The first relates to Regina's default behaviour of trying to execute
+  an operating system command as a function, if no internal or external
+  Rexx program is found.
+  The second relates to Regina's default behaviour of sending error
+  messages and trace output to stderr.
+o Added new switches for configure script; --enable-tracemem and
+  --disable-flists. Both of these switches are really only useful for
+  people debugging Regina itself. Similarly when building on other
+  platforms that use 'make' directly, the equivalent switches are:
+     TRACEMEM=Y    - Do memory tracing (only valid with DEBUG=Y)
+     FLISTS=N      - Turn off use of Regina's memory management
+  The DEBUG=Y switch under EMX also sets -fbounds-checking
+o Fixed and enhanced the debugging functions; dumptree() and dumpvars().
+o Fixed a bug with passing a variable to a function (not modified with
+  PROCEDURE keyword) and changing its value within that function.
+  Thanks to Florian Grosse-Coosmann for supplying the fixes.
+o Added a new file to the distribution; BUGS. This gives examples of
+  code that can cause Regina to crash or produce the wrong results.
+o Fixed a bug with the EMX ports of Regina, that returned the full
+  filename from STREAM( filename, 'C', QUERY EXISTS) without the drive
+  specification and forward slashes instead of back slashes for directory
+  seperators.
+o Fixed a problem with specification of single-character arguments to
+  BIFs like STRIP().  The ANSI standard appears to allow any string in
+  these cases as long as it starts with the appropriate character.
+  <<< I'm not so sure about this now! >>>
+o Fixed an error with STREAM BIF: stream(filename,'C','APPEND') would
+  not append. stream(filename,'C','OPEN WRITE APPEND') works fine.
+o The OS/2 EMX port now builds regina.exe, regina.dll and the sample
+  test?.dll(s) for the dynfunc.rexx sample program.
+o Changed PARSE SOURCE output to suppress the fourth value. This was
+  inconsistent with the ANSI standard and caused problems for programs
+  that used the third value, expecting spaces in the file name,
+o Under DOS, OS/2 and Win95/NT, all files were opened in text mode. This
+  caused a problem with CHAROUT(filename,"line 1" || '0a'x), where the
+  line-feed character was being converted into a CR and LF. All files now
+  read in binary mode.
+o Regina now expects a new format for the name of external function
+  libraries under Unix. Prior to this release, Regina would take
+  the second parameter passed to the RXFUNCADD() function literally.
+  The sample external function packages built with Regina were named
+  test1.rxlib and test2.rxlib.  The sample program; dynfunc.rexx then
+  required a test of platform to determine what the name of the external
+  function package was.  Regina now follows the way that Object Rexx
+  determines the name of the external function library. Thus, the
+  "test1" external function package has a file name of the form:
+
+     lib<name>.<shl>
+
+     where:  lib    - "standard" Unix library prefix
+             <name> - the name of the external function package
+             <shl>  - the suffix used for shared libraries for a
+                      particular Unix variant
+
+  Thus the "test1" external function package is called:
+
+     libtest1.sl  - HPUX
+     libtest1.a   - AIX
+     libtest1.so  - All other Unix variants.
+
+  One other thing to be aware of.  The name specified in the RXFUNCADD()
+  function; paramter 2 IS CASE SENSITIVE.  Thus if you specify:
+
+     Call RxFuncAdd('Test1LoadFuncs', 'TEST1', 'Test1LoadFuncs')
+
+  Regina will look for libTEST1.<shl>
+o Fixed bug with STREAM BIF; stream(filename,'C','OPEN') would fail.
+
+Please report any bugs with this release of Regina to me.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+ Mark Hessling                 Email:             M.Hessling@qut.edu.au
+ PO Box 203                    Phone:                    +617 3802 0800
+ Bellara                          http://www.lightlink.com/hessling/
+ QLD 4507                      **** Maintainer PDCurses & REXX/SQL ****
+ Australia                     ************* Author of THE ************
++------------------------------------------------------------------------
