@@ -1,0 +1,10 @@
+//#line "/pub/FreePM/FreePM/src_s/F_errors.cpp" 75
+extern char * GetOS2ErrorMessage( int ierr);
+//#line "/pub/FreePM/FreePM/src_s/F_errors.cpp" 85
+extern char * GetFreePMErrorMessage( int ierr);
+//#line "/pub/FreePM/FreePM/src_s/F_errors.cpp" 111
+extern char const * xstrerror_type( int type);
+//#line "/pub/FreePM/FreePM/src_s/F_errors.cpp" 122
+extern char const * xstdio_strerror( void );
+//#line "/pub/FreePM/FreePM/src_s/F_errors.cpp" 148
+extern char const * StdStrError( int ierr);

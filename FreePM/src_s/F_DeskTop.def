@@ -1,0 +1,2 @@
+//#line "/pub/FreePM/FreePM/src_s/F_DeskTop.cpp" 178
+extern int _DeskTopSendQueue( void * pDClass, QMSG * pqmMsg);

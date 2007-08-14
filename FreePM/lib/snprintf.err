@@ -1,0 +1,4 @@
+snprintf.cpp(1022): Error! E867: col(1) conflict with a previous using-decl 'snprintf'
+/mnt/c/Projekt/open_watcom_src_1.6/rel2/h/stdio.h(87): Note! N392: col(10) definition: 'int watcall snprintf( char *, unsigned, char const *, ... )'
+snprintf.cpp(1039): Error! E867: col(1) conflict with a previous using-decl 'vsnprintf'
+/mnt/c/Projekt/open_watcom_src_1.6/rel2/h/stdio.h(90): Note! N392: col(10) definition: 'int watcall vsnprintf( char *, unsigned, char const *, char * * )'
