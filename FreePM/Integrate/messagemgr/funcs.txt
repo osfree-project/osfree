@@ -1,0 +1,35 @@
+ 
+ Related Functions 
+
+      WinCancelShutdown 
+      WinCreateMsgQueue 
+      WinInitialize 
+      WinTerminate 
+  
+
+ 
+ Related Functions 
+
+      WinBroadcastMsg 
+      WinCreateMsgQueue 
+      WinDestroyMsgQueue 
+      WinDispatchMsg 
+      WinGetDlgMsg 
+      WinGetMsg 
+      WinInSendMsg 
+      WinPeekMsg 
+      WinPostMsg 
+      WinPostQueueMsg 
+      WinQueryMsgPos 
+      WinQueryMsgTime 
+      WinQueryQueueInfo 
+      WinQueryQueueStatus 
+      WinSendDlgItemMsg 
+      WinSendMsg 
+      WinSetClassMsgInterest 
+      WinSetMsgInterest 
+      WinSetMsgMode 
+      WinSetSynchroMode 
+      WinWaitMsg 
+  
+

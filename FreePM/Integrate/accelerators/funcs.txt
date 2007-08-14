@@ -1,0 +1,12 @@
+ 
+ Related Functions 
+
+      WinCopyAccelTable 
+      WinCreateAccelTable 
+      WinDestroyAccelTable 
+      WinLoadAccelTable 
+      WinQueryAccelTable 
+      WinSetAccelTable 
+      WinTranslateAccel 
+  
+

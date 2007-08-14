@@ -1,0 +1,9 @@
+WinQuerySystemAtomTable
+WinCreateAtomTable
+WinDestroyAtomTable
+WinAddAtom
+WinFindAtom
+WinDeleteAtom
+WinQueryAtomUsage
+WinQueryAtomLength
+WinQueryAtomName
