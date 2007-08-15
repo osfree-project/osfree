@@ -6,7 +6,19 @@
 
 
 
+
 # !include ../watcom.mif
+
+!include ../build.conf
+!include ../mk/site.mk
+
+32_BITS  = 1
+
+!include ../mk/all.mk
+
+#defines files mask for clean target
+CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym
+
 
 sep=/
 
@@ -18,12 +30,12 @@ lpng_dir=$(bas)lib$(sep)lpng
 zlib_dir=$(bas)lib$(sep)Zlib
 jpeg_dir=$(bas)lib$(sep)JpegLib
 
-#        
+#
 freepm_client_dir=$(bas)src_c
 freepm_lib_dir=$(bas)lib
 freepm_inc_dir=$(bas)include
 
-# lib/Zlib  lib/JpegLib  lib/lpng  lib/GDLib  src_c  src_s 
+# lib/Zlib  lib/JpegLib  lib/lpng  lib/GDLib  src_c  src_s
 
 SYSTEM_TARGET=os2v2
 # SYSTEM_TARGET=os2v2 linux
@@ -43,7 +55,7 @@ CPP=wpp386
 SERVER_EXE=FreePMs$(EXE_SUFFIX)
 CLIENT_EXE=FreePM$(EXE_SUFFIX)
 
-ALL_CFLAGS= -bm -od -mf -sg 
+ALL_CFLAGS= -bm -od -mf -sg
 SERVER_CFLAGS= -d2 -db -ef -mf -hw -v  $(ALL_CFLAGS)
 CLIENT_CFLAGS= -d2  -mf $(ALL_CFLAGS)
 ZLIB_CFLAGS=    $(ALL_CFLAGS)
@@ -52,10 +64,10 @@ LPNG_CFLAGS=  $(ALL_CFLAGS)
 GDLIB_CFLAGS= $(ALL_CFLAGS)
 
 # -i/mnt/rei2/NuDawn/os2linux/include
-#  lib /mnt/rei2/NuDawn/os2linux/lib/libos2.a 
+#  lib /mnt/rei2/NuDawn/os2linux/lib/libos2.a
 
-SERVER_LDFLAGS= option map 
-CLIENT_LDFLAGS= 
+SERVER_LDFLAGS= option map
+CLIENT_LDFLAGS=
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
@@ -66,7 +78,7 @@ CLIENT_LDFLAGS=
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
-# wlink 
+# wlink
 # option map[=map_file]
 
 # wpp386/wcc386
@@ -92,14 +104,14 @@ CLIENT_LDFLAGS=
 
 
 
-#Posted: Tue Jun 19, 2007 5:47 pm    Post subject: 	 
+#Posted: Tue Jun 19, 2007 5:47 pm    Post subject:
 #
-#2Viking: Acoording the stack. Maybe the problem is with variables on stack crossing 
-#the guard page boundary? Then an option for wcc386 "-sg" may help "generate code to 
-#grow the stack. It touches the guard page to grow the stack for the stack to contain 
+#2Viking: Acoording the stack. Maybe the problem is with variables on stack crossing
+#the guard page boundary? Then an option for wcc386 "-sg" may help "generate code to
+#grow the stack. It touches the guard page to grow the stack for the stack to contain
 #all variables on this stack/
 #_________________
-#WBR, 
+#WBR,
 #Valery V. Sedletski
 
 
