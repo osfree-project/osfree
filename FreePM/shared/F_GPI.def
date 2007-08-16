@@ -1,0 +1,10 @@
+//#line "/pub/FreePM/FreePM/lib/F_GPI.cpp" 36
+extern LONG syscall F_GpiBox( unsigned long hps, int lControl, POINTL * pptlPoint, int lHRound, int lVRound);
+//#line "/pub/FreePM/FreePM/lib/F_GPI.cpp" 46
+extern BOOL syscall F_GpiSetColor( unsigned long hps, int lColor);
+//#line "/pub/FreePM/FreePM/lib/F_GPI.cpp" 59
+extern LONG syscall F_GpiQueryColor( unsigned long hps);
+//#line "/pub/FreePM/FreePM/lib/F_GPI.cpp" 65
+extern BOOL syscall F_GpiMove( unsigned long hps, POINTL * pptlPoint);
+//#line "/pub/FreePM/FreePM/lib/F_GPI.cpp" 77
+extern LONG syscall F_GpiLine( unsigned long hps, POINTL * pptlEndPoint);
