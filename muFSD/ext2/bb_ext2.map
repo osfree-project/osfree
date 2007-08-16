@@ -1,9 +1,0 @@
-Open Watcom Linker Version 1.6
-Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
-Created on:       07/08/16 00:18:19
-Error! E2008: cannot open start.obj : No such file or directory
-Error! E2008: cannot open term.obj : No such file or directory
-Error! E2008: cannot open file.obj : No such file or directory
-Error! E2008: cannot open open.obj : No such file or directory
-Error! E2008: cannot open read.obj : No such file or directory
-Error! E2008: cannot open ll_rwblk.obj : No such file or directory

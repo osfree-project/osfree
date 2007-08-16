@@ -1,6 +1,0 @@
-SYSTEM dos
-OPTION MAP=mbr.map
-OPTION NODEFAULTLIBS
-NAME mbr
-PATH c:\_work\svn\osfree\boot\mbr
-FILE mbr.obj

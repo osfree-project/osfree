@@ -1,6 +1,0 @@
-SYSTEM dos
-OPTION MAP=bootsect_3.map
-OPTION NODEFAULTLIBS
-NAME bootsect_3
-PATH c:\_work\svn\osfree\boot\bootsect
-FILE bootsect_3.obj
