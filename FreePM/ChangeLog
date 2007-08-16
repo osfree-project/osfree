@@ -1,0 +1,43 @@
+
+
+  DD MMM YYYY; YOUR_NAME <YOUR_EMAIL> changed_file1, changed_file2: this is
+  an earlier ChangeLog entry.
+ 
+ 
+  1 Oct 2007; Downloaded the sources for FreePM with CVS:  
+  cvs -d:pserver:anonymous@frepm.cvs.sourceforge.net:/cvsroot/frepm login
+  cvs -z3 -d:pserver:anonymous@frepm.cvs.sourceforge.net:/cvsroot/frepm checkout FreePM
+  
+ 
+  June-July 2007 Some of the changes by Viking to compile FreePM with Open Watcom.
+  Created makefiles in:
+  	FreePM/makefile.wat 
+	FreePM/watcom.mif 
+	FreePM/lib/Zlib/makefile.wat 
+	FreePM/lib/JpegLib/makefile.wat 
+	FreePM/lib/lpng/makefile.wat 
+	FreePM/lib/GDLib/makefile.wat 
+  The original makefiles for Visual Age are those without .wat extension.
+  Added new files:
+  	include/builtin.h - This header contains the function "int __lxchg(int volatile * a, int  b)"
+						which probably might mean "lock exchange". I had to implement it on my own
+						because it seems to be part of the system headers in Visual Age and I
+						don't have it. It seems to work but I'm not 100% percent sure if it's 
+						correct. If anyone has access to the documentation for it in Visual Age, 
+						I would appreciate, please send me the documentation for it.
+						
+	include/bsetib.h - Declararions for  PIB, TIB2 and TIB from OWs headers.
+	
+	include/bseerr.h - Error declarations from Open Watcom.
+	
+	include/error.h - An older toolkit (16 bit v. 1.3), is the file error.h from. Downloaded from
+						http://www.tavi.co.uk/os2pages/oldsoft.html
+						
+  Changed files:
+  	include/os2_ErrCodes.h - I commented out most of the error declarations for string messages 
+						because it needed the Warp Toolkit which I don't have.
+						
+
+
+  4 July 2007; Viking. The makefiles now works to build on OS/2 with Open Watcom 1.6.
+  

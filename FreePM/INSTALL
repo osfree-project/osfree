@@ -1,0 +1,66 @@
+
+Build instructions for FreePM with Open Watcom.
+4 July 2007
+By Viking.
+
+First take a look at FreePM/watcom.mif which contains variables to control the compilation.
+It contain variables for the path separator "sep", the absolute directory to FreePM in "bas".
+The object file extension in "OBJEXT" which is different in OW in Linux and OS/2. Hmm, is 
+there a switch for object ext in OW?
+
+To change the build target, set SYSTEM_TARGET to either os2v2 or linux. The default is os2v2.
+  Building for linux 
+does not work at the moment. For that you would need the porting library "os2linux" and
+it would be easier to do the build with gcc on linux because of external dependencies in 
+"os2linux" such as on ncurses. Open Watcom can't link to shared ELF librarys, only link staticly.
+The source code files would also need to remove #defines which relates to PM, because "os2linux"
+is very cranky about them.
+
+Debug information is set in DEBUG_TARGET and creates Open Watcom specific info at the moment,
+with "DEBUG WATCOM All". If it is not set like that but only with: "DEBUG ALL" it creates
+debug info in Dwarf format (as gcc does).
+
+Names on the client and server exes is set with SERVER_EXE and CLIENT_EXE.
+
+CFLAGS is set with ALL_CFLAGS and in SERVER_CFLAGS and CLIENT_CFLAGS.
+
+Link flags is set with SERVER_LDFLAGS and CLIENT_LDFLAGS. Only the server has a map file created
+at the moment.
+
+
+
+Quick build
+-------------
+To build on OS/2:
+Set "sep" to "\". 
+Set "OBJEXT" to ".obj"
+Set "bas" to the directory where you have unpacked FreePM.
+For example: bas=c:\prj\FreePM\
+Make sure that a separator is at the end.
+
+To build on GNU/Linux:
+Set "sep" to "/". 
+Set "OBJEXT" to ".o"
+Set "bas" to the directory where you have unpacked FreePM.
+For example: bas=/prj/FreePM/
+
+To build it, do:
+	wmake -f makefile.wat 
+	or
+	wmake -f makefile.wat <target>
+	if you don't specify a target, it uses "all".
+	To capture the output both from stderr and stdout,(needs tee) use:
+		wmake -f makefile.wat 2>&1 | tee FreePM_Build.log
+
+The main makefile supports these targets:
+	all   - builds all directorys in right order.
+	clean - removes all objectfiles in FreePM and the created exe files! Which needs "rm".
+	dist  - creates a zipfile (FreePM_3july2007.zip) of all files and subdirectories of FreePM above
+			the main directory. It uses "zip" for that.
+
+To run FreePM start the exe files in:
+	FreePM/src_s/FreePMs.exe - The server needs to be started first.
+	FreePM/src_c/FreePM.exe	 - The client.
+It is best to start them in two different command windows because they print a lot text to the
+console.
+

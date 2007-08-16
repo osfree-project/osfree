@@ -1,0 +1,46 @@
+DosAllocMem
+DosSleep
+DosReleaseMutexSem
+DosCloseMutexSem
+DosCreateMutexSem
+DosOpenMutexSem
+DosRequestMutexSem
+DosQueryMutexSem
+DosWrite
+DosBeep
+DosDisConnectNPipe
+_beginthread
+
+These APIs and declarations for PM is required in Fs_PMdev.cpp (to view a window on OS/2 desktop)
+I used wdump on the FreePM server exe to get this info and the API descriptions on
+http://home.clara.net/orac/index.htm to get the function names. 
+After that I added the parameter lists from OWs header files.
+
+HDC   APIENTRY WinOpenWindowDC(HWND hwnd);  
+HPS   APIENTRY GpiCreatePS(HAB hab,
+                              HDC hdc,
+                              PSIZEL psizlSize,
+                              ULONG flOptions);
+HPS   APIENTRY WinBeginPaint(HWND hwnd,
+                                HPS hps,
+                                PRECTL prclPaint);
+BOOL  APIENTRY WinQueryWindowRect(HWND hwnd,
+                                       PRECTL prclDest);
+BOOL APIENTRY  GpiSetColor(HPS hps, LONG lColor);									   
+BOOL APIENTRY  GpiMove(HPS hps, PPOINTL pptlPoint);
+LONG APIENTRY  GpiLine(HPS hps, PPOINTL pptlEndPoint);	
+								   
+ BOOL    APIENTRY WinEndPaint(HPS hps);									   
+									   
+#define WA_ERROR			2
+#define MB_OK				0x0000		
+							   
+#define MB_CUACRITICAL			0x0040							   
+#define MB_CRITICAL			MB_CUACRITICAL
+#define MB_ERROR			MB_CRITICAL
+
+#define CAPS_DEVICE_POLYSET_POINTS	41
+#define CAPS_COLOR_BITCOUNT		16
+
+MRESULT WinDefWindowProc (HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
+
