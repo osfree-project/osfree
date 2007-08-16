@@ -1,0 +1,823 @@
+0 2007/08/16 01:29:13|Starting FreePMclient version 0.0.0.1...
+1|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+2|AddHAB  ordinal=83, iHAB=2, clientId=1, index=0
+3|BOOL syscall WinRegisterClass( unsigned long, CHAR const *, MRESULT syscall (* )( unsigned long, unsigned, void *, void * ), unsigned, unsigned )is not yet implemented
+4|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+5 2007/08/16 01:29:14|int FRAME_Window::proc( QMSG * )call with message 1
+6|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 10 10 256 256 f  42ae4
+7|int FRAME_Window::proc( QMSG * )call with message 8
+8|int FRAME_Window::proc( QMSG * )call with message 7
+9|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+10|int FRAME_Window::proc( QMSG * )call with message 6
+11|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+12|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+13|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+14|int FRAME_Window::proc( QMSG * )call with message 5
+15|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+16|int FRAME_Window::proc( QMSG * )call with message 1
+17|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 4 230 230 7  42ad4
+18|int FRAME_Window::proc( QMSG * )call with message 8
+19|int FRAME_Window::proc( QMSG * )call with message 7
+20|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+21|int FRAME_Window::proc( QMSG * )call with message 6
+22|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+23|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+24|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+25|int FRAME_Window::proc( QMSG * )call with message 1
+26|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 230 22 22 f  42ad4
+27|int FRAME_Window::proc( QMSG * )call with message 8
+28|int FRAME_Window::proc( QMSG * )call with message 7
+29|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+30|int FRAME_Window::proc( QMSG * )call with message 6
+31|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+32|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+33|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+34|int FRAME_Window::proc( QMSG * )call with message 5
+35|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+36|int FRAME_Window::proc( QMSG * )call with message 1
+37|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 186 230 22 22 f  42ad4
+38 2007/08/16 01:29:15|int FRAME_Window::proc( QMSG * )call with message 8
+39|int FRAME_Window::proc( QMSG * )call with message 7
+40|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+41|int FRAME_Window::proc( QMSG * )call with message 6
+42|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+43|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+44|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+45|int FRAME_Window::proc( QMSG * )call with message 5
+46|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+47|int FRAME_Window::proc( QMSG * )call with message 1
+48|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, un0 2007/08/16 01:29:49|Starting FreePMclient version 0.0.0.1...
+1|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+2|AddHAB  ordinal=7b, iHAB=3, clientId=2, index=0
+3|BOOL syscall WinRegisterClass( unsigned long, CHAR const *, MRESULT syscall (* )( unsigned long, unsigned, void *, void * ), unsigned, unsigned )is not yet implemented
+4|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+5|int FRAME_Window::proc( QMSG * )call with message 1
+6|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 10 10 256 256 f  42ae4
+7|int FRAME_Window::proc( QMSG * )call with message 8
+8|int FRAME_Window::proc( QMSG * )call with message 7
+9|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+10|int FRAME_Window::proc( QMSG * )call with message 6
+11|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+12|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+13|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+14|int FRAME_Window::proc( QMSG * )call with message 5
+15|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+16|int FRAME_Window::proc( QMSG * )call with message 1
+17|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 4 230 230 7  42ad4
+18 2007/08/16 01:29:50|int FRAME_Window::proc( QMSG * )call with message 8
+19|int FRAME_Window::proc( QMSG * )call with message 7
+20|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+21|int FRAME_Window::proc( QMSG * )call with message 6
+22|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+23|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+24|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+25|int FRAME_Window::proc( QMSG * )call with message 1
+26|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 230 22 22 f  42ad4
+27|int FRAME_Window::proc( QMSG * )call with message 8
+28|int FRAME_Window::proc( QMSG * )call with message 7
+29|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+30|int FRAME_Window::proc( QMSG * )call with message 6
+31|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+32|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+33|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+34|int FRAME_Window::proc( QMSG * )call with message 5
+35|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+36|int FRAME_Window::proc( QMSG * )call with message 1
+37|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 186 230 22 22 f  42ad4
+38|int FRAME_Window::proc( QMSG * )call with message 8
+39|int FRAME_Window::proc( QMSG * )call with message 7
+40|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+41|int FRAME_Window::proc( QMSG * )call with message 6
+42|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+43|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+44|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+45|int FRAME_Window::proc( QMSG * )call with message 5
+46|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+47|int FRAME_Window::proc( QMSG * )call with message 1
+48|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+49 2007/08/16 01:29:51|int FRAME_Window::proc( QMSG * )call with message 8
+50|int FRAME_Window::proc( QMSG * )call with message 7
+51|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+52|int FRAME_Window::proc( QMSG * )call with message 6
+53|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+54|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+55|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+56|int FRAME_Window::proc( QMSG * )call with message 5
+57|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+58|int FRAME_Window::proc( QMSG * )call with message 1
+59|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+60|int FRAME_Window::proc( QMSG * )call with message 8
+61|int FRAME_Window::proc( QMSG * )call with message 7
+62|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+63|int FRAME_Window::proc( QMSG * )call with message 6
+64|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+65|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+66|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+67|int FRAME_Window::proc( QMSG * )call with message 5
+68|WinGetMsg call
+69|int _F_SendCmdToServer( int, int ) Broken Pipe, Try to reconnect...
+70|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+71|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+72|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+73|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+74|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+75|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+76|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+77|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+78|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+79|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+80|WinGetMsg Error: PATH_NOT_FOUND
+FATAL: WinGetMsg Error
+
+FreePMclient (Version 0.0.0.1): Terminated abnormally.
+0 2007/08/16 01:30:34|Starting FreePMclient version 0.0.0.1...
+1|FreePM server is not running at local machine, test for server at rover
+2|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+3|F_pipe.Open rc = 3 (PATH_NOT_FOUND)
+4|FreePMserver is not running at remoute machine rover, exitting...
+FATAL: FreePM server not running
+FreePMclient (Version 0.0.0.1): Terminated abnormally.
+0 2007/08/16 01:32:39|Starting FreePMclient version 0.0.0.1...
+1|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+2|AddHAB  ordinal=83, iHAB=2, clientId=1, index=0
+3|BOOL syscall WinRegisterClass( unsigned long, CHAR const *, MRESULT syscall (* )( unsigned long, unsigned, void *, void * ), unsigned, unsigned )is not yet implemented
+4|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+5|int FRAME_Window::proc( QMSG * )call with message 1
+6|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 10 10 256 256 f  42ae4
+7|int FRAME_Window::proc( QMSG * )call with message 8
+8|int FRAME_Window::proc( QMSG * )call with message 7
+9|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+10|int FRAME_Window::proc( QMSG * )call with message 6
+11|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+12|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+13|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+14|int FRAME_Window::proc( QMSG * )call with message 5
+15|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+16|int FRAME_Window::proc( QMSG * )call with message 1
+17|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 4 230 230 7  42ad4
+18|int FRAME_Window::proc( QMSG * )call with message 8
+19|int FRAME_Window::proc( QMSG * )call with message 7
+20|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+21|int FRAME_Window::proc( QMSG * )call with message 6
+22|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+23|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+24|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+25|int FRAME_Window::proc( QMSG * )call with message 1
+26|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 230 22 22 f  42ad4
+27 2007/08/16 01:32:40|int FRAME_Window::proc( QMSG * )call with message 8
+28|int FRAME_Window::proc( QMSG * )call with message 7
+29|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+30|int FRAME_Window::proc( QMSG * )call with message 6
+31|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+32|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+33|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+34|int FRAME_Window::proc( QMSG * )call with message 5
+35|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+36|int FRAME_Window::proc( QMSG * )call with message 1
+37|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 186 230 22 22 f  42ad4
+38|int FRAME_Window::proc( QMSG * )call with message 8
+39|int FRAME_Window::proc( QMSG * )call with message 7
+40|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+41|int FRAME_Window::proc( QMSG * )call with message 6
+42|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+43|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+44|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+45|int FRAME_Window::proc( QMSG * )call with message 5
+46|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+47|int FRAME_Window::proc( QMSG * )call with message 1
+48|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+49|int FRAME_Window::proc( QMSG * )call with message 8
+50|int FRAME_Window::proc( QMSG * )call with message 7
+51|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+52|int FRAME_Window::proc( QMSG * )call with message 6
+53|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+54|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+55|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+56|int FRAME_Window::proc( QMSG * )call with message 5
+57|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+58 2007/08/16 01:32:41|int FRAME_Window::proc( QMSG * )call with message 1
+59|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+60|int FRAME_Window::proc( QMSG * )call with message 8
+61|int FRAME_Window::proc( QMSG * )call with message 7
+62|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+63|int FRAME_Window::proc( QMSG * )call with message 6
+64|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+65|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+66|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+67|int FRAME_Window::proc( QMSG * )call with message 5
+68|WinGetMsg call
+69|int FRAME_Window::proc( QMSG * )call with message 23
+70|HPS FPM_Window::GetPS( void )call
+71|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+72|int FPM_Window::Draw( unsigned long )call with hps 1
+73|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+74|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+75|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+76|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+77|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+78|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+79|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+80|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+81|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+82|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+83|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+84|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+85|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+86|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+87|WinGetMsg call
+88|int FRAME_Window::proc( QMSG * )call with message 23
+89|HPS FPM_Window::GetPS( void )call
+90|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+91|int FPM_Window::Draw( unsigned long )call with hps 1
+92|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+93|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+94|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+95|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+96|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+97|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+98|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+99|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+100|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+101|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+102|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+103|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+104|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+105|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+106|WinGetMsg call
+107|int FRAME_Window::proc( QMSG * )call with message 23
+108|HPS FPM_Window::GetPS( void )call
+109|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+110|int FPM_Window::Draw( unsigned long )call with hps 1
+111|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+112|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+113|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+114|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+115|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+116|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+117|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+118|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+119|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+120|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+121|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+122|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+123|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+124|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+125|WinGetMsg call
+126|int FRAME_Window::proc( QMSG * )call with message 23
+127|HPS FPM_Window::GetPS( void )call
+128|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+129|int FPM_Window::Draw( unsigned long )call with hps 1
+130|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+131|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+132|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+133|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+134|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+135|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+136|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+137|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+138|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+139|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+140|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+141|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+142|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+143|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+144|WinGetMsg call
+145|int _F_SendCmdToServer( int, int ) Broken Pipe, Try to reconnect...
+146|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+147|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+148|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+149|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+150|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+151|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+152|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+153|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+154|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+155|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+156|WinGetMsg Error: PATH_NOT_FOUND
+FATAL: WinGetMsg Error
+
+FreePMclient (Version 0.0.0.1): Terminated abnormally.
+0 2007/08/16 01:56:46|Starting FreePMclient version 0.0.0.1...
+1|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+2|AddHAB  ordinal=7b, iHAB=2, clientId=1, index=0
+3|BOOL syscall WinRegisterClass( unsigned long, CHAR const *, MRESULT syscall (* )( unsigned long, unsigned, void *, void * ), unsigned, unsigned )is not yet implemented
+4|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+5 2007/08/16 01:56:47|int FRAME_Window::proc( QMSG * )call with message 1
+6|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 10 10 256 256 f  42ae4
+7|int FRAME_Window::proc( QMSG * )call with message 8
+8|int FRAME_Window::proc( QMSG * )call with message 7
+9|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+10|int FRAME_Window::proc( QMSG * )call with message 6
+11|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+12|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+13|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+14|int FRAME_Window::proc( QMSG * )call with message 5
+15|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+16|int FRAME_Window::proc( QMSG * )call with message 1
+17|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 4 230 230 7  42ad4
+18|int FRAME_Window::proc( QMSG * )call with message 8
+19|int FRAME_Window::proc( QMSG * )call with message 7
+20|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+21|int FRAME_Window::proc( QMSG * )call with message 6
+22|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+23|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+24|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+25|int FRAME_Window::proc( QMSG * )call with message 1
+26|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 230 22 22 f  42ad4
+27|int FRAME_Window::proc( QMSG * )call with message 8
+28|int FRAME_Window::proc( QMSG * )call with message 7
+29|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+30 2007/08/16 01:56:48|int FRAME_Window::proc( QMSG * )call with message 6
+31|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+32|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+33|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+34|int FRAME_Window::proc( QMSG * )call with message 5
+35|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+36|int FRAME_Window::proc( QMSG * )call with message 1
+37|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 186 230 22 22 f  42ad4
+38|int FRAME_Window::proc( QMSG * )call with message 8
+39|int FRAME_Window::proc( QMSG * )call with message 7
+40|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+41|int FRAME_Window::proc( QMSG * )call with message 6
+42|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+43|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+44|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+45|int FRAME_Window::proc( QMSG * )call with message 5
+46|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+47|int FRAME_Window::proc( QMSG * )call with message 1
+48|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+49|int FRAME_Window::proc( QMSG * )call with message 8
+50|int FRAME_Window::proc( QMSG * )call with message 7
+51|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+52|int FRAME_Window::proc( QMSG * )call with message 6
+53|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+54|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+55|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+56|int FRAME_Window::proc( QMSG * )call with message 5
+57|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+58 2007/08/16 01:56:49|int FRAME_Window::proc( QMSG * )call with message 1
+59|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+60|int FRAME_Window::proc( QMSG * )call with message 8
+61|int FRAME_Window::proc( QMSG * )call with message 7
+62|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+63|int FRAME_Window::proc( QMSG * )call with message 6
+64|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+65|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+66|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+67|int FRAME_Window::proc( QMSG * )call with message 5
+68|WinGetMsg call
+69|int FRAME_Window::proc( QMSG * )call with message 23
+70|HPS FPM_Window::GetPS( void )call
+71|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+72|int FPM_Window::Draw( unsigned long )call with hps 1
+73|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+74|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+75|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+76|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+77|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+78|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+79|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+80|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+81|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+82|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+83|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+84|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+85|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+86|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+87|WinGetMsg call
+88|int FRAME_Window::proc( QMSG * )call with message 23
+89|HPS FPM_Window::GetPS( void )call
+90|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+91|int FPM_Window::Draw( unsigned long )call with hps 1
+92|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+93|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+94|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+95|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+96|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+97|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+98|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+99|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+100|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+101|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+102|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+103|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+104|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+105|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+106|WinGetMsg call
+107|int FRAME_Window::proc( QMSG * )call with message 23
+108|HPS FPM_Window::GetPS( void )call
+109|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+110|int FPM_Window::Draw( unsigned long )call with hps 1
+111|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+112|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+113|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+114|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+115|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+116|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+117|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+118|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+119|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+120|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+121|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+122|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+123|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+124|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+125|WinGetMsg call
+126|int FRAME_Window::proc( QMSG * )call with message 23
+127|HPS FPM_Window::GetPS( void )call
+128|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+129|int FPM_Window::Draw( unsigned long )call with hps 1
+130|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+131|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+132|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+133|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+134|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+135|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+136|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+137|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+138|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+139|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+140|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+141|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+142|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+143|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+144|WinGetMsg call
+145|int FRAME_Window::proc( QMSG * )call with message 23
+146|HPS FPM_Window::GetPS( void )call
+147|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+148|int FPM_Window::Draw( unsigned long )call with hps 1
+149|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+150|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+151|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+152|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+153|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+154|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+155|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+156|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+157|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+158|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+159|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+160|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+161|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+162|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+163|WinGetMsg call
+164|int FRAME_Window::proc( QMSG * )call with message 23
+165|HPS FPM_Window::GetPS( void )call
+166|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+167|int FPM_Window::Draw( unsigned long )call with hps 1
+168|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+169|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+170|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+171|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+172|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+173|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+174|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+175|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+176|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+177|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+178|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+179|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+180|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+181|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+182|WinGetMsg call
+183|int FRAME_Window::proc( QMSG * )call with message 23
+184|HPS FPM_Window::GetPS( void )call
+185|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+186|int FPM_Window::Draw( unsigned long )call with hps 1
+187|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+188|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+189|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+190|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+191|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+192|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+193|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+194|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+195|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+196|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+197|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+198|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+199|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+200|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+201|WinGetMsg call
+202|int FRAME_Window::proc( QMSG * )call with message 23
+203|HPS FPM_Window::GetPS( void )call
+204|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+205|int FPM_Window::Draw( unsigned long )call with hps 1
+206|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+207|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+208|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+209|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+210|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+211|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+212|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+213|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+214|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+215|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+216|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+217|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+218|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+219|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+220|WinGetMsg call
+221|int _F_SendCmdToServer( int, int ) Broken Pipe, Try to reconnect...
+222|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+223|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+224|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+225|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+226|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+227|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+228|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+229|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+230|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+231|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+232|WinGetMsg Error: PATH_NOT_FOUND
+FATAL: WinGetMsg Error
+
+FreePMclient (Version 0.0.0.1): Terminated abnormally.
+0 2007/08/16 02:05:37|Starting FreePMclient version 0.0.0.1...
+1|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+2|AddHAB  ordinal=84, iHAB=2, clientId=1, index=0
+3|BOOL syscall WinRegisterClass( unsigned long, CHAR const *, MRESULT syscall (* )( unsigned long, unsigned, void *, void * ), unsigned, unsigned )is not yet implemented
+4|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+5|int FRAME_Window::proc( QMSG * )call with message 1
+6|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 10 10 256 256 f  42ae4
+7 2007/08/16 02:05:38|int FRAME_Window::proc( QMSG * )call with message 8
+8|int FRAME_Window::proc( QMSG * )call with message 7
+9|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+10|int FRAME_Window::proc( QMSG * )call with message 6
+11|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+12|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+13|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+14|int FRAME_Window::proc( QMSG * )call with message 5
+15|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+16|int FRAME_Window::proc( QMSG * )call with message 1
+17|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 4 230 230 7  42ad4
+18|int FRAME_Window::proc( QMSG * )call with message 8
+19|int FRAME_Window::proc( QMSG * )call with message 7
+20|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+21|int FRAME_Window::proc( QMSG * )call with message 6
+22|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+23|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+24|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+25|int FRAME_Window::proc( QMSG * )call with message 1
+26|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 230 22 22 f  42ad4
+27|int FRAME_Window::proc( QMSG * )call with message 8
+28|int FRAME_Window::proc( QMSG * )call with message 7
+29|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+30|int FRAME_Window::proc( QMSG * )call with message 6
+31|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+32|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+33|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+34|int FRAME_Window::proc( QMSG * )call with message 5
+35|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+36|int FRAME_Window::proc( QMSG * )call with message 1
+37|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 186 230 22 22 f  42ad4
+38 2007/08/16 02:05:39|int FRAME_Window::proc( QMSG * )call with message 8
+39|int FRAME_Window::proc( QMSG * )call with message 7
+40|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+41|int FRAME_Window::proc( QMSG * )call with message 6
+42|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+43|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+44|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+45|int FRAME_Window::proc( QMSG * )call with message 5
+46|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+47|int FRAME_Window::proc( QMSG * )call with message 1
+48|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+49|int FRAME_Window::proc( QMSG * )call with message 8
+50|int FRAME_Window::proc( QMSG * )call with message 7
+51|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+52|int FRAME_Window::proc( QMSG * )call with message 6
+53|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+54|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+55|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+56|int FRAME_Window::proc( QMSG * )call with message 5
+57|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+58|int FRAME_Window::proc( QMSG * )call with message 1
+59|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+60|int FRAME_Window::proc( QMSG * )call with message 8
+61|int FRAME_Window::proc( QMSG * )call with message 7
+62|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+63|int FRAME_Window::proc( QMSG * )call with message 6
+64|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+65|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+66|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+67|int FRAME_Window::proc( QMSG * )call with message 5
+68|WinGetMsg call
+69|int FRAME_Window::proc( QMSG * )call with message 23
+70|HPS FPM_Window::GetPS( void )call
+71|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+72|int FPM_Window::Draw( unsigned long )call with hps 1
+73|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+74|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+75|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+76|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+77|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+78|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+79|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+80|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+81|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+82|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+83|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+84|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+85|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+86|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+87|WinGetMsg call
+88|int FRAME_Window::proc( QMSG * )call with message 23
+89|HPS FPM_Window::GetPS( void )call
+90|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+91|int FPM_Window::Draw( unsigned long )call with hps 1
+92|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+93|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+94|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+95|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+96|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+97|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+98|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+99|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+100|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+101|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+102|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+103|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+104|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+105|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+106|WinGetMsg call
+107|int FRAME_Window::proc( QMSG * )call with message 23
+108|HPS FPM_Window::GetPS( void )call
+109|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+110|int FPM_Window::Draw( unsigned long )call with hps 1
+111|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+112|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+113|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+114|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+115|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+116|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+117|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+118|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+119|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+120|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+121|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+122|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+123|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+124|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+125|WinGetMsg call
+126|int FRAME_Window::proc( QMSG * )call with message 23
+127|HPS FPM_Window::GetPS( void )call
+128|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+129|int FPM_Window::Draw( unsigned long )call with hps 1
+130|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+131|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+132|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+133|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+134|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+135|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+136|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+137|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+138|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+139|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+140|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+141|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+142|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+143|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+144|WinGetMsg call
+145|int FRAME_Window::proc( QMSG * )call with message 23
+146|HPS FPM_Window::GetPS( void )call
+147|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+148|int FPM_Window::Draw( unsigned long )call with hps 1
+149|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+150|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+151|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+152|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+153|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+154|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+155|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+156|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+157|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+158|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+159|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+160|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+161|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+162|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+163|WinGetMsg call
+164|int _F_SendCmdToServer( int, int ) Broken Pipe, Try to reconnect...
+165|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+166|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+167|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+168|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+169|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+170|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+171|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+172|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+173|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+174|int _F_SendCmdToServer( int, int ) Broken Pipe, Server still down...
+175|WinGetMsg Error: PATH_NOT_FOUND
+FATAL: WinGetMsg Error
+
+FreePMclient (Version 0.0.0.1): Terminated abnormally.
+0 2007/08/16 02:13:53|Starting FreePMclient version 0.0.0.1...
+1|Pipe: FREEPM_BASE_PIPE_NAME=\PIPE\FREEPM 
+2|AddHAB  ordinal=81, iHAB=2, clientId=1, index=0
+3|BOOL syscall WinRegisterClass( unsigned long, CHAR const *, MRESULT syscall (* )( unsigned long, unsigned, void *, void * ), unsigned, unsigned )is not yet implemented
+4|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+5 2007/08/16 02:13:54|int FRAME_Window::proc( QMSG * )call with message 1
+6|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 10 10 256 256 f  42ae4
+7|int FRAME_Window::proc( QMSG * )call with message 8
+8|int FRAME_Window::proc( QMSG * )call with message 7
+9|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+10|int FRAME_Window::proc( QMSG * )call with message 6
+11|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+12|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+13|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+14|int FRAME_Window::proc( QMSG * )call with message 5
+15|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+16|int FRAME_Window::proc( QMSG * )call with message 1
+17|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 4 230 230 7  42ad4
+18|int FRAME_Window::proc( QMSG * )call with message 8
+19|int FRAME_Window::proc( QMSG * )call with message 7
+20|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+21|int FRAME_Window::proc( QMSG * )call with message 6
+22|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+23|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+24|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+25|int FRAME_Window::proc( QMSG * )call with message 1
+26|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 4 230 22 22 f  42ad4
+27|int FRAME_Window::proc( QMSG * )call with message 8
+28|int FRAME_Window::proc( QMSG * )call with message 7
+29|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+30|int FRAME_Window::proc( QMSG * )call with message 6
+31|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+32|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+33|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+34|int FRAME_Window::proc( QMSG * )call with message 5
+35|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+36 2007/08/16 02:13:55|int FRAME_Window::proc( QMSG * )call with message 1
+37|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 186 230 22 22 f  42ad4
+38|int FRAME_Window::proc( QMSG * )call with message 8
+39|int FRAME_Window::proc( QMSG * )call with message 7
+40|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+41|int FRAME_Window::proc( QMSG * )call with message 6
+42|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+43|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+44|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+45|int FRAME_Window::proc( QMSG * )call with message 5
+46|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+47|int FRAME_Window::proc( QMSG * )call with message 1
+48|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+49|int FRAME_Window::proc( QMSG * )call with message 8
+50|int FRAME_Window::proc( QMSG * )call with message 7
+51|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+52|int FRAME_Window::proc( QMSG * )call with message 6
+53|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+54|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+55|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+56|int FRAME_Window::proc( QMSG * )call with message 5
+57|int FPM_Window::CreateFPM_Window( unsigned long, CHAR const *, CHAR const *, unsigned, int, int, int, int, unsigned long, unsigned long, unsigned, void *, void * )
+58|int FRAME_Window::proc( QMSG * )call with message 1
+59|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned )0 23 228 164 22 f  42ad4
+60|int FRAME_Window::proc( QMSG * )call with message 8
+61|int FRAME_Window::proc( QMSG * )call with message 7
+62|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+63|int FRAME_Window::proc( QMSG * )call with message 6
+64|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+65|int FPM_Window::WinSetWindowPos( unsigned long, int, int, int, int, unsigned ) call for SWP_ZORDER is not implemented yet
+66|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+67|int FRAME_Window::proc( QMSG * )call with message 5
+68|WinGetMsg call
+69|int FRAME_Window::proc( QMSG * )call with message 23
+70|HPS FPM_Window::GetPS( void )call
+71|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+72|int FPM_Window::Draw( unsigned long )call with hps 1
+73|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+74|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+75|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+76|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+77|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+78|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+79|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+80|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+81|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+82|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+83|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+84|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+85|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+86|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+87|WinGetMsg call
+88|int FRAME_Window::proc( QMSG * )call with message 23
+89|HPS FPM_Window::GetPS( void )call
+90|int _F_SendGenCmdToServer( int, int )(cmd=40, par=2) ret =1
+91|int FPM_Window::Draw( unsigned long )call with hps 1
+92|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+93|BOOL syscall F_GpiSetColor( unsigned long, int )hps=1, color=ff8040,rc=0
+94|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+95|BOOL syscall F_GpiMove( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+96|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+97|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,0), rc=0
+98|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+99|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(255,255), rc=0
+100|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+101|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,255), rc=0
+102|int _F_SendGenCmdDataToServer( int, int, void *, int ) retcode =0
+103|LONG syscall F_GpiLine( unsigned long, POINTL * )hps=1, Point=(0,0), rc=0
+104|BOOL FPM_Window::ReleasePS( unsigned long )call with hps 1
+105|int _F_SendGenCmdToServer( int, int )(cmd=41, par=1) ret =0
+106|WinGetMsg call
+107|int FRAME_Window::proc( QMSG * )call with message 23
+108|HPS FPM_W

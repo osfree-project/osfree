@@ -1,0 +1,18 @@
+SYSTEM os2v2
+NAME FreePM
+lib pm_server.lib lib gdlib.lib
+OPTION DESCRIPTION '  '
+OPTION MAP=FreePM.wmp
+FILE F_session.obj
+FILE F_utils.obj
+FILE Fs_config.obj
+FILE Fs_globals.obj
+FILE Fs_hab.obj
+FILE Fs_main.obj
+FILE Fs_pipe.obj
+FILE Fs_PMdev.obj
+FILE Fs_queue.obj
+FILE Fs_wnd.obj
+FILE F_debug.obj
+FILE F_DeskTop.obj
+FILE F_errors.obj

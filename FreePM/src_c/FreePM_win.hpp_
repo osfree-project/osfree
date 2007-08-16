@@ -1,0 +1,459 @@
+/* 
+ $Id: $ 
+*/
+/* FreePM_win.hpp */
+/* PM compatibility application include, no FreePM classes */
+#ifndef FREEPM_WIN
+  #define FREEPM_WIN
+
+#include "F_def.hpp"
+#include "F_messages.hpp"
+
+#ifndef __VACPASCAL__
+   #define __VACPASCAL__
+
+   #define PASCAL   _Pascal
+   #define pascal   _Pascal
+#endif
+
+#ifndef __VACCDECL__
+   #define __VACCDECL__
+
+   #define CDECL    __cdecl
+   #define cdecl    __cdecl
+   #define _cdecl   __cdecl
+#endif
+
+#ifndef __VACSTDCALL__
+  #define __VACSTDCALL__
+
+  #define  _stdcall  _Stdcall
+#endif
+
+#ifndef __VACSYSCALL__
+  #define __VACSYSCALL__
+
+  #define _syscall  _System
+#endif
+
+
+#define CENTRY CDECL                 // to declare misc. C-based interfaces
+#define PRIVENTRY PASCAL             // to declare private routines
+#define EXPENTRY PASCAL              // to declare exported routines
+#define API32ENTRY PASCAL            // to declare exported API routines
+#define DYNENTRY PASCAL  _export     // to declare exported dynlink routines
+
+
+#endif
+/*  End of FREPM. Hope it compiles. */
+
+#ifdef F_INCL_WIN
+
+/*** WinInitialize/WinTerminate Interface declarations ******************/
+
+   HAB    APIENTRY WinInitialize(ULONG flOptions);
+   BOOL   APIENTRY WinTerminate(HAB hab);
+
+#endif
+
+#ifndef __MQINFO_
+#define __MQINFO_
+
+   /*** The following structure is used by the WinQueryQueueInfo() routine */
+   typedef struct _MQINFO    /* mqi */
+   {
+      ULONG   cb;
+      PID     pid;
+      TID     tid;
+      ULONG   cmsgs;
+      PVOID   pReserved;
+   } MQINFO;
+   typedef MQINFO *PMQINFO;
+
+
+#endif
+
+#ifdef F_INCL_WIN
+
+   MRESULT APIENTRY WinSendMsg(HWND hwnd,
+                               ULONG msg,
+                               MPARAM mp1,
+                               MPARAM mp2);
+   
+   HMQ     APIENTRY WinCreateMsgQueue(HAB hab,
+                                      LONG cmsg);
+   
+   BOOL    APIENTRY WinDestroyMsgQueue(HMQ hmq);
+   BOOL    APIENTRY WinQueryQueueInfo(HMQ hmq,
+                                      PMQINFO pmqi,
+                                      ULONG cbCopy);
+   
+   #ifndef INCL_SAADEFS
+      BOOL    APIENTRY WinCancelShutdown(HMQ hmq,
+                                         BOOL fCancelAlways);
+   #endif /* INCL_SAADEFS */
+   
+   BOOL    APIENTRY WinGetMsg(HAB hab,
+                              PQMSG pqmsg,
+                              HWND hwndFilter,
+                              ULONG msgFilterFirst,
+                              ULONG msgFilterLast);
+   
+   BOOL    APIENTRY WinPeekMsg(HAB hab,
+                               PQMSG pqmsg,
+                               HWND hwndFilter,
+                               ULONG msgFilterFirst,
+                               ULONG msgFilterLast,
+                               ULONG fl);
+   
+   MRESULT APIENTRY WinDispatchMsg(HAB hab,
+                                   PQMSG pqmsg);
+   
+   BOOL    APIENTRY WinPostMsg(HWND hwnd,
+                               ULONG msg,
+                               MPARAM mp1,
+                               MPARAM mp2);
+   
+   BOOL    APIENTRY WinRegisterUserMsg(HAB hab,
+                                       ULONG msgid,
+                                       LONG datatype1,
+                                       LONG dir1,
+                                       LONG datatype2,
+                                       LONG dir2,
+                                       LONG datatyper);
+   
+
+
+
+#ifdef INCL_WINERRORS
+   #include "FreePM_err.hpp"
+
+/*?? may be move Error def stuff to F_basedef.HPP ?? */
+/*** Common Error definitions from os2def.h ****/
+
+typedef ULONG ERRORID;  /* errid */
+typedef ERRORID *PERRORID;
+
+/* Combine severity and error code to produce ERRORID */
+#define MAKEERRORID(sev, error) (ERRORID)(MAKEULONG((error), (sev)))
+
+/* Extract error number from an errorid */
+#define ERRORIDERROR(errid)            (LOUSHORT(errid))
+
+/* Extract severity from an errorid */
+#define ERRORIDSEV(errid)              (HIUSHORT(errid))
+
+/* Severity codes */
+#define SEVERITY_NOERROR                    0x0000
+#define SEVERITY_WARNING                    0x0004
+#define SEVERITY_ERROR                      0x0008
+#define SEVERITY_SEVERE                     0x000C
+#define SEVERITY_UNRECOVERABLE              0x0010
+
+/* Base component error values */
+
+#define WINERR_BASE     0x1000  /* Window Manager                  */
+#define GPIERR_BASE     0x2000  /* Graphics Presentation Interface */
+#define DEVERR_BASE     0x3000  /* Device Manager                  */
+#define SPLERR_BASE     0x4000  /* Spooler                         */
+
+/*** end of Common Error definitions from os2def.h ****/
+#define FREPMERR_BASE   0x6000  /* FreePM errors                   */
+   
+   
+   /* Get/Set Error Information Interface declarations */
+
+ 
+/* Error-information structure. */
+
+ typedef struct _ERRINFO {
+   ULONG       cbFixedErrInfo;  /*  Length of fixed data to this structure. */
+   ERRORID     idError;         /*  Error identity. */
+   ULONG       cDetailLevel;    /*  Number of levels of detail. */
+   ULONG       offaoffszMsg;    /*  Offset to the array of message offsets. */
+   ULONG       offBinaryData;   /*  Offset to the binary data. */
+ } ERRINFO;
+ 
+ typedef ERRINFO *PERRINFO;
+
+   ERRORID     APIENTRY    WinGetLastError(HAB hab);
+   ERRORID     APIENTRY    WinGetLastError2(void);  /* FreePM ext */
+
+   PERRINFO    APIENTRY    WinGetErrorInfo(HAB hab);
+   BOOL        APIENTRY    WinFreeErrorInfo(PERRINFO perrinfo);
+   
+#endif  /* INCL_WINERRORS */
+/***************************************************************************/
+/***        General Window Management types, constants and macros        ***/
+/***************************************************************************/
+
+/*** Macros to make an MPARAM from standard types. *************************/
+
+#define MPVOID                     ((MPARAM)0L)
+#define MPFROMP(p)                 ((MPARAM)((ULONG)(p)))
+#define MPFROMHWND(hwnd)           ((MPARAM)(HWND)(hwnd))
+#define MPFROMCHAR(ch)             ((MPARAM)(USHORT)(ch))
+#define MPFROMSHORT(s)             ((MPARAM)(USHORT)(s))
+#define MPFROM2SHORT(s1, s2)       ((MPARAM)MAKELONG(s1, s2))
+#define MPFROMSH2CH(s, uch1, uch2) ((MPARAM)MAKELONG(s, MAKESHORT(uch1, uch2)))
+#define MPFROMLONG(l)              ((MPARAM)(ULONG)(l))
+
+/*** Macros to extract standard types from an MPARAM ***********************/
+
+#define PVOIDFROMMP(mp)            ((VOID *)(mp))
+#define HWNDFROMMP(mp)             ((HWND)(mp))
+#define CHAR1FROMMP(mp)            ((UCHAR)((ULONG)mp))
+#define CHAR2FROMMP(mp)            ((UCHAR)((ULONG)mp >> 8))
+#define CHAR3FROMMP(mp)            ((UCHAR)((ULONG)mp >> 16))
+#define CHAR4FROMMP(mp)            ((UCHAR)((ULONG)mp >> 24))
+#define SHORT1FROMMP(mp)           ((USHORT)(ULONG)(mp))
+#define SHORT2FROMMP(mp)           ((USHORT)((ULONG)mp >> 16))
+#define LONGFROMMP(mp)             ((ULONG)(mp))
+
+/*** Macros to make an MRESULT from standard types. ************************/
+
+#define MRFROMP(p)                 ((MRESULT)(VOID *)(p))
+#define MRFROMSHORT(s)             ((MRESULT)(USHORT)(s))
+#define MRFROM2SHORT(s1, s2)       ((MRESULT)MAKELONG(s1, s2))
+#define MRFROMLONG(l)              ((MRESULT)(ULONG)(l))
+
+/*** Macros to extract standard types from an MRESULT **********************/
+
+#define PVOIDFROMMR(mr)            ((VOID *)(mr))
+#define SHORT1FROMMR(mr)           ((USHORT)((ULONG)mr))
+#define SHORT2FROMMR(mr)           ((USHORT)((ULONG)mr >> 16))
+#define LONGFROMMR(mr)             ((ULONG)(mr))
+
+
+/****************************************************************************
+* This is the standard function definition for window procedures.
+* Typically they are names like "XxxxxxxxWndProc", where the prefix
+* "Xxxxxxxxx" is replaced by some name descriptive of the window procedure
+* being declared.  Window procedures must be EXPORTED in the definitions
+* file used by the linker.
+*
+* MRESULT EXPENTRY MyclassWndProc(HWND hwnd,   * window handle        *
+*                                 ULONG msg,   * message number       *
+*                                 MPARAM mp1,  * 1st (packed) parms   *
+*                                 MPARAM mp2); * 2nd (packed) parms   *
+*
+****************************************************************************/
+
+/*** Pointer to a window procedure function ********************************/
+typedef MRESULT (EXPENTRY FNWP)(HWND, ULONG, MPARAM, MPARAM);
+typedef FNWP *PFNWP;
+
+/*** Standard Window Classes ***********************************************/
+
+#define WC_NULL              (0x0000)
+
+#define WC_FRAME             ((PSZ)0xffff0001L)
+#define WC_COMBOBOX          ((PSZ)0xffff0002L)
+#define WC_BUTTON            ((PSZ)0xffff0003L)
+#define WC_MENU              ((PSZ)0xffff0004L)
+#define WC_STATIC            ((PSZ)0xffff0005L)
+#define WC_ENTRYFIELD        ((PSZ)0xffff0006L)
+#define WC_LISTBOX           ((PSZ)0xffff0007L)
+#define WC_SCROLLBAR         ((PSZ)0xffff0008L)
+#define WC_TITLEBAR          ((PSZ)0xffff0009L)
+#define WC_MLE               ((PSZ)0xffff000AL)
+/* 000B to 000F reserved */
+#define WC_APPSTAT           ((PSZ)0xffff0010L)
+#define WC_KBDSTAT           ((PSZ)0xffff0011L)
+#define WC_PECIC             ((PSZ)0xffff0012L)
+#define WC_DBE_KKPOPUP       ((PSZ)0xffff0013L)
+/* 0014 to 001F reserved */
+#define WC_SPINBUTTON        ((PSZ)0xffff0020L)
+/* 0021 to 0024 reserved */
+#define WC_CONTAINER         ((PSZ)0xffff0025L)
+#define WC_SLIDER            ((PSZ)0xffff0026L)
+#define WC_VALUESET          ((PSZ)0xffff0027L)
+#define WC_NOTEBOOK          ((PSZ)0xffff0028L)
+/* 0029 to 002C used by PEN */
+#define WC_PENFIRST          ((PSZ)0xffff0029L)
+#define WC_PENLAST           ((PSZ)0xffff002CL)
+/* 002D to 0030 reserved */
+/* 0030 to 003F reserved */
+#define WC_MMPMFIRST         ((PSZ)0xffff0040L)
+#define WC_CIRCULARSLIDER    ((PSZ)0xffff0041L)
+#define WC_MMPMLAST          ((PSZ)0xffff004fL)
+/* 0050 to 005f reserved */
+#define WC_PRISTDDLGFIRST    ((PSZ)0xffff0050L)
+#define WC_PRISTDDLGLAST     ((PSZ)0xffff0057L)
+#define WC_PUBSTDDLGFIRST    ((PSZ)0xffff0058L)
+#define WC_PUBSTDDLGLAST     ((PSZ)0xffff005fL)
+/* 0060 to 006f reserved */
+
+/*** Standard Window Styles ************************************************/
+
+#define WS_VISIBLE                 0x80000000L
+#define WS_DISABLED                0x40000000L
+#define WS_CLIPCHILDREN            0x20000000L
+#define WS_CLIPSIBLINGS            0x10000000L
+#define WS_PARENTCLIP              0x08000000L
+#define WS_SAVEBITS                0x04000000L
+#define WS_SYNCPAINT               0x02000000L
+#define WS_MINIMIZED               0x01000000L
+#define WS_MAXIMIZED               0x00800000L
+#define WS_ANIMATE                 0x00400000L
+
+/*** Dialog manager styles *************************************************/
+
+#define WS_GROUP                   0x00010000L
+#define WS_TABSTOP                 0x00020000L
+#define WS_MULTISELECT             0x00040000L
+
+/*** Class styles *********************************************************/
+
+#define CS_MOVENOTIFY              0x00000001L
+#define CS_SIZEREDRAW              0x00000004L
+#define CS_HITTEST                 0x00000008L
+#define CS_PUBLIC                  0x00000010L
+#define CS_FRAME                   0x00000020L
+#define CS_CLIPCHILDREN            0x20000000L
+#define CS_CLIPSIBLINGS            0x10000000L
+#define CS_PARENTCLIP              0x08000000L
+#define CS_SAVEBITS                0x04000000L
+#define CS_SYNCPAINT               0x02000000L
+
+/***************************************************************************/
+/*** Window Manager Subsection part 1 **************************************/
+/***************************************************************************/
+
+
+BOOL    APIENTRY WinRegisterClass(HAB hab,
+                                  PCSZ  pszClassName,
+                                  PFNWP pfnWndProc,
+                                  ULONG flStyle,
+                                  ULONG cbWindowData);
+
+   MRESULT APIENTRY WinDefWindowProc(HWND hwnd,
+                                     ULONG msg,
+                                     MPARAM mp1,
+                                     MPARAM mp2);
+   
+   BOOL    APIENTRY WinDestroyWindow(HWND hwnd);
+   
+   BOOL    APIENTRY WinShowWindow(HWND hwnd,
+                                  BOOL fShow);
+   
+   BOOL    APIENTRY WinQueryWindowRect(HWND hwnd,
+                                       PRECTL prclDest);
+   
+   HPS     APIENTRY WinGetPS(HWND hwnd);
+   
+   BOOL    APIENTRY WinReleasePS(HPS hps);
+   
+   BOOL    APIENTRY WinEndPaint(HPS hps);
+
+
+/* 2663 pmwin.h */
+#if (defined(INCL_WINFRAMEMGR) || !defined(INCL_NOCOMMON))
+   /*** Frame Manager Common subsection */
+   
+   #pragma pack(2) /* force structure alignment packing */
+   
+   /* Binary resources may be bound into application executables or */
+   /* passed as a parameter when creating a window or dialog        */
+   /* Currently they must be the same for both 16-bit and 32-bit    */
+   /* so we pack the structures.                                    */
+   typedef struct _FRAMECDATA    /* fcdata */
+   {
+      USHORT  cb;
+      ULONG   flCreateFlags;
+      USHORT  hmodResources;
+      USHORT  idResources;
+   } FRAMECDATA;
+   typedef FRAMECDATA *PFRAMECDATA;
+   
+   #pragma pack()  /* restore packing to default */
+   
+   /* Frame window styles */
+   /* All unused FCF_xxx bits are reserved */
+   #define FCF_TITLEBAR               0x00000001L
+   #define FCF_SYSMENU                0x00000002L
+   #define FCF_MENU                   0x00000004L
+   #define FCF_SIZEBORDER             0x00000008L
+   #define FCF_MINBUTTON              0x00000010L
+   #define FCF_MAXBUTTON              0x00000020L
+   #define FCF_MINMAX                 0x00000030L /* minmax means BOTH buttons */
+   #define FCF_VERTSCROLL             0x00000040L
+   #define FCF_HORZSCROLL             0x00000080L
+   #define FCF_DLGBORDER              0x00000100L
+   #define FCF_BORDER                 0x00000200L
+   #define FCF_SHELLPOSITION          0x00000400L
+   #define FCF_TASKLIST               0x00000800L
+   #define FCF_NOBYTEALIGN            0x00001000L
+   #define FCF_NOMOVEWITHOWNER        0x00002000L
+   #define FCF_ICON                   0x00004000L
+   #define FCF_ACCELTABLE             0x00008000L
+   #define FCF_SYSMODAL               0x00010000L
+   #define FCF_SCREENALIGN            0x00020000L
+   #define FCF_MOUSEALIGN             0x00040000L
+   #define FCF_HIDEBUTTON             0x01000000L
+   #define FCF_HIDEMAX                0x01000020L /* hidemax means BOTH buttons */
+   #define FCF_CLOSEBUTTON            0x04000000L /* use when no other min/max  */
+   /*   button is present        */
+   #ifdef INCL_NLS
+      #define FCF_DBE_APPSTAT         0x80000000L
+   #endif /* INCL_NLS */
+   #define FCF_AUTOICON               0x40000000L
+   
+   /* FCF_TITLEBAR | FCF_SYSMENU | FCF_MENU | FCF_SIZEBORDER | FCF_MINMAX |
+   FCF_ICON | FCF_ACCELTABLE | FCF_SHELLPOSITION | FCF_TASKLIST */
+   #define FCF_STANDARD            0x0000CC3FL
+   
+   
+   #define FS_ICON                    0x00000001L
+   #define FS_ACCELTABLE              0x00000002L
+   
+   #ifndef INCL_SAADEFS
+      #define FS_SHELLPOSITION        0x00000004L
+   #endif /* !INCL_SAADEFS */
+   
+   #define FS_TASKLIST                0x00000008L
+   #define FS_NOBYTEALIGN             0x00000010L
+   #define FS_NOMOVEWITHOWNER         0x00000020L
+   #define FS_SYSMODAL                0x00000040L
+   #define FS_DLGBORDER               0x00000080L
+   #define FS_BORDER                  0x00000100L
+   #define FS_SCREENALIGN             0x00000200L
+   #define FS_MOUSEALIGN              0x00000400L
+   #define FS_SIZEBORDER              0x00000800L
+   #define FS_AUTOICON                0x00001000L
+   #ifdef INCL_NLS
+      #define FS_DBE_APPSTAT          0x00008000L
+   #endif /* INCL_NLS */
+   
+   /* FS_ICON | FS_ACCELTABLE | FS_SHELLPOSITION | FS_TASKLIST */
+   #define FS_STANDARD                0x0000000FL
+   
+   #ifndef INCL_SAADEFS
+      #define FF_FLASHWINDOW             0x0001
+      #define FF_ACTIVE                  0x0002
+      #define FF_FLASHHILITE             0x0004
+      #define FF_OWNERHIDDEN             0x0008
+      #define FF_DLGDISMISSED            0x0010
+      #define FF_OWNERDISABLED           0x0020
+      #define FF_SELECTED                0x0040
+      #define FF_NOACTIVATESWP           0x0080
+      #define FF_DIALOGBOX               0x0100
+      
+   #endif /* !INCL_SAADEFS */
+   
+   
+   HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
+                                     ULONG flStyle,
+                                     PULONG pflCreateFlags,
+                                     PSZ pszClientClass,
+                                     PSZ pszTitle,
+                                     ULONG styleClient,
+                                     HMODULE hmod,
+                                     ULONG idResources,
+                                     PHWND phwndClient);
+   
+#endif /* Frame Manager Common subsection */
+
+
+#endif
+  /* FREEPM_WIN */

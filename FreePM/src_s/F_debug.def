@@ -1,0 +1,16 @@
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 50
+extern void _db_print( char const * format, ... );
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 203
+extern void _db_init( char const * logfile, char const * options);
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 228
+extern void _db_rotate_log( void );
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 288
+extern void xassert( char const * msg, char const * file, int line);
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 390
+extern int ctx_enter( char const * descr);
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 405
+extern void ctx_exit( int ctx);
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 497
+extern void fatal( char const * message);
+//#line "/pub/FreePM/FreePM/src_s/F_debug.cpp" 514
+extern void fatalf( char const * fmt, ... );

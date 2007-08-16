@@ -1,0 +1,12 @@
+ 
+ Related Functions 
+
+      WinEnablePhysInput 
+      WinFocusChange 
+      WinGetKeyState 
+      WinGetPhysKeyState 
+      WinQueryFocus 
+      WinSetFocus 
+      WinSetKeyboardStateTable 
+  
+

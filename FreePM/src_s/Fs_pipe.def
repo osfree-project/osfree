@@ -1,0 +1,10 @@
+//#line "/pub/FreePM/FreePM/src_s/Fs_pipe.cpp" 85
+extern int threadsHits_statistics( void );
+//#line "/pub/FreePM/FreePM/src_s/Fs_pipe.cpp" 157
+extern void SQDR_ClientWork( void * param);
+//#line "/pub/FreePM/FreePM/src_s/Fs_pipe.cpp" 327
+extern int HandleAnalyzerQuery( char * buf, char * bufout, int nclient, int & Classification, int & redircode);
+//#line "/pub/FreePM/FreePM/src_s/Fs_pipe.cpp" 334
+extern int HandleClientQuery( char * buf, char * bufout, int nclient);
+//#line "/pub/FreePM/FreePM/src_s/Fs_pipe.cpp" 382
+extern void sgLogError( char * aa, ... );

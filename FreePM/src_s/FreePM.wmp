@@ -1,0 +1,1112 @@
+Open Watcom Linker Version 1.6
+Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
+Created on:       07/08/16 02:13:40
+Warning! W1027: file Fs_PMdev.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_PMdev.cpp): redefinition of long unsigned near hpsDrawBMPBuffer ignored
+Executable Image: FreePM.exe
+creating an OS/2 32-bit executable
+
+
+                        +------------+
+                        |   Groups   |
+                        +------------+
+
+Group                           Address              Size
+=====                           =======              ====
+
+DGROUP                          0003:00000000        00022e40
+
+
+
+                        +--------------+
+                        |   Segments   |
+                        +--------------+
+
+Segment                Class          Group          Address         Size
+=======                =====          =====          =======         ====
+
+_TEXT16                CODE           AUTO           0001:00000000   00000068
+BEGTEXT                CODE           AUTO           0002:00000000   00000007
+_TEXT                  CODE           AUTO           0002:00000010   0001cc07
+_NULL                  BEGDATA        DGROUP         0003:00000000   00000004
+_AFTERNULL             BEGDATA        DGROUP         0003:00000004   00000000
+CONST                  DATA           DGROUP         0003:00000004   00001aa4
+CONST2                 DATA           DGROUP         0003:00001ab0   00000110
+_DATA                  DATA           DGROUP         0003:00001bc0   000017b8
+XIB                    DATA           DGROUP         0003:00003378   00000000
+XI                     DATA           DGROUP         0003:00003378   00000072
+XIE                    DATA           DGROUP         0003:000033ea   00000000
+YIB                    DATA           DGROUP         0003:000033ea   00000000
+YI                     DATA           DGROUP         0003:000033ea   00000036
+YIE                    DATA           DGROUP         0003:00003420   00000000
+TIB                    DATA           DGROUP         0003:00003420   00000000
+TI                     DATA           DGROUP         0003:00003420   00000000
+TIE                    DATA           DGROUP         0003:00003420   00000000
+DATA                   DATA           DGROUP         0003:00003420   00000000
+DATA32                 DATA           DGROUP         0003:00003420   000002cc
+CONST32                CONST          DGROUP         0003:000036ec   00000000
+_BSS                   BSS            DGROUP         0003:000036f0   0000d744
+BSS32                  BSS            DGROUP         0003:00010e34   00000000
+STACK                  STACK          DGROUP         0003:00010e40   00012000
+
+
+                        +----------------+
+                        |   Memory Map   |
+                        +----------------+
+
+* = unreferenced symbol
++ = symbol only referenced locally
+
+Address        Symbol
+=======        ======
+
+Module: F_session.obj(C:\_work\SVN\osfree\freepm\src_s\F_session.cpp)
+0002:00000010+ int near initGD( int, int )
+0002:00000046  int near FreePM_session::AddDesktop( int, int, int, int, WinPresParam near * )
+0002:0000025c  int near FreePM_session::DelDesktop( int )
+0002:000002ea  int near FreePM_session::InitDevice( int, FreePM_DeskTop near * )
+0002:000004ec+ int near FreePM_session::SetCurrentDesktop( int )
+Module: F_utils.obj(C:\_work\SVN\osfree\freepm\src_s\F_utils.cpp)
+0002:00000572  long unsigned near getCurrentTime()
+0002:000005ed  int near OS2SetRelMaxFH( int )
+0002:00000671  QueryProcessType_
+0002:000006ed  QueryThreadOrdinal_
+Module: Fs_config.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_config.cpp)
+0002:0000077f  int near F_ServerConfig::Read( char near * )
+0002:0000081f+ int near F_ServerConfig::ReadStr( __iobuf near *, char near *, char near *, char near *, char near * )
+0002:00000981+ int near F_ServerConfig::AnalizeRecodrRead( char near *, char near * )
+Module: Fs_globals.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_globals.cpp)
+0002:00000bef+ near _FreePM_HAB::_FreePM_HAB()
+0002:00000c2f+ near _FreePM_HAB::~_FreePM_HAB()
+0002:00000cbd+ near F_WND_List::F_WND_List()
+0003:00001ac8  char const near * const near w_space
+0003:00003700  int near _FreePM_id_index
+0003:00003704  int near _FreePM_NeedToExit
+0003:00003708  int near _FreePM_detachedMode
+0003:0000370c  int near _FreePM_debugLevels[]
+0003:0000380c  __iobuf near * near _FreePM_debug_log
+0003:00003810  int near _FreePM_shutting_down
+0003:00003814  int near _FreePM_FatalInProgress
+0003:00003818  long unsigned near _FreePM_curtime
+0003:0000381c  timeval near _FreePM_current_time
+0003:00003824  timeval near _FreePM_start
+0003:00003830  double near _FreePM_current_dtime
+0003:00003838  F_WND_List near _WndList
+0002:00000d71+ near F_WND_List::~F_WND_List()
+0003:00001c00  int near _FreePM_db_level
+0003:00001c04  int near _FreePM_opt_debug_stderr
+0003:00001c08  FreePM_Config near _FreePMconfig
+0003:00003870  _FreePM_HAB near _shab
+Module: Fs_hab.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_hab.cpp)
+0002:00000ddb  int near _FreePM_HAB_serverlist::Add( int near &, int )
+0002:00001020* int near _FreePM_HAB_serverlist::Free( int )
+0002:0000118d* int near _FreePM_HAB_serverlist::GetFree()
+0002:00001206+ int near _FreePM_HAB_serverlist::GetFreeOldest( double near & )
+Module: Fs_main.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_main.cpp)
+0002:00006709+ near Fs_Queue::Fs_Queue()
+0002:00006771+ near FreePM_session::FreePM_session()
+0002:00006873  near NPipe::NPipe()
+0002:0000690b  near NPipe::~NPipe()
+0002:00006957+ int near NPipe::SendDataToServer( void near *, int )
+0002:00006a6f+ int near NPipe::SendLongDataToServer( void near *, int )
+0002:00006b91+ int near NPipe::RecvDataFromClient( void near *, int near *, int )
+0002:00006d20+ int near NPipe::RecvLongDataFromClient( void near *, int near *, int )
+0002:00006eb6  near ThreadPipe::ThreadPipe()
+0002:00006fc6  near ThreadPipe::~ThreadPipe()
+0002:00001430  main_
+0002:0000174e+ FreePM_cleanup_
+0002:0000179a+ int near SetupSemaphore()
+0002:00001920+ int near SetupSignals()
+0002:00001a3e+ void near showSigString( int )
+0002:00001af7+ FreePM_cleanupHandler_
+0002:00001b9a+ FreePM_cleanupHandlerFP_
+0002:00001c98+ int near F_PS_GpiSetColor( F_PS near *, int )
+0002:00007056+ near FreePM_session::~FreePM_session()
+0003:00004484+ F_ServerConfig near FPMs_config
+0002:00001cd9+ int near F_PS_GpiLine( F_PS near *, _POINTL near * )
+0002:00001d29+ int near F_PS_GpiMove( F_PS near *, _POINTL near * )
+0002:00001d79  F_WinGetPS
+0002:00001da0+ void near Fs_ClientWork( void near * )
+0002:00006540+ int near startServerThreads()
+0003:00001b28  char const near * const near _FreePM_Application_Name
+0003:00001b2c  char const near * const near _FreePM_Application_Vers
+0003:000046e8+ LS_threads near LSthreads
+0003:00004800+ FreePM_session near session
+0003:00008040  long unsigned near hpsDrawBMPBuffer
+0003:00008044+ NPipe near FreePM_pipe[]
+0003:0000a4c4+ int near ThreadStart
+Module: Fs_pipe.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_pipe.cpp)
+0003:0000a4e8+ NPipe near SQDR_pipe[]
+0003:0000c968+ SQDR_threads near SQDRthreads
+0003:0000cbfc+ int volatile near semnumQueryInProgress
+0003:0000cc00+ int volatile near numQueryInProgress
+0003:0000cc04+ int volatile near semReconfigInProgress
+0003:0000cc08+ char near * near globalLogDir
+0003:0000cc0c+ char near * near progname
+0002:00007198* int near threadsHits_statistics()
+0002:00007451+ void near SQDR_ClientWork( void near * )
+0002:00007f4e* int near HandleAnalyzerQuery( char near *, char near *, int, int near &, int near & )
+0002:00007f81* int near HandleClientQuery( char near *, char near *, int )
+0002:00007fe1+ void near sgLogError( char near *, ... )
+0002:00008000* int near ThreadPipe::InitClientConnection( char near * )
+0003:0000cc10+ int near detachedMode
+Module: Fs_PMdev.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_PMdev.cpp)
+0002:0000802f  void near FPM_PMWinStart( void near * )
+0002:00008208+ void near * near ClientWndProc( long unsigned, long unsigned, void near *, void near * )
+0002:0000842d+ int near ErrInfoMsg( char near * )
+0002:00008484+ int near ErrInfoMsg2( char near * )
+0002:00008509+ int near InitBuffer()
+0002:000085d7+ int near open_Vbuff( _RECTL )
+0002:00008adc* void near close_Vbuff()
+0003:0000ce50+ char near * near pBmpBuffer
+0003:0000ce54+ int near ZbNx
+0003:0000ce58+ int near ZbNy
+0003:0000ce5c+ int near y_ZbNx[]
+0003:0000e26c+ long unsigned near hbm
+0003:0000e270+ _BITMAPINFOHEADER2 near bmp
+0003:0000e2b0+ _BITMAPINFO2 near _bmi
+0003:0000e2f4+ _BITMAPINFO2 near * near pbmi
+0003:0000e2f8+ long unsigned near hdcMem
+0003:0000e2fc+ long unsigned near hpsMem
+0003:0000e300+ VideoDevConfigCaps near VideoDevConfig
+0002:00008b72+ void near DisplayVbuf( long unsigned, long unsigned, _RECTL, int )
+0002:00008cc1+ long near * near GetVideoConfig( long unsigned )
+Module: Fs_queue.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_queue.cpp)
+0002:00008d4d  int near Fs_Queue::Add( _SQMSG near * )
+0002:00008eb3* int near Fs_Queue::Del( int )
+0002:00009089* int near Fs_Queue::DelFirst()
+0002:000091c6* int near Fs_Queue::Get( _SQMSG near * )
+0002:0000932d  int near Fs_Queue::GetForIhab( _SQMSG near *, int )
+0002:00009554  int near Fs_Queue::QueryNmsg( int )
+Module: Fs_wnd.obj(C:\_work\SVN\osfree\freepm\src_s\Fs_wnd.cpp)
+0002:000095d1  int near F_WND_List::Add( int )
+0002:00009848* int near F_WND_List::Query( int )
+0002:000098ad  int near F_WND_List::QueryHab( int, int near & )
+0002:00009927* int near F_WND_List::Del( int )
+0002:00009b27  int near F_WND_List::SetParent( int, int )
+0002:00009bf2  long unsigned near F_WND_List::GetHPS( int )
+0002:00009f5c  int near F_WND_List::ReleaseHPS( long unsigned )
+0002:0000a12c+ long unsigned near F_WND_List::OpenDC( int, long unsigned )
+0002:0000a3a0+ int near F_WND_List::CloseDC( int )
+0002:0000a576* int near F_WND_List::WinSetWindowPos( int, int, int, int, int, int, int )
+Module: F_debug.obj(C:\_work\SVN\osfree\freepm\src_s\F_debug.cpp)
+0002:0000a5a9  _db_print_
+0002:0000aa09  _db_init_
+0002:0000aab7* _db_rotate_log_
+0002:0000ac38* void near xassert( char const near *, char const near *, int )
+0002:0000aca9* int near ctx_enter( char const near * )
+0002:0000ad46* void near ctx_exit( int )
+0002:0000b057  fatal_
+0002:0000b09a+ fatalf_
+0003:0000f440+ int near DebugCount
+Module: F_DeskTop.obj(C:\_work\SVN\osfree\freepm\src_s\F_DeskTop.cpp)
+0002:0000b117+ int near DeskTopWindow::CreateDeskTopWindow( int unsigned, int, int, void near *, void near * )
+0002:0000b277  int near FreePM_DeskTop::Init( int, int, int )
+0002:0000b59a+ long unsigned near FreePM_DeskTop::AddWindow( FPM_Window near * )
+0002:0000b764* int near FreePM_DeskTop::DelWindow( int )
+0002:0000b90d* long unsigned near FreePM_DeskTop::AddPS( long unsigned )
+0002:0000b93c* int near FreePM_DeskTop::DelPS( long unsigned )
+0002:0000b96b  int near FreePM_DeskTop::GetPar( int near &, int near &, int near & )
+0002:0000b9bd  _DeskTopSendQueue_
+0002:0000bc29+ int near DeskTopWindow::proc( _QMSG near * )
+0002:0000bcc3+ int near DeskTopWindow::Draw( long unsigned )
+Module: F_errors.obj(C:\_work\SVN\osfree\freepm\src_s\F_errors.cpp)
+0002:0000bd0a  GetOS2ErrorMessage_
+0002:0000bd72* GetFreePMErrorMessage_
+0002:0000bdda  char const near * near xstrerror_type( int )
+0002:0000be09  xstdio_strerror_
+0002:0000bf23+ StdStrError_
+0003:00001e28+ OS2_ErrMsg near OS2_ErrMessages[]
+0003:00001f88+ OS2_ErrMsg near OS2_StdErrMessages[]
+0003:00001fd8+ OS2_ErrMsg near FreePM_ErrMessages[]
+Module: c:\watcom/lib386/os2\clib3r.lib(stk)
+0002:0000bfb9  __STK
+0002:0000bfa9  __CHK
+0002:0000bfe8  __GRO
+0002:0000bfd8* __STKOVERFLOW_
+Module: c:\_work\svn\osfree\lib\gdlib.lib(C:\_work\SVN\osfree\shared\libs\gdlib\gd.c)
+0002:0000c008  gdImageCreate_
+0002:0000c115* gdImageCreateTrueColor_
+0002:0000c1f7+ gdImageDestroy_
+0002:0000c283+ gdImageColorClosest_
+0002:0000c295+ gdImageColorClosestAlpha_
+0002:0000c626* gdImageColorClosestHWB_
+0002:0000c6df+ gdImageColorExact_
+0002:0000c6f1+ gdImageColorExactAlpha_
+0002:0000c770+ gdImageColorAllocate_
+0002:0000c782+ gdImageColorAllocateAlpha_
+0002:0000c82e+ gdImageColorResolve_
+0002:0000c840+ gdImageColorResolveAlpha_
+0002:0000c96c* gdImageColorDeallocate_
+0002:0000c98b* gdImageColorTransparent_
+0002:0000c9d3* gdImagePaletteCopy_
+0002:0000cb4c+ gdImageSetPixel_
+0002:0000cead+ gdImageGetPixel_
+0002:0000cef4+ gdImageGetTrueColorPixel_
+0002:0000cf49+ gdImageLine_
+0002:0000d319* gdImageDashedLine_
+0002:0000d697+ gdImageBoundsSafe_
+0002:0000d6bc+ gdImageChar_
+0002:0000d772+ gdImageCharUp_
+0002:0000d82c* gdImageString_
+0002:0000d888* gdImageDrawText_
+0002:0000d956* gdImageStringUp_
+0002:0000d9b2* gdImageDrawTextUp_
+0002:0000da8f* gdImageString16_
+0002:0000daee* gdImageStringUp16_
+0002:0000db6a* lsqrt_
+0002:0000db93* gdImageArc_
+0002:0000dbc1+ gdImageFilledArc_
+0002:0000ddff* gdImageFilledEllipse_
+0002:0000de28+ gdImageFillToBorder_
+0002:0000df90+ gdImageFill_
+0002:0000e182* gdImageRectangle_
+0002:0000e254* gdImageFilledRectangle_
+0002:0000e29c* gdImageCopy_
+0002:0000e45d* gdImageCopyMerge_
+0002:0000e6af* gdImageCopyMergeGray_
+0002:0000e979+ gdImageCopyResized_
+0002:0000ed83* gdImageCopyResampled_
+0002:0000f2e8* gdImageCreateFromXbm_
+0002:0000f599* gdImagePolygon_
+0002:0000f611+ gdImageFilledPolygon_
+0002:0000f813+ gdCompareInt_
+0002:0000f822* gdImageSetStyle_
+0002:0000f870* gdImageSetThickness_
+0002:0000f881* gdImageSetBrush_
+0002:0000f95d* gdImageSetTile_
+0002:0000fa39* gdImageInterlace_
+0002:0000fa4a* gdImageCompare_
+0002:0000fc04+ gdAlphaBlend_
+0002:0000fcf1* gdImageAlphaBlending_
+0002:0000fd02* gdImageSaveAlpha_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(opnew)
+0002:0000fd20  void near * near operator new( int unsigned )
+Module: c:\watcom/lib386/os2\clib3r.lib(calloc)
+0002:0000fd80  calloc_
+Module: c:\watcom/lib386/os2\clib3r.lib(nrealloc)
+0002:0000fda0  realloc_
+0002:0000fdb0+ _nrealloc_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(opdel)
+0002:0000fe30  void near operator delete( void near * )
+Module: c:\watcom/lib386/os2\clib3r.lib(register)
+0002:0000fe50  __initthread_
+0002:0000fe60  _beginthread_
+0002:0000fe70  _endthread_
+0002:0000fe80* __RegisterThreadData_
+Module: c:\watcom/lib386/os2\clib3r.lib(imthread)
+0003:00003390  __imthread
+Module: c:\watcom/lib386/os2\clib3r.lib(_iftime_)
+0002:0000fee0  _ftime_
+Module: c:\watcom/lib386/os2\clib3r.lib(printf)
+0002:0000fef0  printf_
+Module: c:\watcom/lib386/os2\clib3r.lib(fltused)
+0003:00002048  _fltused_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(iofefg)
+0002:0000ff60  std::istream near & near operator >>( std::istream near &, smanip<long near > const near & )
+0002:0000ff80  std::istream near & near operator >>( std::istream near &, smanip<int near > const near & )
+0002:0000ffa0  std::ostream near & near operator <<( std::ostream near &, smanip<long near > const near & )
+0002:0000ffc0  std::ostream near & near operator <<( std::ostream near &, smanip<int near > const near & )
+0003:0000339c  __ppfltused_
+Module: c:\watcom/lib386/os2\emu387.lib(386)
+0002:0000ffd8  __init_387_emulator
+0002:0000ffd9* __fini_387_emulator
+Module: c:\watcom/lib386/os2\clib3r.lib(_8087)
+0003:0000204c  __8087
+0003:0000204d  __real87
+Module: c:\watcom/lib386/os2\clib3r.lib(fopen)
+0002:0000ffe0+ __open_flags_
+0002:00010220+ _fsopen_
+0002:00010270  fopen_
+0002:00010300* freopen_
+Module: c:\watcom/lib386/os2\clib3r.lib(fclose)
+0002:00010370  __doclose_
+0002:00010410  __shutdown_stream_
+0002:00010430  fclose_
+0003:000108d0+ ___RmTmpFileFn
+Module: c:\watcom/lib386/os2\clib3r.lib(fgets)
+0002:00010480  fgets_
+Module: c:\watcom/lib386/os2\clib3r.lib(strlen)
+0002:00010500  strlen_
+Module: c:\watcom/lib386/os2\clib3r.lib(strstr)
+0002:00010520  strstr_
+Module: c:\watcom/lib386/os2\clib3r.lib(strcpy)
+0002:000105d0  strcpy_
+Module: c:\watcom/lib386/os2\clib3r.lib(sscanf)
+0002:00010640+ vsscanf_
+0002:00010670  sscanf_
+Module: c:\watcom/lib386/os2\clib3r.lib(_strcmp)
+0002:000106a0  strcmp_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(stablcl)
+0002:000107e0  __wcpp_4_lcl_register__
+Module: c:\watcom/lib386/os2\clib3r.lib(nfree)
+0002:000107f0  free_
+0002:00010800  _nfree_
+0003:000108d4  ___MiniHeapFreeRover
+Module: c:\watcom/lib386/os2\plibmt3r.lib(undefed)
+0002:00010910  __wcpp_4_undefed_cdtor__
+Module: c:\watcom/lib386/os2\plibmt3r.lib(moddtorr)
+0003:000033f0  ___wcpp_4_data_module_dtor_ref_
+Module: c:\watcom/lib386/os2\clib3r.lib(memset)
+0002:00010930  memset_
+Module: c:\watcom/lib386/os2\clib3r.lib(time)
+0002:00010950  time_
+Module: c:\watcom/lib386\math387r.lib(difftime)
+0002:00010987  difftime_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(stabact)
+0002:000109b0  __wcpp_4_ctor_array__
+Module: c:\watcom/lib386/os2\clib3r.lib(exit)
+0002:000109e6  __null_int23_exit_
+0002:000109e8  exit_
+0002:00010a38* _exit_
+0003:00002050  ___int23_exit
+0003:00002054+ ___FPE_handler_exit
+Module: c:\watcom/lib386/os2\clib3r.lib(atexit)
+0002:00010a4e  atexit_
+Module: c:\watcom/lib386/os2\clib3r.lib(iob)
+0003:00002058  ___iob
+0003:00002260  __fmode
+0003:0001095c  ___OpenStreams
+0003:00010960  ___ClosedStreams
+Module: c:\watcom/lib386/os2\clib3r.lib(fflush)
+0002:00010ab0  fflush_
+Module: c:\watcom/lib386/os2\clib3r.lib(signlo32)
+0002:00010ac0+ __sigfpe_handler_
+0002:00010d40+ __SigInit_
+0002:00010d90+ __SigFini_
+0002:00010dd0+ __sigabort_
+0002:00010e00  signal_
+0002:00010f20+ raise_
+0003:00002264+ _SignalTable
+0003:00010964+ ___ExceptionHandled
+Module: c:\watcom/lib386/os2\clib3r.lib(perror)
+0002:00010fd0  perror_
+Module: c:\watcom/lib386/os2\clib3r.lib(sprintf)
+0002:00011020  sprintf_
+Module: c:\watcom/lib386/os2\clib3r.lib(chk8087)
+0002:00011050  _fpreset_
+0002:00011070* __init_8087_
+0002:00011090  __chk8087_
+Module: c:\watcom/lib386/os2\clib3r.lib(cntrl87)
+0002:000110e0  _control87_
+Module: c:\watcom/lib386/os2\clib3r.lib(snprintf)
+0002:00011170  vsnprintf_
+0002:000111d0  snprintf_
+Module: c:\watcom/lib386/os2\clib3r.lib(strcat)
+0002:00011200  strcat_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(stabadt)
+0002:00011230+ void near * near dtor_the_array( _RTARCTOR near * )
+0002:00011268  __wcpp_4_dtor_array__
+Module: c:\watcom/lib386/os2\clib3r.lib(cstart)
+0002:00011288  _cstart_
+Module: c:\watcom/lib386/os2\clib3r.lib(argcv)
+0003:00010968  __argc
+0003:0001096c  __argv
+0003:00010970  ___argc
+0003:00010974  ___argv
+Module: c:\watcom/lib386/os2\plibmt3r.lib(fsroot)
+0003:000033c0  ___wcpp_4_data_init_fs_root_
+Module: c:\watcom/lib386/os2\clib3r.lib(nmalloc)
+0002:00011310  malloc_
+0002:00011320  _nmalloc_
+0003:000022cc  ___nheapbeg
+0003:000022d0  ___MiniHeapRover
+0003:000022d4  ___LargestSizeB4MiniHeapRover
+Module: c:\_work\svn\osfree\lib\pm_server.lib(C:\_work\SVN\osfree\freepm\shared\f_hab.cpp)
+0002:0001141c  int near _FreePM_HAB::QueryOrdinalUsed( int, int )
+0002:000114a6+ int near _FreePM_HAB::QueryHABexist( int )
+0002:00011524* int near _FreePM_HAB::GetCurrentHAB()
+0002:0001157b+ int near _FreePM_HAB::GetCurrentHABindex()
+0002:000115d5* int near _FreePM_HAB::AddHAB( int, int, int )
+0002:00011746* int near _FreePM_HAB::DelHAB( int )
+0002:0001182f  int near _FreePM_HAB::SetError( int, int )
+0002:000118a5* int near _FreePM_HAB::SetError( int )
+0002:00011901* int near _FreePM_HAB::QueryError( int )
+0002:0001196b* int near _FreePM_HAB::AddHwnd( long unsigned, FPM_Window near * )
+0002:000119fb+ int near _FreePM_HAB::AddHwnd( long unsigned, int, FPM_Window near * )
+0002:00011c1c+ int near _FreePM_HAB::QueryHwnd( long unsigned )
+0002:00011c75+ int near _FreePM_HAB::QueryIndexesHwnd( long unsigned, int near & )
+0002:00011d20+ int near _FreePM_HAB::QueryHwnd( long unsigned, int )
+0002:00011dcf* int near _FreePM_HAB::DelHwnd( long unsigned )
+0002:00011e5b+ int near _FreePM_HAB::DelHwnd( long unsigned, int )
+Module: c:\watcom/lib386/os2\clib3r.lib(vfprintf)
+0002:00012000  vfprintf_
+Module: c:\watcom/lib386/os2\clib3r.lib(strnicmp)
+0002:00012010  strnicmp_
+Module: c:\watcom/lib386/os2\clib3r.lib(atoi)
+0002:00012060  atoi_
+Module: c:\watcom/lib386/os2\clib3r.lib(assert99)
+0002:00012100  _assert99_
+0002:000122d0* __assert99_
+Module: c:\watcom/lib386/os2\clib3r.lib(_icstrdu)
+0002:000122f8  strdup_
+Module: c:\watcom/lib386/os2\clib3r.lib(strtok)
+0002:00012300  strtok_
+Module: c:\watcom/lib386/os2\clib3r.lib(renamos2)
+0002:000123b0  rename_
+Module: c:\watcom/lib386/os2\clib3r.lib(localtim)
+0002:000123d0+ _localtime_
+0002:00012430  localtime_
+Module: c:\watcom/lib386/os2\clib3r.lib(strftime)
+0002:000126ad  strftime_
+Module: c:\watcom/lib386/os2\clib3r.lib(abort)
+0002:00012be9  abort_
+0002:00012c04  __terminate_
+0003:000022d8  ___abort
+Module: c:\watcom/lib386/os2\clib3r.lib(fprintf)
+0002:00012c20  fprintf_
+Module: c:\_work\svn\osfree\lib\pm_server.lib(C:\_work\SVN\osfree\freepm\shared\f_window.cpp)
+0002:00012c41  int near FPM_Window::CreateFPM_Window( long unsigned, char const near *, char const near *, int unsigned, int, int, int, int, long unsigned, long unsigned, int unsigned, void near *, void near * )
+0002:00012c8f* int near FPM_Window::WinSetWindowPos( long unsigned, int, int, int, int, int unsigned )
+0002:00012d4c* int near FPM_Window::SendMsg_to_proc( int unsigned, void near *, void near * )
+0002:00012de4  int near FPM_Window::proc( _QMSG near * )
+0002:00012e4a  int near FPM_Window::Draw( long unsigned )
+0002:00012f56  long unsigned near FPM_Window::GetPS()
+0002:00012fc5+ int near FPM_Window::ReleasePS( long unsigned )
+0002:00013031* int near FRAME_Window::proc( _QMSG near * )
+Module: c:\_work\svn\osfree\lib\pm_server.lib(C:\_work\SVN\osfree\freepm\shared\f_gpi.cpp)
+0002:000130dc  F_GpiBox
+0002:00013103  F_GpiSetColor
+0002:0001315a* F_GpiQueryColor
+0002:000131b8  F_GpiMove
+0002:00013216  F_GpiLine
+Module: c:\watcom/lib386/os2\clib3r.lib(errno)
+0002:00013280  __get_errno_ptr_
+0002:00013290  __get_doserrno_ptr_
+Module: c:\watcom/lib386/os2\clib3r.lib(xmsgo32)
+0002:000132a0  __exit_with_msg_
+0002:000132d0  __fatal_runtime_error_
+Module: c:\watcom/lib386/os2\clib3r.lib(maino32)
+0003:000022dc  ___FirstThreadData
+0003:000022e0  ___GetThreadPtr
+0003:000022e4  __AccessFileH
+0003:000022e8  __ReleaseFileH
+0003:000022ec  __AccessIOB
+0003:000022f0  __ReleaseIOB
+0003:000022f4  __AccessNHeap
+0003:000022f8  __AccessFHeap
+0003:000022fc  __ReleaseNHeap
+0003:00002300  __ReleaseFHeap
+0002:000132fa  __threadstack_
+0002:00013301  __threadid_
+0002:0001330a  __OS2MainInit_
+0002:00013379+ __OS2Init_
+0002:000133b7* __OS2Fini_
+0002:000133c2+ __shutdown_stack_checking_
+0002:000133d7  __exit_
+0003:00002304  __AccessTDList
+0003:00002308  __ReleaseTDList
+0003:0000230c  ___sig_init_rtn
+0003:00002310  ___sig_fini_rtn
+0003:00002314  __threadstksize
+0003:00002318  ___process_fini
+0003:0001097c  ___Is_DLL
+0003:00010980+ ___saved_CS
+Module: c:\_work\svn\osfree\lib\gdlib.lib(C:\_work\SVN\osfree\shared\libs\gdlib\gdhelpers.c)
+0002:00013420* gd_strtok_r_
+0002:000134ad  gdCalloc_
+0002:000134bc  gdMalloc_
+0002:000134cb  gdRealloc_
+0002:000134da  gdFree_
+Module: c:\watcom/lib386\math387r.lib(fchop)
+0002:000134ec  __CHP
+Module: c:\watcom/lib386/os2\clib3r.lib(abs)
+0002:00013510  abs_
+Module: c:\watcom/lib386\math387r.lib(atan387)
+0002:00013542* atan_
+0002:0001354e* atan2_
+0002:00013518* IF@ATAN
+0002:00013518* IF@DATAN
+0002:0001352d* IF@ATAN2
+0002:0001352d  IF@DATAN2
+Module: c:\watcom/lib386\math387r.lib(trig387)
+0002:000135ad* sin_
+0002:000135a1* cos_
+0002:000135ce* tan_
+0002:00013560* IF@COS
+0002:00013560  IF@DCOS
+0002:0001356a* IF@SIN
+0002:0001356a  IF@DSIN
+0002:000135b9* IF@TAN
+0002:000135b9* IF@DTAN
+Module: c:\watcom/lib386\math387r.lib(sqrt387)
+0002:000135dc* sqrt_
+0002:0001360c* IF@SQRT
+0002:0001360c  IF@DSQRT
+0002:0001360e* __@DSQRT
+Module: c:\_work\svn\osfree\lib\gdlib.lib(C:\_work\SVN\osfree\shared\libs\gdlib\gdtables.c)
+0003:00002328  _gdCosT
+0003:000028c8  _gdSinT
+Module: c:\watcom/lib386\math387r.lib(floor)
+0002:00013643  floor_
+Module: c:\watcom/lib386/os2\clib3r.lib(strchr)
+0002:00013690  strchr_
+Module: c:\watcom/lib386/os2\clib3r.lib(fgetc)
+0002:000136b0+ __fill_buffer_
+0002:00013790+ __filbuf_
+0002:000137c0  fgetc_
+Module: c:\watcom/lib386/os2\clib3r.lib(qsort)
+0002:000138e0  qsort_
+Module: c:\watcom/lib386/os2\clib3r.lib(memcpy)
+0002:00013fc0  memcpy_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(cppdata)
+0003:00010a84  __wint_thread_data_offset
+0003:00010a88* __compiled_under_OS2
+Module: c:\watcom/lib386/os2\clib3r.lib(nmsize)
+0002:00013fe0* _msize_
+0002:00013ff0  _nmsize_
+Module: c:\watcom/lib386/os2\clib3r.lib(nexpand)
+0002:00014000* _expand_
+0002:00014010+ __HeapManager_expand_
+0002:000141d0  _nexpand_
+Module: c:\watcom/lib386/os2\clib3r.lib(thredo32)
+0002:000142c0  __CBeginThread_
+0002:00014360  __CEndThread_
+Module: c:\watcom/lib386/os2\clib3r.lib(trdalloc)
+0002:00014380  __InitThreadProcessing_
+0002:000143a0  __FiniThreadProcessing_
+0003:00010a8c  ___ThreadData
+Module: c:\watcom/lib386/os2\clib3r.lib(mthread)
+0002:00014450+ __CloseSemaphore_
+0002:00014490+ __AccessSemaphore_
+0002:000144f0+ __ReleaseSemaphore_
+0002:00014550+ __AccessIOB_
+0002:00014560+ __ReleaseIOB_
+0002:00014570+ __AccessFileH_
+0002:00014580+ __ReleaseFileH_
+0002:00014590+ __AccessNHeap_
+0002:000145a0+ __ReleaseNHeap_
+0002:000145b0+ __AccessFHeap_
+0002:000145c0+ __ReleaseFHeap_
+0002:000145d0+ __AccessTDList_
+0002:000145e0+ __ReleaseTDList_
+0002:000145f0+ __MultipleThread_
+0002:00014640  __AllocInitThreadData_
+0002:00014690* __FreeInitThreadData_
+0002:000146a0  __OS2AddThread_
+0002:00014710  __OS2RemoveThread_
+0002:00014760  __InitMultipleThread_
+0003:00002e68  ___AccessSema4
+0003:00002e6c  ___ReleaseSema4
+0003:00002e70  ___CloseSema4
+Module: c:\watcom/lib386/os2\clib3r.lib(ftime)
+0002:00014900  ftime_
+Module: c:\watcom/lib386/os2\clib3r.lib(fprtf)
+0002:00014970  __fprtf_
+Module: c:\watcom/lib386/os2\clib3r.lib(setefg)
+0002:00014a30  __setEFGfmt_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(iofnoefg)
+0003:00002e74  void (near * near __EFG_cnvs2d)( char near *, double near * )
+0003:00002e78  int (near * near __EFG_cnvd2f)( double near *, float near * )
+0003:00002e7c  void (near * near __EFG_LDcvt)( __6ks9tmlong_double near *, cvt_info near *, char near * )
+0003:00002e80  char near * (near * near __EFG_fcvt)( double, int, int near *, int near * )
+0003:00002e84  void (near * near __EFG__FDLD)( double near *, __6ks9tmlong_double near * )
+Module: c:\watcom/lib386\math387r.lib(cnvs2d)
+0002:00014a64  __cnvs2d_
+Module: c:\watcom/lib386\math387r.lib(cnvd2f)
+0002:00014a73  __cnvd2f_
+Module: c:\watcom/lib386\math387r.lib(ldcvt)
+0002:00014bcd  _LDScale10x_
+0002:00015200  __LDcvt_
+Module: c:\watcom/lib386\math387r.lib(_i_fcvt_)
+0002:0001566c  _fcvt_
+Module: c:\watcom/lib386\math387r.lib(cnvd2ld)
+0002:00015671  __cnvd2ld_
+Module: c:\watcom/lib386/os2\clib3r.lib(crwdata)
+0003:00002f74  __osmajor
+0003:00002f75  __osminor
+0003:00002f38  __LpCmdLine
+0003:00002f3c  __LpPgmName
+0003:00002f40* __LpDllName
+0003:00002f44* __LpwCmdLine
+0003:00002f48* __LpwPgmName
+0003:00002f4c* __LpwDllName
+0003:00002f30* __dynend
+0003:00002f34  __curbrk
+0003:00002f50* __STACKLOW
+0003:00002f54* __STACKTOP
+0003:00002f58  __ASTACKSIZ
+0003:00002f5c  __ASTACKPTR
+0003:00002f60  __cbyte
+0003:00002f64  __cbyte2
+0003:00002f68* __child
+0003:00002f6e  __Envptr
+0003:00002f72* __Envseg
+0003:00002f6c  __no87
+0003:00002f76  ___FPE_handler
+Module: c:\watcom/lib386/os2\clib3r.lib(comtflag)
+0002:00015680* __set_commode_
+0003:00002f7c  __commode
+Module: c:\watcom/lib386/os2\clib3r.lib(seterrno)
+0002:0001568b  __set_errno_
+0002:00015699  __set_EDOM_
+0002:000156a7  __set_ERANGE_
+0002:000156b5* __set_EINVAL_
+0002:000156c8  __set_doserrno_
+Module: c:\watcom/lib386/os2\clib3r.lib(tolower)
+0002:000156e0  tolower_
+Module: c:\watcom/lib386/os2\clib3r.lib(openos2)
+0002:00015880* open_
+0002:000158a0  sopen_
+Module: c:\watcom/lib386/os2\clib3r.lib(fseek)
+0002:00015930  fseek_
+Module: c:\watcom/lib386/os2\clib3r.lib(chktty)
+0002:00015a60  __chktty_
+Module: c:\watcom/lib386/os2\clib3r.lib(freefp)
+0002:00015aa0  __freefp_
+0002:00015af0  __purgefp_
+Module: c:\watcom/lib386/os2\clib3r.lib(allocfp)
+0002:00015b20  __allocfp_
+Module: c:\watcom/lib386/os2\clib3r.lib(lseekos2)
+0002:00015bf0  __lseek_
+Module: c:\watcom/lib386/os2\clib3r.lib(_clseos2)
+0002:00015c30  __close_
+Module: c:\watcom/lib386/os2\clib3r.lib(flush)
+0002:00015c70  __flush_
+Module: c:\watcom/lib386/os2\clib3r.lib(scnf)
+0002:00016950  __scnf_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(stabmod)
+0002:00016bc0  __wcpp_4_module_dtor__
+0002:00016bfc  __wcpp_4_mod_register__
+Module: c:\watcom/lib386/os2\clib3r.lib(mem)
+0002:00016c30  __MemAllocator
+0002:00016cf0  __MemFree
+Module: c:\watcom/lib386/os2\plibmt3r.lib(fatalerr)
+0002:00016e40  __wcpp_4_fatal_runtime_error__
+Module: c:\watcom/lib386/os2\clib3r.lib(__stos)
+0002:00016e70  __STOSB
+0002:00016ea7* __STOSD
+Module: c:\watcom/lib386/os2\clib3r.lib(gtctmos2)
+0002:00016f20  __getctime_
+Module: c:\watcom/lib386/os2\clib3r.lib(mktime)
+0002:00016f90  mktime_
+Module: c:\watcom/lib386/os2\clib3r.lib(initrtns)
+0002:00017030  __InitRtns
+0002:00017080  __FiniRtns
+Module: c:\watcom/lib386/os2\clib3r.lib(initfile)
+0002:00017110  __InitFiles_
+Module: c:\watcom/lib386/os2\clib3r.lib(ioexit)
+0002:00017210* fcloseall_
+0002:00017220  __full_io_exit_
+Module: c:\watcom/lib386/os2\clib3r.lib(flushall)
+0002:00017230  __flushall_
+0002:00017270  flushall_
+Module: c:\watcom/lib386/os2\clib3r.lib(fputs)
+0002:00017280  fputs_
+Module: c:\watcom/lib386/os2\clib3r.lib(strerror)
+0002:00017640  strerror_
+0002:00017660* _strerror_
+0003:00002f80+ __sys_errlist
+0003:00003024+ __sys_nerr
+Module: c:\watcom/lib386/os2\clib3r.lib(fputc)
+0002:00017730  fputc_
+Module: c:\watcom/lib386/os2\clib3r.lib(vsprintf)
+0002:00017840  vsprintf_
+Module: c:\watcom/lib386/os2\clib3r.lib(8087cw)
+0003:00003028  __8087cw
+Module: c:\watcom/lib386/os2\clib3r.lib(init8087)
+0002:00017860  __x87id
+Module: c:\watcom/lib386/os2\clib3r.lib(prtf)
+0002:000178a0  __prtf_
+Module: c:\watcom/lib386/os2\clib3r.lib(main2o32)
+0002:000185a0  __OS2Main
+Module: c:\watcom/lib386/os2\clib3r.lib(segdefns)
+0002:00000003  ___begtext
+0003:00000000* __nullarea
+0003:00003378  __Start_XI
+0003:000033ea  __End_XI
+0003:000033ea  __Start_YI
+0003:00003420  __End_YI
+Module: c:\watcom/lib386/os2\clib3r.lib(initargv)
+0002:00018610  __Init_Argv_
+0002:00018660+ _getargv_
+0002:00018800  __Fini_Argv_
+Module: c:\watcom/lib386/os2\clib3r.lib(nmemneed)
+0002:00018820  __nmemneed_
+Module: c:\watcom/lib386/os2\clib3r.lib(grownear)
+0002:000189a0  __ExpandDGROUP_
+Module: c:\watcom/lib386/os2\clib3r.lib(istable)
+0002:000189c0  __IsTable
+Module: c:\watcom/lib386/os2\clib3r.lib(bprintf)
+0002:00018b00+ _vbprintf_
+0002:00018b30* _bprintf_
+0002:00018b60+ _vsnprintf_
+0002:00018bc0  _snprintf_
+Module: c:\watcom/lib386/os2\clib3r.lib(enterdb)
+0002:00018bf0  __EnterWVIDEO_
+0003:0000302c  ___WD_Present
+Module: c:\watcom/lib386/os2\clib3r.lib(stack386)
+0002:00018c20  stackavail_
+Module: c:\watcom/lib386/os2\clib3r.lib(rterrmsg)
+0002:00018c50  __rterr_msg_
+Module: c:\watcom/lib386/os2\clib3r.lib(strdup)
+0002:00018d10  __clib_strdup_
+Module: c:\watcom/lib386/os2\clib3r.lib(bits)
+0002:00018d50  __Bits
+0002:00018d60  __setbits_
+Module: c:\watcom/lib386/os2\clib3r.lib(dosret)
+0002:00018da0* _dosretax_
+0002:00018db0* _dosret0_
+0002:00018dc0  __set_errno_dos_
+Module: c:\watcom/lib386/os2\clib3r.lib(tzset)
+0003:00003134  ___start_dst
+0003:00003158  ___end_dst
+0003:00003280  _tzname
+0003:00003288  _timezone
+0003:0000328c  _daylight
+0003:00003290  ___dst_adjust
+0002:00018e00* __DontCacheOSTZ_
+0002:00018e20* __CacheOSTZ_
+0002:00019090+ __parse_tz_
+0002:00019200  tzset_
+Module: c:\watcom/lib386/os2\clib3r.lib(gmtime)
+0002:00019290  __brktime_
+0002:00019390+ _gmtime_
+0002:000193b0* gmtime_
+Module: c:\watcom/lib386/os2\clib3r.lib(timeutil)
+0002:00019510  __isindst_
+Module: c:\watcom/lib386/os2\clib3r.lib(itoa)
+0002:00019870+ utoa_
+0002:000198c0  itoa_
+Module: c:\watcom/lib386/os2\clib3r.lib(leapyear)
+0002:000198f0  __leapyear_
+0003:00001a44  ___diyr
+0003:00001a5e  ___dilyr
+Module: c:\watcom/lib386/os2\clib3r.lib(cinit)
+0002:00019930  __CommonInit_
+0003:00010ce4  ___hmodule
+Module: c:\watcom/lib386/os2\clib3r.lib(chipvar)
+0003:00003298  ___chipbug
+0003:00003298  __chipbug
+Module: c:\watcom/lib386/os2\clib3r.lib(chipw32)
+0002:0001993c  __fpatan_wrap
+Module: c:\watcom/lib386/os2\clib3r.lib(chipt32)
+0002:00019974  __fptan_chk
+Module: c:\watcom/lib386\math387r.lib(math87e)
+0002:00019a36  __math87_err_
+Module: c:\watcom/lib386\math387r.lib(modf387)
+0002:00019ab4  modf_
+Module: c:\watcom/lib386/os2\clib3r.lib(gtcheos2)
+0002:00019ad0  getche_
+Module: c:\watcom/lib386/os2\clib3r.lib(ioalloc)
+0002:00019b00  __ioalloc_
+Module: c:\watcom/lib386/os2\clib3r.lib(qread)
+0002:00019ba0  __qread_
+Module: c:\watcom/lib386/os2\plibmt3r.lib(thrddata)
+0002:00019bd0  __wcpp_4_multi_thread_init__
+Module: c:\watcom/lib386/os2\clib3r.lib(mthrdini)
+0002:00019be0  __InitThreadData_
+0003:0000329c  ___ThreadDataSize
+Module: c:\watcom/lib386/os2\clib3r.lib(thrdmax)
+0002:00019c00  __GETMAXTHREADS
+Module: c:\watcom/lib386/os2\clib3r.lib(maxthrds)
+0003:000032a0  ___MaxThreads
+Module: c:\watcom/lib386/os2\clib3r.lib(trdlist)
+0002:00019c60  __GetThreadData_
+0002:00019d80  __ReallocThreadData_
+0002:00019ef0  __AddThreadData_
+0002:00019f70  __RemoveThreadData_
+0002:00019fd0  __ResizeThreadDataList_
+0002:0001a020  __FreeThreadDataList_
+0002:0001a050* __ActiveThreads_
+Module: c:\watcom/lib386/os2\clib3r.lib(nheapmin)
+0002:0001a070  _heapshrink_
+0002:0001a080* _heapmin_
+0002:0001a090* _nheapmin_
+0002:0001a150  _nheapshrink_
+Module: c:\watcom/lib386\math387r.lib(efgfmt)
+0002:0001a18c  _EFG_Format_
+Module: c:\watcom/lib386/os2\clib3r.lib(noefgfmt)
+0003:000032a4  ___EFG_printf
+0003:000032a8  ___EFG_scanf
+Module: c:\watcom/lib386\math387r.lib(strtod)
+0002:0001a8aa+ __Strtold_
+0002:0001aa19  strtod_
+Module: c:\watcom/lib386\math387r.lib(ldclass)
+0002:0001ab60  __LDClass_
+0002:0001abb0* _FLClass_
+Module: c:\watcom/lib386\math387r.lib(efcvt)
+0002:0001abf0* ecvt_
+0002:0001ac29  fcvt_
+Module: c:\watcom/lib386/os2\clib3r.lib(umaskval)
+0003:000032ac  ___umaskval
+Module: c:\watcom/lib386/os2\clib3r.lib(iomode)
+0002:0001ac70  __GetIOMode_
+0002:0001ac90  __SetIOMode_nogrow_
+0003:000032b0  ___NFiles
+0003:000032b4  ___init_mode
+0003:00003304  ___io_mode
+Module: c:\watcom/lib386/os2\clib3r.lib(isattos2)
+0002:0001acb0  isatty_
+Module: c:\watcom/lib386/os2\clib3r.lib(stiomode)
+0002:0001ace0  __grow_iomode_
+0002:0001adb0+ __shrink_iomode_
+0002:0001ae40  __SetIOMode_
+Module: c:\watcom/lib386/os2\clib3r.lib(lseek)
+0002:0001aeb0  lseek_
+Module: c:\watcom/lib386/os2\clib3r.lib(tellos2)
+0002:0001aee0  tell_
+Module: c:\watcom/lib386/os2\clib3r.lib(fsync)
+0002:0001af20  fsync_
+Module: c:\watcom/lib386/os2\clib3r.lib(qwrit)
+0002:0001af50  __qwrite_
+Module: c:\watcom/lib386/os2\clib3r.lib(mbisdbcs)
+0003:00010cf0  ___IsDBCS
+Module: c:\watcom/lib386/os2\clib3r.lib(mbislead)
+0002:0001aff0* _ismbblead_
+0003:00010cf4  ___MBCSIsTable
+Module: c:\watcom/lib386/os2\clib3r.lib(mbtowc)
+0002:0001b010  mbtowc_
+Module: c:\watcom/lib386/os2\clib3r.lib(fdfs386)
+0002:0001b0cc  __FDFS
+Module: c:\watcom/lib386/os2\clib3r.lib(i8m)
+0002:0001b118* __I8M
+0002:0001b118  __U8M
+Module: c:\watcom/lib386/os2\plibmt3r.lib(prwdata)
+0003:00010e00  __wint_static_init_sema
+0003:00010e10* __wint_pure_error_flag
+0003:00010e12* __wint_undef_vfun_flag
+0003:00010e14  __wint_module_init
+Module: c:\watcom/lib386/os2\plibmt3r.lib(lock)
+0002:0001b140* near __lock::__lock()
+0002:0001b158+ near __lock::~__lock()
+0002:0001b184  void near __lock::p()
+0002:0001b18c  void near __lock::v()
+0002:0001b194* near __fn_lock::__fn_lock( __lock near * )
+0002:0001b1a4* near __fn_lock::~__fn_lock()
+0003:00003414* rt_init __based("YI") __wcpp_4_data_fini_sisema_
+Module: c:\watcom/lib386/os2\clib3r.lib(locmktim)
+0002:0001b1d0  __local_mktime_
+Module: c:\watcom/lib386/os2\clib3r.lib(strncpy)
+0002:0001b330  strncpy_
+Module: c:\watcom/lib386/os2\clib3r.lib(wctomb)
+0002:0001b370  wctomb_
+Module: c:\watcom/lib386/os2\clib3r.lib(strupr)
+0002:0001b3a0  strupr_
+Module: c:\watcom/lib386/os2\clib3r.lib(lltoa)
+0002:0001b3c0  ulltoa_
+0002:0001b430* lltoa_
+Module: c:\watcom/lib386/os2\clib3r.lib(ltoa)
+0002:0001b460  ultoa_
+0002:0001b4b0* ltoa_
+Module: c:\watcom/lib386/os2\clib3r.lib(cmain386)
+0002:0001b4e0  __CMain
+Module: c:\watcom/lib386/os2\clib3r.lib(dosseg)
+0000:00001234  __DOSseg__
+Module: c:\watcom/lib386/os2\clib3r.lib(histsplt)
+0003:00010e18  ___historical_splitparms
+Module: c:\watcom/lib386/os2\clib3r.lib(___argc)
+0003:00010e1c  ____Argc
+0003:00010e20  ____Argv
+Module: c:\watcom/lib386/os2\clib3r.lib(amblksiz)
+0003:00003308  __amblksiz
+Module: c:\watcom/lib386/os2\clib3r.lib(heapen)
+0002:0001b520* _heapenable_
+0003:0000330c  ___heap_enabled
+Module: c:\watcom/lib386/os2\clib3r.lib(getenv)
+0002:0001b550  getenv_
+Module: c:\watcom/lib386/os2\clib3r.lib(alphabet)
+0003:00001a78  ___Alphabet
+Module: c:\watcom/lib386/os2\clib3r.lib(chipbug)
+0002:0001b5e0  __verify_pentium_fdiv_bug_
+Module: c:\watcom/lib386/os2\clib3r.lib(chipa32)
+0002:0001b640  __fpatan_chk
+Module: c:\watcom/lib386\math387r.lib(math2err)
+0002:0001b8ad  __math1err_
+0002:0001b8b7+ __math2err_
+Module: c:\watcom/lib386/os2\clib3r.lib(getchos2)
+0002:0001b9b0  getch_
+Module: c:\watcom/lib386/os2\clib3r.lib(putchos2)
+0002:0001ba70  putch_
+Module: c:\watcom/lib386/os2\clib3r.lib(regdata)
+0002:0001bad0  __RegisterThreadDataSize_
+Module: c:\watcom/lib386/os2\clib3r.lib(bufld386)
+0002:0001baf8  __ZBuf2LD
+Module: c:\watcom/lib386\math387r.lib(inf_nan)
+0002:0001bb9b* ___f_infinity
+0002:0001bb9f* ___f_posqnan
+0002:0001bba3  ___d_infinity
+0002:0001bbab  ___d_posqnan
+0002:0001bbb3* ___ld_infinity
+0002:0001bbbb* ___ld_posqnan
+Module: c:\watcom/lib386/os2\clib3r.lib(hugeval)
+0002:0001bbd0  __HugeValue
+Module: c:\watcom/lib386/os2\clib3r.lib(cvtbuf)
+0002:0001bbe0  __CVTBuffer_
+Module: c:\watcom/lib386\math387r.lib(cvt)
+0002:0001bbec  __cvt_
+Module: c:\watcom/lib386/os2\clib3r.lib(hdlman)
+0002:0001bc80* __set_handles_
+0002:0001bc90* _grow_handles_
+0003:0000336c  ___NHandles
+Module: c:\watcom/lib386/os2\clib3r.lib(iomodtty)
+0002:0001bcf0  __ChkTTYIOMode_
+0002:0001bd40* __IOMode_
+Module: c:\watcom/lib386/os2\clib3r.lib(mbinit)
+0002:0001bd93  __mbinit_
+0003:00003370  ___MBCodePage
+Module: c:\watcom/lib386/os2\clib3r.lib(environ)
+0003:00010e24  ___env_mask
+0003:00010e28  _environ
+0003:00010e2c* __wenviron
+Module: c:\watcom/lib386/os2\clib3r.lib(mbterm)
+0002:0001be90  _mbterm_
+Module: c:\watcom/lib386/os2\clib3r.lib(mbsnextc)
+0002:0001bed0  _mbsnextc_
+Module: c:\watcom/lib386/os2\clib3r.lib(mbcupper)
+0002:0001bf10  _mbctoupper_
+Module: c:\watcom/lib386/os2\clib3r.lib(mbsinc)
+0002:0001bf30  _mbsinc_
+Module: c:\watcom/lib386/os2\clib3r.lib(chipd32)
+0002:0001c077  __fdiv_fpr
+0002:0001c539* __fdiv_chk
+0002:0001c54c* __fdiv_m32
+0002:0001c599* __fdiv_m64
+0002:0001c5e6* __fdiv_m32r
+0002:0001c633* __fdiv_m64r
+Module: c:\watcom/lib386\math387r.lib(_matherr)
+0002:0001c726* _set_matherr_
+0002:0001c72c+ __rterrmsg_
+0002:0001c774  _matherr_
+0003:00003374+ __RWD_matherr
+Module: c:\watcom/lib386/os2\clib3r.lib(thunk)
+0002:0001c7ba  __TNK
+0002:0001c7a6* __TNC
+Module: c:\watcom/lib386/os2\clib3r.lib(far16fun)
+0002:0001c80a  __Far16Func2
+0002:0001c853* __Far16Func
+0002:0001c8a1* __Far16Pascal2
+0002:0001c8e8* __Far16Pascal
+0002:0001c934* __Far16Cdecl2
+0002:0001c982* __Far16Cdecl
+0002:0001c9d5  __FlatToFar16
+0002:0001c9de* __Far16ToFlat
+Module: c:\watcom/lib386/os2\clib3r.lib(setenvp)
+0002:0001c9f0  __setenvp_
+0002:0001cab0  __freeenvp_
+Module: c:\watcom/lib386/os2\clib3r.lib(toupper)
+0002:0001cb10  toupper_
+Module: c:\watcom/lib386/os2\clib3r.lib(mbdtoupp)
+0002:0001cb20  _mbdtoupper_
+Module: c:\watcom/lib386\math387r.lib(__mtherr)
+0002:0001cb34  __matherr
+Module: c:\watcom/lib386/os2\clib3r.lib(iobaddr)
+0002:0001cb40  __get_std_stream_
+0002:0001cb60* __get_std_file_
+Module: c:\watcom/lib386/os2\clib3r.lib(itsto32)
+0002:0001cb70  __init_threadstksize_
+Module: c:\watcom/lib386/os2\clib3r.lib(clearenv)
+0002:0001cb80  clearenv_
+Module: c:\watcom/lib386\math387r.lib(matherr)
+0002:0001cc14  matherr_
+
+
+                        +----------------------+
+                        |   Imported Symbols   |
+                        +----------------------+
+
+Symbol                              Module
+======                              ======
+
+DosSetRelMaxFH                      DOSCALLS
+DosGetInfoBlocks                    DOSCALLS
+DosSleep                            DOSCALLS
+DosClose                            DOSCALLS
+DosWrite                            DOSCALLS
+DosRead                             DOSCALLS
+DosReleaseMutexSem                  DOSCALLS
+DosCloseMutexSem                    DOSCALLS
+DosCreateMutexSem                   DOSCALLS
+DosOpenMutexSem                     DOSCALLS
+DosRequestMutexSem                  DOSCALLS
+DosQueryMutexSem                    DOSCALLS
+DosBeep                             DOSCALLS
+GpiSetColor                         PMGPI
+GpiLine                             PMGPI
+GpiMove                             PMGPI
+DosCreateNPipe                      DOSCALLS
+DosConnectNPipe                     DOSCALLS
+DosDisConnectNPipe                  DOSCALLS
+DosQueryNPHState                    DOSCALLS
+DosSetPriority                      DOSCALLS
+WinInitialize                       PMWIN
+WinCreateMsgQueue                   PMWIN
+WinRegisterClass                    PMWIN
+WinCreateStdWindow                  PMWIN
+WinGetMsg                           PMWIN
+WinDispatchMsg                      PMWIN
+WinDestroyWindow                    PMWIN
+WinDestroyMsgQueue                  PMWIN
+WinTerminate                        PMWIN
+WinOpenWindowDC                     PMWIN
+GpiCreatePS                         PMGPI
+GpiCreateLogColorTable              PMGPI
+WinBeginPaint                       PMWIN
+WinQueryWindowRect                  PMWIN
+WinEndPaint                         PMWIN
+WinAlarm                            PMWIN
+WinMessageBox                       PMWIN
+WinDefWindowProc                    PMWIN
+WinPostMsg                          PMWIN
+DevOpenDC                           PMGPI
+GpiQueryDeviceBitmapFormats         PMGPI
+GpiDeleteBitmap                     PMGPI
+GpiDestroyPS                        PMGPI
+DevCloseDC                          PMGPI
+GpiCreateBitmap                     PMGPI
+GpiSetBitmap                        PMGPI
+GpiSetBitmapBits                    PMGPI
+GpiBitBlt                           PMGPI
+DevQueryCaps                        PMGPI
+DosAcknowledgeSignalException       DOSCALLS
+DosSetSignalExceptionFocus          DOSCALLS
+DosUnsetExceptionHandler            DOSCALLS
+DosSetExceptionHandler              DOSCALLS
+DosDevConfig                        DOSCALLS
+DosMove                             DOSCALLS
+WinReleasePS                        PMWIN
+DosQuerySysInfo                     DOSCALLS
+DosExit                             DOSCALLS
+DosPostEventSem                     DOSCALLS
+DosCreateEventSem                   DOSCALLS
+DosCreateThread                     DOSCALLS
+DosCloseEventSem                    DOSCALLS
+DosWaitEventSem                     DOSCALLS
+DosOpen                             DOSCALLS
+DosSetFilePtr                       DOSCALLS
+DosGetDateTime                      DOSCALLS
+DosAllocMem                         DOSCALLS
+DosLoadModule                       DOSCALLS
+DosQueryProcAddr                    DOSCALLS
+DosFreeModule                       DOSCALLS
+DosFreeMem                          DOSCALLS
+DosQueryHType                       DOSCALLS
+DosResetBuffer                      DOSCALLS
+KBD16CHARIN                         KBDCALLS
+VIO16WRTTTY                         VIOCALLS
+DosQueryDBCSEnv                     NLS
+DosQueryCp                          DOSCALLS
+DosFlatToSel                        DOSCALLS
+DosSelToFlat                        DOSCALLS
+
+
+                        +--------------------+
+                        |   Libraries Used   |
+                        +--------------------+
+
+c:\_work\svn\osfree\lib\pm_server.lib
+c:\_work\svn\osfree\lib\gdlib.lib
+c:\watcom/lib386\math387r.lib
+c:\watcom/lib386/os2\emu387.lib
+c:\watcom/lib386/os2\clib3r.lib
+c:\watcom/lib386/os2\plibmt3r.lib
+c:\watcom/lib386/os2\os2386.lib
+
+
+                        +-----------------------+
+                        |   Linker Statistics   |
+                        +-----------------------+
+
+Stack size:  00012000 (73728.)
+Memory size:  0003fabf (260799.)
+Entry point address: 0002:00011288
+Link time: 00:02.00

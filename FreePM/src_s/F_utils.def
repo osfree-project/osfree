@@ -1,0 +1,8 @@
+//#line "/pub/FreePM/FreePM/src_s/F_utils.cpp" 23
+extern time_t getCurrentTime( void );
+//#line "/pub/FreePM/FreePM/src_s/F_utils.cpp" 39
+extern int OS2SetRelMaxFH( int ReqCount);
+//#line "/pub/FreePM/FreePM/src_s/F_utils.cpp" 52
+extern int QueryProcessType( void );
+//#line "/pub/FreePM/FreePM/src_s/F_utils.cpp" 82
+extern int QueryThreadOrdinal( int & tid);

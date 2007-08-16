@@ -1,0 +1,26 @@
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 114
+extern int main( int narg, char * * arg, char * * envp);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 194
+extern void FreePM_cleanup( void );
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 212
+extern int SetupSemaphore( void );
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 271
+extern int SetupSignals( void );
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 304
+extern void FreePM_cleanupHandler( int sig);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 321
+extern void FreePM_cleanupHandlerFP( int sig);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 344
+extern BOOL F_PS_GpiSetColor( F_PS * ps, int lColor);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 345
+extern BOOL F_PS_GpiLine( F_PS * ps, POINTL * pptlPoint);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 346
+extern BOOL F_PS_GpiMove( F_PS * ps, POINTL * pptlPoint);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 348
+extern HPS syscall F_WinGetPS( unsigned long hwnd);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 353
+extern int tst__lxchg( int volatile * a, int b);
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 398
+extern void Fs_ClientWork( void * );
+//#line "/pub/FreePM/FreePM/src_s/Fs_main.cpp" 850
+extern int startServerThreads( void );
