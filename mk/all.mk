@@ -16,10 +16,10 @@ ASM_DEFS  = -d__OS2__ -d__WATCOM__
 # a file which includes this file.
 #
 !ifdef 32_BITS
-COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib $(ADD_COPT)
+COPT      = -q $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT)
 !else
-COPT      = -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)
+COPT      = -q -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)
 ASMOPT    = -bt=DOS -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 !endif
 
@@ -37,7 +37,7 @@ ASM       = wasm
 LINKER    = wlink
 LIB       = wlib
 MAKE      = wmake
-
+MAKEOPT   = -h
 
 SED       = sed
 AWK       = awk
@@ -123,4 +123,4 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
- @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..

@@ -9,12 +9,12 @@
 
 !include ../mk/all.mk
 
-DIRS=shared src_c src_s
+DIRS=shared Client Server
 
 all: .SYMBOLIC
-   $(MAKE) TARGET=$^@ subdirs
+   $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

@@ -18,7 +18,7 @@ DIRS = libs
 
 
 all: $(ROOT)\lib\all_shared.lib
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
         all_dlist.obj all_pathmanipulation.obj all_performrecursiveaction.obj &

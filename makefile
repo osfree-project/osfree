@@ -12,13 +12,13 @@ DIRS = shared boot muFSD muIIF filesys freeldr cmd freepm
 !include ./mk/bootseq.mk
 
 default: .SYMBOLIC
- $(MAKE) all
+ $(MAKE) $(MAKEOPT) all
 
 all: .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 tools: .SYMBOLIC
- cd tools && $(MAKE) all && cd ..
+ cd tools && $(MAKE) $(MAKEOPT) all && cd ..
 
 install: fdd hdd .SYMBOLIC
 
@@ -95,4 +95,4 @@ fdd: .SYMBOLIC
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

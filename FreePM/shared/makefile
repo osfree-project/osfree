@@ -15,13 +15,12 @@ ADD_COPT = -bm -od -mf -sg -d2 -mf
 !include ../../mk/all.mk
 
 all: .SYMBOLIC
-  $(MAKE) -f makeclient clean
-  $(MAKE) -f makeclient all
-  $(MAKE) -f makeserver clean
-  $(MAKE) -f makeserver all
+  $(MAKE) $(MAKEOPT) -f makeclient clean
+  $(MAKE) $(MAKEOPT) -f makeclient all
+  $(MAKE) $(MAKEOPT) -f makeserver clean
+  $(MAKE) $(MAKEOPT) -f makeserver all
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- $(MAKE) TARGET=$^@ subdirs

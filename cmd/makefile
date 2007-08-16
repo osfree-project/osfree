@@ -15,10 +15,10 @@ DIRS = shared ansi chkdsk eject format label more recover sysinstx &
 !include ../mk/bootseq.mk
 
 all: .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

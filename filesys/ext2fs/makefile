@@ -12,7 +12,7 @@ DIRS = util mini ifs
 !include ../../mk/bootseq.mk
 
 all: .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
