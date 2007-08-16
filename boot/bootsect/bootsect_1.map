@@ -1,6 +1,6 @@
 Open Watcom Linker Version 1.6
 Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
-Created on:       07/08/14 22:32:04
+Created on:       07/08/16 00:18:10
 Executable Image: bootsect_1.exe
 creating a DOS executable
 
@@ -62,4 +62,4 @@ Warning! W1014: stack segment not found
 Stack size:  1000 (4096.)
 Memory size:  0200 (512.)
 Entry point address: 0000:0000
-Link time: 00:00.94
+Link time: 00:00.01

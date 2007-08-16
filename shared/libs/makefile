@@ -1,15 +1,22 @@
-# $Id: makefile,v 1.5 2004/08/21 14:48:44 prokushev Exp $
+#
+# A main Makefile for osFree Command Line tools project
+# (c) osFree project,
+# valerius, 2006/10/30
+#
 
-ROOT=..\..\..
-!include $(ROOT)\makefile.inc
+!include ../../build.conf
+!include ../../mk/site.mk
 
-# Add other targets here upon their maturity
-LIBS=zlib
+# before build command line tools build "shared" libraries
+DIRS=zlib lpng jpeglib gdlib
 
-all
- $(SAY) Building libraries.
- @for %%i in ($(LIBS)) do @cd %%i&echo Building %%i tree&$(MAKE) $(MAKEFLAGS)&cd ..
+!include ../../mk/all.mk
 
-clean
- $(SAY) Cleaning libraries
- @for %%i in ($(LIBS)) do @cd %%i&$(MAKE) $(MAKEFLAGS) clean&cd ..
+all: .SYMBOLIC
+ $(MAKE) TARGET=$^@ subdirs
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+ $(MAKE) TARGET=$^@ subdirs

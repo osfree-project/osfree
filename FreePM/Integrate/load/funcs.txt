@@ -1,6 +1,0 @@
- - unimplemented:
-
-WinLoadLibrary
-WinDeleteLibrary
-WinLoadProcedure
-WinDeleteProcedure

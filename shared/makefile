@@ -11,12 +11,14 @@ ROOT=..
 32_BITS  = 1
 
 ADD_COPT = -i=..\include
+DIRS = libs
 
 !include ../mk/all.mk
 
 
 
-all: $(ROOT)\lib\all_shared.lib msg
+all: $(ROOT)\lib\all_shared.lib
+ $(MAKE) TARGET=$^@ subdirs
 
 OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
         all_dlist.obj all_pathmanipulation.obj all_performrecursiveaction.obj &

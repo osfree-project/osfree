@@ -1,9 +1,0 @@
-/* 
- $Id: debuginfo.txt,v 1.1.1.1 2002/09/05 17:18:10 evgen2 Exp $ 
-*/
-
-DEBUG: section 0     Debug Routines 
-DEBUG: section 1     main server 	main client
-DEBUG: section 2     server WND manager 
-DEBUG: section 3     client Window manager
-
