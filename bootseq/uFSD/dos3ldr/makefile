@@ -17,7 +17,7 @@ MYDIR      = $(ROOT)\$(DIR)
 
 ADD_COPT   = -i=. -i=../../include
 ADD_ASMOPT = -i=. -i=../../include
-DIR        = muFSD/dos3ldr
+DIR        = uFSD/dos3ldr
 MYDIR      = $(ROOT)/$(DIR)
 
 !endif

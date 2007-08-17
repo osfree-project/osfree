@@ -20,7 +20,7 @@ LIBC_MY      = ..\$(LIBC)
 
 !else
 
-DIR          = muFSD/$(FS)
+DIR          = uFSD/$(FS)
 MYDIR        = $(ROOT)/$(DIR)
 ADD_COPT     = $(DEFINES) -i=$(ROOT)/include/muFSD -i=. -i=..
 PATH         = $(MYDIR):$(MYDIR)/..:$(MYDIR)/../lilo

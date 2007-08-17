@@ -15,7 +15,7 @@ DEFINES    = -dOS2
 !include ../../build.conf
 !include ../../mk/site.mk
 
-DIR = freeldr
+DIR = bootseq/freeldr
 ADD_COPT   = -od -s $(DEFINES) -i=.
 ADD_ASMOPT =
 

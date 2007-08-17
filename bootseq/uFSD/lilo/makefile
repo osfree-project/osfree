@@ -20,7 +20,7 @@ ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\muFSD -i=.
 
 !else
 
-DIR        = muFSD/lilo
+DIR        = uFSD/lilo
 MYDIR      = $(ROOT)/$(DIR)
 LIBPATH    = $(MYDIR)/..
 ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/muFSD -i=.
