@@ -52,7 +52,7 @@ ADDFILES_CMD = @for %%i in ($(OBJS)) do @%append $^&.lnk FILE %%i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym
+CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe
 
 !ifeq UNIX FALSE                 # Non-unix
 
