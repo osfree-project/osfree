@@ -7,7 +7,7 @@
 !include ./build.conf
 !include ./mk/site.mk
 
-DIRS = shared boot muFSD muIIF filesys freeldr cmd freepm
+DIRS = boot # muFSD muIIF filesys freeldr cmd freepm
 
 !include ./mk/bootseq.mk
 

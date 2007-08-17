@@ -7,7 +7,7 @@
 !include ../build.conf
 !include ../mk/site.mk
 
-DIRS = bootsect mbr
+DIRS = bootsect mbr fatboot
 
 !include ../mk/bootseq.mk
 
