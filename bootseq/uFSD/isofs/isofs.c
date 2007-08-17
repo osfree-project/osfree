@@ -31,3 +31,9 @@ unsigned long  __cdecl mu_Read (long loffseek, char far *pBuf, unsigned long cbB
 {
 
 };
+
+
+unsigned long  __cdecl mu_Mount (void)
+{
+
+}

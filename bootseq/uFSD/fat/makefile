@@ -2,8 +2,8 @@
 # Makefile for FAT microFSD. 06/09/29 valerius
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 FS           = fat
 ADD_ASMOPT   =
@@ -11,7 +11,7 @@ DEFINES      = -dMICROFSD_TEST -dOS2 -d__KERNEL__ -d__WATCOM__
 
 !ifeq UNIX FALSE
 
-DIR          = uFSD\$(FS)
+DIR          = bootseq\uFSD\$(FS)
 MYDIR        = $(ROOT)\$(DIR)
 ADD_COPT     = $(DEFINES) -i=$(ROOT)\include\muFSD -i=. -i=..
 PATH         = $(MYDIR);$(MYDIR)\..;$(MYDIR)\..\lilo
@@ -20,7 +20,7 @@ LIBC_MY      = ..\$(LIBC)
 
 !else
 
-DIR          = uFSD/$(FS)
+DIR          = bootseq/uFSD/$(FS)
 MYDIR        = $(ROOT)/$(DIR)
 ADD_COPT     = $(DEFINES) -i=$(ROOT)/include/muFSD -i=. -i=..
 PATH         = $(MYDIR):$(MYDIR)/..:$(MYDIR)/../lilo
@@ -41,7 +41,7 @@ GEN_OBJS     = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
 #
 OBJS         = $(GEN_OBJS) $(SPEC_OBJS)
 
-!include ../../mk/bootseq.mk
+!include ../../../mk/bootseq.mk
 
 all: bb_$(FS) .SYMBOLIC
 

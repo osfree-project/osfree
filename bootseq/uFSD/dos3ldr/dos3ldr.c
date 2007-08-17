@@ -26,8 +26,8 @@
  #include <fcntl.h>
  #include <io.h>
 
- #include <os3/types.h>
- #include <os3/bpb.h>
+ //#include <types.h>
+ #include <bpb.h>
 
  #include "dos3ldr.h"
 

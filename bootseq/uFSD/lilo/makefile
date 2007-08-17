@@ -13,14 +13,14 @@ DEFINES    = -dMICROFSD_TEST -dOS2 -d__KERNEL__ -d__WATCOM__
 
 !ifeq UNIX FALSE
 
-DIR        = uFSD\lilo
+DIR        = bootseq\uFSD\lilo
 MYDIR      = $(ROOT)\$(DIR)
 LIBPATH    = $(MYDIR)\..
 ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\muFSD -i=.
 
 !else
 
-DIR        = uFSD/lilo
+DIR        = bootseq/uFSD/lilo
 MYDIR      = $(ROOT)/$(DIR)
 LIBPATH    = $(MYDIR)/..
 ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/muFSD -i=.

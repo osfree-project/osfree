@@ -3,20 +3,20 @@
 # 06/10/03 valerius
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 !ifeq UNIX FALSE
 
-ADD_COPT   = -i=. -i=..\..\include
-ADD_ASMOPT = -i=. -i=..\..\include
+ADD_COPT   = -i=. -i=..\..\..\include
+ADD_ASMOPT = -i=. -i=..\..\..\include
 DIR        = uFSD\dos3ldr
 MYDIR      = $(ROOT)\$(DIR)
 
 !else
 
-ADD_COPT   = -i=. -i=../../include
-ADD_ASMOPT = -i=. -i=../../include
+ADD_COPT   = -i=. -i=../../../include
+ADD_ASMOPT = -i=. -i=../../../include
 DIR        = uFSD/dos3ldr
 MYDIR      = $(ROOT)/$(DIR)
 
@@ -24,7 +24,7 @@ MYDIR      = $(ROOT)/$(DIR)
 
 OBJS       = dos3ldr.$(O) readhd.$(O) # diskread.$(O)
 
-!include ../../mk/bootseq.mk
+!include ../../../mk/bootseq.mk
 
 all: dos3ldr.exe
 

@@ -11,7 +11,7 @@ DEFINES      = -dOS2 -d__KERNEL__ -d__WATCOM__ -dMICROFSD -dMICROFSD_TRACE -d__N
 
 !ifeq UNIX FALSE
 
-DIR          = uFSD\$(FS)
+DIR          = bootseq\uFSD\$(FS)
 MYDIR        = $(ROOT)\$(DIR)
 ADD_COPT     = $(DEFINES) -i=$(ROOT)\include\muFSD -i=. -i=..
 PATH         = $(MYDIR);$(MYDIR)\..;$(MYDIR)\..\lilo
@@ -20,7 +20,7 @@ LIBC_MY      = ..\$(LIBC)
 
 !else
 
-DIR          = uFSD/$(FS)
+DIR          = bootseq/uFSD/$(FS)
 MYDIR        = $(ROOT)/$(DIR)
 ADD_COPT     = $(DEFINES) -i=$(ROOT)/include/muFSD -i=. -i=..
 PATH         = $(MYDIR):$(MYDIR)/..:$(MYDIR)/../lilo
@@ -34,12 +34,12 @@ LIBC_MY      = ../$(LIBC)
 #
 SPEC_OBJS    = close.$(O) dir.$(O)    file.$(O) &
                inode.$(O) open.$(O)   read.$(O) &
-               super.$(O) buffer.$(O) ll_rwblk.$(O) term.$(O)
+               super.$(O) buffer.$(O) ll_rwblk.$(O)
 #
 # general objects
 #
 GEN_OBJS     = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
-               panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O)
+               panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O) term.$(O)
 
 OBJS         = $(GEN_OBJS) $(SPEC_OBJS)
 

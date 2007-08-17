@@ -27,7 +27,7 @@ ADD_ASMOPT = $(DEFINES)
 DIRS       = lilo ext2 fat isofs tftp dos3ldr
 
 OBJS       = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
-             panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O)
+             panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O) term.$(O)
 
 !include ../../mk/bootseq.mk
 
