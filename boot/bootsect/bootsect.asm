@@ -57,7 +57,7 @@ BootSeg segment para public 'CODE' USE16
 
 boot proc far
 
-                jmp     bootStrap                          ; Jump to bootstrap procedure
+                jmp     short bootStrap                    ; Jump to bootstrap procedure
                 nop                                        ;
                                                            ;
 SysId           db     '[[OS/3]]'                          ; System Identifier
@@ -89,7 +89,7 @@ volSerNo        dd          ?                              ; Volume serial numbe
 volLabel        db          11   dup (?)                   ; Volume label
 fsName          db          8    dup (?)                   ; File system name
 
-ifdef CODE_1
+ifndef CODE_3
 ifdef IBM_FAT_COMPAT
 ;
 ; Additional fields (not included in [Ext]BPB)
@@ -126,41 +126,43 @@ bootStrap:
 
                 sti                                        ; Enable interrupts
 
-                push btSeg
-                pop  ds
+                mov  ax, btSeg
+                mov  ds, ax
+                ;push btSeg
+                ;pop  ds
+
                 push ds                                    ; This is to properly set cs register
                 push offset start                          ; to the segment of a bootsector
                 retf
 start:
-                push ds
-
-ifdef CODE_1
-                push muFSDLoadSeg
-else
-                push mapLoadSeg
-endif
-;                push bootSecReloc
+;                push ds
+;
+;ifdef CODE_1
+;                push muFSDLoadSeg
+;else
+;                push mapLoadSeg
+;endif
 
                 mov  dl, diskNum
-;                test dl, 80h
-;                jnz  no_floppy
-;                call floppy_Init                           ; Set floppy parameters, if booting from floppy
-;                jmp  use_chs                               ; floppy drive -- use CHS
+                test dl, 80h
+                jnz  short no_floppy
+                call floppy_Init                           ; Set floppy parameters, if booting from floppy
+                jmp  short use_chs                         ; floppy drive -- use CHS
 no_floppy:
                 mov  ah, 41h                               ; try 41h of int 13h
                 mov  bx, 55aah                             ; (probe if LBA is available)
                 int  13h
 
-                jc   use_chs
+                jc   short use_chs
                 cmp  bx, 0aa55h
-                jnz  use_chs
+                jnz  short use_chs
 
                 and  cx, 1                                 ; check bit 0 of cx register,
-                jz   use_chs                               ; if set then int13 ext disk read
+                jz   short use_chs                         ; if set then int13 ext disk read
                                                            ; functions are supported
 use_lba:
                 mov  bl, 0
-                jmp return
+                jmp  short return
 use_chs:
                 mov  bl, 1
 return:
@@ -184,7 +186,7 @@ ifdef IBM_FAT_COMPAT
                 mov  dx, cx                                ;
                 shr  cx, 4                                 ; = size of root dir in sectors
                 and  dx, 0fh
-                jz   no_add                                ;
+                jz   short no_add                          ;
                 inc  cx                                    ; If partial sector, then add 1
 no_add:
                 mov  rootDirSecs, cx
@@ -200,50 +202,34 @@ endif
 read_muFSD:
                 ; Read muFSD
                 ; at 0x800:0x0
+                push cs
+                pop  ds
 
-                pop  es                                    ; muFSDLoadSeg
+                mov  ax, muFSDLoadSeg
+                mov  es, ax                                ; muFSDLoadSeg
                 xor  di, di                                ; zero
                                                            ; load muFSD load address
                 mov  ax, word ptr muFSDAddr                ; muFSD address, low word
                 mov  dx, word ptr muFSDAddr + 2            ; high word
                 mov  cl, muFSDLen                          ; Number of sectors to read
 
-                call ReadRun                               ; read sectors
+                call read_run                               ; read sectors
 
-                pop  ds                                    ;
-if 0
-;;;;;;
-                xor  si, si
-                xor  di, di                                ;
-;                mov  di, si
+                mov  si, muFSDEntry                        ;
+                ;sub  si, 200h                              ;
 
-                cli                                        ;
+                ;mov  ax, es                                ;
+                ;add  ax, 20h                               ;
+                ;mov  es, ax
+                ;push ax                                    ; loader segment
+                push es
+                push si                                    ; offset
 
-                mov  ax, muFSDStackSS                      ;
-                mov  ss, ax                                ; Set muFSD stack
-                mov  sp, muFSDStackSP                      ;
-
-                sti                                        ;
-
-                push es                                    ; muFSD segment
-
-;                push si                                    ;
-
-                push bootSecReloc                          ;
-                pop  es                                    ;
-
-                mov  cx, 100h                              ; Relocate the
-                rep  movsw                                 ; bootsector
-
-;                pop  si                                    ;
-;;;;;;
-else
+ifdef IBM_FAT_COMPAT
                 lea  si, BPB                               ; pass BPB address in ds:si
-                push es                                    ; muFSD segment
 endif
-                mov  dx, bx
 
-                push muFSDEntry                            ; offset
+                mov  dx, bx
 
                 retf                                       ; "return" to micro FSD code
 
@@ -259,47 +245,45 @@ ifdef CODE_2
 read_allocmap:
                 ; Read muFSD allocation map
                 ; sector at 0x800:0x0
+                ;push cs
+                ;pop  ds
 
-                pop  es                                    ; mapLoadSeg
+                mov  ax, mapLoadSeg
+                mov  es, ax                                ; mapLoadSeg
                 xor  di, di                                ; zero
 
-                push dx                                    ; phys disk number
-
+                mov  bx, dx
                                                            ; load muFSD allocation map address
                 mov  ax, word ptr mapAddr                  ; muFSD alloc. map address, low word
                 mov  dx, word ptr mapAddr + 2              ; high word
-                mov  cl, 1                                 ; Number of sectors to read
+                mov  cx, 1                                 ; Number of sectors to read
 
-                call ReadRun                               ; read alloc map sector
+                call read_run                              ; read alloc map sector
 
-                push ds                                    ; save ds == 0x7c0
+                push cs                                    ; save ds == 0x7c0
 
                 push es                                    ;
                 pop  ds                                    ; ds --> muFSD alloc map
 
-                push es                                    ; muFSDLoadSeg = mapLoadSeg + 0x20
-                pop  ax                                    ; es --> 0x820 -- will be a
-                add  ax, 20h                               ; segment of muFSD load, right
-                push ax                                    ; after alloc map segment at 0x800
-                pop  es                                    ;
-
-                xor  si, si                                ;
-
+                mov  ax, es                                ; muFSDLoadSeg = mapLoadSeg + 0x20
+                add  ax, 20h                               ; es --> 0x820 -- will be a
+                mov  es, ax                                ; segment of muFSD load, right
+                                                           ; after alloc map segment at 0x800
+                xor  si, si
 read_loop:
                 mov  ax, word ptr [si]                     ; ds:si --> current muFSD sector address
                 mov  dx, word ptr [si + 2]                 ; dword ptr [si] ==> dx:ax
 
-                mov  cl, 1                                 ; Sector count
-
-                mov  bx, ds                                ;
+                mov  cx, ds                                ;
                 pop  ds                                    ; ds == 0x7c0
-                push bx                                    ; save old ds == 0x800
+                push cx                                    ; save old ds == 0x800
 
-                call ReadRun                               ; Read next muFSD sector
+                mov  cx, 1                                 ; Sector count
+                call read_run                              ; Read next muFSD sector
 
-                mov  bx, ds                                ;
+                mov  cx, ds                                ;
                 pop  ds                                    ; Exchange stack top <--> ds
-                push bx                                    ;
+                push cx                                    ;
 
                 add  si, 4                                 ; Next
                 add  di, 200h                              ; sector
@@ -311,36 +295,23 @@ read_loop:
 .286
                 jnz  read_loop
 end_read:
+                push cs
                 pop  ds                                    ; restore ds
 
 call_muFSD:
+                mov  si, muFSDEntry                        ;
+                ;sub  si, 200h                              ;
 
+                mov  ax, es                                ;
+                ;add  ax, 20h                               ;
+                ;mov  es, ax
+                push ax                                    ; loader segment
+                mov  ds, ax
+                push si
+
+ifdef IBM_FAT_COMPAT
                 lea  si, BPB                               ; address in ds:si
-                pop  dx                                    ; Physical disk number in dl
-;;;;;;
-                mov  di, si
-
-                cli                                        ;
-
-                push muFSDStackSS                          ;
-                pop  ss                                    ; Set muFSD stack
-                mov  sp, muFSDStackSP                      ;
-
-                sti                                        ;
-
-                push es                                    ; muFSD segment
-
-                push si                                    ;
-
-                push bootSecReloc                          ;
-                pop  es                                    ;
-
-                mov  cx, 200h - 11                         ; Relocate the
-                rep  movsb                                 ; bootsector
-
-                pop  si                                    ;
-;;;;;;
-                push muFSDEntry                            ; offset
+endif
 
                 retf                                       ; "return" to micro FSD code
 
@@ -356,8 +327,10 @@ ifdef CODE_3
 read_allocmap:
                 ; Read muFSD allocation map
                 ; sector at 0x800:0x0
+                mov  ax, mapLoadSeg
+                mov  es, ax                                ; mapLoadSeg
 
-                pop  es                                    ; mapLoadSeg
+                ;pop  es                                    ; mapLoadSeg
 
                 push dx                                    ; phys disk number
                 push ds                                    ; save ds == 0x7c0
@@ -388,7 +361,7 @@ read_loop:
                 pop  ds                                    ; Exchange stack top <--> ds
                 push bx                                    ;
 
-                call ReadRun                               ; Read next muFSD extent
+                call read_run                               ; Read next muFSD extent
 
                 mov  bx, ds                                ;
                 pop  ds                                    ; Exchange stack top <--> ds
@@ -419,35 +392,12 @@ the_end:
                 pop  ds                                    ; restore ds --> 0x7c0
                 pop  dx                                    ; Physical disk number in dl
 call_muFSD:
+
+ifdef IBM_FAT_COMPAT
                 lea  si, BPB                               ; address in ds:si
-
-if 1
-;;;;;;
-                mov  di, si
-
-                cli                                        ;
-
-                push muFSDStackSS                          ;
-                pop  ss                                    ; Set muFSD stack
-                mov  sp, muFSDStackSP                      ;
-
-                sti                                        ;
-
-                push es                                    ; muFSD segment
-
-                push si                                    ;
-
-                push bootSecReloc                          ;
-                pop  es                                    ;
-
-                mov  cx, 200h - 11                         ; Relocate the
-                rep  movsb                                 ; bootsector
-
-                pop  si                                    ;
-;;;;;;
-else
-                push es                                    ; muFSD segment
 endif
+
+                push es                                    ; muFSD segment
                 push muFSDEntry                            ; offset
 
                 retf                                       ; "return" to micro FSD code
@@ -473,20 +423,16 @@ ifdef CODE_3
 ;
 
 read_alloc_sector proc near
-;                xor  bh, bh                                ;
-;                mov  bl, lenOffset                         ; bx --> offset in bytes into the map sector
-;                shl  bx, 2                                 ; (lengths table base)
-
-                mov  bx, 101
-
                 xor  di, di                                ; zero
                                                            ; load muFSD allocation map address
                 mov  ax, word ptr mapAddr                  ; muFSD alloc. map address, low word
                 mov  dx, word ptr mapAddr + 2              ; high word
+                ;mov  cx, 1                                 ; Number of sectors to read
 
-                mov  cx, 1                                 ; Number of sectors to read
+                ;call read_run                              ; read alloc map sector
+                call readsec
 
-                call ReadRun                               ; read alloc map sector
+                mov  bx, 404
 
                 ret
 read_alloc_sector endp
@@ -496,21 +442,16 @@ read_alloc_sector endp
 ;
 
 adjust_es proc near
-                push es
-                pop  ax
-
+                mov  ax, es
                 shl  cx, 5                                 ; cx == number of paragraphs read
                 add  ax, cx
-
-                push ax
-                pop  es
+                mov  es, ax
 
                 ret
 adjust_es endp
 
 endif
 
-if 0
 
 floppy_Init proc near
                 push ds
@@ -560,7 +501,6 @@ on10:
 
 floppy_Init endp
 
-endif
 
 ;
 ; ReadRunF:
@@ -569,10 +509,10 @@ endif
 ;
 
 
-;ReadRunF proc far
-;                call ReadRun
-;                retf
-;ReadRunF endp
+read_run_f proc far
+                call read_run
+                retf
+read_run_f endp
 
 ;
 ; must I do the function with
@@ -585,7 +525,6 @@ endif
 ;
 ;
 
-if 0
 
 ;
 ; ReadRun:
@@ -598,102 +537,83 @@ if 0
 ;          bl     -- drive number
 ;          ds     == 0x7c0 -- a bootsector segment
 
-ReadRun proc near
-                push si
-beginRead1:
-                cmp  cx, 80h
-                jbe  endRead1
-
-                push di
-
-                push cx
-
-                mov  cx, 80h
-                call ReadRun8
-
-                pop  cx
-                sub  cx, 80h
-
-                push es
-                pop  si
-
-                add  si, 1000h
-
-                push si
-                pop  es
-
-                pop  di
-
-                jmp  beginRead1
-endRead1:
-                call ReadRun8
-                pop  si
-
-                ret
-ReadRun endp
-
-;else
-
-ReadRun proc near
-                call ReadRun8
-                ret
-ReadRun endp
-
-endif
-
-;
-; ReadRun:
-; Reads a contiguous run of sectors.
-;
-;          Input:
-;          dx:ax  -- logical sector number to read from
-;          cl     -- sector count to read 1 <= cl <= 128
-;          es:di  -- address to read to
-;          bl     -- drive number
-;          ds     == 0x7c0 -- a bootsector segment
-
-ReadRun proc near
+read_run proc near
                 add  ax, word ptr hiddenSecs               ;
                 adc  dx, word ptr hiddenSecs + 2           ; Add hidden sectors value
 
-                push bx
-;                xor  bh, bh
-                mov  bl, byte ptr diskNum
+                push es
+                push ds
+                push si
+                push di
+beginRead1:
+                call readsec
 
-                cmp  byte ptr ForceLBA, 0                  ; force LBA?
+                add  ax, 1
+                adc  dx, 0
+
+                mov  si, es
+                add  si, 20h
+                mov  es, si
+
+                loop  beginRead1
+endRead1:
+                pop  di
+                pop  si
+                pop  ds
+                pop  es
+
+                ret
+read_run endp
+
+
+;
+; ReadSec:
+;
+;               Reads a sector
+;               from dx:ax lba address on disk
+;               to es:di in memory from
+;               BIOS device number at bl
+;
+;               ds == 0x7c0
+;
+
+readsec proc near
+                cmp  byte ptr ds:ForceLBA, 0               ; force LBA?
                 jnz  lba
 
                 cmp  byte ptr [ds:UseCHSAddr], 0           ; LBA or CHS?
                 jz   lba
 chs:
-                call ReadCHS                               ; Read by CHS
+                push es
+                pusha
+                call readsec_chs                           ; Read by CHS
+                popa
+                pop  es
                 jmp  return_lb
 lba:
+                push es
                 pusha
-                call ReadLBA                               ; Read by LBA
+                call readsec_lba                           ; Read by LBA
                 popa
+                pop  es
                 jnc  return_lb                             ; if LBA fails, fallback to CHS
                 jmp  chs
 return_lb:
-                pop  bx
                 ret
 
-ReadRun endp
+readsec endp
 
 ;
-; ReadLBA:
-; Reads contiguous run of sectors
-; by LBA.
+; ReadSecLBA:
 ;
-;          Input:
-;          dx:ax  -- logical sector number to read from
-;          cl     -- sector count to read
-;          es:di  -- address to read to
-;          bl     -- drive number
+;               Reads a sector
+;               using LBA,
+;               to es:di
+;               from LBA address dx:ax
+;               from disk device at bl
 ;
 
-ReadLBA     proc near
-                push ds
+readsec_lba proc near
                 ;
                 ; int 13h 42h function
                 ; Input:
@@ -706,6 +626,7 @@ ReadLBA     proc near
                 ;
                 ;            al = 0 if success,
                 ;            error code otherwise
+                push ds
 
                 push PktSeg
                 pop  ds
@@ -713,12 +634,14 @@ ReadLBA     proc near
                 assume ds:PktSeg
 
                 lea  si, disk_addr_pkt                     ; disk address packet
-                mov  byte ptr [si], 10h                    ; size of packet
-                mov  word ptr [si + 8], ax                 ; absolute starting address
-                mov  word ptr [si + 10], dx                ; of muFSD
-                mov  word ptr [si + 2], cx                 ; number of blocks to transfer
-                mov  word ptr [si + 4], di                 ; offset of disk read buffer = 0
-                mov  word ptr [si + 6], es                 ; segment of disk read buffer at 0x800:0x0
+                mov  byte  ptr [si], 10h                   ; size of packet absolute starting address
+
+                mov  word ptr [si + 8],  ax                ; LBA of the 1st
+                mov  word ptr [si + 10], dx                ; sector of partition (bootsector)
+
+                mov  word ptr [si + 2], 1                  ; number of blocks to transfer
+                mov  word ptr [si + 6], es                 ; segment
+                mov  word ptr [si + 4], di                 ; offset of read buffer
                 mov  dl, bl
                 mov  ah, 42h
                 int  13h
@@ -727,55 +650,31 @@ lb2:
 
                 ret
 
-ReadLBA     endp
+readsec_lba endp
 
 ;
-; ReadCHS:
-; Reads a contiguous run of sectors
-; by CHS.
+; ReadSecCHS:
 ;
-;          Input:
-;          dx:ax  -- logical sector number to read from
-;          cl     -- sector count to read
-;          es:di  -- address to read to
-;          bl     -- drive number
+;               Reads a sector
+;               using CHS,
+;               to es:di
+;               from LBA address in dx:ax
+;               from disk device in bl
+;
 
-if 0
-
-ReadCHS proc near
+readsec_chs proc near
                 push ax
-
                 mov  ax, headsCnt                          ; headsCnt * trackSize
                 mul  byte ptr trackSize                    ; --> ax (cyl size)
                 mov  si, ax                                ; si = cylinder size
-
                 pop  ax
-beginRead:
-                push bx
-
-;                push cx
-
-                push ax
-                push dx
                                                            ; divide LSN in dx:ax by cyl size in si
                 div  si                                    ; now dx holds remainder
-
-                mov  si, cx                                ; save cx for further use
                                                            ; and ax holds quotient
                 mov  cx, ax                                ; cx = Cylinder no
                 mov  ax, dx                                ;
                 div  byte ptr trackSize                    ; now al holds Head no
                                                            ; and ah holds sector no
-                mov  dl, bl                                ; now dl = drive number
-
-                xor  bh, bh
-                mov  bl, byte ptr trackSize                ; bx --> max no of sectors we can
-                sub  bl, ah                                ; read in a single call to int 13h, ah=2
-
-                cmp  bx, si
-                jb   skip_mov
-                mov  bx, si
-skip_mov:
                 inc  ah                                    ; sectors in CHS are numbered from 1, not 0 !!!
 
                 mov  dh, al                                ; head no
@@ -783,127 +682,21 @@ skip_mov:
                 xchg cl, ch                                ;
 
                 or   cl, ah                                ;
-
-                mov  al, bl                                ; count of sectors in al
-                mov  ah, 2                                 ; disk read function
-
+                mov  ax, 0201h                             ; ah = 2 -- function and al = 1 -- count of sectors
+                mov  dl, bl
                 mov  bx, di
-
-                int  13h
-                jc   Err$Read
-
-                mov  bx, ax
-
-                mul  word ptr sectSize                     ; Now dx:ax = count of bytes read
-                add  di, ax
-
-                pop  dx
-                pop  ax
-
-                add  ax, bx
-                adc  dx, 0
-
-;                pop  cx
-                mov  cx, si
-                sub  cx, bx
-
-                pop  bx
-
-                jcxz endRead
-                jmp  beginRead
-endRead:
-                ret
-ReadCHS endp
-
-else
-
-ReadCHS proc near
-                push ax
-
-                mov  ax, headsCnt                          ; headsCnt * trackSize
-                mul  byte ptr trackSize                    ; --> ax (cyl size)
-                mov  si, ax                                ; si = cylinder size
-
-                pop  ax
-beginRead:
-                push bx
-                push dx
-                push ax
-                push cx
-                push bx
-                                                           ; divide LSN in dx:ax by cyl size in si
-                div  si                                    ; now dx holds remainder
-                                                           ; and ax holds quotient
-                mov  bx, ax                                ; bx = Cylinder no
-                mov  ax, dx                                ;
-                div  byte ptr trackSize                    ; now al holds Head no
-                                                           ; and ah holds sector no
-                pop  dx                                    ; now dl = drive number
-
-                inc  ah                                    ; sectors in CHS are numbered from 1, not 0 !!!
-                mov  dh, al                                ; head no
-
-                mov  cx, bx                                ;
-                xchg cl, ch                                ;
-
-                or   cl, ah                                ;
-
-                mov  bx, trackSize                         ; bx --> max no of sectors we can
-                sub  bl, ah                                ; read in a single call to int 13h, ah=2
-                inc  bl                                    ;
-
-                pop  ax                                    ; remaining amount of sectors to read
-
-                cmp  ax, bx
-                jb   _nosub
-                sub  ax, bx
-                push ax                                    ; remaining amount of sectors to read
-                mov  al, bl                                ;
-                jmp  _sub
-_nosub:
-                push 0                                     ; remaining amount of sectors to read
-_sub:
-                mov  bx, di                                ; es:bx --> buffer to read to
-
-                mov  ah, 02h                               ; read disk function
                 int  13h
 
-                jnc  on
-                jmp Err$Read
-on:
+                jnc  noerr1
+                jmp  Err$Read
+noerr1:
                 cmp  ah, 0
-                jz   on0
-                jmp Err$Read
-on0:
-                mov  bl, al                                ; count of sectors read
-
-                xor  ah, ah                                ;
-                mul  word ptr sectSize                     ; Now dx:ax = count of bytes read
-
-                add  di, ax
-on1:
-                pop  cx
-                pop  ax
-                pop  dx
-
-                add  al, bl                                ;
-                adc  ah, 0                                 ; Now dx:ax = the next 1st byte to read
-                adc  dx, 0                                 ;
-
-                pop  bx
-
-                jcxz endRead
-
-                jmp  beginRead
-endRead:
+                jz   noerr2
+                jmp  Err$Read
+noerr2:
                 ret
+readsec_chs endp
 
-ReadCHS endp
-
-
-endif
-
-if 0
 
 ;
 ; Err:
@@ -915,6 +708,20 @@ if 0
 Err   proc near
 Err$Read:
                 lea si, Err_DskReadError
+                call outstr
+loop3:
+                hlt
+                jmp  loop3
+Err   endp
+
+
+;outstr_f proc far
+;                call outstr
+;                retf
+;outstr_f endp
+
+
+outstr proc near
                 cld
 Disp1:
                 lodsb
@@ -928,26 +735,8 @@ int10_exit:
                 pop si
                 jmp Disp1
 Disp2:
-                hlt
-Err   endp
-
-;ErrF proc far
-;                call Err
-;                retf
-;ErrF endp
-
-else
-
-Err proc near
-Err$Read:       mov  al, 'E'
-                mov  ah, 0eh
-                xor  bx, bx
-                int  10h
-int10_exit:
-                hlt
-Err endp
-
-endif
+                ret
+outstr endp
 
 ;
 ; Defines
@@ -969,37 +758,29 @@ endif
 
 vars             label       byte
 
-;Err_DskReadError db          "R",0                                         ; Disk read error message
-;ReadRunFAddr     dw          ReadRunF                                      ; ReadRunF function address
-;ErrFAddr         dw          ErrF
+;OutstrFAddr      dw          outstr_f
+ReadRunFAddr     dw          read_run_f                                     ; ReadRunF function address
+Err_DskReadError db          "R",0                                          ; Disk read error message
 
 ;
 ; Some variables set by sysinstx:
 ;
 
-;ifndef CODE_3
-
-;muFSDStackSS     dw          00F71h
-;muFSDStackSP     dw          0ffffh
-;bootSecReloc     dw          08c00h
-
-;endif
-
 forceLBA         db          0                                              ; force LBA mode flag
 
 ifdef CODE_1
 
-muFSDLoadSeg     dw          0800h                                          ; muFSD load Address (paragraph number, 0..FFFFh)
-muFSDEntry       dw          0h                                             ; muFSD entry point, 0..65535 bytes
+muFSDLoadSeg     dw          8C20h                                          ; muFSD load Address (paragraph number, 0..FFFFh)
+muFSDEntry       dw          0                                              ; muFSD entry point, 0..65535 bytes
 muFSDLen         db          0                                              ; mFSD length in sectors, 0..128
 muFSDAddr        dd          0                                              ; mFSD 1st sector number (LSN from log. disk beginning)
 
 else
 
-mapLoadSeg      dw          0800h                                           ; muFSD allocation map load segment
-muFSDEntry      dw          0h                                              ; muFSD entry point, 0..65535 bytes
-lenOffset       db          ?                                               ; Lengths array offset into the map sector
-mapAddr         dd          1                                               ; muFSD allocation map sector number
+mapLoadSeg       dw          8C00h                                          ; muFSD allocation map load segment
+muFSDEntry       dw          0                                              ; muFSD entry point, 0..65535 bytes
+lenOffset        db          ?                                              ; Lengths array offset into the map sector
+mapAddr          dd          1                                              ; muFSD allocation map sector number
 
 endif
 

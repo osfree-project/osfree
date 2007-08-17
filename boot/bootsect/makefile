@@ -21,6 +21,9 @@
 !include ../../mk/site.mk
 
 DEFINES    =
+DEFINES_1  = -dCODE_1 -dIBM_FAT_COMPAT
+DEFINES_2  = -dCODE_2
+DEFINES_3  = -dCODE_3
 ADD_ASMOPT = $(DEFINES)
 
 !ifeq UNIX FALSE
@@ -69,15 +72,15 @@ all: bootsect_1.bin bootsect_2.bin bootsect_3.bin
 
 bootsect_1.$(O): bootsect.asm
  $(SAY) Assembling $< $(LOG)
- $(ASM) $(ASMOPT) -dCODE_1 -dIBM_FAT_COMPAT -fo=$^@ $< $(LOG)
+ $(ASM) $(ASMOPT) $(DEFINES_1) -fo=$^@ $< $(LOG)
 
 bootsect_2.$(O): bootsect.asm
  $(SAY) Assembling $< $(LOG)
- $(ASM) $(ASMOPT) -dCODE_2 -fo=$^@ $< $(LOG)
+ $(ASM) $(ASMOPT) $(DEFINES_2) -fo=$^@ $< $(LOG)
 
 bootsect_3.$(O): bootsect.asm
  $(SAY) Assembling $< $(LOG)
- $(ASM) $(ASMOPT) -dCODE_3 -fo=$^@ $< $(LOG)
+ $(ASM) $(ASMOPT) $(DEFINES_3) -fo=$^@ $< $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC
