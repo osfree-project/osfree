@@ -4,12 +4,12 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../build.conf
+!include ../mk/site.mk
 
-DIRS = bootsect mbr fatboot
+DIRS = boot freeldr uFSD
 
-!include ../../mk/bootseq.mk
+!include ../mk/bootseq.mk
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

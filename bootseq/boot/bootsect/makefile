@@ -17,8 +17,8 @@
 # arbitrary size.
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 DEFINES    =
 DEFINES_1  = -dCODE_1 -dIBM_FAT_COMPAT
@@ -47,7 +47,7 @@ OBJS_1       = $(STARTUP) $(ALL_1)
 OBJS_2       = $(STARTUP) $(ALL_2)
 OBJS_3       = $(STARTUP) $(ALL_3)
 
-!include ../../mk/bootseq.mk
+!include ../../../mk/bootseq.mk
 
 .SUFFIXES:
 .SUFFIXES: .bin .exe .$(O) .asm

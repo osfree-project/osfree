@@ -5,8 +5,8 @@
 
 32_BITS  = 1
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 ADD_ASMOPT =
 DEFINES    = -dMICROFSD_TEST -dOS2 -d__KERNEL__ -d__WATCOM__
@@ -31,7 +31,7 @@ DIRS       =
 
 OBJS       = build.$(O) boot.$(O)
 
-!include ../../mk/bootseq.mk
+!include ../../../mk/bootseq.mk
 
 all: boot.com build.exe .SYMBOLIC
  $(MAKE) TARGET=$^@ subdirs

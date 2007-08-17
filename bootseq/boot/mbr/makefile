@@ -3,8 +3,8 @@
 # 06/10/03 valerius
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 DEFINES    =
 ADD_ASMOPT = $(DEFINES)
@@ -25,7 +25,7 @@ STARTUP    =
 ALL        = mbr.$(O)
 OBJS       = $(STARTUP) $(ALL)
 
-!include ../../mk/bootseq.mk
+!include ../../../mk/bootseq.mk
 
 .SUFFIXES:
 .SUFFIXES:  .bin .exe .$(O) .asm
