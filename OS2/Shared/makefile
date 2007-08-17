@@ -3,8 +3,8 @@
 # Makefile for common shared libs
 
 
-!include ../build.conf
-!include ../mk/site.mk
+!include ../../build.conf
+!include ../../mk/site.mk
 
 ROOT=..
 
@@ -13,7 +13,7 @@ ROOT=..
 ADD_COPT = -i=..\include
 DIRS = libs
 
-!include ../mk/all.mk
+!include ../../mk/all.mk
 
 
 

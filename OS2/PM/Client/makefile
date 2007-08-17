@@ -3,10 +3,10 @@
 #  Viking
 
 
-ROOT=..\..
+ROOT=..\..\..
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 32_BITS  = 1
 PROJ=FreePM
@@ -28,7 +28,7 @@ OBJS = F_WinStartApp.$(O) FreePM_win.$(O) WIN1.$(O) &
 ADD_COPT=-bm -od -mf -sg -d2 -mf
 LINKOPT=lib pm_client.lib
 
-!include ../../mk/all.mk
+!include ../../../mk/all.mk
 
 
 #defines files mask for clean target

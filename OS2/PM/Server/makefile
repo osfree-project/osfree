@@ -3,10 +3,10 @@
 #  Viking
 
 
-ROOT=..\..
+ROOT=..\..\..
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
 32_BITS  = 1
 PROJ=FreePM
@@ -27,7 +27,7 @@ OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
 ADD_COPT=-bm -od -mf -sg -d2 -mf
 LINKOPT=lib pm_server.lib lib gdlib.lib
 
-!include ../../mk/all.mk
+!include ../../../mk/all.mk
 
 
 #defines files mask for clean target
