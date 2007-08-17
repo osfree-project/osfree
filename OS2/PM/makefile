@@ -2,12 +2,12 @@
 #  Handle makefiles in subdirs
 #
 
-!include ../build.conf
-!include ../mk/site.mk
+!include ../../build.conf
+!include ../../mk/site.mk
 
 32_BITS  = 1
 
-!include ../mk/all.mk
+!include ../../mk/all.mk
 
 DIRS=shared Client Server
 
