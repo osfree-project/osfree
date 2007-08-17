@@ -1,3 +1,0 @@
-tftp.c(20): Warning! W107: Missing return value for function 'mu_Open'
-tftp.c(26): Warning! W107: Missing return value for function 'mu_Close'
-tftp.c(32): Warning! W107: Missing return value for function 'mu_Read'
