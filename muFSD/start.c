@@ -154,10 +154,10 @@ void __cdecl mu_Start(void) {
     long sz;
     unsigned short mem;
 
-#ifndef __NO_LILO__
+//#ifndef __NO_LILO__
     struct ext2_super_block *es;
     struct buffer_head      *bh;
-#endif
+//#endif
 
     void (far *x)();
     unsigned short flags;
@@ -306,18 +306,19 @@ void __cdecl mu_Start(void) {
     //pbpb = (BIOSPARAMETERBLOCK far *) MAKEP(BOOTSEC_DATASEG, 11);
     pbpb = (BIOSPARAMETERBLOCK far *) MK_FP(BOOTSEC_DATASEG, 11);
     bios_device = pbpb->abReserved[0]; //???
-    bootdrive   = pbpb->abReserved[1];    
+    bootdrive   = pbpb->abReserved[1];
     printk("hiddensectors = 0x%lX", pbpb->cHiddenSectors);
-    printk("bios_device = %u", bios_device);
-    printk("current_seg = %u", current_seg);
+    printk("bios_device = 0x%02X", bios_device);
+    printk("current_seg = 0x%04X", current_seg);
 #endif
 //<--- end
 
     /*
      * Mounts the partition
      */
-    read_super(); /* failure in read_super = panic */
+    mu_Mount(); /* failure in read_super = panic */
     printk("ext2fs partition mounted successfuly");
+
 
     /*
      * Loads MINIFSD into memory
@@ -387,7 +388,7 @@ void __cdecl mu_Start(void) {
     /*
      * Calls OS2LDR
      */
-    os2ldr_data_ptr = &os2ldr_data;
+    os2ldr_data_ptr = MK_FP(current_seg, &os2ldr_data);
     //pbpb         = &bpb;
     printk("bpb             = %04X:%04X", FP_SEG(pbpb), FP_OFF(pbpb));
     printk("os2ldr_data_ptr = %04X:%04X", FP_SEG(os2ldr_data_ptr), FP_OFF(os2ldr_data_ptr));
@@ -397,10 +398,10 @@ void __cdecl mu_Start(void) {
 
     __asm {
         mov dx, flags
-        lds si, pbpb
-        les di, os2ldr_data_ptr
-        push _seg
-        push _ofs
+        lds si, cs:pbpb
+        les di, cs:os2ldr_data_ptr
+        push cs:_seg
+        push cs:_ofs
         retf
     };
 

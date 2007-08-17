@@ -107,6 +107,7 @@ _TEXT   SEGMENT
                                         ; bootsector, not LILO) (valerius, 2006/11/04)
         LILO_DATA_SEGMENT equ 09000h    ; segment of LILO data passed to microfsd.fsd
         RELOC_LILO_DATA   equ 08C00h    ; LILO data will be relocated here
+        RELOC_BOOTSEC     equ 08C00h    ; bootsector with BPB will be relocated here
         RELOC_SEG         equ 08C20h    ; microfsd.fsd will be relocated here
 
         DEBUG_PORT        equ 00000h    ; COM port for debug output (0 : com1, 1 : com2)
@@ -218,9 +219,8 @@ reloc_1:
 
 else
 
-if 0
         ;
-        ; Copies the boot sector to RELOC_LILO_DATA:0000
+        ; Copies the the bootsector to RELOC_BOOTSEC:0000
         ; (512 bytes)
         ;
         push ds
@@ -229,7 +229,7 @@ if 0
         mov ax, BOOTSEC_SEG
         mov ds, ax
 
-        mov ax, RELOC_LILO_DATA
+        mov ax, RELOC_BOOTSEC
         mov es, ax
 
         xor si, si
@@ -241,38 +241,6 @@ if 0
         pop es
         pop ds
 
-        ;
-        ; Relocales ourself at 2000:0000
-        ;
-        mov cx, offset DGROUP:_microfsd_stack_top
-        shr cx, 1
-        inc cx
-        mov ax, 02000h
-        mov es, ax
-        mov ax, 0
-        mov si, ax
-        mov di, ax
-        cld
-        rep movsw
-
-        push 02000h
-        push offset DGROUP:reloc_1
-        retf
-reloc_1:
-
-        ;
-        ; Updates the stack segment
-        ;
-        mov ax, cs
-        mov ds, ax
-        mov es, ax
-        cli
-        mov ss, ax
-        mov sp, offset DGROUP:_microfsd_stack_top
-        sti
-
-endif
-
 endif
 
         ;
@@ -283,7 +251,8 @@ endif
         call VIDEO_OUTPUT
         call VIDEO_CRLF
 
-if 0
+
+ifndef __NO_LILO__
         ;
         ; Relocales ourself at RELOC_SEG:0000
         ;
@@ -301,6 +270,7 @@ if 0
         push RELOC_SEG
         push offset DGROUP:reloc_2
         retf
+
 reloc_2:
 
         ;
@@ -313,7 +283,10 @@ reloc_2:
         mov ss, ax
         mov sp, offset DGROUP:_microfsd_stack_top
         sti
+
 endif
+
+
         ;
         ; Checkpoint 3
         ;
@@ -408,4 +381,3 @@ _DATA ends
 ;*** End                                                                  ***
 ;****************************************************************************
         end microfsd_entry
-

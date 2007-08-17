@@ -26,8 +26,8 @@
 #include <mfs.h>
 #include <linux/ext2_fs.h>
 
-void read_super (void) {
-        printk("read_super()");
+void __cdecl mu_Mount () {
+        printk("mu_Mount()");
         ext2_read_super();
 }
 
@@ -51,16 +51,16 @@ void ext2_read_super (void) {
         es = (struct ext2_super_block *) bh->b_data;
         sb->u.ext2_sb.s_es = es;
         sb->s_magic = es->s_magic;
-	
-	for (i = 0; i < 60; i += 10)
-	    printk("%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", 
-	           ((char *)es)[i], ((char *)es)[i + 1],
-		   ((char *)es)[i + 2], ((char *)es)[i + 3],
-		   ((char *)es)[i + 4], ((char *)es)[i + 5], 
-		   ((char *)es)[i + 6], ((char *)es)[i + 7],
-		   ((char *)es)[i + 8], ((char *)es)[i + 9] \
-		   );
-	
+
+        for (i = 0; i < 60; i += 10)
+            printk("%u,%u,%u,%u,%u,%u,%u,%u,%u,%u",
+                   ((char *)es)[i], ((char *)es)[i + 1],
+                   ((char *)es)[i + 2], ((char *)es)[i + 3],
+                   ((char *)es)[i + 4], ((char *)es)[i + 5],
+                   ((char *)es)[i + 6], ((char *)es)[i + 7],
+                   ((char *)es)[i + 8], ((char *)es)[i + 9] \
+                   );
+
         if (sb->s_magic != EXT2_SUPER_MAGIC) {
             microfsd_panic("Invalid ext2 signature in superblock : 0x%04X", sb->s_magic);
         }

@@ -66,7 +66,8 @@ void __cdecl stub_mu_Close(void);
 void __cdecl mu_Terminate(void);
 void __cdecl stub_mu_Terminate(void);
 
-void read_super(void);
+void __cdecl mu_Mount (void);
+void __cdecl mu_Start (void);
 
 /*
  * Current microfsd segment register

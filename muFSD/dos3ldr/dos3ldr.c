@@ -10,9 +10,9 @@
  *
  *   dos3ldr -d <HDD BIOS number> -p <partition number> -b <blackbox file> \
  *           -l <blackbox load segment> -s <segment to create BPB at>
- *   
  *
- *   The task for this DOS loader is to load a blackbox at the specified 
+ *
+ *   The task for this DOS loader is to load a blackbox at the specified
  *   segment address, load a bootsector with BPB in it at specified address,
  *   give control to blackbox and service a disk read function to the blackbox.
  */
@@ -21,28 +21,28 @@
  #include <stdlib.h>
  #include <i86.h>
  #include <dos.h>
- #include <bios.h> 
+ #include <bios.h>
  #include <string.h>
  #include <fcntl.h>
  #include <io.h>
 
  #include <os3/types.h>
  #include <os3/bpb.h>
- 
+
  #include "dos3ldr.h"
 
  u8     buf[512];
  u16    cyl  = 0,
-        head = 0, 
+        head = 0,
         sec  = 0;
 
  void main(int argc, char **argv, char **envp)
  {
     u8     blackbox[] = "bb_ext2";
-    u8     disk        = 0x00;
+    u8     disk        = 0x80;
     u8     part       = 0x1;
     BPB    bpb;
-    u16    i;    
+    u16    i;
     u8     far *s;
     u16    rc         = 0;
     u16    nsec;
@@ -51,12 +51,12 @@
     u32   size;
 
     struct diskinfo_t di;
-    struct SREGS sregs;  
+    struct SREGS sregs;
 
     segread(&sregs);
 
     s = MK_FP(BOOTSECT_LOAD_SEG, 0);
-     
+
     memset((void *)s, 0, 0x10000);
 
     rc = disk_geo(disk, &cyl, &head, &sec);
@@ -84,12 +84,12 @@
 
     putchar('\n');
     s = MK_FP(BLACKBOX_LOAD_SEG,  0);
-    
+
     if( _dos_open(blackbox, O_RDONLY, &fd) != 0)
     {
        printf("Can't open file %s!\n", blackbox);
        exit(-1);
-    }   
+    }
 
     printf("File %s opened,\n", blackbox);
     size = filelength(fd);
@@ -108,7 +108,7 @@
       retf
     }
 
-    //exit(0);    
+    //exit(0);
  }
 
  // Reads <= 65535 sectors at once
@@ -136,7 +136,7 @@
 
     if (rc)
       return 1;
- 
+
     return 0;
  }
 
@@ -160,7 +160,7 @@
 
     if (!rc)
       return 0;
- 
+
     rc = 0;
 
     rc = disk_read_chs(device,
@@ -173,13 +173,13 @@
  }
 
  // Reads sectors by CHS
- u8  disk_read_chs(u8 device, 
+ u8  disk_read_chs(u8 device,
                    u16 cyl, u8 head, u8 sec,
                    u8 *nsec, u8 far *buf)
  {
     u8 err = 0;
-    u8 read = 0; 
- 
+    u8 read = 0;
+
     read = *nsec;
 
     __asm {
@@ -201,10 +201,10 @@
        mov  err, 1
     __noerr:
     }
- 
-    if (err) 
+
+    if (err)
       return 1;
-    
+
     *nsec = read;
     return 0;
  }
@@ -219,7 +219,7 @@
     u16 read = 0;
     struct disk_addr_packet dap;
     struct SREGS sregs;
-    void far *p; 
+    void far *p;
     int  reg;
 
     segread(&sregs);
@@ -243,7 +243,7 @@
     __noerr:
     }
 
-    if (err) 
+    if (err)
       return 1;
 
     *nsec = (u8)dap.nsec;
@@ -257,7 +257,7 @@
     u8  type = 0;
     u16 c;
     u8  h, s;
-    u16 rds = 0, 
+    u16 rds = 0,
         rsi = 0;
     u8  far *p;
     u32 parm;
@@ -279,7 +279,7 @@
        mov  err, 1
     __noerr:
     }
- 
+
     if (!err) {
       p = (u8 far *)parm;
       *cyl  =  *((u32 far *)((u8 far *)p + 4));
@@ -308,10 +308,10 @@
        jmp  __noerr
     __err:
        mov  err, 1
-    __noerr: 
+    __noerr:
     }
 
-    if (err) 
+    if (err)
       return 1;
 
     *cyl  = c;

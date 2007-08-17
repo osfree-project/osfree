@@ -389,4 +389,6 @@ int VFS_read(struct file *file, char far *buf, loff_t len, unsigned long far*pLe
     } else {
         microfsd_panic("VFS_read : read error");
     }
+
+    return 0;
 }

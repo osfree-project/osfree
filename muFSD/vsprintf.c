@@ -1,5 +1,5 @@
 //
-// $Header: /cur/cvsroot/boot/muFSD/vsprintf.c,v 1.1.1.1 2006/11/23 08:17:26 valerius Exp $
+// $Header: d:\\32bits\\ext2-os2\\microfsd\\rcs\\vsprintf.c,v 1.3 1997/03/15 22:24:42 Willm Exp $
 //
 
 // 32 bits Linux ext2 file system driver for OS/2 WARP - Allows OS/2 to
@@ -192,10 +192,6 @@ int vsprintf(char *buf, const char *fmt, va_list args)
         char * str;
         char *s;
 
-#ifdef OS2
-        const char near * far *ffmt;
-#endif
-
         int flags;              /* flags to number() */
 
         int field_width;        /* width of output field */
@@ -223,14 +219,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
                 /* get field width */
                 field_width = -1;
-                if (is_digit(*fmt)) {
-#ifdef OS2
-                        ffmt = (const char near * far *)MK_FP(current_seg, FP_OFF(&fmt));
-                        field_width = skip_atoi(ffmt); 
-#else
+                if (is_digit(*fmt))
                         field_width = skip_atoi(&fmt);
-#endif
-                } else if (*fmt == '*') {
+                else if (*fmt == '*') {
                         ++fmt;
                         /* it's the next argument */
                         field_width = va_arg(args, int);
@@ -244,14 +235,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
                 precision = -1;
                 if (*fmt == '.') {
                         ++fmt;
-                        if (is_digit(*fmt)) {
-#ifdef OS2
-                                ffmt = (const char near * far *)MK_FP(current_seg, FP_OFF(&fmt)); 
-                                precision = skip_atoi(ffmt);
-#else
+                        if (is_digit(*fmt))
                                 precision = skip_atoi(&fmt);
-#endif
-                        } else if (*fmt == '*') {
+                        else if (*fmt == '*') {
                                 ++fmt;
                                 /* it's the next argument */
                                 precision = va_arg(args, int);
@@ -407,12 +393,8 @@ void output_com(char *bufptr ,int debug_port) {
     outchar_comport('\n', debug_port);
 }
 
-//#define OUTPUT_COM1 0
-//#define OUTPUT_COM2 1
-
 #define OUTPUT_COM1 1
 #define OUTPUT_COM2 0
-
 
 int printk(const char *fmt, ...) {
     va_list args;
@@ -428,4 +410,5 @@ int printk(const char *fmt, ...) {
     output_com(bufptr, OUTPUT_COM1);
     output_com(bufptr, OUTPUT_COM2);
 
+    return 0;
 }

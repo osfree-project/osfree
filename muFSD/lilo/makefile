@@ -3,6 +3,8 @@
 # 06/09/29 valerius
 #
 
+32_BITS  = 1
+
 !include ../../build.conf
 !include ../../mk/site.mk
 
@@ -13,12 +15,14 @@ DEFINES    = -dMICROFSD_TEST -dOS2 -d__KERNEL__ -d__WATCOM__
 
 DIR        = muFSD\lilo
 MYDIR      = $(ROOT)\$(DIR)
+LIBPATH    = $(MYDIR)\..
 ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\muFSD -i=.
 
 !else
 
 DIR        = muFSD/lilo
 MYDIR      = $(ROOT)/$(DIR)
+LIBPATH    = $(MYDIR)/..
 ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/muFSD -i=.
 
 !endif
@@ -29,11 +33,40 @@ OBJS       = build.$(O) boot.$(O)
 
 !include ../../mk/bootseq.mk
 
-all: $(OBJS) .SYMBOLIC
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+all: boot.com build.exe .SYMBOLIC
+ $(MAKE) TARGET=$^@ subdirs
+
+
+build.exe: build.$(O)
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk PATH .
+ @%append $^&.lnk FILE $<
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
+ $(CP) $^@ $(TOOLS)
+
+boot.com: boot.$(O)
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM dos com
+ @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION NODEFAULTLIBS
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk PATH .
+ @%append $^&.lnk FILE $<
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
+
+build.$(O): build.c
+ wcc386 $< -fo=$^@ $(LOG)
+
+boot.$(O): boot.asm
+ wasm   $< -fo=$^@ $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ $(MAKE) TARGET=$^@ subdirs

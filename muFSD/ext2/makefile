@@ -7,7 +7,7 @@
 
 FS           = ext2
 ADD_ASMOPT   =
-DEFINES      = -dOS2 -d__KERNEL__ -d__WATCOM__ -d__NO_LILO__ -dMICROFSD -dMICROFSD_TRACE
+DEFINES      = -dOS2 -d__KERNEL__ -d__WATCOM__ -dMICROFSD -dMICROFSD_TRACE -d__NO_LILO__
 
 !ifeq UNIX FALSE
 
@@ -34,19 +34,25 @@ LIBC_MY      = ../$(LIBC)
 #
 SPEC_OBJS    = close.$(O) dir.$(O)    file.$(O) &
                inode.$(O) open.$(O)   read.$(O) &
-               super.$(O) buffer.$(O) ll_rwblk.$(O)
+               super.$(O) buffer.$(O) ll_rwblk.$(O) term.$(O)
 #
 # general objects
 #
 GEN_OBJS     = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
-               panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O) &
-               term.$(O)
+               panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O)
 
 OBJS         = $(GEN_OBJS) $(SPEC_OBJS)
 
 !include ../../mk/bootseq.mk
 
 all: bb_$(FS) .SYMBOLIC
+
+#bb_$(FS): bb_$(FS).com
+# $(DC) $^@
+# $(CP) ..\lilo\boot.com .
+# $(BUILD) boot.com $< $^@
+# $(DC) boot.com
+# $(DC) $<
 
 bb_$(FS): bb_$(FS).exe
  $(DC) $^@
