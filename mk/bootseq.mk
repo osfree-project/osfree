@@ -16,10 +16,10 @@ ASM_DEFS  = -d__OS2__ -d__WATCOM__
 # a file which includes this file.
 #
 !ifdef 32_BITS
-COPT      = -q $(C_DEFS) -i=. -i=.. $(ADD_COPT)
+COPT      = $(C_DEFS) -i=. -i=.. $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT)
 !else
-COPT      = -q -ms $(C_DEFS) -i=. -i=.. $(ADD_COPT)
+COPT      = -ms $(C_DEFS) -i=. -i=.. $(ADD_COPT)
 ASMOPT    = -bt=DOS -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 !endif
 
@@ -35,7 +35,6 @@ ASM       = wasm
 LINKER    = wlink
 LIB       = wlib
 MAKE      = wmake
-MAKEOPT   = -h
 
 SED       = sed
 AWK       = awk
@@ -53,7 +52,7 @@ ADDFILES_CMD = @for %%i in ($(OBJS)) do @%append $^&.lnk FILE %%i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin
+CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym
 
 !ifeq UNIX FALSE                 # Non-unix
 
@@ -75,6 +74,7 @@ MKBIN     = mkbin.cmd
 GENHDD    = genhdd.cmd
 GENFDD    = genfdd.cmd
 FINDFILE  = findfile.cmd
+BUILD     = $(TOOLS)\build.exe
 
 NULL      = \dev\nul
 BLACKHOLE = >$(NULL) 2>&1
@@ -94,6 +94,7 @@ MKBIN     = mkbin
 GENHDD    = genhdd
 GENFDD    = genfdd
 FINDFILE  = findfile
+BUILD     = $(TOOLS)/build
 
 NULL      = /dev/null
 BLACKHOLE = >$(NULL) 2>&1
@@ -115,4 +116,4 @@ CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
- @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(TARGET) && cd ..
