@@ -11,7 +11,7 @@ DEFINES      = -dOS2 -d__KERNEL__ -d__WATCOM__ -dMICROFSD -dMICROFSD_TRACE -d__N
 
 !ifeq UNIX FALSE
 
-DIR          = muFSD\$(FS)
+DIR          = uFSD\$(FS)
 MYDIR        = $(ROOT)\$(DIR)
 ADD_COPT     = $(DEFINES) -i=$(ROOT)\include\muFSD -i=. -i=..
 PATH         = $(MYDIR);$(MYDIR)\..;$(MYDIR)\..\lilo

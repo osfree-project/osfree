@@ -3,7 +3,7 @@
 # 06/09/29 valerius
 #
 
-DIR = muFSD
+DIR = uFSD
 
 !include ../../build.conf
 !include ../../mk/site.mk
@@ -24,7 +24,7 @@ ADD_ASMOPT = $(DEFINES)
 
 !endif
 
-DIRS       = lilo ext2 # fat isofs tftp dos3ldr
+DIRS       = lilo ext2 fat isofs tftp dos3ldr
 
 OBJS       = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
              panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O)
