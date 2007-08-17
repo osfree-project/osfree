@@ -1,0 +1,7 @@
+        MicroXFD driver design.
+        ~~~~~~~~~~~~~~~~~~~~~~
+
+     MicroXFD stands for Micro Installable eXecutable Format Driver. It is the
+second  kind  of  a loader blackbox (the first one is MicroFSD). It contains a
+single  mu_Load()  function  which  attempts  to  load  file  treating it as a
+definite format executable.

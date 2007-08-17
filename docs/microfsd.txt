@@ -1,0 +1,131 @@
+
+        MicroFSD design and implementation (draft).
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        (Note: some features described here are not yet implemented!)
+
+1) Introduction.
+
+     The  FreeLdr OS loader uses a metaphor  of blackbox in its implementation
+of  a  readonly  filesystem  support,  like  the original OS/2 loader. It also
+extends  this  idea  to executable formats support. The blackbox is something,
+doing  its  work  by  itself  and not exposing its mechanisms to outside. With
+regard  to filesystem support, this means that the blackbox, aka microfsd, the
+Micro File System Driver, exports some functions to the loader, but the loader
+must  not  know details about reading the filesystem. The filesystem structure
+is  hidden to the loader. It only calls several functions from the microfsd to
+read  files.  The  loader  itself  is filesystem independent and the work with
+filesystem  is  transparent  to  the  loader. Similarly, the executable format
+details are hidden to the loader by microxfd driver.
+
+     The  role  of a microfsd blackbox is to abstract the filesystem structure
+from  the  loader. The loader works equally with different filesystems, and no
+matter,  where  the  filesystem  is  situated.  The filesystem can be local or
+remote,  can  be  accessed  by  different protocols, like tftp, and even to be
+situated on the other computer and accessed through COM or LPT port, and other
+exotic  cases.  In  all  these  cases,  loader has not to be modified to add a
+possibility  to  load from such sources. Only new microfsd must be written for
+this purpose.
+
+     In  contrast  with  it, in WinNT the ntldr loader has no such feature and
+has  to  be  modified  to  support a filesysystem, different from FAT or NTFS.
+Also, there is no possibility to load WindowsNT across the network.
+
+     The  GNU  GRUB  is  a  very good  bootloader, it supports a wide range of
+filesystems  and a wide range of unix kernels. Our loader is based on parts of
+GRUB sources. But the GRUB also has some disadvantages. In particular, it does
+not  use  a  concept of a blackbox, but has similar part, named stage_1_5. But
+the  list  of  all  stages_1_5  is  hardcoded and to add a new filesystem, the
+loader  must   be  recompiled. That's wrong. We don't want to update the whole
+loader when a new filesystem is to be added. But GRUB's ideas are very good at
+most,  and FreeLdr reuses some of these ideas, the multiboot specification, at
+least.
+
+     MicroFSD  is  a  first  kind  of  a  loader  blackbox  (the second one is
+MicroXFD).  It  is  a  part  of  an  Installable  File System (IFS) mechanism.
+MicroFSD  is a tiny 16-bit real mode raw binary executable, which is loaded by
+bootable  partition  bootsector. Its size is limited to 64 Kb. Actually, it is
+an ordinary .COM format executable, except for it is based by 0h, not 100h (no
+PSP at the beginning).
+
+2) Initialization.
+
+     The  bootsector  loads  microfsd  at  segment  address 0x8c20 (for ext2fs
+filesystem;  IBM's  blackboxes for FAT and HPFS are generally loaded at 0x800;
+The  load  address  is  specified  in the variable within the bootsector), and
+calls   its   entry   point   at   0x8c20:0x0.   The   assembly  startup  code
+(microfsd_start()  procedure)  saves segment registers and initializes them to
+CS  value  (0x8c20).  Then,  the  bootsector is relocated to the safe place --
+at the 0x8c00 segment.
+
+     The  microfsd_start procedure then calls mu_Start() C language procedure.
+This  function  is  a  general  initialization  function,  which  calls  other
+functions   to  carry  out  microfsd  initialization.  First,  the  mu_Start()
+procedure  sets  the  pointer to the BPB to bootsector's BPB. Then, mu_Start()
+procedure  loads microfsd config file and parses it by mu_Cfg() procedure. The
+configuration   file  is  named  microfsd.cfg  and  resides  in  /boot/freeldr
+directory.
+
+     Then  mu_Init()  procedure  of  filesystem-specific  part  of microFSD is
+called  by  mu_Start(). This procedure sets the flags in DH register and fills
+FileTable structure fields by addresses of microfsd exported functions.
+
+     Then  mu_Start()  loads  the  files,  specified in configuration file and
+fills  the fields of FileTable structure by their addresses and lengths. After
+that,  the  FreeLdr  is  called according the entry point address in "execldr"
+statement  in  the  config  file,  passing it parameters through the interface
+described at the end of this document.
+
+3) Config file.
+
+     The config file specifies a set of files to be loaded (they are a minifsd
+and  loader  files and some optional files.). Each file is specified by a line
+like this:
+
+load "/path/to/the/file" <load_address> "<label>"
+
+     The  path  must be specified in double quotes. Then follows the file load
+address,   in  segment:offset  form  or  as  a  physical  address  within  1st
+megabyte.  The  segment, the offset and the physical address must be specified
+as hexadecimal number in C language notation.
+
+     After  a  set  of  "load"  statements,  the  file  ends  with a "execldr"
+statement:
+
+execldr <loader_entry_point>
+
+     where  <loader_entry_point>  must be a hexadecimal C-notation of a loader
+entry point in the form of segment:offset.
+
+     The  config  file can have comments, starting from "#" or ";" symbol.
+
+Config file example: (stage0.cfg)
+[============================================================================]
+#
+# loader stage0 config file
+#
+
+# load file
+#     : path                       : address    :  type (label)
+
+# minifsd (optional)
+load "/boot/freeldr/ext2fs.mfs"     0x7c:0x0     "mfsd"
+# micro XFD's list
+load "/boot/freeldr/muxfd.lst"      0x8000       "muxfd_lst"
+# loader stage1 config file
+load "/boot/freeldr/stage1.cfg"     0x8400       "stage1_cfg"
+# loader stage1 (or os2ldr file)
+load "/boot/freeldr/stage1"         0x10000      "stage1"
+
+# loader entry point
+execldr  0x1000:0x0
+[============================================================================]
+
+     The  microfsd  consists  of the general, or file-system independent part,
+common  for all filesystems, and the filesystem-specific part. These two parts
+are statically linked together.
+
+4) MicroFSD general part (aka loader stage0).
+
+5) MicroFSD filesystem-dependent part
+
+6) Extended interface between MicroFSD and loader.
