@@ -1,0 +1,6 @@
+SYSTEM dos com
+OPTION MAP=fatboot.map
+OPTION NODEFAULTLIBS
+NAME fatboot
+PATH f:\var\src\os2\boot\boot\fatboot
+FILE fatboot.obj
