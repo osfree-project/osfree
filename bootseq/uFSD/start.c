@@ -27,7 +27,7 @@
 
 #define INCL_DOSDEVIOCTL
 #define INCL_NOPMAPI
-#include <os2/os2.h>
+#include <os21x/os2.h>
 
 #include <add.h>
 #include <i86.h>

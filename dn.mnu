@@ -1,19 +1,23 @@
->1 Отправить изменения в репозиторий
-   < Введите имя и пароль
+>1 Commit changes to repository
+   < Enter name and password
    @cls
-   @set lang=ru_Ru
-   @call clean.cmd
+   @set lang=en_US
    @cls
    @SET SVN_EDITOR=tedit.exe
    @cd ..
    @svn commit osfree --username %3 --password %4
->1 Вывести отличия от репозитория
+>1 Show diff
    < Введите имя и пароль
    @cls
    @set lang=ru_Ru
    @cd ..
    @svn diff osfree --username %3 --password %4
->1 Получить изменения из репозитория
+>1 Update working copy
+   < Enter name and password
+   @cls
+   @set lang=ru_Ru
+   @svn up
+>1 Check out changes
    < Введите имя и пароль
    @cls
    @set lang=ru_Ru

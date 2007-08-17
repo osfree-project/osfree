@@ -23,7 +23,7 @@
 #define INCL_DOS
 #define INCL_DOSERRORS
 #define INCL_NOPMAPI
-#include <os2/os2.h>
+#include <os21x/os2.h>
 
 #include <os2/types.h>
 #include <os2/magic.h>
