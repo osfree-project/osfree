@@ -23,7 +23,7 @@ ADD_LIB = cmd_shared.lib,all_shared.lib
 !include ../../mk/cmd.mk
 
 #defines files mask for clean target
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym
+CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym *.exe *.wmp
 
 
 all: $(PROJ).exe .SYMBOLIC
