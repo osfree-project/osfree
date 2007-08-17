@@ -7,7 +7,7 @@
 !include ../build.conf
 !include ../mk/site.mk
 
-DIRS = boot freeldr uFSD
+DIRS = boot freeldr uFSD uXFD
 
 !include ../mk/bootseq.mk
 
