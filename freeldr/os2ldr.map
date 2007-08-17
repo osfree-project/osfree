@@ -1,7 +1,0 @@
-Open Watcom Linker Version 1.6
-Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
-Created on:       07/08/16 00:18:26
-Warning! W1080: file freeldra.obj is a 32-bit object file
-Error! E2064: cannot combine 32-bit segments (_TEXT32) with 16-bit segments (_STACK)
-Error! E2064: cannot combine 32-bit segments (_DATA32) with 16-bit segments (CONST)
-Warning! W1080: file start32.obj is a 32-bit object file
