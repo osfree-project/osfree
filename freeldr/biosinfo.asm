@@ -301,7 +301,7 @@ get_code_end proc near
         ; will be the end of the bss
         xor  eax, eax
         xor  edx, edx
-        lea  ax, DGROUP:_freeldr_stack_top
+        mov  ax, offset DGROUP:_freeldr_stack_top
         mov  dx, current_seg
         shl  edx, 4
         add  eax, edx

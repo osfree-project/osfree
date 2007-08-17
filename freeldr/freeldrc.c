@@ -45,6 +45,7 @@ struct multiboot_info mbi;
 static struct mod_list far mll[99];
 
 // hardcoded now
+unsigned long boot_drive = 0x80;
 unsigned long current_drive = 0x80;
 unsigned long current_partition = 0x0;
 
@@ -85,6 +86,60 @@ unsigned long readbuf;
 //int current_entryno;
 /* The BIOS drive map.  */
 //static unsigned short bios_drive_map[DRIVE_MAP_SIZE + 1];
+
+long
+safe_parse_maxint (char far **str_ptr, long *myint_ptr)
+{
+  char far *ptr = *str_ptr;
+  long myint = 0;
+  long mult = 10, found = 0;
+
+  /*
+   *  Is this a hex number?
+   */
+  if (*ptr == '0' && tolower (*(ptr + 1)) == 'x')
+    {
+      ptr += 2;
+      mult = 16;
+    }
+
+  while (1)
+    {
+      /* A bit tricky. This below makes use of the equivalence:
+         (A >= B && A <= C) <=> ((A - B) <= (C - B))
+         when C > B and A is unsigned.  */
+      unsigned long digit;
+
+      digit = tolower (*ptr) - '0';
+      if (digit > 9)
+        {
+          digit -= 'a' - '0';
+          if (mult == 10 || digit > 5)
+            break;
+          digit += 10;
+        }
+
+      found = 1;
+      if (myint > ((MAXINT - digit) / mult))
+        {
+          errnum = ERR_NUMBER_OVERFLOW;
+          return 0;
+        }
+      myint = (myint * mult) + digit;
+      ptr++;
+    }
+
+  if (!found)
+    {
+      errnum = ERR_NUMBER_PARSING;
+      return 0;
+    }
+
+  *str_ptr = ptr;
+  *myint_ptr = myint;
+
+  return 1;
+}
 
 
 long
@@ -157,6 +212,54 @@ freeldr_memmove (void far *_to, const void far *_from, long _len)
 }
 
 
+unsigned long
+freeldr_memmove_phys (unsigned long _to, unsigned long _from, long _len)
+{
+    unsigned long buf, from, to, l, chunk;
+    unsigned short ret;
+
+    l    = _len;
+    to   = _to;
+    from = _from;
+
+    while (l > 0)
+    {
+
+        if (l < LOAD_CHUNK_SIZE)
+        {
+            chunk = l;
+            l     = 0;
+        }
+        else
+        {
+            chunk = LOAD_CHUNK_SIZE;
+            l    -= LOAD_CHUNK_SIZE;
+        }
+
+        // Read a chunk of a file to the read buffer
+        ret = loadhigh(readbuf, chunk, from);
+        if (ret)
+        {
+            printk("loadhigh0 error, rc = 0x%04x", ret);
+            return 0;
+        }
+
+        // move it to the proper place
+        ret = loadhigh(to, chunk, readbuf);
+        if (ret)
+        {
+            printk("loadhigh1 error, rc = 0x%04x", ret);
+            return 0;
+        }
+
+        from += chunk;
+        to   += chunk;
+
+    }
+    return _to;
+}
+
+
 char far *
 freeldr_strcpy (char far *dest, const char far *src)
 {
@@ -212,6 +315,30 @@ freeldr_strlen (const char far *str)
 }
 
 
+int
+freeldr_pos(const char c, const char far *str)
+{
+  int len = 0;
+  int l   = freeldr_strlen(str);
+
+  while (*str++ != c && len < l)
+    len++;
+
+  len++;
+  return len;
+}
+
+
+long
+freeldr_tolower (long c)
+{
+  if (c >= 'A' && c <= 'Z')
+    return (c + ('a' - 'A'));
+
+  return c;
+}
+
+
 //Clear screen (actually, just scroll it up)
 void __cdecl
 freeldr_clear()
@@ -236,7 +363,29 @@ freeldr_clear()
 unsigned long __cdecl
 freeldr_open (char *filename)
 {
-    unsigned long *fSize;
+    unsigned long  *fSize;
+    unsigned short n;
+    char far buf[256];
+    char far *s;
+    char *p;
+
+    s = MK_FP(current_seg, filename);
+    n = freeldr_pos(' ', s);
+    //printk("n = %d", n);
+
+    if (n > 1)
+    {
+      freeldr_memmove(buf, s, n - 1);
+      buf[n - 1] = '\0';
+      filename = (char *)FP_OFF(buf);
+    }
+
+    if (*filename == '/') filename++;
+
+    for (p = filename; p; p++)
+      if (*p == '/') *p = '\\';
+
+    //printk("filename = %s", filename);
 
     if (muOpen(filename, fSize))
         return 0;
@@ -378,7 +527,8 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
 {
     /* presuming that MULTIBOOT_SEARCH is large
        enough to encompass an executable header */
-    unsigned char far buffer1[MULTIBOOT_SEARCH]; // far pointer
+    //unsigned char far buffer1[MULTIBOOT_SEARCH]; // far pointer
+    unsigned char far *buffer1 = MK_FP(0x3000, 0x0); // far pointer
     unsigned long buffer;                        // physical address of the buffer
 
     unsigned long size, chunk = LOAD_CHUNK_SIZE;
@@ -446,6 +596,8 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
     //    printk("len = %lu bytes read by grub_read()", len);
     //}
 
+    //printk("buffer1 = 0x%08lx", buffer1);
+
     for (i = 0; i < len; i++)
     {
         if (MULTIBOOT_FOUND ((long) (buffer1 + i), len - i))
@@ -463,6 +615,8 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
         }
     }
 
+
+    //printk("(1) pu.elf = 0x%08lx", pu.elf);
 
     /* ELF loading supported if multiboot, FreeBSD and NetBSD.  */
     if (((type == KERNEL_TYPE_MULTIBOOT && ! (flags & MULTIBOOT_AOUT_KLUDGE))
@@ -550,7 +704,7 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
     }
 
     /* fill the multiboot info structure */
-    mbi.cmdline = (unsigned long) arg;
+    mbi.cmdline = (unsigned long) PHYS_FROM_FP(arg);
     mbi.mods_count = 0;
     mbi.mods_addr = 0;
     mbi.boot_device = (current_drive << 24) | current_partition;
@@ -692,11 +846,14 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
     }
     else /* ELF executable */
     {
-        unsigned loaded = 0, memaddr, memsiz, filesiz;
+        unsigned long loaded = 0, memaddr, memsiz, filesiz;
         Elf32_Phdr far *phdr;
 
         /* reset this to zero for now */
         cur_addr = 0;
+
+        //printk("(2) pu.elf = 0x%08lx", pu.elf);
+        //printk("pu.elf->e_phnum = 0x%08lx", pu.elf->e_phnum);
 
         /* scan for program segments */
         for (i = 0; i < pu.elf->e_phnum; i++)
@@ -708,6 +865,8 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
                 /* offset into file */
                 freeldr_seek (phdr->p_offset);
                 filesiz = phdr->p_filesz;
+
+                //printk("phdr->p_paddr = 0x%08lx", phdr->p_paddr);
 
                 if (type == KERNEL_TYPE_FREEBSD || type == KERNEL_TYPE_NETBSD)
                     memaddr = RAW_ADDR (phdr->p_paddr & 0xFFFFFF);
@@ -729,7 +888,7 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
                 if (filesiz > memsiz) filesiz = memsiz;
                 /* mark memory as used */
                 if (cur_addr < memaddr + memsiz) cur_addr = memaddr + memsiz;
-                    printkc (", <0x%x:0x%x:0x%x>", memaddr, filesiz, memsiz - filesiz);
+                    printkc (", <0x%lx:0x%lx:0x%lx>", memaddr, filesiz, memsiz - filesiz);
                 /* increment number of segments */
                 loaded++;
 
@@ -1077,6 +1236,119 @@ module_func (char far *arg, unsigned long flags)
 }
 
 
+void
+modaddr_func (unsigned long addr)
+{
+  cur_addr = addr;
+}
+
+
+/* vbeset MODE */
+static long
+vbeset_func (char far *arg, long flags)
+{
+#ifndef GRUB_UTIL
+  long mode_number;
+  long pmif_segoff, pmif_len;
+  struct vbe_controller controller;
+  struct vbe_mode mode;
+
+  if (kernel_type != KERNEL_TYPE_MULTIBOOT)
+    {
+      printk("Multiboot kernel must be loaded before vbeset command");
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  if (! *arg)
+    {
+      reset_vbe_mode ();
+      return 0;
+    }
+
+  if (! safe_parse_maxint (&arg, &mode_number))
+    return 1;
+
+  /* Preset `VBE2'.  */
+  freeldr_memmove (controller.signature, "VBE2", 4);
+
+  /* Detect VBE BIOS.  */
+  if (get_vbe_controller_info (PHYS_FROM_NP(current_seg, &controller)) != 0x004F)
+    {
+      printk (" VBE BIOS is not present.");
+      return 1;
+    }
+
+  if (controller.version < 0x0200)
+    {
+      printk (" VBE version %d.%d is not supported.",
+                   (long) (controller.version >> 8),
+                   (long) (controller.version & 0xFF));
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  if (get_vbe_mode_info (mode_number, PHYS_FROM_NP(current_seg, &mode)) != 0x004F
+      || (mode.mode_attributes & 0x0091) != 0x0091)
+    {
+      printk (" Mode 0x%x is not supported.", mode_number);
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  /* Now trip to the graphics mode.  */
+  if (set_vbe_mode (mode_number | (1 << 14)) != 0x004F)
+    {
+      printk (" Switching to Mode 0x%x failed.", mode_number);
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  get_vbe_pmif(MK_FP(current_seg, &pmif_segoff), MK_FP(current_seg, &pmif_len));
+  create_vbe_module(&controller, sizeof(struct vbe_controller),
+                    &mode, sizeof(struct vbe_mode),
+                    mode_number, pmif_segoff, pmif_len, controller.version);
+
+  /* mode setting was successful */
+  return 0;
+#else
+  errnum = ERR_BAD_ARGUMENT;
+  return 1;
+#endif
+}
+
+
+void
+create_vbe_module(void *ctrl_info, long ctrl_info_len,
+                  void *mode_info, long mode_info_len,
+                  long mode, long pmif, long pmif_len,
+                  unsigned long version)
+{
+  /* if we are supposed to load on 4K boundaries */
+  cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
+
+  printk ("   [VESA %d.%d info @ 0x%x, 0x%x bytes]",
+      version >> 8, version & 0xFF,
+      cur_addr, ctrl_info_len + mode_info_len);
+
+  freeldr_memmove_phys(cur_addr, (unsigned long) ctrl_info, ctrl_info_len);
+  mbi.vbe_control_info = (long)cur_addr;
+  cur_addr += ctrl_info_len;
+
+  freeldr_memmove_phys(cur_addr, (unsigned long) mode_info, mode_info_len);
+  mbi.vbe_mode_info    = (long)cur_addr;
+  cur_addr += mode_info_len;
+
+  mbi.flags |= MB_INFO_VIDEO_INFO;
+
+  mbi.vbe_mode         = mode;
+  mbi.vbe_interface_seg = (pmif >> 16) & 0xFFFF;
+  mbi.vbe_interface_off =  pmif        & 0xFFFF;
+  mbi.vbe_interface_len = pmif_len;
+}
+
+
+
 void __cdecl
 auxil()
 {
@@ -1088,6 +1360,7 @@ void __cdecl
 KernelLoader(void far *filetbl)
 {
     unsigned long int fSize;
+    int i;
     // unsigned short int word1,word2;
     // struct SREGS segs;
     // int rc;
@@ -1144,30 +1417,135 @@ KernelLoader(void far *filetbl)
 
     init_bios_info();
 
-    if (kernel_func("kickstart",0x2))
+/*
+    if (kernel_func("bootstrap -serial",0x2))
         printk("An error occured during execution of kernel_func");
 
-    if (module_func("ia32-kernel",0x2))
+    modaddr_func(0x02000000);
+
+    if (module_func("fiasco -nokdb -nowait -serial_esc -comspeed 115200 -comport 1",0x2))
         printk("An error occured during execution of module_func");
 
     if (module_func("sigma0",0x2))
         printk("An error occured during execution of module_func");
 
+    if (module_func("roottask -errorstop task sigma0 boot_priority 0xA0 task roottask boot_priority 0xA0 task modname \"pingpong\" allow_cli",0x2))
+        printk("An error occured during execution of module_func");
+
     if (module_func("pingpong",0x2))
         printk("An error occured during execution of module_func");
+ */
+
+    if (kernel_func("/l4/rmgr -sigma0 -serial -comport=1 task modname \"bmodfs\" module module module module module task modname \"l4dope\" boot_priority 0xA8",0x2))
+        printk("An error occured during execution of kernel_func");
+
+    modaddr_func(0x02000000);
+
+    if (module_func("/l4/fiasco -nokdb -nowait -serial_esc -comspeed 115200 -comport 1",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/sigma0",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/names",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/log --prio 0xA1 --buffer 0",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/dm_phys",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/simple_ts -t 380",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/l4io --noirq",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/bmodfs",0x2))
+        printk("An error occured during execution of module_func");
+
+       if (module_func("/l4/libloader.s.so",0x2))
+           printk("An error occured during execution of module_func");
+
+       if (module_func("/l4/run.bmodfs.cfg",0x2))
+           printk("An error occured during execution of module_func");
+
+       if (module_func("/l4/run",0x2))
+           printk("An error occured during execution of module_func");
+
+       if (module_func("/l4/con_demo1",0x2))
+           printk("An error occured during execution of module_func");
+
+       if (module_func("/l4/con_demo2",0x2))
+           printk("An error occured during execution of module_func");
+
+       if (module_func("/l4/con_demo3",0x2))
+           printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/l4exec",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/l4con --l4io",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("/l4/loader --fprov=BMODFS run.bmodfs.cfg con_demo1 con_demo2 con_demo3",0x2))
+        printk("An error occured during execution of module_func");
+
+    vbeset_func("0x111",0x2);
+
+/*
+    if (kernel_func("l4\\mgr -sigma0 -serial",0x2))
+        printk("An error occured during execution of kernel_func");
+
+    modaddr_func(0x02000000);
+
+    if (module_func("l4\\fiasco -nokdb -nowait -serial_esc -comspeed 115200 -comport 1",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("l4\\sigma0",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("l4\\pingpong",0x2))
+        printk("An error occured during execution of module_func");
+ */
+
+/*
+    if (kernel_func("l4ka\\kickstart",0x2))
+        printk("An error occured during execution of kernel_func");
+
+    if (module_func("l4ka\\ia32-kernel",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("l4ka\\sigma0",0x2))
+        printk("An error occured during execution of module_func");
+
+    if (module_func("l4ka\\pingpong",0x2))
+        printk("An error occured during execution of module_func");
+ */
 
     freeldr_term();
 
     if (mbi.mmap_length)
         mbi.flags |= MB_INFO_MEM_MAP;
 
-    if (boot_func("kickstart",0x2))
-        printk("An error occured during execution of boot_func");
-
-    printk("(4) mbi.mem_lower = %u", mbi.mem_lower);
-    printk("(4) mbi.mem_upper = %u", mbi.mem_upper);
-
     printk("mbi.flags = %08lx", mbi.flags);
+
+    printk("mbi.mem_lower = %lu", mbi.mem_lower);
+    printk("mbi.mem_upper = %lu", mbi.mem_upper);
+
+    printk("mbi.boot_device = 0x%08lx", mbi.boot_device);
+    printk("mbi.cmdline     = 0x%08lx", (mbi.cmdline));
+
+    printk("mbi.mods_count = %lu", mbi.mods_count);
+    printk("mbi.mods_addr  = 0x%08lx", mbi.mods_addr);
+
+    for (i = 0; i < mbi.mods_count; i++) {
+      printk("(%u): mod_start = 0x%08lx", i + 1, (((struct mod_list far *) FP_FROM_PHYS (mbi.mods_addr)) + i)->mod_start);
+      printk("(%u): mod_end = 0x%08lx",   i + 1, (((struct mod_list far *) FP_FROM_PHYS (mbi.mods_addr)) + i)->mod_end);
+      printk("(%u): cmdline = 0x%08lx",   i + 1, ((((struct mod_list far *) FP_FROM_PHYS (mbi.mods_addr)) + i)->cmdline));
+    }
+
     printk("mbi.mmap_length = %lu", mbi.mmap_length);
 }
 

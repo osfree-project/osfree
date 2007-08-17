@@ -43,7 +43,7 @@ unsigned long extended_memory;
 
 struct apm_info apm_bios_info = {0, 0, 0, 0, 0, 0, 0, 0};
 unsigned short far io_map[IO_MAP_SIZE + 1];
-unsigned long boot_drive = 0;
+//unsigned long boot_drive = 0;
 unsigned long install_partition = 0xFFFFFF;
 
 /*
@@ -54,7 +54,7 @@ unsigned long install_partition = 0xFFFFFF;
 
 #ifndef STAGE1_5
 
-/*
+
 char *err_list[] =
 {
   [ERR_NONE] = 0,
@@ -97,7 +97,7 @@ char *err_list[] =
   [ERR_WRITE] = "Disk write error",
   [ERR_BADMODADDR] = "Bad modaddr",
 };
- */
+
 
 /* static for BIOS memory map fakery */
 static struct AddrRangeDesc fakemap[3] =
@@ -143,7 +143,7 @@ mmap_avail_at (unsigned long bottom)
   if (top > 0xFFFFFFFF)
     top = 0xFFFFFFFF;
 
-  return (unsigned long) top - bottom;
+  return (unsigned long) (top - bottom);
 }
 #endif /* ! STAGE1_5 */
 
@@ -192,7 +192,7 @@ init_bios_info (void)
   mbi.mmap_length = 0;
   cont = 0;
 
-  printk("addr0 (from get_code_end) = %08lx", addr0);
+  printk("addr0 (from get_code_end) = 0x%08lx", addr0);
 
   do
     {
@@ -292,12 +292,12 @@ init_bios_info (void)
       unsigned short far *port;
 
       /* Get the geometry. This ensures that the drive is present.  */
-      if (get_diskinfo (drive, MK_FP(current_seg, &geom)))
-        break;
+      //if (get_diskinfo (drive, MK_FP(current_seg, &geom)))
+      //  break;
 
       /* Clean out the I/O map.  */
       printk("freeldr_memset() #1: clean out the I/O map");
-      freeldr_memset (MK_FP(current_seg, io_map), 0,
+      freeldr_memset (io_map, 0,
                    IO_MAP_SIZE * sizeof (unsigned short));
 
       /* Disable to probe I/O ports temporarily, because this doesn't
@@ -321,7 +321,7 @@ init_bios_info (void)
            addr = (void far *) FP_FROM_PHYS(addr0))
         *((unsigned short far *) addr) = *port;
 
-      info->size = addr0 - (unsigned long) info;
+      info->size = addr0 - (unsigned long) PHYS_FROM_FP(info);
       mbi.drives_length += info->size;
     }
 
@@ -341,7 +341,7 @@ init_bios_info (void)
    *  Initialize other Multiboot Info flags.
    */
 
-  mbi.flags = (MB_INFO_MEMORY | MB_INFO_BOOTDEV // | MB_INFO_CMDLINE
+  mbi.flags = (MB_INFO_MEMORY | MB_INFO_BOOTDEV | MB_INFO_CMDLINE
                | MB_INFO_DRIVE_INFO | MB_INFO_CONFIG_TABLE
                | MB_INFO_BOOT_LOADER_NAME);
 
@@ -351,20 +351,20 @@ init_bios_info (void)
 #endif /* STAGE1_5 */
 
   /* Set boot drive and partition.  */
-  saved_drive = boot_drive;                // !!!
-  saved_partition = install_partition;     // !!!
+  //saved_drive = boot_drive;                // !!!
+  //saved_partition = install_partition;     // !!!
 
   /* Set cdrom drive.  */
-  {
-    struct geometry geom;
+  //{
+    //struct geometry geom;
 
     /* Get the geometry.  */
-    if (get_diskinfo (boot_drive, MK_FP(current_seg, &geom))
-        || ! (geom.flags & BIOSDISK_FLAG_CDROM))
-      cdrom_drive = GRUB_INVALID_DRIVE;
-    else
-      cdrom_drive = boot_drive;            // !!!
-  }
+    //if (get_diskinfo (boot_drive, MK_FP(current_seg, &geom))
+    //    || ! (geom.flags & BIOSDISK_FLAG_CDROM))
+    //  cdrom_drive = GRUB_INVALID_DRIVE;
+    //else
+    //  cdrom_drive = boot_drive;            // !!!
+  //}
 
   printk("mbi.flags = 0x%08lx", mbi.flags);
   /* Start main routine here.  */

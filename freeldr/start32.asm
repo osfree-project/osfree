@@ -15,16 +15,15 @@ _TEXT           segment word  public 'CODE'     USE16
 _TEXT           ends
 _DATA           segment word  public 'DATA'     USE16
 _DATA           ends
-CONST           segment word  public 'DATA '    USE16
-CONST           ends
-_BSS            segment word  public 'BSS'      USE16
-_BSS            ends
-_STACK          segment dword public 'STACK'    use16
-_STACK          ends
+
 _TEXT32         segment word  public 'CODE'     USE32
 _TEXT32         ends
+_DATA32         segment word  public 'DATA'     USE32
+_DATA32         ends
 
-DGROUP group _TEXT,_DATA,CONST,_BSS,_STACK,_TEXT32
+
+DGROUP   group _TEXT,_DATA
+DGROUP32 group _TEXT32,_DATA32
 assume cs:DGROUP, ds:DGROUP
 
 _TEXT32 SEGMENT WORD PUBLIC 'CODE' USE32
@@ -59,13 +58,13 @@ protected proc far
         mov  ldr_base, ebx                  ;
 
         ; Output string to video buffer
-        lea  esi, pm_msg                    ; message
-        mov  edi, 0B8000h                   ; Video buffer base
-        mov  ecx, pm_msg_len                ; message length
+        lea  esi, pm_msg                     ; message
+        mov  edi, 0B8000h                    ; Video buffer base
+        mov  ecx, pm_msg_len                 ; message length
 msg_move:
         mov  al, byte ptr [esi]
-        mov  byte ptr es:[edi], al          ; symbol
-        mov  byte ptr es:[edi + 1], 3       ; attribute
+        mov  byte ptr es:[edi], al           ; symbol
+        mov  byte ptr es:[edi + 1], 3        ; attribute
         inc  esi
         inc  edi
         inc  edi

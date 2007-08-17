@@ -14,6 +14,8 @@ extrn   mbi:BYTE
 extrn   entry_addr:FAR
 extrn   protected:FAR
 
+public  go_protected
+
 public  muOpen, muRead, muClose, muTerminate
 public  Int12Value, Int1588Value
 public  current_seg
@@ -135,28 +137,30 @@ gd_reg            dtr <>
 
 _DATA ENDS
 
-FREELDR_STACK_SIZE equ 2FFAh           ; 12 Kbytes
+FREELDR_STACK_SIZE equ 2AFCh           ; < 12 Kbytes
 
 _TEXT           segment word  public 'CODE'     USE16
 _TEXT           ends
 _DATA           segment word  public 'DATA'     USE16
 _DATA           ends
+CONST           segment word  public 'DATA'     USE16
+CONST           ends
+CONST2          segment word  public 'DATA'     USE16
+CONST2          ends
 freeldrc13_DATA segment word  public 'FAR_DATA' use16
 freeldrc13_DATA ends
 common13_DATA   segment word  public 'FAR_DATA' use16
 common13_DATA   ends
-CONST           segment word  public 'DATA '    USE16
-CONST           ends
-CONST2          segment word  public 'DATA'     USE16
-CONST2          ends
+
+_TEXT32         segment word  public 'CODE'     USE32
+_TEXT32         ends
+_DATA32         segment word  public 'DATA'     USE32
+_DATA32         ends
+
 _BSS            segment word  public 'BSS'      USE16
 _BSS            ends
 _STACK          segment dword public 'STACK'    use16
 _STACK          ends
-_TEXT32         segment word  public 'CODE'   USE32
-_TEXT32         ends
-_DATA32         segment word  public 'DATA'   USE32
-_DATA32         ends
 
 ;
 ; Stack is dword-aligned, so, buffer[] array is also
@@ -168,7 +172,8 @@ _freeldr_stack_bottom   db    FREELDR_STACK_SIZE dup (?)
 _freeldr_stack_top      label byte
 _STACK  ends
 
-DGROUP  group _TEXT,_DATA,CONST,CONST2,_BSS,_STACK,_TEXT32,_DATA32
+DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS
+DGROUP32 group _TEXT32,_DATA32
 assume  DS:DGROUP,CS:DGROUP,SS:DGROUP
 
 _TEXT   SEGMENT WORD PUBLIC 'CODE' USE16
@@ -624,9 +629,9 @@ go_protected proc near
         mov  cr0, eax
 
         ; jmp 0x20:protected
-        db   0eah               ; jmp command opcode
-        dw   offset protected   ; offset
-        dw   20h                ; selector
+        db   0eah                      ; jmp command opcode
+        dw   offset DGROUP:protected   ; offset
+        dw   20h                       ; selector
 go_protected endp
 
 

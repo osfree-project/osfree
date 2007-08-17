@@ -20,10 +20,10 @@ ADD_COPT   = -od -s $(DEFINES) -i=.
 ADD_ASMOPT =
 
 STARTUP    =
-ALL        = freeldra.$(O) cmodel.$(O) segread.$(O) &
+ALL        = freeldra.$(O) start32.$(O) cmodel.$(O) segread.$(O) &
              strcpy.$(O) freeldrc.$(O) periphs.$(O) io.$(O) i4m.$(O) &
              video.$(O) vsprintf.$(O) common.$(O) biosinfo.$(O) &
-             apm.$(O) bios.$(O) start32.$(O)
+             apm.$(O) vbe.$(O) bios.$(O)
 
 OBJS       = $(STARTUP) $(ALL)
 
@@ -31,17 +31,16 @@ OBJS       = $(STARTUP) $(ALL)
 
 all: os2ldr
 
-os2ldr: os2ldr.exe
+os2ldr: os2ldr.com
  $(SAY) Making $^@ ... $(LOG)
  @$(RN) $< $^@ $(LOG)
- $(MKBIN) $< $^@ $(LOG)
+ #$(MKBIN) $< $^@ $(LOG)
 
-os2ldr.exe: $(OBJS)
+os2ldr.com: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk SYSTEM dos
+ @%append $^&.lnk SYSTEM dos com
  @%append $^&.lnk OPTION MAP=$^&.map
  @%append $^&.lnk OPTION NODEFAULTLIBS
- @%append $^&.lnk OPTION verbose
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk ALIAS segread_=_segread
  @%append $^&.lnk ALIAS _DispNTS=DispNTS
@@ -72,6 +71,11 @@ os2ldr.exe: $(OBJS)
  @%append $^&.lnk ALIAS _biosdisk_standard=biosdisk_standard
  @%append $^&.lnk ALIAS _biosdisk_int13_extensions=biosdisk_int13_extensions
  @%append $^&.lnk ALIAS apm_bios_info=_apm_bios_info
+ @%append $^&.lnk ALIAS reset_vbe_mode_=reset_vbe_mode
+ @%append $^&.lnk ALIAS get_vbe_controller_info_=get_vbe_controller_info
+ @%append $^&.lnk ALIAS get_vbe_mode_info_=get_vbe_mode_info
+ @%append $^&.lnk ALIAS set_vbe_mode_=set_vbe_mode
+ @%append $^&.lnk ALIAS get_vbe_pmif_=get_vbe_pmif
  @%append $^&.lnk LIBRARY $(LIBC)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
