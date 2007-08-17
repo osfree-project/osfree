@@ -11,12 +11,12 @@ ADD_ASMOPT = $(DEFINES)
 
 !ifeq UNIX FALSE
 
-DIR        = bootseq\boot\mbr
+DIR        = bootseq\bootsec\mbr
 MYDIR      = $(ROOT)\$(DIR)
 
 !else
 
-DIR        = bootseq/boot/mbr
+DIR        = bootseq/bootsec/mbr
 MYDIR      = $(ROOT)/$(DIR)
 
 !endif
