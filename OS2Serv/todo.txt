@@ -1,0 +1,12 @@
+Idea is folowing:
+
+1. os2server parses CONFIG.SYS and build environment. Stataments like
+   BASEDEF, DEVICE and IFS must be ignored because drivers moved to
+   Neutral Personality
+2. After config.sys parsing finished os2server must execute task pointed
+   by PROTSHELL environment variable.
+3. os2server must provide interface for all or most of kernel depended
+   OS/2 API functions. Functions, which can be implemented on personality
+   level must be implemented on personality level. Direct calls from OS/2
+   Personality to servers not allowed. Only possible things is calling to
+   os2server which will forward calls to real servers.
