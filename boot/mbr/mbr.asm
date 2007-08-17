@@ -83,19 +83,27 @@ probeLba:
                 mov  bx, 55aah                             ; (probe if LBA is available)
                 int  13h
 
-                jc   use_chs
+                jc   short use_chs
                 cmp  bx, 0aa55h
-                jnz  use_chs
-
+                jnz  short use_chs
+                cmp  ah, 21h                               ; is EDD 1.1 supported?
+                jb   short use_chs                         ;
                 and  cx, 1                                 ; check bit 0 of cx register,
-                jz   use_chs                               ; if set then int13 ext disk read
+                jz   short use_chs                         ; if set then int13 ext disk read
                                                            ; functions are supported
 use_lba:
+.386
+                mov  eax, 58333149h                        ; i13X
                 mov  bl, 0
-                jmp  switchBootDrv
+                jmp  short switchBootDrv
 use_chs:
+                xor  eax, eax
                 mov  bl, 1
 switchBootDrv:
+                push 03000h
+                pop  fs
+                mov  fs:[0], eax
+.286
                 mov  byte ptr es:UseCHS, bl
                 ; dl      --> drive we booted from (set by BIOS when control is given to MBR code)
                 ; BootDev --> drive to continue booting from (set in MBR sector field)
@@ -516,5 +524,9 @@ BootSeg ends
 
 NewSeg segment at 60h
 NewSeg ends
+
+;InfoSeg segment at 3000h
+;I13XFlag        dd  ?
+;InfoSeg ends
 
        end start
