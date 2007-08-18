@@ -10,14 +10,14 @@
 
 ADD_COPT   = -i=. -i=..\..\..\include
 ADD_ASMOPT = -i=. -i=..\..\..\include
-DIR        = uFSD\dos3ldr
+DIR        = bootseq\uFSD\dos3ldr
 MYDIR      = $(ROOT)\$(DIR)
 
 !else
 
 ADD_COPT   = -i=. -i=../../../include
 ADD_ASMOPT = -i=. -i=../../../include
-DIR        = uFSD/dos3ldr
+DIR        = bootseq/uFSD/dos3ldr
 MYDIR      = $(ROOT)/$(DIR)
 
 !endif

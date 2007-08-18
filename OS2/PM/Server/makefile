@@ -11,7 +11,7 @@ ROOT=..\..\..
 32_BITS  = 1
 PROJ=FreePM
 OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
-       Fs_hab.$(O) Fs_main.$(O) Fs_pipe.$(O) Fs_PMdev.$(O) &
+       Fs_hab.$(O) Fs_main.$(O) Fs_pipe.$(O) &
        Fs_queue.$(O) Fs_wnd.$(O) F_debug.$(O) F_DeskTop.$(O) &
        F_errors.$(O) &
 
@@ -29,11 +29,13 @@ LINKOPT=lib pm_server.lib lib gdlib.lib
 
 !include ../../../mk/all.mk
 
+DIRS=drivers
 
 #defines files mask for clean target
 CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym
 
 all: $(PROJ).exe .SYMBOLIC
+   $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 $(PROJ).exe: $(OBJS)
  @%create $^&.lnk

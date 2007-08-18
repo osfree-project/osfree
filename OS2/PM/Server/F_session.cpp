@@ -16,16 +16,22 @@
 
 #include "F_globals.hpp"
 #include "Fs_globals.hpp"
+#include "Fs_driver.h"
 #include <gd.h>
 /* Creates a palette-based image (up to 256 colors). */
 /*gdImagePtr gdImageCreate(int sx, int sy);*/
 
 /*int initGD(int DimX, int DimY);*/
 int initGD(int DimX, int DimY) {
-	return (int)gdImageCreate(DimX, DimY);
+        return (int)gdImageCreate(DimX, DimY);
 }
 
-extern void /*_Optlink*/ FPM_PMWinStart(void *param);
+
+void _FPM_PMWinStart(void *param)
+{
+ debug(7, 0) ("Call FPM_DeviceStart\n");
+  FPM_DeviceStart(param);
+}
 
 int FreePM_session::AddDesktop(int _dev_type, int nx, int ny, int bytesPerPixel,  struct WinPresParam * pp)
 {  int i;
@@ -76,9 +82,9 @@ static int params[4];
       pDesktop->pVBuffmem = (int *) initGD(nx,  ny);
  /* start separate thread for PM window */
       params[0] = (int)pDesktop;
-      params[1] = (int) pDesktop->pVBuffmem;
+      params[1] = (int)pDesktop->pVBuffmem;
       params[2] = 0;
-      id = _beginthread(FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)&params[0]);
+      id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)&params[0]);
          break;
       case  FPM_DEV_PMWIN_DIR:
  debug(7, 0) ("WARNING:FreePM_session::InitDevice device PMWIN_DIR not yet supported\n");
@@ -87,7 +93,7 @@ static int params[4];
  debug(7, 0) ("FreePM_session::InitDevice SERVERMEM\n", _dev_type);
       pDesktop->GetPar(nx, ny, bytes_PerPixel);
       /*rc = initGD( nx,  ny);*/
-	  pDesktop->pVBuffmem = (int *) initGD(nx,  ny);
+          pDesktop->pVBuffmem = (int *) initGD(nx,  ny);
  debug(7, 0) ("WARNING:FreePM_session::InitDevice device SERVERMEM not yet supported\n");
          break;
       default:

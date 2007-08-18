@@ -2,7 +2,7 @@
  $Id: Fs_config.cpp,v 1.1 2003/06/15 17:45:47 evgen2 Exp $
 */
 /* Fs_config.cpp */
-/* Server config: write/read and analyze client's ini file
+/* Server config: write/read and analyze server's ini file
 */
 #include <stdio.h>
 #include <stdlib.h>

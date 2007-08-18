@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//Things marked as 'temporary' need to resolve. For now no messages from
+//hardware.
+
 #define POKA 0
 
 /* Includes to use OS/2 PM. */
@@ -26,8 +30,8 @@
 /*+---------------------------------+*/
 /*| External function prototypes.   |*/
 /*+---------------------------------+*/
-extern "C" int _DeskTopSendQueue(void *pDClass, QMSG  *qmMsg);
-extern "C" int  QueryThreadOrdinal(int &tid);
+//temporary extern "C" int _DeskTopSendQueue(void *pDClass, QMSG  *qmMsg);
+//temporary extern "C" int  QueryThreadOrdinal(int &tid);
 
 /*+---------------------------------+*/
 /*| Internal function prototypes.   |*/
@@ -37,7 +41,9 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
    MPARAM mpParm1,
    MPARAM mpParm2 ) ;
 
-void /*_Optlink*/ FPM_PMWinStart(void *param);
+
+extern "C" void APIENTRY FPM_PMWinStart(void *param);
+
 LONG *GetVideoConfig(HDC hdc);
 int ErrInfoMsg2(char *str);
 int open_Vbuff(RECTL rclRect);
@@ -52,12 +58,12 @@ extern HPS     hpsDrawBMPBuffer = NULLHANDLE;
 static HDC     hdcBMP =  NULLHANDLE;
 static HWND    hwndFrame;
 static HWND    hwndClient;
-static int     MainThreadOrdinal;
+//temporary static int     MainThreadOrdinal;
 static int     *pVBuffmem = NULL;
 //extern class VideoPowerPresentation videopres;
-extern const char *const _FreePM_Application_Name;
+//extern const char *const _FreePM_Application_Name;
 
-void /*_Optlink*/ FPM_PMWinStart(void *param)
+void APIENTRY FPM_PMWinStart(void *param)
 {
    //HMQ         hmqQueue;
    //ULONG       ulFlags;
@@ -77,7 +83,7 @@ void /*_Optlink*/ FPM_PMWinStart(void *param)
 
       pib->pib_ultype = 3;
 //для справки  MainThreadOrdinal = ptib->tib_ordinal;
-   MainThreadOrdinal = QueryThreadOrdinal(tid);
+//temporary   MainThreadOrdinal = QueryThreadOrdinal(tid);
 //}
    pParams = (int *)param;
    pDesktop  = (void *)pParams[0];
@@ -125,8 +131,8 @@ void /*_Optlink*/ FPM_PMWinStart(void *param)
                           NULLHANDLE,
                           0,
                           0 ) ;
-        if(qmMsg.hwnd == hwndClient)  /* translate only client messages */
-                _DeskTopSendQueue(pDesktop, &qmMsg);
+//temporary        if(qmMsg.hwnd == hwndClient)  /* translate only client messages */
+//temporary                _DeskTopSendQueue(pDesktop, &qmMsg);
       while ( bLoop ) {
          WinDispatchMsg ( habAnchor, &qmMsg ) ;
          bLoop = WinGetMsg ( habAnchor,
@@ -134,8 +140,8 @@ void /*_Optlink*/ FPM_PMWinStart(void *param)
                              NULLHANDLE,
                              0,
                              0 ) ;
-        if(qmMsg.hwnd == hwndClient)  /* translate only client messages */
-                _DeskTopSendQueue(pDesktop, &qmMsg);
+//temporary        if(qmMsg.hwnd == hwndClient)  /* translate only client messages */
+//temporary                _DeskTopSendQueue(pDesktop, &qmMsg);
       } /* endwhile */
 
       WinDestroyWindow ( hwndFrame ) ;
@@ -200,7 +206,7 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
    WinMessageBox( HWND_DESKTOP,    /* parent window handle    */
          HWND_DESKTOP,             /* owner window handle     */
          (PCSZ) mpParm1,           /* pointer to message text */
-         _FreePM_Application_Name, /* pointer to title text   */
+         "FreePM"/*_FreePM_Application_Name*/, /* pointer to title text   */
          0,                        /* message box identifier  */
          MB_OK | MB_ERROR |        /* message box style       */
          MB_SYSTEMMODAL );
@@ -225,7 +231,7 @@ int ErrInfoMsg(char *str)
    WinMessageBox( HWND_DESKTOP, /* parent window handle           */
          HWND_DESKTOP,          /* owner window handle            */
          str,                   /* pointer to message text        */
-         _FreePM_Application_Name,             /* pointer to title text          */
+         "FreePM"/*_FreePM_Application_Name*/,             /* pointer to title text          */
          0,                     /* message box identifier for help*/
          MB_OK | MB_ERROR |/* message box style              */
          MB_SYSTEMMODAL );
@@ -238,9 +244,9 @@ int ErrInfoMsg2(char *str)
 {  int ordinal, tid;
 static char LastErrmsg[512];
 
-   ordinal =  QueryThreadOrdinal(tid);
-   if(ordinal == MainThreadOrdinal)
-        return  ErrInfoMsg(str);
+//temporary   ordinal =  QueryThreadOrdinal(tid);
+//temporary   if(ordinal == MainThreadOrdinal)
+//temporary        return  ErrInfoMsg(str);
    strcpy(LastErrmsg,str);
    WinAlarm( HWND_DESKTOP,    /* desktop window handle  */
         WA_ERROR );            /* type of alarm          */

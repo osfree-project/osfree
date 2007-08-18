@@ -14,6 +14,8 @@
 
 #include "F_globals.hpp"
 #include "Fs_globals.hpp"
+#include "Fs_driver.h"
+
 /*+---------------------------------+*/
 /*| Global variables                |*/
 /*+---------------------------------+*/
@@ -24,6 +26,8 @@ int _FreePM_detachedMode = 0;
    const char *const _FreePM_Application_Name;
    const char *const _FreePM_Application_Vers;
 */
+
+PFPM_DeviceStart_FN FPM_DeviceStart;
 
 /* debug support */
 int _FreePM_db_level    = 7;

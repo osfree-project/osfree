@@ -22,6 +22,7 @@
 #define F_INCL_DOSSEMAPHORES
 #define F_INCL_DOSNMPIPES
 #define F_INCL_DOSPROCESS
+#define F_INCL_DOSMODULEMGR
    #include "F_OS2.hpp"
 /*#include "FreePM_win.hpp" Maybe Constants ? */
 #include "FreePM_winConstants.hpp"
@@ -33,10 +34,12 @@
   #undef FREEPMS_HPS
 #include "F_hab.hpp"
 #include "Fs_config.hpp"
+#include "Fs_driver.h"
 
 #include <sys/time.h>
 #include "F_utils.hpp"
 /* #include "snprintf.h" */
+
 
 /*+---------------------------------+*/
 /*| External function prototypes.   |*/
@@ -112,7 +115,9 @@ void /*_Optlink*/  Fs_ClientWork( void * /* *param */);
 
 
 int main(int narg, char *arg[], char *envp[])
-{  int i,j,rc;
+{
+  int i,j,rc;
+  HMODULE hDeviceLib;
 
 
 /* semaphore setup */
@@ -147,6 +152,22 @@ int main(int narg, char *arg[], char *envp[])
 /* init debug again */
     _db_init(_FreePMconfig.Log.log, FPMs_config.debugOptions);
 
+/* load device driver */
+
+   debug(1, 0) ("Loading driver %s\n",FPMs_config.deviceName);
+
+   if (!DosLoadModule(NULL, 0, FPMs_config.deviceName, &hDeviceLib))
+   {
+     debug(1, 0) ("Moduole loaded\n");
+   if (DosQueryProcAddr(hDeviceLib, 0, "FPM_DeviceStart",
+                        (PFN*)&FPM_DeviceStart)
+       ) {
+     debug(1, 0) ("Error loading driver\n");
+     exit(1);
+   };
+     debug(1, 0) ("Address found\n");
+
+   }
 
 /* init pipes  */
 

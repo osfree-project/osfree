@@ -18,7 +18,7 @@
 #endif
 
 #define MAKEULONG(l, h)  ((ULONG)(((USHORT)(l)) | ((ULONG)((USHORT)(h))) << 16))
-#define MAKEP(sel, off)  ((PVOID)MAKEULONG(off, sel))
+//#define MAKEP(sel, off)  ((PVOID)MAKEULONG(off, sel))
 
 //#define MAKEP(sel, off)  MK_FP(sel, off)
 
