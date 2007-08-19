@@ -1,25 +1,21 @@
 >1 Commit changes to repository
-   < Enter name and password
    @cls
    @set lang=en_US
    @cls
    @SET SVN_EDITOR=tedit.exe
    @cd ..
-   @svn commit osfree --username %3 --password %4
+   @svn commit osfree
 >1 Show diff
-   < Введите имя и пароль
    @cls
    @set lang=ru_Ru
    @cd ..
-   @svn diff osfree --username %3 --password %4
+   @svn diff osfree > current-diff.diff
 >1 Update working copy
-   < Enter name and password
    @cls
    @set lang=ru_Ru
    @svn up
 >1 Check out changes
-   < Введите имя и пароль
    @cls
    @set lang=ru_Ru
    @cd ..
-   @svn checkout https://osfree.svn.sourceforge.net/svnroot/osfree --username %3 --password %4
+   @svn checkout https://osfree.svn.sourceforge.net/svnroot/osfree
