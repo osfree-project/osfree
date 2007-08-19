@@ -13,6 +13,6 @@ mcopy -D overwrite os2ldr d:/
 cd img
 qemu -hda hd10megdlx.img -hdb disk.img -hdc os3-ext2-lilo.img >\dev\nul 2>&1
 rem qemu -hda hd10megdlx.img -hdb disk.img -hdc hdd-orig.img >\dev\nul 2>&1
-cd \var\src\os2\boot\freeldr
+cd \var\src\os2\svn\osfree\bootseq\freeldr
 
 :end

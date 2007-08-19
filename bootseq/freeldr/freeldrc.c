@@ -42,7 +42,8 @@ static char far *mb_cmdline;
 
 // Multiboot info structure
 struct multiboot_info mbi;
-static struct mod_list far mll[99];
+static struct mod_list mll1[99];
+struct mod_list far *mll;
 
 // hardcoded now
 unsigned long boot_drive = 0x80;
@@ -527,8 +528,8 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
 {
     /* presuming that MULTIBOOT_SEARCH is large
        enough to encompass an executable header */
-    //unsigned char far buffer1[MULTIBOOT_SEARCH]; // far pointer
-    unsigned char far *buffer1 = MK_FP(0x3000, 0x0); // far pointer
+    unsigned char far buffer1[MULTIBOOT_SEARCH]; // far pointer
+    //unsigned char far *buffer1 = MK_FP(0x7000, 0x0); // far pointer
     unsigned long buffer;                        // physical address of the buffer
 
     unsigned long size, chunk = LOAD_CHUNK_SIZE;
@@ -558,8 +559,8 @@ load_image (char far *kernel, char far *arg, kernel_t suggested_type,
 
     buffer = PHYS_FROM_FP(buffer1);
 
-    //printk("buffer1 = 0x%04X:0x%04X", FP_SEG(buffer1), FP_OFF(buffer1));
-    //printk("buffer  = 0x%08lX", buffer);
+    printk("buffer1 = 0x%04X:0x%04X", FP_SEG(buffer1), FP_OFF(buffer1));
+    printk("buffer  = 0x%08lX", buffer);
 
     //printk("suggested_type = %u", suggested_type);
 
@@ -1081,7 +1082,10 @@ load_module (char far *module, char far *arg)
 
     /* these two simply need to be set if any modules are loaded at all */
     mbi.flags |= MB_INFO_MODS;
+    mll = MK_FP(current_seg, mll1);
     mbi.mods_addr = (unsigned long) PHYS_FROM_FP (mll);
+
+    //printk("--- mll = 0x%08lx", (unsigned long) mll);
 
     //mll[mbi.mods_count].cmdline = (int) arg;
     mll[mbi.mods_count].cmdline = (unsigned long) PHYS_FROM_FP (arg);
@@ -1270,7 +1274,7 @@ vbeset_func (char far *arg, long flags)
     return 1;
 
   /* Preset `VBE2'.  */
-  freeldr_memmove (controller.signature, "VBE2", 4);
+  freeldr_memmove (MK_FP(current_seg, controller.signature), "VBE2", 4);
 
   /* Detect VBE BIOS.  */
   if (get_vbe_controller_info (PHYS_FROM_NP(current_seg, &controller)) != 0x004F)
@@ -1435,9 +1439,11 @@ KernelLoader(void far *filetbl)
     if (module_func("pingpong",0x2))
         printk("An error occured during execution of module_func");
  */
-
-    if (kernel_func("/l4/rmgr -sigma0 -serial -comport=1 task modname \"bmodfs\" module module module module module task modname \"l4dope\" boot_priority 0xA8",0x2))
+/*
+    if (kernel_func("/l4/rmgr -sigma0 -serial -comport=1 task modname \"bmodfs\" module module module module module task modname \"l4dope\" boot_priority 0xA8",0x2)) {
         printk("An error occured during execution of kernel_func");
+        goto EndLdr;
+    }
 
     modaddr_func(0x02000000);
 
@@ -1493,9 +1499,9 @@ KernelLoader(void far *filetbl)
         printk("An error occured during execution of module_func");
 
     vbeset_func("0x111",0x2);
-
+ */
 /*
-    if (kernel_func("l4\\mgr -sigma0 -serial",0x2))
+    if (kernel_func("l4\\rmgr -sigma0 -serial",0x2))
         printk("An error occured during execution of kernel_func");
 
     modaddr_func(0x02000000);
@@ -1510,19 +1516,19 @@ KernelLoader(void far *filetbl)
         printk("An error occured during execution of module_func");
  */
 
-/*
-    if (kernel_func("l4ka\\kickstart",0x2))
+
+    if (kernel_func("/l4ka/kickstart",0x2))
         printk("An error occured during execution of kernel_func");
 
-    if (module_func("l4ka\\ia32-kernel",0x2))
+    if (module_func("/l4ka/ia32-kernel",0x2))
         printk("An error occured during execution of module_func");
 
-    if (module_func("l4ka\\sigma0",0x2))
+    if (module_func("/l4ka/sigma0",0x2))
         printk("An error occured during execution of module_func");
 
-    if (module_func("l4ka\\pingpong",0x2))
+    if (module_func("/l4ka/pingpong",0x2))
         printk("An error occured during execution of module_func");
- */
+
 
     freeldr_term();
 
@@ -1547,6 +1553,9 @@ KernelLoader(void far *filetbl)
     }
 
     printk("mbi.mmap_length = %lu", mbi.mmap_length);
+
+EndLdr:
+    {;}
 }
 
 void __STK(){}

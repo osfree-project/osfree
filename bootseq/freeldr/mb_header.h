@@ -98,11 +98,11 @@ struct multiboot_header
 #define MULTIBOOT_FOUND(addr, len) \
   (! ((addr) & 0x3) \
    && (len) >= 12 \
-   && *((unsigned long *) (addr)) == MULTIBOOT_MAGIC \
+   && *((long *) (addr)) == MULTIBOOT_MAGIC \
    && ! (*((unsigned long *) (addr)) + *((unsigned long *) (addr + 4)) \
          + *((unsigned long *) (addr + 8))) \
-   && (! (MULTIBOOT_AOUT_KLUDGE & *((unsigned long *) (addr + 4))) || (len) >= 32) \
-   && (! (MULTIBOOT_VIDEO_MODE & *((unsigned long *) (addr + 4))) || (len) >= 48))
+   && (! (MULTIBOOT_AOUT_KLUDGE & *((long *) (addr + 4))) || (len) >= 32) \
+   && (! (MULTIBOOT_VIDEO_MODE & *((long *) (addr + 4))) || (len) >= 48))
 
 
 /* Magic value identifying the multiboot_header.  */

@@ -210,6 +210,9 @@ start proc near
         cli
         mov  ss, ax
         mov  sp, offset DGROUP:_freeldr_stack_top
+        ;mov  ax, 2000h
+        ;mov  ss, ax
+        ;mov  sp, 0FFFCh
         sti
 
         lea  si, ds:STARTMSG
