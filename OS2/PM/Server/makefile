@@ -31,8 +31,6 @@ LINKOPT=lib pm_server.lib lib gdlib.lib
 
 DIRS=drivers
 
-#defines files mask for clean target
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym
 
 all: $(PROJ).exe .SYMBOLIC
    $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
@@ -43,9 +41,12 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION MAP=$^&.map
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
 
 .IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

@@ -5,11 +5,15 @@
    @SET SVN_EDITOR=tedit.exe
    @cd ..
    @svn commit osfree
->1 Show diff
+>1 Show file content diff
    @cls
    @set lang=ru_Ru
    @cd ..
    @svn diff osfree > current-diff.diff
+>1 Show files diff
+   @cls
+   @set lang=ru_Ru
+   @svn status > current-files-diff.diff
 >1 Update working copy
    @cls
    @set lang=ru_Ru

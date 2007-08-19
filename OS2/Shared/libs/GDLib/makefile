@@ -3,16 +3,14 @@
 # Makefile for common shared libs
 
 
-!include ../../../build.conf
-!include ../../../mk/site.mk
-
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include -dHAVE_LIBJPEG -dHAVE_LIBPNG 
+ADD_COPT = -i=..\include -dHAVE_LIBJPEG -dHAVE_LIBPNG
 
-!include ../../../mk/all.mk
+!include $(%ROOT)/mk/all.mk
 
 
 

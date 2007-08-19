@@ -4,12 +4,12 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+!include ../../../../build.conf
+!include ../../../../mk/site.mk
 
-DIRS = shared cpi pm
+DIRS = pmwindow
 
-!include $(%ROOT)/mk/all.mk
+!include ../../../../mk/all.mk
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

@@ -4,13 +4,13 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 # before build command line tools build "shared" libraries
 DIRS=zlib lpng jpeglib gdlib
 
-!include ../../mk/all.mk
+!include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
  $(MAKE) TARGET=$^@ subdirs

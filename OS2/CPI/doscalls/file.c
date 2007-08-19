@@ -1,13 +1,5 @@
 #include <osfree.h>
 
-// These functions are kernel-depended and implemented in KAL.DLL
-//APIRET APIENTRY DosClose(HFILE);
-//APIRET APIENTRY DosOpen(PCSZ,PHFILE,PULONG,ULONG,ULONG,ULONG,ULONG,PEAOP2);
-//APIRET APIENTRY DosRead(HFILE,PVOID,ULONG,PULONG);
-//APIRET APIENTRY DosWrite(HFILE,PVOID,ULONG,PULONG);
-//APIRET APIENTRY DosFindClose(HDIR);
-//APIRET APIENTRY DosFindFirst(PCSZ,PHDIR,ULONG,PVOID,ULONG,PULONG,ULONG);
-//APIRET APIENTRY DosFindNext(HDIR,PVOID,ULONG,PULONG);
 
 // Implementation of kernel-independed functions via kernel-depended functions
 

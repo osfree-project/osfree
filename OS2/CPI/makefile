@@ -1,19 +1,21 @@
-# $Id: makefile,v 1.2 2004/08/16 04:51:17 prokushev Exp $
+#
+# A main Makefile for OS/3 boot sequence project
+# (c) osFree project,
+# valerius, 2006/10/30
+#
 
-ROOT=..\..
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-# Add other targets here upon their maturity
-DLLS=shared msg nls sesmgr kbdcalls moucalls quecalls viocalls #doscalls
+DIRS = shared msg nls sesmgr kbdcalls moucalls quecalls viocalls doscalls kal
 
-all
- $(SAY) Building Control Programming Interface
- @for %%i in ($(DLLS)) do @cd %%i&$(MAKE) $(MAKEFLAGS)&cd ..
+!include $(%ROOT)/mk/all.mk
 
-clean
- $(SAY) Cleaning Control Programming Interface
- @for %%i in ($(DLLS)) do @cd %%i&$(MAKE) $(MAKEFLAGS) clean&cd ..
- @cd shared
- -@del *.obj $(LOG)
- -@del *.err $(LOG)
- @cd ..
+all: .SYMBOLIC
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

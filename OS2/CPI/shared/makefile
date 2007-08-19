@@ -1,15 +1,22 @@
-# $Id: makefile,v 1.2 2004/08/16 04:51:22 prokushev Exp $
+#  Makefile for shared objects
 #
+#  osFree project, 2007, prokushev
 
-ROOT=..\..\..
-!include $(ROOT)\makefile.inc
 
-all: stub.obj
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-# Clean all
+32_BITS  = 1
 
-clean: .symbolic
- -@del *.obj $(LOG)
- -@del *.sbr $(LOG)
- -@del *.map $(LOG)
- -@del *.err $(LOG)
+OBJS = stub.$(O)
+
+ADD_COPT=-bm -od -mf -sg -d2 -mf
+
+!include $(%ROOT)/mk/all.mk
+
+all: $(OBJS)
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

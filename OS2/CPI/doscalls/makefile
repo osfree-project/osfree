@@ -1,5 +1,5 @@
 #
-# A Makefile for nls.dll
+# A Makefile for ANSI
 # (c) osFree project,
 # author, date
 #
@@ -9,8 +9,8 @@
 
 32_BITS  = 1
 DIR      = $(ROOT)\bin\os2\dll
-PROJ     = nls
-DESC     = National Language Support API
+PROJ     = doscalls
+DESC     = Control Programm API
 OBJS     = ..\shared\stub.obj
 ADD_COPT = -i=..\include
 LINKOPT  = lib os2386.lib lib clib3r.lib
@@ -30,23 +30,15 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.map
  @%append $^&.lnk import
- @%append $^&.lnk   DOSCASEMAP DOSCALLS.391,
- @%append $^&.lnk   DOSGETCOLLATE DOSCALLS.392,
- @%append $^&.lnk   DOSGETCTRYINFO DOSCALLS.393,
- @%append $^&.lnk   DOSGETDBCSEV DOSCALLS.394,
- @%append $^&.lnk   DosQueryCtryInfo DOSCALLS.395,
- @%append $^&.lnk   DosQueryDBCSEnv DOSCALLS.396,
- @%append $^&.lnk   DosMapCase DOSCALLS.397,
- @%append $^&.lnk   DosQueryCollate DOSCALLS.398
+ @%append $^&.lnk   DosClose      KAL.1,
+ @%append $^&.lnk   DosOpen       KAL.2,
+ @%append $^&.lnk   DosRead       KAL.3,
+ @%append $^&.lnk   DosWrite      KAL.4,
+ @%append $^&.lnk   DosFindClose  KAL.5,
+ @%append $^&.lnk   DosFindFirst  KAL.6,
+ @%append $^&.lnk   DosFindNext   KAL.7
  @%append $^&.lnk export
- @%append $^&.lnk   DOSCASEMAP.1,
- @%append $^&.lnk   DOSGETCOLLATE.2,
- @%append $^&.lnk   DOSGETCTRYINFO.3,
- @%append $^&.lnk   DOSGETDBCSEV.4,
- @%append $^&.lnk   DosQueryCtryInfo.5,
- @%append $^&.lnk   DosQueryDBCSEnv.6,
- @%append $^&.lnk   DosMapCase.7,
- @%append $^&.lnk   DosQueryCollate.8
+ @%append $^&.lnk   DosClose.1   # WARNING! This is a stub!!! Not real export!
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)

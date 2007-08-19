@@ -1,0 +1,12 @@
+        DOSCALLS design and implementation (draft).
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DOSCALLS in modern OS/2 contains implementation of all (or most) Control
+Program API. Many other DLLs just forwarders to DOSCALLS. We also uses
+such logic. Only difference is DOSCALLS not lowest library. DOSCALLS
+also divided onto two libs. DOSCALLS itself, which contains kernel independed
+parts, and KAL library, which contains kernel depended part. For osFree
+project KAL just forward all calls to OS/2 Personality server and recieves
+answer from it with call result. Such approach allow to port CPI to other
+kernel easely, because kernel-depended part cleary divided into
+separate layer.

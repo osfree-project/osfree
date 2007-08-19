@@ -1,28 +1,34 @@
-# $Id: makefile,v 1.3 2004/08/16 04:51:22 prokushev Exp $
+#
+# A Makefile for viocalls.dll
+# (c) osFree project,
+# prokushev, 2007
+#
 
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-DIR = $(ROOT)\bin\os2\dll
-PROJ = viocalls
-DESC = Video API
-OBJS = ..\shared\stub.obj
+32_BITS  = 1
+DIR      = $(ROOT)\bin\os2\dll
+PROJ     = viocalls
+DESC     = Video API
+OBJS     = ..\shared\stub.obj
 ADD_COPT = -i=..\include
+LINKOPT  = lib os2386.lib lib clib3r.lib
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
+all: $(PROJ).dll .SYMBOLIC
 
-$(DIR)\$(PROJ).dll: $(OBJS)
+$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk name      $(DIR)\$(PROJ).dll
+ @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initglobal
- @%append $^&.lnk option    map
  @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk LIBRARY $(LINKLIB)
+ @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION MAP=$^&.map
  @%append $^&.lnk import
  @%append $^&.lnk   VIOENDPOPUP          DOSCALLS.770,
  @%append $^&.lnk   VIOGETPHYSBUF        DOSCALLS.771,
@@ -175,17 +181,14 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @%append $^&.lnk   XVIOCREATECA.74,
  @%append $^&.lnk   VIOCHECKCHARTYPE.75,
  @%append $^&.lnk   XVIOGETCASTATE.76
- @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
- $(SAY) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
 
-# Clean all
+install: .SYMBOLIC
+ $(CP) $(PROJ).exe ..$(SEP)bin
 
-clean: .symbolic
- -@del *.obj $(LOG)
- -@del *.sbr $(LOG)
- -@del *.map $(LOG)
- -@del *.err $(LOG)
- -@del *.wmp $(LOG)
- -@del *.lnk $(LOG)
- -@del *.sym $(LOG)
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
