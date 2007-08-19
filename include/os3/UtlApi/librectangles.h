@@ -11,6 +11,10 @@
 #include <os2def.h>
 #endif
 
+#ifdef __cplusplus
+      extern "C" {
+#endif
+
 BOOL APIENTRY RectCopy(PRECTL prclDst, PRECTL prclSrc);
 
 BOOL APIENTRY RectSet(PRECTL prcl, LONG xLeft, LONG yBottom,
@@ -37,10 +41,13 @@ BOOL APIENTRY RectUnion(PRECTL prclDst, PRECTL prclSrc1,
 BOOL APIENTRY RectSubtract(PRECTL prclDst, PRECTL prclSrc1,
                               PRECTL prclSrc2);
 
-/* what with them??
+// what with them??
 BOOL APIENTRY RectMakeRect(PRECTL pwrc);
 
 BOOL APIENTRY RectMakePoints(PPOINTL pwpt, ULONG cwpt);
-*/
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif /* _RectAPI_LIBRECTANGLES_H_ */

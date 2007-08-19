@@ -19,6 +19,9 @@
 #include <os2.h>
 #endif
 
+#ifdef INCL_UTLAPI
+  #include "utlapi.h"
+#endif
 
 /* Missed in OpenWatcom definitions */
 #include "mis_basemid.h"

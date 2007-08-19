@@ -1,3 +1,24 @@
+- implemented
+
+³ 05127 ³    0:32    ³ 4:000FE804, Exp, Shr, (WinCopyRect)
+³ 05173 ³    0:32    ³ 4:000FE6D8, Exp, Shr, (WinEqualRect)
+³ 05200 ³    0:32    ³ 4:000FF294, Exp, Shr, (WinInflateRect)
+³ 05203 ³    0:32    ³ 4:000FE758, Exp, Shr, (WinIntersectRect)
+³ 05209 ³    0:32    ³ 4:0010C8D0, Exp, Shr, (WinIsRectEmpty)
+³ 05239 ³    0:32    ³ 4:000FF2B4, Exp, Shr, (WinOffsetRect)
+³ 05248 ³    0:32    ³ 4:000FF2D4, Exp, Shr, (WinPtInRect)
+³ 05364 ³    0:32    ³ 4:00107E40, Exp, Shr, (WinSetRect)
+³ 05365 ³    0:32    ³ 4:0013A058, Exp, Shr, (WinSetRectEmpty)
+³ 05391 ³    0:32    ³ 4:000FE598, Exp, Shr, (WinSubtractRect)
+³ 05402 ³    0:32    ³ 4:001153E4, Exp, Shr, (WinUnionRect)
+
+- stubs:
+
+³ 05230 ³    0:32    ³ 4:000FE590, Exp, Shr, (WinMakeRect)
+³ 05229 ³    0:32    ³ 4:0015A93C, Exp, Shr, (WinMakePoints)
+
+- not implemented:
+
 Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
 Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
 Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
@@ -1201,7 +1222,6 @@
 ³ 05124 ³    0:32    ³ 4:001486D0, Exp, Shr, (WinCloseClipbrd)
 ³ 05125 ³    0:32    ³ 4:00144200, Exp, Shr, (WinCompareStrings)
 ³ 05126 ³    0:32    ³ 4:0015364C, Exp, Shr, (WinCopyAccelTable)
-³ 05127 ³    0:32    ³ 4:000FE804, Exp, Shr, (WinCopyRect)
 ³ 05128 ³    0:32    ³ 4:001444B4, Exp, Shr, (WinCpTranslateChar)
 ³ 05129 ³    0:32    ³ 4:00159B60, Exp, Shr, (WinCpTranslateString)
 ³ 05130 ³    0:32    ³ 4:0015369C, Exp, Shr, (WinCreateAccelTable)
@@ -1247,7 +1267,6 @@
 ³ 05170 ³    0:32    ³ 4:000B9250, Exp, Shr, (WinEndProgram)
 ³ 05171 ³    0:32    ³ 4:00147B80, Exp, Shr, (WinEnumClipbrdFmts)
 ³ 05172 ³    0:32    ³ 4:000CA764, Exp, Shr, (WinEnumDlgItem)
-³ 05173 ³    0:32    ³ 4:000FE6D8, Exp, Shr, (WinEqualRect)
 ³ 05174 ³    0:32    ³ 4:001174B0, Exp, Shr, (WinExcludeUpdateRegion)
 ³ 05175 ³    0:32    ³ 4:0013233C, Exp, Shr, (WinExplodeWindow)
 ³ 05176 ³    0:32    ³ 4:0010C810, Exp, Shr, (WinFillRect)
@@ -1274,16 +1293,13 @@
 ³ 05197 ³    0:32    ³ 4:001440E8, Exp, Shr, (WinGetSysBitmap)
 ³ 05198 ³    0:32    ³ 4:000B91D8, Exp, Shr, (WinHAPPfromPID)
 ³ 05199 ³    0:32    ³ 4:000B91B0, Exp, Shr, (WinHSWITCHfromHAPP)
-³ 05200 ³    0:32    ³ 4:000FF294, Exp, Shr, (WinInflateRect)
 ³ 05201 ³    0:32    ³ 4:00141B08, Exp, Shr, (WinInitialize)
 ³ 05202 ³    0:32    ³ 4:0015DAC8, Exp, Shr, (WinInSendMsg)
-³ 05203 ³    0:32    ³ 4:000FE758, Exp, Shr, (WinIntersectRect)
 ³ 05204 ³    0:32    ³ 4:0011466C, Exp, Shr, (WinInvalidateRect)
 ³ 05205 ³    0:32    ³ 4:00144524, Exp, Shr, (WinInvalidateRegion)
 ³ 05206 ³    0:32    ³ 4:0015A8B0, Exp, Shr, (WinInvertRect)
 ³ 05207 ³    0:32    ³ 4:001085E0, Exp, Shr, (WinIsChild)
 ³ 05208 ³    0:32    ³ 4:0014C908, Exp, Shr, (WinIsPhysInputEnabled)
-³ 05209 ³    0:32    ³ 4:0010C8D0, Exp, Shr, (WinIsRectEmpty)
 ³ 05210 ³    0:32    ³ 4:00152218, Exp, Shr, (WinIsThreadActive)
 ³ 05211 ³    0:32    ³ 4:001114A8, Exp, Shr, (WinIsWindow)
 ³ 05212 ³    0:32    ³ 4:00144DA0, Exp, Shr, (WinIsWindowEnabled)
@@ -1303,8 +1319,6 @@
 ³ 05226 ³    0:32    ³ 4:001448C0, Exp, Shr, (WinLockPointerUpdate)
 ³ 05227 ³    0:32    ³ 4:00144724, Exp, Shr, (WinLockVisRegions)
 ³ 05228 ³    0:32    ³ 4:00111110, Exp, Shr, (WinLockWindowUpdate)
-³ 05229 ³    0:32    ³ 4:0015A93C, Exp, Shr, (WinMakePoints)
-³ 05230 ³    0:32    ³ 4:000FE590, Exp, Shr, (WinMakeRect)
 ³ 05231 ³    0:32    ³ 4:000CA720, Exp, Shr, (WinMapDlgPoints)
 ³ 05232 ³    0:32    ³ 4:00105C08, Exp, Shr, (WinMapWindowPoints)
 ³ 05233 ³    0:32    ³ 4:000C8228, Exp, Shr, (WinMessageBox)
@@ -1313,7 +1327,6 @@
 ³ 05236 ³    0:32    ³ 4:00162CD4, Exp, Shr, (WinMsgSemWait)
 ³ 05237 ³    0:32    ³ 4:00111894, Exp, Shr, (WinMultWindowFromIDs)
 ³ 05238 ³    0:32    ³ 4:0014A57C, Exp, Shr, (WinNextChar)
-³ 05239 ³    0:32    ³ 4:000FF2B4, Exp, Shr, (WinOffsetRect)
 ³ 05240 ³    0:32    ³ 4:00139490, Exp, Shr, (WinOpenClipbrd)
 ³ 05241 ³    0:32    ³ 4:00144E1C, Exp, Shr, (WinOpenWindowDC)
 ³ 05242 ³    0:32    ³ 4:00102D98, Exp, Shr, (WinPeekMsg)
@@ -1322,7 +1335,6 @@
 ³ 05245 ³    0:32    ³ 4:00152EF0, Exp, Shr, (WinPostQueueMsg)
 ³ 05246 ³    0:32    ³ 4:0014A520, Exp, Shr, (WinPrevChar)
 ³ 05247 ³    0:32    ³ 4:000CA574, Exp, Shr, (WinProcessDlg)
-³ 05248 ³    0:32    ³ 4:000FF2D4, Exp, Shr, (WinPtInRect)
 ³ 05249 ³    0:32    ³ 4:0011BEA0, Exp, Shr, (WinQueryAccelTable)
 ³ 05250 ³    0:32    ³ 4:001531F4, Exp, Shr, (WinQueryAccelTableValue)
 ³ 05251 ³    0:32    ³ 4:0011740C, Exp, Shr, (WinQueryActiveWindow)
@@ -1438,8 +1450,6 @@
 ³ 05361 ³    0:32    ³ 4:00144894, Exp, Shr, (WinSetPointerOwner)
 ³ 05362 ³    0:32    ³ 4:00152FAC, Exp, Shr, (WinSetPointerPos)
 ³ 05363 ³    0:32    ³ 4:00120F44, Exp, Shr, (WinSetPresParam)
-³ 05364 ³    0:32    ³ 4:00107E40, Exp, Shr, (WinSetRect)
-³ 05365 ³    0:32    ³ 4:0013A058, Exp, Shr, (WinSetRectEmpty)
 ³ 05366 ³    0:32    ³ 4:0014D7CC, Exp, Shr, (WinSetSynchroMode)
 ³ 05367 ³    0:32    ³ 4:00147AC8, Exp, Shr, (WinSetSysClipbrdViewer)
 ³ 05368 ³    0:32    ³ 4:0015A3EC, Exp, Shr, (WinSetSysColors)
@@ -1465,7 +1475,6 @@
 ³ 05388 ³    0:32    ³ 4:001110CC, Exp, Shr, (WinStretchPointer)
 ³ 05389 ³    0:32    ³ 4:0011BEF0, Exp, Shr, (WinSubclassWindow)
 ³ 05390 ³    0:32    ³ 4:00153514, Exp, Shr, (WinSubstituteStrings)
-³ 05391 ³    0:32    ³ 4:000FE598, Exp, Shr, (WinSubtractRect)
 ³ 05392 ³    0:32    ³ 4:000B923C, Exp, Shr, (WinSwitchProgramRegister)
 ³ 05393 ³    0:32    ³ 4:000B9224, Exp, Shr, (WinSwitchToProgram)
 ³ 05394 ³    0:32    ³ 4:000B9264, Exp, Shr, (WinSwitchToProgram2)
@@ -1476,7 +1485,6 @@
 ³ 05399 ³    0:32    ³ 4:00120F8C, Exp, Shr, (WinTrackRect)
 ³ 05400 ³    0:32    ³ 4:0015D5F0, Exp, Shr, (WinTrackSeamless)
 ³ 05401 ³    0:32    ³ 4:00123228, Exp, Shr, (WinTranslateAccel)
-³ 05402 ³    0:32    ³ 4:001153E4, Exp, Shr, (WinUnionRect)
 ³ 05403 ³    0:32    ³ 4:00117460, Exp, Shr, (WinUpdateWindow)
 ³ 05404 ³    0:32    ³ 4:0014A634, Exp, Shr, (WinUpper)
 ³ 05405 ³    0:32    ³ 4:0014A5B4, Exp, Shr, (WinUpperChar)
@@ -1581,4 +1589,5 @@
 ³ 10019 ³    0:32    ³ 4:001616FC, Exp, Shr
 ³ 10020 ³    0:32    ³ 4:001165CC, Exp, Shr
 Ã 10021 Á    0:32    Á 4:001487A4, Exp, Shr
-À´Done
+
+À´Done
