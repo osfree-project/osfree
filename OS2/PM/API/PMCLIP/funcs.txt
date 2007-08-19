@@ -1,0 +1,39 @@
+Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
+Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
+Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
+À Processing file PMCLIP.DLL Ã Module type:   DLL
+Ã Required CPU:        i80386   Version:               2.02
+Ã Page size:             4096   Page shift:               1
+Ã Objects:                  4   Resources:                0
+Ã ObjTable offs:     000000C4   ResTable offs:     00000000
+Ã MapTable offs:     00000124   DirTable offs:     00000000
+Ã N-Res Names offs:  0000543A   N-Res Names size:  00000031
+Ã ImportProc offs:   00000588   EntryTable offs:   0000016E
+Ã Imported entries:         3   Debug info,b:             0
+Ã Start obj:EIP:   0:00000000   Stack obj:ESP:   0:00000000
+Ã Module name: pmclip
+Ã Description: PM/VDM Clipboard agent Library
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00000 Á pmclip
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Non-Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00000 ³ PM/VDM Clipboard agent Library
+Ã 00001 Á WIN16VDMCLIP
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Modules Table
+Ã Index Â Offs Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³ 00000 ³ PMMERGE
+³ 00002 ³ 00008 ³ DOSCALLS
+Ã 00003 Á 00017 Á PMGPI
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Procedures Table
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã -= Empty =-
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Module Entry Table
+Ã Index Â Entry Type Â Entry AttributesÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00001 Á   16:16    Á 2:0000, Exp, Shr
+À´Done

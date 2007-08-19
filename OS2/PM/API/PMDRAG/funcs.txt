@@ -1,0 +1,142 @@
+Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
+Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
+Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
+À Processing file PMDRAG.DLL Ã Module type:   DLL
+Ã Required CPU:        i80386   Version:               2.02
+Ã Page size:             4096   Page shift:               1
+Ã Objects:                  0   Resources:                0
+Ã ObjTable offs:     00000000   ResTable offs:     00000000
+Ã MapTable offs:     00000000   DirTable offs:     00000000
+Ã N-Res Names offs:  00000400   N-Res Names size:  000002C3
+Ã ImportProc offs:   000002F2   EntryTable offs:   000000CE
+Ã Imported entries:         1   Debug info,b:             0
+Ã Start obj:EIP:   0:00000000   Stack obj:ESP:   0:00000000
+Ã Module name: pmdrag
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00000 Á pmdrag
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Non-Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³ DRG16ACCESSDRAGINFO
+³ 00002 ³ DRG16ADDSTRHANDLE
+³ 00003 ³ DRG16ALLOCDRAGINFO
+³ 00004 ³ DRG16ALLOCDRAGTRANSFER
+³ 00005 ³ DRG16DELETEDRAGINFOSTRHANDLES
+³ 00006 ³ DRG16DELETESTRHANDLE
+³ 00007 ³ DRG16DRAG
+³ 00008 ³ DRG16FREEDRAGINFO
+³ 00009 ³ DRG16FREEDRAGTRANSFER
+³ 00010 ³ DRG16GETPS
+³ 00011 ³ DRG16POSTTRANSFERMSG
+³ 00012 ³ DRG16PUSHDRAGINFO
+³ 00013 ³ DRG16QUERYDRAGITEM
+³ 00014 ³ DRG16QUERYDRAGITEMCOUNT
+³ 00015 ³ DRG16QUERYDRAGITEMPTR
+³ 00016 ³ DRG16QUERYNATIVERMF
+³ 00017 ³ DRG16QUERYNATIVERMFLEN
+³ 00018 ³ DRG16QUERYSTRNAME
+³ 00019 ³ DRG16QUERYSTRNAMELEN
+³ 00020 ³ DRG16QUERYTRUETYPE
+³ 00021 ³ DRG16QUERYTRUETYPELEN
+³ 00022 ³ DRG16RELEASEPS
+³ 00023 ³ DRG16SENDTRANSFERMSG
+³ 00024 ³ DRG16SETDRAGPOINTER
+³ 00025 ³ DRG16SETDRAGIMAGE
+³ 00026 ³ DRG16SETDRAGITEM
+³ 00027 ³ DRG16VERIFYNATIVERMF
+³ 00028 ³ DRG16VERIFYRMF
+³ 00029 ³ DRG16VERIFYTRUETYPE
+³ 00030 ³ DRG16VERIFYTYPE
+³ 00031 ³ DRG16VERIFYTYPESET
+³ 00063 ³ DRG16DRAGFILES
+Ã 00064 Á DRG16ACCEPTDROPPEDFILES
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Modules Table
+Ã Index Â Offs Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00001 Á 00000 Á PMCTLS
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Procedures Table
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã -= Empty =-
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Module Entry Table
+Ã Index Â Entry Type Â Entry AttributesÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³  Forwarder ³ -> PMCTLS.41, (DRGACCESSDRAGINFO)
+³ 00002 ³  Forwarder ³ -> PMCTLS.42, (DRGADDSTRHANDLE)
+³ 00003 ³  Forwarder ³ -> PMCTLS.43, (DRGALLOCDRAGINFO)
+³ 00004 ³  Forwarder ³ -> PMCTLS.44, (DRGALLOCDRAGTRANSFER)
+³ 00005 ³  Forwarder ³ -> PMCTLS.45, (DRGDELETEDRAGINFOSTRHANDLES)
+³ 00006 ³  Forwarder ³ -> PMCTLS.46, (DRGDELETESTRHANDLE)
+³ 00007 ³  Forwarder ³ -> PMCTLS.47, (DRGDRAG)
+³ 00008 ³  Forwarder ³ -> PMCTLS.48, (DRGFREEDRAGINFO)
+³ 00009 ³  Forwarder ³ -> PMCTLS.49, (DRGFREEDRAGTRANSFER)
+³ 00010 ³  Forwarder ³ -> PMCTLS.50, (DRGGETPS)
+³ 00011 ³  Forwarder ³ -> PMCTLS.51, (DRGPOSTTRANSFERMSG)
+³ 00012 ³  Forwarder ³ -> PMCTLS.52, (DRGPUSHDRAGINFO)
+³ 00013 ³  Forwarder ³ -> PMCTLS.53, (DRGQUERYDRAGITEM)
+³ 00014 ³  Forwarder ³ -> PMCTLS.54, (DRGQUERYDRAGITEMCOUNT)
+³ 00015 ³  Forwarder ³ -> PMCTLS.55, (DRGQUERYDRAGITEMPTR)
+³ 00016 ³  Forwarder ³ -> PMCTLS.56, (DRGQUERYNATIVERMF)
+³ 00017 ³  Forwarder ³ -> PMCTLS.57, (DRGQUERYNATIVERMFLEN)
+³ 00018 ³  Forwarder ³ -> PMCTLS.58, (DRGQUERYSTRNAME)
+³ 00019 ³  Forwarder ³ -> PMCTLS.59, (DRGQUERYSTRNAMELEN)
+³ 00020 ³  Forwarder ³ -> PMCTLS.60, (DRGQUERYTRUETYPE)
+³ 00021 ³  Forwarder ³ -> PMCTLS.61, (DRGQUERYTRUETYPELEN)
+³ 00022 ³  Forwarder ³ -> PMCTLS.62, (DRGRELEASEPS)
+³ 00023 ³  Forwarder ³ -> PMCTLS.63, (DRGSENDTRANSFERMSG)
+³ 00024 ³  Forwarder ³ -> PMCTLS.64, (DRGSETDRAGPOINTER)
+³ 00025 ³  Forwarder ³ -> PMCTLS.65, (DRGSETDRAGIMAGE)
+³ 00026 ³  Forwarder ³ -> PMCTLS.66, (DRGSETDRAGITEM)
+³ 00027 ³  Forwarder ³ -> PMCTLS.67, (DRGVERIFYNATIVERMF)
+³ 00028 ³  Forwarder ³ -> PMCTLS.68, (DRGVERIFYRMF)
+³ 00029 ³  Forwarder ³ -> PMCTLS.69, (DRGVERIFYTRUETYPE)
+³ 00030 ³  Forwarder ³ -> PMCTLS.70, (DRGVERIFYTYPE)
+³ 00031 ³  Forwarder ³ -> PMCTLS.71, (DRGVERIFYTYPESET)
+³ 00032 ³  Forwarder ³ -> PMCTLS.74, (DrgAccessDraginfo)
+³ 00033 ³  Forwarder ³ -> PMCTLS.75, (DrgAddStrHandle)
+³ 00034 ³  Forwarder ³ -> PMCTLS.76, (DrgAllocDraginfo)
+³ 00035 ³  Forwarder ³ -> PMCTLS.77, (DrgAllocDragtransfer)
+³ 00036 ³  Forwarder ³ -> PMCTLS.78, (DrgDeleteDraginfoStrHandles)
+³ 00037 ³  Forwarder ³ -> PMCTLS.79, (DrgDeleteStrHandle)
+³ 00038 ³  Forwarder ³ -> PMCTLS.80, (DrgDrag)
+³ 00039 ³  Forwarder ³ -> PMCTLS.81, (DrgFreeDraginfo)
+³ 00040 ³  Forwarder ³ -> PMCTLS.82, (DrgFreeDragtransfer)
+³ 00041 ³  Forwarder ³ -> PMCTLS.83, (DrgGetPS)
+³ 00042 ³  Forwarder ³ -> PMCTLS.84, (DrgPostTransferMsg)
+³ 00043 ³  Forwarder ³ -> PMCTLS.85, (DrgPushDraginfo)
+³ 00044 ³  Forwarder ³ -> PMCTLS.86, (DrgQueryDragitem)
+³ 00045 ³  Forwarder ³ -> PMCTLS.87, (DrgQueryDragitemCount)
+³ 00046 ³  Forwarder ³ -> PMCTLS.88, (DrgQueryDragitemPtr)
+³ 00047 ³  Forwarder ³ -> PMCTLS.89, (DrgQueryNativeRMF)
+³ 00048 ³  Forwarder ³ -> PMCTLS.90, (DrgQueryNativeRMFLen)
+³ 00049 ³  Forwarder ³ -> PMCTLS.91, (DrgQueryStrName)
+³ 00050 ³  Forwarder ³ -> PMCTLS.92, (DrgQueryStrNameLen)
+³ 00051 ³  Forwarder ³ -> PMCTLS.93, (DrgQueryTrueType)
+³ 00052 ³  Forwarder ³ -> PMCTLS.94, (DrgQueryTrueTypeLen)
+³ 00053 ³  Forwarder ³ -> PMCTLS.95, (DrgReleasePS)
+³ 00054 ³  Forwarder ³ -> PMCTLS.96, (DrgSendTransferMsg)
+³ 00055 ³  Forwarder ³ -> PMCTLS.97, (DrgSetDragPointer)
+³ 00056 ³  Forwarder ³ -> PMCTLS.98, (DrgSetDragImage)
+³ 00057 ³  Forwarder ³ -> PMCTLS.99, (DrgSetDragitem)
+³ 00058 ³  Forwarder ³ -> PMCTLS.100, (DrgVerifyNativeRMF)
+³ 00059 ³  Forwarder ³ -> PMCTLS.101, (DrgVerifyRMF)
+³ 00060 ³  Forwarder ³ -> PMCTLS.102, (DrgVerifyTrueType)
+³ 00061 ³  Forwarder ³ -> PMCTLS.103, (DrgVerifyType)
+³ 00062 ³  Forwarder ³ -> PMCTLS.104, (DrgVerifyTypeSet)
+³ 00063 ³  Forwarder ³ -> PMCTLS.72, (DRGDRAGFILES)
+³ 00064 ³  Forwarder ³ -> PMCTLS.73, (DRGACCEPTDROPPEDFILES)
+³ 00065 ³  Forwarder ³ -> PMCTLS.105, (DrgDragFiles)
+³ 00066 ³  Forwarder ³ -> PMCTLS.106, (DrgAcceptDroppedFiles)
+³ 00067 ³  Forwarder ³ -> PMCTLS.284, (DrgLazyDrag)
+³ 00068 ³  Forwarder ³ -> PMCTLS.285, (DrgCancelLazyDrag)
+³ 00069 ³  Forwarder ³ -> PMCTLS.286, (DrgLazyDrop)
+³ 00070 ³  Forwarder ³ -> PMCTLS.287, (DrgQueryDraginfoPtr)
+³ 00071 ³  Forwarder ³ -> PMCTLS.288, (DrgQueryDraginfoPtrFromHwnd)
+³ 00072 ³  Forwarder ³ -> PMCTLS.289, (DrgQueryDraginfoPtrFromDragitem)
+³ 00073 ³  Forwarder ³ -> PMCTLS.290, (DrgQueryDragStatus)
+³ 00074 ³  Forwarder ³ -> PMCTLS.291, (DrgReallocDraginfo)
+³ 00075 ³  Forwarder ³ -> PMCTLS.107
+Ã 00076 Á  Forwarder Á -> PMCTLS.108
+À´Done

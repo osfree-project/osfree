@@ -1,0 +1,149 @@
+Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
+Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
+Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
+À Processing file PMBIDI.DLL Ã Module type:   DLL, Per-process Init, Per-process Term
+Ã Required CPU:        i80386   Version:               2.02
+Ã Page size:             4096   Page shift:               4
+Ã Objects:                  9   Resources:                0
+Ã ObjTable offs:     000000C4   ResTable offs:     00000000
+Ã MapTable offs:     0000019C   DirTable offs:     00000000
+Ã N-Res Names offs:  00002FE0   N-Res Names size:  0000054B
+Ã ImportProc offs:   00000586   EntryTable offs:   000001EE
+Ã Imported entries:         5   Debug info,b:             0
+Ã Start obj:EIP:   1:00000D50   Stack obj:ESP:   0:00000000
+Ã Module name: pmbidi
+Ã Description: @#IBM:14.081#@ OS/2 PM Bidirectional Language APIs. (C) Copyright 1993, 1998 IBM Corp.
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00000 Á pmbidi
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Non-Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00000 ³ @#IBM:14.081#@ OS/2 PM Bidirectional Language APIs. (C) Copyright 1993, 1998 IBM Corp.
+³ 00001 ³ PMBIDI_Initialize
+³ 00010 ³ WIN16SETLANGINFO
+³ 00011 ³ WIN16QUERYLANGINFO
+³ 00012 ³ WIN16SETKBDLAYER
+³ 00013 ³ WIN16QUERYKBDLAYER
+³ 00014 ³ WIN16SETLANGVIEWER
+³ 00015 ³ WIN16QUERYLANGVIEWER
+³ 00018 ³ WIN16SETPROCESSLANGINFO
+³ 00019 ³ WIN16QUERYPROCESSLANGINFO
+³ 00020 ³ Win32SetLangInfo
+³ 00021 ³ Win32QueryLangInfo
+³ 00022 ³ Win32SetKbdLayer
+³ 00023 ³ Win32QueryKbdLayer
+³ 00024 ³ Win32SetLangViewer
+³ 00025 ³ Win32QueryLangViewer
+³ 00030 ³ Win32SetProcessLangInfo
+³ 00031 ³ Win32QueryProcessLangInfo
+³ 00040 ³ GPI16SETBIDIATTR
+³ 00041 ³ GPI16QUERYBIDIATTR
+³ 00050 ³ Gpi32SetBidiAttr
+³ 00051 ³ Gpi32QueryBidiAttr
+³ 00060 ³ Bidi_QueryCp
+³ 00061 ³ BIDI_16QUERYCP
+³ 00101 ³ PMBIDI_Get_StdDlgLang_Setting
+³ 00102 ³ PMBIDI_16GET_STDDLGLANG_SETTING
+³ 00110 ³ PMBIDI_String_To_BinVal
+³ 00111 ³ PMBIDI_BinVal_To_String
+³ 00112 ³ PMBIDI_Keyword_To_BinVal
+³ 00113 ³ PMBIDI_Get_HelpBidi_Setting
+³ 00200 ³ NLS16CONVERTBIDISTRING
+³ 00201 ³ NLS16EDITSHAPE
+³ 00202 ³ NLS16INVERSESTRING
+³ 00203 ³ NLS16SHAPEBIDISTRING
+³ 00204 ³ NLS16CONVERTBIDINUMERICS
+³ 00205 ³ Nls32ConvertBidiString
+³ 00206 ³ Nls32EditShape
+³ 00207 ³ Nls32InverseString
+³ 00208 ³ Nls32ShapeBidiString
+³ 00209 ³ Nls32ConvertBidiNumerics
+³ 00306 ³ layout_object_create
+³ 00307 ³ layout_object_destroy
+³ 00308 ³ layout_object_transform
+³ 00309 ³ layout_object_editshape
+³ 00310 ³ layout_object_setvalues
+³ 00311 ³ layout_object_getvalues
+³ 00400 ³ PMBIDI_16CP_TRANSLATE_STRING
+³ 00401 ³ PMBIDI_CpTranslateString
+³ 00450 ³ Bidi_MapSrcToTrg
+³ 00451 ³ Bidi_ClassifyCodepage
+³ 00452 ³ Bidi_IsStringBidi
+³ 00453 ³ Bidi_IsStringAllBidi
+³ 00454 ³ Bidi_ReverseString
+³ 00460 ³ Bidi_LayoutConvert
+³ 00461 ³ Bidi_LayoutEdit
+Ã 00999 Á ulProcess_BidiAttr
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Modules Table
+Ã Index Â Offs Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³ 00000 ³ BDCALL32
+³ 00002 ³ 00009 ³ DOSCALLS
+³ 00003 ³ 00018 ³ PMGPI
+³ 00004 ³ 00024 ³ PMWIN
+Ã 00005 Á 00030 Á PMMERGE
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Procedures Table
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã -= Empty =-
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Module Entry Table
+Ã Index Â Entry Type Â Entry AttributesÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³    0:32    ³ 1:00000DB4, Exp, Shr
+³ 00010 ³   16:16    ³ 2:0000, Exp, Shr
+³ 00011 ³   16:16    ³ 2:0008, Exp, Shr
+³ 00012 ³   16:16    ³ 2:0010, Exp, Shr
+³ 00013 ³   16:16    ³ 2:0018, Exp, Shr
+³ 00014 ³   16:16    ³ 2:0020, Exp, Shr
+³ 00015 ³   16:16    ³ 2:0028, Exp, Shr
+³ 00018 ³   16:16    ³ 2:0038, Exp, Shr
+³ 00019 ³   16:16    ³ 2:0030, Exp, Shr
+³ 00020 ³    0:32    ³ 1:00000000, Exp, Shr
+³ 00021 ³    0:32    ³ 1:000000B8, Exp, Shr
+³ 00022 ³    0:32    ³ 1:00000158, Exp, Shr
+³ 00023 ³    0:32    ³ 1:000001F0, Exp, Shr
+³ 00024 ³    0:32    ³ 1:00000274, Exp, Shr
+³ 00025 ³    0:32    ³ 1:0000030C, Exp, Shr
+³ 00030 ³    0:32    ³ 1:000003E8, Exp, Shr
+³ 00031 ³    0:32    ³ 1:0000039C, Exp, Shr
+³ 00040 ³   16:16    ³ 2:0040, Exp, Shr
+³ 00041 ³   16:16    ³ 2:0048, Exp, Shr
+³ 00050 ³    0:32    ³ 1:00000514, Exp, Shr
+³ 00051 ³    0:32    ³ 1:00000534, Exp, Shr
+³ 00060 ³    0:32    ³ 1:00000640, Exp, Shr
+³ 00061 ³   16:16    ³ 2:0050, Exp, Shr
+³ 00101 ³    0:32    ³ 1:0000132C, Exp, Shr
+³ 00102 ³   16:16    ³ 3:0000, Exp, Shr
+³ 00110 ³    0:32    ³ 1:00000EA0, Exp, Shr
+³ 00111 ³    0:32    ³ 1:000010B4, Exp, Shr
+³ 00112 ³    0:32    ³ 1:00000F90, Exp, Shr
+³ 00113 ³    0:32    ³ 1:00001408, Exp, Shr
+³ 00200 ³   16:16    ³ 2:0058, Exp, Shr
+³ 00201 ³   16:16    ³ 2:0060, Exp, Shr
+³ 00202 ³   16:16    ³ 2:0068, Exp, Shr
+³ 00203 ³   16:16    ³ 2:0070, Exp, Shr
+³ 00204 ³   16:16    ³ 2:0078, Exp, Shr
+³ 00205 ³    0:32    ³ 1:000007C4, Exp, Shr
+³ 00206 ³    0:32    ³ 1:00000898, Exp, Shr
+³ 00207 ³    0:32    ³ 1:00000964, Exp, Shr
+³ 00208 ³    0:32    ³ 1:00000A1C, Exp, Shr
+³ 00209 ³    0:32    ³ 1:00000AE8, Exp, Shr
+³ 00306 ³    0:32    ³ 1:00000BB4, Exp, Shr
+³ 00307 ³    0:32    ³ 1:00000BD0, Exp, Shr
+³ 00308 ³    0:32    ³ 1:00000BE8, Exp, Shr
+³ 00309 ³    0:32    ³ 1:00000C14, Exp, Shr
+³ 00310 ³    0:32    ³ 1:00000C3C, Exp, Shr
+³ 00311 ³    0:32    ³ 1:00000C58, Exp, Shr
+³ 00400 ³   16:16    ³ 2:0080, Exp, Shr
+³ 00401 ³    0:32    ³ 1:00000C74, Exp, Shr
+³ 00450 ³    0:32    ³ 1:000015AC, Exp, Shr
+³ 00451 ³    0:32    ³ 1:000015F0, Exp, Shr
+³ 00452 ³    0:32    ³ 1:00001674, Exp, Shr
+³ 00453 ³    0:32    ³ 1:0000175C, Exp, Shr
+³ 00454 ³    0:32    ³ 1:0000185C, Exp, Shr
+³ 00460 ³    0:32    ³ 1:000019B8, Exp, Shr
+³ 00461 ³    0:32    ³ 1:00001A28, Exp, Shr
+Ã 00999 Á    0:32    Á 5:00000000, Exp, Shr
+À´Done

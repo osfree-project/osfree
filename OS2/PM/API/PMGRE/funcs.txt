@@ -1,0 +1,190 @@
+Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
+Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
+Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
+À Processing file PMGRE.DLL Ã Module type:   DLL
+Ã Required CPU:        i80386   Version:               2.02
+Ã Page size:             4096   Page shift:               2
+Ã Objects:                  0   Resources:                0
+Ã ObjTable offs:     00000000   ResTable offs:     00000000
+Ã MapTable offs:     00000000   DirTable offs:     00000000
+Ã N-Res Names offs:  00000400   N-Res Names size:  000004B7
+Ã ImportProc offs:   0000035F   EntryTable offs:   000000CD
+Ã Imported entries:         2   Debug info,b:             0
+Ã Start obj:EIP:   0:00000000   Stack obj:ESP:   0:00000000
+Ã Module name: pmgre
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00000 Á pmgre
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Non-Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00003 ³ INNERGREENTRY
+³ 00004 ³ GREINITIALIZE
+³ 00012 ³ GREENTRY2
+³ 00013 ³ GREENTRY3
+³ 00014 ³ GREENTRY4
+³ 00015 ³ GREENTRY5
+³ 00016 ³ GREENTRY6
+³ 00017 ³ GREENTRY7
+³ 00018 ³ GREENTRY8
+³ 00019 ³ GREENTRY9
+³ 00020 ³ GREENTRY10
+³ 00030 ³ GETDRIVERINFO
+³ 00031 ³ SETDRIVERINFO
+³ 00032 ³ POSTDEVICEMODES
+³ 00034 ³ BITMAPLIMITWARNING
+³ 00037 ³ GETDRIVERINFO32
+³ 00038 ³ SETDRIVERINFO32
+³ 00039 ³ POSTDEVICEMODES32
+³ 00041 ³ POSTESCAPE32
+³ 00042 ³ PMWINGREENTRY2
+³ 00043 ³ PMWINGREENTRY3
+³ 00044 ³ PMWINGREENTRY4
+³ 00045 ³ PMWINGREENTRY5
+³ 00046 ³ PMWINGREENTRY6
+³ 00047 ³ PMWINGREENTRY7
+³ 00048 ³ PMWINGREENTRY8
+³ 00049 ³ PMWINGREENTRY9
+³ 00050 ³ PMWINGREENTRY10
+³ 00062 ³ GRE32ENTRY2
+³ 00063 ³ GRE32ENTRY3
+³ 00064 ³ GRE32ENTRY4
+³ 00065 ³ GRE32ENTRY5
+³ 00066 ³ GRE32ENTRY6
+³ 00067 ³ GRE32ENTRY7
+³ 00068 ³ GRE32ENTRY8
+³ 00069 ³ GRE32ENTRY9
+³ 00070 ³ GRE32ENTRY10
+³ 00072 ³ INNERGRE32ENTRY2
+³ 00073 ³ INNERGRE32ENTRY3
+³ 00074 ³ INNERGRE32ENTRY4
+³ 00075 ³ INNERGRE32ENTRY5
+³ 00076 ³ INNERGRE32ENTRY6
+³ 00077 ³ INNERGRE32ENTRY7
+³ 00078 ³ INNERGRE32ENTRY8
+³ 00079 ³ INNERGRE32ENTRY9
+³ 00080 ³ INNERGRE32ENTRY10
+³ 00100 ³ SSALLOCSEG
+³ 00101 ³ SSALLOCHUGE
+³ 00102 ³ SSFREESEG
+³ 00103 ³ SSFLUSHSEGS
+³ 00106 ³ SSALLOCMEM
+³ 00107 ³ SSFREEMEM
+³ 00200 ³ ENABLE_CALL_16
+³ 00201 ³ DEVMODE_CALL_16
+³ 00202 ³ DELETEBITMAP16CALL
+³ 00203 ³ PFN4R2
+³ 00204 ³ PFN5R2
+³ 00205 ³ PFN6R2
+³ 00206 ³ PFN7R2
+³ 00207 ³ PFN8R2
+³ 00208 ³ PFN9R2
+³ 00209 ³ PFN10R2
+³ 00210 ³ DEVNAME_CALL_16
+³ 00213 ³ DISPATCH16GATE3
+³ 00214 ³ DISPATCH16GATE4
+³ 00215 ³ DISPATCH16GATE5
+³ 00216 ³ DISPATCH16GATE6
+³ 00217 ³ DISPATCH16GATE7
+³ 00218 ³ DISPATCH16GATE8
+³ 00219 ³ DISPATCH16GATE9
+³ 00220 ³ DISPATCH16GATE10
+³ 00400 ³ RAMSEMREQUEST32
+³ 00401 ³ RAMSEMCLEAR32
+³ 00402 ³ RAMSEMREQUEST16
+³ 00403 ³ RAMSEMCLEAR16
+³ 00500 ³ GREMEMPTRS
+³ 00501 ³ GRENLS
+Ã 00510 Á SETDEVICESURFACE
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Modules Table
+Ã Index Â Offs Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³ 00000 ³ PMMERGE
+Ã 00002 Á 00008 Á SOFTDRAW
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Procedures Table
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã -= Empty =-
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Module Entry Table
+Ã Index Â Entry Type Â Entry AttributesÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00003 ³  Forwarder ³ -> PMMERGE.2035(INNERGREENTRY), (INNERGREENTRY)
+³ 00004 ³  Forwarder ³ -> PMMERGE.2036(GREINITIALIZE), (GREINITIALIZE)
+³ 00012 ³  Forwarder ³ -> PMMERGE.2037(GREENTRY2), (GREENTRY2)
+³ 00013 ³  Forwarder ³ -> PMMERGE.2038(GREENTRY3), (GREENTRY3)
+³ 00014 ³  Forwarder ³ -> PMMERGE.2039(GREENTRY4), (GREENTRY4)
+³ 00015 ³  Forwarder ³ -> PMMERGE.2040(GREENTRY5), (GREENTRY5)
+³ 00016 ³  Forwarder ³ -> PMMERGE.2041(GREENTRY6), (GREENTRY6)
+³ 00017 ³  Forwarder ³ -> PMMERGE.2042(GREENTRY7), (GREENTRY7)
+³ 00018 ³  Forwarder ³ -> PMMERGE.2043(GREENTRY8), (GREENTRY8)
+³ 00019 ³  Forwarder ³ -> PMMERGE.2044(GREENTRY9), (GREENTRY9)
+³ 00020 ³  Forwarder ³ -> PMMERGE.2045(GREENTRY10), (GREENTRY10)
+³ 00030 ³  Forwarder ³ -> PMMERGE.2046(GETDRIVERINFO), (GETDRIVERINFO)
+³ 00031 ³  Forwarder ³ -> PMMERGE.2047(SETDRIVERINFOTH), (SETDRIVERINFO)
+³ 00032 ³  Forwarder ³ -> PMMERGE.2048(POSTDEVICEMODES), (POSTDEVICEMODES)
+³ 00034 ³  Forwarder ³ -> PMMERGE.2049(BITMAPLIMITWARNING)
+³ 00037 ³  Forwarder ³ -> PMMERGE.5046(GetDriverInfo), (GetDriverInfo)
+³ 00038 ³  Forwarder ³ -> PMMERGE.5098(SetDriverInfo), (SetDriverInfo)
+³ 00039 ³  Forwarder ³ -> PMMERGE.5073(PostDeviceModes), (PostDeviceModes)
+³ 00041 ³  Forwarder ³ -> PMMERGE.5460(PostEscape)
+³ 00042 ³  Forwarder ³ -> PMMERGE.2050(PMWINGREENTRY2), (PMWINGREENTRY2)
+³ 00043 ³  Forwarder ³ -> PMMERGE.2051(PMWINGREENTRY3), (PMWINGREENTRY3)
+³ 00044 ³  Forwarder ³ -> PMMERGE.2052(PMWINGREENTRY4), (PMWINGREENTRY4)
+³ 00045 ³  Forwarder ³ -> PMMERGE.2053(PMWINGREENTRY5), (PMWINGREENTRY5)
+³ 00046 ³  Forwarder ³ -> PMMERGE.2054(PMWINGREENTRY6), (PMWINGREENTRY6)
+³ 00047 ³  Forwarder ³ -> PMMERGE.2055(PMWINGREENTRY7), (PMWINGREENTRY7)
+³ 00048 ³  Forwarder ³ -> PMMERGE.2056(PMWINGREENTRY8), (PMWINGREENTRY8)
+³ 00049 ³  Forwarder ³ -> PMMERGE.2057(PMWINGREENTRY9), (PMWINGREENTRY9)
+³ 00050 ³  Forwarder ³ -> PMMERGE.2058(PMWINGREENTRY10), (PMWINGREENTRY10)
+³ 00062 ³  Forwarder ³ -> PMMERGE.5049(GreEntry2), (GreEntry2)
+³ 00063 ³  Forwarder ³ -> PMMERGE.5050(GreEntry3), (GreEntrY3)
+³ 00064 ³  Forwarder ³ -> PMMERGE.5051(GreEntry4), (GreEntrY4)
+³ 00065 ³  Forwarder ³ -> PMMERGE.5052(GreEntry5), (GreEntrY5)
+³ 00066 ³  Forwarder ³ -> PMMERGE.5053(GreEntry6), (GreEntrY6)
+³ 00067 ³  Forwarder ³ -> PMMERGE.5054(GreEntry7), (GreEntrY7)
+³ 00068 ³  Forwarder ³ -> PMMERGE.5055(GreEntry8), (GreEntry8)
+³ 00069 ³  Forwarder ³ -> PMMERGE.5056(GreEntry9), (GreEntry9)
+³ 00070 ³  Forwarder ³ -> PMMERGE.5048(GreEntry10), (GreEntry10)
+³ 00072 ³  Forwarder ³ -> PMMERGE.5060(InnerGreEntry2), (InnerGreEntry2)
+³ 00073 ³  Forwarder ³ -> PMMERGE.5061(InnerGreEntry3), (InnerGreEntry3)
+³ 00074 ³  Forwarder ³ -> PMMERGE.5062(InnerGreEntry4), (InnerGreEntry4)
+³ 00075 ³  Forwarder ³ -> PMMERGE.5063(InnerGreEntry5), (InnerGreEntry5)
+³ 00076 ³  Forwarder ³ -> PMMERGE.5064(InnerGreEntry6), (InnerGreEntry6)
+³ 00077 ³  Forwarder ³ -> PMMERGE.5065(InnerGreEntry7), (InnerGreEntry7)
+³ 00078 ³  Forwarder ³ -> PMMERGE.5066(InnerGreEntry8), (InnerGreEntry8)
+³ 00079 ³  Forwarder ³ -> PMMERGE.5067(InnerGreEntry9), (InnerGreEntry9)
+³ 00080 ³  Forwarder ³ -> PMMERGE.5059(InnerGreEntry10), (InnerGreEntry10)
+³ 00100 ³  Forwarder ³ -> PMMERGE.2059(SSALLOCSEG), (SSALLOCSEG)
+³ 00101 ³  Forwarder ³ -> PMMERGE.2060(SSALLOCHUGE), (SSALLOCHUGE)
+³ 00102 ³  Forwarder ³ -> PMMERGE.2061(SSFREESEG), (SSFREESEG)
+³ 00103 ³  Forwarder ³ -> PMMERGE.2062(SSFLUSHSEGS), (SSFLUSHSEGS)
+³ 00106 ³  Forwarder ³ -> PMMERGE.5104(SSAllocMem), (SSAllocMem)
+³ 00107 ³  Forwarder ³ -> PMMERGE.5105(SSFreeMem), (SSFreeMem)
+³ 00200 ³  Forwarder ³ -> PMMERGE.4010(ENABLE_CALL_16)
+³ 00201 ³  Forwarder ³ -> PMMERGE.4000(DEVMODE_CALL_16)
+³ 00202 ³  Forwarder ³ -> PMMERGE.4021(DELETEBITMAP16CALL)
+³ 00203 ³  Forwarder ³ -> PMMERGE.4015(PFN4R2)
+³ 00204 ³  Forwarder ³ -> PMMERGE.4016(PFN5R2)
+³ 00205 ³  Forwarder ³ -> PMMERGE.4017(PFN6R2)
+³ 00206 ³  Forwarder ³ -> PMMERGE.4018(PFN7R2)
+³ 00207 ³  Forwarder ³ -> PMMERGE.4019(PFN8R2)
+³ 00208 ³  Forwarder ³ -> PMMERGE.4020(PFN9R2)
+³ 00209 ³  Forwarder ³ -> PMMERGE.4014(PFN10R2)
+³ 00210 ³  Forwarder ³ -> PMMERGE.4001(DEVNAME_CALL_16)
+³ 00213 ³  Forwarder ³ -> PMMERGE.4003(DISPATCH16GATE3)
+³ 00214 ³  Forwarder ³ -> PMMERGE.4004(DISPATCH16GATE4)
+³ 00215 ³  Forwarder ³ -> PMMERGE.4005(DISPATCH16GATE5)
+³ 00216 ³  Forwarder ³ -> PMMERGE.4006(DISPATCH16GATE6)
+³ 00217 ³  Forwarder ³ -> PMMERGE.4007(DISPATCH16GATE7)
+³ 00218 ³  Forwarder ³ -> PMMERGE.4008(DISPATCH16GATE8)
+³ 00219 ³  Forwarder ³ -> PMMERGE.4009(DISPATCH16GATE9)
+³ 00220 ³  Forwarder ³ -> PMMERGE.4002(DISPATCH16GATE10)
+³ 00400 ³  Forwarder ³ -> PMMERGE.5097(RamSemRequest), (RamSemRequest)
+³ 00401 ³  Forwarder ³ -> PMMERGE.5096(RamSemClear), (RamSemClear)
+³ 00402 ³  Forwarder ³ -> PMMERGE.2063(RAMSEMREQUEST16), (RAMSEMREQUEST)
+³ 00403 ³  Forwarder ³ -> PMMERGE.2064(RAMSEMCLEAR16), (RAMSEMCLEAR)
+³ 00500 ³  Forwarder ³ -> PMMERGE.6200(GREMEMPTRS)
+³ 00501 ³  Forwarder ³ -> PMMERGE.6100(GRENLS)
+Ã 00510 Á  Forwarder Á -> PMMERGE.5108(SetDeviceSurface)
+À´Done

@@ -1,0 +1,41 @@
+Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
+Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
+Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
+À Processing file PMMLE.DLL Ã Module type:   DLL, Internal fixups applied
+Ã Required CPU:        i80386   Version:               2.02
+Ã Page size:             4096   Page shift:               1
+Ã Objects:                  0   Resources:                0
+Ã ObjTable offs:     00000000   ResTable offs:     00000000
+Ã MapTable offs:     00000000   DirTable offs:     00000000
+Ã N-Res Names offs:  00000200   N-Res Names size:  000000A1
+Ã ImportProc offs:   000000F2   EntryTable offs:   000000CD
+Ã Imported entries:         1   Debug info,b:             0
+Ã Start obj:EIP:   0:00000000   Stack obj:ESP:   0:00000000
+Ã Module name: pmmle
+Ã Description: (c) Copyright IBM Corp. 1981, 1989. All rights reserved. (c) Copyright Microsoft Corp. 1981, 1989.
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00000 Á pmmle
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Non-Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00000 ³ (c) Copyright IBM Corp. 1981, 1989. All rights reserved. (c) Copyright Microsoft Corp. 1981, 1989.
+³ 00001 ³ MLE_INITIALIZE
+³ 00002 ³ MULTILINEEDITPROC
+Ã 00003 Á BDMULTILINEEDITPROC
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Modules Table
+Ã Index Â Offs Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00001 Á 00000 Á PMCTLS
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Imported Procedures Table
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã -= Empty =-
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Module Entry Table
+Ã Index Â Entry Type Â Entry AttributesÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³  Forwarder ³ -> PMCTLS.31
+³ 00002 ³  Forwarder ³ -> PMCTLS.32
+Ã 00003 Á  Forwarder Á -> PMCTLS.33
+À´Done

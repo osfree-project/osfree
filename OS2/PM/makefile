@@ -2,14 +2,14 @@
 #  Handle makefiles in subdirs
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 
-!include ../../mk/all.mk
+!include $(%ROOT)/mk/all.mk
 
-DIRS=shared Client Server
+DIRS=shared Client Server API
 
 all: .SYMBOLIC
    $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

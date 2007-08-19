@@ -1,0 +1,39 @@
+Ъ[ lxLite ]ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДВ[ Version 1.3.3 ]ї
+Г Copyright 1996,97 by FRIENDS software     Г    All rights   ґ
+Г Copyright 2001,03 by Max Alekseyev        А     reserved    Щ
+А Processing file PMDDE.DLL Г Module type:   DLL
+Г Required CPU:        i80386   Version:               2.02
+Г Page size:             4096   Page shift:               1
+Г Objects:                  5   Resources:                1
+Г ObjTable offs:     000000C4   ResTable offs:     0000019C
+Г MapTable offs:     0000013C   DirTable offs:     00000000
+Г N-Res Names offs:  0000702C   N-Res Names size:  00000024
+Г ImportProc offs:   000008FA   EntryTable offs:   000001B3
+Г Imported entries:         3   Debug info,b:             0
+Г Start obj:EIP:   0:00000000   Stack obj:ESP:   0:00000000
+Г Module name: pmdde
+Г Description: PM/VDM DDE Library
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Resident Names Table
+Г Index В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г 00000 Б pmdde
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Non-Resident Names Table
+Г Index В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+і 00000 і PM/VDM DDE Library
+Г 00001 Б WIN16VDMDDE
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Imported Modules Table
+Г Index В Offs В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+і 00001 і 00000 і PMMERGE
+і 00002 і 00008 і DOSCALLS
+Г 00003 Б 00017 Б PMGPI
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Imported Procedures Table
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г -= Empty =-
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Module Entry Table
+Г Index В Entry Type В Entry AttributesДДДДДДДДДДДДДДДДДДДДД
+Г 00001 Б   16:16    Б 2:0000, Exp, Shr
+АґDone
