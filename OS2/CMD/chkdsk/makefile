@@ -4,23 +4,23 @@
 # author, date
 #
 
-ROOT=..\..\..
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include ../../../build.conf
+!include ../../../mk/site.mk
 
+ROOT=..$(SEP)..$(SEP)..
 32_BITS  = 1
 
 PROJ = chkdsk
-DIR = $(ROOT)\bin\os2
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
 DESC = CHKDSK front-end
 #defines object file names in format objname.$(O)
 OBJS = chkdsk.$(O)
 # defines additional options for C compiler
-ADD_COPT = -i=..\include
-ADD_LIB = cmd_shared.lib,all_shared.lib
+ADD_COPT = -i=..$(SEP)include
+ADD_LIB = ,cmd_shared.lib,all_shared.lib
 
-!include ../../mk/cmd.mk
+!include ../../../mk/cmd.mk
 
 #defines files mask for clean target
 CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym *.exe *.wmp
@@ -38,18 +38,10 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
-
-!ifeq UNIX FALSE
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..\bin
-
-!else
+ $(MAKE) install
 
 install: .SYMBOLIC
- $(CP) $(PROJ).exe ../bin
-
-!endif
+ $(CP) $(PROJ).exe $(DIR)
 
 .IGNORE
 clean: .SYMBOLIC

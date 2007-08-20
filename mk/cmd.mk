@@ -17,7 +17,7 @@ ASM_DEFS  = -d__OS2__ -d__WATCOM__
 #
 !ifdef 32_BITS
 COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. $(ADD_COPT)
-ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT)
+ASMOPT    = -bt=DOS $(ASM_DEFS)  $(ADD_ASMOPT)
 !else
 COPT      = -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. $(ADD_COPT)
 ASMOPT    = -bt=DOS -ms $(ASM_DEFS)  $(ADD_ASMOPT)
@@ -31,24 +31,34 @@ CC        = wcc386
 !else
 CC        = wcc
 !endif
+
 ASM       = wasm
 LINKER    = wlink
 LIB       = wlib
 MAKE      = wmake
 
 PC        = ppc386
+PCOPT     = -n -FE$(DIR) -Fu$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fl$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fi$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -FU.
 
-LINKOPT   = lib $(ROOT)\lib\cmd_shared.lib lib $(ROOT)\lib\all_shared.lib
+LINKOPT   = lib $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib lib $(ROOT)$(SEP)lib$(SEP)all_shared.lib
+LINKLIB   = $(ADD_LIB)
+LIBPATH   = $(%WATCOM)$(SEP)lib386;$(%WATCOM)$(SEP)lib386$(SEP)os2;$(%WATCOM)$(SEP)lib286;$(%WATCOM)$(SEP)lib286$(SEP)os2
+
+
+HC        = ipfc
+
+RC        = rc
+RCOPT=
+
+MC        = mkmsgf
+MAPSYM    = mapsym
 
 SED       = sed
 AWK       = awk
 DOX       = doxygen
 
-MC        = mkmsgf
 GENE2FS   = genext2fs
 SYS       = sys
-
-#.SUFFIXES: .o
 
 # A command to add a list of object
 # files to a linker script
@@ -106,13 +116,50 @@ CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 
 !endif
 
+.SUFFIXES:
+.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf
+
+.rc.res: .AUTODEPEND
+ $(RC) $(RCOPT) $<
+
 .c.$(O): .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
  $(CC) $(COPT) -fo=$^&.$(O) $< $(LOG)
 
+.cpp.obj: .AUTODEPEND
+ @echo Compiling $<
+ @$(CPP) $(CPPOPT) -fo=$^&.$(O) $< $(LOG)
+
 .asm.$(O): .AUTODEPEND
  $(SAY) Assembling $< $(LOG)
  $(ASM) $(ASMOPT) -fo=$^&.$(O) $< $(LOG)
+
+.pas.exe: .AUTODEPEND
+ @echo Compiling $<
+ @$(PC) $(PCOPT) $(PROJ)
+
+.asm.obj: .AUTODEPEND
+ @echo Assembling $<
+ @$(ASM) $(ASMOPT) $<
+
+.ipf.inf: .symbolic
+ $(SAY) Compiling $<
+ @$(HC) -i $< $@
+
+.exe: $(DIR)
+.exe.sym: .symbolic
+ $(SAY) Creating symbol file
+ @$(AWK) -f $(ROOT)$(SEP)tools$(SEP)bin$(SEP)mapsym.awk <$^&.wmp >$^&.map
+ @$(MAPSYM) $^&.map
+ #-@del $^&.map $^&.wmp $^@
+ #-@move $^&.sym $^@
+
+.dll: $(DIR)
+.dll.sym: .symbolic
+ @$(AWK) -f $(ROOT)$(SEP)tools$(SEP)bin$(SEP)mapsym.awk <$^&.wmp >$^&.map
+ @$(MAPSYM) $^&.map
+ #-@del $^&.map $^&.wmp $^@
+ #-@move $^&.sym $^@
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)

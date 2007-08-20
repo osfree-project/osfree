@@ -1,18 +1,18 @@
-          title     BCD32.ASM - 32-bit BCD utilities for 4OS32
-
-          page      ,80
-
-          comment   }
-
-          (C) Copyright 1992  Rex C. Conn
-          All Rights Reserved
-
-          Author:    Rex C. Conn
-
-          These 4DOS support routines provide BCD addition, subtraction,
-          multiplication, division, and modulo functions for 4DOS & 4OS2
-
-          } end description
+;          title     BCD32.ASM - 32-bit BCD utilities for 4OS32
+;
+;          page      ,80
+;
+;          comment   }
+;
+;          (C) Copyright 1992  Rex C. Conn
+;          All Rights Reserved
+;
+;          Author:    Rex C. Conn
+;
+;          These 4DOS support routines provide BCD addition, subtraction,
+;          multiplication, division, and modulo functions for 4DOS & 4OS2
+;
+;          } end description
 
         .386P
 

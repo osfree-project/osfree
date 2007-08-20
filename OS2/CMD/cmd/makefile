@@ -1,14 +1,25 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:10 prokushev Exp $
+#
+# A makefile for osFree command interpreter
+# (c) osFree project
+# author, date
+#
 
-ROOT=..\..\..
-!include $(ROOT)\makefile.inc
+!include ../../../build.conf
+!include ../../../mk/site.mk
+
+ROOT=..$(SEP)..$(SEP)..
+
+!include ../../../mk/cmd.mk
 
 # Add other targets here upon their maturity
-PARTS=shared cmd help keystack shralias option2 jpos2dll #vdm2os2
+DIRS = shared cmd help keystack shralias option2 jpos2dll #vdm2os2
 
-all
- @for %%i in ($(PARTS)) do @cd %%i&$(MAKE) $(MAKEFLAGS)&cd ..
+all: .SYMBOLIC
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
-clean
- @for %%i in ($(PARTS)) do @cd %%i&$(MAKE) $(MAKEFLAGS) clean&cd ..
-
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

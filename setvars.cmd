@@ -1,11 +1,12 @@
 @echo off
 
-set WATCOM=f:\dev\watcom
+set WATCOM=f:\dev\watcom15
 set FPPATH=f:\dev\pp
+set TOOLKIT=f:\os2tk45
 set ROOT=f:\var\src\os2\svn\osfree
 
 set TOOLS=%ROOT%\tools\bin
-set PATH=%WATCOM%\binp;%TOOLS%;%FPPATH%\bin\os2;%PATH%
+set PATH=%WATCOM%\binp;%TOOLS%;%FPPATH%\bin\os2;%TOOLKIT%\bin;%PATH%
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\os2
 set FINCLUDE=%WATCOM%\src\fortran
 set EDPATH=%WATCOM%\eddat

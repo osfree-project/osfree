@@ -1,3 +1,5 @@
+:userdoc.
+
 :h1 name=External.External Commands
 
 :p.
@@ -60,3 +62,5 @@ File and directory management&colon.
 :li.XCOPY
 :li.VMDISK
 :eul.
+
+:userdoc.

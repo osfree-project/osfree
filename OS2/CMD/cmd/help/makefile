@@ -1,15 +1,20 @@
 # $Id: makefile,v 1.2 2004/08/16 04:51:11 prokushev Exp $
 
-ROOT=..\..\..\..
+!include ../../../../build.conf
+!include ../../../../mk/site.mk
 
-DIR = $(ROOT)\bin\os2\nls\book
+ROOT = ..$(SEP)..$(SEP)..$(SEP)..
+
+DIR = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)book
 PROJ = cmdref
 PROJ2 = external
 
-!include $(ROOT)\makefile.inc
+!include ../../../../mk/cmd.mk
 
-all: $(DIR)\$(PROJ).inf $(DIR)\$(PROJ2).inf
+all: $(DIR)$(SEP)$(PROJ).inf $(DIR)$(SEP)$(PROJ2).inf
 
 # Clean target
-clean : .symbolic
-    @if exist *.inf @del /q *.inf $(LOG)
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

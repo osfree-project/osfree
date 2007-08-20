@@ -1,15 +1,18 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:12 prokushev Exp $
 #
 
-ROOT=..\..\..\..
-ADD_COPT = -i=..\include
-!include $(ROOT)\makefile.inc
+!include ../../../../build.conf
+!include ../../../../mk/site.mk
+
+ADD_COPT = -i=..$(SEP)include
+32_BITS  = 1
+
+!include ../../../../mk/cmd.mk
 
 all: istring.obj
 
 # Clean all
-
-clean: .symbolic
- -@del /q *.obj $(LOG)
- -@del /q *.err $(LOG)
-
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
