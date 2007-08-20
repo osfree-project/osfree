@@ -14,7 +14,7 @@ ADD_COPT = -i=..\include
 
 
 
-all: $(ROOT)\lib\lpng.lib
+all: $(ROOT)\lib\lpng.lib .SYMBOLIC
 
 OBJS =pngwtran.$(O) &
       pngwutil.$(O) &

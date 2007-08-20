@@ -18,10 +18,10 @@ ASM_DEFS  = -d__OS2__ -d__WATCOM__
 # a file which includes this file.
 #
 !ifdef 32_BITS
-COPT      = -q $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib $(ADD_COPT)
+COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT)
 !else
-COPT      = -q -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)
+COPT      = -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)
 ASMOPT    = -bt=DOS -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 !endif
 
@@ -41,10 +41,13 @@ LIB       = wlib
 MAKE      = wmake
 MAKEOPT   = -h
 
+PC        = ppc386
+
 SED       = sed
 AWK       = awk
 DOX       = doxygen
 
+MC        = mkmsgf
 GENE2FS   = genext2fs
 SYS       = sys
 

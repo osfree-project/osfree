@@ -36,13 +36,16 @@ LINKER    = wlink
 LIB       = wlib
 MAKE      = wmake
 
+PC        = ppc386
+
 LINKOPT   = lib $(ROOT)\lib\cmd_shared.lib lib $(ROOT)\lib\all_shared.lib
 
 SED       = sed
 AWK       = awk
 DOX       = doxygen
 
-GENE2FS    = genext2fs
+MC        = mkmsgf
+GENE2FS   = genext2fs
 SYS       = sys
 
 #.SUFFIXES: .o

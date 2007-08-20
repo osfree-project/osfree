@@ -14,7 +14,7 @@ ADD_COPT = -i=..\include
 
 
 
-all: $(ROOT)\lib\zlib.lib
+all: $(ROOT)\lib\zlib.lib .SYMBOLIC
 
 OBJS = adler32.obj compress.obj &
             deflate.obj infblock.obj &

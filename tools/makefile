@@ -8,7 +8,7 @@
 !include ../build.conf
 !include ../mk/site.mk
 
-DIRS = genext2fs zlib qemu-img ltools # libmmap
+DIRS = genext2fs zlib qemu-img ltools mkmsgf # libmmap
 
 !include ../mk/bootseq.mk
 

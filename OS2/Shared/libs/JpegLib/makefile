@@ -14,7 +14,7 @@ ADD_COPT = -i=..\include -dHAVE_LIBJPEG -dHAVE_LIBPNG
 
 
 
-all: $(ROOT)\lib\jpeglib.lib
+all: $(ROOT)\lib\jpeglib.lib .SYMBOLIC
 
 OBJS = wrppm.$(O) &
     wrtarga.$(O) &

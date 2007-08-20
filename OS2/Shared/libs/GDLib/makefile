@@ -14,7 +14,7 @@ ADD_COPT = -i=..\include -dHAVE_LIBJPEG -dHAVE_LIBPNG
 
 
 
-all: $(ROOT)\lib\gdlib.lib
+all: $(ROOT)\lib\gdlib.lib .SYMBOLIC
 
 OBJS = gd_jpeg.$(O) &
     gd_io_file.$(O) &

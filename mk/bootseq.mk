@@ -36,6 +36,8 @@ LINKER    = wlink
 LIB       = wlib
 MAKE      = wmake
 
+PC       = ppc386
+
 SED       = sed
 AWK       = awk
 DOX       = doxygen

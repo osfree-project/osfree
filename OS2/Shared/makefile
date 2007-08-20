@@ -15,7 +15,7 @@ DIRS = libs
 
 
 
-all: $(ROOT)\lib\all_shared.lib
+all: $(ROOT)\lib\all_shared.lib msg .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
