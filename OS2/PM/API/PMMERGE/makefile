@@ -10,8 +10,8 @@
 32_BITS  = 1
 PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
-OBJS     = rectangles.$(O)
-ADD_COPT = -i=..\include
+OBJS     = global.$(O) rectangles.$(O)
+ADD_COPT = -i=..$(SEP)include
 LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles
 DIRS     = rectangles
 
@@ -46,6 +46,14 @@ $(PROJ).dll: .symbolic
  @%append $^&.lnk   RectSubtract utlapi.11,
  @%append $^&.lnk   RectMakeRect utlapi.12,
  @%append $^&.lnk   RectMakePoints utlapi.13
+# PMClient communication library
+ @%append $^&.lnk   InitServerConnection pmclient.1,
+ @%append $^&.lnk   CloseServerConnection pmclient.2,
+ @%append $^&.lnk   _F_SendCmdToServer pmclient.3,
+ @%append $^&.lnk   _F_SendDataToServer pmclient.4,
+ @%append $^&.lnk   _F_RecvDataFromServer pmclient.5,
+ @%append $^&.lnk   _F_SendGenCmdToServer pmclient.6,
+ @%append $^&.lnk   _F_SendGenCmdDataToServer pmclient.7
  @%append $^&.lnk export
  @%append $^&.lnk   WinCopyRect.05127,
  @%append $^&.lnk   WinEqualRect.05173,

@@ -5,15 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define POKA 0
-
-#include "F_config.hpp"
-#include "F_def.hpp"
-
-#define F_INCL_WIN
-#define F_INCL_GPI
-#include "F_OS2.hpp"
-#include "F_win.hpp"
+#define INCL_WIN
+#define INCL_GPI
+#include <os2.h>
 
 #define CLS_CLIENT               "WindowClass"
 
@@ -84,7 +78,6 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
                                  MPARAM mpParm1,
                                  MPARAM mpParm2 )
 {
-#if POKA
    switch ( ulMsg ) {
    case WM_ERASEBACKGROUND:
       return MRFROMSHORT ( TRUE ) ;
@@ -96,7 +89,6 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
                                 mpParm2 ) ;
    } /* endswitch */
 
-#endif //POKA
    return MRFROMSHORT ( FALSE ) ;
 }
 

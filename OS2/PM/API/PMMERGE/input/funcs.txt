@@ -1,12 +1,16 @@
- 
- Related Functions 
+- implemented:
 
-      WinEnablePhysInput 
-      WinFocusChange 
-      WinGetKeyState 
-      WinGetPhysKeyState 
-      WinQueryFocus 
-      WinSetFocus 
-      WinSetKeyboardStateTable 
-  
+- stubs:
+
+      WinSetFocus
+      WinFocusChange
+
+- not implemented:
+
+      WinEnablePhysInput
+      WinGetKeyState
+      WinGetPhysKeyState
+      WinQueryFocus
+      WinSetKeyboardStateTable
+
 

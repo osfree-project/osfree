@@ -1,6 +1,11 @@
- 
- Related Functions 
+- implemented:
 
-      WinQueryControlColors 
-  
+- stubs:
+
+      WinStartApp
+
+- not implemented:
+
+      WinQueryControlColors
+
 

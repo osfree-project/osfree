@@ -1,16 +1,18 @@
+- implemented:
 
- 
- Related Functions 
+      WinRegisterClass
+      WinCreateWindow
+      WinCreateStdWindow
+      WinDefWindowProc
+      WinDestroyWindow
+      WinSetActiveWindow
 
-      WinCalcFrameRect 
-      WinCreateFrameControls 
-      WinCreateStdWindow 
-      WinCreateWindow 
-      WinDefWindowProc 
-      WinDestroyWindow 
-      WinQueryClassInfo 
-      WinQueryClassName 
-      WinRegisterClass 
-      WinSubclassWindow 
-  
+- not implemented:
+
+      WinCalcFrameRect
+      WinCreateFrameControls
+      WinQueryClassInfo
+      WinQueryClassName
+      WinSubclassWindow
+
 

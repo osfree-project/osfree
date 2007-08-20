@@ -1,54 +1,61 @@
+- implemented:
 
- 
- 
- Related Functions 
+      WinSetWindowPos
+      WinReleasePS
+      WinGetPS
 
-      WinQueryWindowPtr 
-      WinQueryWindowULong 
-      WinQueryWindowUShort 
-      WinSetWindowBits 
-      WinSetWindowPtr 
-      WinSetWindowULong 
-      WinSetWindowUShort 
-  
+- stubs:
 
+      WinShowWindow
+      WinQueryWindowRect
+      WinQueryWindowPos
+      WinSetMultWindowPos
+      WinSetOwner
+      WinIsChild
+      WinSetParent
+      WinMultWindowFromIDs
+      WinQueryWindow
+      WinIsWindow
+      WinQueryWindowDC
+      WinWindowFromDC
+      WinWindowFromID
+      WinQueryWindowTextLength
+      WinSetWindowText
+      WinQueryWindowText
+      WinIsWindowVisible
+      WinEnableWindowUpdate
+      WinEnableWindow
+      WinIsWindowEnabled
+      WinEndPaint
 
- Related Functions 
+- not implemented:
 
-      WinBeginEnumWindows 
-      WinEndEnumWindows 
-      WinEnumDlgItem 
-      WinGetNextWindow 
-      WinIsChild 
-      WinMultWindowFromIDs 
-      WinQueryWindow 
-      WinSetOwner 
-      WinSetParent 
-  
- 
- Related Functions 
+      WinQueryWindowPtr
+      WinQueryWindowULong
+      WinQueryWindowUShort
+      WinSetWindowBits
+      WinSetWindowPtr
+      WinSetWindowULong
+      WinSetWindowUShort
+      WinBeginEnumWindows
+      WinEndEnumWindows
+      WinEnumDlgItem
+      WinGetNextWindow
+      WinBeginPaint
+      WinExcludeUpdateRegion
+      WinGetClipPS
+      WinGetScreenPS
+      WinInvalidateRect
+      WinInvalidateRegion
+      WinIsWindowShowing
+      WinLockVisRegions
+      WinOpenWindowDC
+      WinQueryUpdateRect
+      WinQueryUpdateRegion
+      WinRealizePalette
+      WinUpdateWindow
+      WinValidateRect
+      WinValidateRegion
 
-      WinBeginPaint 
-      WinEnableWindowUpdate 
-      WinEndPaint 
-      WinExcludeUpdateRegion 
-      WinGetClipPS 
-      WinGetPS 
-      WinGetScreenPS 
-      WinInvalidateRect 
-      WinInvalidateRegion 
-      WinIsWindowShowing 
-      WinIsWindowVisible 
-      WinLockVisRegions 
-      WinOpenWindowDC 
-      WinQueryUpdateRect 
-      WinQueryUpdateRegion 
-      WinRealizePalette 
-      WinReleasePS 
-      WinShowWindow 
-      WinUpdateWindow 
-      WinValidateRect 
-      WinValidateRegion 
-  
 
 

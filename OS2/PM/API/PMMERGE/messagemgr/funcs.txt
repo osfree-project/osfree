@@ -1,35 +1,31 @@
- 
- Related Functions 
+- implemented:
 
-      WinCancelShutdown 
-      WinCreateMsgQueue 
-      WinInitialize 
-      WinTerminate 
-  
+      WinInitialize
+      WinTerminate
+      WinCreateMsgQueue
+      WinDestroyMsgQueue
+      WinQueryQueueInfo
+      WinGetMsg
+      WinPeekMsg
+      WinPostMsg
+      WinSendMsg
+      WinDispatchMsg
+      WinRegisterUserMsg
 
- 
- Related Functions 
+- not implemented:
 
-      WinBroadcastMsg 
-      WinCreateMsgQueue 
-      WinDestroyMsgQueue 
-      WinDispatchMsg 
-      WinGetDlgMsg 
-      WinGetMsg 
-      WinInSendMsg 
-      WinPeekMsg 
-      WinPostMsg 
-      WinPostQueueMsg 
-      WinQueryMsgPos 
-      WinQueryMsgTime 
-      WinQueryQueueInfo 
-      WinQueryQueueStatus 
-      WinSendDlgItemMsg 
-      WinSendMsg 
-      WinSetClassMsgInterest 
-      WinSetMsgInterest 
-      WinSetMsgMode 
-      WinSetSynchroMode 
-      WinWaitMsg 
-  
+      WinCancelShutdown
+      WinBroadcastMsg
+      WinGetDlgMsg
+      WinInSendMsg
+      WinPostQueueMsg
+      WinQueryMsgPos
+      WinQueryMsgTime
+      WinQueryQueueStatus
+      WinSendDlgItemMsg
+      WinSetClassMsgInterest
+      WinSetMsgInterest
+      WinSetMsgMode
+      WinSetSynchroMode
+      WinWaitMsg
 
