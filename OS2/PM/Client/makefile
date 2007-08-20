@@ -3,10 +3,8 @@
 #  Viking
 
 
-ROOT=..\..\..
-
-!include ../../../build.conf
-!include ../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 PROJ=FreePM
@@ -28,7 +26,7 @@ OBJS = F_WinStartApp.$(O) FreePM_win.$(O) WIN1.$(O) &
 ADD_COPT=-bm -od -mf -sg -d2 -mf
 LINKOPT=lib pm_client.lib
 
-!include ../../../mk/all.mk
+!include $(%ROOT)/mk/all.mk
 
 all: $(PROJ).exe .SYMBOLIC
 
