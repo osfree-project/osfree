@@ -31,7 +31,7 @@ $(PROJ).dll: .symbolic
  @%append $^&.lnk segment   type DATA shared
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk import
  @%append $^&.lnk   RectCopy utlapi.1,
  @%append $^&.lnk   RectSet utlapi.2,

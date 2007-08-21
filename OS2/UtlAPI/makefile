@@ -28,7 +28,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk segment   type DATA shared
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
  @%append $^&.lnk   RectCopy.1,
  @%append $^&.lnk   RectSet.2,

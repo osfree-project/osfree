@@ -40,7 +40,7 @@ all: mbr.bin
 .$(O).exe:
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION NODEFAULTLIBS
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk PATH $(MYDIR)

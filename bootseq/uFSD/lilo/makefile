@@ -40,7 +40,7 @@ all: boot.com build.exe .SYMBOLIC
 build.exe: build.$(O)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk PATH .
  @%append $^&.lnk FILE $<

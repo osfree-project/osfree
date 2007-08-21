@@ -23,7 +23,7 @@ all: test.exe
 test.exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk ALIAS _loadhigh=loadhigh
  @%append $^&.lnk ALIAS printk=printk_

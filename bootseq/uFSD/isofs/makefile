@@ -54,7 +54,7 @@ bb_$(FS): bb_$(FS).exe
 bb_$(FS).exe: $(SPEC_OBJS) $(LIBC_MY)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION NODEFAULTLIBS
  @%append $^&.lnk ALIAS mu_Start=_mu_Start
  @%append $^&.lnk ALIAS mu_Terminate=_mu_Terminate

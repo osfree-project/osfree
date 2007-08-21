@@ -56,7 +56,7 @@ all: ldir.exe .SYMBOLIC
 ldir.exe:   $(OBJS) $(INCLUDES)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk NAME $^&
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)

@@ -26,12 +26,7 @@ $(DIR)\$(PROJ).exe: $(OBJS)
  $(SAY) Linking $^@
  @$(LINKER) @$^&.lnk $(LOG)
 
-# Clean all
-
-clean:
- -@del *.obj $(LOG)
- -@del *.sbr $(LOG)
- -@del *.map $(LOG)
- -@del *.err $(LOG)
- -@del *.wmp $(LOG)
- -@del *.lnk $(LOG)
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

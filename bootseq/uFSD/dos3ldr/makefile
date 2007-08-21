@@ -31,7 +31,7 @@ all: dos3ldr.exe
 dos3ldr.exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk NAME $^&
  @for %i in ($(OBJS)) do %append $^&.lnk FILE %i
  $(SAY) Linking $^@ $(LOG)

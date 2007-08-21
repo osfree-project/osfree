@@ -28,7 +28,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk segment   type DATA shared
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk import
  @%append $^&.lnk   WinInitialize      PMMERGE.5201,
  @%append $^&.lnk   WinTerminate       PMMERGE.5396,

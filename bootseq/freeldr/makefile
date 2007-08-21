@@ -39,7 +39,7 @@ os2ldr: os2ldr.com
 os2ldr.com: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos com
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION NODEFAULTLIBS
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk ALIAS segread_=_segread

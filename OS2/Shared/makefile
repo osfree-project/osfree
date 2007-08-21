@@ -36,10 +36,7 @@ msg: .symbolic
  -@move msg\* $(ROOT)\bin\os2\nls\msg $(LOG)
  -@rd msg  $(LOG)
 
-# Clean all
-
-clean:
- -@del $(LIBS) $(LOG)
- -@del *.obj $(LOG)
- -@del *.sbr $(LOG)
- -@del *.map $(LOG)
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

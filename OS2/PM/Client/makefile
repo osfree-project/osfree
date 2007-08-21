@@ -35,7 +35,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
  @%append $^&.lnk   InitServerConnection.1,
  @%append $^&.lnk   CloseServerConnection.2,

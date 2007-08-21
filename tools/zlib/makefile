@@ -17,7 +17,7 @@ OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
 
 !include ../../mk/bootseq.mk
 
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym
+CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
 all: libz.lib sub .SYMBOLIC
 
@@ -30,7 +30,7 @@ libz.lib: $(OBJS)
 example.exe: example.$(O) libz.lib
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk LIBRARY libz
  @%append $^&.lnk LIBRARY clib3r

@@ -7,7 +7,7 @@
 
 
 linker = wlink
-LFLAGS = name os2ldr system com option nodef option map=os2ldr.map
+LFLAGS = name os2ldr system com option nodef option map=os2ldr.wmp
 CC = wcc
 CFLAGS = -3 -d0 -s -od -ms -D__OS2__
 AS = wasm
@@ -37,7 +37,7 @@ os2ldr.com: $(objects)
          @%append $^&.lnk NAME $^&
          @%append $^&.lnk SYSTEM com
          @%append $^&.lnk OPTION NODEFAULTLIBS
-         @%append $^&.lnk OPTION MAP=$^&.map
+         @%append $^&.lnk OPTION MAP=$^&.wmp
          @%append $^&.lnk PATH $(MYDIR)
          @%append $^&.lnk LIBPATH $(MYDIR)
          #@%append $^&.lnk LIBRARY $(LIBC)
