@@ -11,7 +11,7 @@ ROOT=$(%ROOT)
 # Preprocessor defines
 #
 C_DEFS    = -d__OS2__ -d__WATCOM__
-ASM_DEFS  = -d__OS2__ -d__WATCOM__
+ASM_DEFS  = -d__WATCOM__
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in
@@ -22,7 +22,7 @@ COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\p
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else
 COPT      = -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)
-ASMOPT    = -bt=DOS -ms $(ASM_DEFS)  $(ADD_ASMOPT)
+ASMOPT    = -bt=OS2 -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 !endif
 
 #

@@ -14,26 +14,24 @@ OBJS = main.$(O) parser.$(O) os2init.$(O) cmds.$(O) expand.$(O) eval.$(O) &
            iofmt32.$(O) select.$(O) os2tty.$(O) iparse.$(O)     &
            bcd32.$(O) os32util.$(O) ..$(SEP)shared$(SEP)istring.$(O)
 ADD_COPT = -i=..$(SEP)include -ox
-ADD_LIB = MATH387S,OS2,OS2386
+LINKOPT = lib MATH387S, os2\OS2, OS2386
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).exe # $(DIR)$(SEP)$(PROJ).sym
+all: $(PROJ).exe # $(PROJ).sym
 
-$(DIR)$(SEP)$(PROJ).exe: $(OBJS) 4os2.rc
+$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk NAME $^&
  @%append $^&.lnk $(LINKOPT)
- @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- @%append $^&.lnk FORMAT OS2 LX PMCOMPATIBLE
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk LIBPATH $(LIBPATH)
- @%append $^&.lnk LIBRARY $(LINKLIB)
  $(ADDFILES_CMD)
- $(SAY) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
  @$(RC) 4os2.rc $@ $(LOG)
+
 
 # Clean target
 .IGNORE
