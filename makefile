@@ -7,7 +7,7 @@
 !include ./build.conf
 !include ./mk/site.mk
 
-DIRS = bootseq os2 # muIIF filesys freeldr cmd freepm
+DIRS = tools bootseq os2
 
 !include ./mk/bootseq.mk
 

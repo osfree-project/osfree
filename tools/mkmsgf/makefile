@@ -6,17 +6,16 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:30 prokushev Exp $
 #
 
-ROOT=..\..
 DIR = $(ROOT)\tools\bin
 PROJ = mkmsgf
 DESC = Make message file tool
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 
-!include ../../mk/cmd.mk
+!include $(%ROOT)/mk/all.mk
 
 all: $(DIR)\$(PROJ).exe .SYMBOLIC # $(DIR)\$(PROJ).sym
 

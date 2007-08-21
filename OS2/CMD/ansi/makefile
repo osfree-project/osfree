@@ -20,7 +20,7 @@ LINKOPT = lib cmd_shared.lib,all_shared.lib
 !include $(%ROOT)/mk/all.mk
 
 
-all: $(PROJ).exe .SYMBOLIC
+all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
 
 $(PROJ).exe: $(OBJS)
  @%create $^&.lnk

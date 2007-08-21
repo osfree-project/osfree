@@ -13,14 +13,14 @@ ADD_COPT_UNIX = $(DEFINES_UNIX) -i=.
 
 COPT_UNIX     = $(ADD_COPT_UNIX)
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 OBJS   = getline.$(O) strtof.$(O)
 OBJS_1 = genext2fs.$(O)
 OBJS_2 = genext2fs_u.$(O)
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: os2 linux .SYMBOLIC
 

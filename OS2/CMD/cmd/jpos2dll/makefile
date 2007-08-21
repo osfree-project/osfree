@@ -3,18 +3,20 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
+32_BITS  = 1
 DIR = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
 PROJ = jpos2dll
 DESC = CMD.EXE helper
 OBJS = jpos2dll.$(O)
 ADD_COPT = -i=..$(SEP)include
-LINKOPT = lib os2$(SEP)os2,os2386,clib3r # cmd_shared.lib,all_shared.lib
+LINKOPT  = lib os2386.lib lib clib3r.lib
+#LINKOPT = lib os2386#,clib3r#,os2$(SEP)os2 # cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
+all: (PROJ).dll $(PROJ).sym
 
-$(DIR)$(SEP)$(PROJ).dll: $(OBJS)
+$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
  @%append $^&.lnk SYSTEM os2v2 dll initglobal

@@ -52,7 +52,6 @@ MC        = mkmsgf
 GENE2FS   = genext2fs
 SYS       = sys
 
-#.SUFFIXES: .o
 
 # A command to add a list of object
 # files to a linker script
@@ -108,11 +107,15 @@ CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 
 !endif
 
-MKDIR     = mkdir
+MKDIR     = @mkdir
+MAPSYM    = @mapsym
 
 TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
 LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 
+
+.SUFFIXES:
+.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp
 
 .c.$(O): .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
@@ -126,9 +129,18 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
  $(SAY) Assembling $< $(LOG)
  $(ASM) $(ASMOPT) -fo=$^&.$(O) $< $(LOG)
 
+.wmp.map: .AUTODEPEND
+ $(SAY) Converting Watcom MAP to VAC MAP $< $(LOG)
+ $(AWK) -f $(TOOLS)$(SEP)mapsym.awk <$^&.wmp >$^&.map
+
+.map.sym: .AUTODEPEND
+ $(SAY) Converting VAC MAP to OS/2 SYM $< $(LOG)
+ $(MAPSYM) $^&.map
+
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
  @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+

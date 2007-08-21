@@ -5,12 +5,12 @@
 # valerius, 2006/10/30
 #
 
-!include ../build.conf
-!include ../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIRS = genext2fs zlib qemu-img ltools mkmsgf awk renmodul # libmmap
 
-!include ../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: .SYMBOLIC
  $(MAKE) TARGET=$^@ subdirs
