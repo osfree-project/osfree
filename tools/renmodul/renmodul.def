@@ -1,0 +1,4 @@
+system os2v2 dll initinstance terminstance 
+name renmodul.dll
+export RenameModule = RenameModule
+
