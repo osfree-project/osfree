@@ -8,7 +8,7 @@ PROJ = jpos2dll
 DESC = CMD.EXE helper
 OBJS = jpos2dll.$(O)
 ADD_COPT = -i=..$(SEP)include
-ADD_LIB = ,os2,os2386,clib3r # cmd_shared.lib,all_shared.lib
+LINKOPT = lib os2$(SEP)os2,os2386,clib3r # cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -16,15 +16,13 @@ all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
 
 $(DIR)$(SEP)$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk file $(OBJS)
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- @%append $^&.lnk format    os2 lx dll initglobal
+ @%append $^&.lnk SYSTEM os2v2 dll initglobal
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk LIBPATH $(LIBPATH)
- @%append $^&.lnk LIBRARY $(LINKLIB)
+ @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk export    QueryExtLIBPATH.1, SetExtLIBPATH.2, SendKeys.3, QuitSendKeys.4
  @%append $^&.lnk export    StartHook.5, PauseKeys.6, KeystackHookProc.7
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
