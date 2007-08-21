@@ -12,7 +12,7 @@
 PROJ = zip
 DIR = $(ROOT)\bin\os2
 # defines additional options for C compiler
-ADD_LIB = cmd_shared.lib,all_shared.lib
+LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 DESC = ZIP file archiver
 OBJS = zip.obj zipfile.obj zipup.obj fileio.obj util.obj &

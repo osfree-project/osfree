@@ -1,9 +1,7 @@
 # $Id: makefile,v 1.4 2004/08/16 04:51:11 prokushev Exp $
 
-!include ../../../../build.conf
-!include ../../../../mk/site.mk
-
-ROOT = ..$(SEP)..$(SEP)..$(SEP)..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIR = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
 PROJ = jpos2dll
@@ -12,7 +10,7 @@ OBJS = jpos2dll.$(O)
 ADD_COPT = -i=..$(SEP)include
 ADD_LIB = ,os2,os2386,clib3r # cmd_shared.lib,all_shared.lib
 
-!include ../../../../mk/cmd.mk
+!include $(%ROOT)/mk/all.mk
 
 all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
 

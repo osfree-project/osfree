@@ -5,15 +5,14 @@
 # author, date
 #
 
-!include ../../../build.conf
-!include ../../../mk/site.mk
-
-ROOT=..$(SEP)..$(SEP)..
-
-!include ../../../mk/cmd.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 # Add other targets here upon their maturity
 DIRS = shared cmd help keystack shralias option2 jpos2dll #vdm2os2
+
+!include $(%ROOT)/mk/all.mk
+
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

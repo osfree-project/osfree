@@ -16,7 +16,7 @@ DESC = Changes file attributes
 OBJS = attrib.$(O)
 # defines additional options for C compiler
 ADD_COPT = -i=..$(SEP)include
-ADD_LIB = cmd_shared.lib,all_shared.lib
+LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 

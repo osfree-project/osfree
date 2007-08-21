@@ -16,7 +16,7 @@ DESC = Volume label control utility
 OBJS = label.$(O)
 # defines additional options for C compiler
 ADD_COPT = -i=..\include
-ADD_LIB = cmd_shared.lib,all_shared.lib
+LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
