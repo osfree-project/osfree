@@ -1,0 +1,25 @@
+# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
+
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+
+32_BITS  = 1
+
+DIR = $(ROOT)$(SEP)tools$(SEP)bin
+PROJ = rexxwrapper
+DESC = rexx to executable wrapper
+
+!include $(%ROOT)/mk/all.mk
+
+all: $(DIR)$(SEP)$(PROJ).exe $(DIR)$(SEP)$(PROJ).sym
+
+$(DIR)$(SEP)$(PROJ).exe: rexxwrap.cmd
+  call rexxwrap.cmd -program=$(PROJ) -rexxfiles=rexxwrap.cmd -srcdir=. -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib
+  $(CP) $(PROJ).exe $(DIR)
+
+# Clean all
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

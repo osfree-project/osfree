@@ -118,7 +118,7 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 
 
 .SUFFIXES:
-.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp
+.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp .rexx
 
 .c.$(O): .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
@@ -150,6 +150,9 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 .pas.exe: .AUTODEPEND
   $(SAY) Compiling $<
   @(PC) $(PCOPT) $(PROJ)
+
+.rexx.exe: .AUTODEPEND
+  rexxwrapper -program=$^& -rexxfiles=$^&.rexx -srcdir=$(TOOLS)\..\rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
