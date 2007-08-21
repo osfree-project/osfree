@@ -1,14 +1,15 @@
-/* 
- $Id: F_messages.cpp,v 1.3 2002/09/06 14:59:33 evgen2 Exp $ 
+/*
+ $Id: F_messages.cpp,v 1.3 2002/09/06 14:59:33 evgen2 Exp $
 */
 /* F_messages.cpp  */
 /* class  FreePM_Queue stuff */
 /* ver 0.00 16.08.2002       */
 
-#include "FreePM.hpp"
 
-#define F_INCL_DOSPROCESS
-#include "F_OS2.hpp"
+#define INCL_DOSPROCESS
+#include "osfree.h"
+
+#include <queue.hpp>
 
 #include <builtin.h>
 /* Add message to queue */
@@ -108,6 +109,7 @@ int FreePM_Queue::DelFirst(void)
    rc = 1 - no messages
    rc = 2 - pmsg is NULL
 */
+
 int FreePM_Queue::Get(PQMSG pmsg)
 {  int rcS;
    if(length == 0)

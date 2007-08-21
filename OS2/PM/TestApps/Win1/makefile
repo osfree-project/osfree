@@ -36,8 +36,13 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
+ renmodul.exe /i $^@ pmwin fmwin
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

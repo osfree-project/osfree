@@ -1,9 +1,16 @@
 /*
- $Id: WIN1.CPP,v 1.3 2002/09/06 14:59:33 evgen2 Exp $
+  Used functions:
+    WinInitialize
+    WinTerminite
+    WinCreateMsgQueue
+    WinDestroyMsgQueue
+    WinGetMsg
+    WinDispatchMsg
+    WinRegisterClass
+    WinCreateStdWindow
+    WinDefWindowProc
+    WinDestroyWindow
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define INCL_WIN
 #define INCL_GPI

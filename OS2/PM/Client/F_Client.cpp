@@ -1,5 +1,5 @@
-/* 
- $Id: F_Client.cpp,v 1.4 2002/11/21 13:19:04 evgen2 Exp $ 
+/*
+ $Id: F_Client.cpp,v 1.4 2002/11/21 13:19:04 evgen2 Exp $
 */
 /* F_Client.cpp*/
 #define POKA 0
@@ -32,7 +32,7 @@
 
 int SendQueryToServer(char *qurl, char *bufout,int bufoutlen);
 int QueryProcessType(void);
-int QueryThreadOrdinal(int &tid);
+//int QueryThreadOrdinal(int &tid);
 
 int CloseThreadPipe(void);
 

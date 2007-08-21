@@ -8,19 +8,20 @@
 
 #include <stdio.h>
 #include <malloc.h>
-#include <builtin.h> 
+#include <builtin.h>
 #include <time.h>
-#include "FreePM.hpp"
-#include "F_hab.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
-#include "F_globals.hpp"
 
-/*+---------------------------------+*/
-/*| External function prototypes.   |*/
-/*+---------------------------------+*/
-extern "C" int QueryThreadOrdinal(int &tid);
+#define INCL_DOSPROCESS // Process Manager
+#define INCL_ERRORS     // CPI messages
+#define INCL_WINERRORS  // PM messages
+#define INCL_SHLERRORS  // More PM messages
+#include <osfree.h>
+#include <habmgr.hpp>
+#include <pmclient.h>
 
+#define debug(...)
+
+class _FreePM_HAB  _hab;
 
 /***********************************/
 
@@ -31,6 +32,31 @@ extern "C" int QueryThreadOrdinal(int &tid);
 - whats else ?
 
 */
+
+int QueryThreadOrdinal(int &tid)
+{
+   PTIB   ptib;           /* Thread information block structure  */
+   PPIB   ppib;           /* Process information block structure */
+   APIRET rc;             /* Return code                         */
+   PTIB2 pt2;
+   int ordinal;
+
+   ptib=NULL;
+   ppib=NULL;
+   rc=NO_ERROR;
+
+    rc = DosGetInfoBlocks(&ptib, &ppib);
+    if (rc != NO_ERROR)
+    {  printf ("DosGetInfoBlocks error : rc = %u\n", rc);
+          return 1;
+    }
+    ordinal = ptib->tib_ordinal;
+    pt2 = ptib->tib_ptib2;
+    tid = pt2->tib2_ultid;
+    return ordinal;
+}
+
+
 
 /* return:
 -1 - not found,
@@ -83,6 +109,7 @@ int _FreePM_HAB::GetCurrentHAB(void)
        return -2;
     return rc;
 }
+
 int _FreePM_HAB::GetCurrentHABindex(void)
 {   int ordinal,tid,rc, iHAB;
 
@@ -92,6 +119,7 @@ int _FreePM_HAB::GetCurrentHABindex(void)
        return -2;
     return rc;
 }
+
 /*
   return:
 -1 = no space for HAB info, increase  FREEPMS_MAX_NUM_THREADS
@@ -129,6 +157,7 @@ int _FreePM_HAB::AddHAB(int ordinal, int iHAB,  int clientId)
 
     return 0;
 }
+
 /*  return:
  -1 - ordinal not found
   0 - Ok
@@ -352,4 +381,101 @@ int _FreePM_HAB::DelHwnd(HWND hwnd, int iHAB)
     __lxchg(&hab[ind].Access,UNLOCKED);
     return 0;
 }
+
+
+/*** WinInitialize/WinTerminate Interface declarations ******************/
+
+/* WinInitialize
+Input:
+  flOptions (ULONG) - input  Initialization options.
+
+     0       The initial state for newly created windows is that all messages for the window are available for
+             processing by the application.
+             This is the only option available in PM.
+
+Output:
+  hab (HAB) - returns   Anchor-block handle.
+
+     NULLHANDLE         An error occurred.
+     Other              Anchor-block handle.
+Errors:
+    PMERR_ALREADY_INITIALIZED
+    FPMERR_INITSERVER_CONNECTION
+*/
+
+HAB APIENTRY WinInitialize(ULONG flOptions)
+{
+  int ordinal, tid, rc, iHAB, len, inf[2];
+
+  // Get ordinal number of thread
+  ordinal = QueryThreadOrdinal(tid);
+
+  // Check, is this thread alredy initialized?
+  rc = _hab.QueryOrdinalUsed(ordinal, Q_ORDINAL_HAB);
+  if(rc != -1)
+  {
+    _hab.SetError(rc, PMERR_ALREADY_INITIALIZED);
+    return NULLHANDLE;
+  }
+
+  // If we executed in this thread first time, register at server
+  /* Connect to server */
+  rc =  InitServerConnection(NULL);
+  if(rc)
+  {
+    _hab.SetError(FPMERR_INITSERVER_CONNECTION);
+    return NULLHANDLE;
+  }
+
+  // Query HAB information from server
+  rc = _F_SendCmdToServer(F_CMD_GET_IHAB,  0);
+  rc = _F_RecvDataFromServer(inf, &len, sizeof(inf));
+  if(rc)
+  {
+    _hab.SetError(FPMERR_INITSERVER_CONNECTION);
+    return NULLHANDLE;
+  }
+
+  // inf[0] = HAB, inf[1] - ClientId
+  // Register hab in local HAB list
+  rc =  _hab.AddHAB(ordinal,inf[0],inf[1]);
+  if(rc)
+    iHAB = NULLHANDLE;
+  else
+    iHAB = inf[0];
+
+  return iHAB;
+}
+
+// Returns:
+//   TRUE - ok
+//   FALSE - failed
+// Errors:
+//    PMERR_INVALID_HAB
+BOOL APIENTRY WinTerminate(HAB ihab)
+{
+  int rc;
+
+  rc =  _hab.QueryHABexist(ihab);
+  if(rc != 1)
+  {
+     _hab.SetError(PMERR_INVALID_HAB);
+     debug(3, 0)("WARNING: "__FUNCTION__": bad ihab %x\n",ihab);
+     return FALSE;
+  }
+
+  // Inform server we terinate this thread
+  rc = _F_SendCmdToServer(F_CMD_CLIENT_EXIT, ihab);
+
+  // Close connection with server
+  rc = CloseServerConnection();
+
+  // Delete HAB for this thread
+  _hab.DelHAB(ihab);
+
+  return TRUE;
+}
+
+
+
 

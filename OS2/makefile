@@ -19,3 +19,9 @@ clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(MKDIR) $(FILESDIR)$(SEP)os2
+ $(MKDIR) $(FILESDIR)$(SEP)os2$(SEP)dll
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

@@ -10,10 +10,10 @@
 32_BITS  = 1
 PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
-OBJS     = global.$(O) rectangles.$(O)
-ADD_COPT = -i=..$(SEP)include
-LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles
-DIRS     = rectangles
+OBJS     = framemgr.$(O) habmgr.$(O) rectangles.$(O) messages.$(O) queue.$(O) windowmgr.$(O) windowclass.$(O) input.$(O)
+ADD_COPT = -bd -i=..$(SEP)include
+LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles;habmgr;messagemgr;framemgr;windowmgr;input
+DIRS     = rectangles habmgr messagemgr framemgr windowmgr input
 
 !include $(%ROOT)/mk/all.mk
 
@@ -25,7 +25,7 @@ subs: .SYMBOLIC
 $(PROJ).dll: .symbolic
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk SYSTEM os2v2 dll initglobal
+ @%append $^&.lnk SYSTEM os2v2 dll initglobal pm
  @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
@@ -45,7 +45,7 @@ $(PROJ).dll: .symbolic
  @%append $^&.lnk   RectUnion utlapi.10,
  @%append $^&.lnk   RectSubtract utlapi.11,
  @%append $^&.lnk   RectMakeRect utlapi.12,
- @%append $^&.lnk   RectMakePoints utlapi.13
+ @%append $^&.lnk   RectMakePoints utlapi.13,
 # PMClient communication library
  @%append $^&.lnk   InitServerConnection pmclient.1,
  @%append $^&.lnk   CloseServerConnection pmclient.2,
@@ -53,29 +53,46 @@ $(PROJ).dll: .symbolic
  @%append $^&.lnk   _F_SendDataToServer pmclient.4,
  @%append $^&.lnk   _F_RecvDataFromServer pmclient.5,
  @%append $^&.lnk   _F_SendGenCmdToServer pmclient.6,
- @%append $^&.lnk   _F_SendGenCmdDataToServer pmclient.7
+ @%append $^&.lnk   _F_SendGenCmdDataToServer pmclient.7,
+ @%append $^&.lnk   fatal pmclient.8
  @%append $^&.lnk export
  @%append $^&.lnk   WinCopyRect.05127,
+ @%append $^&.lnk   WinCreateMsgQueue.05136,
+ @%append $^&.lnk   WinCreateStdWindow.05139,
+ @%append $^&.lnk   WinDefWindowProc.05147,
+ @%append $^&.lnk   WinDestroyMsgQueue.05154,
+ @%append $^&.lnk   WinDestroyWindow.05156,
+ @%append $^&.lnk   WinDispatchMsg.05158,
  @%append $^&.lnk   WinEqualRect.05173,
+ @%append $^&.lnk   WinGetMsg.05192,
  @%append $^&.lnk   WinInflateRect.05200,
+ @%append $^&.lnk   WinInitialize.05201,
  @%append $^&.lnk   WinIntersectRect.05203,
  @%append $^&.lnk   WinIsRectEmpty.05209,
  @%append $^&.lnk   WinMakePoints.05229,
  @%append $^&.lnk   WinMakeRect.05230,
  @%append $^&.lnk   WinOffsetRect.05239,
  @%append $^&.lnk   WinPtInRect.05248,
+ @%append $^&.lnk   WinRegisterClass.05315,
+ @%append $^&.lnk   WinSendMsg.05334,
  @%append $^&.lnk   WinSetRect.05364,
  @%append $^&.lnk   WinSetRectEmpty.05365,
  @%append $^&.lnk   WinSubtractRect.05391,
+ @%append $^&.lnk   WinTerminate.05396,
  @%append $^&.lnk   WinUnionRect.05402
+
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..$(SEP)bin
+ renmodul /r $^@ $^& fmmerge
+ $(CP) pmmerge.dll fmmerge.dll
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+ $(MAKE) $(MAKEOPT) TARGET=clean subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) fmmerge.dll $(FILESDIR)$(SEP)os2$(SEP)dll

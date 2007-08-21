@@ -19,3 +19,7 @@ clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

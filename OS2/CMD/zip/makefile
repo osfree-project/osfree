@@ -4,10 +4,8 @@
 # author, date
 #
 
-ROOT=..\..\..
-
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 
@@ -25,11 +23,7 @@ OBJS = zip.obj zipfile.obj zipup.obj fileio.obj util.obj &
 ADD_COPT = -i=..\include -DOS2 -DNO_ASM -DNO_SYMLINK
 
 
-!include ../../mk/cmd.mk
-
-#defines files mask for clean target
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym *.exe *.wmp
-
+!include $(%ROOT)/mk/all.mk
 
 all: $(PROJ).exe .SYMBOLIC
 
@@ -44,19 +38,11 @@ $(PROJ).exe: $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
 
-!ifeq UNIX FALSE
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..\bin
-
-!else
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ../bin
-
-!endif
-
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

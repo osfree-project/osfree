@@ -19,4 +19,6 @@
 extern class F_WND_List  _WndList;
 extern class _FreePM_HAB  _shab;
 
+extern void fatal(const char *message);
+
 #endif

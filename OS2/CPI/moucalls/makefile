@@ -91,10 +91,11 @@ $(PROJ).dll: $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
 
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..$(SEP)bin
-
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).dll $(FILESDIR)$(SEP)os2$(SEP)dll

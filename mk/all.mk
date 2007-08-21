@@ -108,6 +108,8 @@ CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 
 !endif
 
+MKDIR     = mkdir
+
 TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
 LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 

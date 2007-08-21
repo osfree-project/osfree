@@ -8,15 +8,12 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-OBJS     = rectangles.$(O)
+OBJS     = habmgr.$(O)
 ADD_COPT = -i=..\include -bd 
 
 !include $(%ROOT)/mk/all.mk
 
 all: $(OBJS) .SYMBOLIC
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..$(SEP)bin
 
 .IGNORE
 clean: .SYMBOLIC

@@ -4,10 +4,9 @@
 # author, date
 #
 
-!include $(ROOT)/build.conf
-!include $(ROOT)/mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-ROOT=..$(SEP)..$(SEP)..
 32_BITS  = 1
 
 PROJ = attrib
@@ -17,13 +16,9 @@ DESC = Changes file attributes
 OBJS = attrib.$(O)
 # defines additional options for C compiler
 ADD_COPT = -i=..$(SEP)include
-ADD_LIB = ,cmd_shared.lib,all_shared.lib
+ADD_LIB = cmd_shared.lib,all_shared.lib
 
-!include $(ROOT)/mk/cmd.mk
-
-#defines files mask for clean target
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym *.exe *.wmp
-
+!include $(%ROOT)/mk/all.mk
 
 all: $(PROJ).exe .SYMBOLIC
 
@@ -39,10 +34,11 @@ $(PROJ).exe: $(OBJS)
  $(LINKER) @$^&.lnk $(LOG)
  $(MAKE) install
 
-install: .SYMBOLIC
- $(CP) $(PROJ).exe $(DIR)
-
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

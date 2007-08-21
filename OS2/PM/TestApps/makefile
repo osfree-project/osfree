@@ -9,7 +9,7 @@
 
 !include $(%ROOT)/mk/all.mk
 
-DIRS=win1
+DIRS=pm0 pm1 pm2 win1
 
 all: .SYMBOLIC
    $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
@@ -17,4 +17,8 @@ all: .SYMBOLIC
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

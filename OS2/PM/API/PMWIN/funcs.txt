@@ -1,7 +1,24 @@
+- implemented:
+
+³ 00716 ³  Forwarder ³ -> PMMERGE.5136(WinCreateMsgQueue), (WinCreateMsgQueue)
+³ 00726 ³  Forwarder ³ -> PMMERGE.5154(WinDestroyMsgQueue), (WinDestroyMsgQueue)
+³ 00728 ³  Forwarder ³ -> PMMERGE.5156(WinDestroyWindow), (WinDestroyWindow)
+³ 00763 ³  Forwarder ³ -> PMMERGE.5201(WinInitialize), (WinInitialize)
+³ 00888 ³  Forwarder ³ -> PMMERGE.5396(WinTerminate), (WinTerminate)
+³ 00908 ³  Forwarder ³ -> PMMERGE.5139(WinCreateStdWindow), (WinCreateStdWindow)
+³ 00911 ³  Forwarder ³ -> PMMERGE.5147(WinDefWindowProc), (WinDefWindowProc)
+³ 00912 ³  Forwarder ³ -> PMMERGE.5158(WinDispatchMsg), (WinDispatchMsg)
+³ 00915 ³  Forwarder ³ -> PMMERGE.5192(WinGetMsg), (WinGetMsg)
+³ 00920 ³  Forwarder ³ -> PMMERGE.5334(WinSendMsg), (WinSendMsg)
+³ 00926 ³  Forwarder ³ -> PMMERGE.5315(WinRegisterClass), (WinRegisterClass)
+
+- not implemented:
+
 Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
 Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
 Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
-À Processing file PMWIN.DLL Ã The file PMWIN.DLL contains 288 bytes out of module structure
+À Processing file PMWIN.DLL
+Ã The file PMWIN.DLL contains 288 bytes out of module structure
 À Processing file PMWIN.DLL Ã Module type:   DLL
 Ã Required CPU:        i80386   Version:               2.02
 Ã Page size:             4096   Page shift:               2
@@ -692,7 +709,6 @@
 ³ 00713 ³  Forwarder ³ -> PMMERGE.5130(WinCreateAccelTable), (WinCreateAccelTable)
 ³ 00714 ³  Forwarder ³ -> PMMERGE.5131(WinCreateAtomTable), (WinCreateAtomTable)
 ³ 00715 ³  Forwarder ³ -> PMMERGE.5132(WinCreateCursor), (WinCreateCursor)
-³ 00716 ³  Forwarder ³ -> PMMERGE.5136(WinCreateMsgQueue), (WinCreateMsgQueue)
 ³ 00717 ³  Forwarder ³ -> PMMERGE.5137(WinCreatePointer), (WinCreatePointer)
 ³ 00718 ³  Forwarder ³ -> PMMERGE.5142(WinDdeInitiate), (WinDdeInitiate)
 ³ 00719 ³  Forwarder ³ -> PMMERGE.5143(WinDdePostMsg), (WinDdePostMsg)
@@ -702,9 +718,7 @@
 ³ 00723 ³  Forwarder ³ -> PMMERGE.5151(WinDestroyAccelTable), (WinDestroyAccelTable)
 ³ 00724 ³  Forwarder ³ -> PMMERGE.5152(WinDestroyAtomTable), (WinDestroyAtomTable)
 ³ 00725 ³  Forwarder ³ -> PMMERGE.5153(WinDestroyCursor), (WinDestroyCursor)
-³ 00726 ³  Forwarder ³ -> PMMERGE.5154(WinDestroyMsgQueue), (WinDestroyMsgQueue)
 ³ 00727 ³  Forwarder ³ -> PMMERGE.5155(WinDestroyPointer), (WinDestroyPointer)
-³ 00728 ³  Forwarder ³ -> PMMERGE.5156(WinDestroyWindow), (WinDestroyWindow)
 ³ 00729 ³  Forwarder ³ -> PMMERGE.5157(WinDismissDlg), (WinDismissDlg)
 ³ 00730 ³  Forwarder ³ -> PMMERGE.5160(WinDrawBitmap), (WinDrawBitmap)
 ³ 00731 ³  Forwarder ³ -> PMMERGE.5161(WinDrawBorder), (WinDrawBorder)
@@ -738,7 +752,6 @@
 ³ 00760 ³  Forwarder ³ -> PMMERGE.5197(WinGetSysBitmap), (WinGetSysBitmap)
 ³ 00761 ³  Forwarder ³ -> PMMERGE.5202(WinInSendMsg), (WinInSendMsg)
 ³ 00762 ³  Forwarder ³ -> PMMERGE.5200(WinInflateRect), (WinInflateRect)
-³ 00763 ³  Forwarder ³ -> PMMERGE.5201(WinInitialize), (WinInitialize)
 ³ 00764 ³  Forwarder ³ -> PMMERGE.5203(WinIntersectRect), (WinIntersectRect)
 ³ 00765 ³  Forwarder ³ -> PMMERGE.5204(WinInvalidateRect), (WinInvalidateRect)
 ³ 00766 ³  Forwarder ³ -> PMMERGE.5205(WinInvalidateRegion), (WinInvalidateRegion)
@@ -860,7 +873,6 @@
 ³ 00885 ³  Forwarder ³ -> PMMERGE.5387(WinStopTimer), (WinStopTimer)
 ³ 00886 ³  Forwarder ³ -> PMMERGE.5390(WinSubstituteStrings), (WinSubstituteStrings)
 ³ 00887 ³  Forwarder ³ -> PMMERGE.5391(WinSubtractRect), (WinSubtractRect)
-³ 00888 ³  Forwarder ³ -> PMMERGE.5396(WinTerminate), (WinTerminate)
 ³ 00890 ³  Forwarder ³ -> PMMERGE.5399(WinTrackRect), (WinTrackRect)
 ³ 00891 ³  Forwarder ³ -> PMMERGE.5402(WinUnionRect), (WinUnionRect)
 ³ 00892 ³  Forwarder ³ -> PMMERGE.5403(WinUpdateWindow), (WinUpdateWindow)
@@ -879,25 +891,19 @@
 ³ 00905 ³  Forwarder ³ -> PMMERGE.5120(WinCallMsgFilter), (WinCallMsgFilter)
 ³ 00906 ³  Forwarder ³ -> PMMERGE.5134(WinCreateFrameControls), (WinCreateFrameControls)
 ³ 00907 ³  Forwarder ³ -> PMMERGE.5135(WinCreateMenu), (WinCreateMenu)
-³ 00908 ³  Forwarder ³ -> PMMERGE.5139(WinCreateStdWindow), (WinCreateStdWindow)
 ³ 00909 ³  Forwarder ³ -> PMMERGE.5141(WinCreateWindow), (WinCreateWindow)
 ³ 00910 ³  Forwarder ³ -> PMMERGE.5146(WinDefDlgProc), (WinDefDlgProc)
-³ 00911 ³  Forwarder ³ -> PMMERGE.5147(WinDefWindowProc), (WinDefWindowProc)
-³ 00912 ³  Forwarder ³ -> PMMERGE.5158(WinDispatchMsg), (WinDispatchMsg)
 ³ 00913 ³  Forwarder ³ -> PMMERGE.5163(WinDrawText), (WinDrawText)
 ³ 00914 ³  Forwarder ³ -> PMMERGE.5183(WinGetDlgMsg), (WinGetDlgMsg)
-³ 00915 ³  Forwarder ³ -> PMMERGE.5192(WinGetMsg), (WinGetMsg)
 ³ 00916 ³  Forwarder ³ -> PMMERGE.5235(WinMsgMuxSemWait), (WinMsgMuxSemWait)
 ³ 00917 ³  Forwarder ³ -> PMMERGE.5237(WinMultWindowFromIDs), (WinMultWindowFromIDs)
 ³ 00918 ³  Forwarder ³ -> PMMERGE.5242(WinPeekMsg), (WinPeekMsg)
 ³ 00919 ³  Forwarder ³ -> PMMERGE.5244(WinPostMsg), (WinPostMsg)
-³ 00920 ³  Forwarder ³ -> PMMERGE.5334(WinSendMsg), (WinSendMsg)
 ³ 00921 ³  Forwarder ³ -> PMMERGE.5353(WinSetKeyboardStateTable), (WinSetKeyboardStateTable)
 ³ 00922 ³  Forwarder ³ -> PMMERGE.5133(WinCreateDlg), (WinCreateDlg)
 ³ 00923 ³  Forwarder ³ -> PMMERGE.5159(WinDlgBox), (WinDlgBox)
 ³ 00924 ³  Forwarder ³ -> PMMERGE.5218(WinLoadDlg), (WinLoadDlg)
 ³ 00925 ³  Forwarder ³ -> PMMERGE.5257(WinQueryClassInfo), (WinQueryClassInfo)
-³ 00926 ³  Forwarder ³ -> PMMERGE.5315(WinRegisterClass), (WinRegisterClass)
 ³ 00927 ³  Forwarder ³ -> PMMERGE.5321(WinReleaseHook), (WinReleaseHook)
 ³ 00928 ³  Forwarder ³ -> PMMERGE.5352(WinSetHook), (WinSetHook)
 ³ 00929 ³  Forwarder ³ -> PMMERGE.5389(WinSubclassWindow), (WinSubclassWindow)
@@ -1054,4 +1060,5 @@
 ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 Ã Relocation Table
 ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-À´Done
+
+À´Done

@@ -21,7 +21,7 @@ ERRORID     APIENTRY    WinGetLastError(HAB iHAB)
     return rc;
 
 }
-
+#if 0
 ERRORID     APIENTRY    WinGetLastError2(void)
 {   int ordinal,tid,rc, ind;
     ordinal = QueryThreadOrdinal(tid);
@@ -33,7 +33,7 @@ ERRORID     APIENTRY    WinGetLastError2(void)
     _hab.hab[ind].lastError = 0;
     return rc;
 }
-
+#endif
 
 /*
  This function allocates a single private segment to contain the ERRINFO structure. All the pointers to string

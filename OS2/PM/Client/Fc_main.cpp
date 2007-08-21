@@ -21,19 +21,7 @@
 /*+---------------------------------+*/
 /*| External function prototypes.   |*/
 /*+---------------------------------+*/
-
-/*+---------------------------------+*/
-/*| Internal function prototypes.   |*/
-/*+---------------------------------+*/
-int InitServerConnection(char *remotemachineName);
-int CloseServerConnection(void);
-
-int _F_SendCmdToServer(int cmd, int data);
-int _F_SendGenCmdToServer(int cmd, int par);
-int _F_SendGenCmdDataToServer(int cmd, int par, void *data, int datalen);
-int _F_SendDataToServer(void *data, int len);
-int _F_RecvDataFromServer(void *data, int *len, int maxlen);
-
+#include <pmclient.h>
 /*+---------------------------------+*/
 /*| Global variables                |*/
 /*+---------------------------------+*/
@@ -48,7 +36,7 @@ const char *const _FreePM_Application_Vers = FREEPM_VERSION;
 /*+---------------------------------+*/
 static int nxDefault=800, nyDefault=600,  bytesPerPixelDefault=4;
 static char *ExternMachine = NULL;   /* Name of external machine for pipes like \\MACHINE\PIPE\SQDR   */
-//static char ExternMachineName[_MAX_FNAME]="";
+
 /*+---------------------------------+*/
 /*|     local constants.            |*/
 /*+---------------------------------+*/
@@ -71,7 +59,7 @@ static volatile int AccessF_pipe = UNLOCKED;
 
 #define UNLOCK_PIPE  {__lxchg(&AccessF_pipe,UNLOCKED);}
 
-int InitServerConnection(char *remotemachineName)
+APIRET APIENTRY InitServerConnection(char *remotemachineName)
 {  int rc;
 
 static  char buf[256];
@@ -121,7 +109,7 @@ static  char buf[256];
       strcpy(buf,FREEPM_BASE_PIPE_NAME);
    }
    strcpy(PipeName,buf);
-   
+
    debug(1, 0)("Pipe: FREEPM_BASE_PIPE_NAME=%s \n", FREEPM_BASE_PIPE_NAME);
    pF_pipe = new NPipe(PipeName,CLIENT_MODE);
 
@@ -146,7 +134,7 @@ static  char buf[256];
     return rc;
 }
 
-int CloseServerConnection(void)
+APIRET APIENTRY  CloseServerConnection(void)
 {   if(pF_pipe)
     {
     LOCK_PIPE;
@@ -159,7 +147,7 @@ int CloseServerConnection(void)
     return 0;
 }
 
-int _F_SendCmdToServer(int ncmd, int data)
+APIRET APIENTRY  _F_SendCmdToServer(int ncmd, int data)
 {   int rc;
     LOCK_PIPE;
 
@@ -194,7 +182,7 @@ int _F_SendCmdToServer(int ncmd, int data)
 
 /* Послать команду cmd c параметром par на сервер, получить ответ и вернуть его */
 /* застрелиться при ошибках */
-int _F_SendGenCmdToServer(int cmd, int par)
+APIRET APIENTRY  _F_SendGenCmdToServer(int cmd, int par)
 {   int rc,len,retcode;
     rc = _F_SendCmdToServer(cmd, par);
     if(rc)
@@ -213,7 +201,7 @@ int _F_SendGenCmdToServer(int cmd, int par)
 
 /* Послать команду cmd c параметром par, данные data длиной datalen*sizeof(int) на сервер, получить ответ и вернуть его */
 /* застрелиться при ошибках */
-int _F_SendGenCmdDataToServer(int cmd, int par, void *data, int datalen)
+APIRET APIENTRY  _F_SendGenCmdDataToServer(int cmd, int par, void *data, int datalen)
 {   int rc,len,retcode;
 M:  rc = _F_SendCmdToServer(cmd, par);
     if(rc)
@@ -245,7 +233,7 @@ M:  rc = _F_SendCmdToServer(cmd, par);
 }
 
 
-int _F_SendDataToServer(void *data, int len)
+APIRET APIENTRY  _F_SendDataToServer(void *data, int len)
 {   int rc;
     LOCK_PIPE;
 
@@ -256,7 +244,7 @@ int _F_SendDataToServer(void *data, int len)
    return rc;
 }
 
-int _F_RecvDataFromServer(void *data, int *len, int maxlen)
+APIRET APIENTRY  _F_RecvDataFromServer(void *data, int *len, int maxlen)
 {   int rc;
     LOCK_PIPE;
 

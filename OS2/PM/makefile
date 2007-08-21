@@ -9,7 +9,7 @@
 
 !include $(%ROOT)/mk/all.mk
 
-DIRS=shared Client Server API
+DIRS=Client Server API testapps
 
 all: .SYMBOLIC
    $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
@@ -17,4 +17,8 @@ all: .SYMBOLIC
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

@@ -90,3 +90,7 @@ bb_$(FS).exe: $(SPEC_OBJS) $(LIBC_MY)
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) bb_$(FS).exe $(FILESDIR)$(SEP)boot

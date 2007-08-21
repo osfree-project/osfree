@@ -7,6 +7,7 @@
 #ifndef FREEPM_FREEPM
   #define FREEPM_FREEPM
 
+
 #include "F_config.hpp"
 #include "F_def.hpp"
 #include "F_messages.hpp"
@@ -15,7 +16,6 @@
 /*| Global variables                |*/
 /*+---------------------------------+*/
 extern int _FreePM_id_index;
-
 
 #define MAX_QMSG_SIZE  64
 #define MAX_SQMSG_SIZE 256

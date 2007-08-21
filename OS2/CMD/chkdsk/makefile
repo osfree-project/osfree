@@ -4,9 +4,8 @@
 # author, date
 #
 
-
-!include ../../../build.conf
-!include ../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 ROOT=..$(SEP)..$(SEP)..
 32_BITS  = 1
@@ -20,10 +19,7 @@ OBJS = chkdsk.$(O)
 ADD_COPT = -i=..$(SEP)include
 ADD_LIB = ,cmd_shared.lib,all_shared.lib
 
-!include ../../../mk/cmd.mk
-
-#defines files mask for clean target
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.sym *.exe *.wmp
+!include $(%ROOT)/mk/all.mk
 
 
 all: $(PROJ).exe .SYMBOLIC
@@ -34,16 +30,17 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION MAP=$^&.map
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
  $(MAKE) install
 
-install: .SYMBOLIC
- $(CP) $(PROJ).exe $(DIR)
-
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

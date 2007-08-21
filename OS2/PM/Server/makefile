@@ -3,17 +3,15 @@
 #  Viking
 
 
-ROOT=..\..\..
-
-!include ../../../build.conf
-!include ../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 PROJ=FreePM
 OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
        Fs_hab.$(O) Fs_main.$(O) Fs_pipe.$(O) &
        Fs_queue.$(O) Fs_wnd.$(O) F_debug.$(O) F_DeskTop.$(O) &
-       F_errors.$(O) &
+       F_errors.$(O) f_gpi.$(O) f_hab.$(O) windowclass.$(O)
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
@@ -25,9 +23,9 @@ OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
 ADD_COPT=-bm -od -mf -sg -d2 -mf
-LINKOPT=lib pm_server.lib lib gdlib.lib
+LINKOPT=lib gdlib.lib
 
-!include ../../../mk/all.mk
+!include $(%ROOT)/mk/all.mk
 
 DIRS=drivers
 
@@ -50,3 +48,9 @@ $(PROJ).exe: $(OBJS)
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+ $(CP) $(PROJ)Server.ini $(FILESDIR)$(SEP)os2
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

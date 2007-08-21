@@ -1,5 +1,5 @@
-/* 
- $Id: F_utils.cpp,v 1.3 2002/09/06 14:59:33 evgen2 Exp $ 
+/*
+ $Id: F_utils.cpp,v 1.3 2002/09/06 14:59:33 evgen2 Exp $
 */
 /* F_utils.cpp */
 /* ver 0.00 22.08.2002       */
@@ -49,7 +49,7 @@ int OS2SetRelMaxFH(int ReqCount)
 
 
 #ifdef __cplusplus
-      extern "C" 
+      extern "C"
 #endif
 
 int QueryProcessType(void)
@@ -82,26 +82,5 @@ int QueryProcessType(void)
     return prtype;
 }
 
-#ifdef __cplusplus
-      extern "C"
-#endif
-
-int QueryThreadOrdinal(int &tid)
-{   PTIB   ptib = NULL;          /* Thread information block structure  */
-    PPIB   ppib = NULL;          /* Process information block structure */
-    APIRET rc   = NO_ERROR;      /* Return code                         */
-    PTIB2 pt2;
-    int ordinal;
-
-    rc = DosGetInfoBlocks(&ptib, &ppib);
-    if (rc != NO_ERROR)
-    {  printf ("DosGetInfoBlocks error : rc = %u\n", rc);
-          return 1;
-    }
-    ordinal = ptib->tib_ordinal;
-    pt2 = ptib->tib_ptib2;
-    tid = pt2->tib2_ultid;
-    return ordinal;
-}
 
 

@@ -1,5 +1,5 @@
-/* 
- $Id: F_debug.cpp,v 1.4 2002/11/18 13:24:49 evgen2 Exp $ 
+/*
+ $Id: F_debug.cpp,v 1.4 2002/11/18 13:24:49 evgen2 Exp $
 */
 /* F_debug.cpp */
 /* ver 0.00 20.08.2002       */
@@ -25,7 +25,7 @@
 #include "F_pipe.hpp"
 
 #include "F_globals.hpp"
-/*#include "snprintf.h"*/
+#include <pmclient.h>
 
 
 
@@ -455,7 +455,6 @@ ctx_get_descr(int ctx)
 static void fatalvf(const char *fmt, va_list args);
 static void fatal_common(const char *message);
 
-void fatal(const char *message);
 void fatalf(const char *fmt,...);
 
 static void
@@ -493,8 +492,7 @@ fatal_common(const char *message)
 }
 
 /* fatal */
-void
-fatal(const char *message)
+void APIENTRY fatal(const char *message)
 {
 //todo
 // for future usage with sockets

@@ -8,15 +8,12 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-OBJS     = rectangles.$(O)
-ADD_COPT = -i=..\include -bd 
+OBJS     = windowclass.$(O) windowmgr.$(O)
+ADD_COPT = -i=..\include
 
 !include $(%ROOT)/mk/all.mk
 
 all: $(OBJS) .SYMBOLIC
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..$(SEP)bin
 
 .IGNORE
 clean: .SYMBOLIC

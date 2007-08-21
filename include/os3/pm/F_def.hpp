@@ -1,5 +1,5 @@
-/* 
- $Id: F_def.hpp,v 1.3 2003/06/18 22:51:49 evgen2 Exp $ 
+/*
+ $Id: F_def.hpp,v 1.3 2003/06/18 22:51:49 evgen2 Exp $
 */
 /* F_def.hpp */
 /* defines */
@@ -46,7 +46,7 @@
    #define PM_HWND_THREADCAPTURE         (HWND)5
 /* Utility for conversion FreePM to PM predefined window handles */
 /* Should be used called from PM_api.cpp  */
-HWND  F_convertHandleToPM(HWND hwnd); 
+HWND  F_convertHandleToPM(HWND hwnd);
 
 /* Debug messages & info */
 #define MAX_DEBUG_SECTIONS         64
@@ -57,7 +57,6 @@ extern void _db_init(const char *logfile, const char *options);
 extern void _db_rotate_log(void);
 extern const char * xstdio_strerror(void);
 
-extern void fatal(const char *message);
 void fatalf(const char *fmt,...);
 
 /* independent version of strerror: XXX VAC strerror - work only with VAC installed */
