@@ -3,6 +3,9 @@
 set WATCOM=c:\watcom
 set ROOT=c:\_work\svn\osfree
 
+set TKPATH=c:\_os2tk45
+set FPPATH=c:\programs\pp
+
 set TOOLS=%ROOT%\tools\bin
 set PATH=%WATCOM%\binp;%TOOLS%;%PATH%
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\os2

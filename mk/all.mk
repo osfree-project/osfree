@@ -42,6 +42,7 @@ MAKE      = wmake
 MAKEOPT   = -h
 
 PC        = ppc386
+PCOPT     = -n -FE$(DIR) -Fu$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fl$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fi$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -FU.
 
 SED       = sed
 AWK       = awk
@@ -49,6 +50,7 @@ DOX       = doxygen
 
 RC        = rc
 MC        = mkmsgf
+HC        = ipfc
 GENE2FS   = genext2fs
 SYS       = sys
 
@@ -136,6 +138,17 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 .map.sym: .AUTODEPEND
  $(SAY) Converting VAC MAP to OS/2 SYM $< $(LOG)
  $(MAPSYM) $^&.map
+
+.ipf.inf: .symbolic
+  $(SAY) Compiling $<
+  $(HC) -i $< $@
+
+.rc.res: .AUTODEPEND
+  $(RC) $(RCOPT) $<
+
+.pas.exe: .AUTODEPEND
+  $(SAY) Compiling $<
+  @(PC) $(PCOPT) $(PROJ)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
