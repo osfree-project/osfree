@@ -42,7 +42,8 @@ MAKE      = wmake
 MAKEOPT   = -h
 
 PC        = ppc386
-PCOPT     = -n -FE$(DIR) -Fu$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fl$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fi$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -FU.
+PCOPT     =
+#-e$(DIR) -Fu$($FPPATH)(SEP)units -Fl$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fi$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -FU.
 
 SED       = sed
 AWK       = awk
