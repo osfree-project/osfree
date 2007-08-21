@@ -40,3 +40,4 @@ msg: .symbolic
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
