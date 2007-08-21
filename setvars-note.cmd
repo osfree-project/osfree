@@ -3,8 +3,11 @@
 set WATCOM=f:\dev\watcom
 set ROOT=f:\var\src\os2\svn\osfree
 
+set TKPATH=f:\os2tk45
+set FPPATH=f:\dev\pp
+
 set TOOLS=%ROOT%\tools\bin
-set PATH=%WATCOM%\binp;%TOOLS%;%PATH%
+set PATH=%WATCOM%\binp;%TOOLS%;%TKPATH%\bin;%FPPATH%\bin\os2;%PATH%
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\os2
 set FINCLUDE=%WATCOM%\src\fortran
 set EDPATH=%WATCOM%\eddat
