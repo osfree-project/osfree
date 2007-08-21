@@ -13,7 +13,7 @@ renmodul.exe:  renmodul.obj main.obj
   wlink $(MODE_LINKFLAGS) file renmodul.obj file main.obj system os2v2 name renmodul.exe
 
 renmodul.dll:  renmodul.obj renmodul.def dllmain.obj
-  wlink $(MODE_LINKFLAGS) file renmodul.obj file dllmain.obj @renmodul.def 
+  wlink $(MODE_LINKFLAGS) file renmodul.obj file dllmain.obj @renmodul.def
 
 # Compile step: .c -> .obj
 
@@ -44,4 +44,4 @@ renmodul.obj: renmodul.c renmodul.h
 
 main.obj: main.c renmodul.h
 
-dllmain.obj: dllmain.c
+dllmain.obj: dllmain.c
