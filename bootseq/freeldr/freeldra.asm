@@ -639,7 +639,7 @@ go_protected endp
 
 
 ;
-; muFSD entry point wrappers:
+; uFSD entry point wrappers:
 ;
 
 

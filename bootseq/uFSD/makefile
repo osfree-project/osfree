@@ -13,13 +13,13 @@ DEFINES    = -dOS2 -d__KERNEL__ -dMICROFSD -dMICROFSD_TRACE -d__NO_LILO__
 !ifeq UNIX FALSE
 
 MYDIR      = $(ROOT)\$(DIR)
-ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\muFSD -i=.
+ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\uFSD -i=.
 ADD_ASMOPT = $(DEFINES)
 
 !else
 
 MYDIR      = $(ROOT)/$(DIR)
-ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/muFSD -i=.
+ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/uFSD -i=.
 ADD_ASMOPT = $(DEFINES)
 
 !endif

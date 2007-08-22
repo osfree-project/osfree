@@ -1,5 +1,5 @@
 ;
-; muFSD entry points wrappers
+; uFSD entry points wrappers
 ;
 
 _TEXT segment

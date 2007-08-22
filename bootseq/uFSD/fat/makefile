@@ -13,7 +13,7 @@ DEFINES      = -dMICROFSD_TEST -dOS2 -d__KERNEL__ -d__WATCOM__
 
 DIR          = bootseq\uFSD\$(FS)
 MYDIR        = $(ROOT)\$(DIR)
-ADD_COPT     = $(DEFINES) -i=$(ROOT)\include\muFSD -i=. -i=..
+ADD_COPT     = $(DEFINES) -i=$(ROOT)\include\uFSD -i=. -i=..
 PATH         = $(MYDIR);$(MYDIR)\..;$(MYDIR)\..\lilo
 LIBPATH      = $(MYDIR)\..
 LIBC_MY      = ..\$(LIBC)
@@ -22,7 +22,7 @@ LIBC_MY      = ..\$(LIBC)
 
 DIR          = bootseq/uFSD/$(FS)
 MYDIR        = $(ROOT)/$(DIR)
-ADD_COPT     = $(DEFINES) -i=$(ROOT)/include/muFSD -i=. -i=..
+ADD_COPT     = $(DEFINES) -i=$(ROOT)/include/uFSD -i=. -i=..
 PATH         = $(MYDIR):$(MYDIR)/..:$(MYDIR)/../lilo
 LIBPATH      = $(MYDIR)/..
 LIBC_MY      = ../$(LIBC)

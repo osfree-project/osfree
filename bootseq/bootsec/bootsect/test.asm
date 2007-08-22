@@ -1,5 +1,5 @@
 read_allocmap:
-                ; Read muFSD allocation map
+                ; Read uFSD allocation map
                 ; sector at 0x800:0x0
 
                 pop  es                                    ; mapLoadSeg
@@ -10,7 +10,7 @@ read_allocmap:
                 call read_alloc_sector
 
                 push es                                    ;
-                pop  ds                                    ; ds --> current muFSD alloc sector
+                pop  ds                                    ; ds --> current uFSD alloc sector
 
                 call adjust_es
 
@@ -19,7 +19,7 @@ begin_read:
                 xor  si, si                                ;
 
 read_loop:
-                mov  ax, word ptr [4*si]                   ; ds:si --> current muFSD sector address
+                mov  ax, word ptr [4*si]                   ; ds:si --> current uFSD sector address
                 mov  dx, word ptr [4*si + 2]               ; dword ptr [4*si] ==> dx:ax
 
                 mov  cl, byte ptr [bx + si]                ; Sector count
@@ -33,7 +33,7 @@ read_loop:
                 pop  ds                                    ; Exchange stack top <--> ds
                 push bx                                    ;
 
-                call ReadRun                               ; Read next muFSD extent
+                call ReadRun                               ; Read next uFSD extent
 
                 mov  bx, ds                                ;
                 pop  ds                                    ; Exchange stack top <--> ds

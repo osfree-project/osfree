@@ -36,7 +36,7 @@
 ;
 ; (c) osFree project
 ; valerius, 2006/10/03,
-; support of fragmented muFSD file
+; support of fragmented uFSD file
 ; added 2006/11/12
 ;
 ; Note:

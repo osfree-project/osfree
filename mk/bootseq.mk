@@ -5,6 +5,8 @@
 # valerius, 2006/10/30
 #
 
+ROOT=$(%ROOT)
+
 #
 # Preprocessor defines
 #

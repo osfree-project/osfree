@@ -1,5 +1,5 @@
 //
-//  muFSD logic routines
+//  uFSD logic routines
 //  (filesystem-independent).
 //
 

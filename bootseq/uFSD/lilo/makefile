@@ -1,5 +1,5 @@
 #
-# Makefile for OS/3 loader muFSD's common code.
+# Makefile for OS/3 loader uFSD's common code.
 # 06/09/29 valerius
 #
 
@@ -16,14 +16,14 @@ DEFINES    = -dMICROFSD_TEST -dOS2 -d__KERNEL__ -d__WATCOM__
 DIR        = bootseq\uFSD\lilo
 MYDIR      = $(ROOT)\$(DIR)
 LIBPATH    = $(MYDIR)\..
-ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\muFSD -i=.
+ADD_COPT   = $(DEFINES) -i=$(ROOT)\include\uFSD -i=.
 
 !else
 
 DIR        = bootseq/uFSD/lilo
 MYDIR      = $(ROOT)/$(DIR)
 LIBPATH    = $(MYDIR)/..
-ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/muFSD -i=.
+ADD_COPT   = $(DEFINES) -i=$(ROOT)/include/uFSD -i=.
 
 !endif
 
