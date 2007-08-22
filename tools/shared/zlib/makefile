@@ -8,7 +8,7 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-DIR = $(%ROOT)$(SEP)tools$(SEP)libs
+DIR = $(%ROOT)$(SEP)tools$(SEP)lib
 ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
 
 OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
