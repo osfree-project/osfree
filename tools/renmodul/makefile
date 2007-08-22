@@ -1,5 +1,5 @@
 #
-# A Makefile for qemu-img
+# A Makefile for renmodul
 # (c) osFree project,
 # valerius, 2006/10/30
 #

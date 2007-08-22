@@ -14,7 +14,7 @@ DESC = rexx to executable wrapper
 all: $(DIR)$(SEP)$(PROJ).exe $(DIR)$(SEP)$(PROJ).sym
 
 $(DIR)$(SEP)$(PROJ).exe: rexxwrap.cmd
-  call rexxwrap.cmd -program=$(PROJ) -rexxfiles=rexxwrap.cmd -srcdir=. -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib
+  call rexxwrap.cmd -program=$(PROJ) -rexxfiles=rexxwrap.cmd -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
   $(CP) $(PROJ).exe $(DIR)
 
 # Clean all

@@ -616,7 +616,7 @@ Select
    When os = 'OS2' Then
       Do
          If _debug > 0 Then opt = '-g -DREXXWRAPPER_DEBUG='_debug
-         Else opt = '-O'
+         Else opt = ''  /* opt = '-O' -- incorrect optimization option (valerius) */
          /* gcc */
          cc.gcc = 'gcc'
          obj.gcc = '.o'
@@ -1297,6 +1297,7 @@ Do i = 1 To Words(!zlib_modules)
       Do
          Call Charout ,Word(!zlib_modules,i) || ' '
          cmd = !cc !cflags !defines !includes quote( zlib_dir || Word(!zlib_modules,i) || '.c' )
+         say cmd
          If _debug > 0 Then Say '   <<debug>>' cmd
          cmd
          If rc \= 0 Then Call Abort 'error compiling ZLIB module' Word(!zlib_modules,i)
@@ -1505,3 +1506,20 @@ Say '...rexxwrap.cmd has been terminated!'
 Say ''
 Exit 2
 Return
+
+/* Count number of times first string includes into second one */
+/* valerius, 2007, Aug 23 ------------------------------------ */
+Countstr: procedure
+c = arg(1)
+s = arg(2)
+
+i = 0
+p = 0
+
+do until p = 0
+  p = pos(c, s, p + 1)
+  if p > 0 then
+    i = i + 1
+end
+
+return i
