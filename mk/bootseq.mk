@@ -33,10 +33,13 @@ CC        = wcc386
 !else
 CC        = wcc
 !endif
+
 ASM       = wasm
 LINKER    = wlink
 LIB       = wlib
+
 MAKE      = wmake
+MAKEOPT   = -h
 
 PC       = ppc386
 

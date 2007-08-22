@@ -1,18 +1,19 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:55 prokushev Exp $
 
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-DIR = $(ROOT)\tools
+DIR = $(ROOT)$(SEP)tools
 PROJ = hlldump
 DESC = Debug information dump facility
 OBJS = hll.obj hlldirectory.obj exe.obj hllmodule.obj hllpublics.obj &
        hlllines.obj hllsymbols.obj hlltypes.obj
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).exe $(DIR)$(SEP)$(PROJ).sym
 
-$(DIR)\$(PROJ).exe: $(OBJS)
+$(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
@@ -21,16 +22,13 @@ $(DIR)\$(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk LIBRARY $(LINKLIB)
- @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
+ $(ADDFILES_CMD)
  $(SAY) Linking $^@
  @$(LINKER) @$^&.lnk $(LOG)
 
 # Clean all
 
-clean: .symbolic
- -@del *.obj $(LOG)
- -@del *.sbr $(LOG)
- -@del *.map $(LOG)
- -@del *.err $(LOG)
- -@del *.wmp $(LOG)
- -@del *.lnk $(LOG)
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)

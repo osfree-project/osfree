@@ -8,7 +8,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = genext2fs zlib qemu-img ltools mkmsgf awk renmodul rexxwrap # libmmap
+DIRS = shared genext2fs zlib qemu-img ltools awk renmodul rexxwrap mkmsgf # mapsym libmmap
 
 !include $(%ROOT)/mk/bootseq.mk
 

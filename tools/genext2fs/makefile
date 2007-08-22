@@ -46,25 +46,12 @@ genext2fs: $(OBJS) $(OBJS_2)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&_u.lnk $(LOG)
 
-!ifeq UNIX FALSE
-
 install: .SYMBOLIC
- $(DC) ..\bin\genext2fs.exe $(BLACKHOLE)
- $(DC) ..\bin\genext2fs $(BLACKHOLE)
- $(CP) genext2fs.exe ..\bin $(BLACKHOLE)
+ $(DC) ..$(SEP)bin$(SEP)genext2fs.exe $(BLACKHOLE)
+ $(DC) ..$(SEP)bin$(SEP)genext2fs $(BLACKHOLE)
+ $(CP) genext2fs.exe ..$(SEP)bin $(BLACKHOLE)
  $(RN) genext2fs.elf genext2fs $(BLACKHOLE)
- $(CP) genext2fs ..\bin $(BLACKHOLE)
-
-!else
-
-install: .SYMBOLIC
- $(DC) ../bin/genext2fs.exe $(BLACKHOLE)
- $(DC) ../bin/genext2fs $(BLACKHOLE)
- $(CP) genext2fs.exe ../bin $(BLACKHOLE)
- $(RN) genext2fs.elf genext2fs $(BLACKHOLE)
- $(CP) genext2fs ../bin $(BLACKHOLE)
-
-!endif
+ $(CP) genext2fs ..$(SEP)bin $(BLACKHOLE)
 
 genext2fs_u.$(O): genext2fs.c
  $(SAY) Compiling $< $(LOG)

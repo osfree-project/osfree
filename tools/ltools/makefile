@@ -4,8 +4,8 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
 
@@ -20,7 +20,7 @@ INCLUDES = ldir.h proto.h ext2.h UNIXdisk.h DOSdisk.h makefile
 OBJS     = main.$(O)  readdisk.$(O) dir.$(O)  super.$(O) &
            inode.$(O) group.$(O)    util.$(O) rfs.$(O)
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 !ifeq UNIX FALSE
 

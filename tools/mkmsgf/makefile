@@ -6,7 +6,7 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:30 prokushev Exp $
 #
 
-DIR = $(ROOT)\tools\bin
+DIR = $(ROOT)$(SEP)tools$(SEP)bin
 PROJ = mkmsgf
 DESC = Make message file tool
 
@@ -17,9 +17,9 @@ DESC = Make message file tool
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).exe .SYMBOLIC # $(DIR)\$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).exe .SYMBOLIC $(DIR)$(SEP)$(PROJ).sym
 
-$(DIR)\$(PROJ).exe: .symbolic
+$(DIR)$(SEP)$(PROJ).exe: .symbolic
  $(PC) $(PCOPT) $(PROJ)
  $(CP) $(PROJ).exe $(DIR)
 

@@ -4,17 +4,17 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..\include
+ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
 
 OBJS = qemu-img.$(O) block.$(O) block-cow.$(O) block-qcow.$(O) aes.$(O) &
        block-vmdk.$(O) block-cloop.$(O) block-dmg.$(O) block-bochs.$(O) &
        block-vpc.$(O) block-vvfat.$(O) porting.$(O)
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/all.mk
 
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
@@ -29,22 +29,13 @@ qemu-img.exe: $(OBJS)
  @%append $^&.lnk ALIAS munmap_=_munmap
  @%append $^&.lnk LIBRARY libz
  @%append $^&.lnk LIBRARY libmmap
- @%append $^&.lnk LIBPATH ../lib
+ @%append $^&.lnk LIBPATH ..$(SEP)lib
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
 
-!ifeq UNIX FALSE
-
 install: .SYMBOLIC
- $(CP) qemu-img.exe ..\bin
-
-!else
-
-install: .SYMBOLIC
- $(CP) qemu-img.exe ../bin
-
-!endif
+ $(CP) qemu-img.exe ..$(SEP)bin
 
 .IGNORE
 clean: .SYMBOLIC
