@@ -114,7 +114,7 @@
 # define HAVE_STRING_H        1
 # define HAVE_PROCESS_H       1
 # define HAVE_SYS_STAT_H      1
-# define HAVE_UNISTD_H        1
+#undef   HAVE_UNISTD_H
 # define HAVE_VSPRINTF        1
 # define HAVE__FULLPATH       1
 # define HAVE_FCNTL_H         1

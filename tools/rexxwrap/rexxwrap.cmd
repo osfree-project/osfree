@@ -611,6 +611,7 @@ Select
          run_configure = 0
          need_getopt. = 1
          file_delete = 'del'
+         directory_delete = 'rd'
          file_copy = 'copy'
       End
    When os = 'OS2' Then
@@ -671,7 +672,8 @@ Select
          need_getopt. = 1
          link.wcc = 'wlink'
          /* common */
-         file_delete = 'del'
+         directory_delete = 'rd'
+         file_delete = 'del /n '
          file_copy = 'copy'
       End
    When os = 'DOS' Then
@@ -693,6 +695,7 @@ Select
          run_configure = 0
          dos_rsp_file = 1
          need_getopt. = 1
+         directory_delete = 'rd'
          file_delete = 'del'
          file_copy = 'copy'
       End
@@ -710,6 +713,7 @@ Select
          ldflags_rexxtok. = '-N0x20000 -Q -orexxtok' opt
          ldflags_program. = '-N0x20000  -Q -o' || !program opt
          run_configure = 1
+         directory_delete = 'rm -f'
          file_delete = 'rm -f'
          file_copy = 'cp'
       End
@@ -731,6 +735,7 @@ Select
          ldflags_rexxtok. = opt '-orexxtok'
          ldflags_program. = opt '-o' || !program
          run_configure = 1
+         directory_delete = 'rm -f'
          file_delete = 'rm -f'
          file_copy = 'cp'
       End
@@ -838,7 +843,7 @@ Call Directory here
 /*
  * Change to and or make the temporary directory...
  */
-_dir = '_'!program'.tmp',
+_dir = '_'!program'.tmp'
 If Directory( _dir ) = '' Then
    Do
       'mkdir' _dir
@@ -1083,12 +1088,14 @@ If !extralink_program \= '' Then
       If rc \= 0 Then Call Abort 'error running' !extralink_program 'for' !program
    End
 /*
- * Some cleanup and finalisation
+ * Some cleanup and finalization
  */
 Call Directory here
 file_delete 'rexxwrap.tmp' null
 file_copy _dir || !dirsep || !program || exe_ext '.'
 If rc \= 0 Then Call Abort 'error copying' !program || exe_ext 'from' _dir
+file_delete _dir || !dirsep || '*' null
+directory_delete _dir null
 Say 'Done!' !program || exe_ext 'built successfully'
 Return
 
