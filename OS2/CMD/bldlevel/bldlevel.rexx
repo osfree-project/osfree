@@ -32,17 +32,17 @@ end
 f=charin(filename,1, chars(filename))
 
 as:
-interpret "parse var f with Skip '@#' Vendor ':' Revision '#@' Description '"||d2c(0)||"' Skip"
+interpret "parse var f with Skip '@'||'#' Vendor ':' Revision '#'||'@' Description '"||d2c(0)||"' Skip"
 if length(Vendor)>31 then
 do
-  f=Vendor||':'||Revision||'#@'||Description||d2c(0)||Skip
+  f=Vendor||':'||Revision||'#'||'@'||Description||d2c(0)||Skip
   signal as
 end
 
-Signature='@#'Vendor||':'||Revision||'#@'||Description
+Signature='@'||'#'Vendor||':'||Revision||'#'||'@'||Description
 
 /* This modification to original is to allow use not only asciiz strings */
-Parse var Description Description '#@'
+Parse var Description Description '#'||'@'
 
 /* Following is extensions to original bldlevel. */
 /* Used, for example, by TCP/IP tools */
@@ -87,16 +87,4 @@ If ASDFeatureID<>'' then Say SysGetMessage(8076)||ASDFeatureID
 If LanguageCode<>'' then Say SysGetMessage(8077)||LanguageCode
 If CountryCode<>'' then Say SysGetMessage(8078)||CountryCode
 If FixPackVer<>'' then Say SysGetMessage(8079)||FixPackVer
-
-/*
-
-$Log: bldlevel.cmd,v $
-Revision 1.2  2004/08/21 14:48:44  prokushev
-* Another set of changes from my local tree
-
-Revision 1.1.1.1  2003/10/04 08:19:08  prokushev
-Import
-
-
-*/
 
