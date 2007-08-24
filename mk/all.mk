@@ -18,7 +18,7 @@ ASM_DEFS  = -d__WATCOM__
 # a file which includes this file.
 #
 !ifdef 32_BITS
-COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib $(ADD_COPT)
+COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib -i=$(ROOT)\include\os3\libtiff -i=$(ROOT)\include\os3\gbm $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else
 COPT      = -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)

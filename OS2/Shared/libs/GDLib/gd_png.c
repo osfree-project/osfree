@@ -44,7 +44,7 @@ jmpbuf_wrapper;
 
 static jmpbuf_wrapper gdPngJmpbufStruct;
 
-static void
+static void _Syscall
 gdPngErrorHandler (png_structp png_ptr, png_const_charp msg)
 {
   jmpbuf_wrapper *jmpbuf_ptr;
@@ -74,7 +74,7 @@ gdPngErrorHandler (png_structp png_ptr, png_const_charp msg)
 }
 #endif
 
-static void
+static void _Syscall
 gdPngReadData (png_structp png_ptr,
               png_bytep data, png_size_t length)
 {
@@ -82,7 +82,7 @@ gdPngReadData (png_structp png_ptr,
            png_get_io_ptr (png_ptr));
 }
 
-static void
+static void _Syscall
 gdPngWriteData (png_structp png_ptr,
                png_bytep data, png_size_t length)
 {
@@ -90,7 +90,7 @@ gdPngWriteData (png_structp png_ptr,
            png_get_io_ptr (png_ptr));
 }
 
-static void
+static void _Syscall
 gdPngFlushData (png_structp png_ptr)
 {
 }
