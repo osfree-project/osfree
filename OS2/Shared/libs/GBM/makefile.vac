@@ -1,0 +1,470 @@
+#
+# Generalised Bitmap Module
+#
+# This makefile is for IBM VisualAge C++ with FP8 on OS/2.
+#
+# Builds GBM.DLL which is compiled multithreaded
+# Therefore all users should also be multithreaded
+#
+# Note problems have been observed when optimisation allows the instruction
+# scheduler to do its thing. Bug present beleived present in IBM C-Set++, with
+# CSD 12, and in particular affects inner loops in gbmht.c and gbmerr.c.
+# Bug suspected also present in VisualAge C++, even with CTC308.
+#
+
+# include configuration setting for nmake (except compiler options)
+!INCLUDE ..\nmake.opt
+
+# Modify this line to point to the Independant JPEG groups library 6a
+# If you haven't got it, comment out the line instead.
+# (Keep the current makefile !)
+IJG    = jpeg-6b
+
+# Modify these 2 lines to point to the libpng library 1.2.14 or higher
+# and the zlib 1.2.3 or higher.
+# If you haven't got them, comment out the lines instead.
+ZLIB   = zlib.123
+LIBPNG = libpng.1214
+
+# Modify this line to point to the libtiff library 3.8.2
+# If you haven't got it, comment out the line instead.
+LIBTIFF = libtiff.382
+
+# Documentation directory
+DOCDIR = doc
+
+# Installation directory: gbm.dll, gbm.lib and gbm.h files are copied to this directory
+IDIR =  bin
+
+# -------------------
+# Configure lib usage
+# -------------------
+
+CJPEG    = /DENABLE_IJG
+LIB_IJG  = $(IJG)\jpeg.lib
+
+# ZLIB is required for LIBPNG
+CPNG     = /DENABLE_PNG
+LIB_ZLIB = $(ZLIB)\z.lib
+LIB_PNG  = $(LIBPNG)\png.lib
+
+# ZLIB and IJG are required for LIBTIFF
+CTIFF    = /DENABLE_TIF
+LIB_TIFF = $(LIBTIFF)\tiff.lib
+
+# ------------------
+# Configure compiler
+# ------------------
+
+#
+# IBM Visual Age C++:
+#
+CWARNS         = /W3 /Wcnd+cns+dcl+ord+par+pro+rea+ret+use+
+CFLAGS         = /C+ $(CWARNS) /DOS2 /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /DNDEBUG
+CFLAGS_DBG     = /C+ $(CWARNS) /DOS2 /G5 /Gd-m+ /Q+ /Gf+ /Ti+ /Tm+ /DDEBUG
+CFLAGS_EXE     = $(CFLAGS) /Ge+
+CFLAGS_EXE_DBG = $(CFLAGS_DBG) /Ge+
+CFLAGS_DLL     = /Ge- $(CFLAGS) $(CJPEG) $(CPNG) $(CTIFF)
+CFLAGS_DLL_DBG = /Ge- $(CFLAGS_DBG) $(CJPEG) $(CPNG) $(CTIFF)
+
+LFLAGS         = /NOI /ALIGN:4 /NOLOGO /EXEPACK:2 /OPTFUNC /PACKCODE /PACKDATA
+LFLAGS_DBG     = /NOI /ALIGN:4 /NOLOGO /DEBUG /DBGPACK
+LFLAGS_EXE     = $(LFLAGS) /BASE:0x10000 /STACK:0x6000 /PMTYPE:VIO
+LFLAGS_EXE_DBG = $(LFLAGS_DBG) /BASE:0x10000 /STACK:0x6000 /PMTYPE:VIO
+LFLAGS_DLL     = $(LFLAGS) /NOE /DLL
+LFLAGS_DLL_DBG = $(LFLAGS_DBG) /NOE /DLL
+
+# For debugging call nmake or wmake with debug=on
+!ifdef debug
+CFLAGS_EXE     = $(CFLAGS_EXE_DBG)
+CFLAGS_DLL     = $(CFLAGS_DLL_DBG)
+LFLAGS_EXE     = $(LFLAGS_EXE_DBG)
+LFLAGS_DLL     = $(LFLAGS_DLL_DBG)
+!endif
+
+.SUFFIXES:	.c .obj
+
+.c.obj:
+		icc $(CFLAGS_EXE) $*.c
+
+#
+
+
+all:    prep ijg png tiff \
+        gbmdllout \
+        gbm.dll gbm.lib \
+        gbmtoolsout \
+        gbmhdr.exe \
+        gbmmir.lib gbmref.exe \
+        gbmrect.lib gbmsub.exe \
+        gbmscale.lib gbmsize.exe \
+        gbmerr.lib gbmtrunc.lib gbmht.lib gbmhist.lib gbmmcut.lib gbmbpp.exe \
+        gbmcpal.exe  \
+        gbmgamma.exe \
+        gbmconv.exe \
+        gbmver.exe
+
+#
+
+prep:
+   @echo -----------------------------
+   @echo JPEG support, via IJG library
+   @echo -----------------------------
+   @copy $(IJG)\jconfig.doc $(IJG)\jconfig.h
+   @copy makeijg.vac $(IJG)
+   @copy jmorecfg.h $(IJG)
+   @echo --------------------------------
+   @echo PNG support, via LIBPNG and ZLIB
+   @echo --------------------------------
+   @copy makezlib.vac $(ZLIB)
+   @copy makepng.vac  $(LIBPNG)
+   @echo ---------------------------------------
+   @echo TIFF support, via LIBTIFF, IJG and ZLIB
+   @echo ---------------------------------------
+   @copy maketif.vac $(LIBTIFF)
+   @echo.
+
+ijg:
+   @echo ---------------------
+   @echo Compiling IJG library
+   @echo ---------------------
+!ifdef debug
+   (cd $(IJG) && nmake -c -f makeijg.vac debug=yes)
+!else
+   (cd $(IJG) && nmake -c -f makeijg.vac)
+!endif
+   @echo.
+
+#
+
+png:
+   @echo ----------------------
+   @echo Compiling ZLIB library
+   @echo ----------------------
+!ifdef debug
+   (cd $(ZLIB)   && nmake -c -f makezlib.vac debug=yes)
+!else
+   (cd $(ZLIB)   && nmake -c -f makezlib.vac)
+!endif
+   @echo.
+   @echo ------------------------
+   @echo Compiling LIBPNG library
+   @echo ------------------------
+!ifdef debug
+   (cd $(LIBPNG) && nmake -c -f makepng.vac debug=yes)
+!else
+   (cd $(LIBPNG) && nmake -c -f makepng.vac)
+!endif
+   @echo.
+
+#
+
+tiff:
+   @echo -------------------------
+   @echo Compiling LIBTIFF library
+   @echo -------------------------
+!ifdef debug
+   (cd $(LIBTIFF) && nmake -c -f maketif.vac debug=yes)
+!else
+   (cd $(LIBTIFF) && nmake -c -f maketif.vac)
+!endif
+   @echo.
+
+#
+
+gbmdllout:
+   @echo ---------------------
+   @echo Compiling GBM library
+   @echo ---------------------
+
+gbmtoolsout:
+   @echo -------------------
+   @echo Compiling GBM tools
+   @echo -------------------
+
+#
+
+gbm.dll:  gbm.obj    gbmpbm.obj  gbmpgm.obj gbmppm.obj gbmpnm.obj  \
+          gbmbmp.obj gbmtga.obj  gbmkps.obj gbmiax.obj gbmpcx.obj  \
+          gbmtif.obj gbmlbm.obj  gbmvid.obj gbmgif.obj gbmxbm.obj  \
+          gbmspr.obj gbmpsg.obj  gbmgem.obj gbmcvp.obj gbmjpg.obj  \
+          gbmpng.obj gbmxpm.obj  gbmxpmcn.obj gbmhelp.obj gbmmap.obj \
+          gbm.def
+          ilink $(LFLAGS_DLL) /OUT:$@ @<<
+                $** $(LIB_IJG) $(LIB_ZLIB) $(LIB_PNG) $(LIB_TIFF)
+<<
+
+
+gbm.lib:  gbm.def
+          implib /NOLOGO /NOI $@ $**
+
+gbm.obj:  gbm.c gbm.h gbmhelp.h gbmdesc.h gbmpbm.h gbmpgm.h gbmpnm.h gbmppm.h gbmbmp.h gbmtga.h gbmkps.h gbmiax.h gbmpcx.h gbmtif.h gbmlbm.h gbmvid.h gbmgif.h gbmxbm.h gbmspr.h gbmpsg.h gbmgem.h gbmcvp.h gbmjpg.h gbmpng.h gbmxpm.h gbmxpmcn.h
+          icc $(CFLAGS_DLL) $*.c
+
+# ------------
+# File formats
+# ------------
+
+gbmpbm.obj:	gbmpbm.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmpgm.obj:	gbmpgm.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmpnm.obj:	gbmpnm.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmppm.obj:	gbmppm.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmbmp.obj:	gbmbmp.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmtga.obj:	gbmtga.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmkps.obj:	gbmkps.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmiax.obj:	gbmiax.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmpcx.obj:	gbmpcx.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmlbm.obj:	gbmlbm.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmvid.obj:	gbmvid.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmgif.obj:	gbmgif.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmxbm.obj:	gbmxbm.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmxpm.obj:	gbmxpm.c gbm.h gbmhelp.h gbmdesc.h gbmmap.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmxpmcn.obj:	gbmxpmcn.c gbmxpmcn.h gbm.h gbmmap.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmspr.obj:	gbmspr.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmpsg.obj:	gbmpsg.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmgem.obj:	gbmgem.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmcvp.obj:	gbmcvp.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) $*.c
+
+# ------------------
+
+gbmhelp.obj:	gbmhelp.c gbm.h
+		icc $(CFLAGS_DLL) $*.c
+
+gbmmap.obj:	gbmmap.c gbm.h gbmmap.h
+		icc $(CFLAGS_DLL) $*.c
+
+# ------------------
+
+gbmjpg.obj:	gbmjpg.c gbm.h gbmhelp.h gbmdesc.h
+		icc $(CFLAGS_DLL) /I$(IJG) $*.c
+
+gbmpng.obj:	gbmpng.c gbm.h gbmhelp.h gbmmap.h gbmdesc.h
+		icc $(CFLAGS_DLL) /I$(LIBPNG) /I$(ZLIB) $*.c
+
+gbmtif.obj:	gbmtif.c gbm.h gbmhelp.h gbmmap.h gbmdesc.h
+		icc $(CFLAGS_DLL) /I$(IJG) /I$(ZLIB) /I$(LIBTIFF) $*.c
+
+
+# ------------
+# Bitmap tools
+# ------------
+
+gbmtool.obj:    gbmtool.c gbmtool.h gbm.h
+
+gbmtos2.obj:    gbmtos2.c gbmtool.h gbm.h
+
+gbmtool.lib:	gbmtool.obj gbmtos2.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+#
+
+gbmhdr.exe:	gbmhdr.obj gbm.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmhdr.obj:	gbmhdr.c gbm.h
+
+#
+
+gbmmir.lib:	gbmmir.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmmir.obj:	gbmmir.c
+
+gbmref.exe:	gbmref.obj gbm.lib gbmmir.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmref.obj:	gbmref.c gbm.h gbmmir.h
+
+#
+
+gbmrect.lib:	gbmrect.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmrect.obj:	gbmrect.c
+
+gbmsub.exe:	gbmsub.obj gbm.lib gbmrect.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmsub.obj:	gbmsub.c gbm.h gbmrect.h
+
+#
+
+gbmerr.lib:	gbmerr.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmerr.obj:	gbmerr.c
+
+#
+
+gbmscale.lib:	gbmscale.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmscale.obj:	gbmscale.c
+
+gbmsize.exe:	gbmsize.obj gbm.lib gbmscale.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmsize.obj:	gbmsize.c gbm.h gbmscale.h
+
+#
+
+gbmtrunc.lib:	gbmtrunc.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmtrunc.obj:	gbmtrunc.c
+
+#
+
+gbmht.lib:	gbmht.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmht.obj:	gbmht.c
+
+#
+
+gbmhist.lib:	gbmhist.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmhist.obj:	gbmhist.c
+
+#
+
+gbmmcut.lib:	gbmmcut.obj
+		-del /N $@ 2> nul
+		ilib /NOLOGO $@ $**;
+
+gbmmcut.obj:	gbmmcut.c
+
+#
+
+gbmbpp.exe:	gbmbpp.obj gbm.lib gbmerr.lib gbmtrunc.lib gbmht.lib gbmhist.lib gbmmcut.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmbpp.obj:	gbmbpp.c gbm.h gbmerr.h gbmtrunc.h gbmht.h gbmhist.h gbmmcut.h
+
+#
+
+gbmcpal.exe:	gbmcpal.obj gbm.lib gbmhist.lib gbmmcut.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmcpal.obj:	gbmcpal.c gbm.h gbmhist.h gbmmcut.h
+
+#
+
+gbmgamma.exe:	gbmgamma.obj gbm.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmgamma.obj:	gbmgamma.c gbm.h
+
+#
+
+gbmconv.exe:	gbmconv.obj gbm.lib gbmtool.lib
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmconv.obj:	gbmconv.c gbm.h
+
+#
+# On OS/2 we load gbm.dll dynamically, so we don't need gbm.lib.
+
+gbmver.exe:	gbmver.obj
+		ilink $(LFLAGS_EXE) /OUT:$@ $**
+
+gbmver.obj:	gbmver.c gbm.h
+
+
+# ------------------------
+# Build management targets
+# ------------------------
+
+clean:  prep
+	-del /N *.obj 2> nul
+	(cd $(IJG)     && nmake -c -f makeijg.vac  clean)
+	(cd $(ZLIB)    && nmake -c -f makezlib.vac clean)
+	(cd $(LIBPNG)  && nmake -c -f makepng.vac  clean)
+	(cd $(LIBTIFF) && nmake -c -f maketif.vac  clean)
+
+clobber: prep
+	 -del /N *.obj *.exe *.lib *.dll $(IDIR)\* 2> nul
+ 	 (cd $(IJG)     && nmake -c -f makeijg.vac  clobber)
+	 (cd $(ZLIB)    && nmake -c -f makezlib.vac clobber)
+	 (cd $(LIBPNG)  && nmake -c -f makepng.vac  clobber)
+	 (cd $(LIBTIFF) && nmake -c -f maketif.vac  clobber)
+
+#
+
+install:
+         copy gbm.h      $(IDIR)
+         copy gbmerr.h   $(IDIR)
+         copy gbmhist.h  $(IDIR)
+         copy gbmht.h    $(IDIR)
+         copy gbmmcut.h  $(IDIR)
+         copy gbmmir.h   $(IDIR)
+         copy gbmrect.h  $(IDIR)
+         copy gbmscale.h $(IDIR)
+         copy gbmtrunc.h $(IDIR)
+         copy gbmtool.h  $(IDIR)
+         copy *.lib      $(IDIR)
+         copy *.exe      $(IDIR)
+         copy *.dll      $(IDIR)
+         copy $(DOCDIR)\readme_gbmos2.txt $(IDIR)
+
+#
+
+exepack:
+         $(DLL_PACKER) *.dll
+         $(EXE_PACKER) *.exe
+
+#
+
+package:
+        -del /N $(IDIR)\gbmos2.zip 2> nul
+        zip $(IDIR)\gbmos2.zip *.exe *.dll *.lib gbm.h gbmerr.h gbmhist.h  \
+                               gbmht.h gbmmcut.h gbmmir.h gbmrect.h  \
+                               gbmscale.h gbmtrunc.h gbmtool.h \
+                               $(DOCDIR)\readme_gbmos2.txt
+

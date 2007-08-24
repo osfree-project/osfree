@@ -1,0 +1,67 @@
+# Makefile for libpng (static)
+
+# OS/2
+# IBM VisualAge C++, with CTC306, CTD302 and CTU304
+#
+# Builds libpng objects which are compiled multithreaded
+# Therefore all users should also be multithreaded
+#
+# Modify this line to point to the zlib library 1.2.3 or higher
+ZLIB = ..\zlib.123
+IDIR = bin
+
+#CWARNS     = /W3 /Wcnd+cns+dcl+ord+par+pro+rea+ret+use+
+CWARNS     = /W2
+CFLAGS     = /C+ $(CWARNS) /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /Ge- /I$(ZLIB) /DPNG_NO_STDIO /DNDEBUG
+CFLAGS_DBG = /C+ $(CWARNS) /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /Ge- /I$(ZLIB) /Ti+ /Tm+ /DDEBUG
+
+LFLAGS     = /NOI /ALIGN:4 /NOLOGO
+LFLAGS_DBG = /NOI /ALIGN:4 /NOLOGO /DEBUG /DBGPACK
+
+# For debugging call nmake or wmake with debug=on
+!ifdef debug
+CFLAGS     = $(CFLAGS_DBG)
+LFLAGS     = $(LFLAGS_DBG)
+!endif
+
+.SUFFIXES:	.c .obj
+
+.c.obj:
+		icc $(CFLAGS) $*.c
+
+#
+
+OBJS = png.obj pngset.obj pngget.obj pngrutil.obj pngtrans.obj pngwutil.obj \
+       pngread.obj pngrio.obj pngwio.obj pngwrite.obj pngrtran.obj          \
+       pngwtran.obj pngmem.obj pngerror.obj pngpread.obj
+
+all:   png.lib
+
+
+png.lib:  $(OBJS)
+          -del /N $@ 2> nul
+           ilib /NOLOGO $@ $**;
+
+png.obj:  png.c png.h pngconf.h
+          icc $(CFLAGS) $*.c
+
+
+# ------------------------
+# Build management targets
+# ------------------------
+
+clean:
+         -del /N *.obj 2> nul
+
+clobber:
+         -del /N *.obj *.exe *.lib $(IDIR)\* 2> nul
+
+install:
+         copy png.lib     $(IDIR)
+         copy png.h       $(IDIR)
+         copy pngconf.h   $(IDIR)
+
+package:
+         -del /N $(IDIR)\libpng1214.zip
+         zip -9 $(IDIR)\libpng1214.zip png.lib png.h pngconf.h
+

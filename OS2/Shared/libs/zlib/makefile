@@ -16,12 +16,16 @@ ADD_COPT = -i=..\include
 
 all: $(ROOT)\lib\zlib.lib .SYMBOLIC
 
-OBJS = adler32.obj compress.obj &
-            deflate.obj infblock.obj &
-            infcodes.obj inffast.obj &
-            inflate.obj inftrees.obj &
-            infutil.obj trees.obj &
-            uncompr.obj zutil.obj
+OBJS = adler32.$(O) compress.$(O) crc32.$(O) deflate.$(O) &
+       gzio.$(O) infback.$(O) inffast.$(O) inflate.$(O) &
+       inftrees.$(O) trees.$(O) uncompr.$(O) zutil.$(O)
+
+#            adler32.obj compress.obj &
+#            deflate.obj infblock.obj &
+#            infcodes.obj inffast.obj &
+#            inflate.obj inftrees.obj &
+#            infutil.obj trees.obj &
+#            uncompr.obj zutil.obj &
 
 
 $(ROOT)\lib\zlib.lib: $(OBJS)

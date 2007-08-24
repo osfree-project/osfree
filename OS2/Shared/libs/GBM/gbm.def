@@ -1,0 +1,55 @@
+; ---------------
+; GBM.DLL exports
+; ---------------
+
+LIBRARY GBM INITINSTANCE TERMINSTANCE
+
+DESCRIPTION "@#Heiko Nitzsche:1.51#@ Generalised Bitmap Module (GBM,VAC)"
+
+DATA MULTIPLE NONSHARED READWRITE
+
+CODE PRELOAD EXECUTEREAD
+
+EXPORTS
+; lower than GBM 1.35
+  gbm_init
+  gbm_deinit
+  gbm_io_setup
+  gbm_io_open
+  gbm_io_create
+  gbm_io_close
+  gbm_io_lseek
+  gbm_io_read
+  gbm_io_write
+  gbm_query_n_filetypes
+  gbm_query_filetype
+  gbm_guess_filetype
+  gbm_read_header
+  gbm_read_palette
+  gbm_read_data
+  gbm_write
+  gbm_err
+  gbm_version
+
+  Gbm_init
+  Gbm_deinit
+  Gbm_io_open
+  Gbm_io_create
+  Gbm_io_close
+  Gbm_io_lseek
+  Gbm_io_read
+  Gbm_io_write
+  Gbm_query_n_filetypes
+  Gbm_query_filetype
+  Gbm_guess_filetype
+  Gbm_read_header
+  Gbm_read_palette
+  Gbm_read_data
+  Gbm_write
+  Gbm_err
+  Gbm_version
+
+; new since GBM 1.35
+  gbm_restore_io_setup
+  gbm_read_imgcount
+

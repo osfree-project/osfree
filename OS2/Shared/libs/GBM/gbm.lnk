@@ -1,0 +1,48 @@
+# ---------------
+# GBM.DLL exports
+# ---------------
+
+OPTION DESCRIPTION '@#Heiko Nitzsche:1.51#@ Generalised Bitmap Module (GBM,WAT)'
+
+# lower than GBM 1.35
+EXPORT gbm_init
+EXPORT gbm_deinit
+EXPORT gbm_io_setup
+EXPORT gbm_io_open
+EXPORT gbm_io_create
+EXPORT gbm_io_close
+EXPORT gbm_io_lseek
+EXPORT gbm_io_read
+EXPORT gbm_io_write
+EXPORT gbm_query_n_filetypes
+EXPORT gbm_query_filetype
+EXPORT gbm_guess_filetype
+EXPORT gbm_read_header
+EXPORT gbm_read_palette
+EXPORT gbm_read_data
+EXPORT gbm_write
+EXPORT gbm_err
+EXPORT gbm_version
+
+EXPORT Gbm_init
+EXPORT Gbm_deinit
+EXPORT Gbm_io_open
+EXPORT Gbm_io_create
+EXPORT Gbm_io_close
+EXPORT Gbm_io_lseek
+EXPORT Gbm_io_read
+EXPORT Gbm_io_write
+EXPORT Gbm_query_n_filetypes
+EXPORT Gbm_query_filetype
+EXPORT Gbm_guess_filetype
+EXPORT Gbm_read_header
+EXPORT Gbm_read_palette
+EXPORT Gbm_read_data
+EXPORT Gbm_write
+EXPORT Gbm_err
+EXPORT Gbm_version
+
+# new since GBM 1.35
+EXPORT gbm_restore_io_setup
+EXPORT gbm_read_imgcount
+

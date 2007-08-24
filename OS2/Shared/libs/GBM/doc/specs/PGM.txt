@@ -1,0 +1,107 @@
+pgm(5)                    FILE FORMATS                     pgm(5)
+
+
+
+NAME
+     pgm - portable graymap file format
+
+DESCRIPTION
+     The portable graymap format is a lowest  common  denominator
+     grayscale file format.  The definition is as follows:
+
+     - A "magic number" for identifying the  file  type.   A  pgm
+       file's magic number is the two characters "P2".
+
+     - Whitespace (blanks, TABs, CRs, LFs).
+
+     - A width, formatted as ASCII characters in decimal.
+
+     - Whitespace.
+
+     - A height, again in ASCII decimal.
+
+     - Whitespace.
+
+     - The maximum gray value, again in ASCII decimal.
+
+     - Whitespace.
+
+     - Width * height gray values, each in ASCII decimal, between
+       0  and  the  specified  maximum  value,  separated by whi-
+       tespace, starting at the top-left corner of  the  graymap,
+       proceeding  in normal English reading order.  A value of 0
+       means black, and the maximum value means white.
+
+     - Characters from a "#" to the next end-of-line are  ignored
+       (comments).
+
+     - No line should be longer than 70 characters.
+
+     Here is an example of a small graymap in this format:
+     P2
+     # feep.pgm
+     24 7
+     15
+     0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+     0  3  3  3  3  0  0  7  7  7  7  0  0 11 11 11 11  0  0 15 15 15 15  0
+     0  3  0  0  0  0  0  7  0  0  0  0  0 11  0  0  0  0  0 15  0  0 15  0
+     0  3  3  3  0  0  0  7  7  7  0  0  0 11 11 11  0  0  0 15 15 15 15  0
+     0  3  0  0  0  0  0  7  0  0  0  0  0 11  0  0  0  0  0 15  0  0  0  0
+     0  3  0  0  0  0  0  7  7  7  7  0  0 11 11 11 11  0  0 15  0  0  0  0
+     0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+
+     Programs that read this format should be as lenient as  pos-
+     sible,  accepting  anything that looks remotely like a gray-
+     map.
+
+     There is also a variant on the format, available by  setting
+     the  RAWBITS  option  at compile time.  This variant is dif-
+     ferent in the following ways:
+
+     - The "magic number" is "P5" instead of "P2".
+
+     - The gray values are stored  as  plain  bytes,  instead  of
+       ASCII decimal.
+
+     - No whitespace is allowed in the grays section, and only  a
+       single  character  of  whitespace (typically a newline) is
+       allowed after the maxval.
+
+     - The files are smaller and many times faster  to  read  and
+       write.
+
+     Note that this raw format can only be used for maxvals  less
+     than or equal to 255.  If you use the _p_g_m library and try to
+     write a file with a larger  maxval,  it  will  automatically
+     fall back on the slower but more general plain format.
+
+AUTHOR
+     Copyright (C) 1989, 1991 by Jef Poskanzer.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sun Release 4.1   Last change: 12 November 1991                 2
+
+
+

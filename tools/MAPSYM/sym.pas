@@ -2,9 +2,29 @@
 
 Unit SYM;
 
+{$IFDEF FPC}
+  {$MODE OBJFPC}
+  {$H-} // Don't use huge strings by default. Use pascal strings.
+{$ENDIF}
+
 Interface
 
-
+Type
+  TSYMFile=Class
+  private
+    AFile: File of Byte;
+    bFlags:        Byte;                { symbol types                          }
+    bReserved1:    Byte;                { reserved                              }
+    pSegEntry:     Word;                { segment entry point value             }
+    cConsts:       Word;                { count of constants in map             }
+    pConstDef:     Word;                { pointer to constant chain             }
+    cSegs:         Word;                { count of segments in map              }
+    ppSegDef:      Word;                { paragraph pointer to first segment    }
+    cbMaxSym:      Byte;                { maximum symbol-name length            }
+    strModName:    String;              { module name }
+  public
+    constructor Create(FileName: String);
+  end;
 
 Implementation
 
@@ -21,8 +41,7 @@ Type
     cSegs:         Word;                { count of segments in map              }
     ppSegDef:      Word;                { paragraph pointer to first segment    }
     cbMaxSym:      Byte;                { maximum symbol-name length            }
-    cbModName:     Byte;                { length of module name                 }
-    achModName:    Array[0..0] of Char; { cbModName Bytes of module-name member }
+    strModName:    String;              { module name }
   end;
 
 Type
@@ -46,22 +65,19 @@ Type
     ppLineDef:    Word;                { offset of line number record          }
     bReserved2:   Byte;                { reserved                              }
     bReserved3:   Byte;                { reserved (0xff)                       }
-    cbSegName:    Byte;                { length of segment name                }
-    achSegName:   Array[0..0] of Char; { cbSegName Bytes of segment-name member}
+    strSegName:   String;              { segment name                          }
   end;
 
 Type
   TSYMDEF16=record
     wSymVal:       Word;                { symbol address or constant            }
-    cbSymName:     Byte;                { length of symbol name                 }
-    achSymName:    Array[0..0] of Char; { cbSymName Bytes of symbol-name member }
+    strSymName:    String;              { symbol name }
   end;
 
 Type
   TSYMDEF32=record
     wSymVal:      Word;                { symbol address or constant            }
-    cbSymName:    Byte;                { length of symbol name                 }
-    achSymName:   Array[0..0] of Char; { cbSymName Bytes of symbol-name member }
+    strSymName:    String;              { symbol name }
   end;
 
 Type
@@ -70,8 +86,7 @@ Type
     wReserved1:    Word;                { reserved                              }
     pLines:        Word;                { pointer to line numbers               }
     cLines:        Word;                { reserved                              }
-    cbFileName:    Byte;                { length of filename                    }
-    achFileName:   Array[0..0] of Char; { cbFileName Bytes of filename          }
+    strFileName:   String;              { filename }
   end;
 
 Type
@@ -79,6 +94,7 @@ Type
     wCodeOffset:  Word;  { executable offset                     }
     dwFileOffset: Word;  { source offset                         }
   end;
+
 
 Const
   SEG_FLAGS_32BIT = $01;      { 32bit segment is set. 16-bit segment if clear }
@@ -127,6 +143,20 @@ End;
              )
 
 {$ENDIF}
+
+Constructor TSymFile.Create(FileName: String);
+Var
+  A: Word;
+  AHdr: TMapDef;
+Begin
+  inherited Create;
+
+  Assign(AFile, FileName);
+  Reset(AFile);
+  BlockRead(AFile, AHdr, SizeOf(AHdr), a);
+  WriteLn(aHdr.strmodname);
+  Close(AFile);
+End;
 
 Begin
   {No initialization code}
