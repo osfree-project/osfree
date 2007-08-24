@@ -162,7 +162,7 @@ rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk format os2 lx
+        @%append dummy.lnk system os2v2
         @%append dummy.lnk name rexx.exe
         @%append dummy.lnk file rexx.obj
         @%append dummy.lnk file funcs.obj
@@ -212,7 +212,7 @@ regina.exe : $(IMPFILE) regina.obj
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk format os2 lx
+        @%append dummy.lnk system os2v2
         @%append dummy.lnk name regina.exe
         @%append dummy.lnk file regina.obj
         @%append dummy.lnk file .\$(IMPFILE)
@@ -223,7 +223,7 @@ execiser.exe : $(IMPFILE) execiser.obj
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk format os2 lx
+        @%append dummy.lnk system os2v2
         @%append dummy.lnk name execiser.exe
         @%append dummy.lnk file execiser.obj
         @%append dummy.lnk file .\$(IMPFILE)
@@ -281,7 +281,7 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk format os2 lx dll
+        @%append dummy.lnk system os2v2 dll
         @%append dummy.lnk name $(DLLFILE)
         @%append dummy.lnk file client.dlo
         @%append dummy.lnk file drexx.dlo
@@ -374,7 +374,7 @@ $(DLLTEST1): test1.dlo $(IMPFILE)
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk format os2 lx dll
+        @%append dummy.lnk system os2v2 dll
         @%append dummy.lnk name $(DLLTEST1)
         @%append dummy.lnk file test1.dlo
         @%append dummy.lnk export Test1Function1
@@ -389,7 +389,7 @@ $(DLLTEST2): test2.dlo $(IMPFILE)
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk format os2 lx dll
+        @%append dummy.lnk system os2v2 dll
         @%append dummy.lnk name $(DLLTEST2)
         @%append dummy.lnk file test2.dlo
         @%append dummy.lnk export Test2Function1

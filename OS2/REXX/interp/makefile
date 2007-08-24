@@ -1,35 +1,39 @@
-# $Id: makefile,v 1.5 2004/08/21 14:48:36 prokushev Exp $
+#
+# A Makefile for kal.dll
+# (c) osFree project,
+# author, date
+#
 
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-EXEDIR = $(ROOT)\bin\os2
-DLLDIR = $(EXEDIR)\dll
+32_BITS  = 1
+DIR      = $(ROOT)\bin\os2\dll
+PROJ     = kal
+DESC     = Kernel Abstracion Layer API
+OBJS     = ..\shared\stub.$(O) file.$(O)
+ADD_COPT = -i=..\include
+LINKOPT  = lib os2386.lib lib clib3r.lib
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
-all
-  -@del /q $(EXEDIR)\rexx.exe
-  -@del /q $(EXEDIR)\regina.exe
-  -@del /q $(EXEDIR)\execiser.exe
-  -@del /q $(DLLDIR)\regina.dll
+all: .SYMBOLIC
+  -@del $(EXEDIR)\rexx.exe
+  -@del $(EXEDIR)\regina.exe
+  -@del $(EXEDIR)\execiser.exe
+  -@del $(DLLDIR)\regina.dll
   @%create wrapper.cmd
   @%append wrapper.cmd @set REGINA_SRCDIRN=.
   @%append wrapper.cmd @$(MAKE) -f makefile.os2.wcc
   @wrapper.cmd
-  @del /q wrapper.cmd
+  @del wrapper.cmd
   @move *.exe $(EXEDIR)
   @move regina.dll $(DLLDIR)
 
-# Clean target
-clean : .symbolic
-    @if exist *.obj @del /q *.obj
-    @if exist *.dlo @del /q *.dlo
-    @if exist *.dll @del /q *.dll
-    @if exist *.exe @del /q *.exe
-    @if exist *.res @del /q *.res
-    @if exist *.msg @del /q *.msg
-    @if exist *.map @del /q *.map
-    @if exist *.wmp @del /q *.wmp
-    @if exist *.lnk @del /q *.lnk
-    @if exist *.err @del /q *.err
-    @if exist *.lib @del /q *.lib
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)

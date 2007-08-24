@@ -1,15 +1,26 @@
-# $Id: makefile,v 1.5 2004/08/16 04:51:07 prokushev Exp $
+#
+# A main Makefile for OS/3 boot sequence project
+# (c) osFree project,
+# valerius, 2006/10/30
+#
 
-ROOT=..\..
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-# Add other targets here upon their maturity
-TARGETS=interp rexx rexxapi # libs
+DIRS = interp # rexx rexxapi # libs
 
-all
- $(SAY) Building REXX
- @for %%i in ($(TARGETS)) do @cd %%i&$(MAKE) $(MAKEFLAGS)&cd ..
+!include $(%ROOT)/mk/all.mk
 
-clean
- $(SAY) Cleaning REXX
- @for %%i in ($(TARGETS)) do @cd %%i&$(MAKE) $(MAKEFLAGS) clean&cd ..
+all: .SYMBOLIC
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(MKDIR) $(FILESDIR)$(SEP)os2
+ $(MKDIR) $(FILESDIR)$(SEP)os2$(SEP)dll
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
