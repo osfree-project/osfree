@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = shared cmd utlapi cpi pm mm
+DIRS = format
 
 !include $(%ROOT)/mk/all.mk
 
