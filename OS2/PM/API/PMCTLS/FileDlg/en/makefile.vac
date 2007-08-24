@@ -1,0 +1,84 @@
+#
+# GBM enhanced file dialog (English)
+#
+# OS/2
+# IBM VisualAge C++, with CTC306, CTD302 and CTU304
+#
+# Builds GBMDLG.DLL which is compiled multithreaded
+# Therefore all users should also be multithreaded
+#
+
+# include configuration setting for nmake (except compiler options)
+!INCLUDE ..\..\nmake.opt
+
+GBM  = ..\..\gbmos2
+IDIR = ..\bin
+
+
+CWARNS     = /W3 /Wcnd+cns+ord+par+pro+rea+ret+use+
+CFLAGS     = /C+ /I$(GBM) /DOS2 /G5 /Gd-m+ $(CWARNS) /O+ /Os- /Q+ /Gf+ /Ge-
+CFLAGS_DBG = /C+ /I$(GBM) /DOS2 /G5 /Gd-m+ $(CWARNS) /Q+ /Gf+ /Ge- /Ti+ /Tm+ /DDEBUG
+LFLAGS     = /NOI /ALIGN:4 /NOLOGO /EXEPACK:2 /OPTFUNC /PACKCODE /PACKDATA
+LFLAGS_DBG = /NOI /ALIGN:4 /NOLOGO /DEBUG /DBGPACK
+
+# For debugging call nmake or wmake with debug=on
+!ifdef debug
+CFLAGS = $(CFLAGS_DBG)
+LFLAGS = $(LFLAGS_DBG)
+!endif
+
+.SUFFIXES:	.c .obj
+
+.c.obj:
+		icc $(CFLAGS) $*.c
+
+#
+
+all:		gbmdlg.dll gbmdlg.lib gbmdlg.hlp
+
+#
+
+gbmdlg.dll:	gbmdlg.obj $(GBM)\gbm.lib gbmdlg.def gbmdlg.res
+		ilink $(LFLAGS) /OUT:$@ gbmdlg.obj $(GBM)\gbm.lib $(GBM)\gbmscale.lib gbmdlg.def
+		rc -n -x2 gbmdlg.res gbmdlg.dll
+
+gbmdlg.lib:	gbmdlg.def
+		implib /NOI /NOLOGO $@ $**
+
+gbmdlg.obj:	gbmdlg.c gbmdlg.h gbmdlgrc.h $(GBM)\gbm.h $(GBM)\gbmscale.h
+
+gbmdlg.res:	gbmdlg.rc gbmdlgrc.h
+		rc -n -r -x2 gbmdlg.rc
+
+gbmdlg.hlp:	gbmdlg.scr gbmdlgrc.h
+		ipfcprep gbmdlg.scr gbmdlg.ipf
+		ipfc gbmdlg.ipf /country=001 /codepage=437 /language=ENG /X /W3
+
+#
+
+clean:
+		-del /N *.obj *.res *.ipf 2> nul
+
+clobber:
+		-del /N *.dll *.lib *.obj *.res *.ipf *.hlp 2> nul
+                -del /N $(IDIR)\gbmdlg.dll $(IDIR)\gbmdlg.hlp $(IDIR)\gbmdlg.h $(IDIR)\gbmdlg.lib 2> nul
+
+#
+
+install:
+		copy gbmdlg.dll $(IDIR)
+		copy gbmdlg.hlp $(IDIR)
+        copy gbmdlg.h   $(IDIR)
+        copy gbmdlg.lib $(IDIR)
+
+#
+
+exepack:
+         $(DLL_PACKER) *.dll
+
+#
+
+package:
+        -del /N $(IDIR)\gbmdlg_dll.zip 2> nul
+        zip -9 $(IDIR)\gbmdlg_dll.zip  gbmdlg.dll gbmdlg.hlp gbmdlg.h gbmdlg.lib
+
