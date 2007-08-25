@@ -3,7 +3,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIR = $(ROOT)$(SEP)tools
+DIR = $(%ROOT)$(SEP)tools
 PROJ = hlldump
 DESC = Debug information dump facility
 OBJS = hll.obj hlldirectory.obj exe.obj hllmodule.obj hllpublics.obj &

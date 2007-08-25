@@ -51,7 +51,7 @@ build.exe: build.$(O)
 boot.com: boot.$(O)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos com
- @%append $^&.lnk OPTION MAP=$^&.map
+ @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION NODEFAULTLIBS
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk PATH .
