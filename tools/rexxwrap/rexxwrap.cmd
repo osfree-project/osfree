@@ -1304,7 +1304,6 @@ Do i = 1 To Words(!zlib_modules)
       Do
          Call Charout ,Word(!zlib_modules,i) || ' '
          cmd = !cc !cflags !defines !includes quote( zlib_dir || Word(!zlib_modules,i) || '.c' )
-         say cmd
          If _debug > 0 Then Say '   <<debug>>' cmd
          cmd
          If rc \= 0 Then Call Abort 'error compiling ZLIB module' Word(!zlib_modules,i)

@@ -1,6 +1,6 @@
 @echo off
 
-set WATCOM=f:\dev\watcom
+set WATCOM=f:\dev\watcom15
 set ROOT=f:\var\src\os2\svn\osfree
 
 set TKPATH=f:\os2tk45

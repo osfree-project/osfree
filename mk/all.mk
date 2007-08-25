@@ -152,7 +152,7 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
   @(PC) $(PCOPT) $(PROJ)
 
 .rexx.exe: .AUTODEPEND
-  rexxwrapper -program=$^& -rexxfiles=$^&.rexx -srcdir=$(TOOLS)\..\rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib
+  rexxwrapper -program=$^& -rexxfiles=$^&.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)

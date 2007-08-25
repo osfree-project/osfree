@@ -20,7 +20,7 @@ OBJS   = getline.$(O) strtof.$(O)
 OBJS_1 = genext2fs.$(O)
 OBJS_2 = genext2fs_u.$(O)
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/mk/all.mk
 
 all: os2 linux .SYMBOLIC
 
