@@ -19,10 +19,6 @@ $(DIR)$(SEP)$(PROJ).exe: $(PROJ).exe
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- cd 0
- $(DC) /n *.*
- cd ..
- rmdir 0
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)

@@ -1,0 +1,8 @@
+option modname=Driver
+format os2 lx pm
+option description 'WATCOM List Box Driver'
+segment class 'code'
+segment class 'data'
+option manyautodata
+option stack=16384
+option protmode
