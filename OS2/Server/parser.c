@@ -1,166 +1,213 @@
 /******************* config.sys parser ***********************
- *		Dedicated to JESUS CHRIST, my lord and savior			 *
- *																				 *
- *		parses the systems config.sys file during bootup       *
- *		read, open and close still have to be redone, the 		 *
- *		first one probably using getc and the others must use  *
- *		miniFSD																 *
+ * Dedicated to JESUS CHRIST, my lord and savior             *
+ *                                                           *
+ * Author: Sascha Schmidt <sascha.schmidt@asamnet.de         *
+ * Version: 0.1                                              *
+ * Copyright 2007 by Sascha Schmidt and the osFree Project   *
+ * This is free software under the terms of GPL v2           *
+ *                                                           *
+ * parses the systems config.sys file during bootup          *
+ * This software is not yet useable.                         *
+ * first one probably using getc and the others must use     *
+ * miniFSD                                                   *
  *************************************************************/
 
 #include <unistd.h>
-#include <stdio.h>		/* Only for testing purpose 				*/
-#include <stdlib.h> 		/*	To be replaced by miniFSD-functions */
+#include <stdlib.h>  /* Libs have to be replaced by uLibC   */
+#include <stdio.h>				 
 #include <string.h>
-#define BUFSIZE 4096
-#define MAXLENGTH 1512
+#include <sys/types.h>
+#include <fcntl.h>
+#define MAXLENGTH 1512	// Maximal line length
 
-struct ct{
-	char  basedev[50][255];
-	char  device[50][255];
-	char  ifs[20][255];
-	char  env[50][255];
-//	struct {
-//		char key[50][255];
-//		char value[50][1255];
-//	} keys;
-} config_tree;
 
-int t0=0,t1=0,t2=0,t3=0;
+//#define DEBUG 
+
+
+// Arrays of pointers; used to store the content of config.sys
+char  *statement[30];
+char  *run[30];
+char  *call[30];
+char  *set[150];
+
 struct types {
-	const char *name;
-	const char sep;
-	char *sp;
-	int ip;
+		  const char *name;	// Name of config.sys command
+		  const char sep;	// Not used so far, perhaps I will delete it
+		  char **sp;		// Pointer to the content
+		  int ip;		// Number of elements in the arrays
 }type[]={
-   {"BASEDEV",'=',config_tree.basedev,0},
-   {"IFS",'=',config_tree.ifs,0},
-   {"DEVICE",'=',config_tree.device,0},
-   {"SET",'=',config_tree.env,0}
+   {"STATEMENT",'=',statement,0},
+   {"CALL",'=',call,0},
+   {"RUN",'=',run,0},
+   {"SET",'=',set,0}
 };
 
 
+
+// Function prototypes
 int open_config_sys();
 int close_config_sys(int);
 int parse(char *, int);
 int fgetline(int,char *);
 void error(char *);
 int print_tree();
+int cleanup();
 
+
+/**********************************************************************
+ * Here everything starts. This is the main function of the           *
+ * config.sys-parser.                                                 *
+ **********************************************************************/
 void main(void)
 {
-	int fd;	/* file descriptor */
-	char line[MAXLENGTH];
-	int len=0;	/* length of returned line */
+		  int fd; 		// file descriptor
+		  char line[MAXLENGTH]; // here I store the lines I read
+		  int len=0;		// length of returned line
 
-	fd=open_config_sys();
-	while((len=fgetline(fd,line)))
-	{
-#ifdef DEBUG
-		printf("line length: %d\n",len);
-#endif
-		if(!parse(line,len)) error("parse: an error occured\n");
-	}
-	close_config_sys(fd);
-	if(!print_tree()) error("print_tree: an error occured\n");
+		  fd=open_config_sys();
+		  while((len=fgetline(fd,line)))
+		  {
+			 if(!parse(line,len)) error("parse: an error occured\n");
+		  }
+		  
+		  close_config_sys(fd);
+		  
+		  if(!print_tree()) error("print_tree: an error occured\n");
+		  cleanup();
+
+		  exit(EXIT_SUCCESS);
 }
 
 
-/* opens the config.sys file and returns a file-descriptor; must be
- * changed to use a miniFSD function, not open */
+/**********************************************************************
+ * opens the config.sys file and returns a file-descriptor; must be   *
+ * changed to use a miniFSD function, not open                        *
+ **********************************************************************/
 int open_config_sys()
 {
-	int fd;
+		  int fd;
 
-	if((fd = open("config.sys",0)) == -1)
-		error("\n\nFATAL: config.sys could not be found\n");
-	return fd;
+		  if((fd = open("config.sys",0)) == -1)
+			 error("\n\nFATAL: config.sys could not be found\n");
+		  return fd;
 }
 
-/* closes the filedescriptor pointing to config.sys; must be changed to
- * use a miniFSD function instead of close*/
+/**********************************************************************
+ * closes the filedescriptor pointing to config.sys; must be changed  *
+ * to use a miniFSD function instead of close                         *
+ **********************************************************************/
 int close_config_sys(int fd)
 {
-		close(fd);
-		return(0);
+					 close(fd);
+					 return(0);
 }
 
-
+/**********************************************************************
+ * print_tree() is some kind of debug or test function. It only       *
+ * prints out the part of config.sys we use. It has to be replaced by *
+ * something useful.                                                  *
+ **********************************************************************/
 int print_tree()
 {
-	int x;
-	
+	int x=1, i=0;
+	  
 	printf("Config tree:\n\n");
-	for(x=1;x<type[0].ip;x++) {
-//		if(!*(config_tree.basedev+x-1)) return x;
-		printf("%s\n\r",config_tree.basedev[x-1]);
+		  
+	for(i=0;i<sizeof(type)/sizeof(struct types);i++) {	
+		printf("%s:\n",type[i].name);
+		for(x=1;x-1<type[i].ip;x++) {
+			printf("\t%s\n",type[i].sp[x-1]); 
+		}
 	}
 	return(1);
 }
 
+/**********************************************************************
+ * fgetline() reads the content of the file belonging to the file     *
+ * descriptor fd and writes it to line.                               *
+ **********************************************************************/
 int fgetline(int fd, char *line)
 {
 	int len=0;
 	char c;
-	
-	while(read(fd,&c,1)> 0 && c != '\n')
+		  
+	while(read(fd,&c,1)> 0 && c != '\n' /*&& c != '\r'*/)
 	{
 		*line++=c;
 		len++;
 	}
-	*line++='\0';
-	return(len==0?(int)NULL:len-1);
+	*line='\0';
+	return(len==0?(int)NULL:len+1);
 }
 
 
 
 
-/* The main parse function; gets a line as argument and returns 1 on
- * success and NULL on error */
+/**********************************************************************
+ * The main parse function; gets a line and its length as arguments,  *
+ * parses it, puts the content to the array it belongs to and returns.*
+ * On error it returns NULL                                           *
+ **********************************************************************/
 int parse(char line[], int len)
 {
-	int count=0,i,x,y=0;
-	char * pc;
-
-	
-	for(i=0;i<4;i++) {
-		for(count=0;count<strlen(type[i].name);count++)
-		{
+	int count=0,i=0;
+	char *pc=NULL;
+  
+	for(i=0;i<sizeof(type)/sizeof(struct types);i++) {
+		for(count=0;count<strlen(type[i].name);count++){
+	 	/* Compares line and type[i].name and breaks on a
+	 	 * difference */
 			if(line[count]!=type[i].name[count]) {
-#ifdef DEBUG
-				printf("Unterschied an Stelle %d\n",count);
-#endif
 				break;
 			}
 		}
-		if(count==strlen(type[i].name)) {
-#ifdef DEBUG			
-			printf("%s:	%s\n",type[i].name,line);
-#else
-//			printf("%s\n",line);
-#endif
-			x=++count;
-			y=type[i].ip;
-			while(line[x]) {
-				pc=&type[i].sp[y*sizeof(void*)];
-				pc[x-count]=line[x];
-				x++;
-			}
-			pc[x-count]='\0';
-//			printf("%s\n",&type[i].sp[y-1]);
-//			printf("%s\n",&type[i].sp[y]);
-			type[i].ip++;
 
-			// type[i].sp++;
+		if(count==strlen(type[i].name)) {
+			count++;
+			strcpy(line,line+count);
+			len-=count;
+	
+			if(!(pc=(char *)malloc((size_t)len)))
+				return(0);
+			strcpy(pc,line);
+			type[i].sp[type[i].ip]=pc;
+	
+        		type[i].ip++;
+			return(1);
 		}
-		x=0;
 	}
-	return(1);
+	return(2);
 }
 
+/**********************************************************************
+ * cleanup() does what it name says: It cleans up ;-) It frees the    *
+ * memory, the program used.                                          *
+ **********************************************************************/
+int cleanup()
+{
+int i=0,j;
+
+for(i=0;i<sizeof(type)/sizeof(struct types);i++) {
+		  for(j=0;j<type[i].ip;j++){
+#ifdef DEBUG
+					 printf("%s\n",type[i].sp[j]);
+#endif
+					 if(type[i].sp[j]!=NULL)
+						 free(type[i].sp[j]);
+		  }
+}
+
+return 0;
+}
+
+/**********************************************************************
+ * error() gets an error message as the only argument, prints it to   *
+ * the screen and ends the programm.                                  *
+ **********************************************************************/
 void error(char *msg)
 {
-	printf("failure-exit:\n%s",msg);
-	exit(-1);
+		  printf("failure-exit:\n%s",msg);
+		  exit(-1);
 }
 
 
