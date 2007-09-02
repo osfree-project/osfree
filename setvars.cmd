@@ -1,10 +1,10 @@
 @echo off
 
-set WATCOM=f:\dev\watcom
-set ROOT=l:\var\src\os2\svn\osfree
+set WATCOM=c:\watcom
+set ROOT=c:\_work\svn\osfree
 
-set TKPATH=f:\os2tk45
-set FPPATH=f:\dev\pp\bin\os2
+set TKPATH=c:\_os2tk45
+set FPPATH=c:\programs\pp\bin\os2
 
 set TOOLS=%ROOT%\tools\bin
 set PATH=%WATCOM%\binp;%TOOLS%;%TKPATH%\bin;%FPPATH%;%PATH%

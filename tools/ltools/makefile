@@ -20,7 +20,7 @@ INCLUDES = ldir.h proto.h ext2.h UNIXdisk.h DOSdisk.h makefile
 OBJS     = main.$(O)  readdisk.$(O) dir.$(O)  super.$(O) &
            inode.$(O) group.$(O)    util.$(O) rfs.$(O)
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/mk/all.mk
 
 !ifeq UNIX FALSE
 

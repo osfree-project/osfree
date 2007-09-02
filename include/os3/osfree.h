@@ -25,7 +25,6 @@
 
 /* Missed in OpenWatcom definitions */
 #include "mis_basemid.h"
-#include "mis_bsedev.h"
 #include "mis_bsedos.h"
 #include "mis_os2def.h"
 

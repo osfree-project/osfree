@@ -3,7 +3,8 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIR = $(%ROOT)$(SEP)tools
+32_BITS = 1
+DIR = $(%ROOT)$(SEP)tools$(SEP)bin
 PROJ = hlldump
 DESC = Debug information dump facility
 OBJS = hll.obj hlldirectory.obj exe.obj hllmodule.obj hllpublics.obj &
@@ -17,11 +18,10 @@ $(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- @%append $^&.lnk FORMAT OS2 LX PMCOMPATIBLE
+ @%append $^&.lnk system os2v2
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk LIBRARY $(LINKLIB)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@
  @$(LINKER) @$^&.lnk $(LOG)
