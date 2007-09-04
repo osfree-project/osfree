@@ -1,0 +1,26 @@
+unit os2def;
+
+type UCHAR  = BYTE;
+type USHORT = WORD;
+type ULONG  = LONGINT;
+
+type SHANDLE = USHORT;
+type LHANDLE = ULONG;
+
+const NULLHANDLE:  LHANDLE = 0;
+const NULLSHANDLE: SHANDLE = 0;
+
+const SEVERITY_NOERROR       = $0000;
+const SEVERITY_WARNING       = $0004;
+const SEVERITY_ERROR         = $0008;
+const SEVERITY_SEVERE        = $000C;
+const SEVERITY_UNRECOVERABLE = $0010;
+
+const WINERR_BASE = $1000;
+const GPIERR_BASE = $2000;
+const DEVERR_BASE = $3000;
+const SPLERR_BASE = $4000;
+
+
+
+end.

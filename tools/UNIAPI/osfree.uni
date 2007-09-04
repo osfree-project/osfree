@@ -1,0 +1,6 @@
+{Main osFree API definition}
+unit osfree;
+
+uses os2;
+
+end.

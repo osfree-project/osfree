@@ -2,7 +2,7 @@
  * Dedicated to JESUS CHRIST, my lord and savior             *
  *                                                           *
  * Author: Sascha Schmidt <sascha.schmidt@asamnet.de         *
- * Version: 0.11                                             *
+ * Version: 0.12                                             *
  * Copyright 2007 by Sascha Schmidt and the osFree Project   *
  * This is free software under the terms of GPL v2           *
  *                                                           *
@@ -49,40 +49,40 @@ struct types {
 /* Structure containing some environment options. For more information*
  * see http://www.os2world.com/goran/cfgtool.htm for example.         */
 struct { 
-//	boolean autofail;	// YES or NO (default)
+	short int autofail;	// YES or NO (default)
 	short int buffers;	// 3-100
 	short int clockscale; 	// 1,2,4
-//	boolean closefiles;	// TRUE
+	short int closefiles;	// TRUE
 	char codepage[7];	// ppp,sss (Prim. and sec. codepage)
 	char * country;		// =XXX,drive:\OS2\SYSTEM\COUNTRY.SYS
 	char * devinfo_kbd;	// =KBD,XX,drive:,\OS2\KEYBOARD.DCP
 	char * devinfo_vio;	// =SCR,VGA,drive:\OS2\BOOT\VIOTBL.DCP
 	char * diskcache;	// =D,LW,32,AC:CD+E
-//	boolean dllbasing;		// ON (default) or OF
+	short int dllbasing;		// ON (default) or OFF
 	char dumpprocess;	// = drive
-//	boolean earlymeminit;	// =TRUE (I think we won't need in in osFree)
-//	boolean fakeiss;	// =YES (has something to do with drivers, so we won't need it)
-//	boolean i13pages;	// =1
+	short int earlymeminit;	// =TRUE (I think we won't need in in osFree)
+	short int fakeiss;	// =YES (has something to do with drivers, so we won't need it)
+	short int i13pages;	// =1
 	char * ibm_java_options;// =-Dmysysprop1=tcpip -Dmysysprop2=wait
 	char * iopl;		// YES (default) or NO (I would like to see NO as default in osFree...) or a comma seperated list of programms allowed to directly work with hardware
 	char * iropt;		// =value
-//	boolean javanofpk;	// =YES; deals with fixpacks, therefore I think we need to set it to YES (which disables fixpacks in a case)
+	short int javanofpk;	// =YES; deals with fixpacks, therefore I think we need to set it to YES (which disables fixpacks in a case)
 	char lastdrive;		// =drive
-//	boolean ldrstackopt;	// FALSE or TRUE (default) (I don't think we need this setting)
+	short int ldrstackopt;	// FALSE or TRUE (default) (I don't think we need this setting)
 	char * libpath;		// =.;C:\.... (Syntax like PATH)
 	short int maxwait;	// 1 to 255, default is 3; only has an effect if PRIORITY=DYNAMIC
 	char * memman;		// =s,m,PROTECT,COMMIT where s=SWAP or NOSWAP; m=MOVE or NOMOVE (is provided for OS/2 1.x compatibility; do we need it?!?)
 	char * mode[20];	// can exist multiple times => types?!?
 	int mode_id;		// helper variable
-//	boolean ndwtimer;	// =OFF
-//	boolean pauseonerror;	// YES(default) or NO
+	short int ndwtimer;	// =OFF
+	short int pauseonerror;	// YES(default) or NO
 	char * printmonbufsize;	// =n,n,n (in byte)
-//	boolean priority;	// DYNAMIC(default) or ABSOLUTE
-//	boolean priority_disk_io;	// YES (default) or NO
-//	boolean protectonly;	// YES or NO; do we need it?
+	short int priority;	// DYNAMIC(default=1) or ABSOLUTE(=0)
+	short int priority_disk_io;	// YES (default) or NO
+	short int protectonly;	// YES or NO; do we need it?
 	char * protshell;	// =drive:\OS2\PMSHELL.EXE
-//	boolean raskdata;	// =OTE; I think we don't need to have it
-//	boolean reipl;		// ON or OFF (default)
+	short int raskdata;	// =OTE; I think we don't need to have it
+	short int reipl;		// ON or OFF (default)
 	char remote_install_state; // =X
 	char reservedriveletter;// =driveletter
 	char * setboot;		// configures OS/2 bootmanager => I think we can ignore it
@@ -90,7 +90,7 @@ struct {
 	char * strace;		// several possible?!?
 	char suppresspopups;	// 0 or driveletter
 	char * swappath;	// =drive,path,mmm(in kb),nnn (in kb)
-//	boolean sxfakehwfpu;	// =1 (do we need it?)
+	short int sxfakehwfpu;	// =1 (do we need it?)
 	char * sysdump;		// nothing or /NOPROMPT if set
 	int threads;		// =n; number of threads; isn't this handled in the kernel? do we need it?
 	char * timeslice;	// =x,y (in milliseconds)
@@ -98,12 +98,12 @@ struct {
 	int tracebuf;		// =n (inkb)
 	char * trapdump;	// =value
 	char * traplog;		// =value
-//	boolean truemode;	// =1 
+	short int truemode;	// =1 
 	int virtualaddresslimit;// =n (in kb)
-//	boolean vme;		// =NO
-//	boolean workplace_native;	// =0
-//	boolean workplace_primary_cp; // =1
-//	boolean workplace_process;	// =NO
+	short int vme;		// =NO
+	short int workplace_native;	// =0
+	short int workplace_primary_cp; // =1
+	short int workplace_process;	// =NO
 	int wp_objhandle;	// =n
 } options;
 
@@ -128,7 +128,7 @@ int fgetline(int,char *);
 void error(char *);
 int print_tree();
 int cleanup();
-
+int warn(char *);
 
 /**********************************************************************
  * Here everything starts. This is the main function of the           *
@@ -146,7 +146,7 @@ void main(void)
 	{
 		if(!parse(line,len)) error("parse: an error occured\n");
 	}
-		  
+	//printf("PRIORITY_DISK_IO: %d\n",options.priority_disk_io);
 	close_config_sys(fd);
 	if(!print_tree()) error("print_tree: an error occured\n");
 	cleanup();
@@ -162,11 +162,19 @@ int init_options()
 {
 	char * p;
 
-	if(!(p=(char *)malloc(3))) error("main: memory could not be allocated!");
+	options.autofail=0;
+	options.dllbasing=1;
+
+	if(!(p=(char *)malloc(3))) error("init_options: memory could not be allocated!");
 	strcpy(p,"YES");
 	options.iopl=p;
+	options.ldrstackopt=1;
 	options.maxwait=3;
 	options.mode_id=0;
+	options.pauseonerror=1;
+	options.priority=1;
+	options.priority_disk_io=1;
+	options.reipl=0;
 	return(1);
 }
 
@@ -304,7 +312,13 @@ int parse(char line[], int len)
 			
 			switch(i) {
 				case 0:	// AUTOFAIL
-					// BOOLEAN		
+					if(toupper(line[0])=='N'&&toupper(line[1])=='O')  {
+						options.autofail=0;
+					}
+					else if(toupper(line[0])=='Y'&&toupper(line[1])=='E'&&toupper(line[2])=='S')  {
+						options.autofail=1;
+					}
+					else warn("Wrong AUTOFAIL argument");
 					break;
 				case 1:	// BUFFERS
 					options.buffers=(short int)atoi(line);
@@ -316,7 +330,10 @@ int parse(char line[], int len)
 					else error("Syntax error in config.sys line.");
 					break;
 				case 3:	// CLOSEFILES
-					// BOOLEAN
+					if(toupper(line[0])=='T'&&toupper(line[1])=='R'&&toupper(line[2])=='U'&&toupper(line[3])=='E') {
+						options.closefiles=1;
+					}
+					else options.closefiles=0;
 					break;
 				case 4:	// CODEPAGE
 					for(helper=0;helper<7;helper++) {
@@ -348,19 +365,34 @@ int parse(char line[], int len)
 					options.diskcache=pc;		
 					break;
 				case 9:	// DLLBASING
-					// BOOLEAN
+					if(toupper(line[0])=='O'&&toupper(line[1])=='N')  {
+						options.dllbasing=1;
+					}
+					else if(toupper(line[0])=='O'&&toupper(line[1])=='F'&&toupper(line[2])=='F')  {
+						options.dllbasing=0;
+					}
+					else warn("Wrong DLLBASING argument");
 					break;
 				case 10:// DUMPPROCESS
 					options.dumpprocess=line[0];
 					break;
 				case 11:// EARLYMEMINIT
-					// BOOLEAN
+					if(toupper(line[0])=='T'&&toupper(line[1])=='R'&&toupper(line[2])=='U'&&toupper(line[3])=='E') {
+						options.earlymeminit=1;
+					}
+					else options.earlymeminit=0;
 					break;
 				case 12:// FAKEISS
-					// BOOLEAN
+					if(toupper(line[0])=='Y'&&toupper(line[1])=='E'&&toupper(line[2])=='S') {
+						options.fakeiss=1;
+					}
+					else options.fakeiss=0;
 					break;
 				case 13:// I13PAGES
-					// BOOLEAN
+					if(line[0]=='1') {
+						options.i13pages=1;
+					}
+					else options.i13pages=0;
 					break;
 				case 14:// IBM_JAVA_OPTIONS
 					if(!(pc=(char *)malloc((size_t)len)))
@@ -381,13 +413,22 @@ int parse(char line[], int len)
 					options.iropt=pc;
 					break;
 				case 17:// JAVANOFPK
-					// BOOLEAN
+					if(toupper(line[0])=='Y'&&toupper(line[1])=='E'&&toupper(line[2])=='S') {
+						options.javanofpk=1;
+					}
+					else options.javanofpk=0;
 					break;
 				case 18:// LASTDRIVE
 					options.lastdrive=line[0];
 					break;
 				case 19:// LDRSTACKOPT
-					// BOOLEAN
+					if(toupper(line[0])=='T'&&toupper(line[1])=='R'&&toupper(line[2])=='U'&&toupper(line[3])=='E') {
+						options.ldrstackopt=1;
+					}
+					else if(toupper(line[0])=='F'&&toupper(line[1])=='A'&&toupper(line[2])=='L'&&toupper(line[3])=='S'&&toupper(line[4])=='E') {
+						options.ldrstackopt=0;
+					}
+					else warn("Wrong LDRSTACKOPT argument");
 					break;
 				case 20:// LIBPATH
 					if(!(pc=(char *)malloc((size_t)len)))
@@ -416,10 +457,19 @@ int parse(char line[], int len)
 					}				
 					break;
 				case 24:// NDWTIMER
-					// BOOLEAN
+					if(toupper(line[0])=='O'&&toupper(line[1])=='F'&&toupper(line[2])=='F') {
+						options.ndwtimer=0;
+					}
+					else options.ndwtimer=1;
 					break;
 				case 25:// PAUSEONERROR
-					// BOOLEAN
+					if(toupper(line[0])=='N'&&toupper(line[1])=='O')  {
+						options.pauseonerror=0;
+					}
+					else if(toupper(line[0])=='Y'&&toupper(line[1])=='E'&&toupper(line[2])=='S')  {
+						options.pauseonerror=1;
+					}
+					else warn("Wrong PAUSEONERROR argument");
 					break;
 				case 26:// PRINTMONBUFSIZE
 					if(!(pc=(char *)malloc((size_t)len)))
@@ -428,13 +478,31 @@ int parse(char line[], int len)
 					options.printmonbufsize=pc;
 					break;
 				case 27:// PRIORITY
-					// BOOLEAN
+					if(toupper(line[0])=='D'&&toupper(line[1])=='Y'&&toupper(line[2])=='N'&&toupper(line[3])=='A'&&toupper(line[4])=='M'&&toupper(line[5])=='I'&&toupper(line[6])=='C') {
+						options.priority=1;
+					}
+					else if(toupper(line[0])=='A'&&toupper(line[1])=='B'&&toupper(line[2])=='S'&&toupper(line[3])=='O'&&toupper(line[4])=='L'&&toupper(line[5])=='U'&&toupper(line[6])=='T'&&toupper(line[7])=='E') {
+						options.priority=0;
+					}
+					else warn("Wrong PRIORITY argument");
 					break;
 				case 28:// PRIORITY_DISK_IO
-					// BOOLEAN
+					if(toupper(line[0])=='N'&&toupper(line[1])=='O')  {
+						options.priority_disk_io=0;
+					}
+					else if(toupper(line[0])=='Y'&&toupper(line[1])=='E'&&toupper(line[2])=='S')  {
+						options.priority_disk_io=1;
+					}
+					else warn("Wrong PRIORITY_DISK_IO argument");
 					break;
 				case 29:// PROTECTONLY
-					// BOOLEAN
+					if(toupper(line[0])=='N'&&toupper(line[1])=='O')  {
+						options.protectonly=0;
+					}
+					else if(toupper(line[0])=='Y'&&toupper(line[1])=='E'&&toupper(line[2])=='S')  {
+						options.protectonly=1;
+					}
+					else warn("Wrong PROTECTONLY argument");
 					break;
 				case 30:// PROTSHELL
 					if(!(pc=(char *)malloc((size_t)len)))
@@ -443,10 +511,19 @@ int parse(char line[], int len)
 					options.protshell=pc;
 					break;
 				case 31:// RASKDATA
-					// BOOLEAN
+					if(toupper(line[0])=='O'&&toupper(line[1])=='T'&&toupper(line[2])=='E') {
+						options.raskdata=1;
+					}
+					else options.raskdata=0;
 					break;
 				case 32:// REIPL
-					// BOOLEAN
+					if(toupper(line[0])=='O'&&toupper(line[1])=='N')  {
+						options.reipl=1;
+					}
+					else if(toupper(line[0])=='O'&&toupper(line[1])=='F'&&toupper(line[2])=='F')  {
+						options.reipl=0;
+					}
+					else warn("Wrong REIPL argument");
 					break;
 				case 33:// REMOTE_INSTALL_STATE
 					options.remote_install_state=line[0];
@@ -482,7 +559,10 @@ int parse(char line[], int len)
 					options.libpath=pc;
 					break;
 				case 40:// SXFAKEHWFPU
-					// BOOLEAN
+					if(line[0]=='1') {
+						options.sxfakehwfpu=1;
+					}
+					else options.sxfakehwfpu=0;
 					break;
 				case 41:// SYSDUMP
 					if(!(pc=(char *)malloc((size_t)len)))
@@ -521,21 +601,37 @@ int parse(char line[], int len)
 					options.traplog=pc;
 					break;
 				case 48:// TRUEMODE
+					if(line[0]=='1') {
+						options.truemode=1;
+					}
+					else options.truemode=0;
 					break;
 				case 49:// VIRTUALADDRESSLIMIT
 					options.virtualaddresslimit=atoi(line);
 					break;
 				case 50:// VME
-					// BOOLEAN
+					if(toupper(line[0])=='N'&&toupper(line[1])=='O') {
+						options.vme=0;
+					}
+					else options.vme=1;
 					break;
 				case 51:// WORKPLACE_NATIVE
-					// BOOLEAN
+					if(line[0]=='0') {
+						options.workplace_native=0;
+					}
+					else options.workplace_native=1;
 					break;
 				case 52:// WORKPLACE_PRIMARY_CP
-					// BOOLEAN
+					if(line[0]=='1') {
+						options.workplace_primary_cp=1;
+					}
+					else options.workplace_primary_cp=0;
 					break;
-				case 53:// WORKPLACE_PROCESS
-					// BOOLEAN
+				case 53:// WORKPLACE_PROCESS 
+					if(toupper(line[0])=='N'&&toupper(line[1])=='O') {
+						options.workplace_process=0;
+					}
+					else options.workplace_process=1;
 					break;
 				case 54:// WP_OBJHANDLE
 					options.wp_objhandle=atoi(line);
@@ -567,6 +663,8 @@ for(i=0;i<sizeof(type)/sizeof(struct types);i++) {
 						 free(type[i].sp[j]);
 		  }
 }
+if(options.iopl!=NULL)
+	free(options.iopl);
 
 return 0;
 }
@@ -582,4 +680,13 @@ void error(char *msg)
 		  exit(-1);
 }
 
+/**********************************************************************
+ * warn() gets an warning message as the only argument, prints it to  *
+ * the screen and returns -1.                                         *
+ **********************************************************************/
+int warn(char *msg)
+{
+		  printf("warning:\n%s\n",msg);
+		  return(-1);
+}
 
