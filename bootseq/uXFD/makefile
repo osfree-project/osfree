@@ -5,14 +5,22 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-DIRS = # bin mz ne a.out elf coff lx
+DIR        = uXFD
+DIRS       = bin # mz ne a.out elf coff lx
+ADD_COPT   = -od -s $(DEFINES) -i=. -i=$(%ROOT)$(SEP)include
+ADD_ASMOPT =
 
-!include ../../mk/bootseq.mk
+STARTUP    =
+ALL        = init.$(O)
 
-all: .SYMBOLIC
+OBJS       = $(STARTUP) $(ALL)
+
+!include $(%ROOT)/mk/bootseq.mk
+
+all: $(OBJS)
  $(MAKE) TARGET=$^@ subdirs
 
 .IGNORE
