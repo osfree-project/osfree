@@ -11,13 +11,13 @@
  *                          other value if error
  */
 
-//int load(char far *image, unsigned long size, char far *load_addr, struct exe_params *p);
-int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params *p);
-
 struct exe_params
 {
    unsigned short  cs;
    unsigned long   eip;
    unsigned short  ss;
    unsigned long   esp;
-}
+};
+
+//int load(char far *image, unsigned long size, char far *load_addr, struct exe_params *p);
+int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params *p);
