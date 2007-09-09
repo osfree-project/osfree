@@ -1,6 +1,6 @@
 #
 # A Makefile for OS/3 boot sequence project
-# micro IIF drivers
+# micro executable format drivers
 # (c) osFree project,
 # valerius, 2006/10/30
 #

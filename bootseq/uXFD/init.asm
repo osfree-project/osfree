@@ -37,12 +37,6 @@ _start proc far
 
        call fmt_load
 
-       ;lea  ax, msg
-       ;push ax
-       ;les  di, LIPPtr
-       ;call dword ptr es:[di + 64]  ; printk()
-       ;add  sp, 2
-
        retf
 
 _start endp
@@ -54,8 +48,6 @@ _DATA segment para public 'DATA' use16
 
 BPBPtr    dd   ?
 LIPPtr    dd   ?
-
-msg       db   "Hello!!!",0
 
 _DATA ends
 

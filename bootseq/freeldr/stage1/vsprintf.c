@@ -474,9 +474,16 @@ freeldr_printk(const char far *fmt, ...) {
     char   *bufptr = scratch_buffer;
     char   *save;
 
+    __asm {
+       push cs
+       pop  ds
+    }
+
     for (p = 0; p < 1024; p++)
-      while (*(fmt + p))
+      if (fmt[p])
         buf[p] = fmt[p];
+      else
+        break;
 
     va_start(args, buf);
     vsprintf(scratch_buffer, buf, args);
