@@ -13,7 +13,7 @@
 
 #include "freeldr.h"
 
-//#include <uXFD/uXFD.h>
+#include <uXFD/uXFD.h>
 #include <lip.h>
 
 // Loader Interface Page
@@ -21,14 +21,16 @@ lip_t lip;
 // BPB of the boot partition
 extern char BPBTable[31];
 
-int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params *p)
+int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params far *p)
 {
    unsigned long fsize, len;
-   char *file = "/boot/freeldr/xfd/bin.xfd";
+   char far *file = "/boot/freeldr/xfd/bin.xfd";
    unsigned long buf = 0x30000; // 0x3000:0x0  -- uXFD load address
-   int (far *fmt_load) (unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params *p);
+   int (far *fmt_load) (unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params far *p);
    void *plip, *pbpb;
    int rc;
+
+   printk("load(): loading %s", file);
 
    fsize = freeldr_open(file);
    if (fsize)
@@ -53,6 +55,8 @@ int load(unsigned long image, unsigned long size, unsigned long load_addr, struc
      mov  es, ax
      mov  di, plip  // es:di --> LIP
    }
+
+   printk("calling load() function of the uXFD...");
 
    // Call uXFD load() function
    rc = fmt_load(image, size, load_addr, p);
@@ -80,11 +84,11 @@ void Stage2Loader(void far *filetbl)
    lip.lip_term   = MK_FP(current_seg, freeldr_term);
    lip.lip_seek   = MK_FP(current_seg, freeldr_seek);
 
-   lip.lip_printk = MK_FP(current_seg, printk);
+   lip.lip_printk = MK_FP(current_seg, freeldr_printk);
 
    printk("Stage2 loader started!");
 
-   if (!load(0, 0, 0, &exe_parm))
+   if (!load(0, 0, 0, MK_FP(current_seg, &exe_parm)))
        printk("file %s loaded successfully", file);
    else
        printk("file %s is not loaded!");

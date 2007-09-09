@@ -22,7 +22,7 @@ STARTUP    =
 SPEC_OBJS  = load.$(O)
 GEN_OBJS   = init.$(O)
 
-OBJS       = $(STARTUP) $(SPEC_OBJS) $(GEN_OBJS)
+OBJS       = $(STARTUP) $(GEN_OBJS) $(SPEC_OBJS)
 
 !include $(%ROOT)/mk/bootseq.mk
 
@@ -41,7 +41,7 @@ bin.com: $(OBJS)
  @%append $^&.lnk OPTION NODEFAULTLIBS
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk ALIAS _l=LIPPtr
- @%append $^&.lnk ALIAS load=load_
+ @%append $^&.lnk ALIAS fmt_load=fmt_load_
  @%append $^&.lnk LIBRARY $(LIBC)
  @%append $^&.lnk PATH $(PATH)
  $(ADDFILES_CMD)

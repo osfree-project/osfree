@@ -11,6 +11,9 @@
  *                          other value if error
  */
 
+#ifndef __uXFD_uXFD_H__
+#define __uXFD_uXFD_H__
+
 struct exe_params
 {
    unsigned short  cs;
@@ -20,4 +23,6 @@ struct exe_params
 };
 
 //int load(char far *image, unsigned long size, char far *load_addr, struct exe_params *p);
-int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params *p);
+int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params far *p);
+
+#endif

@@ -43,7 +43,6 @@ MAKEOPT   = -h
 
 PC        = ppc386
 PCOPT     =
-#-e$(DIR) -Fu$($FPPATH)(SEP)units -Fl$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -Fi$(ROOT)$(SEP)src$(SEP)toolkit$(SEP)units -FU.
 
 SED       = sed
 AWK       = awk
@@ -75,7 +74,8 @@ RN  = @move                      # Rename command
 RN  = @ren                       # Rename command
 !endif
 
-SEP       = \
+SEP       = "\"                  # dir components separator
+PS        = ";"                  # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
@@ -92,7 +92,8 @@ CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
 
 !else ifeq UNIX TRUE             # UNIX
 
-SEP       = /
+SEP       = "/"                  # dir components separator
+PS        = ":"                  # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command

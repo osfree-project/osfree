@@ -6,7 +6,7 @@
 public BPBPtr
 public LIPPtr
 
-extrn  load:NEAR
+extrn  fmt_load:NEAR
 
 .286
 
@@ -15,7 +15,7 @@ _TEXT ends
 _DATA segment para public 'DATA' use16
 _DATA ends
 
-DGROUP   group _TEXT,_DATA
+DGROUP  group _TEXT,_DATA
 assume  DS:DGROUP,CS:DGROUP,SS:nothing
 
 _TEXT segment para public 'CODE' use16
@@ -35,12 +35,13 @@ _start proc far
        mov  ds, ax
        mov  es, ax
 
-       ; call load
-       lea  ax, msg
-       push ax
-       les  di, LIPPtr
-       call dword ptr es:[di + 64]
-       add  sp, 2
+       call fmt_load
+
+       ;lea  ax, msg
+       ;push ax
+       ;les  di, LIPPtr
+       ;call dword ptr es:[di + 64]  ; printk()
+       ;add  sp, 2
 
        retf
 

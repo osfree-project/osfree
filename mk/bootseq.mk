@@ -59,7 +59,7 @@ ADDFILES_CMD = @for %%i in ($(OBJS)) do @%append $^&.lnk FILE %%i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe
+CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.wmp
 
 !ifeq UNIX FALSE                 # Non-unix
 
@@ -73,6 +73,8 @@ RN  = @ren                       # Rename command
 
 TOOLS     = $(ROOT)\tools\bin
 LOG       = # 2>&1 >> $(ROOT)\compile.log
+SEP       = \                    # dir components separator
+PS        = ;                    # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
@@ -92,6 +94,8 @@ CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
 
 TOOLS     = $(ROOT)/tools/bin
 LOG       = # 2>&1 >> $(ROOT)/compile.log
+SEP       = /                    # dir components separator
+PS        = :                    # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command

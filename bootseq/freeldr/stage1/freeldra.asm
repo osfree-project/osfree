@@ -552,11 +552,9 @@ loadhigh endp
 
 ; Open file using MicroFSD
 ;
-; unsigned short __cdecl muOpen(char *fileName,
-;                               unsigned long *fileSize);
+; unsigned short __cdecl muOpen(char far *fileName,
+;                               unsigned long far *fileSize);
 ;
-; Note: this function accepts two NEAR (!) pointers, but converts them
-; into FAR ones (adds DS segment) and passes to mu_Open() in blackbox.
 muOpen proc near
 
          ; save a previous stack frame
@@ -564,11 +562,10 @@ muOpen proc near
          push bp
          mov  bp, sp
 
-         push ds                             ; fileSize segment
-         push word ptr [bp + 6]              ; fileSize offset
-         push ds                             ; fileName segment
-         push word ptr [bp + 4]              ; fileName offset
-         call dword ptr [FileTable + 1Ah]    ; !!!!!!!!!!!!!
+         push dword ptr [bp + 8]              ; fileSize
+         push dword ptr [bp + 4]              ; fileName
+
+         call dword ptr [FileTable + 1Ah]     ; !!!!!!!!!!!!!
 
          ; take off the func. params from stack
          add sp, 8

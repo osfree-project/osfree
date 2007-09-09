@@ -9,18 +9,21 @@
  *   2) es:di --> LIP (instead of FileTable)
  */
 
+#ifndef __LIP_H__
+#define __LIP_H__
+
 #include <uXFD/uXFD.h>
 
 typedef struct
 {
    /* Filesystem access functions */
-   unsigned long __cdecl (far *lip_open)  (char *);
+   unsigned long __cdecl (far *lip_open)  (char far *);
    unsigned long __cdecl (far *lip_read)  (unsigned long, unsigned long);
    unsigned long __cdecl (far *lip_seek)  (unsigned long);
    void          __cdecl (far *lip_close) (void);
    void          __cdecl (far *lip_term)  (void);
    /* Load function     */
-   int                   (far *lip_load) (unsigned long, unsigned long, unsigned long, struct exe_params *);
+   int                   (far *lip_load) (unsigned long, unsigned long, unsigned long, struct exe_params far *);
    /* Utility functions */
    long                  (far *lip_memcheck) (unsigned long, long);
    void far *            (far *lip_memset)   (void far *, char, long);
@@ -33,5 +36,8 @@ typedef struct
    int                   (far *lip_pos)      (const char, const char far *);
    void          __cdecl (far *lip_clear)    (void);
    /* Misc functions */
-   int           __cdecl (far *lip_printk)   (const char *, ...);
+   int           __cdecl (far *lip_printk)   (const char far *, ...);
 } lip_t;
+
+
+#endif

@@ -18,16 +18,18 @@ unsigned long readbuf;
 
 
 /* Open a file or directory on the active device. */
-unsigned long __cdecl
-freeldr_open (char *filename)
+unsigned long __cdecl __far
+freeldr_open (char far *filename)
 {
-    unsigned long  *fSize;
+    unsigned long  far *fSize;
     unsigned short n;
     char far buf[256];
     char far *s;
-    char *p;
+    char far *p;
 
-    s = MK_FP(current_seg, filename);
+    printk("freeldr_open() started");
+
+    s = filename;
     n = freeldr_pos(' ', s);
     //printk("n = %d", n);
 
@@ -35,15 +37,15 @@ freeldr_open (char *filename)
     {
       freeldr_memmove(buf, s, n - 1);
       buf[n - 1] = '\0';
-      filename = (char *)FP_OFF(buf);
+      filename = buf;
     }
 
     if (*filename == '/') filename++;
 
-    for (p = filename; p; p++)
+    for (p = filename; *p; p++)
       if (*p == '/') *p = '\\';
 
-    //printk("filename = %s", filename);
+    //printk("filename = %s", FP_OFF(filename));
 
     if (muOpen(filename, fSize))
         return 0;
@@ -56,7 +58,7 @@ freeldr_open (char *filename)
 
 /* Read len bytes to the physical address buf
    from the current seek position           */
-unsigned long __cdecl
+unsigned long __cdecl __far
 freeldr_read (unsigned long buf, unsigned long len)
 {
     unsigned short chunk;
@@ -124,7 +126,7 @@ freeldr_read (unsigned long buf, unsigned long len)
 
 
 /* Reposition a file offset.  */
-unsigned long __cdecl
+unsigned long __cdecl __far
 freeldr_seek (unsigned long offset) // noch nicht fertig!
 {
     //if (offset > filemax || offset < 0)
@@ -136,7 +138,7 @@ freeldr_seek (unsigned long offset) // noch nicht fertig!
 
 
 /* Close current file. */
-void __cdecl
+void __cdecl __far
 freeldr_close (void)
 {
     muClose();
@@ -144,7 +146,7 @@ freeldr_close (void)
 
 
 /* Terminate the work with files. */
-void __cdecl
+void __cdecl __far
 freeldr_term (void)
 {
     muTerminate();

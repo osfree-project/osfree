@@ -27,8 +27,8 @@ void __cdecl
 DebugNTS(char *CMsgBuff);
 
 unsigned short __cdecl
-muOpen(char *fileName,
-       unsigned long *fileSize);
+muOpen(char far *fileName,
+       unsigned long far *fileSize);
 
 unsigned long  __cdecl
 muRead(unsigned long seekOffset,
@@ -61,49 +61,55 @@ extern unsigned long readbuf;
 //long
 //freeldr_memcheck (unsigned long addr, long len);
 
-void far *
+void far * __far
 freeldr_memset (void far *start, char c, long len);
 
-void far *
+void far * __far
 freeldr_memmove (void far *_to, const void far *_from, long _len);
 
-unsigned long
+unsigned long __far
 freeldr_memmove_phys (unsigned long _to, unsigned long _from, long _len);
 
-char far *
+char far * __far
 freeldr_strcpy (char far *dest, const char far *src);
 
-long
+long __far
 freeldr_strcmp (const char far *s1, const char far *s2);
 
-long
+long __far
 freeldr_memcmp (const char far *s1, const char far *s2, long n);
 
-int
+int __far
 freeldr_strlen (const char far *str);
 
-int
+int __far
 freeldr_pos(const char c, const char far *str);
 
-void __cdecl
+void __cdecl __far
 freeldr_clear();
 
-unsigned long __cdecl
-freeldr_open (char *filename);
+unsigned long __cdecl __far
+freeldr_open (char far *filename);
 
 /* Read len bytes to the physical address buf
    from the current seek position           */
-unsigned long __cdecl
+unsigned long __cdecl __far
 freeldr_read (unsigned long buf, unsigned long len);
 
 /* Reposition a file offset.  */
-unsigned long __cdecl
+unsigned long __cdecl __far
 freeldr_seek (unsigned long offset);
 
 /* Close current file. */
-void __cdecl
+void __cdecl __far
 freeldr_close (void);
 
 /* Terminate the work with files. */
-void __cdecl
+void __cdecl __far
 freeldr_term (void);
+
+int __far
+freeldr_printk  (const char far *fmt, ...);
+
+int __far
+freeldr_printkc (const char far *fmt, ...);

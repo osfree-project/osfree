@@ -11,7 +11,7 @@
 #define VIDEO_HEIGHT 25   //высота экрана
 
 /*
-long
+long __far
 freeldr_memcheck (unsigned long addr, long len)
 {
     // Physical address:
@@ -29,7 +29,7 @@ freeldr_memcheck (unsigned long addr, long len)
 }
  */
 
-void far *
+void far * __far
 freeldr_memset (void far *start, char c, long len)
 {
     char far *p = start;
@@ -44,7 +44,7 @@ freeldr_memset (void far *start, char c, long len)
 }
 
 
-void far *
+void far * __far
 freeldr_memmove (void far *_to, const void far *_from, long _len)
 {
 
@@ -81,7 +81,7 @@ freeldr_memmove (void far *_to, const void far *_from, long _len)
 }
 
 
-unsigned long
+unsigned long __far
 freeldr_memmove_phys (unsigned long _to, unsigned long _from, long _len)
 {
     unsigned long buf, from, to, l, chunk;
@@ -129,7 +129,7 @@ freeldr_memmove_phys (unsigned long _to, unsigned long _from, long _len)
 }
 
 
-char far *
+char far * __far
 freeldr_strcpy (char far *dest, const char far *src)
 {
   freeldr_memmove (dest, src, freeldr_strlen (src) + 1);
@@ -137,7 +137,7 @@ freeldr_strcpy (char far *dest, const char far *src)
 }
 
 
-long
+long __far
 freeldr_strcmp (const char far *s1, const char far *s2)
 {
   while (*s1 || *s2)
@@ -154,7 +154,7 @@ freeldr_strcmp (const char far *s1, const char far *s2)
 }
 
 
-long
+long __far
 freeldr_memcmp (const char far *s1, const char far *s2, long n)
 {
   while (n)
@@ -172,7 +172,7 @@ freeldr_memcmp (const char far *s1, const char far *s2, long n)
 }
 
 
-int
+int __far
 freeldr_strlen (const char far *str)
 {
   int len = 0;
@@ -184,7 +184,7 @@ freeldr_strlen (const char far *str)
 }
 
 
-int
+int __far
 freeldr_pos(const char c, const char far *str)
 {
   int len = 0;
@@ -198,7 +198,7 @@ freeldr_pos(const char c, const char far *str)
 }
 
 
-long
+long __far
 freeldr_tolower (long c)
 {
   if (c >= 'A' && c <= 'Z')
@@ -209,7 +209,7 @@ freeldr_tolower (long c)
 
 
 //Clear screen (actually, just scroll it up)
-void __cdecl
+void __cdecl __far
 freeldr_clear()
 {
     int i;
