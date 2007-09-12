@@ -26,7 +26,10 @@ int load(unsigned long image, unsigned long size, unsigned long load_addr, struc
    unsigned long fsize, len;
    char far *file = "/boot/freeldr/xfd/bin.xfd";
    unsigned long buf = 0x30000; // 0x3000:0x0  -- uXFD load address
-   int (far *fmt_load) (unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params far *p);
+   int __cdecl (far *fmt_load) (unsigned long image,
+                                unsigned long size,
+                                unsigned long load_addr,
+                                struct exe_params far *p);
    void *plip, *pbpb;
    int rc;
 

@@ -20,10 +20,15 @@ extern lip_t far *l;    // ALIAS l=_LIPPtr
  *  \return            -- 0 if successful, non-zero if error.
  */
 
-int fmt_load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params far *p)
+int __cdecl
+fmt_load(unsigned long image,
+             unsigned long size,
+             unsigned long load_addr,
+             struct exe_params far *p)
 {
 
    l->lip_printk("Raw binary uXFD loaded!");
+   l->lip_printk("asdf %d %s", 5, "asdf");
 
    return 0;
 };
