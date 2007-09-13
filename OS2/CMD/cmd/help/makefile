@@ -3,7 +3,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-ROOT = ..$(SEP)..$(SEP)..$(SEP)..
+ROOT = $(%ROOT)
 
 DIR = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)book
 PROJ = cmdref

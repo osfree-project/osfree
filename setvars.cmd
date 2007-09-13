@@ -1,13 +1,13 @@
 @echo off
 
-set WATCOM=c:\watcom
-set ROOT=c:\_work\svn\osfree
+set WATCOM=f:\dev\watcom15
+set ROOT=l:\var\src\os2\svn\osfree
 
-set TKPATH=c:\_os2tk45
-set FPPATH=c:\programs\pp\bin\os2
+set TKPATH=f:\os2tk45
+set FPPATH=f:\dev\pp\bin\os2
 
 set TOOLS=%ROOT%\tools\bin
-set PATH=%WATCOM%\binp;%TOOLS%;%TKPATH%\bin;%FPPATH%;%PATH%
+set PATH=%WATCOM%\binp;%TOOLS%;%TKPATH%\bin;%FPPATH%
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\os2
 set FINCLUDE=%WATCOM%\src\fortran
 set EDPATH=%WATCOM%\eddat

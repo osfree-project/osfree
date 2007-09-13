@@ -41,7 +41,7 @@ bin.com: $(OBJS)
  @%append $^&.lnk OPTION NODEFAULTLIBS
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk ALIAS _l=LIPPtr
- @%append $^&.lnk ALIAS fmt_load=fmt_load_
+ @%append $^&.lnk ALIAS fmt_load=_fmt_load
  @%append $^&.lnk LIBRARY $(LIBC)
  @%append $^&.lnk PATH $(PATH)
  $(ADDFILES_CMD)

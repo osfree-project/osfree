@@ -162,3 +162,6 @@ LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
 subdirs: .SYMBOLIC
  @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
+.ERROR
+ @echo Error
+ @exit
