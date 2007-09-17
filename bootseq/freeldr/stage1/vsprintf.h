@@ -38,8 +38,8 @@ void __cdecl printf(const char *fmt, ...);
 
 int sprintf(char * buf, const char *fmt, ...);
 
-unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base);
-extern int printk(const char *fmt, ...);
-extern int printkc(const char *fmt, ...);
+unsigned long simple_strtoul(const char *cp, char **endp, unsigned int base);
+extern int __cdecl printk(const char *fmt, ...);
+extern int __cdecl printkc(const char *fmt, ...);
 
 #endif /* __vsprintf_h */

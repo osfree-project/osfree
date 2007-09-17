@@ -18,7 +18,7 @@ unsigned long readbuf;
 
 
 /* Open a file or directory on the active device. */
-unsigned long __cdecl __far
+long __cdecl __far
 freeldr_open (char far *filename)
 {
     unsigned long  far *fSize;

@@ -88,7 +88,8 @@ void __cdecl microfsd_panic (const char *format, ...);
  */
 char * __cdecl DecoupePath (char *path, char *component);
 
-int __cdecl printk (const char *fmt, ...);
+int __cdecl printk  (const char *fmt, ...);
+int __cdecl printkc (const char *fmt, ...);
 
 /*
  * From entry.asm

@@ -9,6 +9,7 @@
 #include "vsprintf.h"
 
 #define VIDEO_HEIGHT 25   //высота экрана
+extern char scratch_buffer[1024];
 
 /*
 long __far
@@ -135,6 +136,17 @@ freeldr_strcpy (char far *dest, const char far *src)
   freeldr_memmove (dest, src, freeldr_strlen (src) + 1);
   return dest;
 }
+
+char far * __far
+freeldr_strcat(char far *dst, const char far *src)
+{
+  int  p;
+  char far *_dst = dst;
+
+  freeldr_memmove(_dst + freeldr_strlen(_dst), src, freeldr_strlen(src) + 1);
+
+  return dst;
+};
 
 
 long __far

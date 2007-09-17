@@ -45,7 +45,7 @@
 #include "freeldr.h"
 #include "vsprintf.h"
 //#include <i86.h>
-char scratch_buffer[1024];
+char   scratch_buffer[1024];
 extern unsigned short current_seg;
 #endif
 
@@ -448,8 +448,10 @@ void output_comc(char *bufptr ,int debug_port) {
 #define OUTPUT_COM1 1
 #define OUTPUT_COM2 0
 
-int printk(const char *fmt, ...) {
+int __cdecl
+printk(const char *fmt, ...) {
     va_list args;
+    //char   scratch_buffer[1024];
     char   *bufptr = scratch_buffer;
     char   *save;
 
@@ -465,47 +467,11 @@ int printk(const char *fmt, ...) {
     return 0;
 }
 
-int __far
-freeldr_printk(const char far *fmt, ...) {
-    char buf[1024];
-    int  p;
 
+int __cdecl
+printkc(const char *fmt, ...) {
     va_list args;
-    char   *bufptr = scratch_buffer;
-    char   *save;
-
-    __asm {
-       push ds
-       push es
-       push cs
-       pop  ds
-    }
-
-    for (p = 0; p < 1024; p++)
-      if (fmt[p])
-        buf[p] = fmt[p];
-      else
-        break;
-
-    va_start(args, buf);
-    vsprintf(scratch_buffer, buf, args);
-    va_end(args);
-
-    video_output(scratch_buffer, strlen(scratch_buffer));
-    video_crlf();
-    output_com(bufptr, OUTPUT_COM1);
-    output_com(bufptr, OUTPUT_COM2);
-
-    __asm {
-       pop  es
-       pop  ds
-    }
-
-    return 0;
-}
-
-int printkc(const char *fmt, ...) {
-    va_list args;
+    //char   scratch_buffer[1024];
     char   *bufptr = scratch_buffer;
     char   *save;
 
@@ -520,40 +486,40 @@ int printkc(const char *fmt, ...) {
     return 0;
 }
 
-int __far
-freeldr_printkc(const char far *fmt, ...) {
-    char buf[1024];
-    int  p;
-
+int __far __cdecl
+freeldr_printk(const char *fmt, ...) {
     va_list args;
+    //char   scratch_buffer[1024];
     char   *bufptr = scratch_buffer;
     char   *save;
 
-    __asm {
-       push ds
-       push es
-       push cs
-       pop  ds
-    }
+    va_start(args, fmt);
+    vsprintf(scratch_buffer, fmt, args);
+    va_end(args);
 
-    for (p = 0; p < 1024; p++)
-      if (fmt[p])
-        buf[p] = fmt[p];
-      else
-        break;
+    video_output(scratch_buffer, strlen(scratch_buffer));
+    video_crlf();
+    output_com(bufptr, OUTPUT_COM1);
+    output_com(bufptr, OUTPUT_COM2);
 
-    va_start(args, buf);
-    vsprintf(scratch_buffer, buf, args);
+    return 0;
+}
+
+
+int __far __cdecl
+freeldr_printkc(const char *fmt, ...) {
+    va_list args;
+    //char   scratch_buffer[1024];
+    char   *bufptr = scratch_buffer;
+    char   *save;
+
+    va_start(args, fmt);
+    vsprintf(scratch_buffer, fmt, args);
     va_end(args);
 
     video_output(scratch_buffer, strlen(scratch_buffer));
     output_comc(bufptr, OUTPUT_COM1);
     output_comc(bufptr, OUTPUT_COM2);
-
-    __asm {
-       pop  es
-       pop  ds
-    }
 
     return 0;
 }

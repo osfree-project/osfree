@@ -7,8 +7,8 @@
 #include <uXFD/uXFD.h>
 #include <lip.h>
 
-extern far bpb[31];     // ALIAS bpb=_BPBPtr
-extern lip_t far *l;    // ALIAS l=_LIPPtr
+extern char  far bpb[31]; // ALIAS bpb=_BPBPtr
+extern lip_t far *l;      // ALIAS l=_LIPPtr
 
 /*
  *  \param  image      -- Phys address of the binary, loaded by uFSD
@@ -22,13 +22,13 @@ extern lip_t far *l;    // ALIAS l=_LIPPtr
 
 int __cdecl
 fmt_load(unsigned long image,
-             unsigned long size,
-             unsigned long load_addr,
-             struct exe_params far *p)
+         unsigned long size,
+         unsigned long load_addr,
+         struct exe_params far *p)
 {
 
    l->lip_printk("Raw binary uXFD loaded!");
-   l->lip_printk("asdf %d %s", 5, "asdf");
+   l->lip_printk("uXFD finished");
 
    return 0;
 };

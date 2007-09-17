@@ -43,7 +43,7 @@ os2ldr.com: $(OBJS)
  @%append $^&.lnk ALIAS _DispNTS=DispNTS
  @%append $^&.lnk ALIAS _DebugNTS=DebugNTS
  @%append $^&.lnk ALIAS _DispC=DispC
- @%append $^&.lnk ALIAS printk=printk_
+ @%append $^&.lnk ALIAS printk=_printk
  @%append $^&.lnk ALIAS _loadhigh=loadhigh
  @%append $^&.lnk ALIAS auxil=_auxil
  @%append $^&.lnk ALIAS Stage2Loader=Stage2Loader_

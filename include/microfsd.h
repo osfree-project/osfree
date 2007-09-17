@@ -85,8 +85,9 @@ char * __cdecl DecoupePath(char *path, char *component);
 /*
  * From vsprintf.c
  */
-unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base);
+unsigned long simple_strtoul(const char *cp, char **endp, unsigned int base);
 extern int __cdecl printk(const char *fmt, ...);
+extern int __cdecl printkc(const char *fmt, ...);
 
 /*
  * From entry.asm

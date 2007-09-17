@@ -88,7 +88,7 @@ freeldr_pos(const char c, const char far *str);
 void __cdecl __far
 freeldr_clear();
 
-unsigned long __cdecl __far
+long __cdecl __far
 freeldr_open (char far *filename);
 
 /* Read len bytes to the physical address buf
@@ -108,8 +108,11 @@ freeldr_close (void);
 void __cdecl __far
 freeldr_term (void);
 
-int __far
-freeldr_printk  (const char far *fmt, ...);
+int __far __cdecl
+freeldr_printk(const char *fmt, ...);
 
-int __far
-freeldr_printkc (const char far *fmt, ...);
+int __far __cdecl
+freeldr_printkc(const char *fmt, ...);
+
+char far * __far
+freeldr_strcat(char far *dst, const char far *src);

@@ -2,7 +2,7 @@
  *   Loader interface page
  *   The interface between loader parts
  *
- *   When loader starts a module (stage1 or uXFD or uFSD
+ *   When loader starts a module (stage2 or uXFD or uFSD
  *   etc), the interface is similar to the interface between
  *   uFSD and OS/2 loader:
  *   1) ds:si --> BPB
@@ -14,7 +14,7 @@
 
 #include <uXFD/uXFD.h>
 
-typedef struct
+typedef struct lip
 {
    /* Filesystem access functions */
    unsigned long __cdecl (far *lip_open)  (char far *);
@@ -36,7 +36,8 @@ typedef struct
    int                   (far *lip_pos)      (const char, const char far *);
    void          __cdecl (far *lip_clear)    (void);
    /* Misc functions */
-   int           __cdecl (far *lip_printk)   (const char far *, ...);
+   int     __far __cdecl (far *lip_printk)   (const char *, ...);
+   int     __far __cdecl (far *lip_printkc)  (const char *, ...);
 } lip_t;
 
 
