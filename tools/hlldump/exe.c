@@ -9,7 +9,7 @@
 
 #include <newexe.h>
 #include <exe386.h>
-
+#include <stdio.h>
 #include "hllfuncs.h"
 
 #pragma pack(push, 1)

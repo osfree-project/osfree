@@ -9,7 +9,7 @@
 
 !include $(%ROOT)/mk/all.mk
 
-DIRS=pm0 pm1 pm2 win1
+DIRS=PM0 PM1 PM2 Win1
 
 all: .SYMBOLIC
    $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

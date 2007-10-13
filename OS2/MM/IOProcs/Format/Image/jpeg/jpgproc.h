@@ -47,7 +47,7 @@
 #include <stdarg.h>
 #include <io.h>
 #include <fcntl.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include <os2medef.h>
 #include <mmioos2.h>
 #include "gbm.h"

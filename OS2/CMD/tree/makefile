@@ -10,12 +10,12 @@
 32_BITS  = 1
 
 PROJ = tree
-DIR = $(ROOT)\bin\os2
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
 DESC = Graphical tree display
 #defines object file names in format objname.$(O)
 OBJS = tree.$(O)
 # defines additional options for C compiler
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk

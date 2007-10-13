@@ -8,13 +8,13 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\lpng.lib .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)lpng.lib .SYMBOLIC
 
 OBJS =pngwtran.$(O) &
       pngwutil.$(O) &
@@ -34,7 +34,7 @@ OBJS =pngwtran.$(O) &
       pngwrite.$(O)
 
 
-$(ROOT)\lib\lpng.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)lpng.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @wlib $@ +$< $(LOG)

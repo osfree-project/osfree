@@ -14,7 +14,7 @@ OBJS = main.$(O) parser.$(O) os2init.$(O) cmds.$(O) expand.$(O) eval.$(O) &
            iofmt32.$(O) select.$(O) os2tty.$(O) iparse.$(O)     &
            bcd32.$(O) os32util.$(O) ..$(SEP)shared$(SEP)istring.$(O)
 ADD_COPT = -i=..$(SEP)include -ox
-LINKOPT = lib MATH387S, os2\OS2, OS2386
+LINKOPT = lib math387s, os2$(SEP)os2, os2386
 
 !include $(%ROOT)/mk/all.mk
 

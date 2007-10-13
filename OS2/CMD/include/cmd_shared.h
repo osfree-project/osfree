@@ -18,10 +18,10 @@
 
 #include "cmd_MessageIDs.h" /* suplementary message id's */
 #include "cmd_Messages.h" /* mesage retrieval and displaying */
-#include "cmd_querycurrentdisk.h"
-#include "cmd_queryfsname.h" 
-#include "cmd_showvolumeinfo.h"
-#include "cmd_execfsentry.h"
+#include "cmd_QueryCurrentDisk.h"
+#include "cmd_QueryFSName.h" 
+#include "cmd_ShowVolumeInfo.h"
+#include "cmd_ExecFSEntry.h"
 #include "cmd_setcurrentdisk.h"
 
 /* return code definitions for command line tools*/

@@ -11,7 +11,7 @@ PROJ=FreePM
 OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
        Fs_hab.$(O) Fs_main.$(O) Fs_pipe.$(O) &
        Fs_queue.$(O) Fs_wnd.$(O) F_debug.$(O) F_DeskTop.$(O) &
-       F_errors.$(O) f_gpi.$(O) f_hab.$(O) windowclass.$(O)
+       F_errors.$(O) F_GPI.$(O) F_hab.$(O) WindowClass.$(O)
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.

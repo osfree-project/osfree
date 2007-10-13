@@ -44,9 +44,9 @@ UNIX = TRUE
 
 # Libraries dir
 !ifeq UNIX FALSE
-LIBDIR     = $(WATCOM)\lib286\dos
+LIBDIR     = $(%WATCOM)\lib286\dos;$(ROOT)\lib;$(%WATCOM)\lib286\os2
 !else
-LIBDIR     = $(WATCOM)/lib286/dos
+LIBDIR     = $(%WATCOM)/lib286/dos:$(ROOT)/lib:$(%WATCOM)/lib286/os2
 !endif
 
 # libc

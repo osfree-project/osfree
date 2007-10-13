@@ -18,10 +18,10 @@ ASM_DEFS  = -d__WATCOM__
 # a file which includes this file.
 #
 !ifdef 32_BITS
-COPT      = $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib  -i=$(ROOT)\include\os3\zlib -i=$(ROOT)\include\os3\lpng -i=$(ROOT)\include\os3\jpeglib -i=$(ROOT)\include\os3\libtiff -i=$(ROOT)\include\os3\gbm $(ADD_COPT)
+COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib  -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)lpng -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)jpeglib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else
-COPT      = -ms $(C_DEFS) -i=$(ROOT)\include\os3 -i=. -i=.. -i=$(ROOT)\include\os3\pm -i=$(ROOT)\include\os3\gdlib -i=$(ROOT)\include\os3\zlib $(ADD_COPT)
+COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
 ASMOPT    = -bt=OS2 -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 !endif
 
@@ -48,7 +48,8 @@ SED       = sed
 AWK       = awk
 DOX       = doxygen
 
-RC        = rc
+#RC        = rc
+RC        = wrc
 MC        = mkmsgf
 HC        = ipfc
 GENE2FS   = genext2fs
@@ -74,8 +75,8 @@ RN  = @move                      # Rename command
 RN  = @ren                       # Rename command
 !endif
 
-SEP       = "\"                  # dir components separator
-PS        = ";"                  # paths separator
+SEP       = \                  # dir components separator
+PS        = ;                  # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
@@ -85,6 +86,7 @@ GENHDD    = genhdd.cmd
 GENFDD    = genfdd.cmd
 FINDFILE  = findfile.cmd
 
+if_not_exist_mkdir = if_not_exist_mkdir.cmd
 NULL      = \dev\nul
 BLACKHOLE = >$(NULL) 2>&1
 
@@ -92,8 +94,8 @@ CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
 
 !else ifeq UNIX TRUE             # UNIX
 
-SEP       = "/"                  # dir components separator
-PS        = ":"                  # paths separator
+SEP       = /                  # dir components separator
+PS        = :                  # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command
@@ -104,6 +106,7 @@ GENHDD    = genhdd
 GENFDD    = genfdd
 FINDFILE  = findfile
 
+if_not_exist_mkdir = ./if_not_exist_mkdir.sh
 NULL      = /dev/null
 BLACKHOLE = >$(NULL) 2>&1
 
@@ -115,7 +118,7 @@ MKDIR     = @mkdir
 MAPSYM    = @mapsym
 
 TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
-LOG       = # 2>&1 >> $(ROOT)$(SEP)compile.log
+LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 
 
 .SUFFIXES:

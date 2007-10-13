@@ -9,7 +9,7 @@
 
 32_BITS  = 1
 OBJS     = rectangles.$(O)
-ADD_COPT = -i=..\include -bd 
+ADD_COPT = -i=..$(SEP)include -bd 
 
 !include $(%ROOT)/mk/all.mk
 

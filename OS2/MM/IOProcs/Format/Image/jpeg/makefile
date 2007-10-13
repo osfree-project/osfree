@@ -8,11 +8,11 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-DIR      = $(ROOT)\bin\os2\dll
+DIR      = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
 PROJ     = jpgio
 DESC     = JPEG Format I/O Procedure
 OBJS     = jpgfunc.$(O) jpgproc.$(O)
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, jpeglib.lib, lpng.lib, zlib.lib
 
 !include $(%ROOT)/mk/all.mk

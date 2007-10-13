@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = ioprocs
+DIRS = IOProcs
 
 !include $(%ROOT)/mk/all.mk
 

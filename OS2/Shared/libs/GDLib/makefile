@@ -8,13 +8,13 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include -dHAVE_LIBJPEG -dHAVE_LIBPNG
+ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\gdlib.lib .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)gdlib.lib .SYMBOLIC
 
 OBJS = gd_jpeg.$(O) &
     gd_io_file.$(O) &
@@ -32,7 +32,7 @@ OBJS = gd_jpeg.$(O) &
 
 
 
-$(ROOT)\lib\gdlib.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)gdlib.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @wlib $@ +$< $(LOG)

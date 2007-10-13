@@ -4,5 +4,5 @@
 #define INCL_LIBRECTANGLES
 
 #ifdef INCL_LIBRECTANGLES
-#include "utlapi/librectangles.h"
+#include "UtlApi/librectangles.h"
 #endif

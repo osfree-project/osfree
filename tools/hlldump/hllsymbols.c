@@ -3,12 +3,12 @@
 #include <os2.h>
 
 #include <stdio.h>
-
+#include <string.h>
 #include "hllfuncs.h"
 
 #pragma pack(push, 1)
 #include "hll.h"
-#include "mapsyms.h"
+#include "MAPSYMS.H"
 #pragma pack(pop)
 
 void ProcessType104_CL386Syms(ULONG ulModule,FILE *dmp);

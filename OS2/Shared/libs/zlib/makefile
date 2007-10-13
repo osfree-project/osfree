@@ -8,16 +8,16 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\zlib.lib .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)zlib.lib .SYMBOLIC
 
-OBJS = adler32.$(O) compress.$(O) crc32.$(O) deflate.$(O) &
-       gzio.$(O) infback.$(O) inffast.$(O) inflate.$(O) &
+OBJS = adler32.$(O) compress.$(O) $(ROOT)$(SEP)tools$(SEP)shared$(SEP)zlib$(SEP)crc32.$(O) deflate.$(O) &
+       $(ROOT)$(SEP)tools$(SEP)shared$(SEP)zlib$(SEP)gzio.$(O) infback.$(O) inffast.$(O) inflate.$(O) &
        inftrees.$(O) trees.$(O) uncompr.$(O) zutil.$(O)
 
 #            adler32.obj compress.obj &
@@ -28,7 +28,7 @@ OBJS = adler32.$(O) compress.$(O) crc32.$(O) deflate.$(O) &
 #            uncompr.obj zutil.obj &
 
 
-$(ROOT)\lib\zlib.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)zlib.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @wlib $@ +$< $(LOG)

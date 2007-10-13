@@ -8,8 +8,8 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-OBJS     = windowclass.$(O) windowmgr.$(O)
-ADD_COPT = -i=..\include
+OBJS     = WindowClass.$(O) windowmgr.$(O)
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 

@@ -8,11 +8,11 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-DIR      = $(ROOT)\bin\os2\dll
+DIR      = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
 PROJ     = kal
 DESC     = Kernel Abstracion Layer API
-OBJS     = ..\shared\stub.$(O) file.$(O)
-ADD_COPT = -i=..\include
+OBJS     = ..$(SEP)shared$(SEP)stub.$(O) file.$(O)
+ADD_COPT = -i=..$(SEP)include
 LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
@@ -36,6 +36,9 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   DosWrite.4,
  @%append $^&.lnk   DosFindClose.5,
  @%append $^&.lnk   DosFindFirst.6,
+ @%append $^&.lnk   DosPutMessage2.8,
+ @%append $^&.lnk   DosQuerySysInfo.9,
+ @%append $^&.lnk   DosExit.10,
  @%append $^&.lnk   DosFindNext.7
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)

@@ -13,7 +13,7 @@
 
 #define INCL_DOSMODULEMGR
 #define INCL_DOSERRORS
-#include <osFree.h>
+#include <osfree.h>
 #include <cmd_shared.h> /* command line tools' shared functions */
 
 /* C standard library headers */

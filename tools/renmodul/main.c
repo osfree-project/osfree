@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "RenModul.h"
+#include "renmodul.h"
 
 int ShowUsage()
 {

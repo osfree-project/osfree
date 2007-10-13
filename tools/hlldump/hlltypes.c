@@ -3,13 +3,13 @@
 #include <os2.h>
 
 #include <stdio.h>
-
+#include <string.h>
 #include "hllfuncs.h"
 
 #pragma pack(push, 1)
 #include "hll.h"
-#include "$$types.h"
-#include "maptypes.h"
+#include "$$TYPES.H"
+#include "MAPTYPES.H"
 #pragma pack(pop)
 
 extern void *pvFile;

@@ -8,32 +8,32 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 DIRS = libs
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\all_shared.lib msg .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)all_shared.lib msg .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
         all_dlist.obj all_pathmanipulation.obj all_performrecursiveaction.obj &
         all_getopt.obj
 
-$(ROOT)\lib\all_shared.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)all_shared.lib: $(OBJS)
  $(SAY) Creating library $^@
- -@if exist $@ @del $@
+ -@if exist $@ @$(DC) $@
  @wlib $@ +$< $(LOG)
 
 msg: .symbolic
- -@md msg $(LOG)
+ -@mkdir msg $(LOG)
  @$(MC) @oso001.rsf $(LOG)
  @$(MC) @oso001h.rsf $(LOG)
- -@del $(ROOT)\bin\os2\nls\msg\oso001.* $(LOG)
- -@del $(ROOT)\bin\os2\nls\msg\oso001h.* $(LOG)
- -@move msg\* $(ROOT)\bin\os2\nls\msg $(LOG)
+ -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)oso001.* $(LOG)
+ -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)oso001h.* $(LOG)
+ -@$(CP) msg$(SEP)* $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg $(LOG)
  -@rd msg  $(LOG)
 
 .IGNORE

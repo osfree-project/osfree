@@ -9,7 +9,9 @@
 !include $(%ROOT)/mk/site.mk
 
 # Add other targets here upon their maturity
-DIRS = shared cmd help keystack shralias option2 jpos2dll #vdm2os2
+#   Moved the help dir to last, in that case the tools for inf files 
+#   is not available.
+DIRS = shared cmd keystack shralias option2 jpos2dll help #vdm2os2
 
 !include $(%ROOT)/mk/all.mk
 

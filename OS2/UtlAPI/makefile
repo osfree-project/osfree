@@ -12,7 +12,7 @@ DIR      = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
 PROJ     = utlapi
 DESC     = osFree Utilities API
 OBJS     = librectangles.$(O)
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=..$(SEP)..$(SEP)include$(SEP)os3
 LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk

@@ -8,13 +8,13 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include -dHAVE_LIBJPEG -dHAVE_LIBPNG
+ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\jpeglib.lib .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)jpeglib.lib .SYMBOLIC
 
 OBJS = wrppm.$(O) &
     wrtarga.$(O) &
@@ -73,7 +73,7 @@ OBJS = wrppm.$(O) &
 
 
 
-$(ROOT)\lib\jpeglib.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)jpeglib.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @wlib $@ +$< $(LOG)

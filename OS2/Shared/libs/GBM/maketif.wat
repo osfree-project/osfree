@@ -3,15 +3,21 @@
 # This makefile is for Open Watcom C++ on OS/2.
 # It builds the Libtiff library as a statically linkable library (.LIB).
 
+32_BITS = 
+
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+!include $(%ROOT)/mk/all.mk
+
 # Modify this line to point to the zlib library 1.2.3 or higher
-ZLIB = ..\zlib.123
-IJG  = ..\jpeg-6b
+ZLIB = ..$(SEP)zlib.123
+IJG  = ..$(SEP)jpeg-6b
 
 # set directory where binaries will be placed by target install
 IDIR = bin
 
 # include configuration setting for nmake (except compiler options)
-!INCLUDE nmake.opt
+# !INCLUDE nmake.opt
 
 #
 # Using Open Watcom C++:
@@ -33,65 +39,65 @@ LIBFLAGS     = -q -n -b -c
 CFLAGS   = $(CFLAGS_DBG)
 !endif
 
-.SUFFIXES:	.c .obj
+#.SUFFIXES:	.c .obj
 
-.c.obj:
-		$(CC) $(CFLAGS) $*.c
+#.c.obj:
+#		$(CC) $(CFLAGS) $*.c
 
 #
 
 OBJS_SYSDEP_MODULE = tif_os2.obj
 
-OBJS =  tif_aux.obj \
-	tif_close.obj \
-	tif_codec.obj \
-	tif_color.obj \
-	tif_compress.obj \
-	tif_dir.obj \
-	tif_dirinfo.obj \
-	tif_dirread.obj \
-	tif_dirwrite.obj \
-	tif_dumpmode.obj \
-	tif_error.obj \
-	tif_extension.obj \
-	tif_fax3.obj \
-	tif_fax3sm.obj \
-	tif_getimage.obj \
-	tif_jpeg.obj \
-	tif_flush.obj \
-	tif_luv.obj \
-	tif_lzw.obj \
-	tif_next.obj \
-	tif_open.obj \
-	tif_packbits.obj \
-	tif_pixarlog.obj \
-	tif_predict.obj \
-	tif_print.obj \
-	tif_read.obj \
-	tif_swab.obj \
-	tif_strip.obj \
-	tif_thunder.obj \
-	tif_tile.obj \
-	tif_version.obj \
-	tif_warning.obj \
-	tif_write.obj \
-	tif_zip.obj \
+OBJS =  tif_aux.obj &
+	tif_close.obj &
+	tif_codec.obj &
+	tif_color.obj &
+	tif_compress.obj &
+	tif_dir.obj &
+	tif_dirinfo.obj &
+	tif_dirread.obj &
+	tif_dirwrite.obj &
+	tif_dumpmode.obj &
+	tif_error.obj &
+	tif_extension.obj &
+	tif_fax3.obj &
+	tif_fax3sm.obj &
+	tif_getimage.obj &
+	tif_jpeg.obj &
+	tif_flush.obj &
+	tif_luv.obj &
+	tif_lzw.obj &
+	tif_next.obj &
+	tif_open.obj &
+	tif_packbits.obj &
+	tif_pixarlog.obj &
+	tif_predict.obj &
+	tif_print.obj &
+	tif_read.obj &
+	tif_swab.obj &
+	tif_strip.obj &
+	tif_thunder.obj &
+	tif_tile.obj &
+	tif_version.obj &
+	tif_warning.obj &
+	tif_write.obj &
+	tif_zip.obj &
 	$(OBJS_SYSDEP_MODULE)
 
 #
 
-all:   tiff.lib
+all:   tiff.lib .SYMBOLIC
 
 
 tiff.lib: $(OBJS)
-          $(CLIB) $(LIBFLAGS) $@ +tif_aux.obj +tif_close.obj +tif_codec.obj +tif_color.obj\
-                                 +tif_compress.obj +tif_dir.obj +tif_dirinfo.obj +tif_dirread.obj\
-                                 +tif_dirwrite.obj +tif_dumpmode.obj +tif_error.obj +tif_extension.obj\
-                                 +tif_fax3.obj +tif_fax3sm.obj +tif_getimage.obj +tif_jpeg.obj\
-                                 +tif_flush.obj +tif_luv.obj +tif_lzw.obj +tif_next.obj +tif_open.obj\
-                                 +tif_packbits.obj +tif_pixarlog.obj +tif_predict.obj +tif_print.obj\
-                                 +tif_read.obj +tif_swab.obj +tif_strip.obj +tif_thunder.obj\
-                                 +tif_tile.obj +tif_version.obj +tif_warning.obj +tif_write.obj\
+          $(CLIB) $(LIBFLAGS) $@ +tif_aux.obj +tif_close.obj +tif_codec.obj +tif_color.obj &
+                                 +tif_compress.obj +tif_dir.obj +tif_dirinfo.obj +tif_dirread.obj &
+                                 +tif_dirwrite.obj +tif_dumpmode.obj +tif_error.obj +tif_extension.obj &
+                                 +tif_fax3.obj +tif_fax3sm.obj +tif_getimage.obj +tif_jpeg.obj &
+                                 +tif_flush.obj +tif_luv.obj +tif_lzw.obj +tif_next.obj +tif_open.obj &
+                                 +tif_packbits.obj +tif_pixarlog.obj +tif_predict.obj +tif_print.obj &
+                                 +tif_read.obj +tif_swab.obj +tif_strip.obj +tif_thunder.obj &
+                                 +tif_tile.obj +tif_version.obj +tif_warning.obj +tif_write.obj &
                                  +tif_zip.obj +$(OBJS_SYSDEP_MODULE)
 
 

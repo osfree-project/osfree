@@ -7,7 +7,7 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 
@@ -15,26 +15,26 @@ ADD_COPT = -i=..\include
 # "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of
 # Watcom compiler.
 
-all: $(ROOT)\lib\cmd_shared.lib msg
+all: $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib msg
 
-OBJS = cmd_execfsentry.obj cmd_messages.obj cmd_fsentry16.obj &
-       cmd_querycurrentdisk.obj cmd_queryfsname.obj cmd_showvolumeinfo.obj
+OBJS = cmd_ExecFSEntry.obj cmd_Messages.obj cmd_FSEntry16.obj &
+       cmd_QueryCurrentDisk.obj cmd_QueryFSName.obj cmd_ShowVolumeInfo.obj
 
 #cmd_fsentry16.obj: cmd_fsentry16.c
 # $(SAY) Compiling $<
 # @wcc -s -ml -zl -bt=os2 cmd_fsentry16.c $(LOG)
 
-$(ROOT)\lib\cmd_shared.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)cmd_shared.lib: $(OBJS)
  $(SAY) Linking $@
  -@if exist $@ @del $@ $(LOG)
  @wlib $@ +$<  $(LOG)
 
 msg: .symbolic
- -@md msg $(LOG)
+ -@$(MD) msg $(LOG)
  @$(MC) @lvm.rsf $(LOG)
- -@del $(ROOT)\bin\os2\nls\msg\lvm.* $(LOG)
- -@move msg\* $(ROOT)\bin\os2\nls\msg $(LOG)
- -@rd msg  $(LOG)
+ -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)lvm.* $(LOG)
+ -@$(CP) msg$(SEP)* $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg $(LOG)
+# -@rd msg  $(LOG
 
 .IGNORE
 clean: .SYMBOLIC

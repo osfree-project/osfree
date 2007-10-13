@@ -9,7 +9,7 @@
 
 !include $(%ROOT)/mk/all.mk
 
-DIRS=Client Server API testapps
+DIRS=Client Server API TestApps
 
 all: .SYMBOLIC
    $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

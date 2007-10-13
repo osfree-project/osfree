@@ -8,12 +8,12 @@
 !include $(%ROOT)/mk/site.mk
 
 # before build command line tools build "shared" libraries
-DIRS=zlib lpng jpeglib gdlib libtiff gdb
+DIRS=zlib lpng JpegLib GDLib  GBM libtiff
 
 !include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) TARGET=$^@ -h subdirs
 
 .IGNORE
 clean: .SYMBOLIC

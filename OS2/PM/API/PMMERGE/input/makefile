@@ -9,7 +9,7 @@
 
 32_BITS  = 1
 OBJS     = input.$(O)
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 

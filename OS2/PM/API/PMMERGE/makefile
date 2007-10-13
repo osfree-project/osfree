@@ -10,9 +10,9 @@
 32_BITS  = 1
 PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
-OBJS     = framemgr.$(O) habmgr.$(O) rectangles.$(O) messages.$(O) queue.$(O) windowmgr.$(O) windowclass.$(O) input.$(O)
+OBJS     = framemgr.$(O) habmgr.$(O) rectangles.$(O) messages.$(O) queue.$(O) windowmgr.$(O) WindowClass.$(O) input.$(O)
 ADD_COPT = -bd -i=..$(SEP)include
-LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles;habmgr;messagemgr;framemgr;windowmgr;input
+LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input
 
 !include $(%ROOT)/mk/all.mk

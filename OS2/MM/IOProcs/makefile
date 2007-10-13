@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = format
+DIRS = Format$(SEP)Image$(SEP)jpeg
 
 !include $(%ROOT)/mk/all.mk
 

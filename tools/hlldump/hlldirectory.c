@@ -3,7 +3,7 @@
 #include <os2.h>
 
 #include <stdio.h>
-
+#include <string.h>
 #include "hllfuncs.h"
 
 #pragma pack(push, 1)

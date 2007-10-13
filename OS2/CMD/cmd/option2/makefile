@@ -1,19 +1,27 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:12 prokushev Exp $
 
-ROOT=..\..\..\..
+#ROOT=..\..\..\..
 
-DIR = $(ROOT)\bin\os2
+32_BITS =
+
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+!include $(%ROOT)/mk/all.mk
+
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
 PROJ = option2
 DESC = OPTION2.EXE
-OBJS = option2.obj os2cfg.obj os2nb.obj ..\shared\istring.obj
-ADD_COPT = -i=..\include -ox
-ADD_LIB = MATH387S,%watcom%\lib286\os2\os2
+OBJS = option2.obj os2cfg.obj os2nb.obj $(%ROOT)$(SEP)OS2$(SEP)CMD$(SEP)cmd$(SEP)shared$(SEP)istring.obj 
+ADD_COPT = -i=..$(SEP)include -ox
+#ADD_LIB = MATH387S,%watcom%$(SEP)lib286$(SEP)os2\os2
+LINKOPT = LIBPATH $(LIBDIR) lib math387s, os2$(SEP)os2, os2386 
 
-!include $(ROOT)\makefile.inc
 
-all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
+#!include $(ROOT)$(SEP)makefile.inc
 
-$(DIR)\$(PROJ).exe: $(OBJS)
+all: $(PROJ).exe # $(PROJ).sym
+
+$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
@@ -21,17 +29,20 @@ $(DIR)\$(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk LIBRARY $(LINKLIB)
- @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
+ for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
- @$(RC) -i ..\include option2.rc $@ $(LOG)
+ $(LINKER) @$^&.lnk $(LOG)
+ $(RC) -bt=os2 -i=..$(SEP)include option2.rc $@ $(LOG)
+ 
+#@%append $^&.lnk LIBRARY $(LINKLIB)
 
-
-# Clean target
+# Clean target 
 clean : .symbolic
-    @if exist *.obj @del /q *.obj $(LOG)
-    @if exist *.res @del /q *.res $(LOG)
-    @if exist *.map @del /q *.map $(LOG)
-    @if exist *.wmp @del /q *.wmp $(LOG)
-    @if exist *.lnk @del /q *.lnk $(LOG)
+    $(DC) *.obj *.res *.map *.wmp *.lnk  $(LOG)
+
+# This part "if exist" does not work with OW in GNU/Linux.
+#@if exist *.obj $(DC)  *.obj $(LOG)
+#@if exist *.res $(DC)  *.res $(LOG)
+#@if exist *.map $(DC)  *.map $(LOG)
+#@if exist *.wmp $(DC)  *.wmp $(LOG)
+#@if exist *.lnk $(DC)  *.lnk $(LOG)

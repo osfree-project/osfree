@@ -10,12 +10,12 @@
 32_BITS  = 1
 
 PROJ = sysinstx
-DIR = $(ROOT)\bin\os2
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
 DESC = System Installation Program 0
 #defines object file names in format objname.$(O)
 OBJS = sysinstx.$(O)
 # defines additional options for C compiler
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk

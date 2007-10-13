@@ -22,7 +22,7 @@ extern "C" {
 
 /* stdio is needed for file I/O. */
 #include <stdio.h>
-#include "GDLIB/gd_io.h"
+#include "GDlib/gd_io.h"
 
 /* EK
    0 for origin in upper left conner (Windoz-like)

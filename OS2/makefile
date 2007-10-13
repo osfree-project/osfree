@@ -7,11 +7,9 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-<<<<<<< .mine
-DIRS = shared cmd utlapi cpi pm mm server
-=======
-DIRS = server shared cmd utlapi cpi pm mm
->>>>>>> .r131
+
+DIRS = Server Shared CMD UtlAPI CPI PM MM
+
 
 !include $(%ROOT)/mk/all.mk
 
