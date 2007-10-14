@@ -14,21 +14,13 @@ DIRS = tools bootseq OS2
 
 .DEFAULT
 all: .SYMBOLIC
- @$(if_not_exist_mkdir) $(DIR) 
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2 
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)dll 
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls mkdir 
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)book 
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)msg  
+ @$(if_not_exist_mkdir) $(DIR)
+ @$(if_not_exist_mkdir) $(DIR)$(SEP)os2
+ @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)dll
+ @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls mkdir
+ @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)book
+ @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)msg
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
-
-# if not exist $(DIR) mkdir $(DIR)
-# if not exist $(DIR)$(SEP)os2 mkdir $(DIR)$(SEP)os2
-# if not exist $(DIR)$(SEP)os2$(SEP)dll mkdir $(DIR)$(SEP)os2$(SEP)dll
-# if not exist $(DIR)$(SEP)os2$(SEP)nls mkdir $(DIR)$(SEP)os2$(SEP)nls
-# if not exist $(DIR)$(SEP)os2$(SEP)nls$(SEP)book mkdir $(DIR)$(SEP)os2$(SEP)nls$(SEP)book
-# if not exist $(DIR)$(SEP)os2$(SEP)nls$(SEP)msg  mkdir $(DIR)$(SEP)os2$(SEP)nls$(SEP)msg
-# #$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 tools: .SYMBOLIC
  cd tools && $(MAKE) $(MAKEOPT) all && cd ..

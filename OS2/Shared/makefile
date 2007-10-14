@@ -28,7 +28,7 @@ $(ROOT)$(SEP)lib$(SEP)all_shared.lib: $(OBJS)
  @wlib $@ +$< $(LOG)
 
 msg: .symbolic
- -@mkdir msg $(LOG)
+ @$(if_not_exist_mkdir) msg $(LOG)
  @$(MC) @oso001.rsf $(LOG)
  @$(MC) @oso001h.rsf $(LOG)
  -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)oso001.* $(LOG)

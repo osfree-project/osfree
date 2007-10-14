@@ -100,9 +100,9 @@ Type
 Var
   StrIn     : String;
   StrOut    : String;
-  StrIncDir : String;
-  CodePages : Word; //= 866
-  CP_type   : Boolean; // SBCS
+//  StrIncDir : String;
+//  CodePages : Word; //= 866
+//  CP_type   : Boolean; // SBCS
   CmdLine: String;
 
 
@@ -156,7 +156,7 @@ End;
 Procedure ParseCommandLine(CmdLine: String);
 Var
   S: String;
-  I: Byte;
+//  I: Byte;
 Begin
   {$ifdef debug}
   WriteLn(CmdLine);

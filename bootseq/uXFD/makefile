@@ -21,7 +21,7 @@ OBJS       = $(STARTUP) $(ALL)
 !include $(%ROOT)/mk/bootseq.mk
 
 all: $(OBJS)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC

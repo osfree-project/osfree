@@ -13,13 +13,13 @@ DIRS = shared hlldump genext2fs qemu-img ltools awk renmodul rexxwrap mkmsgf # m
 !include $(%ROOT)/mk/bootseq.mk
 
 all: .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  #$(CLEAN_CMD)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

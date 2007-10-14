@@ -1,5 +1,5 @@
 #
-# OS/3 (osFree) boot sequence project
+# OS/3 (osFree) project
 # common make macros.
 # (c) osFree project
 # valerius, 2006/10/30
@@ -36,7 +36,7 @@ CC        = wcc
 CPPC      = wpp
 !endif
 ASM       = wasm
-LINKER    = wlink
+LINKER    = @wlink
 LIB       = wlib
 MAKE      = wmake
 MAKEOPT   = -h
@@ -48,8 +48,11 @@ SED       = sed
 AWK       = awk
 DOX       = doxygen
 
-#RC        = rc
+!ifeq UNIX FALSE                 # Non-unix
+RC        = rc
+!else ifeq UNIX TRUE             # UNIX
 RC        = wrc
+!endif
 MC        = mkmsgf
 HC        = ipfc
 GENE2FS   = genext2fs
@@ -81,12 +84,12 @@ O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
 SAY       = @echo                # Echo message
-MKBIN     = mkbin.cmd
+MKBIN     = @mkbin.cmd
 GENHDD    = genhdd.cmd
 GENFDD    = genfdd.cmd
 FINDFILE  = findfile.cmd
-
 if_not_exist_mkdir = if_not_exist_mkdir.cmd
+
 NULL      = \dev\nul
 BLACKHOLE = >$(NULL) 2>&1
 
@@ -156,6 +159,7 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
   @(PC) $(PCOPT) $(PROJ)
 
 .rexx.exe: .AUTODEPEND
+  $(SAY) Wrapping REXX code $<
   rexxwrapper -program=$^& -rexxfiles=$^&.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
 #

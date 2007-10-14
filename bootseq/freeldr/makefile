@@ -33,6 +33,7 @@ all: os2ldr
 
 os2ldr: os2ldr.com
  $(SAY) Making $^@ ... $(LOG)
+ @$(DC) $^@ $(LOG)
  @$(RN) $< $^@ $(LOG)
  #$(MKBIN) $< $^@ $(LOG)
 

@@ -50,8 +50,8 @@ OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
 
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym *.map *.exe *.dll
 
-all: $(PROJ).exe $(PROJ).dll $(PROJ).exe.sym $(PROJ).dll.sym .SYMBOLIC
- $(CP) $< $(DIR)
+all: $(PROJ).exe
+ $(CP) $(PROJ).exe $(DIR)
 
 $(PROJ).exe: $(OBJS1)
  @%create $^@.lnk

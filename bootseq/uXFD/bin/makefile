@@ -31,6 +31,7 @@ all: bin.xfd
 
 bin.xfd: bin.com
  $(SAY) Making $^@ ... $(LOG)
+ @$(DC) $^@ $(LOG)
  @$(RN) $< $^@ $(LOG)
  #$(MKBIN) $< $^@ $(LOG)
 

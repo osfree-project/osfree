@@ -79,7 +79,7 @@ O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
 SAY       = @echo                # Echo message
-MKBIN     = mkbin.cmd
+MKBIN     = @mkbin.cmd
 GENHDD    = genhdd.cmd
 GENFDD    = genfdd.cmd
 FINDFILE  = findfile.cmd
@@ -127,4 +127,4 @@ CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
- @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..

@@ -30,7 +30,7 @@ $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib: $(OBJS)
  @wlib $@ +$<  $(LOG)
 
 msg: .symbolic
- -@$(MD) msg $(LOG)
+ -@$(MKDIR) msg $(LOG)
  @$(MC) @lvm.rsf $(LOG)
  -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)lvm.* $(LOG)
  -@$(CP) msg$(SEP)* $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg $(LOG)

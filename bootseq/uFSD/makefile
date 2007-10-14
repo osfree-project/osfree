@@ -33,7 +33,7 @@ OBJS       = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
 !include ../../mk/bootseq.mk
 
 all: $(OBJS) $(LIBC) .SYMBOLIC
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 $(LIBC): $(LIBDIR)/$(LIBC)
  $(SAY) Making $(LIBC) ... $(LOG)
