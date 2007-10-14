@@ -18,4 +18,4 @@ all: .SYMBOLIC
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

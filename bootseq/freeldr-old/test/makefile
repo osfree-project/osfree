@@ -4,8 +4,8 @@
 
 DEFINES    = -dOS2
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIR = freeldr/test
 ADD_COPT   = -od -s $(DEFINES) -i=.
@@ -16,7 +16,7 @@ ALL       = testc.$(O) testasm.$(O) vsprintf.$(O) video.$(O)
 
 OBJS      = $(STARTUP) $(ALL)
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: test.exe
 

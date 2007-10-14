@@ -2,8 +2,8 @@
 # A makefile for jfs.ifs
 #
 
-!include ../../../build.conf
-!include ../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 FS         = jfs
 ADD_ASMOPT =
@@ -23,7 +23,7 @@ ADD_COPT = $(DEFINES) -i=$(MYDIR)/include -i=.
 
 !endif
 
-!include ../../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 STARTUP =
 ALL     =

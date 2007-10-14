@@ -4,12 +4,12 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIRS = bootsect mbr fatboot
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

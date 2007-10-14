@@ -2,8 +2,8 @@
 # Makefile for FAT microFSD. 06/09/29 valerius
 #
 
-!include ../../../build.conf
-!include ../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 FS           = fat
 ADD_ASMOPT   =
@@ -41,7 +41,7 @@ GEN_OBJS     = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
 #
 OBJS         = $(GEN_OBJS) $(SPEC_OBJS)
 
-!include ../../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: bb_$(FS) .SYMBOLIC
 

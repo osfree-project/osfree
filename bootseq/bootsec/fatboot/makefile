@@ -7,8 +7,8 @@
 DEFINES    =
 ADD_ASMOPT = $(DEFINES)
 
-!include ../../../build.conf
-!include ../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 !ifeq UNIX FALSE
 
@@ -26,7 +26,7 @@ STARTUP    =
 ALL        = fatboot.$(O)
 OBJS       = $(STARTUP) $(ALL)
 
-!include ../../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 .SUFFIXES:
 .SUFFIXES:  .bin .exe .com .$(O) .asm

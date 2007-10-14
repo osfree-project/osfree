@@ -12,8 +12,8 @@
 
 DEFINES    = -dOS2
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIR = freeldr
 ADD_COPT   = -od -s $(DEFINES) -i=.
@@ -27,7 +27,7 @@ ALL        = freeldra.$(O) start32.$(O) cmodel.$(O) segread.$(O) &
 
 OBJS       = $(STARTUP) $(ALL)
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: os2ldr
 

@@ -5,8 +5,8 @@
 
 DIR = uFSD
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DEFINES    = -dOS2 -d__KERNEL__ -dMICROFSD -dMICROFSD_TRACE -d__NO_LILO__
 
@@ -30,7 +30,7 @@ OBJS       = entry.$(O) start.$(O) diskread.$(O) wrappers.$(O) &
              panic.$(O) video.$(O) vsprintf.$(O) pathutil.$(O) &
              term.$(O)
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: $(OBJS) $(LIBC) .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
@@ -46,4 +46,4 @@ $(LIBC): $(LIBDIR)/$(LIBC)
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- $(MAKE) TARGET=$^@ subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

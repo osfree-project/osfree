@@ -5,12 +5,12 @@
 # valerius, 2006/10/30
 #
 
-!include ../../build.conf
-!include ../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIRS = # sysinstx recover format chkdsk
 
-!include ../../mk/bootseq.mk
+!include $(%ROOT)/mk/bootseq.mk
 
 all: .SYMBOLIC
  $(MAKE) TARGET=$^@ subdirs

@@ -4,12 +4,12 @@
 # valerius, 2006/10/30
 #
 
-!include ../../../../build.conf
-!include ../../../../mk/site.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIRS = pmwindow
 
-!include ../../../../mk/all.mk
+!include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
