@@ -1,8 +1,8 @@
 /*!
-   $Id: all_performrecursiveaction.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $ 
-  
-   @file all_performreqursiveaction.c 
-   
+   $Id: all_performrecursiveaction.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $
+
+   @file all_performreqursiveaction.c
+
    @brief directory-tree recurse helper functions
    shared along all code
 
@@ -15,11 +15,11 @@
    @todo add new action Codes/options:
         all_RECURSE_FILESFIRST - to process files first, then directories,
         recursion still will be made after these
-   @todo add new errors - 
+   @todo add new errors -
          when user requested file/dir action but no files/dirs were present
          even throught recursion! or... should he check that himself (as there
        are already no_subdir no_files types callbacks)
-*/   
+*/
 
 #define INCL_DOSERRORS
 #include <osfree.h>
@@ -53,14 +53,14 @@ typedef struct __all_traverse_state {
   @param phlDirsList   Pointer to hList to be filled up, by function, note
                        that functions first puts directories into list, and
                        then files
-  @param file_options  combination of all_RECURSE_* constants (use |), if 
+  @param file_options  combination of all_RECURSE_* constants (use |), if
                        all_RECURSE_DIRS or all_RECURSE_DIRACTION are present,
                        function will search for directories, if
                        all_RECURSE_FILEACTION is present, function will search
                        for files
   @param ulSearchAttr  file attributes (FILE_* combination), to match when
                         searhing for files and directories, note that
-                        presence of FILE_DIRECTORY has no effect 
+                        presence of FILE_DIRECTORY has no effect
                         (it's overriden by function, while processing)
   @param ulDirCount    count of directories returned in phlDirList
   @param ulFileCount   count of files returned in phlDirList
@@ -74,21 +74,21 @@ typedef struct __all_traverse_state {
 
   @todo allow passing 'requested attributes'
 */
-int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList, 
+int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                         int file_options,int ulSearchAttr, ULONG *ulDirCount,
                         ULONG *ulFileCount, ULONG *ulRecurseDirCount)
 {
   HDIR hDir;
   FILEFINDBUF3 ffbFindBuf;
-  APIRET rc; 
+  APIRET rc;
   CHAR *pchDirElemt;
 //  ULONG ulSearchAttr=FILE_SYSTEM|FILE_READONLY|FILE_HIDDEN|FILE_ARCHIVED;
-  ULONG ulEntries; 
+  ULONG ulEntries;
   CHAR fileMask[CCHMAXPATH]="";
 
   /* mask for searching directories, and/or files, when all_RECURSE_DIRACTION,
      and/or all_RECURSE_FILEACTION are present */
-  strcat(fileMask,dir); 
+  strcat(fileMask,dir);
   strcat(fileMask,file);
 
   *ulDirCount=0; /* reset dir, recurse dir and file count */
@@ -111,7 +111,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
 
 
 
-    if ((rc != NO_ERROR) && (rc != ERROR_NO_MORE_FILES)) 
+    if ((rc != NO_ERROR) && (rc != ERROR_NO_MORE_FILES))
     {
      DosFindClose(hDir);
      return(rc);
@@ -139,7 +139,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
     DosFindClose(hDir);
   }; /* END:  if (file_options & all_RECURSE_DIRACTION)  */
 
-    if (file_options & all_RECURSE_FILEACTION) 
+    if (file_options & all_RECURSE_FILEACTION)
     {
       ulEntries=1;
       hDir = HDIR_CREATE;
@@ -152,7 +152,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                             &ulEntries,             /* number of entries (1) */
                             FIL_STANDARD);          /* return only standard info (no EAs) */
 
-    if ((rc != NO_ERROR) && (rc != ERROR_NO_MORE_FILES)) 
+    if ((rc != NO_ERROR) && (rc != ERROR_NO_MORE_FILES))
     {
      DosFindClose(hDir);
      return(rc);
@@ -161,7 +161,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
 
     if (rc != ERROR_NO_MORE_FILES) {
         do {
-   
+
          // allocate memory for a new list element
             pchDirElemt = malloc(strlen(ffbFindBuf.achName) + 1);
             if (pchDirElemt == NULL)
@@ -186,8 +186,8 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
  if (file_options & all_RECURSE_DIRS)
  {
   /* prepare new mask, for directory recursing */
-    memset(fileMask,0,sizeof(fileMask)); 
-   strcat(fileMask,dir); 
+    memset(fileMask,0,sizeof(fileMask));
+   strcat(fileMask,dir);
    strcat(fileMask,"*");
 
 
@@ -203,7 +203,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
 
 
 
-    if ((rc != NO_ERROR) && (rc != ERROR_NO_MORE_FILES)) 
+    if ((rc != NO_ERROR) && (rc != ERROR_NO_MORE_FILES))
     {
      DosFindClose(hDir);
      return(rc);
@@ -242,24 +242,24 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
 
 /*!
   Perform user action on files and/or directories, optionally traversing
-  through sub-directories.  
+  through sub-directories.
 
-  Note: This is  not a recursive implementation. It rather uses a dynamic 
+  Note: This is  not a recursive implementation. It rather uses a dynamic
   stack to avoid problems with out-of-stack-space conditions. It is faster, too.
 
-  @param fileMask      file mask for file and/or dir searching, if 
+  @param fileMask      file mask for file and/or dir searching, if
                        all_RECURSE_DIRS is specified, '*' filemask will be used
                        for directories, otherwise the same as for files
   @param actionOptions action options and callback enablement, combination of
                        all_RECURSE_* constants (use |), meaning of respective
                        constants:
                        all_RECURSE_FILEACTION - action callback will be called
-                        on every file (this does not include directories!) that 
+                        on every file (this does not include directories!) that
                         match given fileMask (action_callback 'path' parameter
-                        contains path part of that file - where this file 
+                        contains path part of that file - where this file
                         resides in, and 'name' it's name)
                        all_RECURSE_DIRACTION - action callback will be called
-                        on every directory (this does not include files!) that 
+                        on every directory (this does not include files!) that
                         match given fileMask (action_callback 'path' parameter
                         contains path part of that directory - where this
                         directory resides in, and 'name' it's name)
@@ -267,51 +267,51 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                         be made for every subdirectory starting from a given
                         in fileMask (recursing into subdirectories)
                        all_RECURSE_IN - action callback will be called upon
-                        entering new directory (action_callback 'path' 
+                        entering new directory (action_callback 'path'
                         parameter contains, contains entered directory name,
                         and 'name' parameter file-mask to be used for
                         matching files and/or directories)
                        all_RECURSE_NOFILES - action callback will be called
-                        when user requested actions on files 
+                        when user requested actions on files
                         (all_RECURSE_FILEACTION) but no files mathing mask part
-                        of file mask, were found in currently-searched 
-                        directory (action_callback 'path' parameter contains 
+                        of file mask, were found in currently-searched
+                        directory (action_callback 'path' parameter contains
                         that directory name, and 'name' parameter used mask)
                        all_RECURSE_NODIRS - action callback will be called
                         when user requested actions on directories
                         (all_RECURSE_DIRACTION) but no directories mathing mask
-                        part of file mask, were found in currently-searched 
-                        directory (action_callback 'path' parameter contains 
+                        part of file mask, were found in currently-searched
+                        directory (action_callback 'path' parameter contains
                         that directory name, and 'name' parameter used mask)
                        all_RECURSE_NOSUBDIRS - action callback will be
                         called when user selected to recurse into directories
                         (all_RECURSE_DIRS) but no subdirectories were found in
-                        currently-searched directory (action_callback 'path' 
-                        parameter contains, contains currently-searched 
+                        currently-searched directory (action_callback 'path'
+                        parameter contains, contains currently-searched
                         directory name, and 'name' parameter file-mask to be
                         used for matching files and/or directories)
                         Note: this callback is called only for 2nd and more
-                        depth directories, if such situation happens in 1st 
+                        depth directories, if such situation happens in 1st
                         depth directory, function returns (after processing
                         files and/or directories) with return code
                         all_ERR_RECURSE_NORECURSION
 
   @param fileAttrs      file attributes (FILE_* combination), to match when
                         searhing for files and directories, note that
-                        presence of FILE_DIRECTORY has no effect 
+                        presence of FILE_DIRECTORY has no effect
                         (it's overriden by function, while processing)
 
   @param action_callback action_callback function, to be called upon files and
                          directories or after condition (look above) has
                          occured. As a parameters it gets, file (directory)
                          name, upon wich is called, fileMask and action type.
-                         To break function (all_PerformRecursiveAction) 
+                         To break function (all_PerformRecursiveAction)
                          execution, it should return non 0 value.
                          Simplest example of action callback function:
 
        int ActionFunc(char *path, char *name,char action,void *data)
        {
-         switch (action) 
+         switch (action)
          {
            case all_RECURSE_DIRACTION:
             printf("Directory: %s in path %s\n",name,path);
@@ -327,13 +327,13 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                               passed to action_callback function, upon
                               execution
 
-  @param error_callback  error callback function, to be called when 
+  @param error_callback  error callback function, to be called when
                         _all_CollectSubdirs returns an error, as a parameter
                         it's return code, should return non 0 value, to break
                         function (all_PerformRecursiveAction) execution.
                         Simplest example of error callback function:
-	
-	int ErrorFunc(ULONG rc,void *data)
+
+        int ErrorFunc(ULONG rc,void *data)
         {
           if (rc>5) return 1; //break owner execution
           return 0;
@@ -352,7 +352,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
   @todo allow passing 'requested attributes'
 */
 int all_PerformRecursiveAction(char *fileMask,int actionOptions,int fileAttrs,
-            int (*action_callback)(char*,char*,char,void *),void *action_callback_data,
+            int (*action_callback)(char*,char*,int,void *),void *action_callback_data,
             int (*error_callback)(ULONG,void *),void *error_callback_data)
 {
     hList          *phlDirsList;    /* dynamic list of directories      */
@@ -362,15 +362,15 @@ int all_PerformRecursiveAction(char *fileMask,int actionOptions,int fileAttrs,
     ULONG ulDirs, ulRecurseDirs, ulFiles;
     ULONG ulrc, ulIdx;
     ULONG ulCounter;
-    CHAR dir[CCHMAXPATH] = ""; 
+    CHAR dir[CCHMAXPATH] = "";
     char *mask;
     APIRET rc;
     ULONG ulEntries;
     char *tmp;
 
-    /* check are the parameters correct */ 
+    /* check are the parameters correct */
     if ((actionOptions==0)||(action_callback==NULL))
-     return all_ERR_RECURSE_BADPARAMS; 
+     return all_ERR_RECURSE_BADPARAMS;
 
     // Get a new dynamic stack handle
     phsStack = stack_init();    /* @todo - check return code */
@@ -393,7 +393,7 @@ lbl_begin:
      {
       /* @todo cleanup.. and set correct return value*/
       free(mask);
-      return all_ERR_RECURSE_ACTIONBREAK; 
+      return all_ERR_RECURSE_ACTIONBREAK;
      };
     };
 
@@ -416,7 +416,7 @@ lbl_begin:
 
 
     /* if user requested actions on files */
-    if (actionOptions&all_RECURSE_DIRACTION) 
+    if (actionOptions&all_RECURSE_DIRACTION)
     {
      if (ulDirs==0) /* but there may be no files */
      {
@@ -429,7 +429,7 @@ lbl_begin:
          {
           /* @todo cleanup.. and set correct return value */
           free(mask);
-          return all_ERR_RECURSE_ACTIONBREAK; 
+          return all_ERR_RECURSE_ACTIONBREAK;
          };
        };
 
@@ -444,7 +444,7 @@ lbl_begin:
          {
           /* @todo cleanup.. and set correct return value */
           free(mask);
-          return all_ERR_RECURSE_ACTIONBREAK; 
+          return all_ERR_RECURSE_ACTIONBREAK;
          };
         list_next(phlDirsList);
        };
@@ -453,7 +453,7 @@ lbl_begin:
 
 
     /* if user requested actions on files */
-    if (actionOptions&all_RECURSE_FILEACTION) 
+    if (actionOptions&all_RECURSE_FILEACTION)
     {
      if (ulFiles==0) /* but there may be no files */
      {
@@ -465,7 +465,7 @@ lbl_begin:
          {
           /* @todo cleanup.. and set correct return value */
           free(mask);
-          return all_ERR_RECURSE_ACTIONBREAK; 
+          return all_ERR_RECURSE_ACTIONBREAK;
          };
        };
 
@@ -480,13 +480,13 @@ lbl_begin:
          {
           /* @todo cleanup.. and set correct return value */
           free(mask);
-          return all_ERR_RECURSE_ACTIONBREAK; 
+          return all_ERR_RECURSE_ACTIONBREAK;
          };
         list_next(phlDirsList);
        };
      }; /*END: if (ulFiles==0) */
     }; /* END: if (actionOptions&all_RECURSE_FILEACTION) */
-  
+
     /* if no real recurse was requested quit without error */
     if (!(actionOptions&all_RECURSE_DIRS))
     {
@@ -510,7 +510,7 @@ lbl_begin:
        {
         /* @todo cleanup.. and set correct return value */
         free(mask);
-        return all_ERR_RECURSE_ACTIONBREAK; 
+        return all_ERR_RECURSE_ACTIONBREAK;
        };
     };
 

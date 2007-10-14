@@ -1,8 +1,8 @@
 /*!
-   $Id: all_performrecursiveaction.h,v 1.1.1.1 2003/10/04 08:27:20 prokushev Exp $ 
-  
+   $Id: all_performrecursiveaction.h,v 1.1.1.1 2003/10/04 08:27:20 prokushev Exp $
+
    @file all_performreqursiveaction.h
-   
+
    @brief directory-tree recurse helper function header
    shared along all code
 
@@ -20,7 +20,7 @@
 #define all_ERR_RECURSE_ERRORBREAK  2 //!< execution broke by error callback
 #define all_ERR_RECURSE_BADPARAMS   3 //!< invalid parameters were passed
 #define all_ERR_RECURSE_NORECURSION 4 //!< no subdirectories for recursion found
- 
+
 /* all_PerformRecursiveAction action bits (also callback, action codes) */
 #define all_RECURSE_DIRS       0x001 /*!< recurse into subdirs  */
 #define all_RECURSE_FILEACTION 0x002 /*!< perform action on files */
@@ -34,7 +34,7 @@
 #define DONT_HAVE_DIRECTORY     0x27    //!< Attribute to exclude directories
 
 int all_PerformRecursiveAction(char *fileMask,int file_options,int fileAttrs,
-            int (*action_callback)(char*,char *,char,void *),void *action_callback_data,
+            int (*action_callback)(char*,char *,int,void *),void *action_callback_data,
             int (*error_callback)(ULONG,void *),void *error_callback_data);
 
 #endif /* _ALL_PERFORMRECURSIVEACTION_H_ */

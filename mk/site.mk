@@ -42,11 +42,12 @@ UNIX = TRUE
 ! error Unsupported OS!
 !endif
 
-# Libraries dir
+# Libraries dir (this is NOT standalone system libraries. This is path where
+# to store libs generated during build process)
 !ifeq UNIX FALSE
-LIBDIR     = $(%WATCOM)\lib286\dos;$(ROOT)\lib;$(%WATCOM)\lib286\os2
+LIBDIR     = $(ROOT)\lib
 !else
-LIBDIR     = $(%WATCOM)/lib286/dos:$(ROOT)/lib:$(%WATCOM)/lib286/os2
+LIBDIR     = $(ROOT)/lib
 !endif
 
 # libc

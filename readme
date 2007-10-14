@@ -18,13 +18,15 @@ Linux}.
 Английский:
 English:
 
-A bootsector and MBR loader for FreeLdr -- OS/3 loader.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+osFree build system
+~~~~~~~~~~~~~~~~~~~
 
      For  compilation,  fix  build.conf  to  suit  your  system.  (There are 3
-versions  of  build.conf  for  OS/2, Linux and Windows in the root directory).
+versions  of  build.conf  for  OS/2, Linux and Windows in the root directory.
+Also developer-specific config exists with names like build-valerius.conf,
+build-prokushev.conf, etc).
 OpenWatcom  compiler  is used for development. I tried OpenWatcom versions 1.3
-as  well  as  1.5.  Also,  for mkbin.cmd script a REXX language interpreter is
+as  well  as  1.5.  Also,  for *.cmd scripts a REXX language interpreter is
 needed.      For      Linux      and     Windows     users     Regina     REXX
 (http://regina-rexx.sourceforge.net/)  may  be  used.  Before compilation, for
 setting  environment  variables,  use  setvars{.cmd  --  for OS/2, .bat -- for
