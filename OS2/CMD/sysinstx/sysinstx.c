@@ -1,8 +1,8 @@
 /*!
-   $Id: sysinstx.c,v 1.1.1.1 2003/10/04 08:24:22 prokushev Exp $ 
-  
+   $Id: sysinstx.c,v 1.1.1.1 2003/10/04 08:24:22 prokushev Exp $
+
    @file sysinstx.c
- 
+
    @brief sysinstx command - frontend for sys entry in fs utility dll
 
    (c) osFree Project 2002, <http://www.osFree.org>
@@ -33,7 +33,7 @@ int main (int argc, char* argv[], char* envp[])
 {
   PSZ pszFSName;  /* FS Name */
   int i;          /* counter and etc.. */
-  PSZ disk="   "; 
+  PSZ disk="   ";
   APIRET rc;
 
  /* check if user wants info from us (/? or -?) */
@@ -44,7 +44,7 @@ int main (int argc, char* argv[], char* envp[])
   printf("We should print here some info usuage...\n");
 /*   cmd_ShowSystemMessage(cmd_MSG_SYSINSTX_HELP,0L); */
    return NO_ERROR;
- }; 
+ };
 
   if ((argc!=2) || (argc!=3) || (argv[1][1]!=':'))
   {
@@ -60,14 +60,14 @@ int main (int argc, char* argv[], char* envp[])
  /* execute appriate function from FS utility dll */
  if (cmd_QueryFSName(disk,pszFSName))
  {
-   free(pszFSName); 
-   return cmd_ERROR_EXIT; 
+   free(pszFSName);
+   return cmd_ERROR_EXIT;
  };
 
  cmd_ShowSystemMessage(cmd_MSG_TYPE_OF_FS_IS,1L,"%s",pszFSName);
- 
+
  rc=cmd_ExecFSEntry(pszFSName,cmd_FS_SYS,FALSE,argc,argv,envp);
 
- free(pszFSName); 
+ free(pszFSName);
  return rc;
 };

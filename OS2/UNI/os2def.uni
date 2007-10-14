@@ -1,0 +1,269 @@
+module os2def;
+
+type UCHAR  = BYTE;
+type USHORT = WORD;
+type ULONG  = LONGINT;
+
+type SHANDLE = USHORT;
+type LHANDLE = ULONG;
+
+type PUCHAR=^UCHAR;
+type PBYTE=^BYTE;
+type NPBYTE=^BYTE;
+type PUSHORT=^USHORT;
+//type unsigned int    UINT, *PUINT;
+type PULONG=^ULONG;
+
+const NULLHANDLE:  LHANDLE = 0;
+const NULLSHANDLE: SHANDLE = 0;
+
+const SEVERITY_NOERROR       = $0000;
+const SEVERITY_WARNING       = $0004;
+const SEVERITY_ERROR         = $0008;
+const SEVERITY_SEVERE        = $000C;
+const SEVERITY_UNRECOVERABLE = $0010;
+
+const WINERR_BASE = $1000;
+const GPIERR_BASE = $2000;
+const DEVERR_BASE = $3000;
+const SPLERR_BASE = $4000;
+
+type WRECT=RECTL;
+type PWRECT=PRECTL;
+type NPWRECT=NPRECTL;
+
+type WPOINT  =POINTL;
+type PWPOINT =PPOINTL;
+type NPWPOINT=NPPOINTL;
+
+const ICON_FILE     = 1;
+const ICON_RESOURCE = 2;
+const ICON_DATA     = 3;
+const ICON_CLEAR    = 4;
+
+type CHAR=char;
+type SHORT=short;
+type LONG=long;
+type INT=int;
+type VOID=void;
+
+const DRIVER_NAME     = 1;
+const DRIVER_DATA     = 2;
+const DATA_TYPE       = 3;
+const COMMENT         = 4;
+const PROC_NAME       = 5;
+const PROC_PARAMS     = 6;
+const SPL_PARAMS      = 7;
+const NETWORK_PARAMS  = 8;
+
+const PD_JOB_PROPERTY = $0001;
+
+const FATTR_SEL_ITALIC          = $0001;
+const FATTR_SEL_UNDERSCORE      = $0002;
+const FATTR_SEL_OUTLINE         = $0008;
+const FATTR_SEL_STRIKEOUT       = $0010;
+const FATTR_SEL_BOLD            = $0020;
+const FATTR_SEL_MUST_COLOR      = $0100;
+const FATTR_SEL_MUST_MIXEDMODES = $0200;
+const FATTR_SEL_MUST_HOLLOW     = $0400;
+
+const FATTR_TYPE_KERNING        = $0004;
+const FATTR_TYPE_MBCS           = $0008;
+const FATTR_TYPE_DBCS           = $0010;
+const FATTR_TYPE_ANTIALIASED    = $0020;
+
+const FATTR_FONTUSE_NOMIX       = $0002;
+const FATTR_FONTUSE_OUTLINE     = $0004;
+const FATTR_FONTUSE_TRANSFORMABLE=$0008;
+
+const FACESIZE=32;
+
+const FM_TYPE_FIXED         = $0001;
+const FM_TYPE_LICENSED      = $0002;
+const FM_TYPE_KERNING       = $0004;
+const FM_TYPE_DBCS          = $0010;
+const FM_TYPE_MBCS          = $0018;
+const FM_TYPE_UNICODE       = $0040;
+const FM_TYPE_64K           = $8000;
+const FM_TYPE_ATOMS         = $4000;
+const FM_TYPE_FAMTRUNC      = $2000;
+const FM_TYPE_FACETRUNC     = $1000;
+
+const FM_DEFN_OUTLINE       = $0001;
+const FM_DEFN_IFI           = $0002;
+const FM_DEFN_WIN           = $0004;
+const FM_DEFN_GENERIC       = $8000;
+
+const FM_DEFN_LATIN1        = $0010;
+const FM_DEFN_PC            = $0020;
+const FM_DEFN_LATIN2        = $0040;
+const FM_DEFN_CYRILLIC      = $0080;
+const FM_DEFN_HEBREW        = $0100;
+const FM_DEFN_GREEK         = $0200;
+const FM_DEFN_ARABIC        = $0400;
+const FM_DEFN_UGLEXT        = $0800;
+const FM_DEFN_KANA          = $1000;
+const FM_DEFN_THAI          = $2000;
+
+const FM_DEFN_UGL383        = $0070;
+const FM_DEFN_UGL504        = $00F0;
+const FM_DEFN_UGL767        = $0FF0;
+const FM_DEFN_UGL1105       = $3FF0;
+
+const FM_SEL_ITALIC         = $0001;
+const FM_SEL_UNDERSCORE     = $0002;
+const FM_SEL_NEGATIVE       = $0004;
+const FM_SEL_OUTLINE        = $0008;
+const FM_SEL_STRIKEOUT      = $0010;
+const FM_SEL_BOLD           = $0020;
+const FM_SEL_ISO9241_TESTED = $0040;
+
+const FM_SEL_JAPAN          = $1000;
+const FM_SEL_TAIWAN         = $2000;
+const FM_SEL_CHINA          = $4000;
+const FM_SEL_KOREA          = $8000;
+const FM_SEL_DBCSMASK       = $F000;
+
+const FM_ISO_9518_640       = $01;
+const FM_ISO_9515_640       = $02;
+const FM_ISO_9515_1024      = $04;
+const FM_ISO_9517_640       = $08;
+const FM_ISO_9517_1024      = $10;
+
+const FM_CAP_NOMIX          = $0001;
+const FM_CAP_NO_COLOR       = $0002;
+const FM_CAP_NO_MIXEDMODES  = $0004;
+const FM_CAP_NO_HOLLOW      = $0008;
+
+type APIRET=ULONG;
+type APIRET16=USHORT;
+type APIRET32=ULONG;
+
+type PSZ=^char;
+type NPSZ=^char;
+type PCH=^char;
+type NPCH=^char;
+type PCSZ=^char;
+
+
+type BOOL=ULONG;
+type PBOOL=^BOOL;
+type BOOL32=ULONG;
+type PBOOL32=^BOOL32;
+type BOOL16=USHORT;
+type PBOOL16=^BOOL16; {Непонятно, как сделать модификатор _Seg16}
+
+type PCHAR=^CHAR;
+type PSHORT=^SHORT;
+type PINT=^INT;
+type PLONG=^LONG;
+
+{type CHAR     * _Seg16 PCHAR16;}
+{type UCHAR    * _Seg16 PUCHAR16;}
+
+type PVOID=pointer;
+type PPVOID=^pointer;
+{type VOID     * _Seg16 PVOID16;}
+
+{type int (APIENTRY _PFN)();
+type _PFN  *PFN;
+type int (APIENTRY _NPFN)();
+type _NPFN *NPFN;}
+
+type SEL=USHORT;
+type PSEL=^SEL;
+
+type HFILE=LHANDLE;
+type PHFILE=^HFILE;
+type HMODULE=LHANDLE;
+type PHMODULE=^HMODULE;
+type PID=LHANDLE;
+type PPID=^PID;
+type TID=LHANDLE;
+type PTID=^TID;
+type HAB=LHANDLE;
+type PHAB=^HAB;
+type HPS=LHANDLE;
+type PHPS=^HPS;
+type HDC=LHANDLE;
+type PHDC=^HDC;
+type HRGN=LHANDLE;
+type PHRGN=^HRGN;
+type HBITMAP=LHANDLE;
+type PHBITMAP=^HBITMAP;
+type HMF=LHANDLE;
+type PHMF=^HMF;
+type HPAL=LHANDLE;
+type PHPAL=^HPAL;
+type HWND=LHANDLE;
+type PHWND=^HWND;
+type HMQ=LHANDLE;
+type PHMQ=^HMQ;
+type HPOINTER=LHANDLE;
+type COLOR=LONG;
+type PCOLOR=^COLOR;
+type FIXED=LONG;
+type PFIXED=^FIXED;
+type HEV=ULONG;
+type PHEV=^HEV;
+type HMTX=ULONG;
+type PHMTX=^HMTX;
+type HMUX=ULONG;
+type PHMUX=^HMUX;
+type HSEM=pointer;
+type PHSEM=^HSEM;
+type SGID=USHORT;
+
+type MPARAM=pointer;
+type PMPARAM=^MPARAM;
+type MRESULT=pointer;
+type PMRESULT=^MRESULT;
+
+type ERRORID=ULONG;
+type PERRORID=^ERRORID;
+
+type STR8=array[8] of CHAR;
+type PSTR8=^PSTR8;
+
+type PDEVOPENDATA=^PSZ;
+
+type _QWORD=structure
+    ulLo: ULONG;
+    ulHi: ULONG;
+  end;
+type QWORD=_QWORD;
+type PQWORD=^QWORD;
+
+type _PRINTDEST=structure
+   cb: ULONG;
+   lType: LONG;
+   pszToken: PSZ;
+   lCount: LONG;
+   pdopData: PDEVOPENDATA;
+   fl: ULONG;
+   pszPrinter: PSZ;
+  end;
+type PRINTDEST=_PRINTDEST;
+type PPRINTDEST=^PRINTDEST;
+
+type _ICONINFO=structure
+    cb: ULONG;
+    fFormat: ULONG;
+    pszFileName: PSZ;
+    hmod: HMODULE;
+    resid: ULONG;
+    cbIconData: ULONG;
+    pIconData: PVOID;
+  end;
+type ICONINFO=_ICONINFO;
+type PICONINFO=^ICONINFO;
+
+type _ACCEL=structure
+    fs: USHORT;
+    key: USHORT;
+    cmd: USHORT;
+  end;
+type ACCEL=_ACCEL;
+type PACCEL=^ACCEL;
+
+end.

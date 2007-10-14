@@ -1,0 +1,11 @@
+{Main OS/2 Personality Unified API module}
+
+module os2;
+
+uses os2def;
+uses bse;
+{uses utlapi;
+uses pm;}
+
+end.
+

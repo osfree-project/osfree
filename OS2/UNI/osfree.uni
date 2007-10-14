@@ -1,0 +1,6 @@
+{Main osFree API definition}
+module osfree;
+
+uses os2;
+
+end.

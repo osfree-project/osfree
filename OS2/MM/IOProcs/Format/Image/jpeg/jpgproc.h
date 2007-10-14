@@ -40,6 +40,10 @@
 /*           JPG IOProc                                                 */
 /*                                                                      */
 /*********************** END OF SPECIFICATIONS **************************/
+
+#ifndef __JPGPROC_H_INCLUDED__
+#define __JPGPROC_H_INCLUDED__
+
 #include <os2.h>
 #include <stdio.h>
 #include <string.h>
@@ -116,23 +120,9 @@ ULONG APIENTRY GetNLSData (PULONG, PULONG);
 #define DEBUG
 
 #ifdef DEBUG
-void writeLog(const char* chrFormat, ...)
-{
-  char logNameLocal[CCHMAXPATH];
-  FILE *fHandle;
-
-  sprintf(logNameLocal,"%s\\jpgio.log",getenv("LOGFILES"));
-  fHandle=fopen(logNameLocal,"a");
-  if(fHandle) {
-    va_list arg_ptr;
-    void *tb;
-
-    va_start (arg_ptr, chrFormat);
-    vfprintf(fHandle, chrFormat, arg_ptr);
-    va_end (arg_ptr);
-    fclose(fHandle);
-  }
-}
+void writeLog(const char* chrFormat, ...);
 #endif
 
 #pragma pack()
+
+#endif // __JPGPROC_H_INCLUDED__

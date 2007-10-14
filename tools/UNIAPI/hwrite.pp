@@ -41,6 +41,7 @@ type
     procedure wrtln;
 
     procedure WriteElement(AElement: TPasElement);
+    procedure WriteRecordType(AElement: TPasRecordType; NestingLevel: Integer);
     procedure WriteType(AType: TPasType);
     procedure WriteModule(AModule: TPasModule);
     procedure WriteSection(ASection: TPasSection);
@@ -148,14 +149,27 @@ begin
 end;
 
 procedure THWriter.WriteType(AType: TPasType);
+var
+  sze: longword;
 begin
   if AType.ClassType = TPasUnresolvedTypeRef then
     wrt(AType.Name)
   else if AType.ClassType = TPasClassType then
     WriteClass(TPasClassType(AType))
-  else if AType.ClassType = TPasAliasType then
+  else if AType.ClassType = TPasPointerType then
   begin
-    WrtLn('typedef '+TPasAliasType(AType).Name+' '+TPasAliasType(AType).DestType.Name);
+    if Assigned(TPasPointerType(AType).DestType) then
+      wrtln('typedef '+TPasPointerType(AType).DestType.Name+' * '+TPasAliasType(AType).Name+';')
+    else
+      wrtln('typedef void * '+TPasAliasType(AType).Name+';');
+  end else if AType.ClassType = TPasAliasType then
+  begin
+    WrtLn('typedef '+TPasAliasType(AType).DestType.Name+' '+TPasAliasType(AType).Name+';');
+  end else if AType.ClassType = TPasRecordType then
+    WriteRecordType(TPasRecordType(AType), 0)
+  else if AType.ClassType = TPasArrayType then
+  begin
+    wrtln('typedef '+TPasArrayType(AType).ElType.Name+'[' + TPasArrayType(AType).IndexRange + '] '+TPasAliasType(AType).Name+';');
   end else
     raise Exception.Create('Writing not implemented for ' +
       AType.ElementTypeName + ' nodes');
@@ -612,6 +626,28 @@ begin
   end;
 end;
 
+procedure THWriter.WriteRecordType(AElement: TPasRecordType; NestingLevel: Integer);
+var
+  i, j: Integer;
+  Variable: TPasVariable;
+  CurVariant: TPasVariant;
+begin
+  wrt('typedef ');
+  if not (AElement.Parent is TPasVariant) then
+    if AElement.IsPacked then
+      wrt('packed struct')
+    else
+      wrt('struct ');
+
+  wrtln(AElement.Name+' {');
+
+  for i := 0 to AElement.Members.Count - 1 do
+  begin
+    Variable := TPasVariable(AElement.Members[i]);
+    wrtln(Variable.VarType.name+' '+Variable.Name+';');
+  end;
+  wrtln('};');
+end;
 
 procedure WriteHFile(AElement: TPasElement; const AFilename: string);
 var
