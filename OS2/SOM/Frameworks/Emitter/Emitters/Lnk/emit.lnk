@@ -1,0 +1,11 @@
+libpath %WATCOM%/lib386
+libpath %WATCOM%/lib386/os2
+lib somtk.lib, os2386
+format os2 LX DLL INITINSTANCE TERMINSTANCE
+#system os2v2 dll
+file pas.obj
+file emitpas.obj
+name emitlnk.dll
+option DESCRIPTION '@#Yuri Prokushev:1.0#@##1## 28.04.07 23:30:30        notebook::::1::@@Watcom Linker Emittter for SOM Compiler'
+OPTION MANYAUTODATA OPTION ELIMINATE
+export emit
