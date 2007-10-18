@@ -14,7 +14,7 @@ public   bss_end
 include  fsd.inc
 
 BASE1     equ STAGE0_BASE - 10000h
-BASE      equ BASE1 + 0f9h ; + (offset _TEXT16:_text16_end - offset _TEXT16:_text16_begin)
+BASE      equ BASE1 + 163h ; + (offset _TEXT16:_text16_end - offset _TEXT16:_text16_begin)
 
 _TEXT16  segment byte public 'CODE'  use16
 org 0h

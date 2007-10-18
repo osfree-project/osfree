@@ -44,6 +44,8 @@ MAKEOPT   = -h
 PC        = ppc386
 PCOPT     =
 
+DD        = dd
+
 SED       = sed
 AWK       = awk
 DOX       = doxygen

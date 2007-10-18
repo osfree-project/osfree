@@ -22,7 +22,6 @@ struct exe_params
    unsigned long   esp;
 };
 
-//int load(char far *image, unsigned long size, char far *load_addr, struct exe_params *p);
-int load(unsigned long image, unsigned long size, unsigned long load_addr, struct exe_params far *p);
+int load(char *image, unsigned long size, char *load_addr, struct exe_params *p);
 
 #endif

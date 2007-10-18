@@ -13,31 +13,67 @@
 #define __LIP_H__
 
 #include <uXFD/uXFD.h>
+#include <shared.h>
 
 typedef struct lip
 {
    /* Filesystem access functions */
-   unsigned long __cdecl (far *lip_open)  (char far *);
-   unsigned long __cdecl (far *lip_read)  (unsigned long, unsigned long);
-   unsigned long __cdecl (far *lip_seek)  (unsigned long);
-   void          __cdecl (far *lip_close) (void);
-   void          __cdecl (far *lip_term)  (void);
+   int                   (*lip_open)  (char *);
+   int                   (*lip_dir)   (char *dirname);
+   int                   (*lip_read)  (char *, int);
+   int                   (*lip_seek)  (unsigned long);
+   void                  (*lip_close) (void);
+   void                  (*lip_term)  (void);
+   /* uFSD functions */
+   int                   (*lip_fs_mount) (void);
+   int                   (*lip_fs_read)  (char *buf, int len);
+   int                   (*lip_fs_dir)   (char *dirname);
+   void                  (*lip_fs_close) (void);
+   int                   (*lip_fs_embed) (int *start_sector, int needed_sectors);
    /* Load function     */
-   int                   (far *lip_load) (unsigned long, unsigned long, unsigned long, struct exe_params far *);
+   int                   (*lip_load) (char *, unsigned long, char *, struct exe_params *);
    /* Utility functions */
-   long                  (far *lip_memcheck) (unsigned long, long);
-   void far *            (far *lip_memset)   (void far *, char, long);
-   void far *            (far *lip_memmove)  (void far *, const void far *, long);
-   unsigned long         (far *lip_memmove_phys) (unsigned long, unsigned long, long);
-   char far *            (far *lip_strcpy)   (char far *, const char far *);
-   long                  (far *lip_strcmp)   (const char far *, const char far *);
-   long                  (far *lip_memcmp)   (const char far *, const char far *, long);
-   int                   (far *lip_strlen)   (const char far *);
-   int                   (far *lip_pos)      (const char, const char far *);
-   void          __cdecl (far *lip_clear)    (void);
+   int                   (*lip_memcheck) (unsigned int, int);
+   void *                (*lip_memset)   (void *, char, int);
+   void *                (*lip_memmove)  (void *, const void *, int);
+   char *                (*lip_strcpy)   (char *, const char *);
+   int                   (*lip_strcmp)   (const char *, const char *);
+   int                  (*lip_memcmp)   (const char *, const char *, int);
+   int                   (*lip_strlen)   (const char *);
+   int                   (*lip_isspace)  (int c);
+   int                   (*lip_tolower)  (int c);
+   int                   (*lip_substring)(const char *s1, const char *s2);
+   int                   (*lip_pos)      (const char, const char *);
+   void          __cdecl (*lip_clear)    (void);
+
+   /* Sector read functions */
+   int                   (*lip_devread)  (int sector, int byte_offset, int byte_len, char *buf);
+   int                   (*lip_rawread)  (int drive, int sector, int byte_offset, int byte_len, char *buf);
+
+   /* Stage0 variables */
+   int                   *lip_mem_lower;
+   int                   *lip_mem_upper;
+   /* filesystem common variables */
+   int                   *lip_filepos;
+   int                   *lip_filemax;
+   /* disk buffer parameters */
+   int                   *lip_buf_drive;
+   int                   *lip_buf_track;
+   struct geometry       *lip_buf_geom;
+
+   grub_error_t          *lip_errnum;
+
+   unsigned long         *lip_saved_drive;
+   unsigned long         *lip_saved_partition;
+
+   unsigned long         *lip_current_drive;
+   unsigned long         *lip_current_partition;
+   int                   *lip_current_slice;
+   unsigned long         *lip_part_start;
+   unsigned long         *lip_part_length;
+   int                   *lip_fsmax;
+
    /* Misc functions */
-   int     __far __cdecl (far *lip_printk)   (const char *, ...);
-   int     __far __cdecl (far *lip_printkc)  (const char *, ...);
 } lip_t;
 
 

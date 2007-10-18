@@ -37,7 +37,11 @@ stage0_init:
 ; Configuration variables
 ;
 
-uFSD_size     dw    ?
+; this variable is filled with uFSD size,
+; if stage0 is loaded concatenated with
+; uFSD and needs to be relocated to proper
+; addresses, otherwise it must be zero.
+uFSD_size     dw    0
 
 real_start:
         ; Set segment registers
@@ -54,10 +58,14 @@ real_start:
 
         sti
 
+        mov  cx, uFSD_size
+        jcxz skip_reloc  ; if uFSD_size == 0, it means that
+                         ; uFSD and stage0 are already loaded
+                         ; to proper places by the bootsector.
         ; relocate uFSD to UFSD_BASE
         cld
 
-        mov  cx, uFSD_size
+
         shr  cx, 1
         inc  cx
 
@@ -89,13 +97,17 @@ real_start:
         xor  di, di
 
         rep  movsw
-
+skip_reloc:
         ; clear BSS
         mov  ecx, offset _TEXT:bss_end
-        sub  ecx, offset _TEXT:preldr0_end  ; BSS length
+        mov  eax, offset _TEXT:preldr0_end
+        sub  ecx, eax    ; BSS length
+        mov  ebx, STAGE0_BASE
+        sub  eax, ebx
+        shr  ebx, 4
+        mov  es, bx
+        mov  edi, eax
         xor  ax, ax
-
-        pop  di                         ; BSS start = preldr0 size
 
         rep  stosb
 
@@ -219,6 +231,69 @@ realmode:
         ret
 call_pm endp
 
+;
+; This function gets called from
+; 32-bit segment and it switches
+; machine to real mode and calls
+; a real mode function with address
+; specified in ebp register.
+;
+
+rmode_switch proc far
+        ; switch to real mode
+        mov  eax, cr0
+        and  al,  0feh
+        mov  cr0, eax
+        ; set segment registers
+        mov  eax, STAGE0_BASE
+        shr  eax, 4
+        mov  ds, ax
+        mov  es, ax
+        mov  fs, ax
+        mov  gs, ax
+        mov  ss, ax
+        ; do a far jump to load a
+        ; real mode CS
+        push ds
+        push rmode1
+        retf
+rmode1:
+        ; Now we are in a real mode
+        ; call a function with address in ebp
+        mov  eax, ebp
+        shr  eax, 16
+        push ax
+        push bp
+        mov  bp, sp
+        call dword ptr [bp]
+        add  sp, 4
+        ; Switcch back to protected mode
+        mov  eax, cr0
+        or   al, 1
+        mov  cr0, eax
+        ; load segment registers
+        mov  ax, PSEUDO_RM_DSEG
+        mov  ds, ax
+        mov  es, ax
+        mov  fs, ax
+        mov  gs, ax
+        mov  ss, ax
+        ; do a far jump to load a
+        ; protected mode CS
+        mov  ax, PSEUDO_RM_CSEG
+        push ax
+        push pmode1
+        retf
+pmode1:
+        ; return to 32-bit segment
+        ; use jmp instead of retf
+        ; because retf uses 16-bit offset,
+        ; not 32-bit one
+        ;retf
+        mov bp, sp
+        jmp fword ptr ss:[bp]
+rmode_switch endp
+
 _TEXT16 ends
 
 
@@ -267,10 +342,51 @@ pmode   proc far
 pmode   endp
 
 ;
-; void __cdecl call_rm(fp_t);
+; void __cdecl call_rm(fp_t func);
+;
+; Call real-mode function with address func
+; from protected mode
 ;
 
 call_rm proc near
+        push ebp
+        mov  ebp, esp
+
+        mov  ebp, dword ptr [ebp + 8]
+
+        ; set segment registers
+        ; and switch stack to 16-bit
+        mov  eax, esp
+        mov  esp, rmstack
+        mov  protstack, eax
+
+        mov  ax, PSEUDO_RM_DSEG
+        mov  ds, ax
+        mov  es, ax
+        mov  fs, ax
+        mov  gs, ax
+        mov  ss, ax
+        ; call 16-bit function
+        mov  ax, PSEUDO_RM_CSEG
+        push ax
+        mov  eax, offset _TEXT16:rmode_switch
+        push eax
+        call fword ptr ss:[esp]
+        add  esp, 14      ; 6 bytes are arguments and 8 bytes --
+                          ; return address from rmode_switch
+        mov  ax, PROT_MODE_DSEG
+        mov  ds, ax
+        mov  es, ax
+        mov  fs, ax
+        mov  gs, ax
+        mov  ss, ax
+
+        mov  eax, esp
+        mov  esp, protstack
+        mov  rmstack, eax
+
+        pop  ebp
+
         ret
 call_rm endp
 

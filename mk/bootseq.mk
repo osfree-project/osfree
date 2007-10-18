@@ -10,8 +10,8 @@ ROOT=$(%ROOT)
 #
 # Preprocessor defines
 #
-C_DEFS    = -d__OS2__ -d__WATCOM__
-ASM_DEFS  = -d__OS2__ -d__WATCOM__
+C_DEFS    = #-d__OS2__ -d__WATCOM__
+ASM_DEFS  = #-d__OS2__ -d__WATCOM__
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in
@@ -46,6 +46,8 @@ PC       = ppc386
 SED       = sed
 AWK       = awk
 DOX       = doxygen
+
+DD        = dd
 
 GENE2FS    = genext2fs
 SYS       = sys
@@ -113,6 +115,9 @@ BLACKHOLE = >$(NULL) 2>&1
 CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 
 !endif
+
+.SUFFIXES:
+.SUFFIXES:  .sym .xfd .fsd .bin .exe .com .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp .rexx
 
 .c.$(O): .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
