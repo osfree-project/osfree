@@ -6,12 +6,11 @@
  *  author: valerius
  */
 
+#include "freeldr.h"
 
 #include "vsprintf.h"
 #include "dos.h"
 #include "stdarg.h"
-
-#include "freeldr.h"
 
 #include <uXFD/uXFD.h>
 #include <lip.h>
@@ -69,12 +68,13 @@ int xfd_call(char far *file,
    fmt_load = FP_FROM_PHYS(buf);
 
    printk("calling load() function of the uXFD...");
+   printk("qwe: %d, %s", 3, "asd");
 
    __asm {
-     mov  si, pbpb  // ds:si --> BPB
+     mov  si, word ptr pbpb  // ds:si --> BPB
      mov  ax, ds
      mov  es, ax
-     mov  di, plip  // es:di --> LIP
+     mov  di, word ptr plip  // es:di --> LIP
    }
 
    // Call uXFD load() function
@@ -124,8 +124,8 @@ int load(unsigned long image,
       return -1;
    }
 
-   r    = 1;
-   line = (char far *)FP_FROM_PHYS(cfgbuf);
+   r       = 1;
+   line    = (char far *)FP_FROM_PHYS(cfgbuf);
    cfgbuf1 = line;
 
    while (1)
@@ -133,7 +133,7 @@ int load(unsigned long image,
       r = freeldr_pos('\n', line);
 
       if (r) {
-         s = cpy(str, line, r - 1);
+         s    = cpy(str, line, r - 1);
          line = line + r;
       }
       else {
@@ -145,8 +145,8 @@ int load(unsigned long image,
       s[r - 1] = '\0';
 
       if (s[r - 2] == '\r') s[r - 2] = '\0';
-      if (s[0] == '\r')     ++s;
-      if (line[0] == '\r')  ++line;
+      if (s[0]     == '\r') ++s;
+      if (line[0]  == '\r') ++line;
 
       q = freeldr_pos('#', s);
       if (q) s[q - 1] = '\0';
@@ -154,7 +154,7 @@ int load(unsigned long image,
       if (s[0]) {
          freeldr_strcpy(b, xfdpath);
          file = freeldr_strcat(b, s);
-         rc = xfd_call(file, image, size, load_addr, p);
+         rc   = xfd_call(file, image, size, load_addr, p);
          if (!rc) break;
       }
 
@@ -186,8 +186,8 @@ void Stage2Loader(void far *filetbl)
    lip.lip_term   = MK_FP(current_seg, freeldr_term);
    lip.lip_seek   = MK_FP(current_seg, freeldr_seek);
 
-   lip.lip_printk  = MK_FP(current_seg, freeldr_printk);
-   lip.lip_printkc = MK_FP(current_seg, freeldr_printkc);
+   //lip.lip_printk  = MK_FP(current_seg, freeldr_printk);
+   //lip.lip_printkc = MK_FP(current_seg, freeldr_printkc);
 
    printk("Stage2 loader started!");
 

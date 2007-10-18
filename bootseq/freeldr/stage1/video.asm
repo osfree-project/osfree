@@ -99,7 +99,7 @@ VIDEO_OUTPUT proc near
         mov bh, 0               ; screen page
         mov cx, [bp + 4]        ; number of characters in the string
         mov bp, [bp + 6]        ; offset to the string
-        push cs                 ;
+        push ds                 ; was cs // valerius
         pop es                  ; segment to the string
         int 10h
 

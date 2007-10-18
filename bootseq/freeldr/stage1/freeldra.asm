@@ -24,6 +24,7 @@ public  loadhigh
 ;public  gd_table
 public  _freeldr_stack_bottom
 public  _freeldr_stack_top
+;public  _big_code_
 
 
 _DATA SEGMENT WORD PUBLIC 'DATA' USE16
@@ -115,6 +116,8 @@ tgt_desc          desc <>              ; target desc
                   desc <>              ; SS desc
 
 loadhigh_gdt_size equ (($ - loadhigh_gdt) / size desc)
+
+;_big_code_        dd   ?
 
 _DATA ENDS
 

@@ -15,7 +15,7 @@ DEFINES    = -dOS2
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIR = freeldr
+DIR = freeldr-old
 ADD_COPT   = -od -s $(DEFINES) -i=.
 ADD_ASMOPT =
 

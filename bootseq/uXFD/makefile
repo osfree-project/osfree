@@ -8,13 +8,15 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
+DEFINES    = -dOS2
+
 DIR        = uXFD
 DIRS       = bin # mz ne a.out elf coff lx
 ADD_COPT   = -od -s $(DEFINES) -i=. -i=$(%ROOT)$(SEP)include
 ADD_ASMOPT =
 
 STARTUP    =
-ALL        = init.$(O)
+ALL        = init.$(O) video.$(O) vsprintf.$(O)
 
 OBJS       = $(STARTUP) $(ALL)
 

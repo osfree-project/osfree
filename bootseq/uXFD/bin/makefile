@@ -20,7 +20,7 @@ PATH       = $(MYDIR)$(PS)$(MYDIR)$(SEP)..
 
 STARTUP    =
 SPEC_OBJS  = load.$(O)
-GEN_OBJS   = init.$(O)
+GEN_OBJS   = init.$(O) video.$(O) vsprintf.$(O)
 
 OBJS       = $(STARTUP) $(GEN_OBJS) $(SPEC_OBJS)
 

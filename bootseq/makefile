@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = bootsec freeldr uFSD uXFD
+DIRS = bootsec freeldr uFSD-grub uFSD uXFD
 
 !include $(%ROOT)/mk/bootseq.mk
 

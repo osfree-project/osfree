@@ -108,11 +108,5 @@ freeldr_close (void);
 void __cdecl __far
 freeldr_term (void);
 
-int __far __cdecl
-freeldr_printk(const char *fmt, ...);
-
-int __far __cdecl
-freeldr_printkc(const char *fmt, ...);
-
 char far * __far
 freeldr_strcat(char far *dst, const char far *src);

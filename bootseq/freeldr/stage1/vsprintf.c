@@ -128,7 +128,7 @@ unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)     ((c) >= '0' && (c) <= '9')
 
-static int skip_atoi(const char near *(far *s))
+static int skip_atoi(const char **s)
 {
         int i=0;
 
@@ -153,11 +153,11 @@ n = ((unsigned long) n) / (unsigned) base; \
 __res; })
 #endif
 
-static char * number(char * str, long num, int base, int size, int precision
+static char far *number(char far *str, long num, int base, int size, int precision
         ,int type)
 {
-        char c,sign,tmp[66];
-        const char *digits="0123456789abcdefghijklmnopqrstuvwxyz";
+        char c,sign,far tmp[66];
+        const char far *digits="0123456789abcdefghijklmnopqrstuvwxyz";
         int i;
 
         if (type & LARGE)
@@ -229,12 +229,12 @@ static char * number(char * str, long num, int base, int size, int precision
         return str;
 }
 
-int vsprintf(char *buf, const char *fmt, va_list args)
+int _vsprintf(char far *buf, const char *fmt, va_list args)
 {
         int len;
         unsigned long num;
         int i, base;
-        char * str;
+        char far *str;
         char *s;
 
         int flags;              /* flags to number() */
@@ -391,6 +391,11 @@ int vsprintf(char *buf, const char *fmt, va_list args)
         return str-buf;
 }
 
+int vsprintf(char *buf, const char *fmt, va_list args)
+{
+        return _vsprintf(MK_FP(current_seg, buf), fmt, args);
+}
+
 int sprintf(char * buf, const char *fmt, ...)
 {
         va_list args;
@@ -451,15 +456,13 @@ void output_comc(char *bufptr ,int debug_port) {
 int __cdecl
 printk(const char *fmt, ...) {
     va_list args;
-    //char   scratch_buffer[1024];
     char   *bufptr = scratch_buffer;
-    char   *save;
 
     va_start(args, fmt);
-    vsprintf(scratch_buffer, fmt, args);
+    _vsprintf(MK_FP(current_seg, scratch_buffer), fmt, args);
     va_end(args);
 
-    video_output(scratch_buffer, strlen(scratch_buffer));
+    video_output(bufptr, strlen(bufptr));
     video_crlf();
     output_com(bufptr, OUTPUT_COM1);
     output_com(bufptr, OUTPUT_COM2);
@@ -471,15 +474,13 @@ printk(const char *fmt, ...) {
 int __cdecl
 printkc(const char *fmt, ...) {
     va_list args;
-    //char   scratch_buffer[1024];
     char   *bufptr = scratch_buffer;
-    char   *save;
 
     va_start(args, fmt);
-    vsprintf(scratch_buffer, fmt, args);
+    _vsprintf(MK_FP(current_seg, scratch_buffer), fmt, args);
     va_end(args);
 
-    video_output(scratch_buffer, strlen(scratch_buffer));
+    video_output(bufptr, strlen(bufptr));
     output_comc(bufptr, OUTPUT_COM1);
     output_comc(bufptr, OUTPUT_COM2);
 
@@ -489,18 +490,40 @@ printkc(const char *fmt, ...) {
 int __far __cdecl
 freeldr_printk(const char *fmt, ...) {
     va_list args;
-    //char   scratch_buffer[1024];
-    char   *bufptr = scratch_buffer;
-    char   *save;
+    char    *bufptr;
+    char    far *buf;
+
+    __asm { // DS --> stage1
+       push ds
+       push cs
+       pop  ds
+    }
+
+    bufptr = scratch_buffer;
+    buf = MK_FP(current_seg, scratch_buffer);
+
+    __asm {  // DS --> module (or uXFD)
+       pop  ds
+    }
 
     va_start(args, fmt);
-    vsprintf(scratch_buffer, fmt, args);
+    _vsprintf(buf, fmt, args);
     va_end(args);
 
-    video_output(scratch_buffer, strlen(scratch_buffer));
+    __asm {  // DS --> stage1
+       push ds
+       push cs
+       pop  ds
+    }
+
+    video_output(bufptr, strlen(bufptr));
     video_crlf();
     output_com(bufptr, OUTPUT_COM1);
     output_com(bufptr, OUTPUT_COM2);
+
+    __asm {  // DS --> module (or uXFD)
+       pop  ds
+    }
 
     return 0;
 }
@@ -509,15 +532,13 @@ freeldr_printk(const char *fmt, ...) {
 int __far __cdecl
 freeldr_printkc(const char *fmt, ...) {
     va_list args;
-    //char   scratch_buffer[1024];
     char   *bufptr = scratch_buffer;
-    char   *save;
 
     va_start(args, fmt);
-    vsprintf(scratch_buffer, fmt, args);
+    _vsprintf(MK_FP(current_seg, scratch_buffer), fmt, args);
     va_end(args);
 
-    video_output(scratch_buffer, strlen(scratch_buffer));
+    video_output(bufptr, strlen(bufptr));
     output_comc(bufptr, OUTPUT_COM1);
     output_comc(bufptr, OUTPUT_COM2);
 

@@ -7,6 +7,8 @@
 #include <uXFD/uXFD.h>
 #include <lip.h>
 
+#include <vsprintf.h>
+
 extern char  far bpb[31]; // ALIAS bpb=_BPBPtr
 extern lip_t far *l;      // ALIAS l=_LIPPtr
 
@@ -26,9 +28,14 @@ fmt_load(unsigned long image,
          unsigned long load_addr,
          struct exe_params far *p)
 {
+   char *s = "valerius was here!";
+   int  d  = 5;
 
-   l->lip_printk("Raw binary uXFD loaded!");
-   l->lip_printk("uXFD finished");
+
+   printk("Raw binary uXFD loaded!");
+   printk("zxcv: %d", d);
+   printk("qaz: %s", s);
+   printk("uXFD finished.");
 
    return 0;
-};
+}

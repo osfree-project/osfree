@@ -622,6 +622,7 @@ go_protected proc near
         ; Load GDTR:
         lgdt fword ptr [bx]
 
+
         ; Zero-out flags:
         push 0002h
         popf
