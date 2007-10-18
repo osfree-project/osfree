@@ -27,7 +27,8 @@ JFS_OBJS      = $(FS_OBJS) fsys_jfs.$(O)
 ISO9660_OBJS  = $(FS_OBJS) fsys_iso9660.$(O)
 REISERFS_OBJS = $(FS_OBJS) fsys_reiserfs.$(O)
 
-STAGE0_OBJS   = segord.$(O) init.$(O) biosdisk.$(O) stage0_fs.$(O) func.$(O) bios.$(O)
+STAGE0_OBJS   = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) &
+                stage0_fs.$(O) func.$(O) bios.$(O)
 
 OUT           = bin
 TARGETS       = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd preldr0 # reiserfs.fsd
