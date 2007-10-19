@@ -6,6 +6,8 @@
 #include <lip.h>
 #include <shared.h>
 
+#include "fsd.h"
+
 lip_t *l;
 lip_t lip;
 
@@ -108,7 +110,7 @@ int init(void)
   setlip();
   printmsg("\r\nsetlip() returned\r\n");
 
-  fsd_init = (void *)(0x39000); // uFSD base address
+  fsd_init = (void *)(UFSD_BASE); // uFSD base address
   fsd_init(l);
   printmsg("uFSD init returned\r\n");
 

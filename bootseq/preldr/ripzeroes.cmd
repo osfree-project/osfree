@@ -65,6 +65,10 @@ line = getline(var, file)
 line = strip(word(line, 3))
 line = strip(line, 'T', 'h')
 
+p = pos('0x', line)
+if p = 1 then
+  line = delstr(line, 1,  2)
+
 if line = '' then
    return 0
 

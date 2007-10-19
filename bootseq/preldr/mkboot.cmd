@@ -1,12 +1,12 @@
 /*
- *  Make boot block from preldr0 and uFSD
+ *  Make boot block from bootsector, preldr0 and uFSD
  *  (c) osFree project,
  *  author valerius, 2007, Oct 14
  *
- *  This script writes uFSD size into
- *  data field inside preldr0 (a word with
- *  offset +2 from its beginning) and then
- *  concatenates preldr0 with uFSD.
+ *  This script writes uFSD and preldr0 sizes into
+ *  data fields inside preldr0 (a word with offset
+ *  +2 from its beginning) and then concatenates
+ *  bootsector with preldr0 and uFSD.
  */
 
 parse arg args
@@ -16,16 +16,15 @@ if words(args) \= 4 then
 
 parse var args bootsec preldr0 ufsd ofile
 
-preldr0_size = stream(preldr0, 'c', 'query size')
-
 bootsec_size = stream(bootsec, 'c', 'query size')
+preldr0_size = stream(preldr0, 'c', 'query size')
+ufsd_size    = stream(ufsd,    'c', 'query size')
+
 buf = charin(bootsec, 1, bootsec_size)
 call charout ofile, buf
 
 buf = charin(preldr0, 1, preldr0_size)
 call charout ofile, buf, bootsec_size + 1
-
-ufsd_size = stream(ufsd, 'c', 'query size')
 
 buf = charin(ufsd, 1, ufsd_size)
 call charout ofile, buf, preldr0_size + bootsec_size + 1
@@ -67,7 +66,7 @@ usage:
 
 say 'Usage:'
 say
-say 'mkboot <preldr0> <uFSD> <outfile>'
+say 'mkboot <bootsector> <preldr0> <uFSD> <outfile>'
 
 exit -1
 /* --------------------------------------- */

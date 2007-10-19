@@ -10,12 +10,18 @@ extrn    _text16_end   :word
 
 include  fsd.inc
 
-BASE1     equ STAGE0_BASE - 10000h
-BASE      equ BASE1 + 251h ; + (offset _TEXT16:_text16_end - offset _TEXT16:_text16_begin)
+assume   ds:_TEXT16,cs:_TEXT16,ss:_TEXT16
 
 _TEXT16  segment byte public 'CODE'  use16
 org 0h
 _TEXT16  ends
+
+BASE1      equ STAGE0_BASE - 10000h
+TEXT16_END equ (offset cs:_text16_end)
+TEXT16_BEG equ (offset cs:_text16_begin)
+TEXT16_LEN equ (TEXT16_END - TEXT16_BEG)
+BASE       equ (BASE1 + 251h) ; TEXT16_LEN
+
 _TEXT    segment byte public 'CODE'  use32
 org BASE
 DGROUP_begin:

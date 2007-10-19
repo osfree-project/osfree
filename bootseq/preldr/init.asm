@@ -7,7 +7,6 @@ name init
 
 public  stage0_init
 public  force_lba
-public  real_test
 
 public  _text16_begin
 extrn   _text16_end  :dword
@@ -17,7 +16,6 @@ extrn   preldr0_end  :dword
 extrn   gdt          :byte
 extrn   init         :near
 extrn   call_pm      :near
-extrn   message      :far
 
 include fsd.inc
 include struc.inc
@@ -168,24 +166,9 @@ loop1:
         hlt
         jmp loop1
 
-;
-; void __cdecl real_test(void);
-;
-
-real_test:
-        mov     esi, offset _TEXT:msg - STAGE0_BASE
-        callf   message
-        retf
-
 _TEXT16 ends
 
 _TEXT   segment byte public 'CODE' use32
 _TEXT   ends
-
-_DATA   segment byte public 'DATA' use32
-
-msg     db    "Hello from protected mode!",0
-
-_DATA   ends
 
         end stage0_init

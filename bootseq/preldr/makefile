@@ -31,7 +31,7 @@ STAGE0_OBJS   = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) &
                 video.$(O) stage0_fs.$(O) func.$(O) bios.$(O) end.$(O)
 
 OUT           = bin
-TARGETS       = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd preldr0 # reiserfs.fsd
+TARGETS       = fsd.h fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd preldr0 # reiserfs.fsd
 
 all: $(TARGETS) .SYMBOLIC
 
@@ -102,7 +102,11 @@ fsys_iso9660.$(O): fsys_iso9660.c
 fsys_reiserfs.$(O): fsys_reiserfs.c
  $(CC) -dFSYS_REISERFS $(COPT) -fo=$^@ $<
 
+.inc.h:
+ $(AWK) -f inc2h.awk <$< >$^@
+
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+ $(DC) $(TARGETS)

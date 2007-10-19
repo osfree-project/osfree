@@ -122,7 +122,6 @@ b1:
       retf
 get_diskinfo_standard_rm endp
 
-
 _text16_end:
 
 _TEXT16 ends

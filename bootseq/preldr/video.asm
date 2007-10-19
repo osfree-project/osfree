@@ -5,7 +5,6 @@
 
 name video
 
-public   message
 public   printmsg
 public   printb
 public   printw
@@ -90,8 +89,8 @@ _TEXT    segment byte public 'CODE'  use32
 ;
 
 printmsg proc near
-        push ebp
-        mov  ebp, esp
+        push    ebp
+        mov     ebp, esp
 
         mov     esi, [ebp + 8]
         ; enter real mode
@@ -103,7 +102,7 @@ printmsg proc near
         call    call_rm
         add     esp, 4
 
-        pop  ebp
+        pop     ebp
 
         ret
 printmsg endp
@@ -113,10 +112,10 @@ printmsg endp
 ;
 
 printb  proc near
-        push ebp
-        mov  ebp, esp
+        push    ebp
+        mov     ebp, esp
 
-        mov  esi, [ebp + 8]
+        mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -126,7 +125,7 @@ printb  proc near
         call    call_rm
         add     esp, 4
 
-        pop  ebp
+        pop     ebp
 
         ret
 printb  endp
@@ -136,10 +135,10 @@ printb  endp
 ;
 
 printw  proc near
-        push ebp
-        mov  ebp, esp
+        push    ebp
+        mov     ebp, esp
 
-        mov  esi, [ebp + 8]
+        mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -149,7 +148,7 @@ printw  proc near
         call    call_rm
         add     esp, 4
 
-        pop  ebp
+        pop     ebp
 
         ret
 printw  endp
@@ -159,10 +158,10 @@ printw  endp
 ;
 
 printd  proc near
-        push ebp
-        mov  ebp, esp
+        push    ebp
+        mov     ebp, esp
 
-        mov  esi, [ebp + 8]
+        mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -172,7 +171,7 @@ printd  proc near
         call    call_rm
         add     esp, 4
 
-        pop  ebp
+        pop     ebp
 
         ret
 printd  endp
