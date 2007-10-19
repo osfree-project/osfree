@@ -11,22 +11,30 @@
 
 parse arg args
 
-if words(args) \= 3 then
+if words(args) \= 4 then
   call usage
 
-parse var args preldr0 ufsd ofile
+parse var args bootsec preldr0 ufsd ofile
 
 preldr0_size = stream(preldr0, 'c', 'query size')
-buf = charin(preldr0, 1, preldr0_size)
+
+bootsec_size = stream(bootsec, 'c', 'query size')
+buf = charin(bootsec, 1, bootsec_size)
 call charout ofile, buf
+
+buf = charin(preldr0, 1, preldr0_size)
+call charout ofile, buf, bootsec_size + 1
 
 ufsd_size = stream(ufsd, 'c', 'query size')
 
 buf = charin(ufsd, 1, ufsd_size)
-call charout ofile, buf, preldr0_size + 1
+call charout ofile, buf, preldr0_size + bootsec_size + 1
 
 buf = x2c(reverse(d2x(ufsd_size)))
-call charout ofile, buf, 3
+call charout ofile, buf, bootsec_size + 3
+
+buf = x2c(reverse(d2x(preldr0_size)))
+call charout ofile, buf, bootsec_size + 5
 
 
 exit 0

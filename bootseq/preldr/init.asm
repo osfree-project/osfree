@@ -1,12 +1,12 @@
 ;
 ; init.asm
-; stage0 startup
+; stage0 real-mode startup
 ;
 
 name init
 
 public  stage0_init
-
+public  force_lba
 public  real_test
 
 public  _text16_begin
@@ -17,13 +17,14 @@ extrn   preldr0_end  :dword
 extrn   gdt          :byte
 extrn   init         :near
 extrn   call_pm      :near
+extrn   message      :far
 
 include fsd.inc
 include struc.inc
 
 .386p
 
-_TEXT16 segment dword public 'CODE' use16
+_TEXT16 segment byte public 'CODE' use16
 
 _text16_begin:
 
@@ -41,6 +42,8 @@ stage0_init:
 ; uFSD and needs to be relocated to proper
 ; addresses, otherwise it must be zero.
 uFSD_size     dw    0
+stage0_size   dw    0
+force_lba     db    0
 
 real_start:
         ; Set segment registers
@@ -69,7 +72,7 @@ real_start:
         inc  cx
 
         ; preldr0 size = uFSD begin
-        mov  esi, offset _TEXT:preldr0_end - STAGE0_BASE
+        mov  si, stage0_size
 
         push si
 
@@ -171,27 +174,15 @@ loop1:
 
 real_test:
         mov     esi, offset _TEXT:msg - STAGE0_BASE
-        call    message
+        callf   message
         retf
-
-
-up1:
-        mov     bx, 1
-        mov     ah, 0Eh
-        int     10h             ; display a byte
-
-message:
-        lodsb
-        or      al, al
-        jne     up1              ; if not end of string, jmp to display
-        ret
 
 _TEXT16 ends
 
-_TEXT   segment dword public 'CODE'  use32
+_TEXT   segment byte public 'CODE' use32
 _TEXT   ends
 
-_DATA   segment dword public 'DATA' use32
+_DATA   segment byte public 'DATA' use32
 
 msg     db    "Hello from protected mode!",0
 

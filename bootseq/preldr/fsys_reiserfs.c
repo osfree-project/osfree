@@ -22,6 +22,8 @@
 #include "shared.h"
 #include "filesys.h"
 
+#include "misc.h"
+
 #undef REISERDEBUG
 
 /* Some parts of this code (mainly the structures and defines) are

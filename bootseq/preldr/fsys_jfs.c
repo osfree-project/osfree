@@ -25,6 +25,7 @@
 #include "jfs.h"
 
 #include "fsys.h"
+#include "misc.h"
 
 #define MAX_LINK_COUNT  8
 

@@ -23,6 +23,7 @@
 #include "filesys.h"
 
 #include "fsys.h"
+#include "misc.h"
 
 static int mapblock1, mapblock2;
 

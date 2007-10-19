@@ -24,6 +24,7 @@
 #include "fat.h"
 
 #include "fsys.h"
+#include "misc.h"
 
 struct fat_superblock
 {

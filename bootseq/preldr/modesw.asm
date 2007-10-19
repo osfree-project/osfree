@@ -17,7 +17,7 @@ public  __I8LS
 include fsd.inc
 include struc.inc
 
-_TEXT16  segment dword public 'CODE'  use16
+_TEXT16  segment byte public 'CODE'  use16
 
 ;
 ; void __cdecl call_pm(unsigned long func);
@@ -157,7 +157,7 @@ rmode_switch endp
 _TEXT16 ends
 
 
-_TEXT   segment dword public 'CODE' use32
+_TEXT   segment byte public 'CODE' use32
 
 ;
 ; pmode:
@@ -259,7 +259,7 @@ __I8LS:
 
 _TEXT   ends
 
-_DATA   segment dword public 'DATA' use32
+_DATA   segment byte public 'DATA' use32
 
 FSYS_BUFLEN     equ 8000h
 FSYS_BUF        equ 68000h
@@ -273,13 +273,13 @@ PSEUDO_RM_DSEG  equ 20h
 STACKOFF        equ (2000h - 10h)
 PROTSTACKINIT   equ 50000h        ; (FSYS_BUF - 10h)
 
-align 4
+;align 4
 
 protstack         dd   PROTSTACKINIT
 rmstack           dd   0
 boot_drive        dd   0
 
-align 4
+;align 4
 
 ;/*
 ; * This is the Global Descriptor Table

@@ -36,6 +36,7 @@
 #include "iso9660.h"
 
 #include "fsys.h"
+#include "misc.h"
 
 /* iso9660 super-block data in memory */
 struct iso_sb_info {

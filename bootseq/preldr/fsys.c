@@ -5,11 +5,13 @@
 
 #include <shared.h>
 #include <lip.h>
+#include "misc.h"
+
 //#include <filesys.h>
 
-extern int  (*fs_mount) (void);
-extern int  (*fs_read)  (char *buf, int len);
-extern int  (*fs_dir)   (char *dirname);
+extern int  fs_mount(void);
+extern int  fs_read(char *buf, int len);
+extern int  fs_dir(char *dirname);
 
 void (*disk_read_func) (int, int, int);
 void (*disk_read_hook) (int, int, int);
@@ -19,7 +21,7 @@ int    (*prawread)      (int drive, int sector, int byte_offset, int byte_len, c
 int    (*psubstring)    (const char *s1, const char *s2);
 int    (*pgrub_memcmp)  (const char *s1, const char *s2, int n);
 void * (*pgrub_memmove) (void *_to, const void *_from, int _len);
-void * (*pgrub_memset)  (void *start, char c, int len);
+void * (*pgrub_memset)  (void *start, int c, int len);
 int    (*pgrub_isspace) (int c);
 int    (*pgrub_tolower) (int c);
 int    (*pgrub_read)    (char *buf, int len);
@@ -92,14 +94,9 @@ init(lip_t *l)
    pfsmax         = l->lip_fsmax;
 
    /* Set pointers to our functions */
-   l->lip_fs_mount = fs_mount;
-   l->lip_fs_read  = fs_read;
-   l->lip_fs_dir   = fs_dir;
+   l->lip_fs_mount = &fs_mount;
+   l->lip_fs_read  = &fs_read;
+   l->lip_fs_dir   = &fs_dir;
 
    return 0;
 }
-
-void __CHK(){}
-void __I8LS(){}
-#pragma aux __CHK  "*";
-#pragma aux __I8LS "*";

@@ -19,7 +19,7 @@ PATH         = $(MYDIR)
 
 RIP           = ripzeroes.cmd
 
-FS_OBJS       = start.$(O) fsys.$(O)
+FS_OBJS       = start.$(O) fsys.$(O) dummy.$(O)
 
 FAT_OBJS      = $(FS_OBJS) fsys_fat.$(O)
 EXT2FS_OBJS   = $(FS_OBJS) fsys_ext2fs.$(O)
@@ -28,7 +28,7 @@ ISO9660_OBJS  = $(FS_OBJS) fsys_iso9660.$(O)
 REISERFS_OBJS = $(FS_OBJS) fsys_reiserfs.$(O)
 
 STAGE0_OBJS   = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) &
-                stage0_fs.$(O) func.$(O) bios.$(O)
+                video.$(O) stage0_fs.$(O) func.$(O) bios.$(O) end.$(O)
 
 OUT           = bin
 TARGETS       = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd preldr0 # reiserfs.fsd
@@ -73,9 +73,9 @@ link: .SYMBOLIC .PROCEDURE
  @%append $(T).lnk NAME $(T)
  @%append $(T).lnk ALIAS init=_init
 !ifneq T stage0
- @%append $(T).lnk ALIAS _fs_mount=$(T)_mount_
- @%append $(T).lnk ALIAS _fs_dir=$(T)_dir_
- @%append $(T).lnk ALIAS _fs_read=$(T)_read_
+ @%append $(T).lnk ALIAS fs_mount_=$(T)_mount_
+ @%append $(T).lnk ALIAS fs_dir_=$(T)_dir_
+ @%append $(T).lnk ALIAS fs_read_=$(T)_read_
 !else
  @%append $(T).lnk ALIAS biosdisk_int13_extensions_=biosdisk_int13_extensions
  @%append $(T).lnk ALIAS biosdisk_standard_=biosdisk_standard

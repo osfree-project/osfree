@@ -1072,7 +1072,7 @@ grub_tolower (int c)
 }
 
 
-#if defined(FSYS_ISO9660)
+//#if defined(FSYS_ISO9660)
 int
 grub_memcmp (const char *s1, const char *s2, int n)
 {
@@ -1089,7 +1089,7 @@ grub_memcmp (const char *s1, const char *s2, int n)
 
   return 0;
 }
-#endif /* ! FSYS_ISO9660 */
+//#endif /* ! FSYS_ISO9660 */
 
 
 long

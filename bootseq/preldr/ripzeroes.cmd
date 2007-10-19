@@ -29,7 +29,7 @@ end
 /* binary size */
 fsize = stream(file, 'c', 'query size')
 
-/* read DGRUOP segment */
+/* read DGROUP segment */
 buf = charin(file, _text16_size + base + 1, fsize - base - _text16_size)
 call charout outfile, buf, _text16_size + 1
 
