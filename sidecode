@@ -35,3 +35,5 @@ LIBJPEG used in many parts
 GDLIB used in FreePM
 
 LIBTIFF used in many parts
+
+Fiasco reused as microkernel

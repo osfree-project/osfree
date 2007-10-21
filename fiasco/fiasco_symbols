@@ -1,0 +1,2676 @@
+f0000000 A _kernel_image
+f0002000 T _start
+f0002010 T __assert_fail
+f0002050 T panic
+f0002090 t __static_initialization_and_destruction_0(int, int)
+f00020d0 t _GLOBAL__I.00104__ZN32static_init_class_Startup_stage1C2Ev
+f00020f0 t _GLOBAL__I.00110__ZN32static_init_class_Startup_stage1C2Ev
+f0002110 T Boot_info::reset_checksum_ro()
+f0002120 T Boot_info::kmemsize()
+f0002170 W memcpy
+f0002190 T Mapping::tree()
+f00021d0 T Mapping::parent()
+f0002200 T Mapping::next_iter()
+f0002250 T Mapping::next_child(Mapping*)
+f0002270 T mapping_tree_allocators::mapping_tree_allocators()
+f0002320 T Mapping_tree::Mapping_tree(unsigned int, unsigned int)
+f0002390 T Mapping_tree::Mapping_tree(unsigned int, Mapping_tree*)
+f00023c0 T Mapping_tree::copy_compact_tree(Mapping_tree*, Mapping_tree*)
+f0002520 T Mapdb::Mapdb(unsigned long, unsigned long)
+f0002970 T Mapdb::~Mapdb()
+f0002b80 T Mapdb::insert(Mapping*, unsigned int, unsigned long, unsigned int, Mapping_type)
+f0002f20 T Mapdb::lookup(unsigned int, unsigned long, unsigned long)
+f00030a0 T Mapdb::free(Mapping*)
+f0003a30 T Mapdb::flush(Mapping*, bool)
+f0003d70 T Mapdb::grant(Mapping*, unsigned int, unsigned long)
+f0003db0 t __tcf_0
+f0003df0 t amm_alloc_func(amm*, unsigned long, unsigned int, int)
+f0003e00 t amm_free_func(amm*, amm_entry*)
+f0003e10 T Region::init(unsigned long, unsigned long)
+f0003ee0 T Region::reserve_pages(unsigned int, unsigned long)
+f0003fb0 T Region::return_pages(unsigned long, unsigned int)
+f0004060 T Region::debug_dump()
+f0004070 t __static_initialization_and_destruction_0(int, int)
+f00040a0 t global constructors keyed to _ZN6Region4initEmm
+f00040c0 T Space::operator new(unsigned int)
+f0004110 T Space::operator delete(void*)
+f0004130 T Space::~Space()
+f0004350 T Space::v_insert(unsigned long, unsigned long, unsigned int, unsigned int)
+f0004550 T Space::v_lookup(unsigned long, unsigned long*, unsigned long*, unsigned int*)
+f00045f0 T Space::v_delete(unsigned long, unsigned long, unsigned int)
+f0004730 t split_pgtable(Pd_entry*)
+f00047d0 T Space::Space(unsigned int)
+f0004860 T Space::io_lookup(unsigned long)
+f00048d0 T Space::io_insert(unsigned long)
+f0004a50 T Space::io_delete(unsigned long)
+f0004ae0 t __static_initialization_and_destruction_0(int, int)
+f0004b20 t global constructors keyed to _ZN11Space_index6spacesE
+f0004b40 T Kmem::himem_alloc()
+f0004b70 T Kmem::dir_init(Pdir*)
+f0004ba0 T Kmem::kmem_base()
+f0004c30 T Kmem::map_phys_page(unsigned long, unsigned long, bool, bool, unsigned long*)
+f0004cb0 T Kmem::map_phys_page_tmp(unsigned long, unsigned long)
+f0004d30 T Kmem_alloc::alloc(unsigned int)
+f0004dd0 T Kmem_alloc::free(unsigned int, void*)
+f0004e50 T Kmem_alloc::unaligned_alloc(int)
+f0004ed0 T Kmem_alloc::unaligned_free(int, void*)
+f0004f30 t __static_initialization_and_destruction_0(int, int)
+f0004f60 t global constructors keyed to _ZN10Kmem_alloc1aE
+f0004f80 T Kmem_alloc::Kmem_alloc()
+f0005000 T Kmem_alloc::debug_dump()
+f0005080 T slab::slab(slab_cache_anon*)
+f0005150 T slab::alloc()
+f0005170 T slab::free(void*)
+f00051b0 T slab::enqueue(slab*)
+f00051e0 T slab::dequeue()
+f0005210 T slab_cache_anon::slab_cache_anon(unsigned long, unsigned int, unsigned int)
+f0005250 T slab_cache_anon::~slab_cache_anon()
+f0005280 T slab_cache_anon::~slab_cache_anon()
+f00052b0 T slab_cache_anon::~slab_cache_anon()
+f00052e0 T slab_cache_anon::destroy()
+f0005350 T slab_cache_anon::alloc()
+f0005440 T slab_cache_anon::free(void*)
+f0005580 T slab_cache_anon::reap()
+f0005600 T slab_cache_anon::elem_ctor(void*)
+f0005610 T slab_cache_anon::elem_dtor(void*)
+f0005620 T Kmem_slab_simple::Kmem_slab_simple(unsigned int, unsigned int)
+f0005650 T Kmem_slab_simple::Kmem_slab_simple(unsigned long, unsigned int, unsigned int)
+f0005680 T Kmem_slab_simple::~Kmem_slab_simple()
+f00056e0 T Kmem_slab_simple::~Kmem_slab_simple()
+f0005740 T Kmem_slab_simple::~Kmem_slab_simple()
+f00057b0 T Kmem_slab_simple::alloc()
+f0005800 T Kmem_slab_simple::free(void*)
+f0005850 T Kmem_slab_simple::reap()
+f00058c0 T Kmem_slab_simple::block_alloc(unsigned long, unsigned long)
+f00058f0 T Kmem_slab_simple::block_free(void*, unsigned long)
+f0005910 T Kmem_slab_simple::operator new(unsigned int)
+f00059a0 T Kmem_slab_simple::operator delete(void*, unsigned int)
+f00059d0 T Kmem_slab::Kmem_slab(unsigned long, unsigned int, unsigned int)
+f0005a10 T Kmem_slab::block_alloc(unsigned long, unsigned long)
+f0005bb0 T Kmem_slab::block_free(void*, unsigned long)
+f0005c10 W Kmem_slab::~Kmem_slab()
+f0005c20 W Kmem_slab::~Kmem_slab()
+f0005c40 T Switch_lock::lock()
+f0005d30 T Switch_lock::clear()
+f0005dd0 T Thread_lock::test_and_set()
+f0005e50 T Thread_lock::clear()
+f0005f80 T Helping_lock::test_and_set()
+f0005fb0 t __static_initialization_and_destruction_0(int, int)
+f0005fc0 t _GLOBAL__I.00102_cpu_lock
+f0005fe0 T IPC_timeout::expired()
+f0006060 W IPC_timeout::~IPC_timeout()
+f0006080 W IPC_timeout::~IPC_timeout()
+f00060b0 T Deadline_timeout::expired()
+f0006340 T Timeslice_timeout::expired()
+f00063b0 t __static_initialization_and_destruction_0(int, int)
+f00063d0 t global constructors keyed to _ZN39static_init_func_timeslice_timeout_initC2Ev
+f00063f0 T Context::~Context()
+f0006420 T Context::~Context()
+f0006450 T Context::~Context()
+f0006480 T Context::switch_sched(Sched_context*)
+f0006640 T Context::schedule()
+f0006810 T Context::set_current_sched(Sched_context*)
+f000687d T patch_log_sched_save
+f00069bd T patch_log_sched_load
+f0006b70 T Context::invalidate_sched()
+f0006b7a T patch_log_sched_invalidate
+f0006c90 W Context::update_ready_list()
+f0006cd0 T Context::ready_enqueue()
+f0006db0 T Context::switch_exec_locked(Context*, Context::Helping_mode)
+f0006e7a T patch_log_context_switch
+f0007010 T Context::gthread_calculated()
+f0007020 T switchin_context_label
+f0007210 T Thread::Thread(Task*, L4_uid)
+f0007350 T Thread::~Thread()
+f0007400 T Thread::~Thread()
+f00074b0 T Thread::~Thread()
+f0007560 T Thread::halt()
+f00075d0 T Thread::halt_current()
+f0007600 T Thread::kill()
+f0007bb0 T Thread::kill_task(Space_index)
+f0007fa0 T Thread::copy_utcb_to(Thread*)
+f00081c0 T Thread::associate_irq(Irq_alloc*)
+f0008200 T Thread::disassociate_irq(Irq_alloc*)
+f0008230 W Receiver::~Receiver()
+f0008250 W Receiver::~Receiver()
+f0008260 T Thread::Thread(Task*, L4_uid, unsigned short, unsigned short)
+f00086e0 T Thread::initialize(unsigned long, unsigned long, Thread*, Receiver*, unsigned long*, unsigned long*, Thread**, Receiver**, unsigned long*, bool, bool, bool)
+f0008970 T Thread::handle_slow_trap(Trap_state*)
+f00089ae T patch_log_trap
+f0009e20 T thread_page_fault
+f000a2c0 T thread_handle_trap
+f000a2e0 T thread_timer_interrupt
+f000a317 T patch_log_timer_irq
+f000a470 W Thread::setup_utcb_kernel_addr()
+f000a4c0 T Thread::exception(Trap_state*)
+f000a5c0 W Thread::do_trigger_exception(Entry_frame*)
+f000a5f0 T thread_exception_triggered
+f000a620 T thread_timer_interrupt_stop
+f000a630 T thread_timer_interrupt_slow
+f000a690 T Thread::user_invoke()
+f000a6f0 T thread_handle_fputrap
+f000a6f5 T patch_log_trap_n
+f000a7f0 T Thread::handle_int3(Trap_state*)
+f000ab20 T Thread::call_nested_trap_handler(Trap_state*)
+f000ab60 T sys_thread_switch_wrapper
+f000ad60 T Thread::begin_periodic(unsigned long long, unsigned long)
+f000af40 T Thread::end_periodic()
+f000b090 T sys_fpage_unmap_wrapper
+f000b130 T sys_id_nearest_wrapper
+f000b540 T sys_thread_ex_regs_wrapper
+f000b6b1 T patch_log_thread_ex_regs
+f000b9ba T patch_log_thread_ex_regs_failed
+f000bbb0 T sys_task_new_wrapper
+f000bc05 T patch_log_task_new
+f000c2a0 T sys_thread_schedule_wrapper
+f000cf00 W Thread::reset_nest(L4_uid)
+f000cf10 W Thread::inc_nest(L4_uid)
+f000cf20 W Thread::update_nest(L4_uid)
+f000cf30 T Thread::ipc_receiver_ready()
+f000cfa0 W non-virtual thunk to Thread::ipc_receiver_ready()
+f000cfb0 T Thread::do_send(Thread*, L4_timeout, Sys_ipc_frame*)
+f000e960 T Thread::do_receive(Sender*, L4_timeout, Sys_ipc_frame*)
+f000ef30 T Thread::handle_page_fault_pager(unsigned long, unsigned long)
+f000f1ad T patch_log_pf_res
+f000f350 T sys_ipc_wrapper
+f000f8b0 T ipc_short_cut_wrapper
+f000f9c1 T patch_log_shortcut_failed_1
+f0010044 T patch_log_shortcut_failed_2
+f0010217 T patch_log_shortcut_succeeded
+f0010370 T Thread::handle_ipc_page_fault(unsigned long, unsigned long)
+f0010600 T Thread::ipc_snd_fpage(Thread*, L4_fpage, L4_fpage, unsigned long, bool, bool, bool)
+f0010a50 T Thread::ipc_finish(Thread*, Ipc_err, bool)
+f0010d70 T Thread::ipc_continue(Ipc_err)
+f0010e20 T Thread::ipc_pagein_request(Receiver*, unsigned long, unsigned long)
+f0010ef0 T Thread::do_send_long(Thread*, Sys_ipc_frame*)
+f0011980 T Thread::page_fault_log(unsigned long, unsigned int, unsigned int)
+f0011ad0 T sys_ipc_log_wrapper
+f0011ef0 T sys_ipc_trace_wrapper
+f0012020 T Thread::is_valid()
+f0012090 T Thread::print_snd_partner(int)
+f00120b0 T Thread::print_partner(int)
+f0012160 T Thread::print_uid(int)
+f0012200 T Thread::print_state_long(unsigned int)
+f00122aa T thread_handle_double_fault
+f0012410 T Thread::get_ioport(unsigned long, Trap_state*, unsigned int*, unsigned int*)
+f0012750 T Kernel_thread::operator new(unsigned int, L4_uid)
+f00127c0 T Kernel_thread::run()
+f0012900 T Kernel_thread::init_workload()
+f0012ce0 T mapdb_instance()
+f0012d30 T mem_map(Space*, unsigned long, unsigned long, bool, bool, Space*, unsigned long, unsigned long, unsigned long)
+f0013400 T mem_fpage_unmap(Space*, L4_fpage, bool, bool)
+f00137a0 t __tcf_0
+f00137b0 T io_map(Space*, unsigned long, unsigned long, bool, bool, Space*, unsigned long, unsigned long, bool, bool)
+f0013900 T io_fpage_unmap(Space*, L4_fpage, bool)
+f0013970 T Irq::Irq(unsigned int)
+f00139c0 T Irq::ipc_receiver_ready()
+f0013c00 W non-virtual thunk to Irq::ipc_receiver_ready()
+f0013c10 T Dirq::operator new(unsigned int)
+f0013c50 T Dirq::alloc(Receiver*, bool)
+f0013cf0 T Dirq::free(Receiver*)
+f0013e00 T irq_interrupt
+f0013e0e T patch_log_irq
+f0014300 T Dirq::acknowledge()
+f00143a8 T Apic::timer_set_divisor(unsigned int)
+f001440e T Apic::test_present_but_disabled()
+f0014440 T Apic::set_perf_nmi()
+f0014466 T apic_error_interrupt
+f00144d6 W Apic::timer_reg_write(unsigned int)
+f00144ee W Apic::timer_disable_irq()
+f001450a W Apic::irq_ack()
+f0014524 W Proc::cli_save()
+f001452c W Proc::sti_restore(unsigned long)
+f0014538 W Cpu::family()
+f001455c W Cpu::rdtsc()
+f0014564 W Cpu::muldiv(unsigned int, unsigned int, unsigned int)
+f001456e W Cpu::rdmsr(unsigned int)
+f0014578 W Io::in8(unsigned long)
+f0014584 W Pic::disable_all_save()
+f00145b2 W Pic::restore_all(unsigned int)
+f00145be T Apic::reg_lvt_bit_str(unsigned int, unsigned int, int)
+f0014696 T Apic::reg_show(unsigned int)
+f0014708 T Apic::regs_show()
+f00147b2 T Apic::timer_show()
+f00147f4 T Apic::id_show()
+f0014820 T Apic::bitfield_show(unsigned int, char const*, char)
+f00148ba T Apic::irr_show()
+f00148d2 T Apic::isr_show()
+f00148ea T Watchdog::do_nothing()
+f00148f0 T Watchdog::perf_enable()
+f0014912 T Watchdog::perf_disable()
+f001492a T Watchdog::perf_touch()
+f0014942 t __static_initialization_and_destruction_0(int, int)
+f001495a W Perf_cnt::setup_watchdog(unsigned long)
+f0014970 W Perf_cnt::start_watchdog()
+f00149a4 W Perf_cnt::stop_watchdog()
+f00149c0 W Perf_cnt::touch_watchdog()
+f00149ec t _GLOBAL__I.00114__ZN8Watchdog5touchE
+f0014a00 T Kernel_uart::uart()
+f0014a36 T Kernel_uart::Kernel_uart()
+f0014b0c T Kernel_uart::enable_rcv_irq()
+f0014b46 W Kernel_uart::~Kernel_uart()
+f0014b60 W Kernel_uart::~Kernel_uart()
+f0014b70 W Irq_alloc::lookup(unsigned int)
+f0014b86 t __tcf_0
+f0014b94 T Kernel_uart::startup(unsigned int)
+f0014bf0 T Checksum::get_checksum_ro()
+f0014c20 T Checksum::get_checksum_rw()
+f0014c50 W Kernel_thread::~Kernel_thread()
+f0014c70 W Kernel_thread::~Kernel_thread()
+f0014c90 T _exit
+f0014cb0 t exit_question()
+f0014d70 T main_arch()
+f0014ec0 t __static_initialization_and_destruction_0(int, int)
+f0014f20 t global constructors keyed to _ZN6Config9kernel_idE
+f0014f40 T Mapped_allocator::allocator()
+f0014f70 T Mapped_allocator::allocator(Mapped_allocator*)
+f0014f80 T Vmem_alloc::local_alloc(Space*, unsigned long, int, unsigned int)
+f0015080 T Vmem_alloc::local_free(Space*, unsigned long, int)
+f0015120 T Vmem_alloc::page_alloc(void*, Vmem_alloc::Zero_fill, unsigned int)
+f0015350 t __static_initialization_and_destruction_0(int, int)
+f0015380 t _GLOBAL__I.00102__ZN10Vmem_alloc9zero_pageE
+f00153a0 T Pdir::virt_to_phys(unsigned long) const
+f0015410 T Pdir::map_superpage(unsigned long, unsigned long, unsigned long (*)(), unsigned int)
+f0015490 T Fpu_alloc::alloc_state(Fpu_state*)
+f0015590 T Fpu_alloc::free_state(Fpu_state*)
+f0015620 T Cpu::exception_string(unsigned long)
+f0015640 T Cpu::show_cache_tlb_info(char const*)
+f0015980 T Cpu::lbr_type()
+f0015a80 T Cpu::bts_type()
+f0015bc0 T Cpu::bts_enable(bool)
+f0015ca0 T Cpu::set_sysenter(void (*)())
+f0015cd0 T Cpu::set_fast_entry(void (*)())
+f0015ce0 T Kconsole::getchar(bool)
+f0015d20 T Kconsole::activate()
+f0015d50 T Kconsole::register_console(Console*, int)
+f0015d70 T Kconsole::console()
+f0015dc0 W Kconsole::~Kconsole()
+f0015de0 W Kconsole::~Kconsole()
+f0015df0 t __tcf_0
+f0015e10 t vga_console()
+f0015e60 t herc_console()
+f0015eb0 t __static_initialization_and_destruction_0(int, int)
+f0015ed0 t __tcf_0
+f0015ee0 t __tcf_1
+f0015ef0 t __tcf_2
+f0015f10 t _GLOBAL__I.00106__ZN12Boot_console2_cE
+f0015f30 T Task::Task(unsigned int)
+f0015f60 W Task::map_kip()
+f0015fd0 T Task::initialize()
+f0016020 T Task::cleanup()
+f0016070 T Irq_alloc::free_all(Receiver*)
+f00160b0 t raw_exit()
+f0016100 T set_exit_question(void (*)())
+f0016110 T terminate(int)
+f0016140 T Preemption::Preemption(L4_uid)
+f0016180 T Preemption::preempter_enqueue()
+f0016220 T Preemption::ipc_receiver_ready()
+f0016600 T Preemption::queue(Sched_context::Preemption_type, unsigned long long, Sched_context*)
+f0016625 T patch_log_preemption
+f00166d0 T Sched_context::Sched_context(Context*, unsigned short, unsigned short, unsigned long long)
+f0016720 t __static_initialization_and_destruction_0(int, int)
+f0016740 t global constructors keyed to _ZN31static_init_func_allocator_initC2Ev
+f0016760 t __static_initialization_and_destruction_0(int, int)
+f0016780 t global constructors keyed to _ZN31static_init_class_Sys_call_pageC2Ev
+f0016794 t dummy_read_pmc()
+f001679c T Perf_cnt_p5::set_pmc_event(unsigned long)
+f00167e8 t p5_read_pmc_0()
+f00167f8 t p5_read_pmc_1()
+f0016808 T Perf_cnt_p6::Perf_cnt_p6(unsigned long, unsigned long, unsigned long, unsigned long)
+f0016826 T Perf_cnt_p6::set_pmc_event(unsigned long)
+f0016872 T Perf_cnt_p6::start_pmc(unsigned long)
+f001688e T Perf_cnt_p6::init_watchdog()
+f00168ae T Perf_cnt_p6::init_loadcnt()
+f00168e2 T Perf_cnt_p6::start_watchdog()
+f0016908 T Perf_cnt_p6::stop_watchdog()
+f001692e t p6_read_pmc_0()
+f0016940 t p6_read_pmc_1()
+f0016954 T Perf_cnt_k7::start_pmc(unsigned long)
+f0016978 T Perf_cnt_k7::init_watchdog()
+f0016998 T Perf_cnt_k7::init_loadcnt()
+f00169cc t k7_read_pmc_0()
+f00169de t k7_read_pmc_1()
+f00169f2 t k7_read_pmc_2()
+f0016a06 t k7_read_pmc_3()
+f0016a1a T Perf_cnt_p4::set_pmc_event(unsigned long)
+f0016a20 T Perf_cnt_p4::start_pmc(unsigned long)
+f0016a3c T Perf_cnt_p4::init_watchdog()
+f0016a64 T Perf_cnt_p4::init_loadcnt()
+f0016a9e T Perf_cnt_p4::start_watchdog()
+f0016ad6 T Perf_cnt_p4::stop_watchdog()
+f0016af8 t p4_read_pmc()
+f0016b00 T Perf_cnt_arch::alloc_watchdog()
+f0016b40 T Perf_cnt_arch::alloc_loadcnt()
+f0016b90 T Perf_cnt_arch::alloc_pmc(unsigned long, unsigned long)
+f0016c56 T Perf_cnt_arch::clear_pmc(unsigned long)
+f0016c72 T Perf_cnt_arch::mode(unsigned long, char const**, unsigned long*, unsigned long*, unsigned long*, unsigned long*)
+f0016cd0 T Perf_cnt_arch::setup_pmc(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+f0016d42 T Perf_cnt_arch::start_pmc(unsigned long)
+f0016d48 T Perf_cnt_arch::setup_watchdog(unsigned long)
+f0016e24 T Perf_cnt_arch::setup_loadcnt()
+f0016e50 T Perf_cnt_arch::init_watchdog()
+f0016e56 T Perf_cnt_arch::init_loadcnt()
+f0016e64 T Perf_cnt_arch::start_watchdog()
+f0016e6a T Perf_cnt_arch::stop_watchdog()
+f0016e70 W Perf_cnt::set_pmc_fn(unsigned long, unsigned long)
+f0016e86 T Perf_cnt::setup_pmc(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+f0016f0a T Perf_cnt::mode(unsigned long, char const**, char const**, unsigned long*, unsigned long*, unsigned long*, unsigned long*)
+f0016fa2 T Perf_cnt::get_max_perf_event()
+f0016fba T Perf_cnt::get_perf_event(unsigned long, unsigned int*, char const**, char const**)
+f0017004 T Perf_cnt::lookup_event(unsigned int)
+f001702c T Perf_cnt::get_unit_mask(unsigned long, Perf_cnt::Unit_mask_type*, unsigned long*, unsigned long*)
+f001709e T Perf_cnt::get_unit_mask_entry(unsigned long, unsigned long, unsigned long*, char const**)
+f00170f4 T Perf_cnt::split_event(unsigned long, unsigned int*, unsigned long*)
+f001712a T Perf_cnt::combine_event(unsigned long, unsigned long, unsigned long*)
+f001715a t __static_initialization_and_destruction_0(int, int)
+f00171be W Cpu::model()
+f00171e2 W Cpu::get_cr4()
+f00171ea W Cpu::rdpmc(unsigned int, unsigned int)
+f00171f4 W Perf_cnt_arch::Perf_cnt_arch(unsigned long, unsigned long, unsigned long, unsigned long)
+f0017230 t clear_msr_range(unsigned long, unsigned long)
+f0017254 W Perf_cnt_p5::Perf_cnt_p5()
+f001727a W Perf_cnt_p6::Perf_cnt_p6()
+f00172a0 W Perf_cnt_k7::Perf_cnt_k7()
+f00172c6 W Perf_cnt_p4::Perf_cnt_p4()
+f00172ec t _GLOBAL__I.00101__ZN8Perf_cnt8read_pmcE
+f0017300 t _GLOBAL__I.00112__ZN8Perf_cnt8read_pmcE
+f0017320 T X86desc::type_str() const
+f0017340 T X86desc::gdt_entry_show()
+f0017410 T X86desc::idt_entry_show()
+f00174a0 T X86desc::task_gate_show()
+f00174e0 T X86desc::show()
+f0017560 T Idt::set_writable(bool)
+f00175e0 T Idt::set_entry(unsigned int, unsigned long, bool)
+f0017680 T Idt::set_timer_vector_run()
+f00176c0 T Idt::set_timer_vector_stop()
+f00176da T Trap_state::dump()
+f00177dc T trap_dump_panic
+f00177ee W Cpu::get_ss()
+f0017800 T List_alloc::check_overlap(void*, unsigned long)
+f0017870 T List_alloc::sanity_check_list(char const*, char const*)
+f00178f0 T List_alloc::dump()
+f0017960 T List_alloc::free(void*, unsigned long)
+f0017ad0 T List_alloc::alloc(unsigned long, unsigned int)
+f0017c20 T List_alloc::avail()
+f0017c80 T Vkey::check_(int)
+f0017e80 T Vkey::get()
+f0017ea0 T Vkey::clear()
+f0017ec0 t __static_initialization_and_destruction_0(int, int)
+f0017f20 t global constructors keyed to _ZN4Vkey6check_Ei
+f0017f40 t uart_console_init_stage1()
+f0017fb0 t uart_console_init_stage2()
+f0018030 t __static_initialization_and_destruction_0(int, int)
+f0018080 t __tcf_0
+f0018090 t _GLOBAL__I.00108__ZN41static_init_func_uart_console_init_stage1C2Ev
+f00180b0 t global constructors keyed to _ZN41static_init_func_uart_console_init_stage1C2Ev
+f00180c4 T Jdb::abort_command()
+f00180ea T Jdb::save_disable_irqs()
+f0018138 T Jdb::restore_irqs()
+f0018176 T Jdb::open_debug_console()
+f00181aa T Jdb::close_debug_console()
+f00181d4 T Jdb::get_register(char*)
+f0018244 T Jdb::get_thread()
+f001827c T Jdb::translate_task(unsigned long, unsigned int)
+f001828c T Jdb::peek_phys(unsigned long, unsigned long*, int)
+f00182f8 T Jdb::poke_phys(unsigned long, unsigned long, int)
+f0018370 T Jdb::peek_task(unsigned long, unsigned int, unsigned long*, int)
+f00183be T Jdb::poke_task(unsigned long, unsigned int, unsigned long, int)
+f001840c T Jdb::is_adapter_memory(unsigned long, unsigned int)
+f0018456 T Jdb::guess_thread_state(Thread*)
+f001856a T Jdb::set_single_step(int)
+f001858e T Jdb::switch_debug_state()
+f001861a T Jdb::execute_command()
+f0018760 T Jdb::analyze_code()
+f001886e T Jdb::enter_kdebugger(Trap_state*)
+f0018c70 W Lock_guard<Cpu_lock>::Lock_guard(Cpu_lock*)
+f0018c8c W unsigned char Jdb::peek<unsigned char>(unsigned char const*)
+f0018cd8 t __static_initialization_and_destruction_0(int, int)
+f0018cf0 W Proc::program_counter()
+f0018cfc W Pic::enable(unsigned int, unsigned int)
+f0018d22 W Pic::enable_locked(unsigned int, unsigned int)
+f0018d66 W Cpu::get_pdbr()
+f0018d6e W Cpu::lbr_enable(bool)
+f0018dca W Cpu::btf_enable(bool)
+f0018e32 W Cpu::debugctl_enable()
+f0018e4e W Cpu::debugctl_disable()
+f0018e6a W Tb_entry_ke::set_const(Context*, unsigned long, char const*)
+f0018e94 W Kmem::is_tcb_page_fault(unsigned long, unsigned long)
+f0018eaa W Kmem::virt_to_phys(void const*)
+f0018eda W Cpu_lock::test_and_set()
+f0018eee W Push_console::Push_console()
+f0018f02 W Space::virt_to_phys_s0(void*) const
+f0018f18 W Space::remote_update(unsigned long, Space const*, unsigned long, unsigned int)
+f0018fe0 W Virq::Virq(unsigned int)
+f001900a t __tcf_0
+f0019018 W Jdb::handle_trap1()
+f0019074 W Jdb::handle_trap3()
+f00191a0 W Jdb::handle_trapX()
+f0019206 W Jdb::handle_int3()
+f001933e W Proc::interrupts()
+f001934a W Tb_entry::set_global(char, Context*, unsigned long)
+f0019370 W Mem_layout::pmem_to_phys(unsigned long)
+f0019396 W Pdir::index(unsigned int) const
+f00193ba W Pdir::operator[](unsigned int)
+f00193de W Observer::Observer()
+f00193ea W Console::Console()
+f00193f6 W Push_console::~Push_console()
+f0019406 W Mem_unit::tlb_flush()
+f0019412 W Jdb::handle_single_step()
+f00194d0 t _GLOBAL__I.00118__ZN3Jdb10_connectedE
+f00194e4 T Jdb::cursor(unsigned int, unsigned int)
+f0019506 T Jdb::screen_scroll(unsigned int, unsigned int)
+f0019530 T Jdb::clear_screen(int)
+f00195ae T Jdb::std_cursor_key(int, unsigned long, unsigned long, unsigned long, unsigned long*, unsigned long*, unsigned long*, bool*)
+f001976c T Jdb::getchar()
+f0019780 T Jdb::is_toplevel_cmd(char)
+f00197ce T Jdb::execute_command(char const*, int)
+f0019800 T Jdb::printf_statline(char const*, char const*, char const*, ...)
+f0019894 T Jdb::write_ll_ns(long long, char*, int, bool)
+f0019a52 T Jdb::write_tsc_s(long long, char*, int, bool)
+f0019bb0 T Jdb::write_tsc(long long, char*, int, bool)
+f0019c14 T Jdb::write_ll_hex(long long, char*, int, bool)
+f0019c86 T Jdb::write_ll_dec(long long, char*, int, bool)
+f0019d02 T Jdb::execute_command_ni(unsigned char const*, int)
+f0019dd2 W Cpu::tsc_to_ns(unsigned long long)
+f0019df6 W div32(unsigned long long, unsigned long)
+f0019e26 T Jdb::is_valid_task(unsigned int)
+f0019e44 T Jdb_tid_ext::ext()
+f0019e7a T Jdb_tid_ext::update()
+f0019e84 T Jdb::lookup_space(unsigned int)
+f0019ea0 T Jdb::get_current()
+f0019f0c W Jdb_tid_ext::~Jdb_tid_ext()
+f0019f1c W Jdb_tid_ext::~Jdb_tid_ext()
+f0019f36 t __static_initialization_and_destruction_0(int, int)
+f0019f60 W Space_index::lookup()
+f0019f80 W Jdb_tid_ext::Jdb_tid_ext()
+f0019f94 t __tcf_0
+f0019fa2 t _GLOBAL__I.00114__ZN3Jdb13is_valid_taskEj
+f0019fb6 T Jdb::handle_int3_threadctx(Trap_state*)
+f001a08e W current()
+f001a09a W Watchdog::user_enable()
+f001a0aa W Watchdog::user_disable()
+f001a0ba W unsigned char Space::peek<unsigned char>(unsigned char const*, bool)
+f001a0d0 W unsigned char Space::peek_user<unsigned char>(unsigned char const*)
+f001a104 T Jdb::handle_int3_threadctx_generic(Trap_state*)
+f001a68a W Pic::disable(unsigned int)
+f001a6aa W Pic::disable_locked(unsigned int)
+f001a6ea W Tb_entry_ke::set_buf(unsigned int, char)
+f001a704 W Tb_entry_ke_reg::set(Context*, unsigned long, unsigned long, unsigned long, unsigned long)
+f001a732 W Tb_entry_ke_reg::set_buf(unsigned int, char)
+f001a74c W Jdb_get_cputime_frame::set(L4_uid, unsigned long long, unsigned short)
+f001a770 W Context::update_consumed_time()
+f001a776 W Context::consumed_time()
+f001a782 T Jdb_prompt_ext::Jdb_prompt_ext()
+f001a7aa T Jdb_prompt_ext::~Jdb_prompt_ext()
+f001a7d8 T Jdb_prompt_ext::~Jdb_prompt_ext()
+f001a806 T Jdb_prompt_ext::~Jdb_prompt_ext()
+f001a83a T Jdb_prompt_ext::update()
+f001a840 T Jdb_prompt_ext::do_all()
+f001a85e T Jdb_prompt_ext::update_all()
+f001a87e T Jdb_symbol::init(void*, unsigned long)
+f001a8b0 T Jdb_symbol_info::transform()
+f001a970 T Jdb_symbol_info::set(unsigned long, unsigned int)
+f001aa3c T Jdb_symbol::lookup(unsigned int)
+f001aa84 T Jdb_symbol::match_symbol(char const*, bool, unsigned int)
+f001aae6 T Jdb_symbol::match_symbol_to_addr(char const*, bool, unsigned int)
+f001ab30 T Jdb_symbol::complete_symbol(char*, unsigned int, unsigned int)
+f001ac6a T Jdb_symbol::match_addr_to_symbol(unsigned long, unsigned int)
+f001acfa T Jdb_symbol::match_addr_to_symbol_fuzzy(unsigned long*, unsigned int, char*, int)
+f001ae34 W Jdb_symbol_info::string_to_addr(char const*)
+f001ae6c T Jdb_lines::init(void*, unsigned long)
+f001ae9e T Jdb_lines_info::set(unsigned long, unsigned int)
+f001aeec T Jdb_lines::lookup(unsigned int)
+f001af34 T Jdb_lines::match_addr_to_line(unsigned long, unsigned int, char*, unsigned int, int)
+f001b01e T Jdb_lines::match_addr_to_line_fuzzy(unsigned long*, unsigned int, char*, unsigned int, int)
+f001b15a T Jdb_lines::sprint_line(char const*, char const*, unsigned int, char*, unsigned int)
+f001b2b2 T Jdb_dbinfo::reserve_pages(unsigned int)
+f001b35e T Jdb_dbinfo::return_pages(unsigned long, unsigned int)
+f001b406 T Jdb_dbinfo::map(unsigned long, unsigned int&, unsigned long&)
+f001b4d2 T Jdb_dbinfo::unmap(unsigned long, unsigned int)
+f001b562 T Jdb_dbinfo::set(Jdb_symbol_info*, unsigned long, unsigned int)
+f001b5c6 T Jdb_dbinfo::set(Jdb_lines_info*, unsigned long, unsigned int)
+f001b636 t __static_initialization_and_destruction_0(int, int)
+f001b652 W Jdb_lines_info::get(unsigned long&, unsigned int&)
+f001b662 W Jdb_symbol_info::get(unsigned long&, unsigned int&)
+f001b672 W Cpu::memset_mwords(void*, unsigned long, unsigned int)
+f001b680 W Pd_entry::operator=(unsigned int)
+f001b688 W Pt_entry::operator=(unsigned int)
+f001b690 W Space::kmem_update(void*)
+f001b6bc W Jdb_dbinfo::init_symbols_lines()
+f001b6f2 W Lock_guard<Cpu_lock>::~Lock_guard()
+f001b6fe W Pdir::operator[](unsigned int) const
+f001b722 t global constructors keyed to _ZN28static_init_class_Jdb_dbinfoC2Ev
+f001b736 T Breakpoint::Breakpoint()
+f001b74a T Breakpoint::show()
+f001b8f4 T Breakpoint::restricted(Thread*)
+f001b9de T Breakpoint::test_break(Thread*, char*, unsigned int)
+f001baa0 T Breakpoint::test_log(Thread*)
+f001bb4c T Jdb_bp::set_breakpoint(int, unsigned long, unsigned long, Breakpoint::Mode, Breakpoint::Log, unsigned int)
+f001bb94 T Jdb_bp::clr_breakpoint(int)
+f001bbb0 T Jdb_bp::first_unused()
+f001bbd4 T Jdb_bp::test_break(unsigned long, char*, unsigned int)
+f001bc46 T Jdb_bp::test_log(unsigned long&)
+f001bcb4 T Jdb_bp::test_match(unsigned long, Breakpoint::Mode)
+f001bcfa T Jdb_bp::list()
+f001bd40 T Jdb_set_bp::action(int, void*&, char const*&, int&)
+f001c100 T Jdb_set_bp::cmds() const
+f001c10a T Jdb_set_bp::num_cmds() const
+f001c114 T jdb_instruction_bp_at_addr(unsigned long)
+f001c120 W Jdb_set_bp::~Jdb_set_bp()
+f001c130 W Jdb_set_bp::~Jdb_set_bp()
+f001c14a t __static_initialization_and_destruction_0(int, int)
+f001c1bc W Breakpoint::restrict_task(int, unsigned int)
+f001c1c8 W Breakpoint::set(unsigned long, unsigned long, Breakpoint::Mode, Breakpoint::Log)
+f001c1f0 W Jdb_handler::Jdb_handler(void (*)())
+f001c1fe W Jdb_handler_queue::add(Jdb_handler*)
+f001c20a W Tb_entry_bp::set(Context*, unsigned long, int, int, unsigned long, unsigned long)
+f001c23e W Jdb_entry_frame::get_reg(unsigned int) const
+f001c284 W Jdb_input_task_addr::Jdb_input_task_addr()
+f001c28a W Breakpoint::restrict_thread(int, unsigned int)
+f001c296 W Breakpoint::restrict_register(char, unsigned long, unsigned long)
+f001c2a8 W Breakpoint::restrict_memory(unsigned long, unsigned long, unsigned long, unsigned long)
+f001c2c0 W Breakpoint::clear_restriction()
+f001c2dc W unsigned char Jdb::peek<unsigned char>(unsigned char const*, Address_type)
+f001c2e4 W unsigned short Jdb::peek<unsigned short>(unsigned short const*, Address_type)
+f001c2ec W unsigned int Jdb::peek<unsigned int>(unsigned int const*, Address_type)
+f001c2f4 t __tcf_0
+f001c302 t _GLOBAL__I.00114__ZN6Jdb_bp3bpsE
+f001c316 t global constructors keyed to _ZN6Jdb_bp3bpsE
+f001c32a T Jdb_bp::set_debug_address_register(int, unsigned long, unsigned long, Breakpoint::Mode, unsigned int)
+f001c3aa T Jdb_bp::clr_debug_address_register(int)
+f001c3d2 T Jdb_bp::at_jdb_enter()
+f001c3e8 T Jdb_bp::at_jdb_leave()
+f001c3fa T Jdb_bp::test_sstep()
+f001c416 T Jdb_bp::test_break(char*, unsigned int)
+f001c43c T Jdb_bp::test_other(char*, unsigned int)
+f001c46e T Jdb_bp::test_log_only()
+f001c4b6 T Jdb_bp::init_arch()
+f001c4e4 W Jdb_bp::set_dr7(int, unsigned long, Breakpoint::Mode, unsigned long&)
+f001c512 T Jdb_thread_list::init(char, Thread*)
+f001c522 T Jdb_thread_list::switch_mode()
+f001c542 T Jdb_thread_list::set_start(Thread*)
+f001c576 T Jdb_thread_list::line_back()
+f001c58e T Jdb_thread_list::line_forw()
+f001c5d2 T Jdb_thread_list::page_back()
+f001c5f2 T Jdb_thread_list::page_forw()
+f001c636 T Jdb_thread_list::goto_home()
+f001c650 T Jdb_thread_list::goto_end()
+f001c690 T Jdb_thread_list::lookup(Thread*)
+f001c6d4 T Jdb_thread_list::index(int)
+f001c6f0 T Jdb_thread_list::get_prio(Thread*)
+f001c6fc T Jdb_thread_list::get_tid(Thread*)
+f001c710 T Jdb_thread_list::iter(int, Thread**, void (*)(Thread*))
+f001c8d6 T Jdb_thread_list::page_show(void (*)(Thread*))
+f001c8fc T Jdb_thread_list::complete_show(void (*)(Thread*))
+f001c91e T Jdb_list_threads::action(int, void*&, char const*&, int&)
+f001c9e6 T Jdb_list_threads::list_threads_show_thread(Thread*)
+f001cc0a T Jdb_list_threads::show_header()
+f001cc30 T Jdb_list_threads::list_threads(Thread*, char)
+f001cee8 T Jdb_list_threads::cmds() const
+f001cef2 T Jdb_list_threads::num_cmds() const
+f001cefc W Jdb_list_threads::~Jdb_list_threads()
+f001cf0c W Jdb_list_threads::~Jdb_list_threads()
+f001cf26 t __static_initialization_and_destruction_0(int, int)
+f001cf50 W Timer::system_clock()
+f001cf84 W Jdb_thread_list::get_mode_str()
+f001cf96 W Jdb_thread_list::iter_prev(Thread*)
+f001cfde W Jdb_thread_list::iter_next(Thread*)
+f001d022 t __tcf_0
+f001d030 W Cpu::tsc_to_us(unsigned long long)
+f001d04c t _GLOBAL__I.00114__ZN16Jdb_list_threads6subcmdE
+f001d060 t direct_log_dummy(Tb_entry*, char const*)
+f001d066 T Jdb_tbuf::clear_tbuf()
+f001d09e T Jdb_tbuf::new_entry()
+f001d10a T Jdb_tbuf::commit_entry()
+f001d156 T Jdb_tbuf::unfiltered_lookup(unsigned long)
+f001d18a T Jdb_tbuf::lookup(unsigned long)
+f001d1c8 T Jdb_tbuf::unfiltered_idx(Tb_entry*)
+f001d1e8 T Jdb_tbuf::idx(Tb_entry*)
+f001d238 T Jdb_tbuf::search_to_idx(unsigned long)
+f001d29c T Jdb_tbuf::event(unsigned long, unsigned long*, unsigned int*, unsigned long long*, unsigned int*, unsigned int*)
+f001d2f8 T Jdb_tbuf::ipc_pair_event(unsigned long, unsigned char*)
+f001d366 T Jdb_tbuf::pf_pair_event(unsigned long, unsigned char*)
+f001d410 T Jdb_tbuf::diff_tsc(unsigned long, long long*)
+f001d452 T Jdb_tbuf::diff_pmc(unsigned long, unsigned long, int*)
+f001d4a4 W Jdb_tbuf::search(unsigned long)
+f001d4c6 T Jdb_category::find(char const*, bool)
+f001d502 T Jdb_category::modules() const
+f001d520 T Jdb_module::~Jdb_module()
+f001d568 T Jdb_module::~Jdb_module()
+f001d5b0 T Jdb_module::~Jdb_module()
+f001d5fe T Jdb_module::has_cmd(char const*, bool) const
+f001d65e t __static_initialization_and_destruction_0(int, int)
+f001d686 W Jdb_category::Iterator::Iterator(Jdb_category const*, Jdb_module const*)
+f001d6b0 t _GLOBAL__I.00112__ZN12Jdb_category6_firstE
+f001d6c4 T Jdb_core::update_prompt()
+f001d6ce T Jdb_core::prompt_start()
+f001d6dc T Jdb_core::prompt_end()
+f001d6ea T Jdb_core::prompt()
+f001d6fe T Jdb_core::set_prompt_color(char)
+f001d7b0 T Jdb_core::has_cmd(char const*)
+f001d7fe T Jdb_core::getchar()
+f001d828 T Jdb_core::exec_cmd(Jdb_core::Cmd, int)
+f001df3c T Jdb_core::new_line(unsigned int&)
+f001dfbc T Go_m::action(int, void*&, char const*&, int&)
+f001dfc6 T Go_m::num_cmds() const
+f001dfd0 T Go_m::cmds() const
+f001dfda T Help_m::action(int, void*&, char const*&, int&)
+f001e1dc T Help_m::num_cmds() const
+f001e1e6 T Help_m::cmds() const
+f001e1f0 W Go_m::~Go_m()
+f001e200 W Go_m::~Go_m()
+f001e21a W Help_m::~Help_m()
+f001e22a W Help_m::~Help_m()
+f001e244 t __static_initialization_and_destruction_0(int, int)
+f001e30a W Jdb_category::Iterator::next()
+f001e352 W Jdb_core::Cmd::Cmd(Jdb_module*, Jdb_module::Cmd const*)
+f001e35c t __tcf_0
+f001e36a t __tcf_1
+f001e378 t _GLOBAL__I.00112__ZN8Jdb_core10short_modeE
+f001e38c t _GLOBAL__I.00114__ZN8Jdb_core10short_modeE
+f001e3a0 T Io_m::action(int, void*&, char const*&, int&)
+f001e64e T Io_m::num_cmds() const
+f001e658 T Io_m::cmds() const
+f001e662 W Io_m::~Io_m()
+f001e672 W Io_m::~Io_m()
+f001e68c t __static_initialization_and_destruction_0(int, int)
+f001e6b6 W Io::in16(unsigned long)
+f001e6c2 W Io::in32(unsigned long)
+f001e6ca W Pci::read_cfg32(unsigned long, unsigned long, unsigned long, unsigned long)
+f001e702 W Pci::write_cfg32(unsigned long, unsigned long, unsigned long, unsigned long, unsigned int)
+f001e73c t __tcf_0
+f001e74a t _GLOBAL__I.00114__ZN4Io_m8porttypeE
+f001e75e T Jdb_kern_info::register_subcmd(Jdb_kern_info_module*)
+f001e7ce T Jdb_kern_info::action(int, void*&, char const*&, int&)
+f001e82e T Jdb_kern_info::num_cmds() const
+f001e838 T Jdb_kern_info::cmds() const
+f001e842 W Jdb_kern_info::~Jdb_kern_info()
+f001e852 W Jdb_kern_info::~Jdb_kern_info()
+f001e86c t __static_initialization_and_destruction_0(int, int)
+f001e896 t __tcf_0
+f001e8a4 t _GLOBAL__I.00114__ZN20Jdb_kern_info_moduleC2EcPKc
+f001e8b8 T Jdb_kern_info_pic_state::Jdb_kern_info_pic_state()
+f001e8dc T Jdb_kern_info_pic_state::show()
+f001eab8 T Jdb_kern_info_misc::Jdb_kern_info_misc()
+f001eadc T Jdb_kern_info_misc::show()
+f001ec6c T Jdb_kern_info_gdt::Jdb_kern_info_gdt()
+f001ec90 T Jdb_kern_info_gdt::show()
+f001ed26 T Jdb_kern_info_idt::Jdb_kern_info_idt()
+f001ed4a T Jdb_kern_info_idt::show()
+f001ede0 T Jdb_kern_info_cpu::Jdb_kern_info_cpu()
+f001ee04 T Jdb_kern_info_cpu::show()
+f001f062 t __static_initialization_and_destruction_0(int, int)
+f001f0bc W X86desc::gdt_entry_size()
+f001f0e0 W Cpu::tsc_to_s_and_ns(unsigned long long, unsigned int*, unsigned int*)
+f001f118 W Cpu::get_cr0()
+f001f120 W Cpu::get_ldt()
+f001f12c W Cpu::get_tr()
+f001f138 W Io::out8_p(unsigned char, unsigned long)
+f001f142 W Jdb_kern_info_misc::show_pdir()
+f001f17a t _GLOBAL__I.00115__ZN23Jdb_kern_info_pic_stateC2Ev
+f001f18e T Jdb_kern_info_cpu::show_f_bits(unsigned int, char const* const*, unsigned int, unsigned int&, unsigned int&)
+f001f24a T Jdb_kern_info_cpu::show_features()
+f001f2c6 T Jdb_kern_info_apic::Jdb_kern_info_apic()
+f001f2ea T Jdb_kern_info_apic::show()
+f001f326 t __static_initialization_and_destruction_0(int, int)
+f001f33e t _GLOBAL__I.00115__ZN18Jdb_kern_info_apicC2Ev
+f001f352 T Jdb_kern_info_pci::Jdb_kern_info_pci()
+f001f376 T Jdb_kern_info_pci::show()
+f001f4ae t __static_initialization_and_destruction_0(int, int)
+f001f4c6 W Pci::read_cfg8(unsigned long, unsigned long, unsigned long, unsigned long)
+f001f506 W Pci::read_cfg16(unsigned long, unsigned long, unsigned long, unsigned long)
+f001f54a t _GLOBAL__I.00115__ZN17Jdb_kern_info_pciC2Ev
+f001f55e T Jdb_kern_info_bench::Jdb_kern_info_bench()
+f001f582 T Jdb_kern_info_bench::show_time(unsigned long long, unsigned int, char const*)
+f001f610 T Jdb_kern_info_bench::show()
+f001fe60 t __static_initialization_and_destruction_0(int, int)
+f001fe78 W X86desc::get_raw(unsigned int*, unsigned int*)
+f001fe88 t _GLOBAL__I.00115__ZN19Jdb_kern_info_benchC2Ev
+f001fe9c T Jdb_kern_info_dr::Jdb_kern_info_dr()
+f001fec0 T Jdb_kern_info_dr::show()
+f001ff12 t __static_initialization_and_destruction_0(int, int)
+f001ff2a W Jdb_bp::get_dr(unsigned long)
+f001ff5e t _GLOBAL__I.00115__ZN16Jdb_kern_info_drC2Ev
+f001ff72 T Jdb_pcm::get_coords(Console*, unsigned int&, unsigned int&)
+f0020034 T Jdb_pcm::detect_screenheight()
+f00200e6 T Jdb_pcm::action(int, void*&, char const*&, int&)
+f0020232 T Jdb_pcm::num_cmds() const
+f002023c T Jdb_pcm::cmds() const
+f0020246 T Jdb_pcm::wait_for_escape(Console*)
+f002029e W Jdb_pcm::~Jdb_pcm()
+f00202ae W Jdb_pcm::~Jdb_pcm()
+f00202c8 t __static_initialization_and_destruction_0(int, int)
+f00202f2 W Cpu::ns_to_tsc(unsigned long long)
+f0020316 t __tcf_0
+f0020324 t _GLOBAL__I.00114__ZN7Jdb_pcm6subcmdE
+f0020338 t console_log_entry(Tb_entry*, char const*)
+f00203a8 T Jdb_tbuf_output::dummy_format_entry(Tb_entry*, char const*, unsigned int, char*, int)
+f00203d4 T Jdb_tbuf_output::register_ff(unsigned char, unsigned int (*)(Tb_entry*, char const*, unsigned int, char*, int))
+f0020422 T Jdb_tbuf_output::thread_ip(int, L4_uid*, unsigned long*)
+f0020478 T Jdb_tbuf_output::toggle_names()
+f0020484 T Jdb_tbuf_output::print_entry(int, char*, int)
+f00204a6 T Jdb_tbuf_output::print_entry(Tb_entry*, char*, int)
+f00205b4 T Jdb_tbuf_output::set_filter(char const*, unsigned long*)
+f00206ba t __static_initialization_and_destruction_0(int, int)
+f00206d6 t global constructors keyed to _ZN15Jdb_tbuf_output16_format_entry_fnE
+f00206ea T Jdb_input_task_addr::gotkey_complete_symbol(char*&, int, int)
+f0020702 T Jdb_input_task_addr::action(void*&, char const*&, int&)
+f00208d4 T Jdb_input::get_mword(unsigned long*, int, int, int)
+f00209c4 T Jdb_dump::col_width(unsigned int) const
+f00209e4 W non-virtual thunk to Jdb_dump::col_width(unsigned int) const
+f00209ec T Jdb_dump::print_statline(unsigned int, unsigned int)
+f0020a46 W non-virtual thunk to Jdb_dump::print_statline(unsigned int, unsigned int)
+f0020a4e T Jdb_dump::draw_entry(unsigned int, unsigned int)
+f0020bf0 W non-virtual thunk to Jdb_dump::draw_entry(unsigned int, unsigned int)
+f0020bf8 T Jdb_dump::dump(unsigned long, unsigned int, int)
+f0020c78 T Jdb_dump::edit_entry(unsigned int, unsigned int, unsigned int, unsigned int)
+f0020d22 W non-virtual thunk to Jdb_dump::edit_entry(unsigned int, unsigned int, unsigned int, unsigned int)
+f0020d2a T Jdb_dump::key_pressed(int, unsigned int&, unsigned int&)
+f0021134 W non-virtual thunk to Jdb_dump::key_pressed(int, unsigned int&, unsigned int&)
+f002113c T Jdb_dump::action(int, void*&, char const*&, int&)
+f0021190 T Jdb_dump::cmds() const
+f002119a T Jdb_dump::num_cmds() const
+f00211a4 T jdb_dump_addr_task(unsigned long, unsigned int, int)
+f00211ba T Jdb_dump::get_base(unsigned long)
+f00211c2 T Jdb_dump::get_row(unsigned long)
+f00211e0 W Jdb_dump::~Jdb_dump()
+f00211f8 W Jdb_dump::~Jdb_dump()
+f002121a t __static_initialization_and_destruction_0(int, int)
+f0021244 W Jdb_table::Jdb_table()
+f0021250 W Jdb_dump::cols() const
+f002125a W non-virtual thunk to Jdb_dump::cols() const
+f0021262 W Jdb_dump::rows() const
+f002126c W non-virtual thunk to Jdb_dump::rows() const
+f0021274 t __tcf_0
+f0021282 t _GLOBAL__I.00114__ZN8Jdb_dump19show_adapter_memoryE
+f0021296 T Jdb_ptab::Jdb_ptab(void*, unsigned int, unsigned char, unsigned int, unsigned long, int)
+f00212f8 T Jdb_ptab::col_width(unsigned int) const
+f0021302 T Jdb_ptab::cols() const
+f002130c T Jdb_ptab::draw_entry(unsigned int, unsigned int)
+f0021344 T Jdb_ptab::virt(unsigned int, unsigned int)
+f0021368 T Jdb_ptab::key_pressed(int, unsigned int&, unsigned int&)
+f002149a T Jdb_ptab_m::action(int, void*&, char const*&, int&)
+f0021576 T Jdb_ptab_m::cmds() const
+f0021580 T Jdb_ptab_m::num_cmds() const
+f002158a W Jdb_ptab_m::~Jdb_ptab_m()
+f002159a W Jdb_ptab_m::~Jdb_ptab_m()
+f00215b4 t __static_initialization_and_destruction_0(int, int)
+f00215de W Jdb_ptab::entry_is_pt_ptr(unsigned long, unsigned int, unsigned int*, unsigned int*)
+f0021604 t __tcf_0
+f0021612 t _GLOBAL__I.00114__ZN10Jdb_ptab_m10first_charE
+f0021626 T Jdb_ptab::print_entry(unsigned long, unsigned int)
+f002170e T Jdb_ptab::rows() const
+f002171a T Jdb_ptab::disp_virt(unsigned int, unsigned int)
+f002174a T Jdb_ptab::print_statline(unsigned int, unsigned int)
+f00217a0 T Jdb_ptab::print_head(unsigned long)
+f00217b2 T Jdb_misc_general::action(int, void*&, char const*&, int&)
+f00217f4 T Jdb_misc_general::cmds() const
+f00217fe T Jdb_misc_general::num_cmds() const
+f0021808 T Jdb_misc_debug::show_lbr_entry(char const*, unsigned long)
+f002184a T Jdb_misc_debug::action(int, void*&, char const*&, int&)
+f0021a60 T Jdb_misc_debug::cmds() const
+f0021a6a T Jdb_misc_debug::num_cmds() const
+f0021a74 T Jdb_misc_debug::show_ldt()
+f0021b44 T Jdb_misc_info::action(int, void*&, char const*&, int&)
+f0021d38 T Jdb_misc_info::cmds() const
+f0021d42 T Jdb_misc_info::num_cmds() const
+f0021d4c W Jdb_misc_general::~Jdb_misc_general()
+f0021d5c W Jdb_misc_general::~Jdb_misc_general()
+f0021d76 W Jdb_misc_debug::~Jdb_misc_debug()
+f0021d86 W Jdb_misc_debug::~Jdb_misc_debug()
+f0021da0 W Jdb_misc_info::~Jdb_misc_info()
+f0021db0 W Jdb_misc_info::~Jdb_misc_info()
+f0021dca t __static_initialization_and_destruction_0(int, int)
+f0021e38 W Space::ldt_addr() const
+f0021e5c W Space::ldt_size() const
+f0021e80 t __tcf_0
+f0021e8e t __tcf_1
+f0021e9c t __tcf_2
+f0021eaa t _GLOBAL__I.00114__ZN16Jdb_misc_general10first_charE
+f0021ebe T Jdb_misc_monitor::action(int, void*&, char const*&, int&)
+f002208c T Jdb_misc_monitor::cmds() const
+f0022096 T Jdb_misc_monitor::num_cmds() const
+f00220a0 T jdb_misc_set_log_pf_res(int)
+f00220b0 W Jdb_misc_monitor::~Jdb_misc_monitor()
+f00220c0 W Jdb_misc_monitor::~Jdb_misc_monitor()
+f00220da t __static_initialization_and_destruction_0(int, int)
+f0022104 t __tcf_0
+f0022112 t _GLOBAL__I.00114__ZN16Jdb_misc_monitor6numberE
+f0022126 T Jdb_mapdb::show(unsigned long)
+f002245a T Jdb_mapdb::action(int, void*&, char const*&, int&)
+f0022470 T Jdb_mapdb::cmds() const
+f002247a T Jdb_mapdb::num_cmds() const
+f0022484 W Jdb_mapdb::~Jdb_mapdb()
+f0022494 W Jdb_mapdb::~Jdb_mapdb()
+f00224ae t __static_initialization_and_destruction_0(int, int)
+f00224d8 W Helping_lock::test()
+f00224f6 t __tcf_1
+f0022504 t _GLOBAL__I.00114__ZN9Jdb_mapdb7pagenumE
+f0022518 T Jdb_tcb_ptr::in_backtrace(unsigned long, unsigned long)
+f00225ce T Jdb_tcb::Jdb_tcb()
+f0022616 T Jdb_tcb::at_jdb_enter()
+f002263e T Jdb_tcb::search_bt_start(unsigned long, unsigned long*, bool)
+f00226ac T Jdb_tcb::print_entry_frame_regs(unsigned int)
+f00227f6 T Jdb_tcb::info_thread_state(Thread*, Jdb::Guessed_thread_state)
+f0022a16 T Jdb_tcb::show(L4_uid, int)
+f0023712 T Jdb_tcb::action(int, void*&, char const*&, int&)
+f00237e4 T Jdb_tcb::cmds() const
+f00237ee T Jdb_tcb::num_cmds() const
+f00237f8 T jdb_show_tcb(L4_uid, int)
+f0023802 T Jdb_tcb::print_regs_invalid_tid()
+f002382a W Jdb_tcb::~Jdb_tcb()
+f002383a W Jdb_tcb::~Jdb_tcb()
+f0023854 t __static_initialization_and_destruction_0(int, int)
+f002387e W Receiver::rcv_regs() const
+f00238a6 W Jdb_tcb_ptr::Jdb_tcb_ptr(unsigned long)
+f00238be W Jdb_tcb_ptr::Jdb_tcb_ptr(Jdb_tcb_ptr&)
+f00238ce W Jdb_tcb_ptr::operator+=(int)
+f00238da t __tcf_0
+f00238e8 t _GLOBAL__I.00114__ZN7Jdb_tcb8threadidE
+f00238fc t global constructors keyed to _ZN7Jdb_tcb8threadidE
+f0023910 T Jdb_attach_irq::action(int, void*&, char const*&, int&)
+f00239e0 T Jdb_attach_irq::num_cmds() const
+f00239ea T Jdb_attach_irq::cmds() const
+f00239f4 W Jdb_attach_irq::~Jdb_attach_irq()
+f0023a04 W Jdb_attach_irq::~Jdb_attach_irq()
+f0023a1e t __static_initialization_and_destruction_0(int, int)
+f0023a48 t __tcf_0
+f0023a56 t _GLOBAL__I.00114__ZN14Jdb_attach_irq6subcmdE
+f0023a6a T Jdb_ipc_trace::clear_restriction()
+f0023aa2 T Jdb_ipc_trace::show()
+f0023bb4 T Jdb_pf_trace::show()
+f0023bc7 T patch_show_log_pf_res
+f0023ca8 T Jdb_pf_trace::clear_restriction()
+f0023cd6 T Jdb_unmap_trace::show()
+f0023da8 T Jdb_unmap_trace::clear_restriction()
+f0023dd6 T Jdb_nextper_trace::show()
+f0023df4 t __static_initialization_and_destruction_0(int, int)
+f0023dfa t global constructors keyed to _ZN13Jdb_ipc_trace13_other_threadE
+f0023e0e T Jdb_set_trace::set_ipc_vector()
+f0023eac T Jdb_set_trace::set_cpath()
+f0023eba T patch_show_log_context_switch
+f0023eca T patch_show_log_shortcut
+f0023ee0 T Jdb_set_trace::action(int, void*&, char const*&, int&)
+f0024524 T Jdb_set_trace::cmds() const
+f002452e T Jdb_set_trace::num_cmds() const
+f0024538 T jdb_trace_set_cpath()
+f0024542 W Jdb_set_trace::~Jdb_set_trace()
+f0024552 W Jdb_set_trace::~Jdb_set_trace()
+f002456c t __static_initialization_and_destruction_0(int, int)
+f0024596 t __tcf_0
+f00245a4 t _GLOBAL__I.00114__ZN13Jdb_set_trace10first_charE
+f00245b8 T Jdb_counters::action(int, void*&, char const*&, int&)
+f00245cc T Jdb_counters::cmds() const
+f00245d6 T Jdb_counters::num_cmds() const
+f00245e0 W Jdb_counters::~Jdb_counters()
+f00245f0 W Jdb_counters::~Jdb_counters()
+f002460a t __static_initialization_and_destruction_0(int, int)
+f0024634 t __tcf_0
+f0024642 t _GLOBAL__I.00114__ZN12Jdb_counters12counters_cmdE
+f0024656 T Jdb_table::edit_entry(unsigned int, unsigned int, unsigned int, unsigned int)
+f002465e T Jdb_table::has_row_labels() const
+f0024668 T Jdb_table::has_col_labels() const
+f0024670 T Jdb_table::key_pressed(int, unsigned int&, unsigned int&)
+f0024678 T Jdb_table::col_sep(unsigned int) const
+f002468c T Jdb_table::width() const
+f0024696 T Jdb_table::height() const
+f00246a2 T Jdb_table::vis_cols(unsigned int, unsigned int*)
+f0024714 T Jdb_table::col_ofs(unsigned int, unsigned int)
+f0024768 T Jdb_table::show(unsigned int, unsigned int)
+f0024c24 T Jdb_table::draw_table(unsigned int, unsigned int, unsigned int, unsigned int)
+f0024d3c T Kern_cnt::read_kcnt1()
+f0024d48 T Kern_cnt::read_kcnt2()
+f0024d54 T Kern_cnt::get_ctr(int)
+f0024d6a T Kern_cnt::get_str(unsigned long)
+f0024dca T Kern_cnt::mode(unsigned long, char const**, char const**, unsigned long*)
+f0024e30 T Kern_cnt::setup_pmc(unsigned long, unsigned long)
+f0024e8a T Jdb_bt::get_user_eip_ebp(unsigned long&, unsigned long&)
+f0024f46 T Jdb_bt::get_user_ebp_following_kernel_stack()
+f0024fc0 T Jdb_bt::get_kernel_eip_ebp(unsigned long&, unsigned long&, unsigned long&)
+f002514a T Jdb_bt::show_item(int, unsigned long, Address_type)
+f002522c T Jdb_bt::show(unsigned long, unsigned long, unsigned long, Address_type)
+f00252e4 T Jdb_bt::action(int, void*&, char const*&, int&)
+f00254c6 T Jdb_bt::cmds() const
+f00254d0 T Jdb_bt::num_cmds() const
+f00254da W Jdb_bt::~Jdb_bt()
+f00254ea W Jdb_bt::~Jdb_bt()
+f0025504 t __static_initialization_and_destruction_0(int, int)
+f002552e t __tcf_0
+f002553c t _GLOBAL__I.00114__ZN6Jdb_bt5dummyE
+f0025550 t global constructors keyed to _ZN6Jdb_bt5dummyE
+f0025564 T Tb_entry::dummy_read_pmc()
+f002556c T Tb_entry::set_rdcnt(int, unsigned long (*)())
+f0025592 t __static_initialization_and_destruction_0(int, int)
+f00255ae t global constructors keyed to _ZN30static_init_class_Tb_entry_fitC2Ev
+f00255c2 t my_snprintf(char*&, int&, char const*, ...)
+f00255fa t trim(char const*)
+f002560e t format_timeout(unsigned long, char*&, int&)
+f00256e8 t formatter_ipc(Tb_entry*, char const*, unsigned int, char*, int)
+f0025ad4 t formatter_sc_failed(Tb_entry*, char const*, unsigned int, char*, int)
+f0025cfc t formatter_ipc_res(Tb_entry*, char const*, unsigned int, char*, int)
+f0025e84 t formatter_pf(Tb_entry*, char const*, unsigned int, char*, int)
+f0025f2c t formatter_pf_res(Tb_entry*, char const*, unsigned int, char*, int)
+f0025fb8 t formatter_ke(Tb_entry*, char const*, unsigned int, char*, int)
+f0026028 t formatter_ke_reg(Tb_entry*, char const*, unsigned int, char*, int)
+f00260aa t formatter_bp(Tb_entry*, char const*, unsigned int, char*, int)
+f0026158 t formatter_ctx_switch(Tb_entry*, char const*, unsigned int, char*, int)
+f0026362 t formatter_unmap(Tb_entry*, char const*, unsigned int, char*, int)
+f00263dc t formatter_ex_regs(Tb_entry*, char const*, unsigned int, char*, int)
+f002648c t formatter_trap(Tb_entry*, char const*, unsigned int, char*, int)
+f002652e t formatter_sched(Tb_entry*, char const*, unsigned int, char*, int)
+f00265ea t formatter_preemption(Tb_entry*, char const*, unsigned int, char*, int)
+f0026652 t formatter_lipc(Tb_entry*, char const*, unsigned int, char*, int)
+f00267a6 t formatter_jean1(Tb_entry*, char const*, unsigned int, char*, int)
+f0026844 t formatter_task_new(Tb_entry*, char const*, unsigned int, char*, int)
+f002693a t __static_initialization_and_destruction_0(int, int)
+f0026956 W L4_timeout::rcv_microsecs_abs(unsigned long long, bool) const
+f0026a1a W L4_timeout::snd_microsecs_abs(unsigned long long, bool) const
+f0026aee t global constructors keyed to _ZN32static_init_func_init_formattersC2Ev
+f0026b02 T Jdb_exit_module::action(int, void*&, char const*&, int&)
+f0026b7c T Jdb_exit_module::num_cmds() const
+f0026b86 T Jdb_exit_module::cmds() const
+f0026b90 W Jdb_exit_module::~Jdb_exit_module()
+f0026ba0 W Jdb_exit_module::~Jdb_exit_module()
+f0026bba t __static_initialization_and_destruction_0(int, int)
+f0026be4 t __tcf_0
+f0026bf2 t _GLOBAL__I.00114__ZN15Jdb_exit_module6actionEiRPvRPKcRi
+f0026c06 T Jdb_tbuf_show::error(char const*)
+f0026c2a T Jdb_tbuf_show::get_string(char*, unsigned int)
+f0026ca4 T Jdb_tbuf_show::show_perf_event_unit_mask_entry(unsigned long, unsigned long, unsigned long, int)
+f0026d08 T Jdb_tbuf_show::show_perf_event(unsigned long)
+f0026d5c T Jdb_tbuf_show::select_perf_event_unit_mask(unsigned long, unsigned long)
+f0026f84 T Jdb_tbuf_show::select_perf_event(unsigned long)
+f002718c T Jdb_tbuf_show::show_events(unsigned long, unsigned long, unsigned long, unsigned char, unsigned char, int)
+f00275f2 T Jdb_tbuf_show::search(unsigned long, unsigned long, char const*, unsigned char)
+f0027734 T Jdb_tbuf_show::show()
+f00283bc T Jdb_tbuf_show::action(int, void*&, char const*&, int&)
+f0028428 T Jdb_tbuf_show::cmds() const
+f0028432 T Jdb_tbuf_show::num_cmds() const
+f002843c W Jdb_tbuf_show::~Jdb_tbuf_show()
+f002844c W Jdb_tbuf_show::~Jdb_tbuf_show()
+f0028466 t __static_initialization_and_destruction_0(int, int)
+f0028490 t __tcf_0
+f002849e t _GLOBAL__I.00114__ZN13Jdb_tbuf_show11_search_strE
+f00284b2 T Jdb_iomap::show()
+f002864c T Jdb_iomap::action(int, void*&, char const*&, int&)
+f00286ba T Jdb_iomap::cmds() const
+f00286c4 T Jdb_iomap::num_cmds() const
+f00286ce W Jdb_iomap::~Jdb_iomap()
+f00286de W Jdb_iomap::~Jdb_iomap()
+f00286f8 t __static_initialization_and_destruction_0(int, int)
+f0028722 W Space::get_io_counter() const
+f0028748 t __tcf_0
+f0028756 t _GLOBAL__I.00114__ZN9Jdb_iomap10first_charE
+f002876a T Console_buffer::at_jdb_enter()
+f0028776 T Console_buffer::at_jdb_leave()
+f0028782 T Console_buffer::Console_buffer()
+f0028832 T Console_buffer::alloc(unsigned int)
+f002887c T Console_buffer::~Console_buffer()
+f00288c0 T Console_buffer::~Console_buffer()
+f002890a T Console_buffer::write(char const*, unsigned int)
+f00289a2 T Console_buffer::getchar(bool)
+f00289aa T Console_buffer::print_buffer(unsigned int)
+f0028ae8 T Console_buffer::strncmp(char*, char const*, unsigned int)
+f0028b2c T Console_buffer::print_buffer(char const*)
+f0028cb2 T Console_buffer::get_attributes() const
+f0028cbc T Jdb_cb::action(int, void*&, char const*&, int&)
+f0028d64 T Jdb_cb::cmds() const
+f0028d6e T Jdb_cb::num_cmds() const
+f0028d78 W Jdb_cb::~Jdb_cb()
+f0028d88 W Jdb_cb::~Jdb_cb()
+f0028da2 t __static_initialization_and_destruction_0(int, int)
+f0028dec W Console_buffer::inc_ptr(char**)
+f0028e0e W Console_buffer::dec_out_ptr(char**)
+f0028e28 t __tcf_0
+f0028e36 t __tcf_1
+f0028e44 t _GLOBAL__I.00114__ZN14Console_buffer8_enabledE
+f0028e58 t global constructors keyed to _ZN14Console_buffer8_enabledE
+f0028e6c T Virq::acknowledge()
+f0028e72 W Virq::alloc(Receiver*, bool)
+f0028e9a W Virq::free(Receiver*)
+f0028eca W Virq::notify()
+f0028ed4 W non-virtual thunk to Virq::notify()
+f0028edc W bool cas<Receiver*>(Receiver**, Receiver*, Receiver*)
+f0028eea W Sender::sender_dequeue(Sender**)
+f0028f5c W cas_unsafe(unsigned long*, unsigned long, unsigned long)
+f0028f74 W Virq::hit()
+f0028fe4 W Sender::sender_enqueue(Sender**)
+f0029034 W Context::state_change_dirty(unsigned long, unsigned long)
+f0029042 W Receiver::sender_ok(Sender const*) const
+f0029070 T Jdb_screen::set_height(unsigned int)
+f002907a T Push_console::get_sequence_byte(unsigned char const*)
+f00290b6 T Push_console::get_sequence_len()
+f00290d8 T Push_console::getchar(bool)
+f002912a T Push_console::char_avail() const
+f0029132 T Push_console::write(char const*, unsigned int)
+f002913a T Push_console::push(unsigned char const*, unsigned int, Space*)
+f002915a T Push_console::flush()
+f0029174 T Push_console::get_attributes() const
+f002917e W Push_console::~Push_console()
+f0029198 T Jdb_timeout_list::init(Timeout*)
+f00291a2 T Jdb_timeout_list::iter(int, Timeout**, void (*)(Timeout*))
+f002921a T Jdb_timeout_list::line_back()
+f002923e T Jdb_timeout_list::line_forw()
+f0029286 T Jdb_timeout_list::page_back()
+f00292b2 T Jdb_timeout_list::page_forw()
+f00292fa T Jdb_timeout_list::goto_home()
+f0029320 T Jdb_timeout_list::goto_end()
+f0029364 T Jdb_timeout_list::lookup(Timeout*)
+f00293a8 T Jdb_timeout_list::index(int)
+f00293d2 T Jdb_timeout_list::page_show(void (*)(Timeout*))
+f00293f8 T Jdb_list_timeouts::get_type(Timeout*)
+f002943c T Jdb_list_timeouts::get_owner(Timeout*)
+f0029476 T Jdb_list_timeouts::show_header()
+f0029496 T Jdb_list_timeouts::list_timeouts_show_timeout(Timeout*)
+f0029606 T Jdb_list_timeouts::list()
+f00297e0 T Jdb_list_timeouts::action(int, void*&, char const*&, int&)
+f00297f0 T Jdb_list_timeouts::cmds() const
+f00297fa T Jdb_list_timeouts::num_cmds() const
+f0029804 W Jdb_list_timeouts::~Jdb_list_timeouts()
+f0029814 W Jdb_list_timeouts::~Jdb_list_timeouts()
+f002982e t __static_initialization_and_destruction_0(int, int)
+f0029858 t __tcf_0
+f0029866 t _GLOBAL__I.00114__ZN16Jdb_timeout_list6_countE
+f002987a T Jdb_handler_queue::execute() const
+f0029890 T Jdb_halt_thread::action(int, void*&, char const*&, int&)
+f002990a T Jdb_halt_thread::cmds() const
+f0029914 T Jdb_halt_thread::num_cmds() const
+f002991e W Jdb_halt_thread::~Jdb_halt_thread()
+f002992e W Jdb_halt_thread::~Jdb_halt_thread()
+f0029948 t __static_initialization_and_destruction_0(int, int)
+f0029972 t __tcf_0
+f0029980 t _GLOBAL__I.00114__ZN15Jdb_halt_thread8threadidE
+f0029994 t global constructors keyed to _ZN15Jdb_halt_thread8threadidE
+f00299a8 T Log_event::Log_event(char const*, int, int, Log_patch*, ...)
+f00299e6 T Log_event::enable(int)
+f0029a08 T Log_patch::Log_patch(void*)
+f0029a16 T Log_patch::enable(int)
+f0029a24 t __static_initialization_and_destruction_0(int, int)
+f0029d80 t global constructors keyed to _ZN15Jdb_tbuf_events10log_eventsE
+f0029d94 T Jdb_kern_info_memory::Jdb_kern_info_memory()
+f0029db8 T Jdb_kern_info_memory::show()
+f0029dc6 t __static_initialization_and_destruction_0(int, int)
+f0029dde t _GLOBAL__I.00115__ZN20Jdb_kern_info_memoryC2Ev
+f0029df2 T Jdb_kern_info_region::Jdb_kern_info_region()
+f0029e16 T Jdb_kern_info_region::show()
+f0029e20 t __static_initialization_and_destruction_0(int, int)
+f0029e38 t _GLOBAL__I.00115__ZN20Jdb_kern_info_regionC2Ev
+f0029e4c T Jdb_kern_info_kip::Jdb_kern_info_kip()
+f0029e70 T Jdb_kern_info_kip::show()
+f0029e7e t __static_initialization_and_destruction_0(int, int)
+f0029e96 t _GLOBAL__I.00115__ZN17Jdb_kern_info_kipC2Ev
+f0029eaa T Jdb_kern_info_config::Jdb_kern_info_config()
+f0029ece T Jdb_kern_info_config::show()
+f0029ef2 t __static_initialization_and_destruction_0(int, int)
+f0029f0a t _GLOBAL__I.00115__ZN20Jdb_kern_info_configC2Ev
+f0029f1e T Name_entry::set(L4_uid, char const*)
+f0029f92 T Jdb_thread_names::register_thread(L4_uid, char const*)
+f002a056 T Jdb_thread_names::lookup(L4_uid, bool)
+f002a0f6 t __static_initialization_and_destruction_0(int, int)
+f002a112 t global constructors keyed to _ZN16Jdb_thread_names6_namesE
+f002a126 t __static_initialization_and_destruction_0(int, int)
+f002a13e W Perf_cnt::setup_loadcnt()
+f002a152 t _GLOBAL__I.00114__ZN25static_init_class_LoadcntC2Ev
+f002a166 T Utcb_m::action(int, void*&, char const*&, int&)
+f002a1ea T Utcb_m::num_cmds() const
+f002a1f4 T Utcb_m::cmds() const
+f002a1fe W Utcb_m::~Utcb_m()
+f002a20e W Utcb_m::~Utcb_m()
+f002a228 t __static_initialization_and_destruction_0(int, int)
+f002a250 t __tcf_0
+f002a25e t _GLOBAL__I.00114__ZN6Utcb_m8threadidE
+f002a272 t global constructors keyed to _ZN6Utcb_m8threadidE
+f002a286 T Jdb_bts::lookup(unsigned long)
+f002a2d6 T Jdb_bts::search_next_user_kernel(unsigned long)
+f002a33a T Jdb_bts::set_task(unsigned long, unsigned int)
+f002a388 T Jdb_bts::show_entry(unsigned long)
+f002a44e T Jdb_bts::show()
+f002a66e T Jdb_bts::action(int, void*&, char const*&, int&)
+f002a6c6 T Jdb_bts::num_cmds() const
+f002a6d0 T Jdb_bts::cmds() const
+f002a6da W Jdb_bts::~Jdb_bts()
+f002a6ea W Jdb_bts::~Jdb_bts()
+f002a704 t __static_initialization_and_destruction_0(int, int)
+f002a72e t __tcf_0
+f002a73c t _GLOBAL__I.00114__ZN7Jdb_bts10first_charE
+f002a750 t slice_to_timeout(unsigned int)
+f002a756 t show_grid()
+f002a818 t getchar_timeout()
+f002a890 t add_score(int)
+f002a8de t myrand()
+f002a906 t new_tile()
+f002a928 t try_move(int, int*)
+f002a976 t set_grid(int)
+f002a9b6 t set_next(int)
+f002a9e2 T show_tile()
+f002aa14 T Jdb_tetris_m::action(int, void*&, char const*&, int&)
+f002ac88 T Jdb_tetris_m::num_cmds() const
+f002ac92 T Jdb_tetris_m::cmds() const
+f002ac9c W Jdb_tetris_m::~Jdb_tetris_m()
+f002acac W Jdb_tetris_m::~Jdb_tetris_m()
+f002acc6 t __static_initialization_and_destruction_0(int, int)
+f002acf0 W Cpu::busy_wait_ns(unsigned long long)
+f002ad30 t __tcf_0
+f002ad3e t _GLOBAL__I.00114__Z9show_tilev
+f002ad52 T Jdb_disasm::disasm_line(char*, int, unsigned long&, int, unsigned int)
+f002add0 T Jdb_disasm::at_symbol(unsigned long, unsigned int)
+f002ade2 T Jdb_disasm::at_line(unsigned long, unsigned int)
+f002ae1c T Jdb_disasm::disasm_offset(unsigned long&, int, unsigned int)
+f002af04 T Jdb_disasm::show_disasm_line(int, unsigned long&, int, unsigned int)
+f002af9a T Jdb_disasm::show(unsigned long, unsigned int, int)
+f002b26a T Jdb_disasm::action(int, void*&, char const*&, int&)
+f002b2c0 T Jdb_disasm::cmds() const
+f002b2ca T Jdb_disasm::num_cmds() const
+f002b2d4 T jdb_disasm_addr_task(unsigned long, unsigned int, int)
+f002b2de T jdb_disasm_one_line(int, unsigned long&, int, unsigned int)
+f002b2f0 W Jdb_disasm::~Jdb_disasm()
+f002b300 W Jdb_disasm::~Jdb_disasm()
+f002b31a t __static_initialization_and_destruction_0(int, int)
+f002b344 t __tcf_0
+f002b352 t _GLOBAL__I.00114__ZN10Jdb_disasm17show_intel_syntaxE
+f002b366 T Jdb_gzip::Jdb_gzip()
+f002b3b0 T Jdb_gzip::raw_write(char const*, unsigned int)
+f002b3ce T Jdb_gzip::state(unsigned long)
+f002b40a T Jdb_gzip::write(char const*, unsigned int)
+f002b41e T Jdb_gzip::console()
+f002b454 T Jdb_gzip::get_attributes() const
+f002b45e t __static_initialization_and_destruction_0(int, int)
+f002b47a W Jdb_gzip::~Jdb_gzip()
+f002b494 W Jdb_gzip::~Jdb_gzip()
+f002b4a4 W Jdb_gzip::enable()
+f002b4da W Jdb_gzip::disable()
+f002b4f2 t __tcf_0
+f002b500 t global constructors keyed to _ZN8Jdb_gzip4uartE
+f002b514 T jdb_regex_init(char const*)
+f002b53c T jdb_regex_find(char const*, char const**, char const**)
+f002b590 t __static_initialization_and_destruction_0(int, int)
+f002b5a8 t _GLOBAL__I.00114__ZN9Jdb_regex10_init_doneE
+f002b5c0 t entry_vec00_zero_div
+f002b5c8 t entry_vec02_nmi
+f002b5d0 t entry_vec03_breakpoint
+f002b5d8 t entry_vec04_into
+f002b5e0 t entry_vec05_bounds
+f002b5e8 t entry_vec06_invop
+f002b5f0 t entry_vec09_fpu_ovfl
+f002b5f8 t entry_vec0b_segnp
+f002b600 t entry_vec0c_stack_fault
+f002b608 t entry_vec0d_gen_prot
+f002b610 t entry_vec10_fpu_err
+f002b618 t entry_vec11_align
+f002b620 t entry_vec12_mcheck
+f002b628 t entry_vec13_simd_err
+f002b630 t _slowtraps
+f002b630 T slowtraps
+f002b654 T in_slowtrap
+f002b668 t unexpected_trap_pop
+f002b66c t unexpected_trap
+f002b680 t entry_vec0e_page_fault
+f002b6be T in_page_fault
+f002b6d0 t bad_page_fault
+f002b710 t entry_vec07_fpu_unavail
+f002b718 T in_handle_fputrap
+f002b720 T entry_int_timer
+f002b726 t do_timer_interrupt
+f002b72f T in_timer_interrupt
+f002b740 T entry_int_timer_slow
+f002b74b T in_timer_interrupt_slow
+f002b750 T entry_int_timer_stop
+f002b760 t entry_int1
+f002b768 t entry_int2
+f002b770 t entry_int3
+f002b778 t entry_int4
+f002b780 t entry_int5
+f002b788 t entry_int6
+f002b790 t entry_int7
+f002b798 t entry_int8
+f002b7a0 t entry_int9
+f002b7a8 t entry_inta
+f002b7b0 t entry_intb
+f002b7b8 t entry_intc
+f002b7c0 t entry_intd
+f002b7c8 t entry_inte
+f002b7d0 t entry_intf
+f002b7e0 t all_irqs
+f002b7eb T in_interrupt
+f002b7f0 T entry_sys_ipc_c
+f002b818 T in_sc_ipc1
+f002b830 T entry_sys_ipc_log
+f002b859 T in_slow_ipc4
+f002b870 t all_syscalls
+f002b894 T in_syscall
+f002b894 t ret_from_syscall
+f002b8a0 t entry_sys_id_nearest
+f002b8a8 t entry_sys_fpage_unmap
+f002b8b0 t entry_sys_thread_switch
+f002b8b8 t entry_sys_thread_schedule
+f002b8c0 t entry_sys_thread_ex_regs
+f002b8c8 t entry_sys_task_new
+f002b8d0 t alien_sys_ipc_c
+f002b914 t alien_sys_ipc_log
+f002b959 t alien_sys_call
+f002b9ac T leave_by_trigger_exception
+f002b9d0 T entry_vec01_debug
+f002ba20 T entry_vec0a_invalid_tss
+f002ba2c T entry_vec08_dbf
+f002ba60 T entry_vec0f_apic_spurious_interrupt_bug
+f002ba70 T entry_vec3e_apic_error_interrupt
+f002ba80 T entry_vec3f_apic_spurious_interrupt
+f002ba90 T entry_sys_fast_ipc_log
+f002bacc T in_slow_ipc5
+f002baf1 t alien_sys_fast_ipc_log
+f002bb60 T entry_sys_fast_ipc_c
+f002bb9b T in_sc_ipc2
+f002bbc0 t alien_sys_fast_ipc_c
+f002bc30 T leave_from_sysenter_by_iret
+f002bc60 T tramp_small_after_sysexit_func
+f002bc6d T tramp_small_end
+f002bc70 T fast_ret_from_irq
+f002bc90 T amm_dump
+f002bcf0 T amm_find_gen
+f002be50 T amm_init_gen
+f002bec0 T amm_modify
+f002c120 T amm_split
+f002c210 T amm_alloc_entry
+f002c240 T amm_find_addr
+f002c2c0 T amm_free_entry
+f002c300 T amm_join
+f002c3bd t my_read_memory
+f002c402 t my_get_data
+f002c42f t my_print_address
+f002c4c6 t my_printf
+f002c504 t my_putchar
+f002c527 t special_l4_ops
+f002c77a T disasm_bytes
+f002c8f0 t fetch_data
+f002c970 t ckprefix
+f002cb39 t prefix_name
+f002cc77 T print_insn_i386
+f002cc87 t print_insn
+f002d98d t dofloat
+f002daa5 t OP_ST
+f002dab3 t OP_STi
+f002dae0 t putop
+f002e0a4 t oappend
+f002e0d2 t append_seg
+f002e1a4 t OP_indirE
+f002e1cc t print_operand_value
+f002e1f3 t OP_E
+f002e965 t OP_G
+f002ea61 t get64
+f002eb15 t get32
+f002ebc4 t get32s
+f002ec8c t get16
+f002ecd2 t set_op
+f002ed3a t OP_REG
+f002ee5a t OP_IMREG
+f002ef24 t OP_I
+f002f060 t OP_I64
+f002f193 t OP_sI
+f002f2b3 t OP_J
+f002f39a t OP_SEG
+f002f3b1 t OP_DIR
+f002f413 t OP_OFF
+f002f49e t OP_OFF64
+f002f514 t ptr_reg
+f002f593 t OP_ESreg
+f002f619 t OP_DSreg
+f002f6ac t OP_C
+f002f70c t OP_D
+f002f766 t OP_T
+f002f793 t OP_Rd
+f002f7ab t OP_MMX
+f002f817 t OP_XMM
+f002f862 t OP_EM
+f002f929 t OP_EX
+f002fa0b t OP_MS
+f002fa23 t OP_XS
+f002fa3b t OP_M
+f002fa53 t OP_0f07
+f002fa74 t OP_0fae
+f002fade t NOP_Fixup
+f002faff t OP_3DNowSuffix
+f002fb6e t OP_SIMD_Suffix
+f002fc73 t SIMD_Fixup
+f002fcb9 t PNI_Fixup
+f002fdd2 t INVLPG_Fixup
+f002fe2a t BadOp
+f002fe43 T perror_memory
+f002fe7a T generic_symbol_at_address
+f002fe84 t raw_putchar
+f002fe9b t uu_open
+f002fedd t uu_close
+f002fefc t uu_write
+f0030012 T gzip_calloc
+f003007b T gzip_free
+f00300a7 T gz_init
+f00300e1 T gz_end
+f00300fa T gz_open
+f003020e t gz_flush_outbuffer
+f0030240 T gz_write
+f00302c1 T gz_close
+f003039b T deflateInit2_
+f00305b5 T deflateReset
+f0030645 t putShortMSB
+f003066c t flush_pending
+f00306b6 T deflate
+f00308da T deflateEnd
+f003096a t read_buf
+f00309c5 t lm_init
+f0030a53 t longest_match
+f0030bbb t fill_window
+f0030cd1 t deflate_stored
+f0030e14 t deflate_fast
+f00310dc t deflate_slow
+f0031461 T zcalloc
+f003146e T zcfree
+f003147a T adler32
+f003158e T crc32
+f0031665 t tr_static_init
+f003166a T _tr_init
+f00316dd t init_block
+f003174c t pqdownheap
+f0031815 t gen_bitlen
+f00319bb t gen_codes
+f0031a16 t build_tree
+f0031c11 t scan_tree
+f0031d0c t send_tree
+f0032248 t build_bl_tree
+f00322b3 t send_all_trees
+f0032502 T _tr_stored_block
+f00325a3 T _tr_align
+f00327fe T _tr_flush_block
+f00329f1 t compress_block
+f0032eaa t set_data_type
+f0032f04 t bi_reverse
+f0032f23 t bi_flush
+f0032fa0 t bi_windup
+f0033003 t copy_block
+f003308b t perfctr_lookup_event_set
+f00330ea t perfctr_index_event_set
+f003311e t perfctr_get_max_event_set
+f003313c T perfctr_set_cputype
+f003314b T perfctr_lookup_event
+f0033163 T perfctr_index_event
+f0033179 T perfctr_get_max_event
+f0033187 T perfctr_cpu_event_set
+f003319c t regex_mmap
+f00331e9 t regex_munmap
+f0033216 t regex_mremap
+f00332ef T regex_reset
+f0033318 T regex_init
+f003333c t get_index
+f0033359 t __small_free
+f003339c t __small_malloc
+f003340c T regex_free
+f0033433 T regex_malloc
+f003348d T regex_realloc
+f0033573 t clearcc
+f0033586 t setcc
+f00335a2 t issetcc
+f00335c2 t parsebracketed
+f003368e t matchatom
+f0033836 t parseatom
+f0033951 t matchpiece
+f0033a66 t parsepiece
+f0033ba7 t matchbranch
+f0033c02 t matchempty
+f0033c09 t parsebranch
+f0033cf7 t matchregex
+f0033d76 t parseregex
+f0033e3f t atom_putnext
+f0033e58 t piece_putnext
+f0033e67 t branch_putnext
+f0033ed5 t regex_putnext
+f0033f0c T regcomp
+f0033f3c T regexec
+f0033fc0 T Kip::version_string() const
+f0033fd0 T Kip::print() const
+f0034180 T Ipc_err::str_error() const
+f00341a0 T L4_msgdope::str_error() const
+f00341c0 T L4_uid::d_task()
+f00341d0 T L4_uid::d_task(unsigned long)
+f0034220 T L4_uid::d_thread()
+f0034230 T L4_uid::d_thread(unsigned long)
+f0034280 T L4_uid::print(int) const
+f0034310 T Utcb::print() const
+f0034316 T Mux_console::Mux_console()
+f0034338 T Mux_console::write(char const*, unsigned int)
+f0034378 T Mux_console::getchar(bool)
+f00343dc T Mux_console::get_attributes() const
+f003440a T Mux_console::getchar_chance()
+f0034458 T Mux_console::char_avail() const
+f00344a2 T Mux_console::register_console(Console*, int)
+f00344f8 T Mux_console::change_state(unsigned long, unsigned long, unsigned long, unsigned long)
+f003454a T Mux_console::find_console(unsigned long)
+f0034580 T Mux_console::start_exclusive(unsigned long)
+f00345ae T Mux_console::end_exclusive(unsigned long)
+f00345dc T Mux_console::list_consoles()
+f0034668 W Mux_console::~Mux_console()
+f0034678 W Mux_console::~Mux_console()
+f0034692 T Console::~Console()
+f003469e T Console::~Console()
+f00346aa T Console::~Console()
+f00346ba T Console::state(unsigned long)
+f00346c2 T Console::write(char const*, unsigned int)
+f00346ca T Console::getchar(bool)
+f00346d2 T Console::char_avail() const
+f00346da T Console::get_attributes() const
+f00346e2 T Console::str_mode() const
+f00346f6 T Console::str_state() const
+f0034708 T Console::str_attr(unsigned long) const
+f0034724 T Keyb::getchar(bool)
+f00347c0 W Keyb::~Keyb()
+f00347d0 W Keyb::~Keyb()
+f00347ea T Vga_console::Vga_console(unsigned long, unsigned int, unsigned int, bool, bool)
+f00348b8 T Vga_console::scroll(unsigned int)
+f0034932 T Vga_console::blink_cursor(unsigned int, unsigned int)
+f003495e T Vga_console::esc_write(char const*, unsigned int, unsigned int&)
+f00349a6 T Vga_console::ansi_esc_write(char const*, unsigned int, unsigned int&)
+f0034c78 T Vga_console::normal_write(char const*, unsigned int, unsigned int&)
+f0034dbc T Vga_console::write(char const*, unsigned int)
+f0034e16 T Vga_console::getchar(bool)
+f0034e2a T Vga_console::~Vga_console()
+f0034e3a T Vga_console::~Vga_console()
+f0034e54 T Vga_console::get_attributes() const
+f0034e5e W Vga_console::seq_6(char const*, unsigned int, unsigned int&)
+f0034ebc W Vga_console::seq_1(char const*, unsigned int, unsigned int&)
+f0034ed4 W Vga_console::seq_5(char const*, unsigned int, unsigned int&)
+f0034f18 W Vga_console::ansi_attrib(int)
+f0034fee T pc_reset()
+f003504c T Delay::delay(unsigned int)
+f003508c T Filter_console::char_avail() const
+f00350b2 T Filter_console::Filter_console(Console*, int)
+f00350ea T Filter_console::~Filter_console()
+f00350fa T Filter_console::~Filter_console()
+f0035114 T Filter_console::write(char const*, unsigned int)
+f0035246 T Filter_console::getchar(bool)
+f003549c T Filter_console::get_attributes() const
+f00354aa W Filter_console::getchar_timeout(unsigned int)
+f00354d8 T Uart::get_attributes() const
+f00354e2 T Uart::Uart()
+f0035504 T Uart::~Uart()
+f0035514 T Uart::~Uart()
+f0035524 T Uart::~Uart()
+f003553e T Uart::valid()
+f003559e T Uart::startup(unsigned long, int)
+f0035650 T Uart::change_mode(unsigned int, unsigned int)
+f00356d2 T Uart::write(char const*, unsigned int)
+f0035762 T Uart::getchar(bool)
+f00357c8 T Uart::char_avail() const
+f00357e4 T Keyb::write(char const*, unsigned int)
+f00357ec T Keyb::get_attributes() const
+f0035800 T __cxa_pure_virtual
+f0035810 T operator delete(void*)
+f0035830 T smalloc
+f0035840 T sfree
+f003584d T atexit
+f003587d T __cxa_atexit
+f00358ab T exit
+f00358ef T memmove
+f0035937 T memset
+f003594c T memchr
+f003596e W index
+f003596e T strchr
+f003598a T strcmp
+f003598a W strcoll
+f00359ab T strcpy
+f00359c2 T strlen
+f00359db T strncpy
+f00359db W strxfrm
+f00359f1 T strstr
+f0035a5d T printf
+f0035a6d T vprintf
+f0035a8e T strtol
+f0035aee T strtoul
+f0035bb1 T putchar
+f0035bd6 T puts
+f0035c07 T putstr
+f0035c29 T putnstr
+f0035c32 T static_construction
+f0035c67 T static_destruction
+f0035c9b T sprintf
+f0035cae T snprintf
+f0035cca t swrite
+f0035d0a T vsnprintf
+f0035d4a T vsprintf
+f0035d5b T __isalnum_ascii
+f0035d5b W isalnum
+f0035d7e T __isdigit_ascii
+f0035d7e W isdigit
+f0035d8f T __isprint_ascii
+f0035d8f W isprint
+f0035da0 T __isspace_ascii
+f0035da0 W isspace
+f0035dbd T __isxdigit_ascii
+f0035dbd W isxdigit
+f0035de0 T tolower
+f0035df4 T strcspn
+f0035e5c T __setjmp
+f0035e5c W setjmp
+f0035e79 T longjmp
+f0035e95 T memccpy
+f0035ec8 T __v_printf
+f00363c5 t skip_to
+f00363e6 t write_pad
+f0036445 T __lltostr
+f0036529 T __ltostr
+f00365b4 T __libc_backend_outs
+f00365da T _ecode
+f0036e28 V vtable for Kmem_alloc
+f0037020 V vtable for slab_cache_anon
+f0037100 V vtable for Kmem_slab_simple
+f00371a0 V vtable for Kmem_slab
+f0037290 V vtable for IPC_timeout
+f00372c0 V vtable for Deadline_timeout
+f0037320 V vtable for Timeslice_timeout
+f0037400 V vtable for Context
+f00375e0 V vtable for Thread
+f0037600 V vtable for Receiver
+f00381a0 t Thread::print_state_long(unsigned int)::state_names
+f0038660 V vtable for Irq_alloc
+f00386c0 V vtable for Irq
+f0038820 V vtable for Dirq
+f0038844 T Apic::io_base
+f0038b60 t Apic::reg_lvt_bit_str(unsigned int, unsigned int, int)::delivery_mode
+f0038dc0 V vtable for Kernel_uart
+f0038e80 V vtable for Kernel_thread
+f0038fe0 T Config::kernel_warn_config_string
+f0039300 T Cpu::vendor_ident
+f0039340 T Cpu::vendor_table
+f0039380 T Cpu::exception_strings
+f0039660 V vtable for Kconsole
+f0039770 V vtable for Preemption
+f0039980 t Perf_cnt_arch::mode(unsigned long, char const**, unsigned long*, unsigned long*, unsigned long*, unsigned long*)::mode_str
+f00399a0 V vtable for Perf_cnt_arch
+f00399e0 V vtable for Perf_cnt_p4
+f0039a20 V vtable for Perf_cnt_k7
+f0039a60 V vtable for Perf_cnt_p6
+f0039aa0 V vtable for Perf_cnt_p5
+f0039c80 t X86desc::type_str() const::desc_type
+f003a219 t List_alloc::free(void*, unsigned long)::__func__
+f003a21e t List_alloc::merge()::__func__
+f003a224 t List_alloc::alloc(unsigned long, unsigned int)::__func__
+f003a22a t List_alloc::avail()::__FUNCTION__
+f003a660 V vtable for Observer
+f003a798 V vtable for Jdb_tid_ext
+f003a860 V vtable for Jdb_prompt_ext
+f003abd4 T Breakpoint::mode_names
+f003b040 V vtable for Jdb_set_bp
+f003b1e0 V vtable for Jdb_list_threads
+f003b1fc V Jdb_thread_list::get_mode_str()::mode_str
+f003b250 V vtable for Jdb_module
+f003b680 V vtable for Help_m
+f003b6a0 V vtable for Go_m
+f003b738 t Io_m::action(int, void*&, char const*&, int&)::port_in_fmt
+f003b73c t Io_m::action(int, void*&, char const*&, int&)::port_out_fmt
+f003b740 t Io_m::action(int, void*&, char const*&, int&)::pci_in_fmt
+f003b744 t Io_m::action(int, void*&, char const*&, int&)::pci_out_fmt
+f003b748 t Io_m::action(int, void*&, char const*&, int&)::ack_irq_fmt
+f003b74c t Io_m::action(int, void*&, char const*&, int&)::mask_irq_fmt
+f003b750 t Io_m::action(int, void*&, char const*&, int&)::unmask_irq_fmt
+f003bb58 V vtable for Io_m
+f003bbb0 V vtable for Jdb_kern_info
+f003bbd0 V vtable for Jdb_kern_info_module
+f003bd50 t Jdb_kern_info_pic_state::show()::hex
+f003bd64 t Jdb_kern_info_cpu::show()::scheduler_mode
+f003c040 V vtable for Jdb_kern_info_cpu
+f003c050 V vtable for Jdb_kern_info_idt
+f003c060 V vtable for Jdb_kern_info_gdt
+f003c070 V vtable for Jdb_kern_info_misc
+f003c080 V vtable for Jdb_kern_info_pic_state
+f003c7e0 t Jdb_kern_info_cpu::show_features()::simple
+f003c880 t Jdb_kern_info_cpu::show_features()::extended
+f003c8c0 t Jdb_kern_info_cpu::show_features()::extended_amd
+f003c988 V vtable for Jdb_kern_info_apic
+f003cbc0 t Jdb_kern_info_pci::show()::classes
+f003cc08 V vtable for Jdb_kern_info_pci
+f003cdb8 V vtable for Jdb_kern_info_bench
+f003ce28 V vtable for Jdb_kern_info_dr
+f003d120 V vtable for Jdb_pcm
+f003d360 V vtable for Jdb_dump
+f003d418 V vtable for Jdb_ptab_m
+f003d440 V vtable for Jdb_ptab
+f003d770 V vtable for Jdb_misc_info
+f003d790 V vtable for Jdb_misc_debug
+f003d7b0 V vtable for Jdb_misc_general
+f003d850 V vtable for Jdb_misc_monitor
+f003da38 V vtable for Jdb_mapdb
+f003dbc4 t Jdb_tcb::at_jdb_enter()::tcb_cmd
+f003e370 V vtable for Jdb_tcb
+f003e410 V vtable for Jdb_attach_irq
+f003ec50 V vtable for Jdb_set_trace
+f003ecc8 V vtable for Jdb_counters
+f003ed00 V vtable for Jdb_table
+f003ef48 V vtable for Jdb_bt
+f003f650 V vtable for Jdb_exit_module
+f003fb80 t Jdb_tbuf_show::show()::mode_str
+f003fcd8 V vtable for Jdb_tbuf_show
+f003fdf8 V vtable for Jdb_iomap
+f003fee0 t Jdb_cb::cmds() const::cs
+f003fef8 V vtable for Jdb_cb
+f003ff20 V vtable for Console_buffer
+f003ff60 V vtable for Virq
+f003ffe0 T Jdb_screen::Reg_names
+f0040008 T Jdb_screen::Reg_prefix
+f0040060 V vtable for Push_console
+f0040168 V vtable for Jdb_list_timeouts
+f00401c8 V vtable for Jdb_halt_thread
+f0040200 T Jdb_tbuf_events::log_events
+f00402e0 V vtable for Jdb_kern_info_memory
+f0040300 V vtable for Jdb_kern_info_region
+f0040328 V vtable for Jdb_kern_info_kip
+f0040348 V vtable for Jdb_kern_info_config
+f00403d0 V vtable for Utcb_m
+f00404f8 V vtable for Jdb_bts
+f00405f0 V vtable for Jdb_tetris_m
+f00406b4 t Jdb_disasm::show(unsigned long, unsigned int, int)::line_mode
+f00406c0 t Jdb_disasm::show(unsigned long, unsigned int, int)::syntax_mode
+f0040720 V vtable for Jdb_disasm
+f0040760 V vtable for Jdb_gzip
+f0042140 t dis386
+f0043d40 t dis386_twobyte
+f0045940 t dis386_l4
+f0045980 t onebyte_has_modrm
+f0045a80 t twobyte_has_modrm
+f0045b80 t twobyte_uses_SSE_prefix
+f0045c80 t grps
+f0047260 t prefix_user_table
+f00480e0 t x86_64_table
+f00484e0 t float_mem_mode
+f0048520 t float_reg
+f0048f80 t Suffix3DNow
+f0049540 T deflate_copyright
+f0049580 t configuration_table
+f0049680 t crc_table
+f0049a80 t extra_lbits
+f0049b00 t extra_dbits
+f0049b80 t extra_blbits
+f0049bcc t bl_order
+f0049be0 t static_ltree
+f004a060 t static_dtree
+f004a0e0 T _dist_code
+f004a2e0 T _length_code
+f004a3e0 t base_length
+f004a460 t base_dist
+f004a4e0 t generic_event_set
+f004a500 t cpu_event_set
+f004ca80 t p5_events
+f004cd78 T perfctr_p5_event_set
+f004cda0 t p5mmx_and_mii_events
+f004cef4 t p5mmx_and_mii_event_set
+f004cf20 t p5mmx_events
+f004d088 T perfctr_p5mmx_event_set
+f004d0a0 t mii_events
+f004d154 T perfctr_mii_event_set
+f004dbe0 t p6_um_mesi
+f004dc08 t p6_um_ebl
+f004dc20 t p6_events
+f004e120 T p6_event_set
+f004e140 t ppro_events
+f004e190 T perfctr_ppro_event_set
+f004e1a4 t p2_um_mmx_uops_exec
+f004e1c0 t p2_um_mmx_instr_type_exec
+f004e1f8 t p2_um_fp_mmx_trans
+f004e220 t p2_um_seg_reg_rename
+f004e260 t p2andp3_events
+f004e300 t p2andp3_event_set
+f004e320 t p2_events
+f004e348 T perfctr_p2_event_set
+f004e360 t p3_um_kni_prefetch
+f004e3a0 t p3_events_1
+f004e3c8 t p3_event_set_1
+f004e3dc t p3_um_kni_inst_retired
+f004e400 t p3_events_2
+f004e428 T perfctr_p3_event_set
+f004e440 t pentm_um_mesi_prefetch
+f004e478 t pentm_um_est_trans
+f004e4a0 t pentm_um_sse_inst_ret
+f004e4e0 t pentm_um_sse_comp_inst_ret
+f004e520 t pentm_um_fused_uops
+f004e540 t pentm_events
+f004e770 T pentm_event_set_1
+f004e784 T pentm_event_set_2
+f004e798 T perfctr_pentm_event_set
+f0050ba0 t k7_um_moesi
+f0050be0 t k7_official_events
+f0050dac t k7_official_event_set
+f0050dc0 t k7_um_seg_reg
+f0050e00 t k7_um_system_request
+f0050e40 t k7_um_snoop_hits
+f0050e60 t k7_um_ecc
+f0050e80 t k7_um_invalidates
+f0050ec0 t k7_um_L2_requests
+f0050f20 t k7_unofficial_events
+f00511c8 T perfctr_k7_event_set
+f00511e0 t k8_um_fpu_ops
+f0051218 t k8_um_ecc
+f0051240 t k8_um_prefetch
+f0051260 t k8_um_fpu_instr
+f00512a0 t k8_um_fpu_fastpath
+f00512c0 t k8_um_fpu_exceptions
+f0051300 t k8_um_page_access
+f0051320 t k8_um_turnaround
+f0051340 t k8_um_saturation
+f0051380 t k8_um_sized_commands
+f00513c0 t k8_um_probe
+f0051400 t k8_um_ht
+f0051440 t k8_events
+f005188c T perfctr_k8_event_set
+f00549e0 t p4_um_TC_deliver_mode
+f0054a28 t p4_um_BPU_fetch_request
+f0054a40 t p4_um_ITLB_reference
+f0054a60 t p4_um_memory_cancel
+f0054a78 t p4_um_memory_complete
+f0054a90 t p4_um_load_port_replay
+f0054aa0 t p4_um_store_port_replay
+f0054ac0 t p4_um_MOB_load_replay
+f0054ae8 t p4_um_page_walk_type
+f0054b00 t p4_um_BSQ_cache_reference
+f0054b60 t p4_um_IOQ
+f0054be0 t p4_um_FSB_data_activity
+f0054c20 t p4_um_BSQ
+f0054c90 t p4_um_firm_uop
+f0054ca0 t p4_um_x87_SIMD_moves_uop
+f0054cb8 t p4_um_TC_misc
+f0054cc8 t p4_um_global_power_events
+f0054cd8 t p4_um_tc_ms_xfer
+f0054d00 t p4_um_uop_queue_writes
+f0054d20 t p4_um_branch_type
+f0054d48 t p4_um_resource_stall
+f0054d60 t p4_um_WC_Buffer
+f0054d80 t p4_um_b2b_cycles
+f0054dc0 t p4_um_bnr
+f0054de0 t p4_um_snoop
+f0054e00 t p4_um_response
+f0054e28 t p4_um_nbogus_bogus
+f0054e40 t p4_um_execution_event
+f0054ea0 t p4_um_instr_retired
+f0054ec8 t p4_um_uop_type
+f0054ee0 t p4_um_branch_retired
+f0054f08 t p4_um_mispred_branch_retired
+f0054f20 t p4_um_x87_assist
+f0054f60 t p4_um_machine_clear
+f0054f80 t p4_events
+f0055318 T perfctr_p4_event_set
+f005532c t p4m3_events
+f0055340 T perfctr_p4m3_event_set
+f0055d30 t Kip::print() const::KIPS
+f0055e00 t Ipc_err::str_error() const::str
+f0055e40 t L4_msgdope::str_error() const::str
+f0055ec0 V vtable for Mux_console
+f0055f5c t Console::str_mode() const::mode_str
+f0055f6c t Console::str_state() const::state_str
+f0055f7c t Console::str_attr(unsigned long) const::attr_str
+f0055fa0 V vtable for Console
+f0055fe0 V vtable for Keyb
+f0056020 t keymap
+f00561e0 V vtable for Vga_console
+f0056340 V vtable for Filter_console
+f0056380 V vtable for Uart
+f0056680 D _binary_gblcfg_o_txt_start
+f0056680 T _etext
+f0056869 D _binary_gblcfg_o_txt_end
+f005686c D Boot_info::_mbi_pa
+f0056870 D Boot_info::_flag
+f0056874 D Boot_info::_checksum_ro
+f0056878 D Boot_info::_checksum_rw
+f005687c D Pic::special_fully_nested_mode
+f0056880 D Space_index::spaces
+f0056884 D tmp_phys_pte
+f005688c d Kmem::map_phys_page_tmp(unsigned long, unsigned long)::tmp_phys_pte
+f0056894 D Kmem_alloc::a
+f0056898 D Thread::int3_handler
+f005689c D syscall_table
+f00568b8 D running
+f00568c0 D Apic::timer_divisor
+f00568e0 d Apic::timer_set_divisor(unsigned int)::divisor_tab
+f0056900 D Watchdog::touch
+f0056904 D Watchdog::enable
+f0056908 D Watchdog::disable
+f005690c D Config::tbuf_entries
+f0056910 D Config::char_micro
+f0056914 D Pd_entry::_cpu_global
+f0056918 d exit_question
+f005691c D Perf_cnt::read_pmc
+f0056924 D Perf_cnt::read_pmc_fn
+f005692c D Perf_cnt::perf_type_str
+f0056930 D Perf_cnt_arch::pmc_watchdog
+f0056934 D Perf_cnt_arch::pmc_loadcnt
+f0056938 d p5_read_pmc_fns
+f0056940 d p6_read_pmc_fns
+f0056948 d k7_read_pmc_fns
+f0056958 d p4_read_pmc_fns
+f005695c D Jdb::toplevel_cmds
+f0056960 D Jdb::non_interactive_cmds
+f0056964 D Jdb::esc_iret
+f005696c D Jdb::esc_bt
+f0056972 D Jdb::esc_emph
+f005697a D Jdb::esc_emph2
+f0056982 D Jdb::esc_mark
+f005698a D Jdb::esc_line
+f0056990 D Jdb::esc_symbol
+f0056998 d Jdb_set_bp::cmds() const::cs
+f00569c0 D Jdb_thread_list::_mode
+f00569e0 d Jdb_list_threads::cmds() const::cs
+f0056a10 D Jdb_tbuf::direct_log_entry
+f0056a20 D Jdb_core::short_mode
+f0056a24 D Jdb_core::next_char
+f0056a40 D Jdb_core::esc_prompt
+f0056a60 d Go_m::cmds() const::cs
+f0056a80 d Help_m::cmds() const::cs
+f0056ac0 d Io_m::cmds() const::cs
+f0056af0 d Jdb_kern_info::cmds() const::cs
+f0056b08 d Jdb_pcm::cmds() const::cs
+f0056b20 d Jdb_dump::cmds() const::cs
+f0056b38 d Jdb_ptab_m::cmds() const::cs
+f0056b50 D Jdb_ptab::max_pt_level
+f0056b60 d Jdb_misc_general::cmds() const::cs
+f0056b80 d Jdb_misc_debug::cmds() const::cs
+f0056bc0 d Jdb_misc_info::cmds() const::cs
+f0056bf0 d Jdb_misc_monitor::cmds() const::cs
+f0056c08 d Jdb_mapdb::cmds() const::cs
+f0056c20 d Jdb_tcb::cmds() const::cs
+f0056c38 d Jdb_attach_irq::cmds() const::cs
+f0056c50 D Jdb_ipc_trace::_gthread
+f0056c54 D Jdb_ipc_trace::_task
+f0056c58 D Jdb_pf_trace::_gthread
+f0056c5c D Jdb_unmap_trace::_gthread
+f0056c60 d Jdb_set_trace::cmds() const::cs
+f0056cc0 d Jdb_counters::cmds() const::cs
+f0056cd8 D Kern_cnt::read_kcnt_fn
+f0056ce0 d Jdb_bt::cmds() const::cs
+f0056cf8 D Tb_entry::rdcnt1
+f0056cfc D Tb_entry::rdcnt2
+f0056d00 d Jdb_exit_module::cmds() const::cs
+f0056d20 D Jdb_tbuf_show::_nr_pos
+f0056d48 d Jdb_tbuf_show::show()::time_mode
+f0056d60 d Jdb_tbuf_show::cmds() const::cs
+f0056d90 d Jdb_iomap::cmds() const::cs
+f0056da8 D Jdb_screen::_height
+f0056dac D Jdb_screen::_direct_enabled
+f0056db0 D Jdb_screen::Mword_zero_dmode
+f0056db4 D Jdb_screen::Mword_invalid_dmode
+f0056db8 D Jdb_screen::Mword_adapter_cmode
+f0056dbc D Jdb_screen::Mword_adapter_bmode
+f0056dc0 D Jdb_screen::Mword_not_mapped_cmode
+f0056dc4 D Jdb_screen::Mword_not_mapped_bmode
+f0056dc8 D Jdb_screen::Mword_blank
+f0056dcc D Jdb_screen::Line
+f0056dd0 D Jdb_screen::Root_page_table
+f0056dd4 d Jdb_list_timeouts::cmds() const::cs
+f0056dec d Jdb_halt_thread::cmds() const::cs
+f0056e04 d Utcb_m::cmds() const::cs
+f0056e1c d Jdb_bts::cmds() const::cs
+f0056e40 d tiles
+f0057080 d modes
+f005708c d Jdb_tetris_m::cmds() const::cs
+f00570a4 D Jdb_disasm::show_lines
+f00570a8 d Jdb_disasm::cmds() const::cs
+f00570c0 d intel_names64
+f0057100 d intel_names32
+f0057140 d intel_names16
+f0057180 d intel_names8
+f00571a0 d intel_names8rex
+f00571e0 d intel_names_seg
+f0057200 d intel_index16
+f0057220 d att_names64
+f0057260 d att_names32
+f00572a0 d att_names16
+f00572e0 d att_names8
+f0057300 d att_names8rex
+f0057340 d att_names_seg
+f0057360 d att_index16
+f0057380 d float_mem
+f0057480 d fgrps
+f00575a0 d simd_cmp_op
+f00575c0 d gz_magic
+f00575c8 d my_version.0
+f00575e0 D z_errmsg
+f0057608 d static_l_desc
+f005761c d static_d_desc
+f0057630 d static_bl_desc
+f0057660 d pad_line
+f00576a0 D __CTOR_END__
+f00577c8 D __CTOR_LIST__
+f00577c8 D __DTOR_END__
+f00577cc D __DTOR_LIST__
+f00577cc D _edata
+f0057fe0 b __static_construction_of_class_Startup_stage1__
+f0057fe0 b _stack_end
+f0057fe1 b __static_construction_of_class_Startup_stage2__
+f0058000 B Boot_info::_kmbi
+f0058060 B Cmdline::_cmdline
+f0058160 V guard variable for mapping_tree_allocators::instance()::tree_allocators
+f0058180 V mapping_tree_allocators::instance()::tree_allocators
+f00581a4 b amm_entry_cache
+f00581a8 b mem_alloc_region
+f00581ac b mem_alloc_region_end
+f00581b0 b region_amm
+f00581c8 b end_of_last_region
+f00581cc b region_lock
+f00581e0 b registered_spaces
+f005a1e0 B Kmem::mem_max
+f005a1e4 B Kmem::_himem
+f005a1e8 B KMEM_KDIR
+f005a1ec B Kmem::io_bitmap_delimiter
+f005a1f0 B Kmem_alloc::lmm_lock
+f005a1f4 b _a
+f005a1f8 b guard variable for Kmem_alloc::init()::al
+f005a200 b Kmem_alloc::init()::al
+f005a204 B PHYSMEM_OFFS
+f005a208 b slab_mem
+f005a20c b Kmem_slab::Kmem_slab(unsigned long, unsigned int, unsigned int)::region_initialized
+f005a210 B Helping_lock::threading_system_active
+f005a214 B cpu_lock
+f005a218 B Timeout::first_timeout
+f005a220 b guard variable for timeslice_timeout_init()::the_timeslice_timeout
+f005a228 b timeslice_timeout_init()::the_timeslice_timeout
+f005a240 b __static_construction_of_func_timeslice_timeout_init__
+f005a260 B CONTEXT_CURRENT_SCHED
+f005a264 B Context::_schedule_in_progress
+f005a280 B CONTEXT_PRIO_NEXT
+f005a680 B CONTEXT_PRIO_HIGHEST
+f005a688 B CONTEXT_SWITCH_TIME
+f005a690 B gdb_trap_recover
+f005a694 B Thread::nested_trap_handler
+f005a6a0 b Thread::call_nested_trap_handler(Trap_state*)::nested_handler_stack
+f005b6a0 B Thread::may_enter_jdb
+f005b6a8 b guard variable for mapdb_instance()::mapdb
+f005b6b0 b mapdb_instance()::mapdb
+f005b6c0 b dirq_storage
+f005b940 b Dirq::operator new(unsigned int)::first
+f005b944 B sigma0_task
+f005b948 B sigma0_space
+f005b94c B sigma0_thread
+f005b950 B timeslice_timeout
+f005b954 B boot_stack
+f005b958 B global_utcb_ptr
+f005b960 B apic_spurious_interrupt_bug_cnt
+f005b964 B apic_spurious_interrupt_cnt
+f005b968 B apic_error_cnt
+f005b96c B apic_io_base
+f005b970 B Apic::present
+f005b974 B Apic::good_cpu
+f005b978 B Apic::phys_base
+f005b97c B Apic::type
+f005b980 B Apic::frequency_khz
+f005b984 B Apic::max_lvt
+f005b988 B Apic::scaler_us_to_apic
+f005b990 B ignore_invalid_apic_reg_access
+f005b994 B Watchdog::flags
+f005b998 b __static_construction_of_class_Watchdog__
+f005b9a0 b guard variable for Kernel_uart::uart()::c
+f005b9a8 b Kernel_uart::uart()::c
+f005b9b8 b guard variable for main::kernel
+f005b9c0 b main::kernel
+f005b9c4 B exit_question_active
+f005b9c8 B Config::kernel_id
+f005b9d0 B Config::sigma0_id
+f005b9d8 B Config::boot_id
+f005b9e0 B Config::esc_hack
+f005b9e4 B Config::serial_esc
+f005b9e8 B Config::irq_ack_in_kernel
+f005b9ec B Config::found_vmware
+f005b9ed B Config::apic
+f005b9ee B Config::getchar_does_hlt_works_ok
+f005b9ef B Config::watchdog
+f005b9f0 B Mapped_allocator::_alloc
+f005b9f4 B Vmem_alloc::zero_page
+f005b9f8 B Pdir::_have_superpages
+f005b9fc B Fpu::_owner
+f005ba00 V guard variable for Fpu_alloc::slab_alloc()::my_slab
+f005ba08 V Fpu_alloc::slab_alloc()::my_slab
+f005ba20 B Cpu::_frequency
+f005ba28 B Cpu::_version
+f005ba2c B Cpu::_brand
+f005ba30 B Cpu::_features
+f005ba34 B Cpu::_ext_features
+f005ba38 B Cpu::_ext_amd_features
+f005ba3c B Cpu::_local_features
+f005ba40 B Cpu::_inst_tlb_4k_entries
+f005ba42 B Cpu::_data_tlb_4k_entries
+f005ba44 B Cpu::_inst_tlb_4m_entries
+f005ba46 B Cpu::_data_tlb_4m_entries
+f005ba48 B Cpu::_inst_tlb_4k_4m_entries
+f005ba4a B Cpu::_data_tlb_4k_4m_entries
+f005ba4c B Cpu::_l2_inst_tlb_4k_entries
+f005ba4e B Cpu::_l2_data_tlb_4k_entries
+f005ba50 B Cpu::_l2_inst_tlb_4m_entries
+f005ba52 B Cpu::_l2_data_tlb_4m_entries
+f005ba54 B Cpu::_l1_trace_cache_size
+f005ba56 B Cpu::_l1_trace_cache_asso
+f005ba58 B Cpu::_l1_data_cache_size
+f005ba5a B Cpu::_l1_data_cache_asso
+f005ba5c B Cpu::_l1_data_cache_line_size
+f005ba5e B Cpu::_l1_inst_cache_size
+f005ba60 B Cpu::_l1_inst_cache_asso
+f005ba62 B Cpu::_l1_inst_cache_line_size
+f005ba64 B Cpu::_l2_cache_size
+f005ba66 B Cpu::_l2_cache_asso
+f005ba68 B Cpu::_l2_cache_line_size
+f005ba6c B Cpu::_vendor
+f005ba80 B Cpu::_model_str
+f005baa0 B Cpu::scaler_tsc_to_ns
+f005baa4 B Cpu::scaler_tsc_to_us
+f005baa8 B Cpu::scaler_ns_to_tsc
+f005baac B CPU_DEBUGCTL_BUSY
+f005bab0 B CPU_DEBUGCTL_SET
+f005bab4 B CPU_DEBUGCTL_RESET
+f005bab8 B Cpu::lbr
+f005babc B Cpu::bts
+f005bac0 B Cpu::lbr_active
+f005bac1 B Cpu::btf_active
+f005bac2 B Cpu::bts_active
+f005bac4 B CURRENT_SYSENTER
+f005bac8 B CPU_GDT
+f005bacc B CPU_TSS
+f005bad0 B Cpu::tss_dbf
+f005bae0 B Kconsole::initialized
+f005bae8 b guard variable for Kconsole::console()::cons
+f005bb00 b Kconsole::console()::cons
+f005bb40 B Boot_console::_c
+f005bb48 b guard variable for vga_console()::v
+f005bb60 b vga_console()::v
+f005bba8 b guard variable for herc_console()::v
+f005bbc0 b herc_console()::v
+f005bc08 b __static_construction_of_class_Boot_console__
+f005bc10 b guard variable for Boot_console::init()::k
+f005bc18 b Boot_console::init()::k
+f005bc20 B Irq_alloc::irqs
+f005bc70 B Sched_context::_slabs
+f005bc74 b __static_construction_of_func_allocator_init__
+f005bc78 b __static_construction_of_class_Sys_call_page__
+f005bc80 B Perf_cnt::read_pmc_fns
+f005bc84 B Perf_cnt::perf_event_type
+f005bc88 B Perf_cnt::pcnt
+f005bc90 B Perf_cnt_arch::hold_watchdog
+f005bca0 B Perf_cnt_arch::pmc_event
+f005bcc0 B Perf_cnt_arch::pmc_alloc
+f005bcc4 b perf_cnt_p5
+f005bcd8 b perf_cnt_p6
+f005bcec b perf_cnt_k7
+f005bd00 b perf_cnt_p4
+f005bd14 b __static_construction_of_class_Perf_cnt__
+f005bd18 B BASE_TRAP_HANDLER
+f005bd20 b vkey_irq
+f005bd60 b vkey_buffer
+f005be60 b vkey_tail
+f005be64 b vkey_head
+f005be68 b uart
+f005be80 b __static_construction_of_func_uart_console_init_stage1__
+f005be81 b __static_construction_of_func_uart_console_init_stage2__
+f005be88 b guard variable for uart_console_init_stage1()::fcon
+f005bea0 b uart_console_init_stage1()::fcon
+f005bf00 B Jdb::_connected
+f005bf01 B Jdb::was_input_error
+f005bf02 B Jdb::permanent_single_step
+f005bf03 B Jdb::hide_statline
+f005bf04 B Jdb::use_nested
+f005bf05 B Jdb::jdb_trap_recover
+f005bf06 B Jdb::test_msr
+f005bf07 B Jdb::code_ret
+f005bf08 B Jdb::code_call
+f005bf09 B Jdb::code_bra
+f005bf0a B Jdb::code_int
+f005bf0b B Jdb::never_break
+f005bf0c B Jdb::gdb_trap_ip
+f005bf10 B Jdb::gdb_trap_pfa
+f005bf14 B Jdb::gdb_trap_no
+f005bf18 B Jdb::gdb_trap_err
+f005bf1c B Jdb::ss_state
+f005bf20 B Jdb::ss_level
+f005bf40 B Jdb::error_buffer
+f005bf94 B Jdb::debug_ctrl_str
+f005bf98 B Jdb::debug_ctrl_len
+f005bf9c B Jdb::pic_status
+f005bfa0 B Jdb::jdb_irqs_disabled
+f005bfa4 B Jdb::bp_test_log_only
+f005bfa8 B Jdb::bp_test_sstep
+f005bfac B Jdb::bp_test_break
+f005bfb0 B Jdb::bp_test_other
+f005bfb4 b __static_construction_of_class_Jdb__
+f005bfb8 b guard variable for Jdb::init()::tbuf_irq
+f005bfc0 b guard variable for Jdb::init()::c
+f005bfe0 b Jdb::init()::tbuf_irq
+f005c00c b Jdb::init()::c
+f005c014 b jdb_saved_flags
+f005c018 b Jdb::enter_kdebugger(Trap_state*)::recover_buf
+f005c030 B Jdb::nested_trap_handler
+f005c034 B Jdb::jdb_enter
+f005c038 B Jdb::jdb_leave
+f005c03c B Jdb::current_active
+f005c040 B Jdb::last_cmd
+f005c041 B Jdb::next_cmd
+f005c044 B Jdb::entry_frame
+f005c048 b jdb_tid_ext
+f005c054 B Jdb_prompt_ext::_first
+f005c058 B Jdb_symbol::_task_symbols
+f005c05c B Jdb_lines::_task_lines
+f005c060 b bitmap
+f005c2e0 b __static_construction_of_class_Jdb_dbinfo__
+f005c300 B Jdb_bp::bps
+f005c400 B Jdb_set_bp::breakpoint_cmd
+f005c401 B Jdb_set_bp::breakpoint_restrict_cmd
+f005c404 B Jdb_set_bp::breakpoint_number
+f005c408 B Jdb_set_bp::breakpoint_length
+f005c40c B Jdb_set_bp::breakpoint_restrict_task
+f005c410 B Jdb_set_bp::breakpoint_restrict_thread
+f005c418 B Jdb_set_bp::breakpoint_restrict_reg
+f005c424 B Jdb_set_bp::breakpoint_restrict_addr
+f005c430 B Jdb_set_bp::state
+f005c434 b __static_construction_of_class_Jdb_bp__
+f005c438 b guard variable for Jdb_bp::init()::enter
+f005c440 b guard variable for Jdb_bp::init()::leave
+f005c448 b Jdb_bp::init()::enter
+f005c450 b Jdb_bp::init()::leave
+f005c458 b jdb_set_bp
+f005c468 B Jdb_bp::dr7
+f005c46c B Jdb_list_threads::subcmd
+f005c46d B Jdb_list_threads::long_output
+f005c46e B Jdb_thread_list::_pr
+f005c470 B Jdb_thread_list::_count
+f005c474 B Jdb_thread_list::_t_head
+f005c478 B Jdb_thread_list::_t_start
+f005c47c b jdb_list_threads
+f005c48c B Jdb_tbuf::_tbuf_act
+f005c490 B Jdb_tbuf::_tbuf_max
+f005c494 B Jdb_tbuf::_entries
+f005c498 B Jdb_tbuf::_max_entries
+f005c49c B Jdb_tbuf::_filter_enabled
+f005c4a0 B Jdb_tbuf::_number
+f005c4a4 B Jdb_tbuf::_count_mask1
+f005c4a8 B Jdb_tbuf::_count_mask2
+f005c4ac B Jdb_tbuf::_observer
+f005c4b0 B Jdb_tbuf::_size
+f005c4b4 B Jdb_category::_first
+f005c4b8 B Jdb_module::_first
+f005c4bc b misc_cat
+f005c4e0 b go_m
+f005c4f0 b help_m
+f005c500 b std_cats
+f005c540 B Io_m::porttype
+f005c544 B Io_m::buf
+f005c558 b io_m
+f005c568 B Jdb_kern_info::_subcmd
+f005c56c B Jdb_kern_info::_first
+f005c570 b jdb_kern_info
+f005c580 b k_p
+f005c590 b k_i
+f005c5a0 b k_g
+f005c5b0 b k_I
+f005c5c0 b k_c
+f005c5d0 b k_a
+f005c5e0 b k_P
+f005c5f0 b k_a
+f005c600 b k_d
+f005c610 B Jdb_pcm::subcmd
+f005c611 B Jdb_pcm::prompt_color
+f005c612 B Jdb_pcm::direct_enable
+f005c614 B Jdb_pcm::screen_height
+f005c618 b jdb_pcm
+f005c640 B Jdb_tbuf_output::_format_entry_fn
+f005c6c0 B Jdb_tbuf_output::show_names
+f005c6e0 b console_log_entry(Tb_entry*, char const*)::log_message
+f005c730 b __static_construction_of_class_Jdb_tbuf_output__
+f005c740 B Jdb_input_task_addr::first_char
+f005c741 B Jdb_input_task_addr::first_char_have_task
+f005c744 B Jdb_input_task_addr::task
+f005c748 B Jdb_input_task_addr::addr
+f005c760 B Jdb_input_task_addr::symbol
+f005c7a0 B Jdb_dump::show_adapter_memory
+f005c7c0 b jdb_dump
+f005c7e4 B Jdb_ptab_m::first_char
+f005c7e8 b jdb_ptab_m
+f005c800 B Jdb_misc_general::first_char
+f005c801 B Jdb_misc_debug::first_char
+f005c804 B Jdb_misc_debug::task
+f005c808 B Jdb_misc_info::first_char
+f005c80c B Jdb_misc_info::addr
+f005c810 B Jdb_misc_info::value
+f005c818 B Jdb_misc_info::value64
+f005c820 b jdb_misc_general
+f005c830 b jdb_misc_debug
+f005c840 b jdb_misc_info
+f005c850 B Jdb_misc_monitor::number
+f005c854 B Jdb_misc_monitor::dummy
+f005c855 B Jdb_misc_monitor::enable
+f005c858 b jdb_misc_monitor
+f005c868 B Jdb_mapdb::pagenum
+f005c86c b jdb_mapdb
+f005c880 B Jdb_tcb::threadid
+f005c888 B Jdb_tcb::address
+f005c88c B Jdb_tcb::first_char
+f005c88d B Jdb_tcb::auto_tcb
+f005c890 b guard variable for Jdb_tcb::Jdb_tcb()::enter
+f005c898 b Jdb_tcb::Jdb_tcb()::enter
+f005c8a0 b jdb_tcb
+f005c8b0 B Jdb_attach_irq::subcmd
+f005c8b4 B Jdb_attach_irq::irq
+f005c8b8 b jdb_attach_irq
+f005c8c8 b Jdb_tbuf_init::init(Observer*)::init_done
+f005c8cc B Jdb_ipc_trace::_other_thread
+f005c8d0 B Jdb_ipc_trace::_thread
+f005c8d8 B Jdb_ipc_trace::_other_task
+f005c8dc B Jdb_ipc_trace::_snd_only
+f005c8e0 B Jdb_ipc_trace::_log
+f005c8e4 B Jdb_ipc_trace::_log_to_buf
+f005c8e8 B Jdb_ipc_trace::_log_result
+f005c8ec B Jdb_ipc_trace::_trace
+f005c8f0 B Jdb_ipc_trace::_slow_ipc
+f005c8f4 B Jdb_ipc_trace::_cpath
+f005c8f8 B Jdb_ipc_trace::_cshortcut
+f005c8fc B Jdb_pf_trace::_other_thread
+f005c900 B Jdb_pf_trace::_thread
+f005c908 B Jdb_pf_trace::_addr
+f005c910 B Jdb_pf_trace::_log
+f005c914 B Jdb_pf_trace::_log_to_buf
+f005c918 B Jdb_unmap_trace::_other_thread
+f005c91c B Jdb_unmap_trace::_thread
+f005c924 B Jdb_unmap_trace::_addr
+f005c92c B Jdb_unmap_trace::_log
+f005c930 B Jdb_unmap_trace::_log_to_buf
+f005c934 B Jdb_nextper_trace::_log
+f005c938 B Jdb_set_trace::first_char
+f005c939 B Jdb_set_trace::second_char
+f005c93c b jdb_set_trace
+f005c94c B Jdb_counters::counters_cmd
+f005c950 b jdb_counters
+f005c960 B Kern_cnt::kcnt
+f005c968 B Jdb_bt::dummy
+f005c969 B Jdb_bt::first_char
+f005c96a B Jdb_bt::first_char_addr
+f005c96c B Jdb_bt::addr
+f005c970 B Jdb_bt::tid
+f005c978 B Jdb_bt::task
+f005c97c b jdb_bt
+f005c98c b __static_construction_of_class_Tb_entry_fit__
+f005c990 b __static_construction_of_func_init_formatters__
+f005c994 b jdb_exit_module
+f005c9c0 B Jdb_tbuf_show::_search_str
+f005ca00 B Jdb_tbuf_show::_filter_str
+f005ca40 B Jdb_tbuf_show::_buffer_str
+f005ca90 B Jdb_tbuf_show::_status_type
+f005ca94 B Jdb_tbuf_show::_absy
+f005ca98 B Jdb_tbuf_show::_nr_cur
+f005ca9c B Jdb_tbuf_show::_nr_ref
+f005caa0 b Jdb_tbuf_show::search(unsigned long, unsigned long, char const*, unsigned char)::buffer
+f005cb18 b Jdb_tbuf_show::search(unsigned long, unsigned long, char const*, unsigned char)::progress
+f005cb1c b Jdb_tbuf_show::show()::mode
+f005cb1d b Jdb_tbuf_show::show()::direction
+f005cb20 b jdb_tbuf_show
+f005cb30 B Jdb_iomap::first_char
+f005cb34 B Jdb_iomap::taskno
+f005cb38 b jdb_iomap
+f005cb48 B Console_buffer::_enabled
+f005cb4c B Console_buffer::out_buf_size
+f005cb50 B Console_buffer::out_buf_len
+f005cb54 B Console_buffer::out_buf
+f005cb58 B Console_buffer::out_buf_w
+f005cb5c B Jdb_cb::first_char
+f005cb5d B Jdb_cb::search_str
+f005cb7c B Jdb_cb::output_lines
+f005cb80 b guard variable for Console_buffer::Console_buffer()::enter
+f005cb88 b guard variable for Console_buffer::Console_buffer()::leave
+f005cb90 b Console_buffer::Console_buffer()::enter
+f005cb98 b Console_buffer::Console_buffer()::leave
+f005cba0 b guard variable for Console_buffer::init()::cb
+f005cba8 b Console_buffer::init()::cb
+f005cbb0 b __static_construction_of_class_Console_buffer__
+f005cbb4 b jdb_cb
+f005cbc4 B Push_console::sequence_str
+f005cbc8 B Push_console::sequence_len
+f005cbcc B Push_console::sequence_space
+f005cbd0 B Jdb_timeout_list::_count
+f005cbd4 B Jdb_timeout_list::_t_start
+f005cbd8 b jdb_list_timeouts
+f005cbe8 B Jdb_halt_thread::threadid
+f005cbf0 b jdb_halt_thread
+f005cc00 b lp1
+f005cc08 b lp2
+f005cc10 b le1
+f005cc1c b lp3
+f005cc24 b lp4
+f005cc2c b lp5
+f005cc34 b lp6
+f005cc3c b le2
+f005cc48 b lp7
+f005cc50 b le3
+f005cc5c b lp8
+f005cc64 b le4
+f005cc70 b lp9
+f005cc78 b lp10
+f005cc80 b le5
+f005cc8c b lp11
+f005cc94 b lp12
+f005cc9c b le6
+f005cca8 b lp13
+f005ccb0 b lp14
+f005ccb8 b le7
+f005ccc4 b lp15
+f005cccc b lp16
+f005ccd4 b lp17
+f005ccdc b le8
+f005cce8 b lp18
+f005ccf0 b le9
+f005ccfc b lp23
+f005cd04 b le11
+f005cd10 b k_m
+f005cd20 b k_r
+f005cd30 b k_f
+f005cd40 b k_C
+f005cd50 B Jdb_thread_names::_names
+f005cd54 b __static_construction_of_class_Jdb_thread_names__
+f005cd58 b __static_construction_of_class_Loadcnt__
+f005cd5c B Utcb_m::threadid
+f005cd64 b Utcb_m
+f005cd74 B Jdb_bts::first_char
+f005cd78 B Jdb_bts::_absy
+f005cd7c B Jdb_bts::_addy
+f005cd80 b jdb_bts
+f005cda0 b lines
+f005cda4 b score
+f005cda8 b current_pos
+f005cdac b mode
+f005cdb0 b slice
+f005cdb4 b current_tile
+f005cdb8 b next_tile
+f005cdc0 b grid
+f005d1e0 b next
+f005d2a0 b randseed
+f005d2a8 b guard variable for getchar_timeout()::to
+f005d2b0 b getchar_timeout()::to
+f005d2b4 b jdb_tetris_m
+f005d2c4 B Jdb_disasm::show_intel_syntax
+f005d2c8 b jdb_disasm
+f005d2d8 B Jdb_gzip::uart
+f005d2e0 b guard variable for Jdb_gzip::console()::c
+f005d2e8 b Jdb_gzip::console()::c
+f005d2f4 b __static_construction_of_class_Jdb_gzip__
+f005d300 B Jdb_regex::_init_done
+f005d320 B Jdb_regex::_r
+f005d340 B Jdb_regex::_matches
+f005d348 b __static_construction_of_class_Jdb_regex__
+f005e34c B dbf_stack_top
+f005e360 b out_buf
+f005e364 b out_len
+f005e368 b use_syms
+f005e36c b dis_task
+f005e380 b dis_info
+f005e3f8 b dis_peek_task
+f005e3fc b dis_get_symbol
+f005e400 b mode_64bit
+f005e404 b prefixes
+f005e408 b rex
+f005e40c b rex_used
+f005e410 b used_prefixes
+f005e420 b obuf
+f005e484 b obufp
+f005e4a0 b scratchbuf
+f005e504 b start_codep
+f005e508 b insn_codep
+f005e50c b codep
+f005e510 b the_info
+f005e514 b mod
+f005e518 b rm
+f005e51c b reg
+f005e520 b need_modrm
+f005e524 b names64
+f005e528 b names32
+f005e52c b names16
+f005e530 b names8
+f005e534 b names8rex
+f005e538 b names_seg
+f005e53c b index16
+f005e540 b op1out
+f005e5c0 b op2out
+f005e640 b op3out
+f005e6a4 b op_ad
+f005e6a8 b op_index
+f005e6b4 b two_source_ops
+f005e6b8 b op_address
+f005e6d0 b op_riprel
+f005e6e8 b start_pc
+f005e6f0 b intel_syntax
+f005e6f1 b open_char
+f005e6f2 b close_char
+f005e6f3 b separator_char
+f005e6f4 b scale_char
+f005e700 b gz_crc
+f005e720 b buf.0
+f005e760 b gz_stream
+f005e7a0 b gz_out_buffer
+f005e7d0 b raw_write
+f005e7e0 b malloc_array
+f005e820 b malloc_ptr
+f005e824 b malloc_init_ptr
+f005e828 b malloc_size
+f005e82c b malloc_init_size
+f005e830 b event_set
+f005e840 b __small_mem
+f005e860 b linear_mem
+f005e864 b linear_mem_pages
+f005e868 b linear_mem_free
+f005e86c B GLOBAL_KIP
+f005e870 B Console::stdout
+f005e874 B Console::stderr
+f005e878 B Console::stdin
+f005e87c b Keyb::getchar(bool)::shift_state
+f005e880 B Delay::count
+f005e884 b Filter_console::write(char const*, unsigned int)::seq
+f005e898 V __dso_handle
+f005e8a0 b __atexitlist
+f005eb20 b atexit_counter
+f005eb24 b construction_done
+f005eb30 A _end
+f005f000 T static_init_class_Startup_stage1::static_init_class_Startup_stage1()
+f005f000 A _initcall_start
+f005f010 T static_init_class_Startup_stage1::static_init_class_Startup_stage1()
+f005f020 T static_init_class_Startup_stage2::static_init_class_Startup_stage2()
+f005f030 T static_init_class_Startup_stage2::static_init_class_Startup_stage2()
+f005f040 T Startup::stage1()
+f005f060 T Startup::stage2()
+f005f0b0 T Boot_info::init()
+f005f120 T Cmdline::init(char const*)
+f005f140 T __main
+f005f180 T Pic::init()
+f005f1a0 t detect_vmware()
+f005f250 T Pic::pic_init(unsigned char, unsigned char)
+f005f390 T Kmem::init()
+f005f710 T Kmem_alloc::init()
+f005f740 t set_version_and_features()
+f005f790 T Kip_init::init()
+f005f8e0 T Timer::init()
+f005f930 t timeslice_timeout_init()
+f005f960 T static_init_func_timeslice_timeout_init::static_init_func_timeslice_timeout_init()
+f005f970 T static_init_func_timeslice_timeout_init::static_init_func_timeslice_timeout_init()
+f005f980 T call_bootstrap
+f005fa20 T Kernel_thread::bootstrap_arch()
+f005fa80 T Banner::init()
+f005fac0 T Dirq::init()
+f005faf2 T Apic::map_apic_page()
+f005fb2c T Apic::test_cpu()
+f005fb9a T Apic::get_maxlvt()
+f005fbbc T Apic::check_working()
+f005fc1a T Apic::init_spiv()
+f005fc3c T Apic::enable_errors()
+f005fca4 T Apic::route_pic_through_apic()
+f005fcfc T Apic::init_lvt()
+f005fd72 T Apic::activate_by_msr()
+f005fd9e T Apic::check_still_getting_interrupts()
+f005fe10 T Apic::calibrate_timer()
+f005fedc T Apic::init()
+f005ffb4 T static_init_class_Watchdog::static_init_class_Watchdog()
+f005ffbe T static_init_class_Watchdog::static_init_class_Watchdog()
+f005ffc8 T Watchdog::init()
+f0060040 T Pit::setup_channel2_to_20hz()
+f0060060 T main
+f00601e0 T Config::init()
+f0060270 T Config::init_arch()
+f00602b0 T Vmem_alloc::init()
+f0060300 T Fpu::init()
+f0060330 T Cpu::cache_tlb_intel()
+f00604b0 T Cpu::cache_tlb_l1()
+f0060560 T Cpu::cache_tlb_l2(Cpu::Vendor)
+f0060610 T Cpu::set_model_str(Cpu::Vendor, unsigned int, unsigned short)
+f0060680 T Cpu::identify()
+f00609b0 T Cpu::init()
+f0060a30 T Cpu::init_sysenter(unsigned long)
+f0060a80 T Cpu::calibrate_tsc()
+f0060b30 T Cpu::init_gdt(unsigned long, unsigned long)
+f0060bf0 T Cpu::init_tss(unsigned long, unsigned int)
+f0060c50 T Cpu::init_tss_dbf(unsigned long, unsigned long)
+f0060cf0 T static_init_class_Boot_console::static_init_class_Boot_console()
+f0060d00 T static_init_class_Boot_console::static_init_class_Boot_console()
+f0060d10 T Boot_console::init()
+f0060dc0 T Irq_alloc::init()
+f0060de0 T static_init_func_allocator_init::static_init_func_allocator_init()
+f0060df0 T static_init_func_allocator_init::static_init_func_allocator_init()
+f0060e00 T allocator_init()
+f0060e30 T Utcb_init::init()
+f0060eb0 T static_init_class_Sys_call_page::static_init_class_Sys_call_page()
+f0060ec0 T static_init_class_Sys_call_page::static_init_class_Sys_call_page()
+f0060ed0 T Sys_call_page::init()
+f0061050 T Perf_cnt_p5::init()
+f0061066 T Perf_cnt_p6::init()
+f00610a0 T Perf_cnt_p4::init()
+f0061156 T static_init_class_Perf_cnt::static_init_class_Perf_cnt()
+f0061160 T static_init_class_Perf_cnt::static_init_class_Perf_cnt()
+f006116a T Perf_cnt::init()
+f00613d0 T Idt::init_table(Idt_init_entry*)
+f0061470 T Idt::init()
+f00614c0 T static_init_func_uart_console_init_stage1::static_init_func_uart_console_init_stage1()
+f00614d0 T static_init_func_uart_console_init_stage1::static_init_func_uart_console_init_stage1()
+f00614e0 T static_init_func_uart_console_init_stage2::static_init_func_uart_console_init_stage2()
+f00614f0 T static_init_func_uart_console_init_stage2::static_init_func_uart_console_init_stage2()
+f00614fa T static_init_class_Jdb::static_init_class_Jdb()
+f0061504 T static_init_class_Jdb::static_init_class_Jdb()
+f006150e T Jdb::init()
+f00615f2 T static_init_class_Jdb_dbinfo::static_init_class_Jdb_dbinfo()
+f00615fc T static_init_class_Jdb_dbinfo::static_init_class_Jdb_dbinfo()
+f0061606 T Jdb_dbinfo::init()
+f0061682 T static_init_class_Jdb_bp::static_init_class_Jdb_bp()
+f006168c T static_init_class_Jdb_bp::static_init_class_Jdb_bp()
+f0061696 T Jdb_bp::init()
+f00616fc T Jdb_set_bp::Jdb_set_bp()
+f006171c T Jdb_set_bp::Jdb_set_bp()
+f006173c T Jdb_list_threads::Jdb_list_threads()
+f0061756 T Jdb_list_threads::Jdb_list_threads()
+f0061770 T Jdb_category::Jdb_category(char const*, char const*, unsigned int)
+f00617cc T Jdb_category::Jdb_category(char const*, char const*, unsigned int)
+f0061828 T Jdb_module::Jdb_module(char const*)
+f0061866 T Jdb_module::Jdb_module(char const*)
+f00618a4 T Go_m::Go_m()
+f00618be T Go_m::Go_m()
+f00618d8 T Help_m::Help_m()
+f00618f2 T Help_m::Help_m()
+f006190c T Io_m::Io_m()
+f0061926 T Io_m::Io_m()
+f0061940 T Jdb_kern_info_module::Jdb_kern_info_module(char, char const*)
+f0061952 T Jdb_kern_info_module::Jdb_kern_info_module(char, char const*)
+f0061964 T Jdb_kern_info::Jdb_kern_info()
+f006197e T Jdb_kern_info::Jdb_kern_info()
+f0061998 T Jdb_pcm::Jdb_pcm()
+f00619b2 T Jdb_pcm::Jdb_pcm()
+f00619cc T static_init_class_Jdb_tbuf_output::static_init_class_Jdb_tbuf_output()
+f00619d6 T static_init_class_Jdb_tbuf_output::static_init_class_Jdb_tbuf_output()
+f00619e0 T Jdb_tbuf_output::init()
+f0061a0c T Jdb_dump::Jdb_dump()
+f0061a38 T Jdb_dump::Jdb_dump()
+f0061a64 T Jdb_ptab_m::Jdb_ptab_m()
+f0061a7e T Jdb_ptab_m::Jdb_ptab_m()
+f0061a98 T Jdb_misc_general::Jdb_misc_general()
+f0061ab2 T Jdb_misc_general::Jdb_misc_general()
+f0061acc T Jdb_misc_debug::Jdb_misc_debug()
+f0061ae6 T Jdb_misc_debug::Jdb_misc_debug()
+f0061b00 T Jdb_misc_info::Jdb_misc_info()
+f0061b1a T Jdb_misc_info::Jdb_misc_info()
+f0061b34 T Jdb_misc_monitor::Jdb_misc_monitor()
+f0061b4e T Jdb_misc_monitor::Jdb_misc_monitor()
+f0061b68 T Jdb_mapdb::Jdb_mapdb()
+f0061b82 T Jdb_mapdb::Jdb_mapdb()
+f0061b9c T Jdb_attach_irq::Jdb_attach_irq()
+f0061bb6 T Jdb_attach_irq::Jdb_attach_irq()
+f0061bd0 T Jdb_tbuf_init::init(Observer*)
+f0061d84 T Jdb_set_trace::Jdb_set_trace()
+f0061d9e T Jdb_set_trace::Jdb_set_trace()
+f0061db8 T Jdb_counters::Jdb_counters()
+f0061dd2 T Jdb_counters::Jdb_counters()
+f0061dec T Jdb_bt::Jdb_bt()
+f0061e0c T Jdb_bt::Jdb_bt()
+f0061e2c T static_init_class_Tb_entry_fit::static_init_class_Tb_entry_fit()
+f0061e36 T static_init_class_Tb_entry_fit::static_init_class_Tb_entry_fit()
+f0061e40 T Tb_entry_fit::init()
+f0061e4a T Tb_entry_fit::init_arch()
+f0061e50 T static_init_func_init_formatters::static_init_func_init_formatters()
+f0061e56 T static_init_func_init_formatters::static_init_func_init_formatters()
+f0061e5c t init_formatters()
+f0061f6e T Jdb_exit_module::Jdb_exit_module()
+f0061f88 T Jdb_exit_module::Jdb_exit_module()
+f0061fa2 T Jdb_tbuf_show::Jdb_tbuf_show()
+f0061fbc T Jdb_tbuf_show::Jdb_tbuf_show()
+f0061fd6 T Jdb_iomap::Jdb_iomap()
+f0061ff0 T Jdb_iomap::Jdb_iomap()
+f006200a T Console_buffer::init()
+f006204e T static_init_class_Console_buffer::static_init_class_Console_buffer()
+f0062058 T static_init_class_Console_buffer::static_init_class_Console_buffer()
+f0062062 T Jdb_cb::Jdb_cb()
+f006207c T Jdb_cb::Jdb_cb()
+f0062096 T Jdb_list_timeouts::Jdb_list_timeouts()
+f00620b0 T Jdb_list_timeouts::Jdb_list_timeouts()
+f00620ca T Jdb_halt_thread::Jdb_halt_thread()
+f00620e4 T Jdb_halt_thread::Jdb_halt_thread()
+f00620fe T Jdb_thread_names::init()
+f0062142 T static_init_class_Jdb_thread_names::static_init_class_Jdb_thread_names()
+f006214c T static_init_class_Jdb_thread_names::static_init_class_Jdb_thread_names()
+f0062156 T static_init_class_Loadcnt::static_init_class_Loadcnt()
+f0062160 T static_init_class_Loadcnt::static_init_class_Loadcnt()
+f006216a T Loadcnt::init()
+f0062188 T Utcb_m::Utcb_m()
+f00621a2 T Utcb_m::Utcb_m()
+f00621bc T Jdb_bts::Jdb_bts()
+f00621e4 T Jdb_bts::Jdb_bts()
+f006220c T Jdb_bts::allocate()
+f00622ba T Jdb_tetris_m::Jdb_tetris_m()
+f00622d4 T Jdb_tetris_m::Jdb_tetris_m()
+f00622ee T Jdb_disasm::Jdb_disasm()
+f0062308 T Jdb_disasm::Jdb_disasm()
+f0062322 T Jdb_gzip::init()
+f0062342 T static_init_class_Jdb_gzip::static_init_class_Jdb_gzip()
+f006234c T static_init_class_Jdb_gzip::static_init_class_Jdb_gzip()
+f0062356 T static_init_class_Jdb_regex::static_init_class_Jdb_regex()
+f0062360 T static_init_class_Jdb_regex::static_init_class_Jdb_regex()
+f006236a T Jdb_regex::init()
+f00623a6 T Delay::init()
+f0062420 T Cpu::intel_table
+f0062cc0 T Cpu::amd_table
+f00632e0 T Cpu::cyrix_table
+f00633e0 T Cpu::via_table
+f00635c0 T Cpu::umc_table
+f0063640 T Cpu::nexgen_table
+f00636a0 T Cpu::rise_table
+f0063780 T Cpu::transmeta_table
+f0063840 T Cpu::sis_table
+f00638a0 T Cpu::nsc_table
+f0063960 T Cpu::intel_cache_table
+f0063ab0 T idt_init_table
+f0063c1c T sys_call_ipc
+f0063c1f T sys_call_id_nearest
+f0063c1f T sys_call_ipc_end
+f0063c22 T sys_call_fpage_unmap
+f0063c22 T sys_call_id_nearest_end
+f0063c25 T sys_call_fpage_unmap_end
+f0063c25 T sys_call_thread_switch
+f0063c28 T sys_call_thread_schedule
+f0063c28 T sys_call_thread_switch_end
+f0063c2b T sys_call_lthread_ex_regs
+f0063c2b T sys_call_thread_schedule_end
+f0063c2e T sys_call_lthread_ex_regs_end
+f0063c2e T sys_call_task_new
+f0063c31 T sys_call_privctrl
+f0063c31 T sys_call_task_new_end
+f0063c34 T sys_call_privctrl_end
+f0063c34 T sys_call_se_ipc
+f0063c46 T _initkip_start
+f0063c46 T sys_call_se_ipc_end
+f0063d77 T _initkip_end
+f0064000 A _initcall_end
