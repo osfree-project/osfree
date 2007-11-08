@@ -9,6 +9,8 @@ public   printmsg
 public   printb
 public   printw
 public   printd
+public   printhex8
+
 extrn    call_rm       :near
 
 .386
@@ -18,6 +20,8 @@ include fsd.inc
 _TEXT16  segment byte public 'CODE'  use16
 
 message:
+        push    ebx
+        push    esi
         ; convert FLAT pointer in esi
         ; to far pointer in ds:si
         mov     eax, esi
@@ -37,6 +41,10 @@ mess1:
         lodsb
         or      al, al
         jne     up1              ; if not end of string, jmp to display
+
+        pop     esi
+        pop     ebx
+        
         retf
 
 ;
@@ -92,6 +100,7 @@ printmsg proc near
         push    ebp
         mov     ebp, esp
 
+        push    esi
         mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
@@ -101,6 +110,7 @@ printmsg proc near
         xor     eax, eax
         call    call_rm
         add     esp, 4
+        pop     esi
 
         pop     ebp
 
@@ -115,6 +125,7 @@ printb  proc near
         push    ebp
         mov     ebp, esp
 
+        push    esi
         mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
@@ -124,6 +135,7 @@ printb  proc near
         xor     eax, eax
         call    call_rm
         add     esp, 4
+        pop     esi
 
         pop     ebp
 
@@ -138,6 +150,7 @@ printw  proc near
         push    ebp
         mov     ebp, esp
 
+        push    esi
         mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
@@ -147,6 +160,7 @@ printw  proc near
         xor     eax, eax
         call    call_rm
         add     esp, 4
+        pop     esi
 
         pop     ebp
 
@@ -161,6 +175,7 @@ printd  proc near
         push    ebp
         mov     ebp, esp
 
+        push    esi
         mov     esi, [ebp + 8]
         ; enter real mode
         mov     eax, STAGE0_BASE
@@ -170,6 +185,7 @@ printd  proc near
         xor     eax, eax
         call    call_rm
         add     esp, 4
+        pop     esi
 
         pop     ebp
 

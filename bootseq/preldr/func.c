@@ -5,6 +5,11 @@
 
 #include <shared.h>
 #include <filesys.h>
+#include "fsys.h"
+
+int  stage0_mount (void);
+int  stage0_read (char *buf, int len);
+int  stage0_dir (char *dirname);
 
 void (*disk_read_func) (int, int, int);
 void (*disk_read_hook) (int, int, int);
@@ -22,10 +27,11 @@ int buf_track;
 struct geometry buf_geom;
 
 grub_error_t errnum;
-//int print_possibilities;
+int print_possibilities;
 
 unsigned long saved_drive;
 unsigned long saved_partition;
+unsigned long cdrom_drive;
 
 unsigned long current_drive;
 unsigned long current_partition;
@@ -46,6 +52,8 @@ static int block_file = 0;
 static inline unsigned long
 log2 (unsigned long word);
 
+static int do_completion;
+
 /* FIXME: BSD evil hack */
 #include "freebsd.h"
 int bsd_evil_hack;
@@ -55,6 +63,9 @@ struct fsys_entry fsys_table[NUM_FSYS + 1] =
   /* TFTP should come first because others don't handle net device.  */
 # ifdef FSYS_TFTP
   {"tftp", tftp_mount, tftp_read, tftp_dir, tftp_close, 0},
+# endif
+# ifdef STAGE0
+  {"stage0", stage0_mount, stage0_read, stage0_dir, 0, 0},
 # endif
 # ifdef FSYS_FAT
   {"fat", fat_mount, fat_read, fat_dir, 0, 0},
@@ -93,15 +104,15 @@ struct fsys_entry fsys_table[NUM_FSYS + 1] =
 
 /* These are defined in asm.S, and never be used elsewhere, so declare the
    prototypes here.  */
-extern int biosdisk_int13_extensions (int ax, int drive, void *dap);
-extern int biosdisk_standard (int ah, int drive,
-                              int coff, int hoff, int soff,
-                              int nsec, int segment);
-extern int check_int13_extensions (int drive);
-extern int get_diskinfo_standard (int drive,
-                                  unsigned long *cylinders,
-                                  unsigned long *heads,
-                                  unsigned long *sectors);
+//extern int biosdisk_int13_extensions (int ax, int drive, void *dap);
+//extern int biosdisk_standard (int ah, int drive,
+//                              int coff, int hoff, int soff,
+//                              int nsec, int segment);
+//extern int check_int13_extensions (int drive);
+//extern int get_diskinfo_standard (int drive,
+//                                  unsigned long *cylinders,
+//                                  unsigned long *heads,
+//                                  unsigned long *sectors);
 
 int
 rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
@@ -310,6 +321,108 @@ safe_parse_maxint (char **str_ptr, int *myint_ptr)
 
   return 1;
 }
+
+
+#ifndef STAGE1_5
+int
+rawwrite (int drive, int sector, char *buf)
+{
+  if (sector == 0)
+    {
+      if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, SCRATCHSEG))
+        {
+          errnum = ERR_WRITE;
+          return 0;
+        }
+
+      if (PC_SLICE_TYPE (SCRATCHADDR, 0) == PC_SLICE_TYPE_EZD
+          || PC_SLICE_TYPE (SCRATCHADDR, 1) == PC_SLICE_TYPE_EZD
+          || PC_SLICE_TYPE (SCRATCHADDR, 2) == PC_SLICE_TYPE_EZD
+          || PC_SLICE_TYPE (SCRATCHADDR, 3) == PC_SLICE_TYPE_EZD)
+        sector = 1;
+    }
+
+  memmove ((char *) SCRATCHADDR, buf, SECTOR_SIZE);
+  if (biosdisk (BIOSDISK_WRITE, drive, &buf_geom,
+                sector, 1, SCRATCHSEG))
+    {
+      errnum = ERR_WRITE;
+      return 0;
+    }
+
+  if (sector - sector % buf_geom.sectors == buf_track)
+    /* Clear the cache.  */
+    buf_track = -1;
+
+  return 1;
+}
+
+int
+devwrite (int sector, int sector_count, char *buf)
+{
+#if defined(GRUB_UTIL) && defined(__linux__)
+  if (current_partition != 0xFFFFFF
+      && is_disk_device (device_map, current_drive))
+    {
+      /* If the grub shell is running under Linux and the user wants to
+         embed a Stage 1.5 into a partition instead of a MBR, use system
+         calls directly instead of biosdisk, because of the bug in
+         Linux. *sigh*  */
+      return write_to_partition (device_map, current_drive, current_partition,
+                                 sector, sector_count, buf);
+    }
+  else
+#endif /* GRUB_UTIL && __linux__ */
+    {
+      int i;
+
+      for (i = 0; i < sector_count; i++)
+        {
+          if (! rawwrite (current_drive, part_start + sector + i,
+                          buf + (i << SECTOR_BITS)))
+              return 0;
+
+        }
+      return 1;
+    }
+}
+
+static int
+sane_partition (void)
+{
+  /* network drive */
+  if (current_drive == NETWORK_DRIVE)
+    return 1;
+
+  if (!(current_partition & 0xFF000000uL)
+      && ((current_drive & 0xFFFFFF7F) < 8
+          || current_drive == cdrom_drive)
+      && (current_partition & 0xFF) == 0xFF
+      && ((current_partition & 0xFF00) == 0xFF00
+          || (current_partition & 0xFF00) < 0x800)
+      && ((current_partition >> 16) == 0xFF
+          || (current_drive & 0x80)))
+    return 1;
+
+  errnum = ERR_DEV_VALUES;
+  return 0;
+}
+
+
+static void
+check_and_print_mount (int flags)
+{
+  attempt_mount ();
+  if (errnum == ERR_FSYS_MOUNT)
+    errnum = ERR_NONE;
+  //if (!errnum)
+  //  print_fsys_type ();
+  //if (!flags)
+  //print_error ();
+}
+
+#endif /* ! STAGE1_5 */
+
 
 
 static void
@@ -565,6 +678,10 @@ int next (int *bsd_part, int *pc_slice,
     return ret;
 }
 
+#ifndef STAGE1_5
+static unsigned long cur_part_offset;
+static unsigned long cur_part_addr;
+#endif
 
 /* Open a partition.  */
 int
@@ -635,9 +752,9 @@ real_open_partition (int flags)
             {
               if (! do_completion)
                 {
-                  if (current_drive & 0x80)
-                    grub_printf ("   Partition num: %d, ",
-                                 current_partition >> 16);
+                  //if (current_drive & 0x80)
+                  //  grub_printf ("   Partition num: %d, ",
+                  //               current_partition >> 16);
 
                   if (! IS_PC_SLICE_TYPE_BSD (current_slice))
                     check_and_print_mount (flags);
@@ -657,18 +774,18 @@ real_open_partition (int flags)
 
                           if (! got_part)
                             {
-                              grub_printf ("[BSD sub-partitions immediately follow]\n");
+                              //grub_printf ("[BSD sub-partitions immediately follow]\n");
                               got_part = 1;
                             }
 
-                          grub_printf ("     BSD Partition num: \'%c\', ",
-                                       bsd_part + 'a');
+                          //grub_printf ("     BSD Partition num: \'%c\', ",
+                          //             bsd_part + 'a');
                           check_and_print_mount (flags);
                         }
 
-                      if (! got_part)
-                        grub_printf (" No BSD sub-partition found, partition type 0x%x\n",
-                                     saved_slice);
+                      //if (! got_part)
+                      //  grub_printf (" No BSD sub-partition found, partition type 0x%x\n",
+                      //               saved_slice);
 
                       if (errnum)
                         {
@@ -679,28 +796,28 @@ real_open_partition (int flags)
                       goto loop_start;
                     }
                 }
-              else
-                {
-                  if (bsd_part != 0xFF)
-                    {
-                      char str[16];
+              //else
+              //  {
+                  //if (bsd_part != 0xFF)
+                  //  {
+                      //char str[16];
 
-                      if (! (current_drive & 0x80)
-                          || (dest_partition >> 16) == pc_slice)
-                        grub_sprintf (str, "%c)", bsd_part + 'a');
-                      else
-                        grub_sprintf (str, "%d,%c)",
-                                      pc_slice, bsd_part + 'a');
-                      print_a_completion (str);
-                    }
-                  else if (! IS_PC_SLICE_TYPE_BSD (current_slice))
-                    {
-                      char str[8];
+                      //if (! (current_drive & 0x80)
+                      //    || (dest_partition >> 16) == pc_slice)
+                      //  grub_sprintf (str, "%c)", bsd_part + 'a');
+                      //else
+                      //  grub_sprintf (str, "%d,%c)",
+                      //                pc_slice, bsd_part + 'a');
+                      //print_a_completion (str);
+                  //  }
+                  //else if (! IS_PC_SLICE_TYPE_BSD (current_slice))
+                  //  {
+                  //    char str[8];
 
-                      grub_sprintf (str, "%d)", pc_slice);
-                      print_a_completion (str);
-                    }
-                }
+                  //    grub_sprintf (str, "%d)", pc_slice);
+                  //    print_a_completion (str);
+                  //  }
+              //  }
             }
 
           errnum = ERR_NONE;
@@ -747,6 +864,18 @@ open_partition (void)
 {
   return real_open_partition (0);
 }
+
+#ifndef STAGE1_5
+/* XX used for device completion in 'set_device' and 'print_completions' */
+static int incomplete, disk_choice;
+static enum
+{
+  PART_UNSPECIFIED = 0,
+  PART_DISK,
+  PART_CHOSEN,
+}
+part_choice;
+#endif /* ! STAGE1_5 */
 
 
 /*
@@ -1023,10 +1152,10 @@ devread (int sector, int byte_offset, int byte_len, char *buf)
   sector += byte_offset >> SECTOR_BITS;
   byte_offset &= SECTOR_SIZE - 1;
 
-#if !defined(STAGE1_5)
-  if (disk_read_hook && debug)
-    printf ("<%d, %d, %d>", sector, byte_offset, byte_len);
-#endif /* !STAGE1_5 */
+//#if !defined(STAGE1_5)
+//  if (disk_read_hook && debug)
+//    printf ("<%d, %d, %d>", sector, byte_offset, byte_len);
+//#endif /* !STAGE1_5 */
 
   /*
    *  Call RAWREAD, which is very similar, but:
@@ -1059,7 +1188,30 @@ substring (const char *s1, const char *s2)
 
   /* S1 isn't a substring. */
   return 1;
+
 }
+
+
+#ifndef STAGE1_5
+int
+grub_strlen (const char *str)
+{
+  int len = 0;
+
+  while (*str++)
+    len++;
+
+  return len;
+}
+
+
+char *
+grub_strcpy (char *dest, const char *src)
+{
+  grub_memmove (dest, src, grub_strlen (src) + 1);
+  return dest;
+}
+#endif /* ! STAGE1_5 */
 
 
 int
@@ -1096,9 +1248,10 @@ long
 grub_memcheck (unsigned long addr, long len)
 {
     // Physical address:
-    if ( (addr < RAW_ADDR (0x1000))
-        || ((addr <  RAW_ADDR (0x100000)) && (RAW_ADDR(mem_lower * 1024) < (addr + len)))
-        || ((addr >= RAW_ADDR (0x100000)) && (RAW_ADDR(mem_upper * 1024) < ((addr - 0x100000) + len))) )
+    //if ( (addr < RAW_ADDR (0x1000))
+    if ( (addr < RAW_ADDR (0x600)) )
+    //    || ((addr <  RAW_ADDR (0x100000)) && (RAW_ADDR(mem_lower * 1024) < (addr + len)))
+    //    || ((addr >= RAW_ADDR (0x100000)) && (RAW_ADDR(mem_upper * 1024) < ((addr - 0x100000) + len))) )
     {
         errnum = ERR_WONT_FIT;
         //printk("freeldr_memcheck: ERR_WONT_FIT");
@@ -1208,17 +1361,18 @@ int
 grub_open (char *filename)
 {
 #ifndef STAGE1_5
-  const int buf_size = 1500;
+#define buf_size 1500
+//const int buf_size = 1500;
   const char *try_filenames[] = { "menu.lst", "m" };
   char fn[buf_size]; /* arbitrary... */
   char *filename_orig = filename;
   int trycount = 0;
 
-  if (grub_strlen(filename) > buf_size)
-    {
-      printf("Buffer overflow: %s(%d)\n", __FILE__, __LINE__);
-      while (1) {}
-    }
+  //if (grub_strlen(filename) > buf_size)
+  //  {
+  //    printf("Buffer overflow: %s(%d)\n", __FILE__, __LINE__);
+  //    while (1) {}
+  //  }
 
   /* initially, we need to copy filename to fn */
   grub_strcpy(fn, filename_orig);
@@ -1353,7 +1507,7 @@ retry:
         fn[l + j] = try_filenames[trycount][j];
       fn[l + ll] = 0;
 
-      grub_printf("Previous try failed, trying \"%s\"\n", fn);
+      //grub_printf("Previous try failed, trying \"%s\"\n", fn);
       trycount++;
       goto restart;
     }

@@ -59,12 +59,19 @@
 #ifndef ASM_FILE
 
 #ifndef __BIT_TYPES_DEFINED__
-typedef          int     int8_t; //__attribute__((mode(QI)));
-typedef unsigned int   u_int8_t; //__attribute__((mode(QI)));
-typedef          int    int16_t; //__attribute__((mode(HI)));
-typedef unsigned int  u_int16_t; //__attribute__((mode(HI)));
-typedef          int    int32_t; //__attribute__((mode(SI)));
-typedef unsigned int  u_int32_t; //__attribute__((mode(SI)));
+//typedef          int     int8_t; __attribute__((mode(QI)));
+//typedef unsigned int   u_int8_t; __attribute__((mode(QI)));
+//typedef          int    int16_t; __attribute__((mode(HI)));
+//typedef unsigned int  u_int16_t; __attribute__((mode(HI)));
+//typedef          int    int32_t; __attribute__((mode(SI)));
+//typedef unsigned int  u_int32_t; __attribute__((mode(SI)));
+
+typedef          char    int8_t;
+typedef unsigned char   u_int8_t;
+typedef          short  int16_t;
+typedef unsigned short  u_int16_t;
+typedef          int    int32_t;
+typedef unsigned int    u_int32_t;
 #endif
 
 typedef union {

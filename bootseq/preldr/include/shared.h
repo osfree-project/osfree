@@ -68,7 +68,8 @@ extern char *grub_scratch_mem;
 #define BUFFERADDR  RAW_ADDR (0x70000)
 #define BUFFERSEG   RAW_SEG (0x7000)
 
-#define BOOT_PART_TABLE RAW_ADDR (0x07be)
+//#define BOOT_PART_TABLE RAW_ADDR (0x07be)
+#define BOOT_PART_TABLE RAW_ADDR (0x60000)
 
 /*
  *  BIOS disk defines
@@ -90,7 +91,8 @@ extern char *grub_scratch_mem;
 /* Command-line buffer for Multiboot kernels and modules. This area
    includes the area into which Stage 1.5 and Stage 1 are loaded, but
    that's no problem.  */
-#define MB_CMDLINE_BUF          RAW_ADDR (0x2000)
+//#define MB_CMDLINE_BUF          RAW_ADDR (0x2000)
+#define MB_CMDLINE_BUF          RAW_ADDR (0x60400)
 #define MB_CMDLINE_BUFLEN       0x6000
 
 /* The buffer for the password.  */

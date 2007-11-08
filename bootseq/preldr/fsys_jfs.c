@@ -32,6 +32,8 @@
 #define DTTYPE_INLINE   0
 #define DTTYPE_PAGE     1
 
+int print_possibilities = 0;
+
 struct jfs_info
 {
         int bsize;
@@ -364,7 +366,7 @@ jfs_dir (char *dirname)
                             && cmp <= 0) {
                                 if (print_possibilities > 0)
                                         print_possibilities = -print_possibilities;
-                                print_a_completion (namebuf);
+                                //print_a_completion (namebuf);
                         } else
 #endif
                         if (cmp == 0) {

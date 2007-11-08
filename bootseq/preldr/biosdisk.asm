@@ -164,6 +164,7 @@ biosdisk_int13_extensions proc near
         call    call_rm
         add     esp, 4
 
+        xor     eax, eax
         mov     al, dl          ; return value in eax
 
         pop     ebx
@@ -214,6 +215,7 @@ biosdisk_standard proc near
         call    call_rm
         add     esp, 4
 
+        xor     eax, eax
         mov     al, bl             ; return value in eax
 
         pop     esi
@@ -248,6 +250,7 @@ check_int13_extensions proc near
         call    call_rm
         add     esp, 4
 
+        xor     eax, eax
         mov     al, bl             ; return value in eax
 
         pop     ebx

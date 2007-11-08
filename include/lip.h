@@ -21,7 +21,7 @@ typedef struct lip
    int                   (*lip_open)  (char *);
    int                   (*lip_dir)   (char *dirname);
    int                   (*lip_read)  (char *, int);
-   int                   (*lip_seek)  (unsigned long);
+   int                   (*lip_seek)  (int);
    void                  (*lip_close) (void);
    void                  (*lip_term)  (void);
    /* uFSD functions */
@@ -34,7 +34,7 @@ typedef struct lip
    int                   (*lip_load) (char *, unsigned long, char *, struct exe_params *);
    /* Utility functions */
    int                   (*lip_memcheck) (unsigned int, int);
-   void *                (*lip_memset)   (void *, char, int);
+   void *                (*lip_memset)   (void *, int, int);
    void *                (*lip_memmove)  (void *, const void *, int);
    char *                (*lip_strcpy)   (char *, const char *);
    int                   (*lip_strcmp)   (const char *, const char *);

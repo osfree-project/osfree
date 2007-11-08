@@ -2,6 +2,29 @@
  *   fsys.h
  */
 
+#pragma aux boot_drive        "*"
+#pragma aux install_partition "*"
+
+#pragma aux filemax    "*"
+#pragma aux grub_open  "*"
+#pragma aux grub_read  "*"
+#pragma aux grub_seek  "*"
+#pragma aux grub_close "*"
+#pragma aux freeldr_open  "*"
+#pragma aux freeldr_read  "*"
+#pragma aux freeldr_seek  "*"
+#pragma aux freeldr_close "*"
+
+int  freeldr_open (char *filename);
+int  freeldr_read (char *buf, int len);
+int  freeldr_seek (int offset);
+void freeldr_close (void);
+
+int  grub_open (char *filename);
+int  grub_read (char *buf, int len);
+int  grub_seek (int offset);
+void grub_close (void);
+
 extern int    (*pdevread) (int sector, int byte_offset, int byte_len, char *buf);
 extern int    (*prawread) (int drive, int sector, int byte_offset, int byte_len, char *buf);
 extern int    (*psubstring)    (const char *s1, const char *s2);

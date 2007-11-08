@@ -23,17 +23,17 @@
 
 /* These are defined in asm.S, and never be used elsewhere, so declare the
    prototypes here.  */
-extern int biosdisk_int13_extensions (int ax, int drive, void *dap);
-extern int biosdisk_standard (int ah, int drive,
+extern int __cdecl biosdisk_int13_extensions (int ax, int drive, void *dap);
+extern int __cdecl biosdisk_standard (int ah, int drive,
                               int coff, int hoff, int soff,
                               int nsec, int segment);
-extern int check_int13_extensions (int drive);
-extern int get_diskinfo_standard (int drive,
+extern int __cdecl check_int13_extensions (int drive);
+extern int __cdecl get_diskinfo_standard (int drive,
                                   unsigned long *cylinders,
                                   unsigned long *heads,
                                   unsigned long *sectors);
 #if 0
-extern int get_diskinfo_floppy (int drive,
+extern int __cdecl get_diskinfo_floppy (int drive,
                                 unsigned long *cylinders,
                                 unsigned long *heads,
                                 unsigned long *sectors);

@@ -125,10 +125,15 @@ int iso9660_dir (char *dirname);
 #endif
 
 #ifndef NUM_FSYS
-#define NUM_FSYS	\
-  (FSYS_FFS_NUM + FSYS_FAT_NUM + FSYS_EXT2FS_NUM + FSYS_MINIX_NUM	\
-   + FSYS_REISERFS_NUM + FSYS_VSTAFS_NUM + FSYS_JFS_NUM + FSYS_XFS_NUM	\
+#define NUM_FSYS        \
+  (FSYS_FFS_NUM + FSYS_FAT_NUM + FSYS_EXT2FS_NUM + FSYS_MINIX_NUM       \
+   + FSYS_REISERFS_NUM + FSYS_VSTAFS_NUM + FSYS_JFS_NUM + FSYS_XFS_NUM  \
    + FSYS_TFTP_NUM + FSYS_ISO9660_NUM + FSYS_UFS2_NUM)
+#endif
+
+#ifdef NUM_FSYS
+#undef NUM_FSYS
+#define NUM_FSYS 1
 #endif
 
 /* defines for the block filesystem info area */
@@ -155,11 +160,11 @@ struct fsys_entry
   int (*embed_func) (int *start_sector, int needed_sectors);
 };
 
-#ifdef STAGE1_5
-# define print_possibilities 0
-#else
+//#ifdef STAGE1_5
+//# define print_possibilities 0
+//#else
 extern int print_possibilities;
-#endif
+//#endif
 
 extern int fsmax;
 extern struct fsys_entry fsys_table[NUM_FSYS + 1];

@@ -82,6 +82,9 @@ real_start:
 
          mov  byte ptr BootDrive, dl
 
+         mov  al, dl
+         call printhex2
+
          MSG  <notification_string>
 
 load_image:
@@ -276,7 +279,7 @@ pad2     db  pad2size dup (0)
 lst      label byte
 
 notification_string:
-         db   "Loading boot file",0
+         db   10,13,"Loading boot file",0
 notification_step:
          db   ".",0
 notification_done:

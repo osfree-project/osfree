@@ -6,10 +6,13 @@
 #include <lip.h>
 #include <shared.h>
 
+#include "fsys.h"
 #include "fsd.h"
 
 lip_t *l;
 lip_t lip;
+
+#pragma aux lip "*"
 
 /* Far pointer as a structure */
 typedef _Packed struct fp {
@@ -19,16 +22,68 @@ typedef _Packed struct fp {
 
 int __cdecl (*fsd_init)(lip_t *l);
 
+extern unsigned long saved_drive;
+extern unsigned long saved_partition;
+extern unsigned long cdrom_drive;
+
+
 extern int mem_lower;
 extern int mem_upper;
 extern int fsmax;
 
-extern void __cdecl real_test(void);
-extern void __cdecl call_rm(fp_t);
-extern void __cdecl printmsg(char *);
-extern void __cdecl printb(unsigned char);
-extern void __cdecl printw(unsigned short);
-extern void __cdecl printd(unsigned long);
+void __cdecl real_test(void);
+void __cdecl call_rm(fp_t);
+void __cdecl printmsg(char *);
+void __cdecl printb(unsigned char);
+void __cdecl printw(unsigned short);
+void __cdecl printd(unsigned long);
+
+int
+freeldr_open (char *filename)
+{
+   char *p;
+   int  i;
+   int  i0 = 0;
+   char buf[128];
+
+   printmsg(filename);
+   printmsg("\r\n");
+
+   /* prepend "/" to filename */
+   if (*filename != '/') {
+     buf[0] = '/';
+     i0 = 1;
+   }
+
+   /* convert to lowercase */
+   for (p = filename, i = 0; p[i] && i < 128; i++)
+     if (p[i] > 0x40 && p[i] < 0x5b)
+       buf[i + i0] = p[i] + 0x20;
+     else
+       buf[i + i0] = p[i];
+
+   buf[i + i0] = '\0';
+
+   return grub_open(buf);
+}
+
+int
+freeldr_read (char *buf, int len)
+{
+   return grub_read(buf, len);
+}
+
+int
+freeldr_seek (int offset)
+{
+   return grub_seek(offset);
+}
+
+void
+freeldr_close (void)
+{
+   grub_close();
+}
 
 int  stage0_mount (void)
 {
@@ -51,7 +106,7 @@ void setlip(void)
 
   l->lip_open  = &grub_open;
   l->lip_read  = &grub_read;
-  l->lip_seek  = 0; //&grub_seek;
+  l->lip_seek  = &grub_seek;
   l->lip_close = &grub_close;
   l->lip_term  = 0;
 
@@ -98,15 +153,26 @@ void setlip(void)
 int init(void)
 {
   int size;
+  char *buf;
+  long dev = 0xe0ffffff; // 0xe0 -- bochs, qemu; 0xef -- vpc; 0x9f -- real hardware
+  //char bf[256];
 
-  printmsg("Hello world!\r\n");
-  printb(0xab);
-  printmsg("\r\n");
-  printw(0xbeef);
-  printmsg("\r\n");
-  printd(0x12345678);
+  /* Set boot drive and partition.  */
+  saved_drive = boot_drive;
+  saved_partition = install_partition;
 
-  printmsg("\r\nsetting lip");
+  /* Set cdrom drive.  */
+  {
+    struct geometry geom;
+
+    /* Get the geometry.  */
+    if (get_diskinfo (boot_drive, &geom)
+        || ! (geom.flags & BIOSDISK_FLAG_CDROM))
+      cdrom_drive = GRUB_INVALID_DRIVE;
+    else
+      cdrom_drive = boot_drive;
+  }
+
   setlip();
   printmsg("\r\nsetlip() returned\r\n");
 
@@ -114,13 +180,34 @@ int init(void)
   fsd_init(l);
   printmsg("uFSD init returned\r\n");
 
-  size = stage0_mount();
-  printmsg("stage0_mount() returned: ");
+
+  size = freeldr_open("os2ldr");
+  printmsg("freeldr_open(\"/os2ldr\") returned: ");
   printd(size);
 
-  size = grub_open("/boot/bootblock");
-  printmsg("\r\ngrub_open(\"/boot/bootblock\") returned: ");
+  buf = (char *)(0x10000);
+
+  if (size)
+     size = freeldr_read(buf, -1);
+
+  printmsg("\r\nfreeldr_read() returned size: ");
   printd(size);
+  printmsg("\r\n");
+
+
+  size = freeldr_open("os2boot");
+  printmsg("freeldr_open(\"/os2boot\") returned: ");
+  printd(size);
+
+  buf = (char *)(0x7c0);
+
+  if (size)
+     size = freeldr_read(buf, -1);
+
+  printmsg("\r\nfreeldr_read() returned size: ");
+  printd(size);
+  printmsg("\r\n");
+
 
   return 0;
 }

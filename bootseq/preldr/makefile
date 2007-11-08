@@ -7,9 +7,9 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS      = 1       # Use 32-bit C compiler
-ADD_ASMOPT   = -q
-DEFINES      = -dSTAGE1_5 -dNO_DECOMPRESSION #-dOS2 -d__WATCOM__
+DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dOS2 -d__WATCOM__
 ADD_COPT     = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
+ADD_ASMOPT   = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 
 DIR          = preldr
 MYDIR        = $(ROOT)$(SEP)bootseq$(SEP)$(DIR)$(SEP)
@@ -27,7 +27,7 @@ JFS_OBJS      = $(FS_OBJS) fsys_jfs.$(O)
 ISO9660_OBJS  = $(FS_OBJS) fsys_iso9660.$(O)
 REISERFS_OBJS = $(FS_OBJS) fsys_reiserfs.$(O)
 
-STAGE0_OBJS   = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) &
+STAGE0_OBJS   = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) filesys.$(O) &
                 video.$(O) stage0_fs.$(O) func.$(O) bios.$(O) end.$(O)
 
 OUT           = bin
@@ -77,10 +77,10 @@ link: .SYMBOLIC .PROCEDURE
  @%append $(T).lnk ALIAS fs_dir_=$(T)_dir_
  @%append $(T).lnk ALIAS fs_read_=$(T)_read_
 !else
- @%append $(T).lnk ALIAS biosdisk_int13_extensions_=biosdisk_int13_extensions
- @%append $(T).lnk ALIAS biosdisk_standard_=biosdisk_standard
- @%append $(T).lnk ALIAS check_int13_extensions_=check_int13_extensions
- @%append $(T).lnk ALIAS get_diskinfo_standard_=get_diskinfo_standard
+ @%append $(T).lnk ALIAS _biosdisk_int13_extensions=biosdisk_int13_extensions
+ @%append $(T).lnk ALIAS _biosdisk_standard=biosdisk_standard
+ @%append $(T).lnk ALIAS _check_int13_extensions=check_int13_extensions
+ @%append $(T).lnk ALIAS _get_diskinfo_standard=get_diskinfo_standard
 !endif
  @%append $(T).lnk PATH $(PATH)
  @for %%i in ($(OBJS)) do @%append $(T).lnk FILE %%i
@@ -101,6 +101,9 @@ fsys_iso9660.$(O): fsys_iso9660.c
 
 fsys_reiserfs.$(O): fsys_reiserfs.c
  $(CC) -dFSYS_REISERFS $(COPT) -fo=$^@ $<
+
+func.$(O): func.c
+ $(CC) -dSTAGE0 $(COPT) -fo=$^@ $<
 
 .inc.h:
  $(AWK) -f inc2h.awk <$< >$^@

@@ -38,6 +38,8 @@
 #include "fsys.h"
 #include "misc.h"
 
+int print_possibilities = 0;
+
 /* iso9660 super-block data in memory */
 struct iso_sb_info {
   unsigned long vol_sector;
@@ -112,10 +114,10 @@ iso9660_devread (int sector, int byte_offset, int byte_len, char *buf)
     mov  sector, eax
   }
 
-#if !defined(STAGE1_5)
-  if (disk_read_hook && debug)
-    printf ("<%d, %d, %d>", sector, byte_offset, byte_len);
-#endif /* !STAGE1_5 */
+//#if !defined(STAGE1_5)
+//  if (disk_read_hook && debug)
+//    printf ("<%d, %d, %d>", sector, byte_offset, byte_len);
+//#endif /* !STAGE1_5 */
 
   return (*prawread)(*pcurrent_drive, *ppart_start + sector, byte_offset, byte_len, buf);
 }
@@ -234,30 +236,30 @@ iso9660_dir (char *dirname)
                 {
                   if (rr_ptr.rr->version != 1)
                     {
-#ifndef STAGE1_5
-                      if (debug)
-                        printf(
-                               "Non-supported version (%d) RockRidge chunk "
-                               "`%c%c'\n", rr_ptr.rr->version,
-                               rr_ptr.rr->signature & 0xFF,
-                               rr_ptr.rr->signature >> 8);
-#endif
+//#ifndef STAGE1_5
+//                      if (debug)
+//                        printf(
+//                               "Non-supported version (%d) RockRidge chunk "
+//                               "`%c%c'\n", rr_ptr.rr->version,
+//                               rr_ptr.rr->signature & 0xFF,
+//                               rr_ptr.rr->signature >> 8);
+//#endif
                     }
                   else
                     {
                       switch (rr_ptr.rr->signature)
                         {
                         case RRMAGIC('R', 'R'):
-                          if ( rr_ptr.rr->len >= (4+sizeof(struct RR)))
+                          if ( rr_ptr.rr->len >= (4+sizeof(struct RR) - 1))
                             rr_flag &= rr_ptr.rr->u.rr.flags.l;
                           break;
                         case RRMAGIC('N', 'M'):
                           name = (char const *)rr_ptr.rr->u.nm.name;
-                          name_len = rr_ptr.rr->len - (4+sizeof(struct NM));
+                          name_len = rr_ptr.rr->len - (4+sizeof(struct NM) - 1);
                           rr_flag &= ~RR_FLAG_NM;
                           break;
                         case RRMAGIC('P', 'X'):
-                          if (rr_ptr.rr->len >= (4+sizeof(struct PX)))
+                          if (rr_ptr.rr->len >= (4+sizeof(struct PX) - 1))
                             {
                               file_type = ((rr_ptr.rr->u.px.mode.l & POSIX_S_IFMT)
                                            == POSIX_S_IFREG
@@ -269,7 +271,7 @@ iso9660_dir (char *dirname)
                             }
                           break;
                         case RRMAGIC('C', 'E'):
-                          if (rr_ptr.rr->len >= (4+sizeof(struct CE)))
+                          if (rr_ptr.rr->len >= (4+sizeof(struct CE) - 1))
                             ce_ptr = rr_ptr.rr;
                           break;
 #if 0           // RockRidge symlinks are not supported yet
@@ -288,7 +290,7 @@ iso9660_dir (char *dirname)
                                 switch (slp->flags.l)
                                   {
                                   case 0:
-                                    memcpy(rpnt, slp->text, slp->len);
+                                    (*pgrub_memmove)(rpnt, slp->text, slp->len);
                                     rpnt += slp->len;
                                     break;
                                   case 4:
@@ -302,8 +304,8 @@ iso9660_dir (char *dirname)
                                     *rpnt++ = '/';
                                     break;
                                   default:
-                                    printf("Symlink component flag not implemented (%d)\n",
-                                           slp->flags.l);
+                                    //printf("Symlink component flag not implemented (%d)\n",
+                                    //       slp->flags.l);
                                     slen = 0;
                                     break;
                                   }
@@ -403,9 +405,9 @@ iso9660_dir (char *dirname)
 #ifndef STAGE1_5
                       if (print_possibilities > 0)
                         print_possibilities = -print_possibilities;
-                      memcpy(NAME_BUF, name, name_len);
+                      (*pgrub_memmove)(NAME_BUF, name, name_len);
                       NAME_BUF[name_len] = '\0';
-                      print_a_completion (NAME_BUF);
+                      //print_a_completion (NAME_BUF);
 #endif
                     }
                 }

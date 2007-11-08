@@ -25,6 +25,8 @@
 #include "fsys.h"
 #include "misc.h"
 
+int print_possibilities = 0;
+
 static int mapblock1, mapblock2;
 
 /* sizes are always in bytes, BLOCK values are always in DEV_BSIZE (sectors) */
@@ -783,7 +785,7 @@ ext2fs_dir (char *dirname)
                 {
                   if (print_possibilities > 0)
                     print_possibilities = -print_possibilities;
-                  print_a_completion (dp->name);
+                  //print_a_completion (dp->name);
                 }
 # endif
 

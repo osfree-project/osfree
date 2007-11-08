@@ -24,6 +24,25 @@
 #define BOOTFLAG_RESERVED6 0x4000
 #define BOOTFLAG_RESERVED7 0x8000
 
+struct FileTable {
+
+    unsigned short ft_cfiles;
+    unsigned short ft_ldrseg;
+    unsigned long  ft_ldrlen;
+    unsigned short ft_museg;
+    unsigned long  ft_mulen;
+    unsigned short ft_mfsseg;
+    unsigned long  ft_mfslen;
+    unsigned short ft_ripseg;
+    unsigned long  ft_riplen;
+    // microfsd functions
+    unsigned short __cdecl (far *ft_muOpen)(char far *pName, unsigned long far *pulFileSize);
+    unsigned long  __cdecl (far *ft_muRead)(long loffseek, char far *pBuf, unsigned long cbBuf);
+    void           __cdecl (far *ft_muClose)(void);
+    void           __cdecl (far *ft_muTerminate)(void);
+
+};
+
 struct FileTableExt {
     // struct FileTable
     unsigned short ft_cfiles;

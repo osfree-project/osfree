@@ -14,6 +14,27 @@ BOOTFLAG_RESERVED5 equ  2000h
 BOOTFLAG_RESERVED6 equ  4000h
 BOOTFLAG_RESERVED7 equ  8000h
 
+FileTable struc
+
+    ; FileTable struc
+    ft_cfiles              dw   ?
+    ft_ldrseg              dw   ?
+    ft_ldrlen              dd   ?
+    ft_museg               dw   ?
+    ft_mulen               dd   ?
+    ft_mfsseg              dw   ?
+    ft_mfslen              dd   ?
+    ft_ripseg              dw   ?
+    ft_riplen              dd   ?
+
+    ; microfsd functions
+    ft_muOpen              dd   ?
+    ft_muRead              dd   ?
+    ft_muClose             dd   ?
+    ft_muTerminate         dd   ?
+
+FileTable ends
+
 
 FileTableExt struc
 

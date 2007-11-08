@@ -26,6 +26,8 @@
 #include "fsys.h"
 #include "misc.h"
 
+int print_possibilities = 0;
+
 struct fat_superblock
 {
   int fat_offset;
@@ -471,7 +473,7 @@ fat_dir (char *dirname)
             {
               if (print_possibilities > 0)
                 print_possibilities = -print_possibilities;
-              print_a_completion (filename);
+              //print_a_completion (filename);
             }
           continue;
         }
