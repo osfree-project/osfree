@@ -7,27 +7,32 @@
 
 #include <types.h>
 
-typedef struct _BPB {
-   u8      jump[3];
-   u8      sysid[8];
-   // Standard BPB
-   u16     secsize;
-   u8      secperclu;
-   u16     ressecs;
-   u8      nfats;
-   u16     rootdirsize;
-   u16     nsec;
-   u8      media;
-   u16     fatsize;
-   u16     secpertrack;
-   u16     heads;
-   u32     hiddensec;
-   u32     nsec_ext;
-   // Extended BPB
-   u8      diskno;
-   u8      logdrive;
-   u8      marker;
-   u32     volserno;
-   u8      vollabel[11];
-   u8      fsname[8];
-} BPB;
+
+typedef _Packed struct _bios_parameters_block {
+  // Standard BPB                                        //
+  unsigned short sect_size;                              // Sector size in bytes
+  unsigned char  clus_size;                              // Cluster size in sectors
+  unsigned short res_sectors;                            // Reserved sectors
+  unsigned char  n_fats;                                 // The number of FAT copies
+  unsigned short root_dir_size;                          // Max. no of root directory entries
+  unsigned short n_sect;                                 // No. of sectors of disk, if its size
+                                                         // is less then 32M
+  unsigned char  media_desc;                             // Media descriptor byte
+  unsigned short fat_size;                               // FAT size in sectors
+  unsigned short track_size;                             // Number of sectors in track
+  unsigned short heads_cnt;                              // Number of surfaces
+  unsigned long  hidden_secs;                            // Number of hidden sectors
+  unsigned long  n_sect_ext;                             // Number of sectors on disk, if its
+                                                         // size exceeds 32M
+  // Extended BPB
+
+  unsigned char  disk_num;                               // 00 -- floppy; 80 -- hard drive
+  unsigned char  log_drive;                              // if (logDrive & 80h) = true, (logDrive & 7Fh) is
+                                                         // the number of logical disk (c: is 00)
+  unsigned char  marker;                                 //
+  unsigned long  vol_ser_no;                             // Volume serial number
+  unsigned char  vol_label[11];                          // Volume label
+  unsigned char  fs_name[8];                             // File system name
+                                                         //
+} bios_parameters_block;
+

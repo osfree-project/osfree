@@ -37,6 +37,8 @@ extrn   preldr_es    :word
 include fsd.inc
 include struc.inc
 include loader.inc
+include bpb.inc
+
 
 .386p
 
@@ -62,13 +64,7 @@ CONF_VARS_SIZE equ  64
 ; addresses, otherwise it must be zero.
 uFSD_size     dw    0
 stage0_size   dw    0
-mFSD_seg      dw    7ch
-os2ldr_seg    dw    1000h
-flags         db    ?
 force_lba     db    0
-
-mFSD_name     db    "/boot/os2boot",0
-os2ldr_name   db    "/boot/preldr1",0
 
 padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
 pad           db    padsize dup (0)
@@ -198,43 +194,6 @@ reloc:
         call call_pm
         add  sp, 4
 
-;        lea  ax, fsize
-;        push cs
-;        push ax
-;        lea  ax, fname
-;        push cs
-;        push ax
-;
-;        call mu_Open
-;
-;        add  sp, 8
-;
-;        ;mov  esi, fsize
-;        ;call printhex8
-;
-;        mov  eax, 1024
-;        push eax
-;        mov  ax,  2000h
-;        push ax
-;        mov  ax, 0
-;        push ax
-;        mov  eax, 2048
-;        push eax
-;
-;        call mu_Read
-;
-;        add  sp, 12
-;
-;        mov  ebx, edx
-;        shl  ebx, 16
-;        mov  bx, ax
-;
-;        ;mov  esi, ebx
-;        ;call printhex8
-;
-;        call mu_Close
-;        call mu_Terminate
-
         ; save pre-loader segment registers and stack
         mov  ax, ds
         mov  preldr_ds, ax
@@ -250,37 +209,13 @@ reloc:
         ;
         mov  eax, offset _TEXT:boot_flags - STAGE0_BASE
         ; set bootflags
-        mov  word ptr [eax], BOOTFLAG_MINIFSD
-        or   word ptr [eax], BOOTFLAG_MICROFSD
         mov  dx, [eax]
 
+        ; set bootdrive
         mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
         mov  dl, [eax]
 
         mov  edi, offset _TEXT:ft - STAGE0_BASE
-
-        ; set FileTable
-        mov  [di].ft_cfiles, 3
-        mov  [di].ft_ldrseg, LDR_SEG
-        mov  [di].ft_ldrlen, 0ae00h
-        mov  [di].ft_museg,  8c20h
-        mov  [di].ft_mulen,  0ffffh
-        mov  [di].ft_mfsseg, 7ch
-        mov  [di].ft_mfslen, 0c7bch
-        mov  [di].ft_ripseg, 0
-        mov  [di].ft_riplen, 0
-
-        mov  eax, STAGE0_BASE
-        shl  eax, 12
-
-        mov  ax,  offset _TEXT16:mu_Open
-        mov  [di].ft_muOpen, eax
-        mov  ax,  offset _TEXT16:mu_Read
-        mov  [di].ft_muRead, eax
-        mov  ax,  offset _TEXT16:mu_Close
-        mov  [di].ft_muClose, eax
-        mov  ax,  offset _TEXT16:mu_Terminate
-        mov  [di].ft_muTerminate, eax
 
         ; set BPB
         mov  eax, BOOTSEC_BASE
@@ -297,7 +232,6 @@ reloc:
         push 0
         retf
 
-;fname   dd 0e0ffffffh
 fname   db "/boot/bootblock",0
 fsize   dd 0
 

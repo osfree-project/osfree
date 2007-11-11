@@ -4,6 +4,10 @@
  */
 
 #include <lip.h>
+#include <types.h>
+#include <loader.h>
+#include <bpb.h>
+
 #include <shared.h>
 
 #include "fsys.h"
@@ -14,18 +18,22 @@ lip_t lip;
 
 #pragma aux lip "*"
 
-/* Far pointer as a structure */
-typedef _Packed struct fp {
-  unsigned short off;
-  unsigned short seg;
-} fp_t;
-
 int __cdecl (*fsd_init)(lip_t *l);
+
+extern mu_Open;
+extern mu_Read;
+extern mu_Close;
+extern mu_Terminate;
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
 extern unsigned long cdrom_drive;
 
+extern FileTable ft;
+
+extern unsigned short boot_flags;
+extern unsigned long  boot_drive;
+extern unsigned long  install_partition;
 
 extern int mem_lower;
 extern int mem_upper;
@@ -152,10 +160,12 @@ void setlip(void)
 
 int init(void)
 {
-  int size;
+  int rc;
   char *buf;
-  long dev = 0xe0ffffff; // 0xe0 -- bochs, qemu; 0xef -- vpc; 0x9f -- real hardware
+  //long dev = 0xe0ffffff; // 0xe0 -- bochs, qemu; 0xef -- vpc; 0x9f -- real hardware
   //char bf[256];
+  unsigned long ldrlen, mfslen;
+  bios_parameters_block *bpb;
 
   /* Set boot drive and partition.  */
   saved_drive = boot_drive;
@@ -173,40 +183,84 @@ int init(void)
       cdrom_drive = boot_drive;
   }
 
+  /* setting LIP */
   setlip();
   printmsg("\r\nsetlip() returned\r\n");
 
+  /* call uFSD init (set linkage) */
   fsd_init = (void *)(UFSD_BASE); // uFSD base address
   fsd_init(l);
   printmsg("uFSD init returned\r\n");
 
-
-  size = freeldr_open("os2ldr");
+  /* load os2ldr */
+  rc = freeldr_open("os2ldr");
   printmsg("freeldr_open(\"/os2ldr\") returned: ");
-  printd(size);
+  printd(rc);
 
-  buf = (char *)(0x10000);
+  buf = (char *)(LDR_BASE);
 
-  if (size)
-     size = freeldr_read(buf, -1);
+  if (rc)
+     ldrlen = freeldr_read(buf, -1);
 
   printmsg("\r\nfreeldr_read() returned size: ");
-  printd(size);
+  printd(ldrlen);
   printmsg("\r\n");
 
-
-  size = freeldr_open("os2boot");
+  /* load minifsd */
+  rc = freeldr_open("os2boot");
   printmsg("freeldr_open(\"/os2boot\") returned: ");
-  printd(size);
+  printd(rc);
 
-  buf = (char *)(0x7c0);
+  buf = (char *)(MFS_BASE);
 
-  if (size)
-     size = freeldr_read(buf, -1);
+  if (rc)
+     mfslen = freeldr_read(buf, -1);
 
   printmsg("\r\nfreeldr_read() returned size: ");
-  printd(size);
+  printd(mfslen);
   printmsg("\r\n");
+
+  /* set boot flags */
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD;
+  /* set filetable */
+  ft.ft_cfiles = 3;
+  ft.ft_ldrseg = LDR_SEG;
+  ft.ft_ldrlen = ldrlen;
+  ft.ft_museg  = STAGE0_SEG;
+  ft.ft_mulen  = 0xb000;     // It is empirically found maximal value
+  ft.ft_mfsseg = MFS_SEG;
+  ft.ft_mfslen = mfslen;
+  ft.ft_ripseg = 0;          //
+  ft.ft_riplen = 0;          // No RIPL data yet
+
+  ft.ft_muOpen.seg       = STAGE0_SEG;
+  ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
+
+  ft.ft_muRead.seg       = STAGE0_SEG;
+  ft.ft_muRead.off       = (unsigned short)(&mu_Read);
+
+  ft.ft_muClose.seg      = STAGE0_SEG;
+  ft.ft_muClose.off      = (unsigned short)(&mu_Close);
+
+  ft.ft_muTerminate.seg  = STAGE0_SEG;
+  ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
+
+  if (boot_drive == cdrom_drive) {
+    /* set BPB */
+    bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
+    // fill fake BPB
+    grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
+    
+    bpb->sect_size = 0x800;
+    bpb->clus_size = 0x40;
+    bpb->n_sect = 0x30d;    // fixme!
+    bpb->media_desc = 0xf8;
+    bpb->track_size = 0x3f;
+    bpb->heads_cnt  = 0xff;
+    bpb->disk_num   = (unsigned char)(boot_drive & 0xff);
+    bpb->log_drive  = 0x82; // fixme! (e:)
+    bpb->marker = 0x29;
+  }
 
 
   return 0;

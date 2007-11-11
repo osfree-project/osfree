@@ -2,7 +2,14 @@
  *   fsys.h
  */
 
+#pragma aux mu_Open           "*"
+#pragma aux mu_Read           "*"
+#pragma aux mu_Close          "*"
+#pragma aux mu_Terminate      "*"
+
+#pragma aux ft                "*"
 #pragma aux boot_drive        "*"
+#pragma aux boot_flags        "*"
 #pragma aux install_partition "*"
 
 #pragma aux filemax    "*"
