@@ -20,7 +20,7 @@ BASE1      equ STAGE0_BASE - 10000h
 TEXT16_END equ (offset cs:_text16_end)
 TEXT16_BEG equ (offset cs:_text16_begin)
 TEXT16_LEN equ (TEXT16_END - TEXT16_BEG)
-BASE       equ (BASE1 + 59ah) ; 587h; TEXT16_LEN
+BASE       equ (BASE1 + 20ah) ; 59ah; TEXT16_LEN
 
 _TEXT    segment byte public 'CODE'  use32
 org BASE

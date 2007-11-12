@@ -7,7 +7,7 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS      = 1       # Use 32-bit C compiler
-DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dOS2 -d__WATCOM__
+DEFINES      = -dNO_DECOMPRESSION -dSTAGE1_5 -dNO_BLOCK_FILES # -dOS2 -d__WATCOM__
 ADD_COPT     = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 ADD_ASMOPT   = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 

@@ -1,0 +1,189 @@
+     FreeLdr design.
+     ~~~~~~~~~~~~~~~
+author: Valery V. Sedletski,
+aka valerius,
+2007, Nov 12.
+
+
+     FreeLdr  is  a generic operating system loader, designed to be capable to
+load  DOS-like  OSes  (primarily,  OS/2), as well as microkernel OSes (osFree,
+DROPS  or  any  L4-based  OS)  and traditional monolithic OSes, like Linux. It
+shares  many  common  features  with  GRUB, supports multiboot protocol and is
+partly  based  on GRUB sources. Though, it is greatly re-designed and includes
+many ideas from OS/2 boot process.
+
+History of the project.
+
+     In  1999,  David  Zimmerli  wrote  an article in EDM/2 about a project to
+replace  os2ldr  (<URL>).  He  wrote  a small rudimentary os2ldr-like program,
+which was supposed to begin a free os2ldr reimplementation from scratch. These
+sources  were  taken by osFree team and they were used as a starting point for
+osFree  loader implementation. The first version was continued in 2003 by Yuri
+Prokushev  and  in  2005  by  Sascha Schmidt. Then the development was paused.
+Sascha  started  to  port  portions  of  GRUB sources to incorporate multiboot
+protocol  support,  but  did not finished the work. In the end of 2006, I took
+their  results  and  finished  the  micro-FSD functions and combined them with
+completed  working  version of GRUB routines for multiboot loading. The loader
+worked.  The  L4  microkernel  was  loading  using  micro-FSD  and  started by
+kickstart  bootstrapper. The loader worked in real mode and GRUB routines were
+ported to a realmode 16-bit environment (GRUB is mostly 32-bit).
+
+     The  last  time,  the  design  was  reworked and now I was redesigned the
+loader.  It  was  decided  to  move most parts to 32-bits protected mode. Only
+small  part  continues  to work in 16-bit real mode and is intended to be BIOS
+functions  specific.  This  was  made  such  way because of the wish to make a
+possibility  to  easily  port  to  other  kinds of firmware, like EFI. So, the
+16-bit portion must be kept as small as possible.
+
+     Now  the new loader is partly working. I ported filesystem-specific parts
+of GRUB and made 32-bit micro-FSD's from them. The filesystem specific part is
+designed  as  a separate small (several kilobytes) module, and it is separated
+from  generic  part.  Now  isofs micro-FSD is starting os2ldr and os2ldr loads
+OS/2 kernel successfuly. But the missing part now is a mini-FSD.
+
+     When  designing  FreeLdr,  there were the following design goals in mind,
+which determined the overall architecture of the loader:
+
+     1)  Modularity.  The  loader  must  consist  of  several parts, which are
+replaceable  by  other  parts, having the same interfaces with the rest of the
+loader.
+
+     2)  To be OS-neutral. Possibility to load almost any OS. For that reason,
+FreeLdr  employs  a  multiboot protocol, the common protocol between OS loader
+and OS kernel, introduced in GRUB.
+
+     3)  Compatibility with interfaces of traditional OS/2 loader, micro-FSD's.
+
+     4)  Multiboot  protocol  compliance.  (it is needed by L4, at least). But
+multiboot-specific  part  of the loader must be replaceable with standard OS/2
+loader (os2ldr).
+
+     5)   Like  os2ldr,  the  FreeLdr  must  be  independent  from  filesystem
+structure.  This  implies  the  use  of  BlackBox metaphor. The main kind of a
+blackbox  is  uFSD  (micro-FSD,  micro File System Driver), the small program,
+designed to abstract the loader from the filesystem structure. The loader only
+uses  four  uFSD functions to read files from the disk and details of internal
+filesystem structure are hidden from the loader.
+
+     6)  And  more.  The FreeLdr goes even further, it introduces new kinds of
+blackboxes.  There is a need to hide more details from the loader a) There are
+uXFD's  (micro  eXecutable Format Drivers), which abstract the loader from the
+structure of executable files; b) There are uDC's (micro De-Compressors) which
+are  responsible  for  transparent uncompressing of files, read from the disk.
+They  abstract  the loader from the structure of compressed formats, like ZIP,
+GZIP,  BZIP2  etc. GZIP uDC will be made also from GRUB sources (GRUB includes
+support  for  reading  GZIP-compressed files and this will be transformed into
+modular  design  as  a uDC) c) and also there are uPP's, micro Pre-Processors,
+responsible  for  transparently  substituting  variables  in  text  files  and
+including one file into another (see below).
+
+     uFSD's  and  uXFD's  are  parts  of IFS (installable file system) and IIF
+(installable  image  format)  sybsystems, respectively. Both subsystems have a
+portion  in  kernel  and  in loader. Their goals are support of arbitrary file
+systems  or executable formats. In contrast, GRUB is designed to be monolithic
+(like UNIX kernel) and had no modularity at all. All filesystem-specific parts
+of  the  loader  are  statically  linked in loader executable. The list of all
+filesystems  is  hardcoded,  and  to  add a new filesystem, the loader must be
+recompiled. Also, file compression is hardcoded and executable formats support
+is  also  hardcoded. In FreeLdr, these parts are independent of the loader. To
+add  a  new  uFSD,  or uXFD, or uPP or uDC, no loader recompile is needed. The
+only  needed  thing  is  a  new entry in pre-loader INI file, describing a new
+module.
+
+     7)  The  FreeLdr  takes  advantage  of  combined "loader and bootmanager"
+approach,  it means that it allows to choose operating system to be loaded and
+in  the same time it not only chooses a boot partition (the bootmanager role),
+but also loads files from disk (the loader role). These roles are combined, so
+when  user  chooses  the  boot  menu  item,  it  also  chooses  a  set of boot
+parameters,  which  loader then passes to the operating system. So, the loader
+is  not  only  chooses OS to load and loads OS files from disk, it also allows
+the user to choose OS configuration parameters and passes them to the OS.
+
+     8) The bootmanager functionality of FreeLdr is designed to be replaceable
+by standard OS/2 bootmanager. So, if the user more likes the OS/2 bootmanager,
+it can switch off the loader bootmanager functionality (but then it loses  the
+possibility to pass the OS boot parameters from the bootmanager menu)
+
+     By  4-th  reason, the decision was made, that the loader must consist of,
+as minimum, two parts. The second part is interchangable, it may be os2ldr, or
+a  multiboot  loader  (it  is  called  stage1)  The  first part was called the
+pre-loader  (It  is  called also stage0). It is started before stage1. It must
+implement the common feature set for os2ldr and multiboot loader.
+
+     The common features used by multiboot loader and os2ldr are a) uFSD, uXFD,
+uDC and uPP. It could be useful if we could use them in old os2ldr too.
+
+The pre-loader.
+þþþþþþþþþþþþþþþ
+
+i)   The uPP (micro preprocessor).
+
+     The  idea of this feature is to have a small text file preprocessor (like
+C  preprocessor,  or similar), incorporated into freeldr_open() function (used
+for  opening  the  files by uFSD). This idea is inspired by Veit Kannegieser's
+program,  called  os2csm.  Os2csm  starts before os2ldr and presents a menu to
+user.  User  selects  options from menu. Parameters, set by user are passed to
+OS/2  kernel and are substituted in config.sys as preprocessor defines. Os2csm
+hooks  onto  BIOS int 13h routines and when config.sys is read, it substitutes
+variables in it.
+
+     The uPP has similar idea. But unlike os2csm, it hooks onto freeldr_open()
+routine,  not  int 13h. This allows to preprocess not only config.sys, but any
+other text file.
+
+     The  uPP is a common way to pass variables, set by user through menus, or
+ones, defined in a boot script, to OS programs through substituting these vars
+values  in  program  command  line  or  in its configuration files. It is very
+useful  feature, you can see it in work in eComstation Demo CD, implemented in
+os2csm.  We'd  like  to have such feature embedded in our loader as a standard
+feature.
+
+ii)  The uDC (micro decompressor)
+
+     The  GRUB  feature to load files, compressed by GZIP, and decompress them
+while  reading is also very useful. It is good for any kind of files. For some
+executable  file formats, like LX, there is a built-in compression algorithms.
+For  other formats, like ELF, there is not. So, to save disk space (especially
+on  floppies),  we  could use this feature. But it would be more convenient to
+implement  this  feature  as  a  blackbox,  and do it modular, not to hardcode
+compression  algorithm in loader, like in GRUB, but make it possible to easily
+add new compression algorithms without the need of recompile.
+
+iii) The uXFD (micro executable format driver)
+
+     Os2ldr  contains  routines for loading and relocating executable files of
+LX  and  NE  formats. In GRUB, there is algorithms of loading of ELF and a.out
+formats.  In  both  cases,  these  algorithms  are hardcoded, and to add a new
+format, the loader must be recompiled. It would be very attractive feature, if
+we  could  do  this  modularily,  without  recompile. So, the decision suggest
+itself, to add executable format loading algorithms as a new kind of blackbox.
+
+     The uXFD has a one main function, a load() one, which takes a file image,
+loaded  in  memory,  the  relocation  base address; loads and relocates it and
+returns ss:esp, cs:eip and other parameters. Also, it returns a result code.
+
+iv)  The uFSD (micro file system driver)
+
+     The  uFSD  is the main kind of blackbox. I think, no need to explain, why
+it can be useful. We know its advantages from the OS/2 boot process.
+
+     All  blackbox  kinds  allow  us  to avoid dependencies of the loader from
+different  kinds  of formats. The new formats can be added at any time without
+the  need  in  recompile.  In  contrast, The GRUB has a monolithic design. The
+least  change  in  loader  needs  a  recompile.  The GRUB is a good loader, it
+introduces  almost  universal  protocol between loader and kernel and targeted
+primarily  at  microkernel systems (The GRUB was designed specifically for GNU
+HURD,  not  Linux, as it commonly considered). But although it is designed for
+modular microkernel system, it is monolithic by itself. And this is really bad
+:(.  The  NTLDR  in  Windows  is  also  designed  to  be monolithic. The NTLDR
+(unlike  the  os2ldr)  runs  in protected mode. There is a realmode filesystem
+access  functions  in  bootblock, by use of which the NTLDR is read from disk.
+But these functions (analogous to micro-FSD from OS/2) are not passed to NTLDR
+and  are  not  used  by  NTLDR  at  all.  Instead,  there are a protected mode
+filesystem  functions in NTLDR, by which the loader reads the files, and these
+functions  are hardcoded. This case is even worse than GRUB's. For a different
+filesystem,  there  must  be a separate version of NTLDR -- for fat32 the one,
+for  NTFS  the  other.  The NTLDR is tied to a filesystem type. In the case of
+FreeLdr,  we  have  the choice in filesystem and even to add a new filesystem,
+no recompile is needed.
+

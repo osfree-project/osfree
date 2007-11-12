@@ -49,6 +49,9 @@ void __cdecl printd(unsigned long);
 int
 freeldr_open (char *filename)
 {
+
+#ifndef STAGE1_5
+
    char *p;
    int  i;
    int  i0 = 0;
@@ -73,6 +76,9 @@ freeldr_open (char *filename)
    buf[i + i0] = '\0';
 
    return grub_open(buf);
+#else
+   return grub_open(filename);
+#endif
 }
 
 int
@@ -112,10 +118,10 @@ void setlip(void)
 {
   l = &lip;
 
-  l->lip_open  = &grub_open;
-  l->lip_read  = &grub_read;
-  l->lip_seek  = &grub_seek;
-  l->lip_close = &grub_close;
+  l->lip_open  = &freeldr_open;
+  l->lip_read  = &freeldr_read;
+  l->lip_seek  = &freeldr_seek;
+  l->lip_close = &freeldr_close;
   l->lip_term  = 0;
 
   l->lip_memcheck = 0; //&grub_memcheck;
@@ -162,35 +168,31 @@ int init(void)
 {
   int rc;
   char *buf;
-  //long dev = 0xe0ffffff; // 0xe0 -- bochs, qemu; 0xef -- vpc; 0x9f -- real hardware
-  //char bf[256];
   unsigned long ldrlen, mfslen;
   bios_parameters_block *bpb;
+  struct geometry geom;
 
   /* Set boot drive and partition.  */
   saved_drive = boot_drive;
   saved_partition = install_partition;
 
   /* Set cdrom drive.  */
-  {
-    struct geometry geom;
 
-    /* Get the geometry.  */
-    if (get_diskinfo (boot_drive, &geom)
-        || ! (geom.flags & BIOSDISK_FLAG_CDROM))
-      cdrom_drive = GRUB_INVALID_DRIVE;
-    else
-      cdrom_drive = boot_drive;
-  }
+  /* Get the geometry.  */
+  if (get_diskinfo (boot_drive, &geom)
+      || ! (geom.flags & BIOSDISK_FLAG_CDROM))
+    cdrom_drive = GRUB_INVALID_DRIVE;
+  else
+    cdrom_drive = boot_drive;
 
   /* setting LIP */
   setlip();
-  printmsg("\r\nsetlip() returned\r\n");
 
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(UFSD_BASE); // uFSD base address
   fsd_init(l);
-  printmsg("uFSD init returned\r\n");
+
+#ifndef STAGE1_5
 
   /* load os2ldr */
   rc = freeldr_open("os2ldr");
@@ -245,23 +247,27 @@ int init(void)
   ft.ft_muTerminate.seg  = STAGE0_SEG;
   ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
-  if (boot_drive == cdrom_drive) {
+  if (boot_drive == cdrom_drive) { // booting from CDROM drive
     /* set BPB */
     bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
     // fill fake BPB
     grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
-    
-    bpb->sect_size = 0x800;
-    bpb->clus_size = 0x40;
-    bpb->n_sect = 0x30d;    // fixme!
+
+    bpb->sect_size  = 0x800;
+    bpb->clus_size  = 0x40;
+    bpb->n_sect_ext = geom.total_sectors; // 0x30d;
     bpb->media_desc = 0xf8;
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
     bpb->disk_num   = (unsigned char)(boot_drive & 0xff);
-    bpb->log_drive  = 0x82; // fixme! (e:)
-    bpb->marker = 0x29;
+    bpb->log_drive  = 0x82;  // fixme! (e:)
+    bpb->marker     = 0x29;
   }
 
+#else
+
+
+#endif
 
   return 0;
 }

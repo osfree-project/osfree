@@ -23,6 +23,8 @@ extrn   init         :near
 extrn   call_pm      :near
 extrn   lip          :dword
 
+ifndef STAGE1_5
+
 extrn   mu_Open      :far
 extrn   mu_Read      :far
 extrn   mu_Close     :far
@@ -34,11 +36,12 @@ extrn   preldr_ds    :word
 extrn   preldr_ss_sp :dword
 extrn   preldr_es    :word
 
+endif
+
 include fsd.inc
 include struc.inc
 include loader.inc
 include bpb.inc
-
 
 .386p
 
@@ -56,7 +59,7 @@ stage0_init:
 ;
 
 ; variables block size
-CONF_VARS_SIZE equ  64
+CONF_VARS_SIZE equ  8
 
 ; this variable is filled with uFSD size,
 ; if stage0 is loaded concatenated with
@@ -194,6 +197,7 @@ reloc:
         call call_pm
         add  sp, 4
 
+ifndef STAGE1_5
         ; save pre-loader segment registers and stack
         mov  ax, ds
         mov  preldr_ds, ax
@@ -232,8 +236,14 @@ reloc:
         push 0
         retf
 
-fname   db "/boot/bootblock",0
-fsize   dd 0
+else
+
+; Control transferring from lite version to full one
+
+endif
+
+;fname   db "/boot/bootblock",0
+;fsize   dd 0
 
 _TEXT16 ends
 

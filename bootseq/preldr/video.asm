@@ -5,11 +5,15 @@
 
 name video
 
+ifndef STAGE1_5
+
 public   printmsg
 public   printb
 public   printw
 public   printd
 public   printhex8
+
+endif
 
 extrn    call_rm       :near
 
@@ -18,6 +22,8 @@ extrn    call_rm       :near
 include fsd.inc
 
 _TEXT16  segment byte public 'CODE'  use16
+
+ifndef STAGE1_5
 
 message:
         push    ebx
@@ -44,7 +50,7 @@ mess1:
 
         pop     esi
         pop     ebx
-        
+
         retf
 
 ;
@@ -88,9 +94,13 @@ pp2:
 
         retf
 
+endif
+
 _TEXT16  ends
 
 _TEXT    segment byte public 'CODE'  use32
+
+ifndef STAGE1_5
 
 ;
 ; void __cdecl printmsg(char *);
@@ -192,6 +202,8 @@ printd  proc near
         ret
 printd  endp
 
+
+endif
 
 _TEXT    ends
 
