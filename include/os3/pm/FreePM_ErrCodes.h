@@ -1,10 +1,13 @@
-/* 
- $Id: FreePM_ErrCodes.h,v 1.1.1.2 2002/09/05 17:55:45 evgen2 Exp $ 
+/*
+ $Id: FreePM_ErrCodes.h,v 1.1.1.2 2002/09/05 17:55:45 evgen2 Exp $
 */
 /* FreePM_ErrCodes.h */
 
 #ifndef FREEPM_ERR_CODES_H
 #define FREEPM_ERR_CODES_H
+
+#define PMERR_OK                          0x0000
+#define PMERR_INVALID_HWND               0x1001
 
 struct OS2_ErrMsg  FreePM_ErrMessages[]=
 {

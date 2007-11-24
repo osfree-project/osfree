@@ -1,8 +1,4 @@
 /* Fs_main.cpp */
-/*
- * $Id: Fs_main.cpp,v 1.14 2003/06/15 17:45:47 evgen2 Exp $
- */
-
 /* main() for server side of FreePM */
 /* DEBUG: section 1     main server */
 /* ver 0.00 20.08.2002       */
@@ -119,33 +115,34 @@ int main(int narg, char *arg[], char *envp[])
   int i,j,rc;
   HMODULE hDeviceLib;
 
-
 /* semaphore setup */
-   rc = SetupSemaphore();
-   if(rc)
-   { if(rc == 2)
+  rc = SetupSemaphore();
+  if(rc)
+  {
+    if(rc == 2)
           printf("%s %s already running\n",_FreePM_Application_Name, _FreePM_Application_Vers);
       exit(rc);
-   }
-   atexit(&FreePM_cleanup);
-   SetupSignals();
+  }
+  atexit(&FreePM_cleanup);
+  SetupSignals();
 
-   rc = QueryProcessType();
-   if(rc == 4)
-       _FreePM_detachedMode = 1;
+  rc = QueryProcessType();
+  if(rc == 4)
+    _FreePM_detachedMode = 1;
 
 /* init time */
-    getCurrentTime();
-    _FreePM_start = _FreePM_current_time;
+  getCurrentTime();
+  _FreePM_start = _FreePM_current_time;
 
 /* init debug */
-    _db_init(_FreePMconfig.Log.log, FPMs_config.debugOptions);
+  _db_init(_FreePMconfig.Log.log, FPMs_config.debugOptions);
 
-   if(_FreePM_detachedMode)
-   { debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-   } else {
-     debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-   }
+  if(_FreePM_detachedMode)
+  {
+    debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
+  } else {
+    debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
+  }
 
 /* read config */
    FPMs_config.Read("FreePMServer.ini");

@@ -1,16 +1,10 @@
-/*
- $Id: F_globals.cpp,v 1.4 2002/11/21 13:19:04 evgen2 Exp $
-*/
 /* F_globals.cpp */
 /* ver 0.01 01.09.2002       */
 
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "F_def.hpp"
-#include "F_config.hpp"
-
-#include "F_globals.hpp"
+#include "FreePM.hpp"
 /*+---------------------------------+*/
 /*| Global variables                |*/
 /*+---------------------------------+*/

@@ -1,16 +1,29 @@
-/*
- $Id: FreePM.hpp,v 1.11 2003/06/18 22:51:49 evgen2 Exp $
-*/
 /* FreePM.hpp */
 /* ver 0.03 10.09.2002 */
 /* first version 0.01 03.07.2002 */
 #ifndef FREEPM_FREEPM
   #define FREEPM_FREEPM
 
+// OS/2 Headers
+#define INCL_PM
+#define INCL_WIN
+#define INCL_SHLERRORS
+#define INCL_WINERRORS
+#define INCL_DOSERRORS
+#define INCL_DOSPROCESS
+#define INCL_DOSNMPIPES
+#define INCL_DOSSEMAPHORES
+#include <osfree.h>
+#include <pmerr.h>
 
+// FreePM specific headers
 #include "F_config.hpp"
 #include "F_def.hpp"
-#include "F_messages.hpp"
+#include "F_pipe.hpp"
+#include "F_globals.hpp"
+#include "F_utils.hpp"
+#include "f_Err.h"
+
 
 /*+---------------------------------+*/
 /*| Global variables                |*/
@@ -19,6 +32,8 @@ extern int _FreePM_id_index;
 
 #define MAX_QMSG_SIZE  64
 #define MAX_SQMSG_SIZE 256
+
+#include "Fs_queue.hpp"
 
 /* message queue. */
 class  FreePM_Queue

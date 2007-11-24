@@ -1,14 +1,13 @@
-/* 
- $Id: F_pipe.hpp,v 1.1.1.2 2002/09/05 17:55:49 evgen2 Exp $ 
-*/
 /* F_pipe.hpp */
 /* class NPipe, связь клиента с сервером */
 #ifndef FREEPM_PIPES
   #define FREEPM_PIPES
 
-#define F_INCL_DOSNMPIPES 
-#include <F_base.hpp>
 #include <builtin.h>
+#include <stdio.h>
+#include <string.h>
+#include <FreePM.hpp>
+
 #define FREEPM_BASE_PIPE_NAME        "\\PIPE\\FREEPM"  /* Base pipe name */
 
 #define MAX_NUM_PIPES 32

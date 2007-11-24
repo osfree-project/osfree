@@ -1,6 +1,3 @@
-/*
- $Id: Fc_main.cpp,v 1.7 2003/06/15 17:45:48 evgen2 Exp $
-*/
 /* Fc_main.cpp */
 /* FreePM client side main*/
 /* DEBUG: section 1     main client */
@@ -10,12 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "FreePM.hpp"
-#define F_INCL_DOSPROCESS
-#define F_INCL_DOSNMPIPES
-#define F_INCL_DOSSEMAPHORES
-   #include "F_OS2.hpp"
-#include "F_pipe.hpp"
-#include "F_utils.hpp"
+//#include "F_utils.hpp"
 #include "Fc_config.hpp"
 
 /*+---------------------------------+*/
@@ -26,6 +18,7 @@
 /*| Global variables                |*/
 /*+---------------------------------+*/
 #include "F_globals.hpp"
+
 class F_ClientConfig FPM_config;
 
 const char *const _FreePM_Application_Name = FREEPM_CLIENT_APPLICATION_NAME;
@@ -59,48 +52,79 @@ static volatile int AccessF_pipe = UNLOCKED;
 
 #define UNLOCK_PIPE  {__lxchg(&AccessF_pipe,UNLOCKED);}
 
-APIRET APIENTRY InitServerConnection(char *remotemachineName)
-{  int rc;
+void ExecuteFreePMServer(void)
+{
+  char Buffer[CCHMAXPATH];
+//  char srcdir[CCHMAXPATH];
+  char CmdLineBuf[2048];
+  char *CmdLine;
+  char *P;
+  RESULTCODES ResultCodes;
+  char ApplierEXE[] = "FreePM.exe";
 
-static  char buf[256];
+  CmdLine = CmdLineBuf;
+  if((((ULONG)CmdLine+1024)&0xFFFF) < 1024)
+      CmdLine += 1024;
+  P = strcpy(CmdLine, ApplierEXE)+strlen(ApplierEXE)+1;
+  *P = '"';
+  P++;
+  P = strcpy(P, Buffer)+strlen(Buffer);
+  *P = '"';
+  P++;
+  *P = 0;
+  P++;
+  *P = 0;
+
+  DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
+}
+
+APIRET APIENTRY InitServerConnection(char *remotemachineName)
+{
+  int rc;
+  char buf[256];
 
 /* init time */
-    getCurrentTime();
+  getCurrentTime();
 
-    _FreePM_start = _FreePM_current_time;
+  _FreePM_start = _FreePM_current_time;
+
 /* First  let's look for FreePM.ini and read it if any */
-   FPM_config.Read("FreePM.ini");
+  FPM_config.Read("FreePM.ini");
+
 /* init debug */
-    _db_init(_FreePMconfig.Log.log, FPM_config.debugOptions);
+  _db_init(_FreePMconfig.Log.log, FPM_config.debugOptions);
 
-   rc = QueryProcessType();
-   if(rc == 4)
-       _FreePM_detachedMode = 1;
+  rc = QueryProcessType();
+  if(rc == 4)
+    _FreePM_detachedMode = 1;
 
-   if(_FreePM_detachedMode)
-   { debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-   } else {
-     debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-   }
-   if(remotemachineName)
-   {  strcpy(FPM_config.ExternMachineName,remotemachineName);
-      ExternMachine = &FPM_config.ExternMachineName[0];
-   } else {
-//       ExternMachineName[0] = 0;
+  if(_FreePM_detachedMode)
+  {
+    debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
+  } else {
+    debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
+  }
+
+  if(remotemachineName)
+  {
+    strcpy(FPM_config.ExternMachineName,remotemachineName);
+    ExternMachine = &FPM_config.ExternMachineName[0];
+  } else {
 /* test for FreePM's semaphore  at local machine */
-      printf(" Fc_main: FREEPM_MUTEX_NAME=%s \n", FREEPM_MUTEX_NAME );
+       debug(1, 0)("Fc_main: FREEPM_MUTEX_NAME=%s \n", FREEPM_MUTEX_NAME );
        HMTX    FREEPM_hmtx     = NULLHANDLE; /* Mutex semaphore handle */
        rc = DosOpenMutexSem(FREEPM_MUTEX_NAME,    /* Semaphore name */
                             &FREEPM_hmtx);        /* Handle returned */
        DosCloseMutexSem(FREEPM_hmtx);
        if(rc)
        {  /* FreePM server is not running at local machine, let's look for FreePM.ini */
-           debug(1, 1)("FreePM server is not running at local machine, test for server at %s\n",FPM_config.ExternMachineName);
-           ExternMachine = &FPM_config.ExternMachineName[0];
+         debug(1, 1)("FreePM server is not running at local machine, test for server at %s\n",FPM_config.ExternMachineName);
+         ExternMachine = &FPM_config.ExternMachineName[0];
        } else {
-            ExternMachine = NULL;
+         ExternMachine = NULL;
        }
    }
+
 /* init connection to FreePM server */
    if(ExternMachine)
    {
@@ -118,11 +142,27 @@ static  char buf[256];
    {
       debug(1, 0)("F_pipe.Open rc = %i (%s)\n",rc,GetOS2ErrorMessage(rc));
       if(ExternMachine)
-      {   debug(1, 0)("%s is not running at remoute machine %s, exitting...\n",FREEPM_SERVER_APPLICATION_NAME,ExternMachine);
+      {
+        debug(1, 0)("%s is not running at remote machine %s. Starting local server...\n",FREEPM_SERVER_APPLICATION_NAME,ExternMachine);
+        ExecuteFreePMServer();
+
+        DosSleep(1000);
+
+        strcpy(PipeName, FREEPM_BASE_PIPE_NAME);
+
+        delete pF_pipe;
+        pF_pipe = new NPipe(PipeName,CLIENT_MODE);
+
+        rc = pF_pipe->Open();
+        if(rc)
+        {
+          debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
+          fatal("FreePM server not running");
+        }
       } else {
           debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
+          fatal("FreePM server not running");
       }
-      fatal("FreePM server not running");
    }
     rc = pF_pipe->HandShake();
     if(rc ==  HAND_SHAKE_ERROR)

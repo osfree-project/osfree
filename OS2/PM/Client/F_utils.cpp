@@ -6,14 +6,8 @@
 
 #include <stdio.h>
 #include <time.h>
-#include "F_def.hpp"
-#include "F_config.hpp"
-#include "F_globals.hpp"
 
 #include "FreePM.hpp"
-#include "F_utils.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
 
 #include <sys/types.h>
 #include <sys/timeb.h>
@@ -46,11 +40,6 @@ int OS2SetRelMaxFH(int ReqCount)
   }
   return (int)CurMaxFH;
 }
-
-
-#ifdef __cplusplus
-      extern "C"
-#endif
 
 int QueryProcessType(void)
 {

@@ -6,11 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#define INCL_DOSPROCESS // Process Manager
-#define INCL_ERRORS     // CPI messages
-#define INCL_WINERRORS  // PM messages
-#define INCL_SHLERRORS  // More PM messages
-#include <osfree.h>
+#include <FreePM.hpp>
 
 #include "habmgr.hpp"
 
@@ -20,18 +16,7 @@
 #include <sys/timeb.h>
 #include <sys/time.h>
 
-#define debug(...)
-
 extern class _FreePM_HAB  _hab;
-
-   /* SQMSG structure */
-   typedef struct _SQMSG    /* sqmsg */
-   {
-      QMSG    qmsg;         /* message */
-      HAB     ihto;         /* iHABto, this field is server writeble */
-      HAB     ihfrom;       /* iHABfrom, this field is client writeble */
-   } SQMSG;
-   typedef SQMSG *PSQMSG;
 
 
 /* time variables */
@@ -134,6 +119,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
                            ULONG msgFilterLast)  /* Last message identity  */
 {   BOOL brc = TRUE;
     int rc,rcs;
+    FPMQMSG fpmqmsg;
 
  debug(3, 2)("WinGetMsg call\n");
 
@@ -153,10 +139,11 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     {
        rc = _hab.hab[ihab].pQueue->GetLength();
        if(rc)
-       {  rc =  _hab.hab[ihab].pQueue->Get(pqmsg);
+       {  rc =  _hab.hab[ihab].pQueue->Get(&fpmqmsg /*pqmsg*/);
           if(rc == 0)
           {  debug(3, 1)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2);
-            if(pqmsg->msg == WM_QUIT) brc = FALSE;
+            if(fpmqmsg.msg == WM_QUIT) brc = FALSE;
+            // Здесь копируем кусок сообщения, т.к. мы используем расширенное
             return brc;
           }
        } else {
@@ -259,7 +246,7 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
                             MPARAM mp1,
                             MPARAM mp2)
 {   int rc,rcf,i,iHAB;
-    QMSG msg;
+    FPMQMSG msg;
     msg.hwnd = hwnd;
     msg.msg = umsg;
     msg.mp1 = mp1;
@@ -267,9 +254,9 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
     msg.time =  getCurrentTime(); /* В предпложении time_t = int, todo */
 
 //todo    msg.ptl =
-//temp    msg.uid = 0;
-//temp    msg.remoteId = 0;
-//temp    msg.dtime = _FreePM_curtime;
+    msg.uid = 0;
+    msg.remoteId = 0;
+    msg.dtime = _FreePM_curtime;
 
 /* проверим все окна, принадлежащие  hab на предмет принадлежности hwnd */
   rc = _hab.QueryHwnd(hwnd);

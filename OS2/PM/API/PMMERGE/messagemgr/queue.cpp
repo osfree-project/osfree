@@ -1,15 +1,10 @@
-/*
- $Id: F_messages.cpp,v 1.3 2002/09/06 14:59:33 evgen2 Exp $
-*/
 /* F_messages.cpp  */
 /* class  FreePM_Queue stuff */
 /* ver 0.00 16.08.2002       */
 
+#include "freepm.h"
 
-#define INCL_DOSPROCESS
-#include "osfree.h"
-
-#include <queue.hpp>
+//#include <queue.hpp>
 
 #include <builtin.h>
 /* Add message to queue */
@@ -18,7 +13,7 @@
    rc = 2 - pmsg is NULL
    rc = 3 - First message was overwrited for circle queue
 */
-int FreePM_Queue::Add(PQMSG pmsg)
+int FreePM_Queue::Add(PFPMQMSG pmsg)
 {   int ind,rc=0,rcS;
     if(pmsg == NULL)
            return 2;
@@ -110,7 +105,7 @@ int FreePM_Queue::DelFirst(void)
    rc = 2 - pmsg is NULL
 */
 
-int FreePM_Queue::Get(PQMSG pmsg)
+int FreePM_Queue::Get(PFPMQMSG pmsg)
 {  int rcS;
    if(length == 0)
              return 1;

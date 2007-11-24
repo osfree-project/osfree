@@ -1,6 +1,3 @@
-/* 
- $Id: F_errors.cpp,v 1.2 2002/09/06 12:29:43 evgen2 Exp $ 
-*/
 /* F_errors.cpp */
 /* Error codes and messages  */
 /* ver 0.00 21.08.2002       */
@@ -9,18 +6,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "F_def.hpp"
-#include "F_config.hpp"
-#include "F_globals.hpp"
 
-// #include <OS2WERR.H> // ToolKit
-#include <error.h>
-#include <bseerr.h>
+#include "FreePM.hpp"
+
 #include "os2_ErrCodes.h"
-
-#include "FreePM_err.hpp"
 #include "FreePM_ErrCodes.h"
-/*#include "snprintf.h"*/
 
 char * GetOS2ErrorMessage(int ierr)
 { int i;

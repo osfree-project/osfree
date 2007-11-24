@@ -1,6 +1,3 @@
-/* 
- $Id: os2_ErrCodes.h,v 1.1.1.2 2002/09/05 17:55:51 evgen2 Exp $ 
-*/
 /* os2_ErrCodes.h */
 #ifndef OS2_ERR_CODES_H
 #define OS2_ERR_CODES_H
@@ -11,25 +8,20 @@ struct OS2_ErrMsg
 };
 
 
-#define ERROR_SUCCESS     0L  
-									/* Needs to be corrected!!! */
-#define EBADMODE          -1			
-#define EOS2ERR			  -2
+#define ERROR_SUCCESS     0L
+                                                                        /* Needs to be corrected!!! */
+#define EBADMODE          -1
+#define EOS2ERR                   -2
 #define ERROR_OUTOFMEMORY      ERROR_NOT_ENOUGH_MEMORY
-#define EBADNAME 		  	   ERROR_INVALID_NAME 
-#define ERROR_HANDLE_DISK_FULL ERROR_DISK_FULL 
-#define ERROR_HANDLE_EOF           -3				/*Not used in FreePM. Only in include/os2_ErrCodes.h*/
-#define EISTEMPMEM                 -4				/*Not used in FreePM. */
-#define EBADSHARE				   -5				/*Not used in FreePM. */
-#define ERROR_REM_NOT_LIST         -6				/*Not used in FreePM. */
+#define EBADNAME                           ERROR_INVALID_NAME
+#define EISTEMPMEM                 -4                           /*Not used in FreePM. */
+#define EBADSHARE                                  -5                           /*Not used in FreePM. */
 #define EBUFMODE                   -7
-#define ERROR_DUP_NAME          ERROR_INVALID_NAME
 #define EERRSET                    -8
-#define ERROR_BAD_NETPATH          -9
-#define ERROR_NETWORK_BUSY      ERROR_NETWORK_ACCESS_DENIED
 #define EISOPEN                 ERROR_OPEN_FAILED
 
-#if USE_SOCKETS	 
+
+#if USE_SOCKETS
 
 struct OS2_ErrMsg  OS2TCPErrMessages[]=
 {
@@ -85,7 +77,7 @@ SOCENOTEMPTY,      "Directory not empty"
 struct OS2_ErrMsg  OS2_ErrMessages[]=
 {
 NO_ERROR,      "NO_ERROR",
-ERROR_SUCCESS, "SUCCESS",				/*Not used in FreePM. Only here.*/
+ERROR_SUCCESS, "SUCCESS",                               /*Not used in FreePM. Only here.*/
 ERROR_INVALID_FUNCTION,        "INVALID_FUNCTION",
 ERROR_FILE_NOT_FOUND,  "FILE_NOT_FOUND",
 ERROR_PATH_NOT_FOUND,  "PATH_NOT_FOUND",

@@ -8,13 +8,13 @@
 #include <osfree.h>
 #include <malloc.h>
 
-#include <queue.hpp>
+//#include <queue.hpp>
 #include <window.hpp>
 
 #define LOCKED    1
 #define UNLOCKED  0
 
-#define FREEPMS_MAX_NUM_THREADS 1024
+//#define FREEPMS_MAX_NUM_THREADS 1024
 
 #define Q_ORDINAL_HAB   0
 #define Q_ORDINAL_INDEX 1

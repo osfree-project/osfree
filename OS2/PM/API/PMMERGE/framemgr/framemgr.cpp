@@ -88,7 +88,8 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
     return hwnd;
 }
 
-   HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
+/* Create standard Window */
+HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
                                      ULONG flStyle,
                                      PULONG pflCreateFlags,
                                      PCSZ  pszClientClass,
@@ -98,18 +99,6 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
                                      ULONG idResources,
                                      PHWND phwndClient)
 
-#if 0
-/* Create standard Window */
-HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
-                                  ULONG flStyle,
-                                  PULONG pflCreateFlags,
-                                  PSZ pszClientClass,
-                                  PSZ pszTitle,
-                                  ULONG styleClient,
-                                  HMODULE hmod,
-                                  ULONG idResources,
-                                  PHWND phwndClient)
-#endif
 {
   HWND hwndFrame=NULL, hwndClient=NULL;
   int rc,data,len;

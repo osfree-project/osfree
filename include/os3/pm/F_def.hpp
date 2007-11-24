@@ -1,13 +1,9 @@
-/*
- $Id: F_def.hpp,v 1.3 2003/06/18 22:51:49 evgen2 Exp $
-*/
 /* F_def.hpp */
 /* defines */
 /* ver 0.02 20.08.2002 */
 
 #ifndef FREEPMDEF
   #define FREEPMDEF
-#include "F_basedef.hpp"
 
 #ifdef __cplusplus
       extern "C" {
@@ -31,19 +27,6 @@
 #define FPM_W_DEVT_SDDNUCLEUS   3
 
 
-
-/*** Predefined window handles ********/
-#define HWND_DESKTOP               (HWND)-1
-#define HWND_TOP                   (HWND)-3
-#define HWND_BOTTOM                (HWND)-4
-
-/*** Predefined window handles in PM !!! ********/
-
-   #define PM_HWND_DESKTOP               (HWND)1
-   #define PM_HWND_OBJECT                (HWND)2
-   #define PM_HWND_TOP                   (HWND)3
-   #define PM_HWND_BOTTOM                (HWND)4
-   #define PM_HWND_THREADCAPTURE         (HWND)5
 /* Utility for conversion FreePM to PM predefined window handles */
 /* Should be used called from PM_api.cpp  */
 HWND  F_convertHandleToPM(HWND hwnd);

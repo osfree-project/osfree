@@ -10,13 +10,19 @@
 
 INT main ( VOID )
 {
-   HAB         habAnchor ;
+   HAB         habAnchor;
 
    // Initialize this thread
-   habAnchor = WinInitialize ( 0 ) ;
+   habAnchor = WinInitialize ( 0 );
+
+   // Try to initialize this thread again (for error check)
+   habAnchor = WinInitialize ( 0 );
 
    // Terminate this thread
-   WinTerminate ( habAnchor ) ;
+   WinTerminate ( habAnchor );
+
+   // Terminate this thread again
+   WinTerminate ( habAnchor );
    return 0 ;
 }
 

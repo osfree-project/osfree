@@ -1,10 +1,33 @@
-/*
- $Id: Fs_queue.hpp,v 1.1 2002/09/11 10:56:23 evgen2 Exp $
-*/
 /* Fs_queue.hpp */
 /* ver 0.00 10.09.2002 */
 #ifndef FREEPMS_QUEUE
   #define FREEPMS_QUEUE
+
+   /* QMSG structure */
+   typedef struct _FPMQMSG    /* qmsg */
+   {
+      HWND    hwnd;
+      ULONG   msg;
+      MPARAM  mp1;
+      MPARAM  mp2;
+      ULONG   time;   /* compatibility time of message in msec since system boot */
+      POINTL  ptl;
+      ULONG   uid;    /* user id - reserved in old PM _QMSG */
+/* =======> end of old PM _QMSG structure <======= */
+      ULONG   remoteId; /* 0- local message, else remote connection id */
+      double  dtime;  /* time of message in sec */
+   } FPMQMSG;
+   typedef FPMQMSG *PFPMQMSG;
+
+   /* SQMSG structure */
+   typedef struct _SQMSG    /* sqmsg */
+   {
+      QMSG    qmsg;         /* message */
+      HAB     ihto;         /* iHABto, this field is server writeble */
+      HAB     ihfrom;       /* iHABfrom, this field is client writeble */
+   } SQMSG;
+   typedef SQMSG *PSQMSG;
+
 
 /* server message queue. */
 class  Fs_Queue

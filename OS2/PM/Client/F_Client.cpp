@@ -13,20 +13,7 @@
 
 #include "FreePM.hpp"
 
-#define F_INCL_DOSSEMAPHORES
-#define F_INCL_DOSNMPIPES
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
-#include "F_pipe.hpp"
-
 #include "F_win.hpp"
-
-
-/*+---------------------------------+*/
-/*| Global variables                |*/
-/*+---------------------------------+*/
-#include "F_globals.hpp"
-
 
 /* Internal functions prototypes */
 
