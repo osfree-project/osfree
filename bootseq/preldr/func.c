@@ -5,11 +5,9 @@
 
 #include <shared.h>
 #include <filesys.h>
+#include <lip.h>
 #include "fsys.h"
-
-int  stage0_mount (void);
-int  stage0_read (char *buf, int len);
-int  stage0_dir (char *dirname);
+#include "fsd.h"
 
 void (*disk_read_func) (int, int, int);
 void (*disk_read_hook) (int, int, int);
@@ -44,7 +42,7 @@ int debug = 0;
 struct geometry buf_geom;
 
 /* filesystem type */
-int fsys_type = NUM_FSYS;
+int fsys_type = -1;
 #ifndef NO_BLOCK_FILES
 static int block_file = 0;
 #endif /* NO_BLOCK_FILES */
@@ -429,15 +427,133 @@ static void
 attempt_mount (void)
 {
 #ifndef STAGE1_5
-  for (fsys_type = 0; fsys_type < NUM_FSYS; fsys_type++)
-    if ((fsys_table[fsys_type].mount_func) ())
-      break;
+  //for (fsys_type = 0; fsys_type < NUM_FSYS; fsys_type++)
+  //  if ((fsys_table[fsys_type].mount_func) ())
+  //    break;
+  char buf[64];
+  char *fsys_name;
+  int  m, k, t, rc;
+  int  saved_fsys_type;
+  int           saved_slice;
+  int           saved_fsmax;
+  int  saved_buf_drive;
+  int  saved_buf_track;
+  struct geometry saved_buf_geom;
+  unsigned long saved_current_partition;
+  unsigned long saved_current_drive;
+  unsigned long saved_cdrom;
+  unsigned long saved_part_start;
+  unsigned long saved_part_length;
+  unsigned long saved_filemax;
+  unsigned long saved_filepos;
 
-  if (fsys_type == NUM_FSYS && errnum == ERR_NONE)
+  fsys_type = -1; // boot filesystem
+  /* move boot drive uFSD to working buffer */
+  grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
+  /* call uFSD init (set linkage) */
+  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+  fsd_init(l);
+
+  if (!stage0_mount())
+    for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) {
+      m = grub_strlen(preldr_path);
+      grub_memmove((void *)buf, preldr_path, m);
+      t = grub_strlen(fsd_dir);
+      grub_memmove((void *)(buf + m), fsd_dir, t);
+      fsys_name = fsys_list[fsys_type];
+      k = grub_strlen(fsys_name);
+      grub_memmove((void *)(buf + m + t), fsys_name, k);
+      grub_memmove((void *)(buf + m + t + k), ".fsd\0", 5);
+
+      saved_fsys_type = fsys_type;
+      saved_current_drive = current_drive;
+      saved_cdrom = cdrom_drive;
+      saved_slice = current_slice;
+      saved_current_partition = current_partition;
+      saved_fsmax = fsmax;
+      saved_part_start = part_start;
+      saved_part_length = part_length;
+      saved_filemax = filemax;
+      saved_filepos = filepos;
+      saved_buf_drive = buf_drive;
+      saved_buf_track = buf_track;
+      grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
+
+      //__asm {
+      //  push fsys_type
+      //  push current_drive
+      //  push cdrom_drive
+      //  push current_slice
+      //  push current_partition
+      //  push fsmax
+      //  push part_start
+      //  push part_length
+      //  push filemax
+      //  push filepos
+      //}
+
+      fsys_type = -1; // boot filesystem
+      /* move boot drive uFSD to working buffer */
+      grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
+      /* call uFSD init (set linkage) */
+      fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+      fsd_init(l);
+
+      rc = freeldr_open(buf);
+
+      if (rc)
+        rc = freeldr_read((void *)(EXT2BUF_BASE), -1);
+      else
+        panic("can't open filesystem: ", buf);
+
+      printmsg(" uFSD file read, size:");
+      printd(rc);
+      printmsg("\r\n");
+
+      grub_memmove((void *)(EXT_BUF_BASE), (void *)(EXT2BUF_BASE), EXT_LEN);
+
+      fsd_init = (void *)(EXT_BUF_BASE);
+      fsd_init(l);
+
+      //__asm {
+      //  pop  filepos
+      //  pop  filemax
+      //  pop  part_length
+      //  pop  part_start
+      //  pop  fsmax
+      //  pop  current_partition
+      //  pop  current_slice
+      //  pop  cdrom_drive
+      //  pop  current_drive
+      //  pop  fsys_type
+      //}
+
+      fsys_type = saved_fsys_type;
+      current_drive = saved_current_drive;
+      cdrom_drive = saved_cdrom;
+      current_slice = saved_slice;
+      current_partition = saved_current_partition;
+      fsmax = saved_fsmax;
+      part_start = saved_part_start;
+      part_length = saved_part_length;
+      filemax = saved_filemax;
+      filepos = saved_filepos;
+      buf_drive = saved_buf_drive;
+      buf_track = saved_buf_track;
+      grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
+
+      if (stage0_mount())
+        break;
+    }
+
+  if (fsys_type == num_fsys && errnum == ERR_NONE)
     errnum = ERR_FSYS_MOUNT;
+  //if (fsys_type == NUM_FSYS && errnum == ERR_NONE)
+  //  errnum = ERR_FSYS_MOUNT;
 #else
-  fsys_type = 0;
-  if ((*(fsys_table[fsys_type].mount_func)) () != 1)
+  //fsys_type = 0;
+  //if ((*(fsys_table[fsys_type].mount_func)) () != 1)
+  if (stage0_mount() != 1)
     {
       fsys_type = NUM_FSYS;
       errnum = ERR_FSYS_MOUNT;
@@ -445,6 +561,8 @@ attempt_mount (void)
 #endif
 }
 
+
+#if 1
 
 /* Forward declarations.  */
 int next_bsd_partition (unsigned long drive, unsigned long dest,
@@ -736,6 +854,7 @@ real_open_partition (int flags)
                &part_start, &part_length,
                &part_offset, &entry, &ext_offset, buf))
     {
+
 #ifndef STAGE1_5
     loop_start:
 
@@ -858,6 +977,8 @@ real_open_partition (int flags)
   return 0;
 }
 
+
+#endif
 
 int
 open_partition (void)
@@ -1101,7 +1222,7 @@ setup_part (char *filename)
     }
   else if (saved_drive != current_drive
            || saved_partition != current_partition
-           || (*filename == '/' && fsys_type == NUM_FSYS)
+           || (*filename == '/' && fsys_type == num_fsys)
            || buf_drive == -1)
     {
       current_drive = saved_drive;
@@ -1191,8 +1312,6 @@ substring (const char *s1, const char *s2)
 
 }
 
-
-#ifndef STAGE1_5
 int
 grub_strlen (const char *str)
 {
@@ -1204,6 +1323,33 @@ grub_strlen (const char *str)
   return len;
 }
 
+int grub_index(char c, char *s)
+{
+  int  i  = 0;
+  char *p = s;
+
+  while (*p != '\0' && *p++ != c) i++;
+  if (!*p) return 0;
+
+  return ++i;
+}
+
+int
+grub_strcmp (const char *s1, const char *s2)
+{
+  while (*s1 || *s2)
+    {
+      if (*s1 < *s2)
+        return -1;
+      else if (*s1 > *s2)
+        return 1;
+      s1 ++;
+      s2 ++;
+    }
+
+  return 0;
+}
+
 
 char *
 grub_strcpy (char *dest, const char *src)
@@ -1211,7 +1357,19 @@ grub_strcpy (char *dest, const char *src)
   grub_memmove (dest, src, grub_strlen (src) + 1);
   return dest;
 }
-#endif /* ! STAGE1_5 */
+
+char *
+grub_strncpy (char *dest, const char *src, int n)
+{
+  int i;
+
+  for (i = 0; i < n; i++) {
+    dest[i] = src[i];
+    if (!src[i]) break;
+  }
+
+  return dest;
+}
 
 
 int
@@ -1432,7 +1590,8 @@ restart:
 
           /* since we use the same filesystem buffer, mark it to
              be remounted */
-          fsys_type = NUM_FSYS;
+          //fsys_type = NUM_FSYS;
+          fsys_type = num_fsys;
 
           BLK_BLKSTART (list_addr) = tmp;
           ptr++;
@@ -1474,15 +1633,16 @@ restart:
 #endif /* NO_BLOCK_FILES */
     }
 
-  if (!errnum && fsys_type == NUM_FSYS)
+  if (!errnum && fsys_type == num_fsys) // fsys_type == NUM_FSYS)
     errnum = ERR_FSYS_MOUNT;
 
 # ifndef STAGE1_5
   /* set "dir" function to open a file */
   print_possibilities = 0;
 # endif
-
-  if (!errnum && (*(fsys_table[fsys_type].dir_func)) (filename))
+                                // NUM_FSYS + 1
+  if ( !errnum && stage0_dir(filename) )
+     //  (!errnum && (*(fsys_table[fsys_type].dir_func)) (filename)) )
     {
 #ifndef NO_DECOMPRESSION
       return gunzip_test_header ();
@@ -1604,13 +1764,15 @@ grub_read (char *buf, int len)
     }
 #endif /* NO_BLOCK_FILES */
 
-  if (fsys_type == NUM_FSYS)
+                     // NUM_FSYS
+  if (fsys_type == num_fsys)
     {
       errnum = ERR_FSYS_MOUNT;
       return 0;
     }
 
-  return (*(fsys_table[fsys_type].read_func)) (buf, len);
+  return stage0_read(buf, len);
+  //return (*(fsys_table[fsys_type].read_func)) (buf, len);
 }
 
 /* Reposition a file offset.  */
@@ -1637,8 +1799,8 @@ dir (char *dirname)
 
   if (*dirname != '/')
     errnum = ERR_BAD_FILENAME;
-
-  if (fsys_type == NUM_FSYS)
+                   // NUM_FSYS
+  if (fsys_type == num_fsys)
     errnum = ERR_FSYS_MOUNT;
 
   if (errnum)
@@ -1647,7 +1809,10 @@ dir (char *dirname)
   /* set "dir" function to list completions */
   print_possibilities = 1;
 
-  return (*(fsys_table[fsys_type].dir_func)) (dirname);
+  //if (fsys_type == NUM_FSYS + 1)
+  return stage0_dir(dirname);
+
+  //return (*(fsys_table[fsys_type].dir_func)) (dirname);
 }
 #endif /* STAGE1_5 */
 
@@ -1659,6 +1824,9 @@ grub_close (void)
     return;
 #endif /* NO_BLOCK_FILES */
 
-  if (fsys_table[fsys_type].close_func != 0)
-    (*(fsys_table[fsys_type].close_func)) ();
+  //if (fsys_type == NUM_FSYS + 1)
+  stage0_close();
+  //else
+  //  if (fsys_table[fsys_type].close_func != 0)
+  //    (*(fsys_table[fsys_type].close_func)) ();
 }

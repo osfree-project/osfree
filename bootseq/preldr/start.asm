@@ -26,7 +26,7 @@ _BSS     ends
 DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS
 
 _TEXT    segment byte public 'CODE'  use32
-         org UFSD_BASE
+         org EXT_BUF_BASE
 fsd_init:
 _TEXT    ends
 

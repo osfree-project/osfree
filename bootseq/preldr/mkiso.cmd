@@ -11,10 +11,13 @@ cd   ..\bootsec\eltorito
 if   not exist eltorito.bin wmake eltorito.bin
 cd   ..\..\preldr
 copy ..\bootsec\eltorito\eltorito.bin .
-call mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblock
-move bootblock ..\..\..\cd\boot
+call mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
+move bootblk ..\..\..\cd\boot
+copy preldr0 ..\..\..\cd\boot\freeldr
+copy preldr.ini ..\..\..\cd\boot\freeldr
+copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
 del  bb
 cd   ..\..\..
-.\mkisofs2 -b boot/bootblock -no-emul-boot -boot-load-size 4 -boot-info-table -iso-level 3 -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
+.\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 4 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 move osfree.iso \sys\vm\vpc\bochs\img
 cd   osfree\bootseq\preldr

@@ -22,6 +22,7 @@ int    (*psubstring)    (const char *s1, const char *s2);
 int    (*pgrub_memcmp)  (const char *s1, const char *s2, int n);
 void * (*pgrub_memmove) (void *_to, const void *_from, int _len);
 void * (*pgrub_memset)  (void *start, int c, int len);
+int    (*pgrub_strcmp)  (const char *, const char *);
 int    (*pgrub_isspace) (int c);
 int    (*pgrub_tolower) (int c);
 int    (*pgrub_read)    (char *buf, int len);
@@ -66,6 +67,7 @@ init(lip_t *l)
    pgrub_memcmp  = l->lip_memcmp;
    pgrub_memmove = l->lip_memmove;
    pgrub_memset  = l->lip_memset;
+   pgrub_strcmp  = l->lip_strcmp;
    pgrub_isspace = l->lip_isspace;
    pgrub_tolower = l->lip_tolower;
    pgrub_read    = l->lip_read;
@@ -97,6 +99,8 @@ init(lip_t *l)
    l->lip_fs_mount = &fs_mount;
    l->lip_fs_read  = &fs_read;
    l->lip_fs_dir   = &fs_dir;
+   l->lip_fs_close = 0;
+   l->lip_fs_embed = 0;
 
    return 0;
 }

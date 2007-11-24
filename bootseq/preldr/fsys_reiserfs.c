@@ -22,7 +22,10 @@
 #include "shared.h"
 #include "filesys.h"
 
+#include "fsys.h"
 #include "misc.h"
+
+int print_possibilities = 0;
 
 #undef REISERDEBUG
 
@@ -155,7 +158,9 @@ struct offset_v2
    * hash collisions. If number of collisions overflows generation
    * number, we return EEXIST.  High order bit is 0 always
    */
-  __u64 k_offset:60;
+  //__u64 k_offset:60;
+  __u64 k_offset1:32;
+  __u64 k_offset2:28;
   __u64 k_type: 4;
 };
 
@@ -216,9 +221,14 @@ struct item_head
 
 #define ITEM_VERSION_1 0
 #define ITEM_VERSION_2 1
+//#define IH_KEY_OFFSET(ih) ((ih)->ih_version == ITEM_VERSION_1
+//                           ? (ih)->ih_key.u.v1.k_offset
+//                           : (ih)->ih_key.u.v2.k_offset)
+
 #define IH_KEY_OFFSET(ih) ((ih)->ih_version == ITEM_VERSION_1 \
                            ? (ih)->ih_key.u.v1.k_offset \
-                           : (ih)->ih_key.u.v2.k_offset)
+                           : ((ih)->ih_key.u.v2.k_offset1 & (0xffffffff) + (__u64)((ih)->ih_key.u.v2.k_offset2 & 0x0fffffff) << 32))
+
 
 #define IH_KEY_ISTYPE(ih, type) ((ih)->ih_version == ITEM_VERSION_1 \
                                  ? (ih)->ih_key.u.v1.k_uniqueness == V1_##type \
@@ -367,8 +377,8 @@ struct fsys_reiser_info
 #define JOURNAL_START    ((__u32 *) (INFO + 1))
 #define JOURNAL_END      ((__u32 *) (FSYS_BUF + FSYS_BUFLEN))
 
-
-static __inline__ unsigned long
+/*
+static inline unsigned long
 log2 (unsigned long word)
 {
   __asm__ ("bsfl %1,%0"
@@ -376,8 +386,26 @@ log2 (unsigned long word)
            : "r" (word));
   return word;
 }
+ */
 
-static __inline__ int
+static inline unsigned long
+log2 (unsigned long word)
+{
+  unsigned long l;
+
+  l = word;
+
+  __asm {
+     bsf   eax, l
+     mov   l,   eax
+  }
+
+  return l;
+}
+
+
+//static __inline__ int
+static inline int
 is_power_of_two (unsigned long word)
 {
   return (word & -word) == word;
@@ -386,7 +414,7 @@ is_power_of_two (unsigned long word)
 static int
 journal_read (int block, int len, char *buffer)
 {
-  return devread ((INFO->journal_block + block) << INFO->blocksize_shift,
+  return (*pdevread) ((INFO->journal_block + block) << INFO->blocksize_shift,
                   0, len, buffer);
 }
 
@@ -460,7 +488,7 @@ block_read (int blockNr, int start, int len, char *buffer)
     not_found:
       desc_block = (desc_block + 2 + j_len) & journal_mask;
     }
-  return devread (translatedNr << INFO->blocksize_shift, start, len, buffer);
+  return (*pdevread) (translatedNr << INFO->blocksize_shift, start, len, buffer);
 }
 
 /* Init the journal data structure.  We try to cache as much as
@@ -499,7 +527,7 @@ journal_init (void)
   while (1)
     {
       journal_read (desc_block, sizeof (desc), (char *) &desc);
-      if (substring (JOURNAL_DESC_MAGIC, desc.j_magic) > 0
+      if ((*psubstring) (JOURNAL_DESC_MAGIC, desc.j_magic) > 0
           || desc.j_trans_id != next_trans_id
           || desc.j_mount_id != header.j_mount_id)
         /* no more valid transactions */
@@ -563,7 +591,7 @@ journal_init (void)
 
   INFO->journal_transactions
     = next_trans_id - header.j_last_flush_trans_id - 1;
-  return errnum == 0;
+  return *perrnum == 0;
 }
 
 /* check filesystem types and read superblock into memory buffer */
@@ -573,29 +601,29 @@ reiserfs_mount (void)
   struct reiserfs_super_block super;
   int superblock = REISERFS_DISK_OFFSET_IN_BYTES >> SECTOR_BITS;
 
-  if (part_length < superblock + (sizeof (super) >> SECTOR_BITS)
-      || ! devread (superblock, 0, sizeof (struct reiserfs_super_block),
+  if (*ppart_length < superblock + (sizeof (super) >> SECTOR_BITS)
+      || ! (*pdevread) (superblock, 0, sizeof (struct reiserfs_super_block),
                 (char *) &super)
-      || (substring (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) > 0
-          && substring (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) > 0
-          && substring (REISERFS_SUPER_MAGIC_STRING, super.s_magic) > 0)
+      || ((*psubstring) (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) > 0
+          && (*psubstring) (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) > 0
+          && (*psubstring) (REISERFS_SUPER_MAGIC_STRING, super.s_magic) > 0)
       || (/* check that this is not a copy inside the journal log */
           super.s_journal_block * super.s_blocksize
           <= REISERFS_DISK_OFFSET_IN_BYTES))
     {
       /* Try old super block position */
       superblock = REISERFS_OLD_DISK_OFFSET_IN_BYTES >> SECTOR_BITS;
-      if (part_length < superblock + (sizeof (super) >> SECTOR_BITS)
-          || ! devread (superblock, 0, sizeof (struct reiserfs_super_block),
+      if (*ppart_length < superblock + (sizeof (super) >> SECTOR_BITS)
+          || ! (*pdevread) (superblock, 0, sizeof (struct reiserfs_super_block),
                         (char *) &super))
         return 0;
 
-      if (substring (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) > 0
-          && substring (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) > 0
-          && substring (REISERFS_SUPER_MAGIC_STRING, super.s_magic) > 0)
+      if ((*psubstring) (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) > 0
+          && (*psubstring) (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) > 0
+          && (*psubstring) (REISERFS_SUPER_MAGIC_STRING, super.s_magic) > 0)
         {
           /* pre journaling super block ? */
-          if (substring (REISERFS_SUPER_MAGIC_STRING,
+          if ((*psubstring) (REISERFS_SUPER_MAGIC_STRING,
                          (char*) ((int) &super + 20)) > 0)
             return 0;
 
@@ -622,7 +650,7 @@ reiserfs_mount (void)
 #endif /* REISERDEBUG */
 
   /* Clear node cache. */
-  memset (INFO->blocks, 0, sizeof (INFO->blocks));
+  (*pgrub_memset) (INFO->blocks, 0, sizeof (INFO->blocks));
 
   if (super.s_blocksize < FSYSREISER_MIN_BLOCKSIZE
       || super.s_blocksize > FSYSREISER_MAX_BLOCKSIZE
@@ -661,7 +689,7 @@ reiserfs_mount (void)
     {
       /* There is only one node in the whole filesystem,
        * which is simultanously leaf and root */
-      memcpy (LEAF, ROOT, INFO->blocksize);
+      (*pgrub_memmove) (LEAF, ROOT, INFO->blocksize);
     }
   return 1;
 }
@@ -715,7 +743,7 @@ read_tree_node (unsigned int blockNr, int depth)
   /* Make sure it has the right node level */
   if (BLOCKHEAD (cache)->blk_level != depth)
     {
-      errnum = ERR_FSYS_CORRUPT;
+      *perrnum = ERR_FSYS_CORRUPT;
       return 0;
     }
 
@@ -880,7 +908,7 @@ search_stat (__u32 dir_id, __u32 objectid)
         }
       ih++;
     }
-  errnum = ERR_FSYS_CORRUPT;
+  *perrnum = ERR_FSYS_CORRUPT;
   return 0;
 }
 
@@ -894,27 +922,27 @@ reiserfs_read (char *buf, int len)
 
 #ifdef REISERDEBUG
   printf ("reiserfs_read: filepos=%d len=%d, offset=%x:%x\n",
-          filepos, len, (__u64) IH_KEY_OFFSET (INFO->current_ih) - 1);
+          *pfilepos, len, (__u64) IH_KEY_OFFSET (INFO->current_ih) - 1);
 #endif /* REISERDEBUG */
 
   if (INFO->current_ih->ih_key.k_objectid != INFO->fileinfo.k_objectid
-      || IH_KEY_OFFSET (INFO->current_ih) > filepos + 1)
+      || IH_KEY_OFFSET (INFO->current_ih) > *pfilepos + 1)
     {
       search_stat (INFO->fileinfo.k_dir_id, INFO->fileinfo.k_objectid);
       goto get_next_key;
     }
 
-  while (! errnum)
+  while (! *perrnum)
     {
       if (INFO->current_ih->ih_key.k_objectid != INFO->fileinfo.k_objectid)
         break;
 
-      offset = filepos - IH_KEY_OFFSET (INFO->current_ih) + 1;
+      offset = *pfilepos - IH_KEY_OFFSET (INFO->current_ih) + 1;
       blocksize = INFO->current_ih->ih_item_len;
 
 #ifdef REISERDEBUG
       printf ("  loop: filepos=%d len=%d, offset=%d blocksize=%d\n",
-              filepos, len, offset, blocksize);
+              *pfilepos, len, offset, blocksize);
 #endif /* REISERDEBUG */
 
       if (IH_KEY_ISTYPE(INFO->current_ih, TYPE_DIRECT)
@@ -938,7 +966,7 @@ reiserfs_read (char *buf, int len)
               disk_read_func = NULL;
             }
           else
-            memcpy (buf, INFO->current_item + offset, to_read);
+            (*pgrub_memmove) (buf, INFO->current_item + offset, to_read);
           goto update_buf_len;
         }
       else if (IH_KEY_ISTYPE(INFO->current_ih, TYPE_INDIRECT))
@@ -964,7 +992,7 @@ reiserfs_read (char *buf, int len)
               /* Journal is only for meta data.  Data blocks can be read
                * directly without using block_read
                */
-              devread (blocknr << INFO->blocksize_shift,
+              (*pdevread) (blocknr << INFO->blocksize_shift,
                        blk_offset, to_read, buf);
 
               disk_read_func = NULL;
@@ -972,7 +1000,7 @@ reiserfs_read (char *buf, int len)
               len -= to_read;
               buf += to_read;
               offset += to_read;
-              filepos += to_read;
+              *pfilepos += to_read;
               if (len == 0)
                 goto done;
             }
@@ -981,7 +1009,7 @@ reiserfs_read (char *buf, int len)
       next_key ();
     }
  done:
-  return errnum ? 0 : buf - prev_buf;
+  return *perrnum ? 0 : buf - prev_buf;
 }
 
 
@@ -1032,36 +1060,36 @@ reiserfs_dir (char *dirname)
           int len;
           if (++link_count > MAX_LINK_COUNT)
             {
-              errnum = ERR_SYMLINK_LOOP;
+              *perrnum = ERR_SYMLINK_LOOP;
               return 0;
             }
 
           /* Get the symlink size. */
-          filemax = ((struct stat_data *) INFO->current_item)->sd_size;
+          *pfilemax = ((struct stat_data *) INFO->current_item)->sd_size;
 
           /* Find out how long our remaining name is. */
           len = 0;
-          while (dirname[len] && !isspace (dirname[len]))
+          while (dirname[len] && !(*pgrub_isspace) (dirname[len]))
             len++;
 
-          if (filemax + len > sizeof (linkbuf) - 1)
+          if (*pfilemax + len > sizeof (linkbuf) - 1)
             {
-              errnum = ERR_FILELENGTH;
+              *perrnum = ERR_FILELENGTH;
               return 0;
             }
 
           /* Copy the remaining name to the end of the symlink data.
              Note that DIRNAME and LINKBUF may overlap! */
-          grub_memmove (linkbuf + filemax, dirname, len+1);
+          (*pgrub_memmove) (linkbuf + *pfilemax, dirname, len+1);
 
           INFO->fileinfo.k_dir_id = dir_id;
           INFO->fileinfo.k_objectid = objectid;
-          filepos = 0;
+          *pfilepos = 0;
           if (! next_key ()
-              || reiserfs_read (linkbuf, filemax) != filemax)
+              || reiserfs_read (linkbuf, *pfilemax) != *pfilemax)
             {
-              if (! errnum)
-                errnum = ERR_FSYS_CORRUPT;
+              if (! *perrnum)
+                *perrnum = ERR_FSYS_CORRUPT;
               return 0;
             }
 
@@ -1090,23 +1118,23 @@ reiserfs_dir (char *dirname)
       /* if we have a real file (and we're not just printing possibilities),
          then this is where we want to exit */
 
-      if (! *dirname || isspace (*dirname))
+      if (! *dirname || (*pgrub_isspace) (*dirname))
         {
           if (! S_ISREG (mode))
             {
-              errnum = ERR_BAD_FILETYPE;
+              *perrnum = ERR_BAD_FILETYPE;
               return 0;
             }
 
-          filepos = 0;
-          filemax = ((struct stat_data *) INFO->current_item)->sd_size;
+          *pfilepos = 0;
+          *pfilemax = ((struct stat_data *) INFO->current_item)->sd_size;
 
           /* If this is a new stat data and size is > 4GB set filemax to
            * maximum
            */
           if (INFO->current_ih->ih_version == ITEM_VERSION_2
               && ((struct stat_data *) INFO->current_item)->sd_size_hi > 0)
-            filemax = 0xffffffff;
+            *pfilemax = 0xffffffff;
 
           INFO->fileinfo.k_dir_id = dir_id;
           INFO->fileinfo.k_objectid = objectid;
@@ -1118,10 +1146,10 @@ reiserfs_dir (char *dirname)
         dirname++;
       if (! S_ISDIR (mode))
         {
-          errnum = ERR_BAD_FILETYPE;
+          *perrnum = ERR_BAD_FILETYPE;
           return 0;
         }
-      for (rest = dirname; (ch = *rest) && ! isspace (ch) && ch != '/'; rest++);
+      for (rest = dirname; (ch = *rest) && ! (*pgrub_isspace) (ch) && ch != '/'; rest++);
       *rest = 0;
 
 # ifndef STAGE1_5
@@ -1165,7 +1193,7 @@ reiserfs_dir (char *dirname)
                    * don't call next_key () in between.
                    */
                   *name_end = 0;
-                  cmp = substring (dirname, filename);
+                  cmp = (*psubstring) (dirname, filename);
                   *name_end = tmp;
 # ifndef STAGE1_5
                   if (do_possibilities)
@@ -1197,7 +1225,7 @@ reiserfs_dir (char *dirname)
         return 1;
 # endif /* ! STAGE1_5 */
 
-      errnum = ERR_FILE_NOT_FOUND;
+      *perrnum = ERR_FILE_NOT_FOUND;
       *rest = ch;
       return 0;
 
@@ -1219,14 +1247,14 @@ reiserfs_embed (int *start_sector, int needed_sectors)
   struct reiserfs_super_block super;
   int num_sectors;
 
-  if (! devread (REISERFS_DISK_OFFSET_IN_BYTES >> SECTOR_BITS, 0,
+  if (! (*pdevread) (REISERFS_DISK_OFFSET_IN_BYTES >> SECTOR_BITS, 0,
                  sizeof (struct reiserfs_super_block), (char *) &super))
     return 0;
 
   *start_sector = 1; /* reserve first sector for stage1 */
-  if ((substring (REISERFS_SUPER_MAGIC_STRING, super.s_magic) <= 0
-       || substring (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) <= 0
-       || substring (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) <= 0)
+  if (((*psubstring) (REISERFS_SUPER_MAGIC_STRING, super.s_magic) <= 0
+       || (*psubstring) (REISER2FS_SUPER_MAGIC_STRING, super.s_magic) <= 0
+       || (*psubstring) (REISER3FS_SUPER_MAGIC_STRING, super.s_magic) <= 0)
       && (/* check that this is not a super block copy inside
            * the journal log */
           super.s_journal_block * super.s_blocksize

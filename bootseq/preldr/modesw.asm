@@ -254,9 +254,9 @@ call_rm proc near
 call_rm endp
 
 __CHK:
-__I8LS:
         ret  4
-
+__I8LS:
+        ret
 _TEXT   ends
 
 _DATA   segment byte public 'DATA' use32

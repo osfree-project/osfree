@@ -185,6 +185,8 @@ get_diskinfo (int drive, struct geometry *geometry)
 {
   int err;
 
+  // valerius:
+  //grub_memset(geometry, 0, sizeof(struct geometry));
   /* Clear the flags.  */
   geometry->flags = 0;
 

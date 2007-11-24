@@ -100,18 +100,20 @@ _TEXT16  ends
 
 _TEXT    segment byte public 'CODE'  use32
 
+
 ifndef STAGE1_5
 
 ;
-; void __cdecl printmsg(char *);
+; void printmsg(char *);
 ;
 
 printmsg proc near
-        push    ebp
-        mov     ebp, esp
+        ;push    ebp
+        ;mov     ebp, esp
 
         push    esi
-        mov     esi, [ebp + 8]
+        ;mov     esi, [ebp + 8]
+        mov     esi, eax
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -122,21 +124,22 @@ printmsg proc near
         add     esp, 4
         pop     esi
 
-        pop     ebp
+        ;pop     ebp
 
         ret
 printmsg endp
 
 ;
-; void __cdecl printb(unsigned char);
+; void printb(unsigned char);
 ;
 
 printb  proc near
-        push    ebp
-        mov     ebp, esp
+        ;push    ebp
+        ;mov     ebp, esp
 
         push    esi
-        mov     esi, [ebp + 8]
+        ;mov     esi, [ebp + 8]
+        mov     esi, eax
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -147,21 +150,22 @@ printb  proc near
         add     esp, 4
         pop     esi
 
-        pop     ebp
+        ;pop     ebp
 
         ret
 printb  endp
 
 ;
-; void __cdecl printw(unsigned short);
+; void printw(unsigned short);
 ;
 
 printw  proc near
-        push    ebp
-        mov     ebp, esp
+        ;push    ebp
+        ;mov     ebp, esp
 
         push    esi
-        mov     esi, [ebp + 8]
+        ;mov     esi, [ebp + 8]
+        mov     esi, eax
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -172,21 +176,22 @@ printw  proc near
         add     esp, 4
         pop     esi
 
-        pop     ebp
+        ;pop     ebp
 
         ret
 printw  endp
 
 ;
-; void __cdecl printd(unsigned long);
+; void printd(unsigned long);
 ;
 
 printd  proc near
-        push    ebp
-        mov     ebp, esp
+        ;push    ebp
+        ;mov     ebp, esp
 
         push    esi
-        mov     esi, [ebp + 8]
+        ;mov     esi, [ebp + 8]
+        mov     esi, eax
         ; enter real mode
         mov     eax, STAGE0_BASE
         shl     eax, 12
@@ -197,11 +202,10 @@ printd  proc near
         add     esp, 4
         pop     esi
 
-        pop     ebp
+        ;pop     ebp
 
         ret
 printd  endp
-
 
 endif
 

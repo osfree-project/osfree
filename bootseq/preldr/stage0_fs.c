@@ -16,9 +16,24 @@
 lip_t *l;
 lip_t lip;
 
-#pragma aux lip "*"
+int  num_fsys = 0;
 
-int __cdecl (*fsd_init)(lip_t *l);
+#ifndef STAGE1_5
+
+char linebuf[512];
+char lb[80];
+char driveletter = 0x80;
+
+char *preldr_path = "/boot/freeldr/"; // freeldr path
+char *fsd_dir     = "fsd/";           // uFSD's subdir
+char *cfg_file    = "preldr.ini";     // .INI file
+
+char *fsys_list[FSYS_MAX];
+char fsys_stbl[FSYS_MAX*10];
+
+#endif
+
+#pragma aux lip "*"
 
 extern mu_Open;
 extern mu_Read;
@@ -41,10 +56,6 @@ extern int fsmax;
 
 void __cdecl real_test(void);
 void __cdecl call_rm(fp_t);
-void __cdecl printmsg(char *);
-void __cdecl printb(unsigned char);
-void __cdecl printw(unsigned short);
-void __cdecl printd(unsigned long);
 
 int
 freeldr_open (char *filename)
@@ -61,7 +72,7 @@ freeldr_open (char *filename)
    printmsg("\r\n");
 
    /* prepend "/" to filename */
-   if (*filename != '/') {
+   if (*filename != '/' && *filename != '(') {
      buf[0] = '/';
      i0 = 1;
    }
@@ -114,6 +125,20 @@ int  stage0_dir (char *dirname)
   return l->lip_fs_dir(dirname);
 }
 
+void stage0_close(void)
+{
+  if (l->lip_fs_close)
+    l->lip_fs_close();
+}
+
+int  stage0_embed(int *start_sector, int needed_sectors)
+{
+  if (l->lip_fs_embed)
+    return l->lip_fs_embed(start_sector, needed_sectors);
+
+  return 0;
+}
+
 void setlip(void)
 {
   l = &lip;
@@ -164,6 +189,182 @@ void setlip(void)
   l->lip_fsmax         = &fsmax;
 }
 
+#ifndef STAGE1_5
+
+/*  Returns a next line from a file in memory
+ *  and changes current position (*p)
+ */
+char *getline(char **p)
+{
+  int  i = 0;
+  char *q = *p;
+
+  if (!q)
+    panic("getline(): zero pointer: ", "*p");
+
+  while (*q != '\n' && *q != '\r' && *q != '\0' && i < 512)
+    linebuf[i++] = *q++;
+
+  if (*q == '\r') q++;
+  if (*q == '\n') q++;
+
+  linebuf[i] = '\0';
+  *p = q;
+
+  if (!*linebuf)
+    return linebuf;
+
+  /* skip comments */
+  i = grub_index(';', linebuf);
+  if (i) linebuf[i] = '\0';
+
+  /* if empty line, get new line */
+  if (!*linebuf)
+    return getline(p);
+
+  return linebuf;
+}
+
+/* if s is a string of type "var = val" then this
+ * function returns var
+ */
+char *var(char *s)
+{
+  int i;
+
+  i = grub_index('=', s);
+  if (i) grub_strncpy(lb, s, i - 1);
+  lb[i - 1] = '\0';
+
+  return lb;
+}
+
+/* if s is a string of type "var = val" then this
+ * function returns val
+ */
+char *val(char *s)
+{
+  int i, l;
+
+  i = grub_index('=', s);
+  l = grub_strlen(s) - i;
+  if (i) grub_strncpy(lb, s + i, l);
+  lb[l] = '\0';
+
+  return lb;
+}
+
+/*  Strip leading and trailing
+ *  spaces
+ */
+char *strip(char *s)
+{
+  char *p = s;
+  int  i;
+
+  i = grub_strlen(p) - 1;
+  while (grub_isspace(p[i])) p[i--] = '\0'; // strip trailing spaces
+  while (grub_isspace(*p)) p++;             // strip leading spaces
+
+  return p;
+}
+
+/*  Parse .INI file
+ *
+ */
+int parse_cfg(void)
+{
+  char buff[512];
+  int  l, i, size, rc;
+  char *cfg, *p, *line, *s, *r;
+
+  l = grub_strlen(preldr_path);
+  grub_memmove(buff, preldr_path, l);
+  grub_memmove(buff + l, cfg_file, grub_strlen(cfg_file));
+
+  rc = freeldr_open(buff);
+
+  cfg = (char *)(EXT2BUF_BASE);
+
+  if (rc) {
+    printmsg("file ");
+    printmsg(buff);
+    printmsg(" opened, ");
+    size = freeldr_read((void *)cfg, -1);
+    printmsg("size: ");
+    printd(size);
+  } else
+    return 0;
+
+  /* parse .INI file */
+  p = cfg;
+  while (*p) {
+    line = strip(getline(&p));
+    if (!*line) continue;
+
+    if (!grub_strcmp(line, "[global]")) {
+      /* [global] section */
+      while (*p) {
+        line = getline(&p);
+        if (!*line) break;
+
+        if (!grub_strcmp(strip(var(line)), "driveletter")) {
+          grub_strcpy(buff, strip(val(line)));
+          driveletter = *buff; // first letter
+          driveletter = grub_tolower(driveletter) - 'a';
+          if (driveletter > 1) // not floppy
+            driveletter = driveletter - 2 + 0x80;
+
+          continue;
+        }
+      }
+      continue;
+    }
+    if (!grub_strcmp(line, "[fsd]")) {
+      /* [filesys] section */
+      while (*p) {
+        line = getline(&p);
+        if (!*line) break;
+
+        if (!grub_strcmp(var(line), "list")) {
+          grub_strcpy(fsys_stbl, strip(val(line)));
+          s = fsys_stbl;
+          r = fsys_stbl;
+          num_fsys = 0;
+          while (*s) {
+            while (*s && *s != ',') s++;
+            *s = '\0';
+            fsys_list[num_fsys] = r;
+            r = s + 1;
+            s = r;
+            num_fsys++;
+          }
+          //for (i = 0; i < num_fsys; i++) {
+          //  printmsg("\r\n");
+          //  printmsg(fsys_list[i]);
+          //}
+          //while (1) {;}
+
+          continue;
+        }
+      }
+      continue;
+    }
+  }
+
+  return 1;
+}
+
+void panic(char *msg, char *file)
+{
+  printmsg("Fatal error: \r\n");
+  printmsg(msg);
+  printmsg(file);
+  while (1) {};
+}
+
+#endif
+
 int init(void)
 {
   int rc;
@@ -176,8 +377,7 @@ int init(void)
   saved_drive = boot_drive;
   saved_partition = install_partition;
 
-  /* Set cdrom drive.  */
-
+  /* Set cdrom drive.   */
   /* Get the geometry.  */
   if (get_diskinfo (boot_drive, &geom)
       || ! (geom.flags & BIOSDISK_FLAG_CDROM))
@@ -188,11 +388,17 @@ int init(void)
   /* setting LIP */
   setlip();
 
+  /* move boot drive uFSD to working buffer */
+  grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
-  fsd_init = (void *)(UFSD_BASE); // uFSD base address
+  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
   fsd_init(l);
 
 #ifndef STAGE1_5
+
+  /* parse config file */
+  if (!parse_cfg())
+    panic("config file doesn't exist!", "");
 
   /* load os2ldr */
   rc = freeldr_open("os2ldr");
@@ -222,18 +428,34 @@ int init(void)
   printd(mfslen);
   printmsg("\r\n");
 
+  /* load test file */
+  rc = freeldr_open("(fd0)/os2ldr.msg");
+  printmsg("freeldr_open(\"(fd0)/os2ldr.msg\") returned: ");
+  printd(rc);
+  if (rc) {
+    rc = freeldr_read((char *)(0x400000), -1);
+    printmsg("\r\nfreeldr_read() returned size: ");
+    printd(rc);
+    printmsg("\r\n");
+  }
+
+  __asm {
+    cli
+    hlt
+  }
+
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD;
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_RIPL;
   /* set filetable */
-  ft.ft_cfiles = 3;
+  ft.ft_cfiles = 4;
   ft.ft_ldrseg = LDR_SEG;
   ft.ft_ldrlen = ldrlen;
-  ft.ft_museg  = STAGE0_SEG;
-  ft.ft_mulen  = 0xb000;     // It is empirically found maximal value
+  ft.ft_museg  = BOOTSEC_SEG;
+  ft.ft_mulen  = 0xb000;  // It is empirically found maximal value
   ft.ft_mfsseg = MFS_SEG;
   ft.ft_mfslen = mfslen;
-  ft.ft_ripseg = 0;          //
-  ft.ft_riplen = 0;          // No RIPL data yet
+  ft.ft_ripseg = 0x800;   //
+  ft.ft_riplen = 0x3084;  // max
 
   ft.ft_muOpen.seg       = STAGE0_SEG;
   ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
@@ -260,7 +482,7 @@ int init(void)
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
     bpb->disk_num   = (unsigned char)(boot_drive & 0xff);
-    bpb->log_drive  = 0x82;  // fixme! (e:)
+    bpb->log_drive  = driveletter; // 0x92;
     bpb->marker     = 0x29;
   }
 

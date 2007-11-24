@@ -28,7 +28,10 @@
 #include "shared.h"
 #include "filesys.h"
 
+#include "fsys.h"
 #include "misc.h"
+
+int print_possibilities = 0;
 
 /* #define DEBUG_MINIX */
 
@@ -48,11 +51,11 @@ static int mapblock1, mapblock2, namelen;
 #define SBLOCK (WHICH_SUPER * BLOCK_SIZE / DEV_BSIZE)   /* = 2 */
 
 /* include/asm-i386/type.h */
-typedef __signed__ char __s8;
+typedef signed   char __s8;
 typedef unsigned char __u8;
-typedef __signed__ short __s16;
+typedef signed   short __s16;
 typedef unsigned short __u16;
-typedef __signed__ int __s32;
+typedef signed   int __s32;
 typedef unsigned int __u32;
 
 /* include/linux/minix_fs.h */
@@ -132,7 +135,7 @@ struct minix_super_block {
 
 struct minix_dir_entry {
         __u16 inode;
-        char name[0];
+        char name[1]; //[0]
 };
 
 /* made up, these are pointers into FSYS_BUF */
@@ -162,16 +165,16 @@ struct minix_dir_entry {
 int
 minix_mount (void)
 {
-  if (((current_drive & 0x80) || current_slice != 0)
-      && ! IS_PC_SLICE_TYPE_MINIX (current_slice)
-      && ! IS_PC_SLICE_TYPE_BSD_WITH_FS (current_slice, FS_OTHER))
+  if (((*pcurrent_drive & 0x80) || *pcurrent_slice != 0)
+      && ! IS_PC_SLICE_TYPE_MINIX (*pcurrent_slice)
+      && ! IS_PC_SLICE_TYPE_BSD_WITH_FS (*pcurrent_slice, FS_OTHER))
     return 0;                   /* The partition is not of MINIX type */
 
-  if (part_length < (SBLOCK +
+  if (*ppart_length < (SBLOCK +
                      (sizeof (struct minix_super_block) / DEV_BSIZE)))
     return 0;                   /* The partition is too short */
 
-  if (!devread (SBLOCK, 0, sizeof (struct minix_super_block),
+  if (!(*pdevread) (SBLOCK, 0, sizeof (struct minix_super_block),
                 (char *) SUPERBLOCK))
     return 0;                   /* Cannot read superblock */
 
@@ -194,7 +197,7 @@ minix_mount (void)
 static int
 minix_rdfsb (int fsblock, int buffer)
 {
-  return devread (fsblock * (BLOCK_SIZE / DEV_BSIZE), 0,
+  return (*pdevread) (fsblock * (BLOCK_SIZE / DEV_BSIZE), 0,
                   BLOCK_SIZE, (char *) buffer);
 }
 
@@ -216,7 +219,7 @@ minix_block_map (int logical_block)
       if (!i || ((mapblock1 != 1)
                  && !minix_rdfsb (i, DATABLOCK1)))
         {
-          errnum = ERR_FSYS_CORRUPT;
+          *perrnum = ERR_FSYS_CORRUPT;
           return -1;
         }
       mapblock1 = 1;
@@ -228,7 +231,7 @@ minix_block_map (int logical_block)
   if (!i || ((mapblock1 != 2)
              && !minix_rdfsb (i, DATABLOCK1)))
     {
-      errnum = ERR_FSYS_CORRUPT;
+      *perrnum = ERR_FSYS_CORRUPT;
       return -1;
     }
   mapblock1 = 2;
@@ -236,7 +239,7 @@ minix_block_map (int logical_block)
   if (!i || ((mapblock2 != i)
              && !minix_rdfsb (i, DATABLOCK2)))
     {
-      errnum = ERR_FSYS_CORRUPT;
+      *perrnum = ERR_FSYS_CORRUPT;
       return -1;
     }
   mapblock2 = i;
@@ -256,8 +259,8 @@ minix_read (char *buf, int len)
   while (len > 0)
     {
       /* find the (logical) block component of our location */
-      logical_block = filepos >> BLOCK_SIZE_BITS;
-      offset = filepos & (BLOCK_SIZE - 1);
+      logical_block = *pfilepos >> BLOCK_SIZE_BITS;
+      offset = *pfilepos & (BLOCK_SIZE - 1);
       map = minix_block_map (logical_block);
 #ifdef DEBUG_MINIX
       printf ("map=%d\n", map);
@@ -272,18 +275,18 @@ minix_read (char *buf, int len)
 
       disk_read_func = disk_read_hook;
 
-      devread (map * (BLOCK_SIZE / DEV_BSIZE),
+      (*pdevread) (map * (BLOCK_SIZE / DEV_BSIZE),
                offset, size, buf);
 
       disk_read_func = NULL;
 
       buf += size;
       len -= size;
-      filepos += size;
+      *pfilepos += size;
       ret += size;
     }
 
-  if (errnum)
+  if (*perrnum)
     ret = 0;
 
   return ret;
@@ -347,7 +350,7 @@ minix_dir (char *dirname)
       raw_inode = INODE + ((current_ino - 1) % MINIX_INODES_PER_BLOCK);
 
       /* copy inode to fixed location */
-      memmove ((void *) INODE, (void *) raw_inode,
+      (*pgrub_memmove) ((void *) INODE, (void *) raw_inode,
                sizeof (struct minix_inode));
 
       /* If we've got a symbolic link, then chase it. */
@@ -357,7 +360,7 @@ minix_dir (char *dirname)
 
           if (++link_count > MAX_LINK_COUNT)
             {
-              errnum = ERR_SYMLINK_LOOP;
+              *perrnum = ERR_SYMLINK_LOOP;
               return 0;
             }
 #ifdef DEBUG_MINIX
@@ -366,14 +369,14 @@ minix_dir (char *dirname)
 
           /* Find out how long our remaining name is. */
           len = 0;
-          while (dirname[len] && !isspace (dirname[len]))
+          while (dirname[len] && !(*pgrub_isspace) (dirname[len]))
             len++;
 
           /* Get the symlink size. */
-          filemax = (INODE->i_size);
-          if (filemax + len > sizeof (linkbuf) - 2)
+          *pfilemax = (INODE->i_size);
+          if (*pfilemax + len > sizeof (linkbuf) - 2)
             {
-              errnum = ERR_FILELENGTH;
+              *perrnum = ERR_FILELENGTH;
               return 0;
             }
 
@@ -381,13 +384,13 @@ minix_dir (char *dirname)
             {
               /* Copy the remaining name to the end of the symlink data.
                  Note that DIRNAME and LINKBUF may overlap! */
-              memmove (linkbuf + filemax, dirname, len);
+              (*pgrub_memmove) (linkbuf + *pfilemax, dirname, len);
             }
-          linkbuf[filemax + len] = '\0';
+          linkbuf[*pfilemax + len] = '\0';
 
           /* Read the necessary blocks, and reset the file pointer. */
-          len = grub_read (linkbuf, filemax);
-          filepos = 0;
+          len = (*pgrub_read) (linkbuf, *pfilemax);
+          *pfilepos = 0;
           if (!len)
             return 0;
 
@@ -413,15 +416,15 @@ minix_dir (char *dirname)
         }
 
       /* If end of filename, INODE points to the file's inode */
-      if (!*dirname || isspace (*dirname))
+      if (!*dirname || (*pgrub_isspace) (*dirname))
         {
           if (!S_ISREG (INODE->i_mode))
             {
-              errnum = ERR_BAD_FILETYPE;
+              *perrnum = ERR_BAD_FILETYPE;
               return 0;
             }
 
-          filemax = (INODE->i_size);
+          *pfilemax = (INODE->i_size);
           return 1;
         }
 
@@ -436,12 +439,12 @@ minix_dir (char *dirname)
          abort */
       if (!(INODE->i_size) || !S_ISDIR (INODE->i_mode))
         {
-          errnum = ERR_BAD_FILETYPE;
+          *perrnum = ERR_BAD_FILETYPE;
           return 0;
         }
 
       /* skip to next slash or end of filename (space) */
-      for (rest = dirname; (ch = *rest) && !isspace (ch) && ch != '/';
+      for (rest = dirname; (ch = *rest) && !(*pgrub_isspace) (ch) && ch != '/';
            rest++);
 
       /* look through this directory and find the next filename component */
@@ -467,7 +470,7 @@ minix_dir (char *dirname)
                 }
               else
                 {
-                  errnum = ERR_FILE_NOT_FOUND;
+                  *perrnum = ERR_FILE_NOT_FOUND;
                   *rest = ch;
                 }
               return (print_possibilities < 0);
@@ -486,7 +489,7 @@ minix_dir (char *dirname)
           mapblock2 = -1;
           if ((map < 0) || !minix_rdfsb (map, DATABLOCK2))
             {
-              errnum = ERR_FSYS_CORRUPT;
+              *perrnum = ERR_FSYS_CORRUPT;
               *rest = ch;
               return 0;
             }
@@ -509,7 +512,7 @@ minix_dir (char *dirname)
               int saved_c = dp->name[namelen];
 
               dp->name[namelen] = 0;
-              str_chk = substring (dirname, dp->name);
+              str_chk = (*psubstring) (dirname, dp->name);
 
 # ifndef STAGE1_5
               if (print_possibilities && ch != '/'
@@ -517,7 +520,7 @@ minix_dir (char *dirname)
                 {
                   if (print_possibilities > 0)
                     print_possibilities = -print_possibilities;
-                  print_a_completion (dp->name);
+                  //print_a_completion (dp->name);
                 }
 # endif
 

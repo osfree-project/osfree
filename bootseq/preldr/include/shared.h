@@ -65,11 +65,13 @@ extern char *grub_scratch_mem;
  */
 
 #define BUFFERLEN   0x7e00
-#define BUFFERADDR  RAW_ADDR (0x70000)
-#define BUFFERSEG   RAW_SEG (0x7000)
+//#define BUFFERADDR  RAW_ADDR (0x70000)
+//#define BUFFERSEG   RAW_SEG (0x7000)
+#define BUFFERADDR  RAW_ADDR (0x52200)
+#define BUFFERSEG   RAW_SEG (0x5220)
 
 //#define BOOT_PART_TABLE RAW_ADDR (0x07be)
-#define BOOT_PART_TABLE RAW_ADDR (0x60000)
+#define BOOT_PART_TABLE RAW_ADDR (0x68000)
 
 /*
  *  BIOS disk defines
@@ -86,17 +88,19 @@ extern char *grub_scratch_mem;
  */
 
 #define FSYS_BUFLEN  0x8000
-#define FSYS_BUF RAW_ADDR (0x68000)
+//#define FSYS_BUF RAW_ADDR (0x68000)
+#define FSYS_BUF RAW_ADDR (0x5A000)
 
 /* Command-line buffer for Multiboot kernels and modules. This area
    includes the area into which Stage 1.5 and Stage 1 are loaded, but
    that's no problem.  */
 //#define MB_CMDLINE_BUF          RAW_ADDR (0x2000)
-#define MB_CMDLINE_BUF          RAW_ADDR (0x60400)
+#define MB_CMDLINE_BUF          RAW_ADDR (0x62000)
 #define MB_CMDLINE_BUFLEN       0x6000
 
 /* The buffer for the password.  */
-#define PASSWORD_BUF            RAW_ADDR (0x78000)
+//#define PASSWORD_BUF            RAW_ADDR (0x78000)
+#define PASSWORD_BUF            RAW_ADDR (0x685a0)
 #define PASSWORD_BUFLEN         0x200
 
 /* THe buffer for the filename of "/boot/grub/default".  */
@@ -901,6 +905,10 @@ int grub_memcmp (const char *s1, const char *s2, int n);
 int grub_strcmp (const char *s1, const char *s2);
 int grub_strlen (const char *str);
 char *grub_strcpy (char *dest, const char *src);
+
+// added by valerius
+int grub_index(char c, char *s);
+char *grub_strncpy (char *dest, const char *src, int n);
 
 #ifndef GRUB_UTIL
 typedef unsigned long grub_jmp_buf[6];

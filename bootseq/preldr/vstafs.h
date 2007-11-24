@@ -19,12 +19,12 @@
 
 
 #ifndef VSTAFS_H
-#define VSTAFS_H	1
+#define VSTAFS_H        1
 
 
-#define LINE			16
-#define BLOCK_SIZE		512
-#define VSTAFS_START_DATA	320
+#define LINE                    16
+#define BLOCK_SIZE              512
+#define VSTAFS_START_DATA       320
 
 struct bootrecord
 {
@@ -52,7 +52,7 @@ struct first_sector
   unsigned long fs_size;
   unsigned long fs_extsize;
   unsigned long fs_free;
-  struct  alloc fs_freesecs[0];
+  struct  alloc fs_freesecs[1]; // [0]
 };
 
 struct prot
@@ -76,7 +76,7 @@ struct fs_file
   struct alloc blocks[32];
   long fs_ctime, fs_mtime; /* it is not lon but time_t */
   char pad[16];
-  char data[0];
+  char data[1]; // [0]
 };
 
 struct dir_entry

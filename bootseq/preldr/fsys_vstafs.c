@@ -23,7 +23,10 @@
 #include "filesys.h"
 #include "vstafs.h"
 
+#include "fsys.h"
 #include "misc.h"
+
+int print_possibilities = 0;
 
 static void get_file_info (int sector);
 static struct dir_entry *vstafs_readdir (long sector);
@@ -40,7 +43,7 @@ static struct dir_entry *vstafs_nextdir (void);
  * In f_sector we store the sector number in which the information about
  * the found file is.
  */
-extern int filepos;
+extern int *pfilepos;
 static int f_sector;
 
 int
@@ -48,9 +51,9 @@ vstafs_mount (void)
 {
   int retval = 1;
 
-  if( (((current_drive & 0x80) || (current_slice != 0))
-       && current_slice != PC_SLICE_TYPE_VSTAFS)
-      ||  ! devread (0, 0, BLOCK_SIZE, (char *) FSYS_BUF)
+  if( (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+       && *pcurrent_slice != PC_SLICE_TYPE_VSTAFS)
+      ||  ! (*pdevread) (0, 0, BLOCK_SIZE, (char *) FSYS_BUF)
       ||  FIRST_SECTOR->fs_magic != 0xDEADFACE)
     retval = 0;
 
@@ -60,7 +63,7 @@ vstafs_mount (void)
 static void
 get_file_info (int sector)
 {
-  devread (sector, 0, BLOCK_SIZE, (char *) FILE_INFO);
+  (*pdevread) (sector, 0, BLOCK_SIZE, (char *) FILE_INFO);
 }
 
 static int curr_ext, current_direntry, current_blockpos;
@@ -75,13 +78,13 @@ vstafs_readdir (long sector)
   get_file_info (sector);
   if (FILE_INFO->type != 2)
     {
-      errnum = ERR_FILE_NOT_FOUND;
+      *perrnum = ERR_FILE_NOT_FOUND;
       return 0;
     }
 
   a = FILE_INFO->blocks;
   curr_ext = 0;
-  devread (a[curr_ext].a_start, 0, 512, (char *) DIRECTORY_BUF);
+  (*pdevread) (a[curr_ext].a_start, 0, 512, (char *) DIRECTORY_BUF);
   current_direntry = 11;
   current_blockpos = 0;
 
@@ -102,12 +105,12 @@ vstafs_nextdir (void)
 
       if (curr_ext < FILE_INFO->extents)
         {
-          devread (a[curr_ext].a_start + current_blockpos, 0,
+          (*pdevread) (a[curr_ext].a_start + current_blockpos, 0,
                    512, (char *) DIRECTORY_BUF);
         }
       else
         {
-          /* errnum =ERR_FILE_NOT_FOUND; */
+          /* *perrnum =ERR_FILE_NOT_FOUND; */
           return 0;
         }
     }
@@ -138,7 +141,7 @@ vstafs_dir (char *dirname)
        */
       while (*dirname == '/') dirname++;
       fn = dirname;
-      while ((ch = *fn) && ch != '/' && ! isspace (ch)) fn++;
+      while ((ch = *fn) && ch != '/' && ! (*pgrub_isspace) (ch)) fn++;
       *fn = 0;
 
       do
@@ -148,19 +151,19 @@ vstafs_dir (char *dirname)
 
 #ifndef STAGE1_5
           if (print_possibilities && ch != '/'
-              && (! *dirname || strcmp (dirname, d->name) <= 0))
+              && (! *dirname || (*pgrub_strcmp) (dirname, d->name) <= 0))
             {
               if (print_possibilities > 0)
                 print_possibilities = -print_possibilities;
 
-              printf ("  %s", d->name);
+              //(*pgrub_printf) ("  %s", d->name);
             }
 #endif
-          if (! grub_strcmp (dirname, d->name))
+          if (! (*pgrub_strcmp) (dirname, d->name))
             {
               f_sector = d->start;
               get_file_info (f_sector);
-              filemax = FILE_INFO->len;
+              *pfilemax = FILE_INFO->len;
               break;
             }
         }
@@ -169,17 +172,17 @@ vstafs_dir (char *dirname)
       *(dirname = fn) = ch;
       if (! d)
         {
-          if (print_possibilities < 0)
-            {
-              putchar ('\n');
-              return 1;
-            }
+          //if (print_possibilities < 0)
+          //  {
+          //    putchar ('\n');
+          //    return 1;
+          //  }
 
-          errnum = ERR_FILE_NOT_FOUND;
+          *perrnum = ERR_FILE_NOT_FOUND;
           return 0;
         }
     }
-  while (*dirname && ! isspace (ch));
+  while (*dirname && ! (*pgrub_isspace) (ch));
 
   return 1;
 }
@@ -198,18 +201,18 @@ vstafs_read (char *addr, int len)
   size = FILE_INFO->len-VSTAFS_START_DATA;
   a = FILE_INFO->blocks;
 
-  if (filepos > 0)
+  if (*pfilepos > 0)
     {
-      if (filepos < a[0].a_len * 512 - VSTAFS_START_DATA)
+      if (*pfilepos < a[0].a_len * 512 - VSTAFS_START_DATA)
         {
-          offset = filepos + VSTAFS_START_DATA;
+          offset = *pfilepos + VSTAFS_START_DATA;
           extent = 0;
-          curr_len = a[0].a_len * 512 - offset - filepos;
+          curr_len = a[0].a_len * 512 - offset - *pfilepos;
         }
       else
         {
           ext_size = a[0].a_len * 512 - VSTAFS_START_DATA;
-          offset = filepos - ext_size;
+          offset = *pfilepos - ext_size;
           extent = 1;
           do
             {
@@ -243,7 +246,7 @@ vstafs_read (char *addr, int len)
           curr_len += size;
         }
 
-      devread (a[curr_ext].a_start,offset, curr_len, curr_pos);
+      (*pdevread) (a[curr_ext].a_start,offset, curr_len, curr_pos);
       offset = 0;
     }
 

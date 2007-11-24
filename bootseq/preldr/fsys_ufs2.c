@@ -61,7 +61,10 @@
 
 #include "ufs2.h"
 
+#include "fsys.h"
 #include "misc.h"
+
+int print_possibilities = 0;
 
 /* used for filesystem map blocks */
 static int mapblock;
@@ -89,13 +92,13 @@ ufs2_mount (void)
   sblockloc = -1;
   type = 0;
 
-  if (! (((current_drive & 0x80) || (current_slice != 0))
-         && ! IS_PC_SLICE_TYPE_BSD_WITH_FS (current_slice, FS_BSDFFS)))
+  if (! (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+         && ! IS_PC_SLICE_TYPE_BSD_WITH_FS (*pcurrent_slice, FS_BSDFFS)))
     {
       for (i = 0; sblock_try[i] != -1; ++i)
         {
-          if (! (part_length < (sblock_try[i] + (SBLOCKSIZE / DEV_BSIZE))
-                 || ! devread (0, sblock_try[i], SBLOCKSIZE, (char *) SUPERBLOCK)))
+          if (! (*ppart_length < (sblock_try[i] + (SBLOCKSIZE / DEV_BSIZE))
+                 || ! (*pdevread) (0, sblock_try[i], SBLOCKSIZE, (char *) SUPERBLOCK)))
             {
               if (SUPERBLOCK->fs_magic == FS_UFS2_MAGIC /* &&
                                                            (SUPERBLOCK->fs_sblockloc == sblockloc ||
@@ -149,12 +152,12 @@ block_map (int file_block)
           offset = 0;
         }
 
-      if (! devread (bnum, offset * sizeof (int), bsize, (char *) MAPBUF))
+      if (! (*pdevread) (bnum, offset * sizeof (int), bsize, (char *) MAPBUF))
         {
           mapblock = -1;
           mapblock_bsize = -1;
           mapblock_offset = -1;
-          errnum = ERR_FSYS_CORRUPT;
+          *perrnum = ERR_FSYS_CORRUPT;
           return -1;
         }
 
@@ -173,10 +176,10 @@ ufs2_read (char *buf, int len)
   int logno, off, size, ret = 0;
   grub_int64_t map;
 
-  while (len && !errnum)
+  while (len && !*perrnum)
     {
-      off = blkoff (SUPERBLOCK, filepos);
-      logno = lblkno (SUPERBLOCK, filepos);
+      off = blkoff (SUPERBLOCK, *pfilepos);
+      logno = lblkno (SUPERBLOCK, *pfilepos);
       size = blksize (SUPERBLOCK, INODE_UFS2, logno);
 
       if ((map = block_map (logno)) < 0)
@@ -189,17 +192,17 @@ ufs2_read (char *buf, int len)
 
       disk_read_func = disk_read_hook;
 
-      devread (fsbtodb (SUPERBLOCK, map), off, size, buf);
+      (*pdevread) (fsbtodb (SUPERBLOCK, map), off, size, buf);
 
       disk_read_func = NULL;
 
       buf += size;
       len -= size;
-      filepos += size;
+      *pfilepos += size;
       ret += size;
     }
 
-  if (errnum)
+  if (*perrnum)
     ret = 0;
 
   return ret;
@@ -218,7 +221,7 @@ loop:
 
   /* load current inode (defaults to the root inode) */
 
-    if (!devread (fsbtodb (SUPERBLOCK, ino_to_fsba (SUPERBLOCK, ino)),
+    if (!(*pdevread) (fsbtodb (SUPERBLOCK, ino_to_fsba (SUPERBLOCK, ino)),
             ino % (SUPERBLOCK->fs_inopb) * sizeof (struct ufs2_dinode),
             sizeof (struct ufs2_dinode), (char *) INODE_UFS2))
                     return 0;                   /* XXX what return value? */
@@ -226,18 +229,18 @@ loop:
   /* if we have a real file (and we're not just printing possibilities),
      then this is where we want to exit */
 
-  if (!*dirname || isspace (*dirname))
+  if (!*dirname || (*pgrub_isspace) (*dirname))
     {
       if ((INODE_UFS2->di_mode & IFMT) != IFREG)
         {
-          errnum = ERR_BAD_FILETYPE;
+          *perrnum = ERR_BAD_FILETYPE;
           return 0;
         }
 
-      filemax = INODE_UFS2->di_size;
+      *pfilemax = INODE_UFS2->di_size;
 
       /* incomplete implementation requires this! */
-      fsmax = (NDADDR + NINDIR (SUPERBLOCK)) * SUPERBLOCK->fs_bsize;
+      *pfsmax = (NDADDR + NINDIR (SUPERBLOCK)) * SUPERBLOCK->fs_bsize;
       return 1;
     }
 
@@ -248,11 +251,11 @@ loop:
 
   if (!(INODE_UFS2->di_size) || ((INODE_UFS2->di_mode & IFMT) != IFDIR))
     {
-      errnum = ERR_BAD_FILETYPE;
+      *perrnum = ERR_BAD_FILETYPE;
       return 0;
     }
 
-  for (rest = dirname; (ch = *rest) && !isspace (ch) && ch != '/'; rest++);
+  for (rest = dirname; (ch = *rest) && !(*pgrub_isspace) (ch) && ch != '/'; rest++);
 
   *rest = 0;
   loc = 0;
@@ -266,7 +269,7 @@ loop:
           if (print_possibilities < 0)
             return 1;
 
-          errnum = ERR_FILE_NOT_FOUND;
+          *perrnum = ERR_FILE_NOT_FOUND;
           *rest = ch;
           return 0;
         }
@@ -276,11 +279,11 @@ loop:
           block = lblkno (SUPERBLOCK, loc);
 
           if ((map = block_map (block)) < 0
-              || !devread (fsbtodb (SUPERBLOCK, map), 0,
+              || !(*pdevread) (fsbtodb (SUPERBLOCK, map), 0,
                            blksize (SUPERBLOCK, INODE_UFS2, block),
                            (char *) FSYS_BUF))
             {
-              errnum = ERR_FSYS_CORRUPT;
+              *perrnum = ERR_FSYS_CORRUPT;
               *rest = ch;
               return 0;
             }
@@ -291,16 +294,16 @@ loop:
 
 #ifndef STAGE1_5
       if (dp->d_ino && print_possibilities && ch != '/'
-          && (!*dirname || substring (dirname, dp->d_name) <= 0))
+          && (!*dirname || (*psubstring) (dirname, dp->d_name) <= 0))
         {
           if (print_possibilities > 0)
             print_possibilities = -print_possibilities;
 
-          print_a_completion (dp->d_name);
+          //print_a_completion (dp->d_name);
         }
 #endif /* STAGE1_5 */
     }
-  while (!dp->d_ino || (substring (dirname, dp->d_name) != 0
+  while (!dp->d_ino || ((*psubstring) (dirname, dp->d_name) != 0
                         || (print_possibilities && ch != '/')));
 
   /* only get here if we have a matching directory entry */

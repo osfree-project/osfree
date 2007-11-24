@@ -7,8 +7,8 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS      = 1       # Use 32-bit C compiler
-DEFINES      = -dNO_DECOMPRESSION -dSTAGE1_5 -dNO_BLOCK_FILES # -dOS2 -d__WATCOM__
-ADD_COPT     = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
+DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__
+ADD_COPT     = -q -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 ADD_ASMOPT   = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 
 DIR          = preldr
@@ -26,18 +26,24 @@ EXT2FS_OBJS   = $(FS_OBJS) fsys_ext2fs.$(O)
 JFS_OBJS      = $(FS_OBJS) fsys_jfs.$(O)
 ISO9660_OBJS  = $(FS_OBJS) fsys_iso9660.$(O)
 REISERFS_OBJS = $(FS_OBJS) fsys_reiserfs.$(O)
+MINIX_OBJS    = $(FS_OBJS) fsys_minix.$(O)
+UFS2_OBJS     = $(FS_OBJS) fsys_ufs2.$(O)
+VSTAFS_OBJS   = $(FS_OBJS) fsys_vstafs.$(O)
+FFS_OBJS      = $(FS_OBJS) fsys_ffs.$(O)
+XFS_OBJS      = $(FS_OBJS) fsys_xfs.$(O)
 
 STAGE0_OBJS   = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) filesys.$(O) &
                 video.$(O) stage0_fs.$(O) func.$(O) bios.$(O) end.$(O)
 
 OUT           = bin
-TARGETS       = fsd.h fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd preldr0 # reiserfs.fsd
+TARGETS       = fsd.h fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
+                minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0
 
 all: $(TARGETS) .SYMBOLIC
 
 .$(OUT).fsd:
  $(DC) $^@
- $(RIP) UFSD_BASE   fsd.inc $< $^@
+ $(RIP) EXT_BUF_BASE   fsd.inc $< $^@
  $(DC) $<
 
 preldr0: stage0.$(OUT)
@@ -58,6 +64,21 @@ iso9660.$(OUT): $(ISO9660_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
 
 reiserfs.$(OUT): $(REISERFS_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
+
+minix.$(OUT): $(MINIX_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
+
+ufs2.$(OUT): $(UFS2_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
+
+vstafs.$(OUT): $(VSTAFS_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
+
+ffs.$(OUT): $(FFS_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
+
+xfs.$(OUT): $(XFS_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& OBJS="$<" link
 
 stage0.$(OUT): $(STAGE0_OBJS)
@@ -101,6 +122,21 @@ fsys_iso9660.$(O): fsys_iso9660.c
 
 fsys_reiserfs.$(O): fsys_reiserfs.c
  $(CC) -dFSYS_REISERFS $(COPT) -fo=$^@ $<
+
+fsys_minix.$(O): fsys_minix.c
+ $(CC) -dFSYS_MINIX $(COPT) -fo=$^@ $<
+
+fsys_ufs2.$(O): fsys_ufs2.c
+ $(CC) -dFSYS_UFS2 $(COPT) -fo=$^@ $<
+
+fsys_vstafs.$(O): fsys_vstafs.c
+ $(CC) -dFSYS_VSTAFS $(COPT) -fo=$^@ $<
+
+fsys_ffs.$(O): fsys_ffs.c
+ $(CC) -dFSYS_FFS $(COPT) -fo=$^@ $<
+
+fsys_xfs.$(O): fsys_xfs.c
+ $(CC) -dFSYS_XFS $(COPT) -fo=$^@ $<
 
 func.$(O): func.c
  $(CC) -dSTAGE0 $(COPT) -fo=$^@ $<
