@@ -3,7 +3,7 @@
 set WATCOM=c:\watcom
 set ROOT=c:\_work\svn\osfree
 
-set TKPATH=c:\_os2tk45
+set TKPATH=c:\os2tk45
 set FPPATH=c:\programs\pp\bin\os2
 
 set TOOLS=%ROOT%\tools\bin
