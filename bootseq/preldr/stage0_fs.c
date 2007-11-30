@@ -16,20 +16,39 @@
 lip_t *l;
 lip_t lip;
 
+int i;
 int  num_fsys = 0;
 
 #ifndef STAGE1_5
 
 char linebuf[512];
 char lb[80];
-char driveletter = 0x80;
+
+char *fsys_list[FSYS_MAX];
+char fsys_stbl[FSYS_MAX*10];
+
+/* Configuration got
+ from .INI file      */
+struct {
+  char driveletter;
+  char multiboot;
+  struct {
+    char **fsys_list;
+  } mufsd;
+  struct {
+    char filename[128];
+    int base;
+  } loader;
+  struct {
+    char filename[128];
+    int base;
+  } mini;
+} conf = {0x80, 0, fsys_list, {"/os2ldr", 0x10000},
+          {"/os2boot", 0x7c0}};
 
 char *preldr_path = "/boot/freeldr/"; // freeldr path
 char *fsd_dir     = "fsd/";           // uFSD's subdir
 char *cfg_file    = "preldr.ini";     // .INI file
-
-char *fsys_list[FSYS_MAX];
-char fsys_stbl[FSYS_MAX*10];
 
 #endif
 
@@ -68,8 +87,9 @@ freeldr_open (char *filename)
    int  i0 = 0;
    char buf[128];
 
+   printmsg("open(");
    printmsg(filename);
-   printmsg("\r\n");
+   printmsg(")\r\n");
 
    /* prepend "/" to filename */
    if (*filename != '/' && *filename != '(') {
@@ -274,25 +294,28 @@ char *strip(char *s)
  */
 int parse_cfg(void)
 {
-  char buff[512];
+  char buf[512];
   int  l, i, size, rc;
   char *cfg, *p, *line, *s, *r;
 
   l = grub_strlen(preldr_path);
-  grub_memmove(buff, preldr_path, l);
-  grub_memmove(buff + l, cfg_file, grub_strlen(cfg_file));
+  grub_memmove(buf, preldr_path, l);
+  grub_memmove(buf + l, cfg_file, grub_strlen(cfg_file));
+  i = grub_strlen(cfg_file);
+  buf[l + i] = '\0';
 
-  rc = freeldr_open(buff);
+  rc = freeldr_open(buf);
 
   cfg = (char *)(EXT2BUF_BASE);
 
   if (rc) {
     printmsg("file ");
-    printmsg(buff);
+    printmsg(buf);
     printmsg(" opened, ");
     size = freeldr_read((void *)cfg, -1);
     printmsg("size: ");
     printd(size);
+    printmsg("\r\n");
   } else
     return 0;
 
@@ -302,31 +325,41 @@ int parse_cfg(void)
     line = strip(getline(&p));
     if (!*line) continue;
 
-    if (!grub_strcmp(line, "[global]")) {
+    if (!grub_strcmp(strip(line), "[global]")) {
       /* [global] section */
       while (*p) {
         line = getline(&p);
         if (!*line) break;
 
         if (!grub_strcmp(strip(var(line)), "driveletter")) {
-          grub_strcpy(buff, strip(val(line)));
-          driveletter = *buff; // first letter
-          driveletter = grub_tolower(driveletter) - 'a';
-          if (driveletter > 1) // not floppy
-            driveletter = driveletter - 2 + 0x80;
+          grub_strcpy(buf, strip(val(line)));
+          conf.driveletter = *buf; // first letter
+          conf.driveletter = grub_tolower(conf.driveletter) - 'a';
+          if (conf.driveletter > 1) // not floppy
+            conf.driveletter = conf.driveletter - 2 + 0x80;
+
+          continue;
+        }
+
+        if (!grub_strcmp(strip(var(line)), "multiboot")) {
+          if (!grub_strcmp(strip(val(line)), "yes")) {
+            conf.multiboot = 1;
+          } else {
+            conf.multiboot = 0;
+          }
 
           continue;
         }
       }
       continue;
     }
-    if (!grub_strcmp(line, "[fsd]")) {
-      /* [filesys] section */
+    if (!grub_strcmp(strip(line), "[microfsd]")) {
+      /* [fsd] section */
       while (*p) {
         line = getline(&p);
         if (!*line) break;
 
-        if (!grub_strcmp(var(line), "list")) {
+        if (!grub_strcmp(strip(var(line)), "list")) {
           grub_strcpy(fsys_stbl, strip(val(line)));
           s = fsys_stbl;
           r = fsys_stbl;
@@ -339,17 +372,53 @@ int parse_cfg(void)
             s = r;
             num_fsys++;
           }
-          //for (i = 0; i < num_fsys; i++) {
-          //  printmsg("\r\n");
-          //  printmsg(fsys_list[i]);
-          //}
-          //while (1) {;}
 
           continue;
         }
       }
       continue;
     }
+    if (!grub_strcmp(strip(line), "[loader]")) {
+      /* [loader] section */
+      while (*p) {
+        line = getline(&p);
+        if (!*line) break;
+
+        if (!grub_strcmp(strip(var(line)), "filename")) {
+          grub_strcpy(conf.loader.filename, strip(val(line)));
+
+          continue;
+        }
+        if (!grub_strcmp(strip(var(line)), "base")) {
+          conf.loader.base = grub_aton(strip(val(line)));
+
+          continue;
+        }
+      }
+      continue;
+    }
+    if (!grub_strcmp(strip(line), "[minifsd]")) {
+      /* [loader] section */
+      while (*p) {
+        line = getline(&p);
+        if (!*line) break;
+
+        if (!grub_strcmp(strip(var(line)), "filename")) {
+          grub_strcpy(conf.mini.filename, strip(val(line)));
+          if (!grub_strcmp(conf.mini.filename, "none"))
+            *(conf.mini.filename) = '\0';
+
+          continue;
+        }
+        if (!grub_strcmp(strip(var(line)), "base")) {
+          conf.mini.base = grub_aton(strip(val(line)));
+
+          continue;
+        }
+      }
+      continue;
+    }
+
   }
 
   return 1;
@@ -357,19 +426,24 @@ int parse_cfg(void)
 
 void panic(char *msg, char *file)
 {
-  printmsg("Fatal error: \r\n");
+  printmsg("\r\nFatal error: \r\n");
   printmsg(msg);
   printmsg(file);
-  while (1) {};
+
+  __asm {
+    cli
+    hlt
+  }
 }
 
 #endif
 
 int init(void)
 {
-  int rc;
+  int rc, files;
   char *buf;
-  unsigned long ldrlen, mfslen;
+  char *fn;
+  unsigned long ldrlen = 0, mfslen = 0;
   bios_parameters_block *bpb;
   struct geometry geom;
 
@@ -398,64 +472,102 @@ int init(void)
 
   /* parse config file */
   if (!parse_cfg())
-    panic("config file doesn't exist!", "");
+    panic("config file doesn't exist!\r\n", "preldr.ini");
+
+  /* Show config params */
+  printmsg("\r\nConfig parameters:");
+  printmsg("\r\ndriveletter = "); printb(conf.driveletter);
+  printmsg("\r\nmultiboot = ");
+  printb(conf.multiboot);
+  printmsg("\r\nFilesys: ");
+  for (i = 0; i < FSYS_MAX && conf.mufsd.fsys_list[i]; i++) {
+    printmsg(conf.mufsd.fsys_list[i]);
+    printmsg(", ");
+  }
+  printmsg("\r\nloader.filename = "); printmsg(conf.loader.filename);
+  printmsg("\r\nloader.base = "); printd(conf.loader.base);
+  printmsg("\r\nmini.filename = "); printmsg(conf.mini.filename);
+  printmsg("\r\nmini.base = "); printd(conf.mini.base);
+  printmsg("\r\n\r\n");
 
   /* load os2ldr */
-  rc = freeldr_open("os2ldr");
-  printmsg("freeldr_open(\"/os2ldr\") returned: ");
+  fn = conf.loader.filename;
+  rc = freeldr_open(fn);
+  printmsg("freeldr_open(\"");
+  printmsg(fn);
+  printmsg("\") returned: ");
   printd(rc);
 
-  buf = (char *)(LDR_BASE);
+  buf = (char *)(conf.loader.base);
 
-  if (rc)
-     ldrlen = freeldr_read(buf, -1);
+  if (rc) {
+    ldrlen = freeldr_read(buf, -1);
 
-  printmsg("\r\nfreeldr_read() returned size: ");
-  printd(ldrlen);
-  printmsg("\r\n");
+    printmsg("\r\nfreeldr_read() returned size: ");
+    printd(ldrlen);
+    printmsg("\r\n");
+  } else {
+    panic("Can't open loader file: ", conf.loader.filename);
+  }
 
   /* load minifsd */
-  rc = freeldr_open("os2boot");
-  printmsg("freeldr_open(\"/os2boot\") returned: ");
-  printd(rc);
+  fn = conf.mini.filename;
+  if (*fn) { // is minifsd needed?
+    rc = freeldr_open(fn);
+    printmsg("freeldr_open(\"");
+    printmsg(fn);
+    printmsg("\") returned: ");
+    printd(rc);
 
-  buf = (char *)(MFS_BASE);
+    buf = (char *)(conf.mini.base);
 
-  if (rc)
-     mfslen = freeldr_read(buf, -1);
+    if (rc) {
+      mfslen = freeldr_read(buf, -1);
 
-  printmsg("\r\nfreeldr_read() returned size: ");
-  printd(mfslen);
-  printmsg("\r\n");
+      printmsg("\r\nfreeldr_read() returned size: ");
+      printd(mfslen);
+      printmsg("\r\n");
+    } else {
+      panic("Can't open minifsd filename: ", fn);
+    }
+  }
 
   /* load test file */
+  /*
   rc = freeldr_open("(fd0)/os2ldr.msg");
   printmsg("freeldr_open(\"(fd0)/os2ldr.msg\") returned: ");
   printd(rc);
   if (rc) {
-    rc = freeldr_read((char *)(0x400000), -1);
+    buf = (char *)(EXT2BUF_BASE);
+    rc = freeldr_read(buf, -1);
     printmsg("\r\nfreeldr_read() returned size: ");
     printd(rc);
     printmsg("\r\n");
-  }
+  }                      */
 
-  __asm {
-    cli
-    hlt
-  }
+  //__asm {
+  //  cli
+  //  hlt
+  //}
 
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_RIPL;
+  boot_flags = BOOTFLAG_MICROFSD;
   /* set filetable */
-  ft.ft_cfiles = 4;
-  ft.ft_ldrseg = LDR_SEG;
-  ft.ft_ldrlen = ldrlen;
-  ft.ft_museg  = BOOTSEC_SEG;
-  ft.ft_mulen  = 0xb000;  // It is empirically found maximal value
-  ft.ft_mfsseg = MFS_SEG;
-  ft.ft_mfslen = mfslen;
-  ft.ft_ripseg = 0x800;   //
-  ft.ft_riplen = 0x3084;  // max
+  files = 2;
+  if (*fn) { // if minifsd present
+    files++;
+    boot_flags |=  BOOTFLAG_MINIFSD;
+  }
+
+  ft.ft_cfiles = files;
+  ft.ft_ldrseg = conf.loader.base >> 4;
+  ft.ft_ldrlen = ldrlen;  // 0x3800;
+  ft.ft_museg  = BOOTSEC_SEG; // 0x8600; -- OS/2 2.1 // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
+  ft.ft_mulen  = 0xb000;      // 0x10000;            // It is empirically found maximal value
+  ft.ft_mfsseg = conf.mini.base >> 4; // 0x7f;
+  ft.ft_mfslen = mfslen;  // 0x95f0;
+  ft.ft_ripseg = 0; // 0x800;   // end of mfs
+  ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
 
   ft.ft_muOpen.seg       = STAGE0_SEG;
   ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
@@ -482,8 +594,33 @@ int init(void)
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
     bpb->disk_num   = (unsigned char)(boot_drive & 0xff);
-    bpb->log_drive  = driveletter; // 0x92;
+    bpb->log_drive  = conf.driveletter; // 0x92;
     bpb->marker     = 0x29;
+  }
+
+  if (conf.multiboot) {
+    /* new loader interface */
+    unsigned long ldr_base = conf.loader.base;
+
+    __asm {
+      mov  dx, boot_flags
+      mov  dl, byte ptr boot_drive
+
+      // edi == pointer to filetable
+      lea  edi, ft
+
+      // esi ==  pointer to BPB
+      mov  esi, BOOTSEC_BASE
+      add  esi, 0xb
+
+      // magic in eax
+      mov  eax, BOOT_MAGIC
+      // ebx == pointer to LIP
+      lea  ebx, lip
+
+      push ldr_base
+      retn
+    }
   }
 
 #else

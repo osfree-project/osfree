@@ -16,7 +16,6 @@ move bootblk ..\..\..\cd\boot
 copy preldr0 ..\..\..\cd\boot\freeldr
 copy preldr.ini ..\..\..\cd\boot\freeldr
 copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
-del  bb
 cd   ..\..\..
 .\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 4 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 move osfree.iso \sys\vm\vpc\bochs\img

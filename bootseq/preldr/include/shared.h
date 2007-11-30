@@ -909,6 +909,8 @@ char *grub_strcpy (char *dest, const char *src);
 // added by valerius
 int grub_index(char c, char *s);
 char *grub_strncpy (char *dest, const char *src, int n);
+int grub_aton(char *h);
+
 
 #ifndef GRUB_UTIL
 typedef unsigned long grub_jmp_buf[6];
