@@ -36,11 +36,11 @@ struct {
     char **fsys_list;
   } mufsd;
   struct {
-    char filename[128];
+    char name[128];
     int base;
   } loader;
   struct {
-    char filename[128];
+    char name[128];
     int base;
   } mini;
 } conf = {0x80, 0, fsys_list, {"/os2ldr", 0x10000},
@@ -384,8 +384,8 @@ int parse_cfg(void)
         line = getline(&p);
         if (!*line) break;
 
-        if (!grub_strcmp(strip(var(line)), "filename")) {
-          grub_strcpy(conf.loader.filename, strip(val(line)));
+        if (!grub_strcmp(strip(var(line)), "name")) {
+          grub_strcpy(conf.loader.name, strip(val(line)));
 
           continue;
         }
@@ -403,10 +403,10 @@ int parse_cfg(void)
         line = getline(&p);
         if (!*line) break;
 
-        if (!grub_strcmp(strip(var(line)), "filename")) {
-          grub_strcpy(conf.mini.filename, strip(val(line)));
-          if (!grub_strcmp(conf.mini.filename, "none"))
-            *(conf.mini.filename) = '\0';
+        if (!grub_strcmp(strip(var(line)), "name")) {
+          grub_strcpy(conf.mini.name, strip(val(line)));
+          if (!grub_strcmp(conf.mini.name, "none"))
+            *(conf.mini.name) = '\0';
 
           continue;
         }
@@ -484,14 +484,14 @@ int init(void)
     printmsg(conf.mufsd.fsys_list[i]);
     printmsg(", ");
   }
-  printmsg("\r\nloader.filename = "); printmsg(conf.loader.filename);
+  printmsg("\r\nloader.name = "); printmsg(conf.loader.name);
   printmsg("\r\nloader.base = "); printd(conf.loader.base);
-  printmsg("\r\nmini.filename = "); printmsg(conf.mini.filename);
+  printmsg("\r\nmini.name = "); printmsg(conf.mini.name);
   printmsg("\r\nmini.base = "); printd(conf.mini.base);
   printmsg("\r\n\r\n");
 
   /* load os2ldr */
-  fn = conf.loader.filename;
+  fn = conf.loader.name;
   rc = freeldr_open(fn);
   printmsg("freeldr_open(\"");
   printmsg(fn);
@@ -507,11 +507,11 @@ int init(void)
     printd(ldrlen);
     printmsg("\r\n");
   } else {
-    panic("Can't open loader file: ", conf.loader.filename);
+    panic("Can't open loader file: ", fn);
   }
 
   /* load minifsd */
-  fn = conf.mini.filename;
+  fn = conf.mini.name;
   if (*fn) { // is minifsd needed?
     rc = freeldr_open(fn);
     printmsg("freeldr_open(\"");
