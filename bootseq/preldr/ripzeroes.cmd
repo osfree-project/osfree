@@ -90,9 +90,11 @@ do forever
 end
 
 p = pos('-SHIFT', line)
-if p > 0 then subtract = 1
+if p > 0 then do
+  subtract = 1
+  line = strip(delstr(line, p))
+end
 
-line = strip(delstr(line, p))
 p = pos('0x', line)
 if p = 1 then line = delstr(line, 1,  2)
 
@@ -100,7 +102,7 @@ if line = '' then
    return 0
 
 if p = 1 then line = x2d(line)
-if subtract then line = line - shift
+if subtract = 1 then line = line - shift
 
 
 return line
@@ -123,7 +125,7 @@ usage:
 
 say 'Usage:'
 say
-say 'ripzeroes <variable> <incfile> <infile> <outfile>'
+say 'ripzeroes <infile> <variable> <incfile> <shift factor> ><outfile>'
 say
 
 exit -1
