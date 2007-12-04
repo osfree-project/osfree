@@ -22,29 +22,47 @@ int  num_fsys = 0;
 #ifndef STAGE1_5
 
 char linebuf[512];
+
+// string table size;
+#define STRTAB_LEN 0x300
+
+// string table
+char strtab[STRTAB_LEN];
+// string table end position
+int  strtab_pos = 0;
+
 char lb[80];
 
 char *fsys_list[FSYS_MAX];
 char fsys_stbl[FSYS_MAX*10];
 
+// max count of file aliases
+#define MAX_ALIAS 0x10
+
 /* Configuration got
  from .INI file      */
-struct {
+_Packed struct {
   char driveletter;
   char multiboot;
+  char ignorecase;
   struct {
     char **fsys_list;
   } mufsd;
   struct {
     char name[128];
-    int base;
+    int  base;
   } loader;
   struct {
     char name[128];
-    int base;
+    int  base;
   } mini;
-} conf = {0x80, 0, fsys_list, {"/os2ldr", 0x10000},
-          {"/os2boot", 0x7c0}};
+  struct {
+    char *name;
+    char *alias;
+  } alias[MAX_ALIAS];
+} conf = {0x80, 0, 0, {fsys_list}, {"/os2ldr", 0x10000},
+          {"/os2boot", 0x7c0},};
+
 
 char *preldr_path = "/boot/freeldr/"; // freeldr path
 char *fsd_dir     = "fsd/";           // uFSD's subdir
@@ -85,11 +103,12 @@ freeldr_open (char *filename)
    char *p;
    int  i;
    int  i0 = 0;
+   int  rc;
    char buf[128];
 
-   printmsg("open(");
+   printmsg("\r\n");
    printmsg(filename);
-   printmsg(")\r\n");
+   printmsg("\r\n");
 
    /* prepend "/" to filename */
    if (*filename != '/' && *filename != '(') {
@@ -97,16 +116,43 @@ freeldr_open (char *filename)
      i0 = 1;
    }
 
-   /* convert to lowercase */
-   for (p = filename, i = 0; p[i] && i < 128; i++)
-     if (p[i] > 0x40 && p[i] < 0x5b)
-       buf[i + i0] = p[i] + 0x20;
-     else
-       buf[i + i0] = p[i];
+   grub_strcpy(buf + i0, filename);
 
-   buf[i + i0] = '\0';
+   for (i = 0; i < 128 && buf[i]; i++) {
+     /* change "\" to "/" */
+     if (buf[i] == '\\')
+       buf[i] = '/';
+   }
 
-   return grub_open(buf);
+   /* try open filename as is */
+   rc = grub_open(buf);
+
+   if (conf.ignorecase) {
+     /* if ignore case */
+     if (!rc) {
+       /* try to open uppercase filename */
+       /* skip device name like "(cd)" */
+       i = 0;
+       if (*buf == '(')
+         while (buf[i] && buf[i] != ')') i++;
+
+       for (; i < 128 && buf[i]; i++) {
+         buf[i] = grub_toupper(buf[i]);
+       }
+
+       rc = grub_open(buf);
+     }
+
+     if (!rc) {
+       /* try to open lowercase filename */
+       for (i = 0; i < 128 && buf[i]; i++)
+         buf[i] = grub_tolower(buf[i]);
+
+       rc = grub_open(buf);
+     }
+   }
+
+   return rc;
 #else
    return grub_open(filename);
 #endif
@@ -207,43 +253,15 @@ void setlip(void)
   l->lip_part_start    = &part_start;
   l->lip_part_length   = &part_length;
   l->lip_fsmax         = &fsmax;
+#ifndef STAGE1_5
+  l->lip_printmsg      = &printmsg;
+  l->lip_printb        = &printb;
+  l->lip_printw        = &printw;
+  l->lip_printd        = &printd;
+#endif
 }
 
 #ifndef STAGE1_5
-
-/*  Returns a next line from a file in memory
- *  and changes current position (*p)
- */
-char *getline(char **p)
-{
-  int  i = 0;
-  char *q = *p;
-
-  if (!q)
-    panic("getline(): zero pointer: ", "*p");
-
-  while (*q != '\n' && *q != '\r' && *q != '\0' && i < 512)
-    linebuf[i++] = *q++;
-
-  if (*q == '\r') q++;
-  if (*q == '\n') q++;
-
-  linebuf[i] = '\0';
-  *p = q;
-
-  if (!*linebuf)
-    return linebuf;
-
-  /* skip comments */
-  i = grub_index(';', linebuf);
-  if (i) linebuf[i] = '\0';
-
-  /* if empty line, get new line */
-  if (!*linebuf)
-    return getline(p);
-
-  return linebuf;
-}
 
 /* if s is a string of type "var = val" then this
  * function returns var
@@ -289,13 +307,77 @@ char *strip(char *s)
   return p;
 }
 
+/*  Add a string to the string table
+ *  and return its address
+ */
+char *
+stradd(char *s)
+{
+  int  k;
+  char *l;
+
+  k = grub_strlen(s);
+
+  if (strtab_pos + k < STRTAB_LEN) {
+    l = strtab + strtab_pos;
+    grub_strcpy(l, s);
+    l[k] = '\0';
+    strtab_pos += k + 1;
+  } else {
+    /* no space in buffer */
+    return 0;
+  }
+
+  return l;
+}
+
+/*  Returns a next line from a file in memory
+ *  and changes current position (*p)
+ */
+char *getline(char **p)
+{
+  int  i = 0;
+  char *q = *p;
+  char *s;
+
+  if (!q)
+    panic("getline(): zero pointer: ", "*p");
+
+  while (*q != '\n' && *q != '\r' && *q != '\0' && i < 512)
+    linebuf[i++] = *q++;
+
+  if (*q == '\r') q++;
+  if (*q == '\n') q++;
+
+  linebuf[i] = '\0';
+  *p = q;
+
+  s = strip(linebuf);
+
+  if (!*s)
+    return s;
+
+  /* skip comments */
+  i = grub_index(';', s);
+  if (i) s[i - 1] = '\0';
+
+  s = strip(s);
+
+  /* if empty line, get new line */
+  if (!*s)
+    return getline(p);
+
+  return s;
+}
+
+
 /*  Parse .INI file
  *
  */
 int parse_cfg(void)
 {
   char buf[512];
-  int  l, i, size, rc;
+  int  k, l, i, size, rc;
   char *cfg, *p, *line, *s, *r;
 
   l = grub_strlen(preldr_path);
@@ -342,10 +424,22 @@ int parse_cfg(void)
         }
 
         if (!grub_strcmp(strip(var(line)), "multiboot")) {
-          if (!grub_strcmp(strip(val(line)), "yes")) {
+          if (!grub_strcmp(strip(val(line)), "yes") ||
+              !grub_strcmp(strip(val(line)), "on")) {
             conf.multiboot = 1;
           } else {
             conf.multiboot = 0;
+          }
+
+          continue;
+        }
+
+        if (!grub_strcmp(strip(var(line)), "ignorecase")) {
+          if (!grub_strcmp(strip(val(line)), "yes") ||
+              !grub_strcmp(strip(val(line)), "on")) {
+            conf.ignorecase = 1;
+          } else {
+            conf.ignorecase = 0;
           }
 
           continue;
@@ -418,7 +512,37 @@ int parse_cfg(void)
       }
       continue;
     }
+    if (!grub_strcmp(strip(line), "[aliases]")) {
+      /* file aliases section */
+      char *q;
+      i = 0;
 
+      while (*p) {
+        line = getline(&p);
+        if (!*line) break;
+
+        // printmsg(line); printmsg("\r\n");
+
+        if (!grub_strcmp(strip(var(line)), "enable")) {
+          continue;
+        }
+
+        q = stradd(strip(var(line)));
+        if (!q) panic("too many aliases, no space in buffer!", "");
+
+        conf.alias[i].name  = q;
+        // printmsg(q); printmsg(" ");
+
+        q = stradd(strip(val(line)));
+        if (!q) panic("too many aliases, no space in buffer!", "");
+
+        conf.alias[i].alias = q;
+        // printmsg(q); printmsg("\r\n");
+
+        i++;
+      }
+      continue;
+    }
   }
 
   return 1;
@@ -443,6 +567,7 @@ int init(void)
   int rc, files;
   char *buf;
   char *fn;
+  char *s;
   unsigned long ldrlen = 0, mfslen = 0;
   bios_parameters_block *bpb;
   struct geometry geom;
@@ -462,8 +587,8 @@ int init(void)
   /* setting LIP */
   setlip();
 
-  /* move boot drive uFSD to working buffer */
-  grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
+  /* save boot drive uFSD */
+  grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
   fsd_init(l);
@@ -477,18 +602,27 @@ int init(void)
   /* Show config params */
   printmsg("\r\nConfig parameters:");
   printmsg("\r\ndriveletter = "); printb(conf.driveletter);
-  printmsg("\r\nmultiboot = ");
-  printb(conf.multiboot);
+  printmsg("\r\nmultiboot = ");   printb(conf.multiboot);
+  printmsg("\r\nignorecase = ");   printb(conf.ignorecase);
   printmsg("\r\nFilesys: ");
   for (i = 0; i < FSYS_MAX && conf.mufsd.fsys_list[i]; i++) {
     printmsg(conf.mufsd.fsys_list[i]);
-    printmsg(", ");
+    printmsg(" ");
   }
   printmsg("\r\nloader.name = "); printmsg(conf.loader.name);
   printmsg("\r\nloader.base = "); printd(conf.loader.base);
   printmsg("\r\nmini.name = "); printmsg(conf.mini.name);
   printmsg("\r\nmini.base = "); printd(conf.mini.base);
-  printmsg("\r\n\r\n");
+  printmsg("\r\n");
+  for (i = 0; i < MAX_ALIAS; i++) {
+    s = conf.alias[i].name;
+    if (!s) break;
+    printmsg("\r\n");
+    printmsg(s);
+    printmsg("=");
+    s = conf.alias[i].alias;
+    printmsg(s);
+  }
 
   /* load os2ldr */
   fn = conf.loader.name;
@@ -532,53 +666,37 @@ int init(void)
     }
   }
 
-  /* load test file */
-  /*
-  rc = freeldr_open("(fd0)/os2ldr.msg");
-  printmsg("freeldr_open(\"(fd0)/os2ldr.msg\") returned: ");
-  printd(rc);
-  if (rc) {
-    buf = (char *)(EXT2BUF_BASE);
-    rc = freeldr_read(buf, -1);
-    printmsg("\r\nfreeldr_read() returned size: ");
-    printd(rc);
-    printmsg("\r\n");
-  }                      */
-
-  //__asm {
-  //  cli
-  //  hlt
-  //}
-
   /* set boot flags */
   boot_flags = BOOTFLAG_MICROFSD;
-  /* set filetable */
+
   files = 2;
   if (*fn) { // if minifsd present
     files++;
     boot_flags |=  BOOTFLAG_MINIFSD;
   }
 
+  /* set filetable */
   ft.ft_cfiles = files;
   ft.ft_ldrseg = conf.loader.base >> 4;
-  ft.ft_ldrlen = ldrlen;  // 0x3800;
-  ft.ft_museg  = BOOTSEC_SEG; // 0x8600; -- OS/2 2.1 // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
-  ft.ft_mulen  = 0xb000;      // 0x10000;            // It is empirically found maximal value
-  ft.ft_mfsseg = conf.mini.base >> 4; // 0x7f;
+  ft.ft_ldrlen = ldrlen; // 0x3800;
+  ft.ft_museg  = 0x8500; // BOOTSEC_BASE >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
+                                         // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
+  ft.ft_mulen  = 0x10000;     // It is empirically found maximal value
+  ft.ft_mfsseg = conf.mini.base >> 4;    // 0x7c;
   ft.ft_mfslen = mfslen;  // 0x95f0;
   ft.ft_ripseg = 0; // 0x800;   // end of mfs
   ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
 
-  ft.ft_muOpen.seg       = STAGE0_SEG;
+  ft.ft_muOpen.seg       = STAGE0_BASE >> 4;
   ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
 
-  ft.ft_muRead.seg       = STAGE0_SEG;
+  ft.ft_muRead.seg       = STAGE0_BASE >> 4;
   ft.ft_muRead.off       = (unsigned short)(&mu_Read);
 
-  ft.ft_muClose.seg      = STAGE0_SEG;
+  ft.ft_muClose.seg      = STAGE0_BASE >> 4;
   ft.ft_muClose.off      = (unsigned short)(&mu_Close);
 
-  ft.ft_muTerminate.seg  = STAGE0_SEG;
+  ft.ft_muTerminate.seg  = STAGE0_BASE >> 4;
   ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
@@ -599,7 +717,7 @@ int init(void)
   }
 
   if (conf.multiboot) {
-    /* new loader interface */
+    /* return to loader from protected mode */
     unsigned long ldr_base = conf.loader.base;
 
     __asm {
@@ -610,13 +728,13 @@ int init(void)
       lea  edi, ft
 
       // esi ==  pointer to BPB
-      mov  esi, BOOTSEC_BASE
-      add  esi, 0xb
+      mov  esi, BOOTSEC_BASE + 0xb
 
       // magic in eax
       mov  eax, BOOT_MAGIC
+
       // ebx == pointer to LIP
-      lea  ebx, lip
+      mov  ebx, l
 
       push ldr_base
       retn

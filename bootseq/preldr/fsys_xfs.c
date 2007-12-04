@@ -26,6 +26,7 @@
 
 #include "fsys.h"
 #include "misc.h"
+#include "fsd.h"
 
 int print_possibilities = 0;
 

@@ -26,6 +26,7 @@
 
 #include "fsys.h"
 #include "misc.h"
+#include "fsd.h"
 
 #define MAX_LINK_COUNT  8
 

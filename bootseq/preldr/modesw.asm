@@ -261,17 +261,14 @@ _TEXT   ends
 
 _DATA   segment byte public 'DATA' use32
 
-FSYS_BUFLEN     equ 8000h
-FSYS_BUF        equ 68000h
-
 CR0_PE_ON       equ 01h
 CR0_PE_OFF      equ 0fffffffeh
 PROT_MODE_CSEG  equ 08h
 PROT_MODE_DSEG  equ 10h
 PSEUDO_RM_CSEG  equ 18h
 PSEUDO_RM_DSEG  equ 20h
-STACKOFF        equ (2000h - 10h)
-PROTSTACKINIT   equ 50000h        ; (FSYS_BUF - 10h)
+;STACKOFF        equ (2000h - 10h)
+PROTSTACKINIT   equ STACK_SP - 10h ; SCRATCHADDR - 10h
 
 ;align 4
 

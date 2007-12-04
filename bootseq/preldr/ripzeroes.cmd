@@ -7,13 +7,23 @@
 
 parse arg args
 
-if words(args) \= 4 then
+p = words(args)
+if p < 3 | p > 4 then
    signal usage
 
-parse var args var incfile file outfile
+parse var args file var incfile shift
+
+shift = strip(shift)
+p = pos('0x', shift)
+if p > 0 then shift = x2d(delstr(shift, 1, 2))
+if shift = '' then shift = 0
+
+subtract = 0
 
 /* read STAGE0_BASE from include file */
 base = readbase(incfile, var)
+
+sout = ''
 
 /* read _TEXT16 segment size from map file */
 _text16_size = seg16_size(file)
@@ -22,7 +32,7 @@ if _text16_size > 0 then do
 
   /* read _TEXT16 segment */
   buf = charin(file, 1, _text16_size)
-  call charout outfile, buf
+  sout = sout || buf
 
 end
 
@@ -31,7 +41,9 @@ fsize = stream(file, 'c', 'query size')
 
 /* read DGROUP segment */
 buf = charin(file, _text16_size + base + 1, fsize - base - _text16_size)
-call charout outfile, buf, _text16_size + 1
+sout = sout || buf
+
+call charout , sout
 
 
 exit 0
@@ -57,22 +69,41 @@ if lines(file) = 0 then
 
 return line
 /* ------------------------ */
-readbase: procedure
+readbase: procedure expose shift
 file = arg(1)
 var  = arg(2)
 
 line = getline(var, file)
-line = strip(word(line, 3))
-line = strip(line, 'T', 'h')
+p = pos(';', line)
+if p > 0 then line = strip(delstr(line, p))
+p = pos('equ', line)
+if p > 0 then line = strip(substr(line, p + 4))
 
+/* Delete spaces */
+do forever
+  p = pos(' ', line)
+  if p <= 0
+  then
+    leave
+  else
+    line = delstr(line, p, 1)
+end
+
+p = pos('-SHIFT', line)
+if p > 0 then subtract = 1
+
+line = strip(delstr(line, p))
 p = pos('0x', line)
-if p = 1 then
-  line = delstr(line, 1,  2)
+if p = 1 then line = delstr(line, 1,  2)
 
 if line = '' then
    return 0
 
-return x2d(line)
+if p = 1 then line = x2d(line)
+if subtract then line = line - shift
+
+
+return line
 /* ------------------------ */
 seg16_size: procedure
 file = arg(1)

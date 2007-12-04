@@ -56,22 +56,22 @@ extern char *grub_scratch_mem;
 #define NEW_HEAPSIZE 1500
 
 /* 512-byte scratch area */
-#define SCRATCHADDR  RAW_ADDR (0x77e00)
-#define SCRATCHSEG   RAW_SEG (0x77e0)
+// !!!
+//#define SCRATCHADDR  RAW_ADDR (0x6f000)
+//#define SCRATCHSEG   RAW_SEG (0x6f00)
 
 /*
  *  This is the location of the raw device buffer.  It is 31.5K
  *  in size.
  */
 
-#define BUFFERLEN   0x7e00
-//#define BUFFERADDR  RAW_ADDR (0x70000)
-//#define BUFFERSEG   RAW_SEG (0x7000)
-#define BUFFERADDR  RAW_ADDR (0x52200)
-#define BUFFERSEG   RAW_SEG (0x5220)
+// !!!
+//#define BUFFERLEN   0x7e00
+//#define BUFFERADDR  RAW_ADDR (0x6f200)
+//#define BUFFERSEG   RAW_SEG (0x6f20)
 
-//#define BOOT_PART_TABLE RAW_ADDR (0x07be)
-#define BOOT_PART_TABLE RAW_ADDR (0x68000)
+// !!!
+//#define BOOT_PART_TABLE RAW_ADDR (0x0600)
 
 /*
  *  BIOS disk defines
@@ -87,9 +87,9 @@ extern char *grub_scratch_mem;
  *  It is 32K in size, do not overrun!
  */
 
-#define FSYS_BUFLEN  0x8000
-//#define FSYS_BUF RAW_ADDR (0x68000)
-#define FSYS_BUF RAW_ADDR (0x5A000)
+// !!!
+//#define FSYS_BUFLEN  0x8000
+//#define FSYS_BUF RAW_ADDR (0x77000)
 
 /* Command-line buffer for Multiboot kernels and modules. This area
    includes the area into which Stage 1.5 and Stage 1 are loaded, but
@@ -895,6 +895,7 @@ int run_script (char *script, char *heap);
 void grub_printf (const char *format,...);
 int grub_sprintf (char *buffer, const char *format, ...);
 int grub_tolower (int c);
+int grub_toupper (int c);
 int grub_isspace (int c);
 int grub_strncat (char *s1, const char *s2, int n);
 void *grub_memmove (void *to, const void *from, int len);

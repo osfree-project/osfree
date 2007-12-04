@@ -182,7 +182,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
             }
 
           bios_err = biosdisk (BIOSDISK_READ, drive, &buf_geom,
-                               read_start, read_len, BUFFERSEG);
+                               read_start, read_len, BUFFERADDR >> 4);
           if (bios_err)
             {
               buf_track = -1;
@@ -197,7 +197,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
                    */
                   if (slen > num_sect
                       || biosdisk (BIOSDISK_READ, drive, &buf_geom,
-                                   sector, slen, BUFFERSEG))
+                                   sector, slen, BUFFERADDR >> 4))
                     errnum = ERR_READ;
 
                   bufaddr = (char *) BUFFERADDR + byte_offset;
@@ -223,7 +223,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
               else
                 {
                   if (biosdisk (BIOSDISK_READ, drive, &buf_geom,
-                                1, 1, BUFFERSEG))
+                                1, 1, BUFFERADDR >> 4))
                     errnum = ERR_READ;
                 }
             }
@@ -231,7 +231,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
 
       if (size > ((num_sect << sector_size_bits) - byte_offset))
         size = (num_sect << sector_size_bits) - byte_offset;
-
+#ifndef STAGE1_5
       /*
        *  Instrumentation to tell which sectors were read and used.
        */
@@ -253,7 +253,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
               (*disk_read_func) (sector_num, 0, length);
             }
         }
-
+#endif
       grub_memmove (buf, bufaddr, size);
 
       buf += size;
@@ -327,7 +327,7 @@ rawwrite (int drive, int sector, char *buf)
 {
   if (sector == 0)
     {
-      if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, SCRATCHSEG))
+      if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, SCRATCHADDR >> 4))
         {
           errnum = ERR_WRITE;
           return 0;
@@ -342,7 +342,7 @@ rawwrite (int drive, int sector, char *buf)
 
   memmove ((char *) SCRATCHADDR, buf, SECTOR_SIZE);
   if (biosdisk (BIOSDISK_WRITE, drive, &buf_geom,
-                sector, 1, SCRATCHSEG))
+                sector, 1, SCRATCHADDR >> 4))
     {
       errnum = ERR_WRITE;
       return 0;
@@ -1040,6 +1040,7 @@ set_device (char *device)
 #else /* ! STAGE1_5 */
 
   int result = 0;
+  int p;
 
   incomplete = 0;
   disk_choice = 1;
@@ -1373,6 +1374,16 @@ grub_strncpy (char *dest, const char *src, int n)
 
 
 int
+grub_toupper (int c)
+{
+  if (c >= 'a' && c <= 'z')
+    return (c + ('A' - 'a'));
+
+  return c;
+}
+
+
+int
 grub_tolower (int c)
 {
   if (c >= 'A' && c <= 'Z')
@@ -1397,7 +1408,7 @@ grub_aton(char *h)
   } else {
     base = 10;
   }
-  
+
   l = grub_strlen(s) - 1;
 
   while (*s) {
@@ -1451,15 +1462,15 @@ grub_memcheck (unsigned long addr, long len)
 {
     // Physical address:
     //if ( (addr < RAW_ADDR (0x1000))
-    if ( (addr < RAW_ADDR (0x600)) )
+    //if ( (addr < RAW_ADDR (0x600)) )
     //    || ((addr <  RAW_ADDR (0x100000)) && (RAW_ADDR(mem_lower * 1024) < (addr + len)))
     //    || ((addr >= RAW_ADDR (0x100000)) && (RAW_ADDR(mem_upper * 1024) < ((addr - 0x100000) + len))) )
-    {
-        errnum = ERR_WONT_FIT;
-        //printk("freeldr_memcheck: ERR_WONT_FIT");
-        //printk("freeldr_memcheck(): addr = 0x%08lx, len = %u", addr, len);
-        return 0;
-    }
+    //{
+    //    errnum = ERR_WONT_FIT;
+    //    //printk("freeldr_memcheck: ERR_WONT_FIT");
+    //    //printk("freeldr_memcheck(): addr = 0x%08lx, len = %u", addr, len);
+    //    return 0;
+    //}
 
     return 1;
 }

@@ -97,7 +97,7 @@ real_start:
                          ; uFSD and stage0 are already loaded
                          ; to proper places by the bootsector.
 
-        ; relocate uFSD to UFSD_BASE
+        ; relocate uFSD to EXT_BUF_BASE
         shr  cx, 1
         inc  cx
 
@@ -106,7 +106,7 @@ real_start:
 
         push si
 
-        mov  eax, UFSD_BASE
+        mov  eax, EXT_BUF_BASE
         shr  eax, 4
         mov  es,  ax
         xor  di,  di
