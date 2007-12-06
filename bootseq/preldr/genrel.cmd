@@ -18,6 +18,8 @@
 
 numeric digits 12
 
+crlf = '0d 0a'x
+
 parse arg args
 
 if words(args) \= 3 then
@@ -30,7 +32,7 @@ p = pos('0x', shift)
 if p = 1 then shift = x2d(delstr(shift, p, 2))
 
 if shift = 0 then do
-  call charout stderr, 'Error: shift = 0!' || '0d 0a'x
+  call charout stderr, 'Error: shift = 0!' || crlf
   exit -1
 end
 
@@ -41,7 +43,7 @@ size1 = stream(file1, 'c', 'query size')
 size2 = stream(file2, 'c', 'query size')
 
 if size1 \= size2 then do
-  call charout stderr, 'Error: sizes of two files don''t equal!'
+  call charout stderr, 'Error: sizes of two files don''t equal!' || crlf
   signal quit
 end
 
@@ -53,8 +55,8 @@ outs = ''
 
 do forever
   if p > size1 then leave
-  u = x2d(strip(reverse(c2x(substr(buf1, p, 4))), 'L', '0'))
-  v = x2d(strip(reverse(c2x(substr(buf2, p, 4))), 'L', '0'))
+  u = x2d(strip(rev(c2x(substr(buf1, p, 4))), 'L', '0'))
+  v = x2d(strip(rev(c2x(substr(buf2, p, 4))), 'L', '0'))
   if u = v then do
     p = p + 4
     iterate
@@ -66,7 +68,7 @@ do forever
     b = strip(b, 'L', '0')
     x = lastpos('1', b)
     if x \= 1 then do
-      call charout stderr, 'Error: difference is not power of 2!, x = ' || x || '0d 0a'x
+      call charout stderr, 'Error: difference is not power of 2!' || crlf
       exit -1
     end
     /* the binary logarithm of w */
@@ -76,7 +78,7 @@ do forever
      * followed by the log2() from shift value
      * (one byte)
      */
-    rel = x2c(reverse(pad(p - 1))) || d2c(n)
+    rel = x2c(rev(pad(p - 1))) || d2c(n)
     outs = outs || rel
     p = p + 4
     iterate
@@ -87,28 +89,27 @@ end
 /* relocation table length    */
 l = length(outs)
 
-/* Check if other bytes are
-   equal in both files on the
+/* Check if remaining bytes are
+   equal in both files at the
    same positions             */
 p = 1
-do i = 1 to l / 2
+do i = 1 to l / 3
   /* the next relocation item  */
-  q = x2d(reverse(c2x(substr(outs, 3*i - 2, 2)))) + 1
+  q = x2d(rev(c2x(substr(outs, 3*i - 2, 2)))) + 1
   /* check all bytes before it */
-  if p < q then
-    do while p < q
-      u = substr(buf1, p, 1)
-      v = substr(buf2, p, 1)
-      if u \= v then do
-        call charout stderr, 'bytes not equal, pos: ' || p || '0d 0a'x
-        exit -1
-      end
-      p = p + 1
+  do while p < q
+    u = substr(buf1, p, 1)
+    v = substr(buf2, p, 1)
+    if u \= v then do
+      call charout stderr, 'bytes not equal at pos: ' || p || crlf
+      exit -1
     end
+    p = p + 1
+  end
   p = q + 4
 end
 
-l = x2c(reverse(pad(l)))
+l = x2c(rev(pad(l)))
 outs = l || outs
 
 call charout ,outs
@@ -135,7 +136,7 @@ end
 
 return s
 /* ================================================= */
-reverse: procedure
+rev: procedure
 n = arg(1)
 
 /*  Reverse byte order for little endian
