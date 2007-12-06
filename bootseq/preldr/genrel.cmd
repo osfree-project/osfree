@@ -53,8 +53,7 @@ buf2 = charin(file2, 1, size2)
 p = 1
 outs = ''
 
-do forever
-  if p > size1 then leave
+do while p < size1 - 2
   u = x2d(strip(rev(c2x(substr(buf1, p, 4))), 'L', '0'))
   v = x2d(strip(rev(c2x(substr(buf2, p, 4))), 'L', '0'))
   if u = v then do
@@ -78,7 +77,7 @@ do forever
      * followed by the log2() from shift value
      * (one byte)
      */
-    rel = x2c(rev(pad(p - 1))) || d2c(n)
+    rel = x2c(rev(pad(p - 1))) || x2c(n)
     outs = outs || rel
     p = p + 4
     iterate
