@@ -17,17 +17,22 @@ PATH         = $(MYDIR)
 
 !include $(%ROOT)/mk/bootseq.mk
 
+CLEANMASK    = $(CLEANMASK) *.sob *.lob
+
 RIP           = ripzeroes.cmd
 GENREL        = genrel.cmd
 
 SO               = sob
+LO               = lob
+
 OUT              = bin
 SOUT             = sbi
+LOUT             = lbi
 
 .SUFFIXES:
-.SUFFIXES: .rel .fsd .fss .$(OUT) .$(SOUT) .$(SO) .$(O) .c .asm .h .inc
+.SUFFIXES: .rel .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
 
-FS_OBJS          = start.$(O) fsys.$(O) dummy.$(O)
+FS_OBJS          = start.$(O)  fsys.$(O)  dummy.$(O)
 FS_SH_OBJS       = start.$(SO) fsys.$(SO) dummy.$(SO)
 
 FAT_OBJS            = $(FS_OBJS) fsys_fat.$(O)
@@ -58,22 +63,29 @@ STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) filesys.$(O) 
 STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) biosdisk.$(SO) filesys.$(SO) &
                    video.$(SO) stage0_fs.$(SO) func.$(SO) bios.$(SO) end.$(SO)
 
+STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) biosdisk.$(LO) filesys.$(LO) &
+                   video.$(LO) stage0_fs.$(LO) func.$(LO) bios.$(LO) end.$(LO)
+
 LDR_OBJS         = ldrstart.$(O) loader.$(O) # video.$(O)
 
 TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
-                   minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 loader &
+                   minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite loader &
                    fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel
 
+SHIFT = 0x10
+
 all: fsd.h $(TARGETS) .SYMBOLIC
 
 .fsd.rel
- $(GENREL) $^&.fsd $^&.fss >$^@
+ $(GENREL) $^&.fss $^&.fsd $(SHIFT) >$^@
+ $(DC) $^&.fss
 
 preldr0.rel: preldr0
- $(GENREL) $^& $^&s >$^@
+ $(GENREL) $^&s $^& $(SHIFT) >$^@
+ $(DC) $^&s
 
 .$(OUT).fsd:
  $(DC) $^@
@@ -82,7 +94,7 @@ preldr0.rel: preldr0
 
 .$(SOUT).fss:
  $(DC) $^@
- $(RIP) $< EXT_BUF_BASE fsd.inc 0x10000 >$^@
+ $(RIP) $< EXT_BUF_BASE fsd.inc $(SHIFT) >$^@
  $(DC) $<
 
 preldr0: stage0.$(OUT)
@@ -90,9 +102,14 @@ preldr0: stage0.$(OUT)
  $(RIP) $< STAGE0_BASE fsd.inc >$^@
  $(DC) $<
 
+preldr0_lite: stage0.$(LOUT)
+ $(DC) $^@
+ $(RIP) $< STAGE0_BASE fsd.inc >$^@
+ $(DC) $<
+
 preldr0s: stage0.$(SOUT)
  $(DC) $^@
- $(RIP) $< STAGE0_BASE fsd.inc 0x10000 >$^@
+ $(RIP) $< STAGE0_BASE fsd.inc $(SHIFT) >$^@
  $(DC) $<
 
 loader: loader.$(OUT)
@@ -166,6 +183,9 @@ xfs.$(SOUT): $(XFS_SH_OBJS)
 stage0.$(OUT): $(STAGE0_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
+stage0.$(LOUT): $(STAGE0_LT_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="l" E=$(LOUT) OBJS="$<" link
+
 stage0.$(SOUT): $(STAGE0_SH_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
 
@@ -187,6 +207,7 @@ link: .SYMBOLIC .PROCEDURE
  @%append $(T)$(S).lnk ALIAS _init=init_
 !endif
 !else
+ @%append $(T)$(S).lnk ALIAS mem_lower=_mem_lower
  @%append $(T)$(S).lnk ALIAS _biosdisk_int13_extensions=biosdisk_int13_extensions
  @%append $(T)$(S).lnk ALIAS _biosdisk_standard=biosdisk_standard
  @%append $(T)$(S).lnk ALIAS _check_int13_extensions=check_int13_extensions
@@ -201,79 +222,88 @@ fsys_fat.$(O): fsys_fat.c
  $(CC) -dFSYS_FAT -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_fat.$(SO): fsys_fat.c
- $(CC) -dFSYS_FAT -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_FAT -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_ext2fs.$(O): fsys_ext2fs.c
  $(CC) -dFSYS_EXT2FS -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_ext2fs.$(SO): fsys_ext2fs.c
- $(CC) -dFSYS_EXT2FS -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_EXT2FS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_jfs.$(O): fsys_jfs.c
  $(CC) -dFSYS_JFS -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_jfs.$(SO): fsys_jfs.c
- $(CC) -dFSYS_JFS -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_JFS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_iso9660.$(O): fsys_iso9660.c
  $(CC) -dFSYS_ISO9660 -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_iso9660.$(SO): fsys_iso9660.c
- $(CC) -dFSYS_ISO9660 -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_ISO9660 -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_reiserfs.$(O): fsys_reiserfs.c
  $(CC) -dFSYS_REISERFS -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_reiserfs.$(SO): fsys_reiserfs.c
- $(CC) -dFSYS_REISERFS -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_REISERFS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_minix.$(O): fsys_minix.c
  $(CC) -dFSYS_MINIX -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_minix.$(SO): fsys_minix.c
- $(CC) -dFSYS_MINIX -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_MINIX -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_ufs2.$(O): fsys_ufs2.c
  $(CC) -dFSYS_UFS2 -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_ufs2.$(SO): fsys_ufs2.c
- $(CC) -dFSYS_UFS2 -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_UFS2 -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_vstafs.$(O): fsys_vstafs.c
  $(CC) -dFSYS_VSTAFS -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_vstafs.$(SO): fsys_vstafs.c
- $(CC) -dFSYS_VSTAFS -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_VSTAFS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_ffs.$(O): fsys_ffs.c
  $(CC) -dFSYS_FFS -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_ffs.$(SO): fsys_ffs.c
- $(CC) -dFSYS_FFS -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_FFS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 fsys_xfs.$(O): fsys_xfs.c
  $(CC) -dFSYS_XFS -dSHIFT=0 $(COPT) -fo=$^@ $<
 
 fsys_xfs.$(SO): fsys_xfs.c
- $(CC) -dFSYS_XFS -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dFSYS_XFS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 func.$(O): func.c
  $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fo=$^@ $<
 
+func.$(LO): func.c
+ $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fo=$^@ $<
+
 func.$(SO): func.c
- $(CC) -dSTAGE0 -dSHIFT=0x10000 $(COPT) -fo=$^@ $<
+ $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 .c.$(O):
- $(CC) -dSHIFT=0 $(COPT)  -fo=$^@ $<
+ $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<
+
+.c.$(LO):
+ $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fo=$^@ $<
 
 .c.$(SO):
- $(CC) -dSHIFT=0x10000 $(COPT)  -fo=$^@ $<
+ $(CC) -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 .asm.$(O):
- $(ASM) -dSHIFT=0 $(ASMOPT)  -fo=$^@ $<
+ $(ASM) -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+
+.asm.$(LO):
+ $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fo=$^@ $<
 
 .asm.$(SO):
- $(ASM) -dSHIFT=0x10000 $(ASMOPT)  -fo=$^@ $<
+ $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
 
 .inc.h:
  $(AWK) -f inc2h.awk <$< >$^@

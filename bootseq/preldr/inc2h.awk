@@ -1,3 +1,9 @@
+#
+# Convert assembler include file
+# to C include file
+#
+
+
 /^;/ {
    printf "// %s\n", $0
    next

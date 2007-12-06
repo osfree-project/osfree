@@ -12,7 +12,7 @@
 void (*disk_read_func) (int, int, int);
 void (*disk_read_hook) (int, int, int);
 
-int mem_lower = 639;
+int mem_lower;
 int mem_upper = 16384;
 
 /* filesystem common variables */
@@ -562,7 +562,7 @@ attempt_mount (void)
 }
 
 
-#if 1
+#ifndef STAGE1_5
 
 /* Forward declarations.  */
 int next_bsd_partition (unsigned long drive, unsigned long dest,
@@ -983,7 +983,11 @@ real_open_partition (int flags)
 int
 open_partition (void)
 {
+#ifndef STAGE1_5
   return real_open_partition (0);
+#else
+  return 1;
+#endif
 }
 
 #ifndef STAGE1_5

@@ -569,6 +569,7 @@ int init(void)
   char *fn;
   char *s;
   unsigned long ldrlen = 0, mfslen = 0;
+  unsigned long ldrbase, relshift;
   bios_parameters_block *bpb;
   struct geometry geom;
 
@@ -664,6 +665,32 @@ int init(void)
     } else {
       panic("Can't open minifsd filename: ", fn);
     }
+  }
+
+  /* calculate highest available address
+     -- os2ldr base or top of low memory  */
+  if (!conf.multiboot) // os2ldr
+    ldrbase = ((mem_lower - ((ldrlen / 1024) + 12)) * 1024) & 0xff000;
+  else                 // multiboot loader
+    ldrbase = mem_lower;
+
+  printmsg("\r\n");
+  printd(ldrbase);
+
+  /* the correction shift added while relocating */
+  relshift = ldrbase - (EXT_BUF_BASE + EXT_LEN);
+
+  /* relocate preldr and uFSD */
+  grub_memmove((char *)(ldrbase - 0x10000),
+               (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
+               0x10000);
+
+  /* fixup preldr and uFSD */
+  // ...
+
+  __asm {
+    cli
+    hlt
   }
 
   /* set boot flags */

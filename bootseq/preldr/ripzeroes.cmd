@@ -79,6 +79,9 @@ if p > 0 then line = strip(delstr(line, p))
 p = pos('equ', line)
 if p > 0 then line = strip(substr(line, p + 4))
 
+line = strip(line, 'L' ,'(')
+line = strip(line, 'T' ,')')
+
 /* Delete spaces */
 do forever
   p = pos(' ', line)
@@ -96,12 +99,14 @@ if p > 0 then do
 end
 
 p = pos('0x', line)
-if p = 1 then line = delstr(line, 1,  2)
 
-if line = '' then
-   return 0
+if p = 1 then do
+  line = delstr(line, 1,  2)
+  if line = '' then
+    return 0
+  line = x2d(line)
+end
 
-if p = 1 then line = x2d(line)
 if subtract = 1 then line = line - shift
 
 

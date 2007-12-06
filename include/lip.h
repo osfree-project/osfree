@@ -38,7 +38,7 @@ typedef struct lip
    void *                (*lip_memmove)  (void *, const void *, int);
    char *                (*lip_strcpy)   (char *, const char *);
    int                   (*lip_strcmp)   (const char *, const char *);
-   int                  (*lip_memcmp)   (const char *, const char *, int);
+   int                   (*lip_memcmp)   (const char *, const char *, int);
    int                   (*lip_strlen)   (const char *);
    int                   (*lip_isspace)  (int c);
    int                   (*lip_tolower)  (int c);
@@ -74,6 +74,11 @@ typedef struct lip
    int                   *lip_fsmax;
 
    /* Misc functions */
+   void                  (*lip_printmsg) (char *);
+   void                  (*lip_printb)   (unsigned char);
+   void                  (*lip_printw)   (unsigned short);
+   void                  (*lip_printd)   (unsigned long);
+
 } lip_t;
 
 

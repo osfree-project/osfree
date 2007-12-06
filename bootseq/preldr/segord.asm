@@ -20,7 +20,14 @@ BASE1      equ STAGE0_BASE - 10000h
 TEXT16_END equ (offset cs:_text16_end)
 TEXT16_BEG equ (offset cs:_text16_begin)
 TEXT16_LEN equ (TEXT16_END - TEXT16_BEG)
-BASE       equ (BASE1 + 46fh) ; 20ah; 59ah; TEXT16_LEN
+
+; hardcoded for now
+; ! todo: fix
+ifndef STAGE1_5
+BASE       equ (BASE1 + 482h)    ; 59ah; TEXT16_LEN
+else
+BASE       equ (BASE1 + 20ah)
+endif
 
 _TEXT    segment byte public 'CODE'  use32
 org BASE

@@ -93,7 +93,7 @@ FINDFILE  = findfile.cmd
 if_not_exist_mkdir = if_not_exist_mkdir.cmd
 
 NULL      = \dev\nul
-BLACKHOLE = >$(NULL) 2>&1
+BLACKHOLE = 2>&1 >$(NULL)
 
 CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
 
@@ -113,7 +113,7 @@ FINDFILE  = findfile
 
 if_not_exist_mkdir = ./if_not_exist_mkdir.sh
 NULL      = /dev/null
-BLACKHOLE = >$(NULL) 2>&1
+BLACKHOLE = 2>&1 >$(NULL)
 
 CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 

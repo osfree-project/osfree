@@ -8,7 +8,6 @@ name init
 public  boot_flags
 public  boot_drive
 public  install_partition
-public  ft
 
 public  stage0_init
 public  force_lba
@@ -25,6 +24,8 @@ extrn   lip          :dword
 
 ifndef STAGE1_5
 
+public  ft
+
 extrn   mu_Open      :far
 extrn   mu_Read      :far
 extrn   mu_Close     :far
@@ -35,6 +36,8 @@ extrn   printhex8    :near
 extrn   preldr_ds    :word
 extrn   preldr_ss_sp :dword
 extrn   preldr_es    :word
+
+extrn   mem_lower    :dword
 
 endif
 
@@ -191,6 +194,11 @@ reloc:
         mov  [si][3*8].ds_basehi2, al
         mov  [si][4*8].ds_basehi2, al
 
+ifndef STAGE1_5
+        ; get available memory
+        call getmem
+endif
+
         ; call 32-bit protected mode init
         mov  eax, offset _TEXT:init
         push eax
@@ -236,6 +244,13 @@ ifndef STAGE1_5
         push 0
         retf
 
+getmem:
+        xor  eax, eax
+        int  12h
+        mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
+        mov  [ebx], eax
+        ret
+
 else
 
 ; Control transferring from lite version to full one
@@ -253,7 +268,9 @@ boot_flags         dw 0
 boot_drive         dd 0
 install_partition  dd 0ffffffh
 
+ifndef STAGE1_5
 ft                 FileTable <>
+endif
 
 _TEXT   ends
 
