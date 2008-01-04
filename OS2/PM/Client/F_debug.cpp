@@ -1,6 +1,3 @@
-/*
- $Id: F_debug.cpp,v 1.4 2002/11/18 13:24:49 evgen2 Exp $
-*/
 /* F_debug.cpp */
 /* ver 0.00 20.08.2002       */
 /* DEBUG: section 0     Debug Routines */

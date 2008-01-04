@@ -10,8 +10,6 @@
 #include <memory.h>
 #include <builtin.h>
 #include "FreePM.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
 
 #include "F_hab.hpp"
 #include "Fs_WND.hpp"

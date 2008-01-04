@@ -1,6 +1,3 @@
-/*
- $Id: F_Client.cpp,v 1.4 2002/11/21 13:19:04 evgen2 Exp $
-*/
 /* F_Client.cpp*/
 #define POKA 0
 #define DEBUG 0

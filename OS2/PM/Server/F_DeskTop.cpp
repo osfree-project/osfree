@@ -1,6 +1,3 @@
-/*
- $Id: F_DeskTop.cpp,v 1.10 2002/11/18 13:24:52 evgen2 Exp $
-*/
 /* F_DeskTop.cpp */
 /* functions of class FreePM_DeskTop */
 /* DEBUG: section 8 server class FreePM_DeskTop */
@@ -14,14 +11,12 @@
 #include <time.h>
 #include "FreePM.hpp"
 #include "FreePMs.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
 #include "F_hab.hpp"
 #include "F_utils.hpp"
 #include "F_globals.hpp"
 #include "Fs_globals.hpp"
 #include "FreePM_err.hpp"
-#include "F_GPI.hpp"
+//#include "F_GPI.hpp"
 
 #define LOCK_DESKTOP                            \
     {   int ilps_raz = 0, ilps_rc;              \
@@ -43,24 +38,23 @@ int DeskTopWindow::CreateDeskTopWindow( ULONG _flStyle,    /*  Window style. */
                    LONG _ny,          /*  Height of window, in window coordinates. */
                    PVOID pCtlData,    /*  Pointer to control data. */
                    PVOID pPresParams) /*  Presentation parameters. */
-{  int rc;
-	FPM_Window *dw = new FPM_Window(); /* Viking: Is this really right? Added it because 
-										 CreateFPM_Window was called without a valid instance! 
-										 The this pointer was NULL. */ 
-   rc = dw->CreateFPM_Window(NULL,"DeskTop","Desktop text",
+{
+  int rc;
+  FPM_Window *dw = new FPM_Window(); /* Viking: Is this really right? Added it because
+                                       CreateFPM_Window was called without a valid instance! */
+  rc = dw->CreateFPM_Window(NULL,"DeskTop","Desktop text",
                     _flStyle,0L,0L,_nx,_ny,NULL,NULL,0, pCtlData, pPresParams);
 
-   return rc;
+  return rc;
 }
+
 /***********************************************************************/
 /* Init desktop window: get iHAB, create queue, create  desktop window */
 /***********************************************************************/
 int FreePM_DeskTop::Init(int nx, int ny, int bytesPerPixel)
 {   int i, ordinal,tid,rc, len,inf[2];
-/* чтение файлов инициализации */
 
-/* десктоп есть обычное приложение со своим HAB'ом, очередью и процедурой  */
-/* [desktop] is a usual application with its HAB'[om], turn and procedure */
+/* desktop is a usual application with its HAB, queue and procedure */
 /* initialize hab */
 
     ordinal = QueryThreadOrdinal(tid);
@@ -88,14 +82,18 @@ int FreePM_DeskTop::Init(int nx, int ny, int bytesPerPixel)
    rc = pSession->InitDevice(FPM_DEV_PMWIN, this);
    /*rc = pSession->InitDevice(FPM_DEV_SERVERMEM, this);*/
 /* init videomode */
-	debug(8, 0) ("FreePM_DeskTop::Init OK\n");
+   debug(8, 0) ("FreePM_DeskTop::Init OK\n");
 
 /* создание остальных окон     */
 /* the creation of the remaining windows */
 //todo
 
+  // prokushev: I think here we must create separate thread which will
+  // process desktop messages loop.
+
    return 0;
 }
+
 /* добавить окно к десктопу */
 /* to add window to [desktop] */
 /* */
@@ -165,6 +163,7 @@ HPS  FreePM_DeskTop::AddPS(HWND hwnd)
 //todo
   return 0;
 }
+
 /* Delete Presentation space */
 int FreePM_DeskTop::DelPS(HPS hps)
 {
@@ -180,11 +179,8 @@ int FreePM_DeskTop::GetPar(int &Dx, int &Dy, int &bytes_PerPixel)
    return 0;
 }
 
-/* специальная функция для вызова из обработчика дивайса (как минимум, PM)
-   и передачи сообщения в очередь десктопа
-*/
-/* special function for the call from the processor of [divaysa] (as the minimum, PM)
-   and the transfer of communication in the turn of [desktopa]
+/* special function for the call from the processor of device (as the minimum, PM)
+   and the transfer of communication in the turn of desktop
 */
 extern "C" int  _DeskTopSendQueue(void *pDClass, QMSG  *pqmMsg)
 {
@@ -197,22 +193,22 @@ extern "C" int  _DeskTopSendQueue(void *pDClass, QMSG  *pqmMsg)
                  return -1;
     if(pqmMsg->msg == WM_MOUSEMOVE)
                debl = 9;
-    debug(8, debl) ("Hw %x Msg %x m1 %x mp2 %x (%i,%i) t=%i,uid=%x\n",
-              pqmMsg->hwnd,pqmMsg->msg,pqmMsg->mp1,pqmMsg->mp2,pqmMsg->ptl.x,pqmMsg->ptl.y,pqmMsg->time,pqmMsg->uid);
+    debug(8, debl) ("Hw %x Msg %x m1 %x mp2 %x (%i,%i)\n",
+              pqmMsg->hwnd,pqmMsg->msg,pqmMsg->mp1,pqmMsg->mp2,pqmMsg->ptl.x,pqmMsg->ptl.y/*,pqmMsg->time,pqmMsg->uid*/);
 /* pqmMsg - pointer to old PM QMSG structure! */
     qMsg.hwnd = pqmMsg->hwnd;
     qMsg.msg  = pqmMsg->msg;
     qMsg.mp1  = pqmMsg->mp1;
     qMsg.mp2  = pqmMsg->mp2;
     qMsg.ptl  = pqmMsg->ptl;
-    qMsg.time = pqmMsg->time;
+//    qMsg.time = pqmMsg->time;
 //todo: get current user id
-    qMsg.uid  = 0;
+//    qMsg.uid  = 0;
 //todo: get current remoute id
-    qMsg.remoteId = 0;
+//    qMsg.remoteId = 0;
 
     getCurrentTime();
-    qMsg.dtime = _FreePM_current_dtime;
+//    qMsg.dtime = _FreePM_current_dtime;
  if(qMsg.msg == WM_PAINT)
      DosBeep(6000,1);
 
@@ -247,13 +243,11 @@ int DeskTopWindow::proc( PQMSG pqmsg)
   {
      case WM_PAINT:
     debug(8, 0) ("DeskTopWindow::proc  WM_PAINT\n");
-/* вывод окна десктопа */
-/* the conclusion of the window of [desktopa] */
+/* the conclusion of the window of desktop */
      {  HPS hps;
         hps = GetPS();
         Draw(hps);
-/* вывод всех дочерних окон десктопа */
-/* the conclusion of all daughterly windows of [desktopa] */
+/* the conclusion of all daughterly windows of desktop */
      }
        break;
   }
@@ -267,7 +261,7 @@ int DeskTopWindow::Draw(HPS hps)
 /* background */
 /*todo: if background == picture */
 /* rectangle 0,0, nx-1,ny-1, bytesPerPixel color pp.BackgroungColor */
-   F_GpiBox(hps, lControl,&ptlPoint,0,0);
-	return 0; /* Just to make OW compile it. */
+//   F_GpiBox(hps, lControl,&ptlPoint,0,0);
+   return 0; /* Just to make OW compile it. */
 }
 

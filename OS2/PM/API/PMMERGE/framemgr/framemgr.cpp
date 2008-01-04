@@ -1,7 +1,4 @@
-#define INCL_WIN
-#define INCL_WINFRAMEMGR
-#define INCL_ERRORS
-#include <osfree.h>
+#include <freepm.hpp>
 #include <pmclient.h>
 #include <habmgr.hpp>
 //#include <window.hpp>

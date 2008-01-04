@@ -6,7 +6,6 @@
 /* ver 0.02 9.10.2002       */
 
 #include "FreePM.hpp"
-#include "FreePM_winConstants.hpp"
 
 #include <malloc.h>
 

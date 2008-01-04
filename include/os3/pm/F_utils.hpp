@@ -20,7 +20,7 @@
      4         Detached protect-mode process.
 */
 int QueryProcessType(void);
-int QueryThreadOrdinal(int &tid);
+extern "C" int QueryThreadOrdinal(int &tid);
 
 
 time_t getCurrentTime(void);

@@ -12,8 +12,6 @@
 #include <time.h>
 #include "FreePM.hpp"
 #include "F_hab.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
 #include "F_globals.hpp"
 
 /*+---------------------------------+*/

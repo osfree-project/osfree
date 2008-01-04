@@ -9,6 +9,8 @@
       extern "C" {
 #endif
 
+#include <os2def.h>
+
 /*+---------------------------------+*/
 /*| defines for class FPM_Window    |*/
 /*+---------------------------------+*/

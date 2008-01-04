@@ -13,8 +13,6 @@
 #include "FreePM.hpp"
 #include "Fs_queue.hpp"
 #include "Fs_hab.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
 
 #include "Fs_WND.hpp"
 

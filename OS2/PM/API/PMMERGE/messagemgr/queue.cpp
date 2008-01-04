@@ -2,7 +2,7 @@
 /* class  FreePM_Queue stuff */
 /* ver 0.00 16.08.2002       */
 
-#include "freepm.h"
+#include "freepm.hpp"
 
 //#include <queue.hpp>
 

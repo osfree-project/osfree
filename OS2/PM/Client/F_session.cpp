@@ -1,6 +1,3 @@
-/* 
- $Id: F_session.cpp,v 1.2 2002/09/06 12:29:43 evgen2 Exp $ 
-*/
 /* FreePM_session.cpp */
 /* functions of class FreePM_session */
 

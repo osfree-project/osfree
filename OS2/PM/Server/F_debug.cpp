@@ -18,10 +18,11 @@
 #include "FreePM.hpp"
 
 
-#define F_INCL_DOSSEMAPHORES
-#define F_INCL_DOSNMPIPES
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
+#define INCL_DOSSEMAPHORES
+#define INCL_DOSNMPIPES
+#define INCL_DOSPROCESS
+#include <os2.h>
+
 #include "F_pipe.hpp"
 
 #include "F_globals.hpp"

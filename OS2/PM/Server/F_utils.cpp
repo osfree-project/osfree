@@ -1,5 +1,5 @@
-/* 
- $Id: F_utils.cpp,v 1.5 2002/11/18 13:24:53 evgen2 Exp $ 
+/*
+ $Id: F_utils.cpp,v 1.5 2002/11/18 13:24:53 evgen2 Exp $
 */
 /* F_utils.cpp */
 /* ver 0.00 22.08.2002       */
@@ -12,8 +12,8 @@
 
 #include "FreePM.hpp"
 #include "F_utils.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
+#define INCL_DOSPROCESS
+#include <os2.h>
 
 #include <sys/types.h>
 #include <sys/timeb.h>

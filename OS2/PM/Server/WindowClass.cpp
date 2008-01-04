@@ -4,15 +4,12 @@
 #include "F_def.hpp"
 #include "FreePM.hpp"
 #include "F_hab.hpp"
-#include "FreePM_winConstants.hpp"
 #include "FreePMs.hpp"
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
+
 #include "F_utils.hpp"
 #include "F_globals.hpp"
 #include "Fs_globals.hpp"
 #include "FreePM_err.hpp"
-#include "F_GPI.hpp"
 #include "Fs_WND.hpp"
 
 
@@ -276,7 +273,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
     swp.ulReserved1 = 0;
     swp.ulReserved2 = 0;
 
-  debug(3, 1)(__FUNCTION__"%x %i %i %i %i %x  %x\n",hwndInsertBehind,_x,_y,_cx,_cy,fl);
+    debug(3, 1)(__FUNCTION__"%x %i %i %i %i %x  %x\n",hwndInsertBehind,_x,_y,_cx,_cy,fl);
 
 
     return rc0;
@@ -295,9 +292,9 @@ int FPM_Window::SendMsg_to_proc(ULONG umsg, MPARAM mp1, MPARAM mp2)
     msg.time = getCurrentTime(); /* В предположении time_t = int, todo */
     msg.ptl.x = 0; //todo
     msg.ptl.y = 0; //todo
-    msg.uid = 0;
-    msg.remoteId = 0;
-    msg.dtime = _FreePM_curtime;
+//    msg.uid = 0;
+//    msg.remoteId = 0;
+//    msg.dtime = _FreePM_curtime;
 
     return proc(&msg);
 }
@@ -316,17 +313,17 @@ int FPM_Window::Draw(HPS hps)
   int windColor = 0xff8040;
   POINTL Point;
 debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
-   rc = F_GpiSetColor(hps,windColor);
+//   rc = F_GpiSetColor(hps,windColor);
    Point.x =  Point.y = 0;
-   rc = F_GpiMove(hps, &Point);
+//   rc = F_GpiMove(hps, &Point);
    Point.x =  nx-1;
-   rc = F_GpiLine(hps, &Point);
+//   rc = F_GpiLine(hps, &Point);
    Point.y =  ny-1;
-   rc = F_GpiLine(hps, &Point);
+//   rc = F_GpiLine(hps, &Point);
    Point.x =  0;
-   rc = F_GpiLine(hps, &Point);
+//   rc = F_GpiLine(hps, &Point);
    Point.y =  0;
-   rc = F_GpiLine(hps, &Point);
+//   rc = F_GpiLine(hps, &Point);
  return NULL;
 }
 
@@ -335,7 +332,7 @@ debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
 HPS FPM_Window::GetPS(void)
 { HPS hps;
 debug(3, 0)(__FUNCTION__"call\n");
-  hps = ::F_WinGetPS(handle);
+//  hps = ::F_WinGetPS(handle);
   return hps;
 }
 

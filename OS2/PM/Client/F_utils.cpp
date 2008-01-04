@@ -1,6 +1,3 @@
-/*
- $Id: F_utils.cpp,v 1.3 2002/09/06 14:59:33 evgen2 Exp $
-*/
 /* F_utils.cpp */
 /* ver 0.00 22.08.2002       */
 

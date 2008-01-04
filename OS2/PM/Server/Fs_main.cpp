@@ -15,13 +15,9 @@
 #include "FreePM.hpp"
 #include "FreePMs.hpp"
 
-#define F_INCL_DOSSEMAPHORES
-#define F_INCL_DOSNMPIPES
-#define F_INCL_DOSPROCESS
-#define F_INCL_DOSMODULEMGR
-   #include "F_OS2.hpp"
+
 /*#include "FreePM_win.hpp" Maybe Constants ? */
-#include "FreePM_winConstants.hpp"
+//#include "FreePM_winConstants.hpp"
 #include "F_pipe.hpp"
 #include "FreePM_cmd.hpp"
 #include "Fs_WND.hpp"
@@ -44,9 +40,9 @@
 /*+---------------------------------+*/
 /*| Internal function prototypes.   |*/
 /*+---------------------------------+*/
-extern "C" void /*_Optlink*/  FreePM_cleanup(void);
-extern "C"  void   FreePM_cleanupHandler(int sig);
-extern "C"  void   FreePM_cleanupHandlerFP(int sig);
+extern "C" void   FreePM_cleanup(void);
+extern "C" void   FreePM_cleanupHandler(int sig);
+extern "C" void   FreePM_cleanupHandlerFP(int sig);
 
 int startServerThreads(void);
 int SetupSemaphore(void);
@@ -109,6 +105,17 @@ int tst__lxchg(int volatile * a, int  b);
 extern void fix_asm_Fs_ClientWork(void *);
 void /*_Optlink*/  Fs_ClientWork( void * /* *param */);
 
+//
+// Main function
+//
+// General logic:
+//   Setup/check semaphore (to prevent dupes)
+//   Setup signals handler
+//   Read config
+//   Load output device driver
+//   Start server threads
+//   Add desktop
+//   Infinite loop
 
 int main(int narg, char *arg[], char *envp[])
 {
@@ -145,63 +152,66 @@ int main(int narg, char *arg[], char *envp[])
   }
 
 /* read config */
-   FPMs_config.Read("FreePMServer.ini");
+  FPMs_config.Read("FreePMServer.ini");
 /* init debug again */
-    _db_init(_FreePMconfig.Log.log, FPMs_config.debugOptions);
+  _db_init(_FreePMconfig.Log.log, FPMs_config.debugOptions);
 
 /* load device driver */
 
-   debug(1, 0) ("Loading driver %s\n",FPMs_config.deviceName);
+  debug(1, 0) ("Loading driver %s\n",FPMs_config.deviceName);
 
-   if (!DosLoadModule(NULL, 0, FPMs_config.deviceName, &hDeviceLib))
-   {
-     debug(1, 0) ("Moduole loaded\n");
-   if (DosQueryProcAddr(hDeviceLib, 0, "FPM_DeviceStart",
-                        (PFN*)&FPM_DeviceStart)
-       ) {
-     debug(1, 0) ("Error loading driver\n");
-     exit(1);
-   };
-     debug(1, 0) ("Address found\n");
+  if (!DosLoadModule(NULL, 0, FPMs_config.deviceName, &hDeviceLib))
+  {
+    debug(1, 0) ("Module loaded\n");
+    if (DosQueryProcAddr(hDeviceLib, 0, "FPM_DeviceStart",
+                        (PFN*)&FPM_DeviceStart))
+    {
+      debug(1, 0) ("Error initialize driver\n");
+      exit(1);
+    };
+    debug(1, 0) ("Address found\n");
 
-   }
+  } else {
+    debug(1, 0) ("Error loading driver module\n");
+    exit(1);
+  }
 
 /* init pipes  */
 
-   startServerThreads();
+  startServerThreads();
 
-        //printf("SRV main: session.AddDesktop()\n");
-   rc = session.AddDesktop(FPM_DEV_PMWIN,
+  rc = session.AddDesktop(FPM_DEV_PMWIN,
                            _FreePMconfig.desktop.nx,
                            _FreePMconfig.desktop.ny,
                            _FreePMconfig.desktop.bytesPerPixel,
                            &_FreePMconfig.desktop.pp);
-    debug(1, 1)("session.AddDesktop rc=%i\n",rc);
+  debug(1, 1)("session.AddDesktop rc=%i\n",rc);
 
-        debug(1, 1)("SRV main: Main idle loop\n");
+  debug(1, 1)("SRV main: Main idle loop\n");
 /* Main idle loop */
         /*
-   debug(1, 1)("LSthreads.n %d\n", LSthreads.n);
-   debug(1, 1)("LSthreads.Nclients %d\n", LSthreads.Nclients);
-   debug(1, 1)("LSthreads.n %d\n", LSthreads.n); */
-   for(i=0; ;i++)
-   {  for(j=0; j< LSthreads.n; j++)
-      {
-              /*debug(1, 1)(" j %d\n", j);*/
-          debug(1, 1)("(%i,%i) ",LSthreads.thread_id[j],LSthreads.state[j] );
-      }
-      debug(1, 1)("%i   \r",LSthreads.Nclients);
+  debug(1, 1)("LSthreads.n %d\n", LSthreads.n);
+  debug(1, 1)("LSthreads.Nclients %d\n", LSthreads.Nclients);
+  debug(1, 1)("LSthreads.n %d\n", LSthreads.n); */
 
-      fflush(stdout);
-       DosSleep(100);
-   }
+  for(i=0; ;i++)
+  {
+    for(j=0; j< LSthreads.n; j++)
+    {
+      debug(1, 1)("(%i,%i) ",LSthreads.thread_id[j],LSthreads.state[j] );
+    }
+    debug(1, 1)("%i   \r",LSthreads.Nclients);
 
-   rc = session.DelDesktop(0);
-    debug(1, 1)("session.DelDesktop(0) rc=%i\n",rc);
+    fflush(stdout);
+    DosSleep(100);
+  }
 
-    debug(1, 1) ("Normal Shutting down...\n");
-    exit(0);
+  rc = session.DelDesktop(0);
 
+  debug(1, 1)("session.DelDesktop(0) rc=%i\n",rc);
+
+  debug(1, 1) ("Normal Shutting down...\n");
+  exit(0);
 }
 
 /**************************************/
@@ -376,17 +386,23 @@ extern HPS     hpsDrawBMPBuffer = NULLHANDLE;
 // This functions must draw into bitmap which painted on WM_PAINT event
 BOOL F_PS_GpiSetColor(struct  F_PS *ps, LONG lColor)
 {
- GpiSetColor(hpsDrawBMPBuffer, lColor);
-return 0;
+  GpiSetColor(hpsDrawBMPBuffer, lColor);
+  return 0;
 }
-BOOL F_PS_GpiLine(struct  F_PS *ps, PPOINTL pptlPoint) {
- POINTL ptl[4] = { 0, 0, 100, 100, 0, 100, 100, 0 };
- GpiLine(hpsDrawBMPBuffer, pptlPoint);
- return 0; }
-BOOL F_PS_GpiMove(struct  F_PS *ps, PPOINTL pptlPoint) {
- POINTL ptl[4] = { 0, 0, 100, 100, 0, 100, 100, 0 };
- GpiMove(hpsDrawBMPBuffer, pptlPoint);
-return 0; }
+
+BOOL F_PS_GpiLine(struct  F_PS *ps, PPOINTL pptlPoint)
+{
+  POINTL ptl[4] = { 0, 0, 100, 100, 0, 100, 100, 0 };
+  GpiLine(hpsDrawBMPBuffer, pptlPoint);
+  return 0;
+}
+
+BOOL F_PS_GpiMove(struct  F_PS *ps, PPOINTL pptlPoint)
+{
+  POINTL ptl[4] = { 0, 0, 100, 100, 0, 100, 100, 0 };
+  GpiMove(hpsDrawBMPBuffer, pptlPoint);
+  return 0;
+}
 
 HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 

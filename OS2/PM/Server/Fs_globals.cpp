@@ -47,6 +47,7 @@ struct timeval _FreePM_current_time;
 struct timeval _FreePM_start;
 double _FreePM_current_dtime = 0.;
 
+#define LONGfromRGB(R,G,B) (LONG)(((LONG)R<<16)+((LONG)G<<8)+(LONG)B)
 
 
 struct FreePM_Config _FreePMconfig =

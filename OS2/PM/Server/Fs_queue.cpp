@@ -8,8 +8,6 @@
 
 #include "FreePM.hpp"
 
-#define F_INCL_DOSPROCESS
-#include "F_OS2.hpp"
 #include "Fs_queue.hpp"
 
 /* Add message to queue */

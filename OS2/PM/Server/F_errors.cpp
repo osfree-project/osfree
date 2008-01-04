@@ -1,5 +1,5 @@
-/* 
- $Id: F_errors.cpp,v 1.2 2002/09/06 12:29:45 evgen2 Exp $ 
+/*
+ $Id: F_errors.cpp,v 1.2 2002/09/06 12:29:45 evgen2 Exp $
 */
 /* F_errors.cpp */
 /* Error codes and messages  */
@@ -9,20 +9,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include "FreePM.hpp"
 #include "F_def.hpp"
 #include "F_config.hpp"
 #include "F_globals.hpp"
-/*
- #include <OS2WERR.H> // Warp ToolKit
- I don't have it, so uncomment. Only NO_ERROR seems missing. Trying with NO_ERROR from bseerr.h.
- Trying ERROR_SUCCESS from winerror.h, it's probably wrong but will do for now. 
- Can't find EBADMODE, EOS2ERR just put it in with something.
- Oh, a lot more of them is also needed...
- */
- #include <error.h> /* error.h is from an older toolkit, version 1.3*/
-#include <bseerr.h> 
- 
-/* #define NO_ERROR          0 */
+#include <bseerr.h>
+
+#define NO_ERROR          0
 
 /*#define ERROR_INVALID_FUNCTION -3
 #define EBADNAME               -4
@@ -38,7 +31,7 @@ ERROR_TOO_MANY_OPEN_FILES
 #define NO_ERROR          0
 #define ERROR_SUCCESS     0L
 #define EBADMODE          -1
-#define EOS2ERR			  -2
+#define EOS2ERR                   -2
 #define ERROR_INVALID_FUNCTION -3
 #define EBADNAME               -4
 #define ERROR_FILE_NOT_FOUND   -5
@@ -51,8 +44,8 @@ ERROR_TOO_MANY_OPEN_FILES
 #define EBUFMODE               -12
 #define ERROR_ARENA_TRASHED    -13
 #define ERROR_NOT_ENOUGH_MEMORY -14
-#define EERRSET    				-15
-#define ERROR_INVALID_BLOCK	    -16
+#define EERRSET                                 -15
+#define ERROR_INVALID_BLOCK         -16
 #define EISOPEN                 -17
 #define ERROR_BAD_ENVIRONMENT   -18
 #define ENOTEXIST               -19
@@ -67,7 +60,6 @@ ERROR_TOO_MANY_OPEN_FILES
 
 
 #include "os2_ErrCodes.h"
-
 #include "FreePM_err.hpp"
 #include "FreePM_ErrCodes.h"
 /* #include "snprintf.h" */

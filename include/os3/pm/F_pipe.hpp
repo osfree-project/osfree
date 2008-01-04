@@ -398,7 +398,7 @@ M:    rc =  DosRead(Hpipe, (void *)pdata, maxlen,&ulBytesDone);
 
 /*********************************************/
 /*********************************************/
-int QueryThreadOrdinal(int &tid);
+extern "C" int QueryThreadOrdinal(int &tid);
 
 class ThreadPipe:public NPipe
 {

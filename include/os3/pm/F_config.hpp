@@ -1,5 +1,5 @@
-/* 
- $Id: F_config.hpp,v 1.5 2003/06/18 22:51:49 evgen2 Exp $ 
+/*
+ $Id: F_config.hpp,v 1.5 2003/06/18 22:51:49 evgen2 Exp $
 */
 /* F_config.hpp */
 /* defines */
@@ -17,15 +17,15 @@
 /*| defines for config FreePM       |*/
 /*+---------------------------------+*/
 #define FREEPM_VERSION         "0.0.0.1"
-#define FREEPM_SERVER_APPLICATION_NAME  "FreePMserver"
-#define FREEPM_CLIENT_APPLICATION_NAME  "FreePMclient"
+#define FREEPM_SERVER_APPLICATION_NAME  "FreePM Server"
+#define FREEPM_CLIENT_APPLICATION_NAME  "FreePM Client"
 
-#define USE_CIRCLE_QUEUES   	1
-#define MAX_PIPE_BUF 		4096
+#define USE_CIRCLE_QUEUES       1
+#define MAX_PIPE_BUF            4096
 #define FREEPMS_MAX_NUM_THREADS 32
-/* #define THREAD_STACK_SIZE	32000 */
-#define THREAD_STACK_SIZE	65536
-#define USE_SOCKETS	   	0
+/* #define THREAD_STACK_SIZE    32000 */
+#define THREAD_STACK_SIZE       65536
+#define USE_SOCKETS             0
 
 //переодичность проверки конфига на изменения не чаще чем, в мсекундах
 #define CHECK_CONFIG_TIME  1000

@@ -7,12 +7,15 @@
 // OS/2 Headers
 #define INCL_PM
 #define INCL_WIN
+#define INCL_ERRORS
 #define INCL_SHLERRORS
 #define INCL_WINERRORS
 #define INCL_DOSERRORS
 #define INCL_DOSPROCESS
 #define INCL_DOSNMPIPES
 #define INCL_DOSSEMAPHORES
+#define INCL_DOSMODULEMGR
+#define INCL_WINFRAMEMGR
 #include <osfree.h>
 #include <pmerr.h>
 

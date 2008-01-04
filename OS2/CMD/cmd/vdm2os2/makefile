@@ -1,23 +1,24 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:13 prokushev Exp $
 
-ROOT=..\..\..\..
+
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
 DIR = $(ROOT)\bin\os2
 PROJ = vdm2os2
 DESC = vdm2os2
 OBJS = vdm2os2.obj
-ADD_COPT = -i=..\include -ox
-#ADD_LIB = MATH387S,%watcom%\lib286\os2\os2
+ADD_COPT = -i=..$(SEP)include
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
 #LINKOPT=-zq
 #-Lr
 LINKLIB=%watcom%\lib286\dos\clibs
 
-all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
+all: $(PROJ).exe #$(PROJ).sym
 
-$(DIR)\$(PROJ).exe: $(OBJS)
+$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
 # %append $^&.lnk $(LINKOPT)
  @%append $^&.lnk FORMAT DOS

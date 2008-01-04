@@ -1,5 +1,5 @@
-/* 
- $Id: Fs_pipe.cpp,v 1.4 2002/10/23 14:29:52 evgen2 Exp $ 
+/*
+ $Id: Fs_pipe.cpp,v 1.4 2002/10/23 14:29:52 evgen2 Exp $
 */
 /* Fs_pipe.cpp */
 /* ver 0.00 20.08.2002       */
@@ -16,10 +16,11 @@
 #include "FreePM.hpp"
 
 
-#define F_INCL_DOSSEMAPHORES
-#define F_INCL_DOSNMPIPES
-#define F_INCL_DOSPROCESS
-   #include "F_OS2.hpp"
+#define INCL_DOSSEMAPHORES
+#define INCL_DOSNMPIPES
+#define INCL_DOSPROCESS
+#include <os2.h>
+
 #include "F_pipe.hpp"
 
 void   sgLogError(char *, ...);
@@ -384,5 +385,5 @@ void   sgLogError(char * aa, ...)
 }
 
 int ThreadPipe::InitClientConnection(char *externMachineName) {
-	return 0;
+        return 0;
 }

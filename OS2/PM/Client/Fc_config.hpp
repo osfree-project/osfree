@@ -1,6 +1,3 @@
-/*
- $Id: Fc_config.hpp,v 1.1 2003/06/15 17:39:55 evgen2 Exp $
-*/
 /* FreePM Client config */
 
 class F_ClientConfig

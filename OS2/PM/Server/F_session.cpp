@@ -34,13 +34,14 @@ void _FPM_PMWinStart(void *param)
 }
 
 int FreePM_session::AddDesktop(int _dev_type, int nx, int ny, int bytesPerPixel,  struct WinPresParam * pp)
-{  int i;
+{
+  int i;
 
-   FreePM_DeskTop *pDeskTop;
+  FreePM_DeskTop *pDeskTop;
 /* create Desktop */
-   pDeskTop = new FreePM_DeskTop(_dev_type,nx,ny, bytesPerPixel, pp, this);
+  pDeskTop = new FreePM_DeskTop(_dev_type,nx,ny, bytesPerPixel, pp, this);
 
-   if(numDeskTops == 0 && pDeskTops == NULL)
+  if(numDeskTops == 0 && pDeskTops == NULL)
    {  numpDeskTopsAllocated = 16;
       pDeskTops = (FreePM_DeskTop * *) calloc(sizeof(FreePM_DeskTop *),numpDeskTopsAllocated);
       pDeskTops[numDeskTops++] = pDeskTop;

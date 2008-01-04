@@ -8,7 +8,7 @@
 
 #include <malloc.h>
 #include "FreePM.hpp"
-#include "F_GPI.hpp"
+//#include "F_GPI.hpp"
 #include "FreePM_cmd.hpp"
 
 /* for debug()*/
@@ -57,13 +57,8 @@ LONG   F_GpiQueryColor(HPS hps)
 
 BOOL   F_GpiMove(HPS hps, PPOINTL pptlPoint)
 {   int rc = FALSE;
-#ifdef FREPM_SERVER
     debug(10, 0) (__FUNCTION__ " WARNING: is not yet implemented in server mode\n");
 
-#else  /* FREPM_SERVER */
-    rc = _F_SendGenCmdDataToServer(F_CMD_GPI_MOVE, hps, (void *)pptlPoint, sizeof(POINTL)/sizeof(int));
-    debug(10, 0) (__FUNCTION__ "hps=%x, Point=(%i,%i), rc=%x\n",hps,pptlPoint->x,pptlPoint->y,rc);
-#endif
    return rc;
 }
 

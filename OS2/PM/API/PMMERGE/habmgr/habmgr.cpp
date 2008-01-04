@@ -11,11 +11,7 @@
 #include <builtin.h>
 #include <time.h>
 
-#define INCL_DOSPROCESS // Process Manager
-#define INCL_ERRORS     // CPI messages
-#define INCL_WINERRORS  // PM messages
-#define INCL_SHLERRORS  // More PM messages
-#include <osfree.h>
+#include <freepm.hpp>
 #include <habmgr.hpp>
 #include <pmclient.h>
 

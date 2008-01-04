@@ -1,2 +1,0 @@
-//#line "/pub/FreePM/FreePM/src_s/F_session.cpp" 24
-extern int initGD( int DimX, int DimY);

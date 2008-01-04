@@ -1,6 +1,3 @@
-/*
- $Id: Fc_config.cpp,v 1.2 2003/06/15 17:45:48 evgen2 Exp $
-*/
 /* Fc_config.cpp */
 /* client config: write/read and analyze client's ini file
 */
@@ -75,7 +72,7 @@ M: pstr= fgets(str,128,fp);
 
 int F_ClientConfig::AnalizeRecodrRead(char *name, char *par)
 {   static char *lsNames[]=
-     { "debugOptions","remoute",NULL
+     { "debugOptions","remote",NULL
      };
       int i,i1,is=0,npar=0,rc;
 
