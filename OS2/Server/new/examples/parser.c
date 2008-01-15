@@ -66,7 +66,7 @@ struct types {
    {"SET",'=',set,0}
 };
 
-
+ 
 /* Structure containing some environment options. For more information*
  * see http://www.os2world.com/goran/cfgtool.htm for example.         */
 struct { 
@@ -141,16 +141,16 @@ char *options_list[]={"AUTOFAIL","BUFFERS","CLOCKSCALE","CLOSEFILES",
 "VME","WORKPLACE_NATIVE","WORKPLACE_PRIMARY_CP","WORKPLACE_PROCESS","WP_OBJHANDLE"};
 
 // Function prototypes
-int init_options();
-int open_config_sys();
+int init_options(void);
+int open_config_sys(void);
 int close_config_sys(int);
 int parse(char *, int);
 int fgetline(int,char *);
 void error(char *);
-int print_tree();
-int cleanup();
+int print_tree(void);
+int cleanup(void);
 int warn(char *);
-int executeprotshell();
+int executeprotshell(void);
 
 static l4_threadid_t loader_id;		/**< L4 thread id of L4 loader. */
 static l4_threadid_t tftp_id;		/**< L4 thread id of TFTP daemon. */
@@ -193,6 +193,8 @@ int main(int argc, const char **argv)
         printf("Server \"%s\" not found\n", servername);
         return 1;
       }
+    /* Initialize the the file provider thread id. */
+    tftp_id = server_id;
 
     dm_id = l4env_get_default_dsm();
     if (l4_is_invalid_id(dm_id))
@@ -200,6 +202,12 @@ int main(int argc, const char **argv)
         printf("No dataspace manager found\n");
         return 1;
       }
+    /* Initialize the loader_id with the thread id of Loader. */
+    if (!names_waitfor_name("LOADER", &loader_id, 30000))
+    {
+      /*LOG*/printf("Dynamic loader LOADER not found -- terminating\n");
+      return -2;
+    }
 	
 	init_options();
 
@@ -766,7 +774,19 @@ int warn(char *msg)
 		  return(-1);
 }
 
-
+/* Print string in hex numbers and remove end of line characters. */
+void print_str_hex(char *st) {
+    int i=0;
+    int l=strlen(st);
+    for(i=0; i<l; i++) {
+        printf("0x%x,",((int)st[i]));
+        if( ((int)st[i]) == 0xd) {/* End of line char, remove it. */
+            st[i] = ' ';
+            printf("Fixed eol char at (dec) %d.\n", i);
+        }
+    }
+    printf("\n");
+}
 
 int executeprotshell()
 {
@@ -844,6 +864,12 @@ int executeprotshell()
         }
       break;
 #else
+      /* The function is defined in 'tudos/l4/pkg/loader/server/src/idl.c' 
+         as l4loader_app_open_component at line 51. */
+      printf("cmd_buf in hex:");
+        print_str_hex(cmd_buf);
+      printf("l4loader_app_open_call(loader_id=0x%x ,, cmd_buf=\"%s\", tftp_id=0x%x \n", 
+                loader_id, cmd_buf, tftp_id);
       if ((error = l4loader_app_open_call(&loader_id, &dummy_ds, cmd_buf,
                                           &tftp_id, 0, task_ids,
                                           &ptr, &env)))
