@@ -1,0 +1,6 @@
+/* This file is part of osFree project */
+
+interface os2server
+{
+    void VioWrtTTY(char *buf, int bufsize, int handle);
+};
