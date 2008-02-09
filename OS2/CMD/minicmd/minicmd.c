@@ -8,6 +8,24 @@
 // and exit from the shell. And nothing more. Don't add new commands here
 // expect command or feature REALLY required for minimal functionality.
 
+// returns 1 if the specified drive is ready, 0 if it isn't
+int QueryDriveReady( int drive )
+{
+    char curdir[255];
+    unsigned int maxpath = 254;
+    int rval = 254;
+
+    // turn off VIOPOPUP error window
+    (void)DosError( 2 );
+
+    rval = ( DosQueryCurrentDir( (ULONG)drive, curdir, (PULONG)&maxpath ) == 0 );
+
+    // turn VIOPOPUP error window back on
+    (void)DosError( 1 );
+
+    return rval;
+}
+
 
 void execute_external(int argc, char **argv)
 {
@@ -51,7 +69,8 @@ BOOL parse_cmd(char * cmd)
   if (strlen(cmd)==2)
     if (cmd[1]==':')
     {
-      DosSetDefaultDisk(cmd[0]-'a'+1);
+      if (QueryDriveReady(cmd[0]-'a'+1))
+        DosSetDefaultDisk(cmd[0]-'a'+1);
       return FALSE;
     }
 
