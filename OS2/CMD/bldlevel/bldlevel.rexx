@@ -32,7 +32,7 @@ end
 f=charin(filename,1, chars(filename))
 
 as:
-interpret "parse var f with Skip '@'||'#' Vendor ':' Revision '#'||'@' Description '"||d2c(0)||"' Skip"
+interpret "parse var f with Skip '@#' Vendor ':' Revision '#@' Description '"||d2c(0)||"' Skip"
 if length(Vendor)>31 then
 do
   f=Vendor||':'||Revision||'#'||'@'||Description||d2c(0)||Skip
@@ -42,7 +42,7 @@ end
 Signature='@'||'#'Vendor||':'||Revision||'#'||'@'||Description
 
 /* This modification to original is to allow use not only asciiz strings */
-Parse var Description Description '#'||'@'
+Parse var Description Description '#@'
 
 /* Following is extensions to original bldlevel. */
 /* Used, for example, by TCP/IP tools */

@@ -8,7 +8,7 @@
 !include $(%ROOT)/mk/site.mk
 
 # before build command line tools build "shared" libraries
-DIRS = shared ansi chkdsk eject format label more recover sysinstx &
+DIRS = shared minicmd ansi chkdsk eject format label more recover sysinstx &
        cmd ver vol attrib cls comp bldlevel &
        mkdir tree zip # network fdisk syslevel helpmsg
 
