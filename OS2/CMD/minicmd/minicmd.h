@@ -1,10 +1,25 @@
-#define INCL_DOSPROCESS       /* Process and thread values */
-#define INCL_DOS
-#define INCL_DOSERRORS        /* DOS error values          */
-#define INCL_DOSFILEMGR
-#define INCL_KBD
-#define INCL_VIO
-#include <osfree.h>
+#ifndef __KAL__
+  #define INCL_DOSPROCESS       /* Process and thread values */
+  #define INCL_DOS
+  #define INCL_DOSERRORS        /* DOS error values          */
+  #define INCL_DOSFILEMGR
+  #define INCL_KBD
+  #define INCL_VIO
+  #include <osfree.h>
+#else
+
+  #include <l4/os2/kal.h>
+
+  #define DosError kal_DosError
+  #define DosSetDefaultDisk kal_DosSetDefaultDisk
+  #define DosQueryCurrentDir kal_DosQueryCurrentDir
+  #define DosExecPgm kal_DosExecPgm
+  #define VioWrtTTY kal_VioWrtTTY
+  #define DosSetDefaultDisk kal_DosSetDefaultDisk
+  #define KbdStringIn kal_KbdStringIn
+  #define DosQueryCurrentDisk kal_DosQueryCurrentDisk
+  #define DosSetCurrentDir kal_DosSetCurrentDir
+#endif
 
 #include <string.h>
 

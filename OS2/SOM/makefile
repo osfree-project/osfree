@@ -1,5 +1,6 @@
 #
-# A main Makefile for OS/3 boot sequence project
+# A Makefile for OS/3 boot sequence project
+# micro IIF drivers
 # (c) osFree project,
 # valerius, 2006/10/30
 #
@@ -7,22 +8,18 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-
-DIRS = Server Shared CMD UtlAPI CPI PM MM SOM
-
+DIRS = Frameworks
 
 !include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
+install: .SYMBOLIC
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(MKDIR) $(FILESDIR)$(SEP)os2
- $(MKDIR) $(FILESDIR)$(SEP)os2$(SEP)dll
+ #$(CLEAN_CMD)
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

@@ -2,19 +2,18 @@
 // **********************************************************************
 //
 // Copyright (c) 2001 - 2002 MT Tools.
+// Copyright (c) 2007 - 2008 osFree project.
 //
 // All Rights Reserved
 //
 // MT_DORB is based in part on the product DORB,
 // written by Shadrin Victor
 //
-// See Readme.txt for contact information
-//
 // **********************************************************************
 unit cpp;
 interface
 uses
-  Classes,{$IFDEF MSWINDOWS}Windows,{$ENDIF}SysUtils,Lexlib,Yacclib,codeutil;
+  Classes, SysUtils, Lexlib;
 
   function yylex: integer;
 
@@ -24,6 +23,7 @@ var
   _enabled : array[0..100] of boolean;
   stack_pos : integer;
   disabled_at : integer;
+  filename : string;
 
 implementation
 
@@ -36,98 +36,98 @@ procedure _ifndef(val: string); forward;
 procedure _endif; forward;
 procedure _else; forward;
 procedure _print; forward;
+procedure yyprintln(str: string); forward;
+procedure PrintError(msg: string); forward;
 
 %}
 
 path       [ \-/\\A-Za-z0-9_\.€-Ÿ -ïÀ-ßà-ÿ]+
-comm_start "/*"
-comm_end   "*/"
 
-%start INCLUDE LOCAL FAR COMMENT
+%start INCLUDE LOCAL FAR
 
 %%
 
-"//"[^\n]*\n           yyprintln;
-{comm_start}           start(COMMENT);
-<COMMENT>{comm_start}  ;
-<COMMENT>{comm_end}\n  begin
-                         yyprintln;
-                         start(0);
-                       end;
-<COMMENT>{comm_end}    start(0);
-<COMMENT>.             ;
-<COMMENT>\n            yyprintln;
 <INCLUDE>\"            start(LOCAL);
 <INCLUDE>\<            start(FAR);
 <LOCAL>{path}[^\n]*\n  begin
                          include_file(copy(yytext,1,pos('"',yytext)-1),true);
                          start(0);
-                       end;  
+                       end;
 <FAR>{path}\>[^\n]*\n  begin
                          include_file(copy(yytext,1,pos('>',yytext)-1),false);
                          start(0);
-                       end;  
-^"#define "[^\n]*\n    _define(trim(copy(yytext,8,200)));
-^"#undef "[^\n]*\n     _undef(trim(copy(yytext,7,200)));
-^"#ifdef "[^\n]*\n     _ifdef(trim(copy(yytext,7,200)));
-^"#ifndef "[^\n]*\n    _ifndef(trim(copy(yytext,8,200)));
-^"#endif"[^\n]*\n      _endif;
-^"#else"[^\n]*\n       _else;
-^"#include "           start(INCLUDE);
+                       end;
+^[\t ]*"#define "[^\n]*\n    _define(trim(copy(trim(yytext),8,200)));
+^[\t ]*"#undef "[^\n]*\n     _undef(trim(copy(trim(yytext),7,200)));
+^[\t ]*"#ifdef "[^\n]*\n     _ifdef(trim(copy(trim(yytext),7,200)));
+^[\t ]*"#ifndef "[^\n]*\n    _ifndef(trim(copy(trim(yytext),8,200)));
+^[\t ]*"#endif"[^\n]*\n      _endif;
+^[\t ]*"#else"[^\n]*\n       _else;
+^[\t ]*"#include "           start(INCLUDE);
 .                      _print;
 %%
 
+procedure yyprintln(str: string);
+begin
+  if str <> '' then
+    Write(yyoutput, str);
+  writeln(yyoutput);
+end;
+
+procedure PrintError(msg: string);
+var
+  fulltext : string;
+begin
+  fulltext := filename + '('+ inttostr(yylineno) + '):' + msg;
+  writeln(fulltext);
+  halt(1);
+end;
+
 function enabled: Boolean;
 begin
-  result := (disabled_at = -1) and _enabled[stack_pos];
+  result := _enabled[stack_pos];
 end;
 
 procedure _define(val: string);
 begin
   if not enabled then exit;
   defined.values[val] := 'TRUE';
-  yyprintln;
+  yyprintln('');
 end;
 
 procedure _undef(val: string);
 begin
   if not enabled then exit;
   defined.values[val] := '';
-  yyprintln;
+  yyprintln('');
 end;
 
 procedure _ifdef(val: string);
 begin
   inc(stack_pos);
-  _enabled[stack_pos] := defined.values[val] = 'TRUE';
-  if not _enabled[stack_pos] then disabled_at := stack_pos;
-  yyprintln;
+  _enabled[stack_pos] := (defined.values[val] = 'TRUE') and _enabled[stack_pos-1];
+  yyprintln('');
 end;
 
 procedure _ifndef(val: string);
 begin
   inc(stack_pos);
-  _enabled[stack_pos] := defined.values[val] = '';
-  if not _enabled[stack_pos] then disabled_at := stack_pos;
-  yyprintln;
+  _enabled[stack_pos] := (defined.values[val] = '') and _enabled[stack_pos-1];
+  yyprintln('');
 end;
 
 procedure _else;
 begin
   _enabled[stack_pos] := not _enabled[stack_pos];
-  if not _enabled[stack_pos] then
-    disabled_at := stack_pos
-  else if disabled_at = stack_pos then
-    disabled_at := -1;
-  yyprintln;
+  if not _enabled[stack_pos-1] then _enabled[stack_pos]:=false;
+  yyprintln('');
 end;
 
 procedure _endif;
 begin
-  if disabled_at = stack_pos then
-    disabled_at := -1;
   dec(stack_pos);
-  yyprintln;
+//  writeln(stack_pos);
+  yyprintln('');
 end;
 
 procedure _print;
@@ -138,9 +138,9 @@ end;
 
 procedure include_file(const fname: string; local: boolean);
 var
-  i : integer;
+  i : longint;
   found: Boolean;
-  old_yyinput : TStream;
+  s: string;
   old_yyline  : String;
   old_yylineno, old_yycolno : Integer;
   old_yytext  : ShortString;
@@ -173,7 +173,7 @@ var
 begin
   if not enabled then
     begin
-      yyprintln;
+      yyprintln('');
       exit;
     end;
   real_file_name := fname;
@@ -214,7 +214,7 @@ begin
             PrintError('file not found "'+fname+'"')
         end;
     end;
-  old_yyinput := yyinput;
+  close(yyinput);
   old_yyline  := yyline;
   old_yylineno := yylineno;
   old_yycolno := yycolno;
@@ -228,7 +228,8 @@ begin
   old_yydone     := yydone;
   old_yyretval   := yyretval;
   old_filename := filename;
-  yyinput := OpenFile(real_file_name);
+  Assign(yyinput, real_file_name);
+  Reset(yyinput);
   try
     filename := real_file_name;
     yylineno := 0;
@@ -239,9 +240,10 @@ begin
     yylex;
   finally
     yyclear;
-    //yyinput.Free;
     filename := old_filename;
-    yyinput := old_yyinput;
+    assign(yyinput, old_filename);
+    reset(yyinput);
+    for i:=1 to old_yylineno do readln(yyinput, s);
     yyline  := old_yyline;
     yylineno := old_yylineno;
     yycolno := old_yycolno;
@@ -254,6 +256,8 @@ begin
     yyreject   := old_yyreject;
     yydone     := old_yydone;
     yyretval   := old_yyretval;
+    assign(yyoutput, '');
+    rewrite(yyoutput);
     yyprintln('#line '+inttostr(yylineno+1)+' "'+filename+'"');
     start(0);
   end;

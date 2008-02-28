@@ -1,4 +1,4 @@
-{ .SYM symbol files format suppoer }
+{ .SYM symbol files format support }
 
 Unit SYM;
 
