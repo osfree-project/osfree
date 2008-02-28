@@ -8,7 +8,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = Preprocessor Emitters
+DIRS = Lnk
 
 !include $(%ROOT)/mk/all.mk
 
