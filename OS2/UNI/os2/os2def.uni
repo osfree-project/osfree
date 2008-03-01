@@ -1,8 +1,8 @@
 module os2def;
 
-type UCHAR  = BYTE;
-type USHORT = WORD;
-type ULONG  = LONGINT;
+type UCHAR  = BYTE; {8bit}
+type USHORT = WORD; {16bit}
+type ULONG  = DWORD; {32bit}
 
 type SHANDLE = USHORT;
 type LHANDLE = ULONG;
@@ -11,7 +11,7 @@ type PUCHAR=^UCHAR;
 type PBYTE=^BYTE;
 type NPBYTE=^BYTE;
 type PUSHORT=^USHORT;
-//type unsigned int    UINT, *PUINT;
+type PUINT=^UINT;
 type PULONG=^ULONG;
 
 const NULLHANDLE:  LHANDLE = 0;
@@ -27,14 +27,6 @@ const WINERR_BASE = $1000;
 const GPIERR_BASE = $2000;
 const DEVERR_BASE = $3000;
 const SPLERR_BASE = $4000;
-
-type WRECT=RECTL;
-type PWRECT=PRECTL;
-type NPWRECT=NPRECTL;
-
-type WPOINT  =POINTL;
-type PWPOINT =PPOINTL;
-type NPWPOINT=NPPOINTL;
 
 const ICON_FILE     = 1;
 const ICON_RESOURCE = 2;
@@ -223,18 +215,21 @@ type ERRORID=ULONG;
 type PERRORID=^ERRORID;
 
 type STR8=array[8] of CHAR;
-type PSTR8=^PSTR8;
+type PSTR8=^STR8;
 
 type PDEVOPENDATA=^PSZ;
 
-type _QWORD=structure
+{
+
+type _QWORD=record
     ulLo: ULONG;
     ulHi: ULONG;
   end;
+
 type QWORD=_QWORD;
 type PQWORD=^QWORD;
 
-type _PRINTDEST=structure
+type _PRINTDEST=record
    cb: ULONG;
    lType: LONG;
    pszToken: PSZ;
@@ -246,7 +241,7 @@ type _PRINTDEST=structure
 type PRINTDEST=_PRINTDEST;
 type PPRINTDEST=^PRINTDEST;
 
-type _ICONINFO=structure
+type _ICONINFO=record
     cb: ULONG;
     fFormat: ULONG;
     pszFileName: PSZ;
@@ -258,12 +253,47 @@ type _ICONINFO=structure
 type ICONINFO=_ICONINFO;
 type PICONINFO=^ICONINFO;
 
-type _ACCEL=structure
+type _ACCEL=record
     fs: USHORT;
     key: USHORT;
     cmd: USHORT;
   end;
 type ACCEL=_ACCEL;
 type PACCEL=^ACCEL;
+}
+{
+#define MAKEP( sel,off )   ((void *)(void * _Seg16)( (sel) << 16 | (off) ))
+#define MAKE16P( sel,off ) ((void * _Seg16)( (sel) << 16 | (off) ))
+
+#define SELECTOROF(ptr)    ((((ULONG)(ptr))>>13)|7)
+#define OFFSETOF(p)        (((PUSHORT)&(p))[0])
+
+#define MAKETYPE(v, type)  (*((type *)&v))
+
+#define FIELDOFFSET(type, field)   ((SHORT)&(((type *)0)->field))
+
+#define MAKEULONG(l, h)  ((ULONG)(((USHORT)(l)) | ((ULONG)((USHORT)(h))) << 16))
+#define MAKELONG(l, h)   ((LONG)MAKEULONG(l, h))
+#define MAKEUSHORT(l, h) (((USHORT)(l)) | ((USHORT)(h)) << 8)
+#define MAKESHORT(l, h)  ((SHORT)MAKEUSHORT(l, h))
+
+#define LOBYTE(w)   LOUCHAR(w)
+#define HIBYTE(w)   HIUCHAR(w)
+#define LOUCHAR(w)  ((UCHAR)(w))
+#define HIUCHAR(w)  ((UCHAR)(((USHORT)(w) >> 8) & 0xff))
+#define LOUSHORT(l) ((USHORT)((ULONG)l))
+#define HIUSHORT(l) ((USHORT)(((ULONG)(l) >> 16) & 0xffff))
+
+#define MAKEERRORID(sev, error) (ERRORID)(MAKEULONG((error), (sev)))
+#define ERRORIDERROR(errid)     (LOUSHORT(errid))
+#define ERRORIDSEV(errid)       (HIUSHORT(errid))
+
+#define APIENTRY16 _Far16 _Pascal
+#define PASCAL16   _Far16 _Pascal
+#define CDECL16    _Far16 _Cdecl
+
+}
+
 
 end.
+

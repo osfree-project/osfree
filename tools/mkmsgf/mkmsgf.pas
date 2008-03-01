@@ -434,7 +434,7 @@ Begin
 End;
 
 Var
-  I: Byte;
+  I: Longint;
 begin
   Copyright;
   For I:=1 to ParamCount do

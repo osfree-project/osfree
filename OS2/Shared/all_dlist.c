@@ -1,5 +1,5 @@
 /*!
-   $Id: all_dlist.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $ 
+   $Id: all_dlist.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $
 
    @file all_dlist.c
 
@@ -11,8 +11,6 @@
    @author Cristiano Guadagnino <criguada@tin.it>
 */
 
-#define INCL_DOSERRORS
-#include <osfree.h>
 #include <all_shared.h>
 
 /* --------------------------------------------------------------------------
@@ -419,7 +417,7 @@ unsigned long list_free(phList pphlList)
     if (*pphlList == NULL) {  return(all_RC_DLIST_NULL); };
 
     // Let's move to the start of the list
-    while((*pphlList)->prev != NULL) { 
+    while((*pphlList)->prev != NULL) {
         *pphlList = (*pphlList)->prev;
     }
 

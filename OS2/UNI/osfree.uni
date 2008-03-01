@@ -1,5 +1,16 @@
-{Main osFree API definition}
+{****************************** Module Header ******************************
+*                                                                          *
+* Module Name: OSFREE.H                                                    *
+*                                                                          *
+* This is the top level module that includes all the files necessary       *
+* for writing an osFree application.                                       *
+*                                                                          *
+***************************************************************************}
+
 module osfree;
+
+{This is temporary workaround of unimplementet default modifiers}
+uses cdeftypes;
 
 uses os2;
 

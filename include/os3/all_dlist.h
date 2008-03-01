@@ -1,6 +1,6 @@
-/*! 
-   $Id: all_dlist.h,v 1.1.1.1 2003/10/04 08:27:16 prokushev Exp $ 
-   
+/*!
+   $Id: all_dlist.h,v 1.1.1.1 2003/10/04 08:27:16 prokushev Exp $
+
    @file all_dlist.h
 
     @brief Utility functions related to dynamic lists and stacks
@@ -14,10 +14,7 @@
 #ifndef _ALL_DLIST_H_
 #define _ALL_DLIST_H_
 
-#define INCL_DOSERRORS
-#define INCL_DOSMEMMGR
 #include <osfree.h>
-
 /* C standard library headers */
 #include <stdlib.h>
 

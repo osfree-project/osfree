@@ -19,6 +19,8 @@
 #define INCL_DOSDEVIOCTL
 #include <osfree.h>
 
+#include <string.h>
+
 #include <cmd_shared.h> /* comand line tools' shared functions */
 
 /* characters to be used as parameter specifiers */

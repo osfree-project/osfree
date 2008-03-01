@@ -1,0 +1,19 @@
+{*
+ *  bse.h       OS/2 Base System include file for 32-bit development.
+ *
+ *
+ * =========================================================================
+ *}
+
+module bse;
+
+{workaround of unimplemented uni2h feature}
+uses cdeftypes2;
+
+uses bsedos;
+uses bsesub;
+uses bseerr;
+uses bsedev;
+uses bseord;
+
+end.

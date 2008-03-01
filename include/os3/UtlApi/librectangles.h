@@ -7,9 +7,10 @@
 
 #define LIBRECTANGLES_INCLUDED
 
-#ifndef INCL_TYPES   /* include base types if not included */
-#include <os2def.h>
-#endif
+
+#define INCL_WIN
+#define INCL_TYPES   /* include base types if not included */
+#include <osfree.h>
 
 #ifdef __cplusplus
       extern "C" {

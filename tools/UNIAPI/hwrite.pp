@@ -169,7 +169,7 @@ begin
     WriteRecordType(TPasRecordType(AType), 0)
   else if AType.ClassType = TPasArrayType then
   begin
-    wrtln('typedef '+TPasArrayType(AType).ElType.Name+'[' + TPasArrayType(AType).IndexRange + '] '+TPasAliasType(AType).Name+';');
+    wrtln('typedef '+TPasArrayType(AType).ElType.Name+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + '];');
   end else
     raise Exception.Create('Writing not implemented for ' +
       AType.ElementTypeName + ' nodes');

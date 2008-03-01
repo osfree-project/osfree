@@ -19,7 +19,9 @@
 */
 
 #define INCL_DOSERRORS
-#include <os2.h>
+#include <osfree.h>
+#include <stdio.h>
+#include <string.h>
 #include <cmd_shared.h>
 
 /* characters to be used as parameter specifiers */

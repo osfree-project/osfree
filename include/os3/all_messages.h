@@ -1,6 +1,6 @@
 /*!
-   $Id: all_messages.h,v 1.1.1.1 2003/10/04 08:27:20 prokushev Exp $ 
-   
+   $Id: all_messages.h,v 1.1.1.1 2003/10/04 08:27:20 prokushev Exp $
+
    @file all_messages.h
 
    @brief message-related utility functions header, shared along all code
@@ -13,8 +13,6 @@
 
 #ifndef _ALL_MESSAGES_H_
 #define _ALL_MESSAGES_H_
-
-#include <osfree.h>
 
 /* C standard library headers */
 #include <stdarg.h>

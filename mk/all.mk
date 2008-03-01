@@ -18,7 +18,18 @@ ASM_DEFS  = -d__WATCOM__
 # a file which includes this file.
 #
 !ifdef 32_BITS
-COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib  -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)lpng -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)jpeglib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
+COPT      = $(C_DEFS) -i=. &
+                      -i=.. &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3 &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)os2 &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)lpng &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)jpeglib &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
+                      $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else
 COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
@@ -51,7 +62,7 @@ AWK       = awk
 DOX       = doxygen
 
 !ifeq UNIX FALSE                 # Non-unix
-RC        = rc
+RC        = wrc
 !else ifeq UNIX TRUE             # UNIX
 RC        = wrc
 !endif

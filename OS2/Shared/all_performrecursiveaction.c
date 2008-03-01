@@ -21,9 +21,10 @@
        are already no_subdir no_files types callbacks)
 */
 
-#define INCL_DOSERRORS
-#include <osfree.h>
+#include <string.h>
+
 #include <all_shared.h> /* shared functions and defines */
+
 
 /*!
     @brief State of the dynamic stack

@@ -17,6 +17,14 @@
 
 #undef __cdecl  /* 06/07/2002: fix for Toolkit libc headers */
 
+#define INCL_OS2
+#define INCL_OS2DEF
+#define INCL_DOSERRORS
+#define INCL_DOSMEMMGR
+#define INCL_DOSFILEMGR
+#define INCL_DOSMISC
+#include <osfree.h>
+
 #include "all_dlist.h"
 #include "all_messageids.h"     // message id's
 #include "all_pathmanipulation.h"

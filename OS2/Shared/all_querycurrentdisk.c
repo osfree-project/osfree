@@ -1,8 +1,8 @@
 /*!
-   $Id: all_querycurrentdisk.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $ 
-   
+   $Id: all_querycurrentdisk.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $
+
    @file all_querycurrentdisk.c
-   @brief utility function for getting current disk name and available disks 
+   @brief utility function for getting current disk name and available disks
    bitmap, shared along all code
 
    (c) osFree Project 2002, <http://www.osFree.org>
@@ -10,10 +10,6 @@
 
    @author Bartosz Tomasik <bart2@asua.org.pl>
 */
-
-#define INCL_DOSERRORS
-#define INCL_DOSFILEMGR
-#include <osfree.h>         
 
 /* C standard library headers */
 #include <stdio.h>
@@ -37,7 +33,7 @@ APIRET all_QueryCurrentDisk(PSZ diskName,ULONG *available)
 {
   APIRET rc;
   ULONG disknum;
-  
+
   rc=DosQueryCurrentDisk(&disknum,available);
   if (rc) return rc;
 

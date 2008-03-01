@@ -1,8 +1,8 @@
 /*!
-   $Id: all_messages.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $ 
-  
-   @file all_messages.c 
-   
+   $Id: all_messages.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $
+
+   @file all_messages.c
+
    @brief utility functions related to retrieving messages,
    shared along all code
 
@@ -11,10 +11,6 @@
    @author Henk Kelder
    @author Bartosz Tomasik <bart2@asua.org.pl>
 */
-
-#define INCL_DOSERRORS
-#define INCL_DOSMISC
-#include <osfree.h>
 
 /* C standard library headers */
 #include <string.h>
@@ -29,7 +25,7 @@
 
    @param ulRc    Api Return code, for which description is requested
 
-   @return Pointer to PSZ containing error message or information that it 
+   @return Pointer to PSZ containing error message or information that it
            couldn't be retrieved
 
    @todo  NLS support
@@ -64,7 +60,7 @@ PSZ all_GetSystemErrorMessage(ULONG ulRc)
 
    @param ulRc    Api Return code, for which explaination is requested
 
-   @return Pointer to PSZ containing explaination or information that it 
+   @return Pointer to PSZ containing explaination or information that it
            couldn't be retrieved
 */
 PSZ all_GetSystemErrorHelp(ULONG ulRc)
@@ -85,12 +81,12 @@ PSZ all_GetSystemErrorHelp(ULONG ulRc)
 
 /*!
   Prepares argument tables for message (*.msg) processing
-  
+
   @param ulParams     number of parameters to be processed, max allowed
-                      value is 9 
+                      value is 9
   @param pszArgTable  table of PSZs where prepared parameters will be saved
                       note that function internally handles memory allocation
-                      for these PSZs 
+                      for these PSZs
   @param ...          variable arguments, for every message parameter do:
                         - char *fmt - format specifier for parameter - the same
                                       as for printf
@@ -110,10 +106,10 @@ void __cdecl all_prepareArgTable(ULONG ulParams,PSZ pszArgTable[],...)
   Prepares argument tables for message (*.msg) processing - va_list version
 
   @param ulParams     number of parameters to be processed, max allowed
-                      value is 9 
+                      value is 9
   @param pszArgTable  table of PSZs where prepared parameters will be saved
                       note that function internally handles memory allocation
-                      for these PSZs 
+                      for these PSZs
   @param args         opened va_list (for variable number of parameters)
 */
 void __cdecl all_vprepareArgTable(ULONG ulParams,PSZ pszArgTable[],va_list vlArgs)
@@ -122,7 +118,7 @@ void __cdecl all_vprepareArgTable(ULONG ulParams,PSZ pszArgTable[],va_list vlArg
   int paramCount;   /* parameter count for specified format string */
   void *pvArgTable[9]; /* pointers for arguments table */
   CHAR buffer[BUFSIZE];
-  ULONG i,j;       
+  ULONG i,j;
 
 
   /* for every argument.. */
@@ -142,11 +138,11 @@ void __cdecl all_vprepareArgTable(ULONG ulParams,PSZ pszArgTable[],va_list vlArg
         pvArgTable[paramCount++]=va_arg(vlArgs,void *); /* we record position, and increase
                                          parameter count */
       else j++; /* or we just skip to next field */
-    }; 
+    };
    }; /* END: for (j=0;j<strlen(fmt);j++) */
 
-   memset(buffer,0,BUFSIZE);   
-   
+   memset(buffer,0,BUFSIZE);
+
    switch (paramCount)
    {
      case 1: sprintf(buffer,fmt,pvArgTable[0]);
@@ -187,7 +183,7 @@ void __cdecl all_vprepareArgTable(ULONG ulParams,PSZ pszArgTable[],va_list vlArg
 
   pszArgTable[i]=(PSZ)calloc(strlen(buffer)+1,1);
   strcpy(pszArgTable[i],buffer);
-   
+
   }; //END: for (i=0;i<n;i++)
 
 };

@@ -7,8 +7,9 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
+# First directory must be UNI which produces C/C++ header files
 
-DIRS = Server Shared CMD UtlAPI CPI PM MM SOM
+DIRS = UNI Shared CMD UtlAPI CPI PM MM SOM #Server
 
 
 !include $(%ROOT)/mk/all.mk

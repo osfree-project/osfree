@@ -1,8 +1,8 @@
 /*!
-   $Id: format.c,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $ 
-  
+   $Id: format.c,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $
+
    @file format.c
- 
+
    @brief format command - frontend for format entry in fs utility dll
 
    (c) osFree Project 2002, <http://www.osFree.org>
@@ -36,7 +36,7 @@ int main (int argc, char* argv[], char* envp[])
 {
   PSZ pszFSName=NULL;  /* New FS Name */
   PSZ pszOldFSName=NULL; /* Old FS Name */
-  PSZ disk="   "; 
+  PSZ disk="   ";
   BOOL fAlreadyFormatted=TRUE;
   char *tmpString;
   int i;          /* counter and etc.. */
@@ -50,14 +50,14 @@ int main (int argc, char* argv[], char* envp[])
  {
    cmd_ShowSystemMessage(cmd_MSG_FORMAT_HELP,0L);
    return NO_ERROR;
- }; 
+ };
 
- /* is there a disk specified on a command line? if not, print error info */ 
+ /* is there a disk specified on a command line? if not, print error info */
  for (i=1;i<argc;i++)
   if (argv[i][1]==':')
   {
     strncpy(disk,argv[i],2);
-    break;    
+    break;
   };
 
   if (i==argc)
@@ -73,7 +73,7 @@ int main (int argc, char* argv[], char* envp[])
   if (all_QueryFSName(disk,pszOldFSName)!=0) fAlreadyFormatted=FALSE;
 
   pszFSName=calloc(CCHMAXPATH,1);
-  if (pszFSName==NULL) 
+  if (pszFSName==NULL)
   {
     free(pszOldFSName);
     return cmd_ERROR_EXIT;
@@ -87,7 +87,7 @@ int main (int argc, char* argv[], char* envp[])
      if (strnicmp(tmpString,"fs:",3)==0)
      {
         tmpString=argv[i]+4;
-        if (strlen(tmpString)>0) 
+        if (strlen(tmpString)>0)
            strncpy(pszFSName,tmpString,CCHMAXPATH-1);
         break;
      };
@@ -105,17 +105,17 @@ int main (int argc, char* argv[], char* envp[])
      if ((tmpString!=NULL) && (strlen(tmpString)>0))
         strncpy(pszFSName,tmpString,CCHMAXPATH-1);
       else pszFSName=DEFAULT_FS_NAME;
-   };   
- };      
+   };
+ };
 
  if ((fAlreadyFormatted) && (stricmp(pszOldFSName,"UNKNOWN")!=0))
    cmd_ShowSystemMessage(cmd_MSG_TYPE_OF_FS_IS,1L,"%s",pszOldFSName);
 
  /* free no-longer needed memory */
- free(pszOldFSName); 
- 
+ free(pszOldFSName);
+
  rc=cmd_ExecFSEntry(pszFSName,cmd_FS_FORMAT,FALSE,argc,argv,envp);
 
- free(pszFSName); 
+ free(pszFSName);
  return rc;
 };
