@@ -1,0 +1,206 @@
+{Video Input Output (Vio) functions (32-bit version)}
+unit vio;
+
+{Vio handles}
+type HVIO=longword;
+type PHVIO=^HVIO;
+
+{VioCreatePS format constants}
+const FORMAT_CGA     = $0001;
+const FORMAT_VGA     = $0001;
+const FORMAT_4BYTE   = $0003;
+const FORMAT_EXTEND  = $0003;
+const FORMAT_UNICODE = $0002;
+
+{options for VioQueryFonts}
+const VQF_PUBLIC     = $0001;
+const VQF_PRIVATE    = $0002;
+const VQF_ALL        = $0003;
+
+{Cursor structure for VioSetCurType and VioGetCurType()}
+type VIOCURSORINFO=record
+       yStart: USHORT;
+       cEnd:   USHORT;
+       cx:     USHORT;
+       attr:   USHORT;
+     end;
+
+
+type PVIOCURSORINFO=^VIOCURSORINFO;
+
+{Mode structure for VioSetMode and VioGetMode (field added for 32 bit alignment)}
+type VIOMODEINFO=record
+       cb: USHORT;            { structure length }
+       fbType: UCHAR;        { mode type }
+       color: UCHAR;         { number of colors }
+       col: USHORT;           { number of columns }
+       row: USHORT;           { number of rows }
+       hres: USHORT;          { horizontal size in pels }
+       vres: USHORT;          { vertical size in pels }
+       fmt_ID: UCHAR;        { format of attributes }
+       attrib: UCHAR;        { length of attributes }
+       resvd: USHORT;         { Reserved   (added field) }
+       buf_addr: ULONG;
+       buf_length: ULONG;
+       full_length: ULONG;
+       partial_length: ULONG;
+       ext_data_addr: PCH;
+    end;
+
+type PVIOMODEINFO=^PVIOMODEINFO;
+
+{VIOMODEINFO.fbType constants}
+const VGMT_OTHER          = 1;
+const VGMT_COLOR          = 1;
+const VGMT_GRAPHICS       = 2;
+const VGMT_DISABLEBURST   = 4;
+const VGMT_NOTBIOS        = 8;
+
+{VIOMODEINFO.color constants}
+const COLORS_2           =  1;
+const COLORS_4           =  2;
+const COLORS_16          =  4;
+const COLORS_256         =  8;
+const COLORS_64K         = 16;
+const COLORS_16M         = 24;
+
+{Return types for VioCheckCharType}
+const VCC_SBCSCHAR        = 0;
+const VCC_DBCSFULLCHAR    = 1;
+const VCC_DBCS1STHALF     = 2;
+const VCC_DBCS2NDHALF     = 3;
+
+{Values for graphics mode screen synchronization}
+const VSRWI_SAVEANDREDRAW = 0;
+const VSRWI_REDRAW        = 1;
+
+const VSRWN_SAVE          = 0;
+const VSRWN_REDRAW        = 1;
+
+const UNDOI_GETOWNER      = 0;
+const UNDOI_RELEASEOWNER  = 1;
+
+const UNDOK_ERRORCODE     = 0;
+const UNDOK_TERMINATE     = 1;
+
+const LOCKIO_NOWAIT       = 0;
+const LOCKIO_WAIT         = 1;
+
+const LOCK_SUCCESS        = 0;
+const LOCK_FAIL           = 1;
+
+{Values for VioSetAnsi and VioGetAnsi}
+const ANSI_ON             = 1;
+const ANSI_OFF            = 0;
+
+{Values for VioPopup}
+const VMWR_POPUP          = 0;
+const VMWN_POPUP          = 0;
+const VP_NOWAIT           = 0;
+const VP_WAIT             = 1;
+const VP_OPAQUE           = 0;
+const VP_TRANSPARENT      = 2;
+
+{VIOCONFIGINFO.adapter constants}
+const DISPLAY_MONOCHROME =  0;
+const DISPLAY_CGA        =  1;
+const DISPLAY_EGA        =  2;
+const DISPLAY_VGA        =  3;
+const DISPLAY_8514A      =  7;
+const DISPLAY_IAA        =  8;
+const DISPLAY_XGA        =  9;
+const DISPLAY_SVGA       = 10;
+const DISPLAY_NONVGA     = 12;
+
+{VIOCONFIGINFO.display constants}
+const MONITOR_MONOCHROME =  0;
+const MONITOR_COLOR      =  1;
+const MONITOR_ENHANCED   =  2;
+const MONITOR_8503       =  3;
+const MONITOR_851X_COLOR =  4;
+const MONITOR_8514       =  9;
+const MONITOR_FLATPANEL  = 10;
+const MONITOR_LCD640     = 10;
+const MONITOR_8507_8604  = 11;
+const MONITOR_8515       = 12;
+const MONITOR_9515       = 15;
+const MONITOR_9517       = 17;
+const MONITOR_9518       = 18;
+const MONITOR_OEM        = 19;
+const MONITOR_LCD800     = 21;
+const MONITOR_LCD1024    = 22;
+
+
+{Configuration structure for VioGetConfig (all fields changed to ULONG)}
+type VIOCONFIGINFO=record
+        cb: ULONG;              { Size of data      }
+        adapter: ULONG;         { Adapter type      }
+        display: ULONG;         { Display type      }
+        cbMemory: ULONG;        { Adapter memory    }
+        Configuration: ULONG;   { Which config      }
+        Version: ULONG;         { Driver version    }
+        Flags: ULONG;           {                   }
+        HWBufferSize: ULONG;    { State save size   }
+        FullSaveSize: ULONG;    { Buffer save size  }
+        PartSaveSize: ULONG;    { Partial save size }
+        VideoID: ULONG;         { Adapter ID        }
+        VideoData: ULONG;       { Adapter user data }
+    end;
+
+type PVIOCONFIGINFO=^VIOCONFIGINFO;
+
+const VIO_CONFIG_CURRENT  = 0;
+const VIO_CONFIG_PRIMARY  = 1;
+const VIO_CONFIG_SECONDARY= 2;
+
+{Structures for VioSetState and VioGetState}
+type VIOPALSTATE=record
+        cb: USHORT;
+        type: USHORT;
+        iFirst: USHORT;
+        acolor: array[0..0] of USHORT;
+    end;
+type PVIOPALSTATE=^PVIOPALSTATE;
+
+type VIOOVERSCAN=record
+        cb: USHORT;
+        type: USHORT;
+        color: USHORT;
+    end;
+type PVIOOVERSCAN=^VIOOVERSCAN;
+
+type VIOINTENSITY=record
+        cb: USHORT;
+        type: USHORT;
+        fs: USHORT;
+    end;
+type PVIOINTENSITY=^VIOINTENSITY;
+
+type VIOCOLORREG=record
+        cb: USHORT;
+        type: USHORT;
+        firstcolorreg: USHORT;
+        numcolorregs: USHORT;
+        colorregaddr: PCH;
+    end;
+
+type PVIOCOLORREG=^VIOCOLORREG;
+
+type VIOSETULINELOC=record
+        cb: USHORT;
+        type: USHORT;
+        scanline: USHORT;
+    end;
+
+type PVIOSETULINELOC=^VIOSETULINELOC;
+
+type VIOSETTARGET=record
+        cb: USHORT;
+        type: USHORT;
+        defaultalgorithm: USHORT;
+    end;
+
+type PVIOSETTARGET=^VIOSETTARGET;
+
+
+end.

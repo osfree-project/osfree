@@ -1,0 +1,80 @@
+
+{Vio function prototypes}
+    #define VioScrollDn VioScrollDown
+    #define VioScrollLf VioScrollLeft
+    #define VioScrollRt VioScrollRight
+    #define VioWrtCharStrAtt VioWrtCharStrAttr
+    APIRET APIENTRY VioGetAnsi          (ULONG * Ansi, HVIO Handle) ;
+    APIRET APIENTRY VioGetCp            (ULONG Reserved, USHORT * IdCodePage, HVIO Handle) ;
+    APIRET APIENTRY VioGetCurPos        (ULONG * Row, ULONG * Column, HVIO Handle) ;
+    APIRET APIENTRY VioGetCurType       (VIOCURSORINFO * CursorInfo, HVIO Handle) ;
+    APIRET APIENTRY VioGetMode          (VIOMODEINFO * ModeInfo, HVIO Handle) ;
+    APIRET APIENTRY VioReadCellStr      (char * CellStr, ULONG * Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioReadCharStr      (char * CellStr, ULONG * Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioScrollDown       (ULONG TopRow, ULONG LeftCol, ULONG BotRow, ULONG RightCol, ULONG Lines, BYTE * Cell, HVIO Handle) ;
+    APIRET APIENTRY VioScrollLeft       (ULONG TopRow, ULONG LeftCol, ULONG BotRow, ULONG RightCol, ULONG Columns, BYTE * Cell, HVIO Handle) ;
+    APIRET APIENTRY VioScrollRight      (ULONG TopRow, ULONG LeftCol, ULONG BotRow, ULONG RightCol, ULONG Columns, BYTE * Cell, HVIO Handle) ;
+    APIRET APIENTRY VioScrollUp         (ULONG TopRow, ULONG LeftCol, ULONG BotRow, ULONG RightCol, ULONG Lines, BYTE * Cell, HVIO Handle) ;
+    APIRET APIENTRY VioSetAnsi          (ULONG Ansi, HVIO Handle) ;
+    APIRET APIENTRY VioSetCp            (ULONG Reserved, USHORT IdCodePage, HVIO Handle) ;
+    APIRET APIENTRY VioSetCurPos        (ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioSetCurType       (VIOCURSORINFO * CursorInfo, HVIO Handle) ;
+    APIRET APIENTRY VioSetMode          (VIOMODEINFO * ModeInfo, HVIO hvio) ;
+    APIRET APIENTRY VioWrtCellStr       (char * CellStr, ULONG Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioWrtCharStr       (char * Str, ULONG Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioWrtCharStrAttr   (char * Str, ULONG Count, ULONG Row, ULONG Column, PBYTE pAttr, HVIO Handle) ;
+    APIRET APIENTRY VioWrtNAttr         (BYTE * Attr, ULONG Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioWrtNCell         (BYTE * Cell, ULONG Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioWrtNChar         (char * Char, ULONG Count, ULONG Row, ULONG Column, HVIO Handle) ;
+    APIRET APIENTRY VioWrtTTY           (char * Str, ULONG Count, HVIO Handle) ;
+
+    #define VioSavRedrawUndo VioSaveRedrawUndo
+    #define VioSavRedrawWait VioSaveRedrawWait
+    APIRET APIENTRY  VioModeUndo (ULONG OwnerInd, ULONG KillInd, ULONG Reserved) ;
+    APIRET APIENTRY  VioModeWait (ULONG ReqType, ULONG * NotifyType, ULONG Reserved) ;
+    APIRET APIENTRY  VioSaveRedrawUndo (ULONG OwnerInd, ULONG KillInd, ULONG Reserved) ;
+    APIRET APIENTRY  VioSaveRedrawWait (ULONG RedrawInd, ULONG * NotifyType, ULONG Reserved) ;
+
+    APIRET APIENTRY  VioEndPopUp (HVIO hvio) ;
+    APIRET APIENTRY  VioPopUp (ULONG * Wait, HVIO hvio) ;
+    APIRET APIENTRY  VioScrLock (ULONG fWait, UCHAR * NotLocked, HVIO hvio) ;
+    APIRET APIENTRY  VioScrUnLock (HVIO hvio) ;
+
+    #define VioGetOrg VioGetOrigin
+    #define VioSetOrg VioSetOrigin
+    APIRET APIENTRY  VioCreatePS(HVIO * VioPSHandle, ULONG Rows, ULONG Columns, ULONG Format, ULONG AttrBytes, HVIO Reserved) ;
+    APIRET APIENTRY  VioDestroyPS(HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioShowPS(ULONG Depth, ULONG Width, ULONG Cell, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioQueryFonts(PULONG Remfonts, PFONTMETRICS Metrics, ULONG MetricsLength, PULONG Fonts, PSZ Facename, ULONG Options, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioQueryFontsUni(PULONG Remfonts, PFONTMETRICS Metrics, ULONG MetricsLength, PULONG Fonts, USHORT * Facename, ULONG Options, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioQuerySetIds(PULONG lcids, PSTR8 Names, PULONG Types, ULONG count, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioAssociate(ULONG hdc, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioCreateLogFont(PFATTRS pfat, ULONG lcid, PSTR8 pstr8Name, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioDeleteSetId(ULONG lcid, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioGetOrigin(ULONG * Row, ULONG * Column, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioSetOrigin(ULONG Row, ULONG Column, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioSetDeviceCellSize(ULONG Height, ULONG Width, HVIO VioPSHandle) ;
+    APIRET APIENTRY  VioGetDeviceCellSize(ULONG * Height, ULONG * Width, HVIO VioPSHandle) ;
+
+    APIRET APIENTRY  VioGetBuf (PULONG pLVB, PULONG pcbLVB, HVIO hvio) ;
+    APIRET APIENTRY  VioShowBuf (ULONG offLVB, ULONG cb, HVIO hvio) ;
+
+    APIRET APIENTRY  VioGetState (void * State, HVIO hvio) ;
+    APIRET APIENTRY  VioSetState (void * State, HVIO hvio) ;
+
+    APIRET APIENTRY  VioCharWidthUni(USHORT uch) ;
+
+    APIRET APIENTRY  VioCheckCharType (ULONG * Type, ULONG Row, ULONG Column, HVIO hvio) ;
+
+    APIRET APIENTRY  VioGetConfig (ULONG ConfigId, PVIOCONFIGINFO pvioin, HVIO hvio) ;
+
+    APIRET APIENTRY  VioPrtSc (HVIO hvio) ;
+
+    APIRET APIENTRY  VioPrtScToggle (HVIO hvio) ;
+
+    APIRET APIENTRY  VioWrtTTYUni (USHORT * pch, ULONG cb, HVIO hvio) ;
+
+#ifdef __UNI_REPLACE__
+    #define VioWrtTTY     VioWrtTTYUni
+    #define VioQueryFonts VioQueryFontsUni
+#endif
