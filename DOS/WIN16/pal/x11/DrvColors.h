@@ -1,0 +1,3 @@
+
+DWORD DrvMakePixel(COLORREF, LPDRIVERDC);
+

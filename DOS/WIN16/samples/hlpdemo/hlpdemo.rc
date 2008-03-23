@@ -1,0 +1,41 @@
+/*
+ *  hlpdemo.rc -- resource file for hlpdemo
+ *
+ *  @(#)hlpdemo.rc	1.1 5/3/96 17:37:54 /users/sccs/src/samples/hlpdemo/s.hlpdemo.rc
+ *
+ *  Copyright (c) 1995-1996, Willows Software Inc.  All rights reserved.
+ *
+ */
+
+#include "windows.h"
+#include "hlpdemo.h"
+
+WINMENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                 IDM_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents",              IDM_HELPCONTENTS
+        MENUITEM "&Topic",                 IDM_HELPTOPIC
+        MENUITEM "&Search",                IDM_HELPSEARCH
+        MENUITEM "&Help on Help",          IDM_HELPONHELP
+		MENUITEM SEPARATOR
+        MENUITEM "&About HlpDemo...",     IDM_ABOUT
+    END
+END
+
+IDI_ICON1               ICON    DISCARDABLE     "WILLOWS.ICO"
+
+STRINGTABLE PRELOAD DISCARDABLE 
+    BEGIN 
+  IDS_TITLE         "HlpDemo Windows Application"
+    END 
+ 
+RESOURCE ACCELERATORS
+    BEGIN
+    VK_F1,      IDM_ABOUT,    VIRTKEY
+    VK_ESCAPE,  IDM_EXIT,     VIRTKEY
+    END

@@ -1,0 +1,32 @@
+# Generated automatically from Makefile.rules.in by configure.
+#
+# Makefile.rules
+# 
+# TARGET=linux
+
+# First some useful definitions
+
+SHELL     = /bin/sh
+CC        = gcc -Wall -fwritable-strings -fPIC $(TWIN_CFLAGS)
+CXX       = c++ -Wall -fwritable-strings -fPIC $(TWIN_CFLAGS)
+CCSHARE   = $(CC)
+MAKE	  = make
+CPP       = gcc -E
+
+AR        = ar rc
+RANLIB    = ranlib
+RC        = $(TWINDIR)/bin/rc/rc
+
+YACC      = bison -y
+LEX       = flex
+
+LDCOMBINE = ld -r
+RM        = rm -f
+MKDIR     = mkdir
+TOUCH     = touch
+
+SUBMAKE   = $(MAKE) 'TWINDIR=$(TWINDIR)'
+
+
+include /home/robf/src/twin/3.1.1/makeinclude/Makeinclude.config
+

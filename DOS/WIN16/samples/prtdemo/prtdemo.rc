@@ -1,0 +1,35 @@
+/*
+ *      prtdemo.c
+ *
+ *      @(#)prtdemo.rc	1.2 8/27/96 11:23:50 /users/sccs/src/samples/prtdemo/s.prtdemo.rc
+ *
+ *      Printing Demonstration Application
+ *
+ *      Copyright Willows Software, Inc. 1995
+ *
+ *      Resource definition file
+ */
+ 
+#include "prtdemo.h"
+#include "windows.h"
+
+PRTMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Print",                      IDM_PRINT
+        MENUITEM "Print &Setup",                IDM_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "&About PrtDemo...",           IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Mapping"
+    BEGIN
+        MENUITEM "MM_TWIPS",                    IDM_TWIPS, CHECKED
+        MENUITEM "MM_TEXT",                     IDM_TEXT
+    END
+END
+
+IDI_ICON1               ICON    DISCARDABLE     "willows.ico"
+

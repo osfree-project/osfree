@@ -1,0 +1,47 @@
+' @(#)WCommCtrl.def	1.5 11/11/96 11:52:34 /users/sccs/src/win/commctrl/s.WCommCtrl.def 
+LIBRARY COMMCTRL
+EXETYPE	WINDOWS
+STUB	'WINSTUB.EXE'
+CODE	PRELOAD MOVEABLE DISCARDABLE
+DATA	PRELOAD SINGLE
+
+HEAPSIZE 1024
+
+EXPORTS
+	WEP			@1  RESIDENTNAME
+	InitCommonControls
+	DrawInsert		
+	LBItemFromPt		
+	MakeDragList		
+	ImageList_Add
+	ImageList_Add
+	ImageList_AddMasked
+	ImageList_BeginDrag
+	ImageList_Create
+	ImageList_Destroy
+	ImageList_DragEnter
+	ImageList_DragLeave
+	ImageList_DragMove
+	ImageList_DragShowNolock
+	ImageList_Draw
+	ImageList_DrawEx
+	ImageList_EndDrag
+	ImageList_GetBkColor
+	ImageList_GetDragImage
+	ImageList_GetIcon
+	ImageList_GetIconSize
+	ImageList_LoadBitmap
+	ImageList_LoadImage
+	ImageList_Merge
+	ImageList_Remove
+	ImageList_Replace
+	ImageList_ReplaceIcon
+	ImageList_SetBkColor
+	ImageList_SetDragCursorImage
+	ImageList_SetIconSize
+	ImageList_SetOverlayImage
+	CreatePropertySheetPageA
+	DestroyPropertySheetPage
+	PropertySheetA
+	CreateStatusWindowA
+	CreateToolbarEx	

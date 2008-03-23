@@ -1,0 +1,269 @@
+##############################################################################
+#
+#	WIN.INI
+#
+# 	Definitions of entries in win.ini
+#	
+#	These are the sections and keywords that are supported via the
+#	win.ini file
+#
+##############################################################################
+#
+# The following entries in the [windows] section
+# are supported:
+#	CursorBlinkRate		the rate at which to blink the caret
+#	DoubleClickRate		how fast to recognize a doubleclick
+#	FontFace		alternate system typeface name, helvetica
+#	FontSize		alternate system point size,    14
+#	IconFontFace		alternate typeface for MDI icons windows
+#	IconFontSize		alternate pointsize for MDI icons windows
+#	FontAspect		to specifically choose 75 vs. 100dpi fonts
+#	Device			what is the default printer...
+#
+[windows]
+CursorBlinkRate=530
+DoubleClickRate=452
+Device=Apple LaserWriter,PSCRIPT,LPT1:
+
+#
+# The following are pseudo entries. They describe
+# what printers are configured.
+# The entries here are those supported by the 
+# binary printer driver.
+#
+
+# This printer will write to a file, specifically printout.ps
+[Apple LaserWriter,LPT2:]
+CtrlD=0
+feed1=1
+feed4=1
+EPS=1
+EpsFile=printout.ps
+
+# This printer will write to the file specified in [portalias] for LPT1:
+[Apple LaserWriter,LPT1:]
+CtrlD=0
+feed1=1
+feed4=1
+EPS=0
+
+#
+# The following give aliases for devices. The
+# device alias may start with | to signify that
+# output from the device will be piped to the
+# specified command. The entries here can be
+# set by the Device Manager, which emulates the
+# devices section of the control panel. 
+# (see the LPT1: entry to see how to pipe the
+# printer output to a print spooler...)
+#
+[PortAliases]
+LPT1:=| rsh daffy "lpr -h"
+LPT2:=lastfile.ps
+COM2:=/dev/cua2
+COM1:=/dev/cua1
+
+# This is read by some applications, and so is
+# turned off to disable truetype.  The library
+# DOES NOT use this entry.
+#
+[TrueType]
+TTEnable=0
+
+# This is only maintained for applications, and
+# is not used by the library.
+#
+[intl]
+sLanguage=English (American)
+sCountry=United States
+iCountry=1
+iDate=0
+iTime=1
+iTLZero=1
+iCurrency=0
+iCurrDigits=2
+iNegCurr=0
+iLzero=1
+iMeasure=1
+s1159=
+s2359=
+sCurrency=$
+sThousand=,
+sDecimal=.
+sDate=/
+sTime=:
+sList=,
+sShortDate=M/d/yy
+sLongDate=dddd, MMMM dd, yyyy
+
+#
+# This table provides the font alias to use for the
+# given typeface.  The alias represents a font that
+# is supported by the system.
+# (This is read by the driver to setup alternate font
+#  mappings)
+#
+[FontSubstitutes]
+Helv  = helvetica
+Symbol  = symbol
+Arial  = charter
+Arial  = new century schoolbook
+courier  = courier
+Times New Roman  = times
+Times New Roman Bold  = times
+Tms Rmn  = times
+MS Sans Serif  = helvetica
+MS Serif  = charter
+
+##################################################################
+#
+# This [colors] section describes the color mapping for
+# built in controls, and MDI windows. 
+#
+#	format:	
+#		color = blue green red		0 - 255
+#		      = #hex			0 - ffffff
+#
+#		red|green|blue  = #hex		0 - ff
+#				= decimal	0 - 255
+#	         
+#	keywords:
+#
+#	Scrollbar
+#	Background
+#	ActiveTitle
+#	InactiveTitle
+#	Menu
+#	Window
+#	WindowFrame
+#	MenuText
+#	WindowText
+#	TitleText
+#	ActiveBorder
+#	InactiveBorder
+#	AppWorkspace
+#	Hilight
+#	HilightText
+#	ButtonFace
+#	ButtonShadow
+#	GrayText
+#	ButtonText
+#	InactiveTitleText
+#
+################################################################
+
+[colors]
+#Hilight=0 0 255
+#HilightText=255 255 255
+
+################################################################
+#
+# These sections is used by the Print Manager and Control Panel 
+# Printer.cpl.  These describe the configured printers.
+#
+[PrinterPorts]
+Apple LaserWriter=pscript,LPT1:,15,45
+
+[devices]
+Apple LaserWriter=pscript,LPT1:
+
+##################################################################
+#
+# This is the mapping of devices to devices...
+# Aliases are kept in [PortAlias] above.
+#
+[ports]
+; A line with [filename].PRN followed by an equal sign causes
+; [filename] to appear in the Control Panel's Printer Configuration dialog
+; box. A printer connected to [filename] directs its output into this file.
+COM2:=9600,n,8,1
+LPT1:=
+EPT:=
+FILE:=
+;LPT1.OS2=
+;LPT2.OS2=
+FAXMODEM=
+
+##############################################################################
+#
+# 	Definitions of entries in system.ini
+#	This contains a valid system.ini file...
+#
+##############################################################################
+#
+#
+# In the [boot] section, the following keywords are recognized
+#	compatibility		see below for detailed explanation
+#	screenwidth		override the actual screen width
+#	screenheight		override the actual screen height
+#	minwidth		a minimum window width
+#	minheight		a minimum window height
+#	directories		well known directory locations...
+#				it is a semi-colon separated list of
+#				directories, they are list in the drop
+#				down list box, instead of drives...
+#
+#	The following two are examples of how you may override a builtin
+#	library DLL, by specifying it in the [boot] section.
+#
+#	COMMDLG.DRV = COMMGLG.DRV
+#	VER.DLL = VER.DLL
+#	SHELL.DLL = SHELL.DLL
+#
+#######################################################################
+
+[boot]
+directories=/home/robf;/usr/lib/X11;/etc
+
+#######################################################################
+#
+# The following is used to pick up the display.drv string
+# this is used by some applications...
+#
+#######################################################################
+
+[boot.description]
+display.drv=XFree86 2.0
+
+#######################################################################
+#
+#	Drive mapping table...
+#
+#######################################################################
+#
+# The following are drive mappings, which means that all references to
+# a given drive letter are mapped to the following directory.
+#
+[xdos]
+D=/usr2
+E=/etc
+
+#######################################################################
+#
+#	The logic of reading profile strings has been extended
+#	as follows.o:
+#
+#	If $WINDIR is defined and set, it becomes the Windows
+#	Directory.
+#
+#	/usr/lib/X11/xwin is the default global windows directory
+#
+#	If a .ini file can not be found in the Windows Directory,
+#	we look in the current directory, and then in the users
+#	home directory.
+#
+#######################################################################
+#
+#	The following discusses the process of LoadLibrary and LoadModule.
+# 	According to documentatio, when loading a DLL,...
+#	If we have a fully qualified name, then load it, otherwise...
+#
+#	We first look in the current directory, then
+#	We look in the WindowsDirectory, then 
+#	We look in the WindowsSystemDirectory, then
+#	We look in the directory containing the current executable, then
+#	We look in the $PATH, then
+#	We look in directories mapped in a network
+# 
+#######################################################################
+

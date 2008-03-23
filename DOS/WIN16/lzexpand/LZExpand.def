@@ -1,0 +1,18 @@
+
+Library	LZEXPAND
+
+Segments
+
+HEAPSIZE  1024
+
+EXPORTS
+	LZCopy		@1
+	LZOpenFile	@2
+	LZInit		@3
+	LZSeek		@4
+	LZRead		@5
+	LZClose		@6
+	LZStart		@7
+	CopyLZFile	@8
+	LZDone		@9
+	GetExpandedName @10

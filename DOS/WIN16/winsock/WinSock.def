@@ -1,0 +1,61 @@
+
+Library	WINSOCK
+
+Segments
+
+HEAPSIZE  1024
+
+EXPORTS
+	Accept				@01     
+        Bind				@02	
+        Closesocket			@03	
+        Connect				@04	
+        Getpeername			@05	
+        Getsockname			@06	
+        Getsockopt			@07	
+        Htonl				@08	
+        Htons				@09	
+        Inet_addr			@10	
+        Inet_ntoa			@11	
+        Ioctlsocket			@12	
+        Listen				@13	
+        Ntohl				@14	
+        Ntohs				@15	
+        Recv				@16	
+        Recvfrom			@17	
+        Select				@18	
+        Send				@19	
+        Sendto				@20	
+        Setsockopt			@21	
+        Shutdown			@22	
+        Socket				@23	
+
+        Gethostbyaddr			@51	
+        Gethostbyname			@52	
+        Getprotobyname			@53	
+        Getprotobynumber		@54	
+        Getservbyname			@55	
+        Getservbyport			@56	
+        Gethostname			@57	
+
+        WSAAsyncSelect			@101	
+        WSAAsyncGetHostByAddr		@102	
+        WSAAsyncGetHostByName		@103	
+        WSAAsyncGetProtoByNumber	@104	
+        WSAAsyncGetProtoByName		@105	
+        WSAAsyncGetServByPort		@106	
+        WSAAsyncGetServByName		@107	
+        WSACancelAsyncRequest		@108	
+        WSASetBlockingHook		@109	
+        WSAUnhookBlockingHook		@110	
+        WSAGetLastError			@111	
+        WSASetLastError			@112	
+        WSACancelBlockingCall		@113	
+        WSAIsBlocking			@114	
+        WSAStartup			@115	
+        WSACleanup			@116	
+
+        __WSAFDIsSet			@151	
+
+        WEP				@200	
+        

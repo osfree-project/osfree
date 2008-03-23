@@ -1,0 +1,258 @@
+
+dnl Process this file with autoconf to produce a configure script.
+AC_REVISION([configure.in 1.00])
+AC_INIT(win/WinInit.c)		
+AC_CONFIG_HEADER()
+AC_CONFIG_AUX_DIR(scripts)
+
+#############################################################################
+#
+#	The purpose of this configure script is to generate the
+#	following three files:
+#
+#	Makefile.config
+#
+#	This file describes the Willows Twin Library configuration
+#	including:
+#		1) where the sources are
+#		2) what the target is, linux, sunos,...
+#		3) what CPU we are running on
+#		4) whether building Debug or Release version of library
+#		5) whether building for win16 or win32
+#			use ./configure --with-win32
+#		6) Where the libraries and binaries will be kept.
+#
+#	makeinclude/Makefile.rules
+#
+#	This file describes the basic make rules, 
+#		CC, CFLAGS, etc.
+#
+#	makeinclude/Makeinclude.config
+#
+#	This file describes platform specific build variables
+#	needed to build the library on a given platform, including...
+#
+#		1) what thread package to use, ours, generic or none
+#		2) what flags are need to build shared libraries
+#		3) whether to build interpreter or not
+#		4) what platform specific files need to be included
+#
+#############################################################################
+
+# We want these before the checks, so the checks can modify their values.
+
+test -z "$LDLIBS" && LDLIBS=-lm AC_SUBST(LDLIBS)
+test -z "$PROGEXT" && PROGEXT="" AC_SUBST(PROGEXT)
+
+dnl **** Where are the sources rooted ****
+
+prefix=`pwd`
+
+dnl **** Command-line arguments ****
+
+AC_ARG_WITH(optimization,
+[  --with-optimization          build optimized version of libraries],
+[TWINOPT="Release"],
+[TWINOPT="Debug" ])
+
+AC_ARG_WITH(win32,
+[  --with-win32          	build win32  version of libraries],
+[TWIN_APISIZE="32"],
+[TWIN_APISIZE=""])
+
+dnl *********************************
+
+AC_SUBST(TWIN_APISIZE)
+AC_SUBST(TWINOPT)
+
+dnl **** Check for some programs and libraries ****
+
+AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_CXX_GNU
+AC_PROG_CPP
+AC_PATH_XTRA
+AC_PROG_YACC
+AC_PROG_LEX
+AC_PROG_RANLIB
+
+dnl Check for -li386 for NetBSD
+AC_CHECK_LIB(i386,i386_set_ldt,LDLIBS="$LDLIBS -li386")
+
+dnl **** Guess host target ****
+
+AC_CANONICAL_HOST()
+
+AC_CANONICAL_TARGET()
+
+dnl **** Normalize the CPUTYPE ****
+
+#
+# Default to NOT intel, and
+# use interpreter
+# (LATER: allow command flag to use interpreter)
+#	  
+#
+TWINCPU=$target_cpu
+CPUTYPE=INT
+
+changequote
+case "$target_cpu" in
+    i[3456]86 )
+	TWINCPU=X386
+	CPUTYPE=CPU
+    ;;
+esac
+	
+changequote([, ])dnl
+
+AC_SUBST(TWINCPU)
+AC_SUBST(CPUTYPE)
+
+dnl **** Special fixups for specific compilers
+
+if test -n "$GCC" 
+then
+	CC="$CC -Wall -fwritable-strings -fPIC"
+fi
+
+if test -n "$GXX" 
+then
+	CXX="$CXX -Wall -fwritable-strings -fPIC"
+fi
+
+dnl **** Special fixups for specific platforms
+
+
+changequote
+
+#
+# Default values...
+#
+LDSHARED=-shared
+DLL_EXT=so
+THREADOPT=$TWINCPU
+
+case "$host" in
+   alpha-dec-osf*)
+	THREADOPT=nothreads
+	LDSHARED=-shared
+	DLL_LDOPT="-shared -init TWIN_LibEntry_$(@:$(TWIN_APISIZE).so=)"
+	;;
+
+   *-*-hpux*)
+	THREADOPT=generic
+	LDSHARED=-b
+	DLL_LDOPT="+s -b +I TWIN_LibEntry_$(@:$(TWIN_APISIZE).sl=) -c $(DLL_RSRC).exp"
+	DLL_EXT=sl
+	EXTRALIB=-Wl
+
+	;;
+
+   *-ibm-aix*)
+	DEFINE=-D_BSD 
+	THREADOPT=nothreads
+	LDSHARED="-bM:SRE -bE:libtwin$(TWIN_APISIZE).exports -bnoentry"
+	DLL_LDOPT="-bM:SRE -bE:$(DLL_RSRC).exp -eTWIN_LibEntry_$(@:$(TWIN_APISIZE).so.o=)"
+	DLL_EXT=so.o
+	;;
+
+   i*86-unknown-sco3.2v4*)
+	LIBRARY=-lsocket	
+	CFLAG="-b elf -DELF -Kpic"
+	LDSHARED=-G
+	EXECSUFFIC=SysV
+	DLL_LDOPT="-G -Bsymbolic"
+
+	;;
+
+   *-sgi-irix6*)
+	SYSTEM_TARGET=DrvSystem_${TARGET}.s
+	THREADOPT=generic
+	LDSHARED=-shared
+	DLL_LDOPT="-Wl,-init,TWIN_LibEntry_$(@:$(TWIN_APISIZE).so=) -Wl,-B,symbolic -shared"
+	;;
+
+   *-*-solaris*)
+	SYSTEM_TARGET=DrvSystem_${TARGET}.s
+	THREADOPT=sparc
+	LDSHARED=-G
+	DLL_LDOPT="-G -Bsymbolic"
+	PICFLAG-KPIC
+	;;
+
+   *-*-sunos*)
+	SYSTEM_TARGET=DrvSystem_${TARGET}.s
+	THREADOPT=generic
+	LDSHARED=
+	DLL_LDOPT=-Bsymbolic
+	CC="/usr/lang/acc -Xa"
+	PICFLAG=-PIC 
+	LIB_EXT=-lsocket
+	;;
+
+   *-*-linux*)
+	DLL_LDOPT="-shared  -Wl,-Bsymbolic"
+	;;
+   *)
+	
+	changequote([, ])dnl
+	AC_MSG_ERROR(You must add this platform to configure.in.)
+	changequote
+	;;
+esac
+
+changequote([, ])dnl
+
+AC_SUBST(LDSHARED)
+AC_SUBST(THREADOPT)
+AC_SUBST(DLL_LDOPT)
+AC_SUBST(DLL_EXT)
+AC_SUBST(LIB_EXT)
+
+dnl **** Generate output files ****
+AC_OUTPUT([
+Makefile.config
+makeinclude/Makefile.rules
+makeinclude/Makeinclude.config
+])
+
+DIRS="xdos readline debugger intp32 pal/x11 multimedia/mmsystem dll commctrl commdlg shell bmp win"
+for f in $DIRS
+do  
+	echo >$f/Makedepend.$target_os
+done
+
+echo "Building/verifying installation directories:"
+for f in Release Debug
+do
+	INSTALLDIR=./$f
+	echo "   $INSTALLDIR"
+	if test ! -d ${INSTALLDIR}
+	then mkdir ${INSTALLDIR}
+	fi
+	if test ! -d ${INSTALLDIR}/bin 
+	then mkdir ${INSTALLDIR}/bin
+	fi
+	if test ! -d ${INSTALLDIR}/lib 
+	then mkdir ${INSTALLDIR}/lib
+	fi 
+	if test ! -d ${INSTALLDIR}/include 
+	then mkdir ${INSTALLDIR}/include
+	fi 
+done
+
+
+echo
+echo "Configure finished.  Do 'make depend; make' to compile TWIN."
+echo
+
+
+dnl Local Variables:
+dnl comment-start: "dnl "
+dnl comment-end: ""
+dnl comment-start-skip: "\\bdnl\\b\\s *"
+dnl compile-command: "autoconf"
+dnl End:
+

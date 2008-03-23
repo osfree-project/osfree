@@ -1,0 +1,3 @@
+
+handle SIGSEGV nostop noprint
+break  GetHandleErr

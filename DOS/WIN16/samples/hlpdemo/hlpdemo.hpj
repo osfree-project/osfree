@@ -1,0 +1,21 @@
+[MAP]
+#include <hlpalias.h>
+
+[OPTIONS]
+CONTENTS=IDH_CONTENTS
+TITLE=HlpDemo Help
+COMPRESS=1
+WARNING=1  ; If you remove this line, then HC will report the following
+           ; error message:
+           ;
+           ;    R1023: Keyword(s) defined without title in page 59
+           ;           of file helpex.rtf
+           ;
+           ; This message indicates that a topic will be listed in
+           ; the Search Topics Found box as ">>Untitled Topic<<"
+
+[FILES]
+hlpdemo.rtf  ; main topics
+
+
+

@@ -1,0 +1,36 @@
+/*
+ *  wmfdemo.rc -- resource file for wmfdemo
+ *
+ *  @(#)wmfdemo.rc	1.1 5/3/96 17:27:28 /users/sccs/src/samples/wmfdemo/s.wmfdemo.rc
+ *
+ *  Copyright (c) 1995-1996, Willows Software Inc.  All rights reserved.
+ *
+ */
+
+#include "windows.h"    
+#include "wmfdemo.h"
+//
+// Menu
+//
+
+WMFMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "C&reate...",                  IDM_CREATE
+        MENUITEM "&Playback...",                IDM_PLAYBACK
+        MENUITEM "&Clear",             		IDM_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "&About...",                   IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit"			IDM_EXIT
+    END
+END
+
+
+//
+// Icon
+//
+
+IDI_WILLOWS                     ICON    DISCARDABLE     "WILLOWS.ICO"
+

@@ -1,0 +1,122 @@
+
+Willows Twin Configuration Guide
+
+The twin library is configurable using the twin configuration file.  If the
+file system.twinrc exists in the current directory, it is used.  If the file
+does not exist, the file .twinrc in the users home directory is used.  If that
+file does not exist, the file system.twinrc located the directory given by
+the environment variable TWINDIR is used.  If the file does not exist at all,
+default values for all configurable elements will be used.  
+
+The twin configuration file is a standard windows initialization file and 
+consists of seven sections, with defined keywords for each section.  The 
+defined sections are:
+
+  Section		Configures parameters for...
+  -------               ----------------------------
+  [Boot]		startup configuration settings
+  [Windows]		run-time configuration settings
+  [PortAliases]		mapping of COM, LPT ports
+  [FontSubstitutes]	font aliases 
+  [Colors]		mapping of standard colors
+  [XDOS]		mapping of DOS drives
+  
+In the following table, the defined keywords with their default values are
+given.  Those values that can be overridden by an environment variable have
+an additional field defining the variable.
+
+
+Section		Keyword			Default		Environment Variable
+-------		-------			-------		--------------------
+[BOOT]		"display",		":0.0",		"DISPLAY"
+		"screenheight", 	0,
+		"screenwidth", 		0,
+		"windows",		"./",		"TWINDIR"
+		"temp",			"/tmp",		"TMP"
+		"path",			0,		"OPENPATH"
+		"tasking",		"1",	
+		"logfile",		"-",		"LOGFILE"
+		"logmask",		"-1",
+		"printer",		0
+
+		"fatal",		0
+		"syncronous",		0
+		"colormap",		0
+		"dither",		0
+		"debugger", 		0
+		"nopaging", 		0
+		"verbose", 		0
+
+		"control", 		0
+
+[WINDOWS] 	"DoubleClickRate", 	"250"
+		"CursorBlinkRate", 	"500"
+		"FontFace", 		"helvetica"
+		"FontSize", 		"18"
+		"FontWeight",   	"700"
+		"HelpProgram", 		"twinhelp"
+		"IconFontFace", 	"helvetica"
+		"IconFontSize", 	"14"
+
+[colors]
+
+[FontSubstitutes]
+
+The next section in the configuration file consists of keyword/data pairs that
+are not predefined.  This section allows control over the use of fonts by 
+allowing font face names to be aliased to alternative fonts, and by restricting
+a given font to a range of sizes.  As the syntax shows below, at a minimum, an
+alternative face name needs to be provided.  A minimum size for that font can
+be supplied, and must be supplied if a maximum size is supplied.  The alias
+font name, <newfacename> may be the same as the original <facename> if a range
+of font sizes needs to be specified for a particular font.
+
+keyword	  value with optional range
+-------	  -------------------------
+<facename=<newfacename>[,min[,max]]
+
+[Colors]
+
+The colors section maintains colors for the standard windows components.
+The names of the components with their default colors  is given in the
+table below.
+
+	Window Element		Default Color
+	--------------		-------------
+	Scrollbar 		RGB(192,192,192)
+	Background 		RGB(255,255,255)
+	ActiveTitle 		RGB(0,0,192)
+	InactiveTitle 		RGB(255,255,255)
+	Menu 			RGB(255,255,255)
+	Window 			RGB(255,255,255)
+	WindowFrame 		RGB(0,0,0)
+	MenuText 		RGB(0,0,0)
+	WindowText 		RGB(0,0,0)
+	TitleText 		RGB(255,255,255)
+	ActiveBorder 		RGB(192,192,192)
+	InactiveBorder 		RGB(192,192,192)
+	AppWorkspace 		RGB(192,192,192)
+	Hilight 		RGB(255,0,0)
+	HilightText 		RGB(255,255,255)
+	ButtonFace 		RGB(192,192,192)
+	ButtonShadow 		RGB(128,128,128)
+	GrayText 		RGB(128,128,128)
+	ButtonText 		RGB(0,0,0)
+	InactiveTitleText 	RGB(0,0,0)
+
+[XDOS]
+The xdos section consists of keyword/data pairs that controls the mapping of
+DOS drive names to the native filesystem.  This configuration allows a DOS
+drive to be mapped to either a directory or a drive emulator.  An example of
+the mapping is given below.
+
+	[xdos]
+	C=/
+	A=/dev/fd0
+
+In this example, the DOS emulated drive C: is mapped to the root directory, and
+the emulated drive A: uses the floppy drive.  Files on the floppy drive are
+accessed using a fully qualified name, eg. A:\SETUP.INF.  In this case, the
+floppy drive should not be mounted.
+
+

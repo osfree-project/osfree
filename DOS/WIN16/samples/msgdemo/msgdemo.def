@@ -1,0 +1,14 @@
+NAME	     MsgDemo
+DESCRIPTION  'Simple Windows Messaging Application'
+EXETYPE      WINDOWS
+STUB		 'WINSTUB.EXE'
+CODE	     PRELOAD MOVEABLE DISCARDABLE
+DATA	     PRELOAD MOVEABLE MULTIPLE
+                          
+HEAPSIZE		1024                          
+                          
+EXPORTS
+    MsgWndProc      @1
+
+IMPORTS
+	Shell.ShellAbout

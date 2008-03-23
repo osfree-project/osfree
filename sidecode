@@ -39,3 +39,5 @@ LIBTIFF used in many parts
 Fiasco reused as microkernel
 
 PParser from FPK used as UNI2H tool base
+
+TWIN library as win16 base

@@ -1,0 +1,12 @@
+NAME      PRTDEMO
+EXETYPE   WINDOWS
+CODE      PRELOAD MOVEABLE DISCARDABLE
+DATA      PRELOAD MOVEABLE MULTIPLE
+HEAPSIZE  1024
+
+EXPORTS                 
+    PrtWndProc     @1
+        
+IMPORTS
+    Shell.ShellAbout
+

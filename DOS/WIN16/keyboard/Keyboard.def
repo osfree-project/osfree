@@ -1,0 +1,19 @@
+
+Library	KEYBOARD
+
+Segments
+
+HEAPSIZE  1024
+
+EXPORTS
+	ToAscii 	@4 
+	AnsiToOem 	@5
+	OemToAnsi 	@6
+	OemKeyScan 	@128
+	VkKeyScan 	@129
+	GetKeyboardType @130
+	MapVirtualKey 	@131
+	GetKBCodePage 	@132
+	GetKeyNameText 	@133
+	AnsiToOemBuff 	@134
+	OemToAnsiBuff 	@135

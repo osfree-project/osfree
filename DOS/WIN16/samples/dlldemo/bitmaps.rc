@@ -1,0 +1,8 @@
+/*
+ *      bitmaps.rc
+ *      DLL for the Dynamic Linking Sample Application
+ *      
+ *      resource definition file
+ */
+
+Bitmap1 BITMAP willows.bmp             

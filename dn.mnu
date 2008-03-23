@@ -4,7 +4,7 @@
    @cls
    @SET SVN_EDITOR=tedit.exe
    @cd ..
-   @svn commit osfree
+   @svn commit osfree --username %3 --password %4
 >1 Show file content diff
    @cls
    @set lang=ru_Ru

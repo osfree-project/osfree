@@ -1,0 +1,15 @@
+NAME         MdiDemo
+DESCRIPTION  'MDI Sample Application'
+EXETYPE      WINDOWS
+STUB         'WINSTUB.EXE'          
+CODE         PRELOAD MOVEABLE DISCARDABLE
+DATA         PRELOAD MOVEABLE MULTIPLE
+
+HEAPSIZE                1024
+
+EXPORTS
+    FrameWndProc      @1
+    ChildWndProc      @2
+
+IMPORTS
+    Shell.ShellAbout

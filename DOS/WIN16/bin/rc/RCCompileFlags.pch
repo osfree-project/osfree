@@ -1,0 +1,17 @@
+/*	Willows Software, Inc. - Sep 1996 */
+/*	#ident	"@(#)RCCompileFlags.pch	1.3 :/users/sccs/src/winsdk/rc/s.RCCompileFlags.pch 10/4/96 15:49:39" */
+/********************************************************************
+*   RCCompileFlags.pch
+*
+*   Script to generate precompiled header.
+*
+*   Copyright (c) 1996, Willows Software Inc.  All rights reserved.  
+********************************************************************/
+
+#ifdef powerc
+#pragma precompile_target "RCCompileFlagsPPC"
+#else
+#pragma precompile_target "RCCompileFlags68K"
+#endif
+
+#define NO_WINSOCK

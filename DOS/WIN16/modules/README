@@ -1,0 +1,45 @@
+This is a MZ binary format loader, also known as DOS-Loader. It consists of
+a kernel module and a wrapper program. The kernel module recognizes DOS,
+Windows, and Win32 (PE) program images and invokes mzloader. mzloader
+determines whether to invoke dosemu or wine, and invokes the proper
+emulator. Optionally, parameters can be passed to the emulator.
+
+Installation
+To compile the package, just type make. If you have problems compiling it,
+please mail me a problem report. To install it, 'make install'. This will
+place the module into /lib/modules/<current>/misc, and mzloader into
+/usr/sbin/mzloader.
+It should be easy to announce the module to kerneld, but I don't use kerneld.
+If the mzloader is not present in /usr/sbin/mzloader, insmod should get
+a 'loader=<path to mzloader>' argument.
+
+Operation
+mzloader is controlled with the file ~/.mzrc. If the file is not present,
+dosemu and wine are searched in the path, and no arguments are passed
+to the emulator. The .mzrc file is structured like an INI file.
+The first section defines the path for to the emulators
+
+[emulators]
+wine=/home/martin/wine/wine
+dos=/bin/echo
+
+In this case, wine is found in /home/martin/wine/wine. Dosemu should not be
+invoked, so if any non-windows dos binary is recognized by binfmt_mz,
+/bin/echo is passed the command line, which it will just output to stdout.
+
+If individual programs require different command line options, special
+sections for these programs can be introduced:
+[sol]
+command=wine -language De
+
+If now 'sol.exe Hello' is invoked in the shell, eventually
+"wine -language De 'sol.exe Hello'" will be executed. The parameter grouping
+is performed because of the way Wine passes command lines to the actual
+programs.
+
+NOTE: dosemu support in mzloader is minimal, as I don't use dosemu.
+If you want to change the dosemu support in mzloader, please contact
+me.
+
+Martin v. Loewis
+loewis@informatik.hu-berlin.de

@@ -1,0 +1,39 @@
+/*
+ *      MsgDemo.rc
+ *
+ *      @(#)msgdemo.rc	1.1 5/3/96 16:39:35 /users/sccs/src/samples/msgdemo/s.msgdemo.rc
+ *
+ *      Resource definitions
+ *
+ */
+#include "msgdemo.h"
+#include "windows.h"
+
+MSGDEMO MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About MsgDemo...",     IDM_ABOUT
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Messages"
+    BEGIN
+        MENUITEM "&Key",                        IDM_KEY
+        MENUITEM "&Mouse",                      IDM_MOUSE
+        MENUITEM "&Window",                     IDM_WINDOW
+        MENUITEM "&All",                        IDM_ALL             
+    END
+END
+
+IDI_ICON1               ICON    DISCARDABLE     "WILLOWS.ICO"
+
+STRINGTABLE PRELOAD DISCARDABLE 
+    BEGIN 
+        DLL_APP_TITLE           "MsgDemo Windows Application"
+    END 
+ 
+RESOURCE ACCELERATORS
+    BEGIN
+        VK_F1,      IDM_ABOUT,          VIRTKEY
+        VK_ESCAPE,  IDM_EXIT,           VIRTKEY
+    END

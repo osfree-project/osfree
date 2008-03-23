@@ -1,0 +1,32 @@
+/*
+ *      CDSDemo.rc
+ *
+ *	@(#)cdsdemo.rc	1.2 5/3/96 16:10:13 /users/sccs/src/samples/cdsdemo/s.cdsdemo.rc
+ *
+ *      Commmon Dialogs Demonstration Application
+ *
+ *      Resource definitions
+ */
+#include "cdsdemo.h"
+#include "windows.h"
+
+CDSMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About CDSDemo...",           IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Dialogs"
+    BEGIN
+        MENUITEM "&Open...",                    IDM_OPEN
+        MENUITEM "&Save...",                    IDM_SAVE
+        MENUITEM "&Color...",                   IDM_COLOR
+        MENUITEM "&Font...",                    IDM_FONT
+        MENUITEM "&Print...",                   IDM_PRINT
+    END               
+END
+
+IDI_ICON1               ICON    DISCARDABLE     "WILLOWS.ICO"
+

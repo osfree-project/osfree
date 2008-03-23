@@ -1,0 +1,172 @@
+
+file=
+log=
+debug=
+console=
+warning=
+error=
+api=
+bin=
+int=
+msg=
+
+for f
+do
+	case $f
+	in
+		file*) file=$f;;
+		-log) log=0;;
+		+log) log=1;;
+		-debug) debug=0;;
+		+debug) debug=1;;
+		-console) console=0;;
+		+console) console=1;;
+		-warning) warning=0;;
+		+warning) warning=1;;
+		-error) error=0;;
+		+error) error=1;;
+		-api) api=0;;
+		+api) api=1;;
+		-bin) bin=0;;
+		+bin) bin=1;;
+		-int) int=0;;
+		+int) int=1;;
+		-msg) msg=0;;
+		+msg) msg=1;;
+		+all)
+			log=1
+			debug=1
+			console=1
+			warning=1
+			error=1 
+			api=1
+			bin=1
+			int=1
+			msg=1;;
+		-all)
+			log=0
+			debug=0
+			console=0
+			warning=0
+			error=0 
+			api=0
+			bin=0
+			int=0
+			msg=0;;
+	esac
+done
+
+exec >foo.new
+
+while read l
+do 
+	case $l
+	in
+		file*)
+			if [ "x$file" = "x" ]
+			then
+			echo $file
+			fi;;
+			
+		log*)
+			if [ "x$log" = "x" ]
+			then
+			echo $l
+			fi;;
+		debug*)
+			if [ "x$debug" = "x" ]
+			then
+			echo $l
+			fi;;
+		console*)
+			if [ "x$console" = "x" ]
+			then
+			echo $l
+			fi;;
+		warning*)
+			if [ "x$warning" = "x" ]
+			then
+			echo $l
+			fi;;
+		error*)
+			if [ "x$error" = "x" ]
+			then
+			echo $l
+			fi;;
+		api*)
+			if [ "x$api" = "x" ]
+			then
+			echo $l
+			fi;;
+		bin*)
+			if [ "x$bin" = "x" ]
+			then
+			echo $l
+			fi;;
+		int*)
+			if [ "x$int" = "x" ]
+			then
+			echo $l
+			fi;;
+		msg*)
+			if [ "x$msg" = "x" ]
+			then
+			echo $l
+			fi;;
+
+		* )
+			if [ "[log]" = "$l" ]
+			then
+				echo $l
+				if [ ! "x$log" = "x" ]
+				then
+					echo log=$log
+				fi
+				if [ ! "x$console" = "x" ]
+				then
+					echo console=$console
+				fi
+				if [ ! "x$debug" = "x" ]
+				then
+					echo debug=$debug
+				fi
+				if [ ! "x$error" = "x" ]
+				then
+					echo error=$error
+				fi
+				if [ ! "x$warning" = "x" ]
+				then
+					echo warning=$warning
+				fi
+				if [ ! "x$api" = "x" ]
+				then
+					echo api=$api
+				fi
+				if [ ! "x$bin" = "x" ]
+				then
+					echo bin=$bin
+				fi
+				if [ ! "x$int" = "x" ]
+				then
+					echo int=$int
+				fi
+				if [ ! "x$msg" = "x" ]
+				then
+					echo msg=$msg
+				fi
+				if [ ! "x$file" = "x" ]
+				then
+					echo $file
+				fi
+			fi
+			if [ ! "[log]" = "$l" ]
+			then
+				echo $l	
+			fi
+			
+			;;
+	esac
+done <foo
+
+mv foo foo.bak
+mv foo.new foo

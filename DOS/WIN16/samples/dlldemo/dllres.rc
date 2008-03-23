@@ -1,0 +1,11 @@
+/*
+ *      dllres.rc
+ *      DLL for the Dynamic Linking Sample Application
+ *
+ *      resource definition file
+ */
+
+STRINGTABLE
+BEGIN
+        1, "This string comes from the DLLRES library"
+END

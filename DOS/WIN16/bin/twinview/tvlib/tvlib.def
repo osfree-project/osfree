@@ -1,0 +1,53 @@
+LIBRARY   TVLIB
+EXETYPE   WINDOWS
+CODE      PRELOAD MOVEABLE DISCARDABLE
+DATA      PRELOAD MOVEABLE SINGLE
+HEAPSIZE  1024
+EXPORTS
+          WEP PRIVATE
+          
+          ; Message Handler
+          TVLibMsgProc
+          
+          ; Window Functions
+          OpenTVFile
+          ShowTVWindows
+          TVFilterWndProc
+          IsTVWindow
+          
+          ; Accelerator Functions
+          RegisterTVAccel
+          GetTVAccel
+          
+          ; Library list Functions
+          EnumTVLibInfo
+          
+          ; File Functions.
+          EnumFiles
+          
+          ; TWINVIEW.INI Access Functions
+          ProcessTVCmdLine
+          ProcessLoadLine
+          
+          ; TwinView Menu Functions
+          RegisterTVMenuItem
+          UnregisterTVMenuItem
+          ProcessTVMenuItem
+          
+          ; Information Functions
+          SetTVWindowHandle
+          GetTVWindowHandle
+          SetTVMsgValue
+          GetTVMsgValue
+          SetTVMenuHandle
+          GetTVMenuHandle
+          CanTwinViewClose
+          
+          ; Temporarily exported functions
+          CreateTVLibList
+          DestroyTVLibList
+          DeleteMenuInfoList
+          
+
+          '\"	MultiPort, Inc. - Oct 1995
+'\"	#ident	"@(#)tvlib.def	1.1 :/users/sccs/src/twinview/tvlib/s.tvlib.def 10/11/95 16:52:33"

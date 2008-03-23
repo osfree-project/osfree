@@ -1,0 +1,33 @@
+/*
+ *	windemo.rc -- resource file for windemo
+ *
+ *	@(#)windemo.rc	1.1 2/13/96 13:08:42 /users/sccs/src/samples/windemo/s.windemo.rc
+ *
+ *	Copyright (c) 1995-1996, Willows Software Inc.  All rights reserved.
+ *
+ */
+
+#include "windows.h"
+#include "windemo.h"
+
+WINMENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About Demo...",              IDM_ABOUT
+        MENUITEM "E&xit",	                IDM_EXIT
+    END
+END
+
+IDI_ICON1               ICON    DISCARDABLE     "WILLOWS.ICO"
+
+STRINGTABLE PRELOAD DISCARDABLE 
+    BEGIN 
+	IDS_TITLE       	"WinDemo Windows Application"
+    END 
+ 
+RESOURCE ACCELERATORS
+    BEGIN
+	VK_F1,	    IDM_ABOUT,  	VIRTKEY
+	VK_ESCAPE,  IDM_EXIT,   	VIRTKEY
+    END

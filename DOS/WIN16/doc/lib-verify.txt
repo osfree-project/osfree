@@ -1,0 +1,79 @@
+
+Verifying the installation of the Willows XPDK
+
+The following steps are used to verify proper installation of the Willows Twin 
+Libraries.  Each of the steps, and what is verified is identified in the table 
+below.
+
+1)	Running xwin			1 Run-Time Tools and Library installed 
+					  and configured.
+					2 The location of Windows directory is
+					  correctly set.
+
+2)	Building twin samples		1 Compiler Tools and Libraries installed
+					  and configured.
+					2 Environment variables correctly set
+					  to target specific libraries and
+					  header files.
+
+Note:
+No configuration file is needed to use the Willows Twin XPDK.  Only the
+environment variables described in the installation section are required.
+
+Running xwin
+
+The xwin program is a windows binary emulator that is linked with the Willows
+Twin XPDK library.  In its simplest form, it may be run by itself with no
+arguments, as in:
+
+xwin
+
+In this form, xwin will put up a dialog box which allows the filesystem to
+be browsed for a suitable windows binary to execute.  If the dialog box does
+not come up on your display, then check the following:
+
+	1) The DISPLAY variable is properly set.
+	2) You have permission to execute applications that access the display.
+
+If the application displays the message, "Cannot find library, xxxx.yyy.so",
+then the library is not configured properly to work with the operating system; 
+either the dynamic linker, ld.so, cannot find the library, or the 
+LD_LIBRARY_PATH environment variable is not set.
+
+Note:
+The Willows Twin XPDK Libraries are released as shared libraries, and may 
+require some systems to be upgraded to ELF support.  Additional information
+about this may be found in the platform specific README file in the 
+$TWINDIR/$TARGET directory.
+
+The xwin binary emulator may also be run with command line arguments as in:
+
+xwin <program name>
+
+In this form, xwin will look for <program name>.exe in the current directory
+and in the WINDOWS directory.  If the application cannot be found, a dialog
+box will be displayed as appropriate.  The Willows Twin configuration file
+can be modified to print the names of programs and their directories that are
+searched.
+
+Building twin samples
+
+The Willows Twin XPDK provides samples that illustrate various aspects of the
+Willows Twin XPDK.  These samples include generic makefiles that can be modified
+as appropriate, samples that demonstrate how to use the compiler tools, rc and 
+mdc, and samples that demonstrate how to access the Willows Twin help file
+viewer, TwinView.
+
+	WinDemo		Demonstrates creation of simple window.
+	MsgDemo		Demonstrates messaging system using mouse and keyboard.
+	DllDemo		Demonstrates building and accessing DLL's.
+	HlpDemo		Demonstrates accessing TwinView, through WinHelp().
+	DlgDemo		Demonstrates simple dialog box creation.
+	GdiDemo		Demonstrates simple GDI calls, with brushes and pens.
+	ClpDemo		Demonstrates use of clipboard to exchange data.
+	PrtDemo		Demonstrates configuring and using printers.
+	GuiDemo		Demonstrates altering the look and feel.
+	
+Once the TWINDIR and TARGET environment variables have been set, the samples
+may be built by running make.  If the libraries are configured correctly, the
+samples may be run to demonstrate various capabilities of the library.

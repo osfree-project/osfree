@@ -1,0 +1,155 @@
+//Microsoft Developer Studio generated resource script.
+//
+//
+//
+/* @(#)custcntl.rc	1.2 13:32:02 7/16/96 /users/sccs/src/win/commctrl/s.custcntl.rc */ 
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "windows.h"
+#include "commctrl.h"
+#include "WResourc.h"
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+WPROPSHEETTEMPLATE DIALOG DISCARDABLE  0, 0, 256, 163
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,142,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,93,142,50,14
+    PUSHBUTTON      "&Apply Now",IDAPPLY,146,142,50,14
+    PUSHBUTTON      "&Help",ID_HELP,199,142,50,14
+    PUSHBUTTON      "&Back",ID_BACK,199,124,50,14,NOT WS_VISIBLE
+    PUSHBUTTON      "&Next",ID_NEXT,146,124,50,14,NOT WS_VISIBLE
+    PUSHBUTTON      "&Finish",ID_FINISH,93,124,50,14,NOT WS_VISIBLE
+END
+
+WTLBCUSTOMIZETEMPLATE DIALOGEX 0, 0, 358, 125
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Customize Toolbar"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_LBOX_CUSTOMIZE_LEFT,5,17,119,101,
+                    LBS_OWNERDRAWVARIABLE | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Add ->",IDC_BTN_CUSTOMIZE_ADD,130,43,44,14
+    PUSHBUTTON      "<-&Remove",IDC_BTN_CUSTOMIZE_REMOVE,130,64,44,14
+    LISTBOX         IDC_LBOX_CUSTOMIZE_RIGHT,179,17,119,101,
+                    LBS_OWNERDRAWVARIABLE | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "&Close",IDOK,307,7,44,14
+    PUSHBUTTON      "R&eset",IDC_BTN_CUSTOMIZE_RESET,307,24,44,14,
+                    WS_DISABLED
+    PUSHBUTTON      "&Help",IDC_BTN_CUSTOMIZE_HELP,307,41,44,14
+    PUSHBUTTON      "Move &Up",IDC_BTN_CUSTOMIZE_MOVEUP,307,75,44,14
+    PUSHBUTTON      "Move &Down",IDC_BTN_CUSTOMIZE_MOVEDOWN,307,92,44,14
+    LTEXT           "A&vailable buttons",IDC_STATIC,7,6,85,8
+    LTEXT           "&Toolbar buttons",IDC_STATIC,180,6,85,9
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""windows.h""\r\n"
+    "#include ""commctrl.h""\r\n"
+    "#include ""WResourc.h""\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CURSOR_DRAG         CURSOR  DISCARDABLE     "handdrag.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "WPROPSHEETTEMPLATE", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 249
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 156
+    END
+
+    "WTLBCUSTOMIZETEMPLATE", DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 351
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 118
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_STD_LARGE_COLOR     BITMAP  DISCARDABLE     "stdlarge.bmp"
+IDB_STDSMALLCOLOR       BITMAP  DISCARDABLE     "stdsmall.bmp"
+IDB_VIEW_LARGE_COLOR    BITMAP  DISCARDABLE     "viewlarg.bmp"
+IDB_VIEW_SMALL_COLOR    BITMAP  DISCARDABLE     "viewsmll.bmp"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
