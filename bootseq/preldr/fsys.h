@@ -4,10 +4,89 @@
 
 #include <lip.h>
 
+#pragma aux printmsg "*"
+#pragma aux printd   "*"
+#pragma aux printw   "*"
+#pragma aux printb   "*"
+
+#pragma aux l1       "*"
+#pragma aux l2       "*"
+
 void printmsg(char *);
 void printb(unsigned char);
 void printw(unsigned short);
 void printd(unsigned long);
+
+void *grub_memset (void *addr, int c, int n);
+void *grub_memmove (void *dest, const void *src, int count);
+void *grub_memcpy (void *dest, const void *src, int count);
+char *grub_strcpy (char *dest, const char *src);
+int grub_strcmp (const char *s1, const char *s2);
+int grub_memcmp (const char *a1, const char *a2, int count);
+int grub_strlen (const char *s);
+int grub_isspace (int c);
+int grub_tolower (int c);
+void grub_printf (const char *format,...);
+int substring (const char *s1, const char *s2);
+int grub_pos (const char c, const char *s);
+int devread (int sector, int byte_offset, int byte_len, char *buf);
+int rawread (int drive, int sector, int byte_offset, int byte_len, char *buf);
+
+#define printf grub_printf
+
+unsigned int __cdecl
+u_open (char *name, unsigned int *size);
+unsigned int __cdecl
+u_read (char *buf, unsigned int count);
+unsigned int __cdecl
+u_seek (int loffseek);
+void __cdecl
+u_close (void);
+void __cdecl
+u_terminate (void);
+int __cdecl
+u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec, int addr);
+int __cdecl
+u_boot (int type);
+int __cdecl
+u_load (char *image, unsigned long size, char *load_addr, struct exe_params *p);
+int __cdecl
+u_parm (int parm, int action, unsigned long *val);
+void __cdecl
+u_msg (char *s);
+
+/* Actions */
+#define ACT_GET 0
+#define ACT_SET 1
+
+/* Parameter codes */
+#define PARM_BOOT_DRIVE            0
+#define PARM_CURRENT_DRIVE         1
+#define PARM_CURRENT_PARTITION     2
+#define PARM_CURRENT_SLICE         3
+#define PARM_SAVED_DRIVE           4
+#define PARM_SAVED_PARTITION       5
+#define PARM_SAVED_SLICE           6
+#define PARM_MBI                   7
+#define PARM_ERRNUM                8
+#define PARM_FILEPOS               9
+#define PARM_FILEMAX              10
+#define PARM_EXTENDED_MEMORY      11
+#define PARM_LINUX_TEXT_LEN       12
+#define PARM_LINUX_DATA_REAL_ADDR 13
+#define PARM_LINUX_DATA_TMP_ADDR  14
+
+#pragma aux u_open "*"
+#pragma aux u_read "*"
+#pragma aux u_seek "*"
+#pragma aux u_close "*"
+#pragma aux u_terminate "*"
+#pragma aux u_diskctl "*"
+#pragma aux u_boot "*"
+#pragma aux u_load "*"
+#pragma aux u_parm "*"
+
+extern struct multiboot_info *m; // pointer to the multiboot structure
 
 extern char *preldr_path; // preldr files path
 extern char *fsd_dir;     // uFSD's dir
@@ -15,9 +94,7 @@ extern char *cfg_file;    // preldr config file name
 extern char *fsys_list[]; // file systems list
 extern int  num_fsys;
 
-extern lip_t *l;
-
-int __cdecl (*fsd_init)(lip_t *l);
+extern lip1_t *l1;
 
 void panic(char *msg, char *file);
 
@@ -30,8 +107,6 @@ void panic(char *msg, char *file);
 #pragma aux boot_drive        "*"
 #pragma aux boot_flags        "*"
 #pragma aux install_partition "*"
-
-#pragma aux l                 "*"
 
 #pragma aux printmsg "*"
 #pragma aux printb   "*"

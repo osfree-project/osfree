@@ -20,11 +20,12 @@ extrn   preldr0_end  :dword
 extrn   gdt          :byte
 extrn   init         :near
 extrn   call_pm      :near
-extrn   lip          :dword
+extrn   lip1         :dword
 
 ifndef STAGE1_5
 
 public  ft
+public  jmp_reloc
 
 extrn   mu_Open      :far
 extrn   mu_Read      :far
@@ -197,6 +198,9 @@ reloc:
 ifndef STAGE1_5
         ; get available memory
         call getmem
+
+        ; enable A20 address line
+        call EnableA20Line
 endif
 
         ; call 32-bit protected mode init
@@ -236,7 +240,7 @@ ifndef STAGE1_5
         mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
 
         ; set LIP pointer and magic
-        mov  ebx, offset _TEXT:lip
+        mov  ebx, offset _TEXT:lip1
         mov  eax, BOOT_MAGIC
 
         ; return to os2ldr
@@ -250,6 +254,16 @@ getmem:
         mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
         mov  [ebx], eax
         ret
+
+EnableA20Line:
+    ; Enable A20 address line:
+    push ax
+    in   al, 0x92
+    or   al, 2
+    out  0x92, al
+    pop  ax
+
+    ret
 
 else
 
@@ -270,6 +284,14 @@ install_partition  dd 0ffffffh
 
 ifndef STAGE1_5
 ft                 FileTable <>
+
+;
+; void jmp_reloc(unsigned long addr);
+;
+jmp_reloc:
+        add [esp], eax
+        ret
+
 endif
 
 _TEXT   ends

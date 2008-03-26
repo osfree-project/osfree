@@ -9,10 +9,12 @@ name modesw
 .386p
 
 public  gdt
+public  gdtdesc
 public  call_rm
 public  call_pm
 public  __CHK
 public  __I8LS
+public  __U8RS
 
 include fsd.inc
 include struc.inc
@@ -257,6 +259,10 @@ __CHK:
         ret  4
 __I8LS:
         ret
+
+__U8RS: 
+        ret
+
 _TEXT   ends
 
 _DATA   segment byte public 'DATA' use32

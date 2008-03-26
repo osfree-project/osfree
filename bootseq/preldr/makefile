@@ -8,8 +8,8 @@
 
 32_BITS      = 1       # Use 32-bit C compiler
 DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__
-ADD_COPT     = -q -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
-ADD_ASMOPT   = -q $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
+ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
+ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 
 DIR          = preldr
 MYDIR        = $(ROOT)$(SEP)bootseq$(SEP)$(DIR)$(SEP)
@@ -19,21 +19,21 @@ PATH         = $(MYDIR)
 
 CLEANMASK    = $(CLEANMASK) *.sob *.lob
 
-RIP           = ripzeroes.cmd
-GENREL        = genrel.cmd
+RIP          = $(REXX) ripzeroes.cmd
+GENREL       = $(REXX) genrel.cmd
 
-SO               = sob
-LO               = lob
+SO           = sob
+LO           = lob
 
-OUT              = bin
-SOUT             = sbi
-LOUT             = lbi
+OUT          = bin
+SOUT         = sbi
+LOUT         = lbi
 
 .SUFFIXES:
 .SUFFIXES: .rel .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
 
-FS_OBJS          = start.$(O)  fsys.$(O)  dummy.$(O)
-FS_SH_OBJS       = start.$(SO) fsys.$(SO) dummy.$(SO)
+FS_OBJS             = start.$(O)  fsys.$(O)  dummy.$(O)
+FS_SH_OBJS          = start.$(SO) fsys.$(SO) dummy.$(SO)
 
 FAT_OBJS            = $(FS_OBJS) fsys_fat.$(O)
 EXT2FS_OBJS         = $(FS_OBJS) fsys_ext2fs.$(O)
@@ -57,34 +57,35 @@ VSTAFS_SH_OBJS      = $(FS_SH_OBJS) fsys_vstafs.$(SO)
 FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
-STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) biosdisk.$(O) filesys.$(O) &
-                   video.$(O) stage0_fs.$(O) func.$(O) bios.$(O) end.$(O)
+STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
+                   video.$(O) common.$(O) stage0_fs.$(O) func.$(O) minilibc.$(O) bios.$(O) end.$(O)
 
-STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) biosdisk.$(SO) filesys.$(SO) &
-                   video.$(SO) stage0_fs.$(SO) func.$(SO) bios.$(SO) end.$(SO)
+STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
+                   video.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) minilibc.$(SO) bios.$(SO) end.$(SO)
 
-STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) biosdisk.$(LO) filesys.$(LO) &
-                   video.$(LO) stage0_fs.$(LO) func.$(LO) bios.$(LO) end.$(LO)
+STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
+                   video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) minilibc.$(LO) bios.$(LO) end.$(LO)
 
-LDR_OBJS         = ldrstart.$(O) loader.$(O) # video.$(O)
+LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
+                   boot.$(O) minilibc.$(O) cmdline.$(O) # video.$(O)
 
 TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
-                   minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite loader &
+                   minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite freeldr &
                    fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel
 
-SHIFT = 0x10
+SHIFT = 0x100
 
 all: fsd.h $(TARGETS) .SYMBOLIC
 
 .fsd.rel
- $(GENREL) $^&.fss $^&.fsd $(SHIFT) >$^@
+ $(GENREL) $^&.fsd $^&.fss $(SHIFT) >$^@
  $(DC) $^&.fss
 
 preldr0.rel: preldr0
- $(GENREL) $^&s $^& $(SHIFT) >$^@
+ $(GENREL) $^& $^&s $(SHIFT) >$^@
  $(DC) $^&s
 
 .$(OUT).fsd:
@@ -112,12 +113,12 @@ preldr0s: stage0.$(SOUT)
  $(RIP) $< STAGE0_BASE fsd.inc $(SHIFT) >$^@
  $(DC) $<
 
-loader: loader.$(OUT)
+freeldr: freeldr.$(OUT)
  $(DC) $^@
  $(RIP) $< LDR_BASE fsd.inc >$^@
  $(DC) $<
 
-loader.$(OUT): $(LDR_OBJS)
+freeldr.$(OUT): $(LDR_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 fat.$(OUT): $(FAT_OBJS)
@@ -199,12 +200,13 @@ link: .SYMBOLIC .PROCEDURE
  @%append $(T)$(S).lnk NAME $(T).$(E)
  @%append $(T)$(S).lnk ALIAS init=_init
 !ifneq T stage0
-!ifneq T loader
+!ifneq T freeldr
  @%append $(T)$(S).lnk ALIAS fs_mount_=$(T)_mount_
  @%append $(T)$(S).lnk ALIAS fs_dir_=$(T)_dir_
  @%append $(T)$(S).lnk ALIAS fs_read_=$(T)_read_
 !else
  @%append $(T)$(S).lnk ALIAS _init=init_
+ @%append $(T)$(S).lnk ALIAS cmain=cmain_
 !endif
 !else
  @%append $(T)$(S).lnk ALIAS mem_lower=_mem_lower

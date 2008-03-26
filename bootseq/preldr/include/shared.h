@@ -78,6 +78,8 @@ extern char *grub_scratch_mem;
  */
 #define BIOSDISK_READ                   0x0
 #define BIOSDISK_WRITE                  0x1
+#define BIOSDISK_GEO                    0x2
+#define BIOSDISK_STOP_FLOPPY            0x3
 #define BIOSDISK_ERROR_GEOMETRY         0x100
 #define BIOSDISK_FLAG_LBA_EXTENSION     0x1
 #define BIOSDISK_FLAG_CDROM             0x2
@@ -140,35 +142,6 @@ extern char *grub_scratch_mem;
 
 /* The size of the io map.  */
 #define IO_MAP_SIZE             128
-
-/*
- *  Linux setup parameters
- */
-
-#define LINUX_MAGIC_SIGNATURE           0x53726448      /* "HdrS" */
-#define LINUX_DEFAULT_SETUP_SECTS       4
-#define LINUX_FLAG_CAN_USE_HEAP         0x80
-#define LINUX_INITRD_MAX_ADDRESS        0x38000000
-#define LINUX_MAX_SETUP_SECTS           64
-#define LINUX_BOOT_LOADER_TYPE          0x71
-#define LINUX_HEAP_END_OFFSET           (0x9000 - 0x200)
-
-#define LINUX_BZIMAGE_ADDR              RAW_ADDR (0x100000)
-#define LINUX_ZIMAGE_ADDR               RAW_ADDR (0x10000)
-#define LINUX_OLD_REAL_MODE_ADDR        RAW_ADDR (0x90000)
-#define LINUX_SETUP_STACK               0x9000
-
-#define LINUX_FLAG_BIG_KERNEL           0x1
-
-/* Linux's video mode selection support. Actually I hate it!  */
-#define LINUX_VID_MODE_NORMAL           0xFFFF
-#define LINUX_VID_MODE_EXTENDED         0xFFFE
-#define LINUX_VID_MODE_ASK              0xFFFD
-
-#define LINUX_CL_OFFSET                 0x9000
-#define LINUX_CL_END_OFFSET             0x90FF
-#define LINUX_SETUP_MOVE_SIZE           0x9100
-#define LINUX_CL_MAGIC                  0xA33F
 
 /*
  *  General disk stuff
@@ -703,7 +676,7 @@ extern entry_func entry_addr;
 void cmain (void);
 
 /* Halt the processor (called after an unrecoverable error). */
-void stop (void); //__attribute__ ((noreturn));
+void __cdecl stop (void); //__attribute__ ((noreturn));
 
 /* Reboot the system.  */
 void grub_reboot (void); //__attribute__ ((noreturn));
@@ -738,54 +711,54 @@ void chain_stage2 (unsigned long segment, unsigned long offset,
      //__attribute__ ((noreturn));
 
 /* do some funky stuff, then boot linux */
-void linux_boot (void); //__attribute__ ((noreturn));
+void __cdecl linux_boot (void); //__attribute__ ((noreturn));
 
 /* do some funky stuff, then boot bzImage linux */
-void big_linux_boot (void); //__attribute__ ((noreturn));
+void __cdecl big_linux_boot (void); //__attribute__ ((noreturn));
 
 /* booting a multiboot executable */
-void multi_boot (int start, int mb_info); //__attribute__ ((noreturn));
+void __cdecl multi_boot (int start, int mb_info); //__attribute__ ((noreturn));
 
 /* If LINEAR is nonzero, then set the Intel processor to linear mode.
    Otherwise, bit 20 of all memory accesses is always forced to zero,
    causing a wraparound effect for bugwards compatibility with the
    8086 CPU. */
-void gateA20 (int linear);
+void __cdecl gateA20 (int linear);
 
 /* memory probe routines */
-int get_memsize (int type);
-int get_eisamemsize (void);
+int __cdecl get_memsize (int type);
+int __cdecl get_eisamemsize (void);
 
 /* Fetch the next entry in the memory map and return the continuation
    value.  DESC is a pointer to the descriptor buffer, and CONT is the
    previous continuation value (0 to get the first entry in the
    map). */
-int get_mmap_entry (struct mmar_desc *desc, int cont);
+int __cdecl get_mmap_entry (struct mmar_desc *desc, int cont);
 
 /* Get the linear address of a ROM configuration table. Return zero,
    if fails.  */
-unsigned long get_rom_config_table (void);
+unsigned long __cdecl get_rom_config_table (void);
 
 /* Get APM BIOS information.  */
-void get_apm_info (void);
+void __cdecl get_apm_info (void);
 
 /* Get VBE controller information.  */
-int get_vbe_controller_info (struct vbe_controller *controller);
+int __cdecl get_vbe_controller_info (struct vbe_controller *controller);
 
 /* Get VBE mode information.  */
-int get_vbe_mode_info (int mode_number, struct vbe_mode *mode);
+int __cdecl get_vbe_mode_info (int mode_number, struct vbe_mode *mode);
 
 /* Set VBE mode.  */
-int set_vbe_mode (int mode_number);
+int __cdecl set_vbe_mode (int mode_number);
 
 /* Switch to text mode */
-void reset_vbe_mode (void);
+void __cdecl reset_vbe_mode (void);
 
 /* Get VBE pm interface entry */
-void get_vbe_pmif (unsigned int *segoff, unsigned int *len);
+void __cdecl get_vbe_pmif (unsigned int *segoff, unsigned int *len);
 
 /* Return the data area immediately following our code. */
-int get_code_end (void);
+int __cdecl get_code_end (void);
 
 /* low-level timing info */
 int getrtsecs (void);
@@ -821,7 +794,7 @@ int checkkey (void);
 int get_diskinfo (int drive, struct geometry *geometry);
 int biosdisk (int subfunc, int drive, struct geometry *geometry,
               int sector, int nsec, int segment);
-void stop_floppy (void);
+void __cdecl stop_floppy (void);
 
 /* Variable definitions and functions. */
 #define VARIABLES_MAX           30

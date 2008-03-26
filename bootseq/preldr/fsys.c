@@ -56,7 +56,7 @@ int           *pfsmax;
 struct geometry *pbuf_geom;
 
 int __cdecl
-init(lip_t *l)
+init(lip1_t *l)
 {
    /* Do a linkage between FSD and other parts of loader */
    disk_read_func = disk_read_hook = 0;

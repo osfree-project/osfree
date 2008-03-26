@@ -101,15 +101,19 @@ mu_Open proc far
         cmp  ebx, 0
         jz   noerr1
 err1:
+        xor  edx, edx
         mov  ax, 1
+        jmp  nok1
 noerr1:
+        xor  ax, ax
+nok1:
         switch_to_ldr
 
         push es
         push di
         les  di, dword ptr [bp + 0ah]
         mov  [di], edx ; size
-        xor  ax, ax
+        xor  dx, dx
         pop  di
         pop  es
 

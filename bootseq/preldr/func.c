@@ -12,6 +12,8 @@
 void (*disk_read_func) (int, int, int);
 void (*disk_read_hook) (int, int, int);
 
+int __cdecl (*fsd_init)(lip1_t *l1);
+
 int mem_lower;
 int mem_upper = 16384;
 
@@ -24,12 +26,13 @@ int buf_drive = -1;
 int buf_track;
 struct geometry buf_geom;
 
-grub_error_t errnum;
+extern grub_error_t errnum;
 int print_possibilities;
 
-unsigned long saved_drive;
-unsigned long saved_partition;
-unsigned long cdrom_drive;
+extern unsigned long saved_drive;
+extern unsigned long saved_partition;
+extern unsigned long cdrom_drive;
+unsigned long saved_slice;
 
 unsigned long current_drive;
 unsigned long current_partition;
@@ -48,7 +51,7 @@ static int block_file = 0;
 #endif /* NO_BLOCK_FILES */
 
 static inline unsigned long
-log2 (unsigned long word);
+log2(unsigned long word);
 
 static int do_completion;
 
@@ -180,7 +183,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
               read_len = num_sect;
               bufaddr = (char *) BUFFERADDR + byte_offset;
             }
-
+          
           bios_err = biosdisk (BIOSDISK_READ, drive, &buf_geom,
                                read_start, read_len, BUFFERADDR >> 4);
           if (bios_err)
@@ -265,63 +268,28 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
   return (!errnum);
 }
 
-
-int
-safe_parse_maxint (char **str_ptr, int *myint_ptr)
+static inline unsigned long
+log2 (unsigned long word)
 {
-  char *ptr = *str_ptr;
-  int myint = 0;
-  int mult = 10, found = 0;
+  //asm volatile ("bsfl %1,%0"
+  //              : "=r" (word)
+  //              : "r" (word));
+  unsigned long l;
 
-  /*
-   *  Is this a hex number?
-   */
-  if (*ptr == '0' && tolower (*(ptr + 1)) == 'x')
-    {
-      ptr += 2;
-      mult = 16;
-    }
+  l = word;
 
-  while (1)
-    {
-      /* A bit tricky. This below makes use of the equivalence:
-         (A >= B && A <= C) <=> ((A - B) <= (C - B))
-         when C > B and A is unsigned.  */
-      unsigned int digit;
+  __asm {
+    mov  eax, l
+    bsf  eax, eax
+    mov  l,   eax
+  }
 
-      digit = tolower (*ptr) - '0';
-      if (digit > 9)
-        {
-          digit -= 'a' - '0';
-          if (mult == 10 || digit > 5)
-            break;
-          digit += 10;
-        }
-
-      found = 1;
-      if (myint > ((MAXINT - digit) / mult))
-        {
-          errnum = ERR_NUMBER_OVERFLOW;
-          return 0;
-        }
-      myint = (myint * mult) + digit;
-      ptr++;
-    }
-
-  if (!found)
-    {
-      errnum = ERR_NUMBER_PARSING;
-      return 0;
-    }
-
-  *str_ptr = ptr;
-  *myint_ptr = myint;
-
-  return 1;
+  return l;
 }
 
 
 #ifndef STAGE1_5
+
 int
 rawwrite (int drive, int sector, char *buf)
 {
@@ -452,7 +420,7 @@ attempt_mount (void)
   grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
-  fsd_init(l);
+  fsd_init(l1);
 
   if (!stage0_mount())
     for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) {
@@ -497,7 +465,7 @@ attempt_mount (void)
       grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
       /* call uFSD init (set linkage) */
       fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
-      fsd_init(l);
+      fsd_init(l1);
 
       rc = freeldr_open(buf);
 
@@ -513,7 +481,7 @@ attempt_mount (void)
       grub_memmove((void *)(EXT_BUF_BASE), (void *)(EXT2BUF_BASE), EXT_LEN);
 
       fsd_init = (void *)(EXT_BUF_BASE);
-      fsd_init(l);
+      fsd_init(l1);
 
       //__asm {
       //  pop  filepos
@@ -1294,279 +1262,6 @@ devread (int sector, int byte_offset, int byte_len, char *buf)
    */
   return rawread (current_drive, part_start + sector, byte_offset,
                   byte_len, buf);
-}
-
-
-int
-substring (const char *s1, const char *s2)
-{
-  while (*s1 == *s2)
-    {
-      /* The strings match exactly. */
-      if (! *(s1++))
-        return 0;
-      s2 ++;
-    }
-
-  /* S1 is a substring of S2. */
-  if (*s1 == 0)
-    return -1;
-
-  /* S1 isn't a substring. */
-  return 1;
-
-}
-
-int
-grub_strlen (const char *str)
-{
-  int len = 0;
-
-  while (*str++)
-    len++;
-
-  return len;
-}
-
-int grub_index(char c, char *s)
-{
-  int  i  = 0;
-  char *p = s;
-
-  while (*p != '\0' && *p++ != c) i++;
-  if (!*p) return 0;
-
-  return ++i;
-}
-
-int
-grub_strcmp (const char *s1, const char *s2)
-{
-  while (*s1 || *s2)
-    {
-      if (*s1 < *s2)
-        return -1;
-      else if (*s1 > *s2)
-        return 1;
-      s1 ++;
-      s2 ++;
-    }
-
-  return 0;
-}
-
-
-char *
-grub_strcpy (char *dest, const char *src)
-{
-  grub_memmove (dest, src, grub_strlen (src) + 1);
-  return dest;
-}
-
-char *
-grub_strncpy (char *dest, const char *src, int n)
-{
-  int i;
-
-  for (i = 0; i < n; i++) {
-    dest[i] = src[i];
-    if (!src[i]) break;
-  }
-
-  return dest;
-}
-
-
-int
-grub_toupper (int c)
-{
-  if (c >= 'a' && c <= 'z')
-    return (c + ('A' - 'a'));
-
-  return c;
-}
-
-
-int
-grub_tolower (int c)
-{
-  if (c >= 'A' && c <= 'Z')
-    return (c + ('a' - 'A'));
-
-  return c;
-}
-
-
-int
-grub_aton(char *h)
-{
-  char *s = h;
-  int  i = 0;
-  int  j, k, l;
-  char c;
-  int  base;
-
-  if (s[0] == '0' && s[1] == 'x') {
-    base = 16;
-    s += 2; // Delete "0x"
-  } else {
-    base = 10;
-  }
-
-  l = grub_strlen(s) - 1;
-
-  while (*s) {
-    c = grub_tolower(*s);
-
-    if ('a' <= c && c <= 'f') {
-      if (base == 16) {
-        c = c - 'a' + 10;
-      } else {
-        return 0;
-      }
-    } else if ('0' <= c && c <= '9') {
-      c -= '0';
-    } else {
-      return 0;
-    }
-
-    for (j = 0, k = c; j < l; j++)
-      k *= base;
-
-    i += k;
-    s++;
-    l--;
-  }
-
-  return i;
-}
-
-//#if defined(FSYS_ISO9660)
-int
-grub_memcmp (const char *s1, const char *s2, int n)
-{
-  while (n)
-    {
-      if (*s1 < *s2)
-        return -1;
-      else if (*s1 > *s2)
-        return 1;
-      s1++;
-      s2++;
-      n--;
-    }
-
-  return 0;
-}
-//#endif /* ! FSYS_ISO9660 */
-
-
-long
-grub_memcheck (unsigned long addr, long len)
-{
-    // Physical address:
-    //if ( (addr < RAW_ADDR (0x1000))
-    //if ( (addr < RAW_ADDR (0x600)) )
-    //    || ((addr <  RAW_ADDR (0x100000)) && (RAW_ADDR(mem_lower * 1024) < (addr + len)))
-    //    || ((addr >= RAW_ADDR (0x100000)) && (RAW_ADDR(mem_upper * 1024) < ((addr - 0x100000) + len))) )
-    //{
-    //    errnum = ERR_WONT_FIT;
-    //    //printk("freeldr_memcheck: ERR_WONT_FIT");
-    //    //printk("freeldr_memcheck(): addr = 0x%08lx, len = %u", addr, len);
-    //    return 0;
-    //}
-
-    return 1;
-}
-
-
-void *
-grub_memmove (void *_to, const void *_from, int _len)
-{
-
-    char *from = (char *)_from;
-    char *to   = _to;
-
-    if (grub_memcheck ((unsigned long)(_to), _len))
-    {
-        if ( from == to )
-        {
-            return( to );
-        }
-        if ( from < to  &&  from + _len > to )
-        {
-            to += _len;
-            from += _len;
-            while( _len != 0 )
-            {
-                *--to = *--from;
-                _len--;
-            }
-        }
-        else
-        {
-            while( _len != 0 )
-            {
-                *to++ = *from++;
-                _len--;
-            }
-        }
-    }
-
-    return( to );
-}
-
-
-void *
-grub_memset (void *start, int c, int len)
-{
-  char *p = start;
-
-  if (grub_memcheck ((int) start, len))
-    {
-      while (len -- > 0)
-        *p ++ = c;
-    }
-
-  return errnum ? NULL : start;
-}
-
-
-int
-grub_isspace (int c)
-{
-  switch (c)
-    {
-    case ' ':
-    case '\t':
-    case '\r':
-    case '\n':
-      return 1;
-    default:
-      break;
-    }
-
-  return 0;
-}
-
-
-static inline unsigned long
-log2 (unsigned long word)
-{
-  //asm volatile ("bsfl %1,%0"
-  //              : "=r" (word)
-  //              : "r" (word));
-  unsigned long l;
-
-  l = word;
-
-  __asm {
-    mov  eax, l
-    bsf  eax, eax
-    mov  l,   eax
-  }
-
-  return l;
 }
 
 

@@ -33,7 +33,7 @@ if p = 1 then shift = x2d(delstr(shift, p, 2))
 
 if shift = 0 then do
   call charout stderr, 'Error: shift = 0!' || crlf
-  exit -1
+  signal quit
 end
 
 call stream file1, 'c', 'open read'
@@ -57,29 +57,27 @@ do while p < size1 - 2
   u = x2d(strip(rev(c2x(substr(buf1, p, 4))), 'L', '0'))
   v = x2d(strip(rev(c2x(substr(buf2, p, 4))), 'L', '0'))
   if u = v then do
+    p = p + 1
+    iterate
+  end
+  /* if values differs by shift */
+  if shift = v - u then do
+    /* ordinary 32-bit relocation */
+    rel = x2c(rev(pad(p - 1))) || '00'x
+    outs = outs || rel
     p = p + 4
     iterate
   end
-  w = shift / (v - u)
-  /* if shift is a multiple of a difference value */
-  if datatype(w, whole) then do
-    b = x2b(d2x(w))
-    b = strip(b, 'L', '0')
-    x = lastpos('1', b)
-    if x \= 1 then do
-      call charout stderr, 'Error: difference is not power of 2!' || crlf
-      exit -1
-    end
-    /* the binary logarithm of w */
-    n = d2x(length(b) - 1)
-    if length(n) = 1 then n = '0' || n
-    /* relocation item: two bytes of offset
-     * followed by the log2() from shift value
-     * (one byte)
-     */
-    rel = x2c(rev(pad(p - 1))) || x2c(n)
+  u = x2d(strip(rev(c2x(substr(buf1, p, 2))), 'L', '0'))
+  v = x2d(strip(rev(c2x(substr(buf2, p, 2))), 'L', '0'))
+  if u = v then do
+    p = p + 1
+    iterate
+  end
+  if shift / 16 = v - u then do
+    rel = x2c(rev(pad(p - 1))) || '04'x
     outs = outs || rel
-    p = p + 4
+    p = p + 2
     iterate
   end
   p = p + 1
@@ -101,7 +99,7 @@ do i = 1 to l / 3
     v = substr(buf2, p, 1)
     if u \= v then do
       call charout stderr, 'bytes not equal at pos: ' || p || crlf
-      exit -1
+      signal quit
     end
     p = p + 1
   end

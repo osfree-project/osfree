@@ -1,6 +1,6 @@
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2001   Free Software Foundation, Inc.
+ *  Copyright (C) 2001	 Free Software Foundation, Inc.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,11 +34,11 @@ static struct dir_entry *vstafs_readdir (long sector);
 static struct dir_entry *vstafs_nextdir (void);
 
 
-#define FIRST_SECTOR    ((struct first_sector *) FSYS_BUF)
-#define FILE_INFO       ((struct fs_file *) (int) FIRST_SECTOR + 8192)
-#define DIRECTORY_BUF   ((struct dir_entry *) (int) FILE_INFO + 512)
+#define FIRST_SECTOR	((struct first_sector *) FSYS_BUF)
+#define FILE_INFO	((struct fs_file *) ((int)(FIRST_SECTOR + 8192)))
+#define DIRECTORY_BUF	((struct dir_entry *) ((int)(FILE_INFO + 512)))
 
-#define ROOT_SECTOR     1
+#define ROOT_SECTOR	1
 
 /*
  * In f_sector we store the sector number in which the information about
@@ -99,21 +99,21 @@ vstafs_nextdir (void)
     {
       current_direntry = 0;
       if (++current_blockpos > (a[curr_ext].a_len - 1))
-        {
-          current_blockpos = 0;
-          curr_ext++;
-        }
+	{
+	  current_blockpos = 0;
+	  curr_ext++;
+	}
 
       if (curr_ext < FILE_INFO->extents)
-        {
-          (*pdevread) (a[curr_ext].a_start + current_blockpos, 0,
-                   512, (char *) DIRECTORY_BUF);
-        }
+	{
+	  (*pdevread) (a[curr_ext].a_start + current_blockpos, 0,
+		   512, (char *) DIRECTORY_BUF);
+	}
       else
-        {
-          /* *perrnum =ERR_FILE_NOT_FOUND; */
-          return 0;
-        }
+	{
+	  /* *perrnum =ERR_FILE_NOT_FOUND; */
+	  return 0;
+	}
     }
 
   return &DIRECTORY_BUF[current_direntry++];
@@ -133,9 +133,9 @@ vstafs_dir (char *dirname)
   do
     {
       if (! (d = vstafs_readdir (f_sector)))
-        {
-          return 0;
-        }
+	{
+	  return 0;
+	}
 
       /*
        * Find the file in the path
@@ -146,42 +146,42 @@ vstafs_dir (char *dirname)
       *fn = 0;
 
       do
-        {
-          if (d->name[0] == 0 || d->name[0] & 0x80)
-            continue;
+	{
+	  if (d->name[0] == 0 || d->name[0] & 0x80)
+	    continue;
 
 #ifndef STAGE1_5
-          if (print_possibilities && ch != '/'
-              && (! *dirname || (*pgrub_strcmp) (dirname, d->name) <= 0))
-            {
-              if (print_possibilities > 0)
-                print_possibilities = -print_possibilities;
+	  if (print_possibilities && ch != '/'
+	      && (! *dirname || (*pgrub_strcmp) (dirname, d->name) <= 0))
+	    {
+	      if (print_possibilities > 0)
+		print_possibilities = -print_possibilities;
 
-              //(*pgrub_printf) ("  %s", d->name);
-            }
+	      //(*pgrub_printf) ("  %s", d->name);
+	    }
 #endif
-          if (! (*pgrub_strcmp) (dirname, d->name))
-            {
-              f_sector = d->start;
-              get_file_info (f_sector);
-              *pfilemax = FILE_INFO->len;
-              break;
-            }
-        }
+	  if (! (*pgrub_strcmp) (dirname, d->name))
+	    {
+	      f_sector = d->start;
+	      get_file_info (f_sector);
+	      *pfilemax = FILE_INFO->len;
+	      break;
+	    }
+	}
       while ((d =vstafs_nextdir ()));
 
       *(dirname = fn) = ch;
       if (! d)
-        {
-          //if (print_possibilities < 0)
-          //  {
-          //    putchar ('\n');
-          //    return 1;
-          //  }
+	{
+	  //if (print_possibilities < 0)
+	  //  {
+	  //	putchar ('\n');
+	  //	return 1;
+	  //  }
 
-          *perrnum = ERR_FILE_NOT_FOUND;
-          return 0;
-        }
+	  *perrnum = ERR_FILE_NOT_FOUND;
+	  return 0;
+	}
     }
   while (*dirname && ! (*pgrub_isspace) (ch));
 
@@ -205,24 +205,24 @@ vstafs_read (char *addr, int len)
   if (*pfilepos > 0)
     {
       if (*pfilepos < a[0].a_len * 512 - VSTAFS_START_DATA)
-        {
-          offset = *pfilepos + VSTAFS_START_DATA;
-          extent = 0;
-          curr_len = a[0].a_len * 512 - offset - *pfilepos;
-        }
+	{
+	  offset = *pfilepos + VSTAFS_START_DATA;
+	  extent = 0;
+	  curr_len = a[0].a_len * 512 - offset - *pfilepos;
+	}
       else
-        {
-          ext_size = a[0].a_len * 512 - VSTAFS_START_DATA;
-          offset = *pfilepos - ext_size;
-          extent = 1;
-          do
-            {
-              curr_len -= ext_size;
-              offset -= ext_size;
-              ext_size = a[extent+1].a_len * 512;
-            }
-          while (extent < FILE_INFO->extents && offset>ext_size);
-        }
+	{
+	  ext_size = a[0].a_len * 512 - VSTAFS_START_DATA;
+	  offset = *pfilepos - ext_size;
+	  extent = 1;
+	  do
+	    {
+	      curr_len -= ext_size;
+	      offset -= ext_size;
+	      ext_size = a[extent+1].a_len * 512;
+	    }
+	  while (extent < FILE_INFO->extents && offset>ext_size);
+	}
     }
   else
     {
@@ -242,10 +242,10 @@ vstafs_read (char *addr, int len)
       ret += curr_len;
       size -= curr_len;
       if (size < 0)
-        {
-          ret += size;
-          curr_len += size;
-        }
+	{
+	  ret += size;
+	  curr_len += size;
+	}
 
       (*pdevread) (a[curr_ext].a_start,offset, curr_len, curr_pos);
       offset = 0;

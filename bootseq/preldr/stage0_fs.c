@@ -12,14 +12,48 @@
 
 #include "fsys.h"
 #include "fsd.h"
+#include "struc.h"
 
-lip_t *l;
-lip_t lip;
+extern unsigned long extended_memory;
+#pragma aux extended_memory "*"
+
+struct multiboot_info mbi;
+unsigned long linux_text_len;
+char *linux_data_real_addr;
+char *linux_data_tmp_addr;
+
+#pragma aux mbi "*"
+#pragma aux extended_memory "*"
+#pragma aux linux_data_real_addr "*"
+#pragma aux linux_data_tmp_addr "*"
+#pragma aux linux_text_len "*"
+
+lip1_t *l1, lip1;
+lip2_t *l2, lip2;
+
+extern int __cdecl (*fsd_init)(lip1_t *l);
 
 int i;
 int  num_fsys = 0;
 
 #ifndef STAGE1_5
+
+#pragma aux  jmp_reloc "*"
+void jmp_reloc(unsigned long addr);
+
+#pragma aux  preldr_ds "*"
+#pragma aux  preldr_es "*"
+#pragma aux  preldr_ss_sp "*"
+
+extern unsigned short preldr_ds;
+extern unsigned short preldr_es;
+extern unsigned long  preldr_ss_sp;
+
+/* GDT */
+#pragma aux gdt     "*"
+#pragma aux gdtdesc "*"
+extern struct desc gdt[5];
+extern struct gdtr gdtdesc;
 
 char linebuf[512];
 
@@ -40,7 +74,7 @@ char fsys_stbl[FSYS_MAX*10];
 #define MAX_ALIAS 0x10
 
 /* Configuration got
- from .INI file      */
+   from .INI file      */
 _Packed struct {
   char driveletter;
   char multiboot;
@@ -63,14 +97,14 @@ _Packed struct {
 } conf = {0x80, 0, 0, {fsys_list}, {"/os2ldr", 0x10000},
           {"/os2boot", 0x7c0},};
 
-
 char *preldr_path = "/boot/freeldr/"; // freeldr path
 char *fsd_dir     = "fsd/";           // uFSD's subdir
 char *cfg_file    = "preldr.ini";     // .INI file
 
 #endif
 
-#pragma aux lip "*"
+#pragma aux lip1 "*"
+#pragma aux lip2 "*"
 
 extern mu_Open;
 extern mu_Read;
@@ -79,6 +113,7 @@ extern mu_Terminate;
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
+extern unsigned long saved_slice;
 extern unsigned long cdrom_drive;
 
 extern FileTable ft;
@@ -93,6 +128,302 @@ extern int fsmax;
 
 void __cdecl real_test(void);
 void __cdecl call_rm(fp_t);
+
+#ifndef STAGE1_5
+
+#pragma aux stop_floppy "*"
+void stop_floppy(void);
+
+/*   u_* functions are designed to be more like
+ *   original IBM's microfsd functions, than GRUB
+ *   functions and do not expose filepos
+ *   and filemax variables to pre-loader
+ *   clients, their values can be determined
+ *   from these functions' return values
+ */
+
+/*   change/query current drive. all drives are
+ *   specified in GRUB's notation, like (hdA,B)
+ *   if successful, it returns 0, otherwise
+ *   returns errnum.
+ */
+
+/*  open a file and return its size, return
+ *  zero if no error, 1 otherwize
+ */
+unsigned int __cdecl
+u_open (char *name, unsigned int *size)
+{
+  int rc;
+
+  rc = freeldr_open(name);
+  *size = 0;
+ 
+  if (rc) {
+    *size = filemax;
+    return 0;
+  }
+
+  return 1;
+}
+
+/*  read count bytes to buf buffer and return
+ *  the number of bytes actually read
+ */
+unsigned int __cdecl
+u_read (char *buf, unsigned int count)
+{
+  return freeldr_read(buf, count);
+}
+
+/*  set or query current file position. If loffseek
+ *  is equal to -1, the current offset is returned,
+ *  if it's not -1, the specified offset is set
+ */
+unsigned int __cdecl
+u_seek (int loffseek)
+{
+  if (loffseek == -1)
+    return filepos;
+
+  return freeldr_seek(loffseek);
+}
+
+/*  close current file
+ */
+void __cdecl
+u_close (void)
+{
+  freeldr_close();
+}
+
+void __cdecl
+u_terminate (void)
+{
+}
+
+/*  32-bit disk low-level function.
+ *  Read/write NSEC sectors starting from SECTOR in DRIVE disk with GEOMETRY
+ *  from/into SEGMENT segment. If READ is BIOSDISK_READ, then read it,
+ *  else if READ is BIOSDISK_WRITE, then write it. If an geometry error
+ *  occurs, return BIOSDISK_ERROR_GEOMETRY, and if other error occurs, then
+ *  return the error number. Otherwise, return 0.
+ */
+int __cdecl
+u_diskctl (int func, int drive, struct geometry *geometry,
+          int sector, int nsec, int addr)
+{
+  if (addr & 0xf != 0)      // check if addr is paragraph-aligned
+    return ERR_UNALIGNED;
+
+  if (func == BIOSDISK_READ || func == BIOSDISK_WRITE)
+    return biosdisk(func, drive, geometry,
+                    sector, nsec, addr >> 4);
+
+  if (func == BIOSDISK_GEO)
+    return get_diskinfo(drive, geometry);
+
+  if (func == BIOSDISK_STOP_FLOPPY)
+    stop_floppy();
+
+  return 0;
+}
+
+/*
+ *  Boot different types of
+ *  operating systems.
+ */
+
+int __cdecl
+u_boot (int type)
+{
+  if (type == KERNEL_TYPE_MULTIBOOT)
+     return 0;
+
+  if (type == KERNEL_TYPE_FREEBSD)
+     return 0;
+
+  if (type == KERNEL_TYPE_NETBSD)
+     return 0;
+
+  if (type == KERNEL_TYPE_LINUX)
+     return 0;
+
+  if (type == KERNEL_TYPE_BIG_LINUX)
+     return 0;
+
+  return 0;
+}
+
+/*   Load and relocate executable file
+ */
+int __cdecl
+u_load (char *image, unsigned long size,
+         char *load_addr, struct exe_params *p)
+{
+  return errnum;
+}
+
+/*   Changes/queries a parameter value.
+ *   if action == ACT_GET, it returns value in 'val' variable;
+ *   if action == ACT_SET, it changes its value to the value of 'val'.
+ */
+
+int __cdecl
+u_parm (int parm, int action, unsigned long *val)
+{
+  switch (parm)
+  {
+    case PARM_BOOT_DRIVE:
+      {
+        if (action == ACT_GET)
+          *val = boot_drive;
+        else
+          boot_drive = *val;
+
+        return 0;
+      };
+    case PARM_CURRENT_DRIVE:
+      {
+        if (action == ACT_GET)
+          *val = current_drive;
+        else
+          current_drive = *val;
+
+        return 0;
+      };
+    case PARM_CURRENT_PARTITION:
+      {
+        if (action == ACT_GET)
+          *val = current_partition;
+        else
+          current_partition = *val;
+
+        return 0;
+      };
+    case PARM_CURRENT_SLICE:
+      {
+        if (action == ACT_GET)
+          *val = current_slice;
+        else
+          current_slice = *val;
+
+        return 0;
+      };
+    case PARM_SAVED_DRIVE:
+      {
+        if (action == ACT_GET)
+          *val = saved_drive;
+        else
+          saved_drive = *val;
+
+        return 0;
+      };
+    case PARM_SAVED_PARTITION:
+      {
+        if (action == ACT_GET)
+          *val = saved_partition;
+        else
+          saved_partition = *val;
+
+        return 0;
+      };
+    case PARM_SAVED_SLICE:
+      {
+        if (action == ACT_GET)
+          *val = saved_slice;
+        else
+          saved_slice = *val;
+
+        return 0;
+      };
+    case PARM_MBI:
+      {
+        if (action == ACT_GET)
+        {
+          *val = (int)(&mbi);
+          return 0;
+        }
+        else
+          return -1;
+      };
+    case PARM_ERRNUM:
+      {
+        if (action == ACT_GET)
+          *val = errnum;
+        else
+          errnum = *val;
+
+        return 0;
+      };
+    case PARM_FILEPOS:
+      {
+        if (action == ACT_GET)
+          *val = filepos;
+        else
+          filepos = *val;
+
+        return 0;
+      };
+    case PARM_FILEMAX:
+      {
+        if (action == ACT_GET)
+          *val = filemax;
+        else
+          filemax = *val;
+
+        return 0;
+      };
+    case PARM_EXTENDED_MEMORY:
+      {
+        if (action == ACT_GET)
+          *val = extended_memory;
+        else
+          extended_memory = *val;
+
+        return 0;
+      };
+    case PARM_LINUX_TEXT_LEN:
+      {
+        if (action == ACT_GET)
+          *val = linux_text_len;
+        else
+          linux_text_len = *val;
+
+        return 0;
+      };
+    case PARM_LINUX_DATA_REAL_ADDR:
+      {
+        if (action == ACT_GET)
+          *val = (int)linux_data_real_addr;
+        else
+          linux_data_real_addr = (char *)*val;
+
+        return 0;
+      };
+    case PARM_LINUX_DATA_TMP_ADDR:
+      {
+        if (action == ACT_GET)
+          *val = (int)linux_data_tmp_addr;
+        else
+          linux_data_tmp_addr = (char *)*val;
+
+        return 0;
+      };
+    default:
+      ;
+  }
+
+  return -1;
+}
+
+void __cdecl
+u_msg (char *s)
+{
+  printmsg(s);
+}
+
+#endif
 
 int
 freeldr_open (char *filename)
@@ -178,86 +509,97 @@ freeldr_close (void)
 
 int  stage0_mount (void)
 {
-  return l->lip_fs_mount();
+  return l1->lip_fs_mount();
 }
 
 int  stage0_read (char *buf, int len)
 {
-  return l->lip_fs_read(buf, len);
+  return l1->lip_fs_read(buf, len);
 }
 
 int  stage0_dir (char *dirname)
 {
-  return l->lip_fs_dir(dirname);
+  return l1->lip_fs_dir(dirname);
 }
 
 void stage0_close(void)
 {
-  if (l->lip_fs_close)
-    l->lip_fs_close();
+  if (l1->lip_fs_close)
+    l1->lip_fs_close();
 }
 
 int  stage0_embed(int *start_sector, int needed_sectors)
 {
-  if (l->lip_fs_embed)
-    return l->lip_fs_embed(start_sector, needed_sectors);
+  if (l1->lip_fs_embed)
+    return l1->lip_fs_embed(start_sector, needed_sectors);
 
   return 0;
 }
 
 void setlip(void)
 {
-  l = &lip;
+  l1 = &lip1; l2 = &lip2;
 
-  l->lip_open  = &freeldr_open;
-  l->lip_read  = &freeldr_read;
-  l->lip_seek  = &freeldr_seek;
-  l->lip_close = &freeldr_close;
-  l->lip_term  = 0;
+  l1->lip_open  = &freeldr_open;
+  l1->lip_read  = &freeldr_read;
+  l1->lip_seek  = &freeldr_seek;
+  l1->lip_close = &freeldr_close;
+  l1->lip_term  = 0;
 
-  l->lip_memcheck = 0; //&grub_memcheck;
-  l->lip_memset   = &grub_memset;
-  l->lip_memmove  = &grub_memmove;
-  l->lip_strcpy   = 0; //&grub_strcpy;
-  l->lip_strcmp   = 0; //&grub_strcmp;
-  l->lip_memcmp   = &grub_memcmp;
-  l->lip_strlen   = 0; //&grub_strlen;
-  l->lip_isspace  = &grub_isspace;
-  l->lip_tolower  = &grub_tolower;
+  //l->lip_memcheck = 0; //&grub_memcheck;
+  l1->lip_memset   = &grub_memset;
+  l1->lip_memmove  = &grub_memmove;
+  l1->lip_strcpy   = 0; //&grub_strcpy;
+  l1->lip_strcmp   = 0; //&grub_strcmp;
+  l1->lip_memcmp   = &grub_memcmp;
+  l1->lip_strlen   = 0; //&grub_strlen;
+  l1->lip_isspace  = &grub_isspace;
+  l1->lip_tolower  = &grub_tolower;
 
-  l->lip_substring = &substring;
-  l->lip_pos       = 0;
-  l->lip_clear     = 0;
+  l1->lip_substring = &substring;
+  //l1->lip_pos       = 0;
+  //l1->lip_clear     = 0;
 
-  l->lip_devread   = &devread;
-  l->lip_rawread   = &rawread;
+  l1->lip_devread   = &devread;
+  l1->lip_rawread   = &rawread;
 
-  l->lip_mem_lower = &mem_lower;
-  l->lip_mem_upper = &mem_upper;
+  l1->lip_mem_lower = &mem_lower;
+  l1->lip_mem_upper = &mem_upper;
 
-  l->lip_filepos   = &filepos;
-  l->lip_filemax   = &filemax;
+  l1->lip_filepos   = &filepos;
+  l1->lip_filemax   = &filemax;
 
-  l->lip_buf_drive = &buf_drive;
-  l->lip_buf_track = &buf_track;
-  l->lip_buf_geom  = &buf_geom;
+  l1->lip_buf_drive = &buf_drive;
+  l1->lip_buf_track = &buf_track;
+  l1->lip_buf_geom  = &buf_geom;
 
-  l->lip_errnum    = &errnum;
+  l1->lip_errnum    = &errnum;
 
-  l->lip_saved_drive = &saved_drive;
-  l->lip_saved_partition = &saved_partition;
+  l1->lip_saved_drive = &saved_drive;
+  l1->lip_saved_partition = &saved_partition;
 
-  l->lip_current_drive = &current_drive;
-  l->lip_current_partition = &current_partition;
-  l->lip_current_slice = &current_slice;
-  l->lip_part_start    = &part_start;
-  l->lip_part_length   = &part_length;
-  l->lip_fsmax         = &fsmax;
+  l1->lip_current_drive = &current_drive;
+  l1->lip_current_partition = &current_partition;
+  l1->lip_current_slice = &current_slice;
+  l1->lip_part_start    = &part_start;
+  l1->lip_part_length   = &part_length;
+  l1->lip_fsmax         = &fsmax;
 #ifndef STAGE1_5
-  l->lip_printmsg      = &printmsg;
-  l->lip_printb        = &printb;
-  l->lip_printw        = &printw;
-  l->lip_printd        = &printd;
+  l1->lip_printmsg      = &printmsg;
+  l1->lip_printb        = &printb;
+  l1->lip_printw        = &printw;
+  l1->lip_printd        = &printd;
+
+  l2->u_open            = &u_open;
+  l2->u_read            = &u_read;
+  l2->u_seek            = &u_seek;
+  l2->u_close           = &u_close;
+  l2->u_terminate       = &u_terminate;
+  l2->u_load            = &u_load;
+  l2->u_boot            = &u_boot;
+  l2->u_parm            = &u_parm;
+  l2->u_diskctl         = &u_diskctl;
+  l2->u_msg             = &u_msg;
 #endif
 }
 
@@ -448,7 +790,7 @@ int parse_cfg(void)
       continue;
     }
     if (!grub_strcmp(strip(line), "[microfsd]")) {
-      /* [fsd] section */
+      /* [microfsd] section */
       while (*p) {
         line = getline(&p);
         if (!*line) break;
@@ -560,6 +902,45 @@ void panic(char *msg, char *file)
   }
 }
 
+/*  Relocate a file in memory using its
+ *  .rel file.
+ *  base is a file base, rel_file is .rel
+ *  file name and shift is the relocation
+ *  shift
+ */
+void reloc(char *base, char *rel_file, unsigned long shift)
+{
+  int  i, n, rc;
+  char *buf;
+
+  typedef _Packed struct {
+    unsigned short addr;
+    unsigned char  shift;
+  } rel_item;
+
+  rel_item *p;
+  unsigned long *addr;
+
+  /* Load .rel file */
+  rc = freeldr_open(rel_file);
+
+  if (rc) {
+    buf = (char *)(EXT2BUF_BASE);
+    rc  = freeldr_read(buf, -1);
+  } else {
+    panic("Can't open .rel file:", rel_file);
+  }
+
+  /* number of reloc items */
+  n = *((unsigned short *)(buf)) / 3;
+  p = (rel_item *)(buf + 2);
+
+  for (i = 0; i < n; i++) {
+    addr  = (unsigned long *)(base + p[i].addr);
+    *addr += shift >> p[i].shift;
+  }
+}
+
 #endif
 
 int init(void)
@@ -572,6 +953,11 @@ int init(void)
   unsigned long ldrbase, relshift;
   bios_parameters_block *bpb;
   struct geometry geom;
+  unsigned short *p;
+  unsigned long  *q;
+  struct desc *z;
+  unsigned long base;
+  int i, k;
 
   /* Set boot drive and partition.  */
   saved_drive = boot_drive;
@@ -588,11 +974,11 @@ int init(void)
   /* setting LIP */
   setlip();
 
-  /* save boot drive uFSD */
   grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
+
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
-  fsd_init(l);
+  fsd_init(l1);
 
 #ifndef STAGE1_5
 
@@ -667,30 +1053,84 @@ int init(void)
     }
   }
 
+  printmsg("\r\nmem_lower=");
+  printd(mem_lower);
+
   /* calculate highest available address
      -- os2ldr base or top of low memory  */
+
+  k = ldrlen >> (PAGESHIFT - 3);
+  i = k >> 3;
+
+  /* special case: os2ldr of aurora sized
+     44544 bytes, 44544 >> 12 == 0xa      */
+  if (k == 0x57) i++; // one page more
+
   if (!conf.multiboot) // os2ldr
-    ldrbase = ((mem_lower - ((ldrlen / 1024) + 12)) * 1024) & 0xff000;
+    ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
   else                 // multiboot loader
-    ldrbase = mem_lower;
+    ldrbase =  mem_lower << KSHIFT;
 
   printmsg("\r\n");
   printd(ldrbase);
 
   /* the correction shift added while relocating */
-  relshift = ldrbase - (EXT_BUF_BASE + EXT_LEN);
+  relshift = ldrbase - (PREFERRED_BASE + 0x10000);
 
-  /* relocate preldr and uFSD */
+  /* move preldr and uFSD */
   grub_memmove((char *)(ldrbase - 0x10000),
                (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
                0x10000);
 
-  /* fixup preldr and uFSD */
-  // ...
-
   __asm {
-    cli
-    hlt
+    mov  eax, relshift
+    /* switch stack to the place of relocation */
+    add  esp,   eax
+    add  ebp,   eax
+    /* fixup words in stack */
+    add  [ebp], eax
+    add  [ebp - 0xc],  eax
+    add  [ebp + 0x18], eax
+    add  [ebp + 0x20], eax
+  }
+
+  printmsg("\r\nrelshift=");
+  printd(relshift);
+
+  /* fixup preldr and uFSD */
+  reloc((char *)(STAGE0_BASE  + relshift), "\\boot\\freeldr\\preldr0.rel", relshift);
+  reloc((char *)(EXT_BUF_BASE + relshift), "\\boot\\freeldr\\fsd\\iso9660.rel", relshift);
+
+  /* jump to relocated pre-loader */
+  jmp_reloc(relshift);
+  /* now we are at the place of relocation */
+
+  //l1 += relshift;
+  //l2 += relshift;
+
+  /* setting LIP */
+  setlip();
+
+  /* save boot drive uFSD */
+  grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
+  /* call uFSD init (set linkage) */
+  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+  fsd_init(l1);
+
+  z = &gdt;
+
+  /* fix bases of gdt descriptors */
+  base = STAGE0_BASE;
+  for (i =  3; i < 5; i++) {
+    (z + i)->ds_baselo  = base & 0xffff;
+    (z + i)->ds_basehi1 = (base & 0xff0000) >> 16;
+    (z + i)->ds_basehi2 = (base & 0xff000000) >> 24;
+  }
+
+  /* set new gdt */
+  __asm {
+    lea  eax, gdtdesc
+    lgdt fword ptr [eax]
   }
 
   /* set boot flags */
@@ -706,7 +1146,7 @@ int init(void)
   ft.ft_cfiles = files;
   ft.ft_ldrseg = conf.loader.base >> 4;
   ft.ft_ldrlen = ldrlen; // 0x3800;
-  ft.ft_museg  = 0x8500; // BOOTSEC_BASE >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
+  ft.ft_museg  = (EXT_BUF_BASE + EXT_LEN - 0x10000) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
                                          // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
   ft.ft_mulen  = 0x10000;     // It is empirically found maximal value
   ft.ft_mfsseg = conf.mini.base >> 4;    // 0x7c;
@@ -743,6 +1183,9 @@ int init(void)
     bpb->marker     = 0x29;
   }
 
+  /* Init info in mbi structure */
+  init_bios_info();
+
   if (conf.multiboot) {
     /* return to loader from protected mode */
     unsigned long ldr_base = conf.loader.base;
@@ -761,7 +1204,7 @@ int init(void)
       mov  eax, BOOT_MAGIC
 
       // ebx == pointer to LIP
-      mov  ebx, l
+      mov  ebx, l2
 
       push ldr_base
       retn

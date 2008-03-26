@@ -18,7 +18,7 @@ p = pos('0x', shift)
 if p > 0 then shift = x2d(delstr(shift, 1, 2))
 if shift = '' then shift = 0
 
-subtract = 0
+add = 0
 
 /* read STAGE0_BASE from include file */
 base = readbase(incfile, var)
@@ -92,9 +92,9 @@ do forever
     line = delstr(line, p, 1)
 end
 
-p = pos('-SHIFT', line)
+p = pos('+SHIFT', line)
 if p > 0 then do
-  subtract = 1
+  add = 1
   line = strip(delstr(line, p))
 end
 
@@ -107,7 +107,7 @@ if p = 1 then do
   line = x2d(line)
 end
 
-if subtract = 1 then line = line - shift
+if add = 1 then line = line + shift
 
 
 return line
@@ -116,8 +116,11 @@ seg16_size: procedure
 file = arg(1)
 
 p = lastpos('.', file)
-if p > 0 then
-   file = substr(file, 1, p) || 'wmp'
+if p > 0 then do
+  l    = substr(file, p + 1, 1)
+  if l = 'b'  then l = ''
+  file = substr(file, 1, p - 1) || l || '.wmp'
+end
 
 line = getline('_TEXT16 ', file)
 
