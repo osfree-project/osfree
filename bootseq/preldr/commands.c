@@ -71,7 +71,7 @@ kernel_func (char *arg, int flags)
           else
             {
               errnum = ERR_BAD_ARGUMENT;
-              u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+              u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
               return 1;
             }
         }
@@ -94,7 +94,7 @@ kernel_func (char *arg, int flags)
   if (len + 1 > MB_CMDLINE_BUFLEN)
     {
       errnum = ERR_WONT_FIT;
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       return 1;
     }
 
@@ -120,7 +120,7 @@ module_func (char *arg, int flags)
       if (mb_cmdline + len + 1 > (char *) MB_CMDLINE_BUF + MB_CMDLINE_BUFLEN)
         {
           errnum = ERR_WONT_FIT;
-          u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+          u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
           return 1;
         }
       grub_memmove (mb_cmdline, arg, len + 1);
@@ -137,7 +137,7 @@ module_func (char *arg, int flags)
 
     default:
       errnum = ERR_NEED_MB_KERNEL;
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       return 1;
     }
 
@@ -163,7 +163,7 @@ modaddr_func (char *arg, int flags)
 
     default:
       errnum = ERR_NEED_MB_KERNEL;
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       return 1;
     }
 

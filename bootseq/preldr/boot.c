@@ -83,9 +83,9 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
      buffer by default */
   pu.aout = (struct exec *) buffer;
 
-  u_parm(PARM_CURRENT_DRIVE, ACT_GET, &current_drive);
-  u_parm(PARM_CURRENT_PARTITION, ACT_GET, &current_partition);
-  u_parm(PARM_EXTENDED_MEMORY, ACT_GET, &extended_memory);
+  u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
+  u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
+  u_parm(PARM_EXTENDED_MEMORY, ACT_GET, (unsigned int *)&extended_memory);
 
   if (u_open (kernel, &size))
     return KERNEL_TYPE_NONE;
@@ -94,12 +94,12 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
     {
       u_close ();
 
-      u_parm(PARM_ERRNUM, ACT_GET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_GET, (unsigned int *)&errnum);
 
       if (!errnum)
         errnum = ERR_EXEC_FORMAT;
 
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
 
       return KERNEL_TYPE_NONE;
     }
@@ -113,7 +113,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
             {
               u_close ();
               errnum = ERR_BOOT_FEATURES;
-              u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+              u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
               return KERNEL_TYPE_NONE;
             }
           type = KERNEL_TYPE_MULTIBOOT;
@@ -141,7 +141,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
       if (entry_addr < (entry_func) 0x100000) {
         errnum = ERR_BELOW_1MB;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
 
       /* don't want to deal with ELF program header at some random
@@ -150,7 +150,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
           || ((pu.elf->e_phoff + (pu.elf->e_phentsize * pu.elf->e_phnum))
               >= len)) {
         errnum = ERR_EXEC_FORMAT;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
       str = "elf";
 
@@ -178,7 +178,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
       /* first offset into file */
       u_seek (i - (pu.mb->header_addr - cur_addr));
 
-      u_parm(PARM_FILEMAX, ACT_GET, (unsigned long *)&filemax);
+      u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filemax);
 
       /* If the load end address is zero, load the whole contents.  */
       if (! pu.mb->load_end_addr)
@@ -199,13 +199,13 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
           || (pu.mb->header_addr - pu.mb->load_addr) > i)
       {
         errnum = ERR_EXEC_FORMAT;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
 
       if (cur_addr < 0x100000)
       {
         errnum = ERR_BELOW_1MB;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
 
       pu.aout = (struct exec *) buffer;
@@ -256,7 +256,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
       if (cur_addr < 0x100000)
       {
         errnum = ERR_BELOW_1MB;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
 
       exec_type = 1;
@@ -320,17 +320,17 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
         {
           printf (" linux 'zImage' kernel too big, try 'make bzImage'\r\n");
           errnum = ERR_WONT_FIT;
-          u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+          u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
         }
       else if (linux_data_real_addr + LINUX_SETUP_MOVE_SIZE
                > RAW_ADDR ((char *) (m->mem_lower << 10)))
       {
         errnum = ERR_WONT_FIT;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
       else
         {
-          printf ("   [Linux-%s, setup=0x%x, size=0x%x]\r\n",
+          printf ("   [Linux-%s, setup=0x%x, size=0x%x]",
                        (big_linux ? "bzImage" : "zImage"), data_len, text_len);
 
           /* Video mode selection support. What a mess!  */
@@ -387,7 +387,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
                        greater than LINUX_INITRD_MAX_ADDRESS.  */
                     linux_mem_size = LINUX_INITRD_MAX_ADDRESS;
                     errnum = ERR_NONE;
-                    u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+                    u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
                     break;
 
                   case ERR_NONE:
@@ -417,7 +417,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
                   default:
                     linux_mem_size = 0;
                     errnum = ERR_NONE;
-                    u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+                    u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
                     break;
                   }
               }
@@ -508,7 +508,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
                       || (! big_linux && suggested_type != KERNEL_TYPE_LINUX)))
                 {
                   errnum = ERR_EXEC_FORMAT;
-                  u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+                  u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
                   return KERNEL_TYPE_NONE;
                 }
 
@@ -522,7 +522,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   else                          /* no recognizable format */
   {
     errnum = ERR_EXEC_FORMAT;
-    u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+    u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
   }
 
   /* return if error */
@@ -575,7 +575,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
                   && !errnum)
               {
                 errnum = ERR_EXEC_FORMAT;
-                u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+                u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
               }
               cur_addr += data_len;
             }
@@ -591,11 +591,11 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
       else if (!errnum)
       {
         errnum = ERR_EXEC_FORMAT;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
 
-      u_parm(PARM_FILEMAX, ACT_GET, (unsigned long *)&filemax);
-      u_parm(PARM_FILEMAX, ACT_GET, (unsigned long *)&filepos);
+      u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filemax);
+      u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filepos);
 
       if (!errnum && pu.aout->a_syms
           && pu.aout->a_syms < (filemax - filepos))
@@ -682,7 +682,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
               if (memaddr < RAW_ADDR (0x100000))
               {
                 errnum = ERR_BELOW_1MB;
-                u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+                u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
               }
 
               /* If the memory range contains the entry address, get the
@@ -720,7 +720,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
           if (! loaded)
           {
             errnum = ERR_EXEC_FORMAT;
-            u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+            u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
           }
           else
             {
@@ -803,7 +803,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
   if (! errnum)
     {
-      printf (", entry=0x%x]\r\n", (unsigned) entry_addr);
+      printf (", entry=0x%x]", (unsigned) entry_addr);
 
       /* If the entry address is physically different from that of the ELF
          header, correct it here.  */
@@ -822,13 +822,13 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   if (suggested_type != KERNEL_TYPE_NONE && suggested_type != type)
     {
       errnum = ERR_EXEC_FORMAT;
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       return KERNEL_TYPE_NONE;
     }
 
-  u_parm(PARM_LINUX_DATA_REAL_ADDR, ACT_SET, (unsigned long *)(&linux_data_real_addr));
-  u_parm(PARM_LINUX_DATA_TMP_ADDR, ACT_SET,  (unsigned long *)(&linux_data_tmp_addr));
-  u_parm(PARM_LINUX_TEXT_LEN, ACT_SET, &linux_text_len);
+  u_parm(PARM_LINUX_DATA_REAL_ADDR, ACT_SET, (unsigned int *)(&linux_data_real_addr));
+  u_parm(PARM_LINUX_DATA_TMP_ADDR, ACT_SET,  (unsigned int *)(&linux_data_tmp_addr));
+  u_parm(PARM_LINUX_TEXT_LEN, ACT_SET, (unsigned int *)&linux_text_len);
 
   return type;
 }
@@ -845,14 +845,14 @@ load_module (char *module, char *arg)
   if (u_open (module, &size))
     return 0;
 
-  u_parm(PARM_FILEMAX, ACT_GET, (unsigned long *)&filemax);
+  u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filemax);
 
   if ((cur_addr + filemax) >= (1024*(1024+m->mem_upper)))
     {
       printf("Want to load module to 0x%x len 0x%x but only have 0x%x RAM\r\n",
              cur_addr, filemax, 1024*(1024+m->mem_upper));
       errnum = ERR_BADMODADDR;
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       u_close ();
       return 0;
     }
@@ -864,7 +864,7 @@ load_module (char *module, char *arg)
       return 0;
     }
 
-  printf ("   [Multiboot-module @ 0x%x, 0x%x bytes]\r\n", cur_addr, len);
+  printf ("   [Multiboot-module @ 0x%x, 0x%x bytes]", cur_addr, len);
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;
@@ -954,7 +954,7 @@ load_initrd (char *initrd)
   moveto -= 0x10000;
   memmove ((void *) RAW_ADDR (moveto), (void *) cur_addr, len);
 
-  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\r\n", moveto, len);
+  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]", moveto, len);
 
   /* FIXME: Should check if the kernel supports INITRD.  */
   lh->ramdisk_image = RAW_ADDR (moveto);
@@ -974,7 +974,7 @@ load_initrd (char *initrd)
 void
 set_load_addr (int addr)
 {
-  printf ("Setting module load address to 0x%x\r\n", addr);
+  printf ("Setting module load address to 0x%x", addr);
   cur_addr = addr;
 }
 
@@ -1011,7 +1011,7 @@ bsd_boot (kernel_t type, int bootdev, char *arg)
   u_diskctl(BIOSDISK_STOP_FLOPPY, 0, 0, 0, 0, 0);
 #endif
 
-  u_parm(PARM_SAVED_DRIVE, ACT_GET, &saved_drive);
+  u_parm(PARM_SAVED_DRIVE, ACT_GET, (unsigned int *)&saved_drive);
 
   while (*(++arg) && *arg != ' ');
   str = arg;

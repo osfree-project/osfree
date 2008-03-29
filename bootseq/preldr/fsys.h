@@ -49,9 +49,9 @@ u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec,
 int __cdecl
 u_boot (int type);
 int __cdecl
-u_load (char *image, unsigned long size, char *load_addr, struct exe_params *p);
+u_load (char *image, unsigned int size, char *load_addr, struct exe_params *p);
 int __cdecl
-u_parm (int parm, int action, unsigned long *val);
+u_parm (int parm, int action, unsigned int *val);
 void __cdecl
 u_msg (char *s);
 

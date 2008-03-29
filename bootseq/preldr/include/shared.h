@@ -879,6 +879,7 @@ int grub_memcmp (const char *s1, const char *s2, int n);
 int grub_strcmp (const char *s1, const char *s2);
 int grub_strlen (const char *str);
 char *grub_strcpy (char *dest, const char *src);
+char *grub_strcat (char *dest, const char *src1, const char *src2);
 
 // added by valerius
 int grub_index(char c, char *s);

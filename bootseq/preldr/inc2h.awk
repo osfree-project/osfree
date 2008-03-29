@@ -29,5 +29,4 @@
       $2 = ""
       printf "#define %s\n", $0
    }
-
 }

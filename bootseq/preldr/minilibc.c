@@ -52,7 +52,7 @@ grub_strstr (const char *s1, const char *s2)
 int
 grub_strlen (const char *str)
 {
-  int len = 0;
+   int len = 0;
 
   while (*str++)
     len++;
@@ -65,10 +65,10 @@ int grub_index(char c, char *s)
   int  i  = 0;
   char *p = s;
 
-  while (*p != '\0' && *p++ != c) i++;
+  for (;*p != '\0' && *p != c; p++) i++;
   if (!*p) return 0;
 
-  return ++i;
+  return i + 1;
 }
 
 int
@@ -92,6 +92,18 @@ char *
 grub_strcpy (char *dest, const char *src)
 {
   grub_memmove (dest, src, grub_strlen (src) + 1);
+  return dest;
+}
+
+char *
+grub_strcat (char *dest, const char *src1, const char *src2)
+{
+  int l;
+
+  l = grub_strlen(src1);
+  grub_strcpy(dest, src1);
+  grub_strcpy(dest + l, src2);
+
   return dest;
 }
 
@@ -260,7 +272,7 @@ grub_memset (void *start, int c, int len)
         *p ++ = c;
     }
 #ifndef STAGE1_5
-  u_parm(PARM_ERRNUM, ACT_GET, (unsigned long *)&errnum);
+  u_parm(PARM_ERRNUM, ACT_GET, (unsigned int *)&errnum);
 #endif
   return errnum ? NULL : start;
 }
@@ -454,7 +466,7 @@ safe_parse_maxint (char **str_ptr, int *myint_ptr)
         {
           errnum = ERR_NUMBER_OVERFLOW;
 #ifndef STAGE1_5
-          u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+          u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
 #endif
           return 0;
         }
@@ -466,7 +478,7 @@ safe_parse_maxint (char **str_ptr, int *myint_ptr)
     {
       errnum = ERR_NUMBER_PARSING;
 #ifndef STAGE1_5
-      u_parm(PARM_ERRNUM, ACT_SET, (unsigned long *)&errnum);
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
 #endif
       return 0;
     }

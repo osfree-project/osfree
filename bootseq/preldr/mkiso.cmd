@@ -14,7 +14,8 @@ copy ..\bootsec\eltorito\eltorito.bin .
 call mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
 move bootblk ..\..\..\cd\boot
 copy preldr0 ..\..\..\cd\boot\freeldr
-copy preldr.ini ..\..\..\cd\boot\freeldr
+copy preldr.ini  ..\..\..\cd\boot\freeldr
+copy freeldr.cfg ..\..\..\cd\boot\freeldr
 copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
 copy *.rel   ..\..\..\cd\boot\freeldr\fsd
 move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr\

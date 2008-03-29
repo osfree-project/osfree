@@ -258,7 +258,7 @@ u_boot (int type)
 /*   Load and relocate executable file
  */
 int __cdecl
-u_load (char *image, unsigned long size,
+u_load (char *image, unsigned int size,
          char *load_addr, struct exe_params *p)
 {
   return errnum;
@@ -270,7 +270,7 @@ u_load (char *image, unsigned long size,
  */
 
 int __cdecl
-u_parm (int parm, int action, unsigned long *val)
+u_parm (int parm, int action, unsigned int *val)
 {
   switch (parm)
   {
@@ -341,7 +341,7 @@ u_parm (int parm, int action, unsigned long *val)
       {
         if (action == ACT_GET)
         {
-          *val = (int)(&mbi);
+          *val = (unsigned int)(&mbi);
           return 0;
         }
         else
@@ -395,7 +395,7 @@ u_parm (int parm, int action, unsigned long *val)
     case PARM_LINUX_DATA_REAL_ADDR:
       {
         if (action == ACT_GET)
-          *val = (int)linux_data_real_addr;
+          *val = (unsigned int)linux_data_real_addr;
         else
           linux_data_real_addr = (char *)*val;
 
@@ -404,7 +404,7 @@ u_parm (int parm, int action, unsigned long *val)
     case PARM_LINUX_DATA_TMP_ADDR:
       {
         if (action == ACT_GET)
-          *val = (int)linux_data_tmp_addr;
+          *val = (unsigned int)linux_data_tmp_addr;
         else
           linux_data_tmp_addr = (char *)*val;
 

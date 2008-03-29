@@ -2,6 +2,7 @@
  *   LIP functions wrappers
  */
 
+
 #include <lip.h>
 #include "fsys.h"
 #include "fsd.h"
@@ -52,13 +53,13 @@ u_boot (int type)
 }
 
 int __cdecl
-u_load (char *image, unsigned long size, char *load_addr, struct exe_params *p)
+u_load (char *image, unsigned int size, char *load_addr, struct exe_params *p)
 {
   return l->u_load(image, size, load_addr, p);
 }
 
 int __cdecl
-u_parm (int parm, int action, unsigned long *val)
+u_parm (int parm, int action, unsigned int *val)
 {
   return l->u_parm(parm, action, val);
 }

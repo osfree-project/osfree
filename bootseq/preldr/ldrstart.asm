@@ -71,11 +71,17 @@ ok:
 
       call cmain
 
+      ;
+      ; Now booting the kernel
+      ;
+
       ; no need to save anything
       ;call    stop_floppy
 
-      mov     eax, 2BADB002h
+      ; magic
+      mov     eax, 2badb002h
 
+      ; mbi structure
       mov     ebx, offset _TEXT:m
       mov     ebx, [ebx]
 
@@ -85,23 +91,24 @@ ok:
 
       cli
       hlt
-
+      jmp     $
 ;
 ; We should not return here
 ;
 stop:
       cld
-      lea  esi, errmsg
-      mov  edi, VIDEO_BUF
-      mov  ecx, msglen
-      mov  ah, 02h  ; attribute
+      lea     esi, errmsg
+      mov     edi, VIDEO_BUF
+      mov     ecx, msglen
+      mov     ah, 02h  ; attribute
 loop1:
       lodsb         ; symbol
       stosw
-      loop loop1    ; copy a string to video buffer
+      loop    loop1    ; copy a string to video buffer
 
       cli
       hlt
+      jmp     $
 
 ; lip2 address
 l            dd   0
