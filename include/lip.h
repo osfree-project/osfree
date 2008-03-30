@@ -15,7 +15,9 @@
 #include <uXFD/uXFD.h>
 #include <shared.h>
 
-typedef struct lip
+
+/* Loader Interface Page #1 (used internally in pre-loader) */
+typedef struct lip1
 {
    /* Filesystem access functions */
    int                   (*lip_open)  (char *);
@@ -24,27 +26,30 @@ typedef struct lip
    int                   (*lip_seek)  (int);
    void                  (*lip_close) (void);
    void                  (*lip_term)  (void);
+
    /* uFSD functions */
    int                   (*lip_fs_mount) (void);
    int                   (*lip_fs_read)  (char *buf, int len);
    int                   (*lip_fs_dir)   (char *dirname);
    void                  (*lip_fs_close) (void);
    int                   (*lip_fs_embed) (int *start_sector, int needed_sectors);
+
    /* Load function     */
-   int                   (*lip_load) (char *, unsigned long, char *, struct exe_params *);
+   //int                   (*lip_load) (char *, unsigned long, char *, struct exe_params *);
+
    /* Utility functions */
-   int                   (*lip_memcheck) (unsigned int, int);
-   void *                (*lip_memset)   (void *, int, int);
-   void *                (*lip_memmove)  (void *, const void *, int);
-   char *                (*lip_strcpy)   (char *, const char *);
-   int                   (*lip_strcmp)   (const char *, const char *);
+   int                   (*lip_substring)(const char *s1, const char *s2);
    int                   (*lip_memcmp)   (const char *, const char *, int);
+   void *                (*lip_memmove)  (void *, const void *, int);
+   void *                (*lip_memset)   (void *, int, int);
+   int                   (*lip_strcmp)   (const char *, const char *);
+   char *                (*lip_strcpy)   (char *, const char *);
    int                   (*lip_strlen)   (const char *);
    int                   (*lip_isspace)  (int c);
    int                   (*lip_tolower)  (int c);
-   int                   (*lip_substring)(const char *s1, const char *s2);
-   int                   (*lip_pos)      (const char, const char *);
-   void          __cdecl (*lip_clear)    (void);
+   //int                   (*lip_memcheck) (unsigned int, int);
+   //int                   (*lip_pos)      (const char, const char *);
+   //void          __cdecl (*lip_clear)    (void);
 
    /* Sector read functions */
    int                   (*lip_devread)  (int sector, int byte_offset, int byte_len, char *buf);
@@ -79,7 +84,22 @@ typedef struct lip
    void                  (*lip_printw)   (unsigned short);
    void                  (*lip_printd)   (unsigned long);
 
-} lip_t;
+} lip1_t;
+
+/* Loader Interface Page #2 (interface between loader and pre-loader) */
+typedef struct lip2
+{
+  unsigned int __cdecl   (*u_open) (char *name, unsigned int *size);
+  unsigned int __cdecl   (*u_read) (char *buf, unsigned int count);
+  unsigned int __cdecl   (*u_seek) (int loffseek);
+  void         __cdecl   (*u_close) (void);
+  void         __cdecl   (*u_terminate) (void);
+  int          __cdecl   (*u_diskctl) (int func, int drive, struct geometry *geometry, int sector, int nsec, int addr);
+  int          __cdecl   (*u_boot) (int type);
+  int          __cdecl   (*u_load) (char *image, unsigned int size, char *load_addr, struct exe_params *p);
+  int          __cdecl   (*u_parm) (int parm, int action, unsigned int *val);
+  void         __cdecl   (*u_msg)  (char *s);
+} lip2_t;
 
 
 #endif

@@ -33,7 +33,7 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- $(MAKE) install
+ @$(MAKE) $(MAKEOPT) install
 
 .IGNORE
 clean: .SYMBOLIC

@@ -22,8 +22,8 @@ $(DIR)\$(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
- $(SAY) $(LINKOPT) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
+ $(SAY) Linking $^@
+ @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

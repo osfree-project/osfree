@@ -67,10 +67,14 @@ SED       = sed
 AWK       = @awk
 DOX       = doxygen
 
-RC        = wrc
+RC        = wrc -q
+
 MC        = mkmsgf
+
 HC        = ipfc
+
 GENE2FS   = genext2fs
+
 SYS       = sys
 
 

@@ -30,8 +30,8 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
- $(SAY) $(LINKOPT) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

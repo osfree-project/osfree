@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 
 rem
 rem make bootable ISO image
@@ -18,9 +18,9 @@ copy preldr.ini  ..\..\..\cd\boot\freeldr
 copy freeldr.cfg ..\..\..\cd\boot\freeldr
 copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
 copy *.rel   ..\..\..\cd\boot\freeldr\fsd
-move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr\
+move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr
 copy freeldr  ..\..\..\cd\boot\freeldr
 cd   ..\..\..
-.\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
+.\mkisofs -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 move osfree.iso \sys\vm\vpc\bochs\img
 cd   osfree\bootseq\preldr

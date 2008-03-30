@@ -100,9 +100,9 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\linklist.h"
-#include "helpers\prfh.h"
-#include "helpers\xprf.h"
+#include "linklist.h"
+#include "prfh.h"
+#include "xprf.h"
 
 #pragma hdrstop
 

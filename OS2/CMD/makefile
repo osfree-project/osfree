@@ -9,7 +9,7 @@
 
 # before build command line tools build "shared" libraries
 DIRS = shared minicmd ansi chkdsk eject format label more recover sysinstx &
-       cmd ver vol attrib cls comp bldlevel &
+       cmd ver vol attrib cls comp bldlevel makeini &
        mkdir tree zip # network fdisk syslevel helpmsg
 
 !include $(%ROOT)/mk/all.mk

@@ -15,11 +15,11 @@
 #include "setup.h"
 #include "bldlevel.h"
 
-#include "helpers\linklist.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\xprf.h"
-#include "helpers\xstring.h"
+#include "linklist.h"
+#include "standards.h"
+#include "stringh.h"
+#include "xprf.h"
+#include "xstring.h"
 
 /*
  *@@ SEDENTRY:
