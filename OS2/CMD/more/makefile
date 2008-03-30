@@ -16,7 +16,7 @@ DESC = Show stdin to stdout. One screen at one time.
 OBJS = more.$(O)
 # defines additional options for C compiler
 ADD_COPT = -i=..\include
-LINKOPT = lib cmd_shared.lib,all_shared.lib
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -26,12 +26,11 @@ $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 
 .IGNORE

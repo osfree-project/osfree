@@ -30,12 +30,11 @@ $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2 pm
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  renmodul.exe /i $^@ pmwin fmwin
 
 .IGNORE

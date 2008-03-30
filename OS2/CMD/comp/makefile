@@ -27,11 +27,10 @@ $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
+ $(SAY) $(LINKOPT) Linking $^@ $(LOG)
  $(LINKER) @$^&.lnk $(LOG)
 
 .IGNORE

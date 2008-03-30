@@ -13,7 +13,7 @@ PROJ     = pmwin
 DESC     = Drag and Drop API
 OBJS     = ..\shared\stub.obj
 ADD_COPT = -i=..\include
-LINKOPT  = lib os2386.lib lib clib3r.lib
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -23,10 +23,8 @@ $(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initglobal
- @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk import
@@ -55,7 +53,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   WinRegisterClass.         00926
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  renmodul /r $^@ pmwin fmwin
  $(CP) pmwin.dll fmwin.dll
  renmodul /i fmwin.dll pmmerge fmmerge

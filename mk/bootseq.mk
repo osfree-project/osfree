@@ -10,7 +10,7 @@ ROOT=$(%ROOT)
 #
 # Preprocessor defines
 #
-C_DEFS    = #-d__OS2__ -d__WATCOM__
+C_DEFS    = -q #-d__OS2__ -d__WATCOM__
 ASM_DEFS  = #-d__OS2__ -d__WATCOM__
 
 #
@@ -132,4 +132,4 @@ CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
- @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do @ cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..

@@ -13,7 +13,7 @@ PROJ     = jpgio
 DESC     = JPEG Format I/O Procedure
 OBJS     = jpgfunc.$(O) jpgproc.$(O) debug.$(O)
 ADD_COPT = -i=..$(SEP)include
-LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, jpeglib.lib, lpng.lib, zlib.lib
+ADD_LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, jpeglib.lib, lpng.lib, zlib.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -23,17 +23,15 @@ $(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk SYSTEM os2v2 dll initglobal
- @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
  @%append $^&.lnk   IOProc_Entry.1
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

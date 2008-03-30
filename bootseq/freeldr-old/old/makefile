@@ -42,7 +42,7 @@ os2ldr.com: $(objects)
          @%append $^&.lnk LIBPATH $(MYDIR)
          #@%append $^&.lnk LIBRARY $(LIBC)
          @for %i in ($(objects)) do @%append $^&.lnk FILE %i
-         $(linker) @$^&.lnk
+         $(linker) $(LINKOPT) @$^&.lnk
 
 freeldra.$(OE): .AUTODEPEND
         $(AS) -3p $(AFLAGS) freeldra.asm

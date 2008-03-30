@@ -12,7 +12,7 @@ PROJ     = utlapi
 DESC     = osFree Utilities API
 OBJS     = librectangles.$(O)
 ADD_COPT = -i=..$(SEP)..$(SEP)include$(SEP)os3
-LINKOPT  = lib os2386.lib lib clib3r.lib
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -22,10 +22,8 @@ $(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk SYSTEM os2v2 dll initglobal
- @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
@@ -44,8 +42,8 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   RectMakePoints.13
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
- $(MAKE) install
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 .IGNORE
 clean: .SYMBOLIC

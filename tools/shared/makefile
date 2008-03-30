@@ -13,7 +13,7 @@ DIRS = zlib
 !include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC

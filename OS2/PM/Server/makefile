@@ -23,7 +23,7 @@ OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
 ADD_COPT=-bm -od -mf -sg -d2 -mf
-LINKOPT=lib gdlib.lib
+ADD_LINKOPT=lib gdlib.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -31,18 +31,17 @@ DIRS=drivers
 
 
 all: $(PROJ).exe .SYMBOLIC
-   $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+   @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

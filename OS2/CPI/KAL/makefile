@@ -13,7 +13,7 @@ PROJ     = kal
 DESC     = Kernel Abstracion Layer API
 OBJS     = ..$(SEP)shared$(SEP)stub.$(O) file.$(O)
 ADD_COPT = -i=..$(SEP)include
-LINKOPT  = lib os2386.lib lib clib3r.lib
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -26,7 +26,6 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
@@ -42,7 +41,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   DosFindNext.7
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

@@ -14,9 +14,6 @@ DIR = $(ROOT)$(SEP)bin$(SEP)os2
 DESC = Minimalistic Command line processor
 #defines object file names in format objname.$(O)
 OBJS = minicmd.$(O) commands.$(O)
-# defines additional options for C compiler
-#ADD_COPT = -i=..$(SEP)include
-#LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -27,13 +24,12 @@ $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
- $(MAKE) install
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 .IGNORE
 clean: .SYMBOLIC

@@ -80,7 +80,7 @@ os2ldr.com: $(OBJS)
  @%append $^&.lnk LIBRARY $(LIBC)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 #cstart_t.obj: startup.obj
 # $(SAY) Making $^@ ... $(LOG)

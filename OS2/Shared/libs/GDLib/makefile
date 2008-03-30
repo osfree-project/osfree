@@ -35,7 +35,7 @@ OBJS = gd_jpeg.$(O) &
 $(ROOT)$(SEP)lib$(SEP)gdlib.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
- @wlib $@ +$< $(LOG)
+ @$(LIB) $(LIBOPT) $@ +$< $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

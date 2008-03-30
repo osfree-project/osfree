@@ -37,7 +37,7 @@ OBJS =pngwtran.$(O) &
 $(ROOT)$(SEP)lib$(SEP)lpng.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
- @wlib $@ +$< $(LOG)
+ $(LIB) $(LIBOPT) $@ +$< $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

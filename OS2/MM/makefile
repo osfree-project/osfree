@@ -12,16 +12,16 @@ DIRS = IOProcs
 !include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
  $(MKDIR) $(FILESDIR)$(SEP)os2
  $(MKDIR) $(FILESDIR)$(SEP)os2$(SEP)dll
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

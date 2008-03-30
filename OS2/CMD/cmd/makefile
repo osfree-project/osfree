@@ -17,10 +17,10 @@ DIRS = shared cmd keystack shralias option2 jpos2dll help vdm2os2
 
 
 all: .SYMBOLIC
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

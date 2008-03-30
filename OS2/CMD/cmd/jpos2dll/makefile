@@ -13,8 +13,7 @@ DESC = CMD.EXE helper
 OBJS = jpos2dll.$(O)
 #$(O)  jpos2dll.c
 ADD_COPT = -i=..$(SEP)include
-LINKOPT  = lib os2386.lib lib clib3r.lib
-#LINKOPT = lib os2386#,clib3r#,os2$(SEP)os2 # cmd_shared.lib,all_shared.lib
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -28,12 +27,11 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk export    QueryExtLIBPATH.1, SetExtLIBPATH.2, SendKeys.3, QuitSendKeys.4
  @%append $^&.lnk export    StartHook.5, PauseKeys.6, KeystackHookProc.7
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
- $(LINKER) option quiet @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 # Clean target
 .IGNORE

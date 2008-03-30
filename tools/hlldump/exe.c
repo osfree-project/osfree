@@ -4,8 +4,6 @@
 
 /* to make some headers happy */
 #define FOR_EXEHDR          1           /* exe386.h flag */
-#define DWORD               ULONG       /* Used by exe386.h / newexe.h */
-#define WORD                USHORT      /* Used by exe386.h / newexe.h */
 
 #include <newexe.h>
 #include <exe386.h>
@@ -38,7 +36,7 @@ BOOL ProcessLx()
 
     exe32Hdr = (EXE32HDR *)((unsigned)pvFile + ulHdrOff);
 
-    if (exe32Hdr->e32_magic[0] != E32MAGIC1 || 
+    if (exe32Hdr->e32_magic[0] != E32MAGIC1 ||
         exe32Hdr->e32_magic[1] != E32MAGIC2)
     {
         printf("*** Error: not valid LX module\n");
@@ -83,7 +81,7 @@ BOOL ProcessLx()
                     printf("*** Error: Invalid debug type, %d (%c)\n", pbDbg[3], pbDbg[3]);
                     return FALSE;
             }
-           
+
      } else
      {
        printf("*** Error unknown debug signature\n");

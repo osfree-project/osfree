@@ -15,7 +15,6 @@ all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
 
 $(DIR)\$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
  @%append $^&.lnk FORMAT OS2 LX PMCOMPATIBLE
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
@@ -23,7 +22,7 @@ $(DIR)\$(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
- $(SAY) Linking $^@
+ $(SAY) $(LINKOPT) Linking $^@
  @$(LINKER) @$^&.lnk $(LOG)
 
 .IGNORE

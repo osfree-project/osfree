@@ -49,7 +49,7 @@ all: fatboot.bin makefile
  @%append $^&.lnk PATH $(MYDIR)
  @%append $^&.lnk FILE $<
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .asm.$(O):
  $(SAY) Assembling $< $(LOG)

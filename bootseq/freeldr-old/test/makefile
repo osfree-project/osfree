@@ -31,7 +31,7 @@ test.exe: $(OBJS)
  @%append $^&.lnk LIBRARY $(LIBC)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

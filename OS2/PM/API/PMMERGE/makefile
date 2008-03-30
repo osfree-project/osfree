@@ -12,7 +12,7 @@ PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
 OBJS     = framemgr.$(O) habmgr.$(O) rectangles.$(O) input.$(O) WindowClass.$(O) queue.$(O) messages.$(O) windowmgr.$(O)
 ADD_COPT = -bd -i=..$(SEP)include
-LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input
 
 !include $(%ROOT)/mk/all.mk
@@ -26,10 +26,8 @@ $(PROJ).dll: .symbolic
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk SYSTEM os2v2 dll initglobal pm
- @%append $^&.lnk option    quiet
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk import
@@ -83,7 +81,7 @@ $(PROJ).dll: .symbolic
 
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  renmodul /r $^@ $^& fmmerge
  $(CP) pmmerge.dll fmmerge.dll
 

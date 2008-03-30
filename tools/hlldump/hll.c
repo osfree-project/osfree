@@ -1,16 +1,15 @@
-/* 
+/*
    HLL debug info dumper
-    
+
    for a moment we support limited range of HLL format internals, if you
-   need other, feel free to add them. Btw: we support only LX files... 
+   need other, feel free to add them. Btw: we support only LX files...
 
    Bartosz Tomasik <bart2@asua.org.pl>
 
-   note: the whole thing is based on 
+   note: the whole thing is based on
        - sd386 (by IBM)
        - dbgLxDumper (Knut St.Osmundsen, Project Odin)
 
-  $Id: hll.c,v 1.1.1.1 2003/10/04 08:40:06 prokushev Exp $
 */
 #include <os2.h>
 
@@ -25,7 +24,7 @@
 #pragma pack(pop)
 
 
-// ----- 
+// -----
 
 
 /* modules */
@@ -44,17 +43,17 @@ ULONG ulDebugOff;
 
 void main(int argc, char *argv[])
 {
- if (argc==1) 
- { 
-   printf("Usuage: hlldump file"); 
-   return; 
+ if (argc==1)
+ {
+   printf("Usuage: hlldump file");
+   return;
  };
 
  pvFile=NULL;
  pModules=NULL;
 
  HllLoadFile(argv[1]);
- 
+
  if (pvFile==NULL) free(pvFile);
 
  if (!ProcessLx()) goto error;
@@ -72,9 +71,9 @@ void main(int argc, char *argv[])
 error:
  printf("*** Error: last function did not complete sucessfully\n");
 ok:
- 
+
  if (pvFile!=NULL) free(pvFile);
- 
+
 };
 
 
@@ -87,7 +86,7 @@ void HllLoadFile(PSZ szFileName)
 
   printf("+++ Loading %s file into memory\n",szFileName);
   pFile=fopen(szFileName,"rb");
-  if (pFile==NULL) 
+  if (pFile==NULL)
   {
     printf("*** Error while opening: %s\n",szFileName);
     return;

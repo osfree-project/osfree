@@ -9,20 +9,20 @@
 
 DIRS = shared PMMERGE PMDRAG PMWIN
 #       PMPIC PMPRE PMREXXIO PMSHLTKT PMSPL &
-#       PMUNIF PMVIOP PMWINX REGISTRY PMGRE PMMLE PMSHAPI 
+#       PMUNIF PMVIOP PMWINX REGISTRY PMGRE PMMLE PMSHAPI
 #PMATM PMBIDI PMCLIP PMCTLS PMDDE PMDDEML PMGPI &
 
 !include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

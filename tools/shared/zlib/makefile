@@ -21,7 +21,7 @@ OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
 all: libz.lib sub .SYMBOLIC
- $(CP) libz.lib $(DIR)
+ $(CP) libz.lib $(DIR) $(BLACKHOLE)
 
 sub: example.exe minigzip.exe .SYMBOLIC
 
@@ -39,7 +39,7 @@ example.exe: example.$(O) libz.lib
  @%append $^&.lnk FILE example.$(O)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 minigzip.exe: minigzip.$(O) libz.lib
  @%create $^&.lnk
@@ -51,7 +51,7 @@ minigzip.exe: minigzip.$(O) libz.lib
  @%append $^&.lnk FILE minigzip.$(O)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 install: .SYMBOLIC
  $(CP) libz.lib ..$(SEP)lib

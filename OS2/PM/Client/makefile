@@ -23,7 +23,6 @@ OBJS = Fc_main.$(O) F_globals.$(O) F_utils.$(O) Fc_config.$(O) &
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
 ADD_COPT=-bm -od -mf -sg -d2 -mf -bd
-#LINKOPT=lib pm_client.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -33,7 +32,6 @@ $(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2 dll
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
@@ -47,7 +45,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   fatal.8
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

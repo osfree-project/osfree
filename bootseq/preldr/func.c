@@ -183,7 +183,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
               read_len = num_sect;
               bufaddr = (char *) BUFFERADDR + byte_offset;
             }
-          
+
           bios_err = biosdisk (BIOSDISK_READ, drive, &buf_geom,
                                read_start, read_len, BUFFERADDR >> 4);
           if (bios_err)

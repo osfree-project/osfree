@@ -2,6 +2,7 @@
 
 #include <os2.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "hllfuncs.h"
@@ -62,13 +63,13 @@ BOOL ProcessDirectory()
  for (i = 0; i < ulDirEntries; i++)
  {
   if (bDebugFormat!=DBGTYPE_32IBM)
-   { 
-   if (pOldHllDir->aEntries[i].ModIndex>ulModules) 
+   {
+   if (pOldHllDir->aEntries[i].ModIndex>ulModules)
            ulModules=pOldHllDir->aEntries[i].ModIndex;
    }
-   else 
+   else
    {
-   if (pHllDir->aEntries[i].ModIndex>ulModules) 
+   if (pHllDir->aEntries[i].ModIndex>ulModules)
            ulModules=pHllDir->aEntries[i].ModIndex;
    };
  }; // for (i = 0; i < ulDirEntries; i++)
@@ -100,7 +101,7 @@ BOOL ProcessDirectory()
             "unknown",
             "HLL_DE_IBMSRC"
         };
- 
+
        const char *pszType = usSubSect >= HLL_DE_MODULES
                               && usSubSect <= HLL_DE_IBMSRC
                               ? apsz[usSubSect - HLL_DE_MODULES]
@@ -135,11 +136,11 @@ BOOL ProcessDirectory()
 
   /* we skip modules with id 0 */
   if (tmpHllDirEntry.ModIndex==0) continue;
-  
+
   switch (usSubSect)
   {
     case HLL_DE_MODULES:
-      pModules[tmpHllDirEntry.ModIndex-1].FileName    = 
+      pModules[tmpHllDirEntry.ModIndex-1].FileName    =
                                                   tmpHllDirEntry.SubSectOff;
       pModules[tmpHllDirEntry.ModIndex-1].FileNameLen =
                                                   tmpHllDirEntry.SubSectLen;
@@ -147,21 +148,21 @@ BOOL ProcessDirectory()
     break;
 
     case HLL_DE_PUBLICS:
-      pModules[tmpHllDirEntry.ModIndex-1].Publics = 
+      pModules[tmpHllDirEntry.ModIndex-1].Publics =
                                                   tmpHllDirEntry.SubSectOff;
       pModules[tmpHllDirEntry.ModIndex-1].PubLen  =
                                                   tmpHllDirEntry.SubSectLen;
     break;
 
     case HLL_DE_TYPES  :
-      pModules[tmpHllDirEntry.ModIndex-1].TypeDefs = 
+      pModules[tmpHllDirEntry.ModIndex-1].TypeDefs =
                                                   tmpHllDirEntry.SubSectOff;
       pModules[tmpHllDirEntry.ModIndex-1].TypeLen  =
                                                   tmpHllDirEntry.SubSectLen;
     break;
 
     case HLL_DE_SYMBOLS:
-      pModules[tmpHllDirEntry.ModIndex-1].Symbols = 
+      pModules[tmpHllDirEntry.ModIndex-1].Symbols =
                                                   tmpHllDirEntry.SubSectOff;
       pModules[tmpHllDirEntry.ModIndex-1].SymLen  =
                                                   tmpHllDirEntry.SubSectLen;
@@ -170,7 +171,7 @@ BOOL ProcessDirectory()
     case HLL_DE_SRCLINES:
     case HLL_DE_SRCLNSEG:
     case HLL_DE_IBMSRC:
-      pModules[tmpHllDirEntry.ModIndex-1].LineNums = 
+      pModules[tmpHllDirEntry.ModIndex-1].LineNums =
                                                   tmpHllDirEntry.SubSectOff;
       pModules[tmpHllDirEntry.ModIndex-1].LineNumsLen  =
                                                   tmpHllDirEntry.SubSectLen;
@@ -209,7 +210,7 @@ BOOL ProcessDirectory()
      if (pModules[tmpHllDirEntry.ModIndex-1].FileName!=0)
      {
        PHLL04MODULE pHllModule=(PHLL04MODULE) (pHdr+pModules[tmpHllDirEntry.ModIndex-1].FileName);
-       if (pHllModule->usDebugStyle==HLL)  
+       if (pHllModule->usDebugStyle==HLL)
        {
         switch( pHllModule->chVerMajor )
         {
@@ -228,7 +229,7 @@ BOOL ProcessDirectory()
          case 0x4:
           pModules[tmpHllDirEntry.ModIndex-1].DbgFormatFlags.Typs = TYPE103_HL04;
          break;
-        }; 
+        };
        } else
        {
         /* we assume 32bit CodeView format, but it may be 16 bit as well!!!
@@ -247,7 +248,7 @@ BOOL ProcessDirectory()
      if (pModules[tmpHllDirEntry.ModIndex-1].FileName!=0)
      {
        PHLL04MODULE pHllModule=(PHLL04MODULE)(pHdr+pModules[tmpHllDirEntry.ModIndex-1].FileName);
-       if (pHllModule->usDebugStyle==HLL)  
+       if (pHllModule->usDebugStyle==HLL)
        {
          switch (pHllModule->chVerMajor)
          {

@@ -12,20 +12,17 @@ ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 
-#LINKOPT=-zq
-#-Lr
 LINKLIB=%watcom%\lib286\dos\clibs
 
 all: $(PROJ).exe #$(PROJ).sym
 
 $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
-# %append $^&.lnk $(LINKOPT)
  @%append $^&.lnk FORMAT DOS
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
+ @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 
 # Clean target

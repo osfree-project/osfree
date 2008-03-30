@@ -44,7 +44,7 @@ genext2fs: $(OBJS) $(OBJS_2)
  @%append $^&_u.lnk option map=$^&_u.map
  @for %%i in ($(OBJS) $(OBJS_2)) do @%append $^&_u.lnk FILE %%i
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&_u.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&_u.lnk $(LOG)
 
 install: .SYMBOLIC
  $(DC) ..$(SEP)bin$(SEP)genext2fs.exe $(BLACKHOLE)

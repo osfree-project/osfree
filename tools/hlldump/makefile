@@ -16,7 +16,6 @@ all: $(DIR)$(SEP)$(PROJ).exe $(DIR)$(SEP)$(PROJ).sym
 
 $(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
  @%append $^&.lnk system os2v2
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
@@ -24,7 +23,7 @@ $(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
  $(SAY) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
+ @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 # Clean all
 

@@ -12,7 +12,7 @@
 PROJ = zip
 DIR = $(ROOT)\bin\os2
 # defines additional options for C compiler
-LINKOPT = lib cmd_shared.lib,all_shared.lib
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 DESC = ZIP file archiver
 OBJS = zip.obj zipfile.obj zipup.obj fileio.obj util.obj &
@@ -36,7 +36,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION MAP=$^&.wmp
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

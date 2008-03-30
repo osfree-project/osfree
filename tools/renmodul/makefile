@@ -51,7 +51,7 @@ OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym *.map *.exe *.dll
 
 all: $(PROJ).exe
- $(CP) $(PROJ).exe $(DIR)
+ $(CP) $(PROJ).exe $(DIR) $(BLACKHOLE)
 
 $(PROJ).exe: $(OBJS1)
  @%create $^@.lnk
@@ -61,7 +61,7 @@ $(PROJ).exe: $(OBJS1)
  @for %%i in ($(OBJS1)) do @%append $^@.lnk FILE %%i
  @%append $^@.lnk $(MODE_LINKOPT)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^@.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^@.lnk $(LOG)
 
 $(PROJ).dll: $(OBJS2)
  @%create $^@.lnk
@@ -72,7 +72,7 @@ $(PROJ).dll: $(OBJS2)
  @for %%i in ($(OBJS2)) do @%append $^@.lnk FILE %%i
  @%append $^@.lnk $(MODE_LINKOPT)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^@.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^@.lnk $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

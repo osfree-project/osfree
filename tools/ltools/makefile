@@ -60,7 +60,7 @@ ldir.exe:   $(OBJS) $(INCLUDES)
  @%append $^&.lnk NAME $^&
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 readdisk.o: UNIXdisk.h
  $(SAY) Compiling $< $(LOG)

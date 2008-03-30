@@ -12,13 +12,13 @@
 DIRS=Client Server API TestApps
 
 all: .SYMBOLIC
-   $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+   @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

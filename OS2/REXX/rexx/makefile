@@ -16,8 +16,6 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(DIR)\$(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initinstance terminstance
- @%append $^&.lnk option    map
- @%append $^&.lnk option    quiet
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk option    caseexact
  @%append $^&.lnk LIBRARY $(LINKLIB)
@@ -42,7 +40,7 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @%append $^&.lnk   RXBREAKCLEANUP.7 RESIDENT
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
- @$(LINKER) @$^&.lnk $(LOG)
+ @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 # Clean all
 

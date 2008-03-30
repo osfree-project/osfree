@@ -41,11 +41,11 @@ qemu-img.exe: $(OBJS)
  @%append $^&.lnk LIBPATH ..$(SEP)lib
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
- $(MAKE) install
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 install: .SYMBOLIC
- $(CP) qemu-img.exe $(DIR)
+ $(CP) qemu-img.exe $(DIR) $(BLACKHOLE)
 
 .IGNORE
 clean: .SYMBOLIC

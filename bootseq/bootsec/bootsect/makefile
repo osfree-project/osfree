@@ -68,7 +68,7 @@ all: bootsect_1.bin bootsect_2.bin bootsect_3.bin
  @%append $^&.lnk PATH $(MYDIR)
  @%append $^&.lnk FILE $<
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 bootsect_1.$(O): bootsect.asm
  $(SAY) Assembling $< $(LOG)

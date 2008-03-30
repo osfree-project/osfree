@@ -10,7 +10,7 @@ ROOT=$(%ROOT)
 #
 # Preprocessor defines
 #
-C_DEFS    = -d__OS2__ -d__WATCOM__
+C_DEFS    = -zq -d__OS2__ -d__WATCOM__
 ASM_DEFS  = -d__WATCOM__
 
 #
@@ -40,25 +40,31 @@ ASMOPT    = -bt=OS2 -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 # Tools:
 #
 !ifdef 32_BITS
-CC        = wcc386
-CPPC      = wpp386
+CC        = @wcc386
+CPPC      = @wpp386
 !else
-CC        = wcc
-CPPC      = wpp
+CC        = @wcc
+CPPC      = @wpp
 !endif
-ASM       = wasm
+
+ASM       = @wasm
+
 LINKER    = @wlink
-LIB       = wlib
+LINKOPT   = op q $(ADD_LINKOPT)
+
+LIB       = @wlib
+LIBOPT    = -q
+
 MAKE      = wmake
 MAKEOPT   = -h
 
 PC        = ppc386
-PCOPT     =
+PCOPT     = -l- -v0
 
 DD        = dd
 
 SED       = sed
-AWK       = awk
+AWK       = @awk
 DOX       = doxygen
 
 RC        = wrc
@@ -165,7 +171,7 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 
 .pas.exe: .AUTODEPEND
   $(SAY) Compiling $<
-  @(PC) $(PCOPT) $(PROJ)
+  $(PC) $(PCOPT) $(PROJ)
 
 .rexx.exe: .AUTODEPEND
   $(SAY) Wrapping REXX code $<
@@ -176,7 +182,7 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
- for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do @cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 .ERROR
  @echo Error

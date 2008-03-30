@@ -17,7 +17,7 @@ OBJS = fs_pmdev.$(O)
 # defines additional options for C compiler
 ADD_COPT = -i=..\include -bd
 ADD_LIB = cmd_shared.lib,all_shared.lib
-LINKOPT=lib os2386.lib lib clib3r.lib
+ADD_LINKOPT=lib os2386.lib lib clib3r.lib
 !include $(%ROOT)/mk/all.mk
 
 #defines files mask for clean target
@@ -28,13 +28,12 @@ $(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM os2v2 dll
  @%append $^&.lnk NAME $^&
- @%append $^&.lnk $(LINKOPT)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export FPM_DeviceStart=FPM_PMWinStart
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 
 .IGNORE
