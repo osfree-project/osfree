@@ -44,7 +44,7 @@
 #ifndef __JPGPROC_H_INCLUDED__
 #define __JPGPROC_H_INCLUDED__
 
-#include <os2.h>
+#include <osfree.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

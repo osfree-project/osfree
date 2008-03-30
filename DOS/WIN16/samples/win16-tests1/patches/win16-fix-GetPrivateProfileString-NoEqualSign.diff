@@ -1,0 +1,14 @@
+diff --git a/dlls/kernel32/profile.c b/dlls/kernel32/profile.c
+index 27a3d06..4c68fbb 100644
+--- a/dlls/kernel32/profile.c
++++ b/dlls/kernel32/profile.c
+@@ -975,7 +975,8 @@ static INT PROFILE_GetString( LPCWSTR se
+     /* no "else" here ! */
+     if (section && section[0])
+     {
+-        INT ret = PROFILE_GetSection(CurProfile->section, section, buffer, len, FALSE, !win32);
++		/* under win16, we don't want lines WITHOUT = to enumerate keys */
++        INT ret = PROFILE_GetSection(CurProfile->section, section, buffer, len, FALSE, FALSE);
+         if (!buffer[0]) /* no luck -> def_val */
+         {
+             PROFILE_CopyEntry(buffer, def_val, len, TRUE);

@@ -9,7 +9,10 @@
 #define INCL_BSE
 #define INCL_BSEDOS
 #define INCL_CDEFTYPES2
-#define INCL_PM
+#ifndef INCL_PM
+  #define INCL_PM
+#endif
+
 /* Original OS/2 default definitions */
 
 #ifdef INCL_BASE

@@ -61,11 +61,7 @@ SED       = sed
 AWK       = awk
 DOX       = doxygen
 
-!ifeq UNIX FALSE                 # Non-unix
 RC        = wrc
-!else ifeq UNIX TRUE             # UNIX
-RC        = wrc
-!endif
 MC        = mkmsgf
 HC        = ipfc
 GENE2FS   = genext2fs
@@ -180,7 +176,7 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .SYMBOLIC
- @for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ for %%i in ($(DIRS)) do cd %%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 .ERROR
  @echo Error

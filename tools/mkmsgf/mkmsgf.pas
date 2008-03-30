@@ -1,6 +1,6 @@
 {
 
- Make Message File Utility (MKMSGF) Clone (C) 2002-2004 by Yuri Prokushev
+ Make Message File Utility (MKMSGF) Clone (C) 2002-2008 by Yuri Prokushev
 
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License (GPL) as published by
@@ -25,7 +25,7 @@ program mkmsgf;
 
 {.$MODE ObjFPC}
 {$H+}
-{.$DEFINE DEBUG}
+{$DEFINE xDEBUG}
 
 Uses
   SysUtils(*,
@@ -169,42 +169,33 @@ Begin
     // Remove leading spaces
     While S[1]=' ' do Delete(S, 1, 1);
 
+    // Get source name
+    StrIn:=Copy(S, 1, Pos(' ', S)-1);
+    {$ifdef debug}
+    WriteLn('InputFile=', StrIn);
+    {$endif}
+    Delete(S, 1, Pos(' ', S)-1);
+
+    // Remove spaces
+    If S<>'' then While S[1]=' ' do Delete(S, 1, 1);
+
+    StrOut:=Copy(S, 1, Pos(' ', S)-1);
+    {$ifdef debug}
+    WriteLn('OutputFile=', StrOut);
+    {$endif}
+    Delete(S, 1, Pos(' ', S)-1);
+
+    // Remove spaces
+    If S<>'' then While S[1]=' ' do Delete(S, 1, 1);
+
     While S<>'' do
     begin
       {$ifdef debug}
       WriteLn(S);
       {$endif}
 
-      If (S[1]='-') or (S[1]='/') then
-        ParseSwitch(S)
-      else
-      begin
-        If StrIn='' then
-        begin
-          StrIn:=Copy(S, 1, Pos(' ', S)-1);
-          Delete(S, 1, Pos(' ', S)-1);
-          // Remove spaces
-          If S<>'' then While S[1]=' ' do Delete(S, 1, 1);
-          S:=' '+S;
+      If (S[1]='-') or (S[1]='/') then ParseSwitch(S);
 
-          {$ifdef debug}
-          WriteLn(S);
-          {$endif}
-
-      end else if StrOut='' then
-        begin
-          StrOut:=Copy(S, 1, Pos(' ', S)-1);
-          Delete(S, 1, Pos(' ', S)-1);
-          // Remove spaces
-          If S<>'' then While S[1]=' ' do Delete(S, 1, 1);
-          S:=' '+S;
-
-          {$ifdef debug}
-          WriteLn(S);
-          {$endif}
-
-        end;
-      end;
       If S<>'' then Delete(S, 1, 1);
     end;
   end;
@@ -280,7 +271,7 @@ Begin
   Header.Identifier[3]:=S[3];
 
   S:='Let''s play the Yuri''s game';
-  // Read messages
+  WriteLn('Reading messages from ', StrIn);
   While not EOF(Fin) do
   begin
     If S='Let''s play the Yuri''s game' then
@@ -311,6 +302,7 @@ Begin
             If not EOF(Fin) then
               Repeat
                 ReadLn(FIn, S);
+//                WriteLn('Line: ', Line);
                 Inc(Line);
                 if Length(S)>7 then
                   If (S[1]=Header.Identifier[1]) and
@@ -318,8 +310,8 @@ Begin
                      (S[3]=Header.Identifier[3]) then break;
                 If Length(S)<>0 then
                 begin
-                  If S[1]<>';' then
-                    Message:=Message+S+LineEnding;
+                  If Pos(';', S)<>1 then begin
+                    Message:=Message+S+LineEnding; end;
                 end else begin
                   Message:=Message+LineEnding;
                 end;
@@ -371,7 +363,7 @@ Begin
 //    Filename:='oso001h.msg'#0); // Name of file
   end;
 
-  // Write MSG-file
+  WriteLn('Writing MSG-file to ', StrOut);
   Assign(Fout, StrOut);
   Rewrite(Fout, 1);
   BlockWrite(Fout, Header, SizeOf(Header), Res);
@@ -400,12 +392,24 @@ Begin
   While msgpos<>nil do
   begin
     BlockWrite(Fout, MsgPos^.Message^, StrLen(MsgPos^.Message), Res);
+    StrDispose(MsgPos^.Message);
     MsgPos:=MsgPos^.Next;
   end;
+
+  // Free memory
+  msgpos:=messages;
+  While msgpos<>nil do
+  begin
+    messages:=msgpos;
+    MsgPos:=MsgPos^.Next;
+    FreeMem(messages, SizeOf(TMsgList));
+  end;
+
   {$ifdef debug}
   WriteLn(Res);
   {$endif}
   Close(Fout);
+  WriteLn('MSG-file created');
 End;
 
 
@@ -455,16 +459,3 @@ begin
   end;
 end.
 
-{
-  $Log: mkmsgf.pas,v $
-  Revision 1.1  2004/08/16 06:27:30  prokushev
-  * Another part of files
-
-  Revision 1.1  2004/07/11 13:17:26  prokushev
-  * Updated NLS
-  + MKMSGF tool sources (not finished yet)
-  - Unused files removed
-
-  Revision 1.2  2002/10/20 14:15:01  prokushev
-  Cleaning
-}

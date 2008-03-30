@@ -3,17 +3,13 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-ROOT=..$(SEP)..$(SEP)..
 DIR = $(ROOT)$(SEP)bin$(SEP)os2
 PROJ = bldlevel
 DESC = Build level display facility
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).exe
-
-$(DIR)$(SEP)$(PROJ).exe: $(PROJ).exe
-  $(CP) $(PROJ).exe $(DIR)
+all: $(PROJ).exe install
 
 .IGNORE
 clean: .SYMBOLIC

@@ -20,6 +20,8 @@
 #include <osfree.h>
 
 #include <string.h>
+#include <stdio.h>
+#include <ctype.h>
 
 #include <cmd_shared.h> /* comand line tools' shared functions */
 

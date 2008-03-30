@@ -1,0 +1,50 @@
+diff --git a/dlls/user32/comm16.c b/dlls/user32/comm16.c
+index 57b00d1..202a54b 100644
+--- a/dlls/user32/comm16.c
++++ b/dlls/user32/comm16.c
+@@ -375,9 +375,10 @@ static INT16 COMM16_DCBtoDCB16(LPDCB lpd
+ 	lpdcb16->Parity = lpdcb->Parity;
+ 	lpdcb16->StopBits = lpdcb->StopBits;
+ 
+-	lpdcb16->RlsTimeout = 50;
++/*	lpdcb16->RlsTimeout = 50;
+ 	lpdcb16->CtsTimeout = 50;
+ 	lpdcb16->DsrTimeout = 50;
++*/
+ 	lpdcb16->fNull = 0;
+ 	lpdcb16->fChEvt = 0;
+ 	lpdcb16->fBinary = 1;
+@@ -391,10 +392,10 @@ static INT16 COMM16_DCBtoDCB16(LPDCB lpd
+ 	lpdcb16->fInX = lpdcb->fInX;
+ 
+ 	lpdcb16->fOutX = lpdcb->fOutX;
+-/*
+-	lpdcb16->XonChar =
+-	lpdcb16->XoffChar =
+- */
++
++	lpdcb16->XonChar = 17;	
++	lpdcb16->XoffChar = 19;
++
+ 	lpdcb16->XonLim = 10;
+ 	lpdcb16->XoffLim = 10;
+ 
+@@ -415,6 +416,8 @@ INT16 WINAPI BuildCommDCB16(LPCSTR devic
+ 	int port;
+ 	DCB dcb;
+ 
++	if(lpdcb && device)
++	{
+ 	TRACE("(%s), ptr %p\n", device, lpdcb);
+ 
+ 	if (strncasecmp(device,"COM",3))
+@@ -438,6 +441,9 @@ INT16 WINAPI BuildCommDCB16(LPCSTR devic
+ 		return -1;
+ 
+ 	return COMM16_DCBtoDCB16(&dcb, lpdcb);
++	}
++	else
++		return -1;
+ }
+ 
+ /*****************************************************************************

@@ -27,6 +27,7 @@ all: .SYMBOLIC
   $(DC) tmp
 ## OS/2 Personality files
   uni2h os2$(SEP)os2.uni $(OUT)$(SEP)OS2$(SEP)os2.h
+  cmd /c cut $(OUT)$(SEP)OS2$(SEP)os2.h
 ### OS/2 Personality base type and macros definitions
   uni2h os2$(SEP)os2def.uni $(OUT)$(SEP)OS2$(SEP)os2def.h
 ### OS/2 Personality base API

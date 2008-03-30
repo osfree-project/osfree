@@ -1,0 +1,12 @@
+dosmem.exe
+file.exe
+dos_file.exe 
+sysdir.exe
+alloc.exe
+atom.exe
+bitmap.exe
+comm16.exe
+str.exe
+sys.exe
+timer.exe
+window.exe

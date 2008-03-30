@@ -1,15 +1,21 @@
-# $Id: makefile,v 1.2 2003/10/29 11:04:05 prokushev Exp $
+# $Id: makefile,v 1.4 2004/08/16 04:51:09 prokushev Exp $
 
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-DIR = $(ROOT)\bin\os2
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
 PROJ = fdisk
+DESC = Disk volumes manager
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).cmd
+all: $(PROJ).exe install
 
-$(DIR)\$(PROJ).cmd: $(PROJ).cmd
-  copy $< $@
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
 
-clean: .symbolic
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

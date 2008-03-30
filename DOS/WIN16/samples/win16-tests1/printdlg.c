@@ -1,0 +1,78 @@
+/*
+ * Win16 Unit test suite for comdlg functions: printer dialogs
+ *
+ * Copyright 2007 Jennfier Lai, Google
+ * Modified from /wine-git/dlls/comflg32/tests/printdlg.c
+ * Copyright 2006 Detlef Riekenberg
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+#define STRICT
+
+#include <windows.h>
+#include <commdlg.h>
+#include <cderr.h>
+#include "test.h"
+
+static void test_PrintDlg(void)
+{
+    DWORD res;
+    LPPRINTDLG pDlg;
+
+
+    pDlg = GlobalAlloc(GMEM_DISCARDABLE, (sizeof(PRINTDLG)) * 2);
+    if (!pDlg)
+        return;
+
+    /* will crash with unpatched wine */
+    SetLastError(0xdeadbeef);
+    res = PrintDlg(NULL);
+    ok(!res && (CommDlgExtendedError() == CDERR_INITIALIZATION),
+       "returned %d with 0x%x and 0x%x (expected '0' and "
+       "CDERR_INITIALIZATION)\n", res, GetLastError(), CommDlgExtendedError());
+
+	memset(pDlg, 0, sizeof(PRINTDLG));
+    pDlg->lStructSize = sizeof(PRINTDLG) - 1;
+    SetLastError(0xdeadbeef);
+    res = PrintDlg(pDlg);
+    ok(!res && (CommDlgExtendedError() == CDERR_STRUCTSIZE),
+       "returned %d with 0x%x and 0x%x (expected '0' and "
+       "CDERR_STRUCTSIZE)\n", res, GetLastError(), CommDlgExtendedError());
+
+	memset(pDlg, 0, sizeof(PRINTDLG));
+    pDlg->lStructSize = sizeof(PRINTDLG) + 1;
+    pDlg->Flags = PD_RETURNDEFAULT;
+    SetLastError(0xdeadbeef);
+    res = PrintDlg(pDlg);
+    ok(!res && (CommDlgExtendedError() == CDERR_STRUCTSIZE),
+       "returned %u with %u and 0x%x (expected '0' and "
+       "CDERR_STRUCTSIZE)\n", res, GetLastError(), CommDlgExtendedError());
+
+	memset(pDlg, 0, sizeof(PRINTDLG));
+    pDlg->lStructSize = sizeof(PRINTDLG);
+    pDlg->Flags = PD_RETURNDEFAULT;
+    SetLastError(0xdeadbeef);
+    res = PrintDlg(pDlg);
+    ok(res || (CommDlgExtendedError() == PDERR_NODEFAULTPRN),
+       "returned %d with 0x%x and 0x%x (expected '!= 0' or '0' and "
+       "PDERR_NODEFAULTPRN)\n", res, GetLastError(), CommDlgExtendedError());
+
+    GlobalFree((char NEAR *) pDlg);
+}
+
+START_TEST(printdlg)
+{
+    test_PrintDlg();
+}

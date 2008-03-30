@@ -2,6 +2,9 @@
 
 module os2;
 
+{workaround of unimplemented uni2h feature}
+uses cdeftypes;
+
 uses os2def;
 uses bse;
 uses utlapi;

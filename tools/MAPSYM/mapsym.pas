@@ -19,6 +19,7 @@ Var
   I: Word;
   J: Word;
 Begin
+  Exit; // While not finished, just exit
   SymbolFile:=TSymFile.Create(ParamStr(1));
   WriteLn;
   WriteLn(' ', SymbolFile.ModuleName);

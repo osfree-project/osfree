@@ -1,0 +1,21 @@
+diff --git a/dlls/comdlg32/printdlg16.c b/dlls/comdlg32/printdlg16.c
+index 6aa8c6c..90bfc3b 100644
+--- a/dlls/comdlg32/printdlg16.c
++++ b/dlls/comdlg32/printdlg16.c
+@@ -344,8 +344,14 @@ BOOL16 WINAPI PrintDlg16(
+ ) {
+     BOOL      bRet = FALSE;
+     LPVOID   ptr;
+-    HINSTANCE16 hInst = GetWindowLongPtrW( HWND_32(lppd->hwndOwner), GWLP_HINSTANCE );
+-
++    HINSTANCE16 hInst;
++ 
++  	if(lppd)	
++		hInst = GetWindowLongPtrW( HWND_32(lppd->hwndOwner), GWLP_HINSTANCE );
++	else {
++		COMDLG32_SetCommDlgExtendedError(CDERR_INITIALIZATION);
++		return FALSE;
++	}
+     if(TRACE_ON(commdlg)) {
+         char flagstr[1000] = "";
+ 	const struct pd_flags *pflag = pd_flags;

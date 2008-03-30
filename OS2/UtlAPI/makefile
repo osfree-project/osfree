@@ -8,7 +8,6 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS  = 1
-DIR      = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
 PROJ     = utlapi
 DESC     = osFree Utilities API
 OBJS     = librectangles.$(O)
@@ -55,4 +54,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).dll $(DIR)
+ $(CP) $(PROJ).dll $(FILESDIR)$(SEP)os2$(SEP)dll

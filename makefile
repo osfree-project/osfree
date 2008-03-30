@@ -8,7 +8,7 @@
 !include ./mk/site.mk
 
 DIR  = $(%ROOT)$(SEP)bin
-DIRS = tools bootseq OS2
+DIRS = tools bootseq OS2 DOS
 
 !include ./mk/all.mk
 
