@@ -129,11 +129,11 @@ module_func (char *arg, int flags)
       mb_cmdline += len + 1;
       break;
 
-    case KERNEL_TYPE_LINUX:
-    case KERNEL_TYPE_BIG_LINUX:
-      if (! load_initrd (arg))
-        return 1;
-      break;
+    //case KERNEL_TYPE_LINUX:
+    //case KERNEL_TYPE_BIG_LINUX:
+    //  if (! load_initrd (arg))
+    //    return 1;
+    //  break;
 
     default:
       errnum = ERR_NEED_MB_KERNEL;

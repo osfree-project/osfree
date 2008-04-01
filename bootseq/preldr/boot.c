@@ -122,10 +122,6 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
         }
     }
 
-  /* Use BUFFER as a linux kernel header, if the image is Linux zImage
-     or bzImage.  */
-  lh = (struct linux_kernel_header *) buffer;
-
   /* ELF loading supported if multiboot, FreeBSD and NetBSD.  */
   if ((type == KERNEL_TYPE_MULTIBOOT
        || pu.elf->e_ident[EI_OSABI] == ELFOSABI_FREEBSD
@@ -153,22 +149,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
         u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
       str = "elf";
-
-      if (type == KERNEL_TYPE_NONE)
-        {
-          /* At the moment, there is no way to identify a NetBSD ELF
-             kernel, so rely on the suggested type by the user.  */
-          if (suggested_type == KERNEL_TYPE_NETBSD)
-            {
-              str2 = "NetBSD";
-              type = suggested_type;
-            }
-          else
-            {
-              str2 = "FreeBSD";
-              type = KERNEL_TYPE_FREEBSD;
-            }
-        }
+     
     }
   else if (flags & MULTIBOOT_AOUT_KLUDGE)
     {
@@ -212,324 +193,16 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
       exec_type = 2;
       str = "kludge";
     }
-  else if (len > sizeof (struct exec) && !N_BADMAG ((*(pu.aout))))
-    {
-      entry_addr = (entry_func) pu.aout->a_entry;
-
-      if (type == KERNEL_TYPE_NONE)
-        {
-          /*
-           *  If it doesn't have a Multiboot header, then presume
-           *  it is either a FreeBSD or NetBSD executable.  If so,
-           *  then use a magic number of normal ordering, ZMAGIC to
-           *  determine if it is FreeBSD.
-           *
-           *  This is all because freebsd and netbsd seem to require
-           *  masking out some address bits...  differently for each
-           *  one...  plus of course we need to know which booting
-           *  method to use.
-           */
-          entry_addr = (entry_func) ((int) entry_addr & 0xFFFFFF);
-
-          if (buffer[0] == 0xb && buffer[1] == 1)
-            {
-              type = KERNEL_TYPE_FREEBSD;
-              cur_addr = (int) entry_addr;
-              str2 = "FreeBSD";
-            }
-          else
-            {
-              type = KERNEL_TYPE_NETBSD;
-              cur_addr = (int) entry_addr & 0xF00000;
-              if (N_GETMAGIC ((*(pu.aout))) != NMAGIC)
-                align_4k = 0;
-              str2 = "NetBSD";
-            }
-        }
-
-      /* first offset into file */
-      u_seek (N_TXTOFF (*(pu.aout)));
-      text_len = pu.aout->a_text;
-      data_len = pu.aout->a_data;
-      bss_len = pu.aout->a_bss;
-
-      if (cur_addr < 0x100000)
-      {
-        errnum = ERR_BELOW_1MB;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-      }
-
-      exec_type = 1;
-      str = "a.out";
-    }
-  else if (lh->boot_flag == BOOTSEC_SIGNATURE
-           && lh->setup_sects <= LINUX_MAX_SETUP_SECTS)
-    {
-      int big_linux = 0;
-      int setup_sects = lh->setup_sects;
-
-      if (lh->header == LINUX_MAGIC_SIGNATURE && lh->version >= 0x0200)
-        {
-          big_linux = (lh->loadflags & LINUX_FLAG_BIG_KERNEL);
-          lh->type_of_loader = LINUX_BOOT_LOADER_TYPE;
-
-          /* Put the real mode part at as a high location as possible.  */
-          linux_data_real_addr
-            = (char *) ((m->mem_lower << 10) - LINUX_SETUP_MOVE_SIZE);
-          /* But it must not exceed the traditional area.  */
-          if (linux_data_real_addr > (char *) LINUX_OLD_REAL_MODE_ADDR)
-            linux_data_real_addr = (char *) LINUX_OLD_REAL_MODE_ADDR;
-
-          if (lh->version >= 0x0201)
-            {
-              lh->heap_end_ptr = LINUX_HEAP_END_OFFSET;
-              lh->loadflags |= LINUX_FLAG_CAN_USE_HEAP;
-            }
-
-          if (lh->version >= 0x0202)
-            lh->cmd_line_ptr = linux_data_real_addr + LINUX_CL_OFFSET;
-          else
-            {
-              lh->cl_magic = LINUX_CL_MAGIC;
-              lh->cl_offset = LINUX_CL_OFFSET;
-              lh->setup_move_size = LINUX_SETUP_MOVE_SIZE;
-            }
-        }
-      else
-        {
-          /* Your kernel is quite old...  */
-          lh->cl_magic = LINUX_CL_MAGIC;
-          lh->cl_offset = LINUX_CL_OFFSET;
-
-          setup_sects = LINUX_DEFAULT_SETUP_SECTS;
-
-          linux_data_real_addr = (char *) LINUX_OLD_REAL_MODE_ADDR;
-        }
-
-      /* If SETUP_SECTS is not set, set it to the default (4).  */
-      if (! setup_sects)
-        setup_sects = LINUX_DEFAULT_SETUP_SECTS;
-
-      data_len = setup_sects << 9;
-      text_len = filemax - data_len - SECTOR_SIZE;
-
-      linux_data_tmp_addr = (char *) LINUX_BZIMAGE_ADDR + text_len;
-
-      if (! big_linux
-          && text_len > linux_data_real_addr - (char *) LINUX_ZIMAGE_ADDR)
-        {
-          printf (" linux 'zImage' kernel too big, try 'make bzImage'\r\n");
-          errnum = ERR_WONT_FIT;
-          u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-        }
-      else if (linux_data_real_addr + LINUX_SETUP_MOVE_SIZE
-               > RAW_ADDR ((char *) (m->mem_lower << 10)))
-      {
-        errnum = ERR_WONT_FIT;
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-      }
-      else
-        {
-          printf ("   [Linux-%s, setup=0x%x, size=0x%x]",
-                       (big_linux ? "bzImage" : "zImage"), data_len, text_len);
-
-          /* Video mode selection support. What a mess!  */
-          /* NOTE: Even the word "mess" is not still enough to
-             represent how wrong and bad the Linux video support is,
-             but I don't want to hear complaints from Linux fanatics
-             any more. -okuji  */
-          {
-            char *vga;
-
-            /* Find the substring "vga=".  */
-            vga = grub_strstr (arg, "vga=");
-            if (vga)
-              {
-                char *value = vga + 4;
-                int vid_mode;
-
-                /* Handle special strings.  */
-                if (substring ("normal", value) < 1)
-                  vid_mode = LINUX_VID_MODE_NORMAL;
-                else if (substring ("ext", value) < 1)
-                  vid_mode = LINUX_VID_MODE_EXTENDED;
-                else if (substring ("ask", value) < 1)
-                  vid_mode = LINUX_VID_MODE_ASK;
-                else if (safe_parse_maxint (&value, &vid_mode))
-                  ;
-                else
-                  {
-                    /* ERRNUM is already set inside the function
-                       safe_parse_maxint.  */
-                    u_close ();
-                    return KERNEL_TYPE_NONE;
-                  }
-
-                lh->vid_mode = vid_mode;
-              }
-          }
-
-          /* Check the mem= option to limit memory used for initrd.  */
-          {
-            char *mem;
-
-            mem = grub_strstr (arg, "mem=");
-            if (mem)
-              {
-                char *value = mem + 4;
-
-                safe_parse_maxint (&value, &linux_mem_size);
-                switch (errnum)
-                  {
-                  case ERR_NUMBER_OVERFLOW:
-                    /* If an overflow occurs, use the maximum address for
-                       initrd instead. This is good, because MAXINT is
-                       greater than LINUX_INITRD_MAX_ADDRESS.  */
-                    linux_mem_size = LINUX_INITRD_MAX_ADDRESS;
-                    errnum = ERR_NONE;
-                    u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-                    break;
-
-                  case ERR_NONE:
-                    {
-                      int shift = 0;
-
-                      switch (grub_tolower (*value))
-                        {
-                        case 'g':
-                          shift += 10;
-                        case 'm':
-                          shift += 10;
-                        case 'k':
-                          shift += 10;
-                        default:
-                          break;
-                        }
-
-                      /* Check an overflow.  */
-                      if (linux_mem_size > (MAXINT >> shift))
-                        linux_mem_size = LINUX_INITRD_MAX_ADDRESS;
-                      else
-                        linux_mem_size <<= shift;
-                    }
-                    break;
-
-                  default:
-                    linux_mem_size = 0;
-                    errnum = ERR_NONE;
-                    u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-                    break;
-                  }
-              }
-            else
-              linux_mem_size = 0;
-          }
-
-          /* It is possible that DATA_LEN + SECTOR_SIZE is greater than
-             MULTIBOOT_SEARCH, so the data may have been read partially.  */
-          if (data_len + SECTOR_SIZE <= MULTIBOOT_SEARCH)
-            grub_memmove (linux_data_tmp_addr, buffer,
-                          data_len + SECTOR_SIZE);
-          else
-            {
-              grub_memmove (linux_data_tmp_addr, buffer, MULTIBOOT_SEARCH);
-              u_read (linux_data_tmp_addr + MULTIBOOT_SEARCH,
-                         data_len + SECTOR_SIZE - MULTIBOOT_SEARCH);
-            }
-
-          if (lh->header != LINUX_MAGIC_SIGNATURE ||
-              lh->version < 0x0200)
-            /* Clear the heap space.  */
-            grub_memset (linux_data_tmp_addr + ((setup_sects + 1) << 9),
-                         0,
-                         (64 - setup_sects - 1) << 9);
-
-          /* Copy command-line plus memory hack to staging area.
-             NOTE: Linux has a bug that it doesn't handle multiple spaces
-             between two options and a space after a "mem=" option isn't
-             removed correctly so the arguments to init could be like
-             {"init", "", "", NULL}. This affects some not-very-clever
-             shells. Thus, the code below does a trick to avoid the bug.
-             That is, copy "mem=XXX" to the end of the command-line, and
-             avoid to copy spaces unnecessarily. Hell.  */
-          {
-            char *src = skip_to (0, arg);
-            char *dest = linux_data_tmp_addr + LINUX_CL_OFFSET;
-
-            while (dest < linux_data_tmp_addr + LINUX_CL_END_OFFSET && *src)
-              *(dest++) = *(src++);
-
-            /* Old Linux kernels have problems determining the amount of
-               the available memory.  To work around this problem, we add
-               the "mem" option to the kernel command line.  This has its
-               own drawbacks because newer kernels can determine the
-               memory map more accurately.  Boot protocol 2.03, which
-               appeared in Linux 2.4.18, provides a pointer to the kernel
-               version string, so we could check it.  But since kernel
-               2.4.18 and newer are known to detect memory reliably, boot
-               protocol 2.03 already implies that the kernel is new
-               enough.  The "mem" option is added if neither of the
-               following conditions is met:
-               1) The "mem" option is already present.
-               2) The "kernel" command is used with "--no-mem-option".
-               3) GNU GRUB is configured not to pass the "mem" option.
-               4) The kernel supports boot protocol 2.03 or newer.  */
-            if (! grub_strstr (arg, "mem=")
-                && ! (load_flags & KERNEL_LOAD_NO_MEM_OPTION)
-                && lh->version < 0x0203         /* kernel version < 2.4.18 */
-                && dest + 15 < linux_data_tmp_addr + LINUX_CL_END_OFFSET)
-              {
-                *dest++ = ' ';
-                *dest++ = 'm';
-                *dest++ = 'e';
-                *dest++ = 'm';
-                *dest++ = '=';
-
-                dest = convert_to_ascii (dest, 'u', (extended_memory + 0x400));
-                *dest++ = 'K';
-              }
-
-            *dest = 0;
-          }
-
-          /* offset into file */
-          u_seek (data_len + SECTOR_SIZE);
-
-          cur_addr = (int) linux_data_tmp_addr + LINUX_SETUP_MOVE_SIZE;
-          u_read ((char *) LINUX_BZIMAGE_ADDR, text_len);
-
-          if (errnum == ERR_NONE)
-            {
-              u_close ();
-
-              /* Sanity check.  */
-              if (suggested_type != KERNEL_TYPE_NONE
-                  && ((big_linux && suggested_type != KERNEL_TYPE_BIG_LINUX)
-                      || (! big_linux && suggested_type != KERNEL_TYPE_LINUX)))
-                {
-                  errnum = ERR_EXEC_FORMAT;
-                  u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-                  return KERNEL_TYPE_NONE;
-                }
-
-              /* Ugly hack.  */
-              linux_text_len = text_len;
-
-              return big_linux ? KERNEL_TYPE_BIG_LINUX : KERNEL_TYPE_LINUX;
-            }
-        }
-    }
   else                          /* no recognizable format */
-  {
-    errnum = ERR_EXEC_FORMAT;
-    u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
-  }
+    {
+      errnum = ERR_EXEC_FORMAT;
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
+    }
 
   /* return if error */
   if (errnum)
     {
       u_close ();
-      printf("qazwsx!!!\r\n");
       return KERNEL_TYPE_NONE;
     }
 
@@ -673,9 +346,9 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
               u_seek (phdr->p_offset);
               filesiz = phdr->p_filesz;
 
-              if (type == KERNEL_TYPE_FREEBSD || type == KERNEL_TYPE_NETBSD)
-                memaddr = RAW_ADDR (phdr->p_paddr & 0xFFFFFF);
-              else
+              //if (type == KERNEL_TYPE_FREEBSD || type == KERNEL_TYPE_NETBSD)
+              //  memaddr = RAW_ADDR (phdr->p_paddr & 0xFFFFFF);
+              //else
                 memaddr = RAW_ADDR (phdr->p_paddr);
 
               memsiz = phdr->p_memsz;
@@ -826,9 +499,9 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
       return KERNEL_TYPE_NONE;
     }
 
-  u_parm(PARM_LINUX_DATA_REAL_ADDR, ACT_SET, (unsigned int *)(&linux_data_real_addr));
-  u_parm(PARM_LINUX_DATA_TMP_ADDR, ACT_SET,  (unsigned int *)(&linux_data_tmp_addr));
-  u_parm(PARM_LINUX_TEXT_LEN, ACT_SET, (unsigned int *)&linux_text_len);
+  //u_parm(PARM_LINUX_DATA_REAL_ADDR, ACT_SET, (unsigned int *)(&linux_data_real_addr));
+  //u_parm(PARM_LINUX_DATA_TMP_ADDR, ACT_SET,  (unsigned int *)(&linux_data_tmp_addr));
+  //u_parm(PARM_LINUX_TEXT_LEN, ACT_SET, (unsigned int *)&linux_text_len);
 
   return type;
 }
@@ -912,237 +585,10 @@ create_vbe_module(void *ctrl_info, int ctrl_info_len,
   m->vbe_interface_len = pmif_len;
 }
 
-int
-load_initrd (char *initrd)
-{
-  int len;
-  unsigned long moveto;
-  unsigned long max_addr;
-  struct linux_kernel_header *lh
-    = (struct linux_kernel_header *) (cur_addr - LINUX_SETUP_MOVE_SIZE);
-  unsigned int size;
-
-#ifndef NO_DECOMPRESSION
-  no_decompression = 1;
-#endif
-
-  if (u_open (initrd, &size))
-    goto fail;
-
-  len = u_read ((char *) cur_addr, size);
-  if (! len)
-    {
-      u_close ();
-      goto fail;
-    }
-
-  if (linux_mem_size)
-    moveto = linux_mem_size;
-  else
-    moveto = (m->mem_upper + 0x400) << 10;
-
-  moveto = (moveto - len) & 0xfffff000;
-  max_addr = (lh->header == LINUX_MAGIC_SIGNATURE && lh->version >= 0x0203
-              ? lh->initrd_addr_max : LINUX_INITRD_MAX_ADDRESS);
-  if (moveto + len >= max_addr)
-    moveto = (max_addr - len) & 0xfffff000;
-
-  /* XXX: Linux 2.3.xx has a bug in the memory range check, so avoid
-     the last page.
-     XXX: Linux 2.2.xx has a bug in the memory range check, which is
-     worse than that of Linux 2.3.xx, so avoid the last 64kb. *sigh*  */
-  moveto -= 0x10000;
-  memmove ((void *) RAW_ADDR (moveto), (void *) cur_addr, len);
-
-  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]", moveto, len);
-
-  /* FIXME: Should check if the kernel supports INITRD.  */
-  lh->ramdisk_image = RAW_ADDR (moveto);
-  lh->ramdisk_size = len;
-
-  u_close ();
-
- fail:
-
-#ifndef NO_DECOMPRESSION
-  no_decompression = 0;
-#endif
-
-  return ! errnum;
-}
 
 void
 set_load_addr (int addr)
 {
   printf ("Setting module load address to 0x%x", addr);
   cur_addr = addr;
-}
-
-#ifdef GRUB_UTIL
-/* Dummy function to fake the *BSD boot.  */
-static void
-bsd_boot_entry (int flags, int bootdev, int sym_start, int sym_end,
-                int mem_upper, int mem_lower)
-{
-  stop ();
-}
-#endif
-
-
-/*
- *  All "*_boot" commands depend on the images being loaded into memory
- *  correctly, the variables in this file being set up correctly, and
- *  the root partition being set in the 'saved_drive' and 'saved_partition'
- *  variables.
- */
-
-
-void
-bsd_boot (kernel_t type, int bootdev, char *arg)
-{
-  char *str;
-  int clval = 0, i;
-  struct bootinfo bi;
-
-#ifdef GRUB_UTIL
-  entry_addr = (entry_func) bsd_boot_entry;
-#else
-  //stop_floppy ();
-  u_diskctl(BIOSDISK_STOP_FLOPPY, 0, 0, 0, 0, 0);
-#endif
-
-  u_parm(PARM_SAVED_DRIVE, ACT_GET, (unsigned int *)&saved_drive);
-
-  while (*(++arg) && *arg != ' ');
-  str = arg;
-  while (*str)
-    {
-      if (*str == '-')
-        {
-          while (*str && *str != ' ')
-            {
-              if (*str == 'C')
-                clval |= RB_CDROM;
-              if (*str == 'a')
-                clval |= RB_ASKNAME;
-              if (*str == 'b')
-                clval |= RB_HALT;
-              if (*str == 'c')
-                clval |= RB_CONFIG;
-              if (*str == 'd')
-                clval |= RB_KDB;
-              if (*str == 'D')
-                clval |= RB_MULTIPLE;
-              if (*str == 'g')
-                clval |= RB_GDB;
-              if (*str == 'h')
-                clval |= RB_SERIAL;
-              if (*str == 'm')
-                clval |= RB_MUTE;
-              if (*str == 'r')
-                clval |= RB_DFLTROOT;
-              if (*str == 's')
-                clval |= RB_SINGLE;
-              if (*str == 'v')
-                clval |= RB_VERBOSE;
-              str++;
-            }
-          continue;
-        }
-      str++;
-    }
-
-  if (type == KERNEL_TYPE_FREEBSD)
-    {
-      clval |= RB_BOOTINFO;
-
-      bi.bi_version = BOOTINFO_VERSION;
-
-      *arg = 0;
-      while ((--arg) > (char *) MB_CMDLINE_BUF && *arg != '/');
-      if (*arg == '/')
-        bi.bi_kernelname = arg + 1;
-      else
-        bi.bi_kernelname = 0;
-
-      bi.bi_nfs_diskless = 0;
-      bi.bi_n_bios_used = 0;    /* this field is apparently unused */
-
-      for (i = 0; i < N_BIOS_GEOM; i++)
-        {
-          struct geometry geom;
-
-          /* XXX Should check the return value.  */
-          //get_diskinfo (i + 0x80, &geom);
-          u_diskctl(BIOSDISK_GEO, i + 0x80, &geom, 0, 0, 0);
-          /* FIXME: If HEADS or SECTORS is greater than 255, then this will
-             break the geometry information. That is a drawback of BSD
-             but not of GRUB.  */
-          bi.bi_bios_geom[i] = (((geom.cylinders - 1) << 16)
-                                + (((geom.heads - 1) & 0xff) << 8)
-                                + (geom.sectors & 0xff));
-        }
-
-      bi.bi_size = sizeof (struct bootinfo);
-      bi.bi_memsizes_valid = 1;
-      bi.bi_bios_dev = saved_drive;
-      bi.bi_basemem = m->mem_lower;
-      bi.bi_extmem = extended_memory;
-
-      if (m->flags & MB_INFO_AOUT_SYMS)
-        {
-          bi.bi_symtab = m->syms.a.addr;
-          bi.bi_esymtab = m->syms.a.addr + 4
-            + m->syms.a.tabsize + m->syms.a.strsize;
-        }
-#if 0
-      else if (m->flags & MB_INFO_ELF_SHDR)
-        {
-          /* FIXME: Should check if a symbol table exists and, if exists,
-             pass the table to BI.  */
-        }
-#endif
-      else
-        {
-          bi.bi_symtab = 0;
-          bi.bi_esymtab = 0;
-        }
-
-      /* call entry point */
-      (*entry_addr) (clval, bootdev, 0, 0, 0, ((int) (&bi)));
-    }
-  else
-    {
-      /*
-       *  We now pass the various bootstrap parameters to the loaded
-       *  image via the argument list.
-       *
-       *  This is the official list:
-       *
-       *  arg0 = 8 (magic)
-       *  arg1 = boot flags
-       *  arg2 = boot device
-       *  arg3 = start of symbol table (0 if not loaded)
-       *  arg4 = end of symbol table (0 if not loaded)
-       *  arg5 = transfer address from image
-       *  arg6 = transfer address for next image pointer
-       *  arg7 = conventional memory size (640)
-       *  arg8 = extended memory size (8196)
-       *
-       *  ...in actuality, we just pass the parameters used by the kernel.
-       */
-
-      /* call entry point */
-      unsigned long end_mark;
-
-      if (m->flags & MB_INFO_AOUT_SYMS)
-        end_mark = (m->syms.a.addr + 4
-                    + m->syms.a.tabsize + m->syms.a.strsize);
-      else
-        /* FIXME: it should be mbi.syms.e.size.  */
-        end_mark = 0;
-
-      (*entry_addr) (clval, bootdev, 0, end_mark,
-                     extended_memory, m->mem_lower);
-    }
 }

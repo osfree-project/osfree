@@ -99,7 +99,8 @@ int process_cfg_line(char *line)
   static int sec_to_load;
 
   // delete CR and LF symbols at the end
-  line = trim(line);
+  line = strip(trim(line));
+  if (!*line && insection) insection = 0;
   // skip comments ";"
   i = grub_index(';', line);
   if (i) line[i - 1] = '\0';
@@ -108,9 +109,9 @@ int process_cfg_line(char *line)
   if (i) line[i - 1] = '\0';
   // delete leading and trailing spaces
   line = strip(line);
-  
-  if (!*line && insection) insection = 0;
-  else if (abbrev(line, "title", 5))   
+  if (!*line) return 1;
+
+  if (abbrev(line, "title", 5))   
   {
     section++;
     if (sec_to_load == section) 
@@ -241,7 +242,6 @@ int process_cfg(char *cfg)
         if (!process_cfg_line(s)) return -1;
         s[0] = '\0';
       }
-      //if (p - buf + 1 == rd) break; // read next buffer
     }
   }
 
@@ -251,8 +251,8 @@ int process_cfg(char *cfg)
 void KernelLoader(void)
 {
   char *cfg = "/boot/freeldr/freeldr.cfg";
-  printf("Kernel loader started.\r\n");
 
+  printf("Kernel loader started.\r\n");
   if(!process_cfg(cfg))
     printf("Error parsing loader config file!\r\n");
 }
