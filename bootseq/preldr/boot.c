@@ -476,7 +476,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
   if (! errnum)
     {
-      printf (", entry=0x%x]", (unsigned) entry_addr);
+      printf (", entry=0x%x]\r\n", (unsigned) entry_addr);
 
       /* If the entry address is physically different from that of the ELF
          header, correct it here.  */

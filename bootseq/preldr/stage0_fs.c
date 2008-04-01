@@ -437,7 +437,6 @@ freeldr_open (char *filename)
    int  rc;
    char buf[128];
 
-   printmsg("\r\n");
    printmsg(filename);
    printmsg("\r\n");
 
