@@ -21,7 +21,7 @@ extrn    call_rm       :near
 
 include fsd.inc
 
-_TEXT16  segment byte public 'CODE'  use16
+_TEXT16  segment dword public 'CODE'  use16
 
 ifndef STAGE1_5
 
@@ -98,7 +98,7 @@ endif
 
 _TEXT16  ends
 
-_TEXT    segment byte public 'CODE'  use32
+_TEXT    segment dword public 'CODE'  use32
 
 
 ifndef STAGE1_5

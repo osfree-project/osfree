@@ -43,6 +43,17 @@ fsize = stream(file, 'c', 'query size')
 buf = charin(file, _text16_size + base + 1, fsize - base - _text16_size)
 sout = sout || buf
 
+
+/* Pad file to multiple of 4 bytes */
+sz = fsize - base
+
+n = 0
+do until (sz + n) // 2 == 0
+  n = n + 1
+  sout = sout || '00'x
+end
+
+
 call charout , sout
 
 

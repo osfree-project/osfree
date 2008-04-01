@@ -57,6 +57,8 @@ VSTAFS_SH_OBJS      = $(FS_SH_OBJS) fsys_vstafs.$(SO)
 FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
+BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-np.$(O) end.$(O)
+
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
                    video.$(O) common.$(O) stage0_fs.$(O) func.$(O) minilibc.$(O) bios.$(O) end.$(O)
 
@@ -74,7 +76,8 @@ TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
                    fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
-                   minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel
+                   minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
+                   boot_linux
 
 SHIFT = 0x100
 
@@ -87,6 +90,12 @@ all: fsd.h $(TARGETS) .SYMBOLIC
 preldr0.rel: preldr0
  $(GENREL) $^& $^&s $(SHIFT) >$^@
  $(DC) $^&s
+
+boot_linux: boot_linux.$(OUT)
+ #$(RN) $< $^@
+ $(DC) $^@
+ $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
+ $(DC) $<
 
 .$(OUT).fsd:
  $(DC) $^@
@@ -118,68 +127,71 @@ freeldr: freeldr.$(OUT)
  $(RIP) $< LDR_BASE fsd.inc >$^@
  $(DC) $<
 
+boot_linux.$(OUT): $(BOOT_LINUX_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+
 freeldr.$(OUT): $(LDR_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 fat.$(OUT): $(FAT_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 fat.$(SOUT): $(FAT_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 ext2fs.$(OUT): $(EXT2FS_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 ext2fs.$(SOUT): $(EXT2FS_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 jfs.$(OUT): $(JFS_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 jfs.$(SOUT): $(JFS_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 iso9660.$(OUT): $(ISO9660_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 iso9660.$(SOUT): $(ISO9660_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 reiserfs.$(OUT): $(REISERFS_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 reiserfs.$(SOUT): $(REISERFS_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 minix.$(OUT): $(MINIX_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 minix.$(SOUT): $(MINIX_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 ufs2.$(OUT): $(UFS2_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 ufs2.$(SOUT): $(UFS2_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 vstafs.$(OUT): $(VSTAFS_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 vstafs.$(SOUT): $(VSTAFS_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 ffs.$(OUT): $(FFS_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 ffs.$(SOUT): $(FFS_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 xfs.$(OUT): $(XFS_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
 xfs.$(SOUT): $(XFS_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" FS=1 link
 
 stage0.$(OUT): $(STAGE0_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
@@ -200,7 +212,7 @@ link: .SYMBOLIC .PROCEDURE
  @%append $(T)$(S).lnk NAME $(T).$(E)
  @%append $(T)$(S).lnk ALIAS init=_init
 !ifneq T stage0
-!ifneq T freeldr
+!ifeq FS 1
  @%append $(T)$(S).lnk ALIAS fs_mount_=$(T)_mount_
  @%append $(T)$(S).lnk ALIAS fs_dir_=$(T)_dir_
  @%append $(T)$(S).lnk ALIAS fs_read_=$(T)_read_
@@ -288,6 +300,9 @@ func.$(LO): func.c
 
 func.$(SO): func.c
  $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
+
+modesw-np.$(O): modesw.asm
+ $(ASM) -dNO_PROT -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

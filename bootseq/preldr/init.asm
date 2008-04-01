@@ -15,7 +15,7 @@ public  force_lba
 public  _text16_begin
 extrn   _text16_end  :dword
 extrn   bss_end      :dword
-extrn   preldr0_end  :dword
+extrn   exe_end  :dword
 
 extrn   gdt          :byte
 extrn   init         :near
@@ -49,7 +49,7 @@ include bpb.inc
 
 .386p
 
-_TEXT16 segment byte public 'CODE' use16
+_TEXT16 segment dword public 'CODE' use16
 
 _text16_begin:
 
@@ -136,7 +136,7 @@ real_start:
 skip_reloc:
         ; clear BSS
         mov  ecx, offset _TEXT:bss_end
-        mov  eax, offset _TEXT:preldr0_end
+        mov  eax, offset _TEXT:exe_end
         sub  ecx, eax    ; BSS length
         mov  ebx, STAGE0_BASE
         sub  eax, ebx
@@ -276,7 +276,7 @@ endif
 
 _TEXT16 ends
 
-_TEXT   segment byte public 'CODE' use32
+_TEXT   segment dword public 'CODE' use32
 
 boot_flags         dw 0
 boot_drive         dd 0

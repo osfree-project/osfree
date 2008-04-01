@@ -11,7 +11,11 @@ name modesw
 public  gdt
 public  gdtdesc
 public  call_rm
+
+ifndef  NO_PROT
 public  call_pm
+endif
+
 public  __CHK
 public  __I8LS
 public  __U8RS
@@ -19,7 +23,22 @@ public  __U8RS
 include fsd.inc
 include struc.inc
 
-_TEXT16  segment byte public 'CODE'  use16
+ifdef NO_PROT
+
+  include mb_etc.inc
+  BASE    equ KERN_BASE
+
+else
+
+  BASE    equ STAGE0_BASE
+
+endif
+
+_TEXT16  segment dword public 'CODE'  use16
+
+start1   label byte
+
+ifndef NO_PROT
 
 ;
 ; void __cdecl call_pm(unsigned long func);
@@ -35,7 +54,7 @@ call_pm proc near
         ; Disable interrupts
         cli
         ; Load GDTR
-        mov  eax, offset _TEXT:gdtdesc - STAGE0_BASE
+        mov  eax, offset _TEXT:gdtdesc - BASE
         lgdt fword ptr [eax]
         ; Enable protected mode
         mov  eax, cr0
@@ -57,7 +76,7 @@ protmode:
         mov  ss, ax
         ; do a far call to a 32-bit segment
         push esi
-        mov  esi, offset _TEXT:address - STAGE0_BASE
+        mov  esi, offset _TEXT:address - BASE
         mov  ax,  PROT_MODE_CSEG
         mov  word ptr  [esi + 4], ax
         mov  eax, offset _TEXT:pmode
@@ -73,7 +92,7 @@ protmode:
         and  al,  0feh
         mov  cr0, eax
         ; long jump to 16-bits entry point
-        mov  eax, STAGE0_BASE
+        mov  eax, BASE
         shr  eax, 4
         push ax
         push realmode
@@ -93,6 +112,8 @@ realmode:
         ret
 call_pm endp
 
+endif
+
 ;
 ; This function gets called from
 ; 32-bit segment and it switches
@@ -107,7 +128,7 @@ rmode_switch proc far
         and  al,  0feh
         mov  cr0, eax
         ; set segment registers
-        mov  eax, STAGE0_BASE
+        mov  eax, BASE
         shr  eax, 4
         mov  ds, ax
         mov  es, ax
@@ -156,10 +177,20 @@ pmode1:
         jmp fword ptr ss:[bp]
 rmode_switch endp
 
+ifdef NO_PROT
+
+MODESW_SZ   equ  0x100
+padsize     equ  MODESW_SZ - ($ - start1)
+pad         db   padsize dup (0)
+
+endif
+
 _TEXT16 ends
 
 
-_TEXT   segment byte public 'CODE' use32
+_TEXT   segment dword public 'CODE' use32
+
+ifndef NO_PROT
 
 ;
 ; pmode:
@@ -205,6 +236,8 @@ pmode   proc far
 
         retf
 pmode   endp
+
+endif
 
 ;
 ; void __cdecl call_rm(fp_t func);
@@ -265,7 +298,7 @@ __U8RS:
 
 _TEXT   ends
 
-_DATA   segment byte public 'DATA' use32
+_DATA   segment dword public 'DATA' use32
 
 CR0_PE_ON       equ 01h
 CR0_PE_OFF      equ 0fffffffeh

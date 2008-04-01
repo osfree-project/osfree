@@ -20,31 +20,31 @@ public loader_stack_top
 
 include fsd.inc
 
-_TEXT    segment byte public 'CODE'  use32
+_TEXT    segment dword public 'CODE'  use32
 _TEXT    ends
-_DATA    segment byte public 'DATA'  use32
+_DATA    segment dword public 'DATA'  use32
 _DATA    ends
-CONST    segment byte public 'DATA'  use32
+CONST    segment dword public 'DATA'  use32
 CONST    ends
-CONST2   segment byte public 'DATA'  use32
+CONST2   segment dword public 'DATA'  use32
 CONST2   ends
-_BSS     segment byte public 'BSS'   use32
+_BSS     segment dword public 'BSS'   use32
 _BSS     ends
-_STACK   segment byte public 'STACK' use32
+_STACK   segment dword public 'STACK' use32
 _STACK   ends
 
 DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_STACK
 
-_STACK   segment byte public 'STACK' use32
+_STACK   segment dword public 'STACK' use32
 LDR_STACK_SIZE equ 4000h
 public loader_stack_top
 public loader_stack_bottom
-                        db 3 dup (?)
+;                        db 3 dup (?)
 loader_stack_bottom     db LDR_STACK_SIZE dup (?)
 loader_stack_top        label byte
 _STACK   ends
 
-_TEXT segment byte public 'CODE' use32
+_TEXT segment dword public 'CODE' use32
 
       org LDR_BASE
 
@@ -84,6 +84,9 @@ ok:
       ; mbi structure
       mov     ebx, offset _TEXT:m
       mov     ebx, [ebx]
+
+      ; lip2 pointer in ECX
+      mov     ecx, l
 
       ; boot kernel here (absolute address call)
       mov     ebp, offset _TEXT:entry_addr

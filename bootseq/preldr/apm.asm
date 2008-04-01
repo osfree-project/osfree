@@ -14,7 +14,7 @@ ifndef STAGE1_5
 public get_apm_info
 public apm_bios_info
 
-_TEXT16 segment byte public 'CODE' use16
+_TEXT16 segment dword public 'CODE' use16
 
 
 get_apm_info_rm:
@@ -142,7 +142,7 @@ _TEXT16 ends
 ;!       setup.S         Copyright (C) 1991, 1992 Linus Torvalds
 ;*/
 
-_TEXT   segment byte public 'CODE' use32
+_TEXT   segment dword public 'CODE' use32
 
 get_apm_info:
 	push	ebp

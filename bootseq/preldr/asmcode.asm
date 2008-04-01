@@ -12,9 +12,6 @@ extrn   bss_end             :near
 
 ifndef STAGE1_5
 
-public linux_boot
-public big_linux_boot
-public multi_boot
 public stop
 public stop_floppy
 
@@ -39,24 +36,7 @@ KB_OUTPUT_MASK  equ     0xdd	; enable output buffer full interrupt
 				;   enable clock line
 KB_A20_ENABLE   equ     0x02
 
-_TEXT16 segment byte public 'CODE' use16
-
-start_linux:
-        ; final setup for linux boot
-        cli
-        mov     ss, bx
-        mov     sp, LINUX_SETUP_STACK
-
-        mov     ds, bx
-        mov     es, bx
-        mov     fs, bx
-        mov     gs, bx
-
-                ; jump to start
-                ; ljmp
-                db      0eah
-                dw      0
-linux_setup_seg dw      0
+_TEXT16 segment dword public 'CODE' use16
 
         ;
         ;  This next part is sort of evil.  It takes advantage of the
@@ -166,59 +146,7 @@ found_rom_table:
 _TEXT16 ends
 
 
-_TEXT    segment byte public 'CODE'  use32
-
-;
-;  linux_boot()
-;
-;  Does some funky things (including on the stack!), then jumps to the
-;  entry point of the Linux setup code.
-;
-linux_boot:
-        ; don't worry about saving anything, we're committed at this point
-        cld     ; forward copying
-
-        ; copy kernel
-        mov     ecx, linux_text_len
-        add     ecx, 3
-        shr     ecx, 2
-        mov     esi, LINUX_BZIMAGE_ADDR
-        mov     edi, LINUX_ZIMAGE_ADDR
-
-        rep     movsd
-
-big_linux_boot:
-        mov     ebx, linux_data_real_addr
-
-        ; copy the real mode part
-        mov     esi, linux_data_tmp_addr
-        mov     edi, ebx
-        mov     ecx, LINUX_SETUP_MOVE_SIZE
-        cld
-        rep     movsb
-
-        ; change ebx to the segment address
-        shr     ebx, 4
-        mov     eax, ebx
-        add     eax, 20h
-        mov     dword ptr linux_setup_seg, eax
-
-        ; XXX new stack pointer in safe area for calling functions
-        mov     esp, 4000h
-        call    stop_floppy
-
-        ; final setup for linux boot
-
-        mov     eax, STAGE0_BASE
-        shl     eax, 12
-        mov     ax,  offset _TEXT16:start_linux
-        push    eax
-        call    call_rm
-        add     esp, 4
-
-        ; we should not return here
-        cli
-        hlt
+_TEXT    segment dword public 'CODE'  use32
 
 ;
 ;  multi_boot(int start, int mb_info)
@@ -226,18 +154,6 @@ big_linux_boot:
 ;  This starts a kernel in the manner expected of the multiboot standard.
 ;
 
-multi_boot:
-        ; no need to save anything
-        call    stop_floppy
-
-        mov     eax, 2BADB002h
-        mov     ebx, [esp + 0x8]
-
-        ; boot kernel here (absolute address call)
-        call    dword ptr [esp + 0x4]
-
-        ; error
-        call    stop
 
 ;
 ;  This call is special...  it never returns...  in fact it should simply
@@ -507,13 +423,6 @@ get_rom_config_table:
 	pop	ebx
 	pop	ebp
 	ret
-
-
-
-
-linux_text_len        dd  0
-linux_data_tmp_addr   dd  0
-linux_data_real_addr  dd  0
 
 _TEXT   ends
 

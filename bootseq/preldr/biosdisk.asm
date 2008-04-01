@@ -18,7 +18,7 @@ extrn  force_lba     :byte
 
 include fsd.inc
 
-_TEXT16 segment byte public 'CODE' use16
+_TEXT16 segment dword public 'CODE' use16
 
 ;
 ; int biosdisk_int13_extensions (int ax, int drive, void *dap);
@@ -127,7 +127,7 @@ _text16_end:
 _TEXT16 ends
 
 
-_TEXT segment byte public 'CODE'  use32
+_TEXT segment dword public 'CODE'  use32
 
 ;
 ;   int biosdisk_int13_extensions (int ax, int drive, void *dap)

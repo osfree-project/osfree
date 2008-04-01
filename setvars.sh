@@ -2,7 +2,7 @@
 #
 #
 
-ROOT=/mnt/data1/src/os2/boot
+ROOT=/mnt/data1/src/os2/svn/osfree
 WATCOM=/mnt/data1/WATCOM
 watcom=/mnt/data1/watcom
 
