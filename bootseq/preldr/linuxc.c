@@ -50,8 +50,8 @@ int kernel_ldr(void)
   if (lh->boot_flag == BOOTSEC_SIGNATURE
 	   && lh->setup_sects <= LINUX_MAX_SETUP_SECTS)
   {
-      int big_linux = 0;
       int setup_sects = lh->setup_sects;
+      big_linux = 0;
 
       if (lh->header == LINUX_MAGIC_SIGNATURE && lh->version >= 0x0200)
 	{
@@ -448,7 +448,7 @@ void cmain(void)
     initrd_size = 0;
   }
 
-  if (mods_count < 3)
+  if (mods_count < 2)
     stop();
   else
   {
