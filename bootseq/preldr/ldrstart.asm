@@ -19,6 +19,7 @@ public loader_stack_top
 .386
 
 include fsd.inc
+include mb_etc.inc
 
 _TEXT    segment dword public 'CODE'  use32
 _TEXT    ends
@@ -85,9 +86,6 @@ ok:
       mov     ebx, offset _TEXT:m
       mov     ebx, [ebx]
 
-      ; lip2 pointer in ECX
-      mov     ecx, l
-
       ; boot kernel here (absolute address call)
       mov     ebp, offset _TEXT:entry_addr
       call    dword ptr [ebp]
@@ -102,12 +100,12 @@ stop:
       cld
       lea     esi, errmsg
       mov     edi, VIDEO_BUF
-      mov     ecx, msglen
       mov     ah, 02h  ; attribute
 loop1:
-      lodsb         ; symbol
+      lodsb            ; symbol
       stosw
-      loop    loop1    ; copy a string to video buffer
+      test    al, al
+      jnz     loop1    ; copy a string to video buffer
 
       cli
       hlt
@@ -123,7 +121,6 @@ bpb          dd   0
 boot_drive   dd   0
 
 errmsg       db   "No boot magic in EAX, panic...",13,10,0
-msglen       dd   $ - errmsg
 oldstack     dd   0
 
 start endp

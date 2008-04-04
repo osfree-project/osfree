@@ -87,8 +87,10 @@ typedef struct lip1
 } lip1_t;
 
 /* Loader Interface Page #2 (interface between loader and pre-loader) */
+typedef struct lip2 lip2_t;
 typedef struct lip2
 {
+  unsigned int           u_lip2magic;
   unsigned int __cdecl   (*u_open) (char *name, unsigned int *size);
   unsigned int __cdecl   (*u_read) (char *buf, unsigned int count);
   unsigned int __cdecl   (*u_seek) (int loffseek);
@@ -99,7 +101,9 @@ typedef struct lip2
   int          __cdecl   (*u_load) (char *image, unsigned int size, char *load_addr, struct exe_params *p);
   int          __cdecl   (*u_parm) (int parm, int action, unsigned int *val);
   void         __cdecl   (*u_msg)  (char *s);
-} lip2_t;
+  void         __cdecl   (*u_setlip) (lip2_t *l);
+};
 
+#define LIP2_MAGIC 0x3badb002
 
 #endif

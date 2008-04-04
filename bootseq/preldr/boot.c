@@ -27,6 +27,7 @@
 
 #include "fsys.h"
 #include "fsd.h"
+#include <lip.h>
 
 #pragma aux entry_addr "*"
 #pragma aux m          "*"
@@ -585,6 +586,33 @@ create_vbe_module(void *ctrl_info, int ctrl_info_len,
   m->vbe_interface_len = pmif_len;
 }
 
+void create_lip_module(lip2_t **l)
+{
+  int lip2_len;
+  char *lip_magic = "*lip";
+  /* if we are supposed to load on 4K boundaries */
+  cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
+
+  lip2_len = sizeof(lip2_t);
+  grub_memmove((char *)cur_addr, *l, lip2_len);
+
+  *l = (lip2_t *)cur_addr;
+  u_setlip(*l);
+
+  m->flags |= MB_INFO_MODS;
+  m->mods_addr = (int) mll;
+
+  grub_strcpy((char *)cur_addr + lip2_len, lip_magic);
+  mll[m->mods_count].cmdline = (unsigned long)cur_addr + lip2_len;
+  mll[m->mods_count].mod_start = cur_addr;
+  cur_addr += lip2_len;
+  mll[m->mods_count].mod_end = cur_addr;
+  mll[m->mods_count].pad = 0;
+  cur_addr += 5;
+
+  /* increment number of modules included */
+  m->mods_count++;
+}
 
 void
 set_load_addr (int addr)

@@ -69,3 +69,9 @@ u_msg (char *s)
 {
   l->u_msg(s);
 }
+
+void __cdecl
+u_setlip (lip2_t *l2)
+{
+  l->u_setlip(l2);
+}

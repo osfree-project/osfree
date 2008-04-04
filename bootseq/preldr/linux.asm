@@ -27,6 +27,7 @@ public linux_data_tmp_addr
 public linux_data_real_addr
 public big_linux_boot
 public linux_boot
+public stop
 
 _TEXT16  segment dword public 'CODE'  use16
 _TEXT16  ends
@@ -134,28 +135,37 @@ entry:
         ; save multiboot structure address
         mov   m, ebx
 
-        ; save lip2 pointer from ECX
-        mov   l, ecx        
-
         call  set_gdt
 
-        call  cmain
+        ; set stack
+        ;mov   esp, stack_top
+        ; at the moment, we use loader stack
+
+        ; copy realmode part of boot_linux at REAL_BASE
+        cld
+        mov     ecx, 0x80
+        mov     esi, KERN_BASE
+        mov     edi, REAL_BASE
+ 
+        rep     movsd
+
+        call    cmain
 
         ; We should not return here
         cli
         hlt
-        jmp   $
+        jmp     $
 
 stop:
         cld
         lea   esi, errmsg
         mov   edi, VIDEO_BUF
-        mov   ecx, msglen
         mov   ah, 02h  ; attribute
 loop1:
         lodsb          ; symbol
         stosw
-        loop  loop1    ; copy a string to video buffer
+        test  al, al   ; copy a string to video buffer
+        jnz   loop1
 
         cli
         hlt
@@ -176,6 +186,7 @@ set_gdt:
         mov  ebx, edi
         rep  movsd
 
+        ; fix gdt descriptors base
         mov  eax, REAL_BASE
         mov  [ebx][5*8].ds_baselo, ax
         mov  [ebx][6*8].ds_baselo, ax
@@ -211,14 +222,6 @@ linux_boot:
         rep     movsd
 
 big_linux_boot:
-        ; copy realmode part of boot_linux at REAL_BASE
-        cld
-        mov     ecx, 0x80
-        mov     esi, KERN_BASE
-        mov     edi, REAL_BASE
- 
-        rep     movsd
-
         mov     edx, linux_data_real_addr
 
         ; copy the real mode part
@@ -276,8 +279,7 @@ linux_text_len        dd  0
 linux_data_tmp_addr   dd  0
 linux_data_real_addr  dd  0
 
-errmsg  db  "No multiboot magic in EAX, panic!",13,10,0
-msglen  equ errmsg - $    
+errmsg  db  "This is not a multiboot loader or no LIP module!",0
 
 oldgdtdesc gdtr <>
 

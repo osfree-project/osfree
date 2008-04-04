@@ -18,6 +18,7 @@ extern bios_parameters_block *bpb;
 extern FileTable ft;
 
 struct multiboot_info *m;
+void create_lip_module(lip2_t **l);
 
 #define BUFSIZE 0x200
 char linebuf[BUFSIZE];
@@ -27,6 +28,7 @@ char buf[BUFSIZE];
 #pragma aux module_func  "*"
 #pragma aux modaddr_func "*"
 #pragma aux m            "*"
+#pragma aux l            "*"
 
 int kernel_func (char *arg, int flags);
 int module_func (char *arg, int flags);
@@ -253,8 +255,15 @@ void KernelLoader(void)
   char *cfg = "/boot/freeldr/freeldr.cfg";
 
   printf("Kernel loader started.\r\n");
+
   if(!process_cfg(cfg))
+  {
     printf("Error parsing loader config file!\r\n");
+  }
+  else
+  {
+    create_lip_module(&l);
+  }
 }
 
 void cmain(void)

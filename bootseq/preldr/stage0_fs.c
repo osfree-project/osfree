@@ -426,6 +426,12 @@ u_msg (char *s)
   printmsg(buf);
 }
 
+void __cdecl
+u_setlip (lip2_t *l)
+{
+  setlip2(l);
+}
+
 #endif
 
 int
@@ -538,10 +544,28 @@ int  stage0_embed(int *start_sector, int needed_sectors)
   return 0;
 }
 
-void setlip(void)
-{
-  l1 = &lip1; l2 = &lip2;
+#ifndef STAGE1_5
 
+void setlip2(lip2_t *l2)
+{
+  l2->u_lip2magic       = LIP2_MAGIC;
+  l2->u_open            = &u_open;
+  l2->u_read            = &u_read;
+  l2->u_seek            = &u_seek;
+  l2->u_close           = &u_close;
+  l2->u_terminate       = &u_terminate;
+  l2->u_load            = &u_load;
+  l2->u_boot            = &u_boot;
+  l2->u_parm            = &u_parm;
+  l2->u_diskctl         = &u_diskctl;
+  l2->u_msg             = &u_msg;
+  l2->u_setlip          = &u_setlip;
+}
+
+#endif
+
+void setlip1(lip1_t *l1)
+{
   l1->lip_open  = &freeldr_open;
   l1->lip_read  = &freeldr_read;
   l1->lip_seek  = &freeldr_seek;
@@ -591,17 +615,16 @@ void setlip(void)
   l1->lip_printb        = &printb;
   l1->lip_printw        = &printw;
   l1->lip_printd        = &printd;
+#endif
+}
 
-  l2->u_open            = &u_open;
-  l2->u_read            = &u_read;
-  l2->u_seek            = &u_seek;
-  l2->u_close           = &u_close;
-  l2->u_terminate       = &u_terminate;
-  l2->u_load            = &u_load;
-  l2->u_boot            = &u_boot;
-  l2->u_parm            = &u_parm;
-  l2->u_diskctl         = &u_diskctl;
-  l2->u_msg             = &u_msg;
+void setlip(void)
+{
+  l1 = &lip1; 
+  setlip1(l1);
+#ifndef STAGE1_5
+  l2 = &lip2;
+  setlip2(l2);
 #endif
 }
 

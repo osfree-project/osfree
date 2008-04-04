@@ -4,6 +4,7 @@
 
 #pragma aux m     "*"
 #pragma aux l     "*"
+#pragma aux stop  "*"
 #pragma aux linux_boot     "*"
 #pragma aux big_linux_boot "*"
 #pragma aux linux_data_real_addr "*"
@@ -15,6 +16,7 @@
 #include "linux.h"
 #include "struc.h"
 
+extern void stop(void);
 extern void big_linux_boot(void);
 extern void linux_boot(void);
 struct multiboot_info *m;
@@ -22,6 +24,14 @@ char *kernel, *initrd;
 char *kernel_cmdline;
 int kernel_size, initrd_size;
 int big_linux;
+static int linux_mem_size;
+struct linux_kernel_header *lh;
+int len;
+unsigned long moveto;
+unsigned long max_addr;
+
+unsigned int data_len, text_len;
+unsigned int cur_addr;
 
 grub_error_t errnum;
 lip2_t *l;
@@ -31,48 +41,8 @@ void init(void)
 
 }
 
-#if 0
-
-void set_gdt()
+int kernel_ldr(void)
 {
-   struct gdtr g;
-   unsigned long base;
-   struct desc *desc;
-
-   __asm {
-     lea   eax, g
-     sgdt  fword ptr [eax]
-   }
-
-   base = g.g_base;
-   desc = (struct desc *)base;
-   desc += 5 * sizeof(struct desc);
-
-   *((unsigned long long *)(desc)) = 0x00009E030000ffff; // code 16-bit
-   desc++;
-   *((unsigned long long *)(desc)) = 0x000092030000ffff; // data 16-bit
-
-   g.g_limit += 2 * sizeof(struct desc);
-
-   __asm {
-     lea   eax, g
-     lgdt  fword ptr [eax]
-   }
-}
-
-#endif
-
-int loader(void)
-{
-  static int linux_mem_size;
-  struct linux_kernel_header *lh;
-  int len;
-  unsigned long moveto;
-  unsigned long max_addr;
-
-  unsigned int data_len, text_len;
-  unsigned int cur_addr;
-
   /* Use BUFFER as a linux kernel header, if the image is Linux zImage
      or bzImage.  */
   lh = (struct linux_kernel_header *) kernel;
@@ -330,8 +300,14 @@ int loader(void)
 	    }
 	}
 
-  //return 1;
+    return 1;
+  }
 
+  return 0;
+}
+
+int initrd_ldr(void)
+{
   lh = (struct linux_kernel_header *) (cur_addr - LINUX_SETUP_MOVE_SIZE);
   
 #ifndef NO_DECOMPRESSION
@@ -369,7 +345,7 @@ int loader(void)
   moveto -= 0x10000;
   memmove ((void *) RAW_ADDR (moveto), (void *) cur_addr, len);
 
-  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\n", moveto, len);
+  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\r\n", moveto, len);
 
   /* FIXME: Should check if the kernel supports INITRD.  */
   lh->ramdisk_image = RAW_ADDR (moveto);
@@ -384,8 +360,6 @@ int loader(void)
   #ifndef NO_DECOMPRESSION
     no_decompression = 0; 
   #endif
-
-  }
 
   return 0;
 }
@@ -410,13 +384,45 @@ skip_to (int after_equal, char *cmdline)
   return cmdline;
 }
 
+int loader(void)
+{
+  kernel_ldr();
+
+  if (initrd)
+     initrd_ldr();
+
+  return 1;
+}
+
+int check_lip(char *mods_addr, unsigned long mods_count)
+{
+  struct mod_list *mod;
+
+  // last module in the list
+  mod = (struct mod_list *)(mods_addr + (mods_count - 1) * sizeof(struct mod_list));
+  if (grub_strstr((char *)(mod->cmdline), "*lip"))
+  {
+    // set LIP pointer
+    l = (lip2_t *)mod->mod_start;
+    // check if the LIP begins with a 
+    // magic number of 0x3badb002
+    if (*((unsigned long *)l) == LIP2_MAGIC)
+    {
+      printf("boot_linux started\r\n");
+      return 1;
+    }
+    else
+      return 0;
+  }
+
+  return 0;
+}
+
 void cmain(void)
 {
   char *mods_addr;
   int mods_count;
   struct mod_list *mod; 
-
-  printf("boot_linux started\r\n");
 
   mods_addr  = (char *)m->mods_addr;
   mods_count = m->mods_count;
@@ -429,19 +435,29 @@ void cmain(void)
   kernel_size = mod->mod_end - mod->mod_start;
   kernel_cmdline = (char *)mod->cmdline;
 
-  mod++;
+  if (mods_count > 1)
+  {
+    ++mod;
 
-  initrd = (char *)mod->mod_start;
-  initrd_size = mod->mod_end - mod->mod_start;
+    initrd = (char *)mod->mod_start;
+    initrd_size = mod->mod_end - mod->mod_start;
+  }
+  else
+  {
+    initrd = 0;
+    initrd_size = 0;
+  }
 
-  printf("kernel: at 0x%x, size %u, cmdline=\"%s\"\r\n", kernel, kernel_size, kernel_cmdline);
-  printf("initrd: at 0x%x, size %u\r\n", initrd, initrd_size);
+  if (mods_count < 3)
+    stop();
+  else
+  {
+    if (!check_lip(mods_addr, mods_count))
+      stop();
+  }
 
   if (loader())
   { 
-
-    //set_gdt();
- 
     if (big_linux)
        big_linux_boot();
     else

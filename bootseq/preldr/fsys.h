@@ -55,6 +55,8 @@ int __cdecl
 u_parm (int parm, int action, unsigned int *val);
 void __cdecl
 u_msg (char *s);
+void __cdecl
+u_setlip (lip2_t *l);
 
 /* Actions */
 #define ACT_GET 0
@@ -77,15 +79,17 @@ u_msg (char *s);
 #define PARM_LINUX_DATA_REAL_ADDR 13
 #define PARM_LINUX_DATA_TMP_ADDR  14
 
-#pragma aux u_open "*"
-#pragma aux u_read "*"
-#pragma aux u_seek "*"
-#pragma aux u_close "*"
+#pragma aux u_open   "*"
+#pragma aux u_read   "*"
+#pragma aux u_seek   "*"
+#pragma aux u_close  "*"
 #pragma aux u_terminate "*"
-#pragma aux u_diskctl "*"
-#pragma aux u_boot "*"
-#pragma aux u_load "*"
-#pragma aux u_parm "*"
+#pragma aux u_diskctl   "*"
+#pragma aux u_boot   "*"
+#pragma aux u_load   "*"
+#pragma aux u_parm   "*"
+#pragma aux u_msg    "*"
+#pragma aux u_setlip "*"
 
 extern struct multiboot_info *m; // pointer to the multiboot structure
 
