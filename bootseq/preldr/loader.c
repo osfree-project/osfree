@@ -21,7 +21,7 @@ struct multiboot_info *m;
 
 #define BUFSIZE 0x200
 char linebuf[BUFSIZE];
-char buf[40];
+char buf[BUFSIZE];
 
 #pragma aux kernel_func  "*"
 #pragma aux module_func  "*"

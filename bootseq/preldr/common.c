@@ -38,6 +38,7 @@ unsigned long cdrom_drive;
  *  Error code stuff.
  */
 
+#pragma aux errnum "*"
 grub_error_t errnum = ERR_NONE;
 
 #ifndef STAGE1_5

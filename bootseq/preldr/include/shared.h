@@ -363,39 +363,6 @@ extern char *grub_scratch_mem;
 #include "mb_header.h"
 #include "mb_info.h"
 
-/* For the Linux/i386 boot protocol version 2.03.  */
-_Packed struct linux_kernel_header
-{
-  char code1[0x0020];
-  unsigned short cl_magic;              /* Magic number 0xA33F */
-  unsigned short cl_offset;             /* The offset of command line */
-  char code2[0x01F1 - 0x0020 - 2 - 2];
-  unsigned char setup_sects;            /* The size of the setup in sectors */
-  unsigned short root_flags;            /* If the root is mounted readonly */
-  unsigned short syssize;               /* obsolete */
-  unsigned short swap_dev;              /* obsolete */
-  unsigned short ram_size;              /* obsolete */
-  unsigned short vid_mode;              /* Video mode control */
-  unsigned short root_dev;              /* Default root device number */
-  unsigned short boot_flag;             /* 0xAA55 magic number */
-  unsigned short jump;                  /* Jump instruction */
-  unsigned long header;                 /* Magic signature "HdrS" */
-  unsigned short version;               /* Boot protocol version supported */
-  unsigned long realmode_swtch;         /* Boot loader hook */
-  unsigned long start_sys;              /* Points to kernel version string */
-  unsigned char type_of_loader;         /* Boot loader identifier */
-  unsigned char loadflags;              /* Boot protocol option flags */
-  unsigned short setup_move_size;       /* Move to high memory size */
-  unsigned long code32_start;           /* Boot loader hook */
-  unsigned long ramdisk_image;          /* initrd load address */
-  unsigned long ramdisk_size;           /* initrd size */
-  unsigned long bootsect_kludge;        /* obsolete */
-  unsigned short heap_end_ptr;          /* Free memory after setup end */
-  unsigned short pad1;                  /* Unused */
-  char *cmd_line_ptr;                   /* Points to the kernel command line */
-  unsigned long initrd_addr_max;        /* The highest address of initrd */
-}; //__attribute__ ((packed));
-
 /* Memory map address range descriptor used by GET_MMAP_ENTRY. */
 _Packed struct mmar_desc
 {

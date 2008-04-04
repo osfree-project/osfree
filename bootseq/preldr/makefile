@@ -57,7 +57,7 @@ VSTAFS_SH_OBJS      = $(FS_SH_OBJS) fsys_vstafs.$(SO)
 FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
-BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-np.$(O) end.$(O)
+BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-np.$(O) minilibc.$(O) wrap.$(O) end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
                    video.$(O) common.$(O) stage0_fs.$(O) func.$(O) minilibc.$(O) bios.$(O) end.$(O)
@@ -92,7 +92,6 @@ preldr0.rel: preldr0
  $(DC) $^&s
 
 boot_linux: boot_linux.$(OUT)
- #$(RN) $< $^@
  $(DC) $^@
  $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
  $(DC) $<

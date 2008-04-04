@@ -11,6 +11,7 @@
 
 #pragma aux l1       "*"
 #pragma aux l2       "*"
+#pragma aux errnum   "*"
 
 void printmsg(char *);
 void printb(unsigned char);

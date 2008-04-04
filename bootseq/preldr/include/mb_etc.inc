@@ -4,10 +4,11 @@
 ;
 
 ; multiboot kernel load base
-KERN_BASE       equ 0x100000
+KERN_BASE       equ 0x800000
 
 ; real mode portion relocation base
-REAL_BASE       equ 0x30000
+REAL_BASE       equ 0x8000
+REALSTACKINIT   equ 0x4000
 
 _TEXT16_SIZE    equ 200h
 STARTUP_SIZE    equ 100h

@@ -537,7 +537,7 @@ load_module (char *module, char *arg)
       return 0;
     }
 
-  printf ("   [Multiboot-module @ 0x%x, 0x%x bytes]", cur_addr, len);
+  printf ("   [Multiboot-module @ 0x%x, 0x%x bytes]\r\n", cur_addr, len);
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;
@@ -589,6 +589,6 @@ create_vbe_module(void *ctrl_info, int ctrl_info_len,
 void
 set_load_addr (int addr)
 {
-  printf ("Setting module load address to 0x%x", addr);
+  printf ("Setting module load address to 0x%x\r\n", addr);
   cur_addr = addr;
 }

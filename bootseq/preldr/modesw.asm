@@ -23,10 +23,12 @@ public  __U8RS
 include fsd.inc
 include struc.inc
 
+include mb_etc.inc
+
+
 ifdef NO_PROT
 
-  include mb_etc.inc
-  BASE    equ KERN_BASE
+  BASE    equ REAL_BASE
 
 else
 
@@ -304,15 +306,22 @@ CR0_PE_ON       equ 01h
 CR0_PE_OFF      equ 0fffffffeh
 PROT_MODE_CSEG  equ 08h
 PROT_MODE_DSEG  equ 10h
+
+ifndef NO_PROT
 PSEUDO_RM_CSEG  equ 18h
 PSEUDO_RM_DSEG  equ 20h
+else
+PSEUDO_RM_CSEG  equ 28h
+PSEUDO_RM_DSEG  equ 30h
+endif
+
 ;STACKOFF        equ (2000h - 10h)
 PROTSTACKINIT   equ STACK_SP - 10h ; SCRATCHADDR - 10h
 
 ;align 4
 
 protstack         dd   PROTSTACKINIT
-rmstack           dd   0
+rmstack           dd   REALSTACKINIT
 boot_drive        dd   0
 
 ;align 4
@@ -342,6 +351,10 @@ gdt     desc  <0,0,0,0,0,0>                  ;
         desc  <0FFFFh,0,0,092h,0CFh,0>       ; flat CS
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
+ifdef NO_PROT
+        desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS
+        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
+endif
 
 gdtsize equ   ($ - gdt)                      ; GDT size
 

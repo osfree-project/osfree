@@ -420,7 +420,10 @@ u_parm (int parm, int action, unsigned int *val)
 void __cdecl
 u_msg (char *s)
 {
-  printmsg(s);
+  char buf[0x100];
+
+  grub_strcpy(buf, s);
+  printmsg(buf);
 }
 
 #endif
@@ -435,10 +438,10 @@ freeldr_open (char *filename)
    int  i;
    int  i0 = 0;
    int  rc;
-   char buf[128];
+   char buf[0x100];
 
-   printmsg(filename);
-   printmsg("\r\n");
+   u_msg(filename);
+   u_msg("\r\n");
 
    /* prepend "/" to filename */
    if (*filename != '/' && *filename != '(') {

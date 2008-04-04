@@ -39,10 +39,15 @@ end
 /* binary size */
 fsize = stream(file, 'c', 'query size')
 
+/*
+call charout stderr, fsize || '10 13'x
+call charout stderr, base || '10 13'x
+call charout stderr, _text16_size || '10 13'x
+ */
+ 
 /* read DGROUP segment */
 buf = charin(file, _text16_size + base + 1, fsize - base - _text16_size)
 sout = sout || buf
-
 
 /* Pad file to multiple of 4 bytes */
 sz = fsize - base
@@ -144,7 +149,7 @@ usage:
 
 say 'Usage:'
 say
-say 'ripzeroes <infile> <variable> <incfile> <shift factor> ><outfile>'
+say 'ripzeroes <infile> <variable> <incfile> [<shift factor>] ><outfile>'
 say
 
 exit -1

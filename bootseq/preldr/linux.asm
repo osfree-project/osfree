@@ -5,9 +5,10 @@
 
 name linux
 
-.386
+.386p
 
 include linux.inc
+include struc.inc
 include mb_info.inc
 include mb_header.inc
 include mb_etc.inc
@@ -16,12 +17,16 @@ extrn call_rm         :near
 extrn cmain           :near
 extrn exe_end         :near
 extrn bss_end         :near
+extrn gdt             :byte
+extrn gdtdesc         :fword
 extrn l               :dword
 extrn m               :dword
 
 public linux_text_len
 public linux_data_tmp_addr
 public linux_data_real_addr
+public big_linux_boot
+public linux_boot
 
 _TEXT16  segment dword public 'CODE'  use16
 _TEXT16  ends
@@ -117,12 +122,11 @@ align 4
 ; Multiboot structure
 _magic          equ       0x1badb002
 _flags          equ       0x00010001
-mbhdr           multiboot_header  <_magic,_flags,-_magic-_flags,mbhdr,start1,exe_end,bss_end,entry,0,0,0,0>
-
-;pad2size        equ  0x80 - ($ - start2)
-;pad2            db   pad2size dup (0)
+_checksum       equ       - _magic - _flags
+_mbhdr          multiboot_header  <_magic,_flags,_checksum,_mbhdr,start1,exe_end,bss_end,entry,0,0,0,0>
 
         org     start2 + 0x80
+
 entry:
         cmp   eax, MULTIBOOT_VALID
         jne   stop
@@ -132,6 +136,8 @@ entry:
 
         ; save lip2 pointer from ECX
         mov   l, ecx        
+
+        call  set_gdt
 
         call  cmain
 
@@ -155,6 +161,35 @@ loop1:
         hlt
         jmp   $
 
+set_gdt:
+        ; set 16-bit segment (_TEXT16) base
+        ; in GDT for protected mode
+        lea  eax, oldgdtdesc
+        sgdt fword ptr [eax]
+
+        ; copy old gdt
+        movzx ecx, [eax].g_limit
+        inc  ecx
+        shr  ecx, 2
+        mov  esi, [eax].g_base
+        mov  edi, offset _TEXT:gdt
+        mov  ebx, edi
+        rep  movsd
+
+        mov  eax, REAL_BASE
+        mov  [ebx][5*8].ds_baselo, ax
+        mov  [ebx][6*8].ds_baselo, ax
+        ror  eax, 16
+        mov  [ebx][5*8].ds_basehi1, al
+        mov  [ebx][6*8].ds_basehi1, al
+        ror  eax, 8
+        mov  [ebx][5*8].ds_basehi2, al
+        mov  [ebx][6*8].ds_basehi2, al
+
+        mov  eax, offset _TEXT:gdtdesc
+        lgdt fword ptr [eax]
+
+        ret
 
 ;
 ;  linux_boot()
@@ -176,20 +211,31 @@ linux_boot:
         rep     movsd
 
 big_linux_boot:
-        mov     ebx, linux_data_real_addr
+        ; copy realmode part of boot_linux at REAL_BASE
+        cld
+        mov     ecx, 0x80
+        mov     esi, KERN_BASE
+        mov     edi, REAL_BASE
+ 
+        rep     movsd
+
+        mov     edx, linux_data_real_addr
 
         ; copy the real mode part
         mov     esi, linux_data_tmp_addr
-        mov     edi, ebx
+        mov     edi, edx
         mov     ecx, LINUX_SETUP_MOVE_SIZE
         cld
         rep     movsb
 
-        ; change ebx to the segment address
-        shr     ebx, 4
-        mov     eax, ebx
+        ; change edx to the segment address
+        shr     edx, 4
+        mov     eax, edx
         add     eax, 20h
-        mov     dword ptr linux_setup_seg, eax
+
+        mov     ebx, offset _TEXT16:linux_setup_seg + REAL_BASE
+        mov     dword ptr [ebx] , eax
+        mov     ebx, edx
 
         ; XXX new stack pointer in safe area for calling functions
         mov     esp, 4000h
@@ -197,7 +243,7 @@ big_linux_boot:
 
         ; final setup for linux boot
 
-        mov     eax, KERN_BASE
+        mov     eax, REAL_BASE
         shl     eax, 12
         mov     ax,  offset _TEXT16:start_linux
         push    eax
@@ -216,7 +262,7 @@ big_linux_boot:
 ;
 stop_floppy:
         pusha
-        mov     eax, KERN_BASE
+        mov     eax, REAL_BASE
         shl     eax, 12
         mov     ax,  offset _TEXT16:stop_flop
         push    eax
@@ -232,6 +278,8 @@ linux_data_real_addr  dd  0
 
 errmsg  db  "No multiboot magic in EAX, panic!",13,10,0
 msglen  equ errmsg - $    
+
+oldgdtdesc gdtr <>
 
 _TEXT    ends
 

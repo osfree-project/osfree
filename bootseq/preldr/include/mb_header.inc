@@ -27,10 +27,10 @@ multiboot_header struc
   entry_addr    dd ?
 
   ;  These are only valid if MULTIBOOT_VIDEO_MODE is set.
-  vmode_type     dd ?
-  vwidth         dd ?
-  vheight        dd ?
-  vdepth         dd ?
+  vmode_type    dd ?
+  vwidth        dd ?
+  vheight       dd ?
+  vdepth        dd ?
 
 multiboot_header ends
 
