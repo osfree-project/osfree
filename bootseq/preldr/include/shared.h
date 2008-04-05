@@ -684,7 +684,7 @@ void __cdecl linux_boot (void); //__attribute__ ((noreturn));
 void __cdecl big_linux_boot (void); //__attribute__ ((noreturn));
 
 /* booting a multiboot executable */
-void __cdecl multi_boot (int start, int mb_info); //__attribute__ ((noreturn));
+void multi_boot (void); //__attribute__ ((noreturn));
 
 /* If LINEAR is nonzero, then set the Intel processor to linear mode.
    Otherwise, bit 20 of all memory accesses is always forced to zero,

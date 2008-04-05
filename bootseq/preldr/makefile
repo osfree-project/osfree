@@ -57,7 +57,8 @@ VSTAFS_SH_OBJS      = $(FS_SH_OBJS) fsys_vstafs.$(SO)
 FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
-BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-np.$(O) minilibc.$(O) wrap.$(O) end.$(O)
+BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-npl.$(O) minilibc.$(O) wrap.$(O) end.$(O)
+BOOT_CHAIN_OBJS     = chain.$(O) chainc.$(O) modesw-npc.$(O) minilibc.$(O) wrap.$(O) end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
                    video.$(O) common.$(O) stage0_fs.$(O) func.$(O) minilibc.$(O) bios.$(O) end.$(O)
@@ -96,6 +97,11 @@ boot_linux: boot_linux.$(OUT)
  $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
  $(DC) $<
 
+boot_chain: boot_chain.$(OUT)
+ $(DC) $^@
+ $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
+ $(DC) $<
+
 .$(OUT).fsd:
  $(DC) $^@
  $(RIP) $< EXT_BUF_BASE fsd.inc >$^@
@@ -127,6 +133,9 @@ freeldr: freeldr.$(OUT)
  $(DC) $<
 
 boot_linux.$(OUT): $(BOOT_LINUX_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+
+boot_chain.$(OUT): $(BOOT_CHAIN_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 freeldr.$(OUT): $(LDR_OBJS)
@@ -300,8 +309,17 @@ func.$(LO): func.c
 func.$(SO): func.c
  $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
-modesw-np.$(O): modesw.asm
- $(ASM) -dNO_PROT -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+modesw-npl.$(O): modesw.asm
+ $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+
+linux.$(O): linux.asm
+ $(ASM) -dSHIFT=0 -dREAL_BASE=0x8000 $(ASMOPT) -fo=$^@ $<
+
+modesw-npc.$(O): modesw.asm
+ $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+
+chain.$(O): chain.asm
+ $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fo=$^@ $<
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

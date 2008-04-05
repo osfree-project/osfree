@@ -19,11 +19,13 @@ extern FileTable ft;
 
 struct multiboot_info *m;
 void create_lip_module(lip2_t **l);
+void multi_boot(void);
 
 #define BUFSIZE 0x200
 char linebuf[BUFSIZE];
 char buf[BUFSIZE];
 
+#pragma aux multi_boot   "*"
 #pragma aux kernel_func  "*"
 #pragma aux module_func  "*"
 #pragma aux modaddr_func "*"
@@ -263,6 +265,7 @@ void KernelLoader(void)
   else
   {
     create_lip_module(&l);
+    multi_boot();
   }
 }
 

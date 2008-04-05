@@ -13,6 +13,7 @@ include mb_info.inc
 include mb_header.inc
 include mb_etc.inc
 
+extrn boot_drive      :dword
 extrn call_rm         :near
 extrn cmain           :near
 extrn exe_end         :near
@@ -22,12 +23,22 @@ extrn gdtdesc         :fword
 extrn l               :dword
 extrn m               :dword
 
-public linux_text_len
-public linux_data_tmp_addr
-public linux_data_real_addr
-public big_linux_boot
-public linux_boot
 public stop
+public start_kernel
+
+K_RDWR          equ	0x60	; keyboard data & cmds (read/write)
+K_STATUS        equ	0x64	; keyboard status
+K_CMD           equ	0x64	; keybd ctlr command (write-only) 
+
+K_OBUF_FUL      equ 	0x01	; output buffer full
+K_IBUF_FUL      equ 	0x02	; input buffer full
+
+KC_CMD_WIN      equ	0xd0	; read  output port
+KC_CMD_WOUT     equ 	0xd1	; write output port
+KB_OUTPUT_MASK  equ     0xdd	; enable output buffer full interrupt
+				;   enable data line
+				;   enable clock line
+KB_A20_ENABLE   equ     0x02
 
 _TEXT16  segment dword public 'CODE'  use16
 _TEXT16  ends
@@ -67,29 +78,29 @@ begin:
 
         org 0h
 start:
+        ; Start loader
+        mov   dl, bl
 
-start_linux:
-        ; final setup for linux boot
-        cli
-        mov     ss, bx
-        mov     sp, LINUX_SETUP_STACK
+        push  0
+        push  0x7c00
+        retf
 
-        mov     ds, bx
-        mov     es, bx
-        mov     fs, bx
-        mov     gs, bx
+gateA20_rm:
+	mov	ax, 2400h
+	test	dx, dx
+	jz	ft1
+	inc	ax
+ft1:	stc
+	int	15h
+	jnc	ft2
 
-                ; jump to start
-                ; ljmp
-                db      0eah
-                dw      0
-linux_setup_seg dw      0
+	; set non-zero if failed 
+	mov	ah, 1
 
-        ;
-        ;  This next part is sort of evil.  It takes advantage of the
-        ;  byte ordering on the x86 to work in either 16-bit or 32-bit
-        ;  mode, so think about it before changing it.
-        ;
+	; save the status
+ft2:	mov	dl, ah
+      
+        retf
 
 hard_stop:
         cli
@@ -201,61 +212,101 @@ set_gdt:
         lgdt fword ptr [eax]
 
         ret
-
 ;
-;  linux_boot()
+; void start_kernel(void);
 ;
-;  Does some funky things (including on the stack!), then jumps to the
-;  entry point of the Linux setup code.
-;
-linux_boot:
-        ; don't worry about saving anything, we're committed at this point
-        cld     ; forward copying
+start_kernel:
+        xor  eax, eax
+        push eax
+	call gateA20	
+        add  eax, 4
 
-        ; copy kernel
-        mov     ecx, linux_text_len
-        add     ecx, 3
-        shr     ecx, 2
-        mov     esi, LINUX_BZIMAGE_ADDR
-        mov     edi, LINUX_ZIMAGE_ADDR
+        mov  ebx, boot_drive   
+        mov  eax, REAL_BASE
+        shl  eax, 12
+        mov  ax, offset _TEXT16:start
+        push eax
+        call call_rm
+        add  esp, 4
 
-        rep     movsd
-
-big_linux_boot:
-        mov     edx, linux_data_real_addr
-
-        ; copy the real mode part
-        mov     esi, linux_data_tmp_addr
-        mov     edi, edx
-        mov     ecx, LINUX_SETUP_MOVE_SIZE
-        cld
-        rep     movsb
-
-        ; change edx to the segment address
-        shr     edx, 4
-        mov     eax, edx
-        add     eax, 20h
-
-        mov     ebx, offset _TEXT16:linux_setup_seg + REAL_BASE
-        mov     dword ptr [ebx] , eax
-        mov     ebx, edx
-
-        ; XXX new stack pointer in safe area for calling functions
-        mov     esp, 4000h
-        call    stop_floppy
-
-        ; final setup for linux boot
-
-        mov     eax, REAL_BASE
-        shl     eax, 12
-        mov     ax,  offset _TEXT16:start_linux
-        push    eax
-        call    call_rm
-        add     esp, 4
+        ret
 
         ; we should not return here
         cli
         hlt
+
+;
+; gateA20(int linear)
+;
+; Gate address-line 20 for high memory.
+;
+; This routine is probably overconservative in what it does, but so what?
+;
+; It also eats any keystrokes in the keyboard buffer.  :-(
+;
+
+gateA20:
+	; first, try a BIOS call 
+	push	ebp
+	mov	edx, [esp + 8]
+	
+        mov     eax, REAL_BASE
+        shl     eax, 12
+        mov     ax,  offset _TEXT16:gateA20_rm
+        push    eax
+        call    call_rm
+        add     esp, 4
+
+	pop	ebp
+	test	dl, dl
+	jnz	ft3
+	ret
+
+ft3:	; use keyboard controller 
+	push	eax
+
+	call    gloop1
+
+	mov	al, KC_CMD_WOUT
+	out	K_CMD, al
+
+gloopint1:
+	in	al, K_STATUS
+	and	al, K_IBUF_FUL
+	jnz	gloopint1
+
+	mov	al, KB_OUTPUT_MASK
+	cmp	byte ptr [esp + 8], 0
+	jz	gdoit
+
+	or	al, KB_A20_ENABLE
+gdoit:
+	out	K_RDWR, al
+
+	call	gloop1
+
+	; output a dummy command (USB keyboard hack)
+	mov	al, 0ffh
+	out	K_CMD, al
+	call	gloop1
+	
+	pop	eax
+	ret
+
+gloop1:
+	in	al, K_STATUS
+	and	al, K_IBUF_FUL
+	jnz	gloop1
+
+gloop2:
+	in	al, K_STATUS
+	and	al, K_OBUF_FUL
+	jz	gloop2ret
+	in	al, K_RDWR
+	jmp	gloop2
+
+gloop2ret:
+	ret
 
 ;
 ;  stop_floppy()
@@ -273,11 +324,6 @@ stop_floppy:
         add     esp, 4
         popa
         ret
-
-
-linux_text_len        dd  0
-linux_data_tmp_addr   dd  0
-linux_data_real_addr  dd  0
 
 errmsg  db  "This is not a multiboot loader or no LIP module!",0
 

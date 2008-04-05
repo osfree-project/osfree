@@ -3,6 +3,7 @@
 ; Additional multiboot definitions
 ;
 
+
 ;; FreeLdr magic, must be in EDX register
 ;FREELDR_MAGIC   equ 0x3badb002
 
@@ -10,7 +11,7 @@
 KERN_BASE       equ 0x800000
 
 ; real mode portion relocation base
-REAL_BASE       equ 0x8000
+;REAL_BASE       equ 0x8000
 REALSTACKINIT   equ 0x4000
 
 _TEXT16_SIZE    equ 200h

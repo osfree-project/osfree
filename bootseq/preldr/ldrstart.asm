@@ -12,7 +12,7 @@ public l
 public ft
 public bpb
 public boot_drive
-
+public multi_boot
 public oldstack
 public loader_stack_top
 
@@ -72,6 +72,11 @@ ok:
 
       call cmain
 
+      cli
+      hlt
+      jmp     $
+
+multi_boot:
       ;
       ; Now booting the kernel
       ;

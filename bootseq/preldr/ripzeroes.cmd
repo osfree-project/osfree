@@ -49,11 +49,11 @@ call charout stderr, _text16_size || '10 13'x
 buf = charin(file, _text16_size + base + 1, fsize - base - _text16_size)
 sout = sout || buf
 
-/* Pad file to multiple of 4 bytes */
+/* Pad file to a multiple of 4 bytes */
 sz = fsize - base
 
 n = 0
-do until (sz + n) // 4 == 0
+do while (sz + n) // 4 \= 0
   n = n + 1
   sout = sout || '00'x
 end

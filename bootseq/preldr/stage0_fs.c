@@ -1029,11 +1029,11 @@ int init(void)
   for (i = 0; i < MAX_ALIAS; i++) {
     s = conf.alias[i].name;
     if (!s) break;
-    printmsg("\r\n");
     printmsg(s);
     printmsg("=");
     s = conf.alias[i].alias;
     printmsg(s);
+    printmsg("\r\n");
   }
 
   /* load os2ldr */
@@ -1078,7 +1078,7 @@ int init(void)
     }
   }
 
-  printmsg("\r\nmem_lower=");
+  printmsg("mem_lower=");
   printd(mem_lower);
 
   /* calculate highest available address
@@ -1121,6 +1121,7 @@ int init(void)
 
   printmsg("\r\nrelshift=");
   printd(relshift);
+  printmsg("\r\n");
 
   /* fixup preldr and uFSD */
   reloc((char *)(STAGE0_BASE  + relshift), "\\boot\\freeldr\\preldr0.rel", relshift);
