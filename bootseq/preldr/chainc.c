@@ -1,5 +1,5 @@
-/*
- *
+/*  This multiboot kernel is intended for
+ *  loading other loaders by chainloading
  */
 
 #pragma aux m     "*"

@@ -78,7 +78,7 @@ TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
-                   boot_linux
+                   boot_linux boot_chain
 
 SHIFT = 0x100
 

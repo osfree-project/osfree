@@ -41,6 +41,20 @@ unsigned long part_start;
 unsigned long part_length;
 int           fsmax;
 
+int  saved_fsys_type;
+int  saved_current_slice;
+int  saved_fsmax;
+int  saved_buf_drive;
+int  saved_buf_track;
+struct geometry saved_buf_geom;
+unsigned long   saved_current_partition;
+unsigned long   saved_current_drive;
+unsigned long   saved_cdrom;
+unsigned long   saved_part_start;
+unsigned long   saved_part_length;
+unsigned long   saved_filemax;
+unsigned long   saved_filepos;
+
 int debug = 0;
 struct geometry buf_geom;
 
@@ -387,137 +401,228 @@ check_and_print_mount (int flags)
   //print_error ();
 }
 
+void swap_fsys_bufs(void *buf1, void *buf2)
+{
+  unsigned long *b1 = (unsigned long *)buf1;
+  unsigned long *b2 = (unsigned long *)buf2;
+  unsigned long b;
+  int n;
+ 
+  // number of swapped dwords
+  n = (EXT_LEN + 3) >> 2;
+
+  while (n)
+  {
+    b   = *b1;
+    *b1 = *b2;
+    *b2 = b;
+
+    b1++; b2++; n--;
+  }
+}
+
+void set_boot_fsys(void)
+{
+  fsys_type = -1; // boot filesystem
+  /* move boot drive uFSD to working buffer */
+  swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE));
+  /* call uFSD init (set linkage) */
+  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+  fsd_init(l1);
+}
+
+#pragma aux set_fsys "*"
+
+int set_fsys(char *fsname)
+{
+  char buf[EXT_LEN]; 
+  char sbuf[0x100];
+  char *s;
+  int  rc;  
+  
+  saved_fsys_type     = fsys_type;
+  saved_current_drive = current_drive;
+  saved_cdrom = cdrom_drive;
+  saved_current_slice = current_slice;
+  saved_current_partition = current_partition;
+  saved_fsmax = fsmax;
+  saved_part_start  = part_start;
+  saved_part_length = part_length;
+  saved_filemax   = filemax;
+  saved_filepos   = filepos;
+  //saved_buf_drive = buf_drive;
+  //saved_buf_track = buf_track;
+  //grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
+
+  set_boot_fsys();
+  rc = freeldr_open(fsname);
+
+  if (rc)
+    rc = freeldr_read(buf, -1);
+  else
+    panic("can't open filesystem: ", fsname);
+
+  printmsg("uFSD file read, size: ");
+  printd(rc);
+  printmsg("\r\n");
+
+  grub_strcpy(sbuf, fsname);
+  s = grub_strstr(sbuf, ".fsd") + 1;
+  // Change ".fsd" extension to ".rel"
+  grub_strcpy(s, "rel");
+  //swap_fsys_bufs((void *)EXT_BUF_BASE, (void *)UFSD_BASE);
+  
+  // fixup the loaded filesystem
+  reloc((char *)buf, sbuf, relshift);
+  swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)UFSD_BASE);
+  swap_fsys_bufs((void *)(EXT_BUF_BASE), buf);
+
+  fsys_type = saved_fsys_type;
+  current_drive = saved_current_drive;
+  cdrom_drive = saved_cdrom;
+  current_slice = saved_current_slice;
+  current_partition = saved_current_partition;
+  fsmax = saved_fsmax;
+  part_start = saved_part_start;
+  part_length = saved_part_length;
+  filemax = saved_filemax;
+  filepos = saved_filepos;
+  //buf_drive = saved_buf_drive;
+  //buf_track = saved_buf_track;
+  //grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
+
+  printmsg("fsys_type=");
+  printd(fsys_type);
+  printmsg("\r\n");
+
+  fsd_init = (void *)(EXT_BUF_BASE);
+  fsd_init(l1);
+
+  printf("trying to mount a filesystem\r\n");
+  if (open_partition() && stage0_mount())
+  {
+    printmsg("filesystem is mounted\r\n");
+    return 1;
+  }
+  
+
+  printmsg("filesystem is not mounted!\r\n");
+  return 0;
+}
+
+#pragma aux fsys_by_num "*"
+
+void fsys_by_num(int n, char *buf)
+{
+  char *fsys_name;
+  int m, t, k;
+  // buf -> path to filesystem driver
+  m = grub_strlen(preldr_path);
+  grub_memmove((void *)buf, preldr_path, m);
+  t = grub_strlen(fsd_dir);
+  grub_memmove((void *)(buf + m), fsd_dir, t);
+  fsys_name = fsys_list[n];
+  k = grub_strlen(fsys_name);
+  grub_memmove((void *)(buf + m + t), fsys_name, k);
+  grub_memmove((void *)(buf + m + t + k), ".fsd\0", 5);
+}
+
 #endif /* ! STAGE1_5 */
-
-
 
 static void
 attempt_mount (void)
 {
+
 #ifndef STAGE1_5
-  //for (fsys_type = 0; fsys_type < NUM_FSYS; fsys_type++)
-  //  if ((fsys_table[fsys_type].mount_func) ())
-  //    break;
-  char buf[64];
+  char buf[0x100];
+  char *s;
   char *fsys_name;
   int  m, k, t, rc;
-  int  saved_fsys_type;
-  int           saved_slice;
-  int           saved_fsmax;
-  int  saved_buf_drive;
-  int  saved_buf_track;
-  struct geometry saved_buf_geom;
-  unsigned long saved_current_partition;
-  unsigned long saved_current_drive;
-  unsigned long saved_cdrom;
-  unsigned long saved_part_start;
-  unsigned long saved_part_length;
-  unsigned long saved_filemax;
-  unsigned long saved_filepos;
-
-  fsys_type = -1; // boot filesystem
-  /* move boot drive uFSD to working buffer */
-  grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
-  /* call uFSD init (set linkage) */
-  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
-  fsd_init(l1);
-
+/*
+  saved_fsys_type     = fsys_type;
+  saved_current_drive = current_drive;
+  saved_cdrom = cdrom_drive;
+  saved_current_slice = current_slice;
+  saved_current_partition = current_partition;
+  saved_fsmax = fsmax;
+  saved_part_start  = part_start;
+  saved_part_length = part_length;
+  saved_filemax   = filemax;
+  saved_filepos   = filepos;
+  saved_buf_drive = buf_drive;
+  saved_buf_track = buf_track;
+  grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
+ */
+/*
+  __asm {
+    push  fsys_type
+    push  current_drive
+    push  cdrom_drive
+    push  current_slice
+    push  current_partition
+    push  fsmax
+    push  part_start
+    push  part_length
+    push  filemax
+    push  filepos
+    push  buf_drive
+    push  buf_track
+  }
+ */
+ 
+  set_boot_fsys();
   if (!stage0_mount())
+  {
     for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) {
-      m = grub_strlen(preldr_path);
-      grub_memmove((void *)buf, preldr_path, m);
-      t = grub_strlen(fsd_dir);
-      grub_memmove((void *)(buf + m), fsd_dir, t);
-      fsys_name = fsys_list[fsys_type];
-      k = grub_strlen(fsys_name);
-      grub_memmove((void *)(buf + m + t), fsys_name, k);
-      grub_memmove((void *)(buf + m + t + k), ".fsd\0", 5);
-
-      saved_fsys_type = fsys_type;
-      saved_current_drive = current_drive;
-      saved_cdrom = cdrom_drive;
-      saved_slice = current_slice;
-      saved_current_partition = current_partition;
-      saved_fsmax = fsmax;
-      saved_part_start = part_start;
-      saved_part_length = part_length;
-      saved_filemax = filemax;
-      saved_filepos = filepos;
-      saved_buf_drive = buf_drive;
-      saved_buf_track = buf_track;
-      grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
-
-      //__asm {
-      //  push fsys_type
-      //  push current_drive
-      //  push cdrom_drive
-      //  push current_slice
-      //  push current_partition
-      //  push fsmax
-      //  push part_start
-      //  push part_length
-      //  push filemax
-      //  push filepos
-      //}
-
-      fsys_type = -1; // boot filesystem
-      /* move boot drive uFSD to working buffer */
-      grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
-      /* call uFSD init (set linkage) */
-      fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
-      fsd_init(l1);
-
-      rc = freeldr_open(buf);
-
-      if (rc)
-        rc = freeldr_read((void *)(EXT2BUF_BASE), -1);
-      else
-        panic("can't open filesystem: ", buf);
-
-      printmsg(" uFSD file read, size:");
-      printd(rc);
-      printmsg("\r\n");
-
-      grub_memmove((void *)(EXT_BUF_BASE), (void *)(EXT2BUF_BASE), EXT_LEN);
-
-      fsd_init = (void *)(EXT_BUF_BASE);
-      fsd_init(l1);
-
-      //__asm {
-      //  pop  filepos
-      //  pop  filemax
-      //  pop  part_length
-      //  pop  part_start
-      //  pop  fsmax
-      //  pop  current_partition
-      //  pop  current_slice
-      //  pop  cdrom_drive
-      //  pop  current_drive
-      //  pop  fsys_type
-      //}
-
-      fsys_type = saved_fsys_type;
-      current_drive = saved_current_drive;
-      cdrom_drive = saved_cdrom;
-      current_slice = saved_slice;
-      current_partition = saved_current_partition;
-      fsmax = saved_fsmax;
-      part_start = saved_part_start;
-      part_length = saved_part_length;
-      filemax = saved_filemax;
-      filepos = saved_filepos;
-      buf_drive = saved_buf_drive;
-      buf_track = saved_buf_track;
-      grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
-
-      if (stage0_mount())
+      fsys_by_num(fsys_type, buf);
+ 
+      if (set_fsys(buf))
         break;
     }
+  }
 
-  if (fsys_type == num_fsys && errnum == ERR_NONE)
+/*
+  if (!stage0_mount()) 
+  {
     errnum = ERR_FSYS_MOUNT;
+    fsys_type = NUM_FSYS;
+  }
+ */
+//  if (fsys_type == num_fsys && errnum == ERR_NONE)
+//    errnum = ERR_FSYS_MOUNT;
   //if (fsys_type == NUM_FSYS && errnum == ERR_NONE)
   //  errnum = ERR_FSYS_MOUNT;
+/*
+  __asm {
+    pop   buf_track
+    pop   buf_drive
+    pop   filepos
+    pop   filemax
+    pop   part_length
+    pop   part_start
+    pop   fsmax
+    pop   current_partition
+    pop   current_slice
+    pop   cdrom_drive
+    pop   current_drive
+    pop   fsys_type
+  }
+ */
+/*
+  fsys_type = saved_fsys_type;
+  current_drive = saved_current_drive;
+  cdrom_drive = saved_cdrom;
+  current_slice = saved_current_slice;
+  current_partition = saved_current_partition;
+  fsmax = saved_fsmax;
+  part_start = saved_part_start;
+  part_length = saved_part_length;
+  filemax = saved_filemax;
+  filepos = saved_filepos;
+  buf_drive = saved_buf_drive;
+  buf_track = saved_buf_track;
+  grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
+ */
 #else
   //fsys_type = 0;
   //if ((*(fsys_table[fsys_type].mount_func)) () != 1)

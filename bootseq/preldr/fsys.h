@@ -4,19 +4,29 @@
 
 #include <lip.h>
 
+#pragma aux l1       "*"
+#pragma aux l2       "*"
+#pragma aux errnum   "*"
+
+#ifndef STAGE1_5
+
 #pragma aux printmsg "*"
 #pragma aux printd   "*"
 #pragma aux printw   "*"
 #pragma aux printb   "*"
-
-#pragma aux l1       "*"
-#pragma aux l2       "*"
-#pragma aux errnum   "*"
+#pragma aux panic    "*"
+#pragma aux reloc    "*"
 
 void printmsg(char *);
 void printb(unsigned char);
 void printw(unsigned short);
 void printd(unsigned long);
+
+void reloc(char *base, char *rel_file, unsigned long shift);
+void panic(char *msg, char *file);
+extern unsigned long relshift;
+
+#endif
 
 void *grub_memset (void *addr, int c, int n);
 void *grub_memmove (void *dest, const void *src, int count);

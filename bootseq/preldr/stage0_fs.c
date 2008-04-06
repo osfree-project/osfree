@@ -22,6 +22,8 @@ unsigned long linux_text_len;
 char *linux_data_real_addr;
 char *linux_data_tmp_addr;
 
+unsigned long relshift;
+
 #pragma aux mbi "*"
 #pragma aux extended_memory "*"
 #pragma aux linux_data_real_addr "*"
@@ -54,6 +56,11 @@ extern unsigned long  preldr_ss_sp;
 #pragma aux gdtdesc "*"
 extern struct desc gdt[5];
 extern struct gdtr gdtdesc;
+
+#pragma aux set_fsys    "*"
+#pragma aux fsys_by_num "*"
+int  set_fsys(char *fsname);
+void fsys_by_num(int n, char *buf);
 
 char linebuf[512];
 
@@ -430,6 +437,24 @@ void __cdecl
 u_setlip (lip2_t *l)
 {
   setlip2(l);
+}
+
+int open2 (char *filename)
+{
+  char buf[0x100];
+  int  rc;
+
+  for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) 
+  {
+    fsys_by_num(fsys_type, buf);
+    set_fsys(buf);
+    rc = grub_open(filename);
+
+    if (errnum == ERR_NONE)
+      return rc;
+  }
+
+  return 1;
 }
 
 #endif
@@ -936,7 +961,7 @@ void panic(char *msg, char *file)
 void reloc(char *base, char *rel_file, unsigned long shift)
 {
   int  i, n, rc;
-  char *buf;
+  char buf[0x1000];
 
   typedef _Packed struct {
     unsigned short addr;
@@ -950,7 +975,7 @@ void reloc(char *base, char *rel_file, unsigned long shift)
   rc = freeldr_open(rel_file);
 
   if (rc) {
-    buf = (char *)(EXT2BUF_BASE);
+    // buf = (char *)(EXT2BUF_BASE);
     rc  = freeldr_read(buf, -1);
   } else {
     panic("Can't open .rel file:", rel_file);
@@ -975,7 +1000,7 @@ int init(void)
   char *fn;
   char *s;
   unsigned long ldrlen = 0, mfslen = 0;
-  unsigned long ldrbase, relshift;
+  unsigned long ldrbase;
   bios_parameters_block *bpb;
   struct geometry geom;
   unsigned short *p;

@@ -152,7 +152,7 @@ entry:
         ;mov   esp, stack_top
         ; at the moment, we use loader stack
 
-        ; copy realmode part of boot_linux at REAL_BASE
+        ; copy realmode part of boot_chain at REAL_BASE
         cld
         mov     ecx, 0x80
         mov     esi, KERN_BASE
@@ -212,6 +212,7 @@ set_gdt:
         lgdt fword ptr [eax]
 
         ret
+
 ;
 ; void start_kernel(void);
 ;
@@ -229,7 +230,7 @@ start_kernel:
         call call_rm
         add  esp, 4
 
-        ret
+        ;ret
 
         ; we should not return here
         cli
@@ -260,6 +261,7 @@ gateA20:
 	pop	ebp
 	test	dl, dl
 	jnz	ft3
+
 	ret
 
 ft3:	; use keyboard controller 
@@ -291,6 +293,7 @@ gdoit:
 	call	gloop1
 	
 	pop	eax
+
 	ret
 
 gloop1:
