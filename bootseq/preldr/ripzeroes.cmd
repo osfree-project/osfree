@@ -36,9 +36,9 @@ if _text16_size > 0 then do
 
 end
 
-/* binary size */
-rc = stream(file, 'C', 'CLOSE')
+sleep(1)
 
+/* binary size */
 fsize = stream(file, 'C', 'QUERY SIZE')
 
 /*

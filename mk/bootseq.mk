@@ -88,7 +88,11 @@ GENFDD    = $(REXX) genfdd.cmd
 FINDFILE  = $(REXX) findfile.cmd
 BUILD     = $(TOOLS)\build.exe
 
+!ifeq ENV Windows
+NULL      = nul
+!else
 NULL      = \dev\nul
+!endif
 BLACKHOLE = >$(NULL) 2>&1
 
 CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
