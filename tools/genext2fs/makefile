@@ -30,7 +30,7 @@ linux: genext2fs .SYMBOLIC
 
 genext2fs.exe: $(OBJS) $(OBJS_1)
  @%create $^&.lnk
- @%append $^&.lnk system os2v2
+# @%append $^&.lnk system os2v2
  @%append $^&.lnk name $^&
  @%append $^&.lnk option map=$^&.wmp
  @for %%i in ($(OBJS) $(OBJS_1)) do @%append $^&.lnk FILE %%i

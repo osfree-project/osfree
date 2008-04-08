@@ -541,7 +541,7 @@ Select
    When os = 'WIN32' Then
       Do
          If _debug > 0 Then opt = '-g -DREXXWRAPPER_DEBUG='_debug
-         Else opt = '-O'
+         Else opt = ''
          cflags. = '-DWIN32 -c' opt
          ldflags_intbuild. = opt '-ointbuild'
          ldflags_rexxtok. = opt '-orexxtok'
@@ -610,7 +610,7 @@ Select
          ldflags_program.wcc = 'option quiet option stack=64k option heapsize=40960 system nt name' !program || exe_ext
          run_configure = 0
          need_getopt. = 1
-         file_delete = 'del'
+         file_delete = 'del /q'
          directory_delete = 'rd'
          file_copy = 'copy'
       End
@@ -798,7 +798,10 @@ If check_intlib = 'yes' Then
       If !intlib = '!INTLIB' | !intlib = '' Then Call Abort 'no Rexx interpreter library specified with -intlib= switch'
       If Stream(!intlib,'C','QUERY EXISTS') = '' Then Call Abort 'could not find Rexx interpreter library specified with -intlib= switch'
       /* surround !intlib with double quotes */
-      !intlib = quote( !intlib )
+      if os<>'WIN32' then
+      do
+        !intlib = quote( !intlib )
+      end
    End
 /*
  * Check !intincdir if required
@@ -869,7 +872,7 @@ If run_configure Then
    End
 
 !includes = '-I'quote( !srcdir ) '-I'quote( !srcdir||!dirsep'common' )
-If !intincdir \= '' Then !includes = !includes '-I'quote( !intincdir )
+If !intincdir \= '' Then !includes = !includes '-I'!intincdir 
 
 !defines = !defines !sys_defs defines.!interpreter
 !cc = cc.!compiler
@@ -1070,7 +1073,9 @@ Select
    When !compiler = 'WCC' Then
       Do
          cmd = !link !ldflags_program 'file' !program || !obj !des_objs !zlib_objs 'file getargv0' || !obj !intlib !mh_extra_libs
+         if os='WIN32' then cmd=cmd||"alias _RexxStart='_RexxStart@36' alias _GetModuleFileNameA='_GetModuleFileNameA@12' lib kernel32.lib"
          If _debug > 0 Then Say '   <<debug>>' cmd
+      say cmd
          cmd
       End
    Otherwise
@@ -1130,7 +1135,7 @@ If !compiler = 'VC' Then
       Call Lineout '_myres.rc', '            VALUE "FileDescription", "'_desc'\0"'
       Call Lineout '_myres.rc', '            VALUE "FileVersion", "'_version'\0"'
       Call Lineout '_myres.rc', '            VALUE "InternalName", "'Translate( !program )'\0"'
-      Call Lineout '_myres.rc', '            VALUE "LegalCopyright", "Copyright ©'Substr( Date( 'S' ), 1, 4 )'\0"'
+      Call Lineout '_myres.rc', '            VALUE "LegalCopyright", "Copyright ?'Substr( Date( 'S' ), 1, 4 )'\0"'
       Call Lineout '_myres.rc', '            VALUE "License", "'_license'\0"'
       Call Lineout '_myres.rc', '            VALUE "OriginalFilename", "'!program'.exe\0"'
       Call Lineout '_myres.rc', '            VALUE "ProductName", "'Translate( !program )'\0"'

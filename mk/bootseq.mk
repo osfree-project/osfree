@@ -81,10 +81,11 @@ O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
 SAY       = @echo                # Echo message
-MKBIN     = mkbin.cmd
-GENHDD    = genhdd.cmd
-GENFDD    = genfdd.cmd
-FINDFILE  = findfile.cmd
+
+MKBIN     = $(REXX) mkbin.cmd
+GENHDD    = $(REXX) genhdd.cmd
+GENFDD    = $(REXX) genfdd.cmd
+FINDFILE  = $(REXX) findfile.cmd
 BUILD     = $(TOOLS)\build.exe
 
 NULL      = \dev\nul

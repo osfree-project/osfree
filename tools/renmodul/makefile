@@ -55,21 +55,10 @@ all: $(PROJ).exe
 
 $(PROJ).exe: $(OBJS1)
  @%create $^@.lnk
- @%append $^@.lnk SYSTEM os2v2
+# @%append $^@.lnk SYSTEM os2v2
  @%append $^@.lnk OPTION MAP=$^@.wmp
  @%append $^@.lnk NAME $^@
  @for %%i in ($(OBJS1)) do @%append $^@.lnk FILE %%i
- @%append $^@.lnk $(MODE_LINKOPT)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^@.lnk $(LOG)
-
-$(PROJ).dll: $(OBJS2)
- @%create $^@.lnk
- @%append $^@.lnk SYSTEM os2v2 dll initinstance terminstance
- @%append $^@.lnk EXPORT RenameModule = RenameModule
- @%append $^@.lnk OPTION MAP=$^@.wmp
- @%append $^@.lnk NAME $^@
- @for %%i in ($(OBJS2)) do @%append $^@.lnk FILE %%i
  @%append $^@.lnk $(MODE_LINKOPT)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^@.lnk $(LOG)

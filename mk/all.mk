@@ -59,7 +59,7 @@ MAKE      = wmake
 MAKEOPT   = -h
 
 PC        = ppc386
-PCOPT     = -l- -v0
+PCOPT     = -Sg2h
 
 DD        = dd
 
@@ -103,13 +103,17 @@ O         = obj                  # Object Extension differs from Linux to OS/2
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
 SAY       = @echo                # Echo message
-MKBIN     = mkbin.cmd
-GENHDD    = genhdd.cmd
-GENFDD    = genfdd.cmd
-FINDFILE  = findfile.cmd
+MKBIN     = $(REXX) mkbin.cmd
+GENHDD    = $(REXX) genhdd.cmd
+GENFDD    = $(REXX) genfdd.cmd
+FINDFILE  = $(REXX) findfile.cmd
 if_not_exist_mkdir = if_not_exist_mkdir.cmd
 
+!ifeq ENV Windows
+NULL      = nul
+!else
 NULL      = \dev\nul
+!endif
 BLACKHOLE = 2>&1 >$(NULL)
 
 CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
@@ -175,7 +179,9 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 
 .pas.exe: .AUTODEPEND
   $(SAY) Compiling $<
-  $(PC) $(PCOPT) $(PROJ)
+  $(PC) $(PCOPT) $< 
+  $(CP) $^. $^:
+  $(DC) $^.
 
 .rexx.exe: .AUTODEPEND
   $(SAY) Wrapping REXX code $<

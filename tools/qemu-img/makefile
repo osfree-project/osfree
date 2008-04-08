@@ -23,7 +23,7 @@ all: qemu-img.exe .SYMBOLIC
 
 qemu-img.exe: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
+# @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk ALIAS mmap_=_mmap

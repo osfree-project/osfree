@@ -581,7 +581,7 @@ static int raw_open(BlockDriverState *bs, const char *filename)
     /* On Windows hosts it can happen that we're unable to get file size
        for CD-ROM raw device (it's inherent limitation of the CDFS driver). */
     if (size == -1)
-        size = LONG_LONG_MAX;
+        size = LONGLONG_MAX;
 #endif
     bs->total_sectors = size / 512;
     s->fd = fd;

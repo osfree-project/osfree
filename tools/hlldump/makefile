@@ -12,12 +12,12 @@ OBJS = hll.obj hlldirectory.obj exe.obj hllmodule.obj hllpublics.obj &
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).exe $(DIR)$(SEP)$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).exe 
 
 $(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- @%append $^&.lnk system os2v2
+# @%append $^&.lnk system os2v2
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp

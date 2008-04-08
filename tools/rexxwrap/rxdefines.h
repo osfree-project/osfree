@@ -83,6 +83,7 @@ typedef CHAR *PCH;
 
 #if defined(WIN32)
 # if defined(USE_REGINA)
+#define LONG_TYPEDEFED
 #  include <rexxsaa.h>
 # endif
 # if defined(USE_OREXX) || defined(USE_OOREXX)

@@ -48,7 +48,7 @@
 
 #ifdef _WIN32
 #define lseek _lseeki64
-#define ENOTSUP 4096
+/* #define ENOTSUP 4096 */
 /* XXX: find 64 bit version */
 #define ftruncate chsize
 

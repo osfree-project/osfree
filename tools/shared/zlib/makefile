@@ -20,8 +20,8 @@ OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
 
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
-all: libz.lib sub .SYMBOLIC
- $(CP) libz.lib $(DIR) $(BLACKHOLE)
+all: libz.lib .SYMBOLIC
+ $(CP) libz.lib $(DIR)$(SEP) $(BLACKHOLE)
 
 sub: example.exe minigzip.exe .SYMBOLIC
 

@@ -16,12 +16,13 @@ ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).exe $(DIR)$(SEP)$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).exe
 
 $(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- @%append $^&.lnk SYSTEM os2v2
+# must be native, not OS/2 target
+# @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
