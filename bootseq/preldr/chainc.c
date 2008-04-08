@@ -5,11 +5,6 @@
 #pragma aux m     "*"
 #pragma aux l     "*"
 #pragma aux stop  "*"
-#pragma aux linux_boot     "*"
-#pragma aux big_linux_boot "*"
-#pragma aux linux_data_real_addr "*"
-#pragma aux linux_data_tmp_addr  "*"
-#pragma aux linux_text_len       "*"
 #pragma aux errnum               "*"
 #pragma aux start_kernel         "*"
 #pragma aux boot_drive           "*"
@@ -23,6 +18,12 @@ grub_error_t errnum;
 extern void stop(void);
 struct multiboot_info *m;
 lip2_t *l;
+
+unsigned long current_drive;
+unsigned long current_partition;
+unsigned long cdrom_drive;
+unsigned long saved_drive;
+unsigned long saved_partition;
 
 void init(void)
 {
@@ -95,6 +96,8 @@ void cmain(void)
 
   char *kernel;
   unsigned long kernel_len;
+  char *s, *kernel_cmdline;
+  int force = 0;
 
   mods_addr  = (char *)m->mods_addr;
   mods_count = m->mods_count;
@@ -112,6 +115,17 @@ void cmain(void)
 
     kernel = (char *)mod->mod_start;
     kernel_len = mod->mod_end - mod->mod_start;
+    kernel_cmdline = (char *)mod->cmdline;
+
+    if (grub_strstr(kernel_cmdline, "-force"))
+      force = 1;
+
+    if (s = grub_strstr(kernel_cmdline, "-map"))
+    {
+      s += 4;
+      //e = grub_strstr(s, "=");
+      
+    }
 
     if (!kernel_ldr(kernel, kernel_len))
     {

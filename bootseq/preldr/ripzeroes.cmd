@@ -53,7 +53,7 @@ sout = sout || buf
 sz = fsize - base
 
 n = 0
-do while (sz + n) // 4 \= 0
+do while (sz + n) // 4 > 0
   n = n + 1
   sout = sout || '00'x
 end

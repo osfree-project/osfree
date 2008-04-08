@@ -23,6 +23,7 @@ rexx mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
 mv bootblk ../../../cd/boot
 cp preldr0 ../../../cd/boot/freeldr
 cp preldr.ini ../../../cd/boot/freeldr
+cp freeldr.cfg ../../../cd/boot/freeldr
 cp *.fsd   ../../../cd/boot/freeldr/fsd
 cp *.rel   ../../../cd/boot/freeldr/fsd
 mv ../../../cd/boot/freeldr/fsd/preldr0.rel ../../../cd/boot/freeldr/
