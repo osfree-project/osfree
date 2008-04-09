@@ -68,6 +68,7 @@ AWK       = @awk
 DOX       = doxygen
 
 RC        = wrc -q
+RCOPT = -bt=OS2
 
 MC        = mkmsgf
 

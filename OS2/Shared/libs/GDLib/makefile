@@ -8,7 +8,7 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG
+ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG -ecc
 
 !include $(%ROOT)/mk/all.mk
 

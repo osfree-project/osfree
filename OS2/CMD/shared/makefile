@@ -20,14 +20,15 @@ all: $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib msg
 OBJS = cmd_ExecFSEntry.obj cmd_Messages.obj cmd_FSEntry16.obj &
        cmd_QueryCurrentDisk.obj cmd_QueryFSName.obj cmd_ShowVolumeInfo.obj
 
-#cmd_fsentry16.obj: cmd_fsentry16.c
-# $(SAY) Compiling $<
-# @wcc -s -ml -zl -bt=os2 cmd_fsentry16.c $(LOG)
+cmd_fsentry16.obj: cmd_fsentry16.c
+ $(SAY) Compiling $<
+ @wcc -s -ml -zl -bt=os2 cmd_fsentry16.c $(LOG)
 
 $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib: $(OBJS)
  $(SAY) Linking $@
  -@if exist $@ @del $@ $(LOG)
- @wlib $@ +$<  $(LOG)
+ @$(LIB) $(LIBOPT) $@ +$< $(LOG)
+
 
 msg: .symbolic
  -@$(MKDIR) msg $(LOG)

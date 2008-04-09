@@ -25,7 +25,7 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- $(RC) -i=..$(SEP)include option2.rc $@ $(LOG)
+ $(RC) $(RCOPT) -i=..$(SEP)include option2.rc $@ $(LOG)
 
 #@%append $^&.lnk LIBRARY $(LINKLIB)
 

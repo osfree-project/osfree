@@ -21,21 +21,13 @@ all: .SYMBOLIC
 # Workaround of uniplemented features of uni2h tool
   $(CP) cdeftypes.h $(OUT)$(SEP)cdeftypes.h
   $(CP) cdeftypes2.h $(OUT)$(SEP)cdeftypes2.h
-!ifeq OS_REXX Classic
-  cmd /c cut $(OUT)$(SEP)osfree.h
-!else
-  $(OS_REXX) cut.cmd $(OUT)$(SEP)osfree.h
-!endif
+  $(REXX) cut.cmd $(OUT)$(SEP)osfree.h
   $(DC) $(OUT)$(SEP)osfree.h
   $(CP) tmp $(OUT)$(SEP)osfree.h
   $(DC) tmp
 ## OS/2 Personality files
   uni2h os2$(SEP)os2.uni $(OUT)$(SEP)OS2$(SEP)os2.h
-!ifeq OS_REXX Classic
-  cmd /c cut $(OUT)$(SEP)OS2$(SEP)os2.h
-!else
-  $(OS_REXX) cut.cmd $(OUT)$(SEP)OS2$(SEP)os2.h
-!endif
+  $(REXX) cut.cmd $(OUT)$(SEP)OS2$(SEP)os2.h
   $(DC) $(OUT)$(SEP)OS2$(SEP)os2.h
   $(CP) tmp $(OUT)$(SEP)OS2$(SEP)os2.h
   $(DC) tmp

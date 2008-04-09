@@ -16,8 +16,8 @@ ADD_COPT = -i=..$(SEP)include
 
 all: $(ROOT)$(SEP)lib$(SEP)zlib.lib .SYMBOLIC
 
-OBJS = adler32.$(O) compress.$(O) crc32.$(O) deflate.$(O) &
-       gzio.$(O) infback.$(O) inffast.$(O) inflate.$(O) &
+OBJS = adler32.$(O) compress.$(O) deflate.$(O) &
+       infback.$(O) inffast.$(O) inflate.$(O) &
        inftrees.$(O) trees.$(O) uncompr.$(O) zutil.$(O)
 
 #            adler32.obj compress.obj &
