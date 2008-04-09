@@ -78,7 +78,14 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
   /* presuming that MULTIBOOT_SEARCH is large enough to encompass an
      executable header */
+
+#pragma pack(4)
+  unsigned char b[3];
+  unsigned char b2[4];
   unsigned char buffer[MULTIBOOT_SEARCH];
+#pragma pack()
+
+printf("&buffer = %x\r\n", buffer);
 
   /* sets the header pointer to point to the beginning of the
      buffer by default */

@@ -34,7 +34,7 @@ CC        = wcc386
 CC        = wcc
 !endif
 
-ASM       = wasm
+ASM       = @wasm -q
 LINKER    = @wlink op q
 LIB       = wlib
 

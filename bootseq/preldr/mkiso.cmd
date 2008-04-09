@@ -24,5 +24,5 @@ copy boot_linux ..\..\..\cd\boot\freeldr
 copy boot_chain ..\..\..\cd\boot\freeldr
 cd   ..\..\..
 .\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
-move osfree.iso \sys\vm\vpc\bochs\img
+move osfree.iso c:\programs\qemu\img\
 cd   osfree\bootseq\preldr
