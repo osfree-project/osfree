@@ -485,7 +485,7 @@ VOID nlsGetAMPM(PCOUNTRYAMPM pampm)
                                              &pItem) == ULS_SUCCESS)
                     {
                         int iLen = G_UniStrlen(pItem) + 1;
-                        PSZ pszResult = malloc(iLen);
+                        PSZ pszResult = (PSZ)malloc(iLen);
 
                         if (G_UniStrFromUcs(uconv_object,
                                             pszResult,
@@ -503,7 +503,7 @@ VOID nlsGetAMPM(PCOUNTRYAMPM pampm)
                                     break;
 
                                 case 3:
-                                    strcpy (itemList[i].vTarget, pszResult);
+                                    strcpy ((PCHAR)(itemList[i].vTarget), pszResult);
                                     break;
                             }
                         }
@@ -631,7 +631,7 @@ VOID nlsQueryCountrySettings(PCOUNTRYSETTINGS2 pcs2)
                                                  &pItem) == ULS_SUCCESS)
                         {
                             int iLen = G_UniStrlen(pItem) + 1;
-                            PSZ pszResult = malloc(iLen);
+                            PSZ pszResult = (PSZ)malloc(iLen);
 
                             if (G_UniStrFromUcs(uconv_object,
                                                 pszResult,
@@ -649,7 +649,7 @@ VOID nlsQueryCountrySettings(PCOUNTRYSETTINGS2 pcs2)
                                         break;
 
                                     case 3:
-                                        strcpy (itemList[i].vTarget, pszResult);
+                                        strcpy ((PCHAR)(itemList[i].vTarget), pszResult);
                                         break;
                                 }
                             }

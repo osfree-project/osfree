@@ -449,7 +449,7 @@ STATIC APIRET ReadINI(PXINI pXIni)      // in: profile opened with xprfOpenProfi
                                 PXINIAPPDATA pIniApp;
 
                                 if (arc = CreateApp(pXIni,
-                                                    (PBYTE)(pbFileData + pApp->offAppName),
+                                                    (PCHAR)(pbFileData + pApp->offAppName),
                                                     &pIniApp))
                                     break;
 
@@ -984,7 +984,7 @@ APIRET xprfQueryProfileData(PXINI pXIni,          // in: profile opened with xpr
                                     pszKeyName,
                                     &pKeyData)))
                 {
-                    ulDataLen = min(pKeyData->cbData,
+                    ulDataLen = __min(pKeyData->cbData,
                                     *pulBufferMax);
                     memcpy(pBuffer,
                            pKeyData->pbData,
@@ -1085,7 +1085,7 @@ APIRET xprfWriteProfileData(PXINI pXIni,          // in: profile opened with xpr
                     // app exists:
                     FreeKeyIfExists(pXIni,
                                     pAppData,
-                                    pcszKey);
+                                    (PCHAR)pcszKey);
                 }
                 // else app doesn't even exist:
                 // nothing to do, return NO_ERROR
@@ -1110,7 +1110,7 @@ APIRET xprfWriteProfileData(PXINI pXIni,          // in: profile opened with xpr
 
                     FreeKeyIfExists(pXIni,
                                     pAppData,
-                                    pcszKey);
+                                    (PCHAR)pcszKey);
 
                     // now create new key
                     if (!(arc = CreateKey(pAppData,

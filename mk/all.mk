@@ -55,6 +55,7 @@ LINKOPT   = op q $(ADD_LINKOPT)
 LIB       = @wlib
 LIBOPT    = -q
 
+# Don't add @ sign here. Will break build system
 MAKE      = wmake
 MAKEOPT   = -h
 
@@ -67,7 +68,7 @@ SED       = sed
 AWK       = @awk
 DOX       = doxygen
 
-RC        = wrc -q
+RC        = @wrc -q
 RCOPT = -bt=OS2
 
 MC        = mkmsgf
@@ -180,7 +181,7 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 
 .pas.exe: .AUTODEPEND
   $(SAY) Compiling $<
-  $(PC) $(PCOPT) $< 
+  $(PC) $(PCOPT) $<
   $(CP) $^. $^:
   $(DC) $^.
 

@@ -5,6 +5,8 @@
  *   _TEXT segments in stage0 raw binary
  */
 
+Parse Source os src .
+
 parse arg args
 
 p = words(args)
@@ -36,8 +38,8 @@ if _text16_size > 0 then do
 
 end
 
-/* workaround of zerosize return */
-sleep(10)
+/* workaround of zerosize return. Most probably required only for network disks. */
+if os = 'WIN32' then sleep(10)
 
 /* binary size */
 fsize = stream(file, 'C', 'QUERY SIZE')
@@ -47,7 +49,7 @@ call charout stderr, fsize || '10 13'x
 call charout stderr, base || '10 13'x
 call charout stderr, _text16_size || '10 13'x
  */
- 
+
 /* read DGROUP segment */
 buf = charin(file, _text16_size + base + 1, fsize - base - _text16_size)
 sout = sout || buf

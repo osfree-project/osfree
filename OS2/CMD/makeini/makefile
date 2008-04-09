@@ -14,7 +14,7 @@ DIR = $(ROOT)$(SEP)bin$(SEP)os2
 DESC = INI file compiler
 #defines object file names in format objname.$(O)
 OBJS = xmakeini.$(O) linklist.$(O) stringh.$(O) xprf.$(O) xstring.$(O) &
-       nls.$(O)
+       nls.$(O) dosh.$(O) prfh.$(O)
 
 !include $(%ROOT)/mk/all.mk
 
@@ -27,6 +27,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk import  Dos16GetInfoSeg DOSCALLS.8
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

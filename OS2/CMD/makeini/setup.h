@@ -49,7 +49,7 @@
         #define XWPENTRY _Optlink
     #else
         // EMX or Watcom:
-        #define XWPENTRY
+        #define XWPENTRY _System
     #endif
 
     // All these have been added with V0.9.12 (2001-05-18) [umoeller].
@@ -489,7 +489,7 @@
                 #define PMPF_OBJLISTS(b)
     #endif
 
-    #ifndef DONTDEBUGATALL	// V1.0.5 (2006-06-04) [pr]: Added SOM debug flag
+    #ifndef DONTDEBUGATALL      // V1.0.5 (2006-06-04) [pr]: Added SOM debug flag
 
 /* SOM */
 
@@ -509,7 +509,7 @@
                 #define PMPF_SOMFREAK(b)
     #endif
 
-    #ifndef DONTDEBUGATALL	// V1.0.5 (2006-06-04) [pr]: Added CLASSLIST debug flag
+    #ifndef DONTDEBUGATALL      // V1.0.5 (2006-06-04) [pr]: Added CLASSLIST debug flag
 
 /* Class List */
 
@@ -540,8 +540,8 @@
         // the following reacts to the _PMPRINTF_ macro def'd above;
         // if that's #define'd, _Pmpf(()) commands will produce output,
         // if not, no code will be produced.
-        #include "helpers\pmprintf.h"
-        #include "helpers\wpsdebug.h"
+        #include "pmprintf.h"
+        #include "wpsdebug.h"
 
         // SOMMethodDebug is the macro defined for all those
         // xxxMethodDebug thingies created by the SOM compiler.
@@ -588,7 +588,7 @@
         // if you don't want it
         // #define __XWPMEMDEBUG__
 
-        #include "helpers\memdebug.h"
+        #include "memdebug.h"
 
         // allow _interrupt(3) only on my private machine
         // or we'll trap every other developer machine too
@@ -613,7 +613,7 @@
     // V0.9.20 (2002-07-03) [umoeller]
 
     #ifndef DONT_REPLACE_FOR_DBCS
-        #include "helpers\nls.h"
+        #include "nls.h"
 
         #ifdef strchr
             #undef strchr

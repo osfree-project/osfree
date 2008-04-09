@@ -49,6 +49,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <alloca.h>
 
 #include "setup.h"                      // code generation and debugging options
 
@@ -1029,7 +1030,7 @@ BOOL strhGetWord(PSZ *ppszStart,        // in: start of search,
  *@@changed V0.9.18 (2002-02-23) [umoeller]: fixed end char check
  */
 
-BOOL strhIsWord(PCSZ pcszBuf,
+BOOL XWPENTRY strhIsWord(PCSZ pcszBuf,
                 PCSZ p,                 // in: start of word
                 ULONG cbSearch,         // in: length of word
                 PCSZ pcszBeginChars,    // suggestion: "\x0d\x0a ()/\\-,."

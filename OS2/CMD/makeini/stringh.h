@@ -71,9 +71,9 @@ extern "C" {
                              const char *pszSource,
                              ULONG cbSource);
 
-    size_t XWPENTRY strlcpy(char *dst,
-                            const char *src,
-                            size_t siz);
+//    size_t XWPENTRY strlcpy(char *dst,
+//                            const char *src,
+//                            size_t siz);
 
     size_t strlcat(char *dst,
                    const char *src,

@@ -325,7 +325,7 @@ void XWPENTRY xstrInitCopyDebug(PXSTRING pxstr,
  *@@changed V0.9.16 (2002-01-05) [umoeller]: use memcpy instead of strcpy
  */
 
-void xstrInitCopy(PXSTRING pxstr,
+void XWPENTRY xstrInitCopy(PXSTRING pxstr,
                   PCSZ pcszSource,
                   ULONG ulExtraAllocate)          // in: if > 0, extra memory to allocate
 {
@@ -625,7 +625,7 @@ ULONG xstrset(PXSTRING pxstr,               // in/out: string
  *@@changed V0.9.12 (2001-05-21) [umoeller]: added xstrReserve error checking
  */
 
-ULONG xstrcpy(PXSTRING pxstr,               // in/out: string
+ULONG XWPENTRY xstrcpy(PXSTRING pxstr,               // in/out: string
               PCSZ pcszSource,              // in: source, can be NULL
               ULONG ulSourceLength)         // in: length of pcszSource or 0
 {
@@ -736,7 +736,7 @@ ULONG xstrcpys(PXSTRING pxstr,
  *@@changed V0.9.9 (2001-03-09) [umoeller]: now using xstrReserve
  */
 
-ULONG xstrcat(PXSTRING pxstr,               // in/out: string
+ULONG XWPENTRY xstrcat(PXSTRING pxstr,               // in/out: string
               PCSZ pcszSource,       // in: source, can be NULL
               ULONG ulSourceLength)         // in: length of pcszSource or 0
 {

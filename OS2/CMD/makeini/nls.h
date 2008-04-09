@@ -61,7 +61,6 @@ extern "C" {
      *
      ********************************************************************/
 
-    #ifdef OS2_INCLUDED
 
         /*
          *@@ COUNTRYSETTINGS:
@@ -179,7 +178,6 @@ extern "C" {
                                            const COUNTRYSETTINGS2 *pcs2);
         typedef NLSDATETIME2 *PNLSDATETIME2;
 
-    #endif
 
     ULONG nlsUpper(PSZ psz);
 
