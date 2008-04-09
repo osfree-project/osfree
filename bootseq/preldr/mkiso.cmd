@@ -36,11 +36,14 @@ cd ..\..\fiasco
 copy * ..\..\cd\l4
 cd ..\pns
 copy * ..\..\cd\pns
-cd ..\os2
-copy os2server ..\..\cd\os2
-copy VioWrtTTY_test ..\..\cd\os2
-copy config.sys ..\..\cd\os2
-cd   ..\..
+cd ..\os2\server
+copy os2server ..\..\..\cd\os2
+copy VioWrtTTY_test ..\..\..\cd\os2
+copy config.sys ..\..\..\cd\os2
+copy libkal.s.so ..\..\..\cd\os2
+copy os2.cfg ..\..\..\cd\os2
+copy MiniELFExe.Exe ..\..\..\cd\os2
+cd   ..\..\..
 .\mkisofs -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 move osfree.iso c:\programs\qemu\img\
 cd   osfree\bootseq\preldr
