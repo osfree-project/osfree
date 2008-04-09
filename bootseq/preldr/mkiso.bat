@@ -15,6 +15,11 @@ if   not exist eltorito.bin wmake eltorito.bin
 cd   ..\..\preldr
 copy ..\bootsec\eltorito\eltorito.bin .
 %rexx% mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
+mkdir ..\..\..\cd
+mkdir..\..\..\cd\boot
+mkdir..\..\..\cd\boot\freeldr
+mkdir..\..\..\cd\boot\freeldr\fsd
+mkdir..\..\..\cd\l4
 move bootblk ..\..\..\cd\boot
 copy preldr0 ..\..\..\cd\boot\freeldr
 copy preldr.ini  ..\..\..\cd\boot\freeldr
