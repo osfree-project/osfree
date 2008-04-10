@@ -264,7 +264,7 @@ void KernelLoader(void)
   }
   else
   {
-    create_lip_module(&l);
+    //create_lip_module(&l);
     multi_boot();
   }
 }

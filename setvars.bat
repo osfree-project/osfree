@@ -1,12 +1,12 @@
 @echo off
-set ROOT=k:\var\src\os2\svn\osfree
+set ROOT=\var\src\os2\svn\osfree
 
-set WATCOM=k:\watcom
+set WATCOM=\watcom
 set svn=%root%\..\svnw32\bin
-SET REGINA=k:\regina
+SET REGINA=\regina
 set tools=%src%\tools\bin
-set TKPATH=k:\os2tk45
-set FPPATH=k:\fpwin
+set TKPATH=\os2tk45
+set FPPATH=\fpwin
 
 set PATH=%WATCOM%\binp;%TOOLS%;%TKPATH%\bin;%FPPATH%\bin\win32;%svn%;%regina%;%PATH%
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\os21x;%WATCOM%\h\dos

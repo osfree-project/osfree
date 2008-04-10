@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 
 rem
 rem make bootable ISO image
@@ -14,13 +14,13 @@ cd   ..\..\preldr
 copy ..\bootsec\eltorito\eltorito.bin .
 call mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
 
-mkdir ..\..\..\cd
-mkdir..\..\..\cd\boot
-mkdir..\..\..\cd\boot\freeldr
-mkdir..\..\..\cd\boot\freeldr\fsd
-mkdir..\..\..\cd\l4
-mkdir..\..\..\cd\pns
-mkdir..\..\..\cd\os2
+if not exist ..\..\..\cd mkdir ..\..\..\cd
+if not exist ..\..\..\cd\boot mkdir ..\..\..\cd\boot
+if not exist ..\..\..\cd\boot\freeldr mkdir ..\..\..\cd\boot\freeldr
+if not exist ..\..\..\cd\boot\freeldr\fsd mkdir ..\..\..\cd\boot\freeldr\fsd
+if not exist ..\..\..\cd\l4 mkdir ..\..\..\cd\l4
+if not exist ..\..\..\cd\pns mkdir ..\..\..\cd\pns
+if not exist ..\..\..\cd\os2 mkdir ..\..\..\cd\os2
 
 move bootblk ..\..\..\cd\boot
 copy preldr0 ..\..\..\cd\boot\freeldr
@@ -44,6 +44,6 @@ copy libkal.s.so ..\..\..\cd\os2
 copy os2.cfg ..\..\..\cd\os2
 copy MiniELFExe.Exe ..\..\..\cd\os2
 cd   ..\..\..
-.\mkisofs -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
-move osfree.iso c:\programs\qemu\img\
+.\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
+move osfree.iso \data\vm\img
 cd   osfree\bootseq\preldr
