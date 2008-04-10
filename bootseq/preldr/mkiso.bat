@@ -8,22 +8,21 @@ rem
 set rexx=c:\regina\rexx.exe
 set path=.\cdrtoolsw32;%path%
 
-if   not exist preldr0 wmake preldr0
-if   not exist iso9660.fsd wmake iso9660.fsd
-cd   ..\bootsec\eltorito
-if   not exist eltorito.bin wmake eltorito.bin
-cd   ..\..\preldr
+if not exist preldr0 wmake preldr0
+if not exist iso9660.fsd wmake iso9660.fsd
+cd ..\bootsec\eltorito
+if not exist eltorito.bin wmake eltorito.bin
+cd ..\..\preldr
 copy ..\bootsec\eltorito\eltorito.bin .
 %rexx% mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
 
-mkdir ..\..\..\cd
-mkdir..\..\..\cd\boot
-mkdir..\..\..\cd\boot\freeldr
-mkdir..\..\..\cd\boot\freeldr\fsd
-mkdir..\..\..\cd\l4
-mkdir..\..\..\cd\pns
-mkdir..\..\..\cd\os2
-
+if not exist ..\..\..\cd mkdir ..\..\..\cd
+if not exist ..\..\..\cd\boot mkdir ..\..\..\cd\boot
+if not exist ..\..\..\cd\boot\freeldr mkdir ..\..\..\cd\boot\freeldr
+if not exist ..\..\..\cd\boot\freeldr\fsd mkdir ..\..\..\cd\boot\freeldr\fsd
+if not exist ..\..\..\cd\l4 mkdir ..\..\..\cd\l4
+if not exist ..\..\..\cd\pns mkdir ..\..\..\cd\pns
+if not exist ..\..\..\cd\os2 mkdir ..\..\..\cd\os2
 
 move bootblk ..\..\..\cd\boot
 copy preldr0 ..\..\..\cd\boot\freeldr
