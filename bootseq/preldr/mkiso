@@ -32,5 +32,5 @@ cp boot_linux ../../../cd/boot/freeldr
 cp boot_chain ../../../cd/boot/freeldr
 cd   ../../..
 mkisofs -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
-mv osfree.iso /mnt/i/data/vm/bochs/img
+mv osfree.iso /mnt/i/data/vm/img
 cd   osfree/bootseq/preldr
