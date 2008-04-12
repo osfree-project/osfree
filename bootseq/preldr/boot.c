@@ -600,6 +600,9 @@ void create_lip_module(lip2_t **l)
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
+  printf("   [Lip-module @ 0x%x, 0x%x bytes]\r\n", 
+         cur_addr, sizeof(lip2_t));
+
   lip2_len = sizeof(lip2_t);
   grub_memmove((char *)cur_addr, *l, lip2_len);
 

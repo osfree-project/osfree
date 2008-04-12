@@ -151,18 +151,18 @@ int process_cfg_line(char *line)
   else if (insection && abbrev(line, "module", 6))
   {
     line = strip(line + 7);
-    if (module_func(line, 0x2))
+    if (abbrev(line, "*lip*", 5))
+    {
+      line = strip(line + 5);
+      if (lipmodule_func(line, 0x2))
+      {
+        printf("An error occured during execution of lipmod_func\r\n");
+        return 0;
+      }
+    }
+    else if (module_func(line, 0x2))
     {
       printf("An error occured during execution of module_func\r\n");
-      return 0;
-    }
-  }
-  else if (insection && abbrev(line, "lipmodule", 9))
-  {
-    line = strip(line + 9);
-    if (lipmodule_func(line, 0x2))
-    {
-      printf("An error occured during execution of lipmod_func\r\n");
       return 0;
     }
   }
