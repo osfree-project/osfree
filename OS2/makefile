@@ -9,7 +9,7 @@
 
 # First directory must be UNI which produces C/C++ header files
 
-DIRS = UNI Shared CMD UtlAPI CPI PM MM SOM #Server
+DIRS = Shared CMD UtlAPI CPI PM MM SOM #Server
 
 
 !include $(%ROOT)/mk/all.mk
