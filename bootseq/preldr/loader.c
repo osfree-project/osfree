@@ -43,6 +43,25 @@ void init(lip2_t *l)
 
 }
 
+/* Find the next word from CMDLINE and return the pointer. If
+   AFTER_EQUAL is non-zero, assume that the character `=' is treated as
+   a space. Caution: this assumption is for backward compatibility.  */
+char *
+skip_to (int after_equal, char *cmdline)
+{
+  /* Skip until we hit whitespace, or maybe an equal sign. */
+  while (*cmdline && *cmdline != ' ' && *cmdline != '\t' &&
+         ! (after_equal && *cmdline == '='))
+    cmdline ++;
+
+  /* Skip whitespace, and maybe equal signs. */
+  while (*cmdline == ' ' || *cmdline == '\t' ||
+         (after_equal && *cmdline == '='))
+    cmdline ++;
+
+  return cmdline;
+}
+
 void panic(char *msg, char *file)
 {
   printf("\r\nFatal error: \r\n");
@@ -127,12 +146,12 @@ int process_cfg_line(char *line)
   }
   else if (abbrev(line, "default", 7))
   {
-    line = strip(line + 8);
+    line = strip(skip_to(1, line));
     sec_to_load = grub_aton(line) + 1;
   }
   else if (insection && abbrev(line, "modaddr", 7)) 
   {
-    line = strip(line + 8);
+    line = strip(skip_to(1, line));
     if (modaddr_func(line, 0x2))
     {
       printf("An error occured during execution of modaddr_func\r\n");
@@ -141,7 +160,7 @@ int process_cfg_line(char *line)
   }
   else if (insection && abbrev(line, "kernel", 6))
   {
-    line = strip(line + 7);
+    line = strip(skip_to(1, line));
     if (kernel_func(line, 0x2)) 
     {
       printf("An error occured during execution of kernel_func\r\n");
@@ -150,14 +169,25 @@ int process_cfg_line(char *line)
   }
   else if (insection && abbrev(line, "module", 6))
   {
-    line = strip(line + 7);
-    if (abbrev(line, "*lip*", 5))
+    line = strip(skip_to(1, line));
+    if (abbrev(line, "--type", 6))
     {
-      line = strip(line + 5);
-      if (lipmodule_func(line, 0x2))
+      line = strip(skip_to(1, line));
+      if (abbrev(line, "lip", 3))
       {
-        printf("An error occured during execution of lipmod_func\r\n");
-        return 0;
+        if (lipmodule_func(line, 0x2))
+        {
+          printf("An error occured during execution of lipmod_func\r\n");
+          return 0;
+        }
+      }
+      else if (abbrev(line, "bootsector", 10))
+      {
+        //if (bootsecmodule_func(line, 0x2))
+        //{
+        //  printf("An error occured during execution of lipmod_func\r\n");
+        //  return 0;
+        //}
       }
     }
     else if (module_func(line, 0x2))

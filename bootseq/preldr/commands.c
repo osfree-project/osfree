@@ -181,6 +181,5 @@ int
 lipmodule_func (char *arg, int flags)
 {
   create_lip_module(&l);
-
   return 0;
 }
