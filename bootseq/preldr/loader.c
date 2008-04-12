@@ -25,16 +25,18 @@ void multi_boot(void);
 char linebuf[BUFSIZE];
 char buf[BUFSIZE];
 
-#pragma aux multi_boot   "*"
-#pragma aux kernel_func  "*"
-#pragma aux module_func  "*"
-#pragma aux modaddr_func "*"
-#pragma aux m            "*"
-#pragma aux l            "*"
+#pragma aux multi_boot     "*"
+#pragma aux kernel_func    "*"
+#pragma aux module_func    "*"
+#pragma aux modaddr_func   "*"
+#pragma aux lipmodule_func "*"
+#pragma aux m              "*"
+#pragma aux l              "*"
 
 int kernel_func (char *arg, int flags);
 int module_func (char *arg, int flags);
 int modaddr_func (char *arg, int flags);
+int lipmodule_func (char *arg, int flags);
 
 void init(lip2_t *l)
 {
@@ -152,6 +154,15 @@ int process_cfg_line(char *line)
     if (module_func(line, 0x2))
     {
       printf("An error occured during execution of module_func\r\n");
+      return 0;
+    }
+  }
+  else if (insection && abbrev(line, "lipmodule", 9))
+  {
+    line = strip(line + 9);
+    if (lipmodule_func(line, 0x2))
+    {
+      printf("An error occured during execution of lipmod_func\r\n");
       return 0;
     }
   }

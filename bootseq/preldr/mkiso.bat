@@ -32,8 +32,8 @@ copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
 copy *.rel   ..\..\..\cd\boot\freeldr\fsd
 move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr\
 copy freeldr    ..\..\..\cd\boot\freeldr
-copy boot_linux ..\..\..\cd\boot\freeldr
-copy boot_chain ..\..\..\cd\boot\freeldr
+copy boot_lin ..\..\..\cd\boot\freeldr
+copy boot_chn ..\..\..\cd\boot\freeldr
 
 cd ..\..\fiasco
 copy * ..\..\cd\l4

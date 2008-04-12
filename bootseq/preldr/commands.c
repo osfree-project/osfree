@@ -17,7 +17,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <shared.h>
+#include <lip.h>
 #include <filesys.h>
 
 #include "fsys.h"
@@ -29,9 +29,15 @@ grub_error_t errnum;
 /* The address for Multiboot command-line buffer.  */
 static char *mb_cmdline;
 
-#pragma aux kernel_func  "*"
-#pragma aux module_func  "*"
-#pragma aux modaddr_func "*"
+#pragma aux l "*"
+
+#pragma aux kernel_func    "*"
+#pragma aux module_func    "*"
+#pragma aux modaddr_func   "*"
+#pragma aux lipmodule_func "*"
+
+extern lip2_t *l;
+void create_lip_module(lip2_t **l);
 
 /* kernel */
 int
@@ -170,3 +176,11 @@ modaddr_func (char *arg, int flags)
   return 0;
 }
 
+/* lipmod */
+int
+lipmodule_func (char *arg, int flags)
+{
+  create_lip_module(&l);
+
+  return 0;
+}

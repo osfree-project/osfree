@@ -79,7 +79,7 @@ TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
-                   boot_linux boot_chain
+                   boot_lin boot_chn
 
 SHIFT = 0x100
 
@@ -93,12 +93,12 @@ preldr0.rel: preldr0
  $(GENREL) $^& $^&s $(SHIFT) >$^@
  $(DC) $^&s
 
-boot_linux: boot_linux.$(OUT)
+boot_lin: boot_linux.$(OUT)
  $(DC) $^@
  $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
  $(DC) $<
 
-boot_chain: boot_chain.$(OUT)
+boot_chn: boot_chain.$(OUT)
  $(DC) $^@
  $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
  $(DC) $<
