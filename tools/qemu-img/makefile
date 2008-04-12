@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIR = ..$(SEP)bin
+DIR = $(ROOT)$(SEP)tools$(SEP)bin
 32_BITS  = 1
 ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
 
@@ -19,9 +19,9 @@ OBJS = qemu-img.$(O) block.$(O) block-cow.$(O) block-qcow.$(O) aes.$(O) &
 
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
-all: qemu-img.exe .SYMBOLIC
+all: $(DIR)$(SEP)qemu-img.exe .SYMBOLIC
 
-qemu-img.exe: $(OBJS)
+$(DIR)$(SEP)qemu-img.exe: $(OBJS)
  @%create $^&.lnk
 # @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk OPTION MAP=$^&.wmp
@@ -43,9 +43,6 @@ qemu-img.exe: $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  @$(MAKE) $(MAKEOPT) install
-
-install: .SYMBOLIC
- $(CP) qemu-img.exe $(DIR) $(BLACKHOLE)
 
 .IGNORE
 clean: .SYMBOLIC
