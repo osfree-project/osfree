@@ -10,7 +10,7 @@ ROOT=$(%ROOT)
 #
 # Preprocessor defines
 #
-C_DEFS    = #-q #-d__OS2__ -d__WATCOM__
+C_DEFS    = -qz #-d__OS2__ -d__WATCOM__
 ASM_DEFS  = #-d__OS2__ -d__WATCOM__
 
 #

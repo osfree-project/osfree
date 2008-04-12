@@ -3,6 +3,11 @@
 # variables.
 #
 
+# Project root
+ROOT       = $(%ROOT)
+# OpenWatcom directory
+WATCOM     = $(%WATCOM)
+
 # Shell
 !     ifeq OS_SHELL 4OS/2
 SHELL   = 4os2
@@ -42,13 +47,16 @@ UNIX = TRUE
 ! error Unsupported OS!
 !endif
 
+# Path separator
+!ifeq UNIX FALSE
+SEP        = \
+!else
+SEP        = /
+!endif
+
 # Libraries dir (this is NOT standalone system libraries. This is path where
 # to store libs generated during build process)
-!ifeq UNIX FALSE
-LIBDIR     = $(ROOT)\lib
-!else
-LIBDIR     = $(ROOT)/lib
-!endif
+LIBDIR     = $(ROOT)$(SEP)lib
 
 # libc
 LIBC       = clibs.lib

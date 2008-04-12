@@ -44,6 +44,6 @@ copy libkal.s.so ..\..\..\cd\os2
 copy os2.cfg ..\..\..\cd\os2
 copy MiniELFExe.Exe ..\..\..\cd\os2
 cd   ..\..\..
-.\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
+mkisofs -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 move osfree.iso \data\vm\img
 cd   osfree\bootseq\preldr

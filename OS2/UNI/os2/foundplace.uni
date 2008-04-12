@@ -1,0 +1,12 @@
+This is file contains things which placed in incorrect place in original
+OS/2 headers (like rectangles definition in base definition types while
+used only on PM and GPI).
+
+type WRECT=RECTL;
+type PWRECT=PRECTL;
+type NPWRECT=NPRECTL;
+
+type WPOINT  =POINTL;
+type PWPOINT =PPOINTL;
+type NPWPOINT=NPPOINTL;
+
