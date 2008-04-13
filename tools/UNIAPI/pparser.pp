@@ -355,7 +355,7 @@ begin
         else if s = 'SHORTINT' then Name := 'ShortInt'
         else if s = 'SMALLINT' then Name := 'SmallInt'
         else if s = 'STRING' then Name := 'String'
-        else if s = 'WORD' then Name := 'Word'
+        else if s = 'WORD' then Name := 'WORD'
         else
           Ref := Engine.FindElement(Name);
         if Assigned(Ref) then

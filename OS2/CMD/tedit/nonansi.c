@@ -43,6 +43,14 @@ static char RCSid[] = "$Id: nonansi.c,v 1.9 2002/04/17 07:39:48 mark Exp $";
 #endif
 #include <errno.h>
 
+#ifdef __OS2__
+
+#define ULONG unsigned long
+#define CCHMAXPATH          260
+#define FIL_QUERYFULLNAME      5
+
+#endif
+
 /*#define DEBUG 1*/
 #ifdef __EMX__            /* prevent DOS- and OS2-include's    */
 #elif defined(DOS)
@@ -168,7 +176,7 @@ CHARTYPE *outfilename,*infilename;
   /*
    * Support an = in the following circumstances:
    *    In filename      Current           Current         Substitutes
-   *                   \oldp\fred.c      \oldp\fred    
+   *                   \oldp\fred.c      \oldp\fred
    * ---------------------------------------------------------------
    * 1) =\abc.def      \oldp\abc.def     \oldp\abc.def     fpath
    * 2) \apath\=.x     \apath\fred.x     \apath\fred.x     fname
@@ -650,7 +658,7 @@ CHARTYPE *filename;
        else
        {
           struct passwd *pwd;
-   
+
           strcpy((DEFCHAR *)sp_path,(DEFCHAR *)conv_filename+1);
           if ((len = strzeq(sp_path,ISLASH)) != (-1))
              sp_path[len] = '\0';
@@ -742,7 +750,7 @@ CHARTYPE *filename;
    strcpy((DEFCHAR *)sp_fname,"");
    convert_equals_in_filename(work_filename,filename);
    /*
-    * If the supplied filename is empty, set the path = cwd and filename 
+    * If the supplied filename is empty, set the path = cwd and filename
     * equal to blank.
     */
    if (strcmp((DEFCHAR *)filename,"") == 0)
@@ -1092,10 +1100,10 @@ typedef FSQINFO FAR *PFSQINFO;
 
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *getclipboard(LINE *now)
+_LINE *getclipboard(_LINE *now)
 #else
-LINE *getclipboard(now)
-LINE *now;
+_LINE *getclipboard(now)
+_LINE *now;
 #endif
 /***********************************************************************/
 /* Function  : Reads the contents of the clipboard into the file.      */
@@ -1105,7 +1113,7 @@ LINE *now;
 {
 /*--------------------------- local data ------------------------------*/
  CHARTYPE *ptr=NULL;
- LINE *curr=now;
+ _LINE *curr=now;
  LINETYPE i,line_start,numlines=0;
  LENGTHTYPE maxlen=0;
  long length=0;
@@ -1208,7 +1216,7 @@ bool lines_based_on_scope;
  LINETYPE num_actual_lines=0L;
  LINETYPE my_num_file_lines=0L;
  short direction=(in_lines < 0L ? DIRECTION_BACKWARD : DIRECTION_FORWARD);
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  short rc=RC_OK;
  bool save_scope_all=CURRENT_VIEW->scope_all;
 #ifdef UNIX
@@ -1303,7 +1311,7 @@ bool lines_based_on_scope;
 /*---------------------------------------------------------------------*/
 /* Proceed to the next record, even if the current record not in scope.*/
 /*---------------------------------------------------------------------*/
-    if (rc) 
+    if (rc)
        break;
     if (direction == DIRECTION_BACKWARD)
        curr = curr->prev;

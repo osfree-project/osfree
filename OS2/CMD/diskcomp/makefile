@@ -1,8 +1,7 @@
 # $Id: makefile,v 1.5 2004/08/16 04:51:13 prokushev Exp $
 
-ROOT=..\..\..
 
-DIR = $(ROOT)\bin\os2
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
 PROJ = dislcomp
 DESC = Diskette compare tool
 OBJS = diskcomp.obj misc.obj md5.obj drive.obj

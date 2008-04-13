@@ -40,8 +40,8 @@ static char RCSid[] = "$Id: single.c,v 1.3 2002/06/23 04:14:16 mark Exp $";
 #ifdef THE_SINGLE_INSTANCE_ENABLED
 
 #ifdef WIN32
-#include <windows.h> 
- 
+#include <windows.h>
+
 #define MY_PIPE_CONNECT 0
 #define MY_PIPE_READ    1
 HANDLE hSemCommandCount, hPipeRead, hThread;
@@ -117,10 +117,10 @@ LONG PipeHandlerThread( LPVOID lpThreadData )
 }
 
 /***********************************************************************/
-int initialise_fifo( LINE *first_file_name, LINETYPE startup_line, LENGTHTYPE startup_column, bool ro )
+int initialise_fifo( _LINE *first_file_name, LINETYPE startup_line, LENGTHTYPE startup_column, bool ro )
 /***********************************************************************/
 {
-   LINE *current_file_name;
+   _LINE *current_file_name;
    char buf[MAX_FILE_NAME+1];
    char LoadError[256];
    char *ronly;
@@ -335,12 +335,12 @@ int process_fifo_input( int key )
             return key;
          }
          hEvents[1] = hSemCommandCount; /* semaphore associated with the named pipe */
-   
+
          dwWait = WaitForMultipleObjects( 2,
                                           hEvents,
                                           FALSE,
                                           INFINITE);
-    
+
          if ( dwWait == WAIT_FAILED )
          {
             FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT), LoadError, 256, NULL ) ;
@@ -449,17 +449,17 @@ void close_fifo( void )
 
 /***********************************************************************/
 #ifdef HAVE_PROTO
-int initialise_fifo( LINE *first_file_name, LINETYPE startup_line, LENGTHTYPE startup_column, bool ro )
+int initialise_fifo( _LINE *first_file_name, LINETYPE startup_line, LENGTHTYPE startup_column, bool ro )
 #else
 int initialise_fifo( first_file_name, startup_line, startup_column, ro )
-LINE *first_file_name;
+_LINE *first_file_name;
 LINETYPE startup_line;
 LENGTHTYPE startup_column;
 bool ro;
 #endif
 /***********************************************************************/
 {
-   LINE *current_file_name;
+   _LINE *current_file_name;
    int am_client = 0, rc;
    char *ronly;
 
@@ -605,7 +605,7 @@ int key;
          TRACE_RETURN();
          return key;
       }
-      if ( s == 0 ) /* no requests pending - should never happen!*/ 
+      if ( s == 0 ) /* no requests pending - should never happen!*/
       {
          TRACE_RETURN();
          return key;
@@ -628,7 +628,7 @@ int key;
             return key;
          }
          /*
-          * Save the current linend. 
+          * Save the current linend.
           * Force LINEND to # (which is what initialise_lifo() sets).
           * Run the command
           * set LINEND back to default.

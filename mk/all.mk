@@ -29,6 +29,7 @@ COPT      = $(C_DEFS) -i=. &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)jpeglib &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else
@@ -179,7 +180,7 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 .rc.res: .AUTODEPEND
   $(RC) $(RCOPT) $<
 
-.pas.exe: .AUTODEPEND
+.pas.exe: .symbolic
   $(SAY) Compiling $<
   $(PC) $(PCOPT) $<
   $(CP) $^. $^:

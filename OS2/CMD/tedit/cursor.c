@@ -70,7 +70,7 @@ short col;
    if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
    {
       CURRENT_VIEW->previous_window = CURRENT_VIEW->current_window;
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       CURRENT_VIEW->current_window = WINDOW_COMMAND;
    }
    wmove(CURRENT_WINDOW,0,col-1);
@@ -139,7 +139,7 @@ short escreen;
       case WINDOW_PREFIX:
       case WINDOW_FILEAREA:
          rc = scroll_line(DIRECTION_FORWARD,1L,FALSE,escreen);
-         if ( rc == RC_OK 
+         if ( rc == RC_OK
          &&   escreen == CURSOR_CUA )
          {
             getyx(CURRENT_WINDOW_FILEAREA,y,x);
@@ -247,7 +247,7 @@ bool save;
    {
       if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
          CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       if (save)
          CURRENT_VIEW->current_window = last_win;
       else
@@ -259,7 +259,7 @@ bool save;
    }
    else
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       CURRENT_VIEW->current_window = WINDOW_COMMAND;
       wmove(CURRENT_WINDOW,0,0);
    }
@@ -281,7 +281,7 @@ bool kedit_defaults;
    short rc=RC_OK;
 
    /*
-    * If escreen is CURSOR_ESCREEN or CURSOR_CUA, then scrolling of the 
+    * If escreen is CURSOR_ESCREEN or CURSOR_CUA, then scrolling of the
     * window will be done if possible.
     */
    TRACE_FUNCTION("cursor.c:  THEcursor_left");
@@ -294,7 +294,7 @@ bool kedit_defaults;
 
    getyx(CURRENT_WINDOW,y,x);
    /*
-    * For all windows, if we are not at left column, move 1 pos to left. 
+    * For all windows, if we are not at left column, move 1 pos to left.
     */
    if (x > 0)
    {
@@ -392,14 +392,14 @@ bool kedit_defaults;
 
    TRACE_FUNCTION("cursor.c:  THEcursor_right");
    /*
-    * The following should be a temporary fix for KEDIT compatability... 
+    * The following should be a temporary fix for KEDIT compatability...
     */
    if (CURRENT_VIEW->prefix
    &&  kedit_defaults)
       escreen = CURSOR_SCREEN;
    getyx(CURRENT_WINDOW,y,x);
    /*
-    * Check for going past end of line - max_line_length   
+    * Check for going past end of line - max_line_length
     */
    if (CURRENT_VIEW->verify_col+x+1 > max_line_length)
    {
@@ -430,7 +430,7 @@ bool kedit_defaults;
       return(RC_OK);
    }
    /*
-    * For all windows, determine if CMDARROWSTABLRx is set for tabbing or 
+    * For all windows, determine if CMDARROWSTABLRx is set for tabbing or
     * scrolling and act accordingly.
     */
    switch(CURRENT_VIEW->current_window)
@@ -464,7 +464,7 @@ bool kedit_defaults;
       case WINDOW_COMMAND:
          if ( escreen == CURSOR_SCREEN )
             rc = Sos_leftedge((CHARTYPE *)"");
-         else 
+         else
          {
             if ((CURRENT_VIEW->prefix&PREFIX_LOCATION_MASK) == PREFIX_LEFT)
                Tabpre((CHARTYPE *)"");
@@ -503,7 +503,7 @@ short escreen;
       case WINDOW_FILEAREA:
       case WINDOW_PREFIX:
          rc = scroll_line(DIRECTION_BACKWARD,1L,FALSE,escreen);
-         if ( rc == RC_OK 
+         if ( rc == RC_OK
          &&   escreen == CURSOR_CUA )
          {
             getyx(CURRENT_WINDOW_FILEAREA,y,x);
@@ -552,7 +552,7 @@ short row,col;
 
    TRACE_FUNCTION("cursor.c:  THEcursor_move");
    getyx(CURRENT_WINDOW_FILEAREA,y,x);
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (escreen)
    {
       /*
@@ -613,7 +613,7 @@ short row,col;
       }
       wmove(CURRENT_WINDOW_FILEAREA,row,col);
       CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
    else
    {
@@ -673,7 +673,7 @@ short row,col;
             rc = Sos_current((CHARTYPE *)"");
             wmove(CURRENT_WINDOW_FILEAREA,row,col);
             CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
             break;
          case WINDOW_PREFIX:
             row = get_row_for_tof_eof(row,current_screen);
@@ -688,7 +688,7 @@ short row,col;
             rc = Sos_prefix((CHARTYPE *)"");
             wmove(CURRENT_WINDOW_PREFIX,row,col);
             CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
             break;
          case WINDOW_COMMAND:
             rc = THEcursor_cmdline(col+1);
@@ -732,13 +732,13 @@ COLTYPE col;
    }
    if ( THEcursor_file( FALSE, row, col ) != RC_OK )
    {
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       /*
        * Make specified line current and display specified column in the
        * middle of the screen if not already displayed.
        */
       CURRENT_VIEW->current_line = CURRENT_VIEW->focus_line = row;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       if (!column_in_view(current_screen,col-1))
       {
          if ( col < CURRENT_SCREEN.cols[WINDOW_FILEAREA]/2 )
@@ -1486,7 +1486,7 @@ LINETYPE num_lines;
 /***********************************************************************/
 {
    unsigned short y=0,x=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE actual_lines=num_lines;
    short direction=DIRECTION_FORWARD,rc=RC_OK;
 
@@ -1496,7 +1496,7 @@ LINETYPE num_lines;
       actual_lines = -num_lines;
       direction = DIRECTION_BACKWARD;
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,CURRENT_VIEW->focus_line,CURRENT_FILE->number_lines);
    while(actual_lines>0)
    {
@@ -1513,7 +1513,7 @@ LINETYPE num_lines;
    }
    if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
       CURRENT_VIEW->current_line = CURRENT_VIEW->focus_line;
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    display_screen(current_screen);
    if (curses_started)
@@ -1537,7 +1537,7 @@ LINETYPE num_lines;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE actual_lines=num_lines;
    short direction=DIRECTION_FORWARD;
    short y=0,x=0,rc=RC_OK;
@@ -1548,7 +1548,7 @@ LINETYPE num_lines;
       actual_lines = -num_lines;
       direction = DIRECTION_BACKWARD;
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,CURRENT_VIEW->current_line,CURRENT_FILE->number_lines);
    while(actual_lines>0)
    {
@@ -1580,7 +1580,7 @@ LINETYPE num_lines;
       /* THEcursor_move(TRUE,FALSE,y+1,x+1); */
       THEcursor_move(TRUE,TRUE,y+1,x+1);
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    display_screen(current_screen);
    if (CURRENT_TOF || CURRENT_BOF)
@@ -1625,11 +1625,11 @@ DESCRIPTION
      from the existing values of these variables, using the number of
      actual lines offset and direction passed as parameters.
 
-     The num_lines parameter is the offset from either the focus or 
+     The num_lines parameter is the offset from either the focus or
      current line expressed in file lines (ie ignores scope - SCOPE ALL)
      The true_line parameter is the value of either focus or current lien.
 
-     This function determines what the new values for focus_line and 
+     This function determines what the new values for focus_line and
      current_line are to be based on the status of STAY and of the
      current compatibility mode.  On return from this function, the
      screen will have been displayed with the correct positioning of
@@ -1712,7 +1712,7 @@ bool sos;
          build_screen(current_screen);
          if (!line_in_view(current_screen,view->focus_line))
             view->current_line = view->focus_line;
-         pre_process_line(view,view->focus_line,(LINE *)NULL);
+         pre_process_line(view,view->focus_line,(_LINE *)NULL);
          build_screen(current_screen);
          display_screen(current_screen);
          if (curses_started)
@@ -1725,7 +1725,7 @@ bool sos;
          break;
       case COMPAT_XEDIT:
          view->current_line = true_line+num_lines-(LINETYPE)direction;
-         pre_process_line(view,view->focus_line,(LINE *)NULL);
+         pre_process_line(view,view->focus_line,(_LINE *)NULL);
          build_screen(current_screen);
          if (!line_in_view(current_screen,view->focus_line))
             THEcursor_cmdline(1);

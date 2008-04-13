@@ -731,7 +731,7 @@ SYNOPSIS
      CHARTYPE *string;
 
 DESCRIPTION
-     The strtrunc function truncates all leading and trailing spaces 
+     The strtrunc function truncates all leading and trailing spaces
      from the supplied string.
 
 RETURN VALUE
@@ -1287,12 +1287,12 @@ CHARTYPE oldch,newch;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *add_LINE(LINE *first,LINE *curr,CHARTYPE *line,
+_LINE *add_LINE(_LINE *first,_LINE *curr,CHARTYPE *line,
                LENGTHTYPE len,SELECTTYPE select,bool new_flag)
 #else
-LINE *add_LINE(first,curr,line,len,select,new_flag)
-LINE *first;
-LINE *curr;
+_LINE *add_LINE(first,curr,line,len,select,new_flag)
+_LINE *first;
+_LINE *curr;
 CHARTYPE *line;
 LENGTHTYPE len;
 SELECTTYPE select;
@@ -1313,7 +1313,7 @@ bool new_flag;
 /*--------------------------- local data ------------------------------*/
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("util.c:    add_LINE");
- next_line = lll_add(first,curr,sizeof(LINE));
+ next_line = lll_add(first,curr,sizeof(_LINE));
  if (next_line == NULL)
    {
     TRACE_RETURN();
@@ -1355,10 +1355,10 @@ bool new_flag;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *append_LINE(LINE *curr,CHARTYPE *line,LENGTHTYPE len)
+_LINE *append_LINE(_LINE *curr,CHARTYPE *line,LENGTHTYPE len)
 #else
-LINE *append_LINE(curr,line,len)
-LINE *curr;
+_LINE *append_LINE(curr,line,len)
+_LINE *curr;
 CHARTYPE *line;
 LENGTHTYPE len;
 #endif
@@ -1381,10 +1381,10 @@ LENGTHTYPE len;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *delete_LINE(LINE *first,LINE *last,LINE *curr,short direction)
+_LINE *delete_LINE(_LINE *first,_LINE *last,_LINE *curr,short direction)
 #else
-LINE *delete_LINE(first,last,curr,direction)
-LINE *first,*last,*curr;
+_LINE *delete_LINE(first,last,curr,direction)
+_LINE *first,*last,*curr;
 short direction;
 #endif
 /***********************************************************************/
@@ -1533,11 +1533,11 @@ short scrn;
       }
    }
    wattrset( screen[scrn].win[WINDOW_FILEAREA], set_colour( fp.attr+ATTR_FILEAREA ) );
-  
+
    create_statusline_window();
 
    create_filetabs_window();
-  
+
    if ( screen[scrn].win[WINDOW_ARROW] != (WINDOW *)NULL )
    {
       wattrset( screen[scrn].win[WINDOW_ARROW], set_colour( fp.attr+ATTR_ARROW ) );
@@ -1546,20 +1546,20 @@ short scrn;
       mvwaddstr( screen[scrn].win[WINDOW_ARROW], 0, my_prefix_width-2, "> " );
       wnoutrefresh( screen[scrn].win[WINDOW_ARROW] );
    }
-  
+
    if ( screen[scrn].win[WINDOW_IDLINE] != (WINDOW *)NULL )
    {
       wattrset( screen[scrn].win[WINDOW_IDLINE], set_colour( fp.attr+ATTR_IDLINE ) );
       wmove( screen[scrn].win[WINDOW_IDLINE], 0, 0 );
       my_wclrtoeol( screen[scrn].win[WINDOW_IDLINE] );
    }
-  
+
    if ( screen[scrn].win[WINDOW_PREFIX] != (WINDOW *)NULL )
       wattrset( screen[scrn].win[WINDOW_PREFIX], set_colour( fp.attr+ATTR_PENDING ) );
-  
+
    if ( screen[scrn].win[WINDOW_GAP] != (WINDOW *)NULL )
       wattrset( screen[scrn].win[WINDOW_GAP], set_colour( fp.attr+ATTR_GAP ) );
-  
+
    if ( screen[scrn].win[WINDOW_COMMAND] != (WINDOW *)NULL )
    {
       wattrset( screen[scrn].win[WINDOW_COMMAND], set_colour( fp.attr+ATTR_CMDLINE ) );
@@ -1584,7 +1584,7 @@ short scrn;
          TRACE_RETURN();
          return(RC_OUT_OF_MEMORY);
       }
-  
+
 #if 0
 # if defined(A_ALTCHARSET) && !defined(USE_NCURSES)
       wattrset( divider, A_ALTCHARSET|set_colour( fp.attr+ATTR_DIVIDER ) );
@@ -1594,7 +1594,7 @@ short scrn;
 #else
       wattrset( divider, set_colour( fp.attr+ATTR_DIVIDER ) );
 #endif
-  
+
       draw_divider();
    }
    if ( SLKx )
@@ -1714,23 +1714,23 @@ short create_filetabs_window()
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-void pre_process_line(VIEW_DETAILS *the_view,LINETYPE line_number,LINE *known_curr)
+void pre_process_line(VIEW_DETAILS *the_view,LINETYPE line_number,_LINE *known_curr)
 #else
 void pre_process_line(the_view,line_number,known_curr)
 VIEW_DETAILS *the_view;
 LINETYPE line_number;
-LINE *known_curr;
+_LINE *known_curr;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=known_curr;
+   _LINE *curr=known_curr;
 
    TRACE_FUNCTION("util.c:    pre_process_line");
    /*
     * If we haven't been passed a valid LINE*, go and get one for the
     * supplied line_number.
     */
-   if (curr == (LINE *)NULL)
+   if (curr == (_LINE *)NULL)
       curr = lll_find(the_view->file_for_view->first_line,the_view->file_for_view->last_line,
                  line_number,the_view->file_for_view->number_lines);
    memset(rec,' ',max_line_length);
@@ -1757,17 +1757,17 @@ LINE *known_curr;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-short post_process_line(VIEW_DETAILS *the_view,LINETYPE line_number,LINE *known_curr,bool set_alt)
+short post_process_line(VIEW_DETAILS *the_view,LINETYPE line_number,_LINE *known_curr,bool set_alt)
 #else
 short post_process_line(the_view,line_number,known_curr,set_alt)
 VIEW_DETAILS *the_view;
 LINETYPE line_number;
-LINE *known_curr;
+_LINE *known_curr;
 bool set_alt;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=known_curr;
+   _LINE *curr=known_curr;
    short rc=RC_OK;
 
    TRACE_FUNCTION("util.c:    post_process_line");
@@ -1783,7 +1783,7 @@ bool set_alt;
     * If we haven't been passed a valid LINE*, go and get one for the
     * supplied line_number.
     */
-   if (curr == (LINE *)NULL)
+   if (curr == (_LINE *)NULL)
       curr = lll_find(the_view->file_for_view->first_line,the_view->file_for_view->last_line,
                  line_number,the_view->file_for_view->number_lines);
    /*
@@ -1990,9 +1990,9 @@ LINETYPE num_lines;
             if (base_line > curr_ppc->ppc_line_number)
                break;
 #if OLD_CLEAR
-            (void)delete_pending_prefix_command(curr_ppc,view->file_for_view,(LINE *)NULL);
+            (void)delete_pending_prefix_command(curr_ppc,view->file_for_view,(_LINE *)NULL);
 #else
-            clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+            clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
 #endif
             break;
       }
@@ -2116,7 +2116,7 @@ short num;
 /*---------------------------------------------------------------------*/
 /* Retrieve each allocated recovery line and put back into the body.   */
 /*---------------------------------------------------------------------*/
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  for (i=0;i<num_retr;i++)
    {
     if (rcvry[retr_rcvry] != NULL)

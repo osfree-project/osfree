@@ -229,7 +229,7 @@ SYNTAX
 
 DESCRIPTION
      The PREVWINDOW command moves the focus of the editing session to
-     the other screen (if <SET SCREEN> 2 is in effect) or to the previous 
+     the other screen (if <SET SCREEN> 2 is in effect) or to the previous
      file in the <ring>.
 
 COMPATIBILITY
@@ -265,7 +265,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(rc);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    current_screen = (current_screen == 0) ? 1 : 0;
    CURRENT_VIEW = CURRENT_SCREEN.screen_view;
    if (curses_started)
@@ -300,7 +300,7 @@ CHARTYPE *params;
          wnoutrefresh(divider);
       }
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
    {
@@ -318,7 +318,7 @@ COMMAND
 
 SYNTAX
      PRint [target] [n]
-     PRint LINE [text]
+     PRint _LINE [text]
      PRint STRING [text]
      PRint FORMfeed
      PRint CLOSE
@@ -326,7 +326,7 @@ SYNTAX
 DESCRIPTION
      The PRINT command writes a portion of the current file to the default
      printer or print spooler, or text entered on the command line.
-  
+
      PRINT [<'target'>] ['n']
         Sends text from the file contents up to the <'target'> to the printer
         followed by a CR/LF (DOS) or LF(UNIX) after each line.
@@ -610,7 +610,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(RC_INVALID_OPERAND);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    free_view_memory(TRUE,TRUE);
    TRACE_RETURN();
    return(RC_OK);
@@ -746,7 +746,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(RC_INVALID_OPERAND);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (CURRENT_FILE->save_alt > 0)
    {
       display_error(22,(CHARTYPE *)"",FALSE);
@@ -791,7 +791,7 @@ DESCRIPTION
 
      While editting the command in READV 'Cmdline', any key redefinitions
      you have made will be in effect.  Therefore you can use your
-     "normal" editting keys to edit the line.  THE will allow the 
+     "normal" editting keys to edit the line.  THE will allow the
      following commands to be executed while in READV 'Cmdline':
 
           <CURSOR> LEFT, <CURSOR> RIGHT, <CURSOR> DOWN, <CURSOR> UP,
@@ -933,7 +933,7 @@ SYNTAX
      RECover [n|*]
 
 DESCRIPTION
-     The RECOVER command restores the last 'n', or all '*' changed or 
+     The RECOVER command restores the last 'n', or all '*' changed or
      deleted lines back into the body of the file.
 
 COMPATIBILITY
@@ -1004,7 +1004,7 @@ SYNTAX
 DESCRIPTION
      The REDIT command removes the current file from ring, discarding
      any changes since the file was last saved either explicitly with
-     the <SAVE> command or implicitly by <SET AUTOSAVE>, and loads the 
+     the <SAVE> command or implicitly by <SET AUTOSAVE>, and loads the
      file back into the ring.
 
 COMPATIBILITY
@@ -1067,7 +1067,7 @@ CHARTYPE *params;
          CURRENT_VIEW->focus_line = focus_line;
       else
          CURRENT_VIEW->focus_line = CURRENT_FILE->number_lines;
-      pre_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (LINE *)NULL );
+      pre_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (_LINE *)NULL );
       build_screen( current_screen );
       display_screen( current_screen );
    }
@@ -1083,7 +1083,7 @@ SYNTAX
 
 DESCRIPTION
      The REDRAW command redraws the current contents of the screen.
-     This is usually used when some outside influence has affected 
+     This is usually used when some outside influence has affected
      the display.
 
 COMPATIBILITY
@@ -1187,7 +1187,7 @@ CHARTYPE *params;
    CURRENT_VIEW->current_row = calculate_actual_row(CURRENT_VIEW->current_base,
                                                     CURRENT_VIEW->current_off,
                                                     CURRENT_SCREEN.rows[WINDOW_FILEAREA],TRUE);
-   build_screen(current_screen); 
+   build_screen(current_screen);
    if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
    {
       if (curses_started)
@@ -1195,9 +1195,9 @@ CHARTYPE *params;
       if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
       {
          new_focus_line = get_focus_line_in_view(current_screen,CURRENT_VIEW->focus_line,y);
-         post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+         post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
          CURRENT_VIEW->focus_line = new_focus_line;
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
       y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,CURRENT_VIEW->current_row);
       if (curses_started)
@@ -1265,7 +1265,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(rc);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Determine in which direction we are working.
     */
@@ -1328,12 +1328,12 @@ CHARTYPE *params;
 {
    short len_params=0;
    LINETYPE true_line=0L;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    SELECTTYPE current_select=0;
-  
+
    TRACE_FUNCTION("comm4.c:   Replace");
-  
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (CURRENT_VIEW->hex)
    {
       if ((len_params = convert_hex_strings(params)) == (-1))
@@ -1366,12 +1366,12 @@ CHARTYPE *params;
       return(RC_OUT_OF_MEMORY);
    }
    increment_alt(CURRENT_FILE);
-  
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
-  
-   build_screen(current_screen); 
+
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+
+   build_screen(current_screen);
    display_screen(current_screen);
-  
+
    TRACE_RETURN();
    return(RC_OK);
 }
@@ -1439,7 +1439,7 @@ CHARTYPE *params;
    {
       curr_ppc = CURRENT_FILE->first_ppc;
       while(curr_ppc != NULL)
-         curr_ppc = delete_pending_prefix_command(curr_ppc,CURRENT_FILE,(LINE *)NULL);
+         curr_ppc = delete_pending_prefix_command(curr_ppc,CURRENT_FILE,(_LINE *)NULL);
       memset(pre_rec,' ',MAX_PREFIX_WIDTH+1);
       pre_rec_len = 0;
    }
@@ -1453,7 +1453,7 @@ CHARTYPE *params;
       CURRENT_VIEW->thighlight_active = FALSE;
    }
 
-   build_screen(current_screen); 
+   build_screen(current_screen);
    display_screen(current_screen);
 
    TRACE_RETURN();
@@ -1555,7 +1555,7 @@ CHARTYPE *params;
        */
       get_cursor_position(&original_screen_line,&original_screen_column,
                      &original_file_line,&original_file_column);
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       rc = execute_macro_instore(params, &macrorc, NULL, NULL, NULL, 0);
       /*
        * Set in_macro = FALSE to indicate we are out of the macro and do a
@@ -1661,7 +1661,7 @@ DESCRIPTION
      of columns in the <filearea>.
 
      If no parameter is supplied, the screen is scrolled by one
-     column. 
+     column.
 
 COMPATIBILITY
      XEDIT: Compatible.
@@ -1759,7 +1759,7 @@ CHARTYPE *params;
    short rc=RC_OK;
 
    TRACE_FUNCTION("comm4.c:   Save");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if ((rc = save_file(CURRENT_FILE,params,FALSE,CURRENT_FILE->number_lines,1L,NULL,FALSE,0,max_line_length,TRUE,FALSE,FALSE)) != RC_OK)
    {
       TRACE_RETURN();
@@ -1792,13 +1792,13 @@ DESCRIPTION
      string values, seperated by delimiters.
      The allowable delimiters are '/' '\' and '@'.
 
-     The second parameter is the <target>; how many lines are to be                                                       
+     The second parameter is the <target>; how many lines are to be
      searched for occurrences of 'string1' to be changed.
 
-     'n' determines how many occurrences of 'string1' are to be 
+     'n' determines how many occurrences of 'string1' are to be
      changed to 'string2' on each line.
 
-     'm' determines from which occurrence of 'string1' on the line 
+     'm' determines from which occurrence of 'string1' on the line
      changes are to commence.
 
 COMPATIBILITY
@@ -1919,7 +1919,7 @@ CHARTYPE *params;
       shift_left = TRUE;
    else if (equal((CHARTYPE *)"right",word[0],1))
       shift_left = FALSE;
-   else 
+   else
    {
       display_error(1,word[0],FALSE);
       TRACE_RETURN();
@@ -1993,13 +1993,13 @@ SYNTAX
 
 DESCRIPTION
 
-     With no parameter, the SHOWKEY command prompts the user to enter 
-     a key and responds with the key name and associated command 
+     With no parameter, the SHOWKEY command prompts the user to enter
+     a key and responds with the key name and associated command
      (if applicable).
      To exit from SHOWKEY, press the space bar.
 
      With 'ALL' specified, a new file is added to the <ring> with all
-     default key mappings and any key mappings assigned with the <DEFINE> 
+     default key mappings and any key mappings assigned with the <DEFINE>
      command shown.  The key mappings are displayed as <DEFINE> commands.
 
 COMPATIBILITY
@@ -2048,7 +2048,7 @@ CHARTYPE *params;
 #ifdef CAN_RESIZE
             if (is_termresized())
                continue;
-#endif     
+#endif
 #if defined(PDCURSES_MOUSE_ENABLED) || defined(NCURSES_MOUSE_VERSION)
             if (key == KEY_MOUSE)
             {
@@ -2127,10 +2127,10 @@ CHARTYPE *params;
    short rc=RC_OK;
 
    TRACE_FUNCTION("comm4.c:   Sort");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    rc = execute_sort(params);
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
-   build_screen(current_screen); 
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+   build_screen(current_screen);
    display_screen(current_screen);
    TRACE_RETURN();
    return(rc);
@@ -2213,12 +2213,12 @@ DESCRIPTION
 
      If 'Aligned' is specified, the first non-blank character of the new
      line is positioned under the first non-blank character of the
-     <focus line>. 
+     <focus line>.
 
-     If 'Aligned' is not specified, the text of the new line starts in 
+     If 'Aligned' is not specified, the text of the new line starts in
      column 1.
 
-     If 'Column' (the default) is specified, the current line is split at 
+     If 'Column' (the default) is specified, the current line is split at
      the current column location.
 
      If 'CURSOR' is specified, the focus line is split at the cursor
@@ -2323,7 +2323,7 @@ SYNTAX
 DESCRIPTION
      The SPLTJOIN command splits the <focus line> into two or joins the
      <focus line> with the next line depending on the position of the
-     cursor. 
+     cursor.
 
      If the cursor is after the last column of a line, the <JOIN>
      command is executed, otherwise the <SPLIT> command is executed.
@@ -2369,8 +2369,8 @@ DESCRIPTION
      supplied, the current file is saved in that file, otherwise the
      current name of the file is used.
 
-     If a 'filename' is supplied and that 'filename' already exists, 
-     the previous contents of that 'filename' will be replaced with the 
+     If a 'filename' is supplied and that 'filename' already exists,
+     the previous contents of that 'filename' will be replaced with the
      current file.
 
      Both 'Alterations' counters on the <idline> are reset to zero.
@@ -2396,7 +2396,7 @@ CHARTYPE *params;
    short rc=RC_OK;
 
    TRACE_FUNCTION("comm4.c:   Ssave");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if ((rc = save_file(CURRENT_FILE,params,TRUE,CURRENT_FILE->number_lines,1L,NULL,FALSE,0,max_line_length,TRUE,FALSE,FALSE)) != RC_OK)
    {
       TRACE_RETURN();
@@ -2407,7 +2407,7 @@ CHARTYPE *params;
     */
    CURRENT_FILE->autosave_alt = CURRENT_FILE->save_alt = 0;
    /*
-    * If autosave is on at the time of SSaving, remove the .aus file... 
+    * If autosave is on at the time of SSaving, remove the .aus file...
     */
    if (CURRENT_FILE->autosave > 0)
       rc = remove_aus_file(CURRENT_FILE);
@@ -2423,7 +2423,7 @@ SYNTAX
 
 DESCRIPTION
      The STATUS command, without the optional 'filename', displays a full
-     screen of current settings for various variables. 
+     screen of current settings for various variables.
 
      With the 'filename', the STATUS command creates a file containing a
      series of <SET> commands with the current values of these settings.
@@ -2481,7 +2481,7 @@ CHARTYPE *params;
 #ifdef CAN_RESIZE
             if (is_termresized())
                continue;
-#endif     
+#endif
             break;
          }
          THERefresh((CHARTYPE *)"");
@@ -2501,7 +2501,7 @@ SYNTAX
      SUSPend
 
 DESCRIPTION
-     The SUSPEND command suspends the current editing session and 
+     The SUSPEND command suspends the current editing session and
      returns control to the operating system. Under DOS and OS/2 this
      is the equivalent of <OSNOWAIT>. Under UNIX, the process gets placed
      in the background until it is brought to the foreground.

@@ -104,7 +104,7 @@ COMPATIBILITY
 SEE ALSO
      <SET COLORING>, <SET ECOLOUR>, <SET AUTOCOLOR>, <SET MACROPATH>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
@@ -298,7 +298,7 @@ DESCRIPTION
      OFF, removes any pending prefix command from the focus line.
 
      BLOCK string, simulates the user typing 'string' in the PREFIX
-     area of the focus line and identifies the prefix command to be 
+     area of the focus line and identifies the prefix command to be
      a BLOCK command.
 
 COMPATIBILITY
@@ -325,7 +325,7 @@ CHARTYPE *params;
  CHARTYPE strip[PEN_PARAMS];
  unsigned short num_params=0;
  short rc=RC_OK;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LINETYPE true_line=0L;
  short command=0;
 /*--------------------------- processing ------------------------------*/
@@ -373,7 +373,7 @@ CHARTYPE *params;
           return(RC_INVALID_OPERAND);
          }
  true_line = get_true_line(TRUE);
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  switch(command)
    {
 /*---------------------------------------------------------------------*/
@@ -442,8 +442,8 @@ SYNTAX
      [SET] Point .name [OFF]
 
 DESCRIPTION
-     The SET POINT command assignes the specified name to the 
-     <focus line>, or removes the name from the line with the specified 
+     The SET POINT command assignes the specified name to the
+     <focus line>, or removes the name from the line with the specified
      name.
      A valid line name must start with a '.' followed by alphanumeric
      characters. eg. .a .fred and .3AB are valid names.
@@ -574,8 +574,8 @@ SYNTAX
 
 DESCRIPTION
      The first form of the SET PREFIX command allows the user to display
-     the <prefix area> and optionally to select the position were the 
-     prefix should be displayed. 
+     the <prefix area> and optionally to select the position were the
+     prefix should be displayed.
 
      The second form of the SET PREFIX command is functionally the same
      as the first form. The difference is that when the prefix area
@@ -597,8 +597,8 @@ DESCRIPTION
      prefix command is executed. The 'oldname' can also be the fully
      qualified filename of a Rexx macro.
 
-     The first and second forms of the SET PREFIX command allows the user 
-     to specify the width of the prefix area and optionally a gap between 
+     The first and second forms of the SET PREFIX command allows the user
+     to specify the width of the prefix area and optionally a gap between
      the prefix area and the filearea.
      'm' can be specified as an unsigned number between 2 and 20 inclusive.
      'n' can be specified as an unsigned number between 0 and 18, but less
@@ -831,7 +831,7 @@ DESCRIPTION
      The 'options' can be one of the following:
      CPI n                           (characters per inch)
      LPI n                           (lines per inch)
-     ORIENTation Portrait|Landscape  
+     ORIENTation Portrait|Landscape
      FONT fontname                   (name of fixed width font)
 
      No checking is done for printer options. ie. You may specify a
@@ -846,7 +846,7 @@ DESCRIPTION
 
      'options' are only valid for Win32 platform.
      Printer output for the Win32 platform ALWAYS goes to the default
-     printer. Therefore, the 'spooler' option is invalid on this 
+     printer. Therefore, the 'spooler' option is invalid on this
      platform.
 
 COMPATIBILITY
@@ -860,7 +860,7 @@ SEE ALSO
      <PRINT>
 
 STATUS
-     Complete. 
+     Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
 short THEPrinter(CHARTYPE *params)
@@ -1002,7 +1002,7 @@ SYNTAX
 DESCRIPTION
      The SET PSCREEN command allows the user to adjust the size of the
      physical screen to the size specified by 'height' and 'width'.
-     
+
      This command does not work on all platforms.
 
      The optional argument [RESET|PRESET] are ignored; they are there
@@ -1086,7 +1086,7 @@ SYNTAX
 DESCRIPTION
      The SET READONLY command allows the user to disallow changes to
      files if they are readonly.  Normally, if a file is readonly, THE
-     allows the user to make changes to the file contents while in the 
+     allows the user to make changes to the file contents while in the
      editing session, but does not allow the file to be saved.
 
      With READONLY ON, THE disallows any changes to be made to the
@@ -1230,7 +1230,7 @@ SYNTAX
      [SET] REPROFile ON|OFF
 
 DESCRIPTION
-     The SET REPROFILE command allows the user to determine if the 
+     The SET REPROFILE command allows the user to determine if the
      <profile> file is to reexecuted for files subsequenlty edited.
 
 COMPATIBILITY
@@ -1288,14 +1288,14 @@ DESCRIPTION
      A <reserved line> can only be turned off by identifying it in the
      same way that it was defined.  If a <reserved line> was added with
      the position specification of -1, it cannot be turned off with
-     a position specification of 23, even though both position 
+     a position specification of 23, even though both position
      specifiers result in the same display line.
 
      All reserved lines may be turned of by specifying * as the number
      of lines.
 
      The colour option specifies the colours to use to display the
-     reserved line. The format of this colour specifier is the same 
+     reserved line. The format of this colour specifier is the same
      as for <SET COLOUR>. If no colour is specified, the colour of the
      reserved line will be the colour set by any <SET COLOUR> RESERVED
      command for the view or white on black by default.
@@ -1425,12 +1425,12 @@ CHARTYPE *params;
     new_focus_line = get_focus_line_in_view(current_screen,CURRENT_VIEW->focus_line,y);
     if (new_focus_line != CURRENT_VIEW->focus_line)
     {
-       post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+       post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
        CURRENT_VIEW->focus_line = new_focus_line;
        y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,CURRENT_VIEW->current_row);
        if (curses_started)
           wmove(CURRENT_WINDOW,y,x);
-       pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+       pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
     }
  }
  display_screen(current_screen);
@@ -1529,9 +1529,9 @@ DESCRIPTION
 
      The first form of parameters is:
 
-     M[+n|-n] 
+     M[+n|-n]
      this sets the <scale line> to be relative to the middle of
-     the screen. A positive value adds to the middle line number, 
+     the screen. A positive value adds to the middle line number,
      a negative subtracts from it.
      eg. M+3 on a 24 line screen will be line 15
          M-5 on a 24 line screen will be line 7
@@ -1540,7 +1540,7 @@ DESCRIPTION
 
      [+|-]n
      this sets the <scale line> to be relative to the top of the
-     screen (if positive or no sign) or relative to the bottom 
+     screen (if positive or no sign) or relative to the bottom
      of the screen if negative.
      eg. +3 or 3 will set current line to line 3
          -3 on a 24 line screen will be line 21
@@ -1549,7 +1549,7 @@ DESCRIPTION
      the position of the current line will become the middle line
      on the screen.
 
-     It is an error to try to position the SCALE line on the same 
+     It is an error to try to position the SCALE line on the same
      line as <SET CURLINE>.
 
 COMPATIBILITY
@@ -1629,7 +1629,7 @@ CHARTYPE *params;
  CURRENT_VIEW->scale_base = (CHARTYPE)base;
  CURRENT_VIEW->scale_off = off;
  CURRENT_VIEW->scale_on = scalests;
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  build_screen(current_screen);
  if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
    {
@@ -1639,7 +1639,7 @@ CHARTYPE *params;
     y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,CURRENT_VIEW->current_row);
     if (curses_started)
        wmove(CURRENT_WINDOW,y,x);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
  display_screen(current_screen);
  TRACE_RETURN();
@@ -1923,7 +1923,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(RC_OK);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Save the screen coordinates for later retrieval.
     */
@@ -2015,12 +2015,12 @@ CHARTYPE *params;
 
    if (display_screens > 1)
    {
-      pre_process_line(OTHER_VIEW,OTHER_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(OTHER_VIEW,OTHER_VIEW->focus_line,(_LINE *)NULL);
       (void)prepare_view(other_screen);
       display_screen(other_screen);
       show_heading(other_screen);
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    (void)prepare_view(current_screen);
    display_screen(current_screen);
 
@@ -2123,7 +2123,7 @@ CHARTYPE *params;
  true_line = target.true_line;
  direction = (target.num_lines<0) ? DIRECTION_BACKWARD : DIRECTION_FORWARD;
  free_target(&target);
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
 /*---------------------------------------------------------------------*/
 /* Get the current line from which to begin changing the select level. */
 /*---------------------------------------------------------------------*/
@@ -2170,10 +2170,10 @@ CHARTYPE *params;
     if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
       {
        CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line;
-       pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+       pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
    }
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
  build_screen(current_screen);
  display_screen(current_screen);
 
@@ -2255,10 +2255,10 @@ DESCRIPTION
      The number of Soft Label Keys displayed is dependent on which
      curses library THE is using.  PDCurses can display 10 keys with
      the length of the 'text' argument 7 characters on a screen that
-     is 80 columns wide.  The number of characters that can be 
+     is 80 columns wide.  The number of characters that can be
      displayed increases with the width of the screen.
      Other curses implementations, limit the number of Soft Label Keys
-     to 8, with a text width of 8 characters.  Some curses 
+     to 8, with a text width of 8 characters.  Some curses
      implementations do not support Soft Label Keys.
 
 COMPATIBILITY
@@ -2479,7 +2479,7 @@ CHARTYPE *params;
  CHARTYPE strip[OPT_PARAMS];
  unsigned short num_params=0;
  short rc=RC_OK;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  int tail=0,len=0,col=0,itemno=0;
  CHARTYPE item_type=0;
 /*--------------------------- processing ------------------------------*/
@@ -2591,7 +2591,7 @@ CHARTYPE *params;
        curr = lll_locate(first_option,make_upper(word[1]));
        if (curr != NULL)
           lll_del(&first_option,&last_option,curr,DIRECTION_FORWARD);
-       curr = lll_add(first_option,last_option,sizeof(LINE));
+       curr = lll_add(first_option,last_option,sizeof(_LINE));
        if (curr == NULL)
        {
           display_error(30,(CHARTYPE *)"",FALSE);
@@ -2651,9 +2651,9 @@ SYNTAX
 
 DESCRIPTION
 
-     The SET STATUSLINE command determines the position of the 
-     <status line> for the editing session. TOP will place the status 
-     line on the first line of the screen; BOTTOM will place the status 
+     The SET STATUSLINE command determines the position of the
+     <status line> for the editing session. TOP will place the status
+     line on the first line of the screen; BOTTOM will place the status
      line on the last line of the screen; OFF turns off the display of
      the status line.
 
@@ -2781,14 +2781,14 @@ SYNTAX
      [SET] STAY ON|OFF
 
 DESCRIPTION
-     The SET STAY set command determines what line is displayed as the 
+     The SET STAY set command determines what line is displayed as the
      current line after an unsuccessful <LOCATE> or successful <CHANGE>
      command.
 
-     With STAY ON, the <current line> remains where it currently is. 
+     With STAY ON, the <current line> remains where it currently is.
 
      With STAY OFF, after an unsuccessful <LOCATE>, the <current line>
-     becomes the <Bottom-of-File line> (or <Top-of-File line> if direction 
+     becomes the <Bottom-of-File line> (or <Top-of-File line> if direction
      is backwards).
 
      After a successful <CHANGE>, the <current line> is the last
@@ -2829,7 +2829,7 @@ SYNTAX
      [SET] SYNonym [LINEND char] newname [n] definition
 
 DESCRIPTION
-     The SET SYNONYM command allows the user to define synonyms for 
+     The SET SYNONYM command allows the user to define synonyms for
      commands or macros.
 
      The first format indicates if synonym processing is to be performed.
@@ -2840,7 +2840,7 @@ DESCRIPTION
      command with the definition specified by 'definition'.  The 'n'
      parameter defines the minimum length of the abbreviation for
      the new command
-     An optional LINEND character can be specified prior to 'newname' 
+     An optional LINEND character can be specified prior to 'newname'
      if the 'definition' contains multiple commands.
 
      'definition' can be of the form:
@@ -2899,7 +2899,7 @@ CHARTYPE *params;
    /*
     * We can now process commands of the second format
     */
-   if ( strlen( (DEFCHAR *)params ) > 6 
+   if ( strlen( (DEFCHAR *)params ) > 6
    &&   memcmpi( params, (CHARTYPE *)"LINEND ", 7 ) == 0 )
    {
       strip[0] = STRIP_BOTH;
@@ -2993,7 +2993,7 @@ CHARTYPE *params;
       return(RC_INVALID_OPERAND);
    }
    /*
-    * Determine if the first word of the supplied command is REXX 
+    * Determine if the first word of the supplied command is REXX
     * (either case)...
     */
    if ( strlen( (DEFCHAR *)def ) > 5
@@ -3015,15 +3015,15 @@ SYNTAX
      [SET] TABKey Tab|Character Tab|Character
 
 DESCRIPTION
-     The SET TABKEY sets the action to be taken when the <SOS TABF> 
+     The SET TABKEY sets the action to be taken when the <SOS TABF>
      command is executed. Depending on the insert mode, the <SOS TABF>
-     command will either display a raw tab character or will move to 
+     command will either display a raw tab character or will move to
      the next tab column.
 
      The first operand refers to the behaviour of the <SOS TABF> command
      when <SET INSERTMODE> is OFF.
 
-     The second operand specifies the behaviour when the <SOS TABF> 
+     The second operand specifies the behaviour when the <SOS TABF>
      command is executed when <SET INSERTMODE> is ON.
 
      All options can be specified as the current EQUIVCHAR to retain the
@@ -3109,7 +3109,7 @@ CHARTYPE *params;
          else
          {
             /*
-             * If not a valid second parameter, display an error and exit. 
+             * If not a valid second parameter, display an error and exit.
              */
             display_error(1,word[1],FALSE);
             break;
@@ -3147,9 +3147,9 @@ DESCRIPTION
 
      The first form of parameters is:
 
-     M[+n|-n] 
+     M[+n|-n]
      this sets the <tab line> to be relative to the middle of
-     the screen. A positive value adds to the middle line number, 
+     the screen. A positive value adds to the middle line number,
      a negative subtracts from it.
      eg. M+3 on a 24 line screen will be line 15
          M-5 on a 24 line screen will be line 7
@@ -3158,7 +3158,7 @@ DESCRIPTION
 
      [+|-]n
      this sets the <tab line> to be relative to the top of the
-     screen (if positive or no sign) or relative to the bottom 
+     screen (if positive or no sign) or relative to the bottom
      of the screen if negative.
      eg. +3 or 3 will set current line to line 3
          -3 on a 24 line screen will be line 21
@@ -3247,7 +3247,7 @@ CHARTYPE *params;
  CURRENT_VIEW->tab_base = (CHARTYPE)base;
  CURRENT_VIEW->tab_off = off;
  CURRENT_VIEW->tab_on = tabsts;
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  build_screen(current_screen);
  if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
    {
@@ -3257,7 +3257,7 @@ CHARTYPE *params;
     y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,CURRENT_VIEW->current_row);
     if (curses_started)
        wmove(CURRENT_WINDOW,y,x);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
  display_screen(current_screen);
  TRACE_RETURN();
@@ -3283,8 +3283,8 @@ DESCRIPTION
 
      The third format specifies that no tab columns are to be set.
 
-     Tab columns are used by <SOS TABF>, <SOS TABB> and <SOS SETTAB> 
-     commands to position the cursor and also by the <COMPRESS> and 
+     Tab columns are used by <SOS TABF>, <SOS TABB> and <SOS SETTAB>
+     commands to position the cursor and also by the <COMPRESS> and
      <EXPAND> commands.
 
 COMPATIBILITY
@@ -3708,12 +3708,12 @@ SYNTAX
      [SET] TARGETSAVE ALL|NONE| STRING REGEXP ABSOLUTE RELATIVE POINT BLANK
 
 DESCRIPTION
-     The SET TARGETSAVE command allows you to specify which target 
+     The SET TARGETSAVE command allows you to specify which target
      types are saved for subsequent calls to the LOCATE command without any
-     parameters. 
+     parameters.
 
      By default; SET TARGETSAVE ALL, the LOCATE command without any
-     parameters, locates the last target irrespective of the type of target. 
+     parameters, locates the last target irrespective of the type of target.
 
      SET TARGETSAVE NONE turns off saving of targets, but does not delete
      any already saved target.
@@ -3721,7 +3721,7 @@ DESCRIPTION
      Any combination of the target types, STRING, REGEXP, ABSOLUTE, RELATIVE,
      POINT, or BLANK can be supplied. eg. SET TARGETSAVE STRING POINT.
 
-     As an example, having SET TARGETTYPE STRING then the only target saved 
+     As an example, having SET TARGETTYPE STRING then the only target saved
      will be one that has a string target component.
      ie. if you executed LOCATE /fred/ then LOCATE :3 then LOCATE, the final
      LOCATE will look for /fred/ NOT :3
@@ -3941,20 +3941,20 @@ SYNTAX
 DESCRIPTION
      The SET TRAILING set command determines how trailing blanks on
      lines are handled when written to disk.
-     TRAILING ON means that THE will not treat trailing blanks any 
+     TRAILING ON means that THE will not treat trailing blanks any
      differently from any other characters in the file.
      With TRAILING OFF, THE will remove trailing blanks when a file is
-     read, remove them during an edit session, and not write any trailing 
+     read, remove them during an edit session, and not write any trailing
      blanks to the file.
-     TRAILING SINGLE is the same as TRAILING OFF, except that a single 
+     TRAILING SINGLE is the same as TRAILING OFF, except that a single
      blank character is appended to the end of every line when the file
      is written.
      TRAILING EMPTY is the same as TRAILING OFF, except that otherwise
      empty lines will be written with a single trailing blank.
 
      Note that the default for this under THE is ON. This is because of
-     the way that THE processes profile files.  If the default was OFF, 
-     and you had TRAILING ON in your profile, then there would be no 
+     the way that THE processes profile files.  If the default was OFF,
+     and you had TRAILING ON in your profile, then there would be no
      way to retain the original trailing blanks.
 
 COMPATIBILITY
@@ -3977,7 +3977,7 @@ CHARTYPE *params;
 {
 /*--------------------------- local data ------------------------------*/
    short rc=RC_OK;
-   LINE *curr;
+   _LINE *curr;
    long len;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("commset2.c:Trailing");
@@ -4023,7 +4023,7 @@ SYNTAX
 
 DESCRIPTION
      The SET TRUNC set command determines the truncation column.  This
-     is the rightmost column of text upon which THE commands are 
+     is the rightmost column of text upon which THE commands are
      effective.
 
 COMPATIBILITY
@@ -4536,7 +4536,7 @@ DESCRIPTION
      a backwards search).
 
      With WRAP ON, THE will attempt to locate a string target from the
-     current line to the end of file (or top of file if the locate is 
+     current line to the end of file (or top of file if the locate is
      a backwars search) and wrap around the end of the file and continue
      searching until the current line is reached.
 
@@ -4760,7 +4760,7 @@ CHARTYPE *params;
    CURRENT_VIEW->zone_start = (LENGTHTYPE)col1;
    CURRENT_VIEW->zone_end   = (LENGTHTYPE)col2;
    /*
-    * Change the current column pointer if it is outside the new zone 
+    * Change the current column pointer if it is outside the new zone
     * settings...
     */
    if (CURRENT_VIEW->current_column < CURRENT_VIEW->zone_start)

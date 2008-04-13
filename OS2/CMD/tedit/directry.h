@@ -33,6 +33,7 @@
 $Id: directry.h,v 1.3 2001/12/18 08:23:27 mark Exp $
 */
 
+
 #if defined(DOS) && defined(TC)
 # define F_RO FA_RDONLY
 # define F_HI FA_HIDDEN
@@ -282,7 +283,7 @@ $Id: directry.h,v 1.3 2001/12/18 08:23:27 mark Exp $
 # define HOUR_MASK ((local==NULL)?0:local->tm_hour)
 # define MINU_MASK ((local==NULL)?0:local->tm_min)
 # define DAYS_MASK ((local==NULL)?0:local->tm_mday)
-# define MONT_MASK 
+# define MONT_MASK
 # define YEAR_MASK ((local==NULL)?0:local->tm_year+1900)
 
 # define HH_MASK(a) ((local==NULL)?0:local->tm_hour)
@@ -387,18 +388,18 @@ $Id: directry.h,v 1.3 2001/12/18 08:23:27 mark Exp $
 #endif
 
 struct dirfile {
-	CHARTYPE	*fname;		/* file name */
-	CHARTYPE	*lname;		/* link name */
-	ATTR_TYPE	fattr;		/* file attributes */
-	SIZE_TYPE	fsize;		/* size of file */
-	CHARTYPE	f_hh;		/* hour */
-	CHARTYPE	f_mi;		/* minute */
-	CHARTYPE	f_ss;		/* second */
-	CHARTYPE	f_dd;		/* day */
-	CHARTYPE	f_mm;		/* month */
-	int	f_yy;		/* year */
-	int	facl;		/* acl */
-	int	fname_length;		/* length of filename */
+        CHARTYPE        *fname;         /* file name */
+        CHARTYPE        *lname;         /* link name */
+        ATTR_TYPE       fattr;          /* file attributes */
+        SIZE_TYPE       fsize;          /* size of file */
+        CHARTYPE        f_hh;           /* hour */
+        CHARTYPE        f_mi;           /* minute */
+        CHARTYPE        f_ss;           /* second */
+        CHARTYPE        f_dd;           /* day */
+        CHARTYPE        f_mm;           /* month */
+        int     f_yy;           /* year */
+        int     facl;           /* acl */
+        int     fname_length;           /* length of filename */
 };
 
 #ifdef HAVE_PROTO

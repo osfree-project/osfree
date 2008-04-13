@@ -264,7 +264,7 @@ bool external_command_line;
     */
    if (number_of_files > 0)
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       memset(cmd_rec,' ',max_line_length);
       cmd_rec_len = 0;
    }
@@ -340,7 +340,7 @@ bool external_command_line;
        */
       prepare_view(current_screen);
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    /*
     * Position the cursor in the main window depending on the type of file

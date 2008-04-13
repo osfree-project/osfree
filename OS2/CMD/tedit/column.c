@@ -95,8 +95,8 @@ int cmd_type;
  if (CURRENT_VIEW->current_window == WINDOW_COMMAND
  ||  compatible_feel == COMPAT_XEDIT)
    {
-    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(LINE *)NULL);
+    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(_LINE *)NULL);
     x = CURRENT_VIEW->current_column-1;
    }
  else
@@ -193,8 +193,8 @@ int cmd_type;
  if (CURRENT_VIEW->current_window == WINDOW_COMMAND
  ||  compatible_feel == COMPAT_XEDIT)
    {
-    post_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(LINE *)NULL,TRUE);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    post_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(_LINE *)NULL,TRUE);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
  else
    {

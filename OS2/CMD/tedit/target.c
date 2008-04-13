@@ -54,7 +54,7 @@ static char RCSid[] = "$Id: target.c,v 1.12 2002/06/07 22:25:05 mark Exp $";
 #define STATE_ERROR    99
 
 #ifdef HAVE_PROTO
-static bool is_blank(LINE *);
+static bool is_blank(_LINE *);
 #else
 static bool is_blank();
 #endif
@@ -323,7 +323,7 @@ bool display_parse_error,allow_error_display,column_target;
                   }
                   target->rt[num_targets].not = TRUE;
                   break;
-               case ' ': 
+               case ' ':
                case '\t':
                   break;
                case '-':
@@ -448,7 +448,7 @@ bool display_parse_error,allow_error_display,column_target;
                   break;
                case '/': case '\\': case '@': case '`': case '#': case '$':
                case '%': case '(': case ')': case '{': case '}': case '[': case ']':
-               case '"': case '\'': case '<': case '>': 
+               case '"': case '\'': case '<': case '>':
                case ',':
                   state = STATE_STRING;
                   str_start = i+1;
@@ -470,7 +470,7 @@ bool display_parse_error,allow_error_display,column_target;
                      break;
                   }
                   if (memcmpi((CHARTYPE *)"all",ptr+i,3) == 0
-                  && (*(ptr+(i+3)) == ' ' 
+                  && (*(ptr+(i+3)) == ' '
                       || *(ptr+(i+3)) == '\0'
                       || *(ptr+(i+3)) == '\t'))
                   {
@@ -492,7 +492,7 @@ bool display_parse_error,allow_error_display,column_target;
                      break;
                   }
                   if (memcmpi((CHARTYPE *)"blank",ptr+i,5) == 0
-                  && (*(ptr+(i+5)) == ' ' 
+                  && (*(ptr+(i+5)) == ' '
                       || *(ptr+(i+5)) == '\0'
                       || *(ptr+(i+5)) == '\t'))
                   {
@@ -511,7 +511,7 @@ bool display_parse_error,allow_error_display,column_target;
                      break;
                   }
                   if (memcmpi((CHARTYPE *)"block",ptr+i,5) == 0
-                  && (*(ptr+(i+5)) == ' ' 
+                  && (*(ptr+(i+5)) == ' '
                       || *(ptr+(i+5)) == '\0'
                       || *(ptr+(i+5)) == '\t'))
                   {
@@ -525,8 +525,8 @@ bool display_parse_error,allow_error_display,column_target;
                   state = STATE_ERROR;
                   inc = 0;
                   break;
-               case '0': case '1': case '2': case '3': case '4': 
-               case '5': case '6': case '7': case '8': case '9':      
+               case '0': case '1': case '2': case '3': case '4':
+               case '5': case '6': case '7': case '8': case '9':
                   if (UNTAAx)
                      state = STATE_ABSOLUTE;
                   else
@@ -544,12 +544,12 @@ bool display_parse_error,allow_error_display,column_target;
          case STATE_REGEXP_START:
             switch(*(ptr+i))
             {
-               case ' ': 
+               case ' ':
                case '\t':
                   break;
                case '/': case '\\': case '@': case '`': case '#': case '$':
                case '%': case '(': case ')': case '{': case '}': case '[': case ']':
-               case '"': case '\'': case '<': case '>': 
+               case '"': case '\'': case '<': case '>':
                case ',':
                   state = STATE_REGEXP;
                   str_start = i+1;
@@ -566,7 +566,7 @@ bool display_parse_error,allow_error_display,column_target;
             {
                case '/': case '\\': case '@': case '`': case '#': case '$':
                case '%': case '(': case ')': case '{': case '}': case '[': case ']':
-               case '"': case '\'': case '<': case '>': 
+               case '"': case '\'': case '<': case '>':
                case '\0':
                   if (*(ptr+i) == delim
                   ||  *(ptr+i) == '\0')
@@ -598,7 +598,7 @@ bool display_parse_error,allow_error_display,column_target;
             {
                case '/': case '\\': case '@': case '`': case '#': case '$':
                case '%': case '(': case ')': case '{': case '}': case '[': case ']':
-               case '"': case '\'': case '<': case '>': 
+               case '"': case '\'': case '<': case '>':
                case '\0':
                   if (*(ptr+i) == delim
                   ||  *(ptr+i) == '\0')
@@ -631,10 +631,10 @@ bool display_parse_error,allow_error_display,column_target;
             {
                case '\0':
                   break;
-               case ' ': 
+               case ' ':
                case '\t':
                   break;
-               case '&': 
+               case '&':
                case '|':
                   state = STATE_NEXT;
                   boolean = *(ptr+i);
@@ -780,7 +780,7 @@ bool display_parse_error,allow_error_display,column_target;
                   break;
                case '/': case '\\': case '@': case '`': case '#': case '$':
                case '%': case '(': case ')': case '{': case '}': case '[': case ']':
-               case '"': case '\'': case '<': case '>': 
+               case '"': case '\'': case '<': case '>':
                   state = STATE_START;
                   inc = 0;
                   break;
@@ -1067,7 +1067,7 @@ bool display_parse_error,allow_error_display;
 /***********************************************************************/
 {
    short rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE num_lines=0L;
    LINETYPE line_number=0L;
    short status=RC_OK;
@@ -1261,10 +1261,10 @@ bool display_parse_error,allow_error_display;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-static bool is_blank(LINE *curr)
+static bool is_blank(_LINE *curr)
 #else
 static bool is_blank(curr)
-LINE *curr;
+_LINE *curr;
 #endif
 /***********************************************************************/
 {
@@ -1290,9 +1290,9 @@ LINE *curr;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *find_named_line(CHARTYPE *name,LINETYPE *retline,bool respect_scope)
+_LINE *find_named_line(CHARTYPE *name,LINETYPE *retline,bool respect_scope)
 #else
-LINE *find_named_line(name,retline,respect_scope)
+_LINE *find_named_line(name,retline,respect_scope)
 CHARTYPE *name;
 LINETYPE *retline;
 bool respect_scope;
@@ -1300,14 +1300,14 @@ bool respect_scope;
 /***********************************************************************/
 {
    LINETYPE lineno=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
 
    TRACE_FUNCTION("target.c:  find_named_line");
    /*
     * Find the line number in the current file of the named line specified
     */
    curr = CURRENT_FILE->first_line;
-   while(curr != (LINE *)NULL)
+   while(curr != (_LINE *)NULL)
    {
       /*
        * Check the line's name if we are not respecting scope or if we are
@@ -1331,14 +1331,14 @@ bool respect_scope;
       curr = curr->next;
    }
    TRACE_RETURN();
-   return((LINE *)NULL);
+   return((_LINE *)NULL);
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-short find_string_target(LINE *curr,RTARGET *rt)
+short find_string_target(_LINE *curr,RTARGET *rt)
 #else
 short find_string_target(curr,rt)
-LINE *curr;
+_LINE *curr;
 RTARGET *rt;
 #endif
 /***********************************************************************/
@@ -1438,10 +1438,10 @@ RTARGET *rt;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-short find_regexp(LINE *curr,RTARGET *rt)
+short find_regexp(_LINE *curr,RTARGET *rt)
 #else
 short find_regexp(curr,rt)
-LINE *curr;
+_LINE *curr;
 RTARGET *rt;
 #endif
 /***********************************************************************/
@@ -1495,10 +1495,10 @@ RTARGET *rt;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-short find_rtarget_target(LINE *curr,TARGET *target,LINETYPE true_line,LINETYPE line_number,LINETYPE *num_lines)
+short find_rtarget_target(_LINE *curr,TARGET *target,LINETYPE true_line,LINETYPE line_number,LINETYPE *num_lines)
 #else
 short find_rtarget_target(curr,target,true_line,line_number,num_lines)
-LINE *curr;
+_LINE *curr;
 TARGET *target;
 LINETYPE true_line,line_number;
 LINETYPE *num_lines;
@@ -1679,7 +1679,7 @@ LINETYPE *num_columns;
    register short i=0;
    bool target_found=FALSE,status=FALSE;
    LINETYPE multiplier=0;
-   LINE curr;
+   _LINE curr;
 
    TRACE_FUNCTION("target.c:  find_rtarget_column_target");
    if (column_number != true_column)
@@ -1772,18 +1772,18 @@ LINETYPE *num_columns;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINETYPE find_next_in_scope(VIEW_DETAILS *view,LINE *in_curr,LINETYPE line_number,short direction)
+LINETYPE find_next_in_scope(VIEW_DETAILS *view,_LINE *in_curr,LINETYPE line_number,short direction)
 #else
 LINETYPE find_next_in_scope(view,in_curr,line_number,direction)
 VIEW_DETAILS *view;
-LINE *in_curr;
+_LINE *in_curr;
 LINETYPE line_number;
 short direction;
 #endif
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=in_curr;
+ _LINE *curr=in_curr;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("target.c:  find_next_in_scope");
  if (in_curr == NULL)
@@ -1804,18 +1804,18 @@ short direction;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINETYPE find_last_not_in_scope(VIEW_DETAILS *view,LINE *in_curr,LINETYPE line_number,short direction)
+LINETYPE find_last_not_in_scope(VIEW_DETAILS *view,_LINE *in_curr,LINETYPE line_number,short direction)
 #else
 LINETYPE find_last_not_in_scope(view,in_curr,line_number,direction)
 VIEW_DETAILS *view;
-LINE *in_curr;
+_LINE *in_curr;
 LINETYPE line_number;
 short direction;
 #endif
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=in_curr;
+ _LINE *curr=in_curr;
  LINETYPE offset=0L;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("target.c:  find_last_not_in_scope");
@@ -1876,11 +1876,11 @@ bool display_parse_error,allow_error_display;
 #ifdef NOT_USED_ANYMORE
 /***********************************************************************/
 #ifdef HAVE_PROTO
-bool in_scope(VIEW_DETAILS *view,LINE *curr)
+bool in_scope(VIEW_DETAILS *view,_LINE *curr)
 #else
 bool in_scope(view,curr)
 VIEW_DETAILS *view;
-LINE *curr;
+_LINE *curr;
 #endif
 /***********************************************************************/
 {

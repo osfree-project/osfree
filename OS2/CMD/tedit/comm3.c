@@ -84,7 +84,7 @@ DESCRIPTION
      of columns in the <filearea>.
 
      If no parameter is supplied, the screen is scrolled by one
-     column. 
+     column.
 
 COMPATIBILITY
      XEDIT: Compatible.
@@ -155,12 +155,12 @@ SYNTAX
      [Locate] target [command]
 
 DESCRIPTION
-     The LOCATE command searches for the next or previous occurrence 
+     The LOCATE command searches for the next or previous occurrence
      of the specified <'target'>.  If no parameter is supplied, LOCATE
      uses the the last target specified. If no prior target has been
-     specified, an error message is displayed. 
+     specified, an error message is displayed.
 
-     <target> can also be specified as a regular expression. The syntax of 
+     <target> can also be specified as a regular expression. The syntax of
      this is "Regexp /re/". eg LOCATE RE /[0-9].*$/
 
      With an optional 'command', this command is executed after finding
@@ -215,7 +215,7 @@ SYNTAX
      LOWercase [target]
 
 DESCRIPTION
-     The LOWERCASE command changes all uppercase characters in all 
+     The LOWERCASE command changes all uppercase characters in all
      lines up to the <'target'> line to lowercase. All other characters
      remain untouched.
 
@@ -255,7 +255,7 @@ DESCRIPTION
      The LS command displays all files matching the specified
      'file specification'.
 
-     When no parameter is supplied, all files in the current directory 
+     When no parameter is supplied, all files in the current directory
      are displayed subject to any <SET DIRINCLUDE> restrictions.
 
 COMPATIBILITY
@@ -332,7 +332,7 @@ DESCRIPTION
      marked <block>.  Without the optional arguments, the position of
      the cursor is used to determine which portion of text is marked.
 
-     'line1' and 'line2' specify the first or last line of the 
+     'line1' and 'line2' specify the first or last line of the
      marked block.
 
      'col1' and 'col2' specify the first or last column of the
@@ -387,7 +387,7 @@ CHARTYPE *params;
    int numparms[7];
    LINETYPE nummax[7][5];
    LENGTHTYPE first_col=0,last_col=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    CHARTYPE *cont=NULL;
    LENGTHTYPE cont_len=0;
    int num[5]; /* must be at least as big as miximum number of args */
@@ -457,7 +457,7 @@ CHARTYPE *params;
       mark_type = M_WORD;
    else if (equal((CHARTYPE *)"cua",word[0],3))
       mark_type = M_CUA;
-   else 
+   else
    {
       display_error(1,(CHARTYPE *)word[0],FALSE);
       TRACE_RETURN();
@@ -466,7 +466,7 @@ CHARTYPE *params;
    /*
     * For CUA, validate the optional parameter...
     */
-   if ( mark_type == M_CUA 
+   if ( mark_type == M_CUA
    &&  num_params == 2 )
    {
       if (equal((CHARTYPE *)"left",word[1],4))
@@ -596,7 +596,7 @@ CHARTYPE *params;
       CURRENT_VIEW->mark_type = mark_type;
       CURRENT_VIEW->mark_end_line = true_line;
       CURRENT_VIEW->mark_end_col = real_col;
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
       wmove(CURRENT_WINDOW,y,x);
    }
@@ -763,17 +763,17 @@ CHARTYPE *params;
             CURRENT_VIEW->marked_line = TRUE;
             break;
       }
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
       wmove(CURRENT_WINDOW,y,x);
    }
    else
    {
-      nummax[M_LINE][1] = nummax[M_LINE][2] = nummax[M_BOX][1] = 
-         nummax[M_BOX][3] = nummax[M_STREAM][1] = nummax[M_STREAM][3] = 
+      nummax[M_LINE][1] = nummax[M_LINE][2] = nummax[M_BOX][1] =
+         nummax[M_BOX][3] = nummax[M_STREAM][1] = nummax[M_STREAM][3] =
          nummax[M_WORD][1] = CURRENT_FILE->number_lines;
-      nummax[M_BOX][2] = nummax[M_BOX][4] = nummax[M_COLUMN][1] = 
-         nummax[M_COLUMN][2] = nummax[M_STREAM][2] = nummax[M_STREAM][4] = 
+      nummax[M_BOX][2] = nummax[M_BOX][4] = nummax[M_COLUMN][1] =
+         nummax[M_COLUMN][2] = nummax[M_STREAM][2] = nummax[M_STREAM][4] =
          nummax[M_WORD][2] = max_line_length;
       /*
        * Validate the number of parameters...
@@ -920,7 +920,7 @@ CHARTYPE *params;
          default:
             break;
       }
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
    }
    TRACE_RETURN();
@@ -973,7 +973,7 @@ SYNTAX
 
 DESCRIPTION
      The MOVE command copies the contents of a portion of the file to
-     the same or a different file, and deletes the marked portion from 
+     the same or a different file, and deletes the marked portion from
      the original file.
 
      The first form of the MOVE command, moves the portion of the file
@@ -1116,8 +1116,8 @@ CHARTYPE *params;
     */
    if (BOF(true_line))
       true_line--;
-  
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    start_line = MARK_VIEW->mark_start_line;
    end_line = MARK_VIEW->mark_end_line;
    num_lines = end_line - start_line + 1L;
@@ -1133,7 +1133,7 @@ CHARTYPE *params;
       copy_command = COMMAND_MOVE_COPY_DIFF;
       delete_command = COMMAND_MOVE_DELETE_DIFF;
    }
-  
+
    rc = rearrange_line_blocks(copy_command,reset_block,start_line,
                               end_line,dest_line,1,MARK_VIEW,CURRENT_VIEW,FALSE,
                               &lines_affected);
@@ -1148,7 +1148,7 @@ CHARTYPE *params;
             dest_line += num_lines;
          }
       }
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       rc = rearrange_line_blocks(delete_command,reset_block,start_line,
                               end_line,start_line,1,old_mark_view,old_mark_view,FALSE,
                               &lines_affected);
@@ -1166,7 +1166,7 @@ SYNTAX
 DESCRIPTION
      The MSG command displays a 'message' on the <message line>.
      This command is usually issued from a macro file.
-     This is similar to <EMSG>, but MSG does not sound the bell if 
+     This is similar to <EMSG>, but MSG does not sound the bell if
      <SET BEEP> is on.
 
 COMPATIBILITY
@@ -1202,7 +1202,7 @@ SYNTAX
 DESCRIPTION
      The NEXT command moves the <current line> forwards the number of
      lines specified by the <relative target>. This <relative target> can
-     only be a positive integer or the character "*". 
+     only be a positive integer or the character "*".
 
 COMPATIBILITY
      XEDIT: Compatible.
@@ -1264,7 +1264,7 @@ SYNTAX
 
 DESCRIPTION
      The NEXTWINDOW command moves the focus of the editing session to
-     the other screen (if <SET SCREEN> 2 is in effect) or to the next 
+     the other screen (if <SET SCREEN> 2 is in effect) or to the next
      file in the <ring>.
 
 COMPATIBILITY
@@ -1300,7 +1300,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(rc);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    current_screen = (current_screen == 0) ? 1 : 0;
    CURRENT_VIEW = CURRENT_SCREEN.screen_view;
    if (curses_started)
@@ -1335,7 +1335,7 @@ CHARTYPE *params;
          wnoutrefresh(divider);
       }
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
    {
@@ -1456,14 +1456,14 @@ STATUS
 
 /*man-start*********************************************************************
 COMMAND
-     nomsg - execute a command suppressing any messages 
+     nomsg - execute a command suppressing any messages
 
 SYNTAX
      NOMSG command [arguments]
 
 DESCRIPTION
      The NOMSG command executes the supplied 'command' but suppresses
-     messages that would normally be displayed as a result of the 
+     messages that would normally be displayed as a result of the
      command.
 
      Optional 'arguments' may be passed to the 'command'.
@@ -1582,7 +1582,7 @@ SYNTAX
      OSNowait command
 
 DESCRIPTION
-     The OSNOWAIT command executes the supplied operating system 
+     The OSNOWAIT command executes the supplied operating system
      'command' not waiting for the user to be prompted once the
      command has completed.
 
@@ -1676,7 +1676,7 @@ SYNTAX
 
 DESCRIPTION
      The OSREDIR command executes the supplied operating system 'command'
-     and redirects output destined for STDOUT and STDERR to the specified 
+     and redirects output destined for STDOUT and STDERR to the specified
      'filename'.
 
      Optional 'arguments' may be supplied to the 'command'.
@@ -1878,7 +1878,7 @@ CHARTYPE *params;
    LINETYPE true_line=0L,start_line=0L,end_line=0L,num_lines=0L,dest_line=0L,lines_affected=0L;
    VIEW_DETAILS *old_mark_view=NULL;
    short rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE save_current_line=CURRENT_VIEW->current_line;
 
    TRACE_FUNCTION("comm3.c:   Overlaybox");
@@ -1942,7 +1942,7 @@ CHARTYPE *params;
     */
    true_line = get_true_line(TRUE);
 
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    start_line = MARK_VIEW->mark_start_line;
    end_line = MARK_VIEW->mark_end_line;
    num_lines = end_line - start_line + 1L;
@@ -1970,7 +1970,7 @@ CHARTYPE *params;
          end_line++;
       }
       dest_line = true_line;
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       rc = rearrange_line_blocks(COMMAND_OVERLAY_DELETE,SOURCE_BLOCK,start_line,
                             end_line,dest_line,1,CURRENT_VIEW,CURRENT_VIEW,FALSE,
                             &lines_affected);

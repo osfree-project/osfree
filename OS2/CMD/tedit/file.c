@@ -61,8 +61,8 @@ static short write_line();
 static short write_char();
 #endif
 
-LINE *dir_first_line=NULL;
-LINE *dir_last_line=NULL;
+_LINE *dir_first_line=NULL;
+_LINE *dir_last_line=NULL;
 LINETYPE dir_number_lines=0L;
 
 /***********************************************************************/
@@ -181,7 +181,7 @@ CHARTYPE *filename;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    CHARTYPE _THE_FAR work_filename[MAX_FILE_NAME+1] ;
    VIEW_DETAILS *save_current_view=NULL,*found_file=NULL;
    short rc=RC_OK;
@@ -470,7 +470,7 @@ CHARTYPE *filename;
     */
    if (!CURRENT_FILE->pseudo_file)
    {
-      if ((CURRENT_FILE->autosave_fname = 
+      if ((CURRENT_FILE->autosave_fname =
          (CHARTYPE *)(*the_malloc)(strlen((DEFCHAR *)sp_fname)+strlen((DEFCHAR *)sp_path)+7)) == NULL)
       {
          free_view_memory(TRUE,TRUE);
@@ -625,7 +625,7 @@ CHARTYPE *filename;
       TRACE_RETURN();
       return(RC_OUT_OF_MEMORY);
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    /*
     * If TABSIN is ON, we need to run EXPAND ALL.
     * We need to save the current setting of scope so that it can be
@@ -667,11 +667,11 @@ CHARTYPE *filename;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *read_file(FILE *fp,LINE *curr,CHARTYPE *filename,LINETYPE fromline,LINETYPE numlines,bool called_from_get_command)
+_LINE *read_file(FILE *fp,_LINE *curr,CHARTYPE *filename,LINETYPE fromline,LINETYPE numlines,bool called_from_get_command)
 #else
-LINE *read_file(fp,curr,filename,fromline,numlines,called_from_get_command)
+_LINE *read_file(fp,curr,filename,fromline,numlines,called_from_get_command)
 FILE *fp;
-LINE *curr;
+_LINE *curr;
 CHARTYPE *filename;
 LINETYPE fromline,numlines;
 bool called_from_get_command;
@@ -684,7 +684,7 @@ bool called_from_get_command;
    register unsigned short i=0;
    LENGTHTYPE maxlen=0;
    short ch=0;
-   LINE *temp=NULL;
+   _LINE *temp=NULL;
    LENGTHTYPE len=0;
    bool eof_reached=FALSE;
    LENGTHTYPE chars_read=0;
@@ -699,7 +699,7 @@ bool called_from_get_command;
 #ifdef MSWIN
    WinLock();
 #endif
-  
+
    /*
     * Reset the length of trec_len, as it may have been changed elsewhere.
     */
@@ -879,17 +879,17 @@ bool called_from_get_command;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *read_fixed_file(FILE *fp,LINE *curr,CHARTYPE *filename,LINETYPE fromline,LINETYPE numlines)
+_LINE *read_fixed_file(FILE *fp,_LINE *curr,CHARTYPE *filename,LINETYPE fromline,LINETYPE numlines)
 #else
-LINE *read_fixed_file(fp,curr,filename,fromline,numlines)
+_LINE *read_fixed_file(fp,curr,filename,fromline,numlines)
 FILE *fp;
-LINE *curr;
+_LINE *curr;
 CHARTYPE *filename;
 LINETYPE fromline,numlines;
 #endif
 /***********************************************************************/
 {
-   LINE *temp=NULL;
+   _LINE *temp=NULL;
    bool eof_reached=FALSE;
    LENGTHTYPE chars_read=0;
    LINETYPE total_lines_read=0L,actual_lines_read=0L;
@@ -972,7 +972,7 @@ bool autosave;
    LINETYPE num_actual_lines=0L;
    LINETYPE my_num_file_lines=0L;
    short direction=(in_lines < 0L ? DIRECTION_BACKWARD : DIRECTION_FORWARD);
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    FILE *fp=NULL;
    LENGTHTYPE col=0,newcol=0;
    long off=0L;
@@ -1137,7 +1137,7 @@ bool autosave;
             TRACE_RETURN();
             return(RC_ACCESS_DENIED);
          }
-  
+
          if ((rc = process_file_attributes(0,cf,write_fname)) != RC_OK)
          {
             if (bak_filename != (CHARTYPE *)NULL)
@@ -1335,7 +1335,7 @@ bool autosave;
                      break;
                   col++;
                }
-               if (rc) 
+               if (rc)
                   break;
             }
             else
@@ -1455,7 +1455,7 @@ bool autosave;
       (*the_free)(bak_filename);
    if (write_fname != (CHARTYPE *)NULL)
       (*the_free)(write_fname);
-  
+
    TRACE_RETURN();
    return(rc);
 }
@@ -1632,7 +1632,7 @@ bool display_the_screen;
    ROWTYPE save_cmd_line=0;
    CHARTYPE save_prefix=0;
    short save_gap=0;
-   
+
    TRACE_FUNCTION("file.c:    free_view_memory");
    /*
     * Before freeing up anything, determine which scenario is current...
@@ -1766,7 +1766,7 @@ bool display_the_screen;
                return(rc);
             }
          }
-         pre_process_line(OTHER_SCREEN.screen_view,OTHER_SCREEN.screen_view->focus_line,(LINE *)NULL);
+         pre_process_line(OTHER_SCREEN.screen_view,OTHER_SCREEN.screen_view->focus_line,(_LINE *)NULL);
          prepare_view(other_screen);
          if (display_the_screen)
             display_screen(other_screen);
@@ -1838,7 +1838,7 @@ bool display_the_screen;
     */
    if (number_of_views > 0)
    {
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       prepare_view(current_screen);
       if (display_the_screen)
          display_screen(current_screen);
@@ -2021,7 +2021,7 @@ short read_directory()
    CHARTYPE str_time[6];
    VIEW_DETAILS *found_view=NULL;
    short rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    CHARTYPE _THE_FAR dir_rec[MAX_FILE_NAME+50];
 
    TRACE_FUNCTION("file.c:    read_directory");
@@ -2190,7 +2190,7 @@ FILE *fp;
    CHARTYPE ch=0;
    short rc=RC_OK;
    short line_number=0;
-   
+
    TRACE_FUNCTION("file.c:    execute_command_file");
 
    memset(profile_command_line,' ',MAX_LENGTH_OF_LINE);

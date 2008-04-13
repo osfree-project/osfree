@@ -79,8 +79,8 @@ static short post_prefix_add Args((THE_PPC *,short,LINETYPE));
 /* The following two are to specify the first and last items in the    */
 /* linked list for prefix synonyms.                                    */
 /*---------------------------------------------------------------------*/
-LINE *first_prefix_synonym=NULL;
-LINE *last_prefix_synonym=NULL;
+_LINE *first_prefix_synonym=NULL;
+_LINE *last_prefix_synonym=NULL;
 /*---------------------------------------------------------------------*/
 
 #define THE_PPC_NO_TARGET        (-1)
@@ -109,7 +109,7 @@ LINE *last_prefix_synonym=NULL;
          {(CHARTYPE *)"\"\"",  2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_NOT_BLOCK,PC_TARGET_NOT_REQD,PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_duplicate,          1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,40,NULL},
          {(CHARTYPE *)"cc",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_REQD,    PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_copy,               1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,30,NULL},
          {(CHARTYPE *)"mm",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_REQD,    PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_move,               1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,30,NULL},
-         {(CHARTYPE *)"oo",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_REQD,    PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_overlay,            1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,30,NULL}, 
+         {(CHARTYPE *)"oo",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_REQD,    PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_overlay,            1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,30,NULL},
          {(CHARTYPE *)"dd",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_NOT_REQD,PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_delete,             1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,10,NULL},
          {(CHARTYPE *)"xx",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_NOT_REQD,PC_INVALID_TOF,PC_INVALID_BOF,PC_VALID_RO,  prefix_block_exclude,            1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,30,NULL},
          {(CHARTYPE *)"<<",    2,PC_IS_ACTION, PC_MULTIPLES,   PC_NO_FULL_TARGET,PC_IS_BLOCK, PC_TARGET_NOT_REQD,PC_INVALID_TOF,PC_INVALID_BOF,PC_INVALID_RO,prefix_block_shift_left,         1L,      PC_RESPECT_SCOPE,PC_NO_USE_LAST_IN_SCOPE,30,NULL},
@@ -199,7 +199,7 @@ short execute_prefix_commands()
    int top_priority_idx=0;
 
    TRACE_FUNCTION("prefix.c:  execute_prefix_commands");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    ispf_idx = (compatible_feel==COMPAT_ISPF) ? 1 : 0;
    /*
     * Validate all pending prefix commands...
@@ -222,7 +222,7 @@ short execute_prefix_commands()
                curr_ppc = curr_ppc->next;
                continue;
             }
-            clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+            clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
             curr_ppc = curr_ppc->next;
             continue;
          }
@@ -238,7 +238,7 @@ short execute_prefix_commands()
        */
       if (*(curr_ppc->ppc_command) == '?')
       {
-         clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+         clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
          curr_ppc = curr_ppc->next;
          continue;
       }
@@ -414,8 +414,8 @@ short execute_prefix_commands()
       if (pc[ispf_idx][top_priority_idx].post_function != NULL)
          rc = (*pc[ispf_idx][top_priority_idx].post_function)(curr_ppc,cmd_idx,long_mult);
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
-   build_screen(current_screen); 
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+   build_screen(current_screen);
    display_screen(current_screen);
    if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
    {
@@ -425,7 +425,7 @@ short execute_prefix_commands()
       y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,CURRENT_VIEW->current_row);
       if (curses_started)
          wmove(CURRENT_WINDOW,y,x);
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
    TRACE_RETURN();
    return(RC_OK);
@@ -444,7 +444,7 @@ CHARTYPE *cmd,*mult;
    short len_pcmd=0;
    CHARTYPE _THE_FAR pcmd[MAX_PREFIX_WIDTH+1];
    short pos=0,rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    int ispf_idx = (compatible_feel==COMPAT_ISPF) ? 1 : 0;
    short str_length=0;
 
@@ -505,7 +505,7 @@ CHARTYPE *cmd,*mult;
       return(rc);
    }
    /*
-    * For each valid prefix command,  check to see if a valid command 
+    * For each valid prefix command,  check to see if a valid command
     * exists somewhere in the entered prefix command.
     */
    for (i=0;i<NUMBER_PREFIX_COMMANDS;i++)
@@ -549,7 +549,7 @@ LINETYPE number_lines;
 {
    LINETYPE top_line = curr_ppc->ppc_line_number;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    execute_makecurr(top_line);
    if (number_lines != 0L)
       CURRENT_VIEW->current_column = (LENGTHTYPE)number_lines;
@@ -575,7 +575,7 @@ LINETYPE number_lines;
       CURRENT_VIEW->tab_off = tab_row+1;
       CURRENT_VIEW->tab_on = TRUE;
    }
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    return(0);
 }
 /***********************************************************************/
@@ -598,7 +598,7 @@ LINETYPE number_lines;
       CURRENT_VIEW->scale_off = scale_row+1;
       CURRENT_VIEW->scale_on = TRUE;
    }
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    return(0);
 }
 /***********************************************************************/
@@ -616,9 +616,9 @@ LINETYPE number_lines;
    short rc=RC_OK;
    LINETYPE top_line = curr_ppc->ppc_line_number;
    LINETYPE target_line=0L;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (TOF(top_line)
    ||  BOF(top_line))
       return(-1);
@@ -627,7 +627,7 @@ LINETYPE number_lines;
     */
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,top_line,CURRENT_FILE->number_lines);
    /*
-    * If the line that the show command was entered is in scope, then     
+    * If the line that the show command was entered is in scope, then
     * return with an error.
     */
    if (IN_SCOPE(CURRENT_VIEW,curr))
@@ -636,7 +636,7 @@ LINETYPE number_lines;
       return(-1);
    }
    /*
-    * For a negative target, show the lines from the end of the excluded  
+    * For a negative target, show the lines from the end of the excluded
     * block.
     */
    if (number_lines < 0)
@@ -682,10 +682,10 @@ LINETYPE number_lines;
 {
    short rc=RC_OK;
    LINETYPE top_line = curr_ppc->ppc_line_number;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    short direction=DIRECTION_FORWARD;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (TOF(top_line)
    ||  BOF(top_line))
       return(-1);
@@ -700,11 +700,11 @@ LINETYPE number_lines;
    else
       direction = DIRECTION_FORWARD;
    /*
-    * Find the current line from where we start excluding...              
+    * Find the current line from where we start excluding...
     */
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,top_line,CURRENT_FILE->number_lines);
    /*
-    * For the number of lines affected, change the select level if the    
+    * For the number of lines affected, change the select level if the
     * line is in scope.
     */
    while(number_lines != 0)
@@ -718,7 +718,7 @@ LINETYPE number_lines;
       number_lines -= direction;
    }
    /*
-    * Determine if current line is now not in scope...                    
+    * Determine if current line is now not in scope...
     */
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,CURRENT_VIEW->current_line,CURRENT_FILE->number_lines);
    if (!IN_SCOPE(CURRENT_VIEW,curr))
@@ -741,7 +741,7 @@ LINETYPE number_lines;
 
    if (top_line == CURRENT_FILE->number_lines+1)
       top_line--;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    rc = insert_new_line((CHARTYPE *)"",0,number_lines,
                        top_line,FALSE,FALSE,TRUE,CURRENT_VIEW->display_low,FALSE,FALSE);
    return(rc);
@@ -761,7 +761,7 @@ LINETYPE number_occ;
    LINETYPE top_line = curr_ppc->ppc_line_number;
    LINETYPE lines_affected=0L;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (top_line != 0L
    &&  top_line != CURRENT_FILE->number_lines+1)
       rc = rearrange_line_blocks(COMMAND_DUPLICATE,SOURCE_PREFIX,top_line,
@@ -789,7 +789,7 @@ LINETYPE number_lines;
       return(rc);
    target_line = target_ppc->ppc_line_number+target_ppc->ppc_cmd_param;
    bottom_line = top_line + number_lines - ((number_lines < 0L) ? (-1L) : 1L);
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (top_line != 0L
    &&  top_line != CURRENT_FILE->number_lines+1)
       rc = rearrange_line_blocks(COMMAND_COPY,SOURCE_PREFIX,top_line,bottom_line,
@@ -816,7 +816,7 @@ LINETYPE number_lines;
    if ((target_ppc = calculate_target_line()) == NULL)
       return(rc);
    target_line = target_ppc->ppc_line_number+target_ppc->ppc_cmd_param;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    bottom_line = top_line + number_lines - ((number_lines < 0L) ? (-1L) : 1L);
 
    if (top_line != 0L
@@ -852,7 +852,7 @@ LINETYPE number_lines;
    LINETYPE top_line = curr_ppc->ppc_line_number;
    LINETYPE bottom_line=0L,target_line=0L,lines_affected=0L;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (!TOF(top_line)
    &&  !BOF(top_line))
    {
@@ -877,7 +877,7 @@ LINETYPE number_cols;
 {
    LINETYPE top_line = curr_ppc->ppc_line_number;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (top_line != 0L
    &&  top_line != CURRENT_FILE->number_lines+1)
    {
@@ -898,7 +898,7 @@ LINETYPE number_cols;
 {
    LINETYPE start_line = curr_ppc->ppc_line_number;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (start_line != 0L
    &&  start_line != CURRENT_FILE->number_lines+1)
    {
@@ -919,7 +919,7 @@ LINETYPE number_cols;
 {
    LINETYPE top_line = curr_ppc->ppc_line_number;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (top_line != 0L
    &&  top_line != CURRENT_FILE->number_lines+1)
    {
@@ -940,7 +940,7 @@ LINETYPE number_cols;
 {
    LINETYPE start_line = curr_ppc->ppc_line_number;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (start_line != 0L
    &&  start_line != CURRENT_FILE->number_lines+1)
    {
@@ -963,7 +963,7 @@ LINETYPE number_lines;
    LENGTHTYPE start_col=CURRENT_VIEW->zone_start-1;
    LENGTHTYPE end_col=CURRENT_VIEW->zone_end-1;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (start_line != 0L
    &&  start_line != CURRENT_FILE->number_lines+1)
    {
@@ -986,7 +986,7 @@ LINETYPE number_lines;
    LENGTHTYPE start_col=CURRENT_VIEW->zone_start-1;
    LENGTHTYPE end_col=CURRENT_VIEW->zone_end-1;
 
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    if (start_line != 0L
    &&  start_line != CURRENT_FILE->number_lines+1)
    {
@@ -1010,7 +1010,7 @@ LINETYPE number_lines;
    unsigned short y=0,x=0;
    LINETYPE true_line=0L,num_lines=0L,dest_line=0L,lines_affected=0L;
    VIEW_DETAILS *old_mark_view=NULL;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE save_current_line=CURRENT_VIEW->current_line;
    LINETYPE top_line=curr_ppc->ppc_line_number;
    LINETYPE bottom_line;
@@ -1019,7 +1019,7 @@ LINETYPE number_lines;
    if ((target_ppc = calculate_target_line()) == NULL)
       return(rc);
    dest_line = target_ppc->ppc_line_number+target_ppc->ppc_cmd_param;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
    bottom_line = top_line + number_lines - ((number_lines < 0L) ? (-1L) : 1L);
 
    if (top_line != 0L
@@ -1048,7 +1048,7 @@ LINETYPE number_lines;
             bottom_line++;
          }
          dest_line = true_line;
-         post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+         post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
          rc = rearrange_line_blocks(COMMAND_OVERLAY_DELETE,SOURCE_PREFIX,top_line,
                             bottom_line,dest_line,1,CURRENT_VIEW,CURRENT_VIEW,FALSE,
                             &lines_affected);
@@ -1078,8 +1078,8 @@ LINETYPE number_occ;
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
    rc = rearrange_line_blocks(COMMAND_DUPLICATE,SOURCE_PREFIX,top_line,bottom_line,
                            bottom_line,(short)number_occ,CURRENT_VIEW,CURRENT_VIEW,FALSE,
                            &lines_affected);
@@ -1110,8 +1110,8 @@ LINETYPE number_lines;
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
    rc = rearrange_line_blocks(COMMAND_COPY,SOURCE_PREFIX,top_line,bottom_line,
                            target_line,1,CURRENT_VIEW,CURRENT_VIEW,FALSE,
                            &lines_affected);
@@ -1132,7 +1132,7 @@ LINETYPE number_lines;
    LINETYPE top_line=0L,bottom_line=0L,target_line=0L,num_lines=0L,lines_affected=0L;
    THE_PPC *bottom_ppc=NULL;
    THE_PPC *target_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(rc);
    if ((target_ppc = calculate_target_line()) == NULL)
@@ -1142,8 +1142,8 @@ LINETYPE number_lines;
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
    if ((rc = rearrange_line_blocks(COMMAND_MOVE_COPY_SAME,SOURCE_PREFIX,
              top_line,bottom_line,target_line,1,CURRENT_VIEW,CURRENT_VIEW,FALSE,&lines_affected)) != RC_OK)
       return(rc);
@@ -1173,15 +1173,15 @@ LINETYPE number_lines;
    short rc=(-1);
    LINETYPE top_line=0L,bottom_line=0L,lines_affected=0L;
    THE_PPC *bottom_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(rc);
    top_line = min(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
    rc = rearrange_line_blocks(COMMAND_DELETE,SOURCE_PREFIX,top_line,bottom_line,
                              bottom_line,1,CURRENT_VIEW,CURRENT_VIEW,FALSE,
                              &lines_affected);
@@ -1200,17 +1200,17 @@ LINETYPE number_cols;
 {
    LINETYPE top_line=0L,bottom_line=0L;
    THE_PPC *bottom_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(-1);
    top_line = min(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
-  
+
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
-  
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
+
    execute_shift_command(TRUE,(short)number_cols,top_line,bottom_line-top_line+1L,FALSE,TARGET_UNFOUND,FALSE,FALSE);
    return(0);
 }
@@ -1227,17 +1227,17 @@ LINETYPE number_cols;
 {
    LINETYPE top_line=0L,bottom_line=0L;
    THE_PPC *bottom_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(-1);
    top_line = min(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
-  
+
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
-  
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
+
    execute_shift_command(FALSE,(short)number_cols,top_line,bottom_line-top_line+1L,FALSE,TARGET_UNFOUND,FALSE,FALSE);
    return(0);
 }
@@ -1254,9 +1254,9 @@ LINETYPE number_lines;
 {
    short rc=RC_OK;
    LINETYPE top_line=0L,bottom_line=0L,num_lines=0L,i=0L;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    THE_PPC *bottom_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(-1);
    top_line = min(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
@@ -1264,8 +1264,8 @@ LINETYPE number_lines;
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
    num_lines = bottom_line-top_line+1L;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
    /*
     * If the high value of SET DISPLAY is 255, we can't exclude any lines
     * so exit.
@@ -1273,11 +1273,11 @@ LINETYPE number_lines;
    if (CURRENT_VIEW->display_high == 255)
       return(rc);
    /*
-    * Find the current line from where we start excluding...              
+    * Find the current line from where we start excluding...
     */
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,top_line,CURRENT_FILE->number_lines);
    /*
-    * For the number of lines affected, change the select level if the    
+    * For the number of lines affected, change the select level if the
     * line is in scope.
     */
    for (i=0;i<num_lines;i++)
@@ -1287,7 +1287,7 @@ LINETYPE number_lines;
       curr = curr->next;
    }
    /*
-    * Determine if current line is now not in scope...                    
+    * Determine if current line is now not in scope...
     */
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,CURRENT_VIEW->current_line,CURRENT_FILE->number_lines);
    if (!IN_SCOPE(CURRENT_VIEW,curr))
@@ -1307,17 +1307,17 @@ LINETYPE number_cols;
 {
    LINETYPE top_line=0L,bottom_line=0L;
    THE_PPC *bottom_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(-1);
    top_line = min(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
-  
+
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
-  
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
+
    execute_shift_command(TRUE,(short)number_cols,top_line,bottom_line-top_line+1L,FALSE,TARGET_UNFOUND,FALSE,TRUE);
    return(0);
 }
@@ -1334,17 +1334,17 @@ LINETYPE number_cols;
 {
    LINETYPE top_line=0L,bottom_line=0L;
    THE_PPC *bottom_ppc=NULL;
-  
+
    if ((bottom_ppc = find_bottom_ppc(curr_ppc,cmd_idx)) == NULL)
       return(-1);
    top_line = min(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
    bottom_line = max(curr_ppc->ppc_line_number,bottom_ppc->ppc_line_number);
-  
+
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
-  
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
+
    execute_shift_command(FALSE,(short)number_cols,top_line,bottom_line-top_line+1L,FALSE,TARGET_UNFOUND,FALSE,TRUE);
    return(0);
 }
@@ -1371,8 +1371,8 @@ LINETYPE number_lines;
 
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
 
    do_actual_change_case( top_line, bottom_line-top_line+1L, CASE_LOWER, FALSE, DIRECTION_FORWARD, start_col, end_col );
    return(0);
@@ -1400,8 +1400,8 @@ LINETYPE number_lines;
 
    top_line = (top_line == 0L) ? 1L : top_line;
    bottom_line = (bottom_line == CURRENT_FILE->number_lines+1L) ? bottom_line-1L : bottom_line;
-   clear_pending_prefix_command(curr_ppc,(LINE *)NULL);
-   clear_pending_prefix_command(bottom_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(curr_ppc,(_LINE *)NULL);
+   clear_pending_prefix_command(bottom_ppc,(_LINE *)NULL);
 
    do_actual_change_case( top_line, bottom_line-top_line+1L, CASE_UPPER, FALSE, DIRECTION_FORWARD, start_col, end_col );
    return(0);
@@ -1439,7 +1439,7 @@ THE_PPC *curr_ppc;
       *(curr_ppc->ppc_command+len+1) = '\0';
    }
    /*
-    * ensure that there is no chance that a 'real' prefix command can be  
+    * ensure that there is no chance that a 'real' prefix command can be
     * executed.
     */
    curr_ppc->ppc_cmd_idx = (-2);
@@ -1447,22 +1447,22 @@ THE_PPC *curr_ppc;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-void clear_pending_prefix_command(THE_PPC *curr_ppc,LINE *curr_line)
+void clear_pending_prefix_command(THE_PPC *curr_ppc,_LINE *curr_line)
 #else
 void clear_pending_prefix_command(curr_ppc,curr_line)
 THE_PPC *curr_ppc;
-LINE *curr_line;
+_LINE *curr_line;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=curr_line;
+   _LINE *curr=curr_line;
 
    /*
-    * If curr_ppc == NULL, then do nothing.                               
+    * If curr_ppc == NULL, then do nothing.
     */
    if (curr_ppc == NULL)
       return;
-   if (curr == (LINE *)NULL)
+   if (curr == (_LINE *)NULL)
       curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,curr_ppc->ppc_line_number,CURRENT_FILE->number_lines);
    curr->pre = NULL;
    curr_ppc->ppc_cmd_idx = (-1);
@@ -1472,24 +1472,24 @@ LINE *curr_line;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-THE_PPC *delete_pending_prefix_command(THE_PPC *curr_ppc,FILE_DETAILS *curr_file,LINE *curr_line)
+THE_PPC *delete_pending_prefix_command(THE_PPC *curr_ppc,FILE_DETAILS *curr_file,_LINE *curr_line)
 #else
 THE_PPC *delete_pending_prefix_command(curr_ppc,curr_file,curr_line)
 THE_PPC *curr_ppc;
 FILE_DETAILS *curr_file;
-LINE *curr_line;
+_LINE *curr_line;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=curr_line;
+   _LINE *curr=curr_line;
    THE_PPC *return_ppc=NULL;
 
    /*
-    * If curr_ppc == NULL, then do nothing.                               
+    * If curr_ppc == NULL, then do nothing.
     */
    if (curr_ppc == NULL)
       return(NULL);
-   if (curr == (LINE *)NULL)
+   if (curr == (_LINE *)NULL)
       curr = lll_find(curr_file->first_line,curr_file->last_line,curr_ppc->ppc_line_number,curr_file->number_lines);
    curr->pre = NULL;
    return_ppc = pll_del(&(curr_file->first_ppc),&(curr_file->last_ppc),curr_ppc,DIRECTION_FORWARD);
@@ -1563,7 +1563,7 @@ static THE_PPC *calculate_target_line()
 #if 0
          else if ( 1 )
          {
-            LINETYPE find_last_not_in_scope( CURRENT_VIEW,LINE *in_curr,LINETYPE line_number,short direction)
+            LINETYPE find_last_not_in_scope( CURRENT_VIEW,_LINE *in_curr,LINETYPE line_number,short direction)
             target->last_line = find_next_in_scope(CURRENT_VIEW,curr,++line_number,DIRECTION_FORWARD);
             target_ppc->ppc_cmd_param = (-1);
          }
@@ -1587,7 +1587,7 @@ static THE_PPC *calculate_target_line()
       default:
          break;
    }
-   clear_pending_prefix_command(target_ppc,(LINE *)NULL);
+   clear_pending_prefix_command(target_ppc,(_LINE *)NULL);
    return(target_ppc);
 }
 /***********************************************************************/
@@ -1615,7 +1615,7 @@ THE_PPC *curr_ppc;
    found_right = FALSE;
    found_left = FALSE;
    /*
-    * Scan 'orig_cmd' from right to left looking for an embedded macro    
+    * Scan 'orig_cmd' from right to left looking for an embedded macro
     * file name.
     */
    for (ctr = strlen((DEFCHAR *)orig_cmd); ctr >= 0 && !found_right; ctr--)
@@ -1623,8 +1623,8 @@ THE_PPC *curr_ppc;
       substr(&tmpstr[0], orig_cmd, 1, ctr);
       strcpy((DEFCHAR *)t_area,(DEFCHAR *)tmpstr);
       /*
-       * First check if the prefix command is a synonym.                    
-       * check for prefix synonym, if so use the macro name not the synonym 
+       * First check if the prefix command is a synonym.
+       * check for prefix synonym, if so use the macro name not the synonym
        */
       get_valid_macro_file_name(find_prefix_synonym(t_area),temp_cmd,macro_suffix,&errnum);
 
@@ -1632,9 +1632,9 @@ THE_PPC *curr_ppc;
          found_right = TRUE;
    }
    /*
-    * No valid macro file name found ?                                    
-    *                                                                     
-    * Scan 'temp_cmd' from left to right looking for an embedded macro    
+    * No valid macro file name found ?
+    *
+    * Scan 'temp_cmd' from left to right looking for an embedded macro
     * file name.
     */
    if (!found_right)
@@ -1644,9 +1644,9 @@ THE_PPC *curr_ppc;
          substr(&tmpstr[0], orig_cmd, ctr + 1, strlen((DEFCHAR *)temp_cmd) - ctr);
          strcpy((DEFCHAR *)t_area,(DEFCHAR *)tmpstr);
          /*
-          * First check if the prefix command is a synonym.                    
+          * First check if the prefix command is a synonym.
           *
-          * check for prefix synonym, if so use the macro name not the synonym 
+          * check for prefix synonym, if so use the macro name not the synonym
           */
          get_valid_macro_file_name(find_prefix_synonym(t_area),temp_cmd,macro_suffix,&errnum);
 
@@ -1669,7 +1669,7 @@ THE_PPC *curr_ppc;
       strcpy((DEFCHAR *)parms,(DEFCHAR *)tmpstr);
       line_number = curr_ppc->ppc_line_number;
       /*
-       * If the prefix command was entered on a shadow line, pass this to    
+       * If the prefix command was entered on a shadow line, pass this to
        * the prefix macro...
        */
       if (curr_ppc->ppc_shadow_line)
@@ -1680,7 +1680,7 @@ THE_PPC *curr_ppc;
       prefix_current_line = line_number;
       in_prefix_macro = TRUE;
       /*
-       * Go and execute the prefix macro.                                    
+       * Go and execute the prefix macro.
        */
       pmacro_rc = execute_macro(temp_cmd,TRUE,&macrorc);
       in_prefix_macro = FALSE;
@@ -1715,10 +1715,10 @@ short start, length;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-void add_prefix_command(LINE *curr,LINETYPE line_number,bool block_command)
+void add_prefix_command(_LINE *curr,LINETYPE line_number,bool block_command)
 #else
 void add_prefix_command(curr,line_number,block_command)
-LINE *curr;
+_LINE *curr;
 LINETYPE line_number;
 bool block_command;
 #endif
@@ -1732,14 +1732,14 @@ bool block_command;
    TRACE_FUNCTION("prefix.c:  add_prefix_command");
    prefix_changed = FALSE;
    /*
-    * Copy the contexts of the prefix record area into a temporary area.  
+    * Copy the contexts of the prefix record area into a temporary area.
     */
    for (i=0;i<pre_rec_len;i++)
       temp_prefix_array[i] = pre_rec[i];
    temp_prefix_array[pre_rec_len] = '\0';
    strtrunc(temp_prefix_array);
    /*
-    * If the prefix record area is blank, clear the pending prefix area.  
+    * If the prefix record area is blank, clear the pending prefix area.
     */
    if (blank_field(temp_prefix_array))
    {
@@ -1749,8 +1749,8 @@ bool block_command;
    else
    {
       /*
-       * If the input line already points to an entry in the array, use the  
-       * existing entry in the array, otherwise add to the next entry.       
+       * If the input line already points to an entry in the array, use the
+       * existing entry in the array, otherwise add to the next entry.
        */
       curr_ppc = pll_find(CURRENT_FILE->first_ppc,line_number);
       if (curr_ppc == NULL)  /* not found */
@@ -1777,8 +1777,8 @@ bool block_command;
          curr_ppc->ppc_shadow_line = TRUE;
    }
    /*
-    * Clear the pending prefix command line.                              
-    * This removed by MH 20/01/96 to ensure end() in PREFIX works         
+    * Clear the pending prefix command line.
+    * This removed by MH 20/01/96 to ensure end() in PREFIX works
     */
 #if 0
    memset(pre_rec,' ',MAX_PREFIX_WIDTH);
@@ -1807,11 +1807,11 @@ CHARTYPE *synonym,*macroname;
 /*  macroname: name of REXX macro file                                 */
 /***********************************************************************/
 {
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
 
    TRACE_FUNCTION("prefix.c:  add_prefix_synonym");
    /*
-    * First thing is to delete any definitions that may exist for the     
+    * First thing is to delete any definitions that may exist for the
     * supplied synonym.
     */
    curr = first_prefix_synonym;
@@ -1829,9 +1829,9 @@ CHARTYPE *synonym,*macroname;
          curr = curr->next;
    }
    /*
-    * Lastly append the synonym at the end of the linked list.            
+    * Lastly append the synonym at the end of the linked list.
     */
-   curr = lll_add(first_prefix_synonym,last_prefix_synonym,sizeof(LINE));
+   curr = lll_add(first_prefix_synonym,last_prefix_synonym,sizeof(_LINE));
    if (curr == NULL)
    {
       display_error(30,(CHARTYPE *)"",FALSE);
@@ -1874,7 +1874,7 @@ DESCRIPTION
      returned unchanged.
 
      This function is only available if REXX support is available.
-     
+
 RETURN VALUE
      Either the macroname associated with 'synonym' or 'synonym'.
 *******************************************************************************/
@@ -1886,7 +1886,7 @@ CHARTYPE *synonym;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
 
    TRACE_FUNCTION("prefix.c:  find_prefix_synonym");
    curr = first_prefix_synonym;
@@ -1912,11 +1912,11 @@ SYNOPSIS
 
 DESCRIPTION
      The find_prefix_oldname function finds the synonym for
-     'oldname' and returns that value. If no synonym exists, the 
+     'oldname' and returns that value. If no synonym exists, the
      'oldname' is returned unchanged.
 
      This function is only available if REXX support is available.
-     
+
 RETURN VALUE
      Either the synonym associated with 'oldname' or 'oldname'.
 *******************************************************************************/
@@ -1928,7 +1928,7 @@ CHARTYPE *oldname;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
 
    TRACE_FUNCTION("prefix.c:  find_prefix_oldname");
    curr = first_prefix_synonym;
@@ -1957,7 +1957,7 @@ LINETYPE prefix_index;
 
    TRACE_FUNCTION("prefix.c:  get_prefix_command");
    /*
-    * Just return a pointer to the prefix command associated with the     
+    * Just return a pointer to the prefix command associated with the
     * supplied index.
     */
    TRACE_RETURN();

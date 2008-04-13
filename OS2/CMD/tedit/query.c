@@ -220,7 +220,7 @@ static CHARTYPE num6[10];
 static CHARTYPE num7[10];
 static CHARTYPE num8[10];
 static CHARTYPE rsrvd[MAX_FILE_NAME+1];
-static LINE *curr;
+static _LINE *curr;
 
 
 /*man-start*********************************************************************
@@ -262,7 +262,7 @@ ARBchar
 AUTOCOLOR [*|mask]
 AUTOCOLOUR [*|mask]
      The status of auto colouring for the supplied file mask or
-     "magic number". Set by <SET AUTOCOLOR> or <SET AUTOCOLOUR>. 
+     "magic number". Set by <SET AUTOCOLOR> or <SET AUTOCOLOUR>.
      The variable name is spelt the save way that the option is specified.
      (QES)
 
@@ -471,7 +471,7 @@ CTLchar [*|char]
      ctlchar.2       - The character defined as the escape character.
      ctlchar.3       - List of defined control characters, if any.
 
-     With the ['char'] option, returns color settings for the specified 
+     With the ['char'] option, returns color settings for the specified
      control character.
 
      ctlchar.0       - 1 if ctlchar.1 is OFF, otherwise 2
@@ -501,7 +501,7 @@ CURline
      The setting of curline.5 is as follows:
        OLD:            The line existed in its current form in the
                        file before THE began.
-       OLD CHANGED:    The line was in the file before THE started, 
+       OLD CHANGED:    The line was in the file before THE started,
                        but has been changed during the current editing
                        session.
        NEW CHANGED:    The line has been added to the file during
@@ -539,7 +539,7 @@ CURSORSTay
      cursorstay.1    - ON|OFF
 
 DEFINE [key|mousedef IN window|*]
-     Returns details about the commands associated with a keyboard key 
+     Returns details about the commands associated with a keyboard key
      or mouse key.  The details returned are the same as those displayed
      by the <SHOWKEY> command.
      Set by <DEFINE>.
@@ -857,7 +857,7 @@ IMPMACro
      impmacro.1      - ON|OFF
 
 IMPOS
-     Indicates if implied operating system command processing is on 
+     Indicates if implied operating system command processing is on
      or off. Set by <SET IMPOS> or <SET IMPCMSCP>.
      (QEMS)
 
@@ -1087,7 +1087,7 @@ NUMber
 
 PAGEWRAP
      Indicates if the scrolling the file view using the <FORWARD>
-     and <BACKWARD> commands will wrap if the cursor is at the 
+     and <BACKWARD> commands will wrap if the cursor is at the
      <Bottom-of-File line> or <Top-of-File line> respectively.
      Set by <SET PAGEWRAP>.
      (QEMS)
@@ -1104,7 +1104,7 @@ PARSER [*|parser]
      parser.1        - Name of parser
      parser.2        - Filename of TLD file
 
-     If no parser is supplied as a parameter or '*' is passed, 
+     If no parser is supplied as a parameter or '*' is passed,
      details of all parsers are set as follows:
 
      parser.0        - number of parsers currently defined
@@ -1173,7 +1173,7 @@ PREfix [Synonym [*]]
      prefix.4        - width of prefix gap
 
      With ['Synonym'] option, the name of the macrofile (oldname)
-     is returned that is associated with the synonym. If name 
+     is returned that is associated with the synonym. If name
      is not a synonym then name is returned.
      (E)
 
@@ -1295,7 +1295,7 @@ SCOPE
      scope.1         - ALL|DISPLAY
 
 SCReen
-     Returns the number and orientation of THE screens. Set by 
+     Returns the number and orientation of THE screens. Set by
      <SET SCREEN>.
      (QEMS)
 
@@ -1615,7 +1615,7 @@ after()
      character on the line, or if the line is blank.
 
 altkey()
-     Returns '1' if at the time the last key was pressed, the ALT 
+     Returns '1' if at the time the last key was pressed, the ALT
      key was also being held down.
 
 alt()
@@ -1740,7 +1740,7 @@ valid_target(target[,anything])
 
      If a valid target, returns the first line affected by the target
      followed by the number of lines to the target, and optionally the
-     remainder of the argument. eg. 
+     remainder of the argument. eg.
 
      if the focus line is 12 and valid_target() is called as
 
@@ -1756,7 +1756,7 @@ run_os(command[,stdin_stem[,stdout_stem[,stderr_stem]]])
      redirected to or from REXX arrays.
 
      The first argument is the operating system command to execute.
-     The command can include any command line switches appropriate 
+     The command can include any command line switches appropriate
      to the command.
 
      All other arguments comprise a stem name (including a trailing '.')
@@ -1791,7 +1791,7 @@ run_os(command[,stdin_stem[,stdout_stem[,stderr_stem]]])
          in.2 = "Hessling"
          in.3 = "Editr"
          rc = run_os("ispell -a","in.","out.")
-         
+
      sets:
 
           out.0 --> 3
@@ -2189,7 +2189,7 @@ short show_status()
    short lineno=0,colno=0;
    short number_variables=0;
    short item_width=0,column=0,column_width=0,col[STATUS_COLS];
-   
+
    TRACE_FUNCTION("query.c   :show_status");
    /*
     * For each item that is displayable, display it...
@@ -2357,7 +2357,7 @@ short itemno;
    {
       if ((rc = set_rexx_variable(query_item[itemno].name,item_values[i].value,item_values[i].len,i)) != RC_OK)
          break;
-   } 
+   }
    return(rc);
 }
 
@@ -2492,7 +2492,7 @@ CHARTYPE *params;
    register short i=0;
    short number_variables = query_item[itemno].number_values;
    static CHARTYPE num4[15];
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE true_line=0L;
    short rc=RC_OK;
 
@@ -2565,7 +2565,7 @@ CHARTYPE *params;
    unsigned short num_params=0;
    short number_variables = query_item[itemno].number_values;
    static CHARTYPE num4[15];
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    short rc=RC_OK;
    CHARTYPE *tmpbuf=NULL;
 
@@ -5117,7 +5117,7 @@ LINETYPE arglen;
        break;
     case HIGHLIGHT_TAG:
        item_values[1].value = (CHARTYPE *)"TAGGED";
-       break;                                    
+       break;
     case HIGHLIGHT_SELECT:
        item_values[1].value = (CHARTYPE *)"SELECT";
        sprintf((DEFCHAR *)num1,"%d",CURRENT_VIEW->highlight_low);
@@ -5127,9 +5127,9 @@ LINETYPE arglen;
        item_values[3].value = num2;
        item_values[3].len = strlen((DEFCHAR *)num2);
        number_variables = 3;
-       break;                                    
+       break;
     default:
-       break;                                    
+       break;
  }
  item_values[1].len = strlen((DEFCHAR *)item_values[1].value);
  return number_variables;
@@ -5845,7 +5845,7 @@ LINETYPE arglen;
            break;
        }
        getyx(CURRENT_WINDOW,y,x);
-       if (FOCUS_TOF 
+       if (FOCUS_TOF
        ||  FOCUS_BOF
        ||  CURRENT_SCREEN.sl[y].line_type == LINE_SHADOW)
            bool_flag = FALSE;
@@ -6385,7 +6385,7 @@ LINETYPE arglen;
                   if (curr_ppc->ppc_block_command)
                   {
                      /*
-                      * We have found the first BLOCK command with any name. 
+                      * We have found the first BLOCK command with any name.
                       */
                      if ( found_ppc == NULL )
                         found_ppc = curr_ppc;
@@ -6743,7 +6743,7 @@ LINETYPE arglen;
 #ifdef CAN_RESIZE
       if (is_termresized())
          continue;
-#endif     
+#endif
 #if defined (PDCURSES_MOUSE_ENABLED) || defined(NCURSES_MOUSE_VERSION)
       if (key == KEY_MOUSE)
       {
@@ -7146,7 +7146,7 @@ LINETYPE arglen;
 #endif
 /***********************************************************************/
 {
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  short x=0;
 
  curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,
@@ -8200,7 +8200,7 @@ CHARTYPE *buf;
 #endif
 /***********************************************************************/
 {
- LINE *curr=first_option;
+ _LINE *curr=first_option;
  int tail,col,itemno,linelen,valuelen,number_variables,max_col=0,off;
 
  TRACE_FUNCTION("query.c:   format_options");

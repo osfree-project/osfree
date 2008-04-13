@@ -31,13 +31,13 @@
  *
  * Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
  */
-  
+
 static char RCSid[] = "$Id: parser.c,v 1.19 2002/07/09 10:59:20 mark Exp $";
-  
+
 #include <the.h>
 #include <proto.h>
 #include <thematch.h>
-  
+
 #define STATE_START             0
 #define STATE_SINGLE_QUOTE      1
 #define STATE_DOUBLE_QUOTE      2
@@ -72,7 +72,7 @@ static char RCSid[] = "$Id: parser.c,v 1.19 2002/07/09 10:59:20 mark Exp $";
 static int number_blanks=0;
 static CHARTYPE *work;
 static char tmp[100];
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static long find_comment( FILE_DETAILS *fd, LENGTHTYPE start, LENGTHTYPE length, CHARTYPE *ptr, CHARTYPE *start_delim, CHARTYPE *end_delim, int *type )
@@ -152,7 +152,7 @@ int *type;
    TRACE_RETURN();
    return -1;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static long find_single_comments( CHARTYPE scrno, FILE_DETAILS *fd, SHOW_LINE *scurr )
@@ -317,7 +317,7 @@ SHOW_LINE *scurr;
    TRACE_RETURN();
    return -1L;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_single_comments(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr)
@@ -758,7 +758,7 @@ FILE_DETAILS *fd;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_strings(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr)
@@ -921,7 +921,7 @@ SHOW_LINE *scurr;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_delimiters(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr,CHARTYPE *start,CHARTYPE *end,chtype colour)
@@ -1021,7 +1021,7 @@ chtype colour;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_markup_tag(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr)
@@ -1046,7 +1046,7 @@ SHOW_LINE *scurr;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_markup_reference(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr)
@@ -1356,9 +1356,9 @@ SHOW_LINE *scurr;
           * firstnonblank
           * the first word on the line must end with the specified
           * delimiter. eg.
-          *     label::  
+          *     label::
           *     -------  is the valid label if '::' is the delimiter
-          *     junk label:: 
+          *     junk label::
           *              is not
           *     junk label::
           *              is not
@@ -1447,7 +1447,7 @@ SHOW_LINE *scurr;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_match(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr)
@@ -1634,14 +1634,14 @@ SHOW_LINE *scurr;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 short find_preprocessor(FILE_DETAILS *fd, CHARTYPE *word, int len, int *alternate_colour)
 #else
 short find_preprocessor(fd, word, len,alternate_colour)
 FILE_DETAILS *fd;
-CHARTYPE *word; 
+CHARTYPE *word;
 int len,*alternate_colour;
 #endif
 /***********************************************************************/
@@ -1687,7 +1687,7 @@ bool find_keyword(FILE_DETAILS *fd, CHARTYPE *word, int len,int *alternate_colou
 #else
 bool find_keyword(fd, word, len, alternate_colour)
 FILE_DETAILS *fd;
-CHARTYPE *word; 
+CHARTYPE *word;
 int len;
 int *alternate_colour;
 #endif
@@ -1894,7 +1894,7 @@ bool find_function(FILE_DETAILS *fd, CHARTYPE *word, int len,int *alternate_colo
 #else
 bool find_function(fd, word, len, alternate_colour)
 FILE_DETAILS *fd;
-CHARTYPE *word; 
+CHARTYPE *word;
 int len;
 int *alternate_colour;
 #endif
@@ -1929,7 +1929,7 @@ int *alternate_colour;
    TRACE_RETURN();
    return found;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short parse_functions(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr)
@@ -2119,7 +2119,7 @@ SHOW_LINE *scurr;
             {
                /*
                 * OK, we have the option, but we must exclude explicit keywords
-                * as a construct like in C: 
+                * as a construct like in C:
                 *   if ( expr )
                 * would be treated as a function call.
                 */
@@ -2239,11 +2239,11 @@ SHOW_LINE *scurr;
                   work[preprocessor_char_start_pos] = ' ';
                   number_blanks++;
                }
-               /* 
+               /*
                 * Don't increment number_blanks; it
                 * was a blank before we set it to nul
                 */
-               work[i] = ' '; 
+               work[i] = ' ';
                state = STATE_IGNORE;
             }
          case STATE_IGNORE:
@@ -2257,7 +2257,7 @@ SHOW_LINE *scurr;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 short parse_line(CHARTYPE scrno,FILE_DETAILS *fd,SHOW_LINE *scurr,short start_row)
@@ -2469,7 +2469,7 @@ short start_row;
    TRACE_RETURN();
    return RC_OK;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_case(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -2499,8 +2499,8 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
-  
+
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_markup(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -2577,7 +2577,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_string(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -2698,7 +2698,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_comment(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -2874,7 +2874,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_header(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -2977,7 +2977,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_label(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3103,7 +3103,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_match(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3132,7 +3132,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_keyword(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3241,7 +3241,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_function(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3328,7 +3328,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_option(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3520,7 +3520,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_identifier(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3629,7 +3629,7 @@ int lineno;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_postcompare(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3792,7 +3792,7 @@ int lineno;
    TRACE_RETURN();
    return (RC_OK);
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_number(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -3872,7 +3872,7 @@ int lineno;
    TRACE_RETURN();
    return (RC_OK);
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 static short construct_column(CHARTYPE *line, int line_length, PARSER_DETAILS *parser, int lineno)
@@ -4010,7 +4010,7 @@ int lineno;
    TRACE_RETURN();
    return (RC_OK);
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 short construct_parser(CHARTYPE *contents, int contents_length, PARSER_DETAILS **parser, CHARTYPE *parser_name, CHARTYPE *filename)
@@ -4190,7 +4190,7 @@ CHARTYPE *parser_name,*filename;
    TRACE_RETURN();
    return rc;
 }
-  
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 short destroy_parser(PARSER_DETAILS *parser)
@@ -4273,7 +4273,7 @@ PARSER_MAPPING *curr_mapping;
       &&  fd->first_line
       &&  fd->first_line->next)
       {
-         LINE *curr=fd->first_line->next;
+         _LINE *curr=fd->first_line->next;
          CHARTYPE *ptr=curr->line;
          int i,state=STATE_START,start=0,len;
          if (curr->length > 3
@@ -4335,9 +4335,9 @@ FILE_DETAILS *fd;
    TRACE_FUNCTION("parser.c:  find_auto_parser");
    /*
     * Check the filename against the available parsers' filemasks.
-    * If the filemask uses filenames then check the filename. 
+    * If the filemask uses filenames then check the filename.
     * If the filemask uses "magic" check the magic number of the first
-    * line of the file.                                                  
+    * line of the file.
     */
    for(;curr_mapping!=NULL;curr_mapping=curr_mapping->next)
    {

@@ -51,7 +51,7 @@ int is_a_dir();
 #endif
 
 #define NUM_DIRTYPE 5
-static ATTR_TYPE curr_dirtype = 
+static ATTR_TYPE curr_dirtype =
        (F_DI | F_AR | F_RO | F_HI | F_SY);
 static ATTR_TYPE all_dirtype =
        (F_DI | F_AR | F_RO | F_HI | F_SY);

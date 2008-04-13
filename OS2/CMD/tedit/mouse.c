@@ -255,7 +255,7 @@ int *button,*button_action,*button_modifier;
           *button_modifier = MY_BUTTON_ALT;
        else
           *button_modifier = 0;
- 
+
  if (ncurses_mouse_event.bstate & BUTTON1_RELEASED
  ||  ncurses_mouse_event.bstate & BUTTON2_RELEASED
  ||  ncurses_mouse_event.bstate & BUTTON3_RELEASED)

@@ -1,0 +1,90 @@
+# Version number macros for inclusion from makefiles
+
+VER = 33
+VERDOT = 3.3
+
+CFLAGS          = /bt=$(TARGET) /wx /s /zq /i=$(PDCURSES_SRCDIR)
+
+!ifeq DEBUG Y
+CFLAGS          += /d2 /DPDCDEBUG
+LDFLAGS         = D A op q sys $(TARGET)
+!else
+CFLAGS          += /oneatx
+LDFLAGS         = op q sys $(TARGET)
+!endif
+
+LIBEXE          = wlib /q /n /b /c /t
+
+srcdir = $(PDCURSES_SRCDIR)\pdcurses
+demodir = $(PDCURSES_SRCDIR)\demos
+
+LIBOBJS =
+
+DEMOS = testcurs.exe newdemo.exe xmas.exe tuidemo.exe firework.exe &
+ptest.exe rain.exe worm.exe
+
+LIBCURSES = pdcurses.lib
+
+LINK = wlink
+
+
+all:    $(LIBCURSES) $(DEMOS)
+
+clean
+        -del *.$(O)
+        -del *.lib
+        -del *.exe
+        -del *.err
+
+demos:  $(DEMOS)
+
+.c: $(srcdir);$(osdir);$(demodir)
+.c.$(O): .autodepend
+        $(CC) $(CFLAGS) $<
+
+.$(O).exe:
+        $(LINK) $(LDFLAGS) n $@ f $*.$(O) l $(LIBCURSES)
+
+testcurs.exe:   testcurs.$(O) $(LIBCURSES)
+newdemo.exe:    newdemo.$(O) $(LIBCURSES)
+xmas.exe:       xmas.$(O) $(LIBCURSES)
+firework.exe:   firework.$(O) $(LIBCURSES)
+rain.exe:       rain.$(O) $(LIBCURSES)
+worm.exe:       worm.$(O) $(LIBCURSES)
+ptest.exe:      ptest.$(O) $(LIBCURSES)
+
+tuidemo.exe:    tuidemo.$(O) tui.$(O) $(LIBCURSES)
+        $(LINK) $(LDFLAGS) n $@ f tuidemo.$(O) f tui.$(O) l $(LIBCURSES)
+
+dist: .symbolic
+
+$(LIBCURSES) : $(LIBOBJS) $(PDCOBJS)
+        $(LIBEXE) $@ $(LIBOBJS) $(PDCOBJS)
+        -copy $(LIBCURSES) panel.lib
+
+PLATFORM1       = Watcom C++ OS/2
+PLATFORM2       = Open Watcom 1.6 for OS/2
+ARCNAME         = pdc$(VER)_wcc_os2
+
+# Makefile include: build a binary archive with Info-ZIP
+# under DOS, OS/2 or Win32
+
+dist: $(PDCLIBS)
+        echo PDCurses $(VERDOT) for $(PLATFORM1) > file_id.diz
+        echo ------------------------------------------ >> file_id.diz
+        echo Public Domain Curses library for >> file_id.diz
+        echo $(PLATFORM2). >> file_id.diz
+        echo Source available in PDCURS$(VER).ZIP >> file_id.diz
+        echo Public Domain. >> file_id.diz
+        echo $(PDCURSES_SRCDIR)\README > flist
+        echo $(PDCURSES_SRCDIR)\HISTORY >> flist
+        echo $(PDCURSES_SRCDIR)\maintain.er >> flist
+        echo $(PDCURSES_SRCDIR)\curses.h >> flist
+        echo $(PDCURSES_SRCDIR)\curspriv.h >> flist
+        echo $(PDCURSES_SRCDIR)\panel.h >> flist
+        echo $(PDCURSES_SRCDIR)\term.h >> flist
+        echo $(LIBCURSES) >> flist
+        echo file_id.diz >> flist
+        zip -9jX $(ARCNAME) -@ <flist
+        del flist
+        del file_id.diz

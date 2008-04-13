@@ -123,8 +123,8 @@ bool clear_command=TRUE;
 /*
  * Key re-definition pseudo files.
  */
-LINE *key_first_line=NULL;
-LINE *key_last_line=NULL;
+_LINE *key_first_line=NULL;
+_LINE *key_last_line=NULL;
 LINETYPE key_number_lines=0L;
 
 AREAS _THE_FAR valid_areas[ATTR_MAX]=
@@ -619,7 +619,7 @@ bool mouse_details_present;
             break;
          case OPTION_READV:
             /*
-             * If the key hit is KEY_ENTER, KEY_RETURN or KEY_NUMENTER, terminate 
+             * If the key hit is KEY_ENTER, KEY_RETURN or KEY_NUMENTER, terminate
              * the READV CMDLINE command.
              */
             if (key == KEY_RETURN
@@ -701,7 +701,7 @@ bool mouse_details_present;
          {
             case OPTION_NORMAL:
                /*
-                * If running in read-only mode and the function selected is not valid 
+                * If running in read-only mode and the function selected is not valid
                 * display an error.
                 */
                if (number_of_files != 0
@@ -1000,7 +1000,7 @@ short display_all_keys()
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  DEFINE *curr_define=NULL;
  int key=0,save_funkey=0;
  short rc=RC_OK;
@@ -1274,7 +1274,7 @@ bool command_only;
       }
       /*
        * Before we try the command array, if SET MACRO is ON and IMPMACRO is
-       * ON and we have not reached here via COMMAND command, try for a 
+       * ON and we have not reached here via COMMAND command, try for a
        * macro...
        */
       if (number_of_files > 0
@@ -1381,7 +1381,7 @@ bool command_only;
                AdjustThighlight( command[i].thighlight_behaviour );
             }
             /*
-             * Now call the function associated with the supplied command string 
+             * Now call the function associated with the supplied command string
              * and the possibly stripped parameters.
              */
             lastrc = rc = (*command[i].function)(cl_param);
@@ -1432,7 +1432,7 @@ bool command_only;
 
 
       /*
-       * If return is RC_INVALID_OPERAND, check if command is OS command... 
+       * If return is RC_INVALID_OPERAND, check if command is OS command...
        */
       if (cmd[j][0] == '!')
       {
@@ -1863,10 +1863,10 @@ bool respect_compat;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-CHARTYPE next_char(LINE *curr,long *off,LENGTHTYPE end_col)
+CHARTYPE next_char(_LINE *curr,long *off,LENGTHTYPE end_col)
 #else
 CHARTYPE next_char(curr,off,end_col)
-LINE *curr;
+_LINE *curr;
 long *off;
 LENGTHTYPE end_col;
 #endif
@@ -2321,7 +2321,7 @@ CHARTYPE *new_cmd;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("commutil.c:add_command");
    /*
-    * Do not save commands if the commands are issued from a macro. 
+    * Do not save commands if the commands are issued from a macro.
     */
    if (in_macro)
    {
@@ -2354,7 +2354,7 @@ CHARTYPE *new_cmd;
       number_cmds = MAX_SAVED_COMMANDS;
    TRACE_RETURN();
    return;
-}             
+}
 /***********************************************************************/
 #ifdef HAVE_PROTO
 CHARTYPE *get_next_command( short direction, short num)
@@ -2417,7 +2417,7 @@ CHARTYPE *save_cmd;
 {
    TRACE_FUNCTION("commutil.c:valid_command_to_save");
    /*
-    * If the command to be added is empty or is "=" or starts with "?",   
+    * If the command to be added is empty or is "=" or starts with "?",
     * return FALSE, otherwise return TRUE.
     */
    if (save_cmd == NULL
@@ -2467,7 +2467,7 @@ CHARTYPE *last_cmd,*cmnd;
    }
    TRACE_RETURN();
    return;
-}             
+}
 /***********************************************************************/
 #ifdef HAVE_PROTO
 bool is_tab_col(LENGTHTYPE x)
@@ -2542,11 +2542,11 @@ LENGTHTYPE x;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-short tabs_convert(LINE *curr,bool expand_tabs,bool use_tabs,
+short tabs_convert(_LINE *curr,bool expand_tabs,bool use_tabs,
                    bool add_to_recovery)
 #else
 short tabs_convert(curr,expand_tabs,use_tabs,add_to_recovery)
-LINE *curr;
+_LINE *curr;
 bool expand_tabs,use_tabs,add_to_recovery;
 #endif
 /***********************************************************************/
@@ -2694,7 +2694,7 @@ bool expand_tabs,use_tabs,add_to_recovery;
                  }
 #endif
                break;
-         }     
+         }
       }
     if (expanded)
       {
@@ -2759,10 +2759,10 @@ static int pack_hex( char *string, char *out )
     * necessary if the first group of hex digits has an even number of
     * digits, but it is cheaper to do it always that check for it.
     */
-   for (; (ptr<end_ptr) && (isxdigit(*ptr)); ptr++ ) 
+   for (; (ptr<end_ptr) && (isxdigit(*ptr)); ptr++ )
       ;
    byte_boundary = !((ptr-string)%2) ;
-   /* 
+   /*
     * Set output to null string
     */
    *res_ptr = 0x00 ;
@@ -3045,7 +3045,7 @@ short restore_THE()
 /***********************************************************************/
 {
    unsigned short y=0,x=0;
-  
+
    TRACE_FUNCTION("commutil.c:restore_THE");
    /*
     * If curses hasn't started, no point in doing anything...
@@ -3056,12 +3056,12 @@ short restore_THE()
       return(RC_OK);
    }
    getyx(CURRENT_WINDOW,y,x);
-  
+
 #if 0
    wclear(stdscr);
    refresh();
 #endif
-  
+
    if (display_screens > 1)
    {
       touch_screen(other_screen);
@@ -3668,7 +3668,7 @@ int start_col;
          /*
           * Got a valid button. Check if its a click or press
           */
-         if (ba == BUTTON_CLICKED 
+         if (ba == BUTTON_CLICKED
          ||  ba == BUTTON_RELEASED)
          {
             /*
@@ -3710,7 +3710,7 @@ int start_col;
       if ( dw )
          wnoutrefresh( dw );
       wrefresh( CURRENT_WINDOW_COMMAND );
-      if ( rc == RC_READV_TERM 
+      if ( rc == RC_READV_TERM
       ||   rc == RC_READV_TERM_MOUSE )
          break;
    }
@@ -3755,7 +3755,7 @@ int key;
             break;
          }
          /*
-          * If there are no more files in the ring, and the command is not a 
+          * If there are no more files in the ring, and the command is not a
           * command to edit a new file, then ignore the command.
           */
          if (curr->def_command != (-1)
@@ -4037,16 +4037,16 @@ bool display_parse_error;
          negative = target.rt[0].negative;
          free_target( &target );
          initialise_target( &target );
-         post_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (LINE *)NULL, TRUE );
+         post_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (_LINE *)NULL, TRUE );
          true_line = (negative ? CURRENT_FILE->number_lines+1 : 0L);
          CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line = true_line;
-         pre_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (LINE *)NULL );
+         pre_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (_LINE *)NULL );
          rc = validate_target( cmd, &target, target_type, true_line, display_parse_error, TRUE );
          if (rc != RC_OK)
          {
             CURRENT_VIEW->focus_line = save_focus_line;
             CURRENT_VIEW->current_line = save_current_line;
-            pre_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (LINE *)NULL );
+            pre_process_line( CURRENT_VIEW, CURRENT_VIEW->focus_line, (_LINE *)NULL );
          }
       }
       if (rc == RC_TARGET_NOT_FOUND)
@@ -4081,7 +4081,7 @@ bool display_parse_error;
             CURRENT_VIEW->current_line = true_line;
          else
             CURRENT_VIEW->focus_line = true_line;
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
       if ( !in_macro
       &&   save_target( &target ) )

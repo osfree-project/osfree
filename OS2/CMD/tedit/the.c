@@ -80,11 +80,11 @@ static void init_signals();
    bool single_instance_server=FALSE;
    short save_coord_x[VIEW_WINDOWS];
    short save_coord_y[VIEW_WINDOWS];
-  
-   LINE *next_line=NULL,*curr_line=NULL;
-   LINE *first_file_name=NULL,*current_file_name=NULL;
-   LINE *editv=NULL;
-   LINE *first_option=NULL,*last_option=NULL;
+
+   _LINE *next_line=NULL,*curr_line=NULL;
+   _LINE *first_file_name=NULL,*current_file_name=NULL;
+   _LINE *editv=NULL;
+   _LINE *first_option=NULL,*last_option=NULL;
    bool error_on_screen=FALSE;
    bool colour_support=TRUE;         /* indicates if colour is supported */
    bool initial=TRUE;
@@ -117,7 +117,7 @@ static void init_signals();
    bool curses_started=FALSE;         /* indicates if curses has started */
    bool readonly=FALSE;     /* indicates if running THE in readonly mode */
    bool be_quiet=FALSE;   /* do not display error message header if TRUE */
-  
+
    CHARTYPE *the_version = (CHARTYPE *)"3.1";
    CHARTYPE *the_release = (CHARTYPE *)"13-August-2002";  /* use FULL month */
    CHARTYPE *the_copyright = (CHARTYPE *)"Copyright 1991-2002 Mark Hessling";
@@ -180,7 +180,7 @@ static void init_signals();
    int total_macro_dirs = 0;
 
    CHARTYPE _THE_FAR spooler_name[MAX_FILE_NAME+1];
-  
+
    CHARTYPE *prf_arg=(CHARTYPE *)NULL;
    CHARTYPE *local_prf=(CHARTYPE *)NULL;
    CHARTYPE *specified_prf=(CHARTYPE *)NULL;
@@ -188,18 +188,18 @@ static void init_signals();
    CHARTYPE tabkey_insert='C';
    CHARTYPE tabkey_overwrite='T';
    unsigned short file_start = 38;
-  
+
    struct stat stat_buf;
-  
+
    LENGTHTYPE display_length=0;
-  
+
    short lastrc=0;
    short compatible_look=COMPAT_THE;
    short compatible_feel=COMPAT_THE;
    short compatible_keys=COMPAT_THE;
    short prefix_width=DEFAULT_PREFIX_WIDTH;
    short prefix_gap=DEFAULT_PREFIX_GAP;
-  
+
    chtype _THE_FAR etmode_table[256];
    bool   _THE_FAR etmode_flag[256];
 
@@ -859,7 +859,7 @@ char *argv[];
               display_error(57,(CHARTYPE *)"...probably",FALSE);
            return(21);
         }
-        pre_process_line(CURRENT_VIEW,0L,(LINE *)NULL);
+        pre_process_line(CURRENT_VIEW,0L,(_LINE *)NULL);
         if (execute_profile)
         {
            if (local_prf != (CHARTYPE *)NULL)
@@ -1272,8 +1272,8 @@ CHARTYPE *specified_prf;
    char *envptr=NULL;
    short errnum=0;
    /*
-    * If a profile specified on the command line, set it up as the local  
-    * profile. It MUST exist and be readable, otherwise an error.         
+    * If a profile specified on the command line, set it up as the local
+    * profile. It MUST exist and be readable, otherwise an error.
     */
    if (specified_prf != (CHARTYPE *)NULL)
    {
@@ -1295,7 +1295,7 @@ CHARTYPE *specified_prf;
          return(RC_FILE_NOT_FOUND);
       }
       /*
-       * If the file is not readable, error.                              
+       * If the file is not readable, error.
        */
       if (!file_readable(local_prf))
       {
@@ -1318,12 +1318,12 @@ CHARTYPE *specified_prf;
       return(rc);
    }
    /*
-    * No specific profile, so check for default profiles.                 
+    * No specific profile, so check for default profiles.
     */
    if ((local_prf = (CHARTYPE *)(*the_malloc)((MAX_FILE_NAME+1)*sizeof(CHARTYPE))) == NULL)
       return(RC_OUT_OF_MEMORY);
    /*
-    * For Unix, use a local profile first...                              
+    * For Unix, use a local profile first...
     */
 #if defined(UNIX)
    strcpy((DEFCHAR *)local_prf,(DEFCHAR *)user_home_dir);
@@ -1333,7 +1333,7 @@ CHARTYPE *specified_prf;
       return(rc);
 #endif
    /*
-    * If no local profile, see if a global profile exists...              
+    * If no local profile, see if a global profile exists...
     */
    strcpy((DEFCHAR *)local_prf,(DEFCHAR *)the_home_dir);
    strcat((DEFCHAR *)local_prf,(DEFCHAR *)THE_PROFILE_FILE);
@@ -1341,7 +1341,7 @@ CHARTYPE *specified_prf;
    if (file_readable(local_prf))
       return(rc);
    /*
-    * To get here, no profile files to be executed.                       
+    * To get here, no profile files to be executed.
     */
    (*the_free)(local_prf);
    local_prf = (CHARTYPE *)NULL;

@@ -35,6 +35,8 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
 
 #include <defines.h>
 
+#include <os2.h>
+
 #if defined(USE_XCURSES)
 #  define XCURSES
 #  include <xcurses.h>
@@ -49,14 +51,14 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
 #if defined(USE_EXTCURSES)
 #  include <cur00.h>
 #  define A_COLOR
-#  define COLOR_BLACK		0
-#  define COLOR_BLUE		1
-#  define COLOR_GREEN		2
-#  define COLOR_CYAN		3
-#  define COLOR_RED		4
-#  define COLOR_MAGENTA		5
-#  define COLOR_YELLOW		6
-#  define COLOR_WHITE		7
+#  define COLOR_BLACK           0
+#  define COLOR_BLUE            1
+#  define COLOR_GREEN           2
+#  define COLOR_CYAN            3
+#  define COLOR_RED             4
+#  define COLOR_MAGENTA         5
+#  define COLOR_YELLOW          6
+#  define COLOR_WHITE           7
    typedef char bool;
 #  ifdef chtype
 #    undef chtype
@@ -351,11 +353,11 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
 #ifdef HAVE_STRING_H
 # include <string.h>
 #endif
-       
+
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>
 #endif
-       
+
 #ifdef TIME_WITH_SYS_TIME
 # ifdef HAVE_TIME_H
 #  include <time.h>
@@ -452,7 +454,7 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
 /*
  * This define ensures that any mismatching of version of
  * THE and PDCurses are picked up
- * 
+ *
  */
 #if defined(PDCURSES)
 # if PDC_BUILD < 2503
@@ -473,14 +475,14 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
                                            : ((attr)->mono)
 #else
 # define set_colour(attr)     ((attr)->mono)
-# define COLOR_BLACK		0
-# define COLOR_BLUE		0
-# define COLOR_GREEN		0
-# define COLOR_CYAN		0
-# define COLOR_RED		0
-# define COLOR_MAGENTA		0
-# define COLOR_YELLOW		0
-# define COLOR_WHITE		0
+# define COLOR_BLACK            0
+# define COLOR_BLUE             0
+# define COLOR_GREEN            0
+# define COLOR_CYAN             0
+# define COLOR_RED              0
+# define COLOR_MAGENTA          0
+# define COLOR_YELLOW           0
+# define COLOR_WHITE            0
 #endif
 
 #ifndef A_NORMAL
@@ -601,8 +603,8 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
 #define MAX_LONG            2147483001L       /* maximum size for long */
 #define WORD_DELIMS         (CHARTYPE *)" \t" /* word delimiter characters */
 
-#define TOP_OF_FILE         (CHARTYPE *)"*** Top of File ***"
-#define BOTTOM_OF_FILE      (CHARTYPE *)"*** Bottom of File ***"
+#define TOP_OF_FILE         (CHARTYPE *)"様様 Top of File 様様"
+#define BOTTOM_OF_FILE      (CHARTYPE *)"様様 Bottom of File 様様"
 #define DIRECTION_NONE      0
 #define DIRECTION_FORWARD   1
 #define DIRECTION_BACKWARD  (-1)
@@ -916,7 +918,7 @@ struct pending_prefix_command
 };
 typedef struct pending_prefix_command THE_PPC;
 
-typedef struct 
+typedef struct
 {
    unsigned int new_flag;
    unsigned int changed_flag;
@@ -943,7 +945,7 @@ struct line
    SELECTTYPE save_select;          /* saved select level (used by ALL) */
    lineflags flags;
 };
-typedef struct line LINE;
+typedef struct line _LINE;
 
 struct colour_attr
 {
@@ -1079,8 +1081,8 @@ struct parser_details
    CHARTYPE filename[MAX_FILE_NAME+1];
    struct re_pattern_buffer body_pattern_buffer;
    bool have_body_pattern_buffer;
-   /* 
-    * string features 
+   /*
+    * string features
     */
    bool have_string;
    bool check_single_quote;
@@ -1089,19 +1091,19 @@ struct parser_details
    bool backslash_double_quote;
    CHARTYPE string_delimiter;
    bool backslash_delimiter;
-   /* 
-    * comments features 
+   /*
+    * comments features
     */
    PARSE_COMMENTS *first_comments;
    PARSE_COMMENTS *current_comments;
    bool have_paired_comments;
-   /* 
-    * keyword features 
+   /*
+    * keyword features
     */
    PARSE_KEYWORDS *first_keyword;
    PARSE_KEYWORDS *current_keyword;
    short min_keyword_length;
-   /* 
+   /*
     * function features
     */
    PARSE_FUNCTIONS *first_function;
@@ -1111,11 +1113,11 @@ struct parser_details
    bool have_function_pattern_buffer;
    bool have_function_option_alternate;
    CHARTYPE function_option_alternate;
-   /* 
-    * case features 
+   /*
+    * case features
     */
    bool case_sensitive;
-   /* 
+   /*
     * option
     */
    bool rexx_option;
@@ -1128,19 +1130,19 @@ struct parser_details
     * match features - minimal at the moment
     */
    bool have_match;
-   /* 
+   /*
     * header features
     */
    PARSE_HEADERS *first_header;
    PARSE_HEADERS *current_header;
    bool have_headers;
-   /* 
+   /*
     * label features
     */
    CHARTYPE label_delim[11];
    short len_label_delim;
    LENGTHTYPE label_column;      /* 0-ANY MAX_INT-FIRSTNONBLANK other-column */
-   /* 
+   /*
     * markup features
     */
    bool have_markup_tag;
@@ -1168,7 +1170,7 @@ struct parser_details
    LENGTHTYPE last_column[MAX_PARSER_COLUMNS];
    short number_columns;
    CHARTYPE column_alternate[MAX_PARSER_COLUMNS];
-   /* 
+   /*
     * number features
     */
    struct re_pattern_buffer number_pattern_buffer;
@@ -1268,9 +1270,9 @@ typedef struct
    gid_t gid;                                        /* groupid of file */
 #endif
    long modtime;                      /* timestamp of file modification */
-   LINE *first_line;                           /* pointer to first line */
-   LINE *last_line;                             /* pointer to last line */
-   LINE *editv;                          /* pointer for EDITV variables */
+   _LINE *first_line;                           /* pointer to first line */
+   _LINE *last_line;                             /* pointer to last line */
+   _LINE *editv;                          /* pointer for EDITV variables */
    LINETYPE  number_lines;            /* number of actual lines in file */
    LINETYPE  max_line_length;            /* Maximum line length in file */
    CHARTYPE file_views;              /* number of views of current file */
@@ -1466,7 +1468,7 @@ struct show_line
    RESERVED *rsrvd; /* pointer to reserved line struct if a reserved line */
    LINETYPE number_lines_excluded;          /* number of lines excluded */
    LINETYPE line_number;                     /* line number within file */
-   LINE *current;                            /* pointer to current line */
+   _LINE *current;                            /* pointer to current line */
    short line_type;                                     /* type of line */
    bool prefix_enterable;            /* TRUE if prefix can be tabbed to */
    bool main_enterable;            /* TRUE if filearea can be tabbed to */
@@ -1847,7 +1849,7 @@ typedef struct query_item QUERY_ITEM;
 #define MAX_VARIABLES_RETURNED               ECOLOUR_MAX
 
 /* structure for list of TLD headers */
-typedef struct 
+typedef struct
 {
    char *the_header_name;
    int the_header_name_len;
@@ -1905,7 +1907,7 @@ void trace_constant Args((char *));
 # define TRACE_CONSTANT(x) trace_constant(x)
 #else
 # define TRACE_RETURN()
-# define TRACE_FUNCTION(x) 
+# define TRACE_FUNCTION(x)
 # define TRACE_INITIALISE()
 # define TRACE_CONSTANT(x)
 #endif

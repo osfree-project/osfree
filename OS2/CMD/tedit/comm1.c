@@ -58,11 +58,11 @@ SYNTAX
 
 DESCRIPTION
      The ADD command inserts 'n' blank lines after the <current line>,
-     if issued from the <command line> or after the <focus line>, 
+     if issued from the <command line> or after the <focus line>,
      if issued from the <filearea> or <prefix area>.
 
      If <SET NEWLINES> is set to ALIGNED, the cursor is positioned in
-     the column corresponding to the first column not containing a 
+     the column corresponding to the first column not containing a
      space in the line above.
 
      If <SET NEWLINES> is set to LEFT, the cursor is positioned in the
@@ -121,7 +121,7 @@ CHARTYPE *params;
       return(RC_INVALID_OPERAND);
    }
    num_lines = atol((DEFCHAR *)word[0]);
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    insert_new_line((CHARTYPE *)"",0,num_lines,get_true_line(TRUE),FALSE,FALSE,TRUE,CURRENT_VIEW->display_low,TRUE,FALSE);
    if (curses_started
    && CURRENT_VIEW->current_window == WINDOW_COMMAND)
@@ -192,10 +192,10 @@ DESCRIPTION
      The ALL command allows for the selective display, and editting
      (subject to <SET SCOPE>) of lines that match the specified target.
      This target consists of any number of individual targets
-     seperated by '&' (logical and) or '|' (logical or). 
+     seperated by '&' (logical and) or '|' (logical or).
 
-     For example, to display all lines in a file that contain the 
-     strings 'ball' and 'cat' on the same line or the named lines 
+     For example, to display all lines in a file that contain the
+     strings 'ball' and 'cat' on the same line or the named lines
      .fred or .bill, use the following command
 
      ALL /ball/ & /cat/ | .fred | .bill
@@ -228,7 +228,7 @@ CHARTYPE *params;
 /***********************************************************************/
 {
    short rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    bool target_found=FALSE;
    short status=RC_OK;
    short target_type=TARGET_NORMAL|TARGET_REGEXP;
@@ -246,7 +246,7 @@ CHARTYPE *params;
          TRACE_RETURN();
          return(rc);
       }
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       curr = CURRENT_FILE->first_line->next;
       while(1)
       {
@@ -257,7 +257,7 @@ CHARTYPE *params;
       }
       CURRENT_VIEW->display_low = 0;
       CURRENT_VIEW->display_high = 0;
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
       TRACE_RETURN();
       return(rc);
@@ -319,16 +319,16 @@ CHARTYPE *params;
     */
    if (target_found)
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       CURRENT_VIEW->display_low = 1;
       CURRENT_VIEW->display_high = 1;
       CURRENT_VIEW->scope_all = FALSE;
       CURRENT_VIEW->current_line = find_next_in_scope(CURRENT_VIEW,CURRENT_FILE->first_line->next,1L,DIRECTION_FORWARD);
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
       CURRENT_VIEW->focus_line = calculate_focus_line(CURRENT_VIEW->focus_line,
                                                     CURRENT_VIEW->current_line);
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
       {
          getyx(CURRENT_WINDOW,y,x);
@@ -518,11 +518,11 @@ CHARTYPE *params;
       CURRENT_VIEW->current_line = CURRENT_FILE->number_lines;
    else
       CURRENT_VIEW->current_line = find_next_in_scope(CURRENT_VIEW,CURRENT_FILE->last_line->prev,CURRENT_FILE->number_lines,DIRECTION_BACKWARD);
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
-   build_screen(current_screen); 
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
+   build_screen(current_screen);
    if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
       CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line;
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    if (curses_started)
    {
       if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
@@ -549,7 +549,7 @@ SYNTAX
 
 DESCRIPTION
      The CANCEL command exits from THE quickly by executing a <QQUIT>
-     command for every file in the ring that does not have any 
+     command for every file in the ring that does not have any
      outstanding alterations.
 
 COMPATIBILITY
@@ -584,7 +584,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(RC_INVALID_OPERAND);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    for (i=0;i<save_number_of_files;i++)
    {
       if (CURRENT_FILE->save_alt == 0)
@@ -601,8 +601,8 @@ CHARTYPE *params;
    {
       CURRENT_VIEW = save_current_view;
       CURRENT_SCREEN.screen_view = CURRENT_VIEW;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
-      build_screen(current_screen); 
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+      build_screen(current_screen);
       display_screen(current_screen);
       if (curses_started)
       {
@@ -670,7 +670,7 @@ SYNTAX
 
 DESCRIPTION
      The CCANCEL command exits from THE quickly by executing the <QQUIT>
-     command for every file in the ring. Any changes made to any of 
+     command for every file in the ring. Any changes made to any of
      the files since the last <SAVE> will be lost.
 
 COMPATIBILITY
@@ -786,7 +786,7 @@ CHARTYPE *params;
          start_col = max(CURRENT_VIEW->current_column,max(1,CURRENT_VIEW->zone_start));
          break;
       case WINDOW_COMMAND:
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(_LINE *)NULL);
          start_col = CURRENT_VIEW->current_column;
          break;
    }
@@ -833,8 +833,8 @@ CHARTYPE *params;
       }
       if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
       {
-         post_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(LINE *)NULL,TRUE);
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         post_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(_LINE *)NULL,TRUE);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
       else
       {
@@ -847,8 +847,8 @@ CHARTYPE *params;
    {
       if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
       {
-         post_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(LINE *)NULL,TRUE);
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         post_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(_LINE *)NULL,TRUE);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
    }
    free_target(&target);
@@ -919,19 +919,19 @@ DESCRIPTION
 
      The first parameter to the change command is the old and new
      string values, seperated by delimiters.
-     The first non alphabetic character after the 'change' command 
+     The first non alphabetic character after the 'change' command
      is the delimiter.
 
-     <'target'> specifies how many lines are to be searched for 
+     <'target'> specifies how many lines are to be searched for
      occurrences of 'string1' to be changed.
 
-     'n' determines how many occurrences of 'string1' are to be 
+     'n' determines how many occurrences of 'string1' are to be
      changed to 'string2' on each line. 'n' may be specified as
      '*' which will result in all occurrences of 'string1' will
      be changed.  '*' is equivalent to the current WIDTH of the
      line.
 
-     'm' determines from which occurrence of 'string1' on the line 
+     'm' determines from which occurrence of 'string1' on the line
      changes are to commence.
 
      If no arguments are supplied to the CHANGE command, the last
@@ -976,7 +976,7 @@ DESCRIPTION
      The CINSERT command inserts 'text' starting at the column position.
 
      'text' can include leading or trailing space characters. Thus
-     CINSERT immediatley followed by 5 spaces, will insert 4 space 
+     CINSERT immediatley followed by 5 spaces, will insert 4 space
      characters. The first space character is the command seperator.
 
 COMPATIBILITY
@@ -1086,7 +1086,7 @@ CHARTYPE *params;
    short target_type=TARGET_ABSOLUTE|TARGET_RELATIVE|TARGET_STRING|TARGET_BLANK;
    TARGET target;
    CHARTYPE *line=NULL;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LENGTHTYPE len=0,start_col=0;
    unsigned int y=0,x=0;
 
@@ -1190,7 +1190,7 @@ CHARTYPE *params;
    short direction_backward=0;
    short matches=1,match_col=(-1),start_col=0,focus_column=0;
    LINETYPE offset=0L;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE focus_line=0L;
    bool use_current=TRUE;
 
@@ -1256,13 +1256,13 @@ CHARTYPE *params;
       return(RC_INVALID_OPERAND);
    }
    /*
-    * Calculate the actual position of the character in the LINE.
+    * Calculate the actual position of the character in the _LINE.
     */
    start_col = focus_column + ((direction_backward) ? (-1) : 1);
    /*
     * Find the focus line linked list entry.
     */
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,focus_line,CURRENT_FILE->number_lines);
    while (curr->next != NULL && curr->prev != NULL)
    {
@@ -1343,7 +1343,7 @@ CHARTYPE *params;
           */
          if (use_current)
          {
-            build_screen(current_screen); 
+            build_screen(current_screen);
             if ( curses_started )
             {
                display_screen(current_screen);
@@ -1364,7 +1364,7 @@ CHARTYPE *params;
       {
          x = CURRENT_SCREEN.cols[WINDOW_FILEAREA] / 2;
          CURRENT_VIEW->verify_col = max(1,match_col-(short)x);
-         build_screen(current_screen); 
+         build_screen(current_screen);
          if ( curses_started )
          {
             display_screen(current_screen);
@@ -1397,12 +1397,12 @@ CHARTYPE *params;
             CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line;
             y = CURRENT_VIEW->current_row;
          }
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
       else
       {
          CURRENT_VIEW->focus_line += offset;
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          if (line_in_view(current_screen,CURRENT_VIEW->focus_line))
          {
             y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,
@@ -1431,7 +1431,7 @@ CHARTYPE *params;
             CURRENT_VIEW->focus_line += offset;
             CURRENT_VIEW->current_line = CURRENT_VIEW->focus_line;
          }
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          y = CURRENT_VIEW->current_row;
       }
       else
@@ -1451,7 +1451,7 @@ CHARTYPE *params;
       x = (match_col-(CURRENT_VIEW->verify_col-1));
    }
 
-   build_screen(current_screen); 
+   build_screen(current_screen);
    if ( curses_started )
    {
       display_screen(current_screen);
@@ -1513,9 +1513,9 @@ SYNTAX
 
 DESCRIPTION
      The COMMAND command executes the specified 'command' without
-     synonym or macro translation. THE does not attempt to execute 
-     the command as a <macro> even if <SET IMPMACRO> is ON. The 
-     command will be passed to the operating system if <SET IMPOS> 
+     synonym or macro translation. THE does not attempt to execute
+     the command as a <macro> even if <SET IMPMACRO> is ON. The
+     command will be passed to the operating system if <SET IMPOS>
      is ON.
 
 COMPATIBILITY
@@ -1549,8 +1549,8 @@ SYNTAX
 
 DESCRIPTION
      The COMPRESS command reduces multiple occurrences of spaces and
-     replaces them with tab characters in the <'target'> lines.  
-     The current tab columns (set by <SET TABS>) are used in 
+     replaces them with tab characters in the <'target'> lines.
+     The current tab columns (set by <SET TABS>) are used in
      determining where tab characters will replaces spaces.
 
 COMPATIBILITY
@@ -1586,7 +1586,7 @@ SYNTAX
      CONTROLChar
 
 DESCRIPTION
-     The CONTROLCHAR command prompts the user to enter a control 
+     The CONTROLCHAR command prompts the user to enter a control
      character; an ASCII character between 1 and 31 inclusive.
 
 COMPATIBILITY
@@ -1777,7 +1777,7 @@ CHARTYPE *params;
     */
    if (BOF(true_line))
       true_line--;
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    rc = rearrange_line_blocks(COMMAND_COPY,(CHARTYPE)reset_block,start_line,
                             end_line,true_line,1,source_view,dest_view,lines_based_on_scope,
                             &lines_affected);
@@ -1890,15 +1890,15 @@ DESCRIPTION
      moves to the left or right edge of the screen on the same line.
 
      CURSOR 'Screen' 'row' ['col'] is similar to CURSOR 'Escreen'
-     'row' ['col'], but all coordinates are relative the the top left 
+     'row' ['col'], but all coordinates are relative the the top left
      corner of the screen, not the top left corner of the
-     <filearea>. Hence, 1,1 would be an invalid cursor position because 
+     <filearea>. Hence, 1,1 would be an invalid cursor position because
      it would result in the cursor being moved to the <idline>.
      Specification of 'row' and/or 'col' outside the boundaries of the
      logical window is regarded as an error.
 
-     CURSOR ['Escreen'] 'UP'|'DOWN'|'LEFT'|'RIGHT' is similar to CURSOR 
-     'Screen' 'UP'|'DOWN'|'LEFT'|'RIGHT', except that where scrolling 
+     CURSOR ['Escreen'] 'UP'|'DOWN'|'LEFT'|'RIGHT' is similar to CURSOR
+     'Screen' 'UP'|'DOWN'|'LEFT'|'RIGHT', except that where scrolling
      of the window is possible, then scrolling will take place.
 
      CURSOR ['Escreen'] 'row' ['col'] moves the cursor to the specified
@@ -1915,18 +1915,18 @@ DESCRIPTION
      <Bottom-of-File line> the cursor will be placed on the closest
      one of these lines.
 
-     CURSOR 'Kedit' 'LEFT'|'RIGHT' mimics the default behaviour of 
+     CURSOR 'Kedit' 'LEFT'|'RIGHT' mimics the default behaviour of
      CURL and CURR in KEDIT.
 
      CURSOR 'CUA' 'UP'|'DOWN'|'LEFT'|'RIGHT' moves the cursor in the
      indicated direction one line or column. The behaviour of the
      cursor at the the end of a line and at the start of a line is
-     consistent with the Common User Access (CUA) definition. 
+     consistent with the Common User Access (CUA) definition.
 
      CURSOR 'CMdline' moves the cursor to the indicated column of the
      <command line>.
 
-     CURSOR 'HOME' moves the cursor to the first column of the <command line> 
+     CURSOR 'HOME' moves the cursor to the first column of the <command line>
      (if not on the command line), or to the last row/column of
      the <filearea> if on the command line. With the ['SAVE'] option,
      the cursor will move to the last row/column of the <filearea> or
@@ -1938,9 +1938,9 @@ DESCRIPTION
      message is displayed.
 
      CURSOR 'GOTO' moves the cursor to the specified line and column
-     of the file, whether the row and column are currently displayed or 
+     of the file, whether the row and column are currently displayed or
      not.  If the 'line' and 'col' are currently displayed, then this
-     command behaves just like CURSOR 'FIle'. If not, then the 
+     command behaves just like CURSOR 'FIle'. If not, then the
      <current line> will be changed to the specified <line>.
 
      CURSOR 'Mouse' moves the cursor to the position where a mouse button

@@ -101,7 +101,7 @@ short area;
    if ( area == ATTR_BOUNDMARK)
    {
       PDC_set_line_color(FOREFROMPAIR(attr.pair));
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
       TRACE_RETURN();
       return(RC_OK);
@@ -115,7 +115,7 @@ short area;
       case WINDOW_FILEAREA:
          if (area == ATTR_FILEAREA)
             wattrset(CURRENT_WINDOW_FILEAREA,set_colour(CURRENT_FILE->attr+area));
-         build_screen(current_screen); 
+         build_screen(current_screen);
          display_screen(current_screen);
 #if defined(USE_XCURSES) && PDC_BUILD >= 2501
          if ( area == ATTR_BOUNDMARK)
@@ -380,7 +380,7 @@ CHARTYPE *params;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("commset1.c:Arbchar");
    /*
-    * Validate the parameters that have been supplied.     
+    * Validate the parameters that have been supplied.
     */
    strip[0]=STRIP_BOTH;
    strip[1]=STRIP_BOTH;
@@ -392,19 +392,19 @@ CHARTYPE *params;
 /*---------------------------------------------------------------------*/
 /* No parameters, error.                                               */
 /*---------------------------------------------------------------------*/
-      case 0: 
-         display_error(3,(CHARTYPE *)"",FALSE); 
+      case 0:
+         display_error(3,(CHARTYPE *)"",FALSE);
          break;
 /*---------------------------------------------------------------------*/
 /* 1 or 2 parameters, validate them...                                 */
 /*---------------------------------------------------------------------*/
-      case 1: 
+      case 1:
          if ( equal( word[0], EQUIVCHARstr, 1 ) )
             arbsts = arbsts;
          else
             rc = execute_set_on_off(word[0],&arbsts);
          break;
-      case 2: 
+      case 2:
       case 3:
          if ( equal( word[0], EQUIVCHARstr, 1 ) )
             arbsts = arbsts;
@@ -456,7 +456,7 @@ CHARTYPE *params;
 /* Too many parameters...                                              */
 /*---------------------------------------------------------------------*/
       default:
-         display_error(2,(CHARTYPE *)"",FALSE); 
+         display_error(2,(CHARTYPE *)"",FALSE);
          break;
    }
 /*---------------------------------------------------------------------*/
@@ -509,7 +509,7 @@ DEFAULT
 SEE ALSO
      <SET COLORING>, <SET ECOLOUR>, <SET PARSER>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 /*man-start*********************************************************************
@@ -532,7 +532,7 @@ DEFAULT
 SEE ALSO
      <SET AUTOCOLOR>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
@@ -565,7 +565,7 @@ CHARTYPE *params;
    num_params = param_split(params,word,AUCO_PARAMS,WORD_DELIMS,TEMP_PARAM,strip,FALSE);
    if (num_params < 2)
    {
-      display_error(3,(CHARTYPE *)"",FALSE); 
+      display_error(3,(CHARTYPE *)"",FALSE);
       TRACE_RETURN();
       return(RC_INVALID_OPERAND);
    }
@@ -638,7 +638,7 @@ CHARTYPE *params;
    }
    /*
     * Check all files in the ring and apply the new mapping. If the current
-    * file or the file in the other screen now match the new mapping, 
+    * file or the file in the other screen now match the new mapping,
     * redisplay them.
     */
    for (i=0;i<number_of_files;)
@@ -797,11 +797,11 @@ DESCRIPTION
      How many columns are scrolled is determined by the setting of AUTOSCROLL.
 
      If AUTOSCROLL is set to 'HALF', then half the number of columns in the
-     <filearea> window are scrolled.  Any other value will result in that 
+     <filearea> window are scrolled.  Any other value will result in that
      many columns scrolled, or the full width of the <filearea> window if
      the set number of columns is larger.
 
-     Autoscrolling does not occur if the key pressed is assigned to 
+     Autoscrolling does not occur if the key pressed is assigned to
      <CURSOR> SCREEN LEFT or RIGHT, which is the case if <SET COMPAT> XEDIT
      key defintions are active.
 
@@ -886,8 +886,8 @@ DESCRIPTION
      the old version of the file or the new one if problems occur
      while the file is being written.
 
-     With 'TEMP' or 'KEEP' options, the file being written is first 
-     renamed to the filename with a .bak extension. The file in memory 
+     With 'TEMP' or 'KEEP' options, the file being written is first
+     renamed to the filename with a .bak extension. The file in memory
      is then written to disk. If 'TEMP' is in effect, the backup
      file is then deleted.
 
@@ -950,7 +950,7 @@ SYNTAX
      [SET] BEEP ON|OFF
 
 DESCRIPTION
-     The SET BEEP command allows the user to determine if an audible 
+     The SET BEEP command allows the user to determine if an audible
      alarm is sounded when an error is displayed.
 
 COMPATIBILITY
@@ -1116,7 +1116,7 @@ DESCRIPTION
      Therefore a target of 'The' only matches text containing 'The', not
      'THE' or 'ThE' etc.
 
-     The fourth option determines how the editor determines the sort 
+     The fourth option determines how the editor determines the sort
      order of upper and lower case with the <SORT> command.
      With 'IGNORE' in effect, upper and lower case letters are treated as
      equivalent.
@@ -1360,13 +1360,13 @@ COMMAND
      set cmdarrows - sets the behaviour of the up and down arrow keys
 
 SYNTAX
-     [SET] CMDArrows Retrieve|Tab 
+     [SET] CMDArrows Retrieve|Tab
 
 DESCRIPTION
      The SET CMDARROWS command determines the action that occurs when the
      up and down arrows keys are hit while on the <command line>.
 
-     'RETRIEVE' will set the up and down arrows to retrieve the last or 
+     'RETRIEVE' will set the up and down arrows to retrieve the last or
      next command entered on the <command line>.
 
      'TAB' will set the up and down arrows to move to the last
@@ -1421,13 +1421,13 @@ SYNTAX
      [SET] CMDline ON|OFF|Top|Bottom
 
 DESCRIPTION
-     The SET CMDLINE command sets the position of the <command line>, 
+     The SET CMDLINE command sets the position of the <command line>,
      either at the top of the screen, the bottom of the screen or off.
 
 COMPATIBILITY
      XEDIT: Compatible.
             CMDLINE ON is equivalent to CMDLINE Bottom
-     KEDIT: Compatible. 
+     KEDIT: Compatible.
 
 DEFAULT
      BOTTOM
@@ -1588,7 +1588,7 @@ DEFAULT
 SEE ALSO
      <SET COMPAT>, <SET COLOUR>, <SET ECOLOUR>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 /*man-start*********************************************************************
@@ -1613,7 +1613,7 @@ DEFAULT
 SEE ALSO
      <SET COLOR>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
@@ -1700,7 +1700,7 @@ CHARTYPE *params;
          return(RC_INVALID_OPERAND);
       }
       /*
-       * For each area, turn off the modifiers and redraw the affected part of 
+       * For each area, turn off the modifiers and redraw the affected part of
        * the screen
        */
       if ( area == (-1) )
@@ -1727,7 +1727,7 @@ CHARTYPE *params;
                   attr.mono &= ~tmp_attr.mono;
             }
             CURRENT_FILE->attr[i] = attr;
-            if ( i == ATTR_BOUNDMARK 
+            if ( i == ATTR_BOUNDMARK
             ||   i == ATTR_NONDISP
             ||   window_set[valid_areas[i].area_window] == FALSE )
             {
@@ -1828,7 +1828,7 @@ DEFAULT
 SEE ALSO
      <SET COLOURING>, <SET ECOLOUR>, <SET AUTOCOLOR>, <SET PARSER>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 /*man-start*********************************************************************
@@ -1851,7 +1851,7 @@ DEFAULT
 SEE ALSO
      <SET COLORING>
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
@@ -1979,7 +1979,7 @@ COMPATIBILITY
 DEFAULT
      THE THE THE
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
@@ -2136,7 +2136,7 @@ CHARTYPE *params;
       if (CURRENT_WINDOW_PREFIX != NULL)
          getyx(CURRENT_WINDOW_PREFIX,prey,prex);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Reset common settings to defaults for THE...
     */
@@ -2183,7 +2183,7 @@ CHARTYPE *params;
       OTHER_SCREEN.screen_view->current_row = calculate_actual_row(OTHER_SCREEN.screen_view->current_base,
                                                   OTHER_SCREEN.screen_view->current_off,
                                                   OTHER_SCREEN.rows[WINDOW_FILEAREA],TRUE);
-      pre_process_line(OTHER_SCREEN.screen_view,OTHER_SCREEN.screen_view->focus_line,(LINE *)NULL);
+      pre_process_line(OTHER_SCREEN.screen_view,OTHER_SCREEN.screen_view->focus_line,(_LINE *)NULL);
       if (OTHER_SCREEN.screen_view->cmd_line == 'O')
          OTHER_SCREEN.screen_view->current_window = WINDOW_FILEAREA;
       if (curses_started)
@@ -2210,7 +2210,7 @@ CHARTYPE *params;
    CURRENT_VIEW->current_row = calculate_actual_row(CURRENT_VIEW->current_base,
                                                   CURRENT_VIEW->current_off,
                                                   CURRENT_SCREEN.rows[WINDOW_FILEAREA],TRUE);
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    if (CURRENT_VIEW->cmd_line == 'O')
       CURRENT_VIEW->current_window = WINDOW_FILEAREA;
    if (curses_started)
@@ -2222,7 +2222,7 @@ CHARTYPE *params;
       }
    }
    redraw_screen(current_screen);
-   build_screen(current_screen); 
+   build_screen(current_screen);
    display_screen(current_screen);
 
    TRACE_RETURN();
@@ -2447,9 +2447,9 @@ DESCRIPTION
 
      The first form of parameters is:
 
-     M[+n|-n] 
+     M[+n|-n]
      this sets the <current line> to be relative to the middle of
-     the screen. A positive value adds to the middle line number, 
+     the screen. A positive value adds to the middle line number,
      a negative subtracts from it.
      eg. M+3 on a 24 line screen will be line 15
          M-5 on a 24 line screen will be line 7
@@ -2458,7 +2458,7 @@ DESCRIPTION
 
      [+|-]n
      this sets the <current line> to be relative to the top of the
-     screen (if positive or no sign) or relative to the bottom 
+     screen (if positive or no sign) or relative to the bottom
      of the screen if negative.
      eg. +3 or 3 will set current line to line 3
          -3 on a 24 line screen will be line 21
@@ -2577,11 +2577,11 @@ CHARTYPE *params;
     CURRENT_VIEW->current_base = (CHARTYPE)base;
     CURRENT_VIEW->current_off = off;
    }
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  CURRENT_VIEW->current_row = curline_row;
- build_screen(current_screen); 
+ build_screen(current_screen);
  display_screen(current_screen);
- 
+
  TRACE_RETURN();
  return(RC_OK);
 }
@@ -2646,7 +2646,7 @@ DESCRIPTION
      in which files are displayed.
 
      'Date' specifies that the date of the last change to the file
-     determines the order in which files are displayed. If the dates 
+     determines the order in which files are displayed. If the dates
      are the same, the time the file was last changed is used as a
      secondary sort key.
 
@@ -2760,7 +2760,7 @@ COMMAND
      set dirinclude - set the file mask for directory command
 
 SYNTAX
-     [SET] DIRInclude * 
+     [SET] DIRInclude *
      [SET] DIRInclude [Normal] [Readonly] [System] [Hidden] [Directory]
 
 DESCRIPTION
@@ -2858,15 +2858,15 @@ CHARTYPE *params;
  if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
    {
     CURRENT_VIEW->current_line = find_next_in_scope(CURRENT_VIEW,NULL,get_true_line(TRUE),DIRECTION_FORWARD);
-    build_screen(current_screen); 
+    build_screen(current_screen);
     if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
       {
        CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line;
-       pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+       pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       }
    }
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
- build_screen(current_screen); 
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+ build_screen(current_screen);
  display_screen(current_screen);
 
  TRACE_RETURN();
@@ -2894,7 +2894,7 @@ DESCRIPTION
      F - preprocessor directives
      G - header lines
      H - extra right paren, matchable keyword (N/A)
-     I - level 1 paren 
+     I - level 1 paren
      J - level 1 matchable keyword (N/A)
      K - level 1 matchable preprocessor keyword (N/A)
      L - level 2 paren, matchable keyword (N/A)
@@ -2940,7 +2940,7 @@ SEE ALSO
      <SET COLORING>, <SET AUTOCOLOR>, <SET PARSER>, <SET COLOR>
      Appendix 4
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 /*man-start*********************************************************************
@@ -2966,7 +2966,7 @@ SEE ALSO
      <SET COLOURING>, <SET AUTOCOLOUR>, <SET PARSER>, <SET COLOUR>
      Appendix 4
 
-STATUS  
+STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
@@ -3288,10 +3288,10 @@ DESCRIPTION
      in a character set are to be displayed as their actual representation.
 
      Those characters not explicitly specified to be displayed as they are
-     represented, will be displayed as the <SET NONDISP> character in the 
-     colour specified by <SET COLOUR> NONDISP. Characters below 32, will 
-     be displayed with an alphabetic character representing the "control" 
-     code. 
+     represented, will be displayed as the <SET NONDISP> character in the
+     colour specified by <SET COLOUR> NONDISP. Characters below 32, will
+     be displayed with an alphabetic character representing the "control"
+     code.
 
      eg.
      character code with a value of 7, will display as "G" in the colour
@@ -3301,16 +3301,16 @@ DESCRIPTION
      characters as their actual representation.
 
      'OFF' with no optional 'character list' will display control
-     characters below ASCII 32, as a "control" character; characters 
-     greater than ASCII 126 will be displayed as the <SET NONDISP> 
-     characters. On ASCII based machines, [SET] ETMODE OFF is 
+     characters below ASCII 32, as a "control" character; characters
+     greater than ASCII 126 will be displayed as the <SET NONDISP>
+     characters. On ASCII based machines, [SET] ETMODE OFF is
      equivalent  to [SET] ETMODE ON 32-126. On EBCDIC based machines
      [SET] ETMODE OFF is equivalent to [SET] ETMODE ON ??-??
 
      The 'character list' is a list of positive numbers between 0 and
      255 (inclusive).  The format of this character list can be either
      a single number; eg. 124, or a range of numbers specified; eg.
-     32-126. (The first number must be less than or equal to the second 
+     32-126. (The first number must be less than or equal to the second
      number).
 
      As an example; ETMODE ON 32-127 160-250  would result in the
@@ -3318,11 +3318,11 @@ DESCRIPTION
      and 160 and 250 inclusive being displayed as their actual
      representation (depending on the current font), and the
      characters between 0 and 31 inclusive, being displayed as
-     an equivalent "control" character; characters between 128 and 
+     an equivalent "control" character; characters between 128 and
      159 inculsive and 250 to 255 being displayed with the <SET NONDISP>
      character.
 
-     Up to 20 character specifiers (single number or range) can be 
+     Up to 20 character specifiers (single number or range) can be
      specified.
 
 COMPATIBILITY
@@ -3410,7 +3410,7 @@ CHARTYPE *params;
                etmode_table[i] = ('@' + i) | attr;
                etmode_flag[i] = (attr)?TRUE:FALSE;
             }
-            else 
+            else
             {
                etmode_table[i] = NONDISPx | attr;
                etmode_flag[i] = (attr)?TRUE:FALSE;
@@ -3436,7 +3436,7 @@ CHARTYPE *params;
       }
       if (number_of_files != 0)
       {
-         build_screen(current_screen); 
+         build_screen(current_screen);
          display_screen(current_screen);
       }
       TRACE_RETURN();
@@ -3533,7 +3533,7 @@ CHARTYPE *params;
    }
    if (number_of_files != 0)
    {
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
    }
    TRACE_RETURN();
@@ -3672,10 +3672,10 @@ DESCRIPTION
      the end of the fully qualified file name is the file name.
 
      A file name is further broken down into a fname and fext.
-     The fname of a file consists of all characters from the start 
-     of the filename up to but not including the last period (if 
-     there is one).  The fext of a file consists of all characters 
-     from the end of the filename up to but not including the last 
+     The fname of a file consists of all characters from the start
+     of the filename up to but not including the last period (if
+     there is one).  The fext of a file consists of all characters
+     from the end of the filename up to but not including the last
      period. If there is no period in the filename then the fext is
      empty.
 
@@ -3697,8 +3697,8 @@ DESCRIPTION
      carried out by this command, but some errors in the file name
      will not be evident until the file is saved.
 
-     A leading "=" indicates that the fname portion of the current file 
-     name is be retained.  This is equivalent to the command 
+     A leading "=" indicates that the fname portion of the current file
+     name is be retained.  This is equivalent to the command
      <SET FEXT>.  A trailing "=" indicates that the fext portion of
      the current file name is to be retained. This is equivalent to the
      command <SET FNAME>.
@@ -3844,7 +3844,7 @@ CHARTYPE *params;
       return(RC_OK);
    }
    /*
-    * If the length of the new filename is > the existing one, 
+    * If the length of the new filename is > the existing one,
     * free up any memory for the existing name and allocate some
     * more. Save the new name.
     */
@@ -3881,11 +3881,11 @@ DESCRIPTION
      are to be displayed and where. FILETABS is a single line at the
      top of the display showing all files currently in the ring, except
      the current file.
-     It provides a mechanism where the user running THE with mouse support 
+     It provides a mechanism where the user running THE with mouse support
      can simply click on the filename in the FILETABS line to change focus
      to that file.
 
-     The colour of the file tabs can be set with <SET COLOUR> FILETABS. 
+     The colour of the file tabs can be set with <SET COLOUR> FILETABS.
      The colour of the file dividers can be set with <SET COLOUR> FILETABSDIV.
 
 COMPATIBILITY
@@ -4116,7 +4116,7 @@ CHARTYPE *params;
    CHARTYPE tmp_name[MAX_FILE_NAME+1];
    short rc=RC_OK;
    int last_period=0;
-   
+
    TRACE_FUNCTION( "commset1.c:Fname" );
    /*
     * Must supply a parameter...
@@ -4345,7 +4345,7 @@ SYNTAX
 DESCRIPTION
      The SET FULLFNAME command allows the user to determine if the
      fully qualified filename is displayed on the IDLINE or just the
-     FNAME component. 
+     FNAME component.
      See <SET FILENAME> for a full explanation of THE's definitions
      of fpath, filename, fname, fext and fmode.
 
@@ -4535,7 +4535,7 @@ SYNTAX
      [SET] HEXDISPlay ON|OFF
 
 DESCRIPTION
-     The SET HEXDISPLAY command turns on or off the display of the 
+     The SET HEXDISPLAY command turns on or off the display of the
      character under the cursor on the <status line>.
 
 COMPATIBILITY
@@ -4580,9 +4580,9 @@ DESCRIPTION
 
      The first form of parameters is:
 
-     M[+n|-n] 
+     M[+n|-n]
      this sets the hexshow line to be relative to the middle of
-     the screen. A positive value adds to the middle line number, 
+     the screen. A positive value adds to the middle line number,
      a negative subtracts from it.
      eg. M+3 on a 24 line screen will be line 15
          M-5 on a 24 line screen will be line 7
@@ -4591,7 +4591,7 @@ DESCRIPTION
 
      [+|-]n
      this sets the hexshow line to be relative to the top of the
-     screen (if positive or no sign) or relative to the bottom 
+     screen (if positive or no sign) or relative to the bottom
      of the screen if negative.
      eg. +3 or 3 will set current line to line 3
          -3 on a 24 line screen will be line 21
@@ -4686,8 +4686,8 @@ CHARTYPE *params;
  CURRENT_VIEW->hexshow_base = (CHARTYPE)base;
  CURRENT_VIEW->hexshow_off = off;
  CURRENT_VIEW->hexshow_on = hexshowsts;
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
- build_screen(current_screen); 
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
+ build_screen(current_screen);
  display_screen(current_screen);
  TRACE_RETURN();
  return(rc);
@@ -4798,7 +4798,7 @@ CHARTYPE *params;
   }
  if (rc == RC_OK)
    {
-    build_screen(current_screen); 
+    build_screen(current_screen);
     display_screen(current_screen);
    }
  TRACE_RETURN();
@@ -4882,8 +4882,8 @@ SYNTAX
 
 DESCRIPTION
      The SET IMPCMSCP command is used to toggle implied operating system
-     command processing from the command line. By turning this feature 
-     on you can then issue an operating system command without the need 
+     command processing from the command line. By turning this feature
+     on you can then issue an operating system command without the need
      to prefix the operating system command with the <OS> command.
 
 COMPATIBILITY
@@ -4951,8 +4951,8 @@ SYNTAX
 
 DESCRIPTION
      The SET IMPOS command is used to toggle implied operating system
-     command processing from the command line. By turning this feature 
-     on you can then issue an operating system command without the need 
+     command processing from the command line. By turning this feature
+     on you can then issue an operating system command without the need
      to prefix the operating system command with the <OS> command.
 
 COMPATIBILITY
@@ -5055,7 +5055,7 @@ SYNTAX
      [SET] INSERTMode ON|OFF|TOGGLE
 
 DESCRIPTION
-     The SET INSERTMODE command enable the user to set the insert mode 
+     The SET INSERTMODE command enable the user to set the insert mode
      within THE.
 
      The 'TOGGLE' option turns insert mode 'ON' if it is currently
@@ -5115,7 +5115,7 @@ DESCRIPTION
      developed by IBM.  This command specifies that CUA behaiour should
      occur on various actions during the edit session.
 
-     The major differences between CLASSIC and CUA behaviour, involve 
+     The major differences between CLASSIC and CUA behaviour, involve
      keyboard and mouse actions. Various THE commands have CUA options to
      allow the user to customise the behaviour individual keys or the
      mouse to behave in a CUA manner.
@@ -5128,7 +5128,7 @@ DESCRIPTION
        first delete the block and reposition the cursor
      - executing <SOS DELCHAR> or <SOS DELBACK> will delete the
        marked CUA block
-     - executing any positioning command, such as <CURSOR> DOWN, 
+     - executing any positioning command, such as <CURSOR> DOWN,
        <FORWARD> or <CURSOR> MOUSE, will unmark the CUA block
 
 COMPATIBILITY
@@ -5364,7 +5364,7 @@ CHARTYPE *params;
          ;
    }
    /*
-    * Now we are here, everything's OK, do the actual modification...  
+    * Now we are here, everything's OK, do the actual modification...
     */
    rc = execute_set_lineflag( new_flag, changed_flag, tag_flag, true_line, num_lines, num_lines_based_on_scope, save_target_type );
    (*the_free)( save_params );
@@ -5466,8 +5466,8 @@ DESCRIPTION
      from the <MACRO> command.
 
      A macro with the same name as a built-in command will only
-     be executed before the built-in command if <SET IMPMACRO> 
-     is ON, <SET MACRO> is ON, and the command was NOT executed 
+     be executed before the built-in command if <SET IMPMACRO>
+     is ON, <SET MACRO> is ON, and the command was NOT executed
      with the <COMMAND> command.
 
 COMPATIBILITY
@@ -5958,14 +5958,14 @@ SYNTAX
      [SET] MSGLine CLEAR
 
 DESCRIPTION
-     The SET MSGLINE set command specifies the position of the 
+     The SET MSGLINE set command specifies the position of the
      <message line> and the size of the message line window.
 
      The first form of positional parameters is:
 
-     M[+n|-n] 
+     M[+n|-n]
      this sets the first line to be relative to the middle of
-     the screen. A positive value adds to the middle line number, 
+     the screen. A positive value adds to the middle line number,
      a negative subtracts from it.
      eg. M+3 on a 24 line screen will be line 15
          M-5 on a 24 line screen will be line 7
@@ -5974,7 +5974,7 @@ DESCRIPTION
 
      [+|-]n
      this sets the first line to be relative to the top of the
-     screen (if positive or no sign) or relative to the bottom 
+     screen (if positive or no sign) or relative to the bottom
      of the screen if negative.
      eg. +3 or 3 will set first line to line 3
          -3 on a 24 line screen will set first line to line 21
@@ -5983,7 +5983,7 @@ DESCRIPTION
      the position of the message line will become the middle line
      on the screen.
 
-     The 'lines' argument specifies the maximum number of lines of 
+     The 'lines' argument specifies the maximum number of lines of
      error messages to display at the one time.  If this value is
      specified as a whole number it must be less than or equal to the
      number of lines that could fit on the screen from the starting row.
@@ -6322,8 +6322,8 @@ SYNTAX
      [SET] NONDisp character
 
 DESCRIPTION
-     The SET NONDISP command allows the user to change the 'character' 
-     that is displayed for non-displaying commands when <SET ETMODE> 
+     The SET NONDISP command allows the user to change the 'character'
+     that is displayed for non-displaying commands when <SET ETMODE>
      is OFF.
 
 COMPATIBILITY
@@ -6357,7 +6357,7 @@ CHARTYPE *params;
     return(RC_INVALID_OPERAND);
    }
  NONDISPx = *params;
- build_screen(current_screen); 
+ build_screen(current_screen);
  display_screen(current_screen);
  TRACE_RETURN();
  return(RC_OK);
@@ -6370,7 +6370,7 @@ SYNTAX
      [SET] NUMber ON|OFF
 
 DESCRIPTION
-     The SET NUMBER command allows the user to toggle the display of 
+     The SET NUMBER command allows the user to toggle the display of
      numbers in the <prefix area>.
 
 COMPATIBILITY
@@ -6401,7 +6401,7 @@ CHARTYPE *params;
  rc = execute_set_on_off(params,&CURRENT_VIEW->number);
  if (rc == RC_OK)
    {
-    build_screen(current_screen); 
+    build_screen(current_screen);
     display_screen(current_screen);
    }
  TRACE_RETURN();

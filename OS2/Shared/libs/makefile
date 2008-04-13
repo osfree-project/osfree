@@ -8,7 +8,7 @@
 !include $(%ROOT)/mk/site.mk
 
 # before build command line tools build "shared" libraries
-DIRS=zlib lpng JpegLib GDLib  GBM libtiff
+DIRS=zlib lpng JpegLib GDLib GBM libtiff pdcurses
 
 !include $(%ROOT)/mk/all.mk
 

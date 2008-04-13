@@ -341,7 +341,7 @@ void WriteString(char* sz, int len)
 
          case '\t' :                             // Tab
             column += tabn - (column % tabn);
-            if ( bLineWrapping 
+            if ( bLineWrapping
             && column >= LOWORD(dwCharExtent) )
                NextLine();
             break;
@@ -353,7 +353,7 @@ void WriteString(char* sz, int len)
                else
                   WritePrinter( hPrinter, p, 1, &dwNumWritten );
                // Wrap line
-               if ( bLineWrapping 
+               if ( bLineWrapping
                && column >= LOWORD(dwCharExtent) )
                   NextLine();
             }
@@ -384,7 +384,7 @@ short target_type;
  static FILE *pp;
  short rc=RC_OK;
  LINETYPE j=0L;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  short line_number=0;
  LINETYPE num_excluded=0L;
  LINETYPE num_actual_lines=0L;
@@ -458,7 +458,7 @@ short target_type;
 /*---------------------------------------------------------------------*/
 /* Once we get here, we are to print lines from the file.              */
 /*---------------------------------------------------------------------*/
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  if (curses_started)
    {
     if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
@@ -600,7 +600,7 @@ short target_type;
     CURRENT_VIEW->focus_line = min(CURRENT_VIEW->focus_line+num_lines-1L,CURRENT_FILE->number_lines+1L);
     CURRENT_VIEW->current_line = min(CURRENT_VIEW->current_line+num_lines-1L,CURRENT_FILE->number_lines+1L);
    }
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
  build_screen(current_screen);
  display_screen(current_screen);
  if (curses_started)
@@ -815,7 +815,7 @@ char or;
 {
    TRACE_FUNCTION("print.c:   setorient");
 #ifdef WIN32
-   if (or == 'L') 
+   if (or == 'L')
       SetOrient(DMORIENT_LANDSCAPE);
    else
       SetOrient(DMORIENT_PORTRAIT);

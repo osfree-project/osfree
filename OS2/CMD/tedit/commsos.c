@@ -86,7 +86,7 @@ CHARTYPE *params;
  short rc=RC_OK;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("commsos.c: Sos_addline");
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  insert_new_line((CHARTYPE *)"",0,1,get_true_line(FALSE),FALSE,FALSE,TRUE,CURRENT_VIEW->display_low,TRUE,TRUE);
  if (compatible_feel == COMPAT_XEDIT)
     advance_current_line(1L);
@@ -108,7 +108,7 @@ SYNTAX
 
 DESCRIPTION
      The SOS BLOCKEND command moves the cursor to the ending line
-     and column of the marked block.  If the cursor is on the command 
+     and column of the marked block.  If the cursor is on the command
      line, the last line of the marked block becomes the current line.
 
      If no marked block is in the current file, an error is displayed.
@@ -134,7 +134,7 @@ CHARTYPE *params;
 /*--------------------------- local data ------------------------------*/
  unsigned short x=0,y=0;
  short rc=RC_OK;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LENGTHTYPE col=0;
  LINETYPE line=0L;
  short save_compat=0;
@@ -199,7 +199,7 @@ SYNTAX
 
 DESCRIPTION
      The SOS BLOCKSTART command moves the cursor to the starting line
-     and column of the marked block.  If the cursor is on the command 
+     and column of the marked block.  If the cursor is on the command
      line, the first line of the marked block becomes the current line.
 
      If no marked block is in the current file, an error is displayed.
@@ -225,7 +225,7 @@ CHARTYPE *params;
 /*--------------------------- local data ------------------------------*/
  unsigned short x=0,y=0;
  short rc=RC_OK;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LENGTHTYPE col=0;
  LINETYPE line=0L;
  short save_compat=0;
@@ -289,9 +289,9 @@ SYNTAX
      SOS BOTTOMEdge
 
 DESCRIPTION
-     The SOS BOTTOMEDGE command moves the cursor to the last 
+     The SOS BOTTOMEDGE command moves the cursor to the last
      enterable line in the <filearea> or <prefix area>. If the cursor
-     is on the command line, the cursor moves to the first 
+     is on the command line, the cursor moves to the first
      enterable line of the <filearea>.
 
 COMPATIBILITY
@@ -335,7 +335,7 @@ CHARTYPE *params;
          if ((CURRENT_VIEW->prefix&PREFIX_LOCATION_MASK) != PREFIX_LEFT)
             x += CURRENT_VIEW->prefix_width;
          CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          CURRENT_VIEW->current_window = WINDOW_FILEAREA;
          wmove(CURRENT_WINDOW,row,x);
          break;
@@ -343,9 +343,9 @@ CHARTYPE *params;
     case WINDOW_PREFIX:
             if (row != y)                            /* different rows */
               {
-               post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+               post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
                CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-               pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+               pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
                wmove(CURRENT_WINDOW,row,x);
               }
             break;
@@ -363,8 +363,8 @@ SYNTAX
 DESCRIPTION
      The SOS CUADELBACK command deletes the character to the right of the
      current cursor position.  It differs from <SOS DELBACK> in the case
-     when the cursor is in the first column of the file and in the 
-     FILEAREA. Then, the cursor first moves to the last character of the 
+     when the cursor is in the first column of the file and in the
+     FILEAREA. Then, the cursor first moves to the last character of the
      previous line, and deletes this character.
 
 COMPATIBILITY
@@ -404,7 +404,7 @@ DESCRIPTION
      The SOS CUADELCHAR command deletes the character under the cursor.
      Text to the right is shifted to the left.
      It differs from <SOS DELCHAR> in the case when the cursor is after
-     the last character of the line and in the FILEAREA. Then, the 
+     the last character of the line and in the FILEAREA. Then, the
      next line is joined with the current line.
 
 COMPATIBILITY
@@ -471,7 +471,7 @@ CHARTYPE *params;
     case WINDOW_FILEAREA:
          if (CURRENT_VIEW->focus_line != CURRENT_VIEW->current_line)
            {
-            post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+            post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
             CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line;
             same_line = FALSE;
            }
@@ -479,7 +479,7 @@ CHARTYPE *params;
                                     CURRENT_VIEW->current_row);
          wmove(CURRENT_WINDOW_FILEAREA,y,x);
          if (!same_line)
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          break;
     case WINDOW_PREFIX:
     case WINDOW_COMMAND:
@@ -488,7 +488,7 @@ CHARTYPE *params;
                                     CURRENT_VIEW->current_row);
          CURRENT_VIEW->current_window = WINDOW_FILEAREA;
          wmove(CURRENT_WINDOW_FILEAREA,y,x);
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          break;
     default:
          break;
@@ -613,7 +613,7 @@ CHARTYPE *params;
          break;
    }
    /*
-    * If we changed anything, redisplay the screen.           
+    * If we changed anything, redisplay the screen.
     */
    if (num_cols > 0)
    {
@@ -841,7 +841,7 @@ CHARTYPE *params;
       }
    }
  true_line = get_true_line(FALSE);
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  rc = rearrange_line_blocks(COMMAND_DELETE,SOURCE_COMMAND,true_line,
                             true_line,true_line,1,CURRENT_VIEW,CURRENT_VIEW,FALSE,
                             &lines_affected);
@@ -854,7 +854,7 @@ CHARTYPE *params;
     y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,CURRENT_VIEW->current_row);
     if (curses_started)
        wmove(CURRENT_WINDOW,y,x);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
 #endif
  TRACE_RETURN();
@@ -869,7 +869,7 @@ SYNTAX
 
 DESCRIPTION
      The SOS DELWORD command deletes the word at or to the right
-     of the current cursor position and any spaces following the 
+     of the current cursor position and any spaces following the
      word.
 
 COMPATIBILITY
@@ -950,7 +950,7 @@ CHARTYPE *params;
     case WINDOW_FILEAREA:
          rec_len -= num_cols;
          rc = execute_move_cursor(first_col);
-         build_screen(current_screen); 
+         build_screen(current_screen);
          display_screen(current_screen);
          break;
     case WINDOW_COMMAND:
@@ -1025,13 +1025,13 @@ CHARTYPE *params;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    CHARTYPE edit_fname[MAX_FILE_NAME];
    unsigned short y=0,x=0;
    short rc=RC_OK;
    LINETYPE true_line=0L;
    CHARTYPE *lname=NULL,*fname=NULL;
-  
+
    TRACE_FUNCTION("commsos.c: Sos_edit");
    /*
     * If the current file is not the special DIR.DIR file exit.
@@ -1077,7 +1077,7 @@ CHARTYPE *params;
       return(RC_INVALID_ENVIRON);
    }
 
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Validate that the supplied file is valid.
     */
@@ -1111,7 +1111,7 @@ CHARTYPE *params;
    }
    strcat((DEFCHAR *)edit_fname,(DEFCHAR *)fname);
 #endif
-  
+
 #if !defined(MULTIPLE_PSEUDO_FILES)
    if ((rc = splitpath(edit_fname)) != RC_OK)
    {
@@ -1126,7 +1126,7 @@ CHARTYPE *params;
     * Edit the file.
     */
    rc = EditFile( edit_fname, FALSE );
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    TRACE_RETURN();
    return(rc);
 }
@@ -1198,7 +1198,7 @@ COMPATIBILITY
      KEDIT: Compatible
 
 STATUS
-     Complete. 
+     Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
 short Sos_execute(CHARTYPE *params)
@@ -1264,7 +1264,7 @@ CHARTYPE *params;
 /*--------------------------- local data ------------------------------*/
  short rc=RC_OK,new_col=0;
  unsigned short y=0,x=0;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("commsos.c: Sos_firstchar");
 /*---------------------------------------------------------------------*/
@@ -1554,7 +1554,7 @@ COMPATIBILITY
      KEDIT: Compatible.
 
 SEE ALSO
-     <SOS DELLINE>, <SOS LINEADD>        
+     <SOS DELLINE>, <SOS LINEADD>
 
 STATUS
      Complete
@@ -1747,7 +1747,7 @@ CHARTYPE *params;
 /*--------------------------- local data ------------------------------*/
  short rc=RC_OK;
  unsigned short x=0,y=0;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LENGTHTYPE start_col=0,end_col=0;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("commsos.c: Sos_pastecmdline");
@@ -1847,7 +1847,7 @@ CHARTYPE *params;
     TRACE_RETURN();
     return(RC_OK);
    }
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  getyx(CURRENT_WINDOW,y,x);
  if (CURRENT_VIEW->current_window == WINDOW_FILEAREA)
     CURRENT_VIEW->current_window = WINDOW_PREFIX;
@@ -1959,9 +1959,9 @@ SYNTAX
 
 DESCRIPTION
      The SOS SETTAB command sets a tab column at the position of the
-     cursor in the <filearea>.  This command is ignored if issued 
+     cursor in the <filearea>.  This command is ignored if issued
      elsewhere.
-     If a tab column is already set at the cursor position, the tab 
+     If a tab column is already set at the cursor position, the tab
      column is cleared.
 
 COMPATIBILITY
@@ -2214,7 +2214,7 @@ CHARTYPE *params;
  &&  CURRENT_VIEW->current_window == WINDOW_FILEAREA)
    {
     CURRENT_VIEW->verify_col = new_verify_col;
-    build_screen(current_screen); 
+    build_screen(current_screen);
     display_screen(current_screen);
    }
  wmove(CURRENT_WINDOW,y,new_screen_col);
@@ -2334,7 +2334,7 @@ CHARTYPE *params;
  &&  CURRENT_VIEW->current_window == WINDOW_FILEAREA)
    {
     CURRENT_VIEW->verify_col = new_verify_col;
-    build_screen(current_screen); 
+    build_screen(current_screen);
     display_screen(current_screen);
    }
  wmove(CURRENT_WINDOW,y,new_screen_col);
@@ -2354,8 +2354,8 @@ DESCRIPTION
      The SOS TABFIELDB command causes the cursor to move to the first
      column of the current enterable field. If the cursor is already
      in the first column of the current field the cursor moves to the
-     first column of the previous enterable field on the screen. 
-     This command is intended to mimic the behaviour of the SHIFT-TAB 
+     first column of the previous enterable field on the screen.
+     This command is intended to mimic the behaviour of the SHIFT-TAB
      key on a 3270 terminal.
 
 COMPATIBILITY
@@ -2442,9 +2442,9 @@ CHARTYPE *params;
     TRACE_RETURN();
     return(rc);
    }
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  rc = go_to_new_field(save_where,where);
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
  TRACE_RETURN();
  return(rc);
 }
@@ -2456,7 +2456,7 @@ SYNTAX
      SOS TABFIELDf
 
 DESCRIPTION
-     The SOS TABFIELDF command causes the cursor to move to the next 
+     The SOS TABFIELDF command causes the cursor to move to the next
      enterable field on the screen. This command is intended to
      mimic the behaviour of the TAB key on a 3270 terminal.
 
@@ -2502,9 +2502,9 @@ CHARTYPE *params;
     TRACE_RETURN();
     return(rc);
    }
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  rc = go_to_new_field(save_where,where);
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
  TRACE_RETURN();
  return(rc);
 }
@@ -2516,10 +2516,10 @@ SYNTAX
      SOS TABWORDB
 
 DESCRIPTION
-     The SOS TABWORDB command causes the cursor to move to the first 
-     character of the word to the left or to the start of the line if 
+     The SOS TABWORDB command causes the cursor to move to the first
+     character of the word to the left or to the start of the line if
      no more words precede.
-     If the resulting column is beyond the left hand edge of the 
+     If the resulting column is beyond the left hand edge of the
      <filearea>, the window will scroll half a window.
 
 COMPATIBILITY
@@ -2695,7 +2695,7 @@ CHARTYPE *params;
  &&  CURRENT_VIEW->current_window == WINDOW_FILEAREA)
    {
     CURRENT_VIEW->verify_col = new_verify_col;
-    build_screen(current_screen); 
+    build_screen(current_screen);
     display_screen(current_screen);
    }
  wmove(CURRENT_WINDOW,y,new_screen_col);
@@ -2712,8 +2712,8 @@ SYNTAX
      SOS TABWORDf
 
 DESCRIPTION
-     The SOS TABWORDF command causes the cursor to move to the first 
-     character of the next word to the right or to the end of the line 
+     The SOS TABWORDF command causes the cursor to move to the first
+     character of the next word to the right or to the end of the line
      if no more words follow.
      If the resulting column is beyond the right hand edge of the
      <filearea>, the window will scroll half a window.
@@ -2856,7 +2856,7 @@ CHARTYPE *params;
  &&  CURRENT_VIEW->current_window == WINDOW_FILEAREA)
    {
     CURRENT_VIEW->verify_col = new_verify_col;
-    build_screen(current_screen); 
+    build_screen(current_screen);
     display_screen(current_screen);
    }
  wmove(CURRENT_WINDOW,y,new_screen_col);
@@ -2874,8 +2874,8 @@ SYNTAX
 
 DESCRIPTION
      The SOS TOPEDGE command moves the cursor to the first enterable
-     line in the <filearea> or <prefix area>. If the cursor is on the 
-     <command line>, the cursor moves to the first enterable line of 
+     line in the <filearea> or <prefix area>. If the cursor is on the
+     <command line>, the cursor moves to the first enterable line of
      the <filearea>.
 
 COMPATIBILITY
@@ -2919,7 +2919,7 @@ CHARTYPE *params;
          if ((CURRENT_VIEW->prefix&PREFIX_LOCATION_MASK) != PREFIX_LEFT)
             x += CURRENT_VIEW->prefix_width;
          CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          CURRENT_VIEW->current_window = WINDOW_FILEAREA;
          wmove(CURRENT_WINDOW,row,x);
          break;
@@ -2927,9 +2927,9 @@ CHARTYPE *params;
     case WINDOW_PREFIX:
             if (row != y)                            /* different rows */
               {
-               post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+               post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
                CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[row].line_number;
-               pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+               pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
                wmove(CURRENT_WINDOW,row,x);
               }
             break;
@@ -2951,7 +2951,7 @@ DESCRIPTION
 
 COMPATIBILITY
      XEDIT: N/A
-     KEDIT: Compatible. 
+     KEDIT: Compatible.
 
 STATUS
      Complete.
@@ -2980,8 +2980,8 @@ CHARTYPE *params;
  switch (CURRENT_VIEW->current_window)
    {
     case WINDOW_FILEAREA:
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
-         build_screen(current_screen); 
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+         build_screen(current_screen);
          display_screen(current_screen);
          break;
     case WINDOW_COMMAND:

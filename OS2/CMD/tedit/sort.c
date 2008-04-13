@@ -78,8 +78,8 @@ void *first,*second;
  register short i=0,j=0;
  short len=0,rc=RC_OK;
  LENGTHTYPE right_col=0,left_col=0;
- LINE *one = *(LINE **)first;
- LINE *two = *(LINE **)second;
+ _LINE *one = *(_LINE **)first;
+ _LINE *two = *(_LINE **)second;
 /*--------------------------- processing ------------------------------*/
 /*---------------------------------------------------------------------*/
 /* For each sort field defined in the array sort_fields, compare the   */
@@ -166,10 +166,10 @@ short execute_sort(params)
    CHARTYPE *word[SOR_PARAMS+1];
    CHARTYPE strip[SOR_PARAMS];
    unsigned short num_params=0;
-   LINE **lfirst=NULL,**lp=NULL;
-   LINE **origfirst=NULL,**origlp=NULL;
-   LINE *curr=NULL,*first=NULL,*last=NULL;
-   LINE *curr_prev=NULL,*curr_next=NULL;
+   _LINE **lfirst=NULL,**lp=NULL;
+   _LINE **origfirst=NULL,**origlp=NULL;
+   _LINE *curr=NULL,*first=NULL,*last=NULL;
+   _LINE *curr_prev=NULL,*curr_next=NULL;
    LINETYPE true_line=0L,dest_line=0L;
    LINETYPE abs_num_lines=0L;
    LINETYPE j=0L;
@@ -398,16 +398,16 @@ short execute_sort(params)
    first = curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,true_line,CURRENT_FILE->number_lines);
    /*
     * Allocate memory for num_lines of LINE pointers and for a copy of
-    * original lines.                    
+    * original lines.
     */
-   if ((lfirst = (LINE **)(*the_malloc)(abs_num_lines*sizeof(LINE *))) == NULL)
+   if ((lfirst = (_LINE **)(*the_malloc)(abs_num_lines*sizeof(_LINE *))) == NULL)
    {
       free_target(&target);
       display_error(30,(CHARTYPE *)"",FALSE);
       TRACE_RETURN();
       return(RC_OUT_OF_MEMORY);
    }
-   if ((origfirst = (LINE **)(*the_malloc)(3*abs_num_lines*sizeof(LINE *))) == NULL)
+   if ((origfirst = (_LINE **)(*the_malloc)(3*abs_num_lines*sizeof(_LINE *))) == NULL)
    {
       free_target(&target);
       display_error(30,(CHARTYPE *)"",FALSE);
@@ -440,9 +440,9 @@ short execute_sort(params)
          default:
             lp[num_sorted_lines] = curr;
 #if 0
-            memcpy(origlp++,&curr,sizeof(LINE*));
-            memcpy(origlp++,&curr->next,sizeof(LINE*));
-            memcpy(origlp++,&curr->prev,sizeof(LINE*));
+            memcpy(origlp++,&curr,sizeof(_LINE*));
+            memcpy(origlp++,&curr->next,sizeof(_LINE*));
+            memcpy(origlp++,&curr->prev,sizeof(_LINE*));
 #else
             *origlp++ = curr;
             *origlp++ = curr->next;
@@ -478,7 +478,7 @@ short execute_sort(params)
       /*
        * Sort the target array...
        */
-      qsort(lfirst,num_sorted_lines,sizeof(LINE *),cmp);
+      qsort(lfirst,num_sorted_lines,sizeof(_LINE *),cmp);
       /*
        * Merge  the sorted array pointers into the linked list...
        */

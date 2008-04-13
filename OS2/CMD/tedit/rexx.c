@@ -49,9 +49,9 @@ static char RCSid[] = "$Id: rexx.c,v 1.18 2002/07/11 10:24:27 mark Exp $";
 #include <the.h>
 #include <proto.h>
 
-LINE *rexxout_first_line=NULL;
-LINE *rexxout_last_line=NULL;
-LINE *rexxout_curr=NULL;
+_LINE *rexxout_first_line=NULL;
+_LINE *rexxout_last_line=NULL;
+_LINE *rexxout_curr=NULL;
 LINETYPE rexxout_number_lines=0L;
 
 #if (defined(HAVE_PROTO) && !defined(NOREXX)) || defined(USE_REXXIMC)
@@ -1093,7 +1093,7 @@ short execute_macro_instore
        * If the pointer to the pcode returned by RexxStart() is NOT the
        * same as the pointer we already have, then free it.
        */
-      if (pcode_len 
+      if (pcode_len
       &&  pcode
       &&  (CHARTYPE*)*pcode != (CHARTYPE*)instore[1].strptr)
       {
@@ -1298,8 +1298,8 @@ short set_rexx_variable
    shv.shvnext=NULL;                                   /* only one block */
    shv.shvcode=RXSHV_SET;                              /* use direct set */
    /*
-    * This calls the RexxVariablePool() function for each value. This is 
-    * not the most efficient way of doing this.                          
+    * This calls the RexxVariablePool() function for each value. This is
+    * not the most efficient way of doing this.
     */
    if (suffix == (-1))
       strcpy(variable_name,(DEFCHAR*)name);
@@ -1308,7 +1308,7 @@ short set_rexx_variable
    (void)make_upper((CHARTYPE *)variable_name);/* make variable name uppercase */
    /*
     * Now (attempt to) set the REXX variable
-    * Add name/value to SHVBLOCK 
+    * Add name/value to SHVBLOCK
     */
    MAKERXSTRING(shv.shvname, variable_name, strlen(variable_name));
    MAKERXSTRING(shv.shvvalue,(DEFCHAR *)value,value_length);
@@ -1324,7 +1324,7 @@ short set_rexx_variable
    rc = RexxVariablePool(&shv);                 /* Set the REXX variable */
 /* rc = RXSHV_OK;*/
 #endif
-   if (rc != RXSHV_OK 
+   if (rc != RXSHV_OK
    &&  rc != RXSHV_NEWV)
    {
       display_error(25,(CHARTYPE *)"",FALSE);
@@ -1604,7 +1604,7 @@ static int run_os_command
    int rc=0,rcode=0;
    int save_stdin=0,save_stdout=0,save_stderr=0;
    int infd=0,outfd=0,errfd=0;
-  
+
    TRACE_FUNCTION("rexx.c:    run_os_command");
    /*
     * Determine if we are redirecting stdin, stdout or both and if the

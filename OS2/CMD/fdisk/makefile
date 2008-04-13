@@ -11,7 +11,6 @@ DESC = Disk volumes manager
 
 all: $(PROJ).exe install
 
-.IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)

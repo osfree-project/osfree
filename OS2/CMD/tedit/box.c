@@ -51,8 +51,8 @@ struct _boxp
    LINETYPE dst_start_line;
    LINETYPE src_end_line;
    LINETYPE num_lines;
-   LINE *curr_src;
-   LINE *curr_dst;
+   _LINE *curr_src;
+   _LINE *curr_dst;
    VIEW_DETAILS *src_view;
    VIEW_DETAILS *dst_view;
 };
@@ -101,7 +101,7 @@ CHARTYPE fillchar;
     * overlaying box blocks. Box blocks consist of BOX, WORD and COLUMN
     * blocks.
     */
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * If the command was issued on the command line then the destination
     * line is the current line and the destination column is 0;
@@ -165,7 +165,7 @@ CHARTYPE fillchar;
    }
    else
       boxp.num_lines = boxp.src_end_line - boxp.src_start_line +1L;
-   
+
    /*
     * Find the current LINE pointer for both the source and destination
     * lines.
@@ -230,8 +230,8 @@ CHARTYPE fillchar;
       MARK_VIEW->marked_line = MARK_VIEW->marked_col = TRUE;
       wmove(CURRENT_WINDOW,y,x-offset);
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
-   build_screen(current_screen); 
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
+   build_screen(current_screen);
    display_screen(current_screen); /* should only call this is the marked block is in view */
    TRACE_RETURN();
    return;
@@ -252,7 +252,7 @@ BOXP *prm;
    short rc=0;
    bool shadow_found = FALSE;
    bool advance_line_ptr = TRUE;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("box.c:     box_delete");
    curr = prm->curr_src;
@@ -272,10 +272,10 @@ BOXP *prm;
             if ( (prm->mark_type == M_STREAM || prm->mark_type == M_CUA )
             &&  prm->src_start_line != prm->src_end_line)
             {
-               if (i == 0) 
+               if (i == 0)
                {
-                  /* 
-                   * first line of stream block 
+                  /*
+                   * first line of stream block
                    * delete from start column to end of line
                    */
                   if (prm->src_start_col < curr->length)
@@ -368,7 +368,7 @@ bool boverlay;
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *first_save=NULL,*save_src=NULL,*temp_src=NULL;
+ _LINE *first_save=NULL,*save_src=NULL,*temp_src=NULL;
  LINETYPE save_src_start_line=0L;
  LENGTHTYPE save_src_start_col=0;
 /*--------------------------- processing ------------------------------*/
@@ -413,7 +413,7 @@ BOXP *prm;
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *first_save=NULL,*save_src=NULL,*tmp=NULL;
+ _LINE *first_save=NULL,*save_src=NULL,*tmp=NULL;
  LINETYPE i=0L;
  short rc=RC_OK;
 /*--------------------------- processing ------------------------------*/
@@ -443,7 +443,7 @@ BOXP *prm;
               mynum = prm->src_end_col - mystart + 1;
            memcpy(rec, trec+mystart,mynum);
            rec_len = mynum;
-           if ((save_src = add_LINE(first_save,save_src,rec,rec_len,0,TRUE)) == (LINE *)NULL)
+           if ((save_src = add_LINE(first_save,save_src,rec,rec_len,0,TRUE)) == (_LINE *)NULL)
            {
               TRACE_RETURN();
               return(RC_OUT_OF_MEMORY);
@@ -453,7 +453,7 @@ BOXP *prm;
        {
           memcpy(rec,tmp->line,tmp->length);
           rec_len = tmp->length;
-          if ((save_src = add_LINE(first_save,save_src,rec+prm->src_start_col,prm->num_cols,0,TRUE)) == (LINE *)NULL)
+          if ((save_src = add_LINE(first_save,save_src,rec+prm->src_start_col,prm->num_cols,0,TRUE)) == (_LINE *)NULL)
           {
              TRACE_RETURN();
              return(RC_OUT_OF_MEMORY);
@@ -464,13 +464,13 @@ BOXP *prm;
        memcpy(rec,tmp->line,tmp->length);
        rec_len = tmp->length;
        if ((save_src = add_LINE(first_save,save_src,
-            rec+prm->src_start_col,prm->num_cols,0,TRUE)) == (LINE *)NULL)
+            rec+prm->src_start_col,prm->num_cols,0,TRUE)) == (_LINE *)NULL)
        {
           TRACE_RETURN();
           return(RC_OUT_OF_MEMORY);
        }
 #endif
-       if (first_save == (LINE *)NULL)
+       if (first_save == (_LINE *)NULL)
           first_save = save_src;
     }
     tmp = tmp->next;
@@ -509,7 +509,7 @@ bool boverlay;
        ||  line_type == LINE_EOF)
        {
           if ((prm->curr_dst = add_LINE(CURRENT_FILE->first_line,prm->curr_dst->prev,
-                                 (CHARTYPE *)"",0,0,TRUE)) == (LINE *)NULL)
+                                 (CHARTYPE *)"",0,0,TRUE)) == (_LINE *)NULL)
           {
              TRACE_RETURN();
              return(RC_OUT_OF_MEMORY);
@@ -522,7 +522,7 @@ bool boverlay;
     }
 
     pre_process_line(prm->dst_view,dst_lineno,prm->curr_dst);/* copy dest line into rec */
-/* MH 300499    pre_process_line(prm->dst_view,dst_lineno,(LINE *)NULL); *//* copy dest line into rec */
+/* MH 300499    pre_process_line(prm->dst_view,dst_lineno,(_LINE *)NULL); *//* copy dest line into rec */
     for (j=0;j<prm->num_cols;j++)
     {
        if (prm->src_start_col+j+1 > prm->curr_src->length)
@@ -539,7 +539,7 @@ bool boverlay;
        rec_len = 0;
     else
        rec_len = rc+1;
-    post_process_line(prm->dst_view,dst_lineno,(LINE *)NULL,FALSE);
+    post_process_line(prm->dst_view,dst_lineno,(_LINE *)NULL,FALSE);
     prm->curr_src = prm->curr_src->next;   /* this should NEVER go past the end */
     prm->curr_dst = prm->curr_dst->next;   /* this should NEVER go past the end */
     dst_lineno++;
@@ -563,7 +563,7 @@ bool boverlay;
  short line_type=0;
  int mystart=0,mynumcols=0;
  bool full_line=TRUE;
- LINE *curr=NULL,*last_line=NULL;
+ _LINE *curr=NULL,*last_line=NULL;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("box.c:     box_copy_stream_from_temp");
  if (boverlay)
@@ -587,7 +587,7 @@ bool boverlay;
           ||  line_type == LINE_EOF)
           {
              if ((prm->curr_dst = add_LINE(CURRENT_FILE->first_line,prm->curr_dst->prev,
-                                    (CHARTYPE *)"",0,0,TRUE)) == (LINE *)NULL)
+                                    (CHARTYPE *)"",0,0,TRUE)) == (_LINE *)NULL)
              {
                 TRACE_RETURN();
                 return(RC_OUT_OF_MEMORY);
@@ -598,9 +598,9 @@ bool boverlay;
           dst_lineno++;
           prm->curr_dst = prm->curr_dst->next;
        }
-   
+
        pre_process_line(prm->dst_view,dst_lineno,prm->curr_dst);/* copy dest line into rec */
-/* MH 300499    pre_process_line(prm->dst_view,dst_lineno,(LINE *)NULL); *//* copy dest line into rec */
+/* MH 300499    pre_process_line(prm->dst_view,dst_lineno,(_LINE *)NULL); *//* copy dest line into rec */
        mystart=0;
        mynumcols=prm->curr_src->length;
        full_line=TRUE;
@@ -621,7 +621,7 @@ bool boverlay;
           rec_len = max(rec_len,prm->curr_src->length+mystart);
        }
 
-       post_process_line(prm->dst_view,dst_lineno,(LINE *)NULL,FALSE);
+       post_process_line(prm->dst_view,dst_lineno,(_LINE *)NULL,FALSE);
        prm->curr_src = prm->curr_src->next;   /* this should NEVER go past the end */
        prm->curr_dst = prm->curr_dst->next;   /* this should NEVER go past the end */
        dst_lineno++;
@@ -637,7 +637,7 @@ bool boverlay;
     /*
      * This function copies saved lines from a multi-line stream block.
      * The line to which the stream block is copied is split at the
-     * cursor position. 
+     * cursor position.
      * The first source line is appended to the current line.
      * The remainder of the lines are added as new lines, except the last.
      * The last line is pre-pended to that portion of the line that was
@@ -656,7 +656,7 @@ bool boverlay;
        ||  line_type == LINE_EOF)
        {
           if ((prm->curr_dst = add_LINE(CURRENT_FILE->first_line,prm->curr_dst->prev,
-                                    (CHARTYPE *)"",0,0,TRUE)) == (LINE *)NULL)
+                                    (CHARTYPE *)"",0,0,TRUE)) == (_LINE *)NULL)
           {
              TRACE_RETURN();
              return(RC_OUT_OF_MEMORY);
@@ -717,7 +717,7 @@ bool boverlay;
        else
        {
           if ((curr = add_LINE(CURRENT_FILE->first_line,curr,
-                                    prm->curr_src->line,prm->curr_src->length,0,TRUE)) == (LINE *)NULL)
+                                    prm->curr_src->line,prm->curr_src->length,0,TRUE)) == (_LINE *)NULL)
           {
              TRACE_RETURN();
              return(RC_OUT_OF_MEMORY);
@@ -750,8 +750,8 @@ CHARTYPE fillchar;
    {
       if (processable_line(CURRENT_VIEW,prm->src_start_line+i,prm->curr_src) == LINE_LINE)
       {
-         pre_process_line(CURRENT_VIEW,prm->src_start_line+i,(LINE *)NULL);/* copy source line into rec */
-         if ( prm->mark_type == M_STREAM 
+         pre_process_line(CURRENT_VIEW,prm->src_start_line+i,(_LINE *)NULL);/* copy source line into rec */
+         if ( prm->mark_type == M_STREAM
          ||   prm->mark_type == M_CUA )
          {
             int mystart=0,mynum=max_line_length;
@@ -768,7 +768,7 @@ CHARTYPE fillchar;
             rec_len = 0;
          else
             rec_len = rc+1;
-         post_process_line(CURRENT_VIEW,prm->src_start_line+i,(LINE *)NULL,FALSE);
+         post_process_line(CURRENT_VIEW,prm->src_start_line+i,(_LINE *)NULL,FALSE);
       }
       prm->curr_src = prm->curr_src->next;   /* this should NEVER go past the end */
    }

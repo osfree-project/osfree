@@ -50,7 +50,7 @@ SYNTAX
      DEFine mouse-key-definition IN window [REXX] [command [args] [[#command [args]...]]]
 
 DESCRIPTION
-     The DEFINE command allows the user to assign one or many 
+     The DEFINE command allows the user to assign one or many
      commands and optional parameter(s) to a key or a mouse button
      specification.
 
@@ -280,7 +280,7 @@ CHARTYPE *params;
       lines_based_on_scope = TRUE;
    }
    free_target(&target);
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (target.num_lines != 0L)
    {
       rc = rearrange_line_blocks(COMMAND_DELETE,SOURCE_COMMAND,start_line,
@@ -292,7 +292,7 @@ CHARTYPE *params;
    if (CURRENT_VIEW->focus_line != start_line)
    {
       CURRENT_VIEW->focus_line = start_line;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
    if (rc == RC_OK)
    {
@@ -401,10 +401,10 @@ SYNTAX
      DIRectory [file specification]
 
 DESCRIPTION
-     The DIRECTORY command displays all files matching the specified 
+     The DIRECTORY command displays all files matching the specified
      'file specification'.
 
-     When no parameter is supplied, all files in the current directory 
+     When no parameter is supplied, all files in the current directory
      are displayed subject to any <SET DIRINCLUDE> restrictions.
 
 COMPATIBILITY
@@ -466,7 +466,7 @@ CHARTYPE *params;
    }
 #if 0
  if (CURRENT_VIEW != NULL)
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
 #endif
 
 #if defined(MULTIPLE_PSEUDO_FILES)
@@ -514,7 +514,7 @@ SYNTAX
      DOSNowait command
 
 DESCRIPTION
-     The DOSNOWAIT command executes the supplied operating system 
+     The DOSNOWAIT command executes the supplied operating system
      command not waiting for the user to be prompted once the
      command has completed.
 
@@ -560,8 +560,8 @@ SYNTAX
 
 DESCRIPTION
      The DOWN command moves the <current line> forwards the number of
-     lines specified by the <'relative target'>. This <'relative target'> 
-     can only be a positive integer or the character "*". 
+     lines specified by the <'relative target'>. This <'relative target'>
+     can only be a positive integer or the character "*".
 
 COMPATIBILITY
      XEDIT: Compatible.
@@ -686,7 +686,7 @@ CHARTYPE *params;
          lines_based_on_scope = TRUE;
          break;
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    rc = rearrange_line_blocks(COMMAND_DUPLICATE,command_source,
                             start_line,end_line,dest_line,num_occ,
                             CURRENT_VIEW,CURRENT_VIEW,lines_based_on_scope,
@@ -736,7 +736,7 @@ DESCRIPTION
      The EDITV command manipulates variables for the lifetime of the
      edit session or the file, depending on the subcommand used.
 
-     Edit variables are useful for maintaining variable values from 
+     Edit variables are useful for maintaining variable values from
      one execution of a macro to another.
 
      EDITV GET, PUT, GETF and PUTF are only valid from within a macro
@@ -931,7 +931,7 @@ DESCRIPTION
      If the key associated with ENTER is pressed while in the <filearea>,
      then the cursor will move to the first column of the
      next line. If the cursor is in the <prefix area>, any pending
-     prefix commands will be executed. If the mode is currently in 
+     prefix commands will be executed. If the mode is currently in
      'insert', then a new line is added and the cursor placed on the
      next line depending on the value of <SET NEWLINES>.
 
@@ -971,7 +971,7 @@ CHARTYPE *params;
          rc = Sos_execute((CHARTYPE *)"");
          break;
       case WINDOW_PREFIX:
-         post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+         post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
          if (CURRENT_FILE->first_ppc == NULL)/* no pending prefix cmds */
          {
             THEcursor_down(TRUE);
@@ -1010,7 +1010,7 @@ CHARTYPE *params;
             {
                if (CURRENT_VIEW->inputmode == INPUTMODE_LINE)
                {
-                  post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+                  post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
                   insert_new_line((CHARTYPE *)"",0,1,get_true_line(FALSE),FALSE,FALSE,TRUE,CURRENT_VIEW->display_low,TRUE,TRUE);
                   break;
                }
@@ -1033,7 +1033,7 @@ SYNTAX
 
 DESCRIPTION
      The EXPAND command converts all tab characters to spaces in the
-     <'target'> depending on the size of a tab determined by the 
+     <'target'> depending on the size of a tab determined by the
      <SET TABS> command.
 
 COMPATIBILITY
@@ -1242,14 +1242,14 @@ CHARTYPE *params;
    short rc=RC_OK;
 
    TRACE_FUNCTION("comm2.c:   Ffile");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if ((rc = save_file(CURRENT_FILE,params,TRUE,CURRENT_FILE->number_lines,1L,NULL,FALSE,0,max_line_length,TRUE,FALSE,FALSE)) != RC_OK)
    {
       TRACE_RETURN();
       return(rc);
    }
    /*
-    * If autosave is on at the time of FFiling, remove the .aus file... 
+    * If autosave is on at the time of FFiling, remove the .aus file...
     */
    if (CURRENT_FILE->autosave > 0)
       rc = remove_aus_file(CURRENT_FILE);
@@ -1294,7 +1294,7 @@ CHARTYPE *params;
    short rc=RC_OK;
 
    TRACE_FUNCTION("comm2.c:   File");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * If we are filing the current file with the same name AND the number
     * of alterations is zero, then quit the file.
@@ -1355,7 +1355,7 @@ CHARTYPE *params;
    short y=0,x=0;
 
    TRACE_FUNCTION("comm2.c:   Fillbox");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Validate the marked block.
     */
@@ -1392,7 +1392,7 @@ CHARTYPE *params;
    else
       key = (int)*(params);
    if (CURRENT_VIEW->current_window != WINDOW_COMMAND
-   && len_params != 1) 
+   && len_params != 1)
    {
       getyx(CURRENT_WINDOW,y,x);
       display_prompt((CHARTYPE *)"Enter fill character...");
@@ -1506,7 +1506,7 @@ SYNTAX
 DESCRIPTION
      The FORWARD command scrolls the file contents forwards 'n' screens.
 
-     If 0 is specified as the number of screens to scroll, the 
+     If 0 is specified as the number of screens to scroll, the
      <Top-of-File line> becomes the <current line>.
 
      If the FORWARD command is issued while the <current line> is the
@@ -1683,9 +1683,9 @@ CHARTYPE *params;
    unsigned short num_params=0;
    CHARTYPE *filename=NULL;
    FILE *fp=NULL;
-   LINE *curr=NULL;
-   LINE *save_curr=NULL;
-   LINE *save_next=NULL;
+   _LINE *curr=NULL;
+   _LINE *save_curr=NULL;
+   _LINE *save_next=NULL;
    LINETYPE old_number_lines=0L,true_line=0L;
    short rc=RC_OK;
    LINETYPE fromline=1L,numlines=0L;
@@ -1731,7 +1731,7 @@ CHARTYPE *params;
                clip_type = M_STREAM;
             else if (equal( (CHARTYPE *)"box", word[1], 3) )
                clip_type = M_BOX;
-            else 
+            else
             {
                display_error(1,word[1],FALSE);
                TRACE_RETURN();
@@ -1785,9 +1785,9 @@ CHARTYPE *params;
          }
       }
    }
-  
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
-  
+
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
+
    if (!clip)
    {
       if (!file_readable(filename))
@@ -1824,16 +1824,16 @@ CHARTYPE *params;
          else
             curr = curr->next;
       }
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       if (!clip)
          fclose(fp);
       TRACE_RETURN();
       return(RC_ACCESS_DENIED);
    }
-  
+
    if (!clip)
       fclose(fp);
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    /*
     * Fix the positioning of the marked block (if there is one and it is
     * in the current view).
@@ -1845,8 +1845,8 @@ CHARTYPE *params;
     * number of alterations.
     */
    increment_alt(CURRENT_FILE);
-  
-   build_screen(current_screen); 
+
+   build_screen(current_screen);
    display_screen(current_screen);
    TRACE_RETURN();
    return(RC_OK);
@@ -1901,7 +1901,7 @@ CHARTYPE *params;
       else
       {
          strcpy((DEFCHAR *)the_help_file,(DEFCHAR *)the_home_dir);
-         strcat((DEFCHAR *)the_help_file,"THE_Help.txt");
+         strcat((DEFCHAR *)the_help_file,"tedit.hlp");
       }
       (void *)strrmdup(strtrans(the_help_file,OSLASH,ISLASH),ISLASH,TRUE);
       first = FALSE;
@@ -2023,7 +2023,7 @@ DESCRIPTION
      the cursor moved to the <filearea> and blank lines inserted
      into the file from the <current line> to the end of the screen.
 
-     To get out of full input mode, press the key assigned to the 
+     To get out of full input mode, press the key assigned to the
      <CURSOR> HOME [SAVE] command.
 
 COMPATIBILITY
@@ -2044,7 +2044,7 @@ CHARTYPE *params;
    LINETYPE len_params=0;
 
    TRACE_FUNCTION("comm2.c:   Input");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (CURRENT_VIEW->hex)
    {
       if ((len_params = (LINETYPE)convert_hex_strings(params)) == (-1))

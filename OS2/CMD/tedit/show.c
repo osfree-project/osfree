@@ -82,11 +82,11 @@ static char RCSid[] = "$Id: show.c,v 1.20 2002/07/08 08:00:52 mark Exp $";
 
 /*------------------------ function definitions -----------------------*/
 #ifdef HAVE_PROTO
-static void build_lines(CHARTYPE,short,LINE *,short,short);
+static void build_lines(CHARTYPE,short,_LINE *,short,short);
 static void build_lines_for_display(CHARTYPE,short,short,short);
 static void show_lines(CHARTYPE);
 static void show_a_line(CHARTYPE,short,SHOW_LINE *);
-static void set_prefix_contents(CHARTYPE,LINE *,short,LINETYPE,bool);
+static void set_prefix_contents(CHARTYPE,_LINE *,short,LINETYPE,bool);
 static void show_hex_line(CHARTYPE,short);
 #else
 static void build_lines();
@@ -97,7 +97,7 @@ static void set_prefix_contents();
 static void show_hex_line();
 #endif
 static LINETYPE displayed_max_line_length = 0; /* max length of displayed line */
-static LINE *hexshow_curr=NULL; /* module global for historical reasons? */
+static _LINE *hexshow_curr=NULL; /* module global for historical reasons? */
 
 /* Make a chtype value from a character and a colour. This may be wrong if
  * the format of the chtype is incompatible. Please check this first if
@@ -276,10 +276,10 @@ int line, width;
 /***********************************************************************/
 {
    int linelength;
-  
+
    if ((linelength = strlen((DEFCHAR*)str)) > width)
       linelength = width;
-  
+
    INIT_LINE_OUTPUT(win,line);
    if (linelength)
       ADD_LINE_OUTPUT(str,linelength,colour);
@@ -303,10 +303,10 @@ int line, width;
 /***********************************************************************/
 {
    int linelength;
-  
+
    if ((linelength = strlen((DEFCHAR*)str)) > width)
       linelength = width;
-  
+
    INIT_LINE_OUTPUT(win,line);
    if (linelength)
       ADD_SYNTAX_LINE_OUTPUT( str, linelength, high );
@@ -329,13 +329,13 @@ int line, width, fillchar;
 /***********************************************************************/
 {
    int linelength,first;
-  
+
    if ((linelength = strlen((DEFCHAR*)str)) > width)
       linelength = width;
    first = (width - linelength) >> 1;
-  
+
    INIT_LINE_OUTPUT(win,line);
-  
+
    if (first)
       FILL_LINE_OUTPUT(fillchar,first,colour);
    if (linelength)
@@ -885,19 +885,19 @@ void repaint_screen()
    short y=0,x=0;
 
    TRACE_FUNCTION("show.c:    repaint_screen");
-  
+
    getyx(CURRENT_WINDOW,y,x);
    y = get_row_for_focus_line(current_screen,CURRENT_VIEW->focus_line,
                               CURRENT_VIEW->current_row);
    if (x > CURRENT_SCREEN.cols[WINDOW_FILEAREA])
       x = 0;
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    display_screen(current_screen);
    cleanup_command_line();
    /* show_heading();*/
    wmove(CURRENT_WINDOW,y,x);
-  
+
    TRACE_RETURN();
    return;
   }
@@ -912,8 +912,8 @@ CHARTYPE scrno;
 #endif
 /***********************************************************************/
 {
-   LINE *curr=NULL;
-   LINE *save_curr=NULL;
+   _LINE *curr=NULL;
+   _LINE *save_curr=NULL;
    short crow = SCREEN_VIEW(scrno)->current_row;
    LINETYPE cline = SCREEN_VIEW(scrno)->current_line;
 
@@ -1043,13 +1043,13 @@ CHARTYPE scrno;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-static void build_lines(CHARTYPE scrno,short direction,LINE *curr,
+static void build_lines(CHARTYPE scrno,short direction,_LINE *curr,
                          short rows,short start_row)
 #else
 static void build_lines(scrno,direction,curr,rows,start_row)
 CHARTYPE scrno;
 short direction;
-LINE *curr;
+_LINE *curr;
 short rows,start_row;
 #endif
 /***********************************************************************/
@@ -1180,7 +1180,7 @@ short rows,start_row;
             scurr->other_start_col = scurr->other_end_col = (LENGTHTYPE) -1;
             scurr->line_type = LINE_RESERVED;
             scurr->line_number = (-1L);
-            scurr->current = (LINE *)NULL;
+            scurr->current = (_LINE *)NULL;
             scurr->main_enterable = FALSE;
             scurr->prefix_enterable = FALSE;
             scurr->highlight = FALSE;
@@ -1203,7 +1203,7 @@ short rows,start_row;
       {
          scurr->contents = NULL;
          scurr->line_number = (-1L);
-         scurr->current = (LINE *)NULL;
+         scurr->current = (_LINE *)NULL;
          if ( compatible_feel == COMPAT_ISPF )
          {
             scurr->main_enterable = TRUE;
@@ -1233,7 +1233,7 @@ short rows,start_row;
          scurr->contents = NULL;
          scurr->line_type = (direction == DIRECTION_BACKWARD) ? LINE_OUT_OF_BOUNDS_ABOVE : LINE_OUT_OF_BOUNDS_BELOW;
          scurr->line_number = (-1L);
-         scurr->current = (LINE *)NULL;
+         scurr->current = (_LINE *)NULL;
          scurr->main_enterable = FALSE;
          scurr->prefix_enterable = FALSE;
          scurr->highlight = FALSE;
@@ -1379,7 +1379,7 @@ short rows,start_row;
             scurr->contents = curr->line;
             scurr->length = curr->length;
          }
-      }                    
+      }
       /*
        * Determine if the length of this row is longer than our last
        * saved longest line...
@@ -1791,7 +1791,7 @@ short rows,start_row;
                                                    : set_colour(screen_file->attr+ATTR_CBLOCK);
                   scurr->other_end_col = MAX_INT;
                   scurr->other_start_col = 0;
-                  
+
                   if (cline == mark_start_line)
                      scurr->other_start_col = mark_start_col - 1;
                   if (cline == mark_end_line)
@@ -1830,7 +1830,7 @@ short rows,start_row;
       }
       /*
        * If we are using colouring and we are not using the NULL parser and
-       * the line has been determined as parseable, build the colours in 
+       * the line has been determined as parseable, build the colours in
        * the highlighting array based on the line's contents.
        */
       if (line_parseable
@@ -2136,7 +2136,7 @@ SHOW_LINE *scurr;
    INIT_LINE_OUTPUT(SCREEN_WINDOW_FILEAREA(scrno),row);
    /*
     * If there is something past the VERIFY END column, fill it up with
-    * blanks in normal colour first and adjust cols. 
+    * blanks in normal colour first and adjust cols.
     */
    if (cols > vlen)
    {
@@ -2345,11 +2345,11 @@ SHOW_LINE *scurr;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-static void set_prefix_contents(CHARTYPE scrno,LINE *curr,short start_row,LINETYPE cline,bool is_current)
+static void set_prefix_contents(CHARTYPE scrno,_LINE *curr,short start_row,LINETYPE cline,bool is_current)
 #else
 static void set_prefix_contents(scrno,curr,start_row,cline,is_current)
 CHARTYPE scrno;
-LINE *curr;
+_LINE *curr;
 short start_row;
 LINETYPE cline;
 bool is_current;
@@ -2437,7 +2437,7 @@ short row;
    length = current->length;
    line = current->contents;
    normal = current->normal_colour;
-  
+
    cols = screen[scrno].cols[WINDOW_FILEAREA];
    /* adjust line and length to vcol */
    if (length < vcol)
@@ -2450,7 +2450,7 @@ short row;
    /* don't display characters after VERIFY END or end of filearea */
    if (length > vlen)
       length = vlen;
-  
+
    if (length > cols)
       length = cols;
    INIT_LINE_OUTPUT(SCREEN_WINDOW_FILEAREA(scrno),row);
@@ -2633,7 +2633,7 @@ LENGTHTYPE column_number;
    TRACE_FUNCTION("show.c:    column_in_view");
    min_file_col = screen[scrno].screen_view->verify_col - 1;
    max_file_col = min_file_col + screen[scrno].cols[WINDOW_FILEAREA] - 1;
-  
+
    if (column_number >= min_file_col
    &&  column_number <= max_file_col)            /* new column in display */
       result = TRUE;
@@ -2653,7 +2653,7 @@ short direction;
    register short i=0;
    LINETYPE cline = CURRENT_VIEW->current_line;
    short rows=0,num_display_lines=0,num_shadow_lines=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    RESERVED *curr_reserved=CURRENT_FILE->first_reserved;
    short tab_actual_row=calculate_actual_row(CURRENT_VIEW->tab_base,CURRENT_VIEW->tab_off,CURRENT_SCREEN.rows[WINDOW_FILEAREA],TRUE);
    short scale_actual_row=calculate_actual_row(CURRENT_VIEW->scale_base,CURRENT_VIEW->scale_off,CURRENT_SCREEN.rows[WINDOW_FILEAREA],TRUE);
@@ -2676,7 +2676,7 @@ short direction;
    &&  CURRENT_VIEW->tab_on
    &&  tab_actual_row == scale_actual_row)
       num_display_lines++;
-  
+
    curr = lll_find(CURRENT_FILE->first_line,CURRENT_FILE->last_line,cline,CURRENT_FILE->number_lines);
    while(num_pages)
    {
@@ -2736,7 +2736,7 @@ short direction;
    if (direction == DIRECTION_BACKWARD
    &&  cline < 0L)
       cline = 0L;
-   cline = find_next_in_scope(CURRENT_VIEW,(LINE *)NULL,cline,direction);
+   cline = find_next_in_scope(CURRENT_VIEW,(_LINE *)NULL,cline,direction);
    TRACE_RETURN();
    return(cline);
 }
@@ -2965,7 +2965,7 @@ CHARTYPE scrn;
    if (!line_in_view(scrn,screen_view->focus_line))
    {
       screen_view->focus_line = screen_view->current_line;
-      pre_process_line(screen_view,screen_view->focus_line,(LINE *)NULL);
+      pre_process_line(screen_view,screen_view->focus_line,(_LINE *)NULL);
       build_screen(scrn);
    }
    if (curses_started)
@@ -2976,7 +2976,7 @@ CHARTYPE scrn;
    /* ensure column from WINDOW is in view */
       wmove(SCREEN_WINDOW_FILEAREA(scrn),y,x);
    }
-  
+
    TRACE_RETURN();
    return(RC_OK);
 }
@@ -3029,7 +3029,7 @@ short direction;
     */
    if (!save_current_view)
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       /*
        * Get a temporary pointer to the "next" view in the linked list.
        */
@@ -3147,8 +3147,8 @@ short direction;
     * longer in the display area.
     */
    prepare_view(current_screen);
-  
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    display_screen(current_screen);
    if (curses_started)
@@ -3208,7 +3208,7 @@ int rows,cols;
    doupdate();  /* make ncurses set LINES and COLS properly */
    wnoutrefresh( stdscr );
   /* wnoutrefresh( curscr ); */
-   ncurses_screen_resized = FALSE; 
+   ncurses_screen_resized = FALSE;
 #endif
    terminal_lines = LINES;
    terminal_cols = COLS;
@@ -3233,7 +3233,7 @@ int rows,cols;
    {
       int offset = (STATUSLINEON()) ? 1 : 0;
       /*
-       * 2 screens are displayed with different sizes. Attempt to 
+       * 2 screens are displayed with different sizes. Attempt to
        * maintain the same ratio between the two.
        */
       screen_rows[0] = ((terminal_lines - offset) * screen_rows[0]) / (screen_rows[0] + screen_rows[1]);

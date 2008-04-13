@@ -81,21 +81,21 @@ bool scrollbar;
 /*---------------------------------------------------------------------*/
 /* Find the new current line, num_pages away...                        */
 /*---------------------------------------------------------------------*/
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
  CURRENT_VIEW->current_line = find_next_current_line(num_pages,direction);
  build_screen(current_screen);
  if (save_scroll_cursor_stay)
    {
     save_y = get_row_for_tof_eof(save_y,current_screen);
     CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[save_y].line_number;
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
     build_screen(current_screen);
    }
  else
    {
     CURRENT_VIEW->focus_line = calculate_focus_line(CURRENT_VIEW->focus_line,
                                                     CURRENT_VIEW->current_line);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
 /*---------------------------------------------------------------------*/
 /* If curses has started, display screen and sort out cursor position..*/
@@ -197,7 +197,7 @@ short escreen;
                if (rc == RC_OK)
                  {
                   CURRENT_VIEW->focus_line = CURRENT_SCREEN.sl[y].line_number;
-                  pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+                  pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
                   wmove(CURRENT_WINDOW,y,x);
                  }
                break;
@@ -232,9 +232,9 @@ short escreen;
          if (on_screen_edge)
            {
             CURRENT_VIEW->current_line = new_current_line;
-            post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+            post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
             CURRENT_VIEW->focus_line = new_focus_line;
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
                                 build_screen(current_screen);
             display_screen(current_screen);
             wmove(CURRENT_WINDOW,yoff1,x);
@@ -245,9 +245,9 @@ short escreen;
 /* down 1 line.                                                        */
 /*---------------------------------------------------------------------*/
          wmove(CURRENT_WINDOW,yoff2,x);
-         rc = post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+         rc = post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
          CURRENT_VIEW->focus_line = new_focus_line;
-         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+         pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          build_screen(current_screen);
          if (CURRENT_VIEW->highlight
          &&  rc != RC_NO_LINES_CHANGED)

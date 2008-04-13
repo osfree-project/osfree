@@ -159,11 +159,11 @@ LL *ll_free( LL *first, LLDEL delfunc )
 
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *lll_add(LINE *first,LINE *curr,unsigned short size)
+_LINE *lll_add(_LINE *first,_LINE *curr,unsigned short size)
 #else
-LINE *lll_add(first,curr,size)
-LINE *first;
-LINE *curr;
+_LINE *lll_add(first,curr,size)
+_LINE *first;
+_LINE *curr;
 unsigned short size;
 #endif
 /***********************************************************************/
@@ -176,18 +176,18 @@ unsigned short size;
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *next=NULL;
+ _LINE *next=NULL;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("linked.c:    lll_add");
 
- if ((next=(LINE *)(*the_malloc)(size)) != (LINE *)NULL)
+ if ((next=(_LINE *)(*the_malloc)(size)) != (_LINE *)NULL)
    {
     if (curr == NULL)
       {
        if (first == NULL)
          {
           /*
-           * First entry in LL 
+           * First entry in LL
            */
 /*          first = next; */
           next->next = NULL;
@@ -195,7 +195,7 @@ unsigned short size;
          }
        else
          {
-          /* 
+          /*
            * Insert this entry before first. Calling routine
            * must reset first to returned pointer.
            */
@@ -224,18 +224,18 @@ unsigned short size;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *lll_del(LINE **first,LINE **last,LINE *curr,short direction)
+_LINE *lll_del(_LINE **first,_LINE **last,_LINE *curr,short direction)
 #else
-LINE *lll_del(first,last,curr,direction)
-LINE **first;
-LINE **last;
-LINE *curr;
+_LINE *lll_del(first,last,curr,direction)
+_LINE **first;
+_LINE **last;
+_LINE *curr;
 short direction;
 #endif
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *new_curr=NULL;
+ _LINE *new_curr=NULL;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("linked.c:    lll_del");
 /*---------------------------------------------------------------------*/
@@ -293,10 +293,10 @@ short direction;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *lll_free(LINE *first)
+_LINE *lll_free(_LINE *first)
 #else
-LINE *lll_free(first)
-LINE *first;
+_LINE *lll_free(first)
+_LINE *first;
 #endif
 /***********************************************************************/
 /* Free up all allocated memory until the last item in the linked-list */
@@ -306,8 +306,8 @@ LINE *first;
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=NULL;
- LINE *new_curr=NULL;
+ _LINE *curr=NULL;
+ _LINE *new_curr=NULL;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("linked.c:    lll_free");
  curr = first;
@@ -320,20 +320,20 @@ LINE *first;
     curr = new_curr;
    }
  TRACE_RETURN();
- return((LINE *)NULL);
+ return((_LINE *)NULL);
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *lll_find(LINE *first,LINE *last,LINETYPE line_number,LINETYPE max_lines)
+_LINE *lll_find(_LINE *first,_LINE *last,LINETYPE line_number,LINETYPE max_lines)
 #else
-LINE *lll_find(first,last,line_number,max_lines)
-LINE *first,*last;
+_LINE *lll_find(first,last,line_number,max_lines)
+_LINE *first,*last;
 LINETYPE line_number,max_lines;
 #endif
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LINETYPE i=0L;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("linked.c:    lll_find");
@@ -360,16 +360,16 @@ LINETYPE line_number,max_lines;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-LINE *lll_locate(LINE *first,CHARTYPE *value)
+_LINE *lll_locate(_LINE *first,CHARTYPE *value)
 #else
-LINE *lll_locate(first,value)
-LINE *first;
+_LINE *lll_locate(first,value)
+_LINE *first;
 CHARTYPE *value;
 #endif
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=NULL;
+ _LINE *curr=NULL;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("linked.c:    lll_locate");
  curr = first;

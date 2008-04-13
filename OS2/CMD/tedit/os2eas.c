@@ -32,7 +32,7 @@
  * Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
  *
  *======================================================================
- * This code based heavily on sample code provided as part of the IBM 
+ * This code based heavily on sample code provided as part of the IBM
  * OS/2 CSet/2 1.0 compiler.
  *======================================================================
  *
@@ -113,7 +113,7 @@ bool WriteEAs(CHARTYPE *filename)
   return (retval);
 }
 #else                                 /* not EMX                           */
-#define INCL_DOSPROCESS     
+#define INCL_DOSPROCESS
 #include <the.h>
 
 /* The HoldFEA is used to hold individual EAs.  The member names correspond
@@ -124,7 +124,7 @@ bool WriteEAs(CHARTYPE *filename)
 struct _HoldFEA
 {
  ULONG oNextEntryOffset;
- BYTE fEA;       
+ BYTE fEA;
  BYTE cbName;
  USHORT cbValue;
  CHAR *szName;
@@ -342,7 +342,7 @@ bool WriteEAs(CHARTYPE *filename)
     GetMem((PPVOID)&aPtr, usMemNeeded);
     if (aPtr == NULL) /* GetMem failed to allocate */
       {
-       Free_FEAList(pHoldFEA);     
+       Free_FEAList(pHoldFEA);
        return(1);
       }
 
@@ -365,7 +365,7 @@ bool WriteEAs(CHARTYPE *filename)
     if (usRet)
       {
        DosFreeMem(aPtr);                 /* Free up the FEALIST struct */
-       Free_FEAList(pHoldFEA);     
+       Free_FEAList(pHoldFEA);
        return(1);
       }
     DosFreeMem(aPtr);                    /* Free up the FEALIST struct */

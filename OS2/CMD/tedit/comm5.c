@@ -103,7 +103,7 @@ DESCRIPTION
      The TABFILE makes the file pointed to by the mouse in the FILETABS
      window the current file.
 
-     If run from the command line, without a paramter, the leftmost file 
+     If run from the command line, without a paramter, the leftmost file
      displayed in the FILETABS window will be made the current file.
 
 
@@ -281,10 +281,10 @@ DESCRIPTION
      displayed, but the lines that do match are displayed in the colour
      specified by <SET COLOUR> HIGHLIGHT.
      This target consists of any number of individual targets
-     seperated by '&' (logical and) or '|' (logical or). 
+     seperated by '&' (logical and) or '|' (logical or).
 
-     For example, to display all lines in a file that contain the 
-     strings 'ball' and 'cat' on the same line or the named lines 
+     For example, to display all lines in a file that contain the
+     strings 'ball' and 'cat' on the same line or the named lines
      .fred or .bill, use the following command
 
      TAG /ball/ & /cat/ | .fred | .bill
@@ -315,7 +315,7 @@ CHARTYPE *params;
 /***********************************************************************/
 {
    short rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    bool target_found=FALSE;
    short status=RC_OK;
    short target_type=TARGET_NORMAL;
@@ -332,7 +332,7 @@ CHARTYPE *params;
          TRACE_RETURN();
          return(rc);
       }
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       curr = CURRENT_FILE->first_line->next;
       while(1)
       {
@@ -341,7 +341,7 @@ CHARTYPE *params;
          if (curr->next == NULL)
             break;
       }
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
       TRACE_RETURN();
       return(rc);
@@ -402,7 +402,7 @@ CHARTYPE *params;
    if (target_found)
    {
       CURRENT_VIEW->highlight = HIGHLIGHT_TAG;
-      build_screen(current_screen); 
+      build_screen(current_screen);
       display_screen(current_screen);
    }
    else
@@ -475,7 +475,7 @@ CHARTYPE *params;
 
    TRACE_FUNCTION("comm5.c:   Text");
    /*
-    * If running in read-only mode, do not allow any text to be entered 
+    * If running in read-only mode, do not allow any text to be entered
     * in the main window.
     */
    if (ISREADONLY(CURRENT_FILE)
@@ -517,7 +517,7 @@ CHARTYPE *params;
          case WINDOW_FILEAREA:
             if (CURRENT_SCREEN.sl[y].line_type != LINE_LINE)
             {
-               if ( compatible_feel == COMPAT_ISPF 
+               if ( compatible_feel == COMPAT_ISPF
                && ( CURRENT_SCREEN.sl[y].line_type == LINE_BOUNDS
                  || CURRENT_SCREEN.sl[y].line_type == LINE_TABLINE ) )
                {
@@ -565,7 +565,7 @@ CHARTYPE *params;
             if (CURRENT_VIEW->wordwrap
             &&  rec_len > CURRENT_VIEW->margin_right)
                execute_wrap_word(x+CURRENT_VIEW->verify_col);
-            else    
+            else
             {
                /* this is done here so that the show_page() in */
                /* THEcursor_right() is executed AFTER we get the   */
@@ -631,7 +631,7 @@ CHARTYPE *params;
                cmd_rec_len = 0;
             else
                cmd_rec_len = rc+1;
-#endif            
+#endif
             /*
              * Ensure that the command line is not cleared if text is
              * entered here
@@ -699,7 +699,7 @@ CHARTYPE *params;
    if (CURRENT_VIEW->boundmark)
       need_to_build_screen = TRUE;
    /*
-    * If we have determined we need to rebuild the screen, do it now. 
+    * If we have determined we need to rebuild the screen, do it now.
     * MH: FIXME: Need the ability to rebuild and redisplay one line only
     */
    if (need_to_build_screen
@@ -770,7 +770,7 @@ CHARTYPE *params;
 /*--------------------------- local data ------------------------------*/
    LINETYPE num_lines=0L,true_line=0L,num_actual_lines=0L,i=0L,num_file_lines=0L;
    short  direction=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LENGTHTYPE start_col=0,end_col=0;
    short rc=RC_OK;
    TARGET target;
@@ -788,7 +788,7 @@ CHARTYPE *params;
       TRACE_RETURN();
       return(rc);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Determine in which direction we are working.
     */
@@ -892,7 +892,7 @@ CHARTYPE *params;
    /*
     * Display the new screen...
     */
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    resolve_current_and_focus_lines(CURRENT_VIEW,true_line,num_file_lines,direction,TRUE,FALSE);
    TRACE_RETURN();
    return(RC_OK);
@@ -944,11 +944,11 @@ CHARTYPE *params;
     return(RC_INVALID_OPERAND);
    }
  CURRENT_VIEW->current_line = 0L;
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
- build_screen(current_screen); 
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
+ build_screen(current_screen);
  if (!line_in_view(current_screen,CURRENT_VIEW->focus_line))
     CURRENT_VIEW->focus_line = 0L;
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
  if (curses_started)
    {
     if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
@@ -976,7 +976,7 @@ SYNTAX
 DESCRIPTION
      The UP command moves the <current line> backwards the number of
      lines specified by the <relative target>. This <relative target> can
-     only be a positive integer or the character "*". 
+     only be a positive integer or the character "*".
 
 COMPATIBILITY
      XEDIT: Compatible.
@@ -1295,7 +1295,7 @@ SYNTAX
 DESCRIPTION
      The & command executes the supplied 'command' in the normal
      way, but when the command completes, instead of clearing
-     the THE command line, the command, and the & are 
+     the THE command line, the command, and the & are
      re-displayed.  This makes it easy to repeat the same
      command, or make changes to it.
 

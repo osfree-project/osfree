@@ -69,8 +69,7 @@
 #define DWord unsigned long
 #define DWORD DWord
 #define UINT unsigned int
-#define Word unsigned short
-#define WORD Word
+#define WORD unsigned short
 #define Char char
 #define LongInt long
 #define pointer void *

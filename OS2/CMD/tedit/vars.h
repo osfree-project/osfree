@@ -52,7 +52,7 @@ extern DEFINE         *first_define,
                       *first_synonym,
                       *last_synonym;
 extern bool           clear_command;
-extern LINE           *key_first_line,
+extern _LINE           *key_first_line,
                       *key_last_line;
 extern LINETYPE       key_number_lines;
 extern AREAS          valid_areas[ATTR_MAX];
@@ -117,7 +117,7 @@ extern int            opterr,
                       optind;
 
 /* prefix.c */
-extern LINE           *first_prefix_synonym;
+extern _LINE           *first_prefix_synonym;
 extern LINETYPE       prefix_current_line;
 extern bool           in_prefix_macro;
 
@@ -130,7 +130,7 @@ extern MEVENT         ncurses_mouse_event;
 #endif
 
 /* rexx.c */
-extern LINE           *rexxout_first_line,
+extern _LINE           *rexxout_first_line,
                       *rexxout_last_line,
                       *rexxout_curr;
 extern LINETYPE       rexxout_number_lines;
@@ -160,7 +160,7 @@ extern bool           rexx_support,
                       first_screen_display;
 extern short          save_coord_x[VIEW_WINDOWS],
                       save_coord_y[VIEW_WINDOWS];
-extern LINE           *next_line,
+extern _LINE           *next_line,
                       *curr_line,
                       *first_file_name,
                       *current_file_name,

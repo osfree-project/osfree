@@ -52,7 +52,7 @@ static char RCSid[] = "$Id: default.c,v 1.24 2002/08/13 09:11:47 mark Exp $";
  bool INSERTMODEx;
  bool LINEND_STATUSx; /* not really global, but used in command_line() */
  CHARTYPE LINEND_VALUEx; /* not really global, but used in command_line() */
- CHARTYPE NONDISPx; 
+ CHARTYPE NONDISPx;
  CHARTYPE PREFIXx;/* not really global but used in set_screen_defaults() */
  bool REPROFILEx;
  CHARTYPE TABI_ONx;
@@ -518,7 +518,7 @@ VIEW_DETAILS *viewp;
    viewp->syntax_headers = HEADER_ALL; /* ALL headers applied */
    viewp->thighlight_active = FALSE;
    initialise_target( &viewp->thighlight_target );
-  
+
    if (viewp->cmd_line == 'O')
    {
       viewp->current_window =     WINDOW_FILEAREA;
@@ -536,7 +536,7 @@ VIEW_DETAILS *viewp;
    {
       case COMPAT_THE:
          viewp->number = TRUE;
-         viewp->prefix = PREFIX_ON|PREFIX_LEFT;
+         viewp->prefix = PREFIX_OFF;
          viewp->prefix_width = 6;
          viewp->prefix_gap = 0;
          viewp->scale_on = FALSE;
@@ -663,11 +663,11 @@ CHARTYPE *prf_file,*prf_arg;
    TRACE_FUNCTION("default.c: get_profile");
    in_macro = TRUE;
    /*
-    * If REXX is supported, process the macro as a REXX macro...          
+    * If REXX is supported, process the macro as a REXX macro...
     */
    if (rexx_support)
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       rc = execute_macro_file(prf_file,prf_arg,&macrorc,FALSE);
       if (rc != RC_OK)
       {
@@ -678,14 +678,14 @@ CHARTYPE *prf_file,*prf_arg;
    else
    {
       /*
-       * ...otherwise, process the file as a non-REXX macro file...          
+       * ...otherwise, process the file as a non-REXX macro file...
        */
       if ((fp = fopen((DEFCHAR *)prf_file,"r")) == NULL)
       {
          rc = RC_ACCESS_DENIED;
          display_error(8,prf_file,FALSE);
       }
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       if (rc == RC_OK)
       {
          rc = execute_command_file(fp);
@@ -748,7 +748,7 @@ short defaults_for_first_file()
       CURRENT_VIEW->x[i] = CURRENT_VIEW->y[i] = 0;
 
    CURRENT_FILE = (FILE_DETAILS *)NULL;
-   
+
    CURRENT_SCREEN.screen_view = CURRENT_VIEW;
 
    number_of_views++;
@@ -815,7 +815,7 @@ VIEW_DETAILS *base_view;
       CURRENT_VIEW->autoscroll =      base_view->autoscroll;
       CURRENT_VIEW->boundmark =       base_view->boundmark;
       CURRENT_VIEW->syntax_headers =  base_view->syntax_headers;
-    
+
       for (i=0;i<VIEW_WINDOWS;i++)
       {
          CURRENT_VIEW->y[i] = base_view->y[i];
@@ -979,16 +979,16 @@ FILE_DETAILS *fd;
    short rc=RC_OK;
 
    TRACE_FUNCTION("default.c: default_file_attributes");
-  
+
    set_file_defaults(CURRENT_FILE);
-  
+
    CURRENT_FILE->fname =           (CHARTYPE *)NULL;
    CURRENT_FILE->fpath =           (CHARTYPE *)NULL;
    CURRENT_FILE->autosave_fname =  (CHARTYPE *)NULL;
    CURRENT_FILE->file_views =      1;
-   CURRENT_FILE->first_line =      (LINE *)NULL;
-   CURRENT_FILE->last_line =       (LINE *)NULL;
-   CURRENT_FILE->editv =           (LINE *)NULL;
+   CURRENT_FILE->first_line =      (_LINE *)NULL;
+   CURRENT_FILE->last_line =       (_LINE *)NULL;
+   CURRENT_FILE->editv =           (_LINE *)NULL;
    CURRENT_FILE->first_reserved  = (RESERVED *)NULL;
    CURRENT_FILE->fmode =           0;
    CURRENT_FILE->modtime =         0;

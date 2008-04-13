@@ -1,0 +1,47 @@
+Welcome to PDCurses!
+====================
+
+PDCurses is an implementation of X/Open curses for multiple platforms. 
+The latest version can be found at:
+
+   http://pdcurses.sourceforge.net/
+
+For more information, please read the HISTORY and INSTALL files.
+
+
+Legal Stuff
+-----------
+
+The core curses package is Public Domain, but small portions of this 
+package are subject to various copyright conditions.  Each directory in 
+this package contains a README file. In each of these README files is a 
+section titled "Distribution Status" which describes the distribution 
+status of the files within that directory.
+
+Although the core PDCurses package is Public Domain, mention of PDCurses 
+in the documentation of packages linked with it is greatly appreciated.
+
+
+Ports
+-----
+
+PDCurses has been ported to DOS, OS/2, Win32, X11 and SDL. A directory 
+containing the port-specific source files exists for each of these 
+platforms.
+
+
+Distribution Status
+-------------------
+
+All files in this directory except configure, config.guess and 
+config.sub are released to the Public Domain. config.guess and 
+config.sub are under the GPL; configure is under a free license 
+described within it.
+
+
+Maintainer
+----------
+
+The PDCurses package (and its predecessors) have had various maintainers 
+over the years.  The contact details of the current maintainer of the 
+package are listed in the file "maintain.er".

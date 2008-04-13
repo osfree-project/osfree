@@ -199,7 +199,7 @@ bool selective;
 /***********************************************************************/
 {
    LINETYPE num_lines=0L,long_n=0L,long_m=0L;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    CHARTYPE *old_str=NULL,*new_str=NULL;
    short rc=0,selective_rc=RC_OK;
    short direction=DIRECTION_FORWARD;
@@ -325,7 +325,7 @@ bool selective;
 
    if (true_line != CURRENT_VIEW->focus_line)
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
 /*  pre_process_line(CURRENT_VIEW,true_line,(LINE *)NULL);*/
    }
    number_lines = 0L;
@@ -489,7 +489,7 @@ bool selective;
    if (number_changes == 0L)
    {
       display_error(36,(CHARTYPE *)"",FALSE);
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       TRACE_RETURN();
       return(RC_NO_LINES_CHANGED);
    }
@@ -508,13 +508,13 @@ bool selective;
       {
          CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line = true_line;
       }
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       build_screen(current_screen);
       display_screen(current_screen);
    }
    else
    {
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       resolve_current_and_focus_lines(CURRENT_VIEW,last_true_line,num_file_lines,direction,TRUE,FALSE);
    }
 
@@ -550,7 +550,7 @@ bool sos_command;
 {
 /*--------------------------- local data ------------------------------*/
    register short i=0;
-   LINE *curr=NULL,*save_curr=NULL;
+   _LINE *curr=NULL,*save_curr=NULL;
    unsigned short x=0,y=0;
    short new_col=0;
    bool on_bottom_of_file=FALSE,on_bottom_of_screen=FALSE;
@@ -611,7 +611,7 @@ bool sos_command;
             CURRENT_VIEW->focus_line = true_line + 1L;
             if (make_current)
                CURRENT_VIEW->current_line = true_line + 1L;
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
             break;
          case WINDOW_FILEAREA:
          case WINDOW_PREFIX:
@@ -681,7 +681,7 @@ bool sos_command;
             break;
       }
    }
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    build_screen(current_screen);
    display_screen(current_screen);
 
@@ -815,7 +815,7 @@ LINETYPE line;
  unsigned short y=0,x=0;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("execute.c: execute_makecurr");
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
 
  CURRENT_VIEW->current_line = line;
  if (CURRENT_VIEW->current_window == WINDOW_PREFIX)
@@ -848,7 +848,7 @@ bool sos,zone_shift;
 {
 /*--------------------------- local data ------------------------------*/
    unsigned short y=0,x=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE abs_num_lines=(num_lines < 0L ? -num_lines : num_lines);
    LINETYPE num_file_lines=0L,i=0L;
    LINETYPE num_actual_lines=0L;
@@ -860,7 +860,7 @@ bool sos,zone_shift;
    bool adjust_alt=FALSE;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("execute.c: execute_shift_command");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
       getyx(CURRENT_WINDOW_FILEAREA,y,x);
    else
@@ -997,7 +997,7 @@ bool sos,zone_shift;
    /*
     * Display the new screen...
     */
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    resolve_current_and_focus_lines(CURRENT_VIEW,true_line,num_file_lines,direction,TRUE,sos);
    if (CURRENT_TOF || CURRENT_BOF)
       rc = RC_TOF_EOF_REACHED;
@@ -1020,7 +1020,7 @@ short target_type;
 {
 /*--------------------------- local data ------------------------------*/
    unsigned short y=0,x=0;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE abs_num_lines=(num_lines < 0L ? -num_lines : num_lines);
    LINETYPE num_file_lines=0L,i=0L;
    LINETYPE num_actual_lines=0L;
@@ -1029,7 +1029,7 @@ short target_type;
    bool adjust_alt=FALSE;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("execute.c: execute_set_lineflag");
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
       getyx(CURRENT_WINDOW_FILEAREA,y,x);
    else
@@ -1085,7 +1085,7 @@ short target_type;
 /*---------------------------------------------------------------------*/
 /* Display the new screen...                                           */
 /*---------------------------------------------------------------------*/
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    resolve_current_and_focus_lines(CURRENT_VIEW,true_line,num_file_lines,direction,TRUE,FALSE);
    if (CURRENT_TOF || CURRENT_BOF)
       rc = RC_TOF_EOF_REACHED;
@@ -1152,7 +1152,7 @@ LENGTHTYPE start_col,end_col;
 {
 /*--------------------------- local data ------------------------------*/
    bool adjust_alt=FALSE;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    LINETYPE i,num_actual_lines=0L,num_file_lines=0L;
    short rc=RC_OK;
 /*--------------------------- processing ------------------------------*/
@@ -1224,7 +1224,7 @@ LENGTHTYPE start_col,end_col;
 /*---------------------------------------------------------------------*/
    if (adjust_alt)
       increment_alt(CURRENT_FILE);
-   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+   pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    resolve_current_and_focus_lines(CURRENT_VIEW,true_line,num_file_lines,direction,TRUE,FALSE);
    TRACE_RETURN();
    return rc;
@@ -1264,7 +1264,7 @@ CHARTYPE which_case;
       TRACE_RETURN();
       return(rc);
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    /*
     * Determine in which direction we are working.
     */
@@ -1345,8 +1345,8 @@ LINETYPE *lines_affected;
    short  direction=0;
    LINETYPE num_lines=0L,off=0L,adjust_line=dest_line,num_actual_lines=0L;
    LINETYPE i=0L,num_pseudo_lines=0L;
-   LINE *curr_src=NULL,*curr_dst=NULL;
-   LINE *save_curr_src=NULL,*save_curr_dst=NULL;
+   _LINE *curr_src=NULL,*curr_dst=NULL;
+   _LINE *save_curr_src=NULL,*save_curr_dst=NULL;
    FILE_DETAILS *src_file=NULL,*dst_file=NULL;
 /*--------------------------- processing ------------------------------*/
    TRACE_FUNCTION("execute.c: rearrange_line_blocks");
@@ -1449,7 +1449,7 @@ command,source,start_line,end_line,dest_line);
                         return(RC_OUT_OF_MEMORY);
                      }
                      /*
-                      * If moving lines within the same file, move any line 
+                      * If moving lines within the same file, move any line
                       * name with the line also.
                       */
                      if (command == COMMAND_MOVE_COPY_SAME)
@@ -1757,7 +1757,7 @@ command,source,start_line,end_line,dest_line);
          break;
    }
    if (command != COMMAND_MOVE_DELETE_DIFF)
-      pre_process_line(CURRENT_VIEW,dst_view->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,dst_view->focus_line,(_LINE *)NULL);
    if ( (source == SOURCE_BLOCK
       || source == SOURCE_BLOCK_RESET )
    && display_screens > 1)
@@ -1803,7 +1803,7 @@ bool point_on;
 /***********************************************************************/
 {
 /*--------------------------- local data ------------------------------*/
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LINETYPE dummy=0L;
 /*--------------------------- processing ------------------------------*/
  TRACE_FUNCTION("execute.c: execute_set_point");
@@ -1813,7 +1813,7 @@ bool point_on;
 /* Find a line that already has the same name. If one exists, remove   */
 /* the name.                                                           */
 /*---------------------------------------------------------------------*/
-    if ((curr = find_named_line(name,&dummy,FALSE)) != (LINE *)NULL)
+    if ((curr = find_named_line(name,&dummy,FALSE)) != (_LINE *)NULL)
       {
        (*the_free)(curr->name);
        curr->name = (CHARTYPE *)NULL;
@@ -1836,7 +1836,7 @@ bool point_on;
 /* Find a line that already has the same name. If one exists, remove   */
 /* the name otherwise display an error.                                */
 /*---------------------------------------------------------------------*/
-    if ((curr = find_named_line(name,&dummy,FALSE)) != (LINE *)NULL)
+    if ((curr = find_named_line(name,&dummy,FALSE)) != (_LINE *)NULL)
       {
        (*the_free)(curr->name);
        curr->name = (CHARTYPE *)NULL;
@@ -1866,7 +1866,7 @@ unsigned short col;
 /*--------------------------- local data ------------------------------*/
  register short i=0;
  short col_break=0,cursor_offset=0;
- LINE *curr=NULL,*next_line=NULL;
+ _LINE *curr=NULL,*next_line=NULL;
  bool bnewline=FALSE,cursor_wrap=FALSE;
  CHARTYPE *buf=NULL,*word_to_wrap=NULL;
  short next_line_start=0,length_word=0,last_col=0;
@@ -1977,14 +1977,14 @@ unsigned short col;
    }
  else
    {
-    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line+1L,(LINE *)NULL);
+    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line+1L,(_LINE *)NULL);
     (void)meminschr(rec,' ',CURRENT_VIEW->margin_left-1,max_line_length,rec_len++);
     (void)meminsmem(rec,buf,length_word,CURRENT_VIEW->margin_left-1,
                     max_line_length,rec_len);
     rec_len += length_word;
-    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line+1L,(LINE *)NULL,TRUE);
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line+1L,(_LINE *)NULL,TRUE);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
  (*the_free)(buf);
 /*---------------------------------------------------------------------*/
@@ -1992,7 +1992,7 @@ unsigned short col;
 /*---------------------------------------------------------------------*/
  if (cursor_wrap)
    {
-    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+    post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
     build_screen(current_screen);
     THEcursor_down(TRUE);
     rc = Sos_firstchar((CHARTYPE *)"");
@@ -2030,7 +2030,7 @@ bool cursorarg;
  register short i=0;
  short num_cols=0,num_blanks_focus=0,num_blanks_next=0;
  unsigned short x=0,y=0;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  LINETYPE true_line=0L;
  LENGTHTYPE col=0;
 /*--------------------------- processing ------------------------------*/
@@ -2076,7 +2076,7 @@ bool cursorarg;
 /*---------------------------------------------------------------------*/
 /* Copy any changes in the focus line to the linked list.              */
 /*---------------------------------------------------------------------*/
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
 /*---------------------------------------------------------------------*/
 /* Find the current LINE pointer for the true line.                    */
 /*---------------------------------------------------------------------*/
@@ -2119,13 +2119,13 @@ bool cursorarg;
                *(curr->line+(col)) = '\0';
                increment_alt(CURRENT_FILE);
             }
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
          }
          else
          {
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
             Sos_delend((CHARTYPE *)"");
-            post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+            post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
          }
          break;
     case SPLTJOIN_JOIN:
@@ -2156,7 +2156,7 @@ bool cursorarg;
          else
             num_cols = 0;
          if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->current_line,(_LINE *)NULL);
          meminsmem(rec,curr->next->line+num_cols,curr->next->length-num_cols,
                       col,max_line_length,col);
          if (col+curr->next->length-num_cols > max_line_length)
@@ -2164,10 +2164,10 @@ bool cursorarg;
             display_error(0,(CHARTYPE*)"Truncated",FALSE);
          }
          rec_len = min(max_line_length,col+curr->next->length-num_cols);
-         post_process_line(CURRENT_VIEW,true_line,(LINE *)NULL,TRUE);
+         post_process_line(CURRENT_VIEW,true_line,(_LINE *)NULL,TRUE);
          curr = delete_LINE(CURRENT_FILE->first_line,CURRENT_FILE->last_line,curr->next,DIRECTION_BACKWARD);
          if (CURRENT_VIEW->current_window == WINDOW_COMMAND)
-            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+            pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
 /*---------------------------------------------------------------------*/
 /* If on the bottom line, use the previous line.                       */
 /*---------------------------------------------------------------------*/
@@ -2193,7 +2193,7 @@ bool cursorarg;
  &&  CURRENT_VIEW->current_window == WINDOW_COMMAND)
  {
     CURRENT_VIEW->current_line++;
-    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+    pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
     if (CURRENT_VIEW->current_window != WINDOW_COMMAND)
     {
        build_screen(current_screen);
@@ -2307,7 +2307,7 @@ bool putdel;
          end_col = MARK_VIEW->mark_end_col-1;
       }
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    if (clip)
    {
       if ((rc = setclipboard(CURRENT_FILE,
@@ -2484,7 +2484,7 @@ short *macrorc;
     */
    if (rexx_support)
    {
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       rc = execute_macro_file(macroname,tmpargs,macrorc,allow_interactive);
       if (rc != RC_OK)
       {
@@ -2503,7 +2503,7 @@ short *macrorc;
          rc = RC_ACCESS_DENIED;
          display_error(8,macroname,FALSE);
       }
-      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+      post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
       if (rc == RC_OK)
       {
          rc = execute_command_file(fp);
@@ -2564,7 +2564,7 @@ bool *flag;
 /*---------------------------------------------------------------------*/
  len = strlen((DEFCHAR *)params);
 
- if ((len < 2) 
+ if ((len < 2)
  || (toupper(params[0]) != 'O'))
    {
     display_error(1,(CHARTYPE *)inparams,FALSE);
@@ -2656,12 +2656,12 @@ short *base,*off;
 }
 /***********************************************************************/
 #ifdef HAVE_PROTO
-short processable_line(VIEW_DETAILS *view,LINETYPE true_line,LINE *curr)
+short processable_line(VIEW_DETAILS *view,LINETYPE true_line,_LINE *curr)
 #else
 short processable_line(view,true_line,curr)
 VIEW_DETAILS *view;
 LINETYPE true_line;
-LINE *curr;
+_LINE *curr;
 #endif
 /***********************************************************************/
 {
@@ -2712,7 +2712,7 @@ bool expand,inc_alt,use_tabs,add_to_recovery;
  LINETYPE i=0L,num_actual_lines=0L;
  LINETYPE num_lines=0L,true_line=0L,num_file_lines=0L;
  short direction=0,rc=RC_OK;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  TARGET target;
  short target_type=TARGET_NORMAL|TARGET_BLOCK_CURRENT|TARGET_ALL;
  bool lines_based_on_scope=FALSE;
@@ -2761,7 +2761,7 @@ bool expand,inc_alt,use_tabs,add_to_recovery;
        return(rc);
       }
    }
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
 /*---------------------------------------------------------------------*/
 /* Determine in which direction we are working.                        */
 /*---------------------------------------------------------------------*/
@@ -2838,7 +2838,7 @@ bool expand,inc_alt,use_tabs,add_to_recovery;
 /* If STAY is OFF, change the current and focus lines by the number    */
 /* of lines calculated from the target.                                */
 /*---------------------------------------------------------------------*/
- pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+ pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
  resolve_current_and_focus_lines(CURRENT_VIEW,true_line,num_file_lines,direction,TRUE,FALSE);
  if (CURRENT_TOF || CURRENT_BOF)
     rc = RC_TOF_EOF_REACHED;
@@ -2862,7 +2862,7 @@ short off;
  LINETYPE i=0L,num_actual_lines=0L;
  LINETYPE num_lines=0L,true_line=0L;
  short direction=0,rc=RC_OK;
- LINE *curr=NULL;
+ _LINE *curr=NULL;
  TARGET target;
  short target_type=TARGET_NORMAL|TARGET_BLOCK_CURRENT|TARGET_ALL;
  bool lines_based_on_scope=FALSE;
@@ -2880,7 +2880,7 @@ short off;
     TRACE_RETURN();
     return(rc);
    }
- post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+ post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
 /*---------------------------------------------------------------------*/
 /* Determine in which direction we are working.                        */
 /*---------------------------------------------------------------------*/
@@ -3027,7 +3027,7 @@ short target_type;
       else
          str = lastop[LASTOP_FIND].value;
    }
-   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL,TRUE);
+   post_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL,TRUE);
    initialise_target(&target);
    /*
     * Force the ZONE settings to start at 1 and end at parameter length.
@@ -3048,7 +3048,7 @@ short target_type;
       initialise_target(&target);
       true_line = (negative ? CURRENT_FILE->number_lines+1 : 0L);
       CURRENT_VIEW->focus_line = CURRENT_VIEW->current_line = true_line;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
       rc = validate_target(str,&target,target_type,true_line,TRUE,FALSE);
    }
    /*
@@ -3081,7 +3081,7 @@ short target_type;
    /*
     * Target found, so advance the cursor...
     */
-/* post_process_line(CURRENT_VIEW,save_focus_line,(LINE *)NULL,TRUE);*/
+/* post_process_line(CURRENT_VIEW,save_focus_line,(_LINE *)NULL,TRUE);*/
    if (wrapped)
    {
       CURRENT_VIEW->focus_line = save_focus_line;
@@ -3092,7 +3092,7 @@ short target_type;
          CURRENT_VIEW->current_line = true_line;
       else
          CURRENT_VIEW->focus_line = true_line;
-      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(LINE *)NULL);
+      pre_process_line(CURRENT_VIEW,CURRENT_VIEW->focus_line,(_LINE *)NULL);
    }
    rc = advance_current_or_focus_line(target.num_lines);
    free_target(&target);
@@ -3187,10 +3187,10 @@ bool rexx_var;
 /***********************************************************************/
 {
    short rc=RC_OK;
-   LINE *curr=NULL;
+   _LINE *curr=NULL;
    int len_var=0,len_val=0;
    CHARTYPE *value=NULL;
-   LINE *first=NULL;
+   _LINE *first=NULL;
 
    TRACE_FUNCTION("execute.c: set_editv");
    first = (editv_file)?CURRENT_FILE->editv:editv;
@@ -3240,7 +3240,7 @@ bool rexx_var;
    }
    else
    {
-      curr = lll_add(first,NULL,sizeof(LINE));
+      curr = lll_add(first,NULL,sizeof(_LINE));
       if (curr == NULL)
       {
          if (rexx_var && value)
@@ -3301,7 +3301,7 @@ CHARTYPE *params;
    CHARTYPE strip[EDITV_PARAMS];
    CHARTYPE *p=NULL,*str=NULL;
    unsigned short num_params=0;
-   LINE *curr=NULL,*first=NULL;
+   _LINE *curr=NULL,*first=NULL;
    int key=0,lineno=0,i,len_str,len_name,rem,len;
    short rc=RC_OK;
 
@@ -3441,7 +3441,7 @@ CHARTYPE *params;
 #ifdef CAN_RESIZE
             if ( is_termresized() )
                continue;
-#endif     
+#endif
             break;
          }
          THERefresh( (CHARTYPE *)"" );
@@ -3647,7 +3647,7 @@ bool ignore_rexx;
                len_params = strlen((DEFCHAR *)params);
                editfield = TRUE;
                delimiter = *(params);
-               if (delimiter == 'T' 
+               if (delimiter == 'T'
                ||  delimiter == 't'
                ||  delimiter == 'Y'
                ||  delimiter == 'y'
@@ -3854,7 +3854,7 @@ bool ignore_rexx;
                params += i;
                strtrunc(params);
                len_params = strlen((DEFCHAR *)params);
-  
+
                state = STATE_START;
                i = 0;
                break;
@@ -3963,7 +3963,7 @@ bool ignore_rexx;
     * buttons, initial value and width of screen
     */
    max_width = terminal_cols - 2;
-   if (title) 
+   if (title)
       title_length = strlen((DEFCHAR *)title);
    if (initial)
       initial_length = strlen((DEFCHAR *)initial);
@@ -4232,7 +4232,7 @@ bool ignore_rexx;
             bool found=FALSE;
             for (i=0;i<num_buttons;i++)
             {
-               if ( x >= button_col[i] 
+               if ( x >= button_col[i]
                &&   x <= (button_col[i] + button_len[i]) )
                {
                   found = TRUE;
@@ -4265,7 +4265,7 @@ bool ignore_rexx;
          /*
           * Got a valid button. Check if its a click or press
           */
-         if (ba == BUTTON_CLICKED 
+         if (ba == BUTTON_CLICKED
          ||  ba == BUTTON_RELEASED)
          {
             /*
@@ -4453,7 +4453,7 @@ CHARTYPE *params;
       switch( state )
       {
          case STATE_START:
-            if ( params[i] == 'E' 
+            if ( params[i] == 'E'
             ||   params[i] == 'e' )
             {
                state = STATE_POPUP_ESCAPE;
@@ -4478,7 +4478,7 @@ CHARTYPE *params;
                state = STATE_POPUP_LOCATION_TEXT;
                break;
             }
-            if ( params[i] == 'I' 
+            if ( params[i] == 'I'
             ||   params[i] == 'i' )
             {
                state = STATE_POPUP_INITIAL;
@@ -4781,7 +4781,7 @@ CHARTYPE *params;
     * If we have an error from the above, or if ESCAPE is the only option
     * specified.
     */
-   if ( rc == RC_OK 
+   if ( rc == RC_OK
    &&  other_options != 0 )
    {
       /*
@@ -5116,7 +5116,7 @@ CHARTYPE **args;
          /*
           * Got a valid line. Check if its a click or press
           */
-         if (ba == BUTTON_CLICKED 
+         if (ba == BUTTON_CLICKED
          ||  ba == BUTTON_RELEASED)
          {
             /*

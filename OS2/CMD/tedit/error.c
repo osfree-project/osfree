@@ -42,8 +42,8 @@ static char RCSid[] = "$Id: error.c,v 1.7 2002/04/17 07:39:48 mark Exp $";
 CHARTYPE *last_message=NULL;          /* contents of last error message */
 int last_message_length=0;
 static int errors_displayed=0;            /* number of errors displayed */
-static LINE *first_error=NULL;                   /* first error message */
-static LINE *last_error=NULL;                     /* last error message */
+static _LINE *first_error=NULL;                   /* first error message */
+static _LINE *last_error=NULL;                     /* last error message */
 
 #ifdef HAVE_PROTO
 static void open_msgline(CHARTYPE,short,ROWTYPE);
@@ -378,7 +378,7 @@ static CHARTYPE _THE_FAR *error_message[] =
    /*
     * Append the current message to the end of the error linked list.
     */
-   last_error = lll_add(first_error,last_error,sizeof(LINE));
+   last_error = lll_add(first_error,last_error,sizeof(_LINE));
    if (last_error == NULL)
    {
       TRACE_RETURN();
@@ -506,12 +506,12 @@ void expose_msgline()
 #endif
 /***********************************************************************/
 {
-   LINE *curr_error=NULL;
+   _LINE *curr_error=NULL;
    register int i=0,errors_to_display=0;
    CHARTYPE msgline_base=POSITION_TOP;
    short msgline_off=2;
    ROWTYPE msgline_rows=5,max_rows,start_row;
-   
+
    TRACE_FUNCTION("error.c:   expose_msgline");
    /*
     * If msgmode is off, don't display any errors.

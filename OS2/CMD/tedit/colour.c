@@ -43,8 +43,8 @@ static char RCSid[] = "$Id: colour.c,v 1.17 2002/06/09 09:26:16 mark Exp $";
 static COLOUR_DEF _THE_FAR the_colours[ATTR_MAX] =
 {
    /* foreground   background   modifier  mono                     */
-   {COLOR_WHITE   ,COLOR_BLUE  ,A_NORMAL ,A_NORMAL                 }, /* FILEAREA    */
-   {COLOR_WHITE   ,COLOR_BLUE  ,A_BOLD   ,A_BOLD                   }, /* CURLINE     */
+   {COLOR_WHITE   ,COLOR_BLUE  ,A_BLINK  ,A_NORMAL                 }, /* FILEAREA    */
+   {COLOR_WHITE   ,COLOR_BLUE  ,A_BLINK   ,A_BOLD                   }, /* CURLINE     */
    {COLOR_BLUE    ,COLOR_WHITE ,A_NORMAL ,A_REVERSE                }, /* BLOCK       */
    {COLOR_RED     ,COLOR_WHITE ,A_NORMAL ,A_BOLD|A_REVERSE         }, /* CBLOCK      */
    {COLOR_BLACK   ,COLOR_CYAN  ,A_NORMAL ,A_BOLD                   }, /* CMDLINE     */
@@ -55,9 +55,9 @@ static COLOUR_DEF _THE_FAR the_colours[ATTR_MAX] =
    {COLOR_BLACK   ,COLOR_CYAN  ,A_NORMAL ,A_REVERSE                }, /* CPREFIX     */
    {COLOR_RED     ,COLOR_WHITE ,A_NORMAL ,A_BOLD|A_REVERSE         }, /* PENDING     */
    {COLOR_YELLOW  ,COLOR_BLUE  ,A_BOLD   ,A_BOLD                   }, /* SCALE       */
-   {COLOR_WHITE   ,COLOR_BLUE  ,A_BOLD   ,A_BOLD                   }, /* TOFEOF      */
-   {COLOR_WHITE   ,COLOR_BLUE  ,A_BOLD   ,A_BOLD                   }, /* CTOFEOF     */
-   {COLOR_YELLOW  ,COLOR_BLUE  ,A_BOLD   ,A_BOLD                   }, /* TABLINE     */
+   {COLOR_WHITE   ,COLOR_BLUE  ,A_NORMAL ,A_BOLD                   }, /* TOFEOF      */
+   {COLOR_CYAN    ,COLOR_BLUE  ,A_BOLD   ,A_BOLD                   }, /* CTOFEOF     */
+   {COLOR_YELLOW  ,COLOR_BLUE  ,A_BLINK  ,A_BOLD                   }, /* TABLINE     */
    {COLOR_RED     ,COLOR_WHITE ,A_NORMAL ,A_BOLD                   }, /* SHADOW      */
    {COLOR_BLUE    ,COLOR_WHITE ,A_NORMAL ,A_REVERSE                }, /* STATAREA    */
    {COLOR_RED     ,COLOR_WHITE ,A_NORMAL ,A_BOLD                   }, /* DIVIDER     */
@@ -682,7 +682,7 @@ COLOUR_ATTR *pattr;
    TRACE_RETURN();
    return(RC_OK);
 }
-   
+
 /***********************************************************************/
 #ifdef HAVE_PROTO
 chtype merge_curline_colour(COLOUR_ATTR *attr, COLOUR_ATTR *ecolour)
