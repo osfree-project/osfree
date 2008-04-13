@@ -1,0 +1,97 @@
+/* New response file type, designed by Kiewitz */
+
+MMINSTALL = (
+   SOURCE = "R:\\MMeCS\\base"
+   TARGET = "C:\\MMOS2"
+
+   MMINSTGROUP[3] = (
+      ( GROUPID    = 2
+        CUSTOMDATA = "CARDCOUNT=1;VALUE=7;VALUE=01;VALUE=530"
+      )
+      ( GROUPID    = 77
+        CUSTOMDATA = "CARDCOUNT=3;VALUE=1"
+      )
+      ( GROUPID    = 33
+        CUSTOMDATA = "CARDCOUNT=1;VALUE=5"
+      )
+    )
+ )
+
+GROUPID is the ssgroup id from control.scr
+CARDCOUNT is the GENIN-cardcount, VALUE is the result value for the specific
+ user prompt
+
+MINSTALL_SelectGroup (GroupID)
+MINSTALL_DeSelectGroup (GroupID)
+MINSTALL_SetCARDINFOCardCountForGroup (GroupID, SelectedCards)
+MINSTALL_SetCARDINFOChoiceForGroup (GroupID, PromptNo, ChoiceNo)
+
+MINSTALL_GetPublicGroupArrayPtr (*GroupArrayPtr) -> ULONG -> Count of groups
+
+typedef struct _MINSTPUBGROUP {
+   ULONG      ID;
+   CHAR       Name[MINSTMAX_STRLENGTH];
+   CHAR       Version[MINSTMAX_STRLENGTH];
+   CHAR       InstalledVersion[MINSTMAX_STRLENGTH];
+   ULONG      SpaceNeeded;
+   ULONG      MaxCardCount
+   ULONG      PromptsCount;
+   PCHAR      PromptTitlePtr[MINSTMAX_GENINPROMPTS];    // ASCIIZ String
+   ULONG      PromptChoiceCount[MINSTMAX_GENINPROMPTS]; // Count of Choice
+   ULONG      PromptChoiceDefault[MINSTMAX_GENINPROMPTS]; // Defaults for Choice
+   PCHAR      PromptChoiceStrings[MINSTMAX_GENINPROMPTS]; // ASCIIZ Strings
+ } MINSTPUBGROUP;
+typedef MINSTPUBGROUP *PMINSTPUBGROUP;
+
+/M -> run from MMTEMP??
+/L:file -> logfile
+/R:file -> response file mode (CID)
+/F:file -> points to control.scr file (CLI mode)
+/C:file -> create response file (for CID)
+
+
+
+New MINSTALL Response File Format:
+-----------------------------------
+Example:
+
+/* New response file type, designed by Kiewitz */
+
+MMINSTALL = (
+   SOURCE = "R:\\MMeCS\\base"
+   TARGET = "C:\\MMOS2"
+
+   MMINSTGROUP[3] = (
+      ( GROUPID    = 2
+        CUSTOMDATA = "CARDCOUNT=1;VALUES[1]=9"
+      )
+      ( GROUPID    = 77
+        CUSTOMDATA = "CARDCOUNT=3;VALUES[1]=2;VALUES[2]=3;VALUES[3]=4"
+      )
+      ( GROUPID    = 33
+        CUSTOMDATA = "CARDCOUNT=1;VALUES[1]=1,4,6"
+      )
+    )
+ )
+------------------------------------
+GROUPID is the ssgroup id from control.scr
+CARDCOUNT is the GENIN-cardcount, VALUES[x] is the choice numbers from CARDINFO
+(1 - 1st choice, 2 - 2nd choice, etc.). The array-number specifies the
+corresponding card. The VALUES[x] do not have to be in order. Card 2 values may
+get specified before card 1 values. CARDCOUNT *has* to be the first entry.
+Also none of those variable-names is case-sensitive, this means VaLuEs[x]=x
+would work as well.
+
+I removed "CHANGECONFIG" from this response file. It will get ignored, when being used on the old formats. 
+This could do trouble, but CFGSYS.DLL is not capable of doing so and imho it's just rubbish anyway, because 
+old minstall generated an "updated" config.sys in C:\MMOS2, which means the user would need to copy it 
+over manually, *but* minstall specified that those "changes" would need to get copied over. Actually the file is 
+an updated config.sys and afaik this feature is of no use.
+
+Also installing multiple packages at the same time is now possible as well.
+Simply specify multiple 'MMINSTALL' arrays (like the construct in the example)
+and that's it.
+
+TARGET may be "". If that's the case, MMBase-environment variable will get used
+as Destination. If no MMBase-environment variable is found, installation will
+fail. SOURCE and TARGET must be specified before any MMINSTGROUP[x] entries.

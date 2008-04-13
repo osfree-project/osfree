@@ -1,0 +1,68 @@
+Generate \SEM32\IBMMULTIMEDIAINSTALLXYZQ
+to stop original MINSTALL from working on a system
+
+CWINST.DLL - CWINSTENTRY - banned from installation
+ - "Banned MMOS/2 feature"
+
+Automatic:
+sourcedir (0) -> \\
+
+minstall.exe -> Normal Call -> Calls Generic Installer
+                CID         -> Call MINSTALL.DLL, loadin feature and execute
+------------------------------------------------------------
+IM_CODEC1INSTALL (PINSTCODECINIFILEINFO)
+IM_CODEC2INSTALL (PINSTCODECINIFILEINFO)
+
+
+
+IM_CONFIGDELETE
+IM_CONFIGENUMERATE
+IM_CONFIGMERGE
+IM_CONFIGNEW
+IM_CONFIGQUERYCHANGED
+IM_CONFIGREPLACE
+IM_CONFIGUPDATE
+IM_CREATE_WPS_OBJECT
+IM_DESTROY_WPS_OBJECT
+IM_EA_JOIN
+IM_EA_LONG_NAME_JOIN
+IM_LOG_ERROR
+IM_MCI_EXTENDED_SYSINFO
+IM_MCI_SEND_COMMAND
+IM_MIDIMAP_INSTALL
+IM_MMIO_INSTALL
+IM_QUERYPATH
+IM_SPI_INSTALL
+
+
+    /**************************************************************/
+    /*       IO PROC stuff - note that this order is important    */
+    /**************************************************************/
+mmioInstall =
+   (
+   mmioFourCC        = "PCD "
+   mmioDllName       = "$(DEST)pcdio.DLL"
+   mmioDllEntryPoint = "PCDIOProc_Entry"
+   mmioFlags         = 65L
+   mmioExtendLen     = 16L                   /* Always 16 for now */
+   mmioMediaType     = 1L                    /* 1 = Image - defined in mmio.h */
+   mmioIOProcType    = 2L                    /* 2 = File Format */
+   mmioDefExt        = "PCD"
+   )
+
+
+What about including those files into the archiving list
+KEYFILE:C:\MMOS2\MMPM2.INI
+KEYFILE:C:\MMOS2\MMPMCD.INI
+KEYFILE:C:\MMOS2\MMPMCONN.INI
+KEYFILE:C:\MMOS2\MMPMMMIO.INI
+if they are not already in the list?
+
+So the user will also archive those. Are there any more critical files?
+I could implement those, when base installation is done. The files could stay in the archiving list, because 
+archiver will ignore missing files (afaik, not sure about it).
+
+Good idea?
+Anyway, I'm still going to do internal backupping of MMPM2.INI, because that's human-read/writeable. I will 
+generate \MMOS2\MMPM2.BAK and +R+H+S it, this was taken from the "standard" that the WPS uses with 
+its INI files.

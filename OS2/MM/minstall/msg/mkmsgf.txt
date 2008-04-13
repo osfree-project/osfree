@@ -1,0 +1,360 @@
+ MKMSGF infile outfile [options] 
+
+    OR 
+
+ MKMSGF @controlfile 
+
+ The infile field specifies the input file that contains message definitions. The 
+ input-file name can be any valid OS/2* file name, optionally preceded by a 
+ drive letter and a path. 
+
+ The outfile field specifies the output file created by MKMSGF.  The output-file 
+ name can be any valid OS/2* file name, optionally preceded by a drive letter 
+ and a path. 
+
+ To differentiate between the two files, the following convention is 
+ recommended, using the same file name. 
+
+ o The infile file should have a .TXT extension. 
+ o The outfile file should have a .MSG extension. 
+ 
+ Note:  The output file cannot have the same file name and extension as the 
+        input file.
+
+   
+
+ 
+ The input message file is a standard ASCII file that contains three types of 
+ lines: 
+
+ o Comment lines 
+ o Component identifier line 
+ o Component message lines 
+ 
+ Comment Lines 
+
+ Comment lines are allowed anywhere in the input message file, except between 
+ the component identifier and the first message. Comment lines must begin with a 
+ semicolon (;) in the first column. 
+
+ In the Input Message File Example, the comment lines are 
+
+ ; This is a sample of an input
+ ; message file for component DOS
+ ; starting with three comment lines.
+ 
+ Component Identifier Line 
+
+ The component-identifier line contains a three-character name identifier that 
+ precedes all MKMSGF message numbers. 
+
+ In the example, the component identifier is DOS. 
+
+ Component-Message Lines 
+
+ Each component-message line consists of a message header and an ASCII text 
+ message. 
+
+ The message header is comprised of the following parts: 
+
+ o A three-character component identifier 
+ o A four-digit message number 
+ o A single character specifying message type (E, H, I, P, W, ?) 
+ o A colon (:) 
+ o Followed by a blank space. 
+ 
+ The following message types are used: 
+
+ Type   Meaning 
+ E      Error 
+ H      Help 
+ I      Information 
+ P      Prompt 
+ W      Warning 
+ ?      no message assigned to this number 
+ 
+ The message header must begin in the first column of the line. Only one header 
+ can precede the text of a message, although a message can span multiple lines. 
+
+ Message numbers can start at any number, but messages must be numbered 
+ sequentially.  If you do not use a message number, you must insert an empty 
+ entry in its place in the text file. An empty entry consists of the message 
+ number, with ? as the message type, and no text. 
+
+ The character % has a special meaning when used within the text of a 
+ message: 
+
+ %0 is placed at the end of a prompt (type P) to prevent DosGetMessage from 
+ executing a carriage return and line feed. This allows the user to be prompted 
+ for input on the same line as the message text. 
+
+ %1 - %9 are used to identify variable string insertion within the text of a 
+ message. These variables correspond to the Itable and IvCount parameters in 
+ the DosGetMessage call. 
+
+ Component-Message Example 
+
+ For example, DOS0100E: is DOS error message 100. For additional examples, 
+ see the Input Message File Example. 
+
+ 
+ Following is an example of an input message file: 
+
+ ; This is a sample of an input
+ ; message file for component MAB
+ ; starting with three comment lines.
+ MAB
+ MAB0100E: File not found
+ MAB0101?:
+ MAB0102H: Usage: del [drive:][path] filename
+ MAB0103?:
+ MAB0104I: %1 files copied
+ MAB0105W: Warning! All data will be destroyed!
+ MAB0106?:
+ MAB0107?:
+ MAB0108P: Do you wish to apply these patches (Y or N)? %0
+ MAB0109E: Divide overflow
+ 
+
+ 
+ The output file contains the indexed message file that DosGetMessage will use.  
+ The output-file name can be any valid OS/2* file name, optionally preceded by 
+ a drive letter and a path.  The output file cannot have the same name as the 
+ input file. 
+
+ To differentiate between the two files, the following convention is 
+ recommended, using the same file name. 
+
+ o The infile file should have a .TXT extension. 
+ o The outfile file should have a .MSG extension. 
+ 
+ Help-message file names begin with the component identifier, followed by H.MSG. 
+ For example, the help file associated with the component identifier DOS would 
+ be DOSH.MSG. 
+
+ 
+ Text-based messages in different code pages can be created using MKMSGF to 
+ display errors, help information, prompt, or provide general information to the 
+ application user. 
+
+ MKMSGF uses the following parameter formats to build message files: 
+
+ MKMSGF infile outfile /Pcodepage 
+
+ MKMSGF infile outfile /Ddbcsrange or country id 
+
+ MKMSGF infile outfile /LlangID,VerId 
+
+ MKMSGF infile outfile /V 
+
+ MKMSGF infile outfile /? 
+
+ MKMSGF @controlfile 
+ 
+ o Infile is the ASCII-text source file. 
+
+   Example: 
+
+   MSG
+   MSG0001I: (mm%4dd%4yy) %2%4%1%4%3
+   MSG0002I: (dd%4mm%4yy) %1%4%2%4%3
+   MSG0003I: Current date is: %0
+   
+   %0 is a special argument that displays a prompt for user input. 
+
+   %1 - %9 are the arguments the user can use to insert text in a message. 
+
+ o Outfile is the binary output message file. 
+
+ o @controlfile is the message definition file. 
+ 
+ Options 
+
+ /P        Code-page ID for the input message file. 
+
+ /D        DbcsRange or country ID for the input message file. 
+
+ /L        Language family ID (one word) and language version ID (one word). 
+
+ /V        Verbose display of message file control variables as the message file is 
+           being created. See Verbose Option Output Example. 
+
+ /?        Help display of command syntax for MKMSGF. 
+ 
+ Note:  Any combination of /P, /D, /L, and /V switches can be used for either 
+        the command line or @controlfile execution method. 
+
+        The / switch prefix and the - prefix can be used interchangeably when 
+        defining switches to MKMSGF. 
+
+ 
+
+ 
+ The control file (@controlfile) is used to create multiple-code-page message 
+ files.  The at sign (@) is not part of the file name, but rather, a delimiter 
+ required before a control-file name. 
+
+ The control file has the following format: 
+
+ Example: 
+
+ root.in root.out /Pcodepage /Ddbcsrang/ctryid /LlangID,VerId
+ sub.001 sub1.out /Pcodepage /Ddbcsrang/ctryid /LlangID,VerId
+                  .
+                  .
+ sub.00n subn.out /Pcodepage /Ddbcsrang/ctryid /LlangID,VerId 
+
+ The help option (/?)  is invalid due to the purpose of the definition file. 
+
+ Note:  Any combination of /P /D /L and /V switches can be used for either the 
+        command line or msg_definition_file execution method. 
+
+ 
+
+ 
+ When an application requests the message retriever for text associated with a 
+ message number, a test is made to determine if there is a bound message 
+ segment with this executable file.  If true, each bound message segment is 
+ searched for a match with the current session's code-page number. 
+
+ If a match is made, then the message number is searched for.  If it is found, 
+ the message will be returned to the caller. Otherwise, the search of remaining 
+ bound message segments will continue. 
+
+ If no match results from a search of all message segments, the message file on 
+ the disk is searched. DosGetMessage will access the message file under any of 
+ the following conditions: 
+
+ o The message file is in the current directory. 
+ o The message file is in the path specified in the DPATH environment variable 
+   (protect mode). 
+ o The message file is in the path specified in the APPEND environment variable 
+   (real mode). 
+ o The fully-qualified file name is specified in DosGetMessage. 
+ 
+
+ 
+ MKMSGF: Error writing output file 
+           Explanation: Error during output to target file. 
+           Action: Make sure there is sufficient disk space or that the drive is 
+           ready.  Retry the command. 
+
+ MKMSGF: Error reading input file 
+           Explanation: Error during input from source file. 
+           Action: Make sure the source message file exists and that the drive is 
+           ready.  Retry the command. 
+
+ MKMSGF: File not found 
+           Explanation: Input file could not be found 
+           Action: Retry the command, using the correct source message file 
+           name. 
+
+ MKMSGF: Insufficient storage 
+           Explanation: Not enough storage to execute program or too many 
+           messages in the file.  Message limit is about 6000. 
+           Action: Reduce the number of programs running in your system.  Or 
+           reduce the size of the message file by either deleting messages or by 
+           having shorter messages.  Retry the command. 
+
+ MKMSGF: Invalid message file format 
+           Explanation: Input file is not a recognizable message text file. 
+           Action: If an incorrect file name was entered, retry the command with 
+           the correct source message file name. 
+
+ MKMSGF: Message ID out of sequence 
+           Explanation: A message was detected that was out of the required 
+           sequential order. 
+           Action: Correct the error by editing your source message file and 
+           renumbering the messages. You may also want to delete or insert the 
+           appropriate message numbers to achieve the required sequential order. 
+
+ MKMSGF: Message XXXX too long 
+           Explanation: The message was too long to be processed (limit is 
+           approximately 2K characters). 
+           Action: Correct the error by editing your source message file and 
+           making the message shorter. Then, retry the command. 
+
+ MKMSGF: infile[.ext] outfile[.ext] [/V] 
+ [/D <DBCS range or country>] [/P <code page>] [/L <language id,sub id>] 
+           Explanation:  This is the proper syntax for MKMSGF.  It is displayed 
+           when no operands are specified on the command line and after some 
+           syntax errors. 
+           Action: None 
+
+ MKMSGF: Syntax error 
+           Explanation:  The user entered the command incorrectly. 
+           Action: Retry the command using proper syntax. To display the proper 
+           syntax, just enter MKMSGF on the command line. 
+
+ MKMSGF: Codepage %s error in numeric conversion 
+           Explanation:  The code-page ID specified with the /P option is not 
+           numeric. The message file is built with a code-page of zero. 
+           Action:  Retry the command using the correct code-page specification. 
+
+ MKMSGF: Codepage %s is all zeroes 
+           Explanation:  The code-page ID specified with the /P option is zero. 
+           The message file is built with a code-page of zero. 
+           Action:  Retry the command using the correct code-page specification. 
+
+ MKMSGF: Codepage %s is too large 
+           Explanation:  The code-page ID specified with the /P option is too 
+           large. The message file is built with a code-page of zero. 
+           Action:  Retry the command using the correct code-page specification. 
+
+ MKMSGF: Country %u is not supported 
+           Explanation:  The country ID specified in the /D option is not 
+           supported. MKMSGF processing is stopped. 
+           Action:  Retry the command using the correct country code 
+           specification. 
+
+ MKMSGF: DBCS code page not found 
+           Explanation:  No DBCS code page has been found that supports the 
+           DBCS Range specified in the /D option.  MKMSGF processing is stopped. 
+           Action:  Retry the command using the correct DBCS ranges or country 
+           ID for the input message file. 
+
+ MKMSGF: Input file same as output file 
+           Explanation:  The input and output file names are the same, 
+           processing is stopped. 
+           Action:  Correct the command line or the controlfile and restart 
+           MKMSGF. 
+
+ MKMSGF: Invalid language or sub id 
+           Explanation:  The language family ID specified in the /L option is not 
+           supported.  The message file is built with a language family ID of 
+           Action:  Retry the command using the correct language family ID. 
+
+ MKMSGF: Language family %s error in numeric conversion 
+           Explanation:  The language family ID specified with the /L option is 
+           not numeric.  The message file is built with a language family ID of 
+           zero. 
+           Action:  Retry the command using the correct language family ID. 
+
+ MKMSGF: Language family %s is all zeroes 
+           Explanation:  The language family ID specified with the /L option is 
+           zero. The message file is built with a language family ID of zero. 
+           Action:  Retry the command using the correct language family ID. 
+
+ MKMSGF: Language family %s is too large 
+           Explanation:  The language family ID specified with the /L option is 
+           not supported.  The message file is built with a language family ID of 
+           zero. 
+           Action:  Retry the command using the correct language family ID. 
+
+ MKMSGF: More than NN codepages entered 
+           Explanation:  A maximum of NN code-page ID's may specified for a 
+           single message file, Only the first NN will be accepted. 
+           Action:  Retry the command using the correct code-page 
+           specification(s). 
+
+ MKMSGF: No sub id using 1 default 
+           Explanation:  The language version ID specified in the /L option is 
+           either invalid or not supported.  The message file is built using the 
+           default value shown. 
+           Action:  Retry the command using the correct language version ID. 
+
+ MKMSGF: Sub id %s error in numeric conversion 
+           Explanation:  The language version specified with the /L option is not 
+           numeric. The message file is built with a default language version. 
+           Action:  Retry the command using the correct language version ID. 
+ 

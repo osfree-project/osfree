@@ -1,0 +1,164 @@
+RCDATA 11
+BEGIN
+   "6",                        /* Max number of adapters (2 chars)           */
+   "mpu401.hlp",               /* Helpfile name (19 chars)                   */
+   "\0",                       /* Adapter specific dll name (19 chars)       */
+   "\0",                       /* Adapter specific dll entry point (39 chars)*/
+
+   /**** Data for CONFIG.SYS **/
+   "2",                        /* Number of CONFIG.SYS lines (1 char)        */
+   "DEVICE=*PATH*\\MPU401.SYS *VAL**VAL**VAL**VAL**VAL**VAL**VAL**VAL**VAL*/O:LONGNAME /N:*PDD*",
+   "DEVICE=*PATH*\\VMPU401.SYS *PDD*",
+
+   /**** Data for INI File ****/
+   "2",                        /* Number of Drivers to Install (1 char)      */
+  (maximum 6)
+   "MPU-401",                  /* Product name (39 chars)                    */
+   "2.0.0"                     /* Version of the adapter's software (5 chars)*/
+   "MPU401",                   /* PDD Name  (6 chars)                        */
+   "MDM",                      /* MCD table name (19 chars)                  */
+   "\0"                        /* VSD table name (19 chars)                  */
+    -> Generic Information for InstallDrv etc.
+END
+
+RCDATA 12
+BEGIN
+   /**** SEQUENCER Driver ****/
+   "IBMSEQMPU401"              /* Installname (17 chars)                     */
+    -> DrvInstallName
+   "8",                        /* Device type (3 chars)                      */
+    -> DrvDeviceType
+   "1",                        /* Device flag (3 chars)                      */
+    -> DrvDeviceFlag
+   "MIDIMCD",                  /* MCD driver name (19 chars)                 */
+    -> DrvMCDDriver
+   "AUDIOIF",                  /* VSD driver name (19 chars)                 */
+    -> DrvVSDDriver
+   "3",                        /* Share Type (3 chars)                       */
+    -> DrvShareType
+   "MPU-401SEQ",               /* Resource name (17 chars)                   */
+    -> DrvResourceName
+   "1",                        /* # of Resource units (2 chars)              */
+    -> DrvResourceUnits
+   "1",                        /* # of Resource classes (2 chars)            */
+    -> DrvClassArray (Count)
+   "1",                        /* Resource classes (2 char each)             */
+    -> DrvClassNumber (within DrvClassArray)
+
+   "0",                        /* # Valid resource class combos (2 chars)    */
+                               /* Valid resource class combos (2 chars each) */
+    '2'
+    '1', '2'
+    '2', '1' -> classes compatible?!?!
+   ClassComboArray[1][2] = 1;
+   ClassComboArray[2][1] = 1;
+
+    -> ???
+   "1",                        /* # of connectors (2 chars)                  */
+    -> For MciInstallConn
+   "1","IBMAMPMIXMPU401","1",  /* Connectors (2 chars), (17 chars), (2 chars)*/
+    -> ConnType/ConnInstallTo/ConnIndexTo
+
+   "1",                        /* # of extensions (2 chars)                  */
+   "MID",                      /* Extension names (3 chars each)             */
+    -> MciInstallExt (ExtArray)
+
+   "MIDI",                     /* Extended attribute (255 chars)             */
+    -> EATYPES field
+
+   "MIDI",                     /* Alias Name (17 chars)                      */
+    -> MciInstallAlias (AliasString)
+
+   "CHANNELS=1111111111111111,MIDITYPE=General MIDI"
+                               /* Device Parms (255 chars)                   */
+    -> MciInstallParm (ParmString)
+END
+
+RCDATA 13
+BEGIN
+   /**** AMPMIXER Driver *****/
+   "IBMAMPMIXMPU401"           /* Installname (17 chars)                     */
+    -> DrvInstallName
+   "9",                        /* Device type (3 chars)                      */
+    -> DrvDeviceType
+   "2",                        /* Device flag (3 chars)                      */
+    -> DrvDeviceFlag
+   "AMPMXMCD",                 /* MCD driver name (19 chars)                 */
+    -> DrvMCDDriver
+   "AUDIOIF",                  /* VSD driver name (19 chars)                 */
+    -> DrvVSDDriver
+   "3",                        /* Share Type (3 chars)                       */
+    -> DrvShareType
+   "MPU-401AMPMIX",            /* Resource name (17 chars)                   */
+    -> DrvResourceName
+   "1",                        /* # of Resource units (2 chars)              */
+    -> DrvResourceUnits
+   "1",                        /* # of Resource classes (2 chars)            */
+    -> DrvClassArray (Count)
+   "1",                        /* Resource classes (2 char each)             */
+    -> DrvClassNumber (within DrvClassArray)
+
+   "0",                        /* # Valid resource class combos (2 chars)    */
+   "2",                        /* # of connectors (2 chars)                  */
+    -> For MciInstallConn
+   "4", "\0", "0",             /* Connectors (2 chars), (17 chars), (2 chars)*/
+   "14", "\0", "0",
+    -> ConnType/ConnInstallTo/ConnIndexTo
+
+   "0",                        /* # of extensions  (2 chars)                 */
+   /* no extension names */    /* Extension names  (3 chars each)            */
+    -> MciInstallExt (ExtArray)
+
+   "\0",                       /* Extended attribute (255 chars)             */
+
+   "\0",                       /* Alias Name (17 chars)                      */
+    -> MciInstallAlias (AliasString)
+
+   "TREBLE=50,BASS=50,PITCH=50,GAIN=70,BALANCE=50,VOL=100,INPUT=LINE,OUTPUT=SPEAKER,RESOURCEDLL=MPU401,RCID=9"
+                               /* Device Parms (255 chars)                   */
+    -> MciInstallParm (ParmString)
+END
+
+
+YMSAMPMIXOPL3SA
+9
+2
+AMPMXMCD
+AUDIOIF
+3
+Opl3SaA
+2
+2
+1
+1
+
+2 <-- Class Combos?!
+1
+2
+2
+1
+5 <- Connector Count
+4
+
+0
+<
+9
+
+0
+<
+8
+
+0
+<
+10
+
+0
+<
+7
+
+0
+<
+0
+
+
+TREBLE=50,BASS=50,PITCH=50,GAIN=70,BALANCE=50,VOL=100,INPUT=LINE,OUTPUT=SPEAKER,RESOURCEDLL=OPL3SARC,RCID=95
