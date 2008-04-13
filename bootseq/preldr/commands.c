@@ -36,6 +36,8 @@ static char *mb_cmdline;
 #pragma aux modaddr_func   "*"
 #pragma aux lipmodule_func "*"
 
+#pragma aux skip_to "*"
+
 extern lip2_t *l;
 void create_lip_module(lip2_t **l);
 
@@ -182,4 +184,40 @@ lipmodule_func (char *arg, int flags)
 {
   create_lip_module(&l);
   return 0;
+}
+
+/* vbeset MODE */
+int
+vbeset_func (char *arg, int flags)
+{
+#ifndef GRUB_UTIL
+  int mode_number;
+  int pmif_segoff, pmif_len;
+  struct vbe_controller controller;
+  struct vbe_mode mode;
+
+  if (kernel_type != KERNEL_TYPE_MULTIBOOT)
+    {
+      grub_printf("Multiboot kernel must be loaded before vbeset command\n");
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  safe_parse_maxint (&arg, &mode_number);
+
+  if (u_vbectl(&controller, mode_number, 
+               &mode, (unsigned int *)&pmif_segoff, 
+               (unsigned int *)&pmif_len) == -1)
+    return 1;
+
+  create_vbe_module(&controller, sizeof(struct vbe_controller),
+		    &mode, sizeof(struct vbe_mode),
+		    mode_number, pmif_segoff, pmif_len, controller.version);
+
+  /* mode setting was successful */
+  return 0;
+#else
+  errnum = ERR_BAD_ARGUMENT;
+  return 1;
+#endif
 }

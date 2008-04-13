@@ -30,6 +30,12 @@ unsigned long relshift;
 #pragma aux linux_data_tmp_addr "*"
 #pragma aux linux_text_len "*"
 
+#pragma aux get_vbe_controller_info "*"
+#pragma aux get_vbe_mode_info       "*"
+#pragma aux set_vbe_mode            "*"
+#pragma aux reset_vbe_mode          "*"
+#pragma aux get_vbe_pmif            "*"
+
 lip1_t *l1, lip1;
 lip2_t *l2, lip2;
 
@@ -439,6 +445,62 @@ u_setlip (lip2_t *l)
   setlip2(l);
 }
 
+int __cdecl
+u_vbectl(struct vbe_controller *controller, int mode_number, 
+         struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len)
+{
+  if (!mode_number)
+    {
+      reset_vbe_mode ();
+      return -1;
+    }
+
+  /* Preset `VBE2'.  */
+  grub_memmove (controller->signature, "VBE2", 4);
+
+  /* Detect VBE BIOS.  */
+  if (get_vbe_controller_info (controller) != 0x004F)
+    {
+      printmsg (" VBE BIOS is not present.\n");
+      return 1;
+    }
+
+  if (controller->version < 0x0200)
+    {
+      printmsg (" VBE version ");
+      printd((int) (controller->version >> 8));
+      printmsg(".");
+      printd((int) (controller->version & 0xFF));
+      printmsg (" is not supported.\r\n");
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  if (get_vbe_mode_info (mode_number, mode) != 0x004F
+      || (mode->mode_attributes & 0x0091) != 0x0091)
+    {
+      printmsg (" Mode ");
+      printd (mode_number);
+      printmsg (" is not supported.\r\n");
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  /* Now trip to the graphics mode.  */
+  if (set_vbe_mode (mode_number | (1 << 14)) != 0x004F)
+    {
+      printmsg (" Switching to Mode 0x");
+      printd (mode_number);
+      printmsg(" failed.\r\n");
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  get_vbe_pmif(pmif_segoff, pmif_len);
+
+  return 0;
+}
+
 int open2 (char *filename)
 {
   char buf[0x100];
@@ -583,6 +645,7 @@ void setlip2(lip2_t *l2)
   l2->u_boot            = &u_boot;
   l2->u_parm            = &u_parm;
   l2->u_diskctl         = &u_diskctl;
+  l2->u_vbectl          = &u_vbectl;
   l2->u_msg             = &u_msg;
   l2->u_setlip          = &u_setlip;
 }

@@ -47,6 +47,13 @@ u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec,
 }
 
 int __cdecl
+u_vbectl(struct vbe_controller *controller, int mode_number, 
+         struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len)
+{
+   return l->u_vbectl(controller, mode_number, mode, pmif_segoff, pmif_len);
+}
+
+int __cdecl
 u_boot (int type)
 {
   return l->u_boot(type);

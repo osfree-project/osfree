@@ -593,7 +593,8 @@ create_vbe_module(void *ctrl_info, int ctrl_info_len,
   m->vbe_interface_len = pmif_len;
 }
 
-void create_lip_module(lip2_t **l)
+void 
+create_lip_module(lip2_t **l)
 {
   int lip2_len;
   char *lip_magic = "*lip";

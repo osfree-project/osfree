@@ -24,7 +24,7 @@ TEXT16_LEN equ (TEXT16_END - TEXT16_BEG)
 ; hardcoded for now
 ; ! todo: fix
 ifndef STAGE1_5
-BASE       equ (BASE1 + 5b7h)    ; 59ah; TEXT16_LEN
+BASE       equ (BASE1 + 600h)    ; 59ah; TEXT16_LEN
 else
 BASE       equ (BASE1 + 233h)    ; 20ah
 endif

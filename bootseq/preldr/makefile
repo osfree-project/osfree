@@ -62,10 +62,10 @@ BOOT_CHAIN_OBJS     = chain.$(O) chainc.$(O) drivemap.$(O) setdev.$(O) modesw-np
                       wrap.$(O)  end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
-                   video.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) minilibc.$(O) bios.$(O) end.$(O)
+                   video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) minilibc.$(O) bios.$(O) end.$(O)
 
 STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
-                   video.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) minilibc.$(SO) bios.$(SO) end.$(SO)
+                   video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) minilibc.$(SO) bios.$(SO) end.$(SO)
 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
                    video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) minilibc.$(LO) bios.$(LO) end.$(LO)

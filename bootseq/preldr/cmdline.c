@@ -2,6 +2,7 @@
  *
  */
 
+#pragma aux skip_to "*"
 
 /* Find the next word from CMDLINE and return the pointer. If
    AFTER_EQUAL is non-zero, assume that the character `=' is treated as

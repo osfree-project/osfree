@@ -21,6 +21,11 @@ struct multiboot_info *m;
 void create_lip_module(lip2_t **l);
 void multi_boot(void);
 
+char *
+skip_to (int after_equal, char *cmdline);
+
+#pragma aux skip_to "*"
+
 #define BUFSIZE 0x200
 char linebuf[BUFSIZE];
 char buf[BUFSIZE];
@@ -37,29 +42,11 @@ int kernel_func (char *arg, int flags);
 int module_func (char *arg, int flags);
 int modaddr_func (char *arg, int flags);
 int lipmodule_func (char *arg, int flags);
+int vbeset_func (char *arg, int flags);
 
 void init(lip2_t *l)
 {
 
-}
-
-/* Find the next word from CMDLINE and return the pointer. If
-   AFTER_EQUAL is non-zero, assume that the character `=' is treated as
-   a space. Caution: this assumption is for backward compatibility.  */
-char *
-skip_to (int after_equal, char *cmdline)
-{
-  /* Skip until we hit whitespace, or maybe an equal sign. */
-  while (*cmdline && *cmdline != ' ' && *cmdline != '\t' &&
-         ! (after_equal && *cmdline == '='))
-    cmdline ++;
-
-  /* Skip whitespace, and maybe equal signs. */
-  while (*cmdline == ' ' || *cmdline == '\t' ||
-         (after_equal && *cmdline == '='))
-    cmdline ++;
-
-  return cmdline;
 }
 
 void panic(char *msg, char *file)
@@ -193,6 +180,15 @@ int process_cfg_line(char *line)
     else if (module_func(line, 0x2))
     {
       printf("An error occured during execution of module_func\r\n");
+      return 0;
+    }
+  }
+  else if (insection && abbrev(line, "vbeset", 6))
+  {
+    line = strip(skip_to(1, line));
+    if (vbeset_func(line, 0x2)) 
+    {
+      printf("An error occured during execution of vbeset_func\r\n");
       return 0;
     }
   }

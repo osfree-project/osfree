@@ -58,6 +58,9 @@ u_terminate (void);
 int __cdecl
 u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec, int addr);
 int __cdecl
+u_vbectl(struct vbe_controller *controller, int mode_number, 
+         struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len);
+int __cdecl
 u_boot (int type);
 int __cdecl
 u_load (char *image, unsigned int size, char *load_addr, struct exe_params *p);
@@ -95,6 +98,7 @@ u_setlip (lip2_t *l);
 #pragma aux u_close  "*"
 #pragma aux u_terminate "*"
 #pragma aux u_diskctl   "*"
+#pragma aux u_vbectl    "*"
 #pragma aux u_boot   "*"
 #pragma aux u_load   "*"
 #pragma aux u_parm   "*"
