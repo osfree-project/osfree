@@ -1,0 +1,43 @@
+#
+# A Makefile for ATTRIB
+# (c) osFree project,
+# author, date
+#
+
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+
+32_BITS  = 1
+
+PROJ = lvm
+DIR = $(ROOT)$(SEP)bin$(SEP)os2
+DESC = Logical Volume Manager
+#defines object file names in format objname.$(O)
+OBJS = lvm.$(O) lvmcmdline.$(O)
+# defines additional options for C compiler
+ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
+
+!include $(%ROOT)/mk/all.mk
+
+all: $(PROJ).exe .SYMBOLIC
+
+$(PROJ).exe: $(OBJS)
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^&.lnk OPTION MAP=$^&.wmp
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
