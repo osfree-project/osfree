@@ -58,8 +58,7 @@ u_terminate (void);
 int __cdecl
 u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec, int addr);
 int __cdecl
-u_vbectl(struct vbe_controller *controller, int mode_number, 
-         struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len);
+u_vbectl(int func, int mode_number, void *info);
 int __cdecl
 u_boot (int type);
 int __cdecl
@@ -70,6 +69,23 @@ void __cdecl
 u_msg (char *s);
 void __cdecl
 u_setlip (lip2_t *l);
+
+vbe_mode_set(struct vbe_controller *controller, int mode_number, 
+             struct vbe_mode *mode, unsigned int *pmif_segoff, 
+             unsigned int *pmif_len);
+
+/* VBE control functions */
+#define VBE_FUNC_RESET            0
+#define VBE_FUNC_GET_CTRLR_INFO   1
+#define VBE_FUNC_GET_MODE_INFO    2
+#define VBE_FUNC_SET_MODE         3
+#define VBE_FUNC_GET_PMIF         4
+
+struct pmif
+{
+  unsigned int *pmif_segoff;
+  unsigned int *pmif_len;
+};
 
 /* Actions */
 #define ACT_GET 0

@@ -631,3 +631,62 @@ set_load_addr (int addr)
   printf ("Setting module load address to 0x%x\r\n", addr);
   cur_addr = addr;
 }
+
+vbe_mode_set(struct vbe_controller *controller, int mode_number, 
+             struct vbe_mode *mode, unsigned int *pmif_segoff, 
+             unsigned int *pmif_len)
+{
+  struct pmif pmif;
+
+  if (!mode_number)
+    {
+      //reset_vbe_mode ();
+      u_vbectl(VBE_FUNC_RESET, 0, 0);
+      return -1;
+    }
+
+  /* Preset `VBE2'.  */
+  grub_memmove (controller->signature, "VBE2", 4);
+
+  /* Detect VBE BIOS.  */
+  if (u_vbectl(VBE_FUNC_GET_CTRLR_INFO, 0, controller) != 0x004F)
+      //get_vbe_controller_info (controller) != 0x004F)
+    {
+      printf (" VBE BIOS is not present.\r\n");
+      return 1;
+    }
+
+  if (controller->version < 0x0200)
+    {
+      printf (" VBE version %u.%u is not supported.\r\n", 
+              (int) (controller->version >> 8),
+              (int) (controller->version & 0xFF));
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  if (u_vbectl(VBE_FUNC_GET_MODE_INFO, mode_number, mode) != 0x004F
+      //get_vbe_mode_info (mode_number, mode) != 0x004F
+      || (mode->mode_attributes & 0x0091) != 0x0091)
+    {
+      printf (" Mode 0x%x is not supported.\r\n", mode_number);
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  /* Now trip to the graphics mode.  */
+  if (u_vbectl(VBE_FUNC_SET_MODE, mode_number | (1 << 14), 0) != 0x004F)
+      //set_vbe_mode (mode_number | (1 << 14)) != 0x004F)
+    {
+      printf (" Switching to Mode 0x%x failed.\r\n", mode_number);
+      errnum = MAX_ERR_NUM;
+      return 1;
+    }
+
+  //get_vbe_pmif(pmif_segoff, pmif_len);
+  pmif.pmif_segoff = pmif_segoff;
+  pmif.pmif_len = pmif_len;
+  u_vbectl(VBE_FUNC_GET_PMIF, 0, &pmif);
+
+  return 0;
+}

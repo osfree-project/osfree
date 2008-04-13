@@ -446,59 +446,39 @@ u_setlip (lip2_t *l)
 }
 
 int __cdecl
-u_vbectl(struct vbe_controller *controller, int mode_number, 
-         struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len)
+u_vbectl(int func, int mode_number, void *info)
 {
-  if (!mode_number)
+  struct pmif *pmif = (struct pmif *)info;
+ 
+  switch (func)
+  {
+    case VBE_FUNC_RESET:
     {
       reset_vbe_mode ();
-      return -1;
+      return 0;
     }
-
-  /* Preset `VBE2'.  */
-  grub_memmove (controller->signature, "VBE2", 4);
-
-  /* Detect VBE BIOS.  */
-  if (get_vbe_controller_info (controller) != 0x004F)
+    case VBE_FUNC_GET_CTRLR_INFO:
     {
-      printmsg (" VBE BIOS is not present.\n");
-      return 1;
+      return get_vbe_controller_info ((struct vbe_controller *)info);
     }
-
-  if (controller->version < 0x0200)
+    case VBE_FUNC_GET_MODE_INFO:
     {
-      printmsg (" VBE version ");
-      printd((int) (controller->version >> 8));
-      printmsg(".");
-      printd((int) (controller->version & 0xFF));
-      printmsg (" is not supported.\r\n");
-      errnum = MAX_ERR_NUM;
-      return 1;
+      return get_vbe_mode_info (mode_number, (struct vbe_mode *)info);
     }
-
-  if (get_vbe_mode_info (mode_number, mode) != 0x004F
-      || (mode->mode_attributes & 0x0091) != 0x0091)
+    case VBE_FUNC_SET_MODE:
     {
-      printmsg (" Mode ");
-      printd (mode_number);
-      printmsg (" is not supported.\r\n");
-      errnum = MAX_ERR_NUM;
-      return 1;
-    }
-
-  /* Now trip to the graphics mode.  */
-  if (set_vbe_mode (mode_number | (1 << 14)) != 0x004F)
+      return set_vbe_mode (mode_number);
+    } 
+    case VBE_FUNC_GET_PMIF:
     {
-      printmsg (" Switching to Mode 0x");
-      printd (mode_number);
-      printmsg(" failed.\r\n");
-      errnum = MAX_ERR_NUM;
-      return 1;
+      get_vbe_pmif(pmif->pmif_segoff, pmif->pmif_len);
+      return 0;
     }
-
-  get_vbe_pmif(pmif_segoff, pmif_len);
-
-  return 0;
+    default:
+    {
+    }
+  }
+  return 1;
 }
 
 int open2 (char *filename)

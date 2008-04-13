@@ -98,8 +98,7 @@ typedef struct lip2
   void         __cdecl   (*u_terminate) (void);
   int          __cdecl   (*u_diskctl) (int func, int drive, struct geometry *geometry, 
                                        int sector, int nsec, int addr);
-  int          __cdecl   (*u_vbectl) (struct vbe_controller *controller, int mode_number, 
-                                      struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len);
+  int          __cdecl   (*u_vbectl) (int func, int mode_number, void *info);
   int          __cdecl   (*u_boot) (int type);
   int          __cdecl   (*u_load) (char *image, unsigned int size, char *load_addr, struct exe_params *p);
   int          __cdecl   (*u_parm) (int parm, int action, unsigned int *val);

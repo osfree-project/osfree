@@ -205,9 +205,9 @@ vbeset_func (char *arg, int flags)
 
   safe_parse_maxint (&arg, &mode_number);
 
-  if (u_vbectl(&controller, mode_number, 
-               &mode, (unsigned int *)&pmif_segoff, 
-               (unsigned int *)&pmif_len) == -1)
+  if (vbe_mode_set(&controller, mode_number, 
+                   &mode, (unsigned int *)&pmif_segoff, 
+                   (unsigned int *)&pmif_len) == -1)
     return 1;
 
   create_vbe_module(&controller, sizeof(struct vbe_controller),

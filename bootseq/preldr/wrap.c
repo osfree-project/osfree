@@ -47,10 +47,9 @@ u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec,
 }
 
 int __cdecl
-u_vbectl(struct vbe_controller *controller, int mode_number, 
-         struct vbe_mode *mode, unsigned int *pmif_segoff, unsigned int *pmif_len)
+u_vbectl(int func, int mode_number, void *info)
 {
-   return l->u_vbectl(controller, mode_number, mode, pmif_segoff, pmif_len);
+   return l->u_vbectl(func, mode_number, info);
 }
 
 int __cdecl
