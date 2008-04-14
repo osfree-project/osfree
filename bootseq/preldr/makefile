@@ -30,7 +30,7 @@ SOUT         = sbi
 LOUT         = lbi
 
 .SUFFIXES:
-.SUFFIXES: .rel .trm .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
+.SUFFIXES: .rel .trm .trs .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
 
 FS_OBJS             = start.$(O)  fsys.$(O)  dummy.$(O)
 FS_SH_OBJS          = start.$(SO) fsys.$(SO) dummy.$(SO)
@@ -71,6 +71,7 @@ STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) 
                    video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) minilibc.$(LO) bios.$(LO) end.$(LO)
 
 CONSOLE_OBJS     = termstrt.$(O) terminit.$(O) console.$(O) modesw-npt.$(O) consolec.$(O)
+CONSOLE_SH_OBJS  = termstrt.$(SO) terminit.$(SO) console.$(SO) modesw-npt.$(SO) consolec.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) minilibc.$(O) cmdline.$(O) # video.$(O)
@@ -79,14 +80,44 @@ TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
                    minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite freeldr &
                    fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
+                   boot_lin boot_chn &
+                   console.trm &
+                   console.trs &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
-                   boot_lin boot_chn &
-                   console.trm
+                   console.rel
 
 SHIFT = 0x100
 
 all: fsd.h $(TARGETS) .SYMBOLIC
+
+console.rel: console.trm console.trs
+
+preldr0.rel: preldr0 preldr0s
+
+fat.rel: fat.fsd fat.fss
+
+ext2fs.rel: ext2fs.fsd ext2fs.fss
+
+jfs.rel: jfs.fsd jfs.fss
+
+ffs.rel: ffs.fsd ffs.fss
+
+vstafs.rel: vstafs.fsd vstafs.fss
+
+ufs2.rel: ufs2.fsd ufs2.fss
+
+xfs.rel: xfs.fsd xfs.fss
+
+reiserfs.rel: reiserfs.fsd reiserfs.fss
+
+iso9660.rel: iso9660.fsd iso9660.fss
+
+minix.rel: minix.fsd minix.fss
+
+.trm.rel
+ $(GENREL) $^&.trm $^&.trs $(SHIFT) >$^@
+ $(DC) $^&.trs
 
 .fsd.rel
  $(GENREL) $^&.fsd $^&.fss $(SHIFT) >$^@
@@ -121,6 +152,11 @@ boot_chn: boot_chain.$(OUT)
  $(RIP) $< TERM_BASE fsd.inc >$^@
  $(DC) $<
 
+.$(SOUT).trs:
+ $(DC) $^@
+ $(RIP) $< TERM_BASE fsd.inc $(SHIFT) >$^@
+ $(DC) $<
+
 preldr0: stage0.$(OUT)
  $(DC) $^@
  $(RIP) $< STAGE0_BASE fsd.inc >$^@
@@ -152,6 +188,9 @@ freeldr.$(OUT): $(LDR_OBJS)
 
 console.$(OUT): $(CONSOLE_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+
+console.$(SOUT): $(CONSOLE_SH_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
 
 fat.$(OUT): $(FAT_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
@@ -335,6 +374,9 @@ chain.$(O): chain.asm
 
 modesw-npt.$(O): modesw.asm
  $(ASM) -dNO_PROT -dTERM -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+
+modesw-npt.$(SO): modesw.asm
+ $(ASM) -dNO_PROT -dTERM -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

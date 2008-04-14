@@ -435,7 +435,7 @@ u_msg (char *s)
 {
   char buf[0x100];
 
-  grub_strcpy(buf, s);
+  grub_strncpy(buf, s, sizeof(buf));
   printmsg(buf);
 }
 
