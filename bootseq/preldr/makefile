@@ -13,7 +13,9 @@ ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)u
 
 DIR          = preldr
 MYDIR        = $(ROOT)$(SEP)bootseq$(SEP)$(DIR)$(SEP)
-PATH         = $(MYDIR)
+PATH         = $(MYDIR)$(PS)$(MYDIR)$(SEP)minilibc
+
+DIRS         = minilibc
 
 !include $(%ROOT)/mk/bootseq.mk
 
@@ -30,7 +32,7 @@ SOUT         = sbi
 LOUT         = lbi
 
 .SUFFIXES:
-.SUFFIXES: .rel .trm .trs .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
+.SUFFIXES: .rel .trm .trs .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .lib .$(LO) .$(SO) .$(O) .c .asm .h .inc
 
 FS_OBJS             = start.$(O)  fsys.$(O)  dummy.$(O)
 FS_SH_OBJS          = start.$(SO) fsys.$(SO) dummy.$(SO)
@@ -57,41 +59,53 @@ VSTAFS_SH_OBJS      = $(FS_SH_OBJS) fsys_vstafs.$(SO)
 FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
-BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-npl.$(O) minilibc.$(O) wrap.$(O) end.$(O)
-BOOT_CHAIN_OBJS     = chain.$(O) chainc.$(O) drivemap.$(O) setdev.$(O) modesw-npc.$(O) minilibc.$(O) &
+BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-npl.$(O) wrap.$(O) end.$(O)
+BOOT_CHAIN_OBJS     = chain.$(O) chainc.$(O) drivemap.$(O) setdev.$(O) modesw-npc.$(O) &
                       wrap.$(O)  end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
-                   video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) minilibc.$(O) bios.$(O) end.$(O)
+                   video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) bios.$(O) end.$(O)
 
 STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
-                   video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) minilibc.$(SO) bios.$(SO) end.$(SO)
+                   video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) bios.$(SO) end.$(SO)
 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
-                   video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) minilibc.$(LO) bios.$(LO) end.$(LO)
+                   video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) bios.$(LO) end.$(LO)
 
 CONSOLE_OBJS     = termstrt.$(O) terminit.$(O) console.$(O) modesw-npt.$(O) consolec.$(O)
 CONSOLE_SH_OBJS  = termstrt.$(SO) terminit.$(SO) console.$(SO) modesw-npt.$(SO) consolec.$(SO)
+HERCULES_OBJS    = termstrt.$(O) terminit.$(O) hercules.$(O) modesw-npt.$(O)
+HERCULES_SH_OBJS = termstrt.$(SO) terminit.$(SO) hercules.$(SO) modesw-npt.$(SO)
+SERIAL_OBJS      = termstrt.$(O) terminit.$(O) serial.$(O) modesw-npt.$(O) terminfo.$(O) tparm.$(O)
+SERIAL_SH_OBJS   = termstrt.$(SO) terminit.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
-                   boot.$(O) minilibc.$(O) cmdline.$(O) # video.$(O)
+                   boot.$(O) cmdline.$(O) # video.$(O)
 
-TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
+TARGETS          = minilibc.lib &
+                   fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
                    minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite freeldr &
                    fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    boot_lin boot_chn &
-                   console.trm &
-                   console.trs &
+                   console.trm hercules.trm serial.trm &
+                   console.trs hercules.trs serial.trs &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
-                   console.rel
+                   console.rel hercules.rel serial.rel
 
 SHIFT = 0x100
 
-all: fsd.h $(TARGETS) .SYMBOLIC
+all: fsd.h prereq $(TARGETS) .SYMBOLIC
+
+prereq: .SYMBOLIC
+ @$(MAKE) $(MAKEOPT) TARGET=all subdirs
 
 console.rel: console.trm console.trs
+
+hercules.rel: hercules.trm hercules.trs
+
+serial.rel: serial.trm serial.trs
 
 preldr0.rel: preldr0 preldr0s
 
@@ -192,6 +206,18 @@ console.$(OUT): $(CONSOLE_OBJS)
 console.$(SOUT): $(CONSOLE_SH_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
 
+hercules.$(OUT): $(HERCULES_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+
+hercules.$(SOUT): $(HERCULES_SH_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+
+serial.$(OUT): $(SERIAL_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+
+serial.$(SOUT): $(SERIAL_SH_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
+
 fat.$(OUT): $(FAT_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" FS=1 link
 
@@ -287,6 +313,8 @@ link: .SYMBOLIC .PROCEDURE
  @%append $(T)$(S).lnk ALIAS _get_diskinfo_standard=get_diskinfo_standard
 !endif
  @%append $(T)$(S).lnk PATH $(PATH)
+ @%append $(T)$(S).lnk LIBPATH $(PATH)
+ @%append $(T)$(S).lnk LIBRARY minilibc.lib
  @for %%i in ($(OBJS)) do @%append $(T)$(S).lnk FILE %%i
  $(SAY) Linking $(T)$(S) $(LOG)
  $(LINKER) @$(T)$(S).lnk $(LOG)
@@ -404,3 +432,4 @@ clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
  $(DC) $(TARGETS)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

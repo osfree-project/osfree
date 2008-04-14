@@ -20,6 +20,7 @@ if not exist ..\..\..\cd mkdir ..\..\..\cd
 if not exist ..\..\..\cd\boot mkdir ..\..\..\cd\boot
 if not exist ..\..\..\cd\boot\freeldr mkdir ..\..\..\cd\boot\freeldr
 if not exist ..\..\..\cd\boot\freeldr\fsd mkdir ..\..\..\cd\boot\freeldr\fsd
+if not exist ..\..\..\cd\boot\freeldr\term mkdir ..\..\..\cd\boot\freeldr\term
 if not exist ..\..\..\cd\l4 mkdir ..\..\..\cd\l4
 if not exist ..\..\..\cd\pns mkdir ..\..\..\cd\pns
 if not exist ..\..\..\cd\os2 mkdir ..\..\..\cd\os2
@@ -29,8 +30,12 @@ copy preldr0 ..\..\..\cd\boot\freeldr
 copy preldr.ini  ..\..\..\cd\boot\freeldr
 copy freeldr.cfg ..\..\..\cd\boot\freeldr
 copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
+copy *.trm   ..\..\..\cd\boot\freeldr\term
 copy *.rel   ..\..\..\cd\boot\freeldr\fsd
 move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr\
+move ..\..\..\cd\boot\freeldr\fsd\serial.rel ..\..\..\cd\boot\freeldr\term\
+move ..\..\..\cd\boot\freeldr\fsd\hercules.rel ..\..\..\cd\boot\freeldr\term\
+move ..\..\..\cd\boot\freeldr\fsd\console.rel ..\..\..\cd\boot\freeldr\term\
 copy freeldr    ..\..\..\cd\boot\freeldr
 copy boot_lin ..\..\..\cd\boot\freeldr
 copy boot_chn ..\..\..\cd\boot\freeldr
