@@ -30,7 +30,7 @@ SOUT         = sbi
 LOUT         = lbi
 
 .SUFFIXES:
-.SUFFIXES: .rel .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
+.SUFFIXES: .rel .trm .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .$(LO) .$(SO) .$(O) .c .asm .h .inc
 
 FS_OBJS             = start.$(O)  fsys.$(O)  dummy.$(O)
 FS_SH_OBJS          = start.$(SO) fsys.$(SO) dummy.$(SO)
@@ -70,6 +70,8 @@ STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
                    video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) minilibc.$(LO) bios.$(LO) end.$(LO)
 
+CONSOLE_OBJS     = termstrt.$(O) terminit.$(O) console.$(O) modesw-npt.$(O) consolec.$(O)
+
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) minilibc.$(O) cmdline.$(O) # video.$(O)
 
@@ -79,7 +81,8 @@ TARGETS          = fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
                    minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
-                   boot_lin boot_chn
+                   boot_lin boot_chn &
+                   console.trm
 
 SHIFT = 0x100
 
@@ -113,6 +116,11 @@ boot_chn: boot_chain.$(OUT)
  $(RIP) $< EXT_BUF_BASE fsd.inc $(SHIFT) >$^@
  $(DC) $<
 
+.$(OUT).trm:
+ $(DC) $^@
+ $(RIP) $< TERM_BASE fsd.inc >$^@
+ $(DC) $<
+
 preldr0: stage0.$(OUT)
  $(DC) $^@
  $(RIP) $< STAGE0_BASE fsd.inc >$^@
@@ -140,6 +148,9 @@ boot_chain.$(OUT): $(BOOT_CHAIN_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 freeldr.$(OUT): $(LDR_OBJS)
+ $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
+
+console.$(OUT): $(CONSOLE_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 fat.$(OUT): $(FAT_OBJS)
@@ -321,6 +332,9 @@ modesw-npc.$(O): modesw.asm
 
 chain.$(O): chain.asm
  $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fo=$^@ $<
+
+modesw-npt.$(O): modesw.asm
+ $(ASM) -dNO_PROT -dTERM -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

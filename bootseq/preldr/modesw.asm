@@ -28,7 +28,11 @@ include mb_etc.inc
 
 ifdef NO_PROT
 
+ifdef TERM
+  BASE    equ TERM_BASE
+else
   BASE    equ REAL_BASE
+endif
 
 else
 
