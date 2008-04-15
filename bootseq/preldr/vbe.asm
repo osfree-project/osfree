@@ -15,6 +15,8 @@ extrn  call_rm		:near
 
 .386p
 
+include fsd.inc
+
 _TEXT16  segment dword public 'CODE'  use16
 
 get_vbe_controller_info_rm:
