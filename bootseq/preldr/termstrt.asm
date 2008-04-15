@@ -21,6 +21,8 @@ header_begin:
 	   ; here we simulate 32-bit call instruction
 	   ; WASM can't generate 32-bit instruction
 	   ; inside 16-bit segment, so this workaround.
+	   ; This instruction must route a call to the
+	   ; beginning of executable to init() function.
 	   db	0e8h
 	   dd	offset _TEXT:start2 - TERM_BASE - 5
 	   ; a sort of header signature
@@ -34,6 +36,8 @@ _TEXT    segment dword public 'CODE'  use32
 start1:
 	   org BASE2
 start2:
+	   ; here must start init() function
+	   ; in terminit.c file
 _TEXT    ends
 _DATA    segment dword public 'DATA'  use32
 _DATA    ends

@@ -2,22 +2,47 @@
 #
 #
 
+d=`pwd`
 
-if   [ ! -x preldr0 ]; then
-   wmake preldr0
+if [ ! -f preldr0 ]; then 
+	wmake preldr0 
 fi
-
-if   [ ! -x iso9660.fsd ]; then
-   wmake iso9660.fsd
+if [ ! -f iso9660.fsd ]; then 
+	wmake iso9660.fsd 
 fi
-
 cd   ../bootsec/eltorito
-
-if   [ ! -x eltorito.bin ]; then
-   wmake eltorito.bin
+if [ ! -f eltorito.bin ]; then 
+	wmake eltorito.bin 
 fi
 
-cd   ../../preldr/
+cd ../../../..
+
+if [ ! -d ./cd ]; then 
+	mkdir ./cd 
+fi
+if [ ! -d ./cd/boot ]; then 
+	mkdir ./cd/boot 
+fi
+if [ ! -d ./cd/boot/freeldr ]; then 
+	mkdir ./cd/boot/freeldr 
+fi
+if [ ! -d ./cd/boot/freeldr/fsd ]; then 
+	mkdir ./cd/boot/freeldr/fsd 
+fi
+if [ ! -d ./cd/boot/freeldr/term ]; then 
+	mkdir ./cd/boot/freeldr/term 
+fi
+if [ ! -d ./cd/l4 ]; then 
+	mkdir ./cd/l4 
+fi
+if [ ! -d ./cd/pns ]; then 
+	mkdir ./cd/pns 
+fi
+if [ ! -d ./cd/os2 ]; then 
+	mkdir ./cd/os2 
+fi
+
+cd   ./osfree/bootseq/preldr
 cp ../bootsec/eltorito/eltorito.bin .
 rexx mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
 mv bootblk ../../../cd/boot
@@ -25,12 +50,28 @@ cp preldr0 ../../../cd/boot/freeldr
 cp preldr.ini ../../../cd/boot/freeldr
 cp freeldr.cfg ../../../cd/boot/freeldr
 cp *.fsd   ../../../cd/boot/freeldr/fsd
+cp *.trm   ../../../cd/boot/freeldr/term
 cp *.rel   ../../../cd/boot/freeldr/fsd
-mv ../../../cd/boot/freeldr/fsd/preldr0.rel ../../../cd/boot/freeldr/
+mv ../../../cd/boot/freeldr/fsd/preldr0.rel ../../../cd/boot/freeldr
+mv ../../../cd/boot/freeldr/fsd/serial.rel ../../../cd/boot/freeldr/term
+mv ../../../cd/boot/freeldr/fsd/hercules.rel ../../../cd/boot/freeldr/term
+mv ../../../cd/boot/freeldr/fsd/console.rel ../../../cd/boot/freeldr/term
 cp freeldr    ../../../cd/boot/freeldr
-cp boot_linux ../../../cd/boot/freeldr
-cp boot_chain ../../../cd/boot/freeldr
+cp boot_lin ../../../cd/boot/freeldr
+cp boot_chn ../../../cd/boot/freeldr
+cd ../../fiasco
+cp * ../../cd/l4
+cd ../PNS
+cp * ../../cd/pns
+cd ../OS2/Server
+cp os2server ../../../cd/os2
+cp VioWrtTTY_test ../../../cd/os2
+cp config.sys ../../../cd/os2
+cp libkal.s.so ../../../cd/os2
+cp os2.cfg ../../../cd/os2
+cp MiniELFExe.exe ../../../cd/os2
 cd   ../../..
 mkisofs -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 8 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 mv osfree.iso /mnt/i/data/vm/img
 cd   osfree/bootseq/preldr
+

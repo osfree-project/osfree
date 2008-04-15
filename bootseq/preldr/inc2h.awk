@@ -22,7 +22,7 @@
 {
    p  = index($0, ";")
    if (p)
-     $0 = substr($0, 0, p - 1) "\/\/" substr($0, p + 1, length($0) - p)
+     $0 = substr($0, 0, p - 1) "//" substr($0, p + 1, length($0) - p)
 
    if ($2 == "equ" || $2 == "EQU")
    {
