@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>The GObject base class</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GObject Reference Manual">
+<link rel="up" href="pt01.html" title="Part&#160;I.&#160;Concepts">
+<link rel="prev" href="gtype-non-instantiable-classed.html" title="Non-instantiable classed types: interfaces">
+<link rel="next" href="gobject-memory.html" title="Object memory management">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="preface" href="pr01.html" title="Introduction">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Concepts">
+<link rel="chapter" href="chapter-intro.html" title="Background">
+<link rel="chapter" href="chapter-gtype.html" title="The GLib Dynamic Type System">
+<link rel="chapter" href="chapter-gobject.html" title="The GObject base class">
+<link rel="chapter" href="chapter-signal.html" title="The GObject messaging system">
+<link rel="reference" href="rn01.html" title="API Reference">
+<link rel="reference" href="rn02.html" title="Tools Reference">
+<link rel="part" href="pt02.html" title="Part&#160;IV.&#160;Tutorial">
+<link rel="chapter" href="howto-gobject.html" title="How to define and implement a new GObject">
+<link rel="chapter" href="howto-interface.html" title="How to define and implement interfaces">
+<link rel="chapter" href="howto-signals.html" title="How to create and use signals">
+<link rel="part" href="pt03.html" title="Part&#160;V.&#160;Related Tools">
+<link rel="chapter" href="tools-gob.html" title="GObject builder">
+<link rel="chapter" href="tools-ginspector.html" title="Graphical inspection of GObjects">
+<link rel="chapter" href="tools-refdb.html" title="Debugging reference count problems">
+<link rel="chapter" href="tools-gtkdoc.html" title="Writing API docs">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="gtype-non-instantiable-classed.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="pt01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GObject Reference Manual</th>
+<td><a accesskey="n" href="gobject-memory.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="chapter" lang="en">
+<div class="titlepage"><div><div><h2 class="title">
+<a name="chapter-gobject"></a>The GObject base class</h2></div></div></div>
+<div class="toc"><dl>
+<dt><span class="sect1"><a href="chapter-gobject.html#gobject-instantiation">Object instantiation</a></span></dt>
+<dt><span class="sect1"><a href="gobject-memory.html">Object memory management</a></span></dt>
+<dd><dl>
+<dt><span class="sect2"><a href="gobject-memory.html#gobject-memory-refcount">Reference count</a></span></dt>
+<dt><span class="sect2"><a href="gobject-memory.html#gobject-memory-weakref">Weak References</a></span></dt>
+<dt><span class="sect2"><a href="gobject-memory.html#gobject-memory-cycles">Reference counts and cycles</a></span></dt>
+</dl></dd>
+<dt><span class="sect1"><a href="gobject-properties.html">Object properties</a></span></dt>
+<dd><dl><dt><span class="sect2"><a href="gobject-properties.html#gobject-multi-properties">Accessing multiple properties at once</a></span></dt></dl></dd>
+</dl></div>
+<p>
+    The two previous chapters discussed the details of GLib's Dynamic Type System
+    and its signal control system. The GObject library also contains an implementation
+    for a base fundamental type named <span class="type"><a class="link" href="gobject-The-Base-Object-Type.html#GObject">GObject</a></span>.
+  </p>
+<p>
+    <span class="type"><a class="link" href="gobject-The-Base-Object-Type.html#GObject">GObject</a></span> is a fundamental classed instantiable type. It implements:
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>Memory management with reference counting</p></li>
+<li><p>Construction/Destruction of instances</p></li>
+<li><p>Generic per-object properties with set/get function pairs</p></li>
+<li><p>Easy use of signals</p></li>
+</ul></div>
+<p>
+    All the GNOME libraries which use the GLib type system (like GTK+ and GStreamer)
+    inherit from <span class="type"><a class="link" href="gobject-The-Base-Object-Type.html#GObject">GObject</a></span> which is why it is important to understand
+    the details of how it works.
+  </p>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="gobject-instantiation"></a>Object instantiation</h2></div></div></div>
+<p>
+      The <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code> family of functions can be used to instantiate any
+      GType which inherits from the GObject base type. All these functions make sure the class
+      and instance structures have been correctly initialized by glib's type system and
+      then invoke at one point or another the constructor class method which is used to:
+      </p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>
+            Allocate and clear memory through <code class="function"><a class="link" href="gobject-Type-Information.html#g-type-create-instance">g_type_create_instance</a></code>,
+          </p></li>
+<li><p>
+            Initialize the object' instance with the construction properties.
+          </p></li>
+</ul></div>
+<p>
+     Although one can expect all class and instance members (except the fields
+     pointing to the parents) to be set to zero, some consider it good practice to explicitly set them.
+    </p>
+<p>
+      Objects which inherit from GObject are allowed to override this constructor class method:
+      they should however chain to their parent constructor method before doing so:
+</p>
+<pre class="programlisting">
+  GObject*   (*constructor)     (GType                  type,
+                                 guint                  n_construct_properties,
+                                 GObjectConstructParam *construct_properties);
+</pre>
+<p>
+    </p>
+<p>
+      The example below shows how <span class="type">MamanBar</span> overrides the parent's constructor:
+</p>
+<pre class="programlisting">
+#define MAMAN_TYPE_BAR                  (maman_bar_get_type ())
+#define MAMAN_BAR(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MAMAN_TYPE_BAR, MamanBar))
+#define MAMAN_BAR_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), MAMAN_TYPE_BAR, MamanBarClass))
+#define MAMAN_IS_BAR(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MAMAN_TYPE_BAR))
+#define MAMAN_IS_BAR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), MAMAN_TYPE_BAR))
+#define MAMAN_BAR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), MAMAN_TYPE_BAR, MamanBarClass))
+
+typedef struct _MamanBar MamanBar;
+typedef struct _MamanBarClass MamanBarClass;
+
+struct _MamanBar {
+  GObject parent;
+  /* instance members */
+};
+
+struct _MamanBarClass {
+  GObjectClass parent;
+
+  /* class members */
+};
+
+/* used by MAMAN_TYPE_BAR */
+GType maman_bar_get_type (void);
+
+static GObject *
+maman_bar_constructor (GType                  type,
+                       guint                  n_construct_properties,
+                       GObjectConstructParam *construct_properties)
+{
+  GObject *obj;
+
+  {
+    /* Invoke parent constructor. */
+    MamanBarClass *klass;
+    GObjectClass *parent_class;  
+    klass = MAMAN_BAR_CLASS (g_type_class_peek (MAMAN_TYPE_BAR));
+    parent_class = G_OBJECT_CLASS (g_type_class_peek_parent (klass));
+    obj = parent_class-&gt;constructor (type,
+                                     n_construct_properties,
+                                     construct_properties);
+  }
+  
+  /* do stuff. */
+
+  return obj;
+}
+
+static void
+maman_bar_instance_init (GTypeInstance   *instance,
+                         gpointer         g_class)
+{
+  MamanBar *self = (MamanBar *)instance;
+  /* do stuff */
+}
+
+static void
+maman_bar_class_init (gpointer g_class,
+                      gpointer g_class_data)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (g_class);
+  MamanBarClass *klass = MAMAN_BAR_CLASS (g_class);
+
+  gobject_class-&gt;constructor = maman_bar_constructor;
+}
+
+GType maman_bar_get_type (void)
+{
+  static GType type = 0;
+  if (type == 0) {
+    static const GTypeInfo info = {
+      sizeof (MamanBarClass),
+      NULL,   /* base_init */
+      NULL,   /* base_finalize */
+      maman_bar_class_init,   /* class_init */
+      NULL,   /* class_finalize */
+      NULL,   /* class_data */
+      sizeof (MamanBar),
+      0,      /* n_preallocs */
+      maman_bar_instance_init    /* instance_init */
+    };
+    type = g_type_register_static (G_TYPE_OBJECT,
+                                   "MamanBarType",
+                                   &amp;info, 0);
+  }
+  return type;
+}
+</pre>
+<p>
+      If the user instantiates an object <span class="type">MamanBar</span> with:
+</p>
+<pre class="programlisting">
+MamanBar *bar = g_object_new (MAMAN_TYPE_BAR, NULL);
+</pre>
+<p>        
+      If this is the first instantiation of such an object, the <code class="function">maman_b_class_init</code>
+      function will be invoked after any <code class="function">maman_b_base_class_init</code> function. 
+      This will make sure the class structure of this new object is correctly initialized. Here, 
+      <code class="function">maman_bar_class_init</code> is expected to override the object's class methods
+      and setup the class' own methods. In the example above, the constructor method is the only 
+      overridden method: it is set to <code class="function">maman_bar_constructor</code>.
+    </p>
+<p>
+      Once <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code> has obtained a reference to an initialized
+      class structure, it invokes its constructor method to create an instance of the new 
+      object. Since it has just been overridden by <code class="function">maman_bar_class_init</code> 
+      to <code class="function">maman_bar_constructor</code>, the latter is called and, because it
+      was implemented correctly, it chains up to its parent's constructor. The problem here
+      is how we can find the parent constructor. An approach (used in GTK+ source code) would be
+      to save the original constructor in a static variable from <code class="function">maman_bar_class_init</code>
+      and then to re-use it from <code class="function">maman_bar_constructor</code>. This is clearly possible
+      and very simple but I was told it was not nice and the preferred way is to use the 
+      <code class="function"><a class="link" href="gobject-Type-Information.html#g-type-class-peek">g_type_class_peek</a></code> and <code class="function"><a class="link" href="gobject-Type-Information.html#g-type-class-peek-parent">g_type_class_peek_parent</a></code> functions.
+    </p>
+<p>
+      Finally, at one point or another, <code class="function">g_object_constructor</code> is invoked
+      by the last constructor in the chain. This function allocates the object's instance' buffer 
+      through <code class="function"><a class="link" href="gobject-Type-Information.html#g-type-create-instance">g_type_create_instance</a></code>
+      which means that the instance_init function is invoked at this point if one
+      was registered. After instance_init returns, the object is fully initialized and should be 
+      ready to answer any user-request. When <code class="function"><a class="link" href="gobject-Type-Information.html#g-type-create-instance">g_type_create_instance</a></code>
+      returns, <code class="function">g_object_constructor</code> sets the construction properties
+      (i.e. the properties which were given to <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code>) and returns
+      to the user's constructor which is then allowed to do useful instance initialization...
+    </p>
+<p>
+      The process described above might seem a bit complicated (it <span class="emphasis"><em>is</em></span> actually
+      overly complicated in my opinion..) but it can be summarized easily by the table below which
+      lists the functions invoked by <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code> and their order of
+      invocation.
+    </p>
+<p>
+      The array below lists the functions invoked by <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code> and 
+      their order of invocation:
+
+      </p>
+<div class="table">
+<a name="gobject-construction-table"></a><p class="title"><b>Table&#160;4.&#160;<code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code></b></p>
+<div class="table-contents"><table summary="g_object_new" border="1">
+<colgroup>
+<col align="left">
+<col align="left">
+<col align="left">
+</colgroup>
+<thead><tr>
+<th align="left">Invocation time</th>
+<th align="left">Function Invoked</th>
+<th align="left">Function's parameters</th>
+<th>Remark</th>
+</tr></thead>
+<tbody>
+<tr>
+<td rowspan="4" align="left">First call to <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code> for target type</td>
+<td align="left">target type's base_init function</td>
+<td align="left">On the inheritance tree of classes from fundamental type to target type. 
+                base_init is invoked once for each class structure.</td>
+<td>
+                I have no real idea on how this can be used. If you have a good real-life
+                example of how a class' base_init can be used, please, let me know.
+              </td>
+</tr>
+<tr>
+<td align="left">target type's class_init function</td>
+<td align="left">On target type's class structure</td>
+<td>
+                Here, you should make sure to initialize or override class methods (that is,
+                assign to each class' method its function pointer) and create the signals and
+                the properties associated to your object.
+              </td>
+</tr>
+<tr>
+<td align="left">interface' base_init function</td>
+<td align="left">On interface' vtable</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td align="left">interface' interface_init function</td>
+<td align="left">On interface' vtable</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td rowspan="2" align="left">Each call to <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-new">g_object_new</a></code> for target type</td>
+<td align="left">target type's class constructor method: GObjectClass-&gt;constructor</td>
+<td align="left">On object's instance</td>
+<td>
+                If you need to complete the object initialization after all the construction properties
+                are set, override the constructor method and make sure to chain up to the object's
+                parent class before doing your own initialization.
+                In doubt, do not override the constructor method.
+              </td>
+</tr>
+<tr>
+<td align="left">type's instance_init function</td>
+<td align="left">On the inheritance tree of classes from fundamental type to target type. 
+              the instance_init provided for each type is invoked once for each instance 
+              structure.</td>
+<td>
+                Provide an instance_init function to initialize your object before its construction
+                properties are set. This is the preferred way to initialize a GObject instance.
+                This function is equivalent to C++ constructors.
+              </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><br class="table-break">
+    </p>
+<p>
+      Readers should feel concerned about one little twist in the order in which functions 
+      are invoked: while, technically, the class' constructor method is called
+      <span class="emphasis"><em>before</em></span> the GType's instance_init function (since 
+      <code class="function"><a class="link" href="gobject-Type-Information.html#g-type-create-instance">g_type_create_instance</a></code> which calls instance_init is called by
+      <code class="function">g_object_constructor</code> which is the top-level class 
+      constructor method and to which users are expected to chain to), the user's code
+      which runs in a user-provided constructor will always run <span class="emphasis"><em>after</em></span>
+      GType's instance_init function since the user-provided constructor 
+      <span class="emphasis"><em>must</em></span> (you've been warned) chain up <span class="emphasis"><em>before</em></span>
+      doing anything useful.
+    </p>
+</div>
+</div>
+</body>
+</html>

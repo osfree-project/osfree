@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="gio-GIOScheduler">
+<refmeta>
+<refentrytitle role="top_of_page">GIOScheduler</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GIOScheduler</refname>
+<refpurpose>I/O Scheduler</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GIOSchedulerJob">GIOSchedulerJob</link>;
+<link linkend="gboolean">gboolean</link>            (<link linkend="GIOSchedulerJobFunc">*GIOSchedulerJobFunc</link>)              (<link linkend="GIOSchedulerJob">GIOSchedulerJob</link> *job,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="void">void</link>                <link linkend="g-io-scheduler-push-job">g_io_scheduler_push_job</link>             (<link linkend="GIOSchedulerJobFunc">GIOSchedulerJobFunc</link> job_func,
+                                                         <link linkend="gpointer">gpointer</link> user_data,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> notify,
+                                                         <link linkend="gint">gint</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable);
+<link linkend="void">void</link>                <link linkend="g-io-scheduler-cancel-all-jobs">g_io_scheduler_cancel_all_jobs</link>      (void);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-io-scheduler-job-send-to-mainloop">g_io_scheduler_job_send_to_mainloop</link> (<link linkend="GIOSchedulerJob">GIOSchedulerJob</link> *job,
+                                                         <link linkend="GSourceFunc">GSourceFunc</link> func,
+                                                         <link linkend="gpointer">gpointer</link> user_data,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> notify);
+<link linkend="void">void</link>                <link linkend="g-io-scheduler-job-send-to-mainloop-async">g_io_scheduler_job_send_to_mainloop_async</link>
+                                                        (<link linkend="GIOSchedulerJob">GIOSchedulerJob</link> *job,
+                                                         <link linkend="GSourceFunc">GSourceFunc</link> func,
+                                                         <link linkend="gpointer">gpointer</link> user_data,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> notify);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Schedules asynchronous I/O operations. <link linkend="GIOScheduler"><type>GIOScheduler</type></link> integrates 
+into the main event loop (<link linkend="GMainLoop"><type>GMainLoop</type></link>) and may use threads if they 
+are available.
+</para>
+<para>
+<para id="io-priority"><indexterm><primary>I/O priority</primary></indexterm>
+Each I/O operation has a priority, and the scheduler uses the priorities
+to determine the order in which operations are executed. They are 
+<emphasis>not</emphasis> used to determine system-wide I/O scheduling.
+Priorities are integers, with lower numbers indicating higher priority. 
+It is recommended to choose priorities between <link linkend="G-PRIORITY-LOW:CAPS"><literal>G_PRIORITY_LOW</literal></link> and 
+<link linkend="G-PRIORITY-HIGH:CAPS"><literal>G_PRIORITY_HIGH</literal></link>, with <link linkend="G-PRIORITY-DEFAULT:CAPS"><literal>G_PRIORITY_DEFAULT</literal></link> as a default.
+</para></para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GIOSchedulerJob" role="struct"/>GIOSchedulerJob</title>
+<indexterm><primary>GIOSchedulerJob</primary></indexterm><programlisting>typedef struct _GIOSchedulerJob GIOSchedulerJob;</programlisting>
+<para>
+Opaque class for definining and scheduling IO jobs.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GIOSchedulerJobFunc" role="function"/>GIOSchedulerJobFunc ()</title>
+<indexterm><primary>GIOSchedulerJobFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            (*GIOSchedulerJobFunc)              (<link linkend="GIOSchedulerJob">GIOSchedulerJob</link> *job,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+I/O Job function. 
+</para>
+<para>
+Note that depending on whether threads are available, the 
+<link linkend="GIOScheduler"><type>GIOScheduler</type></link> may run jobs in separate threads or in an idle 
+in the mainloop. 
+</para>
+<para>
+Long-running jobs should periodically check the <parameter>cancellable</parameter>
+to see if they have been cancelled.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>job</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GIOSchedulerJob"><type>GIOSchedulerJob</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the data to pass to callback function
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if this function should be called again to
+   complete the job, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if the job is complete (or cancelled)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-io-scheduler-push-job" role="function"/>g_io_scheduler_push_job ()</title>
+<indexterm><primary>g_io_scheduler_push_job</primary></indexterm><programlisting><link linkend="void">void</link>                g_io_scheduler_push_job             (<link linkend="GIOSchedulerJobFunc">GIOSchedulerJobFunc</link> job_func,
+                                                         <link linkend="gpointer">gpointer</link> user_data,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> notify,
+                                                         <link linkend="gint">gint</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Schedules the I/O job to run. 
+</para>
+<para>
+<parameter>notify</parameter> will be called on <parameter>user_data</parameter> after <parameter>job_func</parameter> has returned,
+regardless whether the job was cancelled or has run to completion.
+</para>
+<para>
+If <parameter>cancellable</parameter> is not <link linkend="NULL:CAPS"><literal>NULL</literal></link>, it can be used to cancel the I/O job
+by calling <link linkend="g-cancellable-cancel"><function>g_cancellable_cancel()</function></link> or by calling 
+<link linkend="g-io-scheduler-cancel-all-jobs"><function>g_io_scheduler_cancel_all_jobs()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>job_func</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GIOSchedulerJobFunc"><type>GIOSchedulerJobFunc</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> data to pass to <parameter>job_func</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>notify</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDestroyNotify"><type>GDestroyNotify</type></link> for <parameter>user_data</parameter>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>io_priority</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="gioscheduler">I/O priority</link> 
+of the request.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-io-scheduler-cancel-all-jobs" role="function"/>g_io_scheduler_cancel_all_jobs ()</title>
+<indexterm><primary>g_io_scheduler_cancel_all_jobs</primary></indexterm><programlisting><link linkend="void">void</link>                g_io_scheduler_cancel_all_jobs      (void);</programlisting>
+<para>
+Cancels all cancellable I/O jobs. 
+</para>
+<para>
+A job is cancellable if a <link linkend="GCancellable"><type>GCancellable</type></link> was passed into
+<link linkend="g-io-scheduler-push-job"><function>g_io_scheduler_push_job()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-io-scheduler-job-send-to-mainloop" role="function"/>g_io_scheduler_job_send_to_mainloop ()</title>
+<indexterm><primary>g_io_scheduler_job_send_to_mainloop</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_io_scheduler_job_send_to_mainloop (<link linkend="GIOSchedulerJob">GIOSchedulerJob</link> *job,
+                                                         <link linkend="GSourceFunc">GSourceFunc</link> func,
+                                                         <link linkend="gpointer">gpointer</link> user_data,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> notify);</programlisting>
+<para>
+Used from an I/O job to send a callback to be run in the 
+main loop (main thread), waiting for the result (and thus 
+blocking the I/O job).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>job</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GIOSchedulerJob"><type>GIOSchedulerJob</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GSourceFunc"><type>GSourceFunc</type></link> callback that will be called in the main thread
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> data to pass to <parameter>func</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>notify</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDestroyNotify"><type>GDestroyNotify</type></link> for <parameter>user_data</parameter>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The return value of <parameter>func</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-io-scheduler-job-send-to-mainloop-async" role="function"/>g_io_scheduler_job_send_to_mainloop_async ()</title>
+<indexterm><primary>g_io_scheduler_job_send_to_mainloop_async</primary></indexterm><programlisting><link linkend="void">void</link>                g_io_scheduler_job_send_to_mainloop_async
+                                                        (<link linkend="GIOSchedulerJob">GIOSchedulerJob</link> *job,
+                                                         <link linkend="GSourceFunc">GSourceFunc</link> func,
+                                                         <link linkend="gpointer">gpointer</link> user_data,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> notify);</programlisting>
+<para>
+Used from an I/O job to send a callback to be run asynchronously 
+in the main loop (main thread). The callback will be run when the 
+main loop is available, but at that time the I/O job might have 
+finished. The return value from the callback is ignored.
+</para>
+<para>
+Note that if you are passing the <parameter>user_data</parameter> from <link linkend="g-io-scheduler-push-job"><function>g_io_scheduler_push_job()</function></link>
+on to this function you have to ensure that it is not freed before
+<parameter>func</parameter> is called, either by passing <link linkend="NULL:CAPS"><literal>NULL</literal></link> as <parameter>notify</parameter> to 
+<link linkend="g-io-scheduler-push-job"><function>g_io_scheduler_push_job()</function></link> or by using refcounting for <parameter>user_data</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>job</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GIOSchedulerJob"><type>GIOSchedulerJob</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GSourceFunc"><type>GSourceFunc</type></link> callback that will be called in the main thread
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> data to pass to <parameter>func</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>notify</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDestroyNotify"><type>GDestroyNotify</type></link> for <parameter>user_data</parameter>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

@@ -1,0 +1,396 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GDataOutputStream">
+<refmeta>
+<refentrytitle role="top_of_page">GDataOutputStream</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GDataOutputStream</refname>
+<refpurpose>Data Output Stream</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GDataOutputStream-struct">GDataOutputStream</link>;
+<link linkend="GDataOutputStream">GDataOutputStream</link>*  <link linkend="g-data-output-stream-new">g_data_output_stream_new</link>            (<link linkend="GOutputStream">GOutputStream</link> *base_stream);
+<link linkend="void">void</link>                <link linkend="g-data-output-stream-set-byte-order">g_data_output_stream_set_byte_order</link> (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="GDataStreamByteOrder">GDataStreamByteOrder</link> order);
+<link linkend="GDataStreamByteOrder">GDataStreamByteOrder</link> <link linkend="g-data-output-stream-get-byte-order">g_data_output_stream_get_byte_order</link>
+                                                        (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-byte">g_data_output_stream_put_byte</link>       (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guchar">guchar</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-int16">g_data_output_stream_put_int16</link>      (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="gint16">gint16</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-uint16">g_data_output_stream_put_uint16</link>     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guint16">guint16</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-int32">g_data_output_stream_put_int32</link>      (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="gint32">gint32</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-uint32">g_data_output_stream_put_uint32</link>     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guint32">guint32</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-int64">g_data_output_stream_put_int64</link>      (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="gint64">gint64</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-uint64">g_data_output_stream_put_uint64</link>     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guint64">guint64</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-data-output-stream-put-string">g_data_output_stream_put_string</link>     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         const <link linkend="char">char</link> *str,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GOutputStream">GOutputStream</link>
+         +----<link linkend="GFilterOutputStream">GFilterOutputStream</link>
+               +----GDataOutputStream
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+<refsect1 role="properties">
+<title role="properties.title">Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GDataOutputStream--byte-order">byte-order</link>&quot;               <link linkend="GDataStreamByteOrder">GDataStreamByteOrder</link>  : Read / Write
+</synopsis>
+</refsect1>
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Data output stream implements <link linkend="GOutputStream"><type>GOutputStream</type></link> and includes functions for 
+writing data directly to an output stream.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GDataOutputStream-struct" role="struct"/>GDataOutputStream</title>
+<indexterm><primary>GDataOutputStream</primary></indexterm><programlisting>typedef struct _GDataOutputStream GDataOutputStream;</programlisting>
+<para>
+An implementation of <link linkend="GBufferedOutputStream"><type>GBufferedOutputStream</type></link> that allows for high-level 
+data manipulation of arbitrary data (including binary operations).</para>
+<para>
+
+</para><variablelist role="struct">
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-new" role="function"/>g_data_output_stream_new ()</title>
+<indexterm><primary>g_data_output_stream_new</primary></indexterm><programlisting><link linkend="GDataOutputStream">GDataOutputStream</link>*  g_data_output_stream_new            (<link linkend="GOutputStream">GOutputStream</link> *base_stream);</programlisting>
+<para>
+Creates a new data output stream for <parameter>base_stream</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>base_stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GOutputStream"><type>GOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-set-byte-order" role="function"/>g_data_output_stream_set_byte_order ()</title>
+<indexterm><primary>g_data_output_stream_set_byte_order</primary></indexterm><programlisting><link linkend="void">void</link>                g_data_output_stream_set_byte_order (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="GDataStreamByteOrder">GDataStreamByteOrder</link> order);</programlisting>
+<para>
+Sets the byte order of the data output stream to <parameter>order</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>order</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataStreamByteOrder"><literal>GDataStreamByteOrder</literal></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-get-byte-order" role="function"/>g_data_output_stream_get_byte_order ()</title>
+<indexterm><primary>g_data_output_stream_get_byte_order</primary></indexterm><programlisting><link linkend="GDataStreamByteOrder">GDataStreamByteOrder</link> g_data_output_stream_get_byte_order
+                                                        (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream);</programlisting>
+<para>
+Gets the byte order for the stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the <link linkend="GDataStreamByteOrder"><type>GDataStreamByteOrder</type></link> for the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-byte" role="function"/>g_data_output_stream_put_byte ()</title>
+<indexterm><primary>g_data_output_stream_put_byte</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_byte       (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guchar">guchar</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts a byte into the output stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="guchar"><type>guchar</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-int16" role="function"/>g_data_output_stream_put_int16 ()</title>
+<indexterm><primary>g_data_output_stream_put_int16</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_int16      (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="gint16">gint16</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts a signed 16-bit integer into the output stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gint16"><type>gint16</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-uint16" role="function"/>g_data_output_stream_put_uint16 ()</title>
+<indexterm><primary>g_data_output_stream_put_uint16</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_uint16     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guint16">guint16</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts an unsigned 16-bit integer into the output stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="guint16"><type>guint16</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-int32" role="function"/>g_data_output_stream_put_int32 ()</title>
+<indexterm><primary>g_data_output_stream_put_int32</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_int32      (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="gint32">gint32</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts a signed 32-bit integer into the output stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gint32"><type>gint32</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-uint32" role="function"/>g_data_output_stream_put_uint32 ()</title>
+<indexterm><primary>g_data_output_stream_put_uint32</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_uint32     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guint32">guint32</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts an unsigned 32-bit integer into the stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="guint32"><type>guint32</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-int64" role="function"/>g_data_output_stream_put_int64 ()</title>
+<indexterm><primary>g_data_output_stream_put_int64</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_int64      (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="gint64">gint64</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts a signed 64-bit integer into the stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gint64"><type>gint64</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-uint64" role="function"/>g_data_output_stream_put_uint64 ()</title>
+<indexterm><primary>g_data_output_stream_put_uint64</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_uint64     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         <link linkend="guint64">guint64</link> data,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts an unsigned 64-bit integer into the stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="guint64"><type>guint64</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>data</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-data-output-stream-put-string" role="function"/>g_data_output_stream_put_string ()</title>
+<indexterm><primary>g_data_output_stream_put_string</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_data_output_stream_put_string     (<link linkend="GDataOutputStream">GDataOutputStream</link> *stream,
+                                                         const <link linkend="char">char</link> *str,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Puts a string into the output stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GDataOutputStream"><type>GDataOutputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>str</parameter>&nbsp;:</term>
+<listitem><simpara> a string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>string</parameter> was successfully added to the <parameter>stream</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+<refsect1 role="property_details">
+<title role="property_details.title">Property Details</title>
+<refsect2><title><anchor id="GDataOutputStream--byte-order"/>The <literal>&quot;byte-order&quot;</literal> property</title>
+<indexterm><primary>GDataOutputStream:byte-order</primary></indexterm><programlisting>  &quot;byte-order&quot;               <link linkend="GDataStreamByteOrder">GDataStreamByteOrder</link>  : Read / Write</programlisting>
+<para>
+Determines the byte ordering that is used when writing 
+multi-byte entities (such as integers) to the stream.</para>
+<para>
+
+</para><para>Default value: G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN</para>
+</refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<link linkend="GOutputStream"><type>GOutputStream</type></link>
+</refsect1>
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

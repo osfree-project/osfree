@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GFilterInputStream</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="streaming.html" title="Streaming I/O">
+<link rel="prev" href="GFileOutputStream.html" title="GFileOutputStream">
+<link rel="next" href="GFilterOutputStream.html" title="GFilterOutputStream">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="GFileOutputStream.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="streaming.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="GFilterOutputStream.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2755733" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2851433" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2756909" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2851403" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GFilterInputStream"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2755733"></a><span class="refentrytitle">GFilterInputStream</span>
+</h2>
+<p>GFilterInputStream &#8212; Filter Input Stream</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GFilterInputStream.html#GFilterInputStream-struct">GFilterInputStream</a>;
+<a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a>*       <a class="link" href="GFilterInputStream.html#g-filter-input-stream-get-base-stream">g_filter_input_stream_get_base_stream</a>
+                                                        (<a class="link" href="GFilterInputStream.html" title="GFilterInputStream">GFilterInputStream</a> *stream);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2756909"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a>
+         +----GFilterInputStream
+               +----<a class="link" href="GBufferedInputStream.html" title="GBufferedInputStream">GBufferedInputStream</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2851403"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a class="link" href="GFilterInputStream.html#GFilterInputStream--base-stream">base-stream</a>"              <a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a>          : Read / Write / Construct Only
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2851433"></a><h2>Description</h2>
+<p>
+</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2851453"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2851463"></a><h3>
+<a name="GFilterInputStream-struct"></a>GFilterInputStream</h3>
+<a class="indexterm" name="id2851475"></a><pre class="programlisting">typedef struct _GFilterInputStream GFilterInputStream;</pre>
+<p>
+A base class for all input streams that work on an underlying stream.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2851245"></a><h3>
+<a name="g-filter-input-stream-get-base-stream"></a>g_filter_input_stream_get_base_stream ()</h3>
+<a class="indexterm" name="id2851256"></a><pre class="programlisting"><a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a>*       g_filter_input_stream_get_base_stream
+                                                        (<a class="link" href="GFilterInputStream.html" title="GFilterInputStream">GFilterInputStream</a> *stream);</pre>
+<p>
+Gets the base stream for the filter stream.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GFilterInputStream.html" title="GFilterInputStream"><span class="type">GFilterInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GInputStream.html" title="GInputStream"><span class="type">GInputStream</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2851334"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2851345"></a><h3>
+<a name="GFilterInputStream--base-stream"></a>The <code class="literal">"base-stream"</code> property</h3>
+<a class="indexterm" name="id2851359"></a><pre class="programlisting">  "base-stream"              <a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a>          : Read / Write / Construct Only</pre>
+<p>The underlying base stream the io ops will be done on.</p>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2851382"></a><div class="refsect2" lang="en"><a name="id2851383"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2851384"></a></div>
+</div>
+</div>
+</body>
+</html>

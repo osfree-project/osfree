@@ -1,0 +1,616 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GInputStream">
+<refmeta>
+<refentrytitle role="top_of_page">GInputStream</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GInputStream</refname>
+<refpurpose>Base class for implementing streaming input</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GInputStream-struct">GInputStream</link>;
+<link linkend="gssize">gssize</link>              <link linkend="g-input-stream-read">g_input_stream_read</link>                 (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="void">void</link> *buffer,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-input-stream-read-all">g_input_stream_read_all</link>             (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="void">void</link> *buffer,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="gsize">gsize</link> *bytes_read,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gssize">gssize</link>              <link linkend="g-input-stream-skip">g_input_stream_skip</link>                 (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-input-stream-close">g_input_stream_close</link>                (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="void">void</link>                <link linkend="g-input-stream-read-async">g_input_stream_read_async</link>           (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="void">void</link> *buffer,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="int">int</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="gssize">gssize</link>              <link linkend="g-input-stream-read-finish">g_input_stream_read_finish</link>          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="void">void</link>                <link linkend="g-input-stream-skip-async">g_input_stream_skip_async</link>           (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="int">int</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="gssize">gssize</link>              <link linkend="g-input-stream-skip-finish">g_input_stream_skip_finish</link>          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="void">void</link>                <link linkend="g-input-stream-close-async">g_input_stream_close_async</link>          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="int">int</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-input-stream-close-finish">g_input_stream_close_finish</link>         (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-input-stream-is-closed">g_input_stream_is_closed</link>            (<link linkend="GInputStream">GInputStream</link> *stream);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-input-stream-has-pending">g_input_stream_has_pending</link>          (<link linkend="GInputStream">GInputStream</link> *stream);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-input-stream-set-pending">g_input_stream_set_pending</link>          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="void">void</link>                <link linkend="g-input-stream-clear-pending">g_input_stream_clear_pending</link>        (<link linkend="GInputStream">GInputStream</link> *stream);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GInputStream
+         +----<link linkend="GUnixInputStream">GUnixInputStream</link>
+         +----<link linkend="GMemoryInputStream">GMemoryInputStream</link>
+         +----<link linkend="GFilterInputStream">GFilterInputStream</link>
+         +----<link linkend="GFileInputStream">GFileInputStream</link>
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GInputStream-struct" role="struct"/>GInputStream</title>
+<indexterm><primary>GInputStream</primary></indexterm><programlisting>typedef struct _GInputStream GInputStream;</programlisting>
+<para>
+Base class for streaming input operations.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-read" role="function"/>g_input_stream_read ()</title>
+<indexterm><primary>g_input_stream_read</primary></indexterm><programlisting><link linkend="gssize">gssize</link>              g_input_stream_read                 (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="void">void</link> *buffer,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Tries to read <parameter>count</parameter> bytes from the stream into the buffer starting at
+<parameter>buffer</parameter>. Will block during this read.
+</para>
+<para>
+If count is zero returns zero and does nothing. A value of <parameter>count</parameter>
+larger than <link linkend="G-MAXSSIZE:CAPS"><literal>G_MAXSSIZE</literal></link> will cause a <link linkend="G-IO-ERROR-INVALID-ARGUMENT:CAPS"><literal>G_IO_ERROR_INVALID_ARGUMENT</literal></link> error.
+</para>
+<para>
+On success, the number of bytes read into the buffer is returned.
+It is not an error if this is not the same as the requested size, as it
+can happen e.g. near the end of a file. Zero is returned on end of file
+(or if <parameter>count</parameter> is zero),  but never otherwise.
+</para>
+<para>
+If <parameter>cancellable</parameter> is not NULL, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error G_IO_ERROR_CANCELLED will be returned. If an
+operation was partially finished when the operation was cancelled the
+partial result will be returned, without an error.
+</para>
+<para>
+On error -1 is returned and <parameter>error</parameter> is set accordingly.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>buffer</parameter>&nbsp;:</term>
+<listitem><simpara> a buffer to read data into (which should be at least count bytes long).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> the number of bytes that will be read from the stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> Number of bytes read, or -1 on error
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-read-all" role="function"/>g_input_stream_read_all ()</title>
+<indexterm><primary>g_input_stream_read_all</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_input_stream_read_all             (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="void">void</link> *buffer,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="gsize">gsize</link> *bytes_read,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Tries to read <parameter>count</parameter> bytes from the stream into the buffer starting at
+<parameter>buffer</parameter>. Will block during this read.
+</para>
+<para>
+This function is similar to <link linkend="g-input-stream-read"><function>g_input_stream_read()</function></link>, except it tries to
+read as many bytes as requested, only stopping on an error or end of stream.
+</para>
+<para>
+On a successful read of <parameter>count</parameter> bytes, or if we reached the end of the
+stream,  <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> is returned, and <parameter>bytes_read</parameter> is set to the number of bytes
+read into <parameter>buffer</parameter>.
+</para>
+<para>
+If there is an error during the operation <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and <parameter>error</parameter>
+is set to indicate the error status, <parameter>bytes_read</parameter> is updated to contain
+the number of bytes read into <parameter>buffer</parameter> before the error occurred.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>buffer</parameter>&nbsp;:</term>
+<listitem><simpara> a buffer to read data into (which should be at least count bytes long).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> the number of bytes that will be read from the stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>bytes_read</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the number of bytes that was read from the stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> on success, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if there was an error
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-skip" role="function"/>g_input_stream_skip ()</title>
+<indexterm><primary>g_input_stream_skip</primary></indexterm><programlisting><link linkend="gssize">gssize</link>              g_input_stream_skip                 (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Tries to skip <parameter>count</parameter> bytes from the stream. Will block during the operation.
+</para>
+<para>
+This is identical to <link linkend="g-input-stream-read"><function>g_input_stream_read()</function></link>, from a behaviour standpoint,
+but the bytes that are skipped are not returned to the user. Some
+streams have an implementation that is more efficient than reading the data.
+</para>
+<para>
+This function is optional for inherited classes, as the default implementation
+emulates it using read.
+</para>
+<para>
+If <parameter>cancellable</parameter> is not <link linkend="NULL:CAPS"><literal>NULL</literal></link>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <link linkend="G-IO-ERROR-CANCELLED:CAPS"><literal>G_IO_ERROR_CANCELLED</literal></link> will be returned. If an
+operation was partially finished when the operation was cancelled the
+partial result will be returned, without an error.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> the number of bytes that will be skipped from the stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> Number of bytes skipped, or -1 on error
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-close" role="function"/>g_input_stream_close ()</title>
+<indexterm><primary>g_input_stream_close</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_input_stream_close                (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Closes the stream, releasing resources related to it.
+</para>
+<para>
+Once the stream is closed, all other operations will return <link linkend="G-IO-ERROR-CLOSED:CAPS"><literal>G_IO_ERROR_CLOSED</literal></link>.
+Closing a stream multiple times will not return an error.
+</para>
+<para>
+Streams will be automatically closed when the last reference
+is dropped, but you might want to call this function to make sure 
+resources are released as early as possible.
+</para>
+<para>
+Some streams might keep the backing store of the stream (e.g. a file descriptor)
+open after the stream is closed. See the documentation for the individual
+stream for details.
+</para>
+<para>
+On failure the first error that happened will be reported, but the close
+operation will finish as much as possible. A stream that failed to
+close will still return <link linkend="G-IO-ERROR-CLOSED:CAPS"><literal>G_IO_ERROR_CLOSED</literal></link> for all operations. Still, it
+is important to check and report the error to the user.
+</para>
+<para>
+If <parameter>cancellable</parameter> is not NULL, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <link linkend="G-IO-ERROR-CANCELLED:CAPS"><literal>G_IO_ERROR_CANCELLED</literal></link> will be returned.
+Cancelling a close will still leave the stream closed, but some streams
+can use a faster close that doesn't block to e.g. check errors.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> on success, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> on failure
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-read-async" role="function"/>g_input_stream_read_async ()</title>
+<indexterm><primary>g_input_stream_read_async</primary></indexterm><programlisting><link linkend="void">void</link>                g_input_stream_read_async           (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="void">void</link> *buffer,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="int">int</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Request an asynchronous read of <parameter>count</parameter> bytes from the stream into the buffer
+starting at <parameter>buffer</parameter>. When the operation is finished <parameter>callback</parameter> will be called. 
+You can then call <link linkend="g-input-stream-read-finish"><function>g_input_stream_read_finish()</function></link> to get the result of the 
+operation.
+</para>
+<para>
+During an async request no other sync and async calls are allowed, and will
+result in <link linkend="G-IO-ERROR-PENDING:CAPS"><literal>G_IO_ERROR_PENDING</literal></link> errors. 
+</para>
+<para>
+A value of <parameter>count</parameter> larger than <link linkend="G-MAXSSIZE:CAPS"><literal>G_MAXSSIZE</literal></link> will cause a <link linkend="G-IO-ERROR-INVALID-ARGUMENT:CAPS"><literal>G_IO_ERROR_INVALID_ARGUMENT</literal></link> error.
+</para>
+<para>
+On success, the number of bytes read into the buffer will be passed to the
+callback. It is not an error if this is not the same as the requested size, as it
+can happen e.g. near the end of a file, but generally we try to read
+as many bytes as requested. Zero is returned on end of file
+(or if <parameter>count</parameter> is zero),  but never otherwise.
+</para>
+<para>
+Any outstanding i/o request with higher priority (lower numerical value) will
+be executed before an outstanding request with lower priority. Default
+priority is <link linkend="G-PRIORITY-DEFAULT:CAPS"><literal>G_PRIORITY_DEFAULT</literal></link>.
+</para>
+<para>
+The asyncronous methods have a default fallback that uses threads to implement
+asynchronicity, so they are optional for inheriting classes. However, if you
+override one you must override all.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>buffer</parameter>&nbsp;:</term>
+<listitem><simpara> a buffer to read data into (which should be at least count bytes long).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> the number of bytes that will be read from the stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>io_priority</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="io-priority">I/O priority</link> 
+of the request. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback</parameter>&nbsp;:</term>
+<listitem><simpara> callback to call when the request is satisfied
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the data to pass to callback function
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-read-finish" role="function"/>g_input_stream_read_finish ()</title>
+<indexterm><primary>g_input_stream_read_finish</primary></indexterm><programlisting><link linkend="gssize">gssize</link>              g_input_stream_read_finish          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Finishes an asynchronous stream read operation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncResult"><type>GAsyncResult</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to 
+ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> number of bytes read in, or -1 on error.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-skip-async" role="function"/>g_input_stream_skip_async ()</title>
+<indexterm><primary>g_input_stream_skip_async</primary></indexterm><programlisting><link linkend="void">void</link>                g_input_stream_skip_async           (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="gsize">gsize</link> count,
+                                                         <link linkend="int">int</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Request an asynchronous skip of <parameter>count</parameter> bytes from the stream into the buffer
+starting at <parameter>buffer</parameter>. When the operation is finished <parameter>callback</parameter> will be called. 
+You can then call <link linkend="g-input-stream-skip-finish"><function>g_input_stream_skip_finish()</function></link> to get the result of the 
+operation.
+</para>
+<para>
+During an async request no other sync and async calls are allowed, and will
+result in <link linkend="G-IO-ERROR-PENDING:CAPS"><literal>G_IO_ERROR_PENDING</literal></link> errors. 
+</para>
+<para>
+A value of <parameter>count</parameter> larger than <link linkend="G-MAXSSIZE:CAPS"><literal>G_MAXSSIZE</literal></link> will cause a <link linkend="G-IO-ERROR-INVALID-ARGUMENT:CAPS"><literal>G_IO_ERROR_INVALID_ARGUMENT</literal></link> error.
+</para>
+<para>
+On success, the number of bytes skipped will be passed to the
+callback. It is not an error if this is not the same as the requested size, as it
+can happen e.g. near the end of a file, but generally we try to skip
+as many bytes as requested. Zero is returned on end of file
+(or if <parameter>count</parameter> is zero), but never otherwise.
+</para>
+<para>
+Any outstanding i/o request with higher priority (lower numerical value) will
+be executed before an outstanding request with lower priority. Default
+priority is <link linkend="G-PRIORITY-DEFAULT:CAPS"><literal>G_PRIORITY_DEFAULT</literal></link>.
+</para>
+<para>
+The asyncronous methods have a default fallback that uses threads to implement
+asynchronicity, so they are optional for inheriting classes. However, if you
+override one you must override all.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> the number of bytes that will be skipped from the stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>io_priority</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="io-priority">I/O priority</link> 
+of the request. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback</parameter>&nbsp;:</term>
+<listitem><simpara> callback to call when the request is satisfied
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the data to pass to callback function
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-skip-finish" role="function"/>g_input_stream_skip_finish ()</title>
+<indexterm><primary>g_input_stream_skip_finish</primary></indexterm><programlisting><link linkend="gssize">gssize</link>              g_input_stream_skip_finish          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Finishes a stream skip operation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncResult"><type>GAsyncResult</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to 
+ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the size of the bytes skipped, or <link linkend="1:CAPS"><literal>-1</literal></link> on error.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-close-async" role="function"/>g_input_stream_close_async ()</title>
+<indexterm><primary>g_input_stream_close_async</primary></indexterm><programlisting><link linkend="void">void</link>                g_input_stream_close_async          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="int">int</link> io_priority,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Requests an asynchronous closes of the stream, releasing resources related to it.
+When the operation is finished <parameter>callback</parameter> will be called. 
+You can then call <link linkend="g-input-stream-close-finish"><function>g_input_stream_close_finish()</function></link> to get the result of the 
+operation.
+</para>
+<para>
+For behaviour details see <link linkend="g-input-stream-close"><function>g_input_stream_close()</function></link>.
+</para>
+<para>
+The asyncronous methods have a default fallback that uses threads to implement
+asynchronicity, so they are optional for inheriting classes. However, if you
+override one you must override all.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>io_priority</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="io-priority">I/O priority</link> 
+of the request. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional cancellable object
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback</parameter>&nbsp;:</term>
+<listitem><simpara> callback to call when the request is satisfied
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the data to pass to callback function
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-close-finish" role="function"/>g_input_stream_close_finish ()</title>
+<indexterm><primary>g_input_stream_close_finish</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_input_stream_close_finish         (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Finishes closing a stream asynchronously, started from <link linkend="g-input-stream-close-async"><function>g_input_stream_close_async()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GInputStream"><type>GInputStream</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncResult"><type>GAsyncResult</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to 
+ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the stream was closed successfully.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-is-closed" role="function"/>g_input_stream_is_closed ()</title>
+<indexterm><primary>g_input_stream_is_closed</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_input_stream_is_closed            (<link linkend="GInputStream">GInputStream</link> *stream);</programlisting>
+<para>
+Checks if an input stream is closed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> input stream.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the stream is closed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-has-pending" role="function"/>g_input_stream_has_pending ()</title>
+<indexterm><primary>g_input_stream_has_pending</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_input_stream_has_pending          (<link linkend="GInputStream">GInputStream</link> *stream);</programlisting>
+<para>
+Checks if an input stream has pending actions.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> input stream.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>stream</parameter> has pending actions.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-set-pending" role="function"/>g_input_stream_set_pending ()</title>
+<indexterm><primary>g_input_stream_set_pending</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_input_stream_set_pending          (<link linkend="GInputStream">GInputStream</link> *stream,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Sets <parameter>stream</parameter> to have actions pending. If the pending flag is
+already set or <parameter>stream</parameter> is closed, it will return <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> and set
+<parameter>error</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> input stream
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link> location to store the error occuring, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to 
+ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if pending was previously unset and is now set.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-input-stream-clear-pending" role="function"/>g_input_stream_clear_pending ()</title>
+<indexterm><primary>g_input_stream_clear_pending</primary></indexterm><programlisting><link linkend="void">void</link>                g_input_stream_clear_pending        (<link linkend="GInputStream">GInputStream</link> *stream);</programlisting>
+<para>
+Clears the pending flag on <parameter>stream</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> input stream
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

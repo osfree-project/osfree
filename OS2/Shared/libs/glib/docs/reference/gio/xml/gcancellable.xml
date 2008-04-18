@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GCancellable">
+<refmeta>
+<refentrytitle role="top_of_page">GCancellable</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GCancellable</refname>
+<refpurpose>Thread-safe Operation Cancellation Stack</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GCancellable-struct">GCancellable</link>;
+<link linkend="GCancellable">GCancellable</link>*       <link linkend="g-cancellable-new">g_cancellable_new</link>                   (void);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-cancellable-is-cancelled">g_cancellable_is_cancelled</link>          (<link linkend="GCancellable">GCancellable</link> *cancellable);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-cancellable-set-error-if-cancelled">g_cancellable_set_error_if_cancelled</link>
+                                                        (<link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="int">int</link>                 <link linkend="g-cancellable-get-fd">g_cancellable_get_fd</link>                (<link linkend="GCancellable">GCancellable</link> *cancellable);
+<link linkend="GCancellable">GCancellable</link>*       <link linkend="g-cancellable-get-current">g_cancellable_get_current</link>           (void);
+<link linkend="void">void</link>                <link linkend="g-cancellable-pop-current">g_cancellable_pop_current</link>           (<link linkend="GCancellable">GCancellable</link> *cancellable);
+<link linkend="void">void</link>                <link linkend="g-cancellable-push-current">g_cancellable_push_current</link>          (<link linkend="GCancellable">GCancellable</link> *cancellable);
+<link linkend="void">void</link>                <link linkend="g-cancellable-reset">g_cancellable_reset</link>                 (<link linkend="GCancellable">GCancellable</link> *cancellable);
+<link linkend="void">void</link>                <link linkend="g-cancellable-cancel">g_cancellable_cancel</link>                (<link linkend="GCancellable">GCancellable</link> *cancellable);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GCancellable
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+<refsect1 role="signal_proto">
+<title role="signal_proto.title">Signals</title>
+<synopsis>
+
+  &quot;<link linkend="GCancellable-cancelled">cancelled</link>&quot;                                      : Run Last
+</synopsis>
+</refsect1>
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+GCancellable is a thread-safe operation cancellation stack used 
+throughout GIO to allow for cancellation of synchronous and
+asynchronous operations.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GCancellable-struct" role="struct"/>GCancellable</title>
+<indexterm><primary>GCancellable</primary></indexterm><programlisting>typedef struct _GCancellable GCancellable;</programlisting>
+<para>
+Allows actions to be cancelled.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-new" role="function"/>g_cancellable_new ()</title>
+<indexterm><primary>g_cancellable_new</primary></indexterm><programlisting><link linkend="GCancellable">GCancellable</link>*       g_cancellable_new                   (void);</programlisting>
+<para>
+Creates a new <link linkend="GCancellable"><type>GCancellable</type></link> object.
+</para>
+<para>
+Applications that want to start one or more operations
+that should be cancellable should create a <link linkend="GCancellable"><type>GCancellable</type></link>
+and pass it to the operations.
+</para>
+<para>
+One <link linkend="GCancellable"><type>GCancellable</type></link> can be used in multiple consecutive
+operations, but not in multiple concurrent operations.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-is-cancelled" role="function"/>g_cancellable_is_cancelled ()</title>
+<indexterm><primary>g_cancellable_is_cancelled</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_cancellable_is_cancelled          (<link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Checks if a cancellable job has been cancelled.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link> or NULL.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>cancellable</parameter> is cancelled, 
+FALSE if called with <link linkend="NULL:CAPS"><literal>NULL</literal></link> or if item is not cancelled. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-set-error-if-cancelled" role="function"/>g_cancellable_set_error_if_cancelled ()</title>
+<indexterm><primary>g_cancellable_set_error_if_cancelled</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_cancellable_set_error_if_cancelled
+                                                        (<link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+If the <parameter>cancelalble</parameter> is cancelled, sets the error to notify
+that the operation was cancelled.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link> object.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="GError"><type>GError</type></link> to append error state to.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>cancellable</parameter> was cancelled, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if it was not.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-get-fd" role="function"/>g_cancellable_get_fd ()</title>
+<indexterm><primary>g_cancellable_get_fd</primary></indexterm><programlisting><link linkend="int">int</link>                 g_cancellable_get_fd                (<link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Gets the file descriptor for a cancellable job. This can be used to
+implement cancellable operations on Unix systems. The returned fd will
+turn readable when <parameter>cancellable</parameter> is cancelled.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> A valid file descriptor. <link linkend="1:CAPS"><literal>-1</literal></link> if the file descriptor 
+is not supported, or on errors. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-get-current" role="function"/>g_cancellable_get_current ()</title>
+<indexterm><primary>g_cancellable_get_current</primary></indexterm><programlisting><link linkend="GCancellable">GCancellable</link>*       g_cancellable_get_current           (void);</programlisting>
+<para>
+Gets the top cancellable from the stack.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link> from the top of the stack, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+if the stack is empty. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-pop-current" role="function"/>g_cancellable_pop_current ()</title>
+<indexterm><primary>g_cancellable_pop_current</primary></indexterm><programlisting><link linkend="void">void</link>                g_cancellable_pop_current           (<link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Pops <parameter>cancellable</parameter> off the cancellable stack (verifying that <parameter>cancellable</parameter> 
+is on the top of the stack).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-push-current" role="function"/>g_cancellable_push_current ()</title>
+<indexterm><primary>g_cancellable_push_current</primary></indexterm><programlisting><link linkend="void">void</link>                g_cancellable_push_current          (<link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Pushes <parameter>cancellable</parameter> onto the cancellable stack. The current
+cancllable can then be recieved using <link linkend="g-cancellable-get-current"><function>g_cancellable_get_current()</function></link>.
+</para>
+<para>
+This is useful when implementing cancellable operations in
+code that does not allow you to pass down the cancellable object.
+</para>
+<para>
+This is typically called automatically by e.g. <link linkend="GFile"><type>GFile</type></link> operations,
+so you rarely have to call this yourself.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-reset" role="function"/>g_cancellable_reset ()</title>
+<indexterm><primary>g_cancellable_reset</primary></indexterm><programlisting><link linkend="void">void</link>                g_cancellable_reset                 (<link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Resets <parameter>cancellable</parameter> to its uncancelled state.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link> object.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-cancellable-cancel" role="function"/>g_cancellable_cancel ()</title>
+<indexterm><primary>g_cancellable_cancel</primary></indexterm><programlisting><link linkend="void">void</link>                g_cancellable_cancel                (<link linkend="GCancellable">GCancellable</link> *cancellable);</programlisting>
+<para>
+Will set <parameter>cancellable</parameter> to cancelled, and will emit the CANCELLED
+signal.
+</para>
+<para>
+This function is thread-safe. In other words, you can safely call it from
+another thread than the one running an operation that was passed
+the <parameter>cancellable</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link> object.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1 role="signals">
+<title role="signals.title">Signal Details</title>
+<refsect2><title><anchor id="GCancellable-cancelled"/>The <literal>&quot;cancelled&quot;</literal> signal</title>
+<indexterm><primary>GCancellable::cancelled</primary></indexterm><programlisting><link linkend="void">void</link>                user_function                      (<link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                        <link linkend="gpointer">gpointer</link>      user_data)        : Run Last</programlisting>
+<para>
+Emitted when the operation has been cancelled from another thread.
+</para>
+<para>
+Can be used by implementations of cancellable operations. This will
+be emitted in the thread that tried to cancel the operation, not the
+thread the is running the operation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GCancellable"><type>GCancellable</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

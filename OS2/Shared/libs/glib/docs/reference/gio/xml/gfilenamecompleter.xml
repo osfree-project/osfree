@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GFilenameCompleter">
+<refmeta>
+<refentrytitle role="top_of_page">GFilenameCompleter</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GFilenameCompleter</refname>
+<refpurpose>Filename Completer</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GFilenameCompleter-struct">GFilenameCompleter</link>;
+<link linkend="GFilenameCompleter">GFilenameCompleter</link>* <link linkend="g-filename-completer-new">g_filename_completer_new</link>            (void);
+<link linkend="char">char</link>*               <link linkend="g-filename-completer-get-completion-suffix">g_filename_completer_get_completion_suffix</link>
+                                                        (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *completer,
+                                                         const <link linkend="char">char</link> *initial_text);
+<link linkend="char">char</link>**              <link linkend="g-filename-completer-get-completions">g_filename_completer_get_completions</link>
+                                                        (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *completer,
+                                                         const <link linkend="char">char</link> *initial_text);
+<link linkend="void">void</link>                <link linkend="g-filename-completer-set-dirs-only">g_filename_completer_set_dirs_only</link>  (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *completer,
+                                                         <link linkend="gboolean">gboolean</link> dirs_only);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GFilenameCompleter
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+<refsect1 role="signal_proto">
+<title role="signal_proto.title">Signals</title>
+<synopsis>
+
+  &quot;<link linkend="GFilenameCompleter-got-completion-data">got-completion-data</link>&quot;                            : Run Last
+</synopsis>
+</refsect1>
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Completes partial file and directory names given a partial string by
+looking in the file system for clues. Can return a list of possible 
+completion strings for widget implementations.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GFilenameCompleter-struct" role="struct"/>GFilenameCompleter</title>
+<indexterm><primary>GFilenameCompleter</primary></indexterm><programlisting>typedef struct _GFilenameCompleter GFilenameCompleter;</programlisting>
+<para>
+Completes filenames based on files that exist within the file system.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-filename-completer-new" role="function"/>g_filename_completer_new ()</title>
+<indexterm><primary>g_filename_completer_new</primary></indexterm><programlisting><link linkend="GFilenameCompleter">GFilenameCompleter</link>* g_filename_completer_new            (void);</programlisting>
+<para>
+Creates a new filename completer.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFilenameCompleter"><type>GFilenameCompleter</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-filename-completer-get-completion-suffix" role="function"/>g_filename_completer_get_completion_suffix ()</title>
+<indexterm><primary>g_filename_completer_get_completion_suffix</primary></indexterm><programlisting><link linkend="char">char</link>*               g_filename_completer_get_completion_suffix
+                                                        (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *completer,
+                                                         const <link linkend="char">char</link> *initial_text);</programlisting>
+<para>
+Obtains a completion for <parameter>initial_text</parameter> from <parameter>completer</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>completer</parameter>&nbsp;:</term>
+<listitem><simpara> the filename completer.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>initial_text</parameter>&nbsp;:</term>
+<listitem><simpara> text to be completed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a completed string, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if no completion exists. 
+    This string is not owned by GIO, so remember to <link linkend="g-free"><function>g_free()</function></link> it 
+    when finished.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-filename-completer-get-completions" role="function"/>g_filename_completer_get_completions ()</title>
+<indexterm><primary>g_filename_completer_get_completions</primary></indexterm><programlisting><link linkend="char">char</link>**              g_filename_completer_get_completions
+                                                        (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *completer,
+                                                         const <link linkend="char">char</link> *initial_text);</programlisting>
+<para>
+Gets an array of completion strings for a given initial text.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>completer</parameter>&nbsp;:</term>
+<listitem><simpara> the filename completer.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>initial_text</parameter>&nbsp;:</term>
+<listitem><simpara> text to be completed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> array of strings with possible completions for <parameter>initial_text</parameter>.
+This array must be freed by <link linkend="g-strfreev"><function>g_strfreev()</function></link> when finished. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-filename-completer-set-dirs-only" role="function"/>g_filename_completer_set_dirs_only ()</title>
+<indexterm><primary>g_filename_completer_set_dirs_only</primary></indexterm><programlisting><link linkend="void">void</link>                g_filename_completer_set_dirs_only  (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *completer,
+                                                         <link linkend="gboolean">gboolean</link> dirs_only);</programlisting>
+<para>
+If <parameter>dirs_only</parameter> is <link linkend="TRUE:CAPS"><literal>TRUE</literal></link>, <parameter>completer</parameter> will only 
+complete directory names, and not file names.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>completer</parameter>&nbsp;:</term>
+<listitem><simpara> the filename completer.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dirs_only</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gboolean"><type>gboolean</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1 role="signals">
+<title role="signals.title">Signal Details</title>
+<refsect2><title><anchor id="GFilenameCompleter-got-completion-data"/>The <literal>&quot;got-completion-data&quot;</literal> signal</title>
+<indexterm><primary>GFilenameCompleter::got-completion-data</primary></indexterm><programlisting><link linkend="void">void</link>                user_function                      (<link linkend="GFilenameCompleter">GFilenameCompleter</link> *arg0,
+                                                        <link linkend="gpointer">gpointer</link>            user_data)      : Run Last</programlisting>
+<para>
+Emitted when the file name completion information comes available.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

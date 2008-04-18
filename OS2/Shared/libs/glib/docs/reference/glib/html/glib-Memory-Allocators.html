@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Memory Allocators</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GLib Reference Manual">
+<link rel="up" href="glib-data-types.html" title="GLib Data Types">
+<link rel="prev" href="glib-Caches.html" title="Caches">
+<link rel="next" href="tools.html" title="GLib Tools">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="glib.html" title="GLib Overview">
+<link rel="chapter" href="glib-fundamentals.html" title="GLib Fundamentals">
+<link rel="chapter" href="glib-core.html" title="GLib Core Application Support">
+<link rel="chapter" href="glib-utilities.html" title="GLib Utilities">
+<link rel="chapter" href="glib-data-types.html" title="GLib Data Types">
+<link rel="chapter" href="tools.html" title="GLib Tools">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+<link rel="index" href="ix10.html" title="Index of new symbols in 2.16">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="glib-Caches.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="glib-data-types.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GLib Reference Manual</th>
+<td><a accesskey="n" href="tools.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id3426144" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id3426218" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="glib-Memory-Allocators"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id3426144"></a><span class="refentrytitle">Memory Allocators</span>
+</h2>
+<p>Memory Allocators &#8212; deprecated way to allocate chunks of memory for GList, GSList and GNode</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;glib.h&gt;
+
+
+                    <a class="link" href="glib-Memory-Allocators.html#GAllocator">GAllocator</a>;
+<a class="link" href="glib-Memory-Allocators.html#GAllocator">GAllocator</a>*         <a class="link" href="glib-Memory-Allocators.html#g-allocator-new">g_allocator_new</a>                     (const <a class="link" href="glib-Basic-Types.html#gchar">gchar</a> *name,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> n_preallocs);
+void                <a class="link" href="glib-Memory-Allocators.html#g-allocator-free">g_allocator_free</a>                    (<a class="link" href="glib-Memory-Allocators.html#GAllocator">GAllocator</a> *allocator);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3426218"></a><h2>Description</h2>
+<p>
+</p>
+<p>
+Prior to 2.10, <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a> was used as an efficient way to allocate 
+small pieces of memory for use with the <a class="link" href="glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a>, <a class="link" href="glib-Singly-Linked-Lists.html#GSList"><span class="type">GSList</span></a> and <a class="link" href="glib-N-ary-Trees.html#GNode"><span class="type">GNode</span></a> data 
+structures. Since 2.10, it has been completely replaced by the 
+<a class="link" href="glib-Memory-Slices.html" title="Memory Slices">slice allocator</a> and deprecated.
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3426277"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id3426287"></a><h3>
+<a name="GAllocator"></a>GAllocator</h3>
+<a class="indexterm" name="id3426302"></a><pre class="programlisting">typedef struct _GAllocator GAllocator;</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">GAllocator</code> is deprecated and should not be used in newly-written code.</p>
+</div>
+<p>
+The <span class="structname">GAllocator</span> struct contains private data. and 
+should only be accessed using the following functions.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3426335"></a><h3>
+<a name="g-allocator-new"></a>g_allocator_new ()</h3>
+<a class="indexterm" name="id3426350"></a><pre class="programlisting"><a class="link" href="glib-Memory-Allocators.html#GAllocator">GAllocator</a>*         g_allocator_new                     (const <a class="link" href="glib-Basic-Types.html#gchar">gchar</a> *name,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> n_preallocs);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_allocator_new</code> has been deprecated since version 2.10 and should not be used in newly-written code. Use the <a class="link" href="glib-Memory-Slices.html" title="Memory Slices">slice allocator</a>
+instead</p>
+</div>
+<p>
+Creates a new <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>name</code></em>&#160;:</span></p></td>
+<td>the name of the <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a>. This name is used to set the name of the
+<a class="link" href="glib-Memory-Chunks.html#GMemChunk"><span class="type">GMemChunk</span></a> used by the <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a>, and is only used for debugging.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n_preallocs</code></em>&#160;:</span></p></td>
+<td>the number of elements in each block of memory allocated.
+Larger blocks mean less calls to <a class="link" href="glib-Memory-Allocation.html#g-malloc"><code class="function">g_malloc()</code></a>, but some memory may be wasted.
+(GLib uses 128 elements per block by default.) The value must be between 1
+and 65535.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>a new <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3426503"></a><h3>
+<a name="g-allocator-free"></a>g_allocator_free ()</h3>
+<a class="indexterm" name="id3426518"></a><pre class="programlisting">void                g_allocator_free                    (<a class="link" href="glib-Memory-Allocators.html#GAllocator">GAllocator</a> *allocator);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_allocator_free</code> has been deprecated since version 2.10 and should not be used in newly-written code. Use the <a class="link" href="glib-Memory-Slices.html" title="Memory Slices">slice allocator</a>
+instead</p>
+</div>
+<p>
+Frees all of the memory allocated by the <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>allocator</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-Memory-Allocators.html#GAllocator"><span class="type">GAllocator</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3426602"></a><div class="refsect2" lang="en"><a name="id3426604"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id3426605"></a></div>
+</div>
+</div>
+</body>
+</html>

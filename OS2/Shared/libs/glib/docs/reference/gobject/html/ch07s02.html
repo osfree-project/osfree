@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>How to provide more flexibility to users?</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GObject Reference Manual">
+<link rel="up" href="howto-signals.html" title="How to create and use signals">
+<link rel="prev" href="howto-signals.html" title="How to create and use signals">
+<link rel="next" href="ch07s03.html" title="How users can abuse signals (and why some think it is good)">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="preface" href="pr01.html" title="Introduction">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Concepts">
+<link rel="chapter" href="chapter-intro.html" title="Background">
+<link rel="chapter" href="chapter-gtype.html" title="The GLib Dynamic Type System">
+<link rel="chapter" href="chapter-gobject.html" title="The GObject base class">
+<link rel="chapter" href="chapter-signal.html" title="The GObject messaging system">
+<link rel="reference" href="rn01.html" title="API Reference">
+<link rel="reference" href="rn02.html" title="Tools Reference">
+<link rel="part" href="pt02.html" title="Part&#160;IV.&#160;Tutorial">
+<link rel="chapter" href="howto-gobject.html" title="How to define and implement a new GObject">
+<link rel="chapter" href="howto-interface.html" title="How to define and implement interfaces">
+<link rel="chapter" href="howto-signals.html" title="How to create and use signals">
+<link rel="part" href="pt03.html" title="Part&#160;V.&#160;Related Tools">
+<link rel="chapter" href="tools-gob.html" title="GObject builder">
+<link rel="chapter" href="tools-ginspector.html" title="Graphical inspection of GObjects">
+<link rel="chapter" href="tools-refdb.html" title="Debugging reference count problems">
+<link rel="chapter" href="tools-gtkdoc.html" title="Writing API docs">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="howto-signals.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="howto-signals.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GObject Reference Manual</th>
+<td><a accesskey="n" href="ch07s03.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="id3003354"></a>How to provide more flexibility to users?</h2></div></div></div>
+<p>
+      The previous implementation does the job but the signal facility of GObject can be used to provide
+      even more flexibility to this file change notification mechanism. One of the key ideas is to make the process
+      of writing data to the file part of the signal emission process to allow users to be notified either
+      before or after the data is written to the file.
+    </p>
+<p>
+      To integrate the process of writing the data to the file into the signal emission mechanism, we can
+      register a default class closure for this signal which will be invoked during the signal emission, just like 
+      any other user-connected signal handler. 
+    </p>
+<p>
+      The first step to implement this idea is to change the signature of the signal: we need to pass
+      around the buffer to write and its size. To do this, we use our own marshaller which will be generated
+      through GLib's genmarshall tool. We thus create a file named <code class="filename">marshall.list</code> which contains
+      the following single line:
+</p>
+<pre class="programlisting">
+VOID:POINTER,UINT
+</pre>
+<p>
+      and use the Makefile provided in <code class="filename">sample/signal/Makefile</code> to generate the file named
+      <code class="filename">maman-file-complex-marshall.c</code>. This C file is finally included in 
+      <code class="filename">maman-file-complex.c</code>.
+    </p>
+<p>
+      Once the marshaller is present, we register the signal and its marshaller in the class_init function 
+      of the object <span class="type">MamanFileComplex</span> (full source for this object is included in 
+      <code class="filename">sample/signal/maman-file-complex.{h|c}</code>):
+</p>
+<pre class="programlisting">
+GClosure *default_closure;
+GType param_types[2];
+
+default_closure = g_cclosure_new (G_CALLBACK (default_write_signal_handler),
+                                  (gpointer)0xdeadbeaf /* user_data */, 
+                                  NULL /* destroy_data */);
+
+param_types[0] = G_TYPE_POINTER;
+param_types[1] = G_TYPE_UINT;
+klass-&gt;write_signal_id = 
+  g_signal_newv ("write",
+                 G_TYPE_FROM_CLASS (g_class),
+                 G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                 default_closure /* class closure */,
+                 NULL /* accumulator */,
+                 NULL /* accu_data */,
+                 maman_file_complex_VOID__POINTER_UINT,
+                 G_TYPE_NONE /* return_type */,
+                 2     /* n_params */,
+                 param_types /* param_types */);
+</pre>
+<p>
+      The code shown above first creates the closure which contains the code to complete the file write. This
+      closure is registered as the default class_closure of the newly created signal.
+    </p>
+<p>
+      Of course, you need to implement completely the code for the default closure since I just provided
+      a skeleton:
+</p>
+<pre class="programlisting">
+static void
+default_write_signal_handler (GObject *obj, guint8 *buffer, guint size, gpointer user_data)
+{
+  g_assert (user_data == (gpointer)0xdeadbeaf);
+  /* Here, we trigger the real file write. */
+  g_print ("default signal handler: 0x%x %u\n", buffer, size);
+}
+</pre>
+<p>
+    </p>
+<p>
+      Finally, the client code must invoke the <code class="function">maman_file_complex_write</code> function which 
+      triggers the signal emission:
+</p>
+<pre class="programlisting">
+void maman_file_complex_write (MamanFileComplex *self, guint8 *buffer, guint size)
+{
+  /* trigger event */
+  g_signal_emit (self,
+                 MAMAN_FILE_COMPLEX_GET_CLASS (self)-&gt;write_signal_id,
+                 0, /* details */
+                 buffer, size);
+}
+</pre>
+<p>
+    </p>
+<p>
+      The client code (as shown in <code class="filename">sample/signal/test.c</code> and below) can now connect signal handlers before 
+      and after the file write is completed: since the default signal handler which does the write itself runs during the 
+      RUN_LAST phase of the signal emission, it will run after all handlers connected with <code class="function"><a class="link" href="gobject-Signals.html#g-signal-connect">g_signal_connect</a></code>
+      and before all handlers connected with <code class="function"><a class="link" href="gobject-Signals.html#g-signal-connect-after">g_signal_connect_after</a></code>. If you intent to write a GObject
+      which emits signals, I would thus urge you to create all your signals with the G_SIGNAL_RUN_LAST such that your users
+      have a maximum of flexibility as to when to get the event. Here, we combined it with G_SIGNAL_NO_RECURSE and 
+      G_SIGNAL_NO_HOOKS to ensure our users will not try to do really weird things with our GObject. I strongly advise you
+      to do the same unless you really know why (in which case you really know the inner workings of GSignal by heart and
+      you are not reading this).
+    </p>
+<p>
+</p>
+<pre class="programlisting">
+static void complex_write_event_before (GObject *file, guint8 *buffer, guint size, gpointer user_data)
+{
+  g_assert (user_data == NULL);
+  g_print ("Complex Write event before: 0x%x, %u\n", buffer, size);
+}
+
+static void complex_write_event_after (GObject *file, guint8 *buffer, guint size, gpointer user_data)
+{
+  g_assert (user_data == NULL);
+  g_print ("Complex Write event after: 0x%x, %u\n", buffer, size);
+}
+
+static void test_file_complex (void)
+{
+  guint8 buffer[100];
+  GObject *file;
+
+  file = g_object_new (MAMAN_FILE_COMPLEX_TYPE, NULL);
+
+  g_signal_connect (G_OBJECT (file), "write",
+                    (GCallback)complex_write_event_before,
+                    NULL);
+
+  g_signal_connect_after (G_OBJECT (file), "write",
+                          (GCallback)complex_write_event_after,
+                          NULL);
+
+  maman_file_complex_write (MAMAN_FILE_COMPLEX (file), buffer, 50);
+
+  g_object_unref (G_OBJECT (file));
+}
+</pre>
+<p>
+      The code above generates the following output on my machine:
+</p>
+<pre class="programlisting">
+Complex Write event before: 0xbfffe280, 50
+default signal handler: 0xbfffe280 50
+Complex Write event after: 0xbfffe280, 50
+</pre>
+<p>
+    </p>
+<div class="sect2" lang="en">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id3003590"></a>How most people do the same thing with less code</h3></div></div></div>
+<p>For many historic reasons related to how the ancestor of GObject used to work in GTK+ 1.x versions,
+        there is a much <span class="emphasis"><em>simpler</em></span> 
+        <sup>[<a name="id3003604" href="#ftn.id3003604" class="footnote">17</a>]</sup>
+        way to create a signal with a default handler than to create 
+        a closure by hand and to use the <code class="function"><a class="link" href="gobject-Signals.html#g-signal-newv">g_signal_newv</a></code>.
+      </p>
+<p>For example, <code class="function"><a class="link" href="gobject-Signals.html#g-signal-new">g_signal_new</a></code> can be used to create a signal which uses a default 
+        handler which is stored in the class structure of the object. More specifically, the class structure 
+        contains a function pointer which is accessed during signal emission to invoke the default handler and
+        the user is expected to provide to <code class="function"><a class="link" href="gobject-Signals.html#g-signal-new">g_signal_new</a></code> the offset from the start of the
+        class structure to the function pointer.
+          <sup>[<a name="id3003671" href="#ftn.id3003671" class="footnote">18</a>]</sup>
+      </p>
+<p>The following code shows the declaration of the <span class="type">MamanFileSimple</span> class structure which contains
+        the <code class="function">write</code> function pointer.
+</p>
+<pre class="programlisting">
+struct _MamanFileSimpleClass {
+  GObjectClass parent;
+        
+  guint write_signal_id;
+
+  /* signal default handlers */
+  void (*write) (MamanFileSimple *self, guint8 *buffer, guint size);
+};
+</pre>
+<p>
+        The <code class="function">write</code> function pointer is initialized in the class_init function of the object
+        to <code class="function">default_write_signal_handler</code>:
+</p>
+<pre class="programlisting">
+static void
+maman_file_simple_class_init (gpointer g_class,
+                               gpointer g_class_data)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (g_class);
+  MamanFileSimpleClass *klass = MAMAN_FILE_SIMPLE_CLASS (g_class);
+
+  klass-&gt;write = default_write_signal_handler;
+</pre>
+<p>
+        Finally, the signal is created with <code class="function"><a class="link" href="gobject-Signals.html#g-signal-new">g_signal_new</a></code> in the same class_init function:
+</p>
+<pre class="programlisting">
+klass-&gt;write_signal_id = 
+ g_signal_new ("write",
+               G_TYPE_FROM_CLASS (g_class),
+               G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+               G_STRUCT_OFFSET (MamanFileSimpleClass, write),
+               NULL /* accumulator */,
+               NULL /* accu_data */,
+               maman_file_complex_VOID__POINTER_UINT,
+               G_TYPE_NONE /* return_type */,
+               2     /* n_params */,
+               G_TYPE_POINTER,
+               G_TYPE_UINT);
+</pre>
+<p>
+        Of note, here, is the 4th argument to the function: it is an integer calculated by the <code class="function">G_STRUCT_OFFSET</code>
+        macro which indicates the offset of the member <span class="emphasis"><em>write</em></span> from the start of the 
+        <span class="type">MamanFileSimpleClass</span> class structure.
+        <sup>[<a name="id3003778" href="#ftn.id3003778" class="footnote">19</a>]</sup>
+     </p>
+<p>
+       While the complete code for this type of default handler looks less cluttered as shown in 
+       <code class="filename">sample/signal/maman-file-simple.{h|c}</code>, it contains numerous subtleties.
+       The main subtle point which everyone must be aware of is that the signature of the default 
+       handler created that way does not have a user_data argument: 
+       <code class="function">default_write_signal_handler</code> is different in 
+       <code class="filename">sample/signal/maman-file-complex.c</code> and in 
+       <code class="filename">sample/signal/maman-file-simple.c</code>.
+     </p>
+<p>If you have doubts about which method to use, I would advise you to use the second one which
+       involves <code class="function"><a class="link" href="gobject-Signals.html#g-signal-new">g_signal_new</a></code> rather than <code class="function"><a class="link" href="gobject-Signals.html#g-signal-newv">g_signal_newv</a></code>: 
+       it is better to write code which looks like the vast majority of other GTK+/GObject code than to
+       do it your own way. However, now, you know why.
+     </p>
+</div>
+<div class="footnotes">
+<br><hr width="100" align="left">
+<div class="footnote"><p><sup>[<a name="ftn.id3003604" href="#id3003604" class="para">17</a>] </sup>I personally think that this method is horribly mind-twisting: it adds a new indirection
+          which unnecessarily complicates the overall code path. However, because this method is widely used
+          by all of GTK+ and GObject code, readers need to understand it. The reason why this is done that way
+          in most of GTK+ is related to the fact that the ancestor of GObject did not provide any other way to
+          create a signal with a default handler than this one. Some people have tried to justify that it is done
+          that way because it is better, faster (I am extremely doubtful about the faster bit. As a matter of fact,
+          the better bit also mystifies me ;-). I have the feeling no one really knows and everyone does it
+          because they copy/pasted code from code which did the same. It is probably better to leave this 
+          specific trivia to hacker legends domain...
+          </p></div>
+<div class="footnote"><p><sup>[<a name="ftn.id3003671" href="#id3003671" class="para">18</a>] </sup>I would like to point out here that the reason why the default handler of a signal is named everywhere
+             a class_closure is probably related to the fact that it used to be really a function pointer stored in
+             the class structure.
+            </p></div>
+<div class="footnote"><p><sup>[<a name="ftn.id3003778" href="#id3003778" class="para">19</a>] </sup>GSignal uses this offset to create a special wrapper closure 
+           which first retrieves the target function pointer before calling it.
+          </p></div>
+</div>
+</div>
+</body>
+</html>

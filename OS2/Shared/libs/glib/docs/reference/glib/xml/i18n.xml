@@ -1,0 +1,265 @@
+<refentry id="glib-I18N">
+<refmeta>
+<refentrytitle role="top_of_page">Internationalization</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GLIB Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Internationalization</refname>
+<refpurpose>gettext support macros</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;glib.h&gt;
+#include &lt;glib/gi18n.h&gt;
+
+
+#define             <link linkend="Q-:CAPS">Q_</link>                                  (String)
+#define             <link linkend="C-:CAPS">C_</link>                                  (Context,String)
+#define             <link linkend="N-:CAPS">N_</link>                                  (String)
+const <link linkend="gchar">gchar</link>*        <link linkend="g-strip-context">g_strip_context</link>                     (const <link linkend="gchar">gchar</link> *msgid,
+                                                         const <link linkend="gchar">gchar</link> *msgval);
+const <link linkend="gchar">gchar</link>*        <link linkend="g-dpgettext">g_dpgettext</link>                         (const <link linkend="gchar">gchar</link> *domain,
+                                                         const <link linkend="gchar">gchar</link> *msgctxtid,
+                                                         <link linkend="gsize">gsize</link> msgidoffset);
+
+const <link linkend="gchar">gchar</link>* const * <link linkend="g-get-language-names">g_get_language_names</link>               (void);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+GLib doesn't force any particular localization method upon its users.
+But since GLib itself is localized using the <link linkend="gettext"><function>gettext()</function></link> mechanism, it seems
+natural to offer the de-facto standard <link linkend="gettext"><function>gettext()</function></link> support macros in an 
+easy-to-use form.
+</para>
+<para>
+In order to use these macros in an application, you must include 
+<filename>glib/gi18n.h</filename>. For use in a library, must include
+<filename>glib/gi18n-lib.h</filename> <emphasis>after</emphasis> defining
+the GETTEXT_PACKAGE macro suitably for your library:
+<informalexample><programlisting>
+&num;define GETTEXT_PACKAGE "gtk20"
+&num;include &lt;glib/gi18n-lib.h&gt;
+</programlisting></informalexample>
+The gettext manual covers details of how to set up message extraction
+with xgettext.
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="Q-:CAPS" role="macro" condition="since:2.4"/>Q_()</title>
+<indexterm role="2.4"><primary>Q_</primary></indexterm><programlisting>#define             Q_(String)</programlisting>
+<para>
+Like <link linkend="gettext-macro"><function>_()</function></link>, but handles context in message ids. This has the advantage that 
+the string can be adorned with a prefix to guarantee uniqueness and provide 
+context to the translator. 
+</para>
+<para>
+One use case given in the gettext manual is GUI translation, where one could 
+e.g. disambiguate two "Open" menu entries as "File|Open" and "Printer|Open". 
+Another use case is the string "Russian" which may have to be translated
+differently depending on whether it's the name of a character set or a 
+language. This could be solved by using "charset|Russian" and 
+"language|Russian".
+</para>
+<para>
+See the <link linkend="C-:CAPS"><function>C_()</function></link> macro for a different way to mark up translatable strings
+with context.
+</para>
+<note><para>
+If you are using the <link linkend="Q-:CAPS"><function>Q_()</function></link> macro, you need to make sure that you 
+pass <option>--keyword=Q_</option> to xgettext when extracting messages.
+If you are using GNU gettext >= 0.15, you can also use
+<option>--keyword=Q_:1g</option> to let xgettext split the context
+string off into a msgctxt line in the po file.
+</para></note><variablelist role="params">
+<varlistentry><term><parameter>String</parameter>&nbsp;:</term>
+<listitem><simpara>the string to be translated, with a '|'-separated prefix which 
+  must not be translated
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the translated message
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.4
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="C-:CAPS" role="macro" condition="since:2.16"/>C_()</title>
+<indexterm role="2.16"><primary>C_</primary></indexterm><programlisting>#define             C_(Context,String)</programlisting>
+<para>
+Uses gettext to get the translation for <parameter>msgid</parameter>. <parameter>msgctxt</parameter> is 
+used as a context. This is mainly useful for short strings which 
+may need different translations, depending on the context in which 
+they are used.
+<informalexample><programlisting>
+label1 = C_("Navigation", "Back");
+label2 = C_("Body part", "Back");
+</programlisting></informalexample> 
+</para>
+
+<note><para>
+If you are using the <link linkend="C-:CAPS"><function>C_()</function></link> macro, you need to make sure that you 
+pass <option>--keyword=C_:1c,2</option> to xgettext when extracting 
+messages. Note that this only works with GNU gettext >= 0.15. 
+</para></note><variablelist role="params">
+<varlistentry><term><parameter>Context</parameter>&nbsp;:</term>
+<listitem><simpara>a message context, must be a string literal
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>String</parameter>&nbsp;:</term>
+<listitem><simpara>a message id, must be a string literal
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the translated message
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.16
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="N-:CAPS" role="macro" condition="since:2.4"/>N_()</title>
+<indexterm role="2.4"><primary>N_</primary></indexterm><programlisting>#define             N_(String)</programlisting>
+<para>
+Only marks a string for translation.
+This is useful in situations where the translated strings can't
+be directly used, e.g. in string array initializers. 
+To get the translated string, call <link linkend="gettext"><function>gettext()</function></link> at runtime.
+</para>
+<informalexample><programlisting>
+     {
+       static const char *messages[] = {
+         N_("some very meaningful message"),
+         N_("and another one")
+       };
+       const char *string;
+       ...
+       string
+         = index &gt; 1 ? _("a default message") : gettext (messages[index]);
+<!-- -->     
+       fputs (string);
+       ...
+     }
+</programlisting></informalexample><variablelist role="params">
+<varlistentry><term><parameter>String</parameter>&nbsp;:</term>
+<listitem><simpara>the string to be translated
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.4
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-strip-context" role="function" condition="since:2.4"/>g_strip_context ()</title>
+<indexterm role="2.4"><primary>g_strip_context</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        g_strip_context                     (const <link linkend="gchar">gchar</link> *msgid,
+                                                         const <link linkend="gchar">gchar</link> *msgval);</programlisting>
+<para>
+An auxiliary function for <link linkend="gettext"><function>gettext()</function></link> support (see <link linkend="Q-:CAPS"><function>Q_()</function></link>).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>msgid</parameter>&nbsp;:</term>
+<listitem><simpara> a string
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>msgval</parameter>&nbsp;:</term>
+<listitem><simpara> another string
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <parameter>msgval</parameter>, unless <parameter>msgval</parameter> is identical to <parameter>msgid</parameter> and contains
+  a '|' character, in which case a pointer to the substring of msgid after
+  the first '|' character is returned. 
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-dpgettext" role="function" condition="since:2.16"/>g_dpgettext ()</title>
+<indexterm role="2.16"><primary>g_dpgettext</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        g_dpgettext                         (const <link linkend="gchar">gchar</link> *domain,
+                                                         const <link linkend="gchar">gchar</link> *msgctxtid,
+                                                         <link linkend="gsize">gsize</link> msgidoffset);</programlisting>
+<para>
+This function is a variant of <link linkend="dgettext"><function>dgettext()</function></link> which supports
+a disambiguating message context. GNU gettext uses the
+'\004' character to separate the message context and
+message id in <parameter>msgctxtid</parameter>.
+If 0 is passed as <parameter>msgidoffset</parameter>, this function will fall back to
+trying to use the deprecated convention of using "|" as a separation
+character.
+</para>
+<para>
+Applications should normally not use this function directly,
+but use the <link linkend="C-:CAPS"><function>C_()</function></link> macro for translations with context.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>domain</parameter>&nbsp;:</term>
+<listitem><simpara> the translation domain to use, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to use
+  the domain set with <link linkend="textdomain"><function>textdomain()</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>msgctxtid</parameter>&nbsp;:</term>
+<listitem><simpara> a combined message context and message id, separated
+  by a \004 character
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>msgidoffset</parameter>&nbsp;:</term>
+<listitem><simpara> the offset of the message id in <parameter>msgctxid</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The translated string
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.16
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-get-language-names" role="function" condition="since:2.6"/>g_get_language_names ()</title>
+<indexterm role="2.6"><primary>g_get_language_names</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>* const * g_get_language_names               (void);</programlisting>
+<para>
+Computes a list of applicable locale names, which can be used to 
+e.g. construct locale-dependent filenames or search paths. The returned 
+list is sorted from most desirable to least desirable and always contains 
+the default locale "C".
+</para>
+<para>
+For example, if LANGUAGE=de:en_US, then the returned list is
+"de", "en_US", "en", "C".
+</para>
+<para>
+This function consults the environment variables <envar>LANGUAGE</envar>, 
+<envar>LC_ALL</envar>, <envar>LC_MESSAGES</envar> and <envar>LANG</envar> 
+to find the list of locales specified by the user.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="NULL:CAPS"><literal>NULL</literal></link>-terminated array of strings owned by GLib 
+   that must not be modified or freed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.6
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+The gettext manual.
+</para>
+</refsect1>
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

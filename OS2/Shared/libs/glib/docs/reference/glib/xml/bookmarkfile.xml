@@ -1,0 +1,1520 @@
+<refentry id="glib-Bookmark-file-parser">
+<refmeta>
+<refentrytitle role="top_of_page">Bookmark file parser</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GLIB Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Bookmark file parser</refname>
+<refpurpose>parses files containing bookmarks</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;glib.h&gt;
+
+
+                    <link linkend="GBookmarkFile">GBookmarkFile</link>;
+#define             <link linkend="G-BOOKMARK-FILE-ERROR:CAPS">G_BOOKMARK_FILE_ERROR</link>
+enum                <link linkend="GBookmarkFileError">GBookmarkFileError</link>;
+<link linkend="GBookmarkFile">GBookmarkFile</link>*      <link linkend="g-bookmark-file-new">g_bookmark_file_new</link>                 (void);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-free">g_bookmark_file_free</link>                (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-load-from-file">g_bookmark_file_load_from_file</link>      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *filename,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-load-from-data">g_bookmark_file_load_from_data</link>      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *data,
+                                                         <link linkend="gsize">gsize</link> length,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-load-from-data-dirs">g_bookmark_file_load_from_data_dirs</link> (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *file,
+                                                         <link linkend="gchar">gchar</link> **full_path,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gchar">gchar</link>*              <link linkend="g-bookmark-file-to-data">g_bookmark_file_to_data</link>             (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         <link linkend="gsize">gsize</link> *length,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-to-file">g_bookmark_file_to_file</link>             (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *filename,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-has-item">g_bookmark_file_has_item</link>            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-has-group">g_bookmark_file_has_group</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *group,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-has-application">g_bookmark_file_has_application</link>     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gint">gint</link>                <link linkend="g-bookmark-file-get-size">g_bookmark_file_get_size</link>            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark);
+<link linkend="gchar">gchar</link>**             <link linkend="g-bookmark-file-get-uris">g_bookmark_file_get_uris</link>            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         <link linkend="gsize">gsize</link> *length);
+
+<link linkend="gchar">gchar</link>*              <link linkend="g-bookmark-file-get-title">g_bookmark_file_get_title</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gchar">gchar</link>*              <link linkend="g-bookmark-file-get-description">g_bookmark_file_get_description</link>     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gchar">gchar</link>*              <link linkend="g-bookmark-file-get-mime-type">g_bookmark_file_get_mime_type</link>       (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-get-is-private">g_bookmark_file_get_is_private</link>      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-get-icon">g_bookmark_file_get_icon</link>            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gchar">gchar</link> **href,
+                                                         <link linkend="gchar">gchar</link> **mime_type,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="time-t">time_t</link>              <link linkend="g-bookmark-file-get-added">g_bookmark_file_get_added</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="time-t">time_t</link>              <link linkend="g-bookmark-file-get-modified">g_bookmark_file_get_modified</link>        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="time-t">time_t</link>              <link linkend="g-bookmark-file-get-visited">g_bookmark_file_get_visited</link>         (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gchar">gchar</link>**             <link linkend="g-bookmark-file-get-groups">g_bookmark_file_get_groups</link>          (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gsize">gsize</link> *length,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gchar">gchar</link>**             <link linkend="g-bookmark-file-get-applications">g_bookmark_file_get_applications</link>    (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gsize">gsize</link> *length,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-get-app-info">g_bookmark_file_get_app_info</link>        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         <link linkend="gchar">gchar</link> **exec,
+                                                         <link linkend="guint">guint</link> *count,
+                                                         <link linkend="time-t">time_t</link> *stamp,
+                                                         <link linkend="GError">GError</link> **error);
+
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-title">g_bookmark_file_set_title</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *title);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-description">g_bookmark_file_set_description</link>     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *description);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-mime-type">g_bookmark_file_set_mime_type</link>       (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *mime_type);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-is-private">g_bookmark_file_set_is_private</link>      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gboolean">gboolean</link> is_private);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-icon">g_bookmark_file_set_icon</link>            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *href,
+                                                         const <link linkend="gchar">gchar</link> *mime_type);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-added">g_bookmark_file_set_added</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="time-t">time_t</link> added);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-groups">g_bookmark_file_set_groups</link>          (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> **groups,
+                                                         <link linkend="gsize">gsize</link> length);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-modified">g_bookmark_file_set_modified</link>        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="time-t">time_t</link> modified);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-set-visited">g_bookmark_file_set_visited</link>         (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="time-t">time_t</link> visited);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-set-app-info">g_bookmark_file_set_app_info</link>        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         const <link linkend="gchar">gchar</link> *exec,
+                                                         <link linkend="gint">gint</link> count,
+                                                         <link linkend="time-t">time_t</link> stamp,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-add-group">g_bookmark_file_add_group</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *group);
+<link linkend="void">void</link>                <link linkend="g-bookmark-file-add-application">g_bookmark_file_add_application</link>     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         const <link linkend="gchar">gchar</link> *exec);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-remove-group">g_bookmark_file_remove_group</link>        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *group,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-remove-application">g_bookmark_file_remove_application</link>  (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-remove-item">g_bookmark_file_remove_item</link>         (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-bookmark-file-move-item">g_bookmark_file_move_item</link>           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *old_uri,
+                                                         const <link linkend="gchar">gchar</link> *new_uri,
+                                                         <link linkend="GError">GError</link> **error);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+<link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> lets you parse, edit or create files containing bookmarks
+to URI, along with some meta-data about the resource pointed by the URI like
+its MIME type, the application that is registering the bookmark and the
+icon that should be used to represent the bookmark. The data is stored using
+the
+<ulink url="http://www.gnome.org/~ebassi/bookmark-spec">Desktop Bookmark
+Specification</ulink>.
+</para>
+
+<para>
+The syntax of the bookmark files is described in detail inside the Desktop
+Bookmark Specification, here is a quick summary: bookmark files use a sub-class
+of the
+<ulink url="">XML Bookmark Exchange Language</ulink> specification, consisting
+of valid UTF-8 encoded XML, under the <literal>xbel</literal> root element;
+each bookmark is stored inside a <literal>bookmark</literal> element, using
+its URI: no relative paths can be used inside a bookmark file. The bookmark
+may have a user defined title and description, to be used instead of the URI.
+Under the <literal>metadata</literal> element, with its <literal>owner</literal>
+attribute set to <literal>http://freedesktop.org</literal>, is stored the
+meta-data about a resource pointed by its URI. The meta-data consists of
+the resource's MIME type; the applications that have registered a bookmark;
+the groups to which a bookmark belongs to; a visibility flag, used to set
+the bookmark as "private" to the applications and groups that has it
+registered; the URI and MIME type of an icon, to be used when displaying the
+bookmark inside a GUI.
+</para>
+
+<informalexample><programlisting>
+<![CDATA[
+<?xml version="1.0"?>
+<!DOCTYPE xbel PUBLIC 
+  "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML"
+  "http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">
+<xbel version="1.0"
+      xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info"
+      xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks">
+  <bookmark href="file:///home/ebassi/bookmark-spec/bookmark-spec.xml">
+    <title>Desktop Bookmarks Spec</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type>text/xml</mime:mime-type>
+	<bookmark:applications>
+          <bookmark:application name="GEdit" count="2" exec="gedit %u" timestamp="1115726763"/>
+          <bookmark:application name="GViM" count="7" exec="gvim %f" timestamp="1115726812"/>
+	</bookmark:applications>
+	<bookmark:groups>
+	  <bookmark:group>Editors</bookmark:group>
+	</bookmark:groups>
+      </metadata>
+    </info>
+  </bookmark>
+</xbel>
+]]>
+</programlisting></informalexample>
+
+<para>
+A bookmark file might contain more than one bookmark; each bookmark is accessed
+through its URI.
+</para>
+
+<para>
+The important caveat of bookmark files is that when you add a new bookmark you
+must also add the application that is registering it, using
+<link linkend="g-bookmark-file-add-application"><function>g_bookmark_file_add_application()</function></link> or <link linkend="g-bookmark-file-set-app-info"><function>g_bookmark_file_set_app_info()</function></link>. If a
+bookmark has no applications then it won't be dumped when creating the
+on disk representation, using <link linkend="g-bookmark-file-to-data"><function>g_bookmark_file_to_data()</function></link> or
+<link linkend="g-bookmark-file-to-file"><function>g_bookmark_file_to_file()</function></link>.
+</para>
+
+<para>
+The <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> parser was added in GLib 2.12.
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GBookmarkFile" role="struct"/>GBookmarkFile</title>
+<indexterm><primary>GBookmarkFile</primary></indexterm><programlisting>typedef struct _GBookmarkFile GBookmarkFile;</programlisting>
+<para>
+The <structname>GBookmarkFile</structname> struct contains only private data
+and should not be used directly.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-BOOKMARK-FILE-ERROR:CAPS" role="macro"/>G_BOOKMARK_FILE_ERROR</title>
+<indexterm><primary>G_BOOKMARK_FILE_ERROR</primary></indexterm><programlisting>#define G_BOOKMARK_FILE_ERROR	(g_bookmark_file_error_quark ())
+</programlisting>
+<para>
+Error domain for bookmark file parsing. Errors in this domain will be
+from the <link linkend="GBookmarkFileError"><type>GBookmarkFileError</type></link> enumeration. See <link linkend="GError"><type>GError</type></link> for informations
+on error domains.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GBookmarkFileError" role="enum"/>enum GBookmarkFileError</title>
+<indexterm><primary>GBookmarkFileError</primary></indexterm><programlisting>typedef enum
+{
+  G_BOOKMARK_FILE_ERROR_INVALID_URI,
+  G_BOOKMARK_FILE_ERROR_INVALID_VALUE,
+  G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED,
+  G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND,
+  G_BOOKMARK_FILE_ERROR_READ,
+  G_BOOKMARK_FILE_ERROR_UNKNOWN_ENCODING,
+  G_BOOKMARK_FILE_ERROR_WRITE,
+  G_BOOKMARK_FILE_ERROR_FILE_NOT_FOUND
+} GBookmarkFileError;
+</programlisting>
+<para>
+Error codes returned by bookmark file parsing.
+</para><variablelist role="enum">
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-INVALID-URI:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_INVALID_URI</literal></term>
+<listitem><simpara>URI was ill-formed
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-INVALID-VALUE:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_INVALID_VALUE</literal></term>
+<listitem><simpara>a requested field was not found
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-APP-NOT-REGISTERED:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED</literal></term>
+<listitem><simpara>a requested application did not
+register a bookmark
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</literal></term>
+<listitem><simpara>a requested URI was not found
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-READ:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_READ</literal></term>
+<listitem><simpara>document was ill formed
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-UNKNOWN-ENCODING:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_UNKNOWN_ENCODING</literal></term>
+<listitem><simpara>the text being parsed was in an
+unknown encoding
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-WRITE:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_WRITE</literal></term>
+<listitem><simpara>an error occurred while writing
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-BOOKMARK-FILE-ERROR-FILE-NOT-FOUND:CAPS" role="constant"/><literal>G_BOOKMARK_FILE_ERROR_FILE_NOT_FOUND</literal></term>
+<listitem><simpara>requested file was not found
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-new" role="function" condition="since:2.12"/>g_bookmark_file_new ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_new</primary></indexterm><programlisting><link linkend="GBookmarkFile">GBookmarkFile</link>*      g_bookmark_file_new                 (void);</programlisting>
+<para>
+Creates a new empty <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> object.
+</para>
+<para>
+Use <link linkend="g-bookmark-file-load-from-file"><function>g_bookmark_file_load_from_file()</function></link>, <link linkend="g-bookmark-file-load-from-data"><function>g_bookmark_file_load_from_data()</function></link>
+or <link linkend="g-bookmark-file-load-from-data-dirs"><function>g_bookmark_file_load_from_data_dirs()</function></link> to read an existing bookmark
+file.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> an empty <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-free" role="function" condition="since:2.12"/>g_bookmark_file_free ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_free</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_free                (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark);</programlisting>
+<para>
+Frees a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-load-from-file" role="function" condition="since:2.12"/>g_bookmark_file_load_from_file ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_load_from_file</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_load_from_file      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *filename,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Loads a desktop bookmark file into an empty <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> structure.
+If the file could not be loaded then <parameter>error</parameter> is set to either a <link linkend="GFileError"><type>GFileError</type></link>
+or <link linkend="GBookmarkFileError"><type>GBookmarkFileError</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> an empty <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> struct
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>filename</parameter>&nbsp;:</term>
+<listitem><simpara> the path of a filename to load, in the GLib file name encoding
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if a desktop bookmark file could be loaded
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-load-from-data" role="function" condition="since:2.12"/>g_bookmark_file_load_from_data ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_load_from_data</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_load_from_data      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *data,
+                                                         <link linkend="gsize">gsize</link> length,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Loads a bookmark file from memory into an empty <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+structure.  If the object cannot be created then <parameter>error</parameter> is set to a
+<link linkend="GBookmarkFileError"><type>GBookmarkFileError</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> an empty <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> struct
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> desktop bookmarks loaded in memory
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> the length of <parameter>data</parameter> in bytes
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if a desktop bookmark could be loaded.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-load-from-data-dirs" role="function" condition="since:2.12"/>g_bookmark_file_load_from_data_dirs ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_load_from_data_dirs</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_load_from_data_dirs (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *file,
+                                                         <link linkend="gchar">gchar</link> **full_path,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+This function looks for a desktop bookmark file named <parameter>file</parameter> in the
+paths returned from <link linkend="g-get-user-data-dir"><function>g_get_user_data_dir()</function></link> and <link linkend="g-get-system-data-dirs"><function>g_get_system_data_dirs()</function></link>, 
+loads the file into <parameter>bookmark</parameter> and returns the file's full path in 
+<parameter>full_path</parameter>.  If the file could not be loaded then an <link linkend="error"><literal>error</literal></link> is
+set to either a <link linkend="GFileError"><type>GFileError</type></link> or <link linkend="GBookmarkFileError"><type>GBookmarkFileError</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>file</parameter>&nbsp;:</term>
+<listitem><simpara> a relative path to a filename to open and parse
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>full_path</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a string containing the full path
+  of the file, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if a key file could be loaded, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> othewise
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-to-data" role="function" condition="since:2.12"/>g_bookmark_file_to_data ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_to_data</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*              g_bookmark_file_to_data             (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         <link linkend="gsize">gsize</link> *length,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+This function outputs <parameter>bookmark</parameter> as a string.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the length of the returned string, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated string holding
+  the contents of the <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-to-file" role="function" condition="since:2.12"/>g_bookmark_file_to_file ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_to_file</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_to_file             (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *filename,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+This function outputs <parameter>bookmark</parameter> into a file.  The write process is
+guaranteed to be atomic by using <link linkend="g-file-set-contents"><function>g_file_set_contents()</function></link> internally.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>filename</parameter>&nbsp;:</term>
+<listitem><simpara> path of the output file
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the file was successfully written.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-has-item" role="function" condition="since:2.12"/>g_bookmark_file_has_item ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_has_item</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_has_item            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri);</programlisting>
+<para>
+Looks whether the desktop bookmark has an item with its URI set to <parameter>uri</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>uri</parameter> is inside <parameter>bookmark</parameter>, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-has-group" role="function" condition="since:2.12"/>g_bookmark_file_has_group ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_has_group</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_has_group           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *group,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Checks whether <parameter>group</parameter> appears in the list of groups to which
+the bookmark for <parameter>uri</parameter> belongs to.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> the group name to be searched
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>group</parameter> was found.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-has-application" role="function" condition="since:2.12"/>g_bookmark_file_has_application ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_has_application</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_has_application     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Checks whether the bookmark for <parameter>uri</parameter> inside <parameter>bookmark</parameter> has been
+registered by application <parameter>name</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> the name of the application
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the application <parameter>name</parameter> was found
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-size" role="function" condition="since:2.12"/>g_bookmark_file_get_size ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_size</primary></indexterm><programlisting><link linkend="gint">gint</link>                g_bookmark_file_get_size            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark);</programlisting>
+<para>
+Gets the number of bookmarks inside <parameter>bookmark</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the number of bookmarks
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-uris" role="function" condition="since:2.12"/>g_bookmark_file_get_uris ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_uris</primary></indexterm><programlisting><link linkend="gchar">gchar</link>**             g_bookmark_file_get_uris            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         <link linkend="gsize">gsize</link> *length);</programlisting>
+<para>
+Returns all URIs of the bookmarks in the bookmark file <parameter>bookmark</parameter>.
+The array of returned URIs will be <link linkend="NULL:CAPS"><literal>NULL</literal></link>-terminated, so <parameter>length</parameter> may
+optionally be <link linkend="NULL:CAPS"><literal>NULL</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the number of returned URIs, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated <link linkend="NULL:CAPS"><literal>NULL</literal></link>-terminated array of strings.
+  Use <link linkend="g-strfreev"><function>g_strfreev()</function></link> to free it.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-title" role="function" condition="since:2.12"/>g_bookmark_file_get_title ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_title</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*              g_bookmark_file_get_title           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Returns the title of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+If <parameter>uri</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>, the title of <parameter>bookmark</parameter> is returned.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="NULL:CAPS"><literal>NULL</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated string or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if the specified
+  URI cannot be found.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-description" role="function" condition="since:2.12"/>g_bookmark_file_get_description ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_description</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*              g_bookmark_file_get_description     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Retrieves the description of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="NULL:CAPS"><literal>NULL</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated string or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if the specified
+  URI cannot be found.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-mime-type" role="function" condition="since:2.12"/>g_bookmark_file_get_mime_type ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_mime_type</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*              g_bookmark_file_get_mime_type       (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Retrieves the MIME type of the resource pointed by <parameter>uri</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="NULL:CAPS"><literal>NULL</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.  In the
+event that the MIME type cannot be found, <link linkend="NULL:CAPS"><literal>NULL</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-INVALID-VALUE:CAPS"><type>G_BOOKMARK_FILE_ERROR_INVALID_VALUE</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated string or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if the specified
+  URI cannot be found.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-is-private" role="function" condition="since:2.12"/>g_bookmark_file_get_is_private ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_is_private</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_get_is_private      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Gets whether the private flag of the bookmark for <parameter>uri</parameter> is set.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.  In the
+event that the private flag cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-INVALID-VALUE:CAPS"><type>G_BOOKMARK_FILE_ERROR_INVALID_VALUE</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the private flag is set, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-icon" role="function" condition="since:2.12"/>g_bookmark_file_get_icon ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_icon</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_get_icon            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gchar">gchar</link> **href,
+                                                         <link linkend="gchar">gchar</link> **mime_type,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Gets the icon of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>href</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the icon's location or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mime_type</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the icon's MIME type or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the icon for the bookmark for the URI was found.
+  You should free the returned strings.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-added" role="function" condition="since:2.12"/>g_bookmark_file_get_added ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_added</primary></indexterm><programlisting><link linkend="time-t">time_t</link>              g_bookmark_file_get_added           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Gets the time the bookmark for <parameter>uri</parameter> was added to <parameter>bookmark</parameter>
+</para>
+<para>
+In the event the URI cannot be found, -1 is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a timestamp
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-modified" role="function" condition="since:2.12"/>g_bookmark_file_get_modified ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_modified</primary></indexterm><programlisting><link linkend="time-t">time_t</link>              g_bookmark_file_get_modified        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Gets the time when the bookmark for <parameter>uri</parameter> was last modified.
+</para>
+<para>
+In the event the URI cannot be found, -1 is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a timestamp
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-visited" role="function" condition="since:2.12"/>g_bookmark_file_get_visited ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_visited</primary></indexterm><programlisting><link linkend="time-t">time_t</link>              g_bookmark_file_get_visited         (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Gets the time the bookmark for <parameter>uri</parameter> was last visited.
+</para>
+<para>
+In the event the URI cannot be found, -1 is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a timestamp.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-groups" role="function" condition="since:2.12"/>g_bookmark_file_get_groups ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_groups</primary></indexterm><programlisting><link linkend="gchar">gchar</link>**             g_bookmark_file_get_groups          (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gsize">gsize</link> *length,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Retrieves the list of group names of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="NULL:CAPS"><literal>NULL</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.
+</para>
+<para>
+The returned array is <link linkend="NULL:CAPS"><literal>NULL</literal></link> terminated, so <parameter>length</parameter> may optionally
+be <link linkend="NULL:CAPS"><literal>NULL</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the length of the returned string, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated <link linkend="NULL:CAPS"><literal>NULL</literal></link>-terminated array of group names.
+  Use <link linkend="g-strfreev"><function>g_strfreev()</function></link> to free it.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-applications" role="function" condition="since:2.12"/>g_bookmark_file_get_applications ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_applications</primary></indexterm><programlisting><link linkend="gchar">gchar</link>**             g_bookmark_file_get_applications    (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gsize">gsize</link> *length,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Retrieves the names of the applications that have registered the
+bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="NULL:CAPS"><literal>NULL</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> return location of the length of the returned list, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated <link linkend="NULL:CAPS"><literal>NULL</literal></link>-terminated array of strings.
+  Use <link linkend="g-strfreev"><function>g_strfreev()</function></link> to free it.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-get-app-info" role="function" condition="since:2.12"/>g_bookmark_file_get_app_info ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_get_app_info</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_get_app_info        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         <link linkend="gchar">gchar</link> **exec,
+                                                         <link linkend="guint">guint</link> *count,
+                                                         <link linkend="time-t">time_t</link> *stamp,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Gets the registration informations of <parameter>app_name</parameter> for the bookmark for
+<parameter>uri</parameter>.  See <link linkend="g-bookmark-file-set-app-info"><function>g_bookmark_file_set_app_info()</function></link> for more informations about
+the returned data.
+</para>
+<para>
+The string returned in <parameter>app_exec</parameter> must be freed.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.  In the
+event that no application with name <parameter>app_name</parameter> has registered a bookmark
+for <parameter>uri</parameter>,  <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and error is set to
+<link linkend="G-BOOKMARK-FILE-ERROR-APP-NOT-REGISTERED:CAPS"><type>G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED</type></link>. In the event that unquoting
+the command line fails, an error of the <link linkend="G-SHELL-ERROR:CAPS"><type>G_SHELL_ERROR</type></link> domain is
+set and <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> an application's name
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>exec</parameter>&nbsp;:</term>
+<listitem><simpara> location for the command line of the application, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the registration count, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stamp</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the last registration time, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> on success.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-title" role="function" condition="since:2.12"/>g_bookmark_file_set_title ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_title</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_title           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *title);</programlisting>
+<para>
+Sets <parameter>title</parameter> as the title of the bookmark for <parameter>uri</parameter> inside the
+bookmark file <parameter>bookmark</parameter>.
+</para>
+<para>
+If <parameter>uri</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>, the title of <parameter>bookmark</parameter> is set.
+</para>
+<para>
+If a bookmark for <parameter>uri</parameter> cannot be found then it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>title</parameter>&nbsp;:</term>
+<listitem><simpara> a UTF-8 encoded string
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-description" role="function" condition="since:2.12"/>g_bookmark_file_set_description ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_description</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_description     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *description);</programlisting>
+<para>
+Sets <parameter>description</parameter> as the description of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+If <parameter>uri</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>, the description of <parameter>bookmark</parameter> is set.
+</para>
+<para>
+If a bookmark for <parameter>uri</parameter> cannot be found then it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>description</parameter>&nbsp;:</term>
+<listitem><simpara> a string
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-mime-type" role="function" condition="since:2.12"/>g_bookmark_file_set_mime_type ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_mime_type</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_mime_type       (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *mime_type);</programlisting>
+<para>
+Sets <parameter>mime_type</parameter> as the MIME type of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+If a bookmark for <parameter>uri</parameter> cannot be found then it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mime_type</parameter>&nbsp;:</term>
+<listitem><simpara> a MIME type
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-is-private" role="function" condition="since:2.12"/>g_bookmark_file_set_is_private ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_is_private</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_is_private      (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="gboolean">gboolean</link> is_private);</programlisting>
+<para>
+Sets the private flag of the bookmark for <parameter>uri</parameter>.
+</para>
+<para>
+If a bookmark for <parameter>uri</parameter> cannot be found then it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>is_private</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the bookmark should be marked as private
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-icon" role="function" condition="since:2.12"/>g_bookmark_file_set_icon ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_icon</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_icon            (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *href,
+                                                         const <link linkend="gchar">gchar</link> *mime_type);</programlisting>
+<para>
+Sets the icon for the bookmark for <parameter>uri</parameter>.  If <parameter>href</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>, unsets
+the currently set icon.
+</para>
+<para>
+If no bookmark for <parameter>uri</parameter> is found it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>href</parameter>&nbsp;:</term>
+<listitem><simpara> the URI of the icon for the bookmark, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mime_type</parameter>&nbsp;:</term>
+<listitem><simpara> the MIME type of the icon for the bookmark
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-added" role="function" condition="since:2.12"/>g_bookmark_file_set_added ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_added</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_added           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="time-t">time_t</link> added);</programlisting>
+<para>
+Sets the time the bookmark for <parameter>uri</parameter> was added into <parameter>bookmark</parameter>.
+</para>
+<para>
+If no bookmark for <parameter>uri</parameter> is found then it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>added</parameter>&nbsp;:</term>
+<listitem><simpara> a timestamp or -1 to use the current time
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-groups" role="function" condition="since:2.12"/>g_bookmark_file_set_groups ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_groups</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_groups          (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> **groups,
+                                                         <link linkend="gsize">gsize</link> length);</programlisting>
+<para>
+Sets a list of group names for the item with URI <parameter>uri</parameter>.  Each previously
+set group name list is removed.
+</para>
+<para>
+If <parameter>uri</parameter> cannot be found then an item for it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> an item's URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>groups</parameter>&nbsp;:</term>
+<listitem><simpara> an array of group names, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to remove all groups
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> number of group name values in <parameter>groups</parameter>
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-modified" role="function" condition="since:2.12"/>g_bookmark_file_set_modified ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_modified</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_modified        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="time-t">time_t</link> modified);</programlisting>
+<para>
+Sets the last time the bookmark for <parameter>uri</parameter> was last modified.
+</para>
+<para>
+If no bookmark for <parameter>uri</parameter> is found then it is created.
+</para>
+<para>
+The "modified" time should only be set when the bookmark's meta-data
+was actually changed.  Every function of <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> that
+modifies a bookmark also changes the modification time, except for
+<link linkend="g-bookmark-file-set-visited"><function>g_bookmark_file_set_visited()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>modified</parameter>&nbsp;:</term>
+<listitem><simpara> a timestamp or -1 to use the current time
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-visited" role="function" condition="since:2.12"/>g_bookmark_file_set_visited ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_visited</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_set_visited         (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="time-t">time_t</link> visited);</programlisting>
+<para>
+Sets the time the bookmark for <parameter>uri</parameter> was last visited.
+</para>
+<para>
+If no bookmark for <parameter>uri</parameter> is found then it is created.
+</para>
+<para>
+The "visited" time should only be set if the bookmark was launched, 
+either using the command line retrieved by <link linkend="g-bookmark-file-get-app-info"><function>g_bookmark_file_get_app_info()</function></link>
+or by the default application for the bookmark's MIME type, retrieved
+using <link linkend="g-bookmark-file-get-mime-type"><function>g_bookmark_file_get_mime_type()</function></link>.  Changing the "visited" time
+does not affect the "modified" time.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>visited</parameter>&nbsp;:</term>
+<listitem><simpara> a timestamp or -1 to use the current time
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-set-app-info" role="function" condition="since:2.12"/>g_bookmark_file_set_app_info ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_set_app_info</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_set_app_info        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         const <link linkend="gchar">gchar</link> *exec,
+                                                         <link linkend="gint">gint</link> count,
+                                                         <link linkend="time-t">time_t</link> stamp,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Sets the meta-data of application <parameter>name</parameter> inside the list of
+applications that have registered a bookmark for <parameter>uri</parameter> inside
+<parameter>bookmark</parameter>.
+</para>
+<para>
+You should rarely use this function; use <link linkend="g-bookmark-file-add-application"><function>g_bookmark_file_add_application()</function></link>
+and <link linkend="g-bookmark-file-remove-application"><function>g_bookmark_file_remove_application()</function></link> instead.
+</para>
+<para>
+<parameter>name</parameter> can be any UTF-8 encoded string used to identify an
+application.
+<parameter>exec</parameter> can have one of these two modifiers: "<link linkend="f"><literal>f</literal></link>", which will
+be expanded as the local file name retrieved from the bookmark's
+URI; "<link linkend="u"><literal>u</literal></link>", which will be expanded as the bookmark's URI.
+The expansion is done automatically when retrieving the stored
+command line using the <link linkend="g-bookmark-file-get-app-info"><function>g_bookmark_file_get_app_info()</function></link> function.
+<parameter>count</parameter> is the number of times the application has registered the
+bookmark; if is &lt; 0, the current registration count will be increased
+by one, if is 0, the application with <parameter>name</parameter> will be removed from
+the list of registered applications.
+<parameter>stamp</parameter> is the Unix time of the last registration; if it is -1, the
+current time will be used.
+</para>
+<para>
+If you try to remove an application by setting its registration count to
+zero, and no bookmark for <parameter>uri</parameter> is found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>; similarly,
+in the event that no application <parameter>name</parameter> has registered a bookmark
+for <parameter>uri</parameter>,  <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and error is set to
+<link linkend="G-BOOKMARK-FILE-ERROR-APP-NOT-REGISTERED:CAPS"><type>G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED</type></link>.  Otherwise, if no bookmark
+for <parameter>uri</parameter> is found, one is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> an application's name
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>exec</parameter>&nbsp;:</term>
+<listitem><simpara> an application's command line
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> the number of registrations done for this application
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stamp</parameter>&nbsp;:</term>
+<listitem><simpara> the time of the last registration for this application
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the application's meta-data was successfully
+  changed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-add-group" role="function" condition="since:2.12"/>g_bookmark_file_add_group ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_add_group</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_add_group           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *group);</programlisting>
+<para>
+Adds <parameter>group</parameter> to the list of groups to which the bookmark for <parameter>uri</parameter>
+belongs to.
+</para>
+<para>
+If no bookmark for <parameter>uri</parameter> is found then it is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> the group name to be added
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-add-application" role="function" condition="since:2.12"/>g_bookmark_file_add_application ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_add_application</primary></indexterm><programlisting><link linkend="void">void</link>                g_bookmark_file_add_application     (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         const <link linkend="gchar">gchar</link> *exec);</programlisting>
+<para>
+Adds the application with <parameter>name</parameter> and <parameter>exec</parameter> to the list of
+applications that have registered a bookmark for <parameter>uri</parameter> into
+<parameter>bookmark</parameter>.
+</para>
+<para>
+Every bookmark inside a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link> must have at least an
+application registered.  Each application must provide a name, a
+command line useful for launching the bookmark, the number of times
+the bookmark has been registered by the application and the last
+time the application registered this bookmark.
+</para>
+<para>
+If <parameter>name</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>, the name of the application will be the
+same returned by <link linkend="g-get-application"><function>g_get_application()</function></link>; if <parameter>exec</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>, the
+command line will be a composition of the program name as
+returned by <link linkend="g-get-prgname"><function>g_get_prgname()</function></link> and the "<link linkend="u"><literal>u</literal></link>" modifier, which will be
+expanded to the bookmark's URI.
+</para>
+<para>
+This function will automatically take care of updating the
+registrations count and timestamping in case an application
+with the same <parameter>name</parameter> had already registered a bookmark for
+<parameter>uri</parameter> inside <parameter>bookmark</parameter>.
+</para>
+<para>
+If no bookmark for <parameter>uri</parameter> is found, one is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> the name of the application registering the bookmark
+  or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>exec</parameter>&nbsp;:</term>
+<listitem><simpara> command line to be used to launch the bookmark or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-remove-group" role="function" condition="since:2.12"/>g_bookmark_file_remove_group ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_remove_group</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_remove_group        (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *group,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Removes <parameter>group</parameter> from the list of groups to which the bookmark
+for <parameter>uri</parameter> belongs to.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.
+In the event no group was defined, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-INVALID-VALUE:CAPS"><type>G_BOOKMARK_FILE_ERROR_INVALID_VALUE</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> the group name to be removed
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>group</parameter> was successfully removed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-remove-application" role="function" condition="since:2.12"/>g_bookmark_file_remove_application ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_remove_application</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_remove_application  (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         const <link linkend="gchar">gchar</link> *name,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Removes application registered with <parameter>name</parameter> from the list of applications
+that have registered a bookmark for <parameter>uri</parameter> inside <parameter>bookmark</parameter>.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.
+In the event that no application with name <parameter>app_name</parameter> has registered
+a bookmark for <parameter>uri</parameter>,  <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and error is set to
+<link linkend="G-BOOKMARK-FILE-ERROR-APP-NOT-REGISTERED:CAPS"><type>G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> the name of the application
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the application was successfully removed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-remove-item" role="function" condition="since:2.12"/>g_bookmark_file_remove_item ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_remove_item</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_remove_item         (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Removes the bookmark for <parameter>uri</parameter> from the bookmark file <parameter>bookmark</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the bookmark was removed successfully.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-bookmark-file-move-item" role="function" condition="since:2.12"/>g_bookmark_file_move_item ()</title>
+<indexterm role="2.12"><primary>g_bookmark_file_move_item</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_bookmark_file_move_item           (<link linkend="GBookmarkFile">GBookmarkFile</link> *bookmark,
+                                                         const <link linkend="gchar">gchar</link> *old_uri,
+                                                         const <link linkend="gchar">gchar</link> *new_uri,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Changes the URI of a bookmark item from <parameter>old_uri</parameter> to <parameter>new_uri</parameter>.  Any
+existing bookmark for <parameter>new_uri</parameter> will be overwritten.  If <parameter>new_uri</parameter> is
+<link linkend="NULL:CAPS"><literal>NULL</literal></link>, then the bookmark is removed.
+</para>
+<para>
+In the event the URI cannot be found, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> is returned and
+<parameter>error</parameter> is set to <link linkend="G-BOOKMARK-FILE-ERROR-URI-NOT-FOUND:CAPS"><type>G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>bookmark</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GBookmarkFile"><type>GBookmarkFile</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>old_uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> return location for a <link linkend="GError"><type>GError</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the URI was successfully changed
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.12
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

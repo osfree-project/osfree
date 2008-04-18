@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GAsyncResult</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="async.html" title="Asynchronous I/O">
+<link rel="prev" href="GCancellable.html" title="GCancellable">
+<link rel="next" href="gio-GIOScheduler.html" title="GIOScheduler">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="GCancellable.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="async.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="gio-GIOScheduler.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2785731" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2796983" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2803921" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2803945" class="shortcut">Prerequisites</a>
+                  &#160;|&#160;
+                  <a href="#id2796961" class="shortcut">Known Implementations</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GAsyncResult"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2785731"></a><span class="refentrytitle">GAsyncResult</span>
+</h2>
+<p>GAsyncResult &#8212; Asynchronous Function Results</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GAsyncResult.html#GAsyncResult-struct">GAsyncResult</a>;
+                    <a class="link" href="GAsyncResult.html#GAsyncResultIface">GAsyncResultIface</a>;
+void                (<a class="link" href="GAsyncResult.html#GAsyncReadyCallback">*GAsyncReadyCallback</a>)              (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *res,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            <a class="link" href="GAsyncResult.html#g-async-result-get-user-data">g_async_result_get_user_data</a>        (<a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *res);
+<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>*            <a class="link" href="GAsyncResult.html#g-async-result-get-source-object">g_async_result_get_source_object</a>    (<a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *res);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2803921"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  GInterface
+   +----GAsyncResult
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2803945"></a><h2>Prerequisites</h2>
+<p>
+GAsyncResult requires
+ <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2796961"></a><h2>Known Implementations</h2>
+<p>
+GAsyncResult is implemented by
+ <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2796983"></a><h2>Description</h2>
+<p>
+Provides a base class for implementing asynchronous function results.
+</p>
+<p>
+Asynchronous operations are broken up into two separate operations
+which are chained together by a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>. To begin
+an asynchronous operation, provide a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> to the 
+asynchronous function. This callback will be triggered when the 
+operation has completed, and will be passed a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> instance 
+filled with the details of the operation's success or failure, the 
+object the asynchronous function was started for and any error codes 
+returned. The asynchronous callback function is then expected to call 
+the corresponding "<code class="function">_finish()</code>" function with the object the function 
+was called for, and the <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> instance, and optionally, 
+an <em class="parameter"><code>error</code></em> to grab any error conditions that may have occurred.
+</p>
+<p>
+The purpose of the "<code class="function">_finish()</code>" function is to take the generic 
+result of type <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> and return the specific result
+that the operation in question yields (e.g. a <a class="link" href="GFileEnumerator.html" title="GFileEnumerator"><span class="type">GFileEnumerator</span></a> for
+a "enumerate children" operation). If the result or error status
+of the operation is not needed, there is no need to call the
+"<code class="function">_finish()</code>" function, GIO will take care of cleaning up the
+result and error information after the <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a> 
+returns. It is also allowed to take a reference to the <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> and
+call "<code class="function">_finish()</code>" later.
+</p>
+<p>
+Example of a typical asynchronous operation flow:
+</p>
+<div class="informalexample"><pre class="programlisting">
+void _theoretical_frobnitz_async (Theoretical         *t, 
+                                  GCancellable        *c, 
+                                  GAsyncReadyCallback *cb,
+                                  gpointer             u);
+
+gboolean _theoretical_frobnitz_finish (Theoretical   *t,
+                                       GAsyncResult  *res,
+                                       GError       **e);
+
+static void 
+frobnitz_result_func (GObject      *source_object, 
+		 GAsyncResult *res, 
+		 gpointer      user_data)
+{
+  gboolean success = FALSE;
+
+  success = _theoretical_frobnitz_finish (source_object, res, NULL);
+
+  if (success)
+    g_printf ("Hurray!\n");
+  else 
+    g_printf ("Uh oh!\n");
+
+  /* ... */
+
+}
+
+int main (int argc, void *argv[])
+{
+   /* ... */
+
+   _theoretical_frobnitz_async (theoretical_data, 
+                                NULL, 
+                                frobnitz_result_func, 
+                                NULL);
+
+   /* ... */
+}
+</pre></div>
+<p>
+</p>
+<p>
+The callback for an asynchronous operation is called only once, and is
+always called, even in the case of a cancelled operation. On cancellation
+the result is a <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> error.
+</p>
+<p>
+Some ascynchronous operations are implemented using synchronous calls. These
+are run in a separate thread, if <a
+href="/usr/share/gtk-doc/html/glib/glib-Threads.html#GThread"
+><span class="type">GThread</span></a> has been initialized, but otherwise they
+are sent to the Main Event Loop and processed in an idle function. So, if you
+truly need asynchronous operations, make sure to initialize <a
+href="/usr/share/gtk-doc/html/glib/glib-Threads.html#GThread"
+><span class="type">GThread</span></a>.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2803509"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2803520"></a><h3>
+<a name="GAsyncResult-struct"></a>GAsyncResult</h3>
+<a class="indexterm" name="id2803532"></a><pre class="programlisting">typedef struct _GAsyncResult GAsyncResult;</pre>
+<p>
+Holds results information for an asynchronous operation, 
+usually passed directly to a asynchronous <code class="function">_finish()</code> operation.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2803562"></a><h3>
+<a name="GAsyncResultIface"></a>GAsyncResultIface</h3>
+<a class="indexterm" name="id2803575"></a><pre class="programlisting">typedef struct {
+  GTypeInterface g_iface;
+
+  /* Virtual Table */
+
+  gpointer   (*get_user_data)      (GAsyncResult                *async_result);
+  GObject *  (*get_source_object)  (GAsyncResult                *async_result);
+} GAsyncResultIface;
+</pre>
+<p>
+Interface definition for <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a
+href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GTypeInterface"
+>GTypeInterface</a>&#160;<em class="structfield"><code>g_iface</code></em>;</span></p></td>
+<td> The parent interface. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_user_data</code></em>&#160;()</span></p></td>
+<td> Gets the user data passed to the callback.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_source_object</code></em>&#160;()</span></p></td>
+<td> Gets the source object that issued the asynchronous operation.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2803662"></a><h3>
+<a name="GAsyncReadyCallback"></a>GAsyncReadyCallback ()</h3>
+<a class="indexterm" name="id2803674"></a><pre class="programlisting">void                (*GAsyncReadyCallback)              (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *res,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+Type definition for a function that will be called back when an asynchronous 
+operation within GIO has been completed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_object</code></em>&#160;:</span></p></td>
+<td> the object the asynchronous operation was started with.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>res</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to the callback.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2803776"></a><h3>
+<a name="g-async-result-get-user-data"></a>g_async_result_get_user_data ()</h3>
+<a class="indexterm" name="id2803788"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            g_async_result_get_user_data        (<a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *res);</pre>
+<p>
+Gets the user data from a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>res</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the user data for <em class="parameter"><code>res</code></em>. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2750477"></a><h3>
+<a name="g-async-result-get-source-object"></a>g_async_result_get_source_object ()</h3>
+<a class="indexterm" name="id2750488"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>*            g_async_result_get_source_object    (<a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *res);</pre>
+<p>
+Gets the source object from a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>res</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the source object for the <em class="parameter"><code>res</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2750570"></a><h2>See Also</h2>
+<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2750584"></a><div class="refsect2" lang="en"><a name="id2750585"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2750586"></a></div>
+</div>
+</div>
+</body>
+</html>

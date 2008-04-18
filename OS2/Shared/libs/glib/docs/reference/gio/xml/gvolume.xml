@@ -1,0 +1,631 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GVolume">
+<refmeta>
+<refentrytitle role="top_of_page">GVolume</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GVolume</refname>
+<refpurpose>Volume management</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GVolume-struct">GVolume</link>;
+                    <link linkend="GVolumeIface">GVolumeIface</link>;
+<link linkend="char">char</link>*               <link linkend="g-volume-get-name">g_volume_get_name</link>                   (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="char">char</link>*               <link linkend="g-volume-get-uuid">g_volume_get_uuid</link>                   (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="GIcon">GIcon</link>*              <link linkend="g-volume-get-icon">g_volume_get_icon</link>                   (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="GDrive">GDrive</link>*             <link linkend="g-volume-get-drive">g_volume_get_drive</link>                  (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="GMount">GMount</link>*             <link linkend="g-volume-get-mount">g_volume_get_mount</link>                  (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-volume-can-mount">g_volume_can_mount</link>                  (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-volume-should-automount">g_volume_should_automount</link>           (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="void">void</link>                <link linkend="g-volume-mount">g_volume_mount</link>                      (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GMountMountFlags">GMountMountFlags</link> flags,
+                                                         <link linkend="GMountOperation">GMountOperation</link> *mount_operation,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-volume-mount-finish">g_volume_mount_finish</link>               (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-volume-can-eject">g_volume_can_eject</link>                  (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="void">void</link>                <link linkend="g-volume-eject">g_volume_eject</link>                      (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GMountUnmountFlags">GMountUnmountFlags</link> flags,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-volume-eject-finish">g_volume_eject_finish</link>               (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);
+#define             <link linkend="G-VOLUME-IDENTIFIER-KIND-HAL-UDI:CAPS">G_VOLUME_IDENTIFIER_KIND_HAL_UDI</link>
+#define             <link linkend="G-VOLUME-IDENTIFIER-KIND-LABEL:CAPS">G_VOLUME_IDENTIFIER_KIND_LABEL</link>
+#define             <link linkend="G-VOLUME-IDENTIFIER-KIND-NFS-MOUNT:CAPS">G_VOLUME_IDENTIFIER_KIND_NFS_MOUNT</link>
+#define             <link linkend="G-VOLUME-IDENTIFIER-KIND-UNIX-DEVICE:CAPS">G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE</link>
+#define             <link linkend="G-VOLUME-IDENTIFIER-KIND-UUID:CAPS">G_VOLUME_IDENTIFIER_KIND_UUID</link>
+<link linkend="char">char</link>**              <link linkend="g-volume-enumerate-identifiers">g_volume_enumerate_identifiers</link>      (<link linkend="GVolume">GVolume</link> *volume);
+<link linkend="char">char</link>*               <link linkend="g-volume-get-identifier">g_volume_get_identifier</link>             (<link linkend="GVolume">GVolume</link> *volume,
+                                                         const <link linkend="char">char</link> *kind);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GInterface">GInterface</link>
+   +----GVolume
+</synopsis>
+
+</refsect1>
+
+<refsect1 role="prerequisites">
+<title role="prerequisites.title">Prerequisites</title>
+<para>
+GVolume requires
+ <link linkend="GObject">GObject</link>.</para>
+
+</refsect1>
+
+
+
+
+
+<refsect1 role="signal_proto">
+<title role="signal_proto.title">Signals</title>
+<synopsis>
+
+  &quot;<link linkend="GVolume-changed">changed</link>&quot;                                        : Run Last
+  &quot;<link linkend="GVolume-removed">removed</link>&quot;                                        : Run Last
+</synopsis>
+</refsect1>
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+The <link linkend="GVolume"><type>GVolume</type></link> interface represents user-visible objects that can be
+mounted. Note, when porting from GnomeVFS, <link linkend="GVolume"><type>GVolume</type></link> is the moral
+equivalent of <link linkend="GnomeVFSDrive"><type>GnomeVFSDrive</type></link>.
+</para>
+<para>
+Mounting a <link linkend="GVolume"><type>GVolume</type></link> instance is an asynchronous operation. For more
+information about asynchronous operations, see <link linkend="GAsyncReady"><type>GAsyncReady</type></link> and
+<link linkend="GSimpleAsyncReady"><type>GSimpleAsyncReady</type></link>. To mount a <link linkend="GVolume"><type>GVolume</type></link>, first call
+<link linkend="g-volume-mount"><function>g_volume_mount()</function></link> with (at least) the <link linkend="GVolume"><type>GVolume</type></link> instance, optionally
+a <link linkend="GMountOperation"><type>GMountOperation</type></link> object and a <link linkend="GAsyncReadyCallback"><type>GAsyncReadyCallback</type></link>. 
+</para>
+<para>
+Typically, one will only want to pass <link linkend="NULL:CAPS"><literal>NULL</literal></link> for the
+<link linkend="GMountOperation"><type>GMountOperation</type></link> if automounting all volumes when a desktop session
+starts since it's not desirable to put up a lot of dialogs asking
+for credentials.
+</para>
+<para>
+The callback will be fired when the operation has resolved (either
+with success or failure), and a <link linkend="GAsyncReady"><type>GAsyncReady</type></link> structure will be
+passed to the callback.  That callback should then call
+<link linkend="g-volume-mount-finish"><function>g_volume_mount_finish()</function></link> with the <link linkend="GVolume"><type>GVolume</type></link> instance and the
+<link linkend="GAsyncReady"><type>GAsyncReady</type></link> data to see if the operation was completed
+successfully.  If an <parameter>error</parameter> is present when <link linkend="g-volume-mount-finish"><function>g_volume_mount_finish()</function></link>
+is called, then it will be filled with any error information.
+</para>
+<para>
+<para id="volume-identifier">
+It is sometimes necessary to directly access the underlying 
+operating system object behind a volume (e.g. for passing a volume
+to an application via the commandline). For this purpose, GIO
+allows to obtain an 'identifier' for the volume. There can be
+different kinds of identifiers, such as Hal UDIs, filesystem labels,
+traditional Unix devices (e.g. <filename>/dev/sda2</filename>),
+uuids. GIO uses predefind strings as names for the different kinds
+of identifiers: <link linkend="G-VOLUME-IDENTIFIER-KIND-HAL-UDI:CAPS"><type>G_VOLUME_IDENTIFIER_KIND_HAL_UDI</type></link>, 
+<link linkend="G-VOLUME-IDENTIFIER-KIND-LABEL:CAPS"><type>G_VOLUME_IDENTIFIER_KIND_LABEL</type></link>, etc. Use <link linkend="g-volume-get-identifier"><function>g_volume_get_identifier()</function></link> 
+to obtain an identifier for a volume.
+</para></para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GVolume-struct" role="struct"/>GVolume</title>
+<indexterm><primary>GVolume</primary></indexterm><programlisting>typedef struct _GVolume GVolume;</programlisting>
+<para>
+Opaque mountable volume object.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GVolumeIface" role="struct"/>GVolumeIface</title>
+<indexterm><primary>GVolumeIface</primary></indexterm><programlisting>typedef struct {
+  GTypeInterface g_iface;
+
+  /* signals */
+
+  void (*changed) (GVolume *volume);
+  void (*removed) (GVolume *volume);
+  
+  /* Virtual Table */
+
+  char *    (*get_name)       (GVolume             *volume);
+  GIcon *   (*get_icon)       (GVolume             *volume);
+  char *    (*get_uuid)       (GVolume             *volume);
+  GDrive *  (*get_drive)      (GVolume             *volume);
+  GMount *  (*get_mount)      (GVolume             *volume);
+  gboolean  (*can_mount)      (GVolume             *volume);
+  gboolean  (*can_eject)      (GVolume             *volume);
+  void      (*mount_fn)       (GVolume             *volume,
+			       GMountMountFlags     flags,
+                               GMountOperation     *mount_operation,
+                               GCancellable        *cancellable,
+                               GAsyncReadyCallback  callback,
+                               gpointer             user_data);
+  gboolean  (*mount_finish)   (GVolume             *volume,
+                               GAsyncResult        *result,
+                               GError             **error);
+  void      (*eject)          (GVolume             *volume,
+			       GMountUnmountFlags   flags,
+                               GCancellable        *cancellable,
+                               GAsyncReadyCallback  callback,
+                               gpointer             user_data);
+  gboolean  (*eject_finish)   (GVolume             *volume,
+                               GAsyncResult        *result,
+                               GError             **error);
+  
+  char *   (*get_identifier)           (GVolume             *volume,
+					const char          *kind);
+  char **  (*enumerate_identifiers)    (GVolume             *volume);
+
+  gboolean (*should_automount)         (GVolume             *volume);
+} GVolumeIface;
+</programlisting>
+<para>
+Interface for implementing operations for mountable volumes.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GTypeInterface">GTypeInterface</link>&nbsp;<structfield>g_iface</structfield>;</term>
+<listitem><simpara> The parent interface.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>changed</structfield>&nbsp;()</term>
+<listitem><simpara> Changed signal that is emitted when the volume's state has changed.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>removed</structfield>&nbsp;()</term>
+<listitem><simpara> The removed signal that is emitted when the <link linkend="GVolume"><type>GVolume</type></link> have been removed. If the recipient is holding references to the object they should release them so the object can be finalized.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>get_name</structfield>&nbsp;()</term>
+<listitem><simpara> Gets a string containing the name of the <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>get_icon</structfield>&nbsp;()</term>
+<listitem><simpara> Gets a <link linkend="GIcon"><type>GIcon</type></link> for the <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>get_uuid</structfield>&nbsp;()</term>
+<listitem><simpara> Gets the UUID for the <link linkend="GVolume"><type>GVolume</type></link>. The reference is typically based on the file system UUID for the mount in question and should be considered an opaque string. Returns <link linkend="NULL:CAPS"><literal>NULL</literal></link> if there is no UUID available.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>get_drive</structfield>&nbsp;()</term>
+<listitem><simpara> Gets a <link linkend="GDrive"><type>GDrive</type></link> the volume is located on. Returns <link linkend="NULL:CAPS"><literal>NULL</literal></link> if the <link linkend="GVolume"><type>GVolume</type></link> is not associated with a <link linkend="GDrive"><type>GDrive</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>get_mount</structfield>&nbsp;()</term>
+<listitem><simpara> Gets a <link linkend="GMount"><type>GMount</type></link> representing the mounted volume. Returns <link linkend="NULL:CAPS"><literal>NULL</literal></link> if the <link linkend="GVolume"><type>GVolume</type></link> is not mounted.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>can_mount</structfield>&nbsp;()</term>
+<listitem><simpara> Returns <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the <link linkend="GVolume"><type>GVolume</type></link> can be mounted.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>can_eject</structfield>&nbsp;()</term>
+<listitem><simpara> Checks if a <link linkend="GVolume"><type>GVolume</type></link> can be ejected.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>mount_fn</structfield>&nbsp;()</term>
+<listitem><simpara> Mounts a given <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>mount_finish</structfield>&nbsp;()</term>
+<listitem><simpara> Finishes a mount operation.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>eject</structfield>&nbsp;()</term>
+<listitem><simpara> Ejects a given <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>eject_finish</structfield>&nbsp;()</term>
+<listitem><simpara> Finishes an eject operation.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>get_identifier</structfield>&nbsp;()</term>
+<listitem><simpara> Returns the <link linkend="volume-identifier">identifier</link> of the given kind, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if 
+   the <link linkend="GVolume"><type>GVolume</type></link> doesn't have one.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>enumerate_identifiers</structfield>&nbsp;()</term>
+<listitem><simpara> Returns an array strings listing the kinds
+   of <link linkend="volume-identifier">identifiers</link> which the <link linkend="GVolume"><type>GVolume</type></link> has.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>should_automount</structfield>&nbsp;()</term>
+<listitem><simpara> Returns <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the <link linkend="GVolume"><type>GVolume</type></link> should be automatically mounted.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-get-name" role="function"/>g_volume_get_name ()</title>
+<indexterm><primary>g_volume_get_name</primary></indexterm><programlisting><link linkend="char">char</link>*               g_volume_get_name                   (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Gets the name of <parameter>volume</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the name for the given <parameter>volume</parameter>. The returned string should 
+be freed when no longer needed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-get-uuid" role="function"/>g_volume_get_uuid ()</title>
+<indexterm><primary>g_volume_get_uuid</primary></indexterm><programlisting><link linkend="char">char</link>*               g_volume_get_uuid                   (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Gets the UUID for the <parameter>volume</parameter>. The reference is typically based on
+the file system UUID for the volume in question and should be
+considered an opaque string. Returns <link linkend="NULL:CAPS"><literal>NULL</literal></link> if there is no UUID
+available.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the UUID for <parameter>volume</parameter> or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if no UUID can be computed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-get-icon" role="function"/>g_volume_get_icon ()</title>
+<indexterm><primary>g_volume_get_icon</primary></indexterm><programlisting><link linkend="GIcon">GIcon</link>*              g_volume_get_icon                   (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Gets the icon for <parameter>volume</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GIcon"><type>GIcon</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-get-drive" role="function"/>g_volume_get_drive ()</title>
+<indexterm><primary>g_volume_get_drive</primary></indexterm><programlisting><link linkend="GDrive">GDrive</link>*             g_volume_get_drive                  (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Gets the drive for the <parameter>volume</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GDrive"><type>GDrive</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if <parameter>volume</parameter> is not associated with a drive.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-get-mount" role="function"/>g_volume_get_mount ()</title>
+<indexterm><primary>g_volume_get_mount</primary></indexterm><programlisting><link linkend="GMount">GMount</link>*             g_volume_get_mount                  (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Gets the mount for the <parameter>volume</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GMount"><type>GMount</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if <parameter>volume</parameter> isn't mounted.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-can-mount" role="function"/>g_volume_can_mount ()</title>
+<indexterm><primary>g_volume_can_mount</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_volume_can_mount                  (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Checks if a volume can be mounted.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the <parameter>volume</parameter> can be mounted. <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-should-automount" role="function"/>g_volume_should_automount ()</title>
+<indexterm><primary>g_volume_should_automount</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_volume_should_automount           (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Returns whether the volume should be automatically mounted.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the volume should be automatically mounted.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-mount" role="function"/>g_volume_mount ()</title>
+<indexterm><primary>g_volume_mount</primary></indexterm><programlisting><link linkend="void">void</link>                g_volume_mount                      (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GMountMountFlags">GMountMountFlags</link> flags,
+                                                         <link linkend="GMountOperation">GMountOperation</link> *mount_operation,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Mounts a volume.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>flags</parameter>&nbsp;:</term>
+<listitem><simpara> flags affecting the operation
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mount_operation</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GMountOperation"><type>GMountOperation</type></link> or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to avoid user interaction.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncReadyCallback"><type>GAsyncReadyCallback</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gpointer"><type>gpointer</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-mount-finish" role="function"/>g_volume_mount_finish ()</title>
+<indexterm><primary>g_volume_mount_finish</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_volume_mount_finish               (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Finishes mounting a volume.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncResult"><type>GAsyncResult</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link>, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if operation failed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-can-eject" role="function"/>g_volume_can_eject ()</title>
+<indexterm><primary>g_volume_can_eject</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_volume_can_eject                  (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Checks if a volume can be ejected.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the <parameter>volume</parameter> can be ejected. <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-eject" role="function"/>g_volume_eject ()</title>
+<indexterm><primary>g_volume_eject</primary></indexterm><programlisting><link linkend="void">void</link>                g_volume_eject                      (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GMountUnmountFlags">GMountUnmountFlags</link> flags,
+                                                         <link linkend="GCancellable">GCancellable</link> *cancellable,
+                                                         <link linkend="GAsyncReadyCallback">GAsyncReadyCallback</link> callback,
+                                                         <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Ejects a volume.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>flags</parameter>&nbsp;:</term>
+<listitem><simpara> flags affecting the unmount if required for eject
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cancellable</parameter>&nbsp;:</term>
+<listitem><simpara> optional <link linkend="GCancellable"><type>GCancellable</type></link> object, <link linkend="NULL:CAPS"><literal>NULL</literal></link> to ignore.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncReadyCallback"><type>GAsyncReadyCallback</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gpointer"><type>gpointer</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-eject-finish" role="function"/>g_volume_eject_finish ()</title>
+<indexterm><primary>g_volume_eject_finish</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_volume_eject_finish               (<link linkend="GVolume">GVolume</link> *volume,
+                                                         <link linkend="GAsyncResult">GAsyncResult</link> *result,
+                                                         <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Finishes ejecting a volume.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to a <link linkend="GVolume"><type>GVolume</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GAsyncResult"><type>GAsyncResult</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GError"><type>GError</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link>, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if operation failed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="G-VOLUME-IDENTIFIER-KIND-HAL-UDI:CAPS" role="macro"/>G_VOLUME_IDENTIFIER_KIND_HAL_UDI</title>
+<indexterm><primary>G_VOLUME_IDENTIFIER_KIND_HAL_UDI</primary></indexterm><programlisting>#define G_VOLUME_IDENTIFIER_KIND_HAL_UDI "hal-udi"
+</programlisting>
+<para>
+The string used to obtain a Hal UDI with <link linkend="g-volume-get-identifier"><function>g_volume_get_identifier()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-VOLUME-IDENTIFIER-KIND-LABEL:CAPS" role="macro"/>G_VOLUME_IDENTIFIER_KIND_LABEL</title>
+<indexterm><primary>G_VOLUME_IDENTIFIER_KIND_LABEL</primary></indexterm><programlisting>#define G_VOLUME_IDENTIFIER_KIND_LABEL "label"
+</programlisting>
+<para>
+The string used to obtain a filesystem label with <link linkend="g-volume-get-identifier"><function>g_volume_get_identifier()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-VOLUME-IDENTIFIER-KIND-NFS-MOUNT:CAPS" role="macro"/>G_VOLUME_IDENTIFIER_KIND_NFS_MOUNT</title>
+<indexterm><primary>G_VOLUME_IDENTIFIER_KIND_NFS_MOUNT</primary></indexterm><programlisting>#define G_VOLUME_IDENTIFIER_KIND_NFS_MOUNT "nfs-mount"
+</programlisting>
+<para>
+The string used to obtain a NFS mount with <link linkend="g-volume-get-identifier"><function>g_volume_get_identifier()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-VOLUME-IDENTIFIER-KIND-UNIX-DEVICE:CAPS" role="macro"/>G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE</title>
+<indexterm><primary>G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE</primary></indexterm><programlisting>#define G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE "unix-device"
+</programlisting>
+<para>
+The string used to obtain a Unix device path with <link linkend="g-volume-get-identifier"><function>g_volume_get_identifier()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-VOLUME-IDENTIFIER-KIND-UUID:CAPS" role="macro"/>G_VOLUME_IDENTIFIER_KIND_UUID</title>
+<indexterm><primary>G_VOLUME_IDENTIFIER_KIND_UUID</primary></indexterm><programlisting>#define G_VOLUME_IDENTIFIER_KIND_UUID "uuid"
+</programlisting>
+<para>
+The string used to obtain a UUID with <link linkend="g-volume-get-identifier"><function>g_volume_get_identifier()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-volume-enumerate-identifiers" role="function"/>g_volume_enumerate_identifiers ()</title>
+<indexterm><primary>g_volume_enumerate_identifiers</primary></indexterm><programlisting><link linkend="char">char</link>**              g_volume_enumerate_identifiers      (<link linkend="GVolume">GVolume</link> *volume);</programlisting>
+<para>
+Gets the kinds of <link linkend="volume-identifier">identifiers</link>
+that <parameter>volume</parameter> has. Use <link linkend="g-volume-get-identifer"><function>g_volume_get_identifer()</function></link> to obtain 
+the identifiers themselves.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="NULL:CAPS"><literal>NULL</literal></link>-terminated array of strings containing
+  kinds of identifiers. Use <link linkend="g-strfreev"><function>g_strfreev()</function></link> to free.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-volume-get-identifier" role="function"/>g_volume_get_identifier ()</title>
+<indexterm><primary>g_volume_get_identifier</primary></indexterm><programlisting><link linkend="char">char</link>*               g_volume_get_identifier             (<link linkend="GVolume">GVolume</link> *volume,
+                                                         const <link linkend="char">char</link> *kind);</programlisting>
+<para>
+Gets the identifier of the given kind for <parameter>volume</parameter>. 
+See the <link linkend="volume-identifier">introduction</link>
+for more information about volume identifiers.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>volume</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GVolume"><type>GVolume</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>kind</parameter>&nbsp;:</term>
+<listitem><simpara> the kind of identifier to return
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated string containing the
+  requested identfier, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if the <link linkend="GVolume"><type>GVolume</type></link>
+  doesn't have this kind of identifier
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1 role="signals">
+<title role="signals.title">Signal Details</title>
+<refsect2><title><anchor id="GVolume-changed"/>The <literal>&quot;changed&quot;</literal> signal</title>
+<indexterm><primary>GVolume::changed</primary></indexterm><programlisting><link linkend="void">void</link>                user_function                      (<link linkend="GVolume">GVolume</link> *arg0,
+                                                        <link linkend="gpointer">gpointer</link> user_data)      : Run Last</programlisting>
+<para>
+Emitted when the volume has been changed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GVolume-removed"/>The <literal>&quot;removed&quot;</literal> signal</title>
+<indexterm><primary>GVolume::removed</primary></indexterm><programlisting><link linkend="void">void</link>                user_function                      (<link linkend="GVolume">GVolume</link> *arg0,
+                                                        <link linkend="gpointer">gpointer</link> user_data)      : Run Last</programlisting>
+<para>
+This signal is emitted when the <link linkend="GVolume"><type>GVolume</type></link> have been removed. If
+the recipient is holding references to the object they should
+release them so the object can be finalized.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

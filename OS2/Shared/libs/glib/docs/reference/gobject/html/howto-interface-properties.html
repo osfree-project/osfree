@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Interface Properties</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GObject Reference Manual">
+<link rel="up" href="howto-interface.html" title="How to define and implement interfaces">
+<link rel="prev" href="ch06s03.html" title="Interface definition prerequisites">
+<link rel="next" href="howto-signals.html" title="How to create and use signals">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="preface" href="pr01.html" title="Introduction">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Concepts">
+<link rel="chapter" href="chapter-intro.html" title="Background">
+<link rel="chapter" href="chapter-gtype.html" title="The GLib Dynamic Type System">
+<link rel="chapter" href="chapter-gobject.html" title="The GObject base class">
+<link rel="chapter" href="chapter-signal.html" title="The GObject messaging system">
+<link rel="reference" href="rn01.html" title="API Reference">
+<link rel="reference" href="rn02.html" title="Tools Reference">
+<link rel="part" href="pt02.html" title="Part&#160;IV.&#160;Tutorial">
+<link rel="chapter" href="howto-gobject.html" title="How to define and implement a new GObject">
+<link rel="chapter" href="howto-interface.html" title="How to define and implement interfaces">
+<link rel="chapter" href="howto-signals.html" title="How to create and use signals">
+<link rel="part" href="pt03.html" title="Part&#160;V.&#160;Related Tools">
+<link rel="chapter" href="tools-gob.html" title="GObject builder">
+<link rel="chapter" href="tools-ginspector.html" title="Graphical inspection of GObjects">
+<link rel="chapter" href="tools-refdb.html" title="Debugging reference count problems">
+<link rel="chapter" href="tools-gtkdoc.html" title="Writing API docs">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="ch06s03.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="howto-interface.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GObject Reference Manual</th>
+<td><a accesskey="n" href="howto-signals.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="howto-interface-properties"></a>Interface Properties</h2></div></div></div>
+<p>
+      Starting from version 2.4 of GLib, GObject interfaces can also have properties. 
+      Declaration of the interface properties is similar to declaring the properties of 
+      ordinary GObject types as explained in <a class="xref" href="gobject-properties.html" title="Object properties">the section called &#8220;Object properties&#8221;</a>, 
+      except that <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-interface-install-property">g_object_interface_install_property</a></code> is used to 
+      declare the properties instead of <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-class-install-property">g_object_class_install_property</a></code>.
+    </p>
+<p>
+      To include a property named 'name' of type <span class="type">string</span> in the 
+      <span class="type">maman_ibaz</span> interface example code above, we only need to add one 
+      <sup>[<a name="id3002986" href="#ftn.id3002986" class="footnote">14</a>]</sup>  
+      line in the <code class="function">maman_ibaz_base_init</code>
+      <sup>[<a name="id3003000" href="#ftn.id3003000" class="footnote">15</a>]</sup>
+      as shown below:
+</p>
+<pre class="programlisting">
+static void
+maman_ibaz_base_init (gpointer g_iface)
+{
+  static gboolean initialized = FALSE;
+
+  if (!initialized) {
+    /* create interface signals here. */
+
+    g_object_interface_install_property (g_iface,
+                g_param_spec_string ("name",
+                    "maman_ibaz_name",
+                    "Name of the MamanIbaz",
+                    "maman",
+                    G_PARAM_READWRITE));
+    initialized = TRUE;
+  }
+}
+</pre>
+<p>
+    </p>
+<p>
+      One point worth noting is that the declared property wasn't assigned an 
+      integer ID. The reason being that integer IDs of properties are utilized only 
+      inside the get and set methods and since interfaces do not implement properties,
+      there is no need to assign integer IDs to interface properties.
+    </p>
+<p>
+      The story for the implementers of the interface is also quite trivial. 
+      An implementer shall declare and define it's properties in the usual way as 
+      explained in <a class="xref" href="gobject-properties.html" title="Object properties">the section called &#8220;Object properties&#8221;</a>, except for one small
+      change: it shall declare the properties of the interface it implements using 
+      <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-class-override-property">g_object_class_override_property</a></code> instead of 
+      <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-class-install-property">g_object_class_install_property</a></code>. The following code snippet 
+      shows the modifications needed in the <span class="type">MamanBaz</span> declaration and 
+      implementation above:
+</p>
+<pre class="programlisting">
+
+struct _MamanBaz {
+  GObject parent;
+  gint instance_member;
+  gchar *name;        /* placeholder for property */
+};
+
+enum
+{
+  ARG_0,
+  ARG_NAME
+};
+
+GType 
+maman_baz_get_type (void)
+{
+  static GType type = 0;
+  if (type == 0) {
+    static const GTypeInfo info = {
+      sizeof (MamanBazClass),
+      NULL,   /* base_init */
+      NULL,   /* base_finalize */
+      baz_class_init, /* class_init */
+      NULL,   /* class_finalize */
+      NULL,   /* class_data */
+      sizeof (MamanBaz),
+      0,      /* n_preallocs */
+      baz_instance_init    /* instance_init */
+    };
+    static const GInterfaceInfo ibaz_info = {
+      (GInterfaceInitFunc) baz_interface_init,    /* interface_init */
+      NULL,               /* interface_finalize */
+      NULL                /* interface_data */
+    };
+    type = g_type_register_static (G_TYPE_OBJECT,
+                                   "MamanBazType",
+                                   &amp;info, 0);
+    g_type_add_interface_static (type,
+                                 MAMAN_TYPE_IBAZ,
+                                 &amp;ibaz_info);
+  }
+  return type;
+}
+
+static void
+maman_baz_class_init (MamanBazClass * klass)
+{
+  GObjectClass *gobject_class;
+
+  gobject_class = (GObjectClass *) klass;
+
+  parent_class = g_type_class_ref (G_TYPE_OBJECT);
+
+  gobject_class-&gt;set_property = maman_baz_set_property;
+  gobject_class-&gt;get_property = maman_baz_get_property;
+
+  g_object_class_override_property (gobject_class, ARG_NAME, "name");
+}
+
+static void
+maman_baz_set_property (GObject * object, guint prop_id,
+                        const GValue * value, GParamSpec * pspec)
+{
+  MamanBaz *baz;
+  GObject *obj;
+
+  /* it's not null if we got it, but it might not be ours */
+  g_return_if_fail (G_IS_MAMAN_BAZ (object));
+
+  baz = MAMAN_BAZ (object);
+
+  switch (prop_id) {
+    case ARG_NAME:
+      baz-&gt;name = g_value_get_string (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+maman_baz_get_property (GObject * object, guint prop_id,
+                        GValue * value, GParamSpec * pspec)
+{
+  MamanBaz *baz;
+
+  /* it's not null if we got it, but it might not be ours */
+  g_return_if_fail (G_IS_TEXT_PLUGIN (object));
+
+  baz = MAMAN_BAZ (object);
+
+  switch (prop_id) {
+    case ARG_NAME:
+      g_value_set_string (value, baz-&gt;name);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+</pre>
+<p>
+    </p>
+<div class="footnotes">
+<br><hr width="100" align="left">
+<div class="footnote"><p><sup>[<a name="ftn.id3002986" href="#id3002986" class="para">14</a>] </sup>
+          That really is one line extended to six for the sake of clarity
+        </p></div>
+<div class="footnote"><p><sup>[<a name="ftn.id3003000" href="#id3003000" class="para">15</a>] </sup>
+          The <code class="function"><a class="link" href="gobject-The-Base-Object-Type.html#g-object-interface-install-property">g_object_interface_install_property</a></code> can also be called from
+          <code class="function">class_init</code> but it must not be called after that point.
+        </p></div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GFileOutputStream</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="streaming.html" title="Streaming I/O">
+<link rel="prev" href="GFileInputStream.html" title="GFileInputStream">
+<link rel="next" href="GFilterInputStream.html" title="GFilterInputStream">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="GFileInputStream.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="streaming.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="GFilterInputStream.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2779248" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2852200" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2855735" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2855765" class="shortcut">Implemented Interfaces</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GFileOutputStream"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2779248"></a><span class="refentrytitle">GFileOutputStream</span>
+</h2>
+<p>GFileOutputStream &#8212; File output streaming operations</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GFileOutputStream.html#GFileOutputStream-struct">GFileOutputStream</a>;
+<a class="link" href="GFileInfo.html" title="GFileInfo">GFileInfo</a>*          <a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info">g_file_output_stream_query_info</a>     (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream,
+                                                         char *attributes,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+void                <a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info-async">g_file_output_stream_query_info_async</a>
+                                                        (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream,
+                                                         char *attributes,
+                                                         int io_priority,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a class="link" href="GFileInfo.html" title="GFileInfo">GFileInfo</a>*          <a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info-finish">g_file_output_stream_query_info_finish</a>
+                                                        (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+char*               <a class="link" href="GFileOutputStream.html#g-file-output-stream-get-etag">g_file_output_stream_get_etag</a>       (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2855735"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a class="link" href="GOutputStream.html" title="GOutputStream">GOutputStream</a>
+         +----GFileOutputStream
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2855765"></a><h2>Implemented Interfaces</h2>
+<p>
+GFileOutputStream implements
+ <a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2852200"></a><h2>Description</h2>
+<p>
+GFileOutputStream provides output streams that write their
+content to a file.
+</p>
+<p>
+GFileOutputStream implements <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>, which allows the output 
+stream to jump to arbitrary positions in the file and to truncate
+the file, provided the filesystem of the file supports these 
+operations. In addition to the generic g_seekable_ API, 
+GFileOutputStream has its own API for seeking and positioning. 
+To find the position of a file output stream, use 
+<code class="function">g_file_output_stream_tell()</code>. To find out if a file output 
+stream supports seeking, use <code class="function">g_file_output_stream_can_seek()</code>.
+To position a file output stream, use <code class="function">g_file_output_stream_seek()</code>.
+To find out if a file output stream supports truncating, use
+<code class="function">g_file_output_stream_can_truncate()</code>. To truncate a file output
+stream, use <code class="function">g_file_output_stream_truncate()</code>.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2852283"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2852294"></a><h3>
+<a name="GFileOutputStream-struct"></a>GFileOutputStream</h3>
+<a class="indexterm" name="id2852305"></a><pre class="programlisting">typedef struct _GFileOutputStream GFileOutputStream;</pre>
+<p>
+A subclass of GOutputStream for opened files. This adds
+a few file-specific operations and seeking and truncating.
+</p>
+<p>
+<a class="link" href="GFileOutputStream.html" title="GFileOutputStream"><span class="type">GFileOutputStream</span></a> implements GSeekable.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2852338"></a><h3>
+<a name="g-file-output-stream-query-info"></a>g_file_output_stream_query_info ()</h3>
+<a class="indexterm" name="id2852352"></a><pre class="programlisting"><a class="link" href="GFileInfo.html" title="GFileInfo">GFileInfo</a>*          g_file_output_stream_query_info     (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream,
+                                                         char *attributes,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Queries a file output stream for the given <em class="parameter"><code>attributes</code></em>. 
+This function blocks while querying the stream. For the asynchronous 
+version of this function, see <a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info-async"><code class="function">g_file_output_stream_query_info_async()</code></a>. 
+While the stream is blocked, the stream will set the pending flag 
+internally, and any other operations on the stream will fail with 
+<a class="link" href="gio-GIOError.html#G-IO-ERROR-PENDING:CAPS"><code class="literal">G_IO_ERROR_PENDING</code></a>.
+</p>
+<p>
+Can fail if the stream was already closed (with <em class="parameter"><code>error</code></em> being set to 
+<a class="link" href="gio-GIOError.html#G-IO-ERROR-CLOSED:CAPS"><code class="literal">G_IO_ERROR_CLOSED</code></a>), the stream has pending operations (with <em class="parameter"><code>error</code></em> being
+set to <a class="link" href="gio-GIOError.html#G-IO-ERROR-PENDING:CAPS"><code class="literal">G_IO_ERROR_PENDING</code></a>), or if querying info is not supported for 
+the stream's interface (with <em class="parameter"><code>error</code></em> being set to <a class="link" href="gio-GIOError.html#G-IO-ERROR-NOT-SUPPORTED:CAPS"><code class="literal">G_IO_ERROR_NOT_SUPPORTED</code></a>). In
+all cases of failure, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> will be returned.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be set, and <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> will 
+be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GFileOutputStream.html" title="GFileOutputStream"><span class="type">GFileOutputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>attributes</code></em>&#160;:</span></p></td>
+<td> a file attribute query string.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GFileInfo.html" title="GFileInfo"><span class="type">GFileInfo</span></a> for the <em class="parameter"><code>stream</code></em>, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> on error.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2851544"></a><h3>
+<a name="g-file-output-stream-query-info-async"></a>g_file_output_stream_query_info_async ()</h3>
+<a class="indexterm" name="id2851557"></a><pre class="programlisting">void                g_file_output_stream_query_info_async
+                                                        (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream,
+                                                         char *attributes,
+                                                         int io_priority,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+Asynchronously queries the <em class="parameter"><code>stream</code></em> for a <a class="link" href="GFileInfo.html" title="GFileInfo"><span class="type">GFileInfo</span></a>. When completed,
+<em class="parameter"><code>callback</code></em> will be called with a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> which can be used to 
+finish the operation with <a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info-finish"><code class="function">g_file_output_stream_query_info_finish()</code></a>.
+</p>
+<p>
+For the synchronous version of this function, see 
+<a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info"><code class="function">g_file_output_stream_query_info()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GFileOutputStream.html" title="GFileOutputStream"><span class="type">GFileOutputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>attributes</code></em>&#160;:</span></p></td>
+<td> a file attribute query string.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>io_priority</code></em>&#160;:</span></p></td>
+<td> the <a class="link" href="gio-GIOScheduler.html" title="GIOScheduler">I/O priority</a> 
+    of the request.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> callback to call when the request is satisfied
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> the data to pass to callback function
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2851800"></a><h3>
+<a name="g-file-output-stream-query-info-finish"></a>g_file_output_stream_query_info_finish ()</h3>
+<a class="indexterm" name="id2851814"></a><pre class="programlisting"><a class="link" href="GFileInfo.html" title="GFileInfo">GFileInfo</a>*          g_file_output_stream_query_info_finish
+                                                        (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Finalizes the asynchronous query started 
+by <a class="link" href="GFileOutputStream.html#g-file-output-stream-query-info-async"><code class="function">g_file_output_stream_query_info_async()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GFileOutputStream.html" title="GFileOutputStream"><span class="type">GFileOutputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>result</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> A <a class="link" href="GFileInfo.html" title="GFileInfo"><span class="type">GFileInfo</span></a> for the finished query.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2851968"></a><h3>
+<a name="g-file-output-stream-get-etag"></a>g_file_output_stream_get_etag ()</h3>
+<a class="indexterm" name="id2851981"></a><pre class="programlisting">char*               g_file_output_stream_get_etag       (<a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a> *stream);</pre>
+<p>
+Gets the entity tag for the file when it has been written.
+This must be called after the stream has been written
+and closed, as the etag can change while writing.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GFileOutputStream.html" title="GFileOutputStream"><span class="type">GFileOutputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the entity tag for the stream.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2846915"></a><h2>See Also</h2>
+<a class="link" href="GOutputStream.html" title="GOutputStream"><span class="type">GOutputStream</span></a>, <a class="link" href="GDataOutputStream.html" title="GDataOutputStream"><span class="type">GDataOutputStream</span></a>, <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2846945"></a><div class="refsect2" lang="en"><a name="id2846946"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2846947"></a></div>
+</div>
+</div>
+</body>
+</html>

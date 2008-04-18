@@ -1,0 +1,965 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GDataInputStream</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="streaming.html" title="Streaming I/O">
+<link rel="prev" href="GBufferedOutputStream.html" title="GBufferedOutputStream">
+<link rel="next" href="GDataOutputStream.html" title="GDataOutputStream">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="GBufferedOutputStream.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="streaming.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="GDataOutputStream.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2776202" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2859943" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2859858" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2859901" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GDataInputStream"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2776202"></a><span class="refentrytitle">GDataInputStream</span>
+</h2>
+<p>GDataInputStream &#8212; Data Input Stream</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GDataInputStream.html#GDataInputStream-struct">GDataInputStream</a>;
+enum                <a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a>;
+enum                <a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a>;
+<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a>*   <a class="link" href="GDataInputStream.html#g-data-input-stream-new">g_data_input_stream_new</a>             (<a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a> *base_stream);
+void                <a class="link" href="GDataInputStream.html#g-data-input-stream-set-byte-order">g_data_input_stream_set_byte_order</a>  (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a> order);
+<a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a> <a class="link" href="GDataInputStream.html#g-data-input-stream-get-byte-order">g_data_input_stream_get_byte_order</a> (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream);
+void                <a class="link" href="GDataInputStream.html#g-data-input-stream-set-newline-type">g_data_input_stream_set_newline_type</a>
+                                                        (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a> type);
+<a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a> <a class="link" href="GDataInputStream.html#g-data-input-stream-get-newline-type">g_data_input_stream_get_newline_type</a>
+                                                        (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guchar"
+>guchar</a>              <a class="link" href="GDataInputStream.html#g-data-input-stream-read-byte">g_data_input_stream_read_byte</a>       (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint16"
+>gint16</a>              <a class="link" href="GDataInputStream.html#g-data-input-stream-read-int16">g_data_input_stream_read_int16</a>      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint16"
+>guint16</a>             <a class="link" href="GDataInputStream.html#g-data-input-stream-read-uint16">g_data_input_stream_read_uint16</a>     (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint32"
+>gint32</a>              <a class="link" href="GDataInputStream.html#g-data-input-stream-read-int32">g_data_input_stream_read_int32</a>      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"
+>guint32</a>             <a class="link" href="GDataInputStream.html#g-data-input-stream-read-uint32">g_data_input_stream_read_uint32</a>     (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint64"
+>gint64</a>              <a class="link" href="GDataInputStream.html#g-data-input-stream-read-int64">g_data_input_stream_read_int64</a>      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"
+>guint64</a>             <a class="link" href="GDataInputStream.html#g-data-input-stream-read-uint64">g_data_input_stream_read_uint64</a>     (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+char*               <a class="link" href="GDataInputStream.html#g-data-input-stream-read-line">g_data_input_stream_read_line</a>       (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+>gsize</a> *length,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+char*               <a class="link" href="GDataInputStream.html#g-data-input-stream-read-until">g_data_input_stream_read_until</a>      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         const <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *stop_chars,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+>gsize</a> *length,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2859858"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a>
+         +----<a class="link" href="GFilterInputStream.html" title="GFilterInputStream">GFilterInputStream</a>
+               +----<a class="link" href="GBufferedInputStream.html" title="GBufferedInputStream">GBufferedInputStream</a>
+                     +----GDataInputStream
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2859901"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a class="link" href="GDataInputStream.html#GDataInputStream--byte-order">byte-order</a>"               <a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a>  : Read / Write
+  "<a class="link" href="GDataInputStream.html#GDataInputStream--newline-type">newline-type</a>"             <a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a>  : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2859943"></a><h2>Description</h2>
+<p>
+Data input stream implements <a class="link" href="GInputStream.html" title="GInputStream"><span class="type">GInputStream</span></a> and includes functions for 
+reading structured data directly from a binary input stream.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2859972"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2859983"></a><h3>
+<a name="GDataInputStream-struct"></a>GDataInputStream</h3>
+<a class="indexterm" name="id2859994"></a><pre class="programlisting">typedef struct _GDataInputStream GDataInputStream;</pre>
+<p>
+An implementation of <a class="link" href="GBufferedInputStream.html" title="GBufferedInputStream"><span class="type">GBufferedInputStream</span></a> that allows for high-level 
+data manipulation of arbitrary data (including binary operations).</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2860027"></a><h3>
+<a name="GDataStreamByteOrder"></a>enum GDataStreamByteOrder</h3>
+<a class="indexterm" name="id2860038"></a><pre class="programlisting">typedef enum  {
+  G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN,
+  G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN,
+  G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN
+} GDataStreamByteOrder;
+</pre>
+<p>
+<a class="link" href="GDataInputStream.html#GDataStreamByteOrder"><span class="type">GDataStreamByteOrder</span></a> is used to ensure proper endianness of streaming data sources
+across various machine architectures.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-BYTE-ORDER-BIG-ENDIAN:CAPS"></a><code class="literal">G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN</code></span></p></td>
+<td> Selects Big Endian byte order. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-BYTE-ORDER-LITTLE-ENDIAN:CAPS"></a><code class="literal">G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN</code></span></p></td>
+<td> Selects Little Endian byte order.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-BYTE-ORDER-HOST-ENDIAN:CAPS"></a><code class="literal">G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN</code></span></p></td>
+<td> Selects endianness based on host machine's architecture.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2864906"></a><h3>
+<a name="GDataStreamNewlineType"></a>enum GDataStreamNewlineType</h3>
+<a class="indexterm" name="id2864917"></a><pre class="programlisting">typedef enum  {
+  G_DATA_STREAM_NEWLINE_TYPE_LF,
+  G_DATA_STREAM_NEWLINE_TYPE_CR,
+  G_DATA_STREAM_NEWLINE_TYPE_CR_LF,
+  G_DATA_STREAM_NEWLINE_TYPE_ANY
+} GDataStreamNewlineType;
+</pre>
+<p>
+<a class="link" href="GDataInputStream.html#GDataStreamNewlineType"><span class="type">GDataStreamNewlineType</span></a> is used when checking for or setting the line endings for a given file.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-NEWLINE-TYPE-LF:CAPS"></a><code class="literal">G_DATA_STREAM_NEWLINE_TYPE_LF</code></span></p></td>
+<td> Selects "LF" line endings, common on most modern UNIX platforms.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-NEWLINE-TYPE-CR:CAPS"></a><code class="literal">G_DATA_STREAM_NEWLINE_TYPE_CR</code></span></p></td>
+<td> Selects "CR" line endings.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-NEWLINE-TYPE-CR-LF:CAPS"></a><code class="literal">G_DATA_STREAM_NEWLINE_TYPE_CR_LF</code></span></p></td>
+<td> Selects "CR, LF" line ending, common on Microsoft Windows.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="G-DATA-STREAM-NEWLINE-TYPE-ANY:CAPS"></a><code class="literal">G_DATA_STREAM_NEWLINE_TYPE_ANY</code></span></p></td>
+<td> Automatically try to handle any line ending type.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865046"></a><h3>
+<a name="g-data-input-stream-new"></a>g_data_input_stream_new ()</h3>
+<a class="indexterm" name="id2865057"></a><pre class="programlisting"><a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a>*   g_data_input_stream_new             (<a class="link" href="GInputStream.html" title="GInputStream">GInputStream</a> *base_stream);</pre>
+<p>
+Creates a new data input stream for the <em class="parameter"><code>base_stream</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>base_stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GInputStream.html" title="GInputStream"><span class="type">GInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a new <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865138"></a><h3>
+<a name="g-data-input-stream-set-byte-order"></a>g_data_input_stream_set_byte_order ()</h3>
+<a class="indexterm" name="id2865152"></a><pre class="programlisting">void                g_data_input_stream_set_byte_order  (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a> order);</pre>
+<p>
+This function sets the byte order for the given <em class="parameter"><code>stream</code></em>. All subsequent
+reads from the <em class="parameter"><code>stream</code></em> will be read in the given <em class="parameter"><code>order</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>order</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GDataInputStream.html#GDataStreamByteOrder"><span class="type">GDataStreamByteOrder</span></a> to set.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865255"></a><h3>
+<a name="g-data-input-stream-get-byte-order"></a>g_data_input_stream_get_byte_order ()</h3>
+<a class="indexterm" name="id2865269"></a><pre class="programlisting"><a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a> g_data_input_stream_get_byte_order (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream);</pre>
+<p>
+Gets the byte order for the data input stream.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the <em class="parameter"><code>stream</code></em>'s current <a class="link" href="GDataInputStream.html#GDataStreamByteOrder"><span class="type">GDataStreamByteOrder</span></a>. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865349"></a><h3>
+<a name="g-data-input-stream-set-newline-type"></a>g_data_input_stream_set_newline_type ()</h3>
+<a class="indexterm" name="id2865363"></a><pre class="programlisting">void                g_data_input_stream_set_newline_type
+                                                        (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a> type);</pre>
+<p>
+Sets the newline type for the <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+Note that using G_DATA_STREAM_NEWLINE_TYPE_ANY is slightly unsafe. If a read
+chunk ends in "CR" we must read an additional byte to know if this is "CR" or
+"CR LF", and this might block if there is no more data availible.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></p></td>
+<td> the type of new line return as <a class="link" href="GDataInputStream.html#GDataStreamNewlineType"><span class="type">GDataStreamNewlineType</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865463"></a><h3>
+<a name="g-data-input-stream-get-newline-type"></a>g_data_input_stream_get_newline_type ()</h3>
+<a class="indexterm" name="id2865477"></a><pre class="programlisting"><a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a> g_data_input_stream_get_newline_type
+                                                        (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream);</pre>
+<p>
+Gets the current newline type for the <em class="parameter"><code>stream</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="GDataInputStream.html#GDataStreamNewlineType"><span class="type">GDataStreamNewlineType</span></a> for the given <em class="parameter"><code>stream</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865565"></a><h3>
+<a name="g-data-input-stream-read-byte"></a>g_data_input_stream_read_byte ()</h3>
+<a class="indexterm" name="id2865578"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guchar"
+>guchar</a>              g_data_input_stream_read_byte       (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads an unsigned 8-bit/1-byte value from <em class="parameter"><code>stream</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> an unsigned 8-bit/1-byte value read from the <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> 
+if an error occurred.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865735"></a><h3>
+<a name="g-data-input-stream-read-int16"></a>g_data_input_stream_read_int16 ()</h3>
+<a class="indexterm" name="id2865748"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint16"
+>gint16</a>              g_data_input_stream_read_int16      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads a 16-bit/2-byte value from <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+In order to get the correct byte order for this read operation, 
+see <code class="function">g_data_stream_get_byte_order()</code> and <code class="function">g_data_stream_set_byte_order()</code>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a signed 16-bit/2-byte value read from <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> if 
+an error occurred.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2865930"></a><h3>
+<a name="g-data-input-stream-read-uint16"></a>g_data_input_stream_read_uint16 ()</h3>
+<a class="indexterm" name="id2865943"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint16"
+>guint16</a>             g_data_input_stream_read_uint16     (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads an unsigned 16-bit/2-byte value from <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+In order to get the correct byte order for this read operation, 
+see <code class="function">g_data_stream_get_byte_order()</code> and <code class="function">g_data_stream_set_byte_order()</code>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> an unsigned 16-bit/2-byte value read from the <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> if 
+an error occurred. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2866125"></a><h3>
+<a name="g-data-input-stream-read-int32"></a>g_data_input_stream_read_int32 ()</h3>
+<a class="indexterm" name="id2866138"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint32"
+>gint32</a>              g_data_input_stream_read_int32      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads a signed 32-bit/4-byte value from <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+In order to get the correct byte order for this read operation, 
+see <code class="function">g_data_stream_get_byte_order()</code> and <code class="function">g_data_stream_set_byte_order()</code>.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a signed 32-bit/4-byte value read from the <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> if 
+an error occurred. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2866350"></a><h3>
+<a name="g-data-input-stream-read-uint32"></a>g_data_input_stream_read_uint32 ()</h3>
+<a class="indexterm" name="id2866364"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"
+>guint32</a>             g_data_input_stream_read_uint32     (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads an unsigned 32-bit/4-byte value from <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+In order to get the correct byte order for this read operation, 
+see <code class="function">g_data_stream_get_byte_order()</code> and <code class="function">g_data_stream_set_byte_order()</code>.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> an unsigned 32-bit/4-byte value read from the <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> if 
+an error occurred. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2866576"></a><h3>
+<a name="g-data-input-stream-read-int64"></a>g_data_input_stream_read_int64 ()</h3>
+<a class="indexterm" name="id2866589"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint64"
+>gint64</a>              g_data_input_stream_read_int64      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads a 64-bit/8-byte value from <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+In order to get the correct byte order for this read operation, 
+see <code class="function">g_data_stream_get_byte_order()</code> and <code class="function">g_data_stream_set_byte_order()</code>.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a signed 64-bit/8-byte value read from <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> if 
+an error occurred.  
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2866801"></a><h3>
+<a name="g-data-input-stream-read-uint64"></a>g_data_input_stream_read_uint64 ()</h3>
+<a class="indexterm" name="id2866814"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"
+>guint64</a>             g_data_input_stream_read_uint64     (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads an unsigned 64-bit/8-byte value from <em class="parameter"><code>stream</code></em>.
+</p>
+<p>
+In order to get the correct byte order for this read operation, 
+see <code class="function">g_data_stream_get_byte_order()</code>.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> an unsigned 64-bit/8-byte read from <em class="parameter"><code>stream</code></em> or <code class="literal">0</code> if 
+an error occurred. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2869475"></a><h3>
+<a name="g-data-input-stream-read-line"></a>g_data_input_stream_read_line ()</h3>
+<a class="indexterm" name="id2869487"></a><pre class="programlisting">char*               g_data_input_stream_read_line       (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+>gsize</a> *length,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads a line from the data input stream.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>length</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+><span class="type">gsize</span></a> to get the length of the data read in.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a string with the line that was read in (including the newlines).
+Set <em class="parameter"><code>length</code></em> to a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+><span class="type">gsize</span></a> to get the length of the read line. Returns <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> on an error.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2869683"></a><h3>
+<a name="g-data-input-stream-read-until"></a>g_data_input_stream_read_until ()</h3>
+<a class="indexterm" name="id2869695"></a><pre class="programlisting">char*               g_data_input_stream_read_until      (<a class="link" href="GDataInputStream.html" title="GDataInputStream">GDataInputStream</a> *stream,
+                                                         const <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *stop_chars,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+>gsize</a> *length,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Reads a string from the data input stream, up to the first 
+occurrance of any of the stop characters.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stream</code></em>&#160;:</span></p></td>
+<td> a given <a class="link" href="GDataInputStream.html" title="GDataInputStream"><span class="type">GDataInputStream</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stop_chars</code></em>&#160;:</span></p></td>
+<td> characters to terminate the read.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>length</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+><span class="type">gsize</span></a> to get the length of the data read in.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> for error reporting.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a string with the data that was read before encountering 
+any of the stop characters. Set <em class="parameter"><code>length</code></em> to a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"
+><span class="type">gsize</span></a> to get the length 
+of the string. This function will return <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> on an error.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2869887"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2869896"></a><h3>
+<a name="GDataInputStream--byte-order"></a>The <code class="literal">"byte-order"</code> property</h3>
+<a class="indexterm" name="id2869910"></a><pre class="programlisting">  "byte-order"               <a class="link" href="GDataInputStream.html#GDataStreamByteOrder">GDataStreamByteOrder</a>  : Read / Write</pre>
+<p>The byte order.</p>
+<p>Default value: G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2869933"></a><h3>
+<a name="GDataInputStream--newline-type"></a>The <code class="literal">"newline-type"</code> property</h3>
+<a class="indexterm" name="id2869948"></a><pre class="programlisting">  "newline-type"             <a class="link" href="GDataInputStream.html#GDataStreamNewlineType">GDataStreamNewlineType</a>  : Read / Write</pre>
+<p>The accepted types of line ending.</p>
+<p>Default value: G_DATA_STREAM_NEWLINE_TYPE_LF</p>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2869973"></a><h2>See Also</h2>
+<a class="link" href="GInputStream.html" title="GInputStream"><span class="type">GInputStream</span></a>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2869986"></a><div class="refsect2" lang="en"><a name="id2869987"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2869988"></a></div>
+</div>
+</div>
+</body>
+</html>

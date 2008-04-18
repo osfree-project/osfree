@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GMemoryInputStream">
+<refmeta>
+<refentrytitle role="top_of_page">GMemoryInputStream</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GMemoryInputStream</refname>
+<refpurpose>Streaming input operations on memory chunks</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GMemoryInputStream-struct">GMemoryInputStream</link>;
+<link linkend="GInputStream">GInputStream</link>*       <link linkend="g-memory-input-stream-new">g_memory_input_stream_new</link>           (void);
+<link linkend="GInputStream">GInputStream</link>*       <link linkend="g-memory-input-stream-new-from-data">g_memory_input_stream_new_from_data</link> (const <link linkend="void">void</link> *data,
+                                                         <link linkend="gssize">gssize</link> len,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);
+<link linkend="void">void</link>                <link linkend="g-memory-input-stream-add-data">g_memory_input_stream_add_data</link>      (<link linkend="GMemoryInputStream">GMemoryInputStream</link> *stream,
+                                                         const <link linkend="void">void</link> *data,
+                                                         <link linkend="gssize">gssize</link> len,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GInputStream">GInputStream</link>
+         +----GMemoryInputStream
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1 role="impl_interfaces">
+<title role="impl_interfaces.title">Implemented Interfaces</title>
+<para>
+GMemoryInputStream implements
+ <link linkend="GSeekable">GSeekable</link>.</para>
+
+</refsect1>
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+<link linkend="GMemoryInputStream"><type>GMemoryInputStream</type></link> is a class for using arbitrary
+memory chunks as input for GIO streaming input operations.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GMemoryInputStream-struct" role="struct"/>GMemoryInputStream</title>
+<indexterm><primary>GMemoryInputStream</primary></indexterm><programlisting>typedef struct _GMemoryInputStream GMemoryInputStream;</programlisting>
+<para>
+Implements <link linkend="GInputStream"><type>GInputStream</type></link> for arbitrary memory chunks.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-memory-input-stream-new" role="function"/>g_memory_input_stream_new ()</title>
+<indexterm><primary>g_memory_input_stream_new</primary></indexterm><programlisting><link linkend="GInputStream">GInputStream</link>*       g_memory_input_stream_new           (void);</programlisting>
+<para>
+Creates a new empty <link linkend="GMemoryInputStream"><type>GMemoryInputStream</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a new <link linkend="GInputStream"><type>GInputStream</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-memory-input-stream-new-from-data" role="function"/>g_memory_input_stream_new_from_data ()</title>
+<indexterm><primary>g_memory_input_stream_new_from_data</primary></indexterm><programlisting><link linkend="GInputStream">GInputStream</link>*       g_memory_input_stream_new_from_data (const <link linkend="void">void</link> *data,
+                                                         <link linkend="gssize">gssize</link> len,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);</programlisting>
+<para>
+Creates a new <link linkend="GMemoryInputStream"><type>GMemoryInputStream</type></link> with data in memory of a given size.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> input data
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>len</parameter>&nbsp;:</term>
+<listitem><simpara> length of the data, may be -1 if <parameter>data</parameter> is a nul-terminated string
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> function that is called to free <parameter>data</parameter>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> new <link linkend="GInputStream"><type>GInputStream</type></link> read from <parameter>data</parameter> of <parameter>len</parameter> bytes.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-memory-input-stream-add-data" role="function"/>g_memory_input_stream_add_data ()</title>
+<indexterm><primary>g_memory_input_stream_add_data</primary></indexterm><programlisting><link linkend="void">void</link>                g_memory_input_stream_add_data      (<link linkend="GMemoryInputStream">GMemoryInputStream</link> *stream,
+                                                         const <link linkend="void">void</link> *data,
+                                                         <link linkend="gssize">gssize</link> len,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);</programlisting>
+<para>
+Appends <parameter>data</parameter> to data that can be read from the input stream</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GMemoryInputStream"><type>GMemoryInputStream</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> input data
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>len</parameter>&nbsp;:</term>
+<listitem><simpara> length of the data, may be -1 if <parameter>data</parameter> is a nul-terminated string
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> function that is called to free <parameter>data</parameter>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<link linkend="GMemoryOutputStream"><type>GMemoryOutputStream</type></link>
+</refsect1>
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

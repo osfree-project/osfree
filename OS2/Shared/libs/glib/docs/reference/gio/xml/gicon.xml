@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GIcon">
+<refmeta>
+<refentrytitle role="top_of_page">GIcon</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GIcon</refname>
+<refpurpose>Interface for icons</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GIcon-struct">GIcon</link>;
+                    <link linkend="GIconIface">GIconIface</link>;
+<link linkend="guint">guint</link>               <link linkend="g-icon-hash">g_icon_hash</link>                         (<link linkend="gconstpointer">gconstpointer</link> icon);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-icon-equal">g_icon_equal</link>                        (<link linkend="GIcon">GIcon</link> *icon1,
+                                                         <link linkend="GIcon">GIcon</link> *icon2);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GInterface">GInterface</link>
+   +----GIcon
+</synopsis>
+
+</refsect1>
+
+<refsect1 role="prerequisites">
+<title role="prerequisites.title">Prerequisites</title>
+<para>
+GIcon requires
+ <link linkend="GObject">GObject</link>.</para>
+
+</refsect1>
+
+<refsect1 role="derived_interfaces">
+<title role="derived_interfaces.title">Known Derived Interfaces</title>
+<para>
+GIcon is required by
+ <link linkend="GLoadableIcon">GLoadableIcon</link>.</para>
+
+</refsect1>
+
+
+<refsect1 role="implementations">
+<title role="implementations.title">Known Implementations</title>
+<para>
+GIcon is implemented by
+ <link linkend="GThemedIcon">GThemedIcon</link> and  <link linkend="GFileIcon">GFileIcon</link>.</para>
+
+</refsect1>
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+<link linkend="GIcon"><type>GIcon</type></link> is a very minimal interface for icons. It provides functions 
+for checking the equality of two icons and hashing of icons.
+</para>
+<para>
+<link linkend="GIcon"><type>GIcon</type></link> does not provide the actual pixmap for the icon as this is out 
+of GIO's scope, however implementations of <link linkend="GIcon"><type>GIcon</type></link> may contain the name 
+of an icon (see <link linkend="GThemedIcon"><type>GThemedIcon</type></link>), or the path to an icon (see <link linkend="GLoadableIcon"><type>GLoadableIcon</type></link>). 
+</para>
+<para>
+To obtain a hash of a <link linkend="GIcon"><type>GIcon</type></link>, see <link linkend="g-icon-hash"><function>g_icon_hash()</function></link>.
+</para>
+<para>
+To check if two <link linkend="GIcons"><type>GIcons</type></link> are equal, see <link linkend="g-icon-equal"><function>g_icon_equal()</function></link>.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GIcon-struct" role="struct"/>GIcon</title>
+<indexterm><primary>GIcon</primary></indexterm><programlisting>typedef struct _GIcon GIcon;</programlisting>
+<para>
+An abstract type that specifies an icon.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GIconIface" role="struct"/>GIconIface</title>
+<indexterm><primary>GIconIface</primary></indexterm><programlisting>typedef struct {
+  GTypeInterface g_iface;
+
+  /* Virtual Table */
+
+  guint               (*hash)               (GIcon                *icon);
+  gboolean            (*equal)              (GIcon                *icon1,
+					     GIcon                *icon2);
+} GIconIface;
+</programlisting>
+<para>
+GIconIface is used to implement GIcon types for various
+different systems. See <link linkend="GThemedIcon"><type>GThemedIcon</type></link> and <link linkend="GLoadableIcon"><type>GLoadableIcon</type></link> for
+examples of how to implement this interface.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GTypeInterface">GTypeInterface</link>&nbsp;<structfield>g_iface</structfield>;</term>
+<listitem><simpara> The parent interface.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>hash</structfield>&nbsp;()</term>
+<listitem><simpara> A hash for a given <link linkend="GIcon"><type>GIcon</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><structfield>equal</structfield>&nbsp;()</term>
+<listitem><simpara> Checks if two <link linkend="GIcon"><type>GIcon</type></link><!-- -->s are equal.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-icon-hash" role="function"/>g_icon_hash ()</title>
+<indexterm><primary>g_icon_hash</primary></indexterm><programlisting><link linkend="guint">guint</link>               g_icon_hash                         (<link linkend="gconstpointer">gconstpointer</link> icon);</programlisting>
+<para>
+Gets a hash for an icon.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>icon</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="gconstpointer"><type>gconstpointer</type></link> to an icon object.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="guint"><type>guint</type></link> containing a hash for the <parameter>icon</parameter>, suitable for 
+use in a <link linkend="GHashTable"><type>GHashTable</type></link> or similar data structure.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-icon-equal" role="function"/>g_icon_equal ()</title>
+<indexterm><primary>g_icon_equal</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_icon_equal                        (<link linkend="GIcon">GIcon</link> *icon1,
+                                                         <link linkend="GIcon">GIcon</link> *icon2);</programlisting>
+<para>
+Checks if two icons are equal.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>icon1</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to the first <link linkend="GIcon"><type>GIcon</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>icon2</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to the second <link linkend="GIcon"><type>GIcon</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>icon1</parameter> is equal to <parameter>icon2</parameter>. <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

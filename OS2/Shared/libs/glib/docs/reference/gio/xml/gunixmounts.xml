@@ -1,0 +1,604 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="gio-Unix-Mounts">
+<refmeta>
+<refentrytitle role="top_of_page">Unix Mounts</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Unix Mounts</refname>
+<refpurpose>Unix Mounts</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+<anchor id="GUnixMountMonitor"/>
+<synopsis>
+
+#include &lt;gio/gunixmounts.h&gt;
+
+
+                    <link linkend="GUnixMount">GUnixMount</link>;
+                    <link linkend="GUnixMountPoint">GUnixMountPoint</link>;
+                    <link linkend="GUnixMountEntry">GUnixMountEntry</link>;
+                    <link linkend="GUnixMountMonitor-struct">GUnixMountMonitor</link>;
+<link linkend="void">void</link>                <link linkend="g-unix-mount-free">g_unix_mount_free</link>                   (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="gint">gint</link>                <link linkend="g-unix-mount-compare">g_unix_mount_compare</link>                (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount1,
+                                                         <link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount2);
+const <link linkend="char">char</link>*         <link linkend="g-unix-mount-get-mount-path">g_unix_mount_get_mount_path</link>         (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+const <link linkend="char">char</link>*         <link linkend="g-unix-mount-get-device-path">g_unix_mount_get_device_path</link>        (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+const <link linkend="char">char</link>*         <link linkend="g-unix-mount-get-fs-type">g_unix_mount_get_fs_type</link>            (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-is-readonly">g_unix_mount_is_readonly</link>            (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-is-system-internal">g_unix_mount_is_system_internal</link>     (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="GIcon">GIcon</link>*              <link linkend="g-unix-mount-guess-icon">g_unix_mount_guess_icon</link>             (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="char">char</link>*               <link linkend="g-unix-mount-guess-name">g_unix_mount_guess_name</link>             (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-guess-can-eject">g_unix_mount_guess_can_eject</link>        (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-guess-should-display">g_unix_mount_guess_should_display</link>   (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);
+<link linkend="void">void</link>                <link linkend="g-unix-mount-point-free">g_unix_mount_point_free</link>             (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="gint">gint</link>                <link linkend="g-unix-mount-point-compare">g_unix_mount_point_compare</link>          (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount1,
+                                                         <link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount2);
+const <link linkend="char">char</link>*         <link linkend="g-unix-mount-point-get-mount-path">g_unix_mount_point_get_mount_path</link>   (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+const <link linkend="char">char</link>*         <link linkend="g-unix-mount-point-get-device-path">g_unix_mount_point_get_device_path</link>  (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+const <link linkend="char">char</link>*         <link linkend="g-unix-mount-point-get-fs-type">g_unix_mount_point_get_fs_type</link>      (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-point-is-readonly">g_unix_mount_point_is_readonly</link>      (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-point-is-user-mountable">g_unix_mount_point_is_user_mountable</link>
+                                                        (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-point-is-loopback">g_unix_mount_point_is_loopback</link>      (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="GIcon">GIcon</link>*              <link linkend="g-unix-mount-point-guess-icon">g_unix_mount_point_guess_icon</link>       (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="char">char</link>*               <link linkend="g-unix-mount-point-guess-name">g_unix_mount_point_guess_name</link>       (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-point-guess-can-eject">g_unix_mount_point_guess_can_eject</link>  (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);
+<link linkend="GList">GList</link>*              <link linkend="g-unix-mount-points-get">g_unix_mount_points_get</link>             (<link linkend="guint64">guint64</link> *time_read);
+<link linkend="GList">GList</link>*              <link linkend="g-unix-mounts-get">g_unix_mounts_get</link>                   (<link linkend="guint64">guint64</link> *time_read);
+<link linkend="GUnixMountEntry">GUnixMountEntry</link>*    <link linkend="g-unix-mount-at">g_unix_mount_at</link>                     (const <link linkend="char">char</link> *mount_path,
+                                                         <link linkend="guint64">guint64</link> *time_read);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mounts-changed-since">g_unix_mounts_changed_since</link>         (<link linkend="guint64">guint64</link> time);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-mount-points-changed-since">g_unix_mount_points_changed_since</link>   (<link linkend="guint64">guint64</link> time);
+<link linkend="GUnixMountMonitor">GUnixMountMonitor</link>*  <link linkend="g-unix-mount-monitor-new">g_unix_mount_monitor_new</link>            (void);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-unix-is-mount-path-system-internal">g_unix_is_mount_path_system_internal</link>
+                                                        (const <link linkend="char">char</link> *mount_path);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GUnixMountMonitor
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+<refsect1 role="signal_proto">
+<title role="signal_proto.title">Signals</title>
+<synopsis>
+
+  &quot;<link linkend="GUnixMountMonitor-mountpoints-changed">mountpoints-changed</link>&quot;                            : Run Last
+  &quot;<link linkend="GUnixMountMonitor-mounts-changed">mounts-changed</link>&quot;                                 : Run Last
+</synopsis>
+</refsect1>
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Routines for managing mounted UNIX mount points and paths.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GUnixMount" role="struct"/>GUnixMount</title>
+<indexterm><primary>GUnixMount</primary></indexterm><programlisting>typedef struct _GUnixMount GUnixMount;</programlisting>
+<para>
+Implementation of the <link linkend="GMount"><type>GMount</type></link> interface for Unix systems.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GUnixMountPoint" role="struct"/>GUnixMountPoint</title>
+<indexterm><primary>GUnixMountPoint</primary></indexterm><programlisting>typedef struct _GUnixMountPoint GUnixMountPoint;</programlisting>
+<para>
+Defines a Unix mount point (e.g. <filename>/dev</filename>).
+This corresponds roughly to a fstab entry.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GUnixMountEntry" role="struct"/>GUnixMountEntry</title>
+<indexterm><primary>GUnixMountEntry</primary></indexterm><programlisting>typedef struct _GUnixMountEntry GUnixMountEntry;</programlisting>
+<para>
+Defines a Unix mount entry (e.g. <filename>/media/cdrom</filename>). 
+This corresponds roughly to a mtab entry.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GUnixMountMonitor-struct" role="struct"/>GUnixMountMonitor</title>
+<indexterm><primary>GUnixMountMonitor</primary></indexterm><programlisting>typedef struct _GUnixMountMonitor GUnixMountMonitor;</programlisting>
+<para>
+Watches <link linkend="GUnixMount"><type>GUnixMount</type></link><!-- -->s for changes.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-free" role="function"/>g_unix_mount_free ()</title>
+<indexterm><primary>g_unix_mount_free</primary></indexterm><programlisting><link linkend="void">void</link>                g_unix_mount_free                   (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Frees a unix mount.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-compare" role="function"/>g_unix_mount_compare ()</title>
+<indexterm><primary>g_unix_mount_compare</primary></indexterm><programlisting><link linkend="gint">gint</link>                g_unix_mount_compare                (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount1,
+                                                         <link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount2);</programlisting>
+<para>
+Compares two unix mounts.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount1</parameter>&nbsp;:</term>
+<listitem><simpara> first <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link> to compare.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mount2</parameter>&nbsp;:</term>
+<listitem><simpara> second <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link> to compare.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> 1, 0 or -1 if <parameter>mount1</parameter> is greater than, equal to,
+or less than <parameter>mount2</parameter>, respectively. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-get-mount-path" role="function"/>g_unix_mount_get_mount_path ()</title>
+<indexterm><primary>g_unix_mount_get_mount_path</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_unix_mount_get_mount_path         (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Gets the mount path for a unix mount.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> input <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link> to get the mount path for.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the mount path for <parameter>mount_entry</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-get-device-path" role="function"/>g_unix_mount_get_device_path ()</title>
+<indexterm><primary>g_unix_mount_get_device_path</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_unix_mount_get_device_path        (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Gets the device path for a unix mount.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the device path.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-get-fs-type" role="function"/>g_unix_mount_get_fs_type ()</title>
+<indexterm><primary>g_unix_mount_get_fs_type</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_unix_mount_get_fs_type            (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Gets the filesystem type for the unix mount.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the file system type.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-is-readonly" role="function"/>g_unix_mount_is_readonly ()</title>
+<indexterm><primary>g_unix_mount_is_readonly</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_is_readonly            (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Checks if a unix mount is mounted read only.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>mount_entry</parameter> is read only.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-is-system-internal" role="function"/>g_unix_mount_is_system_internal ()</title>
+<indexterm><primary>g_unix_mount_is_system_internal</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_is_system_internal     (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Checks if a unix mount is a system path.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the unix mount is for a system path.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-guess-icon" role="function"/>g_unix_mount_guess_icon ()</title>
+<indexterm><primary>g_unix_mount_guess_icon</primary></indexterm><programlisting><link linkend="GIcon">GIcon</link>*              g_unix_mount_guess_icon             (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Guesses the icon of a Unix mount.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GIcon"><type>GIcon</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-guess-name" role="function"/>g_unix_mount_guess_name ()</title>
+<indexterm><primary>g_unix_mount_guess_name</primary></indexterm><programlisting><link linkend="char">char</link>*               g_unix_mount_guess_name             (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Guesses the name of a Unix mount. 
+The result is a translated string.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> A newly allocated string that must
+    be freed with <link linkend="g-free"><function>g_free()</function></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-guess-can-eject" role="function"/>g_unix_mount_guess_can_eject ()</title>
+<indexterm><primary>g_unix_mount_guess_can_eject</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_guess_can_eject        (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Guesses whether a Unix mount can be ejected.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>mount_entry</parameter> is deemed to be ejectable.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-guess-should-display" role="function"/>g_unix_mount_guess_should_display ()</title>
+<indexterm><primary>g_unix_mount_guess_should_display</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_guess_should_display   (<link linkend="GUnixMountEntry">GUnixMountEntry</link> *mount_entry);</programlisting>
+<para>
+Guesses whether a Unix mount should be displayed in the UI.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>mount_entry</parameter> is deemed to be displayable.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-free" role="function"/>g_unix_mount_point_free ()</title>
+<indexterm><primary>g_unix_mount_point_free</primary></indexterm><programlisting><link linkend="void">void</link>                g_unix_mount_point_free             (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Frees a unix mount point.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> unix mount point to free.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-compare" role="function"/>g_unix_mount_point_compare ()</title>
+<indexterm><primary>g_unix_mount_point_compare</primary></indexterm><programlisting><link linkend="gint">gint</link>                g_unix_mount_point_compare          (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount1,
+                                                         <link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount2);</programlisting>
+<para>
+Compares two unix mount points.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount1</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mount2</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> 1, 0 or -1 if <parameter>mount1</parameter> is greater than, equal to,
+or less than <parameter>mount2</parameter>, respectively.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-get-mount-path" role="function"/>g_unix_mount_point_get_mount_path ()</title>
+<indexterm><primary>g_unix_mount_point_get_mount_path</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_unix_mount_point_get_mount_path   (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Gets the mount path for a unix mount point.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the mount path.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-get-device-path" role="function"/>g_unix_mount_point_get_device_path ()</title>
+<indexterm><primary>g_unix_mount_point_get_device_path</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_unix_mount_point_get_device_path  (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Gets the device path for a unix mount point.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the device path.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-get-fs-type" role="function"/>g_unix_mount_point_get_fs_type ()</title>
+<indexterm><primary>g_unix_mount_point_get_fs_type</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_unix_mount_point_get_fs_type      (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Gets the file system type for the mount point.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the file system type.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-is-readonly" role="function"/>g_unix_mount_point_is_readonly ()</title>
+<indexterm><primary>g_unix_mount_point_is_readonly</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_point_is_readonly      (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Checks if a unix mount point is read only.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if a mount point is read only.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-is-user-mountable" role="function"/>g_unix_mount_point_is_user_mountable ()</title>
+<indexterm><primary>g_unix_mount_point_is_user_mountable</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_point_is_user_mountable
+                                                        (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Checks if a unix mount point is mountable by the user.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the mount point is user mountable.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-is-loopback" role="function"/>g_unix_mount_point_is_loopback ()</title>
+<indexterm><primary>g_unix_mount_point_is_loopback</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_point_is_loopback      (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Checks if a unix mount point is a loopback device.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the mount point is a loopback. <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-guess-icon" role="function"/>g_unix_mount_point_guess_icon ()</title>
+<indexterm><primary>g_unix_mount_point_guess_icon</primary></indexterm><programlisting><link linkend="GIcon">GIcon</link>*              g_unix_mount_point_guess_icon       (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Guesses the icon of a Unix mount point.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GIcon"><type>GIcon</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-guess-name" role="function"/>g_unix_mount_point_guess_name ()</title>
+<indexterm><primary>g_unix_mount_point_guess_name</primary></indexterm><programlisting><link linkend="char">char</link>*               g_unix_mount_point_guess_name       (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Guesses the name of a Unix mount point. 
+The result is a translated string.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> A newly allocated string that must 
+    be freed with <link linkend="g-free"><function>g_free()</function></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-point-guess-can-eject" role="function"/>g_unix_mount_point_guess_can_eject ()</title>
+<indexterm><primary>g_unix_mount_point_guess_can_eject</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_point_guess_can_eject  (<link linkend="GUnixMountPoint">GUnixMountPoint</link> *mount_point);</programlisting>
+<para>
+Guesses whether a Unix mount point can be ejected.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_point</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GUnixMountPoint"><type>GUnixMountPoint</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>mount_point</parameter> is deemed to be ejectable.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-points-get" role="function"/>g_unix_mount_points_get ()</title>
+<indexterm><primary>g_unix_mount_points_get</primary></indexterm><programlisting><link linkend="GList">GList</link>*              g_unix_mount_points_get             (<link linkend="guint64">guint64</link> *time_read);</programlisting>
+<para>
+Gets a <link linkend="GList"><type>GList</type></link> of strings containing the unix mount points. 
+If <parameter>time_read</parameter> is set, it will be filled with the mount timestamp,
+allowing for checking if the mounts have changed with 
+<link linkend="g-unix-mounts-points-changed-since"><function>g_unix_mounts_points_changed_since()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>time_read</parameter>&nbsp;:</term>
+<listitem><simpara> guint64 to contain a timestamp.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GList"><type>GList</type></link> of the UNIX mountpoints. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mounts-get" role="function"/>g_unix_mounts_get ()</title>
+<indexterm><primary>g_unix_mounts_get</primary></indexterm><programlisting><link linkend="GList">GList</link>*              g_unix_mounts_get                   (<link linkend="guint64">guint64</link> *time_read);</programlisting>
+<para>
+Gets a <link linkend="GList"><type>GList</type></link> of strings containing the unix mounts. 
+If <parameter>time_read</parameter> is set, it will be filled with the mount 
+timestamp, allowing for checking if the mounts have changed 
+with <link linkend="g-unix-mounts-changed-since"><function>g_unix_mounts_changed_since()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>time_read</parameter>&nbsp;:</term>
+<listitem><simpara> guint64 to contain a timestamp.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GList"><type>GList</type></link> of the UNIX mounts. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-at" role="function"/>g_unix_mount_at ()</title>
+<indexterm><primary>g_unix_mount_at</primary></indexterm><programlisting><link linkend="GUnixMountEntry">GUnixMountEntry</link>*    g_unix_mount_at                     (const <link linkend="char">char</link> *mount_path,
+                                                         <link linkend="guint64">guint64</link> *time_read);</programlisting>
+<para>
+Gets a <link linkend="GUnixMountEntry"><type>GUnixMountEntry</type></link> for a given mount path. If <parameter>time_read</parameter>
+is set, it will be filled with a unix timestamp for checking
+if the mounts have changed since with <link linkend="g-unix-mounts-changed-since"><function>g_unix_mounts_changed_since()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_path</parameter>&nbsp;:</term>
+<listitem><simpara> path for a possible unix mount.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>time_read</parameter>&nbsp;:</term>
+<listitem><simpara> guint64 to contain a timestamp.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GUnixMount"><type>GUnixMount</type></link>. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mounts-changed-since" role="function"/>g_unix_mounts_changed_since ()</title>
+<indexterm><primary>g_unix_mounts_changed_since</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mounts_changed_since         (<link linkend="guint64">guint64</link> time);</programlisting>
+<para>
+Checks if the unix mounts have changed since a given unix time.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>time</parameter>&nbsp;:</term>
+<listitem><simpara> guint64 to contain a timestamp.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the mounts have changed since <parameter>time</parameter>. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-points-changed-since" role="function"/>g_unix_mount_points_changed_since ()</title>
+<indexterm><primary>g_unix_mount_points_changed_since</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_mount_points_changed_since   (<link linkend="guint64">guint64</link> time);</programlisting>
+<para>
+Checks if the unix mount points have changed since a given unix time.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>time</parameter>&nbsp;:</term>
+<listitem><simpara> guint64 to contain a timestamp.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the mount points have changed since <parameter>time</parameter>. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-mount-monitor-new" role="function"/>g_unix_mount_monitor_new ()</title>
+<indexterm><primary>g_unix_mount_monitor_new</primary></indexterm><programlisting><link linkend="GUnixMountMonitor">GUnixMountMonitor</link>*  g_unix_mount_monitor_new            (void);</programlisting>
+<para>
+Gets a new <link linkend="GUnixMountMonitor"><type>GUnixMountMonitor</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GUnixMountMonitor"><type>GUnixMountMonitor</type></link>. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-unix-is-mount-path-system-internal" role="function"/>g_unix_is_mount_path_system_internal ()</title>
+<indexterm><primary>g_unix_is_mount_path_system_internal</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_unix_is_mount_path_system_internal
+                                                        (const <link linkend="char">char</link> *mount_path);</programlisting>
+<para>
+Determines if <parameter>mount_path</parameter> is considered an implementation of the
+OS. This is primarily used for hiding mountable and mounted volumes
+that only are used in the OS and has little to no relevance to the
+casual user.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>mount_path</parameter>&nbsp;:</term>
+<listitem><simpara> a mount path, e.g. <filename>/media/disk</filename> 
+   or <filename>/usr</filename>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>mount_path</parameter> is considered an implementation detail 
+    of the OS.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1 role="signals">
+<title role="signals.title">Signal Details</title>
+<refsect2><title><anchor id="GUnixMountMonitor-mountpoints-changed"/>The <literal>&quot;mountpoints-changed&quot;</literal> signal</title>
+<indexterm><primary>GUnixMountMonitor::mountpoints-changed</primary></indexterm><programlisting><link linkend="void">void</link>                user_function                      (<link linkend="GUnixMountMonitor">GUnixMountMonitor</link> *arg0,
+                                                        <link linkend="gpointer">gpointer</link>           user_data)      : Run Last</programlisting>
+<para>
+Emitted when the unix mount points have changed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GUnixMountMonitor-mounts-changed"/>The <literal>&quot;mounts-changed&quot;</literal> signal</title>
+<indexterm><primary>GUnixMountMonitor::mounts-changed</primary></indexterm><programlisting><link linkend="void">void</link>                user_function                      (<link linkend="GUnixMountMonitor">GUnixMountMonitor</link> *arg0,
+                                                        <link linkend="gpointer">gpointer</link>           user_data)      : Run Last</programlisting>
+<para>
+Emitted when the unix mounts have changed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

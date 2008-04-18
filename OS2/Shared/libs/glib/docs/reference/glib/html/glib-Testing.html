@@ -1,0 +1,1299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Testing</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GLib Reference Manual">
+<link rel="up" href="glib-utilities.html" title="GLib Utilities">
+<link rel="prev" href="glib-Bookmark-file-parser.html" title="Bookmark file parser">
+<link rel="next" href="glib-Windows-Compatibility-Functions.html" title="Windows Compatibility Functions">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="glib.html" title="GLib Overview">
+<link rel="chapter" href="glib-fundamentals.html" title="GLib Fundamentals">
+<link rel="chapter" href="glib-core.html" title="GLib Core Application Support">
+<link rel="chapter" href="glib-utilities.html" title="GLib Utilities">
+<link rel="chapter" href="glib-data-types.html" title="GLib Data Types">
+<link rel="chapter" href="tools.html" title="GLib Tools">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+<link rel="index" href="ix10.html" title="Index of new symbols in 2.16">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="glib-Bookmark-file-parser.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="glib-utilities.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GLib Reference Manual</th>
+<td><a accesskey="n" href="glib-Windows-Compatibility-Functions.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id3273633" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id3274409" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="glib-Testing"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id3273633"></a><span class="refentrytitle">Testing</span>
+</h2>
+<p>Testing</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;glib.h&gt;
+
+
+typedef             <a class="link" href="glib-Testing.html#GTestCase">GTestCase</a>;
+typedef             <a class="link" href="glib-Testing.html#GTestSuite">GTestSuite</a>;
+void                <a class="link" href="glib-Testing.html#g-test-minimized-result">g_test_minimized_result</a>             (double minimized_quantity,
+                                                         const char *format,
+                                                         ...);
+void                <a class="link" href="glib-Testing.html#g-test-maximized-result">g_test_maximized_result</a>             (double maximized_quantity,
+                                                         const char *format,
+                                                         ...);
+void                <a class="link" href="glib-Testing.html#g-test-init">g_test_init</a>                         (int *argc,
+                                                         char ***argv,
+                                                         ...);
+#define             <a class="link" href="glib-Testing.html#g-test-quick">g_test_quick</a>                        ()
+#define             <a class="link" href="glib-Testing.html#g-test-slow">g_test_slow</a>                         ()
+#define             <a class="link" href="glib-Testing.html#g-test-thorough">g_test_thorough</a>                     ()
+#define             <a class="link" href="glib-Testing.html#g-test-perf">g_test_perf</a>                         ()
+#define             <a class="link" href="glib-Testing.html#g-test-verbose">g_test_verbose</a>                      ()
+#define             <a class="link" href="glib-Testing.html#g-test-quiet">g_test_quiet</a>                        ()
+int                 <a class="link" href="glib-Testing.html#g-test-run">g_test_run</a>                          (void);
+void                <a class="link" href="glib-Testing.html#g-test-add-func">g_test_add_func</a>                     (const char *testpath,
+                                                         void (test_funcvoid) ());
+void                <a class="link" href="glib-Testing.html#g-test-add-data-func">g_test_add_data_func</a>                (const char *testpath,
+                                                         <a class="link" href="glib-Basic-Types.html#gconstpointer">gconstpointer</a> test_data,
+                                                         void (test_funcgconstpointer) ());
+#define             <a class="link" href="glib-Testing.html#g-test-add">g_test_add</a>                          (testpath, Fixture, tdata, fsetup, ftest, fteardown)
+void                <a class="link" href="glib-Testing.html#g-test-message">g_test_message</a>                      (const char *format,
+                                                         ...);
+void                <a class="link" href="glib-Testing.html#g-test-bug-base">g_test_bug_base</a>                     (const char *uri_pattern);
+void                <a class="link" href="glib-Testing.html#g-test-bug">g_test_bug</a>                          (const char *bug_uri_snippet);
+void                <a class="link" href="glib-Testing.html#g-test-timer-start">g_test_timer_start</a>                  (void);
+double              <a class="link" href="glib-Testing.html#g-test-timer-elapsed">g_test_timer_elapsed</a>                (void);
+double              <a class="link" href="glib-Testing.html#g-test-timer-last">g_test_timer_last</a>                   (void);
+void                <a class="link" href="glib-Testing.html#g-test-queue-free">g_test_queue_free</a>                   (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> gfree_pointer);
+void                <a class="link" href="glib-Testing.html#g-test-queue-destroy">g_test_queue_destroy</a>                (<a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> destroy_func,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> destroy_data);
+#define             <a class="link" href="glib-Testing.html#g-test-queue-unref">g_test_queue_unref</a>                  (gobject)
+enum                <a class="link" href="glib-Testing.html#GTestTrapFlags">GTestTrapFlags</a>;
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-Testing.html#g-test-trap-fork">g_test_trap_fork</a>                    (<a class="link" href="glib-Basic-Types.html#guint64">guint64</a> usec_timeout,
+                                                         <a class="link" href="glib-Testing.html#GTestTrapFlags">GTestTrapFlags</a> test_trap_flags);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-Testing.html#g-test-trap-has-passed">g_test_trap_has_passed</a>              (void);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-Testing.html#g-test-trap-reached-timeout">g_test_trap_reached_timeout</a>         (void);
+#define             <a class="link" href="glib-Testing.html#g-test-trap-assert-passed">g_test_trap_assert_passed</a>           ()
+#define             <a class="link" href="glib-Testing.html#g-test-trap-assert-failed">g_test_trap_assert_failed</a>           ()
+#define             <a class="link" href="glib-Testing.html#g-test-trap-assert-stdout">g_test_trap_assert_stdout</a>           (soutpattern)
+#define             <a class="link" href="glib-Testing.html#g-test-trap-assert-stdout-unmatched">g_test_trap_assert_stdout_unmatched</a> (soutpattern)
+#define             <a class="link" href="glib-Testing.html#g-test-trap-assert-stderr">g_test_trap_assert_stderr</a>           (serrpattern)
+#define             <a class="link" href="glib-Testing.html#g-test-trap-assert-stderr-unmatched">g_test_trap_assert_stderr_unmatched</a> (serrpattern)
+#define             <a class="link" href="glib-Testing.html#g-test-rand-bit">g_test_rand_bit</a>                     ()
+<a class="link" href="glib-Basic-Types.html#gint32">gint32</a>              <a class="link" href="glib-Testing.html#g-test-rand-int">g_test_rand_int</a>                     (void);
+<a class="link" href="glib-Basic-Types.html#gint32">gint32</a>              <a class="link" href="glib-Testing.html#g-test-rand-int-range">g_test_rand_int_range</a>               (<a class="link" href="glib-Basic-Types.html#gint32">gint32</a> begin,
+                                                         <a class="link" href="glib-Basic-Types.html#gint32">gint32</a> end);
+double              <a class="link" href="glib-Testing.html#g-test-rand-double">g_test_rand_double</a>                  (void);
+double              <a class="link" href="glib-Testing.html#g-test-rand-double-range">g_test_rand_double_range</a>            (double range_start,
+                                                         double range_end);
+#define             <a class="link" href="glib-Testing.html#g-assert">g_assert</a>                            (expr)
+#define             <a class="link" href="glib-Testing.html#g-assert-not-reached">g_assert_not_reached</a>                ()
+#define             <a class="link" href="glib-Testing.html#g-assert-cmpstr">g_assert_cmpstr</a>                     (s1, cmp, s2)
+#define             <a class="link" href="glib-Testing.html#g-assert-cmpint">g_assert_cmpint</a>                     (n1, cmp, n2)
+#define             <a class="link" href="glib-Testing.html#g-assert-cmpuint">g_assert_cmpuint</a>                    (n1, cmp, n2)
+#define             <a class="link" href="glib-Testing.html#g-assert-cmphex">g_assert_cmphex</a>                     (n1, cmp, n2)
+#define             <a class="link" href="glib-Testing.html#g-assert-cmpfloat">g_assert_cmpfloat</a>                   (n1,cmp,n2)
+int                 <a class="link" href="glib-Testing.html#g-strcmp0">g_strcmp0</a>                           (const char *str1,
+                                                         const char *str2);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3274409"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3274424"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id3274434"></a><h3>
+<a name="GTestCase"></a>GTestCase</h3>
+<a class="indexterm" name="id3274446"></a><pre class="programlisting">typedef struct GTestCase  GTestCase;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3274461"></a><h3>
+<a name="GTestSuite"></a>GTestSuite</h3>
+<a class="indexterm" name="id3274474"></a><pre class="programlisting">typedef struct GTestSuite GTestSuite;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3274489"></a><h3>
+<a name="g-test-minimized-result"></a>g_test_minimized_result ()</h3>
+<a class="indexterm" name="id3274505"></a><pre class="programlisting">void                g_test_minimized_result             (double minimized_quantity,
+                                                         const char *format,
+                                                         ...);</pre>
+<p>
+Report the result of a performance or measurement test.
+The test should generally strive to minimize the reported
+quantities (smaller values are better than larger ones),
+this and <em class="parameter"><code>minimized_quantity</code></em> can determine sorting
+order for test result reports.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>minimized_quantity</code></em>&#160;:</span></p></td>
+<td> the reported value
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> the format string of the report message
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td> arguments to pass to the <code class="function">printf()</code> function
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3274620"></a><h3>
+<a name="g-test-maximized-result"></a>g_test_maximized_result ()</h3>
+<a class="indexterm" name="id3274635"></a><pre class="programlisting">void                g_test_maximized_result             (double maximized_quantity,
+                                                         const char *format,
+                                                         ...);</pre>
+<p>
+Report the result of a performance or measurement test.
+The test should generally strive to maximize the reported
+quantities (larger values are better than smaller ones),
+this and <em class="parameter"><code>maximized_quantity</code></em> can determine sorting
+order for test result reports.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>maximized_quantity</code></em>&#160;:</span></p></td>
+<td> the reported value
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> the format string of the report message
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td> arguments to pass to the <code class="function">printf()</code> function
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3274750"></a><h3>
+<a name="g-test-init"></a>g_test_init ()</h3>
+<a class="indexterm" name="id3274765"></a><pre class="programlisting">void                g_test_init                         (int *argc,
+                                                         char ***argv,
+                                                         ...);</pre>
+<p>
+Initialize the GLib testing framework, e.g. by seeding the
+test random number generator, the name for <a class="link" href="glib-Miscellaneous-Utility-Functions.html#g-get-prgname"><code class="function">g_get_prgname()</code></a>
+and parsing test related command line args.
+So far, the following arguments are understood:
+</p>
+<div class="informalexample">
+-l                   list test cases available in a test executable.
+--seed RANDOMSEED    provide a random seed to reproduce test runs using random numbers.
+--verbose            run tests verbosely.
+-q, --quiet          run tests quietly.
+-p TESTPATH          execute all tests matching TESTPATH.
+-m {perf|slow|thorough|quick}
+                     execute tests according to these test modes:
+                     perf - performance tests, may take long and report results.
+                     slow - slow and thorough tests, may take quite long and maximize coverage.
+                     thorough - currently an alias for "slow".
+                     quick - quick tests, should run really quickly and give good coverage.
+--debug-log          debug test logging output.
+-k, --keep-going     gtester specific argument.
+--GTestLogFD N       gtester specific argument.
+--GTestSkipCount N   gtester specific argument.
+</div>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>argc</code></em>&#160;:</span></p></td>
+<td> Address of the <em class="parameter"><code>argc</code></em> parameter of the <code class="function">main()</code> function.
+       Changed if any arguments were handled.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>argv</code></em>&#160;:</span></p></td>
+<td> Address of the <em class="parameter"><code>argv</code></em> parameter of <code class="function">main()</code>.
+       Any parameters understood by <a class="link" href="glib-Testing.html#g-test-init"><code class="function">g_test_init()</code></a> stripped before return.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td> Reserved for future extension. Currently, you must pass <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3274944"></a><h3>
+<a name="g-test-quick"></a>g_test_quick()</h3>
+<a class="indexterm" name="id3274957"></a><pre class="programlisting">#define             g_test_quick()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3274972"></a><h3>
+<a name="g-test-slow"></a>g_test_slow()</h3>
+<a class="indexterm" name="id3274985"></a><pre class="programlisting">#define             g_test_slow()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275000"></a><h3>
+<a name="g-test-thorough"></a>g_test_thorough()</h3>
+<a class="indexterm" name="id3275012"></a><pre class="programlisting">#define             g_test_thorough()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275028"></a><h3>
+<a name="g-test-perf"></a>g_test_perf()</h3>
+<a class="indexterm" name="id3275040"></a><pre class="programlisting">#define             g_test_perf()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275055"></a><h3>
+<a name="g-test-verbose"></a>g_test_verbose()</h3>
+<a class="indexterm" name="id3275068"></a><pre class="programlisting">#define             g_test_verbose()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275083"></a><h3>
+<a name="g-test-quiet"></a>g_test_quiet()</h3>
+<a class="indexterm" name="id3275096"></a><pre class="programlisting">#define             g_test_quiet()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275111"></a><h3>
+<a name="g-test-run"></a>g_test_run ()</h3>
+<a class="indexterm" name="id3275126"></a><pre class="programlisting">int                 g_test_run                          (void);</pre>
+<p>
+Runs all tests under the toplevel suite which can be retrieved
+with <code class="function">g_test_get_root()</code>. Similar to <code class="function">g_test_run_suite()</code>, the test
+cases to be run are filtered according to
+test path arguments (-p <em class="replaceable"><code>testpath</code></em>) as 
+parsed by <a class="link" href="glib-Testing.html#g-test-init"><code class="function">g_test_init()</code></a>.
+<code class="function">g_test_run_suite()</code> or <a class="link" href="glib-Testing.html#g-test-run"><code class="function">g_test_run()</code></a> may only be called once
+in a program.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> 0 on success
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275235"></a><h3>
+<a name="g-test-add-func"></a>g_test_add_func ()</h3>
+<a class="indexterm" name="id3275250"></a><pre class="programlisting">void                g_test_add_func                     (const char *testpath,
+                                                         void (test_funcvoid) ());</pre>
+<p>
+Create a new test case, similar to <code class="function">g_test_create_case()</code>. However
+the test is assumed to use no fixture, and test suites are automatically
+created on the fly and added to the root fixture, based on the
+slash seperated portions of <em class="parameter"><code>testpath</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>testpath</code></em>&#160;:</span></p></td>
+<td>   Slash seperated test case path name for the test.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>test_func</code></em>&#160;:</span></p></td>
+<td>  The test function to invoke for this test.
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275352"></a><h3>
+<a name="g-test-add-data-func"></a>g_test_add_data_func ()</h3>
+<a class="indexterm" name="id3275367"></a><pre class="programlisting">void                g_test_add_data_func                (const char *testpath,
+                                                         <a class="link" href="glib-Basic-Types.html#gconstpointer">gconstpointer</a> test_data,
+                                                         void (test_funcgconstpointer) ());</pre>
+<p>
+Create a new test case, similar to <code class="function">g_test_create_case()</code>. However
+the test is assumed to use no fixture, and test suites are automatically
+created on the fly and added to the root fixture, based on the
+slash seperated portions of <em class="parameter"><code>testpath</code></em>. The <em class="parameter"><code>test_data</code></em> argument
+will be passed as first argument to <em class="parameter"><code>test_func</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>testpath</code></em>&#160;:</span></p></td>
+<td>   Slash separated test case path name for the test.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>test_data</code></em>&#160;:</span></p></td>
+<td>  Test data argument for the test function.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>test_func</code></em>&#160;:</span></p></td>
+<td>  The test function to invoke for this test.
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275503"></a><h3>
+<a name="g-test-add"></a>g_test_add()</h3>
+<a class="indexterm" name="id3275518"></a><pre class="programlisting">#define             g_test_add(testpath, Fixture, tdata, fsetup, ftest, fteardown)</pre>
+<p>
+Hook up a new test case at <em class="parameter"><code>testpath</code></em>, similar to <a class="link" href="glib-Testing.html#g-test-add-func"><code class="function">g_test_add_func()</code></a>.
+A fixture data structure with setup and teardown function may be provided
+though, simmilar to <code class="function">g_test_create_case()</code>.
+<a class="link" href="glib-Testing.html#g-test-add"><code class="function">g_test_add()</code></a> is implemented as a macro, so that the <code class="function">fsetup()</code>, <code class="function">ftest()</code> and
+<code class="function">fteardown()</code> callbacks can expect a <em class="parameter"><code>Fixture</code></em> pointer as first argument in
+a type safe manner.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>testpath</code></em>&#160;:</span></p></td>
+<td>  The test path for a new test case.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>Fixture</code></em>&#160;:</span></p></td>
+<td>   The type of a fixture data structure.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>tdata</code></em>&#160;:</span></p></td>
+<td>     Data argument for the test functions.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fsetup</code></em>&#160;:</span></p></td>
+<td>    The function to set up the fixture data.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ftest</code></em>&#160;:</span></p></td>
+<td>     The actual test function.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fteardown</code></em>&#160;:</span></p></td>
+<td> The function to tear down the fixture data.
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275715"></a><h3>
+<a name="g-test-message"></a>g_test_message ()</h3>
+<a class="indexterm" name="id3275730"></a><pre class="programlisting">void                g_test_message                      (const char *format,
+                                                         ...);</pre>
+<p>
+Add a message to the test report.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> the format string
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td>    printf-like arguments to <em class="parameter"><code>format</code></em>
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275808"></a><h3>
+<a name="g-test-bug-base"></a>g_test_bug_base ()</h3>
+<a class="indexterm" name="id3275823"></a><pre class="programlisting">void                g_test_bug_base                     (const char *uri_pattern);</pre>
+<p>
+Specify the base URI for bug reports.
+The base URI is used to construct bug report messages for
+<a class="link" href="glib-Testing.html#g-test-message"><code class="function">g_test_message()</code></a> when <a class="link" href="glib-Testing.html#g-test-bug"><code class="function">g_test_bug()</code></a> is called.
+Calling this function outside of a test case sets the
+default base URI for all test cases. Calling it from within
+a test case changes the base URI for the scope of the test
+case only.
+Bug URIs are constructed by appending a bug specific URI
+portion to <em class="parameter"><code>uri_pattern</code></em>, or by replacing the special string
+'<code class="literal">s</code>' within <em class="parameter"><code>uri_pattern</code></em> if that is present.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>uri_pattern</code></em>&#160;:</span></p></td>
+<td> the base pattern for bug URIs
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3275931"></a><h3>
+<a name="g-test-bug"></a>g_test_bug ()</h3>
+<a class="indexterm" name="id3275946"></a><pre class="programlisting">void                g_test_bug                          (const char *bug_uri_snippet);</pre>
+<p>
+This function adds a message to test reports that
+associates a bug URI with a test case.
+Bug URIs are constructed from a base URI set with <a class="link" href="glib-Testing.html#g-test-bug-base"><code class="function">g_test_bug_base()</code></a>
+and <em class="parameter"><code>bug_uri_snippet</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>bug_uri_snippet</code></em>&#160;:</span></p></td>
+<td> Bug specific bug tracker URI portion.
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276022"></a><h3>
+<a name="g-test-timer-start"></a>g_test_timer_start ()</h3>
+<a class="indexterm" name="id3276038"></a><pre class="programlisting">void                g_test_timer_start                  (void);</pre>
+<p>
+Start a timing test. Call <a class="link" href="glib-Testing.html#g-test-timer-elapsed"><code class="function">g_test_timer_elapsed()</code></a> when the task is supposed
+to be done. Call this function again to restart the timer.</p>
+<p>
+
+</p>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276082"></a><h3>
+<a name="g-test-timer-elapsed"></a>g_test_timer_elapsed ()</h3>
+<a class="indexterm" name="id3276098"></a><pre class="programlisting">double              g_test_timer_elapsed                (void);</pre>
+<p>
+Get the time since the last start of the timer with <a class="link" href="glib-Testing.html#g-test-timer-start"><code class="function">g_test_timer_start()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the time since the last start of the timer, as a double
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276157"></a><h3>
+<a name="g-test-timer-last"></a>g_test_timer_last ()</h3>
+<a class="indexterm" name="id3276172"></a><pre class="programlisting">double              g_test_timer_last                   (void);</pre>
+<p>
+Report the last result of <a class="link" href="glib-Testing.html#g-test-timer-elapsed"><code class="function">g_test_timer_elapsed()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the last result of <a class="link" href="glib-Testing.html#g-test-timer-elapsed"><code class="function">g_test_timer_elapsed()</code></a>, as a double
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276241"></a><h3>
+<a name="g-test-queue-free"></a>g_test_queue_free ()</h3>
+<a class="indexterm" name="id3276256"></a><pre class="programlisting">void                g_test_queue_free                   (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> gfree_pointer);</pre>
+<p>
+Enqueue a pointer to be released with <a class="link" href="glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a> during the next
+teardown phase. This is equivalent to calling <a class="link" href="glib-Testing.html#g-test-queue-destroy"><code class="function">g_test_queue_destroy()</code></a>
+with a destroy callback of <a class="link" href="glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>gfree_pointer</code></em>&#160;:</span></p></td>
+<td> the pointer to be stored.
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276347"></a><h3>
+<a name="g-test-queue-destroy"></a>g_test_queue_destroy ()</h3>
+<a class="indexterm" name="id3276362"></a><pre class="programlisting">void                g_test_queue_destroy                (<a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> destroy_func,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> destroy_data);</pre>
+<p>
+This function enqueus a callback @<code class="function">destroy_func()</code> to be executed
+during the next test case teardown phase. This is most useful
+to auto destruct allocted test resources at the end of a test run.
+Resources are released in reverse queue order, that means enqueueing
+callback A before callback B will cause <code class="function">B()</code> to be called before
+<code class="function">A()</code> during teardown.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>destroy_func</code></em>&#160;:</span></p></td>
+<td>       Destroy callback for teardown phase.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>destroy_data</code></em>&#160;:</span></p></td>
+<td>       Destroy callback data.
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276482"></a><h3>
+<a name="g-test-queue-unref"></a>g_test_queue_unref()</h3>
+<a class="indexterm" name="id3276495"></a><pre class="programlisting">#define             g_test_queue_unref(gobject)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>gobject</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276528"></a><h3>
+<a name="GTestTrapFlags"></a>enum GTestTrapFlags</h3>
+<a class="indexterm" name="id3276541"></a><pre class="programlisting">typedef enum {
+  G_TEST_TRAP_SILENCE_STDOUT    = 1 &lt;&lt; 7,
+  G_TEST_TRAP_SILENCE_STDERR    = 1 &lt;&lt; 8,
+  G_TEST_TRAP_INHERIT_STDIN     = 1 &lt;&lt; 9
+} GTestTrapFlags;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276561"></a><h3>
+<a name="g-test-trap-fork"></a>g_test_trap_fork ()</h3>
+<a class="indexterm" name="id3276576"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_test_trap_fork                    (<a class="link" href="glib-Basic-Types.html#guint64">guint64</a> usec_timeout,
+                                                         <a class="link" href="glib-Testing.html#GTestTrapFlags">GTestTrapFlags</a> test_trap_flags);</pre>
+<p>
+Fork the current test program to execute a test case that might
+not return or that might abort. The forked test case is aborted
+and considered failing if its run time exceeds <em class="parameter"><code>usec_timeout</code></em>.
+The forking behavior can be configured with the following flags:
+<code class="literal">G_TEST_TRAP_SILENCE_STDOUT</code> - redirect stdout of the test child
+to /dev/null so it cannot be observed on the console during test
+runs. The actual output is still captured though to allow later
+tests with <a class="link" href="glib-Testing.html#g-test-trap-assert-stdout"><code class="function">g_test_trap_assert_stdout()</code></a>.
+<code class="literal">G_TEST_TRAP_SILENCE_STDERR</code> - redirect stderr of the test child
+to /dev/null so it cannot be observed on the console during test
+runs. The actual output is still captured though to allow later
+tests with <a class="link" href="glib-Testing.html#g-test-trap-assert-stderr"><code class="function">g_test_trap_assert_stderr()</code></a>.
+<code class="literal">G_TEST_TRAP_INHERIT_STDIN</code> - if this flag is given, stdin of the
+forked child process is shared with stdin of its parent process.
+It is redirected to /dev/null otherwise.
+</p>
+<p>
+In the following example, the test code forks, the forked child
+process produces some sample output and exits successfully.
+The forking parent process then asserts successfull child program
+termination and validates child program outputs.
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+  static void
+  test_fork_patterns (void)
+  {
+    if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR))
+      {
+        g_print ("some stdout text: somagic17\n");
+        g_printerr ("some stderr text: semagic43\n");
+        exit (0); /* successful test run */
+      }
+    g_test_trap_assert_passed();
+    g_test_trap_assert_stdout ("*somagic17*");
+    g_test_trap_assert_stderr ("*semagic43*");
+  }
+</pre></div>
+<p>
+</p>
+<p>
+This function is implemented only on Unix platforms.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>usec_timeout</code></em>&#160;:</span></p></td>
+<td>    Timeout for the forked test in micro seconds.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>test_trap_flags</code></em>&#160;:</span></p></td>
+<td> Flags to modify forking behaviour.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> for the forked child and <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> for the executing parent process.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276794"></a><h3>
+<a name="g-test-trap-has-passed"></a>g_test_trap_has_passed ()</h3>
+<a class="indexterm" name="id3276810"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_test_trap_has_passed              (void);</pre>
+<p>
+Check the reuslt of the last <a class="link" href="glib-Testing.html#g-test-trap-fork"><code class="function">g_test_trap_fork()</code></a> call.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the last forked child terminated successfully.
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276878"></a><h3>
+<a name="g-test-trap-reached-timeout"></a>g_test_trap_reached_timeout ()</h3>
+<a class="indexterm" name="id3276894"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_test_trap_reached_timeout         (void);</pre>
+<p>
+Check the reuslt of the last <a class="link" href="glib-Testing.html#g-test-trap-fork"><code class="function">g_test_trap_fork()</code></a> call.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the last forked child got killed due to a fork timeout.
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276962"></a><h3>
+<a name="g-test-trap-assert-passed"></a>g_test_trap_assert_passed()</h3>
+<a class="indexterm" name="id3276975"></a><pre class="programlisting">#define             g_test_trap_assert_passed()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3276991"></a><h3>
+<a name="g-test-trap-assert-failed"></a>g_test_trap_assert_failed()</h3>
+<a class="indexterm" name="id3277003"></a><pre class="programlisting">#define             g_test_trap_assert_failed()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277019"></a><h3>
+<a name="g-test-trap-assert-stdout"></a>g_test_trap_assert_stdout()</h3>
+<a class="indexterm" name="id3277032"></a><pre class="programlisting">#define             g_test_trap_assert_stdout(soutpattern)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>soutpattern</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277066"></a><h3>
+<a name="g-test-trap-assert-stdout-unmatched"></a>g_test_trap_assert_stdout_unmatched()</h3>
+<a class="indexterm" name="id3277081"></a><pre class="programlisting">#define             g_test_trap_assert_stdout_unmatched(soutpattern)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>soutpattern</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277114"></a><h3>
+<a name="g-test-trap-assert-stderr"></a>g_test_trap_assert_stderr()</h3>
+<a class="indexterm" name="id3277128"></a><pre class="programlisting">#define             g_test_trap_assert_stderr(serrpattern)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>serrpattern</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277161"></a><h3>
+<a name="g-test-trap-assert-stderr-unmatched"></a>g_test_trap_assert_stderr_unmatched()</h3>
+<a class="indexterm" name="id3277175"></a><pre class="programlisting">#define             g_test_trap_assert_stderr_unmatched(serrpattern)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>serrpattern</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277209"></a><h3>
+<a name="g-test-rand-bit"></a>g_test_rand_bit()</h3>
+<a class="indexterm" name="id3277222"></a><pre class="programlisting">#define             g_test_rand_bit()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277237"></a><h3>
+<a name="g-test-rand-int"></a>g_test_rand_int ()</h3>
+<a class="indexterm" name="id3277252"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint32">gint32</a>              g_test_rand_int                     (void);</pre>
+<p>
+Get a reproducable random integer number.
+The random numbers generate by the g_test_rand_*() family of functions
+change with every new test program start, unless the --seed option is
+given when starting test programs.
+For individual test cases however, the random number generator is
+reseeded, to avoid dependencies between tests and to make --seed
+effective for all test cases.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a random number from the seeded random number generator.
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277306"></a><h3>
+<a name="g-test-rand-int-range"></a>g_test_rand_int_range ()</h3>
+<a class="indexterm" name="id3277322"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint32">gint32</a>              g_test_rand_int_range               (<a class="link" href="glib-Basic-Types.html#gint32">gint32</a> begin,
+                                                         <a class="link" href="glib-Basic-Types.html#gint32">gint32</a> end);</pre>
+<p>
+Get a reproducable random integer number out of a specified range,
+see <a class="link" href="glib-Testing.html#g-test-rand-int"><code class="function">g_test_rand_int()</code></a> for details on test case random numbers.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>begin</code></em>&#160;:</span></p></td>
+<td> the minimum value returned by this function
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>end</code></em>&#160;:</span></p></td>
+<td>   the smallest value not to be returned by this function
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a number with <em class="parameter"><code>begin</code></em> &lt;= number &lt; <em class="parameter"><code>end</code></em>.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277436"></a><h3>
+<a name="g-test-rand-double"></a>g_test_rand_double ()</h3>
+<a class="indexterm" name="id3277452"></a><pre class="programlisting">double              g_test_rand_double                  (void);</pre>
+<p>
+Get a reproducable random floating point number,
+see <a class="link" href="glib-Testing.html#g-test-rand-int"><code class="function">g_test_rand_int()</code></a> for details on test case random numbers.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a random number from the seeded random number generator.
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277511"></a><h3>
+<a name="g-test-rand-double-range"></a>g_test_rand_double_range ()</h3>
+<a class="indexterm" name="id3277526"></a><pre class="programlisting">double              g_test_rand_double_range            (double range_start,
+                                                         double range_end);</pre>
+<p>
+Get a reproducable random floating pointer number out of a specified range,
+see <a class="link" href="glib-Testing.html#g-test-rand-int"><code class="function">g_test_rand_int()</code></a> for details on test case random numbers.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>range_start</code></em>&#160;:</span></p></td>
+<td> the minimum value returned by this function
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>range_end</code></em>&#160;:</span></p></td>
+<td> the minimum value not returned by this function
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a number with <em class="parameter"><code>range_start</code></em> &lt;= number &lt; <em class="parameter"><code>range_end</code></em>.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277641"></a><h3>
+<a name="g-assert"></a>g_assert()</h3>
+<a class="indexterm" name="id3277653"></a><pre class="programlisting">#define             g_assert(expr)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>expr</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277686"></a><h3>
+<a name="g-assert-not-reached"></a>g_assert_not_reached()</h3>
+<a class="indexterm" name="id3277699"></a><pre class="programlisting">#define             g_assert_not_reached()</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277714"></a><h3>
+<a name="g-assert-cmpstr"></a>g_assert_cmpstr()</h3>
+<a class="indexterm" name="id3277727"></a><pre class="programlisting">#define             g_assert_cmpstr(s1, cmp, s2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>s1</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cmp</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>s2</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277787"></a><h3>
+<a name="g-assert-cmpint"></a>g_assert_cmpint()</h3>
+<a class="indexterm" name="id3277799"></a><pre class="programlisting">#define             g_assert_cmpint(n1, cmp, n2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n1</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cmp</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n2</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277860"></a><h3>
+<a name="g-assert-cmpuint"></a>g_assert_cmpuint()</h3>
+<a class="indexterm" name="id3277873"></a><pre class="programlisting">#define             g_assert_cmpuint(n1, cmp, n2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n1</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cmp</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n2</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3277932"></a><h3>
+<a name="g-assert-cmphex"></a>g_assert_cmphex()</h3>
+<a class="indexterm" name="id3277945"></a><pre class="programlisting">#define             g_assert_cmphex(n1, cmp, n2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n1</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cmp</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n2</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3278005"></a><h3>
+<a name="g-assert-cmpfloat"></a>g_assert_cmpfloat()</h3>
+<a class="indexterm" name="id3278017"></a><pre class="programlisting">#define             g_assert_cmpfloat(n1,cmp,n2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n1</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cmp</code></em>&#160;:</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n2</code></em>&#160;:</span></p></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id3278077"></a><h3>
+<a name="g-strcmp0"></a>g_strcmp0 ()</h3>
+<a class="indexterm" name="id3278091"></a><pre class="programlisting">int                 g_strcmp0                           (const char *str1,
+                                                         const char *str2);</pre>
+<p>
+Compares <em class="parameter"><code>str1</code></em> and <em class="parameter"><code>str2</code></em> like <code class="function">strcmp()</code>. Handles <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> strings gracefully.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>str1</code></em>&#160;:</span></p></td>
+<td> a C string or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>str2</code></em>&#160;:</span></p></td>
+<td> another C string or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> -1, 0 or 1, if <em class="parameter"><code>str1</code></em> is &lt;, == or &gt; than <em class="parameter"><code>str2</code></em>.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.16
+</p>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3278246"></a><div class="refsect2" lang="en"><a name="id3278248"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id3278249"></a></div>
+</div>
+</div>
+</body>
+</html>

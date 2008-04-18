@@ -1,0 +1,201 @@
+<refentry id="glib-Quarks">
+<refmeta>
+<refentrytitle role="top_of_page">Quarks</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GLIB Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Quarks</refname>
+<refpurpose>a 2-way association between a string and a unique integer identifier</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;glib.h&gt;
+
+
+typedef             <link linkend="GQuark">GQuark</link>;
+<link linkend="GQuark">GQuark</link>              <link linkend="g-quark-from-string">g_quark_from_string</link>                 (const <link linkend="gchar">gchar</link> *string);
+<link linkend="GQuark">GQuark</link>              <link linkend="g-quark-from-static-string">g_quark_from_static_string</link>          (const <link linkend="gchar">gchar</link> *string);
+const <link linkend="gchar">gchar</link>*        <link linkend="g-quark-to-string">g_quark_to_string</link>                   (<link linkend="GQuark">GQuark</link> quark);
+<link linkend="GQuark">GQuark</link>              <link linkend="g-quark-try-string">g_quark_try_string</link>                  (const <link linkend="gchar">gchar</link> *string);
+const <link linkend="gchar">gchar</link>*        <link linkend="g-intern-string">g_intern_string</link>                     (const <link linkend="gchar">gchar</link> *string);
+const <link linkend="gchar">gchar</link>*        <link linkend="g-intern-static-string">g_intern_static_string</link>              (const <link linkend="gchar">gchar</link> *string);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Quarks are associations between strings and integer identifiers.
+Given either the string or the <link linkend="GQuark"><type>GQuark</type></link> identifier it is possible to
+retrieve the other.
+</para>
+<para>
+Quarks are used for both
+<link linkend="glib-datasets">Datasets</link> and
+<link linkend="glib-keyed-data-lists">Keyed Data Lists</link>.
+</para>
+<para>
+To create a new quark from a string, use <link linkend="g-quark-from-string"><function>g_quark_from_string()</function></link> or
+<link linkend="g-quark-from-static-string"><function>g_quark_from_static_string()</function></link>.
+</para>
+<para>
+To find the string corresponding to a given <link linkend="GQuark"><type>GQuark</type></link>, use <link linkend="g-quark-to-string"><function>g_quark_to_string()</function></link>.
+</para>
+<para>
+To find the <link linkend="GQuark"><type>GQuark</type></link> corresponding to a given string, use <link linkend="g-quark-try-string"><function>g_quark_try_string()</function></link>.
+</para>
+<para>
+Another use for the string pool maintained for the quark functions is string
+interning, using <link linkend="g-intern-string"><function>g_intern_string()</function></link> or <link linkend="g-intern-static-string"><function>g_intern_static_string()</function></link>. An interned string 
+is a canonical representation for a string. One important advantage of interned strings 
+is that they can be compared for equality by a simple pointer comparision, rather than 
+using <link linkend="strcmp"><function>strcmp()</function></link>. 
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GQuark" role="typedef"/>GQuark</title>
+<indexterm><primary>GQuark</primary></indexterm><programlisting>typedef guint32 GQuark;
+</programlisting>
+<para>
+A GQuark is a non-zero integer which uniquely identifies a particular string.
+A GQuark value of zero is associated to <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-quark-from-string" role="function"/>g_quark_from_string ()</title>
+<indexterm><primary>g_quark_from_string</primary></indexterm><programlisting><link linkend="GQuark">GQuark</link>              g_quark_from_string                 (const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Gets the <link linkend="GQuark"><type>GQuark</type></link> identifying the given string.
+If the string does not currently have an associated <link linkend="GQuark"><type>GQuark</type></link>, a new
+<link linkend="GQuark"><type>GQuark</type></link> is created, using a copy of the string.
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara>a string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the <link linkend="GQuark"><type>GQuark</type></link> identifying the string, or 0 if <parameter>string</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-quark-from-static-string" role="function"/>g_quark_from_static_string ()</title>
+<indexterm><primary>g_quark_from_static_string</primary></indexterm><programlisting><link linkend="GQuark">GQuark</link>              g_quark_from_static_string          (const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Gets the <link linkend="GQuark"><type>GQuark</type></link> identifying the given (static) string.
+If the string does not currently have an associated <link linkend="GQuark"><type>GQuark</type></link>, a new
+<link linkend="GQuark"><type>GQuark</type></link> is created, linked to the given string.
+</para>
+<para>
+Note that this function is identical to <link linkend="g-quark-from-string"><function>g_quark_from_string()</function></link> except
+that if a new <link linkend="GQuark"><type>GQuark</type></link> is created the string itself is used rather than
+a copy. This saves memory, but can only be used if the string will
+<emphasis>always</emphasis> exist. It can be used with statically
+allocated strings in the main program, but not with statically 
+allocated memory in dynamically loaded modules, if you expect to
+ever unload the module again (e.g. do not use this function in
+GTK+ theme engines).
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara>a string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the <link linkend="GQuark"><type>GQuark</type></link> identifying the string, or 0 if <parameter>string</parameter> is <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-quark-to-string" role="function"/>g_quark_to_string ()</title>
+<indexterm><primary>g_quark_to_string</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        g_quark_to_string                   (<link linkend="GQuark">GQuark</link> quark);</programlisting>
+<para>
+Gets the string associated with the given <link linkend="GQuark"><type>GQuark</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>quark</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GQuark"><type>GQuark</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the string associated with the <link linkend="GQuark"><type>GQuark</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-quark-try-string" role="function"/>g_quark_try_string ()</title>
+<indexterm><primary>g_quark_try_string</primary></indexterm><programlisting><link linkend="GQuark">GQuark</link>              g_quark_try_string                  (const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Gets the <link linkend="GQuark"><type>GQuark</type></link> associated with the given string, or 0 if string is
+<link linkend="NULL:CAPS"><literal>NULL</literal></link> or it has no associated <link linkend="GQuark"><type>GQuark</type></link>.
+</para>
+<para>
+If you want the GQuark to be created if it doesn't already exist, use
+<link linkend="g-quark-from-string"><function>g_quark_from_string()</function></link> or <link linkend="g-quark-from-static-string"><function>g_quark_from_static_string()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara>a string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the <link linkend="GQuark"><type>GQuark</type></link> associated with the string, or 0 if <parameter>string</parameter> is
+<link linkend="NULL:CAPS"><literal>NULL</literal></link> or there is no <link linkend="GQuark"><type>GQuark</type></link> associated with it.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-intern-string" role="function" condition="since:2.10"/>g_intern_string ()</title>
+<indexterm role="2.10"><primary>g_intern_string</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        g_intern_string                     (const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Returns a canonical representation for <parameter>string</parameter>. Interned strings can
+be compared for equality by comparing the pointers, instead of using <link linkend="strcmp"><function>strcmp()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara> a string
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a canonical representation for the string
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.10
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-intern-static-string" role="function" condition="since:2.10"/>g_intern_static_string ()</title>
+<indexterm role="2.10"><primary>g_intern_static_string</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        g_intern_static_string              (const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Returns a canonical representation for <parameter>string</parameter>. Interned strings can
+be compared for equality by comparing the pointers, instead of using <link linkend="strcmp"><function>strcmp()</function></link>.
+<link linkend="g-intern-static-string"><function>g_intern_static_string()</function></link> does not copy the string, therefore <parameter>string</parameter> must
+not be freed or modified.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara> a static string
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a canonical representation for the string
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.10
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

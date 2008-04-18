@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GMemoryOutputStream">
+<refmeta>
+<refentrytitle role="top_of_page">GMemoryOutputStream</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GMemoryOutputStream</refname>
+<refpurpose>Streaming output operations on memory chunks</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+<link linkend="gpointer">gpointer</link>            (<link linkend="GReallocFunc">*GReallocFunc</link>)                     (<link linkend="gpointer">gpointer</link> data,
+                                                         <link linkend="gsize">gsize</link> size);
+                    <link linkend="GMemoryOutputStream-struct">GMemoryOutputStream</link>;
+<link linkend="GOutputStream">GOutputStream</link>*      <link linkend="g-memory-output-stream-new">g_memory_output_stream_new</link>          (<link linkend="gpointer">gpointer</link> data,
+                                                         <link linkend="gsize">gsize</link> len,
+                                                         <link linkend="GReallocFunc">GReallocFunc</link> realloc_fn,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);
+<link linkend="gpointer">gpointer</link>            <link linkend="g-memory-output-stream-get-data">g_memory_output_stream_get_data</link>     (<link linkend="GMemoryOutputStream">GMemoryOutputStream</link> *ostream);
+<link linkend="gsize">gsize</link>               <link linkend="g-memory-output-stream-get-size">g_memory_output_stream_get_size</link>     (<link linkend="GMemoryOutputStream">GMemoryOutputStream</link> *ostream);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GOutputStream">GOutputStream</link>
+         +----GMemoryOutputStream
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1 role="impl_interfaces">
+<title role="impl_interfaces.title">Implemented Interfaces</title>
+<para>
+GMemoryOutputStream implements
+ <link linkend="GSeekable">GSeekable</link>.</para>
+
+</refsect1>
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+<link linkend="GMemoryOutputStream"><type>GMemoryOutputStream</type></link> is a class for using arbitrary
+memory chunks as output for GIO streaming output operations.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GReallocFunc" role="function"/>GReallocFunc ()</title>
+<indexterm><primary>GReallocFunc</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>            (*GReallocFunc)                     (<link linkend="gpointer">gpointer</link> data,
+                                                         <link linkend="gsize">gsize</link> size);</programlisting>
+<para>
+Changes the size of the memory block pointed to by <parameter>data</parameter> to
+<parameter>size</parameter> bytes. 
+</para>
+<para>
+The function should have the same semantics as <link linkend="realloc"><function>realloc()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> memory block to reallocate
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>size</parameter>&nbsp;:</term>
+<listitem><simpara> size to reallocate <parameter>data</parameter> to
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a pointer to the reallocated memory
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GMemoryOutputStream-struct" role="struct"/>GMemoryOutputStream</title>
+<indexterm><primary>GMemoryOutputStream</primary></indexterm><programlisting>typedef struct _GMemoryOutputStream GMemoryOutputStream;</programlisting>
+<para>
+Implements <link linkend="GOutputStream"><type>GOutputStream</type></link> for arbitrary memory chunks.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-memory-output-stream-new" role="function"/>g_memory_output_stream_new ()</title>
+<indexterm><primary>g_memory_output_stream_new</primary></indexterm><programlisting><link linkend="GOutputStream">GOutputStream</link>*      g_memory_output_stream_new          (<link linkend="gpointer">gpointer</link> data,
+                                                         <link linkend="gsize">gsize</link> len,
+                                                         <link linkend="GReallocFunc">GReallocFunc</link> realloc_fn,
+                                                         <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);</programlisting>
+<para>
+Creates a new <link linkend="GMemoryOutputStream"><type>GMemoryOutputStream</type></link>. 
+</para>
+<para>
+If <parameter>data</parameter> is non-<link linkend="NULL:CAPS"><literal>NULL</literal></link>, the stream  will use that for its internal storage.
+If <parameter>realloc_fn</parameter> is non-<link linkend="NULL:CAPS"><literal>NULL</literal></link>, it will be used for resizing the internal
+storage when necessary. To construct a fixed-size output stream, 
+pass <link linkend="NULL:CAPS"><literal>NULL</literal></link> as <parameter>realloc_fn</parameter>.
+<informalexample><programlisting>
+/&ast; a stream that can grow &ast;/
+stream = g_memory_output_stream_new (NULL, 0, realloc, free);
+
+/&ast; a fixed-size stream &ast;/
+data = malloc (200);
+stream2 = g_memory_output_stream_new (data, 200, NULL, free);
+</programlisting></informalexample></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to a chunk of memory to use, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>len</parameter>&nbsp;:</term>
+<listitem><simpara> the size of <parameter>data</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>realloc_fn</parameter>&nbsp;:</term>
+<listitem><simpara> a function with <link linkend="realloc"><function>realloc()</function></link> semantics to be called when 
+    <parameter>data</parameter> needs to be grown, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> a function to be called on <parameter>data</parameter> when the stream is finalized,
+    or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> A newly created <link linkend="GMemoryOutputStream"><type>GMemoryOutputStream</type></link> object.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-memory-output-stream-get-data" role="function"/>g_memory_output_stream_get_data ()</title>
+<indexterm><primary>g_memory_output_stream_get_data</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>            g_memory_output_stream_get_data     (<link linkend="GMemoryOutputStream">GMemoryOutputStream</link> *ostream);</programlisting>
+<para>
+Gets any loaded data from the <parameter>ostream</parameter>. 
+</para>
+<para>
+Note that the returned pointer may become invalid on the next 
+write or truncate operation on the stream.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ostream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GMemoryOutputStream"><type>GMemoryOutputStream</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> pointer to the stream's data
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-memory-output-stream-get-size" role="function"/>g_memory_output_stream_get_size ()</title>
+<indexterm><primary>g_memory_output_stream_get_size</primary></indexterm><programlisting><link linkend="gsize">gsize</link>               g_memory_output_stream_get_size     (<link linkend="GMemoryOutputStream">GMemoryOutputStream</link> *ostream);</programlisting>
+<para>
+Gets the size of the currently allocated data area (availible from
+<link linkend="g-memory-output-stream-get-data"><function>g_memory_output_stream_get_data()</function></link>). If the stream isn't
+growable (no realloc was passed to <link linkend="g-memory-output-stream-new"><function>g_memory_output_stream_new()</function></link>) then
+this is the max size of the stream and further writes
+will return G_IO_ERROR_NO_SPACE.
+</para>
+<para>
+Note that for growable streams the returned size may become invalid on
+the next write or truncate operation on the stream.
+</para>
+<para>
+Note, this does not return the number of bytes written to the stream.
+In glib 2.18 this is availible with <link linkend="g-memory-output-stream-get-data-size"><function>g_memory_output_stream_get_data_size()</function></link>,
+but for 2.16 you have to use <link linkend="g-seekable-seek"><function>g_seekable_seek()</function></link> to G_SEEK_END
+and call <link linkend="g-seekable-tell"><function>g_seekable_tell()</function></link> to achive this.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ostream</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GMemoryOutputStream"><type>GMemoryOutputStream</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the number of bytes allocated for the data buffer
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<link linkend="GMemoryInputStream"><type>GMemoryInputStream</type></link>
+</refsect1>
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

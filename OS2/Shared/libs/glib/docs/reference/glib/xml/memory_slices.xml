@@ -1,0 +1,367 @@
+<refentry id="glib-Memory-Slices">
+<refmeta>
+<refentrytitle role="top_of_page">Memory Slices</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GLIB Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Memory Slices</refname>
+<refpurpose>efficient way to allocate groups of equal-sized chunks of memory</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;glib.h&gt;
+
+
+<link linkend="gpointer">gpointer</link>            <link linkend="g-slice-alloc">g_slice_alloc</link>                       (<link linkend="gsize">gsize</link> block_size);
+<link linkend="gpointer">gpointer</link>            <link linkend="g-slice-alloc0">g_slice_alloc0</link>                      (<link linkend="gsize">gsize</link> block_size);
+<link linkend="gpointer">gpointer</link>            <link linkend="g-slice-copy">g_slice_copy</link>                        (<link linkend="gsize">gsize</link> block_size,
+                                                         <link linkend="gconstpointer">gconstpointer</link> mem_block);
+<link linkend="void">void</link>                <link linkend="g-slice-free1">g_slice_free1</link>                       (<link linkend="gsize">gsize</link> block_size,
+                                                         <link linkend="gpointer">gpointer</link> mem_block);
+<link linkend="void">void</link>                <link linkend="g-slice-free-chain-with-offset">g_slice_free_chain_with_offset</link>      (<link linkend="gsize">gsize</link> block_size,
+                                                         <link linkend="gpointer">gpointer</link> mem_chain,
+                                                         <link linkend="gsize">gsize</link> next_offset);
+
+#define             <link linkend="g-slice-new">g_slice_new</link>                         (type)
+#define             <link linkend="g-slice-new0">g_slice_new0</link>                        (type)
+#define             <link linkend="g-slice-dup">g_slice_dup</link>                         (type, mem)
+#define             <link linkend="g-slice-free">g_slice_free</link>                        (type, mem)
+#define             <link linkend="g-slice-free-chain">g_slice_free_chain</link>                  (type, mem_chain, next)
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Memory slices provide a space-efficient and multi-processing scalable
+way to allocate equal-sized pieces of memory, just like the original
+<link linkend="GMemChunks"><type>GMemChunks</type></link> (from GLib &lt;= 2.8), while avoiding their excessive
+memory-waste, scalability and performance problems.
+</para>
+
+<para>
+To achieve these goals, the slice allocator uses a sophisticated, 
+layered design that has been inspired by Bonwick's slab allocator
+<footnote><para>
+<ulink url="http://citeseer.ist.psu.edu/bonwick94slab.html">[Bonwick94]</ulink> Jeff Bonwick, The slab allocator: An object-caching kernel
+memory allocator. USENIX 1994, and  
+<ulink url="http://citeseer.ist.psu.edu/bonwick01magazines.html">[Bonwick01]</ulink> Bonwick and Jonathan Adams, Magazines and vmem: Extending the
+slab allocator to many cpu's and arbitrary resources. USENIX 2001
+</para></footnote>.
+It uses <link linkend="posix-memalign"><function>posix_memalign()</function></link> to optimize allocations of many equally-sized 
+chunks, and has per-thread free lists (the so-called magazine layer) 
+to quickly satisfy allocation requests of already known structure sizes. 
+This is accompanied by extra caching logic to keep freed memory around 
+for some time before returning it to the system. Memory that is unused 
+due to alignment constraints is used for cache colorization (random 
+distribution of chunk addresses) to improve CPU cache utilization. The 
+caching layer of the slice allocator adapts itself to high lock contention 
+to improve scalability.
+</para>
+
+<para>
+The slice allocator can allocate blocks as small as two pointers, and
+unlike <link linkend="malloc"><function>malloc()</function></link>, it does not reserve extra space per block. For large block 
+sizes, <link linkend="g-slice-new"><function>g_slice_new()</function></link> and <link linkend="g-slice-alloc"><function>g_slice_alloc()</function></link> will automatically delegate to the
+system <link linkend="malloc"><function>malloc()</function></link> implementation. For newly written code it is recommended
+to use the new <literal>g_slice</literal> API instead of <link linkend="g-malloc"><function>g_malloc()</function></link> and 
+friends, as long as objects are not resized during their lifetime and the 
+object size used at allocation time is still available when freeing.
+</para>
+
+<example>
+<title>Using the slice allocator</title>
+<programlisting>
+  gchar *mem[10000];
+  gint i;
+
+  /* Allocate 10000 blocks. */
+  for (i = 0; i &lt; 10000; i++)
+    {
+      mem[i] = g_slice_alloc (50);
+
+      /* Fill in the memory with some junk. */
+      for (j = 0; j &lt; 50; j++)
+	mem[i][j] = i * j;
+    }
+
+  /* Now free all of the blocks. */
+  for (i = 0; i &lt; 10000; i++)
+    {
+      g_slice_free1 (50, mem[i]);
+    }
+</programlisting></example>
+
+<example>
+<title>Using the slice allocator with data structures</title>
+<programlisting>
+  GRealArray *array;
+
+  /* Allocate one block, using the g_slice_new(<!-- -->) macro. */
+  array = g_slice_new (GRealArray);
+
+  /* We can now use array just like a normal pointer to a structure. */
+  array->data            = NULL;
+  array->len             = 0;
+  array->alloc           = 0;
+  array->zero_terminated = (zero_terminated ? 1 : 0);
+  array->clear           = (clear ? 1 : 0);
+  array->elt_size        = elt_size;
+
+  /* We can free the block, so it can be reused. */
+  g_slice_free (GRealArray, array);
+</programlisting></example>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="g-slice-alloc" role="function" condition="since:2.10"/>g_slice_alloc ()</title>
+<indexterm role="2.10"><primary>g_slice_alloc</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>            g_slice_alloc                       (<link linkend="gsize">gsize</link> block_size);</programlisting>
+<para>
+Allocates a block of memory from the slice allocator.
+The block adress handed out can be expected to be aligned
+to at least <literal>1 * sizeof (void*)</literal>,
+though in general slices are 2 * sizeof (void*) bytes aligned,
+if a <link linkend="malloc"><function>malloc()</function></link> fallback implementation is used instead,
+the alignment may be reduced in a libc dependent fashion.
+Note that the underlying slice allocation mechanism can
+be changed with the <link linkend="G_SLICE">G_SLICE=always-malloc</link>
+environment variable.
+</para><variablelist role="params">
+<varlistentry><term><parameter>block_size</parameter>&nbsp;:</term>
+<listitem><simpara>the number of bytes to allocate
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a pointer to the allocated memory block
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-alloc0" role="function" condition="since:2.10"/>g_slice_alloc0 ()</title>
+<indexterm role="2.10"><primary>g_slice_alloc0</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>            g_slice_alloc0                      (<link linkend="gsize">gsize</link> block_size);</programlisting>
+<para>
+Allocates a block of memory via <link linkend="g-slice-alloc"><function>g_slice_alloc()</function></link>
+and initialize the returned memory to 0.
+Note that the underlying slice allocation mechanism can
+be changed with the <link linkend="G_SLICE">G_SLICE=always-malloc</link>
+environment variable.
+</para><variablelist role="params">
+<varlistentry><term><parameter>block_size</parameter>&nbsp;:</term>
+<listitem><simpara>the number of bytes to allocate
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a pointer to the allocated block
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-copy" role="function" condition="since:2.14"/>g_slice_copy ()</title>
+<indexterm role="2.14"><primary>g_slice_copy</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>            g_slice_copy                        (<link linkend="gsize">gsize</link> block_size,
+                                                         <link linkend="gconstpointer">gconstpointer</link> mem_block);</programlisting>
+<para>
+Allocates a block of memory from the slice allocator and copies
+<parameter>block_size</parameter> bytes into it from <parameter>mem_block</parameter>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>block_size</parameter>&nbsp;:</term>
+<listitem><simpara>the number of bytes to allocate
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mem_block</parameter>&nbsp;:</term>
+<listitem><simpara>the memory to copy
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a pointer to the allocated memory block
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.14
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-free1" role="function" condition="since:2.10"/>g_slice_free1 ()</title>
+<indexterm role="2.10"><primary>g_slice_free1</primary></indexterm><programlisting><link linkend="void">void</link>                g_slice_free1                       (<link linkend="gsize">gsize</link> block_size,
+                                                         <link linkend="gpointer">gpointer</link> mem_block);</programlisting>
+<para>
+Frees a block of memory. The memory must have been allocated via
+<link linkend="g-slice-alloc"><function>g_slice_alloc()</function></link> or <link linkend="g-slice-alloc0"><function>g_slice_alloc0()</function></link>
+and the <parameter>block_size</parameter> has to match the size specified upon allocation.
+Note that the exact release behaviour can be changed with the
+<link linkend="G_DEBUG">G_DEBUG=gc-friendly</link> environment variable,
+also see <link linkend="G_SLICE">G_SLICE</link> for related debugging options.
+</para><variablelist role="params">
+<varlistentry><term><parameter>block_size</parameter>&nbsp;:</term>
+<listitem><simpara>the size of the block
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mem_block</parameter>&nbsp;:</term>
+<listitem><simpara>a pointer to the block to free
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-free-chain-with-offset" role="function" condition="since:2.10"/>g_slice_free_chain_with_offset ()</title>
+<indexterm role="2.10"><primary>g_slice_free_chain_with_offset</primary></indexterm><programlisting><link linkend="void">void</link>                g_slice_free_chain_with_offset      (<link linkend="gsize">gsize</link> block_size,
+                                                         <link linkend="gpointer">gpointer</link> mem_chain,
+                                                         <link linkend="gsize">gsize</link> next_offset);</programlisting>
+<para>
+Frees a linked list of memory blocks of structure type <parameter>type</parameter>.
+The memory blocks must be equal-sized, allocated via
+<link linkend="g-slice-alloc"><function>g_slice_alloc()</function></link> or <link linkend="g-slice-alloc0"><function>g_slice_alloc0()</function></link>
+and linked together by a <parameter>next</parameter> pointer (similar to <link linkend="GSList"><type>GSList</type></link>). The offset 
+of the <parameter>next</parameter> field in each block is passed as third argument.
+Note that the exact release behaviour can be changed with the
+<link linkend="G_DEBUG">G_DEBUG=gc-friendly</link> environment variable,
+also see <link linkend="G_SLICE">G_SLICE</link> for related debugging options.
+</para><variablelist role="params">
+<varlistentry><term><parameter>block_size</parameter>&nbsp;:</term>
+<listitem><simpara>the size of the blocks
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mem_chain</parameter>&nbsp;:</term>
+<listitem><simpara> a pointer to the first block of the chain
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>next_offset</parameter>&nbsp;:</term>
+<listitem><simpara>the offset of the <parameter>next</parameter> field in the blocks
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-new" role="macro" condition="since:2.10"/>g_slice_new()</title>
+<indexterm role="2.10"><primary>g_slice_new</primary></indexterm><programlisting>#define             g_slice_new(type)</programlisting>
+<para>
+A convenience macro to allocate a block of memory from the slice allocator.
+It calls <link linkend="g-slice-alloc"><function>g_slice_alloc()</function></link> with <literal>sizeof (<parameter>type</parameter>)</literal> and casts 
+the returned pointer to a pointer of the given type, avoiding a type cast 
+in the source code.
+Note that the underlying slice allocation mechanism can
+be changed with the <link linkend="G_SLICE">G_SLICE=always-malloc</link>
+environment variable.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the type to allocate, typically a structure name
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a pointer to the allocated block, cast to a pointer to <parameter>type</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-new0" role="macro" condition="since:2.10"/>g_slice_new0()</title>
+<indexterm role="2.10"><primary>g_slice_new0</primary></indexterm><programlisting>#define             g_slice_new0(type)</programlisting>
+<para>
+A convenience macro to allocate a block of memory from the slice allocator
+and set the memory to 0. It calls <link linkend="g-slice-alloc0"><function>g_slice_alloc0()</function></link> with 
+<literal>sizeof (<parameter>type</parameter>)</literal> and casts the returned pointer to a pointer 
+of the given type, avoiding a type cast in the source code.
+Note that the underlying slice allocation mechanism can
+be changed with the <link linkend="G_SLICE">G_SLICE=always-malloc</link>
+environment variable.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the type to allocate, typically a structure name
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a pointer to the allocated block, cast to a pointer to <parameter>type</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-dup" role="macro" condition="since:2.14"/>g_slice_dup()</title>
+<indexterm role="2.14"><primary>g_slice_dup</primary></indexterm><programlisting>#define             g_slice_dup(type, mem)</programlisting>
+<para>
+A convenience macro to duplicate a block of memory using the slice allocator.
+It calls <link linkend="g-slice-copy"><function>g_slice_copy()</function></link> with <literal>sizeof (<parameter>type</parameter>)</literal> and casts 
+the returned pointer to a pointer of the given type, avoiding a type cast 
+in the source code.
+Note that the underlying slice allocation mechanism can
+be changed with the <link linkend="G_SLICE">G_SLICE=always-malloc</link>
+environment variable.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the type to duplicate, typically a structure name
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mem</parameter>&nbsp;:</term>
+<listitem><simpara>the memory to copy into the allocated block
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a pointer to the allocated block, cast to a pointer to <parameter>type</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.14
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-free" role="macro" condition="since:2.10"/>g_slice_free()</title>
+<indexterm role="2.10"><primary>g_slice_free</primary></indexterm><programlisting>#define             g_slice_free(type, mem)</programlisting>
+<para>
+A convenience macro to free a block of memory that has been allocated
+from the slice allocator. It calls <link linkend="g-slice-free1"><function>g_slice_free1()</function></link> using 
+<literal>sizeof (type)</literal> as the block size.
+Note that the exact release behaviour can be changed with the
+<link linkend="G_DEBUG">G_DEBUG=gc-friendly</link> environment variable,
+also see <link linkend="G_SLICE">G_SLICE</link> for related debugging options.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the type of the block to free, typically a structure name
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mem</parameter>&nbsp;:</term>
+<listitem><simpara>a pointer to the block to free
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-slice-free-chain" role="macro" condition="since:2.10"/>g_slice_free_chain()</title>
+<indexterm role="2.10"><primary>g_slice_free_chain</primary></indexterm><programlisting>#define             g_slice_free_chain(type, mem_chain, next)</programlisting>
+<para>
+Frees a linked list of memory blocks of structure type <parameter>type</parameter>.
+The memory blocks must be equal-sized, allocated via
+<link linkend="g-slice-alloc"><function>g_slice_alloc()</function></link> or <link linkend="g-slice-alloc0"><function>g_slice_alloc0()</function></link> and linked together by a 
+<parameter>next</parameter> pointer (similar to <link linkend="GSList"><type>GSList</type></link>). The name of the
+<parameter>next</parameter> field in <parameter>type</parameter> is passed as third argument.
+Note that the exact release behaviour can be changed with the
+<link linkend="G_DEBUG">G_DEBUG=gc-friendly</link> environment variable,
+also see <link linkend="G_SLICE">G_SLICE</link> for related debugging options.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>       the type of the <parameter>mem_chain</parameter> blocks
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mem_chain</parameter>&nbsp;:</term>
+<listitem><simpara>  a pointer to the first block of the chain
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>next</parameter>&nbsp;:</term>
+<listitem><simpara>       the field name of the next pointer in <parameter>type</parameter>
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 2.10
+
+
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

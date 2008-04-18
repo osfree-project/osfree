@@ -1,0 +1,1220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GSimpleAsyncResult</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="async.html" title="Asynchronous I/O">
+<link rel="prev" href="gio-GIOScheduler.html" title="GIOScheduler">
+<link rel="next" href="streaming.html" title="Streaming I/O">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="gio-GIOScheduler.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="async.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="streaming.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2783321" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2843760" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2843715" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2843738" class="shortcut">Implemented Interfaces</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GSimpleAsyncResult"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2783321"></a><span class="refentrytitle">GSimpleAsyncResult</span>
+</h2>
+<p>GSimpleAsyncResult &#8212; Simple asynchronous results implementation</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GSimpleAsyncResult.html#GSimpleAsyncResult-struct">GSimpleAsyncResult</a>;
+void                (<a class="link" href="GSimpleAsyncResult.html#GSimpleAsyncThreadFunc">*GSimpleAsyncThreadFunc</a>)           (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *res,
+                                                         <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *object,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>* <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-new">g_simple_async_result_new</a>           (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> source_tag);
+<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>* <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-new-error">g_simple_async_result_new_error</a>     (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         ...);
+<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>* <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-new-from-error">g_simple_async_result_new_from_error</a>
+                                                        (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> *error);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-op-res-gpointer">g_simple_async_result_set_op_res_gpointer</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> op_res,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_op_res);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-op-res-gpointer">g_simple_async_result_get_op_res_gpointer</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-op-res-gssize">g_simple_async_result_set_op_res_gssize</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"
+>gssize</a> op_res);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"
+>gssize</a>              <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-op-res-gssize">g_simple_async_result_get_op_res_gssize</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-op-res-gboolean">g_simple_async_result_set_op_res_gboolean</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> op_res);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-op-res-gboolean">g_simple_async_result_get_op_res_gboolean</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-source-tag">g_simple_async_result_get_source_tag</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-handle-cancellation">g_simple_async_result_set_handle_cancellation</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> handle_cancellation);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-complete">g_simple_async_result_complete</a>      (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-complete-in-idle">g_simple_async_result_complete_in_idle</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-run-in-thread">g_simple_async_result_run_in_thread</a> (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a class="link" href="GSimpleAsyncResult.html#GSimpleAsyncThreadFunc">GSimpleAsyncThreadFunc</a> func,
+                                                         int io_priority,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-from-error">g_simple_async_result_set_from_error</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> *error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-propagate-error">g_simple_async_result_propagate_error</a>
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **dest);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-error">g_simple_async_result_set_error</a>     (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         ...);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-error-va">g_simple_async_result_set_error_va</a>  (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         va_list args);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-report-error-in-idle">g_simple_async_report_error_in_idle</a> (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         ...);
+void                <a class="link" href="GSimpleAsyncResult.html#g-simple-async-report-gerror-in-idle">g_simple_async_report_gerror_in_idle</a>
+                                                        (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> *error);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843715"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----GSimpleAsyncResult
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843738"></a><h2>Implemented Interfaces</h2>
+<p>
+GSimpleAsyncResult implements
+ <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843760"></a><h2>Description</h2>
+<p>
+Implements <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> for simple cases. Most of the time, this 
+will be all an application needs, and will be used transparently. 
+Because of this, <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a> is used throughout GIO for 
+handling asynchronous functions. 
+</p>
+<p>
+GSimpleAsyncResult handles <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>s, error 
+reporting, operation cancellation and the final state of an operation, 
+completely transparent to the application. Results can be returned 
+as a pointer e.g. for functions that return data that is collected 
+asynchronously, a boolean value for checking the success or failure 
+of an operation, or a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"
+><span class="type">gssize</span></a> for operations which return the number 
+of bytes modified by the operation; all of the simple return cases 
+are covered.
+</p>
+<p>
+Most of the time, an application will not need to know of the details 
+of this API; it is handled transparently, and any necessary operations 
+are handled by <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>'s interface. However, if implementing a 
+new GIO module, for writing language bindings, or for complex 
+applications that need better control of how asynchronous operations 
+are completed, it is important to understand this functionality.
+</p>
+<p>
+GSimpleAsyncResults are tagged with the calling function to ensure 
+that asynchronous functions and their finishing functions are used 
+together correctly.
+</p>
+<p>
+To create a new <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>, call <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-new"><code class="function">g_simple_async_result_new()</code></a>. 
+If the result needs to be created for a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>, use 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-new-from-error"><code class="function">g_simple_async_result_new_from_error()</code></a>. If a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> is not available 
+(e.g. the asynchronous operation's doesn't take a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> argument), 
+but the result still needs to be created for an error condition, use
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-new-error"><code class="function">g_simple_async_result_new_error()</code></a> (or <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-error-va"><code class="function">g_simple_async_result_set_error_va()</code></a>
+if your application or binding requires passing a variable argument list 
+directly), and the error can then be propegated through the use of 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-propagate-error"><code class="function">g_simple_async_result_propagate_error()</code></a>.
+</p>
+<p>
+An asynchronous operation can be made to ignore a cancellation event by 
+calling <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-handle-cancellation"><code class="function">g_simple_async_result_set_handle_cancellation()</code></a> with a 
+<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a> for the operation and <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a>. 
+</p>
+<p>
+GSimpleAsyncResult can integrate into GLib's event loop, <a
+href="/usr/share/gtk-doc/html/glib/glib-The-Main-Event-Loop.html#GMainLoop"
+><span class="type">GMainLoop</span></a>, 
+or it can use <a
+href="/usr/share/gtk-doc/html/glib/glib-Threads.html#GThread"
+><span class="type">GThread</span></a>s if available. 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-complete"><code class="function">g_simple_async_result_complete()</code></a> will finish an I/O task directly within 
+the main event loop. <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-complete-in-idle"><code class="function">g_simple_async_result_complete_in_idle()</code></a> will 
+integrate the I/O task into the main event loop as an idle function and 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-run-in-thread"><code class="function">g_simple_async_result_run_in_thread()</code></a> will run the job in a separate 
+thread.
+</p>
+<p>
+To set the results of an asynchronous function, 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-op-res-gpointer"><code class="function">g_simple_async_result_set_op_res_gpointer()</code></a>, 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-op-res-gboolean"><code class="function">g_simple_async_result_set_op_res_gboolean()</code></a>, and 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-op-res-gssize"><code class="function">g_simple_async_result_set_op_res_gssize()</code></a>
+are provided, setting the operation's result to a gpointer, gboolean, or 
+gssize, respectively.
+</p>
+<p>
+Likewise, to get the result of an asynchronous function, 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-op-res-gpointer"><code class="function">g_simple_async_result_get_op_res_gpointer()</code></a>,
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-op-res-gboolean"><code class="function">g_simple_async_result_get_op_res_gboolean()</code></a>, and 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-get-op-res-gssize"><code class="function">g_simple_async_result_get_op_res_gssize()</code></a> are 
+provided, getting the operation's result as a gpointer, gboolean, and 
+gssize, respectively.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2844094"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2844105"></a><h3>
+<a name="GSimpleAsyncResult-struct"></a>GSimpleAsyncResult</h3>
+<a class="indexterm" name="id2844117"></a><pre class="programlisting">typedef struct _GSimpleAsyncResult GSimpleAsyncResult;</pre>
+<p>
+A simple implementation of <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2844145"></a><h3>
+<a name="GSimpleAsyncThreadFunc"></a>GSimpleAsyncThreadFunc ()</h3>
+<a class="indexterm" name="id2844156"></a><pre class="programlisting">void                (*GSimpleAsyncThreadFunc)           (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *res,
+                                                         <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *object,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Simple thread function that runs an asynchronous operation and 
+checks for cancellation.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>res</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>object</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2844281"></a><h3>
+<a name="g-simple-async-result-new"></a>g_simple_async_result_new ()</h3>
+<a class="indexterm" name="id2844293"></a><pre class="programlisting"><a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>* g_simple_async_result_new           (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> source_tag);</pre>
+<p>
+Creates a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_object</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a> the asynchronous function was called with.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_tag</code></em>&#160;:</span></p></td>
+<td> the asynchronous function.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2844453"></a><h3>
+<a name="g-simple-async-result-new-error"></a>g_simple_async_result_new_error ()</h3>
+<a class="indexterm" name="id2844467"></a><pre class="programlisting"><a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>* g_simple_async_result_new_error     (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         ...);</pre>
+<p>
+Creates a new <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a> with a set error.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_object</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>domain</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+><span class="type">GQuark</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>code</code></em>&#160;:</span></p></td>
+<td> an error code.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> a string with format characters.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td> a list of values to insert into <em class="parameter"><code>format</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2844699"></a><h3>
+<a name="g-simple-async-result-new-from-error"></a>g_simple_async_result_new_from_error ()</h3>
+<a class="indexterm" name="id2844712"></a><pre class="programlisting"><a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a>* g_simple_async_result_new_from_error
+                                                        (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *source_object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> *error);</pre>
+<p>
+Creates a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a> from an error condition.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_object</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> location.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2844880"></a><h3>
+<a name="g-simple-async-result-set-op-res-gpointer"></a>g_simple_async_result_set_op_res_gpointer ()</h3>
+<a class="indexterm" name="id2844895"></a><pre class="programlisting">void                g_simple_async_result_set_op_res_gpointer
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> op_res,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_op_res);</pre>
+<p>
+Sets the operation result within the asynchronous result to a pointer.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>op_res</code></em>&#160;:</span></p></td>
+<td> a pointer result from an asynchronous function.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>destroy_op_res</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Datasets.html#GDestroyNotify"
+><span class="type">GDestroyNotify</span></a> function.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845005"></a><h3>
+<a name="g-simple-async-result-get-op-res-gpointer"></a>g_simple_async_result_get_op_res_gpointer ()</h3>
+<a class="indexterm" name="id2845019"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            g_simple_async_result_get_op_res_gpointer
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);</pre>
+<p>
+Gets a pointer result as returned by the asynchronous function.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a pointer from the result.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845089"></a><h3>
+<a name="g-simple-async-result-set-op-res-gssize"></a>g_simple_async_result_set_op_res_gssize ()</h3>
+<a class="indexterm" name="id2845103"></a><pre class="programlisting">void                g_simple_async_result_set_op_res_gssize
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"
+>gssize</a> op_res);</pre>
+<p>
+Sets the operation result within the asynchronous result to 
+the given <em class="parameter"><code>op_res</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>op_res</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"
+><span class="type">gssize</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845197"></a><h3>
+<a name="g-simple-async-result-get-op-res-gssize"></a>g_simple_async_result_get_op_res_gssize ()</h3>
+<a class="indexterm" name="id2845211"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"
+>gssize</a>              g_simple_async_result_get_op_res_gssize
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);</pre>
+<p>
+Gets a gssize from the asynchronous result.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a gssize returned from the asynchronous function.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845281"></a><h3>
+<a name="g-simple-async-result-set-op-res-gboolean"></a>g_simple_async_result_set_op_res_gboolean ()</h3>
+<a class="indexterm" name="id2845296"></a><pre class="programlisting">void                g_simple_async_result_set_op_res_gboolean
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> op_res);</pre>
+<p>
+Sets the operation result to a boolean within the asynchronous result.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>op_res</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+><span class="type">gboolean</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845383"></a><h3>
+<a name="g-simple-async-result-get-op-res-gboolean"></a>g_simple_async_result_get_op_res_gboolean ()</h3>
+<a class="indexterm" name="id2845398"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_simple_async_result_get_op_res_gboolean
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);</pre>
+<p>
+Gets the operation result boolean from within the asynchronous result.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the operation's result was <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> 
+    if the operation's result was <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a>. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845506"></a><h3>
+<a name="g-simple-async-result-get-source-tag"></a>g_simple_async_result_get_source_tag ()</h3>
+<a class="indexterm" name="id2845519"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            g_simple_async_result_get_source_tag
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);</pre>
+<p>
+Gets the source tag for the <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+><span class="type">gpointer</span></a> to the source object for the <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2845611"></a><h3>
+<a name="g-simple-async-result-set-handle-cancellation"></a>g_simple_async_result_set_handle_cancellation ()</h3>
+<a class="indexterm" name="id2845625"></a><pre class="programlisting">void                g_simple_async_result_set_handle_cancellation
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> handle_cancellation);</pre>
+<p>
+Sets whether to handle cancellation within the asynchronous operation.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>handle_cancellation</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+><span class="type">gboolean</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2847970"></a><h3>
+<a name="g-simple-async-result-complete"></a>g_simple_async_result_complete ()</h3>
+<a class="indexterm" name="id2847983"></a><pre class="programlisting">void                g_simple_async_result_complete      (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);</pre>
+<p>
+Completes an asynchronous I/O job.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848034"></a><h3>
+<a name="g-simple-async-result-complete-in-idle"></a>g_simple_async_result_complete_in_idle ()</h3>
+<a class="indexterm" name="id2848047"></a><pre class="programlisting">void                g_simple_async_result_complete_in_idle
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple);</pre>
+<p>
+Completes an asynchronous function in the main event loop using 
+an idle function.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848100"></a><h3>
+<a name="g-simple-async-result-run-in-thread"></a>g_simple_async_result_run_in_thread ()</h3>
+<a class="indexterm" name="id2848114"></a><pre class="programlisting">void                g_simple_async_result_run_in_thread (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a class="link" href="GSimpleAsyncResult.html#GSimpleAsyncThreadFunc">GSimpleAsyncThreadFunc</a> func,
+                                                         int io_priority,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Runs the asynchronous job in a separated thread.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>func</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html#GSimpleAsyncThreadFunc"><span class="type">GSimpleAsyncThreadFunc</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>io_priority</code></em>&#160;:</span></p></td>
+<td> the io priority of the request.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848244"></a><h3>
+<a name="g-simple-async-result-set-from-error"></a>g_simple_async_result_set_from_error ()</h3>
+<a class="indexterm" name="id2848256"></a><pre class="programlisting">void                g_simple_async_result_set_from_error
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> *error);</pre>
+<p>
+Sets the result from a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848340"></a><h3>
+<a name="g-simple-async-result-propagate-error"></a>g_simple_async_result_propagate_error ()</h3>
+<a class="indexterm" name="id2848353"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_simple_async_result_propagate_error
+                                                        (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **dest);</pre>
+<p>
+Propagates an error from within the simple asynchronous result to
+a given destination.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>dest</code></em>&#160;:</span></p></td>
+<td> a location to propegate the error to.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the error was propegated to <em class="parameter"><code>dest</code></em>. <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> otherwise.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848458"></a><h3>
+<a name="g-simple-async-result-set-error"></a>g_simple_async_result_set_error ()</h3>
+<a class="indexterm" name="id2848471"></a><pre class="programlisting">void                g_simple_async_result_set_error     (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         ...);</pre>
+<p>
+Sets an error within the asynchronous result without a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>domain</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+><span class="type">GQuark</span></a> (usually <a class="link" href="gio-GIOError.html#G-IO-ERROR:CAPS"><span class="type">G_IO_ERROR</span></a>).
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>code</code></em>&#160;:</span></p></td>
+<td> an error code.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> a formatted error reporting string.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td> a list of variables to fill in <em class="parameter"><code>format</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848619"></a><h3>
+<a name="g-simple-async-result-set-error-va"></a>g_simple_async_result_set_error_va ()</h3>
+<a class="indexterm" name="id2848633"></a><pre class="programlisting">void                g_simple_async_result_set_error_va  (<a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult">GSimpleAsyncResult</a> *simple,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         va_list args);</pre>
+<p>
+Sets an error within the asynchronous result without a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a>. 
+Unless writing a binding, see <a class="link" href="GSimpleAsyncResult.html#g-simple-async-result-set-error"><code class="function">g_simple_async_result_set_error()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>simple</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSimpleAsyncResult.html" title="GSimpleAsyncResult"><span class="type">GSimpleAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>domain</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+><span class="type">GQuark</span></a> (usually <a class="link" href="gio-GIOError.html#G-IO-ERROR:CAPS"><span class="type">G_IO_ERROR</span></a>).
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>code</code></em>&#160;:</span></p></td>
+<td> an error code.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> a formatted error reporting string.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>args</code></em>&#160;:</span></p></td>
+<td> va_list of arguments. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2848790"></a><h3>
+<a name="g-simple-async-report-error-in-idle"></a>g_simple_async_report_error_in_idle ()</h3>
+<a class="indexterm" name="id2848803"></a><pre class="programlisting">void                g_simple_async_report_error_in_idle (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+>GQuark</a> domain,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"
+>gint</a> code,
+                                                         const char *format,
+                                                         ...);</pre>
+<p>
+Reports an error in an asynchronous function in an idle function by 
+directly setting the contents of the <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a> with the given error
+information.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>object</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>domain</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"
+><span class="type">GQuark</span></a> containing the error domain (usually <a class="link" href="gio-GIOError.html#G-IO-ERROR:CAPS"><span class="type">G_IO_ERROR</span></a>).
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>code</code></em>&#160;:</span></p></td>
+<td> a specific error code.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></p></td>
+<td> a formatted error reporting string.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></p></td>
+<td> a list of variables to fill in <em class="parameter"><code>format</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2849004"></a><h3>
+<a name="g-simple-async-report-gerror-in-idle"></a>g_simple_async_report_gerror_in_idle ()</h3>
+<a class="indexterm" name="id2849016"></a><pre class="programlisting">void                g_simple_async_report_gerror_in_idle
+                                                        (<a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *object,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> *error);</pre>
+<p>
+Reports an error in an idle function. Similar to 
+<a class="link" href="GSimpleAsyncResult.html#g-simple-async-report-error-in-idle"><code class="function">g_simple_async_report_error_in_idle()</code></a>, but takes a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> rather 
+than building a new one.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>object</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> the <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> to report
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2849162"></a><h2>See Also</h2>
+<a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2849175"></a><div class="refsect2" lang="en"><a name="id2849176"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2849177"></a></div>
+</div>
+</div>
+</body>
+</html>

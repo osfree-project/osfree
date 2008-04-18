@@ -1,0 +1,2241 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="GFileInfo">
+<refmeta>
+<refentrytitle role="top_of_page">GFileInfo</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GIO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GFileInfo</refname>
+<refpurpose>File Information and Attributes</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link>;
+enum                <link linkend="GFileType">GFileType</link>;
+                    <link linkend="GFileInfo-struct">GFileInfo</link>;
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-TYPE:CAPS">G_FILE_ATTRIBUTE_STANDARD_TYPE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-IS-HIDDEN:CAPS">G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-IS-BACKUP:CAPS">G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-IS-SYMLINK:CAPS">G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-IS-VIRTUAL:CAPS">G_FILE_ATTRIBUTE_STANDARD_IS_VIRTUAL</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-NAME:CAPS">G_FILE_ATTRIBUTE_STANDARD_NAME</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-DISPLAY-NAME:CAPS">G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-EDIT-NAME:CAPS">G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-COPY-NAME:CAPS">G_FILE_ATTRIBUTE_STANDARD_COPY_NAME</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-ICON:CAPS">G_FILE_ATTRIBUTE_STANDARD_ICON</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-CONTENT-TYPE:CAPS">G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-FAST-CONTENT-TYPE:CAPS">G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-SIZE:CAPS">G_FILE_ATTRIBUTE_STANDARD_SIZE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-SYMLINK-TARGET:CAPS">G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-TARGET-URI:CAPS">G_FILE_ATTRIBUTE_STANDARD_TARGET_URI</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-SORT-ORDER:CAPS">G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ETAG-VALUE:CAPS">G_FILE_ATTRIBUTE_ETAG_VALUE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ID-FILE:CAPS">G_FILE_ATTRIBUTE_ID_FILE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ID-FILESYSTEM:CAPS">G_FILE_ATTRIBUTE_ID_FILESYSTEM</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ACCESS-CAN-READ:CAPS">G_FILE_ATTRIBUTE_ACCESS_CAN_READ</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ACCESS-CAN-WRITE:CAPS">G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ACCESS-CAN-EXECUTE:CAPS">G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ACCESS-CAN-DELETE:CAPS">G_FILE_ATTRIBUTE_ACCESS_CAN_DELETE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ACCESS-CAN-TRASH:CAPS">G_FILE_ATTRIBUTE_ACCESS_CAN_TRASH</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-ACCESS-CAN-RENAME:CAPS">G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-MOUNTABLE-CAN-MOUNT:CAPS">G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-MOUNTABLE-CAN-UNMOUNT:CAPS">G_FILE_ATTRIBUTE_MOUNTABLE_CAN_UNMOUNT</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-MOUNTABLE-CAN-EJECT:CAPS">G_FILE_ATTRIBUTE_MOUNTABLE_CAN_EJECT</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-MOUNTABLE-UNIX-DEVICE:CAPS">G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-MOUNTABLE-HAL-UDI:CAPS">G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-MODIFIED:CAPS">G_FILE_ATTRIBUTE_TIME_MODIFIED</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-MODIFIED-USEC:CAPS">G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-ACCESS:CAPS">G_FILE_ATTRIBUTE_TIME_ACCESS</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-ACCESS-USEC:CAPS">G_FILE_ATTRIBUTE_TIME_ACCESS_USEC</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-CHANGED:CAPS">G_FILE_ATTRIBUTE_TIME_CHANGED</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-CHANGED-USEC:CAPS">G_FILE_ATTRIBUTE_TIME_CHANGED_USEC</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-CREATED:CAPS">G_FILE_ATTRIBUTE_TIME_CREATED</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TIME-CREATED-USEC:CAPS">G_FILE_ATTRIBUTE_TIME_CREATED_USEC</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-DEVICE:CAPS">G_FILE_ATTRIBUTE_UNIX_DEVICE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-INODE:CAPS">G_FILE_ATTRIBUTE_UNIX_INODE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-MODE:CAPS">G_FILE_ATTRIBUTE_UNIX_MODE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-NLINK:CAPS">G_FILE_ATTRIBUTE_UNIX_NLINK</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-UID:CAPS">G_FILE_ATTRIBUTE_UNIX_UID</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-GID:CAPS">G_FILE_ATTRIBUTE_UNIX_GID</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-RDEV:CAPS">G_FILE_ATTRIBUTE_UNIX_RDEV</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-BLOCK-SIZE:CAPS">G_FILE_ATTRIBUTE_UNIX_BLOCK_SIZE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-BLOCKS:CAPS">G_FILE_ATTRIBUTE_UNIX_BLOCKS</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-UNIX-IS-MOUNTPOINT:CAPS">G_FILE_ATTRIBUTE_UNIX_IS_MOUNTPOINT</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-DOS-IS-ARCHIVE:CAPS">G_FILE_ATTRIBUTE_DOS_IS_ARCHIVE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-DOS-IS-SYSTEM:CAPS">G_FILE_ATTRIBUTE_DOS_IS_SYSTEM</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-OWNER-USER:CAPS">G_FILE_ATTRIBUTE_OWNER_USER</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-OWNER-USER-REAL:CAPS">G_FILE_ATTRIBUTE_OWNER_USER_REAL</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-OWNER-GROUP:CAPS">G_FILE_ATTRIBUTE_OWNER_GROUP</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-THUMBNAIL-PATH:CAPS">G_FILE_ATTRIBUTE_THUMBNAIL_PATH</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-THUMBNAILING-FAILED:CAPS">G_FILE_ATTRIBUTE_THUMBNAILING_FAILED</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-FILESYSTEM-SIZE:CAPS">G_FILE_ATTRIBUTE_FILESYSTEM_SIZE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-FILESYSTEM-FREE:CAPS">G_FILE_ATTRIBUTE_FILESYSTEM_FREE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-FILESYSTEM-TYPE:CAPS">G_FILE_ATTRIBUTE_FILESYSTEM_TYPE</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-FILESYSTEM-READONLY:CAPS">G_FILE_ATTRIBUTE_FILESYSTEM_READONLY</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-GVFS-BACKEND:CAPS">G_FILE_ATTRIBUTE_GVFS_BACKEND</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-SELINUX-CONTEXT:CAPS">G_FILE_ATTRIBUTE_SELINUX_CONTEXT</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-TRASH-ITEM-COUNT:CAPS">G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-FILESYSTEM-USE-PREVIEW:CAPS">G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW</link>
+#define             <link linkend="G-FILE-ATTRIBUTE-STANDARD-DESCRIPTION:CAPS">G_FILE_ATTRIBUTE_STANDARD_DESCRIPTION</link>
+<link linkend="GFileInfo">GFileInfo</link>*          <link linkend="g-file-info-new">g_file_info_new</link>                     (void);
+<link linkend="GFileInfo">GFileInfo</link>*          <link linkend="g-file-info-dup">g_file_info_dup</link>                     (<link linkend="GFileInfo">GFileInfo</link> *other);
+<link linkend="void">void</link>                <link linkend="g-file-info-copy-into">g_file_info_copy_into</link>               (<link linkend="GFileInfo">GFileInfo</link> *src_info,
+                                                         <link linkend="GFileInfo">GFileInfo</link> *dest_info);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-info-has-attribute">g_file_info_has_attribute</link>           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="char">char</link>**              <link linkend="g-file-info-list-attributes">g_file_info_list_attributes</link>         (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *name_space);
+<link linkend="GFileAttributeType">GFileAttributeType</link>  <link linkend="g-file-info-get-attribute-type">g_file_info_get_attribute_type</link>      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="void">void</link>                <link linkend="g-file-info-remove-attribute">g_file_info_remove_attribute</link>        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="char">char</link>*               <link linkend="g-file-info-get-attribute-as-string">g_file_info_get_attribute_as_string</link> (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-info-get-attribute-data">g_file_info_get_attribute_data</link>      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="GFileAttributeType">GFileAttributeType</link> *type,
+                                                         <link linkend="gpointer">gpointer</link> *value_pp,
+                                                         <link linkend="GFileAttributeStatus">GFileAttributeStatus</link> *status);
+<link linkend="GFileAttributeStatus">GFileAttributeStatus</link> <link linkend="g-file-info-get-attribute-status">g_file_info_get_attribute_status</link>   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-attribute-string">g_file_info_get_attribute_string</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-attribute-byte-string">g_file_info_get_attribute_byte_string</link>
+                                                        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-info-get-attribute-boolean">g_file_info_get_attribute_boolean</link>   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="guint32">guint32</link>             <link linkend="g-file-info-get-attribute-uint32">g_file_info_get_attribute_uint32</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="gint32">gint32</link>              <link linkend="g-file-info-get-attribute-int32">g_file_info_get_attribute_int32</link>     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="guint64">guint64</link>             <link linkend="g-file-info-get-attribute-uint64">g_file_info_get_attribute_uint64</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="gint64">gint64</link>              <link linkend="g-file-info-get-attribute-int64">g_file_info_get_attribute_int64</link>     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="GObject">GObject</link>*            <link linkend="g-file-info-get-attribute-object">g_file_info_get_attribute_object</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute">g_file_info_set_attribute</link>           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="GFileAttributeType">GFileAttributeType</link> type,
+                                                         <link linkend="gpointer">gpointer</link> value_p);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-string">g_file_info_set_attribute_string</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         const <link linkend="char">char</link> *attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-byte-string">g_file_info_set_attribute_byte_string</link>
+                                                        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         const <link linkend="char">char</link> *attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-boolean">g_file_info_set_attribute_boolean</link>   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="gboolean">gboolean</link> attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-uint32">g_file_info_set_attribute_uint32</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="guint32">guint32</link> attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-int32">g_file_info_set_attribute_int32</link>     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="gint32">gint32</link> attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-uint64">g_file_info_set_attribute_uint64</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="guint64">guint64</link> attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-int64">g_file_info_set_attribute_int64</link>     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="gint64">gint64</link> attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-object">g_file_info_set_attribute_object</link>    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="GObject">GObject</link> *attr_value);
+<link linkend="void">void</link>                <link linkend="g-file-info-clear-status">g_file_info_clear_status</link>            (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="GFileType">GFileType</link>           <link linkend="g-file-info-get-file-type">g_file_info_get_file_type</link>           (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-info-get-is-hidden">g_file_info_get_is_hidden</link>           (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-info-get-is-backup">g_file_info_get_is_backup</link>           (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-info-get-is-symlink">g_file_info_get_is_symlink</link>          (<link linkend="GFileInfo">GFileInfo</link> *info);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-name">g_file_info_get_name</link>                (<link linkend="GFileInfo">GFileInfo</link> *info);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-display-name">g_file_info_get_display_name</link>        (<link linkend="GFileInfo">GFileInfo</link> *info);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-edit-name">g_file_info_get_edit_name</link>           (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="GIcon">GIcon</link>*              <link linkend="g-file-info-get-icon">g_file_info_get_icon</link>                (<link linkend="GFileInfo">GFileInfo</link> *info);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-content-type">g_file_info_get_content_type</link>        (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="goffset">goffset</link>             <link linkend="g-file-info-get-size">g_file_info_get_size</link>                (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="void">void</link>                <link linkend="g-file-info-get-modification-time">g_file_info_get_modification_time</link>   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GTimeVal">GTimeVal</link> *result);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-symlink-target">g_file_info_get_symlink_target</link>      (<link linkend="GFileInfo">GFileInfo</link> *info);
+const <link linkend="char">char</link>*         <link linkend="g-file-info-get-etag">g_file_info_get_etag</link>                (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="gint32">gint32</link>              <link linkend="g-file-info-get-sort-order">g_file_info_get_sort_order</link>          (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-attribute-mask">g_file_info_set_attribute_mask</link>      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *mask);
+<link linkend="void">void</link>                <link linkend="g-file-info-unset-attribute-mask">g_file_info_unset_attribute_mask</link>    (<link linkend="GFileInfo">GFileInfo</link> *info);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-file-type">g_file_info_set_file_type</link>           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GFileType">GFileType</link> type);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-is-hidden">g_file_info_set_is_hidden</link>           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="gboolean">gboolean</link> is_hidden);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-is-symlink">g_file_info_set_is_symlink</link>          (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="gboolean">gboolean</link> is_symlink);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-name">g_file_info_set_name</link>                (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *name);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-display-name">g_file_info_set_display_name</link>        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *display_name);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-edit-name">g_file_info_set_edit_name</link>           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *edit_name);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-icon">g_file_info_set_icon</link>                (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GIcon">GIcon</link> *icon);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-content-type">g_file_info_set_content_type</link>        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *content_type);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-size">g_file_info_set_size</link>                (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="goffset">goffset</link> size);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-modification-time">g_file_info_set_modification_time</link>   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GTimeVal">GTimeVal</link> *mtime);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-symlink-target">g_file_info_set_symlink_target</link>      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *symlink_target);
+<link linkend="void">void</link>                <link linkend="g-file-info-set-sort-order">g_file_info_set_sort_order</link>          (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="gint32">gint32</link> sort_order);
+<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link>* <link linkend="g-file-attribute-matcher-new">g_file_attribute_matcher_new</link>     (const <link linkend="char">char</link> *attributes);
+<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link>* <link linkend="g-file-attribute-matcher-ref">g_file_attribute_matcher_ref</link>     (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher);
+<link linkend="void">void</link>                <link linkend="g-file-attribute-matcher-unref">g_file_attribute_matcher_unref</link>      (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-attribute-matcher-matches">g_file_attribute_matcher_matches</link>    (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-attribute-matcher-matches-only">g_file_attribute_matcher_matches_only</link>
+                                                        (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher,
+                                                         const <link linkend="char">char</link> *attribute);
+<link linkend="gboolean">gboolean</link>            <link linkend="g-file-attribute-matcher-enumerate-namespace">g_file_attribute_matcher_enumerate_namespace</link>
+                                                        (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher,
+                                                         const <link linkend="char">char</link> *ns);
+const <link linkend="char">char</link>*         <link linkend="g-file-attribute-matcher-enumerate-next">g_file_attribute_matcher_enumerate_next</link>
+                                                        (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GFileInfo
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Functionality for manipulating basic metadata for files. <link linkend="GFileInfo"><type>GFileInfo</type></link>
+implements methods for getting information that all files should 
+contain, and allows for manipulation of extended attributes. 
+</para>
+<para>
+See <link linkend="gio-GFileAttribute">GFileAttribute</link> for more
+information on how GIO handles file attributes.
+</para>
+<para>
+To obtain a <link linkend="GFileInfo"><type>GFileInfo</type></link> for a <link linkend="GFile"><type>GFile</type></link>, use <link linkend="g-file-query-info"><function>g_file_query_info()</function></link> (or its 
+async variant). To obtain a <link linkend="GFileInfo"><type>GFileInfo</type></link> for a file input or output 
+stream, use <link linkend="g-file-input-stream-query-info"><function>g_file_input_stream_query_info()</function></link> or 
+<link linkend="g-file-output-stream-query-info"><function>g_file_output_stream_query_info()</function></link> (or their async variants).
+</para>
+<para>
+To change the actual attributes of a file, you should then set the 
+attribute in the <link linkend="GFileInfo"><type>GFileInfo</type></link> and call <link linkend="g-file-set-attributes-from-info"><function>g_file_set_attributes_from_info()</function></link> 
+or <link linkend="g-file-set-attributes-async"><function>g_file_set_attributes_async()</function></link> on a GFile.
+</para>
+<para>
+However, not all attributes can be changed in the file. For instance, 
+the actual size of a file cannot be changed via <link linkend="g-file-info-set-size"><function>g_file_info_set_size()</function></link>. 
+You may call <link linkend="g-file-query-settable-attributes"><function>g_file_query_settable_attributes()</function></link> and 
+<link linkend="g-file-query-writable-namespaces"><function>g_file_query_writable_namespaces()</function></link> to discover the settable attributes 
+of a particular file at runtime.
+</para>
+<para>
+<link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link> allows for searching through a <link linkend="GFileInfo"><type>GFileInfo</type></link> for 
+attributes.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="GFileAttributeMatcher" role="struct"/>GFileAttributeMatcher</title>
+<indexterm><primary>GFileAttributeMatcher</primary></indexterm><programlisting>typedef struct _GFileAttributeMatcher GFileAttributeMatcher;</programlisting>
+<para>
+Determines if a string matches a file attribute.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GFileType" role="enum"/>enum GFileType</title>
+<indexterm><primary>GFileType</primary></indexterm><programlisting>typedef enum {
+  G_FILE_TYPE_UNKNOWN = 0,
+  G_FILE_TYPE_REGULAR,
+  G_FILE_TYPE_DIRECTORY,
+  G_FILE_TYPE_SYMBOLIC_LINK,
+  G_FILE_TYPE_SPECIAL, /* socket, fifo, blockdev, chardev */
+  G_FILE_TYPE_SHORTCUT,
+  G_FILE_TYPE_MOUNTABLE
+} GFileType;
+</programlisting>
+<para>
+Indicates the file's on-disk type.</para>
+<para>
+
+</para><variablelist role="enum">
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-UNKNOWN:CAPS" role="constant"/><literal>G_FILE_TYPE_UNKNOWN</literal></term>
+<listitem><simpara> File's type is unknown.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-REGULAR:CAPS" role="constant"/><literal>G_FILE_TYPE_REGULAR</literal></term>
+<listitem><simpara> File handle represents a regular file.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-DIRECTORY:CAPS" role="constant"/><literal>G_FILE_TYPE_DIRECTORY</literal></term>
+<listitem><simpara> File handle represents a directory.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-SYMBOLIC-LINK:CAPS" role="constant"/><literal>G_FILE_TYPE_SYMBOLIC_LINK</literal></term>
+<listitem><simpara> File handle represents a symbolic link 
+   (Unix systems).
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-SPECIAL:CAPS" role="constant"/><literal>G_FILE_TYPE_SPECIAL</literal></term>
+<listitem><simpara> File is a "special" file, such as a socket, fifo, 
+   block device, or character device.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-SHORTCUT:CAPS" role="constant"/><literal>G_FILE_TYPE_SHORTCUT</literal></term>
+<listitem><simpara> File is a shortcut (Windows systems).
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="G-FILE-TYPE-MOUNTABLE:CAPS" role="constant"/><literal>G_FILE_TYPE_MOUNTABLE</literal></term>
+<listitem><simpara> File is a mountable location.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GFileInfo-struct" role="struct"/>GFileInfo</title>
+<indexterm><primary>GFileInfo</primary></indexterm><programlisting>typedef struct _GFileInfo GFileInfo;</programlisting>
+<para>
+Stores information about a file system object referenced by a <link linkend="GFile"><type>GFile</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-TYPE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_TYPE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_TYPE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_TYPE "standard::type"                     /* uint32 (GFileType) */
+</programlisting>
+<para>
+A key in the "standard" namespace for storing file types. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.
+The value for this key should contain a <link linkend="GFileType"><type>GFileType</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-IS-HIDDEN:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN "standard::is-hidden"           /* boolean */
+</programlisting>
+<para>
+A key in the "standard" namespace for checking if a file is hidden. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-IS-BACKUP:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP "standard::is-backup"           /* boolean */
+</programlisting>
+<para>
+A key in the "standard" namespace for checking if a file is a backup file.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-IS-SYMLINK:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK "standard::is-symlink"         /* boolean */
+</programlisting>
+<para>
+A key in the "standard" namespace for checking if the file is a symlink.
+Typically the actual type is something else, if we followed the symlink
+to get the type.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-IS-VIRTUAL:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_IS_VIRTUAL</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_IS_VIRTUAL</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_IS_VIRTUAL "standard::is-virtual"         /* boolean */
+</programlisting>
+<para>
+A key in the "standard" namespace for checking if a file is virtual.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-NAME:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_NAME</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_NAME</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_NAME "standard::name"                     /* byte string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the name of the file.
+The name is the on-disk filename which may not be in any known encoding,
+and can thus not be generally displayed as is.
+Use <link linkend="G-FILE-ATTRIBUTE-STANDARD-DISPLAY-NAME:CAPS"><type>G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME</type></link> if you need to display the
+name in a user interface.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BYTE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BYTE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-DISPLAY-NAME:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME "standard::display-name"     /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the display name of the file.
+A display name is guaranteed to be in UTF8 and can thus be displayed in
+the UI.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-EDIT-NAME:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME "standard::edit-name"           /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for edit name of the file.
+An edit name is similar to the display name, but it is meant to be
+used when you want to rename the file in the UI. The display name
+might contain information you don't want in the new filename (such as
+"(invalid unicode)" if the filename was in an invalid encoding).
+</para>
+<para>
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-COPY-NAME:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_COPY_NAME</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_COPY_NAME</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_COPY_NAME "standard::copy-name"           /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the copy name of the file.
+The copy name is an optional version of the name. If availible its always
+in UTF8, and corresponds directly to the original filename (only transcoded to
+UTF8). This is useful if you want to copy the file to another filesystem that
+might have a different encoding. If the filename is not a valid string in the
+encoding selected for the filesystem it is in then the copy name will not be set.
+</para>
+<para>
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-ICON:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_ICON</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_ICON</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_ICON "standard::icon"                     /* object (GIcon) */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the icon for the file.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-OBJECT:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_OBJECT</literal></link>.
+The value for this key should contain a <link linkend="GIcon"><type>GIcon</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-CONTENT-TYPE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE "standard::content-type"     /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the content type of the file.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.
+The value for this key should contain a valid content type.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-FAST-CONTENT-TYPE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE "standard::fast-content-type" /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the fast content type.
+The fast content type isn't as reliable as the regular one, as it
+only uses the filename to guess it, but it is faster to calculate than the
+regular content type.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-SIZE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_SIZE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_SIZE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_SIZE "standard::size"                     /* uint64 */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the file's size (in bytes).
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-SYMLINK-TARGET:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET "standard::symlink-target" /* byte string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the symlink target, if the file
+is a symlink. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-BYTE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BYTE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-TARGET-URI:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_TARGET_URI</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_TARGET_URI</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_TARGET_URI "standard::target-uri"         /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the target URI for the file, in
+the case of <link linkend="G-FILE-TYPE-SHORTCUT:CAPS"><literal>G_FILE_TYPE_SHORTCUT</literal></link> or <link linkend="G-FILE-TYPE-MOUNTABLE:CAPS"><literal>G_FILE_TYPE_MOUNTABLE</literal></link> files.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-SORT-ORDER:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER "standard::sort-order"         /* int32  */
+</programlisting>
+<para>
+A key in the "standard" namespace for setting the sort order of a file. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-INT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_INT32</literal></link>.
+An example use would be in file managers, which would use this key 
+to set the order files are displayed. Files with smaller sort order
+should be sorted first, and files without sort order as if sort order
+was zero.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ETAG-VALUE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ETAG_VALUE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ETAG_VALUE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ETAG_VALUE "etag::value"                 /* string */
+</programlisting>
+<para>
+A key in the "etag" namespace for getting the value of the file's
+entity tag. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ID-FILE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ID_FILE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ID_FILE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ID_FILE "id::file"                     /* string */
+</programlisting>
+<para>
+A key in the "id" namespace for getting a file identifier.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.
+An example use would be during listing files, to avoid recursive
+directory scanning.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ID-FILESYSTEM:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ID_FILESYSTEM</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ID_FILESYSTEM</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ID_FILESYSTEM "id::filesystem"         /* string */
+</programlisting>
+<para>
+A key in the "id" namespace for getting the file system identifier.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.
+An example use would be during drag and drop to see if the source
+and target are on the same filesystem (default to move) or not (default
+to copy).</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ACCESS-CAN-READ:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ACCESS_CAN_READ</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ACCESS_CAN_READ</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ACCESS_CAN_READ "access::can-read"       /* boolean */
+</programlisting>
+<para>
+A key in the "access" namespace for getting read privileges. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.
+This attribute will be <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the user is able to read the file.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ACCESS-CAN-WRITE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE "access::can-write"     /* boolean */
+</programlisting>
+<para>
+A key in the "access" namespace for getting write privileges.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.
+This attribute will be <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the user is able to write to the file.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ACCESS-CAN-EXECUTE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE "access::can-execute" /* boolean */
+</programlisting>
+<para>
+A key in the "access" namespace for getting execution privileges.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.
+This attribute will be <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the user is able to execute the file.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ACCESS-CAN-DELETE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ACCESS_CAN_DELETE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ACCESS_CAN_DELETE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ACCESS_CAN_DELETE "access::can-delete"   /* boolean */
+</programlisting>
+<para>
+A key in the "access" namespace for checking deletion privileges.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.
+This attribute will be <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the user is able to delete the file.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ACCESS-CAN-TRASH:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ACCESS_CAN_TRASH</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ACCESS_CAN_TRASH</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ACCESS_CAN_TRASH "access::can-trash"     /* boolean */
+</programlisting>
+<para>
+A key in the "access" namespace for checking trashing privileges.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.
+This attribute will be <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the user is able to move the file to 
+the trash.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-ACCESS-CAN-RENAME:CAPS" role="macro"/>G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME "access::can-rename"   /* boolean */ 
+</programlisting>
+<para>
+A key in the "access" namespace for checking renaming privileges.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.
+This attribute will be <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the user is able to rename the file.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-MOUNTABLE-CAN-MOUNT:CAPS" role="macro"/>G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT "mountable::can-mount"     /* boolean */
+</programlisting>
+<para>
+A key in the "mountable" namespace for checking if a file (of type G_FILE_TYPE_MOUNTABLE) is mountable.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-MOUNTABLE-CAN-UNMOUNT:CAPS" role="macro"/>G_FILE_ATTRIBUTE_MOUNTABLE_CAN_UNMOUNT</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_MOUNTABLE_CAN_UNMOUNT</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_MOUNTABLE_CAN_UNMOUNT "mountable::can-unmount" /* boolean */
+</programlisting>
+<para>
+A key in the "mountable" namespace for checking if a file (of type G_FILE_TYPE_MOUNTABLE)  is unmountable.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-MOUNTABLE-CAN-EJECT:CAPS" role="macro"/>G_FILE_ATTRIBUTE_MOUNTABLE_CAN_EJECT</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_MOUNTABLE_CAN_EJECT</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_MOUNTABLE_CAN_EJECT "mountable::can-eject"     /* boolean */
+</programlisting>
+<para>
+A key in the "mountable" namespace for checking if a file (of type G_FILE_TYPE_MOUNTABLE) can be ejected.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-MOUNTABLE-UNIX-DEVICE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE "mountable::unix-device" /* uint32 */
+</programlisting>
+<para>
+A key in the "mountable" namespace for getting the unix device.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-MOUNTABLE-HAL-UDI:CAPS" role="macro"/>G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI "mountable::hal-udi"         /* string */
+</programlisting>
+<para>
+A key in the "mountable" namespace for getting the HAL UDI for the mountable
+file. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-MODIFIED:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_MODIFIED</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_MODIFIED</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_MODIFIED "time::modified"           /* uint64 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the time the file was last
+modified. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>, and contains the UNIX time since the 
+file was modified.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-MODIFIED-USEC:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC "time::modified-usec" /* uint32 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the miliseconds of the time
+the file was last modified. This should be used in conjunction with 
+<link linkend="G-FILE-ATTRIBUTE-TIME-MODIFIED:CAPS"><type>G_FILE_ATTRIBUTE_TIME_MODIFIED</type></link>. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-ACCESS:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_ACCESS</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_ACCESS</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_ACCESS "time::access"               /* uint64 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the time the file was last
+accessed. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>, and contains the UNIX time since the 
+file was last accessed.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-ACCESS-USEC:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_ACCESS_USEC</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_ACCESS_USEC</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_ACCESS_USEC "time::access-usec"     /* uint32 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the microseconds of the time
+the file was last accessed. This should be used in conjunction with
+<link linkend="G-FILE-ATTRIBUTE-TIME-ACCESS:CAPS"><type>G_FILE_ATTRIBUTE_TIME_ACCESS</type></link>. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-CHANGED:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_CHANGED</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_CHANGED</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_CHANGED "time::changed"             /* uint64 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the time the file was last
+changed. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>, 
+and contains the UNIX time since the file was last changed.
+</para>
+<para>
+This corresponds to the traditional UNIX ctime.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-CHANGED-USEC:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_CHANGED_USEC</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_CHANGED_USEC</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_CHANGED_USEC "time::changed-usec"   /* uint32 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the microseconds of the time
+the file was last changed. This should be used in conjunction with
+<link linkend="G-FILE-ATTRIBUTE-TIME-CHANGED:CAPS"><type>G_FILE_ATTRIBUTE_TIME_CHANGED</type></link>. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-CREATED:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_CREATED</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_CREATED</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_CREATED "time::created"             /* uint64 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the time the file was created.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>, 
+and contains the UNIX time since the file was created.
+</para>
+<para>
+This corresponds to the NTFS ctime.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TIME-CREATED-USEC:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TIME_CREATED_USEC</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TIME_CREATED_USEC</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TIME_CREATED_USEC "time::created-usec"   /* uint32 */
+</programlisting>
+<para>
+A key in the "time" namespace for getting the microseconds of the time
+the file was created. This should be used in conjunction with
+<link linkend="G-FILE-ATTRIBUTE-TIME-CREATED:CAPS"><type>G_FILE_ATTRIBUTE_TIME_CREATED</type></link>. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-DEVICE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_DEVICE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_DEVICE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_DEVICE "unix::device"               /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the device id of the device the 
+file is located on (see <link linkend="stat"><function>stat()</function></link> documentation). This attribute is only 
+available for UNIX file systems. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-INODE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_INODE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_INODE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_INODE "unix::inode"                 /* uint64 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the inode of the file.
+This attribute is only available for UNIX file systems. Corresponding 
+<link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-MODE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_MODE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_MODE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_MODE "unix::mode"                   /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the mode of the file
+(e.g. whether the file is a regular file, symlink, etc). See <link linkend="lstat"><function>lstat()</function></link> 
+documentation. This attribute is only available for UNIX file systems. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-NLINK:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_NLINK</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_NLINK</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_NLINK "unix::nlink"                 /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the number of hard links 
+for a file. See <link linkend="lstat"><function>lstat()</function></link> documentation. This attribute is only available 
+for UNIX file systems. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-UID:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_UID</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_UID</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_UID "unix::uid"                     /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the user ID for the file. 
+This attribute is only available for UNIX file systems. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-GID:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_GID</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_GID</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_GID "unix::gid"                     /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the group ID for the file.
+This attribute is only available for UNIX file systems. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-RDEV:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_RDEV</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_RDEV</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_RDEV "unix::rdev"                   /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the device ID for the file 
+(if it is a special file). See <link linkend="lstat"><function>lstat()</function></link> documentation. This attribute 
+is only available for UNIX file systems. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> 
+is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-BLOCK-SIZE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_BLOCK_SIZE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_BLOCK_SIZE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_BLOCK_SIZE "unix::block-size"       /* uint32 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the block size for the file 
+system. This attribute is only available for UNIX file systems. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-BLOCKS:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_BLOCKS</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_BLOCKS</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_BLOCKS "unix::blocks"               /* uint64 */
+</programlisting>
+<para>
+A key in the "unix" namespace for getting the number of blocks allocated 
+for the file. This attribute is only available for UNIX file systems. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-UNIX-IS-MOUNTPOINT:CAPS" role="macro"/>G_FILE_ATTRIBUTE_UNIX_IS_MOUNTPOINT</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_UNIX_IS_MOUNTPOINT</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_UNIX_IS_MOUNTPOINT "unix::is-mountpoint" /* boolean */
+</programlisting>
+<para>
+A key in the "unix" namespace for checking if the file represents a 
+UNIX mount point. This attribute is <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the file is a UNIX mount 
+point. This attribute is only available for UNIX file systems. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-DOS-IS-ARCHIVE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_DOS_IS_ARCHIVE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_DOS_IS_ARCHIVE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_DOS_IS_ARCHIVE "dos::is-archive"         /* boolean */
+</programlisting>
+<para>
+A key in the "dos" namespace for checking if the file's archive flag 
+is set. This attribute is <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the archive flag is set. This attribute 
+is only available for DOS file systems. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> 
+is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-DOS-IS-SYSTEM:CAPS" role="macro"/>G_FILE_ATTRIBUTE_DOS_IS_SYSTEM</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_DOS_IS_SYSTEM</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_DOS_IS_SYSTEM "dos::is-system"           /* boolean */
+</programlisting>
+<para>
+A key in the "dos" namespace for checking if the file's backup flag 
+is set. This attribute is <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the backup flag is set. This attribute 
+is only available for DOS file systems. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> 
+is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-OWNER-USER:CAPS" role="macro"/>G_FILE_ATTRIBUTE_OWNER_USER</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_OWNER_USER</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_OWNER_USER "owner::user"                 /* string */
+</programlisting>
+<para>
+A key in the "owner" namespace for getting the user name of the 
+file's owner. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-OWNER-USER-REAL:CAPS" role="macro"/>G_FILE_ATTRIBUTE_OWNER_USER_REAL</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_OWNER_USER_REAL</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_OWNER_USER_REAL "owner::user-real"       /* string */
+</programlisting>
+<para>
+A key in the "owner" namespace for getting the real name of the 
+user that owns the file. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-OWNER-GROUP:CAPS" role="macro"/>G_FILE_ATTRIBUTE_OWNER_GROUP</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_OWNER_GROUP</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_OWNER_GROUP "owner::group"               /* string */
+</programlisting>
+<para>
+A key in the "owner" namespace for getting the file owner's group.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-THUMBNAIL-PATH:CAPS" role="macro"/>G_FILE_ATTRIBUTE_THUMBNAIL_PATH</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_THUMBNAIL_PATH</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_THUMBNAIL_PATH "thumbnail::path"         /* bytestring */
+</programlisting>
+<para>
+A key in the "thumbnail" namespace for getting the path to the thumbnail 
+image. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-BYTE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BYTE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-THUMBNAILING-FAILED:CAPS" role="macro"/>G_FILE_ATTRIBUTE_THUMBNAILING_FAILED</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_THUMBNAILING_FAILED</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_THUMBNAILING_FAILED "thumbnail::failed"         /* boolean */
+</programlisting>
+<para>
+A key in the "thumbnail" namespace for checking if thumbnailing failed. 
+This attribute is <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if thumbnailing failed. Corresponding 
+<link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-FILESYSTEM-SIZE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_FILESYSTEM_SIZE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_FILESYSTEM_SIZE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_FILESYSTEM_SIZE "filesystem::size"                       /* uint64 */
+</programlisting>
+<para>
+A key in the "filesystem" namespace for getting the total size (in bytes) of the file system, 
+used in <link linkend="g-file-query-filesystem-info"><function>g_file_query_filesystem_info()</function></link>. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> 
+is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-FILESYSTEM-FREE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_FILESYSTEM_FREE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_FILESYSTEM_FREE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_FILESYSTEM_FREE "filesystem::free"                       /* uint64 */
+</programlisting>
+<para>
+A key in the "filesystem" namespace for getting the number of bytes of free space left on the 
+file system. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-UINT64:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT64</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-FILESYSTEM-TYPE:CAPS" role="macro"/>G_FILE_ATTRIBUTE_FILESYSTEM_TYPE</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_FILESYSTEM_TYPE</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_FILESYSTEM_TYPE "filesystem::type"                       /* string */
+</programlisting>
+<para>
+A key in the "filesystem" namespace for getting the file system's type.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-FILESYSTEM-READONLY:CAPS" role="macro"/>G_FILE_ATTRIBUTE_FILESYSTEM_READONLY</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_FILESYSTEM_READONLY</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_FILESYSTEM_READONLY "filesystem::readonly"               /* boolean */
+</programlisting>
+<para>
+A key in the "filesystem" namespace for checking if the file system 
+is read only. Is set to <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the file system is read only. 
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-BOOLEAN:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_BOOLEAN</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-GVFS-BACKEND:CAPS" role="macro"/>G_FILE_ATTRIBUTE_GVFS_BACKEND</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_GVFS_BACKEND</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_GVFS_BACKEND "gvfs::backend"             /* string */
+</programlisting>
+<para>
+A key in the "gvfs" namespace that gets the name of the current
+GVFS backend in use. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-SELINUX-CONTEXT:CAPS" role="macro"/>G_FILE_ATTRIBUTE_SELINUX_CONTEXT</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_SELINUX_CONTEXT</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_SELINUX_CONTEXT "selinux::context"       /* string */
+</programlisting>
+<para>
+A key in the "selinux" namespace for getting the file's SELinux
+context. Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>. Note that this attribute is only
+available if GLib has been built with SELinux support.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-TRASH-ITEM-COUNT:CAPS" role="macro"/>G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT "trash::item-count"     /* uint32 */
+</programlisting>
+<para>
+A key in the "trash" namespace.  When requested against 
+"trash:///" returns the number of (toplevel) items in the trash folder.
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-UINT32:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_UINT32</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-FILESYSTEM-USE-PREVIEW:CAPS" role="macro"/>G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW "filesystem::use-preview"        /* uint32 (GFilesystemPreviewType) */
+</programlisting>
+<para>
+A key in the "filesystem" namespace for hinting a file manager
+application whether it should preview (e.g. thumbnail) files on the
+file system. The value for this key contain a
+<link linkend="GFilesystemPreviewType"><type>GFilesystemPreviewType</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-FILE-ATTRIBUTE-STANDARD-DESCRIPTION:CAPS" role="macro"/>G_FILE_ATTRIBUTE_STANDARD_DESCRIPTION</title>
+<indexterm><primary>G_FILE_ATTRIBUTE_STANDARD_DESCRIPTION</primary></indexterm><programlisting>#define G_FILE_ATTRIBUTE_STANDARD_DESCRIPTION "standard::description"        /* string */
+</programlisting>
+<para>
+A key in the "standard" namespace for getting the description of the file.
+The description is a utf8 string that describes the file, generally containing
+the filename, but can also contain furter information. Example descriptions
+could be "filename (on hostname)" for a remote file or "filename (in trash)"
+for a file in the trash. This is useful for instance as the window title
+when displaying a directory or for a bookmarks menu.
+</para>
+<para>
+Corresponding <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> is <link linkend="G-FILE-ATTRIBUTE-TYPE-STRING:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_STRING</literal></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-new" role="function"/>g_file_info_new ()</title>
+<indexterm><primary>g_file_info_new</primary></indexterm><programlisting><link linkend="GFileInfo">GFileInfo</link>*          g_file_info_new                     (void);</programlisting>
+<para>
+Creates a new file info structure.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-dup" role="function"/>g_file_info_dup ()</title>
+<indexterm><primary>g_file_info_dup</primary></indexterm><programlisting><link linkend="GFileInfo">GFileInfo</link>*          g_file_info_dup                     (<link linkend="GFileInfo">GFileInfo</link> *other);</programlisting>
+<para>
+Duplicates a file info structure.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>other</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a duplicate <link linkend="GFileInfo"><type>GFileInfo</type></link> of <parameter>other</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-copy-into" role="function"/>g_file_info_copy_into ()</title>
+<indexterm><primary>g_file_info_copy_into</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_copy_into               (<link linkend="GFileInfo">GFileInfo</link> *src_info,
+                                                         <link linkend="GFileInfo">GFileInfo</link> *dest_info);</programlisting>
+<para>
+Copies all of the <link linkend="GFileAttribute"><type>GFileAttribute</type></link><!-- -->s from <parameter>src_info</parameter> to <parameter>dest_info</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>src_info</parameter>&nbsp;:</term>
+<listitem><simpara> source to copy attributes from.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dest_info</parameter>&nbsp;:</term>
+<listitem><simpara> destination to copy attributes to.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-has-attribute" role="function"/>g_file_info_has_attribute ()</title>
+<indexterm><primary>g_file_info_has_attribute</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_info_has_attribute           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Checks if a file info structure has an attribute named <parameter>attribute</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>Ginfo</parameter> has an attribute named <parameter>attribute</parameter>, 
+    <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-list-attributes" role="function"/>g_file_info_list_attributes ()</title>
+<indexterm><primary>g_file_info_list_attributes</primary></indexterm><programlisting><link linkend="char">char</link>**              g_file_info_list_attributes         (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *name_space);</programlisting>
+<para>
+Lists the file info structure's attributes.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name_space</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key's namespace.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a null-terminated array of strings of all of the 
+possible attribute types for the given <parameter>name_space</parameter>, or 
+<link linkend="NULL:CAPS"><literal>NULL</literal></link> on error.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-type" role="function"/>g_file_info_get_attribute_type ()</title>
+<indexterm><primary>g_file_info_get_attribute_type</primary></indexterm><programlisting><link linkend="GFileAttributeType">GFileAttributeType</link>  g_file_info_get_attribute_type      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the attribute type for an attribute key.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link> for the given <parameter>attribute</parameter>, or 
+<link linkend="G-FILE-ATTRIBUTE-TYPE-INVALID:CAPS"><literal>G_FILE_ATTRIBUTE_TYPE_INVALID</literal></link> if the key is invalid.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-remove-attribute" role="function"/>g_file_info_remove_attribute ()</title>
+<indexterm><primary>g_file_info_remove_attribute</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_remove_attribute        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Removes all cases of <parameter>attribute</parameter> from <parameter>info</parameter> if it exists.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-as-string" role="function"/>g_file_info_get_attribute_as_string ()</title>
+<indexterm><primary>g_file_info_get_attribute_as_string</primary></indexterm><programlisting><link linkend="char">char</link>*               g_file_info_get_attribute_as_string (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the value of a attribute, formated as a string.
+This escapes things as needed to make the string valid
+utf8.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a UTF-8 string associated with the given <parameter>attribute</parameter>.
+   When you're done with the string it must be freed with <link linkend="g-free"><function>g_free()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-data" role="function"/>g_file_info_get_attribute_data ()</title>
+<indexterm><primary>g_file_info_get_attribute_data</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_info_get_attribute_data      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="GFileAttributeType">GFileAttributeType</link> *type,
+                                                         <link linkend="gpointer">gpointer</link> *value_pp,
+                                                         <link linkend="GFileAttributeStatus">GFileAttributeStatus</link> *status);</programlisting>
+<para>
+Gets the attribute type, value and status for an attribute key.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the attribute type, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>value_pp</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the attribute value, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>status</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the attribute status, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>info</parameter> has an attribute named <parameter>attribute</parameter>, 
+     <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-status" role="function"/>g_file_info_get_attribute_status ()</title>
+<indexterm><primary>g_file_info_get_attribute_status</primary></indexterm><programlisting><link linkend="GFileAttributeStatus">GFileAttributeStatus</link> g_file_info_get_attribute_status   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the attribute status for an attribute key.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFileAttributeStatus"><type>GFileAttributeStatus</type></link> for the given <parameter>attribute</parameter>, or 
+   <link linkend="G-FILE-ATTRIBUTE-STATUS-UNSET:CAPS"><literal>G_FILE_ATTRIBUTE_STATUS_UNSET</literal></link> if the key is invalid.
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-string" role="function"/>g_file_info_get_attribute_string ()</title>
+<indexterm><primary>g_file_info_get_attribute_string</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_attribute_string    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the value of a string attribute. If the attribute does 
+not contain a string, <link linkend="NULL:CAPS"><literal>NULL</literal></link> will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the contents of the <parameter>attribute</parameter> value as a string, or 
+<link linkend="NULL:CAPS"><literal>NULL</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-byte-string" role="function"/>g_file_info_get_attribute_byte_string ()</title>
+<indexterm><primary>g_file_info_get_attribute_byte_string</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_attribute_byte_string
+                                                        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the value of a byte string attribute. If the attribute does 
+not contain a byte string, <link linkend="NULL:CAPS"><literal>NULL</literal></link> will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the contents of the <parameter>attribute</parameter> value as a byte string, or 
+<link linkend="NULL:CAPS"><literal>NULL</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-boolean" role="function"/>g_file_info_get_attribute_boolean ()</title>
+<indexterm><primary>g_file_info_get_attribute_boolean</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_info_get_attribute_boolean   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the value of a boolean attribute. If the attribute does not
+contain a boolean value, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the boolean value contained within the attribute. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-uint32" role="function"/>g_file_info_get_attribute_uint32 ()</title>
+<indexterm><primary>g_file_info_get_attribute_uint32</primary></indexterm><programlisting><link linkend="guint32">guint32</link>             g_file_info_get_attribute_uint32    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets an unsigned 32-bit integer contained within the attribute. If the 
+attribute does not contain an unsigned 32-bit integer, or is invalid, 
+0 will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> an unsigned 32-bit integer from the attribute. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-int32" role="function"/>g_file_info_get_attribute_int32 ()</title>
+<indexterm><primary>g_file_info_get_attribute_int32</primary></indexterm><programlisting><link linkend="gint32">gint32</link>              g_file_info_get_attribute_int32     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets a signed 32-bit integer contained within the attribute. If the 
+attribute does not contain a signed 32-bit integer, or is invalid, 
+0 will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a signed 32-bit integer from the attribute.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-uint64" role="function"/>g_file_info_get_attribute_uint64 ()</title>
+<indexterm><primary>g_file_info_get_attribute_uint64</primary></indexterm><programlisting><link linkend="guint64">guint64</link>             g_file_info_get_attribute_uint64    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets a unsigned 64-bit integer contained within the attribute. If the 
+attribute does not contain an unsigned 64-bit integer, or is invalid, 
+0 will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a unsigned 64-bit integer from the attribute. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-int64" role="function"/>g_file_info_get_attribute_int64 ()</title>
+<indexterm><primary>g_file_info_get_attribute_int64</primary></indexterm><programlisting><link linkend="gint64">gint64</link>              g_file_info_get_attribute_int64     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets a signed 64-bit integer contained within the attribute. If the 
+attribute does not contain an signed 64-bit integer, or is invalid, 
+0 will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a signed 64-bit integer from the attribute. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-attribute-object" role="function"/>g_file_info_get_attribute_object ()</title>
+<indexterm><primary>g_file_info_get_attribute_object</primary></indexterm><programlisting><link linkend="GObject">GObject</link>*            g_file_info_get_attribute_object    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Gets the value of a <link linkend="GObject"><type>GObject</type></link> attribute. If the attribute does 
+not contain a <link linkend="GObject"><type>GObject</type></link>, <link linkend="NULL:CAPS"><literal>NULL</literal></link> will be returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> associated with the given <parameter>attribute</parameter>, or
+<link linkend="NULL:CAPS"><literal>NULL</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute" role="function"/>g_file_info_set_attribute ()</title>
+<indexterm><primary>g_file_info_set_attribute</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="GFileAttributeType">GFileAttributeType</link> type,
+                                                         <link linkend="gpointer">gpointer</link> value_p);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given value, if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeType"><type>GFileAttributeType</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>value_p</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to the value
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-string" role="function"/>g_file_info_set_attribute_string ()</title>
+<indexterm><primary>g_file_info_set_attribute_string</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_string    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         const <link linkend="char">char</link> *attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> a string.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-byte-string" role="function"/>g_file_info_set_attribute_byte_string ()</title>
+<indexterm><primary>g_file_info_set_attribute_byte_string</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_byte_string
+                                                        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         const <link linkend="char">char</link> *attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> a byte string.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-boolean" role="function"/>g_file_info_set_attribute_boolean ()</title>
+<indexterm><primary>g_file_info_set_attribute_boolean</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_boolean   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="gboolean">gboolean</link> attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> a boolean value.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-uint32" role="function"/>g_file_info_set_attribute_uint32 ()</title>
+<indexterm><primary>g_file_info_set_attribute_uint32</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_uint32    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="guint32">guint32</link> attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> an unsigned 32-bit integer.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-int32" role="function"/>g_file_info_set_attribute_int32 ()</title>
+<indexterm><primary>g_file_info_set_attribute_int32</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_int32     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="gint32">gint32</link> attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> a signed 32-bit integer
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-uint64" role="function"/>g_file_info_set_attribute_uint64 ()</title>
+<indexterm><primary>g_file_info_set_attribute_uint64</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_uint64    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="guint64">guint64</link> attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> an unsigned 64-bit integer.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-int64" role="function"/>g_file_info_set_attribute_int64 ()</title>
+<indexterm><primary>g_file_info_set_attribute_int64</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_int64     (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="gint64">gint64</link> attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> attribute name to set.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> int64 value to set attribute to.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-object" role="function"/>g_file_info_set_attribute_object ()</title>
+<indexterm><primary>g_file_info_set_attribute_object</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_object    (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *attribute,
+                                                         <link linkend="GObject">GObject</link> *attr_value);</programlisting>
+<para>
+Sets the <parameter>attribute</parameter> to contain the given <parameter>attr_value</parameter>, 
+if possible.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attr_value</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-clear-status" role="function"/>g_file_info_clear_status ()</title>
+<indexterm><primary>g_file_info_clear_status</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_clear_status            (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Clears the status information from <parameter>info</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-file-type" role="function"/>g_file_info_get_file_type ()</title>
+<indexterm><primary>g_file_info_get_file_type</primary></indexterm><programlisting><link linkend="GFileType">GFileType</link>           g_file_info_get_file_type           (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets a file's type (whether it is a regular file, symlink, etc). 
+This is different from the file's content type, see <link linkend="g-file-info-get-content-type"><function>g_file_info_get_content_type()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFileType"><type>GFileType</type></link> for the given file.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-is-hidden" role="function"/>g_file_info_get_is_hidden ()</title>
+<indexterm><primary>g_file_info_get_is_hidden</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_info_get_is_hidden           (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Checks if a file is hidden.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the file is a hidden file, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-is-backup" role="function"/>g_file_info_get_is_backup ()</title>
+<indexterm><primary>g_file_info_get_is_backup</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_info_get_is_backup           (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Checks if a file is a backup file.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if file is a backup file, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-is-symlink" role="function"/>g_file_info_get_is_symlink ()</title>
+<indexterm><primary>g_file_info_get_is_symlink</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_info_get_is_symlink          (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Checks if a file is a symlink.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the given <parameter>info</parameter> is a symlink.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-name" role="function"/>g_file_info_get_name ()</title>
+<indexterm><primary>g_file_info_get_name</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_name                (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the name for a file.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the file name.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-display-name" role="function"/>g_file_info_get_display_name ()</title>
+<indexterm><primary>g_file_info_get_display_name</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_display_name        (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets a display name for a file.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the display name.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-edit-name" role="function"/>g_file_info_get_edit_name ()</title>
+<indexterm><primary>g_file_info_get_edit_name</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_edit_name           (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the edit name for a file.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the edit name.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-icon" role="function"/>g_file_info_get_icon ()</title>
+<indexterm><primary>g_file_info_get_icon</primary></indexterm><programlisting><link linkend="GIcon">GIcon</link>*              g_file_info_get_icon                (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the icon for a file.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="GIcon"><type>GIcon</type></link> for the given <parameter>info</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-content-type" role="function"/>g_file_info_get_content_type ()</title>
+<indexterm><primary>g_file_info_get_content_type</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_content_type        (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the file's content type.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the file's content type.s
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-size" role="function"/>g_file_info_get_size ()</title>
+<indexterm><primary>g_file_info_get_size</primary></indexterm><programlisting><link linkend="goffset">goffset</link>             g_file_info_get_size                (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the file's size.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="goffset"><type>goffset</type></link> containing the file's size. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-modification-time" role="function"/>g_file_info_get_modification_time ()</title>
+<indexterm><primary>g_file_info_get_modification_time</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_get_modification_time   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GTimeVal">GTimeVal</link> *result);</programlisting>
+<para>
+Gets the modification time of the current <parameter>info</parameter> and sets it
+in <parameter>result</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GTimeVal"><type>GTimeVal</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-symlink-target" role="function"/>g_file_info_get_symlink_target ()</title>
+<indexterm><primary>g_file_info_get_symlink_target</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_symlink_target      (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the symlink target for a given <link linkend="GFileInfo"><type>GFileInfo</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the symlink target.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-etag" role="function"/>g_file_info_get_etag ()</title>
+<indexterm><primary>g_file_info_get_etag</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_info_get_etag                (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the <link linkend="gfile-etag">entity tag</link> for a given 
+<link linkend="GFileInfo"><type>GFileInfo</type></link>. See <link linkend="G-FILE-ATTRIBUTE-ETAG-VALUE:CAPS"><literal>G_FILE_ATTRIBUTE_ETAG_VALUE</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the value of the "etag:value" attribute.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-get-sort-order" role="function"/>g_file_info_get_sort_order ()</title>
+<indexterm><primary>g_file_info_get_sort_order</primary></indexterm><programlisting><link linkend="gint32">gint32</link>              g_file_info_get_sort_order          (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Gets the value of the sort_order attribute from the <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-SORT-ORDER:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="gint32"><type>gint32</type></link> containing the value of the "standard::sort_order" attribute.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-attribute-mask" role="function"/>g_file_info_set_attribute_mask ()</title>
+<indexterm><primary>g_file_info_set_attribute_mask</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_attribute_mask      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *mask);</programlisting>
+<para>
+Sets <parameter>mask</parameter> on <parameter>info</parameter> to match specific attribute types.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-unset-attribute-mask" role="function"/>g_file_info_unset_attribute_mask ()</title>
+<indexterm><primary>g_file_info_unset_attribute_mask</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_unset_attribute_mask    (<link linkend="GFileInfo">GFileInfo</link> *info);</programlisting>
+<para>
+Unsets a mask set by <link linkend="g-file-info-set-attribute-mask"><function>g_file_info_set_attribute_mask()</function></link>, if one
+is set.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-file-type" role="function"/>g_file_info_set_file_type ()</title>
+<indexterm><primary>g_file_info_set_file_type</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_file_type           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GFileType">GFileType</link> type);</programlisting>
+<para>
+Sets the file type in a <link linkend="GFileInfo"><type>GFileInfo</type></link> to <parameter>type</parameter>.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-TYPE:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_TYPE</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileType"><type>GFileType</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-is-hidden" role="function"/>g_file_info_set_is_hidden ()</title>
+<indexterm><primary>g_file_info_set_is_hidden</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_is_hidden           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="gboolean">gboolean</link> is_hidden);</programlisting>
+<para>
+Sets the "is_hidden" attribute in a <link linkend="GFileInfo"><type>GFileInfo</type></link> according to <parameter>is_symlink</parameter>.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-IS-HIDDEN:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>is_hidden</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gboolean"><type>gboolean</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-is-symlink" role="function"/>g_file_info_set_is_symlink ()</title>
+<indexterm><primary>g_file_info_set_is_symlink</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_is_symlink          (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="gboolean">gboolean</link> is_symlink);</programlisting>
+<para>
+Sets the "is_symlink" attribute in a <link linkend="GFileInfo"><type>GFileInfo</type></link> according to <parameter>is_symlink</parameter>.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-IS-SYMLINK:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>is_symlink</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="gboolean"><type>gboolean</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-name" role="function"/>g_file_info_set_name ()</title>
+<indexterm><primary>g_file_info_set_name</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_name                (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *name);</programlisting>
+<para>
+Sets the name attribute for the current <link linkend="GFileInfo"><type>GFileInfo</type></link>. 
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-NAME:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_NAME</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> a string containing a name.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-display-name" role="function"/>g_file_info_set_display_name ()</title>
+<indexterm><primary>g_file_info_set_display_name</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_display_name        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *display_name);</programlisting>
+<para>
+Sets the display name for the current <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-DISPLAY-NAME:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>display_name</parameter>&nbsp;:</term>
+<listitem><simpara> a string containing a display name.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-edit-name" role="function"/>g_file_info_set_edit_name ()</title>
+<indexterm><primary>g_file_info_set_edit_name</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_edit_name           (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *edit_name);</programlisting>
+<para>
+Sets the edit name for the current file.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-EDIT-NAME:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>edit_name</parameter>&nbsp;:</term>
+<listitem><simpara> a string containing an edit name.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-icon" role="function"/>g_file_info_set_icon ()</title>
+<indexterm><primary>g_file_info_set_icon</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_icon                (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GIcon">GIcon</link> *icon);</programlisting>
+<para>
+Sets the icon for a given <link linkend="GFileInfo"><type>GFileInfo</type></link>. 
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-ICON:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_ICON</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>icon</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GIcon"><type>GIcon</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-content-type" role="function"/>g_file_info_set_content_type ()</title>
+<indexterm><primary>g_file_info_set_content_type</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_content_type        (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *content_type);</programlisting>
+<para>
+Sets the content type attribute for a given <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+See <link linkend="G-FILE-ATTRIBUTE-STANDARD-CONTENT-TYPE:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>content_type</parameter>&nbsp;:</term>
+<listitem><simpara> a content type. See <link linkend="GContentType"><type>GContentType</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-size" role="function"/>g_file_info_set_size ()</title>
+<indexterm><primary>g_file_info_set_size</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_size                (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="goffset">goffset</link> size);</programlisting>
+<para>
+Sets the <link linkend="G-FILE-ATTRIBUTE-STANDARD-SIZE:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_SIZE</literal></link> attribute in the file info 
+to the given size.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>size</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="goffset"><type>goffset</type></link> containing the file's size.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-modification-time" role="function"/>g_file_info_set_modification_time ()</title>
+<indexterm><primary>g_file_info_set_modification_time</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_modification_time   (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="GTimeVal">GTimeVal</link> *mtime);</programlisting>
+<para>
+Sets the <link linkend="G-FILE-ATTRIBUTE-TIME-MODIFIED:CAPS"><literal>G_FILE_ATTRIBUTE_TIME_MODIFIED</literal></link> attribute in the file
+info to the given time value.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mtime</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GTimeVal"><type>GTimeVal</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-symlink-target" role="function"/>g_file_info_set_symlink_target ()</title>
+<indexterm><primary>g_file_info_set_symlink_target</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_symlink_target      (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         const <link linkend="char">char</link> *symlink_target);</programlisting>
+<para>
+Sets the <link linkend="G-FILE-ATTRIBUTE-STANDARD-SYMLINK-TARGET:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET</literal></link> attribute in the file info 
+to the given symlink target.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>symlink_target</parameter>&nbsp;:</term>
+<listitem><simpara> a static string containing a path to a symlink target.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-info-set-sort-order" role="function"/>g_file_info_set_sort_order ()</title>
+<indexterm><primary>g_file_info_set_sort_order</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_info_set_sort_order          (<link linkend="GFileInfo">GFileInfo</link> *info,
+                                                         <link linkend="gint32">gint32</link> sort_order);</programlisting>
+<para>
+Sets the sort order attribute in the file info structure. See 
+<link linkend="G-FILE-ATTRIBUTE-STANDARD-SORT-ORDER:CAPS"><literal>G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>info</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileInfo"><type>GFileInfo</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sort_order</parameter>&nbsp;:</term>
+<listitem><simpara> a sort order integer.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-new" role="function"/>g_file_attribute_matcher_new ()</title>
+<indexterm><primary>g_file_attribute_matcher_new</primary></indexterm><programlisting><link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link>* g_file_attribute_matcher_new     (const <link linkend="char">char</link> *attributes);</programlisting>
+<para>
+Creates a new file attribute matcher, which matches attributes 
+against a given string. <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link><!-- -->s are reference 
+counted structures, and are created with a reference count of 1. If 
+the number of references falls to 0, the <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link> is 
+automatically destroyed.
+</para>
+<para>
+The <parameter>attribute</parameter> string should be formatted with specific keys separated
+from namespaces with a double colon. Several "namespace::key" strings may be 
+concatenated with a single comma (e.g. "standard::type,standard::is-hidden"). 
+The wildcard "*" may be used to match all keys and namespaces, or 
+"namespace::*" will match all keys in a given namespace. 
+</para>
+<para>
+Examples of strings to use:
+<table>
+<title>File Attribute Matcher strings and results</title>
+<tgroup cols='2' align='left'><thead>
+<row><entry> Matcher String </entry><entry> Matches </entry></row></thead>
+<tbody>
+<row><entry>"*"</entry><entry>matches all attributes.</entry></row>
+<row><entry>"standard::is-hidden"</entry><entry>matches only the key is-hidden in the standard namespace.</entry></row>
+<row><entry>"standard::type,unix::*"</entry><entry>matches the type key in the standard namespace and
+all keys in the unix namespace.</entry></row>
+</tbody></tgroup>
+</table></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>attributes</parameter>&nbsp;:</term>
+<listitem><simpara> an attribute string to match.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-ref" role="function"/>g_file_attribute_matcher_ref ()</title>
+<indexterm><primary>g_file_attribute_matcher_ref</primary></indexterm><programlisting><link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link>* g_file_attribute_matcher_ref     (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher);</programlisting>
+<para>
+References a file attribute matcher.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matcher</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-unref" role="function"/>g_file_attribute_matcher_unref ()</title>
+<indexterm><primary>g_file_attribute_matcher_unref</primary></indexterm><programlisting><link linkend="void">void</link>                g_file_attribute_matcher_unref      (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher);</programlisting>
+<para>
+Unreferences <parameter>matcher</parameter>. If the reference count falls below 1, 
+the <parameter>matcher</parameter> is automatically freed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matcher</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-matches" role="function"/>g_file_attribute_matcher_matches ()</title>
+<indexterm><primary>g_file_attribute_matcher_matches</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_attribute_matcher_matches    (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Checks if an attribute will be matched by an attribute matcher. If 
+the matcher was created with the "*" matching string, this function
+will always return <link linkend="TRUE:CAPS"><literal>TRUE</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matcher</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>attribute</parameter> matches <parameter>matcher</parameter>. <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-matches-only" role="function"/>g_file_attribute_matcher_matches_only ()</title>
+<indexterm><primary>g_file_attribute_matcher_matches_only</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_attribute_matcher_matches_only
+                                                        (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher,
+                                                         const <link linkend="char">char</link> *attribute);</programlisting>
+<para>
+Checks if a attribute matcher only matches a given attribute. Always
+returns <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if "*" was used when creating the matcher.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matcher</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> a file attribute key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the matcher only matches <parameter>attribute</parameter>. <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-enumerate-namespace" role="function"/>g_file_attribute_matcher_enumerate_namespace ()</title>
+<indexterm><primary>g_file_attribute_matcher_enumerate_namespace</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            g_file_attribute_matcher_enumerate_namespace
+                                                        (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher,
+                                                         const <link linkend="char">char</link> *ns);</programlisting>
+<para>
+Checks if the matcher will match all of the keys in a given namespace.
+This will always return <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if a wildcard character is in use (e.g. if 
+matcher was created with "standard::*" and <parameter>ns</parameter> is "standard", or if matcher was created
+using "*" and namespace is anything.) 
+</para>
+<para>
+TODO: this is awkwardly worded.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matcher</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ns</parameter>&nbsp;:</term>
+<listitem><simpara> a string containing a file attribute namespace.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the matcher matches all of the entries
+in the given <parameter>ns</parameter>, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="g-file-attribute-matcher-enumerate-next" role="function"/>g_file_attribute_matcher_enumerate_next ()</title>
+<indexterm><primary>g_file_attribute_matcher_enumerate_next</primary></indexterm><programlisting>const <link linkend="char">char</link>*         g_file_attribute_matcher_enumerate_next
+                                                        (<link linkend="GFileAttributeMatcher">GFileAttributeMatcher</link> *matcher);</programlisting>
+<para>
+Gets the next matched attribute from a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matcher</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GFileAttributeMatcher"><type>GFileAttributeMatcher</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a string containing the next attribute or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if 
+no more attribute exist.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<link linkend="GFile"><type>GFile</type></link>, <link linkend="gio-GFileAttribute">GFileAttribute</link>
+</refsect1>
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

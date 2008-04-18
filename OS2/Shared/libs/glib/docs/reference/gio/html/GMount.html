@@ -1,0 +1,974 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GMount</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="volume_mon.html" title="Volumes and Drives">
+<link rel="prev" href="GVolume.html" title="GVolume">
+<link rel="next" href="GDrive.html" title="GDrive">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="GVolume.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="volume_mon.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="GDrive.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2756467" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2872736" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2872689" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2872713" class="shortcut">Prerequisites</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GMount"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2756467"></a><span class="refentrytitle">GMount</span>
+</h2>
+<p>GMount &#8212; Mount management</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h
+@see also: GVolume&gt;
+#include &lt;GUnixMount&gt;
+
+
+                    <a class="link" href="GMount.html#GMount-struct">GMount</a>;
+                    <a class="link" href="GMount.html#GMountIface">GMountIface</a>;
+char*               <a class="link" href="GMount.html#g-mount-get-name">g_mount_get_name</a>                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+char*               <a class="link" href="GMount.html#g-mount-get-uuid">g_mount_get_uuid</a>                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+<a class="link" href="GIcon.html" title="GIcon">GIcon</a>*              <a class="link" href="GMount.html#g-mount-get-icon">g_mount_get_icon</a>                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+<a class="link" href="GDrive.html" title="GDrive">GDrive</a>*             <a class="link" href="GMount.html#g-mount-get-drive">g_mount_get_drive</a>                   (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+<a class="link" href="GFile.html" title="GFile">GFile</a>*              <a class="link" href="GMount.html#g-mount-get-root">g_mount_get_root</a>                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+<a class="link" href="GVolume.html" title="GVolume">GVolume</a>*            <a class="link" href="GMount.html#g-mount-get-volume">g_mount_get_volume</a>                  (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GMount.html#g-mount-can-unmount">g_mount_can_unmount</a>                 (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+enum                <a class="link" href="GMount.html#GMountMountFlags">GMountMountFlags</a>;
+enum                <a class="link" href="GMount.html#GMountUnmountFlags">GMountUnmountFlags</a>;
+void                <a class="link" href="GMount.html#g-mount-unmount">g_mount_unmount</a>                     (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GMount.html#GMountUnmountFlags">GMountUnmountFlags</a> flags,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GMount.html#g-mount-unmount-finish">g_mount_unmount_finish</a>              (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+void                <a class="link" href="GMount.html#g-mount-remount">g_mount_remount</a>                     (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GMount.html#GMountMountFlags">GMountMountFlags</a> flags,
+                                                         <a class="link" href="GMountOperation.html" title="GMountOperation">GMountOperation</a> *mount_operation,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GMount.html#g-mount-remount-finish">g_mount_remount_finish</a>              (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GMount.html#g-mount-can-eject">g_mount_can_eject</a>                   (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);
+void                <a class="link" href="GMount.html#g-mount-eject">g_mount_eject</a>                       (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GMount.html#GMountUnmountFlags">GMountUnmountFlags</a> flags,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GMount.html#g-mount-eject-finish">g_mount_eject_finish</a>                (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2872689"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  GInterface
+   +----GMount
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2872713"></a><h2>Prerequisites</h2>
+<p>
+GMount requires
+ <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2872736"></a><h2>Description</h2>
+<p>
+The <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> interface represents user-visible mounts. Note, when 
+porting from GnomeVFS, <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> is the moral equivalent of <a
+href="/usr/share/gtk-doc/html/gnome-vfs-2.0/gnome-vfs-20-gnome-vfs-volume.html#GnomeVFSVolume"
+><span class="type">GnomeVFSVolume</span></a>.
+</p>
+<p>
+<a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> is a "mounted" filesystem that you can access. Mounted is in
+quotes because it's not the same as a unix mount, it might be a gvfs
+mount, but you can still access the files on it if you use GIO. Might or
+might not be related to a volume object.
+</p>
+<p>
+Unmounting a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> instance is an asynchronous operation. For
+more information about asynchronous operations, see <span class="type">GAsyncReady</span>
+and <span class="type">GSimpleAsyncReady</span>. To unmount a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> instance, first call
+<a class="link" href="GMount.html#g-mount-unmount"><code class="function">g_mount_unmount()</code></a> with (at least) the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> instance and a
+<a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>.  The callback will be fired when the
+operation has resolved (either with success or failure), and a
+<span class="type">GAsyncReady</span> structure will be passed to the callback.  That
+callback should then call <a class="link" href="GMount.html#g-mount-unmount-finish"><code class="function">g_mount_unmount_finish()</code></a> with the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>
+and the <span class="type">GAsyncReady</span> data to see if the operation was completed
+successfully.  If an <em class="parameter"><code>error</code></em> is present when <a class="link" href="GMount.html#g-mount-unmount-finish"><code class="function">g_mount_unmount_finish()</code></a> 
+is called, then it will be filled with any error information.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2872899"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2887403"></a><h3>
+<a name="GMount-struct"></a>GMount</h3>
+<a class="indexterm" name="id2887416"></a><pre class="programlisting">typedef struct _GMount GMount;</pre>
+<p>
+A handle to an object implementing the <a class="link" href="GMount.html#GMountIface"><span class="type">GMountIface</span></a> interface.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2887441"></a><h3>
+<a name="GMountIface"></a>GMountIface</h3>
+<a class="indexterm" name="id2887453"></a><pre class="programlisting">typedef struct {
+  GTypeInterface g_iface;
+
+  /* signals */
+
+  void (*changed) (GMount *mount);
+  void (*unmounted) (GMount *mount);
+  
+  /* Virtual Table */
+
+  GFile *            (*get_root)             (GMount         *mount);
+  char *             (*get_name)             (GMount         *mount);
+  GIcon *            (*get_icon)             (GMount         *mount);
+  char *             (*get_uuid)             (GMount         *mount);
+  GVolume *          (*get_volume)           (GMount         *mount);
+  GDrive *           (*get_drive)            (GMount         *mount);
+  gboolean           (*can_unmount)          (GMount         *mount);
+  gboolean           (*can_eject)            (GMount         *mount);
+  void               (*unmount)              (GMount         *mount,
+					      GMountUnmountFlags flags,
+                                              GCancellable    *cancellable,
+                                              GAsyncReadyCallback callback,
+                                              gpointer         user_data);
+  gboolean           (*unmount_finish)       (GMount         *mount,
+                                              GAsyncResult    *result,
+                                              GError         **error);
+  void               (*eject)                (GMount         *mount,
+					      GMountUnmountFlags flags,
+                                              GCancellable    *cancellable,
+                                              GAsyncReadyCallback callback,
+                                              gpointer         user_data);
+  gboolean           (*eject_finish)         (GMount         *mount,
+                                              GAsyncResult    *result,
+                                              GError         **error);
+  void               (*remount)              (GMount         *mount,
+					      GMountMountFlags     flags,
+					      GMountOperation     *mount_operation,
+                                              GCancellable    *cancellable,
+                                              GAsyncReadyCallback callback,
+                                              gpointer         user_data);
+  gboolean           (*remount_finish)       (GMount         *mount,
+                                              GAsyncResult    *result,
+                                              GError         **error);
+} GMountIface;
+</pre>
+<p>
+Interface for implementing operations for mounts.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a
+href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GTypeInterface"
+>GTypeInterface</a>&#160;<em class="structfield"><code>g_iface</code></em>;</span></p></td>
+<td> The parent interface.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>changed</code></em>&#160;()</span></p></td>
+<td> Changed signal that is emitted when the mount's state has changed.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>unmounted</code></em>&#160;()</span></p></td>
+<td> The unmounted signal that is emitted when the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> have been unmounted. If the recipient is holding references to the object they should release them so the object can be finalized.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_root</code></em>&#160;()</span></p></td>
+<td> Gets a <a class="link" href="GFile.html" title="GFile"><span class="type">GFile</span></a> to the root directory of the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_name</code></em>&#160;()</span></p></td>
+<td> Gets a string containing the name of the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_icon</code></em>&#160;()</span></p></td>
+<td> Gets a <a class="link" href="GIcon.html" title="GIcon"><span class="type">GIcon</span></a> for the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_uuid</code></em>&#160;()</span></p></td>
+<td> Gets the UUID for the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>. The reference is typically based on the file system UUID for the mount in question and should be considered an opaque string. Returns <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if there is no UUID available.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_volume</code></em>&#160;()</span></p></td>
+<td> Gets a <a class="link" href="GVolume.html" title="GVolume"><span class="type">GVolume</span></a> the mount is located on. Returns <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> is not associated with a <a class="link" href="GVolume.html" title="GVolume"><span class="type">GVolume</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get_drive</code></em>&#160;()</span></p></td>
+<td> Gets a <a class="link" href="GDrive.html" title="GDrive"><span class="type">GDrive</span></a> the volume of the mount is located on. Returns <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if the <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> is not associated with a <a class="link" href="GDrive.html" title="GDrive"><span class="type">GDrive</span></a> or a <a class="link" href="GVolume.html" title="GVolume"><span class="type">GVolume</span></a>. This is convenience method for getting the <a class="link" href="GVolume.html" title="GVolume"><span class="type">GVolume</span></a> and using that to get the <a class="link" href="GDrive.html" title="GDrive"><span class="type">GDrive</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>can_unmount</code></em>&#160;()</span></p></td>
+<td> Checks if a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> can be unmounted.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>can_eject</code></em>&#160;()</span></p></td>
+<td> Checks if a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a> can be ejected.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>unmount</code></em>&#160;()</span></p></td>
+<td> Starts unmounting a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>unmount_finish</code></em>&#160;()</span></p></td>
+<td> Finishes an unmounting operation.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>eject</code></em>&#160;()</span></p></td>
+<td> Starts ejecting a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>eject_finish</code></em>&#160;()</span></p></td>
+<td> Finishes an eject operation.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>remount</code></em>&#160;()</span></p></td>
+<td> Starts remounting a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>remount_finish</code></em>&#160;()</span></p></td>
+<td> Finishes a remounting operation.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2887955"></a><h3>
+<a name="g-mount-get-name"></a>g_mount_get_name ()</h3>
+<a class="indexterm" name="id2887967"></a><pre class="programlisting">char*               g_mount_get_name                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Gets the name of <em class="parameter"><code>mount</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the name for the given <em class="parameter"><code>mount</code></em>. The returned string should 
+be freed when no longer needed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888048"></a><h3>
+<a name="g-mount-get-uuid"></a>g_mount_get_uuid ()</h3>
+<a class="indexterm" name="id2888060"></a><pre class="programlisting">char*               g_mount_get_uuid                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Gets the UUID for the <em class="parameter"><code>mount</code></em>. The reference is typically based on
+the file system UUID for the mount in question and should be
+considered an opaque string. Returns <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if there is no UUID
+available.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the UUID for <em class="parameter"><code>mount</code></em> or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if no UUID can be computed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888160"></a><h3>
+<a name="g-mount-get-icon"></a>g_mount_get_icon ()</h3>
+<a class="indexterm" name="id2888172"></a><pre class="programlisting"><a class="link" href="GIcon.html" title="GIcon">GIcon</a>*              g_mount_get_icon                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Gets the icon for <em class="parameter"><code>mount</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GIcon.html" title="GIcon"><span class="type">GIcon</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888253"></a><h3>
+<a name="g-mount-get-drive"></a>g_mount_get_drive ()</h3>
+<a class="indexterm" name="id2888265"></a><pre class="programlisting"><a class="link" href="GDrive.html" title="GDrive">GDrive</a>*             g_mount_get_drive                   (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Gets the drive for the <em class="parameter"><code>mount</code></em>.
+</p>
+<p>
+This is a convenience method for getting the <a class="link" href="GVolume.html" title="GVolume"><span class="type">GVolume</span></a> and then
+using that object to get the <a class="link" href="GDrive.html" title="GDrive"><span class="type">GDrive</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GDrive.html" title="GDrive"><span class="type">GDrive</span></a> or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if <em class="parameter"><code>mount</code></em> is not associated with a volume or a drive.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888380"></a><h3>
+<a name="g-mount-get-root"></a>g_mount_get_root ()</h3>
+<a class="indexterm" name="id2888392"></a><pre class="programlisting"><a class="link" href="GFile.html" title="GFile">GFile</a>*              g_mount_get_root                    (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Gets the root directory on <em class="parameter"><code>mount</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GFile.html" title="GFile"><span class="type">GFile</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888472"></a><h3>
+<a name="g-mount-get-volume"></a>g_mount_get_volume ()</h3>
+<a class="indexterm" name="id2888485"></a><pre class="programlisting"><a class="link" href="GVolume.html" title="GVolume">GVolume</a>*            g_mount_get_volume                  (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Gets the volume for the <em class="parameter"><code>mount</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GVolume.html" title="GVolume"><span class="type">GVolume</span></a> or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if <em class="parameter"><code>mount</code></em> is not associated with a volume.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888580"></a><h3>
+<a name="g-mount-can-unmount"></a>g_mount_can_unmount ()</h3>
+<a class="indexterm" name="id2888592"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_mount_can_unmount                 (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Checks if <em class="parameter"><code>mount</code></em> can be mounted.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the <em class="parameter"><code>mount</code></em> can be unmounted.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888681"></a><h3>
+<a name="GMountMountFlags"></a>enum GMountMountFlags</h3>
+<a class="indexterm" name="id2888693"></a><pre class="programlisting">typedef enum  {
+  G_MOUNT_MOUNT_NONE = 0
+} GMountMountFlags;
+</pre>
+<p>
+Flags used when mounting a mount.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><a name="G-MOUNT-MOUNT-NONE:CAPS"></a><code class="literal">G_MOUNT_MOUNT_NONE</code></span></p></td>
+<td> No flags set.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888739"></a><h3>
+<a name="GMountUnmountFlags"></a>enum GMountUnmountFlags</h3>
+<a class="indexterm" name="id2888751"></a><pre class="programlisting">typedef enum  {
+  G_MOUNT_UNMOUNT_NONE = 0,
+  G_MOUNT_UNMOUNT_FORCE = (1&lt;&lt;0)
+} GMountUnmountFlags;
+</pre>
+<p>
+Flags used when an unmounting a mount.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a name="G-MOUNT-UNMOUNT-NONE:CAPS"></a><code class="literal">G_MOUNT_UNMOUNT_NONE</code></span></p></td>
+<td> No flags set.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="G-MOUNT-UNMOUNT-FORCE:CAPS"></a><code class="literal">G_MOUNT_UNMOUNT_FORCE</code></span></p></td>
+<td> Unmount even if there are outstanding
+ file operations on the mount.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2888819"></a><h3>
+<a name="g-mount-unmount"></a>g_mount_unmount ()</h3>
+<a class="indexterm" name="id2888831"></a><pre class="programlisting">void                g_mount_unmount                     (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GMount.html#GMountUnmountFlags">GMountUnmountFlags</a> flags,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+Unmounts a mount. This is an asynchronous operation, and is 
+finished by calling <a class="link" href="GMount.html#g-mount-unmount-finish"><code class="function">g_mount_unmount_finish()</code></a> with the <em class="parameter"><code>mount</code></em> 
+and <span class="type">GAsyncResults</span> data returned in the <em class="parameter"><code>callback</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></p></td>
+<td> flags affecting the operation
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2889042"></a><h3>
+<a name="g-mount-unmount-finish"></a>g_mount_unmount_finish ()</h3>
+<a class="indexterm" name="id2889053"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_mount_unmount_finish              (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Finishes unmounting a mount. If any errors occurred during the operation, 
+<em class="parameter"><code>error</code></em> will be set to contain the errors and <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>result</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> location to store the error occuring, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to 
+ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the mount was successfully unmounted. <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> otherwise.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2889221"></a><h3>
+<a name="g-mount-remount"></a>g_mount_remount ()</h3>
+<a class="indexterm" name="id2889234"></a><pre class="programlisting">void                g_mount_remount                     (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GMount.html#GMountMountFlags">GMountMountFlags</a> flags,
+                                                         <a class="link" href="GMountOperation.html" title="GMountOperation">GMountOperation</a> *mount_operation,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+Remounts a mount. This is an asynchronous operation, and is 
+finished by calling <a class="link" href="GMount.html#g-mount-remount-finish"><code class="function">g_mount_remount_finish()</code></a> with the <em class="parameter"><code>mount</code></em> 
+and <span class="type">GAsyncResults</span> data returned in the <em class="parameter"><code>callback</code></em>.
+</p>
+<p>
+Remounting is useful when some setting affecting the operation
+of the volume has been changed, as these may need a remount to
+take affect. While this is semantically equivalent with unmounting
+and then remounting not all backends might need to actually be
+unmounted.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></p></td>
+<td> flags affecting the operation
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount_operation</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMountOperation.html" title="GMountOperation"><span class="type">GMountOperation</span></a> or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to avoid user interaction.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2890304"></a><h3>
+<a name="g-mount-remount-finish"></a>g_mount_remount_finish ()</h3>
+<a class="indexterm" name="id2890314"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_mount_remount_finish              (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Finishes remounting a mount. If any errors occurred during the operation, 
+<em class="parameter"><code>error</code></em> will be set to contain the errors and <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>result</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> location to store the error occuring, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to 
+ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the mount was successfully remounted. <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> otherwise.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2890464"></a><h3>
+<a name="g-mount-can-eject"></a>g_mount_can_eject ()</h3>
+<a class="indexterm" name="id2890475"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_mount_can_eject                   (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount);</pre>
+<p>
+Checks if <em class="parameter"><code>mount</code></em> can be eject.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the <em class="parameter"><code>mount</code></em> can be ejected.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2890553"></a><h3>
+<a name="g-mount-eject"></a>g_mount_eject ()</h3>
+<a class="indexterm" name="id2890564"></a><pre class="programlisting">void                g_mount_eject                       (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GMount.html#GMountUnmountFlags">GMountUnmountFlags</a> flags,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a class="link" href="GAsyncResult.html#GAsyncReadyCallback">GAsyncReadyCallback</a> callback,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+Ejects a mount. This is an asynchronous operation, and is 
+finished by calling <a class="link" href="GMount.html#g-mount-eject-finish"><code class="function">g_mount_eject_finish()</code></a> with the <em class="parameter"><code>mount</code></em> 
+and <span class="type">GAsyncResults</span> data returned in the <em class="parameter"><code>callback</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></p></td>
+<td> flags affecting the unmount if required for eject
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html#GAsyncReadyCallback"><span class="type">GAsyncReadyCallback</span></a>, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> user data passed to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2890752"></a><h3>
+<a name="g-mount-eject-finish"></a>g_mount_eject_finish ()</h3>
+<a class="indexterm" name="id2890762"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_mount_eject_finish                (<a class="link" href="GMount.html" title="GMount">GMount</a> *mount,
+                                                         <a class="link" href="GAsyncResult.html" title="GAsyncResult">GAsyncResult</a> *result,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Finishes ejecting a mount. If any errors occurred during the operation, 
+<em class="parameter"><code>error</code></em> will be set to contain the errors and <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mount</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GMount.html" title="GMount"><span class="type">GMount</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>result</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GAsyncResult.html" title="GAsyncResult"><span class="type">GAsyncResult</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> location to store the error occuring, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to 
+ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the mount was successfully ejected. <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> otherwise.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2890916"></a><div class="refsect2" lang="en"><a name="id2890917"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2890918"></a></div>
+</div>
+</div>
+</body>
+</html>

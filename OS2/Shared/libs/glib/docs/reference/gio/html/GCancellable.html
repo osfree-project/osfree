@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GCancellable</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="async.html" title="Asynchronous I/O">
+<link rel="prev" href="async.html" title="Asynchronous I/O">
+<link rel="next" href="GAsyncResult.html" title="GAsyncResult">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="async.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="async.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="GAsyncResult.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2722062" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2805547" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2808668" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2808692" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GCancellable"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2722062"></a><span class="refentrytitle">GCancellable</span>
+</h2>
+<p>GCancellable &#8212; Thread-safe Operation Cancellation Stack</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GCancellable.html#GCancellable-struct">GCancellable</a>;
+<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a>*       <a class="link" href="GCancellable.html#g-cancellable-new">g_cancellable_new</a>                   (void);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GCancellable.html#g-cancellable-is-cancelled">g_cancellable_is_cancelled</a>          (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GCancellable.html#g-cancellable-set-error-if-cancelled">g_cancellable_set_error_if_cancelled</a>
+                                                        (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+int                 <a class="link" href="GCancellable.html#g-cancellable-get-fd">g_cancellable_get_fd</a>                (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a>*       <a class="link" href="GCancellable.html#g-cancellable-get-current">g_cancellable_get_current</a>           (void);
+void                <a class="link" href="GCancellable.html#g-cancellable-pop-current">g_cancellable_pop_current</a>           (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+void                <a class="link" href="GCancellable.html#g-cancellable-push-current">g_cancellable_push_current</a>          (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+void                <a class="link" href="GCancellable.html#g-cancellable-reset">g_cancellable_reset</a>                 (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+void                <a class="link" href="GCancellable.html#g-cancellable-cancel">g_cancellable_cancel</a>                (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2808668"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----GCancellable
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2808692"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+  "<a class="link" href="GCancellable.html#GCancellable-cancelled">cancelled</a>"                                      : Run Last
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2805547"></a><h2>Description</h2>
+<p>
+GCancellable is a thread-safe operation cancellation stack used 
+throughout GIO to allow for cancellation of synchronous and
+asynchronous operations.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2805569"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2805580"></a><h3>
+<a name="GCancellable-struct"></a>GCancellable</h3>
+<a class="indexterm" name="id2805592"></a><pre class="programlisting">typedef struct _GCancellable GCancellable;</pre>
+<p>
+Allows actions to be cancelled.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2805611"></a><h3>
+<a name="g-cancellable-new"></a>g_cancellable_new ()</h3>
+<a class="indexterm" name="id2805624"></a><pre class="programlisting"><a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a>*       g_cancellable_new                   (void);</pre>
+<p>
+Creates a new <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object.
+</p>
+<p>
+Applications that want to start one or more operations
+that should be cancellable should create a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a>
+and pass it to the operations.
+</p>
+<p>
+One <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> can be used in multiple consecutive
+operations, but not in multiple concurrent operations.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2796690"></a><h3>
+<a name="g-cancellable-is-cancelled"></a>g_cancellable_is_cancelled ()</h3>
+<a class="indexterm" name="id2796701"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_cancellable_is_cancelled          (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Checks if a cancellable job has been cancelled.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> or NULL.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if <em class="parameter"><code>cancellable</code></em> is cancelled, 
+FALSE if called with <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> or if item is not cancelled. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2796794"></a><h3>
+<a name="g-cancellable-set-error-if-cancelled"></a>g_cancellable_set_error_if_cancelled ()</h3>
+<a class="indexterm" name="id2796805"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_cancellable_set_error_if_cancelled
+                                                        (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+If the <em class="parameter"><code>cancelalble</code></em> is cancelled, sets the error to notify
+that the operation was cancelled.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> to append error state to.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if <em class="parameter"><code>cancellable</code></em> was cancelled, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> if it was not.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2796934"></a><h3>
+<a name="g-cancellable-get-fd"></a>g_cancellable_get_fd ()</h3>
+<a class="indexterm" name="id2796946"></a><pre class="programlisting">int                 g_cancellable_get_fd                (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Gets the file descriptor for a cancellable job. This can be used to
+implement cancellable operations on Unix systems. The returned fd will
+turn readable when <em class="parameter"><code>cancellable</code></em> is cancelled.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> A valid file descriptor. <code class="literal">-1</code> if the file descriptor 
+is not supported, or on errors. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2797287"></a><h3>
+<a name="g-cancellable-get-current"></a>g_cancellable_get_current ()</h3>
+<a class="indexterm" name="id2797298"></a><pre class="programlisting"><a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a>*       g_cancellable_get_current           (void);</pre>
+<p>
+Gets the top cancellable from the stack.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> from the top of the stack, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>
+if the stack is empty. 
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2797355"></a><h3>
+<a name="g-cancellable-pop-current"></a>g_cancellable_pop_current ()</h3>
+<a class="indexterm" name="id2797366"></a><pre class="programlisting">void                g_cancellable_pop_current           (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Pops <em class="parameter"><code>cancellable</code></em> off the cancellable stack (verifying that <em class="parameter"><code>cancellable</code></em> 
+is on the top of the stack).</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2797445"></a><h3>
+<a name="g-cancellable-push-current"></a>g_cancellable_push_current ()</h3>
+<a class="indexterm" name="id2797456"></a><pre class="programlisting">void                g_cancellable_push_current          (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Pushes <em class="parameter"><code>cancellable</code></em> onto the cancellable stack. The current
+cancllable can then be recieved using <a class="link" href="GCancellable.html#g-cancellable-get-current"><code class="function">g_cancellable_get_current()</code></a>.
+</p>
+<p>
+This is useful when implementing cancellable operations in
+code that does not allow you to pass down the cancellable object.
+</p>
+<p>
+This is typically called automatically by e.g. <a class="link" href="GFile.html" title="GFile"><span class="type">GFile</span></a> operations,
+so you rarely have to call this yourself.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2803122"></a><h3>
+<a name="g-cancellable-reset"></a>g_cancellable_reset ()</h3>
+<a class="indexterm" name="id2803135"></a><pre class="programlisting">void                g_cancellable_reset                 (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Resets <em class="parameter"><code>cancellable</code></em> to its uncancelled state.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2803198"></a><h3>
+<a name="g-cancellable-cancel"></a>g_cancellable_cancel ()</h3>
+<a class="indexterm" name="id2803209"></a><pre class="programlisting">void                g_cancellable_cancel                (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable);</pre>
+<p>
+Will set <em class="parameter"><code>cancellable</code></em> to cancelled, and will emit the CANCELLED
+signal.
+</p>
+<p>
+This function is thread-safe. In other words, you can safely call it from
+another thread than the one running an operation that was passed
+the <em class="parameter"><code>cancellable</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2803286"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2803297"></a><h3>
+<a name="GCancellable-cancelled"></a>The <code class="literal">"cancelled"</code> signal</h3>
+<a class="indexterm" name="id2803311"></a><pre class="programlisting">void                user_function                      (<a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                        <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>      user_data)        : Run Last</pre>
+<p>
+Emitted when the operation has been cancelled from another thread.
+</p>
+<p>
+Can be used by implementations of cancellable operations. This will
+be emitted in the thread that tried to cancel the operation, not the
+thread the is running the operation.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2803399"></a><div class="refsect2" lang="en"><a name="id2803400"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2803401"></a></div>
+</div>
+</div>
+</body>
+</html>

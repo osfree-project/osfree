@@ -1,0 +1,192 @@
+<refentry id="glib-Numerical-Definitions">
+<refmeta>
+<refentrytitle role="top_of_page">Numerical Definitions</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GLIB Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Numerical Definitions</refname>
+<refpurpose>mathematical constants, and floating point decomposition</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;glib.h&gt;
+
+
+#define             <link linkend="G-IEEE754-FLOAT-BIAS:CAPS">G_IEEE754_FLOAT_BIAS</link>
+#define             <link linkend="G-IEEE754-DOUBLE-BIAS:CAPS">G_IEEE754_DOUBLE_BIAS</link>
+union               <link linkend="GFloatIEEE754">GFloatIEEE754</link>;
+union               <link linkend="GDoubleIEEE754">GDoubleIEEE754</link>;
+
+
+#define             <link linkend="G-E:CAPS">G_E</link>
+#define             <link linkend="G-LN2:CAPS">G_LN2</link>
+#define             <link linkend="G-LN10:CAPS">G_LN10</link>
+#define             <link linkend="G-PI:CAPS">G_PI</link>
+#define             <link linkend="G-PI-2:CAPS">G_PI_2</link>
+#define             <link linkend="G-PI-4:CAPS">G_PI_4</link>
+#define             <link linkend="G-SQRT2:CAPS">G_SQRT2</link>
+#define             <link linkend="G-LOG-2-BASE-10:CAPS">G_LOG_2_BASE_10</link>
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+GLib offers mathematical constants such as <link linkend="G-PI:CAPS"><type>G_PI</type></link> for the value of pi;
+many platforms have these in the C library, but some don't, the GLib
+versions always exist.
+</para>
+
+<para>
+The <link linkend="GFloatIEEE754"><type>GFloatIEEE754</type></link> and <link linkend="GDoubleIEEE754"><type>GDoubleIEEE754</type></link> unions are used to access the
+	sign, mantissa and exponent of IEEE floats and doubles. These
+	unions are defined as appropriate for a given platform. 
+ IEEE floats and doubles are supported (used for
+	storage) by at least Intel, PPC and Sparc, for reference: <ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="G-IEEE754-FLOAT-BIAS:CAPS" role="macro"/>G_IEEE754_FLOAT_BIAS</title>
+<indexterm><primary>G_IEEE754_FLOAT_BIAS</primary></indexterm><programlisting>#define G_IEEE754_FLOAT_BIAS	(127)
+</programlisting>
+<para>
+See <ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-IEEE754-DOUBLE-BIAS:CAPS" role="macro"/>G_IEEE754_DOUBLE_BIAS</title>
+<indexterm><primary>G_IEEE754_DOUBLE_BIAS</primary></indexterm><programlisting>#define G_IEEE754_DOUBLE_BIAS	(1023)
+</programlisting>
+<para>
+See <ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para></refsect2>
+<refsect2>
+<title><anchor id="GFloatIEEE754" role="union"/>union GFloatIEEE754</title>
+<indexterm><primary>GFloatIEEE754</primary></indexterm><programlisting>union GFloatIEEE754
+{
+  gfloat v_float;
+  struct {
+    guint mantissa : 23;
+    guint biased_exponent : 8;
+    guint sign : 1;
+  } mpn;
+};
+</programlisting>
+<para>
+The <link linkend="GFloatIEEE754"><type>GFloatIEEE754</type></link> and <link linkend="GDoubleIEEE754"><type>GDoubleIEEE754</type></link> unions are used to access the
+	sign, mantissa and exponent of IEEE floats and doubles. These
+	unions are defined as appropriate for a given platform. 
+ IEEE floats and doubles are supported (used for
+	storage) by at least Intel, PPC and Sparc, for reference: 
+<ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para></refsect2>
+<refsect2>
+<title><anchor id="GDoubleIEEE754" role="union"/>union GDoubleIEEE754</title>
+<indexterm><primary>GDoubleIEEE754</primary></indexterm><programlisting>union GDoubleIEEE754
+{
+  gdouble v_double;
+  struct {
+    guint mantissa_low : 32;
+    guint mantissa_high : 20;
+    guint biased_exponent : 11;
+    guint sign : 1;
+  } mpn;
+};
+</programlisting>
+<para>
+The <link linkend="GFloatIEEE754"><type>GFloatIEEE754</type></link> and <link linkend="GDoubleIEEE754"><type>GDoubleIEEE754</type></link> unions are used to access the
+	sign, mantissa and exponent of IEEE floats and doubles. These
+	unions are defined as appropriate for a given platform. 
+ IEEE floats and doubles are supported (used for
+	storage) by at least Intel, PPC and Sparc, for reference: 
+<ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-E:CAPS" role="macro"/>G_E</title>
+<indexterm><primary>G_E</primary></indexterm><programlisting>#define G_E     2.7182818284590452353602874713526624977572470937000
+</programlisting>
+<para>
+The base of natural logarithms.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-LN2:CAPS" role="macro"/>G_LN2</title>
+<indexterm><primary>G_LN2</primary></indexterm><programlisting>#define G_LN2   0.69314718055994530941723212145817656807550013436026
+</programlisting>
+<para>
+The natural logarithm of 2.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-LN10:CAPS" role="macro"/>G_LN10</title>
+<indexterm><primary>G_LN10</primary></indexterm><programlisting>#define G_LN10  2.3025850929940456840179914546843642076011014886288
+</programlisting>
+<para>
+The natural logarithm of 10.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-PI:CAPS" role="macro"/>G_PI</title>
+<indexterm><primary>G_PI</primary></indexterm><programlisting>#define G_PI    3.1415926535897932384626433832795028841971693993751
+</programlisting>
+<para>
+The value of pi (ratio of circle's circumference to its diameter).
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-PI-2:CAPS" role="macro"/>G_PI_2</title>
+<indexterm><primary>G_PI_2</primary></indexterm><programlisting>#define G_PI_2  1.5707963267948966192313216916397514420985846996876
+</programlisting>
+<para>
+Pi divided by 2.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-PI-4:CAPS" role="macro"/>G_PI_4</title>
+<indexterm><primary>G_PI_4</primary></indexterm><programlisting>#define G_PI_4  0.78539816339744830961566084581987572104929234984378
+</programlisting>
+<para>
+Pi divided by 4.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-SQRT2:CAPS" role="macro"/>G_SQRT2</title>
+<indexterm><primary>G_SQRT2</primary></indexterm><programlisting>#define G_SQRT2 1.4142135623730950488016887242096980785696718753769
+</programlisting>
+<para>
+The square root of two.
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-LOG-2-BASE-10:CAPS" role="macro"/>G_LOG_2_BASE_10</title>
+<indexterm><primary>G_LOG_2_BASE_10</primary></indexterm><programlisting>#define G_LOG_2_BASE_10		(0.30102999566398119521)
+</programlisting>
+<para>
+Used for fooling around with float formats, see 
+<ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<ulink url="http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html">http://cch.loria.fr/documentation/IEEE754/numerical_comp_guide/ncg_math.doc.html</ulink>
+</para>
+</refsect1>
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>

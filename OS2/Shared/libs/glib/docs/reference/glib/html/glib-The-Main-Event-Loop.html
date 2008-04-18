@@ -1,0 +1,3305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>The Main Event Loop</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GLib Reference Manual">
+<link rel="up" href="glib-core.html" title="GLib Core Application Support">
+<link rel="prev" href="glib-core.html" title="GLib Core Application Support">
+<link rel="next" href="glib-Threads.html" title="Threads">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="glib.html" title="GLib Overview">
+<link rel="chapter" href="glib-fundamentals.html" title="GLib Fundamentals">
+<link rel="chapter" href="glib-core.html" title="GLib Core Application Support">
+<link rel="chapter" href="glib-utilities.html" title="GLib Utilities">
+<link rel="chapter" href="glib-data-types.html" title="GLib Data Types">
+<link rel="chapter" href="tools.html" title="GLib Tools">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+<link rel="index" href="ix10.html" title="Index of new symbols in 2.16">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="glib-core.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="glib-core.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GLib Reference Manual</th>
+<td><a accesskey="n" href="glib-Threads.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2910780" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2912999" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="glib-The-Main-Event-Loop"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2910780"></a><span class="refentrytitle">The Main Event Loop</span>
+</h2>
+<p>The Main Event Loop &#8212; manages all available sources of events</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;glib.h&gt;
+
+
+                    <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a>;
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a>*          <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-new">g_main_loop_new</a>                     (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a> is_running);
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a>*          <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-ref">g_main_loop_ref</a>                     (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-unref">g_main_loop_unref</a>                   (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run">g_main_loop_run</a>                     (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-quit">g_main_loop_quit</a>                    (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-is-running">g_main_loop_is_running</a>              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-get-context">g_main_loop_get_context</a>             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-new">g_main_new</a>                          (is_running)
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-destroy">g_main_destroy</a>                      (loop)
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-run">g_main_run</a>                          (loop)
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-quit">g_main_quit</a>                         (loop)
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-is-running">g_main_is_running</a>                   (loop)
+
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH:CAPS">G_PRIORITY_HIGH</a>
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS">G_PRIORITY_DEFAULT</a>
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH-IDLE:CAPS">G_PRIORITY_HIGH_IDLE</a>
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT-IDLE:CAPS">G_PRIORITY_DEFAULT_IDLE</a>
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-LOW:CAPS">G_PRIORITY_LOW</a>
+
+                    <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>;
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-new">g_main_context_new</a>                  (void);
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-ref">g_main_context_ref</a>                  (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-unref">g_main_context_unref</a>                (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-default">g_main_context_default</a>              (void);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-iteration">g_main_context_iteration</a>            (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a> may_block);
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-iteration">g_main_iteration</a>                    (may_block)
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-pending">g_main_context_pending</a>              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-pending">g_main_pending</a>                      ()
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-find-source-by-id">g_main_context_find_source_by_id</a>    (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> source_id);
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-find-source-by-user-data">g_main_context_find_source_by_user_data</a>
+                                                        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-find-source-by-funcs-user-data">g_main_context_find_source_by_funcs_user_data</a>
+                                                        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *funcs,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-wakeup">g_main_context_wakeup</a>               (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-acquire">g_main_context_acquire</a>              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-release">g_main_context_release</a>              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-is-owner">g_main_context_is_owner</a>             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-wait">g_main_context_wait</a>                 (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Threads.html#GCond">GCond</a> *cond,
+                                                         <a class="link" href="glib-Threads.html#GMutex">GMutex</a> *mutex);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-prepare">g_main_context_prepare</a>              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> *priority);
+<a class="link" href="glib-Basic-Types.html#gint">gint</a>                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-query">g_main_context_query</a>                (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> max_priority,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> *timeout_,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fds,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> n_fds);
+<a class="link" href="glib-Basic-Types.html#gint">gint</a>                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-check">g_main_context_check</a>                (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> max_priority,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fds,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> n_fds);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-dispatch">g_main_context_dispatch</a>             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-set-poll-func">g_main_context_set_poll_func</a>        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFunc">GPollFunc</a> func);
+<a class="link" href="glib-The-Main-Event-Loop.html#GPollFunc">GPollFunc</a>           <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-get-poll-func">g_main_context_get_poll_func</a>        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+<a class="link" href="glib-Basic-Types.html#gint">gint</a>                (<a class="link" href="glib-The-Main-Event-Loop.html#GPollFunc">*GPollFunc</a>)                        (<a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *ufds,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> nfsd,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> timeout_);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-add-poll">g_main_context_add_poll</a>             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> priority);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-remove-poll">g_main_context_remove_poll</a>          (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd);
+<a class="link" href="glib-Basic-Types.html#gint">gint</a>                <a class="link" href="glib-The-Main-Event-Loop.html#g-main-depth">g_main_depth</a>                        (void);
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-main-current-source">g_main_current_source</a>               (void);
+#define             <a class="link" href="glib-The-Main-Event-Loop.html#g-main-set-poll-func">g_main_set_poll_func</a>                (func)
+
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-source-new">g_timeout_source_new</a>                (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval);
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-source-new-seconds">g_timeout_source_new_seconds</a>        (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add">g_timeout_add</a>                       (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-full">g_timeout_add_full</a>                  (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-seconds">g_timeout_add_seconds</a>               (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-seconds-full">g_timeout_add_seconds_full</a>          (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);
+
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-source-new">g_idle_source_new</a>                   (void);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add">g_idle_add</a>                          (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add-full">g_idle_add_full</a>                     (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-remove-by-data">g_idle_remove_by_data</a>               (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+
+typedef             <a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a>;
+void                (<a class="link" href="glib-The-Main-Event-Loop.html#GChildWatchFunc">*GChildWatchFunc</a>)                  (<a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> status,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-source-new">g_child_watch_source_new</a>            (<a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-add">g_child_watch_add</a>                   (<a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GChildWatchFunc">GChildWatchFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-add-full">g_child_watch_add_full</a>              (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GChildWatchFunc">GChildWatchFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);
+
+                    <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a>;
+
+                    <a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>;
+void                (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceDummyMarshal">*GSourceDummyMarshal</a>)              (void);
+                    <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a>;
+                    <a class="link" href="glib-The-Main-Event-Loop.html#GSourceCallbackFuncs">GSourceCallbackFuncs</a>;
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-new">g_source_new</a>                        (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *source_funcs,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> struct_size);
+<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-ref">g_source_ref</a>                        (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-unref">g_source_unref</a>                      (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-funcs">g_source_set_funcs</a>                  (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *funcs);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach">g_source_attach</a>                     (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-destroy">g_source_destroy</a>                    (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-is-destroyed">g_source_is_destroyed</a>               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-priority">g_source_set_priority</a>               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> priority);
+<a class="link" href="glib-Basic-Types.html#gint">gint</a>                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-priority">g_source_get_priority</a>               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-can-recurse">g_source_set_can_recurse</a>            (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a> can_recurse);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-can-recurse">g_source_get_can_recurse</a>            (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+<a class="link" href="glib-Basic-Types.html#guint">guint</a>               <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-id">g_source_get_id</a>                     (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-context">g_source_get_context</a>                (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-callback">g_source_set_callback</a>               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> func,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">*GSourceFunc</a>)                      (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-callback-indirect">g_source_set_callback_indirect</a>      (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> callback_data,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceCallbackFuncs">GSourceCallbackFuncs</a> *callback_funcs);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-add-poll">g_source_add_poll</a>                   (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-remove-poll">g_source_remove_poll</a>                (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd);
+void                <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-current-time">g_source_get_current_time</a>           (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Date-and-Time-Functions.html#GTimeVal">GTimeVal</a> *timeval);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-remove">g_source_remove</a>                     (<a class="link" href="glib-Basic-Types.html#guint">guint</a> tag);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-remove-by-funcs-user-data">g_source_remove_by_funcs_user_data</a>  (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *funcs,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);
+<a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            <a class="link" href="glib-The-Main-Event-Loop.html#g-source-remove-by-user-data">g_source_remove_by_user_data</a>        (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2912999"></a><h2>Description</h2>
+<p>
+    The main event loop manages all the available sources of events for
+    GLib and GTK+ applications. These events can come from any number of
+    different types of sources such as file descriptors (plain files,
+    pipes or sockets) and timeouts.  New types of event sources can also
+    be added using <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a>.
+  </p>
+<p>
+    To allow multiple independent sets of sources to be handled in
+    different threads, each source is associated with a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>.
+    A <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> can only be running in a single thread, but
+    sources can be added to it and removed from it from other threads.
+  </p>
+<p>
+    Each event source is assigned a priority.  The default priority,
+    <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><span class="type">G_PRIORITY_DEFAULT</span></a>, is 0.  Values less than 0 denote higher
+    priorities.  Values greater than 0 denote lower priorities.  Events
+    from high priority sources are always processed before events from
+    lower priority sources.
+  </p>
+<p>
+    Idle functions can also be added, and assigned a priority. These will
+    be run whenever no events with a higher priority are ready to be
+    processed.
+  </p>
+<p>
+    The <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> data type represents a main event loop.  A <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>
+    is created with <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-new"><code class="function">g_main_loop_new()</code></a>. After adding the initial event sources,
+    <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a> is called. This continuously checks for new events from
+    each of the event sources and dispatches them.  Finally, the
+    processing of an event from one of the sources leads to a call to
+    <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-quit"><code class="function">g_main_loop_quit()</code></a> to exit the main loop, and <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a> returns.
+  </p>
+<p>
+    It is possible to create new instances of <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> recursively.
+    This is often used in GTK+ applications when showing modal dialog
+    boxes. Note that event sources are associated with a particular
+    <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>, and will be checked and dispatched for all main
+    loops associated with that <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>.
+  </p>
+<p>
+    GTK+ contains wrappers of some of these functions, e.g. <a
+href="/usr/share/gtk-doc/html/gtk/gtk-General.html#gtk-main"
+><code class="function">gtk_main()</code></a>,
+    <a
+href="/usr/share/gtk-doc/html/gtk/gtk-General.html#gtk-main-quit"
+><code class="function">gtk_main_quit()</code></a> and <a
+href="/usr/share/gtk-doc/html/gtk/gtk-General.html#gtk-events-pending"
+><code class="function">gtk_events_pending()</code></a>. 
+  </p>
+<div class="refsect2" lang="en">
+<a name="id2913216"></a><h3>Creating new sources types</h3>
+<p>
+      One of the unusual features of the GTK+ main loop functionality
+      is that new types of event source can be created and used in
+      addition to the builtin type of event source. A new event source
+      type is used for handling GDK events. A new source type is
+      created by <em class="firstterm">deriving</em> from the <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+      structure. The derived type of source is represented by a
+      structure that has the <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> structure as a first element,
+      and other elements specific to the new source type. To create
+      an instance of the new source type, call <a class="link" href="glib-The-Main-Event-Loop.html#g-source-new"><code class="function">g_source_new()</code></a> passing
+      in the size of the derived structure and a table of functions.
+      These <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs"><span class="type">GSourceFuncs</span></a> determine the behavior of the new source
+      types.
+    </p>
+<p>
+      New source types basically interact with the main context
+      in two ways. Their prepare function in <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs"><span class="type">GSourceFuncs</span></a> can set
+      a timeout to determine the maximum amount of time that the
+      main loop will sleep before checking the source again.  In
+      addition, or as well, the source can add file descriptors to
+      the set that the main context checks using <a class="link" href="glib-The-Main-Event-Loop.html#g-source-add-poll"><code class="function">g_source_add_poll()</code></a>.
+    </p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2913304"></a><h3>Customizing the main loop iteration</h3>
+<p>
+      Single iterations of a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> can be run with
+      <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-iteration"><code class="function">g_main_context_iteration()</code></a>. In some cases, more detailed control
+      of exactly how the details of the main loop work is desired,
+      for instance, when integrating the <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> with an external
+      main loop. In such cases, you can call the component functions
+      of <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-iteration"><code class="function">g_main_context_iteration()</code></a> directly. These functions
+      are <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-prepare"><code class="function">g_main_context_prepare()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-query"><code class="function">g_main_context_query()</code></a>,
+      <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-check"><code class="function">g_main_context_check()</code></a> and <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-dispatch"><code class="function">g_main_context_dispatch()</code></a>.
+    </p>
+<p>
+      The operation of these functions can best be seen in terms
+      of a state diagram, as shown in <a class="xref" href="glib-The-Main-Event-Loop.html#mainloop-states" title="Figure&#160;1.&#160;States of a Main Context">Figure&#160;1, &#8220;States of a Main Context&#8221;</a>.
+    </p>
+<div class="figure">
+<a name="mainloop-states"></a><p class="title"><b>Figure&#160;1.&#160;States of a Main Context</b></p>
+<div class="figure-contents"><div><img src="mainloop-states.gif" alt="States of a Main Context"></div></div>
+</div>
+<br class="figure-break">
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2913434"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2913445"></a><h3>
+<a name="GMainLoop"></a>GMainLoop</h3>
+<a class="indexterm" name="id2913457"></a><pre class="programlisting">typedef struct _GMainLoop GMainLoop;</pre>
+<p>
+The <span class="structname">GMainLoop</span> struct is an opaque data type 
+representing the main event loop of a GLib or GTK+ application.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2913478"></a><h3>
+<a name="g-main-loop-new"></a>g_main_loop_new ()</h3>
+<a class="indexterm" name="id2913491"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a>*          g_main_loop_new                     (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a> is_running);</pre>
+<p>
+Creates a new <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> structure.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>  (if <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the default context will be used).
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>is_running</code></em>&#160;:</span></p></td>
+<td> set to <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> to indicate that the loop is running. This
+is not very important since calling <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a> will set this to
+<a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> anyway.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> a new <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2913641"></a><h3>
+<a name="g-main-loop-ref"></a>g_main_loop_ref ()</h3>
+<a class="indexterm" name="id2913654"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a>*          g_main_loop_ref                     (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);</pre>
+<p>
+Increases the reference count on a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> object by one.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <em class="parameter"><code>loop</code></em>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2913735"></a><h3>
+<a name="g-main-loop-unref"></a>g_main_loop_unref ()</h3>
+<a class="indexterm" name="id2913749"></a><pre class="programlisting">void                g_main_loop_unref                   (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);</pre>
+<p>
+Decreases the reference count on a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> object by one. If
+the result is zero, free the loop and free all associated memory.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2913816"></a><h3>
+<a name="g-main-loop-run"></a>g_main_loop_run ()</h3>
+<a class="indexterm" name="id2913828"></a><pre class="programlisting">void                g_main_loop_run                     (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);</pre>
+<p>
+Runs a main loop until <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-quit"><code class="function">g_main_loop_quit()</code></a> is called on the loop.
+If this is called for the thread of the loop's <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>,
+it will process events from the loop, otherwise it will
+simply wait.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2913907"></a><h3>
+<a name="g-main-loop-quit"></a>g_main_loop_quit ()</h3>
+<a class="indexterm" name="id2913920"></a><pre class="programlisting">void                g_main_loop_quit                    (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);</pre>
+<p>
+Stops a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> from running. Any calls to <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a>
+for the loop will return. 
+</p>
+<p>
+Note that sources that have already been dispatched when 
+<a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-quit"><code class="function">g_main_loop_quit()</code></a> is called will still be executed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914012"></a><h3>
+<a name="g-main-loop-is-running"></a>g_main_loop_is_running ()</h3>
+<a class="indexterm" name="id2914025"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_loop_is_running              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);</pre>
+<p>
+Checks to see if the main loop is currently being run via <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the mainloop is currently being run.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914115"></a><h3>
+<a name="g-main-loop-get-context"></a>g_main_loop_get_context ()</h3>
+<a class="indexterm" name="id2914128"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       g_main_loop_get_context             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop">GMainLoop</a> *loop);</pre>
+<p>
+Returns the <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> of <em class="parameter"><code>loop</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> of <em class="parameter"><code>loop</code></em>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914224"></a><h3>
+<a name="g-main-new"></a>g_main_new()</h3>
+<a class="indexterm" name="id2914240"></a><pre class="programlisting">#define             g_main_new(is_running)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_new</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-new"><code class="function">g_main_loop_new()</code></a> instead.</p>
+</div>
+<p>
+Creates a new <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a> for the default main loop. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>is_running</code></em>&#160;:</span></p></td>
+<td>set to <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> to indicate that the loop is running. This is not
+very important since calling <a class="link" href="glib-The-Main-Event-Loop.html#g-main-run"><code class="function">g_main_run()</code></a> will set this to <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> anyway.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>a new <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914356"></a><h3>
+<a name="g-main-destroy"></a>g_main_destroy()</h3>
+<a class="indexterm" name="id2914372"></a><pre class="programlisting">#define             g_main_destroy(loop)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_destroy</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-unref"><code class="function">g_main_loop_unref()</code></a> instead.</p>
+</div>
+<p>
+Frees the memory allocated for the <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914445"></a><h3>
+<a name="g-main-run"></a>g_main_run()</h3>
+<a class="indexterm" name="id2914460"></a><pre class="programlisting">#define             g_main_run(loop)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_run</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a> instead.</p>
+</div>
+<p>
+Runs a main loop until it stops running. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914526"></a><h3>
+<a name="g-main-quit"></a>g_main_quit()</h3>
+<a class="indexterm" name="id2914541"></a><pre class="programlisting">#define             g_main_quit(loop)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_quit</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-quit"><code class="function">g_main_loop_quit()</code></a> instead.</p>
+</div>
+<p>
+Stops the <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>. If <a class="link" href="glib-The-Main-Event-Loop.html#g-main-run"><code class="function">g_main_run()</code></a> was called to run the <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>,
+it will now return. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914633"></a><h3>
+<a name="g-main-is-running"></a>g_main_is_running()</h3>
+<a class="indexterm" name="id2914649"></a><pre class="programlisting">#define             g_main_is_running(loop)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_is_running</code> has been deprecated since version 2.2 and should not be used in newly-written code. USe <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-is-running"><code class="function">g_main_loop_is_running()</code></a> instead.</p>
+</div>
+<p>
+Checks if the main loop is running. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>loop</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GMainLoop"><span class="type">GMainLoop</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>
+<a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the main loop is running.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914734"></a><h3>
+<a name="G-PRIORITY-HIGH:CAPS"></a>G_PRIORITY_HIGH</h3>
+<a class="indexterm" name="id2914748"></a><pre class="programlisting">#define G_PRIORITY_HIGH            -100
+</pre>
+<p>
+Use this for high priority event sources.
+It is not used within GLib or GTK+.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914764"></a><h3>
+<a name="G-PRIORITY-DEFAULT:CAPS"></a>G_PRIORITY_DEFAULT</h3>
+<a class="indexterm" name="id2914778"></a><pre class="programlisting">#define G_PRIORITY_DEFAULT          0
+</pre>
+<p>
+Use this for default priority event sources.
+In GLib this priority is used when adding timeout functions with
+<a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a>.
+In GDK this priority is used for events from the X server.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914807"></a><h3>
+<a name="G-PRIORITY-HIGH-IDLE:CAPS"></a>G_PRIORITY_HIGH_IDLE</h3>
+<a class="indexterm" name="id2914820"></a><pre class="programlisting">#define G_PRIORITY_HIGH_IDLE        100
+</pre>
+<p>
+Use this for high priority idle functions.
+GTK+ uses <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH-IDLE:CAPS"><span class="type">G_PRIORITY_HIGH_IDLE</span></a> + 10 for resizing operations, and
+<a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH-IDLE:CAPS"><span class="type">G_PRIORITY_HIGH_IDLE</span></a> + 20 for redrawing operations. (This is done to
+ensure that any pending resizes are processed before any pending redraws,
+so that widgets are not redrawn twice unnecessarily.)
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914857"></a><h3>
+<a name="G-PRIORITY-DEFAULT-IDLE:CAPS"></a>G_PRIORITY_DEFAULT_IDLE</h3>
+<a class="indexterm" name="id2914871"></a><pre class="programlisting">#define G_PRIORITY_DEFAULT_IDLE     200
+</pre>
+<p>
+Use this for default priority idle functions.
+In GLib this priority is used when adding idle functions with <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add"><code class="function">g_idle_add()</code></a>.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914898"></a><h3>
+<a name="G-PRIORITY-LOW:CAPS"></a>G_PRIORITY_LOW</h3>
+<a class="indexterm" name="id2914911"></a><pre class="programlisting">#define G_PRIORITY_LOW	            300
+</pre>
+<p>
+Use this for very low priority background tasks.
+It is not used within GLib or GTK+.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914928"></a><h3>
+<a name="GMainContext"></a>GMainContext</h3>
+<a class="indexterm" name="id2914941"></a><pre class="programlisting">typedef struct _GMainContext GMainContext;</pre>
+<p>
+The <span class="structname">GMainContext</span> struct is an opaque data type 
+representing a set of sources to be handled in a main loop. 
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2914962"></a><h3>
+<a name="g-main-context-new"></a>g_main_context_new ()</h3>
+<a class="indexterm" name="id2914975"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       g_main_context_new                  (void);</pre>
+<p>
+Creates a new <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> structure.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the new <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915031"></a><h3>
+<a name="g-main-context-ref"></a>g_main_context_ref ()</h3>
+<a class="indexterm" name="id2915044"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       g_main_context_ref                  (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Increases the reference count on a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> object by one.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the <em class="parameter"><code>context</code></em> that was passed in (since 2.6)
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915127"></a><h3>
+<a name="g-main-context-unref"></a>g_main_context_unref ()</h3>
+<a class="indexterm" name="id2915140"></a><pre class="programlisting">void                g_main_context_unref                (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Decreases the reference count on a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> object by one. If
+the result is zero, free the context and free all associated memory.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915208"></a><h3>
+<a name="g-main-context-default"></a>g_main_context_default ()</h3>
+<a class="indexterm" name="id2915222"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       g_main_context_default              (void);</pre>
+<p>
+Returns the default main context. This is the main context used
+for main loop functions when a main loop is not explicitly
+specified.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the default main context.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915264"></a><h3>
+<a name="g-main-context-iteration"></a>g_main_context_iteration ()</h3>
+<a class="indexterm" name="id2915278"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_context_iteration            (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a> may_block);</pre>
+<p>
+Runs a single iteration for the given main loop. This involves
+checking to see if any event sources are ready to be processed,
+then if no events sources are ready and <em class="parameter"><code>may_block</code></em> is <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, waiting
+for a source to become ready, then dispatching the highest priority
+events sources that are ready. Otherwise, if <em class="parameter"><code>may_block</code></em> is <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> 
+sources are not waited to become ready, only those highest priority 
+events sources will be dispatched (if any), that are ready at this 
+given moment without further waiting.
+</p>
+<p>
+Note that even when <em class="parameter"><code>may_block</code></em> is <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, it is still possible for 
+<a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-iteration"><code class="function">g_main_context_iteration()</code></a> to return <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, since the the wait may 
+be interrupted for other reasons than an event source becoming ready.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> (if <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the default context will be used) 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>may_block</code></em>&#160;:</span></p></td>
+<td> whether the call may block.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if events were dispatched.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915473"></a><h3>
+<a name="g-main-iteration"></a>g_main_iteration()</h3>
+<a class="indexterm" name="id2915488"></a><pre class="programlisting">#define             g_main_iteration(may_block)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_iteration</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-iteration"><code class="function">g_main_context_iteration()</code></a> instead.</p>
+</div>
+<p>
+Runs a single iteration for the default <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>may_block</code></em>&#160;:</span></p></td>
+<td>set to <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if it should block (i.e. wait) until an event source
+becomes ready. It will return after an event source has been processed.
+If set to <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> it will return immediately if no event source is ready to be
+processed.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>
+<a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if more events are pending.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915598"></a><h3>
+<a name="g-main-context-pending"></a>g_main_context_pending ()</h3>
+<a class="indexterm" name="id2915612"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_context_pending              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Checks if any sources have pending events for the given context.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> (if <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the default context will be used)
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if events are pending.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915703"></a><h3>
+<a name="g-main-pending"></a>g_main_pending()</h3>
+<a class="indexterm" name="id2915719"></a><pre class="programlisting">#define             g_main_pending()</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_pending</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-pending"><code class="function">g_main_context_pending()</code></a> instead.</p>
+</div>
+<p>
+Checks if any events are pending for the default <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+(i.e. ready to be processed).  
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>
+<a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if any events are pending.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915792"></a><h3>
+<a name="g-main-context-find-source-by-id"></a>g_main_context_find_source_by_id ()</h3>
+<a class="indexterm" name="id2915806"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_main_context_find_source_by_id    (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> source_id);</pre>
+<p>
+Finds a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> given a pair of context and ID.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> (if <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the default context will be used)
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_id</code></em>&#160;:</span></p></td>
+<td> the source ID, as returned by <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-id"><code class="function">g_source_get_id()</code></a>. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> if found, otherwise, <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2915945"></a><h3>
+<a name="g-main-context-find-source-by-user-data"></a>g_main_context_find_source_by_user_data ()</h3>
+<a class="indexterm" name="id2915959"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_main_context_find_source_by_user_data
+                                                        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);</pre>
+<p>
+Finds a source with the given user data for the callback.  If
+multiple sources exist with the same user data, the first
+one found will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> the user_data for the callback.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the source, if one was found, otherwise <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916064"></a><h3>
+<a name="g-main-context-find-source-by-funcs-user-data"></a>g_main_context_find_source_by_funcs_user_data ()</h3>
+<a class="indexterm" name="id2916078"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_main_context_find_source_by_funcs_user_data
+                                                        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *funcs,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);</pre>
+<p>
+Finds a source with the given source functions and user data.  If
+multiple sources exist with the same source function and user data,
+the first one found will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> (if <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the default context will be used).
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>funcs</code></em>&#160;:</span></p></td>
+<td> the <em class="parameter"><code>source_funcs</code></em> passed to <a class="link" href="glib-The-Main-Event-Loop.html#g-source-new"><code class="function">g_source_new()</code></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> the user data from the callback.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the source, if one was found, otherwise <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916233"></a><h3>
+<a name="g-main-context-wakeup"></a>g_main_context_wakeup ()</h3>
+<a class="indexterm" name="id2916246"></a><pre class="programlisting">void                g_main_context_wakeup               (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+If <em class="parameter"><code>context</code></em> is currently waiting in a <code class="function">poll()</code>, interrupt
+the <code class="function">poll()</code>, and continue the iteration process.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916333"></a><h3>
+<a name="g-main-context-acquire"></a>g_main_context_acquire ()</h3>
+<a class="indexterm" name="id2916347"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_context_acquire              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Tries to become the owner of the specified context.
+If some other thread is the owner of the context,
+returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> immediately. Ownership is properly
+recursive: the owner can require ownership again
+and will release ownership when <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-release"><code class="function">g_main_context_release()</code></a>
+is called as many times as <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-acquire"><code class="function">g_main_context_acquire()</code></a>.
+</p>
+<p>
+You must be the owner of a context before you
+can call <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-prepare"><code class="function">g_main_context_prepare()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-query"><code class="function">g_main_context_query()</code></a>,
+<a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-check"><code class="function">g_main_context_check()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-dispatch"><code class="function">g_main_context_dispatch()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the operation succeeded, and
+  this thread is now the owner of <em class="parameter"><code>context</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916515"></a><h3>
+<a name="g-main-context-release"></a>g_main_context_release ()</h3>
+<a class="indexterm" name="id2916529"></a><pre class="programlisting">void                g_main_context_release              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Releases ownership of a context previously acquired by this thread
+with <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-acquire"><code class="function">g_main_context_acquire()</code></a>. If the context was acquired multiple
+times, the ownership will be released only when <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-release"><code class="function">g_main_context_release()</code></a>
+is called as many times as it was acquired.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916612"></a><h3>
+<a name="g-main-context-is-owner"></a>g_main_context_is_owner ()</h3>
+<a class="indexterm" name="id2916628"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_context_is_owner             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Determines whether this thread holds the (recursive)
+ownership of this <span class="type">GMaincontext</span>. This is useful to
+know before waiting on another thread that may be
+blocking to get ownership of <em class="parameter"><code>context</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if current thread is owner of <em class="parameter"><code>context</code></em>.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.10
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916738"></a><h3>
+<a name="g-main-context-wait"></a>g_main_context_wait ()</h3>
+<a class="indexterm" name="id2916751"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_context_wait                 (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Threads.html#GCond">GCond</a> *cond,
+                                                         <a class="link" href="glib-Threads.html#GMutex">GMutex</a> *mutex);</pre>
+<p>
+Tries to become the owner of the specified context,
+as with <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-acquire"><code class="function">g_main_context_acquire()</code></a>. But if another thread
+is the owner, atomically drop <em class="parameter"><code>mutex</code></em> and wait on <em class="parameter"><code>cond</code></em> until 
+that owner releases ownership or until <em class="parameter"><code>cond</code></em> is signaled, then
+try again (once) to become the owner.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cond</code></em>&#160;:</span></p></td>
+<td> a condition variable
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mutex</code></em>&#160;:</span></p></td>
+<td> a mutex, currently held
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the operation succeeded, and
+  this thread is now the owner of <em class="parameter"><code>context</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2916912"></a><h3>
+<a name="g-main-context-prepare"></a>g_main_context_prepare ()</h3>
+<a class="indexterm" name="id2916925"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_main_context_prepare              (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> *priority);</pre>
+<p>
+Prepares to poll sources within a main loop. The resulting information
+for polling is determined by calling <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-query"><code class="function">g_main_context_query()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> location to store priority of highest priority
+           source already ready.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if some source is ready to be dispatched
+              prior to polling.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917041"></a><h3>
+<a name="g-main-context-query"></a>g_main_context_query ()</h3>
+<a class="indexterm" name="id2917054"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint">gint</a>                g_main_context_query                (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> max_priority,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> *timeout_,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fds,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> n_fds);</pre>
+<p>
+Determines information necessary to poll this main loop.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>max_priority</code></em>&#160;:</span></p></td>
+<td> maximum priority source to check
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>timeout_</code></em>&#160;:</span></p></td>
+<td> location to store timeout to be used in polling
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fds</code></em>&#160;:</span></p></td>
+<td> location to store <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> records that need to be polled.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n_fds</code></em>&#160;:</span></p></td>
+<td> length of <em class="parameter"><code>fds</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the number of records actually stored in <em class="parameter"><code>fds</code></em>,
+  or, if more than <em class="parameter"><code>n_fds</code></em> records need to be stored, the number
+  of records that need to be stored.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917239"></a><h3>
+<a name="g-main-context-check"></a>g_main_context_check ()</h3>
+<a class="indexterm" name="id2917252"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint">gint</a>                g_main_context_check                (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> max_priority,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fds,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> n_fds);</pre>
+<p>
+Passes the results of polling back to the main loop.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>max_priority</code></em>&#160;:</span></p></td>
+<td> the maximum numerical priority of sources to check
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fds</code></em>&#160;:</span></p></td>
+<td> array of <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a>'s that was passed to the last call to
+      <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-query"><code class="function">g_main_context_query()</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n_fds</code></em>&#160;:</span></p></td>
+<td> return value of <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-query"><code class="function">g_main_context_query()</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if some sources are ready to be dispatched.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917428"></a><h3>
+<a name="g-main-context-dispatch"></a>g_main_context_dispatch ()</h3>
+<a class="indexterm" name="id2917441"></a><pre class="programlisting">void                g_main_context_dispatch             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Dispatches all pending sources.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917500"></a><h3>
+<a name="g-main-context-set-poll-func"></a>g_main_context_set_poll_func ()</h3>
+<a class="indexterm" name="id2917513"></a><pre class="programlisting">void                g_main_context_set_poll_func        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFunc">GPollFunc</a> func);</pre>
+<p>
+Sets the function to use to handle polling of file descriptors. It
+will be used instead of the <code class="function">poll()</code> system call 
+(or GLib's replacement function, which is used where 
+<code class="function">poll()</code> isn't available).
+</p>
+<p>
+This function could possibly be used to integrate the GLib event
+loop with an external event loop.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>func</code></em>&#160;:</span></p></td>
+<td> the function to call to poll all file descriptors
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917622"></a><h3>
+<a name="g-main-context-get-poll-func"></a>g_main_context_get_poll_func ()</h3>
+<a class="indexterm" name="id2917636"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GPollFunc">GPollFunc</a>           g_main_context_get_poll_func        (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Gets the poll function set by <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-set-poll-func"><code class="function">g_main_context_set_poll_func()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the poll function
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917716"></a><h3>
+<a name="GPollFunc"></a>GPollFunc ()</h3>
+<a class="indexterm" name="id2917729"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint">gint</a>                (*GPollFunc)                        (<a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *ufds,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> nfsd,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> timeout_);</pre>
+<p>
+Specifies the type of function passed to <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-set-poll-func"><code class="function">g_main_context_set_poll_func()</code></a>.
+The semantics of the function should match those of the
+<code class="function"><code class="function">poll()</code></code> system call.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ufds</code></em>&#160;:</span></p></td>
+<td>an array of <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> elements.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>nfsd</code></em>&#160;:</span></p></td>
+<td>the number of elements in <em class="parameter"><code>ufds</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>timeout_</code></em>&#160;:</span></p></td>
+<td>the maximum time to wait for an event of the file descriptors.
+          A negative value indicates an infinite timeout.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>the number of <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> elements which have events or errors reported,
+or -1 if an error occurred.
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2917881"></a><h3>
+<a name="g-main-context-add-poll"></a>g_main_context_add_poll ()</h3>
+<a class="indexterm" name="id2917894"></a><pre class="programlisting">void                g_main_context_add_poll             (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> priority);</pre>
+<p>
+Adds a file descriptor to the set of file descriptors polled for
+this context. This will very seldomly be used directly. Instead
+a typical event source will use <a class="link" href="glib-The-Main-Event-Loop.html#g-source-add-poll"><code class="function">g_source_add_poll()</code></a> instead.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> (or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> for the default context)
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fd</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> structure holding information about a file
+     descriptor to watch.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> the priority for this file descriptor which should be
+     the same as the priority used for <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a> to ensure that the
+     file descriptor is polled whenever the results may be needed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918041"></a><h3>
+<a name="g-main-context-remove-poll"></a>g_main_context_remove_poll ()</h3>
+<a class="indexterm" name="id2918055"></a><pre class="programlisting">void                g_main_context_remove_poll          (<a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd);</pre>
+<p>
+Removes file descriptor from the set of file descriptors to be
+polled for a particular context.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fd</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> descriptor previously added with <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-add-poll"><code class="function">g_main_context_add_poll()</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918155"></a><h3>
+<a name="g-main-depth"></a>g_main_depth ()</h3>
+<a class="indexterm" name="id2918167"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint">gint</a>                g_main_depth                        (void);</pre>
+<p>
+Returns the depth of the stack of calls to
+<a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-dispatch"><code class="function">g_main_context_dispatch()</code></a> on any <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> in the current thread.
+ That is, when called from the toplevel, it gives 0. When
+called from within a callback from <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-iteration"><code class="function">g_main_context_iteration()</code></a>
+(or <a class="link" href="glib-The-Main-Event-Loop.html#g-main-loop-run"><code class="function">g_main_loop_run()</code></a>, etc.) it returns 1. When called from within 
+a callback to a recursive call to <code class="function">g_main_context_iterate()</code>,
+it returns 2. And so forth.
+</p>
+<p>
+This function is useful in a situation like the following:
+Imagine an extremely simple "garbage collected" system.
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+static GList *free_list;
+
+gpointer
+allocate_memory (gsize size)
+{ 
+  gpointer result = g_malloc (size);
+  free_list = g_list_prepend (free_list, result);
+  return result;
+}
+
+void
+free_allocated_memory (void)
+{
+  GList *l;
+  for (l = free_list; l; l = l-&gt;next);
+    g_free (l-&gt;data);
+  g_list_free (free_list);
+  free_list = NULL;
+ }
+
+[...]
+
+while (TRUE); 
+ {
+   g_main_context_iteration (NULL, TRUE);
+   free_allocated_memory();
+  }
+</pre></div>
+<p>
+</p>
+<p>
+This works from an application, however, if you want to do the same
+thing from a library, it gets more difficult, since you no longer
+control the main loop. You might think you can simply use an idle
+function to make the call to <code class="function">free_allocated_memory()</code>, but that
+doesn't work, since the idle function could be called from a
+recursive callback. This can be fixed by using <a class="link" href="glib-The-Main-Event-Loop.html#g-main-depth"><code class="function">g_main_depth()</code></a>
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+gpointer
+allocate_memory (gsize size)
+{ 
+  FreeListBlock *block = g_new (FreeListBlock, 1);
+  block-&gt;mem = g_malloc (size);
+  block-&gt;depth = g_main_depth ();   
+  free_list = g_list_prepend (free_list, block);
+  return block-&gt;mem;
+}
+
+void
+free_allocated_memory (void)
+{
+  GList *l;
+  
+  int depth = g_main_depth ();
+  for (l = free_list; l; );
+    {
+      GList *next = l-&gt;next;
+      FreeListBlock *block = l-&gt;data;
+      if (block-&gt;depth &gt; depth)
+        {
+          g_free (block-&gt;mem);
+          g_free (block);
+          free_list = g_list_delete_link (free_list, l);
+        }
+              
+      l = next;
+    }
+  }
+</pre></div>
+<p>
+</p>
+<p>
+There is a temptation to use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-depth"><code class="function">g_main_depth()</code></a> to solve
+problems with reentrancy. For instance, while waiting for data
+to be received from the network in response to a menu item,
+the menu item might be selected again. It might seem that
+one could make the menu item's callback return immediately
+and do nothing if <a class="link" href="glib-The-Main-Event-Loop.html#g-main-depth"><code class="function">g_main_depth()</code></a> returns a value greater than 1.
+However, this should be avoided since the user then sees selecting
+the menu item do nothing. Furthermore, you'll find yourself adding
+these checks all over your code, since there are doubtless many,
+many things that the user could do. Instead, you can use the
+following techniques:
+</p>
+<p>
+</p>
+<div class="orderedlist"><ol type="1">
+<li><p>
+    Use <a
+href="/usr/share/gtk-doc/html/gtk/GtkWidget.html#gtk-widget-set-sensitive"
+><code class="function">gtk_widget_set_sensitive()</code></a> or modal dialogs to prevent
+    the user from interacting with elements while the main
+    loop is recursing.
+  </p></li>
+<li><p>
+    Avoid main loop recursion in situations where you can't handle
+    arbitrary  callbacks. Instead, structure your code so that you
+    simply return to the main loop and then get called again when
+    there is more work to do.
+  </p></li>
+</ol></div>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> The main loop recursion level in the current thread
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918420"></a><h3>
+<a name="g-main-current-source"></a>g_main_current_source ()</h3>
+<a class="indexterm" name="id2918436"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_main_current_source               (void);</pre>
+<p>
+Returns the currently firing source for this thread.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> The currently firing source or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.
+
+</td>
+</tr></tbody>
+</table></div>
+<p class="since">Since  2.12
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918494"></a><h3>
+<a name="g-main-set-poll-func"></a>g_main_set_poll_func()</h3>
+<a class="indexterm" name="id2918510"></a><pre class="programlisting">#define             g_main_set_poll_func(func)</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">g_main_set_poll_func</code> has been deprecated since version 2.2 and should not be used in newly-written code. Use <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-set-poll-func"><code class="function">g_main_context_set_poll_func()</code></a> instead.</p>
+</div>
+<p>
+Sets the function to use for the handle polling of file descriptors
+for the default main context. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>func</code></em>&#160;:</span></p></td>
+<td>the function to call to poll all file descriptors.
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918571"></a><h3>
+<a name="g-timeout-source-new"></a>g_timeout_source_new ()</h3>
+<a class="indexterm" name="id2918584"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_timeout_source_new                (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval);</pre>
+<p>
+Creates a new timeout source.
+</p>
+<p>
+The source will not initially be associated with any <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+and must be added to one with <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a> before it will be
+executed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interval</code></em>&#160;:</span></p></td>
+<td> the timeout interval in milliseconds.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the newly-created timeout source
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918670"></a><h3>
+<a name="g-timeout-source-new-seconds"></a>g_timeout_source_new_seconds ()</h3>
+<a class="indexterm" name="id2918686"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_timeout_source_new_seconds        (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval);</pre>
+<p>
+Creates a new timeout source.
+</p>
+<p>
+The source will not initially be associated with any <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+and must be added to one with <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a> before it will be
+executed.
+</p>
+<p>
+The scheduling granularity/accuracy of this timeout source will be
+in seconds.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interval</code></em>&#160;:</span></p></td>
+<td> the timeout interval in seconds
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the newly-created timeout source
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.14	
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918784"></a><h3>
+<a name="g-timeout-add"></a>g_timeout_add ()</h3>
+<a class="indexterm" name="id2918796"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_timeout_add                       (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+Sets a function to be called at regular intervals, with the default
+priority, <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><span class="type">G_PRIORITY_DEFAULT</span></a>.  The function is called repeatedly
+until it returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, at which point the timeout is automatically
+destroyed and the function will not be called again.  The first call
+to the function will be at the end of the first <em class="parameter"><code>interval</code></em>.
+</p>
+<p>
+Note that timeout functions may be delayed, due to the processing of other
+event sources. Thus they should not be relied on for precise timing.
+After each call to the timeout function, the time of the next
+timeout is recalculated based on the current time and the given interval
+(it does not try to 'catch up' time lost in delays).
+</p>
+<p>
+If you want to have a timer in the "seconds" range and do not care
+about the exact time of the first call of the timer, use the
+<a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-seconds"><code class="function">g_timeout_add_seconds()</code></a> function; this function allows for more
+optimizations and more efficient system power usage.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interval</code></em>&#160;:</span></p></td>
+<td> the time between calls to the function, in milliseconds
+            (1/1000ths of a second)
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>     data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2918964"></a><h3>
+<a name="g-timeout-add-full"></a>g_timeout_add_full ()</h3>
+<a class="indexterm" name="id2918977"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_timeout_add_full                  (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);</pre>
+<p>
+Sets a function to be called at regular intervals, with the given
+priority.  The function is called repeatedly until it returns
+<a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, at which point the timeout is automatically destroyed and
+the function will not be called again.  The <em class="parameter"><code>notify</code></em> function is
+called when the timeout is destroyed.  The first call to the
+function will be at the end of the first <em class="parameter"><code>interval</code></em>.
+</p>
+<p>
+Note that timeout functions may be delayed, due to the processing of other
+event sources. Thus they should not be relied on for precise timing.
+After each call to the timeout function, the time of the next
+timeout is recalculated based on the current time and the given interval
+(it does not try to 'catch up' time lost in delays).</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> the priority of the timeout source. Typically this will be in
+           the range between <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><span class="type">G_PRIORITY_DEFAULT</span></a> and <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH:CAPS"><span class="type">G_PRIORITY_HIGH</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interval</code></em>&#160;:</span></p></td>
+<td> the time between calls to the function, in milliseconds
+            (1/1000ths of a second)
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>     data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>notify</code></em>&#160;:</span></p></td>
+<td>   function to call when the timeout is removed, or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2919198"></a><h3>
+<a name="g-timeout-add-seconds"></a>g_timeout_add_seconds ()</h3>
+<a class="indexterm" name="id2919214"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_timeout_add_seconds               (<a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+Sets a function to be called at regular intervals with the default
+priority, <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><span class="type">G_PRIORITY_DEFAULT</span></a>. The function is called repeatedly until
+it returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, at which point the timeout is automatically destroyed
+and the function will not be called again.
+</p>
+<p>
+See <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-seconds-full"><code class="function">g_timeout_add_seconds_full()</code></a> for the differences between
+<a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a> and <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-seconds"><code class="function">g_timeout_add_seconds()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interval</code></em>&#160;:</span></p></td>
+<td> the time between calls to the function, in seconds
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td> data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.14
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2919391"></a><h3>
+<a name="g-timeout-add-seconds-full"></a>g_timeout_add_seconds_full ()</h3>
+<a class="indexterm" name="id2919407"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_timeout_add_seconds_full          (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> interval,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);</pre>
+<p>
+Sets a function to be called at regular intervals, with <em class="parameter"><code>priority</code></em>.
+The function is called repeatedly until it returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, at which
+point the timeout is automatically destroyed and the function will
+not be called again.
+</p>
+<p>
+Unlike <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a>, this function operates at whole second granularity.
+The initial starting point of the timer is determined by the implementation
+and the implementation is expected to group multiple timers together so that
+they fire all at the same time.
+To allow this grouping, the <em class="parameter"><code>interval</code></em> to the first timer is rounded
+and can deviate up to one second from the specified interval.
+Subsequent timer iterations will generally run at the specified interval.
+</p>
+<p>
+Note that timeout functions may be delayed, due to the processing of other
+event sources. Thus they should not be relied on for precise timing.
+After each call to the timeout function, the time of the next
+timeout is recalculated based on the current time and the given <em class="parameter"><code>interval</code></em>
+</p>
+<p>
+If you want timing more precise than whole seconds, use <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a>
+instead.
+</p>
+<p>
+The grouping of timers to fire at the same time results in a more power
+and CPU efficient behavior so if your timer is in multiples of seconds
+and you don't require the first timer exactly one second from now, the
+use of <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-seconds"><code class="function">g_timeout_add_seconds()</code></a> is preferred over <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> the priority of the timeout source. Typically this will be in
+           the range between <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><span class="type">G_PRIORITY_DEFAULT</span></a> and <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH:CAPS"><span class="type">G_PRIORITY_HIGH</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interval</code></em>&#160;:</span></p></td>
+<td> the time between calls to the function, in seconds
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>     data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>notify</code></em>&#160;:</span></p></td>
+<td>   function to call when the timeout is removed, or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.14
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2919702"></a><h3>
+<a name="g-idle-source-new"></a>g_idle_source_new ()</h3>
+<a class="indexterm" name="id2919715"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_idle_source_new                   (void);</pre>
+<p>
+Creates a new idle source.
+</p>
+<p>
+The source will not initially be associated with any <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+and must be added to one with <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a> before it will be
+executed. Note that the default priority for idle sources is
+<a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT-IDLE:CAPS"><code class="literal">G_PRIORITY_DEFAULT_IDLE</code></a>, as compared to other sources which
+have a default priority of <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><code class="literal">G_PRIORITY_DEFAULT</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the newly-created idle source
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2919804"></a><h3>
+<a name="g-idle-add"></a>g_idle_add ()</h3>
+<a class="indexterm" name="id2919815"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_idle_add                          (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+Adds a function to be called whenever there are no higher priority
+events pending to the default main loop. The function is given the
+default idle priority, <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT-IDLE:CAPS"><span class="type">G_PRIORITY_DEFAULT_IDLE</span></a>.  If the function
+returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> it is automatically removed from the list of event
+sources and will not be called again.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td> data to pass to <em class="parameter"><code>function</code></em>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2919928"></a><h3>
+<a name="g-idle-add-full"></a>g_idle_add_full ()</h3>
+<a class="indexterm" name="id2919941"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_idle_add_full                     (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);</pre>
+<p>
+Adds a function to be called whenever there are no higher priority
+events pending.  If the function returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> it is automatically
+removed from the list of event sources and will not be called again.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> the priority of the idle source. Typically this will be in the
+           range btweeen <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT-IDLE:CAPS"><span class="type">G_PRIORITY_DEFAULT_IDLE</span></a> and <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH-IDLE:CAPS"><span class="type">G_PRIORITY_HIGH_IDLE</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>     data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>notify</code></em>&#160;:</span></p></td>
+<td>   function to call when the idle is removed, or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2920116"></a><h3>
+<a name="g-idle-remove-by-data"></a>g_idle_remove_by_data ()</h3>
+<a class="indexterm" name="id2920129"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_idle_remove_by_data               (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+Removes the idle function with the given data.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td> the data for the idle source's callback.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if an idle source was found and removed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2920201"></a><h3>
+<a name="GPid"></a>GPid</h3>
+<a class="indexterm" name="id2920213"></a><pre class="programlisting">typedef int GPid;
+</pre>
+<p>
+A type which is used to hold a process identification. 
+On Unix, processes are identified by a process id (an 
+integer), while Windows uses process handles (which are 
+pointers).
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2920231"></a><h3>
+<a name="GChildWatchFunc"></a>GChildWatchFunc ()</h3>
+<a class="indexterm" name="id2920244"></a><pre class="programlisting">void                (*GChildWatchFunc)                  (<a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> status,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+The type of functions to be called when a child exists.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>pid</code></em>&#160;:</span></p></td>
+<td>the process id of the child process
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>status</code></em>&#160;:</span></p></td>
+<td>Status information about the child process,
+  see waitpid(2) for more information about this field
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>user data passed to <a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-add"><code class="function">g_child_watch_add()</code></a>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2920347"></a><h3>
+<a name="g-child-watch-source-new"></a>g_child_watch_source_new ()</h3>
+<a class="indexterm" name="id2920362"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_child_watch_source_new            (<a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid);</pre>
+<p>
+Creates a new child_watch source.
+</p>
+<p>
+The source will not initially be associated with any <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+and must be added to one with <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a> before it will be
+executed.
+</p>
+<p>
+Note that child watch sources can only be used in conjunction with
+<code class="literal">g_spawn...</code> when the <a class="link" href="glib-Spawning-Processes.html#G-SPAWN-DO-NOT-REAP-CHILD:CAPS"><code class="literal">G_SPAWN_DO_NOT_REAP_CHILD</code></a>
+flag is used.
+</p>
+<p>
+Note that on platforms where <a class="link" href="glib-The-Main-Event-Loop.html#GPid"><span class="type">GPid</span></a> must be explicitly closed
+(see <a class="link" href="glib-Spawning-Processes.html#g-spawn-close-pid"><code class="function">g_spawn_close_pid()</code></a>) <em class="parameter"><code>pid</code></em> must not be closed while the
+source is still active. Typically, you will want to call
+<a class="link" href="glib-Spawning-Processes.html#g-spawn-close-pid"><code class="function">g_spawn_close_pid()</code></a> in the callback function for the source.
+</p>
+<p>
+Note further that using <a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-source-new"><code class="function">g_child_watch_source_new()</code></a> is not 
+compatible with calling <code class="literal">waitpid(-1)</code> in 
+the application. Calling <code class="function">waitpid()</code> for individual pids will
+still work fine.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>pid</code></em>&#160;:</span></p></td>
+<td> process id of a child process to watch. On Windows, a HANDLE
+for the process to watch (which actually doesn't have to be a child).
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the newly-created child watch source
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.4
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2920554"></a><h3>
+<a name="g-child-watch-add"></a>g_child_watch_add ()</h3>
+<a class="indexterm" name="id2920570"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_child_watch_add                   (<a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GChildWatchFunc">GChildWatchFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+Sets a function to be called when the child indicated by <em class="parameter"><code>pid</code></em> 
+exits, at a default priority, <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT:CAPS"><span class="type">G_PRIORITY_DEFAULT</span></a>.
+</p>
+<p>
+If you obtain <em class="parameter"><code>pid</code></em> from <a class="link" href="glib-Spawning-Processes.html#g-spawn-async"><code class="function">g_spawn_async()</code></a> or <a class="link" href="glib-Spawning-Processes.html#g-spawn-async-with-pipes"><code class="function">g_spawn_async_with_pipes()</code></a> 
+you will need to pass <a class="link" href="glib-Spawning-Processes.html#G-SPAWN-DO-NOT-REAP-CHILD:CAPS"><span class="type">G_SPAWN_DO_NOT_REAP_CHILD</span></a> as flag to 
+the spawn function for the child watching to work.
+</p>
+<p>
+Note that on platforms where <a class="link" href="glib-The-Main-Event-Loop.html#GPid"><span class="type">GPid</span></a> must be explicitly closed
+(see <a class="link" href="glib-Spawning-Processes.html#g-spawn-close-pid"><code class="function">g_spawn_close_pid()</code></a>) <em class="parameter"><code>pid</code></em> must not be closed while the
+source is still active. Typically, you will want to call
+<a class="link" href="glib-Spawning-Processes.html#g-spawn-close-pid"><code class="function">g_spawn_close_pid()</code></a> in the callback function for the source.
+</p>
+<p>
+GLib supports only a single callback per process id.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>pid</code></em>&#160;:</span></p></td>
+<td>      process id of a child process to watch
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>     data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.4
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2920792"></a><h3>
+<a name="g-child-watch-add-full"></a>g_child_watch_add_full ()</h3>
+<a class="indexterm" name="id2920807"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_child_watch_add_full              (<a class="link" href="glib-Basic-Types.html#gint">gint</a> priority,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPid">GPid</a> pid,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GChildWatchFunc">GChildWatchFunc</a> function,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);</pre>
+<p>
+Sets a function to be called when the child indicated by <em class="parameter"><code>pid</code></em> 
+exits, at the priority <em class="parameter"><code>priority</code></em>.
+</p>
+<p>
+If you obtain <em class="parameter"><code>pid</code></em> from <a class="link" href="glib-Spawning-Processes.html#g-spawn-async"><code class="function">g_spawn_async()</code></a> or <a class="link" href="glib-Spawning-Processes.html#g-spawn-async-with-pipes"><code class="function">g_spawn_async_with_pipes()</code></a> 
+you will need to pass <a class="link" href="glib-Spawning-Processes.html#G-SPAWN-DO-NOT-REAP-CHILD:CAPS"><span class="type">G_SPAWN_DO_NOT_REAP_CHILD</span></a> as flag to 
+the spawn function for the child watching to work.
+</p>
+<p>
+Note that on platforms where <a class="link" href="glib-The-Main-Event-Loop.html#GPid"><span class="type">GPid</span></a> must be explicitly closed
+(see <a class="link" href="glib-Spawning-Processes.html#g-spawn-close-pid"><code class="function">g_spawn_close_pid()</code></a>) <em class="parameter"><code>pid</code></em> must not be closed while the
+source is still active. Typically, you will want to call
+<a class="link" href="glib-Spawning-Processes.html#g-spawn-close-pid"><code class="function">g_spawn_close_pid()</code></a> in the callback function for the source.
+</p>
+<p>
+GLib supports only a single callback per process id.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> the priority of the idle source. Typically this will be in the
+           range between <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-DEFAULT-IDLE:CAPS"><span class="type">G_PRIORITY_DEFAULT_IDLE</span></a> and <a class="link" href="glib-The-Main-Event-Loop.html#G-PRIORITY-HIGH-IDLE:CAPS"><span class="type">G_PRIORITY_HIGH_IDLE</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>pid</code></em>&#160;:</span></p></td>
+<td>      process id of a child process to watch
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></p></td>
+<td> function to call
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>     data to pass to <em class="parameter"><code>function</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>notify</code></em>&#160;:</span></p></td>
+<td>   function to call when the idle is removed, or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) of the event source.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.4
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2921098"></a><h3>
+<a name="GPollFD"></a>GPollFD</h3>
+<a class="indexterm" name="id2921110"></a><pre class="programlisting">typedef struct {
+#if defined (G_OS_WIN32) &amp;&amp; GLIB_SIZEOF_VOID_P == 8
+  gint64	fd;
+#else
+  gint		fd;
+#endif
+  gushort 	events;
+  gushort 	revents;
+} GPollFD;
+</pre>
+<p>
+
+</p>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td>
+<a class="link" href="glib-Basic-Types.html#gint"><span class="type">gint</span></a> fd;</td>
+<td>the file descriptor to poll (or a <span class="type">HANDLE</span> on Win32 platforms).</td>
+</tr>
+<tr>
+<td>
+<a class="link" href="glib-Basic-Types.html#gushort"><span class="type">gushort</span></a> events;</td>
+<td>a bitwise combination of flags from <a class="link" href="glib-IO-Channels.html#GIOCondition"><span class="type">GIOCondition</span></a>, specifying which
+events should be polled for. Typically for reading from a file descriptor
+you would use <a class="link" href="glib-IO-Channels.html#G-IO-IN:CAPS"><code class="literal">G_IO_IN</code></a> | <a class="link" href="glib-IO-Channels.html#G-IO-HUP:CAPS"><code class="literal">G_IO_HUP</code></a> | <a class="link" href="glib-IO-Channels.html#G-IO-ERR:CAPS"><code class="literal">G_IO_ERR</code></a>, and for writing you would use
+<a class="link" href="glib-IO-Channels.html#G-IO-OUT:CAPS"><code class="literal">G_IO_OUT</code></a> | <a class="link" href="glib-IO-Channels.html#G-IO-ERR:CAPS"><code class="literal">G_IO_ERR</code></a>.
+</td>
+</tr>
+<tr>
+<td>
+<a class="link" href="glib-Basic-Types.html#gushort"><span class="type">gushort</span></a> revents;</td>
+<td>a bitwise combination of flags from <a class="link" href="glib-IO-Channels.html#GIOCondition"><span class="type">GIOCondition</span></a>, returned from the
+<code class="function"><code class="function">poll()</code></code> function to indicate which events occurred.
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2921304"></a><h3>
+<a name="GSource"></a>GSource</h3>
+<a class="indexterm" name="id2921316"></a><pre class="programlisting">typedef struct {
+} GSource;
+</pre>
+<p>
+The <span class="structname">GSource</span> struct is an opaque data type representing
+an event source.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2921336"></a><h3>
+<a name="GSourceDummyMarshal"></a>GSourceDummyMarshal ()</h3>
+<a class="indexterm" name="id2921349"></a><pre class="programlisting">void                (*GSourceDummyMarshal)              (void);</pre>
+<p>
+This is just a placeholder for <a
+href="/usr/share/gtk-doc/html/gobject/gobject-Closures.html#GClosureMarshal"
+><span class="type">GClosureMarshal</span></a>, which cannot be used here
+for dependency reasons.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2921381"></a><h3>
+<a name="GSourceFuncs"></a>GSourceFuncs</h3>
+<a class="indexterm" name="id2921394"></a><pre class="programlisting">typedef struct {
+  gboolean (*prepare)  (GSource    *source,
+			gint       *timeout_);
+  gboolean (*check)    (GSource    *source);
+  gboolean (*dispatch) (GSource    *source,
+			GSourceFunc callback,
+			gpointer    user_data);
+  void     (*finalize) (GSource    *source); /* Can be NULL */
+
+  /* For use by g_source_set_closure */
+  GSourceFunc     closure_callback;	   
+  GSourceDummyMarshal closure_marshal; /* Really is of type GClosureMarshal */
+} GSourceFuncs;
+</pre>
+<p>
+The <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs"><span class="type">GSourceFuncs</span></a> struct contains a table of functions used to handle
+event sources in a generic manner.
+</p>
+<p>
+For idle sources, the prepare and check functions always return <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> to
+indicate that the source is always ready to be processed.
+The prepare function also returns a timeout value of 0 to ensure that the
+<code class="function">poll()</code> call doesn't block (since that would be time 
+wasted which could have been spent running the idle function).
+</p>
+<p>
+For timeout sources, the prepare and check functions both return <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the
+timeout interval has expired. The prepare function also returns a timeout 
+value to ensure that the <code class="function">poll()</code> call doesn't block too 
+long and miss the next timeout.
+</p>
+<p>
+For file descriptor sources, the prepare function typically returns <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>,
+since it must wait until <code class="function">poll()</code> has been called before 
+it knows whether any events need to be processed. It sets the returned 
+timeout to -1 to indicate that it doesn't mind how long the 
+<code class="function">poll()</code> call blocks.
+In the check function, it tests the results of the <code class="function">poll()</code>
+call to see if the required condition has been met, and returns <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if so.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>prepare</code></em>&#160;()</span></p></td>
+<td>Called before all the file descriptors are polled.
+If the source can determine that it is ready here (without waiting for the
+results of the <code class="function">poll()</code> call) it should return <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>.
+It can also return a <em class="parameter"><code>timeout_</code></em> value which should be the maximum timeout
+(in milliseconds) which should be passed to the <code class="function">poll()</code> call.
+The actual timeout used will be -1 if all sources returned -1, or it will
+be the minimum of all the <em class="parameter"><code>timeout_</code></em> values returned which were &gt;= 0.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>check</code></em>&#160;()</span></p></td>
+<td>Called after all the file descriptors are polled.
+The source should return <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if it is ready to be dispatched.
+Note that some time may have passed since the previous prepare function was
+called, so the source should be checked again here.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>dispatch</code></em>&#160;()</span></p></td>
+<td>Called to dispatch the event source, after it has returned <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> in
+either its <em class="parameter"><code>prepare</code></em> or its <em class="parameter"><code>check</code></em> function. The <em class="parameter"><code>dispatch</code></em> function is
+passed in a callback function and data. The callback function may be
+<a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if the source was never connected to a callback using
+<a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-callback"><code class="function">g_source_set_callback()</code></a>. The <em class="parameter"><code>dispatch</code></em> function should call the
+callback function with <em class="parameter"><code>user_data</code></em> and whatever additional parameters are
+needed for this type of event source.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>finalize</code></em>&#160;()</span></p></td>
+<td>Called when the source is finalized.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a>&#160;<em class="structfield"><code>closure_callback</code></em>;</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="glib-The-Main-Event-Loop.html#GSourceDummyMarshal">GSourceDummyMarshal</a>&#160;<em class="structfield"><code>closure_marshal</code></em>;</span></p></td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2921772"></a><h3>
+<a name="GSourceCallbackFuncs"></a>GSourceCallbackFuncs</h3>
+<a class="indexterm" name="id2921785"></a><pre class="programlisting">typedef struct {
+  void (*ref)   (gpointer     cb_data);
+  void (*unref) (gpointer     cb_data);
+  void (*get)   (gpointer     cb_data,
+		 GSource     *source, 
+		 GSourceFunc *func,
+		 gpointer    *data);
+} GSourceCallbackFuncs;
+</pre>
+<p>
+The <span class="structname">GSourceCallbackFuncs</span> struct contains
+functions for managing callback objects. 
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>ref</code></em>&#160;()</span></p></td>
+<td>Called when a reference is added to the callback object.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>unref</code></em>&#160;()</span></p></td>
+<td>Called when a reference to the callback object is dropped.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>get</code></em>&#160;()</span></p></td>
+<td>Called to extract the callback function and data from the callback object.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2921857"></a><h3>
+<a name="g-source-new"></a>g_source_new ()</h3>
+<a class="indexterm" name="id2921870"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_source_new                        (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *source_funcs,
+                                                         <a class="link" href="glib-Basic-Types.html#guint">guint</a> struct_size);</pre>
+<p>
+Creates a new <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> structure. The size is specified to
+allow creating structures derived from <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> that contain
+additional data. The size passed in must be at least
+<code class="literal">sizeof (GSource)</code>.
+</p>
+<p>
+The source will not initially be associated with any <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>
+and must be added to one with <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a> before it will be
+executed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source_funcs</code></em>&#160;:</span></p></td>
+<td> structure containing functions that implement
+               the sources behavior.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>struct_size</code></em>&#160;:</span></p></td>
+<td> size of the <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> structure to create.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the newly-created <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922018"></a><h3>
+<a name="g-source-ref"></a>g_source_ref ()</h3>
+<a class="indexterm" name="id2922031"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a>*            g_source_ref                        (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Increases the reference count on a source by one.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <em class="parameter"><code>source</code></em>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922105"></a><h3>
+<a name="g-source-unref"></a>g_source_unref ()</h3>
+<a class="indexterm" name="id2922118"></a><pre class="programlisting">void                g_source_unref                      (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Decreases the reference count of a source by one. If the
+resulting reference count is zero the source and associated
+memory will be destroyed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922177"></a><h3>
+<a name="g-source-set-funcs"></a>g_source_set_funcs ()</h3>
+<a class="indexterm" name="id2922193"></a><pre class="programlisting">void                g_source_set_funcs                  (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *funcs);</pre>
+<p>
+Sets the source functions (can be used to override 
+default implementations) of an unattached source.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>funcs</code></em>&#160;:</span></p></td>
+<td> the new <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs"><span class="type">GSourceFuncs</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.12
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922289"></a><h3>
+<a name="g-source-attach"></a>g_source_attach ()</h3>
+<a class="indexterm" name="id2922301"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_source_attach                     (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a> *context);</pre>
+<p>
+Adds a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> to a <em class="parameter"><code>context</code></em> so that it will be executed within
+that context.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>context</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> (if <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the default context will be used)
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) for the source within the 
+  <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922433"></a><h3>
+<a name="g-source-destroy"></a>g_source_destroy ()</h3>
+<a class="indexterm" name="id2922446"></a><pre class="programlisting">void                g_source_destroy                    (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Removes a source from its <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a>, if any, and mark it as
+destroyed.  The source cannot be subsequently added to another
+context.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922513"></a><h3>
+<a name="g-source-is-destroyed"></a>g_source_is_destroyed ()</h3>
+<a class="indexterm" name="id2922529"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_source_is_destroyed               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Returns whether <em class="parameter"><code>source</code></em> has been destroyed.
+</p>
+<p>
+This is important when you operate upon your objects 
+from within idle handlers, but may have freed the object 
+before the dispatch of your idle handler.
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+static gboolean 
+idle_callback (gpointer data)
+{
+  SomeWidget *self = data;
+   
+  GDK_THREADS_ENTER ();
+  /* do stuff with self */
+  self-&gt;idle_id = 0;
+  GDK_THREADS_LEAVE ();
+   
+  return FALSE;
+}
+ 
+static void 
+some_widget_do_stuff_later (SomeWidget *self)
+{
+  self-&gt;idle_id = g_idle_add (idle_callback, self);
+}
+ 
+static void 
+some_widget_finalize (GObject *object)
+{
+  SomeWidget *self = SOME_WIDGET (object);
+   
+  if (self-&gt;idle_id)
+    g_source_remove (self-&gt;idle_id);
+   
+  G_OBJECT_CLASS (parent_class)-&gt;finalize (object);
+}
+</pre></div>
+<p>
+</p>
+<p>
+This will fail in a multi-threaded application if the 
+widget is destroyed before the idle handler fires due 
+to the use after free in the callback. A solution, to 
+this particular problem, is to check to if the source
+has already been destroy within the callback.
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+static gboolean 
+idle_callback (gpointer data)
+{
+  SomeWidget *self = data;
+  
+  GDK_THREADS_ENTER ();
+  if (!g_source_is_destroyed (g_main_current_source ()))
+    {
+      /* do stuff with self */
+    }
+  GDK_THREADS_LEAVE ();
+  
+  return FALSE;
+}
+</pre></div>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the source has been destroyed
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  2.12
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922681"></a><h3>
+<a name="g-source-set-priority"></a>g_source_set_priority ()</h3>
+<a class="indexterm" name="id2922694"></a><pre class="programlisting">void                g_source_set_priority               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Basic-Types.html#gint">gint</a> priority);</pre>
+<p>
+Sets the priority of a source. While the main loop is being
+run, a source will be dispatched if it is ready to be dispatched and no sources 
+at a higher (numerically smaller) priority are ready to be dispatched.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>priority</code></em>&#160;:</span></p></td>
+<td> the new priority.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922777"></a><h3>
+<a name="g-source-get-priority"></a>g_source_get_priority ()</h3>
+<a class="indexterm" name="id2922790"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gint">gint</a>                g_source_get_priority               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Gets the priority of a source.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the priority of the source
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922859"></a><h3>
+<a name="g-source-set-can-recurse"></a>g_source_set_can_recurse ()</h3>
+<a class="indexterm" name="id2922872"></a><pre class="programlisting">void                g_source_set_can_recurse            (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a> can_recurse);</pre>
+<p>
+Sets whether a source can be called recursively. If <em class="parameter"><code>can_recurse</code></em> is
+<a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, then while the source is being dispatched then this source
+will be processed normally. Otherwise, all processing of this
+source is blocked until the dispatch function returns.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>can_recurse</code></em>&#160;:</span></p></td>
+<td> whether recursion is allowed for this source
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2922972"></a><h3>
+<a name="g-source-get-can-recurse"></a>g_source_get_can_recurse ()</h3>
+<a class="indexterm" name="id2922985"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_source_get_can_recurse            (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Checks whether a source is allowed to be called recursively.
+see <a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-can-recurse"><code class="function">g_source_set_can_recurse()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> whether recursion is allowed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923065"></a><h3>
+<a name="g-source-get-id"></a>g_source_get_id ()</h3>
+<a class="indexterm" name="id2923078"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#guint">guint</a>               g_source_get_id                     (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Returns the numeric ID for a particular source. The ID of a source
+is a positive integer which is unique within a particular main loop 
+context. The reverse
+mapping from ID to source is done by <a class="link" href="glib-The-Main-Event-Loop.html#g-main-context-find-source-by-id"><code class="function">g_main_context_find_source_by_id()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the ID (greater than 0) for the source
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923161"></a><h3>
+<a name="g-source-get-context"></a>g_source_get_context ()</h3>
+<a class="indexterm" name="id2923174"></a><pre class="programlisting"><a class="link" href="glib-The-Main-Event-Loop.html#GMainContext">GMainContext</a>*       g_source_get_context                (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source);</pre>
+<p>
+Gets the <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> with which the source is associated.
+Calling this function on a destroyed source is an error.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the <a class="link" href="glib-The-Main-Event-Loop.html#GMainContext"><span class="type">GMainContext</span></a> with which the source is associated,
+              or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if the context has not yet been added
+              to a source.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923272"></a><h3>
+<a name="g-source-set-callback"></a>g_source_set_callback ()</h3>
+<a class="indexterm" name="id2923285"></a><pre class="programlisting">void                g_source_set_callback               (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceFunc">GSourceFunc</a> func,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data,
+                                                         <a class="link" href="glib-Datasets.html#GDestroyNotify">GDestroyNotify</a> notify);</pre>
+<p>
+Sets the callback function for a source. The callback for a source is
+called from the source's dispatch function.
+</p>
+<p>
+The exact type of <em class="parameter"><code>func</code></em> depends on the type of source; ie. you
+should not count on <em class="parameter"><code>func</code></em> being called with <em class="parameter"><code>data</code></em> as its first
+parameter.
+</p>
+<p>
+Typically, you won't use this function. Instead use functions specific
+to the type of source you are using.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> the source
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>func</code></em>&#160;:</span></p></td>
+<td> a callback function
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td> the data to pass to callback function
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>notify</code></em>&#160;:</span></p></td>
+<td> a function to call when <em class="parameter"><code>data</code></em> is no longer in use, or <a class="link" href="glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923448"></a><h3>
+<a name="GSourceFunc"></a>GSourceFunc ()</h3>
+<a class="indexterm" name="id2923460"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            (*GSourceFunc)                      (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> data);</pre>
+<p>
+Specifies the type of function passed to <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-full"><code class="function">g_timeout_add_full()</code></a>,
+<a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add"><code class="function">g_idle_add()</code></a>, and <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add-full"><code class="function">g_idle_add_full()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></p></td>
+<td>data passed to the function, set when the source was created with one
+of the above functions.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>it should return <a class="link" href="glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> if the source should be removed.
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923572"></a><h3>
+<a name="g-source-set-callback-indirect"></a>g_source_set_callback_indirect ()</h3>
+<a class="indexterm" name="id2923586"></a><pre class="programlisting">void                g_source_set_callback_indirect      (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> callback_data,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GSourceCallbackFuncs">GSourceCallbackFuncs</a> *callback_funcs);</pre>
+<p>
+Sets the callback function storing the data as a refcounted callback
+"object". This is used internally. Note that calling 
+<a class="link" href="glib-The-Main-Event-Loop.html#g-source-set-callback-indirect"><code class="function">g_source_set_callback_indirect()</code></a> assumes
+an initial reference count on <em class="parameter"><code>callback_data</code></em>, and thus
+<em class="parameter"><code>callback_funcs-&gt;unref</code></em> will eventually be called once more
+than <em class="parameter"><code>callback_funcs-&gt;ref</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td> the source
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback_data</code></em>&#160;:</span></p></td>
+<td> pointer to callback data "object"
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>callback_funcs</code></em>&#160;:</span></p></td>
+<td> functions for reference counting <em class="parameter"><code>callback_data</code></em>
+                 and getting the callback and data
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923721"></a><h3>
+<a name="g-source-add-poll"></a>g_source_add_poll ()</h3>
+<a class="indexterm" name="id2923734"></a><pre class="programlisting">void                g_source_add_poll                   (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd);</pre>
+<p>
+Adds a file descriptor to the set of file descriptors polled for
+this source. This is usually combined with <a class="link" href="glib-The-Main-Event-Loop.html#g-source-new"><code class="function">g_source_new()</code></a> to add an
+event source. The event source's check function will typically test
+the <em class="parameter"><code>revents</code></em> field in the <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> struct and return <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if events need
+to be processed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fd</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> structure holding information about a file
+     descriptor to watch.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923860"></a><h3>
+<a name="g-source-remove-poll"></a>g_source_remove_poll ()</h3>
+<a class="indexterm" name="id2923873"></a><pre class="programlisting">void                g_source_remove_poll                (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD">GPollFD</a> *fd);</pre>
+<p>
+Removes a file descriptor from the set of file descriptors polled for
+this source.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td>a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fd</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="glib-The-Main-Event-Loop.html#GPollFD"><span class="type">GPollFD</span></a> structure previously passed to <a class="link" href="glib-The-Main-Event-Loop.html#g-source-add-poll"><code class="function">g_source_add_poll()</code></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2923972"></a><h3>
+<a name="g-source-get-current-time"></a>g_source_get_current_time ()</h3>
+<a class="indexterm" name="id2923986"></a><pre class="programlisting">void                g_source_get_current_time           (<a class="link" href="glib-The-Main-Event-Loop.html#GSource">GSource</a> *source,
+                                                         <a class="link" href="glib-Date-and-Time-Functions.html#GTimeVal">GTimeVal</a> *timeval);</pre>
+<p>
+Gets the "current time" to be used when checking 
+this source. The advantage of calling this function over
+calling <a class="link" href="glib-Date-and-Time-Functions.html#g-get-current-time"><code class="function">g_get_current_time()</code></a> directly is that when 
+checking multiple sources, GLib can cache a single value
+instead of having to repeatedly get the system time.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>source</code></em>&#160;:</span></p></td>
+<td>  a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>timeval</code></em>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Date-and-Time-Functions.html#GTimeVal"><span class="type">GTimeVal</span></a> structure in which to store current time.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2924089"></a><h3>
+<a name="g-source-remove"></a>g_source_remove ()</h3>
+<a class="indexterm" name="id2924102"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_source_remove                     (<a class="link" href="glib-Basic-Types.html#guint">guint</a> tag);</pre>
+<p>
+Removes the source with the given id from the default main context. 
+The id of
+a <a class="link" href="glib-The-Main-Event-Loop.html#GSource"><span class="type">GSource</span></a> is given by <a class="link" href="glib-The-Main-Event-Loop.html#g-source-get-id"><code class="function">g_source_get_id()</code></a>, or will be returned by the
+functions <a class="link" href="glib-The-Main-Event-Loop.html#g-source-attach"><code class="function">g_source_attach()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add"><code class="function">g_idle_add()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-idle-add-full"><code class="function">g_idle_add_full()</code></a>,
+<a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add"><code class="function">g_timeout_add()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-timeout-add-full"><code class="function">g_timeout_add_full()</code></a>, <a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-add"><code class="function">g_child_watch_add()</code></a>,
+<a class="link" href="glib-The-Main-Event-Loop.html#g-child-watch-add-full"><code class="function">g_child_watch_add_full()</code></a>, <a class="link" href="glib-IO-Channels.html#g-io-add-watch"><code class="function">g_io_add_watch()</code></a>, and <a class="link" href="glib-IO-Channels.html#g-io-add-watch-full"><code class="function">g_io_add_watch_full()</code></a>.
+</p>
+<p>
+See also <a class="link" href="glib-The-Main-Event-Loop.html#g-source-destroy"><code class="function">g_source_destroy()</code></a>.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>tag</code></em>&#160;:</span></p></td>
+<td> the ID of the source to remove.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the source was found and removed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2924304"></a><h3>
+<a name="g-source-remove-by-funcs-user-data"></a>g_source_remove_by_funcs_user_data ()</h3>
+<a class="indexterm" name="id2924318"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_source_remove_by_funcs_user_data  (<a class="link" href="glib-The-Main-Event-Loop.html#GSourceFuncs">GSourceFuncs</a> *funcs,
+                                                         <a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);</pre>
+<p>
+Removes a source from the default main loop context given the
+source functions and user data. If multiple sources exist with the
+same source functions and user data, only one will be destroyed.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>funcs</code></em>&#160;:</span></p></td>
+<td> The <em class="parameter"><code>source_funcs</code></em> passed to <a class="link" href="glib-The-Main-Event-Loop.html#g-source-new"><code class="function">g_source_new()</code></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> the user data for the callback
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if a source was found and removed. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2924431"></a><h3>
+<a name="g-source-remove-by-user-data"></a>g_source_remove_by_user_data ()</h3>
+<a class="indexterm" name="id2924444"></a><pre class="programlisting"><a class="link" href="glib-Basic-Types.html#gboolean">gboolean</a>            g_source_remove_by_user_data        (<a class="link" href="glib-Basic-Types.html#gpointer">gpointer</a> user_data);</pre>
+<p>
+Removes a source from the default main loop context given the user
+data for the callback. If multiple sources exist with the same user
+data, only one will be destroyed.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td> the user_data for the callback.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a class="link" href="glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if a source was found and removed. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2924520"></a><div class="refsect2" lang="en"><a name="id2924521"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2924522"></a></div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Value arrays</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GObject Reference Manual">
+<link rel="up" href="rn01.html" title="API Reference">
+<link rel="prev" href="gobject-Closures.html" title="Closures">
+<link rel="next" href="rn02.html" title="Tools Reference">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="preface" href="pr01.html" title="Introduction">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Concepts">
+<link rel="chapter" href="chapter-intro.html" title="Background">
+<link rel="chapter" href="chapter-gtype.html" title="The GLib Dynamic Type System">
+<link rel="chapter" href="chapter-gobject.html" title="The GObject base class">
+<link rel="chapter" href="chapter-signal.html" title="The GObject messaging system">
+<link rel="reference" href="rn01.html" title="API Reference">
+<link rel="reference" href="rn02.html" title="Tools Reference">
+<link rel="part" href="pt02.html" title="Part&#160;IV.&#160;Tutorial">
+<link rel="chapter" href="howto-gobject.html" title="How to define and implement a new GObject">
+<link rel="chapter" href="howto-interface.html" title="How to define and implement interfaces">
+<link rel="chapter" href="howto-signals.html" title="How to create and use signals">
+<link rel="part" href="pt03.html" title="Part&#160;V.&#160;Related Tools">
+<link rel="chapter" href="tools-gob.html" title="GObject builder">
+<link rel="chapter" href="tools-ginspector.html" title="Graphical inspection of GObjects">
+<link rel="chapter" href="tools-refdb.html" title="Debugging reference count problems">
+<link rel="chapter" href="tools-gtkdoc.html" title="Writing API docs">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="gobject-Closures.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="rn01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GObject Reference Manual</th>
+<td><a accesskey="n" href="rn02.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2993973" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2994299" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="gobject-Value-arrays"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2993973"></a><span class="refentrytitle">Value arrays</span>
+</h2>
+<p>Value arrays &#8212; A container structure to maintain an array of generic values</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;glib-object.h&gt;
+
+
+                    <a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>;
+<a class="link" href="gobject-Generic-values.html#GValue">GValue</a>*             <a class="link" href="gobject-Value-arrays.html#g-value-array-get-nth">g_value_array_get_nth</a>               (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> index_);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-new">g_value_array_new</a>                   (<a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> n_prealloced);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-copy">g_value_array_copy</a>                  (const <a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array);
+void                <a class="link" href="gobject-Value-arrays.html#g-value-array-free">g_value_array_free</a>                  (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-append">g_value_array_append</a>                (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         const <a class="link" href="gobject-Generic-values.html#GValue">GValue</a> *value);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-prepend">g_value_array_prepend</a>               (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         const <a class="link" href="gobject-Generic-values.html#GValue">GValue</a> *value);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-insert">g_value_array_insert</a>                (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> index_,
+                                                         const <a class="link" href="gobject-Generic-values.html#GValue">GValue</a> *value);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-remove">g_value_array_remove</a>                (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> index_);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-sort">g_value_array_sort</a>                  (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+>GCompareFunc</a> compare_func);
+<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        <a class="link" href="gobject-Value-arrays.html#g-value-array-sort-with-data">g_value_array_sort_with_data</a>        (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Doubly-Linked-Lists.html#GCompareDataFunc"
+>GCompareDataFunc</a> compare_func,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2994299"></a><h2>Description</h2>
+<p>
+The prime purpose of a <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> is for it to be used as an object property
+that holds an array of values. A <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> wraps an array of <a class="link" href="gobject-Generic-values.html#GValue"><span class="type">GValue</span></a> elements
+in order for it to be used as a boxed type through <a class="link" href="gobject-Generic-values.html#G-TYPE-VALUE-ARRAY:CAPS"><code class="literal">G_TYPE_VALUE_ARRAY</code></a>.
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2994352"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2994362"></a><h3>
+<a name="GValueArray"></a>GValueArray</h3>
+<a class="indexterm" name="id2994374"></a><pre class="programlisting">typedef struct {
+  guint   n_values;
+  GValue *values;
+} GValueArray;
+</pre>
+<p>
+A <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> contains an array of <a class="link" href="gobject-Generic-values.html#GValue"><span class="type">GValue</span></a> elements.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a>&#160;<em class="structfield"><code>n_values</code></em>;</span></p></td>
+<td>    number of values contained in the array
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="gobject-Generic-values.html#GValue">GValue</a>&#160;*<em class="structfield"><code>values</code></em>;</span></p></td>
+<td>      array of values
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2994452"></a><h3>
+<a name="g-value-array-get-nth"></a>g_value_array_get_nth ()</h3>
+<a class="indexterm" name="id2994465"></a><pre class="programlisting"><a class="link" href="gobject-Generic-values.html#GValue">GValue</a>*             g_value_array_get_nth               (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> index_);</pre>
+<p>
+Return a pointer to the value at <em class="parameter"><code>index_</code></em> containd in <em class="parameter"><code>value_array</code></em>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to get a value from
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>index_</code></em>&#160;:</span></p></td>
+<td>     index of the value of interest
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>    pointer to a value at <em class="parameter"><code>index_</code></em> in <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2994576"></a><h3>
+<a name="g-value-array-new"></a>g_value_array_new ()</h3>
+<a class="indexterm" name="id2994589"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_new                   (<a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> n_prealloced);</pre>
+<p>
+Allocate and initialize a new <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a>, optionally preserve space
+for <em class="parameter"><code>n_prealloced</code></em> elements. New arrays always contain 0 elements,
+regardless of the value of <em class="parameter"><code>n_prealloced</code></em>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n_prealloced</code></em>&#160;:</span></p></td>
+<td>number of values to preallocate space for
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>     a newly allocated <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> with 0 values
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2994677"></a><h3>
+<a name="g-value-array-copy"></a>g_value_array_copy ()</h3>
+<a class="indexterm" name="id2994691"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_copy                  (const <a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array);</pre>
+<p>
+Construct an exact copy of a <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> by duplicating all its
+contents.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to copy
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>    Newly allocated copy of <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2994771"></a><h3>
+<a name="g-value-array-free"></a>g_value_array_free ()</h3>
+<a class="indexterm" name="id2994784"></a><pre class="programlisting">void                g_value_array_free                  (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array);</pre>
+<p>
+Free a <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> including its contents.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to free
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2994846"></a><h3>
+<a name="g-value-array-append"></a>g_value_array_append ()</h3>
+<a class="indexterm" name="id2994859"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_append                (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         const <a class="link" href="gobject-Generic-values.html#GValue">GValue</a> *value);</pre>
+<p>
+Insert a copy of <em class="parameter"><code>value</code></em> as last element of <em class="parameter"><code>value_array</code></em>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to add an element to
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></p></td>
+<td>      <a class="link" href="gobject-Generic-values.html#GValue"><span class="type">GValue</span></a> to copy into <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>    the <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> passed in as <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2994987"></a><h3>
+<a name="g-value-array-prepend"></a>g_value_array_prepend ()</h3>
+<a class="indexterm" name="id2995000"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_prepend               (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         const <a class="link" href="gobject-Generic-values.html#GValue">GValue</a> *value);</pre>
+<p>
+Insert a copy of <em class="parameter"><code>value</code></em> as first element of <em class="parameter"><code>value_array</code></em>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to add an element to
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></p></td>
+<td>      <a class="link" href="gobject-Generic-values.html#GValue"><span class="type">GValue</span></a> to copy into <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>    the <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> passed in as <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2995128"></a><h3>
+<a name="g-value-array-insert"></a>g_value_array_insert ()</h3>
+<a class="indexterm" name="id2995141"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_insert                (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> index_,
+                                                         const <a class="link" href="gobject-Generic-values.html#GValue">GValue</a> *value);</pre>
+<p>
+Insert a copy of <em class="parameter"><code>value</code></em> at specified position into <em class="parameter"><code>value_array</code></em>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to add an element to
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>index_</code></em>&#160;:</span></p></td>
+<td>     insertion position, must be &lt;= value_array-&gt;n_values
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></p></td>
+<td>      <a class="link" href="gobject-Generic-values.html#GValue"><span class="type">GValue</span></a> to copy into <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>    the <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> passed in as <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2995291"></a><h3>
+<a name="g-value-array-remove"></a>g_value_array_remove ()</h3>
+<a class="indexterm" name="id2995305"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_remove                (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#guint"
+>guint</a> index_);</pre>
+<p>
+Remove the value at position <em class="parameter"><code>index_</code></em> from <em class="parameter"><code>value_array</code></em>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>
+<a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to remove an element from
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>index_</code></em>&#160;:</span></p></td>
+<td>     position of value to remove, must be &lt; value_array-&gt;n_values
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>    the <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> passed in as <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2995418"></a><h3>
+<a name="g-value-array-sort"></a>g_value_array_sort ()</h3>
+<a class="indexterm" name="id2995431"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_sort                  (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+>GCompareFunc</a> compare_func);</pre>
+<p>
+Sort <em class="parameter"><code>value_array</code></em> using <em class="parameter"><code>compare_func</code></em> to compare the elements accoring to
+the semantics of <a
+href="./../glib/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+><span class="type">GCompareFunc</span></a>.
+</p>
+<p>
+The current implementation uses Quick-Sort as sorting algorithm.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td> <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to sort
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>compare_func</code></em>&#160;:</span></p></td>
+<td>function to compare elements
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>     the <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> passed in as <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2995558"></a><h3>
+<a name="g-value-array-sort-with-data"></a>g_value_array_sort_with_data ()</h3>
+<a class="indexterm" name="id2995571"></a><pre class="programlisting"><a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a>*        g_value_array_sort_with_data        (<a class="link" href="gobject-Value-arrays.html#GValueArray">GValueArray</a> *value_array,
+                                                         <a
+href="./../glib/glib/glib-Doubly-Linked-Lists.html#GCompareDataFunc"
+>GCompareDataFunc</a> compare_func,
+                                                         <a
+href="./../glib/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+Sort <em class="parameter"><code>value_array</code></em> using <em class="parameter"><code>compare_func</code></em> to compare the elements accoring
+to the semantics of <a
+href="./../glib/glib/glib-Doubly-Linked-Lists.html#GCompareDataFunc"
+><span class="type">GCompareDataFunc</span></a>.
+</p>
+<p>
+The current implementation uses Quick-Sort as sorting algorithm.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_array</code></em>&#160;:</span></p></td>
+<td>  <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> to sort
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>compare_func</code></em>&#160;:</span></p></td>
+<td> function to compare elements
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></p></td>
+<td>    extra data argument provided for <em class="parameter"><code>compare_func</code></em>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td>      the <a class="link" href="gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> passed in as <em class="parameter"><code>value_array</code></em>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2995728"></a><h2>See Also</h2>
+<p>
+<a class="link" href="gobject-Generic-values.html#GValue"><span class="type">GValue</span></a>, <a class="link" href="gobject-Standard-Parameter-and-Value-Types.html#GParamSpecValueArray"><span class="type">GParamSpecValueArray</span></a>, <a class="link" href="gobject-Standard-Parameter-and-Value-Types.html#g-param-spec-value-array"><code class="function">g_param_spec_value_array()</code></a>
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2995765"></a><div class="refsect2" lang="en"><a name="id2995766"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2995767"></a></div>
+</div>
+</div>
+</body>
+</html>

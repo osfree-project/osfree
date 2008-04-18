@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GSeekable</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="up" href="streaming.html" title="Streaming I/O">
+<link rel="prev" href="streaming.html" title="Streaming I/O">
+<link rel="next" href="GInputStream.html" title="GInputStream">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="streaming.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="streaming.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GIO Reference Manual</th>
+<td><a accesskey="n" href="GInputStream.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2751815" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id2843520" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id2843434" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id2843458" class="shortcut">Prerequisites</a>
+                  &#160;|&#160;
+                  <a href="#id2843480" class="shortcut">Known Implementations</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="GSeekable"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id2751815"></a><span class="refentrytitle">GSeekable</span>
+</h2>
+<p>GSeekable &#8212; Stream seeking interface</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gio/gio.h&gt;
+
+
+                    <a class="link" href="GSeekable.html#GSeekable-struct">GSeekable</a>;
+                    <a class="link" href="GSeekable.html#GSeekableIface">GSeekableIface</a>;
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+>goffset</a>             <a class="link" href="GSeekable.html#g-seekable-tell">g_seekable_tell</a>                     (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GSeekable.html#g-seekable-can-seek">g_seekable_can_seek</a>                 (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GSeekable.html#g-seekable-seek">g_seekable_seek</a>                     (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+>goffset</a> offset,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-IO-Channels.html#GSeekType"
+>GSeekType</a> type,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GSeekable.html#g-seekable-can-truncate">g_seekable_can_truncate</a>             (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable);
+<a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            <a class="link" href="GSeekable.html#g-seekable-truncate">g_seekable_truncate</a>                 (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+>goffset</a> offset,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);
+
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843434"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  GInterface
+   +----GSeekable
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843458"></a><h2>Prerequisites</h2>
+<p>
+GSeekable requires
+ <a
+href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843480"></a><h2>Known Implementations</h2>
+<p>
+GSeekable is implemented by
+ <a class="link" href="GFileOutputStream.html" title="GFileOutputStream">GFileOutputStream</a>,  <a class="link" href="GMemoryInputStream.html" title="GMemoryInputStream">GMemoryInputStream</a>,  <a class="link" href="GMemoryOutputStream.html" title="GMemoryOutputStream">GMemoryOutputStream</a> and  <a class="link" href="GFileInputStream.html" title="GFileInputStream">GFileInputStream</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843520"></a><h2>Description</h2>
+<p>
+<a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a> is implemented by streams (implementations of 
+<a class="link" href="GInputStream.html" title="GInputStream"><span class="type">GInputStream</span></a> or <a class="link" href="GOutputStream.html" title="GOutputStream"><span class="type">GOutputStream</span></a>) that support seeking.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2843562"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2843572"></a><h3>
+<a name="GSeekable-struct"></a>GSeekable</h3>
+<a class="indexterm" name="id2843585"></a><pre class="programlisting">typedef struct _GSeekable GSeekable;</pre>
+<p>
+Seek object for streaming operations.</p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2843603"></a><h3>
+<a name="GSeekableIface"></a>GSeekableIface</h3>
+<a class="indexterm" name="id2843616"></a><pre class="programlisting">typedef struct {
+  GTypeInterface g_iface;
+
+  /* Virtual Table */
+  
+  goffset     (* tell)	         (GSeekable    *seekable);
+  
+  gboolean    (* can_seek)       (GSeekable    *seekable);
+  gboolean    (* seek)	         (GSeekable    *seekable,
+				  goffset       offset,
+				  GSeekType     type,
+				  GCancellable *cancellable,
+				  GError      **error);
+  
+  gboolean    (* can_truncate)   (GSeekable    *seekable);
+  gboolean    (* truncate_fn)    (GSeekable    *seekable,
+				  goffset       offset,
+				  GCancellable *cancellable,
+				  GError       **error);
+
+  /* TODO: Async seek/truncate */
+} GSeekableIface;
+</pre>
+<p>
+Provides an interface for implementing seekable functionality on I/O Streams.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a
+href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GTypeInterface"
+>GTypeInterface</a>&#160;<em class="structfield"><code>g_iface</code></em>;</span></p></td>
+<td> The parent interface.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>tell</code></em>&#160;()</span></p></td>
+<td> Tells the current location within a stream.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>can_seek</code></em>&#160;()</span></p></td>
+<td> Checks if seeking is supported by the stream.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>seek</code></em>&#160;()</span></p></td>
+<td> Seeks to a location within a stream.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>can_truncate</code></em>&#160;()</span></p></td>
+<td> Chekcs if truncation is suppored by the stream.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code>truncate_fn</code></em>&#160;()</span></p></td>
+<td> Truncates a stream.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2749896"></a><h3>
+<a name="g-seekable-tell"></a>g_seekable_tell ()</h3>
+<a class="indexterm" name="id2749908"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+>goffset</a>             g_seekable_tell                     (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable);</pre>
+<p>
+Tells the current position within the stream.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>seekable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the offset from the beginning of the buffer.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2749977"></a><h3>
+<a name="g-seekable-can-seek"></a>g_seekable_can_seek ()</h3>
+<a class="indexterm" name="id2749990"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_seekable_can_seek                 (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable);</pre>
+<p>
+Tests if the stream supports the <a class="link" href="GSeekable.html#GSeekableIface"><span class="type">GSeekableIface</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>seekable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if <em class="parameter"><code>seekable</code></em> can be seeked. <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> otherwise.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2750089"></a><h3>
+<a name="g-seekable-seek"></a>g_seekable_seek ()</h3>
+<a class="indexterm" name="id2750101"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_seekable_seek                     (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+>goffset</a> offset,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-IO-Channels.html#GSeekType"
+>GSeekType</a> type,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Seeks in the stream by the given <em class="parameter"><code>offset</code></em>, modified by <em class="parameter"><code>type</code></em>.
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>seekable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>offset</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+><span class="type">goffset</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-IO-Channels.html#GSeekType"
+><span class="type">GSeekType</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> location to store the error occuring, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to 
+ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if successful. If an error
+    has occurred, this function will return <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> and set <em class="parameter"><code>error</code></em>
+    appropriately if present.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2750369"></a><h3>
+<a name="g-seekable-can-truncate"></a>g_seekable_can_truncate ()</h3>
+<a class="indexterm" name="id2750380"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_seekable_can_truncate             (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable);</pre>
+<p>
+Tests if the stream can be truncated.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>seekable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the stream can be truncated, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> otherwise.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2846615"></a><h3>
+<a name="g-seekable-truncate"></a>g_seekable_truncate ()</h3>
+<a class="indexterm" name="id2846628"></a><pre class="programlisting"><a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>            g_seekable_truncate                 (<a class="link" href="GSeekable.html" title="GSeekable">GSeekable</a> *seekable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+>goffset</a> offset,
+                                                         <a class="link" href="GCancellable.html" title="GCancellable">GCancellable</a> *cancellable,
+                                                         <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+>GError</a> **error);</pre>
+<p>
+Truncates a stream with a given <span class="type">offset</span>. 
+</p>
+<p>
+If <em class="parameter"><code>cancellable</code></em> is not <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, then the operation can be cancelled by
+triggering the cancellable object from another thread. If the operation
+was cancelled, the error <a class="link" href="gio-GIOError.html#G-IO-ERROR-CANCELLED:CAPS"><code class="literal">G_IO_ERROR_CANCELLED</code></a> will be returned. If an
+operation was partially finished when the operation was cancelled the
+partial result will be returned, without an error.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>seekable</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="GSeekable.html" title="GSeekable"><span class="type">GSeekable</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>offset</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#goffset"
+><span class="type">goffset</span></a>.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>cancellable</code></em>&#160;:</span></p></td>
+<td> optional <a class="link" href="GCancellable.html" title="GCancellable"><span class="type">GCancellable</span></a> object, <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to ignore. 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>error</code></em>&#160;:</span></p></td>
+<td> a <a
+href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"
+><span class="type">GError</span></a> location to store the error occuring, or <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to 
+ignore.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if successful. If an error
+    has occurred, this function will return <a
+href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a> and set <em class="parameter"><code>error</code></em>
+    appropriately if present. 
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2846865"></a><h2>See Also</h2>
+<a class="link" href="GInputStream.html" title="GInputStream"><span class="type">GInputStream</span></a>, <a class="link" href="GOutputStream.html" title="GOutputStream"><span class="type">GOutputStream</span></a>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2846887"></a><div class="refsect2" lang="en"><a name="id2846888"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2846889"></a></div>
+</div>
+</div>
+</body>
+</html>

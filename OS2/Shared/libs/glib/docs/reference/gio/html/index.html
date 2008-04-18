@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>GIO Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="GIO Reference Manual">
+<link rel="next" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;GIO Overview">
+<link rel="chapter" href="ch01.html" title="Introduction">
+<link rel="chapter" href="ch02.html" title="Compiling GIO applications">
+<link rel="chapter" href="ch03.html" title="Running GIO applications">
+<link rel="chapter" href="gio-extension-points.html" title="Extending GIO">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;API Reference">
+<link rel="chapter" href="file_ops.html" title="File Operations">
+<link rel="chapter" href="file_mon.html" title="File System Monitoring">
+<link rel="chapter" href="async.html" title="Asynchronous I/O">
+<link rel="chapter" href="streaming.html" title="Streaming I/O">
+<link rel="chapter" href="types.html" title="File types and applications">
+<link rel="chapter" href="volume_mon.html" title="Volumes and Drives">
+<link rel="chapter" href="icons.html" title="Icons">
+<link rel="chapter" href="utils.html" title="Utilities">
+<link rel="chapter" href="extending.html" title="Extending GIO">
+<link rel="part" href="migrating.html" title="Part&#160;III.&#160;Migrating to GIO">
+<link rel="chapter" href="ch14.html" title="Migrating from POSIX to GIO">
+<link rel="chapter" href="ch15.html" title="Migrating from GnomeVFS to GIO">
+<link rel="chapter" href="gio-hierarchy.html" title="Object Hierarchy">
+<link rel="index" href="ix01.html" title="Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en">
+<div class="titlepage">
+<div>
+<div><table class="navigation" id="top" width="100%" cellpadding="2" cellspacing="0"><tr><th valign="middle"><p class="title">GIO Reference Manual</p></th></tr></table></div>
+<div><p class="releaseinfo">for GIO 2.16.3
+</p></div>
+</div>
+<hr>
+</div>
+<div class="toc"><dl>
+<dt><span class="part"><a href="pt01.html">I. GIO Overview</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="ch01.html">Introduction</a></span></dt>
+<dt><span class="chapter"><a href="ch02.html">Compiling GIO applications</a></span></dt>
+<dt><span class="chapter"><a href="ch03.html">Running GIO applications</a></span></dt>
+<dt><span class="chapter"><a href="gio-extension-points.html">Extending GIO</a></span></dt>
+</dl></dd>
+<dt><span class="part"><a href="pt02.html">II. API Reference</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="file_ops.html">File Operations</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="GFile.html">GFile</a></span><span class="refpurpose"> &#8212; File and Directory Handling</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gio-GFileAttribute.html">GFileAttribute</a></span><span class="refpurpose"> &#8212; Key-Value Paired File Attributes</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFileInfo.html">GFileInfo</a></span><span class="refpurpose"> &#8212; File Information and Attributes</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFileEnumerator.html">GFileEnumerator</a></span><span class="refpurpose"> &#8212; Enumerated Files Routines</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GMountOperation.html">GMountOperation</a></span><span class="refpurpose"> &#8212; Authentication methods for mountable locations</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gio-GIOError.html">GIOError</a></span><span class="refpurpose"> &#8212; Error helper functions</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="file_mon.html">File System Monitoring</a></span></dt>
+<dd><dl><dt>
+<span class="refentrytitle"><a href="GFileMonitor.html">GFileMonitor</a></span><span class="refpurpose"> &#8212; File Monitor</span>
+</dt></dl></dd>
+<dt><span class="chapter"><a href="async.html">Asynchronous I/O</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="GCancellable.html">GCancellable</a></span><span class="refpurpose"> &#8212; Thread-safe Operation Cancellation Stack</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GAsyncResult.html">GAsyncResult</a></span><span class="refpurpose"> &#8212; Asynchronous Function Results</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gio-GIOScheduler.html">GIOScheduler</a></span><span class="refpurpose"> &#8212; I/O Scheduler</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GSimpleAsyncResult.html">GSimpleAsyncResult</a></span><span class="refpurpose"> &#8212; Simple asynchronous results implementation</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="streaming.html">Streaming I/O</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="GSeekable.html">GSeekable</a></span><span class="refpurpose"> &#8212; Stream seeking interface</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GInputStream.html">GInputStream</a></span><span class="refpurpose"> &#8212; Base class for implementing streaming input</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GOutputStream.html">GOutputStream</a></span><span class="refpurpose"> &#8212; Base class for implementing streaming output</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFileInputStream.html">GFileInputStream</a></span><span class="refpurpose"> &#8212; File input streaming operations</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFileOutputStream.html">GFileOutputStream</a></span><span class="refpurpose"> &#8212; File output streaming operations</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFilterInputStream.html">GFilterInputStream</a></span><span class="refpurpose"> &#8212; Filter Input Stream</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFilterOutputStream.html">GFilterOutputStream</a></span><span class="refpurpose"> &#8212; Filter Output Stream</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GMemoryInputStream.html">GMemoryInputStream</a></span><span class="refpurpose"> &#8212; Streaming input operations on memory chunks</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GMemoryOutputStream.html">GMemoryOutputStream</a></span><span class="refpurpose"> &#8212; Streaming output operations on memory chunks</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GBufferedInputStream.html">GBufferedInputStream</a></span><span class="refpurpose"> &#8212; Buffered Input Stream</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GBufferedOutputStream.html">GBufferedOutputStream</a></span><span class="refpurpose"> &#8212; Buffered Output Stream</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GDataInputStream.html">GDataInputStream</a></span><span class="refpurpose"> &#8212; Data Input Stream</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GDataOutputStream.html">GDataOutputStream</a></span><span class="refpurpose"> &#8212; Data Output Stream</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GUnixInputStream.html">GUnixInputStream</a></span><span class="refpurpose"> &#8212; Streaming input operations for Unix file descriptors</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GUnixOutputStream.html">GUnixOutputStream</a></span><span class="refpurpose"> &#8212; Streaming output operations for Unix file descriptors</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="types.html">File types and applications</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="gio-GContentType.html">GContentType</a></span><span class="refpurpose"> &#8212; Platform-specific content typing</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GAppInfo.html">GAppInfo</a></span><span class="refpurpose"> &#8212; Application information and launch contexts</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gio-Desktop-file-based-GAppInfo.html">Desktop file based GAppInfo</a></span><span class="refpurpose"> &#8212; Application information from desktop files</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="volume_mon.html">Volumes and Drives</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="GVolumeMonitor.html">GVolumeMonitor</a></span><span class="refpurpose"> &#8212; Volume Monitor</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GVolume.html">GVolume</a></span><span class="refpurpose"> &#8212; Volume management</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GMount.html">GMount</a></span><span class="refpurpose"> &#8212; Mount management</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GDrive.html">GDrive</a></span><span class="refpurpose"> &#8212; Virtual File System drive management</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gio-Unix-Mounts.html">Unix Mounts</a></span><span class="refpurpose"> &#8212; Unix Mounts</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="icons.html">Icons</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="GIcon.html">GIcon</a></span><span class="refpurpose"> &#8212; Interface for icons</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GFileIcon.html">GFileIcon</a></span><span class="refpurpose"> &#8212; Icons pointing to an image file</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GLoadableIcon.html">GLoadableIcon</a></span><span class="refpurpose"> &#8212; Loadable Icons</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GThemedIcon.html">GThemedIcon</a></span><span class="refpurpose"> &#8212; Icon theming support</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="utils.html">Utilities</a></span></dt>
+<dd><dl><dt>
+<span class="refentrytitle"><a href="GFilenameCompleter.html">GFilenameCompleter</a></span><span class="refpurpose"> &#8212; Filename Completer</span>
+</dt></dl></dd>
+<dt><span class="chapter"><a href="extending.html">Extending GIO</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="GVfs.html">GVfs</a></span><span class="refpurpose"> &#8212; Virtual File System</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="GIOModule.html">GIOModule</a></span><span class="refpurpose"> &#8212; Loadable GIO Modules</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gio-Extension-Points.html">Extension Points</a></span><span class="refpurpose"> &#8212; Extension Points</span>
+</dt>
+</dl></dd>
+</dl></dd>
+<dt><span class="part"><a href="migrating.html">III. Migrating to GIO</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="ch14.html">Migrating from POSIX to GIO</a></span></dt>
+<dt><span class="chapter"><a href="ch15.html">Migrating from GnomeVFS to GIO</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch15.html#id2779868">Trash handling</a></span></dt>
+<dt><span class="section"><a href="ch15s02.html">Operations on multiple files</a></span></dt>
+<dt><span class="section"><a href="ch15s03.html">Mime monitoring</a></span></dt>
+</dl></dd>
+</dl></dd>
+<dt><span class="chapter"><a href="gio-hierarchy.html">Object Hierarchy</a></span></dt>
+<dt><span class="index"><a href="ix01.html">Index</a></span></dt>
+</dl></div>
+</div></body>
+</html>

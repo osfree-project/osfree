@@ -1,0 +1,229 @@
+<refentry id="glib-URI-Functions">
+<refmeta>
+<refentrytitle role="top_of_page">URI Functions</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GLIB Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>URI Functions</refname>
+<refpurpose>URI Functions</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+
+#include &lt;glib.h&gt;
+
+
+#define             <link linkend="G-URI-RESERVED-CHARS-ALLOWED-IN-PATH:CAPS">G_URI_RESERVED_CHARS_ALLOWED_IN_PATH</link>
+#define             <link linkend="G-URI-RESERVED-CHARS-ALLOWED-IN-PATH-ELEMENT:CAPS">G_URI_RESERVED_CHARS_ALLOWED_IN_PATH_ELEMENT</link>
+#define             <link linkend="G-URI-RESERVED-CHARS-ALLOWED-IN-USERINFO:CAPS">G_URI_RESERVED_CHARS_ALLOWED_IN_USERINFO</link>
+#define             <link linkend="G-URI-RESERVED-CHARS-GENERIC-DELIMITERS:CAPS">G_URI_RESERVED_CHARS_GENERIC_DELIMITERS</link>
+#define             <link linkend="G-URI-RESERVED-CHARS-SUBCOMPONENT-DELIMITERS:CAPS">G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS</link>
+<link linkend="char">char</link>*               <link linkend="g-uri-parse-scheme">g_uri_parse_scheme</link>                  (const <link linkend="char">char</link> *uri);
+<link linkend="char">char</link>*               <link linkend="g-uri-escape-string">g_uri_escape_string</link>                 (const <link linkend="char">char</link> *unescaped,
+                                                         const <link linkend="char">char</link> *reserved_chars_allowed,
+                                                         <link linkend="gboolean">gboolean</link> allow_utf8);
+<link linkend="char">char</link>*               <link linkend="g-uri-unescape-string">g_uri_unescape_string</link>               (const <link linkend="char">char</link> *escaped_string,
+                                                         const <link linkend="char">char</link> *illegal_characters);
+<link linkend="char">char</link>*               <link linkend="g-uri-unescape-segment">g_uri_unescape_segment</link>              (const <link linkend="char">char</link> *escaped_string,
+                                                         const <link linkend="char">char</link> *escaped_string_end,
+                                                         const <link linkend="char">char</link> *illegal_characters);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
+<para>
+Functions for manipulating Universal Resource Identifiers (URIs) as 
+defined by RFC 3986. It is highly recommended that you have read and
+understand RFC 3986 for understanding this API. A copy of RFC 3986 
+can be found at <ulink url="http://www.ietf.org/rfc/rfc3986.txt"/>.</para>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1 role="details">
+<title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="G-URI-RESERVED-CHARS-ALLOWED-IN-PATH:CAPS" role="macro"/>G_URI_RESERVED_CHARS_ALLOWED_IN_PATH</title>
+<indexterm><primary>G_URI_RESERVED_CHARS_ALLOWED_IN_PATH</primary></indexterm><programlisting>#define G_URI_RESERVED_CHARS_ALLOWED_IN_PATH G_URI_RESERVED_CHARS_ALLOWED_IN_PATH_ELEMENT "/"
+</programlisting>
+<para>
+Allowed characters in a path. Includes "!$&amp;'()*+,;=:@/".</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-URI-RESERVED-CHARS-ALLOWED-IN-PATH-ELEMENT:CAPS" role="macro"/>G_URI_RESERVED_CHARS_ALLOWED_IN_PATH_ELEMENT</title>
+<indexterm><primary>G_URI_RESERVED_CHARS_ALLOWED_IN_PATH_ELEMENT</primary></indexterm><programlisting>#define G_URI_RESERVED_CHARS_ALLOWED_IN_PATH_ELEMENT G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS ":@"
+</programlisting>
+<para>
+Allowed characters in path elements. Includes "!$&amp;'()*+,;=:@".</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-URI-RESERVED-CHARS-ALLOWED-IN-USERINFO:CAPS" role="macro"/>G_URI_RESERVED_CHARS_ALLOWED_IN_USERINFO</title>
+<indexterm><primary>G_URI_RESERVED_CHARS_ALLOWED_IN_USERINFO</primary></indexterm><programlisting>#define G_URI_RESERVED_CHARS_ALLOWED_IN_USERINFO G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS ":"
+</programlisting>
+<para>
+Allowed characters in userinfo as defined in RFC 3986. Includes "!$&amp;'()*+,;=:".</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-URI-RESERVED-CHARS-GENERIC-DELIMITERS:CAPS" role="macro"/>G_URI_RESERVED_CHARS_GENERIC_DELIMITERS</title>
+<indexterm><primary>G_URI_RESERVED_CHARS_GENERIC_DELIMITERS</primary></indexterm><programlisting>#define G_URI_RESERVED_CHARS_GENERIC_DELIMITERS ":/?#[]@"
+</programlisting>
+<para>
+Generic delimiters characters as defined in RFC 3986. Includes ":/?#[]@".</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="G-URI-RESERVED-CHARS-SUBCOMPONENT-DELIMITERS:CAPS" role="macro"/>G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS</title>
+<indexterm><primary>G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS</primary></indexterm><programlisting>#define G_URI_RESERVED_CHARS_SUBCOMPONENT_DELIMITERS "!$&amp;'()*+,;="
+</programlisting>
+<para>
+Subcomponent delimiter characters as defined in RFC 3986. Includes "!$&amp;'()*+,;=".</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-uri-parse-scheme" role="function" condition="since:2.16"/>g_uri_parse_scheme ()</title>
+<indexterm role="2.16"><primary>g_uri_parse_scheme</primary></indexterm><programlisting><link linkend="char">char</link>*               g_uri_parse_scheme                  (const <link linkend="char">char</link> *uri);</programlisting>
+<para>
+Gets the scheme portion of a URI string. RFC 3986 decodes the scheme as:
+<programlisting>
+URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ] 
+</programlisting>
+Common schemes include "file", "http", "svn+ssh", etc.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>uri</parameter>&nbsp;:</term>
+<listitem><simpara> a valid URI.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The "Scheme" component of the URI, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> on error. 
+The returned string should be freed when no longer needed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.16
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-uri-escape-string" role="function" condition="since:2.16"/>g_uri_escape_string ()</title>
+<indexterm role="2.16"><primary>g_uri_escape_string</primary></indexterm><programlisting><link linkend="char">char</link>*               g_uri_escape_string                 (const <link linkend="char">char</link> *unescaped,
+                                                         const <link linkend="char">char</link> *reserved_chars_allowed,
+                                                         <link linkend="gboolean">gboolean</link> allow_utf8);</programlisting>
+<para>
+Escapes a string for use in a URI.
+</para>
+<para>
+Normally all characters that are not "unreserved" (i.e. ASCII alphanumerical
+characters plus dash, dot, underscore and tilde) are escaped.
+But if you specify characters in <parameter>reserved_chars_allowed</parameter> they are not
+escaped. This is useful for the "reserved" characters in the URI
+specification, since those are allowed unescaped in some portions of
+a URI.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>unescaped</parameter>&nbsp;:</term>
+<listitem><simpara> the unescaped input string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>reserved_chars_allowed</parameter>&nbsp;:</term>
+<listitem><simpara> a string of reserved characters that are
+     allowed to be used.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>allow_utf8</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if the result can include UTF-8 characters.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> an escaped version of <parameter>unescaped</parameter>. The returned string should be 
+freed when no longer needed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.16
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-uri-unescape-string" role="function" condition="since:2.16"/>g_uri_unescape_string ()</title>
+<indexterm role="2.16"><primary>g_uri_unescape_string</primary></indexterm><programlisting><link linkend="char">char</link>*               g_uri_unescape_string               (const <link linkend="char">char</link> *escaped_string,
+                                                         const <link linkend="char">char</link> *illegal_characters);</programlisting>
+<para>
+Unescapes a whole escaped string.
+</para>
+<para>
+If any of the characters in <parameter>illegal_characters</parameter> or the character zero appears
+as an escaped character in <parameter>escaped_string</parameter> then that is an error and <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+will be returned. This is useful it you want to avoid for instance having a
+slash being expanded in an escaped path element, which might confuse pathname
+handling.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>escaped_string</parameter>&nbsp;:</term>
+<listitem><simpara> an escaped string to be unescaped.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>illegal_characters</parameter>&nbsp;:</term>
+<listitem><simpara> an optional string of illegal characters not to be allowed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> an unescaped version of <parameter>escaped_string</parameter>. The returned string 
+should be freed when no longer needed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.16
+</para></refsect2>
+<refsect2>
+<title><anchor id="g-uri-unescape-segment" role="function" condition="since:2.16"/>g_uri_unescape_segment ()</title>
+<indexterm role="2.16"><primary>g_uri_unescape_segment</primary></indexterm><programlisting><link linkend="char">char</link>*               g_uri_unescape_segment              (const <link linkend="char">char</link> *escaped_string,
+                                                         const <link linkend="char">char</link> *escaped_string_end,
+                                                         const <link linkend="char">char</link> *illegal_characters);</programlisting>
+<para>
+Unescapes a segment of an escaped string.
+</para>
+<para>
+If any of the characters in <parameter>illegal_characters</parameter> or the character zero appears
+as an escaped character in <parameter>escaped_string</parameter> then that is an error and <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+will be returned. This is useful it you want to avoid for instance having a
+slash being expanded in an escaped path element, which might confuse pathname
+handling.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>escaped_string</parameter>&nbsp;:</term>
+<listitem><simpara> a string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>escaped_string_end</parameter>&nbsp;:</term>
+<listitem><simpara> a string.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>illegal_characters</parameter>&nbsp;:</term>
+<listitem><simpara> an optional string of illegal characters not to be allowed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> an unescaped version of <parameter>escaped_string</parameter> or <link linkend="NULL:CAPS"><literal>NULL</literal></link> on error.
+The returned string should be freed when no longer needed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  2.16
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
+</refentry>
