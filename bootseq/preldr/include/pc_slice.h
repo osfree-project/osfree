@@ -122,13 +122,13 @@
 /* Check if TYPE is a FAT partition type. Clear the hidden flag before
    the check, to allow the user to mount a hidden partition in GRUB.  */
 #define IS_PC_SLICE_TYPE_FAT(type)	\
-      ( (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_FAT12 \
-     || (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_FAT16_LT32M \
-     || (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_FAT16_GT32M \
-     || (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_FAT16_LBA \
-     || (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_FAT32 \
-     || (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_FAT32_LBA \
-     || (type) & ~PC_SLICE_TYPE_HIDDEN_FLAG == PC_SLICE_TYPE_DELL_UTIL)
+      ((((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_FAT12) \
+     || (((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_FAT16_LT32M) \
+     || (((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_FAT16_GT32M) \
+     || (((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_FAT16_LBA) \
+     || (((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_FAT32) \
+     || (((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_FAT32_LBA) \
+     || (((type) & ~PC_SLICE_TYPE_HIDDEN_FLAG) == PC_SLICE_TYPE_DELL_UTIL))
 
 #define IS_PC_SLICE_TYPE_EXTENDED(type)	\
   (((type) == PC_SLICE_TYPE_EXTENDED)	\
