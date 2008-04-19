@@ -7,6 +7,8 @@
 ROOT       = $(%ROOT)
 # OpenWatcom directory
 WATCOM     = $(%WATCOM)
+# Files from which HDD image is built
+FILESDIR   = $(ROOT)/files
 
 # Shell
 !     ifeq OS_SHELL 4OS/2
