@@ -409,10 +409,12 @@ void set_boot_fsys(void)
 {
   fsys_type = -1; // boot filesystem
   /* move boot drive uFSD to working buffer */
-  swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE));
+  //swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE));
+  grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
   fsd_init(l1);
+  printmsg("boot fs set\r\n");
 }
 
 #pragma aux set_fsys "*"
@@ -423,21 +425,23 @@ int set_fsys(char *fsname)
   char sbuf[0x100];
   char *s;
   int  rc;  
+  int  fst;
   
-  saved_fsys_type     = fsys_type;
-  saved_current_drive = current_drive;
-  saved_cdrom = cdrom_drive;
-  saved_current_slice = current_slice;
-  saved_current_partition = current_partition;
-  saved_fsmax = fsmax;
-  saved_part_start  = part_start;
-  saved_part_length = part_length;
-  saved_filemax   = filemax;
-  saved_filepos   = filepos;
+  //saved_fsys_type     = fsys_type;
+  //saved_current_drive = current_drive;
+  //saved_current_partition = current_partition;
+  //saved_cdrom = cdrom_drive;
+  //saved_current_slice = current_slice;
+  //saved_fsmax = fsmax;
+  //saved_part_start  = part_start;
+  //saved_part_length = part_length;
+  //saved_filemax   = filemax;
+  //saved_filepos   = filepos;
   //saved_buf_drive = buf_drive;
   //saved_buf_track = buf_track;
   //grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
 
+  fst = fsys_type;
   set_boot_fsys();
   rc = freeldr_open(fsname);
 
@@ -458,39 +462,42 @@ int set_fsys(char *fsname)
   
   // fixup the loaded filesystem
   reloc((char *)buf, sbuf, relshift);
-  swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)UFSD_BASE);
-  swap_fsys_bufs((void *)(EXT_BUF_BASE), buf);
-
-  fsys_type = saved_fsys_type;
-  current_drive = saved_current_drive;
-  cdrom_drive = saved_cdrom;
-  current_slice = saved_current_slice;
-  current_partition = saved_current_partition;
-  fsmax = saved_fsmax;
-  part_start = saved_part_start;
-  part_length = saved_part_length;
-  filemax = saved_filemax;
-  filepos = saved_filepos;
+  printmsg("fs relocated\r\n");
+  //swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)UFSD_BASE);
+  //swap_fsys_bufs((void *)(EXT_BUF_BASE), buf);
+  grub_memmove((void *)(EXT_BUF_BASE), (void *)(buf), EXT_LEN);
+  printmsg("fs moved\r\n");
+  //fsys_type = saved_fsys_type;
+  //current_drive = saved_current_drive;
+  //current_partition = saved_current_partition;
+  //cdrom_drive = saved_cdrom;
+  //current_slice = saved_current_slice;
+  //fsmax = saved_fsmax;
+  //part_start = saved_part_start;
+  //part_length = saved_part_length;
+  //filemax = saved_filemax;
+  //filepos = saved_filepos;
   //buf_drive = saved_buf_drive;
   //buf_track = saved_buf_track;
   //grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
-
-  printmsg("fsys_type=");
-  printd(fsys_type);
-  printmsg("\r\n");
-
+  fsys_type = fst;
+  
   fsd_init = (void *)(EXT_BUF_BASE);
   fsd_init(l1);
 
-  printf("trying to mount a filesystem\r\n");
-  if (open_partition() && stage0_mount())
-  {
-    printmsg("filesystem is mounted\r\n");
-    return 1;
-  }
+  printmsg("fs initted, fsys_type=");
+  printd(fsys_type);
+  printmsg("\r\n");
+
+  //printf("trying to mount a filesystem\r\n");
+  //if (open_partition() && stage0_mount())
+  //{
+  //  printmsg("filesystem is mounted\r\n");
+  //  return 1;
+  //}
   
 
-  printmsg("filesystem is not mounted!\r\n");
+  //printmsg("filesystem is not mounted!\r\n");
   return 0;
 }
 
@@ -513,7 +520,7 @@ void fsys_by_num(int n, char *buf)
 
 #endif /* ! STAGE1_5 */
 
-static void
+static int
 attempt_mount (void)
 {
 
@@ -554,17 +561,19 @@ attempt_mount (void)
   }
  */
  
-  set_boot_fsys();
-  if (!stage0_mount())
-  {
-    for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) {
-      fsys_by_num(fsys_type, buf);
- 
-      if (set_fsys(buf))
-        break;
-    }
-  }
-
+  //set_boot_fsys();
+  //if (!stage0_mount())
+  //{
+  //  for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) {
+  //    fsys_by_num(fsys_type, buf);
+  //
+  //    if (set_fsys(buf))
+  //      break;
+  //  }
+  //}
+  
+  return stage0_mount();
+  
 /*
   if (!stage0_mount()) 
   {
@@ -610,11 +619,12 @@ attempt_mount (void)
 #else
   //fsys_type = 0;
   //if ((*(fsys_table[fsys_type].mount_func)) () != 1)
-  if (stage0_mount() != 1)
-    {
-      fsys_type = NUM_FSYS;
-      errnum = ERR_FSYS_MOUNT;
-    }
+  //if (!stage0_mount())
+  //  {
+  //    fsys_type = NUM_FSYS;
+  //    errnum = ERR_FSYS_MOUNT;
+  //  }
+  return stage0_mount();
 #endif
 }
 
@@ -1056,15 +1066,50 @@ open_partition (void)
 int
 open_device (void)
 {
-  if (open_partition ())
-    attempt_mount ();
+  //if (open_partition ())
+  //  attempt_mount ();
+  //
+  //if (errnum != ERR_NONE)
+  //  return 0;
+  //
+  //return 1;
 
-  if (errnum != ERR_NONE)
-    return 0;
-
-  return 1;
+  return open_partition() && attempt_mount();
 }
 
+/* open_device() wrapper. Attempts to set a filesystem
+ * in loop, and try to mount it
+ */
+int
+open_device2(void)
+{
+#ifndef STAGE1_5
+  char buf[0x100];
+  int fst;
+  unsigned int cd = current_drive;
+  unsigned int cp = current_partition;
+
+  set_boot_fsys();
+  if (open_device())
+    return 1;
+  
+  for (fst = 0; fst < num_fsys; fst++) {
+    fsys_type = fst;
+    fsys_by_num(fst, buf);
+    set_fsys(buf);
+
+    current_drive = cd;
+    current_partition = cp;
+    
+    if (open_device())
+      return 1;
+  }
+#else
+  return open_device();
+#endif
+  errnum = ERR_FSYS_MOUNT;
+  return 0;
+} 
 
 static char *
 setup_part (char *filename)
@@ -1098,7 +1143,7 @@ setup_part (char *filename)
         open_partition ();
       else
 # endif /* ! NO_BLOCK_FILES */
-        open_device ();
+        open_device2 ();
     }
   else if (saved_drive != current_drive
            || saved_partition != current_partition
@@ -1114,7 +1159,7 @@ setup_part (char *filename)
         open_partition ();
       else
 # endif /* ! NO_BLOCK_FILES */
-        open_device ();
+        open_device2 ();
     }
 
 #endif /* ! STAGE1_5 */

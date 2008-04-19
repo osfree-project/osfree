@@ -81,10 +81,10 @@ fat_mount (void)
   __u32 magic, first_fat;
 
   /* Check partition type for harddisk */
-  if (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
-      && ! IS_PC_SLICE_TYPE_FAT (*pcurrent_slice)
-      && (! IS_PC_SLICE_TYPE_BSD_WITH_FS (*pcurrent_slice, FS_MSDOS)))
-    return 0;
+  //if (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+  //      && ! IS_PC_SLICE_TYPE_FAT (*pcurrent_slice)
+  //      && (! IS_PC_SLICE_TYPE_BSD_WITH_FS (*pcurrent_slice, FS_MSDOS)))
+  //    return 0;
 
   /* Read bpb */
   if (! (*pdevread) (0, 0, sizeof (bpb), (char *) &bpb))

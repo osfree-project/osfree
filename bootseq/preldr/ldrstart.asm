@@ -37,7 +37,7 @@ _STACK   ends
 DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_STACK
 
 _STACK   segment dword public 'STACK' use32
-LDR_STACK_SIZE equ 4000h
+LDR_STACK_SIZE equ 8000h
 public loader_stack_top
 public loader_stack_bottom
 ;                        db 3 dup (?)
