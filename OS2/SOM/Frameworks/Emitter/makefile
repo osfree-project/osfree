@@ -8,7 +8,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = Preprocessor Emitters
+DIRS = Compiler Preprocessor Emitters
 
 !include $(%ROOT)/mk/all.mk
 
