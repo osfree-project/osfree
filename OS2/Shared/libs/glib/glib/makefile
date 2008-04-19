@@ -16,63 +16,62 @@ ADD_COPT = -i=..$(SEP)include
 
 all: $(ROOT)$(SEP)lib$(SEP)glib.lib .SYMBOLIC
 
-OBJS =  garray.obj              &
+OBJS =  gerror.obj              &
+        ghash.obj               &
+        glist.obj               &
+        gmem.obj                &
+        gmessages.obj           &
+        gnode.obj               &
+        gqueue.obj              &
+        grand.obj               &
+        grel.obj                &
+        gscanner.obj            &
+        gsequence.obj   &
+        gslist.obj              &
+        gstrfuncs.obj           &
+        gstring.obj             &
+        gslice.obj      &
+        gtree.obj &
+        ghook.obj               &
+        gfileutils.obj          &
+        giochannel.obj          &
+        gkeyfile.obj            &
+        gmappedfile.obj &
+        gmarkup.obj             &
+        garray.obj              &
         gasyncqueue.obj         &
         gatomic.obj     &
-#        gbacktrace.obj          &
         gbase64.obj     &
         gbookmarkfile.obj       &
         gcache.obj              &
         gchecksum.obj   &
         gcompletion.obj         &
-#        gconvert.obj            &
         gdataset.obj            &
         gdate.obj               &
-#        gdir.obj        &
-        gerror.obj              &
-        gfileutils.obj          &
-        ghash.obj               &
-        ghook.obj               &
-        giochannel.obj          &
-        gkeyfile.obj            &
-        glist.obj               &
-#        gmain.obj               &
-        gmappedfile.obj &
-        gmarkup.obj             &
-        gmem.obj                &
-        gmessages.obj           &
-        gnode.obj               &
-        goption.obj     &
         gpattern.obj    &
         gprimes.obj             &
         gprintf.obj     &
-#        gqsort.obj              &
-        gqueue.obj              &
-        grand.obj               &
+        gqsort.obj              &
         gregex.obj              &
-        grel.obj                &
-        gscanner.obj            &
-        gsequence.obj   &
         gshell.obj              &
-#        gslice.obj      &
-        gslist.obj              &
-#        gspawn-win32.obj        &
-#        gstdio.obj      &
-        gstrfuncs.obj           &
-        gstring.obj             &
         gtestutils.obj  &
         gthread.obj             &
         gthreadpool.obj         &
         gtimer.obj              &
-        gtree.obj               &
         gunibreak.obj           &
         gunicollate.obj         &
         gunidecomp.obj          &
         guniprop.obj            &
         gurifuncs.obj   &
+        gstdio.obj      &
         gutf8.obj
-#        gutils.obj              &
+#        gutils.obj
+#        gmain.obj               &
 #        localcharset.obj
+#        goption.obj     &
+#        gdir.obj        &
+#        gbacktrace.obj          &
+#        gconvert.obj            &
 
 
 

@@ -21,7 +21,7 @@
  * Modified by the GLib Team and others 1997-2000.  See the AUTHORS
  * file for a list of people on the GLib Team.  See the ChangeLog
  * files for a list of changes.  These files are distributed with
- * GLib at ftp://ftp.gtk.org/pub/gtk/. 
+ * GLib at ftp://ftp.gtk.org/pub/gtk/.
  */
 
 #ifndef __G_ALLOCA_H__
@@ -34,7 +34,7 @@
 # undef alloca
 # define alloca(size)   __builtin_alloca (size)
 #elif defined (GLIB_HAVE_ALLOCA_H)
-/* a native and working alloca.h is there */ 
+/* a native and working alloca.h is there */
 # include <alloca.h>
 #else /* !__GNUC__ && !GLIB_HAVE_ALLOCA_H */
 # if defined(_MSC_VER) || defined(__DMC__)
@@ -46,15 +46,15 @@
 #  else /* !_AIX */
 #   ifndef alloca /* predefined by HP cc +Olibcalls */
 G_BEGIN_DECLS
-char *alloca ();
+//char *alloca ();
 G_END_DECLS
 #   endif /* !alloca */
 #  endif /* !_AIX */
 # endif /* !_MSC_VER && !__DMC__ */
 #endif /* !__GNUC__ && !GLIB_HAVE_ALLOCA_H */
 
-#define g_alloca(size)		 alloca (size)
-#define g_newa(struct_type, n_structs)	((struct_type*) g_alloca (sizeof (struct_type) * (gsize) (n_structs)))
+#define g_alloca(size)           alloca (size)
+#define g_newa(struct_type, n_structs)  ((struct_type*) g_alloca (sizeof (struct_type) * (gsize) (n_structs)))
 
 
 #endif /* __G_ALLOCA_H__ */

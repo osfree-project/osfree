@@ -7,7 +7,10 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = uniapi shared genext2fs qemu-img ltools awk renmodul &
+# Notes:
+# 1. UniAPI must comes first here because used to produce API headers
+
+DIRS = uniapi shared genext2fs qemu-img ltools lex awk renmodul &
        rexxwrap mkmsgf # mapsym # libmmap hlldump
 
 !include $(%ROOT)/mk/all.mk

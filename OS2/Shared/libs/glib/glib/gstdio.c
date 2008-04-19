@@ -40,11 +40,16 @@
 #include <io.h>
 #endif
 
+#ifdef G_OS_OS2
+#include <direct.h>
+#include <io.h>
+#endif
+
 #include "gstdio.h"
 
 #include "galias.h"
 
-#if !defined (G_OS_UNIX) && !defined (G_OS_WIN32) && !defined (G_OS_BEOS)
+#if !defined (G_OS_UNIX) && !defined (G_OS_WIN32) && !defined (G_OS_BEOS) && !defined (G_OS_OS2)
 #error Please port this to your operating system
 #endif
 
@@ -66,18 +71,18 @@
  * Returns: zero if the pathname refers to an existing file system
  * object that has all the tested permissions, or -1 otherwise or on
  * error.
- * 
+ *
  * Since: 2.8
  */
 int
 g_access (const gchar *filename,
-	  int          mode)
+          int          mode)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
   int retval;
   int save_errno;
-    
+
   if (wfilename == NULL)
     {
       errno = EINVAL;
@@ -112,18 +117,18 @@ g_access (const gchar *filename,
  * See the C library manual for more details about chmod().
  *
  * Returns: zero if the operation succeeded, -1 on error.
- * 
+ *
  * Since: 2.8
  */
 int
 g_chmod (const gchar *filename,
-	 int          mode)
+         int          mode)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
   int retval;
   int save_errno;
-    
+
   if (wfilename == NULL)
     {
       errno = EINVAL;
@@ -159,19 +164,19 @@ g_chmod (const gchar *filename,
  *
  * Returns: a new file descriptor, or -1 if an error occurred. The
  * return value can be used exactly like the return value from open().
- * 
+ *
  * Since: 2.6
  */
 int
 g_open (const gchar *filename,
-	int          flags,
-	int          mode)
+        int          flags,
+        int          mode)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
   int retval;
   int save_errno;
-    
+
   if (wfilename == NULL)
     {
       errno = EINVAL;
@@ -206,18 +211,18 @@ g_open (const gchar *filename,
  *
  * Returns: a new file descriptor, or -1 if an error occurred. The
  * return value can be used exactly like the return value from creat().
- * 
+ *
  * Since: 2.8
  */
 int
 g_creat (const gchar *filename,
-	 int          mode)
+         int          mode)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
   int retval;
   int save_errno;
-    
+
   if (wfilename == NULL)
     {
       errno = EINVAL;
@@ -241,21 +246,21 @@ g_creat (const gchar *filename,
  * @oldfilename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @newfilename: a pathname in the GLib file name encoding
  *
- * A wrapper for the POSIX rename() function. The rename() function 
+ * A wrapper for the POSIX rename() function. The rename() function
  * renames a file, moving it between directories if required.
- * 
+ *
  * See your C library manual for more details about how rename() works
  * on your system. Note in particular that on Win9x it is not possible
  * to rename a file if a file with the new name already exists. Also
  * it is not possible in general on Windows to rename an open file.
  *
  * Returns: 0 if the renaming succeeded, -1 if an error occurred
- * 
+ *
  * Since: 2.6
  */
 int
 g_rename (const gchar *oldfilename,
-	  const gchar *newfilename)
+          const gchar *newfilename)
 {
 #ifdef G_OS_WIN32
   wchar_t *woldfilename = g_utf8_to_utf16 (oldfilename, -1, NULL, NULL, NULL);
@@ -284,24 +289,24 @@ g_rename (const gchar *oldfilename,
     {
       retval = -1;
       switch (GetLastError ())
-	{
+        {
 #define CASE(a,b) case ERROR_##a: save_errno = b; break
-	  CASE (FILE_NOT_FOUND, ENOENT);
-	  CASE (PATH_NOT_FOUND, ENOENT);
-	  CASE (ACCESS_DENIED, EACCES);
-	  CASE (NOT_SAME_DEVICE, EXDEV);
-	  CASE (LOCK_VIOLATION, EACCES);
-	  CASE (SHARING_VIOLATION, EACCES);
-	  CASE (FILE_EXISTS, EEXIST);
-	  CASE (ALREADY_EXISTS, EEXIST);
+          CASE (FILE_NOT_FOUND, ENOENT);
+          CASE (PATH_NOT_FOUND, ENOENT);
+          CASE (ACCESS_DENIED, EACCES);
+          CASE (NOT_SAME_DEVICE, EXDEV);
+          CASE (LOCK_VIOLATION, EACCES);
+          CASE (SHARING_VIOLATION, EACCES);
+          CASE (FILE_EXISTS, EEXIST);
+          CASE (ALREADY_EXISTS, EEXIST);
 #undef CASE
-	default: save_errno = EIO;
-	}
+        default: save_errno = EIO;
+        }
     }
 
   g_free (woldfilename);
   g_free (wnewfilename);
-    
+
   errno = save_errno;
   return retval;
 #else
@@ -310,24 +315,24 @@ g_rename (const gchar *oldfilename,
 }
 
 /**
- * g_mkdir: 
+ * g_mkdir:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @mode: permissions to use for the newly created directory
  *
- * A wrapper for the POSIX mkdir() function. The mkdir() function 
+ * A wrapper for the POSIX mkdir() function. The mkdir() function
  * attempts to create a directory with the given name and permissions.
  * The mode argument is ignored on Windows.
- * 
+ *
  * See the C library manual for more details about mkdir().
  *
- * Returns: 0 if the directory was successfully created, -1 if an error 
+ * Returns: 0 if the directory was successfully created, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
 g_mkdir (const gchar *filename,
-	 int          mode)
+         int          mode)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
@@ -344,25 +349,29 @@ g_mkdir (const gchar *filename,
   save_errno = errno;
 
   g_free (wfilename);
-    
+
   errno = save_errno;
   return retval;
 #else
+#ifdef G_OS_OS2
+  return mkdir (filename);
+#else
   return mkdir (filename, mode);
+#endif
 #endif
 }
 
 /**
- * g_chdir: 
+ * g_chdir:
  * @path: a pathname in the GLib file name encoding (UTF-8 on Windows)
  *
  * A wrapper for the POSIX chdir() function. The function changes the
  * current directory of the process to @path.
- * 
+ *
  * See your C library manual for more details about chdir().
  *
  * Returns: 0 on success, -1 if an error occurred.
- * 
+ *
  * Since: 2.8
  */
 int
@@ -383,7 +392,7 @@ g_chdir (const gchar *path)
   save_errno = errno;
 
   g_free (wpath);
-    
+
   errno = save_errno;
   return retval;
 #else
@@ -392,7 +401,7 @@ g_chdir (const gchar *path)
 }
 
 /**
- * g_stat: 
+ * g_stat:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @buf: a pointer to a <structname>stat</structname> struct, which
  *    will be filled with the file information
@@ -402,17 +411,17 @@ g_chdir (const gchar *path)
  * the C library checks only the READONLY attribute and does not look
  * at the ACL at all. Thus the protection bits in the st_mode field
  * are a fabrication of little use.
- * 
+ *
  * See the C library manual for more details about stat().
  *
- * Returns: 0 if the information was successfully retrieved, -1 if an error 
+ * Returns: 0 if the information was successfully retrieved, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
 g_stat (const gchar *filename,
-	struct stat *buf)
+        struct stat *buf)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
@@ -446,7 +455,7 @@ g_stat (const gchar *filename,
 }
 
 /**
- * g_lstat: 
+ * g_lstat:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @buf: a pointer to a <structname>stat</structname> struct, which
  *    will be filled with the file information
@@ -456,17 +465,17 @@ g_stat (const gchar *filename,
  * information about the symbolic link itself and not the file that it
  * refers to. If the system does not support symbolic links g_lstat()
  * is identical to g_stat().
- * 
+ *
  * See the C library manual for more details about lstat().
  *
- * Returns: 0 if the information was successfully retrieved, -1 if an error 
+ * Returns: 0 if the information was successfully retrieved, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
 g_lstat (const gchar *filename,
-	 struct stat *buf)
+         struct stat *buf)
 {
 #ifdef HAVE_LSTAT
   /* This can't be Win32, so don't do the widechar dance. */
@@ -480,18 +489,18 @@ g_lstat (const gchar *filename,
  * g_unlink:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  *
- * A wrapper for the POSIX unlink() function. The unlink() function 
- * deletes a name from the filesystem. If this was the last link to the 
+ * A wrapper for the POSIX unlink() function. The unlink() function
+ * deletes a name from the filesystem. If this was the last link to the
  * file and no processes have it opened, the diskspace occupied by the
  * file is freed.
- * 
+ *
  * See your C library manual for more details about unlink(). Note
  * that on Windows, it is in general not possible to delete files that
  * are open to some process, or mapped into memory.
  *
- * Returns: 0 if the name was successfully deleted, -1 if an error 
+ * Returns: 0 if the name was successfully deleted, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -526,7 +535,7 @@ g_unlink (const gchar *filename)
  *
  * A wrapper for the POSIX remove() function. The remove() function
  * deletes a name from the filesystem.
- * 
+ *
  * See your C library manual for more details about how remove() works
  * on your system. On Unix, remove() removes also directories, as it
  * calls unlink() for files and rmdir() for directories. On Windows,
@@ -541,9 +550,9 @@ g_unlink (const gchar *filename)
  * fail. Any errno value set by remove() will be overwritten by that
  * set by rmdir().
  *
- * Returns: 0 if the file was successfully removed, -1 if an error 
+ * Returns: 0 if the file was successfully removed, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -580,13 +589,13 @@ g_remove (const gchar *filename)
  *
  * A wrapper for the POSIX rmdir() function. The rmdir() function
  * deletes a directory from the filesystem.
- * 
+ *
  * See your C library manual for more details about how rmdir() works
  * on your system.
  *
- * Returns: 0 if the directory was successfully removed, -1 if an error 
+ * Returns: 0 if the directory was successfully removed, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -602,7 +611,7 @@ g_rmdir (const gchar *filename)
       errno = EINVAL;
       return -1;
     }
-  
+
   retval = _wrmdir (wfilename);
   save_errno = errno;
 
@@ -618,22 +627,22 @@ g_rmdir (const gchar *filename)
 /**
  * g_fopen:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @mode: a string describing the mode in which the file should be 
+ * @mode: a string describing the mode in which the file should be
  *   opened
  *
  * A wrapper for the POSIX fopen() function. The fopen() function opens
- * a file and associates a new stream with it. 
- * 
+ * a file and associates a new stream with it.
+ *
  * See the C library manual for more details about fopen().
  *
  * Returns: A <type>FILE</type> pointer if the file was successfully
  *    opened, or %NULL if an error occurred
- * 
+ *
  * Since: 2.6
  */
 FILE *
 g_fopen (const gchar *filename,
-	 const gchar *mode)
+         const gchar *mode)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
@@ -672,24 +681,24 @@ g_fopen (const gchar *filename,
 /**
  * g_freopen:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @mode: a string describing the mode in which the file should be 
+ * @mode: a string describing the mode in which the file should be
  *   opened
  * @stream: an existing stream which will be reused, or %NULL
  *
  * A wrapper for the POSIX freopen() function. The freopen() function
  * opens a file and associates it with an existing stream.
- * 
+ *
  * See the C library manual for more details about freopen().
  *
  * Returns: A <type>FILE</type> pointer if the file was successfully
  *    opened, or %NULL if an error occurred.
- * 
+ *
  * Since: 2.6
  */
 FILE *
 g_freopen (const gchar *filename,
-	   const gchar *mode,
-	   FILE        *stream)
+           const gchar *mode,
+           FILE        *stream)
 {
 #ifdef G_OS_WIN32
   wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
@@ -702,7 +711,7 @@ g_freopen (const gchar *filename,
       errno = EINVAL;
       return NULL;
     }
-  
+
   wmode = g_utf8_to_utf16 (mode, -1, NULL, NULL, NULL);
 
   if (wmode == NULL)
@@ -711,7 +720,7 @@ g_freopen (const gchar *filename,
       errno = EINVAL;
       return NULL;
     }
-  
+
   retval = _wfreopen (wfilename, wmode, stream);
   save_errno = errno;
 
