@@ -1,5 +1,5 @@
 #
-# A Makefile for ANSI
+# A Makefile for COMP
 # (c) osFree project,
 # author, date
 #

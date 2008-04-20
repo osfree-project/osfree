@@ -1,0 +1,57 @@
+!_TAG_FILE_FORMAT	2	/supported features/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted/
+!_TAG_PROGRAM_AUTHOR	Steve Kirkendall	/kirkenda@cs.pdx.edu/
+!_TAG_PROGRAM_NAME	Elvis Ctags	//
+!_TAG_PROGRAM_URL	ftp://ftp.cs.pdx.edu/pub/elvis/README.html	/official site/
+!_TAG_PROGRAM_VERSION	2.1j-beta	//
+FIND_FIRST	FIND95.C	17;"	file:	d	ln:17
+FIND_NEXT	FIND95.C	18;"	file:	d	ln:18
+IO95_NO_OPEN_PROTOTYPE	OPEN95.C	23;"	file:	d	ln:23
+MAXDRVLEN	DIR95.C	29;"	file:	d	ln:29
+MAXDRVLEN	FLLPTH95.C	30;"	file:	d	ln:30
+OPEN_CREATE	OPEN95.C	26;"	file:	d	ln:26
+OPEN_FLAGS	OPEN95.C	29;"	file:	d	ln:29
+OPEN_OPEN	OPEN95.C	28;"	file:	d	ln:28
+OPEN_SHARE	OPEN95.C	30;"	file:	d	ln:30
+OPEN_TRUNC	OPEN95.C	27;"	file:	d	ln:27
+PATTERN	DIR95.C	28;"	file:	d	ln:28
+callAPI	MKDIR95.C	/^static int callAPI(int fct, const char * const dnam)$/;"	file:	f	ln:26
+callWin95	WIN95API.C	/^int callWin95(int fct, struct REGPACK * const rp)$/;"	f	ln:29
+chdir95	MKDIR95.C	/^int chdir95(const char * const dnam)$/;"	f	ln:45
+closedir95	DIR95.C	/^closedir95(dirp)$/;"	f	ln:105
+conv95	FIND95.C	/^static void conv95(FF_Block95 *ff)$/;"	file:	f	ln:110
+conv95	L2S95.C	/^static int conv95(int fct, const char * const fnam, char * const buf)$/;"	file:	f	ln:28
+convDOS	FIND95.C	/^static void convDOS(FF_Block95 *ff)$/;"	file:	f	ln:69
+find95	FIND95.C	/^static int find95(char *name, FF_Block95 *ff, int attr)$/;"	file:	f	ln:120
+findfile	FIND95.C	/^static int findfile(FF_Block95 *ff, int mode, char *name, int attr)$/;"	file:	f	ln:83
+findfirst	FIND95.C	/^int findfirst(char *name, FF_Block95 *ff, int attr)$/;"	f	ln:53
+findfirst95	FIND95.C	/^int findfirst95(char *name, FF_Block95 *ff, int attr)$/;"	f	ln:157
+findnext	FIND95.C	/^int findnext(FF_Block95 *ff)$/;"	f	ln:62
+findnext95	FIND95.C	/^int findnext95(FF_Block95 *ff)$/;"	f	ln:166
+findstop95	FIND95.C	/^void findstop95(FF_Block95 *ff)$/;"	f	ln:170
+fullpath95	FLLPTH95.C	/^char *fullpath95(char * const Xbuffer, const char *path, int Xbuflen)$/;"	f	ln:42
+getcurdir95	GETCWD95.C	/^int getcurdir95(int drive, char * const dir)$/;"	f	ln:41
+getcwd95	GETCWD95.C	/^char * getcwd95(char *buf, int buflen)$/;"	f	ln:88
+getdcwd95	GETCWD95.C	/^char * getdcwd95(int drive, char *buf, int buflen)$/;"	f	ln:58
+getdta	FIND95.C	/^char far *getdta(void)$/;"	f	ln:35
+lfn2sfn95	L2S95.C	/^int lfn2sfn95(const char * const fnam, char * const buf)$/;"	f	ln:53
+mkdir95	MKDIR95.C	/^int mkdir95(const char * const dnam)$/;"	f	ln:35
+next95	FIND95.C	/^static int next95(FF_Block95 *ff)$/;"	file:	f	ln:141
+open95	OPEN95.C	/^int open95(char *fnam, long omode, int flags)$/;"	f	ln:147
+opendir95	DIR95.C	/^opendir95(name)$/;"	f	ln:42
+rcsid	DIR95.C	/^static char const rcsid[] = $/;"	file:	v	ln:32
+rcsid	FIND95.C	/^static char const rcsid[] = $/;"	file:	v	ln:21
+rcsid	FLLPTH95.C	/^static char const rcsid[] = $/;"	file:	v	ln:33
+rcsid	GETCWD95.C	/^static char const rcsid[] = $/;"	file:	v	ln:29
+rcsid	L2S95.C	/^static char const rcsid[] = $/;"	file:	v	ln:24
+rcsid	MKDIR95.C	/^static char const rcsid[] = $/;"	file:	v	ln:22
+rcsid	OPEN95.C	/^static char const rcsid[] = $/;"	file:	v	ln:33
+rcsid	REN95.C	/^static char const rcsid[] = $/;"	file:	v	ln:14
+rcsid	WIN95API.C	/^static char const rcsid[] = $/;"	file:	v	ln:25
+readdir95	DIR95.C	/^struct dirent95 * readdir95(dirp)$/;"	f	ln:86
+rename95	REN95.C	/^int rename95(const char * const oldnam, const char * const newnam)$/;"	f	ln:18
+rmdir95	MKDIR95.C	/^int rmdir95(const char * const dnam)$/;"	f	ln:40
+seekdir95	DIR95.C	/^seekdir95(dirp, pos)$/;"	f	ln:115
+setdta	FIND95.C	/^void setdta(char far *dta)$/;"	f	ln:26
+telldir95	DIR95.C	/^telldir95(dirp)$/;"	f	ln:134
+truename95	L2S95.C	/^int truename95(const char * const fnam, char * const buf)$/;"	f	ln:51

@@ -1,0 +1,124 @@
+/****
+    IO95 v1 - Win9x LFN API wrappers (DOSbox only)
+    Copyright (C) 2000 Steffen Kaiser (Steffen.Kaiser@fh-rhein-sieg.de)
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+****/
+
+This library IO95 includes some wrappers for the Win9x LFN API for
+real-mode programs (DOSbox) at DOS-71.
+
+Included are functions for:
+- POSIX.1 compatible opendir() functions,
+- DOS semistandard findfirst(),
+- open() (from <io.h>),
+- fopen() (from <stdio.h>),
+- mk/rm/chdir(),
+- remove() and unlink(),
+- rename(),
+- getcwd(), getdcwd(), getcurdir(),
+- fullpath() [to return a path in all longname portions], &
+- lfn2sfn() [to return a path in all shortname portions].
+
+The library also defines MAXPATH, MAXNAME, etc. and all macros
+necessary to call above functions, e.g. O_CREAT, FA_DIREC etc.
+
+Naming convention:
+Usually all symbols are named after their standard counterpart, but
+"95" is appended, e.g. "open()" becomes "open95()", "MAXPATH" becomes
+"MAXPATH95". The exception are macros with an underscore in them, they
+have the "95" before the underscore, e.g. "O_CREAT" becomes "O95_CREAT".
+
+When the macro USE_IO95 is defined prior including any of the IO95
+header files, macros are enabled to map the standard name into the
+IO95 name.
+
+opendir95():
+Declarations are located within the "DIR95.H" file.
+The only information returned by readdir95() is the longname of the found
+directory entry. telldir95() and seekdir95() do not directly patch the
+search structure of DOS.
+
+findfirst95():
+Declarations are located within the "FIND95.H" file.
+The ffblk95 structure contains the "normal" fields and all of the
+Win95-LFN fields (in ff_95). Both fields are synchronized as much
+as possible, e.g. when the LFN API succeeds, the "normal" fields
+are updated with the values of the LFN API; if the LFN API fails,
+their values are updated with the "normal" ones.
+
+The members ff_95.ff_shortname and ff_95.ff_longname are always
+filled with a valid filename, though, it could be the same.
+
+If a findfirst95()/findnext95() loop shall break before one of these
+functions fails, the function findstop95() _must_ be called in order
+to release the resources allocated for the search structure by Win.
+
+See IO95.H to enable or disable HAVE_GETSETDTA.
+
+
+open():
+This function _must_ be called with values derived from the O95_*
+and S95_I* macros only. One cannot use the ones from the C compiler's
+standard header files (<fcntl.h> and <sys/types.h>)!
+
+Though, if USE_IO95 is defined prior including "IO95.H", the
+mapper names are installed.
+
+fopen():
+Declared in "STDIO95.H".
+This function requires a fdopen() function. See STDIO95.H to setup
+this function correctly.
+
+LFN vs. SFN
+Win95-LFN implementation is sort of miraculeous, because the
+association between the LFN and SFN of the same physical file is
+rather loose and can change any time; but the LFN is the primary
+filename.
+
+This problem means that one cannot safe the SFN and re-use it later,
+probably in another session of a program days later. Rather one
+must keep the LFN.
+
+Within a relatively short lifetime of a program the association could
+be assumed stable, because (after all) Win9x is not that multi-tasking.
+Otherwise, the Win95-LFN implementation would have failed much more
+in the past.
+
+Therefore I recommended to:
+1) aquire a filename from the user or from the system as LFN (e.g.
+findfirst95() or readdir95()),
+2) turn it into a SFN (e.g. vie lfn2sfn()),
+3) now all compiler-supplied filename function should work OK,
+4) when a filename is passed to the user or system the SFN is
+translated into a LFN.
+Doing so will remarkable simplify to port programs that does not
+really care about how the filename looks like, but only scans
+through a directory tree, opens files typed in by the user etc.
+
+Also remember that a standard Win95-LFN has a different maximimum
+size: MAXPATH94 for the overall pathname, and MAXNAME95 for one
+individual path component. However, the Win95-LFN API does contain
+a function to retrieve the maximum pathname limits, though, the
+internal API does not seem to even assume that other than the
+standard settings are in effect ever; kind of normal MS API
+definition.
+
+Limits of this library:
+IO95 depends on the Win95-LFN API at DOS-71. So far only the DOSbox
+of Win9x supports this API, neither WinNT nor plain DOS without the
+GUI do. When and if WinNT or DOS (DR DOS has released a TSR for
+this, I've heard; but never seen) will be supported some day, I
+don't know.

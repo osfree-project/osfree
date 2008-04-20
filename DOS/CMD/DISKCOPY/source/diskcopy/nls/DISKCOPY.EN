@@ -1,0 +1,120 @@
+#### reserved to condition for example yes, no, quit     ####
+0.0:Y
+0.1:N
+#### Space reserved to file diskcopy.c                   ####
+1.0:Invalid drive specification or non removable media.
+1.1:Error reading configuration file.
+1.2:Invalid switch:
+1.3:Too many parameters:
+1.4:File is write protected! 
+1.5:copied to
+1.6:File not found:
+1.7:File already exists!
+1.8:Insert SOURCE diskette into drive
+1.9:Press any key to continue . . .
+1.10:Disk not ready!
+1.11:Unable to open image file.
+1.12:Not enough disk space on target drive!
+1.13:Error accessing image file:
+1.14:Insufficient memory for disk copy.
+1.15:Using
+1.16:temporary file.
+1.17:Reading SOURCE diskette . . .
+1.18:Media error reading from sector
+1.19:Writing to image file.
+1.20:Unsuspected memory error.
+1.21:Insert TARGET diskette into drive
+1.22:Diskette does not have the same capacity as the original.
+1.23:Put a diskette with the right capacity in drive
+1.24:or press CTRL-C to cancel.
+1.25:Writing to TARGET diskette in drive . . .
+1.26:Reading from image file.
+1.27:Media error writing to sector
+1.28:Do you want another copy of this
+1.29:image file (Y/N)?
+1.30:disk (Y/N)?
+1.31:Copy another disk (Y/N)?
+1.32:Can not copy image file.
+1.33:Problem reading image file.
+1.34:Creating image file . . .
+1.35:Writing image file . . .
+1.36:Problem writing image file.
+1.37:Compare error on sector
+1.38:Verifying . . .
+1.39:Using verification
+1.40:Volume serial number is
+1.41:Sector 0 unwritable! Write protected?
+#### text is "Warning: options % doesn't do anything!"   ####
+2.0:Warning: option
+2.1:doesn't do anything!
+#### text is "Problem copying % to %"                    ####
+3.0:Problem copying
+3.1:to
+#### text is "Copying % clusters, % sectors per cluster, ####
+#### % bytes per sector.\n Drive size is % bytes"        ####
+4.0:Copying
+4.1:clusters
+4.2:sectors per cluster
+4.3:bytes per sector.
+4.4:Relevant drive size is
+4.5:bytes.
+5.0:buffer of
+5.1:bytes.
+#### Space reserved to file parser.c                     ####
+#### Text is "Syntax error on line % in                  ####
+#### configuration file"                                 ####
+6.0:Syntax error on line
+6.1:in configuration file
+6.2:Semantic error in configuration file
+6.3:do not enter more than one '='
+#### Don't translate the following uppercase words!      ####
+6.4:Please enter YES or NO
+6.5:Please enter NEVER or ALWAYS
+6.6:please enter RECOVERY or NORMAL
+6.7:please enter FAST or FULL
+6.8:please enter UPDATE or LEAVE
+#### Space reserver to file recovery.c                   ####
+6.10:Media error reading from disk, rescanning...
+6.11:Unreadable sector at position
+#### Space reserved to file tdrvcpy.c                    ####
+7.0:Put source diskette in drive
+7.1:Put destination diskette in drive
+7.2:Press any key to continue...
+7.3:Invalid src drive specification or non removable media.
+7.4:Invalid dst drive specification or non removable media.
+7.5:Diskette does not have the same capacity as the original.
+7.6:Insuficient memory error.
+7.7:Media error reading from sector
+7.8:Media error writing to sector
+7.9:Do you want to copy two other diskettes (y/n)?
+8.0:Put a diskette with the right capacity in drive
+8.1:or
+8.2:or press CTRL-C to cancel.
+9.0:Copying
+9.1:clusters
+9.2:sectors per cluster
+9.3:bytes per sector.
+9.4:Relevant drive size is
+9.5:bytes.
+9.6:Copying . . .
+9.7:Verifying . . .
+### Place reserved for the strings in the help screen ###
+9.50:Copy one diskette or image file to another diskette or image file.
+9.51:by
+9.52:source
+9.53:destination
+9.54:source:      drive or image file to copy from.
+9.55:destination: drive or image file to copy to.
+9.56:give an audible warning for user action.
+9.57:verify reads and writes.
+9.58:only use memory for disk copy.
+9.59:show memory usage (informative).
+9.60:overwrite destination, if it already exists (in case of an image file).
+9.61:always automaticaly exit.
+9.62:assume disk already in drive.
+9.63:go into disk error recovery mode.
+9.64:perform fast diskcopy (only copy filled sectors).
+9.65:Remarks: a minus sign after an option disables the option.
+9.66:         You may specify the same drive for source and destination.
+9.67:no-op included for MS-DOS compatibility.
+9.40:don't ask target disk if copying image file to same disk.

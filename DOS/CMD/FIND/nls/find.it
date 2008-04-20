@@ -1,0 +1,10 @@
+0.0:Stampa tutte le linee del file che contengono la stringa
+0.1:Conta le linee del file che contengono la stringa
+0.2:Ignora maiuscolo/minuscolo
+0.3:Visualizza il numero di riga cominciando da 1
+0.4:Stampa le linee del file che NON contengono la stringa
+1.0:file
+1.1:stringa
+2.0:Impossibile aprire il file
+2.1:Il file non esiste
+2.2:Impossibile cambiare directory

@@ -1,0 +1,11 @@
+SFN(longpathname\longerpath) = "D:\FREEDOS\SRC\IO95\LONGPA~1\LONGER~1"
+Current fullpath = "D:\FREEDOS\SRC\IO95\longpathname\longerpath"
+Entries found with findfirst/next loop:
+       DOS SFN|       LFN SFN|DOS ATTR|LFN ATTR|DOS SIZE|        LFN SIZE|LFN NAME
+             .|             .|00000010|00000010|00000000|0000000000000000|.
+            ..|            ..|00000010|00000010|00000000|0000000000000000|..
+      LONGFI~1|      LONGFI~1|00000020|00000020|0000269a|000000000000269a|longfilenameX
+Entries retrieved with readdir():
+1. = .
+2. = ..
+3. = longfilenameX

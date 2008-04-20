@@ -1,0 +1,15 @@
+
+ Start  Stop   Length Name               Class
+
+ 00000H 03F82H 03F83H _TEXT              CODE
+ 03F84H 046F1H 0076EH _DATA              DATA
+ 046F2H 046F5H 00004H _EMUSEG            DATA
+ 046F6H 046F7H 00002H _CRTSEG            DATA
+ 046F8H 046F9H 00002H _CVTSEG            DATA
+ 046FAH 046FFH 00006H _SCNSEG            DATA
+ 04700H 04761H 00062H _BSS               BSS
+ 04762H 04762H 00000H _BSSEND            STACK
+
+Program entry point at 0000:240F
+Warning: no stack
+

@@ -1,0 +1,29 @@
+To compile FIND 2.7 or newer:
+
+If you have Turbo C 2.01 or newer, just type make. Otherwise, edit
+the makefile before compiling. You may have to edit (or simply remove)
+the turboc.cfg file to match your compiler paths.
+
+To compile FIND 2.6 or older:
+
+1. first, make sure you have compiled the "Cats" library for your
+   system.  Be sure to use the same memory model (this trips up a lot
+   of people.)
+
+2. Then, set the CATS macro in the makefile to the *path* of the
+   CATDB.LIB library file (for example, use C:\SRC\CATS not
+   C:\SRC\CATS\LIB\CATS.LIB)
+
+3. If you have Borland C, type:
+
+   make -fmakefile.bc
+
+That's it.
+
+
+Edit the NLS\FIND.EN file to add new English messages.  Feel free to
+provide translations of FIND.EN into other languages.  The new
+translated files should be named FIND.xx (where "xx" is the
+two-letter lang/country abbreviation.)
+
+

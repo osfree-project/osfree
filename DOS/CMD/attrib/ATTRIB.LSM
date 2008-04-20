@@ -1,0 +1,14 @@
+Begin3
+Title:          attrib
+Version:        2.1
+Entered-date:   2003/07/01
+Description:    Display and set file attributes
+Keywords:       freedos, attrib
+Author:         pbrutsch@creighton.edu (Phil Brutsche)
+Maintained-by:  reifsnyderb@mindspring.com (Brian E. Reifsnyder)
+Primary-site:   http://www.23cc.com/programs/
+Original-site:  http://tux.creighton.edu/~pbrutsch/
+		attrib.zip
+Platforms:      dos
+Copying-policy: GPL
+End

@@ -1,0 +1,7 @@
+Call to strupr() should be replaced by call to function, which will
+provide support for national characters through DOS NLS. This function
+will not affect interface with DOS (it uppercases file names inside), but
+affect error messages. Example (if T and S are national characters):
+
+	C>attrib dir\nametns.ext
+	ATTRIB: no targets: DIR\NAMEtNs.EXt
