@@ -58,7 +58,6 @@ set files=os2server VioWrtTTY_test config.sys libkal.s.so os2.cfg MiniELFExe.Exe
 @for %%i in (%files%) do if exist %%i copy %%i ..\..\..\cd\os2\
 cd   ..\..\..
 
-@%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 @del %imgdir%\osfree.iso
-@move osfree.iso %imgdir%
+@%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd
 cd %cwd%
