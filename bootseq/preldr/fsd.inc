@@ -31,7 +31,7 @@ EXT2BUF_BASE    equ 0x3ea800              ; second buffer (size: 0x2800 bytes)
 STACK_SP        equ (0x72000 + SHIFT)     ; stack
 STACKLEN        equ 0x4000
 
-TERM_BASE       equ (0x74000 + SHIFT)     ; terminal blackbox base
+TERM_BASE       equ (0x72000 + SHIFT)     ; terminal blackbox base
 BOOTSEC_BASE    equ (0x75000 + SHIFT)     ; bootsector relocation base
 STAGE0_BASE     equ (0x75200 + SHIFT)     ; Stage0 load base
 EXT_BUF_BASE    equ (0x7c800 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)

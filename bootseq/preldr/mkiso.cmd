@@ -34,7 +34,7 @@ move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr
 move ..\..\..\cd\boot\freeldr\fsd\serial.rel ..\..\..\cd\boot\freeldr\term\
 move ..\..\..\cd\boot\freeldr\fsd\hercules.rel ..\..\..\cd\boot\freeldr\term\
 move ..\..\..\cd\boot\freeldr\fsd\console.rel ..\..\..\cd\boot\freeldr\term\
-copy freeldr    ..\..\..\cd\boot\freeldr
+copy freeldr  ..\..\..\cd\boot\freeldr
 copy boot_lin ..\..\..\cd\boot\freeldr
 copy boot_chn ..\..\..\cd\boot\freeldr
 cd ..\..\fiasco

@@ -292,12 +292,17 @@ int process_cfg(char *cfg)
 void KernelLoader(void)
 {
   char *cfg = "/boot/freeldr/freeldr.cfg";
+  int rc;
 
   printf("Kernel loader started.\r\n");
 
-  if(!process_cfg(cfg))
+  if(!(rc = process_cfg(cfg)))
   {
     printf("Error parsing loader config file!\r\n");
+  }
+  else if (rc == -1)
+  {
+    panic("Load error!", "");
   }
   else
   {
