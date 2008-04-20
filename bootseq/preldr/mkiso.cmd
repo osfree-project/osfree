@@ -23,15 +23,17 @@ set files2=eltorito.bin
    (@for %%i in (%f%) do ^
      (cd %d% && (@wmake %%i) && cd %cwd%)))
 
-@call mkboot.cmd eltorito.bin preldr0 iso9660.fsd bootblk
+@call mkboot.cmd ..\bootsec\eltorito\eltorito.bin preldr0 iso9660.fsd bootblk
 
 cd ..\..\..
-set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd cd\boot\freeldr\term cd\l4 cd\pns cd\os2 cd\l4ka
+set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
+         cd\boot\freeldr\term cd\l4 cd\pns cd\os2 cd\l4ka
 @for %%i in (%dirs%) do if not exist %%i mkdir %%i
 cd osfree\bootseq\preldr
 
 @move bootblk ..\..\..\cd\boot
-set files=preldr0 preldr.ini freeldr freeldr.cfg boot_lin boot_chn boot_dsk boot
+set files=preldr0 preldr.ini freeldr freeldr.cfg boot_lin ^
+          boot_chn boot_dsk boot
 @for %%i in (%files%) do if exist %%i copy %%i  ..\..\..\cd\boot\freeldr
 
 @copy *.fsd   ..\..\..\cd\boot\freeldr\fsd
@@ -55,9 +57,6 @@ set files=os2server VioWrtTTY_test config.sys libkal.s.so os2.cfg MiniELFExe.Exe
 cd   ..\..\..
 
 @.\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
-@move osfree.iso \data\vm\img
-cd   osfree\bootseq\preldr
-
-goto end
-
-:end
+@del %imgdir%\osfree.iso
+@move osfree.iso %imgdir%
+cd %root%\bootseq\preldr
