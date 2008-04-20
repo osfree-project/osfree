@@ -3,7 +3,6 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIR = $(ROOT)$(SEP)bin$(SEP)os2
 PROJ = fdiskpm
 DESC = Disk volumes manager for PM
 

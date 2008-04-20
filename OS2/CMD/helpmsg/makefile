@@ -1,14 +1,16 @@
 # $Id: makefile,v 1.2 2004/08/16 04:51:14 prokushev Exp $
 
-ROOT=..\..\..
 
-DIR = $(ROOT)\bin\os2
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+
 PROJ = helpmsg
-DESC = Show help message
+DESC = Help message shower
+32_BITS  = 1
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).exe
+all: $(PROJ).exe
 
 # Clean all
 

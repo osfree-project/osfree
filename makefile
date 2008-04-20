@@ -97,4 +97,7 @@ fdd: .SYMBOLIC
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
+ cd lib
+ $(CLEAN_CMD)
+ cd ..
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
