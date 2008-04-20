@@ -11,11 +11,13 @@ rem ..........................
 rem Current working directory
 set cwd=%ROOT%\bootseq\preldr
 
-set dir1=%root%\bootseq\preldr
+rem ---------prereqs-------------------
+set dir1=%cwd%
 set files1=preldr0 iso9660.fsd
 
 set dir2=%root%\bootseq\bootsec\eltorito
 set files2=eltorito.bin
+rem ---------prereqs-------------------
 
 @for %%l in (1 2) do ^
   (set f=%%files%%l%% && ^
@@ -56,7 +58,7 @@ set files=os2server VioWrtTTY_test config.sys libkal.s.so os2.cfg MiniELFExe.Exe
 @for %%i in (%files%) do if exist %%i copy %%i ..\..\..\cd\os2\
 cd   ..\..\..
 
-@.\mkisofs2 -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
+@%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o osfree.iso cd
 @del %imgdir%\osfree.iso
 @move osfree.iso %imgdir%
-cd %root%\bootseq\preldr
+cd %cwd%

@@ -80,7 +80,7 @@ lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || root || '\lib'
 
 vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
-       'LIBOS2 LIB OS SHELL REXX'
+       'LIBOS2 LIB OS SHELL REXX MKISOFS'
 
 /* Set vars */
 do i = 1 to words(vars)
