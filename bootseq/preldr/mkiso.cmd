@@ -35,8 +35,8 @@ set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
 
 cd osfree\bootseq\preldr
 @move bootblk ..\..\..\cd\boot
-set files=preldr0 preldr.ini freeldr freeldr.cfg boot_lin ^
-          boot_chn boot_dsk boot
+set files=preldr0 preldr.ini freeldr freeldr.cfg bt_linux ^
+          bt_chain bt_disk bt_os2 bt_bsd
 @for %%i in (%files%) do if exist %%i copy %%i  ..\..\..\cd\boot\freeldr
 
 @copy *.fsd ..\..\..\cd\boot\freeldr\fsd

@@ -12,13 +12,14 @@
 #include <lip.h>
 #include "fsys.h"
 
-unsigned long boot_drive;
+
 void start_kernel(void);
 grub_error_t errnum;
 extern void stop(void);
 struct multiboot_info *m;
 lip2_t *l;
 
+unsigned long boot_drive;
 unsigned long current_drive;
 unsigned long current_partition;
 unsigned long cdrom_drive;
@@ -28,25 +29,6 @@ unsigned long saved_partition;
 void init(void)
 {
 
-}
-
-/* Find the next word from CMDLINE and return the pointer. If
-   AFTER_EQUAL is non-zero, assume that the character `=' is treated as
-   a space. Caution: this assumption is for backward compatibility.  */
-char *
-skip_to (int after_equal, char *cmdline)
-{
-  /* Skip until we hit whitespace, or maybe an equal sign. */
-  while (*cmdline && *cmdline != ' ' && *cmdline != '\t' &&
-         ! (after_equal && *cmdline == '='))
-    cmdline ++;
-
-  /* Skip whitespace, and maybe equal signs. */
-  while (*cmdline == ' ' || *cmdline == '\t' ||
-         (after_equal && *cmdline == '='))
-    cmdline ++;
-
-  return cmdline;
 }
 
 int check_lip(char *mods_addr, unsigned long mods_count)
@@ -83,6 +65,10 @@ int kernel_ldr(char *kernel, unsigned long kernel_len)
 
   // Get boot_drive value
   u_parm(PARM_BOOT_DRIVE, ACT_GET, (unsigned int *)&boot_drive);
+  u_parm(PARM_CDROM_DRIVE, ACT_GET, (unsigned int *)&cdrom_drive);
+  u_parm(PARM_SAVED_DRIVE, ACT_GET, (unsigned int *)&saved_drive);
+  u_parm(PARM_SAVED_PARTITION, ACT_GET, (unsigned int *)&saved_partition);
+
   start_kernel();
 
   return 0;
@@ -94,6 +80,7 @@ void cmain(void)
   int mods_count;
   struct mod_list *mod; 
 
+  char *cmdline;
   char *kernel;
   unsigned long kernel_len;
   char *s, *kernel_cmdline;
@@ -101,6 +88,8 @@ void cmain(void)
 
   mods_addr  = (char *)m->mods_addr;
   mods_count = m->mods_count;
+
+  cmdline = (char *)m->cmdline;
 
   // kernel is the first module in the list,
   // and initrd is the second 
@@ -117,14 +106,21 @@ void cmain(void)
     kernel_len = mod->mod_end - mod->mod_start;
     kernel_cmdline = (char *)mod->cmdline;
 
-    if (grub_strstr(kernel_cmdline, "-force"))
+    printf("cmdline=%s\r\n", cmdline);
+
+    if (grub_strstr(cmdline, "-force"))
       force = 1;
 
-    if (s = grub_strstr(kernel_cmdline, "-map"))
+    if (s = grub_strstr(cmdline, "-bootdev"))
     {
-      s += 4;
-      //e = grub_strstr(s, "=");
-      
+      s = skip_to(1, s);
+      if (!set_device(s) || (current_partition != 0xffffff))
+      {
+        printf("bootdev is incorrect!\r\n");
+        stop();
+      }
+      boot_drive = current_drive;
+      printf("boot_drive=%u\r\n", boot_drive);
     }
 
     if (!kernel_ldr(kernel, kernel_len))

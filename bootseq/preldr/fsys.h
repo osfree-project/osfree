@@ -93,20 +93,18 @@ struct pmif
 
 /* Parameter codes */
 #define PARM_BOOT_DRIVE            0
-#define PARM_CURRENT_DRIVE         1
-#define PARM_CURRENT_PARTITION     2
-#define PARM_CURRENT_SLICE         3
-#define PARM_SAVED_DRIVE           4
-#define PARM_SAVED_PARTITION       5
-#define PARM_SAVED_SLICE           6
-#define PARM_MBI                   7
-#define PARM_ERRNUM                8
-#define PARM_FILEPOS               9
-#define PARM_FILEMAX              10
-#define PARM_EXTENDED_MEMORY      11
-#define PARM_LINUX_TEXT_LEN       12
-#define PARM_LINUX_DATA_REAL_ADDR 13
-#define PARM_LINUX_DATA_TMP_ADDR  14
+#define PARM_CDROM_DRIVE           1
+#define PARM_CURRENT_DRIVE         2
+#define PARM_CURRENT_PARTITION     3
+#define PARM_CURRENT_SLICE         4
+#define PARM_SAVED_DRIVE           5
+#define PARM_SAVED_PARTITION       6
+#define PARM_SAVED_SLICE           7
+#define PARM_MBI                   8
+#define PARM_ERRNUM                9
+#define PARM_FILEPOS              10
+#define PARM_FILEMAX              11
+#define PARM_EXTENDED_MEMORY      12
 
 #pragma aux u_open   "*"
 #pragma aux u_read   "*"

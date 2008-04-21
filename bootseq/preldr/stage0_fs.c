@@ -294,6 +294,15 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       };
+    case PARM_CDROM_DRIVE:
+      {
+        if (action == ACT_GET)
+          *val = cdrom_drive;
+        else
+          cdrom_drive = *val;
+
+        return 0;
+      };
     case PARM_CURRENT_DRIVE:
       {
         if (action == ACT_GET)
@@ -394,7 +403,7 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       };
-    case PARM_LINUX_TEXT_LEN:
+/*    case PARM_LINUX_TEXT_LEN:
       {
         if (action == ACT_GET)
           *val = linux_text_len;
@@ -420,7 +429,7 @@ u_parm (int parm, int action, unsigned int *val)
           linux_data_tmp_addr = (char *)*val;
 
         return 0;
-      };
+      }; */
     default:
       ;
   }

@@ -59,9 +59,10 @@ VSTAFS_SH_OBJS      = $(FS_SH_OBJS) fsys_vstafs.$(SO)
 FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
-BOOT_LINUX_OBJS     = linux.$(O) linuxc.$(O) modesw-npl.$(O) wrap.$(O) end.$(O)
-BOOT_CHAIN_OBJS     = chain.$(O) chainc.$(O) drivemap.$(O) setdev.$(O) modesw-npc.$(O) &
-                      wrap.$(O)  end.$(O)
+BT_LINUX_OBJS    = linux.$(O) linuxc.$(O) modesw-npl.$(O) cmdline.$(O) &
+                   wrap.$(O) end.$(O) 
+BT_CHAIN_OBJS    = chain.$(O) chainc.$(O) setdev.$(O) modesw-npc.$(O)  &
+                   cmdline.$(O) wrap.$(O) end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
                    video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) cmdline.$(O)  &
@@ -89,7 +90,7 @@ TARGETS          = minilibc.lib &
                    minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite freeldr &
                    fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
                    minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
-                   boot_lin boot_chn &
+                   bt_linux bt_chain &
                    console.trm hercules.trm serial.trm &
                    console.trs hercules.trs serial.trs &
                    fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
@@ -143,12 +144,12 @@ preldr0.rel: preldr0
  $(GENREL) $^& $^&s $(SHIFT) >$^@
  $(DC) $^&s
 
-boot_lin: boot_linux.$(OUT)
+bt_linux: bt_linux.$(OUT)
  $(DC) $^@
  $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
  $(DC) $<
 
-boot_chn: boot_chain.$(OUT)
+bt_chain: bt_chain.$(OUT)
  $(DC) $^@
  $(RIP) $< KERN_BASE include$(SEP)mb_etc.inc >$^@
  $(DC) $<
@@ -193,10 +194,10 @@ freeldr: freeldr.$(OUT)
  $(RIP) $< LDR_BASE fsd.inc >$^@
  $(DC) $<
 
-boot_linux.$(OUT): $(BOOT_LINUX_OBJS)
+bt_linux.$(OUT): $(BT_LINUX_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
-boot_chain.$(OUT): $(BOOT_CHAIN_OBJS)
+bt_chain.$(OUT): $(BT_CHAIN_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 freeldr.$(OUT): $(LDR_OBJS)
