@@ -64,10 +64,12 @@ BOOT_CHAIN_OBJS     = chain.$(O) chainc.$(O) drivemap.$(O) setdev.$(O) modesw-np
                       wrap.$(O)  end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
-                   video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) bios.$(O) end.$(O)
+                   video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) cmdline.$(O)  &
+                   cfgparse.$(O) bios.$(O) end.$(O)
 
 STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
-                   video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) bios.$(SO) end.$(SO)
+                   video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) cmdline.$(SO) &
+                   cfgparse.$(SO) bios.$(SO) end.$(SO)
 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
                    video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) bios.$(LO) end.$(LO)
@@ -80,7 +82,7 @@ SERIAL_OBJS      = termstrt.$(O) terminit.$(O) serial.$(O) modesw-npt.$(O) termi
 SERIAL_SH_OBJS   = termstrt.$(SO) terminit.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
-                   boot.$(O) cmdline.$(O) # video.$(O)
+                   boot.$(O) cmdline.$(O) cfgparse-l.$(O) # video.$(O)
 
 TARGETS          = minilibc.lib &
                    fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
@@ -405,6 +407,11 @@ modesw-npt.$(O): modesw.asm
 
 modesw-npt.$(SO): modesw.asm
  $(ASM) -dNO_PROT -dTERM -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
+
+cfgparse-l.$(O): cfgparse.c
+ $(CC) -dLOADER $(COPT) -fo=$^@ $<
+
+cfgparse-p.$(O): cfgparse.c
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

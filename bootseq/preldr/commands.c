@@ -36,7 +36,7 @@ static char *mb_cmdline;
 #pragma aux modaddr_func   "*"
 #pragma aux lipmodule_func "*"
 
-#pragma aux skip_to "*"
+//#pragma aux skip_to "*"
 
 extern lip2_t *l;
 void create_lip_module(lip2_t **l);

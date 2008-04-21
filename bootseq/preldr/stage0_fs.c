@@ -68,8 +68,6 @@ extern struct gdtr gdtdesc;
 int  set_fsys(char *fsname);
 void fsys_by_num(int n, char *buf);
 
-char linebuf[512];
-
 // string table size;
 #define STRTAB_LEN 0x300
 
@@ -90,24 +88,24 @@ char fsys_stbl[FSYS_MAX*10];
    from .INI file      */
 _Packed struct {
   char driveletter;
-  char multiboot;
-  char ignorecase;
   struct {
+    char ignorecase;
     char **fsys_list;
   } mufsd;
   struct {
-    char name[128];
+    char name[0x100];
     int  base;
+    char multiboot;
   } loader;
   struct {
-    char name[128];
+    char name[0x100];
     int  base;
   } mini;
   struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
-} conf = {0x80, 0, 0, {fsys_list}, {"/os2ldr", 0x10000},
+} conf = {0x80, {0, fsys_list}, {"/os2ldr", 0x10000, 0},
           {"/os2boot", 0x7c0},};
 
 char *preldr_path = "/boot/freeldr/"; // freeldr path
@@ -533,7 +531,7 @@ freeldr_open (char *filename)
    /* try open filename as is */
    rc = grub_open(buf);
 
-   if (conf.ignorecase) {
+   if (conf.mufsd.ignorecase) {
      /* if ignore case */
      if (!rc) {
        /* try to open uppercase filename */
@@ -698,301 +696,163 @@ void setlip(void)
 
 #ifndef STAGE1_5
 
-/* if s is a string of type "var = val" then this
- * function returns var
- */
-char *var(char *s)
+void panic(char *msg, char *file);
+int  abbrev(char *s1, char *s2, int n);
+char *strip(char *s);
+char *trim(char *s);
+
+int process_cfg(char *cfg);
+char *skip_to (int after_equal, char *cmdline);
+
+int process_cfg_line(char *line)
 {
-  int i;
+   int i, n;
+   char *r, *s;
+   static char section[0x20];
+   static int sec_to_load;
 
-  i = grub_index('=', s);
-  if (i) grub_strncpy(lb, s, i - 1);
-  lb[i - 1] = '\0';
+   // delete CR and LF symbols at the end
+   line = strip(trim(line));
+   //if (!*line && insection) insection = 0;
+   // skip comments ";"
+   i = grub_index(';', line);
+   if (i) line[i - 1] = '\0';
+   // skip comments "#"
+   i = grub_index('#', line);
+   if (i) line[i - 1] = '\0';
+   // delete leading and trailing spaces
+   line = strip(line);
+   if (!*line) return 1;
 
-  return lb;
-}
+   i = grub_strlen(line) - 1;
+   /* section header (a word in brackets) */
+   if (line[0] == '[' && line[i] == ']') 
+   {
+     line++;
+     line[i - 1] = '\0';
+     grub_strncpy(section, line, sizeof(section));
+     //printmsg(section);
+     return 1;
+   }
 
-/* if s is a string of type "var = val" then this
- * function returns val
- */
-char *val(char *s)
-{
-  int i, l;
+   //return 1;
 
-  i = grub_index('=', s);
-  l = grub_strlen(s) - i;
-  if (i) grub_strncpy(lb, s + i, l);
-  lb[l] = '\0';
+   if (!grub_strcmp(section, "global"))
+   {
+     if (abbrev(line, "driveletter", 11))
+     {
+       line = skip_to(1, line);
+       // first letter
+       conf.driveletter = grub_tolower(*line) - 'a';
+       if (conf.driveletter > 8) // not floppy
+         conf.driveletter = conf.driveletter - 2 + 0x80;
+     }
+     else
+     {
+     }
 
-  return lb;
-}
+     return 1;
+   }
+   else if (!grub_strcmp(section, "microfsd"))
+   {
+     if (abbrev(line, "list", 4))
+     {
+       line = skip_to(1, line);
+       grub_strcpy(fsys_stbl, line);
+       s = fsys_stbl;
+       r = fsys_stbl;
+       num_fsys = 0;
+       while (*s) {
+         while (*s && *s != ',') s++;
+         *s = '\0';
+         fsys_list[num_fsys] = r;
+         r = s + 1;
+         s = r;
+         num_fsys++;
+       }
+     }
+     else if (abbrev(line, "ignorecase", 10))
+     {
+        line = skip_to(1, line);
+        if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on")) 
+          n = 1;
+        else
+          n = 0;
+        conf.mufsd.ignorecase = n;
+     }
+     else
+     {
+     }
 
-/*  Strip leading and trailing
- *  spaces
- */
-char *strip(char *s)
-{
-  char *p = s;
-  int  i;
+     return 1;
+   }
+   else if (!grub_strcmp(section, "loader"))
+   {
+     /* [loader] section */
+     if (abbrev(line, "name", 4)) {
+       line = strip(skip_to(1, line));
+       grub_strncpy(conf.loader.name, line, sizeof(conf.loader.name));
+     }
+     else if (abbrev(line, "base", 4))
+     {
+       line = strip(skip_to(1, line));
+       if (safe_parse_maxint(&line, &n))
+         conf.loader.base = n;
+       else
+         panic("process_cfg_line: incorrect loader load base value!", "");
+     }
+     else if (abbrev(line, "multiboot", 9))
+     { 
+       line = strip(skip_to(1, line));
+       if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on")) 
+         n = 1;
+       else
+         n = 0;
+       conf.loader.multiboot = n;
+     }
+     else
+     {
+     }
 
-  i = grub_strlen(p) - 1;
-  while (grub_isspace(p[i])) p[i--] = '\0'; // strip trailing spaces
-  while (grub_isspace(*p)) p++;             // strip leading spaces
+     return 1;
+   }
+   else if (!grub_strcmp(section, "minifsd"))
+   {
+     /* [minifsd] section */
+     if (abbrev(line, "name", 4)) {
+       line = strip(skip_to(1, line));   
+       if (!grub_strcmp(line, "none")) *line = '\0';
+       grub_strncpy(conf.mini.name, line, sizeof(conf.mini.name));
+     }
+     else if (abbrev(line, "base", 4))
+     {
+       line = strip(skip_to(1, line));
+       if (safe_parse_maxint(&line, &n))
+         conf.mini.base = n;
+       else
+         panic("process_cfg_line: incorrect minifsd load base value!", "");
+     }
+     else
+     {
+     }
 
-  return p;
-}
+     return 1;
+   }
+   else if (!grub_strcmp(section, "aliases"))
+   {
+     /* file aliases section */
+     if (abbrev(line, "enable", 6)) 
+     {
+     }
 
-/*  Add a string to the string table
- *  and return its address
- */
-char *
-stradd(char *s)
-{
-  int  k;
-  char *l;
+     return 1;      
+   }
+   else
+   {
+     return 1;
+   }
 
-  k = grub_strlen(s);
-
-  if (strtab_pos + k < STRTAB_LEN) {
-    l = strtab + strtab_pos;
-    grub_strcpy(l, s);
-    l[k] = '\0';
-    strtab_pos += k + 1;
-  } else {
-    /* no space in buffer */
-    return 0;
-  }
-
-  return l;
-}
-
-/*  Returns a next line from a file in memory
- *  and changes current position (*p)
- */
-char *getline(char **p)
-{
-  int  i = 0;
-  char *q = *p;
-  char *s;
-
-  if (!q)
-    panic("getline(): zero pointer: ", "*p");
-
-  while (*q != '\n' && *q != '\r' && *q != '\0' && i < 512)
-    linebuf[i++] = *q++;
-
-  if (*q == '\r') q++;
-  if (*q == '\n') q++;
-
-  linebuf[i] = '\0';
-  *p = q;
-
-  s = strip(linebuf);
-
-  if (!*s)
-    return s;
-
-  /* skip comments */
-  i = grub_index(';', s);
-  if (i) s[i - 1] = '\0';
-
-  s = strip(s);
-
-  /* if empty line, get new line */
-  if (!*s)
-    return getline(p);
-
-  return s;
-}
-
-
-/*  Parse .INI file
- *
- */
-int parse_cfg(void)
-{
-  char buf[512];
-  int  k, l, i, size, rc;
-  char *cfg, *p, *line, *s, *r;
-
-  l = grub_strlen(preldr_path);
-  grub_memmove(buf, preldr_path, l);
-  grub_memmove(buf + l, cfg_file, grub_strlen(cfg_file));
-  i = grub_strlen(cfg_file);
-  buf[l + i] = '\0';
-
-  rc = freeldr_open(buf);
-
-  cfg = (char *)(EXT2BUF_BASE);
-
-  if (rc) {
-    printmsg("file ");
-    printmsg(buf);
-    printmsg(" opened, ");
-    size = freeldr_read((void *)cfg, -1);
-    printmsg("size: ");
-    printd(size);
-    printmsg("\r\n");
-  } else
-    return 0;
-
-  /* parse .INI file */
-  p = cfg;
-  while (*p) {
-    line = strip(getline(&p));
-    if (!*line) continue;
-
-    if (!grub_strcmp(strip(line), "[global]")) {
-      /* [global] section */
-      while (*p) {
-        line = getline(&p);
-        if (!*line) break;
-
-        if (!grub_strcmp(strip(var(line)), "driveletter")) {
-          grub_strcpy(buf, strip(val(line)));
-          conf.driveletter = *buf; // first letter
-          conf.driveletter = grub_tolower(conf.driveletter) - 'a';
-          if (conf.driveletter > 1) // not floppy
-            conf.driveletter = conf.driveletter - 2 + 0x80;
-
-          continue;
-        }
-
-        if (!grub_strcmp(strip(var(line)), "multiboot")) {
-          if (!grub_strcmp(strip(val(line)), "yes") ||
-              !grub_strcmp(strip(val(line)), "on")) {
-            conf.multiboot = 1;
-          } else {
-            conf.multiboot = 0;
-          }
-
-          continue;
-        }
-
-        if (!grub_strcmp(strip(var(line)), "ignorecase")) {
-          if (!grub_strcmp(strip(val(line)), "yes") ||
-              !grub_strcmp(strip(val(line)), "on")) {
-            conf.ignorecase = 1;
-          } else {
-            conf.ignorecase = 0;
-          }
-
-          continue;
-        }
-      }
-      continue;
-    }
-    if (!grub_strcmp(strip(line), "[microfsd]")) {
-      /* [microfsd] section */
-      while (*p) {
-        line = getline(&p);
-        if (!*line) break;
-
-        if (!grub_strcmp(strip(var(line)), "list")) {
-          grub_strcpy(fsys_stbl, strip(val(line)));
-          s = fsys_stbl;
-          r = fsys_stbl;
-          num_fsys = 0;
-          while (*s) {
-            while (*s && *s != ',') s++;
-            *s = '\0';
-            fsys_list[num_fsys] = r;
-            r = s + 1;
-            s = r;
-            num_fsys++;
-          }
-
-          continue;
-        }
-      }
-      continue;
-    }
-    if (!grub_strcmp(strip(line), "[loader]")) {
-      /* [loader] section */
-      while (*p) {
-        line = getline(&p);
-        if (!*line) break;
-
-        if (!grub_strcmp(strip(var(line)), "name")) {
-          grub_strcpy(conf.loader.name, strip(val(line)));
-
-          continue;
-        }
-        if (!grub_strcmp(strip(var(line)), "base")) {
-          conf.loader.base = grub_aton(strip(val(line)));
-
-          continue;
-        }
-      }
-      continue;
-    }
-    if (!grub_strcmp(strip(line), "[minifsd]")) {
-      /* [loader] section */
-      while (*p) {
-        line = getline(&p);
-        if (!*line) break;
-
-        if (!grub_strcmp(strip(var(line)), "name")) {
-          grub_strcpy(conf.mini.name, strip(val(line)));
-          if (!grub_strcmp(conf.mini.name, "none"))
-            *(conf.mini.name) = '\0';
-
-          continue;
-        }
-        if (!grub_strcmp(strip(var(line)), "base")) {
-          conf.mini.base = grub_aton(strip(val(line)));
-
-          continue;
-        }
-      }
-      continue;
-    }
-    if (!grub_strcmp(strip(line), "[aliases]")) {
-      /* file aliases section */
-      char *q;
-      i = 0;
-
-      while (*p) {
-        line = getline(&p);
-        if (!*line) break;
-
-        // printmsg(line); printmsg("\r\n");
-
-        if (!grub_strcmp(strip(var(line)), "enable")) {
-          continue;
-        }
-
-        q = stradd(strip(var(line)));
-        if (!q) panic("too many aliases, no space in buffer!", "");
-
-        conf.alias[i].name  = q;
-        // printmsg(q); printmsg(" ");
-
-        q = stradd(strip(val(line)));
-        if (!q) panic("too many aliases, no space in buffer!", "");
-
-        conf.alias[i].alias = q;
-        // printmsg(q); printmsg("\r\n");
-
-        i++;
-      }
-      continue;
-    }
-  }
-
-  return 1;
-}
-
-void panic(char *msg, char *file)
-{
-  printmsg("\r\nFatal error: \r\n");
-  printmsg(msg);
-  printmsg(file);
-
-  __asm {
-    cli
-    hlt
-  }
+   return 0;
 }
 
 /*  Relocate a file in memory using its
@@ -1038,6 +898,7 @@ void reloc(char *base, char *rel_file, unsigned long shift)
 
 int init(void)
 {
+  char cfg[0x20];
   int rc, files;
   char *buf;
   char *fn;
@@ -1075,15 +936,26 @@ int init(void)
 
 #ifndef STAGE1_5
 
-  /* parse config file */
-  if (!parse_cfg())
-    panic("config file doesn't exist!\r\n", "preldr.ini");
+  /* build config filename */
+  rc = grub_strlen(preldr_path);
+  grub_strcpy(cfg, preldr_path);
+  grub_strcpy(cfg + rc, cfg_file);
 
+  /* parse config file */
+  if (!(rc = process_cfg(cfg)))
+  {
+    printmsg("Error parsing loader config file!\r\n");
+  }
+  else if (rc == -1)
+  {
+    panic("Load error!", "");
+  }
+  
   /* Show config params */
   printmsg("\r\nConfig parameters:");
   printmsg("\r\ndriveletter = "); printb(conf.driveletter);
-  printmsg("\r\nmultiboot = ");   printb(conf.multiboot);
-  printmsg("\r\nignorecase = ");   printb(conf.ignorecase);
+  printmsg("\r\nloader.multiboot = ");   printb(conf.loader.multiboot);
+  printmsg("\r\nmufsd.ignorecase = ");   printb(conf.mufsd.ignorecase);
   printmsg("\r\nFilesys: ");
   for (i = 0; i < FSYS_MAX && conf.mufsd.fsys_list[i]; i++) {
     printmsg(conf.mufsd.fsys_list[i]);
@@ -1159,7 +1031,7 @@ int init(void)
      44544 bytes, 44544 >> 12 == 0xa      */
   if (k == 0x57) i++; // one page more
 
-  if (!conf.multiboot) // os2ldr
+  if (!conf.loader.multiboot) // os2ldr
     ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
   else                 // multiboot loader
     ldrbase =  mem_lower << KSHIFT;
@@ -1280,7 +1152,7 @@ int init(void)
   /* Init info in mbi structure */
   init_bios_info();
 
-  if (conf.multiboot) {
+  if (conf.loader.multiboot) {
     /* return to loader from protected mode */
     unsigned long ldr_base = conf.loader.base;
 

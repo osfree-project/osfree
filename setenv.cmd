@@ -4,10 +4,10 @@
 '@echo off'
 
 parse arg cfg
-parse source os addr src
+parse upper source os addr src
 
 if cfg = '' 
-  then call usage
+  then signal usage
 
 /* Build the full path to the config file */
 if pos('/', translate(cfg, '/', '\')) == 0 then do
@@ -86,7 +86,9 @@ vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
 do i = 1 to words(vars)
   var = word(vars, i)
   val = value(var)
+  if os == 'UNIX' | os == 'LINUX' then val = translate(val, '/:', '\;')
   call value var, val, env
+  say var || '=' || val
 end
 
 if os == 'OS/2' then 'set beginlibpath=' || beginlibpath
