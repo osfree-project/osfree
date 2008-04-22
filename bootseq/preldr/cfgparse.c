@@ -2,6 +2,18 @@
  *  (c) osFree project,
  *  2003 Apr 21
  *  author valerius
+ *
+ *  These routines are common for loader
+ *  and pre-loader. Config file parser
+ *  reads a portion of file in buffer,
+ *  retrieves a line from it. A line is
+ *  built from several lines if there is
+ *  continuation symbols at the end of
+ *  current line. Also, backslashes are
+ *  substituted by forward slashes, comments
+ *  are deleted and for each line got this
+ *  way, the routine is called, which expands
+ *  variables.
  */
 
 #include <shared.h>
@@ -21,19 +33,11 @@ int var_sprint(char *buf, char *str);
 #else
 
 #define printf printmsg
-#define expand_vars expand
-
-void expand (char *buf1, char *buf2)
-{
-  // trivial case: expanding is
-  // not supported, copy as is
-  grub_strcpy(buf1, buf2);
-}
+#define expand_vars grub_strcpy
 
 #endif
 
 #define BUFSIZE 0x400
-char linebuf[BUFSIZE];
 char buf[BUFSIZE];
 
 int process_cfg_line(char *line);
@@ -105,9 +109,9 @@ char *trim(char *s)
  */
 char *getline(char **p, int n)
 {
-  int  i = 0;
-  char *q = *p;
-  char *s;
+  static char linebuf[BUFSIZE];
+  int    i = 0;
+  char   *q = *p;
 
   if (!q)
     panic("getline(): zero pointer: ", "*p");
@@ -121,9 +125,7 @@ char *getline(char **p, int n)
   linebuf[i] = '\0';
   *p = q;
 
-  s = linebuf;
-
-  return s;
+  return linebuf;
 }
 
 int process_cfg(char *cfg)
@@ -136,12 +138,10 @@ int process_cfg(char *cfg)
   static int  str_pos = 0;
   char *p, *line, *q;
   char f, g;
-  //char cont = 0; // line continuation indication
   unsigned int size, sz;
   unsigned int rd;
-  unsigned int lineno = 0;
-  int n, m, k, i;
   int bytes_read = 0;
+  int i;
 
   if (u_open(cfg, &size)) {
     printf("Cannot open config file!\r\n");
@@ -149,7 +149,7 @@ int process_cfg(char *cfg)
   }
   u_close(); 
 
-  grub_memset(s, 0, sizeof(s));
+  //grub_memset(s, 0, sizeof(s));
 
   sz = size;
   while (sz) 
