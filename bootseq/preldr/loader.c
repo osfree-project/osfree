@@ -27,10 +27,10 @@ skip_to (int after_equal, char *cmdline);
 //#pragma aux skip_to "*"
 
 #pragma aux multi_boot     "*"
-#pragma aux kernel_func    "*"
-#pragma aux module_func    "*"
-#pragma aux modaddr_func   "*"
-#pragma aux lipmodule_func "*"
+//#pragma aux kernel_func    "*"
+//#pragma aux module_func    "*"
+//#pragma aux modaddr_func   "*"
+//#pragma aux lipmodule_func "*"
 #pragma aux m              "*"
 #pragma aux l              "*"
 
@@ -39,11 +39,14 @@ int module_func (char *arg, int flags);
 int modaddr_func (char *arg, int flags);
 int lipmodule_func (char *arg, int flags);
 int vbeset_func (char *arg, int flags);
+int set_func (char *arg, int flags);
+int varexpand_func (char *arg, int flags);
 
 void panic(char *msg, char *file);
 int  abbrev(char *s1, char *s2, int n);
 char *strip(char *s);
 char *trim(char *s);
+char *wordend(char *s);
 
 int process_cfg(char *cfg);
 
@@ -55,22 +58,18 @@ void init(lip2_t *l)
 int process_cfg_line(char *line)
 {
   int i;
+  char *p;
+  char *var, *val;
   static int section = 0;
   static int insection = 0;
   static int sec_to_load;
 
-  // delete CR and LF symbols at the end
-  line = strip(trim(line));
-  if (!*line && insection) insection = 0;
-  // skip comments ";"
-  i = grub_index(';', line);
-  if (i) line[i - 1] = '\0';
-  // skip comments "#"
-  i = grub_index('#', line);
-  if (i) line[i - 1] = '\0';
-  // delete leading and trailing spaces
-  line = strip(line);
   if (!*line) return 1;
+
+  // change '\\' into '/'
+  p = line;
+  while (*p++)
+    if (*p == '\\') *p = '/';
 
   if (abbrev(line, "title", 5))   
   {
@@ -138,6 +137,24 @@ int process_cfg_line(char *line)
     if (vbeset_func(line, 0x2)) 
     {
       printf("An error occured during execution of vbeset_func\r\n");
+      return 0;
+    }
+  }
+  else if (abbrev(line, "set", 3))
+  {
+    line = strip(skip_to(0, line));
+    if (set_func(line, 0x2))
+    {
+      printf("An error occured during execution of set_func\r\n");
+      return 0;
+    }
+  }
+  else if (abbrev(line, "varexpand", 9))
+  {
+    line = strip(skip_to(0, line));
+    if (varexpand_func(line, 0x2))
+    {
+      printf("An error occured during execution of set_func\r\n");
       return 0;
     }
   }

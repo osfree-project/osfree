@@ -83,7 +83,7 @@ SERIAL_OBJS      = termstrt.$(O) terminit.$(O) serial.$(O) modesw-npt.$(O) termi
 SERIAL_SH_OBJS   = termstrt.$(SO) terminit.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
-                   boot.$(O) cmdline.$(O) cfgparse-l.$(O) # video.$(O)
+                   boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
 
 TARGETS          = minilibc.lib &
                    fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &

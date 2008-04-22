@@ -720,17 +720,6 @@ int process_cfg_line(char *line)
    static char section[0x20];
    static int sec_to_load;
 
-   // delete CR and LF symbols at the end
-   line = strip(trim(line));
-   //if (!*line && insection) insection = 0;
-   // skip comments ";"
-   i = grub_index(';', line);
-   if (i) line[i - 1] = '\0';
-   // skip comments "#"
-   i = grub_index('#', line);
-   if (i) line[i - 1] = '\0';
-   // delete leading and trailing spaces
-   line = strip(line);
    if (!*line) return 1;
 
    i = grub_strlen(line) - 1;
