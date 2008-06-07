@@ -3,7 +3,7 @@ Many thanks to whose projects:
 Regina REXX - our Classic REXX replacement http://regina-rexx.sourceforge.net/index.html
 THE - our TEDIT replacement http://hessling-editor.sourceforge.net/index.html
 
-And lot of other things from Mark Hessling. His product allowed us not to reinvent
+And lot of other things from Mark Hessling. His products allowed us not to reinvent
 the wheel.
 
 OS2Linux project as a base for CPI implementation on top of Fiasco microkernel.
@@ -41,3 +41,8 @@ Fiasco reused as microkernel
 PParser from FPK used as UNI2H tool base
 
 TWIN library as win16 base
+
+MINSTALL by KIEWITZ
+
+MMImage Pak as Image File Format I/O Procedures
+

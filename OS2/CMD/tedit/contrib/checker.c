@@ -2,8 +2,7 @@
  * It contains wrappers für PDCurses for X11.
  */
 #define CURSES_LIBRARY
-#include <xcurses.h>
-/* Set the include path either to the checker install path or copy 
+/* Set the include path either to the checker install path or copy
  * checker_api.h to a standard path:
  */
 #include <checker_api.h>
@@ -14,11 +13,6 @@
 
 #define CHECK_WIN(win) stubs_chkr_check_addr(win,sizeof(WINDOW),CHKR_TW,"win")
 
-extern void chkr_XCursesExit(void) __asm__ ("chkr.XCursesExit");
-void chkr_XCursesExit(void)
-{
-   XCursesExit();
-}
 
 extern int chkr_PDC_chadd(register WINDOW *win, chtype ch,bool xlat, bool advance) __asm__ ("chkr.PDC_chadd");
 int chkr_PDC_chadd(register WINDOW *win, chtype ch,bool xlat, bool advance)
@@ -31,7 +25,7 @@ extern int chkr_PDC_getclipboard(char **contents, long *length) __asm__ ("chkr.P
 int chkr_PDC_getclipboard(char **contents, long *length)
 {
    int rc;
-   
+
    stubs_chkr_check_addr(contents, sizeof (char **), CHKR_MW, "contents");
    stubs_chkr_check_addr(length, sizeof (long *), CHKR_MW, "length");
    if ((rc = PDC_getclipboard(contents,length)) == PDC_CLIP_SUCCESS)

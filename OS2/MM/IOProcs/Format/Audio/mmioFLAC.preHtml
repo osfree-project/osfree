@@ -1,0 +1,100 @@
+<?IS10744 arch name="html"
+public-id="ISO/IEC 15445:2000//DTD HyperText Markup Language//EN"
+dtd-system-id="ftp://ftp.cs.tcd.ie/isohtml/15445.dtd"
+renamer-att="HTMLnames"
+doc-elem-form="HTML"
+>
+<!DOCTYPE PRE-HTML PUBLIC "-//ISO-HTML User's Guide//DTD ISO-HTML Preparation//EN"
+[
+<!ENTITY % common.publicDomain "IGNORE">
+<!ENTITY % common PUBLIC "+//IDN r6.ca//ENTITIES Common HTML//EN">
+%common;
+
+<!ENTITY flacVersion SYSTEM "mmioFlac/VERSION">
+<!ENTITY title "FLAC Multimedia IOProc for OS/2 - &flacVersion;">
+<!ENTITY todo '<span class="todo">TODO</span>'>
+]>
+<PRE-HTML>
+<HEAD>
+&html.head;
+<STYLE type="text/css">
+.todo {color: red}
+</STYLE>
+<TITLE>&title;</>
+<BODY>
+&html.header;
+<H1>&title;</>
+<DIV1>
+<P><A HREF="&homepage.russell;MMAudioPak/mmioFlac.html" TITLE="&title;">MMIOFLAC
+&flacVersion;</> is
+an MMIOProc for OS/2 that allows OS/2&rsquo;s multimedia system to play
+<A HREF="http://flac.sourceforge.net/" TITLE="Free Lossless Audio
+Codec">FLAC</> files.
+
+<P>This IOProc supports translated read, translated seek, and traslated write operations.
+
+<P>FLAC decoding is done by <A HREF="http://flac.sourceforge.net/api/index.html">libFLAC</A>
+using its C interface.
+
+<H2/Download/
+
+<P>MMIOFLAC is part of the <A HREF="&homepage.russell;MMAudioPak/">MMAudio Pak</>
+When installing MMAudio Pak you can select which IOProcs to install.
+
+<H2/Requirements/
+
+<P>MMIOFLAC requires the <A
+HREF="http://hobbes.nmsu.edu/cgi-bin/h-browse?sh=1&amp;dir=/pub/os2/dev/emx/v0.9d">EMX
+runtime</>.
+
+<H2/To Do/
+<UL>
+<LI>Add encoding options.
+<LI>If requested I would consider adding support for untranslated FLAC access.
+</UL>
+
+<H2/Changes/
+
+<UL>
+<LI>Changes from 0.2.0 to 0.3.0 (2003-07-27)
+<UL>
+<LI>Added translated write support
+</UL>
+<LI>Changes from 0.1.1 to 0.2.0 (2003-02-23)
+<UL>
+<LI>Added translated seek support
+</UL>
+<LI>Changes from 0.1 to 0.1.1 (2002-11-22)
+<UL>
+<LI>Fixed error in file identification routine.
+</UL>
+</UL>
+
+<H2>Legal Stuff</>
+<DIV CLASS=legal>
+<P>This program is Copyright &copy; 2001-2003 by Josh Coalson and Russell
+O&rsquo;Connor.
+
+<P>This library is free software; you can redistribute it and/or modify
+it under the terms of the <a TITLE="GNU Lesser General Public License -
+GNU Project - Free Software Foundation (FSF)"
+HREF="http://www.fsf.org/copyleft/lesser.html"><abbr TITLE="GNU&rsquo;s
+Not Unix">GNU</abbr> Lesser General Public License</a> as published by
+the Free Software Foundation; either version 2.1 of the License, or (at
+your option) any later version.
+
+<P>This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the it under
+the terms of the <a TITLE="GNU Lesser General Public License - GNU
+Project - Free Software Foundation (FSF)"
+HREF="http://www.fsf.org/copyleft/lesser.html"><abbr TITLE="GNU&rsquo;s
+Not Unix">GNU</abbr> Lesser General Public License</a> for more
+details.
+</DIV>
+
+<H3/Confused?/
+<P>This would be all public domain if I could have it my way.
+&html.footer;
+</DIV1>
+</PRE-HTML>

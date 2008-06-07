@@ -134,7 +134,8 @@ type
     tkvar,
     tkwhile,
     tkwith,
-    tkxor);
+    tkxor,
+    tkalias);
 
   TLineReader = class
   public
@@ -320,7 +321,8 @@ const
     'var',
     'while',
     'with',
-    'xor'
+    'xor',
+    'alias'
   );
 
 

@@ -838,9 +838,11 @@ begin
     ASection.UsesList.Add(Element);
 
     NextToken;
+
     if CurToken = tkSemicolon then
-      break
-    else if CurToken <> tkComma then
+    begin
+      break;
+    end else if CurToken <> tkAlias then
       ParseExc(SParserExpectedCommaSemicolon);
   end;
 end;

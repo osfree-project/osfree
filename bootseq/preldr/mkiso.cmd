@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 
 rem ............................
 rem . (c) osFree project, 2008 .
@@ -19,11 +19,7 @@ set dir2=%root%\bootseq\bootsec\eltorito
 set files2=eltorito.bin
 rem ---------prereqs-------------------
 
-@for %%l in (1 2) do ^
-  (set f=%%files%%l%% && ^
-  set d=%%dir%%l%%    && ^
-  (@for %%i in (%f%) do  ^
-     (cd %d% && (@if not exist %%i @wmake %%i))))
+@for %%l in (1 2) do (set f=%%files%%l%% && set d=%%dir%%l%%    && (@for %%i in (%f%) do    (cd %d% && (@if not exist %%i @wmake %%i))))
 
 cd %cwd%
 @call mkboot.cmd ..\bootsec\eltorito\eltorito.bin preldr0 iso9660.fsd bootblk

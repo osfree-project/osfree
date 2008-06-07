@@ -14,33 +14,36 @@
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
+บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
 ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
 บ TEDIT - Tiny Editor          Help 2a บบ TEDIT - Tiny Editor            Help 1b บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ Index                                บบ Index                                  บ
+บ Cursor managment                     บบ Index                                  บ
 บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
+บ Esc = set active command line or     บบ                                        บ
+บ       edit area                      บบ                                        บ
+บ up  = up one line                    บบ                                        บ
+บ down = down one line                 บบ                                        บ
+บ left = left one char                 บบ                                        บ
+บ right = right one char               บบ                                        บ
+บ home  = begin of line                บบ                                        บ
+บ end   = end of line                  บบ                                        บ
+บ PgUp  = one screen up                บบ                                        บ
+บ PgDn  = one screen down              บบ                                        บ
 บ                                      บบ                                        บ
+บ enter = if "Ins" then insert line    บบออออออออออออออออออออออออออออออออออออออออบ
+บ         if "Rep" then begin of line  บบ Based on THE editor (C) Mark Hessling  บ
 บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
 ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
 บ TEDIT - Tiny Editor          Help 3a บบ TEDIT - Tiny Editor            Help 1b บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ Index                                บบ Index                                  บ
 บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
+บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
@@ -71,6 +74,7 @@
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
+บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
@@ -90,6 +94,7 @@
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
+บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
@@ -98,21 +103,23 @@
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ File commands                        บบ Index                                  บ
 บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
-บ T, E, K, X, THE, EDIT [filename]                บบ                                        บ
+บ T, E, EDIT [filename]                บบ                                        บ
 บ  - edit another file or switch to    บบ
 บ    next file                         บบ
 บ                                      บบ                                        บ
-บ  Kedit [file]
-       edit another file or switch to next file
- Xedit [file]
-       edit another file or switch to next file
+บ F, FILE  [filename]                  บบ
+บ  - write the current file to disk    บบ
+บ    and remove from ring              บบ
+บ                                      บบ                                        บ
+บ S, SAVE [filename]
+   - save changes to current file (or
+     to 'filename')
                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
-บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
@@ -122,24 +129,6 @@
 บ Index                                บบ Index                                  บ
 บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
 บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
-ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
-ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
-บ TEDIT - Tiny Editor          Help 1a บบ TEDIT - Tiny Editor            Help 1b บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ Index                                บบ Index                                  บ
-บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
@@ -170,24 +159,6 @@
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
-ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
-ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
-บ TEDIT - Tiny Editor          Help 1a บบ TEDIT - Tiny Editor            Help 1b บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ Index                                บบ Index                                  บ
-บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
@@ -198,24 +169,6 @@
 บ Index                                บบ Index                                  บ
 บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
 บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บ                                      บบ                                        บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
-ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
-ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
-บ TEDIT - Tiny Editor          Help 1a บบ TEDIT - Tiny Editor            Help 1b บ
-บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
-บ Index                                บบ Index                                  บ
-บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
@@ -246,6 +199,27 @@
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
+บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
+ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
+ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
+บ TEDIT - Tiny Editor          Help 1a บบ TEDIT - Tiny Editor            Help 1b บ
+บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
+บ Index                                บบ Index                                  บ
+บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
@@ -265,6 +239,7 @@
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
+บ                                      บบ                                        บ
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
 ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
@@ -273,6 +248,47 @@
 บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
 บ Index                                บบ Index                                  บ
 บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
+บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
+ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
+ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
+บ TEDIT - Tiny Editor          Help 1a บบ TEDIT - Tiny Editor            Help 1b บ
+บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
+บ Index                                บบ Index                                  บ
+บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บ                                      บบ                                        บ
+บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
+บ   (C) Copyright osFree team, 2008    บบ Based on THE editor (C) Mark Hessling  บ
+ศออออออออออออออออออออออออออออออออออออออผศออออออออออออออออออออออออออออออออออออออออผ
+ษออออออออออออออออออออออออออออออออออออออปษออออออออออออออออออออออออออออออออออออออออป
+บ TEDIT - Tiny Editor          Help 1a บบ TEDIT - Tiny Editor            Help 1b บ
+บออออออออออออออออออออออออออออออออออออออบบออออออออออออออออออออออออออออออออออออออออบ
+บ Index                                บบ Index                                  บ
+บฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบบฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤบ
+บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
 บ                                      บบ                                        บ
@@ -347,7 +363,7 @@
        add blank line
        Default: 1
  ALERT /prompt/ [EDITfield [/val/]] [TITLE /title/] [OK|OKCANCEL|YESNO|YESNOCANCEL] [DEFBUTTON n]
-       display a user configurable dialog box with notification
+       display a user configurable  box with notification
  ALL [rtarget]
        select and display restricted set of lines
  BAckward [n|*]
@@ -410,8 +426,6 @@
  DELete [target]
        delete lines from a file
        Default: 1
- DIALOG /prompt/ [EDITfield [/val/]] [TITLE /title/] [OK|OKCANCEL|YESNO|YESNOCANCEL] [DEFBUTTON n]
-       display a user configurable dialog box
  DIRectory [file specification]
        list the specified directory as an editable file
  DOS [command]
@@ -440,9 +454,6 @@
        obtain various internal information about THE
  FFile  [filename]
        force a FILE of the current file to disk
-       Default: With no parameters, the current file is written.
- FILE  [filename]
-       write the current file to disk and remove from ring
        Default: With no parameters, the current file is written.
  FILLbox [c]
        fill the marked block with a character
@@ -562,8 +573,6 @@
        scroll the screen to the left or right
  RIght [n|HALF|FULL]
        scroll the screen to the right
- SAVE [filename]
-       save changes to current file
  SCHange /string1/string2/ [target] [n] [m]
        selectively change strings
        Default: 1 1 1
@@ -712,16 +721,16 @@
  [SET] EOLout CRLF|LF|CR|NONE
        set end of line terminating character(s)
        Default: LF - UNIX
-       Default: CRLF - DOS/OS2/WIN32
+       Default: CRLF - DOS/OS2
        Default: NONE - if THE started with -u option
  [SET] EQUIVChar char
        set the equivalence character
        Default: =
  [SET] ETMODE ON|OFF [character list]
        indicate if extended display mode is possible
-       Default: ON - DOS/OS2/WIN32
+       Default: ON - DOS/OS2
        Default: ON 32-255 - X11
-       Default: OFF - UNIX/AMIGA/QNX
+       Default: OFF - UNIX
  [SET] FExt ext
  [SET] FType ext
        change the extension of the existing file
@@ -835,7 +844,7 @@
        Default: ON Left 6 0
  [SET] PRINTER spooler|[OPTION options]
        define printer spooler name
-       Default: LPT1 - DOS/OS2, lpr - Unix, default - Win32
+       Default: LPT1 - DOS/OS2, lpr - Unix
  [SET] PSCReen height [width] [RESET|PRESET]
        set physical size of screen
        Default: System Dependent
@@ -1141,7 +1150,7 @@
  +-------------------+-----------------+----------+------------+--------------|
  |                   |     DOS         |          |            |              |
  |                   |     OS/2        |          |            |              |
- |     Command       |     Win32       |   X11    |   vt220    |    xterm     |
+ |     Command       |                 |   X11    |   vt220    |    xterm     |
  |                   |     Win31       |          |            |              |
  +-------------------+-----------------+----------+------------+--------------|
  | ?                 | F6              | F6       | F6         | F6           |

@@ -8,10 +8,10 @@
 !include $(%ROOT)/mk/site.mk
 
 # Notes:
-# 1. UniAPI must comes first here because used to produce API headers
+# 1. UniAPI must come first here because used to produce API headers
 
 DIRS = uniapi shared genext2fs qemu-img ltools lex yacc awk renmodul &
-       rexxwrap mkmsgf # mapsym # libmmap hlldump
+       rexxwrap mkmsgf mapsym hlldump ipfc # libmmap
 
 !include $(%ROOT)/mk/all.mk
 

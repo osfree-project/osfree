@@ -1,0 +1,26 @@
+decoder.lo : \
+ decoder.c config.h global.h H:\emx\include\sys/types.h \
+ H:\emx\include\sys/wait.h H:\emx\include\unistd.h \
+ H:\emx\include\fcntl.h H:\emx\include\sys/fcntl.h \
+ H:\emx\include\stdlib.h H:\emx\include\malloc.h \
+ H:\emx\include\errno.h H:\emx\include\sys/errno.h stream.h bit.h \
+ frame.h fixed.h timer.h synth.h decoder.h
+decoder.c :
+config.h :
+global.h :
+H:\emx\include\sys/types.h :
+H:\emx\include\sys/wait.h :
+H:\emx\include\unistd.h :
+H:\emx\include\fcntl.h :
+H:\emx\include\sys/fcntl.h :
+H:\emx\include\stdlib.h :
+H:\emx\include\malloc.h :
+H:\emx\include\errno.h :
+H:\emx\include\sys/errno.h :
+stream.h :
+bit.h :
+frame.h :
+fixed.h :
+timer.h :
+synth.h :
+decoder.h :

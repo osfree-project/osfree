@@ -5,14 +5,14 @@
 
 32_BITS  = 1
 
-DIR = $(ROOT)$(SEP)tools$(SEP)bin
+DIR = $(FILESDIR)$(SEP)os2
 PROJ = TEDIT
 DESC = Tiny Editor
 OBJ1 = box.$(O) colour.$(O) comm1.$(O) comm2.$(O) comm3.$(O) comm4.$(O) comm5.$(O) &
-	commset1.$(O) commset2.$(O) commsos.$(O) cursor.$(O) default.$(O) &
-	edit.$(O) error.$(O) execute.$(O) linked.$(O) column.obj mouse.obj memory.obj &
-	nonansi.$(O) prefix.$(O) parser.$(O) reserved.$(O) scroll.$(O) show.$(O) sort.$(O) &
-	target.$(O) the.$(O) util.$(O) print.$(O) regex.obj alloca.obj
+        commset1.$(O) commset2.$(O) commsos.$(O) cursor.$(O) default.$(O) &
+        edit.$(O) error.$(O) execute.$(O) linked.$(O) column.obj mouse.obj memory.obj &
+        nonansi.$(O) prefix.$(O) parser.$(O) reserved.$(O) scroll.$(O) show.$(O) sort.$(O) &
+        target.$(O) the.$(O) util.$(O) print.$(O) regex.obj alloca.obj
 OBJ2 = commutil.$(O) #trace.obj
 OBJ3 = getch.$(O)
 OBJ4 = query.$(O)
