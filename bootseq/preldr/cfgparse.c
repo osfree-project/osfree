@@ -5,7 +5,7 @@
  *
  *  These routines are common for loader
  *  and pre-loader. Config file parser
- *  reads a portion of file in buffer,
+ *  reads a portion of file into buffer,
  *  retrieves a line from it. A line is
  *  built from several lines if there is
  *  continuation symbols at the end of

@@ -169,7 +169,7 @@ u_open (char *name, unsigned int *size)
 
   rc = freeldr_open(name);
   *size = 0;
- 
+
   if (rc) {
     *size = filemax;
     return 0;
@@ -456,7 +456,7 @@ int __cdecl
 u_vbectl(int func, int mode_number, void *info)
 {
   struct pmif *pmif = (struct pmif *)info;
- 
+
   switch (func)
   {
     case VBE_FUNC_RESET:
@@ -475,7 +475,7 @@ u_vbectl(int func, int mode_number, void *info)
     case VBE_FUNC_SET_MODE:
     {
       return set_vbe_mode (mode_number);
-    } 
+    }
     case VBE_FUNC_GET_PMIF:
     {
       get_vbe_pmif(pmif->pmif_segoff, pmif->pmif_len);
@@ -493,7 +493,7 @@ int open2 (char *filename)
   char buf[0x100];
   int  rc;
 
-  for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) 
+  for (fsys_type = 0; fsys_type < num_fsys; fsys_type++)
   {
     fsys_by_num(fsys_type, buf);
     set_fsys(buf);
@@ -695,7 +695,7 @@ void setlip1(lip1_t *l1)
 
 void setlip(void)
 {
-  l1 = &lip1; 
+  l1 = &lip1;
   setlip1(l1);
 #ifndef STAGE1_5
   l2 = &lip2;
@@ -724,7 +724,7 @@ int process_cfg_line(char *line)
 
    i = grub_strlen(line) - 1;
    /* section header (a word in brackets) */
-   if (line[0] == '[' && line[i] == ']') 
+   if (line[0] == '[' && line[i] == ']')
    {
      line++;
      line[i - 1] = '\0';
@@ -772,7 +772,7 @@ int process_cfg_line(char *line)
      else if (abbrev(line, "ignorecase", 10))
      {
         line = skip_to(1, line);
-        if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on")) 
+        if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on"))
           n = 1;
         else
           n = 0;
@@ -800,9 +800,9 @@ int process_cfg_line(char *line)
          panic("process_cfg_line: incorrect loader load base value!", "");
      }
      else if (abbrev(line, "multiboot", 9))
-     { 
+     {
        line = strip(skip_to(1, line));
-       if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on")) 
+       if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on"))
          n = 1;
        else
          n = 0;
@@ -818,7 +818,7 @@ int process_cfg_line(char *line)
    {
      /* [minifsd] section */
      if (abbrev(line, "name", 4)) {
-       line = strip(skip_to(1, line));   
+       line = strip(skip_to(1, line));
        if (!grub_strcmp(line, "none")) *line = '\0';
        grub_strncpy(conf.mini.name, line, sizeof(conf.mini.name));
      }
@@ -839,11 +839,11 @@ int process_cfg_line(char *line)
    else if (!grub_strcmp(section, "aliases"))
    {
      /* file aliases section */
-     if (abbrev(line, "enable", 6)) 
+     if (abbrev(line, "enable", 6))
      {
      }
 
-     return 1;      
+     return 1;
    }
    else
    {
@@ -851,6 +851,83 @@ int process_cfg_line(char *line)
    }
 
    return 0;
+}
+
+/*  Load a pre-loader blackbox from file
+ *  with specified path to a pair of buffers
+ *  (in low memory and in high one) with
+ *  specified number. A buffer is chosen
+ *  from 1,2,3rd blackbox buffers.
+ */
+int blackbox_load(char *path, int bufno)
+{
+  char buf[EXT_LEN];
+  char rel_file[0x100];
+  char *lodest, *hidest;
+  int  i, rc;
+
+  rc = freeldr_open(path);
+
+  if (rc)
+  {
+    rc = freeldr_read(buf, -1);
+  }
+  else
+  {
+    panic("Can't open blackbox file:", path);
+  }
+
+  switch (bufno)
+  {
+    case 1:
+    {
+      hidest = (char *)EXT1HIBUF_BASE;
+      lodest = (char *)EXT1LOBUF_BASE;
+      break;
+    }
+    case 2:
+    {
+      hidest = (char *)EXT2HIBUF_BASE;
+      lodest = (char *)EXT2LOBUF_BASE;
+      break;
+    }
+    case 3:
+    {
+      hidest = (char *)EXT3HIBUF_BASE;
+      lodest = (char *)EXT3LOBUF_BASE;
+      break;
+    }
+    default:
+    {
+      return 0;
+    }
+  }
+
+  grub_memmove(hidest, buf, EXT_LEN);
+  grub_memmove(lodest, buf, EXTLO_LEN);
+
+  grub_memmove(rel_file, path, 0x100);
+
+  /* change file extension to .rel */
+  i = lastpos('.', rel_file);
+  grub_strcpy(rel_file + i, ".rel");
+
+  reloc(hidest, rel_file, (unsigned long)(hidest - EXT_BUF_BASE + SHIFT));
+
+
+
+  return 1;
+}
+
+/*  returns the last position of symbol
+ *  in string.
+ */
+int lastpos(char c, char *s)
+{
+  int i = grub_strlen(s);
+  while (s[i] != c) i--;
+
+  return i;
 }
 
 /*  Relocate a file in memory using its
@@ -948,7 +1025,7 @@ int init(void)
   {
     panic("Load error!", "");
   }
-  
+
   /* Show config params */
   printmsg("\r\nConfig parameters:");
   printmsg("\r\ndriveletter = "); printb(conf.driveletter);
@@ -1040,10 +1117,15 @@ int init(void)
   /* the correction shift added while relocating */
   relshift = ldrbase - (PREFERRED_BASE + 0x10000);
 
-  /* move preldr and uFSD */
+  /* move preldr and its data */
   grub_memmove((char *)(ldrbase - 0x10000),
                (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
                0x10000);
+
+  /* move uFSD */
+  grub_memmove((char *)(EXT3HIBUF_BASE),
+               (char *)(EXT_BUF_BASE),
+               EXT_LEN);
 
   __asm {
     mov  eax, relshift
@@ -1063,7 +1145,7 @@ int init(void)
 
   /* fixup preldr and uFSD */
   reloc((char *)(STAGE0_BASE  + relshift), "\\boot\\freeldr\\preldr0.rel", relshift);
-  reloc((char *)(EXT_BUF_BASE + relshift), "\\boot\\freeldr\\fsd\\iso9660.rel", relshift);
+  reloc((char *)(EXT3HIBUF_BASE), "\\boot\\freeldr\\fsd\\iso9660.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
 
   /* jump to relocated pre-loader */
   jmp_reloc(relshift);
@@ -1076,9 +1158,9 @@ int init(void)
   setlip();
 
   /* save boot drive uFSD */
-  grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
+  grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
-  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+  fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
   fsd_init(l1);
 
   z = &gdt;

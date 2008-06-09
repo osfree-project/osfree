@@ -60,7 +60,7 @@ FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
 BT_LINUX_OBJS    = linux.$(O) linuxc.$(O) modesw-npl.$(O) cmdline.$(O) &
-                   wrap.$(O) end.$(O) 
+                   wrap.$(O) end.$(O)
 BT_CHAIN_OBJS    = chain.$(O) chainc.$(O) setdev.$(O) modesw-npc.$(O)  &
                    cmdline.$(O) wrap.$(O) end.$(O)
 
@@ -166,12 +166,12 @@ bt_chain: bt_chain.$(OUT)
 
 .$(OUT).trm:
  $(DC) $^@
- $(RIP) $< TERM_BASE fsd.inc >$^@
+ $(RIP) $< EXT_BUF_BASE fsd.inc >$^@
  $(DC) $<
 
 .$(SOUT).trs:
  $(DC) $^@
- $(RIP) $< TERM_BASE fsd.inc $(SHIFT) >$^@
+ $(RIP) $< EXT_BUF_BASE fsd.inc $(SHIFT) >$^@
  $(DC) $<
 
 preldr0: stage0.$(OUT)
@@ -404,15 +404,15 @@ chain.$(O): chain.asm
  $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fo=$^@ $<
 
 modesw-npt.$(O): modesw.asm
- $(ASM) -dNO_PROT -dTERM -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
 
 modesw-npt.$(SO): modesw.asm
- $(ASM) -dNO_PROT -dTERM -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
 
 cfgparse-l.$(O): cfgparse.c
  $(CC) -dLOADER $(COPT) -fo=$^@ $<
 
-cfgparse-p.$(O): cfgparse.c
+cfgparse.$(O): cfgparse.c
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

@@ -409,10 +409,10 @@ void set_boot_fsys(void)
 {
   fsys_type = -1; // boot filesystem
   /* move boot drive uFSD to working buffer */
-  //swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE));
-  grub_memmove((void *)(EXT_BUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
+  //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)(UFSD_BASE));
+  grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
-  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+  fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
   fsd_init(l1);
   printmsg("boot fs set\r\n");
 }
@@ -458,14 +458,14 @@ int set_fsys(char *fsname)
   s = grub_strstr(sbuf, ".fsd") + 1;
   // Change ".fsd" extension to ".rel"
   grub_strcpy(s, "rel");
-  //swap_fsys_bufs((void *)EXT_BUF_BASE, (void *)UFSD_BASE);
+  //swap_fsys_bufs((void *)EXT3HIBUF_BASE, (void *)UFSD_BASE);
   
   // fixup the loaded filesystem
   reloc((char *)buf, sbuf, relshift);
   printmsg("fs relocated\r\n");
-  //swap_fsys_bufs((void *)(EXT_BUF_BASE), (void *)UFSD_BASE);
-  //swap_fsys_bufs((void *)(EXT_BUF_BASE), buf);
-  grub_memmove((void *)(EXT_BUF_BASE), (void *)(buf), EXT_LEN);
+  //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
+  //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);
+  grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(buf), EXT_LEN);
   printmsg("fs moved\r\n");
   //fsys_type = saved_fsys_type;
   //current_drive = saved_current_drive;
@@ -482,7 +482,7 @@ int set_fsys(char *fsname)
   //grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
   fsys_type = fst;
   
-  fsd_init = (void *)(EXT_BUF_BASE);
+  fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
 
   printmsg("fs initted, fsys_type=");

@@ -28,8 +28,8 @@ include mb_etc.inc
 
 ifdef NO_PROT
 
-ifdef TERM
-  BASE    equ TERM_BASE
+ifdef BLACKBOX
+  BASE    equ TERMLO_BASE
 else
   BASE    equ REAL_BASE
 endif
@@ -299,7 +299,7 @@ __CHK:
 __I8LS:
         ret
 
-__U8RS: 
+__U8RS:
         ret
 
 _TEXT   ends
