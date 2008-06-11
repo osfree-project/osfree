@@ -8,13 +8,13 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\libtiff.lib .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)libtiff.lib .SYMBOLIC
 
 OBJS = tif_aux.$(O) &
 tif_close.$(O) &
@@ -52,7 +52,7 @@ tif_warning.$(O) &
 tif_write.$(O) &
 tif_zip.$(O)
 
-$(ROOT)\lib\libtiff.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)libtiff.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @wlib $@ +$< $(LOG)

@@ -1,6 +1,4 @@
 /*!
-   $Id: tcpcmd_shared.h,v 1.3 2004/08/21 14:48:51 prokushev Exp $
-
    @file tcpcmd_shared.h
 
    @brief TCP/IP utility functions header, shared along all TCP/IP command line tools

@@ -22,22 +22,24 @@
  * that contain the string.  Multiple files are clearly separated.
  */
 
+#define INCL_DOSERRORS
+#define INCL_VIO
+
+#include <osfree.h>             // Include file for osfree
+#include <cmd_shared.h>         // Include file for cmd tools
+
 #include <stdio.h>
-#include <stdlib.h>			/* borland needs this for 'exit' */
-#include <fcntl.h>			/* O_RDONLY */
+#include <stdlib.h>                     /* borland needs this for 'exit' */
+#include <fcntl.h>                      /* O_RDONLY */
 #include <string.h>
 #include <ctype.h>
 
-#include <dir.h>			/* for findfirst, findnext */
-#include <dos.h>			/* for findfirst, findnext */
+#include <direct.h>                        /* for findfirst, findnext */
+#include <dos.h>                        /* for findfirst, findnext */
 
-#include "find_str.h"			/* find_str() back-end */
+#include "find_str.h"                   /* find_str() back-end */
 
-#if 1
-#include "kitten.h"			/* Kitten message library */
-#else
-#include "catgets.h"			/* Cats message library */
-#endif
+#include "kitten.h"                     /* Kitten message library */
 
 
 /* Functions */
@@ -47,33 +49,29 @@ void usage (nl_catd cat);
 
 /* Main program */
 
-#ifndef MAXDIR
-#define MAXDIR 256
-#endif
 
-int
-main (int argc, char **argv)
+int main (int argc, char* argv[], char* envp[])
 {
   char *s, *needle;
   int c, i, done, ret;
 
-  unsigned drive /* , thisdrive */ ;	/* used to store, change drive */
-  char cwd[MAXDIR], thiscwd[MAXDIR];	/* used to store, change cwd */
-  char cwd2[MAXDIR];			/* store cwd of other drive */
+  unsigned drive /* , thisdrive */ ;    /* used to store, change drive */
+  char cwd[CCHMAXPATH], thiscwd[CCHMAXPATH];    /* used to store, change cwd */
+  char cwd2[CCHMAXPATH];                    /* store cwd of other drive */
 
-  /* char drv[MAXDRIVE]; */		/* temporary buffer */
-  unsigned drv;				/* drive found in argument */
-  /* unsigned maxdrives; */		/* not used */
+  /* char drv[MAXDRIVE]; */             /* temporary buffer */
+  unsigned drv;                         /* drive found in argument */
+  unsigned maxdrives;                   /* not used */
 
-  int invert_search = 0;		/* flag to invert the search */
-  int count_lines = 0;			/* flag to whether/not count lines */
-  int number_output = 0;		/* flag to print line numbers */
-  int ignore_case = 0;			/* flag to be case insensitive */
+  int invert_search = 0;                /* flag to invert the search */
+  int count_lines = 0;                  /* flag to whether/not count lines */
+  int number_output = 0;                /* flag to print line numbers */
+  int ignore_case = 0;                  /* flag to be case insensitive */
 
-  /* FILE *pfile; */			/* file pointer */
-  int thefile;				/* file handler */
-  nl_catd cat;				/* message catalog */
-  struct ffblk ffblk;			/* findfirst, findnext block */
+  /* FILE *pfile; */                    /* file pointer */
+  int thefile;                          /* file handler */
+  nl_catd cat;                          /* message catalog */
+  struct find_t ffblk;                   /* findfirst, findnext block */
 
   /* Message catalog */
 
@@ -82,40 +80,40 @@ main (int argc, char **argv)
   /* Scan the command line */
   c = 1; /* argv[0] is the path of the exectutable! */
 
-
   /* first, expect all slashed arguments */
   while ((c < argc) && (argv[c][0] == '/') ) {
       /* printf("arg: %s\n",argv[c]); */
       switch (argv[c][1]) {
-	  case 'c':
-	  case 'C':		/* Count */
-	    count_lines = 1;
-	    break;
+          case 'c':
+          case 'C':             /* Count */
+            count_lines = 1;
+            break;
 
-	  case 'i':
-	  case 'I':		/* Ignore */
-	    ignore_case = 1;
-	    break;
+          case 'i':
+          case 'I':             /* Ignore */
+            ignore_case = 1;
+            break;
 
-	  case 'n':
-	  case 'N':		/* Number */
-	    number_output = 1;
-	    break;
+          case 'n':
+          case 'N':             /* Number */
+            number_output = 1;
+            break;
 
-	  case 'v':
-	  case 'V':		/* Not with */
-	    invert_search = 1;
-	    break;
+          case 'v':
+          case 'V':             /* Not with */
+            invert_search = 1;
+            break;
 
-	  default:
-	    usage (cat);
-	    catclose (cat);
-	    exit (2);		/* syntax error .. return errorlevel 2 */
-	    break;
-	    
+          default:
+            usage (cat);
+            catclose (cat);
+            exit (2);           /* syntax error .. return errorlevel 2 */
+            break;
+
       } /* end case */
-      c++;	/* next argument */
+      c++;      /* next argument */
   } /* end while */
+
 
   /* Get the string */
 
@@ -145,14 +143,8 @@ main (int argc, char **argv)
      drive & cwd at the end.  This is probably not the most efficient
      way of doing it, but it works.  -jh */
 
-  /* _dos_getdrive (&drive); */		/* 1 for A, 2 for B, ... */
-  drive = getdisk() + 1; /* uses dir.h */
-  getcwd (cwd, MAXDIR);			/* also stores drive letter */
-
-#if 0 /* debugging */
-  /* printf ("drive=%c\n", (drive+'A'-1)); */
-  /* printf ("cwd=%s\n", cwd); */
-#endif /* debugging */
+  _dos_getdrive(&drive); /* uses dir.h */
+  getcwd (cwd, CCHMAXPATH);                 /* also stores drive letter */
 
   /* Scan the files for the string */
 
@@ -166,112 +158,98 @@ main (int argc, char **argv)
   else
     {
       for (i = c; i < argc; i++)
-	{
-	  /* find drive and wd for each file when using findfirst */
+        {
+          /* find drive and wd for each file when using findfirst */
 
-	  /* fnsplit (argv[i], drv, thiscwd, NULL, NULL); */
-	  /* fnsplit is "expensive", so replace it... */
-	  
-	  if (argv[i][1] == ':') {
-	    drv = toupper(argv[i][0]) - 'A';
-	    strcpy(thiscwd,argv[i]+2);
-	  } else {
-	    drv = drive - 1; /* default drive */
-	    strcpy(thiscwd,argv[i]);
-	  }
+          /* fnsplit (argv[i], drv, thiscwd, NULL, NULL); */
+          /* fnsplit is "expensive", so replace it... */
 
-	  if (strrchr(thiscwd,'\\') == NULL) {
-	    strcpy(thiscwd,"."); /* no dir given */
-	  } else {
-	    if (strrchr(thiscwd,'\\') != thiscwd) {
-	      strrchr(thiscwd,'\\')[0] = '\0'; /* end string at last \\ */
-	    } else {
-	      strcpy(thiscwd,"\\"); /* dir is root dir */
-	    }
-	  }
+          if (argv[i][1] == ':') {
+            drv = toupper(argv[i][0]) - 'A';
+            strcpy(thiscwd,argv[i]+2);
+          } else {
+            drv = drive - 1; /* default drive */
+            strcpy(thiscwd,argv[i]);
+          }
 
-          /* printf("drive (0=A:)=%d dir=%s\n", drv, thiscwd); */
+          if (strrchr(thiscwd,'\\') == NULL) {
+            strcpy(thiscwd,"."); /* no dir given */
+          } else {
+            if (strrchr(thiscwd,'\\') != thiscwd) {
+              strrchr(thiscwd,'\\')[0] = '\0'; /* end string at last \\ */
+            } else {
+              strcpy(thiscwd,"\\"); /* dir is root dir */
+            }
+          }
 
-	  /* use findfirst/findnext to expand the filemask */
 
-	  done = findfirst (argv[i], &ffblk, 0);
+          /* use findfirst/findnext to expand the filemask */
 
-	  if (done)
-	    {
-	      /* We were not able to find a file. Display a message and
-		 set the exit status. */
+          done = _dos_findfirst (argv[i], 0, &ffblk);
 
-	      s = catgets (cat, 2, 1, "No such file");
-	      /* printf ("FIND: %s: %s\n", argv[i], s); */
-	      write(1,"FIND: ",6);
-	      write(1,argv[i],strlen(argv[i]));
-              write(1,": ",2);
-	      write(1,s,strlen(s));
-	      write(1,"\r\n",2);
-	    }
 
-	  while (!done)
-	    {
-	      /* We have found a file, so try to open it */
+          if (done)
+            {
+              /* We were not able to find a file. Display a message and
+                 set the exit status. */
 
-	      /* set cwd to the filemask */
+              s = catgets (cat, 2, 1, "No such file");
+              fprintf(stderr,"FIND: %s:%s\r\n", argv[i], s);
+            }
 
-	      /* _dos_setdrive (('A' - drv[0] + 1), &maxdrives); */
-	      /* this was the wrong way round! */
+          while (!done)
+            {
+              /* We have found a file, so try to open it */
 
-	      (void) setdisk (drv /* drv[0] - 'A' */); /* dir.h */
-	      
-	      getcwd(cwd2,MAXDIR); /* remember cwd here, too */
+              /* set cwd to the filemask */
 
-	      if (chdir (thiscwd) < 0) {
-		  s = catgets (cat, 2, 2, "Cannot change to directory");
-		  /* printf ("FIND: %s: %s\n", argv[i], s); */
-	          write(1,"FIND: ",6);
-	          write(1,argv[i],strlen(argv[i]));
-	          write(1,": ",2);
-	          write(1,s,strlen(s));
-	          write(1,"\r\n",2);
-	      };
+              /* _dos_setdrive (('A' - drv[0] + 1), &maxdrives); */
+              /* this was the wrong way round! */
 
-	      /* open the file, or not */
+              (void) _dos_setdrive (drv, &maxdrives); /* dir.h */
 
-	      if ((thefile = open (ffblk.ff_name, O_RDONLY)) != -1)
-		{
-		  /* printf ("---------------- %s\n", ffblk.ff_name); */
-	          write(1,"---------------- ",17);
-	          write(1,ffblk.ff_name,strlen(ffblk.ff_name));
-	          write(1,"\r\n",2);
-		  ret = find_str (needle, thefile, invert_search, count_lines, number_output, ignore_case);
-		  close (thefile);
-		}
+              getcwd(cwd2,CCHMAXPATH); /* remember cwd here, too */
 
-	      else
-		{
-		  s = catgets (cat, 2, 0, "Cannot open file");
-		  /* printf ("FIND: %s: %s\n", argv[i], s); */
-	          write(1,"FIND: ",6);
-	          write(1,argv[i],strlen(argv[i]));
-	          write(1,": ",2);
-	          write(1,s,strlen(s));
-	          write(1,"\r\n",2);
-		}
+              if (chdir (thiscwd) < 0) {
+                  if (strcmp(thiscwd, ".")) {
+                  s = catgets (cat, 2, 2, "Cannot change to directory");
+                  fprintf (stderr, "FIND: %s: %s\n", argv[i], s);
+                  }
+              };
 
-	      /* return the cwd */
+              /* open the file, or not */
 
-	      chdir (cwd2); /* restore cwd on THAT drive */
 
-	      /* _dos_setdrive (drive, &maxdrives); */
-	      (void) setdisk (drive - 1); /* dir.h */
-	      chdir (cwd);
+              if (_dos_open (ffblk.name, O_RDONLY, &thefile) == 0)
+                {
+                  fprintf (stderr, "---------------- %s\n", ffblk.name);
+                  ret = find_str (needle, thefile, invert_search, count_lines, number_output, ignore_case);
+                  _dos_close (thefile);
+                }
+              else
+                {
+                  s = catgets (cat, 2, 0, "Cannot open file");
+                  fprintf (stderr,"FIND: %s: %s\n", argv[i], s);
+                }
 
-	      /* find next file to match the filemask */
+              /* return the cwd */
 
-	      done = findnext (&ffblk);
-	    } /* while !done */
-	} /* for each argv */
+              chdir (cwd2); /* restore cwd on THAT drive */
+
+              /* _dos_setdrive (drive, &maxdrives); */
+              (void) _dos_setdrive (drive, &maxdrives); /* dir.h */
+              chdir (cwd);
+
+              /* find next file to match the filemask */
+
+              done = _dos_findnext (&ffblk);
+            } /* while !done */
+        } /* for each argv */
     } /* else */
 
   /* Done */
+
+  _dos_findclose (&ffblk);
 
   catclose (cat);
 
@@ -287,54 +265,13 @@ main (int argc, char **argv)
 }
 
 
-#define strWrite(st) write(1,st,strlen(st));
+#define strWrite(st) printf("%s",st);
 
 /* Show usage */
 
 void
 usage (nl_catd cat)
 {
-  char *s;
-
-  if (cat != cat) {}; /* avoid unused argument error message in kitten */
-
-  strWrite("FreeDOS Find, version 2.9\r\n"); /* NEW VERSION */
-  strWrite(
-    "GNU GPL - copyright 1994-2002 Jim Hall <jhall@freedos.org>\r\n");
-  strWrite(
-    "          copyright 2003 Eric Auer <eric@coli.uni-sb.de>\r\n\r\n");
-
-  s = catgets (cat, 0, 0, "Prints all lines of a file that contain a string");
-  strWrite("FIND: ");
-  strWrite(s);
-  strWrite("\r\n");
-
-  s = catgets (cat, 1, 1, "string");
-  strWrite("FIND [ /C ] [ /I ] [ /N ] [ /V ] \"");
-  strWrite(s);
-  strWrite("\" [ ");
-  s = catgets (cat, 1, 0, "file");
-  strWrite(s);
-  strWrite("... ]\r\n");
-
-  s = catgets (cat, 0, 1, "Only count the matching lines");
-  strWrite("  /C  ");
-  strWrite(s);
-  strWrite("\r\n");
-
-  s = catgets (cat, 0, 2, "Ignore case");
-  strWrite("  /I  ");
-  strWrite(s);
-  strWrite("\r\n");
-
-  s = catgets (cat, 0, 3, "Show line numbers");
-  strWrite("  /N  ");
-  strWrite(s);
-  strWrite("\r\n");
-
-  s = catgets (cat, 0, 4, "Print lines that do not contain the string");
-  strWrite("  /V  ");
-  strWrite(s);
-  strWrite("\r\n");
+  cmd_ShowSystemMessage(cmd_MSG_FIND_HELP,0L);
 }
 

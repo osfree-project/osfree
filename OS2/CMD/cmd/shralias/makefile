@@ -5,7 +5,7 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS = 1
-DIR = $(ROOT)$(SEP)bin$(SEP)os2
+DIR = $(FILESDIR)$(SEP)os2
 PROJ = shralias
 DESC = SHRALIAS.EXE
 OBJS = shralias.obj
@@ -24,6 +24,7 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 # Clean target
 clean : .symbolic
@@ -31,3 +32,7 @@ clean : .symbolic
     @if exist *.map @del /q *.map $(LOG)
     @if exist *.wmp @del /q *.wmp $(LOG)
     @if exist *.lnk @del /q *.lnk $(LOG)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(DIR)

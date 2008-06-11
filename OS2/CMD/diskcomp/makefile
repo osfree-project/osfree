@@ -1,18 +1,22 @@
-# $Id: makefile,v 1.5 2004/08/16 04:51:13 prokushev Exp $
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
+32_BITS  = 1
 
 DIR = $(ROOT)$(SEP)bin$(SEP)os2
-PROJ = dislcomp
+PROJ = diskcomp
 DESC = Diskette compare tool
-OBJS = diskcomp.obj misc.obj md5.obj drive.obj
-ADD_COPT = -i=..\include
-ADD_LIB = cmd_shared.lib,all_shared.lib
+#defines object file names in format objname.$(O)
+OBJS = diskcomp.$(O) misc.$(O) md5.$(O) drive.$(O)
+# defines additional options for C compiler
+ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).exe # $(DIR)$(SEP)$(PROJ).sym
 
-$(DIR)\$(PROJ).exe: $(OBJS)
+$(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
  @%append $^&.lnk FORMAT OS2 LX PMCOMPATIBLE
@@ -28,3 +32,4 @@ $(DIR)\$(PROJ).exe: $(OBJS)
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+

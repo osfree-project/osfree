@@ -1,4 +1,4 @@
-/*! 
+/*!
     $Id: cmd_MessageIDs.h,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $
 
     @file cmd_MessageIDs.h
@@ -61,9 +61,15 @@
 #define cmd_MSG_CLS_HELP                3067  /*!< Help screen for cls */
 #define cmd_MSG_ATTRIB_HELP             3092  /*!< Help screen for attrib */
 #define cmd_MSG_CHKDSK_HELP             3093  /*!< Help screen for chkdsk */
+#define cmd_MSG_DISKCOPY_HELP           3096L /*!< Help screen for diskcopy */
+#define cmd_MSG_FIND_HELP               3099L /*!< Help screen for find */
 #define cmd_MSG_FORMAT_HELP             3120  /*!< Help screen for format */
-#define cmd_MSG_RECOVER_HELP            3137  /*!< Help screen for recover */
+#define cmd_MSG_MODE_HELP               3133L /*!< Help screen for mode */
+#define cmd_MSG_PRINT_HELP              3136L /*!< Help screen for print */
+#define cmd_MSG_RECOVER_HELP            3137L /*!< Help screen for recover */
 #define cmd_MSG_TREE_HELP               3148L /*!< Help screen for tree */
+#define cmd_MSG_UNDELETE_HELP           3149L /*!< Help screen for undelete */
+#define cmd_MSG_KEYB_HELP               8080L /*!< Help screen for keyb */
 
 #define cmd_MSG_TREE_START              1479L /*!< Directory path listing */
 #define cmd_MSG_TREE_PATH               1480L /*!< Path:           %1 */

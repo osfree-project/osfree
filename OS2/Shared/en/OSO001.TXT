@@ -10683,6 +10683,16 @@ Usage:  ATTRIB [/A:[[-]rhsda] /D /E /P /Q /S -|+[AHRS]] [d:][path]filename...
     +H  Set hidden attribute       -H  Clear hidden attribute
     +R  Set read-only attribute    -R  Clear read-only attribute
     +S  Set system attribute       -S  Clear system attribute
+    ~A  Invert archive attribute   =A  Set archive arrtibure, clear rest
+    ~H  Invert hidden attribute    =H  Set hidden arrtibure, clear rest
+    ~R  Invert read-only attribute =R  Set read-only arrtibure, clear rest
+    ~S  Invert system attribute    =S  Set system arrtibure, clear rest
+
+if you specify more then one attrib operation, the higher priority has the last
+one eg.: -RH +S =A results in =A (wchich can be read as +A-RHS also)
+
+-- turns parameters scanning, so you can change attribs for eg "+s" file
+
 ;
 ;
 SYS3093I: Use the CHKDSK command to analyze directories and files,
@@ -17677,5 +17687,13 @@ SYS8078I: Country Code:    %0
 ;
 ;
 SYS8079I: FixPack version: %0
+;
+;
+SYS8080I:
+
+Selects a keyboard layout to replace the current keyboard layout for
+all OS/2, Presentation Manager, and DOS sessions.
+
+ KEYB layout
 ;
 ;

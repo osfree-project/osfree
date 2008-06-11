@@ -72,9 +72,3 @@ Begin
   WriteLn(Buf);
 End.
 
-{
-$Log: helpmsg.pas,v $
-Revision 1.1  2003/10/29 11:20:55  prokushev
-+ Import
-
-}

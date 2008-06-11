@@ -1,5 +1,4 @@
 /*!
-   $Id: tree.c,v 1.1 2003/12/12 18:18:47 prokushev Exp $
 
    @file tree.c
 

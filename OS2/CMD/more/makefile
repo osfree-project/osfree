@@ -40,4 +40,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2$(SEP)$(PROJ).com

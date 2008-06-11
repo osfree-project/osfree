@@ -7,7 +7,7 @@
 # A linking error comes up without "32_BITS":
 #    Error! E2064: cannot combine 32-bit segments (_DATA) with 16-bit segments (_BSS)
 # The link works with 32 bit.
-DIR = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
+DIR = $(FILESDIR)$(SEP)os2$(SEP)dll
 PROJ = jpos2dll
 DESC = CMD.EXE helper
 OBJS = jpos2dll.$(O)
@@ -32,9 +32,14 @@ $(PROJ).dll: $(OBJS)
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 # Clean target
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(DIR)

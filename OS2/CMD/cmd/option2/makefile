@@ -5,7 +5,7 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS = 1
-DIR = $(ROOT)$(SEP)bin$(SEP)os2
+DIR = $(FILESDIR)$(SEP)os2
 PROJ = option2
 DESC = OPTION2.EXE
 OBJS = option2.obj os2cfg.obj os2nb.obj $(%ROOT)$(SEP)OS2$(SEP)CMD$(SEP)cmd$(SEP)shared$(SEP)istring.obj
@@ -26,6 +26,7 @@ $(PROJ).exe: $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  $(RC) $(RCOPT) -i=..$(SEP)include option2.rc $@ $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 #@%append $^&.lnk LIBRARY $(LINKLIB)
 
@@ -39,3 +40,7 @@ clean : .symbolic
 #@if exist *.map $(DC)  *.map $(LOG)
 #@if exist *.wmp $(DC)  *.wmp $(LOG)
 #@if exist *.lnk $(DC)  *.lnk $(LOG)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(DIR)

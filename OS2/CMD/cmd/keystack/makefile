@@ -4,7 +4,7 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS = 1
-DIR = $(%ROOT)$(SEP)bin$(SEP)os2
+DIR = $(FILESDIR)$(SEP)os2
 PROJ = keystack
 DESC = KEYSTACK.EXE
 OBJS = keystack.obj
@@ -23,13 +23,8 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
-
-# Some strange error message about a to big stack segment came up, so I lowered it
-# with 128 bytes.
-#@%append $^&.lnk OPTION STACK=65536
-#@%append $^&.lnk $(ADD_LIB)
-#@%append $^&.lnk LIBRARY $(ADD_LIB)
 
 # Clean target
 clean : .symbolic
@@ -37,3 +32,7 @@ clean : .symbolic
     @if exist *.map @del /q *.map $(LOG)
     @if exist *.wmp @del /q *.wmp $(LOG)
     @if exist *.lnk @del /q *.lnk $(LOG)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(DIR)

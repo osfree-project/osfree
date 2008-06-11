@@ -10,12 +10,18 @@ DESC = Help message shower
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(PROJ).exe
+all: $(PROJ).exe .symbolic
+ @$(MAKE) $(MAKEOPT) install
 
 # Clean all
 
 clean: .symbolic
  -@del *.oo2 $(LOG)
+ -@del *.exe $(LOG)
  -@del *.ao2 $(LOG)
  -@del *.ppo $(LOG)
  -@del *.o   $(LOG)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

@@ -1,42 +1,43 @@
-# -*- mode: makefile -*-
-# $Source: /netlabs.cvs/osfree/src/cmd/xcopy/makefile,v $
-# $Revision: 1.1 $
-# $Date: 2003/10/20 13:59:42 $
-# $Author: prokushev $
 #
-# Makefile for creation of rcopy.exe
+# A Makefile for ANSI
+# (c) osFree project,
+# author, date
 #
-# $Log: makefile,v $
-# Revision 1.1  2003/10/20 13:59:42  prokushev
-# + XCOPY
-# * clean target
-#
-# Revision 1.2  1997/09/28 22:25:23  vitus
-# now uses compiler.mkf
-#
-# Revision 1.1  1997/01/22 00:40:13  vitus
-# Initial revision
-# ----------------------------------------
-#
-DEBUG *= 0
-COMPILER = GNUC
-.INCLUDE: ../../compiler.mkf
 
-.IF $(DEBUG) == 0
-CCFLAGS = $(_CFLAGS) -DNDEBUG
-.ELSE
-CCFLAGS = $(_CFLAGS)
-.ENDIF
-CLFLAGS = $(_CFLAGS)
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+
+32_BITS  = 1
+
+PROJ = xcopy
+DESC = eXtended copy tool
+#defines object file names in format objname.$(O)
+OBJS = rcopy.$(O) verbose.$(O)
+# defines additional options for C compiler
+ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
+
+!include $(%ROOT)/mk/all.mk
 
 
-all: rcopy.exe
+all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
 
-rcopy.exe : rcopy.$(OBJ) verbose.$(OBJ)
-	$(CL2PM) $(CLFLAGS) rcopy.$(OBJ) verbose.$(OBJ)
+$(PROJ).exe: $(OBJS)
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^&.lnk OPTION MAP=$^&.wmp
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
-rcopy.$(OBJ) : rcopy.c ../../tools/verbose.h
-	$(CC2) $(CCFLAGS) rcopy.c
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
 
-verbose.$(OBJ) : ../../tools/verbose.c ../../tools/verbose.h
-	$(CC2) $(CCFLAGS) ../../tools/verbose.c
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

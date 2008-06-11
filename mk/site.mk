@@ -7,8 +7,6 @@
 ROOT       = $(%ROOT)
 # OpenWatcom directory
 WATCOM     = $(%WATCOM)
-# Files from which HDD image is built
-FILESDIR   = $(ROOT)/files
 
 # Shell
 !     ifeq OS_SHELL 4OS/2
@@ -55,6 +53,9 @@ SEP        = \
 !else
 SEP        = /
 !endif
+
+# Files from which HDD image is built
+FILESDIR   = $(ROOT)$(SEP)files
 
 # Libraries dir (this is NOT standalone system libraries. This is path where
 # to store libs generated during build process)

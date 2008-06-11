@@ -1,42 +1,43 @@
-# Makefile for FIND (using Borland C or Turbo C)
-# Based on the CHOICE makefile by Tom Ehlert
+#
+# A Makefile for FIND
+# (c) osFree project,
+# author, date
+#
 
-# set 
-#   UPX=-rem 
-# if you dont want to UPX choice
-# if yu use upx: --8086 for 8086 compatibility, --best for smallest
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-# UPX=-rem
-UPX=upx --8086
+32_BITS  = 1
 
-############# WATCOM ########################
-# CC=wcl
-# CFLAGS=-oas -s -wx -we -zq -fm -fe=
+PROJ = find
+DESC = Find sting in file
+#defines object file names in format objname.$(O)
+OBJS = find.$(O) find_str.$(O) kitten.$(O)
+# defines additional options for C compiler
+ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 
-############# TURBO_C ########################
-# -w warn -M create map -f- no floating point -Z register optimize
-# -O jump optimize -k- no standard stack frome -K unsigned char
-# -exxx executable name (must be last) -mt tiny (default is small)
-# -N stack checking -a- byte alignment  -ln no default libs
-# -lt create .com file -lx no map file ...
-CC=tcc
-CFLAGS=-w -M -f- -Z -a- -O -k- -K -mt -ln -lt -e
+!include $(%ROOT)/mk/all.mk
 
-CFILES=find.c find_str.c
 
-# prf.c talloc.c tcdummy.c
+all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
 
-# targets:
+$(PROJ).exe: $(OBJS)
+ @%create $^&.lnk
+ @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk NAME $^&
+ @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^&.lnk OPTION MAP=$^&.wmp
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
-all: find.com
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
 
-# no space between -e and find (set exe file name)!
-# upx either find.com or find.exe, depends...
-
-find.com: $(CFILES) kitten.c makefile
-	$(CC) $(CFLAGS)find $(CFILES) kitten.c
-	$(UPX) find.com
-
-clean:
-	-del *.obj
-
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2

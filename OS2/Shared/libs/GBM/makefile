@@ -1,5 +1,3 @@
-# $Id: makefile,v 1.3 2004/08/21 14:49:22 prokushev Exp $
-#
 # Makefile for common shared libs
 
 
@@ -8,22 +6,22 @@
 
 32_BITS  = 1
 
-ADD_COPT = -i=..\include -dENABLE_IJG -dENABLE_PNG -dENABLE_TIF
+ADD_COPT = -i=..$(SEP)include -dENABLE_IJG -dENABLE_PNG -dENABLE_TIF
 
 
 !include $(%ROOT)/mk/all.mk
 
 
 
-all: $(ROOT)\lib\gbm.lib .SYMBOLIC
+all: $(ROOT)$(SEP)lib$(SEP)gbm.lib .SYMBOLIC
 
-OBJS = gbm.obj gbmpbm.obj  gbmpgm.obj gbmppm.obj gbmpnm.obj  &
-          gbmbmp.obj gbmtga.obj  gbmkps.obj gbmiax.obj gbmpcx.obj  &
-          gbmtif.obj gbmlbm.obj  gbmvid.obj gbmgif.obj gbmxbm.obj  &
-          gbmspr.obj gbmpsg.obj  gbmgem.obj gbmcvp.obj gbmjpg.obj  &
-          gbmpng.obj gbmxpm.obj  gbmxpmcn.obj gbmhelp.obj gbmmap.obj
+OBJS = gbm.$(O) gbmpbm.$(O)  gbmpgm.$(O) gbmppm.$(O) gbmpnm.$(O)  &
+          gbmbmp.$(O) gbmtga.$(O)  gbmkps.$(O) gbmiax.$(O) gbmpcx.$(O)  &
+          gbmtif.$(O) gbmlbm.$(O)  gbmvid.$(O) gbmgif.$(O) gbmxbm.$(O)  &
+          gbmspr.$(O) gbmpsg.$(O)  gbmgem.$(O) gbmcvp.$(O) gbmjpg.$(O)  &
+          gbmpng.$(O) gbmxpm.$(O)  gbmxpmcn.$(O) gbmhelp.$(O) gbmmap.$(O)
 
-$(ROOT)\lib\gbm.lib: $(OBJS)
+$(ROOT)$(SEP)lib$(SEP)gbm.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @wlib $@ +$< $(LOG)

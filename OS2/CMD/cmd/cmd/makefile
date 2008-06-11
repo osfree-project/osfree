@@ -4,7 +4,7 @@
 !include $(%ROOT)/mk/site.mk
 
 32_BITS = 1
-DIR = $(ROOT)$(SEP)bin$(SEP)os2
+DIR = $(FILESDIR)$(SEP)os2
 PROJ = cmd
 DESC = Command processor
 OBJS = main.$(O) parser.$(O) os2init.$(O) cmds.$(O) expand.$(O) eval.$(O) &
@@ -30,6 +30,7 @@ $(PROJ).exe: $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  @$(RC) 4os2.rc $@ $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 
 # Clean target
@@ -37,3 +38,7 @@ $(PROJ).exe: $(OBJS)
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(DIR)

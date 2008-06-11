@@ -15,8 +15,7 @@ DIRS = libs
 
 
 
-all: $(ROOT)$(SEP)lib$(SEP)all_shared.lib msg .SYMBOLIC
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+all: libs $(ROOT)$(SEP)lib$(SEP)all_shared.lib msg .SYMBOLIC
 
 OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
         all_dlist.obj all_pathmanipulation.obj all_performrecursiveaction.obj &
@@ -26,6 +25,9 @@ $(ROOT)$(SEP)lib$(SEP)all_shared.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @$(DC) $@
  @$(LIB) $(LIBOPT) $@ +$< $(LOG)
+
+libs: .symbolic
+ @$(MAKE) $(MAKEOPT) TARGET=all subdirs
 
 msg: .symbolic
  @$(if_not_exist_mkdir) msg $(LOG)

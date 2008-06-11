@@ -10,12 +10,12 @@
 32_BITS  = 1
 
 PROJ = comp
-DIR = $(ROOT)\bin\os2
+DIR = $(FILESDIR)$(SEP)os2
 DESC = Compare tool
 #defines object file names in format objname.$(O)
 OBJS = cmp.$(O)
 # defines additional options for C compiler
-ADD_COPT = -i=..\include
+ADD_COPT = -i=..$(SEP)include
 ADD_LIB = cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
@@ -32,6 +32,7 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 .IGNORE
 clean: .SYMBOLIC
@@ -40,4 +41,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+ $(CP) $(PROJ).exe $(DIR)$(SEP)$(PROJ).com

@@ -184,8 +184,8 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 .pas.exe: .symbolic
   $(SAY) Compiling $<
   $(PC) $(PCOPT) $<
-  $(CP) $^. $^:
-  $(DC) $^.
+  @if not -- == -$^:- $(CP) $^. $^:
+  @if not -- == -$^:- $(DC) $^.
 
 .rexx.exe: .AUTODEPEND
   $(SAY) Wrapping REXX code $<

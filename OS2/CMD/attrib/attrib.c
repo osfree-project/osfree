@@ -10,7 +10,6 @@
 
    @author Bartosz Tomasik <bart2@asua.org.pl>
 
-   @todo: add proper syntax description to system msg file
    @todo: return code, different when an error is occurinng and option
          that allows to break execution after first error /e ?
    @todo: add support of 4OS2 extensions

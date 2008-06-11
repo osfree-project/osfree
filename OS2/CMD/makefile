@@ -8,9 +8,43 @@
 !include $(%ROOT)/mk/site.mk
 
 # before build command line tools build "shared" libraries
-DIRS = shared minicmd ansi chkdsk eject format label more recover sysinstx &
-       cmd ver vol attrib cls comp bldlevel makeini &
-       mkdir tree zip tedit fdisk helpmsg fdiskpm # network syslevel
+DIRS = shared ansi &
+              attrib &
+              bldlevel &
+              chkdsk &
+              cls &
+              cmd &
+              comp &
+              diskcomp &
+              diskcopy &
+              eject &
+              fdisk &
+              fdiskpm &
+              find &
+              format &
+              help &
+              helpmsg &
+              keyb &
+              label &
+              lvm &
+              lvmgui &
+              makeini &
+              minicmd &
+              mkdir &
+              mode &
+              more &
+              print &
+              recover &
+              sort &
+              sysinstx &
+              syslevel &
+              tedit &
+              tree &
+              undelete &
+              ver &
+              vol &
+              xcopy &
+              zip # network
 
 !include $(%ROOT)/mk/all.mk
 

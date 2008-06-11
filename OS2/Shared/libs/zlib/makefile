@@ -18,7 +18,8 @@ all: $(ROOT)$(SEP)lib$(SEP)zlib.lib .SYMBOLIC
 
 OBJS = adler32.$(O) compress.$(O) deflate.$(O) &
        infback.$(O) inffast.$(O) inflate.$(O) &
-       inftrees.$(O) trees.$(O) uncompr.$(O) zutil.$(O)
+       inftrees.$(O) trees.$(O) uncompr.$(O) zutil.$(O) &
+       crc32.$(O)
 
 #            adler32.obj compress.obj &
 #            deflate.obj infblock.obj &

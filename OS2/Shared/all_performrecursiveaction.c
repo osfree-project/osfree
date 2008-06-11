@@ -555,7 +555,7 @@ lbl_recur:
 lbl_recur_back:
     // Maintain the dynamic stack
     ulLevel--;
-    stack_pop(phsStack, &ptsState);
+    stack_pop(phsStack, (void **)&ptsState);
     if(ptsState != NULL) {
         strcpy(dir, ptsState->start);
         if (dir[strlen(dir) - 1] != '\\') strcat(dir, "\\");

@@ -31,6 +31,7 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 .IGNORE
 clean: .SYMBOLIC
@@ -39,4 +40,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2$(SEP)$(PROJ).com
