@@ -15,6 +15,9 @@ DESC = INI file compiler
 #defines object file names in format objname.$(O)
 OBJS = xmakeini.$(O) linklist.$(O) stringh.$(O) xprf.$(O) xstring.$(O) &
        nls.$(O) dosh.$(O) prfh.$(O) dosh2.$(O) level.$(O)
+# defines additional options for C compiler
+ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -28,8 +31,6 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION caseexact
- @%append $^&.lnk ALIAS Dos16GetInfoSeg=DOS16GETINFOSEG
- @%append $^&.lnk import DOS16GETINFOSEG DOSCALLS.8
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) op v @$^&.lnk $(LOG)

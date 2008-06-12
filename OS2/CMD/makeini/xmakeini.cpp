@@ -21,6 +21,8 @@
 #include "xprf.h"
 #include "xstring.h"
 
+#include <cmd_shared.h> /* comand line tools' shared functions and defines*/
+
 /*
  *@@ SEDENTRY:
  *
@@ -386,8 +388,7 @@ int main(int argc, char* argv[])
     if (argc < 3)
     {
         printf("xmakeini V" BLDLEVEL_VERSION " built " __DATE__ "\n");
-        printf("(C) 2002 Ulrich Moeller\n");
-        printf("Licensed to Serenity Systems International\n");
+        printf("(C) 2002 Ulrich Moeller\n\n");
         printf("Syntax: xmakeini <inifile> [-s sedfile] [-d <dir>] <rcfile> [<rcfile> ...]\n");
         printf("with <inifile>: the INI file to create or update; must not be in use!\n");
         printf("     -s <sedfile>: a file in very simply sed syntax with string replacements\n");
@@ -395,6 +396,8 @@ int main(int argc, char* argv[])
         printf("        (regular expressions are not yet supported)\n");
         printf("     -d <dir>: a directory specification where to find the rc files (to\n");
         printf("        keep the command line short\n");
+        printf("     -v be verbose\n");
+        printf("     -q be quiet\n");
         printf("     <rcfile>: the resource script to apply (there can be several)\n");
         exit(-1);
     }
