@@ -5,6 +5,8 @@
 
 name init
 
+public  base
+
 public  boot_flags
 public  boot_drive
 public  install_partition
@@ -63,7 +65,7 @@ stage0_init:
 ;
 
 ; variables block size
-CONF_VARS_SIZE equ  8
+CONF_VARS_SIZE equ  20h
 
 ; this variable is filled with uFSD size,
 ; if stage0 is loaded concatenated with
@@ -72,10 +74,12 @@ CONF_VARS_SIZE equ  8
 uFSD_size     dw    0
 stage0_size   dw    0
 force_lba     db    0
+              org   10h
+base          dd    STAGE0_BASE  
 
-padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
-pad           db    padsize dup (0)
-
+;padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
+;pad           db    padsize dup (0)
+              org   20h
 real_start:
         ; Set segment registers
         ; to CS value, set stack

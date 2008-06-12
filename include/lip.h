@@ -99,6 +99,7 @@ typedef struct lip2
   int          __cdecl   (*u_diskctl) (int func, int drive, struct geometry *geometry, 
                                        int sector, int nsec, int addr);
   int          __cdecl   (*u_vbectl)  (int func, int mode_number, void *info);
+  struct term_entry * __cdecl (*u_termctl) (int termno);
   int          __cdecl   (*u_boot) (int type);
   int          __cdecl   (*u_load) (char *image, unsigned int size, char *load_addr, struct exe_params *p);
   int          __cdecl   (*u_parm) (int parm, int action, unsigned int *val);

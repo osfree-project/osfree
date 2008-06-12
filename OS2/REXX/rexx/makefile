@@ -1,24 +1,34 @@
 # $Id: makefile,v 1.4 2004/08/16 04:51:07 prokushev Exp $
 
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
+
+#ROOT=..\..\..
+
+32_BITS = 1
 
 DIR = $(ROOT)\bin\os2\dll
 PROJ = rexx
 DESC = Classic REXX
 OBJS = rexx.obj rexx16.obj
 ADD_COPT = -i=..\include -bd -s
+LINKLIB = rexx.lib
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/bootseq.mk
+
+#!include $(ROOT)\makefile.inc
 
 all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
 
 $(DIR)\$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(DIR)\$(PROJ).dll
- @%append $^&.lnk format    os2 lx dll initinstance terminstance
+ @%append $^&.lnk system os2v2 dll 
+# format    os2 lx dll initinstance terminstance
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk option    caseexact
  @%append $^&.lnk LIBRARY $(LINKLIB)
+ @%append $^&.lnk LIBPATH .
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk import
@@ -41,6 +51,7 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+
 
 # Clean all
 

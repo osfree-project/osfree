@@ -27,7 +27,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk import  Dos16GetInfoSeg DOSCALLS.8
+ @%append $^&.lnk import Dos16GetInfoSeg DOSCALLS.8
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

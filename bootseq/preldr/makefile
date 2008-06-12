@@ -75,12 +75,12 @@ STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
                    video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) bios.$(LO) end.$(LO)
 
-CONSOLE_OBJS     = termstrt.$(O) terminit.$(O) console.$(O) modesw-npt.$(O) consolec.$(O)
-CONSOLE_SH_OBJS  = termstrt.$(SO) terminit.$(SO) console.$(SO) modesw-npt.$(SO) consolec.$(SO)
-HERCULES_OBJS    = termstrt.$(O) terminit.$(O) hercules.$(O) modesw-npt.$(O)
-HERCULES_SH_OBJS = termstrt.$(SO) terminit.$(SO) hercules.$(SO) modesw-npt.$(SO)
-SERIAL_OBJS      = termstrt.$(O) terminit.$(O) serial.$(O) modesw-npt.$(O) terminfo.$(O) tparm.$(O)
-SERIAL_SH_OBJS   = termstrt.$(SO) terminit.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
+CONSOLE_OBJS     = termstrt.$(O) terminit-c.$(O) console-c.$(O) modesw-npt.$(O) consolec.$(O)
+CONSOLE_SH_OBJS  = termstrt.$(SO) terminit-c.$(SO) console-c.$(SO) modesw-npt.$(SO) consolec.$(SO)
+HERCULES_OBJS    = termstrt.$(O) terminit-h.$(O) hercules.$(O) console.$(O) modesw-npt.$(O)
+HERCULES_SH_OBJS = termstrt.$(SO) terminit-h.$(SO) hercules.$(SO) console.$(SO) modesw-npt.$(SO)
+SERIAL_OBJS      = termstrt.$(O) terminit-s.$(O) serial.$(O) modesw-npt.$(O) terminfo.$(O) tparm.$(O)
+SERIAL_SH_OBJS   = termstrt.$(SO) terminit-s.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
@@ -413,6 +413,30 @@ cfgparse-l.$(O): cfgparse.c
  $(CC) -dLOADER $(COPT) -fo=$^@ $<
 
 cfgparse.$(O): cfgparse.c
+
+terminit-c.$(O): terminit.c
+ $(CC) -dSHIFT=0 -dTERM_CONSOLE $(COPT) -fo=$^@ $<
+
+terminit-c.$(SO): terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(COPT) -fo=$^@ $<
+
+terminit-h.$(O): terminit.c
+ $(CC) -dSHIFT=0 -dTERM_HERCULES $(COPT) -fo=$^@ $<
+
+terminit-h.$(SO): terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_HERCULES $(COPT) -fo=$^@ $<
+
+terminit-s.$(O): terminit.c
+ $(CC) -dSHIFT=0 -dTERM_SERIAL $(COPT) -fo=$^@ $<
+
+terminit-s.$(SO): terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_SERIAL $(COPT) -fo=$^@ $<
+
+console-c.$(O): console.asm
+ $(ASM) -dSHIFT=0 -dTERM_CONSOLE $(ASMOPT) -fo=$^@ $<
+
+console-c.$(SO): console.asm
+ $(ASM) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(ASMOPT) -fo=$^@ $<
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<

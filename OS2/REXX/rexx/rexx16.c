@@ -27,6 +27,7 @@
 
 #include <rexxsaa.h>
 /* #include "rexx16.h"*/
+#include <stdio.h>
 
 #pragma pack(2)
 

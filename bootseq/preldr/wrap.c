@@ -49,7 +49,13 @@ u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec,
 int __cdecl
 u_vbectl(int func, int mode_number, void *info)
 {
-   return l->u_vbectl(func, mode_number, info);
+  return l->u_vbectl(func, mode_number, info);
+}
+
+struct term_entry * __cdecl
+u_termctl(int termno)
+{
+  return l->u_termctl(termno);
 }
 
 int __cdecl

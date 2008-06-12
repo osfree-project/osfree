@@ -3,6 +3,7 @@
  */
 
 #include <lip.h>
+#include "term.h"
 
 #pragma aux l1       "*"
 #pragma aux l2       "*"
@@ -24,7 +25,7 @@ void printd(unsigned long);
 
 void reloc(char *base, char *rel_file, unsigned long shift);
 void panic(char *msg, char *file);
-extern unsigned long relshift;
+extern unsigned int relshift;
 
 #endif
 
@@ -59,6 +60,8 @@ int __cdecl
 u_diskctl (int func, int drive, struct geometry *geometry, int sector, int nsec, int addr);
 int __cdecl
 u_vbectl(int func, int mode_number, void *info);
+struct term_entry * __cdecl
+u_termctl(int termno);
 int __cdecl
 u_boot (int type);
 int __cdecl

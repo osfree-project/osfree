@@ -89,11 +89,11 @@ extern struct term_entry *current_term;
 
 #endif /* ! STAGE1_5 */
 
+#ifdef  TERM_CONSOLE
 /* The console stuff.  */
 extern int console_current_color;
 void console_putchar (int c);
-
-#ifndef STAGE1_5
+#pragma aux console_current_color "*"
 int console_checkkey (void);
 int console_getkey (void);
 int console_getxy (void);
@@ -102,9 +102,18 @@ void console_cls (void);
 void console_setcolorstate (color_state state);
 void console_setcolor (int normal_color, int highlight_color);
 int console_setcursor (int on);
+#pragma aux console_putchar       "*"
+#pragma aux console_checkkey      "*"
+#pragma aux console_getkey        "*"
+#pragma aux console_getxy         "*"
+#pragma aux console_gotoxy        "*"
+#pragma aux console_cls           "*"
+#pragma aux console_setcolorstate "*"
+#pragma aux console_setcolor      "*"
+#pragma aux console_setcursor     "*"
 #endif
 
-#ifdef SUPPORT_SERIAL
+#ifdef TERM_SERIAL
 void serial_putchar (int c);
 int serial_checkkey (void);
 int serial_getkey (void);
@@ -112,16 +121,34 @@ int serial_getxy (void);
 void serial_gotoxy (int x, int y);
 void serial_cls (void);
 void serial_setcolorstate (color_state state);
+//#pragma aux serial_putchar       "*"
+//#pragma aux serial_checkkey      "*"
+//#pragma aux serial_getkey        "*"
+//#pragma aux serial_getxy         "*"
+//#pragma aux serial_gotoxy        "*"
+//#pragma aux serial_cls           "*"
+//#pragma aux serial_setcolorstate "*"
 #endif
 
-#ifdef SUPPORT_HERCULES
+#ifdef TERM_HERCULES
 void hercules_putchar (int c);
+int console_checkkey (void);
+int console_getkey (void);
 int hercules_getxy (void);
 void hercules_gotoxy (int x, int y);
 void hercules_cls (void);
 void hercules_setcolorstate (color_state state);
 void hercules_setcolor (int normal_color, int highlight_color);
 int hercules_setcursor (int on);
+//#pragma aux hercules_putchar       "*"
+#pragma aux console_checkkey       "*"
+#pragma aux console_getkey         "*"
+//#pragma aux hercules_getxy         "*"
+//#pragma aux hercules_gotoxy        "*"
+//#pragma aux hercules_cls           "*"
+//#pragma aux hercules_setcolorstate "*"
+//#pragma aux hercules_setcolor      "*"
+//#pragma aux hercules_setcursor     "*"
 #endif
 
 #endif /* ! GRUB_TERM_HEADER */

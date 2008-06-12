@@ -48,8 +48,8 @@
     #if defined(__IBMC__) || defined(__IBMCPP__)
         #define XWPENTRY _Optlink
     #else
-        // EMX or Watcom:
-        #define XWPENTRY _System
+    // EMX or Watcom
+        #define XWPENTRY _System 
     #endif
 
     // All these have been added with V0.9.12 (2001-05-18) [umoeller].

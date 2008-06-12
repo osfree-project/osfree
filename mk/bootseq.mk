@@ -36,7 +36,7 @@ CC        = wcc
 
 ASM       = @wasm -q
 LINKER    = @wlink op q
-LIB       = wlib
+LIB       = wlib -q
 
 MAKE      = wmake
 MAKEOPT   = -h

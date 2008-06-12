@@ -108,8 +108,8 @@ extern "C" {
                                                 const char *function);
         typedef XSTRINITCOPYDEBUG *PXSTRINITCOPYDEBUG;
     #else
-        void XWPENTRY xstrInitCopy(PXSTRING pxstr, const char *pcszSource, ULONG ulExtraAllocate);
-        typedef void XWPENTRY XSTRINITCOPY(PXSTRING pxstr, const char *pcszSource, ULONG ulExtraAllocate);
+        void XWPENTRY xstrInitCopy(PXSTRING pxstr, PCSZ pcszSource, ULONG ulExtraAllocate);
+        typedef void XWPENTRY XSTRINITCOPY(PXSTRING pxstr, PCSZ pcszSource, ULONG ulExtraAllocate);
         typedef XSTRINITCOPY *PXSTRINITCOPY;
     #endif
 
@@ -139,16 +139,17 @@ extern "C" {
     typedef ULONG XWPENTRY XSTRSET(PXSTRING pxstr, PSZ pszNew);
     typedef XSTRSET *PXSTRSET;
 
-    ULONG XWPENTRY xstrcpy(PXSTRING pxstr, const char *pcszSource, ULONG ulSourceLength);
-    typedef ULONG XWPENTRY XSTRCPY(PXSTRING pxstr, const char *pcszSource, ULONG ulSourceLength);
+    //ULONG XWPENTRY xstrcpy(PXSTRING pxstr, const char *pcszSource, ULONG ulSourceLength);
+    ULONG XWPENTRY xstrcpy(PXSTRING pxstr, PCSZ pcszSource, ULONG ulSourceLength);
+    typedef ULONG XWPENTRY XSTRCPY(PXSTRING pxstr, PCSZ pcszSource, ULONG ulSourceLength);
     typedef XSTRCPY *PXSTRCPY;
 
     ULONG XWPENTRY xstrcpys(PXSTRING pxstr, const XSTRING *pcstrSource);
     typedef ULONG XWPENTRY XSTRCPYS(PXSTRING pxstr, const XSTRING *pcstrSource);
     typedef XSTRCPYS *PXSTRCPYS;
 
-    ULONG XWPENTRY xstrcat(PXSTRING pxstr, const char *pcszSource, ULONG ulSourceLength);
-    typedef ULONG XWPENTRY XSTRCAT(PXSTRING pxstr, const char *pcszSource, ULONG ulSourceLength);
+    ULONG XWPENTRY xstrcat(PXSTRING pxstr, PCSZ pcszSource, ULONG ulSourceLength);
+    typedef ULONG XWPENTRY XSTRCAT(PXSTRING pxstr, PCSZ pcszSource, ULONG ulSourceLength);
     typedef XSTRCAT *PXSTRCAT;
 
     ULONG XWPENTRY xstrcatc(PXSTRING pxstr, CHAR c);

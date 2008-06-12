@@ -129,18 +129,18 @@ extern "C" {
                               const char *pcszEndChars, //  = "\x0d\x0a /-";
                               PSZ *ppszEnd);
 
-    BOOL XWPENTRY strhIsWord(const char *pcszBuf,
-                             const char *p,
+    BOOL XWPENTRY strhIsWord(PCSZ pcszBuf,
+                             PCSZ p,
                              ULONG cbSearch,
-                             const char *pcszBeginChars,
-                             const char *pcszEndChars);
+                             PCSZ pcszBeginChars,
+                             PCSZ pcszEndChars);
 
-    PSZ XWPENTRY strhFindWord(const char *pszBuf,
-                              const char *pszSearch,
-                              const char *pcszBeginChars,
-                              const char *pcszEndChars);
+    PSZ XWPENTRY strhFindWord(PCSZ pszBuf,
+                              PCSZ pszSearch,
+                              PCSZ pcszBeginChars,
+                              PCSZ pcszEndChars);
 
-    PSZ XWPENTRY strhFindEOL(const char *pcszSearchIn, ULONG *pulOffset);
+    PSZ XWPENTRY strhFindEOL(PCSZ pcszSearchIn, ULONG *pulOffset);
 
     PSZ XWPENTRY strhFindNextLine(PSZ pszSearchIn, PULONG pulOffset);
 

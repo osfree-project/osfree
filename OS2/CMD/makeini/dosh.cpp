@@ -4422,7 +4422,6 @@ STATIC PVOID    G_pvLocalInfoSeg = NULL;
 
 USHORT _Far16 _Pascal Dos16GetInfoSeg(PSEL pselGlobal,
                                       PSEL pselLocal);
-
 /*
  * GetInfoSegs:
  *

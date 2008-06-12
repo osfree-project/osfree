@@ -10,6 +10,7 @@
 
 #include <shared.h>
 
+#include "term.h"
 #include "fsys.h"
 #include "fsd.h"
 #include "struc.h"
@@ -22,7 +23,7 @@ unsigned long linux_text_len;
 char *linux_data_real_addr;
 char *linux_data_tmp_addr;
 
-unsigned long relshift;
+unsigned int relshift;
 
 #pragma aux mbi "*"
 #pragma aux extended_memory "*"
@@ -43,6 +44,7 @@ extern int __cdecl (*fsd_init)(lip1_t *l);
 
 int i;
 int  num_fsys = 0;
+int  num_term = 0;
 
 #ifndef STAGE1_5
 
@@ -68,18 +70,20 @@ extern struct gdtr gdtdesc;
 int  set_fsys(char *fsname);
 void fsys_by_num(int n, char *buf);
 
-// string table size;
-#define STRTAB_LEN 0x300
-
-// string table
-char strtab[STRTAB_LEN];
-// string table end position
-int  strtab_pos = 0;
-
 char lb[80];
 
+// string table size;
+#define STRTBL_LEN 0x800
+/* String table */
+char strtbl[STRTBL_LEN];
+/* End position in this table */
+char *strpos = strtbl;
+
 char *fsys_list[FSYS_MAX];
-char fsys_stbl[FSYS_MAX*10];
+char *term_list[FSYS_MAX];
+
+/* a structure with term blackbox entry points */
+struct term_entry trm, *t;
 
 // max count of file aliases
 #define MAX_ALIAS 0x10
@@ -102,14 +106,19 @@ _Packed struct {
     int  base;
   } mini;
   struct {
+    int  _default;
+    char **term_list;
+  } term;
+  struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
 } conf = {0x80, {0, fsys_list}, {"/os2ldr", 0x10000, 0},
-          {"/os2boot", 0x7c0},};
+          {"/os2boot", 0x7c0}, {0, term_list},};
 
 char *preldr_path = "/boot/freeldr/"; // freeldr path
 char *fsd_dir     = "fsd/";           // uFSD's subdir
+char *term_dir    = "term/";          // term   subdir
 char *cfg_file    = "preldr.ini";     // .INI file
 
 #endif
@@ -488,6 +497,43 @@ u_vbectl(int func, int mode_number, void *info)
   return 1;
 }
 
+/*  Set (if termno == num_term) or get (otherwise)
+ *  a pointer to term_entry structure, describing
+ *  the loaded terminal
+ */
+struct term_entry * __cdecl
+u_termctl(int termno)
+{
+  int i, n;
+  char term[0x100];
+  
+  if (termno == num_term)
+    return &trm;
+  else
+    n = termno;
+
+  /* build a path to term blackbox */
+  i = grub_strlen(preldr_path);
+  grub_strcpy(term, preldr_path);
+  grub_strcpy(term + i, term_dir);
+  i = grub_strlen(term);
+  grub_strcpy(term + i, conf.term.term_list[n]);
+  i = grub_strlen(term);
+  grub_strcpy(term + i, ".trm\0");
+
+  /* terminal name */
+  trm.name = conf.term.term_list[n];
+
+  if (blackbox_load(term, 2, &trm))
+  {
+    printmsg("terminal loaded\r\n");
+  }
+  else
+    return 0;
+
+  return &trm;
+}
+
 int open2 (char *filename)
 {
   char buf[0x100];
@@ -633,6 +679,7 @@ void setlip2(lip2_t *l2)
   l2->u_parm            = &u_parm;
   l2->u_diskctl         = &u_diskctl;
   l2->u_vbectl          = &u_vbectl;
+  l2->u_termctl         = &u_termctl;
   l2->u_msg             = &u_msg;
   l2->u_setlip          = &u_setlip;
 }
@@ -756,9 +803,9 @@ int process_cfg_line(char *line)
      if (abbrev(line, "list", 4))
      {
        line = skip_to(1, line);
-       grub_strcpy(fsys_stbl, line);
-       s = fsys_stbl;
-       r = fsys_stbl;
+       grub_strcpy(strpos, line);
+       s = strpos;
+       r = strpos;
        num_fsys = 0;
        while (*s) {
          while (*s && *s != ',') s++;
@@ -766,6 +813,7 @@ int process_cfg_line(char *line)
          fsys_list[num_fsys] = r;
          r = s + 1;
          s = r;
+         strpos = r;
          num_fsys++;
        }
      }
@@ -777,6 +825,39 @@ int process_cfg_line(char *line)
         else
           n = 0;
         conf.mufsd.ignorecase = n;
+     }
+     else
+     {
+     }
+
+     return 1;
+   }
+   else if (!grub_strcmp(section, "term"))
+   {
+     if (abbrev(line, "list", 4))
+     {
+       line = skip_to(1, line);
+       grub_strcpy(strpos, line);
+       s = strpos;
+       r = strpos;
+       num_term = 0;
+       while (*s) {
+         while (*s && *s != ',') s++;
+         *s = '\0';
+         term_list[num_term] = r;
+         r = s + 1;
+         s = r;
+         strpos = r;
+         num_term++;
+       }  
+     }
+     else if (abbrev(line, "default", 7))
+     {
+       line = skip_to(1, line);
+       if (safe_parse_maxint(&line, &n))
+         conf.term._default = n;
+       else
+         panic("process_cfg_line: incorrect default terminal!", "");
      }
      else
      {
@@ -853,48 +934,54 @@ int process_cfg_line(char *line)
    return 0;
 }
 
+/*  init default terminal blackbox
+ *
+ */
+void init_term(void)
+{
+  int n;
+
+  /* default terminal to init */
+  n = conf.term._default;
+  t = u_termctl(n);
+}
+
 /*  Load a pre-loader blackbox from file
  *  with specified path to a pair of buffers
  *  (in low memory and in high one) with
- *  specified number. A buffer is chosen
- *  from 1,2,3rd blackbox buffers.
+ *  specified number and init the blackbox. 
+ *  A buffer is chosen from 1,2,3rd
+ *  blackbox buffers.
+ *  p is a pointer to structure filled
+ *  by blackbox init function with
+ *  pointer to blackbox entry points.
  */
-int blackbox_load(char *path, int bufno)
+int blackbox_load(char *path, int bufno, void *p)
 {
-  char buf[EXT_LEN];
+  void (*blackbox_init)(void *p, unsigned int shift);
+  //char buf[EXT_LEN];
   char rel_file[0x100];
   char *lodest, *hidest;
   int  i, rc;
-
-  rc = freeldr_open(path);
-
-  if (rc)
-  {
-    rc = freeldr_read(buf, -1);
-  }
-  else
-  {
-    panic("Can't open blackbox file:", path);
-  }
 
   switch (bufno)
   {
     case 1:
     {
       hidest = (char *)EXT1HIBUF_BASE;
-      lodest = (char *)EXT1LOBUF_BASE;
+      lodest = (char *)EXT1LOBUF_BASE + relshift;
       break;
     }
     case 2:
     {
       hidest = (char *)EXT2HIBUF_BASE;
-      lodest = (char *)EXT2LOBUF_BASE;
+      lodest = (char *)EXT2LOBUF_BASE + relshift;
       break;
     }
     case 3:
     {
       hidest = (char *)EXT3HIBUF_BASE;
-      lodest = (char *)EXT3LOBUF_BASE;
+      lodest = (char *)EXT3LOBUF_BASE + relshift;
       break;
     }
     default:
@@ -903,18 +990,30 @@ int blackbox_load(char *path, int bufno)
     }
   }
 
-  grub_memmove(hidest, buf, EXT_LEN);
-  grub_memmove(lodest, buf, EXTLO_LEN);
+  rc = freeldr_open(path);
 
+  if (rc)
+  {
+    rc = freeldr_read(hidest, -1);
+  }
+  else
+  {
+    panic("Can't open blackbox file:", path);
+  }
+
+  /* copy realmode part to a low memory buffer */
+  grub_memmove(lodest, hidest, EXTLO_LEN);
   grub_memmove(rel_file, path, 0x100);
 
   /* change file extension to .rel */
-  i = lastpos('.', rel_file);
-  grub_strcpy(rel_file + i, ".rel");
+  i = lastpos('.', rel_file) - 1;
+  grub_strcpy(rel_file + i, ".rel\0");
 
   reloc(hidest, rel_file, (unsigned long)(hidest - EXT_BUF_BASE + SHIFT));
 
-
+  /* init blackbox */
+  blackbox_init = (void *)hidest;
+  blackbox_init(p, relshift);
 
   return 1;
 }
@@ -924,10 +1023,10 @@ int blackbox_load(char *path, int bufno)
  */
 int lastpos(char c, char *s)
 {
-  int i = grub_strlen(s);
-  while (s[i] != c) i--;
+  int i = grub_strlen(s) - 1;
+  while (i >= 0 && s[i] != c) i--;
 
-  return i;
+  return i + 1;
 }
 
 /*  Relocate a file in memory using its
@@ -1026,7 +1125,7 @@ int init(void)
     panic("Load error!", "");
   }
 
-  /* Show config params */
+  /* Show config params */ /*
   printmsg("\r\nConfig parameters:");
   printmsg("\r\ndriveletter = "); printb(conf.driveletter);
   printmsg("\r\nloader.multiboot = ");   printb(conf.loader.multiboot);
@@ -1050,6 +1149,16 @@ int init(void)
     printmsg(s);
     printmsg("\r\n");
   }
+  for (i = 0; i < num_term; i++)
+  {
+    printmsg(conf.term.term_list[i]);
+    printmsg("\r\n");
+  }
+  printd(conf.term._default);
+  __asm {
+    cli
+    hlt
+  }       */
 
   /* load os2ldr */
   fn = conf.loader.name;
@@ -1231,6 +1340,15 @@ int init(void)
 
   /* Init info in mbi structure */
   init_bios_info();
+  /* Init terminal */
+  init_term();
+
+  t->putchar('q'); 
+
+  __asm {
+    cli
+    hlt
+  }
 
   if (conf.loader.multiboot) {
     /* return to loader from protected mode */

@@ -27,16 +27,15 @@ EXT1HIBUF_BASE    equ 0x3e8000            ; blackbox high memory buffer1
 EXT2HIBUF_BASE    equ 0x3ea800            ; blackbox high memory buffer2
 EXT3HIBUF_BASE    equ 0x3ed000            ; blackbox high memory buffer3
 UFSD_BASE       equ 0x3e8000              ; EXT1HIBUF_BASE ; boot drive uFSD save buffer base
-TERM_BASE       equ 0x3ed000              ; EXT3HIBUF_BASE
+TERM_BASE       equ 0x3ea800              ; EXT3HIBUF_BASE
 
-;STACK_SP        equ 0x400000              ; stack
 STACK_SP        equ (0x72000 + SHIFT)     ; stack
 STACKLEN        equ 0x4000
 
-EXT1LOBUF_BASE  equ (0x72000 + SHIFT)     ; blackbox low memory buffer1
-EXT2LOBUF_BASE  equ (0x72800 + SHIFT)     ; blackbox low memory buffer2
-EXT3LOBUF_BASE  equ (0x73000 + SHIFT)     ; blackbox low memory buffer3
-TERMLO_BASE     equ (0x73000 + SHIFT)     ; terminal blackbox base (low)
+EXT1LOBUF_BASE  equ 0x72000               ; blackbox low memory buffer1
+EXT2LOBUF_BASE  equ 0x72800               ; blackbox low memory buffer2
+EXT3LOBUF_BASE  equ 0x73000               ; blackbox low memory buffer3
+TERMLO_BASE     equ 0x72800               ; terminal blackbox base (low)
 BOOTSEC_BASE    equ (0x75000 + SHIFT)     ; bootsector relocation base
 STAGE0_BASE     equ (0x75200 + SHIFT)     ; Stage0 load base
 EXT_BUF_BASE    equ (0x7c800 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)

@@ -19,13 +19,13 @@
  */
 
 #include <shared.h>
+
+#define  TERM_CONSOLE
 #include <term.h>
 
 /* These functions are defined in asm.S instead of this file:
    console_putchar, console_checkkey, console_getkey, console_getxy,
    console_gotoxy, console_cls, and console_nocursor.  */
-
-#pragma aux console_current_color "*"
 
 int console_current_color = A_NORMAL;
 static int console_standard_color = A_NORMAL;

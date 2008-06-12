@@ -8,6 +8,9 @@ name modesw
 
 .386p
 
+;public  base
+extrn    base       :dword
+
 public  gdt
 public  gdtdesc
 public  call_rm
@@ -26,19 +29,25 @@ include struc.inc
 include mb_etc.inc
 
 
-ifdef NO_PROT
-
-ifdef BLACKBOX
-  BASE    equ TERMLO_BASE
-else
-  BASE    equ REAL_BASE
-endif
-
-else
-
-  BASE    equ STAGE0_BASE
-
-endif
+;ifdef NO_PROT
+;
+;ifdef BLACKBOX
+;
+;if 1 ; term blackbox
+;  BASE    equ TERMLO_BASE
+;else
+;     ; other blackboxes
+;endif
+;  
+;else
+;  BASE    equ REAL_BASE
+;endif
+;
+;else
+;
+;  BASE    equ STAGE0_BASE
+;
+;endif
 
 _TEXT16  segment dword public 'CODE'  use16
 
@@ -60,7 +69,8 @@ call_pm proc near
         ; Disable interrupts
         cli
         ; Load GDTR
-        mov  eax, offset _TEXT:gdtdesc - BASE
+        mov  eax, offset _TEXT:gdtdesc
+        sub  eax, base
         lgdt fword ptr [eax]
         ; Enable protected mode
         mov  eax, cr0
@@ -82,7 +92,8 @@ protmode:
         mov  ss, ax
         ; do a far call to a 32-bit segment
         push esi
-        mov  esi, offset _TEXT:address - BASE
+        mov  esi, offset _TEXT:address
+        sub  esi, base
         mov  ax,  PROT_MODE_CSEG
         mov  word ptr  [esi + 4], ax
         mov  eax, offset _TEXT:pmode
@@ -98,7 +109,7 @@ protmode:
         and  al,  0feh
         mov  cr0, eax
         ; long jump to 16-bits entry point
-        mov  eax, BASE
+        mov  eax, base
         shr  eax, 4
         push ax
         push realmode
@@ -134,7 +145,7 @@ rmode_switch proc far
         and  al,  0feh
         mov  cr0, eax
         ; set segment registers
-        mov  eax, BASE
+        mov  eax, base
         shr  eax, 4
         mov  ds, ax
         mov  es, ax
@@ -185,6 +196,7 @@ rmode_switch endp
 
 ifdef NO_PROT
 
+;base        dd   BASE
 MODESW_SZ   equ  0x100
 padsize     equ  MODESW_SZ - ($ - start1)
 pad         db   padsize dup (0)

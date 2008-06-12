@@ -7,6 +7,7 @@ name linux
 
 .386p
 
+include fsd.inc
 include linux.inc
 include struc.inc
 include mb_info.inc
@@ -22,6 +23,8 @@ extrn gdt             :byte
 extrn gdtdesc         :fword
 extrn l               :dword
 extrn m               :dword
+
+public base
 
 public stop
 public start_kernel
@@ -76,8 +79,13 @@ _STACK   ends
 _TEXT16  segment dword public 'CODE' use16
 begin:
 
-        org 0h
+        org   0h
 start:
+        jmp   real_start
+        org   10h
+base    dd    REAL_BASE
+        org   20h
+real_start:
         ; Start loader
         mov   dl, bl
 

@@ -10,16 +10,25 @@ name console
 include fsd.inc
 include keyb.inc
 
+ifdef TERM_CONSOLE
+
 public console_putchar
-public console_getkey
-public console_checkkey
 public console_getxy
 public console_gotoxy
 public console_cls
 public console_setcursor
 
+endif
+
+public console_getkey
+public console_checkkey
+
 extrn  call_rm                  :near
+extrn  base32                   :dword
+
+ifdef TERM_CONSOLE
 extrn  console_current_color    :dword
+endif
 
 _TEXT16 segment dword public 'CODE' use16
 
@@ -92,6 +101,8 @@ lb2:
 
 	ret
 
+ifdef TERM_CONSOLE
+
 console_putchar_rm:
 	mov	al, dl
 	xor	bh, bh
@@ -152,6 +163,7 @@ ll1:	mov	ah, 0eh
 ll3:
 	retf
 
+endif   ; TERM_CONSOLE
 
 console_getkey_rm:
 	int	16h
@@ -181,6 +193,7 @@ notpending:
 pending:
 	retf
 
+ifdef TERM_CONSOLE
 
 console_getxy_rm:
         xor	bh, bh                ; set page to 0
@@ -228,10 +241,13 @@ console_setcursor2_rm:
 
 	retf
 
+endif   ; TERM_CONSOLE
 
 _TEXT16 ends
 
 _TEXT    segment dword public 'CODE'  use32
+
+ifdef TERM_CONSOLE
 
 ; 
 ;   void console_putchar (int c)
@@ -256,7 +272,7 @@ else
 	mov	ebx, console_current_color
 endif
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_putchar_rm
         push    eax
@@ -266,6 +282,7 @@ endif
 	popa
 	ret
 
+endif   ; TERM_CONSOLE
 
 ifndef STAGE1_5
 
@@ -281,7 +298,7 @@ console_getkey:
 	push	ebp
 
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_getkey_rm
         push    eax
@@ -313,7 +330,7 @@ console_checkkey:
 	xor	edx, edx
 
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_checkkey_rm
         push    eax
@@ -326,6 +343,7 @@ console_checkkey:
 
 	ret
 
+ifdef TERM_CONSOLE
 	
 ;
 ;   int console_getxy (void)
@@ -342,7 +360,7 @@ console_getxy:
 	push	ebx                    ; save EBX
 
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_getxy_rm
         push    eax
@@ -374,7 +392,7 @@ console_gotoxy:
 	mov	dh, [esp + 10h]        ; %dh = y
 
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_gotoxy_rm
         push    eax
@@ -401,7 +419,7 @@ console_cls:
 	push	ebx                    ; save EBX
 
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_cls_rm
         push    eax
@@ -434,7 +452,7 @@ console_setcursor:
 	jne	lw1
 
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_setcursor1_rm
         push    eax
@@ -451,7 +469,7 @@ lw1:
 	mov	cx, console_cursor_shape
 lw2:	
         ; enter real mode
-        mov     eax, TERM_BASE
+        mov     eax, base32
         shl     eax, 12
         mov     ax,  offset _TEXT16:console_setcursor2_rm
         push    eax
@@ -465,6 +483,8 @@ lw2:
 	pop	ebp
 
 	ret
+
+endif   ; TERM_CONSOLE
 
 endif
 
