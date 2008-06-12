@@ -29,19 +29,27 @@ ASMOPT    = -bt=DOS -ms $(ASM_DEFS)  $(ADD_ASMOPT)
 # Tools:
 #
 !ifdef 32_BITS
-CC        = wcc386
+CC        = @wcc386
+CPPC      = @wpp386
 !else
-CC        = wcc
+CC        = @wcc
+CPPC      = @wpp
 !endif
 
-ASM       = @wasm -q
-LINKER    = @wlink op q
-LIB       = wlib -q
+ASM       = @wasm
 
+LINKER    = @wlink
+LINKOPT   = op q $(ADD_LINKOPT)
+
+LIB       = @wlib
+LIBOPT    = -q
+
+# Don't add @ sign here. Will break build system
 MAKE      = wmake
 MAKEOPT   = -h
 
-PC       = ppc386
+PC        = ppc386
+PCOPT     = -Sg2h
 
 SED       = sed
 AWK       = awk

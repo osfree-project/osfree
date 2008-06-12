@@ -10,7 +10,7 @@ OBJS = rexx.obj rexx16.obj
 ADD_COPT = -i=..\include -bd -s #-nd=_DATA16 -nt=_TEXT16
 LINKLIB = rexx.lib
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/mk/all.mk
 
 all: rexx16.obj
 

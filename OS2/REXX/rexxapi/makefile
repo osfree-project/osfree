@@ -1,14 +1,19 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:08 prokushev Exp $
 
-ROOT=..\..\..
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-DIR = $(ROOT)\bin\os2\dll
+32_BITS = 1
+
+CLEANMASK = *.obj *.map *.err *.wmp *.lnk *.sym *.lib
+DIR = $(%ROOT)\files\os2\dll
 PROJ = rexxapi
 DESC = Classic REXX API
 OBJS = rexxapi.obj
 ADD_COPT = -i=..\include -bd -s
+LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib #,clibdls.lib
 
-!include $(ROOT)\makefile.inc
+!include $(%ROOT)/mk/all.mk
 
 all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
 
@@ -21,6 +26,8 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk LIBPATH $(%WATCOM)$(SEP)lib386$(PS)$(%WATCOM)$(SEP)lib386$(SEP)os2
+ @%append $^&.lnk LIBRARY $(LINKLIB)
  @%append $^&.lnk import
 # IBM Classic REXX functions
  @%append $^&.lnk   RexxDeregisterExit REGINA.RexxDeregisterExit,
@@ -114,13 +121,26 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
-# Clean all
+$(DIR)\$(PROJ).sym: $(PROJ).sym
+ $(CP) *.sym $(DIR)
 
+$(PROJ).sym: $(PROJ).map
+
+$(PROJ).map: $(PROJ).wmp
+ 
+# Clean all
 clean: .symbolic
- -@del /q *.obj $(LOG)
- -@del /q *.sbr $(LOG)
- -@del /q *.map $(LOG)
- -@del /q *.err $(LOG)
- -@del /q *.wmp $(LOG)
- -@del /q *.lnk $(LOG)
- -@del /q *.sym $(LOG)
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+
+
+# Clean all
+#
+#clean: .symbolic
+# -@del /q *.obj $(LOG)
+# -@del /q *.sbr $(LOG)
+# -@del /q *.map $(LOG)
+# -@del /q *.err $(LOG)
+# -@del /q *.wmp $(LOG)
+# -@del /q *.lnk $(LOG)
+# -@del /q *.sym $(LOG)

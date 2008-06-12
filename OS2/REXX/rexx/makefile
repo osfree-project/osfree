@@ -13,11 +13,9 @@ PROJ = rexx
 DESC = Classic REXX
 OBJS = rexx.obj rexx16.obj
 ADD_COPT = -i=..\include -bd -s
-LINKLIB = 
+LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib,clibdls.lib
 
 !include $(%ROOT)/mk/all.mk
-
-#!include $(ROOT)\makefile.inc
 
 all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
 
@@ -30,6 +28,9 @@ $(DIR)\$(PROJ).dll: lib $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION MIXED1632
+ @%append $^&.lnk OPTION QUIET
+ @%append $^&.lnk LIBPATH $(%WATCOM)$(SEP)lib386$(PS)$(%WATCOM)$(SEP)lib386$(SEP)os2
+ @%append $^&.lnk LIBRARY $(LINKLIB)
  @%append $^&.lnk import
  @%append $^&.lnk   RexxStart REGINA.RexxStart,
  @%append $^&.lnk   RexxVariablePool REGINA.RexxVariablePool,
@@ -48,20 +49,14 @@ $(DIR)\$(PROJ).dll: lib $(OBJS)
  # This function not found in any of OS/2 Toolkits
  @%append $^&.lnk   RXBREAKCLEANUP.7 RESIDENT
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
- @%append $^&.lnk LIBPATH $(%WATCOM)$(SEP)lib386$(PS)$(%WATCOM)$(SEP)lib386$(SEP)os2
- @%append $^&.lnk LIBRARY clib3r.lib
- @%append $^&.lnk LIBRARY math387r.lib
- @%append $^&.lnk LIBRARY emu387.lib
- @%append $^&.lnk LIBRARY ..$(SEP)interp$(SEP)rexx.lib
- @%append $^&.lnk LIBRARY clibdls.lib
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 lib: .SYMBOLIC 
- @wlib -n clibdls.lib
+ @wlib $(LIBOPT) -n clibdls.lib
 
 rexx16.obj: rexx16.c
- @$(MAKE) -f makefl16 all
+ @$(MAKE) $(MAKEOPT) -f makefl16 all
 
 $(DIR)\$(PROJ).sym: $(PROJ).sym
  $(CP) *.sym $(DIR)
