@@ -14,7 +14,7 @@ DIR = $(ROOT)$(SEP)bin$(SEP)os2
 DESC = INI file compiler
 #defines object file names in format objname.$(O)
 OBJS = xmakeini.$(O) linklist.$(O) stringh.$(O) xprf.$(O) xstring.$(O) &
-       nls.$(O) dosh.$(O) prfh.$(O)
+       nls.$(O) dosh.$(O) prfh.$(O) dosh2.$(O) level.$(O)
 
 !include $(%ROOT)/mk/all.mk
 
