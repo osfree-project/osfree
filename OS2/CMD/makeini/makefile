@@ -28,7 +28,8 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION caseexact
- @%append $^&.lnk import Dos16GetInfoSeg DOSCALLS.8
+ @%append $^&.lnk ALIAS Dos16GetInfoSeg=DOS16GETINFOSEG
+ @%append $^&.lnk import DOS16GETINFOSEG DOSCALLS.8
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

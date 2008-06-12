@@ -7,30 +7,29 @@
 
 32_BITS = 1
 
-DIR = $(ROOT)\bin\os2\dll
+CLEANMASK = *.obj *.map *.err *.wmp *.lnk *.sym *.lib
+DIR = $(%ROOT)\files\os2\dll
 PROJ = rexx
 DESC = Classic REXX
 OBJS = rexx.obj rexx16.obj
 ADD_COPT = -i=..\include -bd -s
-LINKLIB = rexx.lib
+LINKLIB = 
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/mk/all.mk
 
 #!include $(ROOT)\makefile.inc
 
 all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
 
-$(DIR)\$(PROJ).dll: $(OBJS)
+$(DIR)\$(PROJ).dll: lib $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk name      $(DIR)\$(PROJ).dll
- @%append $^&.lnk system os2v2 dll 
-# format    os2 lx dll initinstance terminstance
+ @%append $^&.lnk name      $(DIR)$(SEP)$(PROJ).dll
+ @%append $^&.lnk format    os2 lx dll initinstance terminstance
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk option    caseexact
- @%append $^&.lnk LIBRARY $(LINKLIB)
- @%append $^&.lnk LIBPATH .
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION MIXED1632
  @%append $^&.lnk import
  @%append $^&.lnk   RexxStart REGINA.RexxStart,
  @%append $^&.lnk   RexxVariablePool REGINA.RexxVariablePool,
@@ -46,20 +45,40 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @%append $^&.lnk   REXXSAA.9 RESIDENT,
  @%append $^&.lnk   RXHALTSET.10 RESIDENT,
  @%append $^&.lnk   RXTRACESET.11 RESIDENT,
-# This function not found in any of OS/2 Toolkits
+ # This function not found in any of OS/2 Toolkits
  @%append $^&.lnk   RXBREAKCLEANUP.7 RESIDENT
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
+ @%append $^&.lnk LIBPATH $(%WATCOM)$(SEP)lib386$(PS)$(%WATCOM)$(SEP)lib386$(SEP)os2
+ @%append $^&.lnk LIBRARY clib3r.lib
+ @%append $^&.lnk LIBRARY math387r.lib
+ @%append $^&.lnk LIBRARY emu387.lib
+ @%append $^&.lnk LIBRARY ..$(SEP)interp$(SEP)rexx.lib
+ @%append $^&.lnk LIBRARY clibdls.lib
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
+lib: .SYMBOLIC 
+ @wlib -n clibdls.lib
 
+rexx16.obj: rexx16.c
+ @$(MAKE) -f makefl16 all
+
+$(DIR)\$(PROJ).sym: $(PROJ).sym
+ $(CP) *.sym $(DIR)
+
+$(PROJ).sym: $(PROJ).map
+
+$(PROJ).map: $(PROJ).wmp
+ 
 # Clean all
-
 clean: .symbolic
- -@del /q *.obj $(LOG)
- -@del /q *.sbr $(LOG)
- -@del /q *.map $(LOG)
- -@del /q *.err $(LOG)
- -@del /q *.wmp $(LOG)
- -@del /q *.lnk $(LOG)
- -@del /q *.sym $(LOG)
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+
+# -@del /q *.obj $(LOG)
+# -@del /q *.sbr $(LOG)
+# -@del /q *.map $(LOG)
+# -@del /q *.err $(LOG)
+# -@del /q *.wmp $(LOG)
+# -@del /q *.lnk $(LOG)
+# -@del /q *.sym $(LOG)

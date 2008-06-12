@@ -13,7 +13,7 @@
 #define REXXSAA_INCLUDED
  
 #ifndef OS2_INCLUDED
-#include <os2.h>
+#include <os21x\os2.h>
 #endif
  
 #ifdef INCL_REXXSAA

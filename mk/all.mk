@@ -81,7 +81,6 @@ GENE2FS   = genext2fs
 
 SYS       = sys
 
-
 # A command to add a list of object
 # files to a linker script
 ADDFILES_CMD = @for %%i in ($(OBJS)) do @%append $^&.lnk FILE %%i
@@ -113,14 +112,14 @@ GENFDD    = $(REXX) genfdd.cmd
 FINDFILE  = $(REXX) findfile.cmd
 if_not_exist_mkdir = if_not_exist_mkdir.cmd
 
+CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist %i $(DC) %i $(BLACKHOLE)
+
 !ifeq ENV Windows
 NULL      = nul
 !else
 NULL      = \dev\nul
 !endif
 BLACKHOLE = 2>&1 >$(NULL)
-
-CLEAN_CMD    = @for %%i in ($(CLEANMASK)) do $(DC) %%i $(BLACKHOLE)
 
 !else ifeq UNIX TRUE             # UNIX
 
@@ -137,10 +136,11 @@ GENFDD    = genfdd
 FINDFILE  = findfile
 
 if_not_exist_mkdir = ./if_not_exist_mkdir.sh
-NULL      = /dev/null
-BLACKHOLE = 2>&1 >$(NULL)
 
 CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
+
+NULL      = /dev/null
+BLACKHOLE = 2>&1 >$(NULL)
 
 !endif
 

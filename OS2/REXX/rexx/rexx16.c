@@ -25,8 +25,9 @@
 
 */
 
+#include <os21x\os2.h>
 #include <rexxsaa.h>
-/* #include "rexx16.h"*/
+//#include "rexx16.h"
 #include <stdio.h>
 
 #pragma pack(2)
