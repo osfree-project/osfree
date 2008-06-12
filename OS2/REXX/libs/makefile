@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = rexxutil rxmath rxsock
+DIRS = rexxutil rxmath # rxsock
 
 !include $(%ROOT)/mk/all.mk
 
