@@ -1,0 +1,54 @@
+RegMath: math libraries for Regina
+
+RegMath consists of two libraries of transcendental functions which
+allow rexx programmers to easily and efficiently perform calculations in
+a wide array of application domains. In both libraries, the routines
+convert rexx variables into binary floating point format and use the
+system's math libraries to perform the calculation. This has the
+advantage of simplicity and speed, but limits precision to 16 digits.
+
+RxMath duplicates the interface of IBM's RxMath library. RexxMath is
+intended to duplicate the interface of a math library which is available
+for AmigaRexx. Which library you use depends largely on whether you need
+code which is compatible with RxMath or you need code which is
+compatible with AmigaRexx. The IBM routines provide more flexibility
+in the trig functions, but the other library has more functions over-all.
+
+In order to make this a `rexx math bumper pack', I have included John
+Brock's excellent Rexx implementation of most of the same routines.
+Because they are written in Rexx, they allow arbitrary precision based
+on the setting of numeric digits, which may be necessary in some
+applications. There is unfortunately a substantial performance penalty,
+and Rexx does not provide a convenient mechanism for loading libraries
+written in Rexx.
+
+I previously released RexxMath as an unsupported library. This release
+supercedes the earlier AMath, fixes one serious bug, and implements a
+new function which I missed previously.
+
+This is version 1.0.0. I will increment the third digit each time I do
+a bug-fix release. I will increment the second digit if I ever add a
+large number of new functions, however the only ones missing here are
+the Bessel functions, and I haven't used them in years.
+
+To compile the library using Microsoft C, type nmake -f Makefile.nt.
+To compile the library under FreeBSD, type make -f Makefile.bsd.
+To compile the library using EMX GCC under OS/2, type make -f Makefile.emx.
+To compile the library under another Unix system, you might try using
+the FreeBSD makefile as a departure point.
+
+To install on NT, copy rexxmath.dll and/or rxmath.dll to a directory in
+your path (e.g., the directory with regina.exe).
+
+To install on OS/2, copy rexxmath.dll and/or rxmath.dll to a directory
+in your LIBPATH. Note: do not install rxmath.dll if you have IBM's
+version. rexxmath.dll will work with IBM Rexx, though.
+
+To install on Unix systems, copy librexxmath.so/librxmath.so (or
+whatever they're called on your system :( to some central location and
+put that central location in your LD_LIBRARY_PATH, LIBPATH, SHLIB_PATH,
+or whatever it's called on your system. FreeBSD has a nice utility to
+set standard library searches, which you might want to investigate.
+
+Provided as-is in the hopes that it will be useful.
+-- patrick mcphee ptjm@interlog.com
