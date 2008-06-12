@@ -10,16 +10,16 @@ DIR = $(%ROOT)\files\os2\dll
 PROJ = rexxapi
 DESC = Classic REXX API
 OBJS = rexxapi.obj
-ADD_COPT = -i=..\include -bd -s
-LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib #,clibdls.lib
+ADD_COPT = -i=. -bd -s
+LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
 
-$(DIR)\$(PROJ).dll: $(OBJS)
+$(DIR)$(SEP)$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk name      $(DIR)\$(PROJ).dll
+ @%append $^&.lnk name      $(DIR)$(SEP)$(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initinstance terminstance
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk option    caseexact
@@ -117,11 +117,11 @@ $(DIR)\$(PROJ).dll: $(OBJS)
  @%append $^&.lnk   RXFUNCTIONREGISTER.46 RESIDENT,
  @%append $^&.lnk   RXEXITDROP.47 RESIDENT,
  @%append $^&.lnk   RXFUNCTIONDEREGISTER.48 RESIDENT
- @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
+ $(ADDFILES_CMD)
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
-$(DIR)\$(PROJ).sym: $(PROJ).sym
+$(DIR)$(SEP)$(PROJ).sym: $(PROJ).sym
  $(CP) *.sym $(DIR)
 
 $(PROJ).sym: $(PROJ).map
@@ -132,15 +132,3 @@ $(PROJ).map: $(PROJ).wmp
 clean: .symbolic
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
-
-
-# Clean all
-#
-#clean: .symbolic
-# -@del /q *.obj $(LOG)
-# -@del /q *.sbr $(LOG)
-# -@del /q *.map $(LOG)
-# -@del /q *.err $(LOG)
-# -@del /q *.wmp $(LOG)
-# -@del /q *.lnk $(LOG)
-# -@del /q *.sym $(LOG)

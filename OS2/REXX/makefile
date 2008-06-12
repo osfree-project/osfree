@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = interp rexx rexxapi # libs
+DIRS = interp rexx rexxapi libs
 
 !include $(%ROOT)/mk/all.mk
 

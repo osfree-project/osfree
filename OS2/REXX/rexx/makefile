@@ -3,23 +3,21 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-#ROOT=..\..\..
-
 32_BITS = 1
 
 CLEANMASK = *.obj *.map *.err *.wmp *.lnk *.sym *.lib
 DIR = $(%ROOT)\files\os2\dll
 PROJ = rexx
 DESC = Classic REXX
-OBJS = rexx.obj rexx16.obj
-ADD_COPT = -i=..\include -bd -s
+OBJS = rexx.$(O) rexx16.$(O)
+ADD_COPT = -i=. -bd -s
 LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib,clibdls.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)\$(PROJ).dll $(DIR)\$(PROJ).sym
+all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
 
-$(DIR)\$(PROJ).dll: lib $(OBJS)
+$(DIR)$(SEP)$(PROJ).dll: lib $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(DIR)$(SEP)$(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initinstance terminstance
@@ -48,17 +46,17 @@ $(DIR)\$(PROJ).dll: lib $(OBJS)
  @%append $^&.lnk   RXTRACESET.11 RESIDENT,
  # This function not found in any of OS/2 Toolkits
  @%append $^&.lnk   RXBREAKCLEANUP.7 RESIDENT
- @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
+ $(ADDFILES_CMD)
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 lib: .SYMBOLIC 
- @wlib $(LIBOPT) -n clibdls.lib
+ @$(LIB) $(LIBOPT) -n clibdls.lib
 
 rexx16.obj: rexx16.c
  @$(MAKE) $(MAKEOPT) -f makefl16 all
 
-$(DIR)\$(PROJ).sym: $(PROJ).sym
+$(DIR)$(SEP)$(PROJ).sym: $(PROJ).sym
  $(CP) *.sym $(DIR)
 
 $(PROJ).sym: $(PROJ).map
@@ -66,14 +64,7 @@ $(PROJ).sym: $(PROJ).map
 $(PROJ).map: $(PROJ).wmp
  
 # Clean all
+
 clean: .symbolic
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
-
-# -@del /q *.obj $(LOG)
-# -@del /q *.sbr $(LOG)
-# -@del /q *.map $(LOG)
-# -@del /q *.err $(LOG)
-# -@del /q *.wmp $(LOG)
-# -@del /q *.lnk $(LOG)
-# -@del /q *.sym $(LOG)
