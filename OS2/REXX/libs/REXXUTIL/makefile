@@ -17,7 +17,6 @@ DIR = $(%ROOT)$(SEP)files$(SEP)os2$(SEP)dll
 PROJ = rexxutil
 DESC = REXX Utilities API
 ADD_COPT = -i=. -bd -bm -wx -s -mf $(OPT) -6s -fp6 -bd
-#LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 
 OBJS = rexxfuncs.$(O) sysfile.$(O)   sysmiscfile.$(O) systextscreen.$(O) sysversion.$(O)  &
        sysdrive.$(O)  syseautil.$(O) sysobjects.$(O)  sysprocess.$(O)    syslang.$(O)     &
@@ -35,10 +34,6 @@ $(DIR)$(SEP)$(PROJ).dll: $(OBJS)
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
-# @%append $^&.lnk OPTION NODEFAULTLIBS
-# @%append $^&.lnk LIBPATH $(%WATCOM)$(SEP)lib386$(PS)$(%WATCOM)$(SEP)lib386$(SEP)os2
-# @%append $^&.lnk LIBRARY $(LINKLIB)
-# @%append $^&.lnk PATH $(MYDIR)(SEP)src
  @%append $^&.lnk export
  @%append $^&.lnk   SYSCLS.1                       = SysCls,
  @%append $^&.lnk   SYSCURPOS.2                    = SysCurPos,
@@ -128,6 +123,7 @@ $(DIR)$(SEP)$(PROJ).dll: $(OBJS)
 # Additional functions
  @%append $^&.lnk   RXMESSAGEBOX.86                = RxMessageBox,
  @%append $^&.lnk   SYSREPLACEOBJECT.87            = SysReplaceObject,
+# Math functions
  @%append $^&.lnk   SYSPI                          = SysPi,
  @%append $^&.lnk   SYSSQRT                        = SysSqrt,
  @%append $^&.lnk   SYSEXP                         = SysExp,

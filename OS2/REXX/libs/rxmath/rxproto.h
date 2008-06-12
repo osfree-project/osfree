@@ -37,9 +37,12 @@
 #endif
 
 #define INCL_REXXSAA
-#ifdef __EMX__	/* emx under OS/2 */
+#ifdef __EMX__  	/* emx under OS/2 */
 # include <os2.h>
 # define strcasecmp stricmp
+#elif defined(__WATCOM__)
+# include <os2.h>
+# include <rexxsaa.h>
 #else
 # include "rexxsaa.h"
 #endif

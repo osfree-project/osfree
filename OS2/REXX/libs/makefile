@@ -1,11 +1,24 @@
-# $Id: makefile,v 1.1.1.1 2003/10/04 08:34:54 prokushev Exp $
+#
+# A Makefile for OS/3 build tools
+# (c) osFree project,
+# valerius, 2006/10/30
+#
 
-#ROOT=..\..\..
-#!include $(ROOT)\makefile.inc
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-# Add other targets here upon their maturity
-TARGETS = rexxutil
+DIRS = rexxutil rxmath rxsock
 
-all
- for %%i in ($(TARGETS)) do cd %%i & $(MAKE) $(MAKEFLAGS) & cd ..
+!include $(%ROOT)/mk/all.mk
 
+all: .SYMBOLIC
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ #$(CLEAN_CMD)
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
