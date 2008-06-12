@@ -4420,8 +4420,13 @@ APIRET doshPerfClose(PDOSHPERFSYS *ppPerfSys)
 
 STATIC PVOID    G_pvLocalInfoSeg = NULL;
 
-USHORT _Far16 _Pascal Dos16GetInfoSeg(PSEL pselGlobal,
+
+APIRET16 APIENTRY16 DOS16GETINFOSEG(PSEL pselGlobal,
                                       PSEL pselLocal);
+
+#define Dos16GetInfoSeg DOS16GETINFOSEG
+//USHORT _Far16 _Pascal Dos16GetInfoSeg(PSEL pselGlobal,
+//                                      PSEL pselLocal);
 /*
  * GetInfoSegs:
  *

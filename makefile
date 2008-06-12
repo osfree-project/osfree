@@ -8,7 +8,11 @@
 !include ./mk/site.mk
 
 DIR  = $(%ROOT)$(SEP)bin
-DIRS = tools bootseq OS2 DOS
+# TOOLS target comes first because all of whem required for build process
+# DOS target comes first because many dos executables will be splited with
+#     os/2 executables
+#
+DIRS = tools bootseq DOS OS2
 
 !include ./mk/all.mk
 

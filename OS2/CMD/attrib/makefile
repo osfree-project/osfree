@@ -28,6 +28,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION STUB=$(FILESDIR)$(SEP)dos$(SEP)$(PROJ).exe
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
@@ -41,3 +42,4 @@ clean: .SYMBOLIC
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
  $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos

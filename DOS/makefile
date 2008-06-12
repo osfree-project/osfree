@@ -9,7 +9,7 @@
 
 # First directory must be UNI which produces C/C++ header files
 
-DIRS = WIN16
+DIRS = CMD WIN16
 
 
 !include $(%ROOT)/mk/all.mk

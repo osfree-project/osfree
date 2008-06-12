@@ -37,4 +37,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).com $(FILESDIR)$(SEP)dos
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos

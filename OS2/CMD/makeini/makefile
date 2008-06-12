@@ -10,7 +10,7 @@
 32_BITS  = 1
 
 PROJ = makeini
-DIR = $(ROOT)$(SEP)bin$(SEP)os2
+DIR = $(FILESDIR)$(SEP)os2
 DESC = INI file compiler
 #defines object file names in format objname.$(O)
 OBJS = xmakeini.$(O) linklist.$(O) stringh.$(O) xprf.$(O) xstring.$(O) &
@@ -32,7 +32,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk import DOS16GETINFOSEG DOSCALLS.8
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) op v @$^&.lnk $(LOG)
  @$(MAKE) $(MAKEOPT) install
 
 .IGNORE
