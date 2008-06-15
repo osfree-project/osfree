@@ -53,7 +53,7 @@ all dependent dlls and recursively loads and applies their fixups.
 Building
 
 To build, it needs GNU C++ compiler and GNU make. There are some assembler stuff in "execlx.c"
-in GAS format.
+in GAS format. (Some initial work with porting them to Open Watcom, there is now.)
 
 -----------------------------------------------------------------------------
 Example LX programs:
@@ -70,12 +70,45 @@ BUGS
 There are some bugs which happen if "DosPutMessage"
 accesses static strings inside the ELF .so file. I don't know yet how to handle that. 
 For now I just avoid using them. Suggestions are welcome ;)
+Ops! There is some problem with the generated exe (OW 1.6). The stack/data object has a wrong index.
+FIXED. It had incorrect pragma directive. Should work now.
+
+wdump mini33.exe
+
+...
+object # for initial EIP                          = 00000001H
+initial EIP                                       = 00000013H
+object # for initial ESP                          = 00000003H
+initial ESP                                       = 00008000H
+...
+# of objects in module                            = 00000002H
+...
+-------------------------------
+The number of objects is two and the "object # for initial ESP" points at 3! Very wrong. 
+Change it with a hex editor to 2. That is the second object that wdump shows.
+The LX Header starts at 0x80 (dec. 128) 
+The fields up to "object # for initial ESP" is:
+    byte order             (1 byte)
+    word order              1
+    linear EXE format level 4
+    cpu type                2
+    os type                 2
+    module version          4
+    module flags            4
+    # module pages             4
+    object # for initial EIP   4
+    initial EIP                4
+    object # for initial ESP   pos: 30 + 128 = 158 (157 zero based)
+      the four bytes looks like this: 00 00 00 03
+      change the 3 to an 2
+    
+    
 -----------------------------
 
 void puts(char *s); 
 
 #pragma data_seg("MYDATA", "STACK") 
-#pragma code_seg("MYDATA2", "STACK") 
+#pragma code_seg("DGROUP", "STACK") 
 
 
 
@@ -104,7 +137,7 @@ This is built with the following commands (old form with stars, non working):
 **** wlink sys os2v2 name .exe f mini3 imp puts_ LIBCM.362 op start=startup,st=32k,nod ***
 ****  -g=DGROUP
 
-wcc386 -bt=os2_v2 -i/mnt/c/Projekt/open_watcom_src_1.6/rel2/h/os2 -s -g=MYDATA2 mini33.c
+wcc386 -bt=os2v2 -i/mnt/c/Projekt/open_watcom_src_1.6/rel2/h/os2 -s -g=DGROUP mini33.c
 wlink sys os2v2 name mini33.exe f mini33 imp DosPutMessage MSG.5 op start=startup,st=32k,nod 
 */
 

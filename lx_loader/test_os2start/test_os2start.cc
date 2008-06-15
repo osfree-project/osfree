@@ -2,9 +2,9 @@
     LXLoader - Loads LX exe files or DLLs for execution or to extract information from.
     Copyright (C) 2007  Sven Rosén (aka Viking)
 
-    This program is free software: you can redistribute it and/or modify
+    This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,7 +13,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    Or see <http://www.gnu.org/licenses/>
 */
 
 
@@ -26,6 +28,29 @@
 #include <native_dynlink.h>
 #include <memmgr.h>
 
+#ifdef __WATCOMC__
+extern "C" {
+
+/* http://www.moses.uklinux.net/patches/lki-2.html#ss2.11
+   http://tldp.org/LDP/khg/HyperNews/get/syscall/syscall86.html
+*/
+
+#define  size_t unsigned long int
+#define off_t unsigned long int
+//_WCRTLINK extern 
+void *mmap( void *__addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset ){return 0;}
+
+//_WCRTLINK extern 
+int munmap( void *__addr, size_t __len ){return 0;}
+
+};
+    // Linux system call numbers
+// 	.long old_mmap		/* 90 */
+// 	.long sys_munmap    /* 91 */
+// 
+//     .long sys_mmap2     /* 192 */
+
+#endif
 
 /* Driver program for LXLoader. */ 
 

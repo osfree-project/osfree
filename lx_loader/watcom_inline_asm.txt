@@ -1,0 +1,186 @@
+
+//cguide.hlp  Open Watcom C/C++ User's Guide Help
+
+extern unsigned short *dbcs_table(void);
+#pragma aux dbcs_table = \
+"push ds" \
+"mov ax,6300h" \
+"int 21h" \
+"mov di,ds" \
+"pop ds" \
+value [di si] \
+modify [ax];
+
+// Exemple with variables
+static short _rowcol;
+static unsigned char _page;
+
+extern void BIOSSetCurPos(void);
+#pragma aux BIOSSetCurPos = \
+"mov dx,_rowcol" \
+"mov bh,_page" \
+"push bp" \
+"mov ah,2" \
+"int 10h" \
+"pop bp" \
+modify [ah bx dx];
+
+
+
+// Exemple with automatic variables
+void maon() {
+
+short _rowcol;
+unsigned char _page;
+
+extern void BIOSSetCurPos(void);
+#pragma aux BIOSSetCurPos = \
+"mov dx,_rowcol" \
+"mov bh,_page" \
+"push bp" \
+"mov ah,2" \
+"int 10h" \
+"pop bp" \
+modify [ah bx dx];
+
+_rowcol = (5 << 8) | 20;
+_page = 0;
+BIOSSetCurPos();
+printf("Hello world\n");
+}
+
+
+extern void save_reg_ebp_esp(void);
+#pragma aux save_reg_ebp_esp = \
+"mov esp_data, esp" \
+"mov ebp_data, ebp";
+
+// GCC
+
+       // Save the registers ebp and esp. 		
+		asm("movl %%esp, %[esp_data] \n" 
+			"movl %%ebp, %[ebp_data]" 		
+					: [ebp_data]  "=m" (ebp_data),
+					  [esp_data]  "=m" (esp_data)  );
+
+------------------------------------------------------
+
+//inline 
+void showRegDump() {
+	unsigned long int EDI,ESI,EIP,ESP,EBP;
+	unsigned short int DS,ES,FS,GS,CS,SS;
+	unsigned char FLG=0;
+	
+	asm("movl %%esp, %[ESP] \n" 
+		  "movl %%ebp, %[EBP] \n" 
+		  "movl %%edi, %[EDI] \n"	
+		  "movl %%esi, %[ESI] \n"	
+		  //"movl %%eip, %[EIP] \n"	
+		  //"movb %%fl, %[FLG] \n" 
+		  "movl %%ds, %[DS] \n"
+		  "movl %%es, %[ES] \n"
+		  "movl %%fs, %[FS] \n"
+		  "movl %%gs, %[GS] \n"
+		  "movl %%cs, %[CS] \n"
+		  "movl %%ss, %[SS]"
+					: [EBP]  "=m" (EBP),
+					  [EDI]  "=m" (EDI),
+					  [ESI]  "=m" (ESI),
+					  /*[EIP]  "=m" (EIP),
+					  [FLG]  "=m" (FLG),*/
+					  [DS]  "=m" (DS),
+					  [ES]  "=m" (ES),
+					  [FS]  "=m" (FS),
+					  [GS]  "=m" (GS),
+					  [CS]  "=m" (CS),
+					  [SS]  "=m" (SS),
+					  [ESP]  "=m" (ESP)  );
+	printf("ESI=%lx  EDI=%lx\n",ESI,EDI);
+	printf("DS=%x  ES=%x  FS=%x  GS=%x \n", DS, ES, FS, GS);
+	//printf("DS=%x  DSACC=****  DSLIM=********\n", DS);
+	//printf("ES=%x  ESACC=****  ESLIM=********\n", ES);
+	//printf("FS=%x  FSACC=****  FSLIM=********\n", FS);
+	//printf("GS=%x  GSACC=****  GSLIM=********\n", GS);
+	printf("CS:EIP=%x:%lx  CSACC=****  CSLIM=********\n", CS,EIP );
+	printf("SS:ESP=%x:%lx  SSACC=****  SSLIM=********\n", SS,ESP );
+	printf("EBP=%lx  FLG=%x\n", EBP, FLG);
+}
+
+/*---------------------------------------------------------------*/
+
+/*inline */
+void showRegDump_wat() {
+	unsigned long int _EDI,_ESI,_EIP,_ESP,_EBP;
+	unsigned short int _DS,_ES,_FS,_GS,_CS,_SS;
+	unsigned char _FLG=0;
+	
+	asm("movl %%esp, %[ESP] \n" 
+		  "movl %%ebp, %[EBP] \n" 
+		  "movl %%edi, %[EDI] \n"	
+		  "movl %%esi, %[ESI] \n"	
+		  /*"movl %%eip, %[EIP] \n"	
+		  "movb %%fl, %[FLG] \n" */
+		  "movl %%ds, %[DS] \n"
+		  "movl %%es, %[ES] \n"
+		  "movl %%fs, %[FS] \n"
+		  "movl %%gs, %[GS] \n"
+		  "movl %%cs, %[CS] \n"
+		  "movl %%ss, %[SS]"
+					: [EBP]  "=m" (EBP),
+					  [EDI]  "=m" (EDI),
+					  [ESI]  "=m" (ESI),
+					  /*[EIP]  "=m" (EIP),
+					  [FLG]  "=m" (FLG),*/
+					  [DS]  "=m" (DS),
+					  [ES]  "=m" (ES),
+					  [FS]  "=m" (FS),
+					  [GS]  "=m" (GS),
+					  [CS]  "=m" (CS),
+					  [SS]  "=m" (SS),
+					  [ESP]  "=m" (ESP)  );
+	printf("ESI=%lx  EDI=%lx\n",ESI,EDI);
+	printf("DS=%x  ES=%x  FS=%x  GS=%x \n", DS, ES, FS, GS);
+	/*printf("DS=%x  DSACC=****  DSLIM=********\n", DS);
+	printf("ES=%x  ESACC=****  ESLIM=********\n", ES);
+	printf("FS=%x  FSACC=****  FSLIM=********\n", FS);
+	printf("GS=%x  GSACC=****  GSLIM=********\n", GS);*/
+	printf("CS:EIP=%x:%lx  CSACC=****  CSLIM=********\n", CS,EIP );
+	printf("SS:ESP=%x:%lx  SSACC=****  SSLIM=********\n", SS,ESP );
+	printf("EBP=%lx  FLG=%x\n", EBP, FLG);
+}
+
+
+--------------------------------------------------
+
+asm("movl %[esp_data], %%eax \n"    /* Put old esp in eax */
+			"movl %[ebp_data], %%ebx \n"    /* Put old ebp in ebx */
+			"movl %[my_execute], %%ecx \n"
+			
+			"movl %%ebp, %%edx \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/
+			"movl %%eax, %%esp \n" /* Copy eax to esp. Stack pointer*/
+			"movl %%ebx, %%ebp \n"
+							/* We have changed the stack so it now points to out LX image.*/
+			"push %%edx \n" /* Put the value of our ebp on our new stack*/
+														/* "push $0xff \n" */
+			"call *%%ecx \n" /* Call our main() */
+					:  
+					  :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
+					   [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
+					   [my_execute] "m" (my_execute) );
+----------------------------------------------------------
+   extern void call_lx_main(void);
+   #pragma aux call_lx_main = \
+            "mov eax, esp_data \n"  \
+			"mov ebx, ebp_data \n"  \
+			"mov ecx, my_execute \n"  \
+			"mov edx, ebp \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/  \
+			"mov esp, eax \n" /* Copy eax to esp. Stack pointer*/  \
+			"mov ebp, ebx \n"  \
+							/* We have changed the stack so it now points to out LX image.*/  \
+			"push edx \n" ; /* Put the value of our ebp on our new stack*/  
+														/* "push $0xff \n" */
+			              /* "call *%%ecx \n"  Call our main() */
+					:  
+					  :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
+					   [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
+					   [my_execute] "m" (my_execute) );					   

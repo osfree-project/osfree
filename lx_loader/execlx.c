@@ -2,9 +2,9 @@
     LXLoader - Loads LX exe files or DLLs for execution or to extract information from.
     Copyright (C) 2007  Sven Rosén (aka Viking)
 
-    This program is free software: you can redistribute it and/or modify
+    This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,7 +13,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    Or see <http://www.gnu.org/licenses/>
 */
 
 
@@ -70,10 +72,24 @@ asm("movl %%esp, %[esp_data] \n"
 */					  
 /*inline */
 void showRegDump() {
-	unsigned long int EDI,ESI,EIP,ESP,EBP;
-	unsigned short int DS,ES,FS,GS,CS,SS;
-	unsigned char FLG=0;
+	unsigned long int _EDI,_ESI,_EIP,_ESP,_EBP;
+	unsigned short int _DS,_ES,_FS,_GS,_CS,_SS;
+	unsigned char _FLG=0;
 	
+	#ifdef __WATCOMC__
+	extern void show_regs(void);
+    #pragma aux show_regs = \
+          "mov _ESP, esp \n" \
+		  "mov _EBP, ebp \n" \
+		  "mov _EDI, edi \n" \
+		  "mov _ESI, esi \n" \
+		  "mov _DS,  ds  \n" \
+		  "mov _ES,  es  \n" \
+		  "mov _FS,  fs  \n" \
+		  "mov _GS,  gs  \n" \
+		  "mov _CS,  cs  \n" \
+		  "mov _SS,  ss";
+	#elif 1
 	asm("movl %%esp, %[ESP] \n" 
 		  "movl %%ebp, %[EBP] \n" 
 		  "movl %%edi, %[EDI] \n"	
@@ -86,27 +102,28 @@ void showRegDump() {
 		  "movl %%gs, %[GS] \n"
 		  "movl %%cs, %[CS] \n"
 		  "movl %%ss, %[SS]"
-					: [EBP]  "=m" (EBP),
-					  [EDI]  "=m" (EDI),
-					  [ESI]  "=m" (ESI),
+					: [EBP]  "=m" (_EBP),
+					  [EDI]  "=m" (_EDI),
+					  [ESI]  "=m" (_ESI),
 					  /*[EIP]  "=m" (EIP),
 					  [FLG]  "=m" (FLG),*/
-					  [DS]  "=m" (DS),
-					  [ES]  "=m" (ES),
-					  [FS]  "=m" (FS),
-					  [GS]  "=m" (GS),
-					  [CS]  "=m" (CS),
-					  [SS]  "=m" (SS),
-					  [ESP]  "=m" (ESP)  );
-	printf("ESI=%lx  EDI=%lx\n",ESI,EDI);
-	printf("DS=%x  ES=%x  FS=%x  GS=%x \n", DS, ES, FS, GS);
+					  [DS]  "=m" (_DS),
+					  [ES]  "=m" (_ES),
+					  [FS]  "=m" (_FS),
+					  [GS]  "=m" (_GS),
+					  [CS]  "=m" (_CS),
+					  [SS]  "=m" (_SS),
+					  [ESP]  "=m" (_ESP)  );
+	#endif
+	printf("ESI=%lx  EDI=%lx\n",_ESI,_EDI);
+	printf("DS=%x  ES=%x  FS=%x  GS=%x \n", _DS, _ES, _FS, _GS);
 	/*printf("DS=%x  DSACC=****  DSLIM=********\n", DS);
 	printf("ES=%x  ESACC=****  ESLIM=********\n", ES);
 	printf("FS=%x  FSACC=****  FSLIM=********\n", FS);
 	printf("GS=%x  GSACC=****  GSLIM=********\n", GS);*/
-	printf("CS:EIP=%x:%lx  CSACC=****  CSLIM=********\n", CS,EIP );
-	printf("SS:ESP=%x:%lx  SSACC=****  SSLIM=********\n", SS,ESP );
-	printf("EBP=%lx  FLG=%x\n", EBP, FLG);
+	printf("CS:EIP=%x:%lx  CSACC=****  CSLIM=********\n", _CS,_EIP );
+	printf("SS:ESP=%x:%lx  SSACC=****  SSLIM=********\n", _SS,_ESP );
+	printf("EBP=%lx  FLG=%x\n", _EBP, _FLG);
 }
 
 
@@ -189,13 +206,20 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
 					: [esp_data]  "=m" (esp_data): ); 
 		asm("movl %%ebp, %[ebp_data]" 		
 					: [ebp_data]  "=m" (ebp_data): ); */
-			
+		
+		#ifdef __WATCOMC__
+		extern void save_reg_ebp_esp(void);
+		#pragma aux save_reg_ebp_esp = \
+		"mov esp_data, esp" \
+		"mov ebp_data, ebp";
+		save_reg_ebp_esp();
+		#elif	1		
 		/* Save the registers ebp and esp. */		
 		asm("movl %%esp, %[esp_data] \n" 
 			"movl %%ebp, %[ebp_data]" 		
 					: [ebp_data]  "=m" (ebp_data),
 					  [esp_data]  "=m" (esp_data)  );
-					
+		#endif			
 		/*unsigned int main_int = (unsigned int) *((char *)main_ptr);*/
 		
 		/* Put the values of ebp and esp in our new stack. */
@@ -224,7 +248,21 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
 		
 		unsigned long int tmp_ptr_data_mmap_21 = (unsigned long int)data_mmap;
 		tmp_ptr_data_mmap_21 += esp-21;
-						
+		
+		#ifdef __WATCOMC__				
+		extern void call_lx_main(void);
+   		#pragma aux call_lx_main = \
+            "mov eax, esp_data \n"  \
+			"mov ebx, ebp_data \n"  \
+			"mov ecx, my_execute \n"  \
+			"mov edx, ebp \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/  \
+			"mov esp, eax \n" /* Copy eax to esp. Stack pointer*/  \
+			"mov ebp, ebx \n"  \
+							/* We have changed the stack so it now points to out LX image.*/  \
+			"push edx \n"  /* Put the value of our ebp on our new stack*/   \
+			"call [ecx] \n"; /* "call *%%ecx \n"  Call our main() */		/* "push $0xff \n" */
+		call_lx_main();
+		#elif 1	
 		/* Kopierar variabeln esp_data till esp! esp_data är en in-variabel.*/				
 		asm("movl %[esp_data], %%eax \n"    /* Put old esp in eax */
 			"movl %[ebp_data], %%ebx \n"    /* Put old ebp in ebx */
@@ -241,18 +279,27 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
 					  :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
 					   [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
 					   [my_execute] "m" (my_execute) );
-
+        #endif
 		/* OBS! Stacken är ändrad här !!!!! */
 		/* Funkar inte, my_execute är en variabel med en pekare i stacken som
 		 inte kan läsas efter att stacken ändrats! Baseras på ebp!
 		 Alla värden måste läsas in i register och sen placeras på rätt 
 		 ställen. */	
+		 
+		 #ifdef __WATCOMC__
+		 extern void clean_up(void);
+		 #pragma aux clean_up = \
+		    "pop ebp \n"  /* Restore base pointer so we don't crash as soon we access local variables.*/ \
+		    "pop ebx \n" \
+		    "pop ebx \n";
+		clean_up();
+		#elif 1		 
 		 int tcc_bugg_;
 		asm("pop %%ebp \n"  /* Restore base pointer so we don't crash as soon we access local variables.*/
 		    "pop %%ebx \n" 
 		    "pop %%ebx \n"
 					: /*: [tcc_bugg_] "m" (tcc_bugg_)*/ ); 
-					
+		#endif	
 		/*  my_execute("" , "" , 0, (unsigned int)lx_exe_mod );   */
 
 		printf("Slutförd exerkvering LX program**********************\n");
