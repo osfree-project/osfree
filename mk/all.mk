@@ -98,6 +98,8 @@ OS2_SHELL = $(OS_SHELL)          #
 RN  = @move                      # Rename command
 !else ifeq ENV Windows
 RN  = @ren                       # Rename command
+!else ifeq ENV WIN32
+RN  = @ren                       # Rename command
 !endif
 
 SEP       = \                  # dir components separator
@@ -115,6 +117,8 @@ if_not_exist_mkdir = if_not_exist_mkdir.cmd
 CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist %i $(DC) %i $(BLACKHOLE)
 
 !ifeq ENV Windows
+NULL      = nul
+!else ifeq ENV WIN32
 NULL      = nul
 !else
 NULL      = \dev\nul
@@ -137,7 +141,7 @@ FINDFILE  = findfile
 
 if_not_exist_mkdir = ./if_not_exist_mkdir.sh
 
-CLEAN_CMD    = $(DC) $(CLEANMASK) $(BLACKHOLE)
+CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist %i $(DC) %i $(BLACKHOLE)
 
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)

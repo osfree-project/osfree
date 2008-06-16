@@ -1,6 +1,6 @@
 /*****************************************************************************
     osfree.h
-    (C) 2004-2008 osFree project
+    (C) 2004-2007 osFree project
 
     WARNING! Automaticaly generated file! Don't edit it manually!
 *****************************************************************************/

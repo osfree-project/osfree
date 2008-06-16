@@ -15,7 +15,7 @@ if pos('/', translate(cfg, '/', '\')) == 0 then do
    if l > 0 then cfg = delstr(src, l + 1) || cfg
 end
 
-if stream(cfg, 'c', 'query exist') = '' 
+if stream(cfg, 'c', 'query exists') = '' 
   then signal usage
 
 /* Read config file */
@@ -44,10 +44,12 @@ if pos(':', imgdir) == 2 then
   imgdir = delstr(imgdir, 1, 2)
 imgdir1 = translate(imgdir, '/', '\')
 
+say os
+
 if os == 'OS/2' then do
   wosdir = '\binp'
 end; else
-if os == 'WINDOWS' | os == 'WINNT' then do
+if os == 'WINDOWS' | os == 'WINNT' | os == 'WIN32' then do
     wosdir = '\binnt'
 end; else
 if os == 'UNIX' | os == 'LINUX' then do
@@ -60,7 +62,7 @@ end
 tools = root || '\tools\bin'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
-include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\os2'
+include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\os2;' || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
 

@@ -141,11 +141,11 @@ LDFLAGS = LIBRARY TCPIP32
 !endif
 
 
-CPPFLAGS        = /dFGC /dOS2 /i=$(SRC)
+CPPFLAGS        = /bt=os2 /dFGC /dOS2 /i=$(SRC)
 
 DYN_CFLAGS = /dDYNAMIC
 
-CCFLAGS         = /4s /wx /zq /mf $(CFLAGS) $(CPPFLAGS)
+CCFLAGS         = /bt=os2 /4s /wx /zq /mf $(CFLAGS) $(CPPFLAGS)
 
 LINK            = wlink
 

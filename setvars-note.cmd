@@ -16,3 +16,11 @@ set BOOKSHELF=%WATCOM%\binp\help;%BOOKSHELF%
 set BEGINLIBPATH=%WATCOM%\binp\dll
 set LIBOS2=%WATCOM%\lib386\os2
 set LIB=%WATCOM%\lib286;%WATCOM%\lib286\dos
+rem IBM Classic REXX
+rem set OS_REXX=Classic
+rem IBM OREXX
+rem set OS_REXX=Object              
+rem Regina REXX
+rem set OS_REXX   = Regina              
+rem Special case
+set OS_REXX=c:\regina\rexx.exe 

@@ -39,6 +39,8 @@ REXX    = $OS_REXX
 UNIX = FALSE
 !else ifeq ENV Windows
 UNIX = FALSE
+!else ifeq ENV WIN32
+UNIX = FALSE
 !else ifeq ENV Linux
 UNIX = TRUE
 !else ifeq ENV FreeBSD
