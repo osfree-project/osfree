@@ -34,6 +34,26 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <string.h>
 #include <malloc.h>
 
+
+BOOL
+DeleteFile(/*LPTSTR*/char FAR * lpszName)
+{
+   return FALSE;
+// return ( MFS_DELETE(lpszName) != MFS_FAILURE );
+}
+
+void
+NewTrap(char *name)
+{
+        int     rc;
+        char    buf[128];
+
+        sprintf(buf, "Unimplemented API: %s\n\nPress OK to continue execution,\npress Cancel to quit application", name);
+        rc = MessageBox((HWND)NULL, buf, "Trap", MB_ICONEXCLAMATION | MB_OKCANCEL);
+        if ( rc == IDCANCEL )
+                FatalExit(0);
+}
+
 LPVOID
 WinMalloc(unsigned int size)
 {

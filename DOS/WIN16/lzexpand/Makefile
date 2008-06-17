@@ -12,7 +12,7 @@ DIR      = $(FILESDIR)$(SEP)dos
 PROJ     = lzexpand
 DESC     = Windows file expansion library
 OBJS     = lzexpand.$(O)
-#ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -bt=win -bd
 ADD_LINKOPT  = lib windows.lib lib clibs.lib
 
 !include $(%ROOT)/mk/all.mk
