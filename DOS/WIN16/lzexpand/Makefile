@@ -1,24 +1,51 @@
-#####################################################################
 #
-# @(#)Makefile	1.8
+# A Makefile for lzexpand.dll
+# (c) osFree project,
+# author, date
 #
-#  Copyright (c) 1995, Willows Software Inc.  All rights reserved.
-#
-#  Makefile for build SOUND dynamic link library
-# 
-#####################################################################
 
-include $(TWINDIR)/Makefile.config
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-TWIN_AUXINC     = -I$(TWINDIR)/win -I.
+#32_BITS  = 1
+DIR      = $(FILESDIR)$(SEP)dos
+PROJ     = lzexpand
+DESC     = Windows file expansion library
+OBJS     = lzexpand.$(O)
+#ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT  = lib windows.lib lib clibs.lib
 
-project		= liblzexpand$(TWIN_APISIZE)
-components	= LZExpand.o LZExpandBin.o LZExpand.res.o
-libraries	= 
-resource	= LZExpand
+!include $(%ROOT)/mk/all.mk
 
-include $(TWINDIR)/makeinclude/makefile$(TWIN_APISIZE).lib
+all: $(PROJ).dll .SYMBOLIC
 
-install: $(TWINLIB)/$(project).$(DLL_EXT)
+$(PROJ).dll: $(OBJS)
+ @%create $^&.lnk
+ @%append $^&.lnk name      $(PROJ).dll
+ @%append $^&.lnk format    windows dll
+ @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk export
+ @%append $^&.lnk       LZCOPY          .1,
+ @%append $^&.lnk       LZOPENFILE      .2,
+ @%append $^&.lnk       LZINIT          .3,
+ @%append $^&.lnk       LZSEEK          .4,
+ @%append $^&.lnk       LZREAD          .5,
+ @%append $^&.lnk       LZCLOSE         .6,
+ @%append $^&.lnk       LZSTART         .7,
+ @%append $^&.lnk       COPYLZFILE      .8,
+ @%append $^&.lnk       LZDONE          .9,
+ @%append $^&.lnk       GETEXPANDEDNAME .10
+ $(ADDFILES_CMD)
+ $(SAY) Linking $^@ $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
-depend:
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).dll $(DIR)

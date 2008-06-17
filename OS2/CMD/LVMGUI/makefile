@@ -1,27 +1,27 @@
 #
-# A main Makefile for osFree Command Line tools project
+# A Makefile for ANSI
 # (c) osFree project,
-# valerius, 2006/10/30
+# author, date
 #
 
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
+32_BITS  = 1
 
-DIRS =   attrib &
-         help
+PROJ = lvmgui
+DESC = GUI frontent for LVM
 
 !include $(%ROOT)/mk/all.mk
 
-all: .SYMBOLIC
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+all: install .SYMBOLIC
 
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ $(CP) $(PROJ).cmd $(FILESDIR)$(SEP)os2

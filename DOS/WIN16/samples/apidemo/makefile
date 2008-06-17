@@ -16,7 +16,6 @@ DESC = Simple Windows Application
 OBJS = msgcode.$(O) windemo.$(O)
 # defines additional options for C compiler
 ADD_COPT = -zW
-#LINKOPT = lib cmd_shared.lib,all_shared.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -41,4 +40,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos

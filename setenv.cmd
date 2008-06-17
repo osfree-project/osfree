@@ -1,4 +1,4 @@
-/*  Set environment variables 
+/*  Set environment variables
  */
 
 '@echo off'
@@ -6,7 +6,7 @@
 parse arg cfg
 parse upper source os addr src
 
-if cfg = '' 
+if cfg = ''
   then signal usage
 
 /* Build the full path to the config file */
@@ -15,7 +15,7 @@ if pos('/', translate(cfg, '/', '\')) == 0 then do
    if l > 0 then cfg = delstr(src, l + 1) || cfg
 end
 
-if stream(cfg, 'c', 'query exists') = '' 
+if stream(cfg, 'c', 'query exists') = ''
   then signal usage
 
 /* Read config file */
@@ -40,7 +40,7 @@ call stream cfg, 'c', 'close'
 
 env = 'ENVIRONMENT'
 
-if pos(':', imgdir) == 2 then 
+if pos(':', imgdir) == 2 then
   imgdir = delstr(imgdir, 1, 2)
 imgdir1 = translate(imgdir, '/', '\')
 
@@ -62,7 +62,7 @@ end
 tools = root || '\tools\bin'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
-include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\os2;' || '\h\win'
+include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\os2;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
 
@@ -78,7 +78,7 @@ end; else do
   beginlibpath = ''; libos2 = '';
 end
 
-lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || root || '\lib'
+lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || root || '\lib'
 
 vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',

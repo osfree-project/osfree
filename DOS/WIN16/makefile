@@ -9,7 +9,7 @@
 
 # First directory must be UNI which produces C/C++ header files
 
-DIRS = samples
+DIRS = samples lzexpand
 
 
 !include $(%ROOT)/mk/all.mk
