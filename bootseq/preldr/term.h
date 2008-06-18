@@ -61,24 +61,24 @@ struct term_entry
   /* The feature flags defined above.  */
   unsigned long flags;
   /* Put a character.  */
-  void (*putchar) (int c);
+  void __cdecl (*putchar) (int c);
   /* Check if any input character is available.  */
-  int (*checkkey) (void);
+  int __cdecl (*checkkey) (void);
   /* Get a character.  */
-  int (*getkey) (void);
+  int __cdecl (*getkey) (void);
   /* Get the cursor position. The return value is ((X << 8) | Y).  */
-  int (*getxy) (void);
+  int __cdecl (*getxy) (void);
   /* Go to the position (X, Y).  */
-  void (*gotoxy) (int x, int y);
+  void __cdecl (*gotoxy) (int x, int y);
   /* Clear the screen.  */
-  void (*cls) (void);
+  void __cdecl (*cls) (void);
   /* Set the current color to be used */
-  void (*setcolorstate) (color_state state);
+  void __cdecl (*setcolorstate) (color_state state);
   /* Set the normal color and the highlight color. The format of each
      color is VGA's.  */
-  void (*setcolor) (int normal_color, int highlight_color);
+  void __cdecl (*setcolor) (int normal_color, int highlight_color);
   /* Turn on/off the cursor.  */
-  int (*setcursor) (int on);
+  int __cdecl (*setcursor) (int on);
 };
 
 /* This lists up available terminals.  */
@@ -91,17 +91,17 @@ extern struct term_entry *current_term;
 
 #ifdef  TERM_CONSOLE
 /* The console stuff.  */
-extern int console_current_color;
-void console_putchar (int c);
+extern int __cdecl console_current_color;
+void __cdecl console_putchar (int c);
 #pragma aux console_current_color "*"
-int console_checkkey (void);
-int console_getkey (void);
-int console_getxy (void);
-void console_gotoxy (int x, int y);
-void console_cls (void);
-void console_setcolorstate (color_state state);
-void console_setcolor (int normal_color, int highlight_color);
-int console_setcursor (int on);
+int __cdecl console_checkkey (void);
+int __cdecl console_getkey (void);
+int __cdecl console_getxy (void);
+void __cdecl console_gotoxy (int x, int y);
+void __cdecl console_cls (void);
+void __cdecl console_setcolorstate (color_state state);
+void __cdecl console_setcolor (int normal_color, int highlight_color);
+int __cdecl console_setcursor (int on);
 #pragma aux console_putchar       "*"
 #pragma aux console_checkkey      "*"
 #pragma aux console_getkey        "*"
@@ -114,13 +114,13 @@ int console_setcursor (int on);
 #endif
 
 #ifdef TERM_SERIAL
-void serial_putchar (int c);
-int serial_checkkey (void);
-int serial_getkey (void);
-int serial_getxy (void);
-void serial_gotoxy (int x, int y);
-void serial_cls (void);
-void serial_setcolorstate (color_state state);
+void __cdecl serial_putchar (int c);
+int __cdecl serial_checkkey (void);
+int __cdecl serial_getkey (void);
+int __cdecl serial_getxy (void);
+void __cdecl serial_gotoxy (int x, int y);
+void __cdecl serial_cls (void);
+void __cdecl serial_setcolorstate (color_state state);
 //#pragma aux serial_putchar       "*"
 //#pragma aux serial_checkkey      "*"
 //#pragma aux serial_getkey        "*"
@@ -131,15 +131,15 @@ void serial_setcolorstate (color_state state);
 #endif
 
 #ifdef TERM_HERCULES
-void hercules_putchar (int c);
-int console_checkkey (void);
-int console_getkey (void);
-int hercules_getxy (void);
-void hercules_gotoxy (int x, int y);
-void hercules_cls (void);
-void hercules_setcolorstate (color_state state);
-void hercules_setcolor (int normal_color, int highlight_color);
-int hercules_setcursor (int on);
+void __cdecl hercules_putchar (int c);
+int __cdecl console_checkkey (void);
+int __cdecl console_getkey (void);
+int __cdecl hercules_getxy (void);
+void __cdecl hercules_gotoxy (int x, int y);
+void __cdecl hercules_cls (void);
+void __cdecl hercules_setcolorstate (color_state state);
+void __cdecl hercules_setcolor (int normal_color, int highlight_color);
+int __cdecl hercules_setcursor (int on);
 //#pragma aux hercules_putchar       "*"
 #pragma aux console_checkkey       "*"
 #pragma aux console_getkey         "*"

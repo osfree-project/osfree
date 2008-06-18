@@ -39,6 +39,12 @@ extern int __cdecl get_diskinfo_floppy (int drive,
                                 unsigned long *sectors);
 #endif
 
+void high_stack(void);
+void low_stack(void);
+
+#pragma aux high_stack "*"
+#pragma aux low_stack  "*"
+
 
 /* Read/write NSEC sectors starting from SECTOR in DRIVE disk with GEOMETRY
    from/into SEGMENT segment. If READ is BIOSDISK_READ, then read it,
@@ -80,7 +86,9 @@ biosdisk (int read, int drive, struct geometry *geometry,
          SEGMENT:ADDRESS.  */
       dap.buffer = segment << 16;
 
+      //low_stack();
       err = biosdisk_int13_extensions ((read + 0x42) << 8, drive, &dap);
+      //high_stack();
 
 /* #undef NO_INT13_FALLBACK */
 #ifndef NO_INT13_FALLBACK
@@ -93,7 +101,12 @@ biosdisk (int read, int drive, struct geometry *geometry,
           geometry->total_sectors = (geometry->cylinders
                                      * geometry->heads
                                      * geometry->sectors);
-          return biosdisk (read, drive, geometry, sector, nsec, segment);
+
+	  //low_stack();
+	  err = biosdisk (read, drive, geometry, sector, nsec, segment);
+	  //high_stack();
+
+          return err;
         }
 #endif /* ! NO_INT13_FALLBACK */
 
@@ -113,9 +126,11 @@ biosdisk (int read, int drive, struct geometry *geometry,
       if (cylinder_offset >= geometry->cylinders)
         return BIOSDISK_ERROR_GEOMETRY;
 
+      //low_stack();
       err = biosdisk_standard (read + 0x02, drive,
                                cylinder_offset, head_offset, sector_offset,
                                nsec, segment);
+      //high_stack();
     }
 
   return err;
@@ -146,7 +161,11 @@ get_cdinfo (int drive, struct geometry *geometry)
 
   grub_memset (&cdrp, 0, sizeof (cdrp));
   cdrp.size = sizeof (cdrp) - sizeof (cdrp.dummy);
+
+  //low_stack();
   err = biosdisk_int13_extensions (0x4B01, drive, &cdrp);
+  //high_stack();
+
   if (! err && cdrp.drive_no == drive)
     {
       if ((cdrp.media_type & 0x0F) == 0)
@@ -196,12 +215,18 @@ get_diskinfo (int drive, struct geometry *geometry)
       int version;
       unsigned long total_sectors = 0;
 
+      //low_stack();
       version = check_int13_extensions (drive);
+      //high_stack();
 
       if (drive >= 0x88 || version)
         {
           /* Possible CD-ROM - check the status.  */
-          if (get_cdinfo (drive, geometry))
+	  //low_stack();
+          err = get_cdinfo (drive, geometry);
+          //high_stack();
+
+          if (err)
             return 0;
         }
 
@@ -246,7 +271,10 @@ get_diskinfo (int drive, struct geometry *geometry)
              bytes. */
           drp.size = sizeof (drp) - sizeof (drp.dummy);
 
+          //low_stack();
           err = biosdisk_int13_extensions (0x4800, drive, &drp);
+          //high_stack();
+
           if (! err)
             {
               /* Set the LBA flag.  */
@@ -271,10 +299,13 @@ get_diskinfo (int drive, struct geometry *geometry)
 
       /* Don't pass GEOMETRY directly, but pass each element instead,
          so that we can change the structure easily.  */
+      //low_stack();
       err = get_diskinfo_standard (drive,
                                    &geometry->cylinders,
                                    &geometry->heads,
                                    &geometry->sectors);
+      //high_stack();
+
       if (err)
         return err;
 
@@ -292,18 +323,24 @@ get_diskinfo (int drive, struct geometry *geometry)
       /* floppy disk */
 
       /* First, try INT 13 AH=8h call.  */
+      //low_stack();
       err = get_diskinfo_standard (drive,
                                    &geometry->cylinders,
                                    &geometry->heads,
                                    &geometry->sectors);
+      //high_stack();
 
 #if 0
       /* If fails, then try floppy-specific probe routine.  */
       if (err)
+      {
+        //low_stack();
         err = get_diskinfo_floppy (drive,
                                    &geometry->cylinders,
                                    &geometry->heads,
                                    &geometry->sectors);
+        //high_stack();
+      }
 #endif
 
       if (err)

@@ -64,9 +64,9 @@ ok:
       mov  byte ptr boot_drive, dl ; boot drive number
 
       ; set loader stack
-      mov  oldstack, esp
-      mov  esp, offset DGROUP:loader_stack_top
-      mov  ebp, esp
+      ;mov  oldstack, esp
+      ;mov  esp, offset DGROUP:loader_stack_top
+      ;mov  ebp, esp
 
       assume cs:_TEXT
 

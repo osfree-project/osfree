@@ -33,7 +33,7 @@ static int console_normal_color = A_NORMAL;
 static int console_highlight_color = A_REVERSE;
 static color_state console_color_state = COLOR_STATE_STANDARD;
 
-void
+void __cdecl
 console_setcolorstate (color_state state)
 {
   switch (state) {
@@ -54,7 +54,7 @@ console_setcolorstate (color_state state)
   console_color_state = state;
 }
 
-void
+void __cdecl
 console_setcolor (int normal_color, int highlight_color)
 {
   console_normal_color = normal_color;

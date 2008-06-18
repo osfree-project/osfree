@@ -41,6 +41,7 @@ lip1_t *l1, lip1;
 lip2_t *l2, lip2;
 
 extern int __cdecl (*fsd_init)(lip1_t *l);
+int (*process_cfg_line)(char *line);
 
 int i;
 int  num_fsys = 0;
@@ -48,8 +49,14 @@ int  num_term = 0;
 
 #ifndef STAGE1_5
 
-#pragma aux  jmp_reloc "*"
+#pragma aux  jmp_reloc    "*"
+#pragma aux  high_stack   "*"
+#pragma aux  switch_stack_flag  "*"
+
 void jmp_reloc(unsigned long addr);
+void high_stack(void);
+void low_stack(void);
+extern unsigned char switch_stack_flag;
 
 #pragma aux  preldr_ds "*"
 #pragma aux  preldr_es "*"
@@ -497,7 +504,7 @@ u_vbectl(int func, int mode_number, void *info)
   return 1;
 }
 
-/*  Set (if termno == num_term) or get (otherwise)
+/*  Get (if termno == -1) or set (otherwise)
  *  a pointer to term_entry structure, describing
  *  the loaded terminal
  */
@@ -507,7 +514,7 @@ u_termctl(int termno)
   int i, n;
   char term[0x100];
   
-  if (termno == num_term)
+  if (termno == -1)
     return &trm;
   else
     n = termno;
@@ -760,7 +767,7 @@ char *trim(char *s);
 int process_cfg(char *cfg);
 char *skip_to (int after_equal, char *cmdline);
 
-int process_cfg_line(char *line)
+int process_cfg_line1(char *line)
 {
    int i, n;
    char *r, *s;
@@ -990,8 +997,10 @@ int blackbox_load(char *path, int bufno, void *p)
     }
   }
 
-  rc = freeldr_open(path);
+  //u_msg("!!");
 
+  rc = freeldr_open(path);
+  
   if (rc)
   {
     rc = freeldr_read(hidest, -1);
@@ -1002,6 +1011,7 @@ int blackbox_load(char *path, int bufno, void *p)
   }
 
   /* copy realmode part to a low memory buffer */
+  //grub_memmove(hidest, buf, EXT_LEN);
   grub_memmove(lodest, hidest, EXTLO_LEN);
   grub_memmove(rel_file, path, 0x100);
 
@@ -1116,9 +1126,10 @@ int init(void)
   grub_strcpy(cfg + rc, cfg_file);
 
   /* parse config file */
+  process_cfg_line = process_cfg_line1;
   if (!(rc = process_cfg(cfg)))
   {
-    printmsg("Error parsing loader config file!\r\n");
+    panic("Error parsing loader config file!", cfg);
   }
   else if (rc == -1)
   {
@@ -1340,15 +1351,24 @@ int init(void)
 
   /* Init info in mbi structure */
   init_bios_info();
+
   /* Init terminal */
   init_term();
 
-  t->putchar('q'); 
+  //t = u_termctl(2);
 
-  __asm {
-    cli
-    hlt
-  }
+  //t->putchar('q'); 
+  //t->gotoxy(0x10, 0x10);
+  //t->putchar('z');
+
+  //__asm {
+  //  cli
+  //  hlt
+  //}
+
+  /* switch stack to high memory */
+  //switch_stack_flag = 1;
+  //high_stack();
 
   if (conf.loader.multiboot) {
     /* return to loader from protected mode */

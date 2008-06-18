@@ -207,14 +207,14 @@ set_gdt:
 
         ; fix gdt descriptors base
         mov  eax, REAL_BASE
-        mov  [ebx][5*8].ds_baselo, ax
-        mov  [ebx][6*8].ds_baselo, ax
+        mov  [ebx][7*8].ds_baselo, ax
+        mov  [ebx][8*8].ds_baselo, ax
         ror  eax, 16
-        mov  [ebx][5*8].ds_basehi1, al
-        mov  [ebx][6*8].ds_basehi1, al
+        mov  [ebx][7*8].ds_basehi1, al
+        mov  [ebx][8*8].ds_basehi1, al
         ror  eax, 8
-        mov  [ebx][5*8].ds_basehi2, al
-        mov  [ebx][6*8].ds_basehi2, al
+        mov  [ebx][7*8].ds_basehi2, al
+        mov  [ebx][8*8].ds_basehi2, al
 
         mov  eax, offset _TEXT:gdtdesc
         lgdt fword ptr [eax]

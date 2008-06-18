@@ -11,7 +11,7 @@ ROOT=$(%ROOT)
 # Preprocessor defines
 #
 C_DEFS    = -zq -d__OS2__ -d__WATCOM__
-ASM_DEFS  = -d__WATCOM__
+ASM_DEFS  = -zq -d__WATCOM__
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in
@@ -71,7 +71,7 @@ AWK       = @awk
 DOX       = doxygen
 
 RC        = @wrc -q
-RCOPT = -bt=OS2
+RCOPT     = -bt=OS2
 
 MC        = mkmsgf
 

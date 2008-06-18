@@ -327,7 +327,8 @@ gloop2ret:
 ;
 get_code_end:
 	; will be the end of the bss
-        mov     eax, offset _TEXT:bss_end
+        mov     eax, LDR_BASE + 0x20000
+        ;mov     eax, offset _TEXT:bss_end
 	; Round up to the next word.
 	;shr	eax, 2
 	;inc	eax

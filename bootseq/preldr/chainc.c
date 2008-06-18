@@ -11,13 +11,14 @@
 
 #include <lip.h>
 #include "fsys.h"
-
+#include "term.h"
 
 void start_kernel(void);
 grub_error_t errnum;
 extern void stop(void);
 struct multiboot_info *m;
 lip2_t *l;
+struct term_entry *t;
 
 unsigned long boot_drive;
 unsigned long current_drive;
@@ -45,6 +46,7 @@ int check_lip(char *mods_addr, unsigned long mods_count)
     // magic number of 0x3badb002
     if (*((unsigned long *)l) == LIP2_MAGIC)
     {
+      t = l->u_termctl(-1);
       printf("boot_chain started\r\n");
       return 1;
     }

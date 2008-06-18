@@ -28,6 +28,9 @@ ifndef STAGE1_5
 
 public  ft
 public  jmp_reloc
+public  high_stack
+public  low_stack
+public  switch_stack_flag
 
 extrn   mu_Open      :far
 extrn   mu_Read      :far
@@ -288,14 +291,52 @@ install_partition  dd 0ffffffh
 
 ifndef STAGE1_5
 ft                 FileTable <>
+lo_stack_sp        dd        STACK_SP
+hi_stack_sp        dd        NEW_STACK_SP
+switch_stack_flag  db        0
 
 ;
 ; void jmp_reloc(unsigned long addr);
 ;
 jmp_reloc:
-        add [esp], eax
+        add   [esp], eax
         ret
 
+	assume  ds:_TEXT
+
+;
+; void high_stack(void);
+;
+high_stack:
+	mov   al, switch_stack_flag
+	cmp   al, 0
+	jz    skip1
+        pop   eax
+	mov   edx, esp
+        mov   lo_stack_sp, edx
+	mov   edx, hi_stack_sp
+	mov   esp, edx
+	push  eax
+skip1:
+        ret
+
+;
+; void low_stack(void);
+;
+low_stack:
+	mov   al, switch_stack_flag
+	cmp   al, 0
+	jz    skip2
+        pop   eax
+	mov   edx, esp
+        mov   hi_stack_sp, edx
+	mov   edx, lo_stack_sp
+	mov   esp, edx
+	push  eax
+skip2:
+        ret
+
+	assume  cs:_TEXT
 endif
 
 _TEXT   ends

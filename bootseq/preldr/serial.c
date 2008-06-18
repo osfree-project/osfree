@@ -20,17 +20,22 @@
 
 //#ifdef SUPPORT_SERIAL
 
+#define TERM_SERIAL
+
 #include <shared.h>
 #include <serial.h>
 #include <term.h>
 #include <terminfo.h>
 
-#pragma aux u_msg "*" 
+// to make libc happy
+struct term_entry *t;
 
-void u_msg(char c)
-{
-  serial_putchar(c);
-}
+//#pragma aux u_msg "*" 
+//
+//void u_msg(char c)
+//{
+//  serial_putchar(c);
+//}
 
 /* An input buffer.  */
 static char input_buf[8];
@@ -192,9 +197,9 @@ serial_hw_init (unsigned short port, unsigned int speed,
   
   /* Drain the input buffer.  */
   while (serial_checkkey () != -1)
-    (void) serial_getkey ();
+    serial_getkey ();
 
-  /* Get rid of TERM_NEED_INIT from the serial terminal.  */ /*      !!!!!!!!!
+  /* Get rid of TERM_NEED_INIT from the serial terminal.  */ /*
   for (i = 0; term_table[i].name; i++)
     if (grub_strcmp (term_table[i].name, "serial") == 0)
       {
@@ -310,7 +315,7 @@ int fill_input_buf (int nowait)
 }
 
 /* The serial version of getkey.  */
-int
+int __cdecl
 serial_getkey (void)
 {
   int c;
@@ -326,7 +331,7 @@ serial_getkey (void)
 }
 
 /* The serial version of checkkey.  */
-int
+int __cdecl
 serial_checkkey (void)
 {
   if (fill_input_buf (1))
@@ -336,7 +341,7 @@ serial_checkkey (void)
 }
 
 /* The serial version of grub_putchar.  */
-void
+void __cdecl
 serial_putchar (int c)
 {
   /* Keep track of the cursor.  */
@@ -412,13 +417,13 @@ serial_putchar (int c)
   serial_hw_put (c);
 }
 
-int
+int __cdecl
 serial_getxy (void)
 {
   return (serial_x << 8) | serial_y;
 }
 
-void
+void __cdecl
 serial_gotoxy (int x, int y)
 {
   keep_track = 0;
@@ -429,7 +434,7 @@ serial_gotoxy (int x, int y)
   serial_y = y;
 }
 
-void
+void __cdecl
 serial_cls (void)
 {
   keep_track = 0;
@@ -439,7 +444,7 @@ serial_cls (void)
   serial_x = serial_y = 0;
 }
 
-void
+void __cdecl
 serial_setcolorstate (color_state state)
 {
   keep_track = 0;

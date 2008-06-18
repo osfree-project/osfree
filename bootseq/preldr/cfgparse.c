@@ -40,7 +40,7 @@ int var_sprint(char *buf, char *str);
 #define BUFSIZE 0x400
 char buf[BUFSIZE];
 
-int process_cfg_line(char *line);
+extern int (*process_cfg_line)(char *line);
 
 void panic(char *msg, char *file)
 {

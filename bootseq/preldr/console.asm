@@ -166,6 +166,7 @@ ll3:
 endif   ; TERM_CONSOLE
 
 console_getkey_rm:
+        xor     ah, ah
 	int	16h
 
 	; real_to_prot uses eax

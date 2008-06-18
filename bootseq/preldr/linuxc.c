@@ -15,6 +15,7 @@
 #include <lip.h>
 #include "linux.h"
 #include "struc.h"
+#include "term.h"
 
 extern void stop(void);
 extern void big_linux_boot(void);
@@ -35,6 +36,7 @@ unsigned int cur_addr;
 
 grub_error_t errnum;
 lip2_t *l;
+struct term_entry *t;
 
 void init(void)
 {
@@ -389,6 +391,7 @@ int check_lip(char *mods_addr, unsigned long mods_count)
     // magic number of 0x3badb002
     if (*((unsigned long *)l) == LIP2_MAGIC)
     {
+      t = l->u_termctl(-1);
       printf("boot_linux started\r\n");
       return 1;
     }

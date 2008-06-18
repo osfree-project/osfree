@@ -9,7 +9,7 @@ name termstart
 public  set_gdt
 public  base
 
-extrn   base32        :near
+extrn   relshift      :dword
 
 extrn   gdt           :byte
 extrn   gdtdesc       :fword
@@ -70,7 +70,9 @@ set_gdt:
         rep  movsd
 
         ; fix gdt descriptors base
-        mov  eax, dword ptr base32
+        mov  eax, offset _TEXT:relshift
+        mov  eax, [eax]
+        add  eax, TERMLO_BASE
         mov  [ebx][5*8].ds_baselo, ax
         mov  [ebx][6*8].ds_baselo, ax
         ror  eax, 16

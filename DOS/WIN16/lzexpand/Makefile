@@ -13,16 +13,16 @@ PROJ     = lzexpand
 DESC     = Windows file expansion library
 OBJS     = lzexpand.$(O)
 ADD_COPT = -bt=win -bd
-ADD_LINKOPT  = lib windows.lib lib clibs.lib
+ADD_LINKOPT = lib clibs.lib,windows.lib,clibdls.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(PROJ).dll .SYMBOLIC
+all: $(PROJ).dll lib .SYMBOLIC
 
 $(PROJ).dll: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk format    windows dll
+ @%append $^&.lnk system    windows dll
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
@@ -40,6 +40,9 @@ $(PROJ).dll: $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  @$(MAKE) $(MAKEOPT) install
+
+lib: .SYMBOLIC 
+ @$(LIB) $(LIBOPT) -n clibdls.lib
 
 .IGNORE
 clean: .SYMBOLIC

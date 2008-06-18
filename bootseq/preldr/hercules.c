@@ -20,6 +20,8 @@
 
 //#ifdef SUPPORT_HERCULES
 
+#define TERM_HERCULES
+
 #include <shared.h>
 #include <hercules.h>
 #include <term.h>
@@ -63,7 +65,7 @@ herc_set_cursor (void)
   outb (0x80, 0);
 }
 
-void
+void __cdecl
 hercules_putchar (int c)
 {
   switch (c)
@@ -117,7 +119,7 @@ hercules_putchar (int c)
     }
 }
 
-void
+void __cdecl
 hercules_cls (void)
 {
   int i;
@@ -130,13 +132,13 @@ hercules_cls (void)
   herc_set_cursor ();
 }
 
-int
+int __cdecl
 hercules_getxy (void)
 {
   return (herc_x << 8) | herc_y;
 }
 
-void
+void __cdecl
 hercules_gotoxy (int x, int y)
 {
   herc_x = x;
@@ -144,7 +146,7 @@ hercules_gotoxy (int x, int y)
   herc_set_cursor ();
 }
 
-void
+void __cdecl
 hercules_setcolorstate (color_state state)
 {
   switch (state) {
@@ -165,7 +167,7 @@ hercules_setcolorstate (color_state state)
   herc_color_state = state;
 }
 
-void
+void __cdecl
 hercules_setcolor (int normal_color, int highlight_color)
 {
   herc_normal_color = normal_color;
@@ -174,7 +176,7 @@ hercules_setcolor (int normal_color, int highlight_color)
   hercules_setcolorstate (herc_color_state);
 }
 
-int
+int __cdecl
 hercules_setcursor (int on)
 {
   int old_state = herc_cursor_state;

@@ -4,6 +4,7 @@
  
 #include "term.h"
 #include "fsd.h"
+
 #pragma aux relshift    "*"
 #pragma aux base        "*"
 #pragma aux base32      "*"
@@ -45,7 +46,7 @@ void init(struct term_entry *t, unsigned int shift)
   t->setcursor     = &hercules_setcursor;
 #else
 #ifdef TERM_SERIAL
-  t->flags         = TERM_NEED_INIT;
+  t->flags         = 0; //TERM_NEED_INIT;
   t->putchar       = &serial_putchar;
   t->checkkey      = &serial_checkkey;
   t->getkey        = &serial_getkey;

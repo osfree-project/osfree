@@ -320,15 +320,26 @@ _DATA   segment dword public 'DATA' use32
 
 CR0_PE_ON       equ 01h
 CR0_PE_OFF      equ 0fffffffeh
+
+; flat selectors
 PROT_MODE_CSEG  equ 08h
 PROT_MODE_DSEG  equ 10h
 
+; 16-bit selectors
 ifndef NO_PROT
+; selectors for real-mode part of pre-loader
 PSEUDO_RM_CSEG  equ 18h
 PSEUDO_RM_DSEG  equ 20h
 else
+ifdef BLACKBOX
+; selectors for real-mode part of blackboxes
 PSEUDO_RM_CSEG  equ 28h
 PSEUDO_RM_DSEG  equ 30h
+else
+; selectors for real-mode part of multiboot kernels
+PSEUDO_RM_CSEG  equ 38h
+PSEUDO_RM_DSEG  equ 40h
+endif
 endif
 
 ;STACKOFF        equ (2000h - 10h)
@@ -368,8 +379,10 @@ gdt     desc  <0,0,0,0,0,0>                  ;
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
 ifdef NO_PROT
-        desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS
-        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
+        desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \--|
+        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /----for blackboxes
+        desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \----for multiboot kernels
+        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /--|
 endif
 
 gdtsize equ   ($ - gdt)                      ; GDT size
