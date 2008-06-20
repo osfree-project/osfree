@@ -18,7 +18,7 @@ extrn call_rm         :near
 extrn cmain           :near
 extrn exe_end         :near
 extrn bss_end         :near
-extrn gdt             :byte
+extrn gdtsrc          :byte
 extrn gdtdesc         :fword
 extrn l               :dword
 extrn m               :dword
@@ -181,19 +181,20 @@ loop1:
 set_gdt:
         ; set 16-bit segment (_TEXT16) base
         ; in GDT for protected mode
-        lea  eax, oldgdtdesc
-        sgdt fword ptr [eax]
+        ;lea  eax, oldgdtdesc
+        ;sgdt fword ptr [eax]
 
         ; copy old gdt
-        movzx ecx, [eax].g_limit
-        inc  ecx
-        shr  ecx, 2
-        mov  esi, [eax].g_base
-        mov  edi, offset _TEXT:gdt
-        mov  ebx, edi
-        rep  movsd
+        ;movzx ecx, [eax].g_limit
+        ;inc  ecx
+        ;shr  ecx, 2
+        ;mov  esi, [eax].g_base
+        ;mov  edi, offset _TEXT:gdt
+        ;mov  ebx, edi
+        ;rep  movsd
 
         ; fix gdt descriptors base
+        mov  ebx, GDT_ADDR
         mov  eax, REAL_BASE
         mov  [ebx][7*8].ds_baselo, ax
         mov  [ebx][8*8].ds_baselo, ax
@@ -204,8 +205,12 @@ set_gdt:
         mov  [ebx][7*8].ds_basehi2, al
         mov  [ebx][8*8].ds_basehi2, al
 
-        mov  eax, offset _TEXT:gdtdesc
-        lgdt fword ptr [eax]
+	; fill GDT descriptor
+	mov  ebx, offset _TEXT:gdtdesc
+	mov  eax, GDT_ADDR
+	mov  [ebx].g_base, eax
+
+        lgdt fword ptr [ebx]
 
         ret
 

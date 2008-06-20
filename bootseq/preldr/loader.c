@@ -423,7 +423,7 @@ exec_cfg(char *cfg)
 */
 
   // empty keyboard buffer
-  while (t->checkkey() != -1) ;
+  //while (t->checkkey() != -1) ;
 
   // show a menu and let the user choose a menu item
   item = exec_menu();

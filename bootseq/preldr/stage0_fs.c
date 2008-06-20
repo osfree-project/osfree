@@ -1145,7 +1145,7 @@ int init(void)
   init_term();
 
   // empty keyboard buffer
-  while (t->checkkey() != -1) ;
+  //while (t->checkkey() != -1) ;
  
   if (conf.multiboot == 2)
   {
@@ -1322,7 +1322,8 @@ int init(void)
   fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
   fsd_init(l1);
 
-  z = &gdt;
+  //z = &gdt;
+  z = (struct desc *)GDT_ADDR;
 
   /* fix bases of gdt descriptors */
   base = STAGE0_BASE;
@@ -1331,6 +1332,9 @@ int init(void)
     (z + i)->ds_basehi1 = (base & 0xff0000) >> 16;
     (z + i)->ds_basehi2 = (base & 0xff000000) >> 24;
   }
+
+  // GDT base
+  gdtdesc.g_base = GDT_ADDR;
 
   /* set new gdt */
   __asm {
@@ -1394,10 +1398,10 @@ int init(void)
   /* Init terminal */
   init_term();
 
-  //t = u_termctl(2);
+  //t = u_termctl(0);
 
   // empty keyboard buffer
-  while (t->checkkey() != -1) ;
+  //while (t->checkkey() != -1) ;
 
   //t->putchar('q'); 
   //t->gotoxy(0x10, 0x10);

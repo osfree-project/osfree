@@ -19,6 +19,12 @@ PREFERRED_BASE  equ 0x6f000               ; preferred load base (addresses 0x6f0
                                           ; when loaded initially without relocation)
 BOOT_PART_TABLE equ 0x600                 ;
 FSYS_BUFLEN     equ 0x8000
+
+;
+; GDT location
+;
+GDT_ADDR        equ 0x680
+
 ;
 ; buffers at the end of 3rd megabyte
 ;

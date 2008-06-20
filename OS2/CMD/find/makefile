@@ -10,7 +10,7 @@
 32_BITS  = 1
 
 PROJ = find
-DESC = Find sting in file
+DESC = Find string in file
 #defines object file names in format objname.$(O)
 OBJS = find.$(O) find_str.$(O) kitten.$(O)
 # defines additional options for C compiler

@@ -19,7 +19,9 @@ extrn   _text16_end  :dword
 extrn   bss_end      :dword
 extrn   exe_end  :dword
 
-extrn   gdt          :byte
+extrn   gdtaddr      :dword
+extrn   gdtsrc       :byte
+extrn   gdtdesc      :fword
 extrn   init         :near
 extrn   call_pm      :near
 extrn   lip1         :dword
@@ -189,18 +191,40 @@ reloc:
 
         sti
 
+	; copy GDT
+	push es
+	
+	xor  ax, ax
+	mov  es, ax
+
+        cld
+        mov  cx, 0x180
+        mov  esi, offset _TEXT:gdtsrc  - STAGE0_BASE
+        mov  edi, GDT_ADDR
+	
+	push di
+	rep  movsb
+	pop  di
+
         ; set 16-bit segment (_TEXT16) base
         ; in GDT for protected mode
         mov  eax, STAGE0_BASE
-        mov  esi, offset _TEXT:gdt - STAGE0_BASE
-        mov  [si][3*8].ds_baselo, ax
-        mov  [si][4*8].ds_baselo, ax
+
+        mov  es:[di][3*8].ds_baselo, ax
+        mov  es:[di][4*8].ds_baselo, ax
         ror  eax, 16
-        mov  [si][3*8].ds_basehi1, al
-        mov  [si][4*8].ds_basehi1, al
+        mov  es:[di][3*8].ds_basehi1, al
+        mov  es:[di][4*8].ds_basehi1, al
         ror  eax, 8
-        mov  [si][3*8].ds_basehi2, al
-        mov  [si][4*8].ds_basehi2, al
+        mov  es:[di][3*8].ds_basehi2, al
+        mov  es:[di][4*8].ds_basehi2, al
+
+	pop  es
+
+	; fill GDT descriptor
+	mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
+	mov  eax, GDT_ADDR
+	mov  [bx].g_base, eax
 
 ifndef STAGE1_5
         ; get available memory

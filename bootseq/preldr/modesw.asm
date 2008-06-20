@@ -11,8 +11,9 @@ name modesw
 ;public  base
 extrn    base       :dword
 
-public  gdt
+public  gdtsrc
 public  gdtdesc
+public  gdtaddr
 public  call_rm
 
 ifndef  NO_PROT
@@ -373,21 +374,23 @@ boot_drive        dd   0
 ; *  description.
 ; */
 
-gdt     desc  <0,0,0,0,0,0>                  ;
+gdtaddr dd    GDT_ADDR
+
+gdtsrc  desc  <0,0,0,0,0,0>                  ;
         desc  <0FFFFh,0,0,09Ah,0CFh,0>       ; flat DS
         desc  <0FFFFh,0,0,092h,0CFh,0>       ; flat CS
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
-ifdef NO_PROT
+;ifdef NO_PROT
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \--|
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /----for blackboxes
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \----for multiboot kernels
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /--|
-endif
+;endif
 
-gdtsize equ   ($ - gdt)                      ; GDT size
+gdtsize equ   ($ - gdtsrc)                   ; GDT size
 
-gdtdesc gdtr  <gdtsize - 1, gdt>
+gdtdesc gdtr  <gdtsize - 1, ?>
 
 address dd    ?
         dw    ?
