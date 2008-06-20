@@ -41,10 +41,11 @@ int var_sprint(char *buf, char *str);
 char buf[BUFSIZE];
 
 extern int (*process_cfg_line)(char *line);
+//extern struct term_entry *t;
 
 void panic(char *msg, char *file)
 {
-  printf("\r\nFatal error: \r\n");
+  printf("\r\nFatal error: ");
   printf(msg);
   printf(file);
 

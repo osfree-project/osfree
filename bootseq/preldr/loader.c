@@ -287,9 +287,10 @@ void draw_menu(int item)
 
   // background
   t->setcolor(0 | (3 << 4), 7 | (3 << 4));
-
-  t->cls();          // clear screen
-  t->setcolor(0 | (5 << 4), 7 | (3 << 4)); // 5 - normal (pink), 3 - highlighted (magenta)
+  // clear screen
+  t->cls();
+  // 5 - normal (pink), 3 - highlighted (magenta)
+  t->setcolor(0 | (5 << 4), 7 | (3 << 4)); 
 
   t->gotoxy(12, 5);
   l = 0;
@@ -309,6 +310,8 @@ void draw_menu(int item)
     if (l == 2) grub_strcpy(str, s);
     sprintf(buf, "%c %s. %s", 0xb3, str, sc->title);
     l = grub_strlen(buf);
+
+    while (l > MENU_WIDTH - 2) buf[l--] = '\0';
 
     while (l < MENU_WIDTH) buf[l++] = ' ';
     buf[l++] = 0xb3; buf[l] = '\0';
@@ -418,6 +421,9 @@ exec_cfg(char *cfg)
     sc = sc->prev;
   }
 */
+
+  // empty keyboard buffer
+  while (t->checkkey() != -1) ;
 
   // show a menu and let the user choose a menu item
   item = exec_menu();

@@ -30,7 +30,7 @@ cd %cwd%
 
 cd ..\..\..
 set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
-         cd\boot\freeldr\term cd\l4 cd\pns cd\os3 cd\l4ka
+         cd\boot\freeldr\term cd\l4 cd\pns cd\os2 cd\l4ka
 @for %%i in (%dirs%) do if not exist %%i mkdir %%i
 
 cd osfree\bootseq\preldr
@@ -56,8 +56,24 @@ cd ..\files
 
 cd ..\os2\server
 set files=os2server VioWrtTTY_test config.sys libkal.s.so os2.cfg MiniELFExe.Exe
-@for %%i in (%files%) do if exist %%i copy %%i ..\..\..\cd\os3\
+@for %%i in (%files%) do if exist %%i copy %%i ..\..\..\cd\os2\
 cd   ..\..\..
+
+@if not exist files goto mkiso
+
+rem Optional files
+
+set dirs=bootimgs floppies linux memdisk memtest86
+
+for %i in (%dirs%) do ^
+  (@if exist files\%i (if not exist cd\%i ^
+     mkdir cd\%i) && ^
+     copy files\%i\* cd\%i)
+
+set files=os2ldr os2ldr.msg os2boot os2dump os2krnl config.sys
+@for %i in (%files%) do @copy files\%i cd
+
+:mkiso
 
 @del %imgdir%\osfree.iso
 @%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -iso-level 3 -allow-lowercase -no-iso-translate -r -J -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd

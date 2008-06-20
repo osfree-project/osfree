@@ -90,7 +90,7 @@ char *fsys_list[FSYS_MAX];
 char *term_list[FSYS_MAX];
 
 /* a structure with term blackbox entry points */
-struct term_entry trm, *t;
+struct term_entry trm, *t = 0;
 
 // max count of file aliases
 #define MAX_ALIAS 0x10
@@ -99,6 +99,7 @@ struct term_entry trm, *t;
    from .INI file      */
 _Packed struct {
   char driveletter;
+  char multiboot;
   struct {
     char ignorecase;
     char **fsys_list;
@@ -106,7 +107,7 @@ _Packed struct {
   struct {
     char name[0x100];
     int  base;
-    char multiboot;
+    // char multiboot;
   } loader;
   struct {
     char name[0x100];
@@ -120,7 +121,7 @@ _Packed struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
-} conf = {0x80, {0, fsys_list}, {"/os2ldr", 0x10000, 0},
+} conf = {0x80, 2, {0, fsys_list}, {"/os2ldr", 0x10000},
           {"/os2boot", 0x7c0}, {0, term_list},};
 
 char *preldr_path = "/boot/freeldr/"; // freeldr path
@@ -573,6 +574,7 @@ freeldr_open (char *filename)
    int  rc;
    char buf[0x100];
 
+   //printf("%s\r\n", filename);
    u_msg(filename);
    u_msg("\r\n");
 
@@ -799,6 +801,17 @@ int process_cfg_line1(char *line)
        if (conf.driveletter > 8) // not floppy
          conf.driveletter = conf.driveletter - 2 + 0x80;
      }
+     else if (abbrev(line, "multiboot", 9))
+     {
+       line = strip(skip_to(1, line));
+       if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on"))
+         n = 1;
+       else if (!grub_strcmp(line, "ask"))
+         n = 2;
+       else
+         n = 0;
+       conf.multiboot = n;
+     }
      else
      {
      }
@@ -886,15 +899,6 @@ int process_cfg_line1(char *line)
          conf.loader.base = n;
        else
          panic("process_cfg_line: incorrect loader load base value!", "");
-     }
-     else if (abbrev(line, "multiboot", 9))
-     {
-       line = strip(skip_to(1, line));
-       if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on"))
-         n = 1;
-       else
-         n = 0;
-       conf.loader.multiboot = n;
      }
      else
      {
@@ -1096,6 +1100,7 @@ int init(void)
   struct desc *z;
   unsigned long base;
   int i, k;
+  int key;
 
   /* Set boot drive and partition.  */
   saved_drive = boot_drive;
@@ -1136,10 +1141,39 @@ int init(void)
     panic("Load error!", "");
   }
 
+  relshift = 0;
+  init_term();
+
+  // empty keyboard buffer
+  while (t->checkkey() != -1) ;
+ 
+  if (conf.multiboot == 2)
+  {
+    printf("multiboot = (y)es/(n)o?: ");
+
+    key = t->getkey() & 0xff;
+
+    printf("%c\r\n", key);
+    
+    // if 'Y' or 'y' is pressed
+    if (key == 0x59 || key == 0x79)
+      conf.multiboot = 1;
+    else
+      conf.multiboot = 0;
+  }
+
+  if (!grub_strcmp(conf.loader.name, "default"))
+  {
+    if (conf.multiboot)
+      grub_strcpy(conf.loader.name, "/boot/freeldr/freeldr\0");
+    else
+      grub_strcpy(conf.loader.name, "/os2ldr\0");
+  }
+
   /* Show config params */ /*
   printmsg("\r\nConfig parameters:");
   printmsg("\r\ndriveletter = "); printb(conf.driveletter);
-  printmsg("\r\nloader.multiboot = ");   printb(conf.loader.multiboot);
+  printmsg("\r\nmultiboot = ");   printb(conf.multiboot);
   printmsg("\r\nmufsd.ignorecase = ");   printb(conf.mufsd.ignorecase);
   printmsg("\r\nFilesys: ");
   for (i = 0; i < FSYS_MAX && conf.mufsd.fsys_list[i]; i++) {
@@ -1174,19 +1208,20 @@ int init(void)
   /* load os2ldr */
   fn = conf.loader.name;
   rc = freeldr_open(fn);
-  printmsg("freeldr_open(\"");
-  printmsg(fn);
-  printmsg("\") returned: ");
-  printd(rc);
+  printf("freeldr_open() returned: %d\r\n", rc);
+  //printmsg("freeldr_open(\"");
+  //printmsg(fn);
+  //printmsg("\") returned: ");
+  //printd(rc);
 
   buf = (char *)(conf.loader.base);
 
   if (rc) {
     ldrlen = freeldr_read(buf, -1);
-
-    printmsg("\r\nfreeldr_read() returned size: ");
-    printd(ldrlen);
-    printmsg("\r\n");
+    printf("freeldr_read() returned size: %d\r\n", ldrlen);
+    //printmsg("\r\nfreeldr_read() returned size: ");
+    //printd(ldrlen);
+    //printmsg("\r\n");
   } else {
     panic("Can't open loader file: ", fn);
   }
@@ -1195,26 +1230,28 @@ int init(void)
   fn = conf.mini.name;
   if (*fn) { // is minifsd needed?
     rc = freeldr_open(fn);
-    printmsg("freeldr_open(\"");
-    printmsg(fn);
-    printmsg("\") returned: ");
-    printd(rc);
+    printf("freeldr_open() returned size: %d\r\n", rc);
+    //printmsg("freeldr_open(\"");
+    //printmsg(fn);
+    //printmsg("\") returned: ");
+    //printd(rc);
 
     buf = (char *)(conf.mini.base);
 
     if (rc) {
       mfslen = freeldr_read(buf, -1);
-
-      printmsg("\r\nfreeldr_read() returned size: ");
-      printd(mfslen);
-      printmsg("\r\n");
+      printf("freeldr_read() returned size: %d", mfslen);
+      //printmsg("\r\nfreeldr_read() returned size: ");
+      //printd(mfslen);
+      //printmsg("\r\n");
     } else {
       panic("Can't open minifsd filename: ", fn);
     }
   }
 
-  printmsg("mem_lower=");
-  printd(mem_lower);
+  printf("mem_lower=0x%x\r\n", mem_lower);
+  //printmsg("mem_lower=");
+  //printd(mem_lower);
 
   /* calculate highest available address
      -- os2ldr base or top of low memory  */
@@ -1226,13 +1263,14 @@ int init(void)
      44544 bytes, 44544 >> 12 == 0xa      */
   if (k == 0x57) i++; // one page more
 
-  if (!conf.loader.multiboot) // os2ldr
+  if (!conf.multiboot) // os2ldr
     ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
   else                 // multiboot loader
     ldrbase =  mem_lower << KSHIFT;
 
-  printmsg("\r\n");
-  printd(ldrbase);
+  printf("ldrbase=0x%x\r\n", ldrbase);
+  //printmsg("\r\n");
+  //printd(ldrbase);
 
   /* the correction shift added while relocating */
   relshift = ldrbase - (PREFERRED_BASE + 0x10000);
@@ -1259,9 +1297,10 @@ int init(void)
     add  [ebp + 0x20], eax
   }
 
-  printmsg("\r\nrelshift=");
-  printd(relshift);
-  printmsg("\r\n");
+  printf("relshift=0x%x\r\n", relshift);
+  //printmsg("\r\nrelshift=");
+  //printd(relshift);
+  //printmsg("\r\n");
 
   /* fixup preldr and uFSD */
   reloc((char *)(STAGE0_BASE  + relshift), "\\boot\\freeldr\\preldr0.rel", relshift);
@@ -1357,6 +1396,9 @@ int init(void)
 
   //t = u_termctl(2);
 
+  // empty keyboard buffer
+  while (t->checkkey() != -1) ;
+
   //t->putchar('q'); 
   //t->gotoxy(0x10, 0x10);
   //t->putchar('z');
@@ -1370,7 +1412,7 @@ int init(void)
   //switch_stack_flag = 1;
   //high_stack();
 
-  if (conf.loader.multiboot) {
+  if (conf.multiboot == 1) {
     /* return to loader from protected mode */
     unsigned long ldr_base = conf.loader.base;
 

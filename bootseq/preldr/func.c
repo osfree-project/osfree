@@ -414,7 +414,7 @@ void set_boot_fsys(void)
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
   fsd_init(l1);
-  printmsg("boot fs set\r\n");
+  //printmsg("boot fs set\r\n");
 }
 
 #pragma aux set_fsys "*"
@@ -450,9 +450,9 @@ int set_fsys(char *fsname)
   else
     panic("can't open filesystem: ", fsname);
 
-  printmsg("uFSD file read, size: ");
-  printd(rc);
-  printmsg("\r\n");
+  //printmsg("uFSD file read, size: %d\r\n", rc);
+  //printd(rc);
+  //printmsg("\r\n");
 
   grub_strcpy(sbuf, fsname);
   s = grub_strstr(sbuf, ".fsd") + 1;
@@ -462,11 +462,11 @@ int set_fsys(char *fsname)
   
   // fixup the loaded filesystem
   reloc((char *)buf, sbuf, relshift);
-  printmsg("fs relocated\r\n");
+  //printmsg("fs relocated\r\n");
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);
   grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(buf), EXT_LEN);
-  printmsg("fs moved\r\n");
+  //printmsg("fs moved\r\n");
   //fsys_type = saved_fsys_type;
   //current_drive = saved_current_drive;
   //current_partition = saved_current_partition;
@@ -485,11 +485,11 @@ int set_fsys(char *fsname)
   fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
 
-  printmsg("fs initted, fsys_type=");
-  printd(fsys_type);
-  printmsg("\r\n");
+  //printmsg("fs initted, fsys_type=%s\r\n", fsys_type);
+  //printd(fsys_type);
+  //printmsg("\r\n");
 
-  //printf("trying to mount a filesystem\r\n");
+  //printmsg("trying to mount a filesystem\r\n");
   //if (open_partition() && stage0_mount())
   //{
   //  printmsg("filesystem is mounted\r\n");
