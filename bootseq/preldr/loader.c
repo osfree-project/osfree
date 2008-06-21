@@ -21,6 +21,8 @@ extern FileTable ft;
 struct multiboot_info *m;
 struct term_entry *t;
 
+int num_items = 0;
+
 void create_lip_module(lip2_t **l);
 void multi_boot(void);
 
@@ -29,13 +31,7 @@ skip_to (int after_equal, char *cmdline);
 
 int (*process_cfg_line)(char *line);
 
-//#pragma aux skip_to "*"
-
 #pragma aux multi_boot     "*"
-//#pragma aux kernel_func    "*"
-//#pragma aux module_func    "*"
-//#pragma aux modaddr_func   "*"
-//#pragma aux lipmodule_func "*"
 #pragma aux m              "*"
 #pragma aux l              "*"
 
@@ -59,6 +55,10 @@ char *config_lines;
 int  config_len = 0;
 int  default_item = -1;
 int  menu_timeout;
+
+/* menu colors */
+int background_color = 0; // black
+int foreground_color = 7; // white
 
 typedef struct script script_t;
 // a structure corresponding to a 
@@ -104,6 +104,16 @@ process_cfg_line1(char *line)
     line = skip_to(1, line);
     safe_parse_maxint(&line, &menu_timeout);
   }
+  else if (!section && abbrev(line, "background", 10))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &background_color);
+  }
+  else if (!section && abbrev(line, "foreground", 10))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &foreground_color);
+  }
   else if (!section && abbrev(line, "set", 3))
   {
     line = strip(skip_to(0, line));
@@ -125,6 +135,7 @@ process_cfg_line1(char *line)
   else if (abbrev(line, "title", 5))
   {
     section++;
+    num_items++;
     s =  skip_to(1, line);
     p = menu_items;
 
@@ -168,10 +179,6 @@ exec_line(char *line)
 {
   int i;
   char *p, *s = line;
-  //char *var, *val;
-  //static int section = 0;
-  //static int insection = 0;
-  //static int sec_to_load;
 
   if (!*line) return 1;
 
@@ -179,9 +186,6 @@ exec_line(char *line)
   p = line;
   while (*p++)
     if (*p == '\\') *p = '/';
-
-  //printf("%s\r\n", s);
-  //t->getkey();
 
   if (abbrev(s, "modaddr", 7)) 
   {
@@ -247,34 +251,60 @@ exec_line(char *line)
   return 1;
 }
 
-
-// get one digit from user
-int
-get_digit(void)
-{
-  int c = 0;
-
-  while (c < '0' || c > '9')
-  {
-    c = (t->getkey() & 0xff);
-  }
-  
-  c = c - '0';
-
-  return c;
-}
-
 // get next menu item from user input
 int
-get_user_input(int *item)
+get_user_input(int *item, int *shift)
 {
-  *item = 10 * get_digit() + get_digit();
+  int c;
 
-  return 0;
+  // scan code
+  for (;;)
+  {
+    c = t->getkey();
+
+    switch (c)
+    {
+      case 0xe:   // down arrow
+      {
+        ++*item;
+        if (*item == num_items + 1) *item = 0;
+        return 1;
+      }
+      case 0x10:  // up arrow
+      {
+        --*item;
+        if (*item == -1) *item = num_items;
+        return 1;
+      }
+      case 0x1c0d: // enter
+      {
+        ++*item;
+        return 0;
+      }
+      default:
+        ;
+    }
+  }
+
+  *shift = 0;
+
+  return 1;
+}
+
+void
+invert_colors(void)
+{
+  int col;
+  
+  col = background_color;
+  background_color = foreground_color;
+  foreground_color = col;
+
+  t->setcolor((char)foreground_color | ((char)background_color << 4), 7 | (3 << 4));
 }
 
 // draw a menu with selected item
-void draw_menu(int item)
+void draw_menu(int item, int shift)
 {
   int i = 0, l;
   script_t *sc;
@@ -290,7 +320,7 @@ void draw_menu(int item)
   // clear screen
   t->cls();
   // 5 - normal (pink), 3 - highlighted (magenta)
-  t->setcolor(0 | (5 << 4), 7 | (3 << 4)); 
+  t->setcolor((char)foreground_color | ((char)background_color << 4), 7 | (3 << 4)); 
 
   t->gotoxy(12, 5);
   l = 0;
@@ -304,18 +334,28 @@ void draw_menu(int item)
   {
     t->gotoxy(12, 6 + i);
 
-    sprintf(s, "%d", i + 1);
+    printf("%c ", 0xb3);
+
+    // show highlighted menu string in inverse color
+    if (i == item) invert_colors();
+
+    sprintf(s, "%d", i);
     l = grub_strlen(s);
     if (l == 1) grub_strcat(str, "0", s);
     if (l == 2) grub_strcpy(str, s);
-    sprintf(buf, "%c %s. %s", 0xb3, str, sc->title);
+    sprintf(buf, "%s. %s", str, sc->title);
     l = grub_strlen(buf);
 
-    while (l > MENU_WIDTH - 2) buf[l--] = '\0';
+    while (l > MENU_WIDTH - 3) buf[l--] = '\0';
+    while (l < MENU_WIDTH - 3) buf[l++] = ' ';
+    buf[l] = '\0';
 
-    while (l < MENU_WIDTH) buf[l++] = ' ';
-    buf[l++] = 0xb3; buf[l] = '\0';
     printf("%s", buf);
+
+    // show highlighted menu string in inverse color
+    if (i == item) invert_colors();
+ 
+    printf(" %c", 0xb3);
 
     sc = sc->next;
     i++;
@@ -334,13 +374,16 @@ void draw_menu(int item)
 int 
 exec_menu(void)
 {
-  int cont = 1;
-  int item = 0;
+  int cont = 1;  // continuation flag
+  int item;      // selected menu item
+  int shift = 0; // horiz. scrolling menu shift
+
+  item = default_item;
 
   while (cont)
   {
-    draw_menu(item);
-    cont = get_user_input(&item);
+    draw_menu(item, shift);
+    cont = get_user_input(&item, &shift);
   }
 
   return item;
@@ -381,53 +424,11 @@ exec_cfg(char *cfg)
   process_cfg_line = process_cfg_line1;
   rc = process_cfg(cfg);
 
-/*
-  line = config_lines; // config in memory
-  do
-  {
-
-    printf("%s\r\n", line);
-    
-    while (*line++) ; // next line
-
-  } while (line - config_lines < config_len);
-*/
-/*
-  sc = menu_first;
-  item = 0;
-  while (sc)
-  {
-    if (item == 7)
-    {
-      printf("title: %s\r\n", sc->title);
-      printf("num lines: %u\r\n", sc->num);
-
-      p = sc->scr;
-      for (rc = 0; rc < sc->num; rc++)
-      {
-        printf("%s\r\n", p);
-        while (*p++) ;
-      }  
-    }
-    sc = sc->next;
-    item++;
-  }
-*/
-/*
-  sc = menu_last;
-  while (sc)
-  {
-    printf("%s\r\n", sc->title);
-    sc = sc->prev;
-  }
-*/
-
-  // empty keyboard buffer
-  //while (t->checkkey() != -1) ;
+  // starting point 0 instead of 1
+  --num_items;
 
   // show a menu and let the user choose a menu item
   item = exec_menu();
-  //printf("\r\n\r\n%d\r\n", item);
 
   sc = menu_first;
   t->cls();
@@ -440,11 +441,6 @@ exec_cfg(char *cfg)
     if (!rc) return 0;
     sc = sc->next;
   }
-
-  //__asm {
-  //  cli
-  //  hlt
-  //}
 
   return 1;
 }

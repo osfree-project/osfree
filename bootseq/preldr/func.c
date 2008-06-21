@@ -462,11 +462,11 @@ int set_fsys(char *fsname)
   
   // fixup the loaded filesystem
   reloc((char *)buf, sbuf, relshift);
-  //printmsg("fs relocated\r\n");
+  printmsg("fs relocated\r\n");
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);
   grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(buf), EXT_LEN);
-  //printmsg("fs moved\r\n");
+  printmsg("fs moved\r\n");
   //fsys_type = saved_fsys_type;
   //current_drive = saved_current_drive;
   //current_partition = saved_current_partition;
@@ -485,7 +485,7 @@ int set_fsys(char *fsname)
   fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
 
-  //printmsg("fs initted, fsys_type=%s\r\n", fsys_type);
+  printmsg("fs initted\r\n");
   //printd(fsys_type);
   //printmsg("\r\n");
 

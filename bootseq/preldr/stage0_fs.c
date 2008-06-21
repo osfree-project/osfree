@@ -105,12 +105,12 @@ _Packed struct {
     char **fsys_list;
   } mufsd;
   struct {
-    char name[0x100];
+    char name[0x18];
     int  base;
     // char multiboot;
   } loader;
   struct {
-    char name[0x100];
+    char name[0x18];
     int  base;
   } mini;
   struct {
