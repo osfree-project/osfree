@@ -21,7 +21,11 @@ extern FileTable ft;
 struct multiboot_info *m;
 struct term_entry *t;
 
+#define MENU_WIDTH  56
+#define MENU_HEIGHT 10
+
 int num_items = 0;
+int scrollnum = 0;
 
 void create_lip_module(lip2_t **l);
 void multi_boot(void);
@@ -269,12 +273,22 @@ get_user_input(int *item, int *shift)
         ++*item;
         if (*item == num_items + 1) *item = 0;
         return 1;
+
+       /* if (t->checkkey() == -1) 
+          return 1;
+        else
+          continue; */
       }
       case 0x10:  // up arrow
       {
         --*item;
         if (*item == -1) *item = num_items;
         return 1;
+
+       /* if (t->checkkey() == -1) 
+          return 1;
+        else
+          continue; */
       }
       case 0x1c0d: // enter
       {
@@ -306,12 +320,11 @@ invert_colors(void)
 // draw a menu with selected item
 void draw_menu(int item, int shift)
 {
-  int i = 0, l;
+  int i = 0, j, l, k;
   script_t *sc;
   char s[4];
   char str[4]; 
   char buf[0x100];
-  #define MENU_WIDTH 56
 
   t->setcolorstate(COLOR_STATE_NORMAL);
 
@@ -329,17 +342,26 @@ void draw_menu(int item, int shift)
   buf[l++] = 0xbf; buf[l] = '\0';
   printf("%s", buf);
 
+  if (item + 1 > MENU_HEIGHT) scrollnum = item + 1 - MENU_HEIGHT;
+  if (item == num_items + 1)  scrollnum = 0;
+  if (!item) scrollnum = 0;
+
   sc = menu_first;
-  while (sc)
+
+  for (k = 0; k < scrollnum; k++) sc = sc->next;
+
+  for (i = 0; i < MENU_HEIGHT; i++)
   {
+    j = scrollnum + i;
+
     t->gotoxy(12, 6 + i);
 
     printf("%c ", 0xb3);
 
     // show highlighted menu string in inverse color
-    if (i == item) invert_colors();
+    if (j == item) invert_colors();
 
-    sprintf(s, "%d", i);
+    sprintf(s, "%d", j);
     l = grub_strlen(s);
     if (l == 1) grub_strcat(str, "0", s);
     if (l == 2) grub_strcpy(str, s);
@@ -353,12 +375,12 @@ void draw_menu(int item, int shift)
     printf("%s", buf);
 
     // show highlighted menu string in inverse color
-    if (i == item) invert_colors();
+    if (j == item) invert_colors();
  
     printf(" %c", 0xb3);
 
     sc = sc->next;
-    i++;
+    //i++;
   }
 
   t->gotoxy(12, 6 + i);
