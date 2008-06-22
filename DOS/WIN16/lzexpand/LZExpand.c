@@ -346,3 +346,20 @@ static void Decode(HFILE infile, HFILE outfile)
                 }
         }
 }
+
+#pragma off (unreferenced);
+BOOL FAR PASCAL LibMain( HINSTANCE hInstance, WORD wDataSegment,
+                         WORD wHeapSize, LPSTR lpszCmdLine )
+#pragma on (unreferenced);
+{
+  short i;
+  char buf[128];
+
+  //BreakPoint();
+//  i = GetSS();
+
+  sprintf( buf, "DLL16 Started");
+  MessageBox( NULL, buf, "LZEXPAND", MB_OK | MB_TASKMODAL );
+
+  return( 1 );
+}

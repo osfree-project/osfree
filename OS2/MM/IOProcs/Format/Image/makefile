@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = JPEG
+DIRS = JPEG GIF
 
 !include $(%ROOT)/mk/all.mk
 

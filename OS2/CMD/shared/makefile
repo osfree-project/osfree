@@ -33,9 +33,9 @@ $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib: $(OBJS)
 msg: .symbolic
  -@$(MKDIR) msg $(LOG)
  @$(MC) @lvm.rsf $(LOG)
- -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)lvm.* $(LOG)
- -@$(CP) msg$(SEP)* $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg $(LOG)
-# -@rd msg  $(LOG
+ -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)lvm.* $(LOG)
+ -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)os2 $(LOG)
+ -@rd msg  $(LOG
 
 .IGNORE
 clean: .SYMBOLIC

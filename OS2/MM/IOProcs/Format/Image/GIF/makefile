@@ -9,9 +9,9 @@
 
 32_BITS  = 1
 DIR      = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)dll
-PROJ     = mmioJPEG
-DESC     = JPEG Format I/O Procedure
-OBJS     = jpgfunc.$(O) jpgproc.$(O) debug.$(O)
+PROJ     = mmioGIF
+DESC     = GIF Format I/O Procedure
+OBJS     = gifproc.$(O)
 ADD_COPT = -i=..$(SEP)include
 ADD_LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, jpeglib.lib, lpng.lib, libz.lib
 

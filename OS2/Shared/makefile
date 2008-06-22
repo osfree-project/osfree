@@ -33,10 +33,10 @@ msg: .symbolic
  @$(if_not_exist_mkdir) msg $(LOG)
  @$(MC) @oso001.rsf $(LOG)
  @$(MC) @oso001h.rsf $(LOG)
- -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)oso001.* $(LOG)
- -@$(DC) $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg$(SEP)oso001h.* $(LOG)
- -@$(CP) msg$(SEP)* $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)msg $(LOG)
- -@rd msg  $(LOG)
+ -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)oso001.* $(LOG)
+ -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)oso001h.* $(LOG)
+ -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)os2 $(LOG)
+ -@rd msg $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

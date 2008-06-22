@@ -243,23 +243,14 @@
 #  endif
 #endif
 
-
 #ifndef ZEXTERN
 #  define ZEXTERN extern
 #endif
 #ifndef ZEXPORT
-  #if (defined(__IBMC__) || defined(__IBMCPP__) || defined(__WATCOMC__) || defined(__WATCOM_CPLUSPLUS__)) && defined(OS2)
-    #define ZEXPORT _System
-  #elif
-    #define ZEXPORT
-  #endif
+#  define ZEXPORT
 #endif
 #ifndef ZEXPORTVA
-  #if (defined(__IBMC__) || defined(__IBMCPP__) || defined(__WATCOMC__) || defined(__WATCOM_CPLUSPLUS__)) && defined(OS2)
-    #define ZEXPORTVA _System
-  #elif
-    #define ZEXPORTVA
-  #endif
+#  define ZEXPORTVA
 #endif
 
 #ifndef FAR
@@ -310,10 +301,6 @@ typedef uLong FAR uLongf;
 #  define z_off_t long
 #endif
 
-#if (defined(__IBMC__) || defined(__IBMCPP__)) && defined(OS2)
-#  define NO_vsnprintf
-#endif
-
 #if defined(__OS400__)
 #  define NO_vsnprintf
 #endif
@@ -324,7 +311,6 @@ typedef uLong FAR uLongf;
 #    undef FAR
 #  endif
 #endif
-
 
 /* MVS linker does not support external names larger than 8 bytes */
 #if defined(__MVS__)

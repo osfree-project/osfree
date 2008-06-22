@@ -12,7 +12,7 @@ DIR      = $(FILESDIR)$(SEP)dos
 PROJ     = lzexpand
 DESC     = Windows file expansion library
 OBJS     = lzexpand.$(O)
-ADD_COPT = -bt=win -bd
+ADD_COPT = -bt=windiws -bd
 ADD_LINKOPT = lib clibs.lib,windows.lib,clibdls.lib
 
 !include $(%ROOT)/mk/all.mk
@@ -24,7 +24,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk system    windows dll
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION MAP=$^&.wmp option heapsize=32K libfile libentry
  @%append $^&.lnk export
  @%append $^&.lnk       LZCOPY          .1,
  @%append $^&.lnk       LZOPENFILE      .2,
@@ -41,7 +41,7 @@ $(PROJ).dll: $(OBJS)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  @$(MAKE) $(MAKEOPT) install
 
-lib: .SYMBOLIC 
+lib: .SYMBOLIC
  @$(LIB) $(LIBOPT) -n clibdls.lib
 
 .IGNORE

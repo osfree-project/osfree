@@ -115,7 +115,7 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #  define OS_CODE  0x05
 #endif
 
-#if defined(__OS2__) || defined(OS2)
+#ifdef OS2
 #  define OS_CODE  0x06
 #  ifdef M_I86
      #include <malloc.h>
@@ -139,7 +139,6 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 
 #ifdef WIN32
 #  ifndef __CYGWIN__  /* Cygwin is Unix, not Win32 */
-#    undef OS_CODE
 #    define OS_CODE  0x0b
 #  endif
 #endif
