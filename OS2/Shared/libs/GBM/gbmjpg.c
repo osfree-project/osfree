@@ -82,6 +82,7 @@ History:
 #include "gbmhelp.h"
 #include "gbmdesc.h"
 #include "gbmmap.h"
+#include "gbmmem.h"
 
 #include "jpeglib.h"
 #include "jinclude.h"
@@ -485,7 +486,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
         jpeg_destroy_decompress(&dinfo);
 
         /* Don't miss to free CMYK data buffer if there is one used! */
-        free(cmykData);
+        gbmmem_free(cmykData);
         cmykData = NULL;
 
         return jrc;
@@ -554,7 +555,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
         gbm_src.bpp = dinfo.output_components * 8;
 
         /* Create a local buffer for the CMYK data */
-        cmykData = (byte *) malloc(stride_src);
+        cmykData = (byte *) gbmmem_malloc(stride_src);
         if (cmykData == NULL)
         {
            /* This is an important step since it will release a good deal of memory. */
@@ -587,7 +588,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
                 jpeg_destroy_decompress(&dinfo);
 
                 /* Don't miss to free CMYK data buffer! */
-                free(cmykData);
+                gbmmem_free(cmykData);
                 cmykData = NULL;
 
                 return GBM_ERR_JPG_BAD_BPP;
@@ -597,7 +598,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
         }
 
         /* Don't miss to free CMYK data buffer! */
-        free(cmykData);
+        gbmmem_free(cmykData);
         cmykData = NULL;
     }
     else
@@ -773,7 +774,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         jpeg_destroy_compress(&cinfo);
 
         /* Don't forget to cleanup temporary conversion buffer. */
-        free(t_data);
+        gbmmem_free(t_data);
         t_data = NULL;
 
         return jrc;
@@ -844,7 +845,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     if (cinfo.input_components == 3)
     {
        /* Create a local buffer for the BGR->RGB data conversion */
-       t_data = (byte *) malloc(stride);
+       t_data = (byte *) gbmmem_malloc(stride);
        if (t_data == NULL)
        {
           jpeg_destroy_compress(&cinfo);
@@ -872,7 +873,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
            {
                jpeg_destroy_compress(&cinfo);
                /* Don't forget to cleanup temporary conversion buffer. */
-               free(t_data);
+               gbmmem_free(t_data);
                t_data = NULL;
                return GBM_ERR_WRITE;
            }
@@ -883,7 +884,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        }
 
        /* Don't forget to cleanup temporary conversion buffer. */
-       free(t_data);
+       gbmmem_free(t_data);
        t_data = NULL;
     }
     else /* Grayscale */
@@ -892,7 +893,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        byte grey[0x100];
 
        /* Create a local buffer for the data conversion to gray */
-       t_data = (byte *) malloc(stride);
+       t_data = (byte *) gbmmem_malloc(stride);
        if (t_data == NULL)
        {
           jpeg_destroy_compress(&cinfo);
@@ -901,7 +902,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
        if (! make_output_palette(gbmrgb, grey, opt))
        {
-          free(t_data);
+          gbmmem_free(t_data);
           t_data = NULL;
           jpeg_destroy_compress(&cinfo);
           return GBM_ERR_BAD_OPTION;
@@ -933,7 +934,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        }
 
        /* Don't forget to cleanup temporary conversion buffer. */
-       free(t_data);
+       gbmmem_free(t_data);
        t_data = NULL;
     }
 

@@ -19,12 +19,13 @@ OBJS = gbm.$(O) gbmpbm.$(O)  gbmpgm.$(O) gbmppm.$(O) gbmpnm.$(O)  &
           gbmbmp.$(O) gbmtga.$(O)  gbmkps.$(O) gbmiax.$(O) gbmpcx.$(O)  &
           gbmtif.$(O) gbmlbm.$(O)  gbmvid.$(O) gbmgif.$(O) gbmxbm.$(O)  &
           gbmspr.$(O) gbmpsg.$(O)  gbmgem.$(O) gbmcvp.$(O) gbmjpg.$(O)  &
-          gbmpng.$(O) gbmxpm.$(O)  gbmxpmcn.$(O) gbmhelp.$(O) gbmmap.$(O)
+          gbmpng.$(O) gbmxpm.$(O)  gbmxpmcn.$(O) gbmhelp.$(O) gbmmap.$(O) &
+          gbmmem.$(O)
 
 $(ROOT)$(SEP)lib$(SEP)gbm.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
- @wlib $@ +$< $(LOG)
+ @wlib -c $@ +$< $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

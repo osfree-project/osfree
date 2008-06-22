@@ -22,7 +22,7 @@ REST38PP, although in my experience, FIXL3820 always works, and REST38PP always
 fails for large files.
 
 PSEG writing updated to reflect information found in MO:DCA Reference on www.
-Incrementing record numbers written. 
+Incrementing record numbers written.
 ImageInputDescriptor has fixed 2400s in ConData1 part.
 
 History:
@@ -42,6 +42,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -407,7 +408,7 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	if ( (str = gbm_find_word_prefix(opt, "pely=")) != NULL )
 		sscanf(str+5, "%i", &pely);
 
-	if ( (rec = malloc((size_t) (1+2+6+max(100,stride)))) == NULL )
+	if ( (rec = gbmmem_malloc((size_t) (1+2+6+max(100,stride)))) == NULL )
 		return GBM_ERR_MEM;
 	r = rec + 1+2+6;
 
@@ -417,16 +418,16 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	/* Comment */
 	ebcdic((char *) r, by_gbm);
 	if ( !record(fd, rec, "\xd3\xee\xee", strlen(by_gbm), &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
 	/* BeginPageSegment (we will use filename) */
 	memcpy(r, buf8, 8);
 	if ( !record(fd, rec, "\xd3\xa8\x5f", 8, &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
 	/* BeginImageBlock (use filename again) */
 	if ( !record(fd, rec, "\xd3\xa8\x7b", 8, &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
 	/* ImageOutputControl */
 	memset(r, 0x00, 6+4+8); /* Image Block Origin, Orientation, Reserved */
@@ -435,7 +436,7 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	putword(r+6+4+8+2, scaley);
 	memset(r+6+4+8+4, 0xff, 2);
 	if ( !record(fd, rec, "\xd3\xa7\x7b", 6+4+8+4+2, &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
 	/* ImageInputDescriptor */
 	memset(r, 0x00, 6+12+2+2+6);
@@ -450,8 +451,8 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	putword(r+6+12+2+2+6+2, 0);	/* Not writing in cells */
 	memcpy( r+6+12+2+2+6+2+2, "\x00\x01\xff\xff", 4);
 	if ( !record(fd, rec, "\xd3\xa6\x7b", 6+12+2+2+6+2+2+4, &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
- 
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
+
  	if ( (unsigned)gbm->w&7U )
  		lastbits = (byte) ( 0xff00U >> ((unsigned)gbm->w&7U) );
 	data += (gbm->h-1) * stride;
@@ -459,20 +460,20 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
  		{
  		memcpy(r, data, len); r[len-1] &= lastbits;
  		if ( !record(fd, rec, "\xd3\xee\x7b", len, &recnum) )
- 			{ free(rec); return GBM_ERR_WRITE; }
+ 			{ gbmmem_free(rec); return GBM_ERR_WRITE; }
  		}
- 
+
  	/* EndImageBlock, (use filename) */
 	memcpy(r, buf8, 8);
  	if ( !record(fd, rec, "\xd3\xa9\x7b", 8, &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
  	/* EndPageSegment (use filename from before) */
  	if ( !record(fd, rec, "\xd3\xa9\x5f", 8, &recnum) )
-		{ free(rec); return GBM_ERR_WRITE; }
- 
- 	free(rec);
- 
+		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
+
+ 	gbmmem_free(rec);
+
 	return GBM_ERR_OK;
 	}
 /*...e*/

@@ -10,7 +10,9 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: e.g. "\"ifspec\",options"
-
+08-Feb-2008  Allocate memory from high memory for bitmap data to
+             stretch limit for out-of-memory errors
+             (requires kernel with high memory support)
 */
 
 /*...sincludes:0:*/
@@ -34,6 +36,7 @@ History:
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 #include "gbmhist.h"
 #include "gbmmcut.h"
 #include "gbmtool.h"
@@ -147,12 +150,12 @@ static BOOLEAN get_masks(char *map, byte *rm, byte *gm, byte *bm)
 /*...salloc_mem:0:*/
 static byte *alloc_mem(const GBM *gbm)
 	{
-	int stride, bytes;
+	unsigned long stride, bytes;
 	byte *p;
 
 	stride = ( ((gbm->w * gbm->bpp + 31)/32) * 4 );
 	bytes = stride * gbm->h;
-	if ( (p = malloc((size_t) bytes)) == NULL )
+	if ( (p = gbmmem_malloc(bytes)) == NULL )
 		fatal("out of memory allocating %d bytes", bytes);
 
 	return p;
@@ -212,7 +215,7 @@ static void read_bitmap(
 
 	if ( (rc = gbm_read_data(fd, ft, gbm, (*data))) != GBM_ERR_OK )
 		{
-		free(*data);
+		gbmmem_free(*data);
 		gbm_io_close(fd);
 		fatal("can't read bitmap data of %s: %s", fn, gbm_err(rc));
 		}
@@ -224,16 +227,17 @@ static void read_bitmap(
 /*...sexpand_to_24bit:0:*/
 static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 	{
-	int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-	int new_stride = ((gbm->w * 3 + 3) & ~3);
-	int bytes, y;
+	unsigned long stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+	unsigned long new_stride = ((gbm->w * 3 + 3) & ~3);
+	unsigned long bytes;
+    int y;
 	byte *new_data;
 
 	if ( gbm->bpp == 24 )
 		return;
 
 	bytes = new_stride * gbm->h;
-	if ( (new_data = malloc((size_t) bytes)) == NULL )
+	if ( (new_data = gbmmem_malloc(bytes)) == NULL )
 		fatal("out of memory allocating %d bytes", bytes);
 
 	for ( y = 0; y < gbm->h; y++ )
@@ -301,7 +305,7 @@ case 8:
 /*...e*/
 			}
 		}
-	free(*data);
+	gbmmem_free(*data);
 	*data = new_data;
 	gbm->bpp = 24;
 	}
@@ -417,7 +421,7 @@ static void freq_map(
 			BOOLEAN ok;
 			read_bitmap_24_f(fn_src, f, opt_src, &gbm, &data);
 			ok = gbm_add_to_hist(hist, &gbm, data);
-			free(data);
+			gbmmem_free(data);
 			if ( !ok )
 				{
 				if ( verbose )
@@ -455,9 +459,9 @@ static void freq_map(
 		if ( verbose )
 			printf("Mapping to optimal palette\n");
 		gbm_map_hist(hist, &gbm, data, data8);
-		free(data);
+		gbmmem_free(data);
 		write_bitmap_f(fn_dst, f, opt_dst, &gbm, gbmrgb, data8);
-		free(data8);
+		gbmmem_free(data8);
 		}			
 
 	gbm_delete_hist(hist);
@@ -485,7 +489,7 @@ static void mcut_map(
 		GBM gbm; byte *data;
 		read_bitmap_24_f(fn_src, f, opt_src, &gbm, &data);
 		gbm_add_to_mcut(mcut, &gbm, data);
-		free(data);
+		gbmmem_free(data);
 		}
 
 	if ( verbose )
@@ -505,9 +509,9 @@ static void mcut_map(
 		if ( verbose )
 			printf("Mapping to optimal palette\n");
 		gbm_map_mcut(mcut, &gbm, data, data8);
-		free(data);
+		gbmmem_free(data);
 		write_bitmap_f(fn_dst, f, opt_dst, &gbm, gbmrgb, data8);
-		free(data8);
+		gbmmem_free(data8);
 		}			
 
 	gbm_delete_mcut(mcut);
@@ -691,12 +695,12 @@ for ( i = 0, j = 0; i < ncolsextra; i++, j++ )
 		write_bitmap_f(fn_dst, f, opt_dst, &gbmP, gbmrgb, data8P);
 
 		gbm = gbmP;
-		free(data8);
+		gbmmem_free(data8);
 		data8 = data8P;
 		memcpy(map, mapP, ncols * sizeof(word));
 		}
 
-	free(data8);
+	gbmmem_free(data8);
 	}
 /*...e*/
 /*...srofreq_map:0:*/
@@ -713,7 +717,7 @@ static void get_and_hist(
 	(*data8) = alloc_mem(gbm);
 	if ( !gbm_hist(gbm, data24, gbmrgb, *data8, ncols, rm, gm, bm) )
 		fatal("can't compute histogram");
-	free(data24);
+	gbmmem_free(data24);
 	}
 /*...e*/
 
@@ -747,7 +751,7 @@ static void get_and_mcut(
 	(*data8) = alloc_mem(gbm);
 	if ( !gbm_mcut(gbm, data24, gbmrgb, *data8, ncols) )
 		fatal("can't perform median-cut");
-	free(data24);
+	gbmmem_free(data24);
 	}
 /*...e*/
 

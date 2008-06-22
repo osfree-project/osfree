@@ -13,6 +13,8 @@ History:
 07-Jun-2006: Add PBM, PNM formats and multipage handler for PGM
 26-Aug-2006: Add XPM format
 19-Jan-2007: Add missing braces around format decoder/encoder registry
+01-Mar-2007: Seek to file end after reading/writing the image data as some
+             readers/writers operate non-sequential.
 */
 
 #include <stdio.h>
@@ -60,7 +62,7 @@ History:
 #include "gbmjpg.h"
 
 
-#define GBM_VERSION   151  /* 1.51 */
+#define GBM_VERSION   155  /* 1.55 */
 
 /* --------------------------- */
 
@@ -316,8 +318,9 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_read_palette(int fd, int ft, GBM *gbm, GBMRGB *gb
 
 GBMEXPORT GBM_ERR GBMENTRY gbm_read_data(int fd, int ft, GBM *gbm, byte *data)
 {
-  int   flag = 0;
-  GBMFT gbmft = { 0 };
+  int     flag = 0;
+  GBMFT   gbmft = { 0 };
+  GBM_ERR rc;
 
   if ( gbm == NULL || data == NULL )
     return GBM_ERR_BAD_ARG;
@@ -340,15 +343,26 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_read_data(int fd, int ft, GBM *gbm, byte *data)
     return GBM_ERR_NOT_SUPP;
   }
 
-  return (*fts[ft].read_data)(fd, gbm, data);
+  rc = (*fts[ft].read_data)(fd, gbm, data);
+  if (rc != GBM_ERR_OK)
+  {
+      return rc;
+  }
+  /* seek to file end as some readers read non-sequential */
+  if (gbm_file_lseek(fd, 0L, GBM_SEEK_END) < 0)
+  {
+      return GBM_ERR_READ;
+  }
+  return GBM_ERR_OK;
 }
 
 /* --------------------------- */
 
 GBMEXPORT GBM_ERR GBMENTRY gbm_write(const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
 {
-  int   flag = 0;
-  GBMFT gbmft = { 0 };
+  int     flag = 0;
+  GBMFT   gbmft = { 0 };
+  GBM_ERR rc;
 
   if ( fn == NULL || opt == NULL )
     return GBM_ERR_BAD_ARG;
@@ -371,7 +385,17 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_write(const char *fn, int fd, int ft, const GBM *
     return GBM_ERR_NOT_SUPP;
   }
 
-  return (*fts[ft].write)(fn, fd, gbm, gbmrgb, data, opt);
+  rc = (*fts[ft].write)(fn, fd, gbm, gbmrgb, data, opt);
+  if (rc != GBM_ERR_OK)
+  {
+      return rc;
+  }
+  /* seek to file end as some readers write non-sequential */
+  if (gbm_file_lseek(fd, 0L, GBM_SEEK_END) < 0)
+  {
+      return GBM_ERR_WRITE;
+  }
+  return GBM_ERR_OK;
 }
 
 /* --------------------------- */

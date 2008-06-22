@@ -115,6 +115,13 @@ History:
 
 07-May-2006: Update to Libpng 1.2.10
 
+26-Mar-2008: Update to Libpng 1.2.25
+             Fix: Missing background color when downconverting RGBA
+                  with 4 channels to 3 channels by stripping alpha channel.
+                  This makes some images look badly if the user did not
+                  provide a custom background color. Now a white background
+                  is used instead of simply stripping the alpha channel.
+
 ******************************************************************************/
 
 #ifdef ENABLE_PNG
@@ -130,6 +137,7 @@ History:
 #include "gbmhelp.h"
 #include "gbmdesc.h"
 #include "gbmmap.h"
+#include "gbmmem.h"
 #include "png.h"
 
 /* ----------------------------------------------------------- */
@@ -918,7 +926,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
                /* the import of 2 bpp files is already supported (use_native_bpp) */
                /*  but we always upsample to 4 bpp to simplify external usage     */
                png_priv->upsamplePaletteToPalette = TRUE;
-               ch_bit_depth  = 4;
+               ch_bit_depth = 4;
                break;
 
             default:
@@ -958,7 +966,19 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
                }
                else
                {
-                  channel_count = use_native_bpp ? channel_count : 3;
+                  if (! use_native_bpp)
+                  {
+                     channel_count = 3;
+
+                     /* Background color is not set. Thus render against
+                      * a white background instead of simply stripping the
+                      * alpha channel during downconversion.
+                      */
+                     png_priv->backrgb.r =
+                     png_priv->backrgb.g =
+                     png_priv->backrgb.b = 65535;
+                     png_priv->unassociatedAlpha = TRUE;
+                  }
                }
                break;
 
@@ -1215,7 +1235,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
        /* Read the image. Attn: Align to 32 bit rows for GBM !!! */
        src_row_bytes    = png_get_rowbytes(png_ptr, info_ptr);
        gbm_row_bytes    = ((gbm->w * gbm->bpp + 31)/32) * 4;
-       gbm_row_pointers = (png_bytep*) malloc(gbm->h * sizeof(png_bytep));
+       gbm_row_pointers = (png_bytep*) gbmmem_malloc(gbm->h * sizeof(png_bytep));
        if (gbm_row_pointers == NULL)
        {
            png_read_deinit(png_priv);
@@ -1226,7 +1246,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
        if (setjmp(png_ptr->jmpbuf))
        {
            /* If we get here, we had a problem reading the file */
-           free(gbm_row_pointers);
+           gbmmem_free(gbm_row_pointers);
            png_read_deinit(png_priv);
            return GBM_ERR_READ;
        }
@@ -1260,21 +1280,21 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
           /* Due to the way interlace handling must be done, we can't  */
           /* just read row after row and do the conversion on the fly. */
           /* We must read the whole image first and then convert. Really bad. */
-          src_buffer = (byte *) malloc(src_row_bytes * gbm_src.h);
+          src_buffer = (byte *) gbmmem_malloc(src_row_bytes * gbm_src.h);
           if (src_buffer == NULL)
           {
-             free(gbm_row_pointers);
+             gbmmem_free(gbm_row_pointers);
              png_read_deinit(png_priv);
              return GBM_ERR_MEM;
           }
 
           /* allocate pointer table for the source rows */
-          src_row_pointers = (png_bytep*) malloc(gbm_src.h * sizeof(png_bytep));
+          src_row_pointers = (png_bytep*) gbmmem_malloc(gbm_src.h * sizeof(png_bytep));
           if (src_row_pointers == NULL)
           {
-             free(src_row_pointers);
-             free(src_buffer);
-             free(gbm_row_pointers);
+             gbmmem_free(src_row_pointers);
+             gbmmem_free(src_buffer);
+             gbmmem_free(gbm_row_pointers);
              png_read_deinit(png_priv);
              return GBM_ERR_MEM;
           }
@@ -1290,9 +1310,9 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
           if (setjmp(png_ptr->jmpbuf))
           {
              /* If we get here, we had a problem reading the file */
-             free(src_row_pointers);
-             free(src_buffer);
-             free(gbm_row_pointers);
+             gbmmem_free(src_row_pointers);
+             gbmmem_free(src_buffer);
+             gbmmem_free(gbm_row_pointers);
              png_read_deinit(png_priv);
              return GBM_ERR_READ;
           }
@@ -1305,16 +1325,16 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
              if (! gbm_map_row_PAL_PAL(src_row_pointers[row], &gbm_src,
                                        gbm_row_pointers[row], gbm))
              {
-                free(src_row_pointers);
-                free(src_buffer);
-                free(gbm_row_pointers);
+                gbmmem_free(src_row_pointers);
+                gbmmem_free(src_buffer);
+                gbmmem_free(gbm_row_pointers);
                 png_read_deinit(png_priv);
                 return GBM_ERR_READ;
              }
           }
 
-          free(src_row_pointers);
-          free(src_buffer);
+          gbmmem_free(src_row_pointers);
+          gbmmem_free(src_buffer);
        }
        else /* 24 Bit or higher */
        {
@@ -1332,21 +1352,21 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
              /* Due to the way interlace handling must be done, we can't  */
              /* just read row after row and do the conversion on the fly. */
              /* We must read the whole image first and then convert. Really bad. */
-             src_buffer = (byte *) malloc(src_row_bytes * gbm_src.h);
+             src_buffer = (byte *) gbmmem_malloc(src_row_bytes * gbm_src.h);
              if (src_buffer == NULL)
              {
-                free(gbm_row_pointers);
+                gbmmem_free(gbm_row_pointers);
                 png_read_deinit(png_priv);
                 return GBM_ERR_MEM;
              }
 
              /* allocate pointer table for the source rows */
-             src_row_pointers = (png_bytep*) malloc(gbm_src.h * sizeof(png_bytep));
+             src_row_pointers = (png_bytep*) gbmmem_malloc(gbm_src.h * sizeof(png_bytep));
              if (src_row_pointers == NULL)
              {
-                free(src_row_pointers);
-                free(src_buffer);
-                free(gbm_row_pointers);
+                gbmmem_free(src_row_pointers);
+                gbmmem_free(src_buffer);
+                gbmmem_free(gbm_row_pointers);
                 png_read_deinit(png_priv);
                 return GBM_ERR_MEM;
              }
@@ -1362,9 +1382,9 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
              if (setjmp(png_ptr->jmpbuf))
              {
                 /* If we get here, we had a problem reading the file */
-                free(src_row_pointers);
-                free(src_buffer);
-                free(gbm_row_pointers);
+                gbmmem_free(src_row_pointers);
+                gbmmem_free(src_buffer);
+                gbmmem_free(gbm_row_pointers);
                 png_read_deinit(png_priv);
                 return GBM_ERR_READ;
              }
@@ -1378,15 +1398,15 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
                                             gbm_row_pointers[row],  gbm,
                                             &png_priv->backrgb   ,  png_priv->unassociatedAlpha))
                 {
-                   free(src_row_pointers);
-                   free(src_buffer);
-                   free(gbm_row_pointers);
+                   gbmmem_free(src_row_pointers);
+                   gbmmem_free(src_buffer);
+                   gbmmem_free(gbm_row_pointers);
                    png_read_deinit(png_priv);
                    return GBM_ERR_READ;
                 }
              }
-             free(src_row_pointers);
-             free(src_buffer);
+             gbmmem_free(src_row_pointers);
+             gbmmem_free(src_buffer);
           }
           else /* copy directly */
           {
@@ -1397,7 +1417,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
                                             gbm_row_pointers[row],  gbm,
                                             &png_priv->backrgb   ,  png_priv->unassociatedAlpha))
                 {
-                   free(gbm_row_pointers);
+                   gbmmem_free(gbm_row_pointers);
                    png_read_deinit(png_priv);
                    return GBM_ERR_READ;
                 }
@@ -1405,7 +1425,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
           }
        }
 
-       free(gbm_row_pointers);
+       gbmmem_free(gbm_row_pointers);
 
        /* close reading */
        png_read_end(png_ptr, end_info);
@@ -1816,7 +1836,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
        /* The easiest way to write the image. Attn: Align to 32 bit rows for GBM !!! */
        const int row_bytes     = (((gbm->w * gbm->bpp) + 31)/32) * 4;
-       png_bytep *row_pointers = (png_bytep*) malloc(gbm->h * sizeof(png_bytep));
+       png_bytep *row_pointers = (png_bytep*) gbmmem_malloc(gbm->h * sizeof(png_bytep));
 
        /* init pointers from bottom to top because the image is internally a DIB
         * which is mirrored vertically
@@ -1832,7 +1852,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        png_write_image(png_ptr, row_pointers);
        png_write_end(png_ptr, info_ptr);
 
-       free(row_pointers);
+       gbmmem_free(row_pointers);
        row_pointers = NULL;
 
        if (io_p->errok != TRUE)

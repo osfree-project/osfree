@@ -11,7 +11,12 @@ History:
              it from the options.
              On OS/2 command line use: "\"file.ext\",options"
 17-Dec-2006  Allow -a with both, -w and -h. This will frame the new bitmap.
-
+02-Sep-2007  Add support for resampled scaling (option -f).
+21-Jan-2008  Add support for 1bpp and 4bpp grayscale resampled scaling.
+08-Feb-2008  Allocate memory from high memory for bitmap data to
+             stretch limit for out-of-memory errors
+             (requires kernel with high memory support)
+             Removed maximum size limit
 */
 
 #include <stdio.h>
@@ -34,11 +39,36 @@ History:
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 #include "gbmscale.h"
 #include "gbmtool.h"
 
 
 static char progname[] = "gbmsize";
+
+/* ----------------- */
+
+typedef struct FILTER_NAME_TABLE_DEF
+{
+  char * name;   /* filter name */
+  int    filter; /* filter type */
+};
+
+static const int FILTER_INDEX_SIMPLE = 0;
+
+static struct FILTER_NAME_TABLE_DEF FILTER_NAME_TABLE [] =
+{ "simple"         , -1,
+  "nearestneighbor", GBM_SCALE_FILTER_NEARESTNEIGHBOR,
+  "bilinear"       , GBM_SCALE_FILTER_BILINEAR,
+  "bell"           , GBM_SCALE_FILTER_BELL,
+  "bspline"        , GBM_SCALE_FILTER_BSPLINE,
+  "mitchell"       , GBM_SCALE_FILTER_MITCHELL,
+  "lanczos"        , GBM_SCALE_FILTER_LANCZOS
+};
+const int FILTER_NAME_TABLE_LENGTH = sizeof(FILTER_NAME_TABLE) /
+                                     sizeof(FILTER_NAME_TABLE[0]);
+
+/* ----------------- */
 
 static void fatal(const char *fmt, ...)
 {
@@ -56,13 +86,18 @@ static void usage(void)
 {
    int ft, n_ft;
 
-   fprintf(stderr, "usage: %s [-w w] [-h h] [-a] [--] \"\\\"fn1.ext\\\"{,opt}\" [\"\\\"fn2.ext\\\"{,opt}\"]\n", progname);
-   fprintf(stderr, "flags: -w w           new width of bitmap (default width of bitmap)\n");
-   fprintf(stderr, "       -h h           new height of bitmap (default height of bitmap)\n");
-   fprintf(stderr, "       -a             preserve aspect ratio\n");
-   fprintf(stderr, "       fn1.ext{,opt}  input filename (with any format specific options)\n");
-   fprintf(stderr, "       fn2.ext{,opt}  optional output filename (or will use fn1 if not present)\n");
-   fprintf(stderr, "                      ext's are used to deduce desired bitmap file formats\n");
+   fprintf(stderr, "usage:\n");
+   fprintf(stderr, "%s [-w w] [-h h] [-a] [-f f] \"\\\"fn1.ext\\\"{,opt}\" [\"\\\"fn2.ext\\\"{,opt}\"]\n", progname);
+   fprintf(stderr, "-w w           new width of bitmap  (default width of bitmap)\n");
+   fprintf(stderr, "-h h           new height of bitmap (default height of bitmap)\n");
+   fprintf(stderr, "-a             preserve aspect ratio\n");
+   fprintf(stderr, "-f f           do quality scaling using one of the algorithms:\n");
+   fprintf(stderr, "               * simple (default)\n");
+   fprintf(stderr, "               * nearestneighbor,bilinear,bell,bspline,mitchell,lanczos\n");
+   fprintf(stderr, "                 Note: Only grayscale and true color images.\n");
+   fprintf(stderr, "fn1.ext{,opt}  input filename (with any format specific options)\n");
+   fprintf(stderr, "fn2.ext{,opt}  optional output filename (or will use fn1 if not present)\n");
+   fprintf(stderr, "               ext's are used to deduce desired bitmap file formats\n");
 
    gbm_init();
    gbm_query_n_filetypes(&n_ft);
@@ -76,11 +111,11 @@ static void usage(void)
    }
    gbm_deinit();
 
-   fprintf(stderr, "       opt's          bitmap format specific options\n");
+   fprintf(stderr, "opt's          bitmap format specific options\n");
 
-   fprintf(stderr, "\n       In case the filename contains a comma or spaces and options\n");
-   fprintf(stderr,   "       need to be added, the syntax \"\\\"fn.ext\\\"{,opt}\" must be used\n");
-   fprintf(stderr,   "       to clearly separate the filename from the options.\n");
+   fprintf(stderr, "\nIn case the filename contains a comma or spaces and options\n");
+   fprintf(stderr,   "need to be added, the syntax \"\\\"fn.ext\\\"{,opt}\" must be used\n");
+   fprintf(stderr,   "to clearly separate the filename from the options.\n");
 
    exit(1);
 }
@@ -110,20 +145,60 @@ static int get_opt_value_pos(const char *s, const char *name)
    return n;
 }
 
+static int get_opt_value_filterIndex(const char *s,
+                                     const struct FILTER_NAME_TABLE_DEF *table,
+                                     const int tableLength)
+{
+   int n;
+   for (n = 0; n < tableLength; n++)
+   {
+       if (strcmp(table[n].name, s) == 0)
+       {
+           return n;
+       }
+   }
+   return -1;
+}
+
+/* ---------------------------- */
+
+static BOOLEAN isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
+{
+    if ((entries > 0) && (entries <= 0x100))
+    {
+        int i;
+        for (i = 0; i < entries; i++)
+        {
+            if ((gbmrgb[i].r != gbmrgb[i].g) ||
+                (gbmrgb[i].r != gbmrgb[i].b) ||
+                (gbmrgb[i].g != gbmrgb[i].b))
+            {
+                return FALSE;
+            }
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* ---------------------------- */
+
 int main(int argc, char *argv[])
 {
    GBMTOOL_FILEARG gbmfilearg;
    char    fn_src[GBMTOOL_FILENAME_MAX+1], fn_dst[GBMTOOL_FILENAME_MAX+1],
-                opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
+           opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
-   int   w = -1, h = -1;
+   int   w = -1, h = -1, filterIndex = FILTER_INDEX_SIMPLE;
    int   fd, ft_src, ft_dst, i, stride, stride2, flag;
-   GBM_ERR   rc;
-   GBMFT   gbmft;
-   GBM   gbm;
+   GBM_ERR  rc;
+   GBMFT    gbmft;
+   GBM      gbm, gbm2;
    GBMRGB   gbmrgb[0x100];
-   BOOLEAN   aspect = FALSE;
-   byte   *data, *data2;
+   BOOLEAN  aspect = FALSE;
+   BOOLEAN  qualityScalingEnabled = FALSE;
+   BOOLEAN  isGrayscale = FALSE;
+   byte    *data, *data2;
 
    for ( i = 1; i < argc; i++ )
    {
@@ -144,6 +219,12 @@ int main(int argc, char *argv[])
          case 'a':
             aspect = TRUE;
             break;
+         case 'f':
+            if ( ++i == argc ) usage();
+            filterIndex = get_opt_value_filterIndex(argv[i],
+                                                    FILTER_NAME_TABLE,
+                                                    FILTER_NAME_TABLE_LENGTH);
+            break;
          default:
             usage();
             break;
@@ -151,7 +232,17 @@ int main(int argc, char *argv[])
    }
 
    if ( aspect && w == -1 && h == -1 )
+   {
       fatal("-a can't be used if neither -w or -h is given");
+   }
+   if (filterIndex == -1)
+   {
+      fatal("wrong filter type");
+   }
+   else if (filterIndex != FILTER_INDEX_SIMPLE)
+   {
+      qualityScalingEnabled = TRUE;
+   }
 
    if ( i == argc )
       usage();
@@ -251,14 +342,101 @@ int main(int argc, char *argv[])
       }
    }
 
-   if ( w == 0 || w > 10000 || h == 0 || h > 10000 )
+   if (w == 0 || h == 0)
    {
       gbm_io_close(fd);
       fatal("desired bitmap size of %dx%d, is silly", w, h);
    }
 
+   if ( (rc = gbm_read_palette(fd, ft_src, &gbm, gbmrgb)) != GBM_ERR_OK )
+   {
+      gbm_io_close(fd);
+      fatal("can't read palette of %s: %s", fn_src, gbm_err(rc));
+   }
+
+   gbm2   = gbm;
+   gbm2.w = w;
+   gbm2.h = h;
+
+   if (qualityScalingEnabled)
+   {
+       if (gbm.bpp <= 8)
+       {
+           isGrayscale = isGrayscalePalette(gbmrgb, 1 << gbm.bpp);
+       }
+       if ((gbm.bpp <= 8) && (! isGrayscale))
+       {
+          gbm_io_close(fd);
+          fatal("can't use filter '%s' for colour palette images",
+                FILTER_NAME_TABLE[filterIndex].name);
+       }
+       if (isGrayscale)
+       {
+          gbm2.bpp = 8;
+       }
+   }
+
+   stride = ( ((gbm.w * gbm.bpp + 31)/32) * 4 );
+   if ( (data = gbmmem_malloc(stride * gbm.h)) == NULL )
+   {
+      gbm_io_close(fd);
+      fatal("out of memory allocating %d bytes for input bitmap", stride * gbm.h);
+   }
+
+   stride2 = ( ((gbm2.w * gbm2.bpp + 31)/32) * 4 );
+   if ( (data2 = gbmmem_malloc(stride2 * gbm2.h)) == NULL )
+   {
+      gbmmem_free(data);
+      gbm_io_close(fd);
+      fatal("out of memory allocating %d bytes for output bitmap", stride2 * gbm2.h);
+   }
+
+   if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )
+   {
+      gbmmem_free(data2);
+      gbmmem_free(data);
+      gbm_io_close(fd);
+      fatal("can't read bitmap data of %s: %s", fn_src, gbm_err(rc));
+   }
+
+   gbm_io_close(fd);
+
+   if (qualityScalingEnabled)
+   {
+       if (isGrayscale)
+       {
+           rc = gbm_quality_scale_gray(data , gbm.w , gbm.h , gbm.bpp, gbmrgb,
+                                       data2, gbm2.w, gbm2.h, gbmrgb,
+                                       FILTER_NAME_TABLE[filterIndex].filter);
+       }
+       else
+       {
+           rc = gbm_quality_scale_bgra(data , gbm.w , gbm.h,
+                                       data2, gbm2.w, gbm2.h, gbm.bpp,
+                                       FILTER_NAME_TABLE[filterIndex].filter);
+       }
+   }
+   else
+   {
+       rc = gbm_simple_scale(data, gbm.w, gbm.h, data2, gbm2.w, gbm2.h, gbm.bpp);
+   }
+
+   gbmmem_free(data);
+
+   if (rc != GBM_ERR_OK)
+   {
+      gbmmem_free(data2);
+      fatal("can't scale: %s", gbm_err(rc));
+   }
+
+   if ( (fd = gbm_io_create(fn_dst, GBM_O_WRONLY)) == -1 )
+   {
+      gbmmem_free(data2);
+      fatal("can't create %s", fn_dst);
+   }
+
    gbm_query_filetype(ft_dst, &gbmft);
-   switch ( gbm.bpp )
+   switch ( gbm2.bpp )
    {
       case 64:   flag = GBM_FT_W64;  break;
       case 48:   flag = GBM_FT_W48;  break;
@@ -273,68 +451,19 @@ int main(int argc, char *argv[])
    {
       gbm_io_close(fd);
       fatal("output bitmap format %s does not support writing %d bpp data",
-            gbmft.short_name, gbm.bpp);
+            gbmft.short_name, gbm2.bpp);
    }
 
-   if ( (rc = gbm_read_palette(fd, ft_src, &gbm, gbmrgb)) != GBM_ERR_OK )
-   {
-      gbm_io_close(fd);
-      fatal("can't read palette of %s: %s", fn_src, gbm_err(rc));
-   }
-
-   stride = ( ((gbm.w * gbm.bpp + 31)/32) * 4 );
-   if ( (data = malloc((size_t) (stride * gbm.h))) == NULL )
-   {
-      gbm_io_close(fd);
-      fatal("out of memory allocating %d bytes for input bitmap", stride * gbm.h);
-   }
-
-   stride2 = ( ((w * gbm.bpp + 31)/32) * 4 );
-   if ( (data2 = malloc((size_t) (stride2 * h))) == NULL )
-   {
-      free(data);
-      gbm_io_close(fd);
-      fatal("out of memory allocating %d bytes for output bitmap", stride2 * h);
-   }
-
-   if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )
-   {
-      free(data2);
-      free(data);
-      gbm_io_close(fd);
-      fatal("can't read bitmap data of %s: %s", fn_src, gbm_err(rc));
-   }
-
-   gbm_io_close(fd);
-
-   if ( (rc = gbm_simple_scale(data, gbm.w, gbm.h, data2, w, h, gbm.bpp)) != GBM_ERR_OK )
-   {
-      free(data);
-      free(data2);
-      fatal("can't scale: %s", gbm_err(rc));
-   }
-
-   free(data);
-
-   if ( (fd = gbm_io_create(fn_dst, GBM_O_WRONLY)) == -1 )
-   {
-      free(data2);
-      fatal("can't create %s", fn_dst);
-   }
-
-   gbm.w = w;
-   gbm.h = h;
-
-   if ( (rc = gbm_write(fn_dst, fd, ft_dst, &gbm, gbmrgb, data2, opt_dst)) != GBM_ERR_OK )
+   if ( (rc = gbm_write(fn_dst, fd, ft_dst, &gbm2, gbmrgb, data2, opt_dst)) != GBM_ERR_OK )
    {
       gbm_io_close(fd);
       remove(fn_dst);
-      free(data2);
+      gbmmem_free(data2);
       fatal("can't write %s: %s", fn_dst, gbm_err(rc));
    }
 
    gbm_io_close(fd);
-   free(data2);
+   gbmmem_free(data2);
 
    gbm_deinit();
 

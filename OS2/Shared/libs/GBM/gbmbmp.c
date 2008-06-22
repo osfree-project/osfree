@@ -72,6 +72,7 @@ TODO:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 #ifndef min
   #define min(a,b)  (((a)<(b))?(a):(b))
@@ -952,7 +953,7 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
      return GBM_ERR_BMP_COMP;
    }
 
-   data_src = (byte *) malloc((size_t) (stride_src));
+   data_src = (byte *) gbmmem_malloc(stride_src);
    if (data_src == NULL)
    {
      return GBM_ERR_MEM;
@@ -968,7 +969,7 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
 
      if (gbm_file_read(fd, data_src, stride_src) != stride_src)
      {
-       free(data_src);
+       gbmmem_free(data_src);
        return GBM_ERR_READ;
      }
 
@@ -998,7 +999,7 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
      data_write += stride_dst;
   }
 
-  free(data_src);
+  gbmmem_free(data_src);
 
   return GBM_ERR_OK;
 }
@@ -1028,7 +1029,7 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
      return GBM_ERR_BMP_COMP;
    }
 
-   data_src = (byte *) malloc((size_t) (stride_src));
+   data_src = (byte *) gbmmem_malloc(stride_src);
    if (data_src == NULL)
    {
      return GBM_ERR_MEM;
@@ -1044,7 +1045,7 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
 
      if (gbm_file_read(fd, data_src, stride_src) != stride_src)
      {
-       free(data_src);
+       gbmmem_free(data_src);
        return GBM_ERR_READ;
      }
 
@@ -1074,7 +1075,7 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
      data_write += stride_dst;
   }
 
-  free(data_src);
+  gbmmem_free(data_src);
 
   return GBM_ERR_OK;
 }

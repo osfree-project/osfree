@@ -10,7 +10,9 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: "\"file.ext\",options"
-
+08-Feb-2008  Allocate memory from high memory for bitmap data to
+             stretch limit for out-of-memory errors
+             (requires kernel with high memory support)
 */
 
 /*...sincludes:0:*/
@@ -34,6 +36,7 @@ History:
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 #include "gbmerr.h"
 #include "gbmtrunc.h"
 #include "gbmht.h"
@@ -261,7 +264,7 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 		return;
 
 	bytes = new_stride * gbm->h;
-	if ( (new_data = malloc((size_t) bytes)) == NULL )
+	if ( (new_data = gbmmem_malloc(bytes)) == NULL )
 		fatal("out of memory allocating %d bytes", bytes);
 
 	for ( y = 0; y < gbm->h; y++ )
@@ -329,7 +332,7 @@ case 8:
 /*...e*/
 			}
 		}
-	free(*data);
+	gbmmem_free(*data);
 	*data = new_data;
 	gbm->bpp = 24;
 	}
@@ -607,7 +610,7 @@ else
 
 	stride = ( ((gbm.w * gbm.bpp + 31)/32) * 4 );
 	bytes = stride * gbm.h;
-	if ( (data = malloc((size_t) bytes)) == NULL )
+	if ( (data = gbmmem_malloc(bytes)) == NULL )
 		{
 		gbm_io_close(fd);
 		fatal("out of memory allocating %d bytes", bytes);
@@ -615,7 +618,7 @@ else
 
 	if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )
 		{
-		free(data);
+		gbmmem_free(data);
 		gbm_io_close(fd);
 		fatal("can't read bitmap data of %s: %s", fn_src, gbm_err(rc));
 		}
@@ -756,13 +759,13 @@ else
 			gbm_ht_24_2x2(&gbm, data, data, rm, gm, bm);
 			break;
 		default:
-		        free(data);
+		        gbmmem_free(data);
 			fatal("bad mapping/error-diffusion/halftone combination");
 		}
 
 	if ( !ok )
         {
-		free(data);
+		gbmmem_free(data);
 		fatal("unable to perform mapping");
         }
 
@@ -770,7 +773,7 @@ else
 
 	if ( (fd = gbm_io_create(fn_dst, GBM_O_WRONLY)) == -1 )
 		{
-		free(data);
+		gbmmem_free(data);
 		fatal("can't create %s", fn_dst);
 		}
 
@@ -778,13 +781,13 @@ else
 		{
 		gbm_io_close(fd);
 		remove(fn_dst);
-		free(data);
+		gbmmem_free(data);
 		fatal("can't write %s: %s", fn_dst, gbm_err(rc));
 		}
 
 	gbm_io_close(fd);
 
-	free(data);
+	gbmmem_free(data);
 
 	gbm_deinit();
 

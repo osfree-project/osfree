@@ -5,7 +5,7 @@
 # linkable library (.LIB).
 
 # Modify this line to point to the zlib library 1.2.3 or higher
-ZLIB = ..\zlib.123
+ZLIB = ..\zlib
 
 # set directory where binaries will be placed by target install
 IDIR = bin
@@ -19,8 +19,8 @@ CLIB    = wlib
 # Builds libpng objects which are compiled multithreaded
 # Therefore all users should also be multithreaded
 CWARNS     = -wx -wcd=124 -wcd=136 -we
-CFLAGS     = $(CWARNS) -i$(ZLIB) -bd -zq -zp4 -onatxh -oe=50 -sg -ei -6r -fp5 -bm -mf /DPNG_NO_STDIO /DNDEBUG
-CFLAGS_DBG = $(CWARNS) -i$(ZLIB) -bd -zq -zp4 -sg -ei -6r -fp5 -bm -mf -d2 /DDEBUG
+CFLAGS     = $(CWARNS) -i$(ZLIB) -bd -zq -zp4 -onatxh -oe=50 -sg -ei -6r -fp6 -fpi87 -bm -mf /DPNG_NO_STDIO /DNDEBUG
+CFLAGS_DBG = $(CWARNS) -i$(ZLIB) -bd -zq -zp4 -sg -ei -6r -fp6 -fpi87 -bm -mf -d2 /DDEBUG
 
 LFLAGS     = SYSTEM os2v2_dll op q op el op stack=0x6000 op caseexact
 LFLAGS_DBG = SYSTEM os2v2_dll op q d all op stack=0x6000 op caseexact
@@ -71,6 +71,6 @@ install:
          copy pngconf.h   $(IDIR)
 
 package:
-         -del /N $(IDIR)\libpng1214.zip
-         zip -9 $(IDIR)\libpng1214.zip png.lib png.h pngconf.h
+         -del /N $(IDIR)\libpng.zip
+         zip -9 $(IDIR)\libpng.zip png.lib png.h pngconf.h
 

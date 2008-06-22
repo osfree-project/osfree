@@ -24,6 +24,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -170,7 +171,7 @@ GBM_ERR iax_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	if ( !make_output_palette(gbmrgb, grey, opt) )
 		return GBM_ERR_BAD_OPTION;
 
-	if ( (linebuf = malloc((size_t) gbm->w)) == NULL )
+	if ( (linebuf = gbmmem_malloc((size_t) gbm->w)) == NULL )
 		return GBM_ERR_MEM;
 
 	stride = ((gbm->w + 3) & ~3);
@@ -183,7 +184,7 @@ GBM_ERR iax_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 		p -= stride;
 		}
 
-	free(linebuf);
+	gbmmem_free(linebuf);
 
 	return GBM_ERR_OK;
 	}

@@ -7,8 +7,8 @@
 # Therefore all users should also be multithreaded
 #
 # Modify this line to point to the zlib library 1.2.3 or higher
-ZLIB = ..\zlib.123
-IJG  = ..\jpeg-6b
+ZLIB = ..\zlib
+IJG  = ..\libjpeg
 IDIR = bin
 
 # include configuration setting for nmake (except compiler options)
@@ -98,6 +98,6 @@ install:
          copy tif_conf.h   $(IDIR)
 
 package:
-         -del /N $(IDIR)\libtiff382.zip
-         zip -9 $(IDIR)\libtiff382.zip tiff.lib tiff.h tiffio.h tiffconf.h tif_conf.h
+         -del /N $(IDIR)\libtiff.zip
+         zip -9 $(IDIR)\libtiff.zip tiff.lib tiff.h tiffio.h tiffconf.h tif_conf.h
 

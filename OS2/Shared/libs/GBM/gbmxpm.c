@@ -67,6 +67,7 @@ History:
 #include "gbmhelp.h"
 #include "gbmdesc.h"
 #include "gbmmap.h"
+#include "gbmmem.h"
 #include "gbmxpmcn.h"
 
 /* ---------------------------------------- */
@@ -188,7 +189,7 @@ static XPM_CODE_HASH * create_xpm_code_hash(dword num_entries, int code_len)
       {
           return NULL;
       }
-      xpm_code_hash->entries = (XPM_HASH_ENTRY **) calloc(num_entries, sizeof(XPM_HASH_ENTRY *));
+      xpm_code_hash->entries = (XPM_HASH_ENTRY **) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY *));
       if (xpm_code_hash->entries == NULL)
       {
           free(xpm_code_hash);
@@ -207,10 +208,10 @@ static XPM_CODE_HASH * create_xpm_code_hash(dword num_entries, int code_len)
        * requirements as usuallay the C runtime would track each allocated block
        * by adding several bytes on top of each entry.
        */
-      xpm_code_hash->pool = (byte *) calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
+      xpm_code_hash->pool = (byte *) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
       if (xpm_code_hash->pool == NULL)
       {
-          free(xpm_code_hash->entries);
+          gbmmem_free(xpm_code_hash->entries);
           free(xpm_code_hash);
           return NULL;
       }
@@ -243,7 +244,7 @@ static XPM_RGB_HASH * create_xpm_rgb_hash(dword num_entries, int code_len)
       {
           return NULL;
       }
-      xpm_rgb_hash->entries = (XPM_HASH_ENTRY **) calloc(num_entries, sizeof(XPM_HASH_ENTRY *));
+      xpm_rgb_hash->entries = (XPM_HASH_ENTRY **) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY *));
       if (xpm_rgb_hash->entries == NULL)
       {
           free(xpm_rgb_hash);
@@ -259,10 +260,10 @@ static XPM_RGB_HASH * create_xpm_rgb_hash(dword num_entries, int code_len)
        * requirements as usuallay the C runtime would track each allocated block
        * by adding several bytes on top of each entry.
        */
-      xpm_rgb_hash->pool = (byte *) calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
+      xpm_rgb_hash->pool = (byte *) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
       if (xpm_rgb_hash->pool == NULL)
       {
-          free(xpm_rgb_hash->entries);
+          gbmmem_free(xpm_rgb_hash->entries);
           free(xpm_rgb_hash);
           return NULL;
       }
@@ -294,8 +295,8 @@ static void free_xpm_code_hash(XPM_CODE_HASH * xpm_code_hash)
         /* All entries are just pointers into the common memory area.
          * Thus we just need to free up the whole block :) .
          */
-        free(xpm_code_hash->pool);
-        free(xpm_code_hash->entries);
+        gbmmem_free(xpm_code_hash->pool);
+        gbmmem_free(xpm_code_hash->entries);
         xpm_code_hash->pool           = NULL;
         xpm_code_hash->entries        = NULL;
         xpm_code_hash->length         = 0;
@@ -313,8 +314,8 @@ static void free_xpm_rgb_hash(XPM_RGB_HASH * xpm_rgb_hash)
         /* All entries are just pointers into the common memory area.
          * Thus we just need to free up the whole block :) .
          */
-        free(xpm_rgb_hash->pool);
-        free(xpm_rgb_hash->entries);
+        gbmmem_free(xpm_rgb_hash->pool);
+        gbmmem_free(xpm_rgb_hash->entries);
         xpm_rgb_hash->pool           = NULL;
         xpm_rgb_hash->entries        = NULL;
         xpm_rgb_hash->length         = 0;
@@ -401,7 +402,7 @@ static BOOLEAN add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
    {
        /* an entry list already exists -> add another element */
        XPM_HASH_ENTRY * pNextEntry;
-    
+
        pEntry     = *ppEntry;
        pNextEntry = pEntry->next;
 
@@ -413,7 +414,7 @@ static BOOLEAN add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
        /* link to the next free XPM_HASH_ENTRY block in our pool */
        pNextEntry = (XPM_HASH_ENTRY *)
                       (xpm_code_hash->pool + (xpm_code_hash->pool_high_mark * (sizeof(XPM_HASH_ENTRY) + code_len + 1)));
-    
+
        pEntry->next = pNextEntry;
        pEntry       = pEntry->next;
    }
@@ -473,7 +474,7 @@ static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
    {
        /* an entry list already exists -> add another element */
        XPM_HASH_ENTRY * pNextEntry = NULL;
-    
+
        pEntry     = *ppEntry;
        pNextEntry = pEntry->next;
 
@@ -485,7 +486,7 @@ static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
        /* link to the next free XPM_HASH_ENTRY block in our pool */
        pNextEntry = (XPM_HASH_ENTRY *)
                       (xpm_rgb_hash->pool + (xpm_rgb_hash->pool_high_mark * (sizeof(XPM_HASH_ENTRY) + code_len + 1)));
-    
+
        pEntry->next = pNextEntry;
        pEntry       = pEntry->next;
    }
@@ -1252,7 +1253,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
     /* read the palette lines and decode them */
     /* Format: . c #00AAFF */
 
-    buffer = (byte *) malloc(codeLen + colorLen);
+    buffer = (byte *) gbmmem_malloc(codeLen + colorLen);
     if (buffer == NULL)
     {
         return GBM_ERR_MEM;
@@ -1268,7 +1269,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
               if (! read_color_line(ahead, code , codeLen, xpm_priv->chars_per_pixel,
                                            color, colorLen, FALSE))
               {
-                  free(buffer);
+                  gbmmem_free(buffer);
                   return GBM_ERR_READ;
               }
               break;
@@ -1277,13 +1278,13 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
               if (! read_color_line(ahead, code , codeLen, xpm_priv->chars_per_pixel,
                                            color, colorLen, TRUE))
               {
-                  free(buffer);
+                  gbmmem_free(buffer);
                   return GBM_ERR_READ;
               }
               break;
 
            default:
-              free(buffer);
+              gbmmem_free(buffer);
               return GBM_ERR_READ;
         }
 
@@ -1294,7 +1295,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
             case XPM_PAL_RGB:
                 if (! rgb16FromHex(color, strlen(color), &gbmrgb16))
                 {
-                    free(buffer);
+                    gbmmem_free(buffer);
                     return GBM_ERR_READ;
                 }
                 break;
@@ -1312,13 +1313,13 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
                             continue;
                         }
                     }
-                    free(buffer);
+                    gbmmem_free(buffer);
                     return GBM_ERR_READ;
                 }
                 break;
 
             default:
-                free(buffer);
+                gbmmem_free(buffer);
                 return GBM_ERR_NOT_SUPP;
         }
 
@@ -1326,7 +1327,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
         add_xpm_code_hash(xpm_code_hash, code, xpm_priv->chars_per_pixel, typeEnum, &gbmrgb16, entry);
     }
 
-    free(buffer);
+    gbmmem_free(buffer);
 
     /* discard remaining newline */
     read_discard_newline(ahead);
@@ -1391,9 +1392,9 @@ static GBM_ERR internal_xpm_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb,
 
 GBM_ERR xpm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 {
-   if (gbm == NULL) 
+   if (gbm == NULL)
    {
-      return GBM_ERR_BAD_ARG; 
+      return GBM_ERR_BAD_ARG;
    }
    if (gbm->bpp <= 8)
    {
@@ -1420,7 +1421,7 @@ GBM_ERR xpm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
       }
 
       free_xpm_code_hash(xpm_code_hash);
-   
+
       if (rc != GBM_ERR_OK)
       {
          return rc;
@@ -1745,10 +1746,10 @@ static BOOLEAN is_color_used(const byte *flags, byte r, byte g, byte b, dword *l
 {
     /* Get the long value of the bit's color */
     const dword cLong = MakeBGR(b, g, r);
-    
+
     *li = cLong / 8; /* Divide by 8 to get it's section in our color registry */
     *lx = cLong % 8; /* Get the right bit in the index for the color */
-    
+
     return (flags[*li] & (1 << *lx)) ? TRUE : FALSE;
 }
 
@@ -1783,7 +1784,7 @@ static byte * create_table_of_used_colors(const GBM * gbm, const byte * data, in
       byte  r, g, b;
 
       /* Allocate our color registry (&H200000 bytes = 16,777,216 bits) */
-      flags = (byte *) calloc(0x200000, sizeof(byte));
+      flags = (byte *) gbmmem_calloc(0x200000, sizeof(byte));
       if (flags == NULL)
       {
           return NULL;
@@ -1844,19 +1845,19 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
           *xpm_rgb_hash = create_xpm_rgb_hash(used_colors, code_len);
           if (*xpm_rgb_hash == NULL)
           {
-              free(flags);
+              gbmmem_free(flags);
               return GBM_ERR_MEM;
           }
           /* Calculate chars per pixel for color table encoding: */
           codebuf = (char *) calloc(code_len + 1, sizeof(char));
           if (codebuf == NULL)
           {
-              free(flags);
+              gbmmem_free(flags);
               free_xpm_rgb_hash(*xpm_rgb_hash);
               *xpm_rgb_hash = NULL;
               return GBM_ERR_WRITE;
           }
-          
+
           color_index = 0;
           for (y = gbm->h - 1; y >= 0; y--)
           {
@@ -1886,7 +1887,7 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
                     if (! add_xpm_rgb_hash(*xpm_rgb_hash, codebuf, code_len, pal_type, &rgb16, color_index))
                     {
                        free(codebuf);
-                       free(flags);
+                       gbmmem_free(flags);
                        free_xpm_rgb_hash(*xpm_rgb_hash);
                        *xpm_rgb_hash = NULL;
                        return GBM_ERR_WRITE;
@@ -1901,7 +1902,7 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
           free(codebuf);
           codebuf = NULL;
       }
-      free(flags);
+      gbmmem_free(flags);
       flags = NULL;
    }
 
@@ -2392,10 +2393,10 @@ GBM_ERR xpm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                 case XPM_PAL_RGB:
                 case XPM_PAL_TRANSPARENT:
                     break;
-    
+
                 case XPM_PAL_UNUSED:
                     continue;
-    
+
                 default:
                     free_xpm_rgb_hash(xpm_rgb_hash);
                     gbm_destroy_wcache(wcache);
@@ -2437,7 +2438,7 @@ GBM_ERR xpm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                gbm_destroy_wcache(wcache);
                return GBM_ERR_WRITE;
             }
-  
+
             pEntry = pEntry->next;
          }
       }

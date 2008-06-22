@@ -102,8 +102,8 @@ install:
          copy jpegint.h    $(IDIR)
 
 package:
-         -del /N $(IDIR)\jpeglib6b.zip
-         zip -9 $(IDIR)\jpeglib6b.zip jpeg.lib jpeglib.h, jerror.h, jconfig.h, jmorecfg.h jpegint.h
+         -del /N $(IDIR)\libjpeg.zip
+         zip -9 $(IDIR)\libjpeg.zip jpeg.lib jpeglib.h, jerror.h, jconfig.h, jmorecfg.h jpegint.h
 
 
 jcapimin.obj: jcapimin.c jinclude.h jconfig.h jpeglib.h jmorecfg.h jpegint.h jerror.h

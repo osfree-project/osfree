@@ -10,6 +10,7 @@ gbmhist.c - Histogram/Frequency-of-use method of colour reduction
 #include <stdlib.h>
 #include <string.h>
 #include "gbm.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...e*/
@@ -35,7 +36,7 @@ GBMHIST *gbm_create_hist(
 	{
 	GBMHIST *hist;
 
-	if ( (hist = malloc((size_t) sizeof(GBMHIST))) == NULL )
+	if ( (hist = gbmmem_malloc((size_t) sizeof(GBMHIST))) == NULL )
 		return NULL;
 	hist->rm = rm;
 	hist->gm = gm;
@@ -48,7 +49,7 @@ GBMHIST *gbm_create_hist(
 /*...sgbm_delete_hist \45\ delete hist:0:*/
 void gbm_delete_hist(GBMHIST *hist)
 	{
-	free(hist);
+	gbmmem_free(hist);
 	}
 /*...e*/
 /*...sgbm_add_to_hist \45\ add bitmap data to hist:0:*/

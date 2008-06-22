@@ -25,6 +25,7 @@ gbmhelp.c - Helpers for GBM file I/O stuff
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 
 /* ---------------------------- */
 /* ---------------------------- */
@@ -337,15 +338,15 @@ typedef struct
 
 AHEAD *gbm_create_ahead(int fd)
 {
-   AHEAD *ahead = calloc(1, sizeof(AHEAD));
+   AHEAD *ahead = gbmmem_malloc(sizeof(AHEAD));
    if (ahead == NULL)
    {
       return NULL;
    }
-   ahead->inx    = 0;
-   ahead->cnt    = 0;
-   ahead->pos    = gbm_file_lseek(fd, 0, GBM_SEEK_CUR);
-   ahead->fd     = fd;
+   ahead->inx = 0;
+   ahead->cnt = 0;
+   ahead->pos = gbm_file_lseek(fd, 0, GBM_SEEK_CUR);
+   ahead->fd  = fd;
    return ahead;
 }
 
@@ -357,7 +358,7 @@ void gbm_destroy_ahead(AHEAD *ahead)
      /* so that normal file access is still possible.    */
      gbm_file_lseek(ahead->fd, ahead->pos, GBM_SEEK_SET);
      ahead->fd = -1; /* safety: prevent further use */
-     free(ahead);
+     gbmmem_free(ahead);
    }
 }
 
@@ -485,7 +486,7 @@ typedef struct
 
 WCACHE *gbm_create_wcache(int fd)
 {
-   WCACHE *wcache = calloc(1, sizeof(WCACHE));
+   WCACHE *wcache = gbmmem_malloc(sizeof(WCACHE));
    if (wcache == NULL)
    {
       return NULL;
@@ -504,12 +505,12 @@ int gbm_destroy_wcache(WCACHE *wcache)
         if (gbm_file_write(wcache->fd, (byte *) wcache->buf, wcache->outx) < wcache->outx)
         {
           wcache->fd = -1; /* safety: prevent further use */
-          free(wcache);
+          gbmmem_free(wcache);
           return -1;
         }
      }
      wcache->fd = -1; /* safety: prevent further use */
-     free(wcache);
+     gbmmem_free(wcache);
    }
    return 0;
 }

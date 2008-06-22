@@ -10,6 +10,8 @@ gbmmir.c - Produce Mirror Image of General Bitmap
 #include <stddef.h>
 #include <stdlib.h>
 #include "gbm.h"
+#include "gbmmir.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...e*/
@@ -22,7 +24,7 @@ BOOLEAN gbm_ref_vert(const GBM *gbm, byte *data)
 	byte *p2 = data + (gbm->h - 1) * stride;
 	byte *p3;
 
-	if ( (p3 = malloc((size_t) stride)) == NULL )
+	if ( (p3 = gbmmem_malloc((size_t) stride)) == NULL )
 		return FALSE;
 
 	for ( ; p1 < p2; p1 += stride, p2 -= stride )
@@ -32,7 +34,7 @@ BOOLEAN gbm_ref_vert(const GBM *gbm, byte *data)
 		memcpy(p2, p3, stride);
 		}
 
-	free(p3);
+	gbmmem_free(p3);
 
 	return TRUE;
 	}
@@ -209,7 +211,7 @@ BOOLEAN gbm_ref_horz(const GBM *gbm, byte *data)
 	byte *p = data;
 	byte *tmp;
 
-	if ( (tmp = malloc((size_t) stride)) == NULL )
+	if ( (tmp = gbmmem_malloc((size_t) stride)) == NULL )
 		return FALSE;
 
 	switch ( gbm->bpp )
@@ -267,7 +269,7 @@ BOOLEAN gbm_ref_horz(const GBM *gbm, byte *data)
 			break;
 		}
 
-	free(tmp);
+	gbmmem_free(tmp);
 
 	return TRUE;
 	}
@@ -399,57 +401,65 @@ case 8:
 /*...e*/
 /*...s4:16:*/
 case 4:
-	{
-	int x, y;
+  {
+    int x, y;
+    const byte * end   = data   + (stride   * gbm->h);
+    const byte * end_t = data_t + (stride_t * gbm->w);
 
-	for ( y = 0; y < gbm->h; y += 2 )
-		{
-		for ( x = 0; x < gbm->w; x += 2 )
-/*...s2x2 transpose to 2x2:40:*/
-{
-const byte *src = data + y * stride + ((unsigned)x >> 1);
-byte ab        = src[0     ];
-byte cd        = src[stride];
-byte *dst      = data_t + x * stride_t + ((unsigned)y >> 1);
-dst[0       ] = (byte) ((ab & 0xf0) | (cd >> 4));
-dst[stride_t] = (byte) ((ab << 4) | (cd & 0x0f));
-}
-/*...e*/
-		if ( x < gbm->w )
-/*...s1x2 transpose to 2x1:40:*/
-{
-const byte *src = data + y * stride + ((unsigned)x >> 1);
-byte a0      = src[0     ];
-byte b0      = src[stride];
-byte *dst    = data_t + x * stride_t + ((unsigned)y >> 1);
-dst[0     ] = (byte) ((a0 & 0xf0) | (b0 >> 4));
-}
-/*...e*/
-		}
-	if ( y < gbm->h )
-		{
-		for ( x = 0; x < gbm->w; x += 2 )
-/*...s2x1 transpose to 1x2:40:*/
-{
-const byte *src = data + y * stride + ((unsigned)x >> 1);
-byte ab        = src[0     ];
-byte *dst      = data_t + x * stride_t + ((unsigned)y >> 1);
-dst[0       ] = (byte) (ab & 0xf0);
-dst[stride_t] = (byte) (ab << 4);
-}
-/*...e*/
-		if ( x < gbm->w )
-/*...s1x1 transpose to 1x1:40:*/
-{
-const byte *src = data + y * stride + ((unsigned)x >> 1);
-byte a0      = src[0     ];
-byte *dst    = data_t + x * stride_t + ((unsigned)y >> 1);
-dst[0     ] = (byte) (a0 & 0xf0);
-}
-/*...e*/
-		}
-	}
-	break;
+    for ( y = 0; y < gbm->h; y += 2 )
+    {
+        for ( x = 0; x < gbm->w; x += 2 )
+        /*...s2x2 transpose to 2x2:40:*/
+        {
+            const byte *src = data + y * stride + ((unsigned)x >> 1);
+            byte ab         = src[0];
+            byte cd         = (src + stride < end) ? src[stride] : 0;
+            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (byte) ((ab & 0xf0) | (cd >> 4));
+            if (dst + stride_t < end_t)
+            {
+              dst[stride_t] = (byte) ((ab << 4) | (cd & 0x0f));
+            }
+        }
+        /*...e*/
+        if ( x < gbm->w )
+        /*...s1x2 transpose to 2x1:40:*/
+        {
+            const byte *src = data + y * stride + ((unsigned)x >> 1);
+            byte a0         = src[0];
+            byte b0         = (src + stride < end) ? src[stride] : 0;
+            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (byte) ((a0 & 0xf0) | (b0 >> 4));
+        }
+        /*...e*/
+    }
+    if ( y < gbm->h )
+    {
+        for ( x = 0; x < gbm->w; x += 2 )
+        /*...s2x1 transpose to 1x2:40:*/
+        {
+            const byte *src = data + y * stride + ((unsigned)x >> 1);
+            byte ab         = src[0];
+            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (byte) (ab & 0xf0);
+            if (dst + stride_t < end_t)
+            {
+              dst[stride_t] = (byte) (ab << 4);
+            }
+        }
+        /*...e*/
+        if ( x < gbm->w )
+        /*...s1x1 transpose to 1x1:40:*/
+        {
+            const byte *src = data + y * stride + ((unsigned)x >> 1);
+            byte a0         = src[0];
+            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (byte) (a0 & 0xf0);
+        }
+        /*...e*/
+    }
+  }
+  break;
 /*...e*/
 /*...s1:16:*/
 case 1:
@@ -466,7 +476,7 @@ case 1:
 		for ( x = 0; x < gbm->w; x++ )
 			{
 			const byte *src = data   + y * stride   + ((unsigned)x >> 3);
-			      byte *dst = data_t + x * stride_t + ((unsigned)y >> 3); 
+			      byte *dst = data_t + x * stride_t + ((unsigned)y >> 3);
 
 			if ( *src & xbit )
 				*dst |= ybit;

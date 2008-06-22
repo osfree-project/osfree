@@ -76,6 +76,6 @@ install:
          copy zconf.h   $(IDIR)
 
 package:
-         -del /N $(IDIR)\zlib123.zip
-         zip -9 $(IDIR)\zlib123.zip z.dll z.lib zdll.lib zlib.h zconf.h
+         -del /N $(IDIR)\zlib.zip
+         zip -9 $(IDIR)\zlib.zip z.dll z.lib zdll.lib zlib.h zconf.h
 

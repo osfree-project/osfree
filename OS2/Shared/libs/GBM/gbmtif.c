@@ -177,6 +177,7 @@ History:
 #include "gbmhelp.h"
 #include "gbmdesc.h"
 #include "gbmmap.h"
+#include "gbmmem.h"
 
 #include "tiff.h"
 #include "tiffio.h"
@@ -1185,7 +1186,7 @@ static GBM_ERR internal_tif_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
        /* get the palette information */
        const int palette_entries = 1 << gbm->bpp;
 
-       GBMRGB_16BPP * gbmrgb16 = (GBMRGB_16BPP *) malloc(sizeof(GBMRGB_16BPP) * palette_entries);
+       GBMRGB_16BPP * gbmrgb16 = (GBMRGB_16BPP *) gbmmem_malloc(sizeof(GBMRGB_16BPP) * palette_entries);
        if (gbmrgb16 == NULL)
        {
           tif_read_deinit(tif_priv);
@@ -1194,7 +1195,7 @@ static GBM_ERR internal_tif_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
 
        if (internal_tif_rpal_16bpp(gbm, gbmrgb16) != GBM_ERR_OK)
        {
-          free(gbmrgb16);
+          gbmmem_free(gbmrgb16);
           tif_read_deinit(tif_priv);
           return GBM_ERR_READ;
        }
@@ -1225,7 +1226,7 @@ static GBM_ERR internal_tif_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
           }
        }
 
-       free(gbmrgb16);
+       gbmmem_free(gbmrgb16);
     }
 
     return GBM_ERR_OK;
@@ -1296,7 +1297,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
    const int gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
    /* start at buffer begin */
-   gbm_row_pointers = (byte **) malloc(gbm->h * sizeof(byte *));
+   gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
    if (gbm_row_pointers == NULL)
    {
       return GBM_ERR_MEM;
@@ -1319,7 +1320,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
       {
          if (TIFFReadScanline(tif_p, gbm_row_pointers[row], row, 0) < 0)
          {
-            free(gbm_row_pointers);
+            gbmmem_free(gbm_row_pointers);
             return GBM_ERR_TIF_DATA;
          }
       }
@@ -1335,7 +1336,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
       if ((! TIFFGetField(tif_p, TIFFTAG_BITSPERSAMPLE  , &bitsPerSample))   ||
           (! TIFFGetField(tif_p, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel)))
       {
-         free(gbm_row_pointers);
+         gbmmem_free(gbm_row_pointers);
          return GBM_ERR_READ;
       }
 
@@ -1343,34 +1344,34 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
       gbm_src.bpp = bitsPerSample * samplesPerPixel;
       if (gbm_src.bpp > 16)
       {
-         free(gbm_row_pointers);
+         gbmmem_free(gbm_row_pointers);
          return GBM_ERR_READ;
       }
 
       /* allocate temporary buffer for reading */
-      scanline_buffer = (byte *) malloc(scanline_bytes);
+      scanline_buffer = (byte *) gbmmem_malloc(scanline_bytes);
       if (scanline_buffer == NULL)
       {
-         free(gbm_row_pointers);
+         gbmmem_free(gbm_row_pointers);
          return GBM_ERR_MEM;
       }
 
       if (tif_priv->upsamplePaletteToRGB)
       {
          /* get 16 bit color palette */
-         GBMRGB_16BPP * gbmrgb_src = (GBMRGB_16BPP *) malloc((1 << gbm_src.bpp) * sizeof(GBMRGB_16BPP));
+         GBMRGB_16BPP * gbmrgb_src = (GBMRGB_16BPP *) gbmmem_malloc((1 << gbm_src.bpp) * sizeof(GBMRGB_16BPP));
          if (gbmrgb_src == NULL)
          {
-            free(scanline_buffer);
-            free(gbm_row_pointers);
+            gbmmem_free(scanline_buffer);
+            gbmmem_free(gbm_row_pointers);
             return GBM_ERR_MEM;
          }
 
          if (internal_tif_rpal_16bpp(&gbm_src, gbmrgb_src) != GBM_ERR_OK)
          {
-            free(scanline_buffer);
-            free(gbmrgb_src);
-            free(gbm_row_pointers);
+            gbmmem_free(scanline_buffer);
+            gbmmem_free(gbmrgb_src);
+            gbmmem_free(gbm_row_pointers);
             return GBM_ERR_READ;
          }
 
@@ -1378,23 +1379,23 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
          {
             if (TIFFReadScanline(tif_p, scanline_buffer, row, 0) < 0)
             {
-               free(scanline_buffer);
-               free(gbmrgb_src);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbmrgb_src);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_TIF_DATA;
             }
 
             if (! gbm_map_row_PAL_BGR(scanline_buffer      , &gbm_src,
                                       gbm_row_pointers[row], gbm, gbmrgb_src))
             {
-               free(scanline_buffer);
-               free(gbmrgb_src);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbmrgb_src);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_READ;
             }
          }
 
-         free(gbmrgb_src);
+         gbmmem_free(gbmrgb_src);
       }
       else /* tif_priv->upsamplePaletteToPalette */
       {
@@ -1402,22 +1403,22 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
          {
             if (TIFFReadScanline(tif_p, scanline_buffer, row, 0) < 0)
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_TIF_DATA;
             }
 
             if (! gbm_map_row_PAL_PAL(scanline_buffer      , &gbm_src,
                                       gbm_row_pointers[row], gbm))
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_READ;
             }
          }
       }
 
-      free(scanline_buffer);
+      gbmmem_free(scanline_buffer);
    }
    else /* 24 Bit or higher */
    {
@@ -1429,7 +1430,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
       if ((! TIFFGetField(tif_p, TIFFTAG_BITSPERSAMPLE  , &bitsPerSample))   ||
           (! TIFFGetField(tif_p, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel)))
       {
-         free(gbm_row_pointers);
+         gbmmem_free(gbm_row_pointers);
          return GBM_ERR_READ;
       }
 
@@ -1444,10 +1445,10 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
           */
 
          /* allocate temporary buffer for reading */
-         byte *  scanline_buffer = (byte *) malloc(scanline_bytes);
+         byte *  scanline_buffer = (byte *) gbmmem_malloc(scanline_bytes);
          if (scanline_buffer == NULL)
          {
-            free(gbm_row_pointers);
+            gbmmem_free(gbm_row_pointers);
             return GBM_ERR_MEM;
          }
 
@@ -1466,16 +1467,16 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
             {
                if (TIFFReadScanline(tif_p, scanline_buffer, row, 0) < 0)
                {
-                  free(scanline_buffer);
-                  free(gbm_row_pointers);
+                  gbmmem_free(scanline_buffer);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_TIF_DATA;
                }
 
                if (! gbm_map_row_CMYK_to_BGR(scanline_buffer      , &gbm_src,
                                              gbm_row_pointers[row],  gbm    , TRUE))
                {
-                  free(scanline_buffer);
-                  free(gbm_row_pointers);
+                  gbmmem_free(scanline_buffer);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_READ;
                }
             }
@@ -1486,8 +1487,8 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
             {
                if (TIFFReadScanline(tif_p, scanline_buffer, row, 0) < 0)
                {
-                  free(scanline_buffer);
-                  free(gbm_row_pointers);
+                  gbmmem_free(scanline_buffer);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_TIF_DATA;
                }
 
@@ -1495,14 +1496,14 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
                                            gbm_row_pointers[row],  gbm,
                                            &tif_priv->backrgb   , tif_priv->unassociatedAlpha))
                {
-                  free(scanline_buffer);
-                  free(gbm_row_pointers);
+                  gbmmem_free(scanline_buffer);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_READ;
                }
             }
          }
 
-         free(scanline_buffer);
+         gbmmem_free(scanline_buffer);
       }
       else /* copy directly */
       {
@@ -1521,14 +1522,14 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
             {
                if (TIFFReadScanline(tif_p, gbm_row_pointers[row], row, 0) < 0)
                {
-                  free(gbm_row_pointers);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_TIF_DATA;
                }
 
                if (! gbm_map_row_CMYK_to_BGR(gbm_row_pointers[row],  gbm,
                                              gbm_row_pointers[row],  gbm, TRUE))
                {
-                  free(gbm_row_pointers);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_READ;
                }
             }
@@ -1539,7 +1540,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
             {
                if (TIFFReadScanline(tif_p, gbm_row_pointers[row], row, 0) < 0)
                {
-                  free(gbm_row_pointers);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_TIF_DATA;
                }
 
@@ -1547,7 +1548,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
                                            gbm_row_pointers[row], gbm,
                                            &tif_priv->backrgb   , tif_priv->unassociatedAlpha))
                {
-                  free(gbm_row_pointers);
+                  gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_READ;
                }
             }
@@ -1555,7 +1556,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
       }
    }
 
-   free(gbm_row_pointers);
+   gbmmem_free(gbm_row_pointers);
    return GBM_ERR_OK;
 }
 
@@ -1588,7 +1589,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
    }
 
    /* start at buffer begin */
-   gbm_row_pointers = (byte **) malloc(gbm->h * sizeof(byte *));
+   gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
    if (gbm_row_pointers == NULL)
    {
       return GBM_ERR_MEM;
@@ -1606,7 +1607,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
    if ((! TIFFGetField(tif_p, TIFFTAG_BITSPERSAMPLE  , &bitsPerSample))   ||
        (! TIFFGetField(tif_p, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel)))
    {
-      free(gbm_row_pointers);
+      gbmmem_free(gbm_row_pointers);
       return GBM_ERR_READ;
    }
 
@@ -1629,21 +1630,21 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
       /* only 4 channel CMYK (no CMY) */
       if (samplesPerPixel != 4)
       {
-         free(gbm_row_pointers);
+         gbmmem_free(gbm_row_pointers);
          return GBM_ERR_READ;
       }
       if ((bitsPerSample != 8) && (bitsPerSample != 16))
       {
-         free(gbm_row_pointers);
+         gbmmem_free(gbm_row_pointers);
          return GBM_ERR_READ;
       }
    }
 
    /* allocate temporary buffer for reading */
-   scanline_buffer = (byte *) malloc(scanline_bytes);
+   scanline_buffer = (byte *) gbmmem_malloc(scanline_bytes);
    if (scanline_buffer == NULL)
    {
-      free(gbm_row_pointers);
+      gbmmem_free(gbm_row_pointers);
       return GBM_ERR_MEM;
    }
 
@@ -1655,8 +1656,8 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
          {
             if (TIFFReadScanline(tif_p, scanline_buffer, row, s) < 0)
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_TIF_DATA;
             }
 
@@ -1664,8 +1665,8 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
             if (! gbm_map_sep_row_CMYK_to_BGR(scanline_buffer      , &gbm_src,
                                               gbm_row_pointers[row],  gbm, s , TRUE))
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_READ;
             }
          }
@@ -1679,8 +1680,8 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
          {
             if (TIFFReadScanline(tif_p, scanline_buffer, row, s) < 0)
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_TIF_DATA;
             }
 
@@ -1689,8 +1690,8 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
                                             gbm_row_pointers[row],  gbm,
                                             &tif_priv->backrgb   , tif_priv->unassociatedAlpha, s))
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_READ;
             }
          }
@@ -1705,16 +1706,16 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
                                         gbm_row_pointers[row], gbm,
                                         &tif_priv->backrgb   , tif_priv->unassociatedAlpha))
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                return GBM_ERR_READ;
             }
          }
       }
    }
 
-   free(scanline_buffer);
-   free(gbm_row_pointers);
+   gbmmem_free(scanline_buffer);
+   gbmmem_free(gbm_row_pointers);
    return GBM_ERR_OK;
 }
 
@@ -1783,7 +1784,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
    }
 
    /* start at buffer begin */
-   gbm_row_pointers = (byte **) malloc(gbm->h * sizeof(byte *));
+   gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
    if (gbm_row_pointers == NULL)
    {
       return GBM_ERR_MEM;
@@ -1799,7 +1800,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
    }
 
    /* Copy the tiles of one row sequence into a local buffer and convert to GBM rows. */
-   tile_buffer = (byte *) malloc(tif_tile_bytes);
+   tile_buffer = (byte *) gbmmem_malloc(tif_tile_bytes);
    if (tile_buffer == NULL)
    {
       return GBM_ERR_MEM;
@@ -1812,8 +1813,8 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
       {
          if (TIFFReadTile(tif_p, tile_buffer, x, y, 0) < 0)
          {
-            free(tile_buffer);
-            free(gbm_row_pointers);
+            gbmmem_free(tile_buffer);
+            gbmmem_free(gbm_row_pointers);
             return GBM_ERR_TIF_DATA;
          }
 
@@ -1822,15 +1823,15 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
                                       gbm_row_pointers[row],  gbm,
                                       &tif_priv->backrgb   , tif_priv->unassociatedAlpha))
          {
-            free(tile_buffer);
-            free(gbm_row_pointers);
+            gbmmem_free(tile_buffer);
+            gbmmem_free(gbm_row_pointers);
             return GBM_ERR_READ;
          }
       }
    }
 
-   free(tile_buffer);
-   free(gbm_row_pointers);
+   gbmmem_free(tile_buffer);
+   gbmmem_free(gbm_row_pointers);
 
    return GBM_ERR_READ;
 }
@@ -1893,7 +1894,7 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
    /* The easiest way to read the image. Attn: Align to 32 bit rows for GBM !!! */
    const int byte_length = gbm->w * gbm->h * sizeof(uint32);
 
-   uint32 * tif_data = (uint32*) malloc(byte_length);
+   uint32 * tif_data = (uint32*) gbmmem_malloc(byte_length);
    if (tif_data == NULL)
    {
       return GBM_ERR_MEM;
@@ -1902,31 +1903,31 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
    /* Read the image data: RGBA format */
    if (! TIFFReadRGBAImage(tif_p, gbm->w, gbm->h, tif_data, 1 /* stop on error */))
    {
-      free(tif_data);
+      gbmmem_free(tif_data);
       return GBM_ERR_TIF_DATA;
    }
 
    if (gbm->bpp <= 8)
    {
-      GBMRGB * gbmrgb = (GBMRGB *) malloc((1 << gbm->bpp) * sizeof(GBMRGB));
+      GBMRGB * gbmrgb = (GBMRGB *) gbmmem_malloc((1 << gbm->bpp) * sizeof(GBMRGB));
 
       /* Get the target palette */
       if (internal_tif_rpal_8bpp(gbm, gbmrgb) != GBM_ERR_OK)
       {
-         free(gbmrgb);
-         free(tif_data);
+         gbmmem_free(gbmrgb);
+         gbmmem_free(tif_data);
          return GBM_ERR_READ;
       }
 
       /* convert the image from RGBA -> Palette */
       if (! gbm_map_RGBA_PAL((const dword *) tif_data, data, gbm, gbmrgb))
       {
-         free(gbmrgb);
-         free(tif_data);
+         gbmmem_free(gbmrgb);
+         gbmmem_free(tif_data);
          return GBM_ERR_READ;
       }
 
-      free(gbmrgb);
+      gbmmem_free(gbmrgb);
    }
    else /* must be 24 Bit destination */
    {
@@ -1939,12 +1940,12 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
       /* convert the image from RGBA -> BGR */
       if (! gbm_map_RGBA_BGR((const dword *) tif_data, data, gbm, &tif_priv->backrgb, tif_priv->unassociatedAlpha))
       {
-         free(tif_data);
+         gbmmem_free(tif_data);
          return GBM_ERR_READ;
       }
    }
 
-   free(tif_data);
+   gbmmem_free(tif_data);
    return GBM_ERR_OK;
 }
 
@@ -2479,7 +2480,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       }
 
       /* start at buffer begin */
-      gbm_row_pointers = (byte **) malloc(gbm->h * sizeof(byte *));
+      gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
       if (gbm_row_pointers == NULL)
       {
          tif_write_deinit(&tif_priv);
@@ -2502,7 +2503,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          {
             if (TIFFWriteScanline(tif_p, gbm_row_pointers[row], row, 0) < 0)
             {
-               free(gbm_row_pointers);
+               gbmmem_free(gbm_row_pointers);
                tif_write_deinit(&tif_priv);
                return GBM_ERR_WRITE;
             }
@@ -2543,10 +2544,10 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          }
 
          /* allocate temporary buffer for reading */
-         scanline_buffer = (byte *) malloc(gbm_row_bytes);
+         scanline_buffer = (byte *) gbmmem_malloc(gbm_row_bytes);
          if (scanline_buffer == NULL)
          {
-            free(gbm_row_pointers);
+            gbmmem_free(gbm_row_pointers);
             tif_write_deinit(&tif_priv);
             return GBM_ERR_MEM;
          }
@@ -2558,25 +2559,25 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                                         scanline_buffer      , gbm,
                                         &backrgb             , associate_alpha))
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                tif_write_deinit(&tif_priv);
                return GBM_ERR_WRITE;
             }
 
             if (TIFFWriteScanline(tif_p, scanline_buffer, row, 0) < 0)
             {
-               free(scanline_buffer);
-               free(gbm_row_pointers);
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                tif_write_deinit(&tif_priv);
                return GBM_ERR_WRITE;
             }
          }
 
-         free(scanline_buffer);
+         gbmmem_free(scanline_buffer);
       }
 
-      free(gbm_row_pointers);
+      gbmmem_free(gbm_row_pointers);
    }
 
    /* Writing finished, so cleanup. The file is closed by GBM. */

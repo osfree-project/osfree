@@ -49,6 +49,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /* ---------------------------------------- */
 
@@ -622,7 +623,7 @@ GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     return GBM_ERR_BAD_OPTION;
   }
 
-  if ( (linebuf = malloc((size_t) gbm->w)) == NULL )
+  if ( (linebuf = gbmmem_malloc((size_t) gbm->w)) == NULL )
   {
     return GBM_ERR_MEM;
   }
@@ -630,21 +631,21 @@ GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   sprintf(s, "P%c\n", (ascii ? '2' : '5'));
   if (gbm_file_write(fd, s, (int) strlen(s)) != (int) strlen(s))
   {
-    free(linebuf);
+    gbmmem_free(linebuf);
     return GBM_ERR_WRITE;
   }
 
   /* write optional comment */
   if (! internal_pgm_write_comment(fd, opt))
   {
-    free(linebuf);
+    gbmmem_free(linebuf);
     return GBM_ERR_WRITE;
   }
 
   sprintf(s, "%d %d\n255\n", gbm->w, gbm->h);
   if (gbm_file_write(fd, s, (int) strlen(s)) != (int) strlen(s))
   {
-    free(linebuf);
+    gbmmem_free(linebuf);
     return GBM_ERR_WRITE;
   }
 
@@ -653,7 +654,7 @@ GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     wcache = gbm_create_wcache(fd);
     if (wcache == NULL)
     {
-      free(linebuf);
+      gbmmem_free(linebuf);
       return GBM_ERR_MEM;
     }
   }
@@ -672,7 +673,7 @@ GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     {
       if (! internal_pgm_w_ascii(wcache, linebuf, gbm->w))
       {
-        free(linebuf);
+        gbmmem_free(linebuf);
         gbm_destroy_wcache(wcache);
         return GBM_ERR_WRITE;
       }
@@ -681,7 +682,7 @@ GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     {
       if (gbm_file_write(fd, linebuf, gbm->w) != gbm->w)
       {
-        free(linebuf);
+        gbmmem_free(linebuf);
         if (ascii)
         {
           gbm_destroy_wcache(wcache);
@@ -692,7 +693,7 @@ GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     p -= stride;
   }
 
-  free(linebuf);
+  gbmmem_free(linebuf);
 
   if (ascii)
   {

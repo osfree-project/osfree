@@ -10,6 +10,7 @@ gbmtrunc.c - Truncate to lower bits per pixel
 #include <stdlib.h>
 #include <string.h>
 #include "gbm.h"
+#include "gbmtrunc.h"
 
 /*...vgbm\46\h:0:*/
 /*...e*/
@@ -683,7 +684,7 @@ void gbm_trunc_line_VGA(const byte *src, byte *dest, int cx)
 		byte b   = *src++;
 		byte g   = *src++;
 		byte r   = *src++;
-		byte inx = nearest_colour(r, g, b); 
+		byte inx = nearest_colour(r, g, b);
 
 		if ( left )
 			*dest = (byte) (inx << 4);

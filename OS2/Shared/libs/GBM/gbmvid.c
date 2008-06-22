@@ -21,6 +21,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -204,9 +205,9 @@ Bit posn:	76767654321 5454 7654321 32327654 321 1 1 7654321
 
 Supplied bytewise:
 
-Which pixel:	0000         0000     2222 11111111 33333333 2222    
+Which pixel:	0000         0000     2222 11111111 33333333 2222
 What comp:	yyyguuvv uuvvyyyy uuvvyyyy yyyyyyyg yyyyyyyg yyygu_v_
-Bit posn:	321 5454 76767654 32327654 7654321  7654321  321 1 1 
+Bit posn:	321 5454 76767654 32327654 7654321  7654321  321 1 1
 
 Desired:
 
@@ -324,12 +325,12 @@ GBM_ERR vid_rdata(int fd, GBM *gbm, byte *data)
 	byte *ibuffer, *sbuffer, *p;
 	int i;
 
-	if ( (ibuffer = malloc((size_t) (n_sites * 6))) == NULL )
+	if ( (ibuffer = gbmmem_malloc((size_t) (n_sites * 6))) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (sbuffer = malloc((size_t) (n_sites * 6))) == NULL )
+	if ( (sbuffer = gbmmem_malloc((size_t) (n_sites * 6))) == NULL )
 		{
-		free(ibuffer);
+		gbmmem_free(ibuffer);
 		return GBM_ERR_MEM;
 		}
 
@@ -340,16 +341,16 @@ GBM_ERR vid_rdata(int fd, GBM *gbm, byte *data)
 		{
 		if ( gbm_file_read(fd, (char *) ibuffer, n_sites * 6) != n_sites * 6 )
 			{
-			free(sbuffer);
-			free(ibuffer);
+			gbmmem_free(sbuffer);
+			gbmmem_free(ibuffer);
 			return GBM_ERR_READ;
 			}
 		decode_sites(ibuffer, sbuffer, n_sites);
 		convert_sites(sbuffer, p, n_sites);
 		p -= stride;
 		}
-	free(sbuffer);
-	free(ibuffer);
+	gbmmem_free(sbuffer);
+	gbmmem_free(ibuffer);
 	return GBM_ERR_OK;
 	}
 /*...e*/
@@ -424,9 +425,9 @@ What comp:	yyyyyyy_ yyyyyyy_ yyyyyyy_ yyyyyyy_ uuuuuuu_ vvvvvvv_
 
 Desired bytewise:
 
-Which pixel:	0000         0000     2222 11111111 33333333 2222    
+Which pixel:	0000         0000     2222 11111111 33333333 2222
 What comp:	yyyguuvv uuvvyyyy uuvvyyyy yyyyyyyg yyyyyyyg yyygu_v_
-Bit posn:	321 5454 76767654 32327654 7654321  7654321  321 1 1 
+Bit posn:	321 5454 76767654 32327654 7654321  7654321  321 1 1
 
 */
 
@@ -486,12 +487,12 @@ GBM_ERR vid_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	if ( gbm_file_write(fd, buf, 16) != 16 )
 		return GBM_ERR_WRITE;
 
-	if ( (obuffer = malloc((size_t) (n_sites * 6))) == NULL )
+	if ( (obuffer = gbmmem_malloc((size_t) (n_sites * 6))) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (sbuffer = malloc((size_t) (n_sites * 6))) == NULL )
+	if ( (sbuffer = gbmmem_malloc((size_t) (n_sites * 6))) == NULL )
 		{
-		free(obuffer);
+		gbmmem_free(obuffer);
 		return GBM_ERR_MEM;
 		}
 
@@ -502,14 +503,14 @@ GBM_ERR vid_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 		encode_sites(sbuffer, obuffer, n_sites);
 		if ( gbm_file_write(fd, (char *) obuffer, n_sites * 6) != n_sites * 6 )
 			{
-			free(sbuffer);
-			free(obuffer);
+			gbmmem_free(sbuffer);
+			gbmmem_free(obuffer);
 			return GBM_ERR_WRITE;
 			}
 		p -= stride;
 		}
-	free(sbuffer);
-	free(obuffer);
+	gbmmem_free(sbuffer);
+	gbmmem_free(obuffer);
 
 	return GBM_ERR_OK;
 	}

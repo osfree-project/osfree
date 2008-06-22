@@ -51,6 +51,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /* ---------------------------------------- */
 
@@ -602,7 +603,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   /* write optional comment */
   if (! internal_pbm_write_comment(fd, opt))
   {
-    free(linebuf);
+    gbmmem_free(linebuf);
     return GBM_ERR_WRITE;
   }
 
@@ -622,7 +623,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   }
   if (invert)
   {
-    linebuf = (byte *) malloc((size_t) line_bytes);
+    linebuf = (byte *) gbmmem_malloc((size_t) line_bytes);
     if (linebuf == NULL)
     {
       if (ascii)
@@ -659,7 +660,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
         if (invert)
         {
-          free(linebuf);
+          gbmmem_free(linebuf);
         }
         gbm_destroy_wcache(wcache);
         return GBM_ERR_WRITE;
@@ -675,7 +676,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         }
         if (invert)
         {
-          free(linebuf);
+          gbmmem_free(linebuf);
         }
         return GBM_ERR_WRITE;
       }
@@ -685,7 +686,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
   if (invert)
   {
-    free(linebuf);
+    gbmmem_free(linebuf);
   }
   if (ascii)
   {

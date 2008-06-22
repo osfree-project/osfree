@@ -74,6 +74,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /* ------------------------------------ */
 
@@ -292,7 +293,7 @@ static BOOLEAN ref_horz_8_24_32(const GBM *gbm, byte *data)
     byte *p = data;
     byte *tmp;
 
-    if ( (tmp = malloc((size_t) stride)) == NULL )
+    if ( (tmp = gbmmem_malloc((size_t) stride)) == NULL )
         return FALSE;
 
     switch ( gbm->bpp )
@@ -319,11 +320,11 @@ static BOOLEAN ref_horz_8_24_32(const GBM *gbm, byte *data)
             }
             break;
         default:
-            free(tmp);
+            gbmmem_free(tmp);
             return FALSE;
     }
 
-    free(tmp);
+    gbmmem_free(tmp);
     return TRUE;
 }
 
@@ -734,20 +735,20 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                     if (gbm->bpp != 32)
                     {
                         byte *linebuf;
-                        if ( (linebuf = malloc((size_t) (gbm->w * 4))) == NULL )
+                        if ( (linebuf = gbmmem_malloc((size_t) (gbm->w * 4))) == NULL )
                             return GBM_ERR_MEM;
 
                         for ( i = 0; i < gbm->h; i++, p += stride )
                         {
                             if ( gbm_file_read(fd, linebuf, gbm->w * 4) != gbm->w * 4 )
                             {
-                                free(linebuf);
+                                gbmmem_free(linebuf);
                                 return GBM_ERR_READ;
                             }
                             /* strip alpha channel */
                             t32_t24(p, linebuf, gbm->w);
                         }
-                        free(linebuf);
+                        gbmmem_free(linebuf);
                     }
                     else
                     {
@@ -904,7 +905,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             byte *linebuf;
             const int writelen = gbm->w * 2;
 
-            if ( (linebuf = malloc((size_t) writelen)) == NULL )
+            if ( (linebuf = gbmmem_malloc((size_t) writelen)) == NULL )
                 return GBM_ERR_MEM;
 
             stride = ((gbm->w * 3 + 3) & ~3);
@@ -940,7 +941,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                     p += stride;
                 }
             }
-            free(linebuf);
+            gbmmem_free(linebuf);
         }
         break;
 
@@ -962,7 +963,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             {
                 byte *linebuf;
 
-                if ( (linebuf = malloc((size_t) stride)) == NULL )
+                if ( (linebuf = gbmmem_malloc((size_t) stride)) == NULL )
                     return GBM_ERR_MEM;
 
                 for ( i = 0; i < gbm->h; i++ )
@@ -974,7 +975,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                     }
                     p += stride;
                 }
-                free(linebuf);
+                gbmmem_free(linebuf);
             }
             else
             {
@@ -1019,7 +1020,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             {
                 byte *linebuf;
 
-                if ( (linebuf = malloc((size_t) writelen)) == NULL )
+                if ( (linebuf = gbmmem_malloc((size_t) writelen)) == NULL )
                     return GBM_ERR_MEM;
 
                 stride = ((gbm->w * 3 + 3) & ~3);
@@ -1040,7 +1041,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                     }
                     p += stride;
                 }
-                free(linebuf);
+                gbmmem_free(linebuf);
             }
         }
         break;

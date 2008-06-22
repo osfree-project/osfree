@@ -10,6 +10,7 @@ gbmht.c - Halftoner
 #include <stdlib.h>
 #include <string.h>
 #include "gbm.h"
+#include "gbmht.h"
 
 /*...vgbm\46\h:0:*/
 /*...e*/

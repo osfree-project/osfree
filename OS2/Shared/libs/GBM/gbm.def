@@ -4,7 +4,7 @@
 
 LIBRARY GBM INITINSTANCE TERMINSTANCE
 
-DESCRIPTION "@#Heiko Nitzsche:1.51#@ Generalised Bitmap Module (GBM,VAC)"
+DESCRIPTION "@#Heiko Nitzsche:1.55#@ Generalised Bitmap Module (GBM,VAC)"
 
 DATA MULTIPLE NONSHARED READWRITE
 

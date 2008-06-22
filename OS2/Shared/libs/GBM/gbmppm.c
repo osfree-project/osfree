@@ -58,6 +58,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /* ---------------------------------------- */
 
@@ -552,7 +553,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
            }
            else
            {
-              byte * src_data = (byte *) malloc(line_bytes);
+              byte * src_data = (byte *) gbmmem_malloc(line_bytes);
               if (src_data == NULL)
               {
                  return GBM_ERR_MEM;
@@ -561,13 +562,13 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
               {
                  if (gbm_file_read(fd, src_data, line_bytes) != line_bytes)
                  {
-                   free(src_data);
+                   gbmmem_free(src_data);
                    return GBM_ERR_READ;
                  }
                  rgb16msb_bgr(src_data, p, gbm->w, ppm_priv->max_intensity);
                  p -= stride;
               }
-              free(src_data);
+              gbmmem_free(src_data);
            }
            break;
 
@@ -894,14 +895,14 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
    sprintf(s, "P%c\n", (ascii ? '3' : '6'));
    if (gbm_file_write(fd, s, (int) strlen(s)) != (int) strlen(s))
    {
-     free(linebuf);
+     gbmmem_free(linebuf);
      return GBM_ERR_WRITE;
    }
 
    /* we only need a conversion buffer for binary output */
    if (! ascii)
    {
-     if ((linebuf = (byte *) malloc(stride)) == NULL)
+     if ((linebuf = (byte *) gbmmem_malloc(stride)) == NULL)
      {
         return GBM_ERR_MEM;
      }
@@ -921,7 +922,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          /* write optional comment */
          if (! internal_ppm_write_comment(fd, opt))
          {
-           free(linebuf);
+           gbmmem_free(linebuf);
            if (ascii)
            {
              gbm_destroy_wcache(wcache);
@@ -932,7 +933,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          sprintf(s, "%d %d\n255\n", gbm->w, gbm->h);
          if (gbm_file_write(fd, s, (int) strlen(s)) != (int) strlen(s))
          {
-           free(linebuf);
+           gbmmem_free(linebuf);
            if (ascii)
            {
              gbm_destroy_wcache(wcache);
@@ -957,7 +958,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
               rgb_bgr(p, linebuf, gbm->w, 0x100);
               if (gbm_file_write(fd, linebuf, line_bytes) != line_bytes)
               {
-                free(linebuf);
+                gbmmem_free(linebuf);
                 return GBM_ERR_WRITE;
               }
             }
@@ -969,7 +970,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          /* write optional comment */
          if (! internal_ppm_write_comment(fd, opt))
          {
-           free(linebuf);
+           gbmmem_free(linebuf);
            if (ascii)
            {
              gbm_destroy_wcache(wcache);
@@ -980,7 +981,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          sprintf(s, "%d %d\n65535\n", gbm->w, gbm->h);
          if (gbm_file_write(fd, s, (int) strlen(s)) != (int) strlen(s))
          {
-           free(linebuf);
+           gbmmem_free(linebuf);
            if (ascii)
            {
              gbm_destroy_wcache(wcache);
@@ -1005,7 +1006,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
               rgb16msb_bgr16lsb(p, linebuf, gbm->w, 0x10000);
               if (gbm_file_write(fd, linebuf, line_bytes) != line_bytes)
               {
-                free(linebuf);
+                gbmmem_free(linebuf);
                 return GBM_ERR_WRITE;
               }
             }
@@ -1014,7 +1015,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          break;
 
       default:
-         free(linebuf);
+         gbmmem_free(linebuf);
          if (ascii)
          {
            gbm_destroy_wcache(wcache);
@@ -1022,7 +1023,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          return GBM_ERR_NOT_SUPP;
    }
 
-   free(linebuf);
+   gbmmem_free(linebuf);
 
    if (ascii)
    {

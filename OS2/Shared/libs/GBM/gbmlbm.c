@@ -24,6 +24,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -457,7 +458,7 @@ case 24:
 	byte *buf;
 	int y;
 
-	if ( (buf = malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_MEM;
@@ -469,7 +470,7 @@ case 24:
 for ( y = 0; y < gbm->h; y++, data -= stride )
 	if ( !get_planes_24(ahead, priv, buf, data, gbm->w) )
 		{
-		free(buf);
+		gbmmem_free(buf);
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_READ;
 		}
@@ -481,9 +482,9 @@ for ( y = 0; y < gbm->h; y++, data -= stride )
 byte *ham, *sham_pals;
 int n_sham_pals, sham_inx = 0;
 
-if ( (ham = malloc((size_t) gbm->w)) == NULL )
+if ( (ham = gbmmem_malloc((size_t) gbm->w)) == NULL )
 	{
-	free(buf);
+	gbmmem_free(buf);
 	gbm_destroy_ahead(ahead);
 	return GBM_ERR_MEM;
 	}
@@ -496,10 +497,10 @@ if ( priv->sham != -1L )
 
 {
 n_sham_pals = ( gbm->h < 200 ) ? gbm->h : 200;
-if ( (sham_pals = malloc((size_t) (n_sham_pals * 16 * 2))) == NULL )
+if ( (sham_pals = gbmmem_malloc((size_t) (n_sham_pals * 16 * 2))) == NULL )
 	{
-	free(ham);
-	free(buf);
+	gbmmem_free(ham);
+	gbmmem_free(buf);
 	gbm_destroy_ahead(ahead);
 	return GBM_ERR_MEM;
 	}
@@ -507,9 +508,9 @@ if ( (sham_pals = malloc((size_t) (n_sham_pals * 16 * 2))) == NULL )
 gbm_file_lseek(fd, priv->sham, GBM_SEEK_SET);
 if ( gbm_file_read(fd, sham_pals, n_sham_pals * 16 * 2) != n_sham_pals * 16 * 2 )
 	{
-	free(sham_pals);
-	free(ham);
-	free(buf);
+	gbmmem_free(sham_pals);
+	gbmmem_free(ham);
+	gbmmem_free(buf);
 	gbm_destroy_ahead(ahead);
 	return GBM_ERR_READ;
 	}
@@ -522,9 +523,9 @@ for ( y = 0; y < gbm->h; y++, data -= stride )
 	if ( !get_planes_8(ahead, priv, buf, ham, gbm->w, priv->actual_bpp) )
 		{
 	 	if ( priv->sham != -1L )
-			free(sham_pals);
-		free(buf);
-		free(ham);
+			gbmmem_free(sham_pals);
+		gbmmem_free(buf);
+		gbmmem_free(ham);
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_READ;
 		}
@@ -631,12 +632,12 @@ for ( i = 0; i < gbm->w; i++ )
 	}
 
 if ( priv->sham != -1L )
-	free(sham_pals);
-free(ham);
+	gbmmem_free(sham_pals);
+gbmmem_free(ham);
 }
 /*...e*/
 
-	free(buf);
+	gbmmem_free(buf);
 	}
 	break;
 /*...e*/
@@ -646,7 +647,7 @@ case 8:
 	byte *buf;
 	int y;
 
-	if ( (buf = malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_MEM;
@@ -655,12 +656,12 @@ case 8:
 	for ( y = 0; y < gbm->h ; y++, data -= stride )
 		if ( !get_planes_8(ahead, priv, buf, data, gbm->w, priv->actual_bpp) )
 			{
-			free(buf);
+			gbmmem_free(buf);
 			gbm_destroy_ahead(ahead);
 			return GBM_ERR_READ;
 			}
 
-	free(buf);
+	gbmmem_free(buf);
 	}
 	break;
 /*...e*/
@@ -670,7 +671,7 @@ case 4:
 	byte *buf;
 	int y;
 
-	if ( (buf = malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_MEM;
@@ -687,7 +688,7 @@ case 4:
 
 			if ( !get_line(priv, ahead, buf, scan) )
 				{
-				free(buf);
+				gbmmem_free(buf);
 				gbm_destroy_ahead(ahead);
 				return GBM_ERR_READ;
 				}
@@ -697,7 +698,7 @@ case 4:
 			}
 		}
 
-	free(buf);
+	gbmmem_free(buf);
 	}
 	break;
 /*...e*/
@@ -892,7 +893,7 @@ static GBM_ERR write_body(int fd, const GBM *gbm, int bpp, int n_planes, const b
 
 	data += ( gbm->h - 1 ) * stride;
 
-	if ( (comp = malloc((size_t) (scan * 3))) == NULL )
+	if ( (comp = gbmmem_malloc((size_t) (scan * 3))) == NULL )
 		return GBM_ERR_MEM;
 
 	switch ( bpp )
@@ -903,9 +904,9 @@ case 24:
 	int y, c, p, plane, j;
 	byte *buf;
 
-	if ( (buf = malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
-		free(comp);
+		gbmmem_free(comp);
 		return GBM_ERR_MEM;
 		}
 
@@ -920,12 +921,12 @@ case 24:
 				lbm_rle(buf, scan, comp, &n_comp);
 				if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 					{
-					free(buf);
-					free(comp);
+					gbmmem_free(buf);
+					gbmmem_free(comp);
 					return GBM_ERR_WRITE;
 					}
 				}
-	free(buf);
+	gbmmem_free(buf);
 	}
 	break;
 /*...e*/
@@ -935,9 +936,9 @@ case 8:
 	int y, p, plane, j;
 	byte *buf;
 
-	if ( (buf = malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
-		free(comp);
+		gbmmem_free(comp);
 		return GBM_ERR_MEM;
 		}
 
@@ -951,12 +952,12 @@ case 8:
 			lbm_rle(buf, scan, comp, &n_comp);
 			if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 				{
-				free(buf);
-				free(comp);
+				gbmmem_free(buf);
+				gbmmem_free(comp);
 				return GBM_ERR_WRITE;
 				}
 			}
-	free(buf);
+	gbmmem_free(buf);
 	}
 	break;
 /*...e*/
@@ -966,9 +967,9 @@ case 4:
 	int y, p, j, mask;
 	byte *buf;
 
-	if ( (buf = malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
-		free(comp);
+		gbmmem_free(comp);
 		return GBM_ERR_MEM;
 		}
 
@@ -982,12 +983,12 @@ case 4:
 			lbm_rle(buf, scan, comp, &n_comp);
 			if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 				{
-				free(buf);
-				free(comp);
+				gbmmem_free(buf);
+				gbmmem_free(comp);
 				return GBM_ERR_WRITE;
 				}
 			}
-	free(buf);
+	gbmmem_free(buf);
 	}
 	break;
 /*...e*/
@@ -1001,7 +1002,7 @@ case 1:
 		lbm_rle(data, scan, comp, &n_comp);
 		if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 			{
-			free(comp);
+			gbmmem_free(comp);
 			return GBM_ERR_WRITE;
 			}
 		}
@@ -1010,7 +1011,7 @@ case 1:
 /*...e*/
 		}
 
-	free(comp);
+	gbmmem_free(comp);
 
 	offset_end = gbm_file_lseek(fd, 0L, GBM_SEEK_CUR);
 
@@ -1238,7 +1239,7 @@ for ( i = 0; i <= 0x10; i++ )
 if ( (rc = write_cmap(fd, gbmrgb_grey, 4)) != GBM_ERR_OK )
 	return rc;
 
-if ( (ham = malloc((size_t) (stride8 * gbm->h))) == NULL )
+if ( (ham = gbmmem_malloc((size_t) (stride8 * gbm->h))) == NULL )
 	return GBM_ERR_MEM;
 
 lbm_build_abstab();
@@ -1247,11 +1248,11 @@ for ( i = 0; i < gbm->h; i++ )
 
 if ( (rc = write_body(fd, gbm, 8, 6, ham, &end)) != GBM_ERR_OK )
 	{
-	free(ham);
+	gbmmem_free(ham);
 	return rc;
 	}
 
-free(ham);
+gbmmem_free(ham);
 }
 /*...e*/
 		else

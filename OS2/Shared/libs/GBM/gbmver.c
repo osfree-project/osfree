@@ -18,6 +18,8 @@ History
              lookup also works with LIBPATHSTRICT enabled.
 
 12-Nov-2006: Sync to GBMDLG.DLL 1.31 API changes
+
+27-Jan-2008: Sync to GBMRX.DLL 1.10 API changes
 */
 
 #if defined(__OS2__) || defined(OS2)
@@ -133,18 +135,27 @@ const int GBMDLG_FUNCTION_TABLE_LENGTH = sizeof(GBMDLG_FUNCTION_TABLE) /
 /** GBMRX.DLL exports */
 static struct FUNCTION_TABLE_DEF GBMRX_FUNCTION_TABLE [] =
 {
-   "_System", "GBM_LOADFUNCS"     , NULL, 100,
-   "_System", "GBM_DROPFUNCS"     , NULL, 100,
-   "_System", "GBM_VERSION"       , NULL, 100,
-   "_System", "GBM_VERSIONREXX"   , NULL, 100,
-   "_System", "GBM_TYPES"         , NULL, 100,
-   "_System", "GBM_ISBPPSUPPORTED", NULL, 100,
-   "_System", "GBM_FILETYPE"      , NULL, 100,
-   "_System", "GBM_FILEPAGES"     , NULL, 100,
-   "_System", "GBM_FILEHEADER"    , NULL, 100,
-   "_System", "GBM_FILEPALETTE"   , NULL, 100,
-   "_System", "GBM_FILEDATA"      , NULL, 100,
-   "_System", "GBM_FILEWRITE"     , NULL, 100
+   "_System", "GBM_LOADFUNCS"         , NULL, 100,
+   "_System", "GBM_DROPFUNCS"         , NULL, 100,
+   "_System", "GBM_VERSION"           , NULL, 100,
+   "_System", "GBM_VERSIONREXX"       , NULL, 100,
+   "_System", "GBM_TYPES"             , NULL, 100,
+   "_System", "GBM_ISBPPSUPPORTED"    , NULL, 100,
+   "_System", "GBM_FILETYPE"          , NULL, 100,
+   "_System", "GBM_FILEPAGES"         , NULL, 100,
+   "_System", "GBM_FILEHEADER"        , NULL, 100,
+   "_System", "GBM_FILEPALETTE"       , NULL, 100,
+   "_System", "GBM_FILEDATA"          , NULL, 100,
+   "_System", "GBM_FILEWRITE"         , NULL, 100,
+
+   "_System", "GBM_SCALEALGORITHMS"   , NULL, 110,
+   "_System", "GBM_SCALEISSUPPORTED"  , NULL, 110,
+   "_System", "GBM_SCALE"             , NULL, 110,
+
+   "_System", "GBM_REFLECT"           , NULL, 110,
+   "_System", "GBM_ROTATE"            , NULL, 110,
+
+   "_System", "GBM_PALETTEDATATO24BPP", NULL, 110
 };
 const int GBMRX_FUNCTION_TABLE_LENGTH = sizeof(GBMRX_FUNCTION_TABLE) /
                                         sizeof(GBMRX_FUNCTION_TABLE[0]);

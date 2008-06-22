@@ -10,6 +10,7 @@ gbmmcut.c - Median Cut colour reductions
 #include <stdlib.h>
 #include <string.h>
 #include "gbm.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...e*/
@@ -38,7 +39,7 @@ GBMMCUT *gbm_create_mcut(void)
 	{
 	GBMMCUT *mcut;
 
-	if ( (mcut = malloc((size_t) sizeof(GBMMCUT))) == NULL )
+	if ( (mcut = gbmmem_malloc((size_t) sizeof(GBMMCUT))) == NULL )
 		return NULL;
 
 	memset(mcut->freqs, 0x00, sizeof(mcut->freqs));
@@ -49,7 +50,7 @@ GBMMCUT *gbm_create_mcut(void)
 /*...sgbm_delete_mcut \45\ delete mcut:0:*/
 void gbm_delete_mcut(GBMMCUT *mcut)
 	{
-	free(mcut);
+	gbmmem_free(mcut);
 	}
 /*...e*/
 /*...sgbm_add_to_mcut \45\ add statistics from file data:0:*/
@@ -189,7 +190,7 @@ if ( dg >= dr && dg >= db )
 	split = DIV_G;
 else if ( dr >= db )
 	split = DIV_R;
-else 
+else
 	split = DIV_B;
 }
 /*...e*/

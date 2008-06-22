@@ -7,13 +7,13 @@
 # Therefore all users should also be multithreaded
 #
 # Modify this line to point to the zlib library 1.2.3 or higher
-ZLIB = ..\zlib.123
+ZLIB = ..\zlib
 IDIR = bin
 
 #CWARNS     = /W3 /Wcnd+cns+dcl+ord+par+pro+rea+ret+use+
 CWARNS     = /W2
-CFLAGS     = /C+ $(CWARNS) /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /Ge- /I$(ZLIB) /DPNG_NO_STDIO /DNDEBUG
-CFLAGS_DBG = /C+ $(CWARNS) /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /Ge- /I$(ZLIB) /Ti+ /Tm+ /DDEBUG
+CFLAGS     = /C+ $(CWARNS) /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /Ge- /I$(ZLIB) /DPNG_NO_SNPRINTF /DPNG_NO_STDIO /DNDEBUG
+CFLAGS_DBG = /C+ $(CWARNS) /G5 /Gd-m+ /Q+ /O+ /Os- /Gf+ /Ge- /I$(ZLIB) /Ti+ /Tm+ /DPNG_NO_SNPRINTF /DDEBUG
 
 LFLAGS     = /NOI /ALIGN:4 /NOLOGO
 LFLAGS_DBG = /NOI /ALIGN:4 /NOLOGO /DEBUG /DBGPACK
@@ -62,6 +62,6 @@ install:
          copy pngconf.h   $(IDIR)
 
 package:
-         -del /N $(IDIR)\libpng1214.zip
-         zip -9 $(IDIR)\libpng1214.zip png.lib png.h pngconf.h
+         -del /N $(IDIR)\libpng.zip
+         zip -9 $(IDIR)\libpng.zip png.lib png.h pngconf.h
 

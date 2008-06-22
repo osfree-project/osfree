@@ -16,8 +16,8 @@ CC = wcc386
 
 # Compile objects suitable for multithreaded GBM.DLL
 CWARNS         = -wx -wcd=136 -wcd=201 -we -za
-CFLAGS         = $(CWARNS) -bd -zq -zp4 -onatxh -oe=50 -sg -ei -6r -fp5 -bm -mf /DNDEBUG
-CFLAGS_DBG     = $(CWARNS) -bd -zq -zp4 -sg -ei -6r -fp5 -bm -mf -d2 /DDEBUG
+CFLAGS         = $(CWARNS) -bd -zq -zp4 -onatxh -oe=50 -sg -ei -6r -fp6 -fpi87 -bm -mf /DNDEBUG
+CFLAGS_DBG     = $(CWARNS) -bd -zq -zp4 -sg -ei -6r -fp6 -fpi87 -bm -mf -d2 /DDEBUG
 LIBFLAGS       = -q -n -b -c
 
 # For debugging call nmake or wmake with debug=on
@@ -107,8 +107,8 @@ install:
          copy jpegint.h    $(IDIR)
 
 package:
-         -del /N $(IDIR)\jpeglib6b.zip
-         zip -9 $(IDIR)\jpeglib6b.zip jpeg.lib jpeglib.h, jerror.h, jconfig.h, jmorecfg.h jpegint.h
+         -del /N $(IDIR)\libjpeg.zip
+         zip -9 $(IDIR)\libjpeg.zip jpeg.lib jpeglib.h, jerror.h, jconfig.h, jmorecfg.h jpegint.h
 
 
 jcapimin.obj: jcapimin.c jinclude.h jconfig.h jpeglib.h jmorecfg.h jpegint.h jerror.h

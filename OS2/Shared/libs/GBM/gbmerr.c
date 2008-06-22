@@ -10,6 +10,7 @@ gbmerr.c - Error diffusion Module
 #include <stdlib.h>
 #include <string.h>
 #include "gbm.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...e*/
@@ -129,12 +130,12 @@ static BOOLEAN errdiff(
 	short *errs;
 	int y;
 
-	if ( (buf = malloc((size_t) stride_src + 3)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) stride_src + 3)) == NULL )
 		return FALSE;
 
-	if ( (errs = malloc((size_t) ((gbm->w + 1) * 3 * sizeof(short)))) == NULL )
+	if ( (errs = gbmmem_malloc((size_t) ((gbm->w + 1) * 3 * sizeof(short)))) == NULL )
 		{
-		free(buf);
+		gbmmem_free(buf);
 		return FALSE;
 		}
 
@@ -146,8 +147,8 @@ static BOOLEAN errdiff(
 		(*errdiff_line)(buf, dest + y * stride_dest, errs, gbm->w);
 		}
 
-	free(buf);
-	free(errs);
+	gbmmem_free(buf);
+	gbmmem_free(errs);
 
 	return TRUE;
 	}
@@ -231,12 +232,12 @@ BOOLEAN	gbm_errdiff_24(const GBM *gbm, const byte *data24, byte *data24a, byte r
 	short *errs;
 	int y;
 
-	if ( (buf = malloc((size_t) (stride + 3))) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) (stride + 3))) == NULL )
 		return FALSE;
 
-	if ( (errs = malloc((size_t) ((gbm->w + 1) * 3 * sizeof(short)))) == NULL )
+	if ( (errs = gbmmem_malloc((size_t) ((gbm->w + 1) * 3 * sizeof(short)))) == NULL )
 		{
-		free(buf);
+		gbmmem_free(buf);
 		return FALSE;
 		}
 
@@ -248,8 +249,8 @@ BOOLEAN	gbm_errdiff_24(const GBM *gbm, const byte *data24, byte *data24a, byte r
 		gbm_errdiff_line_24(buf, data24a + y * stride, errs, gbm->w, rm, gm, bm);
 		}
 
-	free(buf);
-	free(errs);
+	gbmmem_free(buf);
+	gbmmem_free(errs);
 
 	return TRUE;
 	}
@@ -933,7 +934,7 @@ void gbm_errdiff_line_VGA(byte *src, byte *dest, short *errs, int cx)
 		byte b     = *src++;
 		byte g     = *src++;
 		byte r     = *src++;
-		byte bi    = nearest_colour(r, g, b); 
+		byte bi    = nearest_colour(r, g, b);
 		int  be    = (int) b - (int) gbmrgb_vga[bi].b;
 		int  ge    = (int) g - (int) gbmrgb_vga[bi].g;
 		int  re    = (int) r - (int) gbmrgb_vga[bi].r;

@@ -21,6 +21,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -242,7 +243,7 @@ GBM_ERR pcx_rdata(int fd, GBM *gbm, byte *data)
 
 	gbm_file_lseek(fd, 128L, GBM_SEEK_SET);
 
-	if ( (line = malloc((size_t) bytes_per_line)) == NULL )
+	if ( (line = gbmmem_malloc((size_t) bytes_per_line)) == NULL )
 		{
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_MEM;
@@ -325,7 +326,7 @@ case 24:
 /*...e*/
 		}
 
-	free(line);
+	gbmmem_free(line);
 
 	gbm_destroy_ahead(ahead);
 
@@ -423,7 +424,7 @@ GBM_ERR pcx_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
 	gbm_file_write(fd, hdr, 128);
 
-	if ( (line = malloc((size_t) (bytes_per_line * 2))) == NULL )
+	if ( (line = gbmmem_malloc((size_t) (bytes_per_line * 2))) == NULL )
 		return GBM_ERR_MEM;
 
 	switch ( gbm->bpp )
@@ -434,9 +435,9 @@ case 1:
 		/* Need to invert bitmap bits */
 		{
 		byte *b;
-		if ( (b = malloc(bytes_per_line)) == NULL )
+		if ( (b = gbmmem_malloc(bytes_per_line)) == NULL )
 			{
-			free(line);
+			gbmmem_free(line);
 			return GBM_ERR_MEM;
 			}
 		for ( y = gbm->h - 1; y >= 0; y-- )
@@ -447,12 +448,12 @@ case 1:
 			pcx_rle(b, bytes_per_line, line, &cnt);
 			if ( gbm_file_write(fd, line, cnt) != cnt )
 				{
-				free(b);
-				free(line);
+				gbmmem_free(b);
+				gbmmem_free(line);
 				return GBM_ERR_WRITE;
 				}
 			}
-		free(b);
+		gbmmem_free(b);
 		break;
 		}
 	/* Fall through to regular non-invert case */
@@ -465,7 +466,7 @@ case 8:
 		pcx_rle(data + y * stride, bytes_per_line, line, &cnt);
 		if ( gbm_file_write(fd, line, cnt) != cnt )
 			{
-			free(line);
+			gbmmem_free(line);
 			return GBM_ERR_WRITE;
 			}
 		}
@@ -477,9 +478,9 @@ case 24:
 	byte *line2;
 	int p, x;
 
-	if ( (line2 = malloc((size_t) bytes_per_line)) == NULL )
+	if ( (line2 = gbmmem_malloc((size_t) bytes_per_line)) == NULL )
 		{
-		free(line);
+		gbmmem_free(line);
 		return GBM_ERR_MEM;
 		}
 
@@ -494,18 +495,18 @@ case 24:
 			pcx_rle(line2, bytes_per_line, line, &cnt);
 			if ( gbm_file_write(fd, line, cnt) != cnt )
 				{
-				free(line2);
-				free(line);
+				gbmmem_free(line2);
+				gbmmem_free(line);
 				return GBM_ERR_WRITE;
 				}
 			}
-	free(line2);
+	gbmmem_free(line2);
 	}
 	break;
 /*...e*/
 		}
 
-	free(line);
+	gbmmem_free(line);
 
 	if ( gbm->bpp == 8 )
 		{

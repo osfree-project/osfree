@@ -28,6 +28,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -750,7 +751,7 @@ case 1:
 
 	/* Write data */
 
-	if ( (buf = malloc((size_t) stride)) == NULL )
+	if ( (buf = gbmmem_malloc((size_t) stride)) == NULL )
 		return GBM_ERR_MEM;
 	memset(buf, 0, stride);
 
@@ -765,7 +766,7 @@ case 8:
 			buf[i] = qpal[data[i]];
 		if ( gbm_file_write(fd, buf, stride) != stride )
 			{
-			free(buf);
+			gbmmem_free(buf);
 			return GBM_ERR_WRITE;
 			}
 		}
@@ -779,7 +780,7 @@ case 4:
 			buf[i] = nibble_swap[data[i]];
 		if ( gbm_file_write(fd, buf, stride) != stride )
 			{
-			free(buf);
+			gbmmem_free(buf);
 			return GBM_ERR_WRITE;
 			}
 		}
@@ -793,7 +794,7 @@ case 1:
 			buf[i] = bit_swap[data[i]];
 		if ( gbm_file_write(fd, buf, stride) != stride )
 			{
-			free(buf);
+			gbmmem_free(buf);
 			return GBM_ERR_WRITE;
 			}
 		}
@@ -801,7 +802,7 @@ case 1:
 /*...e*/
 		}
 
-	free(buf);
+	gbmmem_free(buf);
 
 	return GBM_ERR_OK;
 	}

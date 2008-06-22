@@ -10,7 +10,9 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: "\"fn.ext\"{,opt}"
-
+08-Feb-2008  Allocate memory from high memory for bitmap data to
+             stretch limit for out-of-memory errors
+             (requires kernel with high memory support)
 */
 
 /* activate to enable measurement of conversion time */
@@ -44,6 +46,7 @@ History:
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 #include "gbmtool.h"
 
 
@@ -197,7 +200,7 @@ int main(int argc, char *argv[])
     }
 
     stride = ( ((gbm.w * gbm.bpp + 31)/32) * 4 );
-    if ( (data = malloc((size_t) (stride * gbm.h))) == NULL )
+    if ( (data = gbmmem_malloc(stride * gbm.h)) == NULL )
     {
       gbm_io_close(fd);
       fatal("out of memory allocating %d bytes for input bitmap", stride * gbm.h);
@@ -205,7 +208,7 @@ int main(int argc, char *argv[])
 
     if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )
     {
-      free(data);
+      gbmmem_free(data);
       gbm_io_close(fd);
       fatal("can't read bitmap data of %s: %s", fn_src, gbm_err(rc));
     }
@@ -214,19 +217,19 @@ int main(int argc, char *argv[])
 
     if ( (fd = gbm_io_create(fn_dst, GBM_O_WRONLY)) == -1 )
     {
-      free(data);
+      gbmmem_free(data);
       fatal("can't create %s", fn_dst);
     }
 
     if ( (rc = gbm_write(fn_dst, fd, ft_dst, &gbm, gbmrgb, data, opt_dst)) != GBM_ERR_OK )
     {
-      free(data);
+      gbmmem_free(data);
       gbm_io_close(fd);
       remove(fn_dst);
       fatal("can't write %s: %s", fn_dst, gbm_err(rc));
     }
 
-    free(data);
+    gbmmem_free(data);
 
     gbm_io_close(fd);
     gbm_deinit();

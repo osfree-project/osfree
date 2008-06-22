@@ -10,7 +10,9 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: "\"file.ext\",options"
-
+08-Feb-2008  Allocate memory from high memory for bitmap data to
+             stretch limit for out-of-memory errors
+             (requires kernel with high memory support)
 */
 
 /*...sincludes:0:*/
@@ -34,6 +36,7 @@ History:
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 #include "gbmrect.h"
 #include "gbmtool.h"
 
@@ -272,7 +275,7 @@ int main(int argc, char *argv[])
 
 	stride_src = ( ((gbm.w * gbm.bpp + 31)/32) * 4 );
 	bytes = stride_src * gbm.h;
-	if ( (data = malloc((size_t) bytes)) == NULL )
+	if ( (data = gbmmem_malloc(bytes)) == NULL )
 		{
 		gbm_io_close(fd);
 		fatal("out of memory allocating %d bytes for bitmap", bytes);
@@ -303,7 +306,7 @@ int main(int argc, char *argv[])
 
 	gbm_io_close(fd);
 
-	free(data);
+	gbmmem_free(data);
 
 	gbm_deinit();
 

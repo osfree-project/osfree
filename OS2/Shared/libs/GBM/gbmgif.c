@@ -27,6 +27,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -465,7 +466,7 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 	cword eoi_code;			/* End of information code */
 	cword first_free_code;		/* First free code */
 	cword free_code;		/* Next available free code slot */
-	word bit_mask;			/* Output pixel mask */ 
+	word bit_mask;			/* Output pixel mask */
 	int i, out_count = 0;
 	cword code = 0, cur_code = 0, old_code = 0, in_code = 0, fin_char = 0;
 	cword *prefix, *suffix, *outcode;
@@ -473,33 +474,33 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 	OUTPUT_CONTEXT o;
 	BOOLEAN table_full = FALSE;	/* To help implement deferred clear */
 
-	if ( (prefix = (cword *) malloc((size_t) (4096 * sizeof(cword)))) == NULL )
+	if ( (prefix = (cword *) gbmmem_malloc((size_t) (4096 * sizeof(cword)))) == NULL )
 		return GBM_ERR_MEM;
-	if ( (suffix = (cword *) malloc((size_t) (4096 * sizeof(cword)))) == NULL )
+	if ( (suffix = (cword *) gbmmem_malloc((size_t) (4096 * sizeof(cword)))) == NULL )
 		{
-		free(prefix);
+		gbmmem_free(prefix);
 		return GBM_ERR_MEM;
 		}
-	if ( (outcode = (cword *) malloc((size_t) (4097 * sizeof(cword)))) == NULL )
+	if ( (outcode = (cword *) gbmmem_malloc((size_t) (4097 * sizeof(cword)))) == NULL )
 		{
-		free(suffix);		
-		free(prefix);
+		gbmmem_free(suffix);		
+		gbmmem_free(prefix);
 		return GBM_ERR_MEM;
 		}
 
 	if ( gbm_file_read(fd, &min_code_size, 1) != 1 )
 		{	
-		free(outcode);
-		free(suffix);
-		free(prefix);
+		gbmmem_free(outcode);
+		gbmmem_free(suffix);
+		gbmmem_free(prefix);
 		return GBM_ERR_READ;
 		}
 
 	if ( min_code_size < 2 || min_code_size > 9 )
 		{	
-		free(outcode);
-		free(suffix);
-		free(prefix);
+		gbmmem_free(outcode);
+		gbmmem_free(suffix);
+		gbmmem_free(prefix);
 		return GBM_ERR_GIF_CODE_SIZE;
 		}
 
@@ -550,9 +551,9 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 				break;
 			if ( code & ~bit_mask )
 				{
-				free(outcode);
-				free(suffix);
-				free(prefix);
+				gbmmem_free(outcode);
+				gbmmem_free(suffix);
+				gbmmem_free(prefix);
 				return gif_priv->errok ? GBM_ERR_OK : GBM_ERR_GIF_CORRUPT;
 				}
 			fin_char = (cur_code & bit_mask);
@@ -571,9 +572,9 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 				{
 				if ( out_count > 4096 )
 					{
-					free(outcode);
-					free(suffix);
-					free(prefix);
+					gbmmem_free(outcode);
+					gbmmem_free(suffix);
+					gbmmem_free(prefix);
 					return gif_priv->errok ? GBM_ERR_OK : GBM_ERR_GIF_CORRUPT;
 					}
 				outcode[out_count++] = suffix[cur_code];
@@ -610,9 +611,9 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 			}
 		}
 
-	free(outcode);
-	free(suffix);
-	free(prefix);
+	gbmmem_free(outcode);
+	gbmmem_free(suffix);
+	gbmmem_free(prefix);
 
 	if ( o.y < o.h && code == 0xffff )
 		/* If ran out of data and hadn't got to the end */
@@ -827,12 +828,12 @@ WRITE_CONTEXT w;
 
 /* Now LZW encode data */
 
-if ( (dict = (DICT *) malloc((size_t) (MAX_DICT * sizeof(DICT)))) == NULL )
+if ( (dict = (DICT *) gbmmem_malloc((size_t) (MAX_DICT * sizeof(DICT)))) == NULL )
 	return GBM_ERR_MEM;
 
-if ( (hashtable = (DICT **) malloc((size_t) (MAX_HASH * sizeof(DICT *)))) == NULL )
+if ( (hashtable = (DICT **) gbmmem_malloc((size_t) (MAX_HASH * sizeof(DICT *)))) == NULL )
 	{
-	free(dict);
+	gbmmem_free(dict);
 	return GBM_ERR_MEM;
 	}
 
@@ -846,8 +847,8 @@ if ( init_code_size == 2 )
 min_code_size = init_code_size - 1;
 if ( gbm_file_write(fd, &min_code_size, 1) != 1 )
 	{
-	free(hashtable);
-	free(dict);
+	gbmmem_free(hashtable);
+	gbmmem_free(dict);
 	return GBM_ERR_WRITE;
 	}
 
@@ -866,8 +867,8 @@ memset(w.buf, 0, sizeof(w.buf));
 
 if ( !write_code(clear_code, &w) )
 	{
-	free(hashtable);
-	free(dict);
+	gbmmem_free(hashtable);
+	gbmmem_free(dict);
 	return GBM_ERR_WRITE;
 	}
 
@@ -924,8 +925,8 @@ else
 		{
 		if ( !write_code(tail, &w) )
 			{
-			free(hashtable);
-			free(dict);
+			gbmmem_free(hashtable);
+			gbmmem_free(dict);
 			return GBM_ERR_WRITE;
 			}
 		hashtable[j]       = dict + ++last_code;
@@ -947,8 +948,8 @@ else
 			if ( !write_code(tail      , &w) ||
 			     !write_code(clear_code, &w) )
 				{
-				free(hashtable);
-				free(dict);
+				gbmmem_free(hashtable);
+				gbmmem_free(dict);
 				return GBM_ERR_WRITE;
 				}
 			lenstring   = 0;
@@ -968,8 +969,8 @@ else
 		y++;
 	}
 
-free(hashtable);
-free(dict);
+gbmmem_free(hashtable);
+gbmmem_free(dict);
 
 if ( lenstring != 0 )
 	{

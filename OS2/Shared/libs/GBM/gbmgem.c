@@ -46,6 +46,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -404,7 +405,7 @@ GBM_ERR gem_rdata(int fd, GBM *gbm, byte *data)
 	if ( (ahead = gbm_create_ahead(fd)) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (line = malloc((size_t) scan)) == NULL )
+	if ( (line = gbmmem_malloc((size_t) scan)) == NULL )
 		{
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_MEM;
@@ -505,7 +506,7 @@ case 24:
 /*...e*/
 		}
 
-	free(line);
+	gbmmem_free(line);
 
 	gbm_destroy_ahead(ahead);
 
@@ -597,7 +598,7 @@ static BOOLEAN handle_vrep(int fd, const byte *data, int step, int most, int *dy
                                           N=2 expands to 4  ie: 2:1
 
    len(enc) = len(data)*4/2 + 2 should do it. Worst case typically like :-
-   
+
    A B            0xff  C D            0xff  F
    0x80 0x02 A B  0x81  0x80 0x02 C D  0x81  0x80 0x01 F    */
 
@@ -845,18 +846,18 @@ case 1:
 			   gbmrgb[1].r+gbmrgb[1].g+gbmrgb[1].b );
 		}
 
-	if ( (line = malloc((size_t) scan)) == NULL )
+	if ( (line = gbmmem_malloc((size_t) scan)) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (enc = malloc((size_t) (scan*2+2))) == NULL )
-		{ free(line); return GBM_ERR_MEM; }
+	if ( (enc = gbmmem_malloc((size_t) (scan*2+2))) == NULL )
+		{ gbmmem_free(line); return GBM_ERR_MEM; }
 
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
 		int len_enc;
 		const byte *p;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, scan) )
-			{ free(enc); free(line); return GBM_ERR_WRITE; }
+			{ gbmmem_free(enc); gbmmem_free(line); return GBM_ERR_WRITE; }
 		if ( invert )
 			{
 			int x;
@@ -868,11 +869,11 @@ case 1:
 			p = data;
 		len_enc = literally(p, scan, enc, encode1(p, scan, enc));
 		if ( gbm_file_write(fd, enc, len_enc) != len_enc )
-			{ free(enc); free(line); return GBM_ERR_WRITE; }
+			{ gbmmem_free(enc); gbmmem_free(line); return GBM_ERR_WRITE; }
 		}
 
-	free(enc);
-	free(line);
+	gbmmem_free(enc);
+	gbmmem_free(line);
 
 	}
 	break;
@@ -915,14 +916,14 @@ case 4:
 				  map_to_col4(gbmrgb+( i    &15U))     ;
 		}
 
-	if ( (mapped = malloc((size_t) ((gbm->w+1)/2))) == NULL )
+	if ( (mapped = gbmmem_malloc((size_t) ((gbm->w+1)/2))) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (line = malloc((size_t) scan)) == NULL )
-		{ free(mapped); return GBM_ERR_MEM; }
+	if ( (line = gbmmem_malloc((size_t) scan)) == NULL )
+		{ gbmmem_free(mapped); return GBM_ERR_MEM; }
 
-	if ( (enc = malloc((size_t) (scan*2+2))) == NULL )
-		{ free(line); free(mapped); return GBM_ERR_MEM; }
+	if ( (enc = gbmmem_malloc((size_t) (scan*2+2))) == NULL )
+		{ gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_MEM; }
 
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
@@ -930,7 +931,7 @@ case 4:
 		const byte *p;
 		byte bit, mask;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, gbm->w) )
-			{ free(enc); free(line); free(mapped); return GBM_ERR_WRITE; }
+			{ gbmmem_free(enc); gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_WRITE; }
 		if ( pal )
 			p = data;
 		else
@@ -947,13 +948,13 @@ case 4:
 					line[(unsigned)x>>3] |= (0x80>>((unsigned)x&7));
 			len_enc = literally(line, scan, enc, encode1(line, scan, enc));
 			if ( gbm_file_write(fd, enc, len_enc) != len_enc )
-				{ free(enc); free(line); free(mapped); return GBM_ERR_MEM; }
+				{ gbmmem_free(enc); gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_MEM; }
 			}
 		}
 
-	free(enc);
-	free(line);
-	free(mapped);
+	gbmmem_free(enc);
+	gbmmem_free(line);
+	gbmmem_free(mapped);
 
 	}
 	break;
@@ -988,14 +989,14 @@ case 8:
 					    (word) gbmrgb[i].b) / 3 );
 		}
 
-	if ( (mapped = malloc((size_t) gbm->w)) == NULL )
+	if ( (mapped = gbmmem_malloc((size_t) gbm->w)) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (line = malloc((size_t) scan)) == NULL )
-		{ free(mapped); return GBM_ERR_MEM; }
+	if ( (line = gbmmem_malloc((size_t) scan)) == NULL )
+		{ gbmmem_free(mapped); return GBM_ERR_MEM; }
 
-	if ( (enc = malloc((size_t) (scan*2+2))) == NULL )
-		{ free(line); free(mapped); return GBM_ERR_MEM; }
+	if ( (enc = gbmmem_malloc((size_t) (scan*2+2))) == NULL )
+		{ gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_MEM; }
 
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
@@ -1003,7 +1004,7 @@ case 8:
 		const byte *p;
 		byte bit;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, gbm->w) )
-			{ free(enc); free(line); free(mapped); return GBM_ERR_WRITE; }
+			{ gbmmem_free(enc); gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_WRITE; }
 		if ( pal )
 			p = data;
 		else
@@ -1020,13 +1021,13 @@ case 8:
 					line[(unsigned)x>>3] |= (0x80U>>((unsigned)x&7U));
 			len_enc = literally(line, scan, enc, encode1(line, scan, enc));
 			if ( gbm_file_write(fd, enc, len_enc) != len_enc )
-				{ free(enc); free(line); free(mapped); return GBM_ERR_MEM; }
+				{ gbmmem_free(enc); gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_MEM; }
 			}
 		}
 
-	free(enc);
-	free(line);
-	free(mapped);
+	gbmmem_free(enc);
+	gbmmem_free(line);
+	gbmmem_free(mapped);
 
 	}
 	break;
@@ -1044,25 +1045,25 @@ case 24:
 	if ( gbm_file_write(fd, hdr, 11*2) != 11*2 )
 		return GBM_ERR_WRITE;
 
-	if ( (line = malloc((size_t) (gbm->w*3))) == NULL )
+	if ( (line = gbmmem_malloc((size_t) (gbm->w*3))) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (enc = malloc((size_t) (gbm->w*3*2+2))) == NULL )
-		{ free(line); return GBM_ERR_MEM; }
+	if ( (enc = gbmmem_malloc((size_t) (gbm->w*3*2+2))) == NULL )
+		{ gbmmem_free(line); return GBM_ERR_MEM; }
 
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
 		int len_enc;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, gbm->w*3) )
-			{ free(enc); free(line); return GBM_ERR_WRITE; }
+			{ gbmmem_free(enc); gbmmem_free(line); return GBM_ERR_WRITE; }
 		rgb_bgr(data, line, gbm->w);
 		len_enc = literally(line, gbm->w*3, enc, encode3(line, gbm->w*3, enc));
 		if ( gbm_file_write(fd, enc, len_enc) != len_enc )
-			{ free(enc); free(line); return GBM_ERR_WRITE; }
+			{ gbmmem_free(enc); gbmmem_free(line); return GBM_ERR_WRITE; }
 		}
 
-	free(enc);
-	free(line);
+	gbmmem_free(enc);
+	gbmmem_free(line);
 
 	}
 	break;

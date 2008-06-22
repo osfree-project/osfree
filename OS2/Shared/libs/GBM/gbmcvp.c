@@ -19,6 +19,7 @@ History:
 #include "gbm.h"
 #include "gbmhelp.h"
 #include "gbmdesc.h"
+#include "gbmmem.h"
 
 /*...vgbm\46\h:0:*/
 /*...vgbmhelp\46\h:0:*/
@@ -76,7 +77,7 @@ GBM_ERR cvp_rdata(int fd, GBM *gbm, byte *data)
 	{
 	int p, stride = ((gbm->w*3+3)&~3);
 	byte *line;
-	if ( (line = malloc((size_t) gbm->w)) == NULL )
+	if ( (line = gbmmem_malloc((size_t) gbm->w)) == NULL )
 		return GBM_ERR_MEM;
 	for ( p = 2; p >= 0; p-- )
 		{
@@ -87,14 +88,14 @@ GBM_ERR cvp_rdata(int fd, GBM *gbm, byte *data)
 			int x;
 			if ( gbm_file_read(fd, line, gbm->w) != gbm->w )
 				{
-				free(line);
+				gbmmem_free(line);
 				return GBM_ERR_READ;
 				}
 			for ( x = 0; x < gbm->w; x++ )
 				ptr[x*3] = line[gbm->w-1-x];
 			}
 		}
-	free(line);
+	gbmmem_free(line);
 	return GBM_ERR_OK;
 	}
 /*...e*/
@@ -112,7 +113,7 @@ GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	if ( gbm->w != 512 || gbm->h != 512 )
 		return GBM_ERR_CVP_SIZE;
 
-	if ( (line = malloc((size_t) gbm->w)) == NULL )
+	if ( (line = gbmmem_malloc((size_t) gbm->w)) == NULL )
 		return GBM_ERR_MEM;
 
 	for ( p = 2; p >= 0; p-- )
@@ -126,12 +127,12 @@ GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 				line[gbm->w-1-x] = ptr[x*3];
 			if ( gbm_file_write(fd, line, gbm->w) != gbm->w )
 				{
-				free(line);
+				gbmmem_free(line);
 				return GBM_ERR_WRITE;
 				}
 			}
 		}
-	free(line);
+	gbmmem_free(line);
 	return GBM_ERR_OK;
 	}
 /*...e*/

@@ -18,8 +18,8 @@ CLIB    = wlib
 # Builds zlib objects which are compiled multithreaded
 # Therefore all users should also be multithreaded
 CWARNS     = -wx -wcd=201 -we
-CFLAGS     = $(CWARNS) -bd -zq -zp4 -onatxh -oe=50 -sg -ei -6r -fp5 -bm -mf /DNDEBUG
-CFLAGS_DBG = $(CWARNS) -bd -zq -zp4 -sg -ei -6r -fp5 -bm -mf -d2 /DDEBUG
+CFLAGS     = $(CWARNS) -bd -zq -zp4 -onatxh -oe=50 -sg -ei -6r -fp6 -fpi87 -bm -mf /DNDEBUG
+CFLAGS_DBG = $(CWARNS) -bd -zq -zp4 -sg -ei -6r -fp6 -fpi87 -bm -mf -d2 /DDEBUG
 
 LFLAGS     = SYSTEM os2v2_dll op q op el op stack=0x6000 op caseexact
 LFLAGS_DBG = SYSTEM os2v2_dll op q d all op stack=0x6000 op caseexact
@@ -82,6 +82,6 @@ install:
          copy zconf.h   $(IDIR)
 
 package:
-         -del /N $(IDIR)\zlib123.zip
-         zip -9 $(IDIR)\zlib123.zip z.dll z.lib zdll.lib zlib.h zconf.h
+         -del /N $(IDIR)\zlib.zip
+         zip -9 $(IDIR)\zlib.zip z.dll z.lib zdll.lib zlib.h zconf.h
 

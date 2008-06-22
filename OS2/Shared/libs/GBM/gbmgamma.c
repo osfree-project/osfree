@@ -10,7 +10,9 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: "\"file.ext\",options"
-
+08-Feb-2008  Allocate memory from high memory for bitmap data to
+             stretch limit for out-of-memory errors
+             (requires kernel with high memory support)
 */
 
 /*...sincludes:0:*/
@@ -35,6 +37,7 @@ History:
 #include <sys/stat.h>
 #endif
 #include "gbm.h"
+#include "gbmmem.h"
 #include "gbmtool.h"
 
 /*...vgbm\46\h:0:*/
@@ -569,7 +572,7 @@ m = mapinfos[j].m;
 
 	stride = ( ((gbm.w * gbm.bpp + 31)/32) * 4 );
 	bytes = stride * gbm.h;
-	if ( (data = malloc((size_t) bytes)) == NULL )
+	if ( (data = gbmmem_malloc(bytes)) == NULL )
 		{
 		gbm_io_close(fd);
 		fatal("out of memory allocating %d bytes for bitmap", bytes);
@@ -586,7 +589,7 @@ m = mapinfos[j].m;
 	switch(gbm.bpp)
         {
            case 64:
-                remap16 = (word *) malloc(0x10000 * sizeof(word));
+                remap16 = (word *) gbmmem_malloc(0x10000 * sizeof(word));
                 if (remap16 == NULL)
                 {
                    gbm_io_close(fd);
@@ -594,11 +597,11 @@ m = mapinfos[j].m;
                 }
 		map_compute_16(m, remap16, gam, shelf);
 		map_data_64(data, gbm.w, gbm.h, remap16);
-                free(remap16);
+                gbmmem_free(remap16);
 		break;
 
            case 48:
-                remap16 = (word *) malloc(0x10000 * sizeof(word));
+                remap16 = (word *) gbmmem_malloc(0x10000 * sizeof(word));
                 if (remap16 == NULL)
                 {
                    gbm_io_close(fd);
@@ -606,11 +609,11 @@ m = mapinfos[j].m;
                 }
 		map_compute_16(m, remap16, gam, shelf);
 		map_data_48(data, gbm.w, gbm.h, remap16);
-                free(remap16);
+                gbmmem_free(remap16);
 		break;
 
            case 32:
-                remap = (byte *) malloc(0x100 * sizeof(byte));
+                remap = (byte *) gbmmem_malloc(0x100 * sizeof(byte));
                 if (remap == NULL)
                 {
                    gbm_io_close(fd);
@@ -618,11 +621,11 @@ m = mapinfos[j].m;
                 }
 		map_compute(m, remap, gam, shelf);
 		map_data_32(data, gbm.w, gbm.h, remap);
-                free(remap);
+                gbmmem_free(remap);
 		break;
 
            case 24:
-                remap = (byte *) malloc(0x100 * sizeof(byte));
+                remap = (byte *) gbmmem_malloc(0x100 * sizeof(byte));
                 if (remap == NULL)
                 {
                    gbm_io_close(fd);
@@ -630,11 +633,11 @@ m = mapinfos[j].m;
                 }
 		map_compute(m, remap, gam, shelf);
 		map_data_24(data, gbm.w, gbm.h, remap);
-                free(remap);
+                gbmmem_free(remap);
 		break;
-           
+
            default:
-                remap = (byte *) malloc(0x100 * sizeof(byte));
+                remap = (byte *) gbmmem_malloc(0x100 * sizeof(byte));
                 if (remap == NULL)
                 {
                    gbm_io_close(fd);
@@ -642,7 +645,7 @@ m = mapinfos[j].m;
                 }
 		map_compute(m, remap, gam, shelf);
 		map_palette(gbmrgb, 1 << gbm.bpp, remap);
-                free(remap);
+                gbmmem_free(remap);
 		break;
         }
 
@@ -658,7 +661,7 @@ m = mapinfos[j].m;
 
 	gbm_io_close(fd);
 
-	free(data);
+	gbmmem_free(data);
 
 	gbm_deinit();
 
