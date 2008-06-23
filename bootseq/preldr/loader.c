@@ -21,9 +21,6 @@ extern FileTable ft;
 struct multiboot_info *m;
 struct term_entry *t;
 
-#define MENU_WIDTH  56
-#define MENU_HEIGHT 10
-
 int num_items = 0;
 int scrollnum = 0;
 
@@ -63,6 +60,21 @@ int  menu_timeout;
 /* menu colors */
 int background_color = 0; // black
 int foreground_color = 7; // white
+int background_color_hl = 0;
+int foreground_color_hl = 7;
+
+
+int screen_bg_color = 0; 
+int screen_fg_color = 7;
+int screen_bg_color_hl = 0; 
+int screen_fg_color_hl = 7;
+
+
+/* menu width and height */
+#define MENU_WIDTH  56
+#define MENU_HEIGHT 10
+int menu_width  = MENU_WIDTH;
+int menu_height = MENU_HEIGHT;
 
 typedef struct script script_t;
 // a structure corresponding to a 
@@ -108,15 +120,55 @@ process_cfg_line1(char *line)
     line = skip_to(1, line);
     safe_parse_maxint(&line, &menu_timeout);
   }
-  else if (!section && abbrev(line, "background", 10))
+  else if (!section && abbrev(line, "menubg", 6))
   {
     line = skip_to(1, line);
     safe_parse_maxint(&line, &background_color);
   }
-  else if (!section && abbrev(line, "foreground", 10))
+  else if (!section && abbrev(line, "menufg", 6))
   {
     line = skip_to(1, line);
     safe_parse_maxint(&line, &foreground_color);
+  }
+  else if (!section && abbrev(line, "menubghl", 8))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &background_color_hl);
+  }
+  else if (!section && abbrev(line, "menufghl", 8))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &foreground_color_hl);
+  }
+  else if (!section && abbrev(line, "width", 5))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &menu_width);
+  }
+  else if (!section && abbrev(line, "height", 6))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &menu_height);
+  }
+  else if (!section && abbrev(line, "screenbg", 8))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &screen_bg_color);
+  }
+  else if (!section && abbrev(line, "screenfg", 8))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &screen_fg_color);
+  }
+  else if (!section && abbrev(line, "screenbghl", 10))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &screen_bg_color_hl);
+  }
+  else if (!section && abbrev(line, "screenfghl", 10))
+  {
+    line = skip_to(1, line);
+    safe_parse_maxint(&line, &screen_fg_color_hl);
   }
   else if (!section && abbrev(line, "set", 3))
   {
@@ -265,7 +317,7 @@ get_user_input(int *item, int *shift)
   for (;;)
   {
     c = t->getkey();
-
+    //printf("0x%x ", c);
     switch (c)
     {
       case 0xe:   // down arrow
@@ -290,6 +342,16 @@ get_user_input(int *item, int *shift)
         else
           continue; */
       }
+      case 0x2:   // left arrow
+      {
+        if (*shift >= -menu_width) --*shift;
+        return 1;
+      }
+      case 0x6:   // right arrow
+      {
+        if (*shift < 0) ++*shift;
+        return 1;
+      }
       case 0x1c0d: // enter
       {
         ++*item;
@@ -305,6 +367,58 @@ get_user_input(int *item, int *shift)
   return 1;
 }
 
+void show_background_screen(void)
+{
+  int i;
+  char *s = "--== FreeLdr ==--";
+  int  l, n;
+  
+  t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4), 
+              (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
+  t->cls();
+
+  t->setcolorstate(COLOR_STATE_NORMAL);
+
+  /* draw the frame */
+
+  t->gotoxy(1, 0);
+  t->putchar(0xda);
+  for (i = 0; i < 80 - 4; i++) t->putchar(0xc4);
+  t->putchar(0xbf);
+
+
+  for (i = 0; i < 25 - 2; i++)
+  {
+    t->gotoxy(1,  1 + i); t->putchar(0xb3);
+    t->gotoxy(78, 1 + i); t->putchar(0xb3);
+  }
+
+  t->gotoxy(1, 24);
+  t->putchar(0xc0);
+
+  for (i = 0; i < 80 - 4; i++) t->putchar(0xc4);
+
+  t->gotoxy(78, 24);
+  t->putchar(0xd9);
+
+  t->setcolor(0x75, 7);
+
+  /* header line */
+  t->gotoxy(4, 0);
+  l = grub_strlen(s);
+  n = (80 - 8 - l) / 2;
+  for (i = 0; i < n; i++) t->putchar(' ');
+  for (i = 0; i < l; i++) t->putchar(s[i]);
+  for (i = n + l; i < 80 - 8; i++) t->putchar(' ');
+
+  /* footer line */
+  t->gotoxy(4, 24);
+  for(i = 0; i < 80 - 8; i++) t->putchar(' ');  
+
+  t->setcolor((char)foreground_color    | ((char)background_color << 4),
+              (char)foreground_color_hl | ((char)background_color_hl << 4));
+}
+
 void
 invert_colors(void)
 {
@@ -314,43 +428,61 @@ invert_colors(void)
   background_color = foreground_color;
   foreground_color = col;
 
-  t->setcolor((char)foreground_color | ((char)background_color << 4), 7 | (3 << 4));
+  t->setcolor((char)foreground_color | ((char)background_color << 4), 
+              (char)foreground_color_hl | ((char)background_color_hl << 4));
 }
 
 // draw a menu with selected item
 void draw_menu(int item, int shift)
 {
-  int i = 0, j, l, k;
+  int i = 0, j, l, k, m;
   script_t *sc;
   char s[4];
   char str[4]; 
+  char spc[0x80];
   char buf[0x100];
+  char *p;
 
-  t->setcolorstate(COLOR_STATE_NORMAL);
+  //t->setcolorstate(COLOR_STATE_NORMAL);
 
   // background
-  t->setcolor(0 | (3 << 4), 7 | (3 << 4));
+  //t->setcolor(0 | (3 << 4), 7 | (3 << 4));
   // clear screen
-  t->cls();
+  //t->cls();
   // 5 - normal (pink), 3 - highlighted (magenta)
-  t->setcolor((char)foreground_color | ((char)background_color << 4), 7 | (3 << 4)); 
+  t->setcolor((char)foreground_color    | ((char)background_color << 4), 
+              (char)foreground_color_hl | ((char)background_color_hl << 4)); 
 
   t->gotoxy(12, 5);
   l = 0;
   buf[l++] = 0xda;
-  while (l < MENU_WIDTH) buf[l++] = 0xc4;
+  while (l < menu_width) buf[l++] = 0xc4;
   buf[l++] = 0xbf; buf[l] = '\0';
   printf("%s", buf);
 
-  if (item + 1 > MENU_HEIGHT) scrollnum = item + 1 - MENU_HEIGHT;
+  grub_memset(buf, 0, sizeof(buf));
+
+  if (item + 1 > menu_height) scrollnum = item + 1 - menu_height;
   if (item == num_items + 1)  scrollnum = 0;
   if (!item) scrollnum = 0;
 
   sc = menu_first;
 
+  if (shift > 0)
+  {
+    for (i = 0; i < shift; i++) spc[i] = ' ';
+    spc[i] = '\0';
+    m = 0;
+  }
+  else
+  {
+    spc[0] = '\0';
+    m = -shift;
+  }
+
   for (k = 0; k < scrollnum; k++) sc = sc->next;
 
-  for (i = 0; i < MENU_HEIGHT; i++)
+  for (i = 0; i < menu_height; i++)
   {
     j = scrollnum + i;
 
@@ -365,14 +497,18 @@ void draw_menu(int item, int shift)
     l = grub_strlen(s);
     if (l == 1) grub_strcat(str, "0", s);
     if (l == 2) grub_strcpy(str, s);
-    sprintf(buf, "%s. %s", str, sc->title);
-    l = grub_strlen(buf);
+    sprintf(buf, "%s%s. %s", spc, str, sc->title);
 
-    while (l > MENU_WIDTH - 3) buf[l--] = '\0';
-    while (l < MENU_WIDTH - 3) buf[l++] = ' ';
-    buf[l] = '\0';
+    p = buf + m;
+    l = grub_strlen(p);
 
-    printf("%s", buf);
+    while (l > menu_width - 3) p[l--] = '\0';
+    while (l < menu_width - 3) p[l++] = ' ';
+    p[l] = '\0';
+
+    printf("%s", p);
+
+    grub_memset(buf, 0, sizeof(buf));
 
     // show highlighted menu string in inverse color
     if (j == item) invert_colors();
@@ -386,7 +522,7 @@ void draw_menu(int item, int shift)
   t->gotoxy(12, 6 + i);
   l = 0;
   buf[l++] = 0xc0;
-  while (l < MENU_WIDTH) buf[l++] = 0xc4;
+  while (l < menu_width) buf[l++] = 0xc4;
   buf[l++] = 0xd9; buf[l] = '\0';
   printf("%s", buf);
 
@@ -447,7 +583,10 @@ exec_cfg(char *cfg)
   rc = process_cfg(cfg);
 
   // starting point 0 instead of 1
-  --num_items;
+  num_items--;
+
+  // show screen header, border and status line
+  show_background_screen();
 
   // show a menu and let the user choose a menu item
   item = exec_menu();
@@ -477,7 +616,7 @@ KernelLoader(void)
 
   if (!(rc = exec_cfg(cfg)))
   {
-    printf("Error parsing loader config file!\r\n");
+    printf("Error processing loader config file!\r\n");
   }
   else if (rc == -1)
   {

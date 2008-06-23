@@ -461,7 +461,7 @@ int set_fsys(char *fsname)
   //swap_fsys_bufs((void *)EXT3HIBUF_BASE, (void *)UFSD_BASE);
   
   // fixup the loaded filesystem
-  reloc((char *)buf, sbuf, relshift);
+  reloc((char *)buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
   printmsg("fs relocated\r\n");
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);

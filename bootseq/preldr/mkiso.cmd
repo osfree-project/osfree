@@ -30,7 +30,7 @@ cd %cwd%
 
 cd ..\..\..
 set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
-         cd\boot\freeldr\term cd\l4 cd\pns cd\os2 cd\l4ka
+         cd\boot\freeldr\term cd\l4 cd\pns cd\os3 cd\l4ka
 @for %%i in (%dirs%) do if not exist %%i mkdir %%i
 
 cd osfree\bootseq\preldr
@@ -56,7 +56,7 @@ cd ..\files
 
 cd ..\os2\server
 set files=os2server VioWrtTTY_test config.sys libkal.s.so os2.cfg MiniELFExe.Exe
-@for %%i in (%files%) do if exist %%i copy %%i ..\..\..\cd\os2\
+@for %%i in (%files%) do if exist %%i copy %%i ..\..\..\cd\os3\
 cd   ..\..\..
 
 @if not exist files goto mkiso

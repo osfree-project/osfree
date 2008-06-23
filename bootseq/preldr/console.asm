@@ -440,6 +440,7 @@ console_cls:
 ;                        %ch = cursor starting scanline
 ;                        %cl = cursor ending scanline
 ; 
+
 console_cursor_state	db	1
 console_cursor_shape	dw	0
 	
@@ -460,7 +461,7 @@ console_setcursor:
         call    call_rm
         add     esp, 4
 
-	mov	console_cursor_shape, cx
+	mov	ds:console_cursor_shape, cx
 lw1:
 	; set %cx to the designated cursor shape
 	mov	cx, 2000h
@@ -478,7 +479,7 @@ lw2:
         add     esp, 4
 
 	movzx	eax, console_cursor_state
-	mov	console_cursor_state, bl
+	mov	ds:console_cursor_state, bl
 	
 	pop	ebx
 	pop	ebp

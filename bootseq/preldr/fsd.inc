@@ -17,13 +17,13 @@ LDR_SEG         equ 0x1000                ; os2ldr segment
 
 PREFERRED_BASE  equ 0x6f000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
                                           ; when loaded initially without relocation)
-BOOT_PART_TABLE equ 0x600                 ;
+BOOT_PART_TABLE equ (0x70000 + SHIFT)     ;
 FSYS_BUFLEN     equ 0x8000
 
 ;
 ; GDT location
 ;
-GDT_ADDR        equ 0x680
+GDT_ADDR          equ 0x600
 
 ;
 ; buffers at the end of 3rd megabyte
