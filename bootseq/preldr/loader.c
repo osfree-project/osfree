@@ -370,7 +370,8 @@ get_user_input(int *item, int *shift)
 void show_background_screen(void)
 {
   int i;
-  char *s = "--== FreeLdr ==--";
+  char *s1 = "--== FreeLdr ver. 0.0.2. ==--";
+  char *s2 = "(c) osFree project, 2008 Jun 23. licensed under GNU GPL v.2";
   int  l, n;
   
   t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4), 
@@ -405,15 +406,19 @@ void show_background_screen(void)
 
   /* header line */
   t->gotoxy(4, 0);
-  l = grub_strlen(s);
+  l = grub_strlen(s1);
   n = (80 - 8 - l) / 2;
   for (i = 0; i < n; i++) t->putchar(' ');
-  for (i = 0; i < l; i++) t->putchar(s[i]);
+  for (i = 0; i < l; i++) t->putchar(s1[i]);
   for (i = n + l; i < 80 - 8; i++) t->putchar(' ');
 
   /* footer line */
   t->gotoxy(4, 24);
-  for(i = 0; i < 80 - 8; i++) t->putchar(' ');  
+  for(i = 0; i < 80 - 8; i++) t->putchar(' ');
+  
+  /* copyright */
+  t->gotoxy(5, 24);
+  printf("%s", s2);
 
   t->setcolor((char)foreground_color    | ((char)background_color << 4),
               (char)foreground_color_hl | ((char)background_color_hl << 4));
