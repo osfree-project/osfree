@@ -342,12 +342,12 @@ get_user_input(int *item, int *shift)
         else
           continue; */
       }
-      case 0x2:   // left arrow
+      case 0x6:   // right arrow
       {
         if (*shift >= -menu_width) --*shift;
         return 1;
       }
-      case 0x6:   // right arrow
+      case 0x2:   // left arrow
       {
         if (*shift < 0) ++*shift;
         return 1;
@@ -425,19 +425,20 @@ void show_background_screen(void)
 }
 
 void
-invert_colors(void)
+invert_colors(int *col1, int *col2)
 {
   int col;
   
-  col = background_color;
-  background_color = foreground_color;
-  foreground_color = col;
+  col = *col1;
+  *col1 = *col2;
+  *col2 = col;
 
   t->setcolor((char)foreground_color | ((char)background_color << 4), 
               (char)foreground_color_hl | ((char)background_color_hl << 4));
 }
 
-// draw a menu with selected item
+// draw a menu with selected item shifted
+// by 'shift' symbols to right/left
 void draw_menu(int item, int shift)
 {
   int i = 0, j, l, k, m;
@@ -496,11 +497,11 @@ void draw_menu(int item, int shift)
     printf("%c ", 0xb3);
 
     // show highlighted menu string in inverse color
-    if (j == item) invert_colors();
+    if (j == item) invert_colors(&foreground_color, &background_color);
 
     sprintf(s, "%d", j);
     l = grub_strlen(s);
-    if (l == 1) grub_strcat(str, "0", s);
+    if (l == 1) grub_strcat(str, " ", s);
     if (l == 2) grub_strcpy(str, s);
     sprintf(buf, "%s%s. %s", spc, str, sc->title);
 
@@ -516,7 +517,7 @@ void draw_menu(int item, int shift)
     grub_memset(buf, 0, sizeof(buf));
 
     // show highlighted menu string in inverse color
-    if (j == item) invert_colors();
+    if (j == item) invert_colors(&foreground_color, &background_color);
  
     printf(" %c", 0xb3);
 
@@ -531,23 +532,23 @@ void draw_menu(int item, int shift)
   buf[l++] = 0xd9; buf[l] = '\0';
   printf("%s", buf);
 
+  t->setcursor(0);
+
   t->setcolor(7, 7);
 }
 
 int 
 exec_menu(void)
 {
-  int cont = 1;  // continuation flag
+  //int cont = 1;  // continuation flag
   int item;      // selected menu item
   int shift = 0; // horiz. scrolling menu shift
 
   item = default_item;
 
-  while (cont)
-  {
+  do { 
     draw_menu(item, shift);
-    cont = get_user_input(&item, &shift);
-  }
+  }   while (get_user_input(&item, &shift));
 
   return item;
 }

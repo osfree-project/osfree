@@ -1151,15 +1151,14 @@ int init(void)
   {
     printf("multiboot = (y)es/(n)o?: ");
 
-    key = t->getkey() & 0xff;
+    do {
+      key = t->getkey() & 0xff;
+    } while (key != 'y' && key != 'Y' && key != 'n' && key != 'N');
 
-    printf("%c\r\n", key);
-    
-    // if 'Y' or 'y' is pressed
-    if (key == 0x59 || key == 0x79)
-      conf.multiboot = 1;
-    else
+    if (key == 'N' || key == 'n')
       conf.multiboot = 0;
+    else
+      conf.multiboot = 1;
   }
 
   if (!grub_strcmp(conf.loader.name, "default"))
