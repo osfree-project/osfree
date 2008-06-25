@@ -468,7 +468,7 @@ void draw_menu(int item, int shift)
 
   grub_memset(buf, 0, sizeof(buf));
 
-  if (item + 1 > menu_height) scrollnum = item + 1 - menu_height;
+  if (item + 2 > menu_height) scrollnum = item + 1 - menu_height;
   if (item == num_items + 1)  scrollnum = 0;
   if (!item) scrollnum = 0;
 
