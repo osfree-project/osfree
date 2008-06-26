@@ -1248,7 +1248,7 @@ int init(void)
     }
   }
 
-  printf("mem_lower=0x%x\r\n", mem_lower);
+  printf("\r\nmem_lower=0x%x\r\n", mem_lower);
   //printmsg("mem_lower=");
   //printd(mem_lower);
 

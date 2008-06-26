@@ -421,7 +421,7 @@ void set_boot_fsys(void)
 
 int set_fsys(char *fsname)
 {
-  char buf[EXT_LEN]; 
+  char *buf; //[EXT_LEN]; 
   char sbuf[0x100];
   char *s;
   int  rc;  
@@ -445,6 +445,8 @@ int set_fsys(char *fsname)
   set_boot_fsys();
   rc = freeldr_open(fsname);
 
+  buf = (char *)EXT4HIBUF_BASE;
+
   if (rc)
     rc = freeldr_read(buf, -1);
   else
@@ -461,7 +463,7 @@ int set_fsys(char *fsname)
   //swap_fsys_bufs((void *)EXT3HIBUF_BASE, (void *)UFSD_BASE);
   
   // fixup the loaded filesystem
-  reloc((char *)buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+  reloc(buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
   printmsg("fs relocated\r\n");
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);

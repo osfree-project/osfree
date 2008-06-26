@@ -90,6 +90,8 @@ protmode:
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  ax, PSEUDO_RM_SSEG
         mov  ss, ax
         ; do a far call to a 32-bit segment
         push esi
@@ -121,6 +123,9 @@ realmode:
         mov  es,  ax
         mov  fs,  ax
         mov  gs,  ax
+
+	mov  eax, STAGE0_BASE
+	shr  eax, 4 
         mov  ss,  ax
         ; Restore interrupts
         sti
@@ -152,7 +157,11 @@ rmode_switch proc far
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  eax, STAGE0_BASE
+	shr  eax, 4
         mov  ss, ax
+
         ; do a far jump to reload a
         ; real mode CS
         push ds
@@ -178,6 +187,8 @@ rmode1:
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  ax, PSEUDO_RM_SSEG
         mov  ss, ax
         ; do a far jump to load a
         ; protected mode 16-bit CS
@@ -249,6 +260,8 @@ pmode   proc far
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  ax, PSEUDO_RM_SSEG
         mov  ss, ax
 
         xor  eax, eax
@@ -282,6 +295,8 @@ call_rm proc near
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  ax, PSEUDO_RM_SSEG
         mov  ss, ax
         ; call 16-bit function
         mov  ax, PSEUDO_RM_CSEG
@@ -327,6 +342,7 @@ PROT_MODE_CSEG  equ 08h
 PROT_MODE_DSEG  equ 10h
 
 ; 16-bit selectors
+PSEUDO_RM_SSEG  equ 48h
 ifndef NO_PROT
 ; selectors for real-mode part of pre-loader
 PSEUDO_RM_CSEG  equ 18h
@@ -345,6 +361,7 @@ endif
 
 ;STACKOFF        equ (2000h - 10h)
 PROTSTACKINIT   equ STACK_SP - 10h ; SCRATCHADDR - 10h
+REALSTACKINIT   equ STAGE0_LEN
 
 ;align 4
 
@@ -387,6 +404,7 @@ gdtsrc  desc  <0,0,0,0,0,0>                  ;
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \----for multiboot kernels
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /--|
 ;endif
+        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
 
 gdtsize equ   ($ - gdtsrc)                   ; GDT size
 

@@ -32,19 +32,20 @@ FSYS_BUF          equ 0x3e0000            ;
 EXT1HIBUF_BASE    equ 0x3e8000            ; blackbox high memory buffer1
 EXT2HIBUF_BASE    equ 0x3ec000            ; blackbox high memory buffer2
 EXT3HIBUF_BASE    equ 0x3f0000            ; blackbox high memory buffer3
+EXT4HIBUF_BASE    equ 0x3f4000
 UFSD_BASE         equ 0x3e8000            ; EXT1HIBUF_BASE ; boot drive uFSD save buffer base
 TERM_BASE         equ 0x3ec000            ; EXT3HIBUF_BASE
 
 NEW_STACK_SP    equ 0x3fe000              ; stack
-STACK_SP        equ (0x74000 + SHIFT)     ; stack
+STACK_SP        equ (0x74800 + SHIFT)     ; stack
 STACKLEN        equ 0x4000
 
-EXT1LOBUF_BASE  equ 0x74000               ; blackbox low memory buffer1
+EXT1LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer1
 EXT2LOBUF_BASE  equ 0x74800               ; blackbox low memory buffer2
-EXT3LOBUF_BASE  equ 0x75000               ; blackbox low memory buffer3
+EXT3LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer3
 TERMLO_BASE     equ 0x74800               ; terminal blackbox base (low)
-BOOTSEC_BASE    equ (0x75000 + SHIFT)     ; bootsector relocation base
-STAGE0_BASE     equ (0x75200 + SHIFT)     ; Stage0 load base
+BOOTSEC_BASE    equ (0x74c00 + SHIFT)     ; bootsector relocation base
+STAGE0_BASE     equ (0x74e00 + SHIFT)     ; Stage0 load base
 EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
 SCRATCHADDR     equ (0x6f000 + SHIFT)     ; 512-byte scratch area
@@ -52,7 +53,7 @@ BUFFERADDR      equ SCRATCHADDR + 0x200   ;
 BUFFERLEN       equ 0xe00                ; 0x7e00
 
 EXT_LEN         equ 0x3000                ; extension (blackbox) buffer size
-EXTLO_LEN       equ 0x800                 ; low portion
+EXTLO_LEN       equ 0x400                 ; low portion
 EXT2LEN         equ 0x5000
 STAGE0_LEN      equ (EXT_BUF_BASE - STAGE0_BASE)
 ;STAGE0_LEN      equ (0x7f000 + SHIFT - STAGE0_BASE)
