@@ -49,8 +49,9 @@ $(DIR)$(SEP)$(PROJ).dll: lib $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
-lib: .SYMBOLIC 
+lib: .SYMBOLIC
  @$(LIB) $(LIBOPT) -n clibdls.lib
 
 rexx16.obj: rexx16.c
@@ -62,9 +63,13 @@ $(DIR)$(SEP)$(PROJ).sym: $(PROJ).sym
 $(PROJ).sym: $(PROJ).map
 
 $(PROJ).map: $(PROJ).wmp
- 
+
 # Clean all
 
 clean: .symbolic
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).dll $(FILESDIR)$(SEP)os2$(SEP)dll

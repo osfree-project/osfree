@@ -1,0 +1,17 @@
+os3-os2-cmd -a 1 -c..\files\os2 attrib.exe
+help.cmd
+ansi.exe
+bldlevel.exe
+chkdsk.com
+cls.exe cmd.exe comp.com diskcopy.exe
+eject.exe fdisk.com fdiskpm.exe find.exe format.com helpmsg.exe
+lvmgui.cmd makeini.exe minicmd.exe mode.exe keyb.exe
+option2.exe print.exe
+tedit.exe
+undelete.exe vdm2os2.exe xcopy.exe
+keystack.exe
+shralias.exe
+tedit.hlp
+dll\jpos2dll.dll
+system\oso001*
+-s os2-cmd.wis

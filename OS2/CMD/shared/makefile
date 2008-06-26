@@ -33,8 +33,8 @@ $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib: $(OBJS)
 msg: .symbolic
  -@$(MKDIR) msg $(LOG)
  @$(MC) @lvm.rsf $(LOG)
- -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)lvm.* $(LOG)
- -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)os2 $(LOG)
+ -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)system$(SEP)lvm.* $(LOG)
+ -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)system$(SEP)os2 $(LOG)
  -@rd msg  $(LOG
 
 .IGNORE

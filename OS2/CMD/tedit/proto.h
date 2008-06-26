@@ -717,7 +717,7 @@ short Up Args((CHARTYPE *));
 short Uppercase Args((CHARTYPE *));
 short Verify Args((CHARTYPE *));
 short Width Args((CHARTYPE *));
-short Word Args((CHARTYPE *));
+short _Word Args((CHARTYPE *));
 short Wordwrap Args((CHARTYPE *));
 short Wrap Args((CHARTYPE *));
 short Xedit Args((CHARTYPE *));

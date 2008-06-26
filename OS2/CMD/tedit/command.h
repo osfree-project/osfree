@@ -51,7 +51,7 @@ $Id: command.h,v 1.14 2002/08/13 09:11:47 mark Exp $
  * Definitions of various THIGHLIGHT behaviours
  * THIGHLIGHT_NONE:
  * - no affect. ie no automatic resetting of the THIGHLIGHT
- *   area.  
+ *   area.
  *
  * THIGHLIGHT_RESET_ALL
  * - reset the THIGHLIGHT area in all circumstances
@@ -167,7 +167,7 @@ COMMAND command[] =
 #  else
  {(CHARTYPE *)"copy",        0,  ALT_C,           Copy,             FALSE,FALSE,FALSE,FALSE,FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_RESET_ALL    ,(CHARTYPE *)"block reset"},  /* comm1.c */
  {(CHARTYPE *)"copy",        0,  ALT_K,           Copy,             FALSE,FALSE,FALSE,FALSE,FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_RESET_ALL    ,(CHARTYPE *)"block"},  /* comm1.c */
-#  endif                                                                                                                                         
+#  endif
  {(CHARTYPE *)"cursor",      3,  KEY_HOME,        Cursor,           TRUE, FALSE,FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)"home save"},  /* comm1.c */
 #else
  {(CHARTYPE *)"controlchar" ,8,  KEY_F(11),       ControlChar,      FALSE,FALSE,FALSE,FALSE,FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* comm1.c */
@@ -530,7 +530,7 @@ COMMAND command[] =
  {(CHARTYPE *)"uppercase",   3,  (-1),            Uppercase,        TRUE, FALSE,FALSE,FALSE,FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_RESET_ALL    ,(CHARTYPE *)""},  /* comm5.c */
  {(CHARTYPE *)"verify",      1,  (-1),            Verify,           TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */
  {(CHARTYPE *)"width",       5,  (-1),            Width,            TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */
- {(CHARTYPE *)"word",        4,  (-1),            Word,             TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */
+ {(CHARTYPE *)"word",        4,  (-1),            _Word,             TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */
  {(CHARTYPE *)"wrap",        2,  (-1),            Wrap,             TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */
  {(CHARTYPE *)"wordwrap",    5,  (-1),            Wordwrap,         TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */
  {(CHARTYPE *)"xterminal",   5,  (-1),            Xterminal,        TRUE, TRUE, FALSE,TRUE, FALSE,STRIP_BOTH,FALSE,FALSE,TRUE ,CUA_RESET_BLOCK  ,THIGHLIGHT_NONE         ,(CHARTYPE *)""},  /* commset2.c */

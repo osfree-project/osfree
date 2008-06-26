@@ -22,7 +22,6 @@ all: .SYMBOLIC
  @$(if_not_exist_mkdir) $(DIR)$(SEP)os2
  @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls mkdir
  @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)book
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)msg
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: fdd hdd .SYMBOLIC

@@ -1,4 +1,3 @@
-# $Id: makefile,v 1.4 2004/08/16 04:51:11 prokushev Exp $
 
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
@@ -42,4 +41,4 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(DIR)
+ $(CP) $(PROJ).dll $(DIR)

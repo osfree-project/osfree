@@ -4441,9 +4441,9 @@ STATUS
      Complete.
 **man-end**********************************************************************/
 #ifdef HAVE_PROTO
-short Word(CHARTYPE *params)
+short _Word(CHARTYPE *params)
 #else
-short Word(params)
+short _Word(params)
 CHARTYPE *params;
 #endif
 /***********************************************************************/

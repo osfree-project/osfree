@@ -15,11 +15,11 @@ LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
+all: $(PROJ).dll $(PROJ).sym
 
-$(DIR)$(SEP)$(PROJ).dll: $(OBJS)
+$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk name      $(DIR)$(SEP)$(PROJ).dll
+ @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initinstance terminstance
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk option    caseexact
@@ -120,6 +120,7 @@ $(DIR)$(SEP)$(PROJ).dll: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 $(DIR)$(SEP)$(PROJ).sym: $(PROJ).sym
  $(CP) *.sym $(DIR)
@@ -127,8 +128,12 @@ $(DIR)$(SEP)$(PROJ).sym: $(PROJ).sym
 $(PROJ).sym: $(PROJ).map
 
 $(PROJ).map: $(PROJ).wmp
- 
+
 # Clean all
 clean: .symbolic
  $(SAY) Making clean... $(LOG)
  $(CLEAN_CMD)
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).dll $(FILESDIR)$(SEP)os2$(SEP)dll

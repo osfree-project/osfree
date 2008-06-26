@@ -33,9 +33,9 @@ msg: .symbolic
  @$(if_not_exist_mkdir) msg $(LOG)
  @$(MC) @oso001.rsf $(LOG)
  @$(MC) @oso001h.rsf $(LOG)
- -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)oso001.* $(LOG)
- -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)oso001h.* $(LOG)
- -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)os2 $(LOG)
+ -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)system$(SEP)oso001.* $(LOG)
+ -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)system$(SEP)oso001h.* $(LOG)
+ -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)os2$(SEP)system $(LOG)
  -@rd msg $(LOG)
 
 .IGNORE

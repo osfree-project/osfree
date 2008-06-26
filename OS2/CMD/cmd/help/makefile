@@ -5,7 +5,7 @@
 
 ROOT = $(%ROOT)
 
-DIR = $(ROOT)$(SEP)bin$(SEP)os2$(SEP)nls$(SEP)book
+DIR = $(FILESDIR)$(SEP)os2$(SEP)book
 PROJ = cmdref
 PROJ2 = external
 
