@@ -1,4 +1,4 @@
-os3-os2-rexx -a 1 -c..\files\os2
+os3-os2-rexx -a 1 -c..\..\files\os2
 dll\regina.dll
 dll\rexx.dll
 dll\rexxapi.dll

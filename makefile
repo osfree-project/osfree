@@ -7,7 +7,6 @@
 !include ./build.conf
 !include ./mk/site.mk
 
-DIR  = $(%ROOT)$(SEP)bin
 # TOOLS target comes first because all of whem required for build process
 # DOS target comes first because many dos executables will be splited with
 #     os/2 executables
@@ -18,10 +17,6 @@ DIRS = tools bootseq DOS OS2
 
 .DEFAULT
 all: .SYMBOLIC
- @$(if_not_exist_mkdir) $(DIR)
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls mkdir
- @$(if_not_exist_mkdir) $(DIR)$(SEP)os2$(SEP)nls$(SEP)book
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 install: fdd hdd .SYMBOLIC

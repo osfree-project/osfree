@@ -1,12 +1,12 @@
 <WARPIN>
 <HEAD>
 <PCK INDEX=1
-  PACKAGEID="osFree\OS/2\Classic REXX\0\0\2"
+  PACKAGEID="osFree\OS/2\Multimedia\0\0\2"
   TARGET="?:\OS2"
   LONGFILENAMES
-  TITLE="Classic REXX"
+  TITLE="Multimedia"
   SELECT
-  >Classic REXX</PCK>
+  >Multimedia</PCK>
 </head>
 
 <BODY>

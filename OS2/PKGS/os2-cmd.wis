@@ -1,7 +1,7 @@
 <WARPIN>
 <HEAD>
 <PCK INDEX=1
-  PACKAGEID="osFree\OS/2\Command Line Tools\0\0\2"
+  PACKAGEID="osFree\OS/2\Command Line Tools\0\0\3"
   TARGET="?:\OS2"
   LONGFILENAMES
   TITLE="Command Line Tools"
@@ -37,7 +37,7 @@ Select "Cancel" to abort installation.</TEXT>
 
 Upgrading from previous versions:
 
-If you're upgrading from a previous version of Command Line Tools, WarpIn will find locked files, and will ask You what to do with them.
+If you're upgrading from a previous version of package, WarpIn will find locked files, and will ask You what to do with them.
 
 If locked files are found, choose "Unlock (DosReplaceModule)", so the old binaries will be replaced with the new versions.
 

@@ -1,0 +1,4 @@
+os3-os2-mm -a 1 -c..\..\files\os2
+dll\mmioJPEG.dll
+dll\mmioGIF.dll
+-s os2-mm.wis

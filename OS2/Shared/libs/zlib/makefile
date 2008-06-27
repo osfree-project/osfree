@@ -13,7 +13,7 @@ ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
 
 OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
        uncompr.$(O) deflate.$(O) trees.$(O) zutil.$(O) &
-       inflate.$(O) infblock.$(O) inftrees.$(O) &
+       inflate.$(O) inftrees.$(O) &
        inffast.$(O)
 
 !include $(%ROOT)/mk/all.mk

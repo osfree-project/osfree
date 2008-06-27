@@ -43,8 +43,6 @@ $(DIR)$(SEP)$(PROJ).exe: $(OBJS) tedit.hlp
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 #helpfile
  $(CP) tedit.hlp $(DIR)
-#macros
- $(CP) *.the $(DIR)
 
 # Clean all
 
