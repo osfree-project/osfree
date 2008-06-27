@@ -19,14 +19,10 @@ set dir2=%root%\bootseq\bootsec\eltorito
 set files2=eltorito.bin
 rem ---------prereqs-------------------
 
-@for %%l in (1 2) do ^
-  (set f=%%files%%l%% && ^
-   set d=%%dir%%l%%    && ^
-   (@for %%i in (%f%) do  ^
-     (cd %d% && (@if not exist %%i @wmake %%i))))
+@for %%l in (1 2) do  (set f=%%files%%l%% &&    set d=%%dir%%l%%    &&    (@for %%i in (%f%) do       (cd %d% && (@if not exist %%i @wmake %%i))))
 
 cd %cwd%
-@call mkboot.cmd ..\bootsec\eltorito\eltorito.bin preldr0 iso9660.fsd bootblk
+@%rexx% mkboot.cmd ..\bootsec\eltorito\eltorito.bin preldr0 iso9660.fsd bootblk
 
 cd ..\..\..
 set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
@@ -35,8 +31,7 @@ set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
 
 cd osfree\bootseq\preldr
 @move bootblk ..\..\..\cd\boot
-set files=preldr0 preldr.ini freeldr freeldr.cfg bt_linux ^
-          bt_chain bt_disk bt_os2 bt_bsd
+set files=preldr0 preldr.ini freeldr freeldr.cfg bt_linux           bt_chain bt_disk bt_os2 bt_bsd
 @for %%i in (%files%) do if exist %%i copy %%i  ..\..\..\cd\boot\freeldr
 
 @copy *.fsd ..\..\..\cd\boot\freeldr\fsd
