@@ -21,19 +21,6 @@ SHELL   = /bin/csh
 SHELL   = OS_SHELL
 !endif
 
-# REXX interpreter
-# (for OS/2 Classic REXX the interreter must be empty,
-# as it is a library, not executable file)
-!     ifeq OS_REXX Classic
-REXX    =
-!else ifeq OS_REXX Object
-REXX    =
-!else ifeq OS_REXX Regina
-REXX    = rexx
-!else
-REXX    = $OS_REXX
-!endif
-
 # Determine a type of OS:
 !     ifeq ENV OS/2
 UNIX = FALSE
@@ -55,6 +42,20 @@ SEP        = \
 !else
 SEP        = /
 !endif
+
+# REXX interpreter
+# (for OS/2 Classic REXX the interreter must be empty,
+# as it is a library, not executable file)
+!     ifeq OS_REXX Classic
+REXX    =
+!else ifeq OS_REXX Object
+REXX    =
+!else ifeq OS_REXX Regina
+REXX    = rexx
+!else
+REXX    = $OS_REXX
+!endif
+
 
 # Files from which HDD image is built
 FILESDIR   = $(ROOT)$(SEP)files
