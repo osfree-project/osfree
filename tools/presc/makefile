@@ -12,7 +12,12 @@ DESC = Build level display facility
 all: presc.exe install
 
 presc.exe: presc.rx
-  rexxwrapper -program=presc.exe -rexxfiles=presc.rx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=regina -intlib=$(%REXX_PATH)$(SEP)lib$(SEP)regina.lib -intincdir=$(%REXX_PATH)$(SEP)include -compress
+  rexxwrapper -program=$(PROJ) -rexxfiles=presc.rx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
+!ifeq ENV Windows
+  rexxwrapper -program=$(PROJ) -rexxfiles=presx.rx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=regina -intlib=$(REXX_PATH)$(SEP)lib$(SEP)regina.lib -intincdir=$(REXX_PATH)$(SEP)include -compress
+!endif
+  $(CP) $(PROJ).exe $(DIR)
+#  rexxwrapper -program=presc.exe -rexxfiles=presc.rx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=regina -intlib=$(%REXX_PATH)$(SEP)lib$(SEP)regina.lib -intincdir=$(%REXX_PATH)$(SEP)include -compress
 
 .IGNORE
 clean: .SYMBOLIC
