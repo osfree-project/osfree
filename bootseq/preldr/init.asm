@@ -188,6 +188,16 @@ reloc:
 
         sti
 
+	; init stack position variables
+	push ds
+
+	xor  ax, ax
+	mov  ds, ax
+	mov  eax, PROTSTACK
+	mov  dword ptr [eax], PROTSTACKINIT
+
+	pop  ds
+
 	; copy GDT
 	push es
 	
@@ -209,15 +219,15 @@ reloc:
 
         mov  es:[di][3*8].ds_baselo, ax
         mov  es:[di][4*8].ds_baselo, ax
-        mov  es:[di][9*8].ds_baselo, ax
+        mov  es:[di][5*8].ds_baselo, ax
         ror  eax, 16
         mov  es:[di][3*8].ds_basehi1, al
         mov  es:[di][4*8].ds_basehi1, al
-        mov  es:[di][9*8].ds_basehi1, al
+        mov  es:[di][5*8].ds_basehi1, al
         ror  eax, 8
         mov  es:[di][3*8].ds_basehi2, al
         mov  es:[di][4*8].ds_basehi2, al
-        mov  es:[di][9*8].ds_basehi2, al
+        mov  es:[di][5*8].ds_basehi2, al
 
 	pop  es
 

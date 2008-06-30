@@ -23,7 +23,7 @@ FSYS_BUFLEN     equ 0x8000
 ;
 ; GDT location
 ;
-GDT_ADDR          equ 0x600
+GDT_ADDR          equ 0x680
 
 ;
 ; buffers at the end of 3rd megabyte
@@ -37,15 +37,26 @@ UFSD_BASE         equ 0x3e8000            ; EXT1HIBUF_BASE ; boot drive uFSD sav
 TERM_BASE         equ 0x3ec000            ; EXT3HIBUF_BASE
 
 NEW_STACK_SP    equ 0x3fe000              ; stack
-STACK_SP        equ (0x74800 + SHIFT)     ; stack
 STACKLEN        equ 0x4000
 
-EXT1LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer1
-EXT2LOBUF_BASE  equ 0x74800               ; blackbox low memory buffer2
+;STACK_SP        equ (0x74800 + SHIFT)     ; stack
+;
+;EXT1LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer1
+;EXT2LOBUF_BASE  equ 0x74800               ; blackbox low memory buffer2
+;EXT3LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer3
+;TERMLO_BASE     equ 0x74800               ; terminal blackbox base (low)
+;BOOTSEC_BASE    equ (0x74c00 + SHIFT)     ; bootsector relocation base
+;STAGE0_BASE     equ (0x74e00 + SHIFT)     ; Stage0 load base
+;EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
+
+STACK_SP        equ (0x74000 + SHIFT)     ; stack
+
+EXT1LOBUF_BASE  equ 0x73c00               ; blackbox low memory buffer1
+EXT2LOBUF_BASE  equ 0x74000               ; blackbox low memory buffer2
 EXT3LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer3
-TERMLO_BASE     equ 0x74800               ; terminal blackbox base (low)
-BOOTSEC_BASE    equ (0x74c00 + SHIFT)     ; bootsector relocation base
-STAGE0_BASE     equ (0x74e00 + SHIFT)     ; Stage0 load base
+TERMLO_BASE     equ 0x74000               ; terminal blackbox base (low)
+BOOTSEC_BASE    equ (0x74400 + SHIFT)     ; bootsector relocation base
+STAGE0_BASE     equ (0x74600 + SHIFT)     ; Stage0 load base
 EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
 SCRATCHADDR     equ (0x6f000 + SHIFT)     ; 512-byte scratch area
@@ -61,3 +72,11 @@ STAGE0_LEN      equ (EXT_BUF_BASE - STAGE0_BASE)
 FSYS_MAX        equ 0x20                  ; max number of filesystems
 BOOT_MAGIC      equ 0x2BADB002            ; extended boot info magic
 
+; Protected mode stack address
+PROTSTACK         equ  0x600
+; Real mode stack address
+RMSTACK           equ  0x604
+
+; stacks initial values
+PROTSTACKINIT   equ STACK_SP - 10h
+REALSTACKINIT   equ STAGE0_LEN

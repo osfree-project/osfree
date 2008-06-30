@@ -74,14 +74,14 @@ set_gdt:
         mov  eax, offset _TEXT:relshift
         mov  eax, [eax]
         add  eax, TERMLO_BASE
-        mov  [ebx][5*8].ds_baselo, ax
         mov  [ebx][6*8].ds_baselo, ax
+        mov  [ebx][7*8].ds_baselo, ax
         ror  eax, 16
-        mov  [ebx][5*8].ds_basehi1, al
         mov  [ebx][6*8].ds_basehi1, al
+        mov  [ebx][7*8].ds_basehi1, al
         ror  eax, 8
-        mov  [ebx][5*8].ds_basehi2, al
         mov  [ebx][6*8].ds_basehi2, al
+        mov  [ebx][7*8].ds_basehi2, al
 
 	; fill GDT descriptor
 	mov  ebx, offset _TEXT:gdtdesc

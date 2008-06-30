@@ -19,7 +19,10 @@ set dir2=%root%\bootseq\bootsec\eltorito
 set files2=eltorito.bin
 rem ---------prereqs-------------------
 
-@for %%l in (1 2) do  (set f=%%files%%l%% &&    set d=%%dir%%l%%    &&    (@for %%i in (%f%) do       (cd %d% && (@if not exist %%i @wmake %%i))))
+@for %%l in (1 2) do ^
+ (set f=%%files%%l%% && ^
+  set d=%%dir%%l%% && (@for %%i in (%f%) do ^
+  (cd %d% && (@if not exist %%i @wmake %%i))))
 
 cd %cwd%
 @%rexx% mkboot.cmd ..\bootsec\eltorito\eltorito.bin preldr0 iso9660.fsd bootblk
@@ -65,8 +68,8 @@ for %i in (%dirs%) do ^
      mkdir cd\%i) && ^
      copy files\%i\* cd\%i)
 
-set files=os2ldr os2ldr.msg os2boot os2dump os2krnl config.sys
-@for %i in (%files%) do @copy files\%i cd
+set files=os2ldr os2ldr.msg os2ldr.ini os2boot os2dump os2krnl config.sys
+@for %i in (%files%) do @if exist files\%i @copy files\%i cd
 
 :mkiso
 

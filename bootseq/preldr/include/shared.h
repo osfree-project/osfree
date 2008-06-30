@@ -224,14 +224,14 @@ extern char *grub_scratch_mem;
  *  defines for use when switching between real and protected mode
  */
 
-#define CR0_PE_ON       0x1
-#define CR0_PE_OFF      0xfffffffe
-#define PROT_MODE_CSEG  0x8
-#define PROT_MODE_DSEG  0x10
-#define PSEUDO_RM_CSEG  0x18
-#define PSEUDO_RM_DSEG  0x20
-#define STACKOFF        (0x2000 - 0x10)
-#define PROTSTACKINIT   (FSYS_BUF - 0x10)
+//#define CR0_PE_ON       0x1
+//#define CR0_PE_OFF      0xfffffffe
+//#define PROT_MODE_CSEG  0x8
+//#define PROT_MODE_DSEG  0x10
+//#define PSEUDO_RM_CSEG  0x18
+//#define PSEUDO_RM_DSEG  0x20
+//#define STACKOFF        (0x2000 - 0x10)
+//#define PROTSTACKINIT   (FSYS_BUF - 0x10)
 
 
 /*

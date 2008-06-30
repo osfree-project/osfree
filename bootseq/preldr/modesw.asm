@@ -238,22 +238,36 @@ pmode   proc far
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  ax, ss
+	mov  word ptr ds:[RMSTACK + 2], ax
+
+        mov  ax, PROT_MODE_DSEG
         mov  ss, ax
+
         ; Get protected mode stack
-        mov  eax, protstack
-        mov  rmstack, esp
+        mov  word ptr ds:[RMSTACK], sp
+
+        mov  eax, dword ptr ds:[PROTSTACK]
         mov  esp, eax
+
         ; Call protected mode func
         push  cs
         push  ebp
         call  fword ptr ss:[esp]
         add   esp, 6
+	;add   esp, 14
 
         ; Save protected mode stack
         mov  eax, esp
-        mov  protstack, eax
-        mov  eax, rmstack
+        mov  dword ptr ds:[PROTSTACK], eax
+
+	mov  ax, word ptr ds:[RMSTACK + 2]
+	mov  ss, ax
+	xor  eax, eax
+        mov  ax, word ptr ds:[RMSTACK]
         mov  esp, eax
+
         ; Set up selectors
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -261,8 +275,8 @@ pmode   proc far
         mov  fs, ax
         mov  gs, ax
 
-	mov  ax, PSEUDO_RM_SSEG
-        mov  ss, ax
+	;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ss, ax
 
         xor  eax, eax
 
@@ -287,8 +301,13 @@ call_rm proc near
         ; set segment registers
         ; and switch stack to 16-bit
         mov  eax, esp
-        mov  esp, rmstack
-        mov  protstack, eax
+        mov  dword ptr ds:[PROTSTACK], eax
+
+	mov  ax, word ptr ds:[RMSTACK + 2]
+	mov  ss, ax
+	xor  eax, eax
+	mov  ax, word ptr ds:[RMSTACK]
+        mov  esp, eax
 
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -296,8 +315,8 @@ call_rm proc near
         mov  fs, ax
         mov  gs, ax
 
-	mov  ax, PSEUDO_RM_SSEG
-        mov  ss, ax
+	;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ss, ax
         ; call 16-bit function
         mov  ax, PSEUDO_RM_CSEG
         push ax
@@ -306,16 +325,22 @@ call_rm proc near
         call fword ptr ss:[esp]
         add  esp, 14      ; 6 bytes are the called function address and 8
                           ; bytes are the return address.
+
         mov  ax, PROT_MODE_DSEG
         mov  ds, ax
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
+
+	mov  ax, ss
+	mov  word ptr ds:[RMSTACK + 2], ax
+        mov  ax, sp
+        mov  word ptr ds:[RMSTACK], ax
+
+        mov  ax, PROT_MODE_DSEG
         mov  ss, ax
 
-        mov  eax, esp
-        mov  esp, protstack
-        mov  rmstack, eax
+        mov  esp, dword ptr ds:[PROTSTACK]
 
         pop  ebp
 
@@ -342,7 +367,7 @@ PROT_MODE_CSEG  equ 08h
 PROT_MODE_DSEG  equ 10h
 
 ; 16-bit selectors
-PSEUDO_RM_SSEG  equ 48h
+PSEUDO_RM_SSEG  equ 28h
 ifndef NO_PROT
 ; selectors for real-mode part of pre-loader
 PSEUDO_RM_CSEG  equ 18h
@@ -350,23 +375,17 @@ PSEUDO_RM_DSEG  equ 20h
 else
 ifdef BLACKBOX
 ; selectors for real-mode part of blackboxes
-PSEUDO_RM_CSEG  equ 28h
-PSEUDO_RM_DSEG  equ 30h
+PSEUDO_RM_CSEG  equ 30h
+PSEUDO_RM_DSEG  equ 38h
 else
 ; selectors for real-mode part of multiboot kernels
-PSEUDO_RM_CSEG  equ 38h
-PSEUDO_RM_DSEG  equ 40h
+PSEUDO_RM_CSEG  equ 40h
+PSEUDO_RM_DSEG  equ 48h
 endif
 endif
-
-;STACKOFF        equ (2000h - 10h)
-PROTSTACKINIT   equ STACK_SP - 10h ; SCRATCHADDR - 10h
-REALSTACKINIT   equ STAGE0_LEN
 
 ;align 4
 
-protstack         dd   PROTSTACKINIT
-rmstack           dd   REALSTACKINIT
 boot_drive        dd   0
 
 ;align 4
@@ -398,13 +417,13 @@ gdtsrc  desc  <0,0,0,0,0,0>                  ;
         desc  <0FFFFh,0,0,092h,0CFh,0>       ; flat CS
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
+        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode SS
 ;ifdef NO_PROT
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \--|
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /----for blackboxes
         desc  <0FFFFh,?,?,09Eh,0h,?>         ; 16-bit real mode CS \----for multiboot kernels
         desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS /--|
 ;endif
-        desc  <0FFFFh,?,?,092h,0h,?>         ; 16-bit real mode DS
 
 gdtsize equ   ($ - gdtsrc)                   ; GDT size
 

@@ -534,7 +534,7 @@ u_termctl(int termno)
 
   if (blackbox_load(term, 2, &trm))
   {
-    printmsg("terminal loaded\r\n");
+    u_msg("terminal loaded\r\n");
   }
   else
     return 0;
@@ -542,6 +542,7 @@ u_termctl(int termno)
   return &trm;
 }
 
+/*
 int open2 (char *filename)
 {
   char buf[0x100];
@@ -559,6 +560,7 @@ int open2 (char *filename)
 
   return 1;
 }
+*/
 
 #endif
 
@@ -1326,7 +1328,7 @@ int init(void)
 
   /* fix bases of gdt descriptors */
   base = STAGE0_BASE;
-  for (i =  3; i < 5; i++) {
+  for (i =  3; i < 6; i++) {
     (z + i)->ds_baselo  = base & 0xffff;
     (z + i)->ds_basehi1 = (base & 0xff0000) >> 16;
     (z + i)->ds_basehi2 = (base & 0xff000000) >> 24;
@@ -1391,11 +1393,13 @@ int init(void)
     bpb->marker     = 0x29;
   }
 
-  /* Init info in mbi structure */
-  init_bios_info();
-
   /* Init terminal */
   init_term();
+
+  //t->putchar('z');
+
+  /* Init info in mbi structure */
+  init_bios_info();
 
   //t = u_termctl(0);
 

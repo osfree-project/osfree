@@ -196,14 +196,14 @@ set_gdt:
         ; fix gdt descriptors base
         mov  ebx, GDT_ADDR
         mov  eax, REAL_BASE
-        mov  [ebx][7*8].ds_baselo, ax
         mov  [ebx][8*8].ds_baselo, ax
+        mov  [ebx][9*8].ds_baselo, ax
         ror  eax, 16
-        mov  [ebx][7*8].ds_basehi1, al
         mov  [ebx][8*8].ds_basehi1, al
+        mov  [ebx][9*8].ds_basehi1, al
         ror  eax, 8
-        mov  [ebx][7*8].ds_basehi2, al
         mov  [ebx][8*8].ds_basehi2, al
+        mov  [ebx][9*8].ds_basehi2, al
 
 	; fill GDT descriptor
 	mov  ebx, offset _TEXT:gdtdesc
