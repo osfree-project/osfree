@@ -37,7 +37,7 @@ const
 const
   msg_name: String ='Make Message File Utility (MKMSGF)';
   msg_version: String ='Version 0.1';
-  msg_copyright: String ='Copyright (C) 2002-2004 by Yuri Prokushev (prokushev@freemail.ru)';
+  msg_copyright: String ='Copyright (C) 2002-2008 by Yuri Prokushev (prokushev@freemail.ru)';
   msg_usage1: String ='MKMSGF <infile>[<.msf>] <outfile>[<.msg>] [<options>]'+LineEnding+
             'or'+LineEnding+
             'MKMSGF @controlfile'+LineEnding+LineEnding+
@@ -318,7 +318,11 @@ Begin
                 if EOF(Fin) then break;
               Until False;
             // Store message
-            If Pos('%0', Message)>0 then Delete(Message, Length(Message)-1, 2);
+            If Pos('%0', Message)>0 then 
+            begin
+              Delete(Message, Pos('%0', Message), 2); // Delete %0 sign
+              Delete(Message, Length(Message)-Length(LineEnding)+1, Length(LineEnding)); // Delete LineEnding
+            end;
             If MsgPos=nil then
             begin
               GetMem(Messages, SizeOf(TMsgList));
