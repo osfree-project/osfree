@@ -32,83 +32,76 @@
 #elif defined(HAVE_WCSTR_H)
 #  include <wcstr.h>
 #endif
-#include <glib.h>
 #include <libIDL/IDL.h>
 
 /* Internal parse flags */
-#define IDLFP_PROPERTIES	(1UL << 0)
-#define IDLFP_NATIVE		(1UL << 1)
-#define IDLFP_IN_INCLUDES	(1UL << 2)
+#define IDLFP_PROPERTIES        (1UL << 0)
+#define IDLFP_NATIVE            (1UL << 1)
+#define IDLFP_IN_INCLUDES       (1UL << 2)
 
 typedef struct {
-	unsigned long flags;
-	char* name;
-	int seenCnt;
+        unsigned long flags;
+        char* name;
+        int seenCnt;
 } IDL_fileinfo;
 
-extern void		yyerror				(const char *s);
-extern void		yyerrorl			(const char *s, int ofs);
-extern void		yywarning			(int level, const char *s);
-extern void		yywarningl			(int level, const char *s, int ofs);
-extern void		yyerrorv			(const char *fmt, ...)
-							G_GNUC_PRINTF (1, 2);
-extern void		yyerrorlv			(const char *fmt, int ofs, ...)
-							G_GNUC_PRINTF (1, 3);
-extern void		yywarningv			(int level, const char *fmt, ...)
-							G_GNUC_PRINTF (2, 3);
-extern void		yywarninglv			(int level, const char *fmt, int ofs, ...)
-							G_GNUC_PRINTF (2, 4);
-extern void		yyerrornv			(IDL_tree p, const char *fmt, ...)
-							G_GNUC_PRINTF (2, 3);
-extern void		yywarningnv			(IDL_tree p, int level, const char *fmt, ...)
-							G_GNUC_PRINTF (3, 4);
+extern void             yyerror                         (const char *s);
+extern void             yyerrorl                        (const char *s, int ofs);
+extern void             yywarning                       (int level, const char *s);
+extern void             yywarningl                      (int level, const char *s, int ofs);
+extern void             yyerrorv                        (const char *fmt, ...);
+extern void             yyerrorlv                       (const char *fmt, int ofs, ...);
+extern void             yywarningv                      (int level, const char *fmt, ...);
+extern void             yywarninglv                     (int level, const char *fmt, int ofs, ...);
+extern void             yyerrornv                       (IDL_tree p, const char *fmt, ...);
+extern void             yywarningnv                     (IDL_tree p, int level, const char *fmt, ...);
 
-extern guint		IDL_strcase_hash		(gconstpointer v);
-extern gint		IDL_strcase_equal		(gconstpointer a, gconstpointer b);
-extern gint		IDL_strcase_cmp			(gconstpointer a, gconstpointer b);
-extern guint		IDL_ident_hash			(gconstpointer v);
-extern gint		IDL_ident_equal			(gconstpointer a, gconstpointer b);
-extern gint		IDL_ident_cmp			(gconstpointer a, gconstpointer b);
-extern int		IDL_ns_check_for_ambiguous_inheritance
-							(IDL_tree interface_ident,
-							 IDL_tree p);
-extern void		IDL_tree_process_forward_dcls	(IDL_tree *p, IDL_ns ns);
-extern void		IDL_tree_remove_empty_modules	(IDL_tree *p, IDL_ns ns);
+extern unsigned int            IDL_strcase_hash                (const void * v);
+extern int             IDL_strcase_equal               (const void * a, const void * b);
+extern int             IDL_strcase_cmp                 (const void * a, const void * b);
+extern unsigned int            IDL_ident_hash                  (const void * v);
+extern int             IDL_ident_equal                 (const void * a, const void * b);
+extern int             IDL_ident_cmp                   (const void * a, const void * b);
+extern int              IDL_ns_check_for_ambiguous_inheritance
+                                                        (IDL_tree interface_ident,
+                                                         IDL_tree p);
+extern void             IDL_tree_process_forward_dcls   (IDL_tree *p, IDL_ns ns);
+extern void             IDL_tree_remove_empty_modules   (IDL_tree *p, IDL_ns ns);
 
-extern void		__IDL_free_properties		(GHashTable *table);
-extern void		__IDL_assign_up_node		(IDL_tree up, IDL_tree node);
-extern void		__IDL_assign_location		(IDL_tree node, IDL_tree from_node);
-extern void		__IDL_assign_this_location	(IDL_tree node, char *filename, int line);
-extern void		__IDL_parser_reset		(void);
+extern void             __IDL_free_properties           (GHashTable *table);
+extern void             __IDL_assign_up_node            (IDL_tree up, IDL_tree node);
+extern void             __IDL_assign_location           (IDL_tree node, IDL_tree from_node);
+extern void             __IDL_assign_this_location      (IDL_tree node, char *filename, int line);
+extern void             __IDL_parser_reset              (void);
 extern void             __IDL_do_pragma                 (const char *s);
 
-extern void		__IDL_lex_init			(void);
-extern void		__IDL_lex_cleanup 		(void);
+extern void             __IDL_lex_init                  (void);
+extern void             __IDL_lex_cleanup               (void);
 
 
 #ifndef HAVE_CPP_PIPE_STDIN
-extern char *				__IDL_tmp_filename;
+extern char *                           __IDL_tmp_filename;
 #endif
-extern const char *			__IDL_real_filename;
-extern char *				__IDL_cur_filename;
-extern int				__IDL_cur_line;
-extern GHashTable *			__IDL_filename_hash;
-extern IDL_fileinfo *			__IDL_cur_fileinfo;
-extern int				__IDL_prev_token_line;
-extern int				__IDL_cur_token_line;
-extern GHashTable *			__IDL_structunion_ht;
-extern int				__IDL_inhibits;
-extern int				__IDL_typecodes_as_tok;
-extern int				__IDL_pidl;
-extern IDL_tree				__IDL_root;
-extern IDL_ns				__IDL_root_ns;
-extern int				__IDL_is_okay;
-extern int				__IDL_is_parsing;
-extern unsigned long			__IDL_flags;
-extern unsigned long			__IDL_flagsi;
-extern gpointer				__IDL_inputcb_user_data;
-extern IDL_input_callback		__IDL_inputcb;
-extern GSList *				__IDL_new_ident_comments;
+extern const char *                     __IDL_real_filename;
+extern char *                           __IDL_cur_filename;
+extern int                              __IDL_cur_line;
+extern GHashTable *                     __IDL_filename_hash;
+extern IDL_fileinfo *                   __IDL_cur_fileinfo;
+extern int                              __IDL_prev_token_line;
+extern int                              __IDL_cur_token_line;
+extern GHashTable *                     __IDL_structunion_ht;
+extern int                              __IDL_inhibits;
+extern int                              __IDL_typecodes_as_tok;
+extern int                              __IDL_pidl;
+extern IDL_tree                         __IDL_root;
+extern IDL_ns                           __IDL_root_ns;
+extern int                              __IDL_is_okay;
+extern int                              __IDL_is_parsing;
+extern unsigned long                    __IDL_flags;
+extern unsigned long                    __IDL_flagsi;
+extern void *                         __IDL_inputcb_user_data;
+extern IDL_input_callback               __IDL_inputcb;
+extern GSList *                         __IDL_new_ident_comments;
 
 
 #endif /* __UTIL_H */

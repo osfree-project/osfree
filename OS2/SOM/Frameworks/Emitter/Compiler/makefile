@@ -15,7 +15,7 @@ DESC = SOM Compiler
 OBJS = sc.$(O)
 # defines additional options for C compiler
 ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib,libIDL.lib,glib.lib
+ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib,libIDL.lib
 
 !include $(%ROOT)/mk/all.mk
 
@@ -28,6 +28,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION ST=6553500
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

@@ -36,8 +36,8 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /****************************************************************************/
-/* Name: REXXTRY.REX                                                        */
-/* Type: Object REXX Script                                                 */
+/* Name: REXXTRY.CMD                                                        */
+/* Type: Classic/Object REXX Script                                         */
 /*                                                                          */
 /*  Loosely derived from an ancient formulation of Mike Cowlishaw.          */
 /*                                                                          */
@@ -118,7 +118,7 @@ tell:
 
 clear:
   select                                       /* SAA-portable code.        */
-    when abbrev(sysrx,  'Windows') then
+    when sysrx = 'OS/2' | abbrev(sysrx,  'Windows') then
       'CLS'                                    /* system to clear screen    */
     when sysrx = 'LINUX' | sysrx = 'AIX' | sysrx = 'SUNOS' then
       'clear'                                  /* system to clear screen    */
@@ -189,6 +189,10 @@ help:                                          /* Request for online help.  */
     when sysrx = AIX | sysrx = LINUX | sysrx = 'SUNOS' then do
       say '  Online Help started using Acroread .../rexxref.pdf'
       'acroread /opt/oorexx/doc/rexxref.pdf&'
+    end
+    when sysrx = 'OS/2' then do
+      say '  Online Help started using Help Viewer'
+      "view  "||substr(value("OSDIR",,"ENVIRONMENT"),1,1)||":\os2\BOOK\rexx.inf rexxtry"
     end
     otherwise say '  'sysrx' has no online help for REXX.'
       rc = 'Sorry!'                            /* No help available         */

@@ -35,3512 +35,3648 @@
 #include "rename.h"
 #include "util.h"
 
+
+char*
+g_strdup_vprintf (const char *format,
+                  va_list      args)
+{
+  char string[1024*1024];
+
+  vsprintf(&string, format, args);
+
+  return string;
+}
+
+char*
+g_strdup_printf (const char *format,
+                 ...)
+{
+  char *buffer;
+  va_list args;
+
+  va_start (args, format);
+  buffer = g_strdup_vprintf (format, args);
+  va_end (args);
+
+  return buffer;
+}
+
+/**
+ * g_str_equal:
+ * @v1: a key
+ * @v2: a key to compare with @v1
+ *
+ * Compares two strings for byte-by-byte equality and returns %TRUE
+ * if they are equal. It can be passed to g_hash_table_new() as the
+ * @key_equal_func parameter, when using strings as keys in a #GHashTable.
+ *
+ * Returns: %TRUE if the two keys match
+ */
+int
+g_str_equal (const void * v1,
+             const void * v2)
+{
+  const char *string1 = v1;
+  const char *string2 = v2;
+
+  return strcmp (string1, string2) == 0;
+}
+
+/**
+ * g_str_hash:
+ * @v: a string key
+ *
+ * Converts a string to a hash value.
+ * It can be passed to g_hash_table_new() as the @hash_func
+ * parameter, when using strings as keys in a #GHashTable.
+ *
+ * Returns: a hash value corresponding to the key
+ */
+unsigned int
+g_str_hash (const void * v)
+{
+  /* 31 bit hash function */
+  const signed char *p = v;
+  unsigned long h = *p;
+
+  if (h)
+    for (p += 1; *p != '\0'; p++)
+      h = (h << 5) - h + *p;
+
+  return h;
+}
+
+/**
+ * g_direct_hash:
+ * @v: a #gpointer key
+ *
+ * Converts a gpointer to a hash value.
+ * It can be passed to g_hash_table_new() as the @hash_func parameter,
+ * when using pointers as keys in a #GHashTable.
+ *
+ * Returns: a hash value corresponding to the key.
+ */
+unsigned int
+g_direct_hash (const void * v)
+{
+  return GPOINTER_TO_UINT (v);
+}
+
+/**
+ * g_direct_equal:
+ * @v1: a key.
+ * @v2: a key to compare with @v1.
+ *
+ * Compares two #gpointer arguments and returns %TRUE if they are equal.
+ * It can be passed to g_hash_table_new() as the @key_equal_func
+ * parameter, when using pointers as keys in a #GHashTable.
+ *
+ * Returns: %TRUE if the two keys match.
+ */
+int
+g_direct_equal (const void * v1,
+                const void * v2)
+{
+  return v1 == v2;
+}
+
 #ifdef G_OS_WIN32
 #include <fcntl.h>
 #endif
 
 IDL_EXPORT const char *IDL_tree_type_names[] = {
-	"IDLN_NONE",
-	"IDLN_ANY",
-	"IDLN_LIST",
-	"IDLN_GENTREE",
-	"IDLN_INTEGER",
-	"IDLN_STRING",
-	"IDLN_WIDE_STRING",
-	"IDLN_CHAR",
-	"IDLN_WIDE_CHAR",
-	"IDLN_FIXED",
-	"IDLN_FLOAT",
-	"IDLN_BOOLEAN",
-	"IDLN_IDENT",
-	"IDLN_TYPE_DCL",
-	"IDLN_CONST_DCL",
-	"IDLN_EXCEPT_DCL",
-	"IDLN_ATTR_DCL",
-	"IDLN_OP_DCL",
-	"IDLN_PARAM_DCL",
-	"IDLN_FORWARD_DCL",
-	"IDLN_TYPE_INTEGER",
-	"IDLN_TYPE_FLOAT",
-	"IDLN_TYPE_FIXED",
-	"IDLN_TYPE_CHAR",
-	"IDLN_TYPE_WIDE_CHAR",
-	"IDLN_TYPE_STRING",
-	"IDLN_TYPE_WIDE_STRING",
-	"IDLN_TYPE_BOOLEAN",
-	"IDLN_TYPE_OCTET",
-	"IDLN_TYPE_ANY",
-	"IDLN_TYPE_OBJECT",
-	"IDLN_TYPE_TYPECODE",
-	"IDLN_TYPE_ENUM",
-	"IDLN_TYPE_SEQUENCE",
-	"IDLN_TYPE_ARRAY",
-	"IDLN_TYPE_STRUCT",
-	"IDLN_TYPE_UNION",
-	"IDLN_MEMBER",
-	"IDLN_NATIVE",
-	"IDLN_CASE_STMT",
-	"IDLN_INTERFACE",
-	"IDLN_MODULE",
-	"IDLN_BINOP",
-	"IDLN_UNARYOP",
-	"IDLN_CODEFRAG",
-	/* IDLN_LAST */
+        "IDLN_NONE",
+        "IDLN_ANY",
+        "IDLN_LIST",
+        "IDLN_GENTREE",
+        "IDLN_INTEGER",
+        "IDLN_STRING",
+        "IDLN_WIDE_STRING",
+        "IDLN_CHAR",
+        "IDLN_WIDE_CHAR",
+        "IDLN_FIXED",
+        "IDLN_FLOAT",
+        "IDLN_BOOLEAN",
+        "IDLN_IDENT",
+        "IDLN_TYPE_DCL",
+        "IDLN_CONST_DCL",
+        "IDLN_EXCEPT_DCL",
+        "IDLN_ATTR_DCL",
+        "IDLN_OP_DCL",
+        "IDLN_PARAM_DCL",
+        "IDLN_FORWARD_DCL",
+        "IDLN_TYPE_INTEGER",
+        "IDLN_TYPE_FLOAT",
+        "IDLN_TYPE_FIXED",
+        "IDLN_TYPE_CHAR",
+        "IDLN_TYPE_WIDE_CHAR",
+        "IDLN_TYPE_STRING",
+        "IDLN_TYPE_WIDE_STRING",
+        "IDLN_TYPE_BOOLEAN",
+        "IDLN_TYPE_OCTET",
+        "IDLN_TYPE_ANY",
+        "IDLN_TYPE_OBJECT",
+        "IDLN_TYPE_TYPECODE",
+        "IDLN_TYPE_ENUM",
+        "IDLN_TYPE_SEQUENCE",
+        "IDLN_TYPE_ARRAY",
+        "IDLN_TYPE_STRUCT",
+        "IDLN_TYPE_UNION",
+        "IDLN_MEMBER",
+        "IDLN_NATIVE",
+        "IDLN_CASE_STMT",
+        "IDLN_INTERFACE",
+        "IDLN_MODULE",
+        "IDLN_BINOP",
+        "IDLN_UNARYOP",
+        "IDLN_CODEFRAG",
+        /* IDLN_LAST */
 };
 
-IDL_EXPORT int				__IDL_check_type_casts = FALSE;
+IDL_EXPORT int                          __IDL_check_type_casts = FALSE;
 #ifndef HAVE_CPP_PIPE_STDIN
-char *					__IDL_tmp_filename = NULL;
+char *                                  __IDL_tmp_filename = NULL;
 #endif
-const char *				__IDL_real_filename = NULL;
-char *					__IDL_cur_filename = NULL;
-int					__IDL_cur_line;
-GHashTable *				__IDL_filename_hash;
-IDL_fileinfo *				__IDL_cur_fileinfo;
-GHashTable *				__IDL_structunion_ht;
-int					__IDL_inhibits;
-int					__IDL_typecodes_as_tok;
-int					__IDL_pidl;
-IDL_tree				__IDL_root;
-IDL_ns					__IDL_root_ns;
-int					__IDL_is_okay;
-int					__IDL_is_parsing;
-unsigned long				__IDL_flags;
-unsigned long				__IDL_flagsi;
-gpointer				__IDL_inputcb_user_data;
-IDL_input_callback			__IDL_inputcb;
-GSList *				__IDL_new_ident_comments;
-static int				__IDL_max_msg_level;
-static int				__IDL_nerrors, __IDL_nwarnings;
-static IDL_msg_callback			__IDL_msgcb;
+const char *                            __IDL_real_filename = NULL;
+char *                                  __IDL_cur_filename = NULL;
+int                                     __IDL_cur_line;
+GHashTable *                            __IDL_filename_hash;
+IDL_fileinfo *                          __IDL_cur_fileinfo;
+GHashTable *                            __IDL_structunion_ht;
+int                                     __IDL_inhibits;
+int                                     __IDL_typecodes_as_tok;
+int                                     __IDL_pidl;
+IDL_tree                                __IDL_root;
+IDL_ns                                  __IDL_root_ns;
+int                                     __IDL_is_okay;
+int                                     __IDL_is_parsing;
+unsigned long                           __IDL_flags;
+unsigned long                           __IDL_flagsi;
+void *                                __IDL_inputcb_user_data;
+IDL_input_callback                      __IDL_inputcb;
+GSList *                                __IDL_new_ident_comments;
+static int                              __IDL_max_msg_level;
+static int                              __IDL_nerrors, __IDL_nwarnings;
+static IDL_msg_callback                 __IDL_msgcb;
 
 /* Case-insensitive version of g_str_hash */
-guint IDL_strcase_hash (gconstpointer v)
+unsigned int IDL_strcase_hash (const void * v)
 {
-	const char *p;
-	guint h = 0, g;
+        const char *p;
+        unsigned int h = 0, g;
 
-	for (p = (char *) v; *p != '\0'; ++p) {
-		h = (h << 4) + isupper ((int)*p) ? tolower (*p) : *p;
-		if ((g = h & 0xf0000000)) {
-			h = h ^ (g >> 24);
-			h = h ^ g;
-		}
-	}
+        for (p = (char *) v; *p != '\0'; ++p) {
+                h = (h << 4) + isupper ((int)*p) ? tolower (*p) : *p;
+                if ((g = h & 0xf0000000)) {
+                        h = h ^ (g >> 24);
+                        h = h ^ g;
+                }
+        }
 
-	return h /* % M */;
+        return h /* % M */;
 }
 
-gint IDL_strcase_equal (gconstpointer a, gconstpointer b)
+int IDL_strcase_equal (const void * a, const void * b)
 {
-	return g_ascii_strcasecmp (a, b) == 0;
+        return strcasecmp (a, b) == 0;
 }
 
-gint IDL_strcase_cmp (gconstpointer a, gconstpointer b)
+int IDL_strcase_cmp (const void * a, const void * b)
 {
-	return g_ascii_strcasecmp (a, b);
+        return strcasecmp (a, b);
 }
 
 static int my_strcmp (IDL_tree p, IDL_tree q)
 {
-	const char *a = IDL_IDENT (p).str;
-	const char *b = IDL_IDENT (q).str;
-	int cmp = IDL_strcase_cmp (a, b);
+        const char *a = IDL_IDENT (p).str;
+        const char *b = IDL_IDENT (q).str;
+        int cmp = IDL_strcase_cmp (a, b);
 
-	if (__IDL_is_parsing &&
-	    cmp == 0 &&
-	    strcmp (a, b) != 0 &&
-	    !(IDL_IDENT (p)._flags & IDLF_IDENT_CASE_MISMATCH_HIT ||
-	      IDL_IDENT (q)._flags & IDLF_IDENT_CASE_MISMATCH_HIT)) {
-		IDL_tree_warning (p, IDL_WARNING1, "Case mismatch between `%s'", a);
-		IDL_tree_warning (q, IDL_WARNING1, "and `%s'", b);
-		yywarning (IDL_WARNING1,
-			   "(Identifiers should be case-consistent after initial declaration)");
-		IDL_IDENT (p)._flags |= IDLF_IDENT_CASE_MISMATCH_HIT;
-		IDL_IDENT (q)._flags |= IDLF_IDENT_CASE_MISMATCH_HIT;
-	}
+        if (__IDL_is_parsing &&
+            cmp == 0 &&
+            strcmp (a, b) != 0 &&
+            !(IDL_IDENT (p)._flags & IDLF_IDENT_CASE_MISMATCH_HIT ||
+              IDL_IDENT (q)._flags & IDLF_IDENT_CASE_MISMATCH_HIT)) {
+                IDL_tree_warning (p, IDL_WARNING1, "Case mismatch between `%s'", a);
+                IDL_tree_warning (q, IDL_WARNING1, "and `%s'", b);
+                yywarning (IDL_WARNING1,
+                           "(Identifiers should be case-consistent after initial declaration)");
+                IDL_IDENT (p)._flags |= IDLF_IDENT_CASE_MISMATCH_HIT;
+                IDL_IDENT (q)._flags |= IDLF_IDENT_CASE_MISMATCH_HIT;
+        }
 
-	return cmp;
+        return cmp;
 }
 
-guint IDL_ident_hash (gconstpointer v)
+unsigned int IDL_ident_hash (const void * v)
 {
-	return IDL_strcase_hash (IDL_IDENT ((IDL_tree) v).str);
+        return IDL_strcase_hash (IDL_IDENT ((IDL_tree) v).str);
 }
 
-gint IDL_ident_equal (gconstpointer a, gconstpointer b)
+int IDL_ident_equal (const void * a, const void * b)
 {
-	return my_strcmp ((IDL_tree) a, (IDL_tree) b) == 0;
+        return my_strcmp ((IDL_tree) a, (IDL_tree) b) == 0;
 }
 
-gint IDL_ident_cmp (gconstpointer a, gconstpointer b)
+int IDL_ident_cmp (const void * a, const void * b)
 {
-	return my_strcmp ((IDL_tree) a, (IDL_tree) b);
+        return my_strcmp ((IDL_tree) a, (IDL_tree) b);
 }
 
 const char *IDL_get_libver_string (void)
 {
-	return LIBIDL_VERSION;
+        return LIBIDL_VERSION;
 }
 
 const char *IDL_get_IDLver_string (void)
 {
-	return "2.2";
+        return "2.2";
 }
 
 static void IDL_tree_optimize (IDL_tree *p, IDL_ns ns)
 {
-	if (!(__IDL_flags & IDLF_IGNORE_FORWARDS))
-		IDL_tree_process_forward_dcls (p, ns);
-	if (!(__IDL_flags & IDLF_INHIBIT_TAG_ONLY))
-		IDL_tree_remove_inhibits (p, ns);
-	IDL_tree_remove_empty_modules (p, ns);
+        if (!(__IDL_flags & IDLF_IGNORE_FORWARDS))
+                IDL_tree_process_forward_dcls (p, ns);
+        if (!(__IDL_flags & IDLF_INHIBIT_TAG_ONLY))
+                IDL_tree_remove_inhibits (p, ns);
+        IDL_tree_remove_empty_modules (p, ns);
 }
 
 static void IDL_parse_setup(unsigned long parse_flags, int max_msg_level) {
-	if (parse_flags & IDLF_XPIDL)
-		parse_flags |= IDLF_PROPERTIES;
+        if (parse_flags & IDLF_XPIDL)
+                parse_flags |= IDLF_PROPERTIES;
 
-	__IDL_max_msg_level = max_msg_level;
-	__IDL_nerrors = __IDL_nwarnings = 0;
-	__IDL_inhibits = 0;
-	__IDL_typecodes_as_tok = (parse_flags & IDLF_TYPECODES) ? 1 : 0;
-	__IDL_pidl = (parse_flags & IDLF_XPIDL) ? 1 : 0;
-	__IDL_flags = parse_flags;
-	__IDL_flagsi = 0;
-	__IDL_is_parsing = TRUE;
-	__IDL_is_okay = TRUE;
-	__IDL_new_ident_comments = NULL;
+        __IDL_max_msg_level = max_msg_level;
+        __IDL_nerrors = __IDL_nwarnings = 0;
+        __IDL_inhibits = 0;
+        __IDL_typecodes_as_tok = (parse_flags & IDLF_TYPECODES) ? 1 : 0;
+        __IDL_pidl = (parse_flags & IDLF_XPIDL) ? 1 : 0;
+        __IDL_flags = parse_flags;
+        __IDL_flagsi = 0;
+        __IDL_is_parsing = TRUE;
+        __IDL_is_okay = TRUE;
+        __IDL_new_ident_comments = NULL;
 }
 
 int IDL_parse_filename (const char *filename, const char *cpp_args,
-			IDL_msg_callback msg_cb, IDL_tree *tree, IDL_ns *ns,
-			unsigned long parse_flags, int max_msg_level)
+                        IDL_msg_callback msg_cb, IDL_tree *tree, IDL_ns *ns,
+                        unsigned long parse_flags, int max_msg_level)
 {
-	extern void __IDL_lex_init (void);
-	extern void __IDL_lex_cleanup (void);
-	extern int yyparse (void);
-	extern FILE *__IDL_in;
-	FILE *input;
-	char *cmd;
-#ifdef HAVE_CPP_PIPE_STDIN
-	char *fmt = CPP_PROGRAM " " CPP_NOSTDINC " - %s%s %s < \"%s\" %s";
-	char *wd;
-#else
-	char *fmt = CPP_PROGRAM " " CPP_NOSTDINC " -I- -I%s %s \"%s\" %s";
-	char *s, *tmpfilename;
-	char cwd[2048];
-	gchar *linkto;
-#endif
+        char drive[ _MAX_DRIVE ];
+        char dir[ _MAX_DIR ];
+        char fname[ _MAX_FNAME ];
+        char ext[ _MAX_EXT ];
+        extern void __IDL_lex_init (void);
+        extern void __IDL_lex_cleanup (void);
+        extern int yyparse (void);
+        extern FILE *__IDL_in;
+        FILE *input;
+        char *cmd;
+        char *fmt = "%s";
+        char *s, *tmpfilename;
+        char cwd[2048];
+        char *linkto;
+        char wd[1024];
 
-#ifndef G_OS_WIN32
-	char *cpperrs = (parse_flags & IDLF_SHOW_CPP_ERRORS) 
-	  ? "" : "2>/dev/null";
-#else
-	char *cpperrs = "";
-#endif
-	GSList *slist;
-	int rv;
+        char *cpperrs = (parse_flags & IDLF_SHOW_CPP_ERRORS)
+          ? "" : "2>/dev/null";
 
-#if 0 && defined(YYDEBUG)
-	{
-		extern int __IDL_debug;
-		__IDL_debug = 1;
-	}
-#endif
+        GSList *slist;
+        int rv;
 
-	if (!filename || !tree) {
-		errno = EINVAL;
-		return -1;
-	}
+        printf("0\n");
+
+        if (!filename || !tree) {
+                errno = EINVAL;
+                return -1;
+        }
+
+        printf("1\n");
 
 #ifdef HAVE_ACCESS
-	if (access (filename, R_OK))
-		return -1;
+        if (access (filename, R_OK))
+                return -1;
 #endif
 
 #ifdef HAVE_CPP_PIPE_STDIN
-	wd = g_path_get_dirname (filename);
+//        wd = g_path_get_dirname (filename);
+        _splitpath( filename, drive, dir, fname, ext );
+        sprintf(wd, "%s%s", drive, dir);
 
-	cmd = g_strdup_printf (fmt, "-I", wd, cpp_args ? cpp_args : "",
-			       filename, cpperrs);
+        printf("2\n");
 
-	g_free (wd);
+        cmd = g_strdup_printf (fmt, filename);
+
+        free (wd);
+        printf("3\n");
+
 #else
-	s = tmpnam (NULL);
-	if (s == NULL)
-		return -1;
+        s = tmpnam (NULL);
+        if (s == NULL)
+                return -1;
 
-	if (!getcwd (cwd, sizeof (cwd)))
-		return -1;
+        if (!getcwd (cwd, sizeof (cwd)))
+                return -1;
 
-	if (g_path_is_absolute (filename)) {
-		linkto = g_strdup (filename);
-	} else {
-		linkto = g_strconcat (cwd, "/", filename, NULL);
-	}
+        if (g_path_is_absolute (filename)) {
+                linkto = strdup (filename);
+        } else {
+                linkto = g_strconcat (cwd, "/", filename, NULL);
+        }
 
-	tmpfilename = g_strconcat (s, ".c", NULL);
+        tmpfilename = g_strconcat (s, ".c", NULL);
 #ifdef HAVE_SYMLINK
-	if (symlink (linkto, tmpfilename) < 0) {
-		g_free (linkto);
-		g_free (tmpfilename);
-		return -1;
-	}
+        if (symlink (linkto, tmpfilename) < 0) {
+                free (linkto);
+                free (tmpfilename);
+                return -1;
+        }
 #else
 #error Must have symlink
 #endif
-	g_free (linkto);
+        free (linkto);
 
-	cmd = g_strdup_printf (fmt, cwd, cpp_args ? cpp_args : "",
-			       tmpfilename, cpperrs);
+        cmd = g_strdup_printf (fmt, tmpfilename);
 #endif
 
        /* Many versions of cpp do evil translating internal
         * strings, producing bogus output, so clobber LC_ALL */
-	putenv ("LC_ALL=C");
+        putenv ("LC_ALL=C");
+
+        printf("4\n");
 
 #ifdef HAVE_POPEN
 #ifdef G_OS_WIN32
-	if (!(parse_flags & IDLF_SHOW_CPP_ERRORS)) {
-		int save_stderr = dup (2);
-		int null = open ("NUL:", O_WRONLY);
-		dup2 (null, 2);
-		input = popen (cmd, "r");
-		close (2);
-		close (null);
-		dup2 (save_stderr, 2);
-		close (save_stderr);
-	} else
-		input = popen (cmd, "r");
+        if (!(parse_flags & IDLF_SHOW_CPP_ERRORS)) {
+                int save_stderr = dup (2);
+                int null = open ("NUL:", O_WRONLY);
+                dup2 (null, 2);
+                input = popen (cmd, "r");
+                close (2);
+                close (null);
+                dup2 (save_stderr, 2);
+                close (save_stderr);
+        } else
+                input = popen (cmd, "r");
 #else
-	input = popen (cmd, "r");
+        input = popen (cmd, "r");
 #endif
 #else
-	/* Surely this doesn't make any sense? */	
-	input = fopen (cmd, "r");
+        /* Surely this doesn't make any sense? */
+        printf("cmd=%s\n", cmd);
+        input = fopen (cmd, "r");
 #endif
-	g_free (cmd);
+        free (cmd);
 
-	if (input == NULL || ferror (input)) {
+        if (input == NULL || ferror (input)) {
 #ifndef HAVE_CPP_PIPE_STDIN
-		g_free (tmpfilename);
+                free (tmpfilename);
 #endif
-		return IDL_ERROR;
-	}
+        printf("5\n");
+                return IDL_ERROR;
+        }
 
-	IDL_parse_setup(parse_flags, max_msg_level);
 
-	__IDL_in = input;
-	__IDL_msgcb = msg_cb;
-	__IDL_root_ns = IDL_ns_new ();
-	__IDL_lex_init ();
+        printf("6\n");
 
-	__IDL_real_filename = filename;
+        IDL_parse_setup(parse_flags, max_msg_level);
+
+        printf("7\n");
+
+        __IDL_in = input;
+        printf("8\n");
+        __IDL_msgcb = msg_cb;
+        printf("9\n");
+        __IDL_root_ns = IDL_ns_new ();
+        printf("10\n");
+        __IDL_lex_init ();
+        printf("11\n");
+
+
+        __IDL_real_filename = filename;
 #ifndef HAVE_CPP_PIPE_STDIN
-	__IDL_tmp_filename = tmpfilename;
+        __IDL_tmp_filename = tmpfilename;
 #endif
-	__IDL_filename_hash = IDL_NS (__IDL_root_ns).filename_hash;
-	__IDL_structunion_ht = g_hash_table_new (g_direct_hash, g_direct_equal);
-	rv = yyparse ();
-	g_hash_table_destroy (__IDL_structunion_ht);
-	__IDL_is_parsing = FALSE;
-	__IDL_lex_cleanup ();
-	__IDL_parser_reset ();
-	__IDL_real_filename = NULL;
+        __IDL_filename_hash = IDL_NS (__IDL_root_ns).filename_hash;
+        __IDL_structunion_ht = g_hash_table_new (g_direct_hash, g_direct_equal);
+        printf("12\n");
+        rv = yyparse ();
+        printf("rv=%d\n",rv);
+        g_hash_table_destroy (__IDL_structunion_ht);
+        __IDL_is_parsing = FALSE;
+        __IDL_lex_cleanup ();
+        __IDL_parser_reset ();
+        __IDL_real_filename = NULL;
 #ifndef HAVE_CPP_PIPE_STDIN
-	__IDL_tmp_filename = NULL;
+        __IDL_tmp_filename = NULL;
 #endif
 #ifdef HAVE_POPEN
-	pclose (input);
+        pclose (input);
 #else
-	fclose (input);
+        fclose (input);
 #endif
 #ifndef HAVE_CPP_PIPE_STDIN
-	unlink (tmpfilename);
-	g_free (tmpfilename);
+        unlink (tmpfilename);
+        free (tmpfilename);
 #endif
-	for (slist = __IDL_new_ident_comments; slist; slist = slist->next)
-		g_free (slist->data);
-	g_slist_free (__IDL_new_ident_comments);
+        for (slist = __IDL_new_ident_comments; slist; slist = slist->next)
+                free (slist->data);
+        g_slist_free (__IDL_new_ident_comments);
 
-	if (__IDL_root != NULL) {
-		IDL_tree_optimize (&__IDL_root, __IDL_root_ns);
+        if (__IDL_root != NULL) {
+                IDL_tree_optimize (&__IDL_root, __IDL_root_ns);
 
-		if (__IDL_root == NULL)
-			yyerror ("File empty after optimization");
-	}
+                if (__IDL_root == NULL)
+                        yyerror ("File empty after optimization");
+        }
 
-	__IDL_msgcb = NULL;
+        __IDL_msgcb = NULL;
 
-	if (rv != 0 || !__IDL_is_okay) {
-		*tree = NULL;
+        if (rv != 0 || !__IDL_is_okay) {
+                *tree = NULL;
 
-		if (ns)
-			*ns = NULL;
+                if (ns)
+                        *ns = NULL;
 
-		return IDL_ERROR;
-	}
+                return IDL_ERROR;
+        }
 
-	if (__IDL_flags & IDLF_PREFIX_FILENAME)
-		IDL_ns_prefix (__IDL_root_ns, filename);
+        if (__IDL_flags & IDLF_PREFIX_FILENAME)
+                IDL_ns_prefix (__IDL_root_ns, filename);
 
-	*tree = __IDL_root;
+        *tree = __IDL_root;
 
-	if (ns)
-		*ns = __IDL_root_ns;
-	else
-		IDL_ns_free (__IDL_root_ns);
+        if (ns)
+                *ns = __IDL_root_ns;
+        else
+                IDL_ns_free (__IDL_root_ns);
 
-	return IDL_SUCCESS;
+        return IDL_SUCCESS;
 }
 
 int IDL_parse_filename_with_input (const char *filename,
-				   IDL_input_callback input_cb,
-				   gpointer input_cb_user_data,
-				   IDL_msg_callback msg_cb,
-				   IDL_tree *tree, IDL_ns *ns,
-				   unsigned long parse_flags,
-				   int max_msg_level)
+                                   IDL_input_callback input_cb,
+                                   void * input_cb_user_data,
+                                   IDL_msg_callback msg_cb,
+                                   IDL_tree *tree, IDL_ns *ns,
+                                   unsigned long parse_flags,
+                                   int max_msg_level)
 {
-	extern void __IDL_lex_init (void);
-	extern void __IDL_lex_cleanup (void);
-	extern int yyparse (void);
-	union IDL_input_data data;
-	GSList *slist;
-	int rv;
+        extern void __IDL_lex_init (void);
+        extern void __IDL_lex_cleanup (void);
+        extern int yyparse (void);
+        union IDL_input_data data;
+        GSList *slist;
+        int rv;
 
-	if (!filename || !input_cb || !tree) {
-		errno = EINVAL;
-		return -1;
-	}
+        if (!filename || !input_cb || !tree) {
+                errno = EINVAL;
+                return -1;
+        }
 
-	IDL_parse_setup(parse_flags, max_msg_level);
+        IDL_parse_setup(parse_flags, max_msg_level);
 
-	__IDL_msgcb = msg_cb;
-	__IDL_root_ns = IDL_ns_new ();
+        __IDL_msgcb = msg_cb;
+        __IDL_root_ns = IDL_ns_new ();
 
-	__IDL_lex_init ();
-	__IDL_inputcb = input_cb;
-	__IDL_inputcb_user_data = input_cb_user_data;
+        __IDL_lex_init ();
+        __IDL_inputcb = input_cb;
+        __IDL_inputcb_user_data = input_cb_user_data;
 
-	__IDL_real_filename = filename;
+        __IDL_real_filename = filename;
 #ifndef HAVE_CPP_PIPE_STDIN
-	__IDL_tmp_filename = NULL;
+        __IDL_tmp_filename = NULL;
 #endif
-	__IDL_filename_hash = IDL_NS (__IDL_root_ns).filename_hash;
-	data.init.filename = filename;
-	if ((*__IDL_inputcb) (
-		IDL_INPUT_REASON_INIT, &data, __IDL_inputcb_user_data)) {
-		IDL_ns_free (__IDL_root_ns);
-		__IDL_lex_cleanup ();
-		__IDL_real_filename = NULL;
-		return -1;
-	}
-	__IDL_structunion_ht = g_hash_table_new (g_direct_hash, g_direct_equal);
-	rv = yyparse ();
-	g_hash_table_destroy (__IDL_structunion_ht);
-	__IDL_is_parsing = FALSE;
-	__IDL_lex_cleanup ();
-	__IDL_parser_reset ();
-	__IDL_real_filename = NULL;
-	for (slist = __IDL_new_ident_comments; slist; slist = slist->next)
-		g_free (slist->data);
-	g_slist_free (__IDL_new_ident_comments);
+        __IDL_filename_hash = IDL_NS (__IDL_root_ns).filename_hash;
+        data.init.filename = filename;
+        if ((*__IDL_inputcb) (
+                IDL_INPUT_REASON_INIT, &data, __IDL_inputcb_user_data)) {
+                IDL_ns_free (__IDL_root_ns);
+                __IDL_lex_cleanup ();
+                __IDL_real_filename = NULL;
+                return -1;
+        }
+        __IDL_structunion_ht = g_hash_table_new (g_direct_hash, g_direct_equal);
+        rv = yyparse ();
+        g_hash_table_destroy (__IDL_structunion_ht);
+        __IDL_is_parsing = FALSE;
+        __IDL_lex_cleanup ();
+        __IDL_parser_reset ();
+        __IDL_real_filename = NULL;
+        for (slist = __IDL_new_ident_comments; slist; slist = slist->next)
+                free (slist->data);
+        g_slist_free (__IDL_new_ident_comments);
 
-	if (__IDL_root != NULL) {
-		IDL_tree_optimize (&__IDL_root, __IDL_root_ns);
+        if (__IDL_root != NULL) {
+                IDL_tree_optimize (&__IDL_root, __IDL_root_ns);
 
-		if (__IDL_root == NULL)
-			yyerror ("File empty after optimization");
-	}
+                if (__IDL_root == NULL)
+                        yyerror ("File empty after optimization");
+        }
 
-	__IDL_msgcb = NULL;
+        __IDL_msgcb = NULL;
 
-	if (rv != 0 || !__IDL_is_okay) {
-		*tree = NULL;
+        if (rv != 0 || !__IDL_is_okay) {
+                *tree = NULL;
 
-		if (ns)
-			*ns = NULL;
+                if (ns)
+                        *ns = NULL;
 
-		(*__IDL_inputcb) (
-			IDL_INPUT_REASON_ABORT, NULL, __IDL_inputcb_user_data);
+                (*__IDL_inputcb) (
+                        IDL_INPUT_REASON_ABORT, NULL, __IDL_inputcb_user_data);
 
-		return IDL_ERROR;
-	}
+                return IDL_ERROR;
+        }
 
-	(*__IDL_inputcb) (IDL_INPUT_REASON_FINISH, NULL, __IDL_inputcb_user_data);
+        (*__IDL_inputcb) (IDL_INPUT_REASON_FINISH, NULL, __IDL_inputcb_user_data);
 
-	if (__IDL_flags & IDLF_PREFIX_FILENAME)
-		IDL_ns_prefix (__IDL_root_ns, filename);
+        if (__IDL_flags & IDLF_PREFIX_FILENAME)
+                IDL_ns_prefix (__IDL_root_ns, filename);
 
-	*tree = __IDL_root;
+        *tree = __IDL_root;
 
-	if (ns)
-		*ns = __IDL_root_ns;
-	else
-		IDL_ns_free (__IDL_root_ns);
+        if (ns)
+                *ns = __IDL_root_ns;
+        else
+                IDL_ns_free (__IDL_root_ns);
 
-	return IDL_SUCCESS;
+        return IDL_SUCCESS;
 }
 
 void yyerrorl (const char *s, int ofs)
 {
-	int line = __IDL_cur_line - 1 + ofs;
-	gchar *freeme = NULL, *filename = NULL;
+        int line = __IDL_cur_line - 1 + ofs;
+        char *freeme = NULL, *filename = NULL;
 
-	if (__IDL_cur_filename) {
+        if (__IDL_cur_filename) {
 #ifdef HAVE_CPP_PIPE_STDIN
-		filename = __IDL_cur_filename;
+                filename = __IDL_cur_filename;
 #else
-		freeme = filename = g_path_get_basename (__IDL_cur_filename);
+                freeme = filename = g_path_get_basename (__IDL_cur_filename);
 #endif
-	} else
-		line = -1;
+        } else
+                line = -1;
 
-	++__IDL_nerrors;
-	__IDL_is_okay = FALSE;
+        ++__IDL_nerrors;
+        __IDL_is_okay = FALSE;
 
-	/* Errors are counted, even if not printed */
-	if (__IDL_max_msg_level < IDL_ERROR) {
-		g_free (freeme);
-		return;
-	}
+        /* Errors are counted, even if not printed */
+        if (__IDL_max_msg_level < IDL_ERROR) {
+                free (freeme);
+                return;
+        }
 
-	if (__IDL_msgcb)
-		(*__IDL_msgcb)(IDL_ERROR, __IDL_nerrors, line, filename, s);
-	else {
-		if (line > 0)
-			fprintf (stderr, "%s:%d: Error: %s\n", filename, line, s);
-		else
-			fprintf (stderr, "Error: %s\n", s);
-	}
-	g_free (freeme);
+        if (__IDL_msgcb)
+                (*__IDL_msgcb)(IDL_ERROR, __IDL_nerrors, line, filename, s);
+        else {
+                if (line > 0)
+                        fprintf (stderr, "%s:%d: Error: %s\n", filename, line, s);
+                else
+                        fprintf (stderr, "Error: %s\n", s);
+        }
+        free (freeme);
 }
 
 void yywarningl (int level, const char *s, int ofs)
 {
-	int line = __IDL_cur_line - 1 + ofs;
-	gchar *freeme = NULL, *filename = NULL;
+        int line = __IDL_cur_line - 1 + ofs;
+        char *freeme = NULL, *filename = NULL;
 
-	/* Unprinted warnings are not counted */
-	if (__IDL_max_msg_level < level)
-		return;
+        /* Unprinted warnings are not counted */
+        if (__IDL_max_msg_level < level)
+                return;
 
-	if (__IDL_cur_filename) {
+        if (__IDL_cur_filename) {
 #ifdef HAVE_CPP_PIPE_STDIN
-		filename = __IDL_cur_filename;
+                filename = __IDL_cur_filename;
 #else
-		freeme = filename = g_path_get_basename (__IDL_cur_filename);
+                freeme = filename = g_path_get_basename (__IDL_cur_filename);
 #endif
-	} else
-		line = -1;
+        } else
+                line = -1;
 
-	++__IDL_nwarnings;
+        ++__IDL_nwarnings;
 
-	if (__IDL_msgcb)
-		(*__IDL_msgcb)(level, __IDL_nwarnings, line, filename, s);
-	else {
-		if (line > 0)
-			fprintf (stderr, "%s:%d: Warning: %s\n", filename, line, s);
-		else
-			fprintf (stderr, "Warning: %s\n", s);
-	}
-	g_free (freeme);
+        if (__IDL_msgcb)
+                (*__IDL_msgcb)(level, __IDL_nwarnings, line, filename, s);
+        else {
+                if (line > 0)
+                        fprintf (stderr, "%s:%d: Warning: %s\n", filename, line, s);
+                else
+                        fprintf (stderr, "Warning: %s\n", s);
+        }
+        free (freeme);
 }
 
 void yyerror (const char *s)
 {
-	yyerrorl (s, 0);
+        yyerrorl (s, 0);
 }
 
 void yywarning (int level, const char *s)
 {
-	yywarningl (level, s, 0);
+        yywarningl (level, s, 0);
 }
 
 void yyerrorlv (const char *fmt, int ofs, ...)
 {
-	gchar *msg;
-	va_list args;
+        char *msg;
+        va_list args;
 
-	va_start (args, ofs);
+        va_start (args, ofs);
 
-	msg = g_strdup_vprintf (fmt, args);
-	yyerrorl (msg, ofs);
+        msg = g_strdup_vprintf (fmt, args);
+        yyerrorl (msg, ofs);
 
-	va_end (args);
+        va_end (args);
 
-	g_free (msg);
+        free (msg);
 }
 
 void yywarninglv (int level, const char *fmt, int ofs, ...)
 {
-	gchar *msg;
-	va_list args;
+        char *msg;
+        va_list args;
 
-	va_start (args, ofs);
+        va_start (args, ofs);
 
-	msg = g_strdup_vprintf (fmt, args);
-	yywarningl (level, msg, ofs);
+        msg = g_strdup_vprintf (fmt, args);
+        yywarningl (level, msg, ofs);
 
-	va_end (args);
+        va_end (args);
 
-	g_free (msg);
+        free (msg);
 }
 
 void yyerrorv (const char *fmt, ...)
 {
-	gchar *msg;
-	va_list args;
+        char *msg;
+        va_list args;
 
-	va_start (args, fmt);
+        va_start (args, fmt);
 
-	msg = g_strdup_vprintf (fmt, args);
-	yyerror (msg);
+        msg = g_strdup_vprintf (fmt, args);
+        yyerror (msg);
 
-	va_end (args);
+        va_end (args);
 
-	g_free (msg);
+        free (msg);
 }
 
 void yywarningv (int level, const char *fmt, ...)
 {
-	gchar *msg;
-	va_list args;
+        char *msg;
+        va_list args;
 
-	va_start (args, fmt);
+        va_start (args, fmt);
 
-	msg = g_strdup_vprintf (fmt, args);
-	yywarning (level, msg);
+        msg = g_strdup_vprintf (fmt, args);
+        yywarning (level, msg);
 
-	va_end (args);
+        va_end (args);
 
-	g_free (msg);
+        free (msg);
 }
 
 void IDL_tree_error (IDL_tree p, const char *fmt, ...)
 {
-	char *file_save = __IDL_cur_filename;
-	int line_save = __IDL_cur_line;
-	gchar *msg;
-	va_list args;
+        char *file_save = __IDL_cur_filename;
+        int line_save = __IDL_cur_line;
+        char *msg;
+        va_list args;
 
-	if (p) {
-		__IDL_cur_filename = p->_file;
-		__IDL_cur_line = p->_line;
-	} else {
-		__IDL_cur_filename = NULL;
-		__IDL_cur_line = -1;
-	}
+        if (p) {
+                __IDL_cur_filename = p->_file;
+                __IDL_cur_line = p->_line;
+        } else {
+                __IDL_cur_filename = NULL;
+                __IDL_cur_line = -1;
+        }
 
-	va_start (args, fmt);
+        va_start (args, fmt);
 
-	msg = g_strdup_vprintf (fmt, args);
-	yyerror (msg);
+        msg = g_strdup_vprintf (fmt, args);
+        yyerror (msg);
 
-	va_end (args);
+        va_end (args);
 
-	g_free (msg);
+        free (msg);
 
-	__IDL_cur_filename = file_save;
-	__IDL_cur_line = line_save;
+        __IDL_cur_filename = file_save;
+        __IDL_cur_line = line_save;
 }
 
 void IDL_tree_warning (IDL_tree p, int level, const char *fmt, ...)
 {
-	char *file_save = __IDL_cur_filename;
-	int line_save = __IDL_cur_line;
-	gchar *msg;
-	va_list args;
+        char *file_save = __IDL_cur_filename;
+        int line_save = __IDL_cur_line;
+        char *msg;
+        va_list args;
 
-	if (p) {
-		__IDL_cur_filename = p->_file;
-		__IDL_cur_line = p->_line;
-	} else {
-		__IDL_cur_filename = NULL;
-		__IDL_cur_line = -1;
-	}
+        if (p) {
+                __IDL_cur_filename = p->_file;
+                __IDL_cur_line = p->_line;
+        } else {
+                __IDL_cur_filename = NULL;
+                __IDL_cur_line = -1;
+        }
 
-	va_start (args, fmt);
+        va_start (args, fmt);
 
-	msg = g_strdup_vprintf (fmt, args);
-	yywarning (level, msg);
+        msg = g_strdup_vprintf (fmt, args);
+        yywarning (level, msg);
 
-	va_end (args);
+        va_end (args);
 
-	g_free (msg);
+        free (msg);
 
-	__IDL_cur_filename = file_save;
-	__IDL_cur_line = line_save;
+        __IDL_cur_filename = file_save;
+        __IDL_cur_line = line_save;
 }
 
 int IDL_tree_get_node_info (IDL_tree p, char **what, char **who)
 {
-	int dienow = 0;
+        int dienow = 0;
 
-	assert (what != NULL);
-	assert (who != NULL);
+        assert (what != NULL);
+        assert (who != NULL);
 
-	switch (IDL_NODE_TYPE (p)) {
-	case IDLN_TYPE_STRUCT:
-		*what = "structure definition";
-		*who = IDL_IDENT (IDL_TYPE_STRUCT (p).ident).str;
-		break;
+        switch (IDL_NODE_TYPE (p)) {
+        case IDLN_TYPE_STRUCT:
+                *what = "structure definition";
+                *who = IDL_IDENT (IDL_TYPE_STRUCT (p).ident).str;
+                break;
 
-	case IDLN_TYPE_UNION:
-		*what = "union definition";
-		*who = IDL_IDENT (IDL_TYPE_UNION (p).ident).str;
-		break;
+        case IDLN_TYPE_UNION:
+                *what = "union definition";
+                *who = IDL_IDENT (IDL_TYPE_UNION (p).ident).str;
+                break;
 
-	case IDLN_TYPE_ARRAY:
-		*what = "array";
-		*who = IDL_IDENT (IDL_TYPE_ARRAY (p).ident).str;
-		break;
+        case IDLN_TYPE_ARRAY:
+                *what = "array";
+                *who = IDL_IDENT (IDL_TYPE_ARRAY (p).ident).str;
+                break;
 
-	case IDLN_TYPE_ENUM:
-		*what = "enumeration definition";
-		*who = IDL_IDENT (IDL_TYPE_ENUM (p).ident).str;
-		break;
+        case IDLN_TYPE_ENUM:
+                *what = "enumeration definition";
+                *who = IDL_IDENT (IDL_TYPE_ENUM (p).ident).str;
+                break;
 
-	case IDLN_IDENT:
-		*what = "identifier";
-		*who = IDL_IDENT (p).str;
-		break;
+        case IDLN_IDENT:
+                *what = "identifier";
+                *who = IDL_IDENT (p).str;
+                break;
 
-	case IDLN_TYPE_DCL:
-		*what = "type definition";
-		assert (IDL_TYPE_DCL (p).dcls != NULL);
-		assert (IDL_NODE_TYPE (IDL_TYPE_DCL (p).dcls) == IDLN_LIST);
-		assert (IDL_LIST (IDL_TYPE_DCL (p).dcls)._tail != NULL);
-		assert (IDL_NODE_TYPE (IDL_LIST (IDL_TYPE_DCL (p).dcls)._tail) == IDLN_LIST);
-		*who = IDL_IDENT (IDL_LIST (IDL_LIST (IDL_TYPE_DCL (p).dcls)._tail).data).str;
-		break;
+        case IDLN_TYPE_DCL:
+                *what = "type definition";
+                assert (IDL_TYPE_DCL (p).dcls != NULL);
+                assert (IDL_NODE_TYPE (IDL_TYPE_DCL (p).dcls) == IDLN_LIST);
+                assert (IDL_LIST (IDL_TYPE_DCL (p).dcls)._tail != NULL);
+                assert (IDL_NODE_TYPE (IDL_LIST (IDL_TYPE_DCL (p).dcls)._tail) == IDLN_LIST);
+                *who = IDL_IDENT (IDL_LIST (IDL_LIST (IDL_TYPE_DCL (p).dcls)._tail).data).str;
+                break;
 
-	case IDLN_MEMBER:
-		*what = "member declaration";
-		assert (IDL_MEMBER (p).dcls != NULL);
-		assert (IDL_NODE_TYPE (IDL_MEMBER (p).dcls) == IDLN_LIST);
-		assert (IDL_LIST (IDL_MEMBER (p).dcls)._tail != NULL);
-		assert (IDL_NODE_TYPE (IDL_LIST (IDL_MEMBER (p).dcls)._tail) == IDLN_LIST);
-		*who = IDL_IDENT (IDL_LIST (IDL_LIST (IDL_MEMBER (p).dcls)._tail).data).str;
-		break;
+        case IDLN_MEMBER:
+                *what = "member declaration";
+                assert (IDL_MEMBER (p).dcls != NULL);
+                assert (IDL_NODE_TYPE (IDL_MEMBER (p).dcls) == IDLN_LIST);
+                assert (IDL_LIST (IDL_MEMBER (p).dcls)._tail != NULL);
+                assert (IDL_NODE_TYPE (IDL_LIST (IDL_MEMBER (p).dcls)._tail) == IDLN_LIST);
+                *who = IDL_IDENT (IDL_LIST (IDL_LIST (IDL_MEMBER (p).dcls)._tail).data).str;
+                break;
 
-	case IDLN_NATIVE:
-		*what = "native declaration";
-		assert (IDL_NATIVE (p).ident != NULL);
-		assert (IDL_NODE_TYPE (IDL_NATIVE (p).ident) == IDLN_IDENT);
-		*who = IDL_IDENT (IDL_NATIVE (p).ident).str;
-		break;
+        case IDLN_NATIVE:
+                *what = "native declaration";
+                assert (IDL_NATIVE (p).ident != NULL);
+                assert (IDL_NODE_TYPE (IDL_NATIVE (p).ident) == IDLN_IDENT);
+                *who = IDL_IDENT (IDL_NATIVE (p).ident).str;
+                break;
 
-	case IDLN_LIST:
-		if (!IDL_LIST (p).data)
-			break;
-		dienow = IDL_tree_get_node_info (IDL_LIST (p).data, what, who);
-		break;
+        case IDLN_LIST:
+                if (!IDL_LIST (p).data)
+                        break;
+                dienow = IDL_tree_get_node_info (IDL_LIST (p).data, what, who);
+                break;
 
-	case IDLN_ATTR_DCL:
-		*what = "interface attribute";
-		assert (IDL_ATTR_DCL (p).simple_declarations != NULL);
-		assert (IDL_NODE_TYPE (IDL_ATTR_DCL (p).simple_declarations) == IDLN_LIST);
-		assert (IDL_LIST (IDL_ATTR_DCL (p).simple_declarations)._tail != NULL);
-		assert (IDL_NODE_TYPE (IDL_LIST (
-			IDL_ATTR_DCL (p).simple_declarations)._tail) == IDLN_LIST);
-		*who = IDL_IDENT (IDL_LIST (IDL_LIST (
-			IDL_ATTR_DCL (p).simple_declarations)._tail).data).str;
-		break;
+        case IDLN_ATTR_DCL:
+                *what = "interface attribute";
+                assert (IDL_ATTR_DCL (p).simple_declarations != NULL);
+                assert (IDL_NODE_TYPE (IDL_ATTR_DCL (p).simple_declarations) == IDLN_LIST);
+                assert (IDL_LIST (IDL_ATTR_DCL (p).simple_declarations)._tail != NULL);
+                assert (IDL_NODE_TYPE (IDL_LIST (
+                        IDL_ATTR_DCL (p).simple_declarations)._tail) == IDLN_LIST);
+                *who = IDL_IDENT (IDL_LIST (IDL_LIST (
+                        IDL_ATTR_DCL (p).simple_declarations)._tail).data).str;
+                break;
 
-	case IDLN_PARAM_DCL:
-		*what = "operation parameter";
-		assert (IDL_PARAM_DCL (p).simple_declarator != NULL);
-		assert (IDL_NODE_TYPE (IDL_PARAM_DCL (p).simple_declarator) == IDLN_IDENT);
-		*who = IDL_IDENT (IDL_PARAM_DCL (p).simple_declarator).str;
-		break;
+        case IDLN_PARAM_DCL:
+                *what = "operation parameter";
+                assert (IDL_PARAM_DCL (p).simple_declarator != NULL);
+                assert (IDL_NODE_TYPE (IDL_PARAM_DCL (p).simple_declarator) == IDLN_IDENT);
+                *who = IDL_IDENT (IDL_PARAM_DCL (p).simple_declarator).str;
+                break;
 
-	case IDLN_CONST_DCL:
-		*what = "constant declaration for";
-		*who = IDL_IDENT (IDL_CONST_DCL (p).ident).str;
-		break;
+        case IDLN_CONST_DCL:
+                *what = "constant declaration for";
+                *who = IDL_IDENT (IDL_CONST_DCL (p).ident).str;
+                break;
 
-	case IDLN_EXCEPT_DCL:
-		*what = "exception";
-		*who = IDL_IDENT (IDL_EXCEPT_DCL (p).ident).str;
-		break;
+        case IDLN_EXCEPT_DCL:
+                *what = "exception";
+                *who = IDL_IDENT (IDL_EXCEPT_DCL (p).ident).str;
+                break;
 
-	case IDLN_OP_DCL:
-		*what = "interface operation";
-		*who = IDL_IDENT (IDL_OP_DCL (p).ident).str;
-		break;
+        case IDLN_OP_DCL:
+                *what = "interface operation";
+                *who = IDL_IDENT (IDL_OP_DCL (p).ident).str;
+                break;
 
-	case IDLN_MODULE:
-		*what = "module";
-		*who = IDL_IDENT (IDL_MODULE (p).ident).str;
-		break;
+        case IDLN_MODULE:
+                *what = "module";
+                *who = IDL_IDENT (IDL_MODULE (p).ident).str;
+                break;
 
-	case IDLN_FORWARD_DCL:
-		*what = "forward declaration";
-		*who = IDL_IDENT (IDL_FORWARD_DCL (p).ident).str;
-		break;
+        case IDLN_FORWARD_DCL:
+                *what = "forward declaration";
+                *who = IDL_IDENT (IDL_FORWARD_DCL (p).ident).str;
+                break;
 
-	case IDLN_INTERFACE:
-		*what = "interface";
-		*who = IDL_IDENT (IDL_INTERFACE (p).ident).str;
-		break;
+        case IDLN_INTERFACE:
+                *what = "interface";
+                *who = IDL_IDENT (IDL_INTERFACE (p).ident).str;
+                break;
 
-	default:
-		g_warning ("Node type: %s\n", IDL_NODE_TYPE_NAME (p));
-		*what = "unknown (internal error)";
-		break;
-	}
+        default:
+                printf ("Node type: %s\n", IDL_NODE_TYPE_NAME (p));
+                *what = "unknown (internal error)";
+                break;
+        }
 
-	return dienow;
+        return dienow;
 }
 
 static IDL_tree IDL_node_new (IDL_tree_type type)
 {
-	IDL_tree p;
+        IDL_tree p;
 
-	p = g_new0 (IDL_tree_node, 1);
-	if (p == NULL) {
-		yyerror ("IDL_node_new: memory exhausted");
-		return NULL;
-	}
+        p = ((IDL_tree_node *) malloc (((unsigned int) sizeof (IDL_tree_node)) * ((unsigned int) (1))));
 
-	IDL_NODE_TYPE (p) = type;
-	IDL_NODE_REFS (p) = 1;
+        if (p == NULL) {
+                yyerror ("IDL_node_new: memory exhausted");
+                return NULL;
+        }
 
-	p->_file = __IDL_cur_filename;
-	p->_line = __IDL_cur_line;
+        IDL_NODE_TYPE (p) = type;
+        IDL_NODE_REFS (p) = 1;
 
-	return p;
+        p->_file = __IDL_cur_filename;
+        p->_line = __IDL_cur_line;
+
+        return p;
 }
 
 void __IDL_assign_up_node (IDL_tree up, IDL_tree node)
 {
-	if (node == NULL)
-		return;
+        if (node == NULL)
+                return;
 
-	assert (node != up);
+        assert (node != up);
 
-	switch (IDL_NODE_TYPE (node)) {
-	case IDLN_LIST:
-		if (IDL_NODE_UP (node) == NULL)
-			for (; node != NULL; node = IDL_LIST (node).next)
-				IDL_NODE_UP (node) = up;
-		break;
+        switch (IDL_NODE_TYPE (node)) {
+        case IDLN_LIST:
+                if (IDL_NODE_UP (node) == NULL)
+                        for (; node != NULL; node = IDL_LIST (node).next)
+                                IDL_NODE_UP (node) = up;
+                break;
 
-	default:
-		if (IDL_NODE_UP (node) == NULL)
-			IDL_NODE_UP (node) = up;
-		break;
-	}
+        default:
+                if (IDL_NODE_UP (node) == NULL)
+                        IDL_NODE_UP (node) = up;
+                break;
+        }
 }
 
 void __IDL_assign_location (IDL_tree node, IDL_tree from_node)
 {
-	assert (node != NULL);
+        assert (node != NULL);
 
-	if (from_node) {
-		node->_file = from_node->_file;
-		node->_line = from_node->_line;
-	}
+        if (from_node) {
+                node->_file = from_node->_file;
+                node->_line = from_node->_line;
+        }
 }
 
 void __IDL_assign_this_location (IDL_tree node, char *filename, int line)
 {
-	assert (node != NULL);
+        assert (node != NULL);
 
-	node->_file = filename;
-	node->_line = line;
+        node->_file = filename;
+        node->_line = line;
 }
 
 IDL_tree IDL_list_new (IDL_tree data)
 {
-	IDL_tree p = IDL_node_new (IDLN_LIST);
+        IDL_tree p = IDL_node_new (IDLN_LIST);
 
-	__IDL_assign_up_node (p, data);
-	IDL_LIST (p).data = data;
-	IDL_LIST (p)._tail = p;
+        __IDL_assign_up_node (p, data);
+        IDL_LIST (p).data = data;
+        IDL_LIST (p)._tail = p;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_list_concat (IDL_tree orig, IDL_tree append)
 {
-	IDL_tree p;
+        IDL_tree p;
 
-	if (orig == NULL)
-		return append;
+        if (orig == NULL)
+                return append;
 
-	if (append == NULL)
-		return orig;
+        if (append == NULL)
+                return orig;
 
-	IDL_LIST (IDL_LIST (orig)._tail).next = append;
-	IDL_LIST (append).prev = IDL_LIST (orig)._tail;
-	IDL_LIST (orig)._tail = IDL_LIST (append)._tail;
+        IDL_LIST (IDL_LIST (orig)._tail).next = append;
+        IDL_LIST (append).prev = IDL_LIST (orig)._tail;
+        IDL_LIST (orig)._tail = IDL_LIST (append)._tail;
 
-	/* Set tails on original */
-	for (p = IDL_LIST (orig).next; p && p != append; p = IDL_LIST (p).next)
-		IDL_LIST (p)._tail = IDL_LIST (orig)._tail;
+        /* Set tails on original */
+        for (p = IDL_LIST (orig).next; p && p != append; p = IDL_LIST (p).next)
+                IDL_LIST (p)._tail = IDL_LIST (orig)._tail;
 
-	/* Set up nodes on appended list */
-	for (p = append; p; p = IDL_LIST (p).next)
-		IDL_NODE_UP (p) = IDL_NODE_UP (orig);
+        /* Set up nodes on appended list */
+        for (p = append; p; p = IDL_LIST (p).next)
+                IDL_NODE_UP (p) = IDL_NODE_UP (orig);
 
-	return orig;
+        return orig;
 }
 
 IDL_tree IDL_list_remove (IDL_tree list, IDL_tree p)
 {
-	IDL_tree new_list = list;
+        IDL_tree new_list = list;
 
-	if (IDL_LIST (p).prev == NULL) {
-		assert (list == p);
-		new_list = IDL_LIST (p).next;
-		if (new_list)
-			IDL_LIST (new_list).prev = NULL;
-	} else {
-		IDL_tree prev = IDL_LIST (p).prev;
-		IDL_tree next = IDL_LIST (p).next;
+        if (IDL_LIST (p).prev == NULL) {
+                assert (list == p);
+                new_list = IDL_LIST (p).next;
+                if (new_list)
+                        IDL_LIST (new_list).prev = NULL;
+        } else {
+                IDL_tree prev = IDL_LIST (p).prev;
+                IDL_tree next = IDL_LIST (p).next;
 
-		IDL_LIST (prev).next = next;
-		if (next)
-			IDL_LIST (next).prev = prev;
-	}
+                IDL_LIST (prev).next = next;
+                if (next)
+                        IDL_LIST (next).prev = prev;
+        }
 
-	IDL_LIST (p).prev = NULL;
-	IDL_LIST (p).next = NULL;
-	IDL_LIST (p)._tail = p;
+        IDL_LIST (p).prev = NULL;
+        IDL_LIST (p).next = NULL;
+        IDL_LIST (p)._tail = p;
 
-	/* Not all tails updated... */
+        /* Not all tails updated... */
 
-	return new_list;
+        return new_list;
 }
 
 IDL_tree IDL_gentree_new (GHashFunc hash_func, GCompareFunc key_compare_func, IDL_tree data)
 {
-	IDL_tree p = IDL_node_new (IDLN_GENTREE);
+        IDL_tree p;
+        printf("gentree 1\n");
+        p = IDL_node_new (IDLN_GENTREE);
 
-	__IDL_assign_up_node (p, data);
-	IDL_GENTREE (p).data = data;
-	IDL_GENTREE (p).hash_func = hash_func;
-	IDL_GENTREE (p).key_compare_func = key_compare_func;
-	IDL_GENTREE (p).siblings = g_hash_table_new (hash_func, key_compare_func);
-	IDL_GENTREE (p).children = g_hash_table_new (hash_func, key_compare_func);
+        printf("gentree 2\n");
 
-	g_hash_table_insert (IDL_GENTREE (p).siblings, data, p);
+        __IDL_assign_up_node (p, data);
+        printf("gentree 3\n");
+        IDL_GENTREE (p).data = data;
+        printf("gentree 4\n");
+        IDL_GENTREE (p).hash_func = hash_func;
+        printf("gentree 5\n");
+        IDL_GENTREE (p).key_compare_func = key_compare_func;
+        printf("gentree 6\n");
+        IDL_GENTREE (p).siblings = g_hash_table_new (hash_func, key_compare_func);
+        printf("gentree 7\n");
+        IDL_GENTREE (p).children = g_hash_table_new (hash_func, key_compare_func);
 
-	return p;
+        printf("gentree 8\n");
+
+        g_hash_table_insert (IDL_GENTREE (p).siblings, data, p);
+
+        printf("gentree 9\n");
+
+        return p;
 }
 
 IDL_tree IDL_gentree_new_sibling (IDL_tree from, IDL_tree data)
 {
-	IDL_tree p = IDL_node_new (IDLN_GENTREE);
+        IDL_tree p = IDL_node_new (IDLN_GENTREE);
 
-	__IDL_assign_up_node (p, data);
-	IDL_GENTREE (p).data = data;
-	IDL_GENTREE (p).hash_func = IDL_GENTREE (from).hash_func;
-	IDL_GENTREE (p).key_compare_func = IDL_GENTREE (from).key_compare_func;
-	IDL_GENTREE (p).siblings = IDL_GENTREE (from).siblings;
-	IDL_GENTREE (p).children = g_hash_table_new (IDL_GENTREE (from).hash_func,
-						     IDL_GENTREE (from).key_compare_func);
+        __IDL_assign_up_node (p, data);
+        IDL_GENTREE (p).data = data;
+        IDL_GENTREE (p).hash_func = IDL_GENTREE (from).hash_func;
+        IDL_GENTREE (p).key_compare_func = IDL_GENTREE (from).key_compare_func;
+        IDL_GENTREE (p).siblings = IDL_GENTREE (from).siblings;
+        IDL_GENTREE (p).children = g_hash_table_new (IDL_GENTREE (from).hash_func,
+                                                     IDL_GENTREE (from).key_compare_func);
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_integer_new (IDL_longlong_t value)
 {
-	IDL_tree p = IDL_node_new (IDLN_INTEGER);
+        IDL_tree p = IDL_node_new (IDLN_INTEGER);
 
-	IDL_INTEGER (p).value = value;
+        IDL_INTEGER (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_string_new (char *value)
 {
-	IDL_tree p = IDL_node_new (IDLN_STRING);
+        IDL_tree p = IDL_node_new (IDLN_STRING);
 
-	IDL_STRING (p).value = value;
+        IDL_STRING (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_wide_string_new (wchar_t *value)
 {
-	IDL_tree p = IDL_node_new (IDLN_WIDE_STRING);
+        IDL_tree p = IDL_node_new (IDLN_WIDE_STRING);
 
-	IDL_WIDE_STRING (p).value = value;
+        IDL_WIDE_STRING (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_char_new (char *value)
 {
-	IDL_tree p = IDL_node_new (IDLN_CHAR);
+        IDL_tree p = IDL_node_new (IDLN_CHAR);
 
-	IDL_CHAR (p).value = value;
+        IDL_CHAR (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_wide_char_new (wchar_t *value)
 {
-	IDL_tree p = IDL_node_new (IDLN_WIDE_CHAR);
+        IDL_tree p = IDL_node_new (IDLN_WIDE_CHAR);
 
-	IDL_WIDE_CHAR (p).value = value;
+        IDL_WIDE_CHAR (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_fixed_new (char *value)
 {
-	IDL_tree p = IDL_node_new (IDLN_FIXED);
+        IDL_tree p = IDL_node_new (IDLN_FIXED);
 
-	IDL_FIXED (p).value = value;
+        IDL_FIXED (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_float_new (double value)
 {
-	IDL_tree p = IDL_node_new (IDLN_FLOAT);
+        IDL_tree p = IDL_node_new (IDLN_FLOAT);
 
-	IDL_FLOAT (p).value = value;
+        IDL_FLOAT (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_boolean_new (unsigned value)
 {
-	IDL_tree p = IDL_node_new (IDLN_BOOLEAN);
+        IDL_tree p = IDL_node_new (IDLN_BOOLEAN);
 
-	IDL_BOOLEAN (p).value = value;
+        IDL_BOOLEAN (p).value = value;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_ident_new (char *str)
 {
-	IDL_tree p = IDL_node_new (IDLN_IDENT);
+        IDL_tree p;
+        printf("ident_new 1\n");
+        p = IDL_node_new (IDLN_IDENT);
+        printf("ident_new 2\n");
 
-	IDL_IDENT (p).str = str;
+        IDL_IDENT (p).str = str;
 
-	return p;
+        printf("ident_new 3\n");
+
+        return p;
 }
 
 IDL_tree IDL_member_new (IDL_tree type_spec, IDL_tree dcls)
 {
-	IDL_tree p = IDL_node_new (IDLN_MEMBER);
+        IDL_tree p = IDL_node_new (IDLN_MEMBER);
 
-	__IDL_assign_up_node (p, type_spec);
-	__IDL_assign_up_node (p, dcls);
-	IDL_MEMBER (p).type_spec = type_spec;
-	IDL_MEMBER (p).dcls = dcls;
+        __IDL_assign_up_node (p, type_spec);
+        __IDL_assign_up_node (p, dcls);
+        IDL_MEMBER (p).type_spec = type_spec;
+        IDL_MEMBER (p).dcls = dcls;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_native_new (IDL_tree ident)
 {
-	IDL_tree p = IDL_node_new (IDLN_NATIVE);
+        IDL_tree p = IDL_node_new (IDLN_NATIVE);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_location (p, ident);
-	IDL_NATIVE (p).ident = ident;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_location (p, ident);
+        IDL_NATIVE (p).ident = ident;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_dcl_new (IDL_tree type_spec, IDL_tree dcls)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_DCL);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_DCL);
 
-	__IDL_assign_up_node (p, type_spec);
-	__IDL_assign_up_node (p, dcls);
-	__IDL_assign_location (p, IDL_LIST (dcls).data);
-	IDL_TYPE_DCL (p).type_spec = type_spec;
-	IDL_TYPE_DCL (p).dcls = dcls;
+        __IDL_assign_up_node (p, type_spec);
+        __IDL_assign_up_node (p, dcls);
+        __IDL_assign_location (p, IDL_LIST (dcls).data);
+        IDL_TYPE_DCL (p).type_spec = type_spec;
+        IDL_TYPE_DCL (p).dcls = dcls;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_float_new (enum IDL_float_type f_type)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_FLOAT);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_FLOAT);
 
-	IDL_TYPE_FLOAT (p).f_type = f_type;
+        IDL_TYPE_FLOAT (p).f_type = f_type;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_fixed_new (IDL_tree positive_int_const,
-			     IDL_tree integer_lit)
+                             IDL_tree integer_lit)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_FIXED);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_FIXED);
 
-	__IDL_assign_up_node (p, positive_int_const);
-	__IDL_assign_up_node (p, integer_lit);
-	IDL_TYPE_FIXED (p).positive_int_const = positive_int_const;
-	IDL_TYPE_FIXED (p).integer_lit = integer_lit;
+        __IDL_assign_up_node (p, positive_int_const);
+        __IDL_assign_up_node (p, integer_lit);
+        IDL_TYPE_FIXED (p).positive_int_const = positive_int_const;
+        IDL_TYPE_FIXED (p).integer_lit = integer_lit;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_integer_new (unsigned f_signed, enum IDL_integer_type f_type)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_INTEGER);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_INTEGER);
 
-	IDL_TYPE_INTEGER (p).f_signed = f_signed;
-	IDL_TYPE_INTEGER (p).f_type = f_type;
+        IDL_TYPE_INTEGER (p).f_signed = f_signed;
+        IDL_TYPE_INTEGER (p).f_type = f_type;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_char_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_CHAR);
+        return IDL_node_new (IDLN_TYPE_CHAR);
 }
 
 IDL_tree IDL_type_wide_char_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_WIDE_CHAR);
+        return IDL_node_new (IDLN_TYPE_WIDE_CHAR);
 }
 
 IDL_tree IDL_type_boolean_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_BOOLEAN);
+        return IDL_node_new (IDLN_TYPE_BOOLEAN);
 }
 
 IDL_tree IDL_type_octet_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_OCTET);
+        return IDL_node_new (IDLN_TYPE_OCTET);
 }
 
 IDL_tree IDL_type_any_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_ANY);
+        return IDL_node_new (IDLN_TYPE_ANY);
 }
 
 IDL_tree IDL_type_object_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_OBJECT);
+        return IDL_node_new (IDLN_TYPE_OBJECT);
 }
 
 IDL_tree IDL_type_typecode_new (void)
 {
-	return IDL_node_new (IDLN_TYPE_TYPECODE);
+        return IDL_node_new (IDLN_TYPE_TYPECODE);
 }
 
 IDL_tree IDL_type_string_new (IDL_tree positive_int_const)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_STRING);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_STRING);
 
-	__IDL_assign_up_node (p, positive_int_const);
-	IDL_TYPE_STRING (p).positive_int_const = positive_int_const;
+        __IDL_assign_up_node (p, positive_int_const);
+        IDL_TYPE_STRING (p).positive_int_const = positive_int_const;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_wide_string_new (IDL_tree positive_int_const)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_WIDE_STRING);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_WIDE_STRING);
 
-	__IDL_assign_up_node (p, positive_int_const);
-	IDL_TYPE_WIDE_STRING (p).positive_int_const = positive_int_const;
+        __IDL_assign_up_node (p, positive_int_const);
+        IDL_TYPE_WIDE_STRING (p).positive_int_const = positive_int_const;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_array_new (IDL_tree ident,
-			     IDL_tree size_list)
+                             IDL_tree size_list)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_ARRAY);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_ARRAY);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, size_list);
-	__IDL_assign_location (p, ident);
-	IDL_TYPE_ARRAY (p).ident = ident;
-	IDL_TYPE_ARRAY (p).size_list = size_list;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, size_list);
+        __IDL_assign_location (p, ident);
+        IDL_TYPE_ARRAY (p).ident = ident;
+        IDL_TYPE_ARRAY (p).size_list = size_list;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_sequence_new (IDL_tree simple_type_spec,
-				IDL_tree positive_int_const)
+                                IDL_tree positive_int_const)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_SEQUENCE);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_SEQUENCE);
 
-	__IDL_assign_up_node (p, simple_type_spec);
-	__IDL_assign_up_node (p, positive_int_const);
-	IDL_TYPE_SEQUENCE (p).simple_type_spec = simple_type_spec;
-	IDL_TYPE_SEQUENCE (p).positive_int_const = positive_int_const;
+        __IDL_assign_up_node (p, simple_type_spec);
+        __IDL_assign_up_node (p, positive_int_const);
+        IDL_TYPE_SEQUENCE (p).simple_type_spec = simple_type_spec;
+        IDL_TYPE_SEQUENCE (p).positive_int_const = positive_int_const;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_struct_new (IDL_tree ident, IDL_tree member_list)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_STRUCT);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_STRUCT);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, member_list);
-	__IDL_assign_location (p, ident);
-	IDL_TYPE_STRUCT (p).ident = ident;
-	IDL_TYPE_STRUCT (p).member_list = member_list;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, member_list);
+        __IDL_assign_location (p, ident);
+        IDL_TYPE_STRUCT (p).ident = ident;
+        IDL_TYPE_STRUCT (p).member_list = member_list;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_union_new (IDL_tree ident, IDL_tree switch_type_spec, IDL_tree switch_body)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_UNION);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_UNION);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, switch_type_spec);
-	__IDL_assign_up_node (p, switch_body);
-	__IDL_assign_location (p, ident);
-	IDL_TYPE_UNION (p).ident = ident;
-	IDL_TYPE_UNION (p).switch_type_spec = switch_type_spec;
-	IDL_TYPE_UNION (p).switch_body = switch_body;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, switch_type_spec);
+        __IDL_assign_up_node (p, switch_body);
+        __IDL_assign_location (p, ident);
+        IDL_TYPE_UNION (p).ident = ident;
+        IDL_TYPE_UNION (p).switch_type_spec = switch_type_spec;
+        IDL_TYPE_UNION (p).switch_body = switch_body;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_type_enum_new (IDL_tree ident, IDL_tree enumerator_list)
 {
-	IDL_tree p = IDL_node_new (IDLN_TYPE_ENUM);
+        IDL_tree p = IDL_node_new (IDLN_TYPE_ENUM);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, enumerator_list);
-	__IDL_assign_location (p, ident);
-	IDL_TYPE_ENUM (p).ident = ident;
-	IDL_TYPE_ENUM (p).enumerator_list = enumerator_list;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, enumerator_list);
+        __IDL_assign_location (p, ident);
+        IDL_TYPE_ENUM (p).ident = ident;
+        IDL_TYPE_ENUM (p).enumerator_list = enumerator_list;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_case_stmt_new (IDL_tree labels, IDL_tree element_spec)
 {
-	IDL_tree p = IDL_node_new (IDLN_CASE_STMT);
+        IDL_tree p = IDL_node_new (IDLN_CASE_STMT);
 
-	__IDL_assign_up_node (p, labels);
-	__IDL_assign_up_node (p, element_spec);
-	IDL_CASE_STMT (p).labels = labels;
-	IDL_CASE_STMT (p).element_spec = element_spec;
+        __IDL_assign_up_node (p, labels);
+        __IDL_assign_up_node (p, element_spec);
+        IDL_CASE_STMT (p).labels = labels;
+        IDL_CASE_STMT (p).element_spec = element_spec;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_interface_new (IDL_tree ident, IDL_tree inheritance_spec, IDL_tree body)
 {
-	IDL_tree p = IDL_node_new (IDLN_INTERFACE);
+        IDL_tree p = IDL_node_new (IDLN_INTERFACE);
 
-	/* Make sure the up node points to the interface */
-	if (ident && IDL_NODE_UP (ident) &&
-	    IDL_NODE_TYPE (IDL_NODE_UP (ident)) != IDLN_INTERFACE)
-		IDL_NODE_UP (ident) = NULL;
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, inheritance_spec);
-	__IDL_assign_up_node (p, body);
-	IDL_INTERFACE (p).ident = ident;
-	IDL_INTERFACE (p).inheritance_spec = inheritance_spec;
-	IDL_INTERFACE (p).body = body;
+        /* Make sure the up node points to the interface */
+        if (ident && IDL_NODE_UP (ident) &&
+            IDL_NODE_TYPE (IDL_NODE_UP (ident)) != IDLN_INTERFACE)
+                IDL_NODE_UP (ident) = NULL;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, inheritance_spec);
+        __IDL_assign_up_node (p, body);
+        IDL_INTERFACE (p).ident = ident;
+        IDL_INTERFACE (p).inheritance_spec = inheritance_spec;
+        IDL_INTERFACE (p).body = body;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_module_new (IDL_tree ident, IDL_tree definition_list)
 {
-	IDL_tree p = IDL_node_new (IDLN_MODULE);
+        IDL_tree p = IDL_node_new (IDLN_MODULE);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, definition_list);
-	__IDL_assign_location (p, ident);
-	IDL_MODULE (p).ident = ident;
-	IDL_MODULE (p).definition_list = definition_list;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, definition_list);
+        __IDL_assign_location (p, ident);
+        IDL_MODULE (p).ident = ident;
+        IDL_MODULE (p).definition_list = definition_list;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_binop_new (enum IDL_binop op, IDL_tree left, IDL_tree right)
 {
-	IDL_tree p = IDL_node_new (IDLN_BINOP);
+        IDL_tree p = IDL_node_new (IDLN_BINOP);
 
-	__IDL_assign_up_node (p, left);
-	__IDL_assign_up_node (p, right);
-	IDL_BINOP (p).op = op;
-	IDL_BINOP (p).left = left;
-	IDL_BINOP (p).right = right;
+        __IDL_assign_up_node (p, left);
+        __IDL_assign_up_node (p, right);
+        IDL_BINOP (p).op = op;
+        IDL_BINOP (p).left = left;
+        IDL_BINOP (p).right = right;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_unaryop_new (enum IDL_unaryop op, IDL_tree operand)
 {
-	IDL_tree p = IDL_node_new (IDLN_UNARYOP);
+        IDL_tree p = IDL_node_new (IDLN_UNARYOP);
 
-	__IDL_assign_up_node (p, operand);
-	IDL_UNARYOP (p).op = op;
-	IDL_UNARYOP (p).operand = operand;
+        __IDL_assign_up_node (p, operand);
+        IDL_UNARYOP (p).op = op;
+        IDL_UNARYOP (p).operand = operand;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_codefrag_new (char *desc, GSList *lines)
 {
-	IDL_tree p = IDL_node_new (IDLN_CODEFRAG);
+        IDL_tree p = IDL_node_new (IDLN_CODEFRAG);
 
-	IDL_CODEFRAG (p).desc = desc;
-	IDL_CODEFRAG (p).lines = lines;
+        IDL_CODEFRAG (p).desc = desc;
+        IDL_CODEFRAG (p).lines = lines;
 
-	return p;
+        return p;
 }
 
-IDL_tree IDL_srcfile_new (char *filename, int seenCnt, gboolean isTop, gboolean wasInhibit)
+IDL_tree IDL_srcfile_new (char *filename, int seenCnt, int isTop, int wasInhibit)
 {
-	IDL_tree p = IDL_node_new (IDLN_SRCFILE);
-	IDL_SRCFILE (p).filename = filename;
-	IDL_SRCFILE (p).seenCnt = seenCnt;
-	IDL_SRCFILE (p).isTop = isTop;
-	IDL_SRCFILE (p).wasInhibit = wasInhibit;
+        IDL_tree p = IDL_node_new (IDLN_SRCFILE);
+        IDL_SRCFILE (p).filename = filename;
+        IDL_SRCFILE (p).seenCnt = seenCnt;
+        IDL_SRCFILE (p).isTop = isTop;
+        IDL_SRCFILE (p).wasInhibit = wasInhibit;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_const_dcl_new (IDL_tree const_type, IDL_tree ident, IDL_tree const_exp)
 {
-	IDL_tree p = IDL_node_new (IDLN_CONST_DCL);
+        IDL_tree p = IDL_node_new (IDLN_CONST_DCL);
 
-	__IDL_assign_up_node (p, const_type);
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, const_exp);
-	__IDL_assign_location (p, ident);
-	IDL_CONST_DCL (p).const_type = const_type;
-	IDL_CONST_DCL (p).ident = ident;
-	IDL_CONST_DCL (p).const_exp = const_exp;
+        __IDL_assign_up_node (p, const_type);
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, const_exp);
+        __IDL_assign_location (p, ident);
+        IDL_CONST_DCL (p).const_type = const_type;
+        IDL_CONST_DCL (p).ident = ident;
+        IDL_CONST_DCL (p).const_exp = const_exp;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_except_dcl_new (IDL_tree ident, IDL_tree members)
 {
-	IDL_tree p = IDL_node_new (IDLN_EXCEPT_DCL);
+        IDL_tree p = IDL_node_new (IDLN_EXCEPT_DCL);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, members);
-	__IDL_assign_location (p, ident);
-	IDL_EXCEPT_DCL (p).ident = ident;
-	IDL_EXCEPT_DCL (p).members = members;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, members);
+        __IDL_assign_location (p, ident);
+        IDL_EXCEPT_DCL (p).ident = ident;
+        IDL_EXCEPT_DCL (p).members = members;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_attr_dcl_new (unsigned f_readonly,
-			   IDL_tree param_type_spec,
-			   IDL_tree simple_declarations)
+                           IDL_tree param_type_spec,
+                           IDL_tree simple_declarations)
 {
-	IDL_tree p = IDL_node_new (IDLN_ATTR_DCL);
+        IDL_tree p = IDL_node_new (IDLN_ATTR_DCL);
 
-	__IDL_assign_up_node (p, param_type_spec);
-	__IDL_assign_up_node (p, simple_declarations);
-	__IDL_assign_location (p, IDL_LIST (simple_declarations).data);
-	IDL_ATTR_DCL (p).f_readonly = f_readonly;
-	IDL_ATTR_DCL (p).param_type_spec = param_type_spec;
-	IDL_ATTR_DCL (p).simple_declarations = simple_declarations;
+        __IDL_assign_up_node (p, param_type_spec);
+        __IDL_assign_up_node (p, simple_declarations);
+        __IDL_assign_location (p, IDL_LIST (simple_declarations).data);
+        IDL_ATTR_DCL (p).f_readonly = f_readonly;
+        IDL_ATTR_DCL (p).param_type_spec = param_type_spec;
+        IDL_ATTR_DCL (p).simple_declarations = simple_declarations;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_op_dcl_new (unsigned f_oneway,
-			 IDL_tree op_type_spec,
-			 IDL_tree ident,
-			 IDL_tree parameter_dcls,
-			 IDL_tree raises_expr,
-			 IDL_tree context_expr)
+                         IDL_tree op_type_spec,
+                         IDL_tree ident,
+                         IDL_tree parameter_dcls,
+                         IDL_tree raises_expr,
+                         IDL_tree context_expr)
 {
-	IDL_tree p = IDL_node_new (IDLN_OP_DCL);
+        IDL_tree p = IDL_node_new (IDLN_OP_DCL);
 
-	__IDL_assign_up_node (p, op_type_spec);
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_up_node (p, parameter_dcls);
-	__IDL_assign_up_node (p, raises_expr);
-	__IDL_assign_up_node (p, context_expr);
-	__IDL_assign_location (p, ident);
-	IDL_OP_DCL (p).f_oneway = f_oneway;
-	IDL_OP_DCL (p).op_type_spec = op_type_spec;
-	IDL_OP_DCL (p).ident = ident;
-	IDL_OP_DCL (p).parameter_dcls = parameter_dcls;
-	IDL_OP_DCL (p).raises_expr = raises_expr;
-	IDL_OP_DCL (p).context_expr = context_expr;
+        __IDL_assign_up_node (p, op_type_spec);
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_up_node (p, parameter_dcls);
+        __IDL_assign_up_node (p, raises_expr);
+        __IDL_assign_up_node (p, context_expr);
+        __IDL_assign_location (p, ident);
+        IDL_OP_DCL (p).f_oneway = f_oneway;
+        IDL_OP_DCL (p).op_type_spec = op_type_spec;
+        IDL_OP_DCL (p).ident = ident;
+        IDL_OP_DCL (p).parameter_dcls = parameter_dcls;
+        IDL_OP_DCL (p).raises_expr = raises_expr;
+        IDL_OP_DCL (p).context_expr = context_expr;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_param_dcl_new (enum IDL_param_attr attr,
-			    IDL_tree param_type_spec,
-			    IDL_tree simple_declarator)
+                            IDL_tree param_type_spec,
+                            IDL_tree simple_declarator)
 {
-	IDL_tree p = IDL_node_new (IDLN_PARAM_DCL);
+        IDL_tree p = IDL_node_new (IDLN_PARAM_DCL);
 
-	__IDL_assign_up_node (p, param_type_spec);
-	__IDL_assign_up_node (p, simple_declarator);
-	__IDL_assign_location (p, simple_declarator);
-	IDL_PARAM_DCL (p).attr = attr;
-	IDL_PARAM_DCL (p).param_type_spec = param_type_spec;
-	IDL_PARAM_DCL (p).simple_declarator = simple_declarator;
+        __IDL_assign_up_node (p, param_type_spec);
+        __IDL_assign_up_node (p, simple_declarator);
+        __IDL_assign_location (p, simple_declarator);
+        IDL_PARAM_DCL (p).attr = attr;
+        IDL_PARAM_DCL (p).param_type_spec = param_type_spec;
+        IDL_PARAM_DCL (p).simple_declarator = simple_declarator;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_forward_dcl_new (IDL_tree ident)
 {
-	IDL_tree p = IDL_node_new (IDLN_FORWARD_DCL);
+        IDL_tree p = IDL_node_new (IDLN_FORWARD_DCL);
 
-	__IDL_assign_up_node (p, ident);
-	__IDL_assign_location (p, ident);
-	IDL_FORWARD_DCL (p).ident = ident;
+        __IDL_assign_up_node (p, ident);
+        __IDL_assign_location (p, ident);
+        IDL_FORWARD_DCL (p).ident = ident;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_check_type_cast (const IDL_tree tree, IDL_tree_type type,
-			      const char *file, int line, const char *function)
+                              const char *file, int line, const char *function)
 {
-	if (__IDL_check_type_casts) {
-		if (tree == NULL) {
-			g_warning ("file %s: line %d: (%s) invalid type cast attempt,"
-				   " NULL tree to %s\n",
-				   file, line, function,
-				   IDL_tree_type_names[type]);
-		}
-		else if (IDL_NODE_TYPE (tree) != type) {
-			g_warning ("file %s: line %d: (%s) expected IDL tree type %s,"
-				   " but got %s\n",
-				   file, line, function,
-				   IDL_tree_type_names[type], IDL_NODE_TYPE_NAME (tree));
+        if (__IDL_check_type_casts) {
+                if (tree == NULL) {
+                        printf ("file %s: line %d: (%s) invalid type cast attempt,"
+                                   " NULL tree to %s\n",
+                                   file, line, function,
+                                   IDL_tree_type_names[type]);
+                }
+                else if (IDL_NODE_TYPE (tree) != type) {
+                        printf ("file %s: line %d: (%s) expected IDL tree type %s,"
+                                   " but got %s\n",
+                                   file, line, function,
+                                   IDL_tree_type_names[type], IDL_NODE_TYPE_NAME (tree));
 
-		}
-	}
-	return tree;
+                }
+        }
+        return tree;
 }
 
 IDL_tree IDL_gentree_chain_sibling (IDL_tree from, IDL_tree data)
 {
-	IDL_tree p;
+        IDL_tree p;
 
-	if (from == NULL)
-		return NULL;
+        if (from == NULL)
+                return NULL;
 
-	p = IDL_gentree_new_sibling (from, data);
-	IDL_NODE_UP (p) = IDL_NODE_UP (from);
+        p = IDL_gentree_new_sibling (from, data);
+        IDL_NODE_UP (p) = IDL_NODE_UP (from);
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_gentree_chain_child (IDL_tree from, IDL_tree data)
 {
-	IDL_tree p;
+        IDL_tree p;
 
-	if (from == NULL)
-		return NULL;
+        if (from == NULL)
+                return NULL;
 
-	p = IDL_gentree_new (IDL_GENTREE (from).hash_func,
-			     IDL_GENTREE (from).key_compare_func,
-			     data);
-	IDL_NODE_UP (p) = from;
+        p = IDL_gentree_new (IDL_GENTREE (from).hash_func,
+                             IDL_GENTREE (from).key_compare_func,
+                             data);
+        IDL_NODE_UP (p) = from;
 
-	g_hash_table_insert (IDL_GENTREE (from).children, data, p);
+        g_hash_table_insert (IDL_GENTREE (from).children, data, p);
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_get_parent_node (IDL_tree p, IDL_tree_type type, int *levels)
 {
-	int count = 0;
+        int count = 0;
 
-	if (p == NULL)
-		return NULL;
+        if (p == NULL)
+                return NULL;
 
-	if (type == IDLN_ANY)
-		return IDL_NODE_UP (p);
+        if (type == IDLN_ANY)
+                return IDL_NODE_UP (p);
 
-	while (p != NULL && IDL_NODE_TYPE (p) != type) {
+        while (p != NULL && IDL_NODE_TYPE (p) != type) {
 
-		if (IDL_NODE_IS_SCOPED (p))
-			++count;
+                if (IDL_NODE_IS_SCOPED (p))
+                        ++count;
 
-		p = IDL_NODE_UP (p);
-	}
+                p = IDL_NODE_UP (p);
+        }
 
-	if (p != NULL)
-		if (levels != NULL)
-			*levels = count;
+        if (p != NULL)
+                if (levels != NULL)
+                        *levels = count;
 
-	return p;
+        return p;
 }
 
 IDL_tree IDL_tree_get_scope (IDL_tree p)
 {
-	g_return_val_if_fail (p != NULL, NULL);
+//        g_return_val_if_fail (p != NULL, NULL);
 
-	if (IDL_NODE_TYPE (p) == IDLN_GENTREE)
-		return p;
+        if (IDL_NODE_TYPE (p) == IDLN_GENTREE)
+                return p;
 
-	if (!IDL_NODE_IS_SCOPED (p)) {
-		g_warning ("Node type %s isn't scoped", IDL_NODE_TYPE_NAME (p));
-		return NULL;
-	}
+        if (!IDL_NODE_IS_SCOPED (p)) {
+                printf ("Node type %s isn't scoped", IDL_NODE_TYPE_NAME (p));
+                return NULL;
+        }
 
-	switch (IDL_NODE_TYPE (p)) {
-	case IDLN_IDENT:
-		return IDL_IDENT_TO_NS (p);
+        switch (IDL_NODE_TYPE (p)) {
+        case IDLN_IDENT:
+                return IDL_IDENT_TO_NS (p);
 
-	case IDLN_INTERFACE:
-		return IDL_IDENT_TO_NS (IDL_INTERFACE (p).ident);
+        case IDLN_INTERFACE:
+                return IDL_IDENT_TO_NS (IDL_INTERFACE (p).ident);
 
-	case IDLN_MODULE:
-		return IDL_IDENT_TO_NS (IDL_MODULE (p).ident);
+        case IDLN_MODULE:
+                return IDL_IDENT_TO_NS (IDL_MODULE (p).ident);
 
-	case IDLN_EXCEPT_DCL:
-		return IDL_IDENT_TO_NS (IDL_EXCEPT_DCL (p).ident);
+        case IDLN_EXCEPT_DCL:
+                return IDL_IDENT_TO_NS (IDL_EXCEPT_DCL (p).ident);
 
-	case IDLN_OP_DCL:
-		return IDL_IDENT_TO_NS (IDL_OP_DCL (p).ident);
+        case IDLN_OP_DCL:
+                return IDL_IDENT_TO_NS (IDL_OP_DCL (p).ident);
 
-	case IDLN_TYPE_ENUM:
-		return IDL_IDENT_TO_NS (IDL_TYPE_ENUM (p).ident);
+        case IDLN_TYPE_ENUM:
+                return IDL_IDENT_TO_NS (IDL_TYPE_ENUM (p).ident);
 
-	case IDLN_TYPE_STRUCT:
-		return IDL_IDENT_TO_NS (IDL_TYPE_STRUCT (p).ident);
+        case IDLN_TYPE_STRUCT:
+                return IDL_IDENT_TO_NS (IDL_TYPE_STRUCT (p).ident);
 
-	case IDLN_TYPE_UNION:
-		return IDL_IDENT_TO_NS (IDL_TYPE_UNION (p).ident);
+        case IDLN_TYPE_UNION:
+                return IDL_IDENT_TO_NS (IDL_TYPE_UNION (p).ident);
 
-	default:
-		return NULL;
-	}
+        default:
+                return NULL;
+        }
 }
 
 typedef struct {
-	IDL_tree_func pre_tree_func;
-	IDL_tree_func post_tree_func;
-	gpointer user_data;
+        IDL_tree_func pre_tree_func;
+        IDL_tree_func post_tree_func;
+        void * user_data;
 } IDLTreeWalkRealData;
 
 static void IDL_tree_walk_real (IDL_tree_func_data *tfd, IDLTreeWalkRealData *data)
 {
-	IDL_tree_func_data down_tfd;
-	gboolean recurse = TRUE;
-	IDL_tree p, q;
+        IDL_tree_func_data down_tfd;
+        int recurse = TRUE;
+        IDL_tree p, q;
 
-	if (tfd->tree == NULL)
-		return;
+        if (tfd->tree == NULL)
+                return;
 
-	tfd->state->bottom = tfd;
-	tfd->step = 0;
-	tfd->data = NULL;
+        tfd->state->bottom = tfd;
+        tfd->step = 0;
+        tfd->data = NULL;
 
-	if (data->pre_tree_func)
-		recurse = (*data->pre_tree_func) (tfd, data->user_data);
-	++tfd->step;
+        if (data->pre_tree_func)
+                recurse = (*data->pre_tree_func) (tfd, data->user_data);
+        ++tfd->step;
 
-	down_tfd.state = tfd->state;
-	down_tfd.up = tfd;
-	down_tfd.level = tfd->level + 1;
+        down_tfd.state = tfd->state;
+        down_tfd.up = tfd;
+        down_tfd.level = tfd->level + 1;
 
-	p = tfd->tree;
+        p = tfd->tree;
 
-	if (recurse) switch (IDL_NODE_TYPE (p)) {
-	case IDLN_INTEGER:
-	case IDLN_STRING:
-	case IDLN_CHAR:
-	case IDLN_FIXED:
-	case IDLN_FLOAT:
-	case IDLN_BOOLEAN:
-	case IDLN_IDENT:
-	case IDLN_TYPE_WIDE_CHAR:
-	case IDLN_TYPE_BOOLEAN:
-	case IDLN_TYPE_OCTET:
-	case IDLN_TYPE_ANY:
-	case IDLN_TYPE_OBJECT:
-	case IDLN_TYPE_TYPECODE:
-	case IDLN_TYPE_FLOAT:
-	case IDLN_TYPE_INTEGER:
-	case IDLN_TYPE_CHAR:
-	case IDLN_CODEFRAG:
-	case IDLN_SRCFILE:
-		break;
+        if (recurse) switch (IDL_NODE_TYPE (p)) {
+        case IDLN_INTEGER:
+        case IDLN_STRING:
+        case IDLN_CHAR:
+        case IDLN_FIXED:
+        case IDLN_FLOAT:
+        case IDLN_BOOLEAN:
+        case IDLN_IDENT:
+        case IDLN_TYPE_WIDE_CHAR:
+        case IDLN_TYPE_BOOLEAN:
+        case IDLN_TYPE_OCTET:
+        case IDLN_TYPE_ANY:
+        case IDLN_TYPE_OBJECT:
+        case IDLN_TYPE_TYPECODE:
+        case IDLN_TYPE_FLOAT:
+        case IDLN_TYPE_INTEGER:
+        case IDLN_TYPE_CHAR:
+        case IDLN_CODEFRAG:
+        case IDLN_SRCFILE:
+                break;
 
-	case IDLN_LIST:
-		for (q = p; q; q = IDL_LIST (q).next) {
-			down_tfd.tree = IDL_LIST (q).data;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_LIST:
+                for (q = p; q; q = IDL_LIST (q).next) {
+                        down_tfd.tree = IDL_LIST (q).data;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_GENTREE:
-		g_error ("IDLN_GENTREE walk not implemented!");
-		break;
+        case IDLN_GENTREE:
+                printf ("IDLN_GENTREE walk not implemented!");
+                break;
 
-	case IDLN_MEMBER:
-		down_tfd.tree = IDL_MEMBER (p).type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_MEMBER (p).dcls;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_MEMBER:
+                down_tfd.tree = IDL_MEMBER (p).type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_MEMBER (p).dcls;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_NATIVE:
-		down_tfd.tree = IDL_NATIVE (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_NATIVE:
+                down_tfd.tree = IDL_NATIVE (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_TYPE_DCL:
-		down_tfd.tree = IDL_TYPE_DCL (p).type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_DCL (p).dcls;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_DCL:
+                down_tfd.tree = IDL_TYPE_DCL (p).type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_DCL (p).dcls;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_CONST_DCL:
-		down_tfd.tree = IDL_CONST_DCL (p).const_type;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_CONST_DCL (p).ident;
-			IDL_tree_walk_real (&down_tfd, data);
-			down_tfd.tree = IDL_CONST_DCL (p).const_exp;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_CONST_DCL:
+                down_tfd.tree = IDL_CONST_DCL (p).const_type;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_CONST_DCL (p).ident;
+                        IDL_tree_walk_real (&down_tfd, data);
+                        down_tfd.tree = IDL_CONST_DCL (p).const_exp;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_EXCEPT_DCL:
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_EXCEPT_DCL (p).ident;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		down_tfd.tree = IDL_EXCEPT_DCL (p).members;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_EXCEPT_DCL:
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_EXCEPT_DCL (p).ident;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                down_tfd.tree = IDL_EXCEPT_DCL (p).members;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_ATTR_DCL:
-		down_tfd.tree = IDL_ATTR_DCL (p).param_type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_ATTR_DCL (p).simple_declarations;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_ATTR_DCL:
+                down_tfd.tree = IDL_ATTR_DCL (p).param_type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_ATTR_DCL (p).simple_declarations;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_OP_DCL:
-		down_tfd.tree = IDL_OP_DCL (p).op_type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_OP_DCL (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_OP_DCL (p).parameter_dcls;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_OP_DCL (p).raises_expr;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_OP_DCL (p).context_expr;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_OP_DCL:
+                down_tfd.tree = IDL_OP_DCL (p).op_type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_OP_DCL (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_OP_DCL (p).parameter_dcls;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_OP_DCL (p).raises_expr;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_OP_DCL (p).context_expr;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_PARAM_DCL:
-		down_tfd.tree = IDL_PARAM_DCL (p).param_type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_PARAM_DCL (p).simple_declarator;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_PARAM_DCL:
+                down_tfd.tree = IDL_PARAM_DCL (p).param_type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_PARAM_DCL (p).simple_declarator;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_FORWARD_DCL:
-		down_tfd.tree = IDL_FORWARD_DCL (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_FORWARD_DCL:
+                down_tfd.tree = IDL_FORWARD_DCL (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_TYPE_FIXED:
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_FIXED (p).positive_int_const;
-			IDL_tree_walk_real (&down_tfd, data);
-			down_tfd.tree = IDL_TYPE_FIXED (p).integer_lit;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_FIXED:
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_FIXED (p).positive_int_const;
+                        IDL_tree_walk_real (&down_tfd, data);
+                        down_tfd.tree = IDL_TYPE_FIXED (p).integer_lit;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_TYPE_STRING:
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_STRING (p).positive_int_const;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_STRING:
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_STRING (p).positive_int_const;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_TYPE_WIDE_STRING:
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_WIDE_STRING (p).positive_int_const;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_WIDE_STRING:
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_WIDE_STRING (p).positive_int_const;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_TYPE_ENUM:
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_ENUM (p).ident;
-			IDL_tree_walk_real (&down_tfd, data);
-			down_tfd.tree = IDL_TYPE_ENUM (p).enumerator_list;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_ENUM:
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_ENUM (p).ident;
+                        IDL_tree_walk_real (&down_tfd, data);
+                        down_tfd.tree = IDL_TYPE_ENUM (p).enumerator_list;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_TYPE_SEQUENCE:
-		down_tfd.tree = IDL_TYPE_SEQUENCE (p).simple_type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_SEQUENCE (p).positive_int_const;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_SEQUENCE:
+                down_tfd.tree = IDL_TYPE_SEQUENCE (p).simple_type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_SEQUENCE (p).positive_int_const;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_TYPE_ARRAY:
-		down_tfd.tree = IDL_TYPE_ARRAY (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
-			down_tfd.tree = IDL_TYPE_ARRAY (p).size_list;
-			IDL_tree_walk_real (&down_tfd, data);
-		}
-		break;
+        case IDLN_TYPE_ARRAY:
+                down_tfd.tree = IDL_TYPE_ARRAY (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                if ( (tfd->state->flags & IDL_WalkF_TypespecOnly)==0 ) {
+                        down_tfd.tree = IDL_TYPE_ARRAY (p).size_list;
+                        IDL_tree_walk_real (&down_tfd, data);
+                }
+                break;
 
-	case IDLN_TYPE_STRUCT:
-		down_tfd.tree = IDL_TYPE_STRUCT (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_TYPE_STRUCT (p).member_list;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_TYPE_STRUCT:
+                down_tfd.tree = IDL_TYPE_STRUCT (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_TYPE_STRUCT (p).member_list;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_TYPE_UNION:
-		down_tfd.tree = IDL_TYPE_UNION (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_TYPE_UNION (p).switch_type_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_TYPE_UNION (p).switch_body;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_TYPE_UNION:
+                down_tfd.tree = IDL_TYPE_UNION (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_TYPE_UNION (p).switch_type_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_TYPE_UNION (p).switch_body;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_CASE_STMT:
-		down_tfd.tree = IDL_CASE_STMT (p).labels;
-		IDL_tree_walk_real (&down_tfd, data);
-		/* FIXME */
-		down_tfd.tree = IDL_CASE_STMT (p).element_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_CASE_STMT:
+                down_tfd.tree = IDL_CASE_STMT (p).labels;
+                IDL_tree_walk_real (&down_tfd, data);
+                /* FIXME */
+                down_tfd.tree = IDL_CASE_STMT (p).element_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_INTERFACE:
-		down_tfd.tree = IDL_INTERFACE (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_INTERFACE (p).inheritance_spec;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_INTERFACE (p).body;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_INTERFACE:
+                down_tfd.tree = IDL_INTERFACE (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_INTERFACE (p).inheritance_spec;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_INTERFACE (p).body;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_MODULE:
-		down_tfd.tree = IDL_MODULE (p).ident;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_MODULE (p).definition_list;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_MODULE:
+                down_tfd.tree = IDL_MODULE (p).ident;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_MODULE (p).definition_list;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_BINOP:
-		down_tfd.tree = IDL_BINOP (p).left;
-		IDL_tree_walk_real (&down_tfd, data);
-		down_tfd.tree = IDL_BINOP (p).right;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_BINOP:
+                down_tfd.tree = IDL_BINOP (p).left;
+                IDL_tree_walk_real (&down_tfd, data);
+                down_tfd.tree = IDL_BINOP (p).right;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	case IDLN_UNARYOP:
-		down_tfd.tree = IDL_UNARYOP (p).operand;
-		IDL_tree_walk_real (&down_tfd, data);
-		break;
+        case IDLN_UNARYOP:
+                down_tfd.tree = IDL_UNARYOP (p).operand;
+                IDL_tree_walk_real (&down_tfd, data);
+                break;
 
-	default:
-		g_warning ("IDL_tree_walk_real: unknown node type %s\n",
-			   IDL_NODE_TYPE_NAME (p));
-		break;
-	}
+        default:
+                printf ("IDL_tree_walk_real: unknown node type %s\n",
+                           IDL_NODE_TYPE_NAME (p));
+                break;
+        }
 
-	if (data->post_tree_func)
-			(void) (*data->post_tree_func) (tfd, data->user_data);
+        if (data->post_tree_func)
+                        (void) (*data->post_tree_func) (tfd, data->user_data);
 
-	tfd->state->bottom = tfd->up;
+        tfd->state->bottom = tfd->up;
 }
 
 void IDL_tree_walk2 (IDL_tree p, IDL_tree_func_data *current,
-		    glong flags, 
-		    IDL_tree_func pre_tree_func, IDL_tree_func post_tree_func,
-		    gpointer user_data)
+                    long flags,
+                    IDL_tree_func pre_tree_func, IDL_tree_func post_tree_func,
+                    void * user_data)
 {
-	IDLTreeWalkRealData data;
-	IDL_tree_func_state tfs;
-	IDL_tree_func_data tfd;
+        IDLTreeWalkRealData data;
+        IDL_tree_func_state tfs;
+        IDL_tree_func_data tfd;
 
-	g_return_if_fail (!(pre_tree_func == NULL && post_tree_func == NULL));
+//        g_return_if_fail (!(pre_tree_func == NULL && post_tree_func == NULL));
 
-	data.pre_tree_func = pre_tree_func;
-	data.post_tree_func = post_tree_func;
-	data.user_data = user_data;
+        data.pre_tree_func = pre_tree_func;
+        data.post_tree_func = post_tree_func;
+        data.user_data = user_data;
 
-	tfs.up = current ? current->state : NULL;
-	tfs.start = p;
-	tfs.flags = flags;
+        tfs.up = current ? current->state : NULL;
+        tfs.start = p;
+        tfs.flags = flags;
 
-	tfd.level = 0;
-	if (current) {
-	    tfd = *current;
-	    tfd.level = ((tfd.level / 1000)+1) * 1000;
-	}
-	tfd.state = &tfs;
-	tfd.up = current;
-	tfd.tree = p;
+        tfd.level = 0;
+        if (current) {
+            tfd = *current;
+            tfd.level = ((tfd.level / 1000)+1) * 1000;
+        }
+        tfd.state = &tfs;
+        tfd.up = current;
+        tfd.tree = p;
 
-	IDL_tree_walk_real (&tfd, &data);
+        IDL_tree_walk_real (&tfd, &data);
 }
 
 void IDL_tree_walk (IDL_tree p, IDL_tree_func_data *current,
-		    IDL_tree_func pre_tree_func, IDL_tree_func post_tree_func,
-		    gpointer user_data)
+                    IDL_tree_func pre_tree_func, IDL_tree_func post_tree_func,
+                    void * user_data)
 {
-    IDL_tree_walk2 (p, current, /*flags*/0, 
+    IDL_tree_walk2 (p, current, /*flags*/0,
       pre_tree_func, post_tree_func, user_data);
 }
 
-void IDL_tree_walk_in_order (IDL_tree p, IDL_tree_func tree_func, gpointer user_data)
+void IDL_tree_walk_in_order (IDL_tree p, IDL_tree_func tree_func, void * user_data)
 {
-	IDL_tree_walk2 (p, NULL, /*flags*/0, tree_func, NULL, user_data);
+        IDL_tree_walk2 (p, NULL, /*flags*/0, tree_func, NULL, user_data);
 }
 
 static void __IDL_tree_free (IDL_tree p);
 
 static int tree_free_but_this (IDL_tree data, IDL_tree p, IDL_tree this_one)
 {
-	if (p == this_one)
-		return TRUE;
+        if (p == this_one)
+                return TRUE;
 
-	__IDL_tree_free (p);
+        __IDL_tree_free (p);
 
-	return TRUE;
+        return TRUE;
 }
 
 static void property_free (char *key, char *value)
 {
-	g_free (key);
-	g_free (value);
+        free (key);
+        free (value);
 }
 
 void __IDL_free_properties (GHashTable *table)
 {
-	if (table) {
-		g_hash_table_foreach (table, (GHFunc) property_free, NULL);
-		g_hash_table_destroy (table);
-	}
+        if (table) {
+                g_hash_table_foreach (table, (GHFunc) property_free, NULL);
+                g_hash_table_destroy (table);
+        }
 }
 
 /* Free associated node data, regardless of refcounts */
 static void IDL_tree_free_real (IDL_tree p)
 {
-	GSList *slist;
+        GSList *slist;
 
-	assert (p != NULL);
+        assert (p != NULL);
 
-	switch (IDL_NODE_TYPE (p)) {
-	case IDLN_GENTREE:
-		g_hash_table_foreach (IDL_GENTREE (p).children,
-				      (GHFunc) tree_free_but_this, NULL);
-		g_hash_table_destroy (IDL_GENTREE (p).children);
-		break;
+        switch (IDL_NODE_TYPE (p)) {
+        case IDLN_GENTREE:
+                g_hash_table_foreach (IDL_GENTREE (p).children,
+                                      (GHFunc) tree_free_but_this, NULL);
+                g_hash_table_destroy (IDL_GENTREE (p).children);
+                break;
 
-	case IDLN_FIXED:
-		g_free (IDL_FIXED (p).value);
-		break;
+        case IDLN_FIXED:
+                free (IDL_FIXED (p).value);
+                break;
 
-	case IDLN_STRING:
-		g_free (IDL_STRING (p).value);
-		break;
+        case IDLN_STRING:
+                free (IDL_STRING (p).value);
+                break;
 
-	case IDLN_WIDE_STRING:
-		g_free (IDL_WIDE_STRING (p).value);
-		break;
+        case IDLN_WIDE_STRING:
+                free (IDL_WIDE_STRING (p).value);
+                break;
 
-	case IDLN_CHAR:
-		g_free (IDL_CHAR (p).value);
-		break;
+        case IDLN_CHAR:
+                free (IDL_CHAR (p).value);
+                break;
 
-	case IDLN_WIDE_CHAR:
-		g_free (IDL_WIDE_CHAR (p).value);
-		break;
+        case IDLN_WIDE_CHAR:
+                free (IDL_WIDE_CHAR (p).value);
+                break;
 
-	case IDLN_IDENT:
-		g_free (IDL_IDENT (p).str);
-		g_free (IDL_IDENT_REPO_ID (p));
-		for (slist = IDL_IDENT (p).comments; slist; slist = slist->next)
-			g_free (slist->data);
-		g_slist_free (IDL_IDENT (p).comments);
-		break;
+        case IDLN_IDENT:
+                free (IDL_IDENT (p).str);
+                free (IDL_IDENT_REPO_ID (p));
+                for (slist = IDL_IDENT (p).comments; slist; slist = slist->next)
+                        free (slist->data);
+                g_slist_free (IDL_IDENT (p).comments);
+                break;
 
-	case IDLN_NATIVE:
-		g_free (IDL_NATIVE (p).user_type);
-		break;
+        case IDLN_NATIVE:
+                free (IDL_NATIVE (p).user_type);
+                break;
 
-	case IDLN_INTERFACE:
-		break;
+        case IDLN_INTERFACE:
+                break;
 
-	case IDLN_CODEFRAG:
-		g_free (IDL_CODEFRAG (p).desc);
-		for (slist = IDL_CODEFRAG (p).lines; slist; slist = slist->next)
-			g_free (slist->data);
-		g_slist_free (IDL_CODEFRAG (p).lines);
-		break;
+        case IDLN_CODEFRAG:
+                free (IDL_CODEFRAG (p).desc);
+                for (slist = IDL_CODEFRAG (p).lines; slist; slist = slist->next)
+                        free (slist->data);
+                g_slist_free (IDL_CODEFRAG (p).lines);
+                break;
 
-	default:
-		break;
-	}
+        default:
+                break;
+        }
 
-	__IDL_free_properties (IDL_NODE_PROPERTIES (p));
+        __IDL_free_properties (IDL_NODE_PROPERTIES (p));
 
-	g_free (p);
+        free (p);
 }
 
 /* Free node taking into account refcounts */
 static void __IDL_tree_free (IDL_tree p)
 {
-	if (p == NULL)
-		return;
+        if (p == NULL)
+                return;
 
-	if (--IDL_NODE_REFS (p) <= 0)
-		IDL_tree_free_real (p);
+        if (--IDL_NODE_REFS (p) <= 0)
+                IDL_tree_free_real (p);
 }
 
 /* Free a set of references of an entire tree */
 void IDL_tree_free (IDL_tree p)
 {
-	IDL_tree q;
+        IDL_tree q;
 
-	if (p == NULL)
-		return;
+        if (p == NULL)
+                return;
 
-	switch (IDL_NODE_TYPE (p)) {
-	case IDLN_INTEGER:
-	case IDLN_FLOAT:
-	case IDLN_BOOLEAN:
-	case IDLN_TYPE_FLOAT:
-	case IDLN_TYPE_INTEGER:
-	case IDLN_TYPE_CHAR:
-	case IDLN_TYPE_WIDE_CHAR:
-	case IDLN_TYPE_BOOLEAN:
-	case IDLN_TYPE_OCTET:
-	case IDLN_TYPE_ANY:
-	case IDLN_TYPE_OBJECT:
-	case IDLN_TYPE_TYPECODE:
-	case IDLN_FIXED:
-	case IDLN_STRING:
-	case IDLN_WIDE_STRING:
-	case IDLN_CHAR:
-	case IDLN_WIDE_CHAR:
-	case IDLN_IDENT:
-	case IDLN_CODEFRAG:
-	case IDLN_SRCFILE:
-		__IDL_tree_free (p);
-		break;
+        switch (IDL_NODE_TYPE (p)) {
+        case IDLN_INTEGER:
+        case IDLN_FLOAT:
+        case IDLN_BOOLEAN:
+        case IDLN_TYPE_FLOAT:
+        case IDLN_TYPE_INTEGER:
+        case IDLN_TYPE_CHAR:
+        case IDLN_TYPE_WIDE_CHAR:
+        case IDLN_TYPE_BOOLEAN:
+        case IDLN_TYPE_OCTET:
+        case IDLN_TYPE_ANY:
+        case IDLN_TYPE_OBJECT:
+        case IDLN_TYPE_TYPECODE:
+        case IDLN_FIXED:
+        case IDLN_STRING:
+        case IDLN_WIDE_STRING:
+        case IDLN_CHAR:
+        case IDLN_WIDE_CHAR:
+        case IDLN_IDENT:
+        case IDLN_CODEFRAG:
+        case IDLN_SRCFILE:
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_LIST:
-		while (p) {
-			IDL_tree_free (IDL_LIST (p).data);
-			q = IDL_LIST (p).next;
-			__IDL_tree_free (p);
-			p = q;
-		}
-		break;
+        case IDLN_LIST:
+                while (p) {
+                        IDL_tree_free (IDL_LIST (p).data);
+                        q = IDL_LIST (p).next;
+                        __IDL_tree_free (p);
+                        p = q;
+                }
+                break;
 
-	case IDLN_GENTREE:
-		g_hash_table_foreach (IDL_GENTREE (p).siblings,
-				      (GHFunc) tree_free_but_this, p);
-		g_hash_table_destroy (IDL_GENTREE (p).siblings);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_GENTREE:
+                g_hash_table_foreach (IDL_GENTREE (p).siblings,
+                                      (GHFunc) tree_free_but_this, p);
+                g_hash_table_destroy (IDL_GENTREE (p).siblings);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_MEMBER:
-		IDL_tree_free (IDL_MEMBER (p).type_spec);
-		IDL_tree_free (IDL_MEMBER (p).dcls);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_MEMBER:
+                IDL_tree_free (IDL_MEMBER (p).type_spec);
+                IDL_tree_free (IDL_MEMBER (p).dcls);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_NATIVE:
-		IDL_tree_free (IDL_NATIVE (p).ident);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_NATIVE:
+                IDL_tree_free (IDL_NATIVE (p).ident);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_ENUM:
-		IDL_tree_free (IDL_TYPE_ENUM (p).ident);
-		IDL_tree_free (IDL_TYPE_ENUM (p).enumerator_list);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_ENUM:
+                IDL_tree_free (IDL_TYPE_ENUM (p).ident);
+                IDL_tree_free (IDL_TYPE_ENUM (p).enumerator_list);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_SEQUENCE:
-		IDL_tree_free (IDL_TYPE_SEQUENCE (p).simple_type_spec);
-		IDL_tree_free (IDL_TYPE_SEQUENCE (p).positive_int_const);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_SEQUENCE:
+                IDL_tree_free (IDL_TYPE_SEQUENCE (p).simple_type_spec);
+                IDL_tree_free (IDL_TYPE_SEQUENCE (p).positive_int_const);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_ARRAY:
-		IDL_tree_free (IDL_TYPE_ARRAY (p).ident);
-		IDL_tree_free (IDL_TYPE_ARRAY (p).size_list);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_ARRAY:
+                IDL_tree_free (IDL_TYPE_ARRAY (p).ident);
+                IDL_tree_free (IDL_TYPE_ARRAY (p).size_list);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_STRUCT:
-		IDL_tree_free (IDL_TYPE_STRUCT (p).ident);
-		IDL_tree_free (IDL_TYPE_STRUCT (p).member_list);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_STRUCT:
+                IDL_tree_free (IDL_TYPE_STRUCT (p).ident);
+                IDL_tree_free (IDL_TYPE_STRUCT (p).member_list);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_UNION:
-		IDL_tree_free (IDL_TYPE_UNION (p).ident);
-		IDL_tree_free (IDL_TYPE_UNION (p).switch_type_spec);
-		IDL_tree_free (IDL_TYPE_UNION (p).switch_body);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_UNION:
+                IDL_tree_free (IDL_TYPE_UNION (p).ident);
+                IDL_tree_free (IDL_TYPE_UNION (p).switch_type_spec);
+                IDL_tree_free (IDL_TYPE_UNION (p).switch_body);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_DCL:
-		IDL_tree_free (IDL_TYPE_DCL (p).type_spec);
-		IDL_tree_free (IDL_TYPE_DCL (p).dcls);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_DCL:
+                IDL_tree_free (IDL_TYPE_DCL (p).type_spec);
+                IDL_tree_free (IDL_TYPE_DCL (p).dcls);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_CONST_DCL:
-		IDL_tree_free (IDL_CONST_DCL (p).const_type);
-		IDL_tree_free (IDL_CONST_DCL (p).ident);
-		IDL_tree_free (IDL_CONST_DCL (p).const_exp);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_CONST_DCL:
+                IDL_tree_free (IDL_CONST_DCL (p).const_type);
+                IDL_tree_free (IDL_CONST_DCL (p).ident);
+                IDL_tree_free (IDL_CONST_DCL (p).const_exp);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_EXCEPT_DCL:
-		IDL_tree_free (IDL_EXCEPT_DCL (p).ident);
-		IDL_tree_free (IDL_EXCEPT_DCL (p).members);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_EXCEPT_DCL:
+                IDL_tree_free (IDL_EXCEPT_DCL (p).ident);
+                IDL_tree_free (IDL_EXCEPT_DCL (p).members);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_ATTR_DCL:
-		IDL_tree_free (IDL_ATTR_DCL (p).param_type_spec);
-		IDL_tree_free (IDL_ATTR_DCL (p).simple_declarations);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_ATTR_DCL:
+                IDL_tree_free (IDL_ATTR_DCL (p).param_type_spec);
+                IDL_tree_free (IDL_ATTR_DCL (p).simple_declarations);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_OP_DCL:
-		IDL_tree_free (IDL_OP_DCL (p).op_type_spec);
-		IDL_tree_free (IDL_OP_DCL (p).ident);
-		IDL_tree_free (IDL_OP_DCL (p).parameter_dcls);
-		IDL_tree_free (IDL_OP_DCL (p).raises_expr);
-		IDL_tree_free (IDL_OP_DCL (p).context_expr);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_OP_DCL:
+                IDL_tree_free (IDL_OP_DCL (p).op_type_spec);
+                IDL_tree_free (IDL_OP_DCL (p).ident);
+                IDL_tree_free (IDL_OP_DCL (p).parameter_dcls);
+                IDL_tree_free (IDL_OP_DCL (p).raises_expr);
+                IDL_tree_free (IDL_OP_DCL (p).context_expr);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_PARAM_DCL:
-		IDL_tree_free (IDL_PARAM_DCL (p).param_type_spec);
-		IDL_tree_free (IDL_PARAM_DCL (p).simple_declarator);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_PARAM_DCL:
+                IDL_tree_free (IDL_PARAM_DCL (p).param_type_spec);
+                IDL_tree_free (IDL_PARAM_DCL (p).simple_declarator);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_FORWARD_DCL:
-		IDL_tree_free (IDL_FORWARD_DCL (p).ident);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_FORWARD_DCL:
+                IDL_tree_free (IDL_FORWARD_DCL (p).ident);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_STRING:
-		IDL_tree_free (IDL_TYPE_STRING (p).positive_int_const);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_STRING:
+                IDL_tree_free (IDL_TYPE_STRING (p).positive_int_const);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_WIDE_STRING:
-		IDL_tree_free (IDL_TYPE_WIDE_STRING (p).positive_int_const);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_WIDE_STRING:
+                IDL_tree_free (IDL_TYPE_WIDE_STRING (p).positive_int_const);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_TYPE_FIXED:
-		IDL_tree_free (IDL_TYPE_FIXED (p).positive_int_const);
-		IDL_tree_free (IDL_TYPE_FIXED (p).integer_lit);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_TYPE_FIXED:
+                IDL_tree_free (IDL_TYPE_FIXED (p).positive_int_const);
+                IDL_tree_free (IDL_TYPE_FIXED (p).integer_lit);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_CASE_STMT:
-		IDL_tree_free (IDL_CASE_STMT (p).labels);
-		IDL_tree_free (IDL_CASE_STMT (p).element_spec);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_CASE_STMT:
+                IDL_tree_free (IDL_CASE_STMT (p).labels);
+                IDL_tree_free (IDL_CASE_STMT (p).element_spec);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_INTERFACE:
-		IDL_tree_free (IDL_INTERFACE (p).ident);
-		IDL_tree_free (IDL_INTERFACE (p).inheritance_spec);
-		IDL_tree_free (IDL_INTERFACE (p).body);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_INTERFACE:
+                IDL_tree_free (IDL_INTERFACE (p).ident);
+                IDL_tree_free (IDL_INTERFACE (p).inheritance_spec);
+                IDL_tree_free (IDL_INTERFACE (p).body);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_MODULE:
-		IDL_tree_free (IDL_MODULE (p).ident);
-		IDL_tree_free (IDL_MODULE (p).definition_list);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_MODULE:
+                IDL_tree_free (IDL_MODULE (p).ident);
+                IDL_tree_free (IDL_MODULE (p).definition_list);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_BINOP:
-		IDL_tree_free (IDL_BINOP (p).left);
-		IDL_tree_free (IDL_BINOP (p).right);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_BINOP:
+                IDL_tree_free (IDL_BINOP (p).left);
+                IDL_tree_free (IDL_BINOP (p).right);
+                __IDL_tree_free (p);
+                break;
 
-	case IDLN_UNARYOP:
-		IDL_tree_free (IDL_UNARYOP (p).operand);
-		__IDL_tree_free (p);
-		break;
+        case IDLN_UNARYOP:
+                IDL_tree_free (IDL_UNARYOP (p).operand);
+                __IDL_tree_free (p);
+                break;
 
-	default:
-		g_warning ("Free unknown node: %d\n", IDL_NODE_TYPE (p));
-		break;
-	}
+        default:
+                printf ("Free unknown node: %d\n", IDL_NODE_TYPE (p));
+                break;
+        }
 }
 
-#define C_ESC(a,b)				case a: *p++ = b; ++s; break
-gchar *IDL_do_escapes (const char *s)
+#define C_ESC(a,b)                              case a: *p++ = b; ++s; break
+char *IDL_do_escapes (const char *s)
 {
-	char *p, *q;
+        char *p, *q;
 
-	if (!s)
-		return NULL;
+        if (!s)
+                return NULL;
 
-	p = q = g_malloc (strlen (s) + 1);
+        p = q = malloc (strlen (s) + 1);
 
-	while (*s) {
-		if (*s != '\\') {
-			*p++ = *s++;
-			continue;
-		}
-		++s;
-		if (*s == 'x') {
-			char hex[3];
-			int n;
-			hex[0] = 0;
-			++s;
-			sscanf (s, "%2[0-9a-fA-F]", hex);
- 			s += strlen (hex);
-			sscanf (hex, "%x", &n);
-			*p++ = n;
-			continue;
-		}
-		if (*s >= '0' && *s <= '7') {
-			char oct[4];
-			int n;
-			oct[0] = 0;
-			sscanf (s, "%3[0-7]", oct);
- 			s += strlen (oct);
-			sscanf (oct, "%o", &n);
-			*p++ = n;
-			continue;
-		}
-		switch (*s) {
-			C_ESC ('n','\n');
-			C_ESC ('t','\t');
-			C_ESC ('v','\v');
-			C_ESC ('b','\b');
-			C_ESC ('r','\r');
-			C_ESC ('f','\f');
-			C_ESC ('a','\a');
-			C_ESC ('\\','\\');
-			C_ESC ('?','?');
-			C_ESC ('\'','\'');
-			C_ESC ('"','"');
-		}
-	}
-	*p = 0;
+        while (*s) {
+                if (*s != '\\') {
+                        *p++ = *s++;
+                        continue;
+                }
+                ++s;
+                if (*s == 'x') {
+                        char hex[3];
+                        int n;
+                        hex[0] = 0;
+                        ++s;
+                        sscanf (s, "%2[0-9a-fA-F]", hex);
+                        s += strlen (hex);
+                        sscanf (hex, "%x", &n);
+                        *p++ = n;
+                        continue;
+                }
+                if (*s >= '0' && *s <= '7') {
+                        char oct[4];
+                        int n;
+                        oct[0] = 0;
+                        sscanf (s, "%3[0-7]", oct);
+                        s += strlen (oct);
+                        sscanf (oct, "%o", &n);
+                        *p++ = n;
+                        continue;
+                }
+                switch (*s) {
+                        C_ESC ('n','\n');
+                        C_ESC ('t','\t');
+                        C_ESC ('v','\v');
+                        C_ESC ('b','\b');
+                        C_ESC ('r','\r');
+                        C_ESC ('f','\f');
+                        C_ESC ('a','\a');
+                        C_ESC ('\\','\\');
+                        C_ESC ('?','?');
+                        C_ESC ('\'','\'');
+                        C_ESC ('"','"');
+                }
+        }
+        *p = 0;
 
-	return q;
+        return q;
 }
 
 int IDL_list_length (IDL_tree list)
 {
-	IDL_tree curitem;
-	int length;
+        IDL_tree curitem;
+        int length;
 
-	for (curitem = list, length = 0; curitem;
-	     curitem = IDL_LIST (curitem).next)
-		length++;
+        for (curitem = list, length = 0; curitem;
+             curitem = IDL_LIST (curitem).next)
+                length++;
 
-	return length;
+        return length;
 }
 
 IDL_tree IDL_list_nth (IDL_tree list, int n)
 {
-	IDL_tree curitem;
-	int i;
+        IDL_tree curitem;
+        int i;
 
-	for (curitem = list, i = 0; i < n && curitem;
-	     curitem = IDL_LIST (curitem).next, i++) ;
+        for (curitem = list, i = 0; i < n && curitem;
+             curitem = IDL_LIST (curitem).next, i++) ;
 
-	return curitem;
+        return curitem;
 }
 
 const char *IDL_tree_property_get (IDL_tree tree, const char *key)
 {
-	g_return_val_if_fail (tree != NULL, NULL);
-	g_return_val_if_fail (key != NULL, NULL);
+//        g_return_val_if_fail (tree != NULL, NULL);
+//        g_return_val_if_fail (key != NULL, NULL);
 
-	if (!IDL_NODE_PROPERTIES (tree))
-		return NULL;
+        if (!IDL_NODE_PROPERTIES (tree))
+                return NULL;
 
-	return g_hash_table_lookup (IDL_NODE_PROPERTIES (tree), key);
+        return g_hash_table_lookup (IDL_NODE_PROPERTIES (tree), key);
 }
 
 void IDL_tree_property_set (IDL_tree tree, const char *key, const char *value)
 {
-	g_return_if_fail (tree != NULL);
-	g_return_if_fail (key != NULL);
+//        g_return_if_fail (tree != NULL);
+//        g_return_if_fail (key != NULL);
 
-	if (!IDL_NODE_PROPERTIES (tree))
-		IDL_NODE_PROPERTIES (tree) = g_hash_table_new (
-			IDL_strcase_hash, IDL_strcase_equal);
-	else if (IDL_tree_property_get (tree, key))
-		IDL_tree_property_remove (tree, key);
+        if (!IDL_NODE_PROPERTIES (tree))
+                IDL_NODE_PROPERTIES (tree) = g_hash_table_new (
+                        IDL_strcase_hash, IDL_strcase_equal);
+        else if (IDL_tree_property_get (tree, key))
+                IDL_tree_property_remove (tree, key);
 
-	g_hash_table_insert (IDL_NODE_PROPERTIES (tree), g_strdup (key), g_strdup (value));
+        g_hash_table_insert (IDL_NODE_PROPERTIES (tree), strdup (key), strdup (value));
 }
 
-gboolean IDL_tree_property_remove (IDL_tree tree, const char *key)
+int IDL_tree_property_remove (IDL_tree tree, const char *key)
 {
-	gboolean removed = FALSE;
-	char *val;
+        int removed = FALSE;
+        char *val;
 
-	g_return_val_if_fail (tree != NULL, FALSE);
-	g_return_val_if_fail (key != NULL, FALSE);
+//        g_return_val_if_fail (tree != NULL, FALSE);
+//        g_return_val_if_fail (key != NULL, FALSE);
 
-	if (!IDL_NODE_PROPERTIES (tree))
-		return FALSE;
+        if (!IDL_NODE_PROPERTIES (tree))
+                return FALSE;
 
-	if ((val = g_hash_table_lookup (IDL_NODE_PROPERTIES (tree), key))) {
-		g_hash_table_remove (IDL_NODE_PROPERTIES (tree), key);
-		g_free (val);
-		removed = TRUE;
-	}
+        if ((val = g_hash_table_lookup (IDL_NODE_PROPERTIES (tree), key))) {
+                g_hash_table_remove (IDL_NODE_PROPERTIES (tree), key);
+                free (val);
+                removed = TRUE;
+        }
 
-	return removed;
+        return removed;
 }
 
 static void property_set (char *key, char *value, IDL_tree tree)
 {
-	IDL_tree_property_set (tree, key, value);
+        IDL_tree_property_set (tree, key, value);
 }
 
 void IDL_tree_properties_copy (IDL_tree from_tree, IDL_tree to_tree)
 {
-	g_return_if_fail (from_tree != NULL);
-	g_return_if_fail (to_tree != NULL);
+//        g_return_if_fail (from_tree != NULL);
+//        g_return_if_fail (to_tree != NULL);
 
-	if (IDL_NODE_PROPERTIES (from_tree))
-		g_hash_table_foreach (IDL_NODE_PROPERTIES (from_tree),
-				      (GHFunc) property_set, to_tree);
+        if (IDL_NODE_PROPERTIES (from_tree))
+                g_hash_table_foreach (IDL_NODE_PROPERTIES (from_tree),
+                                      (GHFunc) property_set, to_tree);
 }
 
 typedef struct {
-	IDL_tree *root;
-	GHashTable *removed_nodes;
+        IDL_tree *root;
+        GHashTable *removed_nodes;
 } RemoveListNodeData;
 
 static int remove_list_node (IDL_tree p, IDL_tree *list_head, RemoveListNodeData *data)
 {
-	assert (p != NULL);
-	assert (IDL_NODE_TYPE (p) == IDLN_LIST);
+        assert (p != NULL);
+        assert (IDL_NODE_TYPE (p) == IDLN_LIST);
 
-	if (list_head)
-		*list_head = IDL_list_remove (*list_head, p);
-	else
-		*data->root = IDL_list_remove (*data->root, p);
+        if (list_head)
+                *list_head = IDL_list_remove (*list_head, p);
+        else
+                *data->root = IDL_list_remove (*data->root, p);
 
-	if (data->removed_nodes) {
-		if (!g_hash_table_lookup_extended (data->removed_nodes, p, NULL, NULL))
-			g_hash_table_insert (data->removed_nodes, p, p);
-		/*
-		  We shouldn't need this since we have removed it from the tree,
-		  but we might need it for multiple declspec (inhibits) in the same
-		  subtree.
-		  IDL_tree_walk_in_order (p, (IDL_tree_func) inc_node_ref, NULL);
-		*/
-	} else
-		IDL_tree_free (p);
+        if (data->removed_nodes) {
+                if (!g_hash_table_lookup_extended (data->removed_nodes, p, NULL, NULL))
+                        g_hash_table_insert (data->removed_nodes, p, p);
+                /*
+                  We shouldn't need this since we have removed it from the tree,
+                  but we might need it for multiple declspec (inhibits) in the same
+                  subtree.
+                  IDL_tree_walk_in_order (p, (IDL_tree_func) inc_node_ref, NULL);
+                */
+        } else
+                IDL_tree_free (p);
 
-	return TRUE;
+        return TRUE;
 }
 
 /* Forward Declaration Resolution */
 static int load_forward_dcls (IDL_tree_func_data *tfd, GHashTable *table)
 {
-	if (IDL_NODE_TYPE (tfd->tree) == IDLN_FORWARD_DCL) {
-		char *s = IDL_ns_ident_to_qstring (IDL_FORWARD_DCL (tfd->tree).ident, "::", 0);
+        if (IDL_NODE_TYPE (tfd->tree) == IDLN_FORWARD_DCL) {
+                char *s = IDL_ns_ident_to_qstring (IDL_FORWARD_DCL (tfd->tree).ident, "::", 0);
 
-		if (!g_hash_table_lookup_extended (table, s, NULL, NULL))
-			g_hash_table_insert (table, s, tfd->tree);
-		else
-			g_free (s);
-	}
+                if (!g_hash_table_lookup_extended (table, s, NULL, NULL))
+                        g_hash_table_insert (table, s, tfd->tree);
+                else
+                        free (s);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 static int resolve_forward_dcls (IDL_tree_func_data *tfd, GHashTable *table)
 {
-	if (IDL_NODE_TYPE (tfd->tree) == IDLN_INTERFACE) {
-		char *orig, *s = IDL_ns_ident_to_qstring (IDL_INTERFACE (tfd->tree).ident, "::", 0);
+        if (IDL_NODE_TYPE (tfd->tree) == IDLN_INTERFACE) {
+                char *orig, *s = IDL_ns_ident_to_qstring (IDL_INTERFACE (tfd->tree).ident, "::", 0);
 
-		if (g_hash_table_lookup_extended (table, s, (gpointer)&orig, NULL)) {
-			g_hash_table_remove (table, orig);
-			g_free (orig);
-		}
-		g_free (s);
-	}
+                if (g_hash_table_lookup_extended (table, s, (void *)&orig, NULL)) {
+                        g_hash_table_remove (table, orig);
+                        free (orig);
+                }
+                free (s);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 static int print_unresolved_forward_dcls (char *s, IDL_tree p)
 {
-	if (__IDL_flags & IDLF_PEDANTIC)
-		IDL_tree_error (p, "Unresolved forward declaration `%s'", s);
-	else
-		IDL_tree_warning (p,
-			IDL_WARNING1, "Unresolved forward declaration `%s'", s);
-	g_free (s);
+        if (__IDL_flags & IDLF_PEDANTIC)
+                IDL_tree_error (p, "Unresolved forward declaration `%s'", s);
+        else
+                IDL_tree_warning (p,
+                        IDL_WARNING1, "Unresolved forward declaration `%s'", s);
+        free (s);
 
-	return TRUE;
+        return TRUE;
 }
 
 void IDL_tree_process_forward_dcls (IDL_tree *p, IDL_ns ns)
 {
-	GHashTable *table = g_hash_table_new (IDL_strcase_hash, IDL_strcase_equal);
-	gint total, resolved;
+        GHashTable *table = g_hash_table_new (IDL_strcase_hash, IDL_strcase_equal);
+        int total, resolved;
 
-	IDL_tree_walk_in_order (*p, (IDL_tree_func) load_forward_dcls, table);
-	total = g_hash_table_size (table);
-	IDL_tree_walk_in_order (*p, (IDL_tree_func) resolve_forward_dcls, table);
-	resolved = total - g_hash_table_size (table);
-	g_hash_table_foreach (table, (GHFunc) print_unresolved_forward_dcls, NULL);
-	g_hash_table_destroy (table);
-	if (__IDL_flags & IDLF_VERBOSE)
-		g_message ("Forward declarations resolved: %d of %d", resolved, total);
+        IDL_tree_walk_in_order (*p, (IDL_tree_func) load_forward_dcls, table);
+        total = g_hash_table_size (table);
+        IDL_tree_walk_in_order (*p, (IDL_tree_func) resolve_forward_dcls, table);
+        resolved = total - g_hash_table_size (table);
+        g_hash_table_foreach (table, (GHFunc) print_unresolved_forward_dcls, NULL);
+        g_hash_table_destroy (table);
+        if (__IDL_flags & IDLF_VERBOSE)
+                printf ("Forward declarations resolved: %d of %d", resolved, total);
 }
 
 /* Inhibit Creation Removal */
 static int load_inhibits (IDL_tree_func_data *tfd, GHashTable *table)
 {
-	IDL_tree p, q, *list_head;
+        IDL_tree p, q, *list_head;
 
-	p = tfd->tree;
+        p = tfd->tree;
 
-	if (p != NULL &&
-	    IDL_NODE_UP (p) &&
-	    IDL_NODE_TYPE (IDL_NODE_UP (p)) == IDLN_LIST &&
-	    IDL_NODE_DECLSPEC (p) & IDLF_DECLSPEC_INHIBIT &&
-	    !g_hash_table_lookup_extended (table, IDL_NODE_UP (p), NULL, NULL)) {
-		list_head = NULL;
-		q = IDL_NODE_UP (IDL_NODE_UP (p));
-		if (q) {
-			switch (IDL_NODE_TYPE (q)) {
-			case IDLN_MODULE:
-				list_head = &IDL_MODULE (q).definition_list;
-				break;
+        if (p != NULL &&
+            IDL_NODE_UP (p) &&
+            IDL_NODE_TYPE (IDL_NODE_UP (p)) == IDLN_LIST &&
+            IDL_NODE_DECLSPEC (p) & IDLF_DECLSPEC_INHIBIT &&
+            !g_hash_table_lookup_extended (table, IDL_NODE_UP (p), NULL, NULL)) {
+                list_head = NULL;
+                q = IDL_NODE_UP (IDL_NODE_UP (p));
+                if (q) {
+                        switch (IDL_NODE_TYPE (q)) {
+                        case IDLN_MODULE:
+                                list_head = &IDL_MODULE (q).definition_list;
+                                break;
 
-			case IDLN_INTERFACE:
-				list_head = &IDL_INTERFACE (q).body;
-				break;
+                        case IDLN_INTERFACE:
+                                list_head = &IDL_INTERFACE (q).body;
+                                break;
 
-			default:
-				g_warning ("Unhandled node %s in load_inhibits",
-					   IDL_NODE_TYPE_NAME (q));
-				break;
-			}
-		}
-		g_hash_table_insert (table, IDL_NODE_UP (p), list_head);
+                        default:
+                                printf ("Unhandled node %s in load_inhibits",
+                                           IDL_NODE_TYPE_NAME (q));
+                                break;
+                        }
+                }
+                g_hash_table_insert (table, IDL_NODE_UP (p), list_head);
 
-		return FALSE;
-	}
+                return FALSE;
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 void IDL_tree_remove_inhibits (IDL_tree *tree, IDL_ns ns)
 {
-	RemoveListNodeData data;
-	GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-	gint removed;
+        RemoveListNodeData data;
+        GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
+        int removed;
 
-	g_return_if_fail (tree != NULL);
-	g_return_if_fail (ns != NULL);
+//        g_return_if_fail (tree != NULL);
+//        g_return_if_fail (ns != NULL);
 
-	IDL_tree_walk_in_order (*tree, (IDL_tree_func) load_inhibits, table);
-	removed = g_hash_table_size (table);
-	data.root = tree;
-	data.removed_nodes = IDL_NS (ns).inhibits;
-	g_hash_table_foreach (table, (GHFunc) remove_list_node, &data);
-	g_hash_table_destroy (table);
-	if (__IDL_flags & IDLF_VERBOSE)
-		g_message ("Inhibited nodes removed: %d", removed);
+        IDL_tree_walk_in_order (*tree, (IDL_tree_func) load_inhibits, table);
+        removed = g_hash_table_size (table);
+        data.root = tree;
+        data.removed_nodes = IDL_NS (ns).inhibits;
+        g_hash_table_foreach (table, (GHFunc) remove_list_node, &data);
+        g_hash_table_destroy (table);
+        if (__IDL_flags & IDLF_VERBOSE)
+                printf ("Inhibited nodes removed: %d", removed);
 }
 
 /* Multi-Pass Empty Module Removal */
 static int load_empty_modules (IDL_tree_func_data *tfd, GHashTable *table)
 {
-	IDL_tree p, q, *list_head;
+        IDL_tree p, q, *list_head;
 
-	p = tfd->tree;
+        p = tfd->tree;
 
-	if (IDL_NODE_TYPE (p) == IDLN_MODULE &&
-	    IDL_MODULE (p).definition_list == NULL &&
-	    IDL_NODE_UP (p) &&
-	    IDL_NODE_TYPE (IDL_NODE_UP (p)) == IDLN_LIST &&
-	    !g_hash_table_lookup_extended (table, IDL_NODE_UP (p), NULL, NULL)) {
+        if (IDL_NODE_TYPE (p) == IDLN_MODULE &&
+            IDL_MODULE (p).definition_list == NULL &&
+            IDL_NODE_UP (p) &&
+            IDL_NODE_TYPE (IDL_NODE_UP (p)) == IDLN_LIST &&
+            !g_hash_table_lookup_extended (table, IDL_NODE_UP (p), NULL, NULL)) {
 
-		list_head = NULL;
-		q = IDL_NODE_UP (IDL_NODE_UP (p));
-		if (q) {
-			assert (IDL_NODE_TYPE (q) == IDLN_MODULE);
-			list_head = &IDL_MODULE (q).definition_list;
-		}
-		g_hash_table_insert (table, IDL_NODE_UP (p), list_head);
-	}
+                list_head = NULL;
+                q = IDL_NODE_UP (IDL_NODE_UP (p));
+                if (q) {
+                        assert (IDL_NODE_TYPE (q) == IDLN_MODULE);
+                        list_head = &IDL_MODULE (q).definition_list;
+                }
+                g_hash_table_insert (table, IDL_NODE_UP (p), list_head);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 void IDL_tree_remove_empty_modules (IDL_tree *p, IDL_ns ns)
 {
-	RemoveListNodeData data;
-	gboolean done = FALSE;
-	gint removed = 0;
+        RemoveListNodeData data;
+        int done = FALSE;
+        int removed = 0;
 
-	data.root = p;
-	data.removed_nodes = NULL;
+        data.root = p;
+        data.removed_nodes = NULL;
 
-	while (!done) {
-		GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-		IDL_tree_walk_in_order (*p, (IDL_tree_func) load_empty_modules, table);
-		removed += g_hash_table_size (table);
-		done = g_hash_table_size (table) == 0;
-		g_hash_table_foreach (table, (GHFunc) remove_list_node, &data);
-		g_hash_table_destroy (table);
-	}
-	if (__IDL_flags & IDLF_VERBOSE)
-		g_message ("Empty modules removed: %d", removed);
+        while (!done) {
+                GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
+                IDL_tree_walk_in_order (*p, (IDL_tree_func) load_empty_modules, table);
+                removed += g_hash_table_size (table);
+                done = g_hash_table_size (table) == 0;
+                g_hash_table_foreach (table, (GHFunc) remove_list_node, &data);
+                g_hash_table_destroy (table);
+        }
+        if (__IDL_flags & IDLF_VERBOSE)
+                printf ("Empty modules removed: %d", removed);
 }
 
 /*
  * IDL_tree to IDL backend
  */
 
-#define DELIM_COMMA		", "
-#define DELIM_ARRAY		"]["
-#define DELIM_SPACE		" "
+#define DELIM_COMMA             ", "
+#define DELIM_ARRAY             "]["
+#define DELIM_SPACE             " "
 
-#define indent()		++data->ilev
-#define unindent()		--data->ilev
-#define doindent()		do {					\
-	int i;								\
-	if (!(data->flags & IDLF_OUTPUT_NO_NEWLINES))			\
-		for (i = 0; i < data->ilev; ++i) {			\
-			switch (data->mode) {				\
-			case OUTPUT_FILE:				\
-				fputc ('\t', data->u.o);		\
-				break;					\
-									\
-			case OUTPUT_STRING:				\
-				g_string_append_c (data->u.s, '\t');	\
-				break;					\
-									\
-			default:					\
-				break;					\
-			}						\
-		}							\
-	else if (data->ilev > 0)					\
-		dataf (data, DELIM_SPACE);				\
+#define indent()                ++data->ilev
+#define unindent()              --data->ilev
+#define doindent()              do {                                    \
+        int i;                                                          \
+        if (!(data->flags & IDLF_OUTPUT_NO_NEWLINES))                   \
+                for (i = 0; i < data->ilev; ++i) {                      \
+                        switch (data->mode) {                           \
+                        case OUTPUT_FILE:                               \
+                                fputc ('\t', data->u.o);                \
+                                break;                                  \
+                                                                        \
+                        case OUTPUT_STRING:                             \
+                                strcat (data->u.s, "\t");    \
+                                break;                                  \
+                                                                        \
+                        default:                                        \
+                                break;                                  \
+                        }                                               \
+                }                                                       \
+        else if (data->ilev > 0)                                        \
+                dataf (data, DELIM_SPACE);                              \
 } while (0)
-#define nl()			do {				\
-	if (!(data->flags & IDLF_OUTPUT_NO_NEWLINES)) {		\
-		switch (data->mode) {				\
-		case OUTPUT_FILE:				\
-			fputc ('\n', data->u.o);		\
-			break;					\
-								\
-		case OUTPUT_STRING:				\
-			g_string_append_c (data->u.s, '\n');	\
-			break;					\
-								\
-		default:					\
-			break;					\
-		}						\
-	}							\
+#define nl()                    do {                            \
+        if (!(data->flags & IDLF_OUTPUT_NO_NEWLINES)) {         \
+                switch (data->mode) {                           \
+                case OUTPUT_FILE:                               \
+                        fputc ('\n', data->u.o);                \
+                        break;                                  \
+                                                                \
+                case OUTPUT_STRING:                             \
+                        strcat (data->u.s, "\n");    \
+                        break;                                  \
+                                                                \
+                default:                                        \
+                        break;                                  \
+                }                                               \
+        }                                                       \
 } while (0)
-#define save_flag(flagbit,val)	do {				\
-	tfd->data = GUINT_TO_POINTER (				\
- 		GPOINTER_TO_UINT (tfd->data) |			\
- 		(data->flagbit ? (1U << flagbit##bit) : 0));	\
-	data->flagbit = val;					\
+#define save_flag(flagbit,val)  do {                            \
+        tfd->data = GUINT_TO_POINTER (                            \
+                GPOINTER_TO_UINT (tfd->data) |                  \
+                (data->flagbit ? (1U << flagbit##bit) : 0));    \
+        data->flagbit = val;                                    \
 } while (0)
-#define restore_flag(flagbit)	do {			\
-	data->flagbit = (GPOINTER_TO_UINT (		\
-		tfd->data) >> flagbit##bit) & 1U;	\
+#define restore_flag(flagbit)   do {                    \
+        data->flagbit = (GPOINTER_TO_UINT (             \
+                tfd->data) >> flagbit##bit) & 1U;       \
 } while (0)
 
 typedef struct {
-	IDL_ns ns;
-	enum {
-		OUTPUT_FILE,
-		OUTPUT_STRING
-	} mode;
-	union {
-		FILE *o;
-		GString *s;
-	} u;
-	int ilev;
-	unsigned long flags;
+        IDL_ns ns;
+        enum {
+                OUTPUT_FILE,
+                OUTPUT_STRING
+        } mode;
+        union {
+                FILE *o;
+                char s[1024];
+        } u;
+        int ilev;
+        unsigned long flags;
 
-#define identsbit		0
-	guint idents : 1;
+#define identsbit               0
+        unsigned int idents : 1;
 
-#define literalsbit		1
-	guint literals : 1;
+#define literalsbit             1
+        unsigned int literals : 1;
 
-#define inline_propsbit		2
-	guint inline_props : 1;
+#define inline_propsbit         2
+        unsigned int inline_props : 1;
 
-#define su_defbit		3
-	guint su_def : 1;
+#define su_defbit               3
+        unsigned int su_def : 1;
 } IDL_output_data;
 
-static void dataf (IDL_output_data *data, const char *fmt, ...)
-G_GNUC_PRINTF (2, 3);
+static void dataf (IDL_output_data *data, const char *fmt, ...);
 
-static void idataf (IDL_output_data *data, const char *fmt, ...)
-G_GNUC_PRINTF (2, 3);
+static void idataf (IDL_output_data *data, const char *fmt, ...);
 
 static void dataf (IDL_output_data *data, const char *fmt, ...)
 {
-	gchar *buffer;
-	va_list args;
+        char *buffer;
+        va_list args;
 
-	va_start (args, fmt);
-	switch (data->mode) {
-	case OUTPUT_FILE:
-		vfprintf (data->u.o, fmt, args);
-		break;
+        va_start (args, fmt);
+        switch (data->mode) {
+        case OUTPUT_FILE:
+                vfprintf (data->u.o, fmt, args);
+                break;
 
-	case OUTPUT_STRING:
-		buffer = g_strdup_vprintf (fmt, args);
-		g_string_append (data->u.s, buffer);
-		g_free (buffer);
-		break;
+        case OUTPUT_STRING:
+                buffer = g_strdup_vprintf (fmt, args);
+                strcat (data->u.s, buffer);
+                free (buffer);
+                break;
 
-	default:
-		break;
-	}
-	va_end (args);
+        default:
+                break;
+        }
+        va_end (args);
 }
 
 static void idataf (IDL_output_data *data, const char *fmt, ...)
 {
-	gchar *buffer;
-	va_list args;
+        char *buffer;
+        va_list args;
 
-	va_start (args, fmt);
-	doindent ();
-	switch (data->mode) {
-	case OUTPUT_FILE:
-		vfprintf (data->u.o, fmt, args);
-		break;
+        va_start (args, fmt);
+        doindent ();
+        switch (data->mode) {
+        case OUTPUT_FILE:
+                vfprintf (data->u.o, fmt, args);
+                break;
 
-	case OUTPUT_STRING:
-		buffer = g_strdup_vprintf (fmt, args);
-		g_string_append (data->u.s, buffer);
-		g_free (buffer);
-		break;
+        case OUTPUT_STRING:
+                buffer = g_strdup_vprintf (fmt, args);
+                strcat (data->u.s, buffer);
+                free (buffer);
+                break;
 
-	default:
-		break;
-	}
-	va_end (args);
+        default:
+                break;
+        }
+        va_end (args);
 }
 
-static gboolean IDL_emit_node_pre_func (IDL_tree_func_data *tfd, IDL_output_data *data);
-static gboolean IDL_emit_node_post_func (IDL_tree_func_data *tfd, IDL_output_data *data);
+static int IDL_emit_node_pre_func (IDL_tree_func_data *tfd, IDL_output_data *data);
+static int IDL_emit_node_post_func (IDL_tree_func_data *tfd, IDL_output_data *data);
 
 typedef struct {
-	IDL_tree_func pre_func;
-	IDL_tree_func post_func;
-	IDL_tree_type type, type2;
-	gboolean limit;
-	IDL_output_data *data;
-	const char *delim;
-	gboolean hit;
+        IDL_tree_func pre_func;
+        IDL_tree_func post_func;
+        IDL_tree_type type, type2;
+        int limit;
+        IDL_output_data *data;
+        const char *delim;
+        int hit;
 } IDL_output_delim_data;
 
-static gboolean IDL_output_delim_match (IDL_tree_func_data *tfd, IDL_output_delim_data *delim)
+static int IDL_output_delim_match (IDL_tree_func_data *tfd, IDL_output_delim_data *delim)
 {
-	return delim->type == IDLN_ANY ||
-		IDL_NODE_TYPE (tfd->tree) == delim->type ||
-		IDL_NODE_TYPE (tfd->tree) == delim->type2;
+        return delim->type == IDLN_ANY ||
+                IDL_NODE_TYPE (tfd->tree) == delim->type ||
+                IDL_NODE_TYPE (tfd->tree) == delim->type2;
 }
 
-static gboolean IDL_output_delim_pre (IDL_tree_func_data *tfd, IDL_output_delim_data *delim)
+static int IDL_output_delim_pre (IDL_tree_func_data *tfd, IDL_output_delim_data *delim)
 {
-	if (IDL_output_delim_match (tfd, delim)) {
-		if (delim->hit)
-			dataf (delim->data, delim->delim);
-		else
-			delim->hit = TRUE;
-		return delim->pre_func
-			? (*delim->pre_func) (tfd, delim->data)
-			: TRUE;
-	} else {
-		if (!delim->limit)
-			return delim->pre_func
-				? (*delim->pre_func) (tfd, delim->data)
-				: TRUE;
-		else
-			return TRUE;
-	}
+        if (IDL_output_delim_match (tfd, delim)) {
+                if (delim->hit)
+                        dataf (delim->data, delim->delim);
+                else
+                        delim->hit = TRUE;
+                return delim->pre_func
+                        ? (*delim->pre_func) (tfd, delim->data)
+                        : TRUE;
+        } else {
+                if (!delim->limit)
+                        return delim->pre_func
+                                ? (*delim->pre_func) (tfd, delim->data)
+                                : TRUE;
+                else
+                        return TRUE;
+        }
 }
 
-static gboolean IDL_output_delim_post (IDL_tree_func_data *tfd, IDL_output_delim_data *delim)
+static int IDL_output_delim_post (IDL_tree_func_data *tfd, IDL_output_delim_data *delim)
 {
-	if (delim->limit && !IDL_output_delim_match (tfd, delim))
-		return TRUE;
+        if (delim->limit && !IDL_output_delim_match (tfd, delim))
+                return TRUE;
 
-	return delim->post_func
-		? (*delim->post_func) (tfd, delim->data)
-		: TRUE;
+        return delim->post_func
+                ? (*delim->post_func) (tfd, delim->data)
+                : TRUE;
 }
 
 static void IDL_output_delim (IDL_tree p, IDL_tree_func_data *current,
-			      IDL_output_data *data,
-			      IDL_tree_func pre_func, IDL_tree_func post_func,
-			      IDL_tree_type type, IDL_tree_type type2,
-			      gboolean limit,
-			      const char *str)
+                              IDL_output_data *data,
+                              IDL_tree_func pre_func, IDL_tree_func post_func,
+                              IDL_tree_type type, IDL_tree_type type2,
+                              int limit,
+                              const char *str)
 {
-	IDL_output_delim_data delim;
+        IDL_output_delim_data delim;
 
-	delim.pre_func = pre_func;
-	delim.post_func = post_func;
-	delim.type = type;
-	delim.type2 = type2;
-	delim.limit = limit;
-	delim.data = data;
-	delim.hit = FALSE;
-	delim.delim = str;
+        delim.pre_func = pre_func;
+        delim.post_func = post_func;
+        delim.type = type;
+        delim.type2 = type2;
+        delim.limit = limit;
+        delim.data = data;
+        delim.hit = FALSE;
+        delim.delim = str;
 
-	IDL_tree_walk2 (p, current, /*flags*/0,
-		       (IDL_tree_func) IDL_output_delim_pre,
-		       (IDL_tree_func) IDL_output_delim_post,
-		       &delim);
+        IDL_tree_walk2 (p, current, /*flags*/0,
+                       (IDL_tree_func) IDL_output_delim_pre,
+                       (IDL_tree_func) IDL_output_delim_post,
+                       &delim);
 }
 
 typedef struct {
-	IDL_output_data *data;
-	gboolean hit;
+        IDL_output_data *data;
+        int hit;
 } IDL_property_emit_data;
 
 static void IDL_emit_IDL_property (const char *key, const char *value,
-				   IDL_property_emit_data *emit_data)
+                                   IDL_property_emit_data *emit_data)
 {
-	IDL_output_data *data = emit_data->data;
+        IDL_output_data *data = emit_data->data;
 
-	if (!emit_data->hit)
-		emit_data->hit = TRUE;
-	else
-		dataf (emit_data->data, DELIM_COMMA);
-	if (!data->inline_props) {
-		nl ();
-		doindent ();
-	}
-	if (value && *value)
-		dataf (emit_data->data, "%s%s(%s)",
-		       key, DELIM_SPACE, value);
-	else
-		dataf (emit_data->data, "%s", key);
+        if (!emit_data->hit)
+                emit_data->hit = TRUE;
+        else
+                dataf (emit_data->data, DELIM_COMMA);
+        if (!data->inline_props) {
+                nl ();
+                doindent ();
+        }
+        if (value && *value)
+                dataf (emit_data->data, "%s%s(%s)",
+                       key, DELIM_SPACE, value);
+        else
+                dataf (emit_data->data, "%s", key);
 }
 
-static gboolean IDL_emit_IDL_properties (IDL_tree p, IDL_output_data *data)
+static int IDL_emit_IDL_properties (IDL_tree p, IDL_output_data *data)
 {
-	IDL_property_emit_data emit_data;
+        IDL_property_emit_data emit_data;
 
-	if (IDL_NODE_PROPERTIES (p) &&
-	    data->flags & IDLF_OUTPUT_PROPERTIES &&
-	    g_hash_table_size (IDL_NODE_PROPERTIES (p)) > 0) {
-		emit_data.data = data;
-		emit_data.hit = FALSE;
-		if (!data->inline_props)
-			idataf (data, "[" DELIM_SPACE);
-		else
-			dataf (data, "[");
-		indent ();
-		g_hash_table_foreach (IDL_NODE_PROPERTIES (p),
-				      (GHFunc) IDL_emit_IDL_property,
-				      &emit_data);
-		unindent ();
-		if (!data->inline_props) {
-			nl ();
-			doindent ();
-		}
-		dataf (data, "]");
-		if (!data->inline_props)
-			nl ();
-		else
-			dataf (data, DELIM_SPACE);
-	}
+        if (IDL_NODE_PROPERTIES (p) &&
+            data->flags & IDLF_OUTPUT_PROPERTIES &&
+            g_hash_table_size (IDL_NODE_PROPERTIES (p)) > 0) {
+                emit_data.data = data;
+                emit_data.hit = FALSE;
+                if (!data->inline_props)
+                        idataf (data, "[" DELIM_SPACE);
+                else
+                        dataf (data, "[");
+                indent ();
+                g_hash_table_foreach (IDL_NODE_PROPERTIES (p),
+                                      (GHFunc) IDL_emit_IDL_property,
+                                      &emit_data);
+                unindent ();
+                if (!data->inline_props) {
+                        nl ();
+                        doindent ();
+                }
+                dataf (data, "]");
+                if (!data->inline_props)
+                        nl ();
+                else
+                        dataf (data, DELIM_SPACE);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_sc (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_sc (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	dataf (data, ";"); nl ();
+        dataf (data, ";"); nl ();
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_indent (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_indent (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	doindent ();
+        doindent ();
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_curly_brace_open (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_curly_brace_open (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	dataf (data, "{"); nl (); indent ();
+        dataf (data, "{"); nl (); indent ();
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_curly_brace_close (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_curly_brace_close (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	unindent (); idataf (data, "}");
+        unindent (); idataf (data, "}");
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_curly_brace_close_sc (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_curly_brace_close_sc (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_curly_brace_close (tfd, data);
-	IDL_emit_IDL_sc (tfd, data);
+        IDL_emit_IDL_curly_brace_close (tfd, data);
+        IDL_emit_IDL_sc (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_ident_real (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_ident_real (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_tree_func_data *up_path;
-	IDL_tree up_real, scope;
-	char *s;
-	int levels;
+        IDL_tree_func_data *up_path;
+        IDL_tree up_real, scope;
+        char *s;
+        int levels;
 
-	up_path = tfd;
-	up_real = tfd->tree;
-	while (up_path && up_real) {
-		if (IDL_NODE_TYPE (up_path->tree) != IDL_NODE_TYPE (up_real))
-			break;
-		up_path = up_path->up;
-		up_real = IDL_NODE_UP (up_real);
-	}
+        up_path = tfd;
+        up_real = tfd->tree;
+        while (up_path && up_real) {
+                if (IDL_NODE_TYPE (up_path->tree) != IDL_NODE_TYPE (up_real))
+                        break;
+                up_path = up_path->up;
+                up_real = IDL_NODE_UP (up_real);
+        }
 
-	assert (IDL_NODE_TYPE (tfd->tree) == IDLN_IDENT);
+        assert (IDL_NODE_TYPE (tfd->tree) == IDLN_IDENT);
 
-	if (!up_real || data->flags & IDLF_OUTPUT_NO_QUALIFY_IDENTS) {
-		/* TODO: If the IDENT is also a keyword, escape it by
-		   prepending an underscore. */
-		dataf (data, "%s", IDL_IDENT (tfd->tree).str);
-	} else {
-		if ( up_path == 0 ) {
-		    levels = 0;
-		} else {
-		    /* Determine minimal required levels of scoping */
-		    scope = up_path->tree ? up_path->tree : up_real;
-		    levels = IDL_ns_scope_levels_from_here (data->ns, tfd->tree, scope);
-		}
-		s = IDL_ns_ident_to_qstring (IDL_IDENT_TO_NS (tfd->tree), "::", levels);
-		dataf (data, "%s", s);
-		g_free (s);
-	}
+        if (!up_real || data->flags & IDLF_OUTPUT_NO_QUALIFY_IDENTS) {
+                /* TODO: If the IDENT is also a keyword, escape it by
+                   prepending an underscore. */
+                dataf (data, "%s", IDL_IDENT (tfd->tree).str);
+        } else {
+                if ( up_path == 0 ) {
+                    levels = 0;
+                } else {
+                    /* Determine minimal required levels of scoping */
+                    scope = up_path->tree ? up_path->tree : up_real;
+                    levels = IDL_ns_scope_levels_from_here (data->ns, tfd->tree, scope);
+                }
+                s = IDL_ns_ident_to_qstring (IDL_IDENT_TO_NS (tfd->tree), "::", levels);
+                dataf (data, "%s", s);
+                free (s);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_ident_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_ident_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	if (data->idents)
-		IDL_emit_IDL_ident_real (tfd, data);
+        if (data->idents)
+                IDL_emit_IDL_ident_real (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_ident_force_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_ident_force_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_ident_real (tfd, data);
+        IDL_emit_IDL_ident_real (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_ident (IDL_tree ident, IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_ident (IDL_tree ident, IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_tree_walk2 (ident, tfd, /*flags*/0,
-		       (IDL_tree_func) IDL_emit_IDL_ident_real, NULL,
-		       data);
+        IDL_tree_walk2 (ident, tfd, /*flags*/0,
+                       (IDL_tree_func) IDL_emit_IDL_ident_real, NULL,
+                       data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_literal (IDL_tree p, IDL_output_data *data)
+static int IDL_emit_IDL_literal (IDL_tree p, IDL_output_data *data)
 {
-	switch (IDL_NODE_TYPE (p)) {
-	case IDLN_FLOAT:
-		dataf (data, "%f", IDL_FLOAT (p).value);
-		break;
+        switch (IDL_NODE_TYPE (p)) {
+        case IDLN_FLOAT:
+                dataf (data, "%f", IDL_FLOAT (p).value);
+                break;
 
-	case IDLN_INTEGER:
-		/* FIXME: sign */
-		dataf (data, "%" IDL_LL "d", IDL_INTEGER (p).value);
-		break;
+        case IDLN_INTEGER:
+                /* FIXME: sign */
+                dataf (data, "%" IDL_LL "d", IDL_INTEGER (p).value);
+                break;
 
-	case IDLN_FIXED:
-		dataf (data, "%s", IDL_FIXED (p).value);
-		break;
+        case IDLN_FIXED:
+                dataf (data, "%s", IDL_FIXED (p).value);
+                break;
 
-	case IDLN_CHAR:
-		dataf (data, "'%s'", IDL_CHAR (p).value);
-		break;
+        case IDLN_CHAR:
+                dataf (data, "'%s'", IDL_CHAR (p).value);
+                break;
 
-	case IDLN_WIDE_CHAR:
-/*		dataf (data, "'%s'", IDL_WIDE_CHAR (p).value); */
-		g_warning ("IDL_emit_IDL_literal: %s is currently unhandled",
-			   "Wide character output");
-		break;
+        case IDLN_WIDE_CHAR:
+/*              dataf (data, "'%s'", IDL_WIDE_CHAR (p).value); */
+                printf ("IDL_emit_IDL_literal: %s is currently unhandled",
+                           "Wide character output");
+                break;
 
-	case IDLN_BOOLEAN:
-		dataf (data, "%s", IDL_BOOLEAN (p).value ? "TRUE" : "FALSE");
-		break;
+        case IDLN_BOOLEAN:
+                dataf (data, "%s", IDL_BOOLEAN (p).value ? "TRUE" : "FALSE");
+                break;
 
-	case IDLN_STRING:
-		dataf (data, "\"%s\"", IDL_STRING (p).value);
-		break;
+        case IDLN_STRING:
+                dataf (data, "\"%s\"", IDL_STRING (p).value);
+                break;
 
-	case IDLN_WIDE_STRING:
-/*		dataf (data, "\"%s\"", IDL_STRING (p).value); */
-		g_warning ("IDL_emit_IDL_literal: %s is currently unhandled",
-			   "Wide string output");
-		break;
+        case IDLN_WIDE_STRING:
+/*              dataf (data, "\"%s\"", IDL_STRING (p).value); */
+                printf ("IDL_emit_IDL_literal: %s is currently unhandled",
+                           "Wide string output");
+                break;
 
-	default:
-		g_warning ("Unhandled literal: %s", IDL_NODE_TYPE_NAME (p));
-		break;
-	}
+        default:
+                printf ("Unhandled literal: %s", IDL_NODE_TYPE_NAME (p));
+                break;
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_literal_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_literal_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	if (data->literals)
-		IDL_emit_IDL_literal (tfd->tree, data);
+        if (data->literals)
+                IDL_emit_IDL_literal (tfd->tree, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_literal_force_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_literal_force_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_literal (tfd->tree, data);
+        IDL_emit_IDL_literal (tfd->tree, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_type_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_type_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_tree p, q;
+        IDL_tree p, q;
 
-	p = tfd->tree;
+        p = tfd->tree;
 
-	switch (IDL_NODE_TYPE (p)) {
-	case IDLN_IDENT:
-		IDL_emit_IDL_ident (p, tfd, data);
-		break;
+        switch (IDL_NODE_TYPE (p)) {
+        case IDLN_IDENT:
+                IDL_emit_IDL_ident (p, tfd, data);
+                break;
 
-	case IDLN_TYPE_CHAR:
-		dataf (data, "char");
-		break;
+        case IDLN_TYPE_CHAR:
+                dataf (data, "char");
+                break;
 
-	case IDLN_TYPE_WIDE_CHAR:
-		dataf (data, "wchar");
-		break;
+        case IDLN_TYPE_WIDE_CHAR:
+                dataf (data, "wchar");
+                break;
 
-	case IDLN_TYPE_BOOLEAN:
-		dataf (data, "boolean");
-		break;
+        case IDLN_TYPE_BOOLEAN:
+                dataf (data, "boolean");
+                break;
 
-	case IDLN_TYPE_OCTET:
-		dataf (data, "octet");
-		break;
+        case IDLN_TYPE_OCTET:
+                dataf (data, "octet");
+                break;
 
-	case IDLN_TYPE_ANY:
-		dataf (data, "any");
-		break;
+        case IDLN_TYPE_ANY:
+                dataf (data, "any");
+                break;
 
-	case IDLN_TYPE_OBJECT:
-		dataf (data, "Object");
-		break;
+        case IDLN_TYPE_OBJECT:
+                dataf (data, "Object");
+                break;
 
-	case IDLN_TYPE_TYPECODE:
-		dataf (data, "TypeCode");
-		break;
+        case IDLN_TYPE_TYPECODE:
+                dataf (data, "TypeCode");
+                break;
 
-	case IDLN_TYPE_FLOAT:
-		switch (IDL_TYPE_FLOAT (p).f_type) {
-		case IDL_FLOAT_TYPE_FLOAT: dataf (data, "float"); break;
-		case IDL_FLOAT_TYPE_DOUBLE: dataf (data, "double"); break;
-		case IDL_FLOAT_TYPE_LONGDOUBLE: dataf (data, "long" DELIM_SPACE "double"); break;
-		}
-		break;
+        case IDLN_TYPE_FLOAT:
+                switch (IDL_TYPE_FLOAT (p).f_type) {
+                case IDL_FLOAT_TYPE_FLOAT: dataf (data, "float"); break;
+                case IDL_FLOAT_TYPE_DOUBLE: dataf (data, "double"); break;
+                case IDL_FLOAT_TYPE_LONGDOUBLE: dataf (data, "long" DELIM_SPACE "double"); break;
+                }
+                break;
 
-	case IDLN_TYPE_FIXED:
-		dataf (data, "fixed<");
-		IDL_emit_IDL_literal (IDL_TYPE_FIXED (p).positive_int_const, data);
-		dataf (data, DELIM_COMMA);
-		IDL_emit_IDL_literal (IDL_TYPE_FIXED (p).integer_lit, data);
-		dataf (data, ">");
-		return FALSE;
+        case IDLN_TYPE_FIXED:
+                dataf (data, "fixed<");
+                IDL_emit_IDL_literal (IDL_TYPE_FIXED (p).positive_int_const, data);
+                dataf (data, DELIM_COMMA);
+                IDL_emit_IDL_literal (IDL_TYPE_FIXED (p).integer_lit, data);
+                dataf (data, ">");
+                return FALSE;
 
-	case IDLN_TYPE_INTEGER:
-		if (!IDL_TYPE_INTEGER (p).f_signed)
-			dataf (data, "unsigned" DELIM_SPACE);
-		switch (IDL_TYPE_INTEGER (p).f_type) {
-		case IDL_INTEGER_TYPE_SHORT: dataf (data, "short"); break;
-		case IDL_INTEGER_TYPE_LONG: dataf (data, "long"); break;
-		case IDL_INTEGER_TYPE_LONGLONG: dataf (data, "long" DELIM_SPACE "long"); break;
-		}
-		break;
+        case IDLN_TYPE_INTEGER:
+                if (!IDL_TYPE_INTEGER (p).f_signed)
+                        dataf (data, "unsigned" DELIM_SPACE);
+                switch (IDL_TYPE_INTEGER (p).f_type) {
+                case IDL_INTEGER_TYPE_SHORT: dataf (data, "short"); break;
+                case IDL_INTEGER_TYPE_LONG: dataf (data, "long"); break;
+                case IDL_INTEGER_TYPE_LONGLONG: dataf (data, "long" DELIM_SPACE "long"); break;
+                }
+                break;
 
-	case IDLN_TYPE_STRING:
-	case IDLN_TYPE_WIDE_STRING:
-		if (IDL_NODE_TYPE (p) == IDLN_TYPE_STRING) {
-			dataf (data, "string");
-			q = IDL_TYPE_STRING (p).positive_int_const;
-		} else {
-			dataf (data, "wstring");
-			q = IDL_TYPE_WIDE_STRING (p).positive_int_const;
-		}
-		if (q) {
-			dataf (data, "<");
-			if (IDL_NODE_TYPE (p) == IDLN_TYPE_STRING)
-				IDL_emit_IDL_literal (
-					IDL_TYPE_STRING (p).positive_int_const, data);
-			else
-				IDL_emit_IDL_literal (
-					IDL_TYPE_WIDE_STRING (p).positive_int_const, data);
-			dataf (data, ">");
-		}
-		return FALSE;
+        case IDLN_TYPE_STRING:
+        case IDLN_TYPE_WIDE_STRING:
+                if (IDL_NODE_TYPE (p) == IDLN_TYPE_STRING) {
+                        dataf (data, "string");
+                        q = IDL_TYPE_STRING (p).positive_int_const;
+                } else {
+                        dataf (data, "wstring");
+                        q = IDL_TYPE_WIDE_STRING (p).positive_int_const;
+                }
+                if (q) {
+                        dataf (data, "<");
+                        if (IDL_NODE_TYPE (p) == IDLN_TYPE_STRING)
+                                IDL_emit_IDL_literal (
+                                        IDL_TYPE_STRING (p).positive_int_const, data);
+                        else
+                                IDL_emit_IDL_literal (
+                                        IDL_TYPE_WIDE_STRING (p).positive_int_const, data);
+                        dataf (data, ">");
+                }
+                return FALSE;
 
-	case IDLN_TYPE_ENUM:
-		IDL_emit_IDL_indent (tfd, data);
-		data->inline_props = TRUE;
-		IDL_emit_IDL_properties (IDL_TYPE_ENUM (tfd->tree).ident, data);
-		dataf (data, "enum" DELIM_SPACE);
-		IDL_emit_IDL_ident (IDL_TYPE_ENUM (p).ident, tfd, data);
-		dataf (data, DELIM_SPACE "{" DELIM_SPACE);
-		IDL_output_delim (IDL_TYPE_ENUM (p).enumerator_list, tfd, data,
-				  (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
-				  IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
-		dataf (data, DELIM_SPACE "};"); nl ();
-		return FALSE;
+        case IDLN_TYPE_ENUM:
+                IDL_emit_IDL_indent (tfd, data);
+                data->inline_props = TRUE;
+                IDL_emit_IDL_properties (IDL_TYPE_ENUM (tfd->tree).ident, data);
+                dataf (data, "enum" DELIM_SPACE);
+                IDL_emit_IDL_ident (IDL_TYPE_ENUM (p).ident, tfd, data);
+                dataf (data, DELIM_SPACE "{" DELIM_SPACE);
+                IDL_output_delim (IDL_TYPE_ENUM (p).enumerator_list, tfd, data,
+                                  (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
+                                  IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
+                dataf (data, DELIM_SPACE "};"); nl ();
+                return FALSE;
 
-	case IDLN_TYPE_ARRAY:
-		IDL_emit_IDL_ident (IDL_TYPE_ARRAY (p).ident, tfd, data);
-		dataf (data, "[");
-		IDL_output_delim (IDL_TYPE_ARRAY (p).size_list, tfd, data,
-				  (IDL_tree_func) IDL_emit_IDL_literal_force_pre, NULL,
-				  IDLN_INTEGER, IDLN_NONE, TRUE, DELIM_ARRAY);
-		dataf (data, "]");
-		return FALSE;
+        case IDLN_TYPE_ARRAY:
+                IDL_emit_IDL_ident (IDL_TYPE_ARRAY (p).ident, tfd, data);
+                dataf (data, "[");
+                IDL_output_delim (IDL_TYPE_ARRAY (p).size_list, tfd, data,
+                                  (IDL_tree_func) IDL_emit_IDL_literal_force_pre, NULL,
+                                  IDLN_INTEGER, IDLN_NONE, TRUE, DELIM_ARRAY);
+                dataf (data, "]");
+                return FALSE;
 
-	case IDLN_TYPE_SEQUENCE:
-		dataf (data, "sequence<");
-		save_flag (idents, TRUE);
-		IDL_tree_walk2 (IDL_TYPE_SEQUENCE (tfd->tree).simple_type_spec, tfd,/*flags*/0,
-			       (IDL_tree_func) IDL_emit_node_pre_func,
-			       (IDL_tree_func) IDL_emit_node_post_func,
-			       data);
-		restore_flag (idents);
-		if (IDL_TYPE_SEQUENCE (tfd->tree).positive_int_const) {
-			dataf (data, DELIM_COMMA);
-			IDL_emit_IDL_literal (
-				IDL_TYPE_SEQUENCE (tfd->tree).positive_int_const, data);
-		}
-		dataf (data, ">");
-		return FALSE;
+        case IDLN_TYPE_SEQUENCE:
+                dataf (data, "sequence<");
+                save_flag (idents, TRUE);
+                IDL_tree_walk2 (IDL_TYPE_SEQUENCE (tfd->tree).simple_type_spec, tfd,/*flags*/0,
+                               (IDL_tree_func) IDL_emit_node_pre_func,
+                               (IDL_tree_func) IDL_emit_node_post_func,
+                               data);
+                restore_flag (idents);
+                if (IDL_TYPE_SEQUENCE (tfd->tree).positive_int_const) {
+                        dataf (data, DELIM_COMMA);
+                        IDL_emit_IDL_literal (
+                                IDL_TYPE_SEQUENCE (tfd->tree).positive_int_const, data);
+                }
+                dataf (data, ">");
+                return FALSE;
 
-	case IDLN_TYPE_STRUCT:
-		if (!data->su_def)
-			doindent ();
-		save_flag (su_def, TRUE);
-		data->inline_props = TRUE;
-		IDL_emit_IDL_properties (IDL_TYPE_STRUCT (tfd->tree).ident, data);
-		dataf (data, "struct" DELIM_SPACE);
-		IDL_emit_IDL_ident (IDL_TYPE_STRUCT (p).ident, tfd, data);
-		dataf (data, DELIM_SPACE);
-		IDL_emit_IDL_curly_brace_open (tfd, data);
-		IDL_tree_walk2 (IDL_TYPE_STRUCT (p).member_list, tfd,/*flags*/0,
-			       (IDL_tree_func) IDL_emit_node_pre_func,
-			       (IDL_tree_func) IDL_emit_node_post_func,
-			       data);
-		restore_flag (su_def);
-		if (data->su_def)
-			IDL_emit_IDL_curly_brace_close (tfd, data);
-		else
-			IDL_emit_IDL_curly_brace_close_sc (tfd, data);
-		return FALSE;
+        case IDLN_TYPE_STRUCT:
+                if (!data->su_def)
+                        doindent ();
+                save_flag (su_def, TRUE);
+                data->inline_props = TRUE;
+                IDL_emit_IDL_properties (IDL_TYPE_STRUCT (tfd->tree).ident, data);
+                dataf (data, "struct" DELIM_SPACE);
+                IDL_emit_IDL_ident (IDL_TYPE_STRUCT (p).ident, tfd, data);
+                dataf (data, DELIM_SPACE);
+                IDL_emit_IDL_curly_brace_open (tfd, data);
+                IDL_tree_walk2 (IDL_TYPE_STRUCT (p).member_list, tfd,/*flags*/0,
+                               (IDL_tree_func) IDL_emit_node_pre_func,
+                               (IDL_tree_func) IDL_emit_node_post_func,
+                               data);
+                restore_flag (su_def);
+                if (data->su_def)
+                        IDL_emit_IDL_curly_brace_close (tfd, data);
+                else
+                        IDL_emit_IDL_curly_brace_close_sc (tfd, data);
+                return FALSE;
 
-	case IDLN_TYPE_UNION:
-		if (!data->su_def)
-			doindent ();
-		save_flag (su_def, TRUE);
-		data->inline_props = TRUE;
-		IDL_emit_IDL_properties (IDL_TYPE_UNION (tfd->tree).ident, data);
-		dataf (data, "union" DELIM_SPACE);
-		IDL_emit_IDL_ident (IDL_TYPE_UNION (p).ident, tfd, data);
-		dataf (data, DELIM_SPACE);
-		dataf (data, "switch" DELIM_SPACE "(");
-		save_flag (idents, TRUE);
-		IDL_tree_walk2 (IDL_TYPE_UNION (p).switch_type_spec, tfd,/*flags*/0,
-			       (IDL_tree_func) IDL_emit_node_pre_func,
-			       (IDL_tree_func) IDL_emit_node_post_func,
-			       data);
-		restore_flag (idents);
-		dataf (data, ")" DELIM_SPACE "{"); nl ();
-		IDL_tree_walk2 (IDL_TYPE_UNION (p).switch_body, tfd,/*flags*/0,
-			       (IDL_tree_func) IDL_emit_node_pre_func,
-			       (IDL_tree_func) IDL_emit_node_post_func,
-			       data);
-		restore_flag (su_def);
-		if (data->su_def)
-			idataf (data, "}");
-		else {
-			idataf (data, "};");
-			nl ();
-		}
-		return FALSE;
+        case IDLN_TYPE_UNION:
+                if (!data->su_def)
+                        doindent ();
+                save_flag (su_def, TRUE);
+                data->inline_props = TRUE;
+                IDL_emit_IDL_properties (IDL_TYPE_UNION (tfd->tree).ident, data);
+                dataf (data, "union" DELIM_SPACE);
+                IDL_emit_IDL_ident (IDL_TYPE_UNION (p).ident, tfd, data);
+                dataf (data, DELIM_SPACE);
+                dataf (data, "switch" DELIM_SPACE "(");
+                save_flag (idents, TRUE);
+                IDL_tree_walk2 (IDL_TYPE_UNION (p).switch_type_spec, tfd,/*flags*/0,
+                               (IDL_tree_func) IDL_emit_node_pre_func,
+                               (IDL_tree_func) IDL_emit_node_post_func,
+                               data);
+                restore_flag (idents);
+                dataf (data, ")" DELIM_SPACE "{"); nl ();
+                IDL_tree_walk2 (IDL_TYPE_UNION (p).switch_body, tfd,/*flags*/0,
+                               (IDL_tree_func) IDL_emit_node_pre_func,
+                               (IDL_tree_func) IDL_emit_node_post_func,
+                               data);
+                restore_flag (su_def);
+                if (data->su_def)
+                        idataf (data, "}");
+                else {
+                        idataf (data, "};");
+                        nl ();
+                }
+                return FALSE;
 
-	default:
-		break;
-	}
+        default:
+                break;
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_module_all (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_module_all (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	if (tfd->step == 0) {
-		idataf (data, "module" DELIM_SPACE);
-		IDL_emit_IDL_ident (IDL_MODULE (tfd->tree).ident, tfd, data);
-		dataf (data, DELIM_SPACE);
-		IDL_emit_IDL_curly_brace_open (tfd, data);
-		save_flag (idents, FALSE);
-	} else {
-		restore_flag (idents);
-		IDL_emit_IDL_curly_brace_close_sc (tfd, data);
-	}
+        if (tfd->step == 0) {
+                idataf (data, "module" DELIM_SPACE);
+                IDL_emit_IDL_ident (IDL_MODULE (tfd->tree).ident, tfd, data);
+                dataf (data, DELIM_SPACE);
+                IDL_emit_IDL_curly_brace_open (tfd, data);
+                save_flag (idents, FALSE);
+        } else {
+                restore_flag (idents);
+                IDL_emit_IDL_curly_brace_close_sc (tfd, data);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_interface_all (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_interface_all (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	if (tfd->step == 0) {
-		data->inline_props = FALSE;
-		IDL_emit_IDL_properties (IDL_INTERFACE (tfd->tree).ident, data);
-		idataf (data, "interface" DELIM_SPACE);
-		IDL_emit_IDL_ident (IDL_INTERFACE (tfd->tree).ident, tfd, data);
-		dataf (data, DELIM_SPACE);
-		if (IDL_INTERFACE (tfd->tree).inheritance_spec) {
-			dataf (data, ":" DELIM_SPACE);
-			IDL_output_delim (IDL_INTERFACE (tfd->tree).inheritance_spec, tfd, data,
-					  (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
-					  IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
-			dataf (data, DELIM_SPACE);
-		}
-		IDL_emit_IDL_curly_brace_open (tfd, data);
-		save_flag (idents, FALSE);
-	} else {
-		restore_flag (idents);
-		IDL_emit_IDL_curly_brace_close_sc (tfd, data);
-	}
+        if (tfd->step == 0) {
+                data->inline_props = FALSE;
+                IDL_emit_IDL_properties (IDL_INTERFACE (tfd->tree).ident, data);
+                idataf (data, "interface" DELIM_SPACE);
+                IDL_emit_IDL_ident (IDL_INTERFACE (tfd->tree).ident, tfd, data);
+                dataf (data, DELIM_SPACE);
+                if (IDL_INTERFACE (tfd->tree).inheritance_spec) {
+                        dataf (data, ":" DELIM_SPACE);
+                        IDL_output_delim (IDL_INTERFACE (tfd->tree).inheritance_spec, tfd, data,
+                                          (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
+                                          IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
+                        dataf (data, DELIM_SPACE);
+                }
+                IDL_emit_IDL_curly_brace_open (tfd, data);
+                save_flag (idents, FALSE);
+        } else {
+                restore_flag (idents);
+                IDL_emit_IDL_curly_brace_close_sc (tfd, data);
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_forward_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_forward_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	idataf (data, "interface" DELIM_SPACE);
-	IDL_emit_IDL_ident (IDL_FORWARD_DCL (tfd->tree).ident, tfd, data);
+        idataf (data, "interface" DELIM_SPACE);
+        IDL_emit_IDL_ident (IDL_FORWARD_DCL (tfd->tree).ident, tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_attr_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_attr_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_indent (tfd, data);
-	data->inline_props = TRUE;
-	IDL_emit_IDL_properties (IDL_LIST (IDL_ATTR_DCL (tfd->tree).simple_declarations).data,
-				 data);
-	if (IDL_ATTR_DCL (tfd->tree).f_readonly) dataf (data, "readonly" DELIM_SPACE);
-	dataf (data, "attribute" DELIM_SPACE);
-	save_flag (idents, TRUE);
-	IDL_tree_walk2 (IDL_ATTR_DCL (tfd->tree).param_type_spec, tfd,/*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	restore_flag (idents);
-	dataf (data, DELIM_SPACE);
-	IDL_output_delim (IDL_ATTR_DCL (tfd->tree).simple_declarations, tfd, data,
-			  (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
-			  IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
-	IDL_emit_IDL_sc (tfd, data);
+        IDL_emit_IDL_indent (tfd, data);
+        data->inline_props = TRUE;
+        IDL_emit_IDL_properties (IDL_LIST (IDL_ATTR_DCL (tfd->tree).simple_declarations).data,
+                                 data);
+        if (IDL_ATTR_DCL (tfd->tree).f_readonly) dataf (data, "readonly" DELIM_SPACE);
+        dataf (data, "attribute" DELIM_SPACE);
+        save_flag (idents, TRUE);
+        IDL_tree_walk2 (IDL_ATTR_DCL (tfd->tree).param_type_spec, tfd,/*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        restore_flag (idents);
+        dataf (data, DELIM_SPACE);
+        IDL_output_delim (IDL_ATTR_DCL (tfd->tree).simple_declarations, tfd, data,
+                          (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
+                          IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
+        IDL_emit_IDL_sc (tfd, data);
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_op_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_op_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_indent (tfd, data);
-	data->inline_props = TRUE;
-	IDL_emit_IDL_properties (IDL_OP_DCL (tfd->tree).ident, data);
-	if (IDL_OP_DCL (tfd->tree).f_oneway) dataf (data, "oneway" DELIM_SPACE);
-	if (IDL_OP_DCL (tfd->tree).op_type_spec) {
-		save_flag (idents, TRUE);
-		IDL_tree_walk2 (IDL_OP_DCL (tfd->tree).op_type_spec, tfd,/*flags*/0,
-			       (IDL_tree_func) IDL_emit_node_pre_func,
-			       (IDL_tree_func) IDL_emit_node_post_func,
-			       data);
-		restore_flag (idents);
-	} else
-		dataf (data, "void");
-	dataf (data, DELIM_SPACE "%s" DELIM_SPACE "(",
-	       IDL_IDENT (IDL_OP_DCL (tfd->tree).ident).str);
-	if (IDL_OP_DCL (tfd->tree).parameter_dcls)
-		IDL_output_delim (IDL_OP_DCL (tfd->tree).parameter_dcls, tfd, data,
-				  (IDL_tree_func) IDL_emit_node_pre_func,
-				  (IDL_tree_func) IDL_emit_node_post_func,
-				  IDLN_PARAM_DCL, IDLN_NONE, FALSE, DELIM_COMMA);
-	if (IDL_OP_DCL (tfd->tree).f_varargs)
-		dataf (data, DELIM_COMMA "...");
-	dataf (data, ")");
-	if (IDL_OP_DCL (tfd->tree).raises_expr) {
-		nl (); indent ();
-		idataf (data, DELIM_SPACE "raises" DELIM_SPACE "(");
-		IDL_output_delim (IDL_OP_DCL (tfd->tree).raises_expr, tfd, data,
-				  (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
-				  IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
-		dataf (data, ")");
-		unindent ();
-	}
-	if (IDL_OP_DCL (tfd->tree).context_expr) {
-		nl (); indent ();
-		idataf (data, DELIM_SPACE "context" DELIM_SPACE "(");
-		IDL_output_delim (IDL_OP_DCL (tfd->tree).context_expr, tfd, data,
-				  (IDL_tree_func) IDL_emit_IDL_literal_force_pre, NULL,
-				  IDLN_STRING, IDLN_NONE, TRUE, DELIM_COMMA);
-		dataf (data, ")");
-		unindent ();
-	}
-	IDL_emit_IDL_sc (tfd, data);
+        IDL_emit_IDL_indent (tfd, data);
+        data->inline_props = TRUE;
+        IDL_emit_IDL_properties (IDL_OP_DCL (tfd->tree).ident, data);
+        if (IDL_OP_DCL (tfd->tree).f_oneway) dataf (data, "oneway" DELIM_SPACE);
+        if (IDL_OP_DCL (tfd->tree).op_type_spec) {
+                save_flag (idents, TRUE);
+                IDL_tree_walk2 (IDL_OP_DCL (tfd->tree).op_type_spec, tfd,/*flags*/0,
+                               (IDL_tree_func) IDL_emit_node_pre_func,
+                               (IDL_tree_func) IDL_emit_node_post_func,
+                               data);
+                restore_flag (idents);
+        } else
+                dataf (data, "void");
+        dataf (data, DELIM_SPACE "%s" DELIM_SPACE "(",
+               IDL_IDENT (IDL_OP_DCL (tfd->tree).ident).str);
+        if (IDL_OP_DCL (tfd->tree).parameter_dcls)
+                IDL_output_delim (IDL_OP_DCL (tfd->tree).parameter_dcls, tfd, data,
+                                  (IDL_tree_func) IDL_emit_node_pre_func,
+                                  (IDL_tree_func) IDL_emit_node_post_func,
+                                  IDLN_PARAM_DCL, IDLN_NONE, FALSE, DELIM_COMMA);
+        if (IDL_OP_DCL (tfd->tree).f_varargs)
+                dataf (data, DELIM_COMMA "...");
+        dataf (data, ")");
+        if (IDL_OP_DCL (tfd->tree).raises_expr) {
+                nl (); indent ();
+                idataf (data, DELIM_SPACE "raises" DELIM_SPACE "(");
+                IDL_output_delim (IDL_OP_DCL (tfd->tree).raises_expr, tfd, data,
+                                  (IDL_tree_func) IDL_emit_IDL_ident_force_pre, NULL,
+                                  IDLN_IDENT, IDLN_NONE, TRUE, DELIM_COMMA);
+                dataf (data, ")");
+                unindent ();
+        }
+        if (IDL_OP_DCL (tfd->tree).context_expr) {
+                nl (); indent ();
+                idataf (data, DELIM_SPACE "context" DELIM_SPACE "(");
+                IDL_output_delim (IDL_OP_DCL (tfd->tree).context_expr, tfd, data,
+                                  (IDL_tree_func) IDL_emit_IDL_literal_force_pre, NULL,
+                                  IDLN_STRING, IDLN_NONE, TRUE, DELIM_COMMA);
+                dataf (data, ")");
+                unindent ();
+        }
+        IDL_emit_IDL_sc (tfd, data);
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_param_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_param_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	data->inline_props = TRUE;
-	IDL_emit_IDL_properties (IDL_PARAM_DCL (tfd->tree).simple_declarator, data);
-	switch (IDL_PARAM_DCL (tfd->tree).attr) {
-	case IDL_PARAM_IN: dataf (data, "in" DELIM_SPACE); break;
-	case IDL_PARAM_OUT: dataf (data, "out" DELIM_SPACE); break;
-	case IDL_PARAM_INOUT: dataf (data, "inout" DELIM_SPACE); break;
-	}
-	save_flag (idents, TRUE);
-	IDL_tree_walk2 (IDL_PARAM_DCL (tfd->tree).param_type_spec, tfd,/*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	restore_flag (idents);
-	dataf (data, DELIM_SPACE);
-	IDL_emit_IDL_ident (IDL_PARAM_DCL (tfd->tree).simple_declarator, tfd, data);
+        data->inline_props = TRUE;
+        IDL_emit_IDL_properties (IDL_PARAM_DCL (tfd->tree).simple_declarator, data);
+        switch (IDL_PARAM_DCL (tfd->tree).attr) {
+        case IDL_PARAM_IN: dataf (data, "in" DELIM_SPACE); break;
+        case IDL_PARAM_OUT: dataf (data, "out" DELIM_SPACE); break;
+        case IDL_PARAM_INOUT: dataf (data, "inout" DELIM_SPACE); break;
+        }
+        save_flag (idents, TRUE);
+        IDL_tree_walk2 (IDL_PARAM_DCL (tfd->tree).param_type_spec, tfd,/*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        restore_flag (idents);
+        dataf (data, DELIM_SPACE);
+        IDL_emit_IDL_ident (IDL_PARAM_DCL (tfd->tree).simple_declarator, tfd, data);
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_type_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_type_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_tree_func_data down_tfd;
-	IDL_tree q;
+        IDL_tree_func_data down_tfd;
+        IDL_tree q;
 
-	IDL_emit_IDL_indent (tfd, data);
-	data->inline_props = TRUE;
-	IDL_emit_IDL_properties (IDL_LIST (IDL_TYPE_DCL (tfd->tree).dcls).data, data);
-	dataf (data, "typedef" DELIM_SPACE);
-	save_flag (idents, TRUE);
-	save_flag (su_def, TRUE);
-	IDL_tree_walk2 (IDL_TYPE_DCL (tfd->tree).type_spec, tfd,/*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	dataf (data, DELIM_SPACE);
-	down_tfd = *tfd;
-	down_tfd.up = tfd;
-	for (q = IDL_TYPE_DCL (tfd->tree).dcls; q; q = IDL_LIST (q).next) {
-		down_tfd.tree = q;
-		IDL_tree_walk2 (IDL_LIST (q).data, &down_tfd,/*flags*/0,
-			       (IDL_tree_func) IDL_emit_node_pre_func,
-			       (IDL_tree_func) IDL_emit_node_post_func,
-			       data);
-		if (IDL_LIST (q).next)
-			dataf (data, DELIM_COMMA);
-	}
-	restore_flag (idents);
-	restore_flag (su_def);
-	IDL_emit_IDL_sc (tfd, data);
+        IDL_emit_IDL_indent (tfd, data);
+        data->inline_props = TRUE;
+        IDL_emit_IDL_properties (IDL_LIST (IDL_TYPE_DCL (tfd->tree).dcls).data, data);
+        dataf (data, "typedef" DELIM_SPACE);
+        save_flag (idents, TRUE);
+        save_flag (su_def, TRUE);
+        IDL_tree_walk2 (IDL_TYPE_DCL (tfd->tree).type_spec, tfd,/*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        dataf (data, DELIM_SPACE);
+        down_tfd = *tfd;
+        down_tfd.up = tfd;
+        for (q = IDL_TYPE_DCL (tfd->tree).dcls; q; q = IDL_LIST (q).next) {
+                down_tfd.tree = q;
+                IDL_tree_walk2 (IDL_LIST (q).data, &down_tfd,/*flags*/0,
+                               (IDL_tree_func) IDL_emit_node_pre_func,
+                               (IDL_tree_func) IDL_emit_node_post_func,
+                               data);
+                if (IDL_LIST (q).next)
+                        dataf (data, DELIM_COMMA);
+        }
+        restore_flag (idents);
+        restore_flag (su_def);
+        IDL_emit_IDL_sc (tfd, data);
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_const_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_const_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	idataf (data, "const" DELIM_SPACE);
-	save_flag (idents, TRUE);
-	IDL_tree_walk2 (IDL_CONST_DCL (tfd->tree).const_type, tfd,/*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	restore_flag (idents);
-	dataf (data, DELIM_SPACE);
-	IDL_emit_IDL_ident (IDL_CONST_DCL (tfd->tree).ident, tfd, data);
-	dataf (data, DELIM_SPACE "=" DELIM_SPACE);
-	save_flag (literals, TRUE);
-	IDL_tree_walk2 (IDL_CONST_DCL (tfd->tree).const_exp, tfd,/*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	restore_flag (literals);
-	IDL_emit_IDL_sc (tfd, data);
+        idataf (data, "const" DELIM_SPACE);
+        save_flag (idents, TRUE);
+        IDL_tree_walk2 (IDL_CONST_DCL (tfd->tree).const_type, tfd,/*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        restore_flag (idents);
+        dataf (data, DELIM_SPACE);
+        IDL_emit_IDL_ident (IDL_CONST_DCL (tfd->tree).ident, tfd, data);
+        dataf (data, DELIM_SPACE "=" DELIM_SPACE);
+        save_flag (literals, TRUE);
+        IDL_tree_walk2 (IDL_CONST_DCL (tfd->tree).const_exp, tfd,/*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        restore_flag (literals);
+        IDL_emit_IDL_sc (tfd, data);
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_except_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_except_dcl_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	idataf (data, "exception" DELIM_SPACE);
-	IDL_emit_IDL_ident (IDL_EXCEPT_DCL (tfd->tree).ident, tfd, data);
-	dataf (data, DELIM_SPACE);
-	IDL_emit_IDL_curly_brace_open (tfd, data);
+        idataf (data, "exception" DELIM_SPACE);
+        IDL_emit_IDL_ident (IDL_EXCEPT_DCL (tfd->tree).ident, tfd, data);
+        dataf (data, DELIM_SPACE);
+        IDL_emit_IDL_curly_brace_open (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_native_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_native_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_indent (tfd, data);
-	data->inline_props = TRUE;
-	IDL_emit_IDL_properties (IDL_NATIVE (tfd->tree).ident, data);
-	dataf (data, "native" DELIM_SPACE);
-	IDL_emit_IDL_ident (IDL_NATIVE (tfd->tree).ident, tfd, data);
-	if (IDL_NATIVE (tfd->tree).user_type)
-		dataf (data, DELIM_SPACE "(%s)", IDL_NATIVE (tfd->tree).user_type);
-	IDL_emit_IDL_sc (tfd, data);
+        IDL_emit_IDL_indent (tfd, data);
+        data->inline_props = TRUE;
+        IDL_emit_IDL_properties (IDL_NATIVE (tfd->tree).ident, data);
+        dataf (data, "native" DELIM_SPACE);
+        IDL_emit_IDL_ident (IDL_NATIVE (tfd->tree).ident, tfd, data);
+        if (IDL_NATIVE (tfd->tree).user_type)
+                dataf (data, DELIM_SPACE "(%s)", IDL_NATIVE (tfd->tree).user_type);
+        IDL_emit_IDL_sc (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_case_stmt_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_case_stmt_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_tree_func_data down_tfd;
-	IDL_tree q;
+        IDL_tree_func_data down_tfd;
+        IDL_tree q;
 
-	save_flag (idents, TRUE);
-	save_flag (literals, TRUE);
-	down_tfd = *tfd;
-	down_tfd.up = tfd;
-	for (q = IDL_CASE_STMT (tfd->tree).labels; q; q = IDL_LIST (q).next) {
-		if (IDL_LIST (q).data) {
-			down_tfd.tree = q;
-			idataf (data, "case" DELIM_SPACE);
-			IDL_tree_walk2 (IDL_LIST (q).data, &down_tfd,/*flags*/0,
-				       (IDL_tree_func) IDL_emit_node_pre_func,
-				       (IDL_tree_func) IDL_emit_node_post_func,
-				       data);
-			dataf (data, ":");
-		} else
-			idataf (data, "default:");
-		nl ();
-	}
-	restore_flag (literals);
-	restore_flag (idents);
-	indent ();
+        save_flag (idents, TRUE);
+        save_flag (literals, TRUE);
+        down_tfd = *tfd;
+        down_tfd.up = tfd;
+        for (q = IDL_CASE_STMT (tfd->tree).labels; q; q = IDL_LIST (q).next) {
+                if (IDL_LIST (q).data) {
+                        down_tfd.tree = q;
+                        idataf (data, "case" DELIM_SPACE);
+                        IDL_tree_walk2 (IDL_LIST (q).data, &down_tfd,/*flags*/0,
+                                       (IDL_tree_func) IDL_emit_node_pre_func,
+                                       (IDL_tree_func) IDL_emit_node_post_func,
+                                       data);
+                        dataf (data, ":");
+                } else
+                        idataf (data, "default:");
+                nl ();
+        }
+        restore_flag (literals);
+        restore_flag (idents);
+        indent ();
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_case_stmt_post (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_case_stmt_post (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_tree_walk2 (IDL_CASE_STMT (tfd->tree).element_spec, tfd, /*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	unindent ();
+        IDL_tree_walk2 (IDL_CASE_STMT (tfd->tree).element_spec, tfd, /*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        unindent ();
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_member_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_member_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	IDL_emit_IDL_indent (tfd, data);
-	save_flag (idents, TRUE);
-	IDL_tree_walk2 (IDL_MEMBER (tfd->tree).type_spec, tfd, /*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       data);
-	restore_flag (idents);
+        IDL_emit_IDL_indent (tfd, data);
+        save_flag (idents, TRUE);
+        IDL_tree_walk2 (IDL_MEMBER (tfd->tree).type_spec, tfd, /*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       data);
+        restore_flag (idents);
 
-	return FALSE;
+        return FALSE;
 }
 
-static gboolean IDL_emit_IDL_member_post (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_member_post (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	dataf (data, DELIM_SPACE);
-	IDL_output_delim (IDL_MEMBER (tfd->tree).dcls, tfd, data,
-			  (IDL_tree_func) IDL_emit_IDL_type_pre, NULL,
-			  IDLN_IDENT, IDLN_TYPE_ARRAY, FALSE, DELIM_COMMA);
-	IDL_emit_IDL_sc (tfd, data);
+        dataf (data, DELIM_SPACE);
+        IDL_output_delim (IDL_MEMBER (tfd->tree).dcls, tfd, data,
+                          (IDL_tree_func) IDL_emit_IDL_type_pre, NULL,
+                          IDLN_IDENT, IDLN_TYPE_ARRAY, FALSE, DELIM_COMMA);
+        IDL_emit_IDL_sc (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_IDL_codefrag_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_IDL_codefrag_pre (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	if (data->flags & IDLF_OUTPUT_CODEFRAGS) {
-		GSList *slist;
+        if (data->flags & IDLF_OUTPUT_CODEFRAGS) {
+                GSList *slist;
 
-		dataf (data, "%%{ %s", IDL_CODEFRAG (tfd->tree).desc); nl ();
-		for (slist = IDL_CODEFRAG (tfd->tree).lines; slist; slist = slist->next) {
-			dataf (data, "%s", (char *) slist->data); nl ();
-		}
-		dataf (data, "%%}"); nl ();
-	}
+                dataf (data, "%%{ %s", IDL_CODEFRAG (tfd->tree).desc); nl ();
+                for (slist = IDL_CODEFRAG (tfd->tree).lines; slist; slist = slist->next) {
+                        dataf (data, "%s", (char *) slist->data); nl ();
+                }
+                dataf (data, "%%}"); nl ();
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 struct IDL_emit_node {
-	IDL_tree_func pre;
-	IDL_tree_func post;
+        IDL_tree_func pre;
+        IDL_tree_func post;
 };
 
 static struct IDL_emit_node * IDL_get_IDL_emission_table (void)
 {
-	static gboolean initialized = FALSE;
-	static struct IDL_emit_node table[IDLN_LAST];
-	struct IDL_emit_node *s;
+        static int initialized = FALSE;
+        static struct IDL_emit_node table[IDLN_LAST];
+        struct IDL_emit_node *s;
 
-	if (!initialized) {
+        if (!initialized) {
 
-		s = &table[IDLN_MODULE];
-		s->pre = s->post = (IDL_tree_func) IDL_emit_IDL_module_all;
+                s = &table[IDLN_MODULE];
+                s->pre = s->post = (IDL_tree_func) IDL_emit_IDL_module_all;
 
-		s = &table[IDLN_INTERFACE];
-		s->pre = s->post = (IDL_tree_func) IDL_emit_IDL_interface_all;
+                s = &table[IDLN_INTERFACE];
+                s->pre = s->post = (IDL_tree_func) IDL_emit_IDL_interface_all;
 
-		s = &table[IDLN_FORWARD_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_forward_dcl_pre;
-		s->post = (IDL_tree_func) IDL_emit_IDL_sc;
+                s = &table[IDLN_FORWARD_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_forward_dcl_pre;
+                s->post = (IDL_tree_func) IDL_emit_IDL_sc;
 
-		s = &table[IDLN_ATTR_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_attr_dcl_pre;
+                s = &table[IDLN_ATTR_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_attr_dcl_pre;
 
-		s = &table[IDLN_OP_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_op_dcl_pre;
+                s = &table[IDLN_OP_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_op_dcl_pre;
 
-		s = &table[IDLN_PARAM_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_param_dcl_pre;
+                s = &table[IDLN_PARAM_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_param_dcl_pre;
 
-		s = &table[IDLN_TYPE_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_type_dcl_pre;
+                s = &table[IDLN_TYPE_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_type_dcl_pre;
 
-		s = &table[IDLN_CONST_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_const_dcl_pre;
+                s = &table[IDLN_CONST_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_const_dcl_pre;
 
-		s = &table[IDLN_EXCEPT_DCL];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_except_dcl_pre;
-		s->post = (IDL_tree_func) IDL_emit_IDL_curly_brace_close_sc;
+                s = &table[IDLN_EXCEPT_DCL];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_except_dcl_pre;
+                s->post = (IDL_tree_func) IDL_emit_IDL_curly_brace_close_sc;
 
-		s = &table[IDLN_MEMBER];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_member_pre;
-		s->post = (IDL_tree_func) IDL_emit_IDL_member_post;
+                s = &table[IDLN_MEMBER];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_member_pre;
+                s->post = (IDL_tree_func) IDL_emit_IDL_member_post;
 
-		s = &table[IDLN_NATIVE];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_native_pre;
+                s = &table[IDLN_NATIVE];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_native_pre;
 
-		s = &table[IDLN_CASE_STMT];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_case_stmt_pre;
-		s->post = (IDL_tree_func) IDL_emit_IDL_case_stmt_post;
+                s = &table[IDLN_CASE_STMT];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_case_stmt_pre;
+                s->post = (IDL_tree_func) IDL_emit_IDL_case_stmt_post;
 
-		s = &table[IDLN_IDENT];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_ident_pre;
+                s = &table[IDLN_IDENT];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_ident_pre;
 
-		s = &table[IDLN_CODEFRAG];
-		s->pre = (IDL_tree_func) IDL_emit_IDL_codefrag_pre;
+                s = &table[IDLN_CODEFRAG];
+                s->pre = (IDL_tree_func) IDL_emit_IDL_codefrag_pre;
 
-		table[IDLN_TYPE_FLOAT].pre =
-			table[IDLN_TYPE_CHAR].pre =
-			table[IDLN_TYPE_WIDE_CHAR].pre =
-			table[IDLN_TYPE_BOOLEAN].pre =
-			table[IDLN_TYPE_OCTET].pre =
-			table[IDLN_TYPE_ANY].pre =
-			table[IDLN_TYPE_OBJECT].pre =
-			table[IDLN_TYPE_TYPECODE].pre =
-			table[IDLN_TYPE_FIXED].pre =
-			table[IDLN_TYPE_INTEGER].pre =
-			table[IDLN_TYPE_STRING].pre =
-			table[IDLN_TYPE_WIDE_STRING].pre =
-			table[IDLN_TYPE_ENUM].pre =
-			table[IDLN_TYPE_ARRAY].pre =
-			table[IDLN_TYPE_SEQUENCE].pre =
-			table[IDLN_TYPE_STRUCT].pre =
-			table[IDLN_TYPE_UNION].pre = (IDL_tree_func) IDL_emit_IDL_type_pre;
+                table[IDLN_TYPE_FLOAT].pre =
+                        table[IDLN_TYPE_CHAR].pre =
+                        table[IDLN_TYPE_WIDE_CHAR].pre =
+                        table[IDLN_TYPE_BOOLEAN].pre =
+                        table[IDLN_TYPE_OCTET].pre =
+                        table[IDLN_TYPE_ANY].pre =
+                        table[IDLN_TYPE_OBJECT].pre =
+                        table[IDLN_TYPE_TYPECODE].pre =
+                        table[IDLN_TYPE_FIXED].pre =
+                        table[IDLN_TYPE_INTEGER].pre =
+                        table[IDLN_TYPE_STRING].pre =
+                        table[IDLN_TYPE_WIDE_STRING].pre =
+                        table[IDLN_TYPE_ENUM].pre =
+                        table[IDLN_TYPE_ARRAY].pre =
+                        table[IDLN_TYPE_SEQUENCE].pre =
+                        table[IDLN_TYPE_STRUCT].pre =
+                        table[IDLN_TYPE_UNION].pre = (IDL_tree_func) IDL_emit_IDL_type_pre;
 
-		table[IDLN_FLOAT].pre =
-			table[IDLN_INTEGER].pre =
-			table[IDLN_FIXED].pre =
-			table[IDLN_CHAR].pre =
-			table[IDLN_WIDE_CHAR].pre =
-			table[IDLN_BOOLEAN].pre =
-			table[IDLN_STRING].pre =
-			table[IDLN_WIDE_STRING].pre = (IDL_tree_func) IDL_emit_IDL_literal_pre;
+                table[IDLN_FLOAT].pre =
+                        table[IDLN_INTEGER].pre =
+                        table[IDLN_FIXED].pre =
+                        table[IDLN_CHAR].pre =
+                        table[IDLN_WIDE_CHAR].pre =
+                        table[IDLN_BOOLEAN].pre =
+                        table[IDLN_STRING].pre =
+                        table[IDLN_WIDE_STRING].pre = (IDL_tree_func) IDL_emit_IDL_literal_pre;
 
-		initialized = TRUE;
-	}
+                initialized = TRUE;
+        }
 
-	return table;
+        return table;
 }
 
-static gboolean IDL_emit_node_pre_func (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_node_pre_func (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	const struct IDL_emit_node * const s =
-		&IDL_get_IDL_emission_table () [IDL_NODE_TYPE (tfd->tree)];
+        const struct IDL_emit_node * const s =
+                &IDL_get_IDL_emission_table () [IDL_NODE_TYPE (tfd->tree)];
 
-	if (s->pre)
-		return (*s->pre) (tfd, data);
+        if (s->pre)
+                return (*s->pre) (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
-static gboolean IDL_emit_node_post_func (IDL_tree_func_data *tfd, IDL_output_data *data)
+static int IDL_emit_node_post_func (IDL_tree_func_data *tfd, IDL_output_data *data)
 {
-	const struct IDL_emit_node * const s =
-		&IDL_get_IDL_emission_table () [IDL_NODE_TYPE (tfd->tree)];
+        const struct IDL_emit_node * const s =
+                &IDL_get_IDL_emission_table () [IDL_NODE_TYPE (tfd->tree)];
 
-	if (s->post)
-		return (*s->post) (tfd, data);
+        if (s->post)
+                return (*s->post) (tfd, data);
 
-	return TRUE;
+        return TRUE;
 }
 
 void IDL_tree_to_IDL (IDL_tree p, IDL_ns ns, FILE *output, unsigned long output_flags)
 {
-	IDL_output_data data;
+        IDL_output_data data;
 
-	g_return_if_fail (output != NULL);
+//        g_return_if_fail (output != NULL);
 
-	data.ns = ns;
-	data.mode = OUTPUT_FILE;
-	data.u.o = output;
-	data.flags = output_flags;
-	data.ilev = 0;
-	data.idents = TRUE;
-	data.literals = TRUE;
-	data.inline_props = TRUE;
-	data.su_def = FALSE;
+        data.ns = ns;
+        data.mode = OUTPUT_FILE;
+        data.u.o = output;
+        data.flags = output_flags;
+        data.ilev = 0;
+        data.idents = TRUE;
+        data.literals = TRUE;
+        data.inline_props = TRUE;
+        data.su_def = FALSE;
 
-	if (ns == NULL)
-		data.flags |= IDLF_OUTPUT_NO_QUALIFY_IDENTS;
+        if (ns == NULL)
+                data.flags |= IDLF_OUTPUT_NO_QUALIFY_IDENTS;
 
-	IDL_tree_walk2 (p, NULL, /*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       &data);
+        IDL_tree_walk2 (p, NULL, /*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       &data);
 }
 
-GString *IDL_tree_to_IDL_string (IDL_tree p, IDL_ns ns, unsigned long output_flags)
+char *IDL_tree_to_IDL_string (IDL_tree p, IDL_ns ns, unsigned long output_flags)
 {
-	IDL_output_data data;
+        IDL_output_data data;
 
-	data.ns = ns;
-	data.mode = OUTPUT_STRING;
-	data.u.s = g_string_new (NULL);
-	data.flags = output_flags;
-	data.ilev = 0;
-	data.idents = TRUE;
-	data.literals = TRUE;
-	data.inline_props = TRUE;
-	data.su_def = FALSE;
+        data.ns = ns;
+        data.mode = OUTPUT_STRING;
+        data.u.s[0] = '\0';
+        data.flags = output_flags;
+        data.ilev = 0;
+        data.idents = TRUE;
+        data.literals = TRUE;
+        data.inline_props = TRUE;
+        data.su_def = FALSE;
 
-	if (ns == NULL)
-		data.flags |= IDLF_OUTPUT_NO_QUALIFY_IDENTS;
+        if (ns == NULL)
+                data.flags |= IDLF_OUTPUT_NO_QUALIFY_IDENTS;
 
-	IDL_tree_walk2 (p, NULL, /*flags*/0,
-		       (IDL_tree_func) IDL_emit_node_pre_func,
-		       (IDL_tree_func) IDL_emit_node_post_func,
-		       &data);
+        IDL_tree_walk2 (p, NULL, /*flags*/0,
+                       (IDL_tree_func) IDL_emit_node_pre_func,
+                       (IDL_tree_func) IDL_emit_node_post_func,
+                       &data);
 
-	return data.u.s;
+        return data.u.s;
 }
 
 typedef struct {
-    IDL_tree	searchNode;
-    gboolean	found;
+    IDL_tree    searchNode;
+    int    found;
 } ContainsNodeWalkerInfo;
 
-static gboolean 
-contains_node_walker (IDL_tree_func_data *tfd, gpointer data) {
-	ContainsNodeWalkerInfo	*info = data;
-	/* skip root! */
-	if ( tfd->up!=0 && tfd->tree == info->searchNode ) {
-		info->found = TRUE;
-		return FALSE;
-	}
- 	return TRUE;	/* continue walking */
+static int
+contains_node_walker (IDL_tree_func_data *tfd, void * data) {
+        ContainsNodeWalkerInfo  *info = data;
+        /* skip root! */
+        if ( tfd->up!=0 && tfd->tree == info->searchNode ) {
+                info->found = TRUE;
+                return FALSE;
+        }
+        return TRUE;    /* continue walking */
 }
 
-gboolean IDL_tree_contains_node(IDL_tree tree, IDL_tree node) {
-	ContainsNodeWalkerInfo	info;
-	info.searchNode = node;
-	info.found = 0;
-	IDL_tree_walk2 (tree, /*curwalk*/NULL, /*flags*/0,
-	  /*pre*/contains_node_walker, /*post*/NULL, &info);
-	return info.found;
+int IDL_tree_contains_node(IDL_tree tree, IDL_tree node) {
+        ContainsNodeWalkerInfo  info;
+        info.searchNode = node;
+        info.found = 0;
+        IDL_tree_walk2 (tree, /*curwalk*/NULL, /*flags*/0,
+          /*pre*/contains_node_walker, /*post*/NULL, &info);
+        return info.found;
 }
 
 struct IDL_recursive_walker_info {
-	GSList   *ident_list;
-	gboolean  recursive;
-	};
+        GSList   *ident_list;
+        int  recursive;
+        };
 
 /*
  * IDL_tree_is_recursive_walker_pre:
@@ -3556,47 +3692,47 @@ struct IDL_recursive_walker_info {
  * Return value: %FALSE if recursion is detected - this stops the
  *               walk to the parse tree -, %TRUE otherwise.
  */
-static gboolean
+static int
 IDL_tree_is_recursive_walker_pre (IDL_tree_func_data *walk_frame,
-				  gpointer            user_data)
+                                  void *            user_data)
 {
-	struct IDL_recursive_walker_info *info = user_data;
-	IDL_tree                          node = walk_frame->tree;
+        struct IDL_recursive_walker_info *info = user_data;
+        IDL_tree                          node = walk_frame->tree;
 
-	switch (IDL_NODE_TYPE (node)) {
-	case IDLN_TYPE_STRUCT:
-	case IDLN_TYPE_UNION:
-		info->ident_list = g_slist_prepend (info->ident_list,
-						    IDL_TYPE_STRUCT (node).ident);
-		break;
-	case IDLN_TYPE_SEQUENCE: {
-		IDL_tree  seq_type = IDL_TYPE_SEQUENCE (node).simple_type_spec;
-		GSList   *l = info->ident_list;
+        switch (IDL_NODE_TYPE (node)) {
+        case IDLN_TYPE_STRUCT:
+        case IDLN_TYPE_UNION:
+                info->ident_list = g_slist_prepend (info->ident_list,
+                                                    IDL_TYPE_STRUCT (node).ident);
+                break;
+        case IDLN_TYPE_SEQUENCE: {
+                IDL_tree  seq_type = IDL_TYPE_SEQUENCE (node).simple_type_spec;
+                GSList   *l = info->ident_list;
 
-		if (IDL_NODE_TYPE (seq_type) != IDLN_IDENT)
-			break;
+                if (IDL_NODE_TYPE (seq_type) != IDLN_IDENT)
+                        break;
 
-		g_assert (IDL_IDENT (seq_type).repo_id);
+//                g_assert (IDL_IDENT (seq_type).repo_id);
 
-		for (; l; l = l->next) {
-			IDL_tree n = (IDL_tree)l->data;
+                for (; l; l = l->next) {
+                        IDL_tree n = (IDL_tree)l->data;
 
-			g_assert (IDL_IDENT (n).repo_id);
+//                        g_assert (IDL_IDENT (n).repo_id);
 
-			if (!strcmp (IDL_IDENT (n).repo_id,
-				     IDL_IDENT (seq_type).repo_id)) {
+                        if (!strcmp (IDL_IDENT (n).repo_id,
+                                     IDL_IDENT (seq_type).repo_id)) {
 
-				info->recursive = TRUE;
-				return FALSE;
-			}
-		}
-		}
-		break;
-	default:
-		break;
-	}
+                                info->recursive = TRUE;
+                                return FALSE;
+                        }
+                }
+                }
+                break;
+        default:
+                break;
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 /*
@@ -3609,30 +3745,30 @@ IDL_tree_is_recursive_walker_pre (IDL_tree_func_data *walk_frame,
  *
  * Return value: %TRUE.
  */
-static gboolean
+static int
 IDL_tree_is_recursive_walker_post (IDL_tree_func_data *walk_frame,
-				   gpointer            user_data)
+                                   void *            user_data)
 {
-	struct IDL_recursive_walker_info *info = user_data;
-	IDL_tree                          node = walk_frame->tree;
+        struct IDL_recursive_walker_info *info = user_data;
+        IDL_tree                          node = walk_frame->tree;
 
-	switch (IDL_NODE_TYPE (node)) {
-	case IDLN_TYPE_STRUCT:
-	case IDLN_TYPE_UNION: {
-		GSList *link = info->ident_list;
+        switch (IDL_NODE_TYPE (node)) {
+        case IDLN_TYPE_STRUCT:
+        case IDLN_TYPE_UNION: {
+                GSList *link = info->ident_list;
 
-		g_assert (((IDL_tree)link->data) == IDL_TYPE_STRUCT (node).ident);
+//                g_assert (((IDL_tree)link->data) == IDL_TYPE_STRUCT (node).ident);
 
-		info->ident_list = g_slist_remove_link (info->ident_list,
-						        link);
-		g_slist_free_1 (link);
-		}
-		break;
-	default:
-		break;
-	}
+                info->ident_list = g_slist_remove_link (info->ident_list,
+                                                        link);
+                g_slist_free_1 (link);
+                }
+                break;
+        default:
+                break;
+        }
 
-	return TRUE;
+        return TRUE;
 }
 
 /*
@@ -3648,29 +3784,21 @@ IDL_tree_is_recursive_walker_post (IDL_tree_func_data *walk_frame,
  * Return value: %TRUE if @tree contains recursive types,
  *               %FALSE otherwise.
  */
-gboolean
-IDL_tree_is_recursive (IDL_tree tree, gpointer dummy)
+int
+IDL_tree_is_recursive (IDL_tree tree, void * dummy)
 {
-	struct IDL_recursive_walker_info info;
+        struct IDL_recursive_walker_info info;
 
-	info.ident_list = NULL;
-	info.recursive  = FALSE;
+        info.ident_list = NULL;
+        info.recursive  = FALSE;
 
-	IDL_tree_walk2 (tree, NULL, IDL_WalkF_TypespecOnly, 
-			IDL_tree_is_recursive_walker_pre, 
-			IDL_tree_is_recursive_walker_post, 
-			&info);
+        IDL_tree_walk2 (tree, NULL, IDL_WalkF_TypespecOnly,
+                        IDL_tree_is_recursive_walker_pre,
+                        IDL_tree_is_recursive_walker_post,
+                        &info);
 
-	g_assert (!info.ident_list);
+//        g_assert (!info.ident_list);
 
-	return info.recursive;
+        return info.recursive;
 }
 
-/*
- * Local variables:
- * mode: C
- * c-basic-offset: 8
- * tab-width: 8
- * indent-tabs-mode: t
- * End:
- */

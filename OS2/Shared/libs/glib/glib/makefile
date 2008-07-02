@@ -64,14 +64,16 @@ OBJS =  gerror.obj              &
         guniprop.obj            &
         gurifuncs.obj   &
         gstdio.obj      &
-        gutf8.obj
-#        gutils.obj
-#        gmain.obj               &
-#        localcharset.obj
-#        goption.obj     &
-#        gdir.obj        &
-#        gbacktrace.obj          &
-#        gconvert.obj            &
+        gutf8.obj       &
+        waitpid.obj       &
+        galiasdef.obj       &
+        gmain.obj            &
+        gutils.obj          &
+        localcharset.obj      &
+        goption.obj     &
+        gdir.obj        &
+        gbacktrace.obj          &
+        gconvert.obj
 
 
 

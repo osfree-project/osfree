@@ -39,79 +39,79 @@
 /* Eliminate warning */
 #define YY_NO_UNPUT 1
 
-#define YY_INPUT(buf,result,the_max_size)	do {				\
-	if (__IDL_inputcb == NULL) {						\
-		if ((result = fread (buf, 1, the_max_size, yyin)) == YY_NULL &&	\
-		    ferror (yyin))						\
-			YY_FATAL_ERROR ("input in scanner failed");		\
-	} else {								\
-		union IDL_input_data data;					\
-										\
-		data.fill.buffer = buf;						\
-		data.fill.max_size = the_max_size;				\
-		result = (*__IDL_inputcb) (IDL_INPUT_REASON_FILL, &data,	\
-					   __IDL_inputcb_user_data);		\
-		if (result < 0)							\
-			YY_FATAL_ERROR ("input callback returned failure");	\
-	}									\
+#define YY_INPUT(buf,result,the_max_size)       do {                            \
+        if (__IDL_inputcb == NULL) {                                            \
+                if ((result = fread (buf, 1, the_max_size, yyin)) == YY_NULL && \
+                    ferror (yyin))                                              \
+                        YY_FATAL_ERROR ("input in scanner failed");             \
+        } else {                                                                \
+                union IDL_input_data data;                                      \
+                                                                                \
+                data.fill.buffer = buf;                                         \
+                data.fill.max_size = the_max_size;                              \
+                result = (*__IDL_inputcb) (IDL_INPUT_REASON_FILL, &data,        \
+                                           __IDL_inputcb_user_data);            \
+                if (result < 0)                                                 \
+                        YY_FATAL_ERROR ("input callback returned failure");     \
+        }                                                                       \
 } while (0)
 
-#define tokreturn(token)			do {	\
-	__IDL_prev_token_line = __IDL_cur_token_line;	\
-	__IDL_cur_token_line = __IDL_cur_line;		\
-	return token;					\
+#define tokreturn(token)                        do {    \
+        __IDL_prev_token_line = __IDL_cur_token_line;   \
+        __IDL_cur_token_line = __IDL_cur_line;          \
+        return token;                                   \
 } while (0)
 
-#define SELECT_START				\
-	/* Parser driven start conditions */	\
-	if (__IDL_flagsi & IDLFP_PROPERTIES)	\
-		BEGIN (PROP);			\
-	else if (__IDL_flagsi & IDLFP_NATIVE)	\
-		BEGIN (NATIVE);			\
-	/* Global syntax start conditions */	\
-	else if (__IDL_flags & IDLF_XPIDL)	\
-		BEGIN (XP);			\
-	else if (__IDL_flags & IDLF_CODEFRAGS)	\
-		BEGIN (CFRG);
+#define SELECT_START                            \
+        /* Parser driven start conditions */    \
+        if (__IDL_flagsi & IDLFP_PROPERTIES)    \
+                BEGIN (PROP);                   \
+        else if (__IDL_flagsi & IDLFP_NATIVE)   \
+                BEGIN (NATIVE);                 \
+        /* Global syntax start conditions */    \
+        else if (__IDL_flags & IDLF_XPIDL)      \
+                BEGIN (XP);                     \
+        else if (__IDL_flags & IDLF_CODEFRAGS)  \
+                BEGIN (CFRG);
 
-#define SELECT_RESTART				\
-	SELECT_START				\
-	else					\
-		BEGIN (INITIAL);
+#define SELECT_RESTART                          \
+        SELECT_START                            \
+        else                                    \
+                BEGIN (INITIAL);
 
-static int		count_nl			(const char *s);
+static int              count_nl                        (const char *s);
 
 #ifdef YYDEBUG
-extern int				yydebug;
+extern int                              yydebug;
 #endif
-int					__IDL_prev_token_line;
-int					__IDL_cur_token_line;
-static int				warn_underscores;
-static char *				codefrag_desc;
-static GSList *				codefrag_list;
-static GSList *				codefrag_list_tail;
+int                                     __IDL_prev_token_line;
+int                                     __IDL_cur_token_line;
+static int                              warn_underscores;
+static char *                           codefrag_desc;
+static GSList *                         codefrag_list;
+static GSList *                         codefrag_list_tail;
 %}
 
-whitespace		[ \t\v\f\r]*
-whitespacenl		[ \t\v\f\r\n]*
-newline			\n
-cpp_pragma		^{whitespace}#{whitespace}pragma{whitespace}.*
-cpp_status		^{whitespace}#{whitespace}[0-9][0-9]*.*
-cpp_other		^{whitespace}#.*
-b8_int			0[0-9]*
-b10_uint		[1-9][0-9]*
-b16_int			0[xX][0-9A-Fa-f]+
-float_lit		[0-9]*\.[0-9]+([eE]-?[0-9]+)?|[0-9]+\.?([eE]-?[0-9]+)?
-fixed_lit		([0-9]*\.[0-9]+|-?[0-9]+\.?[0-9]*)[dD]
-declspec		__declspec{whitespacenl}\({whitespacenl}[A-Za-z]*{whitespacenl}\)
-happy_ident		[A-Za-z][A-Za-z0-9]*
-escaped_ident		_[A-Za-z0-9_]+
-warn1_ident		[A-Za-z][A-Za-z0-9_]*
-prop_key		[A-Za-z][A-Za-z0-9_]*
-prop_value		\([^\)]+\)
-native_type		[^\)]+\)
-sqstring		\'[^\'\n]*[\'\n]
-dqstring		\"[^\"\n]*[\"\n]
+whitespace              [ \t\v\f\r]*
+whitespacenl            [ \t\v\f\r\n]*
+newline                 \n
+cpp_pragma              ^{whitespace}#{whitespace}pragma{whitespace}.*
+cpp_status              ^{whitespace}#{whitespace}[0-9][0-9]*.*
+cpp_other               ^{whitespace}#.*
+b8_int                  0[0-9]*
+b10_uint                [1-9][0-9]*
+b16_int                 0[xX][0-9A-Fa-f]+
+float_lit               [0-9]*\.[0-9]+([eE]-?[0-9]+)?|[0-9]+\.?([eE]-?[0-9]+)?
+fixed_lit               ([0-9]*\.[0-9]+|-?[0-9]+\.?[0-9]*)[dD]
+declspec                __declspec{whitespacenl}\({whitespacenl}[A-Za-z]*{whitespacenl}\)
+happy_ident             [A-Za-z][A-Za-z0-9]*
+escaped_ident           _[A-Za-z0-9_]+
+warn1_ident             [A-Za-z][A-Za-z0-9_]*
+prop_key                [A-Za-z][A-Za-z0-9_]*
+prop_value              \([^\)]+\)
+native_type             [^\)]+\)
+sqstring                \'[^\'\n]*[\'\n]
+dqstring                \"[^\"\n]*[\"\n]
 
 %p 5000
 
@@ -125,291 +125,291 @@ dqstring		\"[^\"\n]*[\"\n]
 
 %%
 
-	SELECT_START;
+        SELECT_START;
 
-<INITIAL,XP,CFRG>^%\{.*					{
-	char *s = yytext + 2;
+<INITIAL,XP,CFRG>^%\{.*                                 {
+        char *s = yytext + 2;
 
-	while (g_ascii_isspace (*s)) ++s;
-	codefrag_desc = g_strdup (s);
-	codefrag_list = codefrag_list_tail = NULL;
+        while (isspace (*s)) ++s;
+        codefrag_desc = strdup (s);
+        codefrag_list = codefrag_list_tail = NULL;
 
-	if (!(__IDL_flags & IDLF_XPIDL || __IDL_flags & IDLF_CODEFRAGS))
-		yyerror ("Code fragment syntax not enabled");
-	else
-		BEGIN (CFRGX);
+        if (!(__IDL_flags & IDLF_XPIDL || __IDL_flags & IDLF_CODEFRAGS))
+                yyerror ("Code fragment syntax not enabled");
+        else
+                BEGIN (CFRGX);
 }
-<CFRGX>^%\}.*						{
-	yylval.tree = IDL_codefrag_new (codefrag_desc, codefrag_list);
-	tokreturn (TOK_CODEFRAG);
+<CFRGX>^%\}.*                                           {
+        yylval.tree = IDL_codefrag_new (codefrag_desc, codefrag_list);
+        tokreturn (TOK_CODEFRAG);
 }
-<CFRGX>.*						{
-	char *s;
-	GSList *slist;
+<CFRGX>.*                                               {
+        char *s;
+        GSList *slist;
 
-	s = g_strdup (yytext);
-	slist = g_slist_alloc ();
-	slist->data = s;
+        s = strdup (yytext);
+        slist = g_slist_alloc ();
+        slist->data = s;
 
-	if (codefrag_list == NULL) {
-		codefrag_list = slist;
-		codefrag_list_tail = slist;
-	} else {
-		codefrag_list_tail->next = slist;
-		codefrag_list_tail = slist;
-	}
+        if (codefrag_list == NULL) {
+                codefrag_list = slist;
+                codefrag_list_tail = slist;
+        } else {
+                codefrag_list_tail->next = slist;
+                codefrag_list_tail = slist;
+        }
 }
-<*>{cpp_pragma}						{
-	int n;
-	char *p = yytext;
-	char *s, *t;
+<*>{cpp_pragma}                                         {
+        int n;
+        char *p = yytext;
+        char *s, *t;
 
-	while (g_ascii_isspace (*p) || *p == '#') ++p;
-	s = p;
-	sscanf (p, "%*6s%n", &n); s += n;
-	while (g_ascii_isspace (*s)) ++s;
+        while (isspace (*p) || *p == '#') ++p;
+        s = p;
+        sscanf (p, "%*6s%n", &n); s += n;
+        while (isspace (*s)) ++s;
 
-	t = s + strlen(s) - 1;
-	while(g_ascii_isspace(*t) && t > s) *(t--) = '\0'; /* Chomp trailing spaces */
+        t = s + strlen(s) - 1;
+        while(isspace(*t) && t > s) *(t--) = '\0'; /* Chomp trailing spaces */
 
-	__IDL_do_pragma (s);
+        __IDL_do_pragma (s);
 }
-<*>{cpp_status}						{
-	gchar *mytext = yytext;
-	gint   line;
+<*>{cpp_status}                                         {
+        char *mytext = yytext;
+        int   line;
 
-	while (g_ascii_isspace (*mytext))
-		mytext++;
+        while (isspace (*mytext))
+                mytext++;
 
-	g_assert (mytext [0] == '#' && mytext [1] == ' ');
+//        g_assert (mytext [0] == '#' && mytext [1] == ' ');
 
-	mytext += 2;
+        mytext += 2;
 
-	line = atoi (mytext);
+        line = atoi (mytext);
 
-	while (g_ascii_isdigit (*mytext))
-		mytext++;
+        while (isdigit (*mytext))
+                mytext++;
 
-	if (g_ascii_isspace (*mytext)) {
-		mytext++;
+        if (isspace (*mytext)) {
+                mytext++;
 
-		if (mytext [0] == '"') {
-			gchar *p = ++mytext;
+                if (mytext [0] == '"') {
+                        char *p = ++mytext;
 
-			while (*p && *p != '"') p++;
+                        while (*p && *p != '"') p++;
 
-			*p = '\0';
-		}
+                        *p = '\0';
+                }
 
-		if (mytext [0] ==  '<' &&
-		    (!strcmp (mytext, "<builtin>")  ||
-		     !strcmp (mytext, "<built-in>") ||
-		     !strcmp (mytext, "<stdin>")    ||
-		     !strcmp (mytext, "<command-line>") ||
-		     !strcmp (mytext, "<command line>")))
-		    
-			yylval.tree = IDL_file_set ("", line);
-		else {
-			gchar *filename = g_strdup (mytext);
+                if (mytext [0] ==  '<' &&
+                    (!strcmp (mytext, "<builtin>")  ||
+                     !strcmp (mytext, "<built-in>") ||
+                     !strcmp (mytext, "<stdin>")    ||
+                     !strcmp (mytext, "<command-line>") ||
+                     !strcmp (mytext, "<command line>")))
 
-			yylval.tree = IDL_file_set (filename, line);
+                        yylval.tree = IDL_file_set ("", line);
+                else {
+                        char *filename = strdup (mytext);
 
-			g_free (filename);
-		}
-	}
-	else
-		yylval.tree = IDL_file_set ("", line);
+                        yylval.tree = IDL_file_set (filename, line);
 
-	if (yylval.tree)
-	 	tokreturn (TOK_SRCFILE);
+                        free (filename);
+                }
+        }
+        else
+                yylval.tree = IDL_file_set ("", line);
+
+        if (yylval.tree)
+                tokreturn (TOK_SRCFILE);
 }
-<*>{cpp_other}						;
-<*>{whitespace}						;
-{b8_int}						{
-	yylval.integer = 0;
-	sscanf (yytext, "%" IDL_LL "o", &yylval.integer);
-	tokreturn (TOK_INTEGER);
+<*>{cpp_other}                                          ;
+<*>{whitespace}                                         ;
+{b8_int}                                                {
+        yylval.integer = 0;
+        sscanf (yytext, "%" IDL_LL "o", &yylval.integer);
+        tokreturn (TOK_INTEGER);
 }
-{b10_uint}						{
-	yylval.integer = 0;
-	sscanf (yytext, "%" IDL_LL "u", &yylval.integer);
-	tokreturn (TOK_INTEGER);
+{b10_uint}                                              {
+        yylval.integer = 0;
+        sscanf (yytext, "%" IDL_LL "u", &yylval.integer);
+        tokreturn (TOK_INTEGER);
 }
-{b16_int}						{
-	yylval.integer = 0;
-	sscanf (yytext + 2, "%" IDL_LL "x", &yylval.integer);
-	tokreturn (TOK_INTEGER);
+{b16_int}                                               {
+        yylval.integer = 0;
+        sscanf (yytext + 2, "%" IDL_LL "x", &yylval.integer);
+        tokreturn (TOK_INTEGER);
 }
-{fixed_lit}						{
-	yylval.str = g_strdup (yytext);
-	tokreturn (TOK_FIXEDP);
+{fixed_lit}                                             {
+        yylval.str = strdup (yytext);
+        tokreturn (TOK_FIXEDP);
 }
-{float_lit}						{
-	yylval.floatp = atof (yytext);
-	tokreturn (TOK_FLOATP);
+{float_lit}                                             {
+        yylval.floatp = atof (yytext);
+        tokreturn (TOK_FLOATP);
 }
-FALSE			tokreturn (TOK_FALSE);
-TRUE			tokreturn (TOK_TRUE);
-any			tokreturn (TOK_ANY);
-attribute		tokreturn (TOK_ATTRIBUTE);
-boolean			tokreturn (TOK_BOOLEAN);
-case			tokreturn (TOK_CASE);
-char			tokreturn (TOK_CHAR);
-const			tokreturn (TOK_CONST);
-context			tokreturn (TOK_CONTEXT);
-default			tokreturn (TOK_DEFAULT);
-double			tokreturn (TOK_DOUBLE);
-enum			tokreturn (TOK_ENUM);
-exception		tokreturn (TOK_EXCEPTION);
-fixed			tokreturn (TOK_FIXED);
-float			tokreturn (TOK_FLOAT);
-in			tokreturn (TOK_IN);
-inout			tokreturn (TOK_INOUT);
-interface		tokreturn (TOK_INTERFACE);
-long			tokreturn (TOK_LONG);
-module			tokreturn (TOK_MODULE);
-native			tokreturn (TOK_NATIVE);
-octet			tokreturn (TOK_OCTET);
-oneway			tokreturn (TOK_ONEWAY);
-out			tokreturn (TOK_OUT);
-raises			tokreturn (TOK_RAISES);
-readonly		tokreturn (TOK_READONLY);
-sequence		tokreturn (TOK_SEQUENCE);
-short			tokreturn (TOK_SHORT);
-string			tokreturn (TOK_STRING);
-struct			tokreturn (TOK_STRUCT);
-switch			tokreturn (TOK_SWITCH);
-typedef			tokreturn (TOK_TYPEDEF);
-union			tokreturn (TOK_UNION);
-unsigned		tokreturn (TOK_UNSIGNED);
-<XP>\.\.\.		tokreturn (TOK_VARARGS);
-void			tokreturn (TOK_VOID);
-wchar			tokreturn (TOK_WCHAR);
-wstring			tokreturn (TOK_WSTRING);
-::			tokreturn (TOK_OP_SCOPE);
-\>\>			tokreturn (TOK_OP_SHR);
-\<\<			tokreturn (TOK_OP_SHL);
-{declspec}						{
-	char *s = g_strdup (yytext);
+FALSE                   tokreturn (TOK_FALSE);
+TRUE                    tokreturn (TOK_TRUE);
+any                     tokreturn (TOK_ANY);
+attribute               tokreturn (TOK_ATTRIBUTE);
+boolean                 tokreturn (TOK_BOOLEAN);
+case                    tokreturn (TOK_CASE);
+char                    tokreturn (TOK_CHAR);
+const                   tokreturn (TOK_CONST);
+context                 tokreturn (TOK_CONTEXT);
+default                 tokreturn (TOK_DEFAULT);
+double                  tokreturn (TOK_DOUBLE);
+enum                    tokreturn (TOK_ENUM);
+exception               tokreturn (TOK_EXCEPTION);
+fixed                   tokreturn (TOK_FIXED);
+float                   tokreturn (TOK_FLOAT);
+in                      tokreturn (TOK_IN);
+inout                   tokreturn (TOK_INOUT);
+interface               tokreturn (TOK_INTERFACE);
+long                    tokreturn (TOK_LONG);
+module                  tokreturn (TOK_MODULE);
+native                  tokreturn (TOK_NATIVE);
+octet                   tokreturn (TOK_OCTET);
+oneway                  tokreturn (TOK_ONEWAY);
+out                     tokreturn (TOK_OUT);
+raises                  tokreturn (TOK_RAISES);
+readonly                tokreturn (TOK_READONLY);
+sequence                tokreturn (TOK_SEQUENCE);
+short                   tokreturn (TOK_SHORT);
+string                  tokreturn (TOK_STRING);
+struct                  tokreturn (TOK_STRUCT);
+switch                  tokreturn (TOK_SWITCH);
+typedef                 tokreturn (TOK_TYPEDEF);
+union                   tokreturn (TOK_UNION);
+unsigned                tokreturn (TOK_UNSIGNED);
+<XP>\.\.\.              tokreturn (TOK_VARARGS);
+void                    tokreturn (TOK_VOID);
+wchar                   tokreturn (TOK_WCHAR);
+wstring                 tokreturn (TOK_WSTRING);
+::                      tokreturn (TOK_OP_SCOPE);
+\>\>                    tokreturn (TOK_OP_SHR);
+\<\<                    tokreturn (TOK_OP_SHL);
+{declspec}                                              {
+        char *s = strdup (yytext);
 
-	/* Get the parenthesized expression (ignoring whitespace) */
-	sscanf (yytext, "__declspec %*[(] %[A-Za-z_] %*[)]", s);
-	yylval.str = s;
-	__IDL_cur_line += count_nl (yytext);
-	tokreturn (TOK_DECLSPEC);
+        /* Get the parenthesized expression (ignoring whitespace) */
+        sscanf (yytext, "__declspec %*[(] %[A-Za-z_] %*[)]", s);
+        yylval.str = s;
+        __IDL_cur_line += count_nl (yytext);
+        tokreturn (TOK_DECLSPEC);
 }
-{happy_ident}						{
+{happy_ident}                                           {
 #if 0
-	if ((__IDL_flags & IDLF_TYPECODES) && strcmp (yytext, "TypeCode") == 0)
-		tokreturn (TOK_TYPECODE);
+        if ((__IDL_flags & IDLF_TYPECODES) && strcmp (yytext, "TypeCode") == 0)
+                tokreturn (TOK_TYPECODE);
 #endif
-	if (__IDL_typecodes_as_tok>0 && strcmp (yytext, "TypeCode") == 0)
-		tokreturn (TOK_TYPECODE);
-	if ( (__IDL_pidl <= 0) && strcmp(yytext, "Object")==0 )
-		tokreturn (TOK_OBJECT);
-	yylval.str = g_strdup (yytext);
-	tokreturn (TOK_IDENT);
+        if (__IDL_typecodes_as_tok>0 && strcmp (yytext, "TypeCode") == 0)
+                tokreturn (TOK_TYPECODE);
+        if ( (__IDL_pidl <= 0) && strcmp(yytext, "Object")==0 )
+                tokreturn (TOK_OBJECT);
+        yylval.str = strdup (yytext);
+        tokreturn (TOK_IDENT);
 }
-{escaped_ident}						{
-	yylval.str = g_strdup (&yytext[1]);
-	tokreturn (TOK_IDENT);
+{escaped_ident}                                         {
+        yylval.str = strdup (&yytext[1]);
+        tokreturn (TOK_IDENT);
 }
-{warn1_ident}						{
-	if (!warn_underscores) {
-		yywarningv (IDL_WARNING2,
-			   "`%s' underscores within identifiers are discouraged for use "
-			   "with C-language IDL mappings", yytext);
-		warn_underscores = 1;
-	}
-	yylval.str = g_strdup (yytext);
-	tokreturn (TOK_IDENT);
+{warn1_ident}                                           {
+        if (!warn_underscores) {
+                yywarningv (IDL_WARNING2,
+                           "`%s' underscores within identifiers are discouraged for use "
+                           "with C-language IDL mappings", yytext);
+                warn_underscores = 1;
+        }
+        yylval.str = strdup (yytext);
+        tokreturn (TOK_IDENT);
 }
-<PROP>]							{
-	__IDL_flagsi &= ~IDLFP_PROPERTIES;
-	SELECT_RESTART;
-	tokreturn (yytext[0]);
+<PROP>]                                                 {
+        __IDL_flagsi &= ~IDLFP_PROPERTIES;
+        SELECT_RESTART;
+        tokreturn (yytext[0]);
 }
-<PROP>{prop_key}					{
-	yylval.str = g_strdup (yytext);
-	tokreturn (TOK_PROP_KEY);
+<PROP>{prop_key}                                        {
+        yylval.str = strdup (yytext);
+        tokreturn (TOK_PROP_KEY);
 }
-<PROP>{prop_value}					{
-	yylval.str = g_strdup (yytext + 1);
-	yylval.str[strlen (yylval.str) - 1] = 0;
-	tokreturn (TOK_PROP_VALUE);
+<PROP>{prop_value}                                      {
+        yylval.str = strdup (yytext + 1);
+        yylval.str[strlen (yylval.str) - 1] = 0;
+        tokreturn (TOK_PROP_VALUE);
 }
-<NATIVE>{native_type}					{
-	__IDL_flagsi &= ~IDLFP_NATIVE;
-	yylval.str = g_strdup (yytext);
-	yylval.str[strlen (yylval.str) - 1] = 0;
-	tokreturn (TOK_NATIVE_TYPE);
+<NATIVE>{native_type}                                   {
+        __IDL_flagsi &= ~IDLFP_NATIVE;
+        yylval.str = strdup (yytext);
+        yylval.str[strlen (yylval.str) - 1] = 0;
+        tokreturn (TOK_NATIVE_TYPE);
 }
-{sqstring}						{
-	yylval.str = g_strdup (yytext + 1);
-	yylval.str[strlen (yytext) - 2] = 0;
-	tokreturn (TOK_SQSTRING);
+{sqstring}                                              {
+        yylval.str = strdup (yytext + 1);
+        yylval.str[strlen (yytext) - 2] = 0;
+        tokreturn (TOK_SQSTRING);
 }
-{dqstring}						{
-	yylval.str = g_strdup (yytext + 1);
-	yylval.str[strlen (yytext) - 2] = 0;
-	tokreturn (TOK_DQSTRING);
+{dqstring}                                              {
+        yylval.str = strdup (yytext + 1);
+        yylval.str[strlen (yytext) - 2] = 0;
+        tokreturn (TOK_DQSTRING);
 }
-<*>{newline}		++__IDL_cur_line;
-<*>\/\/.*		;
-<*>\/\*							{
-	int c;
+<*>{newline}            ++__IDL_cur_line;
+<*>\/\/.*               ;
+<*>\/\*                                                 {
+        int c;
 
-	while (1) {
-		while ((c = input ()) != '*' && c != EOF)
-			if (c == '\n') ++__IDL_cur_line;
-		if (c == '*') {
-			while ((c = input ()) == '*') ;
-			if (c == '/') break;
-		}
-		if (c == '\n') ++__IDL_cur_line;
-		if (c == EOF) {
-			yywarning (IDL_WARNING1, "End of file in comment");
-			break;
-		}
-	}
+        while (1) {
+                while ((c = input ()) != '*' && c != EOF)
+                        if (c == '\n') ++__IDL_cur_line;
+                if (c == '*') {
+                        while ((c = input ()) == '*') ;
+                        if (c == '/') break;
+                }
+                if (c == '\n') ++__IDL_cur_line;
+                if (c == EOF) {
+                        yywarning (IDL_WARNING1, "End of file in comment");
+                        break;
+                }
+        }
 }
-<*>.			tokreturn (yytext[0]);
+<*>.                    tokreturn (yytext[0]);
 
 %%
 
 void __IDL_lex_init (void)
 {
-	__IDL_inputcb = NULL;
-	__IDL_cur_line = 1;
-	__IDL_cur_token_line = 0;
-	__IDL_prev_token_line = 0;
-	__IDL_cur_filename = NULL;
-	__IDL_cur_fileinfo = NULL;
-	warn_underscores = 0;
+        __IDL_inputcb = NULL;
+        __IDL_cur_line = 1;
+        __IDL_cur_token_line = 0;
+        __IDL_prev_token_line = 0;
+        __IDL_cur_filename = NULL;
+        __IDL_cur_fileinfo = NULL;
+        warn_underscores = 0;
 }
 
 void __IDL_lex_cleanup (void)
 {
-	__IDL_cur_filename = NULL;
+        __IDL_cur_filename = NULL;
 #ifdef YY_NEW_FILE
-	YY_NEW_FILE; /* obsolete with newer versions of flex */
+        YY_NEW_FILE; /* obsolete with newer versions of flex */
 #endif
 }
 
 int yywrap (void)
 {
-	return 1;
+        return 1;
 }
 
 static int count_nl (const char *s)
 {
-	int i;
+        int i;
 
-	for (i = 0;
-	     (s = strchr (s, '\n')) != NULL;
-	     ++s, ++i) ;
+        for (i = 0;
+             (s = strchr (s, '\n')) != NULL;
+             ++s, ++i) ;
 
-	return i;
+        return i;
 }
 
 /*
