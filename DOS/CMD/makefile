@@ -9,7 +9,9 @@
 
 
 DIRS =   attrib &
-         help
+         help   &
+         find   &
+         stub
 
 !include $(%ROOT)/mk/all.mk
 

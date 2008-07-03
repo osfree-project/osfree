@@ -31,6 +31,7 @@ COPT      = $(C_DEFS) -i=. &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
+                      -bt=OS2 &
                       $(ADD_COPT)
 ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else

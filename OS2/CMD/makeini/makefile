@@ -31,6 +31,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION caseexact
+ @%append $^&.lnk OPTION STUB=$(FILESDIR)$(SEP)dos$(SEP)stub.exe
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) op v @$^&.lnk $(LOG)

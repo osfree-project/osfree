@@ -38,6 +38,7 @@ $(DIR)$(SEP)$(PROJ).exe: $(OBJS) tedit.hlp
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk OPTION STUB=$(FILESDIR)$(SEP)dos$(SEP)stub.exe
  $(ADDFILES_CMD)
  $(SAY) Linking $@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

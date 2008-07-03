@@ -24,6 +24,7 @@
 
 #include "types.h"
 
+#include "tcc2wat.h" // TCC compatibility for Watcom
 
 #define VERSION "2.1"
 
@@ -49,9 +50,10 @@ typedef byte ATTR;
 
 extern unsigned _Cdecl _stklen = 9*1024u;       /* TC/BC specific       */
 
-LOCAL byte recurse = 0;
-LOCAL ATTR useattr = ALL_FILE;
-LOCAL ATTR attr_keep = ~0u, attr_set = 0;
+LOCAL byte recurse   = 0;
+LOCAL ATTR useattr   = ALL_FILE;
+LOCAL ATTR attr_keep = 0xFF;
+LOCAL ATTR attr_set  = 0x00;
 
 LOCAL ATTR findattr;
 LOCAL char path [PATHLEN+4],                    /* 4=strlen("\\*.*")    */
