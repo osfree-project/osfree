@@ -538,7 +538,12 @@ load_module (char *module, char *arg)
       return 0;
     }
 
+  printf("cur_addr=0x%x\r\n", cur_addr);
+
   len = u_read ((char *) cur_addr, size);
+
+  printf("read 0x%x bytes\r\n", len);
+
   if (! len)
     {
       u_close ();

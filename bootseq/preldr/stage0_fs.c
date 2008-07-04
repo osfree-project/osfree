@@ -460,6 +460,7 @@ u_msg (char *s)
   char buf[0x100];
 
   grub_strncpy(buf, s, sizeof(buf));
+
   printmsg(buf);
 }
 
@@ -1287,11 +1288,31 @@ int init(void)
                EXT_LEN);
 
   __asm {
+    /* move 16-bit stack to the place of former uFSD buffer */
+    std  // copy in backward direction
+    mov  esi, EXT_BUF_BASE - 4
+    mov  edi, EXT_BUF_BASE + EXT_LEN - 4
+    add  edi, relshift
+    mov  ecx, EXT_BUF_BASE
+    xor  eax, eax
+    mov  ax,  ds:[RMSTACK]      // 16-bit stack SP
+    add  eax, STAGE0_BASE       // base + SP == stack top phys address
+    // now we got stack top phys address in EAX
+    sub  ecx, eax               // stack length in bytes
+    add  ecx, 3                 // round up to a multiple of 4
+    shr  ecx, 2                 // and / 4 to get size in 32-bit words 
+    rep  movsd                  // move stack up
+    // adjust SP to EXT_LEN bytes
+    xor  eax, eax
+    mov  ax, ds:[RMSTACK]       // SP former value
+    add  ax, EXT_LEN
+    mov  ds:[RMSTACK], ax       // adjusted SP value
+    // relocation shift
     mov  eax, relshift
-    /* switch stack to the place of relocation */
+    /* switch 32-bit stack to the place of relocation */
     add  esp,   eax
     add  ebp,   eax
-    /* fixup words in stack */
+    /* fixup words in 32-bit stack */
     add  [ebp], eax
     add  [ebp - 0xc],  eax
     add  [ebp + 0x18], eax

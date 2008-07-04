@@ -17,7 +17,7 @@ configuration table etc), load a number of files to memory and to present
 all this information to the kernel in a standardized format.
 
 So, the concept of a multiboot loader is abstracted from the operating system.
-It is not OS-specific and must not know a details about OS interals. Its purpose
+It is not OS-specific and must not know a details about OS internals. Its purpose
 is to provide an integration of different OSes on one machine (like a boot manager,
 but bootmanager just selects a partition to load and passes control to corresponding
 OS loader. The multiboot loader also does this thing, it is called a chainloading,
@@ -96,7 +96,7 @@ c) an OS-specific part of the loader: the multiboot kernel
 We believe that the multiboot loader must be OS-independent. The OS-specific part of the loader must be
 implemented as a multiboot kernel. In GRUB, there was a built-in support for loading Linux and *BSD kernels,
 the OS kernels were specified in a boot script in place of a multiboot kernel and the loader had autodetect,
-which kind of kernel it loads -- the Linux of *BSD or multiboot compliant kernel. In our loader, we decided
+which kind of kernel it loads -- the Linux or *BSD or multiboot compliant kernel. In our loader, we decided
 to leave in the loader only support of multiboot protocol. So, we separated Linux kernel loading support and
 even chainloading support from the loader and implemented it as multiboot kernels. For this purpose, bt_linux
 and bt_chain kernels were created. The first one loads Linux-like kernels (not only Linux itself, but also
@@ -277,13 +277,13 @@ c) loader sources
 
 As with all opensource software, the osFree boot sequence sources are available. They are distributed with the CD 
 in \src directory. To build the loader from sources, first make the config file with paths set. For a template, 
-see the valerius.conf of note.conf or another .conf file in \src directory. Ensure the paths are correct.
+see the valerius.conf or note.conf or another .conf file in \src directory. Ensure the paths are correct.
 
 For the boot sequence sources to build, you need the OpenWatcom Compiler. You will need a C compiler (a 16-bit one
 and a 32-bit one), linker, assembler, librarian. No need in Fortran ;). Also, REXX interpreter is needed for scripts.
 We tested our scripts under Classic REXX and OOREXX under OS/2 and with Regina REXX under Windows and Linux. The build
-works under OS/2 and Windows, and mostly works under Linux. Under Linux, OpenWatcon version for Linux is needed. You
-can get its sources from ftp://ftp.penwatcom.org and compile it yourself. You can make it under Linux, as well as under
+works under OS/2 and Windows, and mostly works under Linux. Under Linux, OpenWatcom version for Linux is needed. You
+can get its sources from ftp://ftp.openwatcom.org and compile it yourself. You can make it under Linux, as well as under
 Windows and then copy Linux binaries to Linux system. The Linux binaries can be got from OS/2 or Windows OpenWatcom
 distribution, but for some reason not all needed binaries are included there. For example, I didn't found wmake
 and wlib in OS/2 Watcom distribution.
@@ -291,7 +291,7 @@ and wlib in OS/2 Watcom distribution.
 Also, some tools are included with sources, in \src\tools directory, for example, awk interpreter etc. The root sources
 directory must be set (root=...) and ISO images directory must be set (imgdir=...). Then, shell (OS/2 or Windows cmd.exe,
 Linux /bin/sh or OS/2 4os2.exe etc.) and REXX interpreter path must be set. For OS/2 REXX the string for REXX must be empty.
-Also, in the example files threre are also FreePascal and OS/2 toolkit paths. They are not needed for boot sequence sources.
+Also, in the example files there are also FreePascal and OS/2 toolkit paths. They are not needed for boot sequence sources.
 
-After all, you must open the shell window and issue 'setenv.cmd <config_file.conf> ' command. This must set the needed
+After all, you must open a shell window and issue 'setenv.cmd <config_file.conf> ' command. This must set the needed
 environment variables. Then, say 'wmake all' and the build process starts.

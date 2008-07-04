@@ -49,14 +49,14 @@ STACKLEN        equ 0x4000
 ;STAGE0_BASE     equ (0x74e00 + SHIFT)     ; Stage0 load base
 ;EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-STACK_SP        equ (0x74000 + SHIFT)     ; stack
+STACK_SP        equ (0x73800 + SHIFT)     ; stack
 
-EXT1LOBUF_BASE  equ 0x73c00               ; blackbox low memory buffer1
-EXT2LOBUF_BASE  equ 0x74000               ; blackbox low memory buffer2
-EXT3LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer3
-TERMLO_BASE     equ 0x74000               ; terminal blackbox base (low)
-BOOTSEC_BASE    equ (0x74400 + SHIFT)     ; bootsector relocation base
-STAGE0_BASE     equ (0x74600 + SHIFT)     ; Stage0 load base
+EXT1LOBUF_BASE  equ 0x73400               ; blackbox low memory buffer1
+EXT2LOBUF_BASE  equ 0x73800               ; blackbox low memory buffer2
+EXT3LOBUF_BASE  equ 0x73c00               ; blackbox low memory buffer3
+TERMLO_BASE     equ 0x73800               ; terminal blackbox base (low)
+BOOTSEC_BASE    equ (0x73c00 + SHIFT)     ; bootsector relocation base
+STAGE0_BASE     equ (0x73e00 + SHIFT)     ; Stage0 load base
 EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
 SCRATCHADDR     equ (0x6f000 + SHIFT)     ; 512-byte scratch area

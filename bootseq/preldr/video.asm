@@ -26,6 +26,7 @@ _TEXT16  segment dword public 'CODE'  use16
 ifndef STAGE1_5
 
 message:
+        cld
         push    ebx
         push    esi
         ; convert FLAT pointer in esi

@@ -161,7 +161,7 @@ entry:
         ; We should not return here
         cli
         hlt
-        jmp     $
+;        jmp     $
 
 stop:
         cld
@@ -176,7 +176,7 @@ loop1:
 
         cli
         hlt
-        jmp   $
+;        jmp   $
 
 set_gdt:
         ; set 16-bit segment (_TEXT16) base

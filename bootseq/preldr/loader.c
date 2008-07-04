@@ -36,6 +36,10 @@ int (*process_cfg_line)(char *line);
 #pragma aux m              "*"
 #pragma aux l              "*"
 
+#pragma aux entry_addr "*"
+
+extern entry_func entry_addr;
+
 int kernel_func (char *arg, int flags);
 int module_func (char *arg, int flags);
 int modaddr_func (char *arg, int flags);
@@ -184,7 +188,7 @@ process_cfg_line1(char *line)
     line = strip(skip_to(0, line));
     if (varexpand_func(line, 0x2))
     {
-      printf("An error occured during execution of set_func\r\n");
+      printf("An error occured during execution of varexpand_func\r\n");
       return 0;
     }
   }
@@ -615,11 +619,12 @@ exec_cfg(char *cfg)
 void 
 KernelLoader(void)
 {
-  char *cfg = "/boot/freeldr/freeldr.cfg";
+  char *cfg = "/boot/freeldr/boot.cfg";
   int rc;
 
   printf("Kernel loader started.\r\n");
 
+  // exec the config file
   if (!(rc = exec_cfg(cfg)))
   {
     printf("Error processing loader config file!\r\n");
@@ -630,12 +635,22 @@ KernelLoader(void)
   }
   else
   {
-    //create_lip_module(&l);
+    // launch a multiboot kernel
+
+    //printf("entry_addr=0x%x", entry_addr);
+    //printf("&mbi=0x%x", m);
+
+    //__asm {
+    //  cli
+    //  hlt
+    //}
+
     multi_boot();
   }
 }
 
-void cmain(void)
+void 
+cmain(void)
 {
   /* Get mbi structure address from pre-loader */
   u_parm(PARM_MBI, ACT_GET, (unsigned int *)&m);

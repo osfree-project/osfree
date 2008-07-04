@@ -419,29 +419,37 @@ void cmain(void)
   kernel_size = mod->mod_end - mod->mod_start;
   kernel_cmdline = (char *)mod->cmdline;
 
-  if (mods_count > 1)
-  {
-    ++mod;
-
-    initrd = (char *)mod->mod_start;
-    initrd_size = mod->mod_end - mod->mod_start;
-  }
-  else
-  {
-    initrd = 0;
-    initrd_size = 0;
-  }
-
   if (mods_count < 2)
     stop();
   else
   {
     if (!check_lip(mods_addr, mods_count))
       stop();
+
+    if (mods_count > 2)
+    {
+      ++mod;
+
+      initrd = (char *)mod->mod_start;
+      initrd_size = mod->mod_end - mod->mod_start;
+    }
+    else
+    {
+      initrd = 0;
+      initrd_size = 0;
+    }
+
   }
 
   if (loader())
   { 
+    //printf("loader() finished\r\n");
+
+    //__asm {
+    //  cli
+    //  hlt
+    //}
+
     if (big_linux)
        big_linux_boot();
     else

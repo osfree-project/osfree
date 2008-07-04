@@ -64,9 +64,9 @@ ok:
       mov  byte ptr boot_drive, dl ; boot drive number
 
       ; set loader stack
-      ;mov  oldstack, esp
-      ;mov  esp, offset DGROUP:loader_stack_top
-      ;mov  ebp, esp
+      mov  oldstack, esp
+      mov  esp, offset DGROUP:loader_stack_top
+      mov  ebp, esp
 
       assume cs:_TEXT
 
@@ -74,7 +74,7 @@ ok:
 
       cli
       hlt
-      jmp     $
+;      jmp     $
 
 multi_boot:
       ;
@@ -93,11 +93,12 @@ multi_boot:
 
       ; boot kernel here (absolute address call)
       mov     ebp, offset _TEXT:entry_addr
+
       call    dword ptr [ebp]
 
       cli
       hlt
-      jmp     $
+;      jmp     $
 ;
 ; We should not return here
 ;
@@ -114,7 +115,7 @@ loop1:
 
       cli
       hlt
-      jmp     $
+;      jmp     $
 
 ; lip2 address
 l            dd   0
