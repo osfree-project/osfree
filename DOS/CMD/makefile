@@ -13,6 +13,7 @@ DIRS =   attrib   &
          find     &
          diskcomp &
          label    &
+         xcopy    &
          stub
 
 !include $(%ROOT)/mk/all.mk
