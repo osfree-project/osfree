@@ -5,7 +5,7 @@
 
 DIR = $(ROOT)$(SEP)bin$(SEP)os2
 PROJ = diskcomp
-DESC = Diskette compare tool
+DESC = Disk compare tool
 #defines object file names in format objname.$(O)
 OBJS = diskcomp.$(O) misc.$(O) md5.$(O) drive.$(O)
 # defines additional options for C compiler
@@ -24,7 +24,7 @@ $(DIR)$(SEP)$(PROJ).exe: $(OBJS)
  @%append $^&.lnk OPTION STACK=65536
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk LIBRARY $(LINKLIB)
- @%append $^&.lnk OPTION STUB=$(FILESDIR)$(SEP)dos$(SEP)stub.exe
+ @%append $^&.lnk OPTION STUB=$(FILESDIR)$(SEP)dos$(SEP)diskcomp.exe
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

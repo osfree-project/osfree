@@ -2,7 +2,7 @@
    @cls
    @set lang=en_US
    @cls
-   @svn commit osfree --username %3 --password %4 -m"%5"
+   @svn commit -m"%3"
 >1 Show file content diff
    @cls
    @set lang=ru_Ru
