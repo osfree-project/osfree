@@ -306,6 +306,7 @@ console_getkey:
         call    call_rm
         add     esp, 4
 
+	xor     eax, eax
 	mov	ax, dx
 
 	pop	ebp
