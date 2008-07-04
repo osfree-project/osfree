@@ -8,9 +8,11 @@
 !include $(%ROOT)/mk/site.mk
 
 
-DIRS =   attrib &
-         help   &
-         find   &
+DIRS =   attrib   &
+         help     &
+         find     &
+         diskcomp &
+         label    &
          stub
 
 !include $(%ROOT)/mk/all.mk
