@@ -1,0 +1,53 @@
+# edlin.no - messages file (Norweigan version -- CP 850)
+# 
+# Author: Gregory Pietsch
+# 
+# DESCRIPTION:
+# 
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# 
+# The strings were generated using ESR's cstrings program and moved
+# here.
+# 
+1.0:Jj
+1.1: :  \b
+1.2:O.K.?  \b
+1.3:Adgangfeil
+1.4:%s: %lu ledning var leser\n
+1.5:%s: %lu ledninger var leser\n
+1.6:%s: %lu ledning skrevet\n
+1.7:%s: %lu ledninger skrevet\n
+1.8:%lu:%c%s\n
+1.9:Presse <Enter> fortsette
+1.10:%lu:  \b
+1.11:Ikke funnet
+1.12:%lu: %s\n
+1.13:\nEdlin program har de f›lgende subkommandoene:\n
+1.14:#                 rediger en enkel ledning  [#],[#],#m        flytt blokk
+1.15:a                 tilf›y tekst              [#][,#]p          vis tekst
+1.16:[#],[#],#,[#]c    kopier blokk              q                 slutt programet
+1.17:[#][,#]d          stryk blokk               [#][,#][?]r$,$    erstatt tekst
+1.18:e<>               skriv og slutt            [#][,#][?]s$      let etter tekst
+1.19:[#]i              tilf›y tekst              [#]t<>            les arkiv
+1.20:[#][,#]l          vis tekst                 [#]w<>            skriv arkiv\n
+1.21:hvor $ er over en snor, <> er et filnavn, # er et antall er
+1.22:(som . = n†v‘rende ledning, $ = den siste ledningen
+1.23:i bufferen, eller hver antall + eller - enda et antall).\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:Dette programet kommer UTEN NOE GARANTI.
+1.26:Det er fri programvare, og De er velkommen omfordele det
+1.27:under termene av GNU General Public License -- hver versjon 2 av
+1.28:tillatelsen, eller, p† Deres alternativ, noe senere versjon.
+1.29:
+1.30:Ut av hukommelse
+1.31:Snorlengdefeil
+1.32:Snorposisjonsfeil
+1.33:Ugyldig brukerinngang, bruk ? for hjelp.
+1.34:Ingen filnavn
+1.35:St›t ogs† stor
+1.36:Ugyldig bufferposisjon
+1.37:ERROR: %s\n
+
+# END OF FILE

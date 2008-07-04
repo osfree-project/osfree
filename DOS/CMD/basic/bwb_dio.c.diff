@@ -1,0 +1,29 @@
+From reynirhs@isl.is:
+
+Reopening a closed stream causes a segfault under Linux. This is known
+to happen in version 2.20, including pl1 and pl2.
+
+As I understand it, there are two different types of closed streams:
+   DEVMODE_AVAILABLE = Completely fresh, no buffer attached.
+   DEVMODE_CLOSED    = Pre-owned, still has a buffer.
+
+The problem is this: bwb_close() marks a closed file as _CLOSED but
+then frees the buffer (if it was a random file) and NULLs the buffer
+pointer. Should you then reopen it as a random file, bwb_open() will
+assume that, since the stream is marked _CLOSED, it will still have a
+buffer attached from before. Please note that dev_table[].buffer is
+still NULL at this point.
+
+The diff below is a simple fix for the resulting explosion.
+
+--- bwb_dio.c.old
++++ bwb_dio.c
+@@ -676,7 +676,7 @@
+ 
+       /* mark the device in the table as unavailable */
+ 
+-      dev_table[ req_devnumber ].mode = DEVMODE_CLOSED;
++      dev_table[ req_devnumber ].mode = DEVMODE_AVAILABLE;
+ 
+       /* Revised to FREE pass-thru call by JBV */
+       if ( dev_table[ req_devnumber ].buffer != NULL )

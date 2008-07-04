@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>HTML HELP file for EDLIN</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.1  (Win32)">
+	<META NAME="CREATED" CONTENT="20030513;18415838">
+	<META NAME="CHANGED" CONTENT="20040509;14283566">
+	<STYLE>
+	<!--
+		P { margin-bottom: 0in; color: #000000; font-family: "Times New Roman"; font-size: 12pt; font-style: normal; font-weight: medium; text-align: left; orphans: 2; text-decoration: none }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" TEXT="#000000" BGCOLOR="#ffffff" DIR="LTR">
+<P ALIGN=CENTER STYLE="margin-bottom: 0.2in"><B>EDLIN 2.4</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The edlin program is a small line
+editor, written for FreeDOS as a functional clone of the old MS-DOS
+program edlin. It differs from MS edlin in that first, it's free
+software, and second, the user interface is slightly different in a
+few places. The reason for the difference is so that the user does
+not have to type in control characters mandated by MS edlin's syntax.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>INVOKING EDLIN</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The edlin program is invoked either
+by itself:</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in">edlin</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">or with a filename that's initially
+read in:</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in">edlin file</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>EDLIN'S INTERNAL COMMANDS</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">In the following command lists,
+brackets represent optional constructs. The # symbol represents a
+line number, which is either a string of digits, a period
+representing the current line, a dollar sign ($) representing the
+last line in the file, or a line number added or subtracted from
+another line number, so that</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in">.,.+1p</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">prints the current line and the
+succeeding line.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">A dollar sign in the following lists
+represents a string of characters. They may be enclosed in either
+single or double quotes and may contain the following escape
+sequences:</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\a </B>-
+alert</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\b</B> -
+backspace</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\e</B> -
+escape</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\f </B>-
+formfeed</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\t</B> -
+horizontal tab</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\v</B> -
+vertical tab</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\&quot;</B> -
+double quote</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\'</B> -
+single quote</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\.</B> -
+period</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\\ </B>-
+backslash 
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\x</B><I>XX</I>
+where <I>X</I> is a hex digit (0-9, a-f, A-F) - hexadecimal constant</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\d</B><I>ddd</I> 
+<SPAN STYLE="font-style: normal">where <I>d</I> is a decimal
+digit (0-9) - decimal constant</SPAN></P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\</B><I>OOO</I>
+where <I>O</I> is an octal digit (0-7) - octal constant</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in"><B>\^</B><I>C</I>
+- control character</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The edlin program supports the
+following syntax:</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B># - EDIT A SINGLE LINE</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The edlin program outputs the single
+line indicated by the number, and the next inputted line replaces the
+outputted line in the file.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>a - APPEND</B></P>
+<P STYLE="margin-bottom: 0.2in">This command is equivalent to $+1i .</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#],[#],#,[#]c - COPY A RANGE OF
+LINES</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command copies a block of
+consecutive lines to another location in the buffer. The parameters
+are:</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0.2in">The first line you want to copy
+	(default = current line)</P>
+	<LI><P STYLE="margin-bottom: 0.2in">The last line you want to copy
+	(default = current line)</P>
+	<LI><P STYLE="margin-bottom: 0.2in">The line before which you want
+	to insert the block of lines</P>
+	<LI><P STYLE="margin-bottom: 0.2in">The number of times you want to
+	copy the block (default = 1)</P>
+</UL>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">After edlin copies lines, you may use
+the l (list) command to see the correctly renumbered lines.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#][,#]d - DELETE A BLOCK OF LINES</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command deletes a block of
+consecutive lines. The parameters are the first and last line of the
+block to be deleted.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">If you omit the second parameter, it
+deletes only the line specified in the first parameter. If you omit
+the first parameter, it deletes the block from the current line to
+the line specified in the second parameter (be sure to include the
+comma). Omitting both parameters causes the current line to be
+deleted.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>e filename - SAVE AND QUIT</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command is equivalent to 
+</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in">w filename</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">followed by</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0.2in">q</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#]i - INSERT MODE</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command enters insert mode. Its
+parameter is the line number before which you want to insert lines.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">While inserting, escape sequences
+such as those above are legal to type in. To exit insert mode, type a
+period (.) on an otherwise blank line (if you need a line with just a
+period, escape it).</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">After exiting insert mode, the line
+after the inserted text becomes the current line unless the insertion
+was appended to the end of the text, in which case the last line of
+the text becomes the new current line.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#][,#]l - LIST LINES</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command lists lines of text on
+the screen. If you omit the first parameter, the command starts
+showing text beginning with 11 lines of text before the current line.
+Omitting the second parameter shows a page of text beginning with the
+line specified in the first parameter. Omitting both shows one page
+of text starting at 11 lines before the current line. In all cases,
+if the number of lines is larger than the number of lines in a page,
+the program will prompt after each page of lines.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#],[#],#m - MOVE BLOCK</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command moves a block of text to
+the line before the number specified in the third parameter. It is
+similar to copying, then deleting the original block.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#][,#]p - PAGE</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This is similar to l except that the
+default page starts with the current line instead of 11 lines before.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>q - QUIT</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">Self-explanatory.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#][,#][?]r$,$ - REPLACE STRING</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command replaces all occurrences
+of the first string with the second between the two lines specified.
+An omitted first parameter starts the replacing at the line after the
+current line; an omitted second parameter stops the replacing at the
+last line of the file.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The question mark sends a
+confirmation message before replacement.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#][,#][?]s$ - SEARCH FOR
+SUBSTRING</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command searches for the first
+line containing the substring specified. Omitting the first parameter
+causes the search to start on the current line; omitting the second
+causes the search to stop at the end of the file.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The question mark causes the search
+to send a confirmation message. Saying no to the confirmation message
+continues the search; saying yes ends it.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">The current line will be reset to the
+line where the search ended if it was successful.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#]t filename - TRANSFER FILE</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command causes the contents of
+the file to be inserted before the line number specified. If the line
+number is omitted, the default is the current line.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>[#]w filename - WRITE FILE</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">This command causes the first number
+of lines specified by the parameter to be written to the file
+specified. If the parameter is omitted, it will write all the lines 
+</P>
+<P STYLE="margin-bottom: 0.2in">in the buffer to the file.</P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><B>AUTHOR/MAINTAINER</B></P>
+<P STYLE="margin-bottom: 0.2in"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in">Gregory Pietsch &lt;gpietsch@comcast.net&gt;</P>
+</BODY>
+</HTML>

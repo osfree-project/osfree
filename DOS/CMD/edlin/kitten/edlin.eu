@@ -1,0 +1,54 @@
+# edlin.eu - messages file (Basque version)
+# 
+# Author: Gregory Pietsch
+# 
+# DESCRIPTION:
+# 
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# 
+# Artxibo hau EDLIN programako mesuen euskeratzea da, Aitor Santamaria
+# Merinok (aitor.sm@wanadoo.es) egindakoa.
+# 
+
+1.0:Bb
+1.1: :  \b
+1.2:Adoz?  \b
+1.3:Zure aginduan error bat aurkitu da
+1.4:%s: %lu lerro erakurri da\n
+1.5:%s: %lu lerro erakurri dira\n
+1.6:%s: %lu lerro idatzi da\n
+1.7:%s: %lu lerro idatzi dira\n
+1.8:%lu:%c%s\n
+1.9:Sakatu <Enter> aurrera jarraitzeko
+1.10:%lu:  \b
+1.11:Ezin da aurkitu
+1.12:%lu: %s\n
+1.13:\nedlin honako aginduak ulertzen ditu:\n
+1.14:#               lerro bakar bat editatu    [#],[#],#m       muguitu
+1.15:a               amaieran lerro berri sortu [#][,#]p         orrialdez ikusi
+1.16:[#],[#],#,[#]c  kopiatu                    q                irten
+1.17:[#][,#]d        ezabatu                    [#][,#][?]r$,$   aldatu
+1.18:e<>             amaitu (idatzi eta irten)  [#][,#][?]s$     aurkitu
+1.19:[#]i            lerro berriak sortu        [#]t<>           irakurri
+1.20:[#][,#]l        listatu                    [#]w<>           idatzi\n
+1.21:$ karakter-kate bat, <> artxibo baten izena,
+1.22:# zenbaki bat (.=lerro hau, $=azken lerro,
+1.23:edo zenbaki + ala - zenbaki) denean.\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:Programa honek EZ DAUKA GARANTIARIK.
+1.26:Software librea da, eta kopiak eman ditzakezu, GNU-ko Lizentzia
+1.27:Publikoa Orokorraren konditzioak betetzen direnean -- 2. bertzioa edo
+1.28:nahi baldin baduzu, lasterago bertzio baten bat erabili.
+1.29:\n
+1.30:Ez dago behar den memoria
+1.31:Katearen luzeeran error bat aurkitu da
+1.32:Katearen positzioan error bat aurkitu da
+1.33:Zure agindua ulertezina da, idatzi ? laguntza nahi baduzu.
+1.34:Artxiboak ez dauka izenik
+1.35:Bufferra handiegia da
+1.36:Bufer-reko positzioan error bat aurkitu da
+1.37:ERROR: %s\n
+
+# END OF FILE

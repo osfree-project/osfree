@@ -1,0 +1,45 @@
+04-06-01 Version 0.1
+
+04-06-03 Version 0.2
+
+	* Fix hang when switches appear before the path in the command line.
+	  Now the path can be at any point in the command line. Differs from
+	  MS APPEND, but it is saner. Thanks to Bernd Blaauw for reporting
+	  this bug.
+
+	* Path is no longer ignored when /E is specified, append aborts with
+	  an error. Again, it differs from its MS counterpart, but it is also
+	  saner. Thanks to Eric Auer for pointing this out.
+
+04-06-15 Version 0.3
+
+	* Fix a bug in command line parsing.
+
+	* Minor changes in readme.txt.
+
+	* Make older versions of Nasm happy (Eric Auer)
+
+	* Save some bytes by re-using some buffers (suggested by Eric)
+
+04-06-18 Version 0.4
+
+	* APPEND is now a COM file, as suggested by Eric, but it retains
+	  the .EXE extension.
+
+	* Move some data to PSP (suggested, again, by Eric)
+
+04-07-07 Version 0.5
+
+	* Back to EXE format, as Arkady V. Belousov warned that it could cause
+	  problems when loading high. It only adds 32 bytes to the file size.
+
+	* Fixed a bug when releasing the environment. Now it does it properly.
+
+	* Updated help to make clear that APPEND becomes an internal command
+	  extension after its first execution (Bernd Blaauw)
+
+06-01-23 Version 0.6
+
+	* Bugfix: Append now recognises itself when called with a prepended
+	  path, like MS APPEND (thanks to Blair Campbell for the report and
+          test case)

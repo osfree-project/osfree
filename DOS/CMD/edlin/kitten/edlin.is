@@ -1,0 +1,53 @@
+# edlin.is - messages file (Icelandic version -- CP 850)
+# 
+# Author: Gregory Pietsch
+# 
+# DESCRIPTION:
+# 
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# 
+# The strings were translated online and moved here.
+# 
+# 
+1.0:Jj
+1.1: :  \b
+1.2:O.K.?  \b
+1.3:Innganga villa
+1.4:%s: %lu l°na var lesa\n
+1.5:%s: %lu l°numa–ur var£lfur lesa\n
+1.6:%s: %lu l°na var skrifa–ur\n
+1.7:%s: %lu l°numa–ur var„lfur skrifa–ur\n
+1.8:%lu:%c%s\n
+1.9:ËrÏsta <Enter> til halda †fram
+1.10:%lu:  \b
+1.11:Ekki stofna
+1.12:%lu: %s\n
+1.13:\nEdlin hefur h¢pur stu–ningsmanna stj¢rn:\n
+1.14:#                 RitstÏra a einn l°na    [#],[#],#m        Hreyfa h£sarî–
+1.15:a                 Auka vi– texti          [#][,#]p          SÏna texti
+1.16:[#],[#],#,[#]c    Eftirl°king h£sarî–     q                 hëtta
+1.17:[#][,#]d          fella brott h£sarî–     [#][,#][?]r$,$    skipta um texti
+1.18:e<>               skrifa og hëtta         [#][,#][?]s$      leita a– texti
+1.19:[#]i              bëta inn ° texti        [#]t<>            lesa fr† skr†
+1.20:[#][,#]l          SÏna texti              [#]w<>         Skrifa til a skr†\n
+1.21:hvar $ yfir er a band, <> er a filename, # er a tala (hver mega
+1.22:vera . = straumur l°na , $ = s°–astur l°na ° hîggdeyfir,
+1.23:e–a annar hvor tala + e–a - annar tala).\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:Edlin koma me– algerlega neitun †byrg–.
+1.26:Ëa– er frj†ls hugb£na–ur, og Á£ ert velkominn til redistribute
+1.27:Áa– undirskilm†lar af the GNU Almennur Opinber Leyfisveitandi
+1.28:annar hvor £tg†fa 2 af leyfisveitandi, e–a, † Áinn valkostur,
+1.29:allir seinna £tg†fa.\n
+1.30:Èt af minni
+1.31:Band lengd villa
+1.32:Band sta–a villa
+1.33:ôryrki notandi inntak, nota ? fyrir hj†lpa.
+1.34:Neitun filename
+1.35:Hîggdeyfir er of st¢r
+1.36:ôryrki hîggdeyfir sta–a
+1.37:VILLA: %s\n
+
+# END OF FILE

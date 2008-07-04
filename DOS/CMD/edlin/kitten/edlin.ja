@@ -1,0 +1,52 @@
+# edlin.ja - messages file (Japanese SHIFT-JIS version)
+# 
+# Author: Gregory Pietsch, translated by Suzu Minashiro
+# 
+# DESCRIPTION:
+# 
+# This is the Japanese-language version of the edlin.ja file.  The strings
+# were collected using the cstrings program by Eric S. Raymond and
+# translated.
+# 
+
+ 
+1.0:Yy
+1.1: :  \b
+1.2:O.K.?  \b
+1.3:Entry error
+1.4:%s: %lu 行読み込みました。\n
+1.5:%s: %lu 行読み込みました。\n
+1.6:%s: %lu 行書き込みました。\n
+1.7:%s: %lu 行書き込みました。\n
+1.8:%lu:%c%s\n
+1.9:改行を押下してください。継続します。
+1.10:%lu:  \b
+1.11:見つかりません
+1.12:%lu: %s\n
+1.13:\nedlinでは次のサブコマンドが使用できます:\n
+1.14:#                 行編集                [#],[#],#m        移動
+1.15:a                 追加                  [#][,#]p          ページ
+1.16:[#],[#],#,[#]c    複写                  q                 終了
+1.17:[#][,#]d          削除                  [#][,#][?]r$,$    置換
+1.18:e<>               終了 (保存後)         [#][,#][?]s$      検索
+1.19:[#]i              挿入                  [#]t<>            転送
+1.20:[#][,#]l          リスト                [#]w<>            書き込み\n
+1.21: $は文字列、<>はファイル名を示し、
+1.22: #は行番号(.で現在行、$で最終行、また+-で相対行)を示す。
+1.23:
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:This program comes with ABSOLUTELY NO WARRANTY.
+1.26:It is free software, and you are welcome to redistribute it
+1.27:under the terms of the GNU General Public License -- either
+1.28:version 2 of the license, or, at your option, any later
+1.29:version.\n
+1.30:メモリが足りません。
+1.31:文字列長エラー
+1.32:文字列位置エラー
+1.33:入力異常です。?でhelpを参照してください。
+1.34:ファイル名がありません。
+1.35:バッファに対して大きすぎます。
+1.36:バッファ位置が異常です。
+1.37:ERROR: %s\n
+
+# END OF FILE

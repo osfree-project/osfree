@@ -1,0 +1,6 @@
+fix: change memicmp() into memcmpi()
+bugfix: unloadModule: failing of "Release block" in Micro-C code
+verified: functioning with DOC-C 0.90a
+
+10.08.95 initial revision (dd.mm.yy)
+ASSIGN for MS DOS

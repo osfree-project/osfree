@@ -1,0 +1,52 @@
+# edlin.de - messages file (German version)
+#
+# Author: Gregory Pietsch
+# corrected version by Eric Auer
+#
+# DESCRIPTION:
+#
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# The strings were generated using ESR's cstrings program and moved
+# here.
+1.0:Jj
+1.1: :  \b
+1.2:Okay?  \b
+1.3:Eingabefehler
+1.4:%s: %lu Zeilen gelesen\n
+1.5:%s: %lu Zeilen gelesen\n
+1.6:%s: %lu Zeile geschrieben\n
+1.7:%s: %lu Zeilen geschrieben\n
+1.8:%lu:%c%s\n
+1.9:DrÅcken Sie <Enter> um weiterzumachen
+1.10:%lu:  \b
+1.11:Nicht gefunden
+1.12:%lu: %s\n
+1.13:\nedlin hat diese Befehle:\n
+1.14:#                 Zeile ersetzen         [#],[#],#m        Block verschieben
+1.15:a                 Zeile einfÅgen         [#][,#]p          drucken
+1.16:[#],[#],#,[#]c    Block kopieren         q                 verlassen
+1.17:[#][,#]d          Block lîschen          [#][,#][?]r$,$    ersetzen
+1.18:e<>               speichern + verlassen  [#][,#][?]s$      suchen
+1.19:[#]i              einfÅgen               [#]t<>            Datei einlesen
+1.20:[#][,#]l          anzeigen               [#]w<>            speichern\n
+1.21:$ ist eine Zeichenkette, <> ist ein Dateiname,
+1.22:# ist eine Zeilennummer oder .=aktuelle Zeile, $=Letzte Zeile,
+1.23:oder eine Zeilennummer + or - eine andere Zeilennummer.\n
+1.24:, Copyright (c) 2003 Gregory Pietsch
+1.25:FÅr dieses Programm besteht KEINERLEI GARANTIE.
+1.26:Dieses Programm ist freie Software. Sie kînnen es unter den Bedingungen
+1.27:der GNU General Public License, wie von der Free Software Foundation
+1.28:verîffentlicht, weitergeben und/oder modifizieren, entweder gemÑ·
+1.29:Version 2 der Lizenz oder (nach Ihrer Wahl) jeder spÑteren Version.\n
+1.30:Kein Speicher mehr frei
+1.31:Fehlerhafte Zeichenketten-LÑnge
+1.32:Fehlerhafte Zeichenketten-Position
+1.33:Eingabe ist nicht eindeutig, Tippen Sie ? um Hilfe anzuzeigen.
+1.34:Dateiname fehlt
+1.35:Buffer ist zu gro·
+1.36:Bufferposition ist nicht eindeutig
+1.37:FEHLER: %s\n
+
+# END OF FILE 

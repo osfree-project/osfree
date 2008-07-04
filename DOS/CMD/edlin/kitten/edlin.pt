@@ -1,0 +1,53 @@
+# edlin.pt - messages file (Portuguese version -- CP 850)
+# 
+# Author: Gregory Pietsch
+# 
+# DESCRIPTION:
+# 
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# 
+# Corrected Portuguese translations were provided by
+# Dutra de Lacerda <dulac@netcabo.pt>
+# 
+1.0:Ss
+1.1: :  \b
+1.2:Confirma?  \b
+1.3:Input incorrecto
+1.4:%s: %lu linha foi lida\n
+1.5:%s: %lu linhas foram lidas\n
+1.6:%s: %lu linha foi escrita\n
+1.7:%s: %lu linhas foram escritas\n
+1.8:%lu:%c%s\n
+1.9:Pressione <Enter> para continuar
+1.10:%lu:  \b
+1.11:N∆o encontrado
+1.12:%lu: %s\n
+1.13:\nO Edlin obedece aos seguintes subcomandos:\n
+1.14:#                 editar linha           [#],[#],#m        mover o bloco
+1.15:a                 anexar                 [#][,#]p          mostrar pagina
+1.16:[#],[#],#,[#]c    copiar bloco           q                 desistir
+1.17:[#][,#]d          apagar                 [#][,#][?]r$,$    substituir
+1.18:e<>               gravar e sair          [#][,#][?]s$      procurar sequància
+1.19:[#]i              insirir texto          [#]t<>            làr ficheiro
+1.20:[#][,#]l          mostrar linhas         [#]w<>            gravar\n
+1.21:onde $ = uma sequància de letras, <> = um nome de ficheiro,
+1.22:     # = um n£mero (de linha) ou '.' = linha actual ou '$' = £ltima linha,
+1.23:     ou qualquer n£mero intermedi†rio +/- outro n£mero.\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:Este programa, porque gratuito, vem SEM NENHUMA GARANTIA.
+1.26:ê software livre e a sua redistribuiá∆o, nos termos da
+1.27:Licenáa P£blica Geral (da GNU), vers∆o 2 ou posterior,
+1.28:Ç n∆o s¢ permitida como tambÇm Ç encorajada.
+1.29:\n
+1.30:ERRO: Mem¢ria insuficiente
+1.31:Erro de comprimento (da sequància de caracteres)
+1.32:Erro de posiá∆o (na sequància de caracteres)
+1.33:ERRO: Comando inv†lido; Use '?' para ajuda
+1.34:ERRO: Falta o nome do ficheiro
+1.35:ERRO: Mem¢ria de trabalho demasiado grande
+1.36:Erro de posiá∆o (na mem¢ria de trabalho)
+1.37:ERRO: %s\n
+
+# END OF FILE

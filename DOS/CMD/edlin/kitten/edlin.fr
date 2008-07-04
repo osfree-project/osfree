@@ -1,0 +1,54 @@
+# edlin.fr - messages file (French version)
+# 
+# Author: Gregory Pietsch
+# 
+# DESCRIPTION:
+# 
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# 
+# The strings were translated by Achille FOUILLEUL 
+# <achille.fouilleul@gambro.com>.
+# 
+# 
+1.0:Oo
+1.1: :  \b
+1.2:O.K.?  \b
+1.3:Erreur d'entr‚e
+1.4:%s: %lu ligne lue\n
+1.5:%s: %lu lignes lues\n
+1.6:%s: %lu ligne ‚crite\n
+1.7:%s: %lu lignes ‚crite\n
+1.8:%lu:%c%s\n
+1.9:Appuyez sur <Enter> pour continuer
+1.10:%lu:  \b
+1.11:Non trouv‚
+1.12:%lu: %s\n
+1.13:\nLe programme de edlin reconnaŒt les commandes suivants:\n
+1.14:#               editer une seule ligne    [#],[#],#m        d‚placer le bloc
+1.15:a               ajouter le texte          [#][,#]p          montrer le texte
+1.16:[#],[#],#,[#]c  copier le bloc            q                 quitter
+1.17:[#][,#]d        effacer le bloc           [#][,#][?]r$,$    remplacer le texte
+1.18:e<>             ecrire et cesser          [#][,#][?]s$      recherche le texte
+1.19:[#]i            ins‚rer le texte          [#]t<>            lire le fichier
+1.20:[#][,#]l        montrer le texte          [#]w<>            ecrire le fichier\n
+1.21:Ci-dessus, $ est le texte, <> est un nom de fichier, #
+1.22:est un num‚ro (qui peut ˆtre . = la ligne courante, $ = derniŠre la
+1.23:ligne, ou bien le num‚ro + ou - un autre num‚ro).\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:ABSOLUMENT AUCUNE GARANTIE n'est fournie quant … ce programme.
+1.26:C'est un logiciel libre et sa redistribution sous les termes
+1.27:de la Licence Publique G‚n‚rale GNU (selon votre choix:
+1.28:soit la version 2, soit une version ult‚rieure) est
+1.29:encourag‚e.\n
+1.30:M‚moire ‚puis‚e
+1.31:Erreur de longueur de chaŒne
+1.32:Erreur de position dans la chaŒne
+1.33:Entr‚e invalide, tapez ? pour obtenir de l'aide.
+1.34:Aucun nom de fichier
+1.35:Le tampon est trop grand
+1.36:Position dans le tampon invalide
+1.37:L'ERREUR: %s\n
+
+# END OF FILE
