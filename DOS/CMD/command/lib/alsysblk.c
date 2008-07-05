@@ -1,12 +1,20 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: alsysblk.c 1301 2006-09-11 00:07:22Z blairdude $
 
 	Allocate system memory block. This block is not deallocated if
 	the process dies.
 
 	This file bases on MISC.C of FreeCOM v0.81 beta 1.
 
-	$Log: alsysblk.c,v $
+	$Log$
+	Revision 1.4  2006/09/11 00:07:22  blairdude
+	Fixed compilation completely with Turbo C
+
+	Revision 1.3  2004/06/29 21:57:20  skaus
+	fix: /LOW option
+	
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:52  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -35,20 +43,17 @@
 
 #include "../config.h"
 
-#include <assert.h>
-
-#include <mcb.h>
-#include <suppl.h>
+#include "mcb.h"
+#include "suppl.h"
 
 #include "../include/misc.h"
-
 
 unsigned allocSysBlk(const unsigned size, const unsigned mode)
 {	unsigned segm;
 	struct MCB _seg *mcb;
 
-	if((segm = allocBlk(size, mode)) != 0) {
-		mcb = (struct MCB _seg*)SEG2MCB(segm);
+	if((segm = allocMemBlk(size, mode)) != 0) {
+		mcb = MK_SEG_PTR (struct MCB, SEG2MCB (segm));
 		mcb->mcb_ownerPSP = 8;
 		dprintf(("[MEM: allocated system memory block: %04x/%u]\n"
 		 , segm, size));

@@ -1,5 +1,4 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: samefile.c 771 2004-02-01 13:55:39Z skaus $
 
 	Return:
 		-1: on out-of-memory error
@@ -8,7 +7,13 @@
 
 	This file bases on COPY.C of FreeCOM v0.81 beta 1.
 
-	$Log: samefile.c,v $
+	$Log$
+	Revision 1.3  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
+	Revision 1.2  2004/02/01 13:24:22  skaus
+	bugfix: misidentifying unspecific failures from within SUPPL
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -52,8 +57,8 @@ int samefile(const char * const f1, const char * const f2)
   assert(f1);
   assert(f2);
 
-  t1 = dfntruename(f1);
-  t2 = dfntruename(f2);
+  t1 = truepath(f1);
+  t2 = truepath(f2);
 
   if(!t1 || !t2)
     differ = -1;

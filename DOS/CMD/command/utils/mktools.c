@@ -1,16 +1,16 @@
-/* $Id: mktools.c,v 1.3 2001/04/01 21:05:44 skaus Exp $
+/* $Id: mktools.c 185 2001-04-01 21:05:44Z skaus $
 
 	Implements an utility that creates the default target for
 	the TOOLS sub-directory
 
 	useage: MKTOOLS >makefile.mk
 
-	$Log: mktools.c,v $
+	$Log$
 	Revision 1.3  2001/04/01 21:05:44  skaus
 	bugfix: CALL doesn't reset options
 	add: PTCHSIZE to patch heap size
 	add: VSPAWN, /SWAP switch, .SWP resource handling
-	
+
 	Revision 1.2  2001/03/07 19:49:01  skaus
 	Merged in Swap Support changes
 	

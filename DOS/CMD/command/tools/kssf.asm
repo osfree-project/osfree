@@ -1,4 +1,4 @@
-;; $Id: kssf.asm,v 1.4 2001/04/25 22:04:48 skaus Exp $
+;; $Id: kssf.asm 211 2001-04-25 22:04:48Z skaus $
 
 ; Kernel Swap Support Faker
 

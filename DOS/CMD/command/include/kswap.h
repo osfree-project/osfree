@@ -1,14 +1,17 @@
 /* Kernel-supported swapping */
 
-#ifndef __KSWAP__H
-#define __KSWAP__H
+#ifndef FEATURE_XMS_SWAP
+
+#ifndef H__KSWAP__
+#define H__KSWAP__
 
 #include <portable.h>
 
 #include "../context.h_c"
 
+#define	FREECOM_NEED_MODULES
+
 typedef  kswap_t _seg *kswap_p;
-extern int swapOnExec, defaultToSwap;
 extern kswap_p kswapContext;		/* static context */
 
 /* Lock kswap feature within kernel and invalidate a previous external prg
@@ -28,7 +31,6 @@ unsigned kswapMkStruc(const char * const prg, const char * const cmdline);
 /* Restore the kswap argument block */
 int kswapLoadStruc(void);
 
-	/* Default alignment */
-#pragma -a.
+#endif /* H__KSWAP__ */
 
-#endif
+#endif /* FEATURE_XMS_SWAP */

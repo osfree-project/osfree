@@ -1,19 +1,17 @@
 .AUTODEPEND
 
-CFG = TCCDOS.CFG
 CFG_DEPENDENCIES = cmd.mak
 
-all: $(CFG) cmds.lib
-
-##>> Modify this file with your local settings
 !include "..\config.mak"
 
+all: $(CFG) cmds.lib
 
 cmds.lib : $(CFG) alias.obj \
 	beep.obj \
 	break.obj \
 	call.obj \
 	cdd.obj \
+	chcp.obj \
 	chdir.obj \
 	cls.obj \
 	copy.obj \
@@ -25,11 +23,13 @@ cmds.lib : $(CFG) alias.obj \
 	doskey.obj \
 	echo.obj \
 	exit.obj \
+	exit2.obj \
 	fddebug.obj \
 	for.obj \
 	goto.obj \
 	history.obj \
 	if.obj \
+	lfnfor.obj \
 	memory.obj \
 	mkdir.obj \
 	path.obj \
@@ -53,6 +53,7 @@ cmds.lib : $(CFG) alias.obj \
 +-break.obj &
 +-call.obj &
 +-cdd.obj &
++-chcp.obj &
 +-chdir.obj &
 +-cls.obj &
 +-copy.obj &
@@ -64,11 +65,13 @@ cmds.lib : $(CFG) alias.obj \
 +-doskey.obj &
 +-echo.obj &
 +-exit.obj &
++-exit2.obj &
 +-fddebug.obj &
 +-for.obj &
 +-goto.obj &
 +-history.obj &
 +-if.obj &
++-lfnfor.obj &
 +-memory.obj &
 +-mkdir.obj &
 +-path.obj &
@@ -93,6 +96,7 @@ cmds.lib : $(CFG) alias.obj \
 +break.obj &
 +call.obj &
 +cdd.obj &
++chcp.obj &
 +chdir.obj &
 +cls.obj &
 +copy.obj &
@@ -104,11 +108,13 @@ cmds.lib : $(CFG) alias.obj \
 +doskey.obj &
 +echo.obj &
 +exit.obj &
++exit2.obj &
 +fddebug.obj &
 +for.obj &
 +goto.obj &
 +history.obj &
 +if.obj &
++lfnfor.obj &
 +memory.obj &
 +mkdir.obj &
 +path.obj &

@@ -1,4 +1,4 @@
-/*
+/* $Id: copy.c 1301 2006-09-11 00:07:22Z blairdude $
  * COPY.C -- Internal Copy Command
  *
  * 1999/05/10 ska
@@ -12,13 +12,14 @@
  *
  * 2000/07/17 Ron Cemer
  * bugfix: destination ending in "\\" must be a directory, but fails
- *	within dfnstat()
+ *      within dfnstat()
  *
  * 2000/07/24 Ron Cemer
  * bugfix: Suppress "Overwrite..." prompt if destination is device
  *
  * 2001/02/17 ska
  * add: interactive command flag
+
  * bugfix: copy 1 + 2 + 3 <-> only first and last file is stored
  */
 
@@ -28,16 +29,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dir.h>
+//#include <dir.h>
 #include <io.h>
 #include <fcntl.h>
 #include <limits.h>
 
 /*#define DEBUG*/
 
-#include <dfn.h>
-#include <supplio.h>
+#include "dfn.h"
+#include "suppl.h"
+#include "supplio.h"
 
+#include "tcc2wat.h"
+
+#include "../include/lfnfuncs.h"
 #include "../include/command.h"
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
@@ -47,8 +52,9 @@
 
 #define ASCII 1
 #define BINARY 2
+#define IS_DIRECTORY 5
 
-struct CopySource {
+static struct CopySource {
   struct CopySource *nxt;   /* next source */
   struct CopySource *app;   /* list of files to append */
   int flags;          /* ASCII / Binary */
@@ -56,15 +62,14 @@ struct CopySource {
 } *head, *last, *lastApp;
 
 
-extern int FAR appFile; /* Append the next file rather than new source */
-char *destFile;     /* destination file/directory/pattern */
-int destIsDir;      /* destination is directory */
+static int appendToFile; /* Append the next file rather than new source */
+static char *destFile;     /* destination file/directory/pattern */
 
 static int optY, optV, optA, optB;
 
-#pragma argsused
 optScanFct(opt_copy)
 {
+  (void)arg;
   switch(ch) {
   case 'Y': return optScanBool(optY);
   case 'V': return optScanBool(optV);
@@ -73,10 +78,12 @@ optScanFct(opt_copy)
   optErr();
   return E_Useage;
 }
-#pragma argsused
-optScanFct(opt_copy1)
-{ int ec, *opt, *optReset;
 
+optScanFct(opt_copy1)
+{
+  int ec, *opt, *optReset;
+
+  (void)arg;
   switch(ch) {
 #ifndef NDEBUG
   default:
@@ -95,13 +102,13 @@ optScanFct(opt_copy1)
 }
 
 
-void initContext(void)
+static void initContext(void)
 {
-  appFile = 0;
+  appendToFile = 0;
   last = lastApp = 0;
 }
 
-void killContext(void)
+static void killContext(void)
 {
   if(last) {
     assert(head);
@@ -116,89 +123,208 @@ void killContext(void)
   }
 }
 
-int copy(char *dst, char *pattern, struct CopySource *src
+/*
+        faster copy, using large (far) buffers
+*/
+
+#define DOSread(x, y, z) DOSreadwrite( x, y, z, 0x3F00 )
+#define DOSwrite(x, y, z) DOSreadwrite( x, y, z, 0x4000 )
+
+unsigned DOSreadwrite(int fd, void far *buffer, unsigned size,
+                             unsigned short func )
+{
+        union REGPACK r;
+
+        r.w.ax = func;
+        r.w.bx = fd;
+        r.w.cx = size;
+        r.w.dx = FP_OFF(buffer);
+        r.w.ds = FP_SEG(buffer);
+        intr(0x21, &r);
+    return( ( r.w.flags & 1 ) ? 0xFFFF : r.w.ax );
+}
+
+
+/*
+        a) this copies data, using a 60K buffer
+        b) if transfer is slow (or on a huge file),
+           indicate some progress
+*/
+
+static int BIGcopy(FILE *fout, FILE *fin)
+{
+        int fdin  = fileno(fin);
+        int fdout = fileno(fout);
+
+        char far *buffer;
+        unsigned size;
+        unsigned rd;
+        int retval = 0;
+                                                                /* stat stuff */
+        unsigned startTime, lastTime=0, now, doStat = 0;
+        unsigned long copied = 0, toCopy = filelength(fdin);
+        char *statString;
+
+
+        /* Fetch the largest available buffer */
+        for(size = 60*1024u; size != 0; size -= 4*1024) {
+                buffer = (void _seg*)DOSalloc(size/16,0);
+                if(buffer != NULL)
+                        goto ok;
+        }
+        return 3;       /* out of memory error */
+
+ok:
+        dprintf( ("[MEM: BIGcopy() allocate %u bytes @ 0x%04x]\n"
+         , size, FP_SEG(buffer)) );
+        statString = getString(isadev(fdin)
+                ? TEXT_COPY_COPIED_NO_END
+                : TEXT_COPY_COPIED);
+        startTime = *(unsigned far *)MK_FP(0x40,0x6c);
+
+        while((rd = DOSread(fdin, buffer, size)) != 0) {
+                if(rd == 0xffff) {
+                        retval = 1;
+                        goto _exit;
+                }
+
+                if(DOSwrite(fdout, buffer, rd) != rd) {
+                        retval = 2;
+                        goto _exit;
+                }
+
+                                                /* statistics */
+                copied += rd;
+
+                now = *(unsigned far *)MK_FP(0x40,0x6c);
+
+                if(!doStat
+                 && now - startTime > 15 * 18
+                 && isatty(fileno(stdout)))
+                        doStat = TRUE;
+
+                if(now - lastTime > 18) {
+                        if(doStat)
+                                printf(statString, copied/1024, toCopy/1024);
+
+                        if(cbreak) {
+                                retval = 3;
+                                goto _exit;
+                        }
+
+                        lastTime = now;
+                }
+        }
+
+_exit:
+        if(doStat)
+                printf("%30s\r","");
+
+        dprintf( ("[MEM: BIGcopy() release memory @ 0x%04x]\n"
+         , FP_SEG(buffer)) );
+        DOSfree(FP_SEG(buffer));
+        free(statString);
+        return retval;
+}
+
+
+static int copy(char *dst, char *pattern, struct CopySource *src
   , int openMode)
 { char mode[3], *p;
   struct ffblk ff;
   struct CopySource *h;
-  char *rDest, *rSrc;
+  char rDest[MAXPATH], rSrc[MAXPATH];
   FILE *fin, *fout;
   int rc, asc;
   char *buf;
   size_t len;
+  FLAG keepFTime;
+  struct ftime fileTime;
+  char *srcFile;
+  FLAG wildcarded;
+  FLAG isfirst = 1;
+  FLAG singleFileCopy = src->app == NULL;
 
   assert(dst);
   assert(pattern);
   assert(src);
 
-  if(FINDFIRST(pattern, &ff, FA_RDONLY | FA_ARCH) != 0) {
+  if(strpbrk(pattern, "*?") == 0) {
+        srcFile = dfnfilename(pattern);
+        wildcarded = 0;
+  } else if(FINDFIRST(pattern, &ff, FA_RDONLY | FA_ARCH) != 0) {
     error_sfile_not_found(pattern);
     return 0;
+  } else {
+        srcFile = ff.ff_name;
+        wildcarded = 1;
   }
 
   mode[2] = '\0';
 
   do {
-    if((rDest = fillFnam(dst, ff.ff_name)) == 0)
+/*    if( wildcarded && !strpbrk( dst, "*?" ) && !isfirst ) openMode = 'a'; */
+    fillFnam(rDest, dst, srcFile);
+    if(rDest[0] == 0)
       return 0;
     h = src;
     do {  /* to prevent to open a source file for writing, e.g.
           for COPY *.c *.?    */
-      if((rSrc = fillFnam(h->fnam, ff.ff_name)) == 0) {
-        free(rDest);
+      fillFnam(rSrc, h->fnam, srcFile);
+      if(rSrc[0] == 0) {
         return 0;
       }
       rc = samefile(rDest, rSrc);
-      free(rSrc);
       if(rc < 0) {
         error_out_of_memory();
-        free(rDest);
         return 0;
       } else if(rc) {
         error_selfcopy(rDest);
-        free(rDest);
         return 0;
       }
     } while((h = h->app) != 0);
 
-    if(interactive_command		/* Suppress prompt if in batch file */
-     && openMode != 'a' && !optY && (fout = fopen(rDest, "rb")) != 0) {
-    	int destIsDevice = isadev(fileno(fout));
+    if(interactive_command              /* Suppress prompt if in batch file */
+       && openMode != 'a' && !optY && (fout = fopen(rDest, "rb")) != 0) {
+        int destIsDevice = isadev(fileno(fout));
 
       fclose(fout);
-      if(!destIsDevice) {	/* Devices do always exist */
-      	switch(userprompt(PROMPT_OVERWRITE_FILE, rDest)) {
-		default:	/* Error */
-		case 4:	/* Quit */
-			  free(rDest);
-			  return 0;
-		case 3:	/* All */
-			optY = 1;
-		case 1: /* Yes */
-			break;
-		case 2:	/* No */
-			free(rDest);
-			continue;
-		}
-	  }
+      if(!destIsDevice) {       /* Devices do always exist */
+        if( dfnstat( rSrc ) == 0) { /* Source doesn't exist */
+            error_open_file( rSrc );
+            return 0;
+        } else {
+                switch(userprompt(PROMPT_OVERWRITE_FILE, rDest)) {
+                default:        /* Error */
+                    case 4:     /* Quit */
+                          return 0;
+                    case 3:     /* All */
+                            optY = 1;
+                case 1: /* Yes */
+                        break;
+                    case 2:     /* No */
+                        continue;
+                }
+        }
+          }
     }
     if(cbreak) {
-      free(rDest);
       return 0;
     }
     mode[0] = openMode;
     mode[1] = 'b';
     if((fout = fdevopen(rDest, mode)) == 0) {
       error_open_file(rDest);
-      free(rDest);
       return 0;
     }
     mode[0] = 'r';
     h = src;
+    keepFTime = (h->app == 0);
     do {
-      if((rSrc = fillFnam(h->fnam, ff.ff_name)) == 0) {
+      fillFnam(rSrc, h->fnam, srcFile);
+      if(rSrc[0] == 0) {
         fclose(fout);
-        free(rDest);
+        unlink(rDest);          /* if device -> no removal, ignore error */
         return 0;
       }
       mode[1] = (asc = h->flags & ASCII) != 0? 't': 'b';
@@ -206,39 +332,72 @@ int copy(char *dst, char *pattern, struct CopySource *src
       if((fin = fdevopen(rSrc, mode)) == 0) {
         error_open_file(rSrc);
         fclose(fout);
-        free(rSrc);
-        free(rDest);
+        unlink(rDest);          /* if device -> no removal, ignore error */
         return 0;
       }
-      if(isadev(fileno(fin)) && mode[1] != 't'
-       && (h->flags & BINARY) == 0) {
-        /* character devices are opened in textmode
-          by default */
-        fclose(fin);
-        mode[1] = 't';
-        goto reOpenIn;
+      if(isadev(fileno(fin))) {
+                keepFTime = 0;          /* Cannot keep file time of devices */
+        if(mode[1] != 't'                                       /* in binary mode currently */
+                   && (h->flags & BINARY) == 0) {       /* no forced binary mode */
+                        /* character devices are opened in textmode by default */
+                        fclose(fin);
+                        mode[1] = 't';
+                        goto reOpenIn;
+                  }
       }
+      if(keepFTime)
+        if(getftime(fileno(fin) , &fileTime))
+          keepFTime = 0; /* if error: turn it off */
 
-      dispCopy(rSrc, rDest, openMode == 'a' || h != src);
+      displayString(TEXT_MSG_COPYING, rSrc
+           , (openMode == 'a' || h != src)? "=>>": "=>", rDest);
       if(cbreak) {
         fclose(fin);
         fclose(fout);
-        free(rSrc);
-        free(rDest);
+        unlink(rDest);          /* if device -> no removal, ignore error */
         return 0;
       }
 
       /* Now copy the file */
       rc = 1;
       if(mode[1] != 't') {    /* binary file */
-        if(Fcopy(fout, fin) != 0) {
-          if(ferror(fin)) {
-            error_read_file(rSrc);
-          } else if(ferror(fout)) {
-            error_write_file(rDest);
-          } else error_copy();
-          rc = 0;
-        }
+        FLAG sizeChanged = singleFileCopy && !isadev(fileno(fin))
+         && !isadev(fileno(fout));
+        if(sizeChanged) {       /* faster copy, *MUCH* faster on floppies
+                                                                 change destination filesize to wanted size.
+                                                                 this a) writes all required entries to the
+                                                                 FAT (faster) determines, if there is enough
+                                                                 space on the destination device
+                                                                 no need to copy file, if it won't fit */
+                                                /* No test if chsize() fails for MS DOS 5/6 bug
+                                                        see RBIL DOS-40 */
+                                                /* Don't use chsize() as Turbo RTL fills with
+                                                        '\0' bytes, which is not useful here */
+                lseek(fileno(fout), filelength(fileno(fin)), SEEK_SET);
+                if(truncate(fileno(fout)) != 0
+                 || lseek(fileno(fout), 0, SEEK_SET) == -1) {
+                                error_write_file_disc_full(rDest, filelength(fileno(fin)));
+                        rc = 0;
+                        } else {
+                                dprintf( ("[COPY chsize(%s, %lu)]\n", rDest,
+                                 filelength(fileno(fin))) );
+                        }
+                }
+
+        if(rc != 0)
+                        switch(BIGcopy(fout, fin)) {
+                        case 0:
+                                if(sizeChanged)
+                                        /* probably the source file got truncated */
+                                        /* we silently ignore any failure here, because it is
+                                                assumed that we never extend, but truncate the file
+                                                only (or do not change the length at all) */
+                                        truncate(fileno(fout));
+                                break;
+                        case 1:  error_read_file(rSrc);   rc = 0; break;
+                        case 2:  error_write_file(rDest); rc = 0; break;
+                        default: error_copy();            rc = 0; break;
+                        }
       } else {      /* text file, manually transform '\n' */
         if(Fmaxbuf((byte**)&buf, &len) == 0) {
           if(len > INT_MAX)
@@ -270,50 +429,38 @@ int copy(char *dst, char *pattern, struct CopySource *src
       if(cbreak)
         rc = 0;
       fclose(fin);
-      free(rSrc);
       if(!rc) {
         fclose(fout);
-        free(rDest);
+        unlink(rDest);          /* if device -> no removal, ignore error */
         return 0;
       }
     } while((h = h->app) != 0);
     if(asc) {   /* append the ^Z as we copied in ASCII mode */
       putc(0x1a, fout);
     }
+    fflush(fout);
+    if(keepFTime)
+      setftime(fileno(fout), &fileTime);
     rc = ferror(fout);
     fclose(fout);
     if(rc) {
       error_write_file(rDest);
-      free(rDest);
+      unlink(rDest);            /* if device -> no removal, ignore error */
       return 0;
     }
-    free(rDest);
-  } while(FINDNEXT(&ff) == 0);
+  } while(wildcarded && FINDNEXT(&ff) == 0 && !(isfirst = 0));
+
+  FINDSTOP(&ff);
 
   return 1;
 }
 
-int copyFiles(struct CopySource *h)
-{ char *fnam, *ext, *dst;
-  int differ, rc;
-
-  if(destIsDir) {
-    if(!dfnsplit(h->fnam, 0, 0, &fnam, &ext)) {
-      error_out_of_memory();
-      return 0;
-    }
-    dst = dfnmerge(0, 0, destFile, fnam, ext);
-    free(fnam);
-    free(ext);
-    if(!dst) {
-      error_out_of_memory();
-      return 0;
-    }
-  } else
-    dst = destFile;
+static int copyFiles(struct CopySource *h)
+{ int differ, rc;
 
   rc = 0;
 
+#define dst destFile
   if((differ = samefile(h->fnam, dst)) < 0)
     error_out_of_memory();
   else if(!differ)
@@ -322,18 +469,32 @@ int copyFiles(struct CopySource *h)
     rc = copy(dst, h->fnam, h->app, 'a');
   else
     error_selfcopy(dst);
+#undef dst
 
-  if(destIsDir)
-    free(dst);
   return rc;
 }
 
-int cpyFlags(void)
+static int cpyFlags(void)
 {
   return (optA? ASCII: 0) | (optB? BINARY: 0);
 }
 
-int addSource(char *p)
+static struct CopySource *srcItem(char *fnam)
+{       struct CopySource *h;
+
+    if((h = malloc(sizeof(struct CopySource))) == 0) {
+      error_out_of_memory();
+      return 0;
+    }
+
+    h->fnam = fnam;
+    h->nxt = h->app = 0;
+    h->flags = cpyFlags();
+
+    return h;
+}
+
+static int addSource(char *p)
 { struct CopySource *h;
   char *q;
 
@@ -341,25 +502,20 @@ int addSource(char *p)
   q = strtok(p, "+");
   assert(q && *q);
 
-  if(appFile) {
-    appFile = 0;
+  if(appendToFile) {
+    appendToFile = 0;
     if(!lastApp) {
       error_leading_plus();
       return 0;
     }
   } else {      /* New entry */
-    if((h = malloc(sizeof(struct CopySource))) == 0) {
-      error_out_of_memory();
+    if(0 == (h = srcItem(q)))
       return 0;
-    }
     if(!last)
       last = lastApp = head = h;
     else
       last = lastApp = last->nxt = h;
 
-    h->nxt = h->app = 0;
-    h->fnam = q;
-    h->flags = cpyFlags();
     if((q = strtok(0, "+")) == 0)   /* no to-append file */
       return 1;
   }
@@ -368,13 +524,8 @@ int addSource(char *p)
   assert(q);
   assert(lastApp);
   do {
-    if((h = malloc(sizeof(struct CopySource))) == 0) {
-      error_out_of_memory();
+    if(0 == (h = srcItem(q)))
       return 0;
-    }
-    h->fnam = q;
-    h->flags = cpyFlags();
-    h->app = 0;
     lastApp = lastApp->app = h;
   } while((q = strtok(0, "+")) != 0);
 
@@ -385,8 +536,8 @@ int addSource(char *p)
 int cmd_copy(char *rest)
 { char **argv, *p;
   int argc, opts, argi;
-  int freeDestFile = 0;
   struct CopySource *h;
+  char **argBuffer = 0;
 
   /* Initialize options */
   optA = optB = optV = optY = 0;
@@ -425,7 +576,7 @@ int cmd_copy(char *rest)
         lastApp->flags = cpyFlags();
     } else {            /* real argument */
       if(*p == '+') {       /* to previous argument */
-        appFile = 1;
+        appendToFile = 1;
         while(*++p == '+');
         if(!*p)
           continue;
@@ -439,7 +590,7 @@ int cmd_copy(char *rest)
 
     }
 
-  if(appFile) {
+  if(appendToFile) {
     error_trailing_plus();
     killContext();
     freep(argv);
@@ -455,38 +606,64 @@ int cmd_copy(char *rest)
 
   assert(head);
 
-  /* Now test if a destination was specified */
-  if(head != last && !last->app) {  /* Yeah */
-    destFile = dfnexpand(last->fnam, 0);
-    if(!destFile) {
-      error_out_of_memory();
-      goto errRet;
-    }
-    freeDestFile = 1;
-    h = head;         /* remove it from argument list */
-    while(h->nxt != last) {
-      assert(h->nxt);
-      h = h->nxt;
-    }
-    free(last);
-    (last = h)->nxt = 0;
-    p = strchr(destFile, '\0') - 1;
-    if(*p == '\\' || *p == '/')		/* must be a directory */
-    	destIsDir = 1;
-    else destIsDir = dfnstat(destFile) & DFN_DIRECTORY;
+  /* Check whether the source items are files or directories */
+  h = head;
+  argc = 0;             /* argBuffer entries */
+  do {
+        struct CopySource *p = h;
+        do {
+                char *s = strchr(p->fnam, '\0') - 1;
+                if(*s == '/' || *s == '\\'              /* forcedly be directory */
+                 || 0 != (dfnstat(p->fnam) & DFN_DIRECTORY)) {
+                        char **buf;
+                        char *q;
+                        if(*s == ':')
+                                q = dfnmerge(0, p->fnam, 0, "*", "*");
+                        else
+                                q = dfnmerge(0, 0, p->fnam, "*", "*");
+                        if(0 == (buf = realloc(argBuffer, (argc + 2) * sizeof(char*)))
+                         || !q) {
+                                free(q);
+                                error_out_of_memory();
+                                goto errRet;
+                        }
+                        argBuffer = buf;
+                        buf[argc] = p->fnam = q;
+                        buf[++argc] = 0;
+                } else if(*s == ':') {          /* Device name?? */
+                        if(!isDeviceName(p->fnam)) {
+                                error_invalid_parameter(p->fnam);
+                                goto errRet;
+                        }
+                }
+        } while(0 != (p = p->app));
+  } while(0 != (h = h->nxt));
+
+        if(last != head) {
+                /* The last argument is to be the destination */
+                if(last->app) { /* last argument is a + b syntax -> no dst! */
+                        error_copy_plus_destination();
+                        goto errRet;
+                }
+                destFile = last->fnam;
+                h = head;         /* remove it from argument list */
+                while(h->nxt != last) {
+                  assert(h->nxt);
+                  h = h->nxt;
+                }
+                free(last);
+                (last = h)->nxt = 0;
   } else {              /* Nay */
-    destFile = ".";
-    destIsDir = 1;
+    destFile = ".\\*.*";
   }
 
   /* Now copy the files */
   h = head;
   while(copyFiles(h) && (h = h->nxt) != 0);
 
-  if(freeDestFile)
-    free(destFile);
 errRet:
   killContext();
   freep(argv);
+  freep(argBuffer);
   return 0;
 }

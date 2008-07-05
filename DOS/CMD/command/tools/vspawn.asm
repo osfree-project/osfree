@@ -1,4 +1,4 @@
-;; $Id: vspawn.asm,v 1.3 2001/04/12 00:09:06 skaus Exp $
+;; $Id: vspawn.asm 189 2001-04-12 00:09:06Z skaus $
 
 ; Kernel Swap Support Faker #2
 

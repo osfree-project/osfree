@@ -1,4 +1,4 @@
-/*
+/* $Id: cmdtable.c 1273 2006-09-04 19:37:25Z blairdude $
  *  CMDTABLE.C - table of internal commands.
  *
  *  Comments:
@@ -72,7 +72,9 @@ struct CMD internalCommands[] =
 	{"CDD", CMD_SPECIAL_DIR, cmd_cdd, TEXT_CMDHELP_CDD},
 #endif
 
-/*    { "CHCP",     0,             cmd_chcp, TEXT_CMDHELP_CHCP},    !!    */
+#ifdef INCLUDE_CMD_CHCP
+    { "CHCP",     0,             cmd_chcp, TEXT_CMDHELP_CHCP},
+#endif
 
 #ifdef INCLUDE_CMD_CLS
   {"CLS", 0, cmd_cls, TEXT_CMDHELP_CLS},
@@ -113,6 +115,9 @@ struct CMD internalCommands[] =
 #endif
 
   {"EXIT", 0, internal_exit, TEXT_CMDHELP_EXIT},
+#ifdef DEBUG
+  {"EXIT!!", 0, force_exit, TEXT_CMDHELP_EXIT},
+#endif
 
   {"FOR", 0, cmd_for, TEXT_CMDHELP_FOR},
 
@@ -124,16 +129,24 @@ struct CMD internalCommands[] =
 
   {"IF", 0, cmd_if, TEXT_CMDHELP_IF},
 
+#ifdef FEATURE_LONG_FILENAMES
+#ifdef INCLUDE_CMD_LFNFOR
+  {"LFNFOR", 0, cmd_lfnfor, TEXT_CMDHELP_LFNFOR},
+#endif
+#endif
+
+#ifdef INCLUDE_CMD_FAKELOADHIGH
+  {"LH", CMD_SPECIAL_DIR, cmd_call, TEXT_CMDHELP_CALL},
+  {"LOADHIGH", CMD_SPECIAL_DIR, cmd_call, TEXT_CMDHELP_CALL},
+#endif
+
 #ifdef INCLUDE_CMD_LOADHIGH
   {"LH", CMD_SPECIAL_DIR, cmd_loadhigh, TEXT_CMDHELP_LH},
+  {"LOADHIGH", CMD_SPECIAL_DIR, cmd_loadhigh, TEXT_CMDHELP_LH},
 #endif
 
 #ifdef INCLUDE_CMD_LOADFIX
   {"LOADFIX", CMD_SPECIAL_DIR, cmd_loadfix, TEXT_CMDHELP_LOADFIX},
-#endif
-
-#ifdef INCLUDE_CMD_LOADHIGH
-  {"LOADHIGH", CMD_SPECIAL_DIR, cmd_loadhigh, TEXT_CMDHELP_LH},
 #endif
 
 #ifdef INCLUDE_CMD_MEMORY

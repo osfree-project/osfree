@@ -1,5 +1,4 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: mktmpfil.c 771 2004-02-01 13:55:39Z skaus $
 
  	Try to create a temporary file in a specified directory
  	with a given extension.
@@ -26,7 +25,13 @@
 
 	This file bases on TMPNAM.C of FreeCOM v0.81 beta 1.
 
-	$Log: mktmpfil.c,v $
+	$Log$
+	Revision 1.3  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
+	Revision 1.2  2004/02/01 13:24:22  skaus
+	bugfix: misidentifying unspecific failures from within SUPPL
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -88,11 +93,8 @@ char *mktempfile(const char * const path, const char *ext)
   if (!path)                    /* to simplify the caller function */
     return 0;
 
-  if ((fn = dfnexpand(path, 0)) == 0)
-  {                             /* out-of-mem */
-    nomem();
+  if((fn = abspath(path, 0)) == 0)  /* out-of-mem */
     return 0;
-  }
 
   if (!ext)                     /* make sure it's a legal string */
     ext = "";

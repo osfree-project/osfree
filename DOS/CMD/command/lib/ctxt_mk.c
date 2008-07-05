@@ -1,4 +1,4 @@
-/* $Id: ctxt_mk.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: ctxt_mk.c 1287 2006-09-04 21:22:32Z blairdude $
 
 	Create local context
 
@@ -10,8 +10,6 @@
 */
 
 #include "../config.h"
-
-#include <environ.h>
 
 #include "../include/command.h"
 #include "../include/context.h"
@@ -43,12 +41,18 @@ void ctxtCreate(void)
 		error_context_length(length, CONTEXT_MAX_SIZE);
 		length = CONTEXT_MAX_SIZE;
 	}
+	ctxtCreateMemBlock((unsigned)length);
+#if 0
 	env_resizeCtrl = ENV_USEUMB | ENV_ALLOWMOVE | ENV_LASTFIT;
+  if(forceLow)
+	  env_resizeCtrl &= ~ENV_USEUMB;
 	if((ctxt = env_create((unsigned)length)) == 0) {
 		error_out_of_dos_memory();
 		jmp_fatal(E_NoMem);
 	}
-
+	dprintf(("[MEM: create context: %u bytes @0x%04x]\n"
+	 , (unsigned)length, ctxt));
+#endif
 
 	if(ctxtAddStatus(CTXT_TAG_BATCH)
 #ifdef FEATURE_ALIASES

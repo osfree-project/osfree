@@ -13,6 +13,7 @@ DIRS =   attrib   &
          find     &
          diskcomp &
          label    &
+         mem      &
          xcopy    &
          stub
 

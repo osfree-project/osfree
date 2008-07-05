@@ -1,4 +1,4 @@
-/*
+/* $Id: prompt.c 771 2004-02-01 13:55:39Z skaus $
  *  PROMPT.C - prompt handling.
  *
  */

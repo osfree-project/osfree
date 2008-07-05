@@ -1,16 +1,18 @@
 .AUTODEPEND
 
-CFG = TCCDOS.CFG
 CFG_DEPENDENCIES = lib.mak
+
+!include "..\config.mak"
 
 all: $(CFG) freecom.lib
 
-##>> Modify this file with your local settings
-!include "..\config.mak"
-
 freecom_deps :  \
+	absfile.obj \
+	almemblk.obj \
 	alprmblk.obj \
 	alsysblk.obj \
+	app_get.obj \
+	app_set.obj \
 	beep_l.obj \
 	beep_n.obj \
 	brk_get.obj \
@@ -29,6 +31,8 @@ freecom_deps :  \
 	cmdinput.obj \
 	comfile.obj \
 	compfile.obj \
+	critend.obj \
+	critrchk.obj \
 	ctxt.obj \
 	ctxt_adr.obj \
 	ctxt_as.obj \
@@ -37,6 +41,7 @@ freecom_deps :  \
 	ctxt_get.obj \
 	ctxt_inf.obj \
 	ctxt_mk.obj \
+	ctxt_mkb.obj \
 	ctxt_mkn.obj \
 	ctxt_pop.obj \
 	ctxt_psh.obj \
@@ -55,7 +60,9 @@ freecom_deps :  \
 	dbg_s.obj \
 	dbg_sn.obj \
 	devopen.obj \
+	dfn_err.obj \
 	dispcnt.obj \
+	dispexit.obj \
 	drvnum.obj \
 	efct_001.obj \
 	exec.obj \
@@ -65,6 +72,7 @@ freecom_deps :  \
 	fcompl2.obj \
 	fdattr.obj \
 	fdevopen.obj \
+	fdsattr.obj \
 	fillcomp.obj \
 	find.obj \
 	freep.obj \
@@ -86,9 +94,11 @@ freecom_deps :  \
 	is_pchr.obj \
 	isadev.obj \
 	keyprsd.obj \
+	kswap_c.obj \
 	lastdget.obj \
 	lastdset.obj \
 	leadopt.obj \
+	lfnfuncs.obj \
 	lowexec.obj \
 	ltrimcl.obj \
 	ltrimsp.obj \
@@ -105,6 +115,7 @@ freecom_deps :  \
 	msg_mkey.obj \
 	msg_prmp.obj \
 	mux_ae.obj \
+	myperror.obj \
 	nls.obj \
 	nls_date.obj \
 	nls_time.obj \
@@ -119,9 +130,14 @@ freecom_deps :  \
 	pr_prmpt.obj \
 	pr_time.obj \
 	prprompt.obj \
+	readcmd.obj \
 	realnum.obj \
 	res.obj \
 	res_r.obj \
+	res_vald.obj \
+	chunk1
+
+chunk1 :  \
 	res_w.obj \
 	resfile.obj \
 	rmtmpfil.obj \
@@ -131,19 +147,20 @@ freecom_deps :  \
 	samefile.obj \
 	scancmd.obj \
 	scanopt.obj \
+	session.obj \
 	showcmds.obj \
 	skqwd.obj \
+	spfnam.obj \
 	split.obj \
 	sumblink.obj \
-	chunk1
-
-chunk1 :  \
 	tempfile.obj \
 	timeget.obj \
 	timeset.obj \
 	tmpnam.obj \
 	trimcl.obj \
 	trimsp.obj \
+	truepath.obj \
+	truncate.obj \
 	txtlend.obj \
 	unquote.obj \
 	vcgetch.obj \
@@ -228,13 +245,23 @@ chunk1 :  \
 	err77.obj \
 	err78.obj \
 	err79.obj \
-	err80.obj
+	err80.obj \
+	err81.obj \
+	err82.obj \
+	err83.obj \
+	err84.obj \
+	err85.obj \
+	err86.obj
 
 
 freecom.lib : $(CFG) freecom_deps 
 	if exist freecom.lib $(AR) freecom.lib /c @&&|
++-absfile.obj &
++-almemblk.obj &
 +-alprmblk.obj &
 +-alsysblk.obj &
++-app_get.obj &
++-app_set.obj &
 +-beep_l.obj &
 +-beep_n.obj &
 +-brk_get.obj &
@@ -253,6 +280,8 @@ freecom.lib : $(CFG) freecom_deps
 +-cmdinput.obj &
 +-comfile.obj &
 +-compfile.obj &
++-critend.obj &
++-critrchk.obj &
 +-ctxt.obj &
 +-ctxt_adr.obj &
 +-ctxt_as.obj &
@@ -261,6 +290,7 @@ freecom.lib : $(CFG) freecom_deps
 +-ctxt_get.obj &
 +-ctxt_inf.obj &
 +-ctxt_mk.obj &
++-ctxt_mkb.obj &
 +-ctxt_mkn.obj &
 +-ctxt_pop.obj &
 +-ctxt_psh.obj &
@@ -279,7 +309,9 @@ freecom.lib : $(CFG) freecom_deps
 +-dbg_s.obj &
 +-dbg_sn.obj &
 +-devopen.obj &
++-dfn_err.obj &
 +-dispcnt.obj &
++-dispexit.obj &
 +-drvnum.obj &
 +-efct_001.obj &
 +-exec.obj &
@@ -289,6 +321,7 @@ freecom.lib : $(CFG) freecom_deps
 +-fcompl2.obj &
 +-fdattr.obj &
 +-fdevopen.obj &
++-fdsattr.obj &
 +-fillcomp.obj &
 +-find.obj &
 +-freep.obj &
@@ -310,9 +343,11 @@ freecom.lib : $(CFG) freecom_deps
 +-is_pchr.obj &
 +-isadev.obj &
 +-keyprsd.obj &
++-kswap_c.obj &
 +-lastdget.obj &
 +-lastdset.obj &
 +-leadopt.obj &
++-lfnfuncs.obj &
 +-lowexec.obj &
 +-ltrimcl.obj &
 +-ltrimsp.obj &
@@ -329,6 +364,7 @@ freecom.lib : $(CFG) freecom_deps
 +-msg_mkey.obj &
 +-msg_prmp.obj &
 +-mux_ae.obj &
++-myperror.obj &
 +-nls.obj &
 +-nls_date.obj &
 +-nls_time.obj &
@@ -343,9 +379,11 @@ freecom.lib : $(CFG) freecom_deps
 +-pr_prmpt.obj &
 +-pr_time.obj &
 +-prprompt.obj &
++-readcmd.obj &
 +-realnum.obj &
 +-res.obj &
 +-res_r.obj &
++-res_vald.obj &
 +-res_w.obj &
 +-resfile.obj &
 +-rmtmpfil.obj &
@@ -355,8 +393,10 @@ freecom.lib : $(CFG) freecom_deps
 +-samefile.obj &
 +-scancmd.obj &
 +-scanopt.obj &
++-session.obj &
 +-showcmds.obj &
 +-skqwd.obj &
++-spfnam.obj &
 +-split.obj &
 +-sumblink.obj &
 +-tempfile.obj &
@@ -365,6 +405,8 @@ freecom.lib : $(CFG) freecom_deps
 +-tmpnam.obj &
 +-trimcl.obj &
 +-trimsp.obj &
++-truepath.obj &
++-truncate.obj &
 +-txtlend.obj &
 +-unquote.obj &
 +-vcgetch.obj &
@@ -449,11 +491,21 @@ freecom.lib : $(CFG) freecom_deps
 +-err77.obj &
 +-err78.obj &
 +-err79.obj &
-+-err80.obj
++-err80.obj &
++-err81.obj &
++-err82.obj &
++-err83.obj &
++-err84.obj &
++-err85.obj &
++-err86.obj
 | , freecom.lst 
 	if not exist freecom.lib $(AR) freecom.lib /c @&&|
++absfile.obj &
++almemblk.obj &
 +alprmblk.obj &
 +alsysblk.obj &
++app_get.obj &
++app_set.obj &
 +beep_l.obj &
 +beep_n.obj &
 +brk_get.obj &
@@ -472,6 +524,8 @@ freecom.lib : $(CFG) freecom_deps
 +cmdinput.obj &
 +comfile.obj &
 +compfile.obj &
++critend.obj &
++critrchk.obj &
 +ctxt.obj &
 +ctxt_adr.obj &
 +ctxt_as.obj &
@@ -480,6 +534,7 @@ freecom.lib : $(CFG) freecom_deps
 +ctxt_get.obj &
 +ctxt_inf.obj &
 +ctxt_mk.obj &
++ctxt_mkb.obj &
 +ctxt_mkn.obj &
 +ctxt_pop.obj &
 +ctxt_psh.obj &
@@ -498,7 +553,9 @@ freecom.lib : $(CFG) freecom_deps
 +dbg_s.obj &
 +dbg_sn.obj &
 +devopen.obj &
++dfn_err.obj &
 +dispcnt.obj &
++dispexit.obj &
 +drvnum.obj &
 +efct_001.obj &
 +exec.obj &
@@ -508,6 +565,7 @@ freecom.lib : $(CFG) freecom_deps
 +fcompl2.obj &
 +fdattr.obj &
 +fdevopen.obj &
++fdsattr.obj &
 +fillcomp.obj &
 +find.obj &
 +freep.obj &
@@ -529,9 +587,11 @@ freecom.lib : $(CFG) freecom_deps
 +is_pchr.obj &
 +isadev.obj &
 +keyprsd.obj &
++kswap_c.obj &
 +lastdget.obj &
 +lastdset.obj &
 +leadopt.obj &
++lfnfuncs.obj &
 +lowexec.obj &
 +ltrimcl.obj &
 +ltrimsp.obj &
@@ -548,6 +608,7 @@ freecom.lib : $(CFG) freecom_deps
 +msg_mkey.obj &
 +msg_prmp.obj &
 +mux_ae.obj &
++myperror.obj &
 +nls.obj &
 +nls_date.obj &
 +nls_time.obj &
@@ -562,9 +623,11 @@ freecom.lib : $(CFG) freecom_deps
 +pr_prmpt.obj &
 +pr_time.obj &
 +prprompt.obj &
++readcmd.obj &
 +realnum.obj &
 +res.obj &
 +res_r.obj &
++res_vald.obj &
 +res_w.obj &
 +resfile.obj &
 +rmtmpfil.obj &
@@ -574,8 +637,10 @@ freecom.lib : $(CFG) freecom_deps
 +samefile.obj &
 +scancmd.obj &
 +scanopt.obj &
++session.obj &
 +showcmds.obj &
 +skqwd.obj &
++spfnam.obj &
 +split.obj &
 +sumblink.obj &
 +tempfile.obj &
@@ -584,6 +649,8 @@ freecom.lib : $(CFG) freecom_deps
 +tmpnam.obj &
 +trimcl.obj &
 +trimsp.obj &
++truepath.obj &
++truncate.obj &
 +txtlend.obj &
 +unquote.obj &
 +vcgetch.obj &
@@ -668,6 +735,12 @@ freecom.lib : $(CFG) freecom_deps
 +err77.obj &
 +err78.obj &
 +err79.obj &
-+err80.obj
++err80.obj &
++err81.obj &
++err82.obj &
++err83.obj &
++err84.obj &
++err85.obj &
++err86.obj
 | , freecom.lst 
 

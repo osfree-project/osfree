@@ -1,4 +1,4 @@
-/*
+/* $Id: batch.c 1291 2006-09-05 01:44:33Z blairdude $
  *  BATCH.C - batch file processor for COMMAND.COM.
  *
  *  Comments:
@@ -61,12 +61,12 @@
  *
  * 1999/04/23 ska
  * bugfix: batch_param(): Missing right quote, after stopping the do-while
- *	loop, the '\0' byte is copied, then s2 incremented --> right of string.
+ *      loop, the '\0' byte is copied, then s2 incremented --> right of string.
  * bugfix: batch(): fullname is duplicated into heap, but
- *	not freed if this function fails
+ *      not freed if this function fails
  * bugfix: batch(): no error checking of batch_params()
  *
- * 1999/05/06 ska		(see CMT2.TXT)
+ * 1999/05/06 ska               (see CMT2.TXT)
  * bugfix: FOR %a IN (dir\*.*) :: must expand to dir\...
  * bugfix: %9 wrong, if 9 > number of parameters
  * chg: %0 returns full name now
@@ -84,12 +84,21 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "../include/dfn.h"
+#include <dfn.h>
+
+#include "tcc2wat.h"
 
 #include "../include/command.h"
 #include "../include/cmdline.h"
 #include "../include/batch.h"
 #include "../err_fcts.h"
+
+
+#ifdef INCLUDE_CMD_LFNFOR
+extern unsigned char lfnfor;
+#else
+#define lfnfor 0
+#endif
 
 struct bcontext *bc = 0;     /* The stack of current batch contexts.
                                  * NULL when no batch is active
@@ -103,19 +112,28 @@ int tracemode = 0;              /* debug trace of scripts */
  * If no such parameter exists returns pointer to empty string.
  * If no batch file is current, returns NULL
  */
-char *find_arg(int n)
+char *find_arg_bc(struct bcontext const * const b, int n)
 {
   dprintf(("[find_arg (%d)]\n", n));
 
-  if (bc == 0)
-    return 0;
+        if(!b)
+                return 0;
 
-  n += bc->shiftlevel;
+  n += b->shiftlevel;
   if(n == 0)
-  	return bc->bfnam;
-  if(n > bc->numParams || n < 0)
-  	return "";
-  return bc->params[n - 1];
+        return b->bfirst;
+  if(n > b->numParams || n < 0)
+        return "";
+  return b->params[n - 1];
+}
+
+struct bcontext *activeBatchContext(void)
+{       struct bcontext *b = bc;
+
+        while(b && b->forvar)
+                b = b->prev;
+
+        return b;
 }
 
 /*
@@ -136,14 +154,16 @@ int setBatchParams(char *s)
 /* Move init/clear functionality out of the files in order to centralize
  * the low-level functionality --> easier to add/remove members of bcontext
  */
-void clearBatchContext(struct bcontext *b)
+static void clearBatchContext(struct bcontext *b)
 {
-	assert(b);
+        assert(b);
 
   if (b->bfile)
     fclose(b->bfile);
   if (b->bfnam)
     free(b->bfnam);
+  if (b->bfirst)
+    free(b->bfirst);
   if (b->blabel)
     free(b->blabel);
 
@@ -151,13 +171,15 @@ void clearBatchContext(struct bcontext *b)
     free(b->ffind);
   if (b->forproto)
     free(b->forproto);
+  if (b->forvar)
+    free(b->forvar);
   if (b->params)
     freep(b->params);
 }
 
-void initBatchContext(struct bcontext *b)
+static void initBatchContext(struct bcontext *b)
 {
-	assert(b);
+        assert(b);
   memset(b, 0, sizeof(*b));
 
   b->brewind = 1;
@@ -193,15 +215,17 @@ void exit_batch(void)
   }
 
   if (!bc)                      /* Notify ^Break handler to cancel
-  									"leave all" state */
+                                                                        "leave all" state */
     chkCBreak(BREAK_ENDOFBATCHFILES);
 }
 
+#if 0
 /* kill all batch contexts */
 void exit_all_batch(void)
-{	while(bc)
-		exit_batch();
+{       while(bc)
+                exit_batch();
 }
+#endif
 
 
 /*  Create/Clear/Chain all fields of the structure */
@@ -232,9 +256,7 @@ struct bcontext *newBatchContext(void)
  *  The current implementation keeps the batchfile open, which is not
  *  the standard behaviour.
  */
-#pragma argsused
-int batch(char *fullname, char *firstword, char *param)
-{
+int batch (char * fullname, char * firstword, char * param) {
   /*
    * Start batch file execution
    *
@@ -245,11 +267,8 @@ int batch(char *fullname, char *firstword, char *param)
    assert(firstword);
    assert(param);
 
-  if ((fullname = dfnexpand(fullname, 0)) == 0)
-  {
-    error_out_of_memory();
+  if((fullname = abspath(fullname, 1)) == 0)
     return 1;
-  }
 
   dprintf(("batch ('%s', '%s', '%s')\n", fullname, firstword,
            param));
@@ -260,7 +279,7 @@ int batch(char *fullname, char *firstword, char *param)
   if (bc == 0)               /* No current batch file, create new context */
   {
     if (!newBatchContext()) {
-    	free(fullname);
+        free(fullname);
       return 1;
     }
   }
@@ -293,9 +312,10 @@ int batch(char *fullname, char *firstword, char *param)
   }
 
   bc->bfnam = fullname;         /* already duplicated */
-  if(!setBatchParams(param)) {	 /* out of memory condition */
-  	exit_batch();		/* clear this erroreous batch context */
-  	return 1;
+  if(0 == (bc->bfirst = strdup(firstword))
+   || !setBatchParams(param)) {  /* out of memory condition */
+        exit_batch();           /* clear this erroreous batch context */
+        return 1;
   }
 
   return 0;
@@ -327,18 +347,19 @@ char *readbatchline(int *eflag, char *textline, int size)
   assert(eflag);
 
   ip = "";                      /* make sure ip != NULL in the first
-  									iteration of the loop */
+                                                                        iteration of the loop */
   while (bc)
   {
     first = 0;               /* by default return "no file" */
 
     if (bc->forvar)             /* If its a FOR context... */
     {
+      int forvarlen;
       char
        *fv1,
        *sp,      /* pointer to prototype command */
        *dp,          /* Place to expand protoype */
-       *fv;				       /* Next list element */
+       *fv;                                    /* Next list element */
 
       if (chkCBreak(BREAK_FORCMD) || bc->shiftlevel > bc->numParams)
         /* End of list or User break so... */
@@ -347,40 +368,63 @@ char *readbatchline(int *eflag, char *textline, int size)
         continue;
       }
 
-      fv1 = fv = find_arg(0);
+      fv1 = fv = getArgCur(0);
 
-	if (bc->ffind) {          /* First already done fo do next */
-		if(FINDNEXT(bc->ffind) != 0) {		/* no next file */
+        if (bc->ffind) {          /* First already done fo do next */
+#ifdef FEATURE_LONG_FILENAMES
+        if( lfnfor ? lfnfindnext( bc->ffind ) != 0 :
+                     FINDNEXT( ( struct ffblk * )bc->ffind ) != 0 ) {
+            FINDSTOP( bc->ffind );
+#else
+                if(FINDNEXT(bc->ffind) != 0) {          /* no next file */
+#endif
           free(bc->ffind);      /* free the buffer */
           bc->ffind = 0;
           bc->shiftlevel++;     /* On to next list element */
           continue;
         }
-	  fv = bc->ffind->ff_name;
-	} else
-	{
+          fv = bc->ffind->ff_name;
+        } else {
       if (strpbrk(fv, "?*") == 0) {      /* element is not wild file */
-        bc->shiftlevel++;       /* No use it and shift list */
-        fv1 = "";				/* No additional info */
-      } else
+        bc->shiftlevel++;       /* No -> use it and shift list */
+        fv1 = "";                               /* No additional info */
+      } else {
         /* Wild file spec, find first (or next) file name */
-      {
-	  /*  For first find, allocate a find first block */
+
+          /*  For first find, allocate a find first block */
+#ifdef FEATURE_LONG_FILENAMES
+          if ((bc->ffind = (struct lfnffblk *)malloc(sizeof(struct lfnffblk)))
+#else
           if ((bc->ffind = (struct ffblk *)malloc(sizeof(struct ffblk)))
+#endif
            == 0)
           {
             error_out_of_memory();
-            exit_batch();		/* kill this FOR context */
+            exit_batch();               /* kill this FOR context */
             break;
           }
 
+#ifdef FEATURE_LONG_FILENAMES
+         if( lfnfor ? lfnfindfirst( fv, bc->ffind, FA_NORMAL ) == 0 :
+                      FINDFIRST( fv, ( struct ffblk * )bc->ffind, FA_NORMAL )
+                      == 0 ) {
+#else
          if(FINDFIRST(fv, bc->ffind, FA_NORMAL) == 0) {
-         	/* found a file */
-         	*dfnfilename(fv) = '\0';	/* extract path */
-        	fv = bc->ffind->ff_name;
-         } else {			/* if not found use the string itself */
-			++bc->shiftlevel;
-			fv1 = "";				/* No additional info */
+#endif
+                /* found a file */
+                *dfnfilename(fv) = '\0';        /* extract path */
+                fv = bc->ffind->ff_name;
+         } else {                       /* if not found use the string itself */
+#if 0
+                        /* To use the pattern is not compatible with MS COMMAND */
+                        ++bc->shiftlevel;
+                        fv1 = "";                               /* No additional info */
+#else
+          free(bc->ffind);      /* free the buffer */
+          bc->ffind = 0;
+          bc->shiftlevel++;     /* On to next list element */
+          continue;
+#endif
         }
 
       }
@@ -388,17 +432,19 @@ char *readbatchline(int *eflag, char *textline, int size)
 
       /* At this point, fv points to parameter string */
       /* fv1 is the string usually set to the path to the
-      	found file, otherwise it points to "" */
+        found file, otherwise it points to "" */
 
        sp = bc->forproto;      /* pointer to prototype command */
        dp = textline;          /* Place to expand protoype */
 
        assert(sp);
+       assert(bc->forvar);
 
+      forvarlen = strlen(bc->forvar);
       while (*sp)
       {
-        if (*sp == '%' && sp[1] == bc->forvar)  /* replace % var */
-          dp = stpcpy(stpcpy(dp, fv1), fv), sp += 2;
+        if (memcmp(sp, bc->forvar, forvarlen) == 0)
+          dp = stpcpy(stpcpy(dp, fv1), fv), sp += forvarlen;
         else
           *dp++ = *sp++;        /* Else just copy */
       }
@@ -415,7 +461,7 @@ char *readbatchline(int *eflag, char *textline, int size)
 
     if (!bc->bfile)
     {                           /* modifyable batchfiles */
-      if ((bc->bfile = fopen(bc->bfnam, "rt")) == 0)
+      if ((bc->bfile = fopen(bc->bfnam, "rb")) == 0)
       {
         error_bfile_vanished(bc->bfnam);
         exit_batch();
@@ -435,9 +481,9 @@ char *readbatchline(int *eflag, char *textline, int size)
       }
     }
     else if(bc->brewind) {
-    	rewind(bc->bfile);
-    	bc->brewind = 0;
-    	bc->blinecnt = 0;
+        rewind(bc->bfile);
+        bc->brewind = 0;
+        bc->blinecnt = 0;
     }
 
     assert(ip != 0);
@@ -454,26 +500,33 @@ char *readbatchline(int *eflag, char *textline, int size)
       continue;
     }
 
-    /* Strip leading spaces and trailing space/control chars */
-    rtrimsp(textline);
+    /* Strip leading spaces and \n chars */
+/*    rtrimsp(textline);        must not remove trailing spaces */
+        first = strchr(textline, '\0');
+        while(--first >= textline && ( *first == '\n' || *first == '\r' ) );
+        first[1] = '\0';
     first = ltrimcl(textline);
 
     assert(first);
 
+    if(*first == '@') { /* don't echo this line */
+                first = ltrimcl(first + 1);
+                *eflag = 0;
+    } else
+                *eflag = echo;
+
     /* ignore empty lines */
-    if (!*first)
+    if(!*first)
       continue;
 
-    if (*first == ':')
-    {
+    if(*first == ':') {
       /* if a label is searched for test if we reached it */
-      if (bc->blabel)
-      {
-        ip = first;
+      if(bc->blabel) {
         /* label: the 1st word immediately following the colon ':' */
-        while (isgraph(*++ip)) ;
+                for(ip = ++first; isgraph(*ip); ++ip)
+                        ;
         *ip = '\0';
-        if (stricmp(first + 1, bc->blabel) == 0)
+        if (stricmp(first, bc->blabel) == 0)
         {                       /* OK found */
           free(bc->blabel);
           bc->blabel = 0;
@@ -482,17 +535,10 @@ char *readbatchline(int *eflag, char *textline, int size)
       continue;                 /* ignore label */
     }
 
-    if (bc->blabel)
+    if(bc->blabel)
       continue;                 /* we search for a label! */
 
-    if (*first == '@')          /* don't echo this line */
-    {
-    	first = ltrimcl(first + 1);
-      *eflag = 0;
-    }
-    else
-      *eflag = echo;
-
+    /* Got a line to execute */
     break;
   }
 

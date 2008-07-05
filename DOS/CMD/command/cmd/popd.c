@@ -1,4 +1,4 @@
-/*
+/* $Id: popd.c 771 2004-02-01 13:55:39Z skaus $
  *  DSTACK.C - Directory stack PUSHD/POPD support, compatible with 4/NDOS
  *
  *	POPD [*]

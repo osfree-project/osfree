@@ -1,4 +1,4 @@
-/*
+/* $Id: echo.c 1200 2006-06-12 04:55:42Z blairdude $
  *  ECHO.C - echo command.
  *
  *  Comments:
@@ -38,14 +38,14 @@ int cmd_echo(char *param)
 		nostatus = !isspace(*param);
 			/* Unlike other internal commands, puncation characters
 				are not removed by ECHO */
-		param = ltrimsp(param + 1);
+		++param;
 	} else nostatus = 0;
 
 	switch(onoffStr(param)) {
 	case OO_Null:	case OO_Empty:
 	default:
 	  if(nostatus)
-		putchar('\n');
+		outc('\n');
 	  else
 		displayString(TEXT_MSG_ECHO_STATE, echo ? D_ON : D_OFF);
 	  break;

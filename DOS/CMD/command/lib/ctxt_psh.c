@@ -1,4 +1,4 @@
-/* $id$
+/* $Id: ctxt_psh.c 771 2004-02-01 13:55:39Z skaus $
 
 	Pushes a new item to the end of the context tag
 

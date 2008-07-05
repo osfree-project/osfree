@@ -10,13 +10,6 @@
 #include <fmemory.h>
 #include "../include/misc.h"
 
-/* transformed into constants
-	unsigned far *maxx = MK_FP(0x40, 0x4a);
-	unsigned char far *maxy = MK_FP(0x40, 0x84);
-*/
-#define MAX_X (*(unsigned int  far*)MK_FP(0x40, 0x4a))
-#define MAX_Y (*(unsigned char far*)MK_FP(0x40, 0x84))
-
 #define MAX_INTERNAL_COMMAND_SIZE 256
 #define MAX_EXTERNAL_COMMAND_SIZE 125
 	/* The maximal external command line is:
@@ -40,7 +33,9 @@ enum InternalErrorCodes {
 	E_Empty,
 	E_Syntax,
 	E_Range,				/* Numbers out of range */
-	E_NoItems
+	E_NoItems,
+	E_Help,		/* Help screen */
+	E_User		/* MUST be the last one */
 };
 
 #define PROMPTVAR "PROMPT"
@@ -50,11 +45,16 @@ enum InternalErrorCodes {
 #define OwnerPSP (*(unsigned far *)MK_FP(_psp, 0x16))
 
 extern const char shellver[];
+extern const char shelldate[];
 extern const char shellname[];
 
 #define FINDFIRST(path,attrib,ffblk) findfirst(path,attrib,ffblk)
 #define FINDNEXT(ffblk)  findnext(ffblk)
+#ifdef FEATURE_LONG_FILENAMES
+#define FINDSTOP(ffblk) lfnfindclose(ffblk)
+#else
 #define FINDSTOP(ffblk)
+#endif
 #ifndef FA_NORMAL
 #define FA_NORMAL 0
 #endif
@@ -72,17 +72,24 @@ enum
 /* prototypes for INIT.C */
 extern void interrupt dummy_criter_handler();
 extern void interrupt cbreak_handler();
-extern void initCBreak(void);
+/* extern void initCBreak(void);*/
 
 /* prototypes for COMMAND.C */
 extern int interactive_command;
 extern int persistentMSGs;
-extern int ctrlBreak;
+extern int far CBreakCounter;
+#define ctrlBreak CBreakCounter
+/* extern int ctrlBreak;*/
 extern int exitflag;
 extern unsigned int echo;       /* The echo flag */
 extern int tracemode;                   /* debug script? */
 extern int autofail;
-extern int canexit, inInit;
+#ifdef FEATURE_XMS_SWAP
+extern byte far canexit;
+#else
+extern int canexit;
+#endif
+extern int inInit;
 extern int errorlevel;
 extern int isSwapFile;
 extern int forceLow;
@@ -95,15 +102,17 @@ void fatal_error(char *);
 int is_delim(int);
 void execute(char *, char *);
 void command(char *);
-void parsecommandline(char *);
+void parsecommandline(char *, int);
 int initialize(void);
 void short_version(void);
 int process_input(int xflg, char *cmdline);
-void perform_exec_result(int rc);
+/* void perform_exec_result(int rc); */
+int expandEnvVars(char *ip, char * const line);
 
 /* prototypes for INTERNAL.C */
 int cmd_break(char *);
 int cmd_chdir(char *);
+int cmd_chcp(char *);
 int cmd_cdd(char *);
 int cmd_cls(char *);
 int cmd_copy(char *);
@@ -114,6 +123,7 @@ int cmd_dir(char *);
 int cmd_doskey(char *);
 int cmd_fddebug(char *);
 int cmd_history(char *);
+int cmd_lfnfor(char *);
 int cmd_loadfix(char *);
 int cmd_loadhigh(char *);
 int cmd_memory(char *);
@@ -131,6 +141,7 @@ int cmd_ver(char *);
 int cmd_verify(char *);
 int cmd_vol(char *);
 int internal_exit(char *);
+int force_exit(char *);
 int cmd_pushd(char *);          /*DLP 06/01/2000 */
 int cmd_popd(char *);           /*DLP 06/01/2000 */
 int cmd_dirs(char *);           /*DLP 06/01/2000 */
@@ -176,12 +187,13 @@ extern struct CMD internalCommands[];
 /* New procs in BATCH.C */
 
 char *readbatchline(int *, char *, int);
-char *find_arg(int);
+/* char *find_arg(int); */
 
 /* The MSDOS Batch Commands [MS-DOS 5.0 User's Guide and Reference p359] */
 int cmd_call(char *);
 int cmd_echo(char *);
 int cmd_for(char *);
+int cmd_for_hackery(char *);
 int cmd_goto(char *);
 int cmd_if(char *);
 int cmd_pause(char *);

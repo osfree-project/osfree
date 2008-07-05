@@ -1,4 +1,4 @@
-# $Id: makefile,v 1.7 2001/04/12 00:09:06 skaus Exp $
+# $Id: makefile 984 2004-06-29 14:14:57Z skaus $
 #
 # Makefile for tools of the FreeDOS kernel's command interpreter
 #
@@ -9,7 +9,13 @@
 #	icmd			- Installable Commands samples
 #
 #
-# $Log: makefile,v $
+# $Log$
+# Revision 1.9  2004/06/29 14:14:57  skaus
+# fix: help screen of internal commands causes "Unknown command error" {Bernd Blaauw}
+#
+# Revision 1.8  2002/04/02 23:36:37  skaus
+# add: XMS-Only Swap feature (FEATURE_XMS_SWAP) (Tom Ehlert)
+#
 # Revision 1.7  2001/04/12 00:09:06  skaus
 # chg: New structure
 # chg: If DEBUG enabled, no available commands are displayed on startup
@@ -35,8 +41,14 @@
 # add: CALL: /N
 #
 
+.IF $(NASM) == $(NULL)
+
+.INCLUDE : ../_config.mk
+
+.ENDIF
+
 INCDIR +=;$(FREEDOS)\SRC\INCLUDE;..
-LIBDIR +=;$(FREEDOS)\SRC\LIB\$(_COMPILER)
+# LIBDIR +=;$(FREEDOS)\SRC\LIB\$(_COMPILER)
 LDLIBS = $(FREEDOS)\SRC\LIB\$(_COMPILER)\Suppl_$(_MODEL).lib
 LDFLAGS += /msl
 
@@ -52,7 +64,9 @@ NASMFLAGS = $(null,$(NDEBUG) $(NASMFLAGS_DBG) $(NASMFLAGS_NDBG))
 
 .SOURCE.h := . ..
 .SOURCE.lib := $(LIBDIR:s/;/ /:u)
+.IF $(FRREDOS) == $(NULL)
 .IMPORT : FREEDOS
+.ENDIF
 
 # Sources of this make target
 
@@ -77,6 +91,8 @@ icmd_2.icd : icmd_inc.inc icmd_2.nas
 
 icmd_3.icd : icmd_inc.inc icmd_3.nas
 
+icmd_4.icd : icmd_inc.inc icmd_4.nas
+
 .INIT : $(CFG) __errl
 
 __errl:
@@ -95,47 +111,4 @@ kssf.com : kssf.asm
 load_icd.obj : load_icd.c
 
 .INCLUDE : makefile.1
-
-.IF $(CFG) != $(NULL)
-
-#CONFIGURATION = $(CONF_BASE) $(null,$(NDEBUG) $(CONF_DBG) $(CONF_NDBG))
-CONFIGURATION = $(CONF_BASE)
-
-.IF $(_COMPTYPE) == BC
-CONF_BASE =	\
--f- \
--I$(INCDIR:s/;/ /:t";")	\
--L$(LIBDIR:s/;/ /:t";")	\
--w
-
-.IF $(_COMPILER)==BC5
-CONFIGURATION += -RT- -x-
-.ENDIF
-
-CONF_DBG =	$(MYCFLAGS_DBG)
-
-CONF_NDBG =	$(MYCFLAGS_NDBG)
-
-.ENDIF
-
-.IF $(_COMPTYPE) == TC
-CONF_BASE =	\
--I$(INCDIR:s/;/ /:t";")	\
--L$(LIBDIR:s/;/ /:t";")	\
--w
-
-# The "-f-" causes that TCC passes option "/r" to the assembler, though
-# ASM chokes about it
-
-CONF_DBG =	$(MYCFLAGS_DBG)
-
-CONF_NDBG =	$(MYCFLAGS_NDBG)
-
-.ENDIF
-
-.ENDIF
-#-weas	\
-#-wpre	\
-#-w-pro	\
-
 

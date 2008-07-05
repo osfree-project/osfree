@@ -1,0 +1,130 @@
+# $Id: polish.err 1257 2006-08-07 00:51:01Z blairdude $
+#
+# Critical error national customization file
+#
+#       Language: Polish
+#       Codepage: 991 (Mazovia)
+#       Author:   Mateusz Viste "Fox" / the.killer@wp.pl
+# 
+# The critical error (criter) handler receives some information
+# from the kernel about what error condition happens, generates some
+# human friendly message from it, requests the user's opinion about
+# how to proceed and, finally, returns to the kernel.
+# 
+# The human friendly message is generated using one of the following
+# templates:
+# BLOCK_DEVICE (for criters on block devices)
+# 	Error %1 drive %A: %2 area: %3
+# -and- CHAR_DEVICE (for criters on character devices)
+# 	Error %1 device %A: %3
+# 
+# Two-character sequences, which first character is a percent sign '%',
+# are placeholders for other information:
+# %% -> a single percent sign
+# %1 -> either READ or WRITE, depending on what kind of operation
+# 	caused the criter
+# %2 -> the kind of area the criter took place on DOS, FAT, ROOT, or DATA
+# %3 -> the actual error string; these are the strings associated to
+# 	a number 0 through N, and must correspond to the number passed in
+# 	lowbyte(DI) to the criter handler (see RBIL INT-24 for details)
+# %A -> drive letter (for block devices); name of device (character devices)
+# 
+# Below the line describing the error the user is prompted for the action
+# to proceed. This line is dynamically constructed depending on which
+# action are available at all. The full line may look like this:
+# 	(A)bort, (I)gnore, (R)etry, (F)ail?_
+# 
+# The individual words are defined by ABORT, IGNORE, RETRY, FAIL. They
+# should indicate which user response keys is associated with them;
+# suggested is to use the first letter and enclose it in parenthesises.
+# The delimiter ", " can be defined with DELIMITER and is the same
+# for all slots.
+# The "? " sequence is defined by QUESTION.
+# The order of the actions is fixed and cannot be customized.
+# 
+# With each action a number of user response keys must be associated.
+# They can be enumerated with the KEYS_ABORT, KEYS_IGNORE, ...
+# strings. Because the key is searched in the same format as returned
+# by INT-16-00, both upper and lower case must be specified and
+# certain special keys cannot be used.
+# 
+# The individual error strings are defined by the #: lines, where
+# the hash sign '#' refers to the number the kernel passes to the
+# criter handler. The UNKNOWN string is displayed for all error
+# numbers not specified.
+#
+# NOTE #1: The percent rule applies to _all_ criter strings!
+# NOTE #2: Each string occupies exactly one line.
+# NOTE #3: Any leading or trailing whitespaces are removed. Prefix the
+#	first or suffix the last whitespace with '%.' (one percent sign and
+#	one dot). This sequence is removed from the string totally.
+# NOTE #4: To embed any character use: %&## (one percent sign,
+#		one ampersand and exactly two hexa-decimal digits)
+
+## Primary strings
+S2
+BLOCK_DEVICE: B’†d %1 dysku %A: %2 obszar: %3
+S3
+CHAR_DEVICE: B’†d %1 urz†dzenia %A: %3
+
+## kind of operation
+S0
+READ: odczyt z
+S1
+WRITE: zapis do
+
+## kind of failed area of block devices
+S4
+DOS: DOS
+S5
+FAT: FAT
+S6
+ROOT: root
+S7
+DATA: dane
+
+## action strings
+S8
+IGNORE: (I)gnoruj
+S9
+RETRY: p(O)n¢w
+S10
+ABORT: (P)rzerwij
+S11
+FAIL: (Z)rezygnuj
+## keys associated with the actions
+S14 (compacted)
+KEYS_IGNORE: iI
+KEYS_RETRY:  pP
+KEYS_ABORT:  eE
+KEYS_FAIL:   zZ
+## embedded strings
+S12
+QUESTION:  ? %.
+S13
+DELIMITER: , %.
+
+## Error strings
+UNKNOWN: Nieznany kod b’‘du
+S15
+0: pr¢ba pogwa’cenia ochrony przez zapisem
+1: nieznana jednostka sterownika
+2: nap‘d nie jest gotowy
+3: sterownik nie rozpozna’ polecenia
+4: b’†d danych (b’‘dne CRC)
+5: bad device driver request structure length
+6: b’†d wyszukiwania
+7: nieznany typ nožnika
+8: sektor nie odnaleziony
+9: brak papieru w drukarce
+10: b’†d zapisu
+11: b’†d odczytu
+12: b’†d og¢lny
+13: pogwa’cenie praw wsp¢’dzielenia
+14: lock violation
+15: nieprawid’owa zmiana dysku
+16: FCB niedost‘pne
+17: przepe’nieniee wsp¢’dzielonych bufor¢w
+18: nieprawid’owa strona kodowa
+19: koniec wejžcia
+20: niewystarczaj†ce miejsce na dysku

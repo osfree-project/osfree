@@ -1,0 +1,91 @@
+# fatal errors
+0.0:Out of memory. Need %ld more bytes.\n
+0.1:SYSTEM MEMORY TRASHED! (int 21.5803 failure)\n
+0.2:UMB Corruption: Chain doesn't reach top of low RAM at %dk. Last=0x%x.\n
+0.3:The MCB chain is corrupted (no Z MCB after last M MCB, but %c at seg 0x%x).\n
+0.4:unknown option: %s\nUse /? for help\n
+# misc messages
+1.0:An unknown operating system
+1.1:%lu bytes\n
+1.2:(%s bytes)\n
+1.3: (%7s bytes)\n
+# memory types
+2.0:Memory Type        Total       Used       Free\n
+#   ----------------  --------   --------   --------
+2.1:Conventional
+2.2:Upper
+2.3:Reserved
+2.4:Extended (XMS)
+2.5:Total memory
+2.6:Total under 1 MB
+2.7:Total Expanded (EMS)
+2.8:Free Expanded (EMS)
+2.9:Largest executable program size
+2.10:Largest free upper memory block
+2.11:%s is resident in the high memory area.\n
+# block types
+3.0:
+3.1:free
+3.2:system code
+3.3:system data
+3.4:program
+3.5:environment
+3.6:data area
+3.7:reserved
+3.8:device driver
+3.9:IFS
+# classify msgs
+4.0:\nModules using memory below 1 MB:\n\n
+4.1:  Name           Total           Conventional       Upper Memory\n
+#     --------  ----------------   ----------------   ----------------
+4.2:SYSTEM
+4.3:Free
+4.4:\nSegment   Size       Name         Type\n
+#     ------- --------  ----------  -------------
+4.5:\n   Address     Attr    Name       Program\n
+#      -----------  ------ ----------  ----------
+# EMS stuff
+5.0:EMS INTERNAL ERROR.\n
+5.1: EMS driver not installed in system.\n
+5.2:\nEMS driver version
+5.3:EMS page frame
+5.4:Total EMS memory
+5.5:Free EMS memory
+5.6:Total handles
+5.7:Free handles
+5.8:\n  Handle   Pages    Size       Name\n
+#      -------- ------  --------   ----------
+# XMS stuff
+6.0:XMS driver not installed in system.\n
+6.1:\nTesting XMS memory ...\n
+6.2:XMS INTERNAL ERROR.\n
+6.3:INT 2F AX=4309 supported\n
+6.4:XMS version
+6.5:XMS driver version
+6.6:HMA state
+6.7:exists
+6.8:does not exist
+6.9:A20 line state
+6.10:enabled
+6.11:disabled
+6.12:Free XMS memory
+6.13:Largest free XMS block
+6.14:Free handles
+6.15: Block   Handle     Size     Locks\n
+#    ------- --------  --------  -------
+6.16:Free upper memory
+6.17:Largest upper block
+6.18:Upper memory not available\n
+# help message
+7.0:FreeDOS MEM version %d.%d\n
+7.1:Displays the amount of used and free memory in your system.
+7.2:Syntax: MEM [/E] [/F] [/C] [/D] [/U] [/X] [/P] [/?]
+7.3:/E  Reports all information about Expanded Memory
+7.4:/F  Full list of memory blocks
+7.5:/C  Classify modules using memory below 1 MB
+7.6:/D  List of device drivers currently in memory
+7.7:/U  List of programs in conventional and upper memory
+7.8:/X  Reports all information about Extended Memory
+7.9:/P  Pauses after each screenful of information
+7.10:/?  Displays this help message
+8.0:\nPress <Enter> to continue or <Esc> to exit . . .

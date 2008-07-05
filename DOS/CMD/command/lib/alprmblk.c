@@ -1,11 +1,16 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: alprmblk.c 986 2004-06-29 21:57:21Z skaus $
 
 	Allocate a permanent block of memory.
 	These blocks are system memory blocks, if swapping is enabled;
 	otherwise "normal" ones.
 
-	$Log: alprmblk.c,v $
+	$Log$
+	Revision 1.3  2004/06/29 21:57:20  skaus
+	fix: /LOW option
+
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:52  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -45,6 +50,6 @@
 unsigned allocPermBlk(const unsigned size, const unsigned mode)
 {	assert(size);
 	if(swapOnExec == ERROR)
-		return allocBlk(size, mode);
+		return allocMemBlk(size, mode);
 	return allocSysBlk(size, mode);
 }

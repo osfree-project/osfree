@@ -5,8 +5,9 @@ set DBG=
 
 : don't forget to pass on the default rather than mine
 copy config.std config.mak
+copy /u docs\download.txt .
 
-for %pkg in (binary debug plainedt) for %fnam in (ptchldrv.exe ptchsize.exe kssf.com vspawn.com command.com) (set fn=packages\%pkg.std\%fnam %+ if exist %fn del /q %fn)
+for %pkg in (binary debug plainedt xmsswap) for %fnam in (ptchldrv.exe ptchsize.exe kssf.com vspawn.com command.com) (set fn=packages\%pkg.std\%fnam %+ if exist %fn del /q %fn)
 
 
 set _DBG=REM
@@ -18,6 +19,7 @@ set compiler=tc101
 set compiler=bc5
 set lng=english
 set model=
+set xms_swap=
 
 iff exist config.h.backup then
 	echo config.h.backup exists
@@ -36,7 +38,6 @@ for %stem in (cmddebug command kssf kssf_dbg) do for %ext in (new exe com cln) d
 %_DBG setdos /y0 %+ %_DBG echo off
 dmake clobber || quit
 %_DBG setdos /y1 %+ %_DBG echo on
-
 
 : pause
 
@@ -62,6 +63,24 @@ set ndebug=Yes
 set debug=
 set compiler=tc101
 set model=s
+
+set XMS_SWAP=Yes
+%_DBG setdos /y0 %+ %_DBG echo off
+dmake || quit
+%_DBG setdos /y1 %+ %_DBG echo on
+if not exist com.com goto ende
+iff not exist tools\ptchsize.exe then
+	echo no PTCHSIZE
+	goto ende
+endiff
+tools\ptchsize.exe com.com +7KB
+if errorlevel 1 goto ende
+move com.com packages\xmsswap.std\command.com
+copy /b shell\com.exe +infores + criter\criter + criter\criter1 packages\localize.std\xmsswap.cln
+if exist com.com goto ende
+set XMS_SWAP=
+: pause
+
 
 ren /q config.h config.h.backup || cancel 20
 echo #define IGNORE_ENHANCED_INPUT >config.h
@@ -116,10 +135,7 @@ perl get_ver.pl .\command.com
 :: Make HTML documents
 pushd docs\html\commands || quit
 echo Updating HTML documents
-perl db2html
-: Call it two times to have the command list updated
-perl db2html
-perl parseHTML
+call upd_html.bat
 popd
 
 : %_DBG echo on %+ setdos /y1

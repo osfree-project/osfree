@@ -1,4 +1,4 @@
-/* $Id: pr_prmpt.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: pr_prmpt.c 528 2003-03-11 21:02:03Z skaus $
  * print the command-line prompt
  *
  */
@@ -9,13 +9,14 @@
 #include "../include/command.h"
 #include "../include/misc.h"
 
+#include "tcc2wat.h"
+
 void printprompt(void)
-{	char *pr;
+{       char *pr;
 
-	dbg_printmem();
+        dbg_printmem();
 
-	pr = getEnv(PROMPTVAR);        /* get PROMPT environment var. */
+        pr = getEnv(PROMPTVAR);        /* get PROMPT environment var. */
 
-	displayPrompt(pr? pr: DEFAULT_PROMPT);
+        displayPrompt(pr? pr: DEFAULT_PROMPT);
 }
-

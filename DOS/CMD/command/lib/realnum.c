@@ -1,4 +1,4 @@
-/* $Id: realnum.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: realnum.c 190 2001-04-12 00:36:10Z skaus $
 
 	create an absolute number from the relative one
 

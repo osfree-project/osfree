@@ -1,11 +1,13 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: history.c 771 2004-02-01 13:55:39Z skaus $
 
 	command line history
 
 	This file bases on HISTORY.C of FreeCOM v0.81 beta 1.
 
-	$Log: history.c,v $
+	$Log$
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
 	Revision 1.1  2001/04/12 00:09:06  skaus
 	chg: New structure
 	chg: If DEBUG enabled, no available commands are displayed on startup

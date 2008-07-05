@@ -1,5 +1,4 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: split.c 771 2004-02-01 13:55:39Z skaus $
 
  * split - splits a line up into separate arguments, deliminators
  *      are spaces and /'s
@@ -8,7 +7,13 @@
 
 	This file bases on CMDLINE.C of FreeCOM v0.81 beta 1.
 
-	$Log: split.c,v $
+	$Log$
+	Revision 1.3  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
+	Revision 1.2  2003/03/09 12:09:40  skaus
+	bugfix: split(): out-of-mem condition during building argument array
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -61,10 +66,12 @@ static int addArg(char ***Xarg, int *argc, char *sBeg, char **sEnd)
         return 1;
       }
       /* create new entry */
-      if((arg[(*argc)++] = unquote(sBeg, *sEnd)) == 0) {
+      if((arg[*argc] = unquote(sBeg, *sEnd)) == 0) {
         freep(arg);
         return 1;
       }
+      arg[++*argc] = 0;		/* keep it a correct argv[] array if a freep()
+      							is triggered above */
       *Xarg = arg;
 
     return 0;

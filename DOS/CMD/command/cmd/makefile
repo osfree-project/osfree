@@ -1,281 +1,40 @@
-# $Id: makefile,v 1.2 2001/06/10 17:17:23 skaus Exp $
 #
-# Makefile for the FreeCOM library
-#
-# $Log: makefile,v $
-# Revision 1.2  2001/06/10 17:17:23  skaus
-# bugfix: Single point of configuration CONFIG.MAK/.H
-#
-# Revision 1.1  2001/04/12 00:09:06  skaus
-# chg: New structure
-# chg: If DEBUG enabled, no available commands are displayed on startup
-# fix: PTCHSIZE also patches min extra size to force to have this amount
-#    of memory available on start
-# bugfix: CALL doesn't reset options
-# add: PTCHSIZE to patch heap size
-# add: VSPAWN, /SWAP switch, .SWP resource handling
-# bugfix: COMMAND.COM A:\
-# bugfix: CALL: if swapOnExec == ERROR, no change of swapOnExec allowed
-# add: command MEMORY
-# bugfix: runExtension(): destroys command[-2]
-# add: clean.bat
-# add: localized CRITER strings
-# chg: use LNG files for hard-coded strings (hangForEver(), init.c)
-# 	via STRINGS.LIB
-# add: DEL.C, COPY.C, CBREAK.C: STRINGS-based prompts
-# add: fixstrs.c: prompts & symbolic keys
-# add: fixstrs.c: backslash escape sequences
-# add: version IDs to DEFAULT.LNG and validation to FIXSTRS.C
-# chg: splitted code apart into LIB\*.c and CMD\*.c
-# bugfix: IF is now using error system & STRINGS to report errors
-# add: CALL: /N
-#
+# A Makefile for ATTRIB
+# (c) osFree project,
+# author, date
 #
 
-.INCLUDE : ../_config.mk
+!include $(%ROOT)/build.conf
+!include $(%ROOT)/mk/site.mk
 
-# Sources of this make target
-SRC = alias.c beep.c break.c call.c cdd.c chdir.c cls.c copy.c ctty.c \
-	date.c del.c dir.c dirs.c doskey.c echo.c exit.c fddebug.c for.c goto.c \
-	history.c if.c memory.c mkdir.c path.c pause.c popd.c prompt.c pushd.c \
-	rem.c ren.c rmdir.c set.c shift.c time.c truename.c type.c verify.c \
-	which.c
-OBJ = alias.obj beep.obj break.obj call.obj cdd.obj chdir.obj cls.obj \
-	copy.obj ctty.obj date.obj del.obj dir.obj dirs.obj doskey.obj echo.obj \
-	exit.obj fddebug.obj for.obj goto.obj history.obj if.obj memory.obj \
-	mkdir.obj path.obj pause.obj popd.obj prompt.obj pushd.obj rem.obj \
-	ren.obj rmdir.obj set.obj shift.obj time.obj truename.obj type.obj \
-	verify.obj which.obj
-HDR = ..\config.h ..\err_fcts.h ..\include/batch.h ..\include/cmdline.h \
-	..\include/command.h ..\include/context.h ..\include/datefunc.h \
-	..\include/debug.h ..\include/kswap.h ..\include/misc.h ..\include/nls.h \
-	..\include/openf.h ..\include/timefunc.h
+#32_BITS  = 1
 
+#defines object file names in format objname.$(O)
+OBJS = tcc2wat.$(O) alias.$(O) beep.$(O) break.$(O) call.$(O) cdd.$(O) chcp.$(O) chdir.$(O) &
+        cls.$(O) copy.$(O) ctty.$(O) date.$(O) del.$(O) dir.$(O) dirs.$(O) doskey.$(O) &
+        echo.$(O) exit.$(O) exit2.$(O) fddebug.$(O) for.$(O) goto.$(O) history.$(O) &
+        if.$(O) memory.$(O) mkdir.$(O) path.$(O) pause.$(O) popd.$(O) prompt.$(O) &
+        pushd.$(O) rem.$(O) ren.$(O) rmdir.$(O) set.$(O) shift.$(O) time.$(O) &
+        truename.$(O) type.$(O) verify.$(O) which.$(O)
+# defines additional options for C compiler
 
-#	Default target
-all: cmds.lib
+ADD_COPT = -i=..$(SEP)suppl
 
-dist: cmd.mak
-
-%.obj : %.asm ; $(NASM) $(NASMFLAGS) -f obj -F borland -o $@ $< >>errlist
-
-### Utils are required by build process
-.INIT .PHONY .SEQUENTIAL : verscheck $(CFG) __errl
+!include $(%ROOT)/mk/all.mk
 
 
-.IF $(THISMAKE) == $(LASTMAKE)
-verscheck :;
-.ELSE
-verscheck : 
-	@+-echo Changed Make parameters, already made files invalid!
-	+-echo LASTMAKE = $(THISMAKE) >lastmake.mk
-	$(RUNMAKE) clobber
-.IF $(CFG)
-	$(RUNMAKE) $(CFG)
-.ENDIF
-.ENDIF
+all: cmd.lib
 
-__errl:
-	@+-if exist errlist del errlist >nul
-	-ctags *.c ..\lib\*.c ..\shell\*.c $(FREEDOS)\SRC\LIB\SUPPL\*.c
+cmd.lib: $(OBJS)
+ $(SAY) Creating library $^@
+ -@if exist $@ @del $@
+ @$(LIB) $(LIBOPT) $@ +$< $(LOG)
 
-cmds.lib .LIBRARY : $(OBJ)
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ $(CLEAN_CMD)
 
-#MAKEDEP START
-mkdir.obj : mkdir.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-memory.obj : memory.c \
-	 ../config.h ../include/command.h ../include/context.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-goto.obj : goto.c \
-	 ../config.h ../err_fcts.h ../include/batch.h ../include/cmdline.h \
-	../include/command.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h ../strings.h
-copy.obj : copy.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/openf.h ../include/timefunc.h ../strings.h
-shift.obj : shift.c \
-	 ../config.h ../include/batch.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h
-rmdir.obj : rmdir.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-pause.obj : pause.c \
-	 ../config.h ../include/batch.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-date.obj : date.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/nls.h ../include/timefunc.h ../strings.h
-dir.obj : dir.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/nls.h ../include/timefunc.h ../strings.h
-truename.obj : truename.c \
-	 ../config.h ../err_fcts.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-rem.obj : rem.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-ctty.obj : ctty.c \
-	 ../config.h ../err_fcts.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/openf.h \
-	../include/timefunc.h ../strings.h
-ren.obj : ren.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h
-break.obj : break.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h ../strings.h
-for.obj : for.c \
-	 ../config.h ../err_fcts.h ../include/batch.h ../include/cmdline.h \
-	../include/command.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h ../strings.h
-chdir.obj : chdir.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-alias.obj : alias.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/context.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h ../strings.h
-cdd.obj : cdd.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-set.obj : set.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/context.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h ../strings.h
-path.obj : path.c \
-	 ../config.h ../include/cmdline.h ../include/command.h \
-	../include/context.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h ../strings.h
-if.obj : if.c \
-	 ../config.h ../err_fcts.h ../include/batch.h ../include/cmdline.h \
-	../include/command.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h
-history.obj : history.c \
-	 ../config.h ../err_fcts.h ../include/command.h ../include/context.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-dirs.obj : dirs.c \
-	 ../config.h ../include/command.h ../include/context.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-which.obj : which.c \
-	 ../config.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h
-popd.obj : popd.c \
-	 ../config.h ../include/command.h ../include/context.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-exit.obj : exit.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-call.obj : call.c \
-	 ../config.h ../context.h_c ../err_fcts.h ../include/batch.h \
-	../include/cmdline.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/kswap.h ../include/misc.h \
-	../include/timefunc.h
-beep.obj : beep.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-echo.obj : echo.c \
-	 ../config.h ../include/batch.h ../include/cmdline.h \
-	../include/command.h ../include/datefunc.h ../include/debug.h \
-	../include/misc.h ../include/timefunc.h ../strings.h
-type.obj : type.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/openf.h ../include/timefunc.h ../strings.h
-prompt.obj : prompt.c \
-	 ../config.h ../include/command.h ../include/context.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h
-cls.obj : cls.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h
-pushd.obj : pushd.c \
-	 ../config.h ../include/command.h ../include/context.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h
-time.obj : time.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/nls.h ../include/timefunc.h ../strings.h
-doskey.obj : doskey.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h ../strings.h
-fddebug.obj : fddebug.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-verify.obj : verify.c \
-	 ../config.h ../include/command.h ../include/datefunc.h \
-	../include/debug.h ../include/misc.h ../include/timefunc.h ../strings.h
-del.obj : del.c \
-	 ../config.h ../err_fcts.h ../include/cmdline.h ../include/command.h \
-	../include/datefunc.h ../include/debug.h ../include/misc.h \
-	../include/timefunc.h ../strings.h
-DYNSOURCES =
-#MAKEDEP STOP
-
-clobber : clean
-	$(RM) $(RMFLAGS) *.com *.cln *.lib *.lst *.cfg cmd.mak
-
-clean : 
-	$(RM) $(RMFLAGS) *.lst *.map *.bin *.bak *.las *.obj *.exe $(CFG) *.dmp com.com tags errlist
-
-
-.IF $(CFG) != $(NULL)
-
-#CONFIGURATION = $(CONF_BASE) $(null,$(NDEBUG) $(CONF_DBG) $(CONF_NDBG))
-CONFIGURATION = $(CONF_BASE)
-
-.IF $(_COMPTYPE) == BC
-CONF_BASE =	\
--f- \
--I$(INCDIR:s/;/ /:t";")	\
--L$(LIBDIR:s/;/ /:t";")	\
--w
-
-.IF $(_COMPILER)==BC5
-CONFIGURATION += -RT- -x-
-.ENDIF
-
-CONF_DBG =	$(MYCFLAGS_DBG)
-
-CONF_NDBG =	$(MYCFLAGS_NDBG)
-
-.ENDIF
-
-.IF $(_COMPTYPE) == TC
-CONF_BASE =	\
--I$(INCDIR:s/;/ /:t";")	\
--L$(LIBDIR:s/;/ /:t";")	\
--w
-
-# The "-f-" causes that TCC passes option "/r" to the assembler, though
-# ASM chokes about it
-
-CONF_DBG =	$(MYCFLAGS_DBG)
-
-CONF_NDBG =	$(MYCFLAGS_NDBG)
-
-.ENDIF
-
-
-.ENDIF
-#-weas	\
-#-wpre	\
-#-w-pro	\
-
-cmd.mak : makefile cmd.m1 cmd.m2
-	+copy cmd.m1 + $(mktmp cmds.lib : \44(CFG) $(OBJ:t" \\\\\\n\\t") \n\tif exist cmds.lib \44(AR) cmds.lib /c @&&|\n+-$(OBJ:t" &\\n+-")\n| , cmds.lst \n\tif not exist cmds.lib \44(AR) cmds.lib /c @&&|\n+$(OBJ:t" &\\n+")\n| , cmds.lst \n) + cmd.m2 $@
-
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos

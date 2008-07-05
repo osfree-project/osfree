@@ -1,4 +1,4 @@
-/*
+/* $Id: ver.c 1291 2006-09-05 01:44:33Z blairdude $
  * VER.C
  *
  *  06/30/98 (Rob Lake)
@@ -21,10 +21,10 @@
  * bugfix: ver.c : options uninitilized
  *
  * 2000/06/22 ska
- *	new version: v0.79b
+ *      new version: v0.79b
  *
  * 2000/12/10 ska
- *	new minor version: v0.80
+ *      new minor version: v0.80
  *
  * 2001/02/16 ska
  * bugfix: VER (without option) displays too much information
@@ -33,10 +33,7 @@
 
 #include "../config.h"
 
-#include <assert.h>
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 #include <dos.h>
 
 #include "../include/command.h"
@@ -44,21 +41,31 @@
 #include "../err_fcts.h"
 #include "../strings.h"
 
-const char shellver[] = "version 0.83 Beta 26 [" __DATE__ "]";
+#include "tcc2wat.h"
+
+const char shellver[] = "0.84-pre2"
+#ifdef FEATURE_XMS_SWAP
+        " XMS_Swap"
+#endif
+;
+const char shelldate[] = __DATE__ " " __TIME__;
 const char shellname[] = "FreeCom";
 
+#if 0
 void short_version(void)
 {
-  printf("\n%s %s\n", shellname, shellver);
+  printf("\n%s version %s [%s]\n", shellname, shellver, shelldate);
 }
+#endif
 
 #ifdef INCLUDE_CMD_VER
 
 static int optR, optW, optD, optC;
 
-#pragma argsused
 optScanFct(opt_ver)
-{ switch(ch) {
+{
+  (void)arg;
+  switch(ch) {
   case 'R': return optScanBool(optR);
   case 'W': return optScanBool(optW);
   case 'D': return optScanBool(optD);
@@ -74,15 +81,17 @@ optScanFct(opt_ver)
  *
  *
  */
-#pragma argsused
-int cmd_ver(char *rest)
-{
+int cmd_ver (char * rest) {
   char **argv;
   int argc, opts, ec = E_None;
 
+#if 0
   short_version();
+#else
+  printf("\n%s version %s [%s]\n", shellname, shellver, shelldate);
+#endif
 
-	optR = optW = optD = optC = 0;
+        optR = optW = optD = optC = 0;
 
   if((argv = scanCmdline(rest, opt_ver, 0, &argc, &opts)) == 0)
     return 1;
@@ -90,21 +99,26 @@ int cmd_ver(char *rest)
   /* arguments are simply ignored */
 
   if(optR) {                         /* version information */
-        union REGS regs;
-        regs.h.ah = 0x30;
-        intdos(&regs, &regs);
-        displayString(TEXT_MSG_VER_DOS_VERSION, regs.h.al, regs.h.ah);
+        union REGPACK regs;
+        regs.r_ax = 0x3000;
+        intr(0x21, &regs);
+        displayString(TEXT_MSG_VER_DOS_VERSION, regs.r_ax & 0xFF, regs.r_ax >> 8);
 
-        if (regs.h.bh == 0xfd)
+        if ((regs.r_bx >> 8) == 0xfd)
         {
-          if (regs.h.bl == 0xff)
+          if ((regs.r_bx & 0xFF) == 0xff)
           {
-          	displayString(TEXT_MSG_VER_EARLY_FREEDOS);
+                displayString(TEXT_MSG_VER_EARLY_FREEDOS);
           }
           else
           {
-            displayString(TEXT_MSG_VER_LATER_FREEDOS
-             , regs.h.ch, regs.h.cl, regs.h.bl);
+/*            displayString(TEXT_MSG_VER_LATER_FREEDOS
+             , regs.r_cx >> 8, regs.r_cx & 0xFF, regs.r_bx & 0xFF);
+             , 2, 0, regs.r_bx & 0xFF ); */
+             regs.r_ax = 0x33FF;
+             intr( 0x21, &regs );
+             printf( "%Fs", MK_FP( regs.r_dx, regs.r_ax ) );
+             /* "%Fs" may only work in Turbo C's printf */
           }
         }
       }

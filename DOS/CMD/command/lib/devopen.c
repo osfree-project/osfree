@@ -1,11 +1,16 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: devopen.c 1215 2006-06-19 04:12:46Z blairdude $
 
  	like open() supporting device names
 
 	This file bases on OPENF.C of FreeCOM v0.81 beta 1.
 
-	$Log: devopen.c,v $
+	$Log$
+	Revision 1.3  2006/06/19 04:12:46  blairdude
+	File redirection now supports long filenames, bug fixed in __creat_or_truncate
+
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -32,10 +37,12 @@
 	
  */
 
+#include "../config.h"
 #include <io.h>
 
 #define OPENF_NO_PROTOTYPE
 #include "../include/openf.h"
+#include "../include/lfnfuncs.h"
 
 int devopen(char *const fnam, int mode, int omode)
 {

@@ -1,4 +1,4 @@
-/* $id$
+/* $Id: ctxt_adr.c 771 2004-02-01 13:55:39Z skaus $
 
 	Returns the far address to the value of a specified tag item
 

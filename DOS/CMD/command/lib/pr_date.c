@@ -1,5 +1,4 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: pr_date.c 1291 2006-09-05 01:44:33Z blairdude $
 
 	Parses a date given in ASCIIZ into a dosdate_t structure.
 
@@ -17,7 +16,13 @@
 
 	This file bases on DATE.C of FreeCOM v0.81 beta 1.
 
-	$Log: pr_date.c,v $
+	$Log$
+	Revision 1.4  2006/09/05 01:44:33  blairdude
+	Massive patches from Arkady that I'm way too lazy to sort through.  If anything happens, Arkady can answer for it.
+
+	Revision 1.3  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.2  2001/04/29 12:56:57  skaus
 	bugfix: DATE: does not accept empty line
 	
@@ -64,8 +69,7 @@ static unsigned char months[2][13] =
   {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };
 
-int parsedate(const char * s, struct dosdate_t *datep)
-{
+int parsedate (const char * s, struct dosdate_t *const datep) {
   struct dosdate_t d;
   unsigned char leap;
   int nums[3],

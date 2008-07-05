@@ -1,11 +1,21 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: optsb.c 1166 2005-12-10 10:09:44Z perditionc $
 
  *  Perform an option check and parse value for boolean
 
 	This file bases on CMDLINE.C of FreeCOM v0.81 beta 1.
 
-	$Log: optsb.c,v $
+	$Log$
+	Revision 1.4  2005/12/10 10:09:43  perditionc
+	based on patches from Blair Campbell, additional LFN support (slim print,
+	add initial cd,rd,md support, make compile time optional), remove some
+	compiler warnings, and prevent extra linebreak for compatibility
+
+	Revision 1.3  2005/09/03 18:15:10  perditionc
+	dir /p /p works same as dir /p
+	
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -42,7 +52,7 @@
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
 
-int optScanBool_(const char * const optstr, int bool, const char *arg, int *value)
+int optScanBool_(const char * const optstr, int bool, const char *arg, int *value, int flip)
 {
   assert(optstr);
   assert(value);
@@ -53,7 +63,7 @@ int optScanBool_(const char * const optstr, int bool, const char *arg, int *valu
   }
   switch(bool) {
   case -1:  *value = 0; break;
-  case 0:   *value = !*value; break;
+  case 0:   if (flip) {*value = !*value; break; } /* else fall through to case 1 */
   case 1:   *value = 1; break;
 #ifndef NDEBUG
   default:  fprintf(stderr, "Invalid boolean option value: in file %s line %u\n", __FILE__, __LINE__);

@@ -1,4 +1,4 @@
-/* $Id: ctxt_chg.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: ctxt_chg.c 986 2004-06-29 21:57:21Z skaus $
 
 	Change the size of the local context. It will never shrink
 	so that stored data is corrupted. If necessary, the context
@@ -21,6 +21,8 @@ int ctxtChgSize(unsigned tosize)
 	assert(tosize);
 
 	env_resizeCtrl = ENV_USEUMB | ENV_FIRSTFIT | ENV_ALLOWMOVE;
+  if(forceLow)
+	  env_resizeCtrl &= ~ENV_USEUMB;
 	new_context = ctxt? env_setsize(ctxt, tosize)	/* alter context */
 	                  : env_create(tosize);			/* new context */
 

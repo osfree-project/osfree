@@ -1,5 +1,4 @@
-;   $Id: cb_catch.asm,v 1.1 2001/04/12 00:09:06 skaus Exp $
-;   $Locker:  $	$Name:  $	$State: Exp $
+;   $Id: cb_catch.asm 771 2004-02-01 13:55:39Z skaus $
 
 ;	^Break signal catcher and initialization function.
 ;	Bases on CB_CATCH.ASM
@@ -11,7 +10,13 @@
 ;	FreeCOM actively polls the ^Break status, this implementation
 ;	optimizes for the polling rather this handler.
 
-;   $Log: cb_catch.asm,v $
+;   $Log$
+;   Revision 1.3  2004/02/01 13:52:18  skaus
+;   add/upd: CVS $id$ keywords to/of files
+;
+;   Revision 1.2  2002/04/02 18:09:31  skaus
+;   add: XMS-Only Swap feature (FEATURE_XMS_SWAP) (Tom Ehlert)
+;
 ;   Revision 1.1  2001/04/12 00:09:06  skaus
 ;   chg: New structure
 ;   chg: If DEBUG enabled, no available commands are displayed on startup
@@ -49,19 +54,21 @@
 %include "../include/model.inc"
 %include "../include/stuff.inc"
 
-segment _DATA
-	EXTERN _ctrlBreak
+;segment _DATA
+;	EXTERN _ctrlBreak
 
 segment _TEXT
-	GLOBAL _initCBreak
+;	GLOBAL _initCBreak
 	GLOBAL _cbreak_handler
+	GLOBAL _CBreakCounter
 
-_initCBreak:
-	;; At this point DS is the segment of _ctrlBreak
-	mov WORD [CS:?freecomSegment], ds
-	ret
+;_initCBreak:
+;	;; At this point DS is the segment of _ctrlBreak
+;	mov WORD [CS:?freecomSegment], ds
+;	ret
 
-?freecomSegment DW 0
+;?freecomSegment DW 0
+_CBreakCounter DW 0
 
 _cbreak_handler:
 %ifdef DEBUG
@@ -82,10 +89,7 @@ noRecurs:
 %endif
 
 		;; ^Break of COMAMND --> just set the variable
-		push ds
-		mov ds, [CS:?freecomSegment]
-		inc WORD [_ctrlBreak]
-		pop ds
+		inc WORD [CS:_CBreakCounter]
 
 recurs:
 		clc			;; tell DOS to proceed

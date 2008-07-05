@@ -1,10 +1,10 @@
 Begin3
 Title:          FreeCom
-Version:        0.83 Beta 26
-Entered-date:   Jul 28 2001
+Version:        0.84-pre
+Entered-date:   July 20 2005
 Description:    The FreeDOS Command Shell
 Keywords:       freecom freedos command shell
-Author:         fd-freecom@topica.com (developers)
+Author:         freedos-freecom@lists.sourceforge.net (developers)
 Maintained-by:  freecom@freedos.org (maintainers)
 Primary-site:   http://freedos.sourceforge.net/
 Alternate-site: http://www.freedos.org/

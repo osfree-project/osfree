@@ -1,4 +1,4 @@
-/*
+/* $Id: if.c 1219 2006-06-21 06:42:10Z blairdude $
  *  IF.C - if command.
  *
  *  Comments:
@@ -19,117 +19,157 @@
  * + bugfix: if: keyword "EXIST" misspelled
  *
  * 2000/07/05 Ron Cemer
- *	bugfix: renamed skipwd() -> skip_word() to prevent duplicate symbol
+ *      bugfix: renamed skipwd() -> skip_word() to prevent duplicate symbol
  */
 
 #include "../config.h"
 
 #include <assert.h>
 #include <ctype.h>
-#include <dir.h>
+//#include <dir.h>
 #include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/lfnfuncs.h"
 #include "../include/batch.h"
 #include "../include/cmdline.h"
 #include "../include/command.h"
 #include "../err_fcts.h"
+
+#include "tcc2wat.h"
 
 int cmd_if(char *param)
 {
 
 #define X_EXEC 1
 
-	int x_flag = 0;       /* when set cause 'then' clause to be exec'ed */
-	int negate = 0;       /* NOT keyword present */
+        char *pp;
 
-	char *pp;
+        int x_flag = 0;       /* when set cause 'then' clause to be exec'ed */
+        int negate = 0;       /* NOT keyword present */
+        int ignore_case = 0;  /* /I option, case insensitive compare */
 
-	/* First check if param string begins with word 'not' */
-	assert(param);
 
-	if(matchtok(param, "not"))
-		negate = X_EXEC;            /* Remember 'NOT' */
+        /* First check if param exists */
+        assert(param);
 
-	/* Check for 'exist' form */
+        /* check for options, note non-options must be treated as part of comparision */
+      if (matchtok(param, "/I")||matchtok(param, "/i"))
+        ignore_case++;
 
-	if(matchtok(param, "exist")) {
-		struct ffblk f;
+        /* next check if param string begins with word 'not' */
+        if(matchtok(param, "not"))
+                negate = X_EXEC;            /* Remember 'NOT' */
 
-		if(!*param) {
-			/* syntax error */
-			error_if_exist();
-			return 0;
-		}
+        /* Check for 'exist' form */
 
-		pp = skip_word(param);
-		*pp++ = '\0';
+        if(matchtok(param, "exist")) {
+                struct ffblk f;
 
-		if(FINDFIRST(param, &f, FA_NORMAL) == 0)
-			x_flag = X_EXEC;
-	}
+                if(!*param) {
+                        /* syntax error */
+                        error_if_exist();
+                        return 0;
+                }
 
-	/* Check for 'errorlevel' form */
+                pp = skip_word(param);
+                *pp++ = '\0';
 
-	else if(matchtok(param, "errorlevel")) {
-		int n = 0;
+                if(FINDFIRST(param, &f, FA_NORMAL|FA_ARCH|FA_SYSTEM|FA_RDONLY|FA_HIDDEN) == 0)
+                        x_flag = X_EXEC;
+        FINDSTOP(&f);
+        }
 
-		if(!isdigit(*param)) {
-			error_if_errorlevel();
-			return 0;
-		}
+        /* Check for 'errorlevel' form */
 
-		pp = param;
-		do  n = n * 10 + (*pp - '0');
-		while (isdigit(*++pp));
+        else if(matchtok(param, "errorlevel")) {
+                int n = 0;
 
-		if(*pp && !isargdelim(*pp)) {
-			error_if_errorlevel_number();
-			return 0;
-		}
+#if 0
+                if(!isdigit(*param)) {
+                        error_if_errorlevel();
+                        return 0;
+                }
 
-		if(errorlevel >= n)
-			x_flag = X_EXEC;
-	}
+                pp = param;
+                do  n = n * 10 + (*pp - '0');
+                while (isdigit(*++pp));
 
-	/* Check that '==' is present, syntax error if not */
-	else {
-		size_t len;
-		char *r;      /* right operand */
+                if(*pp && !isargdelim(*pp)) {
+                        error_if_errorlevel_number();
+                        return 0;
+                }
+#else
+                /* Add this COMMAND bug as someone tries to use:
+                        IF ERRORLEVEL H<upper-case_letter>
+                        -or-
+                        IF ERRORLEVEL x<lower-case_letter>
 
-		pp = skipqword(param, "==");
+                        to match the errorlevel against drive letters.
+                        NOT supported by 4dos or WinNT.
 
-		if(*pp != '=' || pp[1] != '=') {
-			error_syntax(0);
-			return 0;
-		}
+                        HA --> maps to errorlevel 1
+                        xa --> same
 
-		*pp = '\0';     /* param[] points to the left operand */
+                        HB & xb --> to 2
+                        a.s.o.
+                */
 
-		/* skip over the '==' and subsquent spaces and
-			assign the end of the right operator to pp */
-		pp = skipqword(r = ltrimcl(pp + 2), 0);
+                if(!*param) {
+                        error_if_errorlevel();
+                        return 0;
+                }
+                pp = param;
+                do  n = n * 10 + (*pp - '0');
+                while(*++pp && !isargdelim(*pp));
+                n &= 255;
+                dprintf( ("IF: checking for ERRORLEVEL >= %u\n", n) );
+#endif
 
-		/*	now: param := beginning of the left operand
-			r := beginning of the right operand
-			pp := end of right operand
-		*/
+                if(errorlevel >= n)
+                        x_flag = X_EXEC;
+        }
 
-		rtrimcl(param);      /* ensure that spurious whitespaces are ignored */
-		len = strlen(param);
+        /* Check that '==' is present, syntax error if not */
+        else {
+                size_t len;
+                char *r;      /* right operand */
 
-		if((pp - r) == len
-		 && memicmp(param, r, len) == 0) /* strings differ */
-			x_flag = X_EXEC;
-	}
+                pp = skipqword(param, "==");
 
-	if(x_flag ^ negate)		/* perform the command */
-		if(!*(pp = ltrimcl(pp)))
-			error_if_command();
-		else
-			parsecommandline(pp);
+                if(*pp != '=' || pp[1] != '=') {
+                        error_syntax(0);
+                        return 0;
+                }
 
-	return 0;
+                *pp = '\0';     /* param[] points to the left operand */
+
+                /* skip over the '==' and subsquent spaces and
+                        assign the end of the right operator to pp */
+                pp = skipqword(r = ltrimcl(pp + 2), 0);
+
+                /*      now: param := beginning of the left operand
+                        r := beginning of the right operand
+                        pp := end of right operand
+                */
+
+                rtrimcl(param);      /* ensure that spurious whitespaces are ignored */
+                len = strlen(param);
+
+                /* check if strings differ */
+                if ( ((pp - r) == len) &&
+                     ((ignore_case && strncmpi(param, r, len) == 0) ||
+                      (memcmp(param, r, len) == 0)) )
+                        x_flag = X_EXEC;
+        }
+
+        if(x_flag ^ negate)             /* perform the command */
+                if(!*(pp = ltrimcl(pp)))
+                        error_if_command();
+                else
+                        parsecommandline(pp, FALSE);
+
+        return 0;
 }

@@ -1,11 +1,13 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: dateget.c 771 2004-02-01 13:55:39Z skaus $
 
 	Get DOS date (for Turbo C prior v3)
 
 	This file bases on DATEFUNC.C of FreeCOM v0.81 beta 1.
 
-	$Log: dateget.c,v $
+	$Log$
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup

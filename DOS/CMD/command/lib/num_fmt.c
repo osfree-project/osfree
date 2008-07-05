@@ -1,5 +1,4 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: num_fmt.c 1011 2004-08-02 20:38:56Z skaus $
 
  * convert
  *
@@ -7,7 +6,13 @@
 
 	This file bases on DIR.C of FreeCOM v0.81 beta 1.
 
-	$Log: num_fmt.c,v $
+	$Log$
+	Revision 1.3  2004/08/02 20:38:56  skaus
+	bugfix: use of the nls thousands separator in convert() [Eduardo Casino]
+
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -40,6 +45,7 @@
 #include <string.h>
 
 #include "../include/misc.h"
+#include "../include/nls.h"
 
 void convert(unsigned long num, char * const des)
 {
@@ -48,17 +54,16 @@ void convert(unsigned long num, char * const des)
 
   assert(des);
 
-  if (num == 0)
-  {
+  if(num == 0) {
     des[0] = '0';
     des[1] = 0;
-  }
-  else
-  {
+  } else {
+    refreshNLS();
+    assert(nlsBuf);
     temp[31] = 0;
    	do { 
       if (((c + 1) % 4) == 0)
-        temp[30 - c++] = ',';
+        temp[30 - c++] = nlsBuf->thousendsSep[0];
       temp[30 - c++] = (char)(num % 10) + '0';
     } while((num /= 10) != 0);
     strcpy(des, &temp[31 - c]);

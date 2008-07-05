@@ -1,4 +1,4 @@
-/* $Id: hist_set.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: hist_set.c 984 2004-06-29 14:14:57Z skaus $
 
 	Set a specific item of the history
 
@@ -17,6 +17,6 @@
 #include "../include/misc.h"
 
 void histSet(const int num, const char * const str)
-{
-	ctxtSet(CTXT_TAG_HISTORY, realNum(CTXT_TAG_HISTORY, num), str);
+{	if(ctxtIsValid())
+		ctxtSet(CTXT_TAG_HISTORY, realNum(CTXT_TAG_HISTORY, num), str);
 }

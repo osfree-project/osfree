@@ -1,4 +1,4 @@
-/* $Id: infores.h,v 1.1 2001/04/12 00:09:06 skaus Exp $
+/* $Id: infores.h 189 2001-04-12 00:09:06Z skaus $
 
 	Info resource
 

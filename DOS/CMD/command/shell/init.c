@@ -1,4 +1,4 @@
-/*
+/* $Id: init.c 1291 2006-09-05 01:44:33Z blairdude $
  *  INIT.C - initialization code
  *
  *      This is more or less a complete rewrite based on the
@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <mcb.h>
-#include <environ.h>
-#include <dfn.h>
+#include "mcb.h"
+#include "environ.h"
+#include "dfn.h"
 
 #include "../include/cmdline.h"
 #include "../include/command.h"
@@ -27,6 +27,10 @@
 #include "../include/keys.h"
 #include "../strings.h"
 #include "../include/kswap.h"
+#include "../include/cswap.h"
+#include "tcc2wat.h"
+
+#define pspTermAddr *(void far* far*)MK_FP(_psp, 0xa)
 
         /* Check for an argument; ch may be evaluated multiple times */
 #define isargsign(ch)           \
@@ -38,9 +42,11 @@ static char logFilename[] = LOG_FILE;
 #endif
 #endif
 
-extern int canexit;
-
+#ifdef FEATURE_XMS_SWAP
+#define oldPSP  origPPID
+#else
 static unsigned oldPSP;
+#endif
 char *ComPath;                   /* absolute filename of COMMAND shell */
 
 #ifdef DEBUG
@@ -50,34 +56,49 @@ extern unsigned _heaplen;
 #ifndef FDDEBUG_INIT_VALUE
 #define FDDEBUG_INIT_VALUE 0
 #endif
+#ifdef DEBUG
 int fddebug = FDDEBUG_INIT_VALUE;    /* debug flag */
+#else
+static int fddebug = FDDEBUG_INIT_VALUE;
+#endif
+#ifdef DISP_EXITCODE
+int dispExitcode = 0;
+#endif
 
 /* Without resetting the owner PSP, the program is not removed
    from memory */
 void exitfct(void)
 {
-  unloadMsgs();        /* free the message strings segment */
-  OwnerPSP = oldPSP;
+        unloadMsgs();        /* free the message strings segment */
+        OwnerPSP = oldPSP;
+#ifdef FEATURE_XMS_SWAP
+        pspTermAddr = termAddr;
+        XMSexit();
+#endif
 }
 
 
-int showhelp = 0, internalBufLen = 0, inputBufLen = 0;
-int spawnAndExit = E_None;
-int newEnvSize = 0;          /* Min environment table size */
-char *user_autoexec = 0;
-int skipAUTOEXEC = 0;
+static int showhelp = 0, internalBufLen = 0, inputBufLen = 0,
+           spawnAndExit = E_None, newEnvSize = 0, skipAUTOEXEC = 0;
+/* static int newEnvSize = 0;          Min environment table size */
+static char *user_autoexec = 0;
 
 optScanFct(opt_init)
-{ int ec = E_None;
+{
+  int ec = E_None;
 
+  (void)arg;
   switch(ch) {
   case '?': showhelp = 1; return E_None;
   case '!': return optScanBool(fddebug);
   case 'Y': return optScanBool(tracemode);
+#ifdef DISP_EXITCODE
+  case 'Z': return optScanBool(dispExitcode);
+#endif
   case 'F': return optScanBool(autofail);
   case 'D': return optScanBool(skipAUTOEXEC);
   case 'P':
-    if(arg)     /* change autoexec.bat */
+    if(optHasArg())     /* change autoexec.bat */
       ec = optScanString(user_autoexec);
     canexit = 0;
     return ec;
@@ -103,8 +124,8 @@ optScanFct(opt_init)
         return optScanBool(persistentMSGs);
       break;
     case 'S':
-    	if(optLong("SWAP"))
-    		return optScanBool(defaultToSwap);
+        if(optLong("SWAP"))
+                return optScanBool(defaultToSwap);
       break;
     }
     break;
@@ -113,6 +134,10 @@ optScanFct(opt_init)
   return E_Useage;
 }
 
+
+#ifndef INCLUDE_CMD_CTTY
+#define cmd_ctty(q) error_ctty_excluded()
+#endif
 
 /*
  * set up global initializations and process parameters
@@ -134,11 +159,9 @@ optScanFct(opt_init)
 
 int initialize(void)
 {
-  //int rc;
   int comPath;                /* path to COMMAND.COM (for COMSPEC/reload) */
-  char *newTTY;                 /* what to change TTY to */
+  int newTTY;                 /* what to change TTY to */
   int showinfo;                 /* show initial info only if no command line options */
-  int key;
 
   int ec;           /* error code */
   unsigned offs;        /* offset into environment segment */
@@ -151,49 +174,72 @@ int initialize(void)
   FILE *f;
 #endif
 #endif
+#ifdef DEBUG
+        int orig_env;
+#endif
+
+        dprintf( ("[INIT: initialise()]\n") );
 
 /* Set up the host environment of COMMAND.COM */
 
-	/* Install the dummy handlers for Criter and ^Break */
-	initCBreak();
-	setvect(0x23, cbreak_handler);
-	setvect(0x24, dummy_criter_handler);
+        /* Give us shell privileges */
+#ifdef FEATURE_XMS_SWAP
+        myPID = _psp;
+        residentCS = _CS;
+        termAddr = pspTermAddr;
+        pspTermAddr = terminateFreeCOMHook;
+#endif
+        oldPSP = OwnerPSP;
+        atexit(exitfct);
+        OwnerPSP = _psp;
+
+        /* Install the dummy handlers for Criter and ^Break */
+/*      initCBreak(); */
+        setvect(0x23, cbreak_handler);
+#ifdef FEATURE_XMS_SWAP
+        /* There is no special handler for FreeCOM currently
+                --> activate the real one */
+        setvect(0x24, lowlevel_err_handler);
+        {       extern word far criter_repeat_checkarea;
+                registerCriterRepeatCheckAddr(&criter_repeat_checkarea);
+        }
+#else
+        setvect(0x24, dummy_criter_handler);
+#endif
 
   /* DOS shells patch the PPID to the own PID, how stupid this is, however,
     because then DOS won't terminate them, e.g. when a Critical Error
     occurs that is not detected by COMMAND.COM */
 
-  oldPSP = OwnerPSP;
-  atexit(exitfct);
-  OwnerPSP = _psp;
-
-	dbg_printmem();
+        dbg_printmem();
 #ifdef DEBUG
-	{ void* p;
-		if((p = malloc(5*1024)) == 0)
-			dprintf(("[MEM: Out of memory allocating test block during INIT]"));
-		else free(p);
-	}
+        { void* p;
+                if((p = malloc(5*1024)) == 0)
+                        dprintf(("[MEM: Out of memory allocating test block during INIT]"));
+                else free(p);
+        }
 #endif
 
 #ifdef FEATURE_KERNEL_SWAP_SHELL
-	if(kswapInit()) {		/* re-invoked */
-		if(kswapLoadStruc()) {
-			/* OK, on success we need not really keep the shell trick
-				(pretend we are our own parent), which might cause
-				problems with beta-software-bugs ;-)
-				In fact, KSSF will catch up our crashes and re-invoke
-				FreeCOM, probably with the loss of any internal
-				settings. */
-			  OwnerPSP = oldPSP;
-			return E_None;
-		}
-	}
+        if(kswapInit()) {               /* re-invoked */
+                if(kswapLoadStruc()) {
+                        /* OK, on success we need not really keep the shell trick
+                                (pretend we are our own parent), which might cause
+                                problems with beta-software-bugs ;-)
+                                In fact, KSSF will catch up our crashes and re-invoke
+                                FreeCOM, probably with the loss of any internal
+                                settings. */
+                          OwnerPSP = oldPSP;
+                        return E_None;
+                }
+        }
 #endif
 
   /* Some elder DOSs may not pass an initializied environment segment */
-  if (env_glbSeg && !isMCB(SEG2MCB(env_glbSeg)))
+  if(env_glbSeg && !isMCB(SEG2MCB(env_glbSeg))) {
     env_setGlbSeg(0);       /* Disable the environment */
+    dprintf(("[ENV: Disabled invalid environment]"));
+  }
 
 /* Now parse the command line parameters passed to COMMAND.COM */
   /* Preparations */
@@ -201,21 +247,36 @@ int initialize(void)
   comPath = tracemode = 0;
   showinfo = 1;
 
+        dprintf( ("[INIT: grab argv[0] ]\n") );
   /* Because FreeCom should be executed in a DOS3+ compatible
     environment most of the time, it is assumed that its path
     can be determined from the environment.
     This has the advantage that the string area is accessable
     very early in the run.
     The name of the current file is string #0. */
-  if((offs = env_string(0, 0)) != 0)    /* OK, environment filled */
+  if((offs = env_string(0, 0)) != 0) {    /* OK, environment filled */
+                /* this fails for MSDOS, if the environment is empty: passed one:
+                   00 00 01 00 a:command.com 00 */
+/*    if (*(char far *)MK_FP(env_glbSeg, offs) == 0) */
+    if (peekb(env_glbSeg, offs) == 0)   /* empty ergv[0] assume broken */
+      offs++;                                                   /* MSDOS environment */
     grabComFilename(0, (char far *)MK_FP(env_glbSeg, offs));
+  }
+#ifdef DEBUG
+  else dprintf(("[ENV: No argv[0]!]\n"));
+#endif
+
+  /* After that argv[0] is no longer used and maybe zapped.
+        This also will help, as most programs altering the environment
+        segment externally don't expect a string area. */
+  env_nullStrings(0);
 
   /* Aquire the command line, there are three possible sources:
     1) DOS command line @PSP:0x80 as pascal string,
     2) extended DOS command line environment variable CMDLINE,
       if peekb(PSP, 0x80) == 127,&
     3) MKS command line @ENV:2, if peekb(ENV, 0) == '~'
-    	&& peekb(ENV, 1) == '='
+        && peekb(ENV, 1) == '='
 
     Currently implemented is version #1 only
   */
@@ -248,13 +309,13 @@ int initialize(void)
   fclose(f);
   }
 #else
-	cmd_fddebug(logFilename);
+        cmd_fddebug(logFilename);
 
-	dbg_outc('"');
-	dbg_outs(ComPath);
-	dbg_outc('"');
-	dbg_outc(':');
-	dbg_outsn(cmdline);
+        dbg_outc('"');
+        dbg_outs(ComPath);
+        dbg_outc('"');
+        dbg_outc(':');
+        dbg_outsn(cmdline);
 #endif
 #endif
 
@@ -290,23 +351,26 @@ int initialize(void)
     p = 0;
     break;
   }
-  if(!comPath) {      /* 1st argument */
-    grabComFilename(1, (char far*)q);
-    comPath = 1;
-    free(q);
-  } else if(!newTTY) {  /* 2nd argument */
-#ifdef INCLUDE_CMD_CTTY
-    newTTY = q;
-#else
-      error_ctty_excluded();
-    free(q);
-#endif
-      } else {
+  if(!comPath || !newTTY) {
+        int rc = grabComFilename(0, (char far*)q);
+
+        if(rc == 2 && !newTTY) {
+                cmd_ctty(q);
+                newTTY = 1;
+        } else if(!comPath) {
+                if(rc)          /* Display the error mesg */
+                        grabComFilename(1, (char far*)q);
+                else
+                        comPath = 1;
+        } else {                        /* has to be CTTY */
+                cmd_ctty(q);
+                newTTY = 1;
+        }
+  } else {
         error_too_many_parameters(q);
         showhelp = 1;
-        free(q);
-        break;
-      }
+  }
+   free(q);
    } while(1);
 
    /*
@@ -326,59 +390,107 @@ int initialize(void)
 
 /* Now process the options */
 
-#ifdef INCLUDE_CMD_CTTY
-  if (newTTY) {      /* change TTY as early as possible so the caller gets
-                          the messages into the correct channel */
-    cmd_ctty(newTTY);
-    free(newTTY);
-  }
+#ifdef FEATURE_XMS_SWAP
+        if(autofail) {
+                dprintf(("[INIT: Activate AutoFail handler]\n"));
+                setvect(0x24, autofail_err_handler);
+        }
 #endif
 
-  if(!ComPath) {
-    /* FreeCom is unable to find itself --> print error message */
-    /* Emergency error */
-#undef TEXT_MSG_FREECOM_NOT_FOUND
-	puts(TEXT_MSG_FREECOM_NOT_FOUND);
-    return E_Useage;
+  if(!ComPath) {        /* Force interactive querying of the executable */
+        inInit = 1;
+        msgSegment();
+        if(!ComPath) {
+                /* FreeCom is unable to find itself --> print error message */
+                /* Emergency error */
+//#undef TEXT_MSG_FREECOM_NOT_FOUND
+                puts(TEXT_MSG_FREECOM_NOT_FOUND);
+//#undef TEXT_TERMINATING
+                puts(TEXT_TERMINATING);
+                return E_Useage;
+        }
   }
 
-  /* First of all, set up the environment */
+  /* First of all, set up the context */
+#ifndef FEATURE_XMS_SWAP
+        /* Install INT 24 Critical error handler */
+        /* Needs the ComPath variable, eventually */
+        if(!kswapContext) {
+                /* Load the module/context into memory */
+                if((kswapContext = modContext()) == 0) {
+                        error_loading_context();
+                        return E_NoMem;
+                }
+#ifdef FEATURE_KERNEL_SWAP_SHELL
+                if(swapOnExec != ERROR)
+                        kswapRegister(kswapContext);
+#endif
+        }
+        ctxtCreate();   /* Create context before env seg, as it is
+                                                persistent in non-XMS-Mode */
+#endif
+
+  /* Now set up the environment */
     /* If a new valid size is specified, use that */
-  env_resizeCtrl |= ENV_USEUMB | ENV_ALLOWMOVE;
+#ifdef DEBUG
+        orig_env = env_glbSeg;
+#endif
+  env_resizeCtrl |= ENV_USEUMB | ENV_ALLOWMOVE | ENV_LASTFIT;
+  if(forceLow)
+          env_resizeCtrl &= ~ENV_USEUMB;
   if(newEnvSize > 16 && newEnvSize < 32767)
     env_setsize(0, newEnvSize);
+#ifdef ENVIRONMENT_KEEP_FREE
+#if ENVIRONMENT_KEEP_FREE > 0
+  else if(env_freeCount(env_glbSeg) < ENVIRONMENT_KEEP_FREE) {
+        dprintf(("[ENV: auto-resize environment because too small: %d]\n"
+                , env_freeCount(env_glbSeg)) );
+        env_replace(0           /* Modify the default segment */
+         , ENV_DELETE | ENV_COPY | ENV_CREATE | ENV_FREECOUNT
+         , ENVIRONMENT_KEEP_FREE);
+        }
+#else
+#error ENVIRONMENT_KEEP_FREE is non-positive
+#endif
+#endif
 
   /* Otherwise the path is placed into the environment */
     /* Set the COMSPEC variable. */
-  if(chgEnv("COMSPEC", ComPath)) {		/* keep it silent */
+  if(chgEnv("COMSPEC", ComPath)) {              /* keep it silent */
     /* Failed to add this variable, the most likely problem should be that
       the environment is too small --> it is increased and the
       operation is redone */
     env_resize(0, strlen(ComPath) + 10);
     if(chgEnv("COMSPEC", ComPath))
-    	chgEnv("COMSPEC",  NULL);	/* Cannot set -> zap an old one */
+        chgEnv("COMSPEC",  NULL);       /* Cannot set -> zap an old one */
   }
-  	inInit = 0;
-
-	/* Install INT 24 Critical error handler */
-	/* Needs the ComPath variable, eventually */
-	if(!kswapContext) {
-		/* Load the module/context into memory */
-		if((kswapContext = modContext()) == 0) {
-			error_loading_context();
-			return E_NoMem;
-		}
-#ifdef FEATURE_KERNEL_SWAP_SHELL
-		if(swapOnExec != ERROR)
-			kswapRegister(kswapContext);
+        inInit = 0;
+#ifdef DEBUG
+        if(orig_env != env_glbSeg) {
+                dprintf(("[ENV: Environment changed: @%04x -> @%04x; free %u]\n"
+                 , orig_env, env_glbSeg, env_freeCount(env_glbSeg)));
+        }
 #endif
-	}
 
-	ctxtCreate();
+#ifdef FEATURE_XMS_SWAP
+        ctxtCreate();   /* Create context after env seg, as it is
+                                                floating in XMS-Mode */
 
-	/* re-use the already loaded Module */
-	setvect(0x24, (void interrupt(*)())
-	 MK_FP(FP_SEG(kswapContext->cbreak_hdlr), kswapContext->ofs_criter));
+        /* Now everything is setup --> initialize the XMS stuff */
+        XMSinit();
+        /* Initialize the EXEC Block structure used by XMS Swap Exec
+                interface */
+        /* envSeg = 0;          default & always updated by caller */
+        dosParamDosExec.cmdtail = dosCMDTAIL;
+        dosParamDosExec.FCB1 = dosFCB1;
+        dosParamDosExec.FCB2 = dosFCB2;
+        /* overlPtr1;           not used by this exec */
+        /* overlPtr2;           not used by this exec */
+#else
+        /* re-use the already loaded Module */
+        setvect(0x24, (void interrupt(*)())
+         MK_FP(FP_SEG(kswapContext->cbreak_hdlr), kswapContext->ofs_criter));
+#endif
 
   if(internalBufLen)
     error_l_notimplemented();
@@ -392,56 +504,62 @@ int initialize(void)
     displayString(TEXT_CMDHELP_COMMAND);
 
   if ((showhelp || exitflag) && canexit)
-    return E_None;
+    return E_Exit;              /* Terminate this session */
 
   /* Now the /P option can be processed */
-	if(!canexit) {
-		char *autoexec;
+        if(!canexit) {
+                char *autoexec;
 
-		autoexec = user_autoexec? user_autoexec: AUTO_EXEC;
+                spawnAndExit = E_None;
+                autoexec = user_autoexec? user_autoexec: AUTO_EXEC;
 
-		showinfo = 0;
-		short_version();
+                showinfo = 0;
+/*              short_version(); */
+                cmd_ver(NULL);
 
-		if(skipAUTOEXEC) {		/* /D option */
-			showinfo = 0;
-			displayString(TEXT_MSG_INIT_BYPASSING_AUTOEXEC, autoexec);
-		} else {
-			if(exist(autoexec)) {
-				struct REGPACK r;
-				r.r_ax = 0x3000;	/* Get DOS version & OEM ID */
-				intr(0x21, &r);
-				if(!tracemode	/* /Y --> F8 on CONFIG.SYS */
-				 || ((r.r_bx & 0xff00) == 0xfd00	/* FreeDOS >= build 2025 */
-				      && (r.r_cx > 0x101 || (r.r_bx & 0xff) > 24))) {
-					displayString(TEXT_MSG_INIT_BYPASS_AUTOEXEC, autoexec);
-					key = cgetchar_timed(3);
-					putchar('\n');
-				} else key = 0;
+                if(skipAUTOEXEC) {              /* /D option */
+                        showinfo = 0;
+                        displayString(TEXT_MSG_INIT_BYPASSING_AUTOEXEC, autoexec);
+                } else {
+                        if(exist(autoexec)) {
+#ifdef FEATURE_BOOT_KEYS
+                                struct REGPACK r;
+                                int key;
 
-				if(key == KEY_F8)
-					tracemode = 1;
+                                r.r_ax = 0x3000;        /* Get DOS version & OEM ID */
+                                intr(0x21, &r);
+                                if(!tracemode   /* /Y --> F8 on CONFIG.SYS */
+                                 || ((r.r_bx & 0xff00) == 0xfd00        /* FreeDOS >= build 2025 */
+                                      && !(r.r_cx > 0x101 || (r.r_bx & 0xff) > 24))) {
+                                        displayString(TEXT_MSG_INIT_BYPASS_AUTOEXEC, autoexec);
+                                        key = cgetchar_timed(3);
+                                        outc('\n');
+                                } else key = 0;
 
-				if(key == KEY_F5)
-					displayString(TEXT_MSG_INIT_BYPASSING_AUTOEXEC, autoexec);
-				else
-					process_input(1, autoexec);
-			} else {
-				if(user_autoexec)
-					error_sfile_not_found(user_autoexec);
+                                if(key == KEY_F8)
+                                        tracemode = 1;
+
+                                if(key == KEY_F5)
+                                        displayString(TEXT_MSG_INIT_BYPASSING_AUTOEXEC, autoexec);
+                                else
+#endif
+                                        process_input(1, autoexec);
+                        } else {
+                                if(user_autoexec)
+                                        error_sfile_not_found(user_autoexec);
 #ifdef INCLUDE_CMD_DATE
-					cmd_date(0);
+                                        cmd_date(0);
 #endif
 #ifdef INCLUDE_CMD_TIME
-					cmd_time(0);
+                                        cmd_time(0);
 #endif
-			}
-		}
+                        }
+                }
 
-		free(user_autoexec);
-	} else {
-		assert(user_autoexec == 0);
-	}
+                free(user_autoexec);
+        } else {
+                assert(user_autoexec == 0);
+        }
 
   /* Now the /C or /K option can be processed */
   if (p)
@@ -454,12 +572,13 @@ int initialize(void)
 
   if (showinfo)
   {
-    short_version();
-#ifndef DEBUG
+/*    short_version(); */
+    cmd_ver(NULL);
+/* #ifndef DEBUG                No more commands
     putchar('\n');
     showcmds(0);
     putchar('\n');
-#endif
+#endif */
   }
 
   return E_None;

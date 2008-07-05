@@ -1,4 +1,4 @@
-$Id: cmt8.txt,v 1.1 2001/04/29 11:33:51 skaus Exp $
+$Id: cmt8.txt 212 2001-04-29 11:33:52Z skaus $
 Batch file processing
 	-- 2001/04/26 ska
 

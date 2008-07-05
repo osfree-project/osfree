@@ -1,11 +1,16 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: fdevopen.c 1214 2006-06-19 01:37:07Z blairdude $
 
  	like open() supporting device names
 
 	This file bases on OPENF.C of FreeCOM v0.81 beta 1.
 
-	$Log: fdevopen.c,v $
+	$Log$
+	Revision 1.3  2006/06/19 01:37:06  blairdude
+	Fixed some bugs in LFN support, copy now fully supports long filenames
+
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -32,9 +37,12 @@
 	
  */
 
+#include "../config.h"
+
 #include <stdio.h>
 
 #include "../include/openf.h"
+#include "../include/lfnfuncs.h"
 
 FILE *fdevopen(char *const fnam, const char *const mode)
 {

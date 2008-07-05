@@ -1,4 +1,4 @@
-/*
+/* $Id: goto.c 771 2004-02-01 13:55:39Z skaus $
  *  GOTO.C - goto command.
  *
  *  Comments:

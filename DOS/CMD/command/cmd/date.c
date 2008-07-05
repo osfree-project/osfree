@@ -1,4 +1,4 @@
-/*
+/* $Id: date.c 1291 2006-09-05 01:44:33Z blairdude $
  *  DATE.C - date internal command
  *
  *  Comments:
@@ -38,7 +38,6 @@
 
 #include "../config.h"
 
-#include <assert.h>
 #include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,9 +52,10 @@
 
 static int noPrompt = 0;
 
-#pragma argsused
 optScanFct(opt_date)
-{ switch(ch) {
+{
+  (void)arg;
+  switch(ch) {
   case 'D':
   case 'T': return optScanBool(noPrompt);
   }
@@ -126,7 +126,7 @@ int cmd_date(char *param)
 			break;
 		
 		error_invalid_date();
-		// force input the next time around.
+		/* force input the next time around. */
 		param = 0;
 	}
 

@@ -1,4 +1,4 @@
-/* $Id: ctxt_clr.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: ctxt_clr.c 190 2001-04-12 00:36:10Z skaus $
 
 	Clear all items of a specified context tag
 

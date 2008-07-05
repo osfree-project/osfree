@@ -1,15 +1,20 @@
-/*
+/* $Id: mkdir.c 1247 2006-07-02 16:46:29Z blairdude $
  * MD / MKDIR - makes a call to directory_handler to do its work
  */
 
 #include "../config.h"
 
-#include <dir.h>
+//#include <dir.h>
 
 #include "../include/command.h"
 #include "../include/misc.h"
+#include "../include/lfnfuncs.h"
 
 int cmd_mkdir(char *param)
 {
-	return mk_rd_dir(param, mkdir, "MKDIR");
+#ifdef FEATURE_LONG_FILENAMES
+    return mk_rd_dir( param, ( !__supportlfns ) ? 0x3900 : 0x7139, "MKDIR" );
+#else
+        return mk_rd_dir(param, mkdir, "MKDIR");
+#endif
 }

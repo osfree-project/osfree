@@ -1,4 +1,4 @@
-/* $Id: lastdget.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: lastdget.c 190 2001-04-12 00:36:10Z skaus $
 
 	Get Last Directory
 

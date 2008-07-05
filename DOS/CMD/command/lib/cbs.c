@@ -1,4 +1,4 @@
-/* $Id: cbs.c,v 1.1 2001/04/12 00:33:52 skaus Exp $
+/* $Id: cbs.c 190 2001-04-12 00:36:10Z skaus $
 
 	Cut trailing backslashes
 

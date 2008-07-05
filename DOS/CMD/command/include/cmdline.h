@@ -7,7 +7,8 @@
 
 /* What quotes COMMAND shell honor (only paired quotes) */
 /* Note: at least the double quotes MUST be included */
-#define QUOTE_STR "\"'`"
+/* #define QUOTE_STR "\"'`" others are valid filename chars */
+#define QUOTE_STR "\""
 
 /* What characters COMMAND shall delimit arguments and
   options, useable w/in if() */
@@ -17,20 +18,29 @@
 #define isoptdelim(ch) (isspace(ch) || iscntrl(ch))
 
 /* What option character COMMAND shell honor, used within arguments too */
+#ifdef FEATURE_SWITCHAR
+#define isoptch(ch) (ch == switchar())
+#else
 #define isoptch(ch) (ch == '/')
+#endif
 
 /* Test if an argument is an option */
 #define isoption(string)  isoptch(*(string))
+
+/* String ID of helpscreen of current internal command */
+extern unsigned currCmdHelpScreen;
 
 /* Trimming command line (arguments) basing on isargdelim() */
 char *trimcl(char *str);
 char *ltrimcl(const char *str);
 void rtrimcl(char * const str);
 
+char switchar(void);
+
 /*
  * Callback function invoked when an option is scanned
  *
- *  chstr := long option string
+ *  optstr := long option string
  *  ch := single character option (upcased) or 0 if none
  *  bool := -1: '-' found; +1: '+' found; 0: neither
  *  strarg := NULL: no argument; else: pointer to option argument
@@ -57,7 +67,7 @@ void rtrimcl(char * const str);
  *        add sp, 8
  *  One could say that no manual optimization is needed, couldn't one?
  */
-typedef int (* const optScanner)(const char * const chstr, int ch, int bool, const char *strarg, void * const arg);
+typedef int (* const optScanner)(const char * const optstr, int ch, int bool, const char *strarg, void * const arg);
 
 
 /*
@@ -94,18 +104,20 @@ void freep(char **p);
 
 /* int isoption(char *str)  Return: 0: if str is no option */
 int optScanString_(const char * const optstr, int bool, const char *arg, char **value);
-int optScanBool_(const char * const optstr, int bool, const char *arg, int *value);
+int optScanBool_(const char * const optstr, int bool, const char *arg, int *value, int flip);
 int optScanInteger_(const char * const optstr, int bool, const char *arg, int *value);
+#define optHasArg()	(strarg != 0)
 
 #define optScanString(var)    \
   optScanString_(optstr, bool, strarg, &(var))
 #define optScanBool(var)    \
-  optScanBool_(optstr, bool, strarg, &(var))
+  optScanBool_(optstr, bool, strarg, &(var), 1)
+#define optScanBool2(var)    \
+  optScanBool_(optstr, bool, strarg, &(var), 0)
 #define optScanInteger(var)   \
   optScanInteger_(optstr, bool, strarg, &(var))
 
 int scanOption(optScanner fct, void * const ag, char *rest);
-//int parseOptions(optScanner fct, void * const arg, char **argv, int *argc, int *optcnt);
 int leadOptions(char **line, optScanner fct, void * const arg);
 char **scanCmdline(char *line, optScanner fct, void * const arg, int *argc, int *opts);
 

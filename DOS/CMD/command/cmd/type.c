@@ -1,4 +1,4 @@
-/*
+/* $Id: type.c 771 2004-02-01 13:55:39Z skaus $
  *  TYPE.C - type internal command
  *
  *  Comments:

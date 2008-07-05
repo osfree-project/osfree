@@ -1,4 +1,4 @@
-/*
+/* $Id: redir.c 805 2004-03-21 12:05:27Z skaus $
  * REDIR.C
  *
  * Comments:
@@ -74,8 +74,8 @@ int get_redirection(char *s, char **ifn, char **ofn, int *ofatt)
   while ((ch = *dp++ = *sp++) != 0)
     switch (ch)
     {
-      case '"':
-      case '\'':               /* No redirects inside quotes */
+      case '"':               /* No redirects inside quotes */
+/*      case '\'':			single quotes don't quote ska*/
         {
           char *p;
           int len;

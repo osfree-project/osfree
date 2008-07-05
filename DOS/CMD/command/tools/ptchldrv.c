@@ -1,4 +1,4 @@
-/*  $Id: ptchldrv.c,v 1.2 2001/04/12 00:09:06 skaus Exp $
+/*  $Id: ptchldrv.c 189 2001-04-12 00:09:06Z skaus $
 
   Patch log drive
 

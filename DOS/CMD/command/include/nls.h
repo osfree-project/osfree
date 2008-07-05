@@ -1,8 +1,11 @@
-/*	$Id: nls.h,v 1.1 2001/04/12 00:09:06 skaus Exp $
+/*	$Id: nls.h 501 2003-03-05 17:43:52Z skaus $
 
 	Declarations to access the DOS NLS information
 
-	$Log: nls.h,v $
+	$Log$
+	Revision 1.2  2003/03/05 17:43:42  skaus
+	bugfix: cached NLS data not flushed
+
 	Revision 1.1  2001/04/12 00:09:06  skaus
 	chg: New structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -37,6 +40,8 @@
 extern Country *nlsBuf;		/* internally cached NLS info buffer */
 
 void refreshNLS(void);		/* make sure the nlsBuf is valid */
+
+#define invalidateNLSbuf() nlsBuf = 0
 
 /* The mode parameter is an OR combination of the following
 	defines */

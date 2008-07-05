@@ -17,6 +17,16 @@
 
 require 'parse.pl';
 
+$ref = {
+	'appendix' => sub { '<A HREF="appendix.html#' . lc($_[0]) . "\">"; }
+	, 'cmd' => sub { '<A HREF="#' . lc($_[0].$_[1]) . '">'; }
+	, 'main' => sub { my $n = shift;
+		$n =~ s/^[_-]+//g;
+		return '<A HREF="FreeCOM.html##-' . lc($n) . "\">"; }
+	, 'section' => sub { "\n<H3>" . ucfirst(lc($_[0])) . "</H3>\n"; }
+	, 'subsection' => sub { "\n<H4>" . $_[0] . "</H4>\n"; }
+};
+
 $file_toc = "TOC";
 $file_html = "../cmd.html";
 ## $file_cmd = "CMDLIST";	# List of commands to be automatically linked
@@ -52,7 +62,7 @@ for (@ARGV) {
 	&handle($_);
 }
 
-&dumpAppendix;
+# &dumpAppendix;
 &htmlCloseTOC;
 &htmlCloseHtml;
 
@@ -121,7 +131,7 @@ sub dumpEqual {
 	my($eq) = &mangleName(@_);
 
 	print HTML "This command is 100% compatible to ",
-	 &htmlCommandRef($eq), ", please see there\n";
+	 htmlCommandRef($ref, $eq), ", please see there\n";
 }
 
 ## Dump new command header
@@ -129,7 +139,7 @@ sub dumpHeader {
 	my($na, $de) = @_;
 
 	&dumpTOC($na, $de);
-	print HTML '<H2><A NAME="', lc($na), "\">$na - $de</H2>\n";
+	print HTML '<H2><A NAME="', lc($na), "\">$na - $de</A></H2>\n";
 	&writeCmdList(uc($na));
 }
 sub dumpAppendix {
@@ -145,27 +155,27 @@ sub dumpAppendix {
 sub dumpHeaderEntry {
 	if($#se >= 0) {
 		print HTML "See also: "
-		 , join(', ', (map { &htmlCommandRef($_) } @se))
+		 , join(', ', (map { &htmlRefWord($_) } @se))
 		 , "<BR>\n";
 	}
 	if($#re >= 0) {
 		print HTML "Requirements: "
-		 , join(',', @re)
+		 , join(', ', (map { &htmlRefWord($_) } @re))
 		 , "<BR>\n";
 	}
 	if($#op >= 0) {
 		print HTML "Optional requirements: "
-		 , join(',', @op)
+		 , join(', ', (map { &htmlRefWord($_) } @op))
 		 , "<BR>\n";
 	}
 	if($#co >= 0) {
 		print HTML "Conflicts with: "
-		 , join(',', @co)
+		 , join(', ', (map { &htmlRefWord($_) } @co))
 		 , "<BR>\n";
 	}
 }
 sub dumpBodyEntry {
-	&parseEBNF(lc($na));
+	&parseEBNF($ref, lc($na));
 }
 
 sub dumpFooter {
@@ -173,22 +183,11 @@ sub dumpFooter {
 }
 
 
-sub htmlCommandRef {
+sub htmlRefWord {
 	my($cmd) = @_;
 
-	return '<A HREF="#' . lc($cmd) . "\">$cmd</A>";
-}
-
-
-sub htmlSection {
-	my($name) = @_;
-
-	return "\n<H3>" . ucfirst(lc($name)) . "</H3>\n";
-}
-sub htmlSubSection {
-	my($name) = @_;
-
-	return "\n<H4>$name</H4>\n";
+	return $cmd unless defined($cmdlist{uc($cmd)});
+	return htmlCommandRef($ref, $cmd);
 }
 
 ## Dump the command footer
@@ -223,7 +222,8 @@ sub htmlCloseTOC {
 sub htmlOpenHtml {
 	open(HTML, ">$file_html")
 		or die "Cannot create HTML: $file_html: $!\n";
-print HTML '<HTML>
+print HTML '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
 <HEAD>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
 <META HTTP-EQUIV="Content-Language" CONTENT="en">
@@ -252,7 +252,7 @@ sub htmlCloseHtml {
 
 ##################3
 sub openCmdList {
-	&readCmdList;
+	&readCmdList($ref);
 	open(CMDLIST, ">$file_cmd")
 		or die "Cannot create command list file: $!\n";
 }

@@ -1,4 +1,4 @@
-/* $Id: expalias.c,v 1.3 2001/06/12 22:57:35 skaus Exp $
+/* $Id: expalias.c 250 2001-06-12 22:57:35Z skaus $
 
 	Expand aliases
 

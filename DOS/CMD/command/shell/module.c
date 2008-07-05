@@ -1,30 +1,32 @@
-/*
+/* $Id: module.c 1291 2006-09-05 01:44:33Z blairdude $
  *	Special FreeCOM defuinitions for the module management
  *
  * 2000/07/12 ska
  * started
  */
 
-#include <string.h>
-#include <mcb.h>
-#include <suppl.h>
+#include "../config.h"
+
+#include "mcb.h"
+#include "suppl.h"
 
 #include "../include/command.h"
 #include "../include/debug.h"
 #include "../include/module.h"
 #include "../include/res.h"
+#include "../include/kswap.h"
 #include "../include/misc.h"
 
+#ifdef FREECOM_NEED_MODULES
 
-#pragma argsused
-static int loadModule(res_majorid_t major
-	, res_minorid_t minor
-	, unsigned long length
-	, FILE* f
-	, void *arg)
-{	
+static int loadModule (res_majorid_t major,
+                       res_minorid_t minor,
+                       unsigned long length,
+                       FILE * f,
+                       void *const arg) {	
 	word segm;
 
+        (void)major;
 	if(length > 0xfffful) {
 		dprintf(("[CRITER resource too large.]\n"));
 		return 0;
@@ -32,10 +34,12 @@ static int loadModule(res_majorid_t major
 	switch(minor) {
 	case 0x00:		/* CRITER autofail */
 		if(!autofail) break;
+		dprintf(("[INIT: Loading AutoFail context]\n"));
 		goto loadMod;
 
 	case 0x03:		/* CRITER code & strings */
 		if(autofail) break;
+		dprintf(("[INIT: Loading Interactive context]\n"));
 
 	loadMod:
 		/* If we reach here and swapOnExec == ERROR
@@ -52,6 +56,7 @@ static int loadModule(res_majorid_t major
 		  	freeSysBlk(segm);
 			return 0;
 		}
+		registerCriterRepeatCheckAddr(MK_FP(segm, peekw(segm, length - 2)));
 		*(word *)arg = segm;
 		return 1;		/* stop enumRes() */
 
@@ -81,3 +86,5 @@ kswap_p modContext(void)
 
 	return (kswap_p)segm;
 }
+
+#endif

@@ -1,11 +1,19 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: onoff.c 780 2004-02-10 19:10:02Z skaus $
 
  *	Tests if a string is ON or OFF
 
 	This file bases on MISC.C of FreeCOM v0.81 beta 1.
 
-	$Log: onoff.c,v $
+	$Log$
+	Revision 1.5  2004/02/10 19:10:02  skaus
+	bugfix: onoffStr(): do not ignore leading argument delimiters [#1736]
+
+	Revision 1.4  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
+	Revision 1.3  2002/11/12 18:56:48  skaus
+	bugfix: onOffStr(): zaps trailing argument delimiters, e.g. ECHO set=
+	
 	Revision 1.2  2001/04/29 12:24:36  skaus
 	bugfix: >>PATH<< with empty %PATH% --> PATH=(null)
 	fix: BREAK/VERIFY ignore trailing spaces
@@ -49,16 +57,16 @@
 #include "../include/misc.h"
 
 enum OnOff onoffStr(char *line)
-{
+{	enum OnOff state = OO_Other;
+
 	if(!line)
 		return OO_Null;
-	line = trimcl(line);
+	line = ltrimsp(line);
 	if(!*line)
 		return OO_Empty;
-	if (stricmp(line, D_OFF) == 0)
-		return OO_Off;
-	if (stricmp(line, D_ON) == 0)
-		return OO_On;
-
-	return OO_Other;
+	if(matchtok(line, D_OFF))
+		state = OO_Off;
+	else if(matchtok(line, D_ON))
+		state = OO_On;
+	return *line? OO_Other: state;
 }

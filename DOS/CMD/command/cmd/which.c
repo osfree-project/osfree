@@ -1,4 +1,4 @@
-/*
+/* $Id: which.c 1200 2006-06-12 04:55:42Z blairdude $
  *  WHERE.C - path functions.
  *
  *
@@ -78,10 +78,10 @@ int cmd_which(char *param)
 		assert(arg[i]);
 		fputs(arg[i], stdout);
 		if((p = find_which(arg[i])) != 0) {
-			putchar('\t');
+			outc('\t');
 			puts(p);
 		} else {
-			putchar('\n');
+			outc('\n');
 		}
 	}
 

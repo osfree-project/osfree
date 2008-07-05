@@ -1,4 +1,4 @@
-/*
+/* $Id: beep.c 1291 2006-09-05 01:44:33Z blairdude $
  *  BEEP.C - beep command.
  *
  *  Comments:
@@ -20,10 +20,4 @@
 #include "../include/command.h"
 #include "../include/misc.h"
 
-#pragma argsused
-int cmd_beep(char *param)
-{
-	beep();
-
-	return 0;
-}
+int cmd_beep (char * param) { (void)param; beep (); return 0; }

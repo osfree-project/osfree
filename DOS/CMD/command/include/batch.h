@@ -11,30 +11,38 @@
 
 #include <stdio.h>
 #ifndef __PACIFIC__
-#include <dir.h>
+//#include <dir.h>
 #endif
+
+#define __LFNFUNCS_C
+#include "../include/lfnfuncs.h"
 
 struct bcontext
 {
   struct bcontext *prev;
   FILE *bfile;
-  char *bfnam;                  /* name of batchfile */
-  char *forproto;				/* command to execute */
-  char **params;				/* FOR/batch parameter list */
+  char *bfnam;                  /* abs filename of batchfile */
+  char *bfirst;                 /* name of batchfile as typed on cmd line */
+  char *forproto;                               /* command to execute */
+  char *forvar;                                 /* current FOR variable */
+  char **params;                                /* FOR/batch parameter list */
   char *blabel;                 /* label to search for */
-  struct ffblk *ffind;			/* already started FOR wildcard expand loop */
+#ifdef FEATURE_LONG_FILENAMES
+  struct lfnffblk *ffind;
+#else
+  struct ffblk *ffind;                  /* already started FOR wildcard expand loop */
+#endif
 #ifndef __PACIFIC__
   fpos_t bpos;                  /* position within file if bfile == NULL */
 #else
   unsigned long bpos;           /* position within file if bfile == NULL */
 #endif
   long blinecnt;                /* line counter */
-  int shiftlevel;				/* number of skipped arguments */
+  int shiftlevel;                               /* number of skipped arguments */
   int echo;                     /* Preserve echo flag across batch calls */
-  int bclose;					/* close batch file on exit */
-  int brewind;					/* rewind batch file next time */
-  int numParams;				/* number of parameters */
-  char forvar;					/* current FOR variable */
+  int bclose;                                   /* close batch file on exit */
+  int brewind;                                  /* rewind batch file next time */
+  int numParams;                                /* number of parameters */
 };
 
 /*  The stack of current batch contexts.
@@ -48,4 +56,9 @@ void exit_all_batch(void);
 extern setBatchParams(char *s);
 
 extern struct bcontext *newBatchContext(void);
-extern void initBatchContext(struct bcontext *b);
+/* static void initBatchContext(struct bcontext *b); */
+extern struct bcontext *activeBatchContext(void);
+char *find_arg_bc(struct bcontext const * const b, int n);
+
+#define find_arg(num)   find_arg_bc(activeBatchContext(), (num))
+#define getArgCur(num)  find_arg_bc(bc, (num))

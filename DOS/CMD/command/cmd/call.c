@@ -1,4 +1,4 @@
-/*
+/* $Id: call.c 1291 2006-09-05 01:44:33Z blairdude $
  *  CALL.C - batch file call command.
  *
  *  Comments:
@@ -37,19 +37,18 @@
 static int optS = 0;		/* force to swap out FreeCOM during call */
 static int optN = 0;		/* force to NOT swap (superceeds optS) */
 
-#pragma argsused
 optScanFct(opt_call)
-{ switch(ch) {
+{
+  (void)arg;
+  switch(ch) {
   case 'S': return optScanBool(optS);
   case 'N': return optScanBool(optN);
+  case 'Y': return optScanBool(tracemode);
   }
   optErr();
   return E_Useage;
 }
 
-
-int cmd_call(char *param)
-{
 /*
  * Perform CALL command.
  *
@@ -58,14 +57,17 @@ int cmd_call(char *param)
  * If No batch file was opened then remove our newly allocted
  * context block.
  */
-
+int cmd_call (char * param) {
 	struct bcontext *n = newBatchContext();
 	int ec;
 
+        (void)param;
 	if (n == 0) {
 		/* Not in a batch file */
 		return 1;
 	}
+
+	optS = optN = 0;
 
 	if((ec = leadOptions(&param, opt_call, 0)) != E_None)
 		return ec;
@@ -77,7 +79,7 @@ int cmd_call(char *param)
 			swapOnExec = FALSE;
 	}
 
-	parsecommandline(param);
+	parsecommandline(param, FALSE);
 	if(swapOnExec != ERROR)
 		swapOnExec = FALSE;
 

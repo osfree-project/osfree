@@ -1,4 +1,4 @@
-$Id: faq.txt,v 1.1 2000/06/23 06:02:56 skaus Exp $
+$Id: faq.txt 34 2000-06-23 06:02:56Z skaus $
 
 Frequently Asked Questions about FreeCOM
 	Copyright (C) 2000 Steffen Kaiser <ska-src@gmx.net>

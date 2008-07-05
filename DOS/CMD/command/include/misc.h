@@ -22,6 +22,15 @@ enum OnOff {		/* ON/OFF tester */
 	OO_Other			/* else */
 };
 
+typedef enum {
+	  STRINGS_LOADED
+	, STRINGS_ID_MISMATCH
+	, STRINGS_SIZE_MISMATCH
+	, STRINGS_NOT_FOUND
+	, STRINGS_READ_ERROR
+	, STRINGS_OUT_OF_MEMORY
+} loadStatus;
+
 #define BREAK_BATCHFILE 1
 #define BREAK_ENDOFBATCHFILES 2
 #define BREAK_INPUT 3
@@ -34,9 +43,23 @@ enum OnOff {		/* ON/OFF tester */
 #define MAXLEN  256
 #define exist dfnstat
 
+/* transformed into constants
+	unsigned far *maxx = MK_FP(0x40, 0x4a);
+	unsigned char far *maxy = MK_FP(0x40, 0x84);
+*/
+#define MAX_X (*(unsigned int  far*)MK_FP(0x40, 0x4a))
+#define MAX_Y (*(unsigned char far*)MK_FP(0x40, 0x84))
+#define SCREEN_COLS MAX_X
+#define SCREEN_ROWS (MAX_Y + 1)
+
 extern FILE *errStream;
 #define outStream stdout
+extern int swapOnExec, defaultToSwap, swapContext;
 
+void display_errno_fnam_error(const char * const fnam);
+void displayExitcode(void);
+
+void outc( char c );
 int cgetchar(void);
 int vcgetchar(void);
 int vcgetcstr(const char *const legalCh);
@@ -49,21 +72,38 @@ char *comFile(void);
 char *comPathFile(const char * fnam);
 char *comResFile(void);
 #define comRespawnFile comResFile
+int validResFile(const char * const fnam);
 void dispCount(int cnt, unsigned base_id);
 int drvNum(int drive);
 char *cwd(int drive);
+char *abspath(const char * const fnam, const int warn);
+char *truepath(const char * const fnam);
 int changeDrive(int drive);
+#ifdef FEATURE_LONG_FILENAMES
+int mk_rd_dir( char *param, int lfnfunc, char *fctname );
+#else
 int mk_rd_dir(char *param, int (*func) (const char *), char *fctname);
+#endif
 void cutBackslash(char * const s);
 int cd_dir(char *param, int cdd, const char * const fctname);
 enum OnOff onoffStr(char *line);
 size_t farread(void far*buf, size_t length, FILE *f);
 unsigned allocPermBlk(const unsigned size, const unsigned mode);
 unsigned allocSysBlk(const unsigned size, const unsigned mode);
+unsigned allocMemBlk(const unsigned size, const unsigned mode);
 void freeSysBlk(const unsigned segm);
+
+void myperror(const char *msg);
+void myfnsplit(const char *path, char *drv, char *dir, char *name, char *ext);
+void myfnmerge(char *path,
+               const char *drive,
+               const char *dir,
+               const char *fname,
+               const char *ext);
 
 char far *_fstpcpy(char far *dst, const char far *src);
 void partstrlower(char *str);
+void readcommand(char * const str, int maxlen);
 void readcommandDOS(char * const str, int maxlen);
 void readcommandEnhanced(char * const str, const int maxlen);
 void convert(unsigned long num, char * const des);
@@ -72,23 +112,25 @@ void goxy(const unsigned char x, const unsigned char y);
 void clrcmdline(char * const str, const int maxlen
  , const unsigned orgx, const unsigned orgy);
 
-int decode_exec_result(int rc);
+void setErrorLevel(int rc);
 int exec(const char *, char *, const unsigned);
+void restoreSession(void);
+void saveSession(void);
 
 int samefile(const char * const f1, const char * const f2);
-/* void fillComp(char * const dst, const char *pattern, const char *src, int len); */
-char *fillFnam(const char * const pattern, const char * const fnam);
+void fillFnam(char *dest, const char * const pattern, const char * const fnam);
 int is_fnchar(const int c);
 int is_fnstr(const char * const s);
 int is_pathdelim(const int c);
 int is_empty(const char *s);
-// int is_quote(const int c);
 #define is_quote(c)	((c) == '"')
 char *skipfnam(const char * const fnam);
 
 FILE *tempfile(void);
 void rmtmpfile(void);
 
+unsigned mywherex(void);
+unsigned mywherey(void);
 
 /************* Imported from LH.ASM        */
 
@@ -108,7 +150,7 @@ int parsetime(const char * s, struct dostime_t * const timep);
 void displayPrompt(const char *pr);
 void printprompt(void);
 int showcmds(char *rest);
-void grabComFilename(const int warn, const char far * const fnam);
+int grabComFilename(const int warn, const char far * const fnam);
 
 void displayString(unsigned id,...);
 void displayError(unsigned id,...);
@@ -141,6 +183,8 @@ void rtrimsp(char * const str);
 char *parsenum(const char *s, int maxCnt, int *cnt, int nums[]);
 char *textlineEnd(const char * const buf, const size_t buflen);
 
+int truncate(int fd);
+
 /*
 void aliasprint(void);
 void aliaschange(const char * const name, const char * const value);
@@ -160,5 +204,13 @@ void histSet(const int num, const char * const str);
 void lastDirSet(void);
 void lastDirGet(char ** const buf);
 
+int appendDisable(void);
+void appendRestore(const int state);
+
+void registerCriterRepeatCheckAddr(word far *);
+char *critDriveReport(void);
+void critEnableRepeatCheck(void);
+unsigned critDisableRepeatCheck(void);
+void critEndRepCheck(void);
 
 #endif

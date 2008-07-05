@@ -1,5 +1,5 @@
 /*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+	$Locker$	$Name$	$State$
 
  *  RES_R.C - Read resource
  *
@@ -27,7 +27,19 @@
 
 	This file bases on OPENF.C of FreeCOM v0.81 beta 1.
 
-	$Log: res_r.c,v $
+	$Log$
+	Revision 1.8  2006/09/11 00:07:22  blairdude
+	Fixed compilation completely with Turbo C
+
+	Revision 1.7  2006/09/04 20:03:14  blairdude
+	Support compiler oddity (Arkady)
+	
+	Revision 1.6  2004/08/18 17:18:10  skaus
+	chg: res_r.c: don#('t use relative seek; fails under NTFSdos [Tom Ehlert]
+	
+	Revision 1.4  2002/11/05 19:34:38  skaus
+	chg: enumResources(): handle fnam == 0 (file open error)
+	
 	Revision 1.3  2001/07/27 22:37:35  skaus
 	bugfix: pre-compiled package BINARY.ZIP without command-line editing
 	chg: FreeCOM archive (== executable) is opened read-only.
@@ -59,21 +71,21 @@
 	bugfix: IF is now using error system & STRINGS to report errors
 	add: CALL: /N
 	
+	TE 14 may 2004: there was some bug wrt NTFS4DOS, fixed.
+	                unwound this beautiful C puzzle to do this
  */
 
 #include "../config.h"
 
 #include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <string.h>	/* memcmp */
+#include <io.h>		/* filelength */
 
-#include "../include/debug.h"
 #include "../include/resource.h"
 
 int enumFileResources(const char *const fnam
 	, res_majorid_t id
-	, int (*fct)()
+	, res_callbackp_t fct
 	, void * const arg)
 {	resource_t res;
 	unsigned long pos;
@@ -81,7 +93,8 @@ int enumFileResources(const char *const fnam
 	FILE *f;
 
 	assert(fct);
-	assert(fnam);
+	if(!fnam)
+		return -1;
 
 	rc = 0;
 	if((f = fopen(fnam, "rb")) == 0) {
@@ -90,31 +103,34 @@ int enumFileResources(const char *const fnam
 #ifdef DEBUG
 		perror("Open");
 #endif
-
-		/* resource file could be opened --> seek to its end to
-			get the first resource */
-	} else if(fseek(f, -(long)sizeof(res), SEEK_END) == 0) do {
-		pos = ftell(f);
-		assert(pos != (unsigned long)-1l);
-	} while(fread(&res, sizeof(res), 1, f) == 1
-		 && memcmp(res.res_cookie, RES_COOKIE, sizeof(res.res_cookie)) == 0
-		 && pos >= res.res_length
-			/* resources handled:
-				1) cookie mismatch <-> magic number is invalid
-				2) length is larger than avilable bytes
-			*/
-			/* position of data block */
-		 && fseek(f, pos -= res.res_length, SEEK_SET) == 0
-		 && ((res.res_majorID != id && id != RES_ID_ANY)
-			|| (rc = fct(res.res_majorID
+		/* resource file could be opened
+			The first resource item is located at the end of the file,
+			the var #("pos#(" is used to indicate the absolute position
+			within the file as relative positioning is failing under
+			NTFSdos {Tom Ehlert} */
+	} else if((pos = filelength(fileno(f))) != (unsigned long)-1L)
+   	  while (1) {
+		if(pos <= sizeof(res)				/* file corruption */
+		 		/* read and verify the resource ID block */
+		 || fseek(f, pos -= sizeof(res), SEEK_SET) != 0	/* seek error */
+	     || fread(&res, sizeof(res), 1, f) != 1		/* read error */
+		 					/* file corruption as magic string is missing */
+		 || memcmp(res.res_cookie, RES_COOKIE, sizeof(res.res_cookie)) != 0
+		 		/* file corruption: not that many bytes left in file */
+		 || pos < res.res_length
+		 		/* failed to position to data block in the file */
+		 || fseek(f, pos -= res.res_length, SEEK_SET) != 0
+		)
+		 	break;
+		 
+		 if (res.res_majorID == id || id == RES_ID_ANY)
+		 	if ((rc = fct(res.res_majorID
 				 , res.res_minorID
 				 , res.res_length
 				 , f
-				 , arg)) == 0
-		    )
-		 && pos >= sizeof(res)
-		 && fseek(f, pos - sizeof(res), SEEK_SET) == 0
-	  );
+				 , arg)) != 0)
+		    break;
+	}  
 
 	fclose(f);
 	return rc;

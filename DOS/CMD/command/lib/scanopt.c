@@ -1,12 +1,17 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: scanopt.c 771 2004-02-01 13:55:39Z skaus $
 
  * Scan an option and update its value within the option array
  *  Return: 0 on success
 
 	This file bases on CMDLINE.C of FreeCOM v0.81 beta 1.
 
-	$Log: scanopt.c,v $
+	$Log$
+	Revision 1.3  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
+	Revision 1.2  2002/11/06 20:36:37  skaus
+	bugfix: /?: found on all the command line
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -43,6 +48,8 @@
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
 
+unsigned currCmdHelpScreen = 0;
+
 int scanOption(optScanner fct, void * const ag, char *rest)
 {
   char *line, *arg, *optend;
@@ -63,6 +70,11 @@ int scanOption(optScanner fct, void * const ag, char *rest)
   if(!isprint(ch = toupper(*line)) || strchr("-+=:", ch)) {
     error_illformed_option(rest);
     return E_Useage;
+  }
+
+  if(ch == '?' && currCmdHelpScreen) {
+  	displayString(currCmdHelpScreen);
+  	return E_Help;
   }
 
   if((optend = strpbrk(line, "=:")) != 0) {  /* option has argument */

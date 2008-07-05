@@ -1,4 +1,4 @@
-/*
+/* $Id: fddebug.c 1195 2006-06-11 02:47:06Z blairdude $
  *  FDDEBUG.C - verify command.
  *
  *  Comments: Turn on/off the debug flag
@@ -23,6 +23,7 @@
 #include "../err_fcts.h"
 #include "../strings.h"
 
+#ifdef DEBUG
 extern FILE *dbg_logfile;
 extern char *dbg_logname;
 
@@ -61,3 +62,4 @@ int cmd_fddebug(char *param)
 	}
   return 0;
 }
+#endif

@@ -1,4 +1,4 @@
-/* $Id: ctxt_ss.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: ctxt_ss.c 1291 2006-09-05 01:44:33Z blairdude $
 
 	Scan status from context
 	Assumes that the entries are in "init" state!!
@@ -10,15 +10,14 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include <environ.h>
-
+#include "environ.h"
 #include "../include/context.h"
 
-#pragma argsused
-static int scan(void *arg, word segm, word ofs)
-{	Context_Tag tag;
+static int scan (void * arg, word segm, word ofs) {
+        Context_Tag tag;
 	ctxt_info_t *info;
 
+        (void)arg;
 	assert(segm);
 	assert(ofs != (word)-1);
 

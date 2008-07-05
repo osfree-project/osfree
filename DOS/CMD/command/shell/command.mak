@@ -1,15 +1,12 @@
 .AUTODEPEND
 
-CFG = TCCDOS.CFG
 CFG_DEPENDENCIES = COMMAND.MAK ..\strings.h
+
+!include "..\config.mak"
 
 all: $(CFG) command.exe
 
-##>> Modify this file with your local settings
-!include "..\config.mak"
-
 command.exe : $(CFG) batch.obj \
-	cb_catch.obj \
 	cmdtable.obj \
 	command.obj \
 	dummies.obj \
@@ -19,11 +16,11 @@ command.exe : $(CFG) batch.obj \
 	loadhigh.obj \
 	module.obj \
 	redir.obj \
-	ver.obj 
+	ver.obj \
+	cb_catch.obj 
 	$(LD) /m/s/l /c /d @&&|
 $(LIBPATH)\c0s.obj+
 batch.obj+
-cb_catch.obj+
 cmdtable.obj+
 command.obj+
 dummies.obj+
@@ -33,7 +30,8 @@ kswap.obj+
 loadhigh.obj+
 module.obj+
 redir.obj+
-ver.obj
+ver.obj+
+cb_catch.obj
 command
 		# no map file
 $(SUPPL_LIB_PATH)\suppl_s.lib +

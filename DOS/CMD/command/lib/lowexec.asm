@@ -1,4 +1,4 @@
-; $Id: lowexec.asm,v 1.1 2001/04/12 00:33:53 skaus Exp $
+; $Id: lowexec.asm 190 2001-04-12 00:36:10Z skaus $
 ;  LOWEXEC.ASM
 ;
 ;
@@ -15,7 +15,7 @@
 ;
 ;  08/07/96 (Steffen Kaiser)
 ;    made argument handling independent of memory model
-; $Log: lowexec.asm,v $
+; $Log$
 ; Revision 1.1  2001/04/12 00:33:53  skaus
 ; chg: new structure
 ; chg: If DEBUG enabled, no available commands are displayed on startup
@@ -31,7 +31,7 @@
 ; add: clean.bat
 ; add: localized CRITER strings
 ; chg: use LNG files for hard-coded strings (hangForEver(), init.c)
-; 	via STRINGS.LIB
+;       via STRINGS.LIB
 ; add: DEL.C, COPY.C, CBREAK.C: STRINGS-based prompts
 ; add: fixstrs.c: prompts & symbolic keys
 ; add: fixstrs.c: backslash escape sequences
@@ -46,38 +46,43 @@
 ; chg: moving all assembly files to NASM
 ;
 
-%include "../include/model.inc"
-%include "../include/stuff.inc"
+;%include "../include/model.inc"
+;%include "../include/stuff.inc"
 
-segment _TEXT
-	GLOBAL _lowLevelExec
+_TEXT segment
+        public lowLevelExec_
 
-_lowLevelExec:
-	push    bp
-	mov     bp, sp
-	push    si, di, ds
+lowLevelExec_:
+        push    bp
+        mov     bp, sp
+        push    si
+        push    di
+        push    ds
 
-	lds     dx, [bp+4+2*@CodeSize]      ; load file name
-	les     bx, [bp+8+2*@CodeSize]      ; load parameter block
-	mov     ax, 4b00h
+        lds     dx, [bp+4+2*@CodeSize]      ; load file name
+        les     bx, [bp+8+2*@CodeSize]      ; load parameter block
+        mov     ax, 4b00h
 
-	mov     Word [cs:saveSP], sp
-	mov     Word [cs:saveSS], ss
-	int     21h
-	cli						;; Can be removed for post-8086 CPUs
-	mov     ss, [cs:saveSS]
-	mov     sp, [cs:saveSP]
-	sti
+        mov     Word ptr [cs:saveSP], sp
+        mov     Word ptr [cs:saveSS], ss
+        int     21h
+        cli                                             ;; Can be removed for post-8086 CPUs
+        mov     ss, [cs:saveSS]
+        mov     sp, [cs:saveSP]
+        sti
 
-	jc      exec_error   ; if there was an error, the error code is in AX
-	xor     ax, ax       ; otherwise, clear AX
+        jc      exec_error   ; if there was an error, the error code is in AX
+        xor     ax, ax       ; otherwise, clear AX
 
 exec_error:
-	pop    si, di, ds
-	pop     bp
-	ret
+        pop    si
+        pop    di
+        pop    ds
+        pop     bp
+        ret
 
 saveSP dw 0
 saveSS dw 0
 
-	end
+_TEXT ends
+        end

@@ -1,4 +1,4 @@
-/* $Id: ptchsize.c,v 1.4 2001/06/10 15:31:26 skaus Exp $
+/* $Id: ptchsize.c 1301 2006-09-11 00:07:22Z blairdude $
 
 	Patch heap size into FreeCOM executable
 
@@ -34,13 +34,12 @@ struct {
 
 #include "../lib/res_r.c"		/* make a single file project */
 
-#pragma argsused
-static int getInfo(res_majorid_t major
-	, res_minorid_t minor
-	, unsigned long length
-	, FILE* f
-	, void *arg)
-{
+int getInfo (res_majorid_t major,
+                    res_minorid_t minor,
+                    unsigned long length,
+                    FILE * f,
+                    void *const arg) {
+        (void)arg;
 	if(major == RES_ID_INFO && minor == 0) {
 		if(length >= INT_MAX) {
 			puts("Info resource is too large");
@@ -187,7 +186,7 @@ main(int argc, char **argv)
 		return 127;
 	}
 
-	if(enumFileResources(argv[1], RES_ID_INFO, getInfo, 0) != 1) {
+	if(enumFileResources(argv[1], RES_ID_INFO, (int(*)())getInfo, 0) != 1) {
 		puts("Failed to locate FreeCOM's info resource\n"
 			"Possible errors:\n"
 			"\tAn error is issued above.\n"

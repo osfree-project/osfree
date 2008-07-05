@@ -1,4 +1,4 @@
-/* $Id: resfile.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: resfile.c 190 2001-04-12 00:36:10Z skaus $
 
 	Return the name of the resource file
 

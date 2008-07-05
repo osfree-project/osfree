@@ -1,4 +1,4 @@
-/*
+/* $Id: shift.c 771 2004-02-01 13:55:39Z skaus $
  *  SHIFT.C - shift command.
  *
  * Only valid inside batch files.

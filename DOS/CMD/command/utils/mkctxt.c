@@ -1,4 +1,4 @@
-/*  $Id: mkctxt.c,v 1.3 2001/04/12 00:09:06 skaus Exp $
+/*  $Id: mkctxt.c 189 2001-04-12 00:09:06Z skaus $
 
 	Create the various file from the CONTEXT.X file
 	(See there for syntax description)
@@ -14,7 +14,7 @@
 		<package>_<value> - offset of the value relative to the beginning
 			of the specific package
 
-  	$Log: mkctxt.c,v $
+  	$Log$
   	Revision 1.3  2001/04/12 00:09:06  skaus
   	chg: New structure
   	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -38,7 +38,7 @@
   	chg: splitted code apart into LIB\*.c and CMD\*.c
   	bugfix: IF is now using error system & STRINGS to report errors
   	add: CALL: /N
-  	
+
   	Revision 1.1.2.2  2001/02/18 21:08:24  skaus
   	add: command WHICH
   	fix: BUILD.BAT and accompanying makefiles for TC++ v1.01

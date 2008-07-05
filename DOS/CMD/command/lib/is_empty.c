@@ -1,4 +1,4 @@
-/* $Id: is_empty.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: is_empty.c 190 2001-04-12 00:36:10Z skaus $
 
 	Returns true if the strings is NULL, "" or consists of
 	whitespaces only.

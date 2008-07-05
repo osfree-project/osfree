@@ -1,4 +1,4 @@
-/* $Id: ctxt_get.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: ctxt_get.c 1291 2006-09-05 01:44:33Z blairdude $
 
 	Get the n'th item of the specified context tag.
 	It is duplicated into dynamic memory.
@@ -13,19 +13,14 @@
 #include <assert.h>
 #include <string.h>
 
-#include <environ.h>
-#include <fmemory.h>
-
+#include "environ.h"
+#include "fmemory.h"
 #include "../include/context.h"
 #include "../include/misc.h"
 
-int ctxtGet(int remove
-	, const Context_Tag tag
-	, const unsigned num
-	, char ** const buf)
-{
-	word ofs;
-	word segm;
+int ctxtGet (const int remove, const Context_Tag tag,
+             const unsigned num, char ** const buf) {
+        word ofs, segm;
 	char name[CTXT_ITEMNAME_LENGTH];
 
 	ctxtCheckInfoTag(tag);

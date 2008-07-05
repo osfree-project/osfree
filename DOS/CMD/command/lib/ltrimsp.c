@@ -1,5 +1,4 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: ltrimsp.c 771 2004-02-01 13:55:39Z skaus $
 
  * Name: ltrimsp() - left trims a string by removing leading spaces
  	The string itself is not changed.
@@ -8,7 +7,10 @@
 
 	This file bases on CMDLINE.C of FreeCOM v0.81 beta 1.
 
-	$Log: ltrimsp.c,v $
+	$Log$
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+
 	Revision 1.1  2001/04/29 11:33:51  skaus
 	chg: default heap size (tools\ptchsize) set to 6KB
 	chg: error displaying functions centralized into lib\err_fcts.src

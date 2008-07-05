@@ -1,0 +1,93 @@
+# Italian Version (CP850) by Roberto Mariottini
+#
+# fatal errors
+0.0:Memoria esaurita. Necessari ulteriori %ld byte.\n
+0.1:MEMORIA DI SISTEMA CORROTTA! (fallita int 21.5803)\n
+0.2:UMB Corrotti: La catena non raggiunge la sommit… della memoria bassa a %dk. Ultimo=0x%x.\n
+0.3:La catena MCB Š corrotta (Z MCB dopo l'ultimo M MCB non trovato, ma %c al seg 0x%x).\n
+0.4:opzione sconosciuta: %s\nUsare /? per la guida\n
+# misc messages
+1.0:Un sistema operativo sconosciuto
+1.1:%lu byte\n
+1.2:(%s byte)\n
+1.3: (%7s byte)\n
+# memory types
+2.0:Tipo Memoria       Totale     Usata      Libera\n
+#   ----------------  --------   --------   --------
+2.1:Convenzionale
+2.2:Superiore (UMB)
+2.3:Riservata
+2.4:Estesa (XMS)
+2.5:Memoria totale
+2.6:Totale sotto 1 MB
+2.7:Totale Espansa (EMS)
+2.8:Espansa Libera (EMS)
+2.9:Dimensione massima di un programma
+2.10:Dimensione massima di un blocco di memoria superiore (UMB)
+2.11:%s Š residente nell'area di memoria alta (HMA).\n
+# block types
+3.0:
+3.1:libero
+3.2:sistema (codice)
+3.3:sistema (dati)
+3.4:programma
+3.5:ambiente
+3.6:area dati
+3.7:riservato
+3.8:driver di dispositivo
+3.9:IFS
+# classify msgs
+4.0:\nModuli che usano memoria sotto 1 MB:\n\n
+4.1:  Nome          Totale          Convenzionale      Superiore (UMB)\n
+#     --------  ----------------   ----------------   ----------------
+4.2:SISTEMA
+4.3:Libero
+4.4:\n Segm.    Dim.       Nome         Tipo\n
+#     ------- --------  ----------  -------------
+4.5:\n  Indirizzo    Attr.    Nome     Programma\n
+#      -----------  ------ ----------  ----------
+# EMS stuff
+5.0:ERRORE INTERNO EMS.\n
+5.1:Driver EMS non installato nel sistema.\n
+5.2:\nDriver EMS versione
+5.3:EMS page frame
+5.4:Memoria EMS totale
+5.5:Memoria EMS libera
+5.6:Handle totali
+5.7:Handle liberi
+5.8:\n  Handle  Pagine    Dim.       Nome\n
+#      -------- ------  --------   ----------
+# XMS stuff
+6.0:Driver XMS non installato nel sistema.\n
+6.1:\nTest della memoria XMS ...\n
+6.2:ERRORE INTERNO EMS.\n
+6.3:INT 2F AX=4309 supportato\n
+6.4:XMS versione
+6.5:Driver XMS versione
+6.6:Stato HMA
+6.7:presente
+6.8:assente
+6.9:Stato linea A20
+6.10:abilitata
+6.11:disabilitata
+6.12:Memoria XMS libera
+6.13:XMS contingua libera
+6.14:Handle liberi
+6.15:Blocco   Handle     Dim.     Lock\n
+#    ------- --------  --------  -------
+6.16:\nMemoria superiore libera
+6.17:Max blocco libero (UMB)
+6.18:\nMemoria superiore (UMB) non disponibile\n
+# help message
+7.0:FreeDOS MEM versione %d.%d\n
+7.1:Visualizza l'ammontare di memoria usata e libera nel sistema.
+7.2:Syntassi: MEM [/E] [/F] [/C] [/D] [/U] [/X] [/P] [/?]
+7.3:/E  Riporta le informazioni sulla memoria Espansa (EMS)
+7.4:/F  Lista completa dei blocchi di memoria
+7.5:/C  Classifica i moduli che usano memoria sotto 1 MB
+7.6:/D  Lista dei driver di dispositivo attualmente in memoria
+7.7:/U  Lista dei programmi nella memoria convenzionale e superiore
+7.8:/X  Riporta le informazioni sulla memoria Estesa (XMS)
+7.9:/P  Effettua una pausa dopo ogni schermata di informazioni
+7.10:/?  Visualizza questo messaggio
+8.0:\nPremere <Invio> per continuare o <Esc> per uscire . . .

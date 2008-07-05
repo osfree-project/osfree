@@ -1,11 +1,16 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: dbg_c.c 1301 2006-09-11 00:07:22Z blairdude $
 
  *  Defines the functions only necessary while debugging is active
 
 	This file bases on DEBUG.C of FreeCOM v0.81 beta 1.
 
-	$Log: dbg_c.c,v $
+	$Log$
+	Revision 1.3  2006/09/11 00:07:22  blairdude
+	Fixed compilation completely with Turbo C
+
+	Revision 1.2  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.1  2001/04/12 00:33:53  skaus
 	chg: new structure
 	chg: If DEBUG enabled, no available commands are displayed on startup
@@ -34,10 +39,8 @@
 
 #include "../config.h"
 
-#include <stdio.h>
+#ifdef DEBUG
 
-#include "../include/debug.h"
+void dbg_outc (int ch) { putc (ch, dbg_logfile); }
 
-void dbg_outc(int ch)
-{	putc(ch, dbg_logfile);
-}
+#endif /* DEBUG */

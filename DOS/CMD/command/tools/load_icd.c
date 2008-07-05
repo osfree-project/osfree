@@ -1,4 +1,6 @@
-/* Load Installable Commands samples into memory
+/* $Id: load_icd.c 1301 2006-09-11 00:07:22Z blairdude $
+
+	Load Installable Commands samples into memory
  */
 
 #include <dos.h>
@@ -8,8 +10,9 @@
 
 #include "../config.h"
 
+#include "portable.h"
 #ifdef _TC_EARLY_
-#include <fmemory.h>
+# include "fmemory.h"
 #endif
 
 #define BUFFER_SIZE 10*1024
@@ -39,7 +42,7 @@ main(int argc, char **argv)
 
 	if((f = fopen(argv[1], "rb")) == NULL) {
 		strcpy(stpcpy((char*)buf, argv[1]), ".icd");
-		if((f = fopen(argv[1], "rb")) == NULL) {
+		if((f = fopen(buf, "rb")) == NULL) {
 			fputs("Cannot open file: ", stdout);
 			puts(argv[1]);
 			return 34;
@@ -113,7 +116,7 @@ main(int argc, char **argv)
 		return 41;
 	}
 
-	icmd = (unsigned char _seg*)(r.r_ax - 1);
+	icmd = MK_SEG_PTR (unsigned char, r.r_ax - 1);
 	*(unsigned far *)&icmd[1] = 8;		/* make it system property */
 	_fmemcpy(&icmd[8], &buf[offName + 1], 8);
 	_fmemcpy(&icmd[16], buf, len);

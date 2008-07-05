@@ -1,4 +1,4 @@
-/* $Id: lastdset.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: lastdset.c 190 2001-04-12 00:36:10Z skaus $
 
 	Set Last Directory with current directory
 

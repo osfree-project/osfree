@@ -1,4 +1,4 @@
-;   $Id: dmy_cbrk.asm,v 1.1 2001/04/23 21:35:41 skaus Exp $
+;   $Id: dmy_cbrk.asm 364 2002-04-02 18:13:06Z skaus $
 ;
 ;	Dummy ^Break signal catcher -- module
 ;	Aborts any program		<-> Activated only if FreeCOM is not active
@@ -8,7 +8,10 @@
 ;	if(Carry)	retf			<-- Terminate
 ;	if(!Carry)	retf 2			<-- Proceed / Ignore ^Break
 ;
-;   $Log: dmy_cbrk.asm,v $
+;   $Log$
+;   Revision 1.2  2002/04/02 18:09:31  skaus
+;   add: XMS-Only Swap feature (FEATURE_XMS_SWAP) (Tom Ehlert)
+;
 ;   Revision 1.1  2001/04/23 21:35:41  skaus
 ;   Beta 7 changes (code split)
 ;
@@ -18,4 +21,3 @@
 
 		stc			;; tell DOS to terminate the program
 		retf		;; no IRET!
-

@@ -1,4 +1,4 @@
-/*
+/* $Id: rem.c 1291 2006-09-05 01:44:33Z blairdude $
  *  REM -- includes comments "remarks" into batch scripts
  */
 
@@ -6,8 +6,4 @@
 
 #include "../include/command.h"
 
-#pragma argsused
-int cmd_rem(char *param)
-{
-  return 0;
-}
+int cmd_rem (char * param) { (void)param; return 0; }

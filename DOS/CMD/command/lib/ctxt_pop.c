@@ -1,4 +1,4 @@
-/* $Id: ctxt_pop.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: ctxt_pop.c 190 2001-04-12 00:36:10Z skaus $
 
 	Pops the last added entry of the specified context tag.
 	It is duplicated into dynamic memory.

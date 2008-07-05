@@ -1,11 +1,16 @@
-/*	$id$
-	$Locker:  $	$Name:  $	$State: Exp $
+/*	$Id: dbg_mem.c 1301 2006-09-11 00:07:22Z blairdude $
 
  *  Defines the functions only necessary while debugging is active
 
 	This file bases on DEBUG.C of FreeCOM v0.81 beta 1.
 
-	$Log: dbg_mem.c,v $
+	$Log$
+	Revision 1.5  2006/09/11 00:07:22  blairdude
+	Fixed compilation completely with Turbo C
+
+	Revision 1.4  2004/02/01 13:52:17  skaus
+	add/upd: CVS $id$ keywords to/of files
+	
 	Revision 1.3  2001/06/11 20:45:38  skaus
 	fix: dbg_printmem() #if must be #ifdef
 	
@@ -40,19 +45,16 @@
 
 #include "../config.h"
 
-#include <conio.h>
-#include <stdlib.h>
-#include <alloc.h>
+#ifdef DEBUG
 
-#include "../include/debug.h"
+#include <conio.h>	/* cputs */
+#include <alloc.h>	/* heapcheck, coreleft, farcoreleft */
 
 #if sizeof(void*) != sizeof(void far*)
 #define DISP_NEAR
 #endif
 
-#undef dbg_printmem
-void dbg_printmem(void)
-{
+void dbg_printmem (void) {
 #ifdef DISP_NEAR
 	static unsigned nearLast = 0;
 #endif
@@ -63,6 +65,7 @@ void dbg_printmem(void)
 #endif
 	unsigned long farThis;
 
+#if __TURBOC__ > 0x201
 	switch(heapcheck()) {
 	case _HEAPCORRUPT:
 		cputs("HEAP CORRUPTED. Cannot proceed!\r\n");
@@ -76,6 +79,7 @@ void dbg_printmem(void)
 	case _HEAPOK:
 		break;
 	}
+#endif
 
 #ifdef DISP_NEAR
 	nearThis = coreleft();
@@ -98,3 +102,5 @@ void dbg_printmem(void)
 #endif
 	farLast = farThis;
 }
+
+#endif /* DEBUG */

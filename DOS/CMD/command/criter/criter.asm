@@ -1,4 +1,4 @@
-; $Id: criter.asm,v 1.1 2001/04/23 21:35:41 skaus Exp $
+; $Id: criter.asm 1042 2004-09-13 18:59:40Z skaus $
 ;
 ;		Critical Error handler -- module
 ;
@@ -13,6 +13,8 @@
 ;		COMPILE_STRINGS to include English response strings right into
 ;			this image
 ;		NO_RESOURCE_BLOCK omit resource block at the end of the file
+;		XMS_SWAP_CRITER disables interfering stuff when assembling for
+;			XMS Swap variant
 ;
 ;	Doing a ECHO >A:\FILE results in:
 ;		WinNT 4 DOSbox:
@@ -76,7 +78,19 @@
 ;	+ for robustness when displaying the driver's name, characters less
 ;	  than ' ' are ignored (usually control characters)
 ;
-; $Log: criter.asm,v $
+; $Log$
+; Revision 1.5  2004/09/13 18:59:39  skaus
+; add: CRITER: Repeat check autofail magic {Tom Ehlert/Eric Auer}
+;
+; Revision 1.4  2003/10/18 10:55:24  skaus
+; bugfix: CRITERR: to use DOS API {Tom Ehlert/Bart Oldeman}
+;
+; Revision 1.3  2003/08/03 16:00:57  skaus
+; bugfix: /F (AutoFail) for the XMS_Swap variant
+;
+; Revision 1.2  2002/04/02 18:09:31  skaus
+; add: XMS-Only Swap feature (FEATURE_XMS_SWAP) (Tom Ehlert)
+;
 ; Revision 1.1  2001/04/23 21:35:41  skaus
 ; Beta 7 changes (code split)
 ;
@@ -101,12 +115,15 @@
 %define COMPILE_STRINGS		;; always keep this enabled in this release!!
 %define INCLUDE_STRINGS		;; use STRINGS.INC instead of hard-coded strings
 ;; %define AUTO_FAIL		;; make the autofail variant of Criter
+%define HIDE_CRITER_DRIVES 26	;; For how many drives hide-multiple is active
 
 ;; Version of this module
-MODULE_VERSION EQU 253
+MODULE_VERSION EQU 2
 
 %include "../include/stuff.inc"
+%ifndef XMS_SWAP_CRITER
 %include "resource.inc"
+%endif
 
 ???start:
 
@@ -135,7 +152,7 @@ mov ax, 4c00h
 int 21h
 int 20h
 
-dummy_file DB "a:\aux", 0
+dummy_file DB "a:\ux", 0
 
 %ifndef COMPILE_STRINGS
 %define COMPILE_STRINGS
@@ -146,10 +163,12 @@ dummy_file DB "a:\aux", 0
 ;; Join both modules into the same memory image in order to handle
 ;; them easier
 
+%ifndef XMS_SWAP_CRITER
 	;; Static context of KSwap support
 %include "context.def" 
 
 %include "dmy_cbrk.asm"
+%endif
 
 ;; Low level Critical Error handler
 ;; Note: Both I/O functions should use the channel to read/write
@@ -159,8 +178,8 @@ dummy_file DB "a:\aux", 0
 	call ?oChar
 %endmacro
 %macro readALfromConsole 0
-	mov ah, 0
-	int 16h
+	mov ax, 0c07h	; clear buffer, read from STDIN one key without echo
+	int 21h
 %endmacro
 
 
@@ -220,12 +239,21 @@ StrErrCodes		EQU 15
 ;		ES:BX == pointer to context, package int24
 ;		else: as normal INT-24 handler
 
+%ifdef XMS_SWAP_CRITER
+	global _autofail_err_handler
+_autofail_err_handler:
+	mov al, FAIL
+	iret
+%endif
+
+	global _lowlevel_err_handler
 _lowlevel_err_handler:
 %ifdef AUTO_FAIL
 	;; most simple <-> return AL := 3
 	mov al, FAIL
 	iret
 %else
+	push dx
 	push es, ds, bp, si, di, cx, bx, ax
 
 	mov cx, cs
@@ -235,6 +263,8 @@ _lowlevel_err_handler:
 	call ??dispAX
 %endif
 
+	push ax			; save AH bit 7  and AL for later
+
 			;; free AL
 	add al, 'A'		; AL may contain the drive number
 	mov BYTE [??strargA], al	;; will be overwritten, if char device
@@ -242,8 +272,6 @@ _lowlevel_err_handler:
 	mov BYTE [??strargA + 1], al	; end of string
 
 	mov es, cx		; still shared local code/data segm
-
-	push ax			; save AH bit 7 for later
 
 	shr ah, 1		; Carry := 0-> read; 1->write
 	adc al, al		; AL := 0-> read; 1->write
@@ -296,17 +324,19 @@ _lowlevel_err_handler:
 	call ?oBuffer
 %endif
 
+%if 0		;; No need when doing I/O through DOS
 	mov ah, 0fh		; Get current video mode
 	int 10h
 	mov BYTE [??actPage], bh
 	mov BYTE [??actColour], 255
+%endif
 
 	mov ax, di		; AL := lobyte(DI) -> error number
 	add al, StrErrCodes
 	mov BYTE [??strarg3], al
 
 	mov bl, StrBlockDevice		; by default issue block device error
-	pop ax
+	pop ax						; AL := drive letter again
 	shl ah, 1					; get bit 7 --> carry flag
 	jnc ?noCharDevice
 
@@ -337,11 +367,52 @@ _lowlevel_err_handler:
 		mov BYTE [ES:di+2], ch	; place termination character
 		mov cx, cs
 		mov bl, StrCharDevice		; issue device driver message
+		mov al, 0ffh		; AL := invalidate
 
 ?noCharDevice:
 
 	cld				; forward direction
 	mov ds, cx		; CX is still or again == CS
+
+	push bx
+	;; Now many registers are available to use
+	;; Perform the repeat check; AL == -1 (char device), 0..31 if block
+	mov bx, ?repCheck
+	mov di, dummyByte	; Tha byte at [DI} will be decremented eventually
+	inc WORD [BX]	; check if enabled
+	jz ?noRepCheck
+	;; paranoid check to avoid memory overflow
+	;; also skips if char device
+	cmp al, HIDE_CRITER_DRIVES	; 0..26 == A..Z
+	jnc ?noRepCheck
+	cbw				; AH := 0
+	add al, 2		; correction as BX is two bytes below
+	add ax, bx		; repCheckByte area 
+	mov di, ax
+	inc BYTE [DI]	; will display the 1st and every 256th Criter
+	jnz	?fail		; displayed already --> AutoFail && keep incremented [BX]
+					; NOTE: There is no output generated til now!!
+					;	The output channels have not been touched
+?noRepCheck:
+	dec WORD [BX]	; keep the word at value -1
+	mov WORD [repCheckDecAddr], di
+
+;; Try to find a suitable I/O channel
+	mov ah, 62h		; Get PSP
+	int 21h
+	mov es, bx
+;;	mov cx, [ES:32h]	; number of entries in JFT
+	les bx, [ES:34h]	; Pointer to JFT
+	mov al, [es:bx+2]	; stderr
+	; patch STDIN & STDOUT to point to the found channel
+	mov ah, al
+	xchg WORD [ES:bx], ax
+	mov WORD [?orgIOchannels], ax
+	mov WORD [??repatchAddr], bx
+	mov WORD [??repatchAddr+2], es
+	pop bx
+	mov es, cx			;; reset ES to the shared code/data segement
+
 
 	call ?oString	; Display the Critical Error message string
 	call ?newline
@@ -356,6 +427,11 @@ _lowlevel_err_handler:
 	mov bl, StrQuestionMark
 	call ?oString
 	jmp short ?inputLoop
+
+?fail:
+	pop bx		; correct the stack from repeat check
+	mov bl, FAIL
+	jmp short ?iret	; actually return
 
 ?inputError:
 	mov al, LOCAL_BELL
@@ -382,13 +458,30 @@ _lowlevel_err_handler:
 	or al, al
 	jz ?inputError		; not allowed
 
+?errRet:
 	;; allowed action code in BL
 	call ?newline
+
+	;; Restore the JFT
+	les di, [??repatchAddr]
+	mov ax, 1234h
+?orgIOchannels EQU $-2
+	mov WORD [ES:di], ax
 
 ?iret:
 	pop ax			; preserve AH
 	mov al, bl		; action code
+	cmp al, ABORT
+	je ?iretNow
+	cmp al, FAIL
+	je ?iretNow
+	;; AutoFail is activated for ABORT and FAIL only
+	;; as user selected something else, reset the AutoFail state of the drive
+	dec BYTE [1234h]
+repCheckDecAddr EQU $-2
+?iretNow:
 	pop es, ds, bp, si, di, cx, bx
+	pop dx
 	iret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -476,11 +569,17 @@ _lowlevel_err_handler:
 ;; IN: AL = character
 
 ?oChar:
+%if 0		;; no need when doing I/O through DOS
 	push bx
 	mov bx, [??0Earg]
 	mov ah, 0eh		; teletype output
 	int 10h
 	pop bx
+%else
+	mov ah, 2		; output to STDOUT
+	mov dl, al
+	int 21h
+%endif
 	ret
 
 %ifdef DEBUG
@@ -520,9 +619,15 @@ _lowlevel_err_handler:
 	ret
 %endif
 
+%if 0		;; no need for I/O through DOS
 ??0Earg:
 ??actColour	DB 7
 ??actPage	DB 0
+%endif
+
+??repatchAddr DD 0
+
+;?orgIOchannels DW 1234h
 
 	;; Numerical arguments
 ??strarg1	DB 0					;; read/write
@@ -535,7 +640,21 @@ _lowlevel_err_handler:
 ??strarg8	DB StrFail
 
 	;; alphabetical arguments
+dummyByte:	;; This byte is destroyed, when no repeatCheck AutoFail is
+			;; active for the drive
 ??strargA	DB '12345678', 0		;; drive letter or device name string
+
+;; The repeat check is:
+;; _+ activated if ?repCheck != -1
+;;	+ the number of drives available to be checked is determined by
+;;		counting the number of 0xFF bytes the immediately after the module
+;;		got loaded into memory
+%ifdef XMS_SWAP_CRITER
+	global _criter_repeat_checkarea
+_criter_repeat_checkarea:
+%endif
+?repCheck	DW -1	;; disabled
+TIMES HIDE_CRITER_DRIVES DB -1		;; not displayed already
 
 ??allow:
 ??allowIgnore	DB 0
@@ -543,6 +662,7 @@ _lowlevel_err_handler:
 ??allowAbort	DB 1	;; always allowed
 ??allowFail		DB 0
 ??input			DB '%4%6', 0		;; temporary storage
+
 
 %ifndef COMPILE_STRINGS
 ??strings:
@@ -633,6 +753,13 @@ S36	DB 'Unknown error code', 0
 %endif		; COMPILE_STRINGS
 %endif		; AUTO_FILE
 
+
+%ifndef NO_RESOURCE_BLOCK
+%ifndef AUTO_FAIL
+	DW ?repCheck
+%endif
+%endif
+
 ???ende:
 
 %ifndef NO_RESOURCE_BLOCK
@@ -648,7 +775,7 @@ S36	DB 'Unknown error code', 0
 %endif		; AUTO_FAIL
 %endif		; NO_RESOURCE_BLOCK
 
-END
+;;END
 
 ; Quote from RBIL
 ;--------D-24---------------------------------

@@ -1,4 +1,4 @@
-/* $Id: mkinfres.c,v 1.3 2001/04/12 00:09:06 skaus Exp $
+/* $Id: mkinfres.c 1195 2006-06-11 02:47:06Z blairdude $
 
 	Tool to create the _heaplen resource
 
@@ -29,7 +29,7 @@ int scanMapFile(const char * const fnam
 	, unsigned long * const pos
 	, unsigned *extraSpace)
 {	FILE *map;
-	char *w1, *w2, *w3, *w4, *w5;
+	char *w1, *w2, *w3, *w5;
 
 	assert(pos);
 	assert(fnam);
@@ -58,7 +58,7 @@ int scanMapFile(const char * const fnam
 						}
 					}
 				}
-			} else if((w4 = strtok(0, " \t\r\n")) != 0
+			} else if((strtok(0, " \t\r\n")) != 0
 			 && (w5 = strtok(0, " \t\r\n")) != 0) {
 				if(strcmp(w5, "BSS") == 0
 				 || strcmp(w5, "STACK") == 0) {

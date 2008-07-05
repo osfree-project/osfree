@@ -1,4 +1,4 @@
-/* $Id: hist_get.c,v 1.1 2001/04/12 00:33:53 skaus Exp $
+/* $Id: hist_get.c 984 2004-06-29 14:14:57Z skaus $
 
 	Set a specific item of the history
 
@@ -26,7 +26,8 @@ int histGet(const int num, char * const str, const unsigned len)
 	assert(str);
 	assert(len);
 
-	if(ctxtGet(0, CTXT_TAG_HISTORY, realNum(CTXT_TAG_HISTORY, num), &p) == 0) {
+	if(ctxtIsValid()
+	 && ctxtGet(0, CTXT_TAG_HISTORY, realNum(CTXT_TAG_HISTORY, num), &p) == 0) {
 		assert(p);
 		strncpy(str, p, len);
 		str[len - 1] = 0;		/* Make sure the string is terminated */

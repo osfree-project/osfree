@@ -1,4 +1,4 @@
-/*
+/* $Id: doskey.c 1291 2006-09-05 01:44:33Z blairdude $
  *  DOSKEY -- command line editor extender <-> incorporated, but
  *		not loadable
  */
@@ -8,9 +8,8 @@
 #include "../include/command.h"
 #include "../strings.h"
 
-#pragma argsused
-int cmd_doskey(char *param)
-{
-	displayString(TEXT_MSG_DOSKEY);
-	return 0;
+int cmd_doskey (char * param) {
+    (void)param;
+    displayString (TEXT_MSG_DOSKEY);
+    return 0;
 }
