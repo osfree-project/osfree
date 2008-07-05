@@ -13,13 +13,13 @@
         All U.S. and international rights are claimed by the author,
         Ted A. Campbell.
 
-	This software is released under the terms of the GNU General
-	Public License (GPL), which is distributed with this software
-	in the file "COPYING".  The GPL specifies the terms under
-	which users may copy and use the software in this distribution.
+        This software is released under the terms of the GNU General
+        Public License (GPL), which is distributed with this software
+        in the file "COPYING".  The GPL specifies the terms under
+        which users may copy and use the software in this distribution.
 
-	A separate license is available for commercial distribution,
-	for information on which you should contact the author.
+        A separate license is available for commercial distribution,
+        for information on which you should contact the author.
 
 ***************************************************************/
 
@@ -35,7 +35,7 @@
 
 /***************************************************************
 
-	bwbasic.h	Part I: Definitions
+        bwbasic.h       Part I: Definitions
 
 ***************************************************************/
 
@@ -45,17 +45,17 @@
 
 /***************************************************************
 
-	bwbasic.h:	Part I-A: Define Major Hardware Implementation
+        bwbasic.h:      Part I-A: Define Major Hardware Implementation
 
-			Gone is the simplicity of earlier versions.
-			You must specify one and only one of the
-			following hardware implementations as TRUE.
-			IMP_TTY is the default implementation.
-			It is the most minimal, but the most
-			universal hardware implementation.
+                        Gone is the simplicity of earlier versions.
+                        You must specify one and only one of the
+                        following hardware implementations as TRUE.
+                        IMP_TTY is the default implementation.
+                        It is the most minimal, but the most
+                        universal hardware implementation.
 
-			If you pick IMP_TTY then check the settings
-			in bwx_tty.h for your system.
+                        If you pick IMP_TTY then check the settings
+                        in bwx_tty.h for your system.
 
 ***************************************************************/
 
@@ -73,14 +73,14 @@
 
 /***************************************************************
 
-	bwbasic.h:	Part I-B: Define Compiler Implementation
+        bwbasic.h:      Part I-B: Define Compiler Implementation
 
-			You also need to give some information about
-			your C compiler.  If your compiler is ANSI-
-			compatible, don't worry about these.  But
-			if your compiler is "stock," you might
-			want to indicate which of the following
-			sets of features it has or dosn't have.
+                        You also need to give some information about
+                        your C compiler.  If your compiler is ANSI-
+                        compatible, don't worry about these.  But
+                        if your compiler is "stock," you might
+                        want to indicate which of the following
+                        sets of features it has or dosn't have.
 
 ***************************************************************/
 
@@ -91,218 +91,218 @@
 #endif
 
 #ifdef __STDC__
-#define	HAVE_SIGNAL	TRUE
+#define HAVE_SIGNAL     TRUE
 #else
-#define	HAVE_SIGNAL	TRUE	/* Compiler supports signal() */
+#define HAVE_SIGNAL     TRUE    /* Compiler supports signal() */
 #endif
 
 #ifdef __STDC__
-#define	HAVE_LONGJUMP	TRUE
+#define HAVE_LONGJUMP   TRUE
 #else
-#define	HAVE_LONGJUMP	TRUE	/* Compiler supports setjmp() and longjmp() */
+#define HAVE_LONGJUMP   TRUE    /* Compiler supports setjmp() and longjmp() */
 #endif
 
 /* configure sets this */
 #ifndef HAVE_RAISE
-#define HAVE_RAISE	FALSE	/* Compiler supports raise() */
+#define HAVE_RAISE      TRUE   /* Compiler supports raise() */
 #endif
 
 /* configure sets this */
 #ifndef HAVE_STRING
-#define	HAVE_STRING	FALSE	/* Compiler has <string.h> header */
+#define HAVE_STRING     TRUE   /* Compiler has <string.h> header */
 #endif
 
 /* configure sets this */
 #ifndef HAVE_STDLIB
-#define HAVE_STDLIB	FALSE	/* Compiler has <stdlib.h> header */
+#define HAVE_STDLIB     TRUE   /* Compiler has <stdlib.h> header */
 #endif
 
 /* configure sets this (section added by JBV) */
 #ifndef HAVE_UNISTD
-#define HAVE_UNISTD	FALSE	/* Compiler has <unistd.h> header */
+#define HAVE_UNISTD     FALSE   /* Compiler has <unistd.h> header */
 #endif
 
 #ifdef __STDC__
-#define HAVE_SYSTYPES	TRUE
+#define HAVE_SYSTYPES   TRUE
 #else
-#define HAVE_SYSTYPES	TRUE	/* Compiler has <sys/types.h> header */
+#define HAVE_SYSTYPES   TRUE    /* Compiler has <sys/types.h> header */
 #endif
 
 #ifdef __STDC__
-#define HAVE_SYSSTAT	TRUE
+#define HAVE_SYSSTAT    TRUE
 #else
-#define HAVE_SYSSTAT	TRUE	/* Compiler has <sys/stat.h> header */
+#define HAVE_SYSSTAT    TRUE    /* Compiler has <sys/stat.h> header */
 #endif
 
 /***************************************************************
 
-	bwbasic.h:	Part I-C: Define Program Configuration
+        bwbasic.h:      Part I-C: Define Program Configuration
 
-			You must specify one and only one of the
-			following progrm configurations as TRUE.
-			If you specify CFG_CUSTOM, then you will
-			need to fill out the custom section below.
+                        You must specify one and only one of the
+                        following progrm configurations as TRUE.
+                        If you specify CFG_CUSTOM, then you will
+                        need to fill out the custom section below.
 
 ***************************************************************/
 
-#define	CFG_ANSIMINIMAL	FALSE   /* Conforms to ANSI Minimal BASIC standard X3.60-1978 */
+#define CFG_ANSIMINIMAL FALSE   /* Conforms to ANSI Minimal BASIC standard X3.60-1978 */
 #define CFG_COMMON      FALSE   /* Small implementation with commands and functions common to GWBASIC (tm) and ANSI full BASIC */
 #define CFG_MSTYPE      FALSE   /* Configuration similar to Microsoft line-oriented BASICs */
-#define	CFG_ANSIFULL	FALSE	/* Conforms to ANSI Full BASIC standard X3.113-1987 */
+#define CFG_ANSIFULL    FALSE   /* Conforms to ANSI Full BASIC standard X3.113-1987 */
 #define CFG_CUSTOM      TRUE    /* Custom Configuration specified below */
 
 /***************************************************************
 
-	bwbasic.h:	Part I-D: Define Custom Program Configuration
+        bwbasic.h:      Part I-D: Define Custom Program Configuration
 
-			If you specified CFG_CUSTOM above, then
-			you will need to fill out this section.
+                        If you specified CFG_CUSTOM above, then
+                        you will need to fill out this section.
 
 ***************************************************************/
 
 #if CFG_CUSTOM
-#define COMMAND_SHELL   TRUE		/* allow command shell processing */
+#define COMMAND_SHELL   TRUE            /* allow command shell processing */
 #define PROFILE         TRUE            /* interpret profile at beginning */
-#define NUMBER_DOUBLE	TRUE		/* define BASIC number as double: default is float*/
+#define NUMBER_DOUBLE   TRUE            /* define BASIC number as double: default is float*/
 #define MULTISEG_LINES  TRUE            /* allow multi-segment lines delimited by ':' */
-#define PARACT		FALSE		/* Implement PARallen ACTion (Multi-tasking) interpreter */
-#define INTERACTIVE	TRUE		/* interactive programming environment and related commands */
-#define COMMON_CMDS	TRUE		/* commands common to ANSI full BASIC and GWBASIC */
+#define PARACT          FALSE           /* Implement PARallen ACTion (Multi-tasking) interpreter */
+#define INTERACTIVE     TRUE            /* interactive programming environment and related commands */
+#define COMMON_CMDS     TRUE            /* commands common to ANSI full BASIC and GWBASIC */
 #if UNIX_CMDS
-#define UNIX_CMDS	TRUE 		/* implement Unix-style directory commands  */
+#define UNIX_CMDS       TRUE            /* implement Unix-style directory commands  */
 #endif
 #define STRUCT_CMDS     TRUE           /* commands for structured programming required by full ANSI BASIC */
 #define MS_CMDS         TRUE            /* commands specific to Microsoft GWBASIC (tm) */
 #define MS_FUNCS        TRUE            /* Microsoft-specific functions and commands */
-#define	COMMON_FUNCS	TRUE		/* functions common to GWBASIC and ANSI full BASIC */
-#define ANSI_FUNCS	TRUE		/* functions required by ANSI full BASIC */
-#endif					/* end of CFG_CUSTOM */
+#define COMMON_FUNCS    TRUE            /* functions common to GWBASIC and ANSI full BASIC */
+#define ANSI_FUNCS      TRUE            /* functions required by ANSI full BASIC */
+#endif                                  /* end of CFG_CUSTOM */
 
 /***************************************************************
 
-	bwbasic.h:	Part I-E: Define Natural Language for Messages
+        bwbasic.h:      Part I-E: Define Natural Language for Messages
 
-			One and only one of the following must be
-			defined as TRUE.  Note that the language
-			definitions themselves are in file bwb_mes.h.
-			If none is specified, then ENGLISH will be
-			taken as the default.
+                        One and only one of the following must be
+                        defined as TRUE.  Note that the language
+                        definitions themselves are in file bwb_mes.h.
+                        If none is specified, then ENGLISH will be
+                        taken as the default.
 
 ***************************************************************/
 
 #define STD_ENGLISH     TRUE            /* standard English */
-#define POL_ENGLISH     FALSE		/* polite English messages */
-#define IMP_ENGLISH	FALSE		/* impolite English messages */
-#define LATIN		FALSE		/* Latin language messages */
-#define STD_RUSSIAN	FALSE		/* Russian language messages */
+#define POL_ENGLISH     FALSE           /* polite English messages */
+#define IMP_ENGLISH     FALSE           /* impolite English messages */
+#define LATIN           FALSE           /* Latin language messages */
+#define STD_RUSSIAN     FALSE           /* Russian language messages */
 #define STD_GERMAN      FALSE           /* German language messages */
 #define ESPERANTO       FALSE           /* Esperanto messages */
 
 /***************************************************************
 
-	bwbasic.h:	Part I-F: Define Debugging Options
+        bwbasic.h:      Part I-F: Define Debugging Options
 
-			You can specify debugging options here.
+                        You can specify debugging options here.
 
-			Defining DEBUG true provides some useful commands:
-			CMDS, VARS, FNCS
+                        Defining DEBUG true provides some useful commands:
+                        CMDS, VARS, FNCS
 
 ***************************************************************/
 
-#define DEBUG           FALSE  	/* current debugging */
-#define PROG_ERRORS     FALSE  	/* identify serious programming errors */
-					/* and print extensive error messages */
-					/* This will override messages defined in */
-					/* bwb_mes.h, and almost all messages will be in English */
-#define CHECK_RECURSION FALSE		/* check for recursion violation in expression parser */
+#define DEBUG           FALSE   /* current debugging */
+#define PROG_ERRORS     FALSE   /* identify serious programming errors */
+                                        /* and print extensive error messages */
+                                        /* This will override messages defined in */
+                                        /* bwb_mes.h, and almost all messages will be in English */
+#define CHECK_RECURSION FALSE           /* check for recursion violation in expression parser */
 #define INTENSIVE_DEBUG FALSE           /* old debugging; might be useful later */
 #define REDIRECT_STDERR FALSE           /* Redirect stderr to file ERRFILE */
 #define TEST_BSTRING    FALSE           /* test bstring integrity */
 
 #ifdef __STDC__
 #define ANSI_C          TRUE            /* FALSE to test and debug non-ANSI-C version
-					   with ANSI C compiler (watch out) */
+                                           with ANSI C compiler (watch out) */
 #endif
 
 /***************************************************************
 
-	bwbasic.h:	This ends the section of definitions that
-			users of bwBASIC will normally need to
-			specify. The following are internally defined.
+        bwbasic.h:      This ends the section of definitions that
+                        users of bwBASIC will normally need to
+                        specify. The following are internally defined.
 
-			Note that you may need to set up the default
-			FILES command and the default editor below.
-			See Part I-G
+                        Note that you may need to set up the default
+                        FILES command and the default editor below.
+                        See Part I-G
 
 ***************************************************************/
 
 #if CFG_ANSIMINIMAL
-#define COMMAND_SHELL   FALSE		/* allow command shell processing */
-#define PROFILE		FALSE		/* interpret profile at beginning */
-#define NUMBER_DOUBLE	FALSE		/* define BASIC number as double: default is float*/
-#define MULTISEG_LINES	FALSE		/* allow multi-segment lines delimited by ':' */
-#define PARACT		FALSE		/* Implement PARallen ACTion (Multi-tasking) interpreter */
-#define INTERACTIVE	TRUE		/* interactive programming environment and related commands */
-#define COMMON_CMDS	FALSE		/* commands common to ANSI full BASIC and GWBASIC */
+#define COMMAND_SHELL   FALSE           /* allow command shell processing */
+#define PROFILE         FALSE           /* interpret profile at beginning */
+#define NUMBER_DOUBLE   FALSE           /* define BASIC number as double: default is float*/
+#define MULTISEG_LINES  FALSE           /* allow multi-segment lines delimited by ':' */
+#define PARACT          FALSE           /* Implement PARallen ACTion (Multi-tasking) interpreter */
+#define INTERACTIVE     TRUE            /* interactive programming environment and related commands */
+#define COMMON_CMDS     FALSE           /* commands common to ANSI full BASIC and GWBASIC */
 #if UNIX_CMDS
-#define UNIX_CMDS	FALSE 		/* implement Unix-style directory commands  */
+#define UNIX_CMDS       FALSE           /* implement Unix-style directory commands  */
 #endif
-#define STRUCT_CMDS	FALSE		/* commands for structured programming required by full ANSI BASIC */
-#define MS_CMDS	FALSE		/* commands specific to Microsoft GWBASIC (tm) */
-#define MS_FUNCS	FALSE		/* Microsoft-specific functions and commands */
-#define	COMMON_FUNCS	FALSE		/* functions common to GWBASIC and ANSI full BASIC */
-#define ANSI_FUNCS	FALSE		/* functions required by ANSI full BASIC */
-#endif					/* end of CFG_ANSIMINIMAL */
+#define STRUCT_CMDS     FALSE           /* commands for structured programming required by full ANSI BASIC */
+#define MS_CMDS FALSE           /* commands specific to Microsoft GWBASIC (tm) */
+#define MS_FUNCS        FALSE           /* Microsoft-specific functions and commands */
+#define COMMON_FUNCS    FALSE           /* functions common to GWBASIC and ANSI full BASIC */
+#define ANSI_FUNCS      FALSE           /* functions required by ANSI full BASIC */
+#endif                                  /* end of CFG_ANSIMINIMAL */
 
 #if CFG_COMMON
-#define COMMAND_SHELL   FALSE		/* allow command shell processing */
-#define PROFILE		FALSE		/* interpret profile at beginning */
-#define NUMBER_DOUBLE	FALSE		/* define BASIC number as double: default is float*/
-#define MULTISEG_LINES	FALSE		/* allow multi-segment lines delimited by ':' */
-#define PARACT		FALSE		/* Implement PARallen ACTion (Multi-tasking) interpreter */
-#define INTERACTIVE	TRUE		/* interactive programming environment and related commands */
-#define COMMON_CMDS	TRUE		/* commands common to ANSI full BASIC and GWBASIC */
+#define COMMAND_SHELL   FALSE           /* allow command shell processing */
+#define PROFILE         FALSE           /* interpret profile at beginning */
+#define NUMBER_DOUBLE   FALSE           /* define BASIC number as double: default is float*/
+#define MULTISEG_LINES  FALSE           /* allow multi-segment lines delimited by ':' */
+#define PARACT          FALSE           /* Implement PARallen ACTion (Multi-tasking) interpreter */
+#define INTERACTIVE     TRUE            /* interactive programming environment and related commands */
+#define COMMON_CMDS     TRUE            /* commands common to ANSI full BASIC and GWBASIC */
 #if UNIX_CMDS
-#define UNIX_CMDS	FALSE 		/* implement Unix-style directory commands  */
+#define UNIX_CMDS       FALSE           /* implement Unix-style directory commands  */
 #endif
-#define STRUCT_CMDS	FALSE		/* commands for structured programming required by full ANSI BASIC */
-#define MS_CMDS	FALSE		/* commands specific to Microsoft GWBASIC (tm) */
-#define MS_FUNCS	FALSE		/* Microsoft-specific functions and commands */
-#define	COMMON_FUNCS	TRUE		/* functions common to GWBASIC and ANSI full BASIC */
-#define ANSI_FUNCS	FALSE		/* functions required by ANSI full BASIC */
-#endif					/* end of CFG_COMMON */
+#define STRUCT_CMDS     FALSE           /* commands for structured programming required by full ANSI BASIC */
+#define MS_CMDS FALSE           /* commands specific to Microsoft GWBASIC (tm) */
+#define MS_FUNCS        FALSE           /* Microsoft-specific functions and commands */
+#define COMMON_FUNCS    TRUE            /* functions common to GWBASIC and ANSI full BASIC */
+#define ANSI_FUNCS      FALSE           /* functions required by ANSI full BASIC */
+#endif                                  /* end of CFG_COMMON */
 
 #if CFG_ANSIFULL
-#define COMMAND_SHELL   TRUE		/* allow command shell processing */
-#define PROFILE		TRUE		/* interpret profile at beginning */
-#define NUMBER_DOUBLE	FALSE		/* define BASIC number as double: default is float*/
-#define MULTISEG_LINES	FALSE		/* allow multi-segment lines delimited by ':' */
-#define PARACT		TRUE		/* Implement PARallen ACTion (Multi-tasking) interpreter */
-#define INTERACTIVE	TRUE		/* interactive programming environment and related commands */
-#define COMMON_CMDS	TRUE		/* commands common to ANSI full BASIC and GWBASIC */
+#define COMMAND_SHELL   TRUE            /* allow command shell processing */
+#define PROFILE         TRUE            /* interpret profile at beginning */
+#define NUMBER_DOUBLE   FALSE           /* define BASIC number as double: default is float*/
+#define MULTISEG_LINES  FALSE           /* allow multi-segment lines delimited by ':' */
+#define PARACT          TRUE            /* Implement PARallen ACTion (Multi-tasking) interpreter */
+#define INTERACTIVE     TRUE            /* interactive programming environment and related commands */
+#define COMMON_CMDS     TRUE            /* commands common to ANSI full BASIC and GWBASIC */
 #if UNIX_CMDS
-#define UNIX_CMDS	FALSE 		/* implement Unix-style directory commands  */
+#define UNIX_CMDS       FALSE           /* implement Unix-style directory commands  */
 #endif
-#define STRUCT_CMDS	TRUE		/* commands for structured programming required by full ANSI BASIC */
-#define MS_CMDS	FALSE		/* commands specific to Microsoft GWBASIC (tm) */
-#define MS_FUNCS	FALSE		/* Microsoft-specific functions and commands */
-#define	COMMON_FUNCS	TRUE		/* functions common to GWBASIC and ANSI full BASIC */
-#define ANSI_FUNCS	TRUE		/* functions required by ANSI full BASIC */
-#endif					/* end of CFG_ANSIFULL */
+#define STRUCT_CMDS     TRUE            /* commands for structured programming required by full ANSI BASIC */
+#define MS_CMDS FALSE           /* commands specific to Microsoft GWBASIC (tm) */
+#define MS_FUNCS        FALSE           /* Microsoft-specific functions and commands */
+#define COMMON_FUNCS    TRUE            /* functions common to GWBASIC and ANSI full BASIC */
+#define ANSI_FUNCS      TRUE            /* functions required by ANSI full BASIC */
+#endif                                  /* end of CFG_ANSIFULL */
 
 #if CFG_MSTYPE
-#define COMMAND_SHELL   FALSE		/* allow command shell processing */
-#define PROFILE		FALSE		/* interpret profile at beginning */
-#define NUMBER_DOUBLE	FALSE		/* define BASIC number as double: default is float*/
-#define MULTISEG_LINES	TRUE		/* allow multi-segment lines delimited by ':' */
-#define PARACT		FALSE		/* Implement PARallen ACTion (Multi-tasking) interpreter */
-#define INTERACTIVE	TRUE		/* interactive programming environment and related commands */
-#define COMMON_CMDS	TRUE		/* commands common to ANSI full BASIC and GWBASIC */
-#define STRUCT_CMDS	FALSE		/* commands for structured programming required by full ANSI BASIC */
-#define MS_CMDS	TRUE		/* commands specific to Microsoft GWBASIC (tm) */
-#define MS_FUNCS	TRUE		/* Microsoft-specific functions and commands */
-#define	COMMON_FUNCS	TRUE		/* functions common to GWBASIC and ANSI full BASIC */
-#define ANSI_FUNCS	FALSE		/* functions required by ANSI full BASIC */
+#define COMMAND_SHELL   FALSE           /* allow command shell processing */
+#define PROFILE         FALSE           /* interpret profile at beginning */
+#define NUMBER_DOUBLE   FALSE           /* define BASIC number as double: default is float*/
+#define MULTISEG_LINES  TRUE            /* allow multi-segment lines delimited by ':' */
+#define PARACT          FALSE           /* Implement PARallen ACTion (Multi-tasking) interpreter */
+#define INTERACTIVE     TRUE            /* interactive programming environment and related commands */
+#define COMMON_CMDS     TRUE            /* commands common to ANSI full BASIC and GWBASIC */
+#define STRUCT_CMDS     FALSE           /* commands for structured programming required by full ANSI BASIC */
+#define MS_CMDS TRUE            /* commands specific to Microsoft GWBASIC (tm) */
+#define MS_FUNCS        TRUE            /* Microsoft-specific functions and commands */
+#define COMMON_FUNCS    TRUE            /* functions common to GWBASIC and ANSI full BASIC */
+#define ANSI_FUNCS      FALSE           /* functions required by ANSI full BASIC */
 #endif                                  /* end of CFG_MSTYPE */
 
 /* inclusions and definitions necessary if C compiler is not ANSI compliant */
@@ -326,12 +326,12 @@
 #include <sys/types.h>
 #endif
 
-#if HAVE_STDLIB				/* if neither ANSI */
+#if HAVE_STDLIB                         /* if neither ANSI */
 #else
-#if HAVE_SYSTYPES			/* nor SYSTYPES */
+#if HAVE_SYSTYPES                       /* nor SYSTYPES */
 #else
-#define size_t	unsigned int		/* then define these */
-#define time_t 	long 
+#define size_t  unsigned int            /* then define these */
+#define time_t  long
 #endif
 #endif
 
@@ -339,29 +339,29 @@
 
 #define CMDS_CORE       22              /* number of core commands defined */
 #if UNIX_CMDS
-#define CMDS_DIR	5
+#define CMDS_DIR        5
 #else
-#define CMDS_DIR	0
+#define CMDS_DIR        0
 #endif
 #if COMMON_CMDS
-#define CMDS_COMMON	25 /* Was 24 (JBV) */
+#define CMDS_COMMON     25 /* Was 24 (JBV) */
 #else
-#define CMDS_COMMON	0
+#define CMDS_COMMON     0
 #endif
 #if STRUCT_CMDS
-#define CMDS_STC	10
+#define CMDS_STC        10
 #else
-#define CMDS_STC	0
+#define CMDS_STC        0
 #endif
 #if INTERACTIVE
-#define CMDS_INT	8
+#define CMDS_INT        8
 #else
-#define CMDS_INT	0
+#define CMDS_INT        0
 #endif
 #if MS_CMDS
 #define CMDS_MS         5+IMP_CMDCLS+IMP_CMDLOC+IMP_CMDCOLOR
 #else
-#define CMDS_MS		0
+#define CMDS_MS         0
 #endif
 #if DEBUG
 #define CMDS_DEBUG      3               /* number of debugging cmds */
@@ -372,28 +372,28 @@
 
 /* define number of functions */
 
-#define FUNCS_BASE      12		/* number of basic functions */
+#define FUNCS_BASE      12              /* number of basic functions */
 #ifdef INTENSIVE_DEBUG
-#define FUNCS_DEBUG	1		/* number of debugging functions */
+#define FUNCS_DEBUG     1               /* number of debugging functions */
 #else
-#define FUNCS_DEBUG	0		/* number of debugging functions */
+#define FUNCS_DEBUG     0               /* number of debugging functions */
 #endif
 #if MS_FUNCS
 #define FUNCS_MS        (25+IMP_FNCINKEY)
 #else
-#define FUNCS_MS	0
+#define FUNCS_MS        0
 #endif
 #if COMMON_FUNCS
 #define FUNCS_COMMON    7
 #else
-#define FUNCS_COMMON	0
+#define FUNCS_COMMON    0
 #endif
 #if ANSI_FUNCS
-#define FUNCS_ANSI	0
+#define FUNCS_ANSI      0
 #else
-#define FUNCS_ANSI	0
+#define FUNCS_ANSI      0
 #endif
-#define FUNCTIONS	(FUNCS_BASE+FUNCS_DEBUG+FUNCS_MS+FUNCS_COMMON+FUNCS_ANSI)
+#define FUNCTIONS       (FUNCS_BASE+FUNCS_DEBUG+FUNCS_MS+FUNCS_COMMON+FUNCS_ANSI)
 
 /* Check for inconsistencies */
 
@@ -403,14 +403,14 @@
 
 /***************************************************************
 
-	bwbasic.h:	Part I-G: Define User Defaults
+        bwbasic.h:      Part I-G: Define User Defaults
 
-			Defining your default editor and files commands
-			is a good idea. You must supply the file name
-			for the editor to use.  These defaults can be
-			changed from inside the program or in your profile
-			program by setting the appropriate variables
-			shown below.
+                        Defining your default editor and files commands
+                        is a good idea. You must supply the file name
+                        for the editor to use.  These defaults can be
+                        changed from inside the program or in your profile
+                        program by setting the appropriate variables
+                        shown below.
 
 ***************************************************************/
 
@@ -423,8 +423,8 @@
 #define DEFVNAME_COLORS "BWB.COLORS"    /* default variable name for COLORS */
 #define DEFVNAME_IMPL   "BWB.IMPLEMENTATION$" /* default variable name for IMPLEMENTATION */
 #define ERRFILE         "err.out"       /* Filename for redirected error messages */
-#define PROFILENAME	"profile.bas"	/* Filename for profile execution */
-#define	TASKS		4		/* number of tasks available */
+#define PROFILENAME     "profile.bas"   /* Filename for profile execution */
+#define TASKS           4               /* number of tasks available */
 #define MAXARGSIZE      128             /* maximum size of argument */
 #define MAXREADLINESIZE 256             /* size of read_line buffer */
 #define MAXCMDNAMESIZE  64              /* maximum size for command name */
@@ -435,31 +435,31 @@
 #define EXECLEVELS      64              /* EXEC stack levels */
 #define MAX_GOLINES     12              /* Maximum # of lines for ON...GOTO statements */
 #define MAX_FARGS       6               /* maximum # arguments to function */
-#define MAX_DIMS	64		/* maximum # of dimensions */
+#define MAX_DIMS        64              /* maximum # of dimensions */
 #define ESTACKSIZE      64              /* elements in expression stack */
 #define XTXTSTACKSIZE   16              /* elements in eXecute TeXT stack */
 #define N_OPERATORS     25              /* number of operators defined */
-#define N_ERRORS	25		/* number of errors defined */
+#define N_ERRORS        25              /* number of errors defined */
 #define MAX_PRECEDENCE  20              /* highest (last) level of precedence */
 #define MININTSIZE      -32767          /* minimum integer size */
 #define MAXINTSIZE       32767          /* maximum integer size */
 #define DEF_SUBSCRIPT   11              /* default subscript */
 #define DEF_DEVICES     16              /* default number of devices available */
-#define DEF_WIDTH	128		/* default width for devices */
-#define PRN_TAB		0x02		/* send TAB followed by col number to output device */
+#define DEF_WIDTH       128             /* default width for devices */
+#define PRN_TAB         0x02            /* send TAB followed by col number to output device */
 #define COMPRESS_FUNCS  TRUE
 
 /* Derivative definitions */
 
 #if MULTISEG_LINES
-#define MARK_LINES	FALSE
+#define MARK_LINES      FALSE
 #else
-#define MARK_LINES	TRUE
+#define MARK_LINES      TRUE
 #endif
 
 #if PARACT
-#define CURTASK		bwb_tasks[ bwb_curtask ]->
-#define LOCALTASK	bwb_tasks[ task ]->
+#define CURTASK         bwb_tasks[ bwb_curtask ]->
+#define LOCALTASK       bwb_tasks[ task ]->
 #else
 #define CURTASK
 #define LOCALTASK
@@ -476,7 +476,7 @@
 extern char *calloc();
 
 #ifndef NULL
-#define NULL	0L
+#define NULL    0L
 #endif
 
 #endif
@@ -503,7 +503,7 @@ typedef float bnumber;
 
 /* Operations defined */
 
-#define OP_ERROR        -255		/* operation error (break out) */
+#define OP_ERROR        -255            /* operation error (break out) */
 #define OP_NULL         0               /* null: operation not defined yet */
 #define NUMBER          1               /* number held as internal variable in uvar */
 #define CONST_STRING    2               /* string constant */
@@ -535,7 +535,7 @@ typedef float bnumber;
 #define OP_IMPLIES      29              /* implication */
 #define OP_EQUIV        30              /* equivalence */
 #define OP_TERMINATE    31              /* terminate expression parsing */
-#define OP_USERFNC	32		/* user-defined function */
+#define OP_USERFNC      32              /* user-defined function */
 
 /* Device input/output modes */
 
@@ -548,24 +548,24 @@ typedef float bnumber;
 
 /* codes for EXEC stack and for function-sub-label lookup table */
 
-#define EXEC_NORM	0
-#define	EXEC_GOSUB	1
-#define	EXEC_WHILE	2
+#define EXEC_NORM       0
+#define EXEC_GOSUB      1
+#define EXEC_WHILE      2
 #define EXEC_FOR        3
-#define EXEC_FUNCTION	4
-#define EXEC_CALLSUB	5
-#define EXEC_IFTRUE	6
-#define EXEC_IFFALSE	7
-#define EXEC_MAIN	8
-#define EXEC_SELTRUE	9
-#define EXEC_SELFALSE	10
+#define EXEC_FUNCTION   4
+#define EXEC_CALLSUB    5
+#define EXEC_IFTRUE     6
+#define EXEC_IFFALSE    7
+#define EXEC_MAIN       8
+#define EXEC_SELTRUE    9
+#define EXEC_SELFALSE   10
 #define EXEC_LABEL      11
 #define EXEC_DO         12
 #define EXEC_ON         13
 
 /***************************************************************
 
-	bwbasic.h	Part II: Structures
+        bwbasic.h       Part II: Structures
 
 ***************************************************************/
 
@@ -573,11 +573,11 @@ typedef float bnumber;
 
 typedef struct bstr
    {
-   unsigned char length;		/* length of string */
-   char *sbuffer;			/* pointer to string buffer */
-   int rab;				/* is it a random-access buffer? */
+   unsigned char length;                /* length of string */
+   char *sbuffer;                       /* pointer to string buffer */
+   int rab;                             /* is it a random-access buffer? */
 #if TEST_BSTRING
-   char name[ MAXVARNAMESIZE + 1 ];	/* name for test purposes */
+   char name[ MAXVARNAMESIZE + 1 ];     /* name for test purposes */
 #endif
    } bstring;
 
@@ -585,23 +585,23 @@ typedef struct bstr
 
 struct bwb_variable
    {
-   char name[ MAXVARNAMESIZE + 1 ];	/* name */
+   char name[ MAXVARNAMESIZE + 1 ];     /* name */
    int type;                            /* type, i.e., STRING or NUMBER */
 #if OLDWAY
-   void *array;				/* pointer to array memory */
+   void *array;                         /* pointer to array memory */
 #endif
-   bnumber *memnum;			/* memory for number */
-   bstring *memstr;			/* memory for string */
-   size_t array_units;			/* total number of units of memory */
-   int  *array_sizes;			/* pointer to array of <dimensions>
+   bnumber *memnum;                     /* memory for number */
+   bstring *memstr;                     /* memory for string */
+   size_t array_units;                  /* total number of units of memory */
+   int  *array_sizes;                   /* pointer to array of <dimensions>
                                            integers, with sizes of each
                                            dimension */
    int *array_pos;                      /* current position in array */
    int dimensions;                      /* number of dimensions,
                                            0 = not an array */
    struct bwb_variable *next;           /* next variable in chain */
-   int common;				/* should this variable be common to chained programs? */
-   int preset;				/* preset variable: CLEAR should not alter */
+   int common;                          /* should this variable be common to chained programs? */
+   int preset;                          /* preset variable: CLEAR should not alter */
    };
 
 /* Structure to represent program lines under Bywater BASIC */
@@ -610,8 +610,8 @@ struct bwb_line
    {
    struct bwb_line *next;               /* pointer to next line in chain */
    int number;                          /* line number */
-   char xnum;				/* is there actually a line number? */
-   char *buffer;			/* buffer to hold the line */
+   char xnum;                           /* is there actually a line number? */
+   char *buffer;                        /* buffer to hold the line */
    int position;                        /* current position in line */
    int lnpos;                           /* line number position in buffer */
    int lnum;                            /* line number read from buffer */
@@ -655,15 +655,15 @@ struct bwb_command
 struct dev_element
    {
    int mode;                            /* DEVMODE_ item */
-   int width;				/* width for output control */
-   int col;				/* current column */
+   int width;                           /* width for output control */
+   int col;                             /* current column */
    int reclen;                          /* record length for random access */
-   int next_record;			/* next record to read/write */
-   int loc;				/* location in file */
-   int lof;				/* length of file in bytes (JBV) */
+   int next_record;                     /* next record to read/write */
+   int loc;                             /* location in file */
+   int lof;                             /* length of file in bytes (JBV) */
    char filename[ MAXFILENAMESIZE + 1 ];/* filename */
    FILE *cfp;                           /* C file pointer for this device */
-   char *buffer;			/* pointer to character buffer for random access */
+   char *buffer;                        /* pointer to character buffer for random access */
    };
 
 /* Structure to define expression stack elements under Bywater BASIC */
@@ -671,14 +671,14 @@ struct dev_element
 struct exp_ese
    {
    int operation;                       /* operation at this level */
-   char type;				/* type of operation at this level:
-   					   STRING or NUMBER */
-   bstring sval;			/* string */
-   bnumber nval;			/* number */
-   char string[ MAXSTRINGSIZE + 1 ]; 	/* string for writing */
+   char type;                           /* type of operation at this level:
+                                           STRING or NUMBER */
+   bstring sval;                        /* string */
+   bnumber nval;                        /* number */
+   char string[ MAXSTRINGSIZE + 1 ];    /* string for writing */
    struct bwb_variable *xvar;           /* pointer to external variable */
    struct bwb_function *function;       /* pointer to function structure */
-   int array_pos[ MAX_DIMS ];		/* array for variable positions */
+   int array_pos[ MAX_DIMS ];           /* array for variable positions */
    int pos_adv;                         /* position advanced in string */
    int rec_pos;                         /* position marker for recursive calls */
    };
@@ -690,7 +690,7 @@ struct fslte
    char *name;
    struct bwb_line *line;
    int code;
-   int startpos;			/* starting position in line */
+   int startpos;                        /* starting position in line */
    struct fslte *next;
    struct bwb_variable *local_variable;
    };
@@ -699,17 +699,17 @@ struct fslte
 
 struct exse
    {
-   struct bwb_line *line;		/* line for execution */
-   int code;				/* code to note special operations */
-   int position;			/* position in line for restore */
-   struct bwb_variable *local_variable;	/* local variable chain and current FOR counter */
+   struct bwb_line *line;               /* line for execution */
+   int code;                            /* code to note special operations */
+   int position;                        /* position in line for restore */
+   struct bwb_variable *local_variable; /* local variable chain and current FOR counter */
    struct bwb_variable *calling_variable[ MAX_FARGS ];
-   int n_cvs;				/* number of calling variables */
-   int for_step;			/* STEP value for FOR */
-   int for_target;			/* target value for FOR */
-   struct bwb_line *while_line;		/* return line for current WHILE */
+   int n_cvs;                           /* number of calling variables */
+   int for_step;                        /* STEP value for FOR */
+   int for_target;                      /* target value for FOR */
+   struct bwb_line *while_line;         /* return line for current WHILE */
    struct bwb_line *wend_line;          /* breakout line for current WHILE (or FOR-NEXT) */
-   struct exp_ese expression;		/* expression for evaluation by SELECT CASE */
+   struct exp_ese expression;           /* expression for evaluation by SELECT CASE */
 #if MULTISEG_LINES
    struct bwb_line *for_line;           /* top line for FOR-NEXT loop, multisegmented */
    int for_position;                    /* position in top line for FOR-NEXT loop, multisegmented */
@@ -727,55 +727,55 @@ struct xtxtsl
 #if PARACT
 struct bwb_task
    {
-   char progfile[ MAXARGSIZE ];		/* program file */
-   int rescan;				/* program needs to be rescanned */
-   int number;				/* current line number */
-   struct bwb_line *bwb_l;		/* current line pointer */
-   struct bwb_line bwb_start;		/* starting line marker */
-   struct bwb_line bwb_end;		/* ending line marker */
-   struct bwb_line *data_line;      	/* current line to read data */
-   int data_pos;			/* position in data_line */
-   struct bwb_variable var_start;	/* variable list start marker */
-   struct bwb_variable var_end;		/* variable list end marker */
-   struct bwb_function fnc_start;	/* function list start marker */
-   struct bwb_function fnc_end;		/* function list end marker */
-   struct fslte fslt_start;		/* function-sub-label lookup table start marker */
-   struct fslte fslt_end;		/* function-sub-label lookup table end marker */
-   int exsc;				/* EXEC stack counter */
-   int expsc;				/* expression stack counter */
-   int xtxtsc;				/* eXecute TeXT stack counter */
-   struct exse excs[ EXECLEVELS ];	/* EXEC stack */
-   struct exp_ese exps[ ESTACKSIZE ];	/* Expression stack */
+   char progfile[ MAXARGSIZE ];         /* program file */
+   int rescan;                          /* program needs to be rescanned */
+   int number;                          /* current line number */
+   struct bwb_line *bwb_l;              /* current line pointer */
+   struct bwb_line bwb_start;           /* starting line marker */
+   struct bwb_line bwb_end;             /* ending line marker */
+   struct bwb_line *data_line;          /* current line to read data */
+   int data_pos;                        /* position in data_line */
+   struct bwb_variable var_start;       /* variable list start marker */
+   struct bwb_variable var_end;         /* variable list end marker */
+   struct bwb_function fnc_start;       /* function list start marker */
+   struct bwb_function fnc_end;         /* function list end marker */
+   struct fslte fslt_start;             /* function-sub-label lookup table start marker */
+   struct fslte fslt_end;               /* function-sub-label lookup table end marker */
+   int exsc;                            /* EXEC stack counter */
+   int expsc;                           /* expression stack counter */
+   int xtxtsc;                          /* eXecute TeXT stack counter */
+   struct exse excs[ EXECLEVELS ];      /* EXEC stack */
+   struct exp_ese exps[ ESTACKSIZE ];   /* Expression stack */
    struct xtxtsl xtxts[ XTXTSTACKSIZE ];/* Execute Text stack */
    };
 
-extern struct bwb_task *bwb_tasks[ TASKS ];	/* table of task pointers */
+extern struct bwb_task *bwb_tasks[ TASKS ];     /* table of task pointers */
 
-#else					/* not multi-tasking */
+#else                                   /* not multi-tasking */
 
-extern char progfile[ MAXARGSIZE ];	/* program file */
-extern int rescan;			/* program needs to be rescanned */
-extern int number;			/* current line number */
-extern struct bwb_line *bwb_l;		/* current line pointer */
-extern struct bwb_line bwb_start;	/* starting line marker */
-extern struct bwb_line bwb_end;		/* ending line marker */
+extern char progfile[ MAXARGSIZE ];     /* program file */
+extern int rescan;                      /* program needs to be rescanned */
+extern int number;                      /* current line number */
+extern struct bwb_line *bwb_l;          /* current line pointer */
+extern struct bwb_line bwb_start;       /* starting line marker */
+extern struct bwb_line bwb_end;         /* ending line marker */
 extern struct bwb_line *data_line;      /* current line to read data */
-extern int data_pos;			/* position in data_line */
-extern struct bwb_variable var_start;	/* variable list start marker */
-extern struct bwb_variable var_end;	/* variable list end marker */
-extern struct bwb_function fnc_start;	/* function list start marker */
-extern struct bwb_function fnc_end;	/* function list end marker */
-extern struct fslte fslt_start;		/* function-sub-label lookup table start marker */
-extern struct fslte fslt_end;		/* function-sub-label lookup table end marker */
-extern int exsc;			/* EXEC stack counter */
-extern int expsc;			/* expression stack counter */
-extern int xtxtsc;			/* eXecute TeXT stack counter */
-extern struct exse *excs;		/* EXEC stack */
-extern struct exp_ese *exps;		/* Expression stack */
-extern struct xtxtsl *xtxts;		/* Execute Text stack */
+extern int data_pos;                    /* position in data_line */
+extern struct bwb_variable var_start;   /* variable list start marker */
+extern struct bwb_variable var_end;     /* variable list end marker */
+extern struct bwb_function fnc_start;   /* function list start marker */
+extern struct bwb_function fnc_end;     /* function list end marker */
+extern struct fslte fslt_start;         /* function-sub-label lookup table start marker */
+extern struct fslte fslt_end;           /* function-sub-label lookup table end marker */
+extern int exsc;                        /* EXEC stack counter */
+extern int expsc;                       /* expression stack counter */
+extern int xtxtsc;                      /* eXecute TeXT stack counter */
+extern struct exse *excs;               /* EXEC stack */
+extern struct exp_ese *exps;            /* Expression stack */
+extern struct xtxtsl *xtxts;            /* Execute Text stack */
 #endif
 
-extern int bwb_curtask;			/* current task */
+extern int bwb_curtask;                 /* current task */
 extern struct bwb_variable *ed;         /* EDITOR$ variable */
 extern struct bwb_variable *fi;         /* FILES$ variable */
 extern struct bwb_variable *pr;         /* PROMPT$ variable */
@@ -784,21 +784,21 @@ extern struct bwb_variable *co;         /* COLORS variable */
 
 /***************************************************************
 
-	bwbasic.h	Part III: Global Data
+        bwbasic.h       Part III: Global Data
 
 ***************************************************************/
 
 extern char *bwb_ebuf;
 extern int bwb_trace;
-extern int dim_base;			/* set by OPTION BASE */
+extern int dim_base;                    /* set by OPTION BASE */
 extern struct bwb_command bwb_cmdtable[ COMMANDS ];
 extern FILE *errfdevice;                /* output device for error messages */
-extern int err_line;			/* line in which error occurred */
-extern int err_number;			/* number of last error */
+extern int err_line;                    /* line in which error occurred */
+extern int err_number;                  /* number of last error */
 extern char err_gosubl[ MAXVARNAMESIZE + 1 ]; /* line for error GOSUB */
-extern char *err_table[ N_ERRORS ];	/* table of error messages */
+extern char *err_table[ N_ERRORS ];     /* table of error messages */
 extern int prn_col;
-extern struct bwb_function bwb_prefuncs[ FUNCTIONS ];	/* table of predefined functions */
+extern struct bwb_function bwb_prefuncs[ FUNCTIONS ];   /* table of predefined functions */
 
 #if COMMON_CMDS
 extern struct dev_element *dev_table;   /* table of devices */
@@ -817,7 +817,7 @@ extern struct bwb_op exp_ops[ N_OPERATORS ]; /* the table itself, filled in in b
 
 /***************************************************************
 
-	bwbasic.h	Part IV: Function Prototypes
+        bwbasic.h       Part IV: Function Prototypes
 
 ***************************************************************/
 
@@ -1120,7 +1120,7 @@ extern struct bwb_variable * fnc_inkey( int argc, struct bwb_variable *argv, int
 extern bnumber trnc_int( bnumber x );
 extern int fnc_checkargs( int argc, struct bwb_variable *argv,
    int min, int max );
-extern int ufsc;			/* user function stack counter */
+extern int ufsc;                        /* user function stack counter */
 
 #if DEBUG
 extern struct bwb_variable *fnc_test( int argc, struct bwb_variable *argv, int unique_id );
@@ -1420,7 +1420,7 @@ extern struct bwb_variable * fnc_inkey();
 
 extern bnumber trnc_int();
 extern int fnc_checkargs();
-extern int ufsc;			/* user function stack counter */
+extern int ufsc;                        /* user function stack counter */
 
 #if DEBUG
 extern struct bwb_variable *fnc_test();
