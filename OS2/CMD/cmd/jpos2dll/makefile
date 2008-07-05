@@ -11,8 +11,8 @@ PROJ = jpos2dll
 DESC = CMD.EXE helper
 OBJS = jpos2dll.$(O)
 #$(O)  jpos2dll.c
-ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+ADD_COPT = -i=..$(SEP)include -bd
+#ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
 
