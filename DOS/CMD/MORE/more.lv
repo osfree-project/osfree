@@ -1,0 +1,12 @@
+# FreeDOS More NLS support file (Latvian)
+# Copyright (c) 2001 by Kristaps Kaupe, Latvia.
+# e-mail: neons_lv@inbox.lv
+0.0:Izvada uz ekrƒna teksta failu, sadalot to lappus‰s
+0.1:LietoÕana
+0.2:komanda
+0.3:fails
+1.0:NeatpazŒstama opcija
+1.1:Nav tƒda faila
+1.2:Nevar atv‰rt failu
+2.0:Tƒlƒk
+2.1:<STDIN>

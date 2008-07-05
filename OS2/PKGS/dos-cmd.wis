@@ -1,12 +1,12 @@
 <WARPIN>
 <HEAD>
 <PCK INDEX=1
-  PACKAGEID="osFree\OS/2\Command Line Tools\0\0\3\1"
-  TARGET="?:\OS2"
+  PACKAGEID="osFree\DOS\Command Line Tools\0\0\3\1"
+  TARGET="?:\OS2\MDOS"
   LONGFILENAMES
-  TITLE="Command Line Tools"
+  TITLE="osFree DOS Presonality Command Line Tools"
   SELECT
-  >Command Line Tools</PCK>
+  >osFree DOS Presonality Command Line Tools</PCK>
 </head>
 
 <BODY>
@@ -14,7 +14,7 @@
 <!-- page 1: introductory page -->
 <PAGE INDEX="1" TYPE="TEXT">
 <NEXTBUTTON TARGET=2>~Next</NEXTBUTTON>
-<TEXT>osFree OS/2 Personality Command Line Tools
+<TEXT>osFree DOS Personality Command Line Tools
 
 Before installation of this package read this careful.
 In most cases osFree packages can be installed on top of
@@ -31,28 +31,7 @@ Select "Next" to continue.
 Select "Cancel" to abort installation.</TEXT>
 </PAGE>
 
-<!-- page 2: Whats new -->
 <PAGE INDEX="2" TYPE="TEXT">
-<NEXTBUTTON TARGET=2>~Next</NEXTBUTTON>
-<TEXT>osFree OS/2 Personality Command Line Tools
-
-+ New feature
-! Bugfix
-
-+ FIND now dual target executable (OS/2/MDOS sessions)
-+ ATTRIB now dual target executables
-+ LABEL now dual target executable
-+ XCOPY now dual target executable
-+ MORE now dual target executable
-! Trap in CMD.EXE/JPOS2DLL.DLL fixed
-! OPTION command now works
-! %0 sign now not shown in messages
-
-Select "Next" to continue.
-Select "Cancel" to abort installation.</TEXT>
-</PAGE>
-
-<PAGE INDEX="3" TYPE="TEXT">
 <NEXTBUTTON TARGET="0">I~nstall</NEXTBUTTON>
 <TEXT>
 

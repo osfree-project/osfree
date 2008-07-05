@@ -1,0 +1,14 @@
+os3-dos-cmd -a 1 -c..\..\files\dos
+attrib.exe
+basic.com
+basic.exe
+basica.com
+find.exe
+gwbasic.exe
+help.bat
+label.exe
+mem.exe
+more.exe
+windemo.exe
+xcopy.exe
+-s dos-cmd.wis

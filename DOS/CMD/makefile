@@ -16,6 +16,7 @@ DIRS =   attrib   &
          mem      &
          xcopy    &
          basic    &
+         more     &
          stub
 
 !include $(%ROOT)/mk/all.mk
