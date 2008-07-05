@@ -18,7 +18,7 @@ all: $(PROJ).exe # $(PROJ).sym
 
 $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
+ @%append $^&.lnk SYSTEM os2v2 pm
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
@@ -26,7 +26,7 @@ $(PROJ).exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- $(RC) $(RCOPT) -i=..$(SEP)include option2.rc $@ $(LOG)
+ $(RC) $(RCOPT) -i ..$(SEP)include option2.rc $@ $(LOG)
  @$(MAKE) $(MAKEOPT) install
 
 #@%append $^&.lnk LIBRARY $(LINKLIB)

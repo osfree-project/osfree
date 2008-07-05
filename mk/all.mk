@@ -71,8 +71,13 @@ SED       = sed
 AWK       = @awk
 DOX       = doxygen
 
-RC        = @wrc -q
-RCOPT     = -bt=OS2
+# Watcom 1.7 RC has bug with resource storing. Resursed not just added
+# but replaced. So, we still use OS/2 TK RC.EXE
+#RC        = @wrc -q
+#RCOPT     = -bt=OS2
+
+RC        = rc
+RCOPT     =
 
 MC        = mkmsgf
 

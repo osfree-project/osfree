@@ -77,7 +77,7 @@ int main( int argc, char **argv )
         // Make sure we got the shared memory name, and that the memory is available
         if ((( pszShareName = argv[1] ) == (void *)0L/*NULL*/ ) || ( DosGetNamedSharedMem( (PPVOID)&pIniData, pszShareName, PAG_READ | PAG_WRITE ) != 0 )) {
 
-                WinMessageBox( HWND_DESKTOP, HWND_DESKTOP, "This program must be started from the 4OS2 OPTION command.", "OPTION.EXE", 0, ( MB_OK | MB_ERROR ));
+                WinMessageBox( HWND_DESKTOP, HWND_DESKTOP, "This program must be started from the 4OS2 OPTION command.", "OPTION2.EXE", 0, ( MB_OK | MB_ERROR ));
                 rval = 1;
 
         } else {
