@@ -48,8 +48,10 @@ all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
 $(PROJ).exe: $(OBJS)
  @%create $^&.lnk
  @%append $^&.lnk SYSTEM dos
+# @%append $^&.lnk SYSTEM os2v2
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION MAP=$^&.wmp
+# @%append $^&.lnk OPTION STACK=65535000
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

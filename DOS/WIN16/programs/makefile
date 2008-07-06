@@ -9,7 +9,7 @@
 
 # First directory must be UNI which produces C/C++ header files
 
-DIRS = samples programs lzexpand
+DIRS = progman winver
 
 
 !include $(%ROOT)/mk/all.mk
