@@ -66,14 +66,14 @@ BT_CHAIN_OBJS    = chain.$(O) chainc.$(O) setdev.$(O) modesw-npc.$(O)  &
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
                    video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) cmdline.$(O)  &
-                   cfgparse.$(O) bios.$(O) end.$(O)
+                   dskaccess.$(O) part.$(O) cfgparse.$(O) bios.$(O) end.$(O)
 
 STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
                    video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) cmdline.$(SO) &
-                   cfgparse.$(SO) bios.$(SO) end.$(SO)
+                   dskaccess.$(SO) part.$(SO) cfgparse.$(SO) bios.$(SO) end.$(SO)
 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
-                   video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) bios.$(LO) end.$(LO)
+                   dskaccess.$(LO) part.$(LO) video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(O) bios.$(LO) end.$(LO)
 
 CONSOLE_OBJS     = termstrt.$(O) terminit-c.$(O) console-c.$(O) modesw-npt.$(O) consolec.$(O)
 CONSOLE_SH_OBJS  = termstrt.$(SO) terminit-c.$(SO) console-c.$(SO) modesw-npt.$(SO) consolec.$(SO)

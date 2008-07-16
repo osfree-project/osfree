@@ -46,6 +46,9 @@ start proc far
                                                            ;
                 sti                                        ; Enable interrupts
 
+		mov  ds, ax
+		mov  es, ax
+
                 cld                                        ; scan strings forward
                 mov  si, mbrAddr + boot                    ;
                 mov  di, NewAddr + boot                    ;

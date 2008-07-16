@@ -5,7 +5,7 @@
 #pragma aux m     "*"
 #pragma aux l     "*"
 #pragma aux stop  "*"
-#pragma aux errnum               "*"
+//#pragma aux errnum               "*"
 #pragma aux start_kernel         "*"
 #pragma aux boot_drive           "*"
 

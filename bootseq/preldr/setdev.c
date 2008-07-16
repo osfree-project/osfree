@@ -4,6 +4,9 @@
 
 #include <shared.h>
 
+extern unsigned long current_drive;
+extern unsigned long current_partition;
+
 #ifndef STAGE1_5
 
 #pragma aux m     "*"
@@ -12,7 +15,7 @@
 #pragma aux errnum               "*"
 #pragma aux start_kernel         "*"
 #pragma aux boot_drive           "*"
-#pragma aux sane_partition       "*"
+//#pragma aux sane_partition       "*"
 
 /* XX used for device completion in 'set_device' and 'print_completions' */
 static int incomplete, disk_choice;
@@ -213,3 +216,4 @@ set_device (char *device)
 
 #endif /* ! STAGE1_5 */
 }
+

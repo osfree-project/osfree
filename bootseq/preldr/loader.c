@@ -40,6 +40,7 @@ int (*process_cfg_line)(char *line);
 
 extern entry_func entry_addr;
 
+int root_func (char *arg, int flags);
 int kernel_func (char *arg, int flags);
 int module_func (char *arg, int flags);
 int modaddr_func (char *arg, int flags);
@@ -256,6 +257,15 @@ exec_line(char *line)
       return 0;
     }
   }
+/*  else if (abbrev(s, "root", 4))
+  {
+    s = skip_to(1, s);
+    if (root_func(s, 0x2)) 
+    {
+      printf("An error occured during execution of kernel_func\r\n");
+      return 0;
+    }
+  } */
   else if (abbrev(s, "kernel", 6))
   {
     s = skip_to(1, s);

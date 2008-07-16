@@ -144,6 +144,16 @@ extern unsigned long saved_partition;
 extern unsigned long saved_slice;
 extern unsigned long cdrom_drive;
 
+extern unsigned long current_drive;
+extern unsigned long current_partition;
+extern int           current_slice;
+extern unsigned long part_start;
+extern unsigned long part_length;
+extern int           fsmax;
+
+extern int buf_drive;
+extern int buf_track;
+
 extern FileTable ft;
 
 extern unsigned short boot_flags;
