@@ -9,7 +9,13 @@ name modesw
 .386p
 
 ;public  base
-extrn    base       :dword
+extrn    base        :dword
+
+;extrn   set_pm_idt  :near
+;extrn   set_rm_idt  :near
+
+;public  idtr
+;public  idtr_old
 
 public  gdtsrc
 public  gdtdesc
@@ -18,6 +24,10 @@ public  call_rm
 
 ifndef  NO_PROT
 public  call_pm
+ifndef STAGE1_5
+extrn   idt_init     :near
+extrn   idt_initted  :byte
+endif
 endif
 
 public  __CHK
@@ -168,6 +178,9 @@ rmode_switch proc far
         push rmode1
         retf
 rmode1:
+	; enable interrupts
+	sti
+
         ; Now we are in a real mode
         ; call a function with address in ebp
         mov  eax, ebp
@@ -177,6 +190,10 @@ rmode1:
         mov  bp, sp
         call dword ptr [bp]
         add  sp, 4
+
+	; disable interrupts
+	cli
+
         ; Switcch back to protected mode
         mov  eax, cr0
         or   al, 1
@@ -251,12 +268,30 @@ pmode   proc far
         mov  eax, dword ptr ds:[PROTSTACK]
         mov  esp, eax
 
+ifndef STAGE1_5
+	mov  al, byte ptr idt_initted
+	cmp  al, 0
+	jz   not_initted
+
+	call set_pm_idt
+	;mov  byte ptr idt_initted, 1
+	jmp  call_func
+
+not_initted:
+	call idt_init
+endif
+
+call_func:
         ; Call protected mode func
         push  cs
         push  ebp
         call  fword ptr ss:[esp]
         add   esp, 6
 	;add   esp, 14
+
+ifndef STAGE1_5
+	call set_rm_idt
+endif
 
         ; Save protected mode stack
         mov  eax, esp
@@ -297,6 +332,10 @@ call_rm proc near
         mov  ebp, esp
 
         mov  ebp, dword ptr [ebp + 8]
+
+ifndef STAGE1_5
+	call set_rm_idt
+endif
 
         ; set segment registers
         ; and switch stack to 16-bit
@@ -342,10 +381,40 @@ call_rm proc near
 
         mov  esp, dword ptr ds:[PROTSTACK]
 
+ifndef STAGE1_5
+	call set_pm_idt
+endif
         pop  ebp
 
         ret
 call_rm endp
+
+;
+; set protect mode IDT
+;
+set_pm_idt:
+	; store realmode idt
+	;mov   eax, IDTR_OLD
+	;sidt  fword ptr [eax]
+
+	mov   eax, IDTR
+	lidt  fword ptr [eax]
+
+	ret
+
+;
+; set realmode IDT
+;
+set_rm_idt:
+	; store protmode idt
+	;mov   eax, IDTR
+	;sidt  fword ptr [eax]
+
+	; set realmode idt
+	mov   eax, IDTR_OLD
+	lidt  fword ptr [eax]
+
+	ret
 
 __CHK:
         ret  4
@@ -410,6 +479,7 @@ boot_drive        dd   0
 ; *  description.
 ; */
 
+
 gdtaddr dd    GDT_ADDR
 
 gdtsrc  desc  <0,0,0,0,0,0>                  ;
@@ -431,6 +501,12 @@ gdtdesc gdtr  <gdtsize - 1, ?>
 
 address dd    ?
         dw    ?
+
+;; A flag which defines, that IDT is initted or not
+;idt_initted	db	0
+
+;idtr		gdtr	<>
+;idtr_old	gdtr	<>
 
 _DATA   ends
 

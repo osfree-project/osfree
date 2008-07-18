@@ -167,6 +167,12 @@ extern int fsmax;
 void __cdecl real_test(void);
 void __cdecl call_rm(fp_t);
 
+//void trap_3(void);
+//#pragma aux trap_3 "*"
+
+void idt_init(void);
+#pragma aux idt_init "*"
+
 #ifndef STAGE1_5
 
 #pragma aux stop_floppy "*"
@@ -1115,6 +1121,8 @@ int init(void)
   int i, k;
   int key;
 
+  //idt_init();
+
   /* Set boot drive and partition.  */
   saved_drive = boot_drive;
   saved_partition = install_partition;
@@ -1342,6 +1350,8 @@ int init(void)
   jmp_reloc(relshift);
   /* now we are at the place of relocation */
 
+  idt_init();
+
   //l1 += relshift;
   //l2 += relshift;
 
@@ -1427,28 +1437,14 @@ int init(void)
   /* Init terminal */
   init_term();
 
-  //t->putchar('z');
-
   /* Init info in mbi structure */
   init_bios_info();
 
-  //t = u_termctl(0);
-
-  // empty keyboard buffer
-  //while (t->checkkey() != -1) ;
-
-  //t->putchar('q'); 
-  //t->gotoxy(0x10, 0x10);
-  //t->putchar('z');
-
   //__asm {
-  //  cli
-  //  hlt
+  //  pushfd
+  //  push   cs
+  //  call   trap_3
   //}
-
-  /* switch stack to high memory */
-  //switch_stack_flag = 1;
-  //high_stack();
 
   if (conf.multiboot == 1) {
     /* return to loader from protected mode */
@@ -1471,6 +1467,7 @@ int init(void)
       mov  ebx, l2
 
       push ldr_base
+      //int 3h
       retn
     }
   }

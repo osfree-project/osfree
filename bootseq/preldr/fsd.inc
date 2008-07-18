@@ -21,11 +21,6 @@ BOOT_PART_TABLE equ (0x70000 + SHIFT)     ;
 FSYS_BUFLEN     equ 0x8000
 
 ;
-; GDT location
-;
-GDT_ADDR          equ 0x680
-
-;
 ; buffers at the end of 3rd megabyte
 ;
 FSYS_BUF          equ 0x3e0000            ;
@@ -76,6 +71,15 @@ BOOT_MAGIC      equ 0x2BADB002            ; extended boot info magic
 PROTSTACK         equ  0x600
 ; Real mode stack address
 RMSTACK           equ  0x604
+; protect mode IDT save
+IDTR		  equ  0x608
+; real mode IDT save
+IDTR_OLD	  equ  0x610
+
+; GDT location
+GDT_ADDR          equ 0x640
+; IDT location
+IDT_ADDR	  equ 0x6a0
 
 ; stacks initial values
 PROTSTACKINIT   equ STACK_SP - 10h
