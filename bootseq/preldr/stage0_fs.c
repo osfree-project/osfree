@@ -594,8 +594,9 @@ freeldr_open (char *filename)
    char buf[0x100];
 
    //printf("%s\r\n", filename);
+   u_msg("o ");
    u_msg(filename);
-   u_msg("\r\n");
+   //u_msg("\r\n");
 
    /* prepend "/" to filename */
    if (*filename != '/' && *filename != '(') {
@@ -638,6 +639,11 @@ freeldr_open (char *filename)
        rc = grub_open(buf);
      }
    }
+
+   if (!rc) 
+     u_msg(" fail!");
+
+   u_msg("\r\n");
 
    return rc;
 #else
@@ -1180,6 +1186,8 @@ int init(void)
       conf.multiboot = 0;
     else
       conf.multiboot = 1;
+
+    printf("\r\n");
   }
 
   if (!grub_strcmp(conf.loader.name, "default"))
@@ -1228,7 +1236,7 @@ int init(void)
   /* load os2ldr */
   fn = conf.loader.name;
   rc = freeldr_open(fn);
-  printf("freeldr_open() returned: %d\r\n", rc);
+  //printf("o ret %d\r\n", rc);
   //printmsg("freeldr_open(\"");
   //printmsg(fn);
   //printmsg("\") returned: ");
@@ -1238,7 +1246,7 @@ int init(void)
 
   if (rc) {
     ldrlen = freeldr_read(buf, -1);
-    printf("freeldr_read() returned size: %d\r\n", ldrlen);
+    printf("r 0x%x %d cnt %d\r\n", buf, -1, ldrlen);
     //printmsg("\r\nfreeldr_read() returned size: ");
     //printd(ldrlen);
     //printmsg("\r\n");
@@ -1250,7 +1258,7 @@ int init(void)
   fn = conf.mini.name;
   if (*fn) { // is minifsd needed?
     rc = freeldr_open(fn);
-    printf("freeldr_open() returned size: %d\r\n", rc);
+    //printf("o ret %d\r\n", rc);
     //printmsg("freeldr_open(\"");
     //printmsg(fn);
     //printmsg("\") returned: ");
@@ -1260,7 +1268,7 @@ int init(void)
 
     if (rc) {
       mfslen = freeldr_read(buf, -1);
-      printf("freeldr_read() returned size: %d", mfslen);
+      printf("r 0x%x %d cnt %d\r\n", buf, -1, mfslen);
       //printmsg("\r\nfreeldr_read() returned size: ");
       //printd(mfslen);
       //printmsg("\r\n");
@@ -1269,7 +1277,7 @@ int init(void)
     }
   }
 
-  printf("\r\nmem_lower=0x%x\r\n", mem_lower);
+  printf("low mem 0x%x\r\n", mem_lower);
   //printmsg("mem_lower=");
   //printd(mem_lower);
 
@@ -1288,7 +1296,7 @@ int init(void)
   else                 // multiboot loader
     ldrbase =  mem_lower << KSHIFT;
 
-  printf("ldrbase=0x%x\r\n", ldrbase);
+  printf("ldr base 0x%x\r\n", ldrbase);
   //printmsg("\r\n");
   //printd(ldrbase);
 
@@ -1337,7 +1345,7 @@ int init(void)
     add  [ebp + 0x20], eax
   }
 
-  printf("relshift=0x%x\r\n", relshift);
+  printf("rel shift 0x%x\r\n", relshift);
   //printmsg("\r\nrelshift=");
   //printd(relshift);
   //printmsg("\r\n");
