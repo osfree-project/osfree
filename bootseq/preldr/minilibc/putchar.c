@@ -7,13 +7,23 @@
 #include "term.h"
 
 extern struct term_entry *t;
+/* if use terminal or not (on early stages) */
+unsigned char use_term = 1;
 
 void
 grub_putchar (int c)
 {
-  //char buf[2];
-  //buf[0] = c;
-  //buf[1] = '\0';
-  //u_msg(buf);
-  t->putchar(c);
+  char buf[2];
+
+  if (!use_term)
+  {
+    buf[0] = (char)c;
+    buf[1] = '\0';
+    u_msg(buf);
+  }
+  else
+  {
+    t->putchar(c);
+  }
 }
+

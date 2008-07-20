@@ -286,7 +286,7 @@ go_on:
 	iret
 
 ;
-; Input: eax == GDT address, ebx = GDT selector
+; Input: ebx == GDT address, eax = GDT selector
 ;
 get_gdt_desc:
 	push  ebx
@@ -548,7 +548,7 @@ set_trap_handler:
 	xor   al, al
 	mov   ah, 8eh	; 32-bit interrupt gate with ring0 privileges, present
 
-	; store high IDT descroptor dword
+	; store high IDT descriptor dword
 	stosd
 
 	ret

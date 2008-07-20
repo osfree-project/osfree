@@ -15,6 +15,10 @@
 #include "fsd.h"
 #include "struc.h"
 
+#ifndef STAGE1_5
+extern unsigned char use_term;
+#endif
+
 extern unsigned long extended_memory;
 #pragma aux extended_memory "*"
 
@@ -551,7 +555,7 @@ u_termctl(int termno)
 
   if (blackbox_load(term, 2, &trm))
   {
-    u_msg("terminal loaded\r\n");
+    printf("terminal loaded\r\n");
   }
   else
     return 0;
@@ -593,9 +597,9 @@ freeldr_open (char *filename)
    int  rc;
    char buf[0x100];
 
-   //printf("%s\r\n", filename);
-   u_msg("o ");
-   u_msg(filename);
+   printf("o %s", filename);
+   //u_msg("o ");
+   //u_msg(filename);
    //u_msg("\r\n");
 
    /* prepend "/" to filename */
@@ -641,9 +645,9 @@ freeldr_open (char *filename)
    }
 
    if (!rc) 
-     u_msg(" fail!");
+     printf(" fail!");
 
-   u_msg("\r\n");
+   printf("\r\n");
 
    return rc;
 #else
@@ -654,7 +658,15 @@ freeldr_open (char *filename)
 int
 freeldr_read (char *buf, int len)
 {
-   return grub_read(buf, len);
+   int rc;
+#ifndef STAGE1_5
+   printf("r 0x%x %d", buf, len);
+#endif
+   rc = grub_read(buf, len);
+#ifndef STAGE1_5
+   printf(" sz %d\r\n", rc);
+#endif
+   return rc;
 }
 
 int
@@ -1127,6 +1139,10 @@ int init(void)
   int i, k;
   int key;
 
+#ifndef STAGE1_5
+  /* use putchar() implementation through printmsg() */
+  use_term = 0;
+#endif
   //idt_init();
 
   /* Set boot drive and partition.  */
@@ -1170,6 +1186,8 @@ int init(void)
 
   relshift = 0;
   init_term();
+  /* use putchar() implementation through term blackbox */
+  use_term = 1;
 
   // empty keyboard buffer
   //while (t->checkkey() != -1) ;
@@ -1246,7 +1264,7 @@ int init(void)
 
   if (rc) {
     ldrlen = freeldr_read(buf, -1);
-    printf("r 0x%x %d cnt %d\r\n", buf, -1, ldrlen);
+    //printf("r 0x%x %d cnt %d\r\n", buf, -1, ldrlen);
     //printmsg("\r\nfreeldr_read() returned size: ");
     //printd(ldrlen);
     //printmsg("\r\n");
@@ -1268,7 +1286,7 @@ int init(void)
 
     if (rc) {
       mfslen = freeldr_read(buf, -1);
-      printf("r 0x%x %d cnt %d\r\n", buf, -1, mfslen);
+      //printf("r 0x%x %d cnt %d\r\n", buf, -1, mfslen);
       //printmsg("\r\nfreeldr_read() returned size: ");
       //printd(mfslen);
       //printmsg("\r\n");
@@ -1350,13 +1368,21 @@ int init(void)
   //printd(relshift);
   //printmsg("\r\n");
 
+  /* disable use of terminal blackbox 
+     before it gets re-initted (old preldr copy) */
+  use_term = 0;
+
   /* fixup preldr and uFSD */
-  reloc((char *)(STAGE0_BASE  + relshift), "\\boot\\freeldr\\preldr0.rel", relshift);
-  reloc((char *)(EXT3HIBUF_BASE), "\\boot\\freeldr\\fsd\\iso9660.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+  reloc((char *)(STAGE0_BASE  + relshift), "/boot/freeldr/preldr0.rel", relshift);
+  reloc((char *)(EXT3HIBUF_BASE), "/boot/freeldr/fsd/iso9660.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
 
   /* jump to relocated pre-loader */
   jmp_reloc(relshift);
   /* now we are at the place of relocation */
+
+  /* disable use of terminal blackbox 
+     before it gets re-initted (new preldr copy) */
+  use_term = 0;
 
   idt_init();
 
@@ -1444,7 +1470,7 @@ int init(void)
 
   /* Init terminal */
   init_term();
-
+  use_term = 1;
   /* Init info in mbi structure */
   init_bios_info();
 

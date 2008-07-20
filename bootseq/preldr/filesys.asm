@@ -90,6 +90,7 @@ mu_Open proc far
         shr  ecx, 16
         shl  ecx, 4
         and  ebx, 0ffffh
+	;and  ecx, 0fffffh
         add  ebx, ecx
 
         ; switch to PM and call muOpen
@@ -112,7 +113,7 @@ nok1:
         push es
         push di
         les  di, dword ptr [bp + 0ah]
-        mov  [di], edx ; size
+        mov  es:[di], edx ; size
         xor  dx, dx
         pop  di
         pop  es
@@ -160,6 +161,7 @@ mu_Read proc far
         shr  edx, 16
         mov  eax, ebx
         and  eax, 0ffffh
+	;and  edx, 0ffffh
 
         switch_to_ldr
 

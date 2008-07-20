@@ -28,7 +28,14 @@
 #include <terminfo.h>
 
 // to make libc happy
-struct term_entry *t;
+//struct term_entry *t;
+
+#pragma aux u_msg "*"
+
+void u_msg(char *s)
+{
+  //grub_putstr(s);
+}
 
 //#pragma aux u_msg "*" 
 //

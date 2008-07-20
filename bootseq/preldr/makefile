@@ -3,6 +3,22 @@
 # 07/10/04 valerius
 #
 
+TARGETS          = minilibc.lib &
+                   fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
+                   minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite freeldr &
+                   fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
+                   minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
+                   bt_linux bt_chain &
+                   console.trm hercules.trm serial.trm &
+                   console.trs hercules.trs serial.trs &
+                   fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
+                   minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
+                   console.rel hercules.rel serial.rel
+
+SHIFT = 0x100
+
+all: fsd.h prereq $(TARGETS) .SYMBOLIC
+
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
@@ -84,22 +100,6 @@ SERIAL_SH_OBJS   = termstrt.$(SO) terminit-s.$(SO) serial.$(SO) modesw-npt.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
-
-TARGETS          = minilibc.lib &
-                   fat.fsd ext2fs.fsd jfs.fsd iso9660.fsd reiserfs.fsd &
-                   minix.fsd ufs2.fsd vstafs.fsd ffs.fsd xfs.fsd preldr0 preldr0_lite freeldr &
-                   fat.fss ext2fs.fss jfs.fss iso9660.fss reiserfs.fss &
-                   minix.fss ufs2.fss vstafs.fss ffs.fss xfs.fss preldr0s &
-                   bt_linux bt_chain &
-                   console.trm hercules.trm serial.trm &
-                   console.trs hercules.trs serial.trs &
-                   fat.rel ext2fs.rel jfs.rel iso9660.rel reiserfs.rel &
-                   minix.rel ufs2.rel vstafs.rel ffs.rel xfs.rel preldr0.rel &
-                   console.rel hercules.rel serial.rel
-
-SHIFT = 0x100
-
-all: fsd.h prereq $(TARGETS) .SYMBOLIC
 
 prereq: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) TARGET=all subdirs

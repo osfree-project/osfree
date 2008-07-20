@@ -3,6 +3,10 @@
 # 07/10/04 valerius
 #
 
+
+all: minilibc.lib .SYMBOLIC
+
+
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
@@ -22,8 +26,6 @@ MINILIBC_OBJS         = strcmp.$(O) putchar.$(O) memmove.$(O) aton.$(O) memcmp.$
 			index.$(O) memset.$(O) strcat.$(O) substr.$(O) isspace.$(O) printf.$(O) &
 			tolower.$(O) putchar.$(O) strcpy.$(O) toupper.$(O) memcheck.$(O) &
                         putstr.$(O) strlen.$(O)
-
-all: minilibc.lib
 
 minilibc.lib: $(MINILIBC_OBJS)
  $(SAY) Creating library $^@
