@@ -40,6 +40,7 @@ DIRS = shared ansi &
               syslevel &
               tedit &
               tree &
+              tshell &
               undelete &
               ver &
               vol &

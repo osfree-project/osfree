@@ -148,6 +148,19 @@ begin
       AElement.ElementTypeName + ' nodes');
 end;
 
+function ConvertToCType(S: String): String;
+begin
+  Result:=S;
+  if S='pointer' then Result:='void *' else // How to correctly handle this?
+  if S='T_POINTER' then Result:='void *' else
+  if S='T_CHAR' then Result:='char' else
+  if S='T_BYTE' then Result:='unsigned char' else
+  if S='T_WORD' then Result:='unsigned short' else
+  if S='T_DWORD' then Result:='unsigned long' else
+  if S='T_LONG16' then Result:='short' else
+  if S='T_LONG32' then Result:='long';
+end;
+
 procedure THWriter.WriteType(AType: TPasType);
 var
   sze: longword;
@@ -159,17 +172,17 @@ begin
   else if AType.ClassType = TPasPointerType then
   begin
     if Assigned(TPasPointerType(AType).DestType) then
-      wrtln('typedef '+TPasPointerType(AType).DestType.Name+' * '+TPasAliasType(AType).Name+';')
+      wrtln('typedef '+ConvertToCType(TPasPointerType(AType).DestType.Name)+' * '+TPasAliasType(AType).Name+';')
     else
       wrtln('typedef void * '+TPasAliasType(AType).Name+';');
   end else if AType.ClassType = TPasAliasType then
   begin
-    WrtLn('typedef '+TPasAliasType(AType).DestType.Name+' '+TPasAliasType(AType).Name+';');
+    WrtLn('typedef '+ConvertToCType(TPasAliasType(AType).DestType.Name)+' '+TPasAliasType(AType).Name+';');
   end else if AType.ClassType = TPasRecordType then
     WriteRecordType(TPasRecordType(AType), 0)
   else if AType.ClassType = TPasArrayType then
   begin
-    wrtln('typedef '+TPasArrayType(AType).ElType.Name+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + '];');
+    wrtln('typedef '+ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + '];');
   end else
     raise Exception.Create('Writing not implemented for ' +
       AType.ElementTypeName + ' nodes');
@@ -279,13 +292,33 @@ begin
   wrtln(';');
 end;
 
+function ConvertToC(S: String): String;
+var
+  p: integer;
+begin
+
+  While pos('$', S)>0 do
+  begin
+    p:=pos('$', S);
+    S:=Copy(S, 1, p-1)+'0x'+Copy(S, p+1, Length(S)-p);
+  end;
+
+  While pos('or', S)>0 do
+  begin
+    p:=pos('or', S);
+    S:=Copy(S, 1, p-1)+'|'+Copy(S, p+2, Length(S)-p-1);
+  end;
+
+  Result:=S;
+end;
+
 procedure THWriter.WriteConstant(AVar: TPasConst);
 begin
   if (AVar.Parent.ClassType <> TPasClassType) and
     (AVar.Parent.ClassType <> TPasRecordType) then
 //    PrepareDeclSection('');
   wrt('#define '+AVar.Name + ' ');
-  Wrtln(AVar.Value);
+  Wrtln(ConvertToC(AVar.Value));
 end;
 
 procedure THWriter.WriteProcDecl(AProc: TPasProcedure);

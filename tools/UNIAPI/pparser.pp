@@ -345,17 +345,15 @@ begin
           UngetToken;
         Ref := nil;
         s := UpperCase(Name);
-        if s = 'BYTE' then Name := 'Byte'
-        else if s = 'BOOLEAN' then Name := 'Boolean'
-        else if s = 'CHAR' then Name := 'Char'
-        else if s = 'INTEGER' then Name := 'Integer'
-        else if s = 'INT64' then Name := 'Int64'
-        else if s = 'LONGINT' then Name := 'LongInt'
-        else if s = 'LONGWORD' then Name := 'LongWord'
-        else if s = 'SHORTINT' then Name := 'ShortInt'
-        else if s = 'SMALLINT' then Name := 'SmallInt'
-        else if s = 'STRING' then Name := 'String'
-        else if s = 'WORD' then Name := 'WORD'
+        if      s = 'T_BYTE'    then Name := 'T_BYTE'
+        else if s = 'T_BOOLEAN' then Name := 'T_BOOLEAN'
+        else if s = 'T_CHAR'    then Name := 'T_CHAR'
+        else if s = 'T_POINTER' then Name := 'T_POINTER'
+        else if s = 'T_INT16'   then Name := 'T_INT16'
+        else if s = 'T_INT32'   then Name := 'T_INT32'
+        else if s = 'T_INT64'   then Name := 'T_INT64'
+        else if s = 'T_DWORD'   then Name := 'T_DWORD'
+        else if s = 'T_WORD'    then Name := 'T_WORD'
         else
           Ref := Engine.FindElement(Name);
         if Assigned(Ref) then

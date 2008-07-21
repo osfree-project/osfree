@@ -1,14 +1,14 @@
 ;   $Id: cb_catch.asm 771 2004-02-01 13:55:39Z skaus $
 
-;	^Break signal catcher and initialization function.
-;	Bases on CB_CATCH.ASM
-;	It is activated only, if FreeCOM is active.
-;	--> FreeCOM polls the ^Break state actively, so the ^C press is
-;		recorded, but ignored otherwise
+;       ^Break signal catcher and initialization function.
+;       Bases on CB_CATCH.ASM
+;       It is activated only, if FreeCOM is active.
+;       --> FreeCOM polls the ^Break state actively, so the ^C press is
+;               recorded, but ignored otherwise
 
-;	There are several possibility to communicate with FreeCOM, because
-;	FreeCOM actively polls the ^Break status, this implementation
-;	optimizes for the polling rather this handler.
+;       There are several possibility to communicate with FreeCOM, because
+;       FreeCOM actively polls the ^Break status, this implementation
+;       optimizes for the polling rather this handler.
 
 ;   $Log$
 ;   Revision 1.3  2004/02/01 13:52:18  skaus
@@ -32,7 +32,7 @@
 ;   add: clean.bat
 ;   add: localized CRITER strings
 ;   chg: use LNG files for hard-coded strings (hangForEver(), init.c)
-;   	via STRINGS.LIB
+;       via STRINGS.LIB
 ;   add: DEL.C, COPY.C, CBREAK.C: STRINGS-based prompts
 ;   add: fixstrs.c: prompts & symbolic keys
 ;   add: fixstrs.c: backslash escape sequences
@@ -51,53 +51,55 @@
 ;   chg: moving all assembly files to NASM
 ;
 
-%include "../include/model.inc"
-%include "../include/stuff.inc"
+;%include "../include/model.inc"
+;%include "../include/stuff.inc"
 
 ;segment _DATA
-;	EXTERN _ctrlBreak
+;       EXTERN _ctrlBreak
 
-segment _TEXT
-;	GLOBAL _initCBreak
-	GLOBAL _cbreak_handler
-	GLOBAL _CBreakCounter
+_TEXT segment
+;       GLOBAL _initCBreak
+        public cbreak_handler_
+        public _CBreakCounter
 
 ;_initCBreak:
-;	;; At this point DS is the segment of _ctrlBreak
-;	mov WORD [CS:?freecomSegment], ds
-;	ret
+;       ;; At this point DS is the segment of _ctrlBreak
+;       mov WORD [CS:?freecomSegment], ds
+;       ret
 
 ;?freecomSegment DW 0
 _CBreakCounter DW 0
 
-_cbreak_handler:
-%ifdef DEBUG
-		dec BYTE [CS:strEnd]
-		jz noRecurs
-		inc BYTE [CS:strEnd]
-		jmp short recurs
+cbreak_handler_:
+;%ifdef DEBUG
+;                dec BYTE [CS:strEnd]
+;                jz noRecurs
+;                inc BYTE [CS:strEnd]
+;                jmp short recurs
+;
+;noRecurs:
+;                push ds, dx, ax, bp
+;                mov dx, strBeg
+;                mov ax, cs
+;                mov ds, ax
+;                mov ah, 9
+;                int 21h
+;                inc BYTE [strEnd]
+;                pop ds, dx, ax, bp
+;%endif
 
-noRecurs:
-		push ds, dx, ax, bp
-		mov dx, strBeg
-		mov ax, cs
-		mov ds, ax
-		mov ah, 9
-		int 21h
-		inc BYTE [strEnd]
-		pop ds, dx, ax, bp
-%endif
-
-		;; ^Break of COMAMND --> just set the variable
-		inc WORD [CS:_CBreakCounter]
+                ;; ^Break of COMAMND --> just set the variable
+                inc WORD PTR [CS:_CBreakCounter]
 
 recurs:
-		clc			;; tell DOS to proceed
-		retf 2
+                clc                     ;; tell DOS to proceed
+                retf 2
 
-%ifdef DEBUG
-strBeg:
-	db 0dh, 0ah, 'COMMAND: ^Break detected.  ', 0dh, 0ah, 0dh, 0ah, '$'
-strEnd db 1
-%endif
+;%ifdef DEBUG
+;strBeg:
+;        db 0dh, 0ah, 'COMMAND: ^Break detected.  ', 0dh, 0ah, 0dh, 0ah, '$'
+;strEnd db 1
+;%endif
 
+_TEXT ends
+      end

@@ -10,7 +10,7 @@
 #32_BITS  = 1
 
 #defines object file names in format objname.$(O)
-OBJS = tcc2wat.$(O) absfile.$(O) almemblk.$(O) alprmblk.$(O) alsysblk.$(O) app_get.$(O) &
+OBJS = myperror.$(O) tcc2wat.$(O) absfile.$(O) almemblk.$(O) alprmblk.$(O) alsysblk.$(O) app_get.$(O) &
         app_set.$(O) beep_l.$(O) beep_n.$(O) brk_get.$(O) brk_set.$(O) cbreak.$(O) &
         cbs.$(O) cd_dir.$(O) cgetch.$(O) cgettime.$(O) chgctxt.$(O) chgdrv.$(O) &
         chgenv.$(O) chgenvc.$(O) chgenvr.$(O) clrline.$(O) cmdinput.$(O) comfile.$(O) &

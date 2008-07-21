@@ -9,15 +9,12 @@
 
 #32_BITS  = 1
 
-PROJ = command
-DESC = Command processor
+PROJ = diskcomp
+DESC = Compare disks
 #defines object file names in format objname.$(O)
-OBJS = batch.$(O) cmdtable.$(O) command.$(O) dummies.$(O) expalias.$(O) init.$(O) &
-        kswap.$(O) loadhigh.$(O) module.$(O) redir.$(O) ver.$(O) tcc2wat.$(O) cb_catch.$(O)
-# defines additional options for C compiler
+OBJS = DISKCOMP.$(O) DRIVE.$(O) MD5.$(O) MISC.$(O) tcc2wat.$(O)
 
-ADD_COPT=-i=..$(SEP)suppl -ml
-ADD_LINKOPT=lib ..\cmd\cmd.lib, ..\lib\lib.lib, ..\suppl\src\suppl.lib
+# defines additional options for C compiler
 
 !include $(%ROOT)/mk/all.mk
 

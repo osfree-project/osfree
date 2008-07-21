@@ -1,6 +1,6 @@
 {****************************** Module Header ******************************
 *                                                                          *
-* Module Name: OSFREE.H                                                    *
+* Module Name: OSFREE.UNI                                                  *
 *                                                                          *
 * This is the top level module that includes all the files necessary       *
 * for writing an osFree application.                                       *
@@ -13,5 +13,6 @@ module osfree;
 uses cdeftypes;
 
 uses os2;
+uses dos;
 
 end.

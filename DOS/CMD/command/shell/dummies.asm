@@ -5,12 +5,12 @@
 ;%include "../include/model.inc"
 
 _TEXT segment
-        public _dummy_criter_handler
-        public _end_dummy_criter_handler
-_dummy_criter_handler:
+        public dummy_criter_handler_
+        public end_dummy_criter_handler_
+dummy_criter_handler_:
         mov al, 3                       ; always fail
         iret
-_end_dummy_criter_handler:
+end_dummy_criter_handler_:
 
 _TEXT ends
 

@@ -33,7 +33,7 @@
 #define PARAM_EQUAL '='
 #define PARAM_SET   '+'
 
-#define CMD_SCAN_OFF "--" /*!< "turn off cmd-line scanning" parameter
+#define CMD_SCAN_OFF "--" /*!< "turn off cmd-line scanning" parameter */
 
 /* attrib characters */
 #define ATR_CHAR_R 'R' /*!< Readonly-attrib's character definition  */

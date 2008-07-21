@@ -62,19 +62,6 @@
 #endif
 
 
-
-/* Base types */
-#define Byte unsigned char
-#define BYTE Byte
-#define DWord unsigned long
-#define DWORD DWord
-#define UINT unsigned int
-#define WORD unsigned short
-#define Word unsigned short
-#define Char char
-#define LongInt long
-#define pointer void *
-
 #ifndef NULL
 #define NULL  0
 #endif
@@ -87,6 +74,7 @@
 #define FALSE 0
 #endif
 
+#define VOID void
 /* Calling convertion things */
 
 #define EXPENTRY  _System

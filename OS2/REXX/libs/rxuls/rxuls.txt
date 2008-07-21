@@ -1,0 +1,1007 @@
+RXULS - REXX Universal Language Support API
+| Version 0.5.2 (March 10, 2008)
+
+  REXX Universal Language Support (RxULS) provides a REXX interface to selected
+  parts of the OS/2 Universal Language Support API (ULS).
+
+  ULS was designed to facilitate the development of internationalized programs
+  in conjunction with the Unicode standard.  For this reason, ULS is sometimes
+  referred to as the OS/2 Unicode API.
+
+  RxULS allows REXX programs to:
+    - Search or transform text strings according to locale-specific rules.
+    - Query locale information.
+    - Convert text strings from one codepage to another, including to or from
+      Unicode encodings such as UTF-8 and UCS-2.
+    - Access Unicode-formatted clipboard text.
+
+  If you are unfamiliar with ULS, or with Unicode in general, I suggest reading
+  my ULS Programming Guide, which is available on my website at:
+    http://www.cs-club.org/~alex/os2/toolkits/uls/#ulsguide
+  Although it was originally written for C programmers, much of the information
+  is useful and relevant to RxULS as well.
+
+
+USING RXULS
+
+  As with any REXX library, you must register the RxULS functions before you
+  can use them.
+
+    CALL RxFuncAdd 'ULSLoadFuncs', 'RXULS', 'ULSLoadFuncs'
+    CALL ULSLoadFuncs
+
+  And to deregister all RxULS functions:
+
+    CALL ULSDropFuncs
+
+
+  All RxULS functions write error information to a global REXX variable called
+  ULSERR.  This variable will have the value '0' if the last RxULS function
+  completed successfully.
+
+  Whenever an error occurs within a RxULS function, it will set the value of
+  ULSERR to a string of the form 'x: text', where x is an integer value, and
+  text is a short string that points to the specific error that occurred.  (In
+  most cases, text will be the name of the internal function call that failed,
+  and x will be the return code from that function.)
+
+
+
+REMARKS
+
+  A very early release of RxULS was included on the CD that accompanied my
+  Unicode presentations for Warpstock 2006 and Warpstock Europe 2006.  If you
+  have used this release in any of your programs, please be aware that the
+  names, syntax, and in some cases behaviour of several functions have changed
+  since then - so please study this documentation carefully.
+
+  I still consider RxULS to be beta software.  As far as I can tell, it is
+  stable, and I don't anticipate major changes to the interface.  However, it
+  is possible that the behaviour and/or syntax of some functions may be modified
+  slightly in the future, depending on what feedback I receive.
+
+  The latest version of RxULS resides on my ULS website:
+  http://www.cs-club.org/~alex/os2/toolkits/uls/#rxuls
+
+
+
+FUNCTIONS
+
+  -----------------------------------------------------------------------------
+  ULSConvertCodepage( string [, sourcecp][, targetcp][, subchar][, controls][, path] )
+
+    Converts a string from one codepage to another, including the Unicode UCS-2
+    encoding.  (To convert to UCS-2, simply specify a target codepage of 1200;
+    to convert from UCS-2, use a source codepage of 1200.)
+
+    A partial list of OS/2 codepages is at the bottom of this document.
+
+    Parameters:
+      string    The string to be converted (required).
+
+      sourcecp  The source codepage (a positive integer).  This is the codepage
+                with which <string> is encoded (i.e. under which it would
+                display correctly).  The default is the current process
+                codepage.
+
+      targetcp  The target codepage (a positive integer).  This is the codepage
+                under which the returned string is to be encoded.  The default
+                is the current process codepage.
+
+      subchar   The substitution character for the target codepage.  This is a
+                two-letter hexadecimal value between 00 and FF which represents
+                the character in the target codepage which will be used to
+                represent substituted (i.e. unsupported) characters.  The
+                default value depends on the codepage; for most single-byte
+                codepages it is 0x7F ().
+
+                NOTE: Not all codepages appear to honour this setting!
+
+      controls  The control-byte mapping flag.  This specifies how to convert
+                those byte values which can represent either control codes or
+                glyphs depending on the context: specifically, 0x00-0x19 and
+                0x7F.  Only the first character is significant, and (if
+                specified) must be one of the following values:
+                  D  data/control bytes: leave values unchanged; this is the
+                     default
+                  G  displayable glyphs: convert according to codepage like
+                     any other character
+                  C  control bytes: convert using standard IBM control mapping
+                  L  treat linebreaks (CR and LF) as control bytes, but all
+                     others as displayable glyphs
+
+      path      The path conversion flag.  This only applies to DBCS codepages,
+                and indicates whether or not <string> should be assumed to
+                contain a path specification.  Only the first character is
+                significant, and (if specified) must be one of the following
+                values:
+                  Y  yes, assume string contains a path; this is the default
+                  N  no, assume string doesn't contain a path
+
+    Returns:
+      The converted string.  If an error occurs during conversion, an empty
+      string ("") is returned and the global ULSERR variable will be set to a
+      non-zero value.
+
+    Example:
+
+      Code
+
+        /* Input string (encoded for codepage 850) */
+        string = 'We had lunch at a caf‚ in Reykjav¡k.'
+        SAY '[Codepage 850]:' string
+
+        /* Convert it to codepage 862, using '?' for unsupported characters */
+        string2 = ULSConvertCodepage( string, 850, 862, '3f' )
+        IF ULSERR \= '0' THEN
+            SAY ULSERR
+        ELSE
+            SAY '[Codepage 862]:' string2
+
+        /* Convert it to codepage 1200 (UCS-2) */
+        string3 = ULSConvertCodepage( string, 850, 1200 )
+        IF ULSERR \= '0' THEN
+            SAY ULSERR
+        ELSE
+            SAY '[UCS-2]:       ' string3
+
+      Output
+
+        [Codepage 850]: We had lunch at a caf‚ in Reykjav¡k.
+        [Codepage 862]: We had lunch at a caf? in Reykjav?k.
+        [UCS-2]:         W e   h a d   l u n c h   a t   a   c a f é   i n   R e y k j a v í k .
+
+
+  -----------------------------------------------------------------------------
+  ULSCountryLocale( number )
+
+    Returns the name of the system locale that corresponds to the specified
+    locale number.
+
+    Parameters:
+      number    The requested numeric locale code (required).  This is a
+                one-to-three digit number which the Universal Language Support
+                APIs use to uniquely identify each predefined country locale.
+
+                NOTE: This number is NOT the same as the country code, although
+                      there is some overlap.  The actual usefulness of this
+                      function is unclear, since no other API appears to make
+                      use of these values.
+
+                A list of known numbers is included below, together with the
+                OS/2 language ID that most closely corresponds.  (Thanks to
+                Peter Koller for compiling these.)  Those marked with '*' are
+                not recognized by other OS/2 functions.
+
+                ULS     LangID (approx)     Name        Description
+                0       81                  ja_JP       Japan (Japanese)
+                1       1                   en_US       United States (English)
+                2       2                   fr_CA       Canada (French)
+                3       3                   es_LA       Latin America (Spanish)
+                7       7                   ru_RU       Russia (Russian)
+                20      785                 ar_EG       Egypt (Arabic) *
+                27      27                  en_ZA       South Africa (English)
+                30      358                 fi_FI_E     Finland (Finnish)
+                31      31                  nl_NL       Netherlands (Dutch)
+                32      32                  en_BE       Belgium (English)
+                33      33                  fr_FR       France (French)
+                34      34                  es_ES       Spain (Spanish)
+                36      36                  hu_HU       Hungarian (Hungary)
+                39      39                  it_IT       Italy (Italian)
+                40      40                  ro_RO       Romania (Romanian)
+                41      41                  fr_CH       Switzerland (French)
+                42      421                 cs_CZ       Czech Republic (Czech Republic)
+                43      43                  de_AT       Austria (German)
+                44      44                  en_GB       United Kingdom (English)
+                45      45                  da_DK       Denmark (Danish)
+                46      46                  sv_SE       Sweden (Swedish)
+                47      47                  no_NO       Norway (Norwegian)
+                48      48                  pl_PL       Poland (Polish)
+                49      49                  de_DE       Germany (German)
+                51      34                  es_PE       Peru (Spanish) *
+                52      34                  es_MX       Mexico (Spanish) *
+                54      34                  es_AR       Argentina (Spanish) *
+                55      55                  pt_BR       Brazil (Portuguese)
+                56      34                  es_CL       Chile (Spanish) *
+                57      34                  es_CO       Colombia (Spanish) *
+                58      34                  es_VE       Venezuela (Spanish) *
+                61      61                  en_AU       Australia (English)
+                64      64                  en_NZ       New Zealand (English)
+                65      86                  zh_SG       Singapore (Chinese) *
+                66      66                  th_TH       Thailand (Thai)
+                81      49                  de_LI       Liechtenstein (German) *
+                82      66                  in_ID       Indonesia (Indonesian) *
+                84      66                  vi_VN       Vietnam (Vietnamese) *
+                86      86                  zh_CN       China (Simplified Chinese)
+                88      88                  zh_TW       Taiwan (Traditional Chinese)
+                90      90                  tr_TR       Turkey (Turkish)
+                99      1                   univ        Universal *
+                212     785                 ar_MA       Morocco (Arabic) *
+                213     785                 ar_DZ       Algeria (Arabic) *
+                216     785                 ar_TN       Tunisia (Arabic) *
+                351     351                 pt_PT       Portugal (Portuguese)
+                352     33                  fr_LU       Luxembourg (French) *
+                353     353                 en_IE       Ireland (English)
+                354     354                 is_IS       Iceland (Icelandic)
+                355     355                 sq_AL       Albania (Albanian)
+                358     46                  sv_FI       Finland (Swedish) *
+                359     359                 bg_BG       Bulgaria (Bulgarian)
+                370     370                 lt_LT       Lithuania (Lithuanian)
+                371     371                 lv_LV       Latvia (Latvian)
+                372     372                 et_EE       Estonia (Estonian)
+                375     7                   be_BY       Belarus (Belarussian) *
+                380     7                   uk_UA       Ukraine (Ukrainian) *
+                381     381                 hr_SP       Serbia (Croatian)
+                385     385                 hr_HR       Croatia (Croatian)
+                386     386                 sl_SI       Slovenia (Slovenian)
+                387     387                 sh_BA       Bosnia (Serbo-Croatian)
+                389     389                 mk_MK       Macedonia (Macedonian)
+                502     34                  es_GT       Guatemala (Spanish) *
+                503     34                  es_SV       El Salvador (Spanish) *
+                504     34                  es_HN       Honduras (Spanish) *
+                505     34                  es_NI       Nicaragua (Spanish) *
+                506     34                  es_CR       Costa Rica (Spanish) *
+                507     34                  es_PA       Panama (Spanish) *
+                591     34                  es_BO       Bolivia (Spanish) *
+                593     34                  es_EC       Ecuador (Spanish) *
+                595     34                  es_PY       Paraguay (Spanish) *
+                598     34                  es_UY       Uruguay (Spanish) *
+                785     785                 ar_AA       Arabic Speaking (Arabic)
+                852     86                  zh_HK       Hong Kong (Traditional Chinese) *
+                961     785                 ar_LB       Lebanon (Arabic) *
+                962     785                 ar_JO       Jordan (Arabic) *
+                963     785                 ar_SY       Syria (Arabic) *
+                965     785                 ar_KW       Kuwait (Arabic) *
+                966     785                 ar_SA       Saudi Arabia (Arabic) *
+                967     785                 ar_YE       Yemen (Arabic) *
+                968     785                 ar_OM       Oman (Arabic) *
+                971     785                 ar_AE       United Arab Emirates (Arabic) *
+                972     30                  el_GR_E     Greece (Greek) *
+                973     785                 ar_BH       Bahrain (Arabic) *
+                974     785                 ar_QA       Qatar (Arabic) *
+                981     1                   fa_IR       Iran (Farsi) *
+
+    Returns:
+      The name of the locale, encoded in the currently-active codepage.
+
+
+  -----------------------------------------------------------------------------
+  ULSDropFuncs()
+
+    Unloads all RXULS functions.
+
+    Parameters:
+      N/A
+
+    Returns:
+      N/A
+
+
+  -----------------------------------------------------------------------------
+  ULSFindAttr( string, attribute [, start] [, max] [, flag] [, codepage] [, locale] )
+
+    Searches a string for the first character that fits the specified attribute
+    criterion.
+
+    NOTE: The 'start' and 'max' parameters both specify a number of characters,
+          not a number of bytes.  (In the case of MBCS codepages, these may not
+          be the same thing).
+
+    Parameters:
+      string    The input string to be searched.
+
+      attribute The name of the attribute to search for.  Valid attribute names
+                are listed under the ULSQueryAttr function description (below).
+                The name is not case sensitive.
+
+      start     The character position within the string to start searching
+                from.  Must fall between 1 and the string length (in
+                characters).  Defaults to 1 (the start of the string) if not
+                specified.
+
+      max       The maximum number of characters to search.  Defaults to the
+                length of the string (in characters) if not specified.
+
+      flag      The type of search to perform.  Only the first character is
+                significant, and (if specified) must be one of the following
+                values:
+                  T = True: find the first character that matches the specified
+                      attribute.  This is the default.
+                  F = False: find the first character that does not match the
+                      specified attribute.
+
+      codepage  The source codepage (a positive integer).  This is the codepage
+                with which <string> is encoded (i.e. under which it would
+                display correctly).  The default is the current process
+                codepage.
+
+      locale    The name of the locale whose text-attribute rules are to be
+                used.  Locale names are usually of the form "xx_YY", where "xx"
+                is a language and YY is a country (e.g. "en_US", "zh_TW",
+                "it_IT", etc.)  The default is to use the current locale as
+                defined by the LANG and LC_* environment variables.
+
+    Returns:
+      The character position of the first match, or 0 if no matching characters
+      were found.  If an error occurs, an empty string ("") is returned and the
+      global ULSERR variable will be set to a non-zero value.
+
+    Example:
+
+        /* Input string (encoded for codepage 850) */
+        string = 'We had lunch at a caf‚ in Reykjav¡k.'
+        SAY string
+
+        /* Search string for the first non-ASCII character */
+        c = ULSFindAttr( string, 'ascii',,,'F')
+        IF ULSERR \= '0' THEN
+            SAY ULSERR
+        ELSE
+            SAY 'The first non-ASCII character is at position:' c
+
+      Output
+
+        We had lunch at a caf‚ in Reykjav¡k.
+        The first non-ASCII character is at position: 22
+
+
+  -----------------------------------------------------------------------------
+  ULSGetLocales( [flag], stem )
+
+    Gets the list of locales known to the system.
+
+    Locales may be either system locales (standardized locales defined by OS/2)
+    or user locales (instantiated locale instances which appear in the Country
+    Palette or "Locale" object).
+
+    Parameters:
+      flag      Indicates which type of locales to list: system, user, or both.
+                Only the first character is significant, and (if specified) must
+                be one of the following values:
+                  B = List both user and system locales; this is the default.
+                  S = List system locales only.
+                  U = List user locales only.
+
+      stem      The name of a stem variable which will be populated with the
+                list of locales.  <stem>.0 will contain an integer <n>,
+                indicating the number of locales found; and <stem>.1 through
+                <stem>.<n> will each contain a single locale name.
+
+    Returns:
+      The number of locales returned (the same as <stem>.0).  If an error
+      occurs, an empty string ("") is returned and the global ULSERR variable
+      will be set to a non-zero value.
+
+    Example:
+
+      Code
+
+        /* Get a list of all user locales defined on the system */
+        CALL ULSGetLocales 'U', 'locales.'
+        SAY 'There are' locales.0 'user locales defined:'
+        DO i = 1 TO locales.0
+            SAY ' ->' locales.i
+        END
+
+      Output
+
+        There are 2 user locales defined:
+         -> en_CA
+         -> ja_JP
+
+
+  -----------------------------------------------------------------------------
+  ULSGetUnicodeClipboard( [targetcp] [, subchar] [, controls] [, path] )
+
+    Retrieves Unicode text from the clipboard.
+
+    This function attempts to retrieve existing clipboard data in the
+    "text/unicode" format.  (This format is used by Mozilla and some other
+    applications directly; it is also supported by recent versions of the
+    UClip library, as used by OpenOffice.org 2.x.)
+
+    Parameters:
+      targetcp  The target codepage (a positive integer).  This is the codepage
+                under which the returned string is to be encoded.  The default
+                is the current process codepage.
+
+      subchar   The substitution character for the target codepage.  This is a
+                two-letter hexadecimal value between 00 and FF which represents
+                the character in the target codepage which will be used to
+                represent substituted (i.e. unsupported) characters.  The
+                default value depends on the codepage; for most single-byte
+                codepages it is 0x7F ().
+
+                NOTE: Not all codepages appear to honour this setting!
+
+      controls  The control-byte mapping flag.  This specifies how to convert
+                those byte values which can represent either control codes or
+                glyphs depending on the context: specifically, 0x00-0x19 and
+                0x7F.  Only the first character is significant, and (if
+                specified) must be one of the following values:
+                  D  data/control bytes: leave values unchanged; this is the
+                     default
+                  G  displayable glyphs: convert according to codepage like
+                     any other character
+                  C  control bytes: convert using standard IBM control mapping
+                  L  treat linebreaks (CR and LF) as control bytes, but all
+                     others as displayable glyphs
+
+      path      The path conversion flag.  This only applies to DBCS codepages,
+                and indicates whether or not <string> should be assumed to
+                contain a path specification.  Only the first character is
+                significant, and (if specified) must be one of the following
+                values:
+                  Y  yes, assume string contains a path; this is the default
+                  N  no, assume string doesn't contain a path
+
+    Returns:
+      The text retrieved from the clipboard, as converted into the target
+      codepage, or "" if no such text could be retrieved.
+
+
+  -----------------------------------------------------------------------------
+  ULSLoadFuncs()
+
+    Loads all RXULS functions.
+
+    Parameters:
+      N/A
+
+    Returns:
+      N/A
+
+
+  -----------------------------------------------------------------------------
+  ULSPutUnicodeClipboard( string [, sourcecp] [, controls] [, path] )
+
+    Places Unicode text onto the clipboard.
+
+    This function converts the specified string into Unicode (UCS-2) and then
+    places it into the clipboard in the "text/unicode" format.  (This format
+    is used by Mozilla and some other applications directly; it is also
+    supported by recent versions of the UClip library, as used by OpenOffice.org
+    2.x.)  Note that the text is NOT copied in plain text format as well; if the
+    application desires this done, it must do so itself (by whatever means it
+    has available).
+
+    NOTE: This function does not clear the clipboard of other formats either.
+          That, too, is up to the application to do if it is deemed necessary.
+
+    Parameters:
+      string    The string to be placed on the clipboard (required).
+
+      sourcecp  The source codepage (a positive integer).  This is the codepage
+                with which <string> is encoded (i.e. under which it would
+                display correctly).  The default is the current process
+                codepage.
+
+      controls  The control-byte mapping flag.  This specifies how to convert
+                those byte values which can represent either control codes or
+                glyphs depending on the context: specifically, 0x00-0x19 and
+                0x7F.  Only the first character is significant, and (if
+                specified) must be one of the following values:
+                  D  data/control bytes: leave values unchanged; this is the
+                     default
+                  G  displayable glyphs: convert according to codepage like
+                     any other character
+                  C  control bytes: convert using standard IBM control mapping
+                  L  treat linebreaks (CR and LF) as control bytes, but all
+                     others as displayable glyphs
+
+      path      The path conversion flag.  This only applies to DBCS codepages,
+                and indicates whether or not <string> should be assumed to
+                contain a path specification.  Only the first character is
+                significant, and (if specified) must be one of the following
+                values:
+                  Y  yes, assume string contains a path; this is the default
+                  N  no, assume string doesn't contain a path
+
+    Returns:
+      N/A
+
+
+  -----------------------------------------------------------------------------
+  ULSQueryAttr( char, attribute [, codepage] [, locale] )
+
+    Queries whether or not a character has the specified character attribute.
+
+    Parameters:
+      char      The character to query.  This must be a valid character for the
+                specified codepage.  This may be a multi-byte string if the
+                codepage allows multiple bytes per character; however, if the
+                string contains more than one valid character, only the first
+                one will be considered (the remainder are ignored).
+
+      attribute The name of the attribute to check for.  Must be one of the
+                following.  (Attributes whose names start with "_" represent
+                Unicode character sets.  Those starting with "#" are BIDI
+                attributes.)  The name is not case sensitive.
+
+                  alnum            Alphabetic and numeric characters
+                  alpha            Letters and linguistic marks
+                  ascii            Standard ASCII character
+                  blank            Space and tab characters
+                  cntrl            Control and format characters
+                  digit            Digits 0 through 9
+                  graph            All except controls and space
+                  lower            Lower case alphabetic character
+                  number           Integral numbers between 0 and 9
+                  print            Everything except control characters
+                  punct            Punctuation marks
+                  space            Whitespace and line-breaking characters
+                  symbol           Symbol
+                  upper            Upper case alphabetic character
+                  xdigit           Hexadecimal digits (0-9, a-f, A-F)
+                  diacritic        Diacritic mark
+                  fullwidth        Full-width variant
+                  halfwidth        Half-width variant
+                  hiragana         Hiragana character
+                  ideograph        Kanji/Han character
+                  kashida          Arabic tatweel (elongation character)
+                  katakana         Katakana character
+                  nonspacing       Non-spacing mark
+                  nsdiacritic      Non-spacing diacritic
+                  nsvowel          Non-spacing vowel
+                  vowelmark        Vowel mark
+                  _apl             APL character
+                  _arabic          Arabic character
+                  _arrow           Arrow character
+                  _bengali         Bengali character
+                  _bopomofo        Bopomofo character
+                  _box             Box or line drawing character
+                  _currency        Currency Symbol
+                  _cyrillic        Cyrillic character
+                  _dash            Dash character
+                  _devanagari      Devanagari character
+                  _dingbat         Dingbat
+                  _fraction        Fraction value
+                  _greek           Greek character
+                  _gujarati        Gujarati character
+                  _gurmukhi        Gurmukhi character
+                  _hanguel         Hangul Jamo character
+                  _hebrew          Hebrew character
+                  _hiragana        Hiragana character set
+                  _katakana        Katakana character set
+                  _lao             Laotian character
+                  _latin           Latin character
+                  _linesep         Line separator
+                  _math            Math symbol
+                  _punctstart      Punctuation start
+                  _punctend        Punctuation end
+                  _tamil           Tamil character
+                  _telegu          Telegu character
+                  _thai            Thai character
+                  _userdef         User defined character
+                  #arabicnum       Arabic numbers
+                  #blocksep        Block separator
+                  #commonsep       Common separator
+                  #euronum         European number
+                  #eurosep         European separator
+                  #euroterm        European terminator
+                  #left            Left to right text orientation
+                  #mirrored        Symmetrical text orientation
+                  #neutral         Other neutral
+                  #right           Right to left text orientation
+                  #whitespace      Whitespace
+
+      codepage  The source codepage (a positive integer).  This is the codepage
+                with which <string> is encoded (i.e. under which it would
+                display correctly).  The default is the current process
+                codepage.
+
+      locale    The name of the locale whose text-attribute rules are to be
+                used.  Locale names are usually of the form "xx_YY", where "xx"
+                is a language and YY is a country (e.g. "en_US", "zh_TW",
+                "it_IT", etc.)  The default is to use the current locale as
+                defined by the LANG and LC_* environment variables.
+
+    Returns:
+      This function returns 1 if the character has the specified attribute, or
+      0 if it does not.  If an error occurs during the query operation, an empty
+      string ("") is returned and the global ULSERR variable will be set to a
+      non-zero value.
+
+
+  -----------------------------------------------------------------------------
+  ULSQueryLocaleItem( item [, locale][, codepage][, subchar ] )
+
+    Queries the value of the specified locale item.
+
+    Parameters:
+      item      The name or number of the locale item to be queried.  This must
+                be one of the items listed below.  (The name, if used, is not
+                case-sensitive.)
+
+                  NAME              NUMBER   DESCRIPTION
+                  sDateTime            1     Date and time format string
+                  sShortDate           2     Short date format
+                  sTimeFormat          3     Time format string
+                  s1159                4     AM string
+                  s2359                5     PM string
+                  sAbbrevDayName7      6     Abbreviation of day 7 (Sun)
+                  sAbbrevDayName1      7     Abbreviation of day 1 (Mon)
+                  sAbbrevDayName2      8     Abbreviation of day 2 (Tue)
+                  sAbbrevDayName3      9     Abbreviation of day 3 (Wed)
+                  sAbbrevDayName4     10     Abbreviation of day 4 (Thu)
+                  sAbbrevDayName5     11     Abbreviation of day 5 (Fri)
+                  sAbbrevDayName6     12     Abbreviation of day 6 (Sat)
+                  sDayName7           13     Name of day of week 7 (Sun)
+                  sDayName1           14     Name of day of week 1 (Mon)
+                  sDayName2           15     Name of day of week 2 (Tue)
+                  sDayName3           16     Name of day of week 3 (Wed)
+                  sDayName4           17     Name of day of week 4 (Thu)
+                  sDayName5           18     Name of day of week 5 (Fri)
+                  sDayName6           19     Name of day of week 6 (Sat)
+                  sAbbrevMonthName1   20     Abbreviation of month 1
+                  sAbbrevMonthName2   21     Abbreviation of month 2
+                  sAbbrevMonthName3   22     Abbreviation of month 3
+                  sAbbrevMonthName4   23     Abbreviation of month 4
+                  sAbbrevMonthName5   24     Abbreviation of month 5
+                  sAbbrevMonthName6   25     Abbreviation of month 6
+                  sAbbrevMonthName7   26     Abbreviation of month 7
+                  sAbbrevMonthName8   27     Abbreviation of month 8
+                  sAbbrevMonthName9   28     Abbreviation of month 9
+                  sAbbrevMonthName10  29     Abbreviation of month 10
+                  sAbbrevMonthName11  30     Abbreviation of month 11
+                  sAbbrevMonthName12  31     Abbreviation of month 12
+                  sMonthName1         32     Name of month 1
+                  sMonthName2         33     Name of month 2
+                  sMonthName3         34     Name of month 3
+                  sMonthName4         35     Name of month 4
+                  sMonthName5         36     Name of month 5
+                  sMonthName6         37     Name of month 6
+                  sMonthName7         38     Name of month 7
+                  sMonthName8         39     Name of month 8
+                  sMonthName9         40     Name of month 9
+                  sMonthName10        41     Name of month 10
+                  sMonthName11        42     Name of month 11
+                  sMonthName12        43     Name of month 12
+                  sDecimal            44     Decimal point
+                  sThousand           45     Triad separator
+                  sYesString          46     Yes string
+                  sNoString           47     No string
+                  sCurrency           48     Currency symbol
+                  sCodeSet            49     Locale codeset
+                  xLocaleToken        50     IBM Locale Token
+                  xWinLocale          51     Win32 Locale ID
+                  iLocaleResnum       52     Resource number for description
+                  sNativeDigits       53     String of native digits
+                  iMaxItem            54     Maximum item number
+                  sTimeMark           55     Time mark (am/pm) format
+                  sEra                56     Era definition
+                  sAltShortDate       57     Alternate short date format string
+                  sAltDateTime        58     Alternate date and time format
+                  sAltTimeFormat      59     Alternate time format
+                  sAltDigits          60     XPG4 alternate digits
+                  sYesExpr            61     XPG4 Yes expression
+                  sNoExpr             62     XPG4 No expression
+                  sDate               63     Short date separator
+                  sTime               64     Time separator
+                  sList               65     List separator
+                  sMonDecimalSep      66     Monetary currency separator
+                  sMonThousandSep     67     Monetary triad separator
+                  sGrouping           68     Grouping of digits
+                  sMonGrouping        69     Monetary groupings
+                  iMeasure            70     Measurement (Metric, British)
+                  iPaper              71     Normal paper size
+                  iDigits             72     Digits to right of decimal
+                  iTime               73     Clock format
+                  iDate               74     Format of short date
+                  iCurrency           75     Format of currency
+                  iCurrDigits         76     Digits to right for currency
+                  iLzero              77     Leading zero used
+                  iNegNumber          78     Format of negative number
+                  iLDate              79     Format of long date
+                  iCalendarType       80     Type of default calandar
+                  iFirstDayOfWeek     81     First day of week (0=Mon)
+                  iFirstWeekOfYear    82     First week of year
+                  iNegCurr            83     Format of negative currency
+                  iTLzero             84     Leading zero on time
+                  iTimePrefix         85     AM/PM preceeds time
+                  iOptionalCalendar   86     Alternate calandar type
+                  sIntlSymbol         87     International currency symbol
+                  sAbbrevLangName     88     Windows language abbreviation
+                  sCollate            89     Collation table
+                  iUpperType          90     Upper case algorithm
+                  iUpperMissing       91     Action for missing upper case
+                  sPositiveSign       92     Positive sign
+                  sNegativeSign       93     Negative sign
+                  sLeftNegative       94     Left paren for negative
+                  sRightNegative      95     Right paren for negative
+                  sLongDate           96     Long date formatting string
+                  sAltLongDate        97     Alternate long date format string
+                  sMonthName13        98     Name of month 13
+                  sAbbrevMonthName13  99     Abbreviation of month 13
+                  sName              100     OS/2 locale name
+                  sLanguageID        101     Abbreviation for language (ISO)
+                  sCountryID         102     Abbreviation for country (ISO)
+                  sEngLanguage       103     English name of Language
+                  sLanguage          104     Native name of language
+                  sEngCountry        105     English name of country
+                  sCountry           106     Localized country name
+                  sNativeCtryName    107     Name of country in native language
+                  iCountry           108     Country code
+                  sISOCodepage       109     ISO codepage name
+                  iAnsiCodepage      110     Windows codepage
+                  iCodepage          111     OS/2 primary codepage
+                  iAltCodepage       112     OS/2 alternate codepage
+                  iMacCodepage       113     Mac codepage
+                  iEbcdicCodepage    114     Ebcdic codepage
+                  sOtherCodepages    115     Other ASCII codepages
+                  sSetCodepage       116     Codpage to set on activation
+                  sKeyboard          117     Primary keyboard name
+                  sAltKeyboard       118     Alternate keyboard name
+                  sSetKeyboard       119     Keyboard to set on activation
+                  sDebit             120     Debit string
+                  sCredit            121     Credit string
+                  sLatin1Locale      122     Locale for Latin 1 names
+                  wTimeFormat        123     Win32 Time format
+                  wShortDate         124     Win32 Date format
+                  wLongDate          125     Win32 Long date format
+                  jISO3CountryName   126     Java abbrev for country (ISO-3)
+                  jPercentPattern    127     Java percent pattern
+                  jPercentSign       128     Java percent symbol
+                  jExponent          129     Java exponential symbol
+                  jFullTimeFormat    130     Java full time format
+                  jLongTimeFormat    131     Java long time format
+                  jShortTimeFormat   132     Java short time format
+                  jFullDateFormat    133     Java full date format
+                  jMediumDateFormat  134     Java medium date format
+                  jDateTimePattern   135     Java date time format pattern
+                  jEraStrings        136     Java era strings
+
+      locale    The name of the locale whose values are being queried.  Locale
+                names are usually of the form "xx_YY", where "xx" is a language
+                and YY is a country (e.g. "en_US", "zh_TW", "it_IT", etc.)  The
+                default is to use the current locale as defined by the LANG and
+                LC_* environment variables.
+
+      codepage  The codepage into which the returned value will be converted.
+                (Locale item values are stored internally as Unicode UCS-2
+                text.  To return the value in UCS-2, specify codepage 1200.)
+
+      subchar   The substitution character for the target codepage.  This is a
+                two-letter hexadecimal value between 00 and FF which represents
+                the character in the target codepage which will be used to
+                represent substituted (i.e. unsupported) characters.  The
+                default value depends on the codepage; for most single-byte
+                codepages it is 0x7F ().
+
+                NOTE: Not all codepages appear to honour this setting!
+
+    Returns:
+      The value of the specified locale item, as converted into the requested
+      codepage.
+
+    Example:
+
+      Code
+
+        /* Query the name of the language for locale 'es_AR' (Argentina)
+         * in both English and the localized language itself.
+         */
+        englang = ULSQueryLocaleItem('sEngLanguage', 'es_AR', 850 )
+        IF ULSERR \= '0' THEN DO
+            SAY ULSERR
+            RETURN
+        END
+        natlang = ULSQueryLocaleItem('sLanguage', 'es_AR', 850 )
+        IF ULSERR \= '0' THEN DO
+            SAY ULSERR
+            RETURN
+        END
+
+        SAY 'The default language for locale es_AR is "'englang'" ("'natlang'")'
+
+      Output
+
+        The default language for locale es_AR is "Spanish" ("Espa¤ol")
+
+
+  -----------------------------------------------------------------------------
+  ULSTransform( string, xform [, codepage] [, locale] )
+
+    Transforms a string according to one of the predefined transformation
+    types.  The effect of this transformation may vary by locale.
+
+    Parameters:
+      string    The string to be converted (required).
+
+      xform     The name of the transformation to apply (required).  Must be
+                one of the following (not case sensitive):
+
+                  lower     Transform so that all text is lowercase.  Characters
+                            without lowercase forms (as defined by the locale)
+                            are left unchanged.
+
+                  upper     Transform so that all text is uppercase.  Characters
+                            without uppercase forms (as defined by the locale)
+                            are left unchanged.
+
+                  compose   Transform so that all diacritical (e.g. accented)
+                            characters are represented using fully-composed
+                            forms (a single code element represents the combined
+                            character).
+
+                  decompose Transform so that all diacritical characters are
+                            represented using decomposed forms (separate code
+                            elements are used to represent the base character
+                            and the diacritical mark).
+
+                  hiragana  Transform so that all Japanese phonetic characters
+                            use the Hiragana character set.
+
+                  katakana  Transform so that all Japanese phonetic characters
+                            use the full-width Katakana character set.
+
+                  kana      Transform so that all Japanese phonetic characters
+                            use the half-width Katakana character set.
+
+      codepage  The source codepage (a positive integer).  This is the codepage
+                with which <string> is encoded (i.e. under which it would
+                display correctly).  The default is the current process
+                codepage.
+
+      locale    The name of the locale whose transformation rules are to be
+                used.  Locale names are usually of the form xx_YY where "xx" is
+                a language and YY is a country (e.g. "en_US", "zh_TW", "it_IT",
+                etc.)  The default is to use the current locale as defined by
+                the LANG and LC_* environment variables.
+
+    Returns:
+      The transformed string, which is in the same codepage as the input string.
+      If an error occurs during transformation, an empty string ("") is returned
+      and the global ULSERR variable will be set to a non-zero value.
+
+
+  -----------------------------------------------------------------------------
+  ULSVersion()
+
+    Returns the current version of RXULS.DLL.
+
+    Parameters:
+      N/A
+
+    Returns:
+      The current version in the form "major.minor.refresh".
+
+
+  -----------------------------------------------------------------------------
+
+
+
+OS/2 CODEPAGE NUMBERS
+
+    Various ASCII-based and Unicode codepages known to OS/2 are listed below.
+    You can find a more comprehensive list (including symbolic and EBCDIC-based
+    encodings) at: http://www.cs-club.org/~alex/os2/toolkits/uls/codepages.html
+
+     367  ASCII, 7-bit
+     437  DOS Extended ASCII (United States)
+     813  ISO Greek, ISO-8859-7
+     819  ISO Latin 1, ISO-8859-1
+     850  IBM Latin 1 (Multilingual)
+     851  DOS Greek
+     852  IBM Latin 2 (Eastern Europe)
+     855  IBM Cyrillic
+     856  DOS Hebrew
+     857  IBM Latin 5 (Turkey)
+     859  IBM Latin 9 (Multilingual)
+     860  IBM Portuguese
+     861  IBM Icelandic
+     862  IBM Hebrew (Israel)
+     863  IBM Canadian French
+     864  IBM Arabic
+     865  IBM Nordic
+     866  IBM Russian
+     868  IBM Urdu
+     869  IBM Greek
+     874  Thai, TIS-620/ISO-8859-11 Extended
+     878  Internet Russian, KOI8-R
+     912  ISO Latin 2, ISO-8859-2
+     913  ISO Latin 3, ISO-8859-3
+     914  ISO Latin 4, ISO-8859-4
+     915  ISO Cyrillic, ISO-8859-5
+     916  ISO Hebrew, ISO-8859-8
+     920  ISO Latin 5, ISO-8859-9
+     921  ISO Latin 7, ISO-8859-13
+     922  Estonian
+     923  ISO Latin 9, ISO-8859-15 (Multilingual)
+     932  Japanese, MBCS-PC/Shift-JIS  [aliased to 943]
+     934  Korean, MBCS-PC legacy encoding  [aliased to 944]
+     936  Simplified Chinese, MBCS-PC legacy encoding (PRC)  [aliased to 946]
+     938  Traditional Chinese CNS11643 Extended, MBCS-PC (Taiwan)  [aliased to 948]
+     942  Japanese JISX0201-1976 + JISX0208-1978 Extended, Shift-JIS
+     943  Japanese JISX0201-1976 + JISX0208-1990 Windows31-J, Shift-JIS
+     944  Korean SAA
+     946  Simplified Chinese SAA (PRC)
+     948  Traditional Chinese SAA (Taiwan)
+     949  Korean KSC5601, MBCS-PC/KS-Code
+     950  Traditional Chinese Big-5, MBCS-PC/Big-5 (Taiwan)
+     954  Japanese, EUC-JP
+     964  Traditional Chinese, EUC-TW (Taiwan)
+     970  Korean, EUC-KR
+    1004  Windows Latin 1 Extended
+    1006  Urdu
+    1008  Windows Arabic, Original
+    1089  ISO Arabic, ISO-8859-6
+    1098  IBM Farsi
+    1116  IBM Estonian
+    1117  IBM Latvian
+    1118  IBM Lithuanian
+    1119  IBM Lithuanian & Russian
+    1124  Ukrainian, Modified ISO Cyrillic
+    1125  IBM Ukrainian
+    1131  IBM Belarussian
+    1200  Unicode, UCS-2 (2-byte Universal Character Set encoding)
+    1207  Unicode, UPF-8 (8-bit Unicode Processing Format)
+    1208  Unicode, UTF-8 (8-bit Unicode Transformation Format)
+    1250  Windows Latin 2
+    1251  Windows Cyrillic
+    1252  Windows Latin 1
+    1253  Windows Greek
+    1254  Windows Turkish
+    1255  Windows Hebrew
+    1256  Windows Arabic
+    1257  Windows Latin 4
+    1275  Apple Latin 1
+    1276  Adobe PostScript Standard Encoding
+    1277  Adobe PostScript Latin 1 Encoding
+    1280  Apple Greek
+    1281  Apple Turkish
+    1282  Apple Central European
+    1283  Apple Cyrillic
+    1381  Simplified Chinese GB2312 Extended, MBCS-PC (PRC)
+    1383  Simplified Chinese, EUC-CN (PRC)
+    1386  Simplified Chinese GBK, MBCS-PC (PRC)
+
+
+HISTORY
+
+| 0.5.2 (2008-03-10)
+|   - Fixed a bug which could have resulted in a slight memory leak under some
+|     error conditions (thanks to Rich Walsh).
+|   - Slight correction to PM initialization/termination logic in the clipboard
+|     functions.
+|   - A few minor code optimizations.
+|   - Miscellaneous code cleanup.
+
+  0.5.1 (2008-01-13)
+    - Bugfixes to both ULSPutUnicodeClipboard and ULSQueryLocale (thanks to Lars
+      Erdmann) that could have caused crashes.
+
+  0.5.0 (2008-01-09)
+    - First public release
+
+
+LICENSE
+
+  RxULS is (C) 2008 Alexander Taylor.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are
+  met:
+
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+  3. The name of the author may not be used to endorse or promote products
+     derived from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+

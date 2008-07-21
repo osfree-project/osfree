@@ -1,6 +1,6 @@
 /*****************************************************************************
     osfree.h
-    (C) 2004-2007 osFree project
+    (C) 2004-2008 osFree project
 
     WARNING! Automaticaly generated file! Don't edit it manually!
 *****************************************************************************/
@@ -16,6 +16,10 @@
 
 #ifdef INCL_OS2
   #include <os2.h>
+#endif
+
+#ifdef INCL_DOS
+  #include <dos.h>
 #endif
 
 

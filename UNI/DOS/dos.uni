@@ -1,21 +1,14 @@
 {****************************** Module Header ******************************
 *                                                                          *
-* Module Name: OS2.UNI                                                     *
+* Module Name: DOS.UNI                                                     *
 *                                                                          *
 * This is the top level module that includes all the files necessary       *
-* for writing an OS/2 Personality application.                             *
+* for writing an DOS Personality application.                              *
 *                                                                          *
 ***************************************************************************}
 
-module os2;
+module dos;
 
-{workaround of unimplemented uni2h feature}
-uses cdeftypes;
-
-uses os2def;
-uses bse;
-uses utlapi;
-uses pm;
+uses os2vdm;
 
 end.
-

@@ -1,4 +1,6 @@
-/* $Id: bldlevel.cmd,v 1.2 2004/08/21 14:48:44 prokushev Exp $ */
+/*
+
+*/
 
 Say 'Build Level Display Facility Version 1.1'
 Say '(C) Copyright 2003-2004 by Yuri Prokushev'
@@ -32,7 +34,7 @@ end
 f=charin(filename,1, chars(filename))
 
 as:
-interpret "parse var f with Skip '@#' Vendor ':' Revision '#@' Description '"||d2c(0)||"' Skip"
+interpret "parse var f with Skip '@"||"#' Vendor ':' Revision '#"||"@' Description '"||d2c(0)||"' Skip"
 if length(Vendor)>31 then
 do
   f=Vendor||':'||Revision||'#'||'@'||Description||d2c(0)||Skip

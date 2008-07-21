@@ -8,7 +8,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = Lnk
+DIRS = Lnk Def
 
 !include $(%ROOT)/mk/all.mk
 

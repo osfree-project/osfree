@@ -1,12 +1,15 @@
-#define APIRET short
-#define APIENTRY _System
-#define CHAR char
-#define VOID void
-#define PVOID void far *
-#define USHORT unsigned short
-#define PSZ char far *
+{****************************** Module Header ******************************
+*                                                                          *
+* Module Name: OS2VDM.UNI                                                  *
+*                                                                          *
+* This is OS/2 VDM specific module that includes all the files necessary   *
+* for writing an DOS Personality application with OS/2 VDM API.            *
+*                                                                          *
+***************************************************************************}
 
-/*
+module os2vdm;
+
+(*
 INT 21 U - OS/2 v1.x FAPI - OS/2 FILE SYSTEM JOIN/SUBST
         AH = 61h
         BP = 6467h ("dg")
@@ -27,9 +30,10 @@ Notes:  used by JOIN and SUBST to communicate with the OS/2 file system
         for function 00h (list), the ES:DI buffer is filled with the ASCIZ
           JOIN/SUBST path or an empty string if the drive is not JOINed/SUBSTed
         also supported by OS/2 v2.0+ Virtual DOS Machines
-*/
+*)
 
-APIRET APIENTRY VdmJoinQuery(CHAR cDrive, USHORT usBufferSize, PVOID Buffer);
+function VdmJoinQuery(cDrive: CHAR; usBufferSize: USHORT; Buffer: PVOID);
+
 APIRET APIENTRY VdmJoinSet(CHAR cDrive, PSZ pszPath);
 APIRET APIENTRY VdmJoinDelete(CHAR cDrive);
 

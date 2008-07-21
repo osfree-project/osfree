@@ -148,7 +148,7 @@ openfiles (void)
   strlwr (infile);
 #endif /* MSDOS */
 
-#if ((defined(_WIN32) && !defined(__CYGWIN32__)) || (defined(OS2)))
+#if ((defined(_WIN32) && !defined(__CYGWIN32__)) || (defined(__OS2__)))
   tmp_base = getenv ("TEMP");           /* Windows95 defines this ... */
   if (tmp_base == 0)
     tmp_base = getenv ("Temp");         /* ... while NT prefers this */

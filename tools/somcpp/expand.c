@@ -1973,7 +1973,7 @@ static char *   rescan(
                         if (seq_len) {
                             insert_to_bptr( mgc_seq.magic_start, seq_len);
                             mgc_cleared = remove_magics(
-                                    (const char *) infile->bptr, FALSE);
+                                    (char *) infile->bptr, FALSE);
                                         /* Remove pair of magics    */
                             strcpy( infile->bptr, mgc_cleared);
                             free( mgc_cleared);

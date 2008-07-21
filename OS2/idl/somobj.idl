@@ -29,7 +29,7 @@
 #endif
 
 
-interface SOMClass;
+interface SOMClass; //test
 interface SOMObject;
 
 /*
@@ -231,8 +231,8 @@ typedef octet *somBooleanVector;
 enum exception_type { NO_EXCEPTION, USER_EXCEPTION, SYSTEM_EXCEPTION };
 
 struct Environment {
-    exception_type major;  // use somcorba.h exception_type values
-    octet opaque_data[12]; // #2990
+exception_type major;  // use somcorba.h exception_type values
+octet opaque_data[12]; // #2990
 };
 
 

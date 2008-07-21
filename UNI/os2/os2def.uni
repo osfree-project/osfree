@@ -1,8 +1,17 @@
 module os2def;
 
-type UCHAR  = BYTE; {8bit}
-type USHORT = WORD; {16bit}
-type ULONG  = DWORD; {32bit}
+type BYTE   = T_BYTE; {8bit}
+type UCHAR  = T_BYTE; {8bit}
+type USHORT = T_WORD; {16bit}
+type ULONG  = T_DWORD; {32bit}
+type SHORT  = T_LONG16; {16bit}
+type LONG   = T_LONG32; {32bit}
+type WORD   = T_WORD; {16bit}
+type DWORD  = T_DWORD; {32bit}
+
+type INT   = T_LONG32;
+type UINT  = T_DWORD;
+type CHAR  = T_CHAR;
 
 type SHANDLE = USHORT;
 type LHANDLE = ULONG;
@@ -32,12 +41,6 @@ const ICON_FILE     = 1;
 const ICON_RESOURCE = 2;
 const ICON_DATA     = 3;
 const ICON_CLEAR    = 4;
-
-type CHAR=char;
-type SHORT=short;
-type LONG=long;
-type INT=int;
-type VOID=void;
 
 const DRIVER_NAME     = 1;
 const DRIVER_DATA     = 2;
@@ -131,11 +134,11 @@ type APIRET=ULONG;
 type APIRET16=USHORT;
 type APIRET32=ULONG;
 
-type PSZ=^char;
-type NPSZ=^char;
-type PCH=^char;
-type NPCH=^char;
-type PCSZ=^char;
+type PSZ=^T_CHAR;
+type NPSZ=^T_CHAR;
+type PCH=^T_CHAR;
+type NPCH=^T_CHAR;
+type PCSZ=^T_CHAR;
 
 
 type BOOL=ULONG;
@@ -153,8 +156,8 @@ type PLONG=^LONG;
 {type CHAR     * _Seg16 PCHAR16;}
 {type UCHAR    * _Seg16 PUCHAR16;}
 
-type PVOID=pointer;
-type PPVOID=^pointer;
+type PVOID=T_POINTER;
+type PPVOID=^PVOID;
 {type VOID     * _Seg16 PVOID16;}
 
 {type int (APIENTRY _PFN)();
@@ -202,13 +205,13 @@ type HMTX=ULONG;
 type PHMTX=^HMTX;
 type HMUX=ULONG;
 type PHMUX=^HMUX;
-type HSEM=pointer;
+type HSEM=PVOID;
 type PHSEM=^HSEM;
 type SGID=USHORT;
 
-type MPARAM=pointer;
+type MPARAM=PVOID;
 type PMPARAM=^MPARAM;
-type MRESULT=pointer;
+type MRESULT=PVOID;
 type PMRESULT=^MRESULT;
 
 type ERRORID=ULONG;
