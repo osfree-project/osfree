@@ -1,0 +1,35 @@
+/*** Signal support */
+
+   /* DosSetSigExceptionFocus codes */
+
+   #define SIG_UNSETFOCUS 0
+   #define SIG_SETFOCUS 1
+
+   #include <bsexcpt.h>
+
+   APIRET APIENTRY  DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec);
+
+   APIRET APIENTRY  DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec);
+
+   APIRET APIENTRY  DosRaiseException(PEXCEPTIONREPORTRECORD pexcept);
+
+   APIRET APIENTRY  DosSendSignalException(PID pid,
+                                           ULONG exception);
+
+   APIRET APIENTRY  DosUnwindException(PEXCEPTIONREGISTRATIONRECORD phandler,
+                                       PVOID pTargetIP,
+                                       PEXCEPTIONREPORTRECORD pERepRec);
+
+   APIRET APIENTRY  DosSetSignalExceptionFocus(BOOL32 flag,
+                                               PULONG pulTimes);
+
+   APIRET APIENTRY  DosEnterMustComplete(PULONG pulNesting);
+
+   APIRET APIENTRY  DosExitMustComplete(PULONG pulNesting);
+
+   APIRET APIENTRY  DosAcknowledgeSignalException(ULONG ulSignalNum);
+
+   APIRET APIENTRY  DosQueryThreadContext(TID tid,
+                                          ULONG level,
+                                          PCONTEXTRECORD pcxt);
+

@@ -7,9 +7,9 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-# First directory must be UNI which produces C/C++ header files
+# First directory must be SHARED which provides shared libs
 
-DIRS = CMD WIN16
+DIRS = shared CMD WIN16
 
 
 !include $(%ROOT)/mk/all.mk

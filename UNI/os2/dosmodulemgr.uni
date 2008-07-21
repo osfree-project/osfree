@@ -1,0 +1,101 @@
+/*** Module manager */
+
+#ifdef INCL_DOSMODULEMGR
+
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
+                                  ULONG cbName,
+                                  PCSZ  pszModname,
+                                  PHMODULE phmod);
+#else
+   APIRET APIENTRY  DosLoadModule(PSZ pszName,
+                                  ULONG cbName,
+                                  PSZ pszModname,
+                                  PHMODULE phmod);
+#endif
+
+   APIRET APIENTRY  DosFreeModule(HMODULE hmod);
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosQueryProcAddr(HMODULE hmod,
+                                     ULONG ordinal,
+                                     PCSZ  pszName,
+                                     PFN* ppfn);
+#else
+   APIRET APIENTRY  DosQueryProcAddr(HMODULE hmod,
+                                     ULONG ordinal,
+                                     PSZ pszName,
+                                     PFN* ppfn);
+#endif
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosQueryModuleHandle(PCSZ  pszModname,
+                                         PHMODULE phmod);
+#else
+   APIRET APIENTRY  DosQueryModuleHandle(PSZ pszModname,
+                                         PHMODULE phmod);
+#endif
+
+   APIRET APIENTRY  DosQueryModuleName(HMODULE hmod,
+                                       ULONG cbName,
+                                       PCHAR pch);
+
+   #define PT_16BIT        0
+   #define PT_32BIT        1
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosQueryProcType(HMODULE hmod,
+                                     ULONG ordinal,
+                                     PCSZ  pszName,
+                                     PULONG pulproctype);
+#else
+   APIRET APIENTRY  DosQueryProcType(HMODULE hmod,
+                                     ULONG ordinal,
+                                     PSZ pszName,
+                                     PULONG pulproctype);
+#endif
+
+   APIRET APIENTRY  DosQueryModFromEIP(HMODULE *phMod,
+                                        ULONG *pObjNum,
+                                        ULONG BuffLen,
+                                        PCHAR pBuff,
+                                        ULONG *pOffset,
+                                        ULONG Address);
+
+   #define HW_CFG_MCA              0x00000001
+   #define HW_CFG_EISA             0x00000002
+   #define HW_CFG_ABIOS_SUPPORTED  0x00000004
+   #define HW_CFG_ABIOS_PRESENT    0x00000008
+   #define HW_CFG_PCI              0x00000010
+   #define HW_CFG_IBM_ABIOS        0x00000000  /* OEM flag is OFF, ABIOS is IBM */
+   #define HW_CFG_OEM_ABIOS        0x00000020
+   #define HW_CFG_PENTIUM_CPU      0x00000040
+
+   APIRET  APIENTRY DosQueryABIOSSupport(ULONG reserved);
+
+#ifdef __cplusplus
+   APIRET  APIENTRY DosReplaceModule(PCSZ  pszOldModule,
+                                     PCSZ  pszNewModule,
+                                     PCSZ  pszBackupModule);
+#else
+   APIRET  APIENTRY DosReplaceModule(PSZ pszOldModule,
+                                     PSZ pszNewModule,
+                                     PSZ pszBackupModule);
+#endif
+
+#if __IBMC__ || __IBMCPP__
+   /* structure returned by DosQueryModFromCS */
+
+   typedef struct _QMRESULT { /* qmres */
+      USHORT seg;
+      USHORT hmte;
+      CHAR   name[CCHMAXPATH];
+   } QMRESULT;
+   typedef QMRESULT * PQMRESULT;
+
+
+   APIRET16 APIENTRY16 Dos16QueryModFromCS(SEL, PQMRESULT);
+#endif
+
+#endif /* INCL_DOSMODULEMGR */

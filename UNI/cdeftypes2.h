@@ -7,27 +7,6 @@
 typedef CHAR     * _Seg16 PCHAR16;
 typedef UCHAR    * _Seg16 PUCHAR16;
 
-typedef struct _ICONINFO {
-    ULONG   cb;
-    ULONG   fFormat;
-    PSZ     pszFileName;
-    HMODULE hmod;
-    ULONG   resid;
-    ULONG   cbIconData;
-    PVOID   pIconData;
-} ICONINFO, *PICONINFO;
-
-typedef struct _ACCEL {
-    USHORT fs;
-    USHORT key;
-    USHORT cmd;
-} ACCEL, *PACCEL;
-
-typedef struct _QWORD {
-    ULONG   ulLo;
-    ULONG   ulHi;
-} QWORD, *PQWORD;
-
 typedef VOID     * _Seg16 PVOID16;
 
 
@@ -57,6 +36,31 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 #define MAKELONG(l, h)   ((LONG)MAKEULONG(l, h))
 #define MAKEUSHORT(l, h) (((USHORT)(l)) | ((USHORT)(h)) << 8)
 #define MAKESHORT(l, h)  ((SHORT)MAKEUSHORT(l, h))
+
+#define MAKEP( sel,off )   ((void *)(void * _Seg16)( (sel) << 16 | (off) ))
+#define MAKE16P( sel,off ) ((void * _Seg16)( (sel) << 16 | (off) ))
+
+#define SELECTOROF(ptr)    ((((ULONG)(ptr))>>13)|7)
+#define OFFSETOF(p)        (((PUSHORT)&(p))[0])
+
+#define MAKETYPE(v, type)  (*((type *)&v))
+
+#define FIELDOFFSET(type, field)   ((SHORT)&(((type *)0)->field))
+
+#define LOBYTE(w)   LOUCHAR(w)
+#define HIBYTE(w)   HIUCHAR(w)
+#define LOUCHAR(w)  ((UCHAR)(w))
+#define HIUCHAR(w)  ((UCHAR)(((USHORT)(w) >> 8) & 0xff))
+#define LOUSHORT(l) ((USHORT)((ULONG)l))
+#define HIUSHORT(l) ((USHORT)(((ULONG)(l) >> 16) & 0xffff))
+
+#define MAKEERRORID(sev, error) (ERRORID)(MAKEULONG((error), (sev)))
+#define ERRORIDERROR(errid)     (LOUSHORT(errid))
+#define ERRORIDSEV(errid)       (HIUSHORT(errid))
+
+#define APIENTRY16 _Far16 _Pascal
+#define PASCAL16   _Far16 _Pascal
+#define CDECL16    _Far16 _Cdecl
 
 #endif
 

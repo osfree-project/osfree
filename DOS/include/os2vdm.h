@@ -5,6 +5,7 @@
 #define PVOID void far *
 #define USHORT unsigned short
 #define PSZ char far *
+#define NULL (void *)0
 
 /*
 INT 21 U - OS/2 v1.x FAPI - OS/2 FILE SYSTEM JOIN/SUBST

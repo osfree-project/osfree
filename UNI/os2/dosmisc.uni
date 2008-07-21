@@ -1,0 +1,186 @@
+
+   /* definitions for DosSearchPath control word */
+   #define DSP_IMPLIEDCUR          1 /* current dir will be searched first */
+   #define DSP_PATHREF             2 /* from env.variable */
+   #define DSP_IGNORENETERR        4 /* ignore net errs & continue search */
+
+   /* indices for DosQuerySysInfo */
+   #define QSV_MAX_PATH_LENGTH        1
+   #define Q_MAX_PATH_LENGTH          QSV_MAX_PATH_LENGTH
+   #define QSV_MAX_TEXT_SESSIONS      2
+   #define QSV_MAX_PM_SESSIONS        3
+   #define QSV_MAX_VDM_SESSIONS       4
+   #define QSV_BOOT_DRIVE             5 /* 1=A, 2=B, etc.                     */
+   #define QSV_DYN_PRI_VARIATION      6 /* 0=Absolute, 1=Dynamic              */
+   #define QSV_MAX_WAIT               7 /* seconds                            */
+   #define QSV_MIN_SLICE              8 /* milli seconds                      */
+   #define QSV_MAX_SLICE              9 /* milli seconds                      */
+   #define QSV_PAGE_SIZE             10
+   #define QSV_VERSION_MAJOR         11
+   #define QSV_VERSION_MINOR         12
+   #define QSV_VERSION_REVISION      13 /* Revision letter                    */
+   #define QSV_MS_COUNT              14 /* Free running millisecond counter   */
+   #define QSV_TIME_LOW              15 /* Low dword of time in seconds       */
+   #define QSV_TIME_HIGH             16 /* High dword of time in seconds      */
+   #define QSV_TOTPHYSMEM            17 /* Physical memory on system          */
+   #define QSV_TOTRESMEM             18 /* Resident memory on system          */
+   #define QSV_TOTAVAILMEM           19 /* Available memory for all processes */
+   #define QSV_MAXPRMEM              20 /* Avail private mem for calling proc */
+   #define QSV_MAXSHMEM              21 /* Avail shared mem for calling proc  */
+   #define QSV_TIMER_INTERVAL        22 /* Timer interval in tenths of ms     */
+   #define QSV_MAX_COMP_LENGTH       23 /* max len of one component in a name */
+   #define QSV_FOREGROUND_FS_SESSION 24 /* Session ID of current fgnd FS session*/
+   #define QSV_FOREGROUND_PROCESS    25 /* Process ID of current fgnd process */
+   #define QSV_NUMPROCESSORS         26
+   #define QSV_MAXHPRMEM             27
+   #define QSV_MAXHSHMEM             28
+   #define QSV_MAXPROCESSES          29
+   #define QSV_VIRTUALADDRESSLIMIT   30
+   #define QSV_INT10ENABLED          31
+   #define QSV_MAX                   QSV_INT10ENABLED
+
+   /* definitions for DosError - combine with | */
+   #define FERR_DISABLEHARDERR     0x00000000L     /* disable hard error popups */
+   #define FERR_ENABLEHARDERR      0x00000001L     /* enable hard error popups */
+   #define FERR_ENABLEEXCEPTION    0x00000000L     /* enable exception popups */
+   #define FERR_DISABLEEXCEPTION   0x00000002L     /* disable exception popups */
+
+   /* definitions for DosDumpProcess */
+   #define DDP_DISABLEPROCDUMP     0x00000000L     /* disable process dumps */
+   #define DDP_ENABLEPROCDUMP      0x00000001L     /* enable process dumps */
+   #define DDP_PERFORMPROCDUMP     0x00000002L     /* perform process dump */
+
+   /* definitions for DosSuppressPopUps */
+   #define SPU_DISABLESUPPRESSION  0x00000000L     /* disable popup suppression */
+   #define SPU_ENABLESUPPRESSION   0x00000001L     /* enable popup suppression */
+   #define SPU_NOLOGCHANGE         0x00000002L     /* do not reset the log drive */
+
+   /* definitions for DosQueryRASInfo Index */
+   #define SIS_MMIOADDR            0
+   #define SIS_MEC_TABLE           1
+   #define SIS_SYS_LOG             2
+   #define SIS_PERF_MEC_TABLE      3
+
+   /* definitions for DosQueryExtLIBPATH and DosSetExtLIBPATH flags parameter */
+   #define BEGIN_LIBPATH   1
+   #define END_LIBPATH     2
+   #define LIBPATHSTRICT   3
+
+   #define DosInsMessage   DosInsertMessage
+   #define DosQSysInfo     DosQuerySysInfo
+
+   APIRET APIENTRY  DosError(ULONG error);
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosGetMessage(PCHAR* pTable,
+                                  ULONG cTable,
+                                  PCHAR pBuf,
+                                  ULONG cbBuf,
+                                  ULONG msgnumber,
+                                  PCSZ  pszFile,
+                                  PULONG pcbMsg);
+#else
+   APIRET APIENTRY  DosGetMessage(PCHAR* pTable,
+                                  ULONG cTable,
+                                  PCHAR pBuf,
+                                  ULONG cbBuf,
+                                  ULONG msgnumber,
+                                  PSZ pszFile,
+                                  PULONG pcbMsg);
+#endif
+
+   APIRET APIENTRY  DosErrClass(ULONG code,
+                                PULONG pClass,
+                                PULONG pAction,
+                                PULONG pLocus);
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosInsertMessage(PCHAR* pTable,
+                                     ULONG cTable,
+                                     PCSZ  pszMsg,
+                                     ULONG cbMsg,
+                                     PCHAR pBuf,
+                                     ULONG cbBuf,
+                                     PULONG pcbMsg);
+#else
+   APIRET APIENTRY  DosInsertMessage(PCHAR* pTable,
+                                     ULONG cTable,
+                                     PSZ pszMsg,
+                                     ULONG cbMsg,
+                                     PCHAR pBuf,
+                                     ULONG cbBuf,
+                                     PULONG pcbMsg);
+#endif
+
+   APIRET APIENTRY  DosPutMessage(HFILE hfile,
+                                  ULONG cbMsg,
+                                  PCHAR pBuf);
+
+   APIRET APIENTRY  DosQuerySysInfo(ULONG iStart,
+                                    ULONG iLast,
+                                    PVOID pBuf,
+                                    ULONG cbBuf);
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
+                               PCSZ  *ppszValue);
+#else
+   APIRET APIENTRY  DosScanEnv(PSZ pszName,
+                               PSZ *ppszValue);
+#endif
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosSearchPath(ULONG flag,
+                                  PCSZ  pszPathOrName,
+                                  PCSZ  pszFilename,
+                                  PBYTE pBuf,
+                                  ULONG cbBuf);
+#else
+   APIRET APIENTRY  DosSearchPath(ULONG flag,
+                                  PSZ pszPathOrName,
+                                  PSZ pszFilename,
+                                  PBYTE pBuf,
+                                  ULONG cbBuf);
+#endif
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosQueryMessageCP(PCHAR pb,
+                                      ULONG cb,
+                                      PCSZ  pszFilename,
+                                      PULONG cbBuf);
+#else
+   APIRET APIENTRY  DosQueryMessageCP(PCHAR pb,
+                                      ULONG cb,
+                                      PSZ pszFilename,
+                                      PULONG cbBuf);
+#endif
+
+   APIRET APIENTRY  DosQueryRASInfo(ULONG Index,
+                                    PPVOID Addr);
+
+#ifdef __cplusplus
+   APIRET  APIENTRY DosSetExtLIBPATH(PCSZ  pszExtLIBPATH,
+                                     ULONG flags);
+#else
+   APIRET  APIENTRY DosSetExtLIBPATH(PSZ pszExtLIBPATH,
+                                     ULONG flags);
+#endif
+
+#ifdef __cplusplus
+   APIRET  APIENTRY DosQueryExtLIBPATH(PCSZ  pszExtLIBPATH,
+                                       ULONG flags);
+#else
+   APIRET  APIENTRY DosQueryExtLIBPATH(PSZ pszExtLIBPATH,
+                                       ULONG flags);
+#endif
+
+   APIRET  APIENTRY DosVerifyPidTid(PID Pid,
+                                    TID Tid);
+
+#if __IBMC__ || __IBMCPP__
+   APIRET16  APIENTRY16 Dos16SysTrace(USHORT major,
+                                      USHORT cpBuf,
+                                      USHORT minor,
+                                      PCHAR pBuf);
+#endif
+

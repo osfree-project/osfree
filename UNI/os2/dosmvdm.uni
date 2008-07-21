@@ -1,0 +1,46 @@
+/* Virtual DOS Machine API support */
+
+   typedef LHANDLE   HVDD;     /* hvdd */
+   typedef HVDD     *PHVDD;    /* phvdd */
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosOpenVDD(PCSZ  pszVDD,
+                               PHVDD phvdd);
+#else
+   APIRET APIENTRY  DosOpenVDD(PSZ pszVDD,
+                               PHVDD phvdd);
+#endif
+
+   APIRET APIENTRY  DosRequestVDD(HVDD hvdd,
+                                  SGID sgid,
+                                  ULONG cmd,
+                                  ULONG cbInput,
+                                  PVOID pInput,
+                                  ULONG cbOutput,
+                                  PVOID pOutput);
+
+   APIRET APIENTRY  DosCloseVDD(HVDD hvdd);
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosQueryDOSProperty(SGID sgid,
+                                        PCSZ  pszName,
+                                        ULONG cb,
+                                        PCSZ  pch);
+#else
+   APIRET APIENTRY  DosQueryDOSProperty(SGID sgid,
+                                        PSZ pszName,
+                                        ULONG cb,
+                                        PSZ pch);
+#endif
+
+#ifdef __cplusplus
+   APIRET APIENTRY  DosSetDOSProperty(SGID sgid,
+                                      PCSZ  pszName,
+                                      ULONG cb,
+                                      PCSZ  pch);
+#else
+   APIRET APIENTRY  DosSetDOSProperty(SGID sgid,
+                                      PSZ pszName,
+                                      ULONG cb,
+                                      PSZ pch);
+#endif

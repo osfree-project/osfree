@@ -12,29 +12,20 @@ module bsememf;
  (* Access protection                                                          *)
 
 const PAG_READ          = $00000001;      (* read access                      *)
-
 const PAG_WRITE         = $00000002;      (* write access                     *)
-
 const PAG_EXECUTE       = $00000004;      (* execute access                   *)
-
 const PAG_GUARD         = $00000008;      (* guard protection                 *)
-
 const PAG_DEFAULT       = $00000400;      (* default (initial) access         *)
-
-
 
  (* Commit                                                                     *)
 
 const PAG_COMMIT        = $00000010;      (* commit storage                   *)
-
 const PAG_DECOMMIT      = $00000020;      (* decommit storage                 *)
-
 
 
  (* Allocation attributes                                                      *)
 
 const OBJ_TILE          = $00000040;      (* tile object                      *)
-
 const OBJ_PROTECTED     = $00000080;      (* protect object
                                             NOTE: This flag is NOT available at
                                             the api level *)
