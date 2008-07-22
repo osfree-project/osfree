@@ -467,7 +467,7 @@ int MAIN_MessageBoxIDS_s(UINT ids_text, LPCSTR str, UINT ids_title, WORD type)
 
 VOID MAIN_ReplaceString(HLOCAL *handle, LPSTR replace)
 {
-  HLOCAL newhandle = LocalAlloc(LMEM_FIXED, strlen(replace) + 1);
+  HLOCAL newhandle = LocalAlloc(LMEM_FIXED, _fstrlen(replace) + 1);
   if (newhandle)
     {
       LPSTR  newstring = LocalLock(newhandle);

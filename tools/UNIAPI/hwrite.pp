@@ -672,14 +672,14 @@ begin
     else
       wrt('struct ');
 
-  wrtln(AElement.Name+' {');
+  wrtln('_'+AElement.Name+' {');
 
   for i := 0 to AElement.Members.Count - 1 do
   begin
     Variable := TPasVariable(AElement.Members[i]);
     wrtln(Variable.VarType.name+' '+Variable.Name+';');
   end;
-  wrtln('};');
+  wrtln('} '+AElement.Name+';');
 end;
 
 procedure WriteHFile(AElement: TPasElement; const AFilename: string);

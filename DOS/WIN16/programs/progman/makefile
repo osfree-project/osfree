@@ -16,7 +16,7 @@ DESC = Windows Program Manager
 OBJS = dialog.$(O) group.$(O) grpfile.$(O) main.$(O) program.$(O) string.$(O)
 
 # defines additional options for C compiler
-ADD_COPT = -zW -sg
+ADD_COPT = -zW -sg -zw -bt=windows -bw -bg -d3 -db -hw
 
 !include $(%ROOT)/mk/all.mk
 
@@ -29,6 +29,7 @@ $(PROJ).exe: $(OBJS)
  @%append $^&.lnk NAME $^&
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk debug watcom
  @%append $^&.lnk import
  @%append $^&.lnk         SHELLABOUT SHELL.22,
  @%append $^&.lnk         GETOPENFILENAME COMMDLG.1,

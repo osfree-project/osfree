@@ -222,14 +222,13 @@ type PSTR8=^STR8;
 
 type PDEVOPENDATA=^PSZ;
 
-type _QWORD=structure
+type QWORD=structure
     ulLo: ULONG;
     ulHi: ULONG;
   end;
-type QWORD=_QWORD;
 type PQWORD=^QWORD;
 
-type _PRINTDEST=structure
+type PRINTDEST=structure
    cb: ULONG;
    lType: LONG;
    pszToken: PSZ;
@@ -238,10 +237,9 @@ type _PRINTDEST=structure
    fl: ULONG;
    pszPrinter: PSZ;
   end;
-type PRINTDEST=_PRINTDEST;
 type PPRINTDEST=^PRINTDEST;
 
-type _ICONINFO=structure
+type ICONINFO=structure
     cb: ULONG;
     fFormat: ULONG;
     pszFileName: PSZ;
@@ -250,15 +248,13 @@ type _ICONINFO=structure
     cbIconData: ULONG;
     pIconData: PVOID;
   end;
-type ICONINFO=_ICONINFO;
 type PICONINFO=^ICONINFO;
 
-type _ACCEL=structure
+type ACCEL=structure
     fs: USHORT;
     key: USHORT;
     cmd: USHORT;
   end;
-type ACCEL=_ACCEL;
 type PACCEL=^ACCEL;
 
 end.

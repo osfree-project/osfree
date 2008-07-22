@@ -132,8 +132,8 @@ HLOCAL GROUP_AddGroup(LPCSTR lpszName, LPCSTR lpszGrpFile, int nCmdShow,
       if (hGrpFile) LocalFree(hGrpFile);
       return(0);
     }
-  memcpy(LocalLock(hName), lpszName, 1 + lstrlen(lpszName));
-  memcpy(LocalLock(hGrpFile), lpszGrpFile, 1 + lstrlen(lpszGrpFile));
+  _fmemcpy(LocalLock(hName), lpszName, 1 + lstrlen(lpszName));
+  _fmemcpy(LocalLock(hGrpFile), lpszGrpFile, 1 + lstrlen(lpszGrpFile));
 
   Globals.hActiveGroup   = hGroup;
 
@@ -170,7 +170,7 @@ HLOCAL GROUP_AddGroup(LPCSTR lpszName, LPCSTR lpszGrpFile, int nCmdShow,
 
   cs.szClass = STRING_GROUP_WIN_CLASS_NAME;
   cs.szTitle = lpszName;
-  cs.hOwner  = 0;
+  cs.hOwner  = Globals.hInstance;
   cs.x       = x;
   cs.y       = y;
   cs.cx      = width;
