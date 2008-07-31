@@ -4,12 +4,12 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+#!include $(%ROOT)/build.conf
+#!include $(%ROOT)/mk/site.mk
 
 DIRS = minilibc filesys # preldr loader term kernels
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/mk/loader.mk
 
 all clean: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) TARGET=$^& default

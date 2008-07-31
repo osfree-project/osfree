@@ -6,7 +6,7 @@
 !ifndef __site_mk__
 __site_mk__ = 1
 
-!include $(%ROOT)/mk/build.conf
+!include $(%ROOT)/build.conf
 
 # Project root
 ROOT       = $(%ROOT)

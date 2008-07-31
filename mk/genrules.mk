@@ -60,3 +60,28 @@ gen_compile_rules: .SYMBOLIC
 gen_deps: $(d)$(file) .SYMBOLIC
  @%append $(mf) $$(PATH)$(file:$(ext)=$(e)): $(dest)$(file)
  @%append $(mf)
+
+#
+# gen_compile_rules_wrapper must be defined in makefile,
+# it calls gen_compile_rules from this file with proper
+# parameters:
+#
+# file:   source file name
+# ext:    its extension: .c, .asm or another
+# e:      object file extension
+# defs:   additional defines
+#
+# for example:
+#
+#gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
+#!ifeq sh
+# @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O) defs="-d$[& -dSHIFT=0" gen_compile_rules
+#!else
+# @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) defs="-d$[& -dSHIFT=$$$$(SHIFT)" gen_compile_rules
+#!endif
+#
+# where if sh is empty, then ordinary rule is generated;
+# if sh=sh_ then a rule for shifted file is generated.
+# A shifted file is a file linked at the base + $(SHIFT)
+# it is used for relocation files generation.
+#

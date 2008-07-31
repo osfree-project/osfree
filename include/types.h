@@ -5,8 +5,8 @@
  *   valerius 2007, Jan 13
  */
 
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#ifndef __OSFREE_TYPES_H__
+#define __OSFREE_TYPES_H__
 
 
  typedef unsigned char        u8;

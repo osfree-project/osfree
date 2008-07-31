@@ -19,13 +19,12 @@ SHIFT = 0x100
 
 all: fsd.h prereq $(TARGETS) .SYMBOLIC
 
-!include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
 32_BITS      = 1       # Use 32-bit C compiler
 DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__
-ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
-ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
+ADD_COPT     = -s $(DEFINES) -i=$(%ROOT)$(SEP)include -i=$(%ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
+ADD_ASMOPT   = $(DEFINES) -i=$(%ROOT)$(SEP)include -i=$(%ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 
 DIR          = preldr
 MYDIR        = $(ROOT)$(SEP)bootseq$(SEP)$(DIR)$(SEP)

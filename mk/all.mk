@@ -5,8 +5,14 @@
 # valerius, 2006/10/30
 #
 
+!ifndef __all_mk__
+__all_mk__ = 1
+
+!include $(%ROOT)/mk/site.mk
+
 ROOT = $(%ROOT)
 BLD  = $(%ROOT)$(SEP)build$(SEP)
+BIN  = $(%ROOT)$(SEP)files$(SEP)
 
 #
 # Preprocessor defines
@@ -18,6 +24,7 @@ ASM_DEFS  = -zq -d__WATCOM__
 # ADD_COPT and ADD_ASMOPT are defined in
 # a file which includes this file.
 #
+!ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
 !ifdef 32_BITS
 COPT      = $(C_DEFS) -i=. &
                       -i=.. &
@@ -38,6 +45,10 @@ ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
 !else
 COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
 ASMOPT    = -bt=OS2 -ms $(ASM_DEFS)  $(ADD_ASMOPT)
+!endif
+!else
+COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD  -i=. -i=.. $(ADD_COPT)
+ASMOPT    = $(ASM_DEFS) -i=. -i=.. $(ADD_ASMOPT)
 !endif
 
 #
@@ -83,6 +94,9 @@ RCOPT     =
 MC        = mkmsgf
 
 HC        = ipfc
+
+CD        = $(REXX) cdir.cmd
+MDHIER    = $(REXX) mdhier.cmd
 
 GENE2FS   = genext2fs
 
@@ -209,6 +223,14 @@ LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 subdirs: .SYMBOLIC
  @for %%i in ($(DIRS)) do @cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
-.ERROR
+dirhier: .SYMBOLIC
+ @$(MDHIER) $(PATH)
+
+.default
+ $(SAY) Warning: target $@ is missing, .default rule is called...
+
+.error
  @echo Error
  @exit
+
+!endif

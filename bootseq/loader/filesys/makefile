@@ -37,6 +37,8 @@ ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)u
 
 !include $(%ROOT)/mk/loader.mk
 
+# note that PATH is changed in loader.mk,
+# so it must be included before this place:
 p            = $(PATH)
 e            = .rel
 TARGETS      = $+$(filesys)$-
@@ -55,7 +57,7 @@ spec_SRCS = $+$(filesys)$-
 # See $(%ROOT)/mk/genrules.mk for details
 #
 gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
-!ifneq sh sh_
+!ifeq sh
  @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O) defs="-d$[& -dSHIFT=0" gen_compile_rules
 !else
  @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) defs="-d$[& -dSHIFT=$$$$(SHIFT)" gen_compile_rules
