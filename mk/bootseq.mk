@@ -5,7 +5,11 @@
 # valerius, 2006/10/30
 #
 
-ROOT=$(%ROOT)
+!include $(%ROOT)/mk/site.mk
+
+ROOT = $(%ROOT)
+BLD  = $(%ROOT)$(SEP)build$(SEP)
+BIN  = $(%ROOT)$(SEP)files$(SEP)
 
 #
 # Preprocessor defines
@@ -56,6 +60,9 @@ AWK       = awk
 DOX       = doxygen
 
 DD        = dd
+
+CD        = $(REXX) cdir.cmd
+MDHIER    = $(REXX) mdhier.cmd
 
 GENE2FS    = genext2fs
 SYS       = sys
@@ -146,3 +153,6 @@ BLACKHOLE = >$(NULL) 2>&1
 #
 subdirs: .SYMBOLIC
  @for %%i in ($(DIRS)) do @ cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+
+dirhier: .SYMBOLIC
+ @$(MDHIER) $(PATH)

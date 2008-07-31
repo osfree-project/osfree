@@ -3,6 +3,11 @@
 # variables.
 #
 
+!ifndef __site_mk__
+__site_mk__ = 1
+
+!include $(%ROOT)/mk/build.conf
+
 # Project root
 ROOT       = $(%ROOT)
 # OpenWatcom directory
@@ -66,3 +71,5 @@ LIBDIR     = $(ROOT)$(SEP)lib
 
 # libc
 LIBC       = clibs.lib
+
+!endif

@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = bootsec preldr # freeldr uFSD uXFD
+DIRS = bootsec loader
 
 !include $(%ROOT)/mk/bootseq.mk
 

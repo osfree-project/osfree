@@ -5,7 +5,8 @@
 # valerius, 2006/10/30
 #
 
-ROOT=$(%ROOT)
+ROOT = $(%ROOT)
+BLD  = $(%ROOT)$(SEP)build$(SEP)
 
 #
 # Preprocessor defines
