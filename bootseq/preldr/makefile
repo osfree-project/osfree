@@ -60,28 +60,27 @@ FFS_SH_OBJS         = $(FS_SH_OBJS) fsys_ffs.$(SO)
 XFS_SH_OBJS         = $(FS_SH_OBJS) fsys_xfs.$(SO)
 
 BT_LINUX_OBJS    = linux.$(O) linuxc.$(O) modesw-npl.$(O) cmdline.$(O) &
-                   wrap.$(O) end.$(O) 
+                   wrap.$(O) end.$(O)
 BT_CHAIN_OBJS    = chain.$(O) chainc.$(O) setdev.$(O) modesw-npc.$(O)  &
                    cmdline.$(O) wrap.$(O) end.$(O)
 
 STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
                    video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) cmdline.$(O)  &
-                   cfgparse.$(O) idt.$(O) part.$(O) dskaccess.$(O) bios.$(O) end.$(O)
+                   dskaccess.$(O) part.$(O) cfgparse.$(O) idt.$(O) bios.$(O) end.$(O)
 
 STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
                    video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) cmdline.$(SO) &
-                   cfgparse.$(SO) idt.$(SO) part.$(SO) dskaccess.$(SO) bios.$(SO) end.$(SO)
+                   dskaccess.$(SO) part.$(SO) cfgparse.$(SO) idt.$(SO) bios.$(SO) end.$(SO)
 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
-                   video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(LO) part.$(LO) dskaccess.$(LO) &
-                   bios.$(LO) end.$(LO)
+                   dskaccess.$(LO) part.$(LO) video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(O) bios.$(LO) end.$(LO)
 
-CONSOLE_OBJS     = termstrt.$(O) terminit.$(O) console.$(O) modesw-npt.$(O) consolec.$(O)
-CONSOLE_SH_OBJS  = termstrt.$(SO) terminit.$(SO) console.$(SO) modesw-npt.$(SO) consolec.$(SO)
-HERCULES_OBJS    = termstrt.$(O) terminit.$(O) hercules.$(O) modesw-npt.$(O)
-HERCULES_SH_OBJS = termstrt.$(SO) terminit.$(SO) hercules.$(SO) modesw-npt.$(SO)
-SERIAL_OBJS      = termstrt.$(O) terminit.$(O) serial.$(O) modesw-npt.$(O) terminfo.$(O) tparm.$(O)
-SERIAL_SH_OBJS   = termstrt.$(SO) terminit.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
+CONSOLE_OBJS     = termstrt.$(O) terminit-c.$(O) console-c.$(O) modesw-npt.$(O) consolec.$(O)
+CONSOLE_SH_OBJS  = termstrt.$(SO) terminit-c.$(SO) console-c.$(SO) modesw-npt.$(SO) consolec.$(SO)
+HERCULES_OBJS    = termstrt.$(O) terminit-h.$(O) hercules.$(O) console.$(O) modesw-npt.$(O)
+HERCULES_SH_OBJS = termstrt.$(SO) terminit-h.$(SO) hercules.$(SO) console.$(SO) modesw-npt.$(SO)
+SERIAL_OBJS      = termstrt.$(O) terminit-s.$(O) serial.$(O) modesw-npt.$(O) terminfo.$(O) tparm.$(O)
+SERIAL_SH_OBJS   = termstrt.$(SO) terminit-s.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
@@ -384,54 +383,78 @@ fsys_xfs.$(SO): fsys_xfs.c
  $(CC) -dFSYS_XFS -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
 
 func.$(O): func.c
- $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fo=$^@ $<
+ $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fr=$^& -fo=$^@ $<
 
 func.$(LO): func.c
- $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fo=$^@ $<
+ $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^& -fo=$^@ $<
 
 func.$(SO): func.c
- $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
+ $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^& -fo=$^@ $<
 
 modesw-npl.$(O): modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 linux.$(O): linux.asm
- $(ASM) -dSHIFT=0 -dREAL_BASE=0x8000 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dSHIFT=0 -dREAL_BASE=0x8000 $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 modesw-npc.$(O): modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 chain.$(O): chain.asm
- $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 modesw-npt.$(O): modesw.asm
- $(ASM) -dNO_PROT -dTERM -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=0 $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 modesw-npt.$(SO): modesw.asm
- $(ASM) -dNO_PROT -dTERM -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 cfgparse-l.$(O): cfgparse.c
- $(CC) -dLOADER $(COPT) -fo=$^@ $<
+ $(CC) -dLOADER $(COPT) -fr=$^& -fo=$^@ $<
 
 cfgparse.$(O): cfgparse.c
 
+terminit-c.$(O): terminit.c
+ $(CC) -dSHIFT=0 -dTERM_CONSOLE $(COPT) -fr=$^& -fo=$^@ $<
+
+terminit-c.$(SO): terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(COPT) -fr=$^& -fo=$^@ $<
+
+terminit-h.$(O): terminit.c
+ $(CC) -dSHIFT=0 -dTERM_HERCULES $(COPT) -fr=$^& -fo=$^@ $<
+
+terminit-h.$(SO): terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_HERCULES $(COPT) -fr=$^& -fo=$^@ $<
+
+terminit-s.$(O): terminit.c
+ $(CC) -dSHIFT=0 -dTERM_SERIAL $(COPT) -fr=$^& -fo=$^@ $<
+
+terminit-s.$(SO): terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_SERIAL $(COPT) -fr=$^& -fo=$^@ $<
+
+console-c.$(O): console.asm
+ $(ASM) -dSHIFT=0 -dTERM_CONSOLE $(ASMOPT) -fr=$^& -fo=$^@ $<
+
+console-c.$(SO): console.asm
+ $(ASM) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(ASMOPT) -fr=$^& -fo=$^@ $<
+
 .c.$(O):
- $(CC) -dSHIFT=0 $(COPT) -fo=$^@ $<
+ $(CC) -dSHIFT=0 $(COPT) -fr=$^&.err -fo=$^@ $<
 
 .c.$(LO):
- $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fo=$^@ $<
+ $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^&.err -fo=$^@ $<
 
 .c.$(SO):
- $(CC) -dSHIFT=$(SHIFT) $(COPT) -fo=$^@ $<
+ $(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^&.err -fo=$^@ $<
 
 .asm.$(O):
- $(ASM) -dSHIFT=0 $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^&.err -fo=$^@ $<
 
 .asm.$(LO):
- $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^&.err -fo=$^@ $<
 
 .asm.$(SO):
- $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fo=$^@ $<
+ $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^&.err -fo=$^@ $<
 
 .inc.h:
  $(AWK) -f inc2h.awk <$< >$^@
