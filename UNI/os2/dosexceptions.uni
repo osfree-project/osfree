@@ -1,35 +1,38 @@
-/*** Signal support */
+module dosexceptions;
 
-   /* DosSetSigExceptionFocus codes */
+(*** Signal support *)
 
-   #define SIG_UNSETFOCUS 0
-   #define SIG_SETFOCUS 1
+   (* DosSetSigExceptionFocus codes *)
 
-   #include <bsexcpt.h>
+   const SIG_UNSETFOCUS = 0;
+   const SIG_SETFOCUS   = 1;
 
-   APIRET APIENTRY  DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec);
+   uses bsexcpt;
 
-   APIRET APIENTRY  DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec);
+   function DosSetExceptionHandler(pERegRec: PEXCEPTIONREGISTRATIONRECORD): APIRET;
 
-   APIRET APIENTRY  DosRaiseException(PEXCEPTIONREPORTRECORD pexcept);
+   function DosUnsetExceptionHandler(pERegRec: PEXCEPTIONREGISTRATIONRECORD): APIRET;
 
-   APIRET APIENTRY  DosSendSignalException(PID pid,
-                                           ULONG exception);
+   function DosRaiseException(pexcept: PEXCEPTIONREPORTRECORD): APIRET;
 
-   APIRET APIENTRY  DosUnwindException(PEXCEPTIONREGISTRATIONRECORD phandler,
-                                       PVOID pTargetIP,
-                                       PEXCEPTIONREPORTRECORD pERepRec);
+   function DosSendSignalException(apid: PID;
+                                   exception: ULONG): APIRET;
 
-   APIRET APIENTRY  DosSetSignalExceptionFocus(BOOL32 flag,
-                                               PULONG pulTimes);
+   function DosUnwindException(phandler: PEXCEPTIONREGISTRATIONRECORD;
+                               pTargetIP: PVOID;
+                               pERepRec: PEXCEPTIONREPORTRECORD): APIRET;
 
-   APIRET APIENTRY  DosEnterMustComplete(PULONG pulNesting);
+   function DosSetSignalExceptionFocus(flag: BOOL32;
+                                       pulTimes: PULONG): APIRET;
 
-   APIRET APIENTRY  DosExitMustComplete(PULONG pulNesting);
+   function DosEnterMustComplete(pulNesting: PULONG): APIRET;
 
-   APIRET APIENTRY  DosAcknowledgeSignalException(ULONG ulSignalNum);
+   function DosExitMustComplete(pulNesting: PULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryThreadContext(TID tid,
-                                          ULONG level,
-                                          PCONTEXTRECORD pcxt);
+   function DosAcknowledgeSignalException(ulSignalNum: ULONG): APIRET;
 
+   function DosQueryThreadContext(atid: TID;
+                                  level: ULONG;
+                                  pcxt: PCONTEXTRECORD): APIRET;
+
+end.

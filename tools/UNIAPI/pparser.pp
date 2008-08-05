@@ -193,7 +193,7 @@ end;
 constructor EParserError.Create(const AReason, AFilename: String;
   ARow, AColumn: Integer);
 begin
-  inherited Create(AReason);
+  inherited Create(AFilename+'('+IntToStr(ARow)+'): '+AReason);
   FFilename := AFilename;
   FRow := ARow;
   FColumn := AColumn;

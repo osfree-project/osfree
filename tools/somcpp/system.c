@@ -45,7 +45,7 @@
 
 #if     HOST_SYS_FAMILY == SYS_UNIX
 #include    "unistd.h"              /* For getcwd(), readlink() */
-#elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC
+#elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC || HOST_COMPILER == __WATCOMC__
 #include    "direct.h"
 #define getcwd( buf, size)  _getcwd( buf, size)
 #elif   HOST_COMPILER == BORLANDC
@@ -3341,7 +3341,7 @@ static int  open_file(
     } else {
         fname = filename;
     }
-search:
+//search:
     fullname = norm_path( *dirp, fname, TRUE, FALSE);
                                     /* Convert to absolute path     */
     if (! fullname)                 /* Non-existent or directory    */

@@ -184,9 +184,10 @@ $(PROJ).dll: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ @$(MAKE) $(MAKEOPT) install
 
 install: .SYMBOLIC
- $(CP) $(PROJ).exe ..$(SEP)bin
+ $(CP) $(PROJ).dll ..$(SEP)bin
 
 .IGNORE
 clean: .SYMBOLIC

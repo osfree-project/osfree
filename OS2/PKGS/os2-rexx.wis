@@ -31,7 +31,22 @@ Select "Next" to continue.
 Select "Cancel" to abort installation.</TEXT>
 </PAGE>
 
+<!-- page 2: Whats new -->
 <PAGE INDEX="2" TYPE="TEXT">
+<NEXTBUTTON TARGET=3>~Next</NEXTBUTTON>
+<TEXT>osFree OS/2 Personality Command Line Tools
+
++ New feature
+! Bugfix
+
+! fixed incorrect installation script
++ RXMATH, RXXMATH and RXXMATHI libraries
+
+Select "Next" to continue.
+Select "Cancel" to abort installation.</TEXT>
+</PAGE>
+
+<PAGE INDEX="3" TYPE="TEXT">
 <NEXTBUTTON TARGET="0">I~nstall</NEXTBUTTON>
 <TEXT>
 

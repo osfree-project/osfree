@@ -25,6 +25,7 @@
 
 #include <all_shared.h> /* shared functions and defines */
 
+#define DONT_HAVE_DIRECTORY     0x2727    //!< Attribute to exclude directories
 
 /*!
     @brief State of the dynamic stack
@@ -376,12 +377,12 @@ int all_PerformRecursiveAction(char *fileMask,int actionOptions,int fileAttrs,
     // Get a new dynamic stack handle
     phsStack = stack_init();    /* @todo - check return code */
 
-     mask=all_GetFileFromPath(fileMask);
-     tmp=all_GetDirFromPath(fileMask);
+    mask=all_GetFileFromPath(fileMask);
+    tmp=all_GetDirFromPath(fileMask);
 
-     strcpy(dir,tmp);
+    strcpy(dir,tmp);
 
-     free(tmp);
+    free(tmp);
 
 lbl_begin:
     // Get a new dynamic list handle

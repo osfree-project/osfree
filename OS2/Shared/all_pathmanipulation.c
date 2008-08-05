@@ -1,8 +1,8 @@
 /*!
-   $Id: all_pathmanipulation.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $ 
-  
-   @file all_pathmanipulation.c 
-   
+   $Id: all_pathmanipulation.c,v 1.1.1.1 2003/10/04 08:36:16 prokushev Exp $
+
+   @file all_pathmanipulation.c
+
    @brief path manipulation helper functions
    shared along all code
 
@@ -17,7 +17,7 @@
 /*
   Extract directory part from full-path file mask eg.: extracting from
   c:\dir1\dir2\abc.d will result in c:\dir1\dir2\ returned
- 
+
   @param fileMask fileMask, from wich directory should be extracted (eg.:
                   c:\dir1\dir2\abc.d
 
@@ -63,7 +63,7 @@ char* all_GetDirFromPath(char *fileMask)
 /*
   Extract file mask part from full-path file mask eg.: extracting from
   c:\dir1\dir2\abc.d will result in abc.d returned
- 
+
   @param fileMask fileMask, from wich file mask should be extracted (eg.:
                   c:\dir1\dir2\abc.d
 
@@ -109,7 +109,7 @@ char * all_GetFileFromPath(char *fileMask)
   return result;
 };
 
-/*! 
+/*!
  Gets full path for specified file (simple wrapper for DosQueryPathInfo)
 
  @param file     file name
@@ -137,7 +137,7 @@ char *all_GetFullPathForFile(char *file)
   @param ppath   address of buffer where path should be placed
 
   @return
-    0 - successfull completition, and *path contains requested path (user 
+    0 - successfull completition, and *path contains requested path (user
          is responsible for freeing string memory)
     rc from Dos* functions when error occured, bufer data remains unchanged
 */
@@ -149,27 +149,27 @@ int all_GetCurrentPath(int disk, char **ppath)
  ULONG ulAvail;
  APIRET rc;
  PSZ pszDisk="C:";
- 
+
  /* first ask for needed space */
- rc=DosQueryCurrentDir(disk,buf,&size); 
+ rc=DosQueryCurrentDir(disk,buf,&size);
  if (rc!=ERROR_BUFFER_OVERFLOW)
-  return rc; 
+  return rc;
 
  if (disk==0) /* current disk, we need to find, which one is this now */
  {
   rc=all_QueryCurrentDisk(pszDisk,&ulAvail);
 
-  if (rc) return rc; 
+  if (rc) return rc;
  } else
   pszDisk[0]='A'-1+disk;
 
  /* there is  directory info */
  if (size!=0)
  {
-  buf=(char*)calloc(1,size+5); 
+  buf=(char*)calloc(1,size+5);
   /* the trick is, we'll put disk letter in front of the dir */
   rc=DosQueryCurrentDir(disk,&buf[3],&size);
-  if (rc) 
+  if (rc)
   {
    free(buf);
    return rc;

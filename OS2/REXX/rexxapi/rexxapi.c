@@ -26,8 +26,24 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
 #include <rexxsaa.h>
+
+typedef unsigned short WORD;            // w
+
+typedef WORD FAR *PWORD;                // pw
+
+// To extract offset or selector from any FAR (16:16) pointer
+#define OFFSETOF16(p)   (((PWORD)&(p))[0])
+#define SEGMENTOF16(p)  (((PWORD)&(p))[1])
+
+// For now, the default operators assume they're working on 16:16 pointers
+//#define OFFSETOF        OFFSETOF16
+//#define SEGMENTOF       SEGMENTOF16
+
+// To convert a tiled 16:16 address to a 0:32 address
+#define MAKEFLATP(fp)   ((PVOID)((SEGMENTOF16(fp)&~7)<<13 | OFFSETOF16(fp)))
 
 /*
 RexxLoadSubcom.10,
@@ -37,9 +53,9 @@ RexxCallFunction.21,
 RexxExecuteMacroFunction.29,
 */
 
-typedef char _Far16 * PSZ16;
+typedef char _far16 * PSZ16;
 
-typedef int (APIENTRY16 _PFN16)();
+typedef int (APIENTRY16 _PFN16)(char far *);
 typedef _PFN16 _Far16 *PFN16;
 typedef PSZ16 PCH16;
 
@@ -51,7 +67,7 @@ typedef struct {
 typedef RXSTRING16 _Far16 *PRXSTRING16;       /* pointer to a RXSTRING      */
 
 typedef struct subcom_node {
-    struct subcom_node _Far16 *next;      /* pointer to the next block  */
+    struct subcom_node _far16 *next;      /* pointer to the next block  */
     PSZ16  scbname;                    /* subcom environment name    */
     PSZ16  scbdll_name;                /* subcom module name         */
     PSZ16  scbdll_proc;                /* subcom procedure name      */
@@ -63,16 +79,28 @@ typedef struct subcom_node {
     USHORT scbsid;                     /* Session ID.                */
     } SCBLOCK16;
 
-typedef SCBLOCK16 _Far16 *PSCBLOCK16;
+typedef SCBLOCK16 _pascal _far16 *PSCBLOCK16;
+
+
+typedef APIRET APIENTRY RexxSubcomHandler(/* CONST */ PRXSTRING, PUSHORT, PRXSTRING);
 
 USHORT APIENTRY16 RXSUBCOMREGISTER(PSCBLOCK16 PSCB);
 
 USHORT APIENTRY16 RXSUBCOMREGISTER(PSCBLOCK16 PSCB)
 {
-  printf("RXSUBCOMREGISTER\n");
-  return 0;
-}
+  CHAR env[1024];
+  APIRET rc;
 
+  printf("RXSUBCOMREGISTER\n");
+
+//  strcpy(env, MAKEFLATP(PSCB->scbname));
+
+//  rc=RexxRegisterSubcomExe(env,               // environment name
+//                           (PFN)&rexx_subcom, // subcommand handler proc
+//                           0L);               // user area
+
+  return 0;//rc;
+}
 
 USHORT APIENTRY16 RXSUBCOMQUERY(
          PSZ16 env,                          /* Name of the Environment    */

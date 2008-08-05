@@ -1,0 +1,15 @@
+name      pmmle.dll
+format    os2 lx dll initinstance terminstance
+option    manyautodata
+segment   type DATA shared
+OPTION DESCRIPTION '@#osFree:14.100#@  Multi-Line Editor Control'
+OPTION MAP=pmmle.wmp
+import
+  MLE_INITIALIZE                   PMCTLS.31,
+  MULTILINEEDITPROC                PMCTLS.32,
+  BDMULTILINEEDITPROC              PMCTLS.33
+export
+  MLE_INITIALIZE.                  00001,
+  MULTILINEEDITPROC.               00002,
+  BDMULTILINEEDITPROC.             00003
+FILE ..\shared\stub.obj

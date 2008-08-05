@@ -210,7 +210,6 @@ char *int_4dos_errors[] =
 // USAGE messages
 char ACTIVATE_USAGE[] = "\"title\" [CLOSE | MIN | MAX | RESTORE]";
 char ALIAS_USAGE[] = "[/PR ?] name=value";
-char ATTRIB_USAGE[] = "[/A:-rhsda /DEPQS] [+|-AHRS] ?...";
 char BREAK_USAGE[] = "[ON | OFF]";
 char CALL_USAGE[] = "[/Q] ?";
 char CDD_USAGE[] = "[/AS] ~";

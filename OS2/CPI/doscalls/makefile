@@ -28,15 +28,18 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk import
- @%append $^&.lnk   DosClose      KAL.1,
- @%append $^&.lnk   DosOpen       KAL.2,
- @%append $^&.lnk   DosRead       KAL.3,
- @%append $^&.lnk   DosWrite      KAL.4,
+ @%append $^&.lnk   DosClose      KAL.1, # use Long file API
+ @%append $^&.lnk   DosOpen       KAL.2, # use Long file API
+ @%append $^&.lnk   DosRead       KAL.3, # use Long file API
+ @%append $^&.lnk   DosWrite      KAL.4, # use Long file API
  @%append $^&.lnk   DosFindClose  KAL.5,
  @%append $^&.lnk   DosFindFirst  KAL.6,
  @%append $^&.lnk   DosFindNext   KAL.7
  @%append $^&.lnk export
- @%append $^&.lnk   DosClose.1   # WARNING! This is a stub!!! Not real export!
+ @%append $^&.lnk   DosClose.1,   # WARNING! This is a stub!!! Not real export!
+ @%append $^&.lnk   DOSCOPY.201 RESIDENT,
+ @%append $^&.lnk   DOSICOPY.200,
+ @%append $^&.lnk   Dos32Copy.258
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

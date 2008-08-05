@@ -141,11 +141,11 @@ LDFLAGS = LIBRARY TCPIP32
 !endif
 
 
-CPPFLAGS        = /bt=os2 /dFGC /dOS2 /i=$(SRC)
+CPPFLAGS        = /sg /st /bt=os2 /dFGC /dOS2 /i=$(SRC)
 
 DYN_CFLAGS = /dDYNAMIC
 
-CCFLAGS         = /bt=os2 /4s /wx /zq /mf $(CFLAGS) $(CPPFLAGS)
+CCFLAGS         = /sg /st /dOREXX_BINARY_COMPATIBLE /bt=os2 /4s /wx /zq /mf $(CFLAGS) $(CPPFLAGS)
 
 LINK            = wlink
 
@@ -156,7 +156,7 @@ HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configu
 
 GCIHEADERS = $(SRC)gci\gci.h $(SRC)gci\embedded.h gci_convert.h
 
-all : rexx.exe $(LIBFILE) regina.exe test1.dll test2.dll execiser.exe
+all : rexx.exe $(LIBFILE) regina.exe test1.dll test2.dll execiser.exe # rxstack.exe rxqueue.exe
 
 rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%create dummy.lnk
@@ -279,7 +279,10 @@ $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
 
 $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%create dummy.lnk
+        @%append dummy.lnk option stack=0x20000
+        @%append dummy.lnk option heapsize=40960
         @%append dummy.lnk option quiet
+        @%append dummy.lnk option map=regina.wmp
         @%append dummy.lnk option caseexact
         @%append dummy.lnk system os2v2 dll
         @%append dummy.lnk name $(DLLFILE)
@@ -399,6 +402,35 @@ $(DLLTEST2): test2.dlo $(IMPFILE)
         @%append dummy.lnk library $(IMPFILE)
         $(LINK) $(LDFLAGS) @dummy.lnk
         del dummy.lnk
+
+rxstack.exe : rxstack.obj erexxbif.obj eextstack.obj
+        @%create dummy.lnk
+        @%append dummy.lnk system os2v2
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option stack=0x20000
+        @%append dummy.lnk option heapsize=40960
+        @%append dummy.lnk name rxstack.exe
+        @%append dummy.lnk file rxstack.obj
+        @%append dummy.lnk file eextstack.obj
+        @%append dummy.lnk file erexxbif.obj
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
+rxqueue.exe : rxqueue.obj erexxbif.obj eextstack.obj
+        @%create dummy.lnk
+        @%append dummy.lnk system os2v2
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option stack=0x20000
+        @%append dummy.lnk option heapsize=40960
+        @%append dummy.lnk name rxqueue.exe
+        @%append dummy.lnk file rxqueue.obj
+        @%append dummy.lnk file eextstack.obj
+        @%append dummy.lnk file erexxbif.obj
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
 
 $(IMPFILE): $(DLLFILE)
         $(LIBEXE) $(LIBFLAGS) $(DLLBASE) +$(DLLFILE)
@@ -729,5 +761,17 @@ regina.obj:   $(SRC)regina.c $(HFILES)
 
 execiser.obj:   $(SRC)execiser.c $(HFILES)
         $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /fo=$*.obj $(SRC)$*.c
+
+eextstack.obj:  $(SRC)extstack.c $(HFILES)
+        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\extstack.c
+
+erexxbif.obj:  $(SRC)rexxbif.c $(HFILES)
+        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\rexxbif.c
+
+rxstack.obj:  $(SRC)rxstack.c $(HFILES)
+        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\$*.c
+
+rxqueue.obj:  $(SRC)rxqueue.c $(HFILES)
+        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\$*.c
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

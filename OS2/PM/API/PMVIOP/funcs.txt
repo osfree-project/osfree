@@ -171,4 +171,10 @@
 ³ 00120 ³   16:16    ³ 4:0370, Exp, Shr
 ³ 00121 ³   16:16    ³ 4:0B28, Exp, Shr
 Ã 00122 Á   16:16    Á 1:AB8D, Exp, Shr
-À´Done
+
+À´Done
+
+    WIN16DEFAVIOWINDOWPROC                      @30
+    SeamlessRegisterObject                      @50
+    SeamlessActivateWindow                      @51
+    SeamlessRegisterAssocObj                    @55

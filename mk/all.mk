@@ -68,7 +68,7 @@ LINKER    = @wlink
 LINKOPT   = op q $(ADD_LINKOPT)
 
 LIB       = @wlib
-LIBOPT    = -q
+LIBOPT    = -q -n -fo
 
 # Don't add @ sign here. Will break build system
 MAKE      = wmake
@@ -109,7 +109,7 @@ ADDFILES_CMD = @for %%i in ($(OBJS)) do @%append $^&.lnk FILE %%i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst
+CLEANMASK = *.dlo *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst
 
 !ifeq UNIX FALSE                 # Non-unix
 

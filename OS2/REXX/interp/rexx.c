@@ -308,14 +308,11 @@ int main(int argc,char *argv[])
    if (argv0 == NULL)
       argv0 = GetArgv0(argv[0]);
 
-
    TSD = GLOBAL_ENTRY_POINT();
 
    TSD->stddump = stderr ;
-
    TSD->systeminfo = creat_sysinfo( TSD, Str_creTSD("SYSTEM")) ;
    TSD->systeminfo->called_as = Str_creTSD( argv[0] ) ;
-
    TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL ) ;
    TSD->systeminfo->trace_override = 0;
    TSD->isclient = 0;
@@ -413,6 +410,7 @@ int main(int argc,char *argv[])
          }
       }
     }
+
     /*
      * Under DJGPP setmode screws up Parse Pull and entering code interactively :-(
      */

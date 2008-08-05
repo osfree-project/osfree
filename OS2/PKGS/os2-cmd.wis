@@ -33,12 +33,13 @@ Select "Cancel" to abort installation.</TEXT>
 
 <!-- page 2: Whats new -->
 <PAGE INDEX="2" TYPE="TEXT">
-<NEXTBUTTON TARGET=2>~Next</NEXTBUTTON>
+<NEXTBUTTON TARGET=3>~Next</NEXTBUTTON>
 <TEXT>osFree OS/2 Personality Command Line Tools
 
 + New feature
 ! Bugfix
 
+! fixed incorrect installation script
 + FIND now dual target executable (OS/2/MDOS sessions)
 + ATTRIB now dual target executables
 + LABEL now dual target executable

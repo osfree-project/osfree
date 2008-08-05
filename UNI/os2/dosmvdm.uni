@@ -1,46 +1,30 @@
-/* Virtual DOS Machine API support */
+module dosmvdm;
 
-   typedef LHANDLE   HVDD;     /* hvdd */
-   typedef HVDD     *PHVDD;    /* phvdd */
+(* Virtual DOS Machine API support *)
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosOpenVDD(PCSZ  pszVDD,
-                               PHVDD phvdd);
-#else
-   APIRET APIENTRY  DosOpenVDD(PSZ pszVDD,
-                               PHVDD phvdd);
-#endif
+   type HVDD=LHANDLE;     (* hvdd *)
+   type PHVDD=^HVDD;      (* phvdd *)
 
-   APIRET APIENTRY  DosRequestVDD(HVDD hvdd,
-                                  SGID sgid,
-                                  ULONG cmd,
-                                  ULONG cbInput,
-                                  PVOID pInput,
-                                  ULONG cbOutput,
-                                  PVOID pOutput);
+   function DosOpenVDD(const pszVDD: PSZ;
+                       phvdd: PHVDD): APIRET;
 
-   APIRET APIENTRY  DosCloseVDD(HVDD hvdd);
+   function DosRequestVDD(hvdd: HVDD;
+                          sgid: SGID;
+                          cmd: ULONG;
+                          cbInput: ULONG;
+                          pInput: PVOID;
+                          cbOutput: ULONG;
+                          pOutput: PVOID): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosQueryDOSProperty(SGID sgid,
-                                        PCSZ  pszName,
-                                        ULONG cb,
-                                        PCSZ  pch);
-#else
-   APIRET APIENTRY  DosQueryDOSProperty(SGID sgid,
-                                        PSZ pszName,
-                                        ULONG cb,
-                                        PSZ pch);
-#endif
+   function DosCloseVDD(hvdd: HVDD): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosSetDOSProperty(SGID sgid,
-                                      PCSZ  pszName,
-                                      ULONG cb,
-                                      PCSZ  pch);
-#else
-   APIRET APIENTRY  DosSetDOSProperty(SGID sgid,
-                                      PSZ pszName,
-                                      ULONG cb,
-                                      PSZ pch);
-#endif
+   function DosQueryDOSProperty(sgid: SGID;
+                                const pszName: PSZ;
+                                cb: ULONG;
+                                const pch: PCSZ): APIRET;
+
+   function DosSetDOSProperty(sgid: SGID;
+                              const pszName: PSZ;
+                              cb: ULONG;
+                              const pch: PSZ): APIRET;
+end;

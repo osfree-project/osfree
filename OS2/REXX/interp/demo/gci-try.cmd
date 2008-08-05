@@ -15,6 +15,12 @@ if IsRegina then
 parse source system . source
 
 system = translate(system)
+if system = "OS/2" then do
+   library = "GCI.DLL"
+   CLib = "MSVCRT"
+   system = "OS/2"
+   end
+else
 if left(system, 3) = "WIN" then do
    library = "GCI.DLL"
    CLib = "MSVCRT"
@@ -41,7 +47,7 @@ NotInstalled:
 signal on syntax
 if \InternalGCI then do
    if RxFuncadd(RxFuncDefine, "gci", "RxFuncDefine") \= 0 then do
-      msg = "Can't load RxFuncDefine of" library
+      msg = "Can't load RxFuncDefine of "||library||". Generic call interface not supported."
       if IsRegina then
          msg = msg || ":" RxFuncErrMsg()
       say msg

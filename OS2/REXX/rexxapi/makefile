@@ -9,7 +9,7 @@ CLEANMASK = *.obj *.map *.err *.wmp *.lnk *.sym *.lib
 DIR = $(%ROOT)\files\os2\dll
 PROJ = rexxapi
 DESC = Classic REXX API
-OBJS = rexxapi.obj
+OBJS = rexxapi.$(O)
 ADD_COPT = -i=. -bd -s
 LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 
@@ -26,6 +26,8 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
+ @%append $^&.lnk option stack=0x20000
+ @%append $^&.lnk option heapsize=40960
  @%append $^&.lnk LIBPATH $(%WATCOM)$(SEP)lib386$(PS)$(%WATCOM)$(SEP)lib386$(SEP)os2
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @%append $^&.lnk import

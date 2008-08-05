@@ -1983,7 +1983,7 @@ load_fs(FILE * fh, int swapit)
 {
         size_t fssize;
         filesystem *fs;
-        if((fseek(fh, 0, SEEK_END) < 0) || ((fssize = ftell(fh)) < 0))
+        if((fseek(fh, 0, SEEK_END) != 0) || ((fssize = ftell(fh)) == -1))
                 perror_msg_and_die("input filesystem image");
         rewind(fh);
         fssize = (fssize + BLOCKSIZE - 1) / BLOCKSIZE;

@@ -76,7 +76,7 @@ OBJS = wrppm.$(O) &
 $(ROOT)$(SEP)lib$(SEP)jpeglib.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
- @wlib $@ +$< $(LOG)
+ @$(LIB) $(LIBOPT) $@ +$< $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

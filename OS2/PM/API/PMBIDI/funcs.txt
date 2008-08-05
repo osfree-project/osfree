@@ -20,7 +20,7 @@
 ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 Ã Non-Resident Names Table
 Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-³ 00000 ³ @#IBM:14.081#@ OS/2 PM Bidirectional Language APIs. (C) Copyright 1993, 1998 IBM Corp.
+³ 00000 ³ @#IBM:14.081#@ OS/2 PM . (C) Copyright 1993, 1998 IBM Corp.
 ³ 00001 ³ PMBIDI_Initialize
 ³ 00010 ³ WIN16SETLANGINFO
 ³ 00011 ³ WIN16QUERYLANGINFO
@@ -146,4 +146,5 @@
 ³ 00460 ³    0:32    ³ 1:000019B8, Exp, Shr
 ³ 00461 ³    0:32    ³ 1:00001A28, Exp, Shr
 Ã 00999 Á    0:32    Á 5:00000000, Exp, Shr
-À´Done
+
+À´Done

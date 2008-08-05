@@ -13,8 +13,6 @@ DIRS = libs
 
 !include $(%ROOT)/mk/all.mk
 
-
-
 all: libs $(ROOT)$(SEP)lib$(SEP)all_shared.lib msg .SYMBOLIC
 
 OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
@@ -26,7 +24,7 @@ $(ROOT)$(SEP)lib$(SEP)all_shared.lib: $(OBJS)
  -@if exist $@ @$(DC) $@
  @$(LIB) $(LIBOPT) $@ +$< $(LOG)
 
-libs: .symbolic
+libs: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) TARGET=all subdirs
 
 msg: .symbolic

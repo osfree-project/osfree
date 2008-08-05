@@ -25,7 +25,7 @@ OBJS = gbm.$(O) gbmpbm.$(O)  gbmpgm.$(O) gbmppm.$(O) gbmpnm.$(O)  &
 $(ROOT)$(SEP)lib$(SEP)gbm.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
- @wlib -c $@ +$< $(LOG)
+ @$(LIB) $(LIBOPT) -c $@ +$< $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC

@@ -1,9 +1,9 @@
 /*
  * Block driver for the VMDK format
- * 
+ *
  * Copyright (c) 2004 Fabrice Bellard
  * Copyright (c) 2005 Filip Navara
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -129,7 +129,7 @@ static int vmdk_open(BlockDriverState *bs, const char *filename)
     magic = be32_to_cpu(magic);
     if (magic == VMDK3_MAGIC) {
         VMDK3Header header;
-        if (read(fd, &header, sizeof(header)) != 
+        if (read(fd, &header, sizeof(header)) !=
             sizeof(header))
             goto fail;
         s->cluster_sectors = le32_to_cpu(header.granularity);
@@ -141,16 +141,16 @@ static int vmdk_open(BlockDriverState *bs, const char *filename)
         s->l1_entry_sectors = s->l2_size * s->cluster_sectors;
     } else if (magic == VMDK4_MAGIC) {
         VMDK4Header header;
-        
+
         if (read(fd, &header, sizeof(header)) != sizeof(header))
             goto fail;
         bs->total_sectors = le32_to_cpu(header.capacity);
         s->cluster_sectors = le32_to_cpu(header.granularity);
         s->l2_size = le32_to_cpu(header.num_gtes_per_gte);
         s->l1_entry_sectors = s->l2_size * s->cluster_sectors;
-        if (s->l1_entry_sectors <= 0)
+        if (s->l1_entry_sectors == 0) // In original <= but how unsigned can be < 0?
             goto fail;
-        s->l1_size = (bs->total_sectors + s->l1_entry_sectors - 1) 
+        s->l1_size = (bs->total_sectors + s->l1_entry_sectors - 1)
             / s->l1_entry_sectors;
         s->l1_table_offset = le64_to_cpu(header.rgd_offset) << 9;
         s->l1_backup_table_offset = le64_to_cpu(header.gd_offset) << 9;
@@ -204,7 +204,7 @@ static uint64_t get_cluster_offset(BlockDriverState *bs,
     int min_index, i, j;
     uint32_t min_count, *l2_table, tmp;
     uint64_t cluster_offset;
-    
+
     l1_index = (offset >> 9) / s->l1_entry_sectors;
     if (l1_index >= s->l1_size)
         return 0;
@@ -234,7 +234,7 @@ static uint64_t get_cluster_offset(BlockDriverState *bs,
     }
     l2_table = s->l2_cache + (min_index * s->l2_size);
     lseek(s->fd, (int64_t)l2_offset * 512, SEEK_SET);
-    if (read(s->fd, l2_table, s->l2_size * sizeof(uint32_t)) != 
+    if (read(s->fd, l2_table, s->l2_size * sizeof(uint32_t)) !=
         s->l2_size * sizeof(uint32_t))
         return 0;
     s->l2_cache_offsets[min_index] = l2_offset;
@@ -266,7 +266,7 @@ static uint64_t get_cluster_offset(BlockDriverState *bs,
     return cluster_offset;
 }
 
-static int vmdk_is_allocated(BlockDriverState *bs, int64_t sector_num, 
+static int vmdk_is_allocated(BlockDriverState *bs, int64_t sector_num,
                              int nb_sectors, int *pnum)
 {
     BDRVVmdkState *s = bs->opaque;
@@ -282,13 +282,13 @@ static int vmdk_is_allocated(BlockDriverState *bs, int64_t sector_num,
     return (cluster_offset != 0);
 }
 
-static int vmdk_read(BlockDriverState *bs, int64_t sector_num, 
+static int vmdk_read(BlockDriverState *bs, int64_t sector_num,
                     uint8_t *buf, int nb_sectors)
 {
     BDRVVmdkState *s = bs->opaque;
     int ret, index_in_cluster, n;
     uint64_t cluster_offset;
-    
+
     while (nb_sectors > 0) {
         cluster_offset = get_cluster_offset(bs, sector_num << 9, 0);
         index_in_cluster = sector_num % s->cluster_sectors;
@@ -300,7 +300,7 @@ static int vmdk_read(BlockDriverState *bs, int64_t sector_num,
         } else {
             lseek(s->fd, cluster_offset + index_in_cluster * 512, SEEK_SET);
             ret = read(s->fd, buf, n * 512);
-            if (ret != n * 512) 
+            if (ret != n * 512)
                 return -1;
         }
         nb_sectors -= n;
@@ -310,7 +310,7 @@ static int vmdk_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
-static int vmdk_write(BlockDriverState *bs, int64_t sector_num, 
+static int vmdk_write(BlockDriverState *bs, int64_t sector_num,
                      const uint8_t *buf, int nb_sectors)
 {
     BDRVVmdkState *s = bs->opaque;
@@ -401,8 +401,8 @@ static int vmdk_create(const char *filename, int64_t total_size,
     header.check_bytes[1] = 0x20;
     header.check_bytes[2] = 0xd;
     header.check_bytes[3] = 0xa;
-    
-    /* write all the data */    
+
+    /* write all the data */
     write(fd, &magic, sizeof(magic));
     write(fd, &header, sizeof(header));
 
@@ -413,7 +413,7 @@ static int vmdk_create(const char *filename, int64_t total_size,
     for (i = 0, tmp = header.rgd_offset + gd_size;
          i < gt_count; i++, tmp += gt_size)
         write(fd, &tmp, sizeof(tmp));
-   
+
     /* write backup grain directory */
     lseek(fd, le64_to_cpu(header.gd_offset) << 9, SEEK_SET);
     for (i = 0, tmp = header.gd_offset + gd_size;

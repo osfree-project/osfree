@@ -8,6 +8,12 @@ __site_mk__ = 1
 
 !include $(%ROOT)/build.conf
 
+# Version macro. Not to be changed for a long time yet.
+
+_VENDOR=osFree
+_VERSION=14.100
+FILEVER=@$#$(_VENDOR):$(_VERSION)$#@
+
 # Project root
 ROOT       = $(%ROOT)
 # OpenWatcom directory

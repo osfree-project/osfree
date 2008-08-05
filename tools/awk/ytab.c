@@ -1,5 +1,5 @@
 
-#line	26	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   26      "/n/bopp/v7/bwk/temp/awkgram.y"
 #include <stdio.h>
 #include <string.h>
 #include "awk.h"
@@ -7,295 +7,295 @@
 void checkdup(Node *list, Cell *item);
 int yywrap(void) { return(1); }
 
-Node	*beginloc = 0;
-Node	*endloc = 0;
-int	infunc	= 0;	/* = 1 if in arglist or body of func */
-int	inloop	= 0;	/* = 1 if in while, for, do */
-char	*curfname = 0;	/* current function name */
-Node	*arglist = 0;	/* list of args for current function */
+Node    *beginloc = 0;
+Node    *endloc = 0;
+int     infunc  = 0;    /* = 1 if in arglist or body of func */
+int     inloop  = 0;    /* = 1 if in while, for, do */
+char    *curfname = 0;  /* current function name */
+Node    *arglist = 0;   /* list of args for current function */
 
-#line	41	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   41      "/n/bopp/v7/bwk/temp/awkgram.y"
 typedef union  {
-	Node	*p;
-	Cell	*cp;
-	int	i;
-	char	*s;
+        Node    *p;
+        Cell    *cp;
+        int     i;
+        char    *s;
 } YYSTYPE;
-extern	int	yyerrflag;
-#ifndef	YYMAXDEPTH
-#define	YYMAXDEPTH	150
+extern  int     yyerrflag;
+#ifndef YYMAXDEPTH
+#define YYMAXDEPTH      150
 #endif
-YYSTYPE	yylval;
-YYSTYPE	yyval;
-#define	FIRSTTOKEN	57346
-#define	PROGRAM	57347
-#define	PASTAT	57348
-#define	PASTAT2	57349
-#define	XBEGIN	57350
-#define	XEND	57351
-#define	NL	57352
-#define	ARRAY	57353
-#define	MATCH	57354
-#define	NOTMATCH	57355
-#define	MATCHOP	57356
-#define	FINAL	57357
-#define	DOT	57358
-#define	ALL	57359
-#define	CCL	57360
-#define	NCCL	57361
-#define	CHAR	57362
-#define	OR	57363
-#define	STAR	57364
-#define	QUEST	57365
-#define	PLUS	57366
-#define	AND	57367
-#define	BOR	57368
-#define	APPEND	57369
-#define	EQ	57370
-#define	GE	57371
-#define	GT	57372
-#define	LE	57373
-#define	LT	57374
-#define	NE	57375
-#define	IN	57376
-#define	ARG	57377
-#define	BLTIN	57378
-#define	BREAK	57379
-#define	CLOSE	57380
-#define	CONTINUE	57381
-#define	DELETE	57382
-#define	DO	57383
-#define	EXIT	57384
-#define	FOR	57385
-#define	FUNC	57386
-#define	SUB	57387
-#define	GSUB	57388
-#define	IF	57389
-#define	INDEX	57390
-#define	LSUBSTR	57391
-#define	MATCHFCN	57392
-#define	NEXT	57393
-#define	NEXTFILE	57394
-#define	ADD	57395
-#define	MINUS	57396
-#define	MULT	57397
-#define	DIVIDE	57398
-#define	MOD	57399
-#define	ASSIGN	57400
-#define	ASGNOP	57401
-#define	ADDEQ	57402
-#define	SUBEQ	57403
-#define	MULTEQ	57404
-#define	DIVEQ	57405
-#define	MODEQ	57406
-#define	POWEQ	57407
-#define	PRINT	57408
-#define	PRINTF	57409
-#define	SPRINTF	57410
-#define	ELSE	57411
-#define	INTEST	57412
-#define	CONDEXPR	57413
-#define	POSTINCR	57414
-#define	PREINCR	57415
-#define	POSTDECR	57416
-#define	PREDECR	57417
-#define	VAR	57418
-#define	IVAR	57419
-#define	VARNF	57420
-#define	CALL	57421
-#define	NUMBER	57422
-#define	STRING	57423
-#define	REGEXPR	57424
-#define	GETLINE	57425
-#define	RETURN	57426
-#define	SPLIT	57427
-#define	SUBSTR	57428
-#define	WHILE	57429
-#define	CAT	57430
-#define	NOT	57431
-#define	UMINUS	57432
-#define	POWER	57433
-#define	DECR	57434
-#define	INCR	57435
-#define	INDIRECT	57436
-#define	LASTTOKEN	57437
+YYSTYPE yylval;
+YYSTYPE yyval;
+#define FIRSTTOKEN      57346
+#define PROGRAM 57347
+#define PASTAT  57348
+#define PASTAT2 57349
+#define XBEGIN  57350
+#define XEND    57351
+#define NL      57352
+#define ARRAY   57353
+#define MATCH   57354
+#define NOTMATCH        57355
+#define MATCHOP 57356
+#define FINAL   57357
+#define DOT     57358
+#define ALL     57359
+#define CCL     57360
+#define NCCL    57361
+#define CHAR    57362
+#define OR      57363
+#define STAR    57364
+#define QUEST   57365
+#define PLUS    57366
+#define AND     57367
+#define BOR     57368
+#define APPEND  57369
+#define EQ      57370
+#define GE      57371
+#define GT      57372
+#define LE      57373
+#define LT      57374
+#define NE      57375
+#define IN      57376
+#define ARG     57377
+#define BLTIN   57378
+#define BREAK   57379
+#define CLOSE   57380
+#define CONTINUE        57381
+#define DELETE  57382
+#define DO      57383
+#define EXIT    57384
+#define FOR     57385
+#define FUNC    57386
+#define SUB     57387
+#define GSUB    57388
+#define IF      57389
+#define INDEX   57390
+#define LSUBSTR 57391
+#define MATCHFCN        57392
+#define NEXT    57393
+#define NEXTFILE        57394
+#define ADD     57395
+#define MINUS   57396
+#define MULT    57397
+#define DIVIDE  57398
+#define MOD     57399
+#define ASSIGN  57400
+#define ASGNOP  57401
+#define ADDEQ   57402
+#define SUBEQ   57403
+#define MULTEQ  57404
+#define DIVEQ   57405
+#define MODEQ   57406
+#define POWEQ   57407
+#define PRINT   57408
+#define PRINTF  57409
+#define SPRINTF 57410
+#define ELSE    57411
+#define INTEST  57412
+#define CONDEXPR        57413
+#define POSTINCR        57414
+#define PREINCR 57415
+#define POSTDECR        57416
+#define PREDECR 57417
+#define VAR     57418
+#define IVAR    57419
+#define VARNF   57420
+#define CALL    57421
+#define NUMBER  57422
+#define STRING  57423
+#define REGEXPR 57424
+#define GETLINE 57425
+#define RETURN  57426
+#define SPLIT   57427
+#define SUBSTR  57428
+#define WHILE   57429
+#define CAT     57430
+#define NOT     57431
+#define UMINUS  57432
+#define POWER   57433
+#define DECR    57434
+#define INCR    57435
+#define INDIRECT        57436
+#define LASTTOKEN       57437
 #define YYEOFCODE 1
 #define YYERRCODE 2
 
-#line	445	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   445     "/n/bopp/v7/bwk/temp/awkgram.y"
 
 
 void setfname(Cell *p)
 {
-	if (isarr(p))
-		SYNTAX("%s is an array, not a function", p->nval);
-	else if (isfcn(p))
-		SYNTAX("you can't define function %s more than once", p->nval);
-	curfname = p->nval;
+        if (isarr(p))
+                SYNTAX("%s is an array, not a function", p->nval);
+        else if (isfcn(p))
+                SYNTAX("you can't define function %s more than once", p->nval);
+        curfname = p->nval;
 }
 
 int constnode(Node *p)
 {
-	return isvalue(p) && ((Cell *) (p->narg[0]))->csub == CCON;
+        return isvalue(p) && ((Cell *) (p->narg[0]))->csub == CCON;
 }
 
 char *strnode(Node *p)
 {
-	return ((Cell *)(p->narg[0]))->sval;
+        return ((Cell *)(p->narg[0]))->sval;
 }
 
 Node *notnull(Node *n)
 {
-	switch (n->nobj) {
-	case LE: case LT: case EQ: case NE: case GT: case GE:
-	case BOR: case AND: case NOT:
-		return n;
-	default:
-		return op2(NE, n, nullnode);
-	}
+        switch (n->nobj) {
+        case LE: case LT: case EQ: case NE: case GT: case GE:
+        case BOR: case AND: case NOT:
+                return n;
+        default:
+                return op2(NE, n, nullnode);
+        }
 }
 
-void checkdup(Node *vl, Cell *cp)	/* check if name already in list */
+void checkdup(Node *vl, Cell *cp)       /* check if name already in list */
 {
-	char *s = cp->nval;
-	for ( ; vl; vl = vl->nnext) {
-		if (strcmp(s, ((Cell *)(vl->narg[0]))->nval) == 0) {
-			SYNTAX("duplicate argument %s", s);
-			break;
-		}
-	}
+        char *s = cp->nval;
+        for ( ; vl; vl = vl->nnext) {
+                if (strcmp(s, ((Cell *)(vl->narg[0]))->nval) == 0) {
+                        SYNTAX("duplicate argument %s", s);
+                        break;
+                }
+        }
 }
-short	yyexca[] =
+short   yyexca[] =
 {-1, 0,
-	1, 28,
-	8, 28,
-	9, 28,
-	12, 28,
-	13, 28,
-	16, 28,
-	45, 28,
-	46, 28,
-	48, 28,
-	54, 28,
-	55, 28,
-	56, 28,
-	58, 28,
-	60, 28,
-	78, 28,
-	86, 28,
-	87, 28,
-	88, 28,
-	89, 28,
-	90, 28,
-	91, 28,
-	95, 28,
-	97, 28,
-	98, 28,
-	101, 28,
-	102, 28,
-	105, 28,
-	108, 28,
-	109, 28,
-	110, 28,
-	-2, 0,
+        1, 28,
+        8, 28,
+        9, 28,
+        12, 28,
+        13, 28,
+        16, 28,
+        45, 28,
+        46, 28,
+        48, 28,
+        54, 28,
+        55, 28,
+        56, 28,
+        58, 28,
+        60, 28,
+        78, 28,
+        86, 28,
+        87, 28,
+        88, 28,
+        89, 28,
+        90, 28,
+        91, 28,
+        95, 28,
+        97, 28,
+        98, 28,
+        101, 28,
+        102, 28,
+        105, 28,
+        108, 28,
+        109, 28,
+        110, 28,
+        -2, 0,
 -1, 1,
-	1, -1,
-	-2, 0,
+        1, -1,
+        -2, 0,
 -1, 157,
-	15, 30,
-	-2, 0,
+        15, 30,
+        -2, 0,
 -1, 176,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 63,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 63,
 -1, 177,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 64,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 64,
 -1, 178,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 65,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 65,
 -1, 179,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 66,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 66,
 -1, 180,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 67,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 67,
 -1, 181,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 68,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 68,
 -1, 183,
-	14, 0,
-	24, 0,
-	38, 0,
-	39, 0,
-	40, 0,
-	41, 0,
-	42, 0,
-	43, 0,
-	44, 0,
-	-2, 70,
+        14, 0,
+        24, 0,
+        38, 0,
+        39, 0,
+        40, 0,
+        41, 0,
+        42, 0,
+        43, 0,
+        44, 0,
+        -2, 70,
 -1, 289,
-	24, 0,
-	44, 0,
-	-2, 53,
+        24, 0,
+        44, 0,
+        -2, 53,
 -1, 333,
-	17, 30,
-	-2, 0,
+        17, 30,
+        -2, 0,
 -1, 355,
-	17, 30,
-	-2, 0,
+        17, 30,
+        -2, 0,
 };
-#define	YYNPROD	185
-#define	YYPRIVATE 57344
-#define	YYLAST	4177
-short	yyact[] =
+#define YYNPROD 185
+#define YYPRIVATE 57344
+#define YYLAST  4177
+short   yyact[] =
 {
   17, 277, 138,  66, 243, 228, 253,  54,  24,  43,
  125, 112, 200,  43, 103, 104, 100, 139, 102, 155,
@@ -716,7 +716,7 @@ short	yyact[] =
    0,   0,   0,  37,  41,   0,   0,  27,  26,   0,
    0,  99,   0,   0,  31,  32,  23
 };
-short	yypact[] =
+short   yypact[] =
 {
  147,-1000,-1000,-1000,3266, 175,-1000,-1000, 155,-1000,
  187, 865, 141, 141, -47,2905,-1000, -51,3817,-1000,
@@ -756,7 +756,7 @@ short	yypact[] =
 -1000,-1000,-1000,-1000, 140,3140, 193,-1000,-1000,-1000,
   47,1403, 193,-1000,1403,-1000
 };
-short	yypgo[] =
+short   yypgo[] =
 {
    0, 263, 508,  40,  30, 262,  12, 261, 242, 201,
   45,  48, 259,   8,   3,   5, 408,   7,   0, 392,
@@ -764,7 +764,7 @@ short	yypgo[] =
   80, 230,   1, 404,  17,  19,  97,  89, 229, 228,
  226, 224, 223, 222, 220, 219, 218, 217, 213
 };
-short	yyr1[] =
+short   yyr1[] =
 {
    0,  40,  40,  36,  36,  37,  37,  33,  33,  26,
   26,  24,  24,  41,  22,  42,  22,  43,  22,  20,
@@ -786,7 +786,7 @@ short	yyr1[] =
    8,   8,   8,   8,  18,  18,  18,  18,  21,  21,
   21,  19,  19,  19,  25
 };
-short	yyr2[] =
+short   yyr2[] =
 {
    0,   1,   1,   1,   2,   1,   2,   1,   2,   1,
    2,   1,   2,   0,  12,   0,  10,   0,   8,   1,
@@ -808,7 +808,7 @@ short	yyr2[] =
    8,   8,   6,   1,   1,   4,   1,   2,   0,   1,
    3,   1,   1,   1,   4
 };
-short	yychk[] =
+short   yychk[] =
 {
 -1000, -40,  -1,   2, -29, -28,  10,  15, -12, -11,
  -10, -30,   8,   9,  54,  -2,  12, -18,  13,  -9,
@@ -848,7 +848,7 @@ short	yychk[] =
   17,  17,  17,  17,  17, -35, -32, -16,  18, -27,
  -15, -42, -32, -16, -41, -16
 };
-short	yydef[] =
+short   yydef[] =
 {
   -2,  -2,   1,   2,  32,  29,  87,  88,  28,  44,
   35,   0,   0,   0,   0,  34,  22, 173,   0,  76,
@@ -888,7 +888,7 @@ short	yydef[] =
  163, 169, 170, 171,   0,  -2,  15,  18,  43, 113,
    0,   0,  13,  16,   0,  14
 };
-short	yytok1[] =
+short   yytok1[] =
 {
    1,   0,   0,   0,   0,   0,   0,   0,   0,   0,
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
@@ -904,7 +904,7 @@ short	yytok1[] =
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
    0,   0,   0,  12,  14,  18
 };
-short	yytok2[] =
+short   yytok2[] =
 {
    2,   3,   4,   5,   6,   7,   8,   9,  10,  21,
   22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
@@ -917,707 +917,707 @@ short	yytok2[] =
   92,  95,  96,  97,  98,  99, 100, 105, 106, 107,
  108, 109, 110, 111
 };
-long	yytok3[] =
+long    yytok3[] =
 {
    0
 };
-#define YYFLAG 		-1000
-#define YYERROR		goto yyerrlab
-#define YYACCEPT	return(0)
-#define YYABORT		return(1)
-#define	yyclearin	yychar = -1
-#define	yyerrok		yyerrflag = 0
+#define YYFLAG          -1000
+//#define YYERROR         goto yyerrlab
+#define YYACCEPT        return(0)
+#define YYABORT         return(1)
+#define yyclearin       yychar = -1
+#define yyerrok         yyerrflag = 0
 
-#ifdef	yydebug
-#include	"y.debug"
+#ifdef  yydebug
+#include        "y.debug"
 #else
-#define	yydebug		0
-char*	yytoknames[1];		/* for debugging */
-char*	yystates[1];		/* for debugging */
+#define yydebug         0
+char*   yytoknames[1];          /* for debugging */
+char*   yystates[1];            /* for debugging */
 #endif
 
-/*	parser for yacc output	*/
+/*      parser for yacc output  */
 
-int	yynerrs = 0;		/* number of errors */
-int	yyerrflag = 0;		/* error recovery flag */
+int     yynerrs = 0;            /* number of errors */
+int     yyerrflag = 0;          /* error recovery flag */
 
-extern	int	fprint(int, char*, ...);
-extern	int	sprint(char*, char*, ...);
+extern  int     fprint(int, char*, ...);
+extern  int     sprint(char*, char*, ...);
 
 char*
 yytokname(int yyc)
 {
-	static char x[10];
+        static char x[10];
 
-	if(yyc > 0 && yyc <= sizeof(yytoknames)/sizeof(yytoknames[0]))
-	if(yytoknames[yyc-1])
-		return yytoknames[yyc-1];
-	sprintf(x, "<%d>", yyc);
-	return x;
+        if(yyc > 0 && yyc <= sizeof(yytoknames)/sizeof(yytoknames[0]))
+        if(yytoknames[yyc-1])
+                return yytoknames[yyc-1];
+        sprintf(x, "<%d>", yyc);
+        return x;
 }
 
 char*
 yystatname(int yys)
 {
-	static char x[10];
+        static char x[10];
 
-	if(yys >= 0 && yys < sizeof(yystates)/sizeof(yystates[0]))
-	if(yystates[yys])
-		return yystates[yys];
-	sprintf(x, "<%d>\n", yys);
-	return x;
+        if(yys >= 0 && yys < sizeof(yystates)/sizeof(yystates[0]))
+        if(yystates[yys])
+                return yystates[yys];
+        sprintf(x, "<%d>\n", yys);
+        return x;
 }
 
 long
 yylex1(void)
 {
-	long yychar;
-	long *t3p;
-	int c;
+        long yychar;
+        long *t3p;
+        int c;
 
-	yychar = yylex();
-	if(yychar <= 0) {
-		c = yytok1[0];
-		goto out;
-	}
-	if(yychar < sizeof(yytok1)/sizeof(yytok1[0])) {
-		c = yytok1[yychar];
-		goto out;
-	}
-	if(yychar >= YYPRIVATE)
-		if(yychar < YYPRIVATE+sizeof(yytok2)/sizeof(yytok2[0])) {
-			c = yytok2[yychar-YYPRIVATE];
-			goto out;
-		}
-	for(t3p=yytok3;; t3p+=2) {
-		c = t3p[0];
-		if(c == yychar) {
-			c = t3p[1];
-			goto out;
-		}
-		if(c == 0)
-			break;
-	}
-	c = 0;
+        yychar = yylex();
+        if(yychar <= 0) {
+                c = yytok1[0];
+                goto out;
+        }
+        if(yychar < sizeof(yytok1)/sizeof(yytok1[0])) {
+                c = yytok1[yychar];
+                goto out;
+        }
+        if(yychar >= YYPRIVATE)
+                if(yychar < YYPRIVATE+sizeof(yytok2)/sizeof(yytok2[0])) {
+                        c = yytok2[yychar-YYPRIVATE];
+                        goto out;
+                }
+        for(t3p=yytok3;; t3p+=2) {
+                c = t3p[0];
+                if(c == yychar) {
+                        c = t3p[1];
+                        goto out;
+                }
+                if(c == 0)
+                        break;
+        }
+        c = 0;
 
 out:
-	if(c == 0)
-		c = yytok2[1];	/* unknown char */
-	if(yydebug >= 3)
-		printf("lex %.4lX %s\n", yychar, yytokname(c));
-	return c;
+        if(c == 0)
+                c = yytok2[1];  /* unknown char */
+        if(yydebug >= 3)
+                printf("lex %.4lX %s\n", yychar, yytokname(c));
+        return c;
 }
 
 int
 yyparse(void)
 {
-	struct
-	{
-		YYSTYPE	yyv;
-		int	yys;
-	} yys[YYMAXDEPTH], *yyp, *yypt;
-	short *yyxi;
-	int yyj, yym, yystate, yyn, yyg;
-	YYSTYPE save1, save2;
-	int save3, save4;
-	long yychar;
+        struct
+        {
+                YYSTYPE yyv;
+                int     yys;
+        } yys[YYMAXDEPTH], *yyp, *yypt;
+        short *yyxi;
+        int yyj, yym, yystate, yyn, yyg;
+        YYSTYPE save1, save2;
+        int save3, save4;
+        long yychar;
 
-	save1 = yylval;
-	save2 = yyval;
-	save3 = yynerrs;
-	save4 = yyerrflag;
+        save1 = yylval;
+        save2 = yyval;
+        save3 = yynerrs;
+        save4 = yyerrflag;
 
-	yystate = 0;
-	yychar = -1;
-	yynerrs = 0;
-	yyerrflag = 0;
-	yyp = &yys[-1];
-	goto yystack;
+        yystate = 0;
+        yychar = -1;
+        yynerrs = 0;
+        yyerrflag = 0;
+        yyp = &yys[-1];
+        goto yystack;
 
 ret0:
-	yyn = 0;
-	goto ret;
+        yyn = 0;
+        goto ret;
 
 ret1:
-	yyn = 1;
-	goto ret;
+        yyn = 1;
+        goto ret;
 
 ret:
-	yylval = save1;
-	yyval = save2;
-	yynerrs = save3;
-	yyerrflag = save4;
-	return yyn;
+        yylval = save1;
+        yyval = save2;
+        yynerrs = save3;
+        yyerrflag = save4;
+        return yyn;
 
 yystack:
-	/* put a state and value onto the stack */
-	if(yydebug >= 4)
-		printf("char %s in %s", yytokname(yychar), yystatname(yystate));
+        /* put a state and value onto the stack */
+        if(yydebug >= 4)
+                printf("char %s in %s", yytokname(yychar), yystatname(yystate));
 
-	yyp++;
-	if(yyp >= &yys[YYMAXDEPTH]) { 
-		yyerror("yacc stack overflow"); 
-		goto ret1; 
-	}
-	yyp->yys = yystate;
-	yyp->yyv = yyval;
+        yyp++;
+        if(yyp >= &yys[YYMAXDEPTH]) {
+                yyerror("yacc stack overflow");
+                goto ret1;
+        }
+        yyp->yys = yystate;
+        yyp->yyv = yyval;
 
 yynewstate:
-	yyn = yypact[yystate];
-	if(yyn <= YYFLAG)
-		goto yydefault; /* simple state */
-	if(yychar < 0)
-		yychar = yylex1();
-	yyn += yychar;
-	if(yyn < 0 || yyn >= YYLAST)
-		goto yydefault;
-	yyn = yyact[yyn];
-	if(yychk[yyn] == yychar) { /* valid shift */
-		yychar = -1;
-		yyval = yylval;
-		yystate = yyn;
-		if(yyerrflag > 0)
-			yyerrflag--;
-		goto yystack;
-	}
+        yyn = yypact[yystate];
+        if(yyn <= YYFLAG)
+                goto yydefault; /* simple state */
+        if(yychar < 0)
+                yychar = yylex1();
+        yyn += yychar;
+        if(yyn < 0 || yyn >= YYLAST)
+                goto yydefault;
+        yyn = yyact[yyn];
+        if(yychk[yyn] == yychar) { /* valid shift */
+                yychar = -1;
+                yyval = yylval;
+                yystate = yyn;
+                if(yyerrflag > 0)
+                        yyerrflag--;
+                goto yystack;
+        }
 
 yydefault:
-	/* default state action */
-	yyn = yydef[yystate];
-	if(yyn == -2) {
-		if(yychar < 0)
-			yychar = yylex1();
+        /* default state action */
+        yyn = yydef[yystate];
+        if(yyn == -2) {
+                if(yychar < 0)
+                        yychar = yylex1();
 
-		/* look through exception table */
-		for(yyxi=yyexca;; yyxi+=2)
-			if(yyxi[0] == -1 && yyxi[1] == yystate)
-				break;
-		for(yyxi += 2;; yyxi += 2) {
-			yyn = yyxi[0];
-			if(yyn < 0 || yyn == yychar)
-				break;
-		}
-		yyn = yyxi[1];
-		if(yyn < 0)
-			goto ret0;
-	}
-	if(yyn == 0) {
-		/* error ... attempt to resume parsing */
-		switch(yyerrflag) {
-		case 0:   /* brand new error */
-			yyerror("syntax error");
-			if(yydebug >= 1) {
-				printf("%s", yystatname(yystate));
-				printf("saw %s\n", yytokname(yychar));
-			}
-yyerrlab:
-			yynerrs++;
+                /* look through exception table */
+                for(yyxi=yyexca;; yyxi+=2)
+                        if(yyxi[0] == -1 && yyxi[1] == yystate)
+                                break;
+                for(yyxi += 2;; yyxi += 2) {
+                        yyn = yyxi[0];
+                        if(yyn < 0 || yyn == yychar)
+                                break;
+                }
+                yyn = yyxi[1];
+                if(yyn < 0)
+                        goto ret0;
+        }
+        if(yyn == 0) {
+                /* error ... attempt to resume parsing */
+                switch(yyerrflag) {
+                case 0:   /* brand new error */
+                        yyerror("syntax error");
+                        if(yydebug >= 1) {
+                                printf("%s", yystatname(yystate));
+                                printf("saw %s\n", yytokname(yychar));
+                        }
+//yyerrlab:
+                        yynerrs++;
 
-		case 1:
-		case 2: /* incompletely recovered error ... try again */
-			yyerrflag = 3;
+                case 1:
+                case 2: /* incompletely recovered error ... try again */
+                        yyerrflag = 3;
 
-			/* find a state where "error" is a legal shift action */
-			while(yyp >= yys) {
-				yyn = yypact[yyp->yys] + YYERRCODE;
-				if(yyn >= 0 && yyn < YYLAST) {
-					yystate = yyact[yyn];  /* simulate a shift of "error" */
-					if(yychk[yystate] == YYERRCODE)
-						goto yystack;
-				}
+                        /* find a state where "error" is a legal shift action */
+                        while(yyp >= yys) {
+                                yyn = yypact[yyp->yys] + YYERRCODE;
+                                if(yyn >= 0 && yyn < YYLAST) {
+                                        yystate = yyact[yyn];  /* simulate a shift of "error" */
+                                        if(yychk[yystate] == YYERRCODE)
+                                                goto yystack;
+                                }
 
-				/* the current yyp has no shift onn "error", pop stack */
-				if(yydebug >= 2)
-					printf("error recovery pops state %d, uncovers %d\n",
-						yyp->yys, (yyp-1)->yys );
-				yyp--;
-			}
-			/* there is no state on the stack with an error shift ... abort */
-			goto ret1;
+                                /* the current yyp has no shift onn "error", pop stack */
+                                if(yydebug >= 2)
+                                        printf("error recovery pops state %d, uncovers %d\n",
+                                                yyp->yys, (yyp-1)->yys );
+                                yyp--;
+                        }
+                        /* there is no state on the stack with an error shift ... abort */
+                        goto ret1;
 
-		case 3:  /* no shift yet; clobber input char */
-			if(yydebug >= YYEOFCODE)
-				printf("error recovery discards %s\n", yytokname(yychar));
-			if(yychar == YYEOFCODE)
-				goto ret1;
-			yychar = -1;
-			goto yynewstate;   /* try again in the same state */
-		}
-	}
+                case 3:  /* no shift yet; clobber input char */
+                        if(yydebug >= YYEOFCODE)
+                                printf("error recovery discards %s\n", yytokname(yychar));
+                        if(yychar == YYEOFCODE)
+                                goto ret1;
+                        yychar = -1;
+                        goto yynewstate;   /* try again in the same state */
+                }
+        }
 
-	/* reduction by production yyn */
-	if(yydebug >= 2)
-		printf("reduce %d in:\n\t%s", yyn, yystatname(yystate));
+        /* reduction by production yyn */
+        if(yydebug >= 2)
+                printf("reduce %d in:\n\t%s", yyn, yystatname(yystate));
 
-	yypt = yyp;
-	yyp -= yyr2[yyn];
-	yyval = (yyp+1)->yyv;
-	yym = yyn;
+        yypt = yyp;
+        yyp -= yyr2[yyn];
+        yyval = (yyp+1)->yyv;
+        yym = yyn;
 
-	/* consult goto table to find next state */
-	yyn = yyr1[yyn];
-	yyg = yypgo[yyn];
-	yyj = yyg + yyp->yys + 1;
+        /* consult goto table to find next state */
+        yyn = yyr1[yyn];
+        yyg = yypgo[yyn];
+        yyj = yyg + yyp->yys + 1;
 
-	if(yyj >= YYLAST || yychk[yystate=yyact[yyj]] != -yyn)
-		yystate = yyact[yyg];
-	switch(yym) {
-		
+        if(yyj >= YYLAST || yychk[yystate=yyact[yyj]] != -yyn)
+                yystate = yyact[yyg];
+        switch(yym) {
+
 case 1:
-#line	98	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   98      "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (errorflag==0)
-			winner = (Node *)stat3(PROGRAM, beginloc, yypt[-0].yyv.p, endloc); } break;
+                        winner = (Node *)stat3(PROGRAM, beginloc, yypt[-0].yyv.p, endloc); } break;
 case 2:
-#line	100	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   100     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyclearin; bracecheck(); SYNTAX("bailing out"); } break;
 case 13:
-#line	124	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   124     "/n/bopp/v7/bwk/temp/awkgram.y"
 {inloop++;} break;
 case 14:
-#line	125	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   125     "/n/bopp/v7/bwk/temp/awkgram.y"
 { --inloop; yyval.p = stat4(FOR, yypt[-9].yyv.p, notnull(yypt[-6].yyv.p), yypt[-3].yyv.p, yypt[-0].yyv.p); } break;
 case 15:
-#line	126	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   126     "/n/bopp/v7/bwk/temp/awkgram.y"
 {inloop++;} break;
 case 16:
-#line	127	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   127     "/n/bopp/v7/bwk/temp/awkgram.y"
 { --inloop; yyval.p = stat4(FOR, yypt[-7].yyv.p, NIL, yypt[-3].yyv.p, yypt[-0].yyv.p); } break;
 case 17:
-#line	128	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   128     "/n/bopp/v7/bwk/temp/awkgram.y"
 {inloop++;} break;
 case 18:
-#line	129	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   129     "/n/bopp/v7/bwk/temp/awkgram.y"
 { --inloop; yyval.p = stat3(IN, yypt[-5].yyv.p, makearr(yypt[-3].yyv.p), yypt[-0].yyv.p); } break;
 case 19:
-#line	133	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   133     "/n/bopp/v7/bwk/temp/awkgram.y"
 { setfname(yypt[-0].yyv.cp); } break;
 case 20:
-#line	134	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   134     "/n/bopp/v7/bwk/temp/awkgram.y"
 { setfname(yypt[-0].yyv.cp); } break;
 case 21:
-#line	138	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   138     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = notnull(yypt[-1].yyv.p); } break;
 case 26:
-#line	150	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   150     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.i = 0; } break;
 case 28:
-#line	155	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   155     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.i = 0; } break;
 case 30:
-#line	161	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   161     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = 0; } break;
 case 32:
-#line	166	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   166     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = 0; } break;
 case 33:
-#line	167	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   167     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = yypt[-1].yyv.p; } break;
 case 34:
-#line	171	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   171     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = notnull(yypt[-0].yyv.p); } break;
 case 35:
-#line	175	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   175     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat2(PASTAT, yypt[-0].yyv.p, stat2(PRINT, rectonode(), NIL)); } break;
 case 36:
-#line	176	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   176     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat2(PASTAT, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 37:
-#line	177	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   177     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = pa2stat(yypt[-2].yyv.p, yypt[-0].yyv.p, stat2(PRINT, rectonode(), NIL)); } break;
 case 38:
-#line	178	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   178     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = pa2stat(yypt[-5].yyv.p, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 39:
-#line	179	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   179     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat2(PASTAT, NIL, yypt[-1].yyv.p); } break;
 case 40:
-#line	181	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   181     "/n/bopp/v7/bwk/temp/awkgram.y"
 { beginloc = linkum(beginloc, yypt[-1].yyv.p); yyval.p = 0; } break;
 case 41:
-#line	183	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   183     "/n/bopp/v7/bwk/temp/awkgram.y"
 { endloc = linkum(endloc, yypt[-1].yyv.p); yyval.p = 0; } break;
 case 42:
-#line	184	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   184     "/n/bopp/v7/bwk/temp/awkgram.y"
 {infunc++;} break;
 case 43:
-#line	185	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   185     "/n/bopp/v7/bwk/temp/awkgram.y"
 { infunc--; curfname=0; defn((Cell *)yypt[-7].yyv.p, yypt[-5].yyv.p, yypt[-1].yyv.p); yyval.p = 0; } break;
 case 45:
-#line	190	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   190     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = linkum(yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 47:
-#line	195	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   195     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = linkum(yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 48:
-#line	199	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   199     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 49:
-#line	201	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   201     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(CONDEXPR, notnull(yypt[-4].yyv.p), yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 50:
-#line	203	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   203     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(BOR, notnull(yypt[-2].yyv.p), notnull(yypt[-0].yyv.p)); } break;
 case 51:
-#line	205	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   205     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(AND, notnull(yypt[-2].yyv.p), notnull(yypt[-0].yyv.p)); } break;
 case 52:
-#line	206	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   206     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(yypt[-1].yyv.i, NIL, yypt[-2].yyv.p, (Node*)makedfa(yypt[-0].yyv.s, 0)); } break;
 case 53:
-#line	208	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   208     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (constnode(yypt[-0].yyv.p))
-			yyval.p = op3(yypt[-1].yyv.i, NIL, yypt[-2].yyv.p, (Node*)makedfa(strnode(yypt[-0].yyv.p), 0));
-		  else
-			yyval.p = op3(yypt[-1].yyv.i, (Node *)1, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
+                        yyval.p = op3(yypt[-1].yyv.i, NIL, yypt[-2].yyv.p, (Node*)makedfa(strnode(yypt[-0].yyv.p), 0));
+                  else
+                        yyval.p = op3(yypt[-1].yyv.i, (Node *)1, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 54:
-#line	212	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   212     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(INTEST, yypt[-2].yyv.p, makearr(yypt[-0].yyv.p)); } break;
 case 55:
-#line	213	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   213     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(INTEST, yypt[-3].yyv.p, makearr(yypt[-0].yyv.p)); } break;
 case 56:
-#line	214	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   214     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(CAT, yypt[-1].yyv.p, yypt[-0].yyv.p); } break;
 case 59:
-#line	220	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   220     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 60:
-#line	222	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   222     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(CONDEXPR, notnull(yypt[-4].yyv.p), yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 61:
-#line	224	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   224     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(BOR, notnull(yypt[-2].yyv.p), notnull(yypt[-0].yyv.p)); } break;
 case 62:
-#line	226	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   226     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(AND, notnull(yypt[-2].yyv.p), notnull(yypt[-0].yyv.p)); } break;
 case 63:
-#line	227	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   227     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 64:
-#line	228	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   228     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 65:
-#line	229	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   229     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 66:
-#line	230	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   230     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 67:
-#line	231	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   231     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 68:
-#line	232	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   232     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(yypt[-1].yyv.i, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 69:
-#line	233	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   233     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(yypt[-1].yyv.i, NIL, yypt[-2].yyv.p, (Node*)makedfa(yypt[-0].yyv.s, 0)); } break;
 case 70:
-#line	235	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   235     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (constnode(yypt[-0].yyv.p))
-			yyval.p = op3(yypt[-1].yyv.i, NIL, yypt[-2].yyv.p, (Node*)makedfa(strnode(yypt[-0].yyv.p), 0));
-		  else
-			yyval.p = op3(yypt[-1].yyv.i, (Node *)1, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
+                        yyval.p = op3(yypt[-1].yyv.i, NIL, yypt[-2].yyv.p, (Node*)makedfa(strnode(yypt[-0].yyv.p), 0));
+                  else
+                        yyval.p = op3(yypt[-1].yyv.i, (Node *)1, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 71:
-#line	239	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   239     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(INTEST, yypt[-2].yyv.p, makearr(yypt[-0].yyv.p)); } break;
 case 72:
-#line	240	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   240     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(INTEST, yypt[-3].yyv.p, makearr(yypt[-0].yyv.p)); } break;
 case 73:
-#line	241	"/n/bopp/v7/bwk/temp/awkgram.y"
-{ 
-			if (safe) SYNTAX("cmd | getline is unsafe");
-			else yyval.p = op3(GETLINE, yypt[-0].yyv.p, itonp(yypt[-2].yyv.i), yypt[-3].yyv.p); } break;
+#line   241     "/n/bopp/v7/bwk/temp/awkgram.y"
+{
+                        if (safe) SYNTAX("cmd | getline is unsafe");
+                        else yyval.p = op3(GETLINE, yypt[-0].yyv.p, itonp(yypt[-2].yyv.i), yypt[-3].yyv.p); } break;
 case 74:
-#line	244	"/n/bopp/v7/bwk/temp/awkgram.y"
-{ 
-			if (safe) SYNTAX("cmd | getline is unsafe");
-			else yyval.p = op3(GETLINE, (Node*)0, itonp(yypt[-1].yyv.i), yypt[-2].yyv.p); } break;
+#line   244     "/n/bopp/v7/bwk/temp/awkgram.y"
+{
+                        if (safe) SYNTAX("cmd | getline is unsafe");
+                        else yyval.p = op3(GETLINE, (Node*)0, itonp(yypt[-1].yyv.i), yypt[-2].yyv.p); } break;
 case 75:
-#line	247	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   247     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(CAT, yypt[-1].yyv.p, yypt[-0].yyv.p); } break;
 case 78:
-#line	253	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   253     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = linkum(yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 79:
-#line	254	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   254     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = linkum(yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 81:
-#line	259	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   259     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = linkum(yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 82:
-#line	263	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   263     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = rectonode(); } break;
 case 84:
-#line	265	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   265     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = yypt[-1].yyv.p; } break;
 case 93:
-#line	282	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   282     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(MATCH, NIL, rectonode(), (Node*)makedfa(yypt[-0].yyv.s, 0)); } break;
 case 94:
-#line	283	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   283     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(NOT, notnull(yypt[-0].yyv.p)); } break;
 case 95:
-#line	287	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   287     "/n/bopp/v7/bwk/temp/awkgram.y"
 {startreg();} break;
 case 96:
-#line	287	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   287     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.s = yypt[-1].yyv.s; } break;
 case 99:
-#line	295	"/n/bopp/v7/bwk/temp/awkgram.y"
-{ 
-			if (safe) SYNTAX("print | is unsafe");
-			else yyval.p = stat3(yypt[-3].yyv.i, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
+#line   295     "/n/bopp/v7/bwk/temp/awkgram.y"
+{
+                        if (safe) SYNTAX("print | is unsafe");
+                        else yyval.p = stat3(yypt[-3].yyv.i, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
 case 100:
-#line	298	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   298     "/n/bopp/v7/bwk/temp/awkgram.y"
 {
-			if (safe) SYNTAX("print >> is unsafe");
-			else yyval.p = stat3(yypt[-3].yyv.i, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
+                        if (safe) SYNTAX("print >> is unsafe");
+                        else yyval.p = stat3(yypt[-3].yyv.i, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
 case 101:
-#line	301	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   301     "/n/bopp/v7/bwk/temp/awkgram.y"
 {
-			if (safe) SYNTAX("print > is unsafe");
-			else yyval.p = stat3(yypt[-3].yyv.i, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
+                        if (safe) SYNTAX("print > is unsafe");
+                        else yyval.p = stat3(yypt[-3].yyv.i, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
 case 102:
-#line	304	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   304     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat3(yypt[-1].yyv.i, yypt[-0].yyv.p, NIL, NIL); } break;
 case 103:
-#line	305	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   305     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat2(DELETE, makearr(yypt[-3].yyv.p), yypt[-1].yyv.p); } break;
 case 104:
-#line	306	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   306     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat2(DELETE, makearr(yypt[-0].yyv.p), 0); } break;
 case 105:
-#line	307	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   307     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = exptostat(yypt[-0].yyv.p); } break;
 case 106:
-#line	308	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   308     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyclearin; SYNTAX("illegal statement"); } break;
 case 109:
-#line	317	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   317     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (!inloop) SYNTAX("break illegal outside of loops");
-				  yyval.p = stat1(BREAK, NIL); } break;
+                                  yyval.p = stat1(BREAK, NIL); } break;
 case 110:
-#line	319	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   319     "/n/bopp/v7/bwk/temp/awkgram.y"
 {  if (!inloop) SYNTAX("continue illegal outside of loops");
-				  yyval.p = stat1(CONTINUE, NIL); } break;
+                                  yyval.p = stat1(CONTINUE, NIL); } break;
 case 111:
-#line	321	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   321     "/n/bopp/v7/bwk/temp/awkgram.y"
 {inloop++;} break;
 case 112:
-#line	321	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   321     "/n/bopp/v7/bwk/temp/awkgram.y"
 {--inloop;} break;
 case 113:
-#line	322	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   322     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat2(DO, yypt[-6].yyv.p, notnull(yypt[-2].yyv.p)); } break;
 case 114:
-#line	323	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   323     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat1(EXIT, yypt[-1].yyv.p); } break;
 case 115:
-#line	324	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   324     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat1(EXIT, NIL); } break;
 case 117:
-#line	326	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   326     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat3(IF, yypt[-3].yyv.p, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 118:
-#line	327	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   327     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat3(IF, yypt[-1].yyv.p, yypt[-0].yyv.p, NIL); } break;
 case 119:
-#line	328	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   328     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = yypt[-1].yyv.p; } break;
 case 120:
-#line	329	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   329     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (infunc)
-				SYNTAX("next is illegal inside a function");
-			  yyval.p = stat1(NEXT, NIL); } break;
+                                SYNTAX("next is illegal inside a function");
+                          yyval.p = stat1(NEXT, NIL); } break;
 case 121:
-#line	332	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   332     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (infunc)
-				SYNTAX("nextfile is illegal inside a function");
-			  yyval.p = stat1(NEXTFILE, NIL); } break;
+                                SYNTAX("nextfile is illegal inside a function");
+                          yyval.p = stat1(NEXTFILE, NIL); } break;
 case 122:
-#line	335	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   335     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat1(RETURN, yypt[-1].yyv.p); } break;
 case 123:
-#line	336	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   336     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = stat1(RETURN, NIL); } break;
 case 125:
-#line	338	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   338     "/n/bopp/v7/bwk/temp/awkgram.y"
 {inloop++;} break;
 case 126:
-#line	338	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   338     "/n/bopp/v7/bwk/temp/awkgram.y"
 { --inloop; yyval.p = stat2(WHILE, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 127:
-#line	339	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   339     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = 0; } break;
 case 129:
-#line	344	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   344     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = linkum(yypt[-1].yyv.p, yypt[-0].yyv.p); } break;
 case 132:
-#line	352	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   352     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(DIVEQ, yypt[-3].yyv.p, yypt[-0].yyv.p); } break;
 case 133:
-#line	353	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   353     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(ADD, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 134:
-#line	354	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   354     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(MINUS, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 135:
-#line	355	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   355     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(MULT, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 136:
-#line	356	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   356     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(DIVIDE, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 137:
-#line	357	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   357     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(MOD, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 138:
-#line	358	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   358     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(POWER, yypt[-2].yyv.p, yypt[-0].yyv.p); } break;
 case 139:
-#line	359	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   359     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(UMINUS, yypt[-0].yyv.p); } break;
 case 140:
-#line	360	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   360     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = yypt[-0].yyv.p; } break;
 case 141:
-#line	361	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   361     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(NOT, notnull(yypt[-0].yyv.p)); } break;
 case 142:
-#line	362	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   362     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(BLTIN, itonp(yypt[-2].yyv.i), rectonode()); } break;
 case 143:
-#line	363	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   363     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(BLTIN, itonp(yypt[-3].yyv.i), yypt[-1].yyv.p); } break;
 case 144:
-#line	364	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   364     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(BLTIN, itonp(yypt[-0].yyv.i), rectonode()); } break;
 case 145:
-#line	365	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   365     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(CALL, celltonode(yypt[-2].yyv.cp,CVAR), NIL); } break;
 case 146:
-#line	366	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   366     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(CALL, celltonode(yypt[-3].yyv.cp,CVAR), yypt[-1].yyv.p); } break;
 case 147:
-#line	367	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   367     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(CLOSE, yypt[-0].yyv.p); } break;
 case 148:
-#line	368	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   368     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(PREDECR, yypt[-0].yyv.p); } break;
 case 149:
-#line	369	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   369     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(PREINCR, yypt[-0].yyv.p); } break;
 case 150:
-#line	370	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   370     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(POSTDECR, yypt[-1].yyv.p); } break;
 case 151:
-#line	371	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   371     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(POSTINCR, yypt[-1].yyv.p); } break;
 case 152:
-#line	372	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   372     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(GETLINE, yypt[-2].yyv.p, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
 case 153:
-#line	373	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   373     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(GETLINE, NIL, itonp(yypt[-1].yyv.i), yypt[-0].yyv.p); } break;
 case 154:
-#line	374	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   374     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(GETLINE, yypt[-0].yyv.p, NIL, NIL); } break;
 case 155:
-#line	375	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   375     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(GETLINE, NIL, NIL, NIL); } break;
 case 156:
-#line	377	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   377     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(INDEX, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 157:
-#line	379	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   379     "/n/bopp/v7/bwk/temp/awkgram.y"
 { SYNTAX("index() doesn't permit regular expressions");
-		  yyval.p = op2(INDEX, yypt[-3].yyv.p, (Node*)yypt[-1].yyv.s); } break;
+                  yyval.p = op2(INDEX, yypt[-3].yyv.p, (Node*)yypt[-1].yyv.s); } break;
 case 158:
-#line	381	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   381     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = yypt[-1].yyv.p; } break;
 case 159:
-#line	383	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   383     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(MATCHFCN, NIL, yypt[-3].yyv.p, (Node*)makedfa(yypt[-1].yyv.s, 1)); } break;
 case 160:
-#line	385	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   385     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (constnode(yypt[-1].yyv.p))
-			yyval.p = op3(MATCHFCN, NIL, yypt[-3].yyv.p, (Node*)makedfa(strnode(yypt[-1].yyv.p), 1));
-		  else
-			yyval.p = op3(MATCHFCN, (Node *)1, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
+                        yyval.p = op3(MATCHFCN, NIL, yypt[-3].yyv.p, (Node*)makedfa(strnode(yypt[-1].yyv.p), 1));
+                  else
+                        yyval.p = op3(MATCHFCN, (Node *)1, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 161:
-#line	389	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   389     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = celltonode(yypt[-0].yyv.cp, CCON); } break;
 case 162:
-#line	391	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   391     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op4(SPLIT, yypt[-5].yyv.p, makearr(yypt[-3].yyv.p), yypt[-1].yyv.p, (Node*)STRING); } break;
 case 163:
-#line	393	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   393     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op4(SPLIT, yypt[-5].yyv.p, makearr(yypt[-3].yyv.p), (Node*)makedfa(yypt[-1].yyv.s, 1), (Node *)REGEXPR); } break;
 case 164:
-#line	395	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   395     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op4(SPLIT, yypt[-3].yyv.p, makearr(yypt[-1].yyv.p), NIL, (Node*)STRING); } break;
 case 165:
-#line	396	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   396     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(yypt[-3].yyv.i, yypt[-1].yyv.p); } break;
 case 166:
-#line	397	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   397     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = celltonode(yypt[-0].yyv.cp, CCON); } break;
 case 167:
-#line	399	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   399     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op4(yypt[-5].yyv.i, NIL, (Node*)makedfa(yypt[-3].yyv.s, 1), yypt[-1].yyv.p, rectonode()); } break;
 case 168:
-#line	401	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   401     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (constnode(yypt[-3].yyv.p))
-			yyval.p = op4(yypt[-5].yyv.i, NIL, (Node*)makedfa(strnode(yypt[-3].yyv.p), 1), yypt[-1].yyv.p, rectonode());
-		  else
-			yyval.p = op4(yypt[-5].yyv.i, (Node *)1, yypt[-3].yyv.p, yypt[-1].yyv.p, rectonode()); } break;
+                        yyval.p = op4(yypt[-5].yyv.i, NIL, (Node*)makedfa(strnode(yypt[-3].yyv.p), 1), yypt[-1].yyv.p, rectonode());
+                  else
+                        yyval.p = op4(yypt[-5].yyv.i, (Node *)1, yypt[-3].yyv.p, yypt[-1].yyv.p, rectonode()); } break;
 case 169:
-#line	406	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   406     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op4(yypt[-7].yyv.i, NIL, (Node*)makedfa(yypt[-5].yyv.s, 1), yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 170:
-#line	408	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   408     "/n/bopp/v7/bwk/temp/awkgram.y"
 { if (constnode(yypt[-5].yyv.p))
-			yyval.p = op4(yypt[-7].yyv.i, NIL, (Node*)makedfa(strnode(yypt[-5].yyv.p), 1), yypt[-3].yyv.p, yypt[-1].yyv.p);
-		  else
-			yyval.p = op4(yypt[-7].yyv.i, (Node *)1, yypt[-5].yyv.p, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
+                        yyval.p = op4(yypt[-7].yyv.i, NIL, (Node*)makedfa(strnode(yypt[-5].yyv.p), 1), yypt[-3].yyv.p, yypt[-1].yyv.p);
+                  else
+                        yyval.p = op4(yypt[-7].yyv.i, (Node *)1, yypt[-5].yyv.p, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 171:
-#line	413	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   413     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(SUBSTR, yypt[-5].yyv.p, yypt[-3].yyv.p, yypt[-1].yyv.p); } break;
 case 172:
-#line	415	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   415     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op3(SUBSTR, yypt[-3].yyv.p, yypt[-1].yyv.p, NIL); } break;
 case 175:
-#line	421	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   421     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op2(ARRAY, makearr(yypt[-3].yyv.p), yypt[-1].yyv.p); } break;
 case 176:
-#line	422	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   422     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(INDIRECT, celltonode(yypt[-0].yyv.cp, CVAR)); } break;
 case 177:
-#line	423	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   423     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(INDIRECT, yypt[-0].yyv.p); } break;
 case 178:
-#line	427	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   427     "/n/bopp/v7/bwk/temp/awkgram.y"
 { arglist = yyval.p = 0; } break;
 case 179:
-#line	428	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   428     "/n/bopp/v7/bwk/temp/awkgram.y"
 { arglist = yyval.p = celltonode(yypt[-0].yyv.cp,CVAR); } break;
 case 180:
-#line	429	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   429     "/n/bopp/v7/bwk/temp/awkgram.y"
 {
-			checkdup(yypt[-2].yyv.p, yypt[-0].yyv.cp);
-			arglist = yyval.p = linkum(yypt[-2].yyv.p,celltonode(yypt[-0].yyv.cp,CVAR)); } break;
+                        checkdup(yypt[-2].yyv.p, yypt[-0].yyv.cp);
+                        arglist = yyval.p = linkum(yypt[-2].yyv.p,celltonode(yypt[-0].yyv.cp,CVAR)); } break;
 case 181:
-#line	435	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   435     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = celltonode(yypt[-0].yyv.cp, CVAR); } break;
 case 182:
-#line	436	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   436     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(ARG, itonp(yypt[-0].yyv.i)); } break;
 case 183:
-#line	437	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   437     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = op1(VARNF, (Node *) yypt[-0].yyv.cp); } break;
 case 184:
-#line	442	"/n/bopp/v7/bwk/temp/awkgram.y"
+#line   442     "/n/bopp/v7/bwk/temp/awkgram.y"
 { yyval.p = notnull(yypt[-1].yyv.p); } break;
-	}
-	goto yystack;  /* stack new state and value */
+        }
+        goto yystack;  /* stack new state and value */
 }

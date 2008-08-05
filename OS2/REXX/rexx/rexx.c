@@ -29,11 +29,13 @@
 
 APIRET APIENTRY RexxResetTrace(PID pid, TID tid)
 {
+  printf("RexxResetTrace\n");
   return 0;
 }
 
 APIRET APIENTRY RexxSetTrace(PID pid, TID tid)
 {
+  printf("RexxSetTrace\n");
   return 0;
 }
 

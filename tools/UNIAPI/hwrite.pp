@@ -42,7 +42,7 @@ type
 
     procedure WriteElement(AElement: TPasElement);
     procedure WriteRecordType(AElement: TPasRecordType; NestingLevel: Integer);
-    procedure WriteType(AType: TPasType);
+    procedure WriteType(AType: TPasType; ATypeDecl: boolean);
     procedure WriteModule(AModule: TPasModule);
     procedure WriteSection(ASection: TPasSection);
     procedure WriteClass(AClass: TPasClassType);
@@ -136,7 +136,7 @@ begin
   else if AElement.ClassType = TPasConst then
     WriteConstant(TPasConst(AElement))
   else if AElement.InheritsFrom(TPasType) then
-    WriteType(TPasType(AElement))
+    WriteType(TPasType(AElement), true)
   else if AElement.InheritsFrom(TPasProcedure) then
     WriteProcDecl(TPasProcedure(AElement))
   else if AElement.InheritsFrom(TPasProcedureImpl) then
@@ -161,10 +161,9 @@ begin
   if S='T_LONG32' then Result:='long';
 end;
 
-procedure THWriter.WriteType(AType: TPasType);
-var
-  sze: longword;
+procedure THWriter.WriteType(AType: TPasType; ATypeDecl: boolean);
 begin
+  if ATypeDecl then wrt('typedef ');
   if AType.ClassType = TPasUnresolvedTypeRef then
     wrt(AType.Name)
   else if AType.ClassType = TPasClassType then
@@ -172,17 +171,26 @@ begin
   else if AType.ClassType = TPasPointerType then
   begin
     if Assigned(TPasPointerType(AType).DestType) then
-      wrtln('typedef '+ConvertToCType(TPasPointerType(AType).DestType.Name)+' * '+TPasAliasType(AType).Name+';')
-    else
-      wrtln('typedef void * '+TPasAliasType(AType).Name+';');
+    begin
+      if ATypeDecl then wrt(ConvertToCType(TPasPointerType(AType).DestType.Name)+' * ');
+    end else begin
+      if ATypeDecl then wrt('void * ');
+    end;
+    wrt(TPasAliasType(AType).Name);
+    if (not ATypeDecl) and (TPasAliasType(AType).Name='') and Assigned(TPasPointerType(AType).DestType) then wrt(ConvertToCType(TPasPointerType(AType).DestType.Name)+' * ');
+    if ATypeDecl then wrtln(';');
   end else if AType.ClassType = TPasAliasType then
   begin
-    WrtLn('typedef '+ConvertToCType(TPasAliasType(AType).DestType.Name)+' '+TPasAliasType(AType).Name+';');
+    WrtLn(ConvertToCType(TPasAliasType(AType).DestType.Name)+' '+TPasAliasType(AType).Name+';');
   end else if AType.ClassType = TPasRecordType then
-    WriteRecordType(TPasRecordType(AType), 0)
-  else if AType.ClassType = TPasArrayType then
   begin
-    wrtln('typedef '+ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + '];');
+    if aTypeDecl then
+      WriteRecordType(TPasRecordType(AType), 0)
+    else
+      wrt(TPasRecordType(AType).Name);
+  end else if AType.ClassType = TPasArrayType then
+  begin
+    wrtln(ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + '];');
   end else
     raise Exception.Create('Writing not implemented for ' +
       AType.ElementTypeName + ' nodes');
@@ -288,7 +296,7 @@ begin
     (AVar.Parent.ClassType <> TPasRecordType) then
     PrepareDeclSection('var');
   wrt(AVar.Name + ': ');
-  WriteType(AVar.VarType);
+  WriteType(AVar.VarType, false);
   wrtln(';');
 end;
 
@@ -325,7 +333,15 @@ procedure THWriter.WriteProcDecl(AProc: TPasProcedure);
 var
   i: Integer;
 begin
-  wrt(AProc.TypeName + ' ' + AProc.Name);
+  if Assigned(AProc.ProcType) and
+    (AProc.ProcType.ClassType = TPasFunctionType) then
+  begin
+    WriteType(TPasFunctionType(AProc.ProcType).ResultEl.ResultType, false);
+  end else begin
+    wrt('VOID');
+  end;
+
+  wrt(' APIENTRY '+AProc.Name);
 
   if Assigned(AProc.ProcType) and (AProc.ProcType.Args.Count > 0) then
   begin
@@ -334,49 +350,22 @@ begin
       with TPasArgument(AProc.ProcType.Args[i]) do
       begin
         if i > 0 then
-          wrt('; ');
+          wrt(', ');
         case Access of
           argConst: wrt('const ');
           argVar: wrt('var ');
         end;
-        wrt(Name);
         if Assigned(ArgType) then
         begin
-          wrt(': ');
-          WriteElement(ArgType);
+          WriteType(ArgType, false);
+          wrt(' ');
         end;
-        if Value <> '' then
-          wrt(' = ' + Value);
+        wrt(Name);
       end;
     wrt(')');
   end;
 
-  if Assigned(AProc.ProcType) and
-    (AProc.ProcType.ClassType = TPasFunctionType) then
-  begin
-    wrt(': ');
-    WriteElement(TPasFunctionType(AProc.ProcType).ResultEl.ResultType);
-  end;
-
   wrt(';');
-
-  if AProc.IsVirtual then
-    wrt(' virtual;');
-  if AProc.IsDynamic then
-    wrt(' dynamic;');
-  if AProc.IsAbstract then
-    wrt(' abstract;');
-  if AProc.IsOverride then
-    wrt(' override;');
-  if AProc.IsOverload then
-    wrt(' overload;');
-  if AProc.IsReintroduced then
-    wrt(' reintroduce;');
-  if AProc.IsStatic then
-    wrt(' static;');
-
-
-  // !!!: Not handled: Message, calling conventions
 
   wrtln;
 end;
@@ -467,7 +456,7 @@ begin
   if Assigned(AProp.VarType) then
   begin
     wrt(': ');
-    WriteType(AProp.VarType);
+    WriteType(AProp.VarType, false);
   end;
   if AProp.ReadAccessorName <> '' then
     wrt(' read ' + AProp.ReadAccessorName);
@@ -665,7 +654,6 @@ var
   Variable: TPasVariable;
   CurVariant: TPasVariant;
 begin
-  wrt('typedef ');
   if not (AElement.Parent is TPasVariant) then
     if AElement.IsPacked then
       wrt('packed struct')
@@ -677,7 +665,13 @@ begin
   for i := 0 to AElement.Members.Count - 1 do
   begin
     Variable := TPasVariable(AElement.Members[i]);
-    wrtln(Variable.VarType.name+' '+Variable.Name+';');
+
+    if Variable.VarType.ClassType = TPasArrayType then
+    begin
+      wrtln(ConvertToCType(TPasArrayType(Variable.VarType).ElType.Name)+' '+Variable.Name+'[' + TPasArrayType(Variable.VarType).IndexRange + '];');
+    end else begin
+      wrtln(ConvertToCType(TPasType(Variable.VarType).Name)+' '+Variable.Name+';');
+    end;
   end;
   wrtln('} '+AElement.Name+';');
 end;

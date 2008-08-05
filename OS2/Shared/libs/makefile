@@ -13,9 +13,12 @@ DIRS=zlib lpng JpegLib GDLib GBM libtiff pdcurses glib libIDL
 !include $(%ROOT)/mk/all.mk
 
 all: .SYMBOLIC
- $(MAKE) TARGET=$^@ -h subdirs
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
-.IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
+ $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

@@ -3764,21 +3764,13 @@ SYS1119I: Wydanie %1.%2 %0
 ;
 ;
 SYS1120I:
-                 ฿฿฿฿฿฿฿฿   ฿฿฿฿฿฿฿฿฿฿     ฿฿฿฿฿฿       ฿฿฿฿฿฿
-                 ฿฿฿฿฿฿฿฿   ฿฿฿฿฿฿฿฿฿฿฿฿   ฿฿฿฿฿฿฿     ฿฿฿฿฿฿฿
-                   ฿฿฿฿      ฿฿฿฿   ฿฿฿฿    ฿฿฿฿฿฿฿   ฿฿฿฿฿฿฿
-                   ฿฿฿฿      ฿฿฿฿฿฿฿฿฿฿     ฿฿฿฿฿฿฿฿ ฿฿฿฿฿฿฿฿
-                   ฿฿฿฿      ฿฿฿฿฿฿฿฿฿฿     ฿฿฿฿ ฿฿฿฿฿฿฿ ฿฿฿฿
-                   ฿฿฿฿      ฿฿฿฿   ฿฿฿฿    ฿฿฿฿  ฿฿฿฿฿  ฿฿฿฿
-                 ฿฿฿฿฿฿฿฿   ฿฿฿฿฿฿฿฿฿฿฿฿   ฿฿฿฿฿   ฿฿฿   ฿฿฿฿฿
-                 ฿฿฿฿฿฿฿฿   ฿฿฿฿฿฿฿฿฿฿     ฿฿฿฿฿    ฿    ฿฿฿฿฿
-
             ษอออออออออออออออออออออออออออออออออออออออออออออออออออออป
-            บ                  OS/2 Warp wersja 4                 บ
-            บ                      Instalacja                     บ
+            บ                       osFree                        บ
+            บ                     Instalacja                      บ
             ศอออออออออออออออออออออออออออออออออออออออออออออออออออออผ
 
-            (C) Copyright IBM Corp. 1987, 1996. All rights reserved.
+
+                           (C) Copyright osFree team
 
             Wyjmij dyskietke ze stacji A.
 
@@ -3787,6 +3779,7 @@ SYS1120I:
 
             UWAGA: Strona kodowa obslugujaca polskie znaki zostanie
                    zaladowana w dalszej fazie procesu instalacji.
+
 ;
 ;
 SYS1121P: Nie%0

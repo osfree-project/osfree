@@ -27,7 +27,7 @@ all: libz.lib .SYMBOLIC
 
 libz.lib: $(OBJS)
  $(DC) $^@
- $(LIB) -n -fo $^@ +$(OBJS)
+ $(LIB) $(LIBOPT) $^@ +$(OBJS)
 
 
 install: .SYMBOLIC

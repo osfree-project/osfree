@@ -25,10 +25,31 @@
 
 */
 
-#include <os21x\os2.h>
+// This is attempt to provide 16-bit wrappers around Regina REXX 32-bit API
+// Because most of 16-bit programs has small stack and heap we will have
+// traps in most cases (Regina REXX requires bigger stack). So we execute
+// another process (rexx16.exe) and communicate with it via pipes.
+
+#define INCL_DOSPROCESS
+#define INCL_DOSERRORS
+#include <os2.h>
 #include <rexxsaa.h>
 //#include "rexx16.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef unsigned short WORD;            // w
+
+typedef WORD FAR *PWORD;                // pw
+
+// To extract offset or selector from any FAR (16:16) pointer
+#define OFFSETOF16(p)   (((PWORD)&(p))[0])
+#define SEGMENTOF16(p)  (((PWORD)&(p))[1])
+
+// To convert a tiled 16:16 address to a 0:32 address
+#define MAKEFLATP(fp)   ((PVOID)((SEGMENTOF16(fp)&~7)<<13 | OFFSETOF16(fp)))
+
 
 #pragma pack(2)
 
@@ -42,7 +63,7 @@ USHORT _Far16 _Pascal RXTRACERESET(
 }
 
 typedef char _Far16 * PCH16;
-typedef char _Far16 * PSZ16;
+typedef char _pascal _Far16 * PSZ16;
 
 typedef struct {
    ULONG           strlength;          /*   length of string         */
@@ -86,6 +107,17 @@ typedef RXSYSEXIT16 _Far16 *PRXSYSEXIT16;     /* pointer to a RXSYSEXIT     */
 
 #pragma pack()
 
+LONG   APIENTRY ReginaRexxStart(LONG ,                        /* Num of args passed to rexx */
+         PRXSTRING,                    /* Array of args passed to rex */
+         PSZ,                          /* [d:][path] filename[.ext]  */
+         PRXSTRING,                    /* Loc of rexx proc in memory */
+         PSZ,                          /* ASCIIZ initial environment.*/
+         LONG ,                        /* type (command,subrtn,funct) */
+         PRXSYSEXIT,                   /* SysExit env. names &  codes */
+         PSHORT,                       /* Ret code from if numeric   */
+         PRXSTRING );                  /* Retvalue from the rexx proc */
+
+
 SHORT _Far16 _Pascal REXXSAA(
          SHORT argc,                        /* Num of args passed to rexx */
          PRXSTRING16 argv,                  /* Array of args passed to rex*/
@@ -108,23 +140,35 @@ SHORT _Far16 _Pascal REXXSAA(
          PSHORT _Far16 retc,                /* Ret code from if numeric   */
          PRXSTRING16 retv )                 /* Retvalue from the rexx proc*/
 {
-  LONG rc;
-  SHORT           rexxrc = 0;
-  RXSTRING        rexxresult;
+  UCHAR       LoadError[255];
+  RESULTCODES ChildRC;
+  APIRET      rc;  /* Return code */
+  CHAR prg[CCHMAXPATH];
 
-  rexxresult.strlength=0;
-  rc=RexxStart(
-         0,//argc,
-         NULL,//&argv32,
-         "test",
-         NULL,//Instore,
-         "CMD",//env32,
-         RXCOMMAND, //type,
-         NULL,//sysexit32,
-         &rexxrc,
-         &rexxresult); //&retv32
+  printf("REXXSAA\n");
 
-  return rc;
+  memset(prg, 0, sizeof(prg));
+  strcpy(prg, "rexx.exe\0");
+  sprintf(prg + 9, "%s", MAKEFLATP(path));
+
+//  rc = DosExecPgm(LoadError,           /* Object name buffer           */
+//                  sizeof(LoadError),   /* Length of object name buffer */
+//                  EXEC_SYNC,           /* Asynchronous/Trace flags     */
+//                  (PSZ) &prg,          /* Argument string              */
+//                  NULL, //Envs,        /* Environment string           */
+//                  &ChildRC,            /* Termination codes            */
+//                  "rexx.exe");             /* Program file name            */
+
+  if (rc != NO_ERROR) {
+     printf("DosExecPgm error: return code = %u\n", rc);
+     return 0;
+  } else {
+     printf("DosExecPgm complete.  Termination Code: %u  Return Code: %u\n",
+             ChildRC.codeTerminate,
+             ChildRC.codeResult);  /* This is explicitly set by other pgm */
+  } /* endif */
+
+  return 0;
 }
 
 USHORT _Far16 _Pascal RXHALTSET(
@@ -135,6 +179,7 @@ USHORT _Far16 _Pascal RXHALTSET(
          LONG PID,                         /* Process Id                  */
          LONG TID)                        /* Thread Id                   */
 {
+  printf("REXXSETHALT\n");
   return RexxSetHalt(PID, TID);
 }
 
@@ -146,6 +191,7 @@ USHORT _Far16 _Pascal RXTRACESET(
          LONG PID,                         /* Process Id                  */
          LONG TID)                        /* Thread Id                   */
 {
+  printf("REXXSETTRACE\n");
   return RexxSetTrace(PID, TID);
 }
 

@@ -36,8 +36,8 @@ extern FILE *STDOUT, *STDERR;
 /* load_super
 
  * returns -4 wrong inode size
- *	   -3 wrong block size
- *	   -2 for drive unreadable
+ *         -3 wrong block size
+ *         -2 for drive unreadable
  *         -1 for bad magic
  *          0 for OK
  */
@@ -47,8 +47,8 @@ int load_super(void)
 
     if (readdisk((byte *) &sb, 1024 / DISK_BLOCK_SIZE, 1024 % DISK_BLOCK_SIZE, sizeof(sb)) != sizeof(sb))
     {
-	//fprintf(STDERR, "ERROR: Drive unreadable.\n");
-	return (-2);						/* read failed */
+        //fprintf(STDERR, "ERROR: Drive unreadable.\n");
+        return (-2);                                            /* read failed */
     }
 #ifdef UNIX
     sb.s_inodes_count = le32_to_cpu(sb.s_inodes_count);
@@ -92,8 +92,8 @@ int load_super(void)
     FRAG_SIZE = EXT2_MIN_FRAG << sb.s_log_frag_size;
 
     NBLOCK = BUFSIZE / BLOCK_SIZE;
-    if ((NBLOCK <=0) || !((BLOCK_SIZE==1024) || (BLOCK_SIZE==2048) || (BLOCK_SIZE==4096)))
-    {	//fprintf(STDERR, "Bad block size	%u - BUF_SIZE=%u  - NBLOCK=%u\n",BLOCK_SIZE,NBLOCK,BUFSIZE);
+    if ((NBLOCK == 0) || !((BLOCK_SIZE==1024) || (BLOCK_SIZE==2048) || (BLOCK_SIZE==4096))) // in original <= 0, but how unsigned can be <0?
+    {   //fprintf(STDERR, "Bad block size       %u - BUF_SIZE=%u  - NBLOCK=%u\n",BLOCK_SIZE,NBLOCK,BUFSIZE);
         return (-3);
     }
 
@@ -102,19 +102,19 @@ int load_super(void)
 
     if (sb.s_magic != EXT2_SUPER_MAGIC)
     {
-	//fprintf(STDERR, "Bad magic number in superblock. Not Linux.\n");
-	return (-1);
+        //fprintf(STDERR, "Bad magic number in superblock. Not Linux.\n");
+        return (-1);
     }
 
     if (sb.s_rev_level!=EXT2_GOOD_OLD_REV)
-    {	if (sb.s_inode_size!=EXT2_GOOD_OLD_INODE_SIZE)
-    	{   fprintf(STDERR, "ERROR: Sorry, your disk's inode size is %d - LTOOLS can only handle inode size %d\n",
-    						sb.s_inode_size,EXT2_GOOD_OLD_INODE_SIZE);
-    	    return (-4);
-    	}
+    {   if (sb.s_inode_size!=EXT2_GOOD_OLD_INODE_SIZE)
+        {   fprintf(STDERR, "ERROR: Sorry, your disk's inode size is %d - LTOOLS can only handle inode size %d\n",
+                                                sb.s_inode_size,EXT2_GOOD_OLD_INODE_SIZE);
+            return (-4);
+        }
     }
 
-    return (0);							/* everything OK */
+    return (0);                                                 /* everything OK */
 }
 
 
@@ -163,10 +163,10 @@ int write_super(void)
     if (writedisk((byte *) & sb, 1024 / DISK_BLOCK_SIZE, 1024 % DISK_BLOCK_SIZE, sizeof(sb)) != sizeof(sb))
 #endif
     {
-	fprintf(STDERR, "Drive unreadable in write_super.\n");
-	return (-1);						/* read failed */
+        fprintf(STDERR, "Drive unreadable in write_super.\n");
+        return (-1);                                            /* read failed */
     }
-    return (1);							/* everything OK */
+    return (1);                                                 /* everything OK */
 }
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Ende Miller 20.12.98 !!!!!!!!!!!!!!!!!!!! */
 
@@ -194,7 +194,7 @@ void print_super(void)
     printf("Mount Count: %u\n", sb.s_mnt_count);
     printf("Max Mount Count: %d\n", sb.s_max_mnt_count);
     printf("Magic Number: %X  (%s)\n", sb.s_magic,
-	   sb.s_magic == EXT2_SUPER_MAGIC ? "OK" : "BAD");
+           sb.s_magic == EXT2_SUPER_MAGIC ? "OK" : "BAD");
     printf("File System State: %X\n", sb.s_state);
     printf("Error Behaviour: %X\n", sb.s_errors);
     printf("Minor Revision Level: %u\n", sb.s_minor_rev_level);
@@ -206,7 +206,7 @@ void print_super(void)
     printf("Reserved Block Default GID: %u\n", sb.s_def_resgid);
     printf("First Inode:              %lu\n",sb.s_first_ino);
     printf("Inode Size:               %u\n",sb.s_inode_size);
-    printf("Block Group No:	      %u\n",sb.s_block_group_nr);
+    printf("Block Group No:           %u\n",sb.s_block_group_nr);
     printf("Compatible Feature Set:   %lX\n",sb.s_feature_compat);
     printf("Incompatible Feature Set: %lX\n",sb.s_feature_incompat);
     printf("Read Only Feature Set:    %lX\n",sb.s_feature_ro_compat);

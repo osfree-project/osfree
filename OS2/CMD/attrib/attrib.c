@@ -1,18 +1,21 @@
 /*!
-   $Id: attrib.c,v 1.1 2003/12/12 18:18:40 prokushev Exp $
 
    @file attrib.c
 
    @brief attrib command - sets file attributes
 
-   (c) osFree Project 2002, <http://www.osFree.org>
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
    for licence see licence.txt in root directory, or project website
 
    @author Bartosz Tomasik <bart2@asua.org.pl>
 
    @todo: return code, different when an error is occurinng and option
-         that allows to break execution after first error /e ?
+         that allows to break execution after first error /x ?
    @todo: add support of 4OS2 extensions
+   @todo: add extended attributes support (like .COMMENT, .TYPE)
+   @todo: fix bug with /a switch. For some reasons MUST_HAVE doesn't work
+         in all_perform_recurse_action
+
 */
 
 #define INCL_DOSERRORS
@@ -39,7 +42,9 @@
 #define ATR_CHAR_R 'R' /*!< Readonly-attrib's character definition  */
 #define ATR_CHAR_S 'S' /*!< System-attrib's character definition */
 #define ATR_CHAR_H 'H' /*!< Hidden-attrib's character definition */
+#define ATR_CHAR_D 'D' /*!< file is directory (only for filter) */
 #define ATR_CHAR_A 'A' /*!< Archive-attrib's character definition */
+#define ATR_CHAR_U '_' /*!< Ignore-attrib's character definition  */
 
 /* attribute setting options */
 #define ATR_ACTION_IGN 0 //!< igore attribute (don't change state)
@@ -55,10 +60,11 @@
 */
 typedef struct _attrib
 {
- BYTE bReadOnly; //!< Readonly attribute code action
- BYTE bHidden;   //!< Hidden attribute code action
- BYTE bSystem;   //!< System attribute code action
- BYTE bArchived; //!< Archived attribute code action
+ BYTE bReadOnly;  //!< Readonly attribute code action
+ BYTE bHidden;    //!< Hidden attribute code action
+ BYTE bSystem;    //!< System attribute code action
+ BYTE bArchived;  //!< Archived attribute code action
+ BYTE bDirectory; //!< File is directory (used only in filter)
 } ATTRIB;
 
 /*!
@@ -68,10 +74,14 @@ typedef struct _attrib
 */
 typedef struct _options
 {
- BOOL bNoScan;   /*!< command line scaning indicator, TRUE when command line scanning is truned off */
- BOOL bFlagsSet; /*!< are attrib parameters for files set? */
- BOOL bRecurse;  /*!< should we recurse into subdirs */
- BOOL bNoUpdateDirs; /*!< Should directory attribs be updated when recusing */
+ BOOL bNoScan;          /*!< command line scaning indicator, TRUE when command line scanning is truned off */
+ BOOL bFlagsSet;        /*!< are attrib parameters for files set? */
+ BOOL bRecurse;         /*!< should we recurse into subdirs */
+ BOOL bNoUpdateDirs;    /*!< Should directory attribs be updated when recusing */
+ BOOL bAttributeSelect; /*!< Make action only for attribute mask */
+ BOOL bPause;           /*!< Pause each screen */
+ BOOL bQuiet;           /*!< Be quiet  */
+ BOOL bNoErrors;        /*!< Show only critical error messages */
 } OPTIONS;
 
 /*! macro to test is a specified chaacter, parameter specifier */
@@ -102,7 +112,7 @@ typedef struct _options
 //--- local functions
 
 /*! @brief Process file masks given in argv,using given flags and options */
-int ProcessFiles(int start,int end,char* argv[],ATTRIB *flags,OPTIONS *options);
+int ProcessFiles(int start,int end,char* argv[],ATTRIB *flags,ATTRIB *filterflags,OPTIONS *options);
 /*! @brief physical modyfication of given file's attributes */
 int ModifyFileAttribs(char *file,ATTRIB *flags);
 /*! @brief function to be called on each file/dir found by all_PerfomRecursiveAction */
@@ -111,11 +121,11 @@ int RecurseActionFunction(char *path,char*file,int iAction,void *data);
 int RecurseErrorFunction(ULONG rc,void *data);
 /*! @brief sets flags and/or options field based on characters found in param
    string, and action_type specifier */
-int SetMemFlags(ATTRIB *flags,char *param,int len,char action_type,OPTIONS *options);
+int SetMemFlags(ATTRIB *filterflags,ATTRIB *flags,char *param,int len,char action_type,OPTIONS *options);
 /*! @brief gets length of current action parameter */
 int GetParamLen(char *param);
-/* Parse given string and based on it set options and parameters */
-int ProcessCmdParam(char *param,ATTRIB *atr,OPTIONS *options);
+/*! @brief Parse given string and based on it set options and parameters */
+int ProcessCmdParam(char *param,ATTRIB *atr,ATTRIB *filter,OPTIONS *options);
 
 
 /*!
@@ -127,42 +137,45 @@ int main (int argc, char* argv[], char* envp[])
 {
   APIRET rc=0;
   int i;
-  ATTRIB flags={(0)}; /* current attrib settings */
-  OPTIONS options={(0)}; /* current processing options */
+  ATTRIB flags={(0)};       /* current attrib settings */
+  ATTRIB filterflags={(0)}; /* set attrib if attrib is set */
+  OPTIONS options={(0)};    /* current processing options */
   int iEndArgc=0;
 
+  options.bNoUpdateDirs=TRUE;
 
- if (argc<2)
- {
-   cmd_ShowSystemMessage(MSG_BAD_SYNTAX,0L);
-   return 1; //@todo fix
- };
-
- if (((argv[1][0]==PARAM_CHAR1) || (argv[1][0]==PARAM_CHAR2)) &&
-      (argv[1][1]=='?')&& (argv[1][2]=='\0'))
- {
-   cmd_ShowSystemMessage(cmd_MSG_ATTRIB_HELP,0L);
-   return NO_ERROR;
- };
-
- /* check eveything on command line */
- for (i=1;i<argc;i++)
- {
-  if (ISPARAM(argv[i][0]) && (options.bNoScan==FALSE))
+  if (argc<2)
   {
-   if (ProcessCmdParam(argv[i],&flags,&options)!=0)
+    if (!options.bQuiet) cmd_ShowSystemMessage(MSG_BAD_SYNTAX,0L);
+    return 1; //@todo fix
+  };
+
+  if ((((argv[1][0]==PARAM_CHAR1) || (argv[1][0]==PARAM_CHAR2)) &&
+       (argv[1][1]=='?') || ((argv[1][0]==PARAM_CHAR1) && toupper(argv[1][1])=='H'))&& (argv[1][2]=='\0'))
+  {
+    if (!options.bQuiet) cmd_ShowSystemMessage(cmd_MSG_ATTRIB_HELP,0L);
+    return NO_ERROR;
+  };
+
+  /* check eveything on command line */
+  for (i=1;i<argc;i++)
+  {
+   if (ISPARAM(argv[i][0]) && (options.bNoScan==FALSE))
    {
-    cmd_ShowSystemMessage(MSG_BAD_PARM2,1L,"%s",argv[i]);
-    return 1; //TODO
-   };
-  } else
-  {
-
-    if (!options.bFlagsSet) /* we cannot process files without atrrib params set */
+    if (ProcessCmdParam(argv[i],&flags,&filterflags,&options)!=0)
     {
-     cmd_ShowSystemMessage(MSG_BAD_SYNTAX,0L);
+     if (!options.bQuiet) cmd_ShowSystemMessage(MSG_BAD_PARM2,1L,"%s",argv[i]);
      return 1; //@todo fix
     };
+   } else
+   {
+
+//    if (!options.bFlagsSet) /* we cannot process files without atrrib params set */
+//    {
+//     if (!options.bQuiet) cmd_ShowSystemMessage(MSG_BAD_SYNTAX,0L);
+//     printf("info\n");
+//     return 1; //@todo fix
+//    };
 
     /* if command line scaning is turned off, we can safely select whole
        rest of it, as file specifier */
@@ -187,7 +200,7 @@ int main (int argc, char* argv[], char* envp[])
            options.bNoScan=TRUE; /* probably useless now, but for safety ; */
 
            /* process current file list (to '--') */
-           if ( (ProcessFiles(i,iEndArgc,argv,&flags,&options)!=0) && (!rc))
+           if ( (ProcessFiles(i,iEndArgc,argv,&flags,&filterflags,&options)!=0) && (!rc))
            rc=1;
 
            i=iEndArgc+1; /* skip '--' */
@@ -198,14 +211,18 @@ int main (int argc, char* argv[], char* envp[])
     }; /* END: for (iEndArgc=i;iEndArgc<argc;iEndArgc++) */
 
     /* process files */
-    if ( (ProcessFiles(i,iEndArgc,argv,&flags,&options)!=0) && (!rc))
-    rc=1; //TODO: fix?
+    if ( (ProcessFiles(i,iEndArgc,argv,&flags,&filterflags,&options)!=0) && (!rc))
+    rc=1; //@todo: fix?
 
     /* skip file specifications when command line parsing */
     i=iEndArgc-1;
     options.bFlagsSet=FALSE; /* reset options and flags */
     options.bRecurse=FALSE;
-    options.bNoUpdateDirs=FALSE;
+    options.bNoUpdateDirs=TRUE;
+    options.bAttributeSelect=FALSE;
+    options.bPause=FALSE;
+    options.bQuiet=FALSE;
+    options.bNoErrors=FALSE;
     memset(&flags,0,sizeof(flags));
   }; /* END: if (ISPARAM(argv[i][0]) && (bNoScan==FALSE)) */
  }; /* END: for (i=1;i<argc;i++) */
@@ -228,23 +245,33 @@ int main (int argc, char* argv[], char* envp[])
      NO_ERROR - files were processed succesfully
      1 - an error occured during files processing
 */
-int ProcessFiles(int start,int end,char* argv[],ATTRIB *flags,OPTIONS *options)
+int ProcessFiles(int start,int end,char* argv[],ATTRIB *flags,ATTRIB *filterflags,OPTIONS *options)
 {
  int i;
  char cActionParams=all_RECURSE_FILEACTION;
  /*! @todo: add an option to mach files by attributes example: /a:h */
  int fileAttributes=FILE_SYSTEM|FILE_READONLY|FILE_HIDDEN|FILE_ARCHIVED;
 
+ if (filterflags->bDirectory==1) fileAttributes=fileAttributes|MUST_HAVE_DIRECTORY;
+ if (filterflags->bReadOnly==1) fileAttributes=fileAttributes|MUST_HAVE_READONLY;
+ if (filterflags->bArchived==1) fileAttributes=fileAttributes|MUST_HAVE_ARCHIVED;
+ if (filterflags->bSystem==1) fileAttributes=fileAttributes|MUST_HAVE_SYSTEM;
+ if (filterflags->bHidden==1) fileAttributes=fileAttributes|MUST_HAVE_HIDDEN;
+
+ if (options->bNoUpdateDirs==FALSE) fileAttributes=fileAttributes|FILE_DIRECTORY;
+
  if (options->bRecurse) cActionParams|=all_RECURSE_DIRS;
  if (options->bNoUpdateDirs==FALSE)
+ {
    cActionParams|=all_RECURSE_DIRACTION;
+ }
 
  for (i=start;i<end;i++)
  {
   if (all_PerformRecursiveAction(argv[i],cActionParams, fileAttributes,
        RecurseActionFunction, (void *) flags, RecurseErrorFunction ,NULL)!=0)
    {
-     //! @TODO change it to something reasonable ;)
+     //! @todo change it to something reasonable ;)
      printf("bad things returned by all_PerformRecursiveAction\n");
      return 1;
    };
@@ -267,7 +294,7 @@ int ProcessFiles(int start,int end,char* argv[],ATTRIB *flags,OPTIONS *options)
     1 - given parameter contained invalid characters, and couldn't be
         processed
 */
-int ProcessCmdParam(char *param,ATTRIB *atr,OPTIONS *options)
+int ProcessCmdParam(char *param,ATTRIB *atr,ATTRIB *filter,OPTIONS *options)
 {
   char *tmp=param;
   char *tmp2;
@@ -290,8 +317,8 @@ int ProcessCmdParam(char *param,ATTRIB *atr,OPTIONS *options)
      case PARAM_NEG:   /* '~' */
      case PARAM_EQUAL: /* '=' */
       strCount=GetParamLen(tmp+1); /* count this param len, skipping param char */
-      if (SetMemFlags(atr,tmp+1,strCount,*tmp,options)!=0)
-      return 1;    /* TODO */
+      if (SetMemFlags(filter,atr,tmp+1,strCount,*tmp,options)!=0)
+      return 1;    /* @todo fix */
       tmp++;
       break;
    };
@@ -325,6 +352,52 @@ int GetParamLen(char *param)
  return (result);
 };
 
+int ParseFilter(ATTRIB * filterflags, char *param,int len)
+{
+ short iCounter;
+ BYTE F=1; // 0 - ignore, 1 - set, 2 - not set
+ char cParamChar;
+
+ for (iCounter=0;iCounter<len;iCounter++)
+ {
+  cParamChar=toupper(param[iCounter]);
+
+  /* recognize param char and select flag field */
+  switch (cParamChar)
+  {
+    case ':': // Skip ":" for compatibility
+     break;
+    case PARAM_CHAR2:
+      F=2;
+     break;
+    case ATR_CHAR_D: // Skip underline character
+      filterflags->bDirectory=F;
+      F=1;
+     break;
+    case ATR_CHAR_R:
+      filterflags->bReadOnly=F;
+      F=1;
+     break;
+    case ATR_CHAR_A:
+      filterflags->bArchived=F;
+      F=1;
+     break;
+    case ATR_CHAR_S:
+      filterflags->bSystem=F;
+      F=1;
+     break;
+    case ATR_CHAR_H:
+      filterflags->bHidden=F;
+      F=1;
+     break;
+    default:
+     return 1; //@todo fix
+  }; /* END: switch (cParamChar) */
+
+ }; /* END: for (iCounter=0;iCounter<len;iCounter++) */
+ return NO_ERROR;
+}
+
 /* scans param for len length for attrib letters and performs requested action */
 
 /*!
@@ -355,7 +428,7 @@ int GetParamLen(char *param)
      NO_ERROR - successfull completition
      1 - parameter contained invalid character (could not be recognized)
 */
-int SetMemFlags(ATTRIB *flags,char *param,int len,char action_type,OPTIONS *options)
+int SetMemFlags(ATTRIB *filterflags,ATTRIB *flags,char *param,int len,char action_type,OPTIONS *options)
 {
  char cActionType=action_type; /* current action type */
  char cParamChar;    /* current parameter char */
@@ -375,25 +448,40 @@ int SetMemFlags(ATTRIB *flags,char *param,int len,char action_type,OPTIONS *opti
    cActionType=PARAM_SET; /* and then, we'll set specified ones */
  };
 
- /* we support / here, rest (+-`=) later */
+ /* we support / here, rest (+-~=) later */
  if (cActionType==PARAM_CHAR1) /* '/' */
  {
-  if (len==1)
+  if (len==1) // one-char switches
   {
-   switch(param[0])
+   switch(toupper(param[0]))
    {
-     case 's':
      case 'S':
         options->bRecurse=TRUE;
         return NO_ERROR;
-     case 'd':
      case 'D':
-        options->bNoUpdateDirs=TRUE;
+        options->bNoUpdateDirs=FALSE;
+        return NO_ERROR;
+     case 'P':
+        options->bPause=TRUE;
+        return NO_ERROR;
+     case 'Q':
+        options->bQuiet=TRUE;
+        return NO_ERROR;
+     case 'E':
+        options->bNoErrors=TRUE;
         return NO_ERROR;
    };
-   return 1; //TODO
+   return 1; //@todo fix
+  } else {
+   switch(toupper(param[0]))
+   {
+     case 'A':
+        options->bAttributeSelect=TRUE;
+        return ParseFilter(filterflags, param, len);
+   };
+   return 1; //@todo fix
   };
-   return 1; //TODO */
+   return 1; //@todo fix
  };
 
  for (iCounter=0;iCounter<len;iCounter++)
@@ -403,6 +491,8 @@ int SetMemFlags(ATTRIB *flags,char *param,int len,char action_type,OPTIONS *opti
   /* recognize param char and select flag field */
   switch (cParamChar)
   {
+    case ATR_CHAR_U: // Skip underline character
+     break;
     case ATR_CHAR_R:
       bCurrentFlag=&(flags->bReadOnly);
      break;
@@ -416,7 +506,7 @@ int SetMemFlags(ATTRIB *flags,char *param,int len,char action_type,OPTIONS *opti
       bCurrentFlag=&(flags->bHidden);
      break;
     default:
-     return 1; //TODO:
+     return 1; //@todo fix
   }; /* END: switch (cParamChar) */
 
   /* perform requested action */
@@ -432,7 +522,7 @@ int SetMemFlags(ATTRIB *flags,char *param,int len,char action_type,OPTIONS *opti
      *bCurrentFlag=ATR_ACTION_NEG;
     break;
    default:
-    return 1; //TODO
+    return 1; //@todo fix
   }; /* END: switch(cActionType) */
  }; /* END: for (iCounter=0;iCounter<len;iCounter++) */
 
@@ -456,10 +546,23 @@ int ModifyFileAttribs(char *file,ATTRIB *flags)
  FILESTATUS3 fileStatus;
  APIRET rc;
 
-
  rc=DosQueryPathInfo(file,FIL_STANDARD,&fileStatus,sizeof(FILESTATUS3));
 
  if (rc) return rc;
+
+  if ((flags->bReadOnly==ATR_ACTION_IGN) &&
+      (flags->bHidden==ATR_ACTION_IGN)   &&
+      (flags->bSystem==ATR_ACTION_IGN)   &&
+      (flags->bArchived==ATR_ACTION_IGN))
+  {
+    if ((fileStatus.attrFile&FILE_READONLY)==FILE_READONLY) printf("R"); else printf("_");
+    if ((fileStatus.attrFile&FILE_HIDDEN)==FILE_HIDDEN) printf("H"); else printf("_");
+    if ((fileStatus.attrFile&FILE_SYSTEM)==FILE_SYSTEM) printf("S"); else printf("_");
+    if ((fileStatus.attrFile&FILE_ARCHIVED)==FILE_ARCHIVED) printf("A"); else printf("_");
+    if ((fileStatus.attrFile&FILE_DIRECTORY)==FILE_DIRECTORY) printf("D"); else printf("_");
+    printf(" %s\n", file);
+  } else {
+
 
  /* modify it's attributes according to flags */
 
@@ -477,6 +580,7 @@ int ModifyFileAttribs(char *file,ATTRIB *flags)
 
  rc=DosSetPathInfo(file,FIL_STANDARD,&fileStatus,sizeof(FILESTATUS3),
       DSPI_WRTTHRU);
+ }
 
  return rc;
 };
@@ -538,11 +642,11 @@ int RecurseErrorFunction(ULONG rc,void *data)
     case ERROR_FILE_NOT_FOUND: /* 2 */
     case ERROR_PATH_NOT_FOUND: /* 3 */
     case ERROR_SHARING_VIOLATION: /*32 */
-     cmd_ShowSystemMessage(rc,0L);
+     /*if (!options->bQuiet)*/ cmd_ShowSystemMessage(rc,0L); //@todo fix
      rc=0;
     default:
       /* all other errors go there, and they do break */
-     cmd_ShowSystemMessage(rc,0L);
+     /*if (!options->bQuiet)*/ cmd_ShowSystemMessage(rc,0L); //@todo fix
   }; /* END: switch (rc) */
 
   if (rc) return 1; // break master's execution

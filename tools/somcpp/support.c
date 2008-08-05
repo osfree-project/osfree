@@ -636,7 +636,7 @@ static void scan_id(
         if (mcpp_mode == STD && c == '\\' && stdc2) {
             int     cnt;
             char *  tp = bp;
-            
+
             if ((c = get_ch()) == 'u') {
                 cnt = 4;
             } else if (c == 'U') {
@@ -1376,7 +1376,7 @@ static char *   scan_op(
             } else {                                    /* .        */
                 openum = OP_1;
             }
-        } else {    
+        } else {
             openum = OP_1;
         }
         break;
@@ -1579,16 +1579,16 @@ int     get_ch( void)
     free( file->buffer);                    /* Free buffer          */
     if (infile == NULL) {                   /* If at end of input   */
         free( file->filename);
-        free( file->src_dir);
+        free( (void *)file->src_dir);
         free( file);    /* full_fname is the same with filename for main file*/
         return  CHAR_EOF;                   /* Return end of file   */
     }
     if (file->fp) {                         /* Source file included */
         free( file->filename);              /* Free filename        */
-        free( file->src_dir);               /* Free src_dir         */
+        free( (void *)file->src_dir);               /* Free src_dir         */
         fclose( file->fp);                  /* Close finished file  */
         /* Do not free file->real_fname and file->full_fname        */
-        cur_fullname = infile->full_fname;
+        cur_fullname = (char *)infile->full_fname;
         cur_fname = infile->real_fname;     /* Restore current fname*/
         if (infile->pos != 0L) {            /* Includer was closed  */
             infile->fp = fopen( cur_fullname, "r");
@@ -1673,7 +1673,7 @@ static char *   parse_line( void)
         case '/':
             switch (*sp++) {
             case '*':                       /* Start of a comment   */
-com_start:
+//com_start:
                 if ((sp = read_a_comment( sp, &com_size)) == NULL) {
                     free( temp);            /* End of file with un- */
                     return  NULL;           /*   terminated comment */
@@ -1813,7 +1813,7 @@ static char *   read_a_comment(
     if (keep_spaces) {
         saved_sp = sp - 2;          /* '-2' for beginning / and *   */
         *sizp = 0;
-    }        
+    }
     if (keep_comments)                      /* If writing comments  */
         mcpp_fputs( "/*", OUT);             /* Write the initializer*/
     c = *sp++;
@@ -1903,7 +1903,7 @@ static char *   get_line(
 /*
  * ANSI (ISO) C: translation phase 1, 2.
  * Get the next logical line from source file.
- * Convert [CR+LF] to [LF]. 
+ * Convert [CR+LF] to [LF].
  */
 {
 #if COMPILER == INDEPENDENT
@@ -2290,7 +2290,7 @@ FILEINFO *  get_file(
     }
     if (src_dir) {
         file->src_dir = xmalloc( strlen( src_dir) + 1);
-        strcpy( file->src_dir, src_dir);
+        strcpy( (char *)file->src_dir, src_dir);
     } else {
         file->src_dir = NULL;
     }

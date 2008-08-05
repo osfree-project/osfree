@@ -8,7 +8,7 @@
 
 32_BITS  = 1
 
-DIRS = zlib
+DIRS = z
 
 !include $(%ROOT)/mk/all.mk
 

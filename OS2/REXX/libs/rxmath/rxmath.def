@@ -1,5 +1,0 @@
-LIBRARY RXMATH
-DESCRIPTION 'Rexx Math Library'
-
-EXPORTS
- mathloadfuncs

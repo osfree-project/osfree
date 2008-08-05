@@ -4,12 +4,11 @@
    @brief ansi command - Frontend for ansi.sys. Allows user to turn ANSI
                          processing on or off.
 
-   (c) osFree Project 2002, <http://www.osFree.org>
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
    for licence see licence.txt in root directory, or project website
 
    @author JMA (jma@jma.se)
 
-   @todo /? parameter
 */
 
 #define INCL_DOSERRORS
@@ -47,46 +46,55 @@ int main (int argc, char* argv[], char* envp[])
               else
                  {
                  // VIO call failed, display error msg
-                 cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_OFF, 0);
+                 cmd_ShowSystemMessage(rc, 0);
                  }
               break;
 
          case 2:
-              // One parameter, should be on or off
+              // One parameter, should be on, off or /?
 
-              // Assume there is an error
-              usAnsiState = 2;
+              if (( !(strcmpi(argv[1], "/?")) ) ||
+                  ( !(strcmpi(argv[1], "/H")) ) ||
+                  ( !(strcmpi(argv[1], "-H")) ) ||
+                  ( !(strcmpi(argv[1], "-?")) ) )
+              {
+                    cmd_ShowSystemMessage(cmd_MSG_ANSI_HELP, 0);
+              } else {
 
-              // Look for "ON" or "OFF"
-              if ( !(strcmpi(argv[1], "ON")) )
-                 usAnsiState = 1;
-              else
-                 if ( !(strcmpi(argv[1], "OFF")) )
-                    usAnsiState = 0;
+                // Assume there is an error
+                usAnsiState = 2;
 
-              if (usAnsiState < 2)
-                 {
-                 // Set ANSI state
-                 if ( (rc = VioSetAnsi(usAnsiState, HVIO)) == NO_ERROR )
-                    {
-                    // Display message
-                    if (usAnsiState == 1)
-                       cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_ON, 0);
-                    else
-                       cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_OFF, 0);
-                       }
-                 else
-                    {
-                    // VIO call failed, display error msg
-                    cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_OFF, 0);
-                    }
-                 }
+                // Look for "ON" or "OFF"
+                if ( !(strcmpi(argv[1], "ON")) )
+                   usAnsiState = 1;
+                else
+                   if ( !(strcmpi(argv[1], "OFF")) )
+                      usAnsiState = 0;
 
-              else
-                 {
-                 // Invalid parameter
-                 cmd_ShowSystemMessage(MSG_BAD_PARM1, 0);
-                 }
+                if (usAnsiState < 2)
+                   {
+                   // Set ANSI state
+                   if ( (rc = VioSetAnsi(usAnsiState, HVIO)) == NO_ERROR )
+                      {
+                      // Display message
+                      if (usAnsiState == 1)
+                         cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_ON, 0);
+                      else
+                         cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_OFF, 0);
+                         }
+                   else
+                      {
+                      // VIO call failed, display error msg
+                      cmd_ShowSystemMessage(rc, 0);
+                      }
+                   }
+
+                else
+                   {
+                   // Invalid parameter
+                   cmd_ShowSystemMessage(MSG_BAD_PARM1, 0);
+                   }
+              }
               break;
 
          default:

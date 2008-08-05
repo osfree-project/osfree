@@ -1,0 +1,13 @@
+BVHINSTANCE    
+BVSGLOBAL      
+DOSSMFREEMEM   
+DOSSMGETMEM    
+DOSSMGETSGCB   
+DOSSMINITSGCB  
+OS2BASEINIT    
+SMArray        
+SMArraySize    
+SMGINSTANCE    
+SMInitialized  
+SMPIDArray     
+SMQueueRamSem  

@@ -1,0 +1,190 @@
+module dosprocess;
+
+(* NOINC *
+   #define DosCwait           DosWaitChild
+   #define DosSetPrty         DosSetPriority
+* INC *)
+
+uses bsetib;
+
+(*
+type VOID APIENTRY FNTHREAD(ULONG);
+type FNTHREAD *PFNTHREAD;
+*)
+
+function DosCreateThread(ptid: PTID;
+                         pfn: PFNTHREAD;
+                         param: ULONG;
+                         flag: ULONG;
+                         cbStack: ULONG): APIRET;
+
+type THREADCREATE=structure
+      cbSize: ULONG;
+      pTid: PTID;
+      pfnStart: PFNTHREAD;
+      lParam: ULONG;
+      lFlag: ULONG;
+      pStack: PBYTE;
+      cbStack: ULONG;
+   end;
+
+type PTHREADCREATE=^THREADCREATE;
+
+function DosCreateThread2(ptc: PTHREADCREATE): APIRET;
+
+function DosResumeThread(tid: TID): APIRET;
+
+function DosSuspendThread(tid: TID): APIRET;
+
+function DosGetInfoBlocks(pptib: ^PTIB;
+                          pppib: ^PPIB): APIRET;
+
+(* Process Type codes (Process Information Block (PIB) pib_ultype field)      *)
+
+const PT_FULLSCREEN              =0; (* Full screen application               *)
+const PT_REALMODE                =1; (* Real mode process                     *)
+const PT_WINDOWABLEVIO           =2; (* VIO windowable application            *)
+const PT_PM                      =3; (* Presentation Manager application      *)
+const PT_DETACHED                =4; (* Detached application                  *)
+
+(* Process Status Flags (Process Information Block (PIB) pib_flstatus field)  *)
+
+const PS_EXITLIST                =1; (* Thread is in exitlist routine         *)
+
+function DosKillThread(tid: TID): APIRET;
+
+function DosAllocThreadLocalMemory(cb: ULONG; p: ^PULONG): APIRET;
+
+function DosFreeThreadLocalMemory(p: ^ULONG): APIRET;
+
+   (* Action code values *)
+
+const DCWA_PROCESS       = 0;
+const DCWA_PROCESSTREE   = 1;
+
+   (* Wait option values *)
+
+const DCWW_WAIT         = 0;
+const DCWW_NOWAIT       = 1;
+
+(* Thread Flags for DosCreateThread options *)
+
+const CREATE_READY        = 0;
+const CREATE_SUSPENDED    = 1;
+const STACK_SPARSE        = 0;
+const STACK_COMMITTED     = 2;
+
+type RESULTCODES=structure       (* resc *)
+      codeTerminate: ULONG;
+      codeResult: ULONG;
+  end;
+
+type PRESULTCODES=^RESULTCODES;
+
+function DosWaitChild(action: ULONG;
+                      option: ULONG;
+                      pres: PRESULTCODES;
+                      ppid: PPID;
+                      pid: PID): APIRET;
+
+function DosWaitThread(ptid: PTID;
+                       option: ULONG): APIRET;
+
+function DosSleep(msec: ULONG): APIRET;
+
+type MPAFFINITY=structure (* afnty *)
+      mask: array[2] of ULONG; (* CPUs 0 thru 31 in [0], CPUs 32 thru 63 in [1] *)
+  end;
+type PMPAFFINITY=^MPAFFINITY;
+
+function DosQueryThreadAffinity(scope: ULONG;
+                                pAffinity: PMPAFFINITY): APIRET;
+
+   (* scope values for QueryThreadAffinity *)
+
+const AFNTY_THREAD      = 0;
+const AFNTY_SYSTEM      = 1;
+
+function DosSetThreadAffinity(pAffinity: PMPAFFINITY): APIRET;
+
+uses dosdebug;
+
+function DosDebug(pdbgbuf: PVOID): APIRET;
+
+
+   (* codeTerminate values (also passed to ExitList routines) *)
+
+   const TC_EXIT           = 0;
+   const TC_HARDERROR      = 1;
+   const TC_TRAP           = 2;
+   const TC_KILLPROCESS    = 3;
+   const TC_EXCEPTION      = 4;
+
+(*
+   typedef VOID APIENTRY FNEXITLIST(ULONG);
+   typedef FNEXITLIST *PFNEXITLIST;
+*)
+
+function DosEnterCritSec(): APIRET;
+
+function DosExitCritSec(): APIRET;
+
+function DosExitList(ordercode: ULONG;
+                     pfn: PFNEXITLIST): APIRET;
+
+   (* DosExitList functions *)
+
+   const EXLST_ADD         = 1;
+   const EXLST_REMOVE      = 2;
+   const EXLST_EXIT        = 3;
+
+function DosExecPgm(pObjname: PCHAR;
+                    cbObjname: LONG;
+                    execFlag: ULONG,
+                    const pArg: PSZ;
+                    const pEnv: PSZ;
+                    pRes: PRESULTCODES;
+                    const pName: PSZ): APIRET;
+
+   (* DosExecPgm functions *)
+
+   const EXEC_SYNC          = 0;
+   const EXEC_ASYNC         = 1;
+   const EXEC_ASYNCRESULT   = 2;
+   const EXEC_TRACE         = 3;
+   const EXEC_BACKGROUND    = 4;
+   const EXEC_LOAD          = 5;
+   const EXEC_ASYNCRESULTDB = 6;
+
+
+function DosSetPriority(scope: ULONG;
+                        ulClass: ULONG;
+                        delta: LONG;
+                        PorTid: ULONG): APIRET;
+
+   (* Priority scopes *)
+
+   const PRTYS_PROCESS     = 0;
+   const PRTYS_PROCESSTREE = 1;
+   const PRTYS_THREAD      = 2;
+
+   (* Priority classes *)
+
+   const PRTYC_NOCHANGE         = 0;
+   const PRTYC_IDLETIME         = 1;
+   const PRTYC_REGULAR          = 2;
+   const PRTYC_TIMECRITICAL     = 3;
+   const PRTYC_FOREGROUNDSERVER = 4;
+
+   (* Priority deltas *)
+
+   const PRTYD_MINIMUM   =  -31;
+   const PRTYD_MAXIMUM   =   31;
+
+function DosKillProcess(action: ULONG;
+                        pid: PID): APIRET;
+
+   const DKP_PROCESSTREE  =  0;
+   const DKP_PROCESS      =  1;
+
+end.

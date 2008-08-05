@@ -1,16 +1,15 @@
 #
-# A main Makefile for OS/3 boot sequence project
+# A Makefile for PM API DLLs
 # (c) osFree project,
-# valerius, 2006/10/30
 #
 
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = shared PMMERGE PMDRAG PMWIN
-#       PMPIC PMPRE PMREXXIO PMSHLTKT PMSPL &
-#       PMUNIF PMVIOP PMWINX REGISTRY PMGRE PMMLE PMSHAPI
-#PMATM PMBIDI PMCLIP PMCTLS PMDDE PMDDEML PMGPI &
+DIRS = shared PMMERGE PMDRAG PMWIN PMMLE PMSHAPI PMGRE
+#       PMPIC PMSHLTKT PMSPL PMPRE &
+#       PMVIOP PMWINX REGISTRY
+#PMATM PMUNIF PMBIDI PMCLIP PMCTLS PMDDE PMDDEML PMGPI &
 
 !include $(%ROOT)/mk/all.mk
 

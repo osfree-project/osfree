@@ -1,5 +1,4 @@
 {
-   $Id: helpmsg.pas,v 1.1 2003/10/29 11:20:55 prokushev Exp $
 
    @file helpmsg.pas
 
@@ -55,16 +54,12 @@ Begin
       MsgFile:=ID+'.MSG'#0;
 
     RC:=DosGetMessage(nil, 0, Buf, SizeOf(Buf), MsgNum, MsgFile, msgsize);
+    If RC<>0 then Exit;
+
     Buf[MsgSize]:=#0;
     WriteLn;
     WriteLn(Buf);
-
-    If RC<>0 then Exit;
-
-    If ID='SYS' then
-      MsgFile:='OSO001H.MSG'#0
-    else
-      MsgFile:=ID+'H.MSG'#0;
+    exit;
   end;
 
   RC:=DosGetMessage(nil, 0, Buf, SizeOf(Buf), MsgNum, MsgFile, msgsize);

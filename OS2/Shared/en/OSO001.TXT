@@ -2426,7 +2426,7 @@ The backup file may contain a valid copy of the module.
 SYS0732E: osFree is unable to operate your hard disk or diskette drive.
 ;
 ;
-SYS0733I: Copyright (C) IBM Corporation 2000.  All rights reserved
+SYS0733I: Copyright (C) osFree team.
 ;
 ;
 SYS0734I: Correct usage:
@@ -2495,7 +2495,7 @@ SYS0752I: unable to initialize environment
 SYS0753I: argument conflict, both start and stop specified
 ;
 ;
-SYS0754I: IBM (R) Workplace Shell Server Activator/Deactivator
+SYS0754I: Workplace Shell Server Activator/Deactivator
 ;
 ;
 SYS0755?:
@@ -10671,7 +10671,7 @@ To display the appended directory list, type: APPEND
 ;
 SYS3092I: Change the file or subdirectory attributes.
 
-Usage:  ATTRIB [/A:[[-]rhsda] /D /E /P /Q /S -|+[AHRS]] [d:][path]filename...
+Usage:  ATTRIB [/A:[[-]rhsda] /D /E /P /Q /S] [~|=|-|+[AHRS]] [d:][path]filename...
 
     /A: Select files by attributes
     /D  Modify subdirectory attributes
@@ -17695,5 +17695,11 @@ Selects a keyboard layout to replace the current keyboard layout for
 all OS/2, Presentation Manager, and DOS sessions.
 
  KEYB layout
+;
+;
+SYS8081I: Allows or prevents extended display and keyboard support in
+the OS/2 environment.
+
+Usage:  ANSI [ON|OFF]
 ;
 ;

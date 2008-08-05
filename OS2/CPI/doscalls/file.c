@@ -1,10 +1,8 @@
 #include <osfree.h>
 
-
 // Implementation of kernel-independed functions via kernel-depended functions
 
 APIRET APIENTRY DosCancelLockRequest(HFILE,PFILELOCK);
-APIRET APIENTRY DosCopy(PCSZ,PCSZ,ULONG);
 APIRET APIENTRY DosCreateDir(PCSZ,PEAOP2);
 APIRET APIENTRY DosDelete(PCSZ);
 APIRET APIENTRY DosDeleteDir(PCSZ);

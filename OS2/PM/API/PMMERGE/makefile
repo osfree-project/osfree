@@ -25,7 +25,7 @@ subs: .SYMBOLIC
 $(PROJ).dll: .symbolic
  @%create $^&.lnk
  @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk SYSTEM os2v2 dll initglobal pm
+ @%append $^&.lnk SYSTEM os2v2 dll pm initinstance terminstance
  @%append $^&.lnk option    manyautodata
  @%append $^&.lnk segment   type DATA shared
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'

@@ -36,7 +36,7 @@ $(DIR)$(SEP)qemu-img.exe: $(OBJS)
  @%append $^&.lnk ALIAS deflateEnd=deflateEnd_
  @%append $^&.lnk ALIAS inflateInit_=inflateInit__
  @%append $^&.lnk ALIAS inflateReset=inflateReset_
- @%append $^&.lnk LIBRARY libz
+ @%append $^&.lnk LIBRARY z
  @%append $^&.lnk LIBRARY libmmap
  @%append $^&.lnk LIBPATH ..$(SEP)lib
  $(ADDFILES_CMD)

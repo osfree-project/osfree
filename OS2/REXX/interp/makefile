@@ -18,10 +18,12 @@ LINKOPT  = lib os2386.lib,clib3r.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: .SYMBOLIC
+all: build regina.sym
+
+build: .SYMBOLIC
   @%create wrapper.cmd
   @%append wrapper.cmd @set REGINA_SRCDIRN=.
-  @%append wrapper.cmd @wmake -f makefile.os2.wcc all
+  @%append wrapper.cmd @wmake -f makefile.os2.wcc all DEBUG=Y
   @wrapper.cmd
   @$(RM) wrapper.cmd
   @$(MAKE) $(MAKEOPT) install

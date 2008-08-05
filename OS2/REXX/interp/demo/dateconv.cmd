@@ -12,6 +12,9 @@ normal_dates = "B D E M N O S U W"
 Do i = 1 To Words(normal_dates)
   Call show_dates 1, Word(normal_dates,i)
 End
+
+parse version version
+say version
 Say
 Say 'This is the output from the Date() conversion function'
 Say
@@ -84,6 +87,6 @@ If num = 1 Then
   End
 Else
   Do
-    Say Left("Date('"arg1"','"arg2"','"arg3"')",30) "===>" Date(arg1,arg2,arg3)
+    Say Left("Date('"||arg1||"','"||arg2||"','"||arg3||"')",30)||"===>"||Date(arg1,arg2,arg3)
   End
 Return

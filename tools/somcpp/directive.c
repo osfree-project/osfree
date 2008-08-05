@@ -733,7 +733,7 @@ DEFBUF *    do_define(
                     return  defp;
                 dnargs = (defp->nargs == DEF_NOARGS_STANDARD
                             || defp->nargs == DEF_NOARGS_PREDEF
-                            || defp->nargs == DEF_NOARGS_PREDEF_OLD) 
+                            || defp->nargs == DEF_NOARGS_PREDEF_OLD)
                         ? DEF_NOARGS : defp->nargs;
                 if (dnargs <= DEF_NOARGS_DYNAMIC    /* __FILE__ and such    */
                         || dnargs == DEF_PRAGMA /* _Pragma() pseudo-macro   */
@@ -750,9 +750,9 @@ DEFBUF *    do_define(
             } else {                        /* It's known:          */
                 if (ignore_redef)
                     return  defp;
-                dnargs = (defp->nargs == DEF_NOARGS_STANDARD 
+                dnargs = (defp->nargs == DEF_NOARGS_STANDARD
                             || defp->nargs == DEF_NOARGS_PREDEF
-                            || defp->nargs == DEF_NOARGS_PREDEF_OLD) 
+                            || defp->nargs == DEF_NOARGS_PREDEF_OLD)
                         ? DEF_NOARGS : defp->nargs;
                 redefined = TRUE;
             }
@@ -798,7 +798,7 @@ DEFBUF *    do_define(
     defp = install_macro( macroname, nargs, work_buf, repl_list, prevp, cmp
             , predefine);
     if ((mcpp_debug & MACRO_CALL) && src_line) {
-                                    /* Get location on source file  */        
+                                    /* Get location on source file  */
         LINE_COL    s_line_col, e_line_col;
         s_line_col.line = src_line;
         s_line_col.col = def_start;
@@ -946,7 +946,7 @@ ret:
     return  TRUE;
 }
 
-static int  get_repl( 
+static int  get_repl(
     const char * macroname
 )
 /*
@@ -1482,7 +1482,7 @@ int undefine(
     return  TRUE;
 }
 
-static void dump_repl( 
+static void dump_repl(
     const DEFBUF *  dp,
     FILE *  fp,
     int     gcc2_va

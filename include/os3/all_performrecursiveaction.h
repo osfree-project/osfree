@@ -1,5 +1,4 @@
 /*!
-   $Id: all_performrecursiveaction.h,v 1.1.1.1 2003/10/04 08:27:20 prokushev Exp $
 
    @file all_performreqursiveaction.h
 
@@ -29,9 +28,6 @@
 #define all_RECURSE_NOFILES    0x010 /*!< no files to perform action (callback action code only)*/
 #define all_RECURSE_NODIRS     0x020 /*!< no directories to perform action (callback action code only) */
 #define all_RECURSE_NOSUBDIRS  0x040 /*!< no directories to recurse (callback action code) */
-
-/*! @todo: remove DONT_HAVE_DIRECTORY from this file */
-#define DONT_HAVE_DIRECTORY     0x27    //!< Attribute to exclude directories
 
 int all_PerformRecursiveAction(char *fileMask,int file_options,int fileAttrs,
             int (*action_callback)(char*,char *,int,void *),void *action_callback_data,

@@ -26,7 +26,7 @@
 #define HOST_SYSTEM         SYSTEM
 
 /* Define host compiler.            */
-#define HOST_COMPILER       GNUC
+#define HOST_COMPILER       __WATCOMC__
 
 /* Version message.                 */
 /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */

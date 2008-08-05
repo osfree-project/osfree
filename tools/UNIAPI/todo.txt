@@ -39,3 +39,4 @@ And in oso001.txt this string will be added
 
 SYS0123I: Searched path not found
 
+x. #pragma pack(xxx) handling

@@ -307,7 +307,7 @@ static void StartupInterface(tsd_t *TSD)
    if (TSD->systeminfo != NULL)
       return;
 
-   __regina_faked_main( 2, args ) ;
+  __regina_faked_main( 2, args ) ;
 }
 
 

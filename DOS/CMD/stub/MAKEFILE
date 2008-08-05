@@ -9,7 +9,7 @@
 
 #32_BITS  = 1
 
-PROJ = stub
+PROJ = os2stub
 DESC = DOS Stub for OS/2 executables
 #defines object file names in format objname.$(O)
 OBJS = stub.$(O)

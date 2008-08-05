@@ -1,1 +1,0 @@
-Need to add SED tool. SED is present in eCS, but not in OS/2.

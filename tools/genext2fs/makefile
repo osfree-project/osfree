@@ -27,7 +27,7 @@ genext2fs.exe: $(OBJS) $(OBJS_1)
  @%append $^&.lnk option map=$^&.wmp
  @for %%i in ($(OBJS) $(OBJS_1)) do @%append $^&.lnk FILE %%i
  $(SAY) Linking $^@ $(LOG)
- $(LINKER) @$^&.lnk $(LOG)
+ $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
 
 
 install: .SYMBOLIC

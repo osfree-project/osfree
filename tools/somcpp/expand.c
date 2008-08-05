@@ -1840,7 +1840,7 @@ static char *   rescan(
     DEFBUF *    inner;              /* Inner macro to replace       */
     int     c;                      /* First character of token     */
     int     token_type;
-    char *  mac_arg_start = NULL;
+    const char *  mac_arg_start = NULL;
 #if COMPILER == GNUC
     int     within_defined = FALSE;
     int     within_defined_arg_depth = 0;
@@ -1973,7 +1973,7 @@ static char *   rescan(
                         if (seq_len) {
                             insert_to_bptr( mgc_seq.magic_start, seq_len);
                             mgc_cleared = remove_magics(
-                                    (char *) infile->bptr, FALSE);
+                                    infile->bptr, FALSE);
                                         /* Remove pair of magics    */
                             strcpy( infile->bptr, mgc_cleared);
                             free( mgc_cleared);

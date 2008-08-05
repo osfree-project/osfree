@@ -1,16 +1,16 @@
 /*!
-    $Id: cmd_MessageIDs.h,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $
-
     @file cmd_MessageIDs.h
 
     @brief Supplementary defines for messages identification,
     shared along all command line tools
 
-    (c) osFree Project 2002, <http://www.osFree.org>
+    (c) osFree Project 2002-2008, <http://www.osFree.org>
     for licence see licence.txt in root directory, or project website
 
     @author Bartosz Tomasik <bart2@asua.org.pl>
     @author Cristiano Guadagnino <criguada@tin.it>
+
+    @todo remove this file because duplicates OS/2 include files
 */
 
 #ifndef _CMD_MESSAGEIDS_H_
@@ -70,6 +70,7 @@
 #define cmd_MSG_TREE_HELP               3148L /*!< Help screen for tree */
 #define cmd_MSG_UNDELETE_HELP           3149L /*!< Help screen for undelete */
 #define cmd_MSG_KEYB_HELP               8080L /*!< Help screen for keyb */
+#define cmd_MSG_ANSI_HELP               8081L /*!< Help screen for ansi */
 
 #define cmd_MSG_TREE_START              1479L /*!< Directory path listing */
 #define cmd_MSG_TREE_PATH               1480L /*!< Path:           %1 */

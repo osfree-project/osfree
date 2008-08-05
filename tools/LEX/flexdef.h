@@ -6,7 +6,7 @@
  *
  * This code is derived from software contributed to Berkeley by
  * Vern Paxson.
- * 
+ *
  * The United States Government has rights in this work pursuant
  * to contract no. DE-AC03-76SF00098 between the United States
  * Department of Energy and the University of California.
@@ -30,6 +30,7 @@
 
 #include "config.h"
 
+#include <io.h>
 #include <stdio.h>
 #include <ctype.h>
 
@@ -145,16 +146,16 @@
  * that can be used.  This definition is currently not used.
  */
 #define FREE_EPSILON(state) \
-	(transchar[state] == SYM_EPSILON && \
-	 trans2[state] == NO_TRANSITION && \
-	 finalst[state] != state)
+        (transchar[state] == SYM_EPSILON && \
+         trans2[state] == NO_TRANSITION && \
+         finalst[state] != state)
 
 /* Returns true if an nfa state has an epsilon out-transition character
  * and both slots are free
  */
 #define SUPER_FREE_EPSILON(state) \
-	(transchar[state] == SYM_EPSILON && \
-	 trans1[state] == NO_TRANSITION) \
+        (transchar[state] == SYM_EPSILON && \
+         trans1[state] == NO_TRANSITION) \
 
 /* Maximum number of NFA states that can comprise a DFA state.  It's real
  * big because if there's a lot of rules, the initial state will have a
@@ -189,28 +190,28 @@
  */
 #define NIL 0
 
-#define JAM -1	/* to mark a missing DFA transition */
+#define JAM -1  /* to mark a missing DFA transition */
 #define NO_TRANSITION NIL
-#define UNIQUE -1	/* marks a symbol as an e.c. representative */
-#define INFINITY -1	/* for x{5,} constructions */
+#define UNIQUE -1       /* marks a symbol as an e.c. representative */
+#define INFINITY -1     /* for x{5,} constructions */
 
-#define INITIAL_MAX_CCLS 100	/* max number of unique character classes */
+#define INITIAL_MAX_CCLS 100    /* max number of unique character classes */
 #define MAX_CCLS_INCREMENT 100
 
 /* Size of table holding members of character classes. */
 #define INITIAL_MAX_CCL_TBL_SIZE 500
 #define MAX_CCL_TBL_SIZE_INCREMENT 250
 
-#define INITIAL_MAX_RULES 100	/* default maximum number of rules */
+#define INITIAL_MAX_RULES 100   /* default maximum number of rules */
 #define MAX_RULES_INCREMENT 100
 
-#define INITIAL_MNS 2000	/* default maximum number of nfa states */
-#define MNS_INCREMENT 1000	/* amount to bump above by if it's not enough */
+#define INITIAL_MNS 2000        /* default maximum number of nfa states */
+#define MNS_INCREMENT 1000      /* amount to bump above by if it's not enough */
 
-#define INITIAL_MAX_DFAS 1000	/* default maximum number of dfa states */
+#define INITIAL_MAX_DFAS 1000   /* default maximum number of dfa states */
 #define MAX_DFAS_INCREMENT 1000
 
-#define JAMSTATE -32766	/* marks a reference to the state that always jams */
+#define JAMSTATE -32766 /* marks a reference to the state that always jams */
 
 /* Maximum number of NFA states. */
 #define MAXIMUM_MNS 31999
@@ -228,13 +229,13 @@
 #define INITIAL_MAX_TEMPLATE_XPAIRS 2500
 #define MAX_TEMPLATE_XPAIRS_INCREMENT 2500
 
-#define SYM_EPSILON (CSIZE + 1)	/* to mark transitions on the symbol epsilon */
+#define SYM_EPSILON (CSIZE + 1) /* to mark transitions on the symbol epsilon */
 
-#define INITIAL_MAX_SCS 40	/* maximum number of start conditions */
-#define MAX_SCS_INCREMENT 40	/* amount to bump by if it's not enough */
+#define INITIAL_MAX_SCS 40      /* maximum number of start conditions */
+#define MAX_SCS_INCREMENT 40    /* amount to bump by if it's not enough */
 
-#define ONE_STACK_SIZE 500	/* stack of states with only one out-transition */
-#define SAME_TRANS -1	/* transition is the same as "default" entry for state */
+#define ONE_STACK_SIZE 500      /* stack of states with only one out-transition */
+#define SAME_TRANS -1   /* transition is the same as "default" entry for state */
 
 /* The following percentages are used to tune table compression:
 
@@ -246,7 +247,7 @@
 
 /* The percentage the number of homogeneous out-transitions of a state
  * must be of the number of total out-transitions of the state in order
- * that the state's transition table is first compared with a potential 
+ * that the state's transition table is first compared with a potential
  * template of the most common out-transition instead of with the first
  * proto in the proto queue.
  */
@@ -288,7 +289,7 @@
  */
 #define PROT_SAVE_SIZE 2000
 
-#define MSP 50	/* maximum number of saved protos (protos on the proto queue) */
+#define MSP 50  /* maximum number of saved protos (protos on the proto queue) */
 
 /* Maximum number of out-transitions a state can have that we'll rummage
  * around through the interior of the internal fast table looking for a
@@ -321,12 +322,12 @@
  */
 
 struct hash_entry
-	{
-	struct hash_entry *prev, *next;
-	char *name;
-	char *str_val;
-	int int_val;
-	} ;
+        {
+        struct hash_entry *prev, *next;
+        char *name;
+        char *str_val;
+        int int_val;
+        } ;
 
 typedef struct hash_entry **hash_table;
 
@@ -334,7 +335,7 @@ typedef struct hash_entry **hash_table;
 #define START_COND_HASH_SIZE 101
 #define CCL_HASH_SIZE 101
 
-extern struct hash_entry *ndtbl[NAME_TABLE_HASH_SIZE]; 
+extern struct hash_entry *ndtbl[NAME_TABLE_HASH_SIZE];
 extern struct hash_entry *sctbl[START_COND_HASH_SIZE];
 extern struct hash_entry *ccltab[CCL_HASH_SIZE];
 
@@ -398,7 +399,7 @@ extern int yymore_really_used, reject_really_used;
 /* Variables used in the flex input routines:
  * datapos - characters on current output line
  * dataline - number of contiguous lines of data in current data
- * 	statement.  Used to generate readable -f output
+ *      statement.  Used to generate readable -f output
  * linenum - current input line number
  * out_linenum - current output line number
  * skelfile - the skeleton file
@@ -415,16 +416,16 @@ extern int yymore_really_used, reject_really_used;
  * use_stdout - the -t flag
  * input_files - array holding names of input files
  * num_input_files - size of input_files array
- * program_name - name with which program was invoked 
+ * program_name - name with which program was invoked
  *
  * action_array - array to hold the rule actions
  * action_size - size of action_array
  * defs1_offset - index where the user's section 1 definitions start
- *	in action_array
+ *      in action_array
  * prolog_offset - index where the prolog starts in action_array
  * action_offset - index where the non-prolog starts in action_array
  * action_index - index where the next action should go, with respect
- * 	to "action_array"
+ *      to "action_array"
  */
 
 extern int datapos, dataline, linenum, out_linenum;
@@ -459,7 +460,7 @@ extern int onenext[ONE_STACK_SIZE], onedef[ONE_STACK_SIZE], onesp;
 /* Variables for nfa machine data:
  * current_mns - current maximum on number of NFA states
  * num_rules - number of the last accepting state; also is number of
- * 	rules created so far
+ *      rules created so far
  * num_eof_rules - number of <<EOF>> rules
  * default_rule - number of the default rule
  * current_max_rules - current maximum number of rules
@@ -473,14 +474,14 @@ extern int onenext[ONE_STACK_SIZE], onedef[ONE_STACK_SIZE], onesp;
  * accptnum - accepting number
  * assoc_rule - rule associated with this NFA state (or 0 if none)
  * state_type - a STATE_xxx type identifying whether the state is part
- * 	of a normal rule, the leading state in a trailing context
- * 	rule (i.e., the state which marks the transition from
- * 	recognizing the text-to-be-matched to the beginning of
- * 	the trailing context), or a subsequent state in a trailing
- * 	context rule
+ *      of a normal rule, the leading state in a trailing context
+ *      rule (i.e., the state which marks the transition from
+ *      recognizing the text-to-be-matched to the beginning of
+ *      the trailing context), or a subsequent state in a trailing
+ *      context rule
  * rule_type - a RULE_xxx type identifying whether this a ho-hum
- * 	normal rule or one which has variable head & trailing
- * 	context
+ *      normal rule or one which has variable head & trailing
+ *      context
  * rule_linenum - line number associated with rule
  * rule_useful - true if we've determined that the rule can be matched
  */
@@ -585,12 +586,12 @@ extern char **scname;
  * dss - nfa state set for each dfa
  * dfasiz - size of nfa state set for each dfa
  * dfaacc - accepting set for each dfa state (if using REJECT), or accepting
- *	number, if not
+ *      number, if not
  * accsiz - size of accepting set for each dfa state
  * dhash - dfa state hash value
  * numas - number of DFA accepting states created; note that this
- *	is not necessarily the same value as num_rules, which is the analogous
- *	value for the NFA
+ *      is not necessarily the same value as num_rules, which is the analogous
+ *      value for the NFA
  * numsnpairs - number of state/nextstate transition pairs
  * jambase - position in base/def where the default jam table starts
  * jamstate - state number corresponding to "jam" state
@@ -602,10 +603,10 @@ extern int current_max_template_xpairs, current_max_dfas;
 extern int lastdfa, *nxt, *chk, *tnxt;
 extern int *base, *def, *nultrans, NUL_ec, tblend, firstfree, **dss, *dfasiz;
 extern union dfaacc_union
-	{
-	int *dfaacc_set;
-	int dfaacc_state;
-	} *dfaacc;
+        {
+        int *dfaacc_set;
+        int dfaacc_state;
+        } *dfaacc;
 extern int *accsiz, *dhash, numas;
 extern int numsnpairs, jambase, jamstate;
 extern int end_of_buffer_state;
@@ -618,7 +619,7 @@ extern int end_of_buffer_state;
  * cclng - true for a given ccl if the ccl is negated
  * cclreuse - counts how many times a ccl is re-used
  * current_max_ccl_tbl_size - current limit on number of characters needed
- *	to represent the unique ccl's
+ *      to represent the unique ccl's
  * ccltbl - holds the characters in each ccl - indexed by cclmap
  */
 
@@ -636,7 +637,7 @@ extern Char *ccltbl;
  * numeps - number of epsilon NFA states created
  * eps2 - number of epsilon states which have 2 out-transitions
  * num_reallocs - number of times it was necessary to realloc() a group
- *	  of arrays
+ *        of arrays
  * tmpuses - number of DFA states that chain to templates
  * totnst - total number of NFA states used to make DFA states
  * peakpairs - peak number of transition pairs we had to store internally
@@ -660,42 +661,42 @@ void *flex_realloc PROTO((void*, size_t));
 void flex_free PROTO((void*));
 
 #define allocate_integer_array(size) \
-	(int *) allocate_array( size, sizeof( int ) )
+        (int *) allocate_array( size, sizeof( int ) )
 
 #define reallocate_integer_array(array,size) \
-	(int *) reallocate_array( (void *) array, size, sizeof( int ) )
+        (int *) reallocate_array( (void *) array, size, sizeof( int ) )
 
 #define allocate_int_ptr_array(size) \
-	(int **) allocate_array( size, sizeof( int * ) )
+        (int **) allocate_array( size, sizeof( int * ) )
 
 #define allocate_char_ptr_array(size) \
-	(char **) allocate_array( size, sizeof( char * ) )
+        (char **) allocate_array( size, sizeof( char * ) )
 
 #define allocate_dfaacc_union(size) \
-	(union dfaacc_union *) \
-		allocate_array( size, sizeof( union dfaacc_union ) )
+        (union dfaacc_union *) \
+                allocate_array( size, sizeof( union dfaacc_union ) )
 
 #define reallocate_int_ptr_array(array,size) \
-	(int **) reallocate_array( (void *) array, size, sizeof( int * ) )
+        (int **) reallocate_array( (void *) array, size, sizeof( int * ) )
 
 #define reallocate_char_ptr_array(array,size) \
-	(char **) reallocate_array( (void *) array, size, sizeof( char * ) )
+        (char **) reallocate_array( (void *) array, size, sizeof( char * ) )
 
 #define reallocate_dfaacc_union(array, size) \
-	(union dfaacc_union *) \
-	reallocate_array( (void *) array, size, sizeof( union dfaacc_union ) )
+        (union dfaacc_union *) \
+        reallocate_array( (void *) array, size, sizeof( union dfaacc_union ) )
 
 #define allocate_character_array(size) \
-	(char *) allocate_array( size, sizeof( char ) )
+        (char *) allocate_array( size, sizeof( char ) )
 
 #define reallocate_character_array(array,size) \
-	(char *) reallocate_array( (void *) array, size, sizeof( char ) )
+        (char *) reallocate_array( (void *) array, size, sizeof( char ) )
 
 #define allocate_Character_array(size) \
-	(Char *) allocate_array( size, sizeof( Char ) )
+        (Char *) allocate_array( size, sizeof( Char ) )
 
 #define reallocate_Character_array(array,size) \
-	(Char *) reallocate_array( (void *) array, size, sizeof( Char ) )
+        (Char *) reallocate_array( (void *) array, size, sizeof( Char ) )
 
 
 /* Used to communicate between scanner and parser.  The type should really
@@ -709,9 +710,9 @@ extern int yylval;
 
 /* from file ccl.c */
 
-extern void ccladd PROTO((int, int));	/* add a single character to a ccl */
-extern int cclinit PROTO((void));	/* make an empty ccl */
-extern void cclnegate PROTO((int));	/* negate a ccl */
+extern void ccladd PROTO((int, int));   /* add a single character to a ccl */
+extern int cclinit PROTO((void));       /* make an empty ccl */
+extern void cclnegate PROTO((int));     /* negate a ccl */
 
 /* List the members of a set of characters in CCL form. */
 extern void list_character_set PROTO((FILE*, int[]));
@@ -731,7 +732,7 @@ extern int *epsclosure PROTO((int*, int*, int[], int*, int*));
 /* Increase the maximum number of dfas. */
 extern void increase_max_dfas PROTO((void));
 
-extern void ntod PROTO((void));	/* convert a ndfa to a dfa */
+extern void ntod PROTO((void)); /* convert a ndfa to a dfa */
 
 /* Converts a set of ndfa states into a dfa state. */
 extern int snstods PROTO((int[], int, int[], int, int, int*));
@@ -754,7 +755,7 @@ extern void mkechar PROTO((int, int[], int[]));
 
 /* from file gen.c */
 
-extern void do_indent PROTO((void));	/* indent to the current level */
+extern void do_indent PROTO((void));    /* indent to the current level */
 
 /* Generate the code to keep backing-up information. */
 extern void gen_backing_up PROTO((void));
@@ -768,7 +769,7 @@ extern void genctbl PROTO((void));
 /* Generate the code to find the action number. */
 extern void gen_find_action PROTO((void));
 
-extern void genftbl PROTO((void));	/* generate full transition table */
+extern void genftbl PROTO((void));      /* generate full transition table */
 
 /* Generate the code to find the next compressed-table state. */
 extern void gen_next_compressed_state PROTO((char*));
@@ -794,7 +795,7 @@ extern void indent_put2s PROTO((char[], char[]));
 /* Write out a string + newline at the current indentation level. */
 extern void indent_puts PROTO((char[]));
 
-extern void make_tables PROTO((void));	/* generate transition tables */
+extern void make_tables PROTO((void));  /* generate transition tables */
 
 
 /* from file main.c */
@@ -871,7 +872,7 @@ extern void mark_prolog PROTO((void));
 /* Generate a data statment for a two-dimensional array. */
 extern void mk2data PROTO((int));
 
-extern void mkdata PROTO((int));	/* generate a data statement */
+extern void mkdata PROTO((int));        /* generate a data statement */
 
 /* Return the integer represented by a string of digits. */
 extern int myctoi PROTO((char []));
@@ -890,7 +891,7 @@ extern void out_hex PROTO((const char [], unsigned int));
 extern void out_line_count PROTO((const char []));
 extern void out_str PROTO((const char [], const char []));
 extern void out_str3
-	PROTO((const char [], const char [], const char [], const char []));
+        PROTO((const char [], const char [], const char [], const char []));
 extern void out_str_dec PROTO((const char [], const char [], int));
 extern void outc PROTO((int));
 extern void outn PROTO((const char []));
@@ -938,8 +939,8 @@ extern void mark_beginning_as_normal PROTO((register int));
 /* Make a machine that branches to two machines. */
 extern int mkbranch PROTO((int, int));
 
-extern int mkclos PROTO((int));	/* convert a machine into a closure */
-extern int mkopt PROTO((int));	/* make a machine optional */
+extern int mkclos PROTO((int)); /* convert a machine into a closure */
+extern int mkopt PROTO((int));  /* make a machine optional */
 
 /* Make a machine that matches either one of two machines. */
 extern int mkor PROTO((int, int));
@@ -947,12 +948,12 @@ extern int mkor PROTO((int, int));
 /* Convert a machine into a positive closure. */
 extern int mkposcl PROTO((int));
 
-extern int mkrep PROTO((int, int, int));	/* make a replicated machine */
+extern int mkrep PROTO((int, int, int));        /* make a replicated machine */
 
 /* Create a state with a transition on a given symbol. */
 extern int mkstate PROTO((int));
 
-extern void new_rule PROTO((void));	/* initialize for a new rule */
+extern void new_rule PROTO((void));     /* initialize for a new rule */
 
 
 /* from file parse.y */
@@ -974,11 +975,11 @@ extern void line_pinpoint PROTO(( char[], int ));
 
 /* Report a formatted syntax error. */
 extern void format_synerr PROTO((char [], char[]));
-extern void synerr PROTO((char []));	/* report a syntax error */
+extern void synerr PROTO((char []));    /* report a syntax error */
 extern void format_warn PROTO((char [], char[]));
-extern void warn PROTO((char []));	/* report a warning */
-extern void yyerror PROTO((char []));	/* report a parse error */
-extern int yyparse PROTO((void));	/* the YACC parser */
+extern void warn PROTO((char []));      /* report a warning */
+extern void yyerror PROTO((char []));   /* report a parse error */
+extern int yyparse PROTO((void));       /* the YACC parser */
 
 
 /* from file scan.l */
@@ -1007,12 +1008,12 @@ extern int ccllookup PROTO((Char []));
 /* Find symbol in symbol table. */
 extern struct hash_entry *findsym PROTO((register char[], hash_table, int ));
 
-extern void ndinstal PROTO((char[], Char[]));	/* install a name definition */
-extern Char *ndlookup PROTO((char[]));	/* lookup a name definition */
+extern void ndinstal PROTO((char[], Char[]));   /* install a name definition */
+extern Char *ndlookup PROTO((char[]));  /* lookup a name definition */
 
 /* Increase maximum number of SC's. */
 extern void scextend PROTO((void));
-extern void scinstal PROTO((char[], int));	/* make a start condition */
+extern void scinstal PROTO((char[], int));      /* make a start condition */
 
 /* Lookup the number associated with a start condition. */
 extern int sclookup PROTO((char[]));
@@ -1023,11 +1024,11 @@ extern int sclookup PROTO((char[]));
 /* Build table entries for dfa state. */
 extern void bldtbl PROTO((int[], int, int, int, int));
 
-extern void cmptmps PROTO((void));	/* compress template table entries */
-extern void expand_nxt_chk PROTO((void));	/* increase nxt/chk arrays */
+extern void cmptmps PROTO((void));      /* compress template table entries */
+extern void expand_nxt_chk PROTO((void));       /* increase nxt/chk arrays */
 /* Finds a space in the table for a state to be placed. */
 extern int find_table_space PROTO((int*, int));
-extern void inittbl PROTO((void));	/* initialize transition tables */
+extern void inittbl PROTO((void));      /* initialize transition tables */
 /* Make the default, "jam" table entries. */
 extern void mkdeftbl PROTO((void));
 

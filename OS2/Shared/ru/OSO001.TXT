@@ -5,25 +5,25 @@
 ; then add them starting to 8000-9999 range.
 ;
 SYS
-SYS0000I: Y N A R I
+SYS0000I: 1 2 1 2 3
 ;
 ;
-SYS0001I: Incorrect function
+SYS0001I: Неверная функция
 ;
 ;
-SYS0002E: The system cannot find the file specified.
+SYS0002E: Система не может найти указанный файл.
 ;
 ;
-SYS0003E: The system cannot find the path specified.
+SYS0003E: Система не может найти указанный путь.
 ;
 ;
-SYS0004E: The system cannot open the file.
+SYS0004E: Система не может открыть файл.
 ;
 ;
-SYS0005E: Access is denied.
+SYS0005E: Доступ запрещен.
 ;
 ;
-SYS0006I: Incorrect internal file identifier.
+SYS0006I: Неверный внутренний идентификатор файла.
 ;
 ;
 SYS0007I: The storage control blocks were destroyed.
@@ -265,13 +265,13 @@ SYS0078?:
 SYS0079?:
 ;
 ;
-SYS0080I: The file exists.
+SYS0080I: Файл существует.
 ;
 ;
 SYS0081?:
 ;
 ;
-SYS0082E: The directory or file cannot be created.
+SYS0082E: Каталог или файл не может быть создан.
 ;
 ;
 SYS0083I: Fail on INT 24.
@@ -292,7 +292,7 @@ SYS0087I: The parameter is incorrect.
 SYS0088W: A write fault occurred on the network.
 ;
 ;
-SYS0089E: The system cannot start another process at this time.
+SYS0089E: Система не может запустить другой процесс в данный момент.
 ;
 ;
 SYS0090?:
@@ -322,10 +322,10 @@ SYS0097?:
 SYS0098?:
 ;
 ;
-SYS0099E: The %1 device is already in use by another application.
+SYS0099E: Устройство %1 уже используется другим процессом.
 ;
 ;
-SYS0100E: Cannot create another system semaphore.
+SYS0100E: Не могу создать другой системный семафор.
 ;
 ;
 SYS0101E: The exclusive semaphore is owned by another process.
@@ -358,10 +358,10 @@ SYS0109E: The pipe has been ended.
 SYS0110I: The system cannot open the device or file specified.
 ;
 ;
-SYS0111E: The file name is too long.
+SYS0111E: Имя файла слишком длинное.
 ;
 ;
-SYS0112E: There is not enough space on the disk.
+SYS0112E: На диске недостаточно свободного места.
 ;
 ;
 SYS0113I: No more internal file identifiers available.
@@ -382,7 +382,7 @@ SYS0117I: The IOCTL call made by the application is incorrect.
 SYS0118I: The verify-on-write parameter value is incorrect.
 ;
 ;
-SYS0119I: The system does not support the command requested.
+SYS0119I: Система не поддерживает запрошенную команду.
 ;
 ;
 SYS0120I: The Application Program Interface (API) entered
@@ -401,10 +401,10 @@ SYS0123E: A file name or volume label contains an incorrect character.
 SYS0124I: The system call level is incorrect.
 ;
 ;
-SYS0125I: The disk has no volume label.
+SYS0125I: Диск не имеет метки тома.
 ;
 ;
-SYS0126E: The specified module could not be found.
+SYS0126E: Указанный модуль не может быть найден.
 ;
 ;
 SYS0127E: The specified procedure could not be found.
@@ -413,7 +413,7 @@ SYS0127E: The specified procedure could not be found.
 SYS0128?:
 ;
 ;
-SYS0129I: This program cannot be run in a DOS session.
+SYS0129I: Данная программа не может быть запущена в сеансе DOS.
 ;
 ;
 SYS0130I: da bf c0 d9 b3 b3 c4 c4 c3 b4 c2 c1 c5
@@ -523,7 +523,7 @@ SYS0158I: The segment is already unlocked.
 SYS0159E: The address for the thread ID is incorrect.
 ;
 ;
-SYS0160E: The argument string passed to DosExecPgm is incorrect.
+SYS0160E: Стока аргументов, переданная DosExecPgm, неверна.
 ;
 ;
 SYS0161?:
@@ -590,7 +590,7 @@ SYS0180E: The system detected a segment number that was incorrect.
 SYS0181?:
 ;
 ;
-SYS0182E: The operating system cannot run %1.
+SYS0182E: Операционная система не может запустить %1.
 ;
 ;
 SYS0183?:
@@ -608,28 +608,28 @@ SYS0186E: The flag passed is incorrect.
 SYS0187E: The specified system semaphore name was not found.
 ;
 ;
-SYS0188E: The operating system cannot run %1.
+SYS0188E: Операционная система не может запустить %1.
 ;
 ;
-SYS0189E: The operating system cannot run %1.
+SYS0189E: Операционная система не может запустить %1.
 ;
 ;
-SYS0190E: The operating system cannot run %1.
+SYS0190E: Операционная система не может запустить %1.
 ;
 ;
 SYS0191E: %1 cannot be run in an OS/2 session.
 ;
 ;
-SYS0192E: The operating system cannot run %1.
+SYS0192E: Операционная система не может запустить %1.
 ;
 ;
 SYS0193E: %1 cannot be run in a OS/2 session.
 ;
 ;
-SYS0194E: The operating system cannot run %1.
+SYS0194E: Операционная система не может запустить %1.
 ;
 ;
-SYS0195E: The operating system cannot run %1.
+SYS0195E: Операционная система не может запустить %1.
 ;
 ;
 SYS0196E: The operating system cannot run this application program.
@@ -639,7 +639,7 @@ SYS0197E: The operating system is not presently configured to run this
 application.
 ;
 ;
-SYS0198E: The operating system cannot run %1.
+SYS0198E: Операционная система не может запустить %1.
 ;
 ;
 SYS0199E: The operating system cannot run this application program.
@@ -648,10 +648,10 @@ SYS0199E: The operating system cannot run this application program.
 SYS0200I: The code segment cannot be greater than or equal to 64KB.
 ;
 ;
-SYS0201E: The operating system cannot run %1.
+SYS0201E: Операционная система не может запустить %1.
 ;
 ;
-SYS0202E: The operating system cannot run %1.
+SYS0202E: Операционная система не может запустить %1.
 ;
 ;
 SYS0203I: The system could not find the environment option that was
@@ -2495,7 +2495,7 @@ SYS0752I: unable to initialize environment
 SYS0753I: argument conflict, both start and stop specified
 ;
 ;
-SYS0754I: IBM (R) Workplace Shell Server Activator/Deactivator
+SYS0754I: Workplace Shell Server Activator/Deactivator
 ;
 ;
 SYS0755?:

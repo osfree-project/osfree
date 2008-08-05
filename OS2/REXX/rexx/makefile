@@ -6,24 +6,26 @@
 32_BITS = 1
 
 CLEANMASK = *.obj *.map *.err *.wmp *.lnk *.sym *.lib
-DIR = $(%ROOT)\files\os2\dll
+DIR = $(FILESDIR)$(SEP)os2$(SEP)dll
 PROJ = rexx
 DESC = Classic REXX
 OBJS = rexx.$(O) rexx16.$(O)
 ADD_COPT = -i=. -bd -s
-LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib,clibdls.lib
+LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib #,clibdls.lib
 
 !include $(%ROOT)/mk/all.mk
 
-all: $(DIR)$(SEP)$(PROJ).dll $(DIR)$(SEP)$(PROJ).sym
+all: $(PROJ).dll $(PROJ).sym
 
-$(DIR)$(SEP)$(PROJ).dll: lib $(OBJS)
+$(PROJ).dll: $(OBJS)
  @%create $^&.lnk
- @%append $^&.lnk name      $(DIR)$(SEP)$(PROJ).dll
+ @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initinstance terminstance
  @%append $^&.lnk option    ManyAutoData
  @%append $^&.lnk option    caseexact
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^&.lnk option stack=0x20000
+ @%append $^&.lnk option heapsize=40960
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk OPTION MIXED1632
  @%append $^&.lnk OPTION QUIET
@@ -31,6 +33,7 @@ $(DIR)$(SEP)$(PROJ).dll: lib $(OBJS)
  @%append $^&.lnk LIBRARY $(LINKLIB)
  @%append $^&.lnk import
  @%append $^&.lnk   RexxStart REGINA.RexxStart,
+ @%append $^&.lnk   ReginaRexxStart REGINA.RexxStart,
  @%append $^&.lnk   RexxVariablePool REGINA.RexxVariablePool,
  @%append $^&.lnk   RexxSetHalt REGINA.RexxSetHalt
  @%append $^&.lnk export
@@ -51,18 +54,11 @@ $(DIR)$(SEP)$(PROJ).dll: lib $(OBJS)
  @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
  @$(MAKE) $(MAKEOPT) install
 
-lib: .SYMBOLIC
- @$(LIB) $(LIBOPT) -n clibdls.lib
+#lib: .SYMBOLIC
+# @$(LIB) $(LIBOPT) -n clibdls.lib
 
-rexx16.obj: rexx16.c
- @$(MAKE) $(MAKEOPT) -f makefl16 all
-
-$(DIR)$(SEP)$(PROJ).sym: $(PROJ).sym
- $(CP) *.sym $(DIR)
-
-$(PROJ).sym: $(PROJ).map
-
-$(PROJ).map: $(PROJ).wmp
+#rexx16.obj: rexx16.c
+# @$(MAKE) $(MAKEOPT) -f makefl16 all
 
 # Clean all
 

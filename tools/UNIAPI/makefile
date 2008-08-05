@@ -1,9 +1,6 @@
 #
-# A Makefile for mkmsgf
+# A Makefile for UNIAPI
 # (c) osFree project,
-# valerius, 2006/10/30
-#
-# $Id: makefile,v 1.1 2004/08/16 06:27:30 prokushev Exp $
 #
 
 DIR = $(ROOT)$(SEP)tools$(SEP)bin
@@ -28,12 +25,14 @@ all: $(DIR)$(SEP)$(PROJ).exe uni .SYMBOLIC $(DIR)$(SEP)$(PROJ).sym
 
 
 uni: .SYMBOLIC
- cd $(ROOT)$(SEP)UNI
+ @cd $(ROOT)$(SEP)UNI
  @$(MAKE) $(MAKEOPT) all
- cd $(ROOT)$(SEP)tools$(SEP)uniapi
+ @cd $(ROOT)$(SEP)tools$(SEP)uniapi
 
 # Clean all
 .IGNORE
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
+ @cd $(ROOT)$(SEP)UNI
  $(CLEAN_CMD)
+ @cd $(ROOT)$(SEP)tools$(SEP)uniapi

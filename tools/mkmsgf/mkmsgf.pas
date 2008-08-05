@@ -37,7 +37,7 @@ const
 const
   msg_name: String ='Make Message File Utility (MKMSGF)';
   msg_version: String ='Version 0.1';
-  msg_copyright: String ='Copyright (C) 2002-2008 by Yuri Prokushev (prokushev@freemail.ru)';
+  msg_copyright: String ='Copyright (C) 2002-2008 osFree.org';
   msg_usage1: String ='MKMSGF <infile>[<.msf>] <outfile>[<.msg>] [<options>]'+LineEnding+
             'or'+LineEnding+
             'MKMSGF @controlfile'+LineEnding+LineEnding+
@@ -81,6 +81,38 @@ Type
     Reserved2           : Array[1..5] of byte; // Must be 0 (zero)
   end;
 
+(*
+typedef struct file_head {              // message file header
+        char      signature_h[8];       // signature mark
+        char      component_id[len_COMP_ID];// component id
+        unsigned  msg_count;            // number of messages
+        unsigned  base_mid;             // base message number
+        char      offset_type;          // double(0) or single word (1)
+        unsigned  version;
+        unsigned  header_length;
+        char      cp_type;              // SBCS code page (0) or DBCS (1)
+        int       code_page;            // code page number
+        char      reserved[8];
+        } head_t;
+*)
+
+(*
+
+; **********************************************************************
+;  Message file extended message file definition record
+;  ----------------------------------------------------
+EXTREC  STRUC                                   ;MSG FILE EXTENDED HEADER
+        REC_CP_TYPE     DB      ?               ;1 = SBCS, 2 = DBCS
+        REC_CNTY_ID     DW      ?               ;COUNTRY ID
+        REC_LANG_ID     DW      ?               ;LANGUAGE FAMILY ID
+        REC_LANG_VERID  DW      ?               ;LANGUAGE VERSION ID
+        REC_CNT_CP      DW      ?               ;CODE PAGE COUNT
+        REC_CP_ID       DW      16 dup (0)      ;CODE PAGE IDs
+        REC_FILENAME    DB      ASCIIZ_LEN dup(?),0   ;FILE NAME
+EXTREC  ENDS
+
+*)
+
   TMultipageBlock=packed record
     BlockSize         : Word;
     BlocksCount       : Word;
@@ -89,7 +121,7 @@ Type
   {Country Info block of message file}
   TMSGFileCountryInfo = packed record
     BytesPerChar      : Byte;                  // Bytes per char (1 - SBCS, 2 - DBCS)
-    Reserved          : Array[0..1] of byte;   // Not known
+    CountryID         : Word;                  // Country ID
     LanguageFamilyID  : Word;                  // Language family ID (As in CPI Reference)
     LanguageVersionID : Word;                  // Language version ID (As in CPI Reference)
     CodePagesNumber   : Word;                  // Number of country pages
@@ -113,6 +145,67 @@ Begin
   WriteLn(msg_copyright);
   WriteLn;
 End;
+
+Type
+  CountryInfo=record
+    Code: Array[1..3] of Char;
+    FamilyID: Byte;
+    VersionID: Byte;
+    Language: String;
+    Country: String;
+  end;
+
+(*
+        Language ID:
+        Code    Family  Sub     Language                Principal country
+        ----    ------  ---     --------                -----------------
+        ARA     1       2       Arabic                  Arab Countries
+        BGR     2       1       Bulgarian               Bulgaria
+        CAT     3       1       Catalan                 Spain
+        CHT     4       1       Traditional Chinese     R.O.C.
+        CHS     4       2       Simplified Chinese      P.R.C.
+        CSY     5       1       Czech                   Czechoslovakia
+        DAN     6       1       Danish                  Denmark
+        DEU     7       1       German                  Germany
+        DES     7       2       Swiss German            Switzerland
+        EEL     8       1       Greek                   Greece
+        ENU     9       1       US English              United States
+        ENG     9       2       UK English              United Kingdom
+        ESP     10      1       Castilian Spanish       Spain
+        ESM     10      2       Mexican Spanish         Mexico
+        FIN     11      1       Finnish                 Finland
+        FRA     12      1       French                  France
+        FRB     12      2       Belgian French          Belgium
+        FRC     12      3       Canadian French         Canada
+        FRS     12      4       Swiss French            Switzerland
+        HEB     13      1       Hebrew                  Israel
+        HUN     14      1       Hungarian               Hungary
+        ISL     15      1       Icelandic               Iceland
+        ITA     16      1       Italian                 Italy
+        ITS     16      2       Swiss Italian           Switzerland
+        JPN     17      1       Japanese                Japan
+        KOR     18      1       Korean                  Korea
+        NLD     19      1       Dutch                   Netherlands
+        NLB     19      2       Belgian Dutch           Belgium
+        NOR     20      1       Norwegian - Bokmal      Norway
+        NON     20      2       Norwegian - Nynorsk     Norway
+        PLK     21      1       Polish                  Poland
+        PTB     22      1       Brazilian Portugues     Brazil
+        PTG     22      2       Portuguese              Portugal
+        RMS     23      1       Rhaeto-Romanic          Switzerland
+        ROM     24      1       Romanian                Romania
+        RUS     25      1       Russian                 Russian Federation
+        SHL     26      1       Croato-Serbian (Lat     Yugoslavia
+        SHC     26      2       Serbo-Croatian (Cyr     Yugoslavia
+        SKY     27      1       Slovakian               Czechoslovakia
+        SQI     28      1       Albanian                Albania
+        SVE     29      1       Swedish                 Sweden
+        THA     30      1       Thai                    Thailand
+        TRK     31      1       Turkish                 Turkey
+        URD     32      1       Urdu                    Pakistan
+        BAH     33      1       Bahasa                  Indonesia
+        SLO     34      1       Slovene                 Slovenia
+*)
 
 Procedure Usage;
 Begin
@@ -210,7 +303,7 @@ Type
 
 Procedure Compile;
 Type
-  DWordArray=Array[0..0] of Cardinal;
+  DWordArray=Array[0..0] of LongWord;
 Var
   Header: TMSGFileHeader;
   CountryInfo: TMSGFileCountryInfo;
@@ -318,7 +411,7 @@ Begin
                 if EOF(Fin) then break;
               Until False;
             // Store message
-            If Pos('%0', Message)>0 then 
+            If Pos('%0', Message)>0 then
             begin
               Delete(Message, Pos('%0', Message), 2); // Delete %0 sign
               Delete(Message, Length(Message)-Length(LineEnding)+1, Length(LineEnding)); // Delete LineEnding
@@ -358,8 +451,7 @@ Begin
   With Countryinfo do
   begin
     BytesPerChar:=1;                 // Bytes per char (1 - SBCS, 2 - DBCS)
-    Reserved[0]:=0;
-    Reserved[1]:=0;   // Not known
+    CountryID:=0;     // : Word;
     LanguageFamilyID:=7; //  : Word;                  // Language family ID (As in CPI Reference)
     LanguageVersionID:=1;// : Word;                  // Language version ID (As in CPI Reference)
     CodePagesNumber:=1;                  // Number of country pages
@@ -382,6 +474,9 @@ Begin
     Idx^[Number]:=Idx^[Number-1]+StrLen(MsgPos^.Message);
     MsgPos:=MsgPos^.Next;
     Inc(Number);
+{$ifdef DEBUG}
+writeln(Number);
+{$endif}
   end;
   {$R+}
   BlockWrite(Fout, Idx^, MsgCount*SizeOf(Cardinal), Res);

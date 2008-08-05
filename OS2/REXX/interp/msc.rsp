@@ -1,1 +1,0 @@
-funcs.obj builtin.obj error.obj variable.obj interprt.obj debug.obj dbgfuncs.obj memory.obj parsing.obj files.obj misc.obj unxfuncs.obj cmsfuncs.obj shell.obj rexxext.obj stack.obj tracing.obj interp.obj cmath.obj convert.obj strings.obj library.obj strmath.obj signals.obj macros.obj envir.obj expr.obj extlib.obj yaccsrc.obj lexsrc.obj wrappers.obj options.obj doscmd.obj
