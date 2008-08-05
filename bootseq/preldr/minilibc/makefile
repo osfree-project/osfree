@@ -16,7 +16,7 @@ ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SE
 ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=include -i=. -i=..
 
 DIR          = minilibc
-MYDIR        = $(ROOT)$(SEP)bootseq$(SEP)preldr$(SEP)$(DIR)$(SEP)
+MYDIR        = $(ROOT)$(SEP)bootseq$(SEP)loader$(SEP)$(DIR)$(SEP)
 PATH         = $(MYDIR)$(PS)$(MYDIR)$(SEP)minilibc
 
 !include $(%ROOT)/mk/bootseq.mk
