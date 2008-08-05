@@ -17,7 +17,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if defined(fsys_fat) || defined(FSYS_FAT)
+#ifdef FSYS_FAT
 
 #include "shared.h"
 #include "filesys.h"
@@ -82,8 +82,8 @@ fat_mount (void)
 
   /* Check partition type for harddisk */
   if (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
-        && (!IS_PC_SLICE_TYPE_FAT(*pcurrent_slice))
-        && (!IS_PC_SLICE_TYPE_BSD_WITH_FS(*pcurrent_slice, FS_MSDOS)))
+	&& (!IS_PC_SLICE_TYPE_FAT(*pcurrent_slice))
+	&& (!IS_PC_SLICE_TYPE_BSD_WITH_FS(*pcurrent_slice, FS_MSDOS)))
       return 0;
 
   /* Read bpb */

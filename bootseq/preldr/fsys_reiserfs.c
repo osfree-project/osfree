@@ -18,7 +18,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if defined(fsys_reiserfs) || defined(FSYS_REISERFS)
+#ifdef FSYS_REISERFS
 #include "shared.h"
 #include "filesys.h"
 

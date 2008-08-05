@@ -53,7 +53,7 @@
  *      $Id: fsys_ffs.c,v 1.1.1.1 2003/11/20 02:04:59 fengshuo Exp $
  */
 
-#if defined(fsys_ffs) || defined(FSYS_FFS)
+#ifdef FSYS_FFS
 
 #include "shared.h"
 

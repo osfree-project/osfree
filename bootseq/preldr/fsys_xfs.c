@@ -18,7 +18,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if defined(fsys_xfs) || defined(FSYS_XFS)
+#ifdef FSYS_XFS
 
 #include "shared.h"
 #include "filesys.h"

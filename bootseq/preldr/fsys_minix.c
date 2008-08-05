@@ -23,7 +23,7 @@
    mkfs.minix -c DEVICE
 */
 
-#if defined(fsys_minix) || defined(FSYS_MINIX)
+#ifdef FSYS_MINIX
 
 #include "shared.h"
 #include "filesys.h"

@@ -29,7 +29,7 @@
  *      Leonid Lisovskiy   <lly@pisem.net>      2003
  */
 
-#if defined(fsys_iso9660) || defined(FSYS_ISO9660)
+#ifdef FSYS_ISO9660
 
 #include "shared.h"
 #include "filesys.h"

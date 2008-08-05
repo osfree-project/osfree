@@ -54,7 +54,7 @@
  *      $Id: fsys_ufs2.c,v 1.2 2004/06/19 12:17:52 okuji Exp $
  */
 
-#if defined(fsys_ufs2) || defined(FSYS_UFS2)
+#ifdef FSYS_UFS2
 
 #include "shared.h"
 #include "filesys.h"
