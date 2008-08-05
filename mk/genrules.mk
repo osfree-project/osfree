@@ -11,6 +11,7 @@
 mf = $(PATH)makefile
 
 prereq: dirhier $(mf) .SYMBOLIC
+ $(SAY) prereqs made...
 
 $(mf): $(MYDIR)makefile
  @%create $(mf)

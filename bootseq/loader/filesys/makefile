@@ -62,3 +62,65 @@ gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !else
  @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) defs="-d$[& -dSHIFT=$$$$(SHIFT)" gen_compile_rules
 !endif
+
+$(PATH)fat.rel: $(PATH)fat.fsd $(PATH)fat.fss
+
+$(PATH)ext2fs.rel: $(PATH)ext2fs.fsd $(PATH)ext2fs.fss
+
+$(PATH)jfs.rel: $(PATH)jfs.fsd $(PATH)jfs.fss
+
+$(PATH)ffs.rel: $(PATH)ffs.fsd $(PATH)ffs.fss
+
+$(PATH)vstafs.rel: $(PATH)vstafs.fsd $(PATH)vstafs.fss
+
+$(PATH)ufs2.rel: $(PATH)ufs2.fsd $(PATH)ufs2.fss
+
+$(PATH)xfs.rel: $(PATH)xfs.fsd $(PATH)xfs.fss
+
+$(PATH)reiserfs.rel: $(PATH)reiserfs.fsd $(PATH)reiserfs.fss
+
+$(PATH)iso9660.rel: $(PATH)iso9660.fsd $(PATH)iso9660.fss
+
+$(PATH)minix.rel: $(PATH)minix.fsd $(PATH)minix.fss
+
+
+$(PATH)fat.fsd: $(PATH)fat.$(OUT)
+
+$(PATH)ext2fs.fsd: $(PATH)ext2fs.$(OUT)
+
+$(PATH)jfs.fsd: $(PATH)jfs.$(OUT)
+
+$(PATH)ffs.fsd: $(PATH)ffs.$(OUT)
+
+$(PATH)vstafs.fsd: $(PATH)vstafs.$(OUT)
+
+$(PATH)ufs2.fsd: $(PATH)ufs2.$(OUT)
+
+$(PATH)xfs.fsd: $(PATH)xfs.$(OUT)
+
+$(PATH)reiserfs.fsd: $(PATH)reiserfs.$(OUT)
+
+$(PATH)iso9660.fsd: $(PATH)iso9660.$(OUT)
+
+$(PATH)minix.fsd: $(PATH)minix.$(OUT)
+
+
+$(PATH)fat.fss: $(PATH)fat.$(SOUT)
+
+$(PATH)ext2fs.fss: $(PATH)ext2fs.$(SOUT)
+
+$(PATH)jfs.fss: $(PATH)jfs.$(SOUT)
+
+$(PATH)ffs.fss: $(PATH)ffs.$(SOUT)
+
+$(PATH)vstafs.fss: $(PATH)vstafs.$(SOUT)
+
+$(PATH)ufs2.fss: $(PATH)ufs2.$(SOUT)
+
+$(PATH)xfs.fss: $(PATH)xfs.$(SOUT)
+
+$(PATH)reiserfs.fss: $(PATH)reiserfs.$(SOUT)
+
+$(PATH)iso9660.fss: $(PATH)iso9660.$(SOUT)
+
+$(PATH)minix.fss: $(PATH)minix.$(SOUT)

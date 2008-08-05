@@ -10,6 +10,8 @@ __all_mk__ = 1
 
 !include $(%ROOT)/mk/site.mk
 
+TRG  =
+
 ROOT = $(%ROOT)
 BLD  = $(%ROOT)$(SEP)build$(SEP)
 BIN  = $(%ROOT)$(SEP)files$(SEP)
@@ -226,8 +228,13 @@ subdirs: .SYMBOLIC
 dirhier: .SYMBOLIC
  @$(MDHIER) $(PATH)
 
+endrule: .SYMBOLIC
+!ifneq TRG
+ $(SAY) targets $(TRG) have no rules (!)
+!endif
+
 .default
- $(SAY) Warning: target $@ is missing, .default rule is called...
+!inject $@ TRG
 
 .error
  @echo Error
