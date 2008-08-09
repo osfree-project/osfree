@@ -16,6 +16,11 @@
 !ifneq _loader_mk_ 1
 _loader_mk_ = 1
 
+32_BITS      = 1       # Use 32-bit C compiler
+DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__
+ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..
+ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include  -i=$(MYDIR)..$(SEP)include -i=. -i=..
+
 all: install endrule
 
 install: build
@@ -38,7 +43,7 @@ SOUT         = sbi
 LOUT         = lbi
 
 .SUFFIXES:
-.SUFFIXES: .rel .trm .trs .fsd .fss .$(OUT) .$(LOUT) .$(SOUT) .lib .$(LO) .$(SO) .$(O) .c .asm .h .inc
+.SUFFIXES: .rel .bbx .bbs .$(OUT) .$(LOUT) .$(SOUT) .lib .$(LO) .$(SO) .$(O) .c .asm .h .inc
 
 BT_LINUX_OBJS    = linux.$(O) linuxc.$(O) modesw-npl.$(O) cmdline.$(O) &
                    wrap.$(O) end.$(O)
@@ -65,27 +70,21 @@ PATH = $(BLD)$(PATH)
 
 preldr0.rel: preldr0 preldr0s
 
-#.trm: $(PATH)
+.bbx: $(PATH)
 
-.fsd: $(PATH)
-
-.fss: $(PATH)
+.bbs: $(PATH)
 
 .$(OUT):  $(PATH)
 
 .$(SOUT): $(PATH)
 
-#.trm.rel
-# $(GENREL) $^&.trm $^&.trs $(SHIFT) >$^@
-# $(DC) $[*.trs
-
 preldr0.rel: preldr0
  $(GENREL) $^& $^&s $(SHIFT) >$^@
  $(DC) $[*s
 
-.fsd.rel
- $(GENREL) $[*.fsd $[*.fss $(SHIFT) >$^@
- $(DC) $[*.fss
+.bbx.rel
+ $(GENREL) $[*.bbx $[*.bbs $(SHIFT) >$^@
+ $(DC) $[*.bbs
 
 bt_linux: bt_linux.$(OUT)
  $(DC) $^@
@@ -97,22 +96,12 @@ bt_chain: bt_chain.$(OUT)
  $(RIP) $< KERN_BASE $(MYDIR)..$(SEP)include$(SEP)mb_etc.inc >$^@
  $(DC) $<
 
-#.$(OUT).trm:
-# $(DC) $^@
-# $(RIP) $< EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
-# $(DC) $<
-
-#.$(SOUT).trs:
-# $(DC) $^@
-# $(RIP) $< EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
-# $(DC) $<
-
-.$(OUT).fsd:
+.$(OUT).bbx:
  $(DC) $^@
  $(RIP) $[@ EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
  $(DC) $[@
 
-.$(SOUT).fss:
+.$(SOUT).bbs:
  $(DC) $^@
  $(RIP) $[@ EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
  $(DC) $[@
@@ -252,14 +241,14 @@ gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !endif
 
 gen_deps_wrapper:
- # file.rel: file.fsd file.fss
+ # file.rel: file.bbx file.bbs
  @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
-   deps="$+$$$$$$$$(PATH)$$$$(file).fsd $$$$$$$$(PATH)$$$$(file).fss$-" gen_deps
+   deps="$+$$$$$$$$(PATH)$$$$(file).bbx $$$$$$$$(PATH)$$$$(file).bbs$-" gen_deps
  # file.fsd: file.$(OUT)
- @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).fsd &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).bbx &
    deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$-" gen_deps
  # file.fss: file.$(SOUT)
- @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).fss &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).bbs &
    deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$-" gen_deps
 
 install: .SYMBOLIC
