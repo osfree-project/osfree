@@ -56,25 +56,12 @@ STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) 
 STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
                    dskaccess.$(LO) part.$(LO) video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(O) bios.$(LO) end.$(LO)
 
-CONSOLE_OBJS     = termstrt.$(O) terminit-c.$(O) console-c.$(O) modesw-npt.$(O) consolec.$(O)
-CONSOLE_SH_OBJS  = termstrt.$(SO) terminit-c.$(SO) console-c.$(SO) modesw-npt.$(SO) consolec.$(SO)
-HERCULES_OBJS    = termstrt.$(O) terminit-h.$(O) hercules.$(O) console.$(O) modesw-npt.$(O)
-HERCULES_SH_OBJS = termstrt.$(SO) terminit-h.$(SO) hercules.$(SO) console.$(SO) modesw-npt.$(SO)
-SERIAL_OBJS      = termstrt.$(O) terminit-s.$(O) serial.$(O) modesw-npt.$(O) terminfo.$(O) tparm.$(O)
-SERIAL_SH_OBJS   = termstrt.$(SO) terminit-s.$(SO) serial.$(SO) modesw-npt.$(SO) terminfo.$(SO) tparm.$(SO)
-
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
 
 !ifneq PATH ""
 PATH = $(BLD)$(PATH)
 !endif
-
-console.rel: console.trm console.trs
-
-hercules.rel: hercules.trm hercules.trs
-
-serial.rel: serial.trm serial.trs
 
 preldr0.rel: preldr0 preldr0s
 
@@ -110,15 +97,15 @@ bt_chain: bt_chain.$(OUT)
  $(RIP) $< KERN_BASE $(MYDIR)..$(SEP)include$(SEP)mb_etc.inc >$^@
  $(DC) $<
 
-.$(OUT).trm:
- $(DC) $^@
- $(RIP) $< EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
- $(DC) $<
+#.$(OUT).trm:
+# $(DC) $^@
+# $(RIP) $< EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
+# $(DC) $<
 
-.$(SOUT).trs:
- $(DC) $^@
- $(RIP) $< EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
- $(DC) $<
+#.$(SOUT).trs:
+# $(DC) $^@
+# $(RIP) $< EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
+# $(DC) $<
 
 .$(OUT).fsd:
  $(DC) $^@
@@ -158,24 +145,6 @@ bt_chain.$(OUT): $(BT_CHAIN_OBJS)
 
 freeldr.$(OUT): $(LDR_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-console.$(OUT): $(CONSOLE_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-console.$(SOUT): $(CONSOLE_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
-
-hercules.$(OUT): $(HERCULES_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-hercules.$(SOUT): $(HERCULES_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
-
-serial.$(OUT): $(SERIAL_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-serial.$(SOUT): $(SERIAL_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
 
 stage0.$(OUT): $(STAGE0_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
@@ -244,40 +213,10 @@ modesw-npc.$(O): modesw.asm
 chain.$(O): chain.asm
  $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fr=$^& -fo=$^@ $<
 
-modesw-npt.$(O): modesw.asm
- $(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=0 $(ASMOPT) -fr=$^& -fo=$^@ $<
-
-modesw-npt.$(SO): modesw.asm
- $(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^& -fo=$^@ $<
-
 cfgparse-l.$(O): cfgparse.c
  $(CC) -dLOADER $(COPT) -fr=$^& -fo=$^@ $<
 
 cfgparse.$(O): cfgparse.c
-
-terminit-c.$(O): terminit.c
- $(CC) -dSHIFT=0 -dTERM_CONSOLE $(COPT) -fr=$^& -fo=$^@ $<
-
-terminit-c.$(SO): terminit.c
- $(CC) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(COPT) -fr=$^& -fo=$^@ $<
-
-terminit-h.$(O): terminit.c
- $(CC) -dSHIFT=0 -dTERM_HERCULES $(COPT) -fr=$^& -fo=$^@ $<
-
-terminit-h.$(SO): terminit.c
- $(CC) -dSHIFT=$(SHIFT) -dTERM_HERCULES $(COPT) -fr=$^& -fo=$^@ $<
-
-terminit-s.$(O): terminit.c
- $(CC) -dSHIFT=0 -dTERM_SERIAL $(COPT) -fr=$^& -fo=$^@ $<
-
-terminit-s.$(SO): terminit.c
- $(CC) -dSHIFT=$(SHIFT) -dTERM_SERIAL $(COPT) -fr=$^& -fo=$^@ $<
-
-console-c.$(O): console.asm
- $(ASM) -dSHIFT=0 -dTERM_CONSOLE $(ASMOPT) -fr=$^& -fo=$^@ $<
-
-console-c.$(SO): console.asm
- $(ASM) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(ASMOPT) -fr=$^& -fo=$^@ $<
 
 .c.$(O):
  $(CC) -dSHIFT=0 $(COPT) -fr=$^&.err -fo=$^@ $<
@@ -299,6 +238,29 @@ console-c.$(SO): console.asm
 
 .inc.h:
  $(AWK) -f inc2h.awk <$< >$^@
+
+#
+# See $(%ROOT)/mk/genrules.mk for details
+#
+gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
+!ifeq sh
+ # compile rules for ordinary files
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O)  basename=$[& gen_compile_rules
+!else
+ # compile rules for shifted files
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) basename=$[& gen_compile_rules
+!endif
+
+gen_deps_wrapper:
+ # file.rel: file.fsd file.fss
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
+   deps="$+$$$$$$$$(PATH)$$$$(file).fsd $$$$$$$$(PATH)$$$$(file).fss$-" gen_deps
+ # file.fsd: file.$(OUT)
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).fsd &
+   deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$-" gen_deps
+ # file.fss: file.$(SOUT)
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).fss &
+   deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$-" gen_deps
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)

@@ -27,9 +27,9 @@ $(mf): $(MYDIR)makefile
  # generate shifted  .obj's lists
  @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh e=.$$$$$$$$(SO) p=$$$$$$$$(PATH) gen_obj_defs
  # generate ordinary files link rules
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E=$$$$(OUT) F=1 gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E=$$$$(OUT) gen_link_rules
  # generate shifted  files link rules
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E=$$$$(SOUT) F=1 gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E=$$$$(SOUT) gen_link_rules
  # generate compile rules for ordinary files
  @for %i in ($(spec_SRCS)) do @$(MAKE) $(MAKEOPT) file=%i sh=    gen_compile_rules_wrapper
  # generate compile rules for shifted files
@@ -58,8 +58,8 @@ gen_compile_rules: .SYMBOLIC
 !endif
  @%append $(mf)
 
-gen_deps: $(d)$(file) .SYMBOLIC
- @%append $(mf) $$(PATH)$(file:$(ext)=$(e)): $(dest)$(file)
+gen_deps: .SYMBOLIC
+ @%append $(mf) $(trgt): $(deps)
  @%append $(mf)
 
 #

@@ -11,9 +11,9 @@ DIRS = minilibc filesys # preldr loader term kernels
 
 !include $(%ROOT)/mk/loader.mk
 
-all clean: .SYMBOLIC
+all: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) TARGET=$^& default
 
-default: .SYMBOLIC
- $(SAY) Making $(TARGET)... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$(TARGET) subdirs
+#default: .SYMBOLIC
+# $(SAY) Making $(TARGET)... $(LOG)
+# $(MAKE) $(MAKEOPT) TARGET=$(TARGET) subdirs
