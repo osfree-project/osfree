@@ -16,8 +16,8 @@ blackboxes           = $(p)fat$(e) $(p)ext2fs$(e) $(p)jfs$(e) $(p)iso9660$(e) $(
                        $(p)minix$(e) $(p)ufs2$(e) $(p)vstafs$(e) $(p)ffs$(e) $(p)xfs$(e)
 
 # filesys without $(p) and $(e):
-p   =
-e   =
+p                    =
+e                    =
 bbx                  = $+$(blackboxes)$-
 
 common_SRCS          = dummy.asm start.asm fsys.c
@@ -25,10 +25,7 @@ common_OBJS          = $(p)start$(e)  $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 
 DIRS         =
-DIR          = filesys
-RELDIR       = bootseq$(SEP)loader$(SEP)$(DIR)$(SEP)
-MYDIR        = $(%ROOT)$(SEP)$(RELDIR)
-PATH         = $(RELDIR)
+rootdir      = ../../../
 
 !include $(%ROOT)/mk/loader.mk
 

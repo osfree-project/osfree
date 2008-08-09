@@ -70,6 +70,8 @@ PATH = $(BLD)$(PATH)
 
 preldr0.rel: preldr0 preldr0s
 
+.rel: $(PATH)
+
 .bbx: $(PATH)
 
 .bbs: $(PATH)

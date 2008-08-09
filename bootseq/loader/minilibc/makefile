@@ -10,10 +10,7 @@ libsrcs      = $(p)strcmp$(e) $(p)putchar$(e) $(p)memmove$(e) $(p)aton$(e) $(p)m
                $(p)putstr$(e) $(p)strlen$(e)
 
 DIRS         =
-DIR          = minilibc
-RELDIR       = bootseq$(SEP)loader$(SEP)$(DIR)$(SEP)
-MYDIR        = $(%ROOT)$(SEP)$(RELDIR)
-PATH         = $(RELDIR)
+rootdir      = ../../../
 
 !include $(%ROOT)/mk/loader.mk
 

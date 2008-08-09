@@ -8,10 +8,7 @@ srcs         = $(p)drivemap$(e) $(p)end$(e) $(p)modesw$(e) $(p)cfgparse$(e) $(p)
                $(p)setdev$(e) $(p)wrap$(e)
 
 DIRS         = minilibc filesys term # preldr loader kernels
-DIR          = loader
-RELDIR       = bootseq$(SEP)$(DIR)$(SEP)
-MYDIR        = $(%ROOT)$(SEP)$(RELDIR)
-PATH         = $(RELDIR)
+rootdir      = ../../
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -20,3 +17,4 @@ e            = .$$(O)
 OBJS         = $+$(srcs)$-
 
 TARGETS      = $(OBJS) subdirs
+TARGET       = all

@@ -59,6 +59,11 @@ end; else do
   exit 2
 end
 
+/* delete a driveletter from root */
+if pos(':', root) = 2 then root = substr(root, 3)
+/* append '\' */
+if lastpos('\', root) \= length(root) then root = root || '\'
+
 tools = root || '\tools\bin'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path

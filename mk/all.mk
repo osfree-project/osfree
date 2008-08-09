@@ -9,12 +9,9 @@
 __all_mk__ = 1
 
 !include $(%ROOT)/mk/site.mk
+!include $(%ROOT)/mk/dirs.mk
 
 TRG  =
-
-ROOT = $(%ROOT)
-BLD  = $(%ROOT)$(SEP)build$(SEP)
-BIN  = $(%ROOT)$(SEP)files$(SEP)
 
 #
 # Preprocessor defines
@@ -237,7 +234,7 @@ endrule: .SYMBOLIC
 !inject $@ TRG
 
 .error
- @echo Error
- @exit
+ @$(SAY) Error (!)
+ @%abort
 
 !endif

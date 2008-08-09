@@ -35,10 +35,7 @@ OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)tpa
 !endif
 
 DIRS         =
-DIR          = term
-RELDIR       = bootseq$(SEP)loader$(SEP)$(DIR)$(SEP)
-MYDIR        = $(%ROOT)$(SEP)$(RELDIR)
-PATH         = $(RELDIR)
+rootdir      = ../../../
 
 !include $(%ROOT)/mk/loader.mk
 

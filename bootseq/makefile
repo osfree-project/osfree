@@ -4,16 +4,13 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+DIRS         = bootsec loader
+rootdir      = ../../
 
-DIRS = bootsec loader
+!include $(%ROOT)/mk/loader.mk
 
-!include $(%ROOT)/mk/bootseq.mk
+OBJS         =
 
-all: .SYMBOLIC
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
-
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+# this implies do $(MAKE) $(MAKEOPT) TARGET=all subdirs
+TARGETS      = subdirs
+TARGET       = all
