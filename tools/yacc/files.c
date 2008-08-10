@@ -149,12 +149,15 @@ openfiles (void)
 #endif /* MSDOS */
 
 #if ((defined(_WIN32) && !defined(__CYGWIN32__)) || (defined(__OS2__)))
-  tmp_base = getenv ("TEMP");           /* Windows95 defines this ... */
-  if (tmp_base == 0)
-    tmp_base = getenv ("Temp");         /* ... while NT prefers this */
-  if (tmp_base == 0)
-    tmp_base = "";
+  {
+    char * tmp_ptr = getenv ("TEMP");           /* Windows95 defines this ... */
+  if (tmp_ptr == 0)
+    tmp_ptr = getenv ("Temp");         /* ... while NT prefers this */
+  if (tmp_ptr == 0)
+    tmp_ptr = "";
+  tmp_base = stringappend (tmp_ptr, strlen (tmp_ptr), "\\");
   strlwr (infile);
+  }
 #endif /* _WIN32 && !__CYGWIN32__ */
 
 #if (defined(unix) || defined(__unix) || defined(__unix__) || defined(__EMX__))

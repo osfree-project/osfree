@@ -10,84 +10,277 @@
    @author Yuri Prokushev <prokushev@freemail.ru>
 
 */
+#define INCL_DOSFILEMGR
 #include <osfree.h>
 
 /*!
- * Copies file from one location to another
- *      CopyFile
- * CALL
- *      CopyFile(src,dst)
- * PARAMETER
- *      src             name of source file
- *      dst             name of destination (may be existent)
- * RETURNS
- *      0               copy done
- *      /0              file exits, disk full, etc.
+   @brief Copies file from one location to another
+
+   @param pszSrc             name of source file
+   @param pszDst             name of destination (may be existent)
+   @param ulOptions          copy options
+
+   @return
+     NO_ERROR           - files were processed succesfully
+     ERROR_WRITE_FAULT  - fault during file writing.
+
    API
-     DosAlloc
-     DosFree
+     DosAllocMem
+     DosFreeMem
      DosOpenL
      DosClose
      DosRead
      DosWrite
 
- * GLOBAL
- *      overwrite
- */
+*/
 
-#define IOBUF_SIZ       32768U                  /* enough? (performance) */
+#define IOBUF_SIZ       32768U                  /* enough? (performance)
+                                                   Most probably here
+                                                   we must automatically
+                                                   detect size of buffer */
 
-USHORT CopyFile(char *src,char *dst)
+APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
 {
-    int    hSrc, hDst;
-    char  *iobuf;
-    int    cbTransfer;
+  APIRET rc;
+  HFILE  hSrc;
+  HFILE  hDst;
+  ULONG  ulAction;
+  PCHAR  pIObuf;
+  ULONG  ulTransfer;
 
-    if( (iobuf=malloc(IOBUF_SIZ)) == NULL )
+  rc = DosAllocMem(pIOBuf,
+                   IOBUF_SIZ,
+                   fPERM|PAG_COMMIT);
+  if (rc) return rc;
+
+  rc = DosOpenL(pszSrc,             // Address of ASCIIZ with source path
+                &hSrc,              // Handle
+                &ulAction,          // Action was taken (not used)
+                (LONGLONG) 0,       // Initial file size (not used)
+                0,                  // File attributes (not used)
+                OPEN_ACTION_FAIL_IF_NEW |
+                OPEN_ACTION_OPEN_IF_EXISTS, // Open type
+                OPEN_SHARE_DENYNONE |
+                OPEN_ACCESS_READONLY, // Open mode
+                NULL);
+  if (rc)
+  {
+    DosClose(hSrc);
+    DosFreeMem(pIOBuf);
+    return rc;
+  }
+
+  if (!DCPY_EXISTING)
+  {
+    // if no file exists then we fail
+    ulOpenType = OPEN_ACTION_FAIL_IF_EXISTS;
+  } else {
+    if (DCPY_APPEND)
     {
-        Verbose(1,"%s\tno more memory",src);
-        return (USHORT)-1;
+      // else or append
+      ulOpenType = OPEN_ACTION_OPEN_IF_EXISTS;
+    } else {
+      // or replace
+      ulOpenType = OPEN_ACTION_REPLACE_IF_EXISTS;
+    }
+  }
+
+  rc = DosOpenL(pszDst,             // Address of ASCIIZ with source path
+                &hDst,              // Handle
+                &ulAction,          // Action was taken
+                (LONGLONG) 0,       // Initial file size (not used)
+                FILE_ARCHIVED |
+                FILE_NORMAL, // File attributes
+                OPEN_ACTION_CREATE_IF_NEW |
+                ulOpenType, // Open type
+                OPEN_SHARE_DENYREADWRITE |
+                OPEN_ACCESS_WRITEONLY, // Open mode
+                NULL);
+  if (rc)
+  {
+    DosClose(hDst);
+    DosClose(hSrc);
+    DosFreeMem(pIOBuf);
+    return rc;
+  }
+
+  rc = DosRead(hSrc, pIOBuf, IOBUF_SIZ, &ulTransfer);
+  if (rc)
+  {
+    DosClose(hDst);
+    DosClose(hSrc);
+    DosFreeMem(pIOBuf);
+    return rc;
+  }
+
+  while(ulTransfer)
+  {
+    rc = DosWrite(hDst, pIOBuf, ulTransfer, ulWritten);
+    if (rc)
+    {
+      DosClose(hDst);
+      DosClose(hSrc);
+      DosFreeMem(pIOBuf);
+      return rc;
     }
 
-    if( (hSrc=open(src, O_BINARY|O_RDONLY)) == -1 )
-    {
-        Verbose(1,"open(%s) - errno %u (%s)", src, errno, strerror(errno) );
-        free( iobuf );
-        return 0;
-    }
+    if (ulTransfer!=ulWritten) return ERROR_WRITE_FAULT;
 
-    if( (hDst=open(dst,
-                   O_BINARY|O_WRONLY|O_CREAT|(fOverwrite ? O_TRUNC : O_EXCL),
-                   S_IREAD|S_IWRITE)) == -1 )
+    rc = DosRead(hSrc, pIOBuf, IOBUF_SIZ, &ulTransfer);
+    if (rc)
     {
-        Verbose(1,"open(%s) - errno %u (%s)", dst, errno, strerror(errno) );
-        free( iobuf );
-        close( hSrc );
-        return errno;
+      DosClose(hDst);
+      DosClose(hSrc);
+      DosFreeMem(pIOBuf);
+      return rc;
     }
+  }
 
-    while( (cbTransfer=read(hSrc, iobuf, IOBUF_SIZ)) != (USHORT)-1
-          &&  cbTransfer != 0 )
-    {
-        if( write(hDst, iobuf, cbTransfer) != cbTransfer )
+  DosClose(hDst);
+  DosClose(hSrc);
+  DosFreeMem(pIOBuf);
+  return NO_ERROR;
+}
+
+/*!
+    @brief Copy directory tree
+
+    @param src             Source Path (existing)
+    @param dst             Destination Path (existing)
+    @param ulOption        copy options
+
+    @return
+        NO_ERROR               OK
+
+ */
+APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
+{
+    FILEFINDBUF3  findBuffer;
+    HDIR         hSearch;
+    ULONG        cFound;
+    APIRET       rc;
+    int          result = 0, i;
+    char        *nsp, *ndp;
+    struct dirlist_t {
+        char              src[_MAX_PATH];
+        char              dst[_MAX_PATH];
+        struct dirlist_t *next;
+    } *pDirListRoot=NULL, *pDirList=NULL, *pHelp;
+
+    nsp = pszSrc + strlen(pszSrc);
+    ndp = pszDst + strlen(pszDst);
+
+    /* Search all subdirectories */
+
+    strcpy( nsp, "*" );
+    hSearch = HDIR_SYSTEM;                      /* use system handle */
+    cFound = 1;                                 /* only one at a time */
+    rc = DosFindFirst(pszSrc,
+                      &hSearch,
+                      MUST_HAVE_DIRECTORY|FILE_DIRECTORY,
+                      &findBuffer,
+                      sizeof(findBuffer),
+                      &cFound,
+                      FIL_STANDARD);
+    if( !rc )
+        do
         {
-            Verbose(1,"write(%s) - errno %u (%s)", dst, errno, strerror(errno) );
-            free( iobuf );
-            close( hSrc );
-            close( hDst );
-            return errno;
+            if( !strcmp(findBuffer.achName, ".")
+               ||  !strcmp(findBuffer.achName, "..") )
+                continue;
+            if( !(findBuffer.attrFile & FILE_DIRECTORY) )
+                continue;
+            Verbose(3,"Found: %s\tattr: %#x",
+                    findBuffer.achName, findBuffer.attrFile );
+
+            strcpy( nsp, findBuffer.achName );
+            strcpy( ndp, findBuffer.achName );
+            if( inSkipList(src) )               /* exclude some dirs/files */
+            {
+                if( fDisplayNames )
+                    printf("Skipping %s\n", src );
+                continue;
+            }
+            strcat( src, "/" );
+            strcat( dst, "/" );
+
+            /* Tyv„r, vi kan inte kopiera nu */
+
+            if( pDirList )
+            {
+                pDirList->next = malloc( sizeof(struct dirlist_t) );
+                assert( pDirList->next != NULL );
+                pDirList = pDirList->next;
+            }
+            else
+            {
+                pDirList = pDirListRoot = malloc( sizeof(struct dirlist_t) );
+                assert( pDirList != NULL );
+            }
+            pDirList->next = NULL;
+            strcpy( pDirList->src, src );
+            strcpy( pDirList->dst, dst );
         }
+        while( !(rc=DosFindNext(hSearch, &findBuffer,
+                                sizeof(findBuffer), &cFound)) );
+    DosFindClose( hSearch );
+    Verbose(2,"Subdirectory search stopped with rc %u",rc);
+
+    for( pHelp = pDirList = pDirListRoot; pDirList ; pHelp = pDirList )
+    {
+        pDirList = pDirList->next;
+        if( (i=CheckPath(pHelp->dst, 1)) )      /* create destination path */
+        {
+            result = i;
+            Verbose(0,"Cannot copy %s", pHelp->src );
+        }
+        else
+        {
+            CopyTree( pHelp->src, pHelp->dst );
+        }
+        free( pHelp );
     }
 
-    free( iobuf );
-    close( hSrc );
-    close( hDst );
-    return 0;
+    /* Copy the files in actual directory */
+
+    strcpy( nsp, "*" );
+    hSearch = HDIR_SYSTEM;                      /* use system handle */
+    cFound = 1;                                 /* only one at a time */
+    rc = DosFindFirst(pszSrc, &hSearch, FILE_NORMAL,
+                      &findBuffer, sizeof(findBuffer), &cFound, FIL_STANDARD );
+    if( !rc )
+        do
+        {
+            if( findBuffer.attrFile & FILE_DIRECTORY )
+                continue;
+            Verbose(3,"Found: %s\tattr: %#x",
+                    findBuffer.achName, findBuffer.attrFile );
+
+            strcpy( nsp, findBuffer.achName );
+            strcpy( ndp, findBuffer.achName );
+            if( inSkipList(src) )               /* exclude some dir's/file's */
+            {
+                if( fDisplayNames )
+                    printf("Skipping %s\n", src );
+                continue;
+            }
+            i = CopyFile( src, dst );
+            if( i != 0 )
+                result = i;
+        }
+        while( !(rc=DosFindNext(hSearch, &findBuffer,
+                                sizeof(findBuffer), &cFound)) );
+    DosFindClose( hSearch );
+    Verbose(2,"File search stopped with rc %u",rc);
+
+    *nsp = '\0';
+    *ndp = '\0';
+    return result;
 }
 
 
 /*!
-   Copies file from one location to another
+   @brief Copies file (directory) from one location to another
 
    @param pszOld     pointer to ASCIIZ filename, directory or character device
    @param pszNew     pointer to ASCIIZ target filename, directory or character device
@@ -134,29 +327,56 @@ Bit flag DCPY_FAILEAS can be used in combination with bit flag DCPY_APPEND or DC
      ERROR_DIRECTORY
      ERROR_EAS_NOT_SUPPORTED
      ERROR_NEED_EAS_FOUND
+     ERROR_NOT_ENOUGH_MEMORY
 
 */
 APIRET APIENTRY Dos32Copy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
 {
+  FILESTATUS3 fileStatus;
+  APIRET rc;
+
+  #define DCPY_MASK ~(DCPY_EXISTING | DCPY_APPEND | DCPY_FAILEAS )
+
+  //Check arguments
+  if ((!pszOld) || (!pszNew)) return ERROR_INVALID_PARAMETER;
+  // Also check for reserved options used
+  if (ulOptions & DCPY_MASK) return ERROR_INVALID_PARAMETER;
+
+  //Detect is source dir or file (also check is it exists)
+  rc = DosQueryPathInfo(pszOld,               // Path
+                        FIL_STANDARD,         // Level 1 information
+                        &fileStatus,          // Address of return buffer
+                        sizeof(FILESTATUS3)); // Size of buffer
+
+  if (rc) return rc;
+
+  // Perfom action based on source path type
+  if ((fileStatus.attrFile&FILE_DIRECTORY)==FILE_DIRECTORY)
+  {
+    // DCPY_APPEND flag not valid in directory copy
+    return CopyTree(pszOld, pszNew, ulOptions & ~DCPY_APPEND);
+  } else {
+    return CopyFile(pszOld, pszNew); //FIXME pass options
+  };
 }
 
 /*!
    Copies files from one location to another (16-bit wrapper of Dos32Copy function)
 */
-APIRET16 APIENTRY16 DosCopy(PCSZ16 pszOld, PCSZ16 pszNew, USHORT ulOptions, ULONG ulReserved)
+APIRET16 APIENTRY16 DosCopy(PCSZ16 pszOld, PCSZ16 pszNew, USHORT usOptions, ULONG ulReserved)
 {
   // Check arguments
   if (ulReserved) return ERROR_INVALID_PARAMETER;
 
   // Other arguments will be checked in 32-bit version
-  return Dos32Copy(MAKEFLATP(pszOld), MAKEFLATP(pszNew), ulOptions);
+  return Dos32Copy(MAKEFLATP(pszOld), MAKEFLATP(pszNew), usOptions);
 }
 
 /*!
    Copies file from one location to another (16-bit wrapper).
    Note: Seems to be full copy of DosCopy
 */
-APIRET16 APIENTRY16 DosICopy(PCSZ16 pszOld, PCSZ16 pszNew, USHORT ulOptions, ULONG ulReserved)
+APIRET16 APIENTRY16 DosICopy(PCSZ16 pszOld, PCSZ16 pszNew, USHORT usOptions, ULONG ulReserved)
 {
-  return DosCopy(pszOld, pszNew, ulOptions);
+  return DosCopy(pszOld, pszNew, usOptions);
 }

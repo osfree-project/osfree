@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "debug.h"
 
 typedef unsigned short WORD;            // w
 
@@ -94,7 +95,7 @@ USHORT _Far16 _Pascal RXVAR(
   // Convert 16-bit structure to 32-bit
 //  return RexxVariablePool(PSHV);
   // Free allocated memory
-  printf("RXVAR\n");
+  debug("RXVAR\n");
   return 0;
 }
 
@@ -145,7 +146,7 @@ SHORT _Far16 _Pascal REXXSAA(
   APIRET      rc;  /* Return code */
   CHAR prg[CCHMAXPATH];
 
-  printf("REXXSAA\n");
+  debug("REXXSAA\n");
 
   memset(prg, 0, sizeof(prg));
   strcpy(prg, "rexx.exe\0");
@@ -160,10 +161,10 @@ SHORT _Far16 _Pascal REXXSAA(
 //                  "rexx.exe");             /* Program file name            */
 
   if (rc != NO_ERROR) {
-     printf("DosExecPgm error: return code = %u\n", rc);
+     debug("DosExecPgm error: return code = %u\n", rc);
      return 0;
   } else {
-     printf("DosExecPgm complete.  Termination Code: %u  Return Code: %u\n",
+     debug("DosExecPgm complete.  Termination Code: %u  Return Code: %u\n",
              ChildRC.codeTerminate,
              ChildRC.codeResult);  /* This is explicitly set by other pgm */
   } /* endif */
@@ -179,7 +180,7 @@ USHORT _Far16 _Pascal RXHALTSET(
          LONG PID,                         /* Process Id                  */
          LONG TID)                        /* Thread Id                   */
 {
-  printf("REXXSETHALT\n");
+  debug("REXXSETHALT\n");
   return RexxSetHalt(PID, TID);
 }
 
@@ -191,7 +192,7 @@ USHORT _Far16 _Pascal RXTRACESET(
          LONG PID,                         /* Process Id                  */
          LONG TID)                        /* Thread Id                   */
 {
-  printf("REXXSETTRACE\n");
+  debug("REXXSETTRACE\n");
   return RexxSetTrace(PID, TID);
 }
 
@@ -201,6 +202,6 @@ USHORT _Far16 _Pascal RXBREAKCLEANUP(VOID);
 
 USHORT _Far16 _Pascal RXBREAKCLEANUP(VOID)
 {
-  printf("RXBREAKCLEANUP\n");
+  debug("RXBREAKCLEANUP\n");
   return 0;
 }

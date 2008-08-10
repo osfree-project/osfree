@@ -13,8 +13,7 @@
          that allows to break execution after first error /x ?
    @todo: add support of 4OS2 extensions
    @todo: add extended attributes support (like .COMMENT, .TYPE)
-   @todo: fix bug with /a switch. For some reasons MUST_HAVE doesn't work
-         in all_perform_recurse_action
+   @todo: add "-" modifier to /a switch.
 
 */
 
@@ -231,7 +230,7 @@ int main (int argc, char* argv[], char* envp[])
 };
 
 /*!
-   Process file masks given in argv (from start to end indexes),using given
+   @brief Process file masks given in argv (from start to end indexes),using given
    flags and options. Depending on options, files processing may include
    directories and can be recursive.
 

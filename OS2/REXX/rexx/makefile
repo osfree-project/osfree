@@ -9,7 +9,7 @@ CLEANMASK = *.obj *.map *.err *.wmp *.lnk *.sym *.lib
 DIR = $(FILESDIR)$(SEP)os2$(SEP)dll
 PROJ = rexx
 DESC = Classic REXX
-OBJS = rexx.$(O) rexx16.$(O)
+OBJS = rexx.$(O) rexx16.$(O) debug.$(O)
 ADD_COPT = -i=. -bd -s
 LINKLIB = clib3r.lib,math387r.lib,emu387.lib,rexx.lib #,clibdls.lib
 
