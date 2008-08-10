@@ -24,8 +24,7 @@ common_SRCS          = dummy.asm start.asm fsys.c
 common_OBJS          = $(p)start$(e)  $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 
-DIRS         =
-rootdir      = ../../../
+DEST         = boot$(SEP)fsd
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -33,11 +32,11 @@ rootdir      = ../../../
 # so it must be included before this place:
 p            = $(PATH)
 e            = .rel
-TARGETS      = $+$(blackboxes)$-
+rels         = $+$(blackboxes)$-
 
 p            = $(PATH)
 e            = .bbx
-PROJ         = $+$(blackboxes)$- $(TARGETS)
+TARGETS      = $+$(blackboxes)$- $(rels)
 
 files     = $(bbx)
 

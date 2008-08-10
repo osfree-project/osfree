@@ -4,9 +4,6 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
 32_BITS  = 1
 
 # This is the operating system, only LINUX and SOLARIS (x86) are supported
@@ -22,9 +19,11 @@ OBJS     = main.$(O)  readdisk.$(O) dir.$(O)  super.$(O) &
 
 !include $(%ROOT)/mk/all.mk
 
+TARGETS = tgt
+
 !ifeq UNIX FALSE
 
-all: ldir.exe .SYMBOLIC
+tgt: ldir.exe .SYMBOLIC
  #copy ldir.cmd      ..\bin
  #copy lchange.cmd   ..\bin
  #copy lread.cmd     ..\bin
@@ -38,7 +37,7 @@ all: ldir.exe .SYMBOLIC
 
 !else
 
-all: ldir.exe .SYMBOLIC
+tgt: ldir.exe .SYMBOLIC
  #mv -f ldir      ../bin
  #cp -f lchange   ../bin
  #cp -f lread     ../bin
@@ -65,8 +64,3 @@ ldir.exe:   $(OBJS) $(INCLUDES)
 readdisk.o: UNIXdisk.h
  $(SAY) Compiling $< $(LOG)
  $(CC) $(COPT) -fo=$^&.$(O) readdisk.c $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)

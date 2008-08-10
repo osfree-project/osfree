@@ -4,35 +4,23 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
+           $(p)uncompr$(e) $(p)deflate$(e) $(p)trees$(e) $(p)zutil$(e) &
+           $(p)inflate$(e) $(p)infblock$(e) $(p)inftrees$(e) $(p)infcodes$(e) &
+           $(p)infutil$(e) $(p)inffast$(e)
 
-32_BITS  = 1
-DIR = $(%ROOT)$(SEP)tools$(SEP)lib
-ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
+TARGETS = $(PATH)z.lib
+DEST    = lib
 
-OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
-       uncompr.$(O) deflate.$(O) trees.$(O) zutil.$(O) &
-       inflate.$(O) infblock.$(O) inftrees.$(O) infcodes.$(O) &
-       infutil.$(O) inffast.$(O)
+!include $(%ROOT)/mk/tools.mk
 
-!include $(%ROOT)/mk/all.mk
+# details see in $(ROOT)/mk/dirs.mk
+#!define ABSOLUTE_DEST
+#DEST    = $(TOOLDIR)lib$(SEP)
 
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
-
-all: z.lib .SYMBOLIC
- $(CP) z.lib $(DIR)$(SEP) $(BLACKHOLE)
-
-
-z.lib: $(OBJS)
+$(PATH)z.lib: $(OBJS)
  $(DC) $^@
  $(LIB) $(LIBOPT) $^@ +$(OBJS)
 
-
-install: .SYMBOLIC
- $(CP) z.lib $(DIR)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+t: .SYMBOLIC
+ $(SAY) $(OBJS)

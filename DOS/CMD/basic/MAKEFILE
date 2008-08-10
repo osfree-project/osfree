@@ -4,66 +4,47 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-#32_BITS  = 1
-
 PROJ = basic
 DESC = BASIC and BASICA programming language
 #defines object file names in format objname.$(O)
-OBJS = bwbasic.$(O) &
-bwb_cmd.$(O) &
-bwb_cnd.$(O) &
-bwb_dio.$(O) &
-bwb_elx.$(O) &
-bwb_exp.$(O) &
-bwb_fnc.$(O) &
-bwb_inp.$(O) &
-bwb_int.$(O) &
-bwb_mth.$(O) &
-bwb_ops.$(O) &
-bwb_par.$(O) &
-bwb_prn.$(O) &
-bwb_stc.$(O) &
-bwb_str.$(O) &
-bwb_tbl.$(O) &
-bwb_tcc.$(O) &
-bwb_var.$(O) &
-bwx_tty.$(O)
-#bwx_ncu.$(O) # link this for ncurses use
+srcfiles = $(p)bwbasic$(e) &
+           $(p)bwb_cmd$(e) &
+           $(p)bwb_cnd$(e) &
+           $(p)bwb_dio$(e) &
+           $(p)bwb_elx$(e) &
+           $(p)bwb_exp$(e) &
+           $(p)bwb_fnc$(e) &
+           $(p)bwb_inp$(e) &
+           $(p)bwb_int$(e) &
+           $(p)bwb_mth$(e) &
+           $(p)bwb_ops$(e) &
+           $(p)bwb_par$(e) &
+           $(p)bwb_prn$(e) &
+           $(p)bwb_stc$(e) &
+           $(p)bwb_str$(e) &
+           $(p)bwb_tbl$(e) &
+           $(p)bwb_tcc$(e) &
+           $(p)bwb_var$(e) &
+           $(p)bwx_tty$(e)
 
-#renum.$(O)
+           #$(p)bwx_ncu$(e) # link this for ncurses use
 
-#bwx_iqc.$(O) &
+           #$(p)renum$(e)
+           #$(p)bwx_iqc$(e) &
+
 # defines additional options for C compiler
-
 ADD_COPT = -ml
+#STACKSIZE = 65535000
 
-!include $(%ROOT)/mk/all.mk
+# additions to install target
+INSTALL_ADD = 1
 
+!include $(%ROOT)/mk/dosapp.mk
 
-all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
-
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM dos
-# @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION MAP=$^&.wmp
-# @%append $^&.lnk OPTION STACK=65535000
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos$(SEP)$(PROJ).com
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos$(SEP)$(PROJ)a.com
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos$(SEP)gw$(PROJ).exe
+install_add: .SYMBOLIC
+ $(CP) $(PATH)$(PROJ).exe $(FILESDIR)$(SEP)$(DEST)$(SEP)$(PROJ).com
+ $(CP) $(PATH)$(PROJ).exe $(FILESDIR)$(SEP)$(DEST)$(SEP)$(PROJ)a.com
+ $(CP) $(PATH)$(PROJ).exe $(FILESDIR)$(SEP)$(DEST)$(SEP)gw$(PROJ).exe
+ $(CP) $(PATH)$(PROJ).sym $(FILESDIR)$(SEP)$(DEST)$(SEP)$(PROJ).sym
+ $(CP) $(PATH)$(PROJ).sym $(FILESDIR)$(SEP)$(DEST)$(SEP)$(PROJ)a.sym
+ $(CP) $(PATH)$(PROJ).sym $(FILESDIR)$(SEP)$(DEST)$(SEP)gw$(PROJ).sym

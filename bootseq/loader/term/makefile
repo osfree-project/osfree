@@ -34,8 +34,7 @@ t = -s
 OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)tparm$(e) $(p)modesw-npt$(e)
 !endif
 
-DIRS         =
-rootdir      = ../../../
+DEST         = boot$(SEP)term
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -43,11 +42,11 @@ rootdir      = ../../../
 # so it must be included before this place:
 p            = $(PATH)
 e            = .rel
-TARGETS      = $+$(blackboxes)$-
+rels         = $+$(blackboxes)$-
 
 p            = $(PATH)
 e            = .bbx
-PROJ         = $+$(blackboxes)$- $(TARGETS)
+TARGETS      = $+$(blackboxes)$- $(rels)
 
 files     = $(bbx)
 

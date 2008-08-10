@@ -4,9 +4,6 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
 DIR = $(ROOT)$(SEP)tools$(SEP)bin
 32_BITS  = 1
 ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
@@ -19,7 +16,7 @@ OBJS = qemu-img.$(O) block.$(O) block-cow.$(O) block-qcow.$(O) aes.$(O) &
 
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
-all: $(DIR)$(SEP)qemu-img.exe .SYMBOLIC
+TARGETS = $(DIR)$(SEP)qemu-img.exe
 
 $(DIR)$(SEP)qemu-img.exe: $(OBJS)
  @%create $^&.lnk
@@ -42,8 +39,3 @@ $(DIR)$(SEP)qemu-img.exe: $(OBJS)
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)

@@ -4,24 +4,12 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
 PROJ = help
 DESC = Show help info
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/dosapp.mk
 
+TARGETS  = $(PROJ).bat
 
-all: install .SYMBOLIC
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).bat $(FILESDIR)$(SEP)dos
+$(PROJ).bat: .SYMBOLIC
+ @%null

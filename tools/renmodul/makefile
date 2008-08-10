@@ -4,9 +4,6 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
 # For Watcom C/C++ 10.6 and higher
 # Use wmake DEBUG=1 to get debug info
 
@@ -50,7 +47,9 @@ OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
 
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym *.map *.exe *.dll
 
-all: $(PROJ).exe
+TARGETS = tgt
+
+tgt: $(PROJ).exe
  $(CP) $(PROJ).exe $(DIR) $(BLACKHOLE)
 
 $(PROJ).exe: $(OBJS1)
@@ -62,8 +61,3 @@ $(PROJ).exe: $(OBJS1)
  @%append $^@.lnk $(MODE_LINKOPT)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^@.lnk $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)

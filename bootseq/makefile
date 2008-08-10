@@ -5,11 +5,8 @@
 #
 
 DIRS         = bootsec loader
-rootdir      = ../../
 
 !include $(%ROOT)/mk/loader.mk
-
-OBJS         =
 
 # this implies do $(MAKE) $(MAKEOPT) TARGET=all subdirs
 TARGETS      = subdirs
