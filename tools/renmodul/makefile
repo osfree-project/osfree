@@ -4,6 +4,9 @@
 # valerius, 2006/10/30
 #
 
+PROJ = renmodul
+DESC = Rename module
+
 # For Watcom C/C++ 10.6 and higher
 # Use wmake DEBUG=1 to get debug info
 
@@ -31,33 +34,13 @@ MODE_COPT=-os
 
 !endif
 
-ADD_COPT=-bt=os2 -s -wx -zq $(MODE_COPT)
+srcfiles = $(p)renmodul$(e) $(p)main$(e)
 
-32_BITS  = 1
-ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
+#OBJS1 = renmodul.$(O) main.$(O)
+#OBJS2 = renmodul.$(O) dllmain.$(O)
+#OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
 
-DIR = $(%ROOT)$(SEP)tools$(SEP)bin
-PROJ = renmodul
+!include $(%ROOT)/mk/tools.mk
 
-OBJS1 = renmodul.$(O) main.$(O)
-OBJS2 = renmodul.$(O) dllmain.$(O)
-OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
-
-!include $(%ROOT)/mk/all.mk
-
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym *.map *.exe *.dll
-
-TARGETS = tgt
-
-tgt: $(PROJ).exe
- $(CP) $(PROJ).exe $(DIR) $(BLACKHOLE)
-
-$(PROJ).exe: $(OBJS1)
- @%create $^@.lnk
-# @%append $^@.lnk SYSTEM os2v2
- @%append $^@.lnk OPTION MAP=$^@.wmp
- @%append $^@.lnk NAME $^@
- @for %%i in ($(OBJS1)) do @%append $^@.lnk FILE %%i
- @%append $^@.lnk $(MODE_LINKOPT)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^@.lnk $(LOG)
+TARGETS = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).dll
+ADD_COPT = -bt=os2 -s -wx -zq $(MODE_COPT)

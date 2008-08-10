@@ -4,38 +4,14 @@
 # valerius, 2006/10/30
 #
 
-DIR = $(ROOT)$(SEP)tools$(SEP)bin
-32_BITS  = 1
+PROJ = qemu-img
+DESC = Generate/convert HDD images
+
+srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-cow$(e) $(p)block-qcow$(e) $(p)aes$(e) &
+           $(p)block-vmdk$(e) $(p)block-cloop$(e) $(p)block-dmg$(e) $(p)block-bochs$(e) &
+           $(p)block-vpc$(e) $(p)block-vvfat$(e) $(p)porting$(e)
+
+!include $(%ROOT)/mk/tools.mk
+
 ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
-
-OBJS = qemu-img.$(O) block.$(O) block-cow.$(O) block-qcow.$(O) aes.$(O) &
-       block-vmdk.$(O) block-cloop.$(O) block-dmg.$(O) block-bochs.$(O) &
-       block-vpc.$(O) block-vvfat.$(O) porting.$(O)
-
-!include $(%ROOT)/mk/all.mk
-
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
-
-TARGETS = $(DIR)$(SEP)qemu-img.exe
-
-$(DIR)$(SEP)qemu-img.exe: $(OBJS)
- @%create $^&.lnk
-# @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk ALIAS mmap_=_mmap
- @%append $^&.lnk ALIAS munmap_=_munmap
- @%append $^&.lnk ALIAS inflateInit2_=inflateInit2__
- @%append $^&.lnk ALIAS inflate=inflate_
- @%append $^&.lnk ALIAS inflateEnd=inflateEnd_
- @%append $^&.lnk ALIAS deflateInit2_=deflateInit2__
- @%append $^&.lnk ALIAS deflate=deflate_
- @%append $^&.lnk ALIAS deflateEnd=deflateEnd_
- @%append $^&.lnk ALIAS inflateInit_=inflateInit__
- @%append $^&.lnk ALIAS inflateReset=inflateReset_
- @%append $^&.lnk LIBRARY z
- @%append $^&.lnk LIBRARY libmmap
- @%append $^&.lnk LIBPATH ..$(SEP)lib
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+ADD_LINKOPT = $(ADD_LINKOPT) ALIAS mmap_=_mmap, munmap_=_munmap

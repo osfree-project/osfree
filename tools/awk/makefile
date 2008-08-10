@@ -1,30 +1,12 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-32_BITS  = 1
-
-DIR = $(ROOT)$(SEP)tools$(SEP)bin
 PROJ = awk
 DESC = AWK language interpreter
-OBJS = b.$(O) main.$(O) parse.$(O) proctab.$(O) tran.$(O) lib.$(O) run.$(O) lex.$(O) &
-       ytab.$(O) missing95.$(O)
+srcfiles = $(p)b$(e) $(p)main$(e) $(p)parse$(e) $(p)proctab$(e) $(p)tran$(e) $(p)lib$(e) $(p)run$(e) $(p)lex$(e) &
+           $(p)ytab$(e) $(p)missing95$(e)
+
+!include $(%ROOT)/mk/tools.mk
 
 ADD_COPT = -i=..$(SEP)include
-
-!include $(%ROOT)/mk/all.mk
-
-TARGETS = $(DIR)$(SEP)$(PROJ).exe
-
-#Notes:
-# awk lex and yacc files not added to repository
-
-$(DIR)$(SEP)$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
-# must be native, not OS/2 target
-# @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION STACK=65536
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $@
- @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+TARGETS = $(PATH)$(PROJ).exe
+STACK    = 65536

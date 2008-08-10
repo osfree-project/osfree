@@ -1,26 +1,12 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-32_BITS  = 1
-
-DIR = $(ROOT)$(SEP)tools$(SEP)bin
 PROJ = lex
 DESC = Lexical analyzer
-OBJS = ccl.$(O) dfa.$(O) ecs.$(O) gen.$(O) main.$(O) misc.$(O) &
-       nfa.$(O) parse.$(O) scan.$(O) skel.$(O) sym.$(O) tblcmp.$(O) yylex.$(O)
+srcfiles = $(p)ccl$(e) $(p)dfa$(e) $(p)ecs$(e) $(p)gen$(e) $(p)main$(e) $(p)misc$(e) &
+           $(p)nfa$(e) $(p)parse$(e) $(p)scan$(e) $(p)skel$(e) $(p)sym$(e) $(p)tblcmp$(e) $(p)yylex$(e)
 
+!include $(%ROOT)/mk/tools.mk
 
 ADD_COPT = -i=..$(SEP)include -pil
-
-!include $(%ROOT)/mk/all.mk
-
-TARGETS = $(DIR)$(SEP)$(PROJ).exe
-
-$(DIR)$(SEP)$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION STACK=65536
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $@
- @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+TARGETS  = $(PATH)$(PROJ).exe
+STACK    = 65536

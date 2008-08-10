@@ -4,8 +4,6 @@
 # valerius, 2006/10/30
 #
 
-32_BITS  = 1
-
 # This is the operating system, only LINUX and SOLARIS (x86) are supported
 OS       = __OS2__
 # No need to change anything beyond this line ##########################################
@@ -13,54 +11,20 @@ ADD_COPT     = -d$(OS) -dSANITY_CHECKS -d_FILE_OFFSET_BITS=64 -d__WATCOM__ &
                -d_LARGEFILE_SOURCE -d_LARGEFILE64_SOURCE -dNEWOUT -i=.
 
 INCLUDES = ldir.h proto.h ext2.h UNIXdisk.h DOSdisk.h makefile
+PROJ = ldir
+DESC = Generate/convert HDD images
 
-OBJS     = main.$(O)  readdisk.$(O) dir.$(O)  super.$(O) &
-           inode.$(O) group.$(O)    util.$(O) rfs.$(O)
+srcfiles = $(p)main$(e)  $(p)readdisk$(e) $(p)dir$(e)  $(p)super$(e) &
+           $(p)inode$(e) $(p)group$(e)    $(p)util$(e) $(p)rfs$(e)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/tools.mk
 
-TARGETS = tgt
+TARGETS = inst
 
-!ifeq UNIX FALSE
+list = ldir lchange lread lwrite ldel lren lmkdir lln ldrive lcd
 
-tgt: ldir.exe .SYMBOLIC
- #copy ldir.cmd      ..\bin
- #copy lchange.cmd   ..\bin
- #copy lread.cmd     ..\bin
- #copy lwrite.cmd    ..\bin
- #copy ldel.cmd      ..\bin
- #copy lren.cmd      ..\bin
- #copy lmkdir.cmd    ..\bin
- #copy lln.cmd       ..\bin
- #copy ldrive.cmd    ..\bin
- #copy lcd.cmd       ..\bin
-
-!else
-
-tgt: ldir.exe .SYMBOLIC
- #mv -f ldir      ../bin
- #cp -f lchange   ../bin
- #cp -f lread     ../bin
- #cp -f lwrite    ../bin
- #cp -f ldel      ../bin
- #cp -f lren      ../bin
- #cp -f lmkdir    ../bin
- #cp -f lln       ../bin
- #cp -f ldrive    ../bin
- #cp -f lcd       ../bin
- #chmod 755       ../bin/l*
-
-!endif
-
-ldir.exe:   $(OBJS) $(INCLUDES)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk NAME $^&
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
+inst: $(PATH)ldir.exe
+ @for %i in ($(list)) do $(CP) $(MYDIR)cmd$(SEP)%i.cmd $(DEST)
+ $(CP) $(PATH)ldir.exe $(DEST)
 
 readdisk.o: UNIXdisk.h
- $(SAY) Compiling $< $(LOG)
- $(CC) $(COPT) -fo=$^&.$(O) readdisk.c $(LOG)
