@@ -24,7 +24,7 @@ common_SRCS          = dummy.asm start.asm fsys.c
 common_OBJS          = $(p)start$(e)  $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 
-DEST         = boot$(SEP)fsd
+#DEST         = boot$(SEP)fsd
 
 !include $(%ROOT)/mk/loader.mk
 

@@ -21,6 +21,10 @@ DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM
 ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..
 ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include  -i=$(MYDIR)..$(SEP)include -i=. -i=..
 
+!ifndef DEST
+DEST         = boot
+!endif
+
 !include $(%ROOT)/mk/bootseq.mk
 
 CLEANMASK    = $(CLEANMASK) *.sob *.lob
@@ -240,17 +244,5 @@ gen_deps_wrapper:
  # file.fss: file.$(SOUT)
  @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).bbs &
    deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$-" gen_deps
-
-#install: .SYMBOLIC
-# $(SAY) Making install... $(LOG)
-# @$(MDHIER) $(FILESDIR)$(SEP)boot
-# @for %i in ($(PROJ)) do @if exist %i $(CP) %i $(FILESDIR)$(SEP)boot
-
-#.IGNORE
-#clean: .SYMBOLIC
-# $(SAY) Making clean... $(LOG)
-# $(CLEAN_CMD)
-# $(DC) $(TARGETS)
-# $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 !endif

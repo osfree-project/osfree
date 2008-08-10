@@ -8,10 +8,10 @@
 !ifndef __bootseq_mk__
 __bootseq_mk__ = 1
 
+!include $(%ROOT)/mk/all.mk
+
 ADD_COPT   = $(ADD_COPT)   -bt=OS2
 ADD_ASMOPT = $(ADD_ASMOPT) -bt=OS2
-
-!include $(%ROOT)/mk/all.mk
 
 RIP          = $(REXX) ripzeroes.cmd
 GENREL       = $(REXX) genrel.cmd

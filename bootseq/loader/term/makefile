@@ -34,7 +34,7 @@ t = -s
 OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)tparm$(e) $(p)modesw-npt$(e)
 !endif
 
-DEST         = boot$(SEP)term
+#DEST         = boot$(SEP)term
 
 !include $(%ROOT)/mk/loader.mk
 

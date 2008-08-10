@@ -5,7 +5,9 @@
 
 !include $(%ROOT)/mk/site.mk
 
+!ifndef DEST
 DEST     = os2$(SEP)mdos
+!endif
 
 !include $(%ROOT)/mk/all.mk
 

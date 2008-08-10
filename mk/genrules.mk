@@ -14,18 +14,18 @@ drv = $(%cdrive):
 drv =
 !endif
 
-!ifeq ROOT $(MYDIR:$(drv)=)
+#!ifeq ROOT $(MYDIR:$(drv)=)
 # if topmost makefile
-tgts =
-!else ifeq NOPREREQ 1
-tgts =
-!else
-tgts = dirhier $(mf)
-!endif
+#tgts =
+#!else ifeq NOPREREQ 1
+#tgts =
+#!else
+#tgts = dirhier $(mf)
+#!endif
 
 mf = $(PATH)makefile
 
-prereq: $(tgts) .SYMBOLIC
+prereq: dirhier $(mf)
  @%null
 
 $(mf): $(MYDIR)makefile

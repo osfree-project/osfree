@@ -3,7 +3,9 @@
 # win16 apps
 #
 
+!ifndef DEST
 DEST     = os2$(SEP)mdos$(SEP)winos2
+!endif
 
 !include $(%ROOT)/mk/all.mk
 

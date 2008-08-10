@@ -4,18 +4,18 @@
 
 !include $(%ROOT)/mk/site.mk
 
-drv =
+#drv =
+#
+#!ifneq %cdrive
+#drv = $(%cdrive):
+#!endif
 
-!ifneq %cdrive
-drv = $(%cdrive):
-!endif
-
-MYDIR        = $(drv)$(%cwd)$(SEP)
+MYDIR        = $(%cwd)$(SEP)
 ROOT         = $(%ROOT)
-RELDIR       = $(%cwd:$(ROOT)=)$(SEP)
+RELDIR       = $(MYDIR:$(ROOT)=)
 PATH         = $(RELDIR)
 
-BLD  = $(ROOT)build$(SEP)
+BLD  = $(ROOT)build
 
 q = $(MYDIR:$(BLD)=)
 x = build$(SEP)
@@ -26,7 +26,7 @@ PATH  = $(PATH:build=)
 MYDIR = $(PATH:$(x)=)
 !endif
 
-PATH  = $(BLD)$(PATH)
+PATH  = $(BLD)$(SEP)$(PATH)
 
 TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
 
@@ -38,3 +38,4 @@ DEST = $(FILESDIR)$(SEP)$(DEST)
 test: .SYMBOLIC
  $(SAY) $(PATH)
  $(SAY) $(MYDIR)
+ $(SAY) $(q)

@@ -190,7 +190,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 
 .SUFFIXES:
-.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp .rexx
+.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp .rexx
 
 .c:   $(MYDIR)
 
@@ -205,6 +205,8 @@ OBJS = $+$(srcfiles)$-
 .rc:  $(MYDIR)
 
 .res: $(PATH)
+
+.lnk: $(PATH)
 
 .c.$(O): .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
@@ -240,6 +242,10 @@ OBJS = $+$(srcfiles)$-
  $(PC) $(PCOPT) -o$^@ $(MYDIR)$[@
   #@if not -- == -$^:- $(CP) $^. $^:
   #@if not -- == -$^:- $(DC) $^.
+
+.lnk.exe: .symbolic
+ $(SAY) Linking $^@... $(LOG)
+ $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .rexx.exe: .AUTODEPEND
   $(SAY) Wrapping REXX code $<
