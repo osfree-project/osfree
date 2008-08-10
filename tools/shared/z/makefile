@@ -9,10 +9,11 @@ srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
            $(p)inflate$(e) $(p)infblock$(e) $(p)inftrees$(e) $(p)infcodes$(e) &
            $(p)infutil$(e) $(p)inffast$(e)
 
-TARGETS = $(PATH)z.lib
-DEST    = lib
+DEST      = ..$(SEP)lib
 
 !include $(%ROOT)/mk/tools.mk
+
+TARGETS = $(PATH)z.lib
 
 # details see in $(ROOT)/mk/dirs.mk
 #!define ABSOLUTE_DEST
@@ -21,6 +22,3 @@ DEST    = lib
 $(PATH)z.lib: $(OBJS)
  $(DC) $^@
  $(LIB) $(LIBOPT) $^@ +$(OBJS)
-
-t: .SYMBOLIC
- $(SAY) $(OBJS)
