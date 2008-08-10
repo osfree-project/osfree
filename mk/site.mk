@@ -73,11 +73,11 @@ REXX    = $OS_REXX
 
 
 # Files from which HDD image is built
-FILESDIR   = $(ROOT)$(SEP)files
+FILESDIR   = $(ROOT)bin
 
 # Libraries dir (this is NOT standalone system libraries. This is path where
 # to store libs generated during build process)
-LIBDIR     = $(ROOT)$(SEP)lib
+LIBDIR     = $(FILESDIR)$(SEP)bin$(SEP)lib
 
 # libc
 LIBC       = clibs.lib

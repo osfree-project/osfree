@@ -8,8 +8,16 @@
 !ifndef __all_mk__
 __all_mk__ = 1
 
-!include $(%ROOT)/mk/site.mk
+all: install
+
+install: build
+
 !include $(%ROOT)/mk/dirs.mk
+!include $(%ROOT)/mk/genrules.mk
+
+# build and install each target in sequence
+build: prereq .SYMBOLIC
+ @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
 
@@ -87,7 +95,7 @@ DOX       = doxygen
 #RC        = @wrc -q
 #RCOPT     = -bt=OS2
 
-RC        = rc
+RC        = wrc
 RCOPT     =
 
 MC        = mkmsgf
@@ -103,7 +111,7 @@ SYS       = sys
 
 # A command to add a list of object
 # files to a linker script
-ADDFILES_CMD = @for %%i in ($(OBJS)) do @%append $^&.lnk FILE %%i
+ADDFILES_CMD = @for %i in ($(OBJS)) do @%append $^@ FILE %i
 
 #
 # Extensions to clean up
@@ -171,49 +179,71 @@ BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 MAPSYM    = @mapsym
 
-TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
 LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
 
+!ifndef OBJS
+!ifdef  srcfiles
+p = $(PATH)
+e = .$(O)
+OBJS = $+$(srcfiles)$-
+!endif
+!endif
 
 .SUFFIXES:
 .SUFFIXES:  .sym .exe .dll .lib .$(O) .res .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp .rexx
 
+.c:   $(MYDIR)
+
+.asm: $(MYDIR)
+
+.pas: $(MYDIR)
+
+.wmp: $(PATH)
+
+.map: $(PATH)
+
+.rc:  $(MYDIR)
+
+.res: $(PATH)
+
 .c.$(O): .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
- $(CC) $(COPT) -fo=$^&.$(O) $< $(LOG)
-
-.cpp.$(O): .AUTODEPEND
- $(SAY) Compiling $< $(LOG)
- $(CPPC) $(COPT) -fo=$^&.$(O) $< $(LOG)
+ $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $< $(LOG)
 
 .asm.$(O): .AUTODEPEND
  $(SAY) Assembling $< $(LOG)
- $(ASM) $(ASMOPT) -fo=$^&.$(O) $< $(LOG)
+ $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
+
+.cpp.$(O): .AUTODEPEND
+ $(SAY) Compiling $< $(LOG)
+ $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $< $(LOG)
 
 .wmp.map: .AUTODEPEND
  $(SAY) Converting Watcom MAP to VAC MAP $< $(LOG)
- $(AWK) -f $(TOOLS)$(SEP)mapsym.awk <$^&.wmp >$^&.map
+ $(AWK) -f $(TOOLDIR)$(SEP)mapsym.awk <$< >$(PATH)$^@
 
 .map.sym: .AUTODEPEND
  $(SAY) Converting VAC MAP to OS/2 SYM $< $(LOG)
- $(MAPSYM) $^&.map
+ $(MAPSYM) $[@
+ $(RN) $^. $^:
 
 .ipf.inf: .symbolic
-  $(SAY) Compiling $<
-  $(HC) -i $< $@
+ $(SAY) Compiling IPF source file $<... $(LOG)
+ $(HC) -i $(MYDIR)$[@ $^@
 
 .rc.res: .AUTODEPEND
-  $(RC) $(RCOPT) $<
+ $(SAY) Compiling resource file $<... $(LOG)
+ $(RC) $(RCOPT) $(MYDIR)$[@ -fo=$^@ -r
 
 .pas.exe: .symbolic
-  $(SAY) Compiling $<
-  $(PC) $(PCOPT) $<
-  @if not -- == -$^:- $(CP) $^. $^:
-  @if not -- == -$^:- $(DC) $^.
+ $(SAY) Compiling $<
+ $(PC) $(PCOPT) -o$^@ $(MYDIR)$[@
+  #@if not -- == -$^:- $(CP) $^. $^:
+  #@if not -- == -$^:- $(DC) $^.
 
 .rexx.exe: .AUTODEPEND
   $(SAY) Wrapping REXX code $<
-  rexxwrapper -program=$^& -rexxfiles=$^&.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
+  rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -225,13 +255,30 @@ subdirs: .SYMBOLIC
 dirhier: .SYMBOLIC
  @$(MDHIER) $(PATH)
 
+.IGNORE
+clean: .SYMBOLIC
+ $(SAY) Making clean... $(LOG)
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+install: .SYMBOLIC
+ $(SAY) Making install... $(LOG)
+ @$(MDHIER) $(DEST)
+ $(CP)  $(TARGETS) $(DEST)
+!ifeq INSTALL_ADD 1
+ @$(MAKE) $(MAKEOPT) install_add
+!endif
+ @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+
+aaa: .SYMBOLIC
+ $(SAY) DEST=$(DEST)
+
 endrule: .SYMBOLIC
 !ifneq TRG
  $(SAY) targets $(TRG) have no rules (!)
 !endif
 
-.default
-!inject $@ TRG
+#.default
+#!inject $@ TRG
 
 .error
  @$(SAY) Error (!)

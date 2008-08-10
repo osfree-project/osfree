@@ -8,10 +8,25 @@
 # valerius, 2008 Jul 31
 #
 
+!ifneq %cdrive
+drv = $(%cdrive):
+!else
+drv =
+!endif
+
+!ifeq ROOT $(MYDIR:$(drv)=)
+# if topmost makefile
+tgts =
+!else ifeq NOPREREQ 1
+tgts =
+!else
+tgts = dirhier $(mf)
+!endif
+
 mf = $(PATH)makefile
 
-prereq: dirhier $(mf) .SYMBOLIC
- $(SAY) prereqs made...
+prereq: $(tgts) .SYMBOLIC
+ @%null
 
 $(mf): $(MYDIR)makefile
  @%create $(mf)
@@ -86,3 +101,6 @@ gen_deps: .SYMBOLIC
 # A shifted file is a file linked at the base + $(SHIFT)
 # it is used for relocation files generation.
 #
+
+#gen_deps_wrapper: .SYMBOLIC
+# @%null
