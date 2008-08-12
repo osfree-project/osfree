@@ -10,11 +10,10 @@ ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
 DEST    = tools
 !endif
 
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
-ADD_LINKOPT = lib z,libmmap libpath $(FILESDIR)$(SEP)..$(SEP)lib
-
 !include $(%ROOT)/mk/all.mk
 
+CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
+ADD_LINKOPT = $(ADD_LINKOPT) lib z,libmmap libpath $(FILESDIR)$(SEP)..$(SEP)build$(SEP)lib
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk

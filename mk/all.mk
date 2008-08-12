@@ -179,7 +179,7 @@ BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 MAPSYM    = @mapsym
 
-LOG       = >$(ROOT)$(SEP)compile.log 2>&1
+LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
 
 !ifndef OBJS
 !ifdef  srcfiles

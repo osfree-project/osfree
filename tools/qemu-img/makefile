@@ -10,8 +10,7 @@ DESC = Generate/convert HDD images
 srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-cow$(e) $(p)block-qcow$(e) $(p)aes$(e) &
            $(p)block-vmdk$(e) $(p)block-cloop$(e) $(p)block-dmg$(e) $(p)block-bochs$(e) &
            $(p)block-vpc$(e) $(p)block-vvfat$(e) $(p)porting$(e)
-
-!include $(%ROOT)/mk/tools.mk
-
 ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
 ADD_LINKOPT = $(ADD_LINKOPT) ALIAS mmap_=_mmap, munmap_=_munmap
+
+!include $(%ROOT)/mk/tools.mk
