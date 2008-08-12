@@ -498,13 +498,13 @@ static void InitSystemVariables( void )
             rc = DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), szHelperDllName, &hmod );
         }
         if ( rc == 0 ) {
-            DosQueryProcAddr( hmod, 1, NULL, (PFN *)&pfnDQELP );
-            DosQueryProcAddr( hmod, 2, NULL, (PFN *)&pfnDSELP );
             DosQueryProcAddr( hmod, 3, NULL, (PFN *)&pfnSendKeys );
             DosQueryProcAddr( hmod, 4, NULL, (PFN *)&pfnQuitSendKeys );
-        } else
-            qprintf( STDERR, NO_DLL );
+        };// else We don't want to always see this stupid message
+//            qprintf( STDERR, NO_DLL );
     }
+
+
 
     // get WinSetTitleAndIcon, WinQuerySwitchEntry, WinQuerySwitchHandle,
     //   WinStartApp, and WinChangeSwitchEntry

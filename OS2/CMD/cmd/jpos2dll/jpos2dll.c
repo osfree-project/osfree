@@ -503,21 +503,6 @@ VOID APIENTRY QuitSendKeys( void )
 }
 
 
-// Wrapper for Warp's DosGetExtLIBPATH and DosSetExtLIBPATH functions
-//   (which don't exist in 2.x and are in different places in different
-//   versions of Warp!)
-int APIENTRY QueryExtLIBPATH( char *pszLibPath, int uType )
-{
-        return ( DosQueryExtLIBPATH( pszLibPath, uType ));
-}
-
-
-int APIENTRY SetExtLIBPATH( char *pszLibPath, int uType )
-{
-        return ( DosSetExtLIBPATH( pszLibPath, uType ));
-}
-
-
 // This is the Journal Playback hook callback function.  Every time it is
 // called, PM is requesting the next keyboard event to be played back.
 // This function fills a QMSG structure with the correct information about

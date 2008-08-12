@@ -308,19 +308,15 @@ char * get_list( char *varname, PCH pchList )
 
         szLibPath[0] = '\0';
         if ( stricmp( varname, BEGINLIBPATH ) == 0 ) {
-        if ( pfnDQELP != 0L ) {
-            if (((*pfnDQELP)( szLibPath, BEGIN_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' ))
+            if ((DosQueryExtLIBPATH( szLibPath, BEGIN_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' ))
                 return szLibPath;
             return 0L;
         }
-        }
 
         if ( stricmp( varname, ENDLIBPATH ) == 0 ) {
-        if ( pfnDQELP != 0L ) {
-            if (((*pfnDQELP)( szLibPath, END_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' ))
+            if ((DosQueryExtLIBPATH( szLibPath, END_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' ))
             return szLibPath;
             return 0L;
-        }
         }
     }
 
@@ -455,13 +451,13 @@ int add_list( char *envstr, PCH pchList )
     // special case for BeginLIBPATH and EndLIBPATH
     sscanf( envstr, "%31[^=]", szVarName );
     if (stricmp( szVarName, BEGINLIBPATH ) == 0) {
-        if (( pfnDSELP != 0L ) && ((*pfnDSELP)( line, BEGIN_LIBPATH ) == NO_ERROR))
+        if ((DosSetExtLIBPATH( line, BEGIN_LIBPATH ) == NO_ERROR))
             return 0;
         return ERROR_EXIT;
     }
 
     if (stricmp( szVarName, ENDLIBPATH ) == 0) {
-        if (( pfnDSELP != 0L ) && ((*pfnDSELP)( line, END_LIBPATH ) == NO_ERROR))
+        if ((DosSetExtLIBPATH( line, END_LIBPATH ) == NO_ERROR))
             return 0;
         return ERROR_EXIT;
     }

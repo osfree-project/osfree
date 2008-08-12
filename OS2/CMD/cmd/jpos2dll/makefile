@@ -28,7 +28,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk option    caseexact
  @%append $^&.lnk option    mixed1632
  @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk export    QueryExtLIBPATH.1, SetExtLIBPATH.2, SendKeys.3, QuitSendKeys.4
+ @%append $^&.lnk export    SendKeys.3, QuitSendKeys.4
  @%append $^&.lnk export    StartHook.5, PauseKeys.6, KeystackHookProc.7
  @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
  $(SAY) Linking $^@

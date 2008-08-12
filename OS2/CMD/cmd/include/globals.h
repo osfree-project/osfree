@@ -88,8 +88,6 @@ unsigned long gnChildPipeProcess = 0;   // current child pipe process ID
 PCH _pgmptr;
 
 WSTAI pfnWSTAI = 0L;            // WinSetTitleAndIcon
-DQELP *pfnDQELP = 0L;           // DosQueryExtLibPath
-DSELP *pfnDSELP = 0L;           // DosSetExtLibPath
 SKEYS *pfnSendKeys = 0L;        // SendKeys
 QUITSKEYS *pfnQuitSendKeys = 0L; // QuitSendKeys
 #if _PM == 0
@@ -206,8 +204,6 @@ extern unsigned long gnChildProcess;
 extern unsigned long gnChildPipeProcess;
 
 extern WSTAI pfnWSTAI;          // WinSetTitleAndIcon
-extern DQELP *pfnDQELP;         // DosQueryExtLibPath
-extern DSELP *pfnDSELP;         // DosSetExtLibPath
 extern SKEYS *pfnSendKeys;      // SendKeys
 extern QUITSKEYS *pfnQuitSendKeys; // QuitSendKeys
 extern WINIT *pfnWINIT;         // WinInitialize
