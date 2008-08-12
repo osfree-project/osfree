@@ -16,4 +16,6 @@ filelist = *.cmd *.rexx *.the *.awk *.cfg
 copy: .SYMBOLIC
  @if exist $(FILESDIR)$(SEP)tools @%quit
  @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
- @for %i in ($(filelist)) do $(CP) $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)%i $(DEST)
+ @cd $(ROOT)$(SEP)tools$(SEP)scripts
+ @for %i in ($(filelist)) do $(CP) %i $(DEST)
+ $(CD) $(MYDIR)
