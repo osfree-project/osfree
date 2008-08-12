@@ -9,4 +9,4 @@ srcfiles = $(p)ccl$(e) $(p)dfa$(e) $(p)ecs$(e) $(p)gen$(e) $(p)main$(e) $(p)misc
 
 ADD_COPT = -i=..$(SEP)include -pil
 TARGETS  = $(PATH)$(PROJ).exe
-STACK    = 65536
+STACKSIZE = 65536

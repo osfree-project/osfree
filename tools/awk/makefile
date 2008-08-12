@@ -9,4 +9,4 @@ srcfiles = $(p)b$(e) $(p)main$(e) $(p)parse$(e) $(p)proctab$(e) $(p)tran$(e) $(p
 
 ADD_COPT = -i=..$(SEP)include
 TARGETS = $(PATH)$(PROJ).exe
-STACK    = 65536
+STACKSIZE = 65536

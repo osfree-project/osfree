@@ -34,8 +34,3 @@ TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
 # DEST is relative from $(FILESDIR)
 DEST = $(FILESDIR)$(SEP)$(DEST)
 !endif
-
-test: .SYMBOLIC
- $(SAY) $(PATH)
- $(SAY) $(MYDIR)
- $(SAY) $(q)

@@ -846,7 +846,7 @@ Call Directory here
 /*
  * Change to and or make the temporary directory...
  */
-_dir = '_'!program'.tmp'
+_dir = /* '_' */ !program'.tmp'
 If Directory( _dir ) = '' Then
    Do
       'mkdir' _dir
@@ -872,7 +872,7 @@ If run_configure Then
    End
 
 !includes = '-I'quote( !srcdir ) '-I'quote( !srcdir||!dirsep'common' )
-If !intincdir \= '' Then !includes = !includes '-I'!intincdir 
+If !intincdir \= '' Then !includes = !includes '-I'!intincdir
 
 !defines = !defines !sys_defs defines.!interpreter
 !cc = cc.!compiler
@@ -951,9 +951,9 @@ Select
           */
          If !interpreter = 'OREXX' | !interpreter = 'OOREXX' Then
             Do
-               'coff2omf -q -lib:st' !intlib '.\rexx_bor.lib'
+               'coff2omf -q -lib:st' !intlib 'rexx_bor.lib' /* .\ */
                If rc \= 0 Then Call Abort 'Failure when converting' !intlib 'to Borland format'
-               !intlib = '.\rexx_bor.lib'
+               !intlib = 'rexx_bor.lib'
             End
       End
    Otherwise Nop
@@ -1534,3 +1534,12 @@ do until p = 0
 end
 
 return i
+
+/* valerius, 2008, Aug 11 ------------------------------------ */
+truncate: procedure
+name = arg(1)
+type = arg(2)
+char = arg(3)
+
+return strip(name, type, char)
+/* ----------------------------------------------------------- */

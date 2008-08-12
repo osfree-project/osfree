@@ -16,7 +16,7 @@ install: build
 !include $(%ROOT)/mk/genrules.mk
 
 # build and install each target in sequence
-build: prereq .SYMBOLIC
+build: precopy prereq .SYMBOLIC
  @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
@@ -189,14 +189,18 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
+SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+
 .SUFFIXES:
-.SUFFIXES:  .sym .exe .dll .lib .$(O) .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas .ipf .map .wmp .rexx
+.SUFFIXES: $(SUF)
 
 .c:   $(MYDIR)
 
 .asm: $(MYDIR)
 
 .pas: $(MYDIR)
+
+.pp:  $(MYDIR)
 
 .wmp: $(PATH)
 
@@ -208,21 +212,27 @@ OBJS = $+$(srcfiles)$-
 
 .lnk: $(PATH)
 
-.c.$(O): .AUTODEPEND
+.rexx: $(MYDIR)
+
+.cmd:  $(MYDIR)
+
+.obj: $(PATH)
+
+.c.obj: .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
  $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $< $(LOG)
 
-.asm.$(O): .AUTODEPEND
+.asm.obj: .AUTODEPEND
  $(SAY) Assembling $< $(LOG)
  $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
-.cpp.$(O): .AUTODEPEND
+.cpp.obj: .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
  $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $< $(LOG)
 
 .wmp.map: .AUTODEPEND
  $(SAY) Converting Watcom MAP to VAC MAP $< $(LOG)
- $(AWK) -f $(TOOLDIR)$(SEP)mapsym.awk <$< >$(PATH)$^@
+ $(AWK) -f $(ROOT)$(SEP)bin$(SEP)mapsym.awk <$< >$(PATH)$^@
 
 .map.sym: .AUTODEPEND
  $(SAY) Converting VAC MAP to OS/2 SYM $< $(LOG)
@@ -239,17 +249,25 @@ OBJS = $+$(srcfiles)$-
 
 .pas.exe: .symbolic
  $(SAY) Compiling $<
- $(PC) $(PCOPT) -o$^@ $(MYDIR)$[@
-  #@if not -- == -$^:- $(CP) $^. $^:
-  #@if not -- == -$^:- $(DC) $^.
+ $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
+
+.pp.exe: .symbolic
+ $(SAY) Compiling $<
+ $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .lnk.exe: .symbolic
  $(SAY) Linking $^@... $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .rexx.exe: .AUTODEPEND
-  $(SAY) Wrapping REXX code $<
+  $(SAY) Wrapping REXX code $<...
   rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
+
+# makes library $(LIBRARY) from object files $(OBJS)
+libbb: .SYMBOLIC
+ $(SAY) Creating library $(L)
+ -@if exist $(L) @$(DC) $(L)
+ @$(LIB) $(LIBOPT) $(L) +$(OBJS) $(LOG)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -269,22 +287,16 @@ clean: .SYMBOLIC
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
  @$(MDHIER) $(DEST)
- $(CP)  $(TARGETS) $(DEST)
+ $(CP) $(TARGETS) $(DEST)
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
-aaa: .SYMBOLIC
- $(SAY) DEST=$(DEST)
-
-endrule: .SYMBOLIC
-!ifneq TRG
- $(SAY) targets $(TRG) have no rules (!)
-!endif
-
-#.default
-#!inject $@ TRG
+precopy: .SYMBOLIC
+ #@cd $(ROOT)$(SEP)tools$(SEP)scripts
+ @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
+ #$(CD) $(MYDIR)
 
 .error
  @$(SAY) Error (!)

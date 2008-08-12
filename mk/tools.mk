@@ -8,10 +8,10 @@ ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
 
 !ifndef DEST
 DEST    = tools
-
 !endif
+
 CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
-ADD_LINKOPT = lib z,libmmap libpath $(FILESDIR)$(SEP)lib
+ADD_LINKOPT = lib z,libmmap libpath $(FILESDIR)$(SEP)..$(SEP)lib
 
 !include $(%ROOT)/mk/all.mk
 
