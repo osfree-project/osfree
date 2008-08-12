@@ -1,0 +1,264 @@
+/*
+ * This is a THE macro to use the output from ctags; especially Exuberent
+ * Ctags.
+ * To use this macro, define a function key to execute the macro without
+ * any arguments; eg "define F1 macro tags.the"
+ * Then when you want to view the definition of a valid language construct
+ * move the cursor to anywhere on the word and press F1. If the word has
+ * been found in source files by ctags, the file containing the definition
+ * is edited and the cursor moved to the definition line.
+ *
+ * Before this macro can work you need to have run ctags; either external
+ * to THE or by using the 'tags' argument to tags.the. This macro relies
+ * on being able to read the output of the ctags program; a file called
+ * 'tags'. You must specify where this file is as another argument following
+ * 'tags'. eg assume that all source files are in /home/mark/THE, then you
+ * should run: "tags tags /home/mark/THE"
+ *
+ * If you have run ctags outside of THE, you still need to tell tags.the
+ * where the 'tags' file is. This is done by: "tags init /home/mark/THE"
+ *
+ * If you have made significant changes to the source you probably need to
+ * rerun ctags occasionally to bring the 'tags' file into sync with the
+ * source. You can do this while inside THE, by running "tags refresh"
+ *
+ * As mentioned before, tags.the works best with recent versions of
+ * Exuberent Ctags, because it has a recursive flag.  If you are using a
+ * version of ctags without the recursive "-R" flag, or you want to use
+ * any other ctags flags when you build your 'tags' file, then the 'tags'
+ * argument to tags.the can be passed any ctags flags. eg:
+ * "tags tags /home/mark/THE * -h junk"
+ */
+Parse Arg command path options
+Select
+   When command = 'refresh' Then Call refresh path options
+   When command = 'init' Then Call init path options
+   When command = 'tags' Then Call tags path options
+   When command = 'prev' Then Call prev
+   When command = 'next' Then Call next
+   When command = 'goto' Then Call goto
+   When command = '' Then Call doit path options
+   Otherwise Call Abort 0,'Invalid option supplied; must be one of "refresh", "init" or empty'
+End
+Return 0
+
+doit: Procedure
+lf = d2c(10)
+'editv get' path
+If path = '' Then Call Abort 0,'You must run tags.the with the "init" or "tags" command first'
+If Stream( path'tags', 'C', 'QUERY EXISTS' ) = '' Then Call Abort 0,'There is no "tags" file in' path
+'extract /curline/fieldword/regexp/cursor/lscreen/'
+tab = d2c(9)
+fn = path'tags'
+save_regexp = regexp.1
+'regexp egrep'
+found.0 = 0
+Do While Lines(fn) > 0
+   line = Linein(fn)
+   If Left( line, 2 ) = '!_' Then Iterate
+   Parse Var line keyword (tab) file (tab) location ';' .
+   If keyword = fieldword.1 Then
+      Do
+         idx = found.0
+         idx = idx+1
+         found.idx = file','location
+         found.0 = idx
+      End
+   Else
+      Do
+         If found.0 \= 0 Then Leave
+      End
+End
+
+Select
+   When found.0 = 0 Then line = ''
+   When found.0 = 1 Then line = found.1
+   Otherwise
+      Do
+         args = ''
+         Do i = 1 To found.0
+            args = args||Strip( Changestr('$/', Changestr( '/^',found.i,'' ), '' ) )lf
+         End
+         If cursor.1 < lscreen.5 % 2 Then 'popup below' lf || args
+         Else 'popup above' lf || args
+         If rc \= 0 | popup.2 = 0 Then line = ''
+         Else
+            Do
+               idx = popup.2
+               line = found.idx
+            End
+      End
+End
+If found.0 \= 0 & line \= '' Then
+   Do
+      Parse Var line file ',' location
+      Call show
+      /*
+       * Now save the current location in a stem
+       */
+      'editv get TAGS_LAST'
+      If Datatype( tags_last ) = 'NUM' Then next_tag = tags_last+1
+      Else next_tag = 1
+      'editv get TAGS.0'
+      If Datatype( tags.0 ) = 'NUM' Then max_tags = tags.0
+      Else max_tags = 0
+      tags.next_tag = fieldword.1 file location
+      'editv setl TAGS.'next_tag tags.next_tag
+      'editv setl TAGS_LAST' next_tag
+      'editv setl TAGS.0' next_tag
+      Do i = next_tag+1 To max_tags
+         'editv set TAGS.'i
+      End
+   End
+'regexp' save_regexp
+Return 0
+
+prev: Procedure
+'editv get PATH'
+If path = '' Then Call Abort 0,'You must run tags.the with the "init" or "tags" command first'
+'editv get TAGS_LAST'
+If Datatype( tags_last ) \= 'NUM' Then Call Abort 0,'You are at the beginning'
+prev = tags_last - 1
+If prev = 0 Then Call Abort 0,'You are at the beginning'
+
+'extract /regexp'
+save_regexp = regexp.1
+'regexp egrep'
+
+'editv get TAGS.'prev
+Parse Var tags.prev . file location
+Call show
+/*
+ * Now save the current location in a list
+ */
+'editv setl TAGS_LAST' prev
+'regexp' save_regexp
+Return 0
+
+next: Procedure
+'editv get PATH'
+If path = '' Then Call Abort 0,'You must run tags.the with the "init" or "tags" command first'
+'editv get TAGS_LAST'
+If Datatype( tags_last ) \= 'NUM' Then Call Abort 0,'You are at the end'
+'editv get TAGS.0'
+If Datatype( tags.0 ) = 'NUM' Then max_tags = tags.0
+Else max_tags = 0
+next = tags_last + 1
+If next > max_tags Then Call Abort 0,'You are at the end'
+
+'extract /regexp'
+save_regexp = regexp.1
+'regexp egrep'
+
+'editv get TAGS.'next
+Parse Var tags.next . file location
+Call show
+/*
+ * Now save the current location in a list
+ */
+'editv setl TAGS_LAST' next
+'regexp' save_regexp
+Return 0
+
+goto: Procedure
+lf = d2c(10)
+'editv get PATH'
+If path = '' Then Call Abort 0,'You must run tags.the with the "init" or "tags" command first'
+'editv get TAGS_LAST'
+If Datatype( tags_last ) \= 'NUM' Then Call Abort 0,'Nothing to show'
+'editv get TAGS.0'
+If Datatype( tags.0 ) \= 'NUM' Then Call Abort 0,'Nothing to show'
+args = ''
+Do i = 1 To tags.0
+   'editv get TAGS.'i
+   Parse Var tags.i key file atag
+   args = args||key'('file')' Strip( Changestr('$/', Changestr( '/^',atag,'' ), '' ) )lf
+End
+'popup centre initial' tags_last lf || args
+If rc \= 0 | popup.2 = 0 Then Nop
+Else
+   Do
+      idx = popup.2
+      'extract /regexp'
+      save_regexp = regexp.1
+      'regexp egrep'
+      'editv get TAGS.'idx
+      Parse Var tags.idx . file location
+      Call show
+      /*
+       * Now save the current location in a list
+       */
+      'editv setl TAGS_LAST' idx
+      'regexp' save_regexp
+   End
+Return
+
+Escape: Procedure
+Parse Arg str
+str = Changestr( '*', str, '\*' )
+str = Changestr( '[', str, '\[' )
+str = Changestr( ']', str, '\]' )
+str = Changestr( '(', str, '\(' )
+str = Changestr( ')', str, '\)' )
+Return str
+
+Init: Procedure
+Parse Arg path options
+If path = '' Then Call Abort 0,'Must supply a path "init" command'
+here = Stream( path, 'C', 'QUERY EXISTS' )
+If here = '' Then Call Abort 0,path 'does not exist'
+If Right( here, 1 ) \= '/' Then path = here'/'
+Else path = here
+'editv set path' path
+Return 0
+
+Tags: Procedure
+Parse Arg path options
+If path = '' Then Call Abort 0,'Must supply a path "tags" command'
+here = Stream( path, 'C', 'QUERY EXISTS' )
+If here = '' Then Call Abort 0,path 'does not exist'
+If Right( here, 1 ) \= '/' Then path = here'/'
+Else path = here
+'editv set path' path
+Call Runctags options
+Return 0
+
+Refresh: Procedure
+Parse Arg args
+If args \= '' Then Call Abort 0,'No parameters should be supplied with "refresh" command'
+Call Runctags
+Return 0
+
+Runctags: Procedure
+Parse Arg options
+'editv get' path
+If path = '' Then Call Abort 0,'You must run tags.the with the "init" command first'
+here = Directory()
+If Directory( path ) = '' Then Call Abort path 1,'does not exist'
+If options = '' Then Address System 'ctags -R *' With Output Stem junk. Error Stem err.
+Else Address System 'ctags' options With Output Stem junk. Error Stem err.
+If rc \= 0 Then
+   Do i = 1 To err.0
+      'emsg' err.i
+   End
+Call Directory here
+Return 0
+
+show:
+'the' path||file
+'top'
+If Datatype( location ) = 'NUM' Then 
+   Do
+      ':'location
+      '-1'
+      'l r /^.*$/'
+   End
+Else 'locate r' Escape(location)
+If incommand() Then 'cursor home'
+Return
+
+Abort: Procedure
+Parse Arg reset,msg
+'emsg' msg
+If reset Then 'editv set path'
+Exit 0

@@ -1,0 +1,349 @@
+/**/
+'rexxout file 5000'
+Call Initialise
+Do Forever
+   'reserved * off'
+   'reserved' midline-2 Centre('Select the category of demonstration',numcols)
+   'reserved' midline-1
+   prefix = (numcols-25) % 2
+   'reserved' midline   Copies(" ",prefix)||'1.  THE concepts'
+   'reserved' midline+1 Copies(" ",prefix)||'2.  Configuration of THE'
+   'reserved' midline+2 Copies(" ",prefix)||'3.  Some THE commands'
+   'reserved' midline+3 Copies(" ",prefix)||'4.  Navigating through THE'
+   'reserved' midline+4 Copies(" ",prefix)||'Q.  Quits the demo'
+   rc = menuopt()
+   Select
+     When rc = 1 Then Call concepts numlines
+     When rc = 2 Then Call config numlines, reserved_colour
+     When rc = 3 Then Call commands numlines
+     When rc = 4 Then Call navigating numlines
+     Otherwise Nop
+   End
+   Call Restart
+End
+'reserved * off'
+'curline' save_curline
+Return
+
+/*---------------------------------------------------------------------------*/
+concepts: Procedure Expose monitor.
+/*---------------------------------------------------------------------------*/
+Parse Arg numlines .
+If monitor.1 = 'MONO' Then
+  Do
+    norm. = 'normal'
+    high = 'reverse'
+    'color prefix normal bold'
+    'color idline normal bold'
+    'color statarea normal bold'
+    highlight_text = 'in reverse video'
+  End
+Else
+  Do
+    norm.1 = 'white blue'
+    norm.2 = 'black cyan'
+    norm.3 = 'blue white'
+    norm.4 = 'blue white'
+    norm.5 = 'bright white blue'
+    norm.6 = 'black cyan'
+    high = 'white black'
+    highlight_text = 'with white writing on black background'
+  End
+
+precmd.   = ''
+precmd.2  = "colour filearea" high
+precmd.3  = "colour prefix" high "#colour gap" high
+precmd.4  = "colour statarea" high
+precmd.5  = "colour idline" high
+precmd.6  = "colour curline" high
+precmd.7  = "colour cmdline" high
+precmd.8  = ""
+
+command.1  = "0"
+command.2  = "0 colour filearea" norm.1
+command.3  = "0 colour prefix" norm.2 "#colour gap" norm.2
+command.4  = "0 colour statarea" norm.3
+command.5  = "0 colour idline" norm.4
+command.6  = "0 colour curline" norm.5
+command.7  = "0 colour cmdline" norm.6
+command.8  = "0"
+command.0  = 8
+
+rsrvd_start.  = -5
+rsrvd_start.8 = -4
+
+rsrvd.1  = " The lines displayed here are reserved lines which can contain any text that\n",
+           "the user desires. They can appear anywhere within the window and can be\n",
+           "turned on or off with the SET RESERVED command.\n\n"
+rsrvd.2  = " The area of the screen that is displayed" highlight_text "\n",
+           "is the FILEAREA.  This is where the contents of the file being edited is\n",
+           "displayed.\n\n"
+rsrvd.3  = " The area of the screen that is displayed" highlight_text "\n",
+           "is the PREFIX AREA.  This is used to display the line number associated with\n",
+           "each line.  Editing commands can also be entered here.\n\n"
+rsrvd.4  = " The area of the screen that is displayed" highlight_text "\n",
+           "is the STATUS AREA.  This is used to display information about the current\n",
+           "editing session.\n\n"
+rsrvd.5  = " The area of the screen that is displayed" highlight_text "\n",
+           "is the IDLINE. The information in this area relates to the file currently\n",
+           "being edited.\n\n"
+rsrvd.6  = " The area of the screen that is displayed" highlight_text "\n",
+           "is the CURRENT LINE. All commands issued from the command line take effect\n",
+           "from this line.\n\n"
+rsrvd.7  = "off\nThe area of the screen that is displayed" highlight_text "\n",
+           "is the COMMAND LINE. THE commands can be entered in this area.\n\n"
+rsrvd.8  = "off\nThis completes the tour of the concepts and definitions of THE.\n"
+
+'reserved * off'
+
+Call doit numlines
+
+If monitor.1 = 'MONO' Then
+  Do
+    'color prefix reverse'
+    'color idline reverse'
+    'color statarea reverse'
+  End
+Return
+
+/*---------------------------------------------------------------------------*/
+config: Procedure 
+/*---------------------------------------------------------------------------*/
+Parse Arg numlines, reserved_colour
+'reserved * off'
+
+command.1  = "0 'prefix off#cmdline off#idline off#statusline off#reserved * off'"
+command.2  = "0 'prefix on left#cmdline bot#idline on#statusline bot#cursor cmdline'"
+command.3  = "0 'prefix on right'"
+command.4  = "0 'cmdline top'"
+command.5  = "0 'prefix on left#cmdline bot'"
+command.6  = "0 'set compat xedit#msgline on -2 1'"
+command.7  = "0 'set compat kedit#msgline on -2 1'"
+command.8  = "0 'compat the#msgline on -2 1#colour reserved'" reserved_colour
+command.9  = "1"
+command.0  = 9
+
+precmd. = ''
+
+rsrvd_start.  = -7
+rsrvd_start.4 = -4
+rsrvd_start.5 = -3
+rsrvd_start.6 = -5
+rsrvd_start.7 = -5
+rsrvd_start.8 = -3
+rsrvd_start.9 = -3
+
+rsrvd.1  = " One of THE's most powerful features is that it lets you change\n",
+           "the way the editor looks.  In it's default mode, THE has several\n",
+           "portions of the screen set aside for displaying useful information.\n",
+           "You may not want all of these areas displayed, or displayed in their\n",
+           "default areas. For example, lets hide all areas except for the FILEAREA.\n\n"
+rsrvd.2  = ''
+rsrvd.3  = "off\noff\noff\n",
+           "Now that we have everything back the way it was, lets move them around.\n\n",
+           "Lets move the PREFIX AREA to the right...\n\n"
+rsrvd.4  = 'off\n',
+           "... the COMMAND LINE to the top...\n\n"
+rsrvd.5  = " Now we'll put everything back the way it was...\n\n"
+rsrvd.6  = " THE makes it easy to set up your editing session to look like other editors\n",
+           "of its ilk; XEDIT and Kedit, with the SET COMPAT command...\n\n",
+           "First, lets look at SET COMPAT XEDIT...\n\n"
+rsrvd.7  = 'off\noff\n',
+           "... now Kedit's default look...\n\n"
+rsrvd.8  = " Now we'll put everything back the way it was...\n\n"
+rsrvd.9  = " This completes the section on configuring THE.\n\n"
+
+Call doit numlines
+
+Return
+
+/*---------------------------------------------------------------------------*/
+commands: Procedure
+/*---------------------------------------------------------------------------*/
+Parse Arg numlines .
+
+command.1  = "1 'all /the/ | /and/'"
+command.2  = "1 'set shadow off'"
+command.3  = "1 'all'"
+command.4  = '1'
+command.0  = 4
+
+precmd. = ''
+
+rsrvd_start. = -7
+
+rsrvd.1  = " Lets look at some of the powerful features of THE...\n",
+           "The ALL command lets you edit a selected group of lines based on a target.\n",
+           'Assume we want to look at only those lines that contain the string "the"\n',
+           'or "and"\n',
+           'The command to do this is displayed on the COMMAND LINE.\n\n'
+rsrvd.2  = ' All lines that contain either "the" or "and" are now displayed.  Those lines\n',
+           'not displayed are replaced with SHADOW lines, indicating the number of lines\n',
+           'NOT matching the requested target.  These shadow lines can be made to not\n',
+           'appear by changing the setting of SHADOW.\n',
+           'The command to do this is displayed on the COMMAND LINE.\n\n'
+rsrvd.3  = 'off\noff\noff\n',
+           "To restore the display of all lines in the file issue the ALL command without\n",
+           "any arguments as displayed on the COMMAND LINE.\n\n"
+rsrvd.4  = 'off\noff\noff\noff\n',
+           "This completes the tour of the some of THE's most powerful and useful commands.\n\n"
+
+Call doit numlines
+
+'set shadow on'
+'cursor cmdline'
+Return
+
+/*---------------------------------------------------------------------------*/
+navigating: Procedure
+/*---------------------------------------------------------------------------*/
+Parse Arg numlines .
+
+command.1  = '1 cursor home'
+command.2  = "1 'cursor down#cursor down'"
+command.3  = "1 'text the'"
+command.4  = '1 sos undo'
+command.5  = '1 sos tabwordf'
+command.6  = '1 sos tabwordb'
+command.7  = '1 sos prefix'
+command.8  = '1 sos marginl'
+command.9  = '1 sos endchar'
+command.10 = '1 sos startendchar'
+command.11 = '1 bottom'
+command.12 = '1 top'
+command.13 = '1 forward'
+command.14 = '1 cursor screen 10 20'
+command.15 = '1 cursor 10 20'
+command.16 = '1'
+command.0  = 16
+
+precmd. = ''
+
+rsrvd_start. = -3
+rsrvd_start.13 = -4
+rsrvd_start.14 = -5
+rsrvd_start.15 = -5
+rsrvd_start.16 = -5
+
+rsrvd.1  = " First, we'll move the cursor into the FILEAREA...\n\n"
+rsrvd.2  = " ...move the cursor down 2 lines...\n\n"
+rsrvd.3  = ' ...type the word "the"...\n\n'
+rsrvd.4  = " ...oops, we didn't want to do that, let's undo the change...\n\n"
+rsrvd.5  = " Move the cursor to the start of the next word...\n\n"
+rsrvd.6  = " Move the cursor to the start of the previous word...\n\n"
+rsrvd.7  = " Move the cursor into the PREFIX area...\n\n"
+rsrvd.8  = " ...and back to the FILEAREA.\n\n"
+rsrvd.9  = " Move to the end of the line...\n\n"
+rsrvd.10 = " ...and back to the start of the line.\n\n"
+rsrvd.11 = " Scroll to the bottom of the file...\n\n"
+rsrvd.12 = " ...and back to the top of file.\n\n"
+rsrvd.13 = " Scrolling backwards and forwards by a screen at a time is also available.\n",
+           "We'll go forward now\n\n"
+rsrvd.14 = "The cursor can be positioned at particular positions in the FILEAREA\n",
+           "by using the CURSOR SCREEN command The following positions the cursor at\n",
+           "row 10, column 20 relative to the top left corner of the FILEAREA.\n\n"
+rsrvd.15 = " The cursor can also be positioned at particular positions relative to\n",
+           "the top left corner of the physical window, provided the resulting position\n",
+           "is a valid position to be placed.\n\n"
+rsrvd.16 = "off\noff\nThis completes the examples of some of THE's cursor navigation.\n\n"
+
+Call doit numlines
+
+'cursor cmdline'
+Return
+
+/*---------------------------------------------------------------------------*/
+show_reserved: Procedure
+/*---------------------------------------------------------------------------*/
+Parse Arg numlines,start_line,rsrvd
+'msgmode off'
+Do i = 0
+   Parse Var rsrvd line '\n' rsrvd
+   'reserved' start_line+i line
+   If rsrvd = '' Then Leave
+End
+'msgmode on'
+Return
+
+/*---------------------------------------------------------------------------*/
+doit: Procedure Expose command. precmd. rsrvd_start. rsrvd.
+/*---------------------------------------------------------------------------*/
+Parse Arg numlines .
+'reserved * off'
+Do i = 1 To command.0
+  Call show_reserved numlines,rsrvd_start.i,rsrvd.i
+  If precmd.i \= '' Then
+    Do
+      cmd = precmd.i
+      Interpret cmd
+    End
+  If Word(command.i,1) = 1 Then
+    Do
+      'set linend off'
+      'cmsg' Strip(Subword(command.i,2),'B',"'");
+    End
+  Call getkey
+  'set linend on #'
+  cmd = Subword(command.i,2)
+  Interpret cmd
+End
+Return
+
+/*---------------------------------------------------------------------------*/
+getkey: Procedure 
+/*---------------------------------------------------------------------------*/
+'msg' Centre('Hit any key to continue...',74)
+'refresh'
+'readv key'
+If readv.1 = 'S-Q' Then 
+  Do
+    'reserved * off'
+    Exit
+  End
+Return
+
+/*---------------------------------------------------------------------------*/
+menuopt: Procedure
+/*---------------------------------------------------------------------------*/
+'refresh'
+'readv key'
+If readv.1 = 'S-Q' Then
+  Do
+    'reserved * off'
+    Exit
+  End
+If readv.1 >= 1 & readv.1 <= 4 Then Return readv.1
+'msg' Centre('Please enter 1,2,3 or 4.',74)
+Return 0
+
+/*---------------------------------------------------------------------------*/
+Restart:
+/*---------------------------------------------------------------------------*/
+'cmsg'
+'msgline on -2 1'
+':2'
+'cursor screen 10 15'
+'cursor cmdline'
+'extract /lscreen/version/monitor/fname/fpath/curline/'
+If monitor.1 = 'MONO' Then reserved_colour = 'bold'
+Else reserved_colour = 'blue white'
+'colour reserved' reserved_colour
+numlines = lscreen.1
+numcols = lscreen.2
+midline = numlines % 2
+save_curline = curline.1
+'curline 6'
+Return
+
+/*---------------------------------------------------------------------------*/
+Initialise:
+/*---------------------------------------------------------------------------*/
+Call Restart
+'reserved' numlines-8 ' This is an interactive demo of THE. The demo is simply a THE macro written in'
+'reserved' numlines-7 " THE's macro language, REXX. All commands and statements used are valid THE or"
+'reserved' numlines-6 " REXX commands. This demonstration will give you an idea of THE's power and"
+'reserved' numlines-5 ' versatility.'
+'reserved' numlines-4 ' To run the demonstration, just follow the instructions that are displayed'
+'reserved' numlines-3 ' in this portion of the screen.'
+Call getkey
+Return

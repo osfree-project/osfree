@@ -1,0 +1,259 @@
+/*
+ * This macro provides a limited IDE. It ...
+ * $HOME/.thebuild or c:\the.build
+ */
+Trace o
+Parse Arg cmd options
+Select
+   When cmd = 'init' Then Call init options
+   When cmd = 'show' Then Call show
+   When cmd = '' Then Call build
+   Otherwise Call Abort 'Unknown command:' cmd
+End
+Return 0
+
+init:
+'extract /version'
+Select
+   When version.3 = 'X11' | version.3 = 'UNIX' Then
+      Do
+         root = Value( 'HOME', , 'ENVIRONMENT' )
+         ?dirsep = '/'
+         err = gcc_error
+         warn = gcc_warning
+         conf = root'/.thebuild'
+      End
+   When version.3 = 'QNX' Then
+      Do
+         root = Value( 'HOME', , 'ENVIRONMENT' )
+         ?dirsep = '/'
+         err = wcc_qnx_error
+         warn = wcc_qnx_warning
+         conf = root'/.thebuild'
+      End
+   When version.3 = 'WIN32' Then
+      Do
+         root = 'd:'
+         ?dirsep = '\'
+         err = vc_error
+         warn = vc_warning
+         conf = root'\the.build'
+      End
+   When version.3 = 'OS2' Then
+      Do
+         root = 'c:'
+         ?dirsep = '\'
+         err = gcc_error
+         warn = gcc_warning
+         conf = root'\the.build'
+      End
+   Otherwise Nop
+End
+
+Parse Arg project
+If Stream( conf, 'C', 'QUERY EXISTS' ) = '' Then Call Abort conf 'does not exist'
+project_found = 0
+items = 0
+Do While Lines( conf ) > 0
+   line = Strip( Linein( conf ) )
+   If line = '' | Left( line, 1 ) = '#' Then Iterate
+   Select
+      When Left( line, 1 ) = '[' & project_found Then Leave
+      When line = '['project']' Then project_found = 1
+      When project_found Then
+         Do
+            Parse Var line var val
+            Select
+               When var = 'BUILD_MAKE_DIR' Then
+                  Do
+                     If Stream( val, 'C', 'QUERY EXISTS' ) = '' Then Call Abort 'BUILD_MAKE_DIR:' val 'does not exist'
+                     items = items + 1
+                  End
+               When var = 'BUILD_MAKE_COMMAND' Then
+                  Do
+                     items = items + 2
+                  End
+               When var = 'BUILD_ERROR_FORMAT' Then
+                  Do
+                     items = items + 4
+                  End
+               When var = 'BUILD_WARNING_FORMAT' Then
+                  Do
+                     items = items + 8
+                  End
+               Otherwise
+                  Do
+                     Call Abort 'Invalid option in configuration file:' line
+                  End
+            End
+            'editv setl' var val
+         End
+      Otherwise Nop
+   End
+End
+If items \= 15 Then Call Abort 'Error in configuration file:' conf
+Call clearerrors
+Return
+
+build:
+check_warnings = 'Y'
+/*
+ * Get the EDITV variables setup in 'init'
+ */
+'editv get BUILD_MAKE_DIR BUILD_MAKE_COMMAND BUILD_ERROR_FORMAT BUILD_WARNING_FORMAT'
+If BUILD_MAKE_DIR = '' Then Call Abort "You haven't run 'build init' yet!"
+/*
+ * Clear the BUILD_ERROR array
+ */
+Call clearerrors
+/*
+ * Save the current directory and the current file
+ */
+here = Directory()
+'extract /fpath/filename'
+save_file = fpath.1 || filename.1
+Call Directory BUILD_MAKE_DIR
+'msg Running' '"'BUILD_MAKE_COMMAND'"' 'in' BUILD_MAKE_DIR
+'osredir build.log' BUILD_MAKE_COMMAND
+/*
+ * Read the log file into a stem and editv variables
+ */
+rrc = rc
+num_errors = 0
+num_warnings = 0
+Call Stream 'build.log', 'C', 'OPEN READ'
+idx = 0
+/*
+say 'rrc:' rrc 'lines:' Lines( 'build.log', 'C') 'chars:' chars('build.log')
+*/
+Do While Lines( 'build.log' ) > 0
+   line = Linein( 'build.log' )
+/*
+say '['Lines('build.log', 'C')']' '('idx')'line
+*/
+   type = 'X'
+   If FormatMatch(line,BUILD_WARNING_FORMAT) = 'N' Then
+      Do
+         If FormatMatch(line,BUILD_ERROR_FORMAT) = 'Y' Then
+            Do
+               Call setline !line, !fn
+               num_errors = num_errors + 1
+               type = 'E'
+            End
+      End
+   If check_warnings = 'Y' Then
+      Do
+         If FormatMatch(line,BUILD_WARNING_FORMAT) = 'Y' Then
+            Do
+               Call setline !line, !fn
+               num_warnings = num_warnings + 1
+               type = 'W'
+            End
+      End
+   idx = idx + 1
+   'editv setl BUILD_ERROR.'idx type line
+End
+Call Stream 'build.log', 'C', 'CLOSE'
+say save_file
+'the' save_file
+'editv setl BUILD_ERROR.0' idx
+num_errs = num_errors + num_warnings
+/*
+ * Display the popup window with the errors
+ */
+If num_errs = 0 & rrc = 0 Then 'msg No errors or warnings'
+Else 'msg' num_errors 'errors and' num_warnings 'warnings encountered'
+Call Display 1
+Call Directory here
+Return
+
+show:
+'editv get BUILD_LINE BUILD_MAKE_DIR'
+here = Directory()
+Call Directory BUILD_MAKE_DIR
+If Datatype( build_line ) = 'NUM' Then
+   Do
+      Call Display build_line
+   End
+Else "emsg You haven't run build yet!"
+Call Directory here
+Return
+
+display: Procedure
+Parse Arg start
+'editv get BUILD_ERROR.0 BUILD_ERROR_FORMAT BUILD_WARNING_FORMAT'
+lf = D2c(10)
+format.E = build_error_format
+format.W = build_warning_format
+line = ''
+Do i = 1 To build_error.0
+   'editv get BUILD_ERROR.'i
+   line = line || Subword( build_error.i, 2) || lf
+End
+Do Forever
+   'popup centre initial' start lf || line
+   'msgline clear'
+   start = popup.3
+   'editv setl BUILD_LINE' start
+   format_type = Word( build_error.start, 1 )
+   Select
+      When popup.2 = 0 Then Return
+      When format_type = 'X' Then 'msg The current line is not an error or warning'
+      Otherwise
+         Do
+            Call FormatMatch Subword( build_error.start,2 ), format.format_type
+            If Stream( !fn, 'C', 'QUERY EXISTS' ) = '' Then 'emsg Cannot edit the file:' !fn'. It does not exist.'
+            Else Leave
+         End
+   End
+End
+/*
+ * To get here we have selected a line with a warning or an error; go
+ * and position on that line
+ */
+'width 12000'
+'the' !fn
+'extract /cursor'
+If cursor.3 = '-1' Then 'cursor home'
+'.l'!line
+'-1'
+'l r /^.*$'
+If Datatype( !col ) = 'NUM' Then 'cl :'Strip( !col )
+Else 'cl :1'
+Return
+
+FormatMatch:
+Parse Arg myline, fmt
+pc = 'Parse Var myline' fmt
+Interpret pc
+If Datatype(!line) = 'NUM' & !fn \= '' & !msg \= '' Then Return 'Y'
+Else Return 'N'
+Return
+
+setline: Procedure
+Parse Arg lineno, fn
+If Stream( fn, 'C', 'QUERY EXISTS' ) = '' Then Return
+'x' fn
+'EXTRACT /LINE'
+':'||lineno
+'set point .l'||lineno
+':'||line.1
+Return
+
+cleanup:
+Return
+
+clearerrors:
+'editv get BUILD_ERROR.0'
+If Datatype( build_error.0 ) = 'NUM' Then
+   Do i = 1 To build_error.0
+      'editv set BUILD_ERROR.'i
+   End
+'editv set BUILD_ERROR.0'
+'editv set BUILD_LINE'
+Return
+
+abort:
+Parse Arg msg
+'emsg' msg
+exit 0

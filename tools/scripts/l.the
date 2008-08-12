@@ -1,0 +1,67 @@
+/*
+$Id: l.the,v 1.2 2001/01/04 09:41:16 mark Exp $
+*/
+/***********************************************************************/
+/* Description: REXX prefix macro to LOWERCASE a line or block of lines*/
+/* Syntax:      nL or Ln or -nL or L-n                                 */
+/* Notes:       This macro can also be invoked as a block prefix       */
+/*              command by entering LL in the prefix area.             */
+/*              For the LL block prefix command to work, you must      */
+/*              define LL as a valid prefix synonym with:              */
+/*                                                                     */
+/*                SET PREFIX SYNONYM LL L                              */
+/*                                                                     */
+/*              This prefix macro can be used as a template for other  */
+/*              prefix macro commands by changing the command to be    */
+/*              executed specified on the second line of this macro.   */
+/*                                                                     */
+/*              This prefix macro is slightly different from the       */
+/*              equivalent L Prefix Macro defined in the XEDIT User's  */
+/*              Guide:                                                 */
+/*                                                                     */
+/*              1) The arguments passed to prefix macros contain the   */
+/*                 name the macro was invoked with. This is because    */
+/*                 the REXX interpreters that THE uses cannot provide  */
+/*                 this information from the PARSE SOURCE command.     */
+/*                                                                     */
+/*              2) The check for a whole number as an argument to the  */
+/*                 prefix macro has been removed so that THE's extended*/
+/*                 prefix macro targets can be specifed.               */
+/***********************************************************************/
+Trace o
+the_command = 'LOWERCASE'
+Parse Arg pref name func pline op extra
+If pref \= 'PREFIX' Then Call error1 'This macro must be called from PREFIX area'
+If func = 'CLEAR' Then exit
+If func = 'SHADOW' Then Call error1 'Invalid on SHADOW line'
+If func \= 'SET' Then Call error1 'This macro must be called from PREFIX area'
+If extra \= '' Then Call error1 'Extraneous parameter:' extra
+Select
+  When Length(name) = 1 Then 
+       Do
+         If op = '' Then op = 1
+         'COMMAND :'||pline the_command op
+       End
+  When Length(name) = 2 Then
+       Do
+         If op \= '' Then Call error "Invalid operand:" op
+         'COMMAND EXTRACT /PENDING BLOCK' name '/'
+         If pending.0 \= 0 Then
+            Do
+              'COMMAND :'pending.1 'SET PENDING OFF'
+              'COMMAND :'pending.1 the_command ':'pline+1
+            End
+         Else 'COMMAND :'pline 'COMMAND SET PENDING BLOCK' name
+       End
+  Otherwise Call error "Invalid macro synonym."
+End
+'COMMAND CURSOR FILE' pline
+Exit
+
+error: 
+'COMMAND :'pline 'SET PENDING ERROR' name||op
+
+error1: 
+Parse Arg t
+'COMMAND EMSG' t
+Exit

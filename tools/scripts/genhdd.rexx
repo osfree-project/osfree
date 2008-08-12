@@ -1,0 +1,671 @@
+/*
+ *  Generate HDD image with one
+ *  primary Ext2fs partition on it.
+ *  (c) osFree project,
+ *  valerius, 2006/11/07
+ *
+ */
+
+parse arg args
+
+/* Determine system type */
+parse source sys .
+
+/* System-dependent variables */
+if sys = 'OS/2'    | sys = 'DOS'     |,
+   sys = 'WINDOWS' | sys = 'Windows' |,
+   sys = 'WINNT'   | sys = 'NT'   then do
+  drop sys
+  opt.sys = 'OS/2'
+end; else
+if sys = 'UNIX'    | sys = 'Linux'   |,
+   sys = 'LINUX'   then do
+  drop sys
+  opt.sys = 'UNIX'
+end
+
+if opt.sys = 'OS/2' then do
+  opt.DEL   = '@del'
+  opt.MOVE  = '@move'
+  opt.CAT   = '@copy /b'
+  opt.NULL  = '\dev\nul'
+  opt.BLACKHOLE = '>'opt.NULL' 2>&1'
+end; else
+if opt.sys = 'UNIX' then do
+  opt.DEL   = 'rm -f'
+  opt.MOVE  = 'mv'
+  opt.CAT   = 'cat'
+  opt.NULL  = '/dev/null'
+  opt.BLACKHOLE = '>'opt.NULL' 2>&1'
+end
+
+/* Initialize common variables */
+opt.cyl        = 0
+opt.heads      = 16
+opt.sectors    = 63
+opt.mbr        = 'mbr.bin'
+opt.bs         = 'bootsect_1.bin'
+opt.bpbcfg     = 'bpb.cfg'
+opt.Images.0   = 0
+opt.outImage   = ''
+opt.findfile   = ''
+/* Size of current partition in sectors */
+opt.NumSectors = 0
+
+call parse_cmd_line
+
+if opt.Images.0 = 0 | opt.outImage = '' then do
+  call give_help
+  exit -1
+end
+
+/* Blank sector */
+buf = ''
+do i = 1 to 512
+  buf = buf || '00'x
+end
+opt.blank_sec = buf
+
+opt.DEL' 'opt.outImage' 'opt.BLACKHOLE
+opt.DEL' start.img 'opt.BLACKHOLE
+
+/* Prepare partition images */
+do i = 1 to opt.Images.0
+  /* Make partition cylinder size-aligned
+     by adding zeroes to its end   */
+  call normalize_partition i
+  /* Add a bootsector to partition */
+  call add_bootsector i, opt.bs
+  /* Add a EBR and zero sectors to
+     logical partition             */
+  if i > 4 then
+    call create_ebr i
+end
+
+/* Make HDD start with MBR
+   and zero sectors       */
+start = 'start.img'
+call make_hdd_start start
+
+/* Concatenate 1st track with partition images
+   to get full HDD image                       */
+do i = 1 to opt.Images.0
+  if stream(opt.outImage, 'c', 'query exists') \= '' then
+     opt.MOVE opt.outImage start opt.BLACKHOLE
+
+  call __concat start, opt.Images.i, opt.outImage
+  opt.DEL  start opt.BLACKHOLE
+end
+
+say 'HDD geometry:'
+say '~~~~~~~~~~~~'
+say 'Cyls:    'opt.cyl
+say 'Heads:   'opt.heads
+say 'Sectors: 'opt.sectors
+
+
+exit 0
+/* ====================================================== */
+make_hdd_start: procedure expose opt.
+
+start = arg(1)
+
+pt_offset = 512 - 2 - 16 * 4
+
+/* Read MBR from opt.mbr */
+rc  = stream(opt.mbr, 'c', 'open')
+buf = charin(opt.mbr,, pt_offset)
+rc  = stream(opt.mbr, 'c', 'close')
+
+pri_num = opt.Images.0
+if pri_num > 4 then
+  pri_num = 4
+
+/* Create Partition Table */
+pt  = ''
+do i = 1 to pri_num
+  if i = 1 then
+    part_start = opt.sectors
+  else
+    part_start = part_start + part_size
+  part_size    = opt.i.Sectors
+
+  pte = create_pt_entry('07'x, part_start, part_size)
+  pt  = pt || pte
+end
+
+/* Add remaining zero records in PT */
+do i = 1 to 16 * (4 - pri_num)
+  pt = pt || '00'x
+end
+/* PT is complete */
+
+/* Add PT and signature to the MBR */
+buf = buf || pt || '55AA'x
+
+/* Add blank sectors */
+do i = 1 to opt.sectors - 1
+  buf = buf || opt.blank_sec
+end
+
+/* Write first disk track to file */
+rc = stream( start, 'c', 'open write')
+call charout start, buf
+
+rc = stream( start, 'c', 'close')
+
+
+return
+/* ====================================================== */
+add_bootsector: procedure expose opt.
+
+  i = arg(1)
+  partfile = opt.Images.i
+  bsfile   = arg(2)
+  offset   = 0
+
+  rc = stream(partfile, 'c', 'open')
+
+  rc  = stream(bsfile,    'c', 'open')
+  buf = charin(bsfile,, 3)
+
+  /* Create BPB structure     */
+  bpb = create_bpb()
+  buf = buf || bpb
+  /* End create BPB structure */
+
+  skip_size = length(bpb) + 3
+
+  count = 512 - skip_size - 2 - 5
+  /* Copy the bootloader      */
+  buf = buf || charin(bsfile, skip_size + 1, count)
+
+  rc = stream(bsfile, 'c', 'close')
+
+  /* Call findfile.cmd to determine muFSD offset
+     and length inside the partition image       */
+  parse value findfile(opt.findfile) with mu_offset mu_size
+
+  say 'muFSD offset: 0x'mu_offset
+  say 'muFSD size:   0x'mu_size
+
+  buf = buf ||,
+        x2c(reverse(pad(mu_size  , 1))) ||,  /* muFSD length            */
+        x2c(reverse(pad(mu_offset, 4))) ||,  /* muFSD 1st sector number */
+        '55 AA'x                             /* Signature               */
+
+  /* Write bootsector into HDD image */
+  call charout partfile, buf, offset + 1
+
+  rc = stream(opt.outImage, 'c', 'close')
+
+
+return
+/* ====================================================== */
+normalize_partition: procedure expose opt.
+
+/*
+ *   Add a number of zero bytes at the end
+ *   of a partition to contain a whole number
+ *   of cylinders (pad to cylinder size)
+ *
+ */
+
+  n = arg(1)
+
+  /* File name of partition image  */
+  Image = opt.Images.n
+
+  size = stream(Image, 'c', 'query size')
+  NumSectors = size % 512
+
+  add_bytes = 0
+  rest = size // 512
+  if rest > 0 then do
+    add_bytes = 512 - rest
+  end
+
+  cylsize    = opt.heads * opt.sectors
+  opt.cyls   = NumSectors % cylsize
+  rest       = NumSectors // cylsize
+
+  add_sectors = 0
+  if rest > 0 then do
+    add_sectors = cylsize - rest
+    opt.cyls    = opt.cyls + 1
+    NumSectors  = NumSectors + add_sectors
+  end
+
+  opt.cyl = opt.cyl + opt.cyls
+  opt.n.Sectors = NumSectors
+
+  if add_bytes > 0 | add_sectors > 0 then do
+
+    zeroes = ''
+    do i = 1 to add_bytes
+      zeroes = zeroes || '00'x
+    end
+
+    do i = 1 to add_sectors
+      zeroes = zeroes || opt.blank_sec
+    end
+
+    zero_file = 'zeroes.bin'
+
+    opt.DEL' 'zero_file' 'opt.BLACKHOLE
+
+    call stream   zero_file, 'c', 'open write'
+    call charout  zero_file, zeroes
+    call stream   zero_file, 'c', 'close'
+
+    call __concat Image, zero_file, Image || '.tmp'
+    opt.DEL' 'Image' 'opt.BLACKHOLE
+    opt.MOVE' 'Image || '.tmp 'Image' 'opt.BLACKHOLE
+
+  end
+
+
+return
+/* ====================================================== */
+create_pt_entry: procedure expose opt.
+/*
+ *  Arguments:
+ *  create_pt_entry(type, begin, length)
+ *
+ */
+/* Partition type */
+type = arg(1)
+
+/* Partition 1st and last sectors */
+part_begin = arg(2)
+part_size  = arg(3)
+part_end   = part_begin + part_size
+
+/* Cylinder size in sectors */
+cyl_size   = opt.heads * opt.sectors
+
+/* CHS-coordinates of part. beginning */
+b_cyl      = part_begin %  cyl_size
+rest       = part_begin // cyl_size
+b_head     = rest %  opt.sectors
+b_sec      = rest // opt.sectors + 1
+
+pte = '80'x  || d2c(b_head) ||,
+      bitor( bitand(x2c(pad(d2x(lshift(b_cyl, 6)), 2)), 'FFC0'x),,
+             bitand(x2c(pad(d2x(b_sec), 2)), '003F'x),
+           ) ||,
+      type
+
+/* CHS-coordinates of part. end */
+e_cyl      = part_end %  cyl_size
+rest       = part_end // cyl_size
+e_head     = rest %  opt.sectors
+e_sec      = rest // opt.sectors + 1
+
+pte = pte    || d2c(e_head) ||,
+      bitor( bitand(x2c(pad(d2x(lshift(e_cyl, 6)), 2)), 'FFC0'x),,
+             bitand(x2c(pad(d2x(e_sec), 2)), '003F'x),
+           )
+
+lba_begin = part_begin
+lba_size  = part_size
+
+pte = pte || x2c(reverse(pad(d2x(lba_begin), 4))) ||,
+             x2c(reverse(pad(d2x(lba_size),  4)))
+
+
+return pte
+/* ====================================================== */
+create_ebr: procedure expose opt.
+i = arg(1)
+
+
+
+
+return
+/* ====================================================== */
+create_bpb: procedure expose opt.
+
+tracksize = opt.sectors
+heads     = opt.heads
+
+ret = stream(opt.bpbcfg, 'c', 'query exists')
+if ret = '' then do
+  say 'File ' || opt.bpbcfg || ' doesn''t exist!'
+  exit -1
+end
+
+rc = stream(opt.bpbcfg, 'c', 'open read')
+
+do while lines(opt.bpbcfg)
+  line = linein(opt.bpbcfg)
+  p = pos('#', line)
+  if p > 0 then line = delstr(line, p)
+  if line = '' then iterate
+  interpret(line)
+end
+
+rc = stream(opt.bpbcfg, 'c', 'close')
+
+nsecs = opt.NumSectors
+if nsecs >= 65535 then do
+  nsecs_ext = nsecs
+  nsecs = 0
+end
+
+bpb        = ''
+bpb        = bpb   ||,
+             oemid ||,
+             x2c(reverse(pad(d2x(sectorsize), 2)))  ||,
+             x2c(reverse(pad(d2x(clustersize), 1))) ||,
+             x2c(reverse(pad(d2x(res_sectors), 2))) ||,
+             x2c(reverse(pad(d2x(nfats), 1)))       ||,
+             x2c(reverse(pad(d2x(rootdirsize), 2))) ||,
+             x2c(reverse(pad(d2x(nsecs), 2)))       ||,
+             mediadesc                              ||,
+             x2c(reverse(pad(d2x(fatsize), 2)))     ||,
+             x2c(reverse(pad(d2x(tracksize), 2)))   ||,
+             x2c(reverse(pad(d2x(headscount), 2)))  ||,
+             x2c(reverse(pad(d2x(hiddensecs), 4)))  ||,
+             x2c(reverse(pad(d2x(nsecs_ext), 4)))   ||,
+             disknum  || logdrive || marker         ||,
+             volserno || vollabel || filesys
+
+
+return bpb
+/* ====================================================== */
+__concat: procedure expose opt.
+/*
+ *  A wrapper for COPY or CAT
+ */
+/* Number of arguments */
+n  = arg()
+/* Last argument       */
+to = arg(n)
+
+if opt.sys = 'OS/2' then do
+  from = arg(1)
+  do i = 2 to n - 1
+    from = from'+'arg(i)
+  end
+  '@copy /b 'from' 'to' 'opt.BLACKHOLE
+end
+else
+if opt.sys = 'UNIX' then do
+  from = ''
+  do i = 1 to n - 1
+    from = from arg(i)
+  end
+  'cat 'from' >'to
+end
+
+
+return
+/* ====================================================== */
+reverse: procedure
+n = arg(1)
+
+/*
+ *   Reverse byte order for little endian
+ */
+ l = length(n)
+
+ if l // 2 == 1 then do
+   n = '0' || n
+   l = l + 1
+ end
+
+ m = l / 2
+
+ q = ''
+ do p = 0 to m - 1
+   s = substr(n, 2*p + 1, 2)
+   q = s || q
+ end
+
+
+return q
+/* ====================================================== */
+lshift: procedure
+/*
+ *   Shift a (decimal) number to left by n bits
+ */
+s = arg(1)
+n = arg(2)
+
+p = ''
+
+s = x2b(d2x(s))
+
+do i = 1 to n
+  s = s || '0'
+end
+
+
+return x2d(b2x(s))
+/* ====================================================== */
+pad: procedure
+/*
+ *   Pad a hex number by zeroes from left
+ */
+s = arg(1)
+n = arg(2)
+
+
+if n = '' then n = 2
+
+if length(s) > 2*n then return s
+
+do while length(s) < 2*n
+  s = '0' || s
+end
+
+
+return s
+/* ====================================================== */
+parse_cmd_line: procedure expose args opt.
+/*
+ *  Parse a command line
+ */
+
+l = 0
+m = 0
+
+do while args \= ''
+  parse value getvar() with opt ':' val
+  select
+    when opt = 'm'   then do
+      opt.mbr      = val
+      iterate
+    end
+    when opt = 'b'   then do
+      opt.bs       = val
+      iterate
+    end
+    when opt = 'B'   then do
+      opt.bpbcfg   = val
+      iterate
+    end
+    when opt = 'f'   then do
+      s = val
+      s = strip(s)
+      s = strip(s, 'B', '"')
+      s = strip(s)
+      opt.findfile = s
+      iterate
+    end
+    when opt = 'H'   then do
+      opt.heads    = val
+      iterate
+    end
+    when opt = 'S'   then do
+      opt.sectors  = val
+      iterate
+    end
+    when opt = 'o'   then do
+      opt.outImage = val
+      iterate
+    end
+    when opt = 'p'   then do
+      l = l + 1
+      opt.Images.l = val
+      opt.Images.0 = l
+      call parse_pri_part_options
+      iterate
+    end
+    when opt = 'e'   then do
+      m = m + 1
+      opt.Images.ext.m = val
+      opt.Images.ext.0 = m
+      call parse_ext_part_options
+      iterate
+    end
+    when opt = 'h'   then do
+      call give_help
+      exit 0
+    end
+    otherwise do
+      say 'opt = "'opt'"'
+      /* call give_help */
+      exit -1
+    end
+  end
+end
+
+
+return
+/* ====================================================== */
+parse_ext_part_options: procedure expose args opt. l
+
+opt.Images.ext.l.bs     = 0
+opt.Images.ext.l.type   = '07'x
+opt.Images.ext.l.bpb    = 'bpb.cfg'
+
+do while args \= ''
+  args = strip(args)
+  if pos('-t', args) = 1 |,
+     pos('-b', args) = 1 |,
+     pos('-B', args) = 1
+  then do
+    parse value getvar() with opt ':' val
+    select
+      when opt = 't' then do
+        opt.Images.ext.l.type = val
+        iterate
+      end
+      when opt = 'b' then do
+        opt.Images.ext.l.bs = 1
+        iterate
+      end
+      when opt = 'B' then do
+        opt.Images.ext.l.bpb = val
+        iterate
+      end
+    end
+  end
+  else
+    leave
+end
+
+
+return
+/* ====================================================== */
+parse_pri_part_options: procedure expose args opt. l
+
+opt.Images.l.active = 0
+opt.Images.l.bs     = 0
+opt.Images.l.type   = '07'x
+opt.Images.l.bpb    = 'bpb.cfg'
+
+do while args \= ''
+  args = strip(args)
+  if pos('-a', args) = 1 |,
+     pos('-t', args) = 1 |,
+     pos('-b', args) = 1 |,
+     pos('-B', args) = 1
+  then do
+    parse value getvar() with opt ':' val
+    select
+      when opt = 'a' then do
+        opt.Images.l.active = 1
+        iterate
+      end
+      when opt = 't' then do
+        opt.Images.l.type = val
+        iterate
+      end
+      when opt = 'b' then do
+        opt.Images.l.bs = 1
+        iterate
+      end
+      when opt = 'B' then do
+        opt.Images.l.bpb = val
+        iterate
+      end
+    end
+  end
+  else
+    leave
+end
+
+
+return
+/* ====================================================== */
+getvar: procedure expose args
+
+opt1  = getarg()
+opt1  = delstr(opt1, 1, 1)
+
+args = strip(args)
+if pos('-', args) = 1 then
+  opt2 = ''
+else
+  opt2 = getarg()
+
+
+return opt1':'opt2
+/* ====================================================== */
+getarg: procedure expose args
+
+/* Gets one word, or a line, enclosed
+   in quotes, from args               */
+
+args = strip(args)
+
+if pos('"', args) == 1 then
+  parse value args with '"' opt '"' args
+else
+  parse var args opt args
+
+
+
+return opt
+/* ====================================================== */
+give_help:
+
+say
+say 'Generate HDD image from partition images,'
+say '(c) osFree project,'
+say 'author Valery V. Sedletski,'
+say 'aka valerius'
+say ''
+say 'Syntax:'
+say 'genhdd <options> -o <output image> {-p|-e} <input image1> ...'
+say 'where options are:'
+say ''
+say '-p:   an image of a primary partition'
+say '-e:   an image of a logical partition'
+say '-m:   a file with MBR (default is `mbr.bin'')'
+say '-b:   a file with bootsector (default is `bootsect_1.bin'')'
+say '-f:   command line for findfile.cmd'
+say '-o:   output image'
+say '-S:   sector per track count'
+say '-B:   bpb.cfg name'
+say '-H:   heads count for the HDD image'
+say '      input and output images are mandatory.'
+say '-h:   give help (this screen)'
+say
+
+
+return
+/* ====================================================== */
