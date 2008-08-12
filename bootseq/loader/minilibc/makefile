@@ -11,7 +11,7 @@ libsrcs      = $(p)strcmp$(e) $(p)putchar$(e) $(p)memmove$(e) $(p)aton$(e) $(p)m
                $(p)tolower$(e) $(p)putchar$(e) $(p)strcpy$(e) $(p)toupper$(e) $(p)memcheck$(e) &
                $(p)putstr$(e) $(p)strlen$(e)
 
-DEST         =  ..$(SEP)lib
+DEST         =  ..$(SEP)build$(SEP)lib
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -25,4 +25,4 @@ OBJS         = $+$(libsrcs)$-
 $(LIBS): $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @$(DC) $@
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
+ @$(LIB) $(LIBOPT) $@ +$<

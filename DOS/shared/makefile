@@ -10,7 +10,7 @@ srcfiles  = $(p)os2vdm$(e)
 # Watcom compiler.
 
 TARGETS  = $(PATH)dos_shared.lib
-DEST     = ..$(SEP)lib
+DEST     = ..$(SEP)build$(SEP)lib
 
 !include $(%ROOT)/mk/all.mk
 

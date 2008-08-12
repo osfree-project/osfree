@@ -179,7 +179,7 @@ BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 MAPSYM    = @mapsym
 
-LOG       =  # 2>&1 >> $(ROOT)$(SEP)compile.log
+LOG       =  2>&1 | tee -a $(ROOT)$(SEP)compile.log
 
 !ifndef OBJS
 !ifdef  srcfiles
@@ -287,7 +287,7 @@ clean: .SYMBOLIC
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
  @$(MDHIER) $(DEST)
- $(CP) $(TARGETS) $(DEST)
+ @for %i in ($(TARGETS)) do $(CP) %i $(DEST)
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
@@ -301,5 +301,8 @@ precopy: .SYMBOLIC
 .error
  @$(SAY) Error (!)
  @%abort
+
+tst: .SYMBOLIC
+ $(SAY) $(PATH)
 
 !endif

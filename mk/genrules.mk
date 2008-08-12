@@ -23,7 +23,8 @@ drv =
 #tgts = dirhier $(mf)
 #!endif
 
-mf = $(PATH)makefile
+mfh = $(MYDIR)makefile
+mf  = $(PATH)makefile
 
 prereq: dirhier $(mf)
  @%null

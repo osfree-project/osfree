@@ -10,6 +10,6 @@ DESC = Substitute path to drive letter
 srcfiles = $(p)subst$(e)
 # defines additional options for C compiler
 ADD_COPT=-i=..$(SEP)..$(SEP)include
-ADD_LINKOPT = lib dos_shared.lib
+ADD_LINKOPT = lib dos_shared.lib libpath $(ROOT)build$(SEP)lib
 
 !include $(%ROOT)/mk/dosapp.mk

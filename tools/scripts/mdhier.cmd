@@ -51,7 +51,7 @@ do while path \= ''
   else if dir = '' then iterate
   else if directory(dir) = ''
   then do
-    '@mkdir ' || dir /* || '>' || nul || ' 2>&1' */
+    '@mkdir ' || dir
     call directory dir
   end
 end

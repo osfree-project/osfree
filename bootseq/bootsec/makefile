@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = bootsect mbr fatboot eltorito
+DIRS = # bootsect mbr fatboot eltorito
 
 !include $(%ROOT)/mk/bootseq.mk
 
