@@ -4,37 +4,23 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-#32_BITS  = 1
-
+PROJ      = command
+DESC      = Control file attributes
 #defines object file names in format objname.$(O)
-OBJS = tcc2wat.$(O) alias.$(O) beep.$(O) break.$(O) call.$(O) cdd.$(O) chcp.$(O) chdir.$(O) &
-        cls.$(O) copy.$(O) ctty.$(O) date.$(O) del.$(O) dir.$(O) dirs.$(O) doskey.$(O) &
-        echo.$(O) exit.$(O) exit2.$(O) fddebug.$(O) for.$(O) goto.$(O) history.$(O) &
-        if.$(O) memory.$(O) mkdir.$(O) path.$(O) pause.$(O) popd.$(O) prompt.$(O) &
-        pushd.$(O) rem.$(O) ren.$(O) rmdir.$(O) set.$(O) shift.$(O) time.$(O) &
-        truename.$(O) type.$(O) verify.$(O) which.$(O)
+srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e) $(p)cdd$(e) $(p)chcp$(e) $(p)chdir$(e) &
+           $(p)cls$(e) $(p)copy$(e) $(p)ctty$(e) $(p)date$(e) $(p)del$(e) $(p)dir$(e) $(p)dirs$(e) $(p)doskey$(e) &
+           $(p)echo$(e) $(p)exit$(e) $(p)exit2$(e) $(p)fddebug$(e) $(p)for$(e) $(p)goto$(e) $(p)history$(e) &
+           $(p)if$(e) $(p)memory$(e) $(p)mkdir$(e) $(p)path$(e) $(p)pause$(e) $(p)popd$(e) $(p)prompt$(e) &
+           $(p)pushd$(e) $(p)rem$(e) $(p)ren$(e) $(p)rmdir$(e) $(p)set$(e) $(p)shift$(e) $(p)time$(e) &
+           $(p)truename$(e) $(p)type.$(e) $(p)verify.$(e) $(p)which$(e) $(p)tcc2wat$(e)
 # defines additional options for C compiler
 
-ADD_COPT = -i=..$(SEP)suppl
+!include $(%ROOT)/mk/dosapp.mk
 
-!include $(%ROOT)/mk/all.mk
+ADD_COPT = -i=$(MYDIR)..$(SEP)suppl
+TARGETS = $(PATH)cmd.lib
 
-
-all: cmd.lib
-
-cmd.lib: $(OBJS)
+$(PATH)cmd.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @del $@
  @$(LIB) $(LIBOPT) $@ +$< $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos
