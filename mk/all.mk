@@ -179,7 +179,7 @@ BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 MAPSYM    = @mapsym
 
-LOG       =  2>&1 | tee -a $(ROOT)$(SEP)compile.log
+LOG       = >$(ROOT)$(SEP)compile.log 2>&1
 
 !ifndef OBJS
 !ifdef  srcfiles
@@ -263,7 +263,7 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas
   $(SAY) Wrapping REXX code $<...
   rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
-# makes library $(LIBRARY) from object files $(OBJS)
+# makes library $(L) from object files $(OBJS)
 libbb: .SYMBOLIC
  $(SAY) Creating library $(L)
  -@if exist $(L) @$(DC) $(L)
@@ -291,12 +291,10 @@ install: .SYMBOLIC
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ #@$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 precopy: .SYMBOLIC
- #@cd $(ROOT)$(SEP)tools$(SEP)scripts
  @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
- #$(CD) $(MYDIR)
 
 .error
  @$(SAY) Error (!)
