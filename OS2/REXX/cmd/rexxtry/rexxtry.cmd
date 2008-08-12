@@ -224,7 +224,7 @@ syntax:
 
       parse version . rxlevel .
       if rxlevel > 4.00 then do                /* get the secondary message */
-        interpret "secondary = condition('o')~message"
+        secondary = condition('o')~message
         if .nil <> secondary then              /* get a real one?           */
                                                /* display it also           */
           say '                              'secondary

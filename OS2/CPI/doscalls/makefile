@@ -39,7 +39,8 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   DosClose.1,   # WARNING! This is a stub!!! Not real export!
  @%append $^&.lnk   DOSCOPY.201 RESIDENT,
  @%append $^&.lnk   DOSICOPY.200,
- @%append $^&.lnk   Dos32Copy.258
+ @%append $^&.lnk   Dos32Copy.258,
+ @%append $^&.lnk   Dos32EditName.261
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

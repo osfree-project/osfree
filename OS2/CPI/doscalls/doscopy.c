@@ -2,12 +2,14 @@
 
    @file doscopy.c
 
-   @brief DosCopy API implementation
+   @brief DosCopy API implementation. Based on RCOPY.
 
    (c) osFree Project 2008, <http://www.osFree.org>
    for licence see licence.txt in root directory, or project website
 
    @author Yuri Prokushev <prokushev@freemail.ru>
+
+   @todo Add support of EAs
 
 */
 #define INCL_DOSFILEMGR
@@ -22,7 +24,8 @@
 
    @return
      NO_ERROR           - files were processed succesfully
-     ERROR_WRITE_FAULT  - fault during file writing.
+     ERROR_WRITE_FAULT  - fault during file writing
+     other              - according errors in used APIs
 
    API
      DosAllocMem
@@ -31,6 +34,7 @@
      DosClose
      DosRead
      DosWrite
+     DosSetFilePtrL
 
 */
 
@@ -70,12 +74,12 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
     return rc;
   }
 
-  if (!DCPY_EXISTING)
+  if (!(ulOptions&DCPY_EXISTING))
   {
     // if no file exists then we fail
     ulOpenType = OPEN_ACTION_FAIL_IF_EXISTS;
   } else {
-    if (DCPY_APPEND)
+    if (ulOptions&DCPY_APPEND)
     {
       // else or append
       ulOpenType = OPEN_ACTION_OPEN_IF_EXISTS;
@@ -102,6 +106,20 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
     DosClose(hSrc);
     DosFreeMem(pIOBuf);
     return rc;
+  }
+
+
+  // If append mode move file pointer to the end
+  // We can be here only if not DCY_EXISTING flag
+  // set because DosOpenL will fail
+  // In case of APPEND we need to move to end of file (because file open
+  // with OPEN_ACCESS_OPEN_IF_EXISTS) otherwise
+  if (ulOptions&DCPY_APPEND)
+  {
+    DosSetFilePtrL (hDst,
+                    0,
+                    FILE_END,
+                    NULL);
   }
 
   rc = DosRead(hSrc, pIOBuf, IOBUF_SIZ, &ulTransfer);
@@ -162,8 +180,8 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
     int          result = 0, i;
     char        *nsp, *ndp;
     struct dirlist_t {
-        char              src[_MAX_PATH];
-        char              dst[_MAX_PATH];
+        char              src[_MAX_PATH]; //@todo detect maximum path name!!!
+        char              dst[_MAX_PATH]; //@todo detect maximum path name!!!
         struct dirlist_t *next;
     } *pDirListRoot=NULL, *pDirList=NULL, *pHelp;
 
@@ -190,19 +208,12 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
                 continue;
             if( !(findBuffer.attrFile & FILE_DIRECTORY) )
                 continue;
-            Verbose(3,"Found: %s\tattr: %#x",
-                    findBuffer.achName, findBuffer.attrFile );
 
             strcpy( nsp, findBuffer.achName );
             strcpy( ndp, findBuffer.achName );
-            if( inSkipList(src) )               /* exclude some dirs/files */
-            {
-                if( fDisplayNames )
-                    printf("Skipping %s\n", src );
-                continue;
-            }
-            strcat( src, "/" );
-            strcat( dst, "/" );
+
+            strcat( pszSrc, "/" );
+            strcat( pszDst, "/" );
 
             /* Tyv„r, vi kan inte kopiera nu */
 
@@ -218,13 +229,12 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
                 assert( pDirList != NULL );
             }
             pDirList->next = NULL;
-            strcpy( pDirList->src, src );
-            strcpy( pDirList->dst, dst );
+            strcpy( pDirList->src, pszSrc );
+            strcpy( pDirList->dst, pszDst );
         }
         while( !(rc=DosFindNext(hSearch, &findBuffer,
                                 sizeof(findBuffer), &cFound)) );
     DosFindClose( hSearch );
-    Verbose(2,"Subdirectory search stopped with rc %u",rc);
 
     for( pHelp = pDirList = pDirListRoot; pDirList ; pHelp = pDirList )
     {
@@ -232,11 +242,10 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
         if( (i=CheckPath(pHelp->dst, 1)) )      /* create destination path */
         {
             result = i;
-            Verbose(0,"Cannot copy %s", pHelp->src );
         }
         else
         {
-            CopyTree( pHelp->src, pHelp->dst );
+            CopyTree( pHelp->src, pHelp->dst, ulOptions );
         }
         free( pHelp );
     }
@@ -253,31 +262,21 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
         {
             if( findBuffer.attrFile & FILE_DIRECTORY )
                 continue;
-            Verbose(3,"Found: %s\tattr: %#x",
-                    findBuffer.achName, findBuffer.attrFile );
 
             strcpy( nsp, findBuffer.achName );
             strcpy( ndp, findBuffer.achName );
-            if( inSkipList(src) )               /* exclude some dir's/file's */
-            {
-                if( fDisplayNames )
-                    printf("Skipping %s\n", src );
-                continue;
-            }
-            i = CopyFile( src, dst );
+            i = CopyFile( pszSrc, pszDst, ulOptions );
             if( i != 0 )
                 result = i;
         }
         while( !(rc=DosFindNext(hSearch, &findBuffer,
                                 sizeof(findBuffer), &cFound)) );
     DosFindClose( hSearch );
-    Verbose(2,"File search stopped with rc %u",rc);
 
     *nsp = '\0';
     *ndp = '\0';
     return result;
 }
-
 
 /*!
    @brief Copies file (directory) from one location to another

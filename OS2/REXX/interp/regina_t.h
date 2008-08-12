@@ -367,7 +367,7 @@ typedef struct { /* external_parser_type: the instore macro in user space */
     * doesn't match.
     */
    char     Magic[32]; /* "Regina's Internal Format\r\n" filled with 0 */
-#define MAGIC "Regina's Internal Format\r\n"
+#define MAGIC "/*Regina's Internal Format*/\r\n"
    char     ReginaVersion[64]; /* PARSE_VERSION_STRING */
 
    /* The following structure allows the detection of different

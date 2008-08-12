@@ -1,6 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: rexxsaa.c,v 1.2 2003/12/11 04:43:17 prokushev Exp $";
-#endif
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1993-1994  Anders Christensen <anders@pvv.unit.no>
@@ -927,6 +924,8 @@ EXPORT_C APIRET APIENTRY RexxStart(LONG       ArgCount,
    rex_tsd_t *rt;
    int restricted = 0;
 
+   _ENTERFUNCTION_;
+
    TSD = GLOBAL_ENTRY_POINT();
    rt = TSD->rex_tsd;
    StartupInterface(TSD);
@@ -1106,6 +1105,8 @@ EXPORT_C APIRET APIENTRY RexxStart(LONG       ArgCount,
     * Close all open files.
     */
    CloseOpenFiles( TSD ) ;
+
+   _EXITFUNCTION_;
 
    return rc ;
 }
