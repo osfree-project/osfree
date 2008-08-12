@@ -12,7 +12,7 @@ srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e)
            $(p)echo$(e) $(p)exit$(e) $(p)exit2$(e) $(p)fddebug$(e) $(p)for$(e) $(p)goto$(e) $(p)history$(e) &
            $(p)if$(e) $(p)memory$(e) $(p)mkdir$(e) $(p)path$(e) $(p)pause$(e) $(p)popd$(e) $(p)prompt$(e) &
            $(p)pushd$(e) $(p)rem$(e) $(p)ren$(e) $(p)rmdir$(e) $(p)set$(e) $(p)shift$(e) $(p)time$(e) &
-           $(p)truename$(e) $(p)type.$(e) $(p)verify.$(e) $(p)which$(e) $(p)tcc2wat$(e)
+           $(p)truename$(e) $(p)type$(e) $(p)verify$(e) $(p)which$(e) $(p)tcc2wat$(e)
 # defines additional options for C compiler
 
 !include $(%ROOT)/mk/dosapp.mk
