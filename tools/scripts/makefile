@@ -16,7 +16,7 @@ srcdir = $(ROOT)$(SEP)tools$(SEP)scripts
 dstdir = $(FILESDIR)$(SEP)tools
 
 copy: .SYMBOLIC
- #@if exist $(FILESDIR)$(SEP)tools @%quit
+ @if exist $(FILESDIR)$(SEP)tools @%quit
  @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
  #@for %i in ($(filelist)) do @$(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
  @cd $(srcdir)
