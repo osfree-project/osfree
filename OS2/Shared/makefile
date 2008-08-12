@@ -2,42 +2,18 @@
 #
 # Makefile for common shared libs
 
+DIRS = msg # libs
+srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname$(e) &
+           $(p)all_dlist$(e) $(p)all_pathmanipulation$(e) $(p)all_performrecursiveaction$(e) &
+           $(p)all_getopt$(e)
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
+!include $(%ROOT)/mk/os2app.mk
 
 ADD_COPT = -i=..$(SEP)include
-DIRS = libs
+DEST     = ..$(SEP)lib
+TARGETS  = $(PATH)all_shared.lib
 
-!include $(%ROOT)/mk/all.mk
-
-all: libs $(ROOT)$(SEP)lib$(SEP)all_shared.lib msg .SYMBOLIC
-
-OBJS = all_messages.obj all_querycurrentdisk.obj all_queryfsname.obj &
-        all_dlist.obj all_pathmanipulation.obj all_performrecursiveaction.obj &
-        all_getopt.obj
-
-$(ROOT)$(SEP)lib$(SEP)all_shared.lib: $(OBJS)
+$(PATH)all_shared.lib: $(OBJS)
  $(SAY) Creating library $^@
  -@if exist $@ @$(DC) $@
  @$(LIB) $(LIBOPT) $@ +$< $(LOG)
-
-libs: .SYMBOLIC
- @$(MAKE) $(MAKEOPT) TARGET=all subdirs
-
-msg: .symbolic
- @$(if_not_exist_mkdir) msg $(LOG)
- @$(MC) @oso001.rsf $(LOG)
- @$(MC) @oso001h.rsf $(LOG)
- -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)system$(SEP)oso001.* $(LOG)
- -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)system$(SEP)oso001h.* $(LOG)
- -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)os2$(SEP)system $(LOG)
- -@rd msg $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
