@@ -27,5 +27,5 @@ rsf: .SYMBOLIC .PROCEDURE
  @%create $(PATH)$(T)
  #@for %i in ($(cplist)) do @%append $@ $(MYDIR)en$(SEP)oso001.txt $(PATH)oso001.%i
  @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /P 850 /L 1,1
- @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt)  $(PATH)$(T:.rsf=.pl)  /P 852 /L 48,1
- @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt)  $(PATH)$(T:.rsf=.ru)  /P 866 /L 25,1
+ @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /P 852 /L 48,1
+ @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /P 866 /L 25,1

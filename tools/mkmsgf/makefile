@@ -10,7 +10,3 @@ PROJ = mkmsgf
 DESC = Make message file tool
 
 !include $(%ROOT)/mk/toolspas.mk
-
-tst: .SYMBOLIC
- $(SAY) $(MYDIR)
- $(SAY) $(PATH)

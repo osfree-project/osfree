@@ -11,19 +11,15 @@ DEST     = os2$(SEP)mdos$(SEP)winos2
 
 !ifdef DLL
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+dllopt = dll
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+dllopt =
 !endif
 RCOPT    = -bt=windows
 
 !ifdef RESOURCE
 deps = $(RESOURCE)
-!endif
-
-!ifdef DLL
-dllopt = dll
-!else
-dllopt =
 !endif
 
 $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC

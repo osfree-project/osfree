@@ -1,7 +1,7 @@
-/* 
+/*
  *  build directory hierarchy
  *  (c) osFree project, 2008
- *  Input: absolute or relative 
+ *  Input: absolute or relative
  *  directory path
  *  Result: all path components
  *  are made in sequence
@@ -11,7 +11,7 @@ parse arg dir
 parse source os .
 
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
-   os = 'WINNT' 
+   os = 'WINNT'
 then do
   sep = '\'
   nul = 'nul'
@@ -34,7 +34,7 @@ then do
   drv = substr(dir, 1, 2)
 end
 
-if substr(dir, 1, 1) = sep 
+if substr(dir, 1, 1) = sep
 then absolute = 1
 
 /* if the path is absolute, then go root */
@@ -45,13 +45,13 @@ end
 
 do while path \= ''
   parse value path with dir '\' path
-  if pos(':', dir) = 2 & length(dir) = 2 
-  then 
+  if pos(':', dir) = 2 & length(dir) = 2
+  then
     iterate
   else if dir = '' then iterate
   else if directory(dir) = ''
   then do
-    '@mkdir ' || dir || '>' || nul || ' 2>&1'
+    '@mkdir ' || dir /* || '>' || nul || ' 2>&1' */
     call directory dir
   end
 end
