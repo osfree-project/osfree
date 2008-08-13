@@ -3,26 +3,16 @@
 # 07/10/04 valerius
 #
 
-!include $(%ROOT)/mk/site.mk
-
-libsrcs      = $(p)strcmp$(e) $(p)putchar$(e) $(p)memmove$(e) $(p)aton$(e) $(p)memcmp$(e) $(p)strncpy$(e) &
+srcfiles     = $(p)strcmp$(e) $(p)putchar$(e) $(p)memmove$(e) $(p)aton$(e) $(p)memcmp$(e) $(p)strncpy$(e) &
                $(p)convtoascii$(e) $(p)sprintf$(e) $(p)strstr$(e) $(p)safeparsemaxint$(e) &
                $(p)index$(e) $(p)memset$(e) $(p)strcat$(e) $(p)substr$(e) $(p)isspace$(e) $(p)printf$(e) &
                $(p)tolower$(e) $(p)putchar$(e) $(p)strcpy$(e) $(p)toupper$(e) $(p)memcheck$(e) &
                $(p)putstr$(e) $(p)strlen$(e)
 
-DEST         =  ..$(SEP)build$(SEP)lib
+!include $(%ROOT)/mk/libs.mk
 
-!include $(%ROOT)/mk/loader.mk
+TARGETS       = $(PATH)minilibc.lib
+ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..
 
-LIBS         = $(PATH)minilibc.lib
-TARGETS      = $(LIBS)
-
-p            = $(PATH)
-e            = .$$(O)
-OBJS         = $+$(libsrcs)$-
-
-$(LIBS): $(OBJS)
- $(SAY) Creating library $^@
- -@if exist $@ @$(DC) $@
- @$(LIB) $(LIBOPT) $@ +$<
+$(TARGETS): $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(TARGETS) library

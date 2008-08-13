@@ -2,6 +2,7 @@
 #
 # Makefile for Watcom/LIBC interface layer
 
+32_BITS = 0
 ADD_COPT  = -i=..$(SEP)include
 srcfiles  = $(p)os2vdm$(e)
 
@@ -10,11 +11,8 @@ srcfiles  = $(p)os2vdm$(e)
 # Watcom compiler.
 
 TARGETS  = $(PATH)dos_shared.lib
-DEST     = ..$(SEP)build$(SEP)lib
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/libs.mk
 
-$(PATH)dos_shared.lib: $(OBJS)
- $(SAY) Linking $@
- -@if exist $@ @del $@ $(LOG)
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
+$(TARGETS): $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(TARGETS) library

@@ -32,7 +32,7 @@ ASM_DEFS  = -zq -d__WATCOM__
 # a file which includes this file.
 #
 !ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
-!ifdef 32_BITS
+!ifeq 32_BITS 1
 COPT      = $(C_DEFS) -i=. &
                       -i=.. &
                       -i=$(ROOT)$(SEP)include$(SEP)os3 &
@@ -61,7 +61,7 @@ ASMOPT    = $(ASM_DEFS) -i=. -i=.. $(ADD_ASMOPT)
 #
 # Tools:
 #
-!ifdef 32_BITS
+!ifeq 32_BITS 1
 CC        = @wcc386
 CPPC      = @wpp386
 !else
@@ -214,7 +214,7 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas
 
 .rexx: $(MYDIR)
 
-.cmd:  $(MYDIR)
+.cmd: $(MYDIR)
 
 .obj: $(PATH)
 
@@ -263,12 +263,6 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas
   $(SAY) Wrapping REXX code $<...
   rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
-# makes library $(L) from object files $(OBJS)
-libbb: .SYMBOLIC
- $(SAY) Creating library $(L)
- -@if exist $(L) @$(DC) $(L)
- @$(LIB) $(LIBOPT) $(L) +$(OBJS) $(LOG)
-
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
@@ -287,7 +281,7 @@ clean: .SYMBOLIC
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
  @$(MDHIER) $(DEST)
- @for %i in ($(TARGETS)) do $(CP) %i $(DEST)
+ @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif

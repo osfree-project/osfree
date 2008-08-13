@@ -9,16 +9,10 @@ srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
            $(p)inflate$(e) $(p)infblock$(e) $(p)inftrees$(e) $(p)infcodes$(e) &
            $(p)infutil$(e) $(p)inffast$(e)
 
-DEST      = ..$(SEP)build$(SEP)lib
-
-!include $(%ROOT)/mk/tools.mk
-
+#DEST      = ..$(SEP)build$(SEP)lib
 TARGETS = $(PATH)z.lib
 
-# details see in $(ROOT)/mk/dirs.mk
-#!define ABSOLUTE_DEST
-#DEST    = $(TOOLDIR)lib$(SEP)
+!include $(%ROOT)/mk/libs.mk
 
-$(PATH)z.lib: $(OBJS)
- $(DC) $^@
- $(LIB) $(LIBOPT) $^@ +$(OBJS)
+$(TARGETS): $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
