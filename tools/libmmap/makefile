@@ -5,6 +5,5 @@
 #
 
 TARGETS   = libmmap.lib
-DEST      = ..$(SEP)build$(SEP)lib
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/libs.mk
