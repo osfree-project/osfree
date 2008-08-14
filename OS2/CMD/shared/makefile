@@ -2,42 +2,35 @@
 #
 # Makefile for Watcom/LIBC interface layer
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
+PROJ = cmd_shared
 ADD_COPT = -i=..$(SEP)include
-
-!include $(%ROOT)/mk/all.mk
 
 # For performance/compatibility reasons, we build a "_System" and
 # "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of
 # Watcom compiler.
+srcfiles = $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_FSEntry16$(e) &
+           $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)
 
-all: $(ROOT)$(SEP)lib$(SEP)cmd_shared.lib msg
+TARGETS  = $(PATH)$(PROJ).lib $(PATH)lvm.msg $(PATH)lvm.pl $(PATH)lvm.ru
 
-OBJS = cmd_ExecFSEntry.obj cmd_Messages.obj cmd_FSEntry16.obj &
-       cmd_QueryCurrentDisk.obj cmd_QueryFSName.obj cmd_ShowVolumeInfo.obj
+!include $(%ROOT)/mk/libsos2.mk
+
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
 
 #cmd_fsentry16.obj: cmd_fsentry16.c
 # $(SAY) Compiling $<
 # @wcc -s -ml -zl -bt=os2 cmd_fsentry16.c $(LOG)
 
-$(ROOT)$(SEP)lib$(SEP)cmd_shared.lib: $(OBJS)
- $(SAY) Linking $@
- -@if exist $@ @del $@ $(LOG)
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
 
 
-msg: .symbolic
- -@$(MKDIR) msg $(LOG)
- @$(MC) @lvm.rsf $(LOG)
- -@$(DC) $(FILESDIR)$(SEP)os2$(SEP)system$(SEP)lvm.* $(LOG)
- -@$(CP) msg$(SEP)* $(FILESDIR)$(SEP)system$(SEP)os2 $(LOG)
- -@rd msg  $(LOG
+DIRS    =
+DEST    = os2$(SEP)system
 
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+!include $(%ROOT)/mk/appsos2.mk
+
+TARGETS = $(PATH)oso001.msg  $(PATH)oso001.pl  $(PATH)oso001.ru &
+          $(PATH)oso001h.msg $(PATH)oso001h.pl $(PATH)oso001h.ru
+
+$(PATH)lvm.rsf: .SYMBOLIC
+ @$(MAKE) $(MAKEOPT) T=$^. rsf
