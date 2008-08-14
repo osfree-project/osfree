@@ -1,0 +1,6 @@
+Requirements for OS2API
+
+ * OS/2 header files (I used those found in Warp 3 toolkit)
+ * NT SDK
+ * Watcom C/C++ (may work using other compilers, but I dont know)
+

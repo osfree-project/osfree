@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtmll-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+   Copyright (C) IBM Corporation 2003. All Rights Reserved.
+   Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.
+-->
+<head>
+<title>OS/2 Module Manager API Differences</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>OS/2 Module Manager API Differences</h1>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 module manager APIs.</p>
+
+<p>These APIs are included in your application by including the following
+definition in your application source file.</p>
+
+<pre>
+#define INCL_DOSMODULEMGR
+</pre>
+
+<h2>DosLoadModule</h2>
+<pre>
+APIRET APIENTRY DosLoadModule(PSZ pszName, ULONG cbName, PSZ pszModname,
+                              PHMODULE phmod);
+</pre>
+<ul>
+<li>All possible OS/2 return codes are not used.</li>
+</ul>
+
+<h2>DosFreeModule</h2>
+<pre>
+APIRET APIENTRY DosFreeModule(HMODULE hmod);
+</pre>
+<ul>
+<li>All possible OS/2 return codes are not used.</li>
+</ul>
+
+<h2>DosQueryProcAddr</h2>
+<pre>
+APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, PSZ pszName,
+                                 PFN* ppfn);
+</pre>
+<ul>
+<li>The <i>ordinal</i> argument is ignored.</li>
+<li>The <i>pszName</i> argument must be non-null.</li>
+<li>All possible OS/2 return codes are not used.</li>
+<li>External symbols (not just procedure names) are returned.</li>
+</ul>
+
+<h2>DosQueryModuleHandle</h2>
+<pre>
+APIRET APIENTRY DosQueryModuleHandle(PSZ pszModname, PHMODULE phmod);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryModuleName</h2>
+<pre>
+APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryProcType</h2>
+<pre>
+APIRET APIENTRY DosQueryProcType(HMODULE hmod, ULONG ordinal, PSZ pszName,
+                                 PULONG pulproctype);
+</pre>
+<ul>
+<li>See notes for DosQueryProcAddr function.</li>
+<li>This function always claims a procedure is 32 bit.</li>
+</ul>
+
+</body>
+</html>
+

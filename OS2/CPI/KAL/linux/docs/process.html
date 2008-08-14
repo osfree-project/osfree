@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtmll-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+   Copyright (C) IBM Corporation 2003. All Rights Reserved.
+   Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.
+-->
+<head>
+<title>OS/2 Process and Thread API Differences</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>OS/2 Process and Thread API Differences</h1>
+
+<p>These APIs are included in your application by including the following
+definition in your application source file.</p>
+
+<pre>
+#define INCL_DOSPROCESS
+</pre>
+
+<!--
+  OS/2 Process API Differences
+-->
+
+<h2>OS/2 Process API Differences</h2>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 process manipulation APIs.</p>
+
+<h3>DosExecPgm</h3>
+<pre>
+APIRET APIENTRY DosExecPgm(PCHAR pObjname, LONG cbObjname, ULONG execFlag,
+                           PSZ pArg, PSZ pEnv, PRESULTCODES pRes, PSZ pName);
+</pre>
+<ul>
+<li>The <i>pEnv</i> argument must be NULL.</li>
+<li>The <i>execFlag</i> argument can only be EXEC_SYNC and EXEC_ASYNC.</li>
+</ul>
+
+<h3>DosWaitChild</h3>
+<pre>
+APIRET APIENTRY DosWaitChild(ULONG action, ULONG option, PRESULTCODES pres,
+                             PPID ppid, PID pid);
+</pre>
+<ul>
+<li>An argument <i>action</i> value of DCWA_PROCESSTREE is not supported.</li>
+</ul>
+
+<h3>DosKillProcess</h3>
+<pre>
+APIRET APIENTRY DosKillProcess(ULONG action, PID pid);
+</pre>
+<ul>
+<li>All non-zero values for action have been poisoned.</li>
+<li>All possible OS/2 return codes are not used.</li>
+<li>ERROR_INVALID_PARAMETER return code has been added.</li>
+<li>ERROR_ACCESS_DENIED return code has been added.</li>
+</ul>
+
+<h3>DosExitList</h3>
+<pre>
+APIRET APIENTRY DosExitList(ULONG ordercode, PFNEXITLIST pfn);
+</pre>
+<ul>
+<li>All exit functions recieve the TC_EXIT code as the only argument.</li>
+</ul>
+
+
+<!--
+  OS/2 Thread API Differences
+-->
+
+<h2>OS/2 Thread API Differences</h2>
+
+<h3>_beginthread</h3>
+<pre>
+unsigned long _beginthread(void(*start_address )( void * ),
+                           unsigned stack_size, void *arglist);
+</pre>
+<ul>
+<li>You may have to remove the __cdecl definition from the thread function
+    definitions in your source code files.</li>
+</ul>
+
+<h3>_endthread</h3>
+<pre>
+void _endthread(void);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosCreateThread</h3>
+<pre>
+APIRET APIENTRY DosCreateThread(PTID ptid, PFNTHREAD pfn, ULONG param,
+                                ULONG flag, ULONG cbStack);
+</pre>
+<ul>
+<li>All non-zero values for the argument <i>flag</i> have been poisoned.</li>
+<li>All possible OS/2 return codes are not used.</li>
+<li>ERROR_INVALID_PARAMETER return code has been added.</li>
+</ul>
+
+<h3>DosResumeThread</h3>
+<pre>
+APIRET APIENTRY DosResumeThread(TID tid);
+</pre>
+<ul>
+<li>All possible OS/2 return codes are not used.</li>
+</ul>
+
+<h3>DosSuspendThread</h3>
+<pre>
+APIRET APIENTRY DosSuspendThread(TID tid);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosKillThread</h3>
+<pre>
+APIRET APIENTRY DosKillThread(TID tid);
+</pre>
+<ul>
+<li>All possible OS/2 return codes are not used.</li>
+</ul>
+
+<h3>DosAllocThreadLocalMemory</h3>
+<pre>
+APIRET APIENTRY DosAllocThreadLocalMemory(ULONG cb, PULONG *p);
+</pre>
+<ul>
+<li>We actually will allow more total bytes to be allocated.</li>
+</ul>
+
+<h3>DosFreeThreadLocalMemory</h3>
+<pre>
+APIRET APIENTRY DosFreeThreadLocalMemory(ULONG *p);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosWaitThread</h3>
+<pre>
+APIRET APIENTRY DosWaitThread(PTID ptid, ULONG option);
+</pre>
+<ul>
+<li>A TID of zero is not allowed (wait for next thread to end).</li>
+</ul>
+
+
+<!--
+  Miscellaneous Functions
+-->
+
+<h3>DosBeep</h3>
+<pre>
+APIRET APIENTRY DosBeep(ULONG freq, ULONG dur);
+</pre>
+<ul>
+<li>This function ignores all the input arguments and instead rings
+    the machine bell using the ASCII BEL character by sending that character to
+    the <i>stderr</i> file handle.</li>
+</ul>
+
+<h3>DosSleep</h3>
+<pre>
+APIRET APIENTRY DosSleep(ULONG msec);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosEnterCritSec</h3>
+<pre>
+APIRET APIENTRY DosEnterCritSec(VOID);
+</pre>
+<ul>
+<li>All possible OS/2 return codes are not used.</li>
+</ul>
+
+<h3>DosExitCritSec</h3>
+<pre>
+APIRET APIENTRY DosExitCritSec(VOID);
+</pre>
+<ul>
+<li>All possible OS/2 return codes are not used.</li>
+</ul>
+
+<h3>DosSetPriority</h3>
+<pre>
+APIRET APIENTRY  DosSetPriority(ULONG scope, ULONG ulClass, LONG delta,
+                                ULONG PorTid);
+</pre>
+<ul>
+<li>This function only supports thread priority modification.</li>
+<li>This function sets absolute values for the priority, not a range value.</li>
+</ul>
+
+<h3>DosGetInfoBlocks</h3>
+<pre>
+APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib, PPIB *pppib);
+</pre>
+<ul>
+<li>The <i>PIB</i> is not completely filled out. See the source code. </li>
+<li>The <i>TIB</i> is not completely filled out. See the source code.</li>
+</ul>
+
+</body>
+</html>

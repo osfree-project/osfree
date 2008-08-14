@@ -1,0 +1,511 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtmll-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+   Copyright (C) IBM Corporation 2003. All Rights Reserved.
+   Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.
+-->
+<head>
+<title>OS/2 NLS API Differences</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>OS/2 File Manager API Differences</h1>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 File Manager APIs.</p>
+
+<p>These APIs are included in your application by including the following
+definition in your application source file.</p>
+
+<pre>
+#define INCL_DOSFILEMGR
+</pre>
+
+<h2>DosOpen</h2>
+<pre>
+APIRET APIENTRY DosOpen(PSZ pszFileName, PHFILE pHf, PULONG pulAction,
+                        ULONG cbFile, ULONG ulAttribute, ULONG fsOpenFlags,
+                        ULONG fsOpenMode, PEAOP2 peaop2);
+</pre>
+<ul>
+<li>All backslash (\) characters are translated to forwardslash(/) characters in
+the argument <i>pszFileName</i> automatically.</li>
+<li>If a drive specifier is found in the <i>pszFileName</i> then the function
+will return ERROR_INVALID_PARAMETER.</li>
+<li>Named pipes are always opened in byte mode. Message mode is not supported.</li>
+<li>Network named pipes of the form <i>\\srvname\pipe</i> are not supported.</li>
+<li>A lot of flags are not checked in the arguments <i>ulAttribute</i>,
+<i>fsOpenFlags</i> and <i>fsOpenMode</i>.</li>
+<li>The argument <i>peaop2</i> is ignored.</li>
+</ul>
+
+<h2>DosClose</h2>
+<pre>
+APIRET APIENTRY DosClose(HFILE hFile);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosRead</h2>
+<pre>
+APIRET APIENTRY DosRead(HFILE hFile, PVOID pBuffer, ULONG cbRead,
+                        PULONG pcbActual);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosWrite</h2>
+<pre>
+APIRET APIENTRY DosWrite(HFILE hFile, PVOID pBuffer, ULONG cbWrite,
+                         PULONG pcbActual);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosDelete</h2>
+<pre>
+APIRET APIENTRY DosDelete(PSZ pszFile);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosForceDelete</h2>
+<pre>
+APIRET APIENTRY DosForceDelete(PSZ pszFile);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosDupHandle</h2>
+<pre>
+APIRET APIENTRY DosDupHandle(HFILE hFile, PHFILE pHfile);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosQueryFHState</h2>
+<pre>
+APIRET APIENTRY DosQueryFHState(HFILE hFile, PULONG pMode);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosSetFHState</h2>
+<pre>
+APIRET APIENTRY DosSetFHState(HFILE hFile, ULONG mode);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryHType</h2>
+<pre>
+APIRET APIENTRY DosQueryHType(HFILE hFile, PULONG pType, PULONG pAttr);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosFindFirst</h2>
+<pre>
+APIRET APIENTRY DosFindFirst(PSZ pszFileSpec, PHDIR phdir, ULONG flAttribute,
+                             PVOID pfindbuf, ULONG cbBuf, PULONG pcFileNames,
+                             ULONG ulInfoLevel);
+</pre>
+<ul>
+<li>The argument <i>flAttribute</i> is ignored.</li>
+<li>The argument <i>ulInfoLevel</i> must be FIL_STANDARD.</li>
+<li>Added the return code ERROR_NOT_ENOUGH_MEMORY.</li>
+</ul>
+
+<h2>DosFindNext</h2>
+<pre>
+APIRET APIENTRY DosFindNext(HDIR hDir, PVOID pfindbuf, ULONG cbfindbuf,
+                            PULONG pcFilenames);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosFindClose</h2>
+<pre>
+APIRET APIENTRY DosFindClose(HDIR hDir);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosFSAttach</h2>
+<pre>
+APIRET APIENTRY DosFSAttach(PSZ pszDevice, PSZ pszFilesystem, PVOID pData,
+                            ULONG cbData, ULONG flag);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryFSAttach</h2>
+<pre>
+APIRET APIENTRY DosQueryFSAttach(PSZ pszDeviceName, ULONG ulOrdinal,
+                                 ULONG ulFSAInfoLevel, PFSQBUFFER2 pfsqb,
+                                 PULONG pcbBuffLength);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosFSCtl</h2>
+<pre>
+APIRET APIENTRY DosFSCtl(PVOID pData, ULONG cbData, PULONG pcbData,
+                         PVOID pParms, ULONG cbParms, PULONG pcbParms,
+                         ULONG function, PSZ pszRoute, HFILE hFile,
+                         ULONG method);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetFileSize</h2>
+<pre>
+APIRET APIENTRY DosSetFileSize(HFILE hFile, ULONG cbSize);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosResetBuffer</h2>
+<pre>
+APIRET APIENTRY DosResetBuffer(HFILE hFile);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosSetFilePtr</h2>
+<pre>
+APIRET APIENTRY DosSetFilePtr(HFILE hFile, LONG ib, ULONG method,
+                              PULONG ibActual);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosMove</h2>
+<pre>
+APIRET APIENTRY DosMove(PSZ pszOld, PSZ pszNew);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosCopy</h2>
+<pre>
+APIRET APIENTRY DosCopy(PSZ pszOld, PSZ pszNew, ULONG option);
+</pre>
+<ul>
+<li>Added the return code ERROR_NOT_ENOUGH_MEMORY.</li>
+</ul>
+
+<h2>DosEditName</h2>
+<pre>
+APIRET APIENTRY DosEditName(ULONG metalevel, PSZ pszSource, PSZ pszEdit,
+                            PBYTE pszTarget, ULONG cbTarget);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosCreateDir</h2>
+<pre>
+APIRET APIENTRY DosCreateDir(PSZ pszDirName, PEAOP2 peaop2);
+</pre>
+<ul>
+<li>The argument <i>peaop2</i> is ignored.</li>
+</ul>
+
+<h2>DosDeleteDir</h2>
+<pre>
+APIRET APIENTRY DosDeleteDir(PSZ pszDir);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosSetDefaultDisk</h2>
+<pre>
+APIRET APIENTRY DosSetDefaultDisk(ULONG disknum);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryCurrentDisk</h2>
+<pre>
+APIRET APIENTRY DosQueryCurrentDisk(PULONG pdisknum, PULONG plogical);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetCurrentDir</h2>
+<pre>
+APIRET APIENTRY DosSetCurrentDir(PSZ pszDir);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosQueryCurrentDir</h2>
+<pre>
+APIRET APIENTRY DosQueryCurrentDir(ULONG disknum, PBYTE pBuf, PULONG pcbBuf);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosQueryFSInfo</h2>
+<pre>
+APIRET APIENTRY DosQueryFSInfo(ULONG disknum, ULONG infolevel, PVOID pBuf,
+                               ULONG cbBuf);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetFSInfo</h2>
+<pre>
+APIRET APIENTRY DosSetFSInfo(ULONG disknum, ULONG infolevel, PVOID pBuf,
+                             ULONG cbBuf);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryVerify</h2>
+<pre>
+APIRET APIENTRY DosQueryVerify(PBOOL32 pBool);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetVerify</h2>
+<pre>
+APIRET APIENTRY DosSetVerify(BOOL32 verify);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetMaxFH</h2>
+<pre>
+APIRET APIENTRY DosSetMaxFH(ULONG cFH);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetRelMaxFH</h2>
+<pre>
+APIRET APIENTRY DosSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryFileInfo</h2>
+<pre>
+APIRET APIENTRY DosQueryFileInfo(HFILE hf, ULONG ulInfoLevel, PVOID pInfo,
+                                 ULONG cbInfoBuf);
+</pre>
+<ul>
+<li>The argument <i>ulInfoLevel</i> must be FIL_STANDARD.</li>
+</ul>
+
+<h2>DosSetFileInfo</h2>
+<pre>
+APIRET APIENTRY DosSetFileInfo(HFILE hf, ULONG ulInfoLevel, PVOID pInfoBuf,
+                               ULONG cbInfoBuf);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryPathInfo</h2>
+<pre>
+APIRET APIENTRY DosQueryPathInfo(PSZ pszPathName, ULONG ulInfoLevel,
+                                 PVOID pInfo, ULONG cbInfoBuf);
+</pre>
+<ul>
+<li>The argument <i>ulInfoLevel</i> must be FIL_STANDARD.</li>
+</ul>
+
+<h2>DosSetPathInfo</h2>
+<pre>
+APIRET APIENTRY DosSetPathInfo(PSZ pszPathName, ULONG ulInfoLevel,
+                               PVOID pInfoBuf, ULONG cbInfoBuf, ULONG flOptions);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosShutdown</h2>
+<pre>
+APIRET APIENTRY DosShutdown(ULONG ulReserved);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosEnumAttribute</h2>
+<pre>
+APIRET APIENTRY DosEnumAttribute(ULONG ulRefType, PVOID pvFile, ULONG ulEntry,
+                                 PVOID pvBuf, ULONG cbBuf, PULONG pulCount,
+                                 ULONG ulInfoLevel);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetFileLocks</h2>
+<pre>
+APIRET APIENTRY DosSetFileLocks(HFILE hFile, PFILELOCK pflUnlock,
+                                PFILELOCK pflLock, ULONG timeout, ULONG flags);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosCancelLockRequest</h2>
+<pre>
+APIRET APIENTRY DosCancelLockRequest(HFILE hFile, PFILELOCK pflLock);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectEnumAttribute</h2>
+<pre>
+APIRET APIENTRY DosProtectEnumAttribute(ULONG ulRefType, PVOID pvFile,
+                                        ULONG ulEntry, PVOID pvBuf, ULONG cbBuf,
+                                        PULONG pulCount, ULONG ulInfoLevel,
+                                        FHLOCK fhFileHandleLockID );
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectSetFileLocks</h2>
+<pre>
+APIRET APIENTRY DosProtectSetFileLocks(HFILE hFile, PFILELOCK pflUnlock,
+                                       PFILELOCK pflLock, ULONG timeout,
+                                       ULONG flags, FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectOpen</h2>
+<pre>
+APIRET APIENTRY DosProtectOpen(PSZ pszFileName, PHFILE phf, PULONG pulAction,
+                               ULONG cbFile, ULONG ulAttribute,
+                               ULONG fsOpenFlags, ULONG fsOpenMode,
+                               PEAOP2 peaop2, PFHLOCK pfhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectClose</h2>
+<pre>
+APIRET APIENTRY DosProtectClose(HFILE hFile, FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectRead</h2>
+<pre>
+APIRET APIENTRY DosProtectRead(HFILE hFile, PVOID pBuffer, ULONG cbRead,
+                               PULONG pcbActual, FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectWrite</h2>
+<pre>
+APIRET APIENTRY  DosProtectWrite(HFILE hFile, PVOID pBuffer, ULONG cbWrite,
+                                 PULONG pcbActual, FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectQueryFHState</h2>
+<pre>
+APIRET APIENTRY DosProtectQueryFHState(HFILE hFile, PULONG pMode,
+                                       FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectSetFHState</h2>
+<pre>
+APIRET APIENTRY DosProtectSetFHState(HFILE hFile, ULONG mode,
+                                     FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectSetFileSize</h2>
+<pre>
+APIRET APIENTRY DosProtectSetFileSize(HFILE hFile, ULONG cbSize,
+                                      FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectSetFilePtr</h2>
+<pre>
+APIRET APIENTRY DosProtectSetFilePtr(HFILE hFile, LONG ib, ULONG method,
+                                     PULONG ibActual, FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectQueryFileInfo</h2>
+<pre>
+APIRET APIENTRY DosProtectQueryFileInfo(HFILE hf, ULONG ulInfoLevel,
+                                        PVOID pInfo, ULONG cbInfoBuf,
+                                        FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosProtectSetFileInfoo</h2>
+<pre>
+APIRET APIENTRY DosProtectSetFileInfo(HFILE hf, ULONG ulInfoLevel,
+                                      PVOID pInfoBuf, ULONG cbInfoBuf,
+                                      FHLOCK fhFileHandleLockID);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+               Installing OS2Linux
+	       ===================
+
+OS2Linux must be dowloaded from CVS. There are no distribution files
+available. This means you must build the library yourself. Here are the
+commands to do that.
+
+$ ./bootstrap
+$ ./configure
+$ make
+
+This should build an os2linux.so file which you can then install into your
+system. The only other file you will need is a copy of the include/os2.h
+file for use in compiling your old OS/2 programs.
+

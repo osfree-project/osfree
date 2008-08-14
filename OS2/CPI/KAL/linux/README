@@ -1,0 +1,23 @@
+README file for the OS2Linux Project
+
+---------------------------------------------------------
+PREREQUISITES
+---------------------------------------------------------
+The following software is required to build os2linux
+
+Linux >= 2.4 with nptl support
+gcc   >= 2.97
+
+
+---------------------------------------------------------
+BUILD / INSTALLATION
+---------------------------------------------------------
+
+Please refer to the INSTALL file for basic installation instructions.
+
+---------------------------------------------------------
+FOR MORE INFO
+---------------------------------------------------------
+For more information please see the project webiste at 
+http://os2linux.sourceforge.net/
+

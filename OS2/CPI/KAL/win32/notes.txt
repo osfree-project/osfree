@@ -1,0 +1,121 @@
+Notes
+
+General:
+All API functions are subject to NT's security system.
+Some handles are mapped to internal handles by the emulation layer in order
+to remember things that NT doesn't. These mapped handles are stored in handle
+tables which does not allow simultaneous access by more that N threads, where N
+is a suitably value selected by me.
+Most error codes are interpreted but some are passed back directly. Most error
+native NT error codes are the same for OS/2 so it will most likely work, but
+you may get errors that you would not under OS/2.
+
+Files:
+At most ~5 files can be accessed at a time. The emulation layer tries to
+release the locks in order to allow DosClose() to abort i/o in other threads
+but do not rely on it.
+At most 50 files can be open.
+Handle 0, 1 and 2 are mapped correctly to NT's STD_INPUT_HANDLE,
+STD_OUTPUT_HANDLE and STD_ERROR_HANDLE
+EAs are not supported. Attempts to retrieve or set EAs will fail.
+DosOpen()
+  disk-relative filenames ("D:file.foo") may not work
+  If openflags are set to OPEN_ACTION_FAIL_IF_NEW|OPEN_ACTION_FAIL_IF_EXISTS the
+  call will fail.
+  OPEN_FLAGS_SEQUENTIAL is mapped to NT's FILE_FLAG_SEQUENTIAL_SCAN
+  OPEN_FLAGS_RANDOM is mapped to NT's FILE_FLAG_RANDOM_ACCESS
+DosQueryHType()
+  bit 7 (0x80) are always set because it is not possible to retrieve the
+  information under NT, so it is best to assume the worst.
+DosSetMaxFH()
+  anything but 50 handles fais
+DosSetRelMaxFH()
+  50 is always returned in *pcbCurMaxFH
+DosCancelLockRequest()
+  Is only a stub that returns 50 (error_not_supported)
+DosFindFirst()
+  A maximum of 50 open HDIRs is supported - remember to call DosFindClose()
+DosForceDelete()
+  is the same as DosDelete()
+DosCopy()
+  DCPY_APPEND is not supported
+DosEditName
+  Is only a stub that fails
+DosSetDefaultDisk
+  NT does not support CWDs on anything but the current disk. CWDs are
+  remembered like BC4 (envvars), but DosOpen() and DosFindFirst() does not
+  honour them.
+DosQueryCurrentDir()
+  with disknum=0 (default) a UNC path may be returned
+DosQueryVerify()/DosSetVerify()
+  verify flag is remembered but ignored
+DosSetPathInfo()
+  Is only a stub that fails
+DosQueryFSInfo
+  fails if disknum=0 and CWD is a UNC path
+DosSetFSInfo
+  fails if disknum=0 and CWD is a UNC path
+  volume serial number is not set
+
+Memory:
+Nothing is remembered, so access protection etc. is calculated from what NT
+tells us. For instance, pages with PAG_GUARD attribute on this attribute is
+remembered and PAG_READ/PAG_WRITE... is forgotten
+Uncomitted pages does not have any attributes.
+Shared memory is supported but at most 64 shared objects system-wide can by
+present at a time. Shared memory is allocated from 0x10520000. If this area has
+been used by something else shared memory cannot be used.
+DosGiveSharedMem()
+  Slow compared to native OS/2
+DosSubSetMem()
+  Shared memory heaps are not supported
+
+DosQuerySysInfo
+  Some information is made up.
+
+DLLs
+DosLoadModule
+  "not_emulated" is returned in pszFailName
+DosQueryProcType
+  PT_32BIT is always returned in *pulproctype
+
+Named pipes
+Nonblocking named pipes are not supported
+Named pipe event semaphores are not supported
+DosCallNPipe
+  Bypasses file handle mapping table
+DosCreateNPipe
+  Specifying 0 as maxinstances will fail
+  Default pipe wait time is 50msec
+DosQueryNPHState
+  If more that 255 instances exist 255 will be returned
+DosQueryNPipeInfo
+  infolevels other 1 are not supported
+DosQueryNPipeSemState
+  Is stub that always fails
+DosSetNPipeSem
+  Is stub that always fails
+
+Processes/threads
+Max 4096 threads are suported
+Thread IDs are mapped since NT TIDs cannot be used for anything
+DosBeep()
+  doesn't
+DosExecPgm
+  Debugging is not supported
+  "not_supported" is always returned in pObjname
+
+Queues
+Slow compared to OS/2
+
+Semaphores
+Shared mutex semaphores are partially supported. Shared event semaphores are
+partially supported. shared muxwait semaphores are not supported.
+MuxWait semaphores are handle-mapped. Max 10 MuxWait operations at a time
+DosResetEventSem
+  Post count is not remembered so only 0 or 1 is returned in *pulPostCount
+DosQueryEventSem
+  Post count is not remembered so only 0 or 1 is returned in *pulPostCount
+DosOpenEventSem
+  Always fails for unnamed event semaphores
+  
