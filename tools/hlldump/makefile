@@ -7,4 +7,11 @@ srcfiles = $(p)hll$(e) $(p)hlldirectory$(e) $(p)exe$(e) $(p)hllmodule$(e) $(p)hl
 
 !include $(%ROOT)/mk/tools.mk
 
+ADD_COPT =            $(ADD_COPT) &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3 &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)os2
+
 STACKSIZE = 65536
+
+as: .SYMBOLIC
+ $(SAY) $(LINKOPT)
