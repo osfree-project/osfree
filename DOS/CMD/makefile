@@ -14,7 +14,8 @@ DIRS =   attrib    &
          basic     &
          more      &
          subst     &
-         stub
+         stub      &
+         command
 
 !include $(%ROOT)/mk/all.mk
 

@@ -4,8 +4,9 @@
 # author, date
 #
 
+32_BITS = 0
 PROJ      = command
-DESC      = Control file attributes
+DESC      = DOS command interpreter
 #defines object file names in format objname.$(O)
 srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e) $(p)cdd$(e) $(p)chcp$(e) $(p)chdir$(e) &
            $(p)cls$(e) $(p)copy$(e) $(p)ctty$(e) $(p)date$(e) $(p)del$(e) $(p)dir$(e) $(p)dirs$(e) $(p)doskey$(e) &
@@ -15,12 +16,10 @@ srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e)
            $(p)truename$(e) $(p)type$(e) $(p)verify$(e) $(p)which$(e) $(p)tcc2wat$(e)
 # defines additional options for C compiler
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/libsdos.mk
 
 ADD_COPT = -i=$(MYDIR)..$(SEP)suppl
 TARGETS = $(PATH)cmd.lib
 
-$(PATH)cmd.lib: $(OBJS)
- $(SAY) Creating library $^@
- -@if exist $@ @del $@
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
+$(TARGETS): $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(TARGETS) library

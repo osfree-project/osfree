@@ -11,4 +11,4 @@ srcfiles = $(p)msgcode$(e) $(p)windemo$(e)
 # defines additional options for C compiler
 ADD_COPT = -zW
 
-!include $(%ROOT)/mk/win16app.mk
+!include $(%ROOT)/mk/appsw16.mk

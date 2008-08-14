@@ -11,4 +11,4 @@ srcfiles = $(p)kitten$(e) $(p)xcopy$(e) $(p)prf$(e)
 # defines additional options for C compiler
 STACKSIZE = 40000
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/appsdos.mk

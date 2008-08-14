@@ -7,7 +7,7 @@
 PROJ = help
 DESC = Show help info
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/appsdos.mk
 
 TARGETS  = $(PROJ).bat
 

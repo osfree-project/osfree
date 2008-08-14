@@ -3,6 +3,9 @@
 # win16 apps
 #
 
+ADD_COPT = -bt=windows $(ADD_COPT)
+ADD_LINKOPT = lib clibs.lib,windows.lib
+
 !ifndef DEST
 DEST     = os2$(SEP)mdos$(SEP)winos2
 !endif
@@ -27,9 +30,6 @@ $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
  @%append $^@ SYSTEM windows $(dllopt)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
-!endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif
@@ -44,6 +44,9 @@ $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
 !endif
 !ifdef OPTIONS
  @%append $^@ OPTION $(OPTIONS)
+!endif
+!ifdef DEBUG
+ @%append $^@ DEBUG $(DEBUG)
 !endif
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)

@@ -3,7 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = all_shared
-DIRS = msg # libs
+DIRS = msg libs
 srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname$(e) &
            $(p)all_dlist$(e) $(p)all_pathmanipulation$(e) $(p)all_performrecursiveaction$(e) &
            $(p)all_getopt$(e)
@@ -11,7 +11,7 @@ srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname
 ADD_COPT = -i=..$(SEP)include
 TARGETS  = $(PATH)$(PROJ).lib subdirs
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)/mk/libsos2.mk
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

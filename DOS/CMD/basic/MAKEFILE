@@ -39,7 +39,7 @@ ADD_COPT = -ml
 # additions to install target
 INSTALL_ADD = 1
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/appsdos.mk
 
 install_add: .SYMBOLIC
  $(CP) $(PATH)$(PROJ).exe $(FILESDIR)$(SEP)$(DEST)$(SEP)$(PROJ).com

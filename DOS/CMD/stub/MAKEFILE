@@ -10,4 +10,4 @@ DESC = DOS Stub for OS/2 executables
 srcfiles = $(p)stub$(e)
 # defines additional options for C compiler
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/appsdos.mk

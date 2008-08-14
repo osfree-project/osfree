@@ -24,39 +24,27 @@ TRG  =
 #
 # Preprocessor defines
 #
-C_DEFS    = -zq -d__OS2__ -d__WATCOM__
+C_DEFS    = -zq -d__WATCOM__
 ASM_DEFS  = -zq -d__WATCOM__
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in
 # a file which includes this file.
 #
-!ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
-!ifeq 32_BITS 1
+#!ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
+#!ifeq 32_BITS 1
 COPT      = $(C_DEFS) -i=. &
                       -i=.. &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3 &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)os2 &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)lpng &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)jpeglib &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
-                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
-                      -bt=OS2 &
                       $(ADD_COPT)
-ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT) -bt=OS2
-!else
-COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
-ASMOPT    = -bt=OS2 -ms $(ASM_DEFS)  $(ADD_ASMOPT)
-!endif
-!else
-COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD  -i=. -i=.. $(ADD_COPT)
-ASMOPT    = $(ASM_DEFS) -i=. -i=.. $(ADD_ASMOPT)
-!endif
+ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT)
+#!else
+#COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
+#ASMOPT    = -ms $(ASM_DEFS)  $(ADD_ASMOPT)
+#!endif
+#!else
+#COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD  -i=. -i=.. $(ADD_COPT)
+#ASMOPT    = $(ASM_DEFS) -i=. -i=.. $(ADD_ASMOPT)
+#!endif
 
 #
 # Tools:
@@ -296,5 +284,8 @@ precopy: .SYMBOLIC
 
 tst: .SYMBOLIC
  $(SAY) $(PATH)
+
+a: .SYMBOLIC
+ $(SAY) $(COPT)
 
 !endif

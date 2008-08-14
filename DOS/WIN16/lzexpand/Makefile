@@ -7,8 +7,6 @@
 PROJ     = lzexpand
 DESC     = Windows file expansion library
 srcfiles = $(p)lzexpand$(e)
-ADD_COPT = -bt=windiws -bd
-ADD_LINKOPT = lib clibs.lib,windows.lib,clibdls.lib
 # linking dll file
 DLL     = 1
 EXPORTS = LZCOPY          .1, &
@@ -23,4 +21,4 @@ EXPORTS = LZCOPY          .1, &
           GETEXPANDEDNAME .10
 OPTIONS = heapsize=32K libfile libentry
 
-!include $(%ROOT)/mk/win16app.mk
+!include $(%ROOT)/mk/appsw16.mk

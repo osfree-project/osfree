@@ -10,4 +10,4 @@ DESC = Control file attributes
 srcfiles = $(p)kitten$(e) $(p)mem$(e) $(p)prf$(e)
 # defines additional options for C compiler
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/appsdos.mk

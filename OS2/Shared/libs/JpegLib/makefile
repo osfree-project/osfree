@@ -3,82 +3,21 @@
 # Makefile for common shared libs
 
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
+PROJ = libjpeg
 ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG
+TARGETS  = $(PATH)$(PROJ).lib
 
-!include $(%ROOT)/mk/all.mk
+srcfiles = $(p)wrppm$(e) $(p)wrtarga$(e) $(p)jcapimin$(e) $(p)jcapistd$(e) $(p)jccoefct$(e) $(p)jccolor$(e) &
+           $(p)jcdctmgr$(e) $(p)jchuff$(e) $(p)jcinit$(e) $(p)jcmainct$(e) $(p)jcmarker$(e) $(p)jcmaster$(e) &
+           $(p)jcomapi$(e) $(p)jcparam$(e) $(p)jcphuff$(e) $(p)jcprepct$(e) $(p)jcsample$(e) $(p)jdapimin$(e) &
+           $(p)jdapistd$(e) $(p)jdatadst$(e) $(p)jdatasrc$(e) $(p)jdcoefct$(e) $(p)jdcolor$(e) $(p)jddctmgr$(e) &
+           $(p)jdhuff$(e) $(p)jdinput$(e) $(p)jdmainct$(e) $(p)jdmarker$(e) $(p)jdmaster$(e) $(p)jdmerge$(e) &
+           $(p)jdphuff$(e) $(p)jdpostct$(e) $(p)jdsample$(e) $(p)jerror$(e) $(p)jfdctflt$(e) $(p)jfdctfst$(e) &
+           $(p)jfdctint$(e) $(p)jidctflt$(e) $(p)jidctfst$(e) $(p)jidctint$(e) $(p)jidctred$(e) $(p)jmemmgr$(e) &
+           $(p)jmemnobs$(e) $(p)jquant1$(e) $(p)jquant2$(e) $(p)jutils$(e) $(p)rdbmp$(e) $(p)rdcolmap$(e) $(p)rdgif$(e) &
+           $(p)rdppm$(e) $(p)rdswitch$(e) $(p)rdtarga$(e) $(p)wrbmp$(e) $(p)wrgif$(e)
 
+!include $(%ROOT)/mk/libsos2.mk
 
-
-all: $(ROOT)$(SEP)lib$(SEP)jpeglib.lib .SYMBOLIC
-
-OBJS = wrppm.$(O) &
-    wrtarga.$(O) &
-    jcapimin.$(O) &
-    jcapistd.$(O) &
-    jccoefct.$(O) &
-    jccolor.$(O) &
-    jcdctmgr.$(O) &
-    jchuff.$(O) &
-    jcinit.$(O) &
-    jcmainct.$(O) &
-    jcmarker.$(O) &
-    jcmaster.$(O) &
-    jcomapi.$(O) &
-    jcparam.$(O) &
-    jcphuff.$(O) &
-    jcprepct.$(O) &
-    jcsample.$(O) &
-    jdapimin.$(O) &
-    jdapistd.$(O) &
-    jdatadst.$(O) &
-    jdatasrc.$(O) &
-    jdcoefct.$(O) &
-    jdcolor.$(O) &
-    jddctmgr.$(O) &
-    jdhuff.$(O) &
-    jdinput.$(O) &
-    jdmainct.$(O) &
-    jdmarker.$(O) &
-    jdmaster.$(O) &
-    jdmerge.$(O) &
-    jdphuff.$(O) &
-    jdpostct.$(O) &
-    jdsample.$(O) &
-    jerror.$(O) &
-    jfdctflt.$(O) &
-    jfdctfst.$(O) &
-    jfdctint.$(O) &
-    jidctflt.$(O) &
-    jidctfst.$(O) &
-    jidctint.$(O) &
-    jidctred.$(O) &
-    jmemmgr.$(O) &
-    jmemnobs.$(O) &
-    jquant1.$(O) &
-    jquant2.$(O) &
-    jutils.$(O) &
-    rdbmp.$(O) &
-    rdcolmap.$(O) &
-    rdgif.$(O) &
-    rdppm.$(O) &
-    rdswitch.$(O) &
-    rdtarga.$(O) &
-    wrbmp.$(O) &
-    wrgif.$(O)
-
-
-
-$(ROOT)$(SEP)lib$(SEP)jpeglib.lib: $(OBJS)
- $(SAY) Creating library $^@
- -@if exist $@ @del $@
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

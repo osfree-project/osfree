@@ -13,4 +13,4 @@ srcfiles = $(p)find95$(e) $(p)kitten$(e) $(p)l2s95$(e) $(p)lfnapi$(e) $(p)more$(
 # defines additional options for linker
 STACKSIZE = 40000
 
-!include $(%ROOT)/mk/dosapp.mk
+!include $(%ROOT)/mk/appsdos.mk

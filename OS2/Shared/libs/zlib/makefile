@@ -4,36 +4,16 @@
 # valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-DIR = $(%ROOT)$(SEP)tools$(SEP)lib
+PROJ = libz
 ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
+TARGETS  = $(PATH)$(PROJ).lib
 
-OBJS = adler32.$(O) compress.$(O) crc32.$(O) gzio.$(O) &
-       uncompr.$(O) deflate.$(O) trees.$(O) zutil.$(O) &
-       inflate.$(O) inftrees.$(O) &
-       inffast.$(O)
+srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
+           $(p)uncompr$(e) $(p)deflate$(e) $(p)trees$(e) $(p)zutil$(e) &
+           $(p)inflate$(e) $(p)inftrees$(e) &
+           $(p)inffast$(e)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/libsos2.mk
 
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
-
-all: libz.lib .SYMBOLIC
- $(CP) libz.lib $(DIR)$(SEP) $(BLACKHOLE)
- @$(MAKE) install
-
-
-libz.lib: $(OBJS)
- $(DC) $^@
- $(LIB) $(LIBOPT) $^@ +$(OBJS)
-
-
-install: .SYMBOLIC
- $(CP) libz.lib ..$(SEP)..$(SEP)..$(SEP)..$(SEP)lib
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
