@@ -18,7 +18,6 @@ int main(int argc, const char **argv)
 
     init_options();
 
-
     len=0;
     while (off<size)
     {
