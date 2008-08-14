@@ -177,7 +177,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -210,10 +210,6 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .y .l .hpp .inc .r
 
 .obj: $(PATH)
 
-.c.obj: .AUTODEPEND
- $(SAY) Compiling $< $(LOG)
- $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $< $(LOG)
-
 .l.c: .AUTODEPEND
  $(DC) $@
  lex -t $[@ >$@
@@ -222,6 +218,10 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .y .l .hpp .inc .r
  $(DC) $^*.h
  $(DC) $^*.c
  yacc -y -d -o $^@ $[@
+
+.c.obj: .AUTODEPEND
+ $(SAY) Compiling $< $(LOG)
+ $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $< $(LOG)
 
 .asm.obj: .AUTODEPEND
  $(SAY) Assembling $< $(LOG)
@@ -299,6 +299,6 @@ tst: .SYMBOLIC
  $(SAY) $(PATH)
 
 a: .SYMBOLIC
- $(SAY) $(COPT)
+ $(SAY) $(SUF)
 
 !endif
