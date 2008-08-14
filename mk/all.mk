@@ -216,7 +216,7 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .y .l .hpp .inc .r
 
 .l.c: .AUTODEPEND
  $(DC) $@
- lex -t $[@ | sed -e "s/yy/__IDL_/g" >$@
+ lex -t $[@ >$@
 
 .y.c: .AUTODEPEND
  $(DC) $^*.h

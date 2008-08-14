@@ -12,7 +12,7 @@ srcfiles =  $(p)parser$(e)        &
             $(p)ghash$(e)         &
             $(p)gnode$(e)         &
             $(p)gtree$(e)         &
-            $(p)gatomic$(e)       &
+#            $(p)gatomic$(e)       &
             $(p)glist$(e)         &
             $(p)gslist$(e)        &
             $(p)gprimes$(e)
@@ -24,6 +24,8 @@ srcfiles =  $(p)parser$(e)        &
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
 
-$(PATH)lexer.c: $(MYDIR)lexer.l $(PATH)parser.h
-
 $(PATH)parser.c: $(MYDIR)parser.y
+
+$(PATH)lexer.c: $(MYDIR)lexer.l $(PATH)parser.h
+ $(DC) $@
+ lex -t $[@ | sed -e "s/yy/__IDL_/g" >$@
