@@ -1,4 +1,7 @@
+#include <io.h>
 #include <cfgparser.h>
+#include <modmgr.h>
+#include <memmgr.h>
 
  /*********************************************************************
  * Here everything starts. This is the main function of the           *
@@ -8,6 +11,7 @@ int main(int argc, const char **argv)
 {
     int rc;               // Return code
     void *addr;           // Pointer to CONFIG.SYS in memory
+    int size;             // Size of CONFIG.SYS in memory
 
     io_printf("OS/2 Server started\n");
 

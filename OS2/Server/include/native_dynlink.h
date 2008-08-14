@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Or see <http://www.gnu.org/licenses/>
 */
-#include <processlx.h>
+//#include <processlx.h>
 
 #ifndef _NATIVE_DYNLINK_H_
 #define _NATIVE_DYNLINK_H_
@@ -28,16 +28,16 @@
 extern "C" {
 #endif
 
- 
+
 
 struct native_module_rec {
-	char * file_name_path; 
-	char * file_name;
-	char * mod_name;      /* Name of module. */
-	void * module_struct; /* Pointer to LX_module. */
-	void *next;	          /* Next element or NULL at end. */
-	int load_status;      /* Status variable to check for recursion in loading state. 
-	                         A one means it is being loaded and zero it is done. */
+        char * file_name_path;
+        char * file_name;
+        char * mod_name;      /* Name of module. */
+        void * module_struct; /* Pointer to LX_module. */
+        void *next;               /* Next element or NULL at end. */
+        int load_status;      /* Status variable to check for recursion in loading state.
+                                 A one means it is being loaded and zero it is done. */
 };
 
 void init_native_dynlink(void);
@@ -52,7 +52,7 @@ void * native_load_module(char * name, struct t_processlx *proc);
 struct native_module_rec * native_get_root();
 struct native_module_rec * native_get_next(struct native_module_rec * el);
 char * native_get_name(struct native_module_rec * el);
-struct LX_module * native_get_module(struct native_module_rec * el);
+//struct LX_module * native_get_module(struct native_module_rec * el);
 void native_print_module_table(void);
 void set_native_libpath(char ** path, int nr);
 char ** get_native_libpath();

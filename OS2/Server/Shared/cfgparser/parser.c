@@ -496,23 +496,26 @@ return 0;
 /**********************************************************************
  * error() gets an error message as the only argument, prints it to   *
  * the screen and ends the programm.                                  *
+   @todo remove this and return error codes instead
  **********************************************************************/
 void error(char *msg)
 {
-                  printf("failure-exit:\n%s",msg);
+                  io_printf("failure-exit:\n%s",msg);
                   exit(-1);
 }
 
 /**********************************************************************
  * warn() gets an warning message as the only argument, prints it to  *
  * the screen and returns -1.                                         *
+   @todo remove this and return error codes instead
  **********************************************************************/
 int warn(char *msg)
 {
-                  printf("warning:\n%s\n",msg);
+                  io_printf("warning:\n%s\n",msg);
                   return(-1);
 }
 
+/*! @todo Add check for exceed MAXLENGTH */
 void cfg_parse_config(void * addr, int size)
 {
     int  off = 0;         // Current offset in CONFIG.SYS memory area

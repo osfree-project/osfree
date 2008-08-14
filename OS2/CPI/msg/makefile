@@ -24,6 +24,7 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk name      $(PROJ).dll
  @%append $^&.lnk format    os2 lx dll initglobal
  @%append $^&.lnk option    manyautodata
+ @%append $^&.lnk option    caseexact
  @%append $^&.lnk segment   type DATA shared
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
@@ -32,20 +33,20 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk   DOSTRUEGETMESSAGE DOSCALLS.384,
  @%append $^&.lnk   DOSINSMESSAGE DOSCALLS.385,
  @%append $^&.lnk   DosInsertMessage DOSCALLS.386,
- @%append $^&.lnk   DosPutMessage2 DOSCALLS.387,
- @%append $^&.lnk   DosTrueGetMessage2 DOSCALLS.388,
+ @%append $^&.lnk   DosPutMessage DOSCALLS.387,
+ @%append $^&.lnk   DosTrueGetMessage DOSCALLS.388,
  @%append $^&.lnk   DOSIQUERYMESSAGECP DOSCALLS.389,
- @%append $^&.lnk   DosIQueryMessageCP2 DOSCALLS.390,
+ @%append $^&.lnk   DosIQueryMessageCP DOSCALLS.390,
  @%append $^&.lnk   DOSCLOSEMESSAGEFILE DOSCALLS.649
  @%append $^&.lnk export
  @%append $^&.lnk   DOSPUTMESSAGE.1,
  @%append $^&.lnk   DOSTRUEGETMESSAGE.2,
  @%append $^&.lnk   DOSINSMESSAGE.3,
  @%append $^&.lnk   DosInsertMessage.4,
- @%append $^&.lnk   DosPutMessage2.5,
- @%append $^&.lnk   DosTrueGetMessage2.6,
+ @%append $^&.lnk   DosPutMessage.5,
+ @%append $^&.lnk   DosTrueGetMessage.6,
  @%append $^&.lnk   DOSIQUERYMESSAGECP.7,
- @%append $^&.lnk   DosIQueryMessageCP2.8,
+ @%append $^&.lnk   DosIQueryMessageCP.8,
  @%append $^&.lnk   DOSCLOSEMESSAGEFILE.9
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
