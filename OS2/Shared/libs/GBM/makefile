@@ -1,33 +1,17 @@
 # Makefile for common shared libs
 
-
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
+PROJ = gbm
 ADD_COPT = -i=..$(SEP)include -dENABLE_IJG -dENABLE_PNG -dENABLE_TIF
+srcfiles = $(p)gbm$(e)    $(p)gbmpbm$(e)  $(p)gbmpgm$(e) $(p)gbmppm$(e) $(p)gbmpnm$(e)  &
+           $(p)gbmbmp$(e) $(p)gbmtga$(e)  $(p)gbmkps$(e) $(p)gbmiax$(e) $(p)gbmpcx$(e)  &
+           $(p)gbmtif$(e) $(p)gbmlbm$(e)  $(p)gbmvid$(e) $(p)gbmgif$(e) $(p)gbmxbm$(e)  &
+           $(p)gbmspr$(e) $(p)gbmpsg$(e)  $(p)gbmgem$(e) $(p)gbmcvp$(e) $(p)gbmjpg$(e)  &
+           $(p)gbmpng$(e) $(p)gbmxpm$(e)  $(p)gbmxpmcn$(e) $(p)gbmhelp$(e) $(p)gbmmap$(e) &
+           $(p)gbmmem$(e)
 
+!include $(%ROOT)/mk/libsos2.mk
 
-!include $(%ROOT)/mk/all.mk
+TARGETS  = $(PATH)$(PROJ).lib
 
-
-
-all: $(ROOT)$(SEP)lib$(SEP)gbm.lib .SYMBOLIC
-
-OBJS = gbm.$(O) gbmpbm.$(O)  gbmpgm.$(O) gbmppm.$(O) gbmpnm.$(O)  &
-          gbmbmp.$(O) gbmtga.$(O)  gbmkps.$(O) gbmiax.$(O) gbmpcx.$(O)  &
-          gbmtif.$(O) gbmlbm.$(O)  gbmvid.$(O) gbmgif.$(O) gbmxbm.$(O)  &
-          gbmspr.$(O) gbmpsg.$(O)  gbmgem.$(O) gbmcvp.$(O) gbmjpg.$(O)  &
-          gbmpng.$(O) gbmxpm.$(O)  gbmxpmcn.$(O) gbmhelp.$(O) gbmmap.$(O) &
-          gbmmem.$(O)
-
-$(ROOT)$(SEP)lib$(SEP)gbm.lib: $(OBJS)
- $(SAY) Creating library $^@
- -@if exist $@ @del $@
- @$(LIB) $(LIBOPT) -c $@ +$< $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

@@ -5,7 +5,7 @@
 #
 
 # before build command line tools build "shared" libraries
-DIRS=zlib lpng JpegLib # GDLib GBM libtiff pdcurses glib libIDL
+DIRS=zlib lpng JpegLib GDLib GBM libtiff pdcurses libIDL # glib
 
 !include $(%ROOT)/mk/all.mk
 

@@ -2,42 +2,14 @@
 #
 # Makefile for common shared libs
 
-
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
+PROJ = gdlib
 ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG -ecc
+TARGETS  = $(PATH)$(PROJ).lib
+srcfiles = $(p)gd_jpeg$(e) $(p)gd_io_file$(e) $(p)gd_png$(e) $(p)gd$(e) $(p)gdfontg$(e) $(p)gdfontl$(e) &
+           $(p)gdfontmb$(e) $(p)gdfonts$(e) $(p)gdfontt$(e) $(p)gdhelpers$(e) $(p)gdtables$(e) &
+           $(p)gd_io$(e) $(p)gd_io_dp$(e)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/libsos2.mk
 
-
-
-all: $(ROOT)$(SEP)lib$(SEP)gdlib.lib .SYMBOLIC
-
-OBJS = gd_jpeg.$(O) &
-    gd_io_file.$(O) &
-    gd_png.$(O) &
-    gd.$(O) &
-    gdfontg.$(O) &
-    gdfontl.$(O) &
-    gdfontmb.$(O) &
-    gdfonts.$(O) &
-    gdfontt.$(O) &
-    gdhelpers.$(O) &
-    gdtables.$(O) &
-    gd_io.$(O) &
-    gd_io_dp.$(O)
-
-
-
-$(ROOT)$(SEP)lib$(SEP)gdlib.lib: $(OBJS)
- $(SAY) Creating library $^@
- -@if exist $@ @del $@
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

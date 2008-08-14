@@ -1,61 +1,19 @@
 # Makefile for common shared libs
 
-
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
+PROJ = libtiff
 ADD_COPT = -i=..$(SEP)include
 
-!include $(%ROOT)/mk/all.mk
+srcfiles = $(p)tif_aux$(e) $(p)tif_close$(e) $(p)tif_codec$(e) $(p)tif_color$(e) $(p)tif_compress$(e) &
+           $(p)tif_dir$(e) $(p)tif_dirinfo$(e) $(p)tif_dirread$(e) $(p)tif_dirwrite$(e) $(p)tif_dumpmode$(e) &
+           $(p)tif_error$(e) $(p)tif_extension$(e) $(p)tif_fax3$(e) $(p)tif_fax3sm$(e) $(p)tif_flush$(e) &
+           $(p)tif_getimage$(e) $(p)tif_jpeg$(e) $(p)tif_luv$(e) $(p)tif_lzw$(e) $(p)tif_next$(e) $(p)tif_open$(e) &
+           $(p)tif_os2$(e) $(p)tif_packbits$(e) $(p)tif_pixarlog$(e) $(p)tif_predict$(e) $(p)tif_print$(e) &
+           $(p)tif_read$(e) $(p)tif_strip$(e) $(p)tif_swab$(e) $(p)tif_thunder$(e) $(p)tif_tile$(e) $(p)tif_version$(e) &
+           $(p)tif_warning$(e) $(p)tif_write$(e) $(p)tif_zip$(e)
 
+!include $(%ROOT)/mk/libsos2.mk
 
+TARGETS  = $(PATH)$(PROJ).lib
 
-all: $(ROOT)$(SEP)lib$(SEP)libtiff.lib .SYMBOLIC
-
-OBJS = tif_aux.$(O) &
-tif_close.$(O) &
-tif_codec.$(O) &
-tif_color.$(O) &
-tif_compress.$(O) &
-tif_dir.$(O) &
-tif_dirinfo.$(O) &
-tif_dirread.$(O) &
-tif_dirwrite.$(O) &
-tif_dumpmode.$(O) &
-tif_error.$(O) &
-tif_extension.$(O) &
-tif_fax3.$(O) &
-tif_fax3sm.$(O) &
-tif_flush.$(O) &
-tif_getimage.$(O) &
-tif_jpeg.$(O) &
-tif_luv.$(O) &
-tif_lzw.$(O) &
-tif_next.$(O) &
-tif_open.$(O) &
-tif_os2.$(O) &
-tif_packbits.$(O) &
-tif_pixarlog.$(O) &
-tif_predict.$(O) &
-tif_print.$(O) &
-tif_read.$(O) &
-tif_strip.$(O) &
-tif_swab.$(O) &
-tif_thunder.$(O) &
-tif_tile.$(O) &
-tif_version.$(O) &
-tif_warning.$(O) &
-tif_write.$(O) &
-tif_zip.$(O)
-
-$(ROOT)$(SEP)lib$(SEP)libtiff.lib: $(OBJS)
- $(SAY) Creating library $^@
- -@if exist $@ @del $@
- @$(LIB) $(LIBOPT) $@ +$< $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

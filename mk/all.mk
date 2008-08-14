@@ -177,7 +177,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -189,6 +189,10 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas
 .pas: $(MYDIR)
 
 .pp:  $(MYDIR)
+
+.l:   $(MYDIR)
+
+.y:   $(MYDIR)
 
 .wmp: $(PATH)
 
@@ -209,6 +213,15 @@ SUF = .sym .exe .dll .lib .obj .res .lnk .inf .c .cpp .asm .h .hpp .inc .rc .pas
 .c.obj: .AUTODEPEND
  $(SAY) Compiling $< $(LOG)
  $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $< $(LOG)
+
+.l.c: .AUTODEPEND
+ $(DC) $@
+ lex -t $[@ | sed -e "s/yy/__IDL_/g" >$@
+
+.y.c: .AUTODEPEND
+ $(DC) $^*.h
+ $(DC) $^*.c
+ yacc -y -d -o $^@ $[@
 
 .asm.obj: .AUTODEPEND
  $(SAY) Assembling $< $(LOG)
