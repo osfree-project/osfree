@@ -1,45 +1,16 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:10 prokushev Exp $
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS = 1
-DIR = $(FILESDIR)$(SEP)os2
 PROJ = cmd
 DESC = Command processor
-OBJS = main.$(O) parser.$(O) os2init.$(O) cmds.$(O) expand.$(O) eval.$(O) &
-           ea.$(O) dircmds.$(O) filecmds.$(O) syscmds.$(O) os2cmds.$(O)   &
-           os2calls.$(O) misc.$(O) env.$(O) batch.$(O) screenio.$(O) msg.$(O) &
-           error.$(O) window.$(O) listall.$(O) lines.$(O) kparse.$(O)        &
-           iofmt32.$(O) select.$(O) os2tty.$(O) iparse.$(O)     &
-           bcd32.$(O) os32util.$(O) ..$(SEP)shared$(SEP)istring.$(O)
-ADD_COPT = -i=..$(SEP)include -ox
+srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(e) $(p)eval$(e) &
+           $(p)ea$(e) $(p)dircmds$(e) $(p)filecmds$(e) $(p)syscmds$(e) $(p)os2cmds$(e)   &
+           $(p)os2calls$(e) $(p)misc$(e) $(p)env$(e) $(p)batch$(e) $(p)screenio$(e) $(p)msg$(e) &
+           $(p)error$(e) $(p)window$(e) $(p)listall$(e) $(p)lines$(e) $(p)kparse$(e)        &
+           $(p)iofmt32$(e) $(p)select$(e) $(p)os2tty$(e) $(p)iparse$(e)     &
+           $(p)bcd32$(e) $(p)os32util$(e) $(p)..$(SEP)shared$(SEP)istring$(e)
+ADD_COPT    = -i=..$(SEP)include -ox
 ADD_LINKOPT = lib math387s, os2$(SEP)os2, os2386
+STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
+RESOURCE    = $(PATH)4os2.res
 
-!include $(%ROOT)/mk/all.mk
-
-all: $(PROJ).exe # $(PROJ).sym
-
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk OPTION STUB=$(FILESDIR)$(SEP)dos$(SEP)stub.exe
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(RC) 4os2.rc $@ $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-
-# Clean target
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(DIR)
+!include $(%ROOT)/mk/appsos2.mk

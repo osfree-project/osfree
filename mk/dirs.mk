@@ -30,7 +30,9 @@ PATH  = $(BLD)$(SEP)$(PATH)
 
 TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
 
-!ifndef ABSOLUTE_DEST
+!ifneq ABSOLUTE_DEST
+!ifneq DEST
 # DEST is relative from $(FILESDIR)
 DEST = $(FILESDIR)$(SEP)$(DEST)
+!endif
 !endif

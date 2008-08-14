@@ -2,8 +2,6 @@
 #
 #
 
-#!include $(%ROOT)/mk/site.mk
-
 32_BITS = 1
 PLATFORM = os2
 ADD_COPT =            $(ADD_COPT) -d__OS2__ &
@@ -45,12 +43,15 @@ rsf: .SYMBOLIC .PROCEDURE
 
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
-dllopt = dll
+dllopts = dll
+!ifdef DLLOPT
+dllopts = $(dllopts) $(DLLOPT)
+!endif
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
-dllopt =
+dllopts =
 !endif
-RCOPT    = -bt=os2
+RCOPT    = -bt=os2 $(RCOPT)
 
 !ifdef RESOURCE
 deps = $(RESOURCE)
@@ -58,7 +59,7 @@ deps = $(RESOURCE)
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
- @%append $^@ SYSTEM os2v2 $(dllopt)
+ @%append $^@ SYSTEM os2v2 $(dllopts)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE

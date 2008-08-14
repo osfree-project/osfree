@@ -84,7 +84,7 @@ DOX       = doxygen
 #RCOPT     = -bt=OS2
 
 RC        = wrc
-RCOPT     =
+RCOPT     = $(RCOPT) $(ADD_RCOPT)
 
 MC        = mkmsgf
 
@@ -281,12 +281,13 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
+!ifneq DEST
  @$(MDHIER) $(DEST)
  @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
+!endif
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
- #@$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
 
 precopy: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
@@ -295,10 +296,7 @@ precopy: .SYMBOLIC
  @$(SAY) Error (!)
  @%abort
 
-tst: .SYMBOLIC
- $(SAY) $(PATH)
-
 a: .SYMBOLIC
- $(SAY) $(SUF)
+ $(SAY) $(OBJS)
 
 !endif

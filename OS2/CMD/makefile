@@ -5,14 +5,14 @@
 #
 
 # before build command line tools build "shared" libraries
-DIRS = shared  ansi  #&
-             # attrib &
+DIRS = shared ansi   &
+              attrib &
               bldlevel &
               chkdsk &
               cls &
               cmd &
               comp &
-              #diskcomp &
+#              diskcomp &
               diskcopy &
               eject &
               fdisk &
@@ -30,14 +30,14 @@ DIRS = shared  ansi  #&
               mkdir &
               mode &
               more &
-              print &
+#              print &
               recover &
               sort &
               sysinstx &
               syslevel &
               tedit &
               tree &
-              tshell &
+#              tshell &
               undelete &
               ver &
               vol &

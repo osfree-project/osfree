@@ -5,9 +5,6 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
 # Add other targets here upon their maturity
 #   Moved the help dir to last, in that case the tools for inf files
 #   is not available.
@@ -15,12 +12,5 @@ DIRS = shared cmd keystack shralias option2 jpos2dll help
 
 !include $(%ROOT)/mk/all.mk
 
-
-all: .SYMBOLIC
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
- @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+TARGETS = subdirs
+TARGET = all
