@@ -3,8 +3,8 @@
 * REName MODULe
 * Renames OS/2 modules (EXE or DLL)
 * Partial rewrite by Aaron Lawrence
-* From RNDLL By Harald Pollack 
-* 
+* From RNDLL By Harald Pollack
+*
 *
 * 1989 08 23 h.p.
 * 1990 11 19 h.p.
@@ -22,7 +22,7 @@
 #pragma pack(1)
 
 /* Module header structure */
-typedef struct 
+typedef struct
 {
   /* sign1, 2 */  /* 00 */
   unsigned short partpag; /* 02 */
@@ -43,7 +43,7 @@ typedef struct
 } MZ_HEADER;
 
 /* LX (new) header */
-typedef struct 
+typedef struct
 {
   char unk1[6];
   unsigned short cpu_type;
@@ -52,7 +52,7 @@ typedef struct
   unsigned long modul_flag;
   char unk2[68];
   unsigned long ResidentNameTableOffset; /* First in table is module name */
-  unsigned long EntryTableOffset; 
+  unsigned long EntryTableOffset;
   unsigned long ModuleDirectivesOffset;
   unsigned long ModuleDirectivesCount;
   unsigned long FixupPageTableOffset;
@@ -70,17 +70,17 @@ int error( int rc, char* message, FILE* f )
 }
 
 /* _System == APIENTRY */
-int _System RenameModule( char* Filename, 
-			  RenameAction action,
-			  char* OldModuleName, 
-			  char* NewModuleName )
+int _System RenameModule( char* Filename,
+                          RenameAction action,
+                          char* OldModuleName,
+                          char* NewModuleName )
 {
   MZ_HEADER MZHeader;
   LX_HEADER LXHeader;
   FILE* f;
 
   char sign[ 2 ];
-  char ModuleNameLen;
+  int ModuleNameLen;
   char ModuleName[ 256 ];
   int LXHeaderOffset;
   int ImportNameIndex;
@@ -189,15 +189,15 @@ int _System RenameModule( char* Filename,
     if ( action == RENAME_MODULE )
     {
       if ( stricmp( ModuleName, OldModuleName ) != 0 )
-	return error( RC_NAME_MISMATCH, "Specified old name does not match actual module name", f );
+        return error( RC_NAME_MISMATCH, "Specified old name does not match actual module name", f );
       /* update name */
       /* Seek back to start of module name, plus len byte */
       if ( fseek( f, LXHeaderOffset + LXHeader.ResidentNameTableOffset + 1, SEEK_SET ) != 0 )
-	return error( RC_WRITE_ERROR, "Seeking module name", f );
-      
+        return error( RC_WRITE_ERROR, "Seeking module name", f );
+
       if ( fwrite( NewModuleName, ModuleNameLen, 1, f ) != 1 )
-	return error( RC_WRITE_ERROR, "Writing new module name", f );
-      
+        return error( RC_WRITE_ERROR, "Writing new module name", f );
+
       printf( "Done: Module name changed to %s\n", NewModuleName );
     }
   }
@@ -208,7 +208,7 @@ int _System RenameModule( char* Filename,
       return error( RC_INVALID_FORMAT, "Seeking import module name table", f );
 
     NumImportNamesChanged = 0;
-    ImportNameIndex = 0;    
+    ImportNameIndex = 0;
 
     while ( ImportNameIndex < LXHeader.ImportModuleTableCount )
     {
@@ -216,35 +216,35 @@ int _System RenameModule( char* Filename,
       ImportNameOffset = ftell( f );
 
       if ( fread( & ModuleNameLen, sizeof( ModuleNameLen ), 1, f ) != 1 )
-	return error( RC_INVALID_FORMAT, "Reading import name", f );
+        return error( RC_INVALID_FORMAT, "Reading import name", f );
       /* read import name */
       if ( fread( ModuleName, ModuleNameLen, 1, f ) != 1 )
-	return error( RC_INVALID_FORMAT, "Reading import name", f );
+        return error( RC_INVALID_FORMAT, "Reading import name", f );
 
       /* zero terminate */
       ModuleName[ ModuleNameLen ] = 0;
-      printf( "  Import: %s\n", 
-	      ModuleName );
+      printf( "  Import: %s\n",
+              ModuleName );
       if ( action == RENAME_IMPORTED_MODULE )
       {
-	if ( stricmp( ModuleName, OldModuleName ) == 0 )
-	{
-	  printf( "    Found match, changing to %s\n", 
-		  NewModuleName );
-	  
-	  /* seek back to start of name, plus the length byte */
-	  if ( fseek( f, ImportNameOffset + 1, SEEK_SET ) != 0 )
-	    return error( RC_WRITE_ERROR, "Seeking module name", f );
-	  
-	  if ( fwrite( NewModuleName, ModuleNameLen, 1, f ) != 1 )
-	    return error( RC_WRITE_ERROR, "Writing new module name", f );
-	  
-	  /* After fwrite file pointer seems to go somewhere random!!? */
-	  if ( fseek( f, ImportNameOffset + 1 + ModuleNameLen, SEEK_SET ) != 0 )
-	    return error( RC_WRITE_ERROR, "Seeking next module name", f );
-	  
-	  NumImportNamesChanged ++;
-	}
+        if ( stricmp( ModuleName, OldModuleName ) == 0 )
+        {
+          printf( "    Found match, changing to %s\n",
+                  NewModuleName );
+
+          /* seek back to start of name, plus the length byte */
+          if ( fseek( f, ImportNameOffset + 1, SEEK_SET ) != 0 )
+            return error( RC_WRITE_ERROR, "Seeking module name", f );
+
+          if ( fwrite( NewModuleName, ModuleNameLen, 1, f ) != 1 )
+            return error( RC_WRITE_ERROR, "Writing new module name", f );
+
+          /* After fwrite file pointer seems to go somewhere random!!? */
+          if ( fseek( f, ImportNameOffset + 1 + ModuleNameLen, SEEK_SET ) != 0 )
+            return error( RC_WRITE_ERROR, "Seeking next module name", f );
+
+          NumImportNamesChanged ++;
+        }
       }
 
       ImportNameIndex ++;
@@ -253,11 +253,11 @@ int _System RenameModule( char* Filename,
     if ( action == RENAME_IMPORTED_MODULE )
     {
       if ( NumImportNamesChanged == 0 )
-	printf( "No import of '%s' was found, no changes made\n",
-		OldModuleName );
+        printf( "No import of '%s' was found, no changes made\n",
+                OldModuleName );
       else
-	printf( "Done: %d import names changed\n",
-		NumImportNamesChanged );
+        printf( "Done: %d import names changed\n",
+                NumImportNamesChanged );
     }
     else
     {
