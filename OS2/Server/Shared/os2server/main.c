@@ -1,43 +1,35 @@
+#include <cfgparser.h>
+
  /*********************************************************************
  * Here everything starts. This is the main function of the           *
  * OS/2 Server.                                                       *
  **********************************************************************/
 int main(int argc, const char **argv)
 {
-    int err, ret = 1;
-    void *addr;
-    int  off = 0;
-    const char *servername;
-    const char *filename;
-    char line[MAXLENGTH]; // here I store the lines I read
-    int len=0;          // length of returned line
-    char c;
-    l4_size_t size;    // size of config.sys
+    int rc;               // Return code
+    void *addr;           // Pointer to CONFIG.SYS in memory
 
-    printf("OS/2 Server started\n");
+    io_printf("OS/2 Server started\n");
 
-    init_options();
+    // Initialize initial values from CONFIG.SYS
+    rc=cfg_init_options();
 
-    len=0;
-    while (off<size)
-    {
-      c=((char *)addr+off)[0];
-      line[len]=c;
-      if (c=='\n')
-      {
-        line[len]='\0';
-        if(!parse(line,len)) error("parse: an error occured\n");
-        len=0;
-      } else {
-        len++;
-      }
-      off++;
-    }
+    // Load CONFIG.SYS into memory
+    rc=io_load_file(filename, &addr, &size);
 
+    // Parse CONFIG.SYS in memory
+    rc=cfg_parse_config(addr, size);
 
-    printf("PROTSHELL=%s\n", options.protshell);
+    // Remove CONFIG.SYS from memory
+    rc=memmgr_free(addr, size);
 
-    cleanup();
+    // Load and execute shell
+    rc=modmgr_execute_module(options.protshell);
 
-    return ret;
+    // Clean up config data
+    rc=cfg_cleanup();
+
+    io_printf("OS/2 Server ended\n");
+
+    return rc;
 }

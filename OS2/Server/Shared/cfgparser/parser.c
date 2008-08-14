@@ -66,7 +66,7 @@ char *options_list[]={"AUTOFAIL","BUFFERS","CLOCKSCALE","CLOSEFILES",
  * init_options() sets the default values in the options structure    *
  **********************************************************************/
 
-int init_options()
+int cfg_init_options()
 {
         char * p;
 
@@ -88,33 +88,13 @@ int init_options()
 }
 
 
-/**********************************************************************
- * print_tree() is some kind of debug or test function. It only       *
- * prints out the part of config.sys we use. It has to be replaced by *
- * something useful.                                                  *
- **********************************************************************/
-int print_tree()
-{
-        int x=1, i=0;
-
-        printf("Config tree:\n\n");
-
-        for(i=0;i<sizeof(type)/sizeof(struct types);i++) {
-                printf("%s:\n",type[i].name);
-                for(x=1;x-1<type[i].ip;x++) {
-                        printf("\t%s\n",type[i].sp[x-1]);
-                }
-        }
-        return(1);
-}
-
 
 /**********************************************************************
  * The main parse function; gets a line and its length as arguments,  *
  * parses it, puts the content to the array it belongs to and returns.*
  * On error it returns NULL                                           *
  **********************************************************************/
-int parse(char line[], int len)
+int cfg_parse_line(char line[], int len)
 {
         int count=0,i=0;
         int helper=0;
@@ -496,7 +476,7 @@ int parse(char line[], int len)
  * cleanup() does what it name says: It cleans up ;-) It frees the    *
  * memory, the program used.                                          *
  **********************************************************************/
-int cleanup()
+int cfg_cleanup()
 {
 int i=0,j;
 
@@ -533,19 +513,26 @@ int warn(char *msg)
                   return(-1);
 }
 
-/* Print string in hex numbers and remove end of line characters. */
-void print_str_hex(char *st) {
-    int i=0;
-    int l=strlen(st);
-    for(i=0; i<l; i++) {
-        printf("0x%x,",((int)st[i]));
-        if( ((int)st[i]) == 0xd) {/* End of line char, remove it. */
-            st[i] = ' ';
-            printf("Fixed eol char at (dec) %d.\n", i);
-        }
+void cfg_parse_config(void * addr, int size)
+{
+    int  off = 0;         // Current offset in CONFIG.SYS memory area
+    char line[MAXLENGTH]; // here I store the lines I read
+    int len=0;            // length of returned line
+    char c;               // Current character in CONFIG.SYS
+
+    len=0;
+    while (off<size)
+    {
+      c=((char *)addr+off)[0];
+      line[len]=c;
+      if (c=='\n')
+      {
+        line[len]='\0';
+        if(!cfg_parse_line(line,len)) error("parse: an error occured\n");
+        len=0;
+      } else {
+        len++;
+      }
+      off++;
     }
-    printf("\n");
-}
-
-
-
+};

@@ -60,9 +60,10 @@ typedef struct {
 } cfg_opts;
 
 // Function prototypes
-int init_options(void);
-int parse(char *, int);
+int cfg_init_options(void);
+int cfg_parse_line(char *, int);
+int cfg_cleanup(void);
+void cfg_parse_config(void * addr, int size)
+
 void error(char *);
-int print_tree(void);
-int cleanup(void);
 int warn(char *);
