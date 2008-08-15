@@ -1,4 +1,4 @@
-/*
+  /*
     LXLoader - Loads LX exe files or DLLs for execution or to extract information from.
     Copyright (C) 2007  Sven Rosén (aka Viking)
 
@@ -28,6 +28,8 @@ extern "C" {
 #endif
 
 #include "gcc_os2def.h"
+
+#ifndef __OS2__
 /* Process Information Block structure. */
 #ifdef INCL_DOSPROCESS
 typedef struct _PIB {
@@ -43,16 +45,16 @@ typedef struct _PIB {
 typedef PIB *PPIB;
 #endif
 /*
-An OS/2 application that has been loaded into memory and prepared for execution is 
-called a process. A process is the code, data, and other resources of an application, 
-such as file handles, semaphores, pipes, queues, and so on. The OS/2 operating system 
-considers every application it loads to be a process. 
+An OS/2 application that has been loaded into memory and prepared for execution is
+called a process. A process is the code, data, and other resources of an application,
+such as file handles, semaphores, pipes, queues, and so on. The OS/2 operating system
+considers every application it loads to be a process.
 
-Information about a process is kept in a read/write area of the process address space, 
-called the Process Information Block (PIB). The operating system creates and maintains 
-a PIB for every process in the system. 
+Information about a process is kept in a read/write area of the process address space,
+called the Process Information Block (PIB). The operating system creates and maintains
+a PIB for every process in the system.
 
-An application can access the PIB of a specific process using DosGetInfoBlocks. 
+An application can access the PIB of a specific process using DosGetInfoBlocks.
 */
 
 
@@ -88,31 +90,33 @@ typedef struct _TIB {
 typedef TIB *PTIB;
 
 #endif
+
+#endif
 /*
-A thread is a dispatchable unit of executable code that consists of  set of instructions, 
-related CPU register values, and a stack. Every process has at least one thread and can 
-have many threads running at the same time. The application runs when the operating 
-system gives control to a thread in a process. A thread is the basic unit of execution. 
+A thread is a dispatchable unit of executable code that consists of  set of instructions,
+related CPU register values, and a stack. Every process has at least one thread and can
+have many threads running at the same time. The application runs when the operating
+system gives control to a thread in a process. A thread is the basic unit of execution.
 
-Information about a thread is kept in a read/write area of the process address space, 
-called the Thread Information Block (TIB). The operating system creates and maintains 
-a TIB for every thread in the system. 
+Information about a thread is kept in a read/write area of the process address space,
+called the Thread Information Block (TIB). The operating system creates and maintains
+a TIB for every thread in the system.
 
-An application can access the TIB of a specific thread using DosGetInfoBlocks. 
+An application can access the TIB of a specific thread using DosGetInfoBlocks.
 
-Note:  The fields of this data structure should not be modified unless you are switching 
-       stacks, in which case only the tib_pstack and tib_pstacklimit should changed. 
+Note:  The fields of this data structure should not be modified unless you are switching
+       stacks, in which case only the tib_pstack and tib_pstacklimit should changed.
 */
 
 struct t_processlx {
-	struct LX_module * lx_mod;
-	int pid;
-	
-	void * code_mmap;
-	void * stack_mmap;
-	struct _PIB * lx_pib;
-	struct _TIB * main_tid;
-	struct t_mem_area root_mem_area;
+        struct LX_module * lx_mod;
+        int pid;
+
+        void * code_mmap;
+        void * stack_mmap;
+        struct _PIB * lx_pib;
+        struct _TIB * main_tid;
+        struct t_mem_area root_mem_area;
 };
 
 struct t_processlx * processlx_create(struct LX_module * lx_m);
@@ -125,3 +129,4 @@ void processlx_destroy(struct t_processlx * proc);
 #endif
 
 #endif
+

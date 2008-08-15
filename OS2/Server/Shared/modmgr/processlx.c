@@ -21,15 +21,15 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #define INCL_DOSPROCESS
-#include "processlx.h"
-#include "modlx.h"
+#include <processlx.h>
+#include <modlx.h>
 
 
-/* #define INCL_DOSPROCESS */
-/* #include <os2.h> */
+//#define INCL_DOSPROCESS
+//#include <bsetib.h>
 
 
-/*ULONG     pib_ulpid;      Process identifier. 
+/*ULONG     pib_ulpid;      Process identifier.
   ULONG     pib_ulppid;     Parent process identifier.
   ULONG     pib_hmte;       Module handle of executable program.
   PCHAR     pib_pchcmd;     Command line pointer.
@@ -40,43 +40,43 @@
 /* Creates a process for an LX-module. */
 struct t_processlx * processlx_create(struct LX_module * lx_m) {
 
-	struct t_processlx * c = (struct t_processlx *) malloc(sizeof(struct t_processlx));
-	c->lx_pib   = (_PIB*) malloc(sizeof(struct _PIB));
-	c->main_tid = (_TIB*) malloc(sizeof(struct _TIB));
+        struct t_processlx * c = (struct t_processlx *) malloc(sizeof(struct t_processlx));
+        c->lx_pib   = (struct _PIB*) malloc(sizeof(PIB));
+        c->main_tid = (struct _TIB*) malloc(sizeof(TIB));
 
     if (c != NULL) {
-		c->pid = 1;
-		c->code_mmap = 0;
-		c->stack_mmap = 0;
-		c->lx_mod = lx_m;
-		
-		c->lx_pib->pib_ulpid = 1;
-		c->lx_pib->pib_ulppid = 0;
-		c->lx_pib->pib_hmte = (ULONG) lx_m;
-		c->lx_pib->pib_pchcmd = "";
-		c->lx_pib->pib_pchenv = "";
-		
-		init_memmgr(&c->root_mem_area); /* Initialize the memory registry. */
-		/* Registrate base invalid area. */ 
-		alloc_mem_area(&c->root_mem_area, (void*) 1, 0xfffd);  
-		/* Make sure the the lower 64 kb address space is marked as used. */
-	}
+                c->pid = 1;
+                c->code_mmap = 0;
+                c->stack_mmap = 0;
+                c->lx_mod = lx_m;
+
+                c->lx_pib->pib_ulpid = 1;
+                c->lx_pib->pib_ulppid = 0;
+                c->lx_pib->pib_hmte = (ULONG) lx_m;
+                c->lx_pib->pib_pchcmd = "";
+                c->lx_pib->pib_pchenv = "";
+
+                init_memmgr(&c->root_mem_area); /* Initialize the memory registry. */
+                /* Registrate base invalid area. */
+                alloc_mem_area(&c->root_mem_area, (void*) 1, 0xfffd);
+                /* Make sure the the lower 64 kb address space is marked as used. */
+        }
     return(c);
 }
 
 void processlx_destroy(struct t_processlx * proc) {
-	/* Avmappar filen. */
-	struct o32_obj * kod_obj = (struct o32_obj *) get_code(proc->lx_mod);
-	int ret_munmap = munmap((void*) kod_obj->o32_base,  
-			kod_obj->o32_size); 
-	
-	
-	if(ret_munmap != 0) 
-		printf("Error at unmapping of fh: %p\n", proc->lx_mod->fh);
-	else
-		printf("\nUnmapping fh: %p\n\n", proc->lx_mod->fh);
-	
-	free(proc->lx_pib);
-	free(proc->main_tid);
-	free(proc);
+        /* Avmappar filen. */
+        struct o32_obj * kod_obj = (struct o32_obj *) get_code(proc->lx_mod);
+        int ret_munmap = munmap((void*) kod_obj->o32_base,
+                        kod_obj->o32_size);
+
+
+        if(ret_munmap != 0)
+                printf("Error at unmapping of fh: %p\n", proc->lx_mod->fh);
+        else
+                printf("\nUnmapping fh: %p\n\n", proc->lx_mod->fh);
+
+        free(proc->lx_pib);
+        free(proc->main_tid);
+        free(proc);
 }

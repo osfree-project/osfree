@@ -2,7 +2,6 @@
     OS/2 typedefs and constants for 32-bit development.
 */
 
-
 #ifndef __OS2DEF_H__
 #define __OS2DEF_H__
 
@@ -35,7 +34,7 @@
 #define LOUSHORT(l) ((USHORT)((ULONG)l))
 #define HIUSHORT(l) ((USHORT)(((ULONG)(l) >> 16) & 0xffff))
 
-#define NULLHANDLE  ((LHANDLE)0)
+//#define NULLHANDLE  ((LHANDLE)0)
 
 #define MAKEERRORID(sev, error) (ERRORID)(MAKEULONG((error), (sev)))
 #define ERRORIDERROR(errid)     (LOUSHORT(errid))
@@ -118,8 +117,8 @@ typedef USHORT  SEL, *PSEL;
 
 typedef LHANDLE HFILE, *PHFILE;
 typedef LHANDLE HMODULE, *PHMODULE;
-typedef LHANDLE PID, *PPID;
-typedef LHANDLE TID, *PTID;
+//typedef LHANDLE PID, *PPID;
+//typedef LHANDLE TID, *PTID;
 typedef ULONG   HEV,  *PHEV;
 typedef ULONG   HMTX, *PHMTX;
 typedef ULONG   HMUX, *PHMUX;
@@ -128,6 +127,8 @@ typedef HSEM    *PHSEM;
 typedef USHORT  SGID;
 
 typedef ULONG   ERRORID, *PERRORID;
+
+#ifndef __OS2__
 
 typedef struct _QWORD {
     ULONG   ulLo;
@@ -143,6 +144,8 @@ typedef struct _ICONINFO {
     ULONG   cbIconData;
     PVOID   pIconData;
 } ICONINFO, *PICONINFO;
+
+#endif
 
 #endif
 

@@ -24,8 +24,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <modlx.h>
-//#include <loadobjlx.h>
+#include <modlx.h>
+#include <loadobjlx.h>
 
 #include <native_dynlink.h>
 
@@ -51,18 +51,6 @@ void init_native_dynlink(void) {
         native_module_root.next = 0;
 }
 
-#ifdef SDIOS
-#include <ctype.h>
-int strcasecmp(const char* dest, const char* src)
-{
-        while(*dest != 0 && toupper(*src) == toupper(*dest)) {
-                dest++;
-                src++;
-        }
-
-        return *dest - *src;
-}
-#endif
 
         /* Register a module with the name. */
 struct native_module_rec *
@@ -153,6 +141,10 @@ void * native_load_module(char * name, struct t_processlx *proc) {
 
         native_find_module_path(name, p_buf); /* Searches for module name and returns the full path in
                                                                         the buffer p_buf. */
+        if (!strcmp(name, "DOSCALLS"))
+        {
+          p_buf=name;
+        }
 
         printf("load_module: '%s' \n", p_buf);
 
@@ -175,8 +167,7 @@ void * native_load_module(char * name, struct t_processlx *proc) {
 
                         /* A risk for cycles here. Need to check if a dll is already loading,
                            indirect recursion.*/
-                /*
-                do_fixup_code_data_lx(lx_exe_mod, proc); // Apply fixups.  */
+//                do_fixup_code_data_lx(lx_exe_mod, proc); // Apply fixups.
                 new_module_el->load_status = DONE_LOADING;
                 return handle;
         }
@@ -283,6 +274,22 @@ void * native_get_func_ptr_ord_modname(int ord, char * modname)
         mod_handle = native_find_module(modname, /*proc*/ 0);
 
         rval = DosQueryProcAddr( (HMODULE)mod_handle, ord, NULL, (PFN *)&mydltest);
+
+        if (rval)  {
+                fprintf(stderr, "Could not locate ordinal '%d': %d\n", ord, rval);
+                //exit(1);
+        }
+        return mydltest;
+}
+
+void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
+{
+        void * mod_handle;
+        char * error;
+        void * mydltest;
+        APIRET rval;
+
+        rval = DosQueryProcAddr( (HMODULE)native_mod_handle, ord, NULL, (PFN *)&mydltest);
 
         if (rval)  {
                 fprintf(stderr, "Could not locate ordinal '%d': %d\n", ord, rval);
