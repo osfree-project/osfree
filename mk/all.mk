@@ -16,7 +16,7 @@ install: build
 !include $(%ROOT)/mk/genrules.mk
 
 # build and install each target in sequence
-build: precopy prereq .SYMBOLIC
+build: precopy prereq # .SYMBOLIC
  @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
@@ -33,10 +33,10 @@ ASM_DEFS  = -zq -d__WATCOM__
 #
 #!ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
 #!ifeq 32_BITS 1
-COPT      = $(C_DEFS) -i=. &
-                      -i=.. &
-                      $(ADD_COPT)
-ASMOPT    = $(ASM_DEFS)  $(ADD_ASMOPT)
+COPT      = $(C_DEFS) $(ADD_COPT) &
+            -i=. &
+            -i=..
+ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 #!else
 #COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
 #ASMOPT    = -ms $(ASM_DEFS)  $(ADD_ASMOPT)
@@ -220,20 +220,20 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
  yacc -y -d -o $^@ $[@
 
 .c.obj: .AUTODEPEND
- $(SAY) Compiling $< $(LOG)
- $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $< $(LOG)
+ $(SAY) Compiling $[@ $(LOG)
+ $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
- $(SAY) Assembling $< $(LOG)
- $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
+ $(SAY) Assembling $[@ $(LOG)
+ $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
- $(SAY) Compiling $< $(LOG)
- $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $< $(LOG)
+ $(SAY) Compiling $[@ $(LOG)
+ $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .wmp.map: .AUTODEPEND
  $(SAY) Converting Watcom MAP to VAC MAP $< $(LOG)
- $(AWK) -f $(ROOT)$(SEP)bin$(SEP)mapsym.awk <$< >$(PATH)$^@
+ $(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@
 
 .map.sym: .AUTODEPEND
  $(SAY) Converting VAC MAP to OS/2 SYM $< $(LOG)
@@ -297,6 +297,6 @@ precopy: .SYMBOLIC
  @%abort
 
 a: .SYMBOLIC
- $(SAY) $(OBJS)
+ $(SAY) $(COPT)
 
 !endif

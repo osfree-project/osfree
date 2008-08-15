@@ -223,12 +223,12 @@ syntax:
          say '  Oooops ! ... try again.     'errortext(rc)
 
       parse version . rxlevel .
-      if rxlevel > 4.00 then do                /* get the secondary message */
+    /*  if rxlevel > 7.00 then do                /* get the secondary message */
         secondary = condition('o')~message
         if .nil <> secondary then              /* get a real one?           */
                                                /* display it also           */
           say '                              'secondary
-      end
+      end                                               */
   end
   call border                                  /* Go write the border.      */
   if argrx <> '' & queued() = 0 then           /* One-liner not finished    */

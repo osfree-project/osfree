@@ -1,38 +1,38 @@
 #
-# A Makefile for kal.dll
+# A Makefile for Regina REXX Interpreter
 # (c) osFree project,
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+PROJ     = rexx
+DESC     = Regina REXX interpreter
 
-32_BITS  = 1
-DIR      = $(FILESDIR)$(SEP)os2$(SEP)dll
-PROJ     = kal
-DESC     = Kernel Abstracion Layer API
-OBJS     = ..$(SEP)shared$(SEP)stub.$(O) file.$(O)
-ADD_COPT = -i=..$(SEP)include
-LINKOPT  = lib os2386.lib,clib3r.lib
+!include $(%ROOT)/mk/dirs.mk
+!include $(MYDIR)regina.mk
 
+#TARGETS  = $(PATH)rexx.exe # $(PATH)$(LIBFILE) $(PATH)regina.exe $(PATH)test1.dll &
+#           $(PATH)test2.dll $(PATH)execiser.exe $(PATH)rxstack.exe # $(PATH)rxqueue.exe
 
-!include $(%ROOT)/mk/all.mk
+HFILES = $(MYDIR)rexx.h $(MYDIR)defs.h $(MYDIR)extern.h $(MYDIR)regina_t.h $(MYDIR)configur.h $(MYDIR)strings.h
 
-all: build regina.sym
+GCIHEADERS = $(MYDIR)gci\gci.h $(MYDIR)gci\embedded.h $(MYDIR)gci\gci_convert.h
 
-build: .SYMBOLIC
-  @%create wrapper.cmd
-  @%append wrapper.cmd @set REGINA_SRCDIRN=.
-  @%append wrapper.cmd @wmake -f makefile.os2.wcc all DEBUG=Y
-  @wrapper.cmd
-  @$(RM) wrapper.cmd
-  @$(MAKE) $(MAKEOPT) install
+$(PATH)rexx.exe : $(OBJS)
 
-.IGNORE
-clean: .SYMBOLIC
-  $(SAY) Making clean... $(LOG)
-  $(CLEAN_CMD)
+$(OBJS): $(HFILES)
 
-install: .SYMBOLIC
-  $(SAY) Making install... $(LOG)
-  $(CP) regina.dll $(DIR)
+$(PATH)drexx.obj: $(MYDIR)rexx.c $(HFILES)
+
+$(PATH)client.obj: $(MYDIR)client.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
+
+$(PATH)rexxsaa.obj: $(MYDIR)rexxsaa.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
+
+$(PATH)yaccsrc.obj: $(PATH)yaccsrc.c $(MYDIR)defs.h $(MYDIR)rexx.h
+# $(CC) -dYYMAXDEPTH=10000 $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)lexsrc.obj : $(PATH)lexsrc.c $(PATH)yaccsrc.h $(MYDIR)rexx.h
+
+s: .SYMBOLIC
+ $(SAY) $(PATH)
+ $(SAY) $(MYDIR)
+ 

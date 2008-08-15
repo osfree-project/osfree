@@ -21,9 +21,10 @@ static char *RCSid = "$Id: extstack.c,v 1.2 2003/12/11 04:43:08 prokushev Exp $"
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-//#if defined(__WATCOMC__) && defined(OS2)
-//# include <os2/types.h>
-//#endif
+#if defined(__WATCOMC__) && defined(OS2)
+# include <stddef.h>
+# include <os2/types.h>
+#endif
 #include "rexx.h"
 
 #ifdef EXTERNAL_TO_REGINA
