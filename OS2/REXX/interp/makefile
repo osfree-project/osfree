@@ -17,7 +17,7 @@ HFILES = $(MYDIR)rexx.h $(MYDIR)defs.h $(MYDIR)extern.h $(MYDIR)regina_t.h $(MYD
 
 GCIHEADERS = $(MYDIR)gci\gci.h $(MYDIR)gci\embedded.h $(MYDIR)gci\gci_convert.h
 
-$(PATH)rexx.exe : $(OBJS)
+$(PATH)rexx.exe: $(OBJS)
 
 $(OBJS): $(HFILES)
 
@@ -28,11 +28,10 @@ $(PATH)client.obj: $(MYDIR)client.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.
 $(PATH)rexxsaa.obj: $(MYDIR)rexxsaa.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
 
 $(PATH)yaccsrc.obj: $(PATH)yaccsrc.c $(MYDIR)defs.h $(MYDIR)rexx.h
-# $(CC) -dYYMAXDEPTH=10000 $(COPT) -fr=$^*.err -fo=$^@ $[@
 
-$(PATH)lexsrc.obj : $(PATH)lexsrc.c $(PATH)yaccsrc.h $(MYDIR)rexx.h
+$(PATH)lexsrc.obj: $(PATH)lexsrc.c $(PATH)yaccsrc.h $(MYDIR)rexx.h
 
 s: .SYMBOLIC
  $(SAY) $(PATH)
  $(SAY) $(MYDIR)
- 
+ $(SAY) $(COPT)

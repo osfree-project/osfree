@@ -4,7 +4,7 @@
 #
 
 # enable debug
-deb      = Y
+deb      = #Y
 
 LIBFILE=rexx.lib
 DLLBASE=regina
@@ -76,7 +76,7 @@ ADD_LINKOPT += LIBRARY TCPIP32
 ADD_COPT    += -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -4s -wx -zq -mf
 
 srcfiles    = $(RXOBJS) # -dRXLIB
-ADD_COPT    += -sg -st -bt=os2 -dFGC -dOS2 -i=$(MYDIR) -i=$(PATH)
+ADD_COPT    += -sg -st -bt=os2 -dFGC -dOS2 -i=$(PATH) -i=$(MYDIR)
 ADD_LINKOPT +=
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 OPTIONS     = caseexact

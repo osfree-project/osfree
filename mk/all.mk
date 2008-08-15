@@ -182,14 +182,6 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
 
-.c:   $(MYDIR)
-
-.asm: $(MYDIR)
-
-.pas: $(MYDIR)
-
-.pp:  $(MYDIR)
-
 .l:   $(MYDIR)
 
 .y:   $(MYDIR)
@@ -210,14 +202,28 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 
 .obj: $(PATH)
 
+.c:   $(PATH)
+
+.h:   $(PATH)
+
 .l.c: .AUTODEPEND
- $(DC) $@
- lex -t $[@ >$@
+ $(DC) $^@
+ lex -t $[@ >$^@
 
 .y.c: .AUTODEPEND
  $(DC) $^*.h
  $(DC) $^*.c
  yacc -y -d -o $^@ $[@
+
+.c:   $(MYDIR)
+
+.h:   $(MYDIR)
+
+.asm: $(MYDIR)
+
+.pas: $(MYDIR)
+
+.pp:  $(MYDIR)
 
 .c.obj: .AUTODEPEND
  $(SAY) Compiling $[@ $(LOG)
