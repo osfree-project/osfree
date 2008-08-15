@@ -7,6 +7,9 @@ srcfiles = $(p)ccl$(e) $(p)dfa$(e) $(p)ecs$(e) $(p)gen$(e) $(p)main$(e) $(p)misc
 
 !include $(%ROOT)/mk/tools.mk
 
-ADD_COPT = -i=..$(SEP)include -pil
-TARGETS  = $(PATH)$(PROJ).exe
+ADD_COPT = -i=$(PATH) -pil
 STACKSIZE = 65536
+
+#$(PATH)scan.obj:  $(PATH)scan.c
+
+$(PATH)parse.obj: $(PATH)parse.c

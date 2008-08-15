@@ -4,7 +4,7 @@
 #
 
 # enable debug
-deb      = #Y
+deb      = Y
 
 LIBFILE=rexx.lib
 DLLBASE=regina
@@ -47,7 +47,7 @@ genfiles =   $(p)funcs$(e) $(p)builtin$(e) $(p)error$(e) $(p)variable$(e) $(p)in
 
 OFILES =      &
 $(genfiles)          &
-$(p)mt_notmt$(e)  &
+$(p)mt_notmt$(e)
 
 DLOFILES =    &
 $(genfiles)          &
@@ -61,9 +61,9 @@ LIBOBJS   = $(OFILES) $(p)client$(e) $(p)drexx$(e) $(p)rexxsaa$(e)
 RXSTKOBJS = $(p)rxstack$(e) $(p)erexxbif$(e) $(p)eextstack$(e)
 RXQUEOBJS = $(p)rxqueue$(e) $(p)erexxbif$(e) $(p)eextstack$(e)
 
-DLLOBJS   = $(DLOFILES) $(p)client$(e) $(p)drexx$(e) $(p)rexxsaa$(e) $(GCI_SHO) //
-DT1OBJS   = $(p)test1$(e)                                                       // .dlo
-DT2OBJS   = $(p)test2$(e)                                                       //
+DLLOBJS   = $(DLOFILES) $(p)client$(e) $(p)drexx$(e) $(p)rexxsaa$(e) $(GCI_SHO)
+DT1OBJS   = $(p)test1$(e)
+DT2OBJS   = $(p)test2$(e)
 
 !ifeq deb Y
 ADD_COPT    += -d2
