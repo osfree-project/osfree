@@ -23,6 +23,7 @@
 #include <processlx.h>
 #include <dynlink.h>
 #include <fixuplx.h>
+#include <io.h>
 
 /* Small descriptions of possible fixups. (1=variable size, 2=optional fields)
 
@@ -55,120 +56,120 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
   int source_type_mask;
   int fixup_size;
 
-        printf("\n---------List of fixup data ------------- '%p'", rlc);
-        printf("\n");
-        printf("Source Type: %d, (0x%x)\n", rlc->nr_stype, rlc->nr_stype);
+        io_printf("\n---------List of fixup data ------------- '%p'", rlc);
+        io_printf("\n");
+        io_printf("Source Type: %d, (0x%x)\n", rlc->nr_stype, rlc->nr_stype);
 
         source_type_mask = rlc->nr_stype & NRSTYP;
         /*if(source_type_mask == NRSTYP)
-                printf("    0x0F: Source type mask.\n"); */
+                io_printf("    0x0F: Source type mask.\n"); */
         if(source_type_mask == NRSBYT)
-                printf("    0x00: Byte fixup (8-bits).\n");
+                io_printf("    0x00: Byte fixup (8-bits).\n");
         if(source_type_mask == NRSSEG)
-                printf("    0x02: 16-bit segment (16-bits).\n");
+                io_printf("    0x02: 16-bit segment (16-bits).\n");
         if(source_type_mask == NRSPTR)
-                printf("    0x03: 16:16 pointer (32-bits).\n");
+                io_printf("    0x03: 16:16 pointer (32-bits).\n");
         if(source_type_mask == NRSOFF)
-                printf("    0x05: 16-bit offset (16-bits).\n");
+                io_printf("    0x05: 16-bit offset (16-bits).\n");
         if(source_type_mask == NRPTR48)
-                printf("    0x06: 16:32 pointer (48-bits).\n");
+                io_printf("    0x06: 16:32 pointer (48-bits).\n");
         if(source_type_mask == NROFF32)
-                printf("    0x07: 32-bit offset (32-bits).\n");
+                io_printf("    0x07: 32-bit offset (32-bits).\n");
         if(source_type_mask == NRSOFF32)
-                printf("    0x08: 32-bit Self-relative offset fixup(32-bits).\n");
+                io_printf("    0x08: 32-bit Self-relative offset fixup(32-bits).\n");
         if((rlc->nr_stype & NRALIAS) == NRALIAS)
-                printf("    0x10: Fixup to Alias Flag.\n");
+                io_printf("    0x10: Fixup to Alias Flag.\n");
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN)
-                printf("    0x20: Source List Flag.\n");
+                io_printf("    0x20: Source List Flag.\n");
 
 
-        printf("Flags: 0x%x \n", rlc->nr_flags);
+        io_printf("Flags: 0x%x \n", rlc->nr_flags);
         if((rlc->nr_flags & NR8BITORD) == NR8BITORD)  // 0x80
-                printf("    0x80: 8-bit Import Ordinal Flag. \n");
+                io_printf("    0x80: 8-bit Import Ordinal Flag. \n");
 
         if(((rlc->nr_flags & NR32BITOFF) != NR32BITOFF)  // 0x10
                 && ((rlc->nr_flags & NR8BITORD) != NR8BITORD))
-                printf("   !0x10: 16-bit Import Ordinal Flag. \n");
+                io_printf("   !0x10: 16-bit Import Ordinal Flag. \n");
 
         if((rlc->nr_flags & NRRORD) == NRRORD)
-                printf("    0x01: Import by Ordinal Flag. \n");
+                io_printf("    0x01: Import by Ordinal Flag. \n");
 
         if((rlc->nr_flags /*& NRRINT*/) == NRRINT)
-                printf("    0x00: Internal reference. \n");
+                io_printf("    0x00: Internal reference. \n");
 
         if((rlc->nr_flags & NRRNAM) == NRRNAM)
-                printf("    0x02: Import by name. \n");
+                io_printf("    0x02: Import by name. \n");
         if((rlc->nr_flags & NRADD) == NRADD)
-                printf("    0x04: Additive fixup. \n");
+                io_printf("    0x04: Additive fixup. \n");
         if((rlc->nr_flags & NRICHAIN) == NRICHAIN)
-                printf("    0x08: Internal Chaining Fixup. \n");
+                io_printf("    0x08: Internal Chaining Fixup. \n");
         if((rlc->nr_flags & NRRENT) == NRRENT)
-                printf("    0x03: Internal entry table fixup. \n");
+                io_printf("    0x03: Internal entry table fixup. \n");
         if((rlc->nr_flags & NR32BITOFF) == NR32BITOFF)
-                printf("    0x10: 32-bit Target Offset. \n");
+                io_printf("    0x10: 32-bit Target Offset. \n");
         if((rlc->nr_flags & NR32BITADD) == NR32BITADD)
-                printf("    0x20: 32-bit Additive fixup. \n");
+                io_printf("    0x20: 32-bit Additive fixup. \n");
         if((rlc->nr_flags & NR16OBJMOD) == NR16OBJMOD)
-                printf("    0x40: 16-bit Object/Module ordinal. \n");
+                io_printf("    0x40: 16-bit Object/Module ordinal. \n");
         else
-                printf("   !0x40:  8-bit Object/Module ordinal. \n");
+                io_printf("   !0x40:  8-bit Object/Module ordinal. \n");
 
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN)  /* Internal Chaining Fixup */
-                printf("  cnt1:       %.4d (0x%.4x)  ", get_srcoff_cnt1_rlc(rlc), get_srcoff_cnt1_rlc(rlc));
+                io_printf("  cnt1:       %.4d (0x%.4x)  ", get_srcoff_cnt1_rlc(rlc), get_srcoff_cnt1_rlc(rlc));
         else
-                printf("  srcoff:     %.4d (0x%.4x)  ", get_srcoff_cnt1_rlc(rlc), get_srcoff_cnt1_rlc(rlc));
+                io_printf("  srcoff:     %.4d (0x%.4x)  ", get_srcoff_cnt1_rlc(rlc), get_srcoff_cnt1_rlc(rlc));
 
         if((rlc->nr_flags & NRRTYP) == NRRINT)
-                printf("  object1:  %6.d (0x%.4x)  ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
+                io_printf("  object1:  %6.d (0x%.4x)  ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
         else
-                printf("  mod ord1: %6.d (0x%.4x)  ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
+                io_printf("  mod ord1: %6.d (0x%.4x)  ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
 
         if((rlc->nr_flags & NRRORD) == NRRORD)
-                printf("  imp ord1: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
+                io_printf("  imp ord1: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
         if((rlc->nr_flags & NRRNAM) == NRRNAM)
-                printf("  imp name1: %4.d (0x%.4x)  \n", get_imp_name_rlc(rlc),get_imp_name_rlc(rlc));
+                io_printf("  imp name1: %4.d (0x%.4x)  \n", get_imp_name_rlc(rlc),get_imp_name_rlc(rlc));
 
         if(((rlc->nr_flags & NRRTYP) == NRRINT) && (source_type_mask != NRSSEG))
-                printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
+                io_printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
 
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN) { /* Print source list offsets. */
                 int count1 = get_srcoff_cnt1_rlc(rlc);
                 int i=0;
-                printf(" Source list offsets: ");
+                io_printf(" Source list offsets: ");
                 for(i=0; i<count1; i++) {
                         int src_off = get_srcoff12_rlc(rlc, i);
-                        printf(" %d (0x%x)", src_off, src_off);
+                        io_printf(" %d (0x%x)", src_off, src_off);
                 }
-                printf("\n");
+                io_printf("\n");
         }
 
         if((rlc->nr_flags & NRADD) == NRADD)
-                printf(" Additive fixup: %d\n", get_additive_rlc(rlc));
-        /*printf("  r32_soff=0x%x, r32_objmod=0x%x, r32_target.intref.offset32=0x%x, r32_target.intref.offset16=0x%x \n ",
+                io_printf(" Additive fixup: %d\n", get_additive_rlc(rlc));
+        /*io_printf("  r32_soff=0x%x, r32_objmod=0x%x, r32_target.intref.offset32=0x%x, r32_target.intref.offset16=0x%x \n ",
                 rlc->r32_soff, rlc->r32_objmod,
                 rlc->r32_target.intref.offset32,
                 rlc->r32_target.intref.offset16 ); */
 
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN)  /* Internal Chaining Fixup */
-                printf("\n get_  cnt1  _size: %d\n", get_srcoff_cnt1_size(rlc));
+                io_printf("\n get_  cnt1  _size: %d\n", get_srcoff_cnt1_size(rlc));
         else
-                printf("\n get_ srcoff _size: %d\n", get_srcoff_cnt1_size(rlc));
+                io_printf("\n get_ srcoff _size: %d\n", get_srcoff_cnt1_size(rlc));
 
         if((rlc->nr_flags & NRRTYP) == NRRINT)   /* Internal reference */
-                printf(" get_ object _size: %d\n", get_mod_ord1_size(rlc));
+                io_printf(" get_ object _size: %d\n", get_mod_ord1_size(rlc));
         else
-                printf(" get_mod_ord1_size: %d\n", get_mod_ord1_size(rlc));
+                io_printf(" get_mod_ord1_size: %d\n", get_mod_ord1_size(rlc));
 
         if((rlc->nr_flags & NRRTYP) == NRRINT)  /* Internal reference */
-                printf(" get_trgoff_size:   %d\n", get_trgoff_size(rlc));
+                io_printf(" get_trgoff_size:   %d\n", get_trgoff_size(rlc));
         if((rlc->nr_flags & NRRORD) == NRRORD)
-                printf(" get_imp_ord1_size: %d\n", get_imp_ord1_size(rlc));
+                io_printf(" get_imp_ord1_size: %d\n", get_imp_ord1_size(rlc));
 
         if((rlc->nr_flags & NRRTYP) != NRRINT)  /* NOT Internal reference */
-                printf(" get_additive_size: %d\n", get_additive_size(rlc));
+                io_printf(" get_additive_size: %d\n", get_additive_size(rlc));
         fixup_size = get_reloc_size_rlc(rlc);
 
-        printf(" Total fixup size: %d (0x%x)\n", fixup_size, fixup_size);
+        io_printf(" Total fixup size: %d (0x%x)\n", fixup_size, fixup_size);
 }
 
 int get_SRC_FLAGS_size() {
@@ -393,7 +394,7 @@ int get_additive_rlc(struct r32_rlc * rlc)
           /*3*/ additive_offs = get_SRC_FLAGS_size()  + get_srcoff_cnt1_size(rlc)+
                                   get_ord1_entry_size(rlc);
         }
-        printf(" additive_offs: %d (0x%x)\n", additive_offs, additive_offs);
+        io_printf(" additive_offs: %d (0x%x)\n", additive_offs, additive_offs);
         additive_val=0;
         additive_size = get_additive_size(rlc);
         uint_rlc = (unsigned long int)rlc;
@@ -428,7 +429,7 @@ int get_srcoff12_rlc(struct r32_rlc * rlc, int idx)
           /*3*/ srcoff12_offs = get_SRC_FLAGS_size()  + get_srcoff_cnt1_size(rlc)+
                                   get_ord1_entry_size(rlc);
         }
-        /* printf(" srcoff12_offs: %d (0x%x)\n", srcoff12_offs+ idx * 2, srcoff12_offs+ idx * 2); */
+        /* io_printf(" srcoff12_offs: %d (0x%x)\n", srcoff12_offs+ idx * 2, srcoff12_offs+ idx * 2); */
         srcoff12_val=0;
         srcoff12_size = get_additive_size(rlc);
         uint_rlc = (unsigned long int)rlc;
@@ -503,9 +504,9 @@ int get_reloc_size_rlc(struct r32_rlc * rlc) {
           get_ord1_entry_size(rlc)+get_additive_size(rlc);
           return reloc_size;
         }
-        printf(" Warning! Unrecognized fixup in fixuplx.c:get_reloc_size_rlc() \n");
-        printf(" Risk for infinite loop! \n Type of fixup:\n");
-        printf("SRC: 0x%x, FLAGS: 0x%x \n", rlc->nr_stype, rlc->nr_flags);
+        io_printf(" Warning! Unrecognized fixup in fixuplx.c:get_reloc_size_rlc() \n");
+        io_printf(" Risk for infinite loop! \n Type of fixup:\n");
+        io_printf("SRC: 0x%x, FLAGS: 0x%x \n", rlc->nr_stype, rlc->nr_flags);
         /*print_struct_r32_rlc_info(rlc);*/
 
 
@@ -543,14 +544,14 @@ void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_
 
                         // Finns offs i den här sidan?
 
-                        printf("---offset(in code) in %lu > offs:%d < %lu ---\n",
+                        io_printf("---offset(in code) in %lu > offs:%d < %lu ---\n",
                                 kod_sida->o32_pagedataoffset, offs,
                                 (kod_sida->o32_pagedataoffset + kod_sida->o32_pagesize));
 
                         if((offs > kod_sida->o32_pagedataoffset)
                                 && (offs < (kod_sida->o32_pagedataoffset + kod_sida->o32_pagesize))) {
                                 hittat_sida = 1; logisk_sida = j + (kod_obj->o32_pagemap-1);
-                                printf("Hittar offs i sida %d i objekt %d logisk_sida %d\n", j, i, logisk_sida);
+                                io_printf("Hittar offs i sida %d i objekt %d logisk_sida %d\n", j, i, logisk_sida);
                                 break;
                         }
                 }
@@ -558,7 +559,7 @@ void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_
         }
 
         if(!hittat_sida)
-                printf("Can't find offset for page in code/data object! offs:%d\n", offs);
+                io_printf("Can't find offset for page in code/data object! offs:%d\n", offs);
 
         //Läs in sidan från exe/dll filen.
         // Gör fixup på logisk_sida.
@@ -580,7 +581,7 @@ void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_
         int s=0;
         for(s=1; s<=imp_mod_name[0]; s++){
                 b_ptr[s-1] = imp_mod_name[s];
-                //printf("%c", imp_mod_name[s]);
+                //io_printf("%c", imp_mod_name[s]);
         }
         b_ptr[imp_mod_name[0]] = 0;
 
@@ -598,24 +599,24 @@ void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_
                 //void *       rel_dos_put_ptr = (void*) dos_put_ptr - (ptr_code_mmap+src_off+4);
                 void *       rel_dos_put_ptr = (void*) int_dos_put_ptr;
 
-                printf(" DosPut... ptr %p, src_off %d, dos_put_rel_ptr %p \n",
+                io_printf(" DosPut... ptr %p, src_off %d, dos_put_rel_ptr %p \n",
                                                                 dos_put_ptr, src_off, rel_dos_put_ptr);
 
-                printf("Adress att placera i kod: %lu (%p) \n", (unsigned long int)rel_dos_put_ptr, rel_dos_put_ptr);
+                io_printf("Adress att placera i kod: %lu (%p) \n", (unsigned long int)rel_dos_put_ptr, rel_dos_put_ptr);
 
                 unsigned long int tmp_patch_offs = int_code_mmap + src_off;
                 void * patch_offs = (void *) tmp_patch_offs;
-                printf(" (void *)          patch_offs: %p \n", patch_offs);
-                printf(" (unsigned int *) *patch_offs: 0x%x \n", *((unsigned int*)patch_offs));
-                printf(" (char *)         *patch_offs-1: 0x%x \n", *((char*)patch_offs-1));
+                io_printf(" (void *)          patch_offs: %p \n", patch_offs);
+                io_printf(" (unsigned int *) *patch_offs: 0x%x \n", *((unsigned int*)patch_offs));
+                io_printf(" (char *)         *patch_offs-1: 0x%x \n", *((char*)patch_offs-1));
                 // *((unsigned int *)patch_offs) = (unsigned int *)rel_dos_put_ptr;
                 unsigned long int * iptr_patch_offs = (unsigned long int *)patch_offs;
                 unsigned long int * iptr_rel_dos_put_ptr = (unsigned long int *)rel_dos_put_ptr;
                 *iptr_patch_offs = (unsigned long int) iptr_rel_dos_put_ptr;
-                printf("Efter fixup: (unsigned int *) *patch_offs: 0x%x \n", *((unsigned int*)patch_offs));
+                io_printf("Efter fixup: (unsigned int *) *patch_offs: 0x%x \n", *((unsigned int*)patch_offs));
         } else {
-                printf("Unknown fixup! source type:%d flags:%d \n", min_rlc->nr_stype, min_rlc->nr_flags );
+                io_printf("Unknown fixup! source type:%d flags:%d \n", min_rlc->nr_stype, min_rlc->nr_flags );
         }
-        printf("\n%s på %d\n", __func__, offs);
+        io_printf("\n%s på %d\n", __func__, offs);
 }
 */

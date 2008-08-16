@@ -21,7 +21,7 @@
 
 #include "execlx.h"
 #include "fixuplx.h"
-/*#include "msg.h"*/
+#include "io.h"
 
 
 
@@ -115,15 +115,15 @@ void showRegDump() {
                                           [SS]  "=m" (_SS),
                                           [ESP]  "=m" (_ESP)  );
         #endif
-        printf("ESI=%lx  EDI=%lx\n",_ESI,_EDI);
-        printf("DS=%x  ES=%x  FS=%x  GS=%x \n", _DS, _ES, _FS, _GS);
-        /*printf("DS=%x  DSACC=****  DSLIM=********\n", DS);
-        printf("ES=%x  ESACC=****  ESLIM=********\n", ES);
-        printf("FS=%x  FSACC=****  FSLIM=********\n", FS);
-        printf("GS=%x  GSACC=****  GSLIM=********\n", GS);*/
-        printf("CS:EIP=%x:%lx  CSACC=****  CSLIM=********\n", _CS,_EIP );
-        printf("SS:ESP=%x:%lx  SSACC=****  SSLIM=********\n", _SS,_ESP );
-        printf("EBP=%lx  FLG=%x\n", _EBP, _FLG);
+        io_printf("ESI=%lx  EDI=%lx\n",_ESI,_EDI);
+        io_printf("DS=%x  ES=%x  FS=%x  GS=%x \n", _DS, _ES, _FS, _GS);
+        /*io_printf("DS=%x  DSACC=****  DSLIM=********\n", DS);
+        io_printf("ES=%x  ESACC=****  ESLIM=********\n", ES);
+        io_printf("FS=%x  FSACC=****  FSLIM=********\n", FS);
+        io_printf("GS=%x  GSACC=****  GSLIM=********\n", GS);*/
+        io_printf("CS:EIP=%x:%lx  CSACC=****  CSLIM=********\n", _CS,_EIP );
+        io_printf("SS:ESP=%x:%lx  SSACC=****  SSLIM=********\n", _SS,_ESP );
+        io_printf("EBP=%lx  FLG=%x\n", _EBP, _FLG);
 }
 
 
@@ -199,12 +199,12 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
 
         my_execute = /*(int (*)()) (void*)*/ main_ptr;
 
-                printf("Exerkverar LX program**********************\n");
+                io_printf("Exerkverar LX program**********************\n");
                 tmp_data_mmap = (unsigned long int) data_mmap;
                 tmp_data_mmap += esp - 8;
-                printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
-                printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
-                printf(" my_execute: %p, eip: 0x%lx \n", my_execute, get_eip(lx_exe_mod));
+                io_printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
+                io_printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
+                io_printf(" my_execute: %p, eip: 0x%lx \n", my_execute, get_eip(lx_exe_mod));
 
                 /* DosPutMessage(1, 6, "Hello\n"); */
                 esp_data=0;
@@ -308,7 +308,7 @@ _asm{
                 #endif
                 /*  my_execute("" , "" , 0, (unsigned int)lx_exe_mod );   */
 
-                printf("Slutförd exerkvering LX program**********************\n");
+                io_printf("Slutförd exerkvering LX program**********************\n");
 
 }
 
@@ -330,10 +330,10 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
     unsigned long       o32_mapsize;     Number of entries in object page map
     unsigned long       o32_reserved;    Reserved
         */
-        printf("Objektnr för kod: %lu, virtuell storlek: %lu \n",
+        io_printf("Objektnr för kod: %lu, virtuell storlek: %lu \n",
                                 lx_exe_mod->lx_head_e32_exe->e32_startobj,
                                 kod_obj->o32_size);
-        printf("basaddress(vir): %lu, obj.pg.map.idx: %lu\n",
+        io_printf("basaddress(vir): %lu, obj.pg.map.idx: %lu\n",
                                 kod_obj->o32_pagemap,
                                 kod_obj->o32_mapsize);
         /* struct o32_obj * kod_obj = get_code(lx_exe_mod); */
@@ -341,8 +341,8 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
         unsigned long esp = get_esp(lx_exe_mod);
         void * lxfile = 0, * data_mmap = 0;
 
-        printf("eip: %lu (%lx) \n", eip, eip);
-        printf("esp: %lu (0x%lx)\n", esp, esp);
+        io_printf("eip: %lu (%lx) \n", eip, eip);
+        io_printf("esp: %lu (0x%lx)\n", esp, esp);
 
         print_o32_obj_info(kod_obj, " Info om kod_obj ");
         print_o32_obj_info(stack_obj, " Info om stack_obj ");
@@ -364,12 +364,12 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                                          lx_exe_mod->lx_head_e32_exe->e32_datapage);
                                 */
         err = errno;
-        printf("(1)Minnesmappar kodobj på %lu (%p), (kod)filstorlek: %lu från %lu \n",
+        io_printf("(1)Minnesmappar kodobj på %lu (%p), (kod)filstorlek: %lu från %lu \n",
                     (unsigned long int)lxfile, lxfile, kod_obj->o32_size,
                    lx_exe_mod->lx_head_e32_exe->e32_datapage);
 
         /*if(lxfile == MAP_FAILED) { */
-        /* printf("Fel vid mappning av fh: %d. Prövar igen.\n", lx_exe_mod->fh); */
+        /* io_printf("Fel vid mappning av fh: %d. Prövar igen.\n", lx_exe_mod->fh); */
 
     /* Allokerar virtuellt minne för kod, antar alltid att koden finns.  */
 
@@ -390,9 +390,9 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                                  0 /*lx_exe_mod->lx_head_e32_exe->e32_datapage*/);;
                 proc->stack_mmap = data_mmap;
                 if(data_mmap == MAP_FAILED)
-                        printf("Fel vid mappning av (stack)\n");
+                        io_printf("Fel vid mappning av (stack)\n");
                 else {
-                        printf("Ok av mappning av (stack)\n");
+                        io_printf("Ok av mappning av (stack)\n");
 
                         /* Hämta första objektet för stack/data till en början.*/
                         /* Fältet o32_pagemap är numret på första sidan i "Object Page Table"
@@ -425,14 +425,14 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
         }
         err = errno;
         /*e32_itermap; */   /* Object iterated data map offset */
-        printf("(2)Minnesmappar kodobj på %p (%p), (kod)filstorlek: %lu från %lu \n",
+        io_printf("(2)Minnesmappar kodobj på %p (%p), (kod)filstorlek: %lu från %lu \n",
                     lxfile, lxfile, kod_obj->o32_size,
                         lx_exe_mod->lx_head_e32_exe->e32_datapage);
 
         if(lxfile == MAP_FAILED)
-                printf("Fel vid mappning.\n");
+                io_printf("Fel vid mappning.\n");
         else {
-                printf("Ok av mappning (kodobj) .\n" );
+                io_printf("Ok av mappning (kodobj) .\n" );
                 proc->code_mmap = lxfile;
 
                 int startpage = kod_obj->o32_pagemap;
@@ -471,9 +471,9 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                 tmp_lxfile += get_eip(lx_exe_mod);
 
                 void * main_ptr = (void *) tmp_lxfile;
-                printf(" main_ptr: %d (%p) \n", (unsigned int)main_ptr, main_ptr);
+                io_printf(" main_ptr: %d (%p) \n", (unsigned int)main_ptr, main_ptr);
                 unsigned int main_int = (unsigned int) *((char *)main_ptr);
-                printf(" main_int : %d (0x%x) \n", main_int, main_int );
+                io_printf(" main_int : %d (0x%x) \n", main_int, main_int );
 //------------------------------------  kod_obj
 /*              if((off > obj_pg_ett->o32_pagedataoffset)
                                 && (off < (obj_pg_ett->o32_pagedataoffset + obj_pg_ett->o32_pagesize))) */
@@ -481,7 +481,7 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                 /* unsigned int tmp_off=1; */
 //               while( (tmp_off > obj_pg_ett->o32_pagedataoffset)
 //                              && (tmp_off < (obj_pg_ett->o32_pagedataoffset + obj_pg_ett->o32_pagesize))) {
-//                      printf("while( (%d > %d) && (%d < (%d + %d)) )\n", tmp_off, obj_pg_ett->o32_pagedataoffset,
+//                      io_printf("while( (%d > %d) && (%d < (%d + %d)) )\n", tmp_off, obj_pg_ett->o32_pagedataoffset,
 //                                                                                                                      tmp_off, obj_pg_ett->o32_pagedataoffset,
 //                                                                                                                      obj_pg_ett->o32_pagesize);
 //                 fake_pagefault_code(lx_exe_mod, tmp_off, proc); /* Fejka sidfel på programkoden i lxfilen. */
@@ -493,7 +493,7 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                 */
                 startpage = kod_obj->o32_pagemap;
                 lastpage  = kod_obj->o32_pagemap + kod_obj->o32_mapsize;
-                printf("--------------------Listar fixup data ------------------------- \n");
+                io_printf("--------------------Listar fixup data ------------------------- \n");
                 for(page_nr=startpage; page_nr < lastpage; page_nr++) {
 
                         /* Hämtar byteposition för fixup från sidan logisk_sida. */
@@ -505,7 +505,7 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                         struct r32_rlc * min_rlc = get_fixup_rec_tbl_obj(lx_exe_mod, pg_offs_fix);
 
                         print_struct_r32_rlc_info(min_rlc);
-                        printf(" pg_offs_fix = %d (0x%x)\n", pg_offs_fix, pg_offs_fix);
+                        io_printf(" pg_offs_fix = %d (0x%x)\n", pg_offs_fix, pg_offs_fix);
                 }
 
 //------------------------------------
@@ -523,11 +523,11 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
                  /* (int (*)()) */
 
                 my_execute = (int (*)()) (void*) main_ptr;
-                printf("Exerkverar LX program**********************\n");
+                io_printf("Exerkverar LX program**********************\n");
                 unsigned long int tmp_data_mmap = (unsigned long int) data_mmap;
                 tmp_data_mmap += esp - 8;
-                printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
-                printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
+                io_printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
+                io_printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
 
                 /* DosPutMessage(1, 6, "Hello\n"); */
                 unsigned int esp_data=0;
@@ -602,14 +602,14 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
 
                 /*  my_execute("" , "" , 0, (unsigned int)lx_exe_mod );   */
 
-                printf("Slutförd exerkvering LX program**********************\n");
+                io_printf("Slutförd exerkvering LX program**********************\n");
 
                 /* my_execute ==  o32_base + eip, get_eip(lx_exe_mod) + lxfile
                 my_execute(cmd_line, env_data, reserved, mod_handle, return_address) */
         }
 
         /*} else {
-                printf(" INGEN MAPPNING HAR SKETT FÖR EXEFILEN HAR MER ÄN ETT OBJEKT!\n");
+                io_printf(" INGEN MAPPNING HAR SKETT FÖR EXEFILEN HAR MER ÄN ETT OBJEKT!\n");
         }*/
 
 }
@@ -660,7 +660,7 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
 {
         typedef L4_Word_t addr_t;
 
-        printf(">>makenewstack():%d\n", __LINE__);
+        io_printf(">>makenewstack():%d\n", __LINE__);
         // 16 kb maximum environment and arguments. raise if needed. using this
         // limit saves from doing argument wrappings on fpage boundaries
         static const unsigned int maxenvstacksize = 0x8000;
@@ -669,8 +669,8 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
 
         static addr_t stackend = 0x90000000 + stack_obj->o32_size + stack_obj->o32_base;
         //static addr_t stackend = 0x90000000 + stack_obj->o32_size;
-        //printf(" %d: stackend=%p\n", __LINE__, stackend);
-        //printf(" Stackomrade: %x - %x\n", 0x90000000 + stack_obj->o32_base, 0x90000000 + stack_obj->o32_size + stack_obj->o32_base);
+        //io_printf(" %d: stackend=%p\n", __LINE__, stackend);
+        //io_printf(" Stackomrade: %x - %x\n", 0x90000000 + stack_obj->o32_base, 0x90000000 + stack_obj->o32_size + stack_obj->o32_base);
         // request the stack fpage from the pager
 
         CORBA_Environment env (idl4_default_environment);
@@ -689,13 +689,13 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         }
 
         idl4_fpage_t stackpage;
-        //printf("\nAllocated: 0x%08X \n", stackpage);
+        //io_printf("\nAllocated: 0x%08X \n", stackpage);
         memset(&stackpage, 0, sizeof(stackpage));
 
-        //printf(">>stackend: 0x%x, maxenvstacksize: 0x%x\n", stackend,
+        //io_printf(">>stackend: 0x%x, maxenvstacksize: 0x%x\n", stackend,
         //                                              maxenvstacksize);
         unsigned int o32_size = stack_obj->o32_size /* + stack_obj->o32_size + 0x17000*/;
-        printf("%d:_GetSharedRegion(%p, %p, 0x%x, 0x%x, %p, %p)\n",__LINE__,
+        io_printf("%d:_GetSharedRegion(%p, %p, 0x%x, 0x%x, %p, %p)\n",__LINE__,
                                         pagerid, &newthread, stack_obj->o32_base, o32_size, //maxenvstacksize,
                                         &stackpage, &env);
 
@@ -725,17 +725,17 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         if (L4_IsNilFpage(idl4_fpage_get_page(stackpage)))
         {
                 LogMessage("elfexec: pager call GetSharedRegion return nilpage.");
-                printf(" stackpage:0x%x\n", L4_Address (idl4_fpage_get_page(stackpage)));
+                io_printf(" stackpage:0x%x\n", L4_Address (idl4_fpage_get_page(stackpage)));
                 return 0x00000000;
         }
         L4_Word_t stackpageaddr = L4_Address (idl4_fpage_get_page(stackpage));
         //L4_Word_t stackpageaddr = 0x90000000 + stack_obj->o32_base;
 
         if (L4_Pager() == pagerid) {
-                printf("idl4_fpage_get_base(stackpage=%lu)\n", stackpage); /* stack_obj->o32_size + */
+                io_printf("idl4_fpage_get_base(stackpage=%lu)\n", stackpage); /* stack_obj->o32_size + */
                 stackpageaddr = idl4_fpage_get_base(stackpage);
         }
-        printf(">>stackpageaddr: 0x%x, stackpage: 0x%x\n", stackpageaddr, stackpage);
+        io_printf(">>stackpageaddr: 0x%x, stackpage: 0x%x\n", stackpageaddr, stackpage);
 
         // ** construct stack
 
@@ -755,7 +755,7 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         /*addr_t *stack = reinterpret_cast<addr_t*>(stackpageaddr) + maxenvstacksize - top;*/
         addr_t *stack = reinterpret_cast<addr_t*>(stackpageaddr);
 
-        printf("%d>>stack: %lu(0x%x), stackpageaddr:%lu(0x%x), maxenvstacksize: %lu(0x%x), top: %lu(0x%x)\n",
+        io_printf("%d>>stack: %lu(0x%x), stackpageaddr:%lu(0x%x), maxenvstacksize: %lu(0x%x), top: %lu(0x%x)\n",
                                 __LINE__,stack,stack, stackpageaddr,stackpageaddr,
                                 maxenvstacksize,maxenvstacksize,
                                 top,top);
@@ -772,13 +772,13 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         addr_t argvptr[argvnum+1];
         addr_t envpptr[envpnum+1];
 
-        //printf("put a zero word at the bottom of the stack\n");
-        // printf(" %d: (stack(%p) + top(%p)):%p = 0\n", __LINE__, stack,top, stack + top);
-        //printf("Kabooom!!!\n");
+        //io_printf("put a zero word at the bottom of the stack\n");
+        // io_printf(" %d: (stack(%p) + top(%p)):%p = 0\n", __LINE__, stack,top, stack + top);
+        //io_printf("Kabooom!!!\n");
         // put a zero word at the bottom of the stack
         /*unsigned int x;                                                                                       // 0x400=1024
         for(x=0x90000000; x<stackend; x+=4096) {
-                printf("(x):%x = 0\n", x);
+                io_printf("(x):%x = 0\n", x);
                 *(uint32_t*)(x) = 0x00000000;
         }*/
 
@@ -789,18 +789,18 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         unsigned int istack = (unsigned int)stack;
 
         top_stack = (itop - stack_obj->o32_base + istack);
-        printf(" %d: top_stack:0x%x (stack(%p), *stack(%p)+ top(%p)):%p = 0\n",
+        io_printf(" %d: top_stack:0x%x (stack(%p), *stack(%p)+ top(%p)):%p = 0\n",
                         __LINE__, top_stack, stack, stack,top, top_stack);
-        printf(" itop = %lu (%x)\n", itop, itop);
-        printf(" istack = %lu (%x)\n", istack, istack);
-        printf(" top = %lu (%x)\n", top, top);
-        printf(" stack = %lu (%x)\n", stack, stack);
-        printf(" top_stack = %lu (%x)\n", top_stack, top_stack);
-        printf(" *(uint32_t*)(top_stack)=%p \n", *(uint32_t*)(top_stack));
+        io_printf(" itop = %lu (%x)\n", itop, itop);
+        io_printf(" istack = %lu (%x)\n", istack, istack);
+        io_printf(" top = %lu (%x)\n", top, top);
+        io_printf(" stack = %lu (%x)\n", stack, stack);
+        io_printf(" top_stack = %lu (%x)\n", top_stack, top_stack);
+        io_printf(" *(uint32_t*)(top_stack)=%p \n", *(uint32_t*)(top_stack));
 
         *(uint32_t*)(top_stack) = 0x00000000;
 
-        //printf(" envpptr=%p\n", envpptr);
+        //io_printf(" envpptr=%p\n", envpptr);
         // put the environment variables on the stack
         for(unsigned int ei = 0; envp[ei]; ei++)
         {
@@ -834,7 +834,7 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
 
         // add pointer arrays for environment and argv
         top -= sizeof(char*) * (envpnum+1);
-        //printf(" %d:memcpy\n", __LINE__);
+        //io_printf(" %d:memcpy\n", __LINE__);
         //memcpy((addr_t*)top+(*stack), envpptr, sizeof(char*) * (envpnum+1));
         memcpy((void*)top_stack, envpptr, sizeof(char*) * (envpnum+1));
         addr_t envpstart = top;
@@ -845,7 +845,7 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         addr_t argvstart = top;
 
         // construct main()'s parameters:
-        // printf("construct main()'s parameters\n");
+        // io_printf("construct main()'s parameters\n");
         top -= sizeof(char*);
         // *(addr_t*)(top+stack) = envpstart;   // envp
         *(addr_t*)((void*)top_stack) = envpstart;       // envp
@@ -864,7 +864,7 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
         IF_MEMORY_FreeSharedRegion(pagerid, &newthread,
                                                                 stack_obj->o32_base, //stackend - maxenvstacksize, stack_obj->o32_base  o32_size
                                                                 &stackfpage, &env);
-        printf("FreeSharedRegion (, ..., stack_obj->o32_base=0x%x, stackfpage.raw=ox%x\n",
+        io_printf("FreeSharedRegion (, ..., stack_obj->o32_base=0x%x, stackfpage.raw=ox%x\n",
                         stack_obj->o32_base, //stackend - maxenvstacksize,
                         stackfpage.raw);
         if (env._major != CORBA_NO_EXCEPTION)
@@ -875,13 +875,13 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
 
         // trying to work-around a bug in L4 which happens after numerous mapping
         // of different size on the same region
-        printf("work-around a bug in L4... stackpageaddr=%p, maxenvstacksize=%p\n",
+        io_printf("work-around a bug in L4... stackpageaddr=%p, maxenvstacksize=%p\n",
                         stackpageaddr, maxenvstacksize);
         L4_Flush(L4_Fpage(stackpageaddr, maxenvstacksize) + L4_FullyAccessible);
 
 
         // return esp of new task
-        printf("makenewstack(), Ok. \n");
+        io_printf("makenewstack(), Ok. \n");
         return top;
 }
 
@@ -901,20 +901,20 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
         IF_MEMORY_CreateTask(pagerid, &newthread, &env);
         if (env._major != CORBA_NO_EXCEPTION)
         {
-                printf("lxexec:%d pager call CreateTask failed, code: %d", __LINE__, CORBA_exception_id(&env));
+                io_printf("lxexec:%d pager call CreateTask failed, code: %d", __LINE__, CORBA_exception_id(&env));
                 return ;//L4_nilthread;
         }
 
-        //printf("Lyckades skapa en 'task': %p \n", &newthread);
+        //io_printf("Lyckades skapa en 'task': %p \n", &newthread);
 
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
 
         struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
 
-        printf("Objekt för kod: %lu, virtuell storlek: %lu \n",
+        io_printf("Objekt för kod: %lu, virtuell storlek: %lu \n",
                                 lx_exe_mod->lx_head_e32_exe->e32_startobj,
                                 kod_obj->o32_size);
-        printf("basaddress(vir): %lu, obj.pg.map.idx: %lu\n",
+        io_printf("basaddress(vir): %lu, obj.pg.map.idx: %lu\n",
                                 kod_obj->o32_pagemap,
                                 kod_obj->o32_mapsize);
 
@@ -922,9 +922,9 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
         unsigned long esp = get_esp(lx_exe_mod);
         void * code_mmap = 0, * data_mmap = 0;
 
-        //printf("eip: %lu (0x%lx) \n", eip, eip);
-        printf("esp: %lu (0x%lx)\n", esp, esp);
-        printf("eip+kod_obj->o32_base: %lu (0x%lx) \n", eip+kod_obj->o32_base, eip+kod_obj->o32_base);
+        //io_printf("eip: %lu (0x%lx) \n", eip, eip);
+        io_printf("esp: %lu (0x%lx)\n", esp, esp);
+        io_printf("eip+kod_obj->o32_base: %lu (0x%lx) \n", eip+kod_obj->o32_base, eip+kod_obj->o32_base);
         eip += kod_obj->o32_base;
         esp += stack_obj->o32_base;
         //print_o32_obj_info(kod_obj, " Info om kod_obj ");
@@ -998,14 +998,14 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
                         //      mblock, &mpage, &env
                         //
                         //
-                        printf("_GetSharedRegion(pagerid, &newthread, mstart + moff, mblock, &mpage, &env)\n");
-                        printf("lxexec:%d _GetSharedRegion(%u, %p, %d, %d, \n", __LINE__,
+                        io_printf("_GetSharedRegion(pagerid, &newthread, mstart + moff, mblock, &mpage, &env)\n");
+                        io_printf("lxexec:%d _GetSharedRegion(%u, %p, %d, %d, \n", __LINE__,
                                         pagerid, &newthread, mstart + moff, mblock);
-                        printf("%p, %p)\n", &mpage, &env);
-                        printf(" mpage: .base=%lu .fpage=%lu \n", mpage.base, mpage.fpage);
+                        io_printf("%p, %p)\n", &mpage, &env);
+                        io_printf(" mpage: .base=%lu .fpage=%lu \n", mpage.base, mpage.fpage);
                         L4_Fpage_t tmp_fpage;
                         tmp_fpage.raw = mpage.fpage;
-                        printf(" (L4_Fpage_t)mpage.fpage: .raw=%d .X.s=%d .X.rwx=%d\n",
+                        io_printf(" (L4_Fpage_t)mpage.fpage: .raw=%d .X.s=%d .X.rwx=%d\n",
                                         tmp_fpage.raw, tmp_fpage.X.s, tmp_fpage.X.rwx);
 
                         IF_MEMORY_GetSharedRegion(pagerid, &newthread, mstart + moff, mblock, &mpage, &env);
@@ -1050,7 +1050,7 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
                         // trying to work-around a bug in L4 which happens after numerous
                         // mapping of different size on the same region
                         //L4_Flush(L4_Fpage(mpageaddr, mblock) + L4_FullyAccessible);
-                        //printf("work-around a bug in L4... mpageaddr=%p, mblock=%p\n",
+                        //io_printf("work-around a bug in L4... mpageaddr=%p, mblock=%p\n",
                         //              mpageaddr, mblock);
 
 
@@ -1065,7 +1065,7 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
         // create an environment for the program
         //char **progenviron = dupenviron();
 
-        printf("STDIN=%s\n",getenv("STDIN"));
+        io_printf("STDIN=%s\n",getenv("STDIN"));
         // strcpy(&envp[0][0], getenv("STDIN"));
     // strcpy(&envp[0][1], getenv("STDOUT"));
     // strcpy(&envp[0][2], getenv("STDERR"));
@@ -1082,7 +1082,7 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
         // Funkar inte: 163816 159720 131048 126952 73704
         // OK för: 28648 32744 16360
         // Sidfel inne i LX-processen vid: 28644 32740
-        printf(" %d:IF_MEMORY_StartTask(pagerid=%x, newthread=0x%x, eip=%lu, esp=%lu, &env=%p)\n",
+        io_printf(" %d:IF_MEMORY_StartTask(pagerid=%x, newthread=0x%x, eip=%lu, esp=%lu, &env=%p)\n",
                          __LINE__, pagerid, &newthread, eip, i_esp, &env);
         //IF_MEMORY_StartTask(pagerid, &newthread, ehdr.e_entry, esp, &env);
         IF_MEMORY_StartTask(pagerid, &newthread, eip, i_esp, &env);
@@ -1091,7 +1091,7 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
                 LogMessage("lxexec: pager call StartTask failed, code: %d", CORBA_exception_id(&env));
                 return ; //L4_nilthread;
         }
-        printf("                       exec_lx(), Ok. \n\n");
+        io_printf("                       exec_lx(), Ok. \n\n");
         return ; //newthread;
 }
 

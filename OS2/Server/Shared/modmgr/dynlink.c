@@ -26,6 +26,7 @@
 #include <loadobjlx.h>
 
 #include "dynlink.h"
+#include "io.h"
 
 struct module_rec module_root; /* Root for module list.*/
 
@@ -71,7 +72,7 @@ register_module(char * name, void * mod_struct)
         struct module_rec * new_mod;
         struct module_rec * prev;
 
-        printf("register_module: %s, %p \n", name, mod_struct);
+        io_printf("register_module: %s, %p \n", name, mod_struct);
         new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
         new_mod->mod_name = (char *)malloc(strlen(name)+1);
         strcpy(new_mod->mod_name, name);
@@ -93,12 +94,12 @@ void * find_module(char * name, struct t_processlx *proc) {
         struct module_rec * prev = (struct module_rec *) module_root.next;
 
         while(prev) {
-                printf("find_module: %s == %s, mod=%p \n", name, prev->mod_name, prev->module_struct);
+                io_printf("find_module: %s == %s, mod=%p \n", name, prev->mod_name, prev->module_struct);
                 if(strcmp(name, prev->mod_name)==0) {
-                        printf("ret find_module: %p\n", prev->module_struct);
+                        io_printf("ret find_module: %p\n", prev->module_struct);
 
                         if(prev->load_status == LOADING) {
-                                printf("find_module: ERROR, Cycle in loading of %s\n",name);
+                                io_printf("find_module: ERROR, Cycle in loading of %s\n",name);
                                 return 0;
                         }
                         return prev->module_struct;
@@ -171,7 +172,7 @@ void * load_module(char * name, struct t_processlx *proc) {
                                                                         the buffer p_buf. */
 
         lx_exe_mod = (struct LX_module *) malloc(sizeof(struct LX_module));
-        printf("load_module: '%s' \n", p_buf);
+        io_printf("load_module: '%s' \n", p_buf);
         f = fopen(p_buf, "rb");  /* Open file in read only binary mode, in case this code
                                           will be compiled on OS/2 or on windows. */
 
@@ -193,7 +194,7 @@ void * load_module(char * name, struct t_processlx *proc) {
         free(lx_exe_mod);
         if(f)
                 fclose(f);
-        printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
+        io_printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
         return 0;
 }
 
@@ -224,19 +225,19 @@ struct LX_module * get_module(struct module_rec * el) {
 
 void print_module_table() {
         struct module_rec * el = get_root();
-        printf("--- Loaded Module Table ---\n");
+        io_printf("--- Loaded Module Table ---\n");
         while((el = get_next(el))) {
-                printf("module = %s, module_struct = %p, load_status = %d\n",
+                io_printf("module = %s, module_struct = %p, load_status = %d\n",
                                 el->mod_name, el->module_struct, el->load_status);
         }
 }
 
 /*void load_dyn_link(char * name) {
 
-        printf("Laddar dll: ");
+        io_printf("Laddar dll: ");
 
         //DosPutMessage(1, name[0], name);
-        printf("\n");
+        io_printf("\n");
 }
 */
 
@@ -253,7 +254,7 @@ void print_module_table() {
         if(strcasecmp(modname, "DOSCALLS")==0 && ord == 348)
                 return 0 ;//&DosQuerySysInfo;
 
-        printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
+        io_printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
         return 0;
 }
 */

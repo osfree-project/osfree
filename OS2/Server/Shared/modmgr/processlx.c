@@ -23,6 +23,7 @@
 #define INCL_DOSPROCESS
 #include <processlx.h>
 #include <modlx.h>
+#include <io.h>
 
 
 //#define INCL_DOSPROCESS
@@ -72,9 +73,9 @@ void processlx_destroy(struct t_processlx * proc) {
 
 
         if(ret_munmap != 0)
-                printf("Error at unmapping of fh: %p\n", proc->lx_mod->fh);
+                io_printf("Error at unmapping of fh: %p\n", proc->lx_mod->fh);
         else
-                printf("\nUnmapping fh: %p\n\n", proc->lx_mod->fh);
+                io_printf("\nUnmapping fh: %p\n\n", proc->lx_mod->fh);
 
         free(proc->lx_pib);
         free(proc->main_tid);

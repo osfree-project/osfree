@@ -28,6 +28,7 @@
 #include <loadobjlx.h>
 
 #include <native_dynlink.h>
+#include <io.h>
 
 struct native_module_rec native_module_root; /* Root for module list.*/
 
@@ -59,7 +60,7 @@ native_register_module(char * name, char * filepath, void * mod_struct)
   struct native_module_rec * new_mod;
   struct native_module_rec * prev;
 
-  printf("register_module: %s, %p \n", name, mod_struct);
+  io_printf("register_module: %s, %p \n", name, mod_struct);
   new_mod = (struct native_module_rec *) malloc(sizeof(struct native_module_rec));
   new_mod->mod_name = (char *)malloc(strlen(name)+1);
   strcpy(new_mod->mod_name, name);
@@ -86,12 +87,12 @@ void * native_find_module(char * name, struct t_processlx *proc)
         struct native_module_rec * prev = (struct native_module_rec *) native_module_root.next;
 
         while(prev) {
-                printf("find_module: %s == %s, mod=%p \n", name, prev->mod_name, prev->module_struct);
+                io_printf("find_module: %s == %s, mod=%p \n", name, prev->mod_name, prev->module_struct);
                 if(strcmp(name, prev->mod_name)==0) {
-                        printf("ret find_module: %p\n", prev->module_struct);
+                        io_printf("ret find_module: %p\n", prev->module_struct);
 
                         if(prev->load_status == LOADING) {
-                                printf("find_module: ERROR, Cycle in loading of %s\n",name);
+                                io_printf("find_module: ERROR, Cycle in loading of %s\n",name);
                                 return 0;
                         }
                         return prev->module_struct;
@@ -122,7 +123,7 @@ void native_find_module_path(char * name, char * full_path_name) {
                 strcat(p_buf, lib_pre);
                 strcat(p_buf, name);
                 strcat(p_buf, dll_suf);
-                printf("native dynlink search: %s\n", p_buf);
+                io_printf("native dynlink search: %s\n", p_buf);
                 f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
                 ++i;
         }while(!f && (i <= sz_native_mini_libpath));
@@ -146,7 +147,7 @@ void * native_load_module(char * name, struct t_processlx *proc) {
           p_buf=name;
         }
 
-        printf("load_module: '%s' \n", p_buf);
+        io_printf("load_module: '%s' \n", p_buf);
 
         /* Load LX file from ordinary disk file. */
         if(p_buf ) {
@@ -172,7 +173,7 @@ void * native_load_module(char * name, struct t_processlx *proc) {
                 return handle;
         }
 
-        printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
+        io_printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
         return 0;
 }
 
@@ -203,9 +204,9 @@ struct LX_module * native_get_module(struct native_module_rec * el) {
 
 void native_print_module_table(void) {
         struct native_module_rec * el = native_get_root();
-        printf("--- Native loaded Module Table ---\n");
+        io_printf("--- Native loaded Module Table ---\n");
         while((el = native_get_next(el))) {
-                printf("module = %s, module_struct = %p, load_status = %d\n",
+                io_printf("module = %s, module_struct = %p, load_status = %d\n",
                                 el->mod_name, el->module_struct, el->load_status);
         }
 }
@@ -223,7 +224,7 @@ void native_print_module_table(void) {
         if(strcasecmp(modname, "DOSCALLS")==0 && ord == 348)
                 return 0 ;//&DosQuerySysInfo;
 
-        printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
+        io_printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
         return 0;
 }
 */
@@ -234,7 +235,7 @@ void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
         void * mydltest;
         APIRET rval;
 
-        printf(" Searching func ptr '%s' in '%s' \n", funcname, modname);
+        io_printf(" Searching func ptr '%s' in '%s' \n", funcname, modname);
 
         mod_handle = native_find_module(modname, /*proc*/ 0);
 
@@ -257,7 +258,7 @@ void * native_get_func_ptr_handle_modname(char * funcname, void * native_mod_han
                 fprintf(stderr, "Could not locate symbol '%s': %d\n", funcname, rval);
                 //exit(1);
         }
-        printf("native_get_func_ptr_handle_modname( %s, %p)=%p\n",
+        io_printf("native_get_func_ptr_handle_modname( %s, %p)=%p\n",
                         funcname, native_mod_handle, mydltest);
         return mydltest;
 }
@@ -269,7 +270,7 @@ void * native_get_func_ptr_ord_modname(int ord, char * modname)
         void * mydltest;
         APIRET rval;
 
-        printf(" Searching func ptr ordinal=%d in '%s' \n", ord, modname);
+        io_printf(" Searching func ptr ordinal=%d in '%s' \n", ord, modname);
 
         mod_handle = native_find_module(modname, /*proc*/ 0);
 

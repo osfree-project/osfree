@@ -18,6 +18,7 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+#include <io.h>
 #include <loadobjlx.h>
 #include <fixuplx.h>
 #include <modlx.h>
@@ -36,7 +37,7 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
         void * vm_data_obj = 0;
 
         if((kod_obj != 0) && (kod_obj == stack_obj)) { /* Data and code in same object. */
-                printf("load_code_data_obj_lx: Code and stack/data is the same object!\n");
+                io_printf("load_code_data_obj_lx: Code and stack/data is the same object!\n");
 
                 /* Allocate virtual memory at the address that kod_obj requires. */
                 vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
@@ -47,7 +48,7 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
                 proc->code_mmap = vm_code_obj;
 
                 if(vm_code_obj == MAP_FAILED) {
-                        printf("Error mapping memory for(code/data)\n");
+                        io_printf("Error mapping memory for(code/data)\n");
                         return 0;
                 }
                 /* Load code object. */
@@ -62,7 +63,7 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
         proc->code_mmap = vm_code_obj;
 
         if(vm_code_obj == MAP_FAILED) {
-                printf("Error mapping memory for (code)\n");
+                io_printf("Error mapping memory for (code)\n");
                 return 0;
         }
         /* Register the allocated memory with memmgr. */
@@ -78,7 +79,7 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
         proc->stack_mmap = vm_data_obj;
 
         if(vm_data_obj == MAP_FAILED) {
-                printf("Error mapping memory for (data/stack)\n");
+                io_printf("Error mapping memory for (data/stack)\n");
                 return 0;
         }
         load_obj_lx(lx_exe_mod, proc, stack_obj, vm_data_obj);
@@ -103,7 +104,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pro
 
         for(obj_cnt=1; obj_cnt<=number_of_objects; obj_cnt++) {
                 kod_obj = get_obj(lx_exe_mod, obj_cnt);
-                printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
+                io_printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
                 vm_code_obj = 0;
 #ifndef __OS2__
                 if( !is_mem_used(&proc->root_mem_area, (void *) kod_obj->o32_base, kod_obj->o32_size) ) {
@@ -118,11 +119,11 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pro
                                                                 Which just goes through the memory registry from beginning,
                                                                 position 1 and upward and grabs first free space. */
                         if( is_mem_used(&proc->root_mem_area, (void *) new_base, kod_obj->o32_size) )
-                                printf("Error allocating used memory!!! 0x%lx \n", new_base);
+                                io_printf("Error allocating used memory!!! 0x%lx \n", new_base);
                         kod_obj->o32_base = new_base;
-                        printf(" new_base: 0x%lx, %lu \n", new_base, new_base);
+                        io_printf(" new_base: 0x%lx, %lu \n", new_base, new_base);
                         vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
-                        printf(" new_base == %p ?\n", vm_code_obj);
+                        io_printf(" new_base == %p ?\n", vm_code_obj);
                 }
 
 #else
@@ -136,7 +137,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pro
                 /*proc->code_mmap = vm_code_obj;*/
 
                 if(vm_code_obj == MAP_FAILED) {
-                        printf("Error mapping memory for (code)\n");
+                        io_printf("Error mapping memory for (code)\n");
                         return 0;
                 }
 
@@ -215,13 +216,13 @@ int do_fixup_code_data_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
 
         struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
 
-        printf("do_fixup_code_data_lx: %d, kod_obj=%p\n", __LINE__, kod_obj);
+        io_printf("do_fixup_code_data_lx: %d, kod_obj=%p\n", __LINE__, kod_obj);
 
         /* If there is a code object (with a main functoion) then do a fixup on it and
            it's data/stack object if it exists.*/
            /*
         if((kod_obj != 0) && do_fixup_obj_lx(lx_exe_mod, proc, kod_obj)) {
-                printf("do_fixup_code_data_lx: %d, stack_obj=%p\n", __LINE__, stack_obj);
+                io_printf("do_fixup_code_data_lx: %d, stack_obj=%p\n", __LINE__, stack_obj);
                 if(stack_obj != 0)
                         do_fixup_obj_lx(lx_exe_mod, proc, stack_obj);
                 return 1;
@@ -278,14 +279,14 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                 int startpage = lx_obj->o32_pagemap;
                 int lastpage  = lx_obj->o32_pagemap + lx_obj->o32_mapsize;
 
-                printf("--------------------Listing fixup data ------------------------- %p\n", lx_obj);
+                io_printf("--------------------Listing fixup data ------------------------- %p\n", lx_obj);
 
                 /* Goes through every page of the object.
                    The fixups are variable size and a bit messy to traverse.*/
                 print_o32_obj_info(lx_obj, " Info about source object ");
 
                 for(page_nr=startpage; page_nr < lastpage; page_nr++) {
-                        printf("-----  Object %d of %d\n",startpage, lastpage);
+                        io_printf("-----  Object %d of %d\n",startpage, lastpage);
 
                         /* Go and get byte position for fixup from the page logisk_sida.
                            Start offset for fixup in the page*/
@@ -310,9 +311,9 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                                         get_e32_pagesize(lx_exe_mod) * (page_nr-lx_obj->o32_pagemap);
 
                         /* obj_pg_sta->o32_pagedataoffset << get_e32_pageshift(lx_exe_mod) */
-                        printf("#######   lx_obj->o32_base = %lu, %lu, %lu, lx_obj->o32_pagemap=%d\n",
+                        io_printf("#######   lx_obj->o32_base = %lu, %lu, %lu, lx_obj->o32_pagemap=%d\n",
                                         lx_obj->o32_base, get_e32_pagesize(lx_exe_mod), page_nr, lx_obj->o32_pagemap);
-                        printf("#######   vm_start_of_page = %lu (0x%lx)\n", vm_start_of_page, vm_start_of_page);
+                        io_printf("#######   vm_start_of_page = %lu (0x%lx)\n", vm_start_of_page, vm_start_of_page);
 
                         /*
                         This loop traverses the fixups and increases
@@ -320,16 +321,16 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                         while(min_rlc is within the offset of current page) {
                         */
                         while(fixup_offset < pg_end_offs_fix) {
-                                printf("while( %d < %d ) {\n", fixup_offset, pg_end_offs_fix);
+                                io_printf("while( %d < %d ) {\n", fixup_offset, pg_end_offs_fix);
                                 min_rlc = get_fixup_rec_tbl_obj(lx_exe_mod, fixup_offset);
                                 print_struct_r32_rlc_info(min_rlc);
-                                printf(" pg_offs_fix = %d (0x%x)\n", pg_offs_fix, pg_offs_fix);
-                                printf(" pg_end_offs_fix = %d (0x%x)\n",pg_end_offs_fix, pg_end_offs_fix);
-                                printf(" fixup_offset = %d (0x%x)\n",  fixup_offset, fixup_offset);
+                                io_printf(" pg_offs_fix = %d (0x%x)\n", pg_offs_fix, pg_offs_fix);
+                                io_printf(" pg_end_offs_fix = %d (0x%x)\n",pg_end_offs_fix, pg_end_offs_fix);
+                                io_printf(" fixup_offset = %d (0x%x)\n",  fixup_offset, fixup_offset);
 
                                 fixup_source = min_rlc->nr_stype & 0xf;
                                 fixup_source_flag = min_rlc->nr_stype & 0xf0;
-                                printf(" fixup_source: 0x%x, fixup_src_flag: 0x%x \n", fixup_source, fixup_source_flag);
+                                io_printf(" fixup_source: 0x%x, fixup_src_flag: 0x%x \n", fixup_source, fixup_source_flag);
 
 
 
@@ -337,14 +338,14 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                         case NRRINT :
 
                                                 { /* Internal Fixup*/
-                                                        printf("Internal Fixup \n");
+                                                        io_printf("Internal Fixup \n");
                                                         /* Indata: lx_exe_mod, min_rlc*/
                                                         srcoff_cnt1 = get_srcoff_cnt1_rlc(min_rlc);
                                                         object1 = get_mod_ord1_rlc(min_rlc); /* On the same offset as Object1. */
                                                         trgoffs = get_trgoff_size(min_rlc);
-                                                        printf("srcoff_cnt1=%d, object1=%d",srcoff_cnt1, object1);
+                                                        io_printf("srcoff_cnt1=%d, object1=%d",srcoff_cnt1, object1);
                                                         if(trgoffs > 0)
-                                                                printf(", trgoffs=%d \n", trgoffs);
+                                                                io_printf(", trgoffs=%d \n", trgoffs);
 
                                                         target_object = get_obj(lx_exe_mod, object1);
                                                         vm_start_target_obj = target_object->o32_base;
@@ -353,12 +354,12 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                                         vm_target = vm_start_target_obj + trgoffs;
                                                         vm_source = vm_start_of_page + srcoff_cnt1;
 
-                                                        printf(" ###### vm_start_of_page= %lu, srcoff_cnt1 = %lu \n",
+                                                        io_printf(" ###### vm_start_of_page= %lu, srcoff_cnt1 = %lu \n",
                                                                         vm_start_of_page, srcoff_cnt1);
 
                                                         ptr_source = (unsigned long int *)vm_source;
                                                         *ptr_source = vm_target;
-                                                        printf(" ###### vm_target = %lu, vm_source = %lu, ptr_source =%p\n",
+                                                        io_printf(" ###### vm_target = %lu, vm_source = %lu, ptr_source =%p\n",
                                                                         vm_target,vm_source,ptr_source );
                                                         /* print_o32_obj_info(lx_obj, " Info about source object "); */
                                                         print_o32_obj_info(target_object, " Info about target object ");
@@ -373,7 +374,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
                                         case NRRORD:
                                              {/* Import by ordinal */
-                                                        printf("Import by ordinal \n");
+                                                        io_printf("Import by ordinal \n");
                                                         /* Indata: lx_exe_mod, min_rlc */
                                                         mod_nr = get_mod_ord1_rlc(min_rlc);
                                                         import_ord = get_imp_ord1_rlc(min_rlc);
@@ -385,17 +386,17 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                                         org_mod_name = get_imp_mod_name(lx_exe_mod,mod_nr);
                                                         copy_pas_str(mod_name, org_mod_name);
 
-                                                        printf(" module name: '%s' \n", mod_name);
+                                                        io_printf(" module name: '%s' \n", mod_name);
                                                                         /* Look for module if it's already loaded, if it's not try to load it.*/
                                                         found_module = (struct LX_module *)find_module(mod_name, proc);
                                                         if(!found_module) { /* Unable to find and load module. */
-                                                                printf("Can't find module: '%s' \n", mod_name);
+                                                                io_printf("Can't find module: '%s' \n", mod_name);
                                                                 return 0;
                                                         }
                                                         cont_mod_name = (char*)&cont_buf_mod_name;
                                                         copy_pas_str(cont_mod_name, get_module_name_res_name_tbl_entry(lx_exe_mod));
 
-                                                        printf(" Done loaded: '%s' (Import by ordinal), continuing with: %s\n",
+                                                        io_printf(" Done loaded: '%s' (Import by ordinal), continuing with: %s\n",
                                                                         mod_name,  cont_mod_name);
 
                                                         /*
@@ -414,7 +415,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
                                         case NRRNAM:
                                                 {/* Import by name */
-                                                        printf("Import by name \n");
+                                                        io_printf("Import by name \n");
                                                         mod_nr = get_mod_ord1_rlc(min_rlc);
                                                         import_name_offs = get_imp_ord1_rlc(min_rlc);
                                                         srcoff_cnt1 = get_srcoff_cnt1_rlc(min_rlc);
@@ -428,12 +429,12 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                                         org_mod_name = get_imp_mod_name(lx_exe_mod,mod_nr);
                                                         copy_pas_str(mod_name, org_mod_name);
 
-                                                        printf(" function name: '%s' \n", buf_import_name);
-                                                        printf(" module name: '%s' \n", mod_name);
+                                                        io_printf(" function name: '%s' \n", buf_import_name);
+                                                        io_printf(" module name: '%s' \n", mod_name);
                                                                         /* Look for module if it's already loaded, if it's not try to load it.*/
                                                         found_module = (struct LX_module *)find_module(mod_name, proc);
                                                         if(!found_module) { /* Unable to find and load module. */
-                                                                printf("Can't find module: '%s' \n", mod_name);
+                                                                io_printf("Can't find module: '%s' \n", mod_name);
                                                                 return 0;
                                                         }
 
@@ -464,7 +465,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                                 fixup_offset += get_reloc_size_rlc(min_rlc);
                                                 break;
 
-                                        default: printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source); return 0;
+                                        default: io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source); return 0;
                                 } /* switch(fixup_source) */
                         } /* while(fixup_offset < pg_end_offs_fix) { */
                 }
@@ -502,7 +503,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
 
                 /* Get the entry for an function from a module, assume only two types for now,
                    an 32 bit entry or an forward entry.*/
-        printf("loadobjlx.c:%d, get_entry( %p, %d \n", __LINE__, found_module, import_ord);
+        io_printf("loadobjlx.c:%d, get_entry( %p, %d \n", __LINE__, found_module, import_ord);
         fn_ptr = get_entry((struct LX_module *)found_module, import_ord,
                                         &ret_flags, (int*)&ret_offset, &ret_obj, &ret_modord, &ret_type);
         has_done_forward_jumping = 0;
@@ -513,19 +514,19 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                 char entry_buf_mod_name[255];
                 char * entry_mod_name = (char*)&entry_buf_mod_name;
 
-                printf("Error, can't find entrypoint: %d, in module: %d (%s) \n",
+                io_printf("Error, can't find entrypoint: %d, in module: %d (%s) \n",
                                 import_ord, mod_nr, copy_pas_str(entry_mod_name,get_imp_mod_name(found_module, mod_nr)));
                 if(frw_mod_name != 0)
-                        printf("frw_mod_name=%s", frw_mod_name);
+                        io_printf("frw_mod_name=%s", frw_mod_name);
                 if(mod_name != 0)
-                        printf(" mod_name=%s", mod_name);
-                printf("\n");
+                        io_printf(" mod_name=%s", mod_name);
+                io_printf("\n");
                 return 0; /* Error can't find an entry point.*/
         }
         /* 32 bit Entry */
         if((ret_type & ENTRY32)==ENTRY32 || ((ret_type & ENTRYNATIVE)== ENTRYNATIVE)) {
 
-                printf(" Additive = %d\n", addit);
+                io_printf(" Additive = %d\n", addit);
                 obj_vm_base =0;
                 i_dll_func_offs =0;
 
@@ -538,22 +539,22 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                 }
 
                 i_offs_to_fix_in_exe = lx_obj->o32_base + srcoff_cnt1;
-                printf("DLL module, obj_vm_base: 0x%x, func_offs: 0x%x \n",
+                io_printf("DLL module, obj_vm_base: 0x%x, func_offs: 0x%x \n",
                                 obj_vm_base, ret_offset);
-                printf("EXE module, obj_vm_base: 0x%lx, source position: 0x%x\n",
+                io_printf("EXE module, obj_vm_base: 0x%lx, source position: 0x%x\n",
                                 lx_obj->o32_base, srcoff_cnt1);
 
                 /* Is the EXE module placed under the DLL module in memory? */
                 if((lx_obj->o32_base + srcoff_cnt1) < (obj_vm_base+ ret_offset)) {
                         int relative_jmp = i_dll_func_offs - (lx_obj->o32_base + srcoff_cnt1);
-                        printf("Relative jump: %d, %lu, %lx \n", relative_jmp, relative_jmp, relative_jmp);
+                        io_printf("Relative jump: %d, %lu, %lx \n", relative_jmp, relative_jmp, relative_jmp);
                         ptr_fixup_code = (int *) i_offs_to_fix_in_exe;
                         *ptr_fixup_code = relative_jmp;
-                        printf("Patched address: %p \n", ptr_fixup_code);
-                        printf("Content of patched address: %d \n", *ptr_fixup_code);
+                        io_printf("Patched address: %p \n", ptr_fixup_code);
+                        io_printf("Content of patched address: %d \n", *ptr_fixup_code);
                 } else {
                         int relative_jmp2 = (lx_obj->o32_base + srcoff_cnt1) - i_dll_func_offs;
-                        printf("Relative jump (DLL under EXE): %d, %lu \n",relative_jmp2, relative_jmp2);
+                        io_printf("Relative jump (DLL under EXE): %d, %lu \n",relative_jmp2, relative_jmp2);
                 }
         }
         /* Forward Entry */
@@ -566,7 +567,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                 int frw_flags=0, frw_offset=0, frw_obj=0, frw_modord=0, frw_type=0;
                 int frw_mod_nr;
                 int forward_counter;
-                printf(" Forward Entry.\n");
+                io_printf(" Forward Entry.\n");
                 forward_found_module=found_module;
 
                 org_mod_name = get_imp_mod_name(found_module, ret_modord);
@@ -574,17 +575,17 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                 forward_counter=1;
 
                 do {
-                        /*printf("## do {\n");*/
+                        /*io_printf("## do {\n");*/
                         frw_mod_name = (char *) &frw_buf_mod_name;
                         org_mod_name = get_imp_mod_name(forward_found_module, ret_modord);
                         copy_pas_str(frw_mod_name, org_mod_name);
-                        printf("Forward imp mod: %s, ret_offset: %d\n",
+                        io_printf("Forward imp mod: %s, ret_offset: %d\n",
                                         frw_mod_name, ret_offset);
                         prev_mod = forward_found_module;
                         forward_found_module = (struct LX_module *)find_module(frw_mod_name, proc);
 
                         if(!forward_found_module) { /* Unable to find and load module. */
-                                printf("Can't find forward module: '%s' \n", mod_name);
+                                io_printf("Can't find forward module: '%s' \n", mod_name);
 
                                 native_module = native_find_module(frw_mod_name, proc);
                                 if(native_module != 0) {
@@ -601,10 +602,10 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
 
                                         if (strlen(native_name)==0)
                                         {
-                                          printf("Native ordinal: %d, module name: %s\n", ret_offset, frw_mod_name);
+                                          io_printf("Native ordinal: %d, module name: %s\n", ret_offset, frw_mod_name);
                                           frw_fn_ptr = native_get_func_ptr_ord_handle(ret_offset , native_module);
                                         } else {
-                                          printf("Native name: %s, module name: %s\n", native_name, frw_mod_name);
+                                          io_printf("Native name: %s, module name: %s\n", native_name, frw_mod_name);
                                           frw_fn_ptr = native_get_func_ptr_handle_modname(native_name , native_module);
                                         }
                                         ret_offset = (unsigned long int)frw_fn_ptr;
@@ -617,15 +618,15 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                                                 &frw_flags, &frw_offset, &frw_obj, &frw_modord, &frw_type);
                         frw_mod_nr = frw_offset;
                         forward_counter++;
-                        /*printf("## }while((frw_type & ... forward_counter=%d\n", forward_counter);*/
+                        /*io_printf("## }while((frw_type & ... forward_counter=%d\n", forward_counter);*/
                 }while((frw_type & ENTRYFWD)==ENTRYFWD && (forward_counter<1024));
                 found_module = forward_found_module;
                 cont_native_entry:;
                 ret_flags=frw_flags;  ret_offset=frw_offset; ret_obj=frw_obj;
                 ret_modord=frw_modord; ret_type=frw_type;
                 fn_ptr = frw_fn_ptr;
-                printf(" frw_modord=%d, frw_mod_nr=%d", frw_modord, frw_mod_nr);
-                printf(" Done with Forward Entry running. (%d) \n", forward_counter);
+                io_printf(" frw_modord=%d, frw_mod_nr=%d", frw_modord, frw_mod_nr);
+                io_printf(" Done with Forward Entry running. (%d) \n", forward_counter);
                 has_done_forward_jumping = 1;
                 goto test_entry;
         }

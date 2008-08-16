@@ -19,6 +19,7 @@
 */
 
 #include "memmgr.h"
+#include "io.h"
 #include <stdio.h>
 
 /* struct t_mem_area root_area; */
@@ -33,10 +34,10 @@ const int page_sz = 4096;
 
 unsigned long int round_up_to_4KiB(unsigned long int i) {
         unsigned long int align_i = i % page_sz;
-        /* printf("Aligned i at %d bytes boundry: %lu, rest: %lu \n", page_sz, i, align_i); */
+        /* io_printf("Aligned i at %d bytes boundry: %lu, rest: %lu \n", page_sz, i, align_i); */
         if(align_i)
                 i += page_sz - align_i;
-        /*printf(" i: %lu \n", i); */
+        /*io_printf(" i: %lu \n", i); */
         return i;
 }
 
@@ -82,7 +83,7 @@ void * seek_free_mem(struct t_mem_area *root_area, unsigned int i_size) {
 
 
         start_pos = round_up_to_4KiB(start_pos);
-        /* printf(" start_pos: %lu \n", start_pos); */
+        /* io_printf(" start_pos: %lu \n", start_pos); */
         return (void *)start_pos;
 }
 
@@ -93,15 +94,15 @@ int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned int i_s
         struct t_mem_area *el = root_area;
         unsigned int i_start = (unsigned int) p_start;
         unsigned int el_start = (unsigned int) el->start;
-        /* printf("Is allocated?: %p - 0x%lx \n", p_start, (unsigned long int)i_start+i_size); */
+        /* io_printf("Is allocated?: %p - 0x%lx \n", p_start, (unsigned long int)i_start+i_size); */
         /* print_used_mem(root_area); */
         while(el->next) {
                 el = (struct t_mem_area*)el->next;
                 i_start = (unsigned int) p_start;
                 el_start = (unsigned int) el->start;
 
-                /*printf("if((%d >= %d) && (%d <= %d)\n", i_start, el_start, i_start, el->size+el_start);
-                printf("        && (%d >= %d) && (%d <= %d) )\n",
+                /*io_printf("if((%d >= %d) && (%d <= %d)\n", i_start, el_start, i_start, el->size+el_start);
+                io_printf("        && (%d >= %d) && (%d <= %d) )\n",
                                 i_size+i_start, el_start, i_size+i_start, el->size+el_start );*/
 
 
@@ -109,33 +110,33 @@ int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned int i_s
                    och början på blocket är mindre än eller lika med el->size. */
                 if(((i_start >= el_start) && (i_start <= (el->size+el_start)))
                         || (((i_size+i_start) >= el_start) && ((i_size+i_start) <= (el->size+el_start))) ) {
-                        /* printf("Yes1.\n"); */
+                        /* io_printf("Yes1.\n"); */
                         return 1; /* Området används. */
                 }
                 if((i_start <= el_start) && ((i_size+i_start) >= (el->size+el_start))) {
-                        /* printf("Yes2.\n"); */
+                        /* io_printf("Yes2.\n"); */
                         return 1;
                 }
-                /* printf("No, continue.\n"); */
+                /* io_printf("No, continue.\n"); */
 
         }
         i_start = (unsigned int) p_start;
         el_start = (unsigned int) el->start;
 
-        /*printf("if((%d >= %d) && (%d <= %d)\n", i_start, el_start, i_start, el->size+el_start);
-        printf("        && (%d >= %d) && (%d <= %d) )\n",
+        /*io_printf("if((%d >= %d) && (%d <= %d)\n", i_start, el_start, i_start, el->size+el_start);
+        io_printf("        && (%d >= %d) && (%d <= %d) )\n",
                                 i_size+i_start, el_start, i_size+i_start, el->size+el_start );*/
 
         if(((i_start >= el_start) && (i_start <= (el->size+el_start)))
                         || (((i_size+i_start) >= el_start) && ((i_size+i_start) <= (el->size+el_start))) ) {
-                /* printf("Yes3.\n"); */
+                /* io_printf("Yes3.\n"); */
                 return 1; /* Området används. */
         }
         if((i_start <= el_start) && ((i_size+i_start) >= (el->size+el_start))) {
-                /* printf("Yes4.\n"); */
+                /* io_printf("Yes4.\n"); */
                 return 1;
         }
-        /* printf("No, do exit.\n"); */
+        /* io_printf("No, do exit.\n"); */
         return 0;
 }
 
@@ -169,7 +170,7 @@ int   alloc_mem_area(struct t_mem_area *root_area, void * p_start, unsigned int 
 
 /* dealloc_mem_area - Avallokerar minnesområdet pekaren pekar på. */
 int   dealloc_mem_area(struct t_mem_area *root_area, void * p_start) {
-        printf("FIXME: memmgr.c:dealloc_mem_area()\n");
+        io_printf("FIXME: memmgr.c:dealloc_mem_area()\n");
         return 0;
 }
 
@@ -180,17 +181,17 @@ void  print_used_mem(struct t_mem_area *root_area) {
         struct t_mem_area *el = root_area;
         unsigned int i_start = (unsigned int) start_pos;
         unsigned int el_start = (unsigned int) el->start;
-        printf("--- Used Mem in Memmgr ---\n");
+        io_printf("--- Used Mem in Memmgr ---\n");
         while(el || el->next) {
 
                 i_start = start_pos;
                 el_start = (unsigned int) el->start;
 
-                printf("Allocated: %p - 0x%lx \n", el->start, (unsigned long int)el->size+el_start);
+                io_printf("Allocated: %p - 0x%lx \n", el->start, (unsigned long int)el->size+el_start);
                 if(!el->next)
                         break;
                 if(el->next)
                         el = (struct t_mem_area*)el->next;
         }
-        printf("---    End Mem dump    ---\n");
+        io_printf("---    End Mem dump    ---\n");
 }

@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "modlx.h"
+#include "io.h"
 
 /*
 const int TRUE = 1;
@@ -100,8 +101,8 @@ size_t lx_fread_stream(void *ptr, size_t size, size_t nmemb,
 
         for(i=0; i<nmemb; i++) {
                 /* lx_file_stream lx_stream_size lx_stream_pos */
-                /* printf("memcpy(%p, %p, %d)\n",ptr, &lx_mod->lx_file_stream[lx_mod->lx_stream_pos], size);
-                 printf("nmenb=%d\n", nmemb); */
+                /* io_printf("memcpy(%p, %p, %d)\n",ptr, &lx_mod->lx_file_stream[lx_mod->lx_stream_pos], size);
+                 io_printf("nmenb=%d\n", nmemb); */
 
                 memcpy(ptr, &lx_mod->lx_file_stream[lx_mod->lx_stream_pos], size);
                 lx_mod->lx_stream_pos += size;
@@ -132,7 +133,7 @@ load_lx(FILE* fh, struct LX_module * lx_mod)
         lx_mod->fh = fh;
         lx_mod->lx_fseek = &lx_fseek_disk_file;
         lx_mod->lx_fread = &lx_fread_disk_file;
-        //printf("Load from filehandle: %p \n", fh);
+        //io_printf("Load from filehandle: %p \n", fh);
 
         /* Find out size of file. */
         fstorlek = fseek(fh, 0, SEEK_END);
@@ -141,12 +142,12 @@ load_lx(FILE* fh, struct LX_module * lx_mod)
 
 
         if(load_lx_module_header(lx_mod)) {
-                //printf("Succeeded to load LX header.\n");
+                //io_printf("Succeeded to load LX header.\n");
                 load_lx_loader_section(lx_mod);
                 load_lx_fixup_section(lx_mod);
         }
         else {
-                printf("Could not load LX header!!!!\n");
+                io_printf("Could not load LX header!!!!\n");
                 return 0;
         }
 
@@ -173,12 +174,12 @@ load_lx_stream(char * stream_fh, int str_size, struct LX_module * lx_mod) {
         lx_mod->fh = 0; /* No filehandle to a disk file is used. */
 
         if(load_lx_module_header(lx_mod)) {
-                //printf("Succeeded to load LX header.\n");
+                //io_printf("Succeeded to load LX header.\n");
                 load_lx_loader_section(lx_mod);
                 load_lx_fixup_section(lx_mod);
         }
         else {
-                printf("Could not load LX header!!!!\n");
+                io_printf("Could not load LX header!!!!\n");
                 return 0;
         }
 
@@ -245,15 +246,15 @@ int load_lx_module_header(struct LX_module * lx_mod) {
         if(((exe_sig[0] == 'M') && (exe_sig[1] == 'Z'))
                 || ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M'))) {
                 /* En DOS exe fil. */
-                //printf("A DOS exe file.\n");
+                //io_printf("A DOS exe file.\n");
 
                 lx_mod->lx_fseek(lx_mod, OFFSET_LX_HEAD, SEEK_SET);
-                //printf(" ftell: %lu \n", ftell(fh));
+                //io_printf(" ftell: %lu \n", ftell(fh));
 
                 lx_mod->lx_fread(&lx_module_header_offset, sizeof(lx_module_header_offset), 1, lx_mod);
 
-                //printf(" ftell: %lu \n", ftell(fh));
-                //printf("LX header offset: %d \n", lx_module_header_offset);
+                //io_printf(" ftell: %lu \n", ftell(fh));
+                //io_printf("LX header offset: %d \n", lx_module_header_offset);
 
                 lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
 
@@ -264,20 +265,20 @@ int load_lx_module_header(struct LX_module * lx_mod) {
         /*if(!((exe_sig[0] == 'M') && (exe_sig[1] == 'Z'))
                 || ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M'))) { */
         if(lx_module_header_offset == 0) {
-                printf(" Inte en MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
+                io_printf(" Inte en MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
                    ((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')),
                    ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')), exe_sig[0], exe_sig[1] );
-                //printf("LX header offset: %d \n", lx_module_header_offset);
+                //io_printf("LX header offset: %d \n", lx_module_header_offset);
                 lx_module_header_offset = 0;
                 lx_mod->offs_lx_head = lx_module_header_offset;
         }
                 if((exe_sig[0] == 'L') && (exe_sig[1] == 'X')) {
-                        printf("Valid LX header.\n");
+                        io_printf("Valid LX header.\n");
 
                         lx_e32_exe = (struct e32_exe *) malloc(sizeof(struct e32_exe));
 
                         //int storlek = sizeof(struct e32_exe);
-                        //printf("Läser %d bytes av LX header.\n", storlek);
+                        //io_printf("Läser %d bytes av LX header.\n", storlek);
 
                         lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
 
@@ -288,7 +289,7 @@ int load_lx_module_header(struct LX_module * lx_mod) {
                         return TRUE;
                 }
                 else {
-                        printf("Ogiltig LX fil !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
+                        io_printf("Ogiltig LX fil !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
                         return FALSE;
                 }
 
@@ -302,12 +303,12 @@ int load_lx_module_header(struct LX_module * lx_mod) {
 /* Reads loader section from file, it's place is in the header. */
 int load_lx_loader_section(struct LX_module * lx_mod) {
 
-        /*printf("Storlek på Loader Section: %lu \n", lx_mod->lx_head_e32_exe->e32_ldrsize);
-          printf("Plats: %lu \n", lx_mod->lx_head_e32_exe->e32_objtab); Object table offset */
+        /*io_printf("Storlek på Loader Section: %lu \n", lx_mod->lx_head_e32_exe->e32_ldrsize);
+          io_printf("Plats: %lu \n", lx_mod->lx_head_e32_exe->e32_objtab); Object table offset */
 
         lx_mod->lx_fseek(lx_mod, lx_mod->offs_lx_head + lx_mod->lx_head_e32_exe->e32_objtab, SEEK_SET);
 
-        //printf("Reads Loader Section.\n");
+        //io_printf("Reads Loader Section.\n");
         lx_mod->loader_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_ldrsize);
 
         lx_mod->lx_fread(lx_mod->loader_section,  lx_mod->lx_head_e32_exe->e32_ldrsize,1, lx_mod);
@@ -319,9 +320,9 @@ int load_lx_loader_section(struct LX_module * lx_mod) {
         /* Läser fixup-delen. */
 int load_lx_fixup_section(struct LX_module * lx_mod) {
 
-        /*printf("Storlek på Fixup Section: %lu\n", lx_mod->lx_head_e32_exe->e32_fixupsize); */
+        /*io_printf("Storlek på Fixup Section: %lu\n", lx_mod->lx_head_e32_exe->e32_fixupsize); */
                                                                  /* Fixup section size */
-        /*printf("Plats: %lu \n", lx_mod->lx_head_e32_exe->e32_fpagetab);   */
+        /*io_printf("Plats: %lu \n", lx_mod->lx_head_e32_exe->e32_fpagetab);   */
         /* Offset of Fixup Page Table */
 
         lx_mod->fixup_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_fixupsize);
@@ -361,7 +362,7 @@ int get_obj_map_num(struct LX_module * lx_mod) {
 struct o32_obj *
 get_code(struct LX_module * lx_mod) {
         if(lx_mod->lx_head_e32_exe->e32_startobj == 0) {
-                printf("Invalid start object for code ==0\n");
+                io_printf("Invalid start object for code ==0\n");
                 return (struct o32_obj *)0;
         }
         return get_obj(lx_mod, lx_mod->lx_head_e32_exe->e32_startobj);
@@ -384,7 +385,7 @@ struct o32_obj *
 get_data_stack(struct LX_module * lx_mod) {
         if((lx_mod->lx_head_e32_exe->e32_stackobj == 0) ||
                 (lx_mod->lx_head_e32_exe->e32_stackobj > get_obj_num(lx_mod))) {
-                printf("Invalid data/stack object ==%lu, max=%lu\n",
+                io_printf("Invalid data/stack object ==%lu, max=%lu\n",
                                 lx_mod->lx_head_e32_exe->e32_stackobj,
                                 get_obj_num(lx_mod));
                 return (struct o32_obj *)0;
@@ -453,12 +454,12 @@ int get_fixupsize(struct LX_module * lx_mod) {
         */
 
 void print_o32_obj_info(struct o32_obj * o_obj, char * namn) {
-        printf("----%s--%p---\n o32_size     %lu (0x%lx)\n", namn, o_obj, o_obj->o32_size, o_obj->o32_size);
-        printf(" o32_base     %lu (0x%lx)\n", o_obj->o32_base, o_obj->o32_base);
-        printf(" o32_flags    %lu (0x%lx)\n", o_obj->o32_flags, o_obj->o32_flags);
-        printf(" o32_pagemap  %lu (0x%lx)\n", o_obj->o32_pagemap, o_obj->o32_pagemap);
-        printf(" o32_mapsize  %lu (0x%lx)\n", o_obj->o32_mapsize, o_obj->o32_mapsize);
-        printf(" o32_reserved %lu (0x%lx)\n---------\n", o_obj->o32_reserved, o_obj->o32_reserved);
+        io_printf("----%s--%p---\n o32_size     %lu (0x%lx)\n", namn, o_obj, o_obj->o32_size, o_obj->o32_size);
+        io_printf(" o32_base     %lu (0x%lx)\n", o_obj->o32_base, o_obj->o32_base);
+        io_printf(" o32_flags    %lu (0x%lx)\n", o_obj->o32_flags, o_obj->o32_flags);
+        io_printf(" o32_pagemap  %lu (0x%lx)\n", o_obj->o32_pagemap, o_obj->o32_pagemap);
+        io_printf(" o32_mapsize  %lu (0x%lx)\n", o_obj->o32_mapsize, o_obj->o32_mapsize);
+        io_printf(" o32_reserved %lu (0x%lx)\n---------\n", o_obj->o32_reserved, o_obj->o32_reserved);
 }
 
 /* Hämtar offset i fixuptabellen för en sida (logisk_sida). */
@@ -618,44 +619,44 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                 bbuf[0] = magic[0];
                 bbuf[1] = magic[1];
                 bbuf[2] = 0;
-                printf("magic: %s \n", (char *)&bbuf);
-                printf("get_entry( lx_mod: %p, entry_ord_to_search: %d \n",lx_mod, entry_ord_to_search);
+                io_printf("magic: %s \n", (char *)&bbuf);
+                io_printf("get_entry( lx_mod: %p, entry_ord_to_search: %d \n",lx_mod, entry_ord_to_search);
         }
         else {
-                printf("Testing get_entry.\n");
+                io_printf("Testing get_entry.\n");
                 cptr_ent_tbl = (char*) *ret_type;
                 entry_table = (struct b32_bundle *)cptr_ent_tbl;
         }
 
         entry_ord_index=1;
 
-        /*printf("entry_table: %p \n", entry_table);*/
+        /*io_printf("entry_table: %p \n", entry_table);*/
 
-        printf("get_entry: entry_ord_to_search: %d, b32_cnt: %d, b32_type: %d, b32_obj: %d\n", entry_ord_to_search,
+        io_printf("get_entry: entry_ord_to_search: %d, b32_cnt: %d, b32_type: %d, b32_obj: %d\n", entry_ord_to_search,
                         entry_table->b32_cnt, entry_table->b32_type, entry_table->b32_obj);
 
-        /*printf("EMPTY: %d, ENTRYFWD: %d, _32BIT_ENTRY_SIZE: %d \n", EMPTY, ENTRYFWD, _32BIT_ENTRY_SIZE);*/
+        /*io_printf("EMPTY: %d, ENTRYFWD: %d, _32BIT_ENTRY_SIZE: %d \n", EMPTY, ENTRYFWD, _32BIT_ENTRY_SIZE);*/
 
         unused_entry = 0;
         while(entry_ord_index <= entry_ord_to_search) {
                 while(entry_table->b32_type == EMPTY) { /* Unused Entry, just skip over them.*/
-                    printf("EMPTY\n");
+                    io_printf("EMPTY\n");
                         entry_ord_index += entry_table->b32_cnt;
                         entry_table = (struct b32_bundle *)&cptr_ent_tbl[UNUSED_ENTRY_SIZE+unused_entry];
                         unused_entry += UNUSED_ENTRY_SIZE;
-                        printf("EMPTY, entry_table: %p\n", entry_table);
+                        io_printf("EMPTY, entry_table: %p\n", entry_table);
                 }
-                printf("entry_ord_index: %d, entry_ord_to_search: %d\n", entry_ord_index, entry_ord_to_search);
+                io_printf("entry_ord_index: %d, entry_ord_to_search: %d\n", entry_ord_index, entry_ord_to_search);
                 if(entry_ord_to_search < entry_ord_index) {
                                 *ret_flags = 0; // Unused entry ==0
                                 *ret_offset = 0;
                                 *ret_obj = 0;
                                 *ret_type = 0;
-                                printf("RET, Can't find entry.\n");
+                                io_printf("RET, Can't find entry.\n");
                                 return (void *) 0; // Can't find entry.
                 }
                 if(entry_table->b32_cnt == 0) {
-                       printf("End of entry table reached! %d, entry_table: %p\n",
+                       io_printf("End of entry table reached! %d, entry_table: %p\n",
                                          entry_table->b32_cnt, entry_table);
                                 *ret_flags = 0;
                                 *ret_offset = 0;
@@ -668,7 +669,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                         case EMPTY:;
                     case ENTRYFWD:;
                     case ENTRY32: break;
-                        default: printf("Invalid entry type! %d, entry_table: %p\n",
+                        default: io_printf("Invalid entry type! %d, entry_table: %p\n",
                                          entry_table->b32_type, entry_table);
                                 *ret_flags = 0;
                                 *ret_offset = 0;
@@ -678,7 +679,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                 }
 
 
-                /*printf("get_entry,2nd bundle: cnt: %d, type: %d, obj: %d\n",
+                /*io_printf("get_entry,2nd bundle: cnt: %d, type: %d, obj: %d\n",
                                 entry_table->b32_cnt, entry_table->b32_type, entry_table->b32_obj);     */
                 /* If ordinal to search for is less than present index ordinal and
                    ordinal to search for is less than the number of ordinals plus current index ordinal and
@@ -688,14 +689,14 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                    && (entry_ord_to_search<(entry_table->b32_cnt+entry_ord_index))
                    &&  (entry_table->b32_type == ENTRY32)) { /* 32-bit Entry.*/
 
-                                printf("32-bit Entry.\n");
+                                io_printf("32-bit Entry.\n");
                                 cptr_ent_tbl = (char*)entry_table;
                                 entry_post = (struct e32_entry *)&cptr_ent_tbl[ENTRY_HEADER_SIZE];
                                 cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
                                 i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                                 elements_in_bundle = entry_table->b32_cnt + entry_ord_index;
                                 for(entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) {
-                                        printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
+                                        io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
                                                         entry_ord_to_search, entry_ord_index);
                                     if(entry_ord_to_search == entry_ord_index)
                                                 break;
@@ -706,10 +707,10 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
                                 cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;
-                                printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
+                                io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
 
-                                printf("entry_post: %p \n", entry_post);
-                                printf("32-bit Entry: Flags=0x%x, Offset=%lu \n",
+                                io_printf("entry_post: %p \n", entry_post);
+                                io_printf("32-bit Entry: Flags=0x%x, Offset=%lu \n",
                                                 entry_post->e32_flags, entry_post->e32_variant.e32_offset.offset32);
                                 *ret_flags = entry_post->e32_flags;
                                 *ret_offset = entry_post->e32_variant.e32_offset.offset32;
@@ -718,7 +719,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 return (void *) entry_table;
 
                 } else if(entry_table->b32_type == ENTRY32) { /* Jump over the that bundle. */
-                        printf("ENTRY32\n");
+                        io_printf("ENTRY32\n");
                         cptr_ent_tbl = (char*)entry_table;
                         cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
                         i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
@@ -727,22 +728,22 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
                         cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                         entry_table= (struct b32_bundle *)cptr_ent_tbl;
-                        printf("ENTRY32, entry_table: %p\n", entry_table);
+                        io_printf("ENTRY32, entry_table: %p\n", entry_table);
                 }
 
                 if((entry_ord_to_search >= entry_ord_index)
                     && (entry_ord_to_search<(entry_table->b32_cnt+entry_ord_index))
                     && (entry_table->b32_type == ENTRYFWD)) { /* Forward Entry.*/
-                        printf("Forward Entry.\n");
+                        io_printf("Forward Entry.\n");
                         cptr_ent_tbl = (char*)entry_table;
-                        printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
+                        io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
                         entry_post = (struct e32_entry *)&cptr_ent_tbl[ENTRY_HEADER_SIZE];
                         cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
-                        printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
+                        io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
                                 i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                                 elements_in_bundle = entry_table->b32_cnt + entry_ord_index;
                                 for(entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) {
-                                    printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
+                                    io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
                                                         entry_ord_to_search, entry_ord_index);
                                         if(entry_ord_to_search == entry_ord_index)
                                                 break;
@@ -750,8 +751,8 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 }
                                 cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;
-                        printf("entry_post: %p \n", entry_post);
-                        printf("Forward Entry: Flags=0x%x, Proc name offset or ordinal=%lu, Module ordinal number: %d \n",
+                        io_printf("entry_post: %p \n", entry_post);
+                        io_printf("Forward Entry: Flags=0x%x, Proc name offset or ordinal=%lu, Module ordinal number: %d \n",
                                         entry_post->e32_flags,
                                         entry_post->e32_variant.e32_fwd.value,
                                         entry_post->e32_variant.e32_fwd.modord);
@@ -771,24 +772,24 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 e32_fwd;        / Forwarder */
                         return (void *) entry_table;
                 } else if(entry_table->b32_type == ENTRYFWD) { /* Jump over the that bundle. */
-                    printf("ENTRYFWD\n");
+                    io_printf("ENTRYFWD\n");
 
                         cptr_ent_tbl = (char*)entry_table;
-                        printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
+                        io_printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
                         cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
-                        printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
+                        io_printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
                         i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                         entry_ord_index += entry_table->b32_cnt;
-                        printf("FORWARD_ENTRY_SIZE: %d, entry_table->b32_cnt: %d\n", FORWARD_ENTRY_SIZE, entry_table->b32_cnt);
+                        io_printf("FORWARD_ENTRY_SIZE: %d, entry_table->b32_cnt: %d\n", FORWARD_ENTRY_SIZE, entry_table->b32_cnt);
                         i_cptr_ent_tbl += FORWARD_ENTRY_SIZE*entry_table->b32_cnt;
 
                         cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                         entry_table= (struct b32_bundle *)cptr_ent_tbl;
-                        printf("ENTRYFWD, entry_table: %p\n", entry_table);
+                        io_printf("ENTRYFWD, entry_table: %p\n", entry_table);
                 }
 
         }
-        printf("RET, get_entry()\n");
+        io_printf("RET, get_entry()\n");
         return (void *) entry_table;
 }
 
@@ -836,10 +837,10 @@ int get_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name)
         int size_res_name_table = lx_mod->lx_head_e32_exe->e32_enttab -
                                                                 lx_mod->lx_head_e32_exe->e32_restab;
 
-        printf("Resident Names Table size: %d, 0x%x \n",
+        io_printf("Resident Names Table size: %d, 0x%x \n",
                                 lx_mod->lx_head_e32_exe->e32_enttab - lx_mod->lx_head_e32_exe->e32_restab,
                                 lx_mod->lx_head_e32_exe->e32_enttab - lx_mod->lx_head_e32_exe->e32_restab );
-        printf("Resident Names Table offset: %d, 0x%x \n",
+        io_printf("Resident Names Table offset: %d, 0x%x \n",
                                 lx_mod->lx_head_e32_exe->e32_restab,
                                 lx_mod->lx_head_e32_exe->e32_restab );
         c_len = lx_mod->loader_section[offs_res_name_table];
@@ -849,16 +850,16 @@ int get_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name)
                 c_len = lx_mod->loader_section[offs_res_name_table + entry_lenghts];
                 copy_pas_str(ptr_buf_name,
                                         (char *)&lx_mod->loader_section[offs_res_name_table + entry_lenghts]);
-                printf(" Hittade: %s \n", ptr_buf_name);
+                io_printf(" Hittade: %s \n", ptr_buf_name);
 
                 ordinal = *((unsigned short int*)&lx_mod->loader_section[
                                                         offs_res_name_table + c_len+1+entry_lenghts]);
-                printf(" Hittade (ord): %d \n", ordinal);
+                io_printf(" Hittade (ord): %d \n", ordinal);
                 if(strcmp(entry_name,ptr_buf_name)==0)
                         return ordinal;
 
                 entry_lenghts += c_len+1+2;
-                printf("entry_lenghts: %d \n", entry_lenghts);
+                io_printf("entry_lenghts: %d \n", entry_lenghts);
         }
         return 0; /* The ordinal is not found. */
 }
@@ -868,10 +869,10 @@ int get_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name)
         */
 int get_non_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name) {
 
-        printf("Non-resident Names Table size: %d, 0x%x \n",
+        io_printf("Non-resident Names Table size: %d, 0x%x \n",
                                 lx_mod->lx_head_e32_exe->e32_cbnrestab,
                                 lx_mod->lx_head_e32_exe->e32_cbnrestab );
-        printf("Non-resident Names Table offset: %d, 0x%x \n",
+        io_printf("Non-resident Names Table offset: %d, 0x%x \n",
                                 lx_mod->lx_head_e32_exe->e32_nrestab,
                                 lx_mod->lx_head_e32_exe->e32_nrestab );
         return 0;
@@ -905,7 +906,7 @@ char * get_module_name_res_name_tbl_entry(struct LX_module * lx_mod) {
                         return ordinal;*/
 
                 /*entry_lenghts += c_len+1+2;
-                printf("entry_lenghts: %d \n", entry_lenghts); */
+                io_printf("entry_lenghts: %d \n", entry_lenghts); */
         /*}*/
         return (char *)&lx_mod->loader_section[offs_res_name_table + entry_lenghts];
 }

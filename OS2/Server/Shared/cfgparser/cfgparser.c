@@ -9,9 +9,11 @@
 
    parses the systems config.sys file during bootup
 
-  @author Sascha Schmidt <sascha.schmidt@asamnet.de
+  @author Sascha Schmidt <sascha.schmidt@asamnet.de>
 
 */
+
+#include <io.h>
 
 // uLibC defines
 //#include <unistd.h>
@@ -37,12 +39,7 @@ char  *run[30];
 char  *call[30];
 char  *set[150];
 
-struct types {
-        const char *name;       // Name of config.sys command
-        const char sep; // Not used so far, perhaps I will delete it
-        char **sp;              // Pointer to the content
-        int ip;         // Number of elements in the arrays
-}type[]={
+struct types type[]={
    {"CALL",'=',call,0},
    {"RUN",'=',run,0},
    {"SET",'=',set,0}
@@ -463,7 +460,7 @@ int cfg_parse_line(char line[], int len)
                                         options.wp_objhandle=atoi(line);
                                         break;
                         default:
-                                        printf("Oh, well, this should not occure. Please note down the following to lines:\n%s\n%s\n",options_list[i],line);
+                                        io_printf("Oh, well, this should not occure. Please note down the following to lines:\n%s\n%s\n",options_list[i],line);
                                         break;
                         }
                         return(1);
@@ -516,7 +513,7 @@ int warn(char *msg)
 }
 
 /*! @todo Add check for exceed MAXLENGTH */
-void cfg_parse_config(void * addr, int size)
+int cfg_parse_config(void * addr, int size)
 {
     int  off = 0;         // Current offset in CONFIG.SYS memory area
     char line[MAXLENGTH]; // here I store the lines I read
@@ -528,7 +525,7 @@ void cfg_parse_config(void * addr, int size)
     {
       c=((char *)addr+off)[0];
       line[len]=c;
-      if (c=='\n')
+      if (c=='\r'||c=='\n')
       {
         line[len]='\0';
         if(!cfg_parse_line(line,len)) error("parse: an error occured\n");
@@ -537,5 +534,6 @@ void cfg_parse_config(void * addr, int size)
         len++;
       }
       off++;
+      if (((char *)addr+off)[0]=='\r'||((char *)addr+off)[0]=='\n') off++;
     }
 };

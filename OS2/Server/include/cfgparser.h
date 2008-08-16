@@ -59,11 +59,20 @@ typedef struct {
         int wp_objhandle;       // =n
 } cfg_opts;
 
+extern cfg_opts options;
+
+extern struct types {
+        const char *name;       // Name of config.sys command
+        const char sep; // Not used so far, perhaps I will delete it
+        char **sp;              // Pointer to the content
+        int ip;         // Number of elements in the arrays
+}type[];
+
 // Function prototypes
 int cfg_init_options(void);
 int cfg_parse_line(char *, int);
 int cfg_cleanup(void);
-void cfg_parse_config(void * addr, int size)
+int cfg_parse_config(void * addr, int size);
 
 void error(char *);
 int warn(char *);
