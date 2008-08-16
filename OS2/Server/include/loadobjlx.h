@@ -33,23 +33,23 @@ extern "C" {
 
 int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc);
 
-int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc);
+int load_dll_code_obj_lx(struct LX_module * lx_exe_mod);
 
 unsigned int vm_alloc_obj_lx(struct LX_module * lx_exe_mod, struct o32_obj * lx_obj);
 
-int load_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc, 
-				struct o32_obj * lx_obj, void *vm_ptr_obj);
-				
-int do_fixup_code_data_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc);
+int load_obj_lx(struct LX_module * lx_exe_mod,
+                                struct o32_obj * lx_obj, void *vm_ptr_obj);
 
-int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc, 
-				struct o32_obj * lx_obj);
+int do_fixup_code_data_lx(struct LX_module * lx_exe_mod);
 
-int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_module, 
-						struct t_processlx * proc, struct o32_obj * lx_obj,
-						int mod_nr, int import_ord, int addit, int srcoff_cnt1,
-						struct r32_rlc * min_rlc);
-						
+int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
+                                struct o32_obj * lx_obj);
+
+int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_module,
+                                                struct o32_obj * lx_obj,
+                                                int mod_nr, int import_ord, int addit, int srcoff_cnt1,
+                                                struct r32_rlc * min_rlc);
+
 const int ENTRYNATIVE = 5;
 
 #ifdef __cplusplus

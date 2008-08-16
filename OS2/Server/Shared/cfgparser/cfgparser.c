@@ -536,4 +536,5 @@ int cfg_parse_config(void * addr, int size)
       off++;
       if (((char *)addr+off)[0]=='\r'||((char *)addr+off)[0]=='\n') off++;
     }
+  return 0;
 };

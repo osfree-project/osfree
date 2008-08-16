@@ -89,7 +89,7 @@ register_module(char * name, void * mod_struct)
         /* Searches for the module name which the process proc needs.
            It first sees if it's already loaded and then just returns the found module.
            If it can't be found load_module() searches the mini_libpath inside find_module_path(). */
-void * find_module(char * name, struct t_processlx *proc) {
+void * find_module(char * name) {
      void *ptr_mod;
         struct module_rec * prev = (struct module_rec *) module_root.next;
 
@@ -107,7 +107,7 @@ void * find_module(char * name, struct t_processlx *proc) {
                 prev = (struct module_rec *) prev->next;
         }
 
-        ptr_mod = load_module(name, proc);
+        ptr_mod = load_module(name);
         if(ptr_mod != 0) { /* If the module has been loaded, register it. */
                 /* register_module(name, ptr_mod); */
                 return ptr_mod;
@@ -159,45 +159,6 @@ void find_module_path(char * name, char * full_path_name) {
                 p_buf[0] = 0;
 }
 
-        /* Loads a module name which proc needs. */
-void * load_module(char * name, struct t_processlx *proc) {
-        struct LX_module *lx_exe_mod;
-        FILE *f;
-        struct module_rec * new_module_el;
-        #define buf_size 4096
-        char buf[buf_size+1];
-        char *p_buf = (char *) &buf;
-
-        find_module_path(name, p_buf); /* Searches for module name and returns the full path in
-                                                                        the buffer p_buf. */
-
-        lx_exe_mod = (struct LX_module *) malloc(sizeof(struct LX_module));
-        io_printf("load_module: '%s' \n", p_buf);
-        f = fopen(p_buf, "rb");  /* Open file in read only binary mode, in case this code
-                                          will be compiled on OS/2 or on windows. */
-
-        /* Load LX file from buffer. */
-        /* if(load_lx_stream((char*)lx_buf, pos, &lx_exe_mod)) { */
-
-
-        /* Load LX file from ordinary disk file. */
-        if(f && load_lx(f, lx_exe_mod)) {     /* Load LX header.*/
-                load_dll_code_obj_lx(lx_exe_mod, proc); /* Load all objects in dll.*/
-                new_module_el = register_module(name, lx_exe_mod);
-                new_module_el->load_status = LOADING;
-                        /* A risk for cycles here. Need to check if a dll is already loading,
-                           indirect recursion.*/
-                do_fixup_code_data_lx(lx_exe_mod, proc); /* Apply fixups. */
-                new_module_el->load_status = DONE_LOADING;
-                return lx_exe_mod;
-        }
-        free(lx_exe_mod);
-        if(f)
-                fclose(f);
-        io_printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
-        return 0;
-}
-
 struct module_rec * get_root() {
         return &module_root;
 }
@@ -231,33 +192,6 @@ void print_module_table() {
                                 el->mod_name, el->module_struct, el->load_status);
         }
 }
-
-/*void load_dyn_link(char * name) {
-
-        io_printf("Laddar dll: ");
-
-        //DosPutMessage(1, name[0], name);
-        io_printf("\n");
-}
-*/
-
-/* MSG.DLL med DosPutMessage med ordinal: 5*/
-/* DOSCALLS.234  Dos32Exit */
-/* DOSCALLS.348   Dos32QuerySysInfo */
-/* strcasecmp  strcmp*/
-
-/*void * get_func_ptr_ord_modname(int ord, char * modname) {
-        if(strcasecmp (modname, "MSG")==0 && ord == 5)
-                return 0 ;//&DosPutMessage;
-        if(strcasecmp(modname, "DOSCALLS")==0 && ord == 234)
-                return 0 ;//&DosExit;
-        if(strcasecmp(modname, "DOSCALLS")==0 && ord == 348)
-                return 0 ;//&DosQuerySysInfo;
-
-        io_printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
-        return 0;
-}
-*/
 
 void set_libpath(char ** path, int nr) {
   mini_libpath = path;

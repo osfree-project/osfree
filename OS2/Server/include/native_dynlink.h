@@ -42,14 +42,14 @@ struct native_module_rec {
 
 void init_native_dynlink(void);
 struct native_module_rec * native_register_module(char * name, char * filepath, void * mod_struct);
-void * native_find_module(char * name, struct t_processlx *proc);
+void * native_find_module(char * name);
 void native_find_module_path(char * name, char * full_path_name);
 void native_load_dyn_link(char * name);
 void * native_get_func_ptr_ord_modname(int ord, char * modname);
 void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle);
 void * native_get_func_ptr_str_modname(char * funcname, char * modname);
 void * native_get_func_ptr_handle_modname(char * funcname, void * native_mod_handle);
-void * native_load_module(char * name, struct t_processlx *proc);
+void * native_load_module(char * name);
 struct native_module_rec * native_get_root();
 struct native_module_rec * native_get_next(struct native_module_rec * el);
 char * native_get_name(struct native_module_rec * el);

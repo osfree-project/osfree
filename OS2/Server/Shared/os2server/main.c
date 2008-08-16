@@ -33,7 +33,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include <io.h>
 #include <execlx.h>
@@ -42,26 +42,15 @@
 #include <dynlink.h>
 #include <native_dynlink.h>
 #include <memmgr.h>
+#include <modmgr.h>
 
-
-/* http://www.moses.uklinux.net/patches/lki-2.html#ss2.11
-   http://tldp.org/LDP/khg/HyperNews/get/syscall/syscall86.html
-*/
+struct t_mem_area os2server_root_mem_area;
 
 #define  size_t unsigned long int
-#define off_t unsigned long int
 
-//_WCRTLINK extern
-void *mmap( void *__addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset ){return 0;}
-
-//_WCRTLINK extern
 int munmap( void *__addr, size_t __len ){return 0;}
 
-/* Driver program for LXLoader. */
-
 void print_detailed_module_table();
-
-int modmgr_execute_module(char * filename);
 
  /*********************************************************************
  * Here everything starts. This is the main function of the           *
@@ -110,65 +99,6 @@ int main(int argc, const char **argv)
   return rc;
 }
 
-int modmgr_execute_module(char * filename)
-{
-  int rc;
-  int do_start;
-  void * lx_buf;
-  int pos;
-
-  char* native_libpath[] =
-  {
-            "c:\\os2\\dll"
-  };
-
-  /* The structure for loaded LX exe. */
-  struct LX_module lx_exe_mod ;
-
-//  set_path(options.libpath, 0); /* Zero-based number in path.*/
-
-  set_libpath(options.libpath, 0); /* Zero-based number in libpath.*/
-
-  set_native_libpath(native_libpath, 0); /* Zero-based number i native_libpath.*/
-
-  // Load executable into memory
-  rc=io_load_file(filename, &lx_buf, &pos);
-
-  if(load_lx_stream((char*)lx_buf, pos, &lx_exe_mod)) /* A file from a buffer.*/
-  {
-    /* Creates an simple process(keeps info about it, does not start to execute). */
-    struct t_processlx * tiny_process = processlx_create(&lx_exe_mod);
-
-
-    /* Reads the actual objects from the file, code- and dataobjects.*/
-    /* load_code_data_obj_lx(&lx_exe_mod, tiny_process); */
-    load_dll_code_obj_lx(&lx_exe_mod, tiny_process); /* Use same routine as the one is loading dlls.*/
-
-    /* Register the exe with the module table. With the complete path. */
-    register_module(filename, (void *) &lx_exe_mod);
-
-    do_start = 0; /* A check to make sure the loading of the file succeeded. */
-
-    /* Applies fixups to the loaded objects. */
-    if(do_fixup_code_data_lx(&lx_exe_mod, tiny_process))
-            do_start = 1;
-
-    /* Print info about used memory loaded modules. */
-    print_used_mem(&tiny_process->root_mem_area);
-    print_detailed_module_table();
-
-    /* Starts to execute the process. */
-    if(do_start)
-            exec_lx(&lx_exe_mod, tiny_process);
-    processlx_destroy(tiny_process); /* Removes the process.
-             Maybe use garbage collection here? Based on reference counter?
-                And when the counter reeches zero, release process. */
-  } else {
-    io_printf("load_lx returns an error !!! \n");
-  }
-
-  return 0;
-}
 
 
 /* Goes through every loaded module and prints out all it's objects. */

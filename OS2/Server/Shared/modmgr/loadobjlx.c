@@ -26,7 +26,11 @@
 #include <dynlink.h>
 #include <native_dynlink.h>
 
+#include <string.h>
 
+extern struct t_mem_area os2server_root_mem_area;
+
+#if 0
   /* Loads the objects for code and data, for programs. NOT used. */
 int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
@@ -52,7 +56,7 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
                         return 0;
                 }
                 /* Load code object. */
-                load_obj_lx(lx_exe_mod, proc, kod_obj, vm_code_obj);
+                load_obj_lx(lx_exe_mod, kod_obj, vm_code_obj);
                 return 1;
         }
 
@@ -68,7 +72,7 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
         }
         /* Register the allocated memory with memmgr. */
         alloc_mem_area(&proc->root_mem_area, (void *) kod_obj->o32_base, kod_obj->o32_size);
-        load_obj_lx(lx_exe_mod, proc, kod_obj, vm_code_obj);
+        load_obj_lx(lx_exe_mod, kod_obj, vm_code_obj);
 
         if(stack_obj == 0) return 0;
         vm_data_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, stack_obj);
@@ -82,17 +86,17 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pr
                 io_printf("Error mapping memory for (data/stack)\n");
                 return 0;
         }
-        load_obj_lx(lx_exe_mod, proc, stack_obj, vm_data_obj);
+        load_obj_lx(lx_exe_mod, stack_obj, vm_data_obj);
 
         print_o32_obj_info(kod_obj, " Info about kod_obj ");
         print_o32_obj_info(stack_obj, " Info about stack_obj ");
 
         return 1;
 }
-
+#endif
 
   /* Loads all the objects in a dll and exe. */
-int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
+int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
         /*struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod); */
         /*struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);*/
         void * vm_code_obj;
@@ -129,10 +133,10 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pro
 #else
 // In OS/2 no normal mmap() support, so we always relocate objects
                 vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
-                kod_obj->o32_base = vm_code_obj;
+                kod_obj->o32_base = (unsigned long)vm_code_obj;
 #endif
                 // Register allocated area
-                alloc_mem_area(&proc->root_mem_area, (void *) kod_obj->o32_base, kod_obj->o32_size);
+                alloc_mem_area(&os2server_root_mem_area/*&proc->root_mem_area*/, (void *) kod_obj->o32_base, kod_obj->o32_size);
 
                 /*proc->code_mmap = vm_code_obj;*/
 
@@ -141,7 +145,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * pro
                         return 0;
                 }
 
-                load_obj_lx(lx_exe_mod, proc, kod_obj, vm_code_obj);
+                load_obj_lx(lx_exe_mod, kod_obj, vm_code_obj);
 
                 print_o32_obj_info(kod_obj, " Info about kod_obj ");
         }
@@ -171,7 +175,7 @@ unsigned int vm_alloc_obj_lx(struct LX_module * lx_exe_mod, struct o32_obj * lx_
 }
 
         /* Loads an object to the memory area pointed by vm_ptr_obj. */
-int load_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
+int load_obj_lx(struct LX_module * lx_exe_mod,
                                 struct o32_obj * lx_obj, void *vm_ptr_obj)
 {
   unsigned long int tmp_code;
@@ -208,42 +212,25 @@ int load_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
 
         /* Applies fixups to all objects. Used for programs and dlls. */
-int do_fixup_code_data_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc)
+int do_fixup_code_data_lx(struct LX_module * lx_exe_mod)
 {
-                        unsigned long int i;
+  unsigned long int i;
 
-        struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
+  /* If there is a code object (with a main function) then do a fixup on it and
+     it's data/stack object if it exists.*/
+  for(i=1; i<=get_obj_num(lx_exe_mod); i++)
+  {
+    struct o32_obj * obj = get_obj(lx_exe_mod, i);
+    if(obj != 0)
+      do_fixup_obj_lx(lx_exe_mod, obj);
+  }
 
-        struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
-
-        io_printf("do_fixup_code_data_lx: %d, kod_obj=%p\n", __LINE__, kod_obj);
-
-        /* If there is a code object (with a main functoion) then do a fixup on it and
-           it's data/stack object if it exists.*/
-           /*
-        if((kod_obj != 0) && do_fixup_obj_lx(lx_exe_mod, proc, kod_obj)) {
-                io_printf("do_fixup_code_data_lx: %d, stack_obj=%p\n", __LINE__, stack_obj);
-                if(stack_obj != 0)
-                        do_fixup_obj_lx(lx_exe_mod, proc, stack_obj);
-                return 1;
-        }
-         else { // do a fixup on all loaded objects, because it's an dll.
-                if( (get_mflags(lx_exe_mod) & E32NOTP)==E32NOTP) {
-        */
-                        for(i=1; i<=get_obj_num(lx_exe_mod); i++) {
-                                struct o32_obj * obj = get_obj(lx_exe_mod, i);
-                                if(obj != 0)
-                                        do_fixup_obj_lx(lx_exe_mod, proc, obj);
-                        }
-                /*}
-        }*/
-
-        return 1;
+ return 1;
 }
 
 
 /* Applies fixups for an object. */
-int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
+int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
                                 struct o32_obj * lx_obj) {
 
         int ord_found;
@@ -388,7 +375,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
                                                         io_printf(" module name: '%s' \n", mod_name);
                                                                         /* Look for module if it's already loaded, if it's not try to load it.*/
-                                                        found_module = (struct LX_module *)find_module(mod_name, proc);
+                                                        found_module = (struct LX_module *)find_module(mod_name);
                                                         if(!found_module) { /* Unable to find and load module. */
                                                                 io_printf("Can't find module: '%s' \n", mod_name);
                                                                 return 0;
@@ -401,11 +388,11 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
                                                         /*
                                                         apply_import_fixup(struct LX_module * this_module, struct LX_module * found_module,
-                                                                                struct t_processlx * proc, struct o32_obj * lx_obj,
+                                                                                struct o32_obj * lx_obj,
                                                                                 int mod_nr, int import_ord, int addit, int srcoff_cnt1,
                                                                                 struct r32_rlc * min_rlc) */
 
-                                                        apply_import_fixup(lx_exe_mod, found_module, proc, lx_obj, mod_nr, import_ord,
+                                                        apply_import_fixup(lx_exe_mod, found_module, lx_obj, mod_nr, import_ord,
                                                                                                 addit, srcoff_cnt1, min_rlc);
 
 
@@ -432,7 +419,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
                                                         io_printf(" function name: '%s' \n", buf_import_name);
                                                         io_printf(" module name: '%s' \n", mod_name);
                                                                         /* Look for module if it's already loaded, if it's not try to load it.*/
-                                                        found_module = (struct LX_module *)find_module(mod_name, proc);
+                                                        found_module = (struct LX_module *)find_module(mod_name);
                                                         if(!found_module) { /* Unable to find and load module. */
                                                                 io_printf("Can't find module: '%s' \n", mod_name);
                                                                 return 0;
@@ -444,11 +431,11 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
                                                         /*
                                                         apply_import_fixup(struct LX_module * this_module, struct LX_module * found_module,
-                                                                                struct t_processlx * proc, struct o32_obj * lx_obj,
+                                                                                struct o32_obj * lx_obj,
                                                                                 int mod_nr, int import_ord, int addit, int srcoff_cnt1,
                                                                                 struct r32_rlc * min_rlc) */
 
-                                                        apply_import_fixup(lx_exe_mod, found_module, proc, lx_obj, mod_nr,
+                                                        apply_import_fixup(lx_exe_mod, found_module, lx_obj, mod_nr,
                                                                                                 ord_found, addit, srcoff_cnt1, min_rlc);
 
 
@@ -474,7 +461,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc,
 
 
 int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_module,
-                                                struct t_processlx * proc, struct o32_obj * lx_obj,
+                                                struct o32_obj * lx_obj,
                                                 int mod_nr, int import_ord, int addit, int srcoff_cnt1,
                                                 struct r32_rlc * min_rlc) {
         char * org_mod_name;
@@ -582,12 +569,12 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                         io_printf("Forward imp mod: %s, ret_offset: %d\n",
                                         frw_mod_name, ret_offset);
                         prev_mod = forward_found_module;
-                        forward_found_module = (struct LX_module *)find_module(frw_mod_name, proc);
+                        forward_found_module = (struct LX_module *)find_module(frw_mod_name);
 
                         if(!forward_found_module) { /* Unable to find and load module. */
                                 io_printf("Can't find forward module: '%s' \n", mod_name);
 
-                                native_module = native_find_module(frw_mod_name, proc);
+                                native_module = native_find_module(frw_mod_name);
                                 if(native_module != 0) {
                                         /* Try to load a native library instead. */
                                         /* void * native_find_module(char * name, struct t_processlx *proc);

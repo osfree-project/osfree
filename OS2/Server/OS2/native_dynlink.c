@@ -81,7 +81,7 @@ native_register_module(char * name, char * filepath, void * mod_struct)
         /* Searches for the module name which the process proc needs.
            It first sees if it's already loaded and then just returns the found module.
            If it can't be found load_module() searches the mini_libpath inside find_module_path(). */
-void * native_find_module(char * name, struct t_processlx *proc)
+void * native_find_module(char * name)
 {
   void *ptr_mod;
         struct native_module_rec * prev = (struct native_module_rec *) native_module_root.next;
@@ -100,7 +100,7 @@ void * native_find_module(char * name, struct t_processlx *proc)
                 prev = (struct native_module_rec *) prev->next;
         }
 
-        ptr_mod = native_load_module(name, proc);
+        ptr_mod = native_load_module(name);
         if(ptr_mod != 0) { /* If the module has been loaded, register it. */
                 /* register_module(name, ptr_mod); */
                 return ptr_mod;
@@ -134,7 +134,7 @@ void native_find_module_path(char * name, char * full_path_name) {
 }
 
         /* Loads a module name which proc needs. */
-void * native_load_module(char * name, struct t_processlx *proc) {
+void * native_load_module(char * name) {
 
         const int buf_size = 4096;
         char buf[4096];
@@ -160,17 +160,10 @@ void * native_load_module(char * name, struct t_processlx *proc) {
 
                 if (rval) {
                         fprintf(stderr, "Could not open '%s': %s\n", p_buf, buf);
-                        return handle;
+                        return (void *)handle;
                 }
-                new_module_el = native_register_module(name, p_buf, handle);
-                new_module_el->load_status = LOADING;
-
-
-                        /* A risk for cycles here. Need to check if a dll is already loading,
-                           indirect recursion.*/
-//                do_fixup_code_data_lx(lx_exe_mod, proc); // Apply fixups.
-                new_module_el->load_status = DONE_LOADING;
-                return handle;
+                new_module_el = native_register_module(name, p_buf, (void *)handle);
+                return (void *)handle;
         }
 
         io_printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
@@ -237,7 +230,7 @@ void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
 
         io_printf(" Searching func ptr '%s' in '%s' \n", funcname, modname);
 
-        mod_handle = native_find_module(modname, /*proc*/ 0);
+        mod_handle = native_find_module(modname);
 
         rval = DosQueryProcAddr( (HMODULE)mod_handle, 0, funcname, (PFN *)&mydltest);
 
@@ -272,7 +265,7 @@ void * native_get_func_ptr_ord_modname(int ord, char * modname)
 
         io_printf(" Searching func ptr ordinal=%d in '%s' \n", ord, modname);
 
-        mod_handle = native_find_module(modname, /*proc*/ 0);
+        mod_handle = native_find_module(modname);
 
         rval = DosQueryProcAddr( (HMODULE)mod_handle, ord, NULL, (PFN *)&mydltest);
 

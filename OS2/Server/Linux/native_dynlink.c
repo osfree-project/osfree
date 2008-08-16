@@ -93,7 +93,7 @@ native_register_module(char * name, char * filepath, void * mod_struct) {
         /* Searches for the module name which the process proc needs.
            It first sees if it's already loaded and then just returns the found module.
            If it can't be found load_module() searches the mini_libpath inside find_module_path(). */
-void * native_find_module(char * name, struct t_processlx *proc) {
+void * native_find_module(char * name) {
         struct native_module_rec * prev = (struct native_module_rec *) native_module_root.next;
 
         while(prev) {
@@ -110,7 +110,7 @@ void * native_find_module(char * name, struct t_processlx *proc) {
                 prev = (struct native_module_rec *) prev->next;
         }
 
-        void *ptr_mod = native_load_module(name, proc);
+        void *ptr_mod = native_load_module(name);
         if(ptr_mod != 0) { /* If the module has been loaded, register it. */
                 /* register_module(name, ptr_mod); */
                 return ptr_mod;
@@ -155,7 +155,7 @@ void native_find_module_path(char * name, char * full_path_name) {
 }
 
         /* Loads a module name which proc needs. */
-void * native_load_module(char * name, struct t_processlx *proc) {
+void * native_load_module(char * name) {
 
         const int buf_size = 4096;
         char buf[4096];
@@ -203,10 +203,6 @@ void * native_load_module(char * name, struct t_processlx *proc) {
 
 
 
-                        /* A risk for cycles here. Need to check if a dll is already loading,
-                           indirect recursion.*/
-                /*
-                do_fixup_code_data_lx(lx_exe_mod, proc); // Apply fixups.  */
                 new_module_el->load_status = DONE_LOADING;
                 return handle;
         }
@@ -278,7 +274,7 @@ void native_print_module_table(void) {
 
 void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
         io_printf(" Searching func ptr '%s' in '%s' \n", funcname, modname);
-        void * mod_handle = native_find_module(modname, /*proc*/ 0);
+        void * mod_handle = native_find_module(modname);
         char * error;
         void * mydltest = dlsym(mod_handle, funcname);
         if ((error = dlerror()) != (char *)0)  {

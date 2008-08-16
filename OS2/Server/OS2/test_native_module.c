@@ -60,7 +60,7 @@ void test_native_module(void) {
         native_find_module_path(module_to_find, (char *)&mod_path);
         if(mod_path) {
                 printf("native_find_module_path found: %s \n", mod_path);
-                handle_msg = native_find_module(module_to_find, NULL);
+                handle_msg = native_find_module(module_to_find);
 
                 mydl_DosPutMessage = (tmydl_DosPutMessage)
                                                         native_get_func_ptr_ord_modname(5, module_to_find);
