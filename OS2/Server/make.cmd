@@ -1,0 +1,1 @@
+wcl386 shared\os2server\main.c shared\modmgr\modmgr.c shared\processmgr\processlx.c shared\modmgr\lx\fixuplx.c shared\modmgr\lx\loadobjlx.c  shared\modmgr\lx\modlx.c shared\memmgr\memmgr.c os2\io.c os2\native_dynlink.c shared\cfgparser\cfgparser.c shared\modmgr\lx\execlx.c  -iinclude;c:\watcom\h;c:\watcom\h\os2 -"op map" -d2
