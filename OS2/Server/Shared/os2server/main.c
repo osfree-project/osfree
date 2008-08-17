@@ -40,7 +40,6 @@
 #include <processlx.h>
 #include <fixuplx.h>
 #include <loadobjlx.h>
-#include <dynlink.h>
 #include <native_dynlink.h>
 #include <memmgr.h>
 #include <modmgr.h>

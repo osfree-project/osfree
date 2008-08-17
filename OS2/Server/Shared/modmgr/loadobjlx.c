@@ -24,7 +24,6 @@
 #include <modlx.h>
 #include <modmgr.h>
 #include <sys/mman.h>
-#include <dynlink.h>
 #include <native_dynlink.h>
 
 #include <string.h>

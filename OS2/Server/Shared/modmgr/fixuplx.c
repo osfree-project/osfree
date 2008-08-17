@@ -21,7 +21,7 @@
 
 #include <modlx.h>
 #include <processlx.h>
-#include <dynlink.h>
+#include <modmgr.h>
 #include <fixuplx.h>
 #include <io.h>
 

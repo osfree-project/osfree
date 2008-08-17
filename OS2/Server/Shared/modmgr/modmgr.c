@@ -29,7 +29,6 @@
 #include "loadobjlx.h"
 #include "modmgr.h"
 #include "cfgparser.h"
-#include "dynlink.h"
 #include "native_dynlink.h"
 
 struct module_rec module_root; /* Root for module list.*/
