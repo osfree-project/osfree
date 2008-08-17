@@ -27,28 +27,6 @@
 extern "C" {
 #endif
 
-const int LOADING = 1;
-const int DONE_LOADING = 0;
-
-struct module_rec {
-        char * mod_name;      /* Name of module. */
-        void * module_struct; /* Pointer to LX_module. */
-        void *next;               /* Next element or NULL at end. */
-        int load_status;      /* Status variable to check for recursion in loading state.
-                                 A one means it is being loaded and zero it is done. */
-};
-
-void init_dynlink(void);
-struct module_rec * register_module(char * name, void * mod_struct);
-void * find_module(char * name);
-void load_dyn_link(char * name);
-void * get_func_ptr_ord_modname(int ord, char * modname);
-void * load_module(char * name);
-struct module_rec * get_root();
-struct module_rec * get_next(struct module_rec * el);
-char * get_name(struct module_rec * el);
-struct LX_module * get_module(struct module_rec * el);
-void print_module_table();
 
 #ifdef __cplusplus
 };

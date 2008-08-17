@@ -37,6 +37,7 @@
 
 #include <io.h>
 #include <execlx.h>
+#include <processlx.h>
 #include <fixuplx.h>
 #include <loadobjlx.h>
 #include <dynlink.h>
