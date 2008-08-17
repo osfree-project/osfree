@@ -29,16 +29,10 @@ $(PROJ).dll: $(OBJS)
  @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^&.lnk OPTION MAP=$^&.wmp
  @%append $^&.lnk export
- @%append $^&.lnk   DosClose.1,
- @%append $^&.lnk   DosOpen.2,
- @%append $^&.lnk   DosRead.3,
- @%append $^&.lnk   DosWrite.4,
- @%append $^&.lnk   DosFindClose.5,
- @%append $^&.lnk   DosFindFirst.6,
+ @%append $^&.lnk   DosFSCtl.1,  # all FS related API works via this API
  @%append $^&.lnk   DosPutMessage2.8,
  @%append $^&.lnk   DosQuerySysInfo.9,
  @%append $^&.lnk   DosExit.10,
- @%append $^&.lnk   DosFindNext.7
  $(ADDFILES_CMD)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)

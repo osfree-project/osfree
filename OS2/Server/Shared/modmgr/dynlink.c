@@ -27,11 +27,10 @@
 
 #include "dynlink.h"
 #include "io.h"
+#include "cfgparser.h"
 
 struct module_rec module_root; /* Root for module list.*/
 
-char **mini_libpath;
-int sz_mini_libpath; /* Number of elements in mini_libpath (zero-based).*/
 
   /* Initializes the root node in the linked list, which itself is not used.
   Only to make sure the list at least always has one element allocated. */
@@ -72,17 +71,20 @@ register_module(char * name, void * mod_struct)
         struct module_rec * new_mod;
         struct module_rec * prev;
 
-        io_printf("register_module: %s, %p \n", name, mod_struct);
-        new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
-        new_mod->mod_name = (char *)malloc(strlen(name)+1);
-        strcpy(new_mod->mod_name, name);
         prev = &module_root;
 
         while(prev->next) /* Find free node at end. */
                 prev = (struct module_rec *) prev->next;
 
+        new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
         prev->next = new_mod;  /*struct module_rec module_struct*/
+
+        new_mod->mod_name = (char *)malloc(strlen(name)+1);
+        strcpy(new_mod->mod_name, name);
         new_mod->module_struct = mod_struct; /* A pointer to struct LX_module. */
+        new_mod->next=NULL;
+        new_mod->load_status=DONE_LOADING;      /* Status variable to check for recursion in loading state. */
+
         return new_mod;
 }
 
@@ -117,6 +119,137 @@ void * find_module(char * name) {
 }
 
 
+
+struct module_rec * get_root() {
+        return &module_root;
+}
+
+struct module_rec * get_next(struct module_rec * el) {
+        if(el != 0)
+                return (struct module_rec *) el->next;
+        else
+                return 0;
+}
+
+char * get_name(struct module_rec * el) {
+        if(el != 0)
+                return el->mod_name;
+        else
+                return 0;
+}
+
+struct LX_module * get_module(struct module_rec * el) {
+        if(el != 0)
+                return (struct LX_module *) el->module_struct;
+        else
+                return 0;
+}
+
+void print_module_table() {
+        struct module_rec * el = get_root();
+        io_printf("--- Loaded Module Table ---\n");
+        while((el = get_next(el))) {
+                io_printf("module = %s, module_struct = %p, load_status = %d\n",
+                                el->mod_name, el->module_struct, el->load_status);
+        }
+}
+
+
+struct DFN_Search_Request {
+        const char *basename;                   /* search for <<path>>\basename.* */
+        const char *extensions;
+        char *foundMatch;
+        int flags;
+        char delim;
+};
+
+
+struct STR_SAVED_TOKENS_ {
+        char *str_next_saved_tokens;
+        char str_ch_saved_tokens;
+};
+
+typedef struct STR_SAVED_TOKENS_ STR_SAVED_TOKENS;
+
+
+static char *nxtToken = 0;              /* pointer to previous scanned string */
+static char ch;                                         /* previous token delimiter */
+
+char *StrTokenize(char *str, const char * const token)
+{
+
+        if(!str) {
+                if((str = nxtToken) == 0                /* nothing to do */
+                 || (*str++ = ch) == 0)               /* end of string reached */
+                        return( nxtToken = 0);
+        }
+
+        if(!token || !*token)                   /* assume all the string */
+                nxtToken = 0;
+        else {
+                nxtToken = str - 1;
+                while(!strchr(token, *++nxtToken));
+                ch = *nxtToken;
+                *nxtToken = 0;
+        }
+
+        return( str);
+}
+
+void StrTokSave(STR_SAVED_TOKENS *st)
+{
+
+        if(st) {
+                st->str_next_saved_tokens = nxtToken;
+                st->str_ch_saved_tokens = ch;
+        }
+
+}
+
+void StrTokRestore(STR_SAVED_TOKENS *st)
+{
+
+        if(st) {
+                nxtToken = st->str_next_saved_tokens;
+                ch = st->str_ch_saved_tokens;
+        }
+
+}
+
+
+#define StrTokStop() (void)StrTokenize(0, 0)
+
+
+void find_module_path(char * name, char * full_path_name)
+{
+        FILE *f;
+        char *p = options.libpath - 1;
+        STR_SAVED_TOKENS st;
+        char * p_buf = full_path_name;
+
+
+                        StrTokSave(&st);
+                        if((p = StrTokenize((char*)options.libpath, ";")) != 0) do if(*p)
+                              {
+                                p_buf = full_path_name;
+                                p_buf[0] = 0;
+                                strcat(p_buf, p);
+                                strcat(p_buf, "\\");
+                                strcat(p_buf, name);
+                                strcat(p_buf, ".dll");
+                                f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
+                                if(f)
+                                {
+                                  StrTokStop();
+                                  break;
+                                }
+                        } while((p = StrTokenize(0, ";")) != 0);
+                        StrTokRestore(&st);
+
+}
+
+
+#if 0
         /* Searches a module in the mini_libpath. */
 void find_module_path(char * name, char * full_path_name) {
 
@@ -159,46 +292,4 @@ void find_module_path(char * name, char * full_path_name) {
                 p_buf[0] = 0;
 }
 
-struct module_rec * get_root() {
-        return &module_root;
-}
-
-struct module_rec * get_next(struct module_rec * el) {
-        if(el != 0)
-                return (struct module_rec *) el->next;
-        else
-                return 0;
-}
-
-char * get_name(struct module_rec * el) {
-        if(el != 0)
-                return el->mod_name;
-        else
-                return 0;
-}
-
-struct LX_module * get_module(struct module_rec * el) {
-        if(el != 0)
-                return (struct LX_module *) el->module_struct;
-        else
-                return 0;
-}
-
-void print_module_table() {
-        struct module_rec * el = get_root();
-        io_printf("--- Loaded Module Table ---\n");
-        while((el = get_next(el))) {
-                io_printf("module = %s, module_struct = %p, load_status = %d\n",
-                                el->mod_name, el->module_struct, el->load_status);
-        }
-}
-
-void set_libpath(char ** path, int nr) {
-  mini_libpath = path;
-  sz_mini_libpath = nr;
-}
-
-char ** get_libpath() {
-  return mini_libpath;
-}
-
+#endif

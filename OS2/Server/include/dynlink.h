@@ -49,8 +49,6 @@ struct module_rec * get_next(struct module_rec * el);
 char * get_name(struct module_rec * el);
 struct LX_module * get_module(struct module_rec * el);
 void print_module_table();
-void set_libpath(char ** path, int nr);
-char ** get_libpath();
 
 #ifdef __cplusplus
 };

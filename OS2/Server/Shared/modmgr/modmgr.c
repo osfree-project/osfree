@@ -123,7 +123,7 @@ int modmgr_execute_module(char * filename)
 
 //  set_path(options.libpath, 0); /* Zero-based number in path.*/
 
-  set_libpath(options.libpath, 0); /* Zero-based number in libpath.*/
+//  set_libpath(options.libpath);
 
   set_native_libpath(native_libpath, 0); /* Zero-based number i native_libpath.*/
 
