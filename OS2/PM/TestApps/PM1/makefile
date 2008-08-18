@@ -2,14 +2,9 @@
 #
 #  Viking
 
+PROJ = pm1
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-PROJ=pm1
-
-OBJS = pm1.$(O)
+srcfiles = $(p)pm1$(e)
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
@@ -21,27 +16,9 @@ OBJS = pm1.$(O)
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
 ADD_COPT=-bm -od -mf -sg -d2 -mf
+INSTALL_PRE = 1
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/appsos2.mk
 
-all: $(PROJ).exe .SYMBOLIC
-
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- renmodul.exe /i $^@ pmwin fmwin
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+install_pre: $(PATH)$(PROJ).exe
+ renmodul.exe /i $[@ pmwin fmwin
