@@ -16,5 +16,6 @@ DLL      = 1
 DLLOPT   = initglobal
 OPTIONS  = manyautodata
 EXPORTS  = IOProc_Entry.1
+DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
