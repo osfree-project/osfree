@@ -4,335 +4,308 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-DIR      = $(FILESDIR)$(SEP)os2$(SEP)dll
 PROJ     = pmshapi
 DESC     = PMShell API
-OBJS     = ..$(SEP)shared$(SEP)stub.obj
-ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
+ADD_COPT = -i=..\include
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared
+DLL     = 1
+DLLOPT  = initglobal
+OPTIONS = manyautodata
+IMPORTS = SHEPIINITIALISE               PMMERGE.2000,  &
+          WINQUERYPROFILEINT            PMMERGE.2001,  &
+          WINQUERYPROFILESTRING         PMMERGE.2002,  &
+          WINWRITEPROFILESTRING         PMMERGE.2003,  &
+          WINQUERYPROFILESIZE           PMMERGE.2004,  &
+          WINQUERYPROFILEDATA           PMMERGE.2005,  &
+          WINWRITEPROFILEDATA           PMMERGE.2006,  &
+          WININITSESSIONMGR             PMMERGE.3144,  &
+          WINSETFGNDWINDOW              PMMERGE.3254,  &
+          SHLUNLOADPUBLICFONTS          PMMERGE.3009,  &
+          WINSTPREGISTER                PMMERGE.3285,  &
+          WINADDPROGRAM                 PMMERGE.3079,  &
+          WINREMOVEPROGRAM              PMMERGE.3231,  &
+          WINCHANGEPROGRAM              PMMERGE.3086,  &
+          WINQUERYDEFINITION            PMMERGE.3183,  &
+          WINQUERYPROGRAMTITLES         PMMERGE.3197,  &
+          WINCREATEGROUP                PMMERGE.3094,  &
+          WININITIALIZEPL               PMMERGE.3142,  &
+          WINADDTOGROUP                 PMMERGE.3081,  &
+          WINQUERYPROGRAMUSE            PMMERGE.3199,  &
+          WINREMOVEFROMGROUP            PMMERGE.3229,  &
+          STARTSTARTUPDOTCMD            PMMERGE.3012,  &
+          WINDESTROYGROUP               PMMERGE.3105,  &
+          WINQUERYFILEEXTOPTS           PMMERGE.3189,  &
+          WINSETFILEEXTOPTS             PMMERGE.3255,  &
+          WINQUERYPROGRAMTYPE           PMMERGE.3198,  &
+          PRFCHANGEWRITETHRU            PMMERGE.2007,  &
+          PMEXECREGISTER                PMMERGE.2008,  &
+          SHEPIINITINIFILES             PMMERGE.2009,  &
+          SHEUPDATEINIFILE              PMMERGE.3007,  &
+          SHECONVERT190PROGRAMLISTTO300 PMMERGE.2010,  &
+          PRFQUERYPROFILEINT            PMMERGE.2011,  &
+          PRFQUERYPROFILESTRING         PMMERGE.2012,  &
+          PRFWRITEPROFILESTRING         PMMERGE.2013,  &
+          PRFQUERYPROFILESIZE           PMMERGE.2014,  &
+          PRFQUERYPROFILEDATA           PMMERGE.2015,  &
+          PRFWRITEPROFILEDATA           PMMERGE.2016,  &
+          PRFOPENPROFILE                PMMERGE.2017,  &
+          PRFCLOSEPROFILE               PMMERGE.2018,  &
+          PRFRESET                      PMMERGE.2019,  &
+          PRFQUERYPROFILE               PMMERGE.2020,  &
+          WININSTSTARTAPP               PMMERGE.3147,  &
+          WINTERMINATEAPP               PMMERGE.3295,  &
+          WINCREATESWITCHENTRY          PMMERGE.3096,  &
+          WINQUERYSESSIONTITLE          PMMERGE.3202,  &
+          WINADDSWITCHENTRY             PMMERGE.3080,  &
+          WINCHANGESWITCHENTRY          PMMERGE.3087,  &
+          PRFADDPROGRAM                 PMMERGE.2021,  &
+          PRFREMOVEPROGRAM              PMMERGE.2022,  &
+          PRFCHANGEPROGRAM              PMMERGE.2023,  &
+          PRFQUERYDEFINITION            PMMERGE.2024,  &
+          PRFQUERYPROGRAMTITLES         PMMERGE.2025,  &
+          PRFCREATEGROUP                PMMERGE.2026,  &
+          WINQUERYSWITCHENTRY           PMMERGE.3204,  &
+          WINQUERYSWITCHHANDLE          PMMERGE.3205,  &
+          PRFQUERYPROGRAMHANDLE         PMMERGE.2027,  &
+          PRFQUERYPROGRAMCATEGORY       PMMERGE.2028,  &
+          PRFDESTROYGROUP               PMMERGE.2029,  &
+          SHEPROFILEHOOK                PMMERGE.2030,  &
+          SHPLOCKPROGRAMLIST            PMMERGE.3010,  &
+          SHPUNLOCKPROGRAMLIST          PMMERGE.3011,  &
+          WINQUERYTASKTITLE             PMMERGE.3209,  &
+          WINQUERYTASKSIZEPOS           PMMERGE.3208,  &
+          WINQUERYSWITCHLIST            PMMERGE.3206,  &
+          WINREMOVESWITCHENTRY          PMMERGE.3232,  &
+          WINSWITCHTOPROGRAM            PMMERGE.3291,  &
+          WINSWITCHPROGRAMREGISTER      PMMERGE.3289,  &
+          WINENDPROGRAM                 PMMERGE.3116,  &
+          WINSTOPPROGRAM                PMMERGE.3283,  &
+          WINENDWINDOWSESSION           PMMERGE.3118,  &
+          LPFNSHELLWNDPROC              PMMERGE.3004,  &
+          LPFNICONWNDPROC               PMMERGE.3003,  &
+          WINSWITCHTOTASKMANAGER        PMMERGE.3292,  &
+          FNBADAPPDLGPROC               PMMERGE.3001,  &
+          WINSWITCHTOPROGRAM2           PMMERGE.3290,  &
+          WINPROCESSHOTKEY              PMMERGE.5421,  &
+          WININITSESSION                PMMERGE.3143,  &
+          WINENDSESSION                 PMMERGE.3117,  &
+          WININITSWENTRY                PMMERGE.3145,  &
+          WINSETSWENTRY                 PMMERGE.3267,  &
+          WINQUERYEXTIDFOCUS            PMMERGE.3188,  &
+          WINSETEXTIDFOCUS              PMMERGE.3253,  &
+          SHESYSTEMSHUTDOWN             PMMERGE.3006,  &
+          STARTSYSTEMEXECUTABLES        PMMERGE.3013,  &
+          SHLLOADPUBLICFONTS            PMMERGE.3008,  &
+          WINNOSHUTDOWN                 PMMERGE.3169,  &
+          SHEINITIALIZEINIFILE          PMMERGE.2031,  &
+          WINSETTITLE                   PMMERGE.3271,  &
+          WINCPLREGISTER                PMMERGE.3090,  &
+          WINPMFILEREGISTER             PMMERGE.3171,  &
+          SHESTARTLONGPROGRAM           PMMERGE.3005,  &
+          WINSETTITLEANDICON            PMMERGE.3272,  &
+          WIN32NOSHUTDOWN               PMMERGE.5431,  &
+          WINSETTITLEANDHWNDICON        PMMERGE.3309,  &
+          SHELLWINDOW                   PMMERGE.6202,  &
+          PRF32QUERYPROFILESIZE         PMMERGE.5085,  &
+          PRF32OPENPROFILE              PMMERGE.5080,  &
+          PRF32CLOSEPROFILE             PMMERGE.5077,  &
+          PRF32REMOVEPROGRAM            PMMERGE.5090,  &
+          PRF32CREATEGROUP              PMMERGE.5078,  &
+          PRF32DESTROYGROUP             PMMERGE.5079,  &
+          PRF32QUERYPROFILE             PMMERGE.5082,  &
+          PRF32RESET                    PMMERGE.5091,  &
+          PRF32ADDPROGRAM               PMMERGE.5074,  &
+          PRF32CHANGEPROGRAM            PMMERGE.5075,  &
+          PRF32QUERYDEFINITION          PMMERGE.5081,  &
+          PRF32QUERYPROGRAMHANDLE       PMMERGE.5088,  &
+          PRF32QUERYPROGRAMTITLES       PMMERGE.5089,  &
+          PRF32QUERYPROFILEINT          PMMERGE.5084,  &
+          PRF32QUERYPROFILESTRING       PMMERGE.5086,  &
+          PRF32WRITEPROFILESTRING       PMMERGE.5093,  &
+          PRF32QUERYPROFILEDATA         PMMERGE.5083,  &
+          PRF32WRITEPROFILEDATA         PMMERGE.5092,  &
+          WIN32STARTAPP                 PMMERGE.5385,  &
+          WIN32ADDSWITCHENTRY           PMMERGE.5112,  &
+          WIN32CREATESWITCHENTRY        PMMERGE.5140,  &
+          WIN32QUERYSESSIONTITLE        PMMERGE.5285,  &
+          WIN32CHANGESWITCHENTRY        PMMERGE.5122,  &
+          WIN32QUERYSWITCHENTRY         PMMERGE.5286,  &
+          WIN32QUERYSWITCHHANDLE        PMMERGE.5287,  &
+          WIN32QUERYSWITCHLIST          PMMERGE.5288,  &
+          WIN32QUERYTASKSIZEPOS         PMMERGE.5295,  &
+          WIN32QUERYTASKTITLE           PMMERGE.5296,  &
+          WIN32REMOVESWITCHENTRY        PMMERGE.5324,  &
+          WIN32TERMINATEAPP             PMMERGE.5397,  &
+          WIN32SWITCHTOPROGRAM          PMMERGE.5393,  &
+          PRF32QUERYPROGRAMCATEGORY     PMMERGE.5087,  &
+          PRF32CHANGEWRITETHRU          PMMERGE.5076,  &
+          SHE32PIINITINIFILES           PMMERGE.5099,  &
+          PrfWriteToDisk                PMMERGE.5095,  &
+          PrfSuspendWriteToDisk         PMMERGE.5094,  &
+          SHE32SYSTEMSHUTDOWN           PMMERGE.5100,  &
+          START32SYSTEMEXECUTABLES      PMMERGE.5106,  &
+          PM32EXECREGISTER              PMMERGE.5069,  &
+          WIN32HAPPFROMPID              PMMERGE.5198,  &
+          WIN32HSWITCHFROMHAPP          PMMERGE.5199,  &
+          WIN32SWITCHPROGRAMREGISTER    PMMERGE.5392,  &
+          WIN32ENDPROGRAM               PMMERGE.5170,  &
+          WIN32SWITCHTOPROGRAM2         PMMERGE.5394,  &
+          WINCANTERMINATE               PMMERGE.3085,  &
+          WINSTARTAPP                   PMMERGE.3281,  &
+          WINHAPPFROMPID                PMMERGE.3140,  &
+          WINHSWITCHFROMHAPP            PMMERGE.3141,  &
+          SHPPILOCKINIFILE              PMMERGE.5101,  &
+          SHPPI16LOCKINIFILE            PMMERGE.2032,  &
+          SHPPISHUTDOWN                 PMMERGE.5102,  &
+          SHPPI16SHUTDOWN               PMMERGE.2033
+EXPORTS = SHEPIINITIALISE               .00001,  &
+          WINQUERYPROFILEINT            .00002,  &
+          WINQUERYPROFILESTRING         .00003,  &
+          WINWRITEPROFILESTRING         .00004,  &
+          WINQUERYPROFILESIZE           .00005,  &
+          WINQUERYPROFILEDATA           .00006,  &
+          WINWRITEPROFILEDATA           .00007,  &
+          WININITSESSIONMGR             .00008,  &
+          WINSETFGNDWINDOW              .00009,  &
+          SHLUNLOADPUBLICFONTS          .00010,  &
+          WINSTPREGISTER                .00011,  &
+          WINADDPROGRAM                 .00012,  &
+          WINREMOVEPROGRAM              .00013,  &
+          WINCHANGEPROGRAM              .00014,  &
+          WINQUERYDEFINITION            .00015,  &
+          WINQUERYPROGRAMTITLES         .00016,  &
+          WINCREATEGROUP                .00017,  &
+          WININITIALIZEPL               .00018,  &
+          WINADDTOGROUP                 .00019,  &
+          WINQUERYPROGRAMUSE            .00020,  &
+          WINREMOVEFROMGROUP            .00021,  &
+          STARTSTARTUPDOTCMD            .00022,  &
+          WINDESTROYGROUP               .00023,  &
+          WINQUERYFILEEXTOPTS           .00024,  &
+          WINSETFILEEXTOPTS             .00025,  &
+          WINQUERYPROGRAMTYPE           .00026,  &
+          PRFCHANGEWRITETHRU            .00027,  &
+          PMEXECREGISTER                .00028,  &
+          SHEPIINITINIFILES             .00029,  &
+          SHEUPDATEINIFILE              .00030,  &
+          SHECONVERT190PROGRAMLISTTO300 .00031,  &
+          PRFQUERYPROFILEINT            .00032,  &
+          PRFQUERYPROFILESTRING         .00033,  &
+          PRFWRITEPROFILESTRING         .00034,  &
+          PRFQUERYPROFILESIZE           .00035,  &
+          PRFQUERYPROFILEDATA           .00036,  &
+          PRFWRITEPROFILEDATA           .00037,  &
+          PRFOPENPROFILE                .00038,  &
+          PRFCLOSEPROFILE               .00039,  &
+          PRFRESET                      .00042,  &
+          PRFQUERYPROFILE               .00043,  &
+          WININSTSTARTAPP               .00044,  &
+          WINTERMINATEAPP               .00045,  &
+          WINCREATESWITCHENTRY          .00046,  &
+          WINQUERYSESSIONTITLE          .00047,  &
+          WINADDSWITCHENTRY             .00048,  &
+          WINCHANGESWITCHENTRY          .00049,  &
+          PRFADDPROGRAM                 .00050,  &
+          PRFREMOVEPROGRAM              .00051,  &
+          PRFCHANGEPROGRAM              .00052,  &
+          PRFQUERYDEFINITION            .00053,  &
+          PRFQUERYPROGRAMTITLES         .00054,  &
+          PRFCREATEGROUP                .00055,  &
+          WINQUERYSWITCHENTRY           .00056,  &
+          WINQUERYSWITCHHANDLE          .00057,  &
+          PRFQUERYPROGRAMHANDLE         .00058,  &
+          PRFQUERYPROGRAMCATEGORY       .00059,  &
+          PRFDESTROYGROUP               .00060,  &
+          SHEPROFILEHOOK                .00062,  &
+          SHPLOCKPROGRAMLIST            .00063,  &
+          SHPUNLOCKPROGRAMLIST          .00064,  &
+          WINQUERYTASKTITLE             .00065,  &
+          WINQUERYTASKSIZEPOS           .00066,  &
+          WINQUERYSWITCHLIST            .00067,  &
+          WINREMOVESWITCHENTRY          .00068,  &
+          WINSWITCHTOPROGRAM            .00069,  &
+          WINSWITCHPROGRAMREGISTER      .00070,  &
+          WINENDPROGRAM                 .00073,  &
+          WINSTOPPROGRAM                .00074,  &
+          WINENDWINDOWSESSION           .00075,  &
+          LPFNSHELLWNDPROC              .00076,  &
+          LPFNICONWNDPROC               .00077,  &
+          WINSWITCHTOTASKMANAGER        .00078,  &
+          FNBADAPPDLGPROC               .00079,  &
+          WINSWITCHTOPROGRAM2           .00080,  &
+          WINPROCESSHOTKEY              .00081,  &
+          WININITSESSION                .00082,  &
+          WINENDSESSION                 .00083,  &
+          WININITSWENTRY                .00084,  &
+          WINSETSWENTRY                 .00085,  &
+          WINQUERYEXTIDFOCUS            .00086,  &
+          WINSETEXTIDFOCUS              .00087,  &
+          SHESYSTEMSHUTDOWN             .00088,  &
+          STARTSYSTEMEXECUTABLES        .00089,  &
+          SHLLOADPUBLICFONTS            .00090,  &
+          WINNOSHUTDOWN                 .00091,  &
+          SHEINITIALIZEINIFILE          .00092,  &
+          WINSETTITLE                   .00093,  &
+          WINCPLREGISTER                .00094,  &
+          WINPMFILEREGISTER             .00095,  &
+          SHESTARTLONGPROGRAM           .00096,  &
+          WINSETTITLEANDICON            .00097,  &
+          WIN32NOSHUTDOWN               .00098,  &
+          WINSETTITLEANDHWNDICON        .00099,  &
+          SHELLWINDOW                   .00100,  &
+          PRF32QUERYPROFILESIZE         .00101,  &
+          PRF32OPENPROFILE              .00102,  &
+          PRF32CLOSEPROFILE             .00103,  &
+          PRF32REMOVEPROGRAM            .00104,  &
+          PRF32CREATEGROUP              .00105,  &
+          PRF32DESTROYGROUP             .00106,  &
+          PRF32QUERYPROFILE             .00107,  &
+          PRF32RESET                    .00108,  &
+          PRF32ADDPROGRAM               .00109,  &
+          PRF32CHANGEPROGRAM            .00110,  &
+          PRF32QUERYDEFINITION          .00111,  &
+          PRF32QUERYPROGRAMHANDLE       .00112,  &
+          PRF32QUERYPROGRAMTITLES       .00113,  &
+          PRF32QUERYPROFILEINT          .00114,  &
+          PRF32QUERYPROFILESTRING       .00115,  &
+          PRF32WRITEPROFILESTRING       .00116,  &
+          PRF32QUERYPROFILEDATA         .00117,  &
+          PRF32WRITEPROFILEDATA         .00118,  &
+          WIN32STARTAPP                 .00119,  &
+          WIN32ADDSWITCHENTRY           .00120,  &
+          WIN32CREATESWITCHENTRY        .00121,  &
+          WIN32QUERYSESSIONTITLE        .00122,  &
+          WIN32CHANGESWITCHENTRY        .00123,  &
+          WIN32QUERYSWITCHENTRY         .00124,  &
+          WIN32QUERYSWITCHHANDLE        .00125,  &
+          WIN32QUERYSWITCHLIST          .00126,  &
+          WIN32QUERYTASKSIZEPOS         .00127,  &
+          WIN32QUERYTASKTITLE           .00128,  &
+          WIN32REMOVESWITCHENTRY        .00129,  &
+          WIN32TERMINATEAPP             .00130,  &
+          WIN32SWITCHTOPROGRAM          .00131,  &
+          PRF32QUERYPROGRAMCATEGORY     .00132,  &
+          PRF32CHANGEWRITETHRU          .00133,  &
+          SHE32PIINITINIFILES           .00134,  &
+          PrfWriteToDisk                .00135,  &
+          PrfSuspendWriteToDisk         .00136,  &
+          SHE32SYSTEMSHUTDOWN           .00151,  &
+          START32SYSTEMEXECUTABLES      .00152,  &
+          PM32EXECREGISTER              .00153,  &
+          WIN32HAPPFROMPID              .00154,  &
+          WIN32HSWITCHFROMHAPP          .00155,  &
+          WIN32SWITCHPROGRAMREGISTER    .00156,  &
+          WIN32ENDPROGRAM               .00157,  &
+          WIN32SWITCHTOPROGRAM2         .00158,  &
+          WINCANTERMINATE               .00160,  &
+          WINSTARTAPP                   .00201,  &
+          WINHAPPFROMPID                .00208,  &
+          WINHSWITCHFROMHAPP            .00209,  &
+          SHPPILOCKINIFILE              .00210,  &
+          SHPPI16LOCKINIFILE            .00211,  &
+          SHPPISHUTDOWN                 .00212,  &
+          SHPPI16SHUTDOWN               .00213
+DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/all.mk
-
-all: $(PROJ).dll .SYMBOLIC
-
-$(PROJ).dll: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk format    os2 lx dll initglobal
- @%append $^&.lnk option    manyautodata
- @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk import
- @%append $^&.lnk  SHEPIINITIALISE               PMMERGE.2000,
- @%append $^&.lnk  WINQUERYPROFILEINT            PMMERGE.2001,
- @%append $^&.lnk  WINQUERYPROFILESTRING         PMMERGE.2002,
- @%append $^&.lnk  WINWRITEPROFILESTRING         PMMERGE.2003,
- @%append $^&.lnk  WINQUERYPROFILESIZE           PMMERGE.2004,
- @%append $^&.lnk  WINQUERYPROFILEDATA           PMMERGE.2005,
- @%append $^&.lnk  WINWRITEPROFILEDATA           PMMERGE.2006,
- @%append $^&.lnk  WININITSESSIONMGR             PMMERGE.3144,
- @%append $^&.lnk  WINSETFGNDWINDOW              PMMERGE.3254,
- @%append $^&.lnk  SHLUNLOADPUBLICFONTS          PMMERGE.3009,
- @%append $^&.lnk  WINSTPREGISTER                PMMERGE.3285,
- @%append $^&.lnk  WINADDPROGRAM                 PMMERGE.3079,
- @%append $^&.lnk  WINREMOVEPROGRAM              PMMERGE.3231,
- @%append $^&.lnk  WINCHANGEPROGRAM              PMMERGE.3086,
- @%append $^&.lnk  WINQUERYDEFINITION            PMMERGE.3183,
- @%append $^&.lnk  WINQUERYPROGRAMTITLES         PMMERGE.3197,
- @%append $^&.lnk  WINCREATEGROUP                PMMERGE.3094,
- @%append $^&.lnk  WININITIALIZEPL               PMMERGE.3142,
- @%append $^&.lnk  WINADDTOGROUP                 PMMERGE.3081,
- @%append $^&.lnk  WINQUERYPROGRAMUSE            PMMERGE.3199,
- @%append $^&.lnk  WINREMOVEFROMGROUP            PMMERGE.3229,
- @%append $^&.lnk  STARTSTARTUPDOTCMD            PMMERGE.3012,
- @%append $^&.lnk  WINDESTROYGROUP               PMMERGE.3105,
- @%append $^&.lnk  WINQUERYFILEEXTOPTS           PMMERGE.3189,
- @%append $^&.lnk  WINSETFILEEXTOPTS             PMMERGE.3255,
- @%append $^&.lnk  WINQUERYPROGRAMTYPE           PMMERGE.3198,
- @%append $^&.lnk  PRFCHANGEWRITETHRU            PMMERGE.2007,
- @%append $^&.lnk  PMEXECREGISTER                PMMERGE.2008,
- @%append $^&.lnk  SHEPIINITINIFILES             PMMERGE.2009,
- @%append $^&.lnk  SHEUPDATEINIFILE              PMMERGE.3007,
- @%append $^&.lnk  SHECONVERT190PROGRAMLISTTO300 PMMERGE.2010,
- @%append $^&.lnk  PRFQUERYPROFILEINT            PMMERGE.2011,
- @%append $^&.lnk  PRFQUERYPROFILESTRING         PMMERGE.2012,
- @%append $^&.lnk  PRFWRITEPROFILESTRING         PMMERGE.2013,
- @%append $^&.lnk  PRFQUERYPROFILESIZE           PMMERGE.2014,
- @%append $^&.lnk  PRFQUERYPROFILEDATA           PMMERGE.2015,
- @%append $^&.lnk  PRFWRITEPROFILEDATA           PMMERGE.2016,
- @%append $^&.lnk  PRFOPENPROFILE                PMMERGE.2017,
- @%append $^&.lnk  PRFCLOSEPROFILE               PMMERGE.2018,
- @%append $^&.lnk  PRFRESET                      PMMERGE.2019,
- @%append $^&.lnk  PRFQUERYPROFILE               PMMERGE.2020,
- @%append $^&.lnk  WININSTSTARTAPP               PMMERGE.3147,
- @%append $^&.lnk  WINTERMINATEAPP               PMMERGE.3295,
- @%append $^&.lnk  WINCREATESWITCHENTRY          PMMERGE.3096,
- @%append $^&.lnk  WINQUERYSESSIONTITLE          PMMERGE.3202,
- @%append $^&.lnk  WINADDSWITCHENTRY             PMMERGE.3080,
- @%append $^&.lnk  WINCHANGESWITCHENTRY          PMMERGE.3087,
- @%append $^&.lnk  PRFADDPROGRAM                 PMMERGE.2021,
- @%append $^&.lnk  PRFREMOVEPROGRAM              PMMERGE.2022,
- @%append $^&.lnk  PRFCHANGEPROGRAM              PMMERGE.2023,
- @%append $^&.lnk  PRFQUERYDEFINITION            PMMERGE.2024,
- @%append $^&.lnk  PRFQUERYPROGRAMTITLES         PMMERGE.2025,
- @%append $^&.lnk  PRFCREATEGROUP                PMMERGE.2026,
- @%append $^&.lnk  WINQUERYSWITCHENTRY           PMMERGE.3204,
- @%append $^&.lnk  WINQUERYSWITCHHANDLE          PMMERGE.3205,
- @%append $^&.lnk  PRFQUERYPROGRAMHANDLE         PMMERGE.2027,
- @%append $^&.lnk  PRFQUERYPROGRAMCATEGORY       PMMERGE.2028,
- @%append $^&.lnk  PRFDESTROYGROUP               PMMERGE.2029,
- @%append $^&.lnk  SHEPROFILEHOOK                PMMERGE.2030,
- @%append $^&.lnk  SHPLOCKPROGRAMLIST            PMMERGE.3010,
- @%append $^&.lnk  SHPUNLOCKPROGRAMLIST          PMMERGE.3011,
- @%append $^&.lnk  WINQUERYTASKTITLE             PMMERGE.3209,
- @%append $^&.lnk  WINQUERYTASKSIZEPOS           PMMERGE.3208,
- @%append $^&.lnk  WINQUERYSWITCHLIST            PMMERGE.3206,
- @%append $^&.lnk  WINREMOVESWITCHENTRY          PMMERGE.3232,
- @%append $^&.lnk  WINSWITCHTOPROGRAM            PMMERGE.3291,
- @%append $^&.lnk  WINSWITCHPROGRAMREGISTER      PMMERGE.3289,
- @%append $^&.lnk  WINENDPROGRAM                 PMMERGE.3116,
- @%append $^&.lnk  WINSTOPPROGRAM                PMMERGE.3283,
- @%append $^&.lnk  WINENDWINDOWSESSION           PMMERGE.3118,
- @%append $^&.lnk  LPFNSHELLWNDPROC              PMMERGE.3004,
- @%append $^&.lnk  LPFNICONWNDPROC               PMMERGE.3003,
- @%append $^&.lnk  WINSWITCHTOTASKMANAGER        PMMERGE.3292,
- @%append $^&.lnk  FNBADAPPDLGPROC               PMMERGE.3001,
- @%append $^&.lnk  WINSWITCHTOPROGRAM2           PMMERGE.3290,
- @%append $^&.lnk  WINPROCESSHOTKEY              PMMERGE.5421,
- @%append $^&.lnk  WININITSESSION                PMMERGE.3143,
- @%append $^&.lnk  WINENDSESSION                 PMMERGE.3117,
- @%append $^&.lnk  WININITSWENTRY                PMMERGE.3145,
- @%append $^&.lnk  WINSETSWENTRY                 PMMERGE.3267,
- @%append $^&.lnk  WINQUERYEXTIDFOCUS            PMMERGE.3188,
- @%append $^&.lnk  WINSETEXTIDFOCUS              PMMERGE.3253,
- @%append $^&.lnk  SHESYSTEMSHUTDOWN             PMMERGE.3006,
- @%append $^&.lnk  STARTSYSTEMEXECUTABLES        PMMERGE.3013,
- @%append $^&.lnk  SHLLOADPUBLICFONTS            PMMERGE.3008,
- @%append $^&.lnk  WINNOSHUTDOWN                 PMMERGE.3169,
- @%append $^&.lnk  SHEINITIALIZEINIFILE          PMMERGE.2031,
- @%append $^&.lnk  WINSETTITLE                   PMMERGE.3271,
- @%append $^&.lnk  WINCPLREGISTER                PMMERGE.3090,
- @%append $^&.lnk  WINPMFILEREGISTER             PMMERGE.3171,
- @%append $^&.lnk  SHESTARTLONGPROGRAM           PMMERGE.3005,
- @%append $^&.lnk  WINSETTITLEANDICON            PMMERGE.3272,
- @%append $^&.lnk  WIN32NOSHUTDOWN               PMMERGE.5431,
- @%append $^&.lnk  WINSETTITLEANDHWNDICON        PMMERGE.3309,
- @%append $^&.lnk  SHELLWINDOW                   PMMERGE.6202,
- @%append $^&.lnk  PRF32QUERYPROFILESIZE         PMMERGE.5085,
- @%append $^&.lnk  PRF32OPENPROFILE              PMMERGE.5080,
- @%append $^&.lnk  PRF32CLOSEPROFILE             PMMERGE.5077,
- @%append $^&.lnk  PRF32REMOVEPROGRAM            PMMERGE.5090,
- @%append $^&.lnk  PRF32CREATEGROUP              PMMERGE.5078,
- @%append $^&.lnk  PRF32DESTROYGROUP             PMMERGE.5079,
- @%append $^&.lnk  PRF32QUERYPROFILE             PMMERGE.5082,
- @%append $^&.lnk  PRF32RESET                    PMMERGE.5091,
- @%append $^&.lnk  PRF32ADDPROGRAM               PMMERGE.5074,
- @%append $^&.lnk  PRF32CHANGEPROGRAM            PMMERGE.5075,
- @%append $^&.lnk  PRF32QUERYDEFINITION          PMMERGE.5081,
- @%append $^&.lnk  PRF32QUERYPROGRAMHANDLE       PMMERGE.5088,
- @%append $^&.lnk  PRF32QUERYPROGRAMTITLES       PMMERGE.5089,
- @%append $^&.lnk  PRF32QUERYPROFILEINT          PMMERGE.5084,
- @%append $^&.lnk  PRF32QUERYPROFILESTRING       PMMERGE.5086,
- @%append $^&.lnk  PRF32WRITEPROFILESTRING       PMMERGE.5093,
- @%append $^&.lnk  PRF32QUERYPROFILEDATA         PMMERGE.5083,
- @%append $^&.lnk  PRF32WRITEPROFILEDATA         PMMERGE.5092,
- @%append $^&.lnk  WIN32STARTAPP                 PMMERGE.5385,
- @%append $^&.lnk  WIN32ADDSWITCHENTRY           PMMERGE.5112,
- @%append $^&.lnk  WIN32CREATESWITCHENTRY        PMMERGE.5140,
- @%append $^&.lnk  WIN32QUERYSESSIONTITLE        PMMERGE.5285,
- @%append $^&.lnk  WIN32CHANGESWITCHENTRY        PMMERGE.5122,
- @%append $^&.lnk  WIN32QUERYSWITCHENTRY         PMMERGE.5286,
- @%append $^&.lnk  WIN32QUERYSWITCHHANDLE        PMMERGE.5287,
- @%append $^&.lnk  WIN32QUERYSWITCHLIST          PMMERGE.5288,
- @%append $^&.lnk  WIN32QUERYTASKSIZEPOS         PMMERGE.5295,
- @%append $^&.lnk  WIN32QUERYTASKTITLE           PMMERGE.5296,
- @%append $^&.lnk  WIN32REMOVESWITCHENTRY        PMMERGE.5324,
- @%append $^&.lnk  WIN32TERMINATEAPP             PMMERGE.5397,
- @%append $^&.lnk  WIN32SWITCHTOPROGRAM          PMMERGE.5393,
- @%append $^&.lnk  PRF32QUERYPROGRAMCATEGORY     PMMERGE.5087,
- @%append $^&.lnk  PRF32CHANGEWRITETHRU          PMMERGE.5076,
- @%append $^&.lnk  SHE32PIINITINIFILES           PMMERGE.5099,
- @%append $^&.lnk  PrfWriteToDisk                PMMERGE.5095,
- @%append $^&.lnk  PrfSuspendWriteToDisk         PMMERGE.5094,
- @%append $^&.lnk  SHE32SYSTEMSHUTDOWN           PMMERGE.5100,
- @%append $^&.lnk  START32SYSTEMEXECUTABLES      PMMERGE.5106,
- @%append $^&.lnk  PM32EXECREGISTER              PMMERGE.5069,
- @%append $^&.lnk  WIN32HAPPFROMPID              PMMERGE.5198,
- @%append $^&.lnk  WIN32HSWITCHFROMHAPP          PMMERGE.5199,
- @%append $^&.lnk  WIN32SWITCHPROGRAMREGISTER    PMMERGE.5392,
- @%append $^&.lnk  WIN32ENDPROGRAM               PMMERGE.5170,
- @%append $^&.lnk  WIN32SWITCHTOPROGRAM2         PMMERGE.5394,
- @%append $^&.lnk  WINCANTERMINATE               PMMERGE.3085,
- @%append $^&.lnk  WINSTARTAPP                   PMMERGE.3281,
- @%append $^&.lnk  WINHAPPFROMPID                PMMERGE.3140,
- @%append $^&.lnk  WINHSWITCHFROMHAPP            PMMERGE.3141,
- @%append $^&.lnk  SHPPILOCKINIFILE              PMMERGE.5101,
- @%append $^&.lnk  SHPPI16LOCKINIFILE            PMMERGE.2032,
- @%append $^&.lnk  SHPPISHUTDOWN                 PMMERGE.5102,
- @%append $^&.lnk  SHPPI16SHUTDOWN               PMMERGE.2033
- @%append $^&.lnk export
- @%append $^&.lnk  SHEPIINITIALISE               .00001,
- @%append $^&.lnk  WINQUERYPROFILEINT            .00002,
- @%append $^&.lnk  WINQUERYPROFILESTRING         .00003,
- @%append $^&.lnk  WINWRITEPROFILESTRING         .00004,
- @%append $^&.lnk  WINQUERYPROFILESIZE           .00005,
- @%append $^&.lnk  WINQUERYPROFILEDATA           .00006,
- @%append $^&.lnk  WINWRITEPROFILEDATA           .00007,
- @%append $^&.lnk  WININITSESSIONMGR             .00008,
- @%append $^&.lnk  WINSETFGNDWINDOW              .00009,
- @%append $^&.lnk  SHLUNLOADPUBLICFONTS          .00010,
- @%append $^&.lnk  WINSTPREGISTER                .00011,
- @%append $^&.lnk  WINADDPROGRAM                 .00012,
- @%append $^&.lnk  WINREMOVEPROGRAM              .00013,
- @%append $^&.lnk  WINCHANGEPROGRAM              .00014,
- @%append $^&.lnk  WINQUERYDEFINITION            .00015,
- @%append $^&.lnk  WINQUERYPROGRAMTITLES         .00016,
- @%append $^&.lnk  WINCREATEGROUP                .00017,
- @%append $^&.lnk  WININITIALIZEPL               .00018,
- @%append $^&.lnk  WINADDTOGROUP                 .00019,
- @%append $^&.lnk  WINQUERYPROGRAMUSE            .00020,
- @%append $^&.lnk  WINREMOVEFROMGROUP            .00021,
- @%append $^&.lnk  STARTSTARTUPDOTCMD            .00022,
- @%append $^&.lnk  WINDESTROYGROUP               .00023,
- @%append $^&.lnk  WINQUERYFILEEXTOPTS           .00024,
- @%append $^&.lnk  WINSETFILEEXTOPTS             .00025,
- @%append $^&.lnk  WINQUERYPROGRAMTYPE           .00026,
- @%append $^&.lnk  PRFCHANGEWRITETHRU            .00027,
- @%append $^&.lnk  PMEXECREGISTER                .00028,
- @%append $^&.lnk  SHEPIINITINIFILES             .00029,
- @%append $^&.lnk  SHEUPDATEINIFILE              .00030,
- @%append $^&.lnk  SHECONVERT190PROGRAMLISTTO300 .00031,
- @%append $^&.lnk  PRFQUERYPROFILEINT            .00032,
- @%append $^&.lnk  PRFQUERYPROFILESTRING         .00033,
- @%append $^&.lnk  PRFWRITEPROFILESTRING         .00034,
- @%append $^&.lnk  PRFQUERYPROFILESIZE           .00035,
- @%append $^&.lnk  PRFQUERYPROFILEDATA           .00036,
- @%append $^&.lnk  PRFWRITEPROFILEDATA           .00037,
- @%append $^&.lnk  PRFOPENPROFILE                .00038,
- @%append $^&.lnk  PRFCLOSEPROFILE               .00039,
- @%append $^&.lnk  PRFRESET                      .00042,
- @%append $^&.lnk  PRFQUERYPROFILE               .00043,
- @%append $^&.lnk  WININSTSTARTAPP               .00044,
- @%append $^&.lnk  WINTERMINATEAPP               .00045,
- @%append $^&.lnk  WINCREATESWITCHENTRY          .00046,
- @%append $^&.lnk  WINQUERYSESSIONTITLE          .00047,
- @%append $^&.lnk  WINADDSWITCHENTRY             .00048,
- @%append $^&.lnk  WINCHANGESWITCHENTRY          .00049,
- @%append $^&.lnk  PRFADDPROGRAM                 .00050,
- @%append $^&.lnk  PRFREMOVEPROGRAM              .00051,
- @%append $^&.lnk  PRFCHANGEPROGRAM              .00052,
- @%append $^&.lnk  PRFQUERYDEFINITION            .00053,
- @%append $^&.lnk  PRFQUERYPROGRAMTITLES         .00054,
- @%append $^&.lnk  PRFCREATEGROUP                .00055,
- @%append $^&.lnk  WINQUERYSWITCHENTRY           .00056,
- @%append $^&.lnk  WINQUERYSWITCHHANDLE          .00057,
- @%append $^&.lnk  PRFQUERYPROGRAMHANDLE         .00058,
- @%append $^&.lnk  PRFQUERYPROGRAMCATEGORY       .00059,
- @%append $^&.lnk  PRFDESTROYGROUP               .00060,
- @%append $^&.lnk  SHEPROFILEHOOK                .00062,
- @%append $^&.lnk  SHPLOCKPROGRAMLIST            .00063,
- @%append $^&.lnk  SHPUNLOCKPROGRAMLIST          .00064,
- @%append $^&.lnk  WINQUERYTASKTITLE             .00065,
- @%append $^&.lnk  WINQUERYTASKSIZEPOS           .00066,
- @%append $^&.lnk  WINQUERYSWITCHLIST            .00067,
- @%append $^&.lnk  WINREMOVESWITCHENTRY          .00068,
- @%append $^&.lnk  WINSWITCHTOPROGRAM            .00069,
- @%append $^&.lnk  WINSWITCHPROGRAMREGISTER      .00070,
- @%append $^&.lnk  WINENDPROGRAM                 .00073,
- @%append $^&.lnk  WINSTOPPROGRAM                .00074,
- @%append $^&.lnk  WINENDWINDOWSESSION           .00075,
- @%append $^&.lnk  LPFNSHELLWNDPROC              .00076,
- @%append $^&.lnk  LPFNICONWNDPROC               .00077,
- @%append $^&.lnk  WINSWITCHTOTASKMANAGER        .00078,
- @%append $^&.lnk  FNBADAPPDLGPROC               .00079,
- @%append $^&.lnk  WINSWITCHTOPROGRAM2           .00080,
- @%append $^&.lnk  WINPROCESSHOTKEY              .00081,
- @%append $^&.lnk  WININITSESSION                .00082,
- @%append $^&.lnk  WINENDSESSION                 .00083,
- @%append $^&.lnk  WININITSWENTRY                .00084,
- @%append $^&.lnk  WINSETSWENTRY                 .00085,
- @%append $^&.lnk  WINQUERYEXTIDFOCUS            .00086,
- @%append $^&.lnk  WINSETEXTIDFOCUS              .00087,
- @%append $^&.lnk  SHESYSTEMSHUTDOWN             .00088,
- @%append $^&.lnk  STARTSYSTEMEXECUTABLES        .00089,
- @%append $^&.lnk  SHLLOADPUBLICFONTS            .00090,
- @%append $^&.lnk  WINNOSHUTDOWN                 .00091,
- @%append $^&.lnk  SHEINITIALIZEINIFILE          .00092,
- @%append $^&.lnk  WINSETTITLE                   .00093,
- @%append $^&.lnk  WINCPLREGISTER                .00094,
- @%append $^&.lnk  WINPMFILEREGISTER             .00095,
- @%append $^&.lnk  SHESTARTLONGPROGRAM           .00096,
- @%append $^&.lnk  WINSETTITLEANDICON            .00097,
- @%append $^&.lnk  WIN32NOSHUTDOWN               .00098,
- @%append $^&.lnk  WINSETTITLEANDHWNDICON        .00099,
- @%append $^&.lnk  SHELLWINDOW                   .00100,
- @%append $^&.lnk  PRF32QUERYPROFILESIZE         .00101,
- @%append $^&.lnk  PRF32OPENPROFILE              .00102,
- @%append $^&.lnk  PRF32CLOSEPROFILE             .00103,
- @%append $^&.lnk  PRF32REMOVEPROGRAM            .00104,
- @%append $^&.lnk  PRF32CREATEGROUP              .00105,
- @%append $^&.lnk  PRF32DESTROYGROUP             .00106,
- @%append $^&.lnk  PRF32QUERYPROFILE             .00107,
- @%append $^&.lnk  PRF32RESET                    .00108,
- @%append $^&.lnk  PRF32ADDPROGRAM               .00109,
- @%append $^&.lnk  PRF32CHANGEPROGRAM            .00110,
- @%append $^&.lnk  PRF32QUERYDEFINITION          .00111,
- @%append $^&.lnk  PRF32QUERYPROGRAMHANDLE       .00112,
- @%append $^&.lnk  PRF32QUERYPROGRAMTITLES       .00113,
- @%append $^&.lnk  PRF32QUERYPROFILEINT          .00114,
- @%append $^&.lnk  PRF32QUERYPROFILESTRING       .00115,
- @%append $^&.lnk  PRF32WRITEPROFILESTRING       .00116,
- @%append $^&.lnk  PRF32QUERYPROFILEDATA         .00117,
- @%append $^&.lnk  PRF32WRITEPROFILEDATA         .00118,
- @%append $^&.lnk  WIN32STARTAPP                 .00119,
- @%append $^&.lnk  WIN32ADDSWITCHENTRY           .00120,
- @%append $^&.lnk  WIN32CREATESWITCHENTRY        .00121,
- @%append $^&.lnk  WIN32QUERYSESSIONTITLE        .00122,
- @%append $^&.lnk  WIN32CHANGESWITCHENTRY        .00123,
- @%append $^&.lnk  WIN32QUERYSWITCHENTRY         .00124,
- @%append $^&.lnk  WIN32QUERYSWITCHHANDLE        .00125,
- @%append $^&.lnk  WIN32QUERYSWITCHLIST          .00126,
- @%append $^&.lnk  WIN32QUERYTASKSIZEPOS         .00127,
- @%append $^&.lnk  WIN32QUERYTASKTITLE           .00128,
- @%append $^&.lnk  WIN32REMOVESWITCHENTRY        .00129,
- @%append $^&.lnk  WIN32TERMINATEAPP             .00130,
- @%append $^&.lnk  WIN32SWITCHTOPROGRAM          .00131,
- @%append $^&.lnk  PRF32QUERYPROGRAMCATEGORY     .00132,
- @%append $^&.lnk  PRF32CHANGEWRITETHRU          .00133,
- @%append $^&.lnk  SHE32PIINITINIFILES           .00134,
- @%append $^&.lnk  PrfWriteToDisk                .00135,
- @%append $^&.lnk  PrfSuspendWriteToDisk         .00136,
- @%append $^&.lnk  SHE32SYSTEMSHUTDOWN           .00151,
- @%append $^&.lnk  START32SYSTEMEXECUTABLES      .00152,
- @%append $^&.lnk  PM32EXECREGISTER              .00153,
- @%append $^&.lnk  WIN32HAPPFROMPID              .00154,
- @%append $^&.lnk  WIN32HSWITCHFROMHAPP          .00155,
- @%append $^&.lnk  WIN32SWITCHPROGRAMREGISTER    .00156,
- @%append $^&.lnk  WIN32ENDPROGRAM               .00157,
- @%append $^&.lnk  WIN32SWITCHTOPROGRAM2         .00158,
- @%append $^&.lnk  WINCANTERMINATE               .00160,
- @%append $^&.lnk  WINSTARTAPP                   .00201,
- @%append $^&.lnk  WINHAPPFROMPID                .00208,
- @%append $^&.lnk  WINHSWITCHFROMHAPP            .00209,
- @%append $^&.lnk  SHPPILOCKINIFILE              .00210,
- @%append $^&.lnk  SHPPI16LOCKINIFILE            .00211,
- @%append $^&.lnk  SHPPISHUTDOWN                 .00212,
- @%append $^&.lnk  SHPPI16SHUTDOWN               .00213
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-install: .SYMBOLIC
- $(CP) $(PROJ).dll ..$(SEP)bin
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
+!include $(%ROOT)/mk/appsos2.mk

@@ -2,16 +2,13 @@
 #
 #  Viking
 
-
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-PROJ=FreePM
-OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
-       Fs_hab.$(O) Fs_main.$(O) Fs_pipe.$(O) &
-       Fs_queue.$(O) Fs_wnd.$(O) F_debug.$(O) F_DeskTop.$(O) &
-       F_errors.$(O) F_GPI.$(O) F_hab.$(O) WindowClass.$(O)
+PROJ = FreePM
+DESC = FreePM Server
+DIRS = drivers
+srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &
+           $(p)Fs_hab$(e) $(p)Fs_main$(e) $(p)Fs_pipe$(e) &
+           $(p)Fs_queue$(e) $(p)Fs_wnd$(e) $(p)F_debug$(e) $(p)F_DeskTop$(e) &
+           $(p)F_errors$(e) $(p)F_GPI$(e) $(p)F_hab$(e) $(p)WindowClass$(e)
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
@@ -22,34 +19,7 @@ OBJS = F_session.$(O) F_utils.$(O) Fs_config.$(O) Fs_globals.$(O) &
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
-ADD_COPT=-bm -od -mf -sg -d2 -mf
-ADD_LINKOPT=lib gdlib.lib
+ADD_COPT    = -bm -od -mf -sg -d2 -mf
+ADD_LINKOPT = lib gdlib.lib
 
-!include $(%ROOT)/mk/all.mk
-
-DIRS=drivers
-
-
-all: $(PROJ).exe .SYMBOLIC
-   @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
-
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
- $(CP) $(PROJ)Server.ini $(FILESDIR)$(SEP)os2
- $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+!include $(%ROOT)/mk/appsos2.mk

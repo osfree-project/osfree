@@ -49,7 +49,7 @@ cd ..\..\fiasco
 @copy * ..\..\cd\l4
 cd ..\pns
 @copy * ..\..\cd\pns
-cd ..\files
+cd ..\pistachio
 @copy * ..\..\cd\l4ka
 
 cd ..\os2\server

@@ -1,11 +1,11 @@
 #
-# A main Makefile for osFree OS/2 Personality
+# A main Makefile for OS/3 boot sequence project
 # (c) osFree project,
 # valerius, 2006/10/30
 #
 
 # First directory must be UNI which produces C/C++ header files
-DIRS = Shared CMD REXX CPI # UtlAPI PM MM SOM #Server
+DIRS = Shared CMD CPI PM # MM SOM # REXX UtlAPI #Server
 
 !include $(%ROOT)/mk/all.mk
 

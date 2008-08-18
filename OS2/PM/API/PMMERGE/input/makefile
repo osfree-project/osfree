@@ -4,18 +4,10 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-OBJS     = input.$(O)
+srcfiles = $(p)input$(e)
 ADD_COPT = -i=..$(SEP)include
+DEST =
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/appsos2.mk
 
-all: $(OBJS) .SYMBOLIC
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+TARGETS = $(OBJS)

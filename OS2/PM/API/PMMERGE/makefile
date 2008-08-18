@@ -4,93 +4,72 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
 PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
-OBJS     = framemgr.$(O) habmgr.$(O) rectangles.$(O) input.$(O) WindowClass.$(O) queue.$(O) messages.$(O) windowmgr.$(O)
-ADD_COPT = -bd -i=..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib path rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input
-
-!include $(%ROOT)/mk/all.mk
-
-all: subs $(PROJ).dll .SYMBOLIC
-
-subs: .SYMBOLIC
-  $(MAKE) $(MAKEOPT) TARGET=all subdirs
-
-$(PROJ).dll: .symbolic
- @%create $^&.lnk
- @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk SYSTEM os2v2 dll pm initinstance terminstance
- @%append $^&.lnk option    manyautodata
- @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk import
- @%append $^&.lnk   RectCopy utlapi.1,
- @%append $^&.lnk   RectSet utlapi.2,
- @%append $^&.lnk   RectIsEmpty utlapi.3,
- @%append $^&.lnk   RectEqual utlapi.4,
- @%append $^&.lnk   RectSetEmpty utlapi.5,
- @%append $^&.lnk   RectOffset utlapi.6,
- @%append $^&.lnk   RectInflate utlapi.7,
- @%append $^&.lnk   RectPtIn utlapi.8,
- @%append $^&.lnk   RectIntersect utlapi.9,
- @%append $^&.lnk   RectUnion utlapi.10,
- @%append $^&.lnk   RectSubtract utlapi.11,
- @%append $^&.lnk   RectMakeRect utlapi.12,
- @%append $^&.lnk   RectMakePoints utlapi.13,
+srcfiles = $(p)framemgr$(e) $(p)habmgr$(e) $(p)rectangles$(e) $(p)input$(e) $(p)WindowClass$(e) &
+           $(p)queue$(e) $(p)messages$(e) $(p)windowmgr$(e)
+ADD_COPT = -bd -i=..$(SEP)include
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib &
+               path $(PATH)rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input &
+               segment type DATA shared
+DLL     = 1
+DLLOPT  = pm initinstance terminstance
+OPTIONS = manyautodata
+IMPORTS = RectCopy utlapi.1,                    &
+          RectSet utlapi.2,                     &
+          RectIsEmpty utlapi.3,                 &
+          RectEqual utlapi.4,                   &
+          RectSetEmpty utlapi.5,                &
+          RectOffset utlapi.6,                  &
+          RectInflate utlapi.7,                 &
+          RectPtIn utlapi.8,                    &
+          RectIntersect utlapi.9,               &
+          RectUnion utlapi.10,                  &
+          RectSubtract utlapi.11,               &
+          RectMakeRect utlapi.12,               &
+          RectMakePoints utlapi.13,             &
 # PMClient communication library
- @%append $^&.lnk   InitServerConnection pmclient.1,
- @%append $^&.lnk   CloseServerConnection pmclient.2,
- @%append $^&.lnk   _F_SendCmdToServer pmclient.3,
- @%append $^&.lnk   _F_SendDataToServer pmclient.4,
- @%append $^&.lnk   _F_RecvDataFromServer pmclient.5,
- @%append $^&.lnk   _F_SendGenCmdToServer pmclient.6,
- @%append $^&.lnk   _F_SendGenCmdDataToServer pmclient.7,
- @%append $^&.lnk   fatal pmclient.8
- @%append $^&.lnk export
- @%append $^&.lnk   WinCopyRect.05127,
- @%append $^&.lnk   WinCreateMsgQueue.05136,
- @%append $^&.lnk   WinCreateStdWindow.05139,
- @%append $^&.lnk   WinDefWindowProc.05147,
- @%append $^&.lnk   WinDestroyMsgQueue.05154,
- @%append $^&.lnk   WinDestroyWindow.05156,
- @%append $^&.lnk   WinDispatchMsg.05158,
- @%append $^&.lnk   WinEqualRect.05173,
- @%append $^&.lnk   WinGetMsg.05192,
- @%append $^&.lnk   WinInflateRect.05200,
- @%append $^&.lnk   WinInitialize.05201,
- @%append $^&.lnk   WinIntersectRect.05203,
- @%append $^&.lnk   WinIsRectEmpty.05209,
- @%append $^&.lnk   WinMakePoints.05229,
- @%append $^&.lnk   WinMakeRect.05230,
- @%append $^&.lnk   WinOffsetRect.05239,
- @%append $^&.lnk   WinPtInRect.05248,
- @%append $^&.lnk   WinRegisterClass.05315,
- @%append $^&.lnk   WinSendMsg.05334,
- @%append $^&.lnk   WinSetRect.05364,
- @%append $^&.lnk   WinSetRectEmpty.05365,
- @%append $^&.lnk   WinSubtractRect.05391,
- @%append $^&.lnk   WinTerminate.05396,
- @%append $^&.lnk   WinUnionRect.05402
+          InitServerConnection pmclient.1,      &
+          CloseServerConnection pmclient.2,     &
+          _F_SendCmdToServer pmclient.3,        &
+          _F_SendDataToServer pmclient.4,       &
+          _F_RecvDataFromServer pmclient.5,     &
+          _F_SendGenCmdToServer pmclient.6,     &
+          _F_SendGenCmdDataToServer pmclient.7, &
+          fatal pmclient.8
+EXPORTS = WinCopyRect.05127,             &
+          WinCreateMsgQueue.05136,       &
+          WinCreateStdWindow.05139,      &
+          WinDefWindowProc.05147,        &
+          WinDestroyMsgQueue.05154,      &
+          WinDestroyWindow.05156,        &
+          WinDispatchMsg.05158,          &
+          WinEqualRect.05173,            &
+          WinGetMsg.05192,               &
+          WinInflateRect.05200,          &
+          WinInitialize.05201,           &
+          WinIntersectRect.05203,        &
+          WinIsRectEmpty.05209,          &
+          WinMakePoints.05229,           &
+          WinMakeRect.05230,             &
+          WinOffsetRect.05239,           &
+          WinPtInRect.05248,             &
+          WinRegisterClass.05315,        &
+          WinSendMsg.05334,              &
+          WinSetRect.05364,              &
+          WinSetRectEmpty.05365,         &
+          WinSubtractRect.05391,         &
+          WinTerminate.05396,            &
+          WinUnionRect.05402
+DEST     = os2$(SEP)dll
+#INSTALL_ADD = 1
 
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- renmodul /r $^@ $^& fmmerge
- $(CP) pmmerge.dll fmmerge.dll
+!include $(%ROOT)/mk/appsos2.mk
 
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
- $(MAKE) $(MAKEOPT) TARGET=clean subdirs
+TARGETS = subdirs $(PATH)$(PROJ).dll
+TARGET = all
 
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) fmmerge.dll $(FILESDIR)$(SEP)os2$(SEP)dll
+#install_add: .SYMBOLIC
+# renmodul /r $^@ $^& fmmerge
+# $(CP) pmmerge.dll fmmerge.dll

@@ -4,21 +4,10 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+srcfiles = $(p)rectangles$(e)
+ADD_COPT = -i=..$(SEP)include -bd
+DEST =
 
-32_BITS  = 1
-OBJS     = rectangles.$(O)
-ADD_COPT = -i=..$(SEP)include -bd 
+!include $(%ROOT)/mk/appsos2.mk
 
-!include $(%ROOT)/mk/all.mk
-
-all: $(OBJS) .SYMBOLIC
-
-install: .SYMBOLIC
- $(CP) $(PROJ).exe ..$(SEP)bin
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+TARGETS = $(OBJS)

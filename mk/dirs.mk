@@ -19,7 +19,7 @@ BLD  = $(ROOT)build$(SEP)
 
 q = $(MYDIR:$(BLD)=)
 x = build$(SEP)
-y = $(SEP)$(SEP)
+#y = $(SEP)$(SEP)
 
 !ifneq q $(MYDIR)
 # we're starting make in build dir, not in src dir

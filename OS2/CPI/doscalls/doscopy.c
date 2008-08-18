@@ -12,6 +12,8 @@
    @todo Add support of EAs
 
 */
+//#define INCL_OS2DEF
+#include <os2def.h>
 #define INCL_DOSFILEMGR
 #include <osfree.h>
 
@@ -49,7 +51,8 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
   HFILE  hSrc;
   HFILE  hDst;
   ULONG  ulAction;
-  PCHAR  pIObuf;
+  //PCHAR
+  void **pIOBuf;
   ULONG  ulTransfer;
 
   rc = DosAllocMem(pIOBuf,

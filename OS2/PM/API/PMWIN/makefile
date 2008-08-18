@@ -4,1617 +4,1501 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-DIR      = $(ROOT)\bin\os2\dll
 PROJ     = pmwin
 DESC     = Drag and Drop API
-OBJS     = ..\shared\stub.obj
+srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
+ADD_COPT = -i=..$(SEP)include
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared
+DLL     = 1
+DLLOPT  = initinstance terminstance
+OPTIONS = manyautodata, caseexact
 ADD_COPT = -i=..\include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+IMPORTS = WinInitialize      PMMERGE.5201,  &
+          WinTerminate       PMMERGE.5396,  &
+          WinCreateMsgQueue  PMMERGE.5136,  &
+          WinDestroyMsgQueue PMMERGE.5154,  &
+          WinDispatchMsg     PMMERGE.5158,  &
+          WinGetMsg          PMMERGE.5192,  &
+          WinSendMsg         PMMERGE.5334,  &
+          WinRegisterClass   PMMERGE.5315,  &
+          WinCreateStdWindow PMMERGE.5139,  &
+          WinDefWindowProc   PMMERGE.5147,  &
+          WinDestroyWindow   PMMERGE.5156,  &
+          WINQUERYDESKTOPWINDOW     PMMERGE.3047,  &
+          WINQUERYOBJECTWINDOW      PMMERGE.3193,  &
+          WINREGISTERCLASS          PMMERGE.3058,  &
+          WINQUERYCLASSNAME         PMMERGE.3178,  &
+          WINQUERYCLASSINFO         PMMERGE.2065,  &
+          WINCREATEWINDOW           PMMERGE.3022,  &
+          WINDESTROYWINDOW          PMMERGE.3024,  &
+          WINSETWINDOWPOS           PMMERGE.3072,  &
+          WINSETMULTWINDOWPOS       PMMERGE.3066,  &
+          WINQUERYWINDOWPOS         PMMERGE.3053,  &
+          WINENABLEWINDOW           PMMERGE.3113,  &
+          WINISWINDOWENABLED        PMMERGE.3154,  &
+          WINSHOWWINDOW             PMMERGE.3074,  &
+          WINENABLEWINDOWUPDATE     PMMERGE.3114,  &
+          WINISWINDOWVISIBLE        PMMERGE.3036,  &
+          WINSETWINDOWTEXT          PMMERGE.3073,  &
+          WINQUERYWINDOWTEXT        PMMERGE.3216,  &
+          WINQUERYWINDOWTEXTLENGTH  PMMERGE.3217,  &
+          WINWINDOWFROMID           PMMERGE.3078,  &
+          WINMULTWINDOWFROMIDS      PMMERGE.2066,  &
+          WINISWINDOW               PMMERGE.3035,  &
+          WINISCHILD                PMMERGE.3034,  &
+          WINSETPARENT              PMMERGE.3067,  &
+          WINSETOWNER               PMMERGE.3262,  &
+          WINQUERYWINDOW            PMMERGE.3052,  &
+          WINQUERYWINDOWRECT        PMMERGE.3055,  &
+          WINQUERYWINDOWPROCESS     PMMERGE.3054,  &
+          WINSETWINDOWUSHORT        PMMERGE.3277,  &
+          WINQUERYWINDOWUSHORT      PMMERGE.3057,  &
+          WINSETWINDOWULONG         PMMERGE.3276,  &
+          WINQUERYWINDOWULONG       PMMERGE.3056,  &
+          WINBEGINENUMWINDOWS       PMMERGE.3015,  &
+          WINGETNEXTWINDOW          PMMERGE.3031,  &
+          WINENDENUMWINDOWS         PMMERGE.3115,  &
+          WINWINDOWFROMPOINT        PMMERGE.3308,  &
+          WINMAPWINDOWPOINTS        PMMERGE.3166,  &
+          WINSUBCLASSWINDOW         PMMERGE.3075,  &
+          WINLOCKWINDOW             PMMERGE.2067,  &
+          WINQUERYWINDOWLOCKCOUNT   PMMERGE.2068,  &
+          WINREGISTERWINDOWDESTROY  PMMERGE.3225,  &
+          WINOPENWINDOWDC           PMMERGE.3041,  &
+          WINGETSCREENPS            PMMERGE.3139,  &
+          WINGETPS                  PMMERGE.3137,  &
+          WINRELEASEPS              PMMERGE.3228,  &
+          WINBEGINPAINT             PMMERGE.3016,  &
+          WINENDPAINT               PMMERGE.3027,  &
+          WININVALIDATERECT         PMMERGE.3033,  &
+          WININVALIDATEREGION       PMMERGE.3149,  &
+          WINVALIDATERECT           PMMERGE.3302,  &
+          WINVALIDATEREGION         PMMERGE.3303,  &
+          WINQUERYUPDATERECT        PMMERGE.3210,  &
+          WINQUERYUPDATEREGION      PMMERGE.3211,  &
+          WINUPDATEWINDOW           PMMERGE.3301,  &
+          WINEXCLUDEUPDATEREGION    PMMERGE.3122,  &
+          WINLOCKWINDOWUPDATE       PMMERGE.3164,  &
+          WINLOCKVISREGIONS         PMMERGE.3163,  &
+          WINWINDOWFROMDC           PMMERGE.3307,  &
+          WINCREATEMSGQUEUE         PMMERGE.3020,  &
+          WINDESTROYMSGQUEUE        PMMERGE.3023,  &
+          WINQUERYQUEUESTATUS       PMMERGE.3200,  &
+          WINSENDMSG                PMMERGE.3062,  &
+          WINBROADCASTMSG          PMMERGE.3017,  &
+          WININSENDMSG             PMMERGE.3146,  &
+          WINGETMSG                PMMERGE.3030,  &
+          WINPEEKMSG               PMMERGE.3042,  &
+          WINWAITMSG               PMMERGE.3305,  &
+          WINDISPATCHMSG           PMMERGE.3025,  &
+          WINPOSTMSG               PMMERGE.3043,  &
+          WINPOSTQUEUEMSG          PMMERGE.3173,  &
+          WINQUERYMSGPOS           PMMERGE.3191,  &
+          WINQUERYMSGTIME          PMMERGE.3192,  &
+          WINCALLMSGFILTER         PMMERGE.3084,  &
+          WINSETMSGINTEREST        PMMERGE.3260,  &
+          WINSETCAPTURE            PMMERGE.3245,  &
+          WINQUERYCAPTURE          PMMERGE.3176,  &
+          WINSETFOCUS              PMMERGE.3065,  &
+          WINQUERYFOCUS            PMMERGE.3048,  &
+          WINSETACTIVEWINDOW       PMMERGE.3063,  &
+          WINQUERYACTIVEWINDOW     PMMERGE.3045,  &
+          WINSETSYSMODALWINDOW     PMMERGE.3069,  &
+          WINQUERYSYSMODALWINDOW   PMMERGE.3050,  &
+          WINISTHREADACTIVE        PMMERGE.3153,  &
+          WINSTARTTIMER            PMMERGE.3282,  &
+          WINSTOPTIMER             PMMERGE.3284,  &
+          WINGETCURRENTTIME        PMMERGE.3129,  &
+          WINLOADPOINTER           PMMERGE.2069,  &
+          WINCREATEPOINTER         PMMERGE.2070,  &
+          WINDESTROYPOINTER        PMMERGE.2071,  &
+          OLDWINQUERYPOINTERINFO   PMMERGE.2072,  &
+          WINQUERYSYSPOINTER       PMMERGE.2073,  &
+          WINSETPOINTER            PMMERGE.3263,  &
+          WINQUERYPOINTER          PMMERGE.3194,  &
+          WINSHOWPOINTER           PMMERGE.3279,  &
+          WINSETPOINTERPOS         PMMERGE.3265,  &
+          WINQUERYPOINTERPOS       PMMERGE.3195,  &
+          WINGETSYSBITMAP          PMMERGE.2074,  &
+          WINCREATECURSOR          PMMERGE.3091,  &
+          WINDESTROYCURSOR         PMMERGE.3104,  &
+          WINSHOWCURSOR            PMMERGE.3278,  &
+          WINQUERYCURSORINFO       PMMERGE.2075,  &
+          WINLOADACCELTABLE        PMMERGE.2076,  &
+          WINCREATEACCELTABLE      PMMERGE.2077,  &
+          WINDESTROYACCELTABLE     PMMERGE.2078,  &
+          WINTRANSLATEACCEL        PMMERGE.3298,  &
+          WINSETACCELTABLE         PMMERGE.3241,  &
+          WINQUERYACCELTABLE       PMMERGE.3174,  &
+          WINCOPYACCELTABLE        PMMERGE.2079,  &
+          WINSETHOOK               PMMERGE.3257,  &
+          WINRELEASEHOOK           PMMERGE.3227,  &
+          WINOPENCLIPBRD           PMMERGE.3170,  &
+          WINCLOSECLIPBRD          PMMERGE.3089,  &
+          WINEMPTYCLIPBRD          PMMERGE.3111,  &
+          WINSETCLIPBRDOWNER       PMMERGE.3249,  &
+          WINQUERYCLIPBRDOWNER     PMMERGE.3181,  &
+          WINSETCLIPBRDDATA        PMMERGE.2080,  &
+          WINQUERYCLIPBRDDATA      PMMERGE.3180,  &
+          WINENUMCLIPBRDFMTS       PMMERGE.3119,  &
+          WINQUERYCLIPBRDFMTINFO   PMMERGE.2081,  &
+          WINSETCLIPBRDVIEWER      PMMERGE.3250,  &
+          WINQUERYCLIPBRDVIEWER    PMMERGE.3182,  &
+          WINLOADDLG               PMMERGE.3037,  &
+          WINCREATEDLG             PMMERGE.3092,  &
+          WINPROCESSDLG            PMMERGE.3044,  &
+          WINDLGBOX                PMMERGE.3107,  &
+          WINDISMISSDLG            PMMERGE.3106,  &
+          WINSENDDLGITEMMSG        PMMERGE.3061,  &
+          WINSETDLGITEMSHORT       PMMERGE.3252,  &
+          WINQUERYDLGITEMSHORT     PMMERGE.3185,  &
+          WINMAPDLGPOINTS          PMMERGE.3165,  &
+          WINSUBSTITUTESTRINGS     PMMERGE.3287,  &
+          WINENUMDLGITEM           PMMERGE.3120,  &
+          WINSETDLGITEMTEXT        PMMERGE.3064,  &
+          WINQUERYDLGITEMTEXT      PMMERGE.3186,  &
+          WINLOADMENU              PMMERGE.3159,  &
+          WINCREATEMENU            PMMERGE.3095,  &
+          WINALARM                 PMMERGE.3014,  &
+          WINMESSAGEBOX            PMMERGE.3039,  &
+          WINCREATESTDWINDOW       PMMERGE.3021,  &
+          WINCREATEFRAMECONTROLS   PMMERGE.3093,  &
+          WINFORMATFRAME           PMMERGE.3127,  &
+          WINCALCFRAMERECT         PMMERGE.3082,  &
+          WINFLASHWINDOW           PMMERGE.3124,  &
+          WINGETMINPOSITION        PMMERGE.3135,  &
+          WINGETMAXPOSITION        PMMERGE.3134,  &
+          WINQUERYSYSVALUE         PMMERGE.3051,  &
+          WINSETSYSVALUE           PMMERGE.3070,  &
+          WINSETSYSCOLORS          PMMERGE.3270,  &
+          WINQUERYSYSCOLOR         PMMERGE.3207,  &
+          WINSCROLLWINDOW          PMMERGE.3235,  &
+          WINTRACKRECT             PMMERGE.3077,  &
+          WINSHOWTRACKRECT         PMMERGE.3280,  &
+          GPILOADBITMAP            PMMERGE.2082,  &
+          WINLOADSTRING            PMMERGE.2083,  &
+          WINLOADMESSAGE           PMMERGE.2084,  &
+          WINSETRECTEMPTY          PMMERGE.2085,  &
+          WINSETRECT               PMMERGE.2086,  &
+          WINCOPYRECT              PMMERGE.2087,  &
+          WINISRECTEMPTY           PMMERGE.2088,  &
+          WINEQUALRECT             PMMERGE.3121,  &
+          WINPTINRECT              PMMERGE.2089,  &
+          WINOFFSETRECT            PMMERGE.2090,  &
+          WININFLATERECT           PMMERGE.2091,  &
+          WININTERSECTRECT         PMMERGE.3148,  &
+          WINUNIONRECT             PMMERGE.3300,  &
+          WINSUBTRACTRECT          PMMERGE.3288,  &
+          WINMAKERECT              PMMERGE.2092,  &
+          WINMAKEPOINTS            PMMERGE.2093,  &
+          WININVERTRECT            PMMERGE.3150,  &
+          WINFILLRECT              PMMERGE.3028,  &
+          KBDPACKET                PMMERGE.6000,  &
+          WINDRAWPOINTER           PMMERGE.3110,  &
+          WINDEFWINDOWPROC         PMMERGE.2094,  &
+          WINDEFDLGPROC            PMMERGE.2095,  &
+          WINSYNCSTARTPGM          PMMERGE.3293,  &
+          WINSCREENSWITCH          PMMERGE.3060,  &
+          WINRESETSYSTEM           PMMERGE.3059,  &
+          WINQUERYHUNGPROCESS      PMMERGE.2096,  &
+          WINLOADSTRINGTABLE       PMMERGE.2097,  &
+          WINLOADVKEYGLYPHXLATETBL PMMERGE.2098,  &
+          WINLOADCHARXLATETBL      PMMERGE.2099,  &
+          WINSETVKEYGLYPHXLATETBL  PMMERGE.2100,  &
+          WINSETCHARXLATETBL       PMMERGE.3246,  &
+          WINQUERYVKEYGLYPHXLATETBL PMMERGE.2101,  &
+          WINQUERYCHARXLATETBL     PMMERGE.3177,  &
+          WINVKEYGLYPHCHARXLATE    PMMERGE.3304,  &
+          WINVKEYTOSCANID          PMMERGE.2102,  &
+          WINQUERYPROCESSCP        PMMERGE.2103,  &
+          WINGETKEYSTATE           PMMERGE.2104,  &
+          WINGETPHYSKEYSTATE       PMMERGE.3136,  &
+          WINSETKEYBOARDSTATETABLE PMMERGE.3258,  &
+          WINENABLEPHYSINPUT       PMMERGE.3112,  &
+          WINSETCP                 PMMERGE.2105,  &
+          WINQUERYCP               PMMERGE.2106,  &
+          WINQUERYCPLIST           PMMERGE.2107,  &
+          WINCPTRANSLATESTRING     PMMERGE.2108,  &
+          WINCPTRANSLATECHAR       PMMERGE.2109,  &
+          WINCOMPARESTRINGS        PMMERGE.2110,  &
+          WINUPPER                 PMMERGE.2111,  &
+          WINUPPERCHAR             PMMERGE.2112,  &
+          WINNEXTCHAR              PMMERGE.2113,  &
+          WINPREVCHAR              PMMERGE.2114,  &
+          WINCREATEHEAP            PMMERGE.2115,  &
+          WINDESTROYHEAP           PMMERGE.2116,  &
+          WINAVAILMEM              PMMERGE.2117,  &
+          WINALLOCMEM              PMMERGE.2118,  &
+          WINREALLOCMEM            PMMERGE.2119,  &
+          WINFREEMEM               PMMERGE.2120,  &
+          WINLOCKHEAP              PMMERGE.2121,  &
+          WINCREATEATOMTABLE       PMMERGE.2122,  &
+          WINDESTROYATOMTABLE      PMMERGE.2123,  &
+          WINADDATOM               PMMERGE.2124,  &
+          WINFINDATOM              PMMERGE.2125,  &
+          WINDELETEATOM            PMMERGE.2126,  &
+          WINQUERYATOMUSAGE        PMMERGE.2127,  &
+          WINQUERYATOMLENGTH       PMMERGE.2128,  &
+          WINQUERYATOMNAME         PMMERGE.2129,  &
+          WINQUERYSYSTEMATOMTABLE  PMMERGE.2130,  &
+          WINSETLASTERROR          PMMERGE.2131,  &
+          WINGETLASTERROR          PMMERGE.2132,  &
+          WINGETERRORINFO          PMMERGE.2133,  &
+          WINFREEERRORINFO         PMMERGE.2134,  &
+          WININITIALIZE            PMMERGE.2135,  &
+          WINTERMINATE             PMMERGE.2136,  &
+          WINCATCH                 PMMERGE.2137,  &
+          WINTHROW                 PMMERGE.2138,  &
+          WINQUERYVERSION          PMMERGE.2139,  &
+          FSRSEMENTER              PMMERGE.4011,  &
+          FSRSEMLEAVE              PMMERGE.4013,  &
+          FSRSEMEXIT               PMMERGE.2140,  &
+          FSRSEMCHECK              PMMERGE.2141,  &
+          FSRSEMENTERP             PMMERGE.4012,  &
+          AABGETREG                PMMERGE.2142,  &
+          AABSETREG                PMMERGE.2143,  &
+          VALIDATESELECTOR         PMMERGE.2144,  &
+          LOADMODULEHANDLE         PMMERGE.2145,  &
+          GETSCREENSELECTOR        PMMERGE.2146,  &
+          IDENTIFYCODESELECTOR     PMMERGE.2147,  &
+          WINQUERYWINDOWSGID       PMMERGE.3215,  &
+          _WINSETERRORINFO         PMMERGE.2148,  &
+          WINISPHYSINPUTENABLED    PMMERGE.3151,  &
+          WINQUERYWINDOWDC         PMMERGE.3212,  &
+          WINDRAWBORDER            PMMERGE.3109,  &
+          WINDRAWTEXT              PMMERGE.3026,  &
+          WINDRAWBITMAP            PMMERGE.3108,  &
+          WINQUERYWINDOWPTR        PMMERGE.3214,  &
+          WINSETWINDOWPTR          PMMERGE.3274,  &
+          WIN16INITIALIZESYSTEM    PMMERGE.3032,  &
+          WINTERMINATESYSTEM       PMMERGE.2149,  &
+          WIN16LOCKSTARTINPUT      PMMERGE.3038,  &
+          WINMSGSEMWAIT            PMMERGE.3040,  &
+          WINMSGMUXSEMWAIT         PMMERGE.3168,  &
+          WINSYSTEMSHUTDOWN        PMMERGE.3294,  &
+          WINCANCELSHUTDOWN        PMMERGE.3019,  &
+          WINSETWINDOWBITS         PMMERGE.3071,  &
+          WINGETCLIPPS             PMMERGE.3128,  &
+          WINSENDQUEUEMSG          PMMERGE.3240,  &
+          WINSETQUEUEPROC          PMMERGE.2183,  &
+          WINDEFQUEUEPROC          PMMERGE.2150,  &
+          WINSAVEWINDOWPOS         PMMERGE.3234,  &
+          WINFOCUSCHANGE           PMMERGE.3125,  &
+          WINQUERYQUEUEINFO        PMMERGE.3049,  &
+          WINCALLHELPHOOK          PMMERGE.3083,  &
+          WINSETATOMTABLEOWNER     PMMERGE.3244,  &
+          WINISSHUTTINGDOWN        PMMERGE.3152,  &
+          WINTERMINATESHUTDOWN     PMMERGE.3076,  &
+          WINSETCLASSMSGINTEREST   PMMERGE.3247,  &
+          VISREGIONCALLBACK        PMMERGE.2151,  &
+          WINQUERYDLGITEMTEXTLENGTH PMMERGE.3187,  &
+          WINQUERYKBDLAYOUT        PMMERGE.2152,  &
+          WINSETKBDLAYOUT          PMMERGE.2153,  &
+          WINDDEINITIATE           PMMERGE.3097,  &
+          WINDDERESPOND            PMMERGE.3099,  &
+          WINDDEPOSTMSG            PMMERGE.3098,  &
+          WIN16CANCELMODE          PMMERGE.3018,  &
+          WINSETPRESPARAM          PMMERGE.3068,  &
+          WINQUERYPRESPARAM        PMMERGE.3196,  &
+          WINREMOVEPRESPARAM       PMMERGE.3230,  &
+          WINTHREADASSOCQUEUE      PMMERGE.3296,  &
+          WINQUEUEFROMID           PMMERGE.3220,  &
+          WINQUERYSENDMSG          PMMERGE.3201,  &
+          WINREPLYMSG              PMMERGE.3233,  &
+          WINWAKETHREAD            PMMERGE.3306,  &
+          WINLOCKINPUT             PMMERGE.3161,  &
+          WINBUILDPTRHANDLE        PMMERGE.2154,  &
+          DUMWINCREATEHELPINSTANCE     PMMERGE.2155,  &
+          DUMWINDESTROYHELPINSTANCE    PMMERGE.2156,  &
+          DUMWINASSOCIATEHELPINSTANCE  PMMERGE.2157,  &
+          DUMWINCREATEHELPTABLE        PMMERGE.2158,  &
+          DUMWINLOADHELPTABLE          PMMERGE.2159,  &
+          DUMWINQUERYHELPINSTANCE      PMMERGE.2160,  &
+          WINQUERYWINDOWMODEL          PMMERGE.3213,  &
+          WINSETDESKTOPBKGND           PMMERGE.3251,  &
+          WINQUERYDESKTOPBKGND         PMMERGE.3184,  &
+          WINPOPUPMENU                 PMMERGE.3172,  &
+          WINREALIZEPALETTE            PMMERGE.3221,  &
+          DUMMYHELPENTRY               PMMERGE.2161,  &
+          GETPMDDCODESELECTOR          PMMERGE.2162,  &
+          WINSEMENTER                  PMMERGE.3237,  &
+          WINSEMLEAVE                  PMMERGE.3238,  &
+          WINQUERYPWND                 PMMERGE.2163,  &
+          WINQUERYSTATE                PMMERGE.3203,  &
+          WINLOADANIPOINTER            PMMERGE.3157,  &
+          WINDESTROYANIPOINTER         PMMERGE.3103,  &
+          WINSETANIPOINTER             PMMERGE.3243,  &
+          WINENUMVKEYSCANIDS           PMMERGE.2164,  &
+          WINSEMQUERY                  PMMERGE.3239,  &
+          WINLOADTRANSLATIONTABLE      PMMERGE.2165,  &
+          WINSETKBDLAYOUT2             PMMERGE.2166,  &
+          WINSEAMLESSBOX               PMMERGE.3236,  &
+          WINJIGGLEMOUSE               PMMERGE.3156,  &
+          WINTRACKSEAMLESS             PMMERGE.3297,  &
+          WINREGISTERSEAMLESSPROC      PMMERGE.3222,  &
+          ABNORMALPROCESSEXIT          PMMERGE.5002,  &
+          WINPROFCONTROL               PMMERGE.5422,  &
+          DEBUGINPUTENABLE             PMMERGE.2167,  &
+          DEBUGINPUT                   PMMERGE.2168,  &
+          DEBUGOUTPUT                  PMMERGE.2169,  &
+          DEBUGCURPOS                  PMMERGE.2170,  &
+          DEBUGCLS                     PMMERGE.2171,  &
+          WINDEBUGBREAK                PMMERGE.3100,  &
+          DEBUGREDIRECT                PMMERGE.2172,  &
+          INPUTGETDEVICEINFO           PMMERGE.3002,  &
+          STARTTIMER                   PMMERGE.5107,  &
+          DESTROYTIMERS                PMMERGE.5007,  &
+          WINDELETELIBRARY             PMMERGE.3101,  &
+          WINLOADPROCEDURE             PMMERGE.3160,  &
+          WINDELETEPROCEDURE           PMMERGE.3102,  &
+          WINSETMSGMODE                PMMERGE.3261,  &
+          WINSETSYNCHROMODE            PMMERGE.3268,  &
+          WINGETDLGMSG                 PMMERGE.3130,  &
+          WINREGISTERUSERMSG           PMMERGE.3224,  &
+          WINQUERYANCHORBLOCK          PMMERGE.3046,  &
+          WINLANGSUPWINDOWPROC         PMMERGE.2173,  &
+          WINLANGSUPDLGPROC            PMMERGE.2174,  &
+          WINREGISTERUSERDATATYPE      PMMERGE.3223,  &
+          FARCALLHOOK                  PMMERGE.5045,  &
+          WINISWINDOWSHOWING           PMMERGE.3155,  &
+          WINLOADLIBRARY               PMMERGE.3158,  &
+          WINCREATEPOINTERINDIRECT     PMMERGE.2175,  &
+          WINQUERYPOINTERINFO          PMMERGE.2176,  &
+          WINSETMENUDATA               PMMERGE.3259,  &
+          WINQUERYMENUDATA             PMMERGE.3190,  &
+          WINMENUINDEXFROMID           PMMERGE.3167,  &
+          WINFORCEMENUREDRAW           PMMERGE.3126,  &
+          WINGETSCANSTATE              PMMERGE.3138,  &
+          WINSETSCANSTATETABLE         PMMERGE.3266,  &
+          WINGETERASEPS                PMMERGE.3131,  &
+          WINRELEASEERASEPS            PMMERGE.3226,  &
+          WINSETWINDOWDC               PMMERGE.3273,  &
+          WINTRANSLATECHAR             PMMERGE.3299,  &
+          WINPORTHOLEUTIL              PMMERGE.2177,  &
+          WINEXPLODEWINDOW             PMMERGE.3123,  &
+          WINSETACCELTABLEVALUE        PMMERGE.3242,  &
+          WINQUERYACCELTABLEVALUE      PMMERGE.3175,  &
+          WINSTRETCHPOINTER            PMMERGE.3286,  &
+          WINSETPOINTEROWNER           PMMERGE.3264,  &
+          WINGETFRAMETREEPPSIZE        PMMERGE.3133,  &
+          WINGETFRAMETREEPPS           PMMERGE.3132,  &
+          WINSETFRAMETREEPPS           PMMERGE.3256,  &
+          WIN16GETMINWINDOWVIEWER      PMMERGE.3029,  &
+          WINQUERYWORKPLACEWINDOW      PMMERGE.3219,  &
+          WINLOCKPOINTERUPDATE         PMMERGE.3162,  &
+          WINCHECKINPUT                PMMERGE.3088,  &
+          FARFLUSHBUFHOOK              PMMERGE.3000,  &
+          WinAddAtom                   PMMERGE.5111,  &
+          WinAlarm                     PMMERGE.5113,  &
+          WinBeginEnumWindows          PMMERGE.5114,  &
+          WinBeginPaint                PMMERGE.5115,  &
+          WinCalcFrameRect             PMMERGE.5118,  &
+          WinCancelShutdown            PMMERGE.5121,  &
+          WinCloseClipbrd              PMMERGE.5124,  &
+          WinCompareStrings            PMMERGE.5125,  &
+          WinCopyAccelTable            PMMERGE.5126,  &
+          WinCopyRect                  PMMERGE.5127,  &
+          WinCpTranslateChar           PMMERGE.5128,  &
+          WinCpTranslateString         PMMERGE.5129,  &
+          WinCreateAccelTable          PMMERGE.5130,  &
+          WinCreateAtomTable           PMMERGE.5131,  &
+          WinCreateCursor              PMMERGE.5132,  &
+          WinCreatePointer             PMMERGE.5137,  &
+          WinDdeInitiate               PMMERGE.5142,  &
+          WinDdePostMsg                PMMERGE.5143,  &
+          WinDdeRespond                PMMERGE.5144,  &
+          WinDeleteAtom                PMMERGE.5148,  &
+          WinDeleteLibrary             PMMERGE.5149,  &
+          WinDestroyAccelTable         PMMERGE.5151,  &
+          WinDestroyAtomTable          PMMERGE.5152,  &
+          WinDestroyCursor             PMMERGE.5153,  &
+          WinDestroyPointer            PMMERGE.5155,  &
+          WinDismissDlg                PMMERGE.5157,  &
+          WinDrawBitmap                PMMERGE.5160,  &
+          WinDrawBorder                PMMERGE.5161,  &
+          WinDrawPointer               PMMERGE.5162,  &
+          WinEmptyClipbrd              PMMERGE.5164,  &
+          WinEnablePhysInput           PMMERGE.5165,  &
+          WinEnableWindow              PMMERGE.5166,  &
+          WinEnableWindowUpdate        PMMERGE.5167,  &
+          WinEndEnumWindows            PMMERGE.5168,  &
+          WinEndPaint                  PMMERGE.5169,  &
+          WinEnumClipbrdFmts           PMMERGE.5171,  &
+          WinEnumDlgItem               PMMERGE.5172,  &
+          WinEqualRect                 PMMERGE.5173,  &
+          WinExcludeUpdateRegion       PMMERGE.5174,  &
+          WinFillRect                  PMMERGE.5176,  &
+          WinFindAtom                  PMMERGE.5177,  &
+          WinFlashWindow               PMMERGE.5178,  &
+          WinFocusChange               PMMERGE.5179,  &
+          WinFreeErrorInfo             PMMERGE.5180,  &
+          WinGetClipPS                 PMMERGE.5181,  &
+          WinGetCurrentTime            PMMERGE.5182,  &
+          WinGetErrorInfo              PMMERGE.5185,  &
+          WinGetKeyState               PMMERGE.5188,  &
+          WinGetLastError              PMMERGE.5189,  &
+          WinGetMaxPosition            PMMERGE.5190,  &
+          WinGetMinPosition            PMMERGE.5191,  &
+          WinGetNextWindow             PMMERGE.5193,  &
+          WinGetPS                     PMMERGE.5195,  &
+          WinGetPhysKeyState           PMMERGE.5194,  &
+          WinGetScreenPS               PMMERGE.5196,  &
+          WinGetSysBitmap              PMMERGE.5197,  &
+          WinInSendMsg                 PMMERGE.5202,  &
+          WinInflateRect               PMMERGE.5200,  &
+          WinIntersectRect             PMMERGE.5203,  &
+          WinInvalidateRect            PMMERGE.5204,  &
+          WinInvalidateRegion          PMMERGE.5205,  &
+          WinInvertRect                PMMERGE.5206,  &
+          WinIsChild                   PMMERGE.5207,  &
+          WinIsPhysInputEnabled        PMMERGE.5208,  &
+          WinIsRectEmpty               PMMERGE.5209,  &
+          WinIsThreadActive            PMMERGE.5210,  &
+          WinIsWindow                  PMMERGE.5211,  &
+          WinIsWindowEnabled           PMMERGE.5212,  &
+          WinIsWindowShowing           PMMERGE.5213,  &
+          WinIsWindowVisible           PMMERGE.5214,  &
+          WinLoadAccelTable            PMMERGE.5216,  &
+          WinLoadLibrary               PMMERGE.5219,  &
+          WinLoadMenu                  PMMERGE.5220,  &
+          WinLoadMessage               PMMERGE.5221,  &
+          WinLoadPointer               PMMERGE.5222,  &
+          WinLoadString                PMMERGE.5224,  &
+          WinLockVisRegions            PMMERGE.5227,  &
+          WinLockWindowUpdate          PMMERGE.5228,  &
+          WinMakePoints                PMMERGE.5229,  &
+          WinMakeRect                  PMMERGE.5230,  &
+          WinMapDlgPoints              PMMERGE.5231,  &
+          WinMapWindowPoints           PMMERGE.5232,  &
+          WinMessageBox                PMMERGE.5233,  &
+          WinMsgSemWait                PMMERGE.5236,  &
+          WinNextChar                  PMMERGE.5238,  &
+          WinOffsetRect                PMMERGE.5239,  &
+          WinOpenClipbrd               PMMERGE.5240,  &
+          WinOpenWindowDC              PMMERGE.5241,  &
+          WinPrevChar                  PMMERGE.5246,  &
+          WinProcessDlg                PMMERGE.5247,  &
+          WinPtInRect                  PMMERGE.5248,  &
+          WinQueryAccelTable           PMMERGE.5249,  &
+          WinQueryActiveWindow         PMMERGE.5251,  &
+          WinQueryAnchorBlock          PMMERGE.5252,  &
+          WinQueryAtomLength           PMMERGE.5253,  &
+          WinQueryAtomName             PMMERGE.5254,  &
+          WinQueryAtomUsage            PMMERGE.5255,  &
+          WinQueryCapture              PMMERGE.5256,  &
+          WinQueryClassName            PMMERGE.5258,  &
+          WinQueryClipbrdData          PMMERGE.5260,  &
+          WinQueryClipbrdFmtInfo       PMMERGE.5261,  &
+          WinQueryClipbrdOwner         PMMERGE.5262,  &
+          WinQueryClipbrdViewer        PMMERGE.5263,  &
+          WinQueryCp                   PMMERGE.5264,  &
+          WinQueryCpList               PMMERGE.5265,  &
+          WinQueryCursorInfo           PMMERGE.5266,  &
+          WinQueryDesktopWindow        PMMERGE.5268,  &
+          WinQueryDlgItemShort         PMMERGE.5269,  &
+          WinQueryDlgItemText          PMMERGE.5270,  &
+          WinQueryDlgItemTextLength    PMMERGE.5271,  &
+          WinQueryFocus                PMMERGE.5272,  &
+          WinQueryMsgPos               PMMERGE.5273,  &
+          WinQueryMsgTime              PMMERGE.5274,  &
+          WinQueryObjectWindow         PMMERGE.5275,  &
+          WinQueryPointer              PMMERGE.5277,  &
+          WinQueryPointerInfo          PMMERGE.5278,  &
+          WinQueryPointerPos           PMMERGE.5279,  &
+          WinQueryQueueInfo            PMMERGE.5282,  &
+          WinQueryQueueStatus          PMMERGE.5283,  &
+          WinQuerySysColor             PMMERGE.5289,  &
+          WinQuerySysModalWindow       PMMERGE.5290,  &
+          WinQuerySysPointer           PMMERGE.5291,  &
+          WinQuerySysValue             PMMERGE.5294,  &
+          WinQuerySystemAtomTable      PMMERGE.5293,  &
+          WinQueryUpdateRect           PMMERGE.5297,  &
+          WinQueryUpdateRegion         PMMERGE.5298,  &
+          WinQueryVersion              PMMERGE.5299,  &
+          WinQueryWindow               PMMERGE.5301,  &
+          WinQueryWindowDC             PMMERGE.5302,  &
+          WinQueryWindowPos            PMMERGE.5304,  &
+          WinQueryWindowProcess        PMMERGE.5305,  &
+          WinQueryWindowPtr            PMMERGE.5306,  &
+          WinQueryWindowRect           PMMERGE.5307,  &
+          WinQueryWindowText           PMMERGE.5308,  &
+          WinQueryWindowTextLength     PMMERGE.5309,  &
+          WinQueryWindowULong          PMMERGE.5311,  &
+          WinQueryWindowUShort         PMMERGE.5312,  &
+          WinRegisterUserDatatype      PMMERGE.5318,  &
+          WinRegisterUserMsg           PMMERGE.5319,  &
+          WinReleasePS                 PMMERGE.5322,  &
+          WinScrollWindow              PMMERGE.5328,  &
+          WinSetAccelTable             PMMERGE.5335,  &
+          WinSetActiveWindow           PMMERGE.5337,  &
+          WinSetCapture                PMMERGE.5338,  &
+          WinSetClassMsgInterest       PMMERGE.5340,  &
+          WinSetClipbrdData            PMMERGE.5342,  &
+          WinSetClipbrdOwner           PMMERGE.5343,  &
+          WinSetClipbrdViewer          PMMERGE.5344,  &
+          WinSetCp                     PMMERGE.5345,  &
+          WinSetDlgItemShort           PMMERGE.5347,  &
+          WinSetDlgItemText            PMMERGE.5348,  &
+          WinSetFocus                  PMMERGE.5350,  &
+          WinSetMsgInterest            PMMERGE.5354,  &
+          WinSetMsgMode                PMMERGE.5355,  &
+          WinSetMultWindowPos          PMMERGE.5356,  &
+          WinSetOwner                  PMMERGE.5357,  &
+          WinSetParent                 PMMERGE.5359,  &
+          WinSetPointer                PMMERGE.5360,  &
+          WinSetPointerPos             PMMERGE.5362,  &
+          WinSetRect                   PMMERGE.5364,  &
+          WinSetRectEmpty              PMMERGE.5365,  &
+          WinSetSynchroMode            PMMERGE.5366,  &
+          WinSetSysColors              PMMERGE.5368,  &
+          WinSetSysModalWindow         PMMERGE.5370,  &
+          WinSetSysValue               PMMERGE.5372,  &
+          WinSetWindowBits             PMMERGE.5374,  &
+          WinSetWindowPos              PMMERGE.5375,  &
+          WinSetWindowPtr              PMMERGE.5376,  &
+          WinSetWindowText             PMMERGE.5377,  &
+          WinSetWindowULong            PMMERGE.5379,  &
+          WinSetWindowUShort           PMMERGE.5380,  &
+          WinShowCursor                PMMERGE.5381,  &
+          WinShowPointer               PMMERGE.5382,  &
+          WinShowTrackRect             PMMERGE.5383,  &
+          WinShowWindow                PMMERGE.5384,  &
+          WinStartTimer                PMMERGE.5386,  &
+          WinStopTimer                 PMMERGE.5387,  &
+          WinSubstituteStrings         PMMERGE.5390,  &
+          WinSubtractRect              PMMERGE.5391,  &
+          WinTrackRect                 PMMERGE.5399,  &
+          WinUnionRect                 PMMERGE.5402,  &
+          WinUpdateWindow              PMMERGE.5403,  &
+          WinUpper                     PMMERGE.5404,  &
+          WinUpperChar                 PMMERGE.5405,  &
+          WinValidateRect              PMMERGE.5406,  &
+          WinValidateRegion            PMMERGE.5407,  &
+          WinWaitMsg                   PMMERGE.5410,  &
+          WinWindowFromDC              PMMERGE.5413,  &
+          WinWindowFromID              PMMERGE.5414,  &
+          WinWindowFromPoint           PMMERGE.5415,  &
+          WinBroadcastMsg              PMMERGE.5116,  &
+          WinPostQueueMsg              PMMERGE.5245,  &
+          WinSendDlgItemMsg            PMMERGE.5333,  &
+          WinTranslateAccel            PMMERGE.5401,  &
+          WinCallMsgFilter             PMMERGE.5120,  &
+          WinCreateFrameControls       PMMERGE.5134,  &
+          WinCreateMenu                PMMERGE.5135,  &
+          WinCreateWindow              PMMERGE.5141,  &
+          WinDefDlgProc                PMMERGE.5146,  &
+          WinDrawText                  PMMERGE.5163,  &
+          WinGetDlgMsg                 PMMERGE.5183,  &
+          WinMsgMuxSemWait             PMMERGE.5235,  &
+          WinMultWindowFromIDs         PMMERGE.5237,  &
+          WinPeekMsg                   PMMERGE.5242,  &
+          WinPostMsg                   PMMERGE.5244,  &
+          WinSetKeyboardStateTable     PMMERGE.5353,  &
+          WinCreateDlg                 PMMERGE.5133,  &
+          WinDlgBox                    PMMERGE.5159,  &
+          WinLoadDlg                   PMMERGE.5218,  &
+          WinQueryClassInfo            PMMERGE.5257,  &
+          WinReleaseHook               PMMERGE.5321,  &
+          WinSetHook                   PMMERGE.5352,  &
+          WinSubclassWindow            PMMERGE.5389,  &
+          WinSetClassThunkProc         PMMERGE.5341,  &
+          WinQueryClassThunkProc       PMMERGE.5259,  &
+          WinSetWindowThunkProc        PMMERGE.5378,  &
+          WinQueryWindowThunkProc      PMMERGE.5310,  &
+          WinQueryWindowModel          PMMERGE.5303,  &
+          WinSetDesktopBkgnd           PMMERGE.5346,  &
+          WinQueryDesktopBkgnd         PMMERGE.5267,  &
+          WinPopupMenu                 PMMERGE.5243,  &
+          WinSetPresParam              PMMERGE.5363,  &
+          WinQueryPresParam            PMMERGE.5280,  &
+          WinRemovePresParam           PMMERGE.5323,  &
+          WinRealizePalette            PMMERGE.5314,  &
+          WinCreatePointerIndirect     PMMERGE.5138,  &
+          WinSaveWindowPos             PMMERGE.5327,  &
+          WINCREATEFARHEAP             PMMERGE.2178,  &
+          WINDESTROYFARHEAP            PMMERGE.2179,  &
+          WINALLOCFARMEM               PMMERGE.2180,  &
+          WINFREEFARMEM                PMMERGE.2181,  &
+          WINREALLOCFARMEM             PMMERGE.2182,  &
+          WINGETERASEPS                PMMERGE.5184,  &
+          WINRELEASEERASEPS            PMMERGE.5320,  &
+          Undocumented1                PMMERGE.5005,  &
+          Undocumented2                PMMERGE.5006,  &
+          Undocumented3                PMMERGE.5004,  &
+          Undocumented4                PMMERGE.5003,  &
+          Undocumented5                PMMERGE.5145,  &
+          WINSETCLASSTHUNKPROC         PMMERGE.3248,  &
+          WINQUERYCLASSTHUNKPROC       PMMERGE.3179,  &
+          WINSETWINDOWTHUNKPROC        PMMERGE.3275,  &
+          WINQUERYWINDOWTHUNKPROC      PMMERGE.3218,  &
+          WinSystemShutdown            PMMERGE.5395,  &
+          WinBuildPtrHandle            PMMERGE.5117,  &
+          WinExplodeWindow             PMMERGE.5175,  &
+          WinSetAccelTableValue        PMMERGE.5336,  &
+          WinQueryAccelTableValue      PMMERGE.5250,  &
+          WinStretchPointer            PMMERGE.5388,  &
+          Undocumented6                 PMMERGE.5000,  &
+          Undocumented7                 PMMERGE.5001,  &
+          WinSetPointerOwner           PMMERGE.5361,  &
+          WinGetFrameTreePPSize        PMMERGE.5187,  &
+          WinGetFrameTreePPs           PMMERGE.5186,  &
+          WinSetFrameTreePPs           PMMERGE.5351,  &
+          WinQueryProcessCP            PMMERGE.5281,  &
+          WinVisRegionNotify           PMMERGE.5408,  &
+          WinSetErrorInfo              PMMERGE.5349,  &
+          WinWaitEventSem              PMMERGE.5409,  &
+          WinRequestMutexSem           PMMERGE.5326,  &
+          WinWaitMuxWaitSem            PMMERGE.5411,  &
+          WINSETSYSCLIPBRDVIEWER       PMMERGE.3269,  &
+          WinSetSysClipbrdViewer       PMMERGE.5367,  &
+          WinSemQuery                  PMMERGE.5332,  &
+          WinSemEnter                  PMMERGE.5330,  &
+          WinSemLeave                  PMMERGE.5331,  &
+          WinLoadProcedure             PMMERGE.5223,  &
+          WinDeleteProcedure           PMMERGE.5150,  &
+          WinMoveCursor                PMMERGE.5234,  &
+          WinQuerySendMsg              PMMERGE.5284,  &
+          WinReplyMsg                  PMMERGE.5325,  &
+          WinWakeThread                PMMERGE.5412,  &
+          WinQueueFromID               PMMERGE.5313,  &
+          WinThreadAssocQueue          PMMERGE.5398,  &
+          WinLockInput                 PMMERGE.5225,  &
+          WinSetSysFont                PMMERGE.5369,  &
+          WinLockPointerUpdate         PMMERGE.5226,  &
+          WinCheckInput                PMMERGE.5123,  &
+          Undocumented8                PMMERGE.5044,  &
+          WinQueryVisibleRegion        PMMERGE.5300,  &
+          WinSetVisibleRegionNotify    PMMERGE.5373,  &
+          WinSetSysPointerData         PMMERGE.5371,  &
+          WinQuerySysPointerData       PMMERGE.5292,  &
+          WinSeamlessBox               PMMERGE.5329,  &
+          WinJiggleMouse               PMMERGE.5215,  &
+          WinTrackSeamless             PMMERGE.5400,  &
+          WinRegisterSeamlessProc      PMMERGE.5317,  &
+          WinSetCharXlateTbl           PMMERGE.5339,  &
+          WinMspInit                   PMMERGE.5420,  &
+          WinMspAlloc                  PMMERGE.5418,  &
+          WinMspFree                   PMMERGE.5419,  &
+          Undocumented9                PMMERGE.5109,  &
+          Undocumented10               PMMERGE.5068,  &
+          WinRegisterPen               PMMERGE.5316,  &
+          WinMessageBox2               PMMERGE.5417,  &
+          fPenAvail                    PMMERGE.6201,  &
+          WinDrawTabbedText            PMMERGE.5432,  &
+          PMREQUESTMUTEXSEM            PMMERGE.5071,  &
+          PMRELEASEMUTEXSEM            PMMERGE.5070,  &
+          WinQueryPointerClipRect      PMMERGE.5433,  &
+          WinSetPointerClipRect        PMMERGE.5434,  &
+          WinWaitMsgTimeout            PMMERGE.5436,  &
+          WinIsWindowOfClass           PMMERGE.5437,  &
+          WinSetAtomTableOwner         PMMERGE.5438,  &
+          WinXxCreateHeap              PMMERGE.5425,  &
+          WinXxDestroyHeap             PMMERGE.5426,  &
+          WinXxAllocMem                PMMERGE.5424,  &
+          WinXxFreeMem                 PMMERGE.5427,  &
+          WinXxAllocFill               PMMERGE.5423,  &
+          WinXxReallocMem              PMMERGE.5429,  &
+          WinXxQueryMemSize            PMMERGE.5439,  &
+          WinSetClipRegion             PMMERGE.5440,  &
+          WinQueryClipRegion           PMMERGE.5441,  &
+          Undocumented11               PMMERGE.5442,  &
+          Undocumented12               PMMERGE.5443,  &
+          Undocumented13               PMMERGE.5444,  &
+          Undocumented14               PMMERGE.5445,  &
+          Undocumented15               PMMERGE.5446,  &
+          Undocumented16               PMMERGE.5448,  &
+          Undocumented17               PMMERGE.5447,  &
+          WINENUMPROPERTIES            PMMERGE.5449,  &
+          WINQUERYPROPERTY             PMMERGE.5450,  &
+          WINREMOVEPROPERTY            PMMERGE.5451,  &
+          WINSETPROPERTY               PMMERGE.5452,  &
+          WINENUMCLASSPROPERTIES       PMMERGE.5453,  &
+          WINQUERYCLASSPROPERTY        PMMERGE.5454,  &
+          WINREMOVECLASSPROPERTY       PMMERGE.5455,  &
+          WINSETCLASSPROPERTY          PMMERGE.5456,  &
+          Undocumented18               PMMERGE.5458,  &
+          Undocumented19               PMMERGE.5461,  &
+          Undocumented20               PMMERGE.5462,  &
+          WinLoadVkeyGlyphXlatetbl     PMMERGE.5463,  &
+          WinSetVKeyGlyphXlatetbl      PMMERGE.5464,  &
+          WinQueryVKeyGlyphXlatetbl    PMMERGE.5465,  &
+          WinTrackWindow               PMMERGE.5466,  &
+          WinSemEnterTimeout           PMMERGE.5467,  &
+          Undocumented21               PMMERGE.5468,  &
+          Undocumented22               PMMERGE.5469,  &
+          Undocumented23               PMMERGE.5473,  &
+          Undocumented24               PMMERGE.5474,  &
+          Undocumented25               PMMERGE.5475,  &
+          Undocumented26               PMMERGE.5476,  &
+          Undocumented27               PMMERGE.5477,  &
+          Undocumented28               PMMERGE.5478,  &
+          WINSETLANGINFO               PMMERGE.3500,  &
+          WINQUERYLANGINFO             PMMERGE.3501,  &
+          WINSETKBDLAYER               PMMERGE.3502,  &
+          WINQUERYKBDLAYER             PMMERGE.3503,  &
+          WINSETLANGVIEWER             PMMERGE.3504,  &
+          WINQUERYLANGVIEWER           PMMERGE.3505,  &
+          WINPOUREVENT                 PMMERGE.3600,  &
+          WINSETMSGQIMINFO             PMMERGE.3601,  &
+          WINQUERYMSGQIMINFO           PMMERGE.3602,  &
+          Undocumented29               PMMERGE.10000,  &
+          Undocumented30               PMMERGE.10001,  &
+          Undocumented31               PMMERGE.10002,  &
+          Undocumented32               PMMERGE.10004,  &
+          Undocumented33               PMMERGE.10005,  &
+          Undocumented34               PMMERGE.10007,  &
+          Undocumented35               PMMERGE.10018,  &
+          Undocumented36               PMMERGE.10019,  &
+          Undocumented37               PMMERGE.10020,  &
+          Undocumented38               PMMERGE.10021
+EXPORTS = WinInitialize.              00763,  &
+          WinTerminate.               00888,  &
+          WinCreateMsgQueue.          00716,  &
+          WinDestroyMsgQueue.         00726,  &
+          WinDestroyWindow.           00728,  &
+          WinCreateStdWindow.         00908,  &
+          WinDefWindowProc.           00911,  &
+          WinDispatchMsg.             00912,  &
+          WinGetMsg.                  00915,  &
+          WinSendMsg.                 00920,  &
+          WinRegisterClass.           00926,  &
+          WINQUERYDESKTOPWINDOW       .00001 RESIDENT,  &
+          WINQUERYOBJECTWINDOW        .00002 RESIDENT,  &
+          WINREGISTERCLASS            .00003 RESIDENT,  &
+          WINQUERYCLASSNAME           .00004 RESIDENT,  &
+          WINQUERYCLASSINFO           .00005 RESIDENT,  &
+          WINCREATEWINDOW             .00006 RESIDENT,  &
+          WINDESTROYWINDOW            .00007 RESIDENT,  &
+          WINSETWINDOWPOS             .00008 RESIDENT,  &
+          WINSETMULTWINDOWPOS         .00009 RESIDENT,  &
+          WINQUERYWINDOWPOS           .00010 RESIDENT,  &
+          WINENABLEWINDOW             .00011 RESIDENT,  &
+          WINISWINDOWENABLED          .00012 RESIDENT,  &
+          WINSHOWWINDOW               .00013 RESIDENT,  &
+          WINENABLEWINDOWUPDATE       .00014 RESIDENT,  &
+          WINISWINDOWVISIBLE          .00015 RESIDENT,  &
+          WINSETWINDOWTEXT            .00016 RESIDENT,  &
+          WINQUERYWINDOWTEXT          .00017 RESIDENT,  &
+          WINQUERYWINDOWTEXTLENGTH    .00018 RESIDENT,  &
+          WINWINDOWFROMID             .00019 RESIDENT,  &
+          WINMULTWINDOWFROMIDS        .00020 RESIDENT,  &
+          WINISWINDOW                 .00021 RESIDENT,  &
+          WINISCHILD                  .00022 RESIDENT,  &
+          WINSETPARENT                .00023 RESIDENT,  &
+          WINSETOWNER                 .00024 RESIDENT,  &
+          WINQUERYWINDOW              .00025 RESIDENT,  &
+          WINQUERYWINDOWRECT          .00026 RESIDENT,  &
+          WINQUERYWINDOWPROCESS       .00027 RESIDENT,  &
+          WINSETWINDOWUSHORT          .00028 RESIDENT,  &
+          WINQUERYWINDOWUSHORT        .00029 RESIDENT,  &
+          WINSETWINDOWULONG           .00030 RESIDENT,  &
+          WINQUERYWINDOWULONG         .00031 RESIDENT,  &
+          WINBEGINENUMWINDOWS         .00032 RESIDENT,  &
+          WINGETNEXTWINDOW            .00033 RESIDENT,  &
+          WINENDENUMWINDOWS           .00034 RESIDENT,  &
+          WINWINDOWFROMPOINT          .00035 RESIDENT,  &
+          WINMAPWINDOWPOINTS          .00036 RESIDENT,  &
+          WINSUBCLASSWINDOW           .00037 RESIDENT,  &
+          WINLOCKWINDOW               .00038 RESIDENT,  &
+          WINQUERYWINDOWLOCKCOUNT     .00039 RESIDENT,  &
+          WINREGISTERWINDOWDESTROY    .00040 RESIDENT,  &
+          WINOPENWINDOWDC             .00041 RESIDENT,  &
+          WINGETSCREENPS              .00042 RESIDENT,  &
+          WINGETPS                    .00043 RESIDENT,  &
+          WINRELEASEPS                .00044 RESIDENT,  &
+          WINBEGINPAINT               .00045 RESIDENT,  &
+          WINENDPAINT                 .00046 RESIDENT,  &
+          WININVALIDATERECT           .00047 RESIDENT,  &
+          WININVALIDATEREGION         .00048 RESIDENT,  &
+          WINVALIDATERECT             .00049 RESIDENT,  &
+          WINVALIDATEREGION           .00050 RESIDENT,  &
+          WINQUERYUPDATERECT          .00051 RESIDENT,  &
+          WINQUERYUPDATEREGION        .00052 RESIDENT,  &
+          WINUPDATEWINDOW             .00053 RESIDENT,  &
+          WINEXCLUDEUPDATEREGION      .00054 RESIDENT,  &
+          WINLOCKWINDOWUPDATE         .00055 RESIDENT,  &
+          WINLOCKVISREGIONS           .00056 RESIDENT,  &
+          WINWINDOWFROMDC             .00057 RESIDENT,  &
+          WINCREATEMSGQUEUE           .00058 RESIDENT,  &
+          WINDESTROYMSGQUEUE          .00059 RESIDENT,  &
+          WINQUERYQUEUESTATUS         .00060 RESIDENT,  &
+          WINSENDMSG                  .00061 RESIDENT,  &
+          WINBROADCASTMSG             .00063 RESIDENT,  &
+          WININSENDMSG                .00064 RESIDENT,  &
+          WINGETMSG                   .00065 RESIDENT,  &
+          WINPEEKMSG                  .00066 RESIDENT,  &
+          WINWAITMSG                  .00067 RESIDENT,  &
+          WINDISPATCHMSG              .00068 RESIDENT,  &
+          WINPOSTMSG                  .00069 RESIDENT,  &
+          WINPOSTQUEUEMSG             .00070 RESIDENT,  &
+          WINQUERYMSGPOS              .00071 RESIDENT,  &
+          WINQUERYMSGTIME             .00072 RESIDENT,  &
+          WINCALLMSGFILTER            .00073 RESIDENT,  &
+          WINSETMSGINTEREST           .00074 RESIDENT,  &
+          WINSETCAPTURE               .00075 RESIDENT,  &
+          WINQUERYCAPTURE             .00076 RESIDENT,  &
+          WINSETFOCUS                 .00077 RESIDENT,  &
+          WINQUERYFOCUS               .00078 RESIDENT,  &
+          WINSETACTIVEWINDOW          .00079 RESIDENT,  &
+          WINQUERYACTIVEWINDOW        .00080 RESIDENT,  &
+          WINSETSYSMODALWINDOW        .00081 RESIDENT,  &
+          WINQUERYSYSMODALWINDOW      .00082 RESIDENT,  &
+          WINISTHREADACTIVE           .00083 RESIDENT,  &
+          WINSTARTTIMER               .00084 RESIDENT,  &
+          WINSTOPTIMER                .00085 RESIDENT,  &
+          WINGETCURRENTTIME           .00086 RESIDENT,  &
+          WINLOADPOINTER              .00087 RESIDENT,  &
+          WINCREATEPOINTER            .00088 RESIDENT,  &
+          WINDESTROYPOINTER           .00089 RESIDENT,  &
+          WINQUERYSYSPOINTER          .00091 RESIDENT,  &
+          WINSETPOINTER               .00092 RESIDENT,  &
+          WINQUERYPOINTER             .00093 RESIDENT,  &
+          WINSHOWPOINTER              .00094 RESIDENT,  &
+          WINSETPOINTERPOS            .00095 RESIDENT,  &
+          WINQUERYPOINTERPOS          .00096 RESIDENT,  &
+          WINGETSYSBITMAP             .00097 RESIDENT,  &
+          WINCREATECURSOR             .00098 RESIDENT,  &
+          WINDESTROYCURSOR            .00099 RESIDENT,  &
+          WINSHOWCURSOR               .00100 RESIDENT,  &
+          WINQUERYCURSORINFO          .00101 RESIDENT,  &
+          WINLOADACCELTABLE           .00102 RESIDENT,  &
+          WINCREATEACCELTABLE         .00103 RESIDENT,  &
+          WINDESTROYACCELTABLE        .00104 RESIDENT,  &
+          WINTRANSLATEACCEL           .00105 RESIDENT,  &
+          WINSETACCELTABLE            .00106 RESIDENT,  &
+          WINQUERYACCELTABLE          .00107 RESIDENT,  &
+          WINCOPYACCELTABLE           .00108 RESIDENT,  &
+          WINSETHOOK                  .00109 RESIDENT,  &
+          WINRELEASEHOOK              .00110 RESIDENT,  &
+          WINOPENCLIPBRD              .00111 RESIDENT,  &
+          WINCLOSECLIPBRD             .00112 RESIDENT,  &
+          WINEMPTYCLIPBRD             .00113 RESIDENT,  &
+          WINSETCLIPBRDOWNER          .00114 RESIDENT,  &
+          WINQUERYCLIPBRDOWNER        .00115 RESIDENT,  &
+          WINSETCLIPBRDDATA           .00116 RESIDENT,  &
+          WINQUERYCLIPBRDDATA         .00117 RESIDENT,  &
+          WINENUMCLIPBRDFMTS          .00118 RESIDENT,  &
+          WINQUERYCLIPBRDFMTINFO      .00119 RESIDENT,  &
+          WINSETCLIPBRDVIEWER         .00120 RESIDENT,  &
+          WINQUERYCLIPBRDVIEWER       .00121 RESIDENT,  &
+          WINLOADDLG                  .00122 RESIDENT,  &
+          WINCREATEDLG                .00123 RESIDENT,  &
+          WINPROCESSDLG               .00124 RESIDENT,  &
+          WINDLGBOX                   .00125 RESIDENT,  &
+          WINDISMISSDLG               .00126 RESIDENT,  &
+          WINSENDDLGITEMMSG           .00127 RESIDENT,  &
+          WINSETDLGITEMSHORT          .00128 RESIDENT,  &
+          WINQUERYDLGITEMSHORT        .00129 RESIDENT,  &
+          WINMAPDLGPOINTS             .00130 RESIDENT,  &
+          WINSUBSTITUTESTRINGS        .00132 RESIDENT,  &
+          WINENUMDLGITEM              .00133 RESIDENT,  &
+          WINSETDLGITEMTEXT           .00134 RESIDENT,  &
+          WINQUERYDLGITEMTEXT         .00135 RESIDENT,  &
+          WINLOADMENU                 .00136 RESIDENT,  &
+          WINCREATEMENU               .00137 RESIDENT,  &
+          WINALARM                    .00138 RESIDENT,  &
+          WINMESSAGEBOX               .00139 RESIDENT,  &
+          WINCREATESTDWINDOW          .00140 RESIDENT,  &
+          WINCREATEFRAMECONTROLS      .00141 RESIDENT,  &
+          WINCALCFRAMERECT            .00143 RESIDENT,  &
+          WINFLASHWINDOW              .00144 RESIDENT,  &
+          WINGETMINPOSITION           .00146 RESIDENT,  &
+          WINGETMAXPOSITION           .00147 RESIDENT,  &
+          WINQUERYSYSVALUE            .00149 RESIDENT,  &
+          WINSETSYSVALUE              .00150 RESIDENT,  &
+          WINSETSYSCOLORS             .00151 RESIDENT,  &
+          WINQUERYSYSCOLOR            .00152 RESIDENT,  &
+          WINSCROLLWINDOW             .00153 RESIDENT,  &
+          WINTRACKRECT                .00154 RESIDENT,  &
+          WINSHOWTRACKRECT            .00155 RESIDENT,  &
+          GPILOADBITMAP               .00156 RESIDENT,  &
+          WINLOADSTRING               .00157 RESIDENT,  &
+          WINLOADMESSAGE              .00158 RESIDENT,  &
+          WINSETRECTEMPTY             .00159 RESIDENT,  &
+          WINSETRECT                  .00160 RESIDENT,  &
+          WINCOPYRECT                 .00161 RESIDENT,  &
+          WINISRECTEMPTY              .00162 RESIDENT,  &
+          WINEQUALRECT                .00163 RESIDENT,  &
+          WINPTINRECT                 .00164 RESIDENT,  &
+          WINOFFSETRECT               .00165 RESIDENT,  &
+          WININFLATERECT              .00166 RESIDENT,  &
+          WININTERSECTRECT            .00167 RESIDENT,  &
+          WINUNIONRECT                .00168 RESIDENT,  &
+          WINSUBTRACTRECT             .00169 RESIDENT,  &
+          WINMAKERECT                 .00170 RESIDENT,  &
+          WINMAKEPOINTS               .00171 RESIDENT,  &
+          WININVERTRECT               .00172 RESIDENT,  &
+          WINFILLRECT                 .00173 RESIDENT,  &
+          KBDPACKET                   .00174 RESIDENT,  &
+          WINDRAWPOINTER              .00177 RESIDENT,  &
+          WINDEFWINDOWPROC            .00178 RESIDENT,  &
+          WINDEFDLGPROC               .00179 RESIDENT,  &
+          WINGETKEYSTATE              .00211 RESIDENT,  &
+          WINGETPHYSKEYSTATE          .00212 RESIDENT,  &
+          WINSETKEYBOARDSTATETABLE    .00213 RESIDENT,  &
+          WINENABLEPHYSINPUT          .00214 RESIDENT,  &
+          WINSETCP                    .00215 RESIDENT,  &
+          WINQUERYCP                  .00216 RESIDENT,  &
+          WINQUERYCPLIST              .00217 RESIDENT,  &
+          WINCPTRANSLATESTRING        .00218 RESIDENT,  &
+          WINCPTRANSLATECHAR          .00219 RESIDENT,  &
+          WINCOMPARESTRINGS           .00220 RESIDENT,  &
+          WINUPPER                    .00221 RESIDENT,  &
+          WINUPPERCHAR                .00222 RESIDENT,  &
+          WINNEXTCHAR                 .00223 RESIDENT,  &
+          WINPREVCHAR                 .00224 RESIDENT,  &
+          WINCREATEHEAP               .00225 RESIDENT,  &
+          WINDESTROYHEAP              .00226 RESIDENT,  &
+          WINAVAILMEM                 .00227 RESIDENT,  &
+          WINALLOCMEM                 .00228 RESIDENT,  &
+          WINREALLOCMEM               .00229 RESIDENT,  &
+          WINFREEMEM                  .00230 RESIDENT,  &
+          WINLOCKHEAP                 .00231 RESIDENT,  &
+          WINCREATEATOMTABLE          .00233 RESIDENT,  &
+          WINDESTROYATOMTABLE         .00234 RESIDENT,  &
+          WINADDATOM                  .00235 RESIDENT,  &
+          WINFINDATOM                 .00236 RESIDENT,  &
+          WINDELETEATOM               .00237 RESIDENT,  &
+          WINQUERYATOMUSAGE           .00238 RESIDENT,  &
+          WINQUERYATOMLENGTH          .00239 RESIDENT,  &
+          WINQUERYATOMNAME            .00240 RESIDENT,  &
+          WINQUERYSYSTEMATOMTABLE     .00241 RESIDENT,  &
+          WINGETLASTERROR             .00243 RESIDENT,  &
+          WINGETERRORINFO             .00244 RESIDENT,  &
+          WINFREEERRORINFO            .00245 RESIDENT,  &
+          WININITIALIZE               .00246 RESIDENT,  &
+          WINTERMINATE                .00247 RESIDENT,  &
+          WINCATCH                    .00248 RESIDENT,  &
+          WINTHROW                    .00249 RESIDENT,  &
+          WINQUERYVERSION             .00250 RESIDENT,  &
+          WINISPHYSINPUTENABLED       .00264 RESIDENT,  &
+          WINQUERYWINDOWDC            .00265 RESIDENT,  &
+          WINDRAWBORDER               .00266 RESIDENT,  &
+          WINDRAWTEXT                 .00267 RESIDENT,  &
+          WINDRAWBITMAP               .00268 RESIDENT,  &
+          WINQUERYWINDOWPTR           .00269 RESIDENT,  &
+          WINSETWINDOWPTR             .00270 RESIDENT,  &
+          WINMSGSEMWAIT               .00274 RESIDENT,  &
+          WINMSGMUXSEMWAIT            .00275 RESIDENT,  &
+          WINCANCELSHUTDOWN           .00277 RESIDENT,  &
+          WINSETWINDOWBITS            .00278 RESIDENT,  &
+          WINGETCLIPPS                .00279 RESIDENT,  &
+          WINSAVEWINDOWPOS            .00285 RESIDENT,  &
+          WINFOCUSCHANGE              .00286 RESIDENT,  &
+          WINQUERYQUEUEINFO           .00287 RESIDENT,  &
+          WINSETCLASSMSGINTEREST      .00292 RESIDENT,  &
+          WINQUERYDLGITEMTEXTLENGTH   .00294 RESIDENT,  &
+          WINDDEINITIATE              .00297 RESIDENT,  &
+          WINDDERESPOND               .00298 RESIDENT,  &
+          WINDDEPOSTMSG               .00299 RESIDENT,  &
+          WINSETPRESPARAM             .00301 RESIDENT,  &
+          WINQUERYPRESPARAM           .00302 RESIDENT,  &
+          WINREMOVEPRESPARAM          .00303 RESIDENT,  &
+          WINBUILDPTRHANDLE           .00310 RESIDENT,  &
+          WINQUERYWINDOWMODEL         .00317 RESIDENT,  &
+          WINSETDESKTOPBKGND          .00318 RESIDENT,  &
+          WINQUERYDESKTOPBKGND        .00319 RESIDENT,  &
+          WINPOPUPMENU                .00320 RESIDENT,  &
+          WINREALIZEPALETTE           .00321 RESIDENT,  &
+          WINDELETELIBRARY            .00602 RESIDENT,  &
+          WINLOADPROCEDURE            .00603 RESIDENT,  &
+          WINDELETEPROCEDURE          .00604 RESIDENT,  &
+          WINSETMSGMODE               .00605 RESIDENT,  &
+          WINSETSYNCHROMODE           .00606 RESIDENT,  &
+          WINGETDLGMSG                .00607 RESIDENT,  &
+          WINREGISTERUSERMSG          .00608 RESIDENT,  &
+          WINQUERYANCHORBLOCK         .00609 RESIDENT,  &
+          WINREGISTERUSERDATATYPE     .00612 RESIDENT,  &
+          WINISWINDOWSHOWING          .00614 RESIDENT,  &
+          WINLOADLIBRARY              .00615 RESIDENT,  &
+          WINCREATEPOINTERINDIRECT    .00616 RESIDENT,  &
+          WINQUERYPOINTERINFO         .00617 RESIDENT,  &
+          WINGETERASEPS               .00624 RESIDENT,  &
+          WINRELEASEERASEPS           .00625 RESIDENT,  &
+          WINSTRETCHPOINTER           .00632 RESIDENT,  &
+          WINSETPOINTEROWNER          .00633 RESIDENT,  &
+          WINLOCKPOINTERUPDATE        .00639 RESIDENT,  &
+          WINCHECKINPUT               .00640 RESIDENT,  &
+          WINSETCLASSTHUNKPROC        .00959 RESIDENT,  &
+          WINQUERYCLASSTHUNKPROC      .00960 RESIDENT,  &
+          WINSETWINDOWTHUNKPROC       .00961 RESIDENT,  &
+          WINQUERYWINDOWTHUNKPROC     .00962 RESIDENT,  &
+          WINENUMPROPERTIES           .01052 RESIDENT,  &
+          WINQUERYPROPERTY            .01053 RESIDENT,  &
+          WINREMOVEPROPERTY           .01054 RESIDENT,  &
+          WINSETPROPERTY              .01055 RESIDENT,  &
+          WINENUMCLASSPROPERTIES      .01056 RESIDENT,  &
+          WINQUERYCLASSPROPERTY       .01057 RESIDENT,  &
+          WINREMOVECLASSPROPERTY      .01058 RESIDENT,  &
+          WINSETCLASSPROPERTY         .01059 RESIDENT,  &
+          WINSETLANGINFO              .01500 RESIDENT,  &
+          WINQUERYLANGINFO            .01501 RESIDENT,  &
+          WINSETKBDLAYER              .01502 RESIDENT,  &
+          WINQUERYKBDLAYER            .01503 RESIDENT,  &
+          WINSETLANGVIEWER            .01504 RESIDENT,  &
+          WINQUERYLANGVIEWER          .01505 RESIDENT,  &
+          WINPOUREVENT                .01600 RESIDENT,  &
+          WINSETMSGQIMINFO            .01601 RESIDENT,  &
+          WINQUERYMSGQIMINFO          .01602 RESIDENT,  &
+          OLDWINQUERYPOINTERINFO      .00090,  &
+          WINFORMATFRAME              .00142,  &
+          WINSYNCSTARTPGM             .00197,  &
+          WINSCREENSWITCH             .00198,  &
+          WINRESETSYSTEM              .00199,  &
+          WINQUERYHUNGPROCESS         .00200,  &
+          WINLOADSTRINGTABLE          .00201,  &
+          WINLOADVKEYGLYPHXLATETBL    .00202,  &
+          WINLOADCHARXLATETBL         .00203,  &
+          WINSETVKEYGLYPHXLATETBL     .00204,  &
+          WINSETCHARXLATETBL          .00205,  &
+          WINQUERYVKEYGLYPHXLATETBL   .00206,  &
+          WINQUERYCHARXLATETBL        .00207,  &
+          WINVKEYGLYPHCHARXLATE       .00208,  &
+          WINVKEYTOSCANID             .00209,  &
+          WINQUERYPROCESSCP           .00210,  &
+          WINSETLASTERROR             .00242,  &
+          FSRSEMENTER                 .00251,  &
+          FSRSEMLEAVE                 .00252,  &
+          FSRSEMEXIT                  .00253,  &
+          FSRSEMCHECK                 .00254,  &
+          FSRSEMENTERP                .00255,  &
+          AABGETREG                   .00256,  &
+          AABSETREG                   .00257,  &
+          VALIDATESELECTOR            .00258,  &
+          LOADMODULEHANDLE            .00259,  &
+          GETSCREENSELECTOR           .00260,  &
+          IDENTIFYCODESELECTOR        .00261,  &
+          WINQUERYWINDOWSGID          .00262,  &
+          _WINSETERRORINFO            .00263,  &
+          WIN16INITIALIZESYSTEM       .00271,  &
+          WINTERMINATESYSTEM          .00272,  &
+          WIN16LOCKSTARTINPUT         .00273,  &
+          WINSYSTEMSHUTDOWN           .00276,  &
+          WINSENDQUEUEMSG             .00281,  &
+          WINSETQUEUEPROC             .00282,  &
+          WINDEFQUEUEPROC             .00283,  &
+          WINCALLHELPHOOK             .00288,  &
+          WINSETATOMTABLEOWNER        .00289,  &
+          WINISSHUTTINGDOWN           .00290,  &
+          WINTERMINATESHUTDOWN        .00291,  &
+          VISREGIONCALLBACK           .00293,  &
+          WINQUERYKBDLAYOUT           .00295,  &
+          WINSETKBDLAYOUT             .00296,  &
+          WIN16CANCELMODE             .00300,  &
+          WINTHREADASSOCQUEUE         .00304,  &
+          WINQUEUEFROMID              .00305,  &
+          WINQUERYSENDMSG             .00306,  &
+          WINREPLYMSG                 .00307,  &
+          WINWAKETHREAD               .00308,  &
+          WINLOCKINPUT                .00309,  &
+          DUMWINCREATEHELPINSTANCE    .00311,  &
+          DUMWINDESTROYHELPINSTANCE   .00312,  &
+          DUMWINASSOCIATEHELPINSTANCE .00313,  &
+          DUMWINCREATEHELPTABLE       .00314,  &
+          DUMWINLOADHELPTABLE         .00315,  &
+          DUMWINQUERYHELPINSTANCE     .00316,  &
+          DUMMYHELPENTRY              .00322,  &
+          GETPMDDCODESELECTOR         .00325,  &
+          WINSEMENTER                 .00326,  &
+          WINSEMLEAVE                 .00327,  &
+          WINQUERYPWND                .00328,  &
+          WINQUERYSTATE               .00329,  &
+          WINLOADANIPOINTER           .00330,  &
+          WINDESTROYANIPOINTER        .00331,  &
+          WINSETANIPOINTER            .00332,  &
+          WINENUMVKEYSCANIDS          .00333,  &
+          WINSEMQUERY                 .00334,  &
+          WINLOADTRANSLATIONTABLE     .00400,  &
+          WINSETKBDLAYOUT2            .00401,  &
+          WINSEAMLESSBOX              .00495,  &
+          WINJIGGLEMOUSE              .00497,  &
+          WINTRACKSEAMLESS            .00498,  &
+          WINREGISTERSEAMLESSPROC     .00499,  &
+          ABNORMALPROCESSEXIT         .00500,  &
+          WINPROFCONTROL              .00508,  &
+          DEBUGINPUTENABLE            .00509,  &
+          DEBUGINPUT                  .00510,  &
+          DEBUGOUTPUT                 .00511,  &
+          DEBUGCURPOS                 .00512,  &
+          DEBUGCLS                    .00513,  &
+          WINDEBUGBREAK               .00514,  &
+          DEBUGREDIRECT               .00515,  &
+          INPUTGETDEVICEINFO          .00590,  &
+          STARTTIMER                  .00600,  &
+          DESTROYTIMERS               .00601,  &
+          WINLANGSUPWINDOWPROC        .00610,  &
+          WINLANGSUPDLGPROC           .00611,  &
+          FARCALLHOOK                 .00613,  &
+          WINSETMENUDATA              .00618,  &
+          WINQUERYMENUDATA            .00619,  &
+          WINMENUINDEXFROMID          .00620,  &
+          WINFORCEMENUREDRAW          .00621,  &
+          WINGETSCANSTATE             .00622,  &
+          WINSETSCANSTATETABLE        .00623,  &
+          WINSETWINDOWDC              .00626,  &
+          WINTRANSLATECHAR            .00627,  &
+          WINPORTHOLEUTIL             .00628,  &
+          WINEXPLODEWINDOW            .00629,  &
+          WINSETACCELTABLEVALUE       .00630,  &
+          WINQUERYACCELTABLEVALUE     .00631,  &
+          WINGETFRAMETREEPPSIZE       .00634,  &
+          WINGETFRAMETREEPPS          .00635,  &
+          WINSETFRAMETREEPPS          .00636,  &
+          WIN16GETMINWINDOWVIEWER     .00637,  &
+          WINQUERYWORKPLACEWINDOW     .00638,  &
+          FARFLUSHBUFHOOK             .00641,  &
+          WinAddAtom                  .00700,  &
+          WinAlarm                    .00701,  &
+          WinBeginEnumWindows         .00702,  &
+          WinBeginPaint               .00703,  &
+          WinCalcFrameRect            .00704,  &
+          WinCancelShutdown           .00705,  &
+          WinCloseClipbrd             .00707,  &
+          WinCompareStrings           .00708,  &
+          WinCopyAccelTable           .00709,  &
+          WinCopyRect                 .00710,  &
+          WinCpTranslateChar          .00711,  &
+          WinCpTranslateString        .00712,  &
+          WinCreateAccelTable         .00713,  &
+          WinCreateAtomTable          .00714,  &
+          WinCreateCursor             .00715,  &
+          WinCreatePointer            .00717,  &
+          WinDdeInitiate              .00718,  &
+          WinDdePostMsg               .00719,  &
+          WinDdeRespond               .00720,  &
+          WinDeleteAtom               .00721,  &
+          WinDeleteLibrary            .00722,  &
+          WinDestroyAccelTable        .00723,  &
+          WinDestroyAtomTable         .00724,  &
+          WinDestroyCursor            .00725,  &
+          WinDestroyPointer           .00727,  &
+          WinDismissDlg               .00729,  &
+          WinDrawBitmap               .00730,  &
+          WinDrawBorder               .00731,  &
+          WinDrawPointer              .00732,  &
+          WinEmptyClipbrd             .00733,  &
+          WinEnablePhysInput          .00734,  &
+          WinEnableWindow             .00735,  &
+          WinEnableWindowUpdate       .00736,  &
+          WinEndEnumWindows           .00737,  &
+          WinEndPaint                 .00738,  &
+          WinEnumClipbrdFmts          .00739,  &
+          WinEnumDlgItem              .00740,  &
+          WinEqualRect                .00741,  &
+          WinExcludeUpdateRegion      .00742,  &
+          WinFillRect                 .00743,  &
+          WinFindAtom                 .00744,  &
+          WinFlashWindow              .00745,  &
+          WinFocusChange              .00746,  &
+          WinFreeErrorInfo            .00748,  &
+          WinGetClipPS                .00749,  &
+          WinGetCurrentTime           .00750,  &
+          WinGetErrorInfo             .00751,  &
+          WinGetKeyState              .00752,  &
+          WinGetLastError             .00753,  &
+          WinGetMaxPosition           .00754,  &
+          WinGetMinPosition           .00755,  &
+          WinGetNextWindow            .00756,  &
+          WinGetPS                    .00757,  &
+          WinGetPhysKeyState          .00758,  &
+          WinGetScreenPS              .00759,  &
+          WinGetSysBitmap             .00760,  &
+          WinInSendMsg                .00761,  &
+          WinInflateRect              .00762,  &
+          WinIntersectRect            .00764,  &
+          WinInvalidateRect           .00765,  &
+          WinInvalidateRegion         .00766,  &
+          WinInvertRect               .00767,  &
+          WinIsChild                  .00768,  &
+          WinIsPhysInputEnabled       .00769,  &
+          WinIsRectEmpty              .00770,  &
+          WinIsThreadActive           .00771,  &
+          WinIsWindow                 .00772,  &
+          WinIsWindowEnabled          .00773,  &
+          WinIsWindowShowing          .00774,  &
+          WinIsWindowVisible          .00775,  &
+          WinLoadAccelTable           .00776,  &
+          WinLoadLibrary              .00777,  &
+          WinLoadMenu                 .00778,  &
+          WinLoadMessage              .00779,  &
+          WinLoadPointer              .00780,  &
+          WinLoadString               .00781,  &
+          WinLockVisRegions           .00782,  &
+          WinLockWindowUpdate         .00784,  &
+          WinMakePoints               .00785,  &
+          WinMakeRect                 .00786,  &
+          WinMapDlgPoints             .00787,  &
+          WinMapWindowPoints          .00788,  &
+          WinMessageBox               .00789,  &
+          WinMsgSemWait               .00790,  &
+          WinNextChar                 .00791,  &
+          WinOffsetRect               .00792,  &
+          WinOpenClipbrd              .00793,  &
+          WinOpenWindowDC             .00794,  &
+          WinPrevChar                 .00795,  &
+          WinProcessDlg               .00796,  &
+          WinPtInRect                 .00797,  &
+          WinQueryAccelTable          .00798,  &
+          WinQueryActiveWindow        .00799,  &
+          WinQueryAnchorBlock         .00800,  &
+          WinQueryAtomLength          .00801,  &
+          WinQueryAtomName            .00802,  &
+          WinQueryAtomUsage           .00803,  &
+          WinQueryCapture             .00804,  &
+          WinQueryClassName           .00805,  &
+          WinQueryClipbrdData         .00806,  &
+          WinQueryClipbrdFmtInfo      .00807,  &
+          WinQueryClipbrdOwner        .00808,  &
+          WinQueryClipbrdViewer       .00809,  &
+          WinQueryCp                  .00810,  &
+          WinQueryCpList              .00811,  &
+          WinQueryCursorInfo          .00812,  &
+          WinQueryDesktopWindow       .00813,  &
+          WinQueryDlgItemShort        .00814,  &
+          WinQueryDlgItemText         .00815,  &
+          WinQueryDlgItemTextLength   .00816,  &
+          WinQueryFocus               .00817,  &
+          WinQueryMsgPos              .00818,  &
+          WinQueryMsgTime             .00819,  &
+          WinQueryObjectWindow        .00820,  &
+          WinQueryPointer             .00821,  &
+          WinQueryPointerInfo         .00822,  &
+          WinQueryPointerPos          .00823,  &
+          WinQueryQueueInfo           .00824,  &
+          WinQueryQueueStatus         .00825,  &
+          WinQuerySysColor            .00826,  &
+          WinQuerySysModalWindow      .00827,  &
+          WinQuerySysPointer          .00828,  &
+          WinQuerySysValue            .00829,  &
+          WinQuerySystemAtomTable     .00830,  &
+          WinQueryUpdateRect          .00831,  &
+          WinQueryUpdateRegion        .00832,  &
+          WinQueryVersion             .00833,  &
+          WinQueryWindow              .00834,  &
+          WinQueryWindowDC            .00835,  &
+          WinQueryWindowPos           .00837,  &
+          WinQueryWindowProcess       .00838,  &
+          WinQueryWindowPtr           .00839,  &
+          WinQueryWindowRect          .00840,  &
+          WinQueryWindowText          .00841,  &
+          WinQueryWindowTextLength    .00842,  &
+          WinQueryWindowULong         .00843,  &
+          WinQueryWindowUShort        .00844,  &
+          WinRegisterUserDatatype     .00845,  &
+          WinRegisterUserMsg          .00846,  &
+          WinReleasePS                .00848,  &
+          WinScrollWindow             .00849,  &
+          WinSetAccelTable            .00850,  &
+          WinSetActiveWindow          .00851,  &
+          WinSetCapture               .00852,  &
+          WinSetClassMsgInterest      .00853,  &
+          WinSetClipbrdData           .00854,  &
+          WinSetClipbrdOwner          .00855,  &
+          WinSetClipbrdViewer         .00856,  &
+          WinSetCp                    .00857,  &
+          WinSetDlgItemShort          .00858,  &
+          WinSetDlgItemText           .00859,  &
+          WinSetFocus                 .00860,  &
+          WinSetMsgInterest           .00861,  &
+          WinSetMsgMode               .00862,  &
+          WinSetMultWindowPos         .00863,  &
+          WinSetOwner                 .00864,  &
+          WinSetParent                .00865,  &
+          WinSetPointer               .00866,  &
+          WinSetPointerPos            .00867,  &
+          WinSetRect                  .00868,  &
+          WinSetRectEmpty             .00869,  &
+          WinSetSynchroMode           .00870,  &
+          WinSetSysColors             .00871,  &
+          WinSetSysModalWindow        .00872,  &
+          WinSetSysValue              .00873,  &
+          WinSetWindowBits            .00874,  &
+          WinSetWindowPos             .00875,  &
+          WinSetWindowPtr             .00876,  &
+          WinSetWindowText            .00877,  &
+          WinSetWindowULong           .00878,  &
+          WinSetWindowUShort          .00879,  &
+          WinShowCursor               .00880,  &
+          WinShowPointer              .00881,  &
+          WinShowTrackRect            .00882,  &
+          WinShowWindow               .00883,  &
+          WinStartTimer               .00884,  &
+          WinStopTimer                .00885,  &
+          WinSubstituteStrings        .00886,  &
+          WinSubtractRect             .00887,  &
+          WinTrackRect                .00890,  &
+          WinUnionRect                .00891,  &
+          WinUpdateWindow             .00892,  &
+          WinUpper                    .00893,  &
+          WinUpperChar                .00894,  &
+          WinValidateRect             .00895,  &
+          WinValidateRegion           .00896,  &
+          WinWaitMsg                  .00897,  &
+          WinWindowFromDC             .00898,  &
+          WinWindowFromID             .00899,  &
+          WinWindowFromPoint          .00900,  &
+          WinBroadcastMsg             .00901,  &
+          WinPostQueueMsg             .00902,  &
+          WinSendDlgItemMsg           .00903,  &
+          WinTranslateAccel           .00904,  &
+          WinCallMsgFilter            .00905,  &
+          WinCreateFrameControls      .00906,  &
+          WinCreateMenu               .00907,  &
+          WinCreateWindow             .00909,  &
+          WinDefDlgProc               .00910,  &
+          WinDrawText                 .00913,  &
+          WinGetDlgMsg                .00914,  &
+          WinMsgMuxSemWait            .00916,  &
+          WinMultWindowFromIDs        .00917,  &
+          WinPeekMsg                  .00918,  &
+          WinPostMsg                  .00919,  &
+          WinSetKeyboardStateTable    .00921,  &
+          WinCreateDlg                .00922,  &
+          WinDlgBox                   .00923,  &
+          WinLoadDlg                  .00924,  &
+          WinQueryClassInfo           .00925,  &
+          WinReleaseHook              .00927,  &
+          WinSetHook                  .00928,  &
+          WinSubclassWindow           .00929,  &
+          WinSetClassThunkProc        .00930,  &
+          WinQueryClassThunkProc      .00931,  &
+          WinSetWindowThunkProc       .00932,  &
+          WinQueryWindowThunkProc     .00933,  &
+          WinQueryWindowModel         .00934,  &
+          WinSetDesktopBkgnd          .00935,  &
+          WinQueryDesktopBkgnd        .00936,  &
+          WinPopupMenu                .00937,  &
+          WinSetPresParam             .00938,  &
+          WinQueryPresParam           .00939,  &
+          WinRemovePresParam          .00940,  &
+          WinRealizePalette           .00941,  &
+          WinCreatePointerIndirect    .00942,  &
+          WinSaveWindowPos            .00943,  &
+          WINCREATEFARHEAP            .00947,  &
+          WINDESTROYFARHEAP           .00948,  &
+          WINALLOCFARMEM              .00949,  &
+          WINFREEFARMEM               .00950,  &
+          WINREALLOCFARMEM            .00951,  &
+          WinGetErasePS               .00952,  &
+          WinReleaseErasePS           .00953,  &
+          Undocumented1               .00954,  &
+          Undocumented2               .00955,  &
+          Undocumented3               .00956,  &
+          Undocumented4               .00957,  &
+          Undocumented5               .00958,  &
+          WinSystemShutdown           .00963,  &
+          WinBuildPtrHandle           .00964,  &
+          WinExplodeWindow            .00965,  &
+          WinSetAccelTableValue       .00966,  &
+          WinQueryAccelTableValue     .00967,  &
+          WinStretchPointer           .00968,  &
+          Undocumented6               .00969,  &
+          Undocumented7               .00970,  &
+          WinSetPointerOwner          .00971,  &
+          WinGetFrameTreePPSize       .00972,  &
+          WinGetFrameTreePPs          .00973,  &
+          WinSetFrameTreePPs          .00974,  &
+          WinQueryProcessCP           .00975,  &
+          WinVisRegionNotify          .00976,  &
+          WinSetErrorInfo             .00977,  &
+          WinWaitEventSem             .00978,  &
+          WinRequestMutexSem          .00979,  &
+          WinWaitMuxWaitSem           .00980,  &
+          WINSETSYSCLIPBRDVIEWER      .00981,  &
+          WinSetSysClipbrdViewer      .00982,  &
+          WinSemQuery                 .00983,  &
+          WinSemEnter                 .00984,  &
+          WinSemLeave                 .00985,  &
+          WinLoadProcedure            .00986,  &
+          WinDeleteProcedure          .00987,  &
+          WinMoveCursor               .00988,  &
+          WinQuerySendMsg             .00990,  &
+          WinReplyMsg                 .00991,  &
+          WinWakeThread               .00992,  &
+          WinQueueFromID              .00993,  &
+          WinThreadAssocQueue         .00994,  &
+          WinLockInput                .00995,  &
+          WinSetSysFont               .00996,  &
+          WinLockPointerUpdate        .00997,  &
+          WinCheckInput               .00998,  &
+          Undocumented8               .00999,  &
+          WinQueryVisibleRegion       .01000,  &
+          WinSetVisibleRegionNotify   .01001,  &
+          WinSetSysPointerData        .01002,  &
+          WinQuerySysPointerData      .01003,  &
+          WinSeamlessBox              .01004,  &
+          WinJiggleMouse              .01005,  &
+          WinTrackSeamless            .01006,  &
+          WinRegisterSeamlessProc     .01007,  &
+          WinSetCharXlateTbl          .01008,  &
+          WinMspInit                  .01009,  &
+          WinMspAlloc                 .01010,  &
+          WinMspFree                  .01011,  &
+          Undocumented9               .01012,  &
+          Undocumented10              .01013,  &
+          WinRegisterPen              .01014,  &
+          WinMessageBox2              .01015,  &
+          fPenAvail                   .01026,  &
+          WinDrawTabbedText           .01027,  &
+          PMREQUESTMUTEXSEM           .01028,  &
+          PMRELEASEMUTEXSEM           .01029,  &
+          WinQueryPointerClipRect     .01030,  &
+          WinSetPointerClipRect       .01031,  &
+          WinWaitMsgTimeout           .01033,  &
+          WinIsWindowOfClass          .01034,  &
+          WinSetAtomTableOwner        .01035,  &
+          WinXxCreateHeap             .01036,  &
+          WinXxDestroyHeap            .01037,  &
+          WinXxAllocMem               .01038,  &
+          WinXxFreeMem                .01039,  &
+          WinXxAllocFill              .01040,  &
+          WinXxReallocMem             .01041,  &
+          WinXxQueryMemSize           .01042,  &
+          WinSetClipRegion            .01043,  &
+          WinQueryClipRegion          .01044,  &
+          Undocumented11              .01045,  &
+          Undocumented12              .01046,  &
+          Undocumented13              .01047,  &
+          Undocumented14              .01048,  &
+          Undocumented15              .01049,  &
+          Undocumented16              .01050,  &
+          Undocumented17              .01051,  &
+          Undocumented18              .01060,  &
+          Undocumented19              .01061,  &
+          Undocumented20              .01062,  &
+          WinLoadVkeyGlyphXlatetbl    .01063,  &
+          WinSetVKeyGlyphXlatetbl     .01064,  &
+          WinQueryVKeyGlyphXlatetbl   .01065,  &
+          WinTrackWindow              .01066,  &
+          WinSemEnterTimeout          .01067,  &
+          Undocumented21              .01068,  &
+          Undocumented22              .01069,  &
+          Undocumented23              .01070,  &
+          Undocumented24              .01071,  &
+          Undocumented25              .01072,  &
+          Undocumented26              .01073,  &
+          Undocumented27              .01074,  &
+          Undocumented28              .01075,  &
+          Undocumented29              .10000,  &
+          Undocumented30              .10001,  &
+          Undocumented31              .10002,  &
+          Undocumented32              .10004,  &
+          Undocumented33              .10005,  &
+          Undocumented34              .10007,  &
+          Undocumented35              .10018,  &
+          Undocumented36              .10019,  &
+          Undocumented37              .10020,  &
+          Undocumented38              .10021
+DEST     = os2$(SEP)dll
+INSTALL_PRE = 1
 
-!include $(%ROOT)/mk/all.mk
 
-all: $(PROJ).dll .SYMBOLIC
+!include $(%ROOT)/mk/appsos2.mk
 
-$(PROJ).dll: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk format    os2 lx dll initinstance terminstance
- @%append $^&.lnk option    manyautodata
- @%append $^&.lnk option    caseexact
- @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk import
- @%append $^&.lnk   WinInitialize      PMMERGE.5201,
- @%append $^&.lnk   WinTerminate       PMMERGE.5396,
- @%append $^&.lnk   WinCreateMsgQueue  PMMERGE.5136,
- @%append $^&.lnk   WinDestroyMsgQueue PMMERGE.5154,
- @%append $^&.lnk   WinDispatchMsg     PMMERGE.5158,
- @%append $^&.lnk   WinGetMsg          PMMERGE.5192,
- @%append $^&.lnk   WinSendMsg         PMMERGE.5334,
- @%append $^&.lnk   WinRegisterClass   PMMERGE.5315,
- @%append $^&.lnk   WinCreateStdWindow PMMERGE.5139,
- @%append $^&.lnk   WinDefWindowProc   PMMERGE.5147,
- @%append $^&.lnk   WinDestroyWindow   PMMERGE.5156,
- @%append $^&.lnk   WINQUERYDESKTOPWINDOW     PMMERGE.3047,
- @%append $^&.lnk   WINQUERYOBJECTWINDOW      PMMERGE.3193,
- @%append $^&.lnk   WINREGISTERCLASS          PMMERGE.3058,
- @%append $^&.lnk   WINQUERYCLASSNAME         PMMERGE.3178,
- @%append $^&.lnk   WINQUERYCLASSINFO         PMMERGE.2065,
- @%append $^&.lnk   WINCREATEWINDOW           PMMERGE.3022,
- @%append $^&.lnk   WINDESTROYWINDOW          PMMERGE.3024,
- @%append $^&.lnk   WINSETWINDOWPOS           PMMERGE.3072,
- @%append $^&.lnk   WINSETMULTWINDOWPOS       PMMERGE.3066,
- @%append $^&.lnk   WINQUERYWINDOWPOS         PMMERGE.3053,
- @%append $^&.lnk   WINENABLEWINDOW           PMMERGE.3113,
- @%append $^&.lnk   WINISWINDOWENABLED        PMMERGE.3154,
- @%append $^&.lnk   WINSHOWWINDOW             PMMERGE.3074,
- @%append $^&.lnk   WINENABLEWINDOWUPDATE     PMMERGE.3114,
- @%append $^&.lnk   WINISWINDOWVISIBLE        PMMERGE.3036,
- @%append $^&.lnk   WINSETWINDOWTEXT          PMMERGE.3073,
- @%append $^&.lnk   WINQUERYWINDOWTEXT        PMMERGE.3216,
- @%append $^&.lnk   WINQUERYWINDOWTEXTLENGTH  PMMERGE.3217,
- @%append $^&.lnk   WINWINDOWFROMID           PMMERGE.3078,
- @%append $^&.lnk   WINMULTWINDOWFROMIDS      PMMERGE.2066,
- @%append $^&.lnk   WINISWINDOW               PMMERGE.3035,
- @%append $^&.lnk   WINISCHILD                PMMERGE.3034,
- @%append $^&.lnk   WINSETPARENT              PMMERGE.3067,
- @%append $^&.lnk   WINSETOWNER               PMMERGE.3262,
- @%append $^&.lnk   WINQUERYWINDOW            PMMERGE.3052,
- @%append $^&.lnk   WINQUERYWINDOWRECT        PMMERGE.3055,
- @%append $^&.lnk   WINQUERYWINDOWPROCESS     PMMERGE.3054,
- @%append $^&.lnk   WINSETWINDOWUSHORT        PMMERGE.3277,
- @%append $^&.lnk   WINQUERYWINDOWUSHORT      PMMERGE.3057,
- @%append $^&.lnk   WINSETWINDOWULONG         PMMERGE.3276,
- @%append $^&.lnk   WINQUERYWINDOWULONG       PMMERGE.3056,
- @%append $^&.lnk   WINBEGINENUMWINDOWS       PMMERGE.3015,
- @%append $^&.lnk   WINGETNEXTWINDOW          PMMERGE.3031,
- @%append $^&.lnk   WINENDENUMWINDOWS         PMMERGE.3115,
- @%append $^&.lnk   WINWINDOWFROMPOINT        PMMERGE.3308,
- @%append $^&.lnk   WINMAPWINDOWPOINTS        PMMERGE.3166,
- @%append $^&.lnk   WINSUBCLASSWINDOW         PMMERGE.3075,
- @%append $^&.lnk   WINLOCKWINDOW             PMMERGE.2067,
- @%append $^&.lnk   WINQUERYWINDOWLOCKCOUNT   PMMERGE.2068,
- @%append $^&.lnk   WINREGISTERWINDOWDESTROY  PMMERGE.3225,
- @%append $^&.lnk   WINOPENWINDOWDC           PMMERGE.3041,
- @%append $^&.lnk   WINGETSCREENPS            PMMERGE.3139,
- @%append $^&.lnk   WINGETPS                  PMMERGE.3137,
- @%append $^&.lnk   WINRELEASEPS              PMMERGE.3228,
- @%append $^&.lnk   WINBEGINPAINT             PMMERGE.3016,
- @%append $^&.lnk   WINENDPAINT               PMMERGE.3027,
- @%append $^&.lnk   WININVALIDATERECT         PMMERGE.3033,
- @%append $^&.lnk   WININVALIDATEREGION       PMMERGE.3149,
- @%append $^&.lnk   WINVALIDATERECT           PMMERGE.3302,
- @%append $^&.lnk   WINVALIDATEREGION         PMMERGE.3303,
- @%append $^&.lnk   WINQUERYUPDATERECT        PMMERGE.3210,
- @%append $^&.lnk   WINQUERYUPDATEREGION      PMMERGE.3211,
- @%append $^&.lnk   WINUPDATEWINDOW           PMMERGE.3301,
- @%append $^&.lnk   WINEXCLUDEUPDATEREGION    PMMERGE.3122,
- @%append $^&.lnk   WINLOCKWINDOWUPDATE       PMMERGE.3164,
- @%append $^&.lnk   WINLOCKVISREGIONS         PMMERGE.3163,
- @%append $^&.lnk   WINWINDOWFROMDC           PMMERGE.3307,
- @%append $^&.lnk   WINCREATEMSGQUEUE         PMMERGE.3020,
- @%append $^&.lnk   WINDESTROYMSGQUEUE        PMMERGE.3023,
- @%append $^&.lnk   WINQUERYQUEUESTATUS       PMMERGE.3200,
- @%append $^&.lnk   WINSENDMSG                PMMERGE.3062,
- @%append $^&.lnk   WINBROADCASTMSG          PMMERGE.3017,
- @%append $^&.lnk   WININSENDMSG             PMMERGE.3146,
- @%append $^&.lnk   WINGETMSG                PMMERGE.3030,
- @%append $^&.lnk   WINPEEKMSG               PMMERGE.3042,
- @%append $^&.lnk   WINWAITMSG               PMMERGE.3305,
- @%append $^&.lnk   WINDISPATCHMSG           PMMERGE.3025,
- @%append $^&.lnk   WINPOSTMSG               PMMERGE.3043,
- @%append $^&.lnk   WINPOSTQUEUEMSG          PMMERGE.3173,
- @%append $^&.lnk   WINQUERYMSGPOS           PMMERGE.3191,
- @%append $^&.lnk   WINQUERYMSGTIME          PMMERGE.3192,
- @%append $^&.lnk   WINCALLMSGFILTER         PMMERGE.3084,
- @%append $^&.lnk   WINSETMSGINTEREST        PMMERGE.3260,
- @%append $^&.lnk   WINSETCAPTURE            PMMERGE.3245,
- @%append $^&.lnk   WINQUERYCAPTURE          PMMERGE.3176,
- @%append $^&.lnk   WINSETFOCUS              PMMERGE.3065,
- @%append $^&.lnk   WINQUERYFOCUS            PMMERGE.3048,
- @%append $^&.lnk   WINSETACTIVEWINDOW       PMMERGE.3063,
- @%append $^&.lnk   WINQUERYACTIVEWINDOW     PMMERGE.3045,
- @%append $^&.lnk   WINSETSYSMODALWINDOW     PMMERGE.3069,
- @%append $^&.lnk   WINQUERYSYSMODALWINDOW   PMMERGE.3050,
- @%append $^&.lnk   WINISTHREADACTIVE        PMMERGE.3153,
- @%append $^&.lnk   WINSTARTTIMER            PMMERGE.3282,
- @%append $^&.lnk   WINSTOPTIMER             PMMERGE.3284,
- @%append $^&.lnk   WINGETCURRENTTIME        PMMERGE.3129,
- @%append $^&.lnk   WINLOADPOINTER           PMMERGE.2069,
- @%append $^&.lnk   WINCREATEPOINTER         PMMERGE.2070,
- @%append $^&.lnk   WINDESTROYPOINTER        PMMERGE.2071,
- @%append $^&.lnk   OLDWINQUERYPOINTERINFO   PMMERGE.2072,
- @%append $^&.lnk   WINQUERYSYSPOINTER       PMMERGE.2073,
- @%append $^&.lnk   WINSETPOINTER            PMMERGE.3263,
- @%append $^&.lnk   WINQUERYPOINTER          PMMERGE.3194,
- @%append $^&.lnk   WINSHOWPOINTER           PMMERGE.3279,
- @%append $^&.lnk   WINSETPOINTERPOS         PMMERGE.3265,
- @%append $^&.lnk   WINQUERYPOINTERPOS       PMMERGE.3195,
- @%append $^&.lnk   WINGETSYSBITMAP          PMMERGE.2074,
- @%append $^&.lnk   WINCREATECURSOR          PMMERGE.3091,
- @%append $^&.lnk   WINDESTROYCURSOR         PMMERGE.3104,
- @%append $^&.lnk   WINSHOWCURSOR            PMMERGE.3278,
- @%append $^&.lnk   WINQUERYCURSORINFO       PMMERGE.2075,
- @%append $^&.lnk   WINLOADACCELTABLE        PMMERGE.2076,
- @%append $^&.lnk   WINCREATEACCELTABLE      PMMERGE.2077,
- @%append $^&.lnk   WINDESTROYACCELTABLE     PMMERGE.2078,
- @%append $^&.lnk   WINTRANSLATEACCEL        PMMERGE.3298,
- @%append $^&.lnk   WINSETACCELTABLE         PMMERGE.3241,
- @%append $^&.lnk   WINQUERYACCELTABLE       PMMERGE.3174,
- @%append $^&.lnk   WINCOPYACCELTABLE        PMMERGE.2079,
- @%append $^&.lnk   WINSETHOOK               PMMERGE.3257,
- @%append $^&.lnk   WINRELEASEHOOK           PMMERGE.3227,
- @%append $^&.lnk   WINOPENCLIPBRD           PMMERGE.3170,
- @%append $^&.lnk   WINCLOSECLIPBRD          PMMERGE.3089,
- @%append $^&.lnk   WINEMPTYCLIPBRD          PMMERGE.3111,
- @%append $^&.lnk   WINSETCLIPBRDOWNER       PMMERGE.3249,
- @%append $^&.lnk   WINQUERYCLIPBRDOWNER     PMMERGE.3181,
- @%append $^&.lnk   WINSETCLIPBRDDATA        PMMERGE.2080,
- @%append $^&.lnk   WINQUERYCLIPBRDDATA      PMMERGE.3180,
- @%append $^&.lnk   WINENUMCLIPBRDFMTS       PMMERGE.3119,
- @%append $^&.lnk   WINQUERYCLIPBRDFMTINFO   PMMERGE.2081,
- @%append $^&.lnk   WINSETCLIPBRDVIEWER      PMMERGE.3250,
- @%append $^&.lnk   WINQUERYCLIPBRDVIEWER    PMMERGE.3182,
- @%append $^&.lnk   WINLOADDLG               PMMERGE.3037,
- @%append $^&.lnk   WINCREATEDLG             PMMERGE.3092,
- @%append $^&.lnk   WINPROCESSDLG            PMMERGE.3044,
- @%append $^&.lnk   WINDLGBOX                PMMERGE.3107,
- @%append $^&.lnk   WINDISMISSDLG            PMMERGE.3106,
- @%append $^&.lnk   WINSENDDLGITEMMSG        PMMERGE.3061,
- @%append $^&.lnk   WINSETDLGITEMSHORT       PMMERGE.3252,
- @%append $^&.lnk   WINQUERYDLGITEMSHORT     PMMERGE.3185,
- @%append $^&.lnk   WINMAPDLGPOINTS          PMMERGE.3165,
- @%append $^&.lnk   WINSUBSTITUTESTRINGS     PMMERGE.3287,
- @%append $^&.lnk   WINENUMDLGITEM           PMMERGE.3120,
- @%append $^&.lnk   WINSETDLGITEMTEXT        PMMERGE.3064,
- @%append $^&.lnk   WINQUERYDLGITEMTEXT      PMMERGE.3186,
- @%append $^&.lnk   WINLOADMENU              PMMERGE.3159,
- @%append $^&.lnk   WINCREATEMENU            PMMERGE.3095,
- @%append $^&.lnk   WINALARM                 PMMERGE.3014,
- @%append $^&.lnk   WINMESSAGEBOX            PMMERGE.3039,
- @%append $^&.lnk   WINCREATESTDWINDOW       PMMERGE.3021,
- @%append $^&.lnk   WINCREATEFRAMECONTROLS   PMMERGE.3093,
- @%append $^&.lnk   WINFORMATFRAME           PMMERGE.3127,
- @%append $^&.lnk   WINCALCFRAMERECT         PMMERGE.3082,
- @%append $^&.lnk   WINFLASHWINDOW           PMMERGE.3124,
- @%append $^&.lnk   WINGETMINPOSITION        PMMERGE.3135,
- @%append $^&.lnk   WINGETMAXPOSITION        PMMERGE.3134,
- @%append $^&.lnk   WINQUERYSYSVALUE         PMMERGE.3051,
- @%append $^&.lnk   WINSETSYSVALUE           PMMERGE.3070,
- @%append $^&.lnk   WINSETSYSCOLORS          PMMERGE.3270,
- @%append $^&.lnk   WINQUERYSYSCOLOR         PMMERGE.3207,
- @%append $^&.lnk   WINSCROLLWINDOW          PMMERGE.3235,
- @%append $^&.lnk   WINTRACKRECT             PMMERGE.3077,
- @%append $^&.lnk   WINSHOWTRACKRECT         PMMERGE.3280,
- @%append $^&.lnk   GPILOADBITMAP            PMMERGE.2082,
- @%append $^&.lnk   WINLOADSTRING            PMMERGE.2083,
- @%append $^&.lnk   WINLOADMESSAGE           PMMERGE.2084,
- @%append $^&.lnk   WINSETRECTEMPTY          PMMERGE.2085,
- @%append $^&.lnk   WINSETRECT               PMMERGE.2086,
- @%append $^&.lnk   WINCOPYRECT              PMMERGE.2087,
- @%append $^&.lnk   WINISRECTEMPTY           PMMERGE.2088,
- @%append $^&.lnk   WINEQUALRECT             PMMERGE.3121,
- @%append $^&.lnk   WINPTINRECT              PMMERGE.2089,
- @%append $^&.lnk   WINOFFSETRECT            PMMERGE.2090,
- @%append $^&.lnk   WININFLATERECT           PMMERGE.2091,
- @%append $^&.lnk   WININTERSECTRECT         PMMERGE.3148,
- @%append $^&.lnk   WINUNIONRECT             PMMERGE.3300,
- @%append $^&.lnk   WINSUBTRACTRECT          PMMERGE.3288,
- @%append $^&.lnk   WINMAKERECT              PMMERGE.2092,
- @%append $^&.lnk   WINMAKEPOINTS            PMMERGE.2093,
- @%append $^&.lnk   WININVERTRECT            PMMERGE.3150,
- @%append $^&.lnk   WINFILLRECT              PMMERGE.3028,
- @%append $^&.lnk   KBDPACKET                PMMERGE.6000,
- @%append $^&.lnk   WINDRAWPOINTER           PMMERGE.3110,
- @%append $^&.lnk   WINDEFWINDOWPROC         PMMERGE.2094,
- @%append $^&.lnk   WINDEFDLGPROC            PMMERGE.2095,
- @%append $^&.lnk   WINSYNCSTARTPGM          PMMERGE.3293,
- @%append $^&.lnk   WINSCREENSWITCH          PMMERGE.3060,
- @%append $^&.lnk   WINRESETSYSTEM           PMMERGE.3059,
- @%append $^&.lnk   WINQUERYHUNGPROCESS      PMMERGE.2096,
- @%append $^&.lnk   WINLOADSTRINGTABLE       PMMERGE.2097,
- @%append $^&.lnk   WINLOADVKEYGLYPHXLATETBL PMMERGE.2098,
- @%append $^&.lnk   WINLOADCHARXLATETBL      PMMERGE.2099,
- @%append $^&.lnk   WINSETVKEYGLYPHXLATETBL  PMMERGE.2100,
- @%append $^&.lnk   WINSETCHARXLATETBL       PMMERGE.3246,
- @%append $^&.lnk   WINQUERYVKEYGLYPHXLATETBL PMMERGE.2101,
- @%append $^&.lnk   WINQUERYCHARXLATETBL     PMMERGE.3177,
- @%append $^&.lnk   WINVKEYGLYPHCHARXLATE    PMMERGE.3304,
- @%append $^&.lnk   WINVKEYTOSCANID          PMMERGE.2102,
- @%append $^&.lnk   WINQUERYPROCESSCP        PMMERGE.2103,
- @%append $^&.lnk   WINGETKEYSTATE           PMMERGE.2104,
- @%append $^&.lnk   WINGETPHYSKEYSTATE       PMMERGE.3136,
- @%append $^&.lnk   WINSETKEYBOARDSTATETABLE PMMERGE.3258,
- @%append $^&.lnk   WINENABLEPHYSINPUT       PMMERGE.3112,
- @%append $^&.lnk   WINSETCP                 PMMERGE.2105,
- @%append $^&.lnk   WINQUERYCP               PMMERGE.2106,
- @%append $^&.lnk   WINQUERYCPLIST           PMMERGE.2107,
- @%append $^&.lnk   WINCPTRANSLATESTRING     PMMERGE.2108,
- @%append $^&.lnk   WINCPTRANSLATECHAR       PMMERGE.2109,
- @%append $^&.lnk   WINCOMPARESTRINGS        PMMERGE.2110,
- @%append $^&.lnk   WINUPPER                 PMMERGE.2111,
- @%append $^&.lnk   WINUPPERCHAR             PMMERGE.2112,
- @%append $^&.lnk   WINNEXTCHAR              PMMERGE.2113,
- @%append $^&.lnk   WINPREVCHAR              PMMERGE.2114,
- @%append $^&.lnk   WINCREATEHEAP            PMMERGE.2115,
- @%append $^&.lnk   WINDESTROYHEAP           PMMERGE.2116,
- @%append $^&.lnk   WINAVAILMEM              PMMERGE.2117,
- @%append $^&.lnk   WINALLOCMEM              PMMERGE.2118,
- @%append $^&.lnk   WINREALLOCMEM            PMMERGE.2119,
- @%append $^&.lnk   WINFREEMEM               PMMERGE.2120,
- @%append $^&.lnk   WINLOCKHEAP              PMMERGE.2121,
- @%append $^&.lnk   WINCREATEATOMTABLE       PMMERGE.2122,
- @%append $^&.lnk   WINDESTROYATOMTABLE      PMMERGE.2123,
- @%append $^&.lnk   WINADDATOM               PMMERGE.2124,
- @%append $^&.lnk   WINFINDATOM              PMMERGE.2125,
- @%append $^&.lnk   WINDELETEATOM            PMMERGE.2126,
- @%append $^&.lnk   WINQUERYATOMUSAGE        PMMERGE.2127,
- @%append $^&.lnk   WINQUERYATOMLENGTH       PMMERGE.2128,
- @%append $^&.lnk   WINQUERYATOMNAME         PMMERGE.2129,
- @%append $^&.lnk   WINQUERYSYSTEMATOMTABLE  PMMERGE.2130,
- @%append $^&.lnk   WINSETLASTERROR          PMMERGE.2131,
- @%append $^&.lnk   WINGETLASTERROR          PMMERGE.2132,
- @%append $^&.lnk   WINGETERRORINFO          PMMERGE.2133,
- @%append $^&.lnk   WINFREEERRORINFO         PMMERGE.2134,
- @%append $^&.lnk   WININITIALIZE            PMMERGE.2135,
- @%append $^&.lnk   WINTERMINATE             PMMERGE.2136,
- @%append $^&.lnk   WINCATCH                 PMMERGE.2137,
- @%append $^&.lnk   WINTHROW                 PMMERGE.2138,
- @%append $^&.lnk   WINQUERYVERSION          PMMERGE.2139,
- @%append $^&.lnk   FSRSEMENTER              PMMERGE.4011,
- @%append $^&.lnk   FSRSEMLEAVE              PMMERGE.4013,
- @%append $^&.lnk   FSRSEMEXIT               PMMERGE.2140,
- @%append $^&.lnk   FSRSEMCHECK              PMMERGE.2141,
- @%append $^&.lnk   FSRSEMENTERP             PMMERGE.4012,
- @%append $^&.lnk   AABGETREG                PMMERGE.2142,
- @%append $^&.lnk   AABSETREG                PMMERGE.2143,
- @%append $^&.lnk   VALIDATESELECTOR         PMMERGE.2144,
- @%append $^&.lnk   LOADMODULEHANDLE         PMMERGE.2145,
- @%append $^&.lnk   GETSCREENSELECTOR        PMMERGE.2146,
- @%append $^&.lnk   IDENTIFYCODESELECTOR     PMMERGE.2147,
- @%append $^&.lnk   WINQUERYWINDOWSGID       PMMERGE.3215,
- @%append $^&.lnk   _WINSETERRORINFO         PMMERGE.2148,
- @%append $^&.lnk   WINISPHYSINPUTENABLED    PMMERGE.3151,
- @%append $^&.lnk   WINQUERYWINDOWDC         PMMERGE.3212,
- @%append $^&.lnk   WINDRAWBORDER            PMMERGE.3109,
- @%append $^&.lnk   WINDRAWTEXT              PMMERGE.3026,
- @%append $^&.lnk   WINDRAWBITMAP            PMMERGE.3108,
- @%append $^&.lnk   WINQUERYWINDOWPTR        PMMERGE.3214,
- @%append $^&.lnk   WINSETWINDOWPTR          PMMERGE.3274,
- @%append $^&.lnk   WIN16INITIALIZESYSTEM    PMMERGE.3032,
- @%append $^&.lnk   WINTERMINATESYSTEM       PMMERGE.2149,
- @%append $^&.lnk   WIN16LOCKSTARTINPUT      PMMERGE.3038,
- @%append $^&.lnk   WINMSGSEMWAIT            PMMERGE.3040,
- @%append $^&.lnk   WINMSGMUXSEMWAIT         PMMERGE.3168,
- @%append $^&.lnk   WINSYSTEMSHUTDOWN        PMMERGE.3294,
- @%append $^&.lnk   WINCANCELSHUTDOWN        PMMERGE.3019,
- @%append $^&.lnk   WINSETWINDOWBITS         PMMERGE.3071,
- @%append $^&.lnk   WINGETCLIPPS             PMMERGE.3128,
- @%append $^&.lnk   WINSENDQUEUEMSG          PMMERGE.3240,
- @%append $^&.lnk   WINSETQUEUEPROC          PMMERGE.2183,
- @%append $^&.lnk   WINDEFQUEUEPROC          PMMERGE.2150,
- @%append $^&.lnk   WINSAVEWINDOWPOS         PMMERGE.3234,
- @%append $^&.lnk   WINFOCUSCHANGE           PMMERGE.3125,
- @%append $^&.lnk   WINQUERYQUEUEINFO        PMMERGE.3049,
- @%append $^&.lnk   WINCALLHELPHOOK          PMMERGE.3083,
- @%append $^&.lnk   WINSETATOMTABLEOWNER     PMMERGE.3244,
- @%append $^&.lnk   WINISSHUTTINGDOWN        PMMERGE.3152,
- @%append $^&.lnk   WINTERMINATESHUTDOWN     PMMERGE.3076,
- @%append $^&.lnk   WINSETCLASSMSGINTEREST   PMMERGE.3247,
- @%append $^&.lnk   VISREGIONCALLBACK        PMMERGE.2151,
- @%append $^&.lnk   WINQUERYDLGITEMTEXTLENGTH PMMERGE.3187,
- @%append $^&.lnk   WINQUERYKBDLAYOUT        PMMERGE.2152,
- @%append $^&.lnk   WINSETKBDLAYOUT          PMMERGE.2153,
- @%append $^&.lnk   WINDDEINITIATE           PMMERGE.3097,
- @%append $^&.lnk   WINDDERESPOND            PMMERGE.3099,
- @%append $^&.lnk   WINDDEPOSTMSG            PMMERGE.3098,
- @%append $^&.lnk   WIN16CANCELMODE          PMMERGE.3018,
- @%append $^&.lnk   WINSETPRESPARAM          PMMERGE.3068,
- @%append $^&.lnk   WINQUERYPRESPARAM        PMMERGE.3196,
- @%append $^&.lnk   WINREMOVEPRESPARAM       PMMERGE.3230,
- @%append $^&.lnk   WINTHREADASSOCQUEUE      PMMERGE.3296,
- @%append $^&.lnk   WINQUEUEFROMID           PMMERGE.3220,
- @%append $^&.lnk   WINQUERYSENDMSG          PMMERGE.3201,
- @%append $^&.lnk   WINREPLYMSG              PMMERGE.3233,
- @%append $^&.lnk   WINWAKETHREAD            PMMERGE.3306,
- @%append $^&.lnk   WINLOCKINPUT             PMMERGE.3161,
- @%append $^&.lnk   WINBUILDPTRHANDLE        PMMERGE.2154,
- @%append $^&.lnk   DUMWINCREATEHELPINSTANCE     PMMERGE.2155,
- @%append $^&.lnk   DUMWINDESTROYHELPINSTANCE    PMMERGE.2156,
- @%append $^&.lnk   DUMWINASSOCIATEHELPINSTANCE  PMMERGE.2157,
- @%append $^&.lnk   DUMWINCREATEHELPTABLE        PMMERGE.2158,
- @%append $^&.lnk   DUMWINLOADHELPTABLE          PMMERGE.2159,
- @%append $^&.lnk   DUMWINQUERYHELPINSTANCE      PMMERGE.2160,
- @%append $^&.lnk   WINQUERYWINDOWMODEL          PMMERGE.3213,
- @%append $^&.lnk   WINSETDESKTOPBKGND           PMMERGE.3251,
- @%append $^&.lnk   WINQUERYDESKTOPBKGND         PMMERGE.3184,
- @%append $^&.lnk   WINPOPUPMENU                 PMMERGE.3172,
- @%append $^&.lnk   WINREALIZEPALETTE            PMMERGE.3221,
- @%append $^&.lnk   DUMMYHELPENTRY               PMMERGE.2161,
- @%append $^&.lnk   GETPMDDCODESELECTOR          PMMERGE.2162,
- @%append $^&.lnk   WINSEMENTER                  PMMERGE.3237,
- @%append $^&.lnk   WINSEMLEAVE                  PMMERGE.3238,
- @%append $^&.lnk   WINQUERYPWND                 PMMERGE.2163,
- @%append $^&.lnk   WINQUERYSTATE                PMMERGE.3203,
- @%append $^&.lnk   WINLOADANIPOINTER            PMMERGE.3157,
- @%append $^&.lnk   WINDESTROYANIPOINTER         PMMERGE.3103,
- @%append $^&.lnk   WINSETANIPOINTER             PMMERGE.3243,
- @%append $^&.lnk   WINENUMVKEYSCANIDS           PMMERGE.2164,
- @%append $^&.lnk   WINSEMQUERY                  PMMERGE.3239,
- @%append $^&.lnk   WINLOADTRANSLATIONTABLE      PMMERGE.2165,
- @%append $^&.lnk   WINSETKBDLAYOUT2             PMMERGE.2166,
- @%append $^&.lnk   WINSEAMLESSBOX               PMMERGE.3236,
- @%append $^&.lnk   WINJIGGLEMOUSE               PMMERGE.3156,
- @%append $^&.lnk   WINTRACKSEAMLESS             PMMERGE.3297,
- @%append $^&.lnk   WINREGISTERSEAMLESSPROC      PMMERGE.3222,
- @%append $^&.lnk   ABNORMALPROCESSEXIT          PMMERGE.5002,
- @%append $^&.lnk   WINPROFCONTROL               PMMERGE.5422,
- @%append $^&.lnk   DEBUGINPUTENABLE             PMMERGE.2167,
- @%append $^&.lnk   DEBUGINPUT                   PMMERGE.2168,
- @%append $^&.lnk   DEBUGOUTPUT                  PMMERGE.2169,
- @%append $^&.lnk   DEBUGCURPOS                  PMMERGE.2170,
- @%append $^&.lnk   DEBUGCLS                     PMMERGE.2171,
- @%append $^&.lnk   WINDEBUGBREAK                PMMERGE.3100,
- @%append $^&.lnk   DEBUGREDIRECT                PMMERGE.2172,
- @%append $^&.lnk   INPUTGETDEVICEINFO           PMMERGE.3002,
- @%append $^&.lnk   STARTTIMER                   PMMERGE.5107,
- @%append $^&.lnk   DESTROYTIMERS                PMMERGE.5007,
- @%append $^&.lnk   WINDELETELIBRARY             PMMERGE.3101,
- @%append $^&.lnk   WINLOADPROCEDURE             PMMERGE.3160,
- @%append $^&.lnk   WINDELETEPROCEDURE           PMMERGE.3102,
- @%append $^&.lnk   WINSETMSGMODE                PMMERGE.3261,
- @%append $^&.lnk   WINSETSYNCHROMODE            PMMERGE.3268,
- @%append $^&.lnk   WINGETDLGMSG                 PMMERGE.3130,
- @%append $^&.lnk   WINREGISTERUSERMSG           PMMERGE.3224,
- @%append $^&.lnk   WINQUERYANCHORBLOCK          PMMERGE.3046,
- @%append $^&.lnk   WINLANGSUPWINDOWPROC         PMMERGE.2173,
- @%append $^&.lnk   WINLANGSUPDLGPROC            PMMERGE.2174,
- @%append $^&.lnk   WINREGISTERUSERDATATYPE      PMMERGE.3223,
- @%append $^&.lnk   FARCALLHOOK                  PMMERGE.5045,
- @%append $^&.lnk   WINISWINDOWSHOWING           PMMERGE.3155,
- @%append $^&.lnk   WINLOADLIBRARY               PMMERGE.3158,
- @%append $^&.lnk   WINCREATEPOINTERINDIRECT     PMMERGE.2175,
- @%append $^&.lnk   WINQUERYPOINTERINFO          PMMERGE.2176,
- @%append $^&.lnk   WINSETMENUDATA               PMMERGE.3259,
- @%append $^&.lnk   WINQUERYMENUDATA             PMMERGE.3190,
- @%append $^&.lnk   WINMENUINDEXFROMID           PMMERGE.3167,
- @%append $^&.lnk   WINFORCEMENUREDRAW           PMMERGE.3126,
- @%append $^&.lnk   WINGETSCANSTATE              PMMERGE.3138,
- @%append $^&.lnk   WINSETSCANSTATETABLE         PMMERGE.3266,
- @%append $^&.lnk   WINGETERASEPS                PMMERGE.3131,
- @%append $^&.lnk   WINRELEASEERASEPS            PMMERGE.3226,
- @%append $^&.lnk   WINSETWINDOWDC               PMMERGE.3273,
- @%append $^&.lnk   WINTRANSLATECHAR             PMMERGE.3299,
- @%append $^&.lnk   WINPORTHOLEUTIL              PMMERGE.2177,
- @%append $^&.lnk   WINEXPLODEWINDOW             PMMERGE.3123,
- @%append $^&.lnk   WINSETACCELTABLEVALUE        PMMERGE.3242,
- @%append $^&.lnk   WINQUERYACCELTABLEVALUE      PMMERGE.3175,
- @%append $^&.lnk   WINSTRETCHPOINTER            PMMERGE.3286,
- @%append $^&.lnk   WINSETPOINTEROWNER           PMMERGE.3264,
- @%append $^&.lnk   WINGETFRAMETREEPPSIZE        PMMERGE.3133,
- @%append $^&.lnk   WINGETFRAMETREEPPS           PMMERGE.3132,
- @%append $^&.lnk   WINSETFRAMETREEPPS           PMMERGE.3256,
- @%append $^&.lnk   WIN16GETMINWINDOWVIEWER      PMMERGE.3029,
- @%append $^&.lnk   WINQUERYWORKPLACEWINDOW      PMMERGE.3219,
- @%append $^&.lnk   WINLOCKPOINTERUPDATE         PMMERGE.3162,
- @%append $^&.lnk   WINCHECKINPUT                PMMERGE.3088,
- @%append $^&.lnk   FARFLUSHBUFHOOK              PMMERGE.3000,
- @%append $^&.lnk   WinAddAtom                   PMMERGE.5111,
- @%append $^&.lnk   WinAlarm                     PMMERGE.5113,
- @%append $^&.lnk   WinBeginEnumWindows          PMMERGE.5114,
- @%append $^&.lnk   WinBeginPaint                PMMERGE.5115,
- @%append $^&.lnk   WinCalcFrameRect             PMMERGE.5118,
- @%append $^&.lnk   WinCancelShutdown            PMMERGE.5121,
- @%append $^&.lnk   WinCloseClipbrd              PMMERGE.5124,
- @%append $^&.lnk   WinCompareStrings            PMMERGE.5125,
- @%append $^&.lnk   WinCopyAccelTable            PMMERGE.5126,
- @%append $^&.lnk   WinCopyRect                  PMMERGE.5127,
- @%append $^&.lnk   WinCpTranslateChar           PMMERGE.5128,
- @%append $^&.lnk   WinCpTranslateString         PMMERGE.5129,
- @%append $^&.lnk   WinCreateAccelTable          PMMERGE.5130,
- @%append $^&.lnk   WinCreateAtomTable           PMMERGE.5131,
- @%append $^&.lnk   WinCreateCursor              PMMERGE.5132,
- @%append $^&.lnk   WinCreatePointer             PMMERGE.5137,
- @%append $^&.lnk   WinDdeInitiate               PMMERGE.5142,
- @%append $^&.lnk   WinDdePostMsg                PMMERGE.5143,
- @%append $^&.lnk   WinDdeRespond                PMMERGE.5144,
- @%append $^&.lnk   WinDeleteAtom                PMMERGE.5148,
- @%append $^&.lnk   WinDeleteLibrary             PMMERGE.5149,
- @%append $^&.lnk   WinDestroyAccelTable         PMMERGE.5151,
- @%append $^&.lnk   WinDestroyAtomTable          PMMERGE.5152,
- @%append $^&.lnk   WinDestroyCursor             PMMERGE.5153,
- @%append $^&.lnk   WinDestroyPointer            PMMERGE.5155,
- @%append $^&.lnk   WinDismissDlg                PMMERGE.5157,
- @%append $^&.lnk   WinDrawBitmap                PMMERGE.5160,
- @%append $^&.lnk   WinDrawBorder                PMMERGE.5161,
- @%append $^&.lnk   WinDrawPointer               PMMERGE.5162,
- @%append $^&.lnk   WinEmptyClipbrd              PMMERGE.5164,
- @%append $^&.lnk   WinEnablePhysInput           PMMERGE.5165,
- @%append $^&.lnk   WinEnableWindow              PMMERGE.5166,
- @%append $^&.lnk   WinEnableWindowUpdate        PMMERGE.5167,
- @%append $^&.lnk   WinEndEnumWindows            PMMERGE.5168,
- @%append $^&.lnk   WinEndPaint                  PMMERGE.5169,
- @%append $^&.lnk   WinEnumClipbrdFmts           PMMERGE.5171,
- @%append $^&.lnk   WinEnumDlgItem               PMMERGE.5172,
- @%append $^&.lnk   WinEqualRect                 PMMERGE.5173,
- @%append $^&.lnk   WinExcludeUpdateRegion       PMMERGE.5174,
- @%append $^&.lnk   WinFillRect                  PMMERGE.5176,
- @%append $^&.lnk   WinFindAtom                  PMMERGE.5177,
- @%append $^&.lnk   WinFlashWindow               PMMERGE.5178,
- @%append $^&.lnk   WinFocusChange               PMMERGE.5179,
- @%append $^&.lnk   WinFreeErrorInfo             PMMERGE.5180,
- @%append $^&.lnk   WinGetClipPS                 PMMERGE.5181,
- @%append $^&.lnk   WinGetCurrentTime            PMMERGE.5182,
- @%append $^&.lnk   WinGetErrorInfo              PMMERGE.5185,
- @%append $^&.lnk   WinGetKeyState               PMMERGE.5188,
- @%append $^&.lnk   WinGetLastError              PMMERGE.5189,
- @%append $^&.lnk   WinGetMaxPosition            PMMERGE.5190,
- @%append $^&.lnk   WinGetMinPosition            PMMERGE.5191,
- @%append $^&.lnk   WinGetNextWindow             PMMERGE.5193,
- @%append $^&.lnk   WinGetPS                     PMMERGE.5195,
- @%append $^&.lnk   WinGetPhysKeyState           PMMERGE.5194,
- @%append $^&.lnk   WinGetScreenPS               PMMERGE.5196,
- @%append $^&.lnk   WinGetSysBitmap              PMMERGE.5197,
- @%append $^&.lnk   WinInSendMsg                 PMMERGE.5202,
- @%append $^&.lnk   WinInflateRect               PMMERGE.5200,
- @%append $^&.lnk   WinIntersectRect             PMMERGE.5203,
- @%append $^&.lnk   WinInvalidateRect            PMMERGE.5204,
- @%append $^&.lnk   WinInvalidateRegion          PMMERGE.5205,
- @%append $^&.lnk   WinInvertRect                PMMERGE.5206,
- @%append $^&.lnk   WinIsChild                   PMMERGE.5207,
- @%append $^&.lnk   WinIsPhysInputEnabled        PMMERGE.5208,
- @%append $^&.lnk   WinIsRectEmpty               PMMERGE.5209,
- @%append $^&.lnk   WinIsThreadActive            PMMERGE.5210,
- @%append $^&.lnk   WinIsWindow                  PMMERGE.5211,
- @%append $^&.lnk   WinIsWindowEnabled           PMMERGE.5212,
- @%append $^&.lnk   WinIsWindowShowing           PMMERGE.5213,
- @%append $^&.lnk   WinIsWindowVisible           PMMERGE.5214,
- @%append $^&.lnk   WinLoadAccelTable            PMMERGE.5216,
- @%append $^&.lnk   WinLoadLibrary               PMMERGE.5219,
- @%append $^&.lnk   WinLoadMenu                  PMMERGE.5220,
- @%append $^&.lnk   WinLoadMessage               PMMERGE.5221,
- @%append $^&.lnk   WinLoadPointer               PMMERGE.5222,
- @%append $^&.lnk   WinLoadString                PMMERGE.5224,
- @%append $^&.lnk   WinLockVisRegions            PMMERGE.5227,
- @%append $^&.lnk   WinLockWindowUpdate          PMMERGE.5228,
- @%append $^&.lnk   WinMakePoints                PMMERGE.5229,
- @%append $^&.lnk   WinMakeRect                  PMMERGE.5230,
- @%append $^&.lnk   WinMapDlgPoints              PMMERGE.5231,
- @%append $^&.lnk   WinMapWindowPoints           PMMERGE.5232,
- @%append $^&.lnk   WinMessageBox                PMMERGE.5233,
- @%append $^&.lnk   WinMsgSemWait                PMMERGE.5236,
- @%append $^&.lnk   WinNextChar                  PMMERGE.5238,
- @%append $^&.lnk   WinOffsetRect                PMMERGE.5239,
- @%append $^&.lnk   WinOpenClipbrd               PMMERGE.5240,
- @%append $^&.lnk   WinOpenWindowDC              PMMERGE.5241,
- @%append $^&.lnk   WinPrevChar                  PMMERGE.5246,
- @%append $^&.lnk   WinProcessDlg                PMMERGE.5247,
- @%append $^&.lnk   WinPtInRect                  PMMERGE.5248,
- @%append $^&.lnk   WinQueryAccelTable           PMMERGE.5249,
- @%append $^&.lnk   WinQueryActiveWindow         PMMERGE.5251,
- @%append $^&.lnk   WinQueryAnchorBlock          PMMERGE.5252,
- @%append $^&.lnk   WinQueryAtomLength           PMMERGE.5253,
- @%append $^&.lnk   WinQueryAtomName             PMMERGE.5254,
- @%append $^&.lnk   WinQueryAtomUsage            PMMERGE.5255,
- @%append $^&.lnk   WinQueryCapture              PMMERGE.5256,
- @%append $^&.lnk   WinQueryClassName            PMMERGE.5258,
- @%append $^&.lnk   WinQueryClipbrdData          PMMERGE.5260,
- @%append $^&.lnk   WinQueryClipbrdFmtInfo       PMMERGE.5261,
- @%append $^&.lnk   WinQueryClipbrdOwner         PMMERGE.5262,
- @%append $^&.lnk   WinQueryClipbrdViewer        PMMERGE.5263,
- @%append $^&.lnk   WinQueryCp                   PMMERGE.5264,
- @%append $^&.lnk   WinQueryCpList               PMMERGE.5265,
- @%append $^&.lnk   WinQueryCursorInfo           PMMERGE.5266,
- @%append $^&.lnk   WinQueryDesktopWindow        PMMERGE.5268,
- @%append $^&.lnk   WinQueryDlgItemShort         PMMERGE.5269,
- @%append $^&.lnk   WinQueryDlgItemText          PMMERGE.5270,
- @%append $^&.lnk   WinQueryDlgItemTextLength    PMMERGE.5271,
- @%append $^&.lnk   WinQueryFocus                PMMERGE.5272,
- @%append $^&.lnk   WinQueryMsgPos               PMMERGE.5273,
- @%append $^&.lnk   WinQueryMsgTime              PMMERGE.5274,
- @%append $^&.lnk   WinQueryObjectWindow         PMMERGE.5275,
- @%append $^&.lnk   WinQueryPointer              PMMERGE.5277,
- @%append $^&.lnk   WinQueryPointerInfo          PMMERGE.5278,
- @%append $^&.lnk   WinQueryPointerPos           PMMERGE.5279,
- @%append $^&.lnk   WinQueryQueueInfo            PMMERGE.5282,
- @%append $^&.lnk   WinQueryQueueStatus          PMMERGE.5283,
- @%append $^&.lnk   WinQuerySysColor             PMMERGE.5289,
- @%append $^&.lnk   WinQuerySysModalWindow       PMMERGE.5290,
- @%append $^&.lnk   WinQuerySysPointer           PMMERGE.5291,
- @%append $^&.lnk   WinQuerySysValue             PMMERGE.5294,
- @%append $^&.lnk   WinQuerySystemAtomTable      PMMERGE.5293,
- @%append $^&.lnk   WinQueryUpdateRect           PMMERGE.5297,
- @%append $^&.lnk   WinQueryUpdateRegion         PMMERGE.5298,
- @%append $^&.lnk   WinQueryVersion              PMMERGE.5299,
- @%append $^&.lnk   WinQueryWindow               PMMERGE.5301,
- @%append $^&.lnk   WinQueryWindowDC             PMMERGE.5302,
- @%append $^&.lnk   WinQueryWindowPos            PMMERGE.5304,
- @%append $^&.lnk   WinQueryWindowProcess        PMMERGE.5305,
- @%append $^&.lnk   WinQueryWindowPtr            PMMERGE.5306,
- @%append $^&.lnk   WinQueryWindowRect           PMMERGE.5307,
- @%append $^&.lnk   WinQueryWindowText           PMMERGE.5308,
- @%append $^&.lnk   WinQueryWindowTextLength     PMMERGE.5309,
- @%append $^&.lnk   WinQueryWindowULong          PMMERGE.5311,
- @%append $^&.lnk   WinQueryWindowUShort         PMMERGE.5312,
- @%append $^&.lnk   WinRegisterUserDatatype      PMMERGE.5318,
- @%append $^&.lnk   WinRegisterUserMsg           PMMERGE.5319,
- @%append $^&.lnk   WinReleasePS                 PMMERGE.5322,
- @%append $^&.lnk   WinScrollWindow              PMMERGE.5328,
- @%append $^&.lnk   WinSetAccelTable             PMMERGE.5335,
- @%append $^&.lnk   WinSetActiveWindow           PMMERGE.5337,
- @%append $^&.lnk   WinSetCapture                PMMERGE.5338,
- @%append $^&.lnk   WinSetClassMsgInterest       PMMERGE.5340,
- @%append $^&.lnk   WinSetClipbrdData            PMMERGE.5342,
- @%append $^&.lnk   WinSetClipbrdOwner           PMMERGE.5343,
- @%append $^&.lnk   WinSetClipbrdViewer          PMMERGE.5344,
- @%append $^&.lnk   WinSetCp                     PMMERGE.5345,
- @%append $^&.lnk   WinSetDlgItemShort           PMMERGE.5347,
- @%append $^&.lnk   WinSetDlgItemText            PMMERGE.5348,
- @%append $^&.lnk   WinSetFocus                  PMMERGE.5350,
- @%append $^&.lnk   WinSetMsgInterest            PMMERGE.5354,
- @%append $^&.lnk   WinSetMsgMode                PMMERGE.5355,
- @%append $^&.lnk   WinSetMultWindowPos          PMMERGE.5356,
- @%append $^&.lnk   WinSetOwner                  PMMERGE.5357,
- @%append $^&.lnk   WinSetParent                 PMMERGE.5359,
- @%append $^&.lnk   WinSetPointer                PMMERGE.5360,
- @%append $^&.lnk   WinSetPointerPos             PMMERGE.5362,
- @%append $^&.lnk   WinSetRect                   PMMERGE.5364,
- @%append $^&.lnk   WinSetRectEmpty              PMMERGE.5365,
- @%append $^&.lnk   WinSetSynchroMode            PMMERGE.5366,
- @%append $^&.lnk   WinSetSysColors              PMMERGE.5368,
- @%append $^&.lnk   WinSetSysModalWindow         PMMERGE.5370,
- @%append $^&.lnk   WinSetSysValue               PMMERGE.5372,
- @%append $^&.lnk   WinSetWindowBits             PMMERGE.5374,
- @%append $^&.lnk   WinSetWindowPos              PMMERGE.5375,
- @%append $^&.lnk   WinSetWindowPtr              PMMERGE.5376,
- @%append $^&.lnk   WinSetWindowText             PMMERGE.5377,
- @%append $^&.lnk   WinSetWindowULong            PMMERGE.5379,
- @%append $^&.lnk   WinSetWindowUShort           PMMERGE.5380,
- @%append $^&.lnk   WinShowCursor                PMMERGE.5381,
- @%append $^&.lnk   WinShowPointer               PMMERGE.5382,
- @%append $^&.lnk   WinShowTrackRect             PMMERGE.5383,
- @%append $^&.lnk   WinShowWindow                PMMERGE.5384,
- @%append $^&.lnk   WinStartTimer                PMMERGE.5386,
- @%append $^&.lnk   WinStopTimer                 PMMERGE.5387,
- @%append $^&.lnk   WinSubstituteStrings         PMMERGE.5390,
- @%append $^&.lnk   WinSubtractRect              PMMERGE.5391,
- @%append $^&.lnk   WinTrackRect                 PMMERGE.5399,
- @%append $^&.lnk   WinUnionRect                 PMMERGE.5402,
- @%append $^&.lnk   WinUpdateWindow              PMMERGE.5403,
- @%append $^&.lnk   WinUpper                     PMMERGE.5404,
- @%append $^&.lnk   WinUpperChar                 PMMERGE.5405,
- @%append $^&.lnk   WinValidateRect              PMMERGE.5406,
- @%append $^&.lnk   WinValidateRegion            PMMERGE.5407,
- @%append $^&.lnk   WinWaitMsg                   PMMERGE.5410,
- @%append $^&.lnk   WinWindowFromDC              PMMERGE.5413,
- @%append $^&.lnk   WinWindowFromID              PMMERGE.5414,
- @%append $^&.lnk   WinWindowFromPoint           PMMERGE.5415,
- @%append $^&.lnk   WinBroadcastMsg              PMMERGE.5116,
- @%append $^&.lnk   WinPostQueueMsg              PMMERGE.5245,
- @%append $^&.lnk   WinSendDlgItemMsg            PMMERGE.5333,
- @%append $^&.lnk   WinTranslateAccel            PMMERGE.5401,
- @%append $^&.lnk   WinCallMsgFilter             PMMERGE.5120,
- @%append $^&.lnk   WinCreateFrameControls       PMMERGE.5134,
- @%append $^&.lnk   WinCreateMenu                PMMERGE.5135,
- @%append $^&.lnk   WinCreateWindow              PMMERGE.5141,
- @%append $^&.lnk   WinDefDlgProc                PMMERGE.5146,
- @%append $^&.lnk   WinDrawText                  PMMERGE.5163,
- @%append $^&.lnk   WinGetDlgMsg                 PMMERGE.5183,
- @%append $^&.lnk   WinMsgMuxSemWait             PMMERGE.5235,
- @%append $^&.lnk   WinMultWindowFromIDs         PMMERGE.5237,
- @%append $^&.lnk   WinPeekMsg                   PMMERGE.5242,
- @%append $^&.lnk   WinPostMsg                   PMMERGE.5244,
- @%append $^&.lnk   WinSetKeyboardStateTable     PMMERGE.5353,
- @%append $^&.lnk   WinCreateDlg                 PMMERGE.5133,
- @%append $^&.lnk   WinDlgBox                    PMMERGE.5159,
- @%append $^&.lnk   WinLoadDlg                   PMMERGE.5218,
- @%append $^&.lnk   WinQueryClassInfo            PMMERGE.5257,
- @%append $^&.lnk   WinReleaseHook               PMMERGE.5321,
- @%append $^&.lnk   WinSetHook                   PMMERGE.5352,
- @%append $^&.lnk   WinSubclassWindow            PMMERGE.5389,
- @%append $^&.lnk   WinSetClassThunkProc         PMMERGE.5341,
- @%append $^&.lnk   WinQueryClassThunkProc       PMMERGE.5259,
- @%append $^&.lnk   WinSetWindowThunkProc        PMMERGE.5378,
- @%append $^&.lnk   WinQueryWindowThunkProc      PMMERGE.5310,
- @%append $^&.lnk   WinQueryWindowModel          PMMERGE.5303,
- @%append $^&.lnk   WinSetDesktopBkgnd           PMMERGE.5346,
- @%append $^&.lnk   WinQueryDesktopBkgnd         PMMERGE.5267,
- @%append $^&.lnk   WinPopupMenu                 PMMERGE.5243,
- @%append $^&.lnk   WinSetPresParam              PMMERGE.5363,
- @%append $^&.lnk   WinQueryPresParam            PMMERGE.5280,
- @%append $^&.lnk   WinRemovePresParam           PMMERGE.5323,
- @%append $^&.lnk   WinRealizePalette            PMMERGE.5314,
- @%append $^&.lnk   WinCreatePointerIndirect     PMMERGE.5138,
- @%append $^&.lnk   WinSaveWindowPos             PMMERGE.5327,
- @%append $^&.lnk   WINCREATEFARHEAP             PMMERGE.2178,
- @%append $^&.lnk   WINDESTROYFARHEAP            PMMERGE.2179,
- @%append $^&.lnk   WINALLOCFARMEM               PMMERGE.2180,
- @%append $^&.lnk   WINFREEFARMEM                PMMERGE.2181,
- @%append $^&.lnk   WINREALLOCFARMEM             PMMERGE.2182,
- @%append $^&.lnk   WinGetErasePS                PMMERGE.5184,
- @%append $^&.lnk   WinReleaseErasePS            PMMERGE.5320,
- @%append $^&.lnk   Undocumented1                PMMERGE.5005,
- @%append $^&.lnk   Undocumented2                PMMERGE.5006,
- @%append $^&.lnk   Undocumented3                PMMERGE.5004,
- @%append $^&.lnk   Undocumented4                PMMERGE.5003,
- @%append $^&.lnk   Undocumented5                PMMERGE.5145,
- @%append $^&.lnk   WINSETCLASSTHUNKPROC         PMMERGE.3248,
- @%append $^&.lnk   WINQUERYCLASSTHUNKPROC       PMMERGE.3179,
- @%append $^&.lnk   WINSETWINDOWTHUNKPROC        PMMERGE.3275,
- @%append $^&.lnk   WINQUERYWINDOWTHUNKPROC      PMMERGE.3218,
- @%append $^&.lnk   WinSystemShutdown            PMMERGE.5395,
- @%append $^&.lnk   WinBuildPtrHandle            PMMERGE.5117,
- @%append $^&.lnk   WinExplodeWindow             PMMERGE.5175,
- @%append $^&.lnk   WinSetAccelTableValue        PMMERGE.5336,
- @%append $^&.lnk   WinQueryAccelTableValue      PMMERGE.5250,
- @%append $^&.lnk   WinStretchPointer            PMMERGE.5388,
- @%append $^&.lnk   Undocumented6                 PMMERGE.5000,
- @%append $^&.lnk   Undocumented7                 PMMERGE.5001,
- @%append $^&.lnk   WinSetPointerOwner           PMMERGE.5361,
- @%append $^&.lnk   WinGetFrameTreePPSize        PMMERGE.5187,
- @%append $^&.lnk   WinGetFrameTreePPs           PMMERGE.5186,
- @%append $^&.lnk   WinSetFrameTreePPs           PMMERGE.5351,
- @%append $^&.lnk   WinQueryProcessCP            PMMERGE.5281,
- @%append $^&.lnk   WinVisRegionNotify           PMMERGE.5408,
- @%append $^&.lnk   WinSetErrorInfo              PMMERGE.5349,
- @%append $^&.lnk   WinWaitEventSem              PMMERGE.5409,
- @%append $^&.lnk   WinRequestMutexSem           PMMERGE.5326,
- @%append $^&.lnk   WinWaitMuxWaitSem            PMMERGE.5411,
- @%append $^&.lnk   WINSETSYSCLIPBRDVIEWER       PMMERGE.3269,
- @%append $^&.lnk   WinSetSysClipbrdViewer       PMMERGE.5367,
- @%append $^&.lnk   WinSemQuery                  PMMERGE.5332,
- @%append $^&.lnk   WinSemEnter                  PMMERGE.5330,
- @%append $^&.lnk   WinSemLeave                  PMMERGE.5331,
- @%append $^&.lnk   WinLoadProcedure             PMMERGE.5223,
- @%append $^&.lnk   WinDeleteProcedure           PMMERGE.5150,
- @%append $^&.lnk   WinMoveCursor                PMMERGE.5234,
- @%append $^&.lnk   WinQuerySendMsg              PMMERGE.5284,
- @%append $^&.lnk   WinReplyMsg                  PMMERGE.5325,
- @%append $^&.lnk   WinWakeThread                PMMERGE.5412,
- @%append $^&.lnk   WinQueueFromID               PMMERGE.5313,
- @%append $^&.lnk   WinThreadAssocQueue          PMMERGE.5398,
- @%append $^&.lnk   WinLockInput                 PMMERGE.5225,
- @%append $^&.lnk   WinSetSysFont                PMMERGE.5369,
- @%append $^&.lnk   WinLockPointerUpdate         PMMERGE.5226,
- @%append $^&.lnk   WinCheckInput                PMMERGE.5123,
- @%append $^&.lnk   Undocumented8                PMMERGE.5044,
- @%append $^&.lnk   WinQueryVisibleRegion        PMMERGE.5300,
- @%append $^&.lnk   WinSetVisibleRegionNotify    PMMERGE.5373,
- @%append $^&.lnk   WinSetSysPointerData         PMMERGE.5371,
- @%append $^&.lnk   WinQuerySysPointerData       PMMERGE.5292,
- @%append $^&.lnk   WinSeamlessBox               PMMERGE.5329,
- @%append $^&.lnk   WinJiggleMouse               PMMERGE.5215,
- @%append $^&.lnk   WinTrackSeamless             PMMERGE.5400,
- @%append $^&.lnk   WinRegisterSeamlessProc      PMMERGE.5317,
- @%append $^&.lnk   WinSetCharXlateTbl           PMMERGE.5339,
- @%append $^&.lnk   WinMspInit                   PMMERGE.5420,
- @%append $^&.lnk   WinMspAlloc                  PMMERGE.5418,
- @%append $^&.lnk   WinMspFree                   PMMERGE.5419,
- @%append $^&.lnk   Undocumented9                PMMERGE.5109,
- @%append $^&.lnk   Undocumented10               PMMERGE.5068,
- @%append $^&.lnk   WinRegisterPen               PMMERGE.5316,
- @%append $^&.lnk   WinMessageBox2               PMMERGE.5417,
- @%append $^&.lnk   fPenAvail                    PMMERGE.6201,
- @%append $^&.lnk   WinDrawTabbedText            PMMERGE.5432,
- @%append $^&.lnk   PMREQUESTMUTEXSEM            PMMERGE.5071,
- @%append $^&.lnk   PMRELEASEMUTEXSEM            PMMERGE.5070,
- @%append $^&.lnk   WinQueryPointerClipRect      PMMERGE.5433,
- @%append $^&.lnk   WinSetPointerClipRect        PMMERGE.5434,
- @%append $^&.lnk   WinWaitMsgTimeout            PMMERGE.5436,
- @%append $^&.lnk   WinIsWindowOfClass           PMMERGE.5437,
- @%append $^&.lnk   WinSetAtomTableOwner         PMMERGE.5438,
- @%append $^&.lnk   WinXxCreateHeap              PMMERGE.5425,
- @%append $^&.lnk   WinXxDestroyHeap             PMMERGE.5426,
- @%append $^&.lnk   WinXxAllocMem                PMMERGE.5424,
- @%append $^&.lnk   WinXxFreeMem                 PMMERGE.5427,
- @%append $^&.lnk   WinXxAllocFill               PMMERGE.5423,
- @%append $^&.lnk   WinXxReallocMem              PMMERGE.5429,
- @%append $^&.lnk   WinXxQueryMemSize            PMMERGE.5439,
- @%append $^&.lnk   WinSetClipRegion             PMMERGE.5440,
- @%append $^&.lnk   WinQueryClipRegion           PMMERGE.5441,
- @%append $^&.lnk   Undocumented11               PMMERGE.5442,
- @%append $^&.lnk   Undocumented12               PMMERGE.5443,
- @%append $^&.lnk   Undocumented13               PMMERGE.5444,
- @%append $^&.lnk   Undocumented14               PMMERGE.5445,
- @%append $^&.lnk   Undocumented15               PMMERGE.5446,
- @%append $^&.lnk   Undocumented16               PMMERGE.5448,
- @%append $^&.lnk   Undocumented17               PMMERGE.5447,
- @%append $^&.lnk   WINENUMPROPERTIES            PMMERGE.5449,
- @%append $^&.lnk   WINQUERYPROPERTY             PMMERGE.5450,
- @%append $^&.lnk   WINREMOVEPROPERTY            PMMERGE.5451,
- @%append $^&.lnk   WINSETPROPERTY               PMMERGE.5452,
- @%append $^&.lnk   WINENUMCLASSPROPERTIES       PMMERGE.5453,
- @%append $^&.lnk   WINQUERYCLASSPROPERTY        PMMERGE.5454,
- @%append $^&.lnk   WINREMOVECLASSPROPERTY       PMMERGE.5455,
- @%append $^&.lnk   WINSETCLASSPROPERTY          PMMERGE.5456,
- @%append $^&.lnk   Undocumented18               PMMERGE.5458,
- @%append $^&.lnk   Undocumented19               PMMERGE.5461,
- @%append $^&.lnk   Undocumented20               PMMERGE.5462,
- @%append $^&.lnk   WinLoadVkeyGlyphXlatetbl     PMMERGE.5463,
- @%append $^&.lnk   WinSetVKeyGlyphXlatetbl      PMMERGE.5464,
- @%append $^&.lnk   WinQueryVKeyGlyphXlatetbl    PMMERGE.5465,
- @%append $^&.lnk   WinTrackWindow               PMMERGE.5466,
- @%append $^&.lnk   WinSemEnterTimeout           PMMERGE.5467,
- @%append $^&.lnk   Undocumented21               PMMERGE.5468,
- @%append $^&.lnk   Undocumented22               PMMERGE.5469,
- @%append $^&.lnk   Undocumented23               PMMERGE.5473,
- @%append $^&.lnk   Undocumented24               PMMERGE.5474,
- @%append $^&.lnk   Undocumented25               PMMERGE.5475,
- @%append $^&.lnk   Undocumented26               PMMERGE.5476,
- @%append $^&.lnk   Undocumented27               PMMERGE.5477,
- @%append $^&.lnk   Undocumented28               PMMERGE.5478,
- @%append $^&.lnk   WINSETLANGINFO               PMMERGE.3500,
- @%append $^&.lnk   WINQUERYLANGINFO             PMMERGE.3501,
- @%append $^&.lnk   WINSETKBDLAYER               PMMERGE.3502,
- @%append $^&.lnk   WINQUERYKBDLAYER             PMMERGE.3503,
- @%append $^&.lnk   WINSETLANGVIEWER             PMMERGE.3504,
- @%append $^&.lnk   WINQUERYLANGVIEWER           PMMERGE.3505,
- @%append $^&.lnk   WINPOUREVENT                 PMMERGE.3600,
- @%append $^&.lnk   WINSETMSGQIMINFO             PMMERGE.3601,
- @%append $^&.lnk   WINQUERYMSGQIMINFO           PMMERGE.3602,
- @%append $^&.lnk   Undocumented29               PMMERGE.10000,
- @%append $^&.lnk   Undocumented30               PMMERGE.10001,
- @%append $^&.lnk   Undocumented31               PMMERGE.10002,
- @%append $^&.lnk   Undocumented32               PMMERGE.10004,
- @%append $^&.lnk   Undocumented33               PMMERGE.10005,
- @%append $^&.lnk   Undocumented34               PMMERGE.10007,
- @%append $^&.lnk   Undocumented35               PMMERGE.10018,
- @%append $^&.lnk   Undocumented36               PMMERGE.10019,
- @%append $^&.lnk   Undocumented37               PMMERGE.10020,
- @%append $^&.lnk   Undocumented38               PMMERGE.10021
- @%append $^&.lnk export
- @%append $^&.lnk   WinInitialize.              00763,
- @%append $^&.lnk   WinTerminate.               00888,
- @%append $^&.lnk   WinCreateMsgQueue.          00716,
- @%append $^&.lnk   WinDestroyMsgQueue.         00726,
- @%append $^&.lnk   WinDestroyWindow.           00728,
- @%append $^&.lnk   WinCreateStdWindow.         00908,
- @%append $^&.lnk   WinDefWindowProc.           00911,
- @%append $^&.lnk   WinDispatchMsg.             00912,
- @%append $^&.lnk   WinGetMsg.                  00915,
- @%append $^&.lnk   WinSendMsg.                 00920,
- @%append $^&.lnk   WinRegisterClass.           00926,
- @%append $^&.lnk   WINQUERYDESKTOPWINDOW       .00001 RESIDENT,
- @%append $^&.lnk   WINQUERYOBJECTWINDOW        .00002 RESIDENT,
- @%append $^&.lnk   WINREGISTERCLASS            .00003 RESIDENT,
- @%append $^&.lnk   WINQUERYCLASSNAME           .00004 RESIDENT,
- @%append $^&.lnk   WINQUERYCLASSINFO           .00005 RESIDENT,
- @%append $^&.lnk   WINCREATEWINDOW             .00006 RESIDENT,
- @%append $^&.lnk   WINDESTROYWINDOW            .00007 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWPOS             .00008 RESIDENT,
- @%append $^&.lnk   WINSETMULTWINDOWPOS         .00009 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWPOS           .00010 RESIDENT,
- @%append $^&.lnk   WINENABLEWINDOW             .00011 RESIDENT,
- @%append $^&.lnk   WINISWINDOWENABLED          .00012 RESIDENT,
- @%append $^&.lnk   WINSHOWWINDOW               .00013 RESIDENT,
- @%append $^&.lnk   WINENABLEWINDOWUPDATE       .00014 RESIDENT,
- @%append $^&.lnk   WINISWINDOWVISIBLE          .00015 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWTEXT            .00016 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWTEXT          .00017 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWTEXTLENGTH    .00018 RESIDENT,
- @%append $^&.lnk   WINWINDOWFROMID             .00019 RESIDENT,
- @%append $^&.lnk   WINMULTWINDOWFROMIDS        .00020 RESIDENT,
- @%append $^&.lnk   WINISWINDOW                 .00021 RESIDENT,
- @%append $^&.lnk   WINISCHILD                  .00022 RESIDENT,
- @%append $^&.lnk   WINSETPARENT                .00023 RESIDENT,
- @%append $^&.lnk   WINSETOWNER                 .00024 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOW              .00025 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWRECT          .00026 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWPROCESS       .00027 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWUSHORT          .00028 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWUSHORT        .00029 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWULONG           .00030 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWULONG         .00031 RESIDENT,
- @%append $^&.lnk   WINBEGINENUMWINDOWS         .00032 RESIDENT,
- @%append $^&.lnk   WINGETNEXTWINDOW            .00033 RESIDENT,
- @%append $^&.lnk   WINENDENUMWINDOWS           .00034 RESIDENT,
- @%append $^&.lnk   WINWINDOWFROMPOINT          .00035 RESIDENT,
- @%append $^&.lnk   WINMAPWINDOWPOINTS          .00036 RESIDENT,
- @%append $^&.lnk   WINSUBCLASSWINDOW           .00037 RESIDENT,
- @%append $^&.lnk   WINLOCKWINDOW               .00038 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWLOCKCOUNT     .00039 RESIDENT,
- @%append $^&.lnk   WINREGISTERWINDOWDESTROY    .00040 RESIDENT,
- @%append $^&.lnk   WINOPENWINDOWDC             .00041 RESIDENT,
- @%append $^&.lnk   WINGETSCREENPS              .00042 RESIDENT,
- @%append $^&.lnk   WINGETPS                    .00043 RESIDENT,
- @%append $^&.lnk   WINRELEASEPS                .00044 RESIDENT,
- @%append $^&.lnk   WINBEGINPAINT               .00045 RESIDENT,
- @%append $^&.lnk   WINENDPAINT                 .00046 RESIDENT,
- @%append $^&.lnk   WININVALIDATERECT           .00047 RESIDENT,
- @%append $^&.lnk   WININVALIDATEREGION         .00048 RESIDENT,
- @%append $^&.lnk   WINVALIDATERECT             .00049 RESIDENT,
- @%append $^&.lnk   WINVALIDATEREGION           .00050 RESIDENT,
- @%append $^&.lnk   WINQUERYUPDATERECT          .00051 RESIDENT,
- @%append $^&.lnk   WINQUERYUPDATEREGION        .00052 RESIDENT,
- @%append $^&.lnk   WINUPDATEWINDOW             .00053 RESIDENT,
- @%append $^&.lnk   WINEXCLUDEUPDATEREGION      .00054 RESIDENT,
- @%append $^&.lnk   WINLOCKWINDOWUPDATE         .00055 RESIDENT,
- @%append $^&.lnk   WINLOCKVISREGIONS           .00056 RESIDENT,
- @%append $^&.lnk   WINWINDOWFROMDC             .00057 RESIDENT,
- @%append $^&.lnk   WINCREATEMSGQUEUE           .00058 RESIDENT,
- @%append $^&.lnk   WINDESTROYMSGQUEUE          .00059 RESIDENT,
- @%append $^&.lnk   WINQUERYQUEUESTATUS         .00060 RESIDENT,
- @%append $^&.lnk   WINSENDMSG                  .00061 RESIDENT,
- @%append $^&.lnk   WINBROADCASTMSG             .00063 RESIDENT,
- @%append $^&.lnk   WININSENDMSG                .00064 RESIDENT,
- @%append $^&.lnk   WINGETMSG                   .00065 RESIDENT,
- @%append $^&.lnk   WINPEEKMSG                  .00066 RESIDENT,
- @%append $^&.lnk   WINWAITMSG                  .00067 RESIDENT,
- @%append $^&.lnk   WINDISPATCHMSG              .00068 RESIDENT,
- @%append $^&.lnk   WINPOSTMSG                  .00069 RESIDENT,
- @%append $^&.lnk   WINPOSTQUEUEMSG             .00070 RESIDENT,
- @%append $^&.lnk   WINQUERYMSGPOS              .00071 RESIDENT,
- @%append $^&.lnk   WINQUERYMSGTIME             .00072 RESIDENT,
- @%append $^&.lnk   WINCALLMSGFILTER            .00073 RESIDENT,
- @%append $^&.lnk   WINSETMSGINTEREST           .00074 RESIDENT,
- @%append $^&.lnk   WINSETCAPTURE               .00075 RESIDENT,
- @%append $^&.lnk   WINQUERYCAPTURE             .00076 RESIDENT,
- @%append $^&.lnk   WINSETFOCUS                 .00077 RESIDENT,
- @%append $^&.lnk   WINQUERYFOCUS               .00078 RESIDENT,
- @%append $^&.lnk   WINSETACTIVEWINDOW          .00079 RESIDENT,
- @%append $^&.lnk   WINQUERYACTIVEWINDOW        .00080 RESIDENT,
- @%append $^&.lnk   WINSETSYSMODALWINDOW        .00081 RESIDENT,
- @%append $^&.lnk   WINQUERYSYSMODALWINDOW      .00082 RESIDENT,
- @%append $^&.lnk   WINISTHREADACTIVE           .00083 RESIDENT,
- @%append $^&.lnk   WINSTARTTIMER               .00084 RESIDENT,
- @%append $^&.lnk   WINSTOPTIMER                .00085 RESIDENT,
- @%append $^&.lnk   WINGETCURRENTTIME           .00086 RESIDENT,
- @%append $^&.lnk   WINLOADPOINTER              .00087 RESIDENT,
- @%append $^&.lnk   WINCREATEPOINTER            .00088 RESIDENT,
- @%append $^&.lnk   WINDESTROYPOINTER           .00089 RESIDENT,
- @%append $^&.lnk   WINQUERYSYSPOINTER          .00091 RESIDENT,
- @%append $^&.lnk   WINSETPOINTER               .00092 RESIDENT,
- @%append $^&.lnk   WINQUERYPOINTER             .00093 RESIDENT,
- @%append $^&.lnk   WINSHOWPOINTER              .00094 RESIDENT,
- @%append $^&.lnk   WINSETPOINTERPOS            .00095 RESIDENT,
- @%append $^&.lnk   WINQUERYPOINTERPOS          .00096 RESIDENT,
- @%append $^&.lnk   WINGETSYSBITMAP             .00097 RESIDENT,
- @%append $^&.lnk   WINCREATECURSOR             .00098 RESIDENT,
- @%append $^&.lnk   WINDESTROYCURSOR            .00099 RESIDENT,
- @%append $^&.lnk   WINSHOWCURSOR               .00100 RESIDENT,
- @%append $^&.lnk   WINQUERYCURSORINFO          .00101 RESIDENT,
- @%append $^&.lnk   WINLOADACCELTABLE           .00102 RESIDENT,
- @%append $^&.lnk   WINCREATEACCELTABLE         .00103 RESIDENT,
- @%append $^&.lnk   WINDESTROYACCELTABLE        .00104 RESIDENT,
- @%append $^&.lnk   WINTRANSLATEACCEL           .00105 RESIDENT,
- @%append $^&.lnk   WINSETACCELTABLE            .00106 RESIDENT,
- @%append $^&.lnk   WINQUERYACCELTABLE          .00107 RESIDENT,
- @%append $^&.lnk   WINCOPYACCELTABLE           .00108 RESIDENT,
- @%append $^&.lnk   WINSETHOOK                  .00109 RESIDENT,
- @%append $^&.lnk   WINRELEASEHOOK              .00110 RESIDENT,
- @%append $^&.lnk   WINOPENCLIPBRD              .00111 RESIDENT,
- @%append $^&.lnk   WINCLOSECLIPBRD             .00112 RESIDENT,
- @%append $^&.lnk   WINEMPTYCLIPBRD             .00113 RESIDENT,
- @%append $^&.lnk   WINSETCLIPBRDOWNER          .00114 RESIDENT,
- @%append $^&.lnk   WINQUERYCLIPBRDOWNER        .00115 RESIDENT,
- @%append $^&.lnk   WINSETCLIPBRDDATA           .00116 RESIDENT,
- @%append $^&.lnk   WINQUERYCLIPBRDDATA         .00117 RESIDENT,
- @%append $^&.lnk   WINENUMCLIPBRDFMTS          .00118 RESIDENT,
- @%append $^&.lnk   WINQUERYCLIPBRDFMTINFO      .00119 RESIDENT,
- @%append $^&.lnk   WINSETCLIPBRDVIEWER         .00120 RESIDENT,
- @%append $^&.lnk   WINQUERYCLIPBRDVIEWER       .00121 RESIDENT,
- @%append $^&.lnk   WINLOADDLG                  .00122 RESIDENT,
- @%append $^&.lnk   WINCREATEDLG                .00123 RESIDENT,
- @%append $^&.lnk   WINPROCESSDLG               .00124 RESIDENT,
- @%append $^&.lnk   WINDLGBOX                   .00125 RESIDENT,
- @%append $^&.lnk   WINDISMISSDLG               .00126 RESIDENT,
- @%append $^&.lnk   WINSENDDLGITEMMSG           .00127 RESIDENT,
- @%append $^&.lnk   WINSETDLGITEMSHORT          .00128 RESIDENT,
- @%append $^&.lnk   WINQUERYDLGITEMSHORT        .00129 RESIDENT,
- @%append $^&.lnk   WINMAPDLGPOINTS             .00130 RESIDENT,
- @%append $^&.lnk   WINSUBSTITUTESTRINGS        .00132 RESIDENT,
- @%append $^&.lnk   WINENUMDLGITEM              .00133 RESIDENT,
- @%append $^&.lnk   WINSETDLGITEMTEXT           .00134 RESIDENT,
- @%append $^&.lnk   WINQUERYDLGITEMTEXT         .00135 RESIDENT,
- @%append $^&.lnk   WINLOADMENU                 .00136 RESIDENT,
- @%append $^&.lnk   WINCREATEMENU               .00137 RESIDENT,
- @%append $^&.lnk   WINALARM                    .00138 RESIDENT,
- @%append $^&.lnk   WINMESSAGEBOX               .00139 RESIDENT,
- @%append $^&.lnk   WINCREATESTDWINDOW          .00140 RESIDENT,
- @%append $^&.lnk   WINCREATEFRAMECONTROLS      .00141 RESIDENT,
- @%append $^&.lnk   WINCALCFRAMERECT            .00143 RESIDENT,
- @%append $^&.lnk   WINFLASHWINDOW              .00144 RESIDENT,
- @%append $^&.lnk   WINGETMINPOSITION           .00146 RESIDENT,
- @%append $^&.lnk   WINGETMAXPOSITION           .00147 RESIDENT,
- @%append $^&.lnk   WINQUERYSYSVALUE            .00149 RESIDENT,
- @%append $^&.lnk   WINSETSYSVALUE              .00150 RESIDENT,
- @%append $^&.lnk   WINSETSYSCOLORS             .00151 RESIDENT,
- @%append $^&.lnk   WINQUERYSYSCOLOR            .00152 RESIDENT,
- @%append $^&.lnk   WINSCROLLWINDOW             .00153 RESIDENT,
- @%append $^&.lnk   WINTRACKRECT                .00154 RESIDENT,
- @%append $^&.lnk   WINSHOWTRACKRECT            .00155 RESIDENT,
- @%append $^&.lnk   GPILOADBITMAP               .00156 RESIDENT,
- @%append $^&.lnk   WINLOADSTRING               .00157 RESIDENT,
- @%append $^&.lnk   WINLOADMESSAGE              .00158 RESIDENT,
- @%append $^&.lnk   WINSETRECTEMPTY             .00159 RESIDENT,
- @%append $^&.lnk   WINSETRECT                  .00160 RESIDENT,
- @%append $^&.lnk   WINCOPYRECT                 .00161 RESIDENT,
- @%append $^&.lnk   WINISRECTEMPTY              .00162 RESIDENT,
- @%append $^&.lnk   WINEQUALRECT                .00163 RESIDENT,
- @%append $^&.lnk   WINPTINRECT                 .00164 RESIDENT,
- @%append $^&.lnk   WINOFFSETRECT               .00165 RESIDENT,
- @%append $^&.lnk   WININFLATERECT              .00166 RESIDENT,
- @%append $^&.lnk   WININTERSECTRECT            .00167 RESIDENT,
- @%append $^&.lnk   WINUNIONRECT                .00168 RESIDENT,
- @%append $^&.lnk   WINSUBTRACTRECT             .00169 RESIDENT,
- @%append $^&.lnk   WINMAKERECT                 .00170 RESIDENT,
- @%append $^&.lnk   WINMAKEPOINTS               .00171 RESIDENT,
- @%append $^&.lnk   WININVERTRECT               .00172 RESIDENT,
- @%append $^&.lnk   WINFILLRECT                 .00173 RESIDENT,
- @%append $^&.lnk   KBDPACKET                   .00174 RESIDENT,
- @%append $^&.lnk   WINDRAWPOINTER              .00177 RESIDENT,
- @%append $^&.lnk   WINDEFWINDOWPROC            .00178 RESIDENT,
- @%append $^&.lnk   WINDEFDLGPROC               .00179 RESIDENT,
- @%append $^&.lnk   WINGETKEYSTATE              .00211 RESIDENT,
- @%append $^&.lnk   WINGETPHYSKEYSTATE          .00212 RESIDENT,
- @%append $^&.lnk   WINSETKEYBOARDSTATETABLE    .00213 RESIDENT,
- @%append $^&.lnk   WINENABLEPHYSINPUT          .00214 RESIDENT,
- @%append $^&.lnk   WINSETCP                    .00215 RESIDENT,
- @%append $^&.lnk   WINQUERYCP                  .00216 RESIDENT,
- @%append $^&.lnk   WINQUERYCPLIST              .00217 RESIDENT,
- @%append $^&.lnk   WINCPTRANSLATESTRING        .00218 RESIDENT,
- @%append $^&.lnk   WINCPTRANSLATECHAR          .00219 RESIDENT,
- @%append $^&.lnk   WINCOMPARESTRINGS           .00220 RESIDENT,
- @%append $^&.lnk   WINUPPER                    .00221 RESIDENT,
- @%append $^&.lnk   WINUPPERCHAR                .00222 RESIDENT,
- @%append $^&.lnk   WINNEXTCHAR                 .00223 RESIDENT,
- @%append $^&.lnk   WINPREVCHAR                 .00224 RESIDENT,
- @%append $^&.lnk   WINCREATEHEAP               .00225 RESIDENT,
- @%append $^&.lnk   WINDESTROYHEAP              .00226 RESIDENT,
- @%append $^&.lnk   WINAVAILMEM                 .00227 RESIDENT,
- @%append $^&.lnk   WINALLOCMEM                 .00228 RESIDENT,
- @%append $^&.lnk   WINREALLOCMEM               .00229 RESIDENT,
- @%append $^&.lnk   WINFREEMEM                  .00230 RESIDENT,
- @%append $^&.lnk   WINLOCKHEAP                 .00231 RESIDENT,
- @%append $^&.lnk   WINCREATEATOMTABLE          .00233 RESIDENT,
- @%append $^&.lnk   WINDESTROYATOMTABLE         .00234 RESIDENT,
- @%append $^&.lnk   WINADDATOM                  .00235 RESIDENT,
- @%append $^&.lnk   WINFINDATOM                 .00236 RESIDENT,
- @%append $^&.lnk   WINDELETEATOM               .00237 RESIDENT,
- @%append $^&.lnk   WINQUERYATOMUSAGE           .00238 RESIDENT,
- @%append $^&.lnk   WINQUERYATOMLENGTH          .00239 RESIDENT,
- @%append $^&.lnk   WINQUERYATOMNAME            .00240 RESIDENT,
- @%append $^&.lnk   WINQUERYSYSTEMATOMTABLE     .00241 RESIDENT,
- @%append $^&.lnk   WINGETLASTERROR             .00243 RESIDENT,
- @%append $^&.lnk   WINGETERRORINFO             .00244 RESIDENT,
- @%append $^&.lnk   WINFREEERRORINFO            .00245 RESIDENT,
- @%append $^&.lnk   WININITIALIZE               .00246 RESIDENT,
- @%append $^&.lnk   WINTERMINATE                .00247 RESIDENT,
- @%append $^&.lnk   WINCATCH                    .00248 RESIDENT,
- @%append $^&.lnk   WINTHROW                    .00249 RESIDENT,
- @%append $^&.lnk   WINQUERYVERSION             .00250 RESIDENT,
- @%append $^&.lnk   WINISPHYSINPUTENABLED       .00264 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWDC            .00265 RESIDENT,
- @%append $^&.lnk   WINDRAWBORDER               .00266 RESIDENT,
- @%append $^&.lnk   WINDRAWTEXT                 .00267 RESIDENT,
- @%append $^&.lnk   WINDRAWBITMAP               .00268 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWPTR           .00269 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWPTR             .00270 RESIDENT,
- @%append $^&.lnk   WINMSGSEMWAIT               .00274 RESIDENT,
- @%append $^&.lnk   WINMSGMUXSEMWAIT            .00275 RESIDENT,
- @%append $^&.lnk   WINCANCELSHUTDOWN           .00277 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWBITS            .00278 RESIDENT,
- @%append $^&.lnk   WINGETCLIPPS                .00279 RESIDENT,
- @%append $^&.lnk   WINSAVEWINDOWPOS            .00285 RESIDENT,
- @%append $^&.lnk   WINFOCUSCHANGE              .00286 RESIDENT,
- @%append $^&.lnk   WINQUERYQUEUEINFO           .00287 RESIDENT,
- @%append $^&.lnk   WINSETCLASSMSGINTEREST      .00292 RESIDENT,
- @%append $^&.lnk   WINQUERYDLGITEMTEXTLENGTH   .00294 RESIDENT,
- @%append $^&.lnk   WINDDEINITIATE              .00297 RESIDENT,
- @%append $^&.lnk   WINDDERESPOND               .00298 RESIDENT,
- @%append $^&.lnk   WINDDEPOSTMSG               .00299 RESIDENT,
- @%append $^&.lnk   WINSETPRESPARAM             .00301 RESIDENT,
- @%append $^&.lnk   WINQUERYPRESPARAM           .00302 RESIDENT,
- @%append $^&.lnk   WINREMOVEPRESPARAM          .00303 RESIDENT,
- @%append $^&.lnk   WINBUILDPTRHANDLE           .00310 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWMODEL         .00317 RESIDENT,
- @%append $^&.lnk   WINSETDESKTOPBKGND          .00318 RESIDENT,
- @%append $^&.lnk   WINQUERYDESKTOPBKGND        .00319 RESIDENT,
- @%append $^&.lnk   WINPOPUPMENU                .00320 RESIDENT,
- @%append $^&.lnk   WINREALIZEPALETTE           .00321 RESIDENT,
- @%append $^&.lnk   WINDELETELIBRARY            .00602 RESIDENT,
- @%append $^&.lnk   WINLOADPROCEDURE            .00603 RESIDENT,
- @%append $^&.lnk   WINDELETEPROCEDURE          .00604 RESIDENT,
- @%append $^&.lnk   WINSETMSGMODE               .00605 RESIDENT,
- @%append $^&.lnk   WINSETSYNCHROMODE           .00606 RESIDENT,
- @%append $^&.lnk   WINGETDLGMSG                .00607 RESIDENT,
- @%append $^&.lnk   WINREGISTERUSERMSG          .00608 RESIDENT,
- @%append $^&.lnk   WINQUERYANCHORBLOCK         .00609 RESIDENT,
- @%append $^&.lnk   WINREGISTERUSERDATATYPE     .00612 RESIDENT,
- @%append $^&.lnk   WINISWINDOWSHOWING          .00614 RESIDENT,
- @%append $^&.lnk   WINLOADLIBRARY              .00615 RESIDENT,
- @%append $^&.lnk   WINCREATEPOINTERINDIRECT    .00616 RESIDENT,
- @%append $^&.lnk   WINQUERYPOINTERINFO         .00617 RESIDENT,
- @%append $^&.lnk   WINGETERASEPS               .00624 RESIDENT,
- @%append $^&.lnk   WINRELEASEERASEPS           .00625 RESIDENT,
- @%append $^&.lnk   WINSTRETCHPOINTER           .00632 RESIDENT,
- @%append $^&.lnk   WINSETPOINTEROWNER          .00633 RESIDENT,
- @%append $^&.lnk   WINLOCKPOINTERUPDATE        .00639 RESIDENT,
- @%append $^&.lnk   WINCHECKINPUT               .00640 RESIDENT,
- @%append $^&.lnk   WINSETCLASSTHUNKPROC        .00959 RESIDENT,
- @%append $^&.lnk   WINQUERYCLASSTHUNKPROC      .00960 RESIDENT,
- @%append $^&.lnk   WINSETWINDOWTHUNKPROC       .00961 RESIDENT,
- @%append $^&.lnk   WINQUERYWINDOWTHUNKPROC     .00962 RESIDENT,
- @%append $^&.lnk   WINENUMPROPERTIES           .01052 RESIDENT,
- @%append $^&.lnk   WINQUERYPROPERTY            .01053 RESIDENT,
- @%append $^&.lnk   WINREMOVEPROPERTY           .01054 RESIDENT,
- @%append $^&.lnk   WINSETPROPERTY              .01055 RESIDENT,
- @%append $^&.lnk   WINENUMCLASSPROPERTIES      .01056 RESIDENT,
- @%append $^&.lnk   WINQUERYCLASSPROPERTY       .01057 RESIDENT,
- @%append $^&.lnk   WINREMOVECLASSPROPERTY      .01058 RESIDENT,
- @%append $^&.lnk   WINSETCLASSPROPERTY         .01059 RESIDENT,
- @%append $^&.lnk   WINSETLANGINFO              .01500 RESIDENT,
- @%append $^&.lnk   WINQUERYLANGINFO            .01501 RESIDENT,
- @%append $^&.lnk   WINSETKBDLAYER              .01502 RESIDENT,
- @%append $^&.lnk   WINQUERYKBDLAYER            .01503 RESIDENT,
- @%append $^&.lnk   WINSETLANGVIEWER            .01504 RESIDENT,
- @%append $^&.lnk   WINQUERYLANGVIEWER          .01505 RESIDENT,
- @%append $^&.lnk   WINPOUREVENT                .01600 RESIDENT,
- @%append $^&.lnk   WINSETMSGQIMINFO            .01601 RESIDENT,
- @%append $^&.lnk   WINQUERYMSGQIMINFO          .01602 RESIDENT,
- @%append $^&.lnk   OLDWINQUERYPOINTERINFO      .00090,
- @%append $^&.lnk   WINFORMATFRAME              .00142,
- @%append $^&.lnk   WINSYNCSTARTPGM             .00197,
- @%append $^&.lnk   WINSCREENSWITCH             .00198,
- @%append $^&.lnk   WINRESETSYSTEM              .00199,
- @%append $^&.lnk   WINQUERYHUNGPROCESS         .00200,
- @%append $^&.lnk   WINLOADSTRINGTABLE          .00201,
- @%append $^&.lnk   WINLOADVKEYGLYPHXLATETBL    .00202,
- @%append $^&.lnk   WINLOADCHARXLATETBL         .00203,
- @%append $^&.lnk   WINSETVKEYGLYPHXLATETBL     .00204,
- @%append $^&.lnk   WINSETCHARXLATETBL          .00205,
- @%append $^&.lnk   WINQUERYVKEYGLYPHXLATETBL   .00206,
- @%append $^&.lnk   WINQUERYCHARXLATETBL        .00207,
- @%append $^&.lnk   WINVKEYGLYPHCHARXLATE       .00208,
- @%append $^&.lnk   WINVKEYTOSCANID             .00209,
- @%append $^&.lnk   WINQUERYPROCESSCP           .00210,
- @%append $^&.lnk   WINSETLASTERROR             .00242,
- @%append $^&.lnk   FSRSEMENTER                 .00251,
- @%append $^&.lnk   FSRSEMLEAVE                 .00252,
- @%append $^&.lnk   FSRSEMEXIT                  .00253,
- @%append $^&.lnk   FSRSEMCHECK                 .00254,
- @%append $^&.lnk   FSRSEMENTERP                .00255,
- @%append $^&.lnk   AABGETREG                   .00256,
- @%append $^&.lnk   AABSETREG                   .00257,
- @%append $^&.lnk   VALIDATESELECTOR            .00258,
- @%append $^&.lnk   LOADMODULEHANDLE            .00259,
- @%append $^&.lnk   GETSCREENSELECTOR           .00260,
- @%append $^&.lnk   IDENTIFYCODESELECTOR        .00261,
- @%append $^&.lnk   WINQUERYWINDOWSGID          .00262,
- @%append $^&.lnk   _WINSETERRORINFO            .00263,
- @%append $^&.lnk   WIN16INITIALIZESYSTEM       .00271,
- @%append $^&.lnk   WINTERMINATESYSTEM          .00272,
- @%append $^&.lnk   WIN16LOCKSTARTINPUT         .00273,
- @%append $^&.lnk   WINSYSTEMSHUTDOWN           .00276,
- @%append $^&.lnk   WINSENDQUEUEMSG             .00281,
- @%append $^&.lnk   WINSETQUEUEPROC             .00282,
- @%append $^&.lnk   WINDEFQUEUEPROC             .00283,
- @%append $^&.lnk   WINCALLHELPHOOK             .00288,
- @%append $^&.lnk   WINSETATOMTABLEOWNER        .00289,
- @%append $^&.lnk   WINISSHUTTINGDOWN           .00290,
- @%append $^&.lnk   WINTERMINATESHUTDOWN        .00291,
- @%append $^&.lnk   VISREGIONCALLBACK           .00293,
- @%append $^&.lnk   WINQUERYKBDLAYOUT           .00295,
- @%append $^&.lnk   WINSETKBDLAYOUT             .00296,
- @%append $^&.lnk   WIN16CANCELMODE             .00300,
- @%append $^&.lnk   WINTHREADASSOCQUEUE         .00304,
- @%append $^&.lnk   WINQUEUEFROMID              .00305,
- @%append $^&.lnk   WINQUERYSENDMSG             .00306,
- @%append $^&.lnk   WINREPLYMSG                 .00307,
- @%append $^&.lnk   WINWAKETHREAD               .00308,
- @%append $^&.lnk   WINLOCKINPUT                .00309,
- @%append $^&.lnk   DUMWINCREATEHELPINSTANCE    .00311,
- @%append $^&.lnk   DUMWINDESTROYHELPINSTANCE   .00312,
- @%append $^&.lnk   DUMWINASSOCIATEHELPINSTANCE .00313,
- @%append $^&.lnk   DUMWINCREATEHELPTABLE       .00314,
- @%append $^&.lnk   DUMWINLOADHELPTABLE         .00315,
- @%append $^&.lnk   DUMWINQUERYHELPINSTANCE     .00316,
- @%append $^&.lnk   DUMMYHELPENTRY              .00322,
- @%append $^&.lnk   GETPMDDCODESELECTOR         .00325,
- @%append $^&.lnk   WINSEMENTER                 .00326,
- @%append $^&.lnk   WINSEMLEAVE                 .00327,
- @%append $^&.lnk   WINQUERYPWND                .00328,
- @%append $^&.lnk   WINQUERYSTATE               .00329,
- @%append $^&.lnk   WINLOADANIPOINTER           .00330,
- @%append $^&.lnk   WINDESTROYANIPOINTER        .00331,
- @%append $^&.lnk   WINSETANIPOINTER            .00332,
- @%append $^&.lnk   WINENUMVKEYSCANIDS          .00333,
- @%append $^&.lnk   WINSEMQUERY                 .00334,
- @%append $^&.lnk   WINLOADTRANSLATIONTABLE     .00400,
- @%append $^&.lnk   WINSETKBDLAYOUT2            .00401,
- @%append $^&.lnk   WINSEAMLESSBOX              .00495,
- @%append $^&.lnk   WINJIGGLEMOUSE              .00497,
- @%append $^&.lnk   WINTRACKSEAMLESS            .00498,
- @%append $^&.lnk   WINREGISTERSEAMLESSPROC     .00499,
- @%append $^&.lnk   ABNORMALPROCESSEXIT         .00500,
- @%append $^&.lnk   WINPROFCONTROL              .00508,
- @%append $^&.lnk   DEBUGINPUTENABLE            .00509,
- @%append $^&.lnk   DEBUGINPUT                  .00510,
- @%append $^&.lnk   DEBUGOUTPUT                 .00511,
- @%append $^&.lnk   DEBUGCURPOS                 .00512,
- @%append $^&.lnk   DEBUGCLS                    .00513,
- @%append $^&.lnk   WINDEBUGBREAK               .00514,
- @%append $^&.lnk   DEBUGREDIRECT               .00515,
- @%append $^&.lnk   INPUTGETDEVICEINFO          .00590,
- @%append $^&.lnk   STARTTIMER                  .00600,
- @%append $^&.lnk   DESTROYTIMERS               .00601,
- @%append $^&.lnk   WINLANGSUPWINDOWPROC        .00610,
- @%append $^&.lnk   WINLANGSUPDLGPROC           .00611,
- @%append $^&.lnk   FARCALLHOOK                 .00613,
- @%append $^&.lnk   WINSETMENUDATA              .00618,
- @%append $^&.lnk   WINQUERYMENUDATA            .00619,
- @%append $^&.lnk   WINMENUINDEXFROMID          .00620,
- @%append $^&.lnk   WINFORCEMENUREDRAW          .00621,
- @%append $^&.lnk   WINGETSCANSTATE             .00622,
- @%append $^&.lnk   WINSETSCANSTATETABLE        .00623,
- @%append $^&.lnk   WINSETWINDOWDC              .00626,
- @%append $^&.lnk   WINTRANSLATECHAR            .00627,
- @%append $^&.lnk   WINPORTHOLEUTIL             .00628,
- @%append $^&.lnk   WINEXPLODEWINDOW            .00629,
- @%append $^&.lnk   WINSETACCELTABLEVALUE       .00630,
- @%append $^&.lnk   WINQUERYACCELTABLEVALUE     .00631,
- @%append $^&.lnk   WINGETFRAMETREEPPSIZE       .00634,
- @%append $^&.lnk   WINGETFRAMETREEPPS          .00635,
- @%append $^&.lnk   WINSETFRAMETREEPPS          .00636,
- @%append $^&.lnk   WIN16GETMINWINDOWVIEWER     .00637,
- @%append $^&.lnk   WINQUERYWORKPLACEWINDOW     .00638,
- @%append $^&.lnk   FARFLUSHBUFHOOK             .00641,
- @%append $^&.lnk   WinAddAtom                  .00700,
- @%append $^&.lnk   WinAlarm                    .00701,
- @%append $^&.lnk   WinBeginEnumWindows         .00702,
- @%append $^&.lnk   WinBeginPaint               .00703,
- @%append $^&.lnk   WinCalcFrameRect            .00704,
- @%append $^&.lnk   WinCancelShutdown           .00705,
- @%append $^&.lnk   WinCloseClipbrd             .00707,
- @%append $^&.lnk   WinCompareStrings           .00708,
- @%append $^&.lnk   WinCopyAccelTable           .00709,
- @%append $^&.lnk   WinCopyRect                 .00710,
- @%append $^&.lnk   WinCpTranslateChar          .00711,
- @%append $^&.lnk   WinCpTranslateString        .00712,
- @%append $^&.lnk   WinCreateAccelTable         .00713,
- @%append $^&.lnk   WinCreateAtomTable          .00714,
- @%append $^&.lnk   WinCreateCursor             .00715,
- @%append $^&.lnk   WinCreatePointer            .00717,
- @%append $^&.lnk   WinDdeInitiate              .00718,
- @%append $^&.lnk   WinDdePostMsg               .00719,
- @%append $^&.lnk   WinDdeRespond               .00720,
- @%append $^&.lnk   WinDeleteAtom               .00721,
- @%append $^&.lnk   WinDeleteLibrary            .00722,
- @%append $^&.lnk   WinDestroyAccelTable        .00723,
- @%append $^&.lnk   WinDestroyAtomTable         .00724,
- @%append $^&.lnk   WinDestroyCursor            .00725,
- @%append $^&.lnk   WinDestroyPointer           .00727,
- @%append $^&.lnk   WinDismissDlg               .00729,
- @%append $^&.lnk   WinDrawBitmap               .00730,
- @%append $^&.lnk   WinDrawBorder               .00731,
- @%append $^&.lnk   WinDrawPointer              .00732,
- @%append $^&.lnk   WinEmptyClipbrd             .00733,
- @%append $^&.lnk   WinEnablePhysInput          .00734,
- @%append $^&.lnk   WinEnableWindow             .00735,
- @%append $^&.lnk   WinEnableWindowUpdate       .00736,
- @%append $^&.lnk   WinEndEnumWindows           .00737,
- @%append $^&.lnk   WinEndPaint                 .00738,
- @%append $^&.lnk   WinEnumClipbrdFmts          .00739,
- @%append $^&.lnk   WinEnumDlgItem              .00740,
- @%append $^&.lnk   WinEqualRect                .00741,
- @%append $^&.lnk   WinExcludeUpdateRegion      .00742,
- @%append $^&.lnk   WinFillRect                 .00743,
- @%append $^&.lnk   WinFindAtom                 .00744,
- @%append $^&.lnk   WinFlashWindow              .00745,
- @%append $^&.lnk   WinFocusChange              .00746,
- @%append $^&.lnk   WinFreeErrorInfo            .00748,
- @%append $^&.lnk   WinGetClipPS                .00749,
- @%append $^&.lnk   WinGetCurrentTime           .00750,
- @%append $^&.lnk   WinGetErrorInfo             .00751,
- @%append $^&.lnk   WinGetKeyState              .00752,
- @%append $^&.lnk   WinGetLastError             .00753,
- @%append $^&.lnk   WinGetMaxPosition           .00754,
- @%append $^&.lnk   WinGetMinPosition           .00755,
- @%append $^&.lnk   WinGetNextWindow            .00756,
- @%append $^&.lnk   WinGetPS                    .00757,
- @%append $^&.lnk   WinGetPhysKeyState          .00758,
- @%append $^&.lnk   WinGetScreenPS              .00759,
- @%append $^&.lnk   WinGetSysBitmap             .00760,
- @%append $^&.lnk   WinInSendMsg                .00761,
- @%append $^&.lnk   WinInflateRect              .00762,
- @%append $^&.lnk   WinIntersectRect            .00764,
- @%append $^&.lnk   WinInvalidateRect           .00765,
- @%append $^&.lnk   WinInvalidateRegion         .00766,
- @%append $^&.lnk   WinInvertRect               .00767,
- @%append $^&.lnk   WinIsChild                  .00768,
- @%append $^&.lnk   WinIsPhysInputEnabled       .00769,
- @%append $^&.lnk   WinIsRectEmpty              .00770,
- @%append $^&.lnk   WinIsThreadActive           .00771,
- @%append $^&.lnk   WinIsWindow                 .00772,
- @%append $^&.lnk   WinIsWindowEnabled          .00773,
- @%append $^&.lnk   WinIsWindowShowing          .00774,
- @%append $^&.lnk   WinIsWindowVisible          .00775,
- @%append $^&.lnk   WinLoadAccelTable           .00776,
- @%append $^&.lnk   WinLoadLibrary              .00777,
- @%append $^&.lnk   WinLoadMenu                 .00778,
- @%append $^&.lnk   WinLoadMessage              .00779,
- @%append $^&.lnk   WinLoadPointer              .00780,
- @%append $^&.lnk   WinLoadString               .00781,
- @%append $^&.lnk   WinLockVisRegions           .00782,
- @%append $^&.lnk   WinLockWindowUpdate         .00784,
- @%append $^&.lnk   WinMakePoints               .00785,
- @%append $^&.lnk   WinMakeRect                 .00786,
- @%append $^&.lnk   WinMapDlgPoints             .00787,
- @%append $^&.lnk   WinMapWindowPoints          .00788,
- @%append $^&.lnk   WinMessageBox               .00789,
- @%append $^&.lnk   WinMsgSemWait               .00790,
- @%append $^&.lnk   WinNextChar                 .00791,
- @%append $^&.lnk   WinOffsetRect               .00792,
- @%append $^&.lnk   WinOpenClipbrd              .00793,
- @%append $^&.lnk   WinOpenWindowDC             .00794,
- @%append $^&.lnk   WinPrevChar                 .00795,
- @%append $^&.lnk   WinProcessDlg               .00796,
- @%append $^&.lnk   WinPtInRect                 .00797,
- @%append $^&.lnk   WinQueryAccelTable          .00798,
- @%append $^&.lnk   WinQueryActiveWindow        .00799,
- @%append $^&.lnk   WinQueryAnchorBlock         .00800,
- @%append $^&.lnk   WinQueryAtomLength          .00801,
- @%append $^&.lnk   WinQueryAtomName            .00802,
- @%append $^&.lnk   WinQueryAtomUsage           .00803,
- @%append $^&.lnk   WinQueryCapture             .00804,
- @%append $^&.lnk   WinQueryClassName           .00805,
- @%append $^&.lnk   WinQueryClipbrdData         .00806,
- @%append $^&.lnk   WinQueryClipbrdFmtInfo      .00807,
- @%append $^&.lnk   WinQueryClipbrdOwner        .00808,
- @%append $^&.lnk   WinQueryClipbrdViewer       .00809,
- @%append $^&.lnk   WinQueryCp                  .00810,
- @%append $^&.lnk   WinQueryCpList              .00811,
- @%append $^&.lnk   WinQueryCursorInfo          .00812,
- @%append $^&.lnk   WinQueryDesktopWindow       .00813,
- @%append $^&.lnk   WinQueryDlgItemShort        .00814,
- @%append $^&.lnk   WinQueryDlgItemText         .00815,
- @%append $^&.lnk   WinQueryDlgItemTextLength   .00816,
- @%append $^&.lnk   WinQueryFocus               .00817,
- @%append $^&.lnk   WinQueryMsgPos              .00818,
- @%append $^&.lnk   WinQueryMsgTime             .00819,
- @%append $^&.lnk   WinQueryObjectWindow        .00820,
- @%append $^&.lnk   WinQueryPointer             .00821,
- @%append $^&.lnk   WinQueryPointerInfo         .00822,
- @%append $^&.lnk   WinQueryPointerPos          .00823,
- @%append $^&.lnk   WinQueryQueueInfo           .00824,
- @%append $^&.lnk   WinQueryQueueStatus         .00825,
- @%append $^&.lnk   WinQuerySysColor            .00826,
- @%append $^&.lnk   WinQuerySysModalWindow      .00827,
- @%append $^&.lnk   WinQuerySysPointer          .00828,
- @%append $^&.lnk   WinQuerySysValue            .00829,
- @%append $^&.lnk   WinQuerySystemAtomTable     .00830,
- @%append $^&.lnk   WinQueryUpdateRect          .00831,
- @%append $^&.lnk   WinQueryUpdateRegion        .00832,
- @%append $^&.lnk   WinQueryVersion             .00833,
- @%append $^&.lnk   WinQueryWindow              .00834,
- @%append $^&.lnk   WinQueryWindowDC            .00835,
- @%append $^&.lnk   WinQueryWindowPos           .00837,
- @%append $^&.lnk   WinQueryWindowProcess       .00838,
- @%append $^&.lnk   WinQueryWindowPtr           .00839,
- @%append $^&.lnk   WinQueryWindowRect          .00840,
- @%append $^&.lnk   WinQueryWindowText          .00841,
- @%append $^&.lnk   WinQueryWindowTextLength    .00842,
- @%append $^&.lnk   WinQueryWindowULong         .00843,
- @%append $^&.lnk   WinQueryWindowUShort        .00844,
- @%append $^&.lnk   WinRegisterUserDatatype     .00845,
- @%append $^&.lnk   WinRegisterUserMsg          .00846,
- @%append $^&.lnk   WinReleasePS                .00848,
- @%append $^&.lnk   WinScrollWindow             .00849,
- @%append $^&.lnk   WinSetAccelTable            .00850,
- @%append $^&.lnk   WinSetActiveWindow          .00851,
- @%append $^&.lnk   WinSetCapture               .00852,
- @%append $^&.lnk   WinSetClassMsgInterest      .00853,
- @%append $^&.lnk   WinSetClipbrdData           .00854,
- @%append $^&.lnk   WinSetClipbrdOwner          .00855,
- @%append $^&.lnk   WinSetClipbrdViewer         .00856,
- @%append $^&.lnk   WinSetCp                    .00857,
- @%append $^&.lnk   WinSetDlgItemShort          .00858,
- @%append $^&.lnk   WinSetDlgItemText           .00859,
- @%append $^&.lnk   WinSetFocus                 .00860,
- @%append $^&.lnk   WinSetMsgInterest           .00861,
- @%append $^&.lnk   WinSetMsgMode               .00862,
- @%append $^&.lnk   WinSetMultWindowPos         .00863,
- @%append $^&.lnk   WinSetOwner                 .00864,
- @%append $^&.lnk   WinSetParent                .00865,
- @%append $^&.lnk   WinSetPointer               .00866,
- @%append $^&.lnk   WinSetPointerPos            .00867,
- @%append $^&.lnk   WinSetRect                  .00868,
- @%append $^&.lnk   WinSetRectEmpty             .00869,
- @%append $^&.lnk   WinSetSynchroMode           .00870,
- @%append $^&.lnk   WinSetSysColors             .00871,
- @%append $^&.lnk   WinSetSysModalWindow        .00872,
- @%append $^&.lnk   WinSetSysValue              .00873,
- @%append $^&.lnk   WinSetWindowBits            .00874,
- @%append $^&.lnk   WinSetWindowPos             .00875,
- @%append $^&.lnk   WinSetWindowPtr             .00876,
- @%append $^&.lnk   WinSetWindowText            .00877,
- @%append $^&.lnk   WinSetWindowULong           .00878,
- @%append $^&.lnk   WinSetWindowUShort          .00879,
- @%append $^&.lnk   WinShowCursor               .00880,
- @%append $^&.lnk   WinShowPointer              .00881,
- @%append $^&.lnk   WinShowTrackRect            .00882,
- @%append $^&.lnk   WinShowWindow               .00883,
- @%append $^&.lnk   WinStartTimer               .00884,
- @%append $^&.lnk   WinStopTimer                .00885,
- @%append $^&.lnk   WinSubstituteStrings        .00886,
- @%append $^&.lnk   WinSubtractRect             .00887,
- @%append $^&.lnk   WinTrackRect                .00890,
- @%append $^&.lnk   WinUnionRect                .00891,
- @%append $^&.lnk   WinUpdateWindow             .00892,
- @%append $^&.lnk   WinUpper                    .00893,
- @%append $^&.lnk   WinUpperChar                .00894,
- @%append $^&.lnk   WinValidateRect             .00895,
- @%append $^&.lnk   WinValidateRegion           .00896,
- @%append $^&.lnk   WinWaitMsg                  .00897,
- @%append $^&.lnk   WinWindowFromDC             .00898,
- @%append $^&.lnk   WinWindowFromID             .00899,
- @%append $^&.lnk   WinWindowFromPoint          .00900,
- @%append $^&.lnk   WinBroadcastMsg             .00901,
- @%append $^&.lnk   WinPostQueueMsg             .00902,
- @%append $^&.lnk   WinSendDlgItemMsg           .00903,
- @%append $^&.lnk   WinTranslateAccel           .00904,
- @%append $^&.lnk   WinCallMsgFilter            .00905,
- @%append $^&.lnk   WinCreateFrameControls      .00906,
- @%append $^&.lnk   WinCreateMenu               .00907,
- @%append $^&.lnk   WinCreateWindow             .00909,
- @%append $^&.lnk   WinDefDlgProc               .00910,
- @%append $^&.lnk   WinDrawText                 .00913,
- @%append $^&.lnk   WinGetDlgMsg                .00914,
- @%append $^&.lnk   WinMsgMuxSemWait            .00916,
- @%append $^&.lnk   WinMultWindowFromIDs        .00917,
- @%append $^&.lnk   WinPeekMsg                  .00918,
- @%append $^&.lnk   WinPostMsg                  .00919,
- @%append $^&.lnk   WinSetKeyboardStateTable    .00921,
- @%append $^&.lnk   WinCreateDlg                .00922,
- @%append $^&.lnk   WinDlgBox                   .00923,
- @%append $^&.lnk   WinLoadDlg                  .00924,
- @%append $^&.lnk   WinQueryClassInfo           .00925,
- @%append $^&.lnk   WinReleaseHook              .00927,
- @%append $^&.lnk   WinSetHook                  .00928,
- @%append $^&.lnk   WinSubclassWindow           .00929,
- @%append $^&.lnk   WinSetClassThunkProc        .00930,
- @%append $^&.lnk   WinQueryClassThunkProc      .00931,
- @%append $^&.lnk   WinSetWindowThunkProc       .00932,
- @%append $^&.lnk   WinQueryWindowThunkProc     .00933,
- @%append $^&.lnk   WinQueryWindowModel         .00934,
- @%append $^&.lnk   WinSetDesktopBkgnd          .00935,
- @%append $^&.lnk   WinQueryDesktopBkgnd        .00936,
- @%append $^&.lnk   WinPopupMenu                .00937,
- @%append $^&.lnk   WinSetPresParam             .00938,
- @%append $^&.lnk   WinQueryPresParam           .00939,
- @%append $^&.lnk   WinRemovePresParam          .00940,
- @%append $^&.lnk   WinRealizePalette           .00941,
- @%append $^&.lnk   WinCreatePointerIndirect    .00942,
- @%append $^&.lnk   WinSaveWindowPos            .00943,
- @%append $^&.lnk   WINCREATEFARHEAP            .00947,
- @%append $^&.lnk   WINDESTROYFARHEAP           .00948,
- @%append $^&.lnk   WINALLOCFARMEM              .00949,
- @%append $^&.lnk   WINFREEFARMEM               .00950,
- @%append $^&.lnk   WINREALLOCFARMEM            .00951,
- @%append $^&.lnk   WinGetErasePS               .00952,
- @%append $^&.lnk   WinReleaseErasePS           .00953,
- @%append $^&.lnk   Undocumented1               .00954,
- @%append $^&.lnk   Undocumented2               .00955,
- @%append $^&.lnk   Undocumented3               .00956,
- @%append $^&.lnk   Undocumented4               .00957,
- @%append $^&.lnk   Undocumented5               .00958,
- @%append $^&.lnk   WinSystemShutdown           .00963,
- @%append $^&.lnk   WinBuildPtrHandle           .00964,
- @%append $^&.lnk   WinExplodeWindow            .00965,
- @%append $^&.lnk   WinSetAccelTableValue       .00966,
- @%append $^&.lnk   WinQueryAccelTableValue     .00967,
- @%append $^&.lnk   WinStretchPointer           .00968,
- @%append $^&.lnk   Undocumented6               .00969,
- @%append $^&.lnk   Undocumented7               .00970,
- @%append $^&.lnk   WinSetPointerOwner          .00971,
- @%append $^&.lnk   WinGetFrameTreePPSize       .00972,
- @%append $^&.lnk   WinGetFrameTreePPs          .00973,
- @%append $^&.lnk   WinSetFrameTreePPs          .00974,
- @%append $^&.lnk   WinQueryProcessCP           .00975,
- @%append $^&.lnk   WinVisRegionNotify          .00976,
- @%append $^&.lnk   WinSetErrorInfo             .00977,
- @%append $^&.lnk   WinWaitEventSem             .00978,
- @%append $^&.lnk   WinRequestMutexSem          .00979,
- @%append $^&.lnk   WinWaitMuxWaitSem           .00980,
- @%append $^&.lnk   WINSETSYSCLIPBRDVIEWER      .00981,
- @%append $^&.lnk   WinSetSysClipbrdViewer      .00982,
- @%append $^&.lnk   WinSemQuery                 .00983,
- @%append $^&.lnk   WinSemEnter                 .00984,
- @%append $^&.lnk   WinSemLeave                 .00985,
- @%append $^&.lnk   WinLoadProcedure            .00986,
- @%append $^&.lnk   WinDeleteProcedure          .00987,
- @%append $^&.lnk   WinMoveCursor               .00988,
- @%append $^&.lnk   WinQuerySendMsg             .00990,
- @%append $^&.lnk   WinReplyMsg                 .00991,
- @%append $^&.lnk   WinWakeThread               .00992,
- @%append $^&.lnk   WinQueueFromID              .00993,
- @%append $^&.lnk   WinThreadAssocQueue         .00994,
- @%append $^&.lnk   WinLockInput                .00995,
- @%append $^&.lnk   WinSetSysFont               .00996,
- @%append $^&.lnk   WinLockPointerUpdate        .00997,
- @%append $^&.lnk   WinCheckInput               .00998,
- @%append $^&.lnk   Undocumented8               .00999,
- @%append $^&.lnk   WinQueryVisibleRegion       .01000,
- @%append $^&.lnk   WinSetVisibleRegionNotify   .01001,
- @%append $^&.lnk   WinSetSysPointerData        .01002,
- @%append $^&.lnk   WinQuerySysPointerData      .01003,
- @%append $^&.lnk   WinSeamlessBox              .01004,
- @%append $^&.lnk   WinJiggleMouse              .01005,
- @%append $^&.lnk   WinTrackSeamless            .01006,
- @%append $^&.lnk   WinRegisterSeamlessProc     .01007,
- @%append $^&.lnk   WinSetCharXlateTbl          .01008,
- @%append $^&.lnk   WinMspInit                  .01009,
- @%append $^&.lnk   WinMspAlloc                 .01010,
- @%append $^&.lnk   WinMspFree                  .01011,
- @%append $^&.lnk   Undocumented9               .01012,
- @%append $^&.lnk   Undocumented10              .01013,
- @%append $^&.lnk   WinRegisterPen              .01014,
- @%append $^&.lnk   WinMessageBox2              .01015,
- @%append $^&.lnk   fPenAvail                   .01026,
- @%append $^&.lnk   WinDrawTabbedText           .01027,
- @%append $^&.lnk   PMREQUESTMUTEXSEM           .01028,
- @%append $^&.lnk   PMRELEASEMUTEXSEM           .01029,
- @%append $^&.lnk   WinQueryPointerClipRect     .01030,
- @%append $^&.lnk   WinSetPointerClipRect       .01031,
- @%append $^&.lnk   WinWaitMsgTimeout           .01033,
- @%append $^&.lnk   WinIsWindowOfClass          .01034,
- @%append $^&.lnk   WinSetAtomTableOwner        .01035,
- @%append $^&.lnk   WinXxCreateHeap             .01036,
- @%append $^&.lnk   WinXxDestroyHeap            .01037,
- @%append $^&.lnk   WinXxAllocMem               .01038,
- @%append $^&.lnk   WinXxFreeMem                .01039,
- @%append $^&.lnk   WinXxAllocFill              .01040,
- @%append $^&.lnk   WinXxReallocMem             .01041,
- @%append $^&.lnk   WinXxQueryMemSize           .01042,
- @%append $^&.lnk   WinSetClipRegion            .01043,
- @%append $^&.lnk   WinQueryClipRegion          .01044,
- @%append $^&.lnk   Undocumented11              .01045,
- @%append $^&.lnk   Undocumented12              .01046,
- @%append $^&.lnk   Undocumented13              .01047,
- @%append $^&.lnk   Undocumented14              .01048,
- @%append $^&.lnk   Undocumented15              .01049,
- @%append $^&.lnk   Undocumented16              .01050,
- @%append $^&.lnk   Undocumented17              .01051,
- @%append $^&.lnk   Undocumented18              .01060,
- @%append $^&.lnk   Undocumented19              .01061,
- @%append $^&.lnk   Undocumented20              .01062,
- @%append $^&.lnk   WinLoadVkeyGlyphXlatetbl    .01063,
- @%append $^&.lnk   WinSetVKeyGlyphXlatetbl     .01064,
- @%append $^&.lnk   WinQueryVKeyGlyphXlatetbl   .01065,
- @%append $^&.lnk   WinTrackWindow              .01066,
- @%append $^&.lnk   WinSemEnterTimeout          .01067,
- @%append $^&.lnk   Undocumented21              .01068,
- @%append $^&.lnk   Undocumented22              .01069,
- @%append $^&.lnk   Undocumented23              .01070,
- @%append $^&.lnk   Undocumented24              .01071,
- @%append $^&.lnk   Undocumented25              .01072,
- @%append $^&.lnk   Undocumented26              .01073,
- @%append $^&.lnk   Undocumented27              .01074,
- @%append $^&.lnk   Undocumented28              .01075,
- @%append $^&.lnk   Undocumented29              .10000,
- @%append $^&.lnk   Undocumented30              .10001,
- @%append $^&.lnk   Undocumented31              .10002,
- @%append $^&.lnk   Undocumented32              .10004,
- @%append $^&.lnk   Undocumented33              .10005,
- @%append $^&.lnk   Undocumented34              .10007,
- @%append $^&.lnk   Undocumented35              .10018,
- @%append $^&.lnk   Undocumented36              .10019,
- @%append $^&.lnk   Undocumented37              .10020,
- @%append $^&.lnk   Undocumented38              .10021
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- renmodul /r $^@ pmwin fmwin
+install_pre: $(PATH)pmwin.dll .SYMBOLIC
+ @$(CD) $[:
+ renmodul /r $[. pmwin fmwin
  $(CP) pmwin.dll fmwin.dll
- renmodul /i fmwin.dll pmmerge fmmerge
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) fmwin.dll $(FILESDIR)$(SEP)os2$(SEP)dll
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ renmodul /i $[:fmwin.dll pmmerge fmmerge
+ @$(CD) $(MYDIR)

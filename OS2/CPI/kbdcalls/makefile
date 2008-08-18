@@ -4,91 +4,64 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-DIR      = $(FILESDIR)$(SEP)os2$(SEP)dll
 PROJ     = kbdcalls
 DESC     = Keyboard API
-OBJS     = ..$(SEP)shared$(SEP)stub.obj
+OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..$(SEP)include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+DLL     = 1
+DLLOPT  = initglobal
+OPTIONS = manyautodata
+IMPORTS =  KBDSETCUSTXT      DOSCALLS.745, &
+           KBDPROCESSINIT    DOSCALLS.746, &
+           KBDGETCP          DOSCALLS.747, &
+           KBDCHARIN         DOSCALLS.748, &
+           KBDSETCP          DOSCALLS.749, &
+           KBDLOADINSTANCE   DOSCALLS.750, &
+           KBDSYNCH          DOSCALLS.751, &
+           KBDREGISTER       DOSCALLS.752, &
+           KBDSTRINGIN       DOSCALLS.753, &
+           KBDGETSTATUS      DOSCALLS.754, &
+           KBDSETSTATUS      DOSCALLS.755, &
+           KBDGETFOCUS       DOSCALLS.756, &
+           KBDFLUSHBUFFER    DOSCALLS.757, &
+           KBDXLATE          DOSCALLS.758, &
+           KBDSWITCHFGND     DOSCALLS.759, &
+           KBDSHELLINIT      DOSCALLS.760, &
+           KBDCLOSE          DOSCALLS.761, &
+           KBDFREEFOCUS      DOSCALLS.762, &
+           KBDFREE           DOSCALLS.763, &
+           KBDDEREGISTER     DOSCALLS.764, &
+           KBDSETFGND        DOSCALLS.765, &
+           KBDPEEK           DOSCALLS.766, &
+           KBDOPEN           DOSCALLS.767, &
+           KBDGETHWID        DOSCALLS.768, &
+           KBDSETHWID        DOSCALLS.769
+EXPORTS =  KBDSETCUSTXT.1,     &
+           KBDPROCESSINIT.2,   &
+           KBDGETCP.3,         &
+           KBDCHARIN.4,        &
+           KBDSETCP.5,         &
+           KBDLOADINSTANCE.6,  &
+           KBDSYNCH.7,         &
+           KBDREGISTER.8,      &
+           KBDSTRINGIN.9,      &
+           KBDGETSTATUS.10,    &
+           KBDSETSTATUS.11,    &
+           KBDGETFOCUS.12,     &
+           KBDFLUSHBUFFER.13,  &
+           KBDXLATE.14,        &
+           KBDSWITCHFGND.15,   &
+           KBDSHELLINIT.16,    &
+           KBDCLOSE.17,        &
+           KBDFREEFOCUS.18,    &
+           KBDFREE.19,         &
+           KBDDEREGISTER.20,   &
+           KBDSETFGND.21,      &
+           KBDPEEK.22,         &
+           KBDOPEN.23,         &
+           KBDGETHWID.24,      &
+           KBDSETHWID.25
+DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/all.mk
-
-all: $(PROJ).dll .SYMBOLIC
-
-$(PROJ).dll: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk format    os2 lx dll initglobal
- @%append $^&.lnk option    manyautodata
- @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk import
- @%append $^&.lnk   KBDSETCUSTXT      DOSCALLS.745,
- @%append $^&.lnk   KBDPROCESSINIT    DOSCALLS.746,
- @%append $^&.lnk   KBDGETCP          DOSCALLS.747,
- @%append $^&.lnk   KBDCHARIN         DOSCALLS.748,
- @%append $^&.lnk   KBDSETCP          DOSCALLS.749,
- @%append $^&.lnk   KBDLOADINSTANCE   DOSCALLS.750,
- @%append $^&.lnk   KBDSYNCH          DOSCALLS.751,
- @%append $^&.lnk   KBDREGISTER       DOSCALLS.752,
- @%append $^&.lnk   KBDSTRINGIN       DOSCALLS.753,
- @%append $^&.lnk   KBDGETSTATUS      DOSCALLS.754,
- @%append $^&.lnk   KBDSETSTATUS      DOSCALLS.755,
- @%append $^&.lnk   KBDGETFOCUS       DOSCALLS.756,
- @%append $^&.lnk   KBDFLUSHBUFFER    DOSCALLS.757,
- @%append $^&.lnk   KBDXLATE          DOSCALLS.758,
- @%append $^&.lnk   KBDSWITCHFGND     DOSCALLS.759,
- @%append $^&.lnk   KBDSHELLINIT      DOSCALLS.760,
- @%append $^&.lnk   KBDCLOSE          DOSCALLS.761,
- @%append $^&.lnk   KBDFREEFOCUS      DOSCALLS.762,
- @%append $^&.lnk   KBDFREE           DOSCALLS.763,
- @%append $^&.lnk   KBDDEREGISTER     DOSCALLS.764,
- @%append $^&.lnk   KBDSETFGND        DOSCALLS.765,
- @%append $^&.lnk   KBDPEEK           DOSCALLS.766,
- @%append $^&.lnk   KBDOPEN           DOSCALLS.767,
- @%append $^&.lnk   KBDGETHWID        DOSCALLS.768,
- @%append $^&.lnk   KBDSETHWID        DOSCALLS.769
- @%append $^&.lnk export
- @%append $^&.lnk   KBDSETCUSTXT.1,
- @%append $^&.lnk   KBDPROCESSINIT.2,
- @%append $^&.lnk   KBDGETCP.3,
- @%append $^&.lnk   KBDCHARIN.4,
- @%append $^&.lnk   KBDSETCP.5,
- @%append $^&.lnk   KBDLOADINSTANCE.6,
- @%append $^&.lnk   KBDSYNCH.7,
- @%append $^&.lnk   KBDREGISTER.8,
- @%append $^&.lnk   KBDSTRINGIN.9,
- @%append $^&.lnk   KBDGETSTATUS.10,
- @%append $^&.lnk   KBDSETSTATUS.11,
- @%append $^&.lnk   KBDGETFOCUS.12,
- @%append $^&.lnk   KBDFLUSHBUFFER.13,
- @%append $^&.lnk   KBDXLATE.14,
- @%append $^&.lnk   KBDSWITCHFGND.15,
- @%append $^&.lnk   KBDSHELLINIT.16,
- @%append $^&.lnk   KBDCLOSE.17,
- @%append $^&.lnk   KBDFREEFOCUS.18,
- @%append $^&.lnk   KBDFREE.19,
- @%append $^&.lnk   KBDDEREGISTER.20,
- @%append $^&.lnk   KBDSETFGND.21,
- @%append $^&.lnk   KBDPEEK.22,
- @%append $^&.lnk   KBDOPEN.23,
- @%append $^&.lnk   KBDGETHWID.24,
- @%append $^&.lnk   KBDSETHWID.25
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).dll $(DIR)
+!include $(%ROOT)/mk/appsos2.mk

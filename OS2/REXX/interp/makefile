@@ -15,7 +15,7 @@ DESC     = Regina REXX interpreter
 
 HFILES = $(MYDIR)rexx.h $(MYDIR)defs.h $(MYDIR)extern.h $(MYDIR)regina_t.h $(MYDIR)configur.h $(MYDIR)strings.h
 
-GCIHEADERS = $(MYDIR)gci\gci.h $(MYDIR)gci\embedded.h $(MYDIR)gci\gci_convert.h
+GCIHEADERS = $(MYDIR)gci\gci.h $(MYDIR)gci\embedded.h $(MYDIR)gci_convert.h
 
 $(PATH)rexx.exe: $(OBJS)
 

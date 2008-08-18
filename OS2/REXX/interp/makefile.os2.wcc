@@ -38,7 +38,7 @@ HAVE_GCI = /dHAVE_GCI /i=$(SRC)gci
 #
 
 OFILES =      &
-dbg.obj       &
+#dbg.obj       &
 funcs.obj     &
 builtin.obj   &
 error.obj     &
@@ -81,7 +81,7 @@ rexxbif.obj
 
 
 DLOFILES =    &
-dbg.dlo       &
+#dbg.dlo       &
 funcs.dlo     &
 builtin.dlo   &
 error.dlo     &
@@ -166,7 +166,7 @@ rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%append dummy.lnk option caseexact
         @%append dummy.lnk system os2v2
         @%append dummy.lnk name rexx.exe
-        @%append dummy.lnk file dbg.obj
+#        @%append dummy.lnk file dbg.obj
         @%append dummy.lnk file rexx.obj
         @%append dummy.lnk file funcs.obj
         @%append dummy.lnk file builtin.obj
@@ -235,7 +235,7 @@ execiser.exe : $(IMPFILE) execiser.obj
 
 $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
         @%create lib.rsp
-        @%append lib.rsp +dbg.obj
+#        @%append lib.rsp +dbg.obj
         @%append lib.rsp +client.obj
         @%append lib.rsp +drexx.obj
         @%append lib.rsp +rexxsaa.obj
@@ -290,7 +290,7 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%append dummy.lnk option caseexact
         @%append dummy.lnk system os2v2 dll
         @%append dummy.lnk name $(DLLFILE)
-        @%append dummy.lnk file dbg.dlo
+#        @%append dummy.lnk file dbg.dlo
         @%append dummy.lnk file client.dlo
         @%append dummy.lnk file drexx.dlo
         @%append dummy.lnk file rexxsaa.dlo

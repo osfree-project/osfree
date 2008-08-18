@@ -4,18 +4,10 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+srcfiles = $(p)habmgr$(e)
+ADD_COPT = -i=..\include -bd
+DEST =
 
-32_BITS  = 1
-OBJS     = habmgr.$(O)
-ADD_COPT = -i=..\include -bd 
+!include $(%ROOT)/mk/appsos2.mk
 
-!include $(%ROOT)/mk/all.mk
-
-all: $(OBJS) .SYMBOLIC
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+TARGETS = $(OBJS)

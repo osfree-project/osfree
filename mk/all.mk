@@ -287,6 +287,9 @@ clean: .SYMBOLIC
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)
+!ifeq INSTALL_PRE 1
+ @$(MAKE) $(MAKEOPT) install_pre
+!endif
 !ifneq DEST
  @$(MDHIER) $(DEST)
  @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
