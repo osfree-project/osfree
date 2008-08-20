@@ -4,7 +4,7 @@
 
 DIRS = msg
 PROJ = cmd_shared
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=$(MYDIR)..$(SEP)include
 
 # For performance/compatibility reasons, we build a "_System" and
 # "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of

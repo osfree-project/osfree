@@ -9,7 +9,7 @@ DESC     = OS/2 PM Merged Library
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input
 srcfiles = $(p)framemgr$(e) $(p)habmgr$(e) $(p)rectangles$(e) $(p)input$(e) $(p)WindowClass$(e) &
            $(p)queue$(e) $(p)messages$(e) $(p)windowmgr$(e)
-ADD_COPT = -bd -i=..$(SEP)include
+ADD_COPT = -bd -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib &
                path $(PATH)rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input &
                segment type DATA shared

@@ -3,6 +3,7 @@
 # for building OS/2 static libs
 #
 
+CLEAN_ADD = *.c *.h
 ADD_COPT =            $(ADD_COPT) &
                       -i=$(ROOT)$(SEP)include$(SEP)os3 &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)os2 &

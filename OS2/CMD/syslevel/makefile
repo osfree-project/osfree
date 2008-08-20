@@ -2,6 +2,7 @@
 
 PROJ = syslevel
 DESC = Display syslevel info
+CLEAN_ADD = *.cmd
 
 !include $(%ROOT)/mk/all.mk
 
@@ -10,4 +11,3 @@ DEST    = $(FILESDIR)$(SEP)os2
 
 $(PATH)$(PROJ).cmd: $(MYDIR)$(PROJ).cmd
  $(CP) $< $^@
- 

@@ -34,8 +34,8 @@ ASM_DEFS  = -zq -d__WATCOM__
 #!ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
 #!ifeq 32_BITS 1
 COPT      = $(C_DEFS) $(ADD_COPT) &
-            -i=. &
-            -i=..
+            -i=$(MYDIR) -i=$(MYDIR).. &
+            -i=$(PATH)  -i=$(PATH)..
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 #!else
 #COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
@@ -104,7 +104,7 @@ ADDFILES_CMD = @for %i in ($(OBJS)) do @%append $^@ FILE %i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.dlo *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst
+CLEANMASK = *.dlo *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst *.res $(CLEAN_ADD)
 
 !ifeq UNIX FALSE                 # Non-unix
 
@@ -130,7 +130,7 @@ GENFDD    = $(REXX) genfdd.cmd
 FINDFILE  = $(REXX) findfile.cmd
 if_not_exist_mkdir = if_not_exist_mkdir.cmd
 
-CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist %i $(DC) %i $(BLACKHOLE)
+CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist $(PATH)%i $(DC) $(PATH)%i $(BLACKHOLE)
 
 !ifeq ENV Windows
 NULL      = nul
@@ -157,7 +157,7 @@ FINDFILE  = findfile
 
 if_not_exist_mkdir = ./if_not_exist_mkdir.sh
 
-CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist %i $(DC) %i $(BLACKHOLE)
+CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist $(PATH)%i $(DC) $(PATH)%i $(BLACKHOLE)
 
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
@@ -206,6 +206,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 
 .h:   $(PATH)
 
+.ipf: $(MYDIR)
+
 .l.c: .AUTODEPEND
  $(DC) $^@
  lex -t $[@ >$^@
@@ -217,6 +219,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 
 .c:   $(MYDIR)
 
+.cpp: $(MYDIR)
+
 .h:   $(MYDIR)
 
 .asm: $(MYDIR)
@@ -226,48 +230,48 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 .pp:  $(MYDIR)
 
 .c.obj: .AUTODEPEND
- $(SAY) Compiling $[@ $(LOG)
+ $(SAY) Compiling $[. $(LOG)
  $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
- $(SAY) Assembling $[@ $(LOG)
+ $(SAY) Assembling $[. $(LOG)
  $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
- $(SAY) Compiling $[@ $(LOG)
+ $(SAY) Compiling $[. $(LOG)
  $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .wmp.map: .AUTODEPEND
- $(SAY) Converting Watcom MAP to VAC MAP $< $(LOG)
+ $(SAY) Converting Watcom MAP to VAC MAP $[. $(LOG)
  $(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@
 
 .map.sym: .AUTODEPEND
- $(SAY) Converting VAC MAP to OS/2 SYM $< $(LOG)
+ $(SAY) Converting VAC MAP to OS/2 SYM $[. $(LOG)
  $(MAPSYM) $[@
  $(RN) $^. $^:
 
 .ipf.inf: .symbolic
- $(SAY) Compiling IPF source file $<... $(LOG)
- $(HC) -i $(MYDIR)$[@ $^@
+ $(SAY) Compiling IPF source file $[.... $(LOG)
+ $(HC) -i $[@ $^@
 
 .rc.res: .AUTODEPEND
- $(SAY) Compiling resource file $<... $(LOG)
- $(RC) $(RCOPT) $(MYDIR)$[@ -fo=$^@ -r
+ $(SAY) Compiling resource file $[.... $(LOG)
+ $(RC) $(RCOPT) $[@ -fo=$^@ -r
 
 .pas.exe: .symbolic
- $(SAY) Compiling $<
+ $(SAY) Compiling $[....
  $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .pp.exe: .symbolic
- $(SAY) Compiling $<
+ $(SAY) Compiling $[....
  $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .lnk.exe: .symbolic
- $(SAY) Linking $^@... $(LOG)
+ $(SAY) Linking $^.... $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .rexx.exe: .AUTODEPEND
-  $(SAY) Wrapping REXX code $<...
+  $(SAY) Wrapping REXX code $[....
   rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
 #
@@ -284,6 +288,7 @@ dirhier: .SYMBOLIC
 clean: .SYMBOLIC
  $(SAY) Making clean... $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
+ $(CLEAN_CMD)
 
 install: .SYMBOLIC
  $(SAY) Making install... $(LOG)

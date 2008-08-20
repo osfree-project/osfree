@@ -2,6 +2,7 @@
 
 PROJ = fdisk
 DESC = Disk volumes manager
+CLEAN_ADD = *.cmd
 
 !include $(%ROOT)/mk/all.mk
 

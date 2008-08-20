@@ -17,5 +17,6 @@ IMPORTS  = SHELLABOUT SHELL.22, &
            GETCURRENTDIRECTORY WINSMSG.20, &
            EXTRACTICON SHELL.34
 RESOURCE = $(PATH)rsrc.res
+CLEAN_ADD = *.mbr
 
 !include $(%ROOT)/mk/appsw16.mk

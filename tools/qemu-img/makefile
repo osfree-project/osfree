@@ -13,5 +13,5 @@ srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-cow$(e) $(p)block-qcow$(e) $
 
 !include $(%ROOT)/mk/tools.mk
 
-ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)include
+ADD_COPT = -dQEMU_TOOL -d__WATCOM__ -d__OS2__ -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = $(ADD_LINKOPT) ALIAS mmap_=_mmap, munmap_=_munmap

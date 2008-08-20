@@ -3,7 +3,7 @@
 # Makefile for Watcom/LIBC interface layer
 
 #32_BITS = 0
-ADD_COPT  = -i=..$(SEP)include
+ADD_COPT  = -i=$(MYDIR)..$(SEP)include
 srcfiles  = $(p)os2vdm$(e)
 
 # For performance/compatibility reasons, we build a "_System" and

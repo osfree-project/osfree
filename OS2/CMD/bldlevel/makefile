@@ -2,6 +2,7 @@
 
 PROJ = bldlevel
 DESC = Build level display facility
+CLEAN_ADD = *.cmd
 
 !include $(%ROOT)/mk/all.mk
 

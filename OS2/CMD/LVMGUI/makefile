@@ -6,6 +6,7 @@
 
 PROJ = lvmgui
 DESC = GUI frontent for LVM
+CLEAN_ADD = *.cmd
 
 !include $(%ROOT)/mk/all.mk
 

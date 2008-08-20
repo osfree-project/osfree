@@ -9,7 +9,7 @@
 DEST    = tools
 !endif
 
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
+CLEAN_ADD = *.oo2 *.ppo
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 !include $(%ROOT)/mk/all.mk

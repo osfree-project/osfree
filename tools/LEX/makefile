@@ -7,7 +7,7 @@ srcfiles = $(p)ccl$(e) $(p)dfa$(e) $(p)ecs$(e) $(p)gen$(e) $(p)main$(e) $(p)misc
 
 !include $(%ROOT)/mk/tools.mk
 
-ADD_COPT = -i=$(PATH) -pil
+ADD_COPT = -i=$(PATH) -i=$(MYDIR) -pil
 STACKSIZE = 65536
 
 #$(PATH)scan.obj:  $(PATH)scan.c

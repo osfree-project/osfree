@@ -3,6 +3,8 @@
 # 07/10/04 valerius
 #
 
+CLEAN_ADD = *.bbx *.rel *.sob *.lob
+
 #TARGETS          = minilibc.lib preldr0 preldr0_lite freeldr preldr0s &
 #                   bt_linux bt_chain &
 #                   console.trm hercules.trm serial.trm &
@@ -27,7 +29,7 @@ DEST         = boot
 
 !include $(%ROOT)/mk/bootseq.mk
 
-CLEANMASK    = $(CLEANMASK) *.sob *.lob
+#CLEANMASK    = $(CLEANMASK) *.sob *.lob
 
 SHIFT = 0x100
 

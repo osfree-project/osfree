@@ -15,8 +15,9 @@ srcfiles = $(p)pm2$(e)
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
-ADD_COPT=-bm -od -mf -sg -d2 -mf
+ADD_COPT    = -bm -od -mf -sg -d2 -mf
 INSTALL_PRE = 1
+DEST        = os2$(SEP)test
 
 !include $(%ROOT)/mk/appsos2.mk
 

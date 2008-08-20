@@ -5,7 +5,7 @@
 #
 
 srcfiles = $(p)input$(e)
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=$(MYDIR)..$(SEP)include
 DEST =
 
 !include $(%ROOT)/mk/appsos2.mk

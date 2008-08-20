@@ -5,7 +5,7 @@
 #
 
 srcfiles = $(p)habmgr$(e)
-ADD_COPT = -i=..\include -bd
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -bd
 DEST =
 
 !include $(%ROOT)/mk/appsos2.mk

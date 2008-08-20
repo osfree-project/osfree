@@ -19,7 +19,7 @@ dllopt = dll
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopt =
 !endif
-RCOPT    = -bt=windows
+RCOPT    = -bt=windows -i=$(MYDIR) -i=$(PATH)
 
 !ifdef RESOURCE
 deps = $(RESOURCE)

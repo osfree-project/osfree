@@ -11,7 +11,7 @@ DEST    = tools
 
 !include $(%ROOT)/mk/all.mk
 
-CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
+CLEAN_ADD = *.c *.h
 ADD_LINKOPT = $(ADD_LINKOPT) lib z,libmmap libpath $(FILESDIR)$(SEP)..$(SEP)build$(SEP)lib
 ADD_COPT = -i=. -i=..$(SEP)..$(SEP)include
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym

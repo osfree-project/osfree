@@ -4,6 +4,6 @@
 # valerius, 2006/10/30
 #
 
-TARGETS   = libmmap.lib
+TARGETS   = $(MYDIR)libmmap.lib
 
 !include $(%ROOT)/mk/libs.mk
