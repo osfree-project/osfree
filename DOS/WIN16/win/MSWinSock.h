@@ -1,6 +1,6 @@
 /*************************************************************************
-	@(#)MSWinSock.h	1.2
-    	Copyright 1997 Willows Software, Inc. 
+        @(#)MSWinSock.h 1.2
+        Copyright 1997 Willows Software, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public License as
@@ -20,20 +20,20 @@ Cambridge, MA 02139, USA.
 
 For more information about the Willows Twin Libraries.
 
-	http://www.willows.com	
+        http://www.willows.com
 
 To send email to the maintainer of the Willows Twin Libraries.
 
-	mailto:twin@willows.com 
+        mailto:twin@willows.com
 
 **************************************************************************/
- 
+
 /********************************************************************
 **
 **   Clone of MS-Windows Winsock.h file.  The only difference is
-**   that in this include file the winsock functions get mapped to 
+**   that in this include file the winsock functions get mapped to
 **   other names.  For example, gethostbyaddr() is mapped to
-**   Gethostbyaddr() and WSAAsyncSelect() is mapped to 
+**   Gethostbyaddr() and WSAAsyncSelect() is mapped to
 **   TWIN_WSAAsyncSelect().
 **
 **   At some point when we move all winsock calls to the driver layer,
@@ -56,13 +56,13 @@ typedef u_int SOCKET;
 
 #ifndef FD_SETSIZE
 #define FD_SETSIZE      64
-#endif 
+#endif
 
-typedef struct fd_set 
+typedef struct fd_set
 {
   u_int   fd_count;               /* How many SET? */
   SOCKET  fd_array[FD_SETSIZE];   /* Array of SOCKETs. */
-} 
+}
 fd_set;
 
 #ifdef __cplusplus
@@ -100,7 +100,7 @@ extern int __WSAFDIsSet(SOCKET, fd_set FAR *);
 #define FD_ISSET(fd, set) __WSAFDIsSet((SOCKET)fd, (fd_set FAR *)set)
 
 /* Used in select() call. */
-struct timeval 
+struct timeval
 {
   long tv_sec;  /* Seconds. */
   long tv_usec; /* Microseconds. */
@@ -140,7 +140,7 @@ struct timeval
 #define SIOCGLOWAT  _IOR('s',  3, u_long)  /* Get low watermark. */
 #define SIOCATMARK  _IOR('s',  7, u_long)  /* At oob mark? */
 
-struct hostent 
+struct hostent
 {
   char  FAR * h_name;            /* Official name of host. */
   char  FAR * FAR * h_aliases;   /* Alias list. */
@@ -151,7 +151,7 @@ struct hostent
 };
 
 /* Assumed that a network number fits in 32 bits. */
-struct netent 
+struct netent
 {
   char   FAR * n_name;           /* Official name of net. */
   char   FAR * FAR * n_aliases;  /* Alias list. */
@@ -159,7 +159,7 @@ struct netent
   u_long n_net;                  /* Network #. */
 };
 
-struct servent 
+struct servent
 {
   char  FAR * s_name;           /* Official service name. */
   char  FAR * FAR * s_aliases;  /* Alias list. */
@@ -167,7 +167,7 @@ struct servent
   char  FAR * s_proto;          /* Protocol to use. */
 };
 
-struct Protoent 
+struct Protoent
 {
   char  FAR * p_name;           /* Official protocol name. */
   char  FAR * FAR * p_aliases;  /* Alias list. */
@@ -230,9 +230,9 @@ struct Protoent
 #define IMPLINK_HIGHEXPER       158
 
 /* Internet address (old style... should be updated). */
-struct in_addr 
+struct in_addr
 {
-  union 
+  union
   {
     struct { u_char s_b1,s_b2,s_b3,s_b4; } S_un_b;
     struct { u_short s_w1,s_w2; } S_un_w;
@@ -280,7 +280,7 @@ struct in_addr
 #define INADDR_NONE             0xffffffff
 
 /* Socket address, internet style. */
-struct sockaddr_in 
+struct sockaddr_in
 {
   short   sin_family;
   u_short sin_port;
@@ -291,7 +291,7 @@ struct sockaddr_in
 #define WSADESCRIPTION_LEN      256
 #define WSASYS_STATUS_LEN       128
 
-typedef struct WSAData 
+typedef struct WSAData
 {
   WORD              wVersion;
   WORD              wHighVersion;
@@ -300,7 +300,7 @@ typedef struct WSAData
   unsigned short    iMaxSockets;
   unsigned short    iMaxUdpDg;
   char FAR *        lpVendorInfo;
-} 
+}
 WSADATA;
 typedef WSADATA FAR *LPWSADATA;
 
@@ -363,7 +363,7 @@ typedef WSADATA FAR *LPWSADATA;
 /*
  * IP options, to use when specifying IPPROTO_IP as the level in (g/s)etsockopt
  */
-#define IP_TTL		4		/* IP time to live */
+#define IP_TTL          4               /* IP time to live */
 
 /*
  * Address families.
@@ -614,7 +614,7 @@ struct  linger {
 #endif
 
 
-/* 
+/*
 ** Convert name of Winsock functions to our own
 ** functions in the ETSSock.c file.
 */
@@ -642,7 +642,7 @@ struct  linger {
 #undef setsockopt
 #undef shutdown
 #undef socket
-#undef gethostbyaddr 
+#undef gethostbyaddr
 #undef gethostbyname
 #undef gethostname
 #undef getservbyport
@@ -675,7 +675,7 @@ struct  linger {
 #define getsockname         Getsockname
 #define getsockopt          Getsockopt
 #define htonl               Htonl
-#define htons               Htons    
+#define htons               Htons
 #define inet_addr           Inet_addr
 #define inet_ntoa           Inet_ntoa
 #define listen              Listen
@@ -719,18 +719,18 @@ struct  linger {
 extern "C" {
 #endif
 
- 
+
 SOCKET Accept
 (
-  SOCKET s, 
+  SOCKET s,
   struct sockaddr FAR *addr,
   int FAR *addrlen
 );
 
 int Bind
 (
-  SOCKET s, 
-  const struct sockaddr FAR *addr, 
+  SOCKET s,
+  const struct sockaddr FAR *addr,
   int namelen
 );
 
@@ -738,38 +738,38 @@ int Closesocket( SOCKET s );
 
 int Connect
 (
-  SOCKET s, 
-  const struct sockaddr FAR *name, 
+  SOCKET s,
+  const struct sockaddr FAR *name,
   int namelen
 );
 
 int Ioctlsocket
 (
-  SOCKET s, 
-  long cmd, 
+  SOCKET s,
+  long cmd,
   u_long FAR *argp
 );
 
 int Getpeername
 (
-  SOCKET s, 
+  SOCKET s,
   struct sockaddr FAR *name,
   int FAR * namelen
 );
 
 int Getsockname
 (
-  SOCKET s, 
+  SOCKET s,
   struct sockaddr FAR *name,
   int FAR * namelen
 );
 
 int Getsockopt
 (
-  SOCKET s, 
-  int level, 
+  SOCKET s,
+  int level,
   int optname,
-  char FAR * optval, 
+  char FAR * optval,
   int FAR *optlen
 );
 
@@ -789,64 +789,64 @@ u_short Ntohs( u_short netshort );
 
 int Recv
 (
-  SOCKET s, 
-  char FAR * buf, 
-  int len, 
+  SOCKET s,
+  char FAR * buf,
+  int len,
   int flags
 );
 
 int Recvfrom
 (
-  SOCKET s, 
-  char FAR * buf, 
-  int len, 
+  SOCKET s,
+  char FAR * buf,
+  int len,
   int flags,
-  struct sockaddr FAR *from, 
+  struct sockaddr FAR *from,
   int FAR * fromlen
 );
 
 int Select
 (
-  int nfds, 
-  fd_set FAR *readfds, 
+  int nfds,
+  fd_set FAR *readfds,
   fd_set FAR *writefds,
-  fd_set FAR *exceptfds, 
+  fd_set FAR *exceptfds,
   const struct timeval FAR *timeout
 );
 
 int Send
 (
-  SOCKET s, 
-  const char FAR * buf, 
-  int len, 
+  SOCKET s,
+  const char FAR * buf,
+  int len,
   int flags
 );
 
 int Sendto
 (
-  SOCKET s, 
-  const char FAR * buf, 
-  int len, 
+  SOCKET s,
+  const char FAR * buf,
+  int len,
   int flags,
-  const struct sockaddr FAR *to, 
+  const struct sockaddr FAR *to,
   int tolen
 );
 
 int Setsockopt
 (
-  SOCKET s, 
-  int level, 
+  SOCKET s,
+  int level,
   int optname,
-  const char FAR * optval, 
+  const char FAR * optval,
   int optlen
 );
 
 int Shutdown( SOCKET s, int how );
 
 SOCKET Socket
-( 
-  int af, 
-  int type, 
+(
+  int af,
+  int type,
   int protocol
 );
 

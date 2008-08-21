@@ -1,3 +1,4 @@
+#include "types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,20 +24,20 @@ int ToAscii(UINT wVirtKey, UINT wScanCode, BYTE FAR* lpKeyState, DWORD FAR* lpCh
 void
 IT_TOASCII(ENV *envp,LONGPROC f)
 {
-	LPBYTE lpStruct;
-	DWORD dwTransKey;
-	DWORD retcode;
+        LPBYTE lpStruct;
+        DWORD dwTransKey;
+        DWORD retcode;
 
-	lpStruct = (LPBYTE)GetAddress(GETWORD(SP+12),GETWORD(SP+10));
-	retcode = (DWORD)ToAscii((UINT)GETWORD(SP+16),
-				(UINT)GETWORD(SP+14),
-				lpStruct,
-				&dwTransKey,
-				(UINT)GETWORD(SP+4));
-	lpStruct = (LPBYTE)GetAddress(GETWORD(SP+8),GETWORD(SP+6));
-	PUTDWORD(lpStruct,dwTransKey);
-	envp->reg.sp += 3*UINT_86 + 2*LP_86 + RET_86;
-	envp->reg.ax = LOWORD(retcode);
-	envp->reg.dx = HIWORD(retcode);
+        lpStruct = (LPBYTE)GetAddress(GETWORD(SP+12),GETWORD(SP+10));
+        retcode = (DWORD)ToAscii((UINT)GETWORD(SP+16),
+                                (UINT)GETWORD(SP+14),
+                                lpStruct,
+                                &dwTransKey,
+                                (UINT)GETWORD(SP+4));
+        lpStruct = (LPBYTE)GetAddress(GETWORD(SP+8),GETWORD(SP+6));
+        PUTDWORD(lpStruct,dwTransKey);
+        envp->reg.sp += 3*UINT_86 + 2*LP_86 + RET_86;
+        envp->reg.ax = LOWORD(retcode);
+        envp->reg.dx = HIWORD(retcode);
 }
 

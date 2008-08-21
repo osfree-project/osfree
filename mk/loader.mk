@@ -3,7 +3,7 @@
 # 07/10/04 valerius
 #
 
-CLEAN_ADD = *.bbx *.rel *.sob *.lob
+CLEAN_ADD = *.mdl *.rel *.sob *.lob
 
 #TARGETS          = minilibc.lib preldr0 preldr0_lite freeldr preldr0s &
 #                   bt_linux bt_chain &
@@ -29,8 +29,6 @@ DEST         = boot
 
 !include $(%ROOT)/mk/bootseq.mk
 
-#CLEANMASK    = $(CLEANMASK) *.sob *.lob
-
 SHIFT = 0x100
 
 SO           = sob
@@ -41,23 +39,18 @@ SOUT         = sbi
 LOUT         = lbi
 
 .SUFFIXES:
-.SUFFIXES: .rel .bbx .bbs .$(OUT) .$(LOUT) .$(SOUT) .lib .$(LO) .$(SO) .$(O) .c .asm .h .inc
+.SUFFIXES: .rel .mdl .mds .$(OUT) .$(LOUT) .$(SOUT) .lib .$(LO) .$(SO) .$(O) .c .asm .h .inc
+
+.c:   $(MYDIR)..
+
+.h:   $(MYDIR)..
+
+.asm: $(MYDIR)..
 
 BT_LINUX_OBJS    = linux.$(O) linuxc.$(O) modesw-npl.$(O) cmdline.$(O) &
                    wrap.$(O) end.$(O)
 BT_CHAIN_OBJS    = chain.$(O) chainc.$(O) setdev.$(O) modesw-npc.$(O)  &
                    cmdline.$(O) wrap.$(O) end.$(O)
-
-STAGE0_OBJS      = segord.$(O) init.$(O) modesw.$(O) asmcode.$(O) apm.$(O) biosdisk.$(O) filesys.$(O) &
-                   video.$(O) vbe.$(O) common.$(O) stage0_fs.$(O) func.$(O) setdev.$(O) cmdline.$(O)  &
-                   dskaccess.$(O) part.$(O) cfgparse.$(O) idt.$(O) bios.$(O) end.$(O)
-
-STAGE0_SH_OBJS   = segord.$(SO) init.$(SO) modesw.$(SO) asmcode.$(SO) apm.$(SO) biosdisk.$(SO) filesys.$(SO) &
-                   video.$(SO) vbe.$(SO) common.$(SO) stage0_fs.$(SO) func.$(SO) setdev.$(SO) cmdline.$(SO) &
-                   dskaccess.$(SO) part.$(SO) cfgparse.$(SO) idt.$(SO) bios.$(SO) end.$(SO)
-
-STAGE0_LT_OBJS   = segord.$(LO) init.$(LO) modesw.$(LO) asmcode.$(LO) apm.$(LO) biosdisk.$(LO) filesys.$(LO) &
-                   dskaccess.$(LO) part.$(LO) video.$(LO) common.$(LO) stage0_fs.$(LO) func.$(LO) setdev.$(O) bios.$(LO) end.$(LO)
 
 LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
                    boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
@@ -66,21 +59,17 @@ preldr0.rel: preldr0 preldr0s
 
 .rel: $(PATH)
 
-.bbx: $(PATH)
+.mdl: $(PATH)
 
-.bbs: $(PATH)
+.mds: $(PATH)
 
 .$(OUT):  $(PATH)
 
 .$(SOUT): $(PATH)
 
-preldr0.rel: preldr0
- $(GENREL) $^& $^&s $(SHIFT) >$^@
- $(DC) $[*s
-
-.bbx.rel
- $(GENREL) $[*.bbx $[*.bbs $(SHIFT) >$^@
- $(DC) $[*.bbs
+.mdl.rel
+ $(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@
+ $(DC) $[*.mds
 
 bt_linux: bt_linux.$(OUT)
  $(DC) $^@
@@ -92,30 +81,15 @@ bt_chain: bt_chain.$(OUT)
  $(RIP) $< KERN_BASE $(MYDIR)..$(SEP)include$(SEP)mb_etc.inc >$^@
  $(DC) $<
 
-.$(OUT).bbx:
+.$(OUT).mdl:
  $(DC) $^@
- $(RIP) $[@ EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
+ $(RIP) $[@ $(MOD_BASE) $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
  $(DC) $[@
 
-.$(SOUT).bbs:
+.$(SOUT).mds:
  $(DC) $^@
- $(RIP) $[@ EXT_BUF_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
+ $(RIP) $[@ $(MOD_BASE) $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
  $(DC) $[@
-
-preldr0: stage0.$(OUT)
- $(DC) $^@
- $(RIP) $< STAGE0_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
- $(DC) $<
-
-preldr0_lite: stage0.$(LOUT)
- $(DC) $^@
- $(RIP) $< STAGE0_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
- $(DC) $<
-
-preldr0s: stage0.$(SOUT)
- $(DC) $^@
- $(RIP) $< STAGE0_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
- $(DC) $<
 
 freeldr: freeldr.$(OUT)
  $(DC) $^@
@@ -131,15 +105,6 @@ bt_chain.$(OUT): $(BT_CHAIN_OBJS)
 freeldr.$(OUT): $(LDR_OBJS)
  $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
-stage0.$(OUT): $(STAGE0_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-stage0.$(LOUT): $(STAGE0_LT_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="l" E=$(LOUT) OBJS="$<" link
-
-stage0.$(SOUT): $(STAGE0_SH_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="s" E=$(SOUT) OBJS="$<" link
-
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
  $(SAY) Linking $< $(LOG)
  $(LINKER) @$< $(LOG)
@@ -153,7 +118,7 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  @%append $^@ OPTION NODEFAULTLIBS
  @%append $^@ NAME $(PATH)$(T).$(E)
  @%append $^@ ALIAS init=_init
-!ifneq T stage0
+!ifneq T preldr0
 !ifeq FS 1
  @%append $^@ ALIAS fs_mount_=$(T)_mount_
  @%append $^@ ALIAS fs_dir_=$(T)_dir_
@@ -169,8 +134,8 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  @%append $^@ ALIAS _check_int13_extensions=check_int13_extensions
  @%append $^@ ALIAS _get_diskinfo_standard=get_diskinfo_standard
 !endif
- @%append $^@ LIBPATH $(PATH)..$(SEP)minilibc
- @%append $^@ LIBRARY minilibc.lib
+ @%append $^@ LIBPATH $(BLD)lib
+ @%append $^@ LIBRARY ldr_shared.lib
  @for %%i in ($(OBJS)) do @%append $^@ FILE %%i
 
 .c:   $(MYDIR)
@@ -237,14 +202,14 @@ gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !endif
 
 gen_deps_wrapper:
- # file.rel: file.bbx file.bbs
+ # file.rel: file.mdl file.mds
  @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
-   deps="$+$$$$$$$$(PATH)$$$$(file).bbx $$$$$$$$(PATH)$$$$(file).bbs$-" gen_deps
+   deps="$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-" gen_deps
  # file.fsd: file.$(OUT)
- @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).bbx &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mdl &
    deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$-" gen_deps
  # file.fss: file.$(SOUT)
- @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).bbs &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mds &
    deps="$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$-" gen_deps
 
 !endif

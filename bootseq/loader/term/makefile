@@ -34,7 +34,8 @@ t = -s
 OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)tparm$(e) $(p)modesw-npt$(e)
 !endif
 
-#DEST         = boot$(SEP)term
+MOD_BASE             = EXT_BUF_BASE
+DEST         = boot$(SEP)loader$(SEP)term
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -45,7 +46,7 @@ e            = .rel
 rels         = $+$(blackboxes)$-
 
 p            = $(PATH)
-e            = .bbx
+e            = .mdl
 TARGETS      = $+$(blackboxes)$- $(rels)
 
 files     = $(bbx)

@@ -1,5 +1,5 @@
 /*  windows.h -   SDK Structure definitions, and API's.
-    Copyright 1997 Willows Software, Inc. 
+    Copyright 1997 Willows Software, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public License as
@@ -16,14 +16,14 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.
 
-The maintainer of the Willows TWIN Libraries may be reached (Email) 
-at the address twin@willows.com	
+The maintainer of the Willows TWIN Libraries may be reached (Email)
+at the address twin@willows.com
 
 */
 
 /**********************************************************************
 *
-*   Symbol exclusion controls, #define any of the following to 
+*   Symbol exclusion controls, #define any of the following to
 *    exclude the symbols:
 *
 *   NOAPIPROTO      Exclude API prototypes, for cross platform compatibility.
@@ -88,10 +88,10 @@ at the address twin@willows.com
 #define __WINDOWS_H   /* OWL tests for this extensively */
 
 /*
- *  Get the platform-specific information first, in case it 
+ *  Get the platform-specific information first, in case it
  *  hasn't been included by this point.
  */
-#include "platform.h"	/* platform specific */
+#include "platform.h"   /* platform specific */
 
 #ifdef __cplusplus
 extern "C" {    /* Force C declarations for C++ */
@@ -141,7 +141,7 @@ extern "C" {    /* Force C declarations for C++ */
 #define _cdecl
 #define __cdecl
 #define cdecl
-#define	__stdcall
+#define __stdcall
 #define _declspec(impexp)
 #define __declspec(impexp)
 
@@ -166,9 +166,9 @@ extern "C" {    /* Force C declarations for C++ */
 #define WINAPI      _far _pascal    /* use this tag for APIs defined by MS */
 #define TWINAPI     _far _pascal    /* use this tag for our public extensions */
 #define CALLBACK    _far _pascal
-#define	APIENTRY
-#ifdef	TWIN32
-#define	UNREFERENCED_PARAMETER(x)
+#define APIENTRY
+#ifdef  TWIN32
+#define UNREFERENCED_PARAMETER(x)
 #endif
 
 #ifndef FALSE
@@ -177,24 +177,24 @@ extern "C" {    /* Force C declarations for C++ */
 #endif
 
 #ifndef TWIN_BOOL_DEFINED
-typedef int		BOOL;
-#endif	/* TWIN_BOOL_DEFINED */
+typedef int             BOOL;
+#endif  /* TWIN_BOOL_DEFINED */
 
 #ifndef TWIN_SHORT_DEFINED
-typedef short int	SHORT;
-#endif	/* TWIN_SHORT_DEFINED */
+typedef short int       SHORT;
+#endif  /* TWIN_SHORT_DEFINED */
 
 #ifndef TWIN_USHORT_DEFINED
-typedef unsigned short	USHORT;
-#endif	/* TWIN_USHORT_DEFINED */
+typedef unsigned short  USHORT;
+#endif  /* TWIN_USHORT_DEFINED */
 
 #ifndef TWIN_INT_DEFINED
-typedef int		INT;
-#endif	/* TWIN_INT_DEFINED */
+typedef int             INT;
+#endif  /* TWIN_INT_DEFINED */
 
 #ifndef TWIN_UINT_DEFINED
-typedef unsigned int	UINT;
-#endif	/* TWIN_UINT_DEFINED */
+typedef unsigned int    UINT;
+#endif  /* TWIN_UINT_DEFINED */
 
 #ifndef TWIN_LONG_DEFINED
 #ifdef STRICT
@@ -202,33 +202,33 @@ typedef signed long         LONG;
 #else
 #define LONG                long
 #endif
-#endif	/* TWIN_LONG_DEFINED */
+#endif  /* TWIN_LONG_DEFINED */
 
 #ifndef TWIN_ULONG_DEFINED
-typedef unsigned long	ULONG;
-#endif	/* TWIN_ULONG_DEFINED */
+typedef unsigned long   ULONG;
+#endif  /* TWIN_ULONG_DEFINED */
 
-typedef unsigned char	BYTE;
-typedef unsigned short	WORD;
-typedef unsigned long	DWORD;
+typedef unsigned char   BYTE;
+typedef unsigned short  WORD;
+typedef unsigned long   DWORD;
 
-typedef	char		CHAR;
+typedef char            CHAR;
 #ifndef TWIN_UCHAR_DEFINED
 typedef unsigned char   UCHAR;
 #endif
-typedef	char		TCHAR;
-typedef float		FLOAT;
+typedef char            TCHAR;
+typedef float           FLOAT;
 
-typedef UINT		*PUINT;
-typedef UINT NEAR	*NPUINT;
-typedef UINT FAR	*LPUINT;
+typedef UINT            *PUINT;
+typedef UINT NEAR       *NPUINT;
+typedef UINT FAR        *LPUINT;
 
-typedef FLOAT		*PFLOAT;
-typedef FLOAT NEAR	*NPFLOAT;
-typedef FLOAT FAR	*LPFLOAT;
+typedef FLOAT           *PFLOAT;
+typedef FLOAT NEAR      *NPFLOAT;
+typedef FLOAT FAR       *LPFLOAT;
 
-typedef unsigned char 	boolean;
-typedef unsigned char 	byte;
+typedef unsigned char   boolean;
+typedef unsigned char   byte;
 
 #ifdef  TWIN32
 typedef unsigned int        WLS_UINT;
@@ -317,7 +317,7 @@ typedef BOOL FAR*           LPBOOL;
 /* Handle definitions ******************************************/
 /*
  *  For WIN16, we cannot use the STRICT flag to enable unique
- *  handle types, since for us the underlying pointers are 32-bit 
+ *  handle types, since for us the underlying pointers are 32-bit
  *  pointers, not 16-bit pointers.
  */
 #if defined(STRICT) && defined(TWIN32)
@@ -386,14 +386,14 @@ typedef RECT FAR*  LPRECT;
 
 typedef struct _RECTL
 {
-	LONG left;
-	LONG top;
-	LONG right;
-	LONG bottom;
+        LONG left;
+        LONG top;
+        LONG right;
+        LONG bottom;
 } RECTL;
-typedef RECTL		*PRECTL;
-typedef RECTL NEAR	*NPRECTL;
-typedef RECTL FAR	*LPRECTL;
+typedef RECTL           *PRECTL;
+typedef RECTL NEAR      *NPRECTL;
+typedef RECTL FAR       *LPRECTL;
 
 typedef struct tagPOINT
 {
@@ -427,16 +427,16 @@ typedef SIZE*       PSIZE;
 typedef SIZE NEAR* NPSIZE;
 typedef SIZE FAR*  LPSIZE;
 
-typedef SIZE		SIZEL;
-typedef SIZE		*PSIZEL;
-typedef SIZE NEAR	*NPSIZEL;
-typedef SIZE FAR	*LPSIZEL;
+typedef SIZE            SIZEL;
+typedef SIZE            *PSIZEL;
+typedef SIZE NEAR       *NPSIZEL;
+typedef SIZE FAR        *LPSIZEL;
 
 /* System inclusions ******************************************/
 
 /* some WIN32 definitions */
-#ifdef	TWIN32
-#define	GetCurrentThreadId	GetCurrentTask
+#ifdef  TWIN32
+#define GetCurrentThreadId      GetCurrentTask
 #endif
 
 #ifndef _MAX_PATH
@@ -445,7 +445,7 @@ typedef SIZE FAR	*LPSIZEL;
 #ifdef MAX_PATH
 #undef MAX_PATH
 #endif
-#define MAX_PATH	_MAX_PATH
+#define MAX_PATH        _MAX_PATH
 #ifndef _MAX_DRIVE
 #define _MAX_DRIVE  3
 #endif
@@ -495,7 +495,7 @@ typedef SIZE FAR	*LPSIZEL;
 #endif
 
 #ifndef RC_BUILD
-#include "Win_Clib.h"	/* standard C library functions and definitions */
+#include "Win_Clib.h"   /* standard C library functions and definitions */
 #endif
 
 #ifdef __cplusplus
@@ -513,12 +513,12 @@ extern "C" {
 #endif
 
 #if 1
-	/* PROBLEM: commdlg/Commdlg.res.c doesn't #define NOCOMMDLG
-	 * and its function prototypes conflict with commdlg.h.
-	 */
-	/* SOLUTION: rc generates #define NOAPIPROTO before
-	 * #include <windows.h>
-	 */
+        /* PROBLEM: commdlg/Commdlg.res.c doesn't #define NOCOMMDLG
+         * and its function prototypes conflict with commdlg.h.
+         */
+        /* SOLUTION: rc generates #define NOAPIPROTO before
+         * #include <windows.h>
+         */
 #ifndef NO_COMMDLG
 #include "commdlg.h"
 #endif

@@ -38,8 +38,8 @@ COPT      = $(C_DEFS) $(ADD_COPT) &
             -i=$(PATH)  -i=$(PATH)..
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 #!else
-#COPT      = -ms $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
-#ASMOPT    = -ms $(ASM_DEFS)  $(ADD_ASMOPT)
+#COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
+#ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 #!endif
 #!else
 #COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD  -i=. -i=.. $(ADD_COPT)

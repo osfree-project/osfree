@@ -24,7 +24,8 @@ common_SRCS          = dummy.asm start.asm fsys.c
 common_OBJS          = $(p)start$(e)  $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 
-#DEST         = boot$(SEP)fsd
+MOD_BASE             = EXT_BUF_BASE
+DEST                 = boot$(SEP)loader$(SEP)fsd
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -35,7 +36,7 @@ e            = .rel
 rels         = $+$(blackboxes)$-
 
 p            = $(PATH)
-e            = .bbx
+e            = .mdl
 TARGETS      = $+$(blackboxes)$- $(rels)
 
 files     = $(bbx)

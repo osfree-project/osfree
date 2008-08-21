@@ -7,7 +7,8 @@
 #srcfiles     = $(p)drivemap$(e) $(p)end$(e) $(p)modesw$(e) $(p)cfgparse$(e) $(p)cmdline$(e) &
 #               $(p)setdev$(e) $(p)wrap$(e)
 
-DIRS         = minilibc filesys term # preldr loader kernels
+DIRS         = shared filesys term preldr # loader kernels
+DEST         = boot$(SEP)loader
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -15,5 +16,5 @@ DIRS         = minilibc filesys term # preldr loader kernels
 #e            = .$$(O)
 #OBJS         = $+$(srcs)$-
 
-TARGETS      = $(OBJS) subdirs
+TARGETS      = $(OBJS) $(MYDIR)boot.cfg $(MYDIR)preldr.ini subdirs
 TARGET       = all

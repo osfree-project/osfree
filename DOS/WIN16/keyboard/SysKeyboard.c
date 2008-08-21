@@ -1,6 +1,6 @@
-/*    
-	SysKeyboard.c	1.6
-    	Copyright 1997 Willows Software, Inc. 
+/*
+        SysKeyboard.c   1.6
+        Copyright 1997 Willows Software, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public License as
@@ -20,13 +20,14 @@ Cambridge, MA 02139, USA.
 
 For more information about the Willows Twin Libraries.
 
-	http://www.willows.com	
+        http://www.willows.com
 
 To send email to the maintainer of the Willows Twin Libraries.
 
-	mailto:twin@willows.com 
+        mailto:twin@willows.com
 
  */
+#include "types.h"
 
 #include <string.h>
 #include "windows.h"
@@ -54,19 +55,19 @@ MapVirtualKey(UINT uKeyCode, UINT fuMapType)
     retcode = (UINT)DRVCALL_KEYBOARD(PKH_MAPKEY,uKeyCode,fuMapType,0);
 
     APISTR((LF_API,"MapVirtualKey: %x type %x returned %x\n",
-	uKeyCode,fuMapType,retcode));
+        uKeyCode,fuMapType,retcode));
 
     return retcode;
 }
 
 int WINAPI
 ToAscii(UINT uVirtKey, UINT uScanCode, BYTE *lpbKeyState,
-	DWORD *lpdwTransKey, UINT fuState)
+        DWORD *lpdwTransKey, UINT fuState)
 {
     LPSTR lpKeyBuffer = (LPSTR)lpdwTransKey;
 
     LOGSTR((LF_API,"ToAscii STUB: (%x,%x,%x,%x,%x)\n",
-	uVirtKey,uScanCode,lpbKeyState,lpdwTransKey,fuState));
+        uVirtKey,uScanCode,lpbKeyState,lpdwTransKey,fuState));
 
     /* virtual key is ascii, but need to account for shift keys... */
     *lpKeyBuffer = uVirtKey;
@@ -78,7 +79,7 @@ int WINAPI
 GetKeyNameText(LONG lParam, LPSTR lpszBuffer, int cbMaxKey)
 {
     if (!lpszBuffer || cbMaxKey <= 0)
-	return 0;
+        return 0;
 
     (void)DRVCALL_KEYBOARD(PKH_KEYTEXT,lParam,cbMaxKey,lpszBuffer);
 

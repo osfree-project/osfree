@@ -1,5 +1,5 @@
-/*   Win_Clib.h	1.29
-    Copyright 1997 Willows Software, Inc. 
+/*   Win_Clib.h 1.29
+    Copyright 1997 Willows Software, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public License as
@@ -16,8 +16,8 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.
 
-The maintainer of the Willows TWIN Libraries may be reached (Email) 
-at the address twin@willows.com	
+The maintainer of the Willows TWIN Libraries may be reached (Email)
+at the address twin@willows.com
 
 */
 
@@ -36,7 +36,7 @@ at the address twin@willows.com
  *  already defined, do not leave it defined.
  *********************************************************************/
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #ifdef _XOPEN_SOURCE
 #include <math.h>
@@ -52,8 +52,8 @@ at the address twin@willows.com
 extern "C" {
 #endif
 
-#define STR_RADIX_10 10		/* /wpshcode/shwin/fs/fscolmgr.c */
-#define STR_RADIX_16 16		/* /wpshcode/shwin/fs/fscolmgr.c */
+#define STR_RADIX_10 10         /* /wpshcode/shwin/fs/fscolmgr.c */
+#define STR_RADIX_16 16         /* /wpshcode/shwin/fs/fscolmgr.c */
 
 #define FP_OFF(a) (LOWORD(a))
 #define FP_SEG(a) (HIWORD(a))
@@ -65,65 +65,65 @@ extern "C" {
 #undef  WNEAR
 #define WNEAR
 
-#undef	FAR
-#define	FAR
+#undef  FAR
+#define FAR
 #undef  _FAR
 #define _FAR
 #undef  __FAR
 #define __FAR
-#undef	far
-#define	far
-#undef	_far
-#define	_far
+#undef  far
+#define far
+#undef  _far
+#define _far
 #undef  __far
 #define __far
 
-#undef	NEAR
-#define	NEAR
-#undef	near
-#define	near
-#undef	_near
-#define	_near
+#undef  NEAR
+#define NEAR
+#undef  near
+#define near
+#undef  _near
+#define _near
 #undef  __near
 #define __near
 
-#undef	PASCAL
-#define	PASCAL
-#undef	pascal
-#define	pascal
-#undef	_pascal
-#define	_pascal
+#undef  PASCAL
+#define PASCAL
+#undef  pascal
+#define pascal
+#undef  _pascal
+#define _pascal
 #undef  __pascal
 #define __pascal
 
-#undef	CDECL
-#define	CDECL
-#undef	cdecl
-#define	cdecl
-#undef	_cdecl
-#define	_cdecl
-#undef	__cdecl
-#define	__cdecl
+#undef  CDECL
+#define CDECL
+#undef  cdecl
+#define cdecl
+#undef  _cdecl
+#define _cdecl
+#undef  __cdecl
+#define __cdecl
 
-#undef	EXPORT
-#define	EXPORT
-#undef	export
-#define	export
-#undef	_export
-#define	_export
-#undef	__export
-#define	__export
+#undef  EXPORT
+#define EXPORT
+#undef  export
+#define export
+#undef  _export
+#define _export
+#undef  __export
+#define __export
 #undef _fastcall
 #define _fastcall
-#undef	_segment
-#define	_segment
-#undef	__segment
-#define	__segment unsigned long
+#undef  _segment
+#define _segment
+#undef  __segment
+#define __segment unsigned long
 
 #undef  huge
 #define huge
-#undef	_huge
-#define	_huge
+#undef  _huge
+#define _huge
 #undef  __huge
 #define __huge
 
@@ -133,70 +133,70 @@ extern "C" {
 #define _loadds
 
 
-#ifndef	_MAX_PATH
-#define	_MAX_PATH	255
+#ifndef _MAX_PATH
+#define _MAX_PATH       255
 #endif
 
-#undef	BASED_CODE
-#define	BASED_CODE
-#undef	BASED_DEBUG
-#define	BASED_DEBUG
-#undef	BASED_STACK
-#define	BASED_STACK
+#undef  BASED_CODE
+#define BASED_CODE
+#undef  BASED_DEBUG
+#define BASED_DEBUG
+#undef  BASED_STACK
+#define BASED_STACK
 
-#define	_fmalloc	malloc
-#define	_frealloc	realloc
-#define	_ffree		free
-#define	_fmemcpy	memcpy
-#define _fmemset    	memset
-#define	_fmemcmp	memcmp
-#define	_fmemmove	memmove
+#define _fmalloc        malloc
+#define _frealloc       realloc
+#define _ffree          free
+#define _fmemcpy        memcpy
+#define _fmemset        memset
+#define _fmemcmp        memcmp
+#define _fmemmove       memmove
 
-#define	_fmemicmp	memcmp
-#define _fstricmp	strcasecmp
-#define _fstrcspn	strcspn
+#define _fmemicmp       memcmp
+#define _fstricmp       strcasecmp
+#define _fstrcspn       strcspn
 
-#define stricmp		strcasecmp
-#define strnicmp	strncasecmp
+#define stricmp         strcasecmp
+#define strnicmp        strncasecmp
 
-#define	_fstrlen	strlen
-#define	_fstrncpy	strncpy
-#define _fstrcmp    	strcmp
-#define	_fstrncmp	strncmp
-#define	_fstrchr	strchr
+#define _fstrlen        strlen
+#define _fstrncpy       strncpy
+#define _fstrcmp        strcmp
+#define _fstrncmp       strncmp
+#define _fstrchr        strchr
 #define _fstrrchr       strrchr
 #define _fstrcpy        strcpy
 #define _fstrcat        strcat
 #define _fstrncat       strncat
-#define _fstrspn	strspn
-#define _fstrlwr	strlwr
-#define _fstrupr	strupr
-#define _fstrrev	strrev
-#define _getcwd		getcwd
+#define _fstrspn        strspn
+#define _fstrlwr        strlwr
+#define _fstrupr        strupr
+#define _fstrrev        strrev
+#define _getcwd         getcwd
 
-#define _strlwr		strlwr
-#define _strupr		strupr
-#define _strrev		strrev
-#define _stricmp	strcasecmp
-#define _strnicmp	strncasecmp
-#define _strcmpi	strcasecmp
+#define _strlwr         strlwr
+#define _strupr         strupr
+#define _strrev         strrev
+#define _stricmp        strcasecmp
+#define _strnicmp       strncasecmp
+#define _strcmpi        strcasecmp
 
-#define	_dup		dup
-#define	_strdup		strdup
-#define	_fstrdup	strdup
+#define _dup            dup
+#define _strdup         strdup
+#define _fstrdup        strdup
 
-#define	_itoa		itoa
-#define	ltoa		itoa
-#define	_ltoa		itoa
+#define _itoa           itoa
+#define ltoa            itoa
+#define _ltoa           itoa
 
-#define	_lrotl		lrotl
-#define	_lrotr		lrotr
+#define _lrotl          lrotl
+#define _lrotr          lrotr
 
-#define _open		open
-#define _close		close
-#define _write		write
-#define _read		read
-#define _access		access
+#define _open           open
+#define _close          close
+#define _write          write
+#define _read           read
+#define _access         access
 
 LPSTR itoa(int, LPSTR, int);
 LPSTR _strdate(LPSTR);
@@ -243,7 +243,7 @@ ULONG lrotr(ULONG, int);
 /*
  *  In this case, we need to pick up the fpclass() definitions
  *  from <ieeefp.h>, and define mappings from the MS-names to
- *  the names we have.   
+ *  the names we have.
  */
 #include <ieeefp.h>
 
