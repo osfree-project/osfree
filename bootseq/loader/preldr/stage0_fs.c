@@ -128,7 +128,7 @@ _Packed struct {
 } conf = {0x80, 2, {0, fsys_list}, {"/os2ldr", 0x10000},
           {"/os2boot", 0x7c0}, {0, term_list},};
 
-char *preldr_path = "/boot/freeldr/"; // freeldr path
+char *preldr_path = "/boot/loader/"; // freeldr path
 char *fsd_dir     = "fsd/";           // uFSD's subdir
 char *term_dir    = "term/";          // term   subdir
 char *cfg_file    = "preldr.ini";     // .INI file
@@ -548,7 +548,7 @@ u_termctl(int termno)
   i = grub_strlen(term);
   grub_strcpy(term + i, conf.term.term_list[n]);
   i = grub_strlen(term);
-  grub_strcpy(term + i, ".trm\0");
+  grub_strcpy(term + i, ".mdl\0");
 
   /* terminal name */
   trm.name = conf.term.term_list[n];
@@ -1211,7 +1211,7 @@ int init(void)
   if (!grub_strcmp(conf.loader.name, "default"))
   {
     if (conf.multiboot)
-      grub_strcpy(conf.loader.name, "/boot/freeldr/freeldr\0");
+      grub_strcpy(conf.loader.name, "/boot/loader/freeldr.mdl\0");
     else
       grub_strcpy(conf.loader.name, "/os2ldr\0");
   }
@@ -1373,8 +1373,8 @@ int init(void)
   use_term = 0;
 
   /* fixup preldr and uFSD */
-  reloc((char *)(STAGE0_BASE  + relshift), "/boot/freeldr/preldr0.rel", relshift);
-  reloc((char *)(EXT3HIBUF_BASE), "/boot/freeldr/fsd/iso9660.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+  reloc((char *)(STAGE0_BASE  + relshift), "/boot/loader/preldr0.rel", relshift);
+  reloc((char *)(EXT3HIBUF_BASE), "/boot/loader/fsd/iso9660.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
 
   /* jump to relocated pre-loader */
   jmp_reloc(relshift);

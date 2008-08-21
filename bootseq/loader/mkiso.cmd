@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 
 rem ............................
 rem . (c) osFree project, 2008 .
@@ -9,47 +9,52 @@ rem ............................
 @echo Creating bootable iso image...
 
 rem Current working directory
-set cwd=%ROOT%\bootseq\preldr
+set cwd=%ROOT%bootseq\loader
 
 rem ---------prereqs-------------------
-set dir1=%cwd%
-set files1=preldr0 iso9660.fsd
+set dir1=%cwd%\preldr
+set files1=preldr0.mdl preldr0.rel
 
-set dir2=%root%\bootseq\bootsec\eltorito
-set files2=eltorito.bin
+set dir2=%cwd%\filesys
+set files2=iso9660.mdl iso9660.rel
+
+set dir3=%cwd%\..\bootsec\eltorito
+set files3=eltorito.bin
 rem ---------prereqs-------------------
 
-@for %%l in (1 2) do ^
+@for %%l in (1 2 3) do ^
  (set f=%%files%%l%% && ^
   set d=%%dir%%l%% && (@for %%i in (%f%) do ^
   (cd %d% && (@if not exist %%i @wmake %%i))))
 
-cd %cwd%
-@%rexx% mkboot.cmd ..\bootsec\eltorito\eltorito.bin preldr0 iso9660.fsd bootblk
+cd %ROOT%bin
+@%rexx% mkboot.cmd boot\sectors\eltorito.bin boot\loader\preldr0.mdl boot\loader\fsd\iso9660.mdl boot\bootblk
 
-cd ..\..\..
-set dirs=cd cd\boot cd\boot\freeldr cd\boot\freeldr\fsd ^
-         cd\boot\freeldr\term cd\l4 cd\pns cd\os3 cd\l4ka
+cd ..\..
+set dirs=cd cd\boot cd\boot\loader cd\boot\loader\fsd ^
+         cd\boot\loader\term cd\l4 cd\pns cd\os3 cd\l4ka
 @for %%i in (%dirs%) do if not exist %%i mkdir %%i
 
-cd osfree\bootseq\preldr
+cd osfree\bin
+
+rem @move ..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr
+rem set files=serial.rel hercules.rel console.rel
+rem for %%i in (%files%) do if exist %%i move ..\..\..\cd\boot\freeldr\fsd\%%i ..\..\..\cd\boot\freeldr\term
+
+cd boot
 @move bootblk ..\..\..\cd\boot
-set files=preldr0 preldr.ini freeldr boot.cfg bt_linux           bt_chain bt_disk bt_os2 bt_bsd
-@for %%i in (%files%) do if exist %%i copy %%i  ..\..\..\cd\boot\freeldr
+set files=preldr0.mdl preldr0.rel preldr.ini freeldr.mdl freeldr.rel boot.cfg bt_linux.mdl bt_linux.rel ^
+    bt_chain.mdl bt_chain_rel bt_disk bt_os2 bt_bsd
+@for %%i in (%files%) do if exist loader\%%i copy loader\%%i  ..\..\..\cd\boot\loader
 
-@copy *.fsd ..\..\..\cd\boot\freeldr\fsd
-@copy *.trm ..\..\..\cd\boot\freeldr\term
-@copy *.rel ..\..\..\cd\boot\freeldr\fsd
-
-@move ..\..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr
-set files=serial.rel hercules.rel console.rel
-for %%i in (%files%) do if exist %%i move ..\..\..\cd\boot\freeldr\fsd\%%i ..\..\..\cd\boot\freeldr\term
+@copy loader\fsd\* ..\..\..\cd\boot\loader\fsd
+@copy loader\term\* ..\..\..\cd\boot\loader\term
 
 cd ..\..\fiasco
 @copy * ..\..\cd\l4
 cd ..\pns
 @copy * ..\..\cd\pns
-cd ..\files
+cd ..\pistachio
 @copy * ..\..\cd\l4ka
 
 cd ..\os2\server

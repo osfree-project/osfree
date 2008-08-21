@@ -124,7 +124,7 @@ void swap_fsys_bufs(void *buf1, void *buf2)
   unsigned long *b2 = (unsigned long *)buf2;
   unsigned long b;
   int n;
- 
+
   // number of swapped dwords
   n = (EXT_LEN + 3) >> 2;
 
@@ -154,12 +154,12 @@ void set_boot_fsys(void)
 
 int set_fsys(char *fsname)
 {
-  char *buf; //[EXT_LEN]; 
+  char *buf; //[EXT_LEN];
   char sbuf[0x100];
   char *s;
-  int  rc;  
+  int  rc;
   int  fst;
-  
+
   //saved_fsys_type     = fsys_type;
   //saved_current_drive = current_drive;
   //saved_current_partition = current_partition;
@@ -190,11 +190,11 @@ int set_fsys(char *fsname)
   //printmsg("\r\n");
 
   grub_strcpy(sbuf, fsname);
-  s = grub_strstr(sbuf, ".fsd") + 1;
+  s = grub_strstr(sbuf, ".mdl") + 1;
   // Change ".fsd" extension to ".rel"
   grub_strcpy(s, "rel");
   //swap_fsys_bufs((void *)EXT3HIBUF_BASE, (void *)UFSD_BASE);
-  
+
   // fixup the loaded filesystem
   reloc(buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
   printmsg("fs relocated\r\n");
@@ -216,7 +216,7 @@ int set_fsys(char *fsname)
   //buf_track = saved_buf_track;
   //grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
   fsys_type = fst;
-  
+
   fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
 
@@ -230,7 +230,7 @@ int set_fsys(char *fsname)
   //  printmsg("filesystem is mounted\r\n");
   //  return 1;
   //}
-  
+
 
   //printmsg("filesystem is not mounted!\r\n");
   return 0;
@@ -250,7 +250,7 @@ void fsys_by_num(int n, char *buf)
   fsys_name = fsys_list[n];
   k = grub_strlen(fsys_name);
   grub_memmove((void *)(buf + m + t), fsys_name, k);
-  grub_memmove((void *)(buf + m + t + k), ".fsd\0", 5);
+  grub_memmove((void *)(buf + m + t + k), ".mdl\0", 5);
 }
 
 #endif /* ! STAGE1_5 */
@@ -295,7 +295,7 @@ attempt_mount (void)
     push  buf_track
   }
  */
- 
+
   //set_boot_fsys();
   //if (!stage0_mount())
   //{
@@ -306,11 +306,11 @@ attempt_mount (void)
   //      break;
   //  }
   //}
-  
+
   return stage0_mount();
-  
+
 /*
-  if (!stage0_mount()) 
+  if (!stage0_mount())
   {
     errnum = ERR_FSYS_MOUNT;
     fsys_type = NUM_FSYS;
@@ -397,7 +397,7 @@ open_device2(void)
   set_boot_fsys();
   if (open_device())
     return 1;
-  
+
   for (fst = 0; fst < num_fsys; fst++) {
     fsys_type = fst;
     fsys_by_num(fst, buf);
@@ -405,7 +405,7 @@ open_device2(void)
 
     current_drive = cd;
     current_partition = cp;
-    
+
     if (open_device())
       return 1;
   }
@@ -414,7 +414,7 @@ open_device2(void)
 #endif
   errnum = ERR_FSYS_MOUNT;
   return 0;
-} 
+}
 
 
 static char *

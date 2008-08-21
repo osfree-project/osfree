@@ -69,9 +69,9 @@ int background_color_hl = 0;
 int foreground_color_hl = 7;
 
 
-int screen_bg_color = 0; 
+int screen_bg_color = 0;
 int screen_fg_color = 7;
-int screen_bg_color_hl = 0; 
+int screen_bg_color_hl = 0;
 int screen_fg_color_hl = 7;
 
 
@@ -82,7 +82,7 @@ int menu_width  = MENU_WIDTH;
 int menu_height = MENU_HEIGHT;
 
 typedef struct script script_t;
-// a structure corresponding to a 
+// a structure corresponding to a
 // boot script or menu item
 typedef struct script
 {
@@ -102,7 +102,7 @@ void init(lip2_t *l)
 
 }
 
-int 
+int
 process_cfg_line1(char *line)
 {
   int n;
@@ -223,11 +223,11 @@ process_cfg_line1(char *line)
     if (!sc->num) sc->scr = p + config_len;
     sc->num++;
     // copy a line to buffer
-    while (p[config_len++] = *s++) ;    
+    while (p[config_len++] = *s++) ;
   }
   else
   {
-  }  
+  }
 
   //for (i = 0; i < 0xFFFFFF; i++) ;
 
@@ -235,7 +235,7 @@ process_cfg_line1(char *line)
 }
 
 
-int 
+int
 exec_line(char *line)
 {
   int i;
@@ -248,7 +248,7 @@ exec_line(char *line)
   while (*p++)
     if (*p == '\\') *p = '/';
 
-  if (abbrev(s, "modaddr", 7)) 
+  if (abbrev(s, "modaddr", 7))
   {
     s = skip_to(1, s);
     if (modaddr_func(s, 0x2))
@@ -260,7 +260,7 @@ exec_line(char *line)
 /*  else if (abbrev(s, "root", 4))
   {
     s = skip_to(1, s);
-    if (root_func(s, 0x2)) 
+    if (root_func(s, 0x2))
     {
       printf("An error occured during execution of kernel_func\r\n");
       return 0;
@@ -269,7 +269,7 @@ exec_line(char *line)
   else if (abbrev(s, "kernel", 6))
   {
     s = skip_to(1, s);
-    if (kernel_func(s, 0x2)) 
+    if (kernel_func(s, 0x2))
     {
       printf("An error occured during execution of kernel_func\r\n");
       return 0;
@@ -308,7 +308,7 @@ exec_line(char *line)
   else if (abbrev(s, "vbeset", 6))
   {
     s = skip_to(1, s);
-    if (vbeset_func(s, 0x2)) 
+    if (vbeset_func(s, 0x2))
     {
       printf("An error occured during execution of vbeset_func\r\n");
       return 0;
@@ -340,7 +340,7 @@ get_user_input(int *item, int *shift)
         if (*item == num_items + 1) *item = 0;
         return 1;
 
-       /* if (t->checkkey() == -1) 
+       /* if (t->checkkey() == -1)
           return 1;
         else
           continue; */
@@ -351,7 +351,7 @@ get_user_input(int *item, int *shift)
         if (*item == -1) *item = num_items;
         return 1;
 
-       /* if (t->checkkey() == -1) 
+       /* if (t->checkkey() == -1)
           return 1;
         else
           continue; */
@@ -387,8 +387,8 @@ void show_background_screen(void)
   char *s1 = "--== FreeLdr ver. 0.0.2. ==--";
   char *s2 = "(c) osFree project, 2008 Jun 23. licensed under GNU GPL v.2";
   int  l, n;
-  
-  t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4), 
+
+  t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
               (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
   t->cls();
 
@@ -429,7 +429,7 @@ void show_background_screen(void)
   /* footer line */
   t->gotoxy(4, 24);
   for(i = 0; i < 80 - 8; i++) t->putchar(' ');
-  
+
   /* copyright */
   t->gotoxy(5, 24);
   printf("%s", s2);
@@ -442,12 +442,12 @@ void
 invert_colors(int *col1, int *col2)
 {
   int col;
-  
+
   col = *col1;
   *col1 = *col2;
   *col2 = col;
 
-  t->setcolor((char)foreground_color | ((char)background_color << 4), 
+  t->setcolor((char)foreground_color | ((char)background_color << 4),
               (char)foreground_color_hl | ((char)background_color_hl << 4));
 }
 
@@ -458,7 +458,7 @@ void draw_menu(int item, int shift)
   int i = 0, j, l, k, m;
   script_t *sc;
   char s[4];
-  char str[4]; 
+  char str[4];
   char spc[0x80];
   char buf[0x100];
   char *p;
@@ -470,8 +470,8 @@ void draw_menu(int item, int shift)
   // clear screen
   //t->cls();
   // 5 - normal (pink), 3 - highlighted (magenta)
-  t->setcolor((char)foreground_color    | ((char)background_color << 4), 
-              (char)foreground_color_hl | ((char)background_color_hl << 4)); 
+  t->setcolor((char)foreground_color    | ((char)background_color << 4),
+              (char)foreground_color_hl | ((char)background_color_hl << 4));
 
   t->gotoxy(12, 5);
   l = 0;
@@ -532,7 +532,7 @@ void draw_menu(int item, int shift)
 
     // show highlighted menu string in inverse color
     if (j == item) invert_colors(&foreground_color, &background_color);
- 
+
     printf(" %c", 0xb3);
 
     sc = sc->next;
@@ -551,7 +551,7 @@ void draw_menu(int item, int shift)
   t->setcolor(7, 7);
 }
 
-int 
+int
 exec_menu(void)
 {
   //int cont = 1;  // continuation flag
@@ -560,7 +560,7 @@ exec_menu(void)
 
   item = default_item;
 
-  do { 
+  do {
     draw_menu(item, shift);
   }   while (get_user_input(&item, &shift));
 
@@ -596,9 +596,9 @@ exec_cfg(char *cfg)
   // exec global commands in config file
   // and copy config file to memory as
   // a string table (strings delimited by zeroes)
-  // and make script_t structures list for 
+  // and make script_t structures list for
   // boot scripts and menu items
-  menu_len = 0; config_len = 0;  
+  menu_len = 0; config_len = 0;
   process_cfg_line = process_cfg_line1;
   rc = process_cfg(cfg);
 
@@ -626,10 +626,10 @@ exec_cfg(char *cfg)
   return 1;
 }
 
-void 
+void
 KernelLoader(void)
 {
-  char *cfg = "/boot/freeldr/boot.cfg";
+  char *cfg = "/boot/loader/boot.cfg";
   int rc;
 
   printf("Kernel loader started.\r\n");
@@ -659,7 +659,7 @@ KernelLoader(void)
   }
 }
 
-void 
+void
 cmain(void)
 {
   /* Get mbi structure address from pre-loader */
