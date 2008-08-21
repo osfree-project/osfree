@@ -310,7 +310,15 @@ precopy: .SYMBOLIC
  @$(SAY) Error (!)
  @%abort
 
-a: .SYMBOLIC
- $(SAY) $(COPT)
+!ifndef WRAPPERS
+# define if gen_compile_rules_wrapper and gen_deps_wrapper
+# are not defined
+gen_compile_rules_wrapper: .SYMBOLIC
+ @%null
+
+gen_deps_wrapper: .SYMBOLIC
+ @%null
+
+!endif
 
 !endif

@@ -15,6 +15,9 @@ LDR_BASE        equ 0x10000               ; os2ldr base
 MFS_SEG         equ 0x7c                  ; minifsd segment
 LDR_SEG         equ 0x1000                ; os2ldr segment
 
+; multiboot kernel load base
+KERN_BASE       equ 0x800000
+
 PREFERRED_BASE  equ 0x6f000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
                                           ; when loaded initially without relocation)
 BOOT_PART_TABLE equ (0x70000 + SHIFT)     ;
@@ -72,14 +75,14 @@ PROTSTACK         equ  0x600
 ; Real mode stack address
 RMSTACK           equ  0x604
 ; protect mode IDT save
-IDTR		  equ  0x608
+IDTR              equ  0x608
 ; real mode IDT save
-IDTR_OLD	  equ  0x610
+IDTR_OLD          equ  0x610
 
 ; GDT location
 GDT_ADDR          equ 0x640
 ; IDT location
-IDT_ADDR	  equ 0x6a0
+IDT_ADDR          equ 0x6a0
 
 ; stacks initial values
 PROTSTACKINIT   equ STACK_SP - 10h

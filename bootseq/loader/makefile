@@ -7,7 +7,7 @@
 #srcfiles     = $(p)drivemap$(e) $(p)end$(e) $(p)modesw$(e) $(p)cfgparse$(e) $(p)cmdline$(e) &
 #               $(p)setdev$(e) $(p)wrap$(e)
 
-DIRS         = shared filesys term preldr # loader kernels
+DIRS         = shared filesys term preldr loader kernels
 DEST         = boot$(SEP)loader
 
 !include $(%ROOT)/mk/loader.mk

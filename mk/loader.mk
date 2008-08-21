@@ -3,14 +3,11 @@
 # 07/10/04 valerius
 #
 
-CLEAN_ADD = *.mdl *.rel *.sob *.lob
+# define if gen_compile_rules_wrapper and gen_deps_wrapper
+# are defined
+!define WRAPPERS
 
-#TARGETS          = minilibc.lib preldr0 preldr0_lite freeldr preldr0s &
-#                   bt_linux bt_chain &
-#                   console.trm hercules.trm serial.trm &
-#                   console.trs hercules.trs serial.trs &
-# preldr0.rel &
-#                   console.rel hercules.rel serial.rel
+CLEAN_ADD = *.mdl *.rel *.sob *.lob
 
 #
 # This is for this file to be not included twice
@@ -47,15 +44,7 @@ LOUT         = lbi
 
 .asm: $(MYDIR)..
 
-BT_LINUX_OBJS    = linux.$(O) linuxc.$(O) modesw-npl.$(O) cmdline.$(O) &
-                   wrap.$(O) end.$(O)
-BT_CHAIN_OBJS    = chain.$(O) chainc.$(O) setdev.$(O) modesw-npc.$(O)  &
-                   cmdline.$(O) wrap.$(O) end.$(O)
-
-LDR_OBJS         = ldrstart.$(O) loader.$(O) wrap.$(O) commands.$(O) &
-                   boot.$(O) cmdline.$(O) cfgparse-l.$(O) #varsubst.$(O)
-
-preldr0.rel: preldr0 preldr0s
+#preldr0.rel: preldr0 preldr0s
 
 .rel: $(PATH)
 
@@ -71,16 +60,6 @@ preldr0.rel: preldr0 preldr0s
  $(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@
  $(DC) $[*.mds
 
-bt_linux: bt_linux.$(OUT)
- $(DC) $^@
- $(RIP) $< KERN_BASE $(MYDIR)..$(SEP)include$(SEP)mb_etc.inc >$^@
- $(DC) $<
-
-bt_chain: bt_chain.$(OUT)
- $(DC) $^@
- $(RIP) $< KERN_BASE $(MYDIR)..$(SEP)include$(SEP)mb_etc.inc >$^@
- $(DC) $<
-
 .$(OUT).mdl:
  $(DC) $^@
  $(RIP) $[@ $(MOD_BASE) $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
@@ -90,20 +69,6 @@ bt_chain: bt_chain.$(OUT)
  $(DC) $^@
  $(RIP) $[@ $(MOD_BASE) $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
  $(DC) $[@
-
-freeldr: freeldr.$(OUT)
- $(DC) $^@
- $(RIP) $< LDR_BASE $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
- $(DC) $<
-
-bt_linux.$(OUT): $(BT_LINUX_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-bt_chain.$(OUT): $(BT_CHAIN_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
-
-freeldr.$(OUT): $(LDR_OBJS)
- $(MAKE) $(MAKEOPT) T=$^& S="" E=$(OUT) OBJS="$<" link
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
  $(SAY) Linking $< $(LOG)
@@ -142,52 +107,26 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 
 .asm: $(MYDIR)
 
-func.$(O): func.c
- $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fr=$^& -fo=$^@ $<
-
-func.$(LO): func.c
- $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^& -fo=$^@ $<
-
-func.$(SO): func.c
- $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^& -fo=$^@ $<
-
-modesw-npl.$(O): modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^& -fo=$^@ $<
-
-linux.$(O): linux.asm
- $(ASM) -dSHIFT=0 -dREAL_BASE=0x8000 $(ASMOPT) -fr=$^& -fo=$^@ $<
-
-modesw-npc.$(O): modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^& -fo=$^@ $<
-
-chain.$(O): chain.asm
- $(ASM) -dSHIFT=0 -dREAL_BASE=0x90000 $(ASMOPT) -fr=$^& -fo=$^@ $<
-
-cfgparse-l.$(O): cfgparse.c
- $(CC) -dLOADER $(COPT) -fr=$^& -fo=$^@ $<
-
-cfgparse.$(O): cfgparse.c
-
 .c.$(O):
- $(CC) -dSHIFT=0 $(COPT) -fr=$^&.err -fo=$^@ $<
-
-.c.$(LO):
- $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^&.err -fo=$^@ $<
+ $(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .c.$(SO):
- $(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^&.err -fo=$^@ $<
+ $(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+.c.$(LO):
+ $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(O):
- $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^&.err -fo=$^@ $<
+ $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(LO):
- $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^&.err -fo=$^@ $<
+ $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(SO):
- $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^&.err -fo=$^@ $<
+ $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .inc.h:
- $(AWK) -f inc2h.awk <$< >$^@
+ $(AWK) -f $(ROOT)$(SEP)bin$(SEP)inc2h.awk <$[@ >$^@
 
 #
 # See $(%ROOT)/mk/genrules.mk for details
@@ -195,10 +134,10 @@ cfgparse.$(O): cfgparse.c
 gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !ifeq sh
  # compile rules for ordinary files
- @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O)  basename=$[& gen_compile_rules
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O)  sh=$(sh) basename=$[& gen_compile_rules
 !else
  # compile rules for shifted files
- @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) basename=$[& gen_compile_rules
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) sh=$(sh) basename=$[& gen_compile_rules
 !endif
 
 gen_deps_wrapper:

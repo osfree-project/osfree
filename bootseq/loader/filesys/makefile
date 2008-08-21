@@ -48,9 +48,9 @@ spec_SRCS = $+$(blackboxes)$-
 
 F = 1
 
-!ifeq sh
-defs=-d$(basename) -dSHIFT=0
-!else
+!ifeq sh sh_
 defs=-d$(basename) -dSHIFT=$$(SHIFT)
+!else
+defs=-d$(basename) -dSHIFT=0
 !endif
 

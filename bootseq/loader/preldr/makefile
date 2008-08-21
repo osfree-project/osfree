@@ -53,8 +53,21 @@ spec_SRCS = # $+$(blackboxes)$-
 
 F =
 
-!ifeq sh
-defs=-d$(basename) -dSHIFT=0
-!else
-defs=-d$(basename) -dSHIFT=$$(SHIFT)
-!endif
+#!ifeq sh
+#defs=-d$(basename) -dSHIFT=0
+#!else
+#defs=-d$(basename) -dSHIFT=$$(SHIFT)
+#!endif
+
+$(PATH)..$(SEP)func.$(O): $(MYDIR)..$(SEP)func.c
+ $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)..$(SEP)func.$(LO): $(MYDIR)..$(SEP)func.c
+ $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)..$(SEP)func.$(SO): $(MYDIR)..$(SEP)func.c
+ $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)..$(SEP)cfgparse.$(O): $(MYDIR)..$(SEP)cfgparse.c
+
+$(PATH)..$(SEP)cfgparse.$(SO): $(MYDIR)..$(SEP)cfgparse.c
