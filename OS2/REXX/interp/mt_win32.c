@@ -2,6 +2,9 @@
  * We initialize the global data structure and the global access variable.
  */
 
+#include "regina_c.h"
+#include "rexxsaa.h"
+#define DONT_TYPEDEF_PFN
 #include "rexx.h"
 #include <stdlib.h>
 #include <string.h>
@@ -49,6 +52,21 @@ static void DestroyHeap(tsd_t *TSD)
       HeapDestroy(mt->Heap);
    free(mt);
    free(TSD);
+}
+
+
+int IfcReginaCleanup( VOID )
+{
+   tsd_t *TSD = __regina_get_tsd();
+
+   if (TSD == NULL)
+      return 0;
+
+   deinit_rexxsaa(TSD);
+   DestroyHeap(TSD);
+   TlsSetValue(ThreadIndex,NULL);
+
+   return 1;
 }
 
 /* We provide a DLL entry function. Look at the standard documentation */

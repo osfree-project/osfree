@@ -2,6 +2,9 @@
 #
 #
 
+!ifndef __appsos2_mk__
+!define __appsos2_mk__
+
 32_BITS = 1
 PLATFORM = os2
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
@@ -94,3 +97,5 @@ $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
+
+!endif

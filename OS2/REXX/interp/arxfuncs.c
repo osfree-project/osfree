@@ -23,283 +23,66 @@
  * contains the ARexx functions that are only usable on the
  * amiga platform or compatibles. (not implemented yet)
  */
+#define _GNU_SOURCE
 #include "rexx.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <float.h>
 #include <assert.h>
 
 staticstreng(_fname, "F");
 staticstreng(_fstem, "FI.F");
 
-typedef struct _arexx_tsd_t {
-  proclevel amilevel;
-} arexx_tsd_t;
-
-#if defined(__EPOC32__) || defined(__WINS__) || (defined(__WATCOMC__) && defined(__QNX__)) || (defined(__WATCOMC__) && defined(OS2))
-# define HAVE_DRAND48
-void srand48(long seed)
-{
-   seed = seed;
-}
-double drand48(void)
-{
-   return 0.0;
-}
-#else
-  /* at least OpenWatcom has __int64 */
-# if defined(WIN32) || defined(__WATCOMC__)
-typedef __int64 long_long;
-# else
-typedef long long int long_long;
+#ifndef rx_64u
+# if defined(WIN32)
+#  define rx_64u        unsigned __int64
+#  define rx_mk64u(num) (rx_64u) num##ui64
+# elif defined(__WATCOMC__) && !defined(__QNX__)
+   /* You need OpenWatcom 1.1 on Win32 or OS/2 */
+#  define rx_64u        unsigned __int64
+#  define rx_mk64u(num) (rx_64u) num##ui64
+# elif defined(__WORDSIZE) && (__WORDSIZE >= 64)
+#  define rx_64u        unsigned
+#  define rx_mk64u(num) (rx_64u) num##u
+# elif defined(WORD_BIT) && (WORD_BIT >= 64)
+#  define rx_64u        unsigned
+#  define rx_mk64u(num) (rx_64u) num##u
+# elif defined(LONG_BIT) && (LONG_BIT >= 64)
+#  define rx_64u        unsigned long
+#  define rx_mk64u(num) (rx_64u) num##ul
+# elif defined(ULLONG_MAX) && (ULLONG_MAX != ULONG_MAX)
+#  define rx_64u        unsigned long long
+#  define rx_mk64u(num) (rx_64u) num##ull
+# elif defined(ULONG_LONG_MAX) && (ULONG_LONG_MAX != ULONG_MAX)
+#  define rx_64u        unsigned long long
+#  define rx_mk64u(num) (rx_64u) num##ull
 # endif
 #endif
 
-#if !defined(HAVE_DRAND48)
-/* THIS CODE IS NOT REENTRANT AND IT WILL NEVER BE SINCE IT MAY OVERWRITES
-   EXISTING LIBRARY FUNCTIONS. THIS CODE'S USAGE HAS TO BE REWRITTEN! Florian
-
-   Random number generation using the linear congruential algorithm
-   X(n+1) = (a * X(n) + c) mod m
-   with a precision of 48 bits.
-
-   Author: Kriton Kyrimis (kyrimis@theseas.softlab.ece.ntua.gr)
-   Code status: Public Domain.
-*/
-
-#include <limits.h>
-
-#include <float.h>
-
-/* Parameters for the linear congruential algorithm:
-   parm[0..2] is the current value of Xn (internal seed, m.s.word last)
-   parm[3..5] is the value of a (m.s.word last)
-   parm[6] is the value of c.
-*/
-#define X0 0x1234 /* MSB * Initial value for Xn, obtained using seed48() */
-#define X1 0xABCD /* on SunOS 4.1.3 */
-#define X2 0x330E
-
-#define A0 0x0005 /* MSB * Default value for a, taken from the man page */
-#define A1 0xDEEC
-#define A2 0xE66D
-
-#define C0 0x000B /* Default value for c, taken from the man page */
-
-static unsigned short parm[7] = {
-  X2, X1, X0,
-  A2, A1, A0,
-  C0
-};
-
-/* To produce a double random number in [0,1) we get a 32-bit unsigned long
-   random number, convert it to double, and divide it by ULONG_MAX + EPSILON.
-   (We add the EPSILON to exclude 1.0 from the set of possible results.)
-
-   We derive EPSILON by noting that for a random value of ULONG_MAX,
-   we want to return the smallest double that is less than 1.0.
-   Therefore:
-
-        ULONG_MAX
-   --------------------- = (1.0 - DBL_EPSILON)
-   (ULONG_MAX + EPSILON)
-
-   (This is probably overkill.)
-
-*/
-
-#define EPSILON (double)ULONG_MAX*(1.0/(1.0-DBL_EPSILON)-1.0)
-
-
-/*--------------------------------------------------------------------------*
- * Parameter initialization functions                                       *
- *--------------------------------------------------------------------------*/
-
-/* This function sets the two m.s.words of the internal seed to the value
-   supplied by the caller, and the l.s.word of the internal seed to 0x330E.
-*/
-void
-srand48(long seed)
-{
-  parm[0] = 0x330E;
-  parm[1] = (unsigned short)(((unsigned long)seed) & 0xFFFF);
-  parm[2] = (unsigned short)(((unsigned long)seed >> 16) & 0xFFFF);
-  parm[3] = A2;
-  parm[4] = A1;
-  parm[5] = A0;
-  parm[6] = C0;
-}
-
-/* This function sets all three words of the internal seed to the value
-   supplied by the caller. It returns a pointer to an array containing
-   a copy of the previous value of the internal seed.
-*/
-unsigned short *
-seed48(unsigned short *seed)
-{
-  /*
-   * Note: This function isn't reentrant. I hope we never get strange
-   * effects. Florian. PS: Why does this exist? It isn't referenced.
-   */
-  static unsigned short oldparm[3];
-  unsigned short tmpparm[3];
-
-  /* Can't assign oldparm[] = parm[] directly, because seed[] may be a pointer
-     to oldparm[], obtained from a previous call to seed48 , in which case
-     we would destroy the contents of seed[] */
-  tmpparm[0] = parm[0];
-  tmpparm[1] = parm[1];
-  tmpparm[2] = parm[2];
-  parm[0] = seed[0];
-  parm[1] = seed[1];
-  parm[2] = seed[2];
-  oldparm[0] = tmpparm[0];
-  oldparm[1] = tmpparm[1];
-  oldparm[2] = tmpparm[2];
-  parm[3] = A2;
-  parm[4] = A1;
-  parm[5] = A0;
-  parm[6] = C0;
-
-  return oldparm;
-}
-
-/* This function sets all seven words of the internal parameters array to the
-   values supplied by the caller.
-*/
-void
-lcong48(unsigned short *new_parm)
-{
-  parm[0] = new_parm[0];
-  parm[1] = new_parm[1];
-  parm[2] = new_parm[2];
-  parm[3] = new_parm[3];
-  parm[4] = new_parm[4];
-  parm[5] = new_parm[5];
-  parm[6] = new_parm[6];
-}
-
-
-/*--------------------------------------------------------------------------*
- * Random number generator                                                  *
- *--------------------------------------------------------------------------*/
-
-/* This function implements the linear congruential algorithm.  Thanks to
-   gcc's long long ints, implementing 48-bit arithmetic (actually 64-bit,
-   truncating the result) is trivial.  Limitations of long long int
-   implementation in (amiga?) gcc 2.7.0, made me use the kludge with the union
-   to convert from short[3] to long long int. (It's probably faster though!)
-
-   This function takes an array of three shorts (a 48-bit seed, m.s.word
-   last) and returns a long between -2**31 and 2**31-1, updating the seed
-   (the result is the two m.s.words of the updated seed).
-*/
-
-static long
-rng(unsigned short *seed)
-{
-  long_long Xn, Xn1, a, c;
-  union {
-    long_long l;
-    unsigned short s[4];
-  } i;
-
-  i.s[0] = 0;
-  i.s[1] = seed[2];
-  i.s[2] = seed[1];
-  i.s[3] = seed[0];
-  Xn = i.l;
-
-  i.s[0] = 0;
-  i.s[1] = parm[5];
-  i.s[2] = parm[4];
-  i.s[3] = parm[3];
-  a = i.l;
-
-  c =  (long_long)(parm[6]);
-
-  Xn1 = a * Xn + c;
-
-  i.l = Xn1;
-  seed[0] = i.s[3];
-  seed[1] = i.s[2];
-  seed[2] = i.s[1];
-
-  return (long)((((unsigned long)seed[2]) << 16) + seed[1]);
-}
-
-
-/*--------------------------------------------------------------------------*
- * Interface functions to the random number generator                       *
- *--------------------------------------------------------------------------*/
-
-/* This function returns a long between 0 and 2**31-1 by calling rng
-   with the internal seed, returning the 15 most significant bits of the
-   result shifted by one position to the right.
-*/
-long
-lrand48(void)
-{
-  return (rng(parm) >> 1) & 0x7FFFFFFF;
-}
-
-/* Same as lrand48(), but using an external seed. */
-
-long
-nrand48(unsigned short seed[3])
-{
-  return (rng(seed) >> 1) & 0x7FFFFFFF;
-}
-
-/* This function returns a long between -2**31 and 2**31-1 by calling rng
-   with the internal seed.
-*/
-long
-mrand48(void)
-{
-  return rng(parm);
-}
-
-/* Same as mrand48(), but using an external seed. */
-
-long
-jrand48(unsigned short seed[3])
-{
-  return rng(seed);
-}
-
-/* This function returns a double in the interval [0,1) by calling mrand48()
-   and dividing the result by ULONG_MAX + EPSILON. */
-
-double
-drand48(void)
-{
-  union {
-    long l;
-    unsigned long u;
-  } x;
-
-  x.l = mrand48();
-  return (double)x.u / ((double)(ULONG_MAX) + EPSILON);
-}
-
-/* Same as drand48(), but using an external seed. */
-
-double
-erand48(unsigned short seed[3])
-{
-  union {
-    long l;
-    unsigned long u;
-  } x;
-
-  x.l = nrand48(seed);
-  return (double)x.u / ((double)(ULONG_MAX) + EPSILON);
-}
+#if defined(_AMIGA) || defined(__AROS__)
+# if defined(GCC)
+#  include <memory.h>
+#  include <sys/exec.h>
+# else
+#  include <exec/memory.h>
+#  include <proto/exec.h>
+# endif
 #endif
 
-/* Init thread data for arexx functions
+typedef struct _arexx_tsd_t {
+  proclevel amilevel;
+#ifdef rx_64u
+  rx_64u a,Xn,c;
+#else
+  unsigned long ah,al,Xnh,Xnl,c;
+#endif
+} arexx_tsd_t;
+
+/*
+ * Init thread data for arexx functions.
  */
-int init_arexxf ( tsd_t *TSD )
+int init_arexxf( tsd_t *TSD )
 {
    arexx_tsd_t *at;
 
@@ -309,9 +92,165 @@ int init_arexxf ( tsd_t *TSD )
    if ( ( at = TSD->arx_tsd = MallocTSD( sizeof( arexx_tsd_t ) ) ) == NULL )
       return 0;
    memset( at, 0, sizeof( arexx_tsd_t ) );
+
+/* glibc's starting value is 0 for the whole Xn, we use a seed of 0x1234ABCD */
+#ifdef rx_64u
+   at->a  = rx_mk64u( 0x0005DEECE66D );
+   at->Xn = rx_mk64u( 0x1234ABCD330E );
+   at->c  = 0xB;
+#else
+   at->ah  = 0x5;
+   at->al  = 0xDEECE66Dul;
+   at->Xnh = 0x1234;
+   at->Xnl = 0xABCD330Eul;
+   at->c   = 0xB;
+#endif
    return 1;
 }
 
+/*
+ * The implementation of srand48 and drand48 with fixed values in a thread safe
+ * manner.
+ *
+ * We have to produce a value in the interval [0,1[  (zero until one but
+ * without one) from a 48 bit unsigned integer. This is done by a division by
+ * the maximum value corrected by small double. This small double is computed
+ * from the constant DBL_EPSILON.
+ *
+ *                           / a) 1+e > 1 and e > 0
+ * DBL_EPSILON = e with both
+ *                           \ b) there is no number e', e' < e
+ *
+ * We increase the divisor of 2**48-1 by (2**48-1)*DBL_EPSILON and have
+ * the wanted final divisor. That is with 2**48 - 1 = 281474976710655
+ */
+#define twoE48m1 281474976710655.0
+#define divisor ( twoE48m1 * ( 1.0 + DBL_EPSILON ) )
+
+#ifdef rx_64u
+/*
+ * srand48 sets the upper 32 bit of Xn. The lower 16 bit are set to 330E.
+ */
+static void rx_srand48( const tsd_t *TSD, unsigned long ul )
+{
+   arexx_tsd_t *at = TSD->arx_tsd;
+   rx_64u ull;
+
+   ull = ul & 0xFFFFFFFF;
+   ull <<= 16;
+   at->Xn = ull | 0x330E;
+}
+
+/*
+ * Compute X(n+1) = a * X(n) + c
+ */
+static double rng( arexx_tsd_t *at )
+{
+   rx_64u Xn1;
+
+   Xn1 = at->a * at->Xn + at->c;
+   at->Xn = Xn1 & rx_mk64u( 0xFFFFFFFFFFFF );
+
+# ifdef _MSC_VER
+   return (double) (signed __int64) at->Xn;
+# else
+   return (double) at->Xn;
+# endif
+}
+#else
+static void rx_srand48( const tsd_t *TSD, unsigned long ul )
+{
+   arexx_tsd_t *at = TSD->arx_tsd;
+
+   at->Xnh = ( ul >> 16 ) & 0xFFFF;
+   at->Xnl = ( ( ul & 0xFFFF ) << 16 ) | 0x330E;
+}
+
+static double rng( arexx_tsd_t *at )
+{
+   double retval;
+   unsigned long Xn1h,Xn1l;
+   unsigned long h,al,ah,bl,bh;
+   /*
+    * Doing 64 bit multiplication and addition by hand.
+    *
+    * be H = 2*32.
+    * be A = ah*H + al, with ah<H and al<H
+    * be B = bh*H + bl, with bh<H and bl<H
+    *
+    * then we can compute A*B as:
+    *
+    * (ah*H+al)*(bh*H+bl) = ah*bh*H*H +
+    *                       ah*bl*H +
+    *                       bh*al*H +
+    *                       al*bl
+    *
+    * We have to add an additional term c, c small and we operate modulo
+    * 2**48-1. This keeps life simple because we may throw away the
+    * term ah*bh*H*H because the number is greater as 2**48 without rest.
+    *
+    * Furthermore we don't have to bother about carries in the multiplication
+    * and addition of ah*bl*H and al*bh*H. Finally the term c is so small that
+    * al*bl+c won't have any further carrying operation.
+    *
+    * Indeed, because we want the lower 16 bit part of ah*bl+bh*al, we can
+    * compute as usual, add the carry of al*bl+c and that's it.
+    *
+    * There is just one lack:
+    * We need everything of al*bl. So we have to compute as above but with
+    * 16 bit unsigneds to let the product be littler than 2**32.
+    *
+    * Perfrom this 16 bit operations first.
+    */
+
+   al = at->al & 0xFFFF;
+   ah = at->al >> 16;
+   bl = at->Xnl & 0xFFFF;
+   bh = at->Xnl >> 16;
+
+   h = al * bl + at->c;
+   Xn1l = h & 0xFFFF; /* done lower 16 bit */
+
+   /*
+    * Process the *H, H=16 part. Every overflow in addition will be in the
+    * 48 bit counted from 0, so the final modulo will cut it. Therefore
+    * we are allowed to ignore every overflow.
+    */
+   h >>= 16;
+   h += al * bh + ah * bl;
+   Xn1l |= (h << 16) & 0xFFFF0000; /* done middle 16 bit */
+
+   Xn1h = h >> 16;
+   Xn1h += ah * bh;
+
+   /*
+    * Now do the ah*bl*H + bh*al+H for the outer 32 bit operation.
+    */
+   Xn1h += at->ah * at->Xnl + at->al * at->Xnh;
+   at->Xnh = Xn1h & 0xFFFF;
+   at->Xnl = Xn1l;
+
+   retval = at->Xnh;
+   retval *= 4294967296.0l;
+   retval += at->Xnl;
+
+   return retval;
+}
+#endif
+
+/*
+ * Map a random value computed by rng of the range [0,2**48[ to the
+ * range [0,1[
+ */
+static double rx_drand48( const tsd_t *TSD )
+{
+   arexx_tsd_t *at = TSD->arx_tsd;
+   double big;
+
+   big = (double) rng( at );
+
+   return (double) big / divisor;
+}
 
 /*
  * Support functions for the ARexx IO functions
@@ -332,17 +271,17 @@ static proclevel setamilevel( tsd_t *TSD )
 
     TSD->currlevel = atsd->amilevel;
 
-    setvalue( TSD, _fname, Str_cre_TSD( TSD, "STDIN" ) );
+    setvalue( TSD, _fname, Str_cre_TSD( TSD, "STDIN" ), -1 );
     sprintf( txt, "%p", stdin );
-    setvalue( TSD, _fstem, Str_cre_TSD( TSD, txt ) );
+    setvalue( TSD, _fstem, Str_cre_TSD( TSD, txt ), -1 );
 
-    setvalue( TSD, _fname, Str_cre_TSD( TSD, "STDOUT" ) );
+    setvalue( TSD, _fname, Str_cre_TSD( TSD, "STDOUT" ), -1 );
     sprintf( txt, "%p", stdout );
-    setvalue( TSD, _fstem, Str_cre_TSD( TSD, txt ) );
+    setvalue( TSD, _fstem, Str_cre_TSD( TSD, txt ), -1 );
 
-    setvalue( TSD, _fname, Str_cre_TSD( TSD, "STDERR" ) );
+    setvalue( TSD, _fname, Str_cre_TSD( TSD, "STDERR" ), -1 );
     sprintf( txt, "%p", stderr );
-    setvalue( TSD, _fstem, Str_cre_TSD( TSD, txt ) );
+    setvalue( TSD, _fstem, Str_cre_TSD( TSD, txt ), -1 );
   }
 
   return oldlevel;
@@ -357,10 +296,10 @@ static FILE *getfile( tsd_t *TSD, const streng *name )
   char *txt;
   FILE *file=NULL;
 
-  setvalue( TSD, _fname, Str_dup_TSD( TSD, name ) );
+  setvalue( TSD, _fname, Str_dup_TSD( TSD, name ), -1 );
   if ( isvariable( TSD, _fstem ) )
   {
-    s = getvalue( TSD, _fstem, 0 );
+    s = getvalue( TSD, _fstem, -1 );
     txt = str_of( TSD, s );
     sscanf( txt, "%p", &file );
     FreeTSD( txt );
@@ -431,8 +370,8 @@ static void addfile( tsd_t *TSD, const streng *name, FILE *file )
 
   sprintf( txt, "%p", (void *)file );
   s = Str_cre_TSD( TSD, txt );
-  setvalue( TSD, _fname, Str_dup_TSD( TSD, name ) );
-  setvalue( TSD, _fstem, s );
+  setvalue( TSD, _fname, Str_dup_TSD( TSD, name ), -1 );
+  setvalue( TSD, _fstem, s, -1 );
 
   TSD->currlevel = oldlevel;
 }
@@ -1018,23 +957,22 @@ streng *arexx_randu( tsd_t *TSD, cparamboxptr parm1 )
 
    checkparam( parm1, 0, 1, "RANDU" );
 
-   if ( parm1!=NULL && parm1->value!=NULL )
+   if ( ( parm1 != NULL ) && ( parm1->value != NULL ) )
    {
       seed = streng_to_int( TSD, parm1->value, &error );
       if ( error )
          exiterror( ERR_INCORRECT_CALL, 11, "RANDU", 1, tmpstr_of( TSD, parm1->value ) );
 
-      srand48( (long int)seed );
+      rx_srand48( TSD, seed );
    }
 
-   sprintf( text, "%.20f", drand48() );
+   sprintf( text, "%.20f", rx_drand48( TSD ) );
    s = Str_cre_TSD( TSD, text );
-   retval = str_format( TSD, s, -1, -1, -1, -1);
+   retval = str_format( TSD, s, -1, -1, -1, -1 );
    FreeTSD( s );
 
    return retval;
 }
-
 
 
 /*
@@ -1062,11 +1000,6 @@ streng *arexx_getspace( tsd_t *TSD, cparamboxptr parm1 )
 }
 
 
-#if defined(_AMIGA) || defined(__AROS__)
-#include <exec/memory.h>
-#include <proto/exec.h>
-#endif
-
 streng *arexx_freespace( tsd_t *TSD, cparamboxptr parm1 )
 {
   /* For backwards compatibility there may be two arguments
@@ -1074,7 +1007,7 @@ streng *arexx_freespace( tsd_t *TSD, cparamboxptr parm1 )
   checkparam( parm1, 0, 2, "FREESPACE" );
 
   if ( parm1 == NULL || parm1->value == NULL || parm1->value->len == 0 )
-#if defined(_AMIGA) || defined(__AROS__)
+#if (defined(_AMIGA) || defined(__AROS__)) && !defined(GCC)
     return int_to_streng( TSD, AvailMem( MEMF_ANY ) );
 #else
     return int_to_streng( TSD, -1 );
@@ -1188,8 +1121,11 @@ streng *arexx_storage( tsd_t *TSD, cparamboxptr parm1 )
 
   checkparam( parm1, 0, 4, "STORAGE" );
 
-  if ( parm1 == NULL )
-    return arexx_getspace( TSD, NULL );
+  if ( parm1 == NULL || parm1->value == NULL )
+    return arexx_freespace( TSD, NULL );
+
+  if ( TSD->restricted )
+    exiterror( ERR_RESTRICTED, 1, "STORAGE" )  ;
 
   if ( parm1->value == NULL || parm1->value->len == 0 )
     exiterror( ERR_INCORRECT_CALL, 21, "STORAGE", 1 );

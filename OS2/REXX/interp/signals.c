@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: signals.c,v 1.2 2003/12/11 04:43:20 prokushev Exp $";
+static char *RCSid = "$Id: signals.c,v 1.17 2003/12/19 07:16:01 florian Exp $";
 #endif
 
 /*
@@ -158,18 +158,13 @@ int condition_hook( tsd_t *TSD, int type, int errorno, int suberrorno, int linen
       /* traps[type].on_off = 0 ;  */ /* turn trap off */
       /* traps[type].trapped = 0 ; */ /* unecessary, just to be sure */
          traps[type].delayed = 0 ;    /* ... ditto ... */
-         set_sigl( TSD, lineno );
+         set_reserved_value( TSD, POOL0_SIGL, NULL, lineno, VFLAG_NUM );
          if (type == SIGNAL_SYNTAX) /* special condition */
-            set_rc( TSD, int_to_streng( TSD, errorno ) );
+            set_reserved_value( TSD, POOL0_RC, NULL, errorno, VFLAG_NUM );
 
          TSD->nextsig = sigptr ;
 
-         if (TSD->in_protected)
-         {
-            TSD->delayed_error_type = PROTECTED_DelayedSetjmpBuf;
-            longjmp( TSD->protect_return, 1 ) ;
-         }
-         longjmp( *(TSD->currlevel->buf), 1 ) ;
+         jump_rexx_signal( TSD );
       }
       else
       {
@@ -261,6 +256,9 @@ void halt_raised( tsd_t *TSD )
                         NULL ) )
       return;
 #ifdef VMS
+   /*
+    * FIXME: Why do we use vms_killproc instead of using exiterror() ?
+    */
    vms_killproc( TSD );
 #endif
    exiterror( ERR_PROG_INTERRUPT, 0 );
@@ -293,20 +291,12 @@ static void halt_handler( int num )
 # if defined(SIGHUP)
 static void hup_handler( int dummy )
 {
-   tsd_t *TSD = __regina_get_tsd();
-
-   if (TSD->in_protected)
-   {
-      TSD->delayed_error_type = PROTECTED_DelayedExit;
-      TSD->expected_exit_error = 0;
-      longjmp( TSD->protect_return, 1 ) ;
-   }
    /*
     * FGC: FIXME: Doing an exit is too heavy and too early. Maybe, we
     * should ignore it completely. Every IO request will return EPIPE or
     * similar, and we can do a graceful shutdown then.
     */
-   TSD->MTExit( 0 ) ;
+   exiterror( ERR_PROG_INTERRUPT, 0 );
 }
 # endif
 #endif

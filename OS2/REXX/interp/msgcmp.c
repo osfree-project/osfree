@@ -84,7 +84,7 @@ int main( int argc, char *argv[] )
    ti = (struct textindex *)malloc( 500*sizeof(struct textindex) );
    if ( ti == NULL )
    {
-      fprintf( stderr, "Unable to allocate memory for 500 mesage structures.\n" );
+      fprintf( stderr, "Unable to allocate memory for 500 message structures.\n" );
       exit(1);
    }
    for ( i = 1; i < argc; i++ )
@@ -101,7 +101,7 @@ int main( int argc, char *argv[] )
       text = (char *)malloc( stat_buf.st_size );
       if ( text == NULL )
       {
-         fprintf( stderr, "Unable to allocate stat_buf.st_size bytes of memory.\n" );
+         fprintf( stderr, "Unable to allocate %d bytes of memory.\n", (int) stat_buf.st_size );
          free(ti);
          exit(1);
       }

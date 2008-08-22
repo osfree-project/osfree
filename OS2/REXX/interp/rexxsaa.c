@@ -1,3 +1,6 @@
+#ifndef lint
+static char *RCSid = "$Id: rexxsaa.c,v 1.45 2004/04/05 10:26:42 mark Exp $";
+#endif
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1993-1994  Anders Christensen <anders@pvv.unit.no>
@@ -30,12 +33,12 @@
  *
  *    RexxStart()               --- execute Rexx code
  *    RexxRegisterSubcomExe()   --- register subcommand handler
- *    RexxRegisterSubcomDll()   --- ditto (not yet implemented)
+ *    RexxRegisterSubcomDll()   --- ditto (from dynamic library)
  *    RexxQuerySubcom()         --- query subcommand handler
  *    RexxDeregisterSubcom()    --- deregister subcommand handler
  *    RexxVariablePool()        --- handle Rexx variable manipulation
  *    RexxRegisterExitExe()     --- register exit handler
- *    RexxRegisterExitDll()     --- ditto (not yet implemented)
+ *    RexxRegisterExitDll()     --- ditto (from dynamic library)
  *    RexxDeregisterExit()      --- deregister exit handler
  *    RexxQueryExit()           --- query exit handler
  *    RexxRegisterFunctionExe() --- register external function handler
@@ -60,6 +63,8 @@
  *    RexxFreeMemory()          --- free memory allocated by Rexx API
  *    RexxAllocateMemory()      --- allocate memory to be freed by Rexx API
  *    RexxCallBack()            --- execute an internal procedure within the running script
+ *    ReginaVersion()           --- version information
+ *    ReginaCleanup()           --- generic cleanup routine
  *
  * These functions are all defined in the doc for SAA API. In addition,
  * a number of calls in Regina are called, as well as a number of calls
@@ -104,7 +109,7 @@
 #define INCL_RXARI
 #define INCL_RXQUEUE
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -176,61 +181,24 @@ typedef union {
    RXCWDSET_PARM cwdset ;
 } EXIT ;
 
-struct funcbox2 {
-   struct funcbox2 *next, *prev ;
-   PSZ name ;
-   RexxFunctionHandler *entry ;
-   unsigned hash ;
-};
-
 /* The following value allows called programs to call "free" to the return
  * parameters without destroying our stack.
  */
 #define ILLEGAL_USE_SIZE (8 * sizeof(void *))
 
 typedef struct { /* rex_tsd: static variables of this module (thread-safe) */
-   struct funcbox2 *    saafuncs[133];
    struct ExitHandlers *CurrentHandlers ;
-   struct EnvBox *      FirstEnv ;
-   struct EnvBox *      FirstExit ;
 } rex_tsd_t; /* thread-specific but only needed by this module. see
               * init_rexxsaa
               */
 
 #define EXT_FUNCS_COUNT (sizeof(rt->saafuncs) / sizeof(rt->saafuncs[0]))
 
-/*
- * The struct EnvBox datatype holds the definition of any subcommand
- * handler (i.e. an 'environment'). It is intended as an double-linked
- * list of entries, though performence concerns may force a change in
- * this structure later. It contains the name of the environment, and
- * an eight byte dataarea of user defined data. The same datastructure
- * is also used for holding the symbol table of external functions.
- *
- * This may prove a problem in the future, since the number of external
- * functions are generally much larger than the number of subcommand
- * handlers. Thus, different datastructures may be necessary to acheive
- * maximum performance.
- */
-struct EnvBox
-{
-   struct EnvBox *prev, *next ;    /* double linked list pointers */
-   char *EnvName ;                 /* environment/function name */
-   unsigned hash ;                 /* hash value of the EnvName */
-   unsigned char UserData[8] ;     /* user defined data area */
-   union {
-     PFN EntryPnt ;                /* external function entry point */
-     RexxSubcomHandler *SubCom ;   /* subcommand handler entry point */
-   } u ;
-} ;
-
 struct ExitHandlers
 {
    RexxExitHandler *(Handlers[RXNOOFEXITS]) ; /* for RexxRegisterExitExe */
    struct ExitHandlers *prev ;
 } ;
-
-
 
 /*
  * The following MAP_TYPE() macro maps from the SAA API macros holding
@@ -279,11 +247,11 @@ void deinit_rexxsaa( tsd_t *TSD )
  *    done by __regina_get_tsd() done in GLOBAL_ENTRY_POINT().
  *    After this call you may use Malloc() and friends: basic things.
  * 2) Initialize the Rexx system. This is done by
- *    __regina_faked_main() here or directly by any other caller of
+ *    setup_system() here or directly by any other caller of
  *    __regina_faked_main() or main():
  *    You are then allowed to access variables from the variable pool, load
  *    a Rexx program or just call a Rexx API function.
- *    Hint: The detection of this step is done as follows:.
+ *    Hint: The detection of this step is done as follows:
  *    Rexx_system_is_running = (__regina_get_tsd()->systeminfo != NULL);
  *    or a similar compare.
  * 3) Load the Rexx program in memory.
@@ -296,15 +264,12 @@ void deinit_rexxsaa( tsd_t *TSD )
  * This function should be called as GLOBAL_ENTRY_POINT() at the very
  * start of the interpreter but after GLOBAL_ENTRY_POINT.
  */
-static void StartupInterface(tsd_t *TSD)
+static void StartupInterface( tsd_t *TSD )
 {
-   /* The following value won't change and is const */
-   static char *args[] = { "regina", "-Ci,foo", NULL } ;
-
    if (TSD->systeminfo != NULL)
       return;
 
-  __regina_faked_main( 2, args ) ;
+   setup_system( TSD, 1 );
 }
 
 
@@ -324,10 +289,17 @@ static void StartupInterface(tsd_t *TSD)
 static void FillReq( PSHVBLOCK Req, ULONG Length, const char *String, int name )
 {
    RXSTRING *string;
-   const ULONG *strlen;
+   ULONG *strlen;
 
    string = name ? &Req->shvname : &Req->shvvalue;
    strlen = name ? &Req->shvnamelen : &Req->shvvaluelen;
+   /*
+    * SAA DOCUMENTATION BREAKAGE:
+    * As stated in README.08h the OS/2 REXX modifies shvvaluelen instead of
+    * shvvalue.strlength (name in the same way). Some software out there
+    * relies on this behaviour. Sigh.
+    * Thus we assign the shv???len parts too, as ORexx does.
+    */
 
    /*
     * If the string is undefined, set ->strptr to NULL. It is not required
@@ -335,11 +307,12 @@ static void FillReq( PSHVBLOCK Req, ULONG Length, const char *String, int name )
     * nice gest to the users; someone is probably going to believe that
     * this is how the data is returned.
     * shvnamelen and shvvaluelen are read-only values describing the maximum
-    * size of the destination buffer.
+    * size of the destination buffer, but see above at SAA DOCUMENTATION.
     */
    if ( Length == RX_NO_STRING )
    {
       MAKERXSTRING( *string, NULL, 0 );
+      *strlen = 0;
       return;
    }
 
@@ -366,6 +339,11 @@ static void FillReq( PSHVBLOCK Req, ULONG Length, const char *String, int name )
       }
       memcpy(string->strptr, String, Length );
       string->strlength = Length;
+      /*
+       * shvnamelen and shvvaluelen are read-only values describing the maximum
+       * size of the destination buffer, but see above at SAA DOCUMENTATION.
+       */
+      *strlen = Length;
    }
    else
    {
@@ -385,128 +363,23 @@ static void FillReq( PSHVBLOCK Req, ULONG Length, const char *String, int name )
          string->strlength = Length;
       }
       else
+      {
          Req->shvret |= RXSHV_MEMFL;
+         /*
+          * Set strlength for convenience.
+          */
+         string->strlength = 0;
+         Length = 0;
+      }
+      /*
+       * shvnamelen and shvvaluelen are read-only values describing the maximum
+       * size of the destination buffer, but see above at SAA DOCUMENTATION.
+       */
+      *strlen = Length;
    }
 }
 
-/* ========================================================================
- * Here starts the section for maintaining the list of environments
- * supported by this environment. There are several routines using
- * the functions in this section, the routines defined here are:
- *
- *  FindEnv()  --- retrieves a pointer to a environment box.
- *
- * Actually, it used to be more, one to insert and one to delete.
- * However, in order to save code, these was moved into the routines
- * where they were called (they were used only once). The functions
- * into which the code was moved are RexxRegisterSubcomExe(), and
- * RexxDeregisterSubcom(). To improve modularization, and to
- * ease the introduction of a new datastructure, the code should
- * probably be extracted and inserted in this section.
- */
-
-
-#define BOX_IS_ENVIR 0
-#define BOX_IS_EXIT 1
-
-/*
- * Find a particular environment, and return a pointer to a struct
- * containing information about that environment. If it is not found,
- * a pointer to NULL is returned.
- */
-#define FindEnvir(a,b) FindBox(TSD,a,b,BOX_IS_ENVIR)
-#define FindExit(a,b) FindBox(TSD,a,b,BOX_IS_EXIT)
-
-static struct EnvBox *FindBox( const tsd_t *TSD, const char *Env, int EnvLen, int type )
-{
-   struct EnvBox *bptr;
-   rex_tsd_t *rt;
-   unsigned h;
-
-   rt = TSD->rex_tsd;
-   bptr = ((type==BOX_IS_ENVIR) ? rt->FirstEnv : rt->FirstExit) ;
-   assert( Env ) ;
-   h = hashvalue(Env, EnvLen);
-   for (; bptr; bptr=bptr->next)
-   {
-      if (h != bptr->hash)
-         continue;
-      if (memcmp(bptr->EnvName,Env,EnvLen) == 0)
-         return bptr ;
-   }
-
-   return NULL ;
-}
-
-#define AddEnvir(a,b,c,d) AddBox(TSD,a,b,c,d,BOX_IS_ENVIR)
-#define AddExit(a,b,c,d) AddBox(TSD,a,b,c,d,BOX_IS_EXIT)
-
-static struct EnvBox *AddBox( const tsd_t *TSD, const char *EnvName, int EnvLen,
-                              const void *UserArea, PFN EntryPoint, int type )
-{
-   struct EnvBox *NewBox ;
-   struct EnvBox **first ;
-   rex_tsd_t *rt;
-
-   rt = TSD->rex_tsd;
-   first = (type==BOX_IS_ENVIR) ? &rt->FirstEnv : &rt->FirstExit ;
-   NewBox = MallocTSD( sizeof( struct EnvBox ) ) ; /* This is not exported */
-   if (!NewBox)
-      return NULL ;
-
-   NewBox->EnvName = MallocTSD( EnvLen+1 ) ; /* This is not exported */
-   if (!NewBox->EnvName)
-   {
-      FreeTSD( NewBox ) ;
-      return NULL ;
-   }
-
-   NewBox->prev = NULL ;
-   NewBox->next = (*first) ;
-   if (*first)
-      (*first)->prev = NewBox ;
-   (*first) = NewBox ;
-
-   memcpy( NewBox->EnvName, EnvName , EnvLen ) ;
-   NewBox->EnvName[EnvLen] = '\0';
-   NewBox->hash = hashvalue(EnvName, EnvLen);
-   NewBox->u.EntryPnt = EntryPoint ;
-   if (UserArea)
-      memcpy( NewBox->UserData, UserArea, 8 ) ;
-   else
-      memset( NewBox->UserData, 0x00, 8 ) ;
-
-   return NewBox ;
- }
-
-
-#define RemoveExit(a,b) RemoveBox(TSD,a,b,BOX_IS_EXIT)
-#define RemoveEnvir(a,b) RemoveBox(TSD,a,b,BOX_IS_ENVIR)
-
-static int RemoveBox( const tsd_t *TSD, const char *EnvName, int EnvLen, int type )
-{
-   struct EnvBox *OldBox ;
-   struct EnvBox **First ;
-   rex_tsd_t *rt;
-
-   rt = TSD->rex_tsd;
-   OldBox = FindBox( TSD, EnvName, EnvLen, type ) ;
-   if (OldBox)
-   {
-      First = (type==BOX_IS_ENVIR) ? &rt->FirstEnv : &rt->FirstExit ;
-      if (OldBox->prev)
-         OldBox->prev->next = OldBox->next ;
-      if (OldBox->next)
-         OldBox->next->prev = OldBox->prev ;
-      if ((*First)==OldBox)
-         (*First) = OldBox->prev ;
-
-      FreeTSD( OldBox->EnvName ) ;
-      FreeTSD( OldBox ) ;
-      return 0 ;
-   }
-   return 1 ;
-}
+/* ======================================================================== */
 
 /* RetLen and RetStr should point to {0,NULL}. They will be filled with
  * freshly allocated values. A return value will always exist.
@@ -520,7 +393,7 @@ int IfcSubCmd( tsd_t *TSD, int EnvLen, const char *EnvStr,
    USHORT Flags=0 ;
    char *Command ;
    char *EnvNam;
-   struct EnvBox *Envir=NULL ;
+   struct entry_point *Envir;
    int rvalue=0, RCode=0, rc=RXEXIT_NOT_HANDLED ;
    char subcmd_result[ILLEGAL_USE_SIZE+RXAUTOBUFLEN] ;
    RXCMDHST_PARM cmdhst;
@@ -539,6 +412,7 @@ int IfcSubCmd( tsd_t *TSD, int EnvLen, const char *EnvStr,
    /*
     * Terminate the command string with nul character
     */
+   Envir = subcom_hook( TSD, EnvStr , EnvLen ) ;
    if ( rt->CurrentHandlers && rt->CurrentHandlers->Handlers[RXCMD] )
    {
       EnvNam = MallocTSD( EnvLen + 1 ) ;
@@ -552,6 +426,14 @@ int IfcSubCmd( tsd_t *TSD, int EnvLen, const char *EnvStr,
       cmdhst.rxcmd_retc = Ret;
       cmdhst.rxcmd_dll = NULL;
       cmdhst.rxcmd_dll_len = 0;
+      if ( Envir != NULL )
+      {
+         if ( Envir->lib != NULL )
+         {
+            cmdhst.rxcmd_dll = Str_val( Envir->lib->name );
+            cmdhst.rxcmd_dll_len = Str_len( Envir->lib->name );
+         }
+      }
       parm = (PUCHAR)&cmdhst;
       rc = (*(rt->CurrentHandlers->Handlers[RXCMD]))(RXCMD, RXCMDHST, parm);
       TSD->var_indicator = 0;
@@ -568,15 +450,16 @@ int IfcSubCmd( tsd_t *TSD, int EnvLen, const char *EnvStr,
    }
    if (rc == RXEXIT_NOT_HANDLED)
    {
-      Envir = FindEnvir( EnvStr , EnvLen ) ;
-      if (Envir)
+      if ( Envir )
       {
+         RexxSubcomHandler *handler;
+         handler = (RexxSubcomHandler *) Envir->addr;
          MAKERXSTRING( Cmd, Command, CmdLen ) ;
          if (Ret.strlength && OldResult != Ret.strptr) /* Ignore return values*/
             IfcFreeMemory( Ret.strptr ) ;
          MAKERXSTRING( Ret, subcmd_result + ILLEGAL_USE_SIZE, RXAUTOBUFLEN) ;
          OldResult = subcmd_result + ILLEGAL_USE_SIZE ;
-         rvalue = (*(Envir->u.SubCom))( &Cmd, &Flags, &Ret ) ;
+         rvalue = handler( &Cmd, &Flags, &Ret ) ;
          TSD->var_indicator = 0;
          if (Flags==RXSUBCOM_OK)
             RCode = RXFLAG_OK ;
@@ -902,38 +785,35 @@ EXPORT_C APIRET APIENTRY RexxStart(LONG       ArgCount,
                           PSHORT     ReturnCode,
                           PRXSTRING  Result )
 {
-   int cnt=0, RLength=0 ;
-   char *RString=NULL ;
-   int ParLengths[MAX_ARGS_TO_REXXSTART] ;
-   const char *ParStrings[MAX_ARGS_TO_REXXSTART] ;
-   int ExitFlags=0 ;
-   int EnvNamLen=0 ;
-   const char *EnvNamStr ;
-   int WhereCode=0, rc=0 ;
-   const char *SourcePtr ;
-   const void *TinPtr ;
-   unsigned long SourceLen, TinLen ;
-   struct ExitHandlers *Handlers=NULL ;
-   RexxExitHandler *handler=NULL ;
-   struct EnvBox *EnvPtr=NULL ;
-   LONG ResValue=0L ;
-   unsigned long instore_length = 0;
-   void *instore_buf = NULL;
+   int cnt, RLength;
+   char *RString;
+   int ParLengths[MAX_ARGS_TO_REXXSTART];
+   const char *ParStrings[MAX_ARGS_TO_REXXSTART];
+   int ExitFlags;
+   int EnvNamLen;
+   const char *EnvNamStr;
+   int WhereCode,rc;
+   const char *SourcePtr;
+   const void *TinPtr;
+   unsigned long SourceLen,TinLen;
+   struct ExitHandlers *Handlers;
+   RexxExitHandler *handler;
+   struct entry_point *EnvPtr;
+   unsigned long instore_length;
+   void *instore_buf;
    PCSZ ProgramName=ProgName;
    tsd_t *TSD;
    rex_tsd_t *rt;
    int restricted = 0;
 
-   _ENTERFUNCTION_;
-
    TSD = GLOBAL_ENTRY_POINT();
    rt = TSD->rex_tsd;
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if ((ArgCount < 0) || ((ArgCount > 0) && (ArgList == NULL)))
-      return(RXFUNC_BADTYPE);
-   if (!ProgName)
-      return(RXFUNC_BADTYPE);
+   if ( ( ArgCount < 0 ) || ( ( ArgCount > 0 ) && ( ArgList == NULL ) ) )
+      return RXFUNC_BADTYPE;
+   if ( !ProgName )
+      return RXFUNC_BADTYPE;
    /*
     * Check if running in restricted mode first.
     */
@@ -942,175 +822,188 @@ EXPORT_C APIRET APIENTRY RexxStart(LONG       ArgCount,
       restricted = 1;
       CallType -= RXRESTRICTED;
    }
-   if ((CallType != RXCOMMAND) &&
-       (CallType != RXSUBROUTINE) &&
-       (CallType != RXFUNCTION))
-      return(RXFUNC_BADTYPE);
-   if ((CallType == RXCOMMAND) && (ArgCount > 1))
-      return(RX_START_TOOMANYP);
-   if (ArgCount > sizeof(ParLengths) / sizeof(ParLengths[0]) )
-      return(RX_START_TOOMANYP);
+   if ( ( CallType != RXCOMMAND ) &&
+        ( CallType != RXSUBROUTINE ) &&
+        ( CallType != RXFUNCTION ) )
+      return RXFUNC_BADTYPE;
+   if ( ( CallType == RXCOMMAND ) && ( ArgCount > 1 ) )
+      return RX_START_TOOMANYP;
+   if ( ArgCount > sizeof( ParLengths ) / sizeof( ParLengths[0] ) )
+      return RX_START_TOOMANYP;
 
-   if (Instore)
+   if ( Instore )
    {
-/* MH 2602     if (Instore[1].strptr && Instore[1].strlength < sizeof(int)) */
-      if (Instore[1].strptr && Instore[1].strlength < 1)
-         return RX_START_BADP ;
+      if ( Instore[1].strptr && ( Instore[1].strlength < 1 ) )
+         return RX_START_BADP;
    }
 
-   if (ArgCount > sizeof(ParLengths) / sizeof(ParLengths[0]) )
-      ArgCount = sizeof(ParLengths) / sizeof(ParLengths[0]) ;
-   for (cnt=0; cnt<ArgCount; cnt++)
+   if ( ArgCount > sizeof( ParLengths ) / sizeof( ParLengths[0] ) )
+      ArgCount = sizeof( ParLengths ) / sizeof( ParLengths[0] );
+   for ( cnt = 0; cnt < ArgCount; cnt++ )
    {
-      ParLengths[cnt] = ArgList[cnt].strlength ;
-      ParStrings[cnt] = ArgList[cnt].strptr ;
-      if (ParStrings[cnt]==NULL)
-         ParLengths[cnt] = RX_NO_STRING ;
+      ParLengths[cnt] = ArgList[cnt].strlength;
+      ParStrings[cnt] = ArgList[cnt].strptr;
+      if ( ParStrings[cnt] == NULL )
+         ParLengths[cnt] = RX_NO_STRING;
+   }
+   if ( Result != NULL )
+   {
+      RLength = (int) RXSTRLEN( *Result );
+      if ( ( RString = RXSTRPTR( *Result ) ) == NULL )
+         RLength = RX_NO_STRING;
+   }
+   else
+   {
+      RString = NULL;
+      RLength = RX_NO_STRING;
    }
 
-   Handlers = TSD->MTMalloc( TSD, sizeof( struct ExitHandlers )) ;
-   Handlers->prev = rt->CurrentHandlers ;
-   rt->CurrentHandlers = Handlers ;
-   for (cnt=0; cnt<RXNOOFEXITS; cnt++)
-      rt->CurrentHandlers->Handlers[cnt] = NULL ;
+   Handlers = TSD->MTMalloc( TSD, sizeof( struct ExitHandlers ) );
+   Handlers->prev = rt->CurrentHandlers;
+   rt->CurrentHandlers = Handlers;
+   for ( cnt = 0; cnt < RXNOOFEXITS; cnt++ )
+      rt->CurrentHandlers->Handlers[cnt] = NULL;
 
-   ExitFlags = 0x00000000 ;
-   for (cnt=0; Exits && Exits->sysexit_code!=RXENDLST; Exits++ )
+   ExitFlags = 0;
+   for ( cnt = 0; Exits && ( Exits->sysexit_code != RXENDLST ); Exits++ )
    {
-      if ( Exits->sysexit_name == NULL
-      ||   strlen( Exits->sysexit_name ) == 0 )
-         return(RX_START_BADP);
+      if ( ( Exits->sysexit_name == NULL )
+      ||   ( strlen( Exits->sysexit_name ) == 0 ) )
+         return RX_START_BADP;
 
-      EnvPtr = FindExit( Exits->sysexit_name , strlen(Exits->sysexit_name) ) ;
-      if (!EnvPtr)
-         continue ;
+      EnvPtr = exit_hook( TSD, Exits->sysexit_name,
+                          strlen( Exits->sysexit_name ) );
+      if ( !EnvPtr )
+         continue;
 
-      /* Sigh ... Definition requires some strange casting */
-      handler = (RexxExitHandler*)(EnvPtr->u.EntryPnt) ;
-      switch (Exits->sysexit_code)
+      handler = (RexxExitHandler *) EnvPtr->addr;
+      switch ( Exits->sysexit_code )
       {
          case RXSIO:
-            ExitFlags |= (1<<RX_EXIT_STDOUT) | (1<<RX_EXIT_STDERR) |
-                         (1<<RX_EXIT_TRCIN) | (1<<RX_EXIT_PULL) ;
-            rt->CurrentHandlers->Handlers[RXSIO] = handler ;
+            ExitFlags |= ( 1 << RX_EXIT_STDOUT ) | ( 1 << RX_EXIT_STDERR ) |
+                         ( 1 << RX_EXIT_TRCIN ) |  ( 1 << RX_EXIT_PULL );
+            rt->CurrentHandlers->Handlers[RXSIO] = handler;
             break ;
 
          case RXINI:
-            ExitFlags |= (1<<RX_EXIT_INIT) ;
-            rt->CurrentHandlers->Handlers[RXINI] = handler ;
+            ExitFlags |= 1 << RX_EXIT_INIT;
+            rt->CurrentHandlers->Handlers[RXINI] = handler;
             break ;
 
          case RXTER:
-            ExitFlags |= (1<<RX_EXIT_TERMIN) ;
-            rt->CurrentHandlers->Handlers[RXTER] = handler ;
-            break ;
+            ExitFlags |= 1 << RX_EXIT_TERMIN;
+            rt->CurrentHandlers->Handlers[RXTER] = handler;
+            break;
 
          case RXCMD:
-            ExitFlags |= (1<<RX_EXIT_SUBCOM) ;
-            rt->CurrentHandlers->Handlers[RXCMD] = handler ;
-            break ;
+            ExitFlags |= 1 << RX_EXIT_SUBCOM;
+            rt->CurrentHandlers->Handlers[RXCMD] = handler;
+            break;
 
          case RXFNC:
-            ExitFlags |= (1<<RX_EXIT_FUNC) ;
-            rt->CurrentHandlers->Handlers[RXFNC] = handler ;
-            break ;
+            ExitFlags |= 1 << RX_EXIT_FUNC;
+            rt->CurrentHandlers->Handlers[RXFNC] = handler;
+            break;
 
          case RXENV:
-            ExitFlags |= (1<<RX_EXIT_GETENV) | (1<<RX_EXIT_SETENV) |
-                         (1<<RX_EXIT_GETCWD) | (1<<RX_EXIT_SETCWD) ;
-            rt->CurrentHandlers->Handlers[RXENV] = handler ;
-            break ;
+            ExitFlags |= ( 1 << RX_EXIT_GETENV ) | ( 1 << RX_EXIT_SETENV ) |
+                         ( 1 << RX_EXIT_GETCWD ) | ( 1 << RX_EXIT_SETCWD );
+            rt->CurrentHandlers->Handlers[RXENV] = handler;
+            break;
 
          default:
-            return(RX_START_BADP);
+            return RX_START_BADP;
       }
    }
 
-   if (EnvName)
+   if ( EnvName )
    {
-      EnvNamLen = strlen(EnvName) ;
-      EnvNamStr = EnvName ;
+      EnvNamLen = strlen( EnvName );
+      EnvNamStr = EnvName;
    }
    else
    {
-      EnvNamLen = RX_NO_STRING ;
-      EnvNamStr = NULL ;
+      EnvNamLen = RX_NO_STRING;
+      EnvNamStr = NULL;
    }
 
-   SourcePtr = NULL ;
-   SourceLen = 0 ;
-   TinPtr = NULL ;
-   TinLen = 0 ;
-   if (Instore && Instore[1].strptr)
+   SourcePtr = NULL;
+   SourceLen = 0;
+   TinPtr = NULL;
+   TinLen = 0;
+   if ( Instore && Instore[1].strptr )
    {
-      WhereCode = RX_TYPE_INSTORE ;
-      TinPtr = Instore[1].strptr ;
-      TinLen = Instore[1].strlength ;
-      SourcePtr = Instore[0].strptr ;
-      SourceLen = Instore[0].strlength ;
+      WhereCode = RX_TYPE_INSTORE;
+      TinPtr = Instore[1].strptr;
+      TinLen = Instore[1].strlength;
+      SourcePtr = Instore[0].strptr;
+      SourceLen = Instore[0].strlength;
    }
-   else if (Instore && Instore[0].strptr)
+   else if ( Instore && Instore[0].strptr )
    {
-      WhereCode = RX_TYPE_SOURCE ;
-      SourcePtr = Instore[0].strptr ;
-      SourceLen = Instore[0].strlength ;
+      WhereCode = RX_TYPE_SOURCE;
+      SourcePtr = Instore[0].strptr;
+      SourceLen = Instore[0].strlength;
    }
-   else if (Instore)
-      WhereCode = RX_TYPE_MACRO ;
+   else if ( Instore )
+      WhereCode = RX_TYPE_MACRO;
    else
-      WhereCode = RX_TYPE_EXTERNAL ;
-   starttrace(TSD) ;
+      WhereCode = RX_TYPE_EXTERNAL;
+
+   starttrace( TSD );
 
    rc = IfcExecScript( TSD, strlen(ProgramName), ProgramName,
-          ArgCount, ParLengths, (const char **) ParStrings, MAP_TYPE(CallType),
-          ExitFlags, EnvNamLen, EnvNamStr,  WhereCode, restricted,
-          SourcePtr, SourceLen, TinPtr, TinLen,
-          &RLength, &RString, &instore_buf, &instore_length) ;
-   Handlers = rt->CurrentHandlers ;
-   rt->CurrentHandlers = Handlers->prev ;
-   TSD->MTFree( TSD, Handlers ) ;
+                       ArgCount, ParLengths, (const char **) ParStrings,
+                       MAP_TYPE( CallType ), ExitFlags, EnvNamLen, EnvNamStr,
+                       WhereCode, restricted, SourcePtr, SourceLen,
+                       TinPtr, TinLen, &RLength, &RString,
+                       &instore_buf, &instore_length);
+   Handlers = rt->CurrentHandlers;
+   rt->CurrentHandlers = Handlers->prev;
+   TSD->MTFree( TSD, Handlers );
 
-   if (WhereCode == RX_TYPE_SOURCE)
+   if ( WhereCode == RX_TYPE_SOURCE )
    {
       Instore[1].strptr = instore_buf;
       Instore[1].strlength = instore_length;
    }
 
-   if (RLength!=RX_NO_STRING)
-      ResValue = atoi( RString ) ;
-   else
-      ResValue = 0 ;
-
-   if (ReturnCode)
-      *ReturnCode = (SHORT) ResValue ;   /* FGC */
-
-   if (Result)
+   if ( ReturnCode )
    {
-      if (!Result->strptr || (int)Result->strlength>=RLength+1)
-      {
-         Result->strlength = RLength ;
-         Result->strptr = RString ;
-      }
+      if ( RLength > 0 )
+         *ReturnCode = (SHORT) atoi( RString );
       else
-      {
-         Result->strlength = RLength ;
-         memcpy( Result->strptr, RString, RLength+1 ) ;
-         IfcFreeMemory( RString ) ;
-      }
+         *ReturnCode = 0;
    }
-   else if (RString)
-      IfcFreeMemory( RString ) ;
+
+   if ( Result != NULL )
+   {
+      MAKERXSTRING( *Result, RString, RLength );
+   }
+   else
+   {
+      if ( RString != NULL )
+         IfcFreeMemory( RString );
+   }
 
    /*
     * Close all open files.
     */
-   CloseOpenFiles( TSD ) ;
+   CloseOpenFiles( TSD );
+   if ( TSD->systeminfo->input_file != NULL )
+   {
+      Free_stringTSD( TSD->systeminfo->input_file );
+      TSD->systeminfo->input_file = NULL;
+   }
+   free_orphaned_libs( TSD );
 
-   _EXITFUNCTION_;
-
-   return rc ;
+   return rc;
 }
 
+/*
+ * In opposite to the documentation we accept a NULL parameter of Result
+ * silently.
+ */
 EXPORT_C APIRET APIENTRY RexxCallBack( PCSZ       ProcedureName,
                                        LONG       ArgCount,
                                        PRXSTRING  ArgList,
@@ -1121,7 +1014,6 @@ EXPORT_C APIRET APIENTRY RexxCallBack( PCSZ       ProcedureName,
    char *RString;
    int ParLengths[MAX_ARGS_TO_REXXSTART];
    const char *ParStrings[MAX_ARGS_TO_REXXSTART];
-   LONG ResValue;
    tsd_t *TSD;
 
    /*
@@ -1142,10 +1034,21 @@ EXPORT_C APIRET APIENTRY RexxCallBack( PCSZ       ProcedureName,
 
    for ( cnt = 0; cnt < ArgCount; cnt++ )
    {
-      ParLengths[cnt] = ArgList[cnt].strlength;
-      ParStrings[cnt] = ArgList[cnt].strptr;
+      ParLengths[cnt] = (int) RXSTRLEN( ArgList[cnt] );
+      ParStrings[cnt] = RXSTRPTR( ArgList[cnt] );
       if ( ParStrings[cnt] == NULL )
          ParLengths[cnt] = RX_NO_STRING;
+   }
+   if ( Result != NULL )
+   {
+      RLength = (int) RXSTRLEN( *Result );
+      if ( ( RString = RXSTRPTR( *Result ) ) == NULL )
+         RLength = RX_NO_STRING;
+   }
+   else
+   {
+      RString = NULL;
+      RLength = RX_NO_STRING;
    }
 
    rc = IfcExecCallBack( TSD, strlen(ProcedureName), ProcedureName,
@@ -1157,48 +1060,24 @@ EXPORT_C APIRET APIENTRY RexxCallBack( PCSZ       ProcedureName,
    /*
     * Determine numeric return code and pass it back
     */
-   if ( RLength != RX_NO_STRING )
-      ResValue = atoi( RString );
-   else
-      ResValue = 0;
-
    if ( ReturnCode )
-      *ReturnCode = (SHORT) ResValue;   /* FGC */
+   {
+      if ( RLength > 0 )
+         *ReturnCode = (SHORT) atoi( RString );
+      else
+         *ReturnCode = 0;
+   }
 
    /*
     * Determine text return code and pass it back
     */
-   if ( rc == RX_CB_OK )
+   if ( Result != NULL )
    {
-      if ( Result )
-      {
-         if ( RLength == RX_NO_STRING )
-         {
-            /*
-             * Always overwrite any value. There is no return value at all.
-             */
-            Result->strlength = 0;
-            Result->strptr = NULL;
-         }
-         else if ( Result->strptr && (int)Result->strlength >= RLength + 1 )
-         {
-            /*
-             * Use the supplied users's buffer.
-             */
-            Result->strlength = RLength;
-            memcpy( Result->strptr, RString, RLength+1 );
-            IfcFreeMemory( RString );
-         }
-         else
-         {
-            /*
-             * User's buffer invalid or too small: Use IfcExecCallBack's one.
-             */
-            Result->strlength = RLength;
-            Result->strptr = RString;
-         }
-      }
-      else if ( RString )
+      MAKERXSTRING( *Result, RString, RLength );
+   }
+   else
+   {
+      if ( RString != NULL )
          IfcFreeMemory( RString );
    }
 
@@ -1214,29 +1093,18 @@ EXPORT_C APIRET APIENTRY RexxRegisterSubcomExe(PCSZ EnvName,
                                       PFN EntryPoint,
                                       PUCHAR UserArea )
 {
-   int EnvLen=0 ;
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
    /*
     * Perform sanity check on the parameters; UserArea may be NULL
     */
-   if (!EnvName || !EntryPoint)
-      return RXSUBCOM_BADTYPE ;
+   if ( !EnvName || !EntryPoint )
+      return RXSUBCOM_BADTYPE;
 
-   EnvLen = strlen( EnvName ) ;
-   if (EnvLen>MAXENVNAMELEN)
-      return RXSUBCOM_NOTREG ;
-
-   if (FindEnvir( EnvName, EnvLen ))
-      return RXSUBCOM_NOTREG ;
-
-   if (!AddEnvir( EnvName, strlen(EnvName) , UserArea, EntryPoint ))
-      return RXSUBCOM_NOEMEM ;
-
-   return RXSUBCOM_OK ;
+   return IfcRegSubcom( TSD, EnvName, NULL, NULL, EntryPoint, UserArea );
 }
 
 
@@ -1249,48 +1117,39 @@ EXPORT_C APIRET APIENTRY RexxRegisterSubcomDll(PCSZ EnvName,
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName || !ModuleName || !ProcedureName)
-      return(RXSUBCOM_BADTYPE);
+   if ( !EnvName || !ModuleName || !ProcedureName )
+      return RXSUBCOM_BADTYPE;
+   if ( ( DropAuth != RXSUBCOM_DROPPABLE ) && ( DropAuth != RXSUBCOM_NONDROP ) )
+      return RXSUBCOM_BADTYPE;
 
-   /* not yet functional */
-   return RXSUBCOM_NOTREG ;
+   return IfcRegSubcom( TSD, EnvName, ModuleName, ProcedureName, NULL,
+                        UserArea );
 }
 
 
 EXPORT_C APIRET APIENTRY RexxQuerySubcom(PCSZ EnvName,
                                 PCSZ ModuleName,
-                                PUSHORT Flag, /* Who knows what this is used for ... */
+                                PUSHORT Flag,
                                 PUCHAR UserWord )
 {
-   int ret=0 ;
-   struct EnvBox *eptr=NULL ;
+   int ret;
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName || !Flag)
-      return(RXFUNC_BADTYPE);
+   if ( !EnvName || !Flag || !Flag )
+      return RXSUBCOM_BADTYPE;
 
-   /* ModuleName is not yet functional */
-
-   eptr = FindEnvir( EnvName , strlen(EnvName) ) ;
-   if (eptr)
-   {
+   if ( ( ret = IfcQuerySubcom( TSD, EnvName, ModuleName, UserWord ) ) ==
+                                                                  RXSUBCOM_OK )
       *Flag = RXSUBCOM_ISREG;
-      ret = RXSUBCOM_OK ;
-      if (UserWord)
-         memcpy( UserWord, eptr->UserData, 8 ) ;
-   }
    else
-   {
       *Flag = 0;
-      ret = RXSUBCOM_NOTREG ;
-   }
 
-   return ret ;
+   return ret;
 }
 
 EXPORT_C APIRET APIENTRY RexxDeregisterSubcom(PCSZ EnvName,
@@ -1299,17 +1158,12 @@ EXPORT_C APIRET APIENTRY RexxDeregisterSubcom(PCSZ EnvName,
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName)
-      return(RXSUBCOM_BADTYPE);
+   if ( !EnvName )
+      return RXSUBCOM_BADTYPE;
 
-   /* ModuleName is not yet functional */
-
-   if (RemoveEnvir( EnvName , strlen(EnvName) ))
-      return RXSUBCOM_NOTREG ;
-
-   return RXSUBCOM_OK ;
+   return IfcDelSubcom( TSD, EnvName, ModuleName );
 }
 
 
@@ -1515,26 +1369,18 @@ EXPORT_C APIRET APIENTRY RexxRegisterExitExe(PCSZ EnvName,
                                     PFN EntryPoint,
                                     PUCHAR UserArea )
 {
-   int EnvLen=0 ;
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName || !EntryPoint)
-      return RXEXIT_BADTYPE ;
+   /*
+    * Perform sanity check on the parameters; UserArea may be NULL
+    */
+   if ( !EnvName || !EntryPoint )
+      return RXEXIT_BADTYPE;
 
-   EnvLen = strlen( EnvName ) ;
-   if (EnvLen>MAXENVNAMELEN)
-      return RXEXIT_NOTREG ;
-
-   if (FindExit( EnvName, EnvLen ))
-      return RXEXIT_NOTREG ;
-
-   if (!AddExit( EnvName, EnvLen, UserArea, EntryPoint ))
-      return RXEXIT_NOEMEM ;
-
-   return RXEXIT_OK ;
+   return IfcRegExit( TSD, EnvName, NULL, NULL, EntryPoint, UserArea );
 }
 
 EXPORT_C APIRET APIENTRY RexxRegisterExitDll(PCSZ EnvName,
@@ -1546,12 +1392,14 @@ EXPORT_C APIRET APIENTRY RexxRegisterExitDll(PCSZ EnvName,
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName || !ModuleName || !ProcedureName)
-      return(RXFUNC_BADTYPE);
-   /* not yet functional */
-   return RXEXIT_NOTREG ;
+   if ( !EnvName || !ModuleName || !ProcedureName )
+      return RXEXIT_BADTYPE;
+   if ( ( DropAuth != RXEXIT_DROPPABLE ) && ( DropAuth != RXEXIT_NONDROP ) )
+      return RXEXIT_BADTYPE;
+
+   return IfcRegExit( TSD, EnvName, ModuleName, ProcedureName, NULL, UserArea );
 }
 
 
@@ -1561,17 +1409,12 @@ EXPORT_C APIRET APIENTRY RexxDeregisterExit(PCSZ EnvName,
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName)
-      return(RXFUNC_BADTYPE);
+   if ( !EnvName )
+      return RXEXIT_BADTYPE;
 
-   /* Ignore ModuleName, it may be NULL in case of an Exe-handler */
-
-   if (RemoveExit(EnvName, strlen(EnvName) ))
-      return RXEXIT_NOTREG ;
-
-   return RXEXIT_OK ;
+   return IfcDelExit( TSD, EnvName, ModuleName );
 }
 
 EXPORT_C APIRET APIENTRY RexxQueryExit(PCSZ EnvName,
@@ -1579,166 +1422,57 @@ EXPORT_C APIRET APIENTRY RexxQueryExit(PCSZ EnvName,
                               PUSHORT Flag,
                               PUCHAR UserArea)
 {
+   int ret;
    tsd_t *TSD;
-   struct EnvBox *EnvPtr=NULL ;
-   ULONG rc=0;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!EnvName || !Flag)
-      return(RXEXIT_BADTYPE);
+   if ( !EnvName || !Flag || !Flag )
+      return RXEXIT_BADTYPE;
 
-   EnvPtr = FindExit( EnvName, strlen( EnvName ) ) ;
-   if ( EnvPtr == NULL )
-   {
-      *Flag = RXEXIT_NOTREG;
-      rc = RXEXIT_NOTREG;
-   }
+   if ( ( ret = IfcQueryExit( TSD, EnvName, ModuleName, UserArea ) ) ==
+                                                                    RXEXIT_OK )
+      *Flag = RXEXIT_ISREG;
    else
-   {
-      *Flag = RXEXIT_OK;
-      rc = RXEXIT_OK;
-      if ( UserArea )
-         memcpy( UserArea, EnvPtr->UserData, 8 ) ;
-   }
-   return( rc );
+      *Flag = 0;
+
+   return ret;
 }
 
 /* =================================================================== */
 
 /*
  * This section contains the support for the external functions
-   */
-
-static struct funcbox2 *findfunc( const tsd_t *TSD, const char *name )
-{
-   struct funcbox2 *fptr=NULL ;
-   int hashbox ;
-   rex_tsd_t *rt;
-   unsigned hash;
-
-   rt = TSD->rex_tsd;
-   hash = hashvalue( name, -1 ) ;
-   hashbox = hash % EXT_FUNCS_COUNT ;
-   for (fptr=rt->saafuncs[hashbox]; fptr; fptr=fptr->prev)
-      if (fptr->hash == hash)
-         if (!strcmp(name, fptr->name))
-            return fptr ;
-
-   return NULL ;
-}
-
-static int delfunc2( const tsd_t *TSD, const char *name )
-{
-   struct funcbox2 *old=NULL ;
-   int hashbox ;
-   rex_tsd_t *rt;
-
-   rt = TSD->rex_tsd;
-   old = findfunc( TSD, name ) ;
-   if (!old)
-      return RXFUNC_NOTREG ;
-
-   hashbox = hashvalue( name, -1 ) % EXT_FUNCS_COUNT ;
-   FreeTSD( old->name ) ;
-   if (old==rt->saafuncs[hashbox])
-      rt->saafuncs[hashbox] = old->prev ;
-   else
-      old->next->prev = old->prev ;
-
-   if (old->prev)
-      old->prev->next = old->next ;
-
-   FreeTSD( old ) ;
-   return RXFUNC_OK ;
-}
-
-static int addfunc2( const tsd_t *TSD, const char *name, RexxFunctionHandler *EntryPoint )
-{
-   struct funcbox2 *new=NULL ;
-   int hashbox, hash ;
-   rex_tsd_t *rt;
-
-   rt = TSD->rex_tsd;
-
-   if (findfunc( TSD, name ))
-      return RXFUNC_DEFINED ;
-
-   new = MallocTSD( sizeof(struct funcbox2) ) ;
-   if (!new)
-      return RXFUNC_NOMEM ;
-
-   new->name = MallocTSD( strlen( name )+1 ) ;
-   if (!new->name)
-   {
-      FreeTSD( new ) ;
-      return RXFUNC_NOMEM ;
-   }
-
-   strcpy( new->name, name ) ;
-   hash = hashvalue( new->name, -1 ) ;
-   hashbox = hash % EXT_FUNCS_COUNT ;
-
-   new->entry = EntryPoint ;
-   new->next = NULL ;
-   new->hash = hash ;
-   new->prev = rt->saafuncs[hashbox] ;
-   if (rt->saafuncs[hashbox])
-      rt->saafuncs[hashbox]->next = new ;
-   rt->saafuncs[hashbox] = new ;
-
-   return RXFUNC_OK ;
-}
-
+ */
 
 EXPORT_C APIRET APIENTRY RexxRegisterFunctionExe( PCSZ Name,
-                                         PFN EntryPoint )
+                                                  PFN EntryPoint )
 {
-   int code;
-   char *upper_name;
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!Name || !EntryPoint)
-      return(RXFUNC_BADTYPE);
-   assert( Name );
-   if ((upper_name = MallocTSD( strlen(Name)+1) ) == NULL)
-      return(RXFUNC_NOMEM);
-   strcpy(upper_name, Name);
-   mem_upper( upper_name, strlen( upper_name ) );
-   code = addfunc2( TSD, upper_name, (RexxFunctionHandler*)EntryPoint ) ;
-   FreeTSD( upper_name );
-   if (code)
-      return code ;
+   if ( !Name || !EntryPoint )
+      return RXFUNC_BADTYPE;
 
-   code = IfcRegFunc( TSD, Name ) ;
-   switch (code) {
-      case RX_CODE_OK:    code = RXFUNC_OK;    break;
-      case RX_CODE_NOMEM: code = RXFUNC_NOMEM; break;
-      default: code = -1;
-   }
-   assert( code==RXFUNC_OK ) ; /* A simple "if (code!=RXFUNC_OK)delfunc2()"
-                                * might be better!
-                                */
-
-   return RXFUNC_OK ;
+   return IfcRegFunc( TSD, Name, NULL, NULL, EntryPoint );
 }
 
 EXPORT_C APIRET APIENTRY RexxRegisterFunctionDll( PCSZ ExternalName,
-                                         PCSZ LibraryName,
-                                         PCSZ InternalName )
+                                                  PCSZ LibraryName,
+                                                  PCSZ InternalName )
 {
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!ExternalName || !LibraryName || !InternalName)
-      return(RXFUNC_BADTYPE);
-   return ((ULONG)IfcRegDllFunc(TSD,ExternalName,LibraryName,InternalName));
+   if ( !ExternalName || !LibraryName || !InternalName )
+      return RXFUNC_BADTYPE;
+
+   return IfcRegFunc( TSD, ExternalName, LibraryName, InternalName, NULL );
 }
 
 EXPORT_C APIRET APIENTRY RexxQueryFunction( PCSZ Name )
@@ -1746,26 +1480,25 @@ EXPORT_C APIRET APIENTRY RexxQueryFunction( PCSZ Name )
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   StartupInterface( TSD );
 
-   if (!Name)
-      return(RXFUNC_BADTYPE);
-   return ( IfcQueryFunc( TSD, Name ) ) ? RXFUNC_NOTREG : RXFUNC_OK ;
+   if ( !Name )
+      return RXFUNC_BADTYPE;
+   return IfcQueryFunc( TSD, Name );
 }
 
 
 EXPORT_C APIRET APIENTRY RexxDeregisterFunction( PCSZ Name )
 {
-   int rc;
    tsd_t *TSD;
 
    TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
-   if (!Name)
-      return(RXFUNC_BADTYPE);
-   if ((rc = delfunc2(TSD, Name)) == RXFUNC_OK)
-      return rc;
-   return (IfcDelFunc(TSD, Name)) ? RXFUNC_NOTREG : RXFUNC_OK ;
+   StartupInterface( TSD );
+
+   if ( !Name )
+      return RXFUNC_BADTYPE;
+
+   return IfcDelFunc( TSD, Name );
 }
 
 /* The caller of IfcFunctionExit should call this function with fresh copies of
@@ -1834,9 +1567,8 @@ int IfcExecFunc( tsd_t *TSD, PFN Func, char *Name, int Params,
                  int *Lengths, char **Strings,
                  int queue_name_len, char *queue_name,
                  int *RetLength, char **RetString,
-                 int *RC, char exitonly, char called, void *gci_info )
+                 int *RC, char called, void *gci_info )
 {
-   struct funcbox2 *fptr=NULL ;
    int i=0, length=0, rc=0, RCode=0 ;
    RXSTRING *params, retstr ;
    rex_tsd_t *rt;
@@ -1871,24 +1603,20 @@ int IfcExecFunc( tsd_t *TSD, PFN Func, char *Name, int Params,
    switch(rc)
    {
       case RXEXIT_NOT_HANDLED:
-         if (exitonly)
+         if ( Func == NULL )
          {
            *RC = ERR_ROUTINE_NOT_FOUND;
          }
          else
          {
-            /* Func or fptr->entry will inherit a possible return value in
+            /* Func will inherit a possible return value in
              * retstr. This might be a problem, expect suspicious results
              * if the called functions are not error free.
              */
             if (Func == NULL)
             {
-               if ((fptr=findfunc( TSD, Name )) == NULL)
-               {
-                  FreeTSD( params );
-                  return RX_CODE_NOSUCH ;
-               }
-               rc = (*(fptr->entry))( Name, Params, params, queue_name, &retstr ) ;
+               FreeTSD( params );
+               return RX_CODE_NOSUCH ;
             }
 #if defined(DYNAMIC) && defined(HAVE_GCI)
             else if ( gci_info != NULL )
@@ -2161,4 +1889,9 @@ fastexit:
       low[1] = REGINA_VERSION_MINOR[1];
    low[2] = '\0';
    return( (atoi(REGINA_VERSION_MAJOR) << 8) | atoi(low) ) ;
+}
+
+EXPORT_C APIRET APIENTRY ReginaCleanup( VOID )
+{
+   return( IfcReginaCleanup() );
 }

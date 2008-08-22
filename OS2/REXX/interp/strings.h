@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: strings.h,v 1.2 2003/12/11 04:43:23 prokushev Exp $
+ * $Id: strings.h,v 1.12 2003/12/19 07:17:07 florian Exp $
  */
 
 
@@ -43,7 +43,7 @@ typedef struct strengtype {
                                                         sizeof( value ) - 1,             \
                                                         value };                         \
                                   const streng *name = (const streng *) &__regina__##name
-#  define staticstreng(name,value) const static streng x_##name = { sizeof( value ) - 1, \
+#  define staticstreng(name,value) static streng x_##name = { sizeof( value ) - 1,       \
                                                                 sizeof( value ) - 1,     \
                                                                 value };                 \
                                    const static streng *name = (const streng *) &x_##name
@@ -55,7 +55,7 @@ typedef struct strengtype {
                                                 sizeof( value ) - 1,           \
                                                 value };                       \
                                   const streng *name = (streng *) &x__regina__##name
-#  define staticstreng(name,value) static const struct {               \
+#  define staticstreng(name,value) static struct {                     \
                                       int len, max;                    \
                                       char content[sizeof( value )];   \
                                    } x_##name = { sizeof( value ) - 1, \

@@ -1,11 +1,11 @@
 #
 # Makefile for Regina REXX Interpreter
 #
-# Using DJGPP 2 under DOS
+# Using        DJGPP 2 under DOS
 #
-# No support for DLLs under DJGPP so no instructions applicable
+# No support for DLLs under DJGPP so no        instructions applicable
 #
-SHELL = command.com
+SHELL =        command.com
 SRCDIR=$(REGINA_SRCDIR)
 CC = gcc
 
@@ -29,13 +29,13 @@ else
 USEFLISTS =
 endif
 
-CEXTRA = -DPOSIX_SOURCE -DDOS -I$(WATT_ROOT)/inc
+CEXTRA = -DPOSIX_SOURCE        -DDOS -I$(WATT_ROOT)/inc -funsigned-char
 EEXTRA =
-EXTQUEUE_OBJS = extstack.$(OBJ) rexxbif.$(OBJ)
-EXTQUEUE_SHOBJS = #extstack.sho rexxbif.sho
+EXTQUEUE_OBJS =        extstack.$(OBJ) rexxbif.$(OBJ)
+EXTQUEUE_SHOBJS        = #extstack.sho rexxbif.sho
 DYN_COMP =
 LIBS =
-TCPLIBS = -L$(WATT_ROOT)/lib -lwatt #-lwatt1 -lwatt2 -lwatt3 -lwatt2 -lwatt1 -lwatt2 -lwatt3 -lwatt2 -lwatt1
+TCPLIBS        = -L$(WATT_ROOT)/lib -lwatt #-lwatt1 -lwatt2 -lwatt3 -lwatt2 -lwatt1 -lwatt2 -lwatt3 -lwatt2 -lwatt1
 SHLIBS =
 SHL =
 LD_RXLIB1=
@@ -44,31 +44,31 @@ SHL_LD=
 SHL_TARGETS= rxstack.exe rxqueue.exe
 LDEXTRA1=#-coff2exe $@
 LIBPRE = lib
-LIBFILE = regina
-OBJECTS = @$(SRCDIR)/go32.rsp
-OSAVE = .sav
+LIBFILE        = regina
+OBJECTS        = @$(SRCDIR)/go32.rsp
+OSAVE =        .sav
 MV= +ren
 #
-SHLFILE = regina
+SHLFILE        = regina
 OBJ = o
 EXE = .exe
 LIBPST = a
 LIBEXE = ar
 LIBFLAGS = cr $(LIBPRE)$(LIBFILE).$(LIBPST)
-LIBLINK = -L. -l$(LIBFILE)
-LINKSHL = $(LIBPRE)$(SHLFILE).$(SHL)
-RXLIB = rxlib
+LIBLINK        = -L. -l$(LIBFILE)
+LINKSHL        = $(LIBPRE)$(SHLFILE).$(SHL)
+RXLIB =        rxlib
 RM = -del
 THREADING =
-MT_FILE = mt_notmt
+MT_FILE        = mt_notmt
 
 RANLIB_LIB=-ranlib $(LIBPRE)$(LIBFILE).a
 
-CC2O=-o $@
+CC2O=-o        $@
 #
 # Include the common rules for the interpreter
 #
-include $(SRCDIR)/makefile.com
+include        $(SRCDIR)/makefile.com
 #
 # End of makefile
 #

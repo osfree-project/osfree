@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: os2funcs.c,v 1.2 2003/12/11 04:43:15 prokushev Exp $";
+static char *RCSid = "$Id: os2funcs.c,v 1.21 2004/01/17 07:36:50 mark Exp $";
 #endif
 
 /*
@@ -37,10 +37,10 @@ static char *RCSid = "$Id: os2funcs.c,v 1.2 2003/12/11 04:43:15 prokushev Exp $"
 # define DONT_TYPEDEF_PFN
 #endif
 
-#ifdef __WATCOMC__
-# define DONT_TYPEDEF_PFN
+#if defined(__WATCOMC__) && !defined(__QNX__)
 # include <i86.h>
 # if defined(OS2)
+#  define DONT_TYPEDEF_PFN
 #  include <os2.h>
 # endif
 #endif

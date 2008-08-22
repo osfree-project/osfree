@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: expr.c,v 1.2 2003/12/11 04:43:07 prokushev Exp $";
+static char *RCSid = "$Id: expr.c,v 1.25 2004/02/10 10:43:57 mark Exp $";
 #endif
 
 /*
@@ -44,7 +44,7 @@ static void mark_in_expr( const tsd_t *TSD )
  * wrong according to ANSI, section 7.4.7. This fixes bug 594674.
  */
 #define ANSI_COMP_IGNORE(c) ( (c) == ' ' )
-#define REGINA_COMP_IGNORE(c) ( isspace(c) )
+#define REGINA_COMP_IGNORE(c) ( rx_isspace(c) )
 
 #define FREE_TMP_STRING(str) if ( str )               \
                                 Free_stringTSD( str )
@@ -359,7 +359,9 @@ do_an_add:
    return numthr ;
 }
 
-static void strip_whitespace( tsd_t *TSD, char **s1, char **e1, char **s2, char **e2 )
+static void strip_whitespace( tsd_t *TSD, unsigned char **s1,
+                              unsigned char **e1, unsigned char **s2,
+                              unsigned char **e2 )
 {
    if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI )
    ||   get_options_flag( TSD->currlevel, EXT_STRICT_WHITE_SPACE_COMPARISONS ) )
@@ -475,10 +477,9 @@ streng *evaluate( tsd_t *TSD, nodeptr this, streng **kill )
          if ( TSD->trace_stat == 'I' )
             tracevalue( TSD, cstmp, 'L' );
          if ( kill )
-            stmp1 = (streng *) cstmp; /* and *kill is set to NULL above */
-         else
-            stmp1 = Str_dupTSD( cstmp );
-         return stmp1;
+            return (streng *) cstmp; /* and *kill is set to NULL above */
+         stmp1 = Str_dupTSD( cstmp );
+         RETURN_NEW( stmp1 );
 
       case X_HEAD_SYMBOL:
          /* always duplicate, since stmp1 might point to tmp area */
@@ -489,10 +490,9 @@ streng *evaluate( tsd_t *TSD, nodeptr this, streng **kill )
       case X_SIM_SYMBOL:
          cstmp = shortcut(TSD,this) ;
          if ( kill )
-            stmp1 = (streng *) cstmp; /* and *kill is set to NULL above */
-         else
-            stmp1 = Str_dupTSD( cstmp );
-         return stmp1;
+            return (streng *) cstmp; /* and *kill is set to NULL above */
+         stmp1 = Str_dupTSD( cstmp );
+         RETURN_NEW( stmp1 );
 
       case X_IN_FUNC:
       {
@@ -528,7 +528,8 @@ streng *evaluate( tsd_t *TSD, nodeptr this, streng **kill )
          }
          if ( ( entry = this->u.node ) != NULL )
          {
-            set_sigl( TSD, TSD->currentnode->lineno );
+            set_reserved_value( TSD, POOL0_SIGL, NULL,
+                                TSD->currentnode->lineno, VFLAG_NUM );
             args = initplist( TSD, this );
 
             ptr = CallInternalFunction( TSD, entry->next, TSD->currentnode,
@@ -568,26 +569,26 @@ streng *evaluate( tsd_t *TSD, nodeptr this, streng **kill )
       /* THIS IS MEANT TO FALL THROUGH! */
       case X_IS_EXTERNAL:
       {
-         streng *ptr, *command ;
-         int stackmark,len;
-         paramboxptr args, targs ;
+         streng *ptr, *command;
+         int stackmark,len,err;
+         paramboxptr args, targs;
 
          if ( TSD->restricted )
-            exiterror( ERR_RESTRICTED, 5 )  ;
+            exiterror( ERR_RESTRICTED, 5 );
 
-         update_envirs( TSD, TSD->currlevel ) ;
+         update_envirs( TSD, TSD->currlevel );
 
-         args = initplist( TSD, this ) ;
-         stackmark = pushcallstack( TSD, TSD->currentnode ) ;
-         ptr = execute_external(TSD,this->name,
-                                args,
-                                TSD->systeminfo->environment,
-                                NULL,
-                                TSD->systeminfo->hooks,
-                                INVO_FUNCTION);
-         popcallstack( TSD, stackmark ) ;
+         args = initplist( TSD, this );
+         stackmark = pushcallstack( TSD, TSD->currentnode );
+         ptr = execute_external( TSD, this->name,
+                                 args,
+                                 TSD->systeminfo->environment,
+                                 &err,
+                                 TSD->systeminfo->hooks,
+                                 INVO_FUNCTION );
+         popcallstack( TSD, stackmark );
 
-         if (!ptr)
+         if ( err == -ERR_PROG_UNREADABLE )
          {
             /*
              * "this->name" wasn't a Rexx program, so
@@ -598,37 +599,45 @@ streng *evaluate( tsd_t *TSD, nodeptr this, streng **kill )
             if ( get_options_flag( TSD->currlevel, EXT_EXT_COMMANDS_AS_FUNCS )
             &&  !get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
             {
-               len = Str_len(this->name);
-               for( targs = args; targs; targs=targs->next )
+               len = Str_len( this->name );
+               for( targs = args; targs; targs = targs->next )
                {
-                  if (targs->value)
+                  if ( targs->value )
                      len += 1 + Str_len( targs->value );
                }
                command = Str_makeTSD( len );
                command = Str_catTSD( command, this->name );
-               for( targs = args; targs; targs=targs->next )
+               for( targs = args; targs; targs = targs->next )
                {
-                  if (targs->value)
+                  if ( targs->value )
                   {
                      command = Str_catstrTSD( command, " " );
                      command = Str_catTSD( command, targs->value );
                   }
                }
                ptr = run_popen( TSD, command, TSD->currlevel->environment );
+               if ( ptr != NULL )
+                  err = 0;
                Free_stringTSD( command );
             }
          }
 
-         deallocplink( TSD, args ) ;
+         deallocplink( TSD, args );
 
-         if (!ptr)
+         if ( ptr && ( TSD->trace_stat == 'I' ) )
+            tracevalue( TSD, ptr, 'F' );
+
+         if ( err == -ERR_PROG_UNREADABLE )
          {
-            exiterror( ERR_ROUTINE_NOT_FOUND, 1, tmpstr_of( TSD, this->name ) )  ;
-            ptr = nullstringptr() ;
+            exiterror( ERR_ROUTINE_NOT_FOUND, 1, tmpstr_of( TSD, this->name ) );
+         }
+         else if ( err )
+         {
+            post_process_system_call( TSD, this->name, -err, NULL, this );
          }
 
-         if (TSD->trace_stat=='I')
-            tracevalue( TSD, ptr, 'F' ) ;
+         if ( !ptr )
+            exiterror( ERR_NO_DATA_RETURNED, 1, tmpstr_of( TSD, this->name ) );
 
          RETURN_NEW( ptr );
       }
@@ -846,7 +855,7 @@ int isboolean( tsd_t *TSD, nodeptr this )
             tmp = string_test( TSD, lnum, rnum ) ;
          else
          {
-            char *s1,*s2,*e1,*e2;
+            unsigned char *s1,*s2,*e1,*e2;
 
             if ( !lval )
             {
@@ -860,10 +869,10 @@ int isboolean( tsd_t *TSD, nodeptr this )
                stmp2 = rval = str_norm( TSD, rnum, NULL );
             }
 
-            s1 = lval->value;
-            s2 = rval->value;
-            e1 = s1 + lval->len;
-            e2 = s2 + rval->len;
+            s1 = (unsigned char *) lval->value;
+            s2 = (unsigned char *) rval->value;
+            e1 = (unsigned char *) s1 + lval->len;
+            e2 = (unsigned char *) s2 + rval->len;
 
             strip_whitespace( TSD, &s1, &e1, &s2, &e2 );
 
@@ -899,17 +908,17 @@ int isboolean( tsd_t *TSD, nodeptr this )
       case X_SEQUAL:
       case X_SDIFF:
       {  /* string comparison */
-         char *s1, *s2, *e1, *e2 ;
+         unsigned char *s1, *s2, *e1, *e2 ;
          int type ;
 
          type = this->type ;
          strone = evaluate( TSD, this->p[0], &stmp1 ) ;
          strtwo = evaluate( TSD, this->p[1], &stmp2 ) ;
 
-         s1 = strone->value ;
-         s2 = strtwo->value ;
-         e1 = s1 + strone->len ;
-         e2 = s2 + strtwo->len ;
+         s1 = (unsigned char *) strone->value ;
+         s2 = (unsigned char *) strtwo->value ;
+         e1 = (unsigned char *) s1 + strone->len ;
+         e2 = (unsigned char *) s2 + strtwo->len ;
 
          strip_whitespace( TSD, &s1, &e1, &s2, &e2 );
 
@@ -1009,17 +1018,17 @@ int isboolean( tsd_t *TSD, nodeptr this )
       case X_S_NGT:
       case X_S_NLT:
       {  /* strict string NOT comparison */
-         char *s1, *s2, *e1, *e2 ;
+         unsigned char *s1, *s2, *e1, *e2 ;
          int type ;
 
          type = this->type ;
          strone = evaluate( TSD, this->p[0], &stmp1 ) ;
          strtwo = evaluate( TSD, this->p[1], &stmp2 ) ;
 
-         s1 = strone->value ;
-         s2 = strtwo->value ;
-         e1 = s1 + strone->len ;
-         e2 = s2 + strtwo->len ;
+         s1 = (unsigned char *) strone->value ;
+         s2 = (unsigned char *) strtwo->value ;
+         e1 = (unsigned char *) s1 + strone->len ;
+         e2 = (unsigned char *) s2 + strtwo->len ;
          /*
           * same compare as non-strict except that leading and trailing spaces
           * are retained for comparison.
@@ -1053,17 +1062,17 @@ int isboolean( tsd_t *TSD, nodeptr this )
       case X_S_LT:
       case X_S_LTE:
       {  /* strict string comparison */
-         char *s1, *s2, *e1, *e2 ;
+         unsigned char *s1, *s2, *e1, *e2 ;
          int type ;
 
          type = this->type ;
          strone = evaluate( TSD, this->p[0], &stmp1 ) ;
          strtwo = evaluate( TSD, this->p[1], &stmp2 ) ;
 
-         s1 = strone->value ;
-         s2 = strtwo->value ;
-         e1 = s1 + strone->len ;
-         e2 = s2 + strtwo->len ;
+         s1 = (unsigned char *) strone->value ;
+         s2 = (unsigned char *) strtwo->value ;
+         e1 = (unsigned char *) s1 + strone->len ;
+         e2 = (unsigned char *) s2 + strtwo->len ;
          /*
           * same compare as non-strict except that leading and trailing spaces
           * are retained for comparison.

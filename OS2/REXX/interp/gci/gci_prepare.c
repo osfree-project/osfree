@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -501,10 +501,15 @@ static void computePositions( WalkerInfo *w,
 {
    unsigned s, hrun;
 
+   s = SPARE( w->runner, GCI_ALIGNMENT );
+   w->runner += s;
+   hrun = w->runner;
    computePosition( w, start, 1 );
+   if ( hrun == w->runner )
+      w->runner -= s;
 
    s = SPARE( w->runner, GCI_ALIGNMENT );
-   w->runner += SPARE( w->runner, GCI_ALIGNMENT );
+   w->runner += s;
    hrun = w->runner;
    computePosition( w, start, 0 );
    if ( hrun == w->runner )

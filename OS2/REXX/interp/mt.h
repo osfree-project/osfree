@@ -3,8 +3,6 @@
 
 #include <setjmp.h>
 
-struct extlib_funcbox; /* private type in extlib.c */
-
 /* tsd_t holds all global vars which may change between threads as expected.*/
 typedef struct _tsd_t {
    void *                  mem_tsd ;           /* local variables of memory.c */
@@ -38,7 +36,6 @@ typedef struct _tsd_t {
    void *                  stkaddr;            /* only in alloca.c */
    volatile char *         tmp_strs[8];        /* only tmpstr_of() */
    int                     next_tmp_str;       /* only tmpstr_of() */
-   struct extlib_funcbox * extfuncs[133];      /* only in extlib.c */
    paramboxptr             bif_first ;         /* only builtinfunc() */
    void *                  firstmacro ;        /* only in macros.c */
 
@@ -59,12 +56,12 @@ typedef struct _tsd_t {
    int                     in_protected;
    jmp_buf                 protect_return;
    jmp_buf                 gci_jump;
-   volatile enum           { PROTECTED_DelayedExit,
-                             PROTECTED_DelayedSetjmpPanic,
-                             PROTECTED_DelayedSetjmpBuf} delayed_error_type;
+   volatile enum           { PROTECTED_DelayedScriptExit,
+                             PROTECTED_DelayedInterpreterExit,
+                             PROTECTED_DelayedRexxSignal } delayed_error_type;
    volatile int            expected_exit_error;
                             /* call exit() with this value if
-                             * delayed_error_type is PROTECTED_DelayedExit
+                             * delayed_error_type is PROTECTED_DelayedScriptExit
                              */
    volatile int            HaltRaised;
    void *                  (*MTMalloc)(const struct _tsd_t *TSD,size_t size);
@@ -72,7 +69,7 @@ typedef struct _tsd_t {
    void                    (*MTExit)(int code);
 } tsd_t;
 
-#if defined(POSIX) && (defined(_REENTRANT) || defined(REENTRANT))
+#if (defined(POSIX) || defined(_POSIX_SOURCE) || defined(_PTHREAD_SEMANTICS)) && (defined(_REENTRANT) || defined(REENTRANT))
 #  include "mt_posix.h"
 #elif defined(_WIN32) && defined(_MT)
 #  include "mt_win32.h"

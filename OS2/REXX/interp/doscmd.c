@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: doscmd.c,v 1.2 2003/12/11 04:43:05 prokushev Exp $";
+static char *RCSid = "$Id: doscmd.c,v 1.58 2004/03/12 12:20:17 mark Exp $";
 #endif
 
 /*
@@ -90,10 +90,10 @@ static char *RCSid = "$Id: doscmd.c,v 1.2 2003/12/11 04:43:05 prokushev Exp $";
 # endif
 #endif
 
-#if defined(MAC) || (defined(__WATCOMC__) && !defined(__QNX__)) || defined(_MSC_VER) || defined(__SASC) || defined(__MINGW32__) || defined(__BORLANDC__) || defined(__EPOC32__) || defined(__WINS__) || defined(__LCC__)
+#if defined(MAC) || (defined(__WATCOMC__) && !defined(__QNX__)) || defined(_MSC_VER) || defined(__SASC) || defined(__MINGW32__) || defined(__BORLANDC__) || defined(__EPOC32__) || defined(__WINS__) || defined(__LCC__) || defined(SKYOS)
 # include "utsname.h"                                   /* MH 10-06-96 */
 # define NEED_UNAME
-# if !defined(__WINS__) && !defined(__EPOC32__)
+# if !defined(__WINS__) && !defined(__EPOC32__) && !defined(SKYOS)
 #  define MAXPATHLEN  _MAX_PATH                          /* MH 10-06-96 */
 # endif
 #else                                                   /* MH 10-06-96 */
@@ -1952,7 +1952,7 @@ void wait_async_info(void *async_info)
       DosWaitEventSem(ai->sem, SEM_INDEFINITE_WAIT);
 }
 /* end of elif define(__EMX__) */
-#elif defined(MAC) || defined(DOS) || defined(__WINS__) || defined(__EPOC32__) || defined(_AMIGA)
+#elif defined(MAC) || defined(DOS) || defined(__WINS__) || defined(__EPOC32__) || defined(_AMIGA) || defined(SKYOS)
 #define NEED_STUPID_DOSCMD
 #else /* !(MAC || DOS || WIN32 || OS2 || _AMIGA || __WINS__ || __EPOC32__) */
 /*****************************************************************************
@@ -2996,7 +2996,7 @@ static const char *nextarg(const char *source, unsigned *len, char *target,
    if (source == NULL)
       return(NULL);
 
-   while (isspace(*source)) /* jump over initial spaces */
+   while (rx_isspace(*source)) /* jump over initial spaces */
       source++;
    if (*source == '\0')
       return(NULL);
@@ -3027,7 +3027,7 @@ static const char *nextarg(const char *source, unsigned *len, char *target,
       else /* whitespace delimiters */
       {
          c = term;
-         while (!isspace(c) && (c != '\'') && (c != '\"')) {
+         while (!rx_isspace(c) && (c != '\'') && (c != '\"')) {
             if (c == escape)
                c = *source++;
             if (c == '\0')  /* stray \ at EOS is equiv to normal EOS */
@@ -3048,7 +3048,7 @@ static const char *nextarg(const char *source, unsigned *len, char *target,
          }
          source--; /* undo the "wrong" character */
       }
-   } while (!isspace(*source));
+   } while (!rx_isspace(*source));
 
    if (len != NULL)
       *len = l;
@@ -3152,14 +3152,15 @@ static const char *nextsimplearg(const char *source, unsigned *len,
    if (source == NULL)
       return(NULL);
 
-   while (isspace(*source)) /* jump over initial spaces */
+   while (rx_isspace(*source)) /* jump over initial spaces */
       source++;
    if (*source == '\0')
       return(NULL);
 
    c = *source++;
 
-   while (!isspace(c)) {
+   while (!rx_isspace(c))
+   {
       if (c == '\0')  /* stray \ at EOS is equiv to normal EOS */
       {
          /* something's found, therefore we don't have to return NULL */

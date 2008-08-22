@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: strmath.c,v 1.2 2003/12/11 04:43:23 prokushev Exp $";
+static char *RCSid = "$Id: strmath.c,v 1.21 2004/02/10 10:44:23 mark Exp $";
 #endif
 
 /*
@@ -328,7 +328,7 @@ int getdescr( const tsd_t *TSD, const streng *num, num_descr *descr )
    in = num->value;
    inlen = Str_len(num);
    /* skip leading spaces */
-   while (inlen && isspace(*in))
+   while (inlen && rx_isspace(*in))
    {
       in++;
       inlen--;
@@ -345,7 +345,7 @@ int getdescr( const tsd_t *TSD, const streng *num, num_descr *descr )
       descr->negative = (c == '-') ;
       in++; /* c eaten */
       inlen--;
-      while (inlen && isspace(*in)) /* skip leading spaces */
+      while (inlen && rx_isspace(*in)) /* skip leading spaces */
       {
          in++;
          inlen--;
@@ -358,7 +358,7 @@ int getdescr( const tsd_t *TSD, const streng *num, num_descr *descr )
       descr->negative = 0 ;
 
    /* cut ending blanks first, a non blank exists (in[0]) at this point */
-   while (isspace(in[inlen-1]))
+   while (rx_isspace(in[inlen-1]))
       inlen--;
 
    while (inlen && (*in == '0')) /* skip leading zeros */
@@ -397,7 +397,7 @@ int getdescr( const tsd_t *TSD, const streng *num, num_descr *descr )
          inlen--;
          continue;
       }
-      if (!isdigit(c))
+      if (!rx_isdigit(c))
          break;
       if (outpos < outmax)
       {
@@ -444,7 +444,7 @@ int getdescr( const tsd_t *TSD, const streng *num, num_descr *descr )
       while (inlen--)
       {
          c = *in++;
-         if (!isdigit(c))
+         if (!rx_isdigit(c))
             return 1 ;
          exp2 = exp2*10 + (c - '0'); /* Hmm, no overflow checking? */
       }

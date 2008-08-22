@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: library.c,v 1.2 2003/12/11 04:43:12 prokushev Exp $";
+static char *RCSid = "$Id: library.c,v 1.19 2004/04/25 01:34:56 mark Exp $";
 #endif
 
 /*
@@ -27,7 +27,7 @@ static char *RCSid = "$Id: library.c,v 1.2 2003/12/11 04:43:12 prokushev Exp $";
  * since dynamic loading is not a part of POSIX.
  */
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 #include "rexxsaa.h"
 #define DONT_TYPEDEF_PFN
 
@@ -40,20 +40,29 @@ static char *RCSid = "$Id: library.c,v 1.2 2003/12/11 04:43:12 prokushev Exp $";
 #include <assert.h>
 #include <string.h>
 
+/*
+ * Starting after 3.3RC1 we process both the Rexx???Exe as the Rexx???Dll
+ * stuff here and only here. An Exe element is an element with a library of
+ * NULL.
+ */
+
+#define EP_COUNT 133    /* should be a prime for distribution */
+
+#define FUNCS   0
+#define EXITS   1
+#define SUBCOMS 2
 
 typedef struct { /* lib_tsd: static variables of this module (thread-safe) */
-   struct library *     first_library ;
-#ifdef DYNAMIC
-   struct library_func *libfuncs[133] ;
-#endif
-   streng *             err_message ;
+   struct library *     first_library;
+   struct library *     orphaned;
+   struct entry_point  *ep[3][EP_COUNT]; /* FUNCS, EXITS, SUBCOMS */
+   streng *             err_message;
 } lib_tsd_t; /* thread-specific but only needed by this module. see
               * init_library
               */
-#define LIBFUNCS_COUNT (sizeof(((lib_tsd_t*)0)->libfuncs) /       \
-                        sizeof(((lib_tsd_t*)0)->libfuncs[0]))
 
-/* init_library initializes the module.
+/*
+ * init_library initializes the module.
  * Currently, we set up the thread specific data.
  * The function returns 1 on success, 0 if memory is short.
  */
@@ -61,166 +70,414 @@ int init_library( tsd_t *TSD )
 {
    lib_tsd_t *lt;
 
-   if (TSD->lib_tsd != NULL)
-      return(1);
+   if ( TSD->lib_tsd != NULL )
+      return 1;
 
-   if ((lt = TSD->lib_tsd = MallocTSD(sizeof(lib_tsd_t))) == NULL)
-      return(0);
-   memset(lt,0,sizeof(lib_tsd_t));  /* correct for all values */
-   return(1);
+   if ( ( lt = TSD->lib_tsd = MallocTSD( sizeof( lib_tsd_t ) ) ) == NULL )
+      return 0;
+   memset( lt, 0, sizeof( lib_tsd_t ) );  /* correct for all values */
+   return 1;
 }
 
 #ifdef DYNAMIC
-
-/* Operations on the library and library_func structures */
-
+/*
+ * insert_library inserts the passed library in the linked list of used
+ * libraries unconditionally.
+ */
 static void insert_library( const tsd_t *TSD, struct library *ptr )
 {
    lib_tsd_t *lt;
 
    lt = TSD->lib_tsd;
-   ptr->prev = NULL ;
-   ptr->next = lt->first_library ;
-   if ((lt->first_library=ptr)->next)
-      ptr->next->prev = ptr ;
+   ptr->prev = NULL;
+   ptr->next = lt->first_library;
+   lt->first_library = ptr;
+   if ( ptr->next != NULL )
+      ptr->next->prev = ptr;
 }
 
-static void remove_function( tsd_t *TSD, struct library_func *fptr )
+/*
+ * unlink_orphaned_libs attempts to remove the address space from unused
+ * DLLs aka shared libraries.
+ *
+ * We must be extremely careful. Scenario:
+ * Load a function package, e.g. w32funcs. This lets several functions
+ * (e.g. win32func???) and win32load and win32unload been registered.
+ * When the call of win32unload happens, each function name gets unload and
+ * on the last call the entire library gets released. But this happens just
+ * when RexxDeregisterFunction(win32unload) happens! The address space doesn't
+ * exist any longer and the call does a return to unmapped memory. Crash!
+ *
+ * Therefore the freeing of the library moves the unused lib to the list of
+ * orphaned libs which are removed when it's safe to do so.
+ *
+ * Alternatively we have to maintain a list of used external entry points
+ * which lock the associated libraries only (move to orphaned), others are
+ * freed immediately. The disadvantage is the maintainance problem with
+ * longjmp/sigjmp.
+ *
+ * If the flag force is set we assume a clean state which should be set only
+ * on reforking or terminating.
+ */
+static void unlink_orphaned_libs( const tsd_t *TSD, lib_tsd_t *lt, int force )
 {
-   lib_tsd_t *lt;
+   struct library *ptr;
 
-   lt = TSD->lib_tsd;
-   if ( fptr->name )
-      Free_stringTSD( fptr->name );
-# ifdef HAVE_GCI
-   if ( fptr->gci_info )
-      GCI_remove_structure( TSD, fptr->gci_info );
-# endif
-   if (fptr->next)
-      fptr->next->prev = fptr->prev ;
-   if (fptr->prev)
-      fptr->prev->next = fptr->next ;
-   else
-      lt->libfuncs[fptr->hash % LIBFUNCS_COUNT] = fptr->next ;
+   if ( !lt->orphaned )
+      return;
 
-   if (fptr->forw)
-      fptr->forw->backw = fptr->backw ;
-   if (fptr->backw)
-      fptr->backw->forw = fptr->forw ;
-   else
-      fptr->lib->first = fptr->forw ;
-   FreeTSD( fptr );
+   if ( !force )
+   {
+      /*
+       * The system is ready to remove every lib if TSD->systeminfo->previous
+       * is empty AND TSD->systeminfo->input_name is empty.
+       * Otherwise we don't catch the plain main() calls or other calls I can
+       * imagine that use the first systeminfo directly.
+       */
+      if ( TSD->systeminfo )
+      {
+         if ( TSD->systeminfo->previous || TSD->systeminfo->input_file )
+            return;
+      }
+   }
+
+   while ( ( ptr = lt->orphaned ) != NULL )
+   {
+      lt->orphaned = ptr->next;
+      if ( lt->orphaned )
+         lt->orphaned->prev = NULL;
+
+      assert( ptr->used == 0 );
+
+      wrapper_unload( TSD, ptr->handle );
+      assert( ptr->name );
+      Free_stringTSD( ptr->name );
+      FreeTSD( ptr );
+   }
 }
 
+/*
+ * remove_library removes the passed library from the linked list of used
+ * libraries unconditionally.
+ * The library will be unloaded and the name and the passed structure will be
+ * freed later when it's safe to do so.
+ * See unlink_orphaned_libs.
+ */
 static void remove_library( const tsd_t *TSD, struct library *ptr )
 {
    lib_tsd_t *lt;
 
+   assert( ptr->used == 0 );
+
    lt = TSD->lib_tsd;
-   if (ptr->next)
-      ptr->next->prev = ptr->prev ;
+   if ( ptr->next )
+      ptr->next->prev = ptr->prev;
 
-   if (ptr->prev)
-      ptr->prev->next = ptr->next ;
+   if ( ptr->prev )
+      ptr->prev->next = ptr->next;
    else
-      lt->first_library = ptr->next ;
+      lt->first_library = ptr->next;
 
-   /* FIXME: We need a wrapper_unload function */
-   assert( ptr->name ) ;
-   Free_stringTSD( ptr->name ) ;
-   FreeTSD( ptr ) ;
+   ptr->next = lt->orphaned;
+   if ( lt->orphaned )
+      lt->orphaned->prev = ptr;
+
+   lt->orphaned = ptr;
+
+   /*
+    * Now try to remove it really.
+    */
+   unlink_orphaned_libs( TSD, lt, 0 );
+}
+#endif
+
+/*
+ * remove_entry removes the passed library entry from the linked list of used
+ * library entries unconditionally.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ * Used memory will be freed and the holding library will be removed if this
+ * entry was the last entry used of the library.
+ */
+static void remove_entry( tsd_t *TSD, struct entry_point *fptr, int slot )
+{
+   lib_tsd_t *lt;
+
+   assert( slot >= FUNCS && slot <= SUBCOMS );
+
+   lt = TSD->lib_tsd;
+   if ( fptr->name )
+      Free_stringTSD( fptr->name );
+#if defined(HAVE_GCI) && defined(DYNAMIC)
+   if ( ( fptr->special.gci_info != NULL ) && ( slot == FUNCS ) )
+      GCI_remove_structure( TSD, fptr->special.gci_info );
+#endif
+   if ( fptr->next )
+      fptr->next->prev = fptr->prev;
+   if ( fptr->prev )
+      fptr->prev->next = fptr->next;
+   else
+      lt->ep[slot][fptr->hash % EP_COUNT] = fptr->next;
+
+#ifdef DYNAMIC
+   if ( fptr->lib != NULL )
+   {
+      assert( fptr->lib->used > 0 );
+      if ( --fptr->lib->used == 0 )
+         remove_library( TSD, fptr->lib );
+   }
+#endif
+
+   FreeTSD( fptr );
 }
 
+/*
+ * free_orphaned_libs disconnect from unused DLLs, see unlink_orphaned_libs.
+ */
+void free_orphaned_libs( tsd_t *TSD )
+{
+#ifdef DYNAMIC
+   lib_tsd_t *lt = TSD->lib_tsd;
+
+   unlink_orphaned_libs( TSD, lt, 0 );
+#else
+   (TSD = TSD);
+#endif
+}
+
+/*
+ * purge_library frees all used memory used by every entry point that is
+ * registered and unloads every library.
+ * This routine is a little bit slow.
+ */
 void purge_library( tsd_t *TSD )
 {
-   struct library_func *lptr, *save_lptr ;
-   struct library *ptr, *save_ptr ;
+   struct entry_point *ep, *save_ep;
    lib_tsd_t *lt;
+   int i, j;
 
    lt = TSD->lib_tsd;
-   for (ptr = lt->first_library; ptr != NULL; )
+   if ( lt->first_library != NULL )
    {
-      save_ptr = ptr->next ;
-      for ( lptr = ptr->first; lptr; )
+      for ( i = FUNCS; i <= SUBCOMS; i++ )
       {
-         save_lptr = lptr->next ;
-         remove_function( TSD, lptr ) ;
-         lptr = save_lptr ;
+         for ( j = 0; j < EP_COUNT; j++ )
+         {
+            if ( ( ep = lt->ep[i][j] ) != NULL )
+            {
+               do {
+                  save_ep = ep;
+                  remove_entry( TSD, ep, i );
+                  if ( ( ep = lt->ep[i][j] ) == save_ep )
+                     break;
+               } while ( ep != NULL );
+               if ( lt->first_library == NULL )
+                  goto fastEnd;
+            }
+         }
       }
-      remove_library( TSD, ptr );
-      ptr = save_ptr;
    }
+   fastEnd:
+   assert( lt->first_library == NULL );
    lt->first_library = NULL;
-   memset( lt->libfuncs, 0, sizeof(lt->libfuncs) ) ;
+#ifdef DYNAMIC
+   unlink_orphaned_libs( TSD, lt, 1 );
+#endif
+   assert( lt->orphaned == NULL );
+   lt->orphaned = NULL;
+   memset( lt->ep, 0, sizeof( lt->ep ) );
 }
 
-
-static struct library *find_library( const tsd_t *TSD, const streng *name )
+#ifdef DYNAMIC
+/*
+ * find_library returns the internal structure associated with the passed
+ * library name or NULL if such a library doesn't exists.
+ */
+struct library *find_library( const tsd_t *TSD, const streng *name )
 {
-   struct library *lptr=NULL ;
+   struct library *lptr;
    lib_tsd_t *lt;
 
    lt = TSD->lib_tsd;
-   lptr = lt->first_library ;
-   for (;lptr; lptr=lptr->next)
+   lptr = lt->first_library;
+   for ( ; lptr; lptr = lptr->next )
    {
-      if (!Str_cmp(name,lptr->name))
-         return lptr ;
+      if ( !Str_cmp( name, lptr->name ) )
+         return lptr;
    }
 
-   return NULL ;
+   return NULL;
 }
+#endif
 
-static void add_function( const tsd_t *TSD, struct library_func *fptr )
+/*
+ * add_entry creates a new library entry from the passed data and inserts it
+ * in the linked list of used entries unconditionally.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ * rxname is the name that can be used by a REXX script.
+ * addr is the entry point of the function/exit hook/subcom hook.
+ * lptr is a loaded library or NULL for a call of RexxRegister???Exe.
+ * Either gci_info or user_area may be set depending on the kind of the entry.
+ *
+ * The internal counter of the library isn't incremented.
+ */
+static void add_entry( const tsd_t *TSD, int slot, const streng *rxname,
+                       PFN addr, struct library *lptr, void *gci_info,
+                       void *user_area )
 {
-   int hash0=0 ;
+   int hash0;
    lib_tsd_t *lt;
+   struct entry_point *fptr;
 
+   assert( slot >= FUNCS && slot <= SUBCOMS );
    lt = TSD->lib_tsd;
-   hash0 = fptr->hash % LIBFUNCS_COUNT;
-   fptr->next = lt->libfuncs[hash0] ;
-   lt->libfuncs[hash0] = fptr ;
-   fptr->prev = NULL ;
-   if (fptr->next)
-      fptr->next->prev = fptr ;
 
-   fptr->forw = fptr->lib->first ;
-   fptr->backw = NULL ;
-   fptr->lib->first = fptr ;
-   if (fptr->forw)
-      fptr->forw->backw = fptr ;
-}
-
-static struct library_func *find_library_func( const tsd_t *TSD, const streng *name )
-{
-   struct library_func *lptr=NULL ;
-   unsigned hash, hash0 ;
-   lib_tsd_t *lt;
-
-   lt = TSD->lib_tsd;
-   hash = hashvalue( name->value, name->len ) ;
-   hash0 = hash % LIBFUNCS_COUNT ;
-   for (lptr=lt->libfuncs[hash0]; lptr; lptr=lptr->next)
+   fptr = MallocTSD( sizeof( struct entry_point ) );
+   fptr->name = Str_upper( Str_dupstrTSD( rxname ) );
+   fptr->hash = hashvalue( rxname->value, rxname->len );
+   fptr->addr = addr;
+   fptr->lib = lptr;
+   memset( &fptr->special, 0, sizeof( fptr->special ) );
+   if ( slot == FUNCS )
+      fptr->special.gci_info = gci_info;
+   else
    {
-      if (hash == lptr->hash)
-         if (Str_cmp(name,lptr->name) == 0)
-            return lptr ;
+      if ( user_area != NULL )
+         memcpy( fptr->special.user_area, user_area,
+                 sizeof ( fptr->special.user_area ) );
    }
 
-   return NULL ;
+   hash0 = fptr->hash % EP_COUNT;
+   fptr->next = lt->ep[slot][hash0];
+   lt->ep[slot][hash0] = fptr;
+   fptr->prev = NULL;
+   if ( fptr->next )
+      fptr->next->prev = fptr;
 }
 
-void set_err_message( const tsd_t *TSD, const char *message1, const char *message2 )
+/*
+ * find_entry_point returns NULL if no entry is found. Returns the exact entry
+ * if both the name and the library match. Returns any entry with a fitting
+ * name if the library doesn't match but the name exists.
+ * library may be NULL for entries registered by RexxRegister???Exe.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ */
+static struct entry_point *find_entry_point( const tsd_t *TSD,
+                                             const streng *name,
+                                             void *library,
+                                             int slot )
+{
+   struct entry_point *lptr;
+   unsigned hash, hash0;
+   lib_tsd_t *lt;
+   struct entry_point *retval = NULL;
+
+   lt = TSD->lib_tsd;
+   hash = hashvalue( name->value, name->len );
+   hash0 = hash % EP_COUNT;
+   for ( lptr = lt->ep[slot][hash0]; lptr; lptr = lptr->next )
+   {
+      if ( hash == lptr->hash )
+         if ( Str_cmp( name, lptr->name ) == 0 )
+         {
+            if ( lptr->lib == library )
+               return lptr;
+            else
+               retval = lptr;
+         }
+   }
+
+   return retval;
+}
+
+/*
+ * find_first_entry_point returns NULL if no entry is found and returns the
+ * most recent hook otherwise.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ */
+static struct entry_point *find_first_entry_point( const tsd_t *TSD,
+                                                   const streng *name,
+                                                   int slot )
+{
+   struct entry_point *lptr;
+   unsigned hash, hash0;
+   lib_tsd_t *lt;
+
+   lt = TSD->lib_tsd;
+   hash = hashvalue( name->value, name->len );
+   hash0 = hash % EP_COUNT;
+   for ( lptr = lt->ep[slot][hash0]; lptr; lptr = lptr->next )
+   {
+      if ( hash == lptr->hash )
+         if ( Str_cmp( name, lptr->name ) == 0 )
+            return lptr;
+   }
+
+   return NULL;
+}
+
+/*
+ * find_all_entries returns 0 if no entry is found. Otherwise it returns the
+ * number of all matching entries with the given name, different in the module
+ * name only.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ * *list will be set to a list of all available entries.
+ *
+ * This function is slow.
+ */
+static int find_all_entries( const tsd_t *TSD, const streng *name, int slot,
+                             struct entry_point ***list )
+{
+   struct entry_point *lptr, **array;
+   unsigned hash, hash0;
+   lib_tsd_t *lt;
+   int cnt;
+
+   lt = TSD->lib_tsd;
+   hash = hashvalue( name->value, name->len );
+   hash0 = hash % EP_COUNT;
+   for ( cnt = 0, lptr = lt->ep[slot][hash0]; lptr; lptr = lptr->next )
+   {
+      if ( hash == lptr->hash )
+         if ( Str_cmp( name, lptr->name ) == 0 )
+            cnt++;
+   }
+
+   if ( cnt == 0 )
+   {
+      *list = NULL;
+      return 0;
+   }
+
+   array = MallocTSD( cnt * sizeof( struct entry_point * ) );
+   *list = array;
+
+   for ( cnt = 0, lptr = lt->ep[slot][hash0]; lptr; lptr = lptr->next )
+   {
+      if ( hash == lptr->hash )
+         if ( Str_cmp( name, lptr->name ) == 0 )
+            array[cnt++] = lptr;
+   }
+
+   return cnt;
+}
+
+/*
+ * set_err_message replaces the current error message by a new one that will
+ * be assembled as the concatenation of the two passed messages.
+ * The created string will be returned by RxFuncErrMsg().
+ */
+void set_err_message( const tsd_t *TSD, const char *message1,
+                      const char *message2 )
 {
    lib_tsd_t *lt;
    int size;
 
    lt = TSD->lib_tsd;
-   if (lt->err_message)
-      Free_stringTSD( lt->err_message ) ;
+   if ( lt->err_message )
+      Free_stringTSD( lt->err_message );
 
-   size = strlen(message1)+strlen(message2);
-   lt->err_message = Str_makeTSD(size+1);
+   size = strlen( message1 ) + strlen( message2 );
+   lt->err_message = Str_makeTSD( size + 1 );
    if ( lt->err_message )
    {
       strcpy( lt->err_message->value, message1 );
@@ -229,129 +486,434 @@ void set_err_message( const tsd_t *TSD, const char *message1, const char *messag
    }
 }
 
-int loadrxfunc( const tsd_t *TSD, struct library *lptr, const streng *rxname,
-                const streng *objnam, void *gci_info )
+/*
+ * load_entry creates a new library entry from the passed data and inserts it
+ * in the linked list of used entries.
+ * lptr is a loaded library or NULL for a call of RexxRegister???Exe.
+ * rxname is the name that can be used by a REXX script.
+ * objnam will be used if lptr != NULL only and is the name of the hook
+ * or function that is exported by the library.
+ * entry will be used if lptr == NULL only and is the entry point of the hook
+ * or function.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ * Either gci_info or user_area may be set depending on the kind of the entry.
+ *
+ * Return codes:
+ *    0 on success.
+ *    1 if the function is defined already.
+ *    1 if the hook is defined already and bound to the same library. The new
+ *      hook is rejected.
+ *    2 if the hook is defined already and bound to another library. The new
+ *      hook is accepted.
+ *    3 if objnam isn't exported by lptr.
+ *    4 if external libraries are not supported.
+ */
+static int load_entry( const tsd_t *TSD, struct library *lptr,
+                       const streng *rxname, const streng *objnam, PFN entry,
+                       int slot, void *gci_info, void *user_area )
 {
-   int result=1 ;
-   PFN addr=NULL ;
-   struct library_func *fptr=NULL ;
+   int result=0;
+   struct entry_point *fptr;
 
-   if (lptr)
+   assert( ( lptr != NULL ) ^ ( entry != NULL ) );
+   assert( rxname != NULL );
+   assert( slot >= FUNCS && slot <= SUBCOMS );
+
+   /*
+    * Check the exceptions first.
+    */
+   if ( ( fptr = find_entry_point( TSD, rxname, lptr, slot ) ) != NULL )
    {
-      fptr = find_library_func( TSD, rxname ) ;
-      if (!fptr || fptr->lib!=lptr)
-      {
-         addr = wrapper_get_addr( TSD, lptr, objnam ) ;
-         if (addr)
-           {
-            fptr = MallocTSD( sizeof( struct library_func )) ;
-            fptr->name = Str_upper( Str_dupstrTSD( rxname ) );
-            fptr->hash = hashvalue(fptr->name->value, fptr->name->len);
-            fptr->addr = addr ;
-            fptr->lib = lptr ;
-            fptr->gci_info = gci_info;
-            add_function( TSD, fptr ) ;
-            result = 0 ;
-           }
-         else
-         {
-            result = 30 ;
-         }
-      }
-      else
-      {
-         result = 10;
-      }
+      /*
+       * EXITS and SUBCOMS may have the same callable name bound to different
+       * modules.
+       */
+      if ( ( slot == FUNCS ) || ( fptr->lib == lptr ) )
+         return 1;
+      /*
+       * must be a hook with the same name in a different module.
+       */
+      result = 2;
    }
-   else
+
+   if ( lptr )
    {
-      result = 30;
+      assert( objnam != NULL );
+#ifdef DYNAMIC
+      if ( ( entry = wrapper_get_addr( TSD, lptr, objnam ) ) == NULL )
+         return 3;
+      lptr->used++;
+#else
+      return 4;
+#endif
    }
-   return result ;
+
+   add_entry( TSD, slot, rxname, entry, lptr, gci_info, user_area );
+   return result;
 }
 
 /*
- * This loads a module as a result of a RexxRegisterFunctionDll() call
+ * unload_entry removes a known library entry from the linked list of known
+ * entries.
  *
- * parameters:
- *   1) name of the function to be added (in Rexx)
- *   2) name of object file to link in
- *   3) name of the function to be added (in the object file)
+ * rxname is the name that can be used by a REXX script.
+ * module is the name of the library and may be NULL for a generic request
+ * or is a RexxRegister???Exe registered funcion/hook shall be unloaded.
+ * The slot must be either FUNCS, EXISTS, or SUBCOMS.
+ *
+ * Return codes:
+ *    0 on success.
+ *    1 if the function/hook is not defined or a hook with this name is bound
+ *      to different modules and the module name is not given.
  */
-static int rex_rxfuncdlladd( const tsd_t *TSD, const streng* rxname,
-                             const streng* module, const streng* objnam,
-                             void *gci_info )
+static int unload_entry( tsd_t *TSD, const streng *rxname,
+                         const streng *module, int slot )
 {
-   struct library *lptr=NULL ;
-   void *handle=NULL ;
-   int rc=0;
+   struct entry_point *fptr, **list;
+   struct library *lib;
+   int cnt;
 
-   if ((lptr=find_library(TSD, module)) == NULL)
+#ifdef DYNAMIC
+   if ( module == NULL )
+      lib = NULL;
+   else
    {
-      handle = wrapper_load( TSD, module ) ;
-      if (handle)
-      {
-         lptr = MallocTSD( sizeof( struct library )) ;
-         lptr->name = Str_dupTSD( module ) ;
-         lptr->handle = handle ;
-         lptr->funcs = NULL ;
-         lptr->first = NULL ;
-      }
-      else
-      {
+      if ( ( lib = find_library( TSD, module ) ) == NULL )
          return 1;
-      }
-      insert_library( TSD, lptr ) ;
    }
-   rc = loadrxfunc( TSD, lptr, rxname, objnam, gci_info );
-   return ( rc );
-}
-#endif /* DYNAMIC */
+#else
+   if ( module != NULL )
+      return 1;
+   lib = NULL;
+#endif
 
+   fptr = find_entry_point( TSD, rxname, lib, slot );
+   if ( fptr == NULL )
+      return 1;
+
+   if ( fptr->lib == lib )
+   {
+      remove_entry( TSD, fptr, slot );
+      return 0;
+   }
+
+   /*
+    * Not a properly matching function. Check for the "wildcard" library.
+    */
+   if ( lib != NULL )
+      return 1;
+
+   /*
+    * We need it the hard way. Check if more than one entry is registered.
+    */
+   cnt = find_all_entries( TSD, rxname, slot, &list );
+   if ( cnt > 1 )
+   {
+      FreeTSD( list );
+      return 1;
+   }
+
+   remove_entry( TSD, *list, slot );
+   FreeTSD( list );
+   return 0;
+}
+
+/*
+ * loadrxfunc adds a new function to the set of registered entry points.
+ *
+ * lptr is a loaded library or NULL for a call of RexxRegisterFunctionExe.
+ * rxname is the name that can be used by a REXX script.
+ * objnam will be used if lptr != NULL only and is the name of the function
+ * that is exported by the library.
+ * entry will be used if lptr == NULL only and is the entry point of the
+ * function.
+ * gci_info may be set depending on whether RxFuncDefine is used.
+ *
+ * Returns a return code suitable for RexxRegisterFunction???.
+ */
+static int loadrxfunc( const tsd_t *TSD, struct library *lptr,
+                       const streng *rxname, const streng *objnam, PFN entry,
+                       void *gci_info )
+{
+   int rc;
+
+   rc = load_entry( TSD, lptr, rxname, objnam, entry, FUNCS, gci_info, NULL );
+   switch ( rc )
+   {
+      case 0:  return 0;   /* RXFUNC_OK */
+      case 1:  return 10;  /* RXFUNC_DEFINED */
+      case 3:  return 50;  /* RXFUNC_ENTNOTFND */
+      case 4:  return 60;  /* RXFUNC_NOTINIT */
+   }
+   assert ( rc != 0 );
+   return 10000 + rc; /* something not recognisable */
+}
+
+/*
+ * loadrxhook adds a new exit/subcom hook to the set of registered entry
+ * points.
+ *
+ * lptr is a loaded library or NULL for a call of RexxRegister???Exe.
+ * rxname is the name that can be used in a hook list.
+ * objnam will be used if lptr != NULL only and is the name of the hook that
+ * that is exported by the library.
+ * entry will be used if lptr == NULL only and is the entry point of the hook.
+ * user_area is the passed parameter called UserArea of the Registration.
+ * The slot must be either EXISTS or SUBCOMS.
+ *
+ * Returns a return code suitable for RexxRegister???.
+ */
+static int loadrxhook( const tsd_t *TSD, struct library *lptr,
+                       const streng *rxname, const streng *objnam, PFN entry,
+                       void *user_area, int slot )
+{
+   int rc;
+
+   rc = load_entry( TSD, lptr, rxname, objnam, entry, slot, NULL, user_area );
+   switch ( rc )
+   {
+      case 0:  return 0;     /* RX???_OK */
+      case 1:  return 30;    /* RX???_NOTREG */
+      case 2:  return 10;    /* RX???_DUP */
+      case 3:  return 50;    /* RX???_LOADERR */
+      case 4:  return 1004;  /* RX???_NOTINIT */
+   }
+   assert ( rc != 0 );
+   return 10000 + rc; /* something not recognisable */
+}
+
+/*
+ * unloadrxhook removes a registered function entry point.
+ *
+ * rxname is the name that can be used by a REXX script.
+ *
+ * Returns a return code suitable for RexxDeregisterFunction.
+ */
+static int unloadrxfunc( tsd_t *TSD, const streng *rxname )
+{
+   assert( rxname != NULL );
+
+   if ( unload_entry( TSD, rxname, NULL, FUNCS ) == 0 )
+      return 0;
+   return 30; /* RXFUNC_NOTREG */
+}
+
+/*
+ * unloadrxhook removes a registered exit/subcom hook entry point.
+ *
+ * rxname is the name that can be used in a hook list.
+ * module is the name of the module that contains the hook or NULL if either
+ * the generic hook should be removed or if a RexxRegister???Exe-hook should
+ * be removed. The later one has precedence.
+ * The slot must be either EXISTS or SUBCOMS.
+ *
+ * Returns a return code suitable for RexxDeregister???.
+ */
+static int unloadrxhook( tsd_t *TSD, const streng *rxname,
+                         const streng *module, int slot )
+{
+   assert( rxname != NULL );
+
+   if ( unload_entry( TSD, rxname, module, slot ) == 0 )
+      return 0;
+   return 30; /* RX???_NOTREG */
+}
+
+/*
+ * rex_funcadd processes a RexxRegisterFunctionDll() or
+ * RexxRegisterFunctionExe() request.
+ *
+ * rxname is the name that can be used by a REXX script.
+ * module is the name of the library and may be NULL only a
+ * RexxRegisterFunctionExe is processed.
+ * objnam will be used if module != NULL only and is the name of the function
+ * that is exported by the library.
+ * entry will be used if module == NULL only and is the entry point of the
+ * function.
+ * gci_info may be set depending on whether RxFuncDefine is used.
+ *
+ * Returns a return code suitable for RexxRegisterFunction???.
+ */
+static int rex_funcadd( const tsd_t *TSD, const streng *rxname,
+                        const streng *module, const streng *objnam, PFN entry,
+                        void *gci_info )
+{
+   struct library *lptr=NULL;
+   int rc;
+#ifdef DYNAMIC
+   void *handle;
+   int new = 0;
+#endif
+
+   assert( rxname != NULL );
+
+   if ( module != NULL )
+   {
+      assert( entry == NULL );
+#ifdef DYNAMIC
+      if ( ( lptr = find_library( TSD, module ) ) == NULL )
+      {
+         new = 1;
+         handle = wrapper_load( TSD, module ) ;
+         if ( handle )
+         {
+            lptr = MallocTSD( sizeof( struct library )) ;
+            lptr->name = Str_dupstrTSD( module ) ;
+            lptr->handle = handle ;
+            lptr->used = 0l;
+         }
+         else
+         {
+            return 40; /* RXFUNC_MODNOTFND */
+         }
+         insert_library( TSD, lptr ) ;
+      }
+#else
+      return 60; /* RXFUNC_NOTINIT */
+#endif
+   }
+   else
+   {
+      assert( entry != NULL );
+   }
+   if ( ( rc = loadrxfunc( TSD, lptr, rxname, objnam, entry, gci_info ) ) != 0 )
+   {
+#ifdef DYNAMIC
+      if ( new )
+         remove_library( TSD, lptr );
+#endif
+   }
+   return rc;
+}
+
+/*
+ * rex_hookadd processes a RexxRegisterExitDll(), RexxRegisterExitExe(),
+ * RexxRegisterSubcomDll(), or RexxRegisterSubcomExe() request.
+ *
+ * rxname is the name that can be used in a hook list.
+ * module is the name of the library and may be NULL only a RexxRegister???Exe
+ * is processed.
+ * objnam will be used if module != NULL only and is the name of the hook
+ * that is exported by the library.
+ * entry will be used if module == NULL only and is the entry point of the
+ * hook.
+ * user_area is the passed parameter called UserArea of the Registration.
+ * The slot must be either EXISTS or SUBCOMS.
+ *
+ * Returns a return code suitable for RexxRegister???.
+ */
+static int rex_hookadd( const tsd_t *TSD, const streng *rxname,
+                        const streng *module, const streng *objnam, PFN entry,
+                        void *user_area, int slot )
+{
+   struct library *lptr=NULL;
+   int rc;
+#ifdef DYNAMIC
+   void *handle;
+   int new = 0;
+#endif
+
+   assert( rxname != NULL );
+
+   if ( module != NULL )
+   {
+      assert( entry == NULL );
+#ifdef DYNAMIC
+      if ( ( lptr = find_library( TSD, module ) ) == NULL )
+      {
+         new = 1;
+         handle = wrapper_load( TSD, module ) ;
+         if ( handle )
+         {
+            lptr = MallocTSD( sizeof( struct library )) ;
+            lptr->name = Str_dupstrTSD( module ) ;
+            lptr->handle = handle ;
+            lptr->used = 0l;
+         }
+         else
+         {
+            return 50; /* RX???_LOADERR */
+         }
+         insert_library( TSD, lptr ) ;
+      }
+#else
+      return 1004; /* RX???_NOTINIT */
+#endif
+   }
+   else
+   {
+      assert( entry != NULL );
+   }
+   rc = loadrxhook( TSD, lptr, rxname, objnam, entry, user_area, slot );
+   if ( ( rc != 0 ) && ( rc != 10 ) )
+   {
+#ifdef DYNAMIC
+      if ( new )
+         remove_library( TSD, lptr );
+#endif
+   }
+   return rc;
+}
+
+/*
+ * rex_rxfuncerrmsg implements the BIF RxFuncErrMsg.
+ */
 streng *rex_rxfuncerrmsg( tsd_t *TSD, cparamboxptr parms )
 {
 #ifdef DYNAMIC
    lib_tsd_t *lt;
 #endif
 
-   checkparam(  parms,  0,  0 , "RXFUNCERRMSG" ) ;
+   checkparam( parms, 0, 0, "RXFUNCERRMSG" );
 
 #ifdef DYNAMIC
    lt = TSD->lib_tsd;
-   if (lt->err_message)
-      return Str_dupTSD( lt->err_message ) ;
+   if ( lt->err_message )
+      return Str_dupTSD( lt->err_message );
    else
-      return nullstringptr() ;
+      return nullstringptr();
 #else
-   return Str_creTSD( "Platform doesn't support dynamic linking" ) ;
+   return Str_creTSD( "Platform doesn't support dynamic linking" );
 #endif
 }
 
+/*
+ * rex_rxfuncquery implements the BIF RxFuncQuery.
+ */
 streng *rex_rxfuncquery( tsd_t *TSD, cparamboxptr parms )
 {
-   streng *name=NULL;
 #ifdef DYNAMIC
-   struct library_func *fptr=NULL ;
+   streng *name;
+   struct entry_point *fptr;
 #endif
 
-   checkparam(  parms,  1,  1 , "RXFUNCQUERY" ) ;
-   name = Str_upper( parms->value ) ;
-#ifdef DYNAMIC
-   fptr = find_library_func( TSD, name ) ;
+   checkparam( parms, 1, 1, "RXFUNCQUERY" );
 
-   if (fptr)
-      return int_to_streng( TSD, 0 ) ;
+#ifdef DYNAMIC
+   name = Str_upper( Str_dupTSD( parms->value ) );
+   fptr = find_entry_point( TSD, name, NULL, FUNCS );
+   Free_stringTSD( name );
+
+   if ( fptr )
+      return int_to_streng( TSD, 0 );
    /*
-    *... otherwise fall through and try to find the function
-    * loaded via RexxRegisterFunctionExe()
+    * FIXME: We have to discuss whether to return a stupid 1 or a
+    *        more informational 30/60 for RXFUNC_NOTREG or RXFUNC_NOTINIT
     */
+   /* return int_to_streng( TSD, 30 ); */ /* RXFUNC_NOTREG */
+   return int_to_streng( TSD, 1 );
+#else
+   /* return int_to_streng( TSD, 60 ); */ /* RXFUNC_NOTINIT */
+   return int_to_streng( TSD, 1 );
 #endif
-   return int_to_streng( TSD,(external_func( TSD, name ) ) ? 0 : 1);
 }
 
 
 /*
- * parameters:
+ * rex_rxfuncadd implements the BIF RxFuncAdd.
+ * The returned value is suitable for RexxRegisterFunctionDll.
+ *
+ * Parameters:
  *   1) name of the function to be added (in Rexx)
  *   2) name of object file to link in
  *   3) name of the function to be added (in the object file)
@@ -359,30 +921,35 @@ streng *rex_rxfuncquery( tsd_t *TSD, cparamboxptr parms )
 streng *rex_rxfuncadd( tsd_t *TSD, cparamboxptr parms )
 {
 #ifdef DYNAMIC
-   streng *rxname=NULL ;
-   streng *module=NULL, *objnam=NULL ;
+   streng *rxname;
+   streng *module, *objnam;
    int rc;
+#endif
 
    if ( TSD->restricted )
-      exiterror( ERR_RESTRICTED, 1, "RXFUNCADD" )  ;
+      exiterror( ERR_RESTRICTED, 1, "RXFUNCADD" );
 
-   checkparam(  parms,  3,  3 , "RXFUNCADD" ) ;
+   checkparam( parms, 2, 3, "RXFUNCADD" );
 
-   rxname = Str_upper (Str_dupTSD(parms->value) ) ;
-   module = (parms=parms->next)->value ;
-   objnam = parms->next->value ;
+#ifdef DYNAMIC
+   rxname = Str_upper( Str_dupTSD( parms->value ) );
+   objnam = parms->value;
+   module = ( parms = parms->next )->value;
+   if ( ( parms->next != NULL ) && ( parms->next->value != NULL ) )
+      objnam = parms->next->value;
 
-   rc = rex_rxfuncdlladd( TSD, rxname, module, objnam, NULL );
+   rc = rex_funcadd( TSD, rxname, module, objnam, NULL, NULL );
    Free_stringTSD( rxname );
-   return int_to_streng( TSD, rc ) ;
+   return int_to_streng( TSD, rc );
 #else
-   checkparam(  parms,  3,  3 , "RXFUNCADD" ) ;
-   return int_to_streng( TSD, 1 ) ;
+   return int_to_streng( TSD, 60 ); /* RXFUNC_NOTINIT */
 #endif
 }
 
 #ifdef HAVE_GCI
 /*
+ * rex_rxfuncdefine implements the BIF RxFuncDefine.
+ *
  * parameters:
  *   1) name of the function to be added (in Rexx)
  *   2) name of object file to link in
@@ -395,132 +962,336 @@ streng *rex_rxfuncdefine( tsd_t *TSD, cparamboxptr parms )
    streng *rxname,*module,*objnam,*def_stem;
    void *gci_info;
    int rc;
+#endif
 
    if ( TSD->restricted )
       exiterror( ERR_RESTRICTED, 1, "RXFUNCDEFINE" );
 
-   checkparam(  parms,  4,  4 , "RXFUNCDEFINE" ) ;
+   checkparam( parms, 4, 4, "RXFUNCDEFINE" );
 
+#ifdef DYNAMIC
    rxname = Str_upper( Str_dupTSD( parms->value ) );
-   module = (parms=parms->next)->value ;
-   objnam = (parms=parms->next)->value ;
-   def_stem = parms->next->value ;
+   objnam = parms->value;
+   module = ( parms = parms->next )->value;
+   parms = parms->next;
+   if ( parms->value != NULL )
+      objnam = parms->value;
+   def_stem = parms->next->value;
 
    if ( ( rc = GCI_checkDefinition( TSD, def_stem, &gci_info ) ) != 0 )
    {
       Free_stringTSD( rxname );
-      return int_to_streng( TSD, 1 ) ;
+      return int_to_streng( TSD, 1 );
    }
 
-   rc = rex_rxfuncdlladd( TSD, rxname, module, objnam, gci_info );
+   rc = rex_funcadd( TSD, rxname, module, objnam, NULL, gci_info );
    Free_stringTSD( rxname );
    if ( rc )
       GCI_remove_structure( TSD, gci_info );
-   return int_to_streng( TSD, rc ) ;
+   return int_to_streng( TSD, rc );
 #else
-   checkparam(  parms,  4,  4 , "RXFUNCDEFINE" ) ;
-   return int_to_streng( TSD, 1 ) ;
+   return int_to_streng( TSD, 60 ); /* RXFUNC_NOTINIT */
 #endif
 }
 #endif
 
-int IfcRegDllFunc( const tsd_t *TSD, const char* rxname, const char* module, const char* objnam )
-{
-#ifdef DYNAMIC
-   int rc;
-   streng *ext;
-   streng *intr;
-   streng *lib;
-
-   ext = Str_upper( Str_creTSD( rxname ) ) ;
-   intr = Str_creTSD( objnam ) ;
-   lib = Str_creTSD( module ) ;
-
-   rc = rex_rxfuncdlladd( TSD, ext, lib, intr, NULL ) ;
-   Free_stringTSD( ext );
-   Free_stringTSD( intr );
-   Free_stringTSD( lib );
-   return ( rc ) ;
-#else
-   TSD = TSD; /* keep compiler happy */
-   rxname = rxname; /* keep compiler happy */
-   module = module; /* keep compiler happy */
-   objnam = objnam; /* keep compiler happy */
-   return 1;
-#endif
-}
-
-
+/*
+ * rex_rxfuncdrop implements the BIF RxFuncDrop.
+ * The returned value is suitable for RexxDeregisterFunction.
+ */
 streng *rex_rxfuncdrop( tsd_t *TSD, cparamboxptr parms )
 {
    streng *name;
 
-   checkparam(  parms,  1,  1 , "RXFUNCDROP" );
+   checkparam( parms, 1, 1, "RXFUNCDROP" );
    name = Str_upper( parms->value );
 
-   return int_to_streng( TSD, rex_rxfuncdlldrop( TSD, name ) );
+   return int_to_streng( TSD, unloadrxfunc( TSD, name ) );
 }
 
-int rex_rxfuncdlldrop( tsd_t *TSD, const streng* objnam )
+/*
+ * IfcRegFunc is the interface function for RexxRegisterFunctionExe and
+ * RexxRegisterFunctionDll.
+ * Either entry or module and objnam must be set.
+ */
+int IfcRegFunc( const tsd_t *TSD, const char *rxname, const char *module,
+                const char *objnam, PFN entry )
 {
-#ifdef DYNAMIC
-   struct library_func *fptr;
-   struct library *lib;
-   /*
-    * try to find the function loaded from a dynamic library
-    */
-   fptr = find_library_func( TSD, objnam );
-   if ( fptr )
+   int rc;
+   streng *ext;
+   streng *intr=NULL;
+   streng *lib=NULL;
+
+   ext = Str_upper( Str_creTSD( rxname ) );
+   if ( module && objnam )
    {
-      lib = fptr->lib;
-      /*
-       * if found OK, remove the function. If this was the last function of the
-       * library, remove the library, too.
-       */
-      remove_function( TSD, fptr );
-      if ( lib->first == NULL )
-         remove_library( TSD, lib );
-      return 0;
+      intr = Str_creTSD( objnam );
+      lib = Str_creTSD( module );
    }
-   /*
-    *... otherwise fall through and try to remove from function
-    * loaded via RexxRegisterFunctionExe()
-    */
-#endif
-   if ( external_func( TSD, objnam ) )
-      return delfunc( TSD, objnam );
 
-   return 1;                   /* value of 1 indicates failure */
+   rc = rex_funcadd( TSD, ext, lib, intr, entry, NULL );
+
+   Free_stringTSD( ext );
+   if ( intr && lib )
+   {
+      Free_stringTSD( intr );
+      Free_stringTSD( lib );
+   }
+
+   return rc;
 }
 
-int rex_rxfuncdllquery( tsd_t *TSD, const streng* objnam )
+/*
+ * IfcRegHook is the interface function for RexxRegisterExitExe,
+ * RexxRegisterExitDll, RexxRegisterSubcomExe, RexxRegisterSubcomtDll.
+ * Either entry or module and objnam must be set.
+ */
+static int IfcRegHook( const tsd_t *TSD, const char *rxname,
+                       const char *module, const char *objnam, PFN entry,
+                       void *user_area, int slot )
 {
-#ifdef DYNAMIC
-   struct library_func *fptr=NULL ;
-   /*
-    * try to find the function loaded from a dynamic library
-    */
-   fptr=find_library_func(TSD, objnam);
-   if (fptr)
-      return(0);
-   /*
-    *... otherwise fall through and try to find the function
-    * loaded via RexxRegisterFunctionExe()
-    */
-#endif
-   return((external_func( TSD, objnam )) ? 0 : 1 );
+   int rc;
+   streng *ext;
+   streng *intr=NULL;
+   streng *lib=NULL;
+
+   ext = Str_upper( Str_creTSD( rxname ) );
+   if ( module && objnam )
+   {
+      intr = Str_creTSD( objnam );
+      lib = Str_creTSD( module );
+   }
+
+   rc = rex_hookadd( TSD, ext, lib, intr, entry, user_area, slot );
+
+   Free_stringTSD( ext );
+   if ( intr && lib )
+   {
+      Free_stringTSD( intr );
+      Free_stringTSD( lib );
+   }
+
+   return rc;
 }
 
-void *loaded_lib_func( const tsd_t *TSD, const streng *name )
+/*
+ * IfcRegExit is the interface function for RexxRegisterExitExe or
+ * RexxRegisterExitDll.
+ * Either entry or module and objnam must be set.
+ */
+int IfcRegExit( const tsd_t *TSD, const char *rxname, const char *module,
+                const char *objnam, PFN entry, void *user_area )
 {
-#ifdef DYNAMIC
-   struct library_func *box=NULL ;
+   return IfcRegHook( TSD, rxname, module, objnam, entry, user_area, EXITS );
+}
 
-   box = find_library_func( TSD, name ) ;
-   return (void*)(box) ;
+/*
+ * IfcRegSubcom is the interface function for RexxRegisterSubcomExe or
+ * RexxRegisterSubcomDll.
+ * Either entry or module and objnam must be set.
+ */
+int IfcRegSubcom( const tsd_t *TSD, const char *rxname, const char *module,
+                  const char *objnam, PFN entry, void *user_area )
+{
+   return IfcRegHook( TSD, rxname, module, objnam, entry, user_area, SUBCOMS );
+}
+
+/*
+ * IfcDelFunc is the interface function for RexxDeregisterFunction.
+ */
+int IfcDelFunc( tsd_t *TSD, const char *rxname )
+{
+   int rc;
+   streng *ext;
+
+   ext = Str_upper( Str_creTSD( rxname ) );
+   rc = unloadrxfunc( TSD, ext );
+   Free_stringTSD( ext );
+
+   return rc;
+}
+
+/*
+ * IfcDelHook is the interface function for RexxDeregisterExit or
+ * RexxDeregisterSubcom.
+ */
+static int IfcDelHook( tsd_t *TSD, const char *rxname, const char *module,
+                       int slot )
+{
+   int rc;
+   streng *ext,*mod;
+
+   ext = Str_upper( Str_creTSD( rxname ) );
+   if ( module != NULL )
+      mod = Str_creTSD( module );
+   else
+      mod = NULL;
+   rc = unloadrxhook( TSD, ext, mod, slot );
+   Free_stringTSD( ext );
+   if ( mod != NULL )
+      Free_stringTSD( mod );
+
+   return rc;
+}
+
+/*
+ * IfcDelExit is the interface function for RexxDeregisterExit.
+ */
+int IfcDelExit( tsd_t *TSD, const char *rxname, const char *module )
+{
+   return IfcDelHook( TSD, rxname, module, EXITS );
+}
+
+/*
+ * IfcDelSubcom is the interface function for RexxDeregisterSubcom.
+ */
+int IfcDelSubcom( tsd_t *TSD, const char *rxname, const char *module )
+{
+   return IfcDelHook( TSD, rxname, module, SUBCOMS );
+}
+
+/*
+ * IfcQueryFunc is the interface function for RexxQueryFunction.
+ */
+int IfcQueryFunc( const tsd_t *TSD, const char *rxname )
+{
+   int rc;
+   streng *ext;
+
+   ext = Str_upper( Str_creTSD( rxname ) );
+   rc = ( find_entry_point( TSD, ext, NULL, FUNCS ) != NULL ) ? 0 : 30;
+   Free_stringTSD( ext );
+
+   return rc;
+}
+
+/*
+ * IfcQueryHook is the interface function for RexxQueryExit or RexxQuerySubcom.
+ */
+static int IfcQueryHook( const tsd_t *TSD, const char *rxname,
+                         const char *module, int slot, void *user_area )
+{
+   streng *ext;
+   struct entry_point *fptr,**list;
+   struct library *lib;
+   int cnt;
+#ifdef DYNAMIC
+   streng *mod;
+#endif
+
+   ext = Str_upper( Str_creTSD( rxname ) );
+   if ( module != NULL )
+   {
+#ifdef DYNAMIC
+      mod = Str_creTSD( module );
+      lib = find_library( TSD, mod );
+      Free_stringTSD( mod );
+      if ( lib == NULL )
+      {
+         Free_stringTSD( ext );
+         return 30; /* RX???_NOTREG */
+      }
 #else
-   TSD = TSD; /* keep compiler happy */
-   name = name; /* keep compiler happy */
-   return NULL ;
+      return 1004; /* RX???_NOTINIT */
 #endif
+   }
+   else
+      lib = NULL;
+
+   fptr = find_entry_point( TSD, ext, lib, slot );
+
+   if ( fptr == NULL )
+   {
+      Free_stringTSD( ext );
+      return 30; /* RX???_NOTREG */
+   }
+
+   if ( fptr->lib != lib )
+   {
+      /*
+       * Found via wildcard mechanism, check if more than one element exists
+       * and if a wildcard is allowed.
+       */
+      if ( lib != NULL )
+      {
+         Free_stringTSD( ext );
+         return 30; /* RX???_NOTREG */
+      }
+
+      cnt = find_all_entries( TSD, ext, slot, &list );
+      FreeTSD( list );
+      Free_stringTSD( ext );
+
+      if ( cnt > 1 )
+         return 30; /* RX???_NOTREG */
+   }
+   else
+      Free_stringTSD( ext );
+
+   if ( user_area != NULL )
+      memcpy( user_area, fptr->special.user_area,
+              sizeof ( fptr->special.user_area ) );
+   return 0;
+}
+
+/*
+ * IfcQueryExit is the interface function for RexxQueryExit.
+ */
+int IfcQueryExit( const tsd_t *TSD, const char *rxname, const char *module,
+                  void *user_area )
+{
+   return IfcQueryHook( TSD, rxname, module, EXITS, user_area );
+}
+
+/*
+ * IfcQuerySubcom is the interface function for RexxQuerySubcom.
+ */
+int IfcQuerySubcom( const tsd_t *TSD, const char *rxname, const char *module,
+                    void *user_area )
+{
+   return IfcQueryHook( TSD, rxname, module, SUBCOMS, user_area );
+}
+
+struct entry_point *loaded_lib_func( const tsd_t *TSD, const streng *name )
+{
+   struct entry_point *box;
+   streng *upp;
+
+   upp = Str_upper( Str_dupTSD( name ) );
+   box = find_first_entry_point( TSD, upp, FUNCS );
+   Free_stringTSD( upp );
+
+   return box;
+}
+
+/*
+ * exit_hook returns the most recent exit handler of the given name.
+ * The value may be NULL if no hook is registered.
+ */
+struct entry_point *exit_hook( const tsd_t *TSD, const char *env, int len )
+{
+   streng *name;
+   struct entry_point *ret;
+
+   name = Str_upper( Str_ncreTSD( env, len ) );
+   ret = find_first_entry_point( TSD, name, EXITS );
+   Free_stringTSD( name );
+
+   return ret;
+}
+
+/*
+ * subcom_hook returns the most recent subcom handler of the given name.
+ * The value may be NULL if no hook is registered.
+ */
+struct entry_point *subcom_hook( const tsd_t *TSD, const char *com, int len )
+{
+   streng *name;
+   struct entry_point *ret;
+
+   name = Str_upper( Str_ncreTSD( com, len ) );
+   ret = find_first_entry_point( TSD, name, SUBCOMS );
+   Free_stringTSD( name );
+
+   return ret;
 }

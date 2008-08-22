@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: regina.c,v 1.2 2003/12/11 04:43:16 prokushev Exp $";
+static char *RCSid = "$Id: regina.c,v 1.7 2004/01/01 11:43:04 mark Exp $";
 #endif
 
 /*
@@ -21,7 +21,7 @@ static char *RCSid = "$Id: regina.c,v 1.2 2003/12/11 04:43:16 prokushev Exp $";
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 
 #if defined(WIN32) && defined(__IBMC__)
 # include <windows.h>

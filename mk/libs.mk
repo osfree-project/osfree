@@ -3,6 +3,9 @@
 # static libraries
 #
 
+!ifndef __libs_mk__
+!define __libs_mk__
+
 !ifndef 32_BITS
 32_BITS = 1
 !endif
@@ -18,3 +21,5 @@ library: $(OBJS)
  $(SAY) Creating library $(library)...
  -@if exist $(library) @$(DC) $(library)
  @$(LIB) $(LIBOPT) $(library) +$(OBJS) $(LOG)
+
+!endif

@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: convert.c,v 1.2 2003/12/11 04:43:04 prokushev Exp $";
+static char *RCSid = "$Id: convert.c,v 1.9 2004/02/10 10:43:51 mark Exp $";
 #endif
 
 /*
@@ -220,7 +220,7 @@ static streng *pack_hex( const tsd_t *TSD, const streng *string )
     * Explicitly check for space at start or end. Illegal space within
     * the hex string is checked for during the loop.
     */
-   if ((ptr<end_ptr) && ((isspace(*ptr)) || (isspace(*(end_ptr-1)))))
+   if ((ptr<end_ptr) && ((rx_isspace(*ptr)) || (rx_isspace(*(end_ptr-1)))))
    {
       exiterror( ERR_INVALID_HEX_CONST, 0 )  ;
    }
@@ -235,7 +235,7 @@ static streng *pack_hex( const tsd_t *TSD, const streng *string )
     * necessary if the first group of hex digits has an even number of
     * digits, but it is cheaper to do it always that check for it.
     */
-   for (; (ptr<end_ptr) && (isxdigit(*ptr)); ptr++ ) ;
+   for (; (ptr<end_ptr) && (rx_isxdigit(*ptr)); ptr++ ) ;
    byte_boundary = !((ptr-string->value)%2) ;
 
 /* Does this statement do anything useful? (Proabably, things crash if
@@ -250,7 +250,7 @@ static streng *pack_hex( const tsd_t *TSD, const streng *string )
     */
    for (count=1,ptr=string->value; ptr<end_ptr; ptr++, count++)
    {
-      if (isspace(*ptr))
+      if (rx_isspace(*ptr))
       {
          /*
           * Just make sure that this space occurs at a byte boundary,
@@ -262,7 +262,7 @@ static streng *pack_hex( const tsd_t *TSD, const streng *string )
             exiterror( ERR_INVALID_HEX_CONST, 1, count )  ;
          }
       }
-      else if (isxdigit(*ptr))
+      else if (rx_isxdigit(*ptr))
       {
          /*
           * Stuff it into the output array, either as upper or lower
@@ -486,7 +486,7 @@ streng *std_b2x( tsd_t *TSD, cparamboxptr parms )
     * it contain leading space, or it is the nullstring. The former is
     * an error, so report it if that is the case.
     */
-   if ((ptr>string->value) && ((first_group==0) || (isspace(*(endptr-1)))))
+   if ((ptr>string->value) && ((first_group==0) || (rx_isspace(*(endptr-1)))))
    {
       exiterror( ERR_INVALID_HEX_CONST, 0 )  ;
    }
@@ -522,7 +522,7 @@ streng *std_b2x( tsd_t *TSD, cparamboxptr parms )
     */
    for (ptr=string->value; ptr<endptr; ptr++)
    {
-      if (isspace(*ptr))
+      if (rx_isspace(*ptr))
       {
          /*
           * The variable 'cur_bit' is a number containing the relative
@@ -614,11 +614,11 @@ streng *std_x2b( tsd_t *TSD, cparamboxptr parms )
     */
    if (end_ptr>ptr)
    {
-      if ((isspace(*ptr)))
+      if ((rx_isspace(*ptr)))
       {
          exiterror( ERR_INVALID_HEX_CONST, 1, 1 )  ;
       }
-      if ((isspace(*(end_ptr-1))))
+      if ((rx_isspace(*(end_ptr-1))))
       {
          exiterror( ERR_INVALID_HEX_CONST, 1, (end_ptr-ptr) )  ;
       }
@@ -632,7 +632,7 @@ streng *std_x2b( tsd_t *TSD, cparamboxptr parms )
     */
    for (pos=1; ptr<end_ptr; ptr++,pos++)
    {
-      if (isspace(*ptr))
+      if (rx_isspace(*ptr))
       {
          /*
           * We have found space in the hex string, eat it up, and keep
@@ -650,7 +650,7 @@ streng *std_x2b( tsd_t *TSD, cparamboxptr parms )
             exiterror( ERR_INVALID_HEX_CONST, 1, pos )  ;
          }
       }
-      else if (isxdigit(*ptr))
+      else if (rx_isxdigit(*ptr))
       {
          /*
           * We have found a hex digit, chop it into four parts, and

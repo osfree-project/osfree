@@ -195,6 +195,8 @@
  40,989,A problem raises at the interface between Regina and GCI%s%s|: ,<location>
  40,990,The type won't fit the requirements for basic types (arguments/return value)%s%s|: ,<location>
  40,991,The number of arguments is wrong or an argument is missing%s%s|: ,<location>
+ 40,992,GCI's internal stack for arguments got an overflow%s%s|: ,<location>
+ 40,993,GCI counted too many nested LIKE containers%s%s|: ,<location>
  41,  0,Feil i aritmetisk konvertering
  41,  1,Ikke-numerisk verdi ("%s") til venstre for aritmetisk operasjon "%s"|<value>,<operator>
  41,  2,Ikke-numerisk verdi ("%s") til høyre for aritmetisk operasjon "%s"|<value>,<operator>

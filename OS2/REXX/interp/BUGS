@@ -52,28 +52,6 @@ Say numlines 'in file'
  */
 
 /*--------------------------------------------------------------------
- * The Regina parser incorrectly parses the sample code below, and
- * returns the following error:
- * Error 14 running "/home/mark/Regina-0.08h/bug29512.rex", line 2: Incomplete DO/IF/SELECT"
- * If the '?' is protected by parentheses, it works.
- * Reported By: Toby ?
- * Bug Number:  19991216-29512
- * Fixed By:
- * Fixed in:
- */
-If (?) > 0 Then say 'OK'
-If ? > 0 Then say 'OK'
-
-/*--------------------------------------------------------------------
- * Following code still fails with syntax error.
- * Reported by: Mark Hessling
- * Bug Number:  20000319-63722
- * Fixed by:
- * Fixed in:
- */
-Call Fred'1234'  /* syntax error */
-
-/*--------------------------------------------------------------------
  * TRACE R and TRACE I produce incorrect results in various
  * circumstances.
  * Reported by: Various
@@ -99,25 +77,6 @@ else say 'ANSI correct'
 
 if strip(a) == strip(b) then say 'ANSI correct'
 else say 'incorrect'
-
-/*--------------------------------------------------------------------
- * Regina crashes with following code:
- * Reported by: Mark Hessling
- * Bug Number:  36
- * Fixed by:
- * Fixed in:
- */
-Signal on syntax
-
-Say fred()
-Return
-
-fred:
-Return /* should return a value!! */
-
-syntax:
-Say Condition( 'D' )
-Exit
 
 /*--------------------------------------------------------------------
  * Regina does not trap conditions in externally called routines
@@ -792,4 +751,45 @@ Call Fred'1234'  /* syntax error */
  * Fixed in: 3.0.
  */
 Say '<'x'>'
+
+/*--------------------------------------------------------------------
+ * The Regina parser incorrectly parses the sample code below, and
+ * returns the following error:
+ * Error 14 running "/home/mark/Regina-0.08h/bug29512.rex", line 2: Incomplete DO/IF/SELECT"
+ * If the '?' is protected by parentheses, it works.
+ * Reported By: Toby ?
+ * Bug Number:  19991216-29512
+ * Fixed By: ??
+ * Fixed in: ??
+ */
+If (?) > 0 Then say 'OK'
+If ? > 0 Then say 'OK'
+
+/*--------------------------------------------------------------------
+ * Following code still fails with syntax error.
+ * Reported by: Mark Hessling
+ * Bug Number:  20000319-63722
+ * Fixed by:
+ * Fixed in:
+ */
+Call Fred'1234'  /* syntax error */
+
+/*--------------------------------------------------------------------
+ * Regina crashes with following code:
+ * Reported by: Mark Hessling
+ * Bug Number:  36
+ * Fixed by:
+ * Fixed in:
+ */
+Signal on syntax
+
+Say fred()
+Return
+
+fred:
+Return /* should return a value!! */
+
+syntax:
+Say Condition( 'D' )
+Exit
 

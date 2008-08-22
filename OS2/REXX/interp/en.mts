@@ -223,6 +223,8 @@
  40,989,A problem occured at the interface between Regina and GCI%s%s|: ,<location>
  40,990,The type won't fit the requirements for basic types (arguments/return value)%s%s|: ,<location>
  40,991,The number of arguments is wrong or an argument is missing%s%s|: ,<location>
+ 40,992,GCI's internal stack for arguments got an overflow%s%s|: ,<location>
+ 40,993,GCI counted too many nested LIKE containers%s%s|: ,<location>
  41,  0,Bad arithmetic conversion
  41,  1,Non-numeric value ("%s") to left of arithmetic operation "%s"|<value>,<operator>
  41,  2,Non-numeric value ("%s") to right of arithmetic operation "%s"|<value>,<operator>

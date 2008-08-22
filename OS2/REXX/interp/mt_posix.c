@@ -2,6 +2,9 @@
  * We initialize the global data structure and the global access variable.
  */
 
+#include "regina_c.h"
+#include "rexxsaa.h"
+#define DONT_TYPEDEF_PFN
 #include "rexx.h"
 #include <pthread.h>
 #include <stdlib.h>
@@ -84,6 +87,18 @@ static void Deinitialize(void *buf)
    free(TSD);
 }
 
+int IfcReginaCleanup( VOID )
+{
+   tsd_t *TSD = __regina_get_tsd();
+
+   if (TSD == NULL)
+      return 0;
+   Deinitialize(TSD);
+   pthread_setspecific(ThreadIndex,NULL);
+
+   return 1;
+}
+
 /* ThreadGetKey creates a new index key into the TSD table. This function
  * must only be used by pthread_once.
  */
@@ -119,7 +134,7 @@ static void MTFree( const tsd_t *TSD, void *chunk )
    /*
     * Just in case...
     */
-   if ( chunk == NULL) 
+   if (chunk == NULL)
       return;
 
    this = chunk;
@@ -251,8 +266,8 @@ tsd_t *__regina_get_tsd(void)
 struct group *getgrgid(gid_t gid)
 {
    mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
-   struct group *ptr;
-   int rc;
+   struct group *ptr=NULL;
+   int rc=0;
 # ifdef HAVE_GETGRGID_R_RETURNS_INT_5_PARAMS
    rc = getgrgid_r(gid,
                    &mt->getgrgid_retval,
@@ -287,8 +302,8 @@ struct group *getgrgid(gid_t gid)
 struct passwd *getpwuid(uid_t uid)
 {
    mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
-   struct passwd *ptr;
-   int rc;
+   struct passwd *ptr=NULL;
+   int rc=0;
 
 # ifdef HAVE_GETPWUID_R_RETURNS_INT
    rc = getpwuid_r(uid,
@@ -363,9 +378,9 @@ struct hostent *gethostbyname(const char *name)
 /* see documentation of inet_ntoa and inet_ntop */
 char *inet_ntoa(struct in_addr in)
 {
+#ifdef HAVE_INET_NTOP
    mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
 
-#ifdef HAVE_INET_NTOP
    return((char *) inet_ntop(AF_INET,
                              &in,
                              mt->inetntoa_buf,

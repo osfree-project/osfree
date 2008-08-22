@@ -42,8 +42,8 @@ genfiles =   $(p)funcs$(e) $(p)builtin$(e) $(p)error$(e) $(p)variable$(e) $(p)in
              $(p)unxfuncs$(e) $(p)arxfuncs$(e) $(p)os2funcs$(e) $(p)cmsfuncs$(e) $(p)shell$(e) $(p)rexxext$(e) &
              $(p)stack$(e) $(p)tracing$(e) $(p)interp$(e) $(p)cmath$(e) $(p)convert$(e) $(p)strings$(e) &
              $(p)library$(e) $(p)strmath$(e) $(p)signals$(e) $(p)macros$(e) $(p)envir$(e) $(p)expr$(e)  &
-             $(p)instore$(e) $(p)extlib$(e) $(p)yaccsrc$(e) $(p)lexsrc$(e) $(p)wrappers$(e) $(p)options$(e) &
-             $(p)doscmd$(e) $(p)extstack$(e) $(p)rexxbif$(e)
+             $(p)instore$(e) $(p)yaccsrc$(e) $(p)lexsrc$(e) $(p)wrappers$(e) $(p)options$(e) &
+             $(p)doscmd$(e) $(p)extstack$(e) $(p)rexxbif$(e) # $(p)extlib$(e)
 
 OFILES =      &
 $(genfiles)          &

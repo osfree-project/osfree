@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: rexx.c,v 1.2 2003/12/11 04:43:16 prokushev Exp $";
+static char *RCSid = "$Id: rexx.c,v 1.48 2004/04/12 01:59:54 mark Exp $";
 #endif
 
 /*
@@ -21,7 +21,15 @@ static char *RCSid = "$Id: rexx.c,v 1.2 2003/12/11 04:43:16 prokushev Exp $";
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "rexx_charset.h"
+/*
+ * Bug in LCC complier wchar.h that incorrectly says it defines stat struct
+ * but doesn't
+ */
+#if defined(__LCC__)
+# include <sys/stat.h>
+#endif
+
+#include "regina_c.h"
 
 #if defined(WIN32) && defined(__IBMC__)
 #include <windows.h>
@@ -80,6 +88,9 @@ static char *RCSid = "$Id: rexx.c,v 1.2 2003/12/11 04:43:16 prokushev Exp $";
 #if defined(OS2) || defined(__EMX__)
 # if defined(__WATCOMC__) && defined(RXLIB)
 #  undef APIENTRY
+# elif defined(__INNOTEK_LIBC__)
+#  undef APIENTRY
+#  define APIENTRY _System
 # endif
 # define INCL_BASE
 # include <os2.h>
@@ -165,55 +176,8 @@ void marksubtree( nodeptr ptr )
 #endif /* TRACEMEM */
 
 
-/* FIXME, FGC: This is a useless function! */
-nodeptr treadit( cnodeptr tree )
-{
 /*
-   nodeptr left, mid, right ;
- */
-   tree = tree;
-   return NULL ;
-/*
-   if (!tree)
-      return NULL ;
-
-   left = tree->p[0] ;
-   mid = tree->p[1] ;
-   right = tree->p[2] ;
-
-   switch (tree->type)
-   {
-      case X_OTHERWISE:
-      case X_PROGRAM:
-         treadit( left ) ;
-         tree = NULL ;
-         break ;
-
-      case X_STATS:
-      case X_WHENS:
-         left->next = treadit( mid ) ;
-         treadit( left ) ;
-         tree = left ;
-         break ;
-
-      case X_IF:
-         treadit( mid ) ;
-      case X_DO:
-         treadit( right ) ;
-         break ;
-
-      case X_SELECT:
-         treadit( left ) ;
-      case X_WHEN:
-         treadit( mid ) ;
-         break ;
-   }
-
-   return tree ;
- */
-}
-
-/* GetArgv0 tries to find the fully qualified filename of the current program.
+ * GetArgv0 tries to find the fully qualified filename of the current program.
  * It uses some ugly and system specific tricks and it may return NULL if
  * it can't find any useful value.
  * The argument should be argv[0] of main() and it may be returned.
@@ -271,10 +235,425 @@ static const char *GetArgv0(const char *argv0)
    if ((argv0[0] == '\\') && (argv0[1] == '\\')) /* MS and OS/2 UNC names */
       return(argv0);
 
-   if (isalpha(argv0[0]) && (argv0[1] == ':') && (argv0[2] == '\\'))
+   if (rx_isalpha(argv0[0]) && (argv0[1] == ':') && (argv0[2] == '\\'))
       return(argv0); /* MS and OS/2 drive letter with path */
 
    return(NULL); /* not a proven argv0 argument */
+}
+
+
+/*
+ * setup_system sets up some basics which are needed to use parts of the
+ * interpreter.
+ * This is a common routine of rexx's or regina's main() and every
+ * SAA function.
+ * isclient should be set to 1 if called from the SAA interface, 0 otherwise.
+ *
+ * Note that you have to set TSD->currlevel->script_exit as fast as possible.
+ * Otherwise you are at high risk that an error will stop the whole process,
+ * which is fatal if an application uses us via SAA API.
+ */
+void setup_system( tsd_t *TSD, int isclient )
+{
+   TSD->stddump = stderr;
+
+   TSD->systeminfo = creat_sysinfo( TSD, Str_creTSD( "SYSTEM" ) );
+
+   TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL );
+   TSD->systeminfo->trace_override = 0;
+   TSD->isclient = isclient;
+}
+
+/*
+ * check_args examines the arguments of the program and assigns the values
+ * to the various structures.
+ *
+ * A process exit of 0 is required if 0 is returned. Otherwise the number
+ * of processed args including the zeroth is returned.
+ */
+static int check_args( tsd_t *TSD, int argc, char **argv,
+                       int *compile_to_tokens, int *execute_from_tokens,
+                       int *locale_set )
+{
+   int i;
+   char c, *arg;
+
+   for ( i = 1; i < argc; i++ )
+   {
+      arg = argv[i];
+      if ( *arg == '-' )
+      {
+         arg++;
+         while ( *arg )
+         {
+            c = *arg++;
+            switch ( c )
+            {
+               case 'i':
+                  starttrace( TSD );
+                  set_trace_char( TSD, 'A' );
+                  intertrace( TSD );
+                  intertrace( TSD );
+                  break;
+
+               case 'p':
+#if !defined(__WINS__) && !defined(__EPOC32__)
+                  set_pause_at_exit();
+#endif
+                  break;
+
+               case 'v':
+                  fprintf( stderr, "%s\n", PARSE_VERSION_STRING );
+                  return 0;
+
+               case 'y':
+#ifndef NDEBUG
+                  __reginadebug = 1;   /* yacc-debugging */
+#endif
+                  break;
+
+               case 'r': /* safe-rexx */
+                  TSD->restricted = 1;
+                  break;
+
+               case 't':
+                  if ( strlen( arg ) > 1 )
+                  {
+                     usage( argv[0] );
+                     fprintf( stdout, "\n"
+                                      "The passed switch `-t' allows just "
+                                           "one additional character, Regina "
+                                                                 "exits.\n" );
+                     exit( 1 );
+                  }
+                  if ( *arg )
+                     queue_trace_char( TSD, *arg );
+                  else
+                     queue_trace_char( TSD, 'A' );
+                  arg += strlen( arg );
+                  TSD->systeminfo->trace_override = 1;
+                  break;
+
+               case 'd':
+                  if ( *arg == 'm' )
+                     TSD->listleakedmemory = 1;
+                  arg += strlen( arg );
+                  break;
+
+               case 'a': /* multiple args */
+                  TSD->systeminfo->invoked = INVO_SUBROUTINE;
+                  break;
+
+               case 'c': /* compile to tokenised file */
+                  if ( *execute_from_tokens )
+                  {
+                     usage( argv[0] );
+                     fprintf( stdout, "\n"
+                                      "The flags `-c' and `-e' are mutually "
+                                               "exclusive, Regina exits.\n" );
+                     exit( 1 );
+                  }
+                  *compile_to_tokens = 1;
+                  break;
+
+               case 'e': /* execute from tokenised file */
+                  if ( *compile_to_tokens )
+                  {
+                     usage( argv[0] );
+                     fprintf( stdout, "\n"
+                                      "The flags `-c' and `-e' are mutually "
+                                               "exclusive, Regina exits.\n" );
+                     exit( 1 );
+                  }
+                  *execute_from_tokens = 1;
+                  break;
+
+               case 'l': /* set locale information, accept empty string */
+                  *locale_set = 1;
+                  set_locale_info( arg );
+                  arg += strlen( arg );
+                  break;
+
+               case 'h': /* usage */
+               case '?': /* usage */
+                  usage( argv[0] );
+                  return 0;
+
+               default:
+                  usage( argv[0] );
+                  fprintf( stdout, "\n"
+                                   "The passed switch `-%c' is unknown, "
+                                                        "Regina exits.\n", c );
+                  exit( 1 );
+            }
+         }
+         continue;
+      }
+
+      return i;
+   }
+
+   return argc;
+}
+
+/*
+ * just_compile does a compile step without execution of the assigned input
+ * file (TSD->systeminfo's input_file) to the file named outputname.
+ *
+ * On exit everything has been done.
+ */
+static void just_compile( tsd_t *TSD, char *outputname )
+{
+   int len;
+   streng *SrcStr;
+   internal_parser_type ipt;
+   void *instore_buf;
+   unsigned long instore_length;
+   FILE *outfp;
+
+   /*
+    * Read the file
+    */
+   fseek( TSD->systeminfo->input_fp, 0, SEEK_END );
+   len = (int) ftell( TSD->systeminfo->input_fp );
+   rewind( TSD->systeminfo->input_fp );
+
+   SrcStr = Str_makeTSD( len );
+   if ( fread( Str_val( SrcStr ), len, 1, TSD->systeminfo->input_fp ) != 1 )
+      exiterror( ERR_PROG_UNREADABLE, 1, "Unable to read input file" );
+   SrcStr->len = len;
+
+   /*
+    * enter_macro() actually does the tokenising...
+    */
+   ipt = enter_macro( TSD, SrcStr, &instore_buf, &instore_length );
+   fclose( TSD->systeminfo->input_fp );
+
+   outfp = fopen( outputname, "wb" );
+   if ( outfp == NULL )
+      exiterror( ERR_PROG_UNREADABLE, 1, "Unable to open output file for "
+                                                                   "writing" );
+   if ( instore_buf == NULL )
+      exiterror( ERR_PROG_UNREADABLE, 1, "Error tokenising input file" );
+   if ( fwrite( instore_buf, instore_length, 1, outfp ) != 1 )
+      exiterror( ERR_PROG_UNREADABLE, 1, "Unable to write contents of output "
+                                                                      "file" );
+   fclose( outfp );
+}
+
+/*
+ * assign_args sets the current argument list to that one in argv. We count
+ * from the next_arg element to to excluding argc.
+ *
+ * The value is put in TSD->currlevel->args which has to be preeassigned to
+ * NULL.
+ */
+static void assign_args( tsd_t *TSD, int argc, int next_arg, char **argv )
+{
+   int i, len;
+   streng *string;
+   paramboxptr args, prev;
+
+   if ( next_arg >= argc )
+      return;
+
+   if ( TSD->systeminfo->invoked == INVO_SUBROUTINE )
+   {
+      prev = NULL;
+      for ( i = next_arg; i < argc; i++ )
+      {
+         args = MallocTSD( sizeof( parambox ) );
+         memset( args, 0, sizeof( parambox ) );
+
+         if ( i == next_arg )
+            TSD->currlevel->args = args;
+         else
+            prev->next = args;
+         args->value = Str_cre_TSD( TSD, argv[i] );
+         prev = args;
+      }
+
+      return;
+   }
+
+   for ( i = next_arg, len = 0; i < argc; i++ )
+      len += strlen( argv[i] ) + 1; /* delimiter or terminator */
+
+   TSD->currlevel->args = args = MallocTSD( sizeof( parambox ) );
+   memset( args, 0, sizeof(parambox) );
+   args->value = string = Str_makeTSD( len );
+
+   for ( i = next_arg; i < argc; i++ )
+   {
+      string = Str_catstrTSD( string, argv[i] );
+      string->value[string->len++] = ' ';
+   }
+   if ( string && string->len )
+      string->len--;
+}
+
+/*
+ * codeFromString translates string into a number and returns it. If this is
+ * not possible, EXIT_SUCCESS is returned.
+ */
+static int codeFromString( tsd_t *TSD, streng *string )
+{
+   int error, rcode;
+
+   if ( string )
+   {
+      /* fixes bug 657345 */
+      rcode = streng_to_int( TSD, string, &error );
+      if ( error )
+         rcode = EXIT_SUCCESS;
+   }
+   else
+      rcode = EXIT_SUCCESS;
+
+   return rcode;
+}
+
+/*
+ * execute_tokenized executes a tokenized script that has already been assigned
+ * as the input file.
+ *
+ * The arguments must have been assigned, too.
+ *
+ * The return value is the value that the main routine should return to the OS.
+ */
+static int execute_tokenized( tsd_t *TSD )
+{
+   void *TinnedTree;
+   unsigned long TinnedTreeLen;
+   streng *command;
+   streng *result;
+   streng *environment;
+   int err,RetCode;
+
+   /*
+    * Read the file into TinnedTree.
+    */
+   fseek( TSD->systeminfo->input_fp, 0, SEEK_END );
+   TinnedTreeLen = ftell( TSD->systeminfo->input_fp );
+   rewind( TSD->systeminfo->input_fp );
+   TinnedTree = MallocTSD( TinnedTreeLen );
+   if ( TinnedTree == NULL )
+      exiterror( ERR_STORAGE_EXHAUSTED, 0 );
+   if ( fread( TinnedTree, TinnedTreeLen, 1, TSD->systeminfo->input_fp ) != 1 )
+      exiterror( ERR_PROG_UNREADABLE, 1, "Unable to read input file" );
+   /*
+    * Don't close the file because the plain text file remains open as well.
+    * This inhibits the deletion or modification on most systems.
+    */
+
+   /*
+    * Check if the file being read is a valid tokenised file.
+    */
+   if ( !IsValidTin( TinnedTree, TinnedTreeLen ) )
+      exiterror( ERR_PROG_UNREADABLE,
+                 1,
+                 "The supplied file is not a valid Regina tokenised file" );
+
+   /*
+    * Set program file name and environment. The argument have been assigned
+    * already.
+    */
+   command = Str_dupTSD( TSD->systeminfo->input_file );
+
+   /*
+    * Changed after 3.3RC1: The environment is set to SYSTEM instead of
+    * the externally bound (ENVIR_PIPE) "DEFAULT".
+    */
+   environment = Str_creTSD( "SYSTEM" );
+
+   flush_trace_chars( TSD );
+
+   /*
+    * do_instore() actually does the execution...
+    */
+   result = do_instore( TSD, command, TSD->currlevel->args, environment,
+                        &err,
+                        0,
+                        TinnedTree, TinnedTreeLen,
+                        NULL, 0, /* source file contents */
+                        NULL,
+                        TSD->systeminfo->invoked );
+
+   FreeTSD( TinnedTree );
+   Free_stringTSD( command );
+   Free_stringTSD( environment );
+
+   if ( result )
+   {
+      RetCode = codeFromString( TSD, result );
+      Free_stringTSD( result );
+   }
+   else
+      RetCode = err;
+
+   return RetCode;
+}
+
+/*
+ * execute_file executes a plain text script that has already been assigned
+ * as the input file.
+ *
+ * The arguments must have been assigned, too.
+ *
+ * The return value is the value that the main routine should return to the OS.
+ */
+static int execute_file( tsd_t *TSD )
+{
+   FILE *fptr = TSD->systeminfo->input_fp;
+   internal_parser_type parsing;
+   streng *string;
+   int RetCode;
+
+   /*
+    * From here we are interpreting...
+    */
+   fetch_file( TSD, fptr ? fptr : stdin, &parsing );
+   if ( fptr )
+      fclose( fptr );
+   TSD->systeminfo->input_fp = NULL;
+
+   if ( parsing.result != 0 )
+      exiterror( ERR_YACC_SYNTAX, 1, parsing.tline );
+   else
+      TSD->systeminfo->tree = parsing;
+
+#if !defined(R2PERL) && !defined(MINIMAL) && !defined(VMS) && !defined(DOS) && !defined(_MSC_VER) && !defined(__IBMC__) && !defined(MAC)
+   if ( !fptr )
+   {
+      struct stat buffer;
+      int rc;
+
+      /*
+       * The following line is likely to give a warning when compiled
+       * under Ultrix, this can be safely ignored, since it is just a
+       * result of Digital not defining their include files properly.
+       *
+       * FIXME, FGC: What does the comment above mean? Either ignore it or
+       * don't, ehmm, what?
+       */
+      rc = fstat( fileno( stdin ), &buffer );
+      if ( ( rc == 0 ) && S_ISCHR( buffer.st_mode ) )
+      {
+         printf( "  \b\b" );
+         fflush( stdout );
+         rewind( stdin );
+      }
+   }
+#endif
+
+   flush_trace_chars( TSD );
+
+   string = interpret( TSD, TSD->systeminfo->tree.root );
+   RetCode = codeFromString( TSD, string );
+   if ( string )
+      Free_stringTSD( string );
+
+   return RetCode;
 }
 
 #ifdef RXLIB
@@ -289,402 +668,171 @@ int main(int argc,char *argv[])
 # define CALL_MAIN main
 #endif
 {
-   FILE *fptr = NULL ;
-   streng *string=NULL ;
-   int i=0, j=0, stdinput=1, state=0, rcode=0, oldi=0, trace_override=0 ;
-   paramboxptr args=NULL, prev ;
-   char *arg=NULL ;
-   int do_yydebug=0;
-   char name[1024];
-   internal_parser_type parsing;
    tsd_t *TSD;
-   int compiling_to_tokens = 0;
-   int executing_from_tokens = 0;
+   int processed;
+   int compile_to_tokens=0;
+   int execute_from_tokens=0;
+   int locale_set=0;
+   int stdinput, rcode;
+   jmp_buf jbuf;
 
 #ifdef MAC
-   InitCursorCtl(nil);
+   InitCursorCtl( nil );
 #endif
 
-   if (argv0 == NULL)
-      argv0 = GetArgv0(argv[0]);
+   if ( argv0 == NULL )
+      argv0 = GetArgv0( argv[0] );
 
    TSD = GLOBAL_ENTRY_POINT();
 
-   TSD->stddump = stderr ;
-   TSD->systeminfo = creat_sysinfo( TSD, Str_creTSD("SYSTEM")) ;
-   TSD->systeminfo->called_as = Str_creTSD( argv[0] ) ;
-   TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL ) ;
-   TSD->systeminfo->trace_override = 0;
-   TSD->isclient = 0;
+   setup_system( TSD, 0 );
 
-   for (i=1; i<argc; i++)
+   if ( setjmp( jbuf ) )
    {
-      arg = argv[i] ;
-      if ( state == 0 )
-      {
-         if ( *arg == '-' )
-         {
-            switch (*(++arg))
-            {
-               case 'i':
-                  starttrace(TSD) ;
-                  set_trace_char(TSD, 'A') ;
-                  intertrace(TSD) ;
-                  intertrace(TSD) ;
-                  break ;
-
-               case 'C':
-                  if (*(arg+1)=='i')
-                  {
-                     TSD->isclient = 1 ; /* Other than the default value of 0 */
-                  }
-                  break ;
-
-               case 'p':
-#if defined(WIN32) && !defined(__WINS__) && !defined(__EPOC32__)
-                  set_pause_at_exit();
-#endif
-                  break ;
-
-               case 'v':
-                  fprintf( stderr, "%s\n", PARSE_VERSION_STRING );
-                  return 0;
-                  break ;
-
-               case 'y':
-                  do_yydebug = 1 ;
-                  break ;
-
-               case 'r': /* safe-rexx */
-                  TSD->restricted = 1 ;
-                  break ;
-
-               case 't':
-                  queue_trace_char(TSD, (char) (*(arg+1)? *(++arg) : 'A')) ;
-                  trace_override = 1;
-                  break ;
-
-               case 'd':
-                  if (*(arg+1)=='m')
-                     TSD->listleakedmemory = 1 ;
-                  break ;
-
-               case 'a': /* multiple args */
-                  TSD->systeminfo->invoked = INVO_SUBROUTINE;
-                  break ;
-
-               case 'c': /* compile to tokenised file */
-                  compiling_to_tokens = 1;
-                  break ;
-
-               case 'e': /* execute from tokenised file */
-                  executing_from_tokens = 1;
-                  break ;
-
-               case 'l': /* execute from tokenised file */
-                  set_locale_info( arg + 1 );
-                  break ;
-
-               case 'h': /* usage */
-               case '?': /* usage */
-                  usage( argv[0] );
-                  return 0;
-            }
-         }
-         else
-         {
-            stdinput = 0 ;
-            get_external_routine( TSD, "REGINA_MACROS", argv[i], &fptr, name, 1 );
-            if (!fptr)
-            {
-               get_external_routine( TSD, "PATH", argv[i], &fptr, name, 1 );
-               if ( !fptr )
-               {
-                  TSD->systeminfo->input_file = Str_crestrTSD(argv[i]) ;
-                  exiterror( ERR_PROG_UNREADABLE, 1, "Program was not found" )  ;
-               }
-            }
-            TSD->systeminfo->input_file = Str_crestrTSD(name) ;
-            TSD->systeminfo->input_fp = fptr ;
-            break ;
-         }
-      }
-    }
-
-    /*
-     * Under DJGPP setmode screws up Parse Pull and entering code interactively :-(
-     */
-#if defined(__EMX__) || (defined(_MSC_VER) && !defined(__WINS__)) || (defined(__WATCOMC__) && !defined(__QNX__))
-    setmode( fileno( stdin ), O_BINARY );
-    setmode( fileno( stdout ), O_BINARY );
-    setmode( fileno( stderr ), O_BINARY );
-#endif
-
-   if ( stdinput )
-   {
-      TSD->systeminfo->input_file = Str_crestrTSD( "<stdin>" ) ;
-      TSD->systeminfo->input_fp = NULL;
-   }
-
-   if ( TSD->isclient )
-      return 0 ;
-
-   /*
-    * -c switch specified - tokenise the input file before mucking around
-    * with parameters etc.
-    */
-   if ( compiling_to_tokens )
-   {
-      internal_parser_type ipt;
-      streng *SrcStr;
-      char *SourceString;
-      void *instore_buf=NULL;
-      unsigned long SourceStringLen, instore_length=0L;
-      streng * volatile command=NULL ;
-      FILE *outfp;
-
-      /* must have only one more arg, output file name */
-      if ( argc > 4 )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Too many arguments when tokenising. Usage: -c inputfile outputfile" ) ;
-      if ( argc < 4 )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Too few arguments when tokenising. Usage: -c inputfile outputfile" ) ;
       /*
-       * Read the file into SourceString
+       * We may either be jumped normally after an EXIT instruction or after
+       * an error. The first reason means normal continuation, the other
+       * means that we have to do an immediate stop.
        */
-      fseek( TSD->systeminfo->input_fp, 0, SEEK_END );
-      SourceStringLen = ftell( TSD->systeminfo->input_fp );
-      rewind( TSD->systeminfo->input_fp );
-      SourceString = malloc( SourceStringLen );
-      if ( SourceString == NULL )
-         exiterror( ERR_STORAGE_EXHAUSTED, 0 );
-      /* set program file name */
-      command = Str_dup_TSD( TSD, TSD->systeminfo->input_file ) ;
-
-      if ( fread( SourceString, SourceStringLen, 1, TSD->systeminfo->input_fp ) != 1 )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Unable to read input file" ) ;
-      /* why copy ??? */
-      SrcStr = Str_makeTSD( SourceStringLen ) ;
-      memcpy( SrcStr->value, SourceString, SourceStringLen ) ;
-      SrcStr->len = SourceStringLen ;
-      /*
-       * enter_macro() actually does the tokenising...
-       */
-      ipt = enter_macro( TSD, SrcStr, command, &instore_buf, &instore_length ) ;
-      free( SourceString );
-      fclose( TSD->systeminfo->input_fp );
-      outfp = fopen( argv[3], "wb" );
-      if ( outfp == NULL )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Unable to open output file for writing" ) ;
-      if ( instore_buf == NULL )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Error tokenising input file" ) ;
-      if ( fwrite( instore_buf, instore_length, 1, outfp ) != 1 )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Unable to write contents of output file" ) ;
-      fclose( outfp );
-      return 0;
-   }
-
-   oldi = ++i ;
-
-   if ( TSD->systeminfo->invoked == INVO_SUBROUTINE )
-   {
-      prev = NULL;
-      for ( i = oldi; i < argc; i++ )
+      if ( !TSD->instore_is_errorfree )
       {
-         args = MallocTSD( sizeof(parambox) ) ;
-         if ( i == oldi )
-            TSD->currlevel->args = args;
-         else
-            prev->next = args;
-         memset( args, 0, sizeof(parambox) ); /* especially ->value */
-         args->value = Str_cre_TSD( TSD, argv[i] ) ;
-         prev = args;
+         if ( TSD->systeminfo->result )
+            return atoi( TSD->systeminfo->result->value );
+         return -1;
       }
-   }
-   else
-   {
-      for ( j = 1; i < argc; i++ )
-         j += strlen( argv[i] ) + 1 ;
-
-      TSD->currlevel->args = args = MallocTSD( sizeof(parambox) ) ;
-      memset( args, 0, sizeof(parambox) ); /* especially ->value */
-   /*
-      args->value = Str_dupTSD(TSD->systeminfo->input_file) ;
-      args = args->next = MallocTSD(sizeof(parambox)) ;
-    */
-      args->next = NULL ;
-      if ( oldi >= argc )
-         args->value = string = NULL ;
       else
       {
-         args->value = string = Str_makeTSD( j ) ;
-         string->len = 0 ;
+         if ( TSD->systeminfo->result )
+            rcode = codeFromString( TSD, TSD->systeminfo->result );
+         else
+            rcode = EXIT_SUCCESS;
       }
-
-      for ( i = oldi ; i < argc; i++ )
-      {
-         string = Str_catstrTSD( string, argv[i] ) ;
-         string->value[string->len++] = ' ' ;
-      }
-      if ( string && string->len )
-        string->len-- ;
    }
+   else
+   {
+      TSD->systeminfo->script_exit = &jbuf;
 
-   signal_setup( TSD ) ;
+      processed = check_args( TSD, argc, argv, &compile_to_tokens,
+                              &execute_from_tokens, &locale_set );
 
-#ifndef NDEBUG
-   __reginadebug = do_yydebug ;   /* 1 == yacc-debugging */
+      if ( processed == 0 )
+         return 0;
+
+      if ( !locale_set )
+      {
+         /*
+          * Check for a comma separated default locale in REGINA_LANG.
+          */
+         char *ptr = getenv( "REGINA_LANG" );
+         if ( ptr )
+            ptr = strchr( ptr, ',' );
+         if ( ptr )
+            set_locale_info( ptr + 1 );
+      }
+
+      if ( processed < argc )
+      {
+         stdinput = 0;
+         TSD->systeminfo->input_file = get_external_routine( TSD,
+                                argv[processed], &TSD->systeminfo->input_fp );
+         if ( !TSD->systeminfo->input_file )
+         {
+            TSD->systeminfo->input_file = Str_crestrTSD( argv[processed] );
+            exiterror( ERR_PROG_UNREADABLE, 1, "Program was not found" );
+         }
+         processed++;
+      }
+      else
+      {
+         stdinput = 1;
+         TSD->systeminfo->input_file = Str_crestrTSD( "<stdin>" );
+         TSD->systeminfo->input_fp = NULL;
+         if ( compile_to_tokens )
+            exiterror( ERR_PROG_UNREADABLE, 1, "Too few arguments when "
+                                "tokenising. Usage: -c inputfile outputfile" );
+         if ( execute_from_tokens )
+            exiterror( ERR_PROG_UNREADABLE, 1, "Cannot run tokenised code "
+                                                               "from stdin." );
+      }
+
+
+      /*
+       * -c switch specified - tokenise the input file before mucking around
+       * with parameters etc.
+       */
+      if ( compile_to_tokens )
+      {
+         if ( processed >= argc )
+            exiterror( ERR_PROG_UNREADABLE, 1, "Too few arguments when "
+                                "tokenising. Usage: -c inputfile outputfile" );
+         if ( processed + 1 < argc )
+            exiterror( ERR_PROG_UNREADABLE, 1, "Too many arguments when "
+                                "tokenising. Usage: -c inputfile outputfile" );
+
+         just_compile( TSD, argv[processed] );
+         return 0;
+      }
+
+      /*
+       * Under DJGPP setmode screws up Parse Pull and entering code
+       * interactively :-(
+       */
+#if defined(__EMX__) || (defined(_MSC_VER) && !defined(__WINS__)) || (defined(__WATCOMC__) && !defined(__QNX__))
+      setmode( fileno( stdin ), O_BINARY );
+      setmode( fileno( stdout ), O_BINARY );
+      setmode( fileno( stderr ), O_BINARY );
 #endif
 
+      assign_args( TSD, argc, processed, argv );
+      signal_setup( TSD );
+
+      /*
+       * -e switch specified - execute from tokenised code
+       */
+      if ( execute_from_tokens )
+         rcode = execute_tokenized( TSD );
+      else
+         rcode = execute_file( TSD );
+   }
+
+#if defined(DEBUG) || defined(TRACEMEM)
    /*
-    * -e switch specified - execute from tokenised code
+    * Now do the cleanup. We don't need in real life, but for a proper cleanup
+    * and for debugging aid it is a good idea to track down the whole beast.
     */
-   if ( executing_from_tokens )
-   {
-      void *TinnedTree;
-      unsigned long TinnedTreeLen;
-      streng * volatile command=NULL ;
-      volatile streng * volatile result=NULL ;
-      volatile streng * volatile environment=NULL ;
-      volatile int ctype = TSD->systeminfo->invoked;
-      volatile int hooks=0;
-      int RetCode=0 ;
-
-      /* cannot run tokenised code from stdin */
-      if ( stdinput )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Cannot run tokenised code from stdin." ) ;
-      /*
-       * Read the file into SourceString
-       */
-      fseek( TSD->systeminfo->input_fp, 0, SEEK_END );
-      TinnedTreeLen = ftell( TSD->systeminfo->input_fp );
-      rewind( TSD->systeminfo->input_fp );
-      TinnedTree = MallocTSD( TinnedTreeLen );
-      if ( TinnedTree == NULL )
-         exiterror( ERR_STORAGE_EXHAUSTED, 0 );
-      if ( fread( TinnedTree, TinnedTreeLen, 1, TSD->systeminfo->input_fp ) != 1 )
-         exiterror( ERR_PROG_UNREADABLE, 1, "Unable to read input file" ) ;
-      fclose( TSD->systeminfo->input_fp );
-      /* check if the file being read is a valid tokenised file */
-      if ( !IsValidTin( TinnedTree, TinnedTreeLen ) )
-         exiterror( ERR_PROG_UNREADABLE, 1, "The supplied file is not a valid Regina tokenised file" ) ;
-      /* set program file name, environment and arguments */
-      command = Str_dupTSD( TSD->systeminfo->input_file ) ;
-      environment = Str_creTSD( "DEFAULT" ) ;
-      if ( !envir_exists( TSD, (streng *)environment ) )
-         add_envir( TSD, Str_dupTSD( (streng *)environment), ENVIR_PIPE, 0 ) ;
-      args = TSD->currlevel->args;
-      /*
-       * do_instore() actually does the execution...
-       */
-      result = do_instore( TSD, command, args, (streng *)environment,
-                           &RetCode,
-                           hooks,
-                           TinnedTree, TinnedTreeLen,
-                           NULL, 0, /* source file contents */
-                           NULL,
-                           ctype);
-      FreeTSD( TinnedTree );
-      Free_stringTSD( command );
-      Free_stringTSD( (streng *) environment );
-      return RetCode;
-   }
-
-   /*
-    * From here we are interpreting...
-    */
-   fetch_file( TSD, fptr ? fptr : stdin, &parsing );
-
-   if (parsing.result != 0)
-      exiterror( ERR_YACC_SYNTAX, 1, parsing.tline ) ;
-   else
-      TSD->systeminfo->tree = parsing;
-
-   if (trace_override)
-      TSD->systeminfo->trace_override = 1;
-   else
-      TSD->systeminfo->trace_override = 0;
-
-#ifndef R2PERL
-#ifndef MINIMAL
-#ifndef VMS
-#ifndef DOS
-#ifndef _MSC_VER
-#ifndef __IBMC__
-#ifndef MAC
-   if ( stdinput )
-   {
-      struct stat buffer ;
-
-      /*
-       * The following line is likely to give a warning when compiled
-       * under Ultrix, this can be safely ignored, since it is just a
-       * result of Digital not defining their include files properly.
-       */
-      rcode = fstat( fileno(stdin), &buffer ) ;
-      if (rcode==0 && S_ISCHR(buffer.st_mode))
-      {
-         printf("  \b\b") ;
-         fflush(stdout) ;
-         rewind(stdin) ;
-      }
-   }
-#endif /* !MAC */
-#endif /* !__IBMC__ */
-#endif /* !_MSC_VER */
-#endif /* !DOS */
-#endif /* !VMS */
-#endif /* !MINIMAL */
-#endif /* !R2PERL */
-
-   treadit( TSD->systeminfo->tree.root ) ;
-
-   flush_trace_chars(TSD) ;
-   {
-      nodeptr savecurrentnode = TSD->currentnode; /* pgb */
-      string = interpret( TSD, TSD->systeminfo->tree.root ) ;
-      TSD->currentnode = savecurrentnode; /* pgb */
-   }
-   rcode = EXIT_SUCCESS ;
-   if ( string )
-   {
-      int error;
-      /* fixes bug 657345 */
-
-      rcode = streng_to_int( TSD, string, &error );
-      if ( error )
-         rcode = EXIT_SUCCESS;
-   }
-
    purge_stacks( TSD );
-#if defined(FLISTS) && defined(NEW_FLISTS)
+   purge_filetable( TSD );
+# if defined(FLISTS) && defined(NEW_FLISTS)
    free_flists();
-#endif
+# endif
 
-#ifdef DYNAMIC
+# ifdef DYNAMIC
    /*
     * Remove all external function package functions
     * and libraries. Only valid for the DYNAMIC library.
     */
    purge_library( TSD );
-#endif
+# endif
 
-#ifdef TRACEMEM
-   if (TSD->listleakedmemory)
-      listleaked( TSD, MEMTRC_LEAKED )  ;
-#endif
+# ifdef TRACEMEM
+   if ( TSD->listleakedmemory )
+      listleaked( TSD, MEMTRC_LEAKED );
+# endif
 
+   TSD->systeminfo->script_exit = NULL; /* cannot be freed, it's on the stack*/
    killsystem( TSD, TSD->systeminfo );
-   TSD->systeminfo = NULL ;
+   TSD->systeminfo = NULL;
 
    /*
     * Remove all memory allocated by the flists internal memory manager.
     */
-#ifdef FLISTS
+# ifdef FLISTS
    purge_flists( TSD );
-#endif
+# endif
 
-   return(rcode) ;
+#endif /* DEBUG */
 
+   return rcode;
 }
 
 /* reexecute_main is possibly called by one of the fork_exec routines.
@@ -728,7 +876,6 @@ void mark_systeminfo( const tsd_t *TSD )
    for (sinfo=TSD->systeminfo; sinfo; sinfo=sinfo->previous)
    {
       markmemory(sinfo, TRC_SYSINFO) ;
-      markmemory(sinfo->called_as, TRC_SYSINFO) ;
       markmemory(sinfo->input_file, TRC_SYSINFO) ;
       markmemory(sinfo->environment, TRC_SYSINFO) ;
       markmemory(sinfo->callstack, TRC_SYSINFO) ;
@@ -754,27 +901,27 @@ void mark_systeminfo( const tsd_t *TSD )
 
 sysinfobox *creat_sysinfo( const tsd_t *TSD, streng *envir )
 {
-   sysinfobox *sinfo=NULL ;
+   sysinfobox *sinfo;
 
-   sinfo = MallocTSD( sizeof(sysinfobox) ) ;
-   sinfo->environment = envir ;
-   sinfo->tracing = DEFAULT_TRACING ;
-   sinfo->interactive = DEFAULT_INT_TRACING ;
-   sinfo->previous = NULL ;
-   sinfo->invoked = INVO_COMMAND ;
-   sinfo->called_as = NULL ;
-   sinfo->input_file = NULL ;
-   sinfo->input_fp = NULL ;
-   sinfo->panic = NULL ;
-   sinfo->hooks = 0 ;
-   sinfo->callstack = MallocTSD(sizeof(nodeptr)*10) ;
-   sinfo->result = NULL ;
-   sinfo->cstackcnt = 0 ;
-   sinfo->cstackmax = 10 ;
-   sinfo->trace_override = 0 ;
-   memset(&sinfo->tree, 0, sizeof(sinfo->tree));
+   sinfo = MallocTSD( sizeof(sysinfobox) );
+   sinfo->environment = envir;
+   sinfo->tracing = DEFAULT_TRACING;
+   sinfo->interactive = DEFAULT_INT_TRACING;
+   sinfo->previous = NULL;
+   sinfo->invoked = INVO_COMMAND;
+   sinfo->input_file = NULL;
+   sinfo->input_fp = NULL;
+   sinfo->script_exit = NULL ;
+   sinfo->hooks = 0;
+   sinfo->callstack = MallocTSD( sizeof( nodeptr ) * 10 );
+   sinfo->result = NULL;
+   sinfo->cstackcnt = 0;
+   sinfo->cstackmax = 10;
+   sinfo->trace_override = 0;
+   sinfo->ctrlcounter = 0;
+   memset( &sinfo->tree, 0, sizeof( sinfo->tree ) );
 
-   return sinfo ;
+   return sinfo;
 }
 
 #if !defined(RXLIB)
@@ -841,33 +988,25 @@ int hookup_output2( tsd_t *TSD, int dummy1, const streng *dummy2, const streng *
    return 1 ;  /* to keep compiler happy */
 }
 
-static void Exit(const tsd_t *TSD)
+static void Exit( const tsd_t *TSD )
 {
-   if (TSD->in_protected)
-   {
-      jmp_buf h;
-
-      memcpy(h,TSD->protect_return,sizeof(jmp_buf));
-      /* cheat about the const, we go away anyway :-) */
-      *((int*) &TSD->delayed_error_type) = PROTECTED_DelayedExit;
-      *((int*) &TSD->expected_exit_error) = 1;
-      longjmp( h, 1 ) ;
-   }
-   TSD->MTExit( 1 ) ;
+   /*
+    * cheat about the const, we go away anyway :-)
+    */
+   jump_interpreter_exit( ( tsd_t * ) TSD, 1 );
 }
 
-streng *do_an_external_exe( tsd_t *TSD, const streng *dummy1, cparamboxptr dummy2, char dummy3, char dummy4 )
+streng *call_unknown_external( tsd_t *TSD, const streng *dummy1, cparamboxptr dummy2, char dummy3 )
 {
    NoAPI();
    dummy1 = dummy1; /* keep compiler happy */
    dummy2 = dummy2; /* keep compiler happy */
    dummy3 = dummy3; /* keep compiler happy */
-   dummy4 = dummy4; /* keep compiler happy */
    Exit( TSD ) ;
    return NULL;
 }
 
-streng *do_an_external_dll( tsd_t *TSD, const void *dummy1, cparamboxptr dummy2, char dummy3 )
+streng *call_known_external( tsd_t *TSD, const struct entry_point *dummy1, cparamboxptr dummy2, char dummy3 )
 {
    NoAPI();
    dummy1 = dummy1; /* keep compiler happy */

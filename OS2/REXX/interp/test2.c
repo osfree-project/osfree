@@ -37,17 +37,17 @@ RexxFunctionHandler Test2LoadFuncs;
 RexxFunctionHandler Test2DropFuncs;
 
 /*-----------------------------------------------------------------------------
- * Table entry for a REXX/SQL function.
+ * Table entry for a REXX function.
  *----------------------------------------------------------------------------*/
 typedef struct {
    PSZ   function_name;
    PFN   EntryPoint;
-} RexxFunction;
+} RexxTestFunction;
 
 /*-----------------------------------------------------------------------------
- * Table of REXX/SQL Functions. Used to install/de-install functions.
+ * Table of REXX Functions. Used to install/de-install functions.
  *----------------------------------------------------------------------------*/
-static const RexxFunction RexxSqlFunctions[] = {
+static const RexxTestFunction RexxTestFunctions[] = {
    {(PSZ)NAME_FUNCTION1,   (PFN)Test2Function1  },
    {(PSZ)NAME_FUNCTION2,   (PFN)Test2Function2  },
    {(PSZ)NAME_DROPFUNCS,   (PFN)Test2DropFuncs  },
@@ -119,10 +119,10 @@ APIRET APIENTRY FUNCTION2(PCSZ name,ULONG argc,PRXSTRING argv,PCSZ stck,PRXSTRIN
 APIRET APIENTRY DROPFUNCS(PCSZ name,ULONG argc,PRXSTRING argv,PCSZ stck,PRXSTRING retstr)
 {
    int rc=0;
-   const RexxFunction  *func=NULL;
+   const RexxTestFunction  *func=NULL;
 
-   /* DeRegister all REXX/SQL functions */
-   for (func = RexxSqlFunctions; func->function_name; func++)
+   /* DeRegister all REXX functions */
+   for (func = RexxTestFunctions; func->function_name; func++)
       rc = RexxDeregisterFunction(func->function_name);
    sprintf(retstr->strptr,"%d",rc);
    retstr->strlength = strlen(retstr->strptr);
@@ -131,15 +131,15 @@ APIRET APIENTRY DROPFUNCS(PCSZ name,ULONG argc,PRXSTRING argv,PCSZ stck,PRXSTRIN
 
 
 /*-----------------------------------------------------------------------------
- * This function is called to initiate REXX/SQL interface.
+ * This function is called to initiate REXX interface.
  *----------------------------------------------------------------------------*/
-static int InitRexxSQL(PSZ progname)
+static int InitTestRexx(PSZ progname)
 {
-   const RexxFunction  *func=NULL;
+   const RexxTestFunction  *func=NULL;
    ULONG rc=0L;
 
-   /* Register all REXX/SQL functions */
-   for (func = RexxSqlFunctions; func->function_name; func++)
+   /* Register all REXX functions */
+   for (func = RexxTestFunctions; func->function_name; func++)
       rc = RexxRegisterFunctionDll(func->function_name,DLLNAME,func->function_name);
 
    return 0;
@@ -149,7 +149,8 @@ APIRET APIENTRY LOADFUNCS(PCSZ name,ULONG argc,PRXSTRING argv,PCSZ stck,PRXSTRIN
 {
    int rc=0;
 
-   rc = InitRexxSQL(DLLNAME);
+   rc = InitTestRexx(DLLNAME);
+   printf("%s built %s %s\n",DLLNAME,__DATE__,__TIME__);
    sprintf(retstr->strptr,"%d",rc);
    retstr->strlength = strlen(retstr->strptr);
    return 0L;
@@ -158,12 +159,24 @@ APIRET APIENTRY LOADFUNCS(PCSZ name,ULONG argc,PRXSTRING argv,PCSZ stck,PRXSTRIN
 #if defined( DYNAMIC_STATIC )
 void *getTest2FunctionAddress( char *name )
 {
-   const RexxFunction  *func=NULL;
-   for (func = RexxSqlFunctions; func->function_name; func++)
+   const RexxTestFunction  *func=NULL;
+   for (func = RexxTestFunctions; func->function_name; func++)
    {
       if ( strcmp( func->function_name, name) == 0 )
          return func->EntryPoint;
    }
    return NULL;
 }
+#endif
+
+#if !defined( DYNAMIC_STATIC )
+# ifdef SKYOS
+/*
+ * Required as entry point for DLL under SkyOS
+ */
+int DllMain( void )
+{
+   return 0;
+}
+# endif
 #endif

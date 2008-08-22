@@ -3,7 +3,7 @@
 #
 # Using MS Visual C++ under Win32
 # Usage:
-#    nmake -f [DEBUG=Y [TRACEMEM=Y]] [FLISTS=N] [SOCKET=nnnn]
+#    nmake -f [DEBUG=Y] [TRACEMEM=Y]] [FLISTS=N] [SOCKET=nnnn]
 #
 # generated files without giving a target on the command line:
 # rexx.exe     statically bounded REXX interpreter
@@ -35,7 +35,7 @@ CC = cl
 
 !if "$(DEBUG)" == "Y"
 EEXTRA = /DEBUG /PDB:NONE
-DEBUGFLAG  = /Z7 /Od /J
+DEBUGFLAG  = /Z7 /Od /J #/DREGINA_DEBUG_MEMORY /DREGINA_DEBUG_MEMORY1 /DREGINA_DEBUG_MEMORY2 /DREGINA_DEBUG_MEMORY3
 OPTIMIZE =
 ! if "$(TRACEMEM)" == "Y"
 MEMTRACE = /DTRACEMEM
@@ -121,7 +121,7 @@ CSRCFILES = $(SRCDIR)/funcs.c $(SRCDIR)/builtin.c $(SRCDIR)/error.c $(SRCDIR)/va
         $(SRCDIR)/misc.c $(SRCDIR)/unxfuncs.c $(SRCDIR)/arxfuncs.c $(SRCDIR)/cmsfuncs.c $(SRCDIR)/os2funcs.c $(SRCDIR)/shell.c $(SRCDIR)/rexxext.c $(SRCDIR)/stack.c \
         $(SRCDIR)/tracing.c $(SRCDIR)/interp.c $(SRCDIR)/cmath.c $(SRCDIR)/convert.c $(SRCDIR)/strings.c $(SRCDIR)/library.c \
         $(SRCDIR)/strmath.c $(SRCDIR)/signals.c $(SRCDIR)/macros.c $(SRCDIR)/envir.c $(SRCDIR)/expr.c $(SRCDIR)/rexxbif.c \
-        $(SRCDIR)/extlib.c $(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/doscmd.c $(SRCDIR)/extstack.c \
+        $(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/doscmd.c $(SRCDIR)/extstack.c \
         $(SRCDIR)/mt_notmt.c $(SRCDIR)/mt_win32.c $(SRCDIR)/mt_posix.c $(SRCDIR)/nosaa.c \
         $(SRCDIR)/ntservice/service.c
 
@@ -130,14 +130,14 @@ OFILES = funcs.obj builtin.obj error.obj variable.obj \
         misc.obj unxfuncs.obj arxfuncs.obj cmsfuncs.obj os2funcs.obj shell.obj rexxext.obj stack.obj extstack.obj \
         tracing.obj interp.obj cmath.obj convert.obj strings.obj library.obj \
         strmath.obj signals.obj macros.obj envir.obj expr.obj instore.obj rexxbif.obj \
-        extlib.obj yaccsrc.obj lexsrc.obj options.obj doscmd.obj wrappers.obj mt_notmt.obj #r2perl.obj
+        yaccsrc.obj lexsrc.obj options.obj doscmd.obj wrappers.obj mt_notmt.obj #r2perl.obj
 
 TSFILES = funcs.ts.obj builtin.ts.obj error.ts.obj variable.ts.obj extstack.ts.obj rexxbif.ts.obj \
         interprt.ts.obj debug.ts.obj dbgfuncs.ts.obj memory.ts.obj parsing.ts.obj files.ts.obj \
         misc.ts.obj unxfuncs.ts.obj arxfuncs.ts.obj cmsfuncs.ts.obj os2funcs.ts.obj shell.ts.obj rexxext.ts.obj stack.ts.obj \
         tracing.ts.obj interp.ts.obj cmath.ts.obj convert.ts.obj strings.ts.obj library.ts.obj \
         strmath.ts.obj signals.ts.obj macros.ts.obj envir.ts.obj expr.ts.obj instore.ts.obj \
-        extlib.ts.obj yaccsrc.ts.obj lexsrc.ts.obj wrappers.ts.obj options.ts.obj doscmd.ts.obj \
+        yaccsrc.ts.obj lexsrc.ts.obj wrappers.ts.obj options.ts.obj doscmd.ts.obj \
         rexx.ts.obj client.ts.obj rexxsaa.ts.obj mt_win32.ts.obj $(GCI_SHO)
 
 DEMODIR = $(SRCDIR)/demo
@@ -302,9 +302,6 @@ envir.obj :   $(SRCDIR)/envir.c
 
 expr.obj :    $(SRCDIR)/expr.c
         $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/expr.c
-
-extlib.obj :  $(SRCDIR)/extlib.c
-        $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/extlib.c
 
 wrappers.obj :$(SRCDIR)/wrappers.c
         $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/wrappers.c
@@ -474,9 +471,6 @@ envir.ts.obj :   $(SRCDIR)/envir.c
 expr.ts.obj :    $(SRCDIR)/expr.c
         $(CC) $(TSCOPT) $(CC2O) $(TSDYN_COMP) -c $(SRCDIR)/expr.c
 
-extlib.ts.obj :  $(SRCDIR)/extlib.c
-        $(CC) $(TSCOPT) $(CC2O) $(TSDYN_COMP) -c $(SRCDIR)/extlib.c
-
 wrappers.ts.obj :$(SRCDIR)/wrappers.c
         $(CC) $(TSCOPT) $(CC2O) $(TSDYN_COMP) -c $(SRCDIR)/wrappers.c
 
@@ -609,4 +603,5 @@ dist: all
 	copy $(SRCDIR)\common\isnt.nsh .
 	copy $(SRCDIR)\common\path.nsh .
 	copy $(SRCDIR)\common\WriteEnv.nsh .
-	makensis /DVERSION=$(VERDOT) /DNODOTVER=$(VER) regina.nsi
+	copy $(SRCDIR)\common\uninstall.ico .
+	makensis /DVERSION=$(VERDOT) /DNODOTVER=$(VER) /DSRCDIR=$(SRCDIR) regina.nsi

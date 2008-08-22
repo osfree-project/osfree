@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: regina_t.h,v 1.1 2003/12/11 05:06:00 prokushev Exp $
+ * $Id: regina_t.h,v 1.5 2004/01/17 00:21:20 florian Exp $
  */
 
 #ifndef REGINA_TYPES_H_INCLUDED
@@ -297,10 +297,9 @@ typedef struct proclevelbox {
    char tracestat, traceint, varflag ; /* MDW 30012002 */
    sigtype *sig ;
    trap *traps ;
-   jmp_buf *buf ;  /* for use by longjmp */
-   union {
-      unsigned char flags[4] ;
-   } u ;
+   jmp_buf *signal_continue; /* see jump_rexx_signal() */
+   unsigned long options;
+   int pool;
 } proclevbox ;
 
 typedef struct _ttree { /* bucket list of treenodes which allows ultra fast
@@ -367,7 +366,7 @@ typedef struct { /* external_parser_type: the instore macro in user space */
     * doesn't match.
     */
    char     Magic[32]; /* "Regina's Internal Format\r\n" filled with 0 */
-#define MAGIC "/*Regina's Internal Format*/\r\n"
+#define MAGIC "Regina's Internal Format\r\n"
    char     ReginaVersion[64]; /* PARSE_VERSION_STRING */
 
    /* The following structure allows the detection of different
@@ -423,13 +422,12 @@ typedef struct { /* external_parser_type: the instore macro in user space */
 typedef struct systeminfobox *sysinfo ;
 typedef const struct systeminfobox *csysinfo ;
 typedef struct systeminfobox {
-   struct strengtype *called_as;
    struct strengtype *input_file ; /* must be 0-terminated without counting of the '\0' */
    streng *environment ;
    FILE *input_fp;
    int tracing ;
    int interactive ;
-   jmp_buf *panic ;
+   jmp_buf *script_exit;     /* see jump_script_exit() */
    streng *result ;
    proclevbox *currlevel0 ;
    struct systeminfobox *previous ;
@@ -439,35 +437,35 @@ typedef struct systeminfobox {
    int invoked ;
    int trace_override;
    internal_parser_type tree;
+   int ctrlcounter;
 } sysinfobox ;
-
-struct entrypt {
-   char *name ;
-   streng *(*addr)() ;
-} ;
-
-
-struct library {
-   streng *name ;
-   void *handle ;
-   short number ;
-   struct library_func *first ;
-   struct entrypt *funcs ;
-   struct library *next, *prev ;
-} ;
 
 #ifndef DONT_TYPEDEF_PFN
 typedef unsigned long (*PFN)() ;
 #endif
 
-struct library_func {
-   streng *name ;
-   PFN addr  ;
-   void *gci_info;
-   unsigned long hash ;
-   struct library *lib ;
-   struct library_func *next, *prev ;
-   struct library_func *forw, *backw ;
-} ;
+
+struct library {
+   streng *name;
+   void *handle;
+   unsigned long used;
+
+   struct library *next, *prev;
+};
+
+
+struct entry_point {
+   streng *name;
+   PFN addr;
+   union {
+      void *gci_info;             /* for function handlers */
+      unsigned char user_area[8]; /* for suncommand and exit handlers */
+   } special;
+
+   unsigned long hash;
+   struct library *lib;
+   struct entry_point *next, *prev;
+};
+
 
 #endif /* REGINA_TYPES_H_INCLUDED */

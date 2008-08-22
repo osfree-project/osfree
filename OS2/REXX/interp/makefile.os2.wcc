@@ -38,7 +38,6 @@ HAVE_GCI = /dHAVE_GCI /i=$(SRC)gci
 #
 
 OFILES =      &
-#dbg.obj       &
 funcs.obj     &
 builtin.obj   &
 error.obj     &
@@ -70,7 +69,6 @@ envir.obj     &
 expr.obj      &
 mt_notmt.obj  &
 instore.obj   &
-extlib.obj    &
 yaccsrc.obj   &
 lexsrc.obj    &
 wrappers.obj  &
@@ -81,7 +79,6 @@ rexxbif.obj
 
 
 DLOFILES =    &
-#dbg.dlo       &
 funcs.dlo     &
 builtin.dlo   &
 error.dlo     &
@@ -113,7 +110,6 @@ envir.dlo     &
 expr.dlo      &
 $(THREADING_FILE).dlo &
 instore.dlo   &
-extlib.dlo    &
 yaccsrc.dlo   &
 lexsrc.dlo    &
 wrappers.dlo  &
@@ -136,18 +132,18 @@ TARGET=os2v2
 
 !ifeq DEBUG Y
 CFLAGS  = /d2
-LDFLAGS = DEBUG WATCOM ALL LIBRARY TCPIP32
+LDFLAGS = DEBUG WATCOM ALL
 !else
 CFLAGS  =  /dNDEBUG /oneatx
-LDFLAGS = LIBRARY TCPIP32
+LDFLAGS =
 !endif
 
 
-CPPFLAGS        = /sg /st /bt=os2 /dFGC /dOS2 /i=$(SRC)
+CPPFLAGS        = /dOS2 /i=$(SRC)
 
 DYN_CFLAGS = /dDYNAMIC
 
-CCFLAGS         = /sg /st /dOREXX_BINARY_COMPATIBLE /bt=os2 /4s /wx /zq /mf $(CFLAGS) $(CPPFLAGS)
+CCFLAGS         = /4s /wx /zq /mf $(CFLAGS) $(CPPFLAGS)
 
 LINK            = wlink
 
@@ -158,15 +154,14 @@ HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configu
 
 GCIHEADERS = $(SRC)gci\gci.h $(SRC)gci\embedded.h gci_convert.h
 
-all : rexx.exe $(LIBFILE) regina.exe test1.dll test2.dll execiser.exe rxstack.exe # rxqueue.exe
+all : rexx.exe $(LIBFILE) regina.exe test1.dll test2.dll execiser.exe threader.exe
 
 rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk system os2v2
+        @%append dummy.lnk system $(TARGET)
         @%append dummy.lnk name rexx.exe
-#        @%append dummy.lnk file dbg.obj
         @%append dummy.lnk file rexx.obj
         @%append dummy.lnk file funcs.obj
         @%append dummy.lnk file builtin.obj
@@ -199,7 +194,6 @@ rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%append dummy.lnk file mt_notmt.obj
         @%append dummy.lnk file instore.obj
         @%append dummy.lnk file expr.obj
-        @%append dummy.lnk file extlib.obj
         @%append dummy.lnk file yaccsrc.obj
         @%append dummy.lnk file lexsrc.obj
         @%append dummy.lnk file wrappers.obj
@@ -215,7 +209,7 @@ regina.exe : $(IMPFILE) regina.obj
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk system os2v2
+        @%append dummy.lnk system $(TARGET)
         @%append dummy.lnk name regina.exe
         @%append dummy.lnk file regina.obj
         @%append dummy.lnk file .\$(IMPFILE)
@@ -226,16 +220,26 @@ execiser.exe : $(IMPFILE) execiser.obj
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk system os2v2
+        @%append dummy.lnk system $(TARGET)
         @%append dummy.lnk name execiser.exe
         @%append dummy.lnk file execiser.obj
         @%append dummy.lnk file .\$(IMPFILE)
         $(LINK) $(LDFLAGS) @dummy.lnk
         del dummy.lnk
 
+threader.exe : $(IMPFILE) threader.obj
+        @%create dummy.lnk
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk system $(TARGET)
+        @%append dummy.lnk name threader.exe
+        @%append dummy.lnk file threader.obj
+        @%append dummy.lnk file .\$(IMPFILE)
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
 $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
         @%create lib.rsp
-#        @%append lib.rsp +dbg.obj
         @%append lib.rsp +client.obj
         @%append lib.rsp +drexx.obj
         @%append lib.rsp +rexxsaa.obj
@@ -270,7 +274,6 @@ $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
         @%append lib.rsp +mt_notmt.obj
         @%append lib.rsp +instore.obj
         @%append lib.rsp +expr.obj
-        @%append lib.rsp +extlib.obj
         @%append lib.rsp +yaccsrc.obj
         @%append lib.rsp +lexsrc.obj
         @%append lib.rsp +wrappers.obj
@@ -283,14 +286,10 @@ $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
 
 $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%create dummy.lnk
-        @%append dummy.lnk option stack=0x20000
-        @%append dummy.lnk option heapsize=40960
         @%append dummy.lnk option quiet
-        @%append dummy.lnk option map=regina.wmp
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk system os2v2 dll
+        @%append dummy.lnk system $(TARGET) dll
         @%append dummy.lnk name $(DLLFILE)
-#        @%append dummy.lnk file dbg.dlo
         @%append dummy.lnk file client.dlo
         @%append dummy.lnk file drexx.dlo
         @%append dummy.lnk file rexxsaa.dlo
@@ -325,7 +324,6 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%append dummy.lnk file $(THREADING_FILE).dlo
         @%append dummy.lnk file instore.dlo
         @%append dummy.lnk file expr.dlo
-        @%append dummy.lnk file extlib.dlo
         @%append dummy.lnk file yaccsrc.dlo
         @%append dummy.lnk file lexsrc.dlo
         @%append dummy.lnk file wrappers.dlo
@@ -375,6 +373,7 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%append dummy.lnk export RexxReorderMacro
         @%append dummy.lnk export RexxSaveMacroSpace
         @%append dummy.lnk export RexxCallBack
+        @%append dummy.lnk export ReginaCleanup
         $(LINK) $(LDFLAGS) @dummy.lnk
         del dummy.lnk
 
@@ -382,7 +381,7 @@ $(DLLTEST1): test1.dlo $(IMPFILE)
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk system os2v2 dll
+        @%append dummy.lnk system $(TARGET) dll
         @%append dummy.lnk name $(DLLTEST1)
         @%append dummy.lnk file test1.dlo
         @%append dummy.lnk export Test1Function1
@@ -397,7 +396,7 @@ $(DLLTEST2): test2.dlo $(IMPFILE)
         @%create dummy.lnk
         @%append dummy.lnk option quiet
         @%append dummy.lnk option caseexact
-        @%append dummy.lnk system os2v2 dll
+        @%append dummy.lnk system $(TARGET) dll
         @%append dummy.lnk name $(DLLTEST2)
         @%append dummy.lnk file test2.dlo
         @%append dummy.lnk export Test2Function1
@@ -407,35 +406,6 @@ $(DLLTEST2): test2.dlo $(IMPFILE)
         @%append dummy.lnk library $(IMPFILE)
         $(LINK) $(LDFLAGS) @dummy.lnk
         del dummy.lnk
-
-rxstack.exe : rxstack.obj erexxbif.obj eextstack.obj
-        @%create dummy.lnk
-        @%append dummy.lnk system os2v2
-        @%append dummy.lnk option caseexact
-        @%append dummy.lnk option quiet
-        @%append dummy.lnk option stack=0x20000
-        @%append dummy.lnk option heapsize=40960
-        @%append dummy.lnk name rxstack.exe
-        @%append dummy.lnk file rxstack.obj
-        @%append dummy.lnk file eextstack.obj
-        @%append dummy.lnk file erexxbif.obj
-        $(LINK) $(LDFLAGS) @dummy.lnk
-        del dummy.lnk
-
-rxqueue.exe : rxqueue.obj erexxbif.obj eextstack.obj
-        @%create dummy.lnk
-        @%append dummy.lnk system os2v2
-        @%append dummy.lnk option caseexact
-        @%append dummy.lnk option quiet
-        @%append dummy.lnk option stack=0x20000
-        @%append dummy.lnk option heapsize=40960
-        @%append dummy.lnk name rxqueue.exe
-        @%append dummy.lnk file rxqueue.obj
-        @%append dummy.lnk file eextstack.obj
-        @%append dummy.lnk file erexxbif.obj
-        $(LINK) $(LDFLAGS) @dummy.lnk
-        del dummy.lnk
-
 
 $(IMPFILE): $(DLLFILE)
         $(LIBEXE) $(LIBFLAGS) $(DLLBASE) +$(DLLFILE)
@@ -534,9 +504,6 @@ mt_notmt.obj: $(SRC)mt_notmt.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)$*.c
 
 instore.obj:  $(SRC)instore.c $(HFILES)
-        $(CC) $(CCFLAGS) /fo=$@ $(SRC)$*.c
-
-extlib.obj:   $(SRC)extlib.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)$*.c
 
 wrappers.obj: $(SRC)wrappers.c $(HFILES)
@@ -683,9 +650,6 @@ instore.dlo:  $(SRC)instore.c $(HFILES)
 expr.dlo:     $(SRC)expr.c $(HFILES)
         $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(SRC)$*.c
 
-extlib.dlo:   $(SRC)extlib.c $(HFILES)
-        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(SRC)$*.c
-
 wrappers.dlo: $(SRC)wrappers.c $(HFILES)
         $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) /bd /fo=$*.dlo $(SRC)$*.c
 
@@ -767,16 +731,7 @@ regina.obj:   $(SRC)regina.c $(HFILES)
 execiser.obj:   $(SRC)execiser.c $(HFILES)
         $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /fo=$*.obj $(SRC)$*.c
 
-eextstack.obj:  $(SRC)extstack.c $(HFILES)
-        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\extstack.c
-
-erexxbif.obj:  $(SRC)rexxbif.c $(HFILES)
-        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\rexxbif.c
-
-rxstack.obj:  $(SRC)rxstack.c $(HFILES)
-        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\$*.c
-
-rxqueue.obj:  $(SRC)rxqueue.c $(HFILES)
-        $(CC) -DEXTERNAL_TO_REGINA $(CCFLAGS) /fo=$@ $(SRC)\$*.c
+threader.obj:   $(SRC)threader.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) -DOS2_THREADS /fo=$*.obj $(SRC)$*.c
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

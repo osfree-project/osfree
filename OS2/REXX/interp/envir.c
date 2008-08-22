@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: envir.c,v 1.2 2003/12/11 04:43:06 prokushev Exp $";
+static char *RCSid = "$Id: envir.c,v 1.25 2004/02/10 10:43:55 mark Exp $";
 #endif
 
 /*
@@ -343,7 +343,7 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
                   /* "|" already checked */
                   for ( i = pos + 1, j = 0; i < length; i++ )
                   {
-                     if ( !isspace(command->value[i] ) )
+                     if ( !rx_isspace(command->value[i] ) )
                         break;
                   }
                   if ( i+7 <= length )
@@ -353,7 +353,7 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
                         i += 7;
                         for ( ; i < length; i++ )
                         {
-                           if ( !isspace( command->value[i] ) )
+                           if ( !rx_isspace( command->value[i] ) )
                               break;
                            have_space = 1;
                         }
@@ -398,7 +398,7 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
                                qname_start = i;
                                for ( ; i < length; i++ )
                                {
-                                  if ( isspace( command->value[i] ) )
+                                  if ( rx_isspace( command->value[i] ) )
                                   {
                                      have_space = 1;
                                      qname_end = i;
@@ -421,7 +421,7 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
                                    */
                                   for ( ; i < length; i++ )
                                   {
-                                     if ( !isspace( command->value[i] ) )
+                                     if ( !rx_isspace( command->value[i] ) )
                                         break;
                                   }
                                   if ( i+6 <= length
@@ -476,11 +476,11 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
  * the result and to raise some conditions in case of errors after
  * processing an external command.
  */
-static void post_process_system_call( tsd_t *TSD, const streng *cmd,
-                                      int rc_code, const streng *rc_value,
-                                      cnodeptr this )
+void post_process_system_call( tsd_t *TSD, const streng *cmd,
+                               int rc_code, const streng *rc_value,
+                               cnodeptr this )
 {
-   streng *rs;
+   int rs;
    trap *traps;
    int type;
 
@@ -489,17 +489,23 @@ static void post_process_system_call( tsd_t *TSD, const streng *cmd,
     *
     */
 
-   if (!TSD->systeminfo->interactive)
-      set_rc( TSD, Str_dupTSD( rc_value ) );
+   if ( !TSD->systeminfo->interactive )
+   {
+      if ( rc_value != NULL )
+         set_reserved_value( TSD, POOL0_RC, Str_dupTSD( rc_value ), 0,
+                             VFLAG_STR );
+      else
+         set_reserved_value( TSD, POOL0_RC, NULL, rc_code, VFLAG_NUM );
+   }
 
    /* set .RS: -1==Failure, 0=OK, 1=Error */
-   if (rc_code == 0)
-      rs = int_to_streng( TSD, 0 );
-   else if (rc_code < 0)
-      rs = int_to_streng( TSD, -1 );
+   if ( rc_code == 0 )
+      rs = 0;
+   else if ( rc_code < 0 )
+      rs = -1;
    else
-      rs = int_to_streng( TSD, 1 );
-   setvalue( TSD, dotRS_name, rs );
+      rs = 1;
+   set_reserved_value( TSD, POOL0_RS, NULL, rs, VFLAG_NUM );
 
    if ( rc_code )
    {
@@ -655,7 +661,7 @@ streng *run_popen( tsd_t *TSD, const streng *command, const streng *envir )
    /* restore the previous environment and delete the temporary one */
    del_envir(TSD, ptr->e.name);
 
-   set_rc( TSD, int_to_streng( TSD, rc ) );
+   set_reserved_value( TSD, POOL0_RC, NULL, rc, VFLAG_NUM );
 
    if (rc >= 0)
       return(retval);

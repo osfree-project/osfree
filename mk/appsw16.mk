@@ -3,6 +3,9 @@
 # win16 apps
 #
 
+!ifndef __appsw16_mk__
+!define __appsw16_mk__
+
 ADD_COPT = -bt=windows $(ADD_COPT)
 ADD_LINKOPT = lib clibs.lib,windows.lib
 
@@ -58,3 +61,5 @@ $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
 !endif
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
+
+!endif

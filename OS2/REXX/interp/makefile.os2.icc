@@ -2,6 +2,7 @@
 # Makefile for Regina REXX Interpreter
 #
 # Using C Set/2 under OS/2
+# FIXME, FGC: How to set "unsigned char" as default char type?
 #
 #
 SRCDIR=g:\regina
@@ -61,28 +62,28 @@ README = $(SRCDIR)/README.??? COPYING-LIB
 FILES = funcs builtin error variable interprt debug dbgfuncs \
         memory parsing files misc unxfuncs os2funcs cmsfuncs shell rexxext stack \
         tracing interp cmath convert strings library strmath signals \
-        macros envir extlib wrappers options doscmd #r2perl
+        macros envir wrappers options doscmd #r2perl
 
 CSRCFILES = $(SRCDIR)/funcs.c $(SRCDIR)/builtin.c $(SRCDIR)/error.c $(SRCDIR)/variable.c \
         $(SRCDIR)/interprt.c $(SRCDIR)/debug.c $(SRCDIR)/dbgfuncs.c $(SRCDIR)/memory.c $(SRCDIR)/parsing.c $(SRCDIR)/files.c \
         $(SRCDIR)/misc.c $(SRCDIR)/unxfuncs.c $(SRCDIR)/cmsfuncs.c $(SRCDIR)/os2funcs.c $(SRCDIR)/shell.c $(SRCDIR)/rexxext.c $(SRCDIR)/stack.c \
         $(SRCDIR)/tracing.c $(SRCDIR)/interp.c $(SRCDIR)/cmath.c $(SRCDIR)/convert.c $(SRCDIR)/strings.c $(SRCDIR)/library.c \
         $(SRCDIR)/strmath.c $(SRCDIR)/signals.c $(SRCDIR)/macros.c $(SRCDIR)/envir.c $(SRCDIR)/expr.c \
-        $(SRCDIR)/extlib.c $(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/doscmd.c #$(SRCDIR)/r2perl.c
+        $(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/doscmd.c #$(SRCDIR)/r2perl.c
 
 OFILES = funcs.obj builtin.obj error.obj variable.obj \
         interprt.obj debug.obj dbgfuncs.obj memory.obj parsing.obj files.obj \
         misc.obj unxfuncs.obj cmsfuncs.obj shell.obj os2funcs.obj rexxext.obj stack.obj \
         tracing.obj interp.obj cmath.obj convert.obj strings.obj library.obj \
         strmath.obj signals.obj macros.obj envir.obj expr.obj \
-        extlib.obj yaccsrc.obj lexsrc.obj options.obj doscmd.obj wrappers.obj #r2perl.obj
+        yaccsrc.obj lexsrc.obj options.obj doscmd.obj wrappers.obj #r2perl.obj
 
 SHOFILES = $(DLLDIR)\funcs.obj $(DLLDIR)\builtin.obj $(DLLDIR)\error.obj $(DLLDIR)\variable.obj \
         $(DLLDIR)\interprt.obj $(DLLDIR)\debug.obj $(DLLDIR)\dbgfuncs.obj $(DLLDIR)\memory.obj $(DLLDIR)\parsing.obj $(DLLDIR)\files.obj \
         $(DLLDIR)\misc.obj $(DLLDIR)\unxfuncs.obj $(DLLDIR)\cmsfuncs.obj $(DLLDIR)\os2funcs.obj $(DLLDIR)\shell.obj $(DLLDIR)\rexxext.obj $(DLLDIR)\stack.obj \
         $(DLLDIR)\tracing.obj $(DLLDIR)\interp.obj $(DLLDIR)\cmath.obj $(DLLDIR)\convert.obj $(DLLDIR)\strings.obj $(DLLDIR)\library.obj \
         $(DLLDIR)\strmath.obj $(DLLDIR)\signals.obj $(DLLDIR)\macros.obj $(DLLDIR)\envir.obj $(DLLDIR)\expr.obj \
-        $(DLLDIR)\extlib.obj $(DLLDIR)\yaccsrc.obj $(DLLDIR)\lexsrc.obj $(DLLDIR)\wrappers.obj $(DLLDIR)\options.obj $(DLLDIR)\doscmd.obj \
+        $(DLLDIR)\yaccsrc.obj $(DLLDIR)\lexsrc.obj $(DLLDIR)\wrappers.obj $(DLLDIR)\options.obj $(DLLDIR)\doscmd.obj \
         $(DLLDIR)\rexx.obj $(DLLDIR)\client.obj $(DLLDIR)\rexxsaa.obj
 
 DEMODIR = $(SRCDIR)/demo
@@ -219,9 +220,6 @@ envir.obj :   $(SRCDIR)/envir.c
 expr.obj :    $(SRCDIR)/expr.c
         $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/expr.c
 
-extlib.obj :  $(SRCDIR)/extlib.c
-        $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/extlib.c
-
 wrappers.obj :$(SRCDIR)/wrappers.c
         $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/wrappers.c
 
@@ -341,9 +339,6 @@ $(DLLDIR)\envir.obj :   $(SRCDIR)/envir.c     $(DLLDIR)
 
 $(DLLDIR)\expr.obj :    $(SRCDIR)/expr.c      $(DLLDIR)
         $(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/expr.c
-
-$(DLLDIR)\extlib.obj :  $(SRCDIR)/extlib.c    $(DLLDIR)
-        $(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/extlib.c
 
 $(DLLDIR)\wrappers.obj :$(SRCDIR)/wrappers.c  $(DLLDIR)
         $(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/wrappers.c

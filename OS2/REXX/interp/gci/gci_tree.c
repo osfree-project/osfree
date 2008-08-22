@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -46,6 +46,7 @@ typedef struct {
    void           *arg;
    GCI_str         tempbuf;  /* buffer for the content of each structure line*/
    char            helper[80]; /* buffer for the textual iterator   */
+   int             recurCount;
 } callblock;
 
 /*
@@ -73,6 +74,7 @@ static GCI_basetype checkname( const char **str,
       { GCI_container, 9, "CONTAINER" },
       { GCI_float,     5, "FLOAT"     },
       { GCI_indirect,  8, "INDIRECT"  },
+      { GCI_like,      4, "LIKE"      },
       { GCI_integer,   7, "INTEGER"   },
       { GCI_string,    6, "STRING"    },
       { GCI_unsigned,  8, "UNSIGNED"  }
@@ -112,7 +114,8 @@ static GCI_basetype checkname( const char **str,
 static GCI_result decode( void *hidden,
                           const GCI_str *str,
                           GCI_parseinfo *pi,
-                          int depth )
+                          int depth,
+                          GCI_str *newName )
 {
    const char *ptr = GCI_ccontent( str );
    int size = GCI_strlen( str );
@@ -120,12 +123,12 @@ static GCI_result decode( void *hidden,
    /*
     * Chop off leading and trailing spaces. We really need it.
     */
-   while ( ( size > 0 ) && isspace( *ptr ) )
+   while ( ( size > 0 ) && rx_isspace( *ptr ) )
    {
       ptr++;
       size--;
    }
-   while ( ( size > 0 ) && isspace( ptr[size - 1] ) )
+   while ( ( size > 0 ) && rx_isspace( ptr[size - 1] ) )
       size--;
 
    memset( pi, 0, sizeof( GCI_parseinfo ) );
@@ -134,7 +137,7 @@ static GCI_result decode( void *hidden,
       return GCI_UnsupportedType;
    if ( pi->type == GCI_indirect )
    {
-      while ( ( size > 0 ) && isspace( *ptr ) )
+      while ( ( size > 0 ) && rx_isspace( *ptr ) )
       {
          ptr++;
          size--;
@@ -150,7 +153,7 @@ static GCI_result decode( void *hidden,
    /*
     * Check for a size operand.
     */
-   while ( ( size > 0 ) && isspace( *ptr ) )
+   while ( ( size > 0 ) && rx_isspace( *ptr ) )
    {
       ptr++;
       size--;
@@ -164,12 +167,56 @@ static GCI_result decode( void *hidden,
     */
    switch ( pi->type )
    {
-      case GCI_array:
       case GCI_container:
+         if (size > 0)
+         {
+            GCI_str tmp;
+
+            if ( checkname( &ptr, &size ) != GCI_like )
+               return GCI_UnsupportedType;
+            while ( ( size > 0 ) && rx_isspace( *ptr ) )
+            {
+               ptr++;
+               size--;
+            }
+            if ( size == 0 )
+            {
+               /*
+                * Single "like" after "container".
+                */
+               return GCI_UnsupportedType;
+            }
+            while ( rx_isspace( ptr[size - 1] ) )
+               size--;
+            /*
+             * Cut off a final dot, we append one later.
+             */
+            if ( ptr[size - 1] == '.' )
+            {
+               /*
+                * Check for single "." as stem.
+                */
+               if ( --size == 0 )
+                  return GCI_UnsupportedType;
+            }
+            if ( GCI_stralloc( hidden, newName, size + 256 ) != GCI_OK )
+               return GCI_NoMemory;
+            GCI_strfromascii( &tmp, (char *) ptr, size );
+            GCI_strsetlen( &tmp, size );
+            GCI_strcpy( newName, &tmp );
+            size = 0;
+         }
+         /* fall through */
+
+      case GCI_array:
          if ( size > 0 )
             return GCI_UnsupportedType;
          if ( ( depth == 0 ) && !pi->indirect )
+         {
+            if ( GCI_content( newName ) != NULL )
+               GCI_strfree( hidden, newName );
             return GCI_NoBaseType;
+         }
          pi->size = 0;
          return GCI_OK;
 
@@ -281,11 +328,13 @@ static GCI_result parse( callblock *cb,
                          int itemnumber )
 {
    GCI_parseinfo pi;
+   GCI_str newName;
    static const GCI_parseinfo indirectArray = { GCI_container, 1, 1, 1 };
    GCI_result rc;
    unsigned i;
    int origlen = GCI_strlen( cb->buffer );
 
+   GCI_strfromascii( &newName, NULL, 0 );
    if ( ( rc = GCI_strcats( cb->buffer, ".TYPE" ) ) != GCI_OK )
       return rc;
    if ( ( rc = GCI_readRexx( cb->hidden,
@@ -301,9 +350,19 @@ static GCI_result parse( callblock *cb,
    }
    GCI_uppercase( &cb->tempbuf );
 
-   if ( ( rc = decode( cb->hidden, &cb->tempbuf, &pi, cb->depth ) ) != GCI_OK )
+   if ( ( rc = decode( cb->hidden, &cb->tempbuf, &pi, cb->depth, &newName ) )
+                                                                    != GCI_OK )
       return rc;
    GCI_strsetlen( cb->buffer, origlen );
+
+   if ( GCI_content( &newName ) != NULL ) {
+      if (cb->recurCount++ >= 100) {
+         GCI_strfree( cb->hidden, &newName );
+         return GCI_NestingOverflow;
+      }
+      GCI_strswap( &newName, cb->buffer );
+      origlen = GCI_strlen( cb->buffer );
+   }
 
    /*
     * Alright, we have it, but we have to fetch the number of elements
@@ -312,7 +371,14 @@ static GCI_result parse( callblock *cb,
    if ( ( pi.type == GCI_container ) || ( pi.type == GCI_array ) )
    {
       if ( ( rc = GCI_strcats( cb->buffer, ".0" ) ) != GCI_OK )
+      {
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
          return rc;
+      }
       if ( ( rc = GCI_readRexx( cb->hidden,
                                 cb->buffer,
                                 &cb->tempbuf,
@@ -322,6 +388,11 @@ static GCI_result parse( callblock *cb,
       {
          if ( rc == GCI_MissingValue )
             rc = GCI_MissingName;
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
          return rc;
       }
 
@@ -334,9 +405,23 @@ static GCI_result parse( callblock *cb,
                                   &pi.size,
                                   sizeof( pi.size ),
                                   GCI_unsigned ) ) != GCI_OK )
+      {
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
          return rc;
+      }
       if ( pi.size == 0 )
+      {
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
          return GCI_NumberRange;
+      }
       GCI_strsetlen( cb->buffer, origlen );
    }
 
@@ -361,7 +446,14 @@ static GCI_result parse( callblock *cb,
                                 itemnumber,
                                 cb->arg,
                                 &pi) ) != GCI_OK )
-      return rc;
+      {
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
+         return rc;
+      }
    }
 
    if ( ( pi.type != GCI_container ) && ( pi.type != GCI_array ) )
@@ -373,15 +465,35 @@ static GCI_result parse( callblock *cb,
       sprintf( cb->helper, ".%u", i + 1 );
 
       if ( ( rc = GCI_strcats( cb->buffer, cb->helper ) ) != GCI_OK )
+      {
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
          return rc;
+      }
       if ( ( rc = parse( cb, i ) ) != GCI_OK )
+      {
+         /*
+          * The tmp buffer persists for error displaying, kill the other.
+          */
+         if ( GCI_content( &newName ) != NULL )
+            GCI_strfree( cb->hidden, &newName );
          return rc;
+      }
       GCI_strsetlen( cb->buffer, origlen );
 
       if ( pi.type == GCI_array )
          break;
    }
    cb->depth--;
+   cb->recurCount--;
+   if ( GCI_content( &newName ) != NULL )
+   {
+      GCI_strswap( &newName, cb->buffer );
+      GCI_strfree( cb->hidden, &newName );
+   }
 
    if ( pi.indirect && ( pi.type == GCI_array ) )
    {
@@ -502,6 +614,7 @@ GCI_result GCI_parsetree( void *hidden,
    cb.callback = callback;
    cb.arg = arg;
    cb.tempbuf = str_tmp;
+   cb.recurCount = 0;
 
    return parse( &cb, 0 );
 }

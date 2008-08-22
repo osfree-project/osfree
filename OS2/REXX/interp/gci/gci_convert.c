@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -60,6 +60,10 @@
  *
  * One can take advantage of strtobigl and strtobigul for GCI_Ir and GCI_Ur
  * is NEED_STRTOBIGL or NEED_STRTOBIGUL are defined. They are slow but work.
+ *
+ * strtobigf can be used for GCI_Fr if NEED_STRTOBIGF is defined. In this case,
+ * F_SCAN must be defined and should be the scanf() compatible mask for parsing
+ * a GCI_F_x value. Most systems need a '#define F_SCAN "%Lf"' in this case.
  */
 
 #include "gci_convert.h"
@@ -121,9 +125,14 @@
 #elif defined(GCI_F_10)
 # define GCI_F    GCI_F_10
 # define GCI_Fmax 10
-#else
+#elif defined(GCI_F_8)
 # define GCI_F    GCI_F_8
 # define GCI_Fmax 8
+#elif defined(GCI_F_4)
+# define GCI_F    GCI_F_4
+# define GCI_Fmax 4
+#else
+# define GCI_Fmax 0
 #endif
 
 #if   ( GCI_Imax >= GCI_Umax ) && ( GCI_Imax >= GCI_Fmax )
@@ -165,7 +174,7 @@ static GCI_I strtobigl( const char *nptr, char **end, int base )
 
    assert( base == 10 );
 
-   while ( isspace( *run ) )
+   while ( rx_isspace( *run ) )
       run++;
 
    if ( *run == '-' )
@@ -173,13 +182,13 @@ static GCI_I strtobigl( const char *nptr, char **end, int base )
       neg = 1;
       run++;
    }
-   if ( !isdigit( *run ) )
+   if ( !rx_isdigit( *run ) )
    {
       *end = (char *) nptr;
       return 0;
    }
 
-   while ( isdigit( *run ) )
+   while ( rx_isdigit( *run ) )
    {
       if ( neg )
       {
@@ -256,16 +265,16 @@ static GCI_U strtobigul( const char *nptr, char **end, int base )
 
    assert( base == 10 );
 
-   while ( isspace( *run ) )
+   while ( rx_isspace( *run ) )
       run++;
 
-   if ( !isdigit( *run ) )
+   if ( !rx_isdigit( *run ) )
    {
       *end = (char *) nptr;
       return 0;
    }
 
-   while ( isdigit( *run ) )
+   while ( rx_isdigit( *run ) )
    {
       if ( retval >= GCI_UM / 10 )
       {
@@ -302,6 +311,35 @@ static GCI_U strtobigul( const char *nptr, char **end, int base )
 }
 #endif
 
+#ifdef NEED_STRTOBIGF
+static GCI_F strtobigf( const char *nptr, char **end )
+{
+   char c;
+   GCI_F f;
+   int rc;
+
+   errno = 0;
+   rc = sscanf( nptr, F_SCAN " %c", &f, &c );
+   if ( rc <= 0 )
+   {
+      *end = (char *) nptr;
+      if ( !errno )
+         errno = ERANGE;
+      return f; /* pro forma */
+   }
+
+   if ( rc == 2 )
+   {
+      if ( ( *end = strrchr( nptr, c ) ) == NULL )
+         *end = (char *) nptr;
+   }
+   else
+      *end = (char *) nptr + strlen( nptr );
+
+   return f;
+}
+#endif
+
 /*
  * preparenum chops off leading and trailing whitespaces from *str with the
  * initial length of *size. Leading zeros will be cut off, too.
@@ -318,7 +356,7 @@ static void preparenum( const char **str,
    /*
     * We prepare the number by hand and strip away blanks and useless zeros.
     */
-   while ( len && isspace( *s ) )
+   while ( len && rx_isspace( *s ) )
    {
       s++;
       len--;
@@ -332,7 +370,7 @@ static void preparenum( const char **str,
    /*
     * We know from the previous test that at least one non-space exists.
     */
-   while ( isspace( s[len - 1] ) )
+   while ( rx_isspace( s[len - 1] ) )
    {
       len--;
    }
@@ -363,7 +401,7 @@ static void preparenum( const char **str,
 static int iswhole( const char *str,
                     int size )
 {
-   while ( size && isdigit( *str ) )
+   while ( size && rx_isdigit( *str ) )
    {
       str++;
       size--;
@@ -495,6 +533,7 @@ static GCI_result uint2string( void *hidden,
    return GCI_OK;
 }
 
+#ifdef GCI_F
 /*
  * string2float is the basic routine which implements GCI_Fr. size characters
  * of str (not strongly 0-terminated) are converted and the number is placed
@@ -530,7 +569,7 @@ static GCI_result string2float( void *hidden,
     */
    errno = 0;
    *retval = GCI_Fr( buf, &p );
-   while ( isspace( *p ) )
+   while ( rx_isspace( *p ) )
       p++;
 
    if ( *p != '\0' )
@@ -570,10 +609,11 @@ static GCI_result float2string( void *hidden,
    *strsize = GCI_Fw( str, bin );
    if ( ( *str == '-' ) || ( *str == '+' ) )
       str++;
-   if ( !isdigit( *str ) )
+   if ( !rx_isdigit( *str ) )
       return GCI_UnsupportedNumber;
    return GCI_OK;
 }
+#endif /* ifdef GCI_F */
 
 /*
  * We define a set of functions which bases on string2int and int2string.
@@ -683,6 +723,7 @@ AUTOUFUNC(8)
 AUTOUFUNC(16)
 #endif
 
+#ifdef GCI_F
 /*
  * We define a set of functions which bases on string2float and float2string.
  * Each function will either convert to a smaller sized number or display a
@@ -736,7 +777,7 @@ AUTOFFUNC(12)
 #ifdef GCI_F_16
 AUTOFFUNC(16)
 #endif
-
+#endif /* ifdef GCI_F */
 
 /*
  * setup_functable initializes the functable table without setting illegal

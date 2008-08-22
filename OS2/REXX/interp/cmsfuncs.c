@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: cmsfuncs.c,v 1.2 2003/12/11 04:43:02 prokushev Exp $";
+static char *RCSid = "$Id: cmsfuncs.c,v 1.6 2004/02/10 10:43:48 mark Exp $";
 #endif
 
 /*
@@ -20,6 +20,14 @@ static char *RCSid = "$Id: cmsfuncs.c,v 1.2 2003/12/11 04:43:02 prokushev Exp $"
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
+/*
+ * Bug in LCC complier wchar.h that incorrectly says it defines stat struct
+ * but doesn't
+ */
+#if defined(__LCC__)
+# include <sys/stat.h>
+#endif
 
 #include "rexx.h"
 
@@ -120,7 +128,7 @@ streng *cms_justify( tsd_t *TSD, cparamboxptr parms )
    {
       if (inspace)
       {
-         if (!isspace(*cp))
+         if (!rx_isspace(*cp))
          {
             chars++ ;
             inspace = 0 ;
@@ -128,7 +136,7 @@ streng *cms_justify( tsd_t *TSD, cparamboxptr parms )
       }
       else
       {
-         if (!isspace(*cp))
+         if (!rx_isspace(*cp))
             chars++ ;
          else
          {
@@ -159,12 +167,12 @@ streng *cms_justify( tsd_t *TSD, cparamboxptr parms )
    out = result->value ;
    oend = out + length ;
    cp = cptr ;
-   for (; cp<cend && isspace(*cp); cp++) ;
+   for (; cp<cend && rx_isspace(*cp); cp++) ;
    for (; cp<cend && out<oend; cp++)
    {
-      if (isspace(*cp))
+      if (rx_isspace(*cp))
       {
-         for (;cp<cend && isspace(*cp); cp++) ;
+         for (;cp<cend && rx_isspace(*cp); cp++) ;
          for (i=0; i<between && out<oend; i++)
             *(out++) = pad ;
          if (count<initial)

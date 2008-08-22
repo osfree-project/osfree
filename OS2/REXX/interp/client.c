@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: client.c,v 1.2 2003/12/11 04:43:02 prokushev Exp $";
+static char *RCSid = "$Id: client.c,v 1.51 2004/04/24 09:32:58 florian Exp $";
 #endif
 
 /*
@@ -22,7 +22,7 @@ static char *RCSid = "$Id: client.c,v 1.2 2003/12/11 04:43:02 prokushev Exp $";
  */
 /* JH 20-10-99 */  /* To make Direct setting of stems Direct and not Symbolic. */
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 
 #if defined(WIN32) && defined(__IBMC__)
 # include <windows.h>
@@ -159,22 +159,6 @@ static int map_type( int in )
 }
 
 
-static void closedown( const tsd_t *TSD )
-{
-   CloseOpenFiles( TSD );
-   if (TSD->in_protected)
-   {
-      jmp_buf h;
-
-      memcpy(h,TSD->protect_return,sizeof(jmp_buf));
-      /* cheat about the const, we go away anyway :-) */
-      *((int*) &TSD->delayed_error_type) = PROTECTED_DelayedExit;
-      *((int*) &TSD->expected_exit_error) = 0;
-      longjmp( h, 1 ) ;
-   }
-   TSD->MTExit( 0 ) ;
-}
-
 static paramboxptr parametrize( const tsd_t *TSD, int ArgCount, const int *ParLengths, const char **ParStrings )
 {
    paramboxptr parms=NULL, root=NULL ;
@@ -201,30 +185,72 @@ static paramboxptr parametrize( const tsd_t *TSD, int ArgCount, const int *ParLe
 }
 
 /*
+ * IfcPrepareReturnString will copy the content of src to the buffer described
+ * by the pair (*targetlen, *targetbuf). The target is not checked, but a
+ * value of RX_NO_STRING for *targetlen will be accepted.
+ *
+ * If src is a NULL pointer the targetlen will become 0 and targetbuf will
+ * become NULL.
+ * Otherwise the length of the target is checked if it can hold the entire
+ * source string PLUS one string termination character. The terminator won't
+ * be honoured in *targetlen.
+ * A new buffer will be allocated using IfcAllocateString on insufficient size,
+ * but the old one is not freed.
+ *
+ * This function is intended to be the opposite of wrapstring.
+ */
+static void IfcPrepareReturnString( const streng *src, int *targetlen,
+                                    char **targetbuf )
+{
+   int len;
+
+   /*
+    * Check for an invalid source first.
+    */
+   if ( ( src == NULL ) || ( Str_val( src ) == NULL ) )
+   {
+      *targetlen = 0;
+      *targetbuf = NULL;
+      return;
+   }
+   len = Str_len( src );
+   if ( *targetlen < len + 1 )
+   {
+      if ( ( *targetbuf = IfcAllocateMemory( len + 1 ) ) == NULL )
+      {
+         /*
+          * Better idea?
+          */
+         *targetlen = 0;
+         return;
+      }
+   }
+   memcpy( *targetbuf, Str_val( src ), len );
+   (*targetbuf)[len] = '\0';
+   *targetlen = len;
+}
+
+/*
  * ScriptSetup does the setup step of IfcExecScript.
- * 1) panic becomes the new old value for a panicked exit.
- * 2) environment is deregistered and freed.
- * 3) A fresh Ifc-allocated copy of result is put into RetLen/RetString,
- *    and result is freed.
- * 4) InterpreterStatus is reset to the given value.
  * This function is part of the technique to bypass problems with
  * setjmp/longjmp.
  */
-static void ScriptSetup(tsd_t *TSD,
-                        void **instore_buf, unsigned long *instore_length,
-                        streng **command, const char *Name, int NameLen,
-                        paramboxptr *params, int ArgCount,
+static void ScriptSetup( tsd_t *TSD,
+                         void **instore_buf, unsigned long *instore_length,
+                         streng **command, const char *Name, int NameLen,
+                         paramboxptr *params, int ArgCount,
                               const int *ParLengths, const char **ParStrings,
-                        int *ctype, int CallType,
-                        int restricted,
-                        int *hooks, int ExitFlags,
-                        streng **environment, int EnvLen, const char *EnvName)
+                         int *ctype, int CallType,
+                         int restricted,
+                         int *hooks, int ExitFlags,
+                         streng **environment, int EnvLen, const char *EnvName )
 {
    int i;
 
    *instore_buf = NULL;
    *instore_length = 0;
    *command = wrapstring( TSD, Name, NameLen );
+   TSD->systeminfo->input_file = *command;
    assert( *command );
    *params = parametrize( TSD, ArgCount, ParLengths, ParStrings );
 
@@ -235,11 +261,14 @@ static void ScriptSetup(tsd_t *TSD,
    *hooks = 0;
    for( i = 0; i < 30; i++ )
    {
-      if ( ExitFlags & (1 << i) )
+      if ( ExitFlags & ( 1 << i ) )
          *hooks |= 1 << ReMapHook( TSD, i );
    }
 
    *environment = wrapstring( TSD, EnvName, EnvLen );
+   /*
+    * FIXME: "DEFAULT" is a bad idea! We have to use the extension of the file.
+    */
    if ( *environment == NULL )
       *environment = Str_creTSD( "DEFAULT" );
 
@@ -249,39 +278,27 @@ static void ScriptSetup(tsd_t *TSD,
 
 /*
  * ScriptCleanup does the cleanup step of IfcExecScript.
- * 1) panic becomes the new old value for a panicked exit.
+ * 1) script_exit becomes the new old value for a jumped exit.
  * 2) environment is deregistered and freed.
  * 3) A fresh Ifc-allocated copy of result is put into RetLen/RetString,
- *    and result is freed.
+ *    and result is freed. *RetString is either used or replaced.
  * 4) InterpreterStatus is reset to the given value.
  * This function is part of the technique to bypass problems with
  * setjmp/longjmp.
  */
-static void ScriptCleanup(tsd_t *TSD, jmp_buf *panic, streng *environment,
+static void ScriptCleanup(tsd_t *TSD, jmp_buf *script_exit, streng *environment,
                           streng *result, int *RetLen, char **RetString,
                           unsigned *InterpreterStatus)
 {
-   TSD->systeminfo->panic = panic;
+   TSD->systeminfo->script_exit = script_exit;
    del_envir( TSD, environment );
    Free_stringTSD( environment );
-   RestoreInterpreterStatus(TSD, InterpreterStatus);
+   RestoreInterpreterStatus( TSD, InterpreterStatus );
 
-   if ( result && result->len )
-   {
-      *RetLen = result->len ;
-      *RetString=(char *) IfcAllocateMemory( result->len+1 );
-      if ( *RetString )
-      {
-         memcpy( *RetString, (void *) result->value, result->len );
-         *( *RetString+result->len ) = '\0';
-      }
-      else
-         *RetLen = RX_NO_STRING ;
-   }
-   else
-      *RetLen = RX_NO_STRING ;
+   IfcPrepareReturnString( result, RetLen, RetString );
+
    if ( result )
-      FreeTSD( (void *) result );
+      Free_stringTSD( result );
 }
 
 int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
@@ -295,11 +312,11 @@ int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
 {
    streng * volatile result=NULL;
    tsd_t * volatile saved_TSD;
-   jmp_buf * volatile oldpanic;
+   jmp_buf * volatile old_exit_addr;
    int volatile RetCode=0;
    streng * volatile environment=NULL;
-   volatile int panicked=0;
-   jmp_buf panic;
+   volatile int jumped=0;
+   jmp_buf exit_addr;
    streng * command;
    paramboxptr params;
    int ctype,hooks,type;
@@ -323,10 +340,10 @@ int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
    saved_TSD = TSD;
    SaveInterpreterStatus( TSD, InterpreterStatus );
 
-   /* It may be that TSD->systeminfo->panic is not set. This may lead to
-    * an exit() call, e.g. at Rexx "EXIT". We set TSD->systeminfo->panic if it
-    * is not set. If a problem occurs we will be informed by a longjmp and
-    * we will not completely been killed by an exit(). Remember: This
+   /* It may be that TSD->systeminfo->script_exit is not set. This may lead to
+    * an exit() call, e.g. at Rexx "EXIT". We set TSD->systeminfo->script_exit
+    * if it is not set. If a problem occurs we will be informed by a longjmp
+    * and we will not completely been killed by an exit(). Remember: This
     * function is typically called if a program uses "us" as a subroutine.
     * Exiting is very harmful in this case.
     * Note: The memory allocated within called subsoutines will NOT be
@@ -334,43 +351,49 @@ int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
     * idea to traverse all called subroutine trees and free the leaves.
     * FGC
     */
-   if ( ( oldpanic = TSD->systeminfo->panic ) == NULL )
+   if ( ( old_exit_addr = TSD->systeminfo->script_exit ) == NULL )
    {
-      TSD->systeminfo->panic = &panic;
+      TSD->systeminfo->script_exit = &exit_addr;
       assert( !TSD->in_protected );
-      if ( setjmp( *TSD->systeminfo->panic ) )
+      if ( setjmp( *TSD->systeminfo->script_exit ) )
       {
          TSD = saved_TSD;
-         if ( result == NULL )
-            result = nullstringptr();
+         result = TSD->systeminfo->result;
+         TSD->systeminfo->result = NULL;
          if ( !RetCode )
-            RetCode = -1 ;
-         panicked++ ;
+         {
+            if ( result )
+               RetCode = atoi( result->value );
+            else
+               RetCode = -1;
+         }
+         result = NULL; /* result was a static buffer provided by exiterror */
+         jumped++;
       }
    }
-   if ( !panicked )
+   if ( !jumped )
    {
-      ScriptSetup(TSD,
-                  instore_buf, instore_length,
-                  &command, Name, NameLen,
-                  &params, ArgCount, ParLengths, ParStrings,
-                  &ctype, CallType,
-                  restricted,
-                  &hooks, ExitFlags,
-                  (streng **) &environment, EnvLen, EnvName);
+      ScriptSetup( TSD,
+                   instore_buf, instore_length,
+                   &command, Name, NameLen,
+                   &params, ArgCount, ParLengths, ParStrings,
+                   &ctype, CallType,
+                   restricted,
+                   &hooks, ExitFlags,
+                   (streng **) &environment, EnvLen, EnvName );
 
       type = SourceCode ;
       if ( type == RX_TYPE_EXTERNAL )
       {
-         result=execute_external( TSD, command, params, environment,
-                                  (int *) &RetCode, hooks, ctype );
-         Free_stringTSD( command );
+         result = execute_external( TSD, command, params, environment,
+                                    (int *) &RetCode, hooks, ctype );
       }
       else if ( type == RX_TYPE_INSTORE )
       {
-         result=do_instore( TSD, command, params, environment,
-                            (int *) &RetCode, hooks, TinnedTree, TinnedTreeLen,
-                            SourceString, SourceStringLen, NULL, ctype );
+         result = do_instore( TSD, command, params, environment,
+                              (int *) &RetCode, hooks,
+                              TinnedTree, TinnedTreeLen,
+                              SourceString, SourceStringLen, NULL, ctype );
       }
       else if ( type == RX_TYPE_MACRO )
          result = nullstringptr();
@@ -379,19 +402,19 @@ int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
          streng *SrcStr = wrapstring( TSD, SourceString, SourceStringLen );
          internal_parser_type ipt;
 
-         ipt = enter_macro( TSD, SrcStr, command, instore_buf, instore_length ) ;
-         if ( CallType == RX_TYPE_COMMAND
-         && ArgCount
-         && *ParLengths
-         && *ParLengths == 3
-         && memcmp( "//T", *ParStrings, 3 ) == 0 )
+         ipt = enter_macro( TSD, SrcStr, instore_buf, instore_length ) ;
+         if ( ( CallType == RX_TYPE_COMMAND )
+         &&   ArgCount
+         &&   ( *ParStrings != NULL )
+         &&   ( *ParLengths == 3 )
+         &&   ( memcmp( "//T", *ParStrings, 3 ) == 0 ) )
             ; /* request for tokenisation only, don't execute */
          else
          {
             ipt.kill = SrcStr;
-            result=do_instore( TSD, command, params, environment,
-                               (int *) &RetCode, hooks, NULL,0, NULL,0, &ipt,
-                               ctype);
+            result = do_instore( TSD, command, params, environment,
+                                 (int *) &RetCode, hooks, NULL,0, NULL,0, &ipt,
+                                 ctype);
             /* do_instore already has deleted the internal structure */
          }
       }
@@ -402,7 +425,7 @@ int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
       }
    }
 
-   ScriptCleanup( TSD, oldpanic, environment, result, RetLen, RetString,
+   ScriptCleanup( TSD, old_exit_addr, environment, result, RetLen, RetString,
                   InterpreterStatus );
 
    return RetCode;
@@ -416,12 +439,6 @@ int IfcExecCallBack( tsd_t * volatile TSD, int NameLen, const char *Name,
    paramboxptr args;
    streng *result;
    streng *name;
-
-   /*
-    * Always set the "return" values, even in case of errors.
-    */
-   *RetLen = RX_NO_STRING;
-   *RetString = NULL;
 
    /*
     * If we can't find the label, no point in continuing.
@@ -445,19 +462,10 @@ int IfcExecCallBack( tsd_t * volatile TSD, int NameLen, const char *Name,
    args = initargs( TSD, ArgCount, ParLengths, ParStrings );
    result = CallInternalFunction( TSD, node, TSD->currentnode, args );
 
-   if ( result && result->len )
-   {
-      *RetLen = result->len ;
-      *RetString=(char *) IfcAllocateMemory( result->len+1 );
-      if ( *RetString )
-      {
-         memcpy( *RetString, (void *) result->value, result->len );
-         *( *RetString+result->len ) = '\0';
-      }
-   }
+   IfcPrepareReturnString( result, RetLen, RetString );
 
    if ( result )
-      FreeTSD( (void *) result );
+      Free_stringTSD( result );
 
    return 0;
 }
@@ -643,7 +651,7 @@ static int MapHook( const tsd_t *TSD, int RexxHook )
       case HOOK_SETCWD: return RX_EXIT_SETCWD ;
 
       default:
-         closedown( TSD ) ;
+         exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "" );
    }
 
    return 0 ;
@@ -671,7 +679,7 @@ static int ReMapHook( const tsd_t *TSD, int NetHook )
       case RX_EXIT_SETCWD: return HOOK_SETCWD ;
 
       default:
-         closedown( TSD ) ;
+         exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "" );
    }
 
    return 0 ;
@@ -898,35 +906,37 @@ streng *SubCom( tsd_t *TSD, const streng *command, const streng *envir, int *rc 
 static int GetVariable( tsd_t *TSD, int Code, int *Lengths, char *Strings[],
                         int *allocated)
 {
-   const streng *value ;
+   const streng *value;
    streng *varbl;
    char *retval;
-   int i,len;
+   int i,len,state;
 
-   varbl = wrapstring( TSD, Strings[0], Lengths[0] ) ;
+   varbl = wrapstring( TSD, Strings[0], Lengths[0] );
 
    if ( !varbl )
    {
-      Lengths[1] = RX_NO_STRING ;
-      return RX_CODE_INVNAME ;
+      Lengths[1] = RX_NO_STRING;
+      return RX_CODE_INVNAME;
    }
 
-   if (!valid_var_symbol(varbl))
+   if ( !valid_var_symbol( varbl ) )
    {
-      Free_stringTSD( varbl ) ;
-      Lengths[1] = RX_NO_STRING ;
-      return RX_CODE_INVNAME ;
+      Free_stringTSD( varbl );
+      Lengths[1] = RX_NO_STRING;
+      return RX_CODE_INVNAME;
    }
 
-   if (Code == RX_GETSVAR)
-      value = getvalue( TSD, varbl, 1 ) ;
+   state = variables_per_SAA( TSD );
+   if ( Code == RX_GETSVAR )
+      value = getvalue( TSD, varbl, -1 );
    else
-      value = getdirvalue( TSD, varbl, 1 ) ;
-   /*
-    * getvalue returns varbl on NOVALUE, don't free varbl until the final use
-    * of value and varbl.
-    */
+      value = getdirvalue( TSD, varbl );
+   restore_variable_state( TSD, state );
 
+   /*
+    * getvalue returns varbl or a temporary value on NOVALUE, don't free varbl
+    * until the final use of value and varbl.
+    */
    if ( var_was_found( TSD ) )
    {
       Lengths[1] = value->len;
@@ -956,9 +966,9 @@ static int GetVariable( tsd_t *TSD, int Code, int *Lengths, char *Strings[],
        * variables.
        */
       if ( len )
-         retval[0] = (unsigned char) toupper( retval[0] );
-      for( i = 1; i < len && '.' != retval[i]; i++ )
-         retval[i] = (unsigned char) toupper( retval[i] );
+         retval[0] = (unsigned char) rx_toupper( retval[0] );
+      for( i = 1; ( i < len ) && ( '.' != retval[i] ); i++ )
+         retval[i] = (unsigned char) rx_toupper( retval[i] );
    }
    return RX_CODE_NOVALUE;
 }
@@ -981,66 +991,69 @@ static int GetVariable( tsd_t *TSD, int Code, int *Lengths, char *Strings[],
  ****************************************************************************/
 static int SetVariable( tsd_t *TSD, int Code, int *Lengths, char *Strings[] )
 {
-   streng *varbl, *varname, *value ;
-   int rcode, i ;
+   streng *varbl,*varname,*value;
+   int rcode,i,state;
 
-   varbl = wrapstring( TSD, Strings[0], Lengths[0] ) ;
+   varbl = wrapstring( TSD, Strings[0], Lengths[0] );
 
    if ( varbl == NULL )
    {
       /*
        * If the variable name is empty, return an error
        */
-      return RX_CODE_INVNAME ;
+      return RX_CODE_INVNAME;
    }
 
-   if (Code == RX_SETSVAR)
-      varname = Str_upper(Str_dupTSD(varbl)) ;
+   if ( Code == RX_SETSVAR )
+      varname = Str_upper( Str_dupTSD( varbl ) );
    else
    {
-      varname = Str_dupTSD(varbl) ;
+      varname = Str_dupTSD( varbl );
       /*
        * Bypass the dot test for the first character to allow reserved
        * variables.
        */
       if ( varname->len )
-         varname->value[0] = (unsigned char) toupper( varname->value[0] );
-      for( i = 1; i < varname->len && '.' != varname->value[i]; i++ )
+         varname->value[0] = (unsigned char) rx_toupper( varname->value[0] );
+      for( i = 1; ( i < varname->len ) && ( '.' != varname->value[i] ); i++ )
       {
-         varname->value[i] = (unsigned char) toupper(varname->value[i]);
+         varname->value[i] = (unsigned char) rx_toupper( varname->value[i] );
       }
    }
    Free_stringTSD( varbl ) ;
    varbl = NULL; /* For debugging purpose only */
 
-   if (!valid_var_symbol(varname))
+   if ( !valid_var_symbol( varname ) )
    {
-      Free_stringTSD( varname ) ;
-      return RX_CODE_INVNAME ;
+      Free_stringTSD( varname );
+      return RX_CODE_INVNAME;
    }
 
-   value = wrapstring( TSD, Strings[1], Lengths[1] ) ;
+   value = wrapstring( TSD, Strings[1], Lengths[1] );
 
-   rcode = RX_CODE_OK ; /* default value */
-   if (value)
+   state = variables_per_SAA( TSD );
+   rcode = RX_CODE_OK; /* default value */
+   if ( value )
    {
-      if (Code == RX_SETSVAR)
-         setvalue( TSD, varname, value ) ;
+      if ( Code == RX_SETSVAR )
+         setvalue( TSD, varname, value, -1 );
       else
-         setdirvalue( TSD, varname, value ) ;
+         setdirvalue( TSD, varname, value );
    }
    else
    {
-      if (Code == RX_SETSVAR)
-         drop_var( TSD, varname ) ;
+      if ( Code == RX_SETSVAR )
+         drop_var( TSD, varname );
       else
-         drop_dirvar( TSD, varname ) ;
+         drop_dirvar( TSD, varname );
    }
-   if (!var_was_found( TSD ))
-      rcode = RX_CODE_NOVALUE ;
+   restore_variable_state( TSD, state );
 
-   Free_stringTSD( varname ) ;
-   return rcode ;
+   if ( !var_was_found( TSD ) )
+      rcode = RX_CODE_NOVALUE;
+
+   Free_stringTSD( varname );
+   return rcode;
 }
 
 static int handle_version( int *Length, char **String )
@@ -1095,49 +1108,6 @@ int IfcVarPool( tsd_t *TSD, int Code, int *Lengths, char *Strings[],
       exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "" )  ;
 
    return rc ;
-}
-
-
-/* FGC, FIXME: IfcRegFunc never returns a code for RXFUNC_DUP! */
-int IfcRegFunc( tsd_t *TSD, const char *Name )
-{
-   streng *name;
-   int rc;
-
-   assert( Name ) ;
-   name = Str_upper( Str_creTSD( Name ) );
-   rc = addfunc( TSD, name, 1 ) ;
-   if (rc < 1)
-      Free_stringTSD(name);
-
-   if (rc == -1)
-      return RX_CODE_NOMEM ;
-   return RX_CODE_OK ;
-}
-
-
-int IfcDelFunc( tsd_t *TSD, const char *Name )
-{
-   streng *name;
-   int retval;
-
-   assert( Name ) ;
-   name = Str_upper( Str_creTSD( Name ) );
-   retval = rex_rxfuncdlldrop(TSD, name);
-   Free_stringTSD(name);
-   return(retval);
-}
-
-int IfcQueryFunc( tsd_t *TSD, const char *Name )
-{
-   streng *name;
-   int retval;
-
-   assert( Name ) ;
-   name = Str_upper( Str_creTSD( Name ) );
-   retval = rex_rxfuncdllquery(TSD, name);
-   Free_stringTSD(name);
-   return(retval);
 }
 
 /* Removes ct->Strings and ct->Lengths AND ct->ExternalName. */
@@ -1221,7 +1191,7 @@ static void MakeParams(const tsd_t *TSD, cparamboxptr parms)
  */
 static streng *do_an_external( tsd_t *TSD,
                                const streng *ExeName,
-                               const struct library_func *box,
+                               const struct entry_point *box,
                                cparamboxptr parms,
                                char exitonly,
                                char called )
@@ -1253,7 +1223,7 @@ static streng *do_an_external( tsd_t *TSD,
       ct->ExternalName = str_of( TSD, box->name );
       tmpExternalName = tmpstr_of( TSD, box->name );
       Func = box->addr;
-      gci_info = box->gci_info;
+      gci_info = box->special.gci_info;
    }
 
    queue = get_queue( TSD );
@@ -1261,7 +1231,7 @@ static streng *do_an_external( tsd_t *TSD,
    rc = IfcExecFunc( TSD, Func, ct->ExternalName,
                      ct->StringsCount, ct->Lengths, ct->Strings,
                      Str_len( queue ), Str_val( queue ),
-                     &RetLength, &RetString, &RC, exitonly, called, gci_info );
+                     &RetLength, &RetString, &RC, called, gci_info );
 
    Free_stringTSD( queue );
    RemoveParams( TSD ) ;
@@ -1297,14 +1267,14 @@ static streng *do_an_external( tsd_t *TSD,
 
 }
 
-streng *do_an_external_exe( tsd_t *TSD, const streng *name, cparamboxptr parms, char exitonly, char called )
+streng *call_unknown_external( tsd_t *TSD, const streng *name, cparamboxptr parms, char called )
 {
    assert(name);
 
-   return( do_an_external( TSD, name, NULL, parms, exitonly, called ) ) ;
+   return( do_an_external( TSD, name, NULL, parms, 1, called ) ) ;
 }
 
-streng *do_an_external_dll( tsd_t *TSD, const void *vbox, cparamboxptr parms, char called )
+streng *call_known_external( tsd_t *TSD, const struct entry_point *vbox, cparamboxptr parms, char called )
 {
    assert(vbox);
 

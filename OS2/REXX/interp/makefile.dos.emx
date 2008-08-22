@@ -50,7 +50,7 @@ else
 USEFLISTS =
 endif
 
-CEXTRA = -DDOS -DEMX -DNO_EXTERNAL_QUEUES
+CEXTRA = -DDOS -DEMX -DNO_EXTERNAL_QUEUES -funsigned-char
 EXTQUEUE_OBJS = #extstack.$(OBJ) rexxbif.$(OBJ)
 EXTQUEUE_SHOBJS = #extstack.sho rexxbif.sho
 EEXTRA =

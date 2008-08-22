@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: funcs.c,v 1.2 2003/12/11 04:43:10 prokushev Exp $";
+static char *RCSid = "$Id: funcs.c,v 1.37 2004/04/15 10:08:45 mark Exp $";
 #endif
 
 /*
@@ -165,6 +165,7 @@ static const struct function_type functions[] = {
 #ifdef TRACEMEM
   { EXT_REGINA_BIFS,dbg_listleaked,        "LISTLEAKED" },
 #endif
+  { EXT_REGINA_BIFS,rex_lower,             "LOWER" },
   { EXT_MAKEBUF_BIF,cms_makebuf,           "MAKEBUF" },
   { 0,              std_max,               "MAX" },
 #ifdef TRACEMEM
@@ -173,6 +174,7 @@ static const struct function_type functions[] = {
   { 0,              std_min,               "MIN" },
   { EXT_REGINA_BIFS,conflict_open,         "OPEN" },
   { 0,              std_overlay,           "OVERLAY" },
+  { EXT_REGINA_BIFS,rex_poolid,            "POOLID" },
   { EXT_REGINA_BIFS,unx_popen,             "POPEN" },
   { 0,              std_pos,               "POS" },
   { 0,              std_qualify,           "QUALIFY" },
@@ -216,7 +218,7 @@ static const struct function_type functions[] = {
   { 0,              std_trunc,             "TRUNC" },
   { EXT_REGINA_BIFS,unx_uname,             "UNAME" },
   { EXT_REGINA_BIFS,unx_unixerror,         "UNIXERROR" },
-  { EXT_AREXX_BIFS, arexx_upper,           "UPPER" },
+  { EXT_REGINA_BIFS,arexx_upper,           "UPPER" },
   { EXT_REGINA_BIFS,rex_userid,            "USERID" },
   { 0,              std_value,             "VALUE" },
   { 0,              std_verify,            "VERIFY" },
@@ -259,34 +261,16 @@ void mark_listleaked_params( const tsd_t *TSD )
 streng *buildtinfunc( tsd_t *TSD, nodeptr this )
 {
    int low=0, topp=0, mid=0, end=1, up=num_funcs-1, i=0 ;
-   streng *ptr=NULL ;
-   int ext=0 ;
-   void *vptr=NULL ;
+   streng *ptr;
+   struct entry_point *vptr;
    streng *(*func)(tsd_t *,cparamboxptr)=NULL ;
-   streng *upper_name;
-   int strict_ansi_option=get_options_flag( TSD->currlevel, EXT_STRICT_ANSI );
-   int cacheext_option=get_options_flag( TSD->currlevel, EXT_CACHEEXT );
 
-   upper_name=Str_upper(Str_dupTSD(this->name));
    /*
     * Look for a function registered in a DLL
     */
-   vptr = loaded_lib_func( TSD, upper_name ) ;
-   if (vptr)
+   vptr = loaded_lib_func( TSD, this->name ) ;
+   if ( vptr )
       func = std_center ; /* e.g. */
-
-   Free_stringTSD( upper_name );
-
-   /*
-    * If no function registered in a DLL, look for one in the
-    * current EXE
-    */
-   if (!func)
-   {
-      ext = external_func( TSD, this->name ) ;
-      if (ext)
-         func = std_center ; /* e.g. */
-   }
 
    /*
     * If no function registered in a DLL or EXE, look for a builtin
@@ -327,14 +311,14 @@ streng *buildtinfunc( tsd_t *TSD, nodeptr this )
              */
             if (functions[mid].compat)
             {
-               if ( strict_ansi_option )
+               if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
                   exiterror( ERR_NON_ANSI_FEATURE, 1, functions[mid].funcname );
                if ( ! get_options_flag( TSD->currlevel, functions[mid].compat ) )
                   func = NULL ;
                else
                {
                   func = functions[mid].function ;
-                  if ( cacheext_option )
+                  if ( get_options_flag( TSD->currlevel, EXT_CACHEEXT ) )
                      this->u.func = func ;
                }
             }
@@ -355,10 +339,8 @@ streng *buildtinfunc( tsd_t *TSD, nodeptr this )
                      */
 
       TSD->bif_first = initplist( TSD, this ) ;
-      if (ext)
-         ptr = do_an_external_exe( TSD, this->name, TSD->bif_first, 0, (char) this->o.called) ;
-      else if (vptr)
-         ptr = do_an_external_dll( TSD, vptr, TSD->bif_first, (char) this->o.called ) ;
+      if (vptr)
+         ptr = call_known_external( TSD, vptr, TSD->bif_first, (char) this->o.called ) ;
       else
          ptr = (*func)(TSD, TSD->bif_first /* ->next */ ) ;
 
@@ -380,14 +362,13 @@ streng *buildtinfunc( tsd_t *TSD, nodeptr this )
 
 
          TSD->bif_first = initplist( TSD, this ) ;
-         ptr = do_an_external_exe( TSD, this->name, TSD->bif_first, 1, (char) this->o.called ) ;
+         ptr = call_unknown_external( TSD, this->name, TSD->bif_first, (char) this->o.called ) ;
          deallocplink( TSD, TSD->bif_first ) ;
          TSD->bif_first = NULL ;
       }
       else
-         return NOFUNC ;
+         ptr = NOFUNC;
    }
-   /* can return valid ptr! */
    return ptr;
 }
 
@@ -581,7 +562,7 @@ char getoptionchar( tsd_t *TSD, const streng *text, const char* bif, int argnum,
    if (text->len == 0)
       exiterror( ERR_INCORRECT_CALL, 21, bif, argnum )  ;
 
-   ch = (char) toupper( text->value[0] ) ;
+   ch = (char) rx_toupper( text->value[0] ) ;
    /*
     * If the option supplied is ANSI, then return when we find it.
     */
@@ -766,17 +747,17 @@ int convert_date(tsd_t *TSD, const streng *suppdate, char suppformat, struct tm 
               return( 1 );
          memcpy(buf,ptr,2);
          buf[2] = '\0';
-         if ( !isdigit( buf[0] ) || !isdigit( buf[1] ) )
+         if ( !rx_isdigit( buf[0] ) || !rx_isdigit( buf[1] ) )
             return( 1 );
          num1 = atol( buf );
          memcpy(buf,(ptr+3),2);
          buf[2] = '\0';
-         if ( !isdigit( buf[0] ) || !isdigit( buf[1] ) )
+         if ( !rx_isdigit( buf[0] ) || !rx_isdigit( buf[1] ) )
             return( 1 );
          num2 = atol( buf );
          memcpy(buf,(ptr+6),2);
          buf[2] = '\0';
-         if ( !isdigit( buf[0] ) || !isdigit( buf[1] ) )
+         if ( !rx_isdigit( buf[0] ) || !rx_isdigit( buf[1] ) )
             return( 1 );
          num3 = atol( buf );
          switch(suppformat)

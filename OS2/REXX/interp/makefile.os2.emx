@@ -23,7 +23,7 @@ LXLITE = lxlite
 endif
 
 ifeq ($(MULTI),N)
-THREADING = 
+THREADING =
 THREADING_LINK =
 THREADING_FILE = mt_notmt
 else
@@ -56,7 +56,7 @@ else
 GCI_SHO = gci_call.obj gci_convert.obj gci_execute.obj gci_helper.obj \
    gci_prepare.obj gci_reginabridge.obj gci_rxfuncdefine.obj \
    gci_tree.obj
-HAVE_GCI = -DHAVE_GCI -I$(SRCDIR)/gci
+HAVE_GCI = -DHAVE_GCI -I$(SRCDIR)/gci -I.
 endif
 
 DYN_CRT =  -Zcrtdll -Zomf -mprobe
@@ -123,21 +123,21 @@ README = $(SRCDIR)/README.* COPYING-LIB
 FILES = funcs builtin error variable interprt debug dbgfuncs \
 	memory parsing files misc os2funcs unxfuncs arxfuncs cmsfuncs shell rexxext stack \
 	tracing interp cmath convert strings library strmath signals \
-	macros envir extlib wrappers options doscmd #r2perl
+	macros envir wrappers options doscmd #r2perl
 
 CSRCFILES = $(SRCDIR)/funcs.c $(SRCDIR)/builtin.c $(SRCDIR)/error.c $(SRCDIR)/variable.c \
 	$(SRCDIR)/interprt.c $(SRCDIR)/debug.c $(SRCDIR)/dbgfuncs.c $(SRCDIR)/memory.c $(SRCDIR)/parsing.c $(SRCDIR)/files.c \
 	$(SRCDIR)/misc.c $(SRCDIR)/unxfuncs.c $(SRCDIR)/arxfuncs.c $(SRCDIR)/cmsfuncs.c $(SRCDIR)/os2funcs.c $(SRCDIR)/shell.c $(SRCDIR)/rexxext.c $(SRCDIR)/stack.c \
 	$(SRCDIR)/tracing.c $(SRCDIR)/interp.c $(SRCDIR)/cmath.c $(SRCDIR)/convert.c $(SRCDIR)/strings.c $(SRCDIR)/library.c \
 	$(SRCDIR)/strmath.c $(SRCDIR)/signals.c $(SRCDIR)/macros.c $(SRCDIR)/envir.c $(SRCDIR)/expr.c \
-	$(SRCDIR)/extlib.c $(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/doscmd.c #$(SRCDIR)/r2perl.c
+	$(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/doscmd.c #$(SRCDIR)/r2perl.c
 
 OFILES = funcs.$(OBJ) builtin.$(OBJ) error.$(OBJ) variable.$(OBJ) \
 	interprt.$(OBJ) debug.$(OBJ) dbgfuncs.$(OBJ) memory.$(OBJ) parsing.$(OBJ) files.$(OBJ) \
 	misc.$(OBJ) unxfuncs.$(OBJ) arxfuncs.$(OBJ) cmsfuncs.$(OBJ) os2funcs.$(OBJ) shell.$(OBJ) rexxext.$(OBJ) stack.$(OBJ) \
 	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strings.$(OBJ) library.$(OBJ) \
 	strmath.$(OBJ) signals.$(OBJ) macros.$(OBJ) envir.$(OBJ) expr.$(OBJ) mt_notmt.$(OBJ) instore.$(OBJ) \
-	extlib.$(OBJ) yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) doscmd.$(OBJ) wrappers.$(OBJ) \
+	yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) doscmd.$(OBJ) wrappers.$(OBJ) \
 	extstack.$(OBJ) rexxbif.$(OBJ)
 
 SHOFILES = funcs.obj builtin.obj error.obj variable.obj \
@@ -145,7 +145,7 @@ SHOFILES = funcs.obj builtin.obj error.obj variable.obj \
 	misc.obj unxfuncs.obj arxfuncs.obj cmsfuncs.obj shell.obj os2funcs.obj rexxext.obj stack.obj \
 	tracing.obj interp.obj cmath.obj convert.obj strings.obj library.obj \
 	strmath.obj signals.obj macros.obj envir.obj expr.obj $(THREADING_FILE).obj \
-	extlib.obj yaccsrc.obj lexsrc.obj wrappers.obj options.obj doscmd.obj \
+	yaccsrc.obj lexsrc.obj wrappers.obj options.obj doscmd.obj \
 	drexx.obj client.obj rexxsaa.obj instore.obj \
 	extstack.obj rexxbif.obj \
 	$(GCI_SHO)
@@ -176,7 +176,7 @@ GCIHEADERS = $(SRCDIR)/gci/gci.h $(SRCDIR)/gci/embedded.h gci_convert.h
 #
 .SUFFIXES:
 
-all : rexx$(EXE) $(LIBFILE).$(LIBPST) execiser$(EXE) rxstack$(EXE) rxqueue$(EXE) $(SHL_TARGETS) mtb_files #threader$(EXE)
+all : rexx$(EXE) $(LIBFILE).$(LIBPST) execiser$(EXE) rxstack$(EXE) rxqueue$(EXE) $(SHL_TARGETS) mtb_files threader$(EXE)
 
 $(CSRCFILES) : $(SRCDIR)/rexx.h
 
@@ -185,7 +185,7 @@ $(SRCDIR)/rexx.h : $(SRCDIR)/extern.h $(SRCDIR)/strings.h $(SRCDIR)/defs.h $(SRC
 rexx$(EXE) : $(OFILES) rexx.$(OBJ) nosaa.$(OBJ)
 	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rexx$(EXE) $(OBJECTS) rexx.$(OBJ) nosaa.$(OBJ) $(LIBS) $(SOCKET)
 	-copy $(SRCDIRN)\reginaos2.ico
-	$(RC)
+	-$(RC)
 	-$(LXLITE) rexx$(EXE)
 
 regina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
@@ -193,7 +193,7 @@ regina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
 
 regina$(EXE) : regina
 	-copy $(SRCDIRN)\reginaos2.ico
-	$(RC)
+	-$(RC)
 	-$(LXLITE) regina$(EXE)
 
 pmregina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
@@ -201,7 +201,7 @@ pmregina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
 
 pmregina$(EXE) : pmregina
 	-copy $(SRCDIRN)\reginaos2.ico
-	$(RC)
+	-$(RC)
 	-$(LXLITE) pmregina$(EXE)
 
 execiser : execiser.obj $(SHLFILE).$(SHL)
@@ -236,7 +236,7 @@ $(SHLFILE).$(SHL): $(SHOFILES) $(SHLDEF)
 	$(SHL3)
 	$(SHL4)
 	-copy $(SRCDIRN)\reginaos2.ico
-	$(RC)
+	-$(RC)
 	-$(LXLITE) $(SHLFILE).$(SHL)
 
 #
@@ -346,9 +346,6 @@ envir.$(OBJ) :   $(SRCDIR)/envir.c       $(SRCDIR)/rexx.h
 
 expr.$(OBJ) :    $(SRCDIR)/expr.c        $(SRCDIR)/rexx.h
 	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/expr.c
-
-extlib.$(OBJ) :  $(SRCDIR)/extlib.c      $(SRCDIR)/rexx.h
-	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/extlib.c
 
 wrappers.$(OBJ) :$(SRCDIR)/wrappers.c    $(SRCDIR)/rexx.h
 	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)/wrappers.c
@@ -593,12 +590,6 @@ expr.obj :    $(SRCDIR)/expr.c           $(SRCDIR)/rexx.h
 	       $(O2SHO)
 	       $(SAVE2O)
 
-extlib.obj :  $(SRCDIR)/extlib.c         $(SRCDIR)/rexx.h
-	       $(O2SAVE)
-	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/extlib.c
-	       $(O2SHO)
-	       $(SAVE2O)
-
 wrappers.obj :$(SRCDIR)/wrappers.c       $(SRCDIR)/rexx.h
 	       $(O2SAVE)
 	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/wrappers.c
@@ -666,7 +657,7 @@ yaccsrc.obj : $(SRCDIR)/yaccsrc.c $(SRCDIR)/defs.h $(SRCDIR)/rexx.h
 	       $(SAVE2O)
 
 threader.obj : $(SRCDIR)/threader.c $(SRCDIR)/rexx.h
-	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -c $(SRCDIR)/threader.c
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -DOS2_THREADS -c $(SRCDIR)/threader.c
 
 #
 # Rules for GCI

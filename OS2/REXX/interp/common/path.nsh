@@ -185,7 +185,7 @@ Function StrStr
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Uninstall sutff
+; Uninstall stuff
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -231,4 +231,33 @@ Function un.StrStr
     Exch 2
     Pop $0
     Pop $1
+FunctionEnd
+
+;====================================================
+; EmptyDirectory - Determines if directory passed is empty
+;                  and deletes it and from PATH if not empty
+;          Returns: nothing
+;          Input: full path name
+;====================================================
+Function un.EmptyDirectory
+  Pop $5
+  FindFirst $2 $1 "$5\*.*"
+  StrCmp $1 "" empty
+  StrCmp $1 "." cont
+  StrCmp $1 ".." cont
+  Goto done
+cont:
+  FindNext $2 $1
+  ;Dumpstate::debug
+  StrCmp $1 "" empty
+  StrCmp $1 "." cont
+  StrCmp $1 ".." cont
+  ; to get here we have a real file, so get out now
+  Goto done
+empty:
+  ; Remove the directory from PATH
+  Push $5
+  Call un.RemoveFromPath
+done:
+  FindClose $2
 FunctionEnd

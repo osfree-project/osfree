@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: extstack.h,v 1.2 2003/12/11 04:43:08 prokushev Exp $
+ * $Id: extstack.h,v 1.9 2003/07/17 09:32:22 florian Exp $
  */
 
 #include "rexxbif.h"            /* C functions that mimic REXX BIFs */

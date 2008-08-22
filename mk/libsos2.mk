@@ -3,6 +3,9 @@
 # for building OS/2 static libs
 #
 
+!ifndef __libsos2_mk__
+!define __libsos2_mk__
+
 CLEAN_ADD = *.c *.h
 ADD_COPT =            $(ADD_COPT) &
                       -i=$(ROOT)$(SEP)include$(SEP)os3 &
@@ -19,3 +22,5 @@ ADD_COPT =            $(ADD_COPT) &
                       -bt=os2
 
 !include $(%ROOT)/mk/libs.mk
+
+!endif

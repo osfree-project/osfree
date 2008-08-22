@@ -4,7 +4,7 @@
 #
 
 !ifndef __site_mk__
-__site_mk__ = 1
+!define __site_mk__
 
 # Project root
 !ifdef %ROOT

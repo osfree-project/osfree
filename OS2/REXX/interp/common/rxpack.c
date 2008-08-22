@@ -16,7 +16,7 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-static char RCSid[] = "$Id: rxpack.c,v 1.2 2003/12/11 04:43:28 prokushev Exp $";
+static char RCSid[] = "$Id: rxpack.c,v 1.41 2004/04/01 11:21:08 mark Exp $";
 
 #include "rxpack.h"
 
@@ -812,7 +812,9 @@ void RxFreeCharArray
 #endif
 
 {
+#if 0
    int      i;
+#endif
 
    /*
     * Validate that 'ptr' is valid.
@@ -1300,6 +1302,7 @@ void FunctionTrace
    if ( RxPackageGlobalData->RxRunFlags & MODE_VERBOSE )
    {
       (void) fprintf( RxPackageGlobalData->RxTraceFilePointer, ">>\n" );
+      if ( name ) (void) fprintf( RxPackageGlobalData->RxTraceFilePointer, ">> Call %s(", name );
       va_start( argptr, name );
       fmt = va_arg( argptr, char *);
       if (fmt != NULL)
@@ -1429,9 +1432,12 @@ int RegisterRxInit
 
    InternalTrace( RxPackageGlobalData, "RegisterRxInit", "Name: %s Addr: %ld", name, ptr );
 
-   rc = RexxRegisterExitExe( (RREE_ARG0_TYPE)name,
-                             (RREE_ARG1_TYPE)(ptr),
-                             (RREE_ARG2_TYPE)NULL );
+   if ( (void *)ptr )
+   {
+      rc = RexxRegisterExitExe( (RREE_ARG0_TYPE)name,
+                                (RREE_ARG1_TYPE)(ptr),
+                                (RREE_ARG2_TYPE)NULL );
+   }
    InternalTrace( RxPackageGlobalData, "RegisterRxInit", "returning %d", rc );
    if ( rc != RXEXIT_OK )
       return 1;
@@ -1578,7 +1584,7 @@ int SetPackageConstants
 #endif
 
 {
-   int varlen=0,vallen,rc;
+   int varlen=0,vallen=0,rc;
    char varname[250];
    char *value=NULL;
    char buf[100];

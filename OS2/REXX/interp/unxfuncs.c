@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: unxfuncs.c,v 1.2 2003/12/11 04:43:24 prokushev Exp $";
+static char *RCSid = "$Id: unxfuncs.c,v 1.28 2004/03/12 12:20:20 mark Exp $";
 #endif
 
 /*
@@ -84,15 +84,15 @@ typedef struct utsname
    char *version ;
    char *machine ;
 } _utsname ;
-# elif defined(__WATCOMC__) || defined(_MSC_VER) || defined(__SASC) || defined(__MINGW32__) || defined(__BORLANDC__) || defined(__WINS__) || defined(__EPOC32__) || defined(__LCC__)
+# elif defined(__WATCOMC__) || defined(_MSC_VER) || defined(__SASC) || defined(__MINGW32__) || defined(__BORLANDC__) || defined(__WINS__) || defined(__EPOC32__) || defined(__LCC__) || defined(SKYOS)
 #  include "utsname.h"
-#  if !defined(__SASC) && !defined(__QNX__) && !defined(__WINS__) && !defined(__EPOC32__)
+#  if !defined(__SASC) && !defined(__QNX__) && !defined(__WINS__) && !defined(__EPOC32__) && !defined(SKYOS)
 #   include <process.h>
 #   include <direct.h>
 #  endif
 # else
 #  ifndef VMS
-#  include <sys/utsname.h>
+#   include <sys/utsname.h>
 #  endif
 # endif
 #endif
@@ -165,13 +165,13 @@ streng *unx_popen( tsd_t *TSD, cparamboxptr parms )
       *eptr = '0' ;
       varname->len = stemlen+1 ;
       tmpptr = int_to_streng( TSD, lines ) ;
-      setvalue( TSD, varname, tmpptr ) ;
+      setvalue( TSD, varname, tmpptr, -1 ) ;
       for (; lines>0; lines--)
       {
          tmpptr = popline( TSD, NULL, NULL, 0 ) ;
          sprintf(eptr, "%d", lines ) ;
          varname->len = strlen( varname->value ) ;
-         setvalue( TSD, varname, tmpptr ) ;
+         setvalue( TSD, varname, tmpptr, -1 ) ;
       }
       Free_stringTSD( varname ); /* bja */
    }

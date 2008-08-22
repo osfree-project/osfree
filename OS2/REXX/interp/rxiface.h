@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: rxiface.h,v 1.2 2003/12/11 04:43:18 prokushev Exp $
+ * $Id: rxiface.h,v 1.16 2003/12/19 07:26:13 florian Exp $
  */
 
 #include "wrappers.h"
@@ -162,9 +162,6 @@ int IfcExecCallBack( tsd_t * volatile TSD, int NameLen, const char *Name,
 
 int IfcVarPool( tsd_t *TSD, int Code, int *Lengths, char *Strings[],
                 int *allocated );
-int IfcRegFunc( tsd_t *TSD, const char *Name ) ;
-int IfcDelFunc( tsd_t *TSD, const char *Name ) ;
-int IfcQueryFunc( tsd_t *TSD, const char *Name ) ;
 
 int IfcSubCmd( tsd_t *TSD, int EnvLen, const char *EnvStr, int CmdLen,
                const char *CmdStr, int *RetLen, char **RetStr ) ;
@@ -176,7 +173,7 @@ int IfcExecFunc( tsd_t *TSD, PFN Func, char *Name, int Params,
                  int *Lengths, char **Strings,
                  int queue_name_len, char *queue_name,
                  int *RetLength, char **RetString,
-                 int *RC, char exitonly, char called, void *gci_info ) ;
+                 int *RC, char called, void *gci_info ) ;
 int IfcRegDllFunc( const tsd_t *TSD, const char* rxname, const char* module, const char* objnam ) ;
 
 int IfcHaveFunctionExit(const tsd_t *TSD);

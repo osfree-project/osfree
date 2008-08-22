@@ -8,6 +8,9 @@
 # valerius, 2008 Jul 31
 #
 
+!ifndef __genrules_mk__
+!define __genrules_mk__
+
 !ifneq %cdrive
 drv = $(%cdrive):
 !else
@@ -105,3 +108,5 @@ gen_deps: .SYMBOLIC
 
 #gen_deps_wrapper: .SYMBOLIC
 # @%null
+
+!endif

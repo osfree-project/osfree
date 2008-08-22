@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: macros.c,v 1.2 2003/12/11 04:43:12 prokushev Exp $";
+static char *RCSid = "$Id: macros.c,v 1.21 2004/02/10 10:44:06 mark Exp $";
 #endif
 
 /*
@@ -38,12 +38,6 @@ void killsystem( tsd_t *TSD, sysinfo systm )
       systm->environment = NULL;
    }
 
-   if ( systm->called_as )
-   {
-      Free_stringTSD( systm->called_as ) ;
-      systm->called_as = NULL;
-   }
-
    if (systm->input_file )
    {
       Free_stringTSD( systm->input_file ) ;
@@ -64,10 +58,10 @@ void killsystem( tsd_t *TSD, sysinfo systm )
       systm->currlevel0 = NULL;
      }
 
-   if (systm->panic)
+   if ( systm->script_exit )
    {
-      FreeTSD( systm->panic ) ;
-      systm->panic = NULL;
+      FreeTSD( systm->script_exit ) ;
+      systm->script_exit = NULL;
    }
 
    if ( systm->result)
@@ -93,194 +87,243 @@ streng *do_instore( tsd_t * volatile TSD, const streng *name, paramboxptr args,
                     const internal_parser_type *ipt,
                     int ctype )
 {
-   sysinfobox *newsystem=NULL, *tmpsys=NULL ;
-   streng *ptr=NULL ;
-   jmp_buf *jbuf=NULL ;
+   sysinfobox *newsystem, *tmpsys;
+   streng *ptr=NULL;
+   jmp_buf *jbuf;
    unsigned InterpreterStatus[IPRT_BUFSIZE];
    tsd_t * volatile saved_TSD;
    int * volatile saved_RetCode;
    volatile proclevel oldlevel;
+   volatile int doTermHook=0;
 
-   if (RetCode)
-      *RetCode = 0 ;
+   if ( RetCode )
+      *RetCode = 0;
 
-   SaveInterpreterStatus(TSD,InterpreterStatus);
-   TSD->instore_is_errorfree = 0 ;
-   jbuf = MallocTSD( sizeof(jmp_buf) ) ;
-   assert(!TSD->in_protected);
+   SaveInterpreterStatus( TSD, InterpreterStatus );
+   jbuf = MallocTSD( sizeof( jmp_buf ) );
+   assert( !TSD->in_protected );
 
-   saved_TSD = TSD; /* vars used until here */
+   saved_TSD = TSD;            /* vars used until here */
    saved_RetCode = RetCode;
-   if (setjmp(*jbuf))
+   if ( setjmp( *jbuf ) )
    {
-      TSD = saved_TSD; /* prevents bugs like  592393 */
+      TSD = saved_TSD;         /* prevents bugs like  592393 */
       RetCode = saved_RetCode;
 
-      ptr = TSD->systeminfo->result ;
-      TSD->systeminfo->result = NULL ;
-      if (!TSD->instore_is_errorfree && RetCode)
-         *RetCode = -1 ;
+      ptr = TSD->systeminfo->result;
+      TSD->systeminfo->result = NULL;
+      if ( !TSD->instore_is_errorfree )
+      {
+         /*
+          * In case of an error we don't return the error number as the result.
+          * Instead, use the current "result" as the error code. It is set
+          * to a negative value already by errortext().
+          *
+          * ==> errortext() uses a static buffer, if you ever need the value
+          *     you have to dup it after the restore of the old system or you
+          *     risk an endless loop.
+          */
+         if ( RetCode )
+            *RetCode = atoi( ptr->value );
+
+         ptr = NULL;
+      }
    }
    else
    {
       nodeptr savecurrentnode = TSD->currentnode; /* pgb fixes bug 595300 */
 
-      TSD->currentnode = NULL ;
+      TSD->currentnode = NULL;
 
-      newsystem = creat_sysinfo( TSD, Str_dupTSD(envir)) ;
-      newsystem->previous = TSD->systeminfo ;
+      newsystem = creat_sysinfo( TSD, Str_dupTSD( envir ) );
+      newsystem->previous = TSD->systeminfo;
+      newsystem->hooks = hooks;
+      newsystem->script_exit = jbuf;
+      newsystem->invoked = ctype;
+      newsystem->input_file = Str_dupstrTSD( name );
+      newsystem->trace_override = newsystem->previous->trace_override;
+      newsystem->ctrlcounter = newsystem->previous->ctrlcounter +
+                                               newsystem->previous->cstackcnt;
+
       /*
        * see note in execute_external
        * Fixes bug 604219
        */
       oldlevel = TSD->currlevel;
 
-      TSD->currlevel = NULL ;
-      TSD->systeminfo = newsystem ;
-      TSD->systeminfo->hooks = hooks ;
-      TSD->systeminfo->panic = jbuf ;
-      TSD->systeminfo->invoked = ctype ;
-      TSD->systeminfo->called_as = Str_dupTSD( name ) ;
-      TSD->systeminfo->input_file = Str_dupstrTSD( name ) ;
-      TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL ) ;
+      TSD->systeminfo = newsystem;
+      TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL );
+      TSD->currlevel->pool = oldlevel->pool + 1;
 
-      TSD->systeminfo->trace_override = newsystem->previous->trace_override;
+      TSD->currlevel->args = args;
 
-      TSD->currlevel->args = args ;
-
-      if (ipt)
+      if ( ipt )
          TSD->systeminfo->tree = *ipt;
-      else if (IsValidTin(instore, instore_length))
-         TSD->systeminfo->tree = ExpandTinnedTree(TSD, instore, instore_length,
-                                                  instore_source,
-                                                  instore_source_length);
+      else if ( IsValidTin( instore, instore_length ) )
+         TSD->systeminfo->tree = ExpandTinnedTree( TSD, instore, instore_length,
+                                                   instore_source,
+                                                   instore_source_length );
       else
       {
-         memset(&TSD->systeminfo->tree, 0, sizeof(TSD->systeminfo->tree));
+         memset( &TSD->systeminfo->tree, 0, sizeof( TSD->systeminfo->tree ) );
       }
-      if (TSD->systeminfo->hooks & HOOK_MASK(HOOK_INIT))
-         hookup( TSD, HOOK_INIT ) ;
+      if ( TSD->systeminfo->hooks & HOOK_MASK( HOOK_INIT ) )
+         hookup( TSD, HOOK_INIT );
 
-      if (TSD->systeminfo->tree.root)
-         ptr = interpret( TSD, TSD->systeminfo->tree.root ) ;
+      doTermHook = 1;
+
+      if ( TSD->systeminfo->tree.root )
+         ptr = interpret( TSD, TSD->systeminfo->tree.root );
       else
-         ptr = NULL ;
+         ptr = NULL;
       TSD->currentnode = savecurrentnode; /* pgb */
-
    }
-   if (TSD->systeminfo->hooks & HOOK_MASK(HOOK_TERMIN))
-      hookup( TSD, HOOK_TERMIN ) ;
 
-   tmpsys = TSD->systeminfo ;
-   TSD->systeminfo = TSD->systeminfo->previous ;
+   if ( doTermHook )
+   {
+      /*
+       * Be sure to try it only once.
+       */
+      doTermHook = 0;
+      if ( TSD->systeminfo->hooks & HOOK_MASK( HOOK_TERMIN ) )
+         hookup( TSD, HOOK_TERMIN );
+   }
+
+   tmpsys = TSD->systeminfo;
+   TSD->systeminfo = TSD->systeminfo->previous;
    TSD->currlevel = oldlevel;
-   TSD->trace_stat = TSD->currlevel->tracestat ;
+   TSD->trace_stat = TSD->currlevel->tracestat;
 
-   tmpsys->currlevel0->args = NULL ;
-   killsystem( TSD, tmpsys ) ;
+   tmpsys->currlevel0->args = NULL;
 
-   RestoreInterpreterStatus(TSD,InterpreterStatus);
-   /* Oops, we really ought to handle function-did-not-return-data */
-   return (ptr) ? ptr : nullstringptr()  ;
+   /*
+    * jbuf will be freed by killsystem.
+    */
+   killsystem( TSD, tmpsys );
+
+   RestoreInterpreterStatus( TSD, InterpreterStatus );
+
+   return ptr;
 }
 
 streng *execute_external( tsd_t * volatile TSD, const streng *command,
                           paramboxptr args, const streng *envir,
                           int * volatile RetCode, int hooks, int ctype )
 {
-   sysinfobox *newsystem=NULL, *tmpsys=NULL ;
-   char name[1024] ;
-   streng *ptr=NULL ;
-   const char *cptr=NULL, *eptr=NULL, *start=NULL, *stop=NULL ;
-   char path[1024] ;
-   FILE *fptr ;
-   jmp_buf *jbuf=NULL ;
+   sysinfobox *newsystem, *tmpsys;
+   streng *ptr=NULL;
+   char *path;
+   streng *name;
+   int len;
+   FILE *fptr;
+   jmp_buf *jbuf;
    internal_parser_type parsing;
    volatile proclevel oldlevel;
    unsigned InterpreterStatus[IPRT_BUFSIZE];
    nodeptr savecurrentnode = TSD->currentnode;
    tsd_t * volatile saved_TSD;
    int * volatile saved_RetCode;
+   volatile int doTermHook=0;
 
-   if (RetCode)
-      *RetCode = 0 ;
+   if ( RetCode )
+      *RetCode = 0;
 
-   SaveInterpreterStatus(TSD,InterpreterStatus);
-   jbuf = MallocTSD( sizeof(jmp_buf) ) ;
-   TSD->instore_is_errorfree = 0 ;
-   assert(!TSD->in_protected);
+   SaveInterpreterStatus( TSD, InterpreterStatus );
+   jbuf = MallocTSD( sizeof( jmp_buf ) );
+   assert( !TSD->in_protected );
 
    saved_TSD = TSD; /* vars used until here */
    saved_RetCode = RetCode;
 
-   if (setjmp(*jbuf))
+   if ( setjmp( *jbuf ) )
    {
-      TSD = saved_TSD; /* prevents bugs like  592393 */
+      TSD = saved_TSD;          /* prevents bugs like  592393 */
       RetCode = saved_RetCode;
 
-      ptr = TSD->systeminfo->result ;
-      TSD->systeminfo->result = NULL ;
-      if (!TSD->instore_is_errorfree && RetCode)
-         *RetCode = -1 ;
+      ptr = TSD->systeminfo->result;
+      TSD->systeminfo->result = NULL;
+      if ( !TSD->instore_is_errorfree )
+      {
+         /*
+          * In case of an error we don't return the error number as the result.
+          * Instead, use the current "result" as the error code. It is set
+          * to a negative value already by errortext().
+          *
+          * ==> errortext() uses a static buffer, if you ever need the value
+          *     you have to dup it after the restore of the old system or you
+          *     risk an endless loop.
+          */
+         if ( RetCode )
+            *RetCode = atoi( ptr->value );
+
+         ptr = NULL;
+      }
    }
    else
    {
-      fptr = NULL ;
+      fptr = NULL;
       /* FGC: Check length first to avoid  */
       /*      access of invalid buffer     */
       if ( ( command->len == 7 )
-      && ( memcmp("<stdin>",command->value,command->len) == 0 ) )
+      && ( memcmp( "<stdin>", command->value, command->len ) == 0 ) )
       {
          fptr = stdin;
-         strcpy(name,command->value);
+         name = Str_dupstrTSD( command );
       }
       else
       {
-         cptr = command->value ;
-         eptr = cptr + command->len ;
+         path = (char *) tmpstr_of( TSD, command );
+         while ( rx_isspace( *path ) )
+            path++;
+         len = strlen( path );
+         while ( len > 0 )
+            if ( !rx_isspace( path[len - 1] ) )
+               break;
+            else
+               len--;
+         path[len] = '\0';
 
-         for (start=cptr; start<eptr && isspace(*start); start++) ;
-         for (stop=eptr-1;stop>start && isspace(*stop);  stop--) ;
-
-         memcpy( path, start, (stop-start)+1 ) ;
-         *(path+(stop-start)+1) = 0x00 ;
-         get_external_routine( TSD, "REGINA_MACROS", path, &fptr, name, 1 );
-         if (!fptr)
+         name = get_external_routine( TSD, path, &fptr );
+         if ( !name )
          {
-            get_external_routine( TSD, "PATH", path, &fptr, name, 1 );
-            if (!fptr)
+            FreeTSD( jbuf );
+            if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
             {
-               FreeTSD( jbuf ) ;
-               if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+               /*
+                * If we can't find the external routine, we should exiterror()
+                * with 43.1 - as per ANSI
+                */
+               exiterror( ERR_ROUTINE_NOT_FOUND, 1, path );
+            }
+            else
+            {
+               /*
+                * The only time this function is called with a non-NULL
+                * RetCode is from client.c, when an external routine
+                * is being executed via the SAA interface. In this case
+                * the error returned is the only thing we should do;
+                * we certainly should NOT be writing anything to stdout
+                * or stderr!
+                */
+               if ( RetCode )
                {
-                  /*
-                   * If we can't find the external routine, we should exiterror()
-                   * with 43.1 - as per ANSI
-                   */
-                  exiterror( ERR_ROUTINE_NOT_FOUND, 1, path );
+                  *RetCode = -ERR_PROG_UNREADABLE;
                }
-               else
-               {
-                  /*
-                   * The only time this function is called with a non-NULL
-                   * RetCode is from client.c, when an external routine
-                   * is being executed via the SAA interface. In this case
-                   * the error returned is the only thing we should do;
-                   * we certainly should NOT be writing anything to stdout
-                   * or stderr!
-                   */
-                  if (RetCode)
-                  {
-                     *RetCode = -ERR_PROG_UNREADABLE;
-                  }
-                  return NULL ;
-               }
+               return NULL;
             }
          }
       }
 
-      newsystem = creat_sysinfo( TSD, Str_dupTSD(envir)) ;
-      newsystem->previous = TSD->systeminfo ;
+      newsystem = creat_sysinfo( TSD, Str_dupTSD( envir ) );
+      newsystem->previous = TSD->systeminfo;
+      newsystem->hooks = hooks;
+      newsystem->invoked = ctype;
+      newsystem->script_exit = jbuf;
+      newsystem->input_file = name;
+      newsystem->trace_override = newsystem->previous->trace_override;
+      newsystem->ctrlcounter = newsystem->previous->ctrlcounter +
+                                               newsystem->previous->cstackcnt;
+
       /* FGC: NOTE: I found that currlevel has changed outside between calls
        *            to this function. I really don't know, if this should
        *            happen. A typical change of currlevel is done in interpret.
@@ -294,71 +337,76 @@ streng *execute_external( tsd_t * volatile TSD, const streng *command,
        */
       oldlevel = TSD->currlevel;
 
-      TSD->currlevel = NULL ;
-      TSD->systeminfo = newsystem ;
-      TSD->systeminfo->hooks = hooks ;
-      TSD->systeminfo->invoked = ctype ;
-      TSD->systeminfo->panic = jbuf ;
-      TSD->systeminfo->called_as = Str_dupTSD( command ) ;
-      TSD->systeminfo->input_file = Str_crestrTSD( name ) ;
-      TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL ) ;
+      TSD->systeminfo = newsystem;
+      TSD->systeminfo->currlevel0 = TSD->currlevel = newlevel( TSD, NULL );
+      TSD->currlevel->pool = oldlevel->pool + 1;
 
       savecurrentnode = TSD->currentnode; /* pgb fixes bug 595300 */
-      TSD->systeminfo->trace_override = newsystem->previous->trace_override;
 
-      TSD->currlevel->args = args ;
-      TSD->currentnode = NULL ;
+      TSD->currlevel->args = args;
+      TSD->currentnode = NULL;
 
       fetch_file( TSD, fptr, &parsing );
-      if (fptr != stdin)
-         fclose(fptr) ;
-      if (parsing.result == 0)
+      if ( fptr != stdin )
+         fclose( fptr );
+      if ( parsing.result == 0 )
       {
-         TSD->systeminfo->tree = parsing ;
-         treadit( TSD->systeminfo->tree.root ) ;
+         TSD->systeminfo->tree = parsing;
          /*
           * Execute any RXINI system exit
           */
-         if (TSD->systeminfo->hooks & HOOK_MASK(HOOK_INIT))
-            hookup( TSD, HOOK_INIT ) ;
+         if ( TSD->systeminfo->hooks & HOOK_MASK( HOOK_INIT ) )
+            hookup( TSD, HOOK_INIT );
 
-         ptr = interpret( TSD, TSD->systeminfo->tree.root ) ;
+         doTermHook = 1;
+
+         ptr = interpret( TSD, TSD->systeminfo->tree.root );
          TSD->currentnode = savecurrentnode; /* pgb */
       }
       else
       {
          TSD->currentnode = savecurrentnode; /* pgb */
-         ptr = NULL ;
-         exiterror( ERR_YACC_SYNTAX, 1, parsing.tline ) ;
+         ptr = NULL;
+         exiterror( ERR_YACC_SYNTAX, 1, parsing.tline );
       }
    }
    /*
     * Execute any RXTER system exit
     */
-   if (TSD->systeminfo->hooks & HOOK_MASK(HOOK_TERMIN))
-      hookup( TSD, HOOK_TERMIN ) ;
+   if ( doTermHook )
+   {
+      /*
+       * Be sure to try it only once.
+       */
+      doTermHook = 0;
+      if ( TSD->systeminfo->hooks & HOOK_MASK( HOOK_TERMIN ) )
+         hookup( TSD, HOOK_TERMIN );
+   }
+   if ( TSD->systeminfo->hooks & HOOK_MASK( HOOK_TERMIN ) )
+      hookup( TSD, HOOK_TERMIN );
 
-/*
-   if (must_pop)
-      popcallstack( -1 ) ;
-*/
-   tmpsys = TSD->systeminfo ;
-   TSD->systeminfo = TSD->systeminfo->previous ;
+   tmpsys = TSD->systeminfo;
+   TSD->systeminfo = TSD->systeminfo->previous;
    TSD->currlevel = oldlevel;
-   TSD->trace_stat = TSD->currlevel->tracestat ;
+   TSD->trace_stat = TSD->currlevel->tracestat;
 
-   tmpsys->currlevel0->args = NULL ;
-   killsystem( TSD, tmpsys ) ;
+   tmpsys->currlevel0->args = NULL;
 
-   RestoreInterpreterStatus(TSD,InterpreterStatus);
-   /* Oops, we really ought to handle function-did-not-return-data */
-   return (ptr) ? ptr : nullstringptr()  ;
+   /*
+    * jbuf will be freed by killsystem
+    */
+   killsystem( TSD, tmpsys );
+
+   RestoreInterpreterStatus( TSD, InterpreterStatus );
+   /*
+    * Oops, we really ought to handle function-did-not-return-data
+    */
+   return ptr;
 }
 
 
 internal_parser_type enter_macro( tsd_t *TSD, const streng *source,
-                                  streng *name, void **ept,
-                                  unsigned long *extlength)
+                                  void **ept, unsigned long *extlength)
 {
    internal_parser_type parsing;
 
@@ -370,7 +418,6 @@ internal_parser_type enter_macro( tsd_t *TSD, const streng *source,
    }
    if (ept && extlength)
       *ept = TinTree( TSD, &parsing, extlength ) ;
-   name = name; /* keep compiler happy */
 
    return( parsing );
 }

@@ -40,7 +40,7 @@ LN_S  = @LN_S@
 CFLAGS = @CFLAGS@
 
 RANLIB_DYNAMIC = @RANLIB_DYNAMIC@
-CEXTRA = @CEXTRA@ @DLFCNINCDIR@ -DREGINA_SHARE_DIRECTORY=\"$(sharedir)\"
+CEXTRA = @CEXTRA@ @DLFCNINCDIR@ -DREGINA_SHARE_DIRECTORY=\"$(sharedir)\" @MH_UNSIGNED_CHAR_SWITCH@
 DEBUG = @DEBUG@
 TRACEMEM = @TRACEMEM@
 FLISTS = @FLISTS@
@@ -126,39 +126,39 @@ CSRCFILES = $(REG_DIR)/funcs.c $(REG_DIR)/builtin.c $(REG_DIR)/error.c $(REG_DIR
 	$(REG_DIR)/misc.c $(REG_DIR)/unxfuncs.c $(REG_DIR)/cmsfuncs.c $(REG_DIR)/os2funcs.c $(REG_DIR)/shell.c $(REG_DIR)/rexxext.c $(REG_DIR)/stack.c \
 	$(REG_DIR)/tracing.c $(REG_DIR)/interp.c $(REG_DIR)/cmath.c $(REG_DIR)/convert.c $(REG_DIR)/strings.c $(REG_DIR)/library.c \
 	$(REG_DIR)/strmath.c $(REG_DIR)/signals.c $(REG_DIR)/macros.c $(REG_DIR)/envir.c $(REG_DIR)/expr.c \
-	$(REG_DIR)/extlib.c $(REG_DIR)/wrappers.c $(REG_DIR)/options.c $(REG_DIR)/doscmd.c \
+	$(REG_DIR)/wrappers.c $(REG_DIR)/options.c $(REG_DIR)/doscmd.c \
 	$(REG_DIR)/alloca.c $(REG_DIR)/vmscmd.c $(REG_DIR)/vmsfuncs.c $(REG_DIR)/arxfuncs.c \
 	$(REG_DIR)/staticld.c \
 	$(REG_DIR)/mt_notmt.c $(REG_DIR)/mt_win32.c $(REG_DIR)/mt_posix.c $(REG_DIR)/mt_os2.c $(REG_DIR)/nosaa.c $(REG_DIR)/instore.c \
 	$(REG_DIR)/ntservice/service.c \
 	$(REG_DIR)/common/rxpack.c $(REG_DIR)/common/rxpack.h $(REG_DIR)/common/rxdef.h $(REG_DIR)/apphead.h \
-	$(REG_DIR)/common/*.nsh \
+	$(REG_DIR)/common/*.nsh $(REG_DIR)/common/*.ico \
 	$(REG_DIR)/gci/*.c $(REG_DIR)/gci/*.h $(REG_DIR)/gci/00README \
-	$(REG_DIR)/gci/gci_convert.linux.i86 $(REG_DIR)/gci/gci_convert.win32.vc $(REG_DIR)/gci/gci_convert.unsupported \
-	$(REG_DIR)/gci/gci_convert.os2.emx $(REG_DIR)/gci/gci_convert.os2.wcc
+	$(REG_DIR)/gci/gci_convert.linux.* $(REG_DIR)/gci/gci_convert.win32.* $(REG_DIR)/gci/gci_convert.unsupported \
+	$(REG_DIR)/gci/gci_convert.os2.* $(REG_DIR)/gci/gci_convert.macX.* $(REG_DIR)/gci/gci_convert.solaris.*
 
 ZIP_CSRCFILES = funcs.c builtin.c error.c variable.c \
 	interprt.c debug.c dbgfuncs.c memory.c parsing.c files.c \
 	misc.c unxfuncs.c cmsfuncs.c os2funcs.c shell.c rexxext.c stack.c \
 	tracing.c interp.c cmath.c convert.c strings.c library.c \
 	strmath.c signals.c macros.c envir.c expr.c \
-	extlib.c wrappers.c options.c doscmd.c \
+	wrappers.c options.c doscmd.c \
 	alloca.c vmscmd.c vmsfuncs.c arxfuncs.c \
 	staticld.c \
 	mt_notmt.c mt_win32.c mt_posix.c mt_os2.c nosaa.c instore.c \
 	ntservice/service.c \
 	common/rxpack.c common/rxpack.h common/rxdef.h apphead.h \
-	common/*.nsh \
+	common/*.nsh common/*.ico \
 	gci/*.c gci/*.h gci/00README \
-	gci/gci_convert.linux.i86 gci/gci_convert.win32.vc gci/gci_convert.unsupported \
-	gci/gci_convert.os2.emx gci/gci_convert.os2.wcc
+	gci/gci_convert.linux.* gci/gci_convert.win32.* gci/gci_convert.unsupported \
+	gci/gci_convert.os2.* gci/gci_convert.macX.* gci/gci_convert.solaris.*
 
 OFILES = funcs.$(OBJ) builtin.$(OBJ) error.$(OBJ) variable.$(OBJ) \
 	interprt.$(OBJ) debug.$(OBJ) dbgfuncs.$(OBJ) memory.$(OBJ) parsing.$(OBJ) files.$(OBJ) \
 	misc.$(OBJ) unxfuncs.$(OBJ) cmsfuncs.$(OBJ) os2funcs.$(OBJ) shell.$(OBJ) rexxext.$(OBJ) stack.$(OBJ) \
 	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strings.$(OBJ) library.$(OBJ) \
 	strmath.$(OBJ) signals.$(OBJ) macros.$(OBJ) envir.$(OBJ) expr.$(OBJ) extstack.$(OBJ) \
-	extlib.$(OBJ) yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) doscmd.$(OBJ) rexxbif.$(OBJ) \
+	yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) doscmd.$(OBJ) rexxbif.$(OBJ) \
 	wrappers.$(OBJ) $(ALLOCA) mt_notmt.$(OBJ) instore.$(OBJ) arxfuncs.$(OBJ)
 
 SHOFILES = funcs.sho builtin.sho error.sho variable.sho \
@@ -166,7 +166,7 @@ SHOFILES = funcs.sho builtin.sho error.sho variable.sho \
 	misc.sho unxfuncs.sho cmsfuncs.sho shell.sho os2funcs.sho rexxext.sho stack.sho \
 	tracing.sho interp.sho cmath.sho convert.sho strings.sho library.sho \
 	strmath.sho signals.sho macros.sho envir.sho expr.sho extstack.sho \
-	extlib.sho yaccsrc.sho lexsrc.sho wrappers.sho options.sho doscmd.sho rexxbif.sho \
+	yaccsrc.sho lexsrc.sho wrappers.sho options.sho doscmd.sho rexxbif.sho \
 	drexx.sho client.sho rexxsaa.sho $(ALLOCA_SHO) $(STATICLD_SHO) $(MT_FILE).sho instore.sho arxfuncs.sho \
 	$(GCI_SHO)
 
@@ -226,12 +226,12 @@ ZIP_MTSSRC = en.mts pt.mts no.mts de.mts es.mts pl.mts
 
 MTBFILES = en.mtb pt.mtb no.mtb de.mtb es.mtb pl.mtb
 
-HFILES = $(REG_DIR)/rexx.h $(REG_DIR)/rexx_charset.h $(REG_DIR)/defs.h $(REG_DIR)/extern.h $(REG_DIR)/regina_t.h \
+HFILES = $(REG_DIR)/rexx.h $(REG_DIR)/regina_c.h $(REG_DIR)/defs.h $(REG_DIR)/extern.h $(REG_DIR)/regina_t.h \
 	 $(REG_DIR)/strings.h $(REG_DIR)/configur.h $(REG_DIR)/yaccsrc.h $(REG_DIR)/wrappers.h \
 	 $(REG_DIR)/rxiface.h $(REG_DIR)/rexxsaa.h $(REG_DIR)/utsname.h $(REG_DIR)/vms.h $(REG_DIR)/rexxmsg.h \
 	 $(REG_DIR)/mt.h $(REG_DIR)/mt_notmt.h $(REG_DIR)/mt_win32.h $(REG_DIR)/mt_os2.h $(REG_DIR)/mt_posix.h \
 	 $(REG_DIR)/rexxbif.h $(REG_DIR)/extstack.h $(REG_DIR)/ntservice/service.h $(REG_DIR)/mac.h
-ZIP_HFILES = rexx.h rexx_charset.h defs.h extern.h regina_t.h \
+ZIP_HFILES = rexx.h regina_c.h defs.h extern.h regina_t.h \
 	 strings.h configur.h yaccsrc.h wrappers.h \
 	 rxiface.h rexxsaa.h utsname.h vms.h rexxmsg.h \
 	 mt.h mt_notmt.h mt_win32.h mt_os2.h mt_posix.h \
@@ -246,7 +246,7 @@ ZIP_CFILES = $(ZIP_CSRCFILES) yaccsrc.c lexsrc.c execiser.c threader.c \
 	 test1.c test2.c getopt.c \
 	 rxqueue.c rxstack.c rexxbif.c extstack.c mac.c msgcmp.c
 
-JUNK = *.o *.sho $(STATICLIB) execiser$(EXE) threader$(EXE) rxqueue$(EXE) rxstack$(EXE) rexx$(EXE) msgcmp$(EXE) $(SHL_TARGETS) $(SHLPRE)$(SHLFILE)$(SHLPST)* config.cache config.log gci_convert.h *.mtb regina-config rxstack.init.d
+JUNK = *.o *.sho $(STATICLIB) execiser$(EXE) threader$(EXE) rxqueue$(EXE) rxstack$(EXE) rexx$(EXE) msgcmp$(EXE) $(SHL_TARGETS) $(SHLPRE)$(SHLFILE)$(SHLPST)* config.cache config.log gci_convert.h *.mtb
 
 #.SUFFIXES: .sho $(SUFFIXES)
 #
@@ -419,9 +419,6 @@ envir.$(OBJ) : $(srcdir)/envir.c $(srcdir)/rexx.h
 
 expr.$(OBJ) :  $(srcdir)/expr.c $(srcdir)/rexx.h
 	$(CC) $(COPT) $(CC2O) -c $(srcdir)/expr.c
-
-extlib.$(OBJ) :  $(srcdir)/extlib.c $(srcdir)/rexx.h
-	$(CC) $(COPT) $(CC2O) -c $(srcdir)/extlib.c
 
 wrappers.$(OBJ) :$(srcdir)/wrappers.c $(srcdir)/rexx.h
 	$(CC) $(COPT) $(CC2O) -c $(srcdir)/wrappers.c
@@ -693,12 +690,6 @@ expr.sho :    $(srcdir)/expr.c $(srcdir)/rexx.h
 	$(O2SHO)
 	$(SAVE2O)
 
-extlib.sho :  $(srcdir)/extlib.c $(srcdir)/rexx.h
-	$(O2SAVE)
-	$(CC) $(TSCOPT) $(CC2O) $(DYN_COMP) -c $(srcdir)/extlib.c
-	$(O2SHO)
-	$(SAVE2O)
-
 wrappers.sho :$(srcdir)/wrappers.c $(srcdir)/rexx.h
 	$(O2SAVE)
 	$(CC) $(TSCOPT) $(CC2O) $(DYN_COMP) -c $(srcdir)/wrappers.c
@@ -874,14 +865,14 @@ test2.exp: ./rexx$(EXE) $(srcdir)/test2_w32_dll.def $(srcdir)/def2exp.rexx
 
 ARCHIVE_FILES = $(ALLSRC) $(README) $(REG_DIR)/makefile.* \
 	$(REG_DIR)/*.rsp $(DEMOFILES) $(TRIPFILES) $(CONTRIBFILES) \
-	$(CONFFILES) $(REG_DIR)/*.def $(REG_DIR)/*.ico $(REG_DIR)/*.rc \
+	$(CONFFILES) $(REG_DIR)/*.def $(REG_DIR)/*.ico $(REG_DIR)/*.rc  $(REG_DIR)/*.info \
 	$(REG_DIR)/file_id* $(REG_DIR)/*.bat $(REG_DIR)/*.cmd $(YACCLEX_FILES) \
 	$(REG_DIR)/*.rexx $(REG_DIR)/yaccsrc.bound $(REG_DIR)/rexx.make \
 	$(EPOC32FILES) $(TAR_MTSSRC)
 
 ZIP_ARCHIVE_FILES = $(ZIP_ALLSRC) $(ZIP_README) makefile.* \
 	*.rsp $(ZIP_DEMOFILES) $(ZIP_TRIPFILES) $(ZIP_CONTRIBFILES) \
-	$(ZIP_CONFFILES) *.def *.ico *.rc \
+	$(ZIP_CONFFILES) *.def *.ico *.rc *.info \
 	file_id* *.bat *.cmd $(ZIP_YACCLEX_FILES) \
 	*.rexx yaccsrc.bound rexx.make \
 	$(ZIP_EPOC32FILES) $(ZIP_MTSSRC)
@@ -1039,6 +1030,9 @@ cygwininstall: all
 
 clean:
 	rm -f $(JUNK)
+
+realclean: clean
+	rm -f regina-config rxstack.init.d
 
 binary: $(BASE_BINARY)
 

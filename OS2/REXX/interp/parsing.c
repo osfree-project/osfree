@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: parsing.c,v 1.2 2003/12/11 04:43:15 prokushev Exp $";
+static char *RCSid = "$Id: parsing.c,v 1.7 2004/02/10 10:44:11 mark Exp $";
 #endif
 
 /*
@@ -158,8 +158,8 @@ int bmstrstr( const streng *heystack, int Offset, const streng *needle,
           * or tolower. This is not true always, but the opposite is even
           * wrong.
           */
-         TmpPtr = memchr( HeyPtr, toupper( *NeedPtr ), HeyLen );
-         TmpPtr2 = memchr( HeyPtr, tolower( *NeedPtr ), HeyLen );
+         TmpPtr = memchr( HeyPtr, rx_toupper( *NeedPtr ), HeyLen );
+         TmpPtr2 = memchr( HeyPtr, rx_tolower( *NeedPtr ), HeyLen );
          if ( TmpPtr == NULL )
             TmpPtr = TmpPtr2;
          else if ( ( TmpPtr2 != NULL ) && ( TmpPtr2 < TmpPtr ) )
@@ -210,11 +210,11 @@ int bmstrstr( const streng *heystack, int Offset, const streng *needle,
    if ( caseless )
    {
       for (Tmp = NeedLen; Tmp >= 0; Tmp--, TmpPtr++ )
-         NextChr[tolower(*TmpPtr)] = Tmp;
+         NextChr[rx_tolower(*TmpPtr)] = Tmp;
 
       while ( HeyPtr <= eptr )
       {
-         Tmp = NextChr[tolower(HeyPtr[NeedLen])];
+         Tmp = NextChr[rx_tolower(HeyPtr[NeedLen])];
          if ( !Tmp )
          {
             /*
@@ -309,14 +309,14 @@ static void doparse3( tsd_t *TSD, cnodeptr this, const char *start, int len )
        * We shall only fetch out one word. First skip leading spaces,
        * then find the end of the next word.
        */
-      while (len && isspace(*start))
+      while (len && rx_isspace(*start))
       {
          start++;
          len--;
       }
 
       wordlen = 0;
-      while ((wordlen < len) && !isspace(start[wordlen]))
+      while ((wordlen < len) && !rx_isspace(start[wordlen]))
          wordlen++;
    }
    else
@@ -327,7 +327,7 @@ static void doparse3( tsd_t *TSD, cnodeptr this, const char *start, int len )
        *      cut the first char if it is a space AND it is not
        *      the only pattern to match.
        */
-      if (CutLast && len && isspace(*start))
+      if (CutLast && len && rx_isspace(*start))
       {
          start++;
          len--;

@@ -2,6 +2,9 @@
 # set paths
 #
 
+!ifndef __dirs_mk__
+!define __dirs_mk__
+
 !include $(%ROOT)/mk/site.mk
 
 #drv =
@@ -56,4 +59,6 @@ TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
 # DEST is relative from $(FILESDIR)
 DEST = $(FILESDIR)$(SEP)$(DEST)
 !endif
+!endif
+
 !endif

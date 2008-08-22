@@ -3,6 +3,9 @@
 # for building tools
 #
 
+!ifndef __tools_mk__
+!define __tools_mk__
+
 32_BITS  = 1
 
 !ifndef DEST
@@ -27,3 +30,5 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(INCLUDES) .SYMBOLIC
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
+
+!endif

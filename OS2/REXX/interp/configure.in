@@ -33,11 +33,18 @@ case "$target" in
    *sequent-dynix*)
       ;;
    *solaris*)
+      GCI_CONVERT_HEADER="gci_convert.solaris.sparc"
       ;;
    sparc*sunos*)
       ;;
    i*86-*linux*)
       GCI_CONVERT_HEADER="gci_convert.linux.i86"
+      ;;
+   *86_64-*linux*)
+      GCI_CONVERT_HEADER="gci_convert.linux.86_64"
+      ;;
+   alpha*-*linux*)
+      GCI_CONVERT_HEADER="gci_convert.linux.alpha"
       ;;
    *nto-qnx*)
       ;;
@@ -114,7 +121,7 @@ AC_CHECK_HEADERS( \
 AC_CHECK_FUNCS(sysconf putenv usleep random ftruncate \
    memcpy memmove strerror strerror_r gettimeofday ftime \
    _fullpath vsprintf _splitpath2 _splitpath sigaction \
-   lstat mkstemp inet_ntop gmtime_r localtime_r drand48\
+   lstat mkstemp inet_ntop gmtime_r localtime_r \
    readlink realpath)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -443,6 +450,9 @@ MH_SET_SHLPST
 
 dnl --------------- Force definition of pre-compiler macro UNIX ----------
 AC_DEFINE(UNIX)
+
+dnl --------------- Check what compiler switch sets unsigned char ----------
+MH_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH()
 
 dnl ----------------- get our version information ------------------------
 AC_SUBST(VERSION)

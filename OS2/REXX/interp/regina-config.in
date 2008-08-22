@@ -3,7 +3,7 @@
 # The idea to this kind of setup info script was stolen from numerous
 # other packages, such as neon, libxml and gnome.
 #
-# $Id: regina-config.in,v 1.2 2003/12/11 04:43:16 prokushev Exp $
+# $Id: $
 #
 prefix=@prefix@
 exec_prefix=@exec_prefix@

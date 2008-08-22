@@ -6,7 +6,7 @@
 #
 
 !ifndef __all_mk__
-__all_mk__ = 1
+!define __all_mk__
 
 all: install
 

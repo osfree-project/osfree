@@ -35,7 +35,7 @@ CC              = @CC@
 LN_S            = @LN_S@
 CFLAGS          = @CFLAGS@
 
-CEXTRA =           @CEXTRA@ @DLFCNINCDIR@ -DREGINA_SHARE_DIRECTORY=\"$(sharedir)\"
+CEXTRA =           @CEXTRA@ @DLFCNINCDIR@ -DREGINA_SHARE_DIRECTORY=\"$(sharedir)\" @unsigned_char@
 DEBUG =            @DEBUG@
 TRACEMEM =         @TRACEMEM@
 FLISTS =           @FLISTS@

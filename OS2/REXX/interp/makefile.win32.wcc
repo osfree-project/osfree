@@ -77,7 +77,6 @@ signals.obj   &
 macros.obj    &
 envir.obj     &
 expr.obj      &
-extlib.obj    &
 yaccsrc.obj   &
 lexsrc.obj    &
 wrappers.obj  &
@@ -119,7 +118,6 @@ signals.dlo   &
 macros.dlo    &
 envir.dlo     &
 expr.dlo      &
-extlib.dlo    &
 yaccsrc.dlo   &
 lexsrc.dlo    &
 wrappers.dlo  &
@@ -181,7 +179,6 @@ rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%append dummy.lnk file macros.obj
         @%append dummy.lnk file envir.obj
         @%append dummy.lnk file expr.obj
-        @%append dummy.lnk file extlib.obj
         @%append dummy.lnk file yaccsrc.obj
         @%append dummy.lnk file lexsrc.obj
         @%append dummy.lnk file wrappers.obj
@@ -280,7 +277,6 @@ $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
         @%append lib.rsp +macros.obj
         @%append lib.rsp +envir.obj
         @%append lib.rsp +expr.obj
-        @%append lib.rsp +extlib.obj
         @%append lib.rsp +yaccsrc.obj
         @%append lib.rsp +lexsrc.obj
         @%append lib.rsp +wrappers.obj
@@ -332,7 +328,6 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%append dummy.lnk file macros.dlo
         @%append dummy.lnk file envir.dlo
         @%append dummy.lnk file expr.dlo
-        @%append dummy.lnk file extlib.dlo
         @%append dummy.lnk file yaccsrc.dlo
         @%append dummy.lnk file lexsrc.dlo
         @%append dummy.lnk file wrappers.dlo
@@ -435,6 +430,9 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%append dummy.lnk export '___regina_faked_main@8'
         @%append dummy.lnk export __regina_faked-main='___regina_faked_main@8'
         @%append dummy.lnk export ___regina_faked-main='___regina_faked_main@8'
+        @%append dummy.lnk export '_ReginaCleanup@0'
+        @%append dummy.lnk export ReginaCleanup='_ReginaCleanup@0'
+        @%append dummy.lnk export _ReginaCleanup='_ReginaCleanup@0'
         $(LINK) $(LDFLAGS) @dummy.lnk
         del dummy.lnk
 
@@ -561,9 +559,6 @@ envir.obj:    $(SRC)\envir.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)\$*.c
 
 expr.obj:     $(SRC)\expr.c $(HFILES)
-        $(CC) $(CCFLAGS) /fo=$@ $(SRC)\$*.c
-
-extlib.obj:   $(SRC)\extlib.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)\$*.c
 
 wrappers.obj: $(SRC)\wrappers.c $(HFILES)
@@ -723,9 +718,6 @@ envir.dlo:    $(SRC)\envir.c $(HFILES)
         $(CC) $(CCFLAGS) $(DYN_COMP) /fo=$*.dlo $(SRC)\$*.c
 
 expr.dlo:     $(SRC)\expr.c $(HFILES)
-        $(CC) $(CCFLAGS) $(DYN_COMP) /fo=$*.dlo $(SRC)\$*.c
-
-extlib.dlo:   $(SRC)\extlib.c $(HFILES)
         $(CC) $(CCFLAGS) $(DYN_COMP) /fo=$*.dlo $(SRC)\$*.c
 
 wrappers.dlo: $(SRC)\wrappers.c $(HFILES)

@@ -33,7 +33,7 @@
  * interpreter.
  */
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 
 #ifndef __REXXSAA_H_INCLUDED
 # include "../rexxsaa.h"
@@ -83,35 +83,11 @@ typedef struct {
 #define GCI_ALIGNMENT 16
 
 /*
- * GCI_STACK_ELEMENT sets integral type of a stack element. This is typically
- * an unsigned or int.
+ * GCI_REXX_ARGS is the maximum number of arguments that can be passed to a
+ * GCI defined function.
+ * It must be 10 at least, higher values with a maximum of 50 may be better.
  */
-#define GCI_STACK_ELEMENT unsigned
-
-/*
- * GCI_LITTLE_ENDIAN must be set to 1 or 0 depending on whether little endian
- * or big endian is the machine's representation.
- * In doubt, select 1 for Intel compatibles and 0 for others.
- */
-#define GCI_LITTLE_ENDIAN 1
-
-/*
- * GCI_ARGS shall be the maximum number of GCI_STACK_ELEMENTs which shall
- * be passed on the stack. This is usually the base type of maximum width
- * (e.g. long long or long double) / sizeof(unsigned) * 10.
- * But you can't use sizeof(), therefore you have to compute it by hand.
- */
-#define GCI_ARGS 30
-
-/*
- * GCI_PASSARGS is a macro which enumerates GCI_ARGS args of an array which
- * is passed to the macro. I don't know a good ANSI macro for this purpose.
- * Feel free to provide it!
- */
-#define GCI_PASSARGS(a) a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],\
-                        a[10],a[11],a[12],a[13],a[14],a[15],a[16],a[17],a[18],\
-                        a[19],a[20],a[21],a[22],a[23],a[24],a[25],a[26],a[27],\
-                        a[28],a[29]
+#define GCI_REXX_ARGS 32
 
 /*
  * GCI_JUMPVAR is a macro which defines a jmp_buf in the file gci_call.c.

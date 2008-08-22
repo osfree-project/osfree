@@ -1,6 +1,6 @@
 /*
  *  The Regina Rexx Interpreter
- *  Copyright (C) 2001-2003  Florian Groﬂe-Coosmann
+ *  Copyright (C) 2001-2004  Florian Groﬂe-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -20,7 +20,7 @@
  *
  * Asynchroneous thread multiplexer with a parallel use of the REXXSAA API.
  *
- * This example works both with Win32 as with Posix threads.
+ * This example works with Win32 as with OS/2 or Posix threads.
  */
 #include <stdio.h>
 #include <string.h>
@@ -28,11 +28,6 @@
 #include <limits.h>
 #include <errno.h>
 #include <time.h>
-
-#define INCL_RXSHV
-#define INCL_RXFUNC
-#define INCL_RXSYSEXIT
-#define INCL_RXSUBCOM
 
 #ifdef POSIX_THREADS
 # include <sys/time.h>
@@ -44,6 +39,21 @@
 #  include <signal.h>
 #  undef USE_SEMAPHORES
 #  define USE_SEMAPHORES 1
+# endif
+#endif
+
+#ifdef OS2_THREADS
+# include <io.h>
+# include <stddef.h>
+# include <process.h>
+# define INCL_DOSSEMAPHORES
+# define INCL_ERRORS
+# include <os2.h>
+# define CHAR_TYPEDEFED
+# define SHORT_TYPEDEFED
+# define LONG_TYPEDEFED
+# ifndef _OS2EMX_H
+#  define _OS2EMX_H       /* prevents PFN from defining (Watcom) */
 # endif
 #endif
 
@@ -67,6 +77,11 @@
 # pragma warning(default:4100 4115 4201 4214)
 #endif
 
+#define INCL_RXSHV
+#define INCL_RXFUNC
+#define INCL_RXSYSEXIT
+#define INCL_RXSUBCOM
+
 #include "rexxsaa.h"
 
 /*
@@ -85,7 +100,7 @@
  * TOTAL_THREADS is the number of threads which shall be created. 2000 should
  * be sufficient to detect memory leaks, etc.
  */
-#define TOTAL_THREADS 100
+#define TOTAL_THREADS 2000
 
 #ifdef POSIX_THREADS
 /*
@@ -97,6 +112,19 @@
 #define THREAD_RETURN void *
 #define THREAD_CONVENTION
 static pthread_t thread[MAX_THREADS];
+#endif
+
+#ifdef OS2_THREADS
+/*
+ * See below at WIN32_THREADS for a description.
+ */
+#define ThreadIndexType int
+#define my_threadidx() *_threadid
+#define my_threadid() *_threadid
+#define THREAD_RETURN void
+#define THREAD_RETURN_VOID 1
+#define THREAD_CONVENTION
+static int thread[MAX_THREADS];
 #endif
 
 #ifdef WIN32_THREADS
@@ -230,7 +258,6 @@ LONG APIENTRY instore_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
       len = sizeof(buf) - 1;  /* This shall NOT happen, but it's irrelevant */
    memcpy( buf, RXSTRPTR( rx ), len );
    buf[len] = '\0'; /* We have a sscanf-able string */
-
    rc = sscanf( buf, "Loop %u in thread %u", &loop, &tid );
    if ( rc != 2 )
    {
@@ -337,7 +364,7 @@ THREAD_RETURN THREAD_CONVENTION instore( void *data )
                          "say 'Loop' i 'in thread' gettid();"
                          "End;"
                          "Return 0",
-                         MAX_RUN );
+                         (unsigned) MAX_RUN );
    Instore[0].strptr = instore_buf;
    Instore[0].strlength = strlen( Instore[0].strptr );
    if ( UseInstore == DoInstore )
@@ -411,6 +438,7 @@ THREAD_RETURN THREAD_CONVENTION instore( void *data )
     * Finally inform the invoker that we have stopped gracefully.
     */
    ThreadHasStopped( ( unsigned ) data );
+   ReginaCleanup();
 #ifndef THREAD_RETURN_VOID
    return ( THREAD_RETURN ) 0;
 #endif
@@ -446,6 +474,7 @@ THREAD_RETURN THREAD_CONVENTION external( void *data )
     * Finally inform the invoker that we have stopped gracefully.
     */
    ThreadHasStopped( ( unsigned ) data );
+   ReginaCleanup();
 #ifndef THREAD_RETURN_VOID
    return ( THREAD_RETURN ) 0;
 #endif
@@ -470,7 +499,7 @@ void reap( unsigned position )
    {
       fprintf(stderr,"\n"
                      "Thread %lu has stopped without completing its loop.\n",
-                     threadx[position]);
+                     (unsigned long) threadx[position]);
       GlobalError = 1;
    }
    found[position] = 0;
@@ -630,8 +659,192 @@ void wait_for_threads( void )
 }
 #endif
 
-#ifdef POSIX_THREADS
+#ifdef OS2_THREADS
+/*
+ * init_threads initializes the usage of our thread management system.
+ * Returns 1 on success, 0 otherwise.
+ */
+HMUX hmux;
+SEMRECORD thread_sems[MAX_THREADS];
 
+int init_threads( void )
+{
+   int i;
+   LONG rc;
+
+   for ( i = 0; i < MAX_THREADS; i++ )
+   {
+      thread_sems[i].ulUser = i;
+      rc = DosCreateEventSem( NULL,
+                              (PHEV) &thread_sems[i].hsemCur,
+                              0,
+                              0 );
+      if ( rc != 0 )
+      {
+         fprintf( stderr, "\n"
+                          "Error creating an EventSem, error code is %lu\n",
+                          rc );
+         return 0;
+      }
+   }
+
+   rc = DosCreateMuxWaitSem( NULL,
+                             &hmux,
+                             MAX_THREADS,
+                             thread_sems,
+                             DCMW_WAIT_ANY);
+   if ( rc != 0 )
+   {
+      fprintf( stderr, "\n"
+                       "Error creating a MuxWaitSem, error code is %lu\n",
+                       rc );
+      return 0;
+   }
+   return 1;
+}
+
+/*
+ * start_a_thread starts a thread and sets some state informations which are
+ * set back in case of an error.
+ * The return code is 1 on success, 0 otherwise.
+ */
+int start_a_thread( unsigned position )
+{
+   ULONG rc, post;
+
+   rc = DosResetEventSem( (HEV) thread_sems[position].hsemCur, &post );
+   if ( ( rc != 0 ) && ( rc != ERROR_ALREADY_RESET ) )
+   {
+      fprintf( stderr, "\n"
+                       "Error resetting an EventSem, error code is %lu\n",
+                       rc );
+      GlobalError = 1;
+      return 0;
+   }
+   State[position] = Running;
+   thread[position] = _beginthread( (program_name) ? external : instore,
+                                    NULL,
+                                    0x8000,
+                                    ( void * ) position );
+   if ( thread[position] == -1 )
+   {
+      fprintf( stderr, "\n"
+                       "Error starting thread, error code is %d\n",
+                       errno );
+      GlobalError = 1;
+      State[position] = Stopped;
+      DosPostEventSem( (HEV) thread_sems[position].hsemCur );
+      return 0;
+   }
+   return 1;
+}
+
+/*
+ * Thread has stopped sets the global state information of the thread with the
+ * index "position" to "Stopped".
+ */
+static void ThreadHasStopped( unsigned position )
+{
+   ULONG rc;
+
+   State[position] = Stopped;
+   if ( ( rc = DosPostEventSem( (HEV) thread_sems[position].hsemCur ) ) != 0 )
+   {
+      fprintf( stderr, "\n"
+                       "Error posting an EventSem, error code is %lu\n",
+                       rc );
+      GlobalError = 1;
+   }
+}
+
+/*
+ * wait_for_threads restarts new threads until the requested count of
+ * TOTAL_THREADS has been reached. GlobalError is set if any error occurs.
+ *
+ * We expect to have MAX_THREADS already running.
+ */
+void wait_for_threads( void )
+{
+   unsigned done,running;
+   ULONG rc, post, user;
+
+   running = done = MAX_THREADS;
+
+   if ( stdout_is_tty )
+      printf( "%u\r", MAX_THREADS );
+   if ( GlobalError )
+      return;
+
+   for ( ; ; )
+   {
+      rc = DosWaitMuxWaitSem( hmux, 3000, &user );
+      if ( rc != 0 )
+      {
+         fprintf( stderr, "\n"
+                          "At least one thread won't finish normally within 3 seconds (error=%lu).\n",
+                          rc );
+         GlobalError = 1;
+      }
+      if ( user >= MAX_THREADS )
+      {
+         fprintf( stderr, "\n"
+                          "Strange behaviour after wating for MuxWaitSem, released thread index is %lu.\n",
+                          user );
+         GlobalError = 1;
+      }
+      if ( GlobalError )
+         break;
+
+      /*
+       * A thread has died. Check the reason.
+       */
+      if ( State[user] != Stopped )
+      {
+         fprintf( stderr, "\n"
+                          "Thread %lu hasn't finished normally.\n", user );
+         GlobalError = 1;
+         break;
+      }
+
+      /*
+       * Check values and restart a new instance if we still have to do so.
+       */
+      State[user] = Ready;
+      running--;
+      /*
+       * Only reap our threads if running the instore test code
+       */
+      if ( program_name == NULL )
+         reap( (int) user );
+
+      if ( done < TOTAL_THREADS )
+      {
+         if ( !start_a_thread( (int) user ) )
+            break;
+         done++;
+         running++;
+      }
+      else
+      {
+         rc = DosResetEventSem( (HEV) thread_sems[user].hsemCur, &post );
+         if ( ( rc != 0 ) && ( rc != ERROR_ALREADY_RESET ) )
+         {
+            fprintf( stderr, "\n"
+                             "Error resetting an EventSem, error code is %lu\n",
+                             rc );
+            GlobalError = 1;
+            break;
+         }
+      }
+      if ( stdout_is_tty )
+         printf( "%u(%u)\r", done, running );
+      if ( GlobalError || !running )
+         break;
+   }
+}
+#endif
+
+#ifdef POSIX_THREADS
 /*
  * The number of processed runs needs to be global for error analysis.
  */
@@ -1015,7 +1228,7 @@ int main( int argc, char *argv[] )
       return 0;
 
    printf( "Press ENTER to continue and end the program. You may have a look\n"
-          " at your preferred memory analyser like ps or tasklist...\n" );
+          " at your preferred memory analyser like ps, pstat or tasklist...\n" );
    {
       char buf[128];
       fgets( buf, sizeof( buf ), stdin );

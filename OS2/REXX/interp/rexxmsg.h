@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: rexxmsg.h,v 1.2 2003/12/11 04:43:17 prokushev Exp $
+ * $Id: rexxmsg.h,v 1.14 2004/04/15 10:07:52 mark Exp $
  */
 struct textindex
 {
@@ -34,10 +34,10 @@ struct textindex
  * error indicating that the error message files are corrupt will be
  * displayed instead of a real error message.
  */
-#define NUMBER_ERROR_MESSAGES 264
+#define NUMBER_ERROR_MESSAGES 266
 
 /*
- * These defines aren't rally used; they are just placekeepers
+ * These defines aren't really used; they are just placekeepers
  */
 #define LANGUAGE_ENGLISH     0
 #define LANGUAGE_GERMAN      1

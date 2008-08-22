@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: defs.h,v 1.2 2003/12/11 04:43:05 prokushev Exp $
+ * $Id: defs.h,v 1.32 2004/02/22 09:25:26 florian Exp $
  */
 
 #define X_NULL            1
@@ -379,6 +379,8 @@
 #define EXT_AREXX_SEMANTICS                 16
 #define EXT_AREXX_BIFS                      17
 #define EXT_BROKEN_ADDRESS_COMMAND          18
+#define EXT_CALLS_AS_FUNCS                  19
+#define EXT_QUEUES_301                      20
 
 /*
  * Regina 3.1 introduced "pool 0" variables. There exist only some and they
@@ -386,11 +388,12 @@
  * values of this function.
  */
 #define POOL0_NOT_RESERVED    0  /* must be 0, following must be consecutive */
-#define POOL0_RC              1
-#define POOL0_RESULT          2
+#define POOL0_RC              1  /* Never change the order, it is hard-wired */
+#define POOL0_RESULT          2  /* used in variable.c                       */
 #define POOL0_SIGL            3
 #define POOL0_RS              4
 #define POOL0_MN              5
+#define POOL0_CNT             ( POOL0_MN + 1 )
 
 /*
  * treenode.u.parseflags values which may be or'ed.

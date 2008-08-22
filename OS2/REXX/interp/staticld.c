@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: staticld.c,v 1.2 2003/12/11 04:43:22 prokushev Exp $
+ * $Id: staticld.c,v 1.5 2004/04/21 07:16:19 mark Exp $
  */
 
 #include "rexx.h"
@@ -118,7 +118,7 @@ static int my_stricmp( char *str1,char *str2 )
    len2 = strlen( str2 );
    len = min( len1, len2 );
 
-   rc = mem_cmpic( str1, str2 );
+   rc = mem_cmpic( str1, str2, len );
    if ( rc != 0 )
       return rc;
 

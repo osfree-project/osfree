@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -93,9 +93,9 @@ typedef struct {
 } writer;
 
 /*
- * validArgs return 1 if and only if the 10 arguments in args (which are
- * counted as argc arguments) fit the requirements of the function call which
- * are described in ci/ti. 0 is returned otherwise.
+ * validArgs return 1 if and only if the GCI_REXX_ARGS arguments in args (which
+ * are counted as argc arguments) fit the requirements of the function call
+ * which are described in ci/ti. 0 is returned otherwise.
  */
 static int validArgs( int argc,
                       const GCI_str *args,
@@ -111,9 +111,9 @@ static int validArgs( int argc,
        * We don't allow more arguments even if they are virtually missing as
        * in func(,,,,,).
        */
-      if ( argc > 10 )
+      if ( argc > GCI_REXX_ARGS )
          return 0;
-      for ( i = 0; i < 10; i++ )
+      for ( i = 0; i < GCI_REXX_ARGS; i++ )
       {
          if ( ti->args[i] == -1 )
          {
@@ -186,7 +186,7 @@ static GCI_result assignArgumentsFromParameters( void *hidden,
    char tmp[20];
 
 
-   for ( i = 0; i < 10; i++ )
+   for ( i = 0; i < GCI_REXX_ARGS; i++ )
    {
       if ( ( start = ti->args[i] ) == -1 )
          break;
@@ -341,7 +341,6 @@ static GCI_result readValue( reader *rdr,
 {
    GCI_result rc;
 
-   assert( basepos + info->size + 1 <= rdr->max );
    rdr->novalue = 0;
    rc = GCI_readRexx( rdr->hidden,
                       rdr->base,
@@ -739,7 +738,7 @@ static GCI_result assignArgumentsFromStem( void *hidden,
    rdr.ishift =  0;
    rdr.max =     ti->size;
 
-   for ( i = 0; i < 10; i++ )
+   for ( i = 0; i < GCI_REXX_ARGS; i++ )
    {
       GCI_strsetlen( base, origlen );
       if ( ( start = ti->args[i] ) == -1 )
@@ -776,7 +775,7 @@ static void dump( const void *buf,
          printf( " %02X", b[j] );
       printf( "%*s", ( i + 16 - j ) * 3 + 2, "");
       for ( j = i; ( j < i + 16 ) && ( j < size ); j++ )
-         printf( "%c", isprint( b[j] ) ? b[j] : '.' );
+         printf( "%c", rx_isprint( b[j] ) ? b[j] : '.' );
       printf( "\n" );
    }
 }
@@ -1039,7 +1038,7 @@ static GCI_result setArgumentsToStem( void *hidden,
    char iter[3];
    GCI_str iterstr;
 
-   for ( i = 0; i < 10; i++ )
+   for ( i = 0; i < GCI_REXX_ARGS; i++ )
    {
       if ( ti->args[i] == -1 )
          break;
@@ -1178,8 +1177,8 @@ static GCI_result setFunctionReturn( void *hidden,
  * the user had used to describe the arguments.
  *
  * argc contains the number of passed arguments in args. These contain the
- * arguments which content may be NULL. args must have 10 entries, the unused
- * entries must contain NULL.
+ * arguments which content may be NULL. args must have GCI_REXX_ARGS entries,
+ * the unused entries must contain NULL.
  *                                     *
  * error_disposition is a non-allocated string on entry. It will contain the
  * error position in the stem in case of an error. It may be unset again to

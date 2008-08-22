@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: files.c,v 1.2 2003/12/11 04:43:09 prokushev Exp $";
+static char *RCSid = "$Id: files.c,v 1.83 2004/04/24 09:32:58 florian Exp $";
 #endif
 
 /*
@@ -79,6 +79,14 @@ static char *RCSid = "$Id: files.c,v 1.2 2003/12/11 04:43:09 prokushev Exp $";
  * problem. If it is an CALL ON condition, it will set the FLAG_FAKE
  * flag, which all other routines will check for.
  */
+
+/*
+ * Bug in LCC complier wchar.h that incorrectly says it defines stat struct
+ * but doesn't
+ */
+#if defined(__LCC__)
+# include <sys/stat.h>
+#endif
 
 #include "rexx.h"
 #include <errno.h>
@@ -650,7 +658,7 @@ typedef struct
 #define STREAMTYPE_SOCKET             7
 #define STREAMTYPE_SPECIALNAME        8
 
-stream_type_t stream_types[] =
+static const stream_type_t stream_types[] =
 {
    { STREAMTYPE_UNKNOWN  , ""                  },
    { STREAMTYPE_UNKNOWN  , " Directory"        },
@@ -1690,7 +1698,7 @@ static void reopen_file( tsd_t *TSD, fileboxptr ptr )
     * different anyway, so it will probably not create any problems.
     * Besides, we don't do exec() and system() on VMS.
     */
-#if !defined(VMS) && !defined(MAC) && !defined(OS2) && !defined(DOS) && !defined(__WATCOMC__) && !defined(_MSC_VER) && !(defined(WIN32) && defined(__IBMC__)) && !defined(__MINGW32__) && !defined(__BORLANDC__) && !defined(__EPOC32__) && !defined(__LCC__)
+#if !defined(VMS) && !defined(MAC) && !defined(OS2) && !defined(DOS) && !defined(__WATCOMC__) && !defined(_MSC_VER) && !(defined(WIN32) && defined(__IBMC__)) && !defined(__MINGW32__) && !defined(__BORLANDC__) && !defined(__EPOC32__) && !defined(__LCC__) && !defined(SKYOS)
    if (ptr && ptr->fileptr)
    {
       int flags, fno ;
@@ -2025,7 +2033,7 @@ try_to_open:
    else
       exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "" )  ;
 
-#if !defined(VMS) && !defined(MAC) && !defined(OS2) && !defined(DOS) && !defined(__WATCOMC__) && !defined(_MSC_VER) && !defined(__MINGW32__) && !defined(__BORLANDC__) && !defined(__EPOC32__) && !defined(__LCC__)
+#if !defined(VMS) && !defined(MAC) && !defined(OS2) && !defined(DOS) && !defined(__WATCOMC__) && !defined(_MSC_VER) && !defined(__MINGW32__) && !defined(__BORLANDC__) && !defined(__EPOC32__) && !defined(__LCC__) && !defined(SKYOS)
    /*
     * Then we check to see if this is a transient or persistent file.
     * We can remove a 'persistent' setting, but add one, since we
@@ -3311,16 +3319,19 @@ static streng *readbytes( tsd_t *TSD, fileboxptr fileptr, int length,
 /*
  * This routines write a string to a file pointed to by the Rexx file
  * table entry 'fileptr'. The string to be written is 'string', and the
- * length of the write is implicitly given avs the length of 'string'
+ * length of the write is implicitly given as the length of 'string'
  *
  * This routine is called from the Rexx built-in function CHAROUT().
- * It is a fairly streight forward implementation.
+ * It is a fairly straight forward implementation.
  *
  * No file_error() is thrown if noerrors is set.
  */
 static int writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string,
                                                                  int noerrors )
 {
+#ifdef WIN32
+   int rc=0;
+#endif
    int todo, done, written=0 ;
    const char *buf ;
 
@@ -3386,9 +3397,22 @@ static int writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string,
    buf = string->value ;
    todo = string->len ;
    fileptr->oper = OPER_WRITE ;
-   do {
+   do
+   {
       done = fwrite( buf, 1, todo, fileptr->fileptr ) ;
+      /*
+       * Win32 has a bug with fwrite and disk full. If the size of the
+       * chunk to write is < 4096 and the disk fills up, then you don't get
+       * an error indication. So flush the stream if the size of data is
+       * < 4096 and test the result of fflush(). Bug 731664
+       */
+#ifdef WIN32
+      if (string->len < 4096 )
+         rc = fflush( fileptr->fileptr );
+      if (done < 0 || rc != 0 )
+#else
       if (done < 0)
+#endif
       {
          written = -1 ;
          break ;
@@ -3825,8 +3849,10 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
    struct stat buffer ;
    struct tm tmdata, *tmptr ;
    char *fn=NULL;
+#if 0
    static const char *fmt = "%02d-%02d-%02d %02d:%02d:%02d" ;
    static const char *iso = "%04d-%02d-%02d %02d:%02d:%02d" ;
+#endif
    static const char *streamdesc[] = { "UNKNOWN", "PERSISTENT", "TRANSIENT" };
    char tmppwd[50];
    char tmpgrp[50];
@@ -3836,6 +3862,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
    struct group *pgrp;
 #endif
 
+   memset( &buffer, 0, sizeof(buffer) );
    /*
     * Nul terminate the input filename string, as stat() will barf if
     * it isn't and other functions stuff up!
@@ -3975,9 +4002,13 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
                else
                   memset(&tmdata,0,sizeof(tmdata)); /* what shall we do in this case? */
                result = Str_makeTSD( 20 ) ;
+#if 0
                sprintf( result->value, fmt, tmdata.tm_mon+1, tmdata.tm_mday,
                      (tmdata.tm_year % 100), tmdata.tm_hour, tmdata.tm_min,
                      tmdata.tm_sec ) ;
+#else
+               strftime( result->value, 20, "%m-%d-%y %H:%M:%S", &tmdata );
+#endif
             }
             break;
          case COMMAND_QUERY_TIMESTAMP:
@@ -3992,10 +4023,14 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
                else
                   memset(&tmdata,0,sizeof(tmdata)); /* what shall we do in this case? */
                result = Str_makeTSD( 20 ) ;
+#if 0
                sprintf( result->value, iso, tmdata.tm_year+1900, tmdata.tm_mon+1,
                      tmdata.tm_mday,
                      tmdata.tm_hour, tmdata.tm_min,
                      tmdata.tm_sec ) ;
+#else
+               strftime( result->value, 20, "%Y-%m-%d %H:%M:%S", &tmdata );
+#endif
             }
             break;
          case COMMAND_QUERY_POSITION_READ_CHAR:
@@ -4466,7 +4501,7 @@ static streng *getseek( tsd_t *TSD, const streng *filename, const streng *cmd )
    }
    for (i=0;i<(int)strlen(offset);i++)
    {
-      if (!isdigit(*(offset+i)))
+      if (!rx_isdigit(*(offset+i)))
          exiterror( ERR_INCORRECT_CALL, 924, "STREAM", 3, "n, +n, -n, =n or <n", word[0] );
    }
    seek_offset = atol(offset);
@@ -4658,15 +4693,7 @@ streng *std_charout( tsd_t *TSD, cparamboxptr parms )
    else
       pos = 0 ;
 
-   /*
-    * Get the filepointer, if necessary, open in in the right mode
-    */
-   if (pos || string)
-      ptr = get_file_ptr( TSD, filename, OPER_WRITE, ACCESS_WRITE ) ;
-#ifdef lint
-   else
-      ptr = NULL ;
-#endif
+   ptr = get_file_ptr( TSD, filename, OPER_WRITE, ACCESS_WRITE ) ;
 
    /*
     * If we are to position the write position somewhere, do that first.
@@ -5408,16 +5435,16 @@ void *addr_reopen_file( tsd_t *TSD, const streng *filename, char code,
    switch ( code )
    {
       case 'r':
-         if ( filename == NULL )
-            return ft->stdio_ptr + DEFAULT_STDIN_INDEX;
+         if ( ( filename == NULL ) || ( Str_len( filename ) == 0 ) )
+            return ft->stdio_ptr[DEFAULT_STDIN_INDEX];
          ptr = get_file_ptr( TSD, filename, OPER_READ, ACCESS_READ );
          if ( ptr != NULL )
             ptr->readpos = 0;
          break;
 
       case 'A':
-         if ( filename == NULL )
-            return ft->stdio_ptr + DEFAULT_STDOUT_INDEX + iserror;
+         if ( ( filename == NULL ) || ( Str_len( filename ) == 0 ) )
+            return ft->stdio_ptr[DEFAULT_STDOUT_INDEX + iserror];
          if ( ( ptr = getfileptr( TSD, filename ) ) != NULL )
          {
             if ( ptr->flag & FLAG_SURVIVOR )
@@ -5428,8 +5455,8 @@ void *addr_reopen_file( tsd_t *TSD, const streng *filename, char code,
          break;
 
       case 'R':
-         if ( filename == NULL )
-            return ft->stdio_ptr + DEFAULT_STDOUT_INDEX + iserror;
+         if ( ( filename == NULL ) || ( Str_len( filename ) == 0 ) )
+            return ft->stdio_ptr[DEFAULT_STDOUT_INDEX + iserror];
          if ( ( ptr = getfileptr( TSD, filename ) ) != NULL )
          {
             if ( ptr->flag & FLAG_SURVIVOR )
@@ -5622,95 +5649,328 @@ streng *arexx_exists( tsd_t *TSD, cparamboxptr parms )
    return retval;
 }
 
+/*
+ * get_external_routine_file opens a file in binary mode and returns the
+ * fully qualified path name on success. NULL is returned otherwise.
+ * The opened file pointer is returned in *fp.
+ */
+static streng *get_external_routine_file( const tsd_t *TSD,
+                                          const char *inname, FILE **fp )
+{
+   char buf[3 * REXX_PATH_MAX + 1];
 
+#ifdef VMS
+   *fp = fopen( inname, "r" );
+#else
+   *fp = fopen( inname, "rb" );
+#endif
+   if ( *fp == NULL )
+      return NULL;
+
+   my_fullpath( buf, inname );
+
+   return Str_crestrTSD( buf );
+}
 
 /*
- * The code in this function borrows heavily from code supplied by
- * Keith Patton (keith,patton@dssi-jcl.com)
+ * See get_external_routine for comments. This function processes one path
+ * element which is passed in path.
+ * suffixes is either NULL or the list of extra suffixes which should be
+ * tested. *fp must be NULL on entry.
+ * path may be NULL if no further directory processing shall happen.
  */
-/* FIXME, FGC:Nothing will happen here if *fp != NULL, is this a wanted side
- * effect?
- */
-/* FIXME, FGC: Is this the right search algorithm? Currently, we search
- * each suffix in the whole path before we check the next extension.
- * I prefer looking in each path element for each extension before we
- * check the next path element.
- */
-void get_external_routine(const tsd_t *TSD,const char *env, const char *inname, FILE **fp, char *retname, int startup)
+static streng *get_external_routine_path( const tsd_t *TSD,
+                                          const char *inname, FILE **fp,
+                                          const char *path,
+                                          const char *suffixes,
+                                          int emptySuffixAllowed )
 {
-   static const char *extensions[] = {"",".rexx",".rex",".cmd",".rx",NULL};
-   char *env_path;
-   char *paths = NULL;
    char outname[REXX_PATH_MAX+1];
-   int i;
-   int start_ext;
+   int i,ilen,hlen;
+   streng *retval;
+   static const char *default_suffixes = "rexx,rex,cmd,rx";
+   const char *suffixlist[2];
+   const char *suffix;
+   int suffixlen;
 
-   /*
-    * If we are searching PATH for Rexx programs, don't look for files
-    * without an extension.
-    * FIXME: What happens if the user supplies an extension like
-    *        foo.rexx? Checking for an existing extension isn't useful
-    *        for "i.like" as a synonym for the file "i.like.rexx".
-    */
-   if ( strcmp( env, "PATH" ) == 0 )
-      start_ext = 1;
+   ilen = strlen( inname );
+   if ( !path )
+      hlen = 0;
    else
-      start_ext = 0;
-   env_path = mygetenv( TSD, env, NULL, 0 ); /* fixes bug 595293 */
-   outname[0] = '\0';
-   for ( i = start_ext; extensions[i] != NULL && *fp == NULL; i++ )
+      hlen = strlen( path );
+   if ( !hlen )
    {
-      /*
-       * Try the filename without any path first
-       */
+      if ( ilen > REXX_PATH_MAX )
+         return NULL;
       strcpy( outname, inname );
-      strcat( outname, extensions[i] );
-#ifdef VMS
-      *fp = fopen(outname, "r");
-#else
-      *fp = fopen(outname, "rb");
-#endif
-      if ( *fp != NULL )
+   }
+   else
+   {
+      if ( ( strchr( FILE_SEPARATORS, inname[0] ) == NULL ) &&
+           ( strchr( FILE_SEPARATORS, path[hlen - 1] ) == NULL ) )
       {
-         my_fullpath( retname, outname );
-         break;
-      }
-
-      paths = env_path;
-      while ( paths && !*fp )
-      {
-         int pathlen;
-         char *sep;
-
-         sep = strchr( paths, PATH_SEPARATOR );
-         pathlen = sep ? sep-paths : strlen(paths);
-         strncpy(outname, paths, pathlen);
-         outname[pathlen] = 0;
-
-         if ( ( pathlen > 0 ) && ( outname[pathlen-1] != FILE_SEPARATOR ) )
-            strcat( outname, FILE_SEPARATOR_STR );
+         if ( ilen + hlen + 1 > REXX_PATH_MAX )
+            return NULL;
+         strcpy( outname, path );
+         strcat( outname, FILE_SEPARATOR_STR );
          strcat( outname, inname );
-         strcat( outname, extensions[i] );
-         paths = sep ? sep+1 : 0; /* set up for next pass */
-#ifdef VMS
-         *fp = fopen( outname, "r" );
-#else
-         *fp = fopen( outname, "rb" );
-#endif
-         if ( *fp != NULL )
-         {
-            if ( startup )
-            {
-               my_fullpath( retname, outname );
-            }
-            break;
-         }
+      }
+      else
+      {
+         if ( ilen + hlen > REXX_PATH_MAX )
+            return NULL;
+         strcpy( outname, path );
+         strcat( outname, inname );
       }
    }
-   if ( env_path )
-      FreeTSD( env_path );
 
-   return;
+   /*
+    * The filename is constructed. Try without fiddling with suffixes first.
+    */
+   if ( emptySuffixAllowed )
+   {
+      if ( ( retval = get_external_routine_file( TSD, outname, fp ) ) != NULL )
+         return retval;
+   }
+
+   /*
+    * Next try the supplied suffix list, then try the default list.
+    * First check if a known extension exists, after every check do the
+    * application.
+    */
+
+   suffixlist[0] = suffixes;
+   suffixlist[1] = default_suffixes;
+   ilen = strlen( outname );
+#define IsDelim(c) ( ( (c) == ',' ) || ( (c) == '.' ) || \
+                     ( (c) == PATH_SEPARATOR ) || rx_isspace(c) )
+   for ( i = 0; i < 2; i++ )
+   {
+      suffixes = suffixlist[i];
+
+      while ( suffixes )
+      {
+         while ( IsDelim(*suffixes) )
+            suffixes++;
+         if ( *suffixes == '\0' )
+            break;
+
+         for ( suffixlen = 1; !IsDelim(suffixes[suffixlen]); suffixlen++ )
+            if ( suffixes[suffixlen] == '\0' )
+               break;
+
+         suffix = suffixes;
+         suffixes += suffixlen;
+
+         if ( suffixlen + 1 > ilen )
+            continue;
+         if ( outname[ ilen - suffixlen - 1 ] != '.' )
+            continue;
+#ifdef CASE_SENSITIVE_FILENAMES
+         if ( memcmp( suffix, outname + ilen - suffixlen, suffixlen - 1 ) )
+#else
+         if ( mem_cmpic( suffix, outname + ilen - suffixlen, suffixlen - 1 ) )
+#endif
+            continue;
+
+         /*
+          * A matching suffix forces us to terminate every further seeking a
+          * proper file.
+          */
+         if ( !emptySuffixAllowed )
+            return get_external_routine_file( TSD, outname, fp );
+         return NULL;
+      }
+   }
+
+   /*
+    * Try the extensions.
+    */
+   for ( i = 0; i < 2; i++ )
+   {
+      suffixes = suffixlist[i];
+
+      while ( suffixes )
+      {
+         while ( IsDelim(*suffixes) )
+            suffixes++;
+         if ( *suffixes == '\0' )
+            break;
+
+         for ( suffixlen = 1; !IsDelim(suffixes[suffixlen]); suffixlen++ )
+            if ( suffixes[suffixlen] == '\0' )
+               break;
+
+         suffix = suffixes;
+         suffixes += suffixlen;
+
+         if ( suffixlen + 1 + ilen > REXX_PATH_MAX )
+            continue;
+         outname[ ilen ] = '.';
+         memcpy( outname + ilen + 1, suffix, suffixlen );
+         outname[ilen + 1 + suffixlen] = '\0';
+         if ( ( retval = get_external_routine_file( TSD, outname, fp ) ) !=
+                                                                         NULL )
+            return retval;
+      }
+   }
+
+#undef Delim
+   return NULL;
+}
+
+/*
+ * See get_external_routine for comments. This function processes a list of
+ * path elements delimited by the path separator which is passed in paths.
+ * suffixes is either NULL or the list of extra suffixes which should be
+ * tested. *fp must be NULL on entry.
+ * paths will be destroyed.
+ */
+static streng *get_external_routine_paths( const tsd_t *TSD,
+                                           const char *inname, FILE **fp,
+                                           char *paths, const char *suffixes,
+                                           int emptySuffixAllowed )
+{
+   char *path;
+   streng *retval;
+
+   if ( *paths == '\0' )
+      return NULL;
+
+   while ( paths )
+   {
+      path = paths;
+      paths = strchr( paths, PATH_SEPARATOR );
+      if ( paths != NULL )
+         *paths++ = '\0';
+
+      if ( *path == '\0')
+      {
+         /*
+          * An empty string is counted as "." in unix systems and ignored in
+          * all other systems.
+          */
+#ifdef UNIX
+         path = ".";
+#else
+         continue;
+#endif
+      }
+
+      retval = get_external_routine_path( TSD, inname, fp, path, suffixes,
+                                          emptySuffixAllowed );
+
+      if ( retval )
+         return retval;
+   }
+
+   return NULL;
+}
+
+/*
+ * get_external_routine searches for a script called inname. Some paths are
+ * search if the file is not found and an extension may be added if no file is
+ * found.
+ *
+ * On success *fp is set to the opened (binary) file and the return value is
+ * the fully qualified file name. If no file was found the return value is
+ * NULL and *fp will be NULL, too.
+ * The returned file name is extended by a terminating '\0' without counting
+ * is in the string's length.
+ *
+ * This is the search algorithm:
+ *
+ * First of all we process the environment variable REGINA_MACROS. If no file
+ * is found we proceed with the current directory and then with the environment
+ * variable PATH. The semantics of the use of REGINA_MACROS and PATH are the
+ * same, and the search in the current directory is omitted for the superuser
+ * in unix systems for security reasons. The current directory must be
+ * specified explicitely by the superuser.
+ * When processing an environment variable the content is split into the
+ * different paths and each path is processed separately.
+ * Note that the search algorithm to this point is ignored if the script name
+ * contains a file path specification. eg. If "CALL .\MYPROG" is called, then
+ * no searching of REGINA_MACROS or PATH is done; only the concatenation of
+ * suffixes is carried out.
+ *
+ * For each file name and path element a concatenated file name is created. If
+ * a known file extension is part of the file name only this file is searched,
+ * otherwise the file name is extended by the extensions "<empty>", ".rexx",
+ * ".rex", ".cmd", ".rx" in this order. The file name case is ignored on
+ * systems that ignore the character case for normal file operations like DOS,
+ * Windows, OS/2.
+ *
+ * The first matching file terminates the whole algorithm and the found file
+ * is returned.
+ *
+ * The environment variable REGINA_SUFFIXES extends the list of known suffixes
+ * as specified above, and is inserted after the "<empty"> extension in the
+ * process. REGINA_SUFFIXES has to contain a space or comma separated list of
+ * extensions, a dot in front of each entry is allowed, e.g.
+ * ".macro,.mac,regina" or "macro mac regina"
+ *
+ * Note that it is planned to extend the list of known suffixes by ".rxc" in
+ * version 3.4 to allow for seemless integration of precompiled macros.
+ */
+streng *get_external_routine( const tsd_t *TSD, const char *inname, FILE **fp )
+{
+   streng *retval=NULL;
+   char *paths;
+   char *suffixes;
+
+   *fp = NULL;
+
+   suffixes = mygetenv( TSD, "REGINA_SUFFIXES", NULL, 0 );
+
+   if ( strpbrk( inname, FILE_SEPARATORS ) != NULL )
+   {
+      retval = get_external_routine_path( TSD, inname, fp, NULL, suffixes, 1 );
+      if ( retval )
+      {
+         if ( suffixes )
+            FreeTSD( suffixes );
+         return retval;
+      }
+      return NULL;
+   }
+
+   if ( ( paths = mygetenv( TSD, "REGINA_MACROS", NULL, 0 ) ) != NULL )
+   {
+      retval = get_external_routine_paths( TSD, inname, fp, paths, suffixes, 1 );
+      FreeTSD( paths );
+      if ( retval )
+      {
+         if ( suffixes )
+            FreeTSD( suffixes );
+         return retval;
+      }
+   }
+
+   paths = ".";
+#ifdef UNIX
+   if ( geteuid() == 0 )
+      paths = NULL;
+#endif
+   if ( paths )
+   {
+      retval = get_external_routine_path( TSD, inname, fp, paths, suffixes, 1 );
+      if ( retval )
+      {
+         if ( suffixes )
+            FreeTSD( suffixes );
+         return retval;
+      }
+   }
+
+   if ( ( paths = mygetenv( TSD, "PATH", NULL, 0 ) ) != NULL )
+   {
+      retval = get_external_routine_paths( TSD, inname, fp, paths, suffixes, 0 );
+      FreeTSD( paths );
+   }
+
+   if ( suffixes )
+      FreeTSD( suffixes );
+   return retval;
 }
 
 /*
@@ -6024,7 +6284,7 @@ int my_splitpath2( const char *in, char *out, char **drive, char **dir, char **n
       last_pos++;
       *name = out+last_pos;
       memcpy(*name, in, inlen);
-      *(name+inlen) = '\0';
+      *(*name+inlen) = '\0';
    }
    return(0);
 }

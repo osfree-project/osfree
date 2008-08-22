@@ -221,6 +221,8 @@
  40,989,Wyst¥piˆ problem na interfejsie mi©dzy Regin¥ a GCI%s%s|:,<location>
  40,990,Typ nie speˆnia wymagaä dla typ¢w podstawowych (argumenty/zwracana warto˜†)%s%s|:,<location>
  40,991,Niepoprawna liczba argument¢w%s%s|:,<location>
+ 40,992,GCI's internal stack for arguments got an overflow%s%s|: ,<location>
+ 40,993,GCI counted too many nested LIKE containers%s%s|: ,<location>
  41,  0,Niepoprawna konwersja arytmetyczna
  41,  1,Nieliczbowa warto˜† ("%s") lewej strony operacji arytmetycznej "%s"|<value>,<operator>
  41,  2,Nieliczbowa warto˜† ("%s") prawej strony operacji arytmetycznej "%s"|<value>,<operator>

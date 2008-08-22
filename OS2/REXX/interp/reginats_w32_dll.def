@@ -36,3 +36,4 @@ EXPORTS RexxQueryQueue
 EXPORTS RexxReorderMacro
 EXPORTS RexxSaveMacroSpace
 EXPORTS RexxCallBack
+EXPORTS ReginaCleanup

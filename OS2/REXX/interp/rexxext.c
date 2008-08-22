@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: rexxext.c,v 1.2 2003/12/11 04:43:17 prokushev Exp $";
+static char *RCSid = "$Id: rexxext.c,v 1.29 2004/04/24 09:32:58 florian Exp $";
 #endif
 
 /*
@@ -28,11 +28,6 @@ static char *RCSid = "$Id: rexxext.c,v 1.2 2003/12/11 04:43:17 prokushev Exp $";
 
 #if defined(__WATCOMC__) && defined(OS2)
 # define INCL_DOS
-# include <os2.h>
-# define DONT_TYPEDEF_PFN
-#endif
-
-#if defined(__WATCOMC__) && defined(OS2)
 # include <os2.h>
 # define DONT_TYPEDEF_PFN
 #endif
@@ -222,14 +217,14 @@ char *mygetenv( const tsd_t *TSD, const char *name, char *buf, int bufsize )
 #endif
 }
 
-#if defined(WIN32) && !defined(__WINS__) && !defined(__EPOC32__)
+#if !defined(__WINS__) && !defined(__EPOC32__)
 static int actually_pause = 1;
 
 /*
  * These functions are used to allow Regina to display "Press ENTER key to exit..."
  * in the console if it is NOT started from a console.
  */
-void do_pause_at_exit( void )
+static void do_pause_at_exit( void )
 {
    int ch;
    if ( actually_pause )
@@ -238,12 +233,6 @@ void do_pause_at_exit( void )
       fflush( stdout );
       ch = getchar();
    }
-}
-
-void flush_stdout( void )
-{
-   fflush( stdout );
-   return;
 }
 
 void set_pause_at_exit( void )

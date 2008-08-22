@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -119,7 +119,7 @@ static GCI_result parseCallType( const GCI_str *str,
       /*
        * Chop off spaces. We stop if we reach EOS here.
        */
-      while ( ( size > 0 ) && isspace( *ptr ) )
+      while ( ( size > 0 ) && rx_isspace( *ptr ) )
       {
          ptr++;
          size--;
@@ -197,7 +197,7 @@ static int isempty( const GCI_str *str )
    int len = GCI_strlen( str );
 
    while ( len > 0 ) {
-      if ( !isspace( *s ) )
+      if ( !rx_isspace( *s ) )
          return 0;
       len--;
       s++;
@@ -264,7 +264,7 @@ static GCI_result parseTree( void *hidden,
                         GCI_unsigned ) != GCI_OK )
       return GCI_UnsupportedType;
 
-   if ( argc > 10 )
+   if ( argc > GCI_REXX_ARGS )
       return GCI_NumberRange;
 
    /*

@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: stack.c,v 1.2 2003/12/11 04:43:21 prokushev Exp $";
+static char *RCSid = "$Id: stack.c,v 1.29 2004/04/24 09:32:58 florian Exp $";
 #endif
 
 /*
@@ -153,8 +153,8 @@ typedef struct { /* stk_tsd: static variables of this module (thread-safe) */
 static int get_socket_details_and_connect( tsd_t *TSD, Queue *target );
 static int save_parse_queue( tsd_t *TSD, streng *queue, Queue *q,
                                                               int ignore_name);
-Queue *open_external( tsd_t *TSD, const streng *queue, Queue *q, int *rc,
-                                          int ignore_name, streng **basename );
+static Queue *open_external( tsd_t *TSD, const streng *queue, Queue *q,
+                                 int *rc, int ignore_name, streng **basename );
 #endif
 
 /* init_stacks initializes the module.
@@ -587,11 +587,11 @@ static int use_external( const tsd_t *TSD, const streng *queue_name )
     * This function is called at top of each relevant function.
     */
    if ( st->queue[0].u.i.name == NULL )
-      SetSessionName( TSD, st ) ;
+      SetSessionName( TSD, st );
 
 #if defined(NO_EXTERNAL_QUEUES)
    (queue_name);
-   return 0 ;        /* trivial */
+   return 0;        /* trivial */
 #else
 
    if ( !st->initialized )
@@ -601,20 +601,24 @@ static int use_external( const tsd_t *TSD, const streng *queue_name )
        * either internal or external.
        */
       st->initialized = 1;
-      init_external_queue(TSD);
+      init_external_queue( TSD );
    }
 
    if ( get_options_flag( TSD->currlevel, EXT_INTERNAL_QUEUES ) )
-      return 0 ;     /* user forces a local queue in every case */
+      return 0;     /* user forces a local queue in every case */
    if ( ( queue_name == NULL ) || ( PSTRENGLEN( queue_name ) == 0 ) )
-      return st->current_queue->type == QisExternal ;
+      return st->current_queue->type == QisExternal;
 
-   /*
-    * A name exists, check it.
-    */
-   if  (memchr(queue_name->value, '@', Str_len(queue_name)) == NULL)
-      return 0 ;
-   return 1 ;
+   if ( get_options_flag( TSD->currlevel, EXT_QUEUES_301 ) == 0 )
+   {
+      /*
+       * A name exists, check it.
+       */
+      if  ( memchr( queue_name->value, '@', Str_len( queue_name ) ) == NULL )
+         return 0;
+   }
+
+   return 1;
 #endif
 }
 
@@ -1111,7 +1115,7 @@ void type_buffer( tsd_t *TSD )
          putc( '"', TSD->stddump ) ;
          stop = Str_end( ptr->contents ) ;
          for ( cptr = ptr->contents->value ; cptr < stop; cptr++ )
-            putc( ( isprint( *cptr ) ? ( *cptr ) : '?' ), TSD->stddump ) ;
+            putc( ( rx_isprint( *cptr ) ? ( *cptr ) : '?' ), TSD->stddump ) ;
 
          putc( '"', TSD->stddump ) ;
 #if defined(DOS) || defined(OS2) || defined(WIN32)
@@ -1200,8 +1204,8 @@ static int save_parse_queue( tsd_t *TSD, streng *queue, Queue *q,
  * *basename is set to the queue's name without the network extension if
  * basename != NULL. It must be freed later. *basename may become NULL.
  */
-Queue *open_external( tsd_t *TSD, const streng *queue, Queue *q, int *rc,
-                                           int ignore_name, streng **basename )
+static Queue *open_external( tsd_t *TSD, const streng *queue, Queue *q,
+                                  int *rc, int ignore_name, streng **basename )
 {
    stk_tsd_t *st = TSD->stk_tsd;
    streng *qn;

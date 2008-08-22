@@ -1,6 +1,6 @@
 %{
 #ifndef lint
-static char *RCSid = "$Id: lexsrc.l,v 1.2 2003/12/11 04:43:12 prokushev Exp $";
+static char *RCSid = "$Id: lexsrc.l,v 1.23 2004/03/04 11:02:06 florian Exp $";
 #endif
 
 /*
@@ -905,7 +905,7 @@ key_with          [wW][iI][tT][hH]
         || ( ch == '\n' )
         || ( MY_ISBLANK( ch ) ) )
          break;
-      retvalue[i] = (char) toupper( ch );
+      retvalue[i] = (char) rx_toupper( ch );
    }
    retvalue[i] = '\0' ;
    SET_NEXTSTART() ;
@@ -949,7 +949,7 @@ key_with          [wW][iI][tT][hH]
    char c;
    int i,base,charcount,first,tuple;
 
-   base = ( toupper( yytext[yyleng - 1] ) == 'X' ) ? 16 : 2;
+   base = ( rx_toupper( yytext[yyleng - 1] ) == 'X' ) ? 16 : 2;
    parser_data.tline = linenr - 1 ; /* set tline for exiterror */
    /*
     * We are sure to have an invalid string since the above patterns won't
@@ -985,7 +985,7 @@ key_with          [wW][iI][tT][hH]
       }
       if ( base == 16 )
       {
-         if ( isxdigit( c ) )
+         if ( rx_isxdigit( c ) )
             continue;
       }
       exiterror( ERR_INVALID_HEX_CONST, ( base == 16 ) ? 3 : 4, c );
@@ -1415,7 +1415,7 @@ static void set_assignment( void )
         || ( ch == '\n' )
         || ( MY_ISBLANK( ch ) ) )
          break;
-      retvalue[retlength] = (char) toupper( ch );
+      retvalue[retlength] = (char) rx_toupper( ch );
    }
    retvalue[retlength] = '\0' ;
 }
@@ -1431,7 +1431,7 @@ static YY_CHAR_TYPE *rmspc( YY_CHAR_TYPE *instr )
 
    while ((c = *instr++) != '\0')
    {
-      c = (YY_CHAR_TYPE) toupper(c);
+      c = (YY_CHAR_TYPE) rx_toupper(c);
       /* These characters are treated as blanks: */
       if ((c!='`') && (c!=' ') && (c!=',') && (c!='\t') && (c!='\n'))
          *dest++ = c ;
@@ -1919,7 +1919,7 @@ repeated_nesting:
          while (pos < max)
          {
             c = line[pos];
-            if (!isspace(c))
+            if (!rx_isspace(c))
             {
                if (c == '/')
                {
@@ -2059,7 +2059,7 @@ outer_loop:
    if (nesting)
    { /* Don't leave ANY spaces at EOL. That would confuse the lexer. */
       i = max - 1;
-      while ((i >= 0) && isspace(line[i]))
+      while ((i >= 0) && rx_isspace(line[i]))
          i--;
       max = i + 1;
       /* Of course, there is one exception: line continuation */
@@ -2228,14 +2228,15 @@ static void fetch(tsd_t *TSD, FILE *fptr, const streng *str,
 /* This function serializes the parser/lexer requests of the process and
  * call fetch which will make the work. Look there.
  */
-static void fetch_protected(tsd_t * volatile TSD, FILE *fptr,
-                            const streng *str, internal_parser_type *result)
+static void fetch_protected( tsd_t * volatile TSD, FILE *fptr,
+                             const streng *str, internal_parser_type *result )
 {
    volatile int panicked = 0;
    tsd_t * volatile saved_TSD;
 
-   THREAD_PROTECT(regina_parser)
+   THREAD_PROTECT( regina_parser )
    TSD->in_protected = 1;
+   memset(&parser_data, 0, sizeof(internal_parser_type));
 
    saved_TSD = TSD; /* vars used until here */
    if ( setjmp( TSD->protect_return ) )
@@ -2244,20 +2245,32 @@ static void fetch_protected(tsd_t * volatile TSD, FILE *fptr,
       panicked = 1;
    }
    else
-      fetch(TSD, fptr, str, result);
+      fetch( TSD, fptr, str, result );
 
    TSD->in_protected = 0;
-   THREAD_UNPROTECT(regina_parser)
+   THREAD_UNPROTECT( regina_parser )
 
-   if (!panicked)
+   if ( !panicked )
       return;
 
-   /* We got a fatal condition while fetching the input. */
-   if (TSD->delayed_error_type == PROTECTED_DelayedExit)
-      TSD->MTExit(TSD->expected_exit_error);
-   if (TSD->delayed_error_type == PROTECTED_DelayedSetjmpBuf)
-      longjmp( *(TSD->currlevel->buf), 1 ) ;
-   longjmp( *(TSD->systeminfo->panic), 1 ) ;
+   /*
+    * We got a fatal condition while fetching the input.
+    */
+   memset(result, 0, sizeof(internal_parser_type));
+
+   /*
+    * FIXME: Currently no time to investigate it, but we have to do
+    *        a cleanup of the node and source lines of parser_data
+    *        here. Test this with
+    *        interpret '"a='
+    *        and with
+    *        interpret 'nop;"a='
+    */
+   if ( TSD->delayed_error_type == PROTECTED_DelayedInterpreterExit )
+      jump_interpreter_exit( TSD, TSD->expected_exit_error );
+   if ( TSD->delayed_error_type == PROTECTED_DelayedRexxSignal )
+      jump_rexx_signal( TSD );
+   jump_script_exit( TSD, TSD->systeminfo->result );
 }
 
 /* fetch_file reads in a REXX file from disk (or a pipe). It returns without

@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: interprt.c,v 1.2 2003/12/11 04:43:10 prokushev Exp $";
+static char *RCSid = "$Id: interprt.c,v 1.54 2004/02/22 09:25:28 florian Exp $";
 #endif
 
 /*
@@ -35,22 +35,10 @@ static char *RCSid = "$Id: interprt.c,v 1.2 2003/12/11 04:43:10 prokushev Exp $"
 
 #define XOR(a,b) (( (a) && (!(b)) )||( (!(a)) && (b) ))
 
-#define TRACELINE(a) if (TSD->trace_stat!='O' && TSD->trace_stat!='N' && TSD->trace_stat!='F') traceline(TSD,a,(char)TSD->trace_stat,0)
-#define TRACEVALUE(a,b) if (TSD->trace_stat=='I') tracevalue(TSD, a,b)
-#define TRACENUMBER(a,b) if (TSD->trace_stat=='I') tracenumber(TSD, a,b)
-
 #ifdef WIN32
 /* Asynchroneous scheduled in another thread: */
 volatile int __regina_Win32CtrlCRaised = 0;
 #endif
-staticstreng(    RC_name,      "RC" );
-staticstreng( dotRC_name,     ".RC" );
-staticstreng(    RESULT_name,  "RESULT" );
-staticstreng( dotRESULT_name, ".RESULT" );
-staticstreng(    SIGL_name,    "SIGL" );
-staticstreng( dotSIGL_name,   ".SIGL" );
-conststreng(  dotMN_name,     ".MN" );
-conststreng(  dotRS_name,     ".RS" );
 
 static const char default_action[SIGNALS] = { 1, 1, 0, 1, 1, 0 } ;
 static const char default_ignore[SIGNALS] = { 1, 1, 0, 0, 1, 0 } ;
@@ -84,13 +72,12 @@ typedef struct _stackbox {
 } stackbox;
 
 typedef struct { /* itp_tsd: static variables of this module (thread-safe) */
-   nodeptr    nvar_rc;
-   nodeptr    nvar_sigl;
-   nodeptr    nvar_result;
-   nstackbox  nbox;
-   nstackbox *nbox_top;
-   stackbox   sbox;
-   stackbox  *stk_top;
+   nstackbox      nbox;
+   nstackbox     *nbox_top;
+   stackbox       sbox;
+   stackbox      *stk_top;
+   unsigned long  options;
+   int            opts_set;
 } itp_tsd_t; /* thread-specific but only needed by this module. see
               * init_spec_vars
               */
@@ -105,11 +92,6 @@ static void mark_spec_vars(const tsd_t *TSD)
    itp_tsd_t *it;
 
    it = TSD->itp_tsd;
-   markmemory( it->nvar_rc, TRC_SPCV_BOX ) ;
-   markmemory( it->nvar_rc->name, TRC_SPCV_NAME ) ;
-
-   markmemory( it->nvar_sigl, TRC_SPCV_BOX ) ;
-   markmemory( it->nvar_sigl->name, TRC_SPCV_NAME ) ;
 }
 #endif /* TRACEMEM */
 
@@ -130,16 +112,6 @@ int init_spec_vars( tsd_t *TSD )
 
    it->nbox_top = &it->nbox;
    it->stk_top = &it->sbox;
-
-   it->nvar_sigl = MallocTSD(sizeof(*it->nvar_sigl)) ;
-   it->nvar_sigl->u.varbx = NULL ;
-   it->nvar_sigl->name = Str_dupTSD( SIGL_name ) ;
-   it->nvar_sigl->type = X_SIM_SYMBOL ;
-
-   it->nvar_rc = MallocTSD(sizeof(*it->nvar_rc)) ;
-   it->nvar_rc->u.varbx = NULL ;
-   it->nvar_rc->name = Str_dupTSD( RC_name ) ;
-   it->nvar_rc->type = X_SIM_SYMBOL ;
 
 #ifdef TRACEMEM
    regmarker( TSD, mark_spec_vars ) ;
@@ -170,61 +142,6 @@ void update_envirs( const tsd_t *TSD, proclevel level )
 
    assert( level->environment ) ;
    assert( level->prev_env ) ;
-}
-
-/*
- * set_sigl sets a shortcut to nvar_sigl (the variable called "SIGL"). This
- * is the setting to the numeric value argument.
- * FIXME, FGC: This routines gives me a bad feeling until we know more
- *             about setshortcut. Does setshortcut always use the top
- *             level procedure layer or the "pool 0"? Strange things may
- *             occur. Next, set_sigl sets the variable at least once before
- *             any exceptions occurs. Very bad for SIGL processing routines
- *             in this case.
- */
-void set_sigl( tsd_t *TSD, int line )
-{
-   itp_tsd_t *it;
-
-   it = TSD->itp_tsd;
-   setshortcut( TSD, it->nvar_sigl, int_to_streng( TSD, line )) ;
-   setvalue( TSD, dotSIGL_name, int_to_streng( TSD, line ) );
-}
-
-/*
- * set_rc sets a shortcut to nvar_rc (the variable called "RC").
- * FIXME, FGC: This routines gives me a bad feeling until we know more
- *             about setshortcut. Does setshortcut always use the top
- *             level procedure layer or the "pool 0"? Strange things may
- *             occur.
- *             The argument will be consumed.
- */
-void set_rc( tsd_t *TSD, streng *value )
-{
-   itp_tsd_t *it;
-
-   it = TSD->itp_tsd;
-   setshortcut( TSD, it->nvar_rc, Str_dupTSD( value ) );
-   setvalue( TSD, dotRC_name, value );
-}
-
-/*
- * set_result sets or drops the value of the variables called "RESULT" and
- * ".RESULT". The value is NULL for a drop operation or non-NULL for a
- * set operation and will be consumed.
- */
-static void set_result( tsd_t *TSD, streng *value )
-{
-   if ( value )
-   {
-      setvalue( TSD, RESULT_name, Str_dupTSD( value ) );
-      setvalue( TSD, dotRESULT_name, value );
-   }
-   else
-   {
-      drop_var( TSD, RESULT_name );
-      drop_var( TSD, dotRESULT_name );
-   }
 }
 
 /* nstackpush pushes the arg pnode on the nstack. (copy, then increment)
@@ -593,12 +510,12 @@ streng *interpret(tsd_t * volatile TSD, treenode * volatile this)
    secure_TSD = TSD; /* vars used until here */
    secure_this = this;
 
-   if ( TSD->currlevel->buf == NULL )
+   if ( TSD->currlevel->signal_continue == NULL )
    {
-      TSD->currlevel->buf = MallocTSD( sizeof(jmp_buf) ) ;
+      TSD->currlevel->signal_continue = MallocTSD( sizeof( jmp_buf ) );
 
-      assert(!TSD->in_protected);
-      if (setjmp( *(TSD->currlevel->buf) ))
+      assert( !TSD->in_protected );
+      if ( setjmp( *TSD->currlevel->signal_continue ) )
       {
          /* A signal arrived and a longjmp from anywhere jumps here.
           * We can't believe in anything and have to rebuild it from
@@ -651,7 +568,7 @@ reinterpret:
    if ( TSD->trace_stat != 'O' && TSD->trace_stat != 'N' && TSD->trace_stat != 'F' )
    {
       if (this->type != X_DO)  /* let do-stats trace themselves */
-         traceline(TSD, this,(char) TSD->trace_stat,0) ;
+         traceline( TSD, this, TSD->trace_stat, 0 );
    }
 
    if (this->now)
@@ -684,13 +601,16 @@ reinterpret:
             assert( this->p[3] ) ;
             if ( TSD->trace_stat != 'O' && TSD->trace_stat != 'N' && TSD->trace_stat != 'F' )
             {
-               traceline(TSD, this->p[3],(char) TSD->trace_stat,-1) ;
-               traceline(TSD, this,(char) TSD->trace_stat,-1) ;
+               traceline( TSD, this->p[3], TSD->trace_stat, -1 );
+               traceline( TSD, this, TSD->trace_stat, -1 );
             }
             goto one ;
          }
          else
-            TRACELINE(this) ;
+         {
+            if ( TSD->trace_stat != 'O' && TSD->trace_stat != 'N' && TSD->trace_stat != 'F' )
+               traceline( TSD, this, TSD->trace_stat, 0 );
+         }
 
          if (!((this->p[0])||(this->p[1])))
          {
@@ -865,13 +785,27 @@ one:
  */
                this->p[0]->u.varbx->num = tdescr ;
                this->p[0]->u.varbx->flag = VFLAG_NUM ;
-               TRACENUMBER( tdescr, 'V' ) ;
+               if ( TSD->trace_stat == 'I' )
+                  tracenumber( TSD, tdescr, 'V');
             }
             else
                setshortcut( TSD, this->p[0], str_norm( TSD, tdescr, NULL )) ;
          }
 
          if (TSD->nextsig)
+            goto fakerecurse ;
+
+         /*
+          * Check for ^C before iterating. Fixes bug 882878.
+          */
+#ifdef WIN32
+         if ( __regina_Win32CtrlCRaised )
+         {
+            TSD->HaltRaised = __regina_Win32CtrlCRaised;
+            __regina_Win32CtrlCRaised = 0;
+         }
+#endif
+         if ( TSD->HaltRaised )
             goto fakerecurse ;
 
          goto startloop ;
@@ -908,7 +842,7 @@ endloop: if (s.increment)
          {
             n = this->p[0]->next;
             while ( n != NULL ) {
-               traceline( TSD, n, (char) TSD->trace_stat, 0 );
+               traceline( TSD, n, TSD->trace_stat, 0 );
                n = n->next;
             }
          }
@@ -1009,7 +943,7 @@ endloop: if (s.increment)
          {
             n = this->p[0]->next;
             while ( n != NULL ) {
-               traceline( TSD, n, (char) TSD->trace_stat, 0 );
+               traceline( TSD, n, TSD->trace_stat, 0 );
                n = n->next;
             }
          }
@@ -1079,61 +1013,17 @@ endloop: if (s.increment)
 
       case X_EXIT:
       {
-         int rc ;
+         streng *result;
 
-         if (TSD->systeminfo->panic)
-         {
-            if (this->p[0])
-               TSD->systeminfo->result = evaluate(TSD,this->p[0],NULL) ;
-            else
-               TSD->systeminfo->result = NULL ;
-
-            TSD->instore_is_errorfree = 1 ;
-            if (TSD->in_protected)
-            {
-               TSD->delayed_error_type = PROTECTED_DelayedSetjmpPanic;
-               longjmp( TSD->protect_return, 1 ) ;
-            }
-            longjmp( *(TSD->systeminfo->panic), 1 ) ;
-         }
-
-         if ( this->p[0] == NULL )
-            rc = EXIT_SUCCESS ;
+         if ( this->p[0] )
+            result = evaluate( TSD, this->p[0], NULL );
          else
-         {
-            streng *retval,*kill; /* fixes bug 481482 */
-            int error;
+            result = NULL;
 
-            retval = evaluate( TSD, this->p[0], &kill );
+         TSD->instore_is_errorfree = 1;
+         jump_script_exit( TSD, result );
 
-            /* fixes bug 657345 */
-            rc = streng_to_int( TSD, retval, &error );
-            if ( error )
-               rc = EXIT_SUCCESS;
-            if ( kill )
-               Free_stringTSD( kill );
-         }
-
-         if (TSD->systeminfo->hooks & HOOK_MASK(HOOK_TERMIN))
-            hookup( TSD, HOOK_TERMIN ) ;
-
-#if defined(FLISTS) && defined(NEW_FLISTS)
-         free_flists();
-#endif
-
-#ifdef TRACEMEM
-         if (TSD->listleakedmemory)
-            listleaked( TSD, MEMTRC_LEAKED ) ;
-#endif
-         CloseOpenFiles( TSD ) ;
-         if (TSD->in_protected)
-         {
-            TSD->delayed_error_type = PROTECTED_DelayedExit;
-            TSD->expected_exit_error = rc;
-            longjmp( TSD->protect_return, 1 ) ;
-         }
-         TSD->MTExit( rc ) ;
-         break ;
+         break;
       }
 
       case X_COMMAND:
@@ -1229,13 +1119,13 @@ endloop: if (s.increment)
                      {
                         begin = end; /* end of last word processed + 1 */
                         while ((begin < Str_len(value)) &&
-                               isspace(value->value[begin]))
+                               rx_isspace(value->value[begin]))
                            begin++;
                         if (begin == Str_len(value))
                            break;
                         end = begin + 1; /* find next separator */
                         while ((end < Str_len(value)) &&
-                               !isspace(value->value[end]))
+                               !rx_isspace(value->value[end]))
                            end++;
                         /* end now on space after word or past end of string */
                         name = Str_makeTSD(end - begin);
@@ -1286,13 +1176,13 @@ endloop: if (s.increment)
                      {
                         begin = end; /* end of last word processed + 1 */
                         while ((begin < Str_len(value)) &&
-                               isspace(value->value[begin]))
+                               rx_isspace(value->value[begin]))
                            begin++;
                         if (begin == Str_len(value))
                            break;
                         end = begin + 1; /* find next separator */
                         while ((end < Str_len(value)) &&
-                               !isspace(value->value[end]))
+                               !rx_isspace(value->value[end]))
                            end++;
                         /* end now on space after word or past end of string */
                         name = Str_makeTSD(end - begin);
@@ -1358,7 +1248,7 @@ endloop: if (s.increment)
           */
          innerloop = NULL;
 
-         set_sigl( TSD, this->lineno );
+         set_reserved_value( TSD, POOL0_SIGL, NULL, this->lineno, VFLAG_NUM );
          entry = getlabel( TSD, cptr );
          /*
           * We have to make a temporary copy of the label we are signalling
@@ -1390,7 +1280,7 @@ endloop: if (s.increment)
             {
                expose_var(TSD,ptr->name) ;
                if (ptr->type==X_IND_SYMBOL)
-                  expose_indir( TSD, getvalue( TSD, ptr->name, 0 ) );
+                  expose_indir( TSD, getvalue( TSD, ptr->name, -1 ) );
                else
                   assert( ptr->type==X_SIM_SYMBOL) ;
             }
@@ -1431,13 +1321,14 @@ endloop: if (s.increment)
          {
             no_next_interactive = 1;
             args = initplist( TSD, this );
-            set_sigl( TSD, this->lineno );
+            set_reserved_value( TSD, POOL0_SIGL, NULL, this->lineno, VFLAG_NUM );
 
             result = CallInternalFunction( TSD, this->u.node, this, args );
 
             TSD->systeminfo->interactive = TSD->currlevel->traceint;
 
-            set_result( TSD, result );
+            set_reserved_value( TSD, POOL0_RESULT, result, 0,
+                                ( result ) ? VFLAG_STR : VFLAG_NONE );
             break;
          }
       }
@@ -1453,7 +1344,8 @@ endloop: if (s.increment)
          }
          else
          {
-            set_result( TSD, result );
+            set_reserved_value( TSD, POOL0_RESULT, result, 0,
+                                ( result ) ? VFLAG_STR : VFLAG_NONE );
 
             break ;
          }
@@ -1461,33 +1353,39 @@ endloop: if (s.increment)
       /* THIS IS MEANT TO FALL THROUGH! */
       case X_IS_EXTERNAL:
       {
-         streng *ptr, *command ;
-         paramboxptr args, targs ;
+         streng *ptr, *command;
+         paramboxptr args, targs;
+         int len,err;
 
          if ( TSD->restricted )
-            exiterror( ERR_RESTRICTED, 5 )  ;
+            exiterror( ERR_RESTRICTED, 5 );
 
-         update_envirs( TSD, TSD->currlevel ) ;
+         update_envirs( TSD, TSD->currlevel );
 
-         args = targs = initplist( TSD, this ) ;
-         stackmark = pushcallstack( TSD, TSD->currentnode ) ;
-         ptr = execute_external(TSD,
-                                this->name,
-                                args,
-                                TSD->systeminfo->environment,
-                                NULL,
+         args = targs = initplist( TSD, this );
+         stackmark = pushcallstack( TSD, TSD->currentnode );
+         ptr = execute_external( TSD,
+                                 this->name,
+                                 args,
+                                 TSD->systeminfo->environment,
+                                 &err,
                                         /* Fixes bug 604219                  */
-                                TSD->systeminfo->hooks,
-                                INVO_SUBROUTINE);
-         popcallstack( TSD, stackmark ) ;
+                                 TSD->systeminfo->hooks,
+                                 INVO_SUBROUTINE );
+         popcallstack( TSD, stackmark );
 
-         if (ptr==this->name) /* FIXME,MH: no idea what this does */
+         if ( ptr == this->name )
          {
-            set_result( TSD, NULL );
-            ptr = NULL ;
+            /*
+             * FIXME,MH: no idea what this does
+             *      FGC: agreed, added an assert. Remove this block in
+             *           complete in 2005 if nothing happens.
+             */
+            assert( ptr );
+            ptr = NULL;
          }
 
-         if (!ptr)
+         if ( err == -ERR_PROG_UNREADABLE )
          {
             /*
              * "this->name" wasn't an external Rexx program, so
@@ -1498,30 +1396,49 @@ endloop: if (s.increment)
             if ( get_options_flag( TSD->currlevel, EXT_EXT_COMMANDS_AS_FUNCS )
             &&  !get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
             {
-               command = Str_makeTSD( 1000 ) ;
-               command = Str_catTSD(command,this->name ) ;
-               for (;targs;targs=targs->next)
+               len = Str_len( this->name );
+               for( targs = args; targs; targs = targs->next )
                {
-                  if (targs->value)
+                  if ( targs->value )
+                     len += 1 + Str_len( targs->value );
+               }
+               command = Str_makeTSD( len );
+               command = Str_catTSD( command, this->name );
+               for( targs = args; targs; targs = targs->next )
+               {
+                  if ( targs->value )
                   {
-                     command = Str_catstrTSD(command," ") ;
-                     command = Str_catTSD(command,targs->value) ;
+                     command = Str_catstrTSD( command, " " );
+                     command = Str_catTSD( command, targs->value );
                   }
                }
-               ptr = run_popen( TSD, command, TSD->currlevel->environment ) ;
-               Free_stringTSD( command ) ;
-            }
-            if (!ptr)
-            {
-               exiterror( ERR_ROUTINE_NOT_FOUND, 1, tmpstr_of( TSD, this->name ) ) ;
-               ptr = nullstringptr() ;
+               ptr = run_popen( TSD, command, TSD->currlevel->environment );
+               if ( ptr != NULL )
+                  err = 0;
+               Free_stringTSD( command );
             }
          }
-         if (ptr)
-            set_result( TSD, ptr );
-         deallocplink( TSD, args ) ;
 
-         break ;
+         deallocplink( TSD, args );
+
+         if ( ptr && ( TSD->trace_stat == 'I' ) )
+            tracevalue( TSD, ptr, 'F' );
+
+         if ( ptr )
+            set_reserved_value( TSD, POOL0_RESULT, ptr, 0, VFLAG_STR );
+         else
+            set_reserved_value( TSD, POOL0_RESULT, NULL, 0, VFLAG_NONE );
+
+         if ( err == -ERR_PROG_UNREADABLE )
+         {
+            exiterror( ERR_ROUTINE_NOT_FOUND, 1, tmpstr_of( TSD, this->name ) );
+         }
+         else if ( err )
+         {
+            post_process_system_call( TSD, this->name, -err, NULL, this );
+         }
+
+         break;
       }
 
       case X_PARSE:
@@ -1584,21 +1501,20 @@ endloop: if (s.increment)
                case X_PARSE_SRC:
                {
                   const char *stype ;
-                  streng *origfile, *inpfile;
+                  streng *inpfile;
 
                   stype = system_type();
-                  origfile = TSD->systeminfo->called_as;
                   inpfile = TSD->systeminfo->input_file;
                   source = Str_makeTSD( strlen( stype ) + 4 +
                            strlen( invo_strings[TSD->systeminfo->invoked] ) +
-                           Str_len( origfile ) + Str_len( inpfile ) );
+                           Str_len( inpfile ) );
                   source->len = 0;
 
                   Str_catstrTSD( source, stype );
                   Str_catstrTSD( source, " " );
                   Str_catstrTSD( source, invo_strings[TSD->systeminfo->invoked] );
                   Str_catstrTSD( source, " " );
-                  Str_catTSD(source,inpfile );
+                  Str_catTSD( source, inpfile );
                   break;
                }
             }
@@ -1652,7 +1568,7 @@ endloop: if (s.increment)
          break ;
 
       case X_OPTIONS:
-         do_options(TSD, evaluate(TSD,this->p[0],NULL),0) ;
+         do_options(TSD, TSD->currlevel, evaluate(TSD,this->p[0],NULL),0) ;
          break ;
 
       case X_RETURN:
@@ -1767,7 +1683,8 @@ endloop: if (s.increment)
 
             nstackpop(TSD);
          }
-         TRACELINE(iptr) ;
+         if ( TSD->trace_stat != 'O' && TSD->trace_stat != 'N' && TSD->trace_stat != 'F' )
+            traceline( TSD, iptr, TSD->trace_stat, 0 );
          stackcleanup(TSD,stktrigger + Stacked);
 
          if (TSD->systeminfo->interactive)
@@ -1883,9 +1800,9 @@ endloop: if (s.increment)
             TSD->currlevel->numform = NUM_FORM_SCI ;
          else if ( ( len == 11 ) && ( mem_cmpic( s, "ENGINEERING", 11 ) == 0 ) )
             TSD->currlevel->numform = NUM_FORM_ENG ;
-         else if ( ( len == 1 ) && ( toupper( *s ) == 'S' ) )
+         else if ( ( len == 1 ) && ( rx_toupper( *s ) == 'S' ) )
             TSD->currlevel->numform = NUM_FORM_SCI ;
-         else if ( ( len == 1 ) && ( toupper( *s ) == 'E' ) )
+         else if ( ( len == 1 ) && ( rx_toupper( *s ) == 'E' ) )
             TSD->currlevel->numform = NUM_FORM_ENG ;
          else
             exiterror( ERR_INVALID_RESULT, 0 )  ;
@@ -1982,9 +1899,11 @@ fakerecurse:
 
          /* simulate the SIGNAL statement */
          entry = getlabel( TSD, traps[i].name ) ;
-         set_sigl( TSD, TSD->currlevel->sig->lineno ) ;
+         set_reserved_value( TSD, POOL0_SIGL, NULL,
+                             TSD->currlevel->sig->lineno, VFLAG_NUM );
          if (TSD->currlevel->sig->type == SIGNAL_SYNTAX )
-            set_rc( TSD, int_to_streng( TSD, TSD->currlevel->sig->rc ) );
+            set_reserved_value( TSD, POOL0_RC, NULL, TSD->currlevel->sig->rc,
+                                VFLAG_NUM );
 
          if ( entry == NULL )
             exiterror( ERR_UNEXISTENT_LABEL, 1, tmpstr_of( TSD, traps[i].name ) );
@@ -2006,14 +1925,16 @@ fakerecurse:
 
          traps[i].delayed = 1;
 
-         set_sigl( TSD, TSD->nextsig->lineno );
+         set_reserved_value( TSD, POOL0_SIGL, NULL, TSD->nextsig->lineno,
+                             VFLAG_NUM );
          oldlevel = TSD->currlevel;
          TSD->currlevel = newlevel( TSD, TSD->currlevel );
          TSD->currlevel->sig = TSD->nextsig;
          TSD->nextsig = NULL;
 
          stackmark = pushcallstack( TSD, this );
-         TRACELINE( entry );
+         if ( TSD->trace_stat != 'O' && TSD->trace_stat != 'N' && TSD->trace_stat != 'F' )
+            traceline( TSD, entry, TSD->trace_stat, 0 );
 
          savecurrentnode = TSD->currentnode; /* pgb */
          h = interpret( TSD, entry->next );
@@ -2109,7 +2030,7 @@ void removelevel( tsd_t *TSD, proclevel level )
    if (level->prev)
       level->prev->next = NULL ;
 
-   FREE_IF_DEFINED(level->buf) ;
+   FREE_IF_DEFINED( level->signal_continue );
 
    if (level->sig)
    {
@@ -2138,12 +2059,15 @@ void removelevel( tsd_t *TSD, proclevel level )
  */
 proclevel newlevel( tsd_t *TSD, proclevel oldlevel )
 {
-   proclevel level=NULL ;
-   int i=0 ;
+   itp_tsd_t *it = TSD->itp_tsd;
+   proclevel level;
+   int i;
+   char *str;
+   streng *opts;
 
-   level = (proclevel)MallocTSD(sizeof(proclevbox)) ;
+   level = (proclevel) MallocTSD( sizeof( proclevbox ) );
 
-   if (!oldlevel)
+   if ( oldlevel == NULL )
    {
 #ifdef __CHECKER__
       /* There is a memcpy below which Checker don't like. The reason
@@ -2155,85 +2079,103 @@ proclevel newlevel( tsd_t *TSD, proclevel oldlevel )
        * any changes.
        * FGC
        */
-      memset(level,0,sizeof(proclevbox));
+      memset( level, 0, sizeof( proclevbox ) );
 #endif
-      level->numfuzz = DEFAULT_NUMERIC_FUZZ ;
-      level->currnumsize = DEFAULT_NUMERIC_SIZE ;
-      level->numform = DEFAULT_NUMFORM ;
-      level->time.sec = 0 ;
-      level->time.usec = 0 ;
-      level->mathtype = DEFAULT_MATH_TYPE ;
-      level->prev = NULL ;
-      level->next = NULL ;
-      level->args = NULL ;
-      memset(level->u.flags,0,sizeof(level->u.flags));
+      level->numfuzz = DEFAULT_NUMERIC_FUZZ;
+      level->currnumsize = DEFAULT_NUMERIC_SIZE;
+      level->numform = DEFAULT_NUMFORM;
+      level->time.sec = 0;
+      level->time.usec = 0;
+      level->mathtype = DEFAULT_MATH_TYPE;
+      level->prev = NULL;
+      level->next = NULL;
+      level->args = NULL;
+      level->options = 0;
 
-      set_options_flag( level, EXT_LINEOUTTRUNC, DEFAULT_LINEOUTTRUNC ) ;
-      set_options_flag( level, EXT_FLUSHSTACK, DEFAULT_FLUSHSTACK ) ;
-      set_options_flag( level, EXT_MAKEBUF_BIF, DEFAULT_MAKEBUF_BIF ) ;
-      set_options_flag( level, EXT_DROPBUF_BIF, DEFAULT_DROPBUF_BIF ) ;
-      set_options_flag( level, EXT_DESBUF_BIF, DEFAULT_DESBUF_BIF ) ;
-      set_options_flag( level, EXT_BUFTYPE_BIF, DEFAULT_BUFTYPE_BIF ) ;
-      set_options_flag( level, EXT_CACHEEXT, DEFAULT_CACHEEXT ) ;
-      set_options_flag( level, EXT_PRUNE_TRACE, DEFAULT_PRUNE_TRACE ) ;
-      set_options_flag( level, EXT_EXT_COMMANDS_AS_FUNCS, DEFAULT_EXT_COMMANDS_AS_FUNCS ) ;
-      set_options_flag( level, EXT_STDOUT_FOR_STDERR, DEFAULT_STDOUT_FOR_STDERR ) ;
-      set_options_flag( level, EXT_TRACE_HTML, DEFAULT_TRACE_HTML ) ;
-      set_options_flag( level, EXT_FAST_LINES_BIF_DEFAULT, DEFAULT_FAST_LINES_BIF_DEFAULT ) ;
-      set_options_flag( level, EXT_STRICT_ANSI, DEFAULT_STRICT_ANSI ) ;
-      set_options_flag( level, EXT_INTERNAL_QUEUES, DEFAULT_INTERNAL_QUEUES ) ;
-      set_options_flag( level, EXT_REGINA_BIFS, DEFAULT_REGINA_BIFS ) ;
-      set_options_flag( level, EXT_STRICT_WHITE_SPACE_COMPARISONS, DEFAULT_STRICT_WHITE_SPACE_COMPARISONS ) ;
-      set_options_flag( level, EXT_AREXX_SEMANTICS, DEFAULT_AREXX_SEMANTICS ) ;
-      set_options_flag( level, EXT_AREXX_BIFS, DEFAULT_AREXX_BIFS ) ;
-      set_options_flag( level, EXT_BROKEN_ADDRESS_COMMAND, DEFAULT_BROKEN_ADDRESS_COMMAND ) ;
+      if ( it->opts_set )
+         level->options = it->options;
+      else
+      {
+         set_options_flag( level, EXT_LINEOUTTRUNC, DEFAULT_LINEOUTTRUNC );
+         set_options_flag( level, EXT_FLUSHSTACK, DEFAULT_FLUSHSTACK );
+         set_options_flag( level, EXT_MAKEBUF_BIF, DEFAULT_MAKEBUF_BIF );
+         set_options_flag( level, EXT_DROPBUF_BIF, DEFAULT_DROPBUF_BIF );
+         set_options_flag( level, EXT_DESBUF_BIF, DEFAULT_DESBUF_BIF );
+         set_options_flag( level, EXT_BUFTYPE_BIF, DEFAULT_BUFTYPE_BIF );
+         set_options_flag( level, EXT_CACHEEXT, DEFAULT_CACHEEXT );
+         set_options_flag( level, EXT_PRUNE_TRACE, DEFAULT_PRUNE_TRACE );
+         set_options_flag( level, EXT_EXT_COMMANDS_AS_FUNCS, DEFAULT_EXT_COMMANDS_AS_FUNCS );
+         set_options_flag( level, EXT_STDOUT_FOR_STDERR, DEFAULT_STDOUT_FOR_STDERR );
+         set_options_flag( level, EXT_TRACE_HTML, DEFAULT_TRACE_HTML );
+         set_options_flag( level, EXT_FAST_LINES_BIF_DEFAULT, DEFAULT_FAST_LINES_BIF_DEFAULT );
+         set_options_flag( level, EXT_STRICT_ANSI, DEFAULT_STRICT_ANSI );
+         set_options_flag( level, EXT_INTERNAL_QUEUES, DEFAULT_INTERNAL_QUEUES );
+         set_options_flag( level, EXT_REGINA_BIFS, DEFAULT_REGINA_BIFS );
+         set_options_flag( level, EXT_STRICT_WHITE_SPACE_COMPARISONS, DEFAULT_STRICT_WHITE_SPACE_COMPARISONS );
+         set_options_flag( level, EXT_AREXX_SEMANTICS, DEFAULT_AREXX_SEMANTICS );
+         set_options_flag( level, EXT_AREXX_BIFS, DEFAULT_AREXX_BIFS );
+         set_options_flag( level, EXT_BROKEN_ADDRESS_COMMAND, DEFAULT_BROKEN_ADDRESS_COMMAND );
+         set_options_flag( level, EXT_CALLS_AS_FUNCS, DEFAULT_CALLS_AS_FUNCS );
+         set_options_flag( level, EXT_QUEUES_301, DEFAULT_QUEUES_301 );
 
-      level->varflag = 1 ;
-      level->tracestat = (char) TSD->systeminfo->tracing ;
-      level->traceint = (char) TSD->systeminfo->interactive ; /* MDW 30012002 */
-      level->environment = Str_dupTSD( TSD->systeminfo->environment ) ;
-      level->prev_env = Str_dupTSD( TSD->systeminfo->environment ) ;
-      level->vars = create_new_varpool( TSD ) ;
-      level->buf = NULL ;
-      level->sig = NULL ;
-      level->traps = MallocTSD( sizeof(trap) * SIGNALS ) ;
+         if ( ( str = mygetenv( TSD, "REGINA_OPTIONS", NULL, 0 ) ) != NULL )
+         {
+            opts = Str_creTSD( str );
+            FreeTSD( str );
+            do_options( TSD, level, opts, 0 );
+         }
+         it->opts_set = 1;
+         it->options = level->options;
+      }
+
+      level->varflag = 1;
+      level->tracestat = (char) TSD->systeminfo->tracing;
+      level->traceint = (char) TSD->systeminfo->interactive;
+      level->environment = Str_dupTSD( TSD->systeminfo->environment );
+      level->prev_env = Str_dupTSD( TSD->systeminfo->environment );
+      level->vars = create_new_varpool( TSD );
+      level->signal_continue = NULL;
+      level->sig = NULL;
+      level->traps = MallocTSD( sizeof(trap) * SIGNALS );
 #ifdef __CHECKER__
       /* See above */
-      memset( level->traps, 0, sizeof(trap) * SIGNALS ) ;
+      memset( level->traps, 0, sizeof(trap) * SIGNALS );
 #endif
       for (i=0; i<SIGNALS; i++)
       {
-         level->traps[i].name = NULL ;
-         level->traps[i].on_off = 0 ;
-         level->traps[i].delayed = 0 ;
-         level->traps[i].def_act = default_action[i] ;
-         level->traps[i].ignored = default_ignore[i] ;
-         level->traps[i].invoked = 0 ;
+         level->traps[i].name = NULL;
+         level->traps[i].on_off = 0;
+         level->traps[i].delayed = 0;
+         level->traps[i].def_act = default_action[i];
+         level->traps[i].ignored = default_ignore[i];
+         level->traps[i].invoked = 0;
       }
+      level->pool = 1;
    }
    else
    {
       /* Stupid SunOS acc gives incorrect warning for the next line */
-      memcpy(level,oldlevel,sizeof(proclevbox)) ;
+      memcpy( level, oldlevel, sizeof( proclevbox ) );
 #ifdef DONT_DO_THIS
-      level->prev_env = NULL ;
-      level->environment = NULL ;
+      level->prev_env = NULL;
+      level->environment = NULL;
 #else
-      level->prev_env = Str_dupTSD( oldlevel->prev_env ) ;
-      level->environment = Str_dupTSD( oldlevel->environment ) ;
+      level->prev_env = Str_dupTSD( oldlevel->prev_env );
+      level->environment = Str_dupTSD( oldlevel->environment );
 #endif
-      level->prev = oldlevel ;
-      level->varflag = 0 ;
-      oldlevel->next = level ;
-      level->buf = NULL ;
-      level->args = NULL ;
-/*    level->next = NULL ;*/
-      level->sig = NULL ;
-      level->traps = NULL ;
+      level->prev = oldlevel;
+      level->varflag = 0;
+      oldlevel->next = level;
+      level->signal_continue = NULL;
+      level->args = NULL;
+/*    level->next = NULL;*/
+      level->sig = NULL;
+      level->traps = NULL;
+      level->pool++;
    }
 
-   TSD->trace_stat = level->tracestat ;
-   return( level ) ;
+   TSD->trace_stat = level->tracestat;
+   return level;
 }
 
 
@@ -2247,8 +2189,8 @@ static void expose_indir( tsd_t *TSD, const streng *list )
    tmp = Str_makeTSD( 64 ) ;
    for (;cptr<eptr;)
    {
-      for (; cptr<eptr && isspace(*cptr); cptr++ ) ;
-      for (sptr=cptr; cptr<eptr && !isspace(*cptr); cptr++ ) ;
+      for (; cptr<eptr && rx_isspace(*cptr); cptr++ ) ;
+      for (sptr=cptr; cptr<eptr && !rx_isspace(*cptr); cptr++ ) ;
       if (cptr-sptr >= 64)
           exiterror( ERR_TOO_LONG_STRING, 0 )  ;
       if (cptr==sptr)
@@ -2261,4 +2203,87 @@ static void expose_indir( tsd_t *TSD, const streng *list )
       expose_var( TSD, tmp ) ;
    }
    Free_stringTSD( tmp ) ;
+}
+
+
+/*
+ * jump_rexx_signal should be used when a "SIGNAL ON" condition happens.
+ * This function jumps to the previously assigned handler. This function
+ * ensures a proper cleanup if the global lock flag "in_protected" is set.
+ */
+void jump_rexx_signal( tsd_t *TSD )
+{
+   if ( TSD->in_protected )
+   {
+      /*
+       * The lexer is running. We have to terminate him and let him do his
+       * cleanup. After it, we'll be called again but without "in_protected".
+       */
+      TSD->delayed_error_type = PROTECTED_DelayedRexxSignal;
+      longjmp( TSD->protect_return, 1 );
+   }
+   longjmp( *TSD->currlevel->signal_continue, 1 );
+}
+
+
+/*
+ * jump_interpreter_exit should be used when the whole interpreter should
+ * terminate. This usually happens in case of a hard error or when the main
+ * script ends.
+ *
+ * processExitCode tells the interpreter what return code shall be used on the
+ * last exit.
+ *
+ * DON'T GET CONFUSED WITH jump_script_exit!
+ *
+ * This function jumps to the previously assigned handler. This function
+ * ensures a proper cleanup if the global lock flag "in_protected" is set.
+ */
+void jump_interpreter_exit( tsd_t *TSD, int processExitCode )
+{
+   if ( TSD->in_protected )
+   {
+      /*
+       * The lexer is running. We have to terminate him and let him do his
+       * cleanup. After it, we'll be called again but without "in_protected".
+       */
+      TSD->expected_exit_error = processExitCode;
+      TSD->delayed_error_type = PROTECTED_DelayedInterpreterExit;
+      longjmp( TSD->protect_return, 1 );
+   }
+   TSD->MTExit( processExitCode );
+}
+
+
+/*
+ * jump_script_exit should be used when a script ends or enters an EXIT
+ * instraction.
+ *
+ * result tells the interpreter what return string shall be returned to the
+ * caller.
+ *
+ * DON'T GET CONFUSED WITH jump_interpreter_exit!
+ *
+ * This function jumps to the previously assigned handler. This function
+ * ensures a proper cleanup if the global lock flag "in_protected" is set.
+ */
+void jump_script_exit( tsd_t *TSD, streng *result )
+{
+   TSD->systeminfo->result = result;
+
+   if ( TSD->in_protected && TSD->systeminfo->script_exit )
+   {
+      /*
+       * The lexer is running. We have to terminate him and let him do his
+       * cleanup. After it, we'll be called again but without "in_protected".
+       */
+      TSD->delayed_error_type = PROTECTED_DelayedScriptExit;
+      longjmp( TSD->protect_return, 1 );
+   }
+
+   if ( !TSD->systeminfo->script_exit )
+      exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__,
+                 "script EXIT not registered" );
+
+   longjmp( *TSD->systeminfo->script_exit, 1 );
 }

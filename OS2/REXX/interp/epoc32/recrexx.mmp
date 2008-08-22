@@ -5,7 +5,7 @@
 // based on RECPDF.MMP:
 // Copyright (c) 2000 Sander van der Wal
 //
-// $Id: recrexx.mmp,v 1.1 2003/12/11 05:16:53 prokushev Exp $
+// $Id: recrexx.mmp,v 1.1 2001/07/29 06:21:58 mark Exp $
 //
 
 TARGET        recrexx.mdl

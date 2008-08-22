@@ -3,17 +3,17 @@
 # 07/10/04 valerius
 #
 
+#
+# This is for this file to be not included twice
+#
+!ifndef __loader_mk__
+!define __loader_mk__
+
 # define if gen_compile_rules_wrapper and gen_deps_wrapper
 # are defined
 !define WRAPPERS
 
 CLEAN_ADD = *.mdl *.rel *.sob *.lob
-
-#
-# This is for this file to be not included twice
-#
-!ifneq _loader_mk_ 1
-_loader_mk_ = 1
 
 32_BITS      = 1       # Use 32-bit C compiler
 DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__

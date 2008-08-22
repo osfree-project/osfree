@@ -41,3 +41,4 @@ EXPORTS
         RexxReorderMacro
         RexxSaveMacroSpace
         RexxCallBack
+        ReginaCleanup

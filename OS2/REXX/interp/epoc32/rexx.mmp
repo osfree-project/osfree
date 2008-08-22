@@ -5,7 +5,7 @@
 // based on RECPDF.MMP:
 // Copyright (c) 2000 Sander van der Wal
 //
-// $Id: rexx.mmp,v 1.1 2003/12/11 05:16:54 prokushev Exp $
+// $Id: rexx.mmp,v 1.2 2002/11/25 10:01:53 mark Exp $
 //
 
 TARGET         rexx.exe

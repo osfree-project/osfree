@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Groﬂe-Coosmann
+ *  Copyright © 2003-2004, Florian Groﬂe-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,6 +22,7 @@
  * GCI system and may be used to invoke the GCI.
  */
 
+#ifndef incl_LINK_FUNCS_ONLY
 #include "embedded.h"
 
 /*
@@ -56,16 +57,20 @@ typedef enum {
    GCI_SyntaxError,       /* The number of arguments is wrong                */
    GCI_CoreConfused,      /* The core of GCI can't determine how to invoke   */
                           /* generic functions                               */
+   GCI_ArgStackOverflow,  /* GCI's internal stack for arguments got an       */
+                          /* overflow                                        */
+   GCI_NestingOverflow,   /* GCI counted too many nested LIKE containers     */
    GCI_LastResult         /* currently not used.                             */
 } GCI_result;
 
 /*
  * GCI understands some basic types of which it builds more complex type
- * structures. The basic types are listed here, although we need two extra
+ * structures. The basic types are listed here, although we need some extra
  * types while parsing the name; these have negative values.
  */
 typedef enum {
-   GCI_unknown = -2,
+   GCI_unknown = -3,
+   GCI_like = -2,
    GCI_indirect = -1,
    GCI_integer = 0,
    GCI_unsigned,
@@ -131,11 +136,11 @@ typedef struct {
 typedef struct {
    GCI_callinfo  callinfo;
    GCI_nodeinfo *nodes;
-   int           used;           /* used elements of nodes */
-   int           max;            /* current maximum of elements of nodes */
-   int           args[10];       /* 10 arguments' starting index or -1 */
-   int           retval;         /* return value's starting index or -1 */
-   unsigned      size;           /* size in bytes of all args */
+   int           used;                /* used elements of nodes */
+   int           max;                 /* current maximum of elements of nodes */
+   int           args[GCI_REXX_ARGS]; /* ??? arguments' starting index or -1 */
+   int           retval;              /* return value's starting index or -1 */
+   unsigned      size;                /* size in bytes of all args */
 } GCI_treeinfo;
 
 /*
@@ -202,6 +207,7 @@ char *GCI_strtoascii( void *hidden,
 void GCI_uppercase( GCI_str *str );
 void GCI_describe( GCI_str *description,
                    GCI_result rc );
+void GCI_strswap( GCI_str *first, GCI_str *second );
 
 /*
  * gci_prepare.c
@@ -282,3 +288,13 @@ GCI_result GCI_call( void *hidden,
                      void (*func)(),
                      const GCI_treeinfo *ti,
                      char *basebuf );
+
+#endif /* incl_LINK_FUNCS_ONLY */
+
+/*
+ * gci_oslink.c (not used for a GCI which is embedded in a true interpreter)
+ */
+void *GCI_getLibrary( const char *libname, int libnamelen, char *buf );
+void GCI_freeLibrary( void *handle );
+void ( *GCI_getEntryPoint( void *handle, const char *function ) )();
+

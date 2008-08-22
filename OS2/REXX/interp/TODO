@@ -2,7 +2,6 @@ This file lists features that are missing from Regina and are planned
 to be added in future releases.
 
 o Add macrospace API functions
-o Implement RexxRegisterExitDll and friends.
 o A testing suite to check out if old or new errors persists or are solved.
   - perhaps modification of the existing trip test to be cross-platform
     and to work with other interpreters would be useful
@@ -13,4 +12,3 @@ General fixes. For a list of specific known bugs and errors see BUGS file.
 
 o Check the code where a string "FIXME" is visible.
 o The documentation of the code is very poor.
-o ANSI BIF FORMAT() should be set to the current standard.

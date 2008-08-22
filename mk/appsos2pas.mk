@@ -3,16 +3,17 @@
 # for building tools
 #
 
-!ifndef __toolspas_mk__
-!define __toolspas_mk__
+!ifndef __appsos2pas_mk__
+!define __appsos2pas_mk__
 
 32_BITS  = 1
+CLEAN_ADD = *.oo2 *.ppo
 
 !ifndef DEST
-DEST    = tools
+DEST    = os2
 !endif
 
-CLEAN_ADD = *.oo2 *.ppo
+#CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 !include $(%ROOT)/mk/all.mk

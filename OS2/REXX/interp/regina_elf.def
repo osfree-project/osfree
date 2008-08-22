@@ -42,3 +42,6 @@ regina_2.2 {
 regina_3.1 {
         RexxCallBack;
 } REXXSAA_API;
+regina_3.3 {
+        ReginaCleanup;
+} REXXSAA_API;

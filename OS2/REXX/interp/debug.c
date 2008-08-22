@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: debug.c,v 1.2 2003/12/11 04:43:05 prokushev Exp $";
+static char *RCSid = "$Id: debug.c,v 1.10 2004/02/10 10:43:52 mark Exp $";
 #endif
 
 /*
@@ -356,7 +356,7 @@ streng *getsourceline( const tsd_t *TSD, int line, int charnr, const internal_pa
 
    chptr = ptr + --charnr ;
    chend = ptr + len ;
-   for (; (chptr < chend) && isspace(*chptr); chptr++) ;
+   for (; (chptr < chend) && rx_isspace(*chptr); chptr++) ;
    string = Str_makeTSD(BUFFERSIZE+1) ;
    outptr = string->value ;
 
@@ -377,14 +377,14 @@ restart:
          switch (*chptr)
          {
             case ',':
-               for(tmptr=chptr+1; tmptr<chend && isspace(*tmptr); tmptr++ ) ;
+               for(tmptr=chptr+1; tmptr<chend && rx_isspace(*tmptr); tmptr++ ) ;
                assert( tmptr<=chend ) ;
                if (tmptr==chend)
                {
                   *(outptr++) = ' ' ;
                   chptr = sourceline(++line,ipt,&len) ;
                   chend = chptr + len ;
-                  for(; chptr<chend && isspace(*chptr); chptr++) ;
+                  for(; chptr<chend && rx_isspace(*chptr); chptr++) ;
                   goto restart;
                }
                break ;

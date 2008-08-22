@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: interp.c,v 1.2 2003/12/11 04:43:10 prokushev Exp $";
+static char *RCSid = "$Id: interp.c,v 1.9 2004/03/04 11:14:44 mark Exp $";
 #endif
 
 /*
@@ -70,8 +70,6 @@ streng *dointerpret( tsd_t *TSD, streng *string )
    if (TSD->currentnode)
       set_line_nos( newtree, TSD->currentnode->lineno, TSD->currentnode->charnr ) ;
 
-   treadit( newtree ) ;
-
    /* Save and restore currentnode around interpret. It is set within
     * interpret and may result to illegal memory accesses in case of
     * errors if it is not restored, FGC
@@ -79,7 +77,18 @@ streng *dointerpret( tsd_t *TSD, streng *string )
    savecurrentnode = TSD->currentnode;
    ptr = interpret( TSD, newtree ) ;
    TSD->currentnode = savecurrentnode;
+#if 0
+   /*
+    * FIXME: Always clean up the structure. newtree may be NULL in case
+    *        of an empty command where we still have to remove the
+    *        single empty line. I can't remember why we should destroy
+    *        it just in that case we have a newtree. What is a typical
+    *        other reason of not having newtree?
+    *        In either case, delete this comment and the "#if 0"-block
+    *        one year after now. Florian, 04.03.2004
+    */
    if (newtree)
+#endif
       DestroyInternalParsingTree( TSD, &parsing ) ;
 
    return ptr ;

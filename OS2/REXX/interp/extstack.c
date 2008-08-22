@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: extstack.c,v 1.2 2003/12/11 04:43:08 prokushev Exp $";
+static char *RCSid = "$Id: extstack.c,v 1.19 2004/04/18 02:54:33 florian Exp $";
 #endif
 
 /*
@@ -26,6 +26,7 @@ static char *RCSid = "$Id: extstack.c,v 1.2 2003/12/11 04:43:08 prokushev Exp $"
 # include <os2/types.h>
 #endif
 #include "rexx.h"
+
 
 #ifdef EXTERNAL_TO_REGINA
 # include <assert.h>
@@ -187,7 +188,7 @@ streng *default_external_name( const tsd_t *TSD )
 
    len = sizeof(ReginaLocalHost); /* includes the term. \0 */
    result = MAKESTRENG( len );
-   result->len = len;
+   result->len = len - 1;
    memcpy( result->value, ReginaLocalHost, len ) ;
    return result ;
 }
@@ -390,8 +391,12 @@ int parse_queue( tsd_t *TSD, streng *queue, Queue *q )
    }
 
    h = PSTRENGVAL( q->u.e.name ) ;
-   if ( *h == '\0' ) /* FIXME: need to use default_external_name? */
-      q->u.e.address = default_external_address( ) ;
+   if ( *h == '\0' )
+   {
+      q->u.e.address = default_external_address();
+      DROPSTRENG( q->u.e.name );
+      q->u.e.name = default_external_name( TSD );
+   }
    else
    {
       /* h is either a dotted name or a host name, always try the dotted one

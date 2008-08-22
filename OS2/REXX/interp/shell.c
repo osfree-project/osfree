@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: shell.c,v 1.2 2003/12/11 04:43:20 prokushev Exp $";
+static char *RCSid = "$Id: shell.c,v 1.44 2004/03/29 10:39:35 florian Exp $";
 #endif
 
 /*
@@ -21,7 +21,7 @@ static char *RCSid = "$Id: shell.c,v 1.2 2003/12/11 04:43:20 prokushev Exp $";
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 
 #if defined(WIN32)
 # ifdef _MSC_VER
@@ -112,8 +112,8 @@ int init_shell( tsd_t *TSD )
    return(1);
 }
 
-const streng *stem_access( tsd_t *TSD, environpart *e, int pos,
-                                                           const streng *value)
+static const streng *stem_access( tsd_t *TSD, environpart *e, int pos,
+                                  streng *value )
 /* appends "."+itoa(pos) to e->currname and accesses this variable.
  * value is NULL to access the current value or non-NULL to set the new value.
  * The return value is NULL if a new value is set or the old one.
@@ -134,9 +134,9 @@ const streng *stem_access( tsd_t *TSD, environpart *e, int pos,
     *      changing from [sg]etdirvalue_compound to [sg]etvalue.
     */
    if (value == NULL)
-      return( getvalue( TSD, e->currname, 1 ) ) ;
+      return( getvalue( TSD, e->currname, -1 ) ) ;
 
-   setvalue( TSD, e->currname, Str_dupTSD( value ) ) ;
+   setvalue( TSD, e->currname, value, -1 ) ;
    return( NULL ) ;
 }
 
@@ -155,7 +155,7 @@ static void set_currname( tsd_t *TSD, environpart *e )
        */
       if ( (source->len > 0) && ( e->flags.awt != awtSTEM ) )
       {
-         source = getvalue( TSD, source, 0 ) ;
+         source = getvalue( TSD, source, -1 ) ;
       }
    }
    else
@@ -263,7 +263,7 @@ static void open_env_io( tsd_t *TSD, environpart *e, unsigned overwrite, int isS
             e->currnum = 1 ;
             e->base->value[0] = '0' ;
             e->base->len = 1 ;
-            stem_access( TSD, e, 0, e->base ) ;
+            stem_access( TSD, e, 0, Str_dupTSD( e->base ) ) ;
          }
          break;
 
@@ -388,7 +388,7 @@ void put_stem( tsd_t *TSD, environpart *e, streng *str )
     * e->maxnum = e->currnum = streng_to_int( TSD, h, &dummy ) + 1 ;
     */
    e->base->len = sprintf( e->base->value, "%d", e->maxnum ) ;
-   stem_access( TSD, e, 0, e->base ) ;
+   stem_access( TSD, e, 0, Str_dupTSD( e->base ) ) ;
    stem_access( TSD, e, e->maxnum, str ) ;
 }
 
@@ -717,7 +717,7 @@ static void CheckSameStreams( tsd_t *TSD, int io_flags, environment *env )
 
       if ( ( e->flags.ant == antSIMSYMBOL ) && ( name != NULL ) )
       {
-         name = getvalue( TSD, name, 0 ) ;
+         name = getvalue( TSD, name, -1 ) ;
       }
       else
       {
@@ -1274,23 +1274,20 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
    env->input.hdls[0] = env->output.hdls[1] = env->error.hdls[1] = -1;
 
    /* Force our own handles to become nonblocked */
-   if (!env->input.FileRedirected)
+   if (!env->input.FileRedirected && ((in = env->input.hdls[1]) != -1))
    {
-      in = env->input.hdls[1];
       unblock_handle( &in, st->AsyncInfo ) ;
    }
    else
       in = -1;
-   if (!env->output.FileRedirected)
+   if (!env->output.FileRedirected && ((out = env->output.hdls[0]) != -1))
    {
-      out = env->output.hdls[0];
       unblock_handle( &out, st->AsyncInfo ) ;
    }
    else
       out = -1;
-   if (!env->error.FileRedirected)
+   if (!env->error.FileRedirected && ((err = env->error.hdls[0]) != -1))
    {
-      err = env->error.hdls[0];
       unblock_handle( &err, st->AsyncInfo ) ;
    }
    else

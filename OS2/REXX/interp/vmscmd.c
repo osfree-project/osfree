@@ -49,7 +49,7 @@ you. You may do the work in this order:
  */
 
 /*
- * $Id: vmscmd.c,v 1.2 2003/12/11 04:43:25 prokushev Exp $
+ * $Id: vmscmd.c,v 1.5 2002/09/08 02:29:29 mark Exp $
  */
 
 #include <stdio.h>

@@ -17,7 +17,7 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id: rexxsaa.h,v 1.2 2003/12/11 04:43:18 prokushev Exp $
+ * $Id: rexxsaa.h,v 1.32 2004/04/12 01:57:50 mark Exp $
  */
 
 #ifndef __REXXSAA_H_INCLUDED
@@ -98,7 +98,7 @@ typedef unsigned char UCHAR ;
 # endif
 # ifndef PUCHAR_TYPEDEFED
 typedef UCHAR *PUCHAR;
-#  define UCHAR_TYPEDEFED
+#  define PUCHAR_TYPEDEFED
 # endif
 
 # ifndef SHORT_TYPEDEFED
@@ -147,6 +147,14 @@ typedef CHAR *PCH ;
 # define INCL_RXARI
 # define INCL_RXQUEUE
 # define INCL_RXMACRO
+#endif
+
+/*
+ * For Innotek gcc, force use of _System calling convention
+ */
+#if defined( __EMX__ ) && defined( __INNOTEK_LIBC__ )
+# undef APIENTRY
+# define APIENTRY _System
 #endif
 
 #if !defined(APIENTRY)
@@ -411,8 +419,7 @@ EXTNAME("RexxQueryExit");
 #endif /* INCL_RXSYSEXIT */
 
 
-
-#define MAXENVNAMELEN 31
+#define MAXENVNAMELEN 32767   /* at least, there is no limit */
 
 #define MAKERXSTRING(x,c,l)   ((x).strptr=(c),(x).strlength=(l))
 #define RXNULLSTRING(x)       (!(x).strptr)
@@ -815,10 +822,13 @@ EXTNAME("RexxClearMacroSpace");
 
 
 /* REGINA EXTENSIONS *********************************************************/
-/* The following function is an extension to the standard. Never try to
- * address the function directly. Use the dynamic linking machanism of
- * your operating system instead. This function was introduced in version
- * 2.0.
+/* The following functions are an extension to the standard. Never try to
+ * address the function directly if you want to be compatible. Use the dynamic
+ * linking machanism of your operating system instead.
+ *
+ *
+ * ReginaVersion returns informations about the version of the library.
+ * This function was introduced in version 2.0.
  * Returns: ULONG, in lower byte the two-digit fraction part of the version.
  *          The higher bytes will hold the integer part of the version.
  *          Examples: 0x10A codes the Version "1.10".
@@ -838,6 +848,24 @@ APIRET APIENTRY ReginaVersion(
                 PRXSTRING VersionString )
 EXTNAME("ReginaVersion");
 #define REGINAVERSION ReginaVersion
+
+/*
+ * ReginaCleanup performs a graceful cleanup. This is done automatically
+ * on many systems but you can't be sure in all cases. The cleanup operations
+ * destroys all informations that are collected so far by one thread.
+ * It works for a single process or thread too. Although all memory is
+ * freed, some open handles may remain open. It is necessary to perform
+ * the appropriate "RexxDeregister<whatever>" calls before this routine
+ * is called.
+ * This function was introduced in version 3.3.
+ * Returns: ULONG, 0 if this call hasn't done anything.
+ *          1 if at least something could be freed.
+ * It is allowed to reuse every API function after this call but this routine
+ * must not be used when some parts of the Regina core are in use.
+ */
+APIRET APIENTRY ReginaCleanup( VOID )
+EXTNAME("ReginaCleanup");
+#define REGINACLEANUP ReginaCleanup
 
 #ifdef OREXX_BINARY_COMPATIBLE
 # pragma pack()

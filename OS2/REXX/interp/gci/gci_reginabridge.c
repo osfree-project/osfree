@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -166,6 +166,9 @@ static int GCIcode2ReginaFuncCode( tsd_t *TSD,
 
       case GCI_SyntaxError:
          exiterror( ERR_INCORRECT_CALL, 991, ( tmpDispo ) ? ": " : "", ( tmpDispo ) ? tmpDispo : "" );
+
+      case GCI_ArgStackOverflow:
+         exiterror( ERR_INCORRECT_CALL, 992, ( tmpDispo ) ? ": " : "", ( tmpDispo ) ? tmpDispo : "" );
 
       default:
          break;
@@ -571,14 +574,14 @@ int GCI_Dispatcher( tsd_t *TSD,
 {
    GCI_result rc;
    GCI_str disposition, direct_retval;
-   GCI_str args[10];
+   GCI_str args[GCI_REXX_ARGS];
    int i, retval;
 
    /*
     * This trivial test should come first to be sure not to access nonexisting
     * memory. parseTree has fixed this number.
     */
-   if ( Params > 10 )
+   if ( Params > GCI_REXX_ARGS )
       GCIcode2ReginaFuncCode( TSD, GCI_InternalError, NULL, 1 );
 
    memset( args, 0, sizeof( args ) );

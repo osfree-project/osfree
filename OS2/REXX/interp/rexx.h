@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: rexx.h,v 1.2 2003/12/11 04:43:16 prokushev Exp $
+ * $Id: rexx.h,v 1.86 2004/04/23 22:48:35 mark Exp $
  */
 #ifndef __REXX_H_INCLUDED
 #define __REXX_H_INCLUDED
@@ -153,9 +153,9 @@
 # endif
 #endif
 
-#include "rexx_charset.h"
+#include "regina_c.h"
 
-#define HEXVAL( c ) ( isdigit(c) ? ( ( c ) - '0' ) : ( tolower(c) - 'a' + 10 ) )
+#define HEXVAL( c ) ( rx_isdigit(c) ? ( ( c ) - '0' ) : ( rx_tolower(c) - 'a' + 10 ) )
 
 /*
  * Which character is used to delimit lines in text files? Actually,
@@ -243,14 +243,14 @@
 
 #define REGINA_VERSION_MAJOR "3"
 #define REGINA_VERSION_MINOR "3"
-#define REGINA_VERSION_SUPP  "RC1"
+#define REGINA_VERSION_SUPP  ""
 
 #define PARSE_VERSION_STRING    "REXX-Regina_" REGINA_VERSION_MAJOR "." \
                                 REGINA_VERSION_MINOR REGINA_VERSION_SUPP \
                                 REGINA_VERSION_THREAD \
-                                " 5.00 16 Nov 2003"
+                                " 5.00 25 Apr 2004"
 
-#define INSTORE_VERSION 8 /* Must be incremented each time the parser/lexer
+#define INSTORE_VERSION 9 /* Must be incremented each time the parser/lexer
                            * or data structure changes something.
                            */
 

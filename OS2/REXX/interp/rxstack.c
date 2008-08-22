@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: rxstack.c,v 1.2 2003/12/11 04:43:19 prokushev Exp $";
+static char *RCSid = "$Id: rxstack.c,v 1.31 2004/04/18 02:54:34 florian Exp $";
 #endif
 
 /*
@@ -1377,11 +1377,11 @@ void empty_queue( RxQueue *q )
    b = &q->buf ;
    for ( line = b->top; line != NULL; )
    {
-      contents = line->contents ;
+      contents = line->contents;
       DROPSTRENG( contents );
-      tmp = line ;
+      tmp = line;
       line = line->lower;
-      free( line ) ;
+      free( tmp );
    }
    memset( &q->buf, 0, sizeof( Buffer ) ) ;
 

@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: utsname.h,v 1.2 2003/12/11 04:43:24 prokushev Exp $
+ * $Id: utsname.h,v 1.3 2001/07/29 07:36:21 mark Exp $
  */
 
 #ifndef _UTSNAME_ALREADY_DEFINED_

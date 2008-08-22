@@ -19,7 +19,7 @@ streng *MakeStreng( int num )
       out->len = out->max = num;
       if ( num )
       {
-memset( out->value, '$', num );
+         memset( out->value, '$', num );
       }
    }
 if ( out == NULL ) fprintf(stderr,"ERROR allocating RXSTRING\n");

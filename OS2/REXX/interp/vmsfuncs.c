@@ -49,7 +49,7 @@ you. You may do the work in this order:
  */
 
 /*
- * $Id: vmsfuncs.c,v 1.2 2003/12/11 04:43:25 prokushev Exp $
+ * $Id: vmsfuncs.c,v 1.7 2003/12/19 07:24:46 florian Exp $
  */
 
 /* huups, have to add one to length in everyting given to Str_ncatstr */
@@ -1732,7 +1732,7 @@ streng *vms_f_pid( tsd_t *TSD, cparamboxptr parms )
    items[4] = 0 ;
    items[5] = 0 ;
 
-   Pid = getvalue( TSD, parms->value, 0 ) ;
+   Pid = getvalue( TSD, parms->value, -1 ) ;
 
    if (Pid->len)
    {
@@ -1752,7 +1752,7 @@ streng *vms_f_pid( tsd_t *TSD, cparamboxptr parms )
 
    sprintf( (val=Str_makeTSD(10))->value, "%08x", pid ) ;
    val->len = 8 ;
-   setvalue( TSD, parms->value, val ) ;
+   setvalue( TSD, parms->value, val, -1 ) ;
 
    if (rc == SS$_NOMOREPROC)
       return nullstringptr() ;

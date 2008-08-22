@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -120,7 +120,7 @@ int GCI_strcats( GCI_str *first,
 
 /*
  * GCI_strsetlen sets the length of str to max. If max if bigger than the
- * sring's internal maximum it is set to the string's internal maximum.
+ * string's internal maximum it is set to the string's internal maximum.
  */
 void GCI_strsetlen( GCI_str *str,
                     int max )
@@ -272,7 +272,7 @@ void GCI_uppercase( GCI_str *str )
    char *ptr = str->val;
 
    for ( i = 0; i < len; i++, ptr++ )
-      *ptr = (char) toupper( *ptr );
+      *ptr = (char) rx_toupper( *ptr );
 }
 
 /*
@@ -308,6 +308,8 @@ void GCI_describe( GCI_str *description,
       case GCI_FunctionNotFound:     ptr = "The REXX function was not or no longer registered by the interpreter";            break;
       case GCI_SyntaxError:          ptr = "The number of arguments is wrong or an argument is missing";                      break;
       case GCI_CoreConfused:         ptr = "The core of GCI can't determine how to invoke generic functions";                 break;
+      case GCI_ArgStackOverflow:     ptr = "GCI's internal stack for arguments got an overflow";                              break;
+      case GCI_NestingOverflow:      ptr = "GCI counted too many nested LIKE containers";                                     break;
       default:
          break;
    }
@@ -320,4 +322,16 @@ void GCI_describe( GCI_str *description,
    description->val = ptr;
    description->used = strlen(ptr);
    description->max = description->used;
+}
+
+/*
+ * GCI_strswap exchanges two strings' content completely.
+ */
+void GCI_strswap( GCI_str *first, GCI_str *second )
+{
+   GCI_str h;
+
+   h = *first;
+   *first = *second;
+   *second = h;
 }

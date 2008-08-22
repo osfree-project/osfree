@@ -199,6 +199,8 @@
  40,989,Ein Problem tauchte auf bei der Schnittstelle zwischen Regina und GCI%s%s|: ,<location>
  40,990,Der Typ paßt nicht zu den Anforderungen an Basistypen (Argumente/Rückgabewert)%s%s|: ,<location>
  40,991,Die Anzahl der Argument ist falsch oder ein Argument fehlt%s%s|: ,<location>
+ 40,992,GCI's interner Argumentstack lief über%s%s|: ,<location>
+ 40,993,GCI zählte zu viele geschachtelte LIKE-Container%s%s|: ,<location>
  41,  0,Fehlerhafte Zahlumwandlung
  41,  1,Nichtnumerischer Wert ("%s") zur Linken des arithmetischen Operators "%s"|<value>,<operator>
  41,  2,Nichtnumerischer Wert ("%s") zur Rechten des arithmetischen Operators "%s"|<value>,<operator>

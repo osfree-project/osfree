@@ -1255,6 +1255,15 @@ static RexxSubcomHandler *(scfuncs[]) = {
    NULL
 } ;
 
+char char82( void )
+{
+   return (char) 0x82;
+}
+
+char char0( void )
+{
+   return '\0';
+}
 
 int main( int argc, char *argv[] )
 {
@@ -1285,6 +1294,9 @@ int main( int argc, char *argv[] )
    }
    printf("\n");
 
+   if ( char82() < char0() )
+      printf( "WARNING: Current compiler uses `signed char' as default!\n" );
+
    for( fptr=routines; *fptr; fptr++ )
       (*fptr)() ;
 
@@ -1299,8 +1311,7 @@ int main( int argc, char *argv[] )
 #if !defined(NO_EXTERNAL_QUEUES)
    qtest();
 #endif
+   ReginaCleanup();
    printf( "\n" ) ;
    return 0 ;
-
 }
-

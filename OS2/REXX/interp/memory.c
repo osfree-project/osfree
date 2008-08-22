@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: memory.c,v 1.2 2003/12/11 04:43:13 prokushev Exp $";
+static char *RCSid = "$Id: memory.c,v 1.10 2004/03/17 09:26:31 mark Exp $";
 #endif
 
 /*
@@ -73,7 +73,7 @@ static char *RCSid = "$Id: memory.c,v 1.2 2003/12/11 04:43:13 prokushev Exp $";
  * the first to be used when more memory is needed.
  *
  * The number of calls to malloc() seems to be negligable when using
- * this metod (typical less than 100 for medium sized programs). But
+ * this method (typical less than 100 for medium sized programs). But
  * this is of course dependent on how the program uses memory.
  *
  * The tracing part of this file, (#ifdef TRACEMEM) is an optional
@@ -102,7 +102,7 @@ static char *RCSid = "$Id: memory.c,v 1.2 2003/12/11 04:43:13 prokushev Exp $";
  * Garbage-collection is not implemented, but listleaked will list out
  * every chunk of allocated memory that are not currently in use. The
  * array markptrs contains a list of functions for marking memory.
- * There is a potensial problem with garbage collection, since the
+ * There is a potential problem with garbage collection, since the
  * interpreter might 'loose' some memory everytime it hits a syntax
  * error, like "say random(.5)". To fix that, memory should either
  * be traced and then garbage collected, or it should have a sort
@@ -229,7 +229,7 @@ typedef struct memhead
  * to the size of ints and pointers, so don't make them too small.
  */
 #define NUMBER_SIZES 19
-static const int sizes[NUMBER_SIZES] = 
+static const int sizes[NUMBER_SIZES] =
                            {    8,   12,   16,   24,   32,   48,   64,   96,
                               128,  192 , 256,  384,  512,  768, 1024, 1536,
                              2048, 3072, 4096 } ;
@@ -501,6 +501,10 @@ static int register_mem( const tsd_t *TSD, void *chunk )
    mt->curr_entry = mem;
    if (mt->first_entry == NULL)
       mt->first_entry = mt->curr_entry;
+
+#ifdef REGINA_DEBUG_MEMORY3
+   fprintf(stderr,"--register_mem(): added %x to malloced memory\n",chunk);
+#endif
    return(0);
 }
 
@@ -594,7 +598,7 @@ void *get_a_chunkTSD( const tsd_t *TSD, int size )
 #endif
 
 #ifdef REGINA_DEBUG_MEMORY1
-   fprintf(stderr,"get_a_chunkTSD(): want %d bytes...\n",size);
+   fprintf(stderr,"get_a_chunkTSD(): want %d bytes...",size);
 #endif
 
    mt = TSD->mem_tsd;
@@ -606,8 +610,14 @@ void *get_a_chunkTSD( const tsd_t *TSD, int size )
    {
       if ((result=TSD->MTMalloc( TSD, size )) != NULL)
       {
+#ifdef REGINA_DEBUG_MEMORY1
+         fprintf(stderr,"got %d at %x (after allocating with malloc)\n",size,result);
+#endif
+/*
+ * removing this fixes memory leak in 908114 - MHES 08-Mark-2004
          if ( register_mem( TSD, result ) )
             exiterror( ERR_STORAGE_EXHAUSTED, 0 )  ;
+ */
          return result ;
       }
       else
@@ -631,6 +641,10 @@ void *get_a_chunkTSD( const tsd_t *TSD, int size )
       vptr = TSD->MTMalloc( TSD, CHUNK_SIZE ) ;
       if (!vptr)
           exiterror( ERR_STORAGE_EXHAUSTED, 0 )  ;
+
+#ifdef REGINA_DEBUG_MEMORY1
+      fprintf(stderr,"got %d at %x in bin %d (after allocating %d bytes)\n",sizes[bin],vptr,bin,CHUNK_SIZE);
+#endif
       if ( register_mem( TSD, vptr ) )
           exiterror( ERR_STORAGE_EXHAUSTED, 0 )  ;
       mt->flists[bin] = vptr ;
@@ -658,10 +672,17 @@ void *get_a_chunkTSD( const tsd_t *TSD, int size )
          *(char**)ptr = ptr + sizes[bin] ;
 
       *((char**)(ptr-sizes[bin])) = NULL ;
+
 #ifdef REGINA_DEBUG_MEMORY
       show_a_free_list( mt, bin, "get_a_chunkTSD(): empty freelist for ");
 #endif
    }
+#ifdef REGINA_DEBUG_MEMORY1
+   else
+   {
+      fprintf(stderr,"got %d at %x in bin %d\n",sizes[bin],vptr,bin);
+   }
+#endif
 
    /*
     * Update the pointer in 'flist' to point to the next entry in the
@@ -704,7 +725,7 @@ streng *get_a_strengTSD( const tsd_t *TSD, int size )
     * If memory is too big, let malloc() handle the problem.
     */
 #ifdef REGINA_DEBUG_MEMORY1
-   fprintf(stderr,"get_a_strengTSD(): want %d bytes...\n",size-STRHEAD);
+   fprintf(stderr,"get_a_strengTSD(): want %d bytes...",size-STRHEAD);
 #endif
    if (size>MAX_INTERNAL_SIZE)
    {
@@ -712,8 +733,11 @@ streng *get_a_strengTSD( const tsd_t *TSD, int size )
       {
          result->len = 0 ;
          result->max = size-STRHEAD ;
+/*
+ * removing this fixes memory leak in 908114 - MHES 08-Mark-2004
          if ( register_mem( TSD, result ) )
             exiterror( ERR_STORAGE_EXHAUSTED, 0 )  ;
+ */
          return result ;
       }
       else
@@ -766,11 +790,20 @@ streng *get_a_strengTSD( const tsd_t *TSD, int size )
          *(char**)ptr = ptr + sizes[bin] ;
 
       *((char**)(ptr-sizes[bin])) = NULL ;
+#ifdef REGINA_DEBUG_MEMORY1
+      fprintf(stderr,"got %d at %x (after allocating %d bytes)\n",sizes[bin],vptr,CHUNK_SIZE);
+#endif
 
 #ifdef REGINA_DEBUG_MEMORY
       show_a_free_list( mt, bin, "get_a_strengTSD(): empty freelist for ");
 #endif
    }
+#ifdef REGINA_DEBUG_MEMORY1
+   else
+   {
+      fprintf(stderr,"got %d at %x\n",sizes[bin],vptr);
+   }
+#endif
 
    /*
     * Update the pointer in 'flist' to point to the next entry in the
@@ -819,12 +852,15 @@ void give_a_strengTSD( const tsd_t *TSD, streng *ptr )
 #endif
 
 #ifdef REGINA_DEBUG_MEMORY1
-   fprintf(stderr,"give_a_strengTSD() going to free %x...\n", ptr );
+   fprintf(stderr,"give_a_strengTSD() going to free %x...", ptr );
 #endif
    assert( ptr->len <= ptr->max ) ;
    if ((ptr->max+STRHEAD) > MAX_INTERNAL_SIZE)  /* off-by-one error ? */
    {
       TSD->MTFree(TSD, ptr ) ;
+#ifdef REGINA_DEBUG_MEMORY1
+      fprintf(stderr,"freed by MTFree()\n" );
+#endif
       return ;
    }
 
@@ -837,6 +873,9 @@ void give_a_strengTSD( const tsd_t *TSD, streng *ptr )
     * memory to free.
     */
    bin = GET_SIZE(mt,ptr->max + STRHEAD);
+#ifdef REGINA_DEBUG_MEMORY1
+   fprintf(stderr,"freed from bin%d\n",bin );
+#endif
 #ifdef REGINA_DEBUG_MEMORY2
    before = show_a_free_list( mt, bin, NULL );
 #endif
@@ -882,7 +921,7 @@ void give_a_chunkTSD( const tsd_t *TSD, void *ptr )
    cptr = (char*)ptr ;
    mptr = mt->hashtable[ mem_hash_func( ((unsigned long)cptr) ) ] ;
 #ifdef REGINA_DEBUG_MEMORY1
-   fprintf(stderr,"give_a_chunkTSD() going to free %x hashtable %d...\n", ptr, mem_hash_func( ((unsigned int)cptr) ) );
+   fprintf(stderr,"give_a_chunkTSD() going to free %x hashtable %d...", ptr, mem_hash_func( ((unsigned int)cptr) ) );
 #endif
 
    /*
@@ -902,6 +941,9 @@ void give_a_chunkTSD( const tsd_t *TSD, void *ptr )
     */
    if (mptr)
    {
+#ifdef REGINA_DEBUG_MEMORY1
+      fprintf(stderr,"freed from bin %d\n", mptr->size );
+#endif
       /*
        * Link it into the first place of the freelist.
        */
@@ -918,6 +960,9 @@ void give_a_chunkTSD( const tsd_t *TSD, void *ptr )
    }
    else
    {
+#ifdef REGINA_DEBUG_MEMORY1
+      fprintf(stderr,"freed from MTFree()\n" );
+#endif
       TSD->MTFree(TSD, ptr ) ;
    }
 }
@@ -1059,7 +1104,7 @@ void *mymallocTSD( const tsd_t *TSD, int bytes )
     * be transaction oriented
     */
 #ifdef FLISTS
-   if ((memptr=get_a_chunk(bytes)) == NULL)
+   if ((memptr=get_a_chunkTSD(TSD,bytes)) == NULL)
 #else
    if ((memptr=TSD->MTMalloc(TSD,bytes)) == NULL)
 #endif
@@ -1163,7 +1208,7 @@ void myfreeTSD( const tsd_t *TSD, void *cptr )
     * it directly to free().
     */
 #ifdef FLISTS
-   give_a_chunk(memptr) ;
+   give_a_chunkTSD(TSD,memptr) ;
 #else
    TSD->MTFree(TSD,memptr) ;
 #endif
@@ -1291,6 +1336,7 @@ int listleaked( const tsd_t *TSD, int pflag )
     * piece of memory.
     */
    for (sum=0,memptr=mt->header0; memptr; memptr=memptr->next)
+   {
       if ((memptr->flag==TRC_LEAKED)||(pflag==MEMTRC_ALL))
       {
          /*
@@ -1344,7 +1390,7 @@ int listleaked( const tsd_t *TSD, int pflag )
                fprintf( TSD->stddump, "\"\n" ) ;
          }
       }
-
+   }
    return sum ;
 }
 

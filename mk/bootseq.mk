@@ -6,7 +6,7 @@
 #
 
 !ifndef __bootseq_mk__
-__bootseq_mk__ = 1
+!define __bootseq_mk__
 
 !include $(%ROOT)/mk/all.mk
 

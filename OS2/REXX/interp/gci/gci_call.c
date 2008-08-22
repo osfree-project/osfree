@@ -1,6 +1,6 @@
 /*
  *  Generic Call Interface for Rexx
- *  Copyright © 2003, Florian Große-Coosmann
+ *  Copyright © 2003-2004, Florian Große-Coosmann
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -170,7 +170,7 @@ static void addCallList( const GCI_parseinfo *info,
    /*
     * We don't support packed values.
     */
-   rest = (unsigned) ptr % sizeof( GCI_STACK_ELEMENT );
+   rest = (unsigned) (unsigned long) ptr % sizeof( GCI_STACK_ELEMENT );
    assert( rest == 0 );
    if ( rest )
       p += sizeof( GCI_STACK_ELEMENT ) - rest;
@@ -249,11 +249,11 @@ GCI_result GCI_call( void *hidden,
       case GCI_ctStdcall:
          start = 0;
          incr = 1;
-         end = 10;
+         end = GCI_REXX_ARGS;
          break;
 
       case GCI_ctPascal:
-         start = 9;
+         start = GCI_REXX_ARGS - 1;
          incr = -1;
          end = -1;
          break;
@@ -276,7 +276,7 @@ GCI_result GCI_call( void *hidden,
       n = ti->nodes + ti->args[start];
       addCallList( &n->type,  &dest, basebuf + n->direct_pos );
       if ( ( dest - (char *) buf ) > GCI_ARGS * sizeof(unsigned) )
-         return GCI_InternalError;
+         return GCI_ArgStackOverflow;
    }
 
    if ( GCI_JUMP_SETVAR( hidden, safetyRope ) == 0 )

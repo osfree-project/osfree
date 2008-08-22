@@ -3,6 +3,9 @@
 #
 #
 
+!ifndef __appsdos_mk__
+!define __appsdos_mk__
+
 !include $(%ROOT)/mk/site.mk
 
 !ifndef DEST
@@ -26,3 +29,5 @@ $(PATH)$(PROJ).lnk: .SYMBOLIC
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
  $(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
+
+!endif

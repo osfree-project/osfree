@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: options.c,v 1.2 2003/12/11 04:43:14 prokushev Exp $";
+static char *RCSid = "$Id: options.c,v 1.14 2004/02/22 09:25:29 florian Exp $";
 #endif
 
 /*
@@ -38,6 +38,7 @@ static const struct __regina_option all_options[] = {  /* Must be alphabetically
    METAOP( BUFFERS, "BUFTYPE_BIF DESBUF_BIF DROPBUF_BIF MAKEBUF_BIF" ),
    OPTION( BUFTYPE_BIF ),
    OPTION( CACHEEXT ),
+   OPTION( CALLS_AS_FUNCS ),
    OPTION( DESBUF_BIF ),
    OPTION( DROPBUF_BIF ),
    OPTION( EXT_COMMANDS_AS_FUNCS ),
@@ -47,6 +48,7 @@ static const struct __regina_option all_options[] = {  /* Must be alphabetically
    OPTION( LINEOUTTRUNC ),
    OPTION( MAKEBUF_BIF ),
    OPTION( PRUNE_TRACE ),
+   OPTION( QUEUES_301 ),
    OPTION( REGINA_BIFS ),
    OPTION( STDOUT_FOR_STDERR ),
    OPTION( STRICT_ANSI ),
@@ -56,78 +58,75 @@ static const struct __regina_option all_options[] = {  /* Must be alphabetically
 } ;
 
 
-void do_options( const tsd_t *TSD, streng *options, int toggle )
+void do_options( const tsd_t *TSD, proclevel pl, streng *options, int toggle )
 {
-   char *cptr=NULL, *eptr=NULL, *start=NULL ;
-   int length=0, inverse=0, tmp=0 ;
-   const struct __regina_option *lower=NULL, *upper=NULL, *middle=NULL ;
+   char *cptr,*eptr,*start;
+   int length,inverse=0,tmp;
+   const struct __regina_option *lower,*upper,*middle=NULL;
 
-   cptr = options->value ;
-   eptr = cptr + options->len ;
+   cptr = options->value;
+   eptr = cptr + options->len;
 
-   while (cptr<eptr)
+   while ( cptr < eptr )
    {
-      for (;cptr<eptr && isspace(*cptr); cptr++) ;
-      for (start=cptr; cptr<eptr && !isspace(*cptr); cptr++ )
-         *cptr = (char) toupper( *cptr ) ;
+      for ( ; cptr < eptr && rx_isspace( *cptr ); cptr++ )
+         ;
+      for ( start = cptr; cptr < eptr && !rx_isspace( *cptr ); cptr++ )
+         *cptr = (char) rx_toupper( *cptr );
 
-      if (((inverse=(*start=='N' && *(start+1)=='O'))!=0) && cptr>start+2)
-         start += 2 ;
-
-      length = cptr - start ;
-
-      lower = all_options ;
-      upper = lower + (sizeof(all_options)/sizeof(struct __regina_option)) - 2 ;
-
-      while( upper >= lower )
+      if ( cptr > start+2 )
       {
-         middle = lower + (upper-lower)/2 ;
-         tmp = strncmp(middle->name,start,length) ;
-         if (tmp==0 && middle->name[length]==0x00)
-            break ;
+         if ( ( inverse = ( *start == 'N' && *( start + 1) == 'O') ) != 0 )
+            start += 2;
+      }
+      length = cptr - start;
 
-         if (tmp>0)
-            upper = middle - 1 ;
+      lower = all_options;
+      upper = lower + sizeof( all_options ) / sizeof( all_options[0] ) - 2;
+
+      while ( upper >= lower )
+      {
+         middle = lower + ( upper - lower ) / 2;
+         tmp = strncmp( middle->name, start, length );
+         if ( tmp == 0 && middle->name[length] == '\0' )
+            break;
+
+         if ( tmp > 0 )
+            upper = middle - 1;
          else
-            lower = middle + 1 ;
+            lower = middle + 1;
       }
 
       /* If option is unknown, don't care ... */
       if ( upper >= lower )
       {
-         assert ( middle->name ) ;
-         if (middle->offset == -1)
+         assert ( middle->name );
+         if ( middle->offset == -1 )
          {
-            do_options( TSD, Str_creTSD(middle->contains), toggle^inverse ) ;
+            do_options( TSD, pl, Str_creTSD( middle->contains ),
+                        toggle ^ inverse );
          }
          else
          {
-
-            if (inverse^toggle)
-               set_options_flag( TSD->currlevel, middle->offset, 0 ) ;
+            if (inverse ^ toggle)
+               set_options_flag( pl, middle->offset, 0 );
             else
-               set_options_flag( TSD->currlevel, middle->offset, 1 ) ;
+               set_options_flag( pl, middle->offset, 1 );
          }
       }
    }
-   Free_stringTSD( options ) ;
+   Free_stringTSD( options );
 }
 
 int get_options_flag( cproclevel pl, int offset )
 {
-   register int obyte = offset / ( sizeof( unsigned char ) * 8 ) ;
-   register int obit  = offset % ( sizeof( unsigned char ) * 8 ) ;
-
-   return ( pl->u.flags[obyte] & ( 1 << ( 7 - obit ) ) ) ;
+   return pl->options & ( 1ul << offset );
 }
 
 void set_options_flag( proclevel pl, int offset, int status )
 {
-   register int obyte = offset / ( sizeof( unsigned char ) * 8 ) ;
-   register int obit  = offset % ( sizeof( unsigned char ) * 8 ) ;
-
    if ( status )
-      pl->u.flags[obyte] |= (unsigned char)(1<<(7-obit)) ;
+      pl->options |= ( 1ul << offset );
    else
-      pl->u.flags[obyte] &= (unsigned char)(~(1<<(7-obit))) ;
+      pl->options &= ~( 1ul << offset );
 }

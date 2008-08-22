@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: configur.h,v 1.2 2003/12/11 04:43:03 prokushev Exp $
+ * $Id: configur.h,v 1.42 2004/04/16 11:14:02 mark Exp $
  */
 
 /*
@@ -285,7 +285,7 @@
 # define HAVE_STDLIB_H        1
 # define HAVE_STRING_H        1
 # define HAVE_UNISTD_H        1
-/* # define HAVE__FULLPATH        1 */
+# define HAVE__FULLPATH       1
 # define HAVE_PUTENV          1
 /* # define HAVE_GETTIMEOFDAY    1 */
 /* # define HAVE_FTRUNCATE       1 */
@@ -293,7 +293,8 @@
 # define HAVE_MEMMOVE         1
 # define HAVE_STRERROR        1
 # define HAVE_VSPRINTF        1
-# define HAVE_GETPID
+# define HAVE__SPLITPATH      1
+# define HAVE_GETPID          1
 /* # define TIME_WITH_SYS_TIME   1 */
 # if defined(DYNAMIC)
 #  define DYNAMIC_WIN32
@@ -314,11 +315,9 @@
 # define HAVE_NETDB_H
 # define HAVE_ARPA_INET_H
 # define HAVE_PUTENV
-# define HAVE_DRAND48
 # define HAVE_GETTIMEOFDAY
 # define HAVE_FTRUNCATE
 # define HAVE_RANDOM
-# define HAVE_DRAND48
 # define HAVE_USLEEP
 # define HAVE_MEMCPY
 # define HAVE_MEMMOVE
@@ -342,7 +341,7 @@
 # define UNIX
 #endif
 
-#if defined(AMIGA) && defined(GCC)
+#if defined(AMIGA) && ( defined(GCC) || defined(__GNUC__) )
 # define HAVE_GRP_H           1
 # define HAVE_PWD_H           1
 # define HAVE_LIMITS_H        1
@@ -353,6 +352,7 @@
 # define HAVE_STRING_H        1
 # define HAVE_UNISTD_H        1
 # define HAVE_SYS_SOCKET_H    1
+# define HAVE_SYS_FCNTL_H     1
 # define HAVE_NETINET_IN_H    1
 # define HAVE_NETDB_H         1
 # define HAVE_ARPA_INET_H     1
@@ -366,6 +366,12 @@
 # define HAVE_VSPRINTF        1
 # define HAVE_GETPID
 # define TIME_WITH_SYS_TIME   1
+# if !defined( _AMIGA )
+#  define _AMIGA
+# endif
+# if !defined( __AMIGADATE__ )
+#  define __AMIGADATE__ "("__DATE__")"
+# endif
 #endif
 
 #if defined(MAC)
@@ -454,6 +460,38 @@
 # define HAVE_ARPA_INET_H     1
 # if defined(DYNAMIC)
 #  define DYNAMIC_WIN32
+# endif
+#endif
+
+#if defined(SKYOS)
+# include <skyos/libskyos.h>
+# define HAVE_SYS_FCNTL_H     1
+# define HAVE_GRP_H           1
+# define HAVE_PWD_H           1
+# define HAVE_LIMITS_H        1
+/*# define HAVE_MALLOC_H        1 */
+# define HAVE_PROCESS_H       1
+# define HAVE_SETJMP_H        1
+# define HAVE_SIGNAL_H        1
+# define HAVE_STDLIB_H        1
+# define HAVE_STRING_H        1
+# define HAVE_UNISTD_H        1
+/* # define HAVE__FULLPATH        1 */
+/* # define HAVE_PUTENV          1 */
+# define HAVE_GETTIMEOFDAY    1
+/*# define HAVE_FTRUNCATE       1 */
+# define HAVE_MEMCPY          1
+# define HAVE_MEMMOVE         1
+# define HAVE_STRERROR        1
+# define HAVE_VSPRINTF        1
+# define HAVE_GETPID          1
+/*# define TIME_WITH_SYS_TIME   1*/
+# define HAVE_SYS_SOCKET_H    1
+# define HAVE_NETINET_IN_H    1
+# define HAVE_NETDB_H         1
+# define HAVE_ARPA_INET_H     1
+# if defined(DYNAMIC)
+#  define DYNAMIC_SKYOS
 # endif
 #endif
 
@@ -568,6 +606,14 @@
  * Indicates if the user want the "broken" semantics of ADDRESS COMMAND
  */
 #define DEFAULT_BROKEN_ADDRESS_COMMAND 0
+/*
+ * Indicates if the user wants outer parentheses when using CALL subroutine.
+ */
+#define DEFAULT_CALLS_AS_FUNCS          0
+/*
+ * Indicates if the user wants the broken queue naming conventions.
+ */
+#define DEFAULT_QUEUES_301              0
 
 /*
  * The FILE_SEPARATOR is one character, and defines the char that separates
@@ -576,22 +622,26 @@
  * directories, from one another in a PATH environment variable.
  */
 
-#if defined(MSDOS) || ( defined(__WATCOMC__) && !defined(__QNX__) ) || defined(_MSC_VER) || defined(DOS) || defined(OS2) || defined(__WINS__) || defined(__EPOC32__)
+#if defined(MSDOS) || ( defined(__WATCOMC__) && !defined(__QNX__) ) || defined(_MSC_VER) || defined(DOS) || defined(OS2) || defined(__WINS__) || defined(__EPOC32__) || defined(__LCC__)
+# define FILE_SEPARATORS     "\\/:"
 # define FILE_SEPARATOR      '\\'
 # define FILE_SEPARATOR_STR  "\\"
 # define PATH_SEPARATOR      ';'
 # define PATH_SEPARATOR_STR  ";"
 #elif defined(VMS)
+# define FILE_SEPARATORS    "]"
 # define FILE_SEPARATOR     ']'
 # define FILE_SEPARATOR_STR "]"
 # define PATH_SEPARATOR     '?'
 # define PATH_SEPARATOR_STR "?"
 #elif defined(MAC)
+# define FILE_SEPARATOR     "]"
 # define FILE_SEPARATOR     ']'
 # define FILE_SEPARATOR_STR "]"
 # define PATH_SEPARATOR     '?'
 # define PATH_SEPARATOR_STR "?"
 #else
+# define FILE_SEPARATORS    "/"
 # define FILE_SEPARATOR     '/'
 # define FILE_SEPARATOR_STR "/"
 # define PATH_SEPARATOR     ':'

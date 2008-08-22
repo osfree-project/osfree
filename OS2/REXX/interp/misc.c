@@ -1,5 +1,5 @@
 #ifndef lint
-static char *RCSid = "$Id: misc.c,v 1.2 2003/12/11 04:43:13 prokushev Exp $";
+static char *RCSid = "$Id: misc.c,v 1.10 2004/04/15 10:06:23 mark Exp $";
 #endif
 
 /*
@@ -149,6 +149,9 @@ unsigned char l_to_u[256] = { /* initially the identity */
 void set_locale_info( const char *info )
 {
    setlocale( LC_CTYPE, info );
+#ifdef LC_MESSAGES
+   setlocale( LC_MESSAGES, info );
+#endif
 }
 
 /*
@@ -613,3 +616,13 @@ int hashvalue_var( const streng *name, int start, int *stop )
 
    return sum + idx;
 }
+#ifdef SKYOS
+clock_t clock( void )
+{
+   static long ct = 10L;
+
+   ct += 10;
+   return (clock_t)ct;
+}
+#endif
+
