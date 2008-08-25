@@ -1,0 +1,76 @@
+To whom it may concern:
+
+  Enclosed in the dskcpy2.arc archive will be:
+     read.me        --   this file
+     dskcpy2.exe    --   protected mode executable
+     dskcpy2.c      --   source code for the above
+
+  Dskcpy2 attempts to be a "smarter" diskcopy in that it will read the
+entire source disk into memory on one pass and then retains it for
+as many copies as the user cares to make.
+  The earlier version of dskcpy2 had a problem copying to an unformatted
+diskette that has now been solved with the assistance of GEnie subscriber
+Ron Kracht.  The previous restriction of "preformatted disks only" is
+no longer in effect.
+  Dskcpy2 is hereby released into the public domain.  It is not guaranteed
+to be free from error and I assume no responsibility for anything you do
+to it, with it, or anything it might do to you.
+
+  Using Dskcpy2:
+  Command line syntax is: "dskcpy2 [drive]" where "drive" is an optional
+parameter specifying the removable disk drive upon which dskcpy2 will
+perform it's task.  If "drive" is not specified, dskcpy2 assumes "a:".
+  On the first menu you see you have the choice of reading a diskette into
+memory or exiting dskcpy2.  Once a disk has been read, another option
+allowing you to copy that memory image to another diskette will become
+available.  You may copy the original source diskette to as may target
+diskettes as you wish.
+
+  If you have any questions or comments please feel free to drop me mail
+at my GEnie address of B.FLOWERS.
+
+---------------------------------------------------------------------------
+
+Short technical discussion:
+
+  First, it's worth noting that there are a couple of OS/2 bugs that
+had to be worked around.  One is in the header file "bsedev.h" in the
+typedef for the BIOSPARAMETERBLOCK structure; it's missing a field.
+The BSPBLK structure defined in dskcpy2.c compensates for this and
+is used instead.  The other problem happens when DosDevIOCtl is called
+with the DSK_GETDEVICEPARAMS parameter with a 360k floppy in a high
+density drive.  All the information contained in the BIOSPARAMETERBLOCK
+(BSPBLK) is correct EXCEPT for the cCylinders field which comes back
+80. This is why I don't use that value in any computations throughout
+dskcpy2 but instead calculate it from the other fields.
+  If you have a copy of the earlier version, distributed in the file
+DSKCPY2.ARC, and have looked through the source code and, like me, were
+unable to discover why the DosDevIOCtl call with the DSK_FORMATVERIFY
+parameter would reliably fail with error code ERROR_BAD_COMMAND,
+you will be interested to find out that the Microsoft documentation
+concerning this use of DosDevIOCtl is wrong...  In QuickHelp, at least,
+the first parameter to DosDevIOCtl for this function should be 0L. Not
+so, it needs to be a far pointer to a long which has been initialized
+to zero!  Once again, I have Ron Kracht to thank for pointing this out
+to me.  He inferred this information from the Norton Guides for OS/2
+discussion of the function.
+
+So, what was in the old code:
+     DosDevIOCtl(0L, trkfmt, DSK_FORMATVERIFY, IOCTL_DISK, hf);
+becomes:
+     ULONG _fmtData = 0L;
+     DosDevIOCtl(&_fmtData, trkfmt, DSK_FORMATVERIFY, IOCTL_DISK, hf);
+
+That's it.  the function now happily does what you ask it to.
+
+Compilation notes:
+  The compiler command I've been using is:
+     cl -AL -Zep -G2 -W3 -Lp dskcpy2.c
+
+  Thanks again if you were one of the ones who examined the code in
+hopes of locating this problem.
+
+  Brady Flowers
+  8-24-89
+
+
