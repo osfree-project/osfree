@@ -17,13 +17,21 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Or see <http://www.gnu.org/licenses/>
 */
+#define INCL_ERRORS
+#define INCL_DOSEXCEPTIONS
+#define INCL_DOSPROCESS
+#include <os2.h>
 
 #include <stdlib.h>
 #include <sys/mman.h>
-#define INCL_DOSPROCESS
+#include <string.h>
+
+#include <cfgparser.h>
 #include <processlx.h>
 #include <modlx.h>
+#include <execlx.h>
 #include <modmgr.h>
+#include <ixfmgr.h>
 #include <io.h>
 
 
@@ -83,60 +91,165 @@ void processlx_destroy(struct t_processlx * proc) {
         free(proc);
 }
 
+unsigned long find_path(char * name, char * full_path_name);
 
-int modmgr_execute_module(char * filename)
+
+APIRET APIENTRY PrcExecuteModule(char * filename)
 {
   int rc;
-  int do_start;
-  void * lx_buf;
-  int pos;
+  void * addr;
+  unsigned long size;
+  IXFModule * ixfModule;
+  struct t_processlx * tiny_process;
+  #define buf_size 4096
+  char buf[buf_size+1];
+  char *p_buf = (char *) &buf;
 
-  char* native_libpath[] =
+  // Ok. No module found. Try to load file
+  // (consider fully-qualified name specified)
+//  rc=io_load_file(filename, &addr, &size);
+//  if (rc)
+//  {
+    // Searches for module name and returns the full path in the buffer p_buf.
+    rc=find_path(filename, p_buf);
+    if (!rc) rc=io_load_file(p_buf, &addr, &size);
+//  }
+  if (rc) return rc;
+
+  ixfModule = (IXFModule *) malloc(sizeof(IXFModule));
+
+  rc=IXFIdentifyModule(addr, size, ixfModule);
+  if (rc)
   {
-            "c:\\os2\\dll"
-  };
-
-  /* The structure for loaded LX exe. */
-  struct LX_module lx_exe_mod ;
-
-  set_native_libpath(native_libpath, 0); /* Zero-based number i native_libpath.*/
-
-  // Load executable into memory
-  rc=io_load_file(filename, &lx_buf, &pos);
-
-  if(load_lx_stream((char*)lx_buf, pos, &lx_exe_mod)) /* A file from a buffer.*/
-  {
-    /* Creates an simple process(keeps info about it, does not start to execute). */
-    struct t_processlx * tiny_process = processlx_create(&lx_exe_mod);
-
-
-    /* Reads the actual objects from the file, code- and dataobjects.*/
-    /* load_code_data_obj_lx(&lx_exe_mod, tiny_process); */
-    load_dll_code_obj_lx(&lx_exe_mod); /* Use same routine as the one is loading dlls.*/
-
-    /* Register the exe with the module table. With the complete path. */
-    /* @todo Is we really need to register executable??? Don't see any reason */
-    register_module(filename, (void *) &lx_exe_mod);
-
-    do_start = 0; /* A check to make sure the loading of the file succeeded. */
-
-    /* Applies fixups to the loaded objects. */
-    if(do_fixup_code_data_lx(&lx_exe_mod))
-            do_start = 1;
-
-    /* Print info about used memory loaded modules. */
-    print_used_mem(&tiny_process->root_mem_area);
-    print_detailed_module_table();
-
-    /* Starts to execute the process. */
-    if(do_start)
-            exec_lx(&lx_exe_mod, tiny_process);
-    processlx_destroy(tiny_process); /* Removes the process.
-             Maybe use garbage collection here? Based on reference counter?
-                And when the counter reeches zero, release process. */
-  } else {
-    io_printf("load_lx returns an error !!! \n");
+    free(ixfModule);
+    return rc;
   }
 
-  return 0;
+  // Load module
+  rc=IXFLoadModule(addr, size, ixfModule);
+  if (rc)
+  {
+    free(ixfModule);
+    return rc;
+  }
+
+  /* Creates an simple process(keeps info about it, does not start to execute). */
+  tiny_process = processlx_create((struct LX_module *)(ixfModule->FormatStruct));
+
+  /* Register the exe with the module table. With the complete path. */
+  /* @todo Is we really need to register executable??? Don't see any reason */
+  // @todo extract filename only because can be fullname with path
+  register_module(filename, ixfModule);
+
+  // Fixup module
+  rc=IXFFixupModule(ixfModule);
+  if (rc)
+  {
+    free(ixfModule);
+    return rc;
+  }
+
+  /* Print info about used memory loaded modules. */
+  print_used_mem(&tiny_process->root_mem_area);
+  print_detailed_module_table();
+
+  /* Starts to execute the process. */
+  exec_lx((struct LX_module *)(ixfModule->FormatStruct), tiny_process);
+
+  processlx_destroy(tiny_process); /* Removes the process.
+             Maybe use garbage collection here? Based on reference counter?
+                And when the counter reeches zero, release process. */
+
+  return NO_ERROR;
+}
+
+
+struct STR_SAVED_TOKENS_ {
+        char *str_next_saved_tokens;
+        char str_ch_saved_tokens;
+};
+
+typedef struct STR_SAVED_TOKENS_ STR_SAVED_TOKENS;
+
+
+static char *nxtToken = 0;              /* pointer to previous scanned string */
+static char ch;                                         /* previous token delimiter */
+
+char *StrTokenize(char *str, const char * const token)
+{
+
+        if(!str) {
+                if((str = nxtToken) == 0                /* nothing to do */
+                 || (*str++ = ch) == 0)               /* end of string reached */
+                        return( nxtToken = 0);
+        }
+
+        if(!token || !*token)                   /* assume all the string */
+                nxtToken = 0;
+        else {
+                nxtToken = str - 1;
+                while(!strchr(token, *++nxtToken));
+                ch = *nxtToken;
+                *nxtToken = 0;
+        }
+
+        return( str);
+}
+
+void StrTokSave(STR_SAVED_TOKENS *st)
+{
+
+        if(st) {
+                st->str_next_saved_tokens = nxtToken;
+                st->str_ch_saved_tokens = ch;
+        }
+
+}
+
+void StrTokRestore(STR_SAVED_TOKENS *st)
+{
+
+        if(st) {
+                nxtToken = st->str_next_saved_tokens;
+                ch = st->str_ch_saved_tokens;
+        }
+
+}
+
+
+#define StrTokStop() (void)StrTokenize(0, 0)
+
+
+unsigned long find_path(char * name, char * full_path_name)
+{
+  FILE *f;
+  char *p;
+  #define buf_size 4096
+  char buf[buf_size+1];
+  char *path = (char *) &buf;
+  STR_SAVED_TOKENS st;
+  char * p_buf = full_path_name;
+
+  cfg_getenv("PATH", &path);
+
+  p = path - 1;
+
+  StrTokSave(&st);
+  if((p = StrTokenize((char*)path, ";")) != 0) do if(*p)
+  {
+    p_buf = full_path_name;
+    p_buf[0] = 0;
+    strcat(p_buf, p);
+    strcat(p_buf, "\\");
+    strcat(p_buf, name);
+    f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
+    if(f)
+    {
+      StrTokStop();
+      return NO_ERROR;
+    }
+  } while((p = StrTokenize(0, ";")) != 0);
+  StrTokRestore(&st);
+
+  return ERROR_FILE_NOT_FOUND;
 }

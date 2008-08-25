@@ -6,10 +6,6 @@
 ADD_COPT  = -i=$(MYDIR)..$(SEP)include
 srcfiles  = $(p)os2vdm$(e)
 
-# For performance/compatibility reasons, we build a "_System" and
-# "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of
-# Watcom compiler.
-
 TARGETS  = $(PATH)dos_shared.lib
 
 !include $(%ROOT)/mk/libsdos.mk

@@ -18,49 +18,97 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+#define INCL_ERRORS
+#include <os2.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 
-#include <modlx.h>
+//#include <modlx.h>
 #include "io.h"
-#include "execlx.h"
-#include "loadobjlx.h"
+//#include "execlx.h"
+//#include "loadobjlx.h"
 #include "modmgr.h"
+#include <ixfmgr.h>
 #include "cfgparser.h"
 #include "native_dynlink.h"
 
+unsigned int find_module_path(char * name, char * full_path_name);
+
 struct module_rec module_root; /* Root for module list.*/
 
+/*! @brief Searches for the module name which the process needs.
+    It first sees if it's already loaded and then just returns the
+    found module handle. If it can't be found then loads module
+    using LIBPATH, BEGINLIBPATH, ENDLIBPATH variables/options and
+    applies fixups.
 
-#if 0
-typedef
-  struct
-  {
-    void * FormatStruct;
-  } IXFModule;
+    @param pszName The address of a buffer into which the name of an object
+                   that contributed to the failure of ModLoadModule is to
+                   be placed. The name of the object is usually the name
+                   of a dynamic link or shared library that either could
+                   not be found or could not be loaded.
 
-unsigned long IXFLoadModule(void * addr, unsigned long size, IXFModule * ifxModule)
-{
-  struct LX_module *lx_exe_mod;
+    @param cbName  The length, in bytes, of the buffer described by pszName.
+    @param pszModname The address of an ASCIIZ name string that contains the
+                      dynamic link module name. The file-name extension used
+                      for dynamic link libraries is ".DLL". For shared
+                      libraries "lib" prefix and ".so" suffix are added.
+                      When a request is made to load a module and a
+                      fully-qualified path is specified, the system loads
+                      that library, if it exists. If a fully-qualified path
+                      is not specified, the system checks if the library
+                      is already loaded. If it is loaded, that library is
+                      the one that is used; otherwise, the system searches
+                      the paths in the LIBPATH string in the "CONFIG.SYS"
+                      file and uses the first instance of the specified
+                      library it finds. If the current directory is not
+                      specified in the LIBPATH, the system does not check
+                      that directory to see if a different version exists.
+                      Consequently, if two processes started from different
+                      directories use the same library, but different
+                      versions of that library exist in both directories,
+                      the version of the library loaded by the first process
+                      is the one used by both processes. Extended control
+                      of search path is provided by BEGINLIBPATH and
+                      ENDLIBPATH environment variables.
 
-  lx_exe_mod = (struct LX_module *) malloc(sizeof(struct LX_module));
+    @param phmod      Pointer to an module handle in which the handle for
+                      the library is returned.
 
-  ixfModule->FormatStruct=(void *)lx_exe_mod;
-
-  if(load_lx_stream((char*)addr, size, lx_exe_mod)) /* A file from a buffer.*/
-  {
-    load_dll_code_obj_lx(lx_exe_mod); /* Load all objects in dll.*/
-  }
-}
-
-unsigned long IXFFixupModule(IXFModule module)
-{
-  do_fixup_code_data_lx((struct LX_module *)ixfModule->FormatStruct);
-  /* Apply fixups. */
-}
-
+    @return
+      NO_ERROR                  module loaded successfully
+      ERROR_INVALID_PARAMETER   invalid function parameted passed
+      ERROR_FILE_NOT_FOUND      file not found in searched path
+      ERROR_PATH_NOT_FOUND
+      ERROR_TOO_MANY_OPEN_FILES
+      ERROR_ACCESS_DENIED
+      ERROR_NOT_ENOUGH_MEMORY   not enough memory
+      ERROR_BAD_FORMAT
+      ERROR_NOT_DOS_DISK
+      ERROR_SHARING_VIOLATION
+      ERROR_LOCK_VIOLATION
+      ERROR_SHARING_BUFFER_EXCEEDED
+      ERROR_INTERRUPT
+      ERROR_DRIVE_LOCKED
+      ERROR_INVALID_NAME
+      ERROR_PROC_NOT_FOUND
+      ERROR_INVALID_SEGMENT_NUMBER
+      ERROR_INVALID_ORDINAL
+      ERROR_INVALID_MODULETYPE
+      ERROR_INVALID_EXE_SIGNATURE
+      ERROR_EXE_MARKED_INVALID
+      ERROR_ITERATED_DATA_EXCEEDS_64K
+      ERROR_INVALID_MINALLOCSIZE
+      ERROR_DYNLINK_FROM_INVALID_RING
+      ERROR_INVALID_SEGDPL
+      ERROR_AUTODATASEG_EXCEEDS_64K
+      ERROR_RELOCSRC_CHAIN_EXCEEDS_SEGLIMIT
+      ERROR_FILENAME_EXCED_RANGE
+      ERROR_INIT_ROUTINE_FAILED
+*/
 unsigned long ModLoadModule(const char *    pszName,
                             unsigned long   cbName,
                             const char *    pszModname,
@@ -73,88 +121,93 @@ unsigned long ModLoadModule(const char *    pszName,
   void * addr;
   unsigned long size;
   unsigned long rc;
+  IXFModule *ixfModule;
+  void *ptr_mod;
+  struct module_rec * prev;
 
-  find_module_path(name, p_buf); /* Searches for module name and returns the full path in
-                           the buffer p_buf. */
+  // Check input arguments
+  if ((phmod==NULL)||(pszModname==NULL)) return ERROR_INVALID_PARAMETER;
 
-  rc=io_load_file(p_buf, &addr, &size);
+  // @todo extract filename only because can be fullname with path
+
+  // First search in the module list
+  prev = (struct module_rec *) module_root.next;
+  while(prev)
+  {
+    if(strcmp(pszModname, prev->mod_name)==0)
+    {
+      if(prev->load_status == LOADING)
+      {
+        *phmod=NULL;
+        if (cbName<=strlen(pszModname)) return ERROR_NOT_ENOUGH_MEMORY;
+        strcpy(pszName, pszModname);
+        return ERROR_ACCESS_DENIED; // @todo Need more accurate code
+      }
+      // @todo use handles here
+      *phmod=prev->module_struct;
+      return NO_ERROR;
+    }
+    prev = (struct module_rec *) prev->next;
+  }
+
+  // Ok. No module found. Try to load file
+  // (consider fully-qualified name specified)
+  rc=io_load_file(pszModname, &addr, &size);
+  if (rc)
+  {
+    // Searches for module name and returns the full path in the buffer p_buf.
+    rc=find_module_path(pszModname, p_buf);
+    if (!rc) rc=io_load_file(p_buf, &addr, &size);
+  }
+  if (rc) return rc;
+
+  ixfModule = (IXFModule *) malloc(sizeof(IXFModule));
+
+  rc=IXFIdentifyModule(addr, size, ixfModule);
+  if (rc)
+  {
+    free(ixfModule);
+    return rc;
+  }
 
   // Load module
-  rc=IXFLoadModule(addr, size, &ixfModule);
+  rc=IXFLoadModule(addr, size, ixfModule);
+  if (rc)
+  {
+    free(ixfModule);
+    return rc;
+  }
 
   // Register in module list
-  new_module_el = register_module(name, ixfModule);
+  // @todo extract filename only because can be fullname with path
+  new_module_el = register_module(pszModname, ixfModule);
   new_module_el->load_status = LOADING;
 
   // Fixup module
   rc=IXFFixupModule(ixfModule);
+  if (rc)
+  {
+    free(ixfModule);
+    return rc;
+  }
 
   new_module_el->load_status = DONE_LOADING;
-  return lx_exe_mod;
+
+  //@todo use handle table
+  *phmod=(unsigned long)ixfModule;
+
+  return NO_ERROR;
 }
 
-#endif
-
-        /* Loads a module name which proc needs. */
-void * load_module(char * name) {
-        struct LX_module *lx_exe_mod;
-        FILE *f;
-        struct module_rec * new_module_el;
-        #define buf_size 4096
-        char buf[buf_size+1];
-        char *p_buf = (char *) &buf;
-
-        find_module_path(name, p_buf); /* Searches for module name and returns the full path in
-                                                                        the buffer p_buf. */
-
-        lx_exe_mod = (struct LX_module *) malloc(sizeof(struct LX_module));
-        io_printf("load_module: '%s' \n", p_buf);
-        f = fopen(p_buf, "rb");  /* Open file in read only binary mode, in case this code
-                                          will be compiled on OS/2 or on windows. */
-
-        /* Load LX file from buffer. */
-        /* if(load_lx_stream((char*)lx_buf, pos, &lx_exe_mod)) { */
-
-
-        /* Load LX file from ordinary disk file. */
-        if(f && load_lx(f, lx_exe_mod)) {     /* Load LX header.*/
-                load_dll_code_obj_lx(lx_exe_mod); /* Load all objects in dll.*/
-                new_module_el = register_module(name, lx_exe_mod);
-                new_module_el->load_status = LOADING;
-                        /* A risk for cycles here. Need to check if a dll is already loading,
-                           indirect recursion.*/
-                do_fixup_code_data_lx(lx_exe_mod); /* Apply fixups. */
-                new_module_el->load_status = DONE_LOADING;
-                return lx_exe_mod;
-        }
-        free(lx_exe_mod);
-        if(f)
-                fclose(f);
-        io_printf("load_module: Load error!!! of %s in %s\n", name, p_buf);
-        return 0;
-}
-
-
-  /* Initializes the root node in the linked list, which itself is not used.
-  Only to make sure the list at least always has one element allocated. */
-void init_dynlink(void) {
-        module_root.mod_name = "root";
-        module_root.module_struct = 0;
-        module_root.next = 0;
-}
-
-#ifdef SDIOS
-#include <ctype.h>
-int strcasecmp(const char* dest, const char* src)
+/* Initializes the root node in the linked list, which itself is not used.
+Only to make sure the list at least always has one element allocated. */
+unsigned long ModInitialize(void)
 {
-        while(*dest != 0 && toupper(*src) == toupper(*dest)) {
-                dest++;
-                src++;
-        }
-
-        return *dest - *src;
+  module_root.mod_name = "root";
+  module_root.module_struct = 0;
+  module_root.next = 0;
+  return NO_ERROR;
 }
-#endif
 
 int lcase(char* dest, const char* src)
 {
@@ -171,90 +224,24 @@ int lcase(char* dest, const char* src)
 struct module_rec *
 register_module(char * name, void * mod_struct)
 {
-        struct module_rec * new_mod;
-        struct module_rec * prev;
+  struct module_rec * new_mod;
+  struct module_rec * prev;
 
-        prev = &module_root;
+  prev = &module_root;
 
-        while(prev->next) /* Find free node at end. */
-                prev = (struct module_rec *) prev->next;
+  while(prev->next) /* Find free node at end. */
+          prev = (struct module_rec *) prev->next;
 
-        new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
-        prev->next = new_mod;  /*struct module_rec module_struct*/
+  new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
+  prev->next = new_mod;  /*struct module_rec module_struct*/
 
-        new_mod->mod_name = (char *)malloc(strlen(name)+1);
-        strcpy(new_mod->mod_name, name);
-        new_mod->module_struct = mod_struct; /* A pointer to struct LX_module. */
-        new_mod->next=NULL;
-        new_mod->load_status=DONE_LOADING;      /* Status variable to check for recursion in loading state. */
+  new_mod->mod_name = (char *)malloc(strlen(name)+1);
+  strcpy(new_mod->mod_name, name);
+  new_mod->module_struct = mod_struct; /* A pointer to struct LX_module. */
+  new_mod->next=NULL;
+  new_mod->load_status=DONE_LOADING;      /* Status variable to check for recursion in loading state. */
 
-        return new_mod;
-}
-
-        /* Searches for the module name which the process proc needs.
-           It first sees if it's already loaded and then just returns the found module.
-           If it can't be found load_module() searches the mini_libpath inside find_module_path(). */
-void * find_module(char * name) {
-     void *ptr_mod;
-        struct module_rec * prev = (struct module_rec *) module_root.next;
-
-        while(prev) {
-                io_printf("find_module: %s == %s, mod=%p \n", name, prev->mod_name, prev->module_struct);
-                if(strcmp(name, prev->mod_name)==0) {
-                        io_printf("ret find_module: %p\n", prev->module_struct);
-
-                        if(prev->load_status == LOADING) {
-                                io_printf("find_module: ERROR, Cycle in loading of %s\n",name);
-                                return 0;
-                        }
-                        return prev->module_struct;
-                }
-                prev = (struct module_rec *) prev->next;
-        }
-
-        ptr_mod = load_module(name);
-        if(ptr_mod != 0) { /* If the module has been loaded, register it. */
-                /* register_module(name, ptr_mod); */
-                return ptr_mod;
-        }
-
-        return 0;
-}
-
-
-
-struct module_rec * get_root() {
-        return &module_root;
-}
-
-struct module_rec * get_next(struct module_rec * el) {
-        if(el != 0)
-                return (struct module_rec *) el->next;
-        else
-                return 0;
-}
-
-char * get_name(struct module_rec * el) {
-        if(el != 0)
-                return el->mod_name;
-        else
-                return 0;
-}
-
-struct LX_module * get_module(struct module_rec * el) {
-        if(el != 0)
-                return (struct LX_module *) el->module_struct;
-        else
-                return 0;
-}
-
-void print_module_table() {
-        struct module_rec * el = get_root();
-        io_printf("--- Loaded Module Table ---\n");
-        while((el = get_next(el))) {
-                io_printf("module = %s, module_struct = %p, load_status = %d\n",
-                                el->mod_name, el->module_struct, el->load_status);
-        }
+  return new_mod;
 }
 
 
@@ -323,7 +310,7 @@ void StrTokRestore(STR_SAVED_TOKENS *st)
 #define StrTokStop() (void)StrTokenize(0, 0)
 
 
-void find_module_path(char * name, char * full_path_name)
+unsigned int find_module_path(char * name, char * full_path_name)
 {
         FILE *f;
         char *p = options.libpath - 1;
@@ -344,9 +331,37 @@ void find_module_path(char * name, char * full_path_name)
                                 if(f)
                                 {
                                   StrTokStop();
-                                  break;
+                                  return NO_ERROR;
                                 }
                         } while((p = StrTokenize(0, ";")) != 0);
                         StrTokRestore(&st);
 
+  return ERROR_FILE_NOT_FOUND;
+}
+
+/* Goes through every loaded module and prints out all it's objects. */
+void print_detailed_module_table() {
+     int num_objects;
+     int i;
+        struct module_rec * el = &module_root;
+        io_printf("--- Detailed Loaded Module Table ---\n");
+        while((el = el->next)) {
+                io_printf("module = %s, module_struct = %p, load_status = %d\n",
+                                el->mod_name, el->module_struct, el->load_status);
+                num_objects = get_obj_num(el->module_struct);
+                i=0;
+                for(i=1; i<=num_objects; i++) {
+                        struct o32_obj * an_obj = get_obj(el->module_struct, i);
+                        print_o32_obj_info(*an_obj, el->mod_name);
+                }
+        }
+}
+
+void print_module_table() {
+        struct module_rec * el = &module_root;
+        io_printf("--- Loaded Module Table ---\n");
+        while((el = el->next)) {
+                io_printf("module = %s, module_struct = %p, load_status = %d\n",
+                                el->mod_name, el->module_struct, el->load_status);
+        }
 }

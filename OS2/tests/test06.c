@@ -1,8 +1,8 @@
 /*-- C -----------------------------------------------------------------------*/
 /*                                                                            */
-/* Module:      test05.c                                                      */
+/* Module:      test06.c                                                      */
 /*                                                                            */
-/* Description: Test thread, event semaphores and asyncronous timers.         */
+/* Description: Test thread and unnamed muxwait semaphores.                   */
 /*                                                                            */
 /* Copyright (C) IBM Corporation 2003. All Rights Reserved.                   */
 /* Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.             */
@@ -25,10 +25,15 @@
 /* DosCreateThread                                                            */
 /* DosWaitThread                                                              */
 /* DosCreateEventSem                                                          */
+/* DosPostEventSem                                                            */
 /* DosCloseEventSem                                                           */
+/* DosQueryEventSem                                                           */
 /* DosWaitEventSem                                                            */
-/* DosStartTimer                                                              */
-/* DosStopTimer                                                               */
+/* DosCreateMuxWaitSem                                                        */
+/* DosWaitMuxWaitSem                                                          */
+/* DosCloseMuxWaitSem                                                         */
+/* DosAddMuxWaitSem                                                           */
+/* DosDeleteMuxWaitSem                                                        */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
@@ -36,29 +41,41 @@
 /* include the standard linux stuff first */
 #include <errno.h>
 #include <stdio.h>
-#include <semaphore.h>
+//#include <semaphore.h>
 
 /* now include the OS/2 stuff */
 #define INCL_NOPMAPI
-#define INCL_DOSDATETIME
 #define INCL_DOSPROCESS
 #define INCL_DOSSEMAPHORES
 #include "os2.h"
 
 
+HEV hev[3];
+
+
 /*----------------------------------------------------------------------------*/
-/* thread1 - wait for event semaphore to post                                 */
+/* thread1 - post the event sems                                              */
 /*----------------------------------------------------------------------------*/
 
-void thread1(ULONG ulArg)
+void APIENTRY thread1(ULONG ulArg)
 {
-    int i;
     APIRET apiret;
 
-    for (i = 0; i < 4; i++) {
-        apiret = DosWaitEventSem((HEV)ulArg, SEM_INDEFINITE_WAIT);
-        printf("DosWaitEventSem returned %d\n", (int)apiret);
-    }
+    DosSleep(1500);
+
+    apiret = DosPostEventSem(hev[0]);
+    printf("Function DosPostEventSem returned %d\n", (int)apiret);
+    DosSleep(1500);
+
+    apiret = DosPostEventSem(hev[1]);
+    printf("Function DosPostEventSem returned %d\n", (int)apiret);
+    DosSleep(1500);
+
+    apiret = DosPostEventSem(hev[2]);
+    printf("Function DosPostEventSem returned %d\n", (int)apiret);
+
+    apiret = DosPostEventSem((HEV)ulArg);
+    printf("Function DosPostEventSem returned %d\n", (int)apiret);
     return;
 }
 
@@ -71,29 +88,52 @@ int main(void)
 {
     APIRET apiret;
     TID tid;
-    HEV hev;
-    HTIMER htimer;
+    int i;
+    SEMRECORD rec[3];
+    SEMRECORD newrec;
+    HMUX hmux;
+    ULONG user;
 
     printf(__FILE__ " main function invoked\n");
-    printf("Test timers\n");
+    printf("Test unnamed muxwait semaphores\n");
 
-    apiret = DosCreateEventSem("\\SEM32\\TEST5SEM", &hev, DC_SEM_SHARED, FALSE);
+    for (i = 0; i < 3; i++) {
+        apiret = DosCreateEventSem(NULL, &hev[i], DC_SEM_SHARED, FALSE);
+        printf("DosCreateEventSem function returned %d\n", (int)apiret);
+        rec[i].hsemCur = (HSEM)hev[i];
+        rec[i].ulUser = i;
+    }
+
+    apiret = DosCreateMuxWaitSem(NULL, &hmux, 3, rec, DCMW_WAIT_ALL);
+    printf("DosCreateMuxWaitSem function returned %d\n", (int)apiret);
+
+    apiret = DosCreateEventSem(NULL, (PHEV)&newrec.hsemCur, DC_SEM_SHARED, FALSE);
     printf("DosCreateEventSem function returned %d\n", (int)apiret);
+    newrec.ulUser = 3;
 
-    apiret = DosStartTimer(1000, (HSEM)hev, &htimer);
-    printf("DosStartTimer function returned %d\n", (int)apiret);
+    apiret = DosAddMuxWaitSem(hmux, &newrec);
+    printf("DosAddMuxWaitSem function returned %d\n", (int)apiret);
 
-    apiret = DosCreateThread(&tid, thread1, (ULONG)hev, 0, 8092);
-    printf("DosCreateThread returned %d\n", (int)apiret);
+    apiret = DosDeleteMuxWaitSem(hmux, rec[1].hsemCur);
+    printf("DosDeleteMuxWaitSem function returned %d\n", (int)apiret);
+
+    printf("Starting thread with DosCreateThread\n");
+    apiret = DosCreateThread(&tid, thread1, (ULONG)newrec.hsemCur, 0, 8092);
+
+    apiret = DosWaitMuxWaitSem(hmux, SEM_INDEFINITE_WAIT, &user);
+    printf("Function DosWaitMuxWaitSem returned %d, user = %d\n",
+           (int)apiret, (int)user);
 
     apiret = DosWaitThread(&tid, DCWW_WAIT);
     printf("Function DosWaitThread returned %d\n", (int)apiret);
 
-    apiret = DosStopTimer(htimer);
-    printf("DosStopTimer function returned %d\n", (int)apiret);
+    for (i = 0; i < 3; i++) {
+        apiret = DosCloseEventSem(hev[i]);
+        printf("Function DosCloseEventSem returned %d\n", (int)apiret);
+    }
 
-    apiret = DosCloseEventSem(hev);
-    printf("Function DosCloseEventSem returned %d\n", (int)apiret);
+    apiret = DosCloseMuxWaitSem(hmux);
+    printf("Function DosCloseMuxWaitSem returned %d\n", (int)apiret);
 
     return 0;
 }

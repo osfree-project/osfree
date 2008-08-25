@@ -29,20 +29,19 @@
 
 */
 
-#include <cfgparser.h>
+#define INCL_ERRORS
+#include <os2.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <cfgparser.h>
 #include <io.h>
-#include <execlx.h>
-#include <processlx.h>
-#include <fixuplx.h>
-#include <loadobjlx.h>
 #include <native_dynlink.h>
-#include <memmgr.h>
 #include <modmgr.h>
+#include <memmgr.h>
+#include <processlx.h>
 
 struct t_mem_area os2server_root_mem_area;
 
@@ -50,19 +49,28 @@ struct t_mem_area os2server_root_mem_area;
 
 int munmap( void *__addr, size_t __len ){return 0;}
 
-void print_detailed_module_table();
+/*! @brief This is the main function of the osFree OS/2 Personality Server.
+           Loads config.sys, executes all CALL and RUN stataments, creates
+           initial environment using SET stataments, starts main shell
+           pointed by PROTSHELL statament.
 
- /*********************************************************************
- * Here everything starts. This is the main function of the           *
- * OS/2 Server.                                                       *
- **********************************************************************/
+    @param argc   Number of arguments
+    @param argv   Array of arguments
+
+    @return
+      NO_ERROR                  Server finished successfully
+      ERROR_INVALID_PARAMETER   Invalid argument or CONFIG.SYS settings
+
+      See also other error codes
+
+*/
 int main(int argc, const char **argv)
 {
   int rc;               // Return code
   void *addr;           // Pointer to CONFIG.SYS in memory
-  int size;             // Size of CONFIG.SYS in memory
+  unsigned long size;   // Size of CONFIG.SYS in memory
 
-  io_printf("OS/2 Server started\n");
+  io_printf("osFree OS/2 Personality Server\n");
 
     // Initialize initial values from CONFIG.SYS
   rc=cfg_init_options();
@@ -70,11 +78,15 @@ int main(int argc, const char **argv)
     /* Initializes the module list. Keeps info about which dlls an process have loaded and
            has linked to it (Only support for LX dlls so far). The head of the linked list is
            declared as a global inside dynlink.c */
-  init_dynlink();
-
+  rc=ModInitialize();
 
   // Load CONFIG.SYS into memory
   rc=io_load_file("config.sys", &addr, &size);
+  if (rc)
+  {
+    io_printf("Can't load CONFIG.SYS\n");
+    return rc;
+  }
 
   // Parse CONFIG.SYS in memory
   rc=cfg_parse_config(addr, size);
@@ -86,9 +98,10 @@ int main(int argc, const char **argv)
   if (!options.protshell||(strlen(options.protshell)==0))
   {
     io_printf("No PROTSHELL statament in CONFIG.SYS\n");
+    return ERROR_INVALID_PARAMETER;
   } else {
     // Load and execute shell
-    rc=modmgr_execute_module(options.protshell);
+    rc=PrcExecuteModule(options.protshell);
   }
 
   // Clean up config data
@@ -97,24 +110,4 @@ int main(int argc, const char **argv)
   io_printf("OS/2 Server ended\n");
 
   return rc;
-}
-
-
-
-/* Goes through every loaded module and prints out all it's objects. */
-void print_detailed_module_table() {
-     int num_objects;
-     int i;
-        struct module_rec * el = get_root();
-        io_printf("--- Detailed Loaded Module Table ---\n");
-        while((el = get_next(el))) {
-                io_printf("module = %s, module_struct = %p, load_status = %d\n",
-                                get_name(el), get_module(el), el->load_status);
-                num_objects = get_obj_num(get_module(el));
-                i=0;
-                for(i=1; i<=num_objects; i++) {
-                        struct o32_obj * an_obj = get_obj(get_module(el), i);
-                        print_o32_obj_info(an_obj, get_name(el));
-                }
-        }
 }

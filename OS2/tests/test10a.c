@@ -47,13 +47,13 @@ int main(void)
     HQUEUE hq;
     PSZ pszQueueName = "\\queue\\os2linux\\test\\queue";
     PID pid;
-
-    printf(__FILE__ " main function invoked\n");
-    printf("Test DosExecPgm and queues\n");
     ULONG bytesread, priority = 0;
     REQUESTDATA request;
     PVOID msgtxt;
     CHAR fmtspec[80];
+
+    printf(__FILE__ " main function invoked\n");
+    printf("Test DosExecPgm and queues\n");
 
     /* create queue */
     apiret = DosOpenQueue(&pid, &hq, pszQueueName);

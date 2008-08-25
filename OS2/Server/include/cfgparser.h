@@ -57,6 +57,7 @@ typedef struct {
         short int workplace_primary_cp; // =1
         short int workplace_process;    // =NO
         int wp_objhandle;       // =n
+        short int debugmodmgr;     // =NO
 } cfg_opts;
 
 extern cfg_opts options;
@@ -69,10 +70,11 @@ extern struct types {
 }type[];
 
 // Function prototypes
-int cfg_init_options(void);
-int cfg_parse_line(char *, int);
-int cfg_cleanup(void);
-int cfg_parse_config(void * addr, int size);
+unsigned long cfg_init_options(void);
+unsigned long cfg_parse_line(char *, int);
+unsigned long cfg_cleanup(void);
+unsigned long cfg_parse_config(void * addr, int size);
+unsigned long cfg_getenv(char * name, char ** value);
 
 void error(char *);
 int warn(char *);

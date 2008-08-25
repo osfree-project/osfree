@@ -344,8 +344,8 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
         io_printf("eip: %lu (%lx) \n", eip, eip);
         io_printf("esp: %lu (0x%lx)\n", esp, esp);
 
-        print_o32_obj_info(kod_obj, " Info om kod_obj ");
-        print_o32_obj_info(stack_obj, " Info om stack_obj ");
+        print_o32_obj_info(*kod_obj, " Info om kod_obj ");
+        print_o32_obj_info(*stack_obj, " Info om stack_obj ");
 
         /* ladda kod. */
 

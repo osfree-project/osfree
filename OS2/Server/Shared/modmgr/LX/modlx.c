@@ -25,7 +25,12 @@
 
 #include "modlx.h"
 #include "io.h"
+#include "cfgparser.h"
+#include "modmgr.h"
 
+#ifndef ENEWHDR
+  #define ENEWHDR 0x3c
+#endif
 /*
 const int TRUE = 1;
 const int FALSE = 0; */
@@ -45,7 +50,7 @@ struct o32_map *
     get_obj_map(struct LX_module * lx_mod, unsigned int nr);
 int get_ldrsize(struct LX_module * lx_mod);
 int get_fixupsize(struct LX_module * lx_mod);
-void print_o32_obj_info(struct o32_obj * o_obj, char * namn);
+void print_o32_obj_info(struct o32_obj o_obj, char * namn);
 int get_fixup_pg_tbl_offs(struct LX_module * lx_mod, int logisk_sida);
 struct r32_rlc *
     get_fixup_rec_tbl_obj(struct LX_module * lx_mod, int offs);
@@ -56,10 +61,6 @@ int get_imp_ord1_rlc(struct r32_rlc * rlc);
 char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx);
 
 int get_e32_pageshift(struct LX_module * lx_mod);
-
-
-const int OFFSET_LX_HEAD = 60;
-
 
 
 /* fseek(fh, 0, SEEK_SET);
@@ -233,102 +234,97 @@ Några OS/2 exe-filer:
   /* Testar först om det är en giltig fil och laddar huvudet på lxfilen. */
   /* Två alternativ av LX finns. En med en DOS-header och sen LX-header.
      Även rena LX-filer finns, men är inte så vanliga. */
-int load_lx_module_header(struct LX_module * lx_mod) {
+int load_lx_module_header(struct LX_module * lx_mod)
+{
+  char exe_sig[2];
+  struct e32_exe * lx_e32_exe;
+  int lx_module_header_offset=0;
+  struct exe hdr;
 
-        char exe_sig[2];
-        struct e32_exe * lx_e32_exe;
-        int lx_module_header_offset=0;
+  lx_mod->lx_fseek(lx_mod, 0, SEEK_SET);
+  lx_mod->lx_fread(&exe_sig, sizeof(exe_sig), 1, lx_mod);
 
-        lx_mod->lx_fseek(lx_mod, 0, SEEK_SET);
+  if(((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')) ||
+     ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')))
+  {
+    /* Found DOS stub. */
 
-        lx_mod->lx_fread(&exe_sig, sizeof(exe_sig), 1, lx_mod);
+    lx_mod->lx_fseek(lx_mod, ENEWHDR, SEEK_SET);
 
-        if(((exe_sig[0] == 'M') && (exe_sig[1] == 'Z'))
-                || ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M'))) {
-                /* En DOS exe fil. */
-                //io_printf("A DOS exe file.\n");
+    lx_mod->lx_fread(&lx_module_header_offset, sizeof(lx_module_header_offset), 1, lx_mod);
 
-                lx_mod->lx_fseek(lx_mod, OFFSET_LX_HEAD, SEEK_SET);
-                //io_printf(" ftell: %lu \n", ftell(fh));
+    lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
 
-                lx_mod->lx_fread(&lx_module_header_offset, sizeof(lx_module_header_offset), 1, lx_mod);
+    lx_mod->lx_fread(&exe_sig, 1, sizeof(exe_sig), lx_mod);
 
-                //io_printf(" ftell: %lu \n", ftell(fh));
-                //io_printf("LX header offset: %d \n", lx_module_header_offset);
+    lx_mod->offs_lx_head = lx_module_header_offset;
+    if (options.debugmodmgr)
+    {
+      lx_mod->lx_fseek(lx_mod, 0, SEEK_SET);
+      lx_mod->lx_fread(&hdr, sizeof(hdr), 1, lx_mod);
+      dump_header_mz(hdr);
+    }
+  }
 
-                lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
+  if(lx_module_header_offset == 0) {
+    //io_printf(" Inte en MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
+    //   ((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')),
+    //   ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')), exe_sig[0], exe_sig[1] );
+    //io_printf("LX header offset: %d \n", lx_module_header_offset);
+    lx_module_header_offset = 0;
+    lx_mod->offs_lx_head = lx_module_header_offset;
+  }
 
-                lx_mod->lx_fread(&exe_sig, 1, sizeof(exe_sig), lx_mod);
+  if((exe_sig[0] == 'L') && (exe_sig[1] == 'X')) {
+    //io_printf("Valid LX header.\n");
 
-                lx_mod->offs_lx_head = lx_module_header_offset;
-        }
-        /*if(!((exe_sig[0] == 'M') && (exe_sig[1] == 'Z'))
-                || ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M'))) { */
-        if(lx_module_header_offset == 0) {
-                io_printf(" Inte en MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
-                   ((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')),
-                   ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')), exe_sig[0], exe_sig[1] );
-                //io_printf("LX header offset: %d \n", lx_module_header_offset);
-                lx_module_header_offset = 0;
-                lx_mod->offs_lx_head = lx_module_header_offset;
-        }
-                if((exe_sig[0] == 'L') && (exe_sig[1] == 'X')) {
-                        io_printf("Valid LX header.\n");
+    lx_e32_exe = (struct e32_exe *) malloc(sizeof(struct e32_exe));
 
-                        lx_e32_exe = (struct e32_exe *) malloc(sizeof(struct e32_exe));
+    //int storlek = sizeof(struct e32_exe);
+    //io_printf("Läser %d bytes av LX header.\n", storlek);
 
-                        //int storlek = sizeof(struct e32_exe);
-                        //io_printf("Läser %d bytes av LX header.\n", storlek);
+    lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
 
-                        lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
+    lx_mod->lx_fread(lx_e32_exe, sizeof(struct e32_exe), 1, lx_mod);
 
-                        lx_mod->lx_fread(lx_e32_exe, sizeof(struct e32_exe), 1, lx_mod);
+    lx_mod->lx_head_e32_exe = lx_e32_exe;
 
-                        lx_mod->lx_head_e32_exe = lx_e32_exe;
+    if (options.debugmodmgr)
+    {
+      dump_header_lx(*lx_e32_exe);
+    }
+    return TRUE;
+  } else {
+    io_printf("Ogiltig LX fil !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
+    return FALSE;
+  }
 
-                        return TRUE;
-                }
-                else {
-                        io_printf("Ogiltig LX fil !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
-                        return FALSE;
-                }
-
-        /*      return TRUE;
-        } else */
-        return FALSE;
+  return FALSE;
 }
 
 
 
 /* Reads loader section from file, it's place is in the header. */
-int load_lx_loader_section(struct LX_module * lx_mod) {
+int load_lx_loader_section(struct LX_module * lx_mod)
+{
+  lx_mod->lx_fseek(lx_mod, lx_mod->offs_lx_head + lx_mod->lx_head_e32_exe->e32_objtab, SEEK_SET);
 
-        /*io_printf("Storlek på Loader Section: %lu \n", lx_mod->lx_head_e32_exe->e32_ldrsize);
-          io_printf("Plats: %lu \n", lx_mod->lx_head_e32_exe->e32_objtab); Object table offset */
+  //io_printf("Reads Loader Section.\n");
+  lx_mod->loader_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_ldrsize);
 
-        lx_mod->lx_fseek(lx_mod, lx_mod->offs_lx_head + lx_mod->lx_head_e32_exe->e32_objtab, SEEK_SET);
-
-        //io_printf("Reads Loader Section.\n");
-        lx_mod->loader_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_ldrsize);
-
-        lx_mod->lx_fread(lx_mod->loader_section,  lx_mod->lx_head_e32_exe->e32_ldrsize,1, lx_mod);
-        return TRUE;
+  lx_mod->lx_fread(lx_mod->loader_section,  lx_mod->lx_head_e32_exe->e32_ldrsize,1, lx_mod);
+  return TRUE;
 }
 
 
 
         /* Läser fixup-delen. */
-int load_lx_fixup_section(struct LX_module * lx_mod) {
+int load_lx_fixup_section(struct LX_module * lx_mod)
+{
+  lx_mod->fixup_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_fixupsize);
 
-        /*io_printf("Storlek på Fixup Section: %lu\n", lx_mod->lx_head_e32_exe->e32_fixupsize); */
-                                                                 /* Fixup section size */
-        /*io_printf("Plats: %lu \n", lx_mod->lx_head_e32_exe->e32_fpagetab);   */
-        /* Offset of Fixup Page Table */
-
-        lx_mod->fixup_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_fixupsize);
-
-        lx_mod->lx_fread(lx_mod->fixup_section,  lx_mod->lx_head_e32_exe->e32_fixupsize,1, lx_mod);
-        return TRUE;
+  lx_mod->lx_fread(lx_mod->fixup_section,  lx_mod->lx_head_e32_exe->e32_fixupsize,1, lx_mod);
+  return TRUE;
 }
 
 
@@ -443,23 +439,16 @@ int get_fixupsize(struct LX_module * lx_mod) {
 }
 
 
-        /*struct o32_obj * stack_obj = get_data_stack(lx_exe_mod); */
-
-        /*unsigned long       o32_size;        Object virtual size
-    unsigned long       o32_base;        Object base virtual address
-    unsigned long       o32_flags;       Attribute flags
-    unsigned long       o32_pagemap;     Object page map index
-    unsigned long       o32_mapsize;     Number of entries in object page map
-    unsigned long       o32_reserved;    Reserved
-        */
-
-void print_o32_obj_info(struct o32_obj * o_obj, char * namn) {
-        io_printf("----%s--%p---\n o32_size     %lu (0x%lx)\n", namn, o_obj, o_obj->o32_size, o_obj->o32_size);
-        io_printf(" o32_base     %lu (0x%lx)\n", o_obj->o32_base, o_obj->o32_base);
-        io_printf(" o32_flags    %lu (0x%lx)\n", o_obj->o32_flags, o_obj->o32_flags);
-        io_printf(" o32_pagemap  %lu (0x%lx)\n", o_obj->o32_pagemap, o_obj->o32_pagemap);
-        io_printf(" o32_mapsize  %lu (0x%lx)\n", o_obj->o32_mapsize, o_obj->o32_mapsize);
-        io_printf(" o32_reserved %lu (0x%lx)\n---------\n", o_obj->o32_reserved, o_obj->o32_reserved);
+void print_o32_obj_info(struct o32_obj o_obj, char * name)
+{
+  io_printf("%s: virtual memory size              = %08XH\n", name, O32_SIZE(o_obj));
+  io_printf("          relocation base address          = %08XH\n", O32_BASE(o_obj));
+  io_printf("          object flag bits                 = %08XH\n", O32_FLAGS(o_obj));
+  io_printf("          object page table index          = %08XH\n", O32_PAGEMAP(o_obj));
+  io_printf("          # of object page table entries   = %08XH\n", O32_MAPSIZE(o_obj));
+  io_printf("          reserved                         = %08XH\n", O32_RESERVED(o_obj));
+  io_printf("          flags = READABLE|EXECUTABLE|16:16_ALIAS\n");
+  io_printf("\n");
 }
 
 /* Hämtar offset i fixuptabellen för en sida (logisk_sida). */

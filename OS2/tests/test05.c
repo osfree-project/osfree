@@ -1,8 +1,8 @@
 /*-- C -----------------------------------------------------------------------*/
 /*                                                                            */
-/* Module:      test04.c                                                      */
+/* Module:      test05.c                                                      */
 /*                                                                            */
-/* Description: Test thread and named mutex semaphores.                       */
+/* Description: Test thread, event semaphores and asyncronous timers.         */
 /*                                                                            */
 /* Copyright (C) IBM Corporation 2003. All Rights Reserved.                   */
 /* Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.             */
@@ -24,10 +24,11 @@
 /* DosSleep                                                                   */
 /* DosCreateThread                                                            */
 /* DosWaitThread                                                              */
-/* DosCreateMutexSem                                                          */
-/* DosCloseMutexSem                                                           */
-/* DosRequestMutexSem                                                         */
-/* DosReleaseMutexSem                                                         */
+/* DosCreateEventSem                                                          */
+/* DosCloseEventSem                                                           */
+/* DosWaitEventSem                                                            */
+/* DosStartTimer                                                              */
+/* DosStopTimer                                                               */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
@@ -35,31 +36,28 @@
 /* include the standard linux stuff first */
 #include <errno.h>
 #include <stdio.h>
-#include <semaphore.h>
+//#include <semaphore.h>
 
 /* now include the OS/2 stuff */
 #define INCL_NOPMAPI
+#define INCL_DOSDATETIME
 #define INCL_DOSPROCESS
 #define INCL_DOSSEMAPHORES
 #include "os2.h"
 
 
 /*----------------------------------------------------------------------------*/
-/* thread1 - wait for mutex semaphore to be available                         */
+/* thread1 - wait for event semaphore to post                                 */
 /*----------------------------------------------------------------------------*/
 
-void thread1(ULONG ulArg)
+void APIENTRY thread1(ULONG ulArg)
 {
     int i;
     APIRET apiret;
 
     for (i = 0; i < 4; i++) {
-        apiret = DosRequestMutexSem((HMTX)ulArg, SEM_INDEFINITE_WAIT);
-        printf("thread1() DosRequestMutexSem function returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-        apiret = DosReleaseMutexSem((HMTX)ulArg);
-        printf("thread1() DosReleaseMutexSem returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
+        apiret = DosWaitEventSem((HEV)ulArg, SEM_INDEFINITE_WAIT);
+        printf("DosWaitEventSem returned %d\n", (int)apiret);
     }
     return;
 }
@@ -73,33 +71,29 @@ int main(void)
 {
     APIRET apiret;
     TID tid;
-    HMTX hmtx;
-    int i;
+    HEV hev;
+    HTIMER htimer;
 
     printf(__FILE__ " main function invoked\n");
-    printf("Test named mutex semaphores\n");
+    printf("Test timers\n");
 
-    apiret = DosCreateMutexSem("\\SEM32\\TEST4SEM", &hmtx, DC_SEM_SHARED,
-                               FALSE);
-    printf("DosCreateMutexSem function returned %d\n", (int)apiret);
+    apiret = DosCreateEventSem("\\SEM32\\TEST5SEM", &hev, DC_SEM_SHARED, FALSE);
+    printf("DosCreateEventSem function returned %d\n", (int)apiret);
 
-    printf("Starting thread with DosCreateThread\n");
-    apiret = DosCreateThread(&tid, thread1, (ULONG)hmtx, 0, 8092);
+    apiret = DosStartTimer(1000, (HSEM)hev, &htimer);
+    printf("DosStartTimer function returned %d\n", (int)apiret);
 
-    for (i = 0; i < 4; i++) {
-        apiret = DosRequestMutexSem(hmtx, SEM_INDEFINITE_WAIT);
-        printf("main() DosRequestMutexSem function returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-        apiret = DosReleaseMutexSem(hmtx);
-        printf("main() DosReleaseMutexSem returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-    }
+    apiret = DosCreateThread(&tid, thread1, (ULONG)hev, 0, 8092);
+    printf("DosCreateThread returned %d\n", (int)apiret);
 
     apiret = DosWaitThread(&tid, DCWW_WAIT);
     printf("Function DosWaitThread returned %d\n", (int)apiret);
 
-    apiret = DosCloseMutexSem(hmtx);
-    printf("Function DosCloseMutexSem returned %d\n", (int)apiret);
+    apiret = DosStopTimer(htimer);
+    printf("DosStopTimer function returned %d\n", (int)apiret);
+
+    apiret = DosCloseEventSem(hev);
+    printf("Function DosCloseEventSem returned %d\n", (int)apiret);
 
     return 0;
 }

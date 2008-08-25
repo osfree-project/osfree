@@ -19,6 +19,7 @@
 */
 
 #define INCL_DOSMODULEMGR
+#define INCL_ERRORS
 #include <os2.h>
 
 #include <stdio.h>
@@ -142,10 +143,6 @@ void * native_load_module(char * name) {
 
         native_find_module_path(name, p_buf); /* Searches for module name and returns the full path in
                                                                         the buffer p_buf. */
-        if (!strcmp(name, "DOSCALLS"))
-        {
-          p_buf=name;
-        }
 
         io_printf("load_module: '%s' \n", p_buf);
 
@@ -204,24 +201,6 @@ void native_print_module_table(void) {
         }
 }
 
-/* MSG.DLL med DosPutMessage med ordinal: 5*/
-/* DOSCALLS.234  Dos32Exit */
-/* DOSCALLS.348   Dos32QuerySysInfo */
-/* strcasecmp  strcmp*/
-
-/*void * get_func_ptr_ord_modname(int ord, char * modname) {
-        if(strcasecmp (modname, "MSG")==0 && ord == 5)
-                return 0 ;//&DosPutMessage;
-        if(strcasecmp(modname, "DOSCALLS")==0 && ord == 234)
-                return 0 ;//&DosExit;
-        if(strcasecmp(modname, "DOSCALLS")==0 && ord == 348)
-                return 0 ;//&DosQuerySysInfo;
-
-        io_printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
-        return 0;
-}
-*/
-
 void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
         void * mod_handle;
         char * error;
@@ -276,6 +255,15 @@ void * native_get_func_ptr_ord_modname(int ord, char * modname)
         return mydltest;
 }
 
+APIRET APIENTRY  test(HFILE hfile,
+                                  ULONG cbMsg,
+                                  PCHAR pBuf)
+{
+  io_printf(pBuf);
+  return NO_ERROR;
+}
+
+
 void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
 {
         void * mod_handle;
@@ -283,7 +271,13 @@ void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
         void * mydltest;
         APIRET rval;
 
-        rval = DosQueryProcAddr( (HMODULE)native_mod_handle, ord, NULL, (PFN *)&mydltest);
+        if (ord==387)
+        {
+          mydltest=&test;
+          rval=0;
+        } else {
+          rval = DosQueryProcAddr( (HMODULE)native_mod_handle, ord, NULL, (PFN *)&mydltest);
+        }
 
         if (rval)  {
                 fprintf(stderr, "Could not locate ordinal '%d': %d\n", ord, rval);

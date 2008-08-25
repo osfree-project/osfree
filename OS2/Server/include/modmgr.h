@@ -9,6 +9,10 @@
 
 */
 
+#include <exe.h>
+#include "gcc_os2def.h"
+#include <exe386.h>
+
 const int LOADING = 1;
 const int DONE_LOADING = 0;
 
@@ -20,17 +24,14 @@ struct module_rec {
                                  A one means it is being loaded and zero it is done. */
 };
 
-void init_dynlink(void);
-struct module_rec * register_module(char * name, void * mod_struct);
-void * find_module(char * name);
-void load_dyn_link(char * name);
-void * get_func_ptr_ord_modname(int ord, char * modname);
-void * load_module(char * name);
-struct module_rec * get_root();
-struct module_rec * get_next(struct module_rec * el);
-char * get_name(struct module_rec * el);
-struct LX_module * get_module(struct module_rec * el);
+void dump_header_mz(struct exe hdr);
+void dump_header_lx(struct e32_exe hdr);
+void print_detailed_module_table();
 void print_module_table();
+
+struct module_rec * register_module(char * name, void * mod_struct);
+
+unsigned long ModInitialize();
 
 unsigned long ModLoadModule(const char *    pszName,
                             unsigned long   cbName,

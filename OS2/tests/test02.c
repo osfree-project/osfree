@@ -1,8 +1,8 @@
 /*-- C -----------------------------------------------------------------------*/
 /*                                                                            */
-/* Module:      test04a.c                                                     */
+/* Module:      test02.c                                                      */
 /*                                                                            */
-/* Description: Test thread and unnamed mutex semaphores.                     */
+/* Description: Test thread starting and ending.                              */
 /*                                                                            */
 /* Copyright (C) IBM Corporation 2003. All Rights Reserved.                   */
 /* Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.             */
@@ -21,46 +21,50 @@
 /*                                                                            */
 /* The following OS/2 APIs are tested here:                                   */
 /*                                                                            */
+/* _beginthread                                                               */
+/* _endthread                                                                 */
 /* DosSleep                                                                   */
 /* DosCreateThread                                                            */
 /* DosWaitThread                                                              */
-/* DosCreateMutexSem                                                          */
-/* DosCloseMutexSem                                                           */
-/* DosRequestMutexSem                                                         */
-/* DosReleaseMutexSem                                                         */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
 
-/* include the standard linux stuff first */
-#include <errno.h>
+/* include the standard library stuff first */
 #include <stdio.h>
-#include <semaphore.h>
+#include <stdlib.h>
+#include <process.h>
 
 /* now include the OS/2 stuff */
 #define INCL_NOPMAPI
 #define INCL_DOSPROCESS
-#define INCL_DOSSEMAPHORES
 #include "os2.h"
 
 
 /*----------------------------------------------------------------------------*/
-/* thread1 - wait for mutex semaphore to be available                         */
+/* thread1 - thread started by DosCreateThread                                */
 /*----------------------------------------------------------------------------*/
 
-void thread1(ULONG ulArg)
+void APIENTRY thread1(ULONG ulArg)
 {
-    int i;
-    APIRET apiret;
+    DosSleep(1000); /* 1 second */
+    printf("Message from function thread1\n");
+    printf("The thread argument was %d\n", (int)ulArg);
+    DosSleep(1000); /* 1 second */
+    return;
+}
 
-    for (i = 0; i < 4; i++) {
-        apiret = DosRequestMutexSem((HMTX)ulArg, SEM_INDEFINITE_WAIT);
-        printf("thread1() DosRequestMutexSem function returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-        apiret = DosReleaseMutexSem((HMTX)ulArg);
-        printf("thread1() DosReleaseMutexSem returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-    }
+/*----------------------------------------------------------------------------*/
+/* thread2 - thread started by _beginthread                                   */
+/*----------------------------------------------------------------------------*/
+
+void thread2(void * p)
+{
+    DosSleep(1000); /* 1 second */
+    printf("Message from function thread2\n");
+    printf("The thread argument was %p\n", p);
+    DosSleep(1000); /* 1 second */
+    _endthread();
     return;
 }
 
@@ -73,33 +77,27 @@ int main(void)
 {
     APIRET apiret;
     TID tid;
-    HMTX hmtx;
-    int i;
+    char           *stack;
 
+    /* test thread1 */
     printf(__FILE__ " main function invoked\n");
-    printf("Test unnamed mutex semaphores\n");
+    printf("Test basic thread functionality\n");
 
-    apiret = DosCreateMutexSem(NULL, &hmtx, DC_SEM_SHARED,
-                               FALSE);
-    printf("DosCreateMutexSem function returned %d\n", (int)apiret);
-
-    printf("Starting thread with DosCreateThread\n");
-    apiret = DosCreateThread(&tid, thread1, (ULONG)hmtx, 0, 8092);
-
-    for (i = 0; i < 4; i++) {
-        apiret = DosRequestMutexSem(hmtx, SEM_INDEFINITE_WAIT);
-        printf("main() DosRequestMutexSem function returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-        apiret = DosReleaseMutexSem(hmtx);
-        printf("main() DosReleaseMutexSem returned %d\n", (int)apiret);
-        DosSleep(1500); /* 1.5 seconds */
-    }
-
+    printf("Starting first thread with DosCreateThread\n");
+    apiret = DosCreateThread(&tid, thread1, 10, 0, 8092);
+    printf("Function returned %d\n", (int)apiret);
+    printf("The thread id was %d\n", (int)tid);
     apiret = DosWaitThread(&tid, DCWW_WAIT);
     printf("Function DosWaitThread returned %d\n", (int)apiret);
 
-    apiret = DosCloseMutexSem(hmtx);
-    printf("Function DosCloseMutexSem returned %d\n", (int)apiret);
+    /* test thread2 */
+    printf(__FILE__ " main function invoked\n");
+    printf("Starting second thread with _beginthread\n");
+    stack = (char *) malloc( 8092 );
+    tid = (TID)_beginthread(thread2, stack, 8092, (void *)10);
+    printf("The thread id was %d\n", (int)tid);
+    apiret = DosWaitThread(&tid, DCWW_WAIT);
+    printf("Function DosWaitThread returned %d\n", (int)apiret);
 
     return 0;
 }

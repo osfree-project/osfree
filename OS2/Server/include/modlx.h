@@ -44,48 +44,48 @@ extern "C" {
 
 struct LX_module {
 
-	struct e32_exe * lx_head_e32_exe;
-	
-	char * loader_section;
-	/*  The size of Loader Section is in lx_head_e32_exe->e32_ldrsize  */
-	
-	char * fixup_section;
-	/* The size of Fixup Section is in lx_head_e32_exe->e32_fixupsize */
-	
-	int offs_lx_head;
-	
-	FILE* fh;			   /* File handle, if the LX file is an ordinary disk file. */
-	char * lx_file_stream; /* If the LX file is a buffer, null otherwise. */
-	int lx_stream_size;    /* Size of buffer with LX file. */
-	int lx_stream_pos;     /* Position in the buffer. */
-	
-	/* Two function pointers for seeking and reading the LX file. To have a bit of polymorfism
-	   to disk file and and a buffer. */
-	int (* lx_fseek)(struct LX_module * lx_mod, int pos, int direction);
-	size_t (* lx_fread)(void *ptr, size_t size, size_t nmemb, struct LX_module * lx_mod);
+        struct e32_exe * lx_head_e32_exe;
+
+        char * loader_section;
+        /*  The size of Loader Section is in lx_head_e32_exe->e32_ldrsize  */
+
+        char * fixup_section;
+        /* The size of Fixup Section is in lx_head_e32_exe->e32_fixupsize */
+
+        int offs_lx_head;
+
+        FILE* fh;                          /* File handle, if the LX file is an ordinary disk file. */
+        char * lx_file_stream; /* If the LX file is a buffer, null otherwise. */
+        int lx_stream_size;    /* Size of buffer with LX file. */
+        int lx_stream_pos;     /* Position in the buffer. */
+
+        /* Two function pointers for seeking and reading the LX file. To have a bit of polymorfism
+           to disk file and and a buffer. */
+        int (* lx_fseek)(struct LX_module * lx_mod, int pos, int direction);
+        size_t (* lx_fread)(void *ptr, size_t size, size_t nmemb, struct LX_module * lx_mod);
 };
 
-	/* An earlier experiment with a modified struct r32_rlc. */
-struct r32_rlc_8bit_ord                      // Relocation item 
+        /* An earlier experiment with a modified struct r32_rlc. */
+struct r32_rlc_8bit_ord                      // Relocation item
 {
-    unsigned char       nr_stype;        // Source type - field shared with new_rlc 
-    unsigned char       nr_flags;        // Flag byte - field shared with new_rlc 
-    short               r32_soff;        // Source offset 
+    unsigned char       nr_stype;        // Source type - field shared with new_rlc
+    unsigned char       nr_flags;        // Flag byte - field shared with new_rlc
+    short               r32_soff;        // Source offset
     //unsigned short      r32_objmod;      // Target object number or Module ordinal
-	union _8_16_obj_mod {
-		unsigned char       r32_objmod[1];
-		unsigned short      r32_objmod16;
-	} _8_16_objmod; // _8_16_objmod.r32_objmod[1]
-	
-	union _8_16_imp_ord {
-		unsigned char       r32_impord[1];
-		unsigned short      r32_impord16;
-	} _8_16_impord; //  _8_16_impord.r32_impord[
-	
-	union _16_32_add_fix {
-		unsigned short       s16_addfix[1];
-		unsigned int         i32_addfix;
-	} _16_32_addfix; //  _16_32_addfix.s16_addfix[
+        union _8_16_obj_mod {
+                unsigned char       r32_objmod[1];
+                unsigned short      r32_objmod16;
+        } _8_16_objmod; // _8_16_objmod.r32_objmod[1]
+
+        union _8_16_imp_ord {
+                unsigned char       r32_impord[1];
+                unsigned short      r32_impord16;
+        } _8_16_impord; //  _8_16_impord.r32_impord[
+
+        union _16_32_add_fix {
+                unsigned short       s16_addfix[1];
+                unsigned int         i32_addfix;
+        } _16_32_addfix; //  _16_32_addfix.s16_addfix[
 };
 
 int lx_fseek_stream(struct LX_module * lx_mod, int pos, int direction);
@@ -94,12 +94,12 @@ int lx_fseek_disk_file(struct LX_module * lx_mod, int pos, int direction);
 size_t lx_fread_stream(void *ptr, size_t size, size_t nmemb, struct LX_module * lx_mod);
 size_t lx_fread_disk_file(void *ptr, size_t size, size_t nmemb, struct LX_module * lx_mod);
 
-/* Read in the header from a disk file. 
+/* Read in the header from a disk file.
    ALso an constructor for struct LX_module. */
 struct LX_module * load_lx(FILE* fh, struct LX_module * lx_mod);
 
 
-/* Read in the header for the file from a memory buffer. 
+/* Read in the header for the file from a memory buffer.
    ALso an constructor for struct LX_module. */
 struct LX_module * load_lx_stream(char * stream_fh, int str_size, struct LX_module * lx_mod);
 
@@ -109,7 +109,7 @@ struct o32_obj * get_obj(struct LX_module * lx_mod, unsigned int nr);
 
 
 /* Get the number of objects from Object Table. */
-unsigned long int 
+unsigned long int
 get_obj_num(struct LX_module * lx_mod);
 
 
@@ -158,24 +158,24 @@ int get_ldrsize(struct LX_module * lx_mod);
 int get_fixupsize(struct LX_module * lx_mod);
 
   /* Print info abount an Object. */
-void print_o32_obj_info(struct o32_obj * o_obj, char * namn);
-	
+void print_o32_obj_info(struct o32_obj o_obj, char * namn);
+
 int get_fixup_pg_tbl_offs(struct LX_module * lx_mod, int logisk_sida);
 
 /*struct r32_rlc                           Relocation item  */
 struct r32_rlc * get_fixup_rec_tbl_obj(struct LX_module * lx_mod, int offs);
-	
 
-	/* Get a name as a pascal string from Import Module Table. Which DLLs this module needs. */
+
+        /* Get a name as a pascal string from Import Module Table. Which DLLs this module needs. */
 char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx);
 
-	/* Get a name as a C string from Import Module Table at index mod_idx. */
+        /* Get a name as a C string from Import Module Table at index mod_idx. */
 char * get_imp_mod_name_cstr(struct LX_module * lx_mod, int mod_idx, char *buf, int len);
 
-	/* Get a pascal string from Import Procedure Name Table. The names of imported functions. */
+        /* Get a pascal string from Import Procedure Name Table. The names of imported functions. */
 char * get_imp_proc_name(struct LX_module * lx_mod, int proc_idx);
 
-	/* The size of a page, usually 4096 byte. But you never know if the module has some other size.*/
+        /* The size of a page, usually 4096 byte. But you never know if the module has some other size.*/
 int get_e32_pagesize(struct LX_module * lx_mod);
 
   /* Gets offset in file where the pages for the objects start. */
@@ -185,23 +185,23 @@ int get_e32_datapage(struct LX_module * lx_mod);
      value should be shifted left .*/
 int get_e32_pageshift(struct LX_module * lx_mod);
 
-	/* Copy an pascal string from src to dest. */
+        /* Copy an pascal string from src to dest. */
 char * copy_pas_str(char * dest, char * src);
 
-	/* Get an entry point with number ent_ord from the module. */
-void * get_entry(struct LX_module * lx_mod, int ent_ord, 
-					int * ret_flags,
-					int * ret_offset,
-					int * ret_obj,
-					int * ret_modord,
-					int * ret_type);
-	
-	/* Gets the flags from the module. For example, if it's an dll or program. */				
-unsigned long int get_mflags(struct LX_module * lx_mod);	
+        /* Get an entry point with number ent_ord from the module. */
+void * get_entry(struct LX_module * lx_mod, int ent_ord,
+                                        int * ret_flags,
+                                        int * ret_offset,
+                                        int * ret_obj,
+                                        int * ret_modord,
+                                        int * ret_type);
 
-    /* Gets the magic for the module (LX). Obs! It's just a char pointer to the beginning of the 
-	   module and has no zero after the two characters. So only read the two first chars.*/
-unsigned char * get_magic(struct LX_module * lx_mod);				
+        /* Gets the flags from the module. For example, if it's an dll or program. */
+unsigned long int get_mflags(struct LX_module * lx_mod);
+
+    /* Gets the magic for the module (LX). Obs! It's just a char pointer to the beginning of the
+           module and has no zero after the two characters. So only read the two first chars.*/
+unsigned char * get_magic(struct LX_module * lx_mod);
 
 int get_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name);
 int get_non_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name);

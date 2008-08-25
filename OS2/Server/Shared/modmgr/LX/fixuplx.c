@@ -56,13 +56,29 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
   int source_type_mask;
   int fixup_size;
 
-        io_printf("\n---------List of fixup data ------------- '%p'", rlc);
-        io_printf("\n");
-        io_printf("Source Type: %d, (0x%x)\n", rlc->nr_stype, rlc->nr_stype);
+
+//        io_printf("\n---------List of fixup data ------------- '%p'", rlc);
+//        io_printf("\n");
+        io_printf("   %02X    %02X   src off = %04X   ", rlc->nr_stype, rlc->nr_flags, get_srcoff_cnt1_rlc(rlc));
+
+        if((rlc->nr_flags & NRRTYP) == NRRINT)
+                io_printf("object #    = %02d   ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
+        else
+                io_printf("mod ord #   = %02d   ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
+
+        if((rlc->nr_flags & NRRORD) == NRRORD)
+                io_printf("import ord #     = %02d\n", get_imp_ord1_rlc(rlc));
+        if((rlc->nr_flags & NRRNAM) == NRRNAM)
+                io_printf("import name      = %s\n", get_imp_name_rlc(rlc));
+
+        if(((rlc->nr_flags & NRRTYP) == NRRINT) && (source_type_mask != NRSSEG))
+                io_printf("target off       = %04d\n", get_imp_ord1_rlc(rlc));
+//                io_printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
 
         source_type_mask = rlc->nr_stype & NRSTYP;
         /*if(source_type_mask == NRSTYP)
                 io_printf("    0x0F: Source type mask.\n"); */
+#if 0
         if(source_type_mask == NRSBYT)
                 io_printf("    0x00: Byte fixup (8-bits).\n");
         if(source_type_mask == NRSSEG)
@@ -113,24 +129,7 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
                 io_printf("    0x40: 16-bit Object/Module ordinal. \n");
         else
                 io_printf("   !0x40:  8-bit Object/Module ordinal. \n");
-
-        if((rlc->nr_stype & NRCHAIN) == NRCHAIN)  /* Internal Chaining Fixup */
-                io_printf("  cnt1:       %.4d (0x%.4x)  ", get_srcoff_cnt1_rlc(rlc), get_srcoff_cnt1_rlc(rlc));
-        else
-                io_printf("  srcoff:     %.4d (0x%.4x)  ", get_srcoff_cnt1_rlc(rlc), get_srcoff_cnt1_rlc(rlc));
-
-        if((rlc->nr_flags & NRRTYP) == NRRINT)
-                io_printf("  object1:  %6.d (0x%.4x)  ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
-        else
-                io_printf("  mod ord1: %6.d (0x%.4x)  ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
-
-        if((rlc->nr_flags & NRRORD) == NRRORD)
-                io_printf("  imp ord1: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
-        if((rlc->nr_flags & NRRNAM) == NRRNAM)
-                io_printf("  imp name1: %4.d (0x%.4x)  \n", get_imp_name_rlc(rlc),get_imp_name_rlc(rlc));
-
-        if(((rlc->nr_flags & NRRTYP) == NRRINT) && (source_type_mask != NRSSEG))
-                io_printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
+#endif
 
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN) { /* Print source list offsets. */
                 int count1 = get_srcoff_cnt1_rlc(rlc);
@@ -149,7 +148,7 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
                 rlc->r32_soff, rlc->r32_objmod,
                 rlc->r32_target.intref.offset32,
                 rlc->r32_target.intref.offset16 ); */
-
+#if 0
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN)  /* Internal Chaining Fixup */
                 io_printf("\n get_  cnt1  _size: %d\n", get_srcoff_cnt1_size(rlc));
         else
@@ -167,9 +166,10 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
 
         if((rlc->nr_flags & NRRTYP) != NRRINT)  /* NOT Internal reference */
                 io_printf(" get_additive_size: %d\n", get_additive_size(rlc));
+#endif
         fixup_size = get_reloc_size_rlc(rlc);
 
-        io_printf(" Total fixup size: %d (0x%x)\n", fixup_size, fixup_size);
+//        io_printf(" Total fixup size: %d (0x%x)\n", fixup_size, fixup_size);
 }
 
 int get_SRC_FLAGS_size() {

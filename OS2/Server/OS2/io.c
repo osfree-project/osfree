@@ -1,7 +1,11 @@
-#include "io.h"
+#define INCL_ERRORS
+#include <os2.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#include "io.h"
 
 void io_printf(const char* chrFormat, ...)
 {
@@ -12,20 +16,24 @@ void io_printf(const char* chrFormat, ...)
     va_end (arg_ptr);
 }
 
-int io_load_file(char * filename, void ** addr, int * size)
+/*! @todo add memory allocation checks
+    @todo remove memory allocation like on OS/2 API
+*/
+int io_load_file(char * filename, void ** addr, unsigned long * size)
 {
-    FILE *f;
+  FILE *f;
 
-    f = fopen(filename, "rb");
-    if(f) {
-      fseek(f, 0, SEEK_END);
-      *size = ftell(f);  /* Extract the size of the file and reads it into a buffer.*/
-      rewind(f);
-      *addr = (void *)malloc(*size+1);
-      fread(*addr, *size, 1, f);
-      fclose(f);
-    }
+  f = fopen(filename, "rb");
+  if(f) {
+    fseek(f, 0, SEEK_END);
+    *size = ftell(f);  /* Extract the size of the file and reads it into a buffer.*/
+    rewind(f);
+    *addr = (void *)malloc(*size+1);
+    fread(*addr, *size, 1, f);
+    fclose(f);
+    return NO_ERROR;
+  }
 
-  return 0;
+  return ERROR_FILE_NOT_FOUND;
 }
 

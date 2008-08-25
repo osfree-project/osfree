@@ -123,7 +123,7 @@ struct t_processlx * processlx_create(struct LX_module * lx_m);
 
 void processlx_destroy(struct t_processlx * proc);
 
-int modmgr_execute_module(char * filename);
+APIRET APIENTRY PrcExecuteModule(char * filename);
 
 #ifdef __cplusplus
 };

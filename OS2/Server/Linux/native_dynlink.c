@@ -245,32 +245,7 @@ void native_print_module_table(void) {
         }
 }
 
-/*void load_dyn_link(char * name) {
 
-        io_printf("Laddar dll: ");
-
-        //DosPutMessage(1, name[0], name);
-        io_printf("\n");
-}
-*/
-
-/* MSG.DLL med DosPutMessage med ordinal: 5*/
-/* DOSCALLS.234  Dos32Exit */
-/* DOSCALLS.348   Dos32QuerySysInfo */
-/* strcasecmp  strcmp*/
-
-/*void * get_func_ptr_ord_modname(int ord, char * modname) {
-        if(strcasecmp (modname, "MSG")==0 && ord == 5)
-                return 0 ;//&DosPutMessage;
-        if(strcasecmp(modname, "DOSCALLS")==0 && ord == 234)
-                return 0 ;//&DosExit;
-        if(strcasecmp(modname, "DOSCALLS")==0 && ord == 348)
-                return 0 ;//&DosQuerySysInfo;
-
-        io_printf("DL: Can't find ordinal for function! ord:%d mod:%s \n",ord,modname);
-        return 0;
-}
-*/
 
 void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
         io_printf(" Searching func ptr '%s' in '%s' \n", funcname, modname);
