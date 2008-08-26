@@ -5,7 +5,7 @@
 #
 
 # First directory must be UNI which produces C/C++ header files
-DIRS = Shared CMD CPI PM MM SOM REXX # UtlAPI #Server
+DIRS = Shared CMD CPI PM MM SOM REXX Server # UtlAPI
 
 !include $(%ROOT)/mk/all.mk
 

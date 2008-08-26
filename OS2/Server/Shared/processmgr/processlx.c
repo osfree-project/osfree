@@ -151,7 +151,6 @@ APIRET APIENTRY PrcExecuteModule(char * filename)
 
   /* Print info about used memory loaded modules. */
   print_used_mem(&tiny_process->root_mem_area);
-  print_detailed_module_table();
 
   /* Starts to execute the process. */
   exec_lx((struct LX_module *)(ixfModule->FormatStruct), tiny_process);

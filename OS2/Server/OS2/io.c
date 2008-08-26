@@ -19,7 +19,7 @@ void io_printf(const char* chrFormat, ...)
 /*! @todo add memory allocation checks
     @todo remove memory allocation like on OS/2 API
 */
-int io_load_file(char * filename, void ** addr, unsigned long * size)
+int io_load_file(const char * filename, void ** addr, unsigned long * size)
 {
   FILE *f;
 

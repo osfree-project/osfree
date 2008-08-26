@@ -50,7 +50,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                                                 int mod_nr, int import_ord, int addit, int srcoff_cnt1,
                                                 struct r32_rlc * min_rlc);
 
-const int ENTRYNATIVE = 5;
+#define ENTRYNATIVE 5
 
 #ifdef __cplusplus
 };

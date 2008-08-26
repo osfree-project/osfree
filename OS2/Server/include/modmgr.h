@@ -13,8 +13,8 @@
 #include "gcc_os2def.h"
 #include <exe386.h>
 
-const int LOADING = 1;
-const int DONE_LOADING = 0;
+#define LOADING 1
+#define DONE_LOADING 0
 
 struct module_rec {
         char * mod_name;      /* Name of module. */
@@ -29,7 +29,7 @@ void dump_header_lx(struct e32_exe hdr);
 void print_detailed_module_table();
 void print_module_table();
 
-struct module_rec * register_module(char * name, void * mod_struct);
+struct module_rec * register_module(const char * name, void * mod_struct);
 
 unsigned long ModInitialize();
 

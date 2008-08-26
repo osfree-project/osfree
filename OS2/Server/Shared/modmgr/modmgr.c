@@ -35,7 +35,7 @@
 #include "cfgparser.h"
 #include "native_dynlink.h"
 
-unsigned int find_module_path(char * name, char * full_path_name);
+unsigned int find_module_path(const char * name, char * full_path_name);
 
 struct module_rec module_root; /* Root for module list.*/
 
@@ -222,7 +222,7 @@ int lcase(char* dest, const char* src)
 
         /* Register a module with the name. */
 struct module_rec *
-register_module(char * name, void * mod_struct)
+register_module(const char * name, void * mod_struct)
 {
   struct module_rec * new_mod;
   struct module_rec * prev;
@@ -310,58 +310,43 @@ void StrTokRestore(STR_SAVED_TOKENS *st)
 #define StrTokStop() (void)StrTokenize(0, 0)
 
 
-unsigned int find_module_path(char * name, char * full_path_name)
+unsigned int find_module_path(const char * name, char * full_path_name)
 {
-        FILE *f;
-        char *p = options.libpath - 1;
-        STR_SAVED_TOKENS st;
-        char * p_buf = full_path_name;
+  FILE *f;
+  char *p = options.libpath - 1;
+  STR_SAVED_TOKENS st;
+  char * p_buf = full_path_name;
 
 
-                        StrTokSave(&st);
-                        if((p = StrTokenize((char*)options.libpath, ";")) != 0) do if(*p)
-                              {
-                                p_buf = full_path_name;
-                                p_buf[0] = 0;
-                                strcat(p_buf, p);
-                                strcat(p_buf, "\\");
-                                strcat(p_buf, name);
-                                strcat(p_buf, ".dll");
-                                f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
-                                if(f)
-                                {
-                                  StrTokStop();
-                                  return NO_ERROR;
-                                }
-                        } while((p = StrTokenize(0, ";")) != 0);
-                        StrTokRestore(&st);
+  StrTokSave(&st);
+  if((p = StrTokenize((char*)options.libpath, ";")) != 0) do if(*p)
+  {
+    p_buf = full_path_name;
+    p_buf[0] = 0;
+    strcat(p_buf, p);
+    strcat(p_buf, "\\");
+    strcat(p_buf, name);
+    strcat(p_buf, ".dll");
+    f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
+    if(f)
+    {
+      StrTokStop();
+      return NO_ERROR;
+    }
+  } while((p = StrTokenize(0, ";")) != 0);
+  StrTokRestore(&st);
 
   return ERROR_FILE_NOT_FOUND;
 }
 
-/* Goes through every loaded module and prints out all it's objects. */
-void print_detailed_module_table() {
-     int num_objects;
-     int i;
-        struct module_rec * el = &module_root;
-        io_printf("--- Detailed Loaded Module Table ---\n");
-        while((el = el->next)) {
-                io_printf("module = %s, module_struct = %p, load_status = %d\n",
-                                el->mod_name, el->module_struct, el->load_status);
-                num_objects = get_obj_num(el->module_struct);
-                i=0;
-                for(i=1; i<=num_objects; i++) {
-                        struct o32_obj * an_obj = get_obj(el->module_struct, i);
-                        print_o32_obj_info(*an_obj, el->mod_name);
-                }
-        }
-}
 
-void print_module_table() {
-        struct module_rec * el = &module_root;
-        io_printf("--- Loaded Module Table ---\n");
-        while((el = el->next)) {
-                io_printf("module = %s, module_struct = %p, load_status = %d\n",
-                                el->mod_name, el->module_struct, el->load_status);
-        }
+void print_module_table()
+{
+  struct module_rec * el = &module_root;
+  io_printf("--- Loaded Module Table ---\n");
+  while((el = el->next))
+  {
+    io_printf("module = %s, module_struct = %p, load_status = %d\n",
+                  el->mod_name, el->module_struct, el->load_status);
+  }
 }

@@ -36,8 +36,8 @@
 
 struct native_module_rec native_module_root; /* Root for module list.*/
 
-const int LOADING = 1;
-const int DONE_LOADING = 0;
+//const int LOADING = 1;
+//const int DONE_LOADING = 0;
 
 char **mini_native_libpath;
 int sz_native_mini_libpath; /* Number of elements in mini_libpath (zero-based).*/
