@@ -77,7 +77,7 @@ uFSD_size     dw    0
 stage0_size   dw    0
 force_lba     db    0
               org   10h
-base          dd    STAGE0_BASE  
+base          dd    STAGE0_BASE
 
 ;padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
 ;pad           db    padsize dup (0)
@@ -188,30 +188,30 @@ reloc:
 
         sti
 
-	; init stack position variables
-	push ds
+        ; init stack position variables
+        push ds
 
-	xor  ax, ax
-	mov  ds, ax
-	mov  eax, PROTSTACK
-	mov  dword ptr [eax], PROTSTACKINIT
+        xor  ax, ax
+        mov  ds, ax
+        mov  eax, PROTSTACK
+        mov  dword ptr [eax], PROTSTACKINIT
 
-	pop  ds
+        pop  ds
 
-	; copy GDT
-	push es
-	
-	xor  ax, ax
-	mov  es, ax
+        ; copy GDT
+        push es
+
+        xor  ax, ax
+        mov  es, ax
 
         cld
         mov  cx, 0x180
         mov  esi, offset _TEXT:gdtsrc  - STAGE0_BASE
         mov  edi, GDT_ADDR
-	
-	push di
-	rep  movsb
-	pop  di
+
+        push di
+        rep  movsb
+        pop  di
 
         ; set 16-bit segment (_TEXT16) base
         ; in GDT for protected mode
@@ -229,19 +229,19 @@ reloc:
         mov  es:[di][4*8].ds_basehi2, al
         mov  es:[di][5*8].ds_basehi2, al
 
-	pop  es
+        pop  es
 
-	; fill GDT descriptor
-	mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
-	mov  eax, GDT_ADDR
-	mov  [bx].g_base, eax
+        ; fill GDT descriptor
+        mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
+        mov  eax, GDT_ADDR
+        mov  [bx].g_base, eax
 
 ifndef STAGE1_5
         ; get available memory
         call getmem
 
         ; enable A20 address line
-        call EnableA20Line
+        ;call EnableA20Line
 endif
 
         ; call 32-bit protected mode init

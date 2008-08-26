@@ -667,5 +667,11 @@ cmain(void)
   // init terminal
   t = u_termctl(-1);
 
+  //printf("!!!\r\n");
+  //__asm {
+  //  cli
+  //  hlt
+  //}
+
   KernelLoader();
 }

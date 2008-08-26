@@ -24,6 +24,13 @@ THREADING_LINK = -bm
 THREADING_FILE = mt_os2
 !endif
 
+#TARGETS  = $(PATH)rexx.exe # $(PATH)$(LIBFILE) $(PATH)regina.exe $(PATH)test1.dll &
+#           $(PATH)test2.dll $(PATH)execiser.exe $(PATH)rxstack.exe # $(PATH)rxqueue.exe
+
+HFILES = $(MYDIR)rexx.h $(MYDIR)defs.h $(MYDIR)extern.h $(MYDIR)regina_t.h $(MYDIR)configur.h $(MYDIR)strings.h
+
+GCIHEADERS = $(MYDIR)gci$(SEP)gci.h $(MYDIR)gci$(SEP)embedded.h $(MYDIR)gci_convert.h
+
 #
 # GCI is default
 #

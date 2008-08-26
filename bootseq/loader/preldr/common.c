@@ -129,31 +129,31 @@ mmap_avail_at (unsigned long bottom)
   unsigned long long top;
   unsigned long addr;
   int cont;
-  
+
   top = bottom;
   do
     {
       for (cont = 0, addr = mbi.mmap_addr;
-	   addr < mbi.mmap_addr + mbi.mmap_length;
-	   addr += *((unsigned long *) addr) + 4)
-	{
-	  struct AddrRangeDesc *desc = (struct AddrRangeDesc *) addr;
-	  
-	  if (desc->Type == MB_ARD_MEMORY
-	      && desc->BaseAddr <= top
-	      && desc->BaseAddr + desc->Length > top)
-	    {
-	      top = desc->BaseAddr + desc->Length;
-	      cont++;
-	    }
-	}
+           addr < mbi.mmap_addr + mbi.mmap_length;
+           addr += *((unsigned long *) addr) + 4)
+        {
+          struct AddrRangeDesc *desc = (struct AddrRangeDesc *) addr;
+
+          if (desc->Type == MB_ARD_MEMORY
+              && desc->BaseAddr <= top
+              && desc->BaseAddr + desc->Length > top)
+            {
+              top = desc->BaseAddr + desc->Length;
+              cont++;
+            }
+        }
     }
   while (cont);
 
   /* For now, GRUB assumes 32bits addresses, so...  */
   if (top > 0xFFFFFFFF)
     top = 0xFFFFFFFF;
-  
+
   return (unsigned long) top - bottom;
 }
 
@@ -180,12 +180,12 @@ init_bios_info (void)
    *  to 0.  Not too desirable.
    */
 
-  gateA20 (1);
+  //gateA20 (1);
 
   /* Store the size of extended memory in EXTENDED_MEMORY, in order to
      tell it to non-Multiboot OSes.  */
   extended_memory = mbi.mem_upper;
-  
+
   /*
    *  The "mbi.mem_upper" variable only recognizes upper memory in the
    *  first memory region.  If there are multiple memory regions,
@@ -204,7 +204,7 @@ init_bios_info (void)
 
       /* If the returned buffer's length is zero, quit. */
       if (! *((unsigned long *) addr))
-	break;
+        break;
 
       mbi.mmap_length += *((unsigned long *) addr) + 4;
       addr += *((unsigned long *) addr) + 4;
@@ -214,7 +214,7 @@ init_bios_info (void)
   if (mbi.mmap_length)
     {
       unsigned long long max_addr;
-      
+
       /*
        *  This is to get the lower memory, and upper memory (up to the
        *  first memory hole), into the "mbi.mem_{lower,upper}"
@@ -226,15 +226,15 @@ init_bios_info (void)
 
       /* Find the maximum available address. Ignore any memory holes.  */
       for (max_addr = 0, addr = mbi.mmap_addr;
-	   addr < mbi.mmap_addr + mbi.mmap_length;
-	   addr += *((unsigned long *) addr) + 4)
-	{
-	  struct AddrRangeDesc *desc = (struct AddrRangeDesc *) addr;
-	  
-	  if (desc->Type == MB_ARD_MEMORY && desc->Length > 0
-	      && desc->BaseAddr + desc->Length > max_addr)
-	    max_addr = desc->BaseAddr + desc->Length;
-	}
+           addr < mbi.mmap_addr + mbi.mmap_length;
+           addr += *((unsigned long *) addr) + 4)
+        {
+          struct AddrRangeDesc *desc = (struct AddrRangeDesc *) addr;
+
+          if (desc->Type == MB_ARD_MEMORY && desc->Length > 0
+              && desc->BaseAddr + desc->Length > max_addr)
+            max_addr = desc->BaseAddr + desc->Length;
+        }
 
       extended_memory = (max_addr - 0x100000) >> 10;
     }
@@ -244,22 +244,22 @@ init_bios_info (void)
       memtmp = memtmp & 0xFFFF;
 
       if (cont != 0)
-	extended_memory = (cont >> 10) + 0x3c00;
+        extended_memory = (cont >> 10) + 0x3c00;
       else
-	extended_memory = memtmp;
-      
-      if (!cont || (memtmp == 0x3c00))
-	memtmp += (cont >> 10);
-      else
-	{
-	  /* XXX should I do this at all ??? */
+        extended_memory = memtmp;
 
-	  mbi.mmap_addr = (unsigned long) fakemap;
-	  mbi.mmap_length = sizeof (fakemap);
-	  fakemap[0].Length = (mbi.mem_lower << 10);
-	  fakemap[1].Length = (memtmp << 10);
-	  fakemap[2].Length = cont;
-	}
+      if (!cont || (memtmp == 0x3c00))
+        memtmp += (cont >> 10);
+      else
+        {
+          /* XXX should I do this at all ??? */
+
+          mbi.mmap_addr = (unsigned long) fakemap;
+          mbi.mmap_length = sizeof (fakemap);
+          fakemap[0].Length = (mbi.mem_lower << 10);
+          fakemap[1].Length = (memtmp << 10);
+          fakemap[2].Length = cont;
+        }
 
       mbi.mem_upper = memtmp;
     }
@@ -280,17 +280,17 @@ init_bios_info (void)
       struct geometry geom;
       struct drive_info *info = (struct drive_info *) addr;
       unsigned short *port;
-      
+
       /* Get the geometry. This ensures that the drive is present.  */
       if (get_diskinfo (drive, &geom))
-	break;
-      
+        break;
+
       /* Clean out the I/O map.  */
       grub_memset ((char *) io_map, 0,
-		   IO_MAP_SIZE * sizeof (unsigned short));
+                   IO_MAP_SIZE * sizeof (unsigned short));
 
       /* Disable to probe I/O ports temporarily, because this doesn't
-	 work with some BIOSes (maybe they are too buggy).  */
+         work with some BIOSes (maybe they are too buggy).  */
 #if 0
       /* Track the int13 handler.  */
       track_int13 (drive);
@@ -299,14 +299,14 @@ init_bios_info (void)
       /* Set the information.  */
       info->drive_number = drive;
       info->drive_mode = ((geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
-			  ? MB_DI_LBA_MODE : MB_DI_CHS_MODE);
+                          ? MB_DI_LBA_MODE : MB_DI_CHS_MODE);
       info->drive_cylinders = geom.cylinders;
       info->drive_heads = geom.heads;
       info->drive_sectors = geom.sectors;
 
       addr += sizeof (struct drive_info);
       for (port = io_map; *port; port++, addr += sizeof (unsigned short))
-	*((unsigned short *) addr) = *port;
+        *((unsigned short *) addr) = *port;
 
       info->size = addr - (unsigned long) info;
       mbi.drives_length += info->size;
@@ -322,15 +322,15 @@ init_bios_info (void)
   get_apm_info ();
   if (apm_bios_info.version)
     mbi.apm_table = (unsigned long) (&apm_bios_info) + STAGE0_BASE;
-  
+
   /*
    *  Initialize other Multiboot Info flags.
    */
 
   mbi.flags = (MB_INFO_MEMORY | MB_INFO_CMDLINE | MB_INFO_BOOTDEV
-	       | MB_INFO_DRIVE_INFO | MB_INFO_CONFIG_TABLE
-	       | MB_INFO_BOOT_LOADER_NAME | MB_INFO_MEM_MAP);
-  
+               | MB_INFO_DRIVE_INFO | MB_INFO_CONFIG_TABLE
+               | MB_INFO_BOOT_LOADER_NAME | MB_INFO_MEM_MAP);
+
   if (apm_bios_info.version)
     mbi.flags |= MB_INFO_APM_TABLE;
 
@@ -343,15 +343,15 @@ init_bios_info (void)
   /* Set cdrom drive.  */
   //{
   //  struct geometry geom;
-  //  
+  //
   //  /* Get the geometry.  */
   //  if (get_diskinfo (boot_drive, &geom)
-  //	|| ! (geom.flags & BIOSDISK_FLAG_CDROM))
+  //    || ! (geom.flags & BIOSDISK_FLAG_CDROM))
   //    cdrom_drive = GRUB_INVALID_DRIVE;
   //  else
   //    cdrom_drive = boot_drive;
   //}
-  
+
   /* Start main routine here.  */
   //cmain ();
 }

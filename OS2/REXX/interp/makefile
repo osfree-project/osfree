@@ -11,13 +11,6 @@ DEST     = os2
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)regina.mk
 
-#TARGETS  = $(PATH)rexx.exe # $(PATH)$(LIBFILE) $(PATH)regina.exe $(PATH)test1.dll &
-#           $(PATH)test2.dll $(PATH)execiser.exe $(PATH)rxstack.exe # $(PATH)rxqueue.exe
-
-HFILES = $(MYDIR)rexx.h $(MYDIR)defs.h $(MYDIR)extern.h $(MYDIR)regina_t.h $(MYDIR)configur.h $(MYDIR)strings.h
-
-GCIHEADERS = $(MYDIR)gci\gci.h $(MYDIR)gci\embedded.h $(MYDIR)gci_convert.h
-
 $(PATH)rexx.exe: $(OBJS)
 
 $(OBJS): $(HFILES)
@@ -31,6 +24,3 @@ $(PATH)rexxsaa.obj: $(MYDIR)rexxsaa.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxifac
 $(PATH)yaccsrc.obj: $(MYDIR)yaccsrc.c $(MYDIR)defs.h $(MYDIR)rexx.h
 
 $(PATH)lexsrc.obj: $(MYDIR)lexsrc.c $(MYDIR)yaccsrc.h $(MYDIR)rexx.h
-
-s: .SYMBOLIC
- $(SAY) $(DEST)

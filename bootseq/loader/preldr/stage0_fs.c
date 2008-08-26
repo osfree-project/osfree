@@ -22,6 +22,8 @@ extern unsigned char use_term;
 extern unsigned long extended_memory;
 #pragma aux extended_memory "*"
 
+char test = 0;
+
 struct multiboot_info mbi;
 unsigned long linux_text_len;
 char *linux_data_real_addr;
@@ -40,6 +42,10 @@ unsigned int relshift;
 #pragma aux set_vbe_mode            "*"
 #pragma aux reset_vbe_mode          "*"
 #pragma aux get_vbe_pmif            "*"
+
+#pragma aux gateA20 "*"
+
+void gateA20(int);
 
 lip1_t *l1, lip1;
 lip2_t *l2, lip2;
@@ -552,6 +558,8 @@ u_termctl(int termno)
 
   /* terminal name */
   trm.name = conf.term.term_list[n];
+
+  test++;
 
   if (blackbox_load(term, 2, &trm))
   {
@@ -1140,6 +1148,8 @@ int init(void)
   int key;
 
 #ifndef STAGE1_5
+
+  gateA20(1);
   /* use putchar() implementation through printmsg() */
   use_term = 0;
 #endif
@@ -1471,14 +1481,9 @@ int init(void)
   /* Init terminal */
   init_term();
   use_term = 1;
+
   /* Init info in mbi structure */
   init_bios_info();
-
-  //__asm {
-  //  pushfd
-  //  push   cs
-  //  call   trap_3
-  //}
 
   if (conf.multiboot == 1) {
     /* return to loader from protected mode */
