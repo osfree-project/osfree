@@ -10,7 +10,6 @@
 
    @author Bartosz Tomasik <bart2@asua.org.pl>
 
-   @todo: add support of 4OS2 extensions
 */
 
 #define INCL_DOSERRORS

@@ -299,10 +299,6 @@ extern char OS2_INI[];
 extern char OS2_FS[];
 extern char OS2_WIN[];
 extern char COMSPEC_OS2[];
-extern char OS2_VERSION[];
-extern char CMD_OS2_VERSION[];
-extern char OS2_REVISION[];
-extern char CMD_OS2_REVISION[];
 extern char NO_DLL[];
 extern char OS2_TITLE[];
 

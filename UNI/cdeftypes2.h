@@ -62,6 +62,10 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 #define PASCAL16   _Far16 _Pascal
 #define CDECL16    _Far16 _Cdecl
 
+// remove this after nmpipe.uni will be ready
+#define NP_WMESG                   0x0400 /* write messages          */
+#define NP_RMESG                   0x0100 /* read as messages        */
+
 #endif
 
 #endif

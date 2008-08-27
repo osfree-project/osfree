@@ -2513,7 +2513,6 @@ System configuration&colon.
 :c.:link reftype=hd refid=SETDOS.SETDOS:elink.
 :row.
 :c.:link reftype=hd refid=TIME.TIME:elink.
-:c.:link reftype=hd refid=VER.VER:elink.
 :c.:link reftype=hd refid=VERIFY.VERIFY:elink.
 :c.:link reftype=hd refid=VOL.VOL:elink.
 :etable.
@@ -11469,36 +11468,6 @@ a file.  This much faster than using multiple UNSET commands in a batch
 file, and can be more selective than UNSET *.  The file format should be the
 same format as that used by the :link reftype=hd refid=SET.SET:elink. /R
 command.
-:eparml.:lm margin=1.
-
-.* --------------------------------------------------------------------------
-
-:h2 name=VER.VER - Display the &4OS2. and OS/2 version
-:parml compact tsize=12 break=fit.
-:pt.:hp3.Purpose&colon.:ehp3.:pd.Display the current command processor and operating
-system versions.
-.br
-:pt.:hp3.Format&colon.:ehp3.:pd.:hp2.VER [/R]:ehp2.
-:eparml.:lm margin=13.:parml compact tsize=32 break=none.
-:pt.:hp2./R:ehp2.(evision level):pd.
-:eparml.:lm margin=1.
-.br
-:hp2.Usage:ehp2.
-:p.
-Version numbers consist of a one-digit major version number, a
-period, and a one- or two-digit minor version number.  Ver uses the default
-decimal separator defined by the current country information.  The VER
-command displays both version numbers&colon.
-:xmp.
-        [c&colon.\] ver
-
-        &4OS2. &4verrev.   OS/2 Version is 4.50
-:exmp.:p.
-:hp2.Options:ehp2.
-:lm margin=4.:parml tsize=8 break=fit.
-:pt.:hp2./R:ehp2.&colon.:pd.(Revision level) Display the &4OS2. and OS/2
-internal revision levels (if any), plus your &4OS2. serial number and
-registered name.
 :eparml.:lm margin=1.
 
 .* --------------------------------------------------------------------------

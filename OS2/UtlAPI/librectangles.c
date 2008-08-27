@@ -1,11 +1,8 @@
-/*
- $Header: /netlabs.cvs/osfree/src/nonos2/utlapi/rectangles/librectangles.c,v 1.1.1.1 2003/10/04 08:27:46 prokushev Exp $
-*/
-
 #ifndef LIBRECTANGLES_INCLUDED
 #define INCL_UTLAPI
 #define INCL_LIBRECTANGLES  /* Rect* functions declarations */
 #include <osfree.h>
+#include <pmdef.h>
 #endif
 
 /* TODO:

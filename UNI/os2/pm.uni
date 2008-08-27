@@ -1,0 +1,68 @@
+{***************************** Module Header ******************************\
+*
+* Module Name: PM.UNI
+*
+* OS/2 Presentation Manager top level include file.
+*
+* Copyright (c) International Business Machines Corporation 1981, 1988-1992
+*
+* ===========================================================================
+*
+* The following symbols are used in this file for conditional sections.
+*
+*   #define:                To include:
+*
+*   INCL_PM                  ALL of OS/2 Presentation Manager
+*   INCL_AVIO                OS/2 Advanced VIO (16-Bit only)
+*   INCL_BITMAPFILEFORMAT    OS/2 Bitmap File Format
+*   INCL_DEV                 OS/2 Device Support
+*   INCL_ERRORS              OS/2 Errors
+*   INCL_FONTFILEFORMAT      OS/2 Font File Format
+*   INCL_GPI                 OS/2 GPI
+*   INCL_ORDERS              OS/2 Graphical Order Formats
+*   INCL_PIC                 OS/2 Picture utilities
+*   INCL_SPL                 OS/2 Spooler
+*   INCL_WINSTDDLGS          CUA controls and dialogs
+*   INCL_WIN                 OS/2 Window Manager
+*   INCL_WINWORKPLACE        OS/2 Workplace Shell
+*
+* ===========================================================================
+*
+* Comments at the end of each typedef line give the name tags used in
+* the assembler include version of this file.
+*
+* The assembler include version of this file excludes lines between NOINC
+* and INC comments.
+*
+\**************************************************************************}
+
+module pm;
+
+uses pmwin;        { OS/2 Window Manager definitions    }
+uses pmgpi;        { OS/2 GPI definitions               }
+uses pmdev;        { OS/2 Device Context definitions    }
+uses pmwp;         { OS/2 Workplace Shell               }
+
+#ifdef INCL_AVIO
+   uses pmavio;    { OS/2 AVIO definitions              }
+#endif
+
+#ifdef INCL_SPL
+   uses pmspl;     { OS/2 Spooler definitions           }
+#endif
+
+#ifdef INCL_PIC
+   uses pmpic;     { OS/2 Picture Utilities definitions }
+#endif
+
+#ifdef INCL_ORDERS
+   uses pmord;     { OS/2 Graphical Order Formats       }
+#endif
+
+#ifdef INCL_FONTFILEFORMAT
+   uses pmfont;    { OS/2 Font File Format definition   }
+#endif
+
+uses pmstddlg;     { CUA controls and dialogs           }
+
+end.

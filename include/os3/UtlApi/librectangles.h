@@ -8,9 +8,10 @@
 #define LIBRECTANGLES_INCLUDED
 
 
-#define INCL_WIN
+#undef INCL_PM
 #define INCL_TYPES   /* include base types if not included */
 #include <osfree.h>
+#include <pmdef.h>
 
 #ifdef __cplusplus
       extern "C" {
@@ -42,9 +43,10 @@ BOOL APIENTRY RectUnion(PRECTL prclDst, PRECTL prclSrc1,
 BOOL APIENTRY RectSubtract(PRECTL prclDst, PRECTL prclSrc1,
                               PRECTL prclSrc2);
 
-// what with them??
+// @todo: what with it?? May be just check for correct coordinates?
 BOOL APIENTRY RectMakeRect(PRECTL pwrc);
 
+// @todo: what with it?? May be just check for correct coordinates?
 BOOL APIENTRY RectMakePoints(PPOINTL pwpt, ULONG cwpt);
 
 #ifdef __cplusplus

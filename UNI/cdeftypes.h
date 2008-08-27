@@ -9,9 +9,6 @@
 #define INCL_BSE
 #define INCL_BSEDOS
 #define INCL_CDEFTYPES2
-#ifndef INCL_PM
-  #define INCL_PM
-#endif
 
 /* Original OS/2 default definitions */
 
@@ -61,6 +58,22 @@
   #define INCL_BSESUB
 #endif
 
+
+{** if INCL_PM defined then define all the symbols ***********************}
+#ifdef INCL_PM
+   #define INCL_AVIO
+   #define INCL_BITMAPFILEFORMAT
+   #define INCL_DEV
+   #define INCL_ERRORS
+   #define INCL_FONTFILEFORMAT
+   #define INCL_GPI
+   #define INCL_ORDERS
+   #define INCL_PIC
+   #define INCL_SPL
+   #define INCL_WIN
+   #define INCL_WINSTDDLGS
+   #define INCL_WINWORKPLACE
+#endif { INCL_PM }
 
 #ifndef NULL
 #define NULL  0

@@ -1,5 +1,5 @@
 {*
- *  bse.h       OS/2 Base System include file for 32-bit development.
+ *  bse.uni    OS/2 Base System module for 32-bit development.
  *
  *
  * =========================================================================

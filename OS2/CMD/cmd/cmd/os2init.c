@@ -706,8 +706,6 @@ static void set_window( void )
 // display copyright message
 void DisplayCopyright( void )
 {
-    printf( OS2_VERSION, PROGRAM, gszOsVersion );
-    printf( COPYRIGHT );
-    crlf();
+  cmd_ShowSystemMessage(1047,1L,"%s",""); // @fix use not direct message number
 }
 

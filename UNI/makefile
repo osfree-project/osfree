@@ -1,9 +1,7 @@
 #
-# A Makefile for mkmsgf
+# A Makefile for Unified API
 # (c) osFree project,
 # valerius, 2006/10/30
-#
-# $Id: makefile,v 1.1 2004/08/16 06:27:30 prokushev Exp $
 #
 
 !include $(%ROOT)/mk/all.mk
@@ -36,6 +34,7 @@ os2: $(OUT)$(SEP)OS2$(SEP)os2.h $(OUT)$(SEP)OS2$(SEP)os2def.h &
      $(OUT)$(SEP)OS2$(SEP)dosexceptions.h &
      $(OUT)$(SEP)OS2$(SEP)dosdevices.h &
      $(OUT)$(SEP)OS2$(SEP)dosprocesscommon.h &
+     $(OUT)$(SEP)OS2$(SEP)pmdef.h &
      .symbolic
 
 #     $(OUT)$(SEP)OS2$(SEP)bsexcpt.h &
@@ -75,6 +74,8 @@ $(OUT)$(SEP)OS2$(SEP)dosresources.h: os2$(SEP)dosresources.uni
 $(OUT)$(SEP)OS2$(SEP)dosdevices.h: os2$(SEP)dosdevices.uni
 
 $(OUT)$(SEP)OS2$(SEP)dosdebug.h: os2$(SEP)dosdebug.uni
+
+$(OUT)$(SEP)OS2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)DOS$(SEP)dos.h $(OUT)$(SEP)DOS$(SEP)os2vdm.h .symbolic

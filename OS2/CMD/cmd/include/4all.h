@@ -594,12 +594,14 @@ typedef struct
 
 #include "version.h"
 
-#define INCL_BASE 1
+#define INCL_BASE
+#define INCL_DOSNLS
 #define INCL_DOSDEVIOCTL
 #define INCL_DOSFILEMGR
 #define INCL_WIN
-#define INCL_PM 1
+#define INCL_PM
 #include <osfree.h>
+#include <cmd_shared.h>         // Include file for cmd tools
 #include "4os2.h"
 
 #include "globals.h"            // global variables

@@ -1,10 +1,7 @@
 /*
-   $Id: main.c,v 1.2 2003/12/06 15:40:22 prokushev Exp $
+   @file main.c
 
-   @file ansi.c
-
-   @brief ansi command - Frontend for ansi.sys. Allows user to turn ANSI
-                         processing on or off.
+   @brief CMD.EXE - Command processor.
 
    (c) 1993 - 1998  Rex C. Conn  All rights reserved
    (c) osFree Project 2003, <http://www.osFree.org>

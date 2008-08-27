@@ -260,7 +260,6 @@ char TREE_USAGE[] = "[/ABFHPS /T[acw]] dir...";
 char TYPE_USAGE[] = "[/A:-rhsda /LP] ?...";
 char UNALIAS_USAGE[] = "[/QR] name...";
 char UNSET_USAGE[] = "[/QR] name...";
-char VER_USAGE[] = "[/R]";
 char WINDOW_USAGE[] = "MIN | MAX | POS=lx,ly,lcx,lcy | RESTORE | \"title\"";
 
 
@@ -386,15 +385,11 @@ char OS2_SWAPFILE_SIZE[] = "\n%15Lu bytes total swap file\n";
 
 // xxxINIT.C
 // Embedded copyright notice
-char COPYRIGHT[]  = "Copyright (c) 1988-2002 JP Software, Inc (http://jpsoft.com)\n"
-                    "osFree Edition (http://www.osfree.org) - not supported by JP Software, Inc.\n";
 char COPYRIGHT2[] = "Built with Open Watcom C/C++ (http://www.openwatcom.org)\n";
 char COMSPEC[] = "COMSPEC";
 char TAILIS[] = "%s tail is:  [%s]\nPress any key to continue ...";
 
 char COMSPEC_OS2[] = "%s=%Fs";
-char CMD_OS2_VERSION[] = "The Operating System/2 Version is %s\n";
-char OS2_VERSION[] = "\n%s   OS/2 Version is %s\n";
 char szIniName[MAXFILENAME];
 
 char PROGRAM[32];
@@ -408,8 +403,6 @@ char *SHORT_NAME = "4OS2";
 char OS2_INI[] = "4OS2.INI";
 char OS2_FS[] = "4OS2 Full Screen";
 char OS2_WIN[] = "4OS2 Window";
-char OS2_REVISION[] = "4OS2 Revision %s (%u)   OS/2 Revision %c\n";
-char CMD_OS2_REVISION[] = "Revision %s\n";
 char NO_DLL[] = "Warning:  Can't load JPOS2DLL";
 
 

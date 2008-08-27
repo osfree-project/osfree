@@ -8,7 +8,7 @@ srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(
            $(p)error$(e) $(p)window$(e) $(p)listall$(e) $(p)lines$(e) $(p)kparse$(e)        &
            $(p)iofmt32$(e) $(p)select$(e) $(p)os2tty$(e) $(p)iparse$(e)     &
            $(p)bcd32$(e) $(p)os32util$(e) $(p)..$(SEP)shared$(SEP)istring$(e)
-ADD_COPT    = -i=$(MYDIR)..$(SEP)include -ox
+ADD_COPT    = -i=$(MYDIR)..$(SEP)include;$(MYDIR)..$(SEP)..$(SEP)include -ox
 ADD_LINKOPT = lib math387s, os2$(SEP)os2, os2386
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res
