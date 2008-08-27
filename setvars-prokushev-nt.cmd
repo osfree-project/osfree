@@ -1,1 +1,1 @@
-c:\regina\rexx setvars-prokushev-nt.rex
+start cmd.exe /cc:\regina\rexx setvars-prokushev-nt.rex

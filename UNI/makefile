@@ -81,6 +81,8 @@ dos: $(OUT)$(SEP)DOS$(SEP)dos.h $(OUT)$(SEP)DOS$(SEP)os2vdm.h .symbolic
 
 $(OUT)$(SEP)DOS$(SEP)dos.h: dos$(SEP)dos.uni
 
+$(OUT)$(SEP)DOS$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
+
 .SUFFIXES:
 .SUFFIXES: .h .uni
 

@@ -9,7 +9,7 @@ parse arg dir
 parse source os .
 
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
-   os = 'WINNT'
+   os = 'WINNT' | os = 'WIN32'
 then
   sep = '\'
 else

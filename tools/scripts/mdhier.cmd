@@ -11,7 +11,7 @@ parse arg dir
 parse source os .
 
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
-   os = 'WINNT'
+   os = 'WINNT' | os = 'WIN32'
 then do
   sep = '\'
   nul = 'nul'
@@ -45,6 +45,7 @@ end
 
 do while path \= ''
   parse value path with dir '\' path
+
   if pos(':', dir) = 2 & length(dir) = 2
   then
     iterate
@@ -57,6 +58,5 @@ do while path \= ''
 end
 
 call directory curdir
-
 
 exit 0
