@@ -11,7 +11,7 @@ DEST    = tools
 TARGETS = copy
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)tools
-filelist = *.cmd *.rexx *.the *.awk *.cfg
+filelist = *.cmd *.rexx *.awk *.cfg
 srcdir = $(ROOT)$(SEP)tools$(SEP)scripts
 dstdir = $(FILESDIR)$(SEP)tools
 
