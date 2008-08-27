@@ -22,4 +22,7 @@ DEST        = os2$(SEP)test
 !include $(%ROOT)/mk/appsos2.mk
 
 install_pre: $(PATH)$(PROJ).exe
+ !ifeq ENV OS/2
  renmodul.exe /i $[@ pmwin fmwin
+ !else
+ !endif

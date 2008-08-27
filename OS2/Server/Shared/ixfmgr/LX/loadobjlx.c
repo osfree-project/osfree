@@ -113,10 +113,10 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
                 io_printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
                 vm_code_obj = 0;
 #ifndef __OS2__
-                if( !is_mem_used(&proc->root_mem_area, (void *) kod_obj->o32_base, kod_obj->o32_size) ) {
+                if( !is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, (void *) kod_obj->o32_base, kod_obj->o32_size) ) {
                         vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
                 } else {
-                        unsigned long int new_base = (unsigned long int) seek_free_mem(&proc->root_mem_area, kod_obj->o32_size);
+                        unsigned long int new_base = (unsigned long int) seek_free_mem(&os2server_root_mem_area/*proc->root_mem_area*/, kod_obj->o32_size);
                                                         /* What kind of requirements is there on allocated memory
                                                                 for DLLs is OS/2? Allocated in "Shared Area"? Where is that,
                                                                 from 128 MiB and downwards to 64 MiB???
@@ -124,7 +124,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
                                                                 But, for now, just allocate the space somewhere.
                                                                 Which just goes through the memory registry from beginning,
                                                                 position 1 and upward and grabs first free space. */
-                        if( is_mem_used(&proc->root_mem_area, (void *) new_base, kod_obj->o32_size) )
+                        if( is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, (void *) new_base, kod_obj->o32_size) )
                                 io_printf("Error allocating used memory!!! 0x%lx \n", new_base);
                         kod_obj->o32_base = new_base;
                         io_printf(" new_base: 0x%lx, %lu \n", new_base, new_base);

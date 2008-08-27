@@ -58,6 +58,7 @@ int      mderegister(mmap_reg_t *pReg);
 /* Return value of `mmap' in case of an error.  */
 #define MAP_FAILED      ((void *) -1)
 
+#define MMAP_FAILURE 0
 
 #if defined (__cplusplus)
 }

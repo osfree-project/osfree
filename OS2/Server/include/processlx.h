@@ -29,6 +29,7 @@ extern "C" {
 
 #include "gcc_os2def.h"
 
+#if 0
 #ifndef __OS2__
 /* Process Information Block structure. */
 #ifdef INCL_DOSPROCESS
@@ -88,6 +89,8 @@ typedef struct _TIB {
 } TIB;
 
 typedef TIB *PTIB;
+
+#endif
 
 #endif
 

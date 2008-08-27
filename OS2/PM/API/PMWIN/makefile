@@ -1498,7 +1498,10 @@ INSTALL_PRE = 1
 
 install_pre: $(PATH)pmwin.dll .SYMBOLIC
  @$(CD) $[:
+ !ifeq ENV OS/2
  renmodul /r $[. pmwin fmwin
  $(CP) pmwin.dll fmwin.dll
  renmodul /i $[:fmwin.dll pmmerge fmmerge
+ !else
+ !endif
  @$(CD) $(MYDIR)

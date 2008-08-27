@@ -128,6 +128,7 @@ typedef USHORT  SGID;
 
 typedef ULONG   ERRORID, *PERRORID;
 
+#if 0
 #ifndef __OS2__
 
 typedef struct _QWORD {
@@ -145,6 +146,7 @@ typedef struct _ICONINFO {
     PVOID   pIconData;
 } ICONINFO, *PICONINFO;
 
+#endif
 #endif
 
 #endif

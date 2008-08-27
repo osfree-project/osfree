@@ -173,6 +173,9 @@ INSTALL_PRE = 1
 
 install_pre: $(PATH)$(PROJ).dll .SYMBOLIC
  @$(CD) $[:
+ !ifeq ENV OS/2
  renmodul /r $[. pmdrag fmdrag
  $(CP) pmdrag.dll fmdrag.dll
+ !else
+ !endif
  @$(CD) $(MYDIR)
