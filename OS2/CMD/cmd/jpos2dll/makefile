@@ -8,7 +8,7 @@
 PROJ = jpos2dll
 DESC = CMD.EXE helper
 srcfiles = $(p)jpos2dll$(e)
-ADD_COPT = -i=$(MYDIR)..$(SEP)include -bd
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -bd
 ADD_LINKOPT  = segment   type DATA shared # lib os2386.lib lib clib3r.lib
 DLL      = 1
 OPTIONS  = manyautodata, caseexact, mixed1632

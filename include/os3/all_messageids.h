@@ -12,4 +12,6 @@
 #ifndef _ALL_MESSAGEIDS_H_
 #define _ALL_MESSAGEIDS_H_
 
+#include "mis_basemid.h"
+
 #endif /* _ALL_MESSAGEIDS_H_ */

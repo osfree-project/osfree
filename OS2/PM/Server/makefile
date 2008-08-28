@@ -26,3 +26,6 @@ ADD_LINKOPT = lib gdlib.lib
 
 TARGETS = subdirs $(PATH)$(PROJ).exe
 TARGET = all
+
+qwe: .SYMBOLIC
+ $(SAY) $(LINKOPT)
