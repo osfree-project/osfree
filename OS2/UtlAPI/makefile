@@ -17,5 +17,6 @@ EXPORTS = RectCopy.1, RectSet.2, RectIsEmpty.3, &
           RectInflate.7, RectPtIn.8, RectIntersect.9, &
           RectUnion.10, RectSubtract.11, RectMakeRect.12, &
           RectMakePoints.13
+DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

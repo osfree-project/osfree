@@ -6,6 +6,7 @@ PROJ = pmclient
 DESC = PM client library
 srcfiles = $(p)Fc_main$(e) $(p)F_globals$(e) $(p)F_utils$(e) $(p)Fc_config$(e) &
            $(p)F_errors$(e) $(p)F_debug$(e) # $(p)F_Client$(e) $(p)F_messages$(e)
+DEST    = os2$(SEP)dll
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.

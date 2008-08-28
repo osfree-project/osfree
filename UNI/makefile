@@ -87,7 +87,8 @@ $(OUT)$(SEP)DOS$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .SUFFIXES:
 .SUFFIXES: .h .uni
 
-.uni: os2
+.uni: $(MYDIR)os2
+.uni: $(MYDIR)dos
 
 .uni.h: .AUTODEPEND
  uni2h $< $^@

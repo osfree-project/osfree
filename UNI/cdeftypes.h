@@ -59,7 +59,7 @@
 #endif
 
 
-{** if INCL_PM defined then define all the symbols ***********************}
+/** if INCL_PM defined then define all the symbols ***********************/
 #ifdef INCL_PM
    #define INCL_AVIO
    #define INCL_BITMAPFILEFORMAT
@@ -73,7 +73,7 @@
    #define INCL_WIN
    #define INCL_WINSTDDLGS
    #define INCL_WINWORKPLACE
-#endif { INCL_PM }
+#endif /* INCL_PM */
 
 #ifndef NULL
 #define NULL  0

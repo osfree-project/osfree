@@ -19,10 +19,10 @@
 
  #include "os2.h"
 
-/*#define F_INCL_DOS
-#include "F_base.hpp"
-#include "F_GPI.hpp"
-#include "F_win.hpp" */
+//#define F_INCL_DOS
+//#include "F_base.hpp"
+//#include "F_GPI.hpp"
+//#include "F_win.hpp"
 //#include "F_pmdev.hpp"
 
 #define CLS_CLIENT               "WindowClass"

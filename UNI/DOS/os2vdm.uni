@@ -32,7 +32,7 @@ Notes:  used by JOIN and SUBST to communicate with the OS/2 file system
         also supported by OS/2 v2.0+ Virtual DOS Machines
 *)
 
-function VdmJoinQuery(cDrive: CHAR; usBufferSize: USHORT; Buffer: PVOID);
+function VdmJoinQuery(cDrive: CHAR; usBufferSize: USHORT; Buffer: PVOID): APIRET;
 
 APIRET APIENTRY VdmJoinSet(CHAR cDrive, PSZ pszPath);
 APIRET APIENTRY VdmJoinDelete(CHAR cDrive);

@@ -23,3 +23,6 @@ ADD_COPT    = -bm -od -mf -sg -d2 -mf
 ADD_LINKOPT = lib gdlib.lib
 
 !include $(%ROOT)/mk/appsos2.mk
+
+TARGETS = subdirs $(PATH)$(PROJ).exe
+TARGET = all
