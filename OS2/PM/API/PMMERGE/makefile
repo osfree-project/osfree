@@ -7,11 +7,11 @@
 PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input
-srcfiles = $(p)framemgr$(e) $(p)habmgr$(e) $(p)rectangles$(e) $(p)input$(e) $(p)WindowClass$(e) &
-           $(p)queue$(e) $(p)messages$(e) $(p)windowmgr$(e)
+srcfiles = $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &
+           $(p)input$(SEP)input$(e) $(p)windowmgr$(SEP)WindowClass$(e) &
+           $(p)messagemgr$(SEP)queue$(e) $(p)messagemgr$(SEP)messages$(e) $(p)windowmgr$(SEP)windowmgr$(e)
 ADD_COPT = -bd -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib &
-               path $(PATH)rectangles$(PS)habmgr$(PS)messagemgr$(PS)framemgr$(PS)windowmgr$(PS)input &
                segment type DATA shared
 DLL     = 1
 DLLOPT  = pm initinstance terminstance
@@ -73,3 +73,7 @@ TARGET = all
 #install_add: .SYMBOLIC
 # renmodul /r $^@ $^& fmmerge
 # $(CP) pmmerge.dll fmmerge.dll
+
+qwe: .SYMBOLIC
+ $(SAY) $(COPT)
+ 
