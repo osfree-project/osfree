@@ -1,0 +1,14 @@
+OBJ=test/sparc/interleavedcc.o test/sparc/interleavedcc2.o
+
+test/sparc/interleavedcc: ${OBJ}
+	gcc -o test/sparc/interleavedcc ${OBJ}
+
+test/sparc/interleavedcc.o: test/source/interleavedcc.s
+	gcc -c -o test/sparc/interleavedcc.o test/source/interleavedcc.s
+
+test/sparc/interleavedcc2.o: test/source/interleavedcc2.c
+	gcc -c -O4 -o test/sparc/interleavedcc2.o test/source/interleavedcc2.c
+
+
+
+

@@ -1,0 +1,61 @@
+To do list:
+-------------------------------------------------------
+- investigate /a/d switch problem
+- map all fields in header
+- combine compr and xtrct
+-------------------------------------------------------
+
+-------------------------------------------------------
+DSKXTRCT and DSKCOMPR - Version 1.2 - 4 Jul 1998
+Copyright 1997, 1998 by Alan B. Arnett
+
+- combine DSKXTRCT and DSKCOMPR into one program.
+
+- allow selection of extract and compare (immediately afterwards)
+in the same invocation.
+
+- allow an initial checksum pass of all input files, continuing
+to extract and/or compare only if all files pass checksum
+verification.
+
+- add support for parameters to be input from a parameter file.
+
+- build a GUI front end for program invocation.
+
+- implement any needed Y2K support in handling file dates.
+
+- add message id numbers to all messages and create in index of
+messages in the documentation to fully explain the meaning of
+each message.
+
+- add internal logic control to better control program
+termination under non-critical conditions and add options to
+control the sensitivity of program termination to different error
+levels.
+
+- improve DSK file detection logic to allow skipping of non-DSK
+files found by source file mask.
+
+- add a /fixpak parameter to automate the handling of duplicate
+"CSF_DISK" files and possibly override some of the defaults for
+this specific condition.
+
+- add file selection by name or mask of files to be extracted
+from the DSK file.
+
+- add to the 'replace/skip' file prompts the option to specify a
+different file name or location.
+
+- report skipped and/or replaced files separately from other FILE
+level messages.
+
+- add the option to make the default log file location the target
+directory rather than the current directory. This can be done now
+by specifying a fully qualified log file name.
+
+- add the option to suppress creation of subdirectories defined
+in the DSK file so all files are extracted into the target
+directory.
+
+- add support for compressed DSK files.
+

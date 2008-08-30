@@ -1,0 +1,17 @@
+compress95.x86: compress95.o harness.o
+	cc -o compress95.x86 compress95.o harness.o
+
+compress95.o: compress95.s
+	cc -c -o compress95.o compress95.s
+
+harness.o: harness.s
+	cc -c -o harness.o harness.s
+
+compress95.s: compress95.c *.h
+	cc -c -xO4 -S compress95.c
+
+harness.s: compress95.c *.h
+	cc -c -xO4 -S harness.c
+	mv harness.s harness.s.orig
+	sed -f harness.sed harness.s.orig > harness.s
+

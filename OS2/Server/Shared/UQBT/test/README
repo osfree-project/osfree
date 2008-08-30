@@ -1,0 +1,25 @@
+This directory holds the test-related executables and files needed to test
+uqbt. Most executables were built using gcc, and the optimization level used is
+usually given in the file's name (e.g., sparc/fibo-O4). Where not given, assume
+gcc and -O4. Some executables are assembled (using the gcc compiler driver)
+from assembly (.s) files; the example code has been taken from a variety of
+compilers, including pascal compilers; the example code was chosen to test some
+specific feature (e.g. switch statement with no subtract for the lower bound).
+
+We have the executables under CVS control since many can not be
+recompiled without access to a machine with a different architecture;
+also some details of the executable vary from compiler to compiler.
+
+To run the tests, cd to the <workspace>/test directory and type (for
+example):
+		
+	tclsh regression.test pentium sparc
+
+Or cd to the <workspace> directory, and type
+
+    tclsh test/regression.test sparc jvm
+
+The -match command can be used to run specific tests; see "man tcltest" for
+details. Example:
+
+    tclsh test/regression.test sparc sparc -match "switch.*"

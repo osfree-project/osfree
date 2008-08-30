@@ -1,0 +1,539 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{{SPA}92b}
+
+\bibitem[AS92]{Andr92}
+K.~Andrews and D.~Sand.
+\newblock Migrating a {CISC} computer family onto {RISC} via object code
+  translation.
+\newblock In {\em Proceedings {ASPLOS V}}, pages 213--222, October 1992.
+
+\bibitem[ASU86a]{Aho86}
+A.V. Aho, R.~Sethi, and J.D. Ullman.
+\newblock {\em Compilers: Principles, Techniques, and Tools}.
+\newblock Addison-Wesley, Reading, Massachusetts, 1986.
+
+\bibitem[ASU86b]{Aho86a}
+A.V. Aho, R.~Sethi, and J.D. Ullman.
+\newblock {\em Compilers: Principles, Techniques, and Tools}.
+\newblock Addison-Wesley Publishing Company, 1986.
+
+\bibitem[BD88]{Beni88}
+M.E. Benitez and J.W. Davidson.
+\newblock A portable global optimizer and linker.
+\newblock In {\em Proceedings of the Conference on Programming Languages,
+  Design and Implementation}, pages 329--338. {ACM} Press, July 1988.
+
+\bibitem[BD95]{Bail95}
+M.W. Bailey and J.W. Davidson.
+\newblock A formal model and specification language for procedure calling
+  conventions.
+\newblock In {\em {ACM S}ymposium on Principles of Programming Languages},
+  pages 298--310, San Francisco, {CA}, January 1995.
+
+\bibitem[BDB00]{Bala00}
+V.~Bala, E.~Duesterwald, and S.~Banerjia.
+\newblock Dynamo: A transparent dynamic optimization system.
+\newblock In {\em Proceedings of the {ACM} {SIGPLAN}'00 Conference on
+  Programming Language Design and Implementation}, pages 1--12, Vancouver,
+  Canada, June 2000. {ACM P}ress.
+
+\bibitem[Bed90]{Bedi90}
+R.~Bedichek.
+\newblock Some efficient architecture simulation techniques.
+\newblock In {\em Proceedings Winter {USENIX} Conference}, pages 53--63, 1990.
+
+\bibitem[Ber85]{Bern85}
+R.L. Bernstein.
+\newblock Producing good code for the case statement.
+\newblock {\em Software--Practice and {E}xperience}, 15(10):1021--1024, 1985.
+
+\bibitem[BKMM87]{Berg87}
+A.B. Bergh, K.~Keilman, D.J. Magenheimer, and J.A. Miller.
+\newblock {HP3000} emulation on {HP} precision architecture computers.
+\newblock {\em Hewlett-Packard Journal}, pages 87 -- 89, December 1987.
+
+\bibitem[CE99]{Cifu99c}
+C.~Cifuentes and M.~Van Emmerik.
+\newblock Recovery of jump table case statements from binary code.
+\newblock In {\em Proceedings of the International Workshop on Program
+  Comprehension}, pages 192--199, Pittsburgh, {USA}, May 1999. {IEEE CS P}ress.
+
+\bibitem[CF97]{Cifu97d}
+C.~Cifuentes and A.~Fraboulet.
+\newblock Intraprocedural static slicing of binary executables.
+\newblock In M.J. Harrold and G.~Visaggio, editors, {\em Proceedings of the
+  International Conference on Software Maintenance}, pages 188--195, Bari,
+  Italy, 1--3 October 1997. {IEEE-CS P}ress.
+
+\bibitem[CG95]{Cifu95}
+C.~Cifuentes and K.J. Gough.
+\newblock Decompilation of binary programs.
+\newblock {\em Software -- Practice and Experience}, 25(7):811--829, July 1995.
+
+\bibitem[Cha91]{Cham91}
+S.~Chamberlain.
+\newblock {\em libbfd -- The Binary File Descriptor Library}, first edition --
+  {BFD} version 3.0 edition, April 1991.
+
+\bibitem[Chi95]{Chia95}
+L.K. Chia.
+\newblock Binary emulation.
+\newblock Master's thesis, Purdue University, Department of Electrical
+  Engineering, May 1995.
+
+\bibitem[Cif96]{Cifu96}
+C.~Cifuentes.
+\newblock Interprocedural dataflow decompilation.
+\newblock {\em Journal of Programming Languages}, 4(2):77--99, June 1996.
+
+\bibitem[CK94]{Cmel94}
+B.~Cmelik and D.~Keppel.
+\newblock Shade: A fast instruction-set simulator for execution profiling.
+\newblock In {\em Proceedings {ACM SIGMETRICS} Conference on Measurement and
+  modeling of Computer Systems}, 1994.
+
+\bibitem[CM96]{Cifu96c}
+C.~Cifuentes and V.~Malhotra.
+\newblock Binary translation: Static, dynamic, retargetable?
+\newblock In {\em Proceedings of the International Conference on Software
+  Maintenance}, pages 340--349, Monterey, CA, 4-8 November 1996. IEEE Computer
+  Society Press.
+
+\bibitem[Cog95]{Cogs95b}
+B.H. Cogswell.
+\newblock {\em Timing Insensitive Binary-to-Binary Translation}.
+\newblock {PhD} dissertation, Carnegie Mellon University, Department of
+  Electrical and Computer Engineering, April 1995.
+
+\bibitem[Cor94]{Apple94}
+Apple Corporation.
+\newblock Macintosh application environment.
+\newblock \url{http://www.mae.apple.com}, 1994.
+
+\bibitem[CS95]{Cogs95}
+B.H. Cogswell and Z.~Segall.
+\newblock Timing insensitive binary-to-binary migration across multiprocessor
+  architectures.
+\newblock In {\em Proceedings of the Third Workshop on Parallel and Distributed
+  Real-Time Systems}, pages 193--194, Santa Barbara, CA, USA, April 1995.
+  {IEEE} Computer Society Press.
+
+\bibitem[CS98]{Cifu98c}
+C.~Cifuentes and S.~Sendall.
+\newblock Specifying the semantics of machine instructions.
+\newblock In {\em Proceedings of the International Workshop on Program
+  Comprehension}, pages 126--133, Ischia, Italy, 24--26 June 1998. {IEEE CS
+  P}ress.
+
+\bibitem[CS99]{Cifu99g}
+C.~Cifuentes and D.~Simon.
+\newblock Procedural abstraction recovery from binary code.
+\newblock Technical Report 448, The University of Queensland, Department of
+  Computer Science and Electrical Engineering, September 1999.
+
+\bibitem[CSF98a]{Cifu98h}
+C~Cifuentes, D~Simon, and A~Fraboulet.
+\newblock Assembly to high-level language translation.
+\newblock In {\em Proceedings of the International Conference on Software
+  Maintenance}, pages 228--237, Washington {DC}, {USA}, 18--20 November 1998.
+  {IEEE CS P}ress.
+
+\bibitem[CSF98b]{cifuentes:assembly}
+Cristina Cifuentes, Doug Simon, and Antoine Fraboulet.
+\newblock Assembly to high-level language translation.
+\newblock In {\em Proceedings of the International Conference on Software
+  Maintenance}, pages 228--237. IEEE-CS Press, November 1998.
+
+\bibitem[Dig94]{Dec94}
+Digital.
+\newblock {OM} and {ATOM}.
+\newblock \url{http://www.research.digital.com/wrl/projects/om/om.html}, 1994.
+\newblock Digital Western Research Labs.
+
+\bibitem[Dig95]{Dec95}
+Digital.
+\newblock Freeport express.
+\newblock \url{http://www.novalink.com/freeport-express}, 1995.
+
+\bibitem[DMP96]{danvy:eta}
+Olivier Danvy, Karoline Malmkj{\ae}r, and Jens Palsberg.
+\newblock Eta-expansion does {The Trick}.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  18(6):730--751, November 1996.
+
+\bibitem[DR97]{Duke97}
+R.~Duke and G.~Rose.
+\newblock Formal object-oriented specification and design using {O}bject-{Z}.
+\newblock Book to be published, 1997.
+
+\bibitem[Dun88]{Dunc88b}
+R.~Duncan.
+\newblock {\em The MSDOS Encyclopedia}, chapter~4, pages 107--147.
+\newblock Microsoft Press, 1988.
+
+\bibitem[EA96]{Ebci96}
+K.~Ebcioglu and E.~Altman.
+\newblock {DAISY}: Dynamic compilation for 100\% architectural compatibility.
+\newblock Technical Report {RC 20538}, {IBM}, {IBM T.J. W}atson Research
+  Center, Yorktown Heights, New York, August 1996.
+
+\bibitem[ES95]{Eust95}
+A.~Eustace and A.~Srivastava.
+\newblock {ATOM} a flexible interface for building high performance program
+  analysis tools.
+\newblock In {\em Proceedings {USENIX} Technical Conference}, pages 303--314,
+  January 1995.
+\newblock Also as Digital Western Research Laboratory Technical Note {TN-44},
+  July 1994.
+
+\bibitem[ESL88]{Emme88}
+H.~Emmelmann, F.~Schroer, and R.~Landwehr.
+\newblock {BEG - A} generator for efficient back ends, 1988.
+
+\bibitem[Fer95]{Fern95}
+M.~Fern\'{a}ndez.
+\newblock Simple and effective link-time optimization of modula-3 programs.
+\newblock In {\em SIGPLAN Conference on Programming Languages, Design and
+  Implementation}, pages 103--115, June 1995.
+
+\bibitem[FH91]{Fras91}
+C.W. Fraser and D.R. Hanson.
+\newblock A retargetable compiler for {ANSI C}.
+\newblock {\em {SIGPLAN} Notices}, 26(10):29--43, October 1991.
+
+\bibitem[FH95]{Fras95}
+C.W. Fraser and D.R. Hanson.
+\newblock {\em A Retargetable {C} Compiler: Design and Implementation}.
+\newblock The Benjamin/Cummings Publishing Company, Inc., Redwood City, CA,
+  1995.
+
+\bibitem[FJ88]{Fisc88b}
+C.N. Fischer and R.J.~LeBlanc Jr.
+\newblock {\em Crafting a Compiler}.
+\newblock Benjamin Cummings, 2727 Sand Hill Road, Menlo Park, California 94025,
+  1988.
+
+\bibitem[GAS{\etalchar{+}}00]{Gsch00}
+M.~Gschwind, E.~Altman, S.~Sathaye, P.~Ledak, and D.~Appenzeller.
+\newblock Dynamic and transparent binary translation.
+\newblock {\em Computer}, 33(3):54--59, March 2000.
+
+\bibitem[GP00]{Gepp00}
+L.~Geppert and T.S. Perry.
+\newblock Transmeta's magic show.
+\newblock {\em {IEEE S}pectrum}, pages 26--33, May 2000.
+
+\bibitem[HH97]{Hook97}
+R.J. Hookway and M.A. Herdeg.
+\newblock Digital {FX}!32: Combining emulation and binary translation.
+\newblock {\em Digital Technical Journal}, 9(1):3--12, 1997.
+
+\bibitem[HM79]{Hors79}
+R.N. Horspool and N.~Marovac.
+\newblock An approach to the problem of detranslation of computer programs.
+\newblock {\em The Computer Journal}, 23(3):223--229, 1979.
+
+\bibitem[HM82]{Henn82}
+J.L. Hennessy and N.~Mendelsohn.
+\newblock Compilation of the {P}ascal case statement.
+\newblock {\em Software--Practice and {E}xperience}, 12:879--882, 1982.
+
+\bibitem[Hol95]{Holz95}
+U.~Holzle.
+\newblock {\em Adaptive Optimization for {SELF}: Reconciling High Performance
+  with Exploratory Programming}.
+\newblock {PhD} dissertation, Stanford University, Department of Computer
+  Science, March 1995.
+
+\bibitem[HTB{\etalchar{+}}98]{Huan98}
+H.~Huang, W.~Tsai, S.~Bhattacharya, X.~Chen, and Y.~Wang.
+\newblock Business rule extraction techniques for {COBOL} programs.
+\newblock {\em Journal of Software Maintenance: Research and Practice},
+  10(1):3--35, January 1998.
+
+\bibitem[ida97]{Ida97}
+Ida {PRO} disassembler, {D}ata {R}escue.
+\newblock \url{http://www.datarescue.com/ida.htm}, 1997.
+
+\bibitem[{IEE}93]{Iee93}
+{IEEE}.
+\newblock {\em {IEEE} Standard 1219-1993 for Software Maintenance}.
+\newblock {IEEE}, 1993.
+
+\bibitem[Joh90]{John90}
+S.C. Johnson.
+\newblock Postloading for fun and profit.
+\newblock In {\em Proceedings Winter {USENIX} Conference}, pages 325--330,
+  1990.
+
+\bibitem[JR99]{Peyt99}
+S.~Peyton Jones and N.~Ramsey.
+\newblock Machine-independent support for garbage collection, debugging,
+  exception handling, and concurrency (draft), 1999.
+
+\bibitem[Kan88]{kane:mips}
+Gerry Kane.
+\newblock {\em {MIPS} {RISC} Architecture}.
+\newblock Prentice Hall, Englewood Cliffs, NJ, 1988.
+
+\bibitem[LB94]{Laru94}
+J.R. Larus and T.~Ball.
+\newblock Rewriting executable files to measure program behavior.
+\newblock {\em Software -- Practice and Experience}, 24(2):197--218, February
+  1994.
+
+\bibitem[LS95]{Laru95}
+J.R. Larus and E.~Schnarr.
+\newblock {EEL}: Machine-independent executable editing.
+\newblock In {\em SIGPLAN Conference on Programming Languages, Design and
+  Implementation}, pages 291--300, June 1995.
+
+\bibitem[May87]{May87}
+C.~May.
+\newblock {MIMIC}: A fast {S}ystem/370 simulator.
+\newblock In {\em Proceedings {SIGPLAN}'87 Symposium on Interpreters and
+  Interpretive Techniques}, pages 1--13, June 1987.
+
+\bibitem[Mey97]{Meye97}
+J.~Meyer.
+\newblock Jasmin.
+\newblock \url{http://cat.nyu.edu/meyer/jasmin/}, 1997.
+
+\bibitem[Mic]{Micr96}
+Microsoft.
+\newblock Microsoft windows software development kit {(SDK)} for windows.
+\newblock Article ID: Q65260.
+
+\bibitem[Mil90]{milner:operational}
+Robin Milner.
+\newblock Operational and algebraic semantics of concurrent processes.
+\newblock In J.~van Leewen, editor, {\em Handbook of Theoretical Computer
+  Science}, volume B: Formal Models and Semantics, chapter~19, pages
+  1201--1242. The MIT Press, New York, N.Y., 1990.
+
+\bibitem[Pro95]{Proe95}
+T.A. Proebsting.
+\newblock Optimizing and {ANSI C} interpreter with superoperators.
+\newblock In {\em Proceedings of the 22nd Symposium on Principles of
+  Programming Languages}, pages 322--332. {ACM} Press, January 1995.
+
+\bibitem[RC98]{Cifu98i}
+N.~Ramsey and C.~Cifuentes.
+\newblock A transformational approach to binary translation of delayed
+  branches.
+\newblock Technical Report 440, The University of Queensland, Department of
+  Computer Science and Electrical Engineering, December 1998.
+
+\bibitem[RD98]{ramsey:embedded}
+Norman Ramsey and Jack~W. Davidson.
+\newblock Machine descriptions to build tools for embedded systems.
+\newblock In {\em ACM SIGPLAN Workshop on Languages, Compilers, and Tools for
+  Embedded Systems (LCTES'98)}, volume 1474 of {\em LNCS}, pages 172--188.
+  Springer Verlag, June 1998.
+
+\bibitem[RDGY00]{Reev00}
+C.~Reeve, D.~Deaver, R.~Gorton, and B.~Yadavalli.
+\newblock Wiggins/redstone (wr): A dynamic optimization and specialization
+  tool.
+\newblock Unpublished manuscript, 2000.
+
+\bibitem[RF94a]{Rams94}
+N.~Ramsey and M.~Fern\'{a}ndez.
+\newblock {\em New {J}ersey Machine-Code Toolkit Reference Manual}, version
+  0.1a edition, November 1994.
+\newblock URL ftp://ftp.cs.princeton.edu/reports/1994/471.ps.Z.
+
+\bibitem[RF94b]{Rams94b}
+N.~Ramsey and M.F. Fern\'{a}ndez.
+\newblock The {N}ew {J}ersey machine-code toolkit.
+\newblock Technical Report~64, Princeton University, Department of Computer
+  Science, Princeton, NJ 08544, 1994.
+
+\bibitem[RF95]{Rams95}
+N.~Ramsey and M.~Fern\'{a}ndez.
+\newblock The {N}ew {J}ersey machine-code toolkit.
+\newblock In {\em Proceedings of the 1995 {USENIX} Technical Conference}, pages
+  289--302, January 1995.
+
+\bibitem[RF97a]{Rams97}
+N.~Ramsey and M.~Fern\'{a}ndez.
+\newblock Specifying representations of machine instructions.
+\newblock {\em {ACM} Transactions of Programming Languages and Systems},
+  19(3):492--524, 1997.
+
+\bibitem[RF97b]{ramsey:specifying}
+Norman Ramsey and Mary~F. {Fer\-n\'an\-dez}.
+\newblock Specifying representations of machine instructions.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  19(3):492--524, May 1997.
+
+\bibitem[RH92]{Rams92}
+N.~Ramsey and D.R. Hanson.
+\newblock A retargetable debugger.
+\newblock In {\em Proceedings Programming Languages, Design and
+  Implementation}, pages 22--31, June 1992.
+
+\bibitem[Sal81]{Sale81}
+A.~Sale.
+\newblock The implementation of case statements in {P}ascal.
+\newblock {\em Software--Practice and {E}xperience}, 11:929--942, 1981.
+
+\bibitem[SCK{\etalchar{+}}92]{Site92}
+R.L. Sites, A.~Chernoff, M.B. Kirk, M.P. Marks, and S.G. Robinson.
+\newblock Binary translation.
+\newblock {\em Digital Technical Journal}, 4(4):1--16, 1992.
+
+\bibitem[SCK{\etalchar{+}}93]{Site93}
+R.L. Sites, A.~Chernoff, M.B. Kirk, M.P. Marks, and S.G. Robinson.
+\newblock Binary translation.
+\newblock {\em Communications of the ACM}, 36(2):69--81, February 1993.
+
+\bibitem[SE93]{Silb93}
+G.M. Silberman and K.~Ebcioglu.
+\newblock An architectural framework for supporting heterogeneous
+  instruction-set architectures.
+\newblock {\em Computer}, pages 39--56, June 1993.
+
+\bibitem[Sen97]{Send97}
+S.~Sendall.
+\newblock Semantics of machine instructions.
+\newblock Honours thesis, The University of Queensland, Department of Computer
+  Science and Electrical Engineering, 1997.
+
+\bibitem[Sha96]{shankar:mechanizing}
+Natarajan Shankar.
+\newblock Steps towards mechanizing program transformations using {PVS}.
+\newblock {\em Science of Computer Programming}, 26(1--3):33--57, May 1996.
+
+\bibitem[spa92a]{Spar92}
+Sparc International, Menlo Park, California.
+\newblock {\em The {SPARC} Architecture Manual -- Version 8}, 1992.
+
+\bibitem[{SPA}92b]{sparc:architecture}
+{SPARC International}, Englewood Cliffs, NJ.
+\newblock {\em The {SPARC} Architecture Manual, Version~8}, 1992.
+
+\bibitem[{SPA}92c]{Sparc8}
+{SPARC International Inc.}
+\newblock {\em The {SPARC} Architecture Manual -- Version 8}.
+\newblock Prentice Hall, Englewood Cliffs, New Jersey 07632, 1992.
+
+\bibitem[Sta93]{Stal93}
+R.M. Stallman.
+\newblock {\em Using and Porting {GNU CC}}, version 2.5 edition, October 1993.
+
+\bibitem[Sun94a]{Sun94m}
+SunSoft.
+\newblock {\em Linker and Libraries Guide -- Solaris 2.4}.
+\newblock Sun Microsystems Inc., Mountain View, California, August 1994.
+
+\bibitem[Sun94b]{Sun94}
+SunSoft.
+\newblock Wabi.
+\newblock \url{http://www.sun.com/sunsoft/Products/PC-Integration-products},
+  1994.
+
+\bibitem[SW93a]{Sriv93}
+A.~Srivastava and D.W. Wall.
+\newblock A practical system for intermodule code optimization at link-time.
+\newblock {\em Journal of Programming Languages}, 1(1):1--18, March 1993.
+
+\bibitem[SW93b]{srivastava:practical}
+Amitabh Srivastava and David~W. Wall.
+\newblock A practical system for intermodule code optimization.
+\newblock {\em Journal of Programming Languages}, 1:1--18, March 1993.
+\newblock Also available as WRL Research Report 92/6, December 1992.
+
+\bibitem[T94]{Att94}
+AT~T.
+\newblock Flashport.
+\newblock \url{http://www.att.com/FlashPort}, 1994.
+\newblock AT\&T Bell Labs.
+
+\bibitem[TBS99]{Taiv99}
+A.~Taivalsaari, B.~Bush, and D.~Simon.
+\newblock The {S}potless system: Implementing a {J}ava$^{TM}$ system for the
+  {P}alm connected organizer.
+\newblock Technical Report {SMLI TR-99-73}, Sun Microsystems Laboratories, 901
+  San Antonio Rd, Palo Alto, CA, February 1999.
+
+\bibitem[The95]{Then95}
+T.W. Then.
+\newblock Binary translation with optimizations.
+\newblock Master's thesis, Purdue University, Department of Electrical
+  Engineering, December 1995.
+
+\bibitem[Tho96]{Thom96}
+T.~Thompson.
+\newblock An {A}lpha in {PC} clothing.
+\newblock {\em Byte}, pages 195--196, February 1996.
+
+\bibitem[Tra97]{Trac97}
+TracePoint.
+\newblock {HiProf} hierarchical profiler.
+\newblock \url{http://www.tracepoint.com/noframes/hiprof/products/hiprof},
+  1997.
+
+\bibitem[Ts'00]{Tso00}
+Theodore Ts'o.
+\newblock The prc format.
+\newblock http://web.mit.edu/tytso/www/pilot/prc-format.html, 2000.
+
+\bibitem[UC97]{Cifu97f}
+D.~Ung and C.~Cifuentes.
+\newblock {SRL} - a simple retargetable loader.
+\newblock In {\em Proceedings of the Australian Software Engineering
+  Conference}, pages 60--69, Sydney, Australia, 28 September - 2 October 1997.
+  {IEEE CS P}ress.
+
+\bibitem[uni90a]{Unix90}
+{\em Unix {S}ystem {V}: Application Binary Interface}.
+\newblock Prentice Hall, Englewood Cliffs, New Jersey, 1990.
+
+\bibitem[uni90b]{Unix90b}
+{\em Unix {S}ystem {V}: Application Binary Interface, {SPARC} Processor
+  Supplement}.
+\newblock Prentice Hall, Englewood Cliffs, New Jersey, 1990.
+
+\bibitem[uni90c]{Unix90c}
+{\em Unix {S}ystem {V}: Application Binary Interface, {Intel} Processor
+  Supplement}.
+\newblock Prentice Hall, Englewood Cliffs, New Jersey, 1990.
+
+\bibitem[vpo98]{Vpo98}
+Machine-independent optimization.
+\newblock \url{http://www.cs.virginia.edu/zephyr/vpo}, 1998.
+
+\bibitem[Wal92]{wall:systems}
+David~W. Wall.
+\newblock Systems for late code modification.
+\newblock In Robert Giegerich and Susan~L. Graham, editors, {\em Code
+  Generation - Concepts, Tools, Techniques}, pages 275--293. Springer-Verlag,
+  1992.
+
+\bibitem[WH66]{Wirt66}
+N.~Wirth and C.A.R. Hoare.
+\newblock A contribution to the development of {ALGOL}.
+\newblock {\em Communications of the {ACM}}, 9(6):413--432, 1966.
+
+\bibitem[win96]{Wine96}
+The wine project.
+\newblock \url{http://www.winehq.com}, 1996.
+
+\bibitem[WLG94]{Wahb94}
+R.~Wahbe, S.~Lucco, and S.L. Graham.
+\newblock Adaptable binary programs.
+\newblock Technical Report {CMU-CS-94-137}, Carnegie Mellon University, School
+  of Computer Science, Pittsburgh, PA 15213, April 1994.
+
+\bibitem[Wra74]{Wran74}
+C.~Wrandle.
+\newblock Notes on the \texttt{case} statement.
+\newblock {\em Software--Practice and {E}xperience}, 4:289--298, 1974.
+
+\bibitem[ZT00]{Zhen00}
+C.~Zheng and C.~Thompson.
+\newblock {PA-RISC} to {IA-64}: Transparent execution, no recompilation.
+\newblock {\em Computer}, 33(3):47--52, March 2000.
+
+\end{thebibliography}

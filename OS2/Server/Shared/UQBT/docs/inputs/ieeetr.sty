@@ -1,0 +1,127 @@
+%
+% IEEETR.STY
+%   Terry Bohning <terryb.bbs@shark.cs.fau.edu>
+%                 <bohning@acc.fau.edu>
+%                 <71036.1066@compuserve.com>
+%                 Compuserve: 71036,1066
+%                 GEnie:      T.BOHNING
+%                 Prodigy:    TXNF44A
+%   April 9, '91
+%
+% LaTeX style which implements guidelines in the 
+% "Information for IEEE Transactions and Journal Authors" dated 9/89. 
+% Thanks to David Dalton <dalton@geop.ubc.ca> for supplying a starting
+% point.
+%    
+% This is to be used with the 12pt option of the article document style.
+% Also use the option file "doublespace.sty" available from
+% sun.soe.clarkson.edu since IEEE wants submissions double spaced.
+% Use the \setstretch{} macro which is documented in doublespace.sty 
+% to change the interline spacing.  A value of 1.6 or 1.7 for setstretch{}
+% argument seems to work well.
+%
+% Usage:
+%    \documentstyle[12pt,dspc,ieeetr]{article}  
+% where doublespace.sty has been renamed to dspc.sty because of the 8
+% character filename limitation of MSDOS.
+%
+% Use IEEETR.BST Bibliography Style File for BibTeX.  This 
+% style file is supplied with the LaTeX package.
+%
+
+% MARGINS: 
+% IEEE wants about 1 inch all sides, give about 1.25" 
+% LaTeX measures all margin dimensions from a point one inch from top and 
+side
+% of page.  
+
+\oddsidemargin  18pt  % for 1-sided printing, 
+\oddsidemargin=\evensidemargin
+\evensidemargin 18pt 
+
+\textwidth 433pt        % Width of text line.
+
+\topmargin 18pt         %    Nominal distance from top of page to top of
+                        %    box containing running head.
+\headheight .01pt       %    Height of box containing running head
+\headsep    .01pt       %    Space between running head and text.
+
+\footskip 30pt          %    Distance from baseline of box containing foot 
+                        %    to baseline of last line of text.
+
+\textheight 584pt       %    height of body of page (excludes head and 
+foot)
+
+% IEEE Headings:
+%
+% PRIMARY HEADING     (use LaTeX \section) 
+%     TITLE IS ALL CAPS, Centered above text, Cap. Roman Numerals enumerate
+%
+% Secondary Heading   (use LaTeX \subsection)      
+%  First Letters Cap'd, italicized, flush left above text, Cap Letters 
+enum.
+%
+% Tertiary Heading    (use LaTeX \subsubsection)
+%  First Letters Cap'd, italicized, Indented, run-in to text, Arabic 
+Numerals
+%  follow with colon
+%
+% Quaternary heading  (use LaTeX \paragraph)    
+%  Only First Letter of heading Cap'd, italicized, Indented, run-in to 
+text, 
+%  lowercase letters enumerate, follow with colon
+
+% \@startsection {NAME}{LEVEL}{INDENT}{BEFORESKIP}{AFTERSKIP}{STYLE} 
+%            optional * [ALTHEADING]{HEADING}
+%    Generic command to start a section.  
+%    NAME       : e.g., 'subsection'
+%    LEVEL      : a number, denoting depth of section -- e.g., section=1,
+%                 subsection = 2, etc.  A section number will be printed if
+%                 and only if LEVEL < or = the value of the secnumdepth
+%                 counter.
+%    INDENT     : Indentation of heading from left margin
+%    BEFORESKIP : Absolute value = skip to leave above the heading.  
+%                 If negative, then paragraph indent of text following 
+%                 heading is suppressed.
+%    AFTERSKIP  : if positive, then skip to leave below heading,
+%                       else - skip to leave to right of run-in heading.
+%    STYLE      : commands to set style
+%  If '*' missing, then increments the counter.  If it is present, then
+%  there should be no [ALTHEADING] argument.  A sectioning command
+%  is normally defined to \@startsection + its first six arguments.
+
+\typeout{ Remember IEEE Wants: }
+\typeout{ \space\space SECTION HEADINGS HAVE ALL WORDS CAP'D }
+\typeout{ \space\space Subsection Headings Have First Letters of Important 
+Words Cap'd}
+\typeout{ \space\space Subsubsection Headings Have First Letters of 
+Important Words Cap'd}
+\typeout{ \space\space Paragraph headings have only first letter of heading 
+cap'd}
+
+% The value of the counter secnumdepth gives the depth of the
+% highest-level sectioning command that is to produce section numbers.
+%
+\setcounter{secnumdepth}{4}
+
+\def\section{\@startsection {section}{1}{\z@}{-3.5ex plus -1ex minus 
+    -.2ex}{2.3ex plus .2ex}{\Large\bf\centering}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-3.25ex plus -1ex minus 
+   -.2ex}{1.5ex plus .2ex}{\large\it}}
+\def\realsubsubsection{\@startsection{subsubsection}{3}{\parindent}
+         {3.25ex plus 1ex minus .2ex}{-1.5em}{\normalsize\it}}
+\def\realparagraph{\@startsection
+     {paragraph}{4}{\parindent}{3.25ex plus 1ex minus .2ex}
+     {-1.5em}{\normalsize\it}}
+
+\def\subsubsection#1{\realsubsubsection{#1:}}
+\def\paragraph#1{\realparagraph{#1:}}
+
+\def\thesection{\Roman{section}.}
+\def\thesubsection{\rm\Alph{subsection}.}
+\def\thesubsubsection{ {\rm\arabic{subsubsection})} }
+\def\theparagraph{ {\rm\alph{paragraph})} }
+
+% bye
+
+
