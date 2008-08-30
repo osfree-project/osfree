@@ -6,11 +6,17 @@
 
 !include $(%ROOT)/mk/all.mk
 
-OUT = $(%ROOT)$(SEP)include$(SEP)OS3
-TARGETS=h
+OUT = $(%ROOT)$(SEP)build$(SEP)include
+TARGETS = h
 
-h: workaround $(OUT)$(SEP)osfree.h os2 dos
+subdirs = $(OUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2
+
+h: pre workaround $(OUT)$(SEP)osfree.h os2 dos
   @rem
+
+pre: .SYMBOLIC
+ $(SAY) lalala
+ @for %i in ($(subdirs)) do @$(MDHIER) %i
 
 $(OUT)$(SEP)osfree.h: osfree.uni
 # Main osFree file

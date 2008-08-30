@@ -53,19 +53,24 @@ BPBlock         bios_parameters_block <>
 real_start:
                 mov   bp, bt_addr - EXT_PARAMS_SIZE
 
+                xor   ax, ax
+                push  ax
+
                 cli
-                push  cs
                 pop   ss
                 mov   sp, bp
                 sti
 
-                push  cs
+                push  ax
                 pop   ds
 
                 mov   [bp].drive, dl
 
-                push  ds
-
+                push  ax
+                push  ax
+                push  the_start
+                retf
+the_start:
                 test  dl, 80h
                 jnz   short no_floppy
                 jmp   short use_chs                         ; floppy drive -- use CHS
@@ -109,10 +114,16 @@ read_root:
                 movzx cx, [bp].bpb.n_fats                   ;
                 mul   cx                                    ; result in dx:ax
 
+                ;xor   eax, eax
+                ;xor   ebx, ebx
+
                 pop   bx                                    ; reserved sectors
+
+                ;add   eax, ebx
 
                 add   ax, bx                                ; root dir offset == res_sectors + fat_size * n_fats
                 adc   dx, 0
+
                 ;shl   edx, 16
                 ;add   eax, edx
 
@@ -357,30 +368,30 @@ find_next_cluster endp
 
 read_run proc near
                 pusha
-
-                mov   dl,  [bp].drive
+		push  es
+                push  ds
                 add   eax, [bp].bpb.hidden_secs             ; Add hidden sectors value
+                mov   dl,  [bp].drive
 begin_read:
 ;                push  cx
 
 ;                mov   cx, 5
 ;retry_loop:
-                cmp   [bp].force_lba, 0                     ; force LBA?
-                jnz   short lba
+                ;cmp   [bp].force_lba, 0                     ; force LBA?
+                ;jnz   short lba
+
+                pushad
 
                 cmp   [bp].force_chs, 0                     ; LBA or CHS?
                 jnz   short chs
+
 lba:
-                pusha
                 call  readsec_lba                           ; Read by LBA
-                popa
-
-                jnc   short go_on                           ; if LBA fails, fallback to CHS
+                jmp   chk
 chs:
-                pusha
                 call  readsec_chs                           ; Read by CHS
-                popa
-
+chk:
+                popad
                 jnc   short go_on
 
 ;                pusha
@@ -394,14 +405,16 @@ go_on:
 ;                pop   cx
 
                 inc   eax
-                add   bx, 200h
+                ;add   bx, 200h
 
-                ;mov  di, es
-                ;add  di, 20h
-                ;mov  es, di
+                mov  di, es
+                add  di, 20h
+                mov  es, di
 
                 loop  short begin_read
 end_read:
+                pop  ds
+		pop  es
                 popa
 
                 ret
@@ -442,7 +455,7 @@ readsec_lba proc near
                 mov  word ptr  [si].num_blocks, 1           ; number of blocks to transfer
                 mov  word ptr  [si].buffer + 2, es          ; segment
                 mov  word ptr  [si].buffer, bx              ; offset of read buffer
-                mov  ah, 42h
+                mov  ax, 4200h
                 int  13h
 lb2:
                 ;pop  ds
@@ -575,8 +588,8 @@ vars           label byte
 ;error_dsk_read_error:
 ;               db    'R',0
 
-cfg_path       db    'BOOT    ','   '                       ; path to the
-               db    'BOOTSEC ','CFG'                       ; bootsector config file
+;cfg_path       db    'BOOT    ','   '                       ; path to the
+cfg_path       db    'BOOTSEC ','CFG'                       ; bootsector config file
                db    ';'                                    ; path end marker
 bootsig        dw    0aa55h                                 ; boot signature
 

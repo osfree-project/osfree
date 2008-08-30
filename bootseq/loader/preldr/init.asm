@@ -321,7 +321,7 @@ _TEXT   segment dword public 'CODE' use32
 
 boot_flags         dw 0
 boot_drive         dd 0
-install_partition  dd 0ffffffh
+install_partition  dd 00ffffh
 
 ifndef STAGE1_5
 ft                 FileTable <>

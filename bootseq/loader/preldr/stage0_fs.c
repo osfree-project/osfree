@@ -1384,7 +1384,7 @@ int init(void)
 
   /* fixup preldr and uFSD */
   reloc((char *)(STAGE0_BASE  + relshift), "/boot/loader/preldr0.rel", relshift);
-  reloc((char *)(EXT3HIBUF_BASE), "/boot/loader/fsd/iso9660.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+  reloc((char *)(EXT3HIBUF_BASE), "/boot/loader/fsd/fat.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
 
   /* jump to relocated pre-loader */
   jmp_reloc(relshift);
