@@ -1,7 +1,6 @@
 /*!
-   $Id: mkdir.c,v 1.1 2003/12/12 18:18:46 prokushev Exp $
 
-   @file mkdir.c
+   @file
 
    @brief mkdir command - makes a directory
 

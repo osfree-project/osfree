@@ -1,7 +1,6 @@
 /*!
-   $Id: eject.c,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $
 
-   @file eject.c
+   @file
 
    @brief eject command - removable media eject utility
 

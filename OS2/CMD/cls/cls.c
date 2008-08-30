@@ -1,7 +1,5 @@
 /*!
-   $Id: cls.c,v 1.1 2003/12/12 18:18:41 prokushev Exp $
-
-   @file cls.c
+   @file
 
    @brief cls command - clears screen
 

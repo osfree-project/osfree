@@ -1,5 +1,7 @@
 /*!
-   @file ansi.c
+   @file
+
+   @ingroup ansi
 
    @brief ansi command - Frontend for ansi.sys. Allows user to turn ANSI
                          processing on or off.

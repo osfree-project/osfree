@@ -1,7 +1,6 @@
 /*!
-   $Id: vol.c,v 1.1 2003/12/12 18:18:48 prokushev Exp $
 
-   @file vol.c
+   @file
 
    @brief vol command - displays disk volume label and serial number if exists
 

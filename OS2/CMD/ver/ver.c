@@ -1,7 +1,5 @@
 /*!
-   $Id: ver.c,v 1.1 2003/12/12 18:18:48 prokushev Exp $
-
-   @file ver.c
+   @file
 
    @brief ver command - displays system version number
 

@@ -1,7 +1,6 @@
 /*!
-   $Id: format.c,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $
 
-   @file format.c
+   @file
 
    @brief format command - frontend for format entry in fs utility dll
 

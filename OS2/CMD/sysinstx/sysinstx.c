@@ -1,7 +1,6 @@
 /*!
-   $Id: sysinstx.c,v 1.1.1.1 2003/10/04 08:24:22 prokushev Exp $
 
-   @file sysinstx.c
+   @file
 
    @brief sysinstx command - frontend for sys entry in fs utility dll
 

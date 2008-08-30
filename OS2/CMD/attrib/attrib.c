@@ -1,6 +1,7 @@
 /*!
+   @file
 
-   @file attrib.c
+   @ingroup attrib
 
    @brief attrib command - sets file attributes
 
@@ -14,7 +15,6 @@
    @todo: add support of 4OS2 extensions
    @todo: add extended attributes support (like .COMMENT, .TYPE)
    @todo: add "-" modifier to /a switch.
-
 */
 
 #define INCL_DOSERRORS

@@ -1,7 +1,6 @@
 /*!
-   $Id: label.c,v 1.1.1.1 2003/10/04 08:24:12 prokushev Exp $ 
-   
-   @file label.c
+
+   @file
 
    @brief label command - creates,changes or erases volume identification label
    on disk
@@ -39,7 +38,7 @@ int main(int argc, char * argv[])
  ULONG ulAvailableDisks;  /* drives aviability bitmap */
  APIRET rc;               /* functions' return code */
  PSZ szArg=NULL;          /* argument pointer */
- BOOL fLabelOnCmd=FALSE;  /* is label specified on cmdline */ 
+ BOOL fLabelOnCmd=FALSE;  /* is label specified on cmdline */
  VOLUMELABEL fsiLabelBuf; /* buffer for volume label (for DosSetFSInfo) */
 
  /* check if user wants info from us (/? or -?) */
@@ -50,11 +49,11 @@ int main(int argc, char * argv[])
   /* show help message */
   cmd_ShowSystemMessage(cmd_MSG_LABEL_HELP,0L);
   return NO_ERROR;
- }; 
+ };
 
  /* get the current disk and available ones */
  if (cmd_QueryCurrentDisk(pszDrive,&ulAvailableDisks))
-     return cmd_ERROR_EXIT; 
+     return cmd_ERROR_EXIT;
 
  /* we take only one argument, all the rest is ignored */
  if (argc>1)
@@ -73,7 +72,7 @@ int main(int argc, char * argv[])
        if (strlen(szArg)>2)
         szArg+=2; /* skip drive letter and semicolon */
        else
-         { 
+         {
           szArg=NULL;
           fLabelOnCmd=FALSE; /* there is no label on cmd line... */
          };
@@ -90,11 +89,11 @@ int main(int argc, char * argv[])
  {
    if (cmd_ShowVolumeInfo(pszDrive,FALSE))
     return cmd_ERROR_EXIT;
-   
+
    /* get the new label */
 //   szArg=calloc(1,14);
-   getNewLabel(&szArg); 
-  
+   getNewLabel(&szArg);
+
  } else
  {
    PSZ tmpArg=calloc(1,15);
@@ -102,7 +101,7 @@ int main(int argc, char * argv[])
    szArg=tmpArg;
  };
 
- fLabelOnCmd=FALSE; /* not it becomes other flag: 
+ fLabelOnCmd=FALSE; /* not it becomes other flag:
                        true - if label was truncated */
 
  if (strlen(szArg)==0) /* no label change */
@@ -118,12 +117,12 @@ int main(int argc, char * argv[])
   szArg[11]='\0';
  };
 
- 
+
  while (!isVolumeLabelValid(szArg))
  {
   cmd_ShowSystemMessage(MSG_INVALID_NAME,0L),
    free(szArg);
-   getNewLabel(&szArg); 
+   getNewLabel(&szArg);
    fLabelOnCmd=FALSE; /* new label is not truncated (yet) */
 
    if (strlen(szArg)==0) /* no label change */
@@ -157,7 +156,7 @@ int main(int argc, char * argv[])
 
  if (fLabelOnCmd) /* was the label truncated? */
    cmd_ShowSystemMessage(MSG_VOLUME_TOO_LONG,0L);
- 
+
   return NO_ERROR;
 };
 
@@ -172,15 +171,15 @@ int main(int argc, char * argv[])
 BOOL isVolumeLabelValid(PSZ szVolume)
 {
   static char forbidden_chars[] = {
-                                 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 
-                                 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 
-                                 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 
-                                 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 
-                                 '\\', '/', ':', '*', '?', '"', '<', '>', '|', ',', 
+                                 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
+                                 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF,
+                                 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+                                 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+                                 '\\', '/', ':', '*', '?', '"', '<', '>', '|', ',',
                                  '+', '=', '[', ']', ';','.',
                                  '\0'
                                 };
-   if (strpbrk(szVolume, forbidden_chars) > 0) 
+   if (strpbrk(szVolume, forbidden_chars) > 0)
     return FALSE;
 
   return TRUE;

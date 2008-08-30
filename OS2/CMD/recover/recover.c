@@ -1,7 +1,6 @@
 /*!
-   $Id: recover.c,v 1.1.1.1 2003/10/04 08:24:20 prokushev Exp $
 
-   @file recover.c
+   @file
 
    @brief recover command - frontend for recover entry in fs utility dll
 

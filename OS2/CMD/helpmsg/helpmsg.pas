@@ -1,6 +1,7 @@
 {
+  /*!
 
-   @file helpmsg.pas
+   @file
 
    @brief helpmsg command - show help for message or command
 
@@ -8,6 +9,8 @@
    for licence see licence.txt in root directory, or project website
 
    @author Yuri Prokushev <prokushev@freemail.ru>
+
+  */
 }
 
 Program HelpMsg;

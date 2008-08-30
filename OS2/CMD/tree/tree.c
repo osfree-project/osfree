@@ -1,6 +1,6 @@
 /*!
 
-   @file tree.c
+   @file
 
    @brief tree command - displays directory structure
 

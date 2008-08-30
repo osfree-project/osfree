@@ -1,4 +1,4 @@
-/* $Id: cmp.c,v 1.1 2003/10/11 03:46:34 prokushev Exp $
+/*
  *
  * Stupid compare tool.
  *
