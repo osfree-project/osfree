@@ -8,8 +8,8 @@
 
 32_BITS = 0
 ADD_COPT =            $(ADD_COPT) &
-                      -i=$(ROOT)$(SEP)build$(SEP)include &
-                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
+                      #-i=$(ROOT)$(SEP)build$(SEP)include &
+                      #-i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
                       -bt=dos
 
 !include $(%ROOT)/mk/libs.mk

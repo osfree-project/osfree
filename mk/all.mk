@@ -278,8 +278,14 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
+
 subdirs: .SYMBOLIC
  @for %%i in ($(DIRS)) do @cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+
+#subdirs: $(DIRS)
+#
+#$(DIRS): .SYMBOLIC
+# cd $@ && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: .SYMBOLIC
  @$(MDHIER) $(PATH)
