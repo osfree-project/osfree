@@ -11,4 +11,4 @@ curdir = directory()
 call directory path
 call setenv user || '.conf'
 call directory curdir
-cmd
+'start /f cmd'
