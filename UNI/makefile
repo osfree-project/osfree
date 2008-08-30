@@ -15,7 +15,7 @@ h: pre workaround $(OUT)$(SEP)osfree.h os2 dos
   @rem
 
 pre: .SYMBOLIC
- $(SAY) lalala
+ $(SAY) Creating directories...
  @for %i in ($(subdirs)) do @$(MDHIER) %i
 
 $(OUT)$(SEP)osfree.h: osfree.uni

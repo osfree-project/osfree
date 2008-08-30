@@ -8,7 +8,7 @@
 
 CLEAN_ADD = *.c *.h
 ADD_COPT =            $(ADD_COPT) &
-                      -i=$(ROOT)$(SEP)build$(SEP)include$ &
+                      -i=$(ROOT)$(SEP)build$(SEP)include &
                       -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(ROOT)$(SEP)include$(SEP)os3 &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm &
