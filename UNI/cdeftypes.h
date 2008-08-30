@@ -12,6 +12,10 @@
 
 /* Original OS/2 default definitions */
 
+#ifdef INCL_WIN
+#define INCL_PM
+#endif
+
 #ifdef INCL_BASE
     #define INCL_DOS
     #define INCL_SUB
