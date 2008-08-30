@@ -338,9 +338,3 @@ int main (int argc, char *argv[]) {
 
 /*======================================================================*/
 
-#ifdef __BORLANDC__
-# include "setupio.inc"
-# include "setvbuf.inc"
-# include "malloc.inc"
-# include "stdio.inc"
-#endif
