@@ -14,6 +14,8 @@ History
                which might illegally appear if an incorrept bracketed
                argin is specified (e.g. user provided "\"file.ext\")
              * Fix a possible memory leak in error case of parsing
+
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <assert.h>
@@ -80,10 +82,10 @@ GBMTOOL_FILE * gbmtool_createFileNode(const char * filename)
  * @retval GBM_ERR_MEM      Out of memory.
  * @retval GBM_ERR_BAD_ARG  Argument could not be parsed.
  */
-static GBM_ERR fill_arguments(GBMTOOL_FILEARG * gbmfilearg,
-                              const char      * filename,
-                              const char      * options,
-                              const BOOLEAN     expandRegEx)
+static GBM_ERR fill_arguments(GBMTOOL_FILEARG   * gbmfilearg,
+                              const char        * filename,
+                              const char        * options,
+                              const gbm_boolean   expandRegEx)
 {
   gbmfilearg->files     = NULL;
   gbmfilearg->filecount = 0;
@@ -181,7 +183,7 @@ static GBM_ERR fill_arguments(GBMTOOL_FILEARG * gbmfilearg,
  * @retval GBM_ERR_MEM      Out of memory.
  * @retval GBM_ERR_BAD_ARG  Argument could not be parsed.
  */
-GBM_ERR gbmtool_parse_argument(GBMTOOL_FILEARG * gbmfilearg, const BOOLEAN expandRegEx)
+GBM_ERR gbmtool_parse_argument(GBMTOOL_FILEARG * gbmfilearg, const gbm_boolean expandRegEx)
 {
   GBM_ERR rc;
   int     num;

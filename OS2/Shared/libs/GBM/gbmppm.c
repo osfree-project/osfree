@@ -48,6 +48,7 @@ History:
 10-Jun-2006: Add some additional error checking
 16-Jun-2006: Add support for ASCII read/write
 23-Sep-2006: Use read ahead and write cache for ASCII format to improve speed
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <stdio.h>
@@ -91,9 +92,9 @@ typedef struct
 
 /* ---------------------------------------- */
 
-static void rgb_bgr(const byte *p, byte *q, int n, const unsigned int max_intensity)
+static void rgb_bgr(const gbm_u8 *p, gbm_u8 *q, int n, const unsigned int max_intensity)
 {
-   byte r, g, b;
+   gbm_u8 r, g, b;
 
    if (max_intensity < 255)
    {
@@ -103,9 +104,9 @@ static void rgb_bgr(const byte *p, byte *q, int n, const unsigned int max_intens
          g = *p++;
          b = *p++;
 
-         *q++ = (byte) ((b * 255U) / max_intensity);
-         *q++ = (byte) ((g * 255U) / max_intensity);
-         *q++ = (byte) ((r * 255U) / max_intensity);
+         *q++ = (gbm_u8) ((b * 255U) / max_intensity);
+         *q++ = (gbm_u8) ((g * 255U) / max_intensity);
+         *q++ = (gbm_u8) ((r * 255U) / max_intensity);
       }
    }
    else
@@ -123,11 +124,11 @@ static void rgb_bgr(const byte *p, byte *q, int n, const unsigned int max_intens
    }
 }
 
-static void rgb16msb_bgr(const byte * p, byte * q, int n, const unsigned int max_intensity)
+static void rgb16msb_bgr(const gbm_u8 * p, gbm_u8 * q, int n, const unsigned int max_intensity)
 {
-   word r, g, b;
+   gbm_u16 r, g, b;
 
-   word * p16 = (word *) p;
+   gbm_u16 * p16 = (gbm_u16 *) p;
 
    if (max_intensity < 65535)
    {
@@ -173,12 +174,12 @@ static void rgb16msb_bgr(const byte * p, byte * q, int n, const unsigned int max
    }
 }
 
-static void rgb16msb_bgr16lsb(const byte *p, byte *q, int n, const unsigned int max_intensity)
+static void rgb16msb_bgr16lsb(const gbm_u8 *p, gbm_u8 *q, int n, const unsigned int max_intensity)
 {
-   word r, g, b;
+   gbm_u16 r, g, b;
 
-   word * p16 = (word *) p;
-   word * q16 = (word *) q;
+   gbm_u16 * p16 = (gbm_u16 *) p;
+   gbm_u16 * q16 = (gbm_u16 *) q;
 
    if (max_intensity < 65535)
    {
@@ -218,9 +219,9 @@ static void rgb16msb_bgr16lsb(const byte *p, byte *q, int n, const unsigned int 
 
 /* ---------------------------------------- */
 
-static byte read_byte(int fd)
+static gbm_u8 read_byte(int fd)
 {
-   byte b = 0;
+   gbm_u8 b = 0;
    gbm_file_read(fd, (char *) &b, 1);
    return b;
 }
@@ -389,14 +390,14 @@ static GBM_ERR internal_ppm_rhdr(int fd, GBM * gbm, GBM * gbm_src, int * type)
 {
    GBM_ERR rc;
    int     h1, h2, m, data_bytes;
-   BOOLEAN use_native_bpp;
+   gbm_boolean use_native_bpp;
    const char *s = NULL;
 
    PPM_PRIV_READ *ppm_priv = (PPM_PRIV_READ *) gbm->priv;
 
    /* check if extended color depths are requested */
    use_native_bpp = (gbm_find_word(ppm_priv->read_options, "ext_bpp") != NULL)
-                    ? TRUE : FALSE;
+                    ? GBM_TRUE : GBM_FALSE;
 
    /* start at the beginning of the file */
    gbm_file_lseek(fd, 0, GBM_SEEK_SET);
@@ -507,7 +508,7 @@ GBM_ERR ppm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
    PPM_PRIV_READ *ppm_priv = (PPM_PRIV_READ *) gbm->priv;
 
@@ -533,7 +534,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
      int i;
      const int line_bytes = gbm_src.w * (gbm_src.bpp / 8);
 
-     byte * p = data + ((gbm->h - 1) * stride);
+     gbm_u8 * p = data + ((gbm->h - 1) * stride);
 
      switch(gbm->bpp)
      {
@@ -553,7 +554,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
            }
            else
            {
-              byte * src_data = (byte *) gbmmem_malloc(line_bytes);
+              gbm_u8 * src_data = (gbm_u8 *) gbmmem_malloc(line_bytes);
               if (src_data == NULL)
               {
                  return GBM_ERR_MEM;
@@ -593,9 +594,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
    {
      int    i, x;
      int    num_r, num_g, num_b;
-     byte * pNumFill8;
-     word * pNumFill16;
-     byte * p = data + ((gbm->h - 1) * stride);
+     gbm_u8  * pNumFill8;
+     gbm_u16 * pNumFill16;
+     gbm_u8  * p = data + ((gbm->h - 1) * stride);
 
      AHEAD * ahead = gbm_create_ahead(fd);
      if (ahead == NULL)
@@ -626,9 +627,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
                      gbm_destroy_ahead(ahead);
                      return GBM_ERR_READ;
                    }
-                   *pNumFill8++ = (byte) num_b;
-                   *pNumFill8++ = (byte) num_g;
-                   *pNumFill8++ = (byte) num_r;
+                   *pNumFill8++ = (gbm_u8) num_b;
+                   *pNumFill8++ = (gbm_u8) num_g;
+                   *pNumFill8++ = (gbm_u8) num_r;
                  }
                  p -= stride;
               }
@@ -654,9 +655,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
                    }
 
                    #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
-                   *pNumFill8++ = (byte) CVT(num_b);
-                   *pNumFill8++ = (byte) CVT(num_g);
-                   *pNumFill8++ = (byte) CVT(num_r);
+                   *pNumFill8++ = (gbm_u8) CVT(num_b);
+                   *pNumFill8++ = (gbm_u8) CVT(num_g);
+                   *pNumFill8++ = (gbm_u8) CVT(num_r);
                    #undef CVT
                  }
                  p -= stride;
@@ -667,7 +668,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
         case 48:
            for (i = gbm->h - 1; i >= 0; i--)
            {
-              pNumFill16 = (word *) p;
+              pNumFill16 = (gbm_u16 *) p;
               for (x = 0; x < gbm_src.w; x++)
               {
                 /* RGB order in ASCII but BGR in GBM */
@@ -682,9 +683,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
                   gbm_destroy_ahead(ahead);
                   return GBM_ERR_READ;
                 }
-                *pNumFill16++ = (word) num_b;
-                *pNumFill16++ = (word) num_g;
-                *pNumFill16++ = (word) num_r;
+                *pNumFill16++ = (gbm_u16) num_b;
+                *pNumFill16++ = (gbm_u16) num_g;
+                *pNumFill16++ = (gbm_u16) num_r;
               }
               p -= stride;
            }
@@ -707,7 +708,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, byte *data)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static BOOLEAN internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const byte * data, int words)
+static gbm_boolean internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const gbm_u8 * data, int words)
 {
   int  w, c;
   char d[12] = { 0 };
@@ -726,7 +727,7 @@ static BOOLEAN internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const byte * d
       c = 0;
       if (gbm_write_wcache(wcache, '\n') != 1)
       {
-        return FALSE;
+        return GBM_FALSE;
       }
     }
 
@@ -756,7 +757,7 @@ static BOOLEAN internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const byte * d
 
     if (gbm_writebuf_wcache(wcache, d, 12) != 12)
     {
-      return FALSE;
+      return GBM_FALSE;
     }
 
     c += 12;
@@ -764,16 +765,16 @@ static BOOLEAN internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const byte * d
 
   if (gbm_write_wcache(wcache, '\n') != 1)
   {
-    return FALSE;
+    return GBM_FALSE;
   }
-  return TRUE;
+  return GBM_TRUE;
 }
 
-static BOOLEAN internal_ppm_w_ascii_word_bgr2rgb(WCACHE * wcache, const word * data16, int words)
+static gbm_boolean internal_ppm_w_ascii_word_bgr2rgb(WCACHE * wcache, const gbm_u16 * data16, int words)
 {
   int  w, c;
   char d[18] = { 0 };
-  word r,g,b;
+  gbm_u16 r,g,b;
 
   d[5]  = ' ';
   d[11] = ' ';
@@ -788,7 +789,7 @@ static BOOLEAN internal_ppm_w_ascii_word_bgr2rgb(WCACHE * wcache, const word * d
       c = 0;
       if (gbm_write_wcache(wcache, '\n') != 1)
       {
-        return FALSE;
+        return GBM_FALSE;
       }
     }
 
@@ -823,7 +824,7 @@ static BOOLEAN internal_ppm_w_ascii_word_bgr2rgb(WCACHE * wcache, const word * d
     /* d[17] is already filled in before the loop */
     if (gbm_writebuf_wcache(wcache, d, 18) != 18)
     {
-      return FALSE;
+      return GBM_FALSE;
     }
 
     c += 18;
@@ -831,14 +832,14 @@ static BOOLEAN internal_ppm_w_ascii_word_bgr2rgb(WCACHE * wcache, const word * d
 
   if (gbm_write_wcache(wcache, '\n') != 1)
   {
-    return FALSE;
+    return GBM_FALSE;
   }
-  return TRUE;
+  return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-static BOOLEAN internal_ppm_write_comment(int fd, const char *options)
+static gbm_boolean internal_ppm_write_comment(int fd, const char *options)
 {
    const char *s;
 
@@ -851,44 +852,44 @@ static BOOLEAN internal_ppm_write_comment(int fd, const char *options)
      {
         if (sscanf(s + 8, "%200[^ ]", buf) != 1)
         {
-           return FALSE;
+           return GBM_FALSE;
         }
      }
 
      if (gbm_file_write(fd, "# ", 2) != 2)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
 
      len = strlen(buf);
      if (gbm_file_write(fd, buf, len) != len)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
 
      if (gbm_file_write(fd, "\n", 1) != 1)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
    }
 
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
    char  s[100+1];
    int   i;
-   const byte *p;
-   byte   *linebuf = NULL;
+   const gbm_u8 *p;
+   gbm_u8   *linebuf = NULL;
    WCACHE *wcache  = NULL;
 
    const int stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
    const int line_bytes = gbm->w * (gbm->bpp / 8);
 
-   const BOOLEAN ascii = ( gbm_find_word(opt, "ascii" ) != NULL );
+   const gbm_boolean ascii = ( gbm_find_word(opt, "ascii" ) != NULL );
 
    fn=fn; gbmrgb=gbmrgb; opt=opt; /* Suppress 'unref arg' compiler warnings */
 
@@ -902,7 +903,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
    /* we only need a conversion buffer for binary output */
    if (! ascii)
    {
-     if ((linebuf = (byte *) gbmmem_malloc(stride)) == NULL)
+     if ((linebuf = (gbm_u8 *) gbmmem_malloc(stride)) == NULL)
      {
         return GBM_ERR_MEM;
      }
@@ -995,7 +996,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             /* write as ASCII pattern or as binary data */
             if (ascii)
             {
-              if (! internal_ppm_w_ascii_word_bgr2rgb(wcache, (const word *) p, gbm->w))
+              if (! internal_ppm_w_ascii_word_bgr2rgb(wcache, (const gbm_u16 *) p, gbm->w))
               {
                 gbm_destroy_wcache(wcache);
                 return GBM_ERR_WRITE;

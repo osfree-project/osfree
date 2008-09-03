@@ -21,15 +21,15 @@ gbmmcut.c - Median Cut colour reductions
 
 typedef struct
 	{
-	dword freq;
-	byte r0,r1,g0,g1,b0,b1;
-	byte dividable;
+	gbm_u32 freq;
+	gbm_u8 r0,r1,g0,g1,b0,b1;
+	gbm_u8 dividable;
 	} CELL;
 
 typedef struct
 	{
-	dword freqs[0x20][0x20][0x20]; /* 128Kb */
-	dword total;
+	gbm_u32 freqs[0x20][0x20][0x20]; /* 128Kb */
+	gbm_u32 total;
 	int n_cells;
 	CELL cells[0x100];
 	} GBMMCUT;
@@ -56,7 +56,7 @@ void gbm_delete_mcut(GBMMCUT *mcut)
 /*...sgbm_add_to_mcut \45\ add statistics from file data:0:*/
 void gbm_add_to_mcut(
 	GBMMCUT *mcut,	
-	const GBM *gbm, const byte *data24
+	const GBM *gbm, const gbm_u8 *data24
 	)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
@@ -66,9 +66,9 @@ void gbm_add_to_mcut(
 	for ( y = 0; y < gbm->h; y++, data24 += step24 )
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			byte b = (byte) (*data24++ >> 3);
-			byte g = (byte) (*data24++ >> 3);
-			byte r = (byte) (*data24++ >> 3);
+			gbm_u8 b = (gbm_u8) (*data24++ >> 3);
+			gbm_u8 g = (gbm_u8) (*data24++ >> 3);
+			gbm_u8 r = (gbm_u8) (*data24++ >> 3);
 
 			( mcut->freqs[b][g][r] )++;
 			}
@@ -82,7 +82,7 @@ void gbm_add_to_mcut(
 
 static void shrink(GBMMCUT *mcut, CELL *c)
 	{
-	byte r, g, b;
+	gbm_u8 r, g, b;
 	
 	for ( ;; c->r0++ )
 		for ( g = c->g0; g < c->g1; g++ )
@@ -140,7 +140,7 @@ void gbm_pal_mcut(
 	{
 	CELL *c = mcut->cells;
 	int i, j;
-	byte reorder[0x100];
+	gbm_u8 reorder[0x100];
 
 	if ( n_cols_wanted > 0x100 )
 		n_cols_wanted = 0x100;
@@ -162,7 +162,7 @@ void gbm_pal_mcut(
 /*...sfind cell with most pixels in it\44\ that can be divided:16:*/
 {
 int j;
-dword freqmax = 1;
+gbm_u32 freqmax = 1;
 
 for ( j = 0; j < mcut->n_cells; j++ )
 	if ( c[j].freq > freqmax && c[j].dividable )
@@ -177,7 +177,7 @@ for ( j = 0; j < mcut->n_cells; j++ )
 
 		while ( cmax->dividable )
 			{
-			byte split;
+			gbm_u8 split;
 			CELL *cnew = &(c[mcut->n_cells]);
 
 /*...scalculate way to do the split:24:*/
@@ -199,8 +199,8 @@ else
 /*...sDIV_R:32:*/
 case DIV_R:
 	{
-	byte r, g, b;
-	dword slice, total = 0;
+	gbm_u8 r, g, b;
+	gbm_u32 slice, total = 0;
 
 	for ( r = cmax->r0; total < (cmax->freq>>1); r++ )
 		{
@@ -231,8 +231,8 @@ case DIV_R:
 /*...sDIV_G:32:*/
 case DIV_G:
 	{
-	byte r, g, b;
-	dword slice, total = 0;
+	gbm_u8 r, g, b;
+	gbm_u32 slice, total = 0;
 
 	for ( g = cmax->g0; total < (cmax->freq>>1); g++ )
 		{
@@ -263,8 +263,8 @@ case DIV_G:
 /*...sDIV_B:32:*/
 case DIV_B:
 	{
-	byte r, g, b;
-	dword slice, total = 0;
+	gbm_u8 r, g, b;
+	gbm_u32 slice, total = 0;
 
 	for ( b = cmax->b0; total < (cmax->freq>>1); b++ )
 		{
@@ -309,18 +309,18 @@ case DIV_B:
 	/* If I do though, it allows me to do other things afterwards    */
 
 	for ( i = 0; i < mcut->n_cells; i++ )
-		reorder[i] = (byte) i;
+		reorder[i] = (gbm_u8) i;
 
 	for ( j = mcut->n_cells; j > 0; j-- )
 		{
-		BOOLEAN noswaps = TRUE;
+		gbm_boolean noswaps = GBM_TRUE;
 		for ( i = 0; i < j - 1; i++ )
 			if ( c[reorder[i]].freq < c[reorder[i+1]].freq )
 				{
-				byte t = reorder[i];
+				gbm_u8 t = reorder[i];
 				reorder[i] = reorder[i+1];
 				reorder[i+1] = t;
-				noswaps = FALSE;
+				noswaps = GBM_FALSE;
 				}
 		if ( noswaps )
 			break;
@@ -334,7 +334,7 @@ case DIV_B:
 	for ( i = 0; i < mcut->n_cells; i++ )
 		{
 		int inx = reorder[i];
-		byte r, g, b;
+		gbm_u8 r, g, b;
 
 		gbmrgb[i].r = ( (c[inx].r0 + c[inx].r1) << 2 );
 		gbmrgb[i].g = ( (c[inx].g0 + c[inx].g1) << 2 );
@@ -358,7 +358,7 @@ case DIV_B:
 /*...sgbm_map_mcut    \45\ map to median cutted palette:0:*/
 void gbm_map_mcut(
 	GBMMCUT *mcut,
-	const GBM *gbm, const byte *data24, byte *data8
+	const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8
 	)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
@@ -372,30 +372,30 @@ void gbm_map_mcut(
 	for ( y = 0; y < gbm->h; y++, data24 += step24, data8 += step8 )
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			byte b = (*data24++ >> 3);
-			byte g = (*data24++ >> 3);
-			byte r = (*data24++ >> 3);
+			gbm_u8 b = (*data24++ >> 3);
+			gbm_u8 g = (*data24++ >> 3);
+			gbm_u8 r = (*data24++ >> 3);
 
-			*data8++ = (byte) ( mcut->freqs[b][g][r] );
+			*data8++ = (gbm_u8) ( mcut->freqs[b][g][r] );
 			}
 	}
 /*...e*/
 /*...sgbm_mcut        \45\ map single bitmap using median cut:0:*/
-BOOLEAN gbm_mcut(
-	const GBM *gbm, const byte *data24,
+gbm_boolean gbm_mcut(
+	const GBM *gbm, const gbm_u8 *data24,
 	GBMRGB gbmrgb[],
-	byte *data8,
+	gbm_u8 *data8,
 	int n_cols_wanted
 	)
 	{
 	GBMMCUT *mcut;
 
 	if ( (mcut = gbm_create_mcut()) == NULL )
-		return FALSE;
+		return GBM_FALSE;
 	gbm_add_to_mcut(mcut, gbm, data24);
 	gbm_pal_mcut(mcut, gbmrgb, n_cols_wanted);
 	gbm_map_mcut(mcut, gbm, data24, data8);
 	gbm_delete_mcut(mcut);
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/

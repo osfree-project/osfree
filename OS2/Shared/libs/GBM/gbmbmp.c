@@ -6,7 +6,7 @@ gbmbmp.c - OS/2 1.1, 1.2, 2.0, Windows 3.x, Windows 9x, Windows NT/2000/XP (BMP 
 * Reads uncompressed, RLE4, RLE8 and RLE24 OS/2 and Windows bitmaps (BI_RGB, BI_BITFIELDS)
 
 There are horrific file structure alignment considerations hence each
-word,dword is read individually.
+gbm_u16,gbm_u32 is read individually.
 
 If input is an OS/2 bitmaparray file then which bitmap can be specified.
 Input options: index=# (default: 0)
@@ -57,7 +57,9 @@ History:
                palette is honored just as in all other formats.
 22-Jul-2006: Prevent possible buffer overflows in 4,8,24bpp RLE decoders due to
              badly encoded bitmap.
-
+15-Aug-2008: Integrate new GBM types
+ 1-Sep-2008: Add support for reading 16/32bpp BGR OS/2 1.2,1.2 bitmaps which
+             are written by some apps when graphics card runs at 16/32bpp.
 
 TODO:
 - read BCA_HUFFMAN1D (OS/2)
@@ -78,93 +80,93 @@ TODO:
   #define min(a,b)  (((a)<(b))?(a):(b))
 #endif
 
-#define  low_byte(w)    ((byte)  ((w)&0x00ff)    )
-#define  high_byte(w)   ((byte) (((w)&0xff00)>>8))
-#define  make_word(a,b) (((word)a) + (((word)b) << 8))
+#define  low_byte(w)    ((gbm_u8)  ((w)&0x00ff)    )
+#define  high_byte(w)   ((gbm_u8) (((w)&0xff00)>>8))
+#define  make_word(a,b) (((gbm_u16)a) + (((gbm_u16)b) << 8))
 
 /* ------------------------------------------------- */
 
 typedef struct
 {
-    dword mask_b;
-    dword mask_g;
-    dword mask_r;
+    gbm_u32 mask_b;
+    gbm_u32 mask_g;
+    gbm_u32 mask_r;
 
-    dword bitoffset_b;
-    dword bitoffset_g;
-    dword bitoffset_r;
+    gbm_u32 bitoffset_b;
+    gbm_u32 bitoffset_g;
+    gbm_u32 bitoffset_r;
 
-    dword valid_bits_b;
-    dword valid_bits_g;
-    dword valid_bits_r;
+    gbm_u32 valid_bits_b;
+    gbm_u32 valid_bits_g;
+    gbm_u32 valid_bits_r;
 
 } BMP_COLOR_MASKS;
 
 typedef struct
 {
-    dword base;
-    BOOLEAN windows;
-    dword cbFix;
-    dword ulCompression;
-    dword cclrUsed;
-    dword offBits;
-    BOOLEAN inv, invb;
-    word  cBitCount;
+    gbm_u32         base;
+    gbm_boolean     windows;
+    gbm_u32         cbFix;
+    gbm_u32         ulCompression;
+    gbm_u32         cclrUsed;
+    gbm_u32         offBits;
+    gbm_boolean     inv, invb;
+    gbm_u16         cBitCount;
     BMP_COLOR_MASKS cMasks;
 
 } BMP_PRIV;
 
 /* ------------------------------------------------- */
 
-static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
+static GBM_ERR read_16bpp_data(int fd, GBM *gbm, gbm_u8 *data,
                                const BMP_COLOR_MASKS * maskdef);
-static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
+static GBM_ERR read_32bpp_data(int fd, GBM *gbm, gbm_u8 *data,
                                const BMP_COLOR_MASKS * maskdef);
 
-static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data);
-static GBM_ERR read_rle8_data (int fd, GBM *gbm, byte *data);
-static GBM_ERR read_rle4_data (int fd, GBM *gbm, byte *data);
+static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data);
+static GBM_ERR read_rle8_data (int fd, GBM *gbm, gbm_u8 *data);
+static GBM_ERR read_rle4_data (int fd, GBM *gbm, gbm_u8 *data);
 
 /* ------------------------------------------------- */
 
-static BOOLEAN read_word(int fd, word *w)
+static gbm_boolean read_u16(int fd, gbm_u16 *w)
 {
-    byte low = 0, high = 0;
+    gbm_u8 low = 0, high = 0;
 
     if ( gbm_file_read(fd, (char *) &low, 1) != 1 )
-        return FALSE;
+        return GBM_FALSE;
     if ( gbm_file_read(fd, (char *) &high, 1) != 1 )
-        return FALSE;
-    *w = (word) (low + ((word) high << 8));
-    return TRUE;
+        return GBM_FALSE;
+    *w = (gbm_u16) (low + ((gbm_u16) high << 8));
+    return GBM_TRUE;
 }
 
-static BOOLEAN read_dword(int fd, dword *d)
+static gbm_boolean read_u32(int fd, gbm_u32 *d)
 {
-    word low, high;
-    if ( !read_word(fd, &low) )
-        return FALSE;
-    if ( !read_word(fd, &high) )
-        return FALSE;
-    *d = low + ((dword) high << 16);
-    return TRUE;
+    gbm_u16 low, high;
+    if ( !read_u16(fd, &low) )
+        return GBM_FALSE;
+    if ( !read_u16(fd, &high) )
+        return GBM_FALSE;
+    *d = low + ((gbm_u32) high << 16);
+    return GBM_TRUE;
 }
 
-static BOOLEAN write_word(int fd, word w)
+static gbm_boolean write_word(int fd, gbm_u16 w)
 {
-    byte    low  = (byte) w;
-    byte    high = (byte) (w >> 8);
+    gbm_u8 low  = (gbm_u8) w;
+    gbm_u8 high = (gbm_u8) (w >> 8);
 
     gbm_file_write(fd, &low, 1);
     gbm_file_write(fd, &high, 1);
-    return TRUE;
+    return GBM_TRUE;
 }
 
-static BOOLEAN write_dword(int fd, dword d)
+static gbm_boolean write_dword(int fd, gbm_u32 d)
 {
-    write_word(fd, (word) d);
-    write_word(fd, (word) (d >> 16));
-    return TRUE;
+    write_word(fd, (gbm_u16) d);
+    write_word(fd, (gbm_u16) (d >> 16));
+    return GBM_TRUE;
 }
 
 static GBMFT bmp_gbmft =
@@ -205,10 +207,10 @@ static GBMFT bmp_gbmft =
 
 /* ------------------------------------------------- */
 
-static void invert(byte *buffer, unsigned count)
+static void invert(gbm_u8 *buffer, unsigned count)
 {
     while ( count-- )
-        *buffer++ ^= (byte) 0xffU;
+        *buffer++ ^= (gbm_u8) 0xffU;
 }
 
 static void swap_pal(GBMRGB *gbmrgb)
@@ -218,11 +220,11 @@ static void swap_pal(GBMRGB *gbmrgb)
     gbmrgb[1] = tmp;
 }
 
-static dword count_mask_bits(dword mask, dword * bitoffset)
+static gbm_u32 count_mask_bits(gbm_u32 mask, gbm_u32 * bitoffset)
 {
-  dword testmask = 1; /* start with the least significant bit */
-  dword counter  = 0;
-  dword index    = 0;
+  gbm_u32 testmask = 1; /* start with the least significant bit */
+  gbm_u32 counter  = 0;
+  gbm_u32 index    = 0;
 
   *bitoffset = 0;
 
@@ -261,10 +263,10 @@ GBM_ERR bmp_qft(GBMFT *gbmft)
 /* Read number of bitmaps in BMP file. */
 GBM_ERR bmp_rimgcnt(const char *fn, int fd, int *pimgcnt)
 {
-    word usType;
+    gbm_u16 usType;
     fn=fn; /* Suppress 'unref arg' compiler warnings */
 
-    if ( !read_word(fd, &usType) )
+    if ( !read_u16(fd, &usType) )
     {
         return GBM_ERR_READ;
     }
@@ -273,15 +275,15 @@ GBM_ERR bmp_rimgcnt(const char *fn, int fd, int *pimgcnt)
         int i;
         for(i = 1;;i++)
         {
-            dword cbSize2, offNext;
+            gbm_u32 cbSize2, offNext;
 
-            if ( !read_dword(fd, &cbSize2) ) break;
-            if ( !read_dword(fd, &offNext) ) break;
+            if ( !read_u32(fd, &cbSize2) ) break;
+            if ( !read_u32(fd, &offNext) ) break;
             if ( offNext == 0L ) break;
 
             gbm_file_lseek(fd, (long) offNext, GBM_SEEK_SET);
 
-            if ( !read_word(fd, &usType) ) break;
+            if ( !read_u16(fd, &usType) ) break;
             if ( usType != BFT_BITMAPARRAY ) break;
         }
         *pimgcnt = i;
@@ -298,15 +300,15 @@ GBM_ERR bmp_rimgcnt(const char *fn, int fd, int *pimgcnt)
 
 GBM_ERR bmp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 {
-    word usType, xHotspot, yHotspot;
-    dword cbSize, offBits, cbFix;
+    gbm_u16 usType, xHotspot, yHotspot;
+    gbm_u32 cbSize, offBits, cbFix;
     BMP_PRIV *bmp_priv = (BMP_PRIV *) gbm->priv;
     bmp_priv->inv  = ( gbm_find_word(opt, "inv" ) != NULL );
     bmp_priv->invb = ( gbm_find_word(opt, "invb") != NULL );
 
     fn=fn; /* Suppress 'unref arg' compiler warnings */
 
-    if ( !read_word(fd, &usType) )
+    if ( !read_u16(fd, &usType) )
         return GBM_ERR_READ;
     if ( usType == BFT_BITMAPARRAY )
     /*...shandle bitmap arrays:16:*/
@@ -321,39 +323,39 @@ GBM_ERR bmp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 
        while ( i-- > 0 )
        {
-          dword cbSize2, offNext;
+          gbm_u32 cbSize2, offNext;
 
-          if ( !read_dword(fd, &cbSize2) )
+          if ( !read_u32(fd, &cbSize2) )
              return GBM_ERR_READ;
-          if ( !read_dword(fd, &offNext) )
+          if ( !read_u32(fd, &offNext) )
              return GBM_ERR_READ;
           if ( offNext == 0L )
              return GBM_ERR_BMP_OFFSET;
           gbm_file_lseek(fd, (long) offNext, GBM_SEEK_SET);
-          if ( !read_word(fd, &usType) )
+          if ( !read_u16(fd, &usType) )
              return GBM_ERR_READ;
           if ( usType != BFT_BITMAPARRAY )
              return GBM_ERR_BAD_MAGIC;
        }
        gbm_file_lseek(fd, 4L + 4L + 2L + 2L, GBM_SEEK_CUR);
-       if ( !read_word(fd, &usType) )
+       if ( !read_u16(fd, &usType) )
           return GBM_ERR_READ;
     }
 
     if ( usType != BFT_BMAP )
         return GBM_ERR_BAD_MAGIC;
 
-    bmp_priv->base = (dword) ( gbm_file_lseek(fd, 0L, GBM_SEEK_CUR) - 2L );
+    bmp_priv->base = (gbm_u32) ( gbm_file_lseek(fd, 0L, GBM_SEEK_CUR) - 2L );
 
-    if ( !read_dword(fd, &cbSize) )
+    if ( !read_u32(fd, &cbSize) )
         return GBM_ERR_READ;
-    if ( !read_word(fd, &xHotspot) )
+    if ( !read_u16(fd, &xHotspot) )
         return GBM_ERR_READ;
-    if ( !read_word(fd, &yHotspot) )
+    if ( !read_u16(fd, &yHotspot) )
         return GBM_ERR_READ;
-    if ( !read_dword(fd, &offBits) )
+    if ( !read_u32(fd, &offBits) )
         return GBM_ERR_READ;
-    if ( !read_dword(fd, &cbFix) )
+    if ( !read_u32(fd, &cbFix) )
         return GBM_ERR_READ;
 
     bmp_priv->offBits = offBits;
@@ -361,91 +363,125 @@ GBM_ERR bmp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
     if ( cbFix == 12 )
     /* OS/2 1.x uncompressed bitmap */
     {
-       word cx, cy, cPlanes, cBitCount;
+       gbm_u16 cx, cy, cPlanes, cBitCount;
 
-       if ( !read_word(fd, &cx) )
+       if ( !read_u16(fd, &cx) )
           return GBM_ERR_READ;
-       if ( !read_word(fd, &cy) )
+       if ( !read_u16(fd, &cy) )
           return GBM_ERR_READ;
-       if ( !read_word(fd, &cPlanes) )
+       if ( !read_u16(fd, &cPlanes) )
           return GBM_ERR_READ;
-       if ( !read_word(fd, &cBitCount) )
+       if ( !read_u16(fd, &cBitCount) )
           return GBM_ERR_READ;
 
        if ( cx == 0 || cy == 0 )
           return GBM_ERR_BAD_SIZE;
        if ( cPlanes != 1 )
           return GBM_ERR_BMP_PLANES;
-       if ( cBitCount != 1 && cBitCount != 4 && cBitCount != 8 && cBitCount != 24 )
+
+       if ( cBitCount != 1  &&
+            cBitCount != 4  &&
+            cBitCount != 8  &&
+            cBitCount != 16 &&
+            cBitCount != 24 &&
+            cBitCount != 32 )
           return GBM_ERR_BMP_BITCOUNT;
 
        gbm->w   = (int) cx;
        gbm->h   = (int) cy;
        gbm->bpp = (int) cBitCount;
 
-       bmp_priv->windows   = FALSE;
+       bmp_priv->windows   = GBM_FALSE;
        bmp_priv->cBitCount = cBitCount;
-       bmp_priv->cclrUsed  = ((dword)1 << cBitCount) & 0x1ff; /* 1->2, 4->16, 8->256, 16/24/32->0 */
-       memset(&(bmp_priv->cMasks), 0, sizeof(bmp_priv->cMasks)); /* unused */
+       bmp_priv->cclrUsed  = (cBitCount < 24)
+                             ? (gbm_u32)1 << cBitCount /* 1->2, 4->16, 8->256 */
+                             : 0;
+
+       if (cBitCount <= 24)
+       {
+          memset(&(bmp_priv->cMasks), 0, sizeof(bmp_priv->cMasks)); /* unused */
+       }
+       else
+       {
+          gbm->bpp = 24;
+
+          bmp_priv->cMasks.bitoffset_b = 0;
+          bmp_priv->cMasks.bitoffset_g = (cBitCount == 16) ?  5 :  8;
+          bmp_priv->cMasks.bitoffset_r = (cBitCount == 16) ? 10 : 16;
+
+          /* set color masks to either 16bpp (5,5,5) or 32bpp (8,8,8) */
+          bmp_priv->cMasks.mask_b = (cBitCount == 16) ? 0x001f : 0x000000ff;
+          bmp_priv->cMasks.mask_g = (cBitCount == 16) ? 0x03e0 : 0x0000ff00;
+          bmp_priv->cMasks.mask_r = (cBitCount == 16) ? 0x7c00 : 0x00ff0000;
+
+          bmp_priv->cMasks.valid_bits_b = (cBitCount == 16) ? 5 : 8;
+          bmp_priv->cMasks.valid_bits_g = (cBitCount == 16) ? 5 : 8;
+          bmp_priv->cMasks.valid_bits_r = (cBitCount == 16) ? 5 : 8;
+       }
     }
     else if ( cbFix >= 16 && cbFix <= 64 &&
               ((cbFix & 3) == 0 || cbFix == 42 || cbFix == 46) )
     /*...sOS\47\2 2\46\0 and Windows 3\46\0:16:*/
     {
-       word cPlanes, cBitCount, usUnits, usReserved, usRecording, usRendering;
-       dword ulWidth, ulHeight, ulCompression;
-       dword ulSizeImage, ulXPelsPerMeter, ulYPelsPerMeter;
-       dword cclrUsed, cclrImportant, cSize1, cSize2, ulColorEncoding, ulIdentifier;
-       BOOLEAN ok;
+       gbm_u16 cPlanes, cBitCount, usUnits, usReserved, usRecording, usRendering;
+       gbm_u32 ulWidth, ulHeight, ulCompression;
+       gbm_u32 ulSizeImage, ulXPelsPerMeter, ulYPelsPerMeter;
+       gbm_u32 cclrUsed, cclrImportant, cSize1, cSize2, ulColorEncoding, ulIdentifier;
+       gbm_boolean ok;
 
-       ok  = read_dword(fd, &ulWidth);
-       ok &= read_dword(fd, &ulHeight);
-       ok &= read_word(fd, &cPlanes);
-       ok &= read_word(fd, &cBitCount);
+       ok  = read_u32(fd, &ulWidth);
+       ok &= read_u32(fd, &ulHeight);
+       ok &= read_u16(fd, &cPlanes);
+       ok &= read_u16(fd, &cBitCount);
        if ( cbFix > 16 )
-          ok &= read_dword(fd, &ulCompression);
+          ok &= read_u32(fd, &ulCompression);
        else
           ulCompression = BCA_UNCOMP;
        if ( cbFix > 20 )
-          ok &= read_dword(fd, &ulSizeImage);
+          ok &= read_u32(fd, &ulSizeImage);
        if ( cbFix > 24 )
-          ok &= read_dword(fd, &ulXPelsPerMeter);
+          ok &= read_u32(fd, &ulXPelsPerMeter);
        if ( cbFix > 28 )
-          ok &= read_dword(fd, &ulYPelsPerMeter);
+          ok &= read_u32(fd, &ulYPelsPerMeter);
        if ( cbFix > 32 )
-          ok &= read_dword(fd, &cclrUsed);
+          ok &= read_u32(fd, &cclrUsed);
        else
-          cclrUsed = ((dword)1 << cBitCount) & 0x1ff; /* 1->2, 4->16, 8->256, 16/24/32->0 */
-
+       {
+          cclrUsed  = (cBitCount < 24)
+                      ? (gbm_u32)1 << cBitCount /* 1->2, 4->16, 8->256 */
+                      : 0;
+       }
        if (cclrUsed == 0)
        {
-          cclrUsed = ((dword)1 << cBitCount) & 0x1ff; /* 1->2, 4->16, 8->256, 16/24/32->0 */
+          cclrUsed  = (cBitCount < 24)
+                      ? (gbm_u32)1 << cBitCount /* 1->2, 4->16, 8->256 */
+                      : 0;
        }
 
        /* Protect against badly written bitmaps! */
-       if ( cclrUsed > ( (dword)1 << cBitCount ) )
+       if ( cclrUsed > 256 )
        {
-          cclrUsed = ((dword)1 << cBitCount) & 0x1ff; /* 1->2, 4->16, 8->256, 16/24/32->0 */
+          cclrUsed = (gbm_u32)1 << cBitCount; /* 1->2, 4->16, 8->256 */
        }
 
        if ( cbFix > 36 )
-          ok &= read_dword(fd, &cclrImportant);
+          ok &= read_u32(fd, &cclrImportant);
        if ( cbFix > 40 )
-          ok &= read_word(fd, &usUnits);
+          ok &= read_u16(fd, &usUnits);
        if ( cbFix > 42 )
-          ok &= read_word(fd, &usReserved);
+          ok &= read_u16(fd, &usReserved);
        if ( cbFix > 44 )
-          ok &= read_word(fd, &usRecording);
+          ok &= read_u16(fd, &usRecording);
        if ( cbFix > 46 )
-          ok &= read_word(fd, &usRendering);
+          ok &= read_u16(fd, &usRendering);
        if ( cbFix > 48 )
-          ok &= read_dword(fd, &cSize1);
+          ok &= read_u32(fd, &cSize1);
        if ( cbFix > 52 )
-          ok &= read_dword(fd, &cSize2);
+          ok &= read_u32(fd, &cSize2);
        if ( cbFix > 56 )
-          ok &= read_dword(fd, &ulColorEncoding);
+          ok &= read_u32(fd, &ulColorEncoding);
        if ( cbFix > 60 )
-          ok &= read_dword(fd, &ulIdentifier);
+          ok &= read_u32(fd, &ulIdentifier);
 
        if ( !ok )
           return GBM_ERR_READ;
@@ -465,10 +501,10 @@ GBM_ERR bmp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
          return GBM_ERR_BMP_BITCOUNT;
        }
 
-       gbm->w   = (int) ulWidth;
-       gbm->h   = (int) ulHeight;
+       gbm->w = (int) ulWidth;
+       gbm->h = (int) ulHeight;
 
-       bmp_priv->windows       = TRUE;
+       bmp_priv->windows       = GBM_TRUE;
        bmp_priv->cbFix         = cbFix;
        bmp_priv->ulCompression = ulCompression;
        bmp_priv->cclrUsed      = cclrUsed;
@@ -503,10 +539,10 @@ GBM_ERR bmp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
              /* Read BI_BITFIELDS color masks from the header (where usually the palette is) */
              /* These are strangely stored as dwords in the order of R-G-B. */
              gbm_file_lseek(fd, (long) (bmp_priv->base + 14L + bmp_priv->cbFix), GBM_SEEK_SET);
-             bytes_r = gbm_file_read(fd, &(bmp_priv->cMasks.mask_r), sizeof(dword));
-             bytes_g = gbm_file_read(fd, &(bmp_priv->cMasks.mask_g), sizeof(dword));
-             bytes_b = gbm_file_read(fd, &(bmp_priv->cMasks.mask_b), sizeof(dword));
-             if ((bytes_b != sizeof(dword)) || (bytes_g != sizeof(dword)) || (bytes_r != sizeof(dword)))
+             bytes_r = gbm_file_read(fd, &(bmp_priv->cMasks.mask_r), sizeof(gbm_u32));
+             bytes_g = gbm_file_read(fd, &(bmp_priv->cMasks.mask_g), sizeof(gbm_u32));
+             bytes_b = gbm_file_read(fd, &(bmp_priv->cMasks.mask_b), sizeof(gbm_u32));
+             if ((bytes_b != sizeof(gbm_u32)) || (bytes_g != sizeof(gbm_u32)) || (bytes_r != sizeof(gbm_u32)))
              {
                return GBM_ERR_BMP_CBFIX;
              }
@@ -563,7 +599,7 @@ GBM_ERR bmp_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
     if (gbm->bpp <= 8)
     {
         int i;
-        byte b[4];
+        gbm_u8 b[4];
         const int palette_entries = ((int)1 << gbm->bpp) & 0x1ff;
 
         if ( bmp_priv->windows )
@@ -606,7 +642,7 @@ GBM_ERR bmp_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 
 /* ------------------------------------------------- */
 
-GBM_ERR bmp_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR bmp_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
     BMP_PRIV *bmp_priv = (BMP_PRIV *) gbm->priv;
     const int cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
@@ -701,11 +737,32 @@ GBM_ERR bmp_rdata(int fd, GBM *gbm, byte *data)
     else
     /* OS/2 1.1, 1.2 */
     {
-       const int bytesToRead = gbm->h * cLinesWorth;
-       gbm_file_lseek(fd, (long) bmp_priv->offBits, GBM_SEEK_SET);
-       if (gbm_file_read(fd, data, bytesToRead) != bytesToRead)
+       switch(bmp_priv->cBitCount)
        {
-         rc = GBM_ERR_READ;
+         case 1:
+         case 4:
+         case 8:
+         case 24:
+           {
+             /* directly read as this is the same as the internal format */
+             const int bytesToRead = gbm->h * cLinesWorth;
+             if (gbm_file_read(fd, data, bytesToRead) != bytesToRead)
+             {
+               rc = GBM_ERR_READ;
+             }
+           }
+           break;
+
+         case 16:
+           rc = read_16bpp_data(fd, gbm, data, &(bmp_priv->cMasks));
+           break;
+
+         case 32:
+           rc = read_32bpp_data(fd, gbm, data,  &(bmp_priv->cMasks));
+           break;
+
+         default:
+           return GBM_ERR_BMP_BITCOUNT;
        }
     }
 
@@ -729,9 +786,9 @@ static int bright(const GBMRGB *gbmrgb)
 
 /* ------------------------------------------------- */
 
-static int write_inv(int fd, const byte *buffer, int count)
+static int write_inv(int fd, const gbm_u8 *buffer, int count)
 {
-    byte small_buf[1024];
+    gbm_u8 small_buf[1024];
     int so_far = 0, this_go, written;
 
     while ( so_far < count )
@@ -749,15 +806,15 @@ static int write_inv(int fd, const byte *buffer, int count)
 
 /* ------------------------------------------------- */
 
-GBM_ERR bmp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR bmp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
-    const BOOLEAN    pm11 = ( gbm_find_word(opt, "1.1"    ) != NULL );
-    const BOOLEAN    win  = ( gbm_find_word(opt, "win"    ) != NULL ||
-                              gbm_find_word(opt, "2.0"    ) != NULL );
-    const BOOLEAN inv     = ( gbm_find_word(opt, "inv"    ) != NULL );
-          BOOLEAN invb    = ( gbm_find_word(opt, "invb"   ) != NULL );
-    const BOOLEAN darkfg  = ( gbm_find_word(opt, "darkfg" ) != NULL );
-    const BOOLEAN lightfg = ( gbm_find_word(opt, "lightfg") != NULL );
+    const gbm_boolean    pm11 = ( gbm_find_word(opt, "1.1"    ) != NULL );
+    const gbm_boolean    win  = ( gbm_find_word(opt, "win"    ) != NULL ||
+                                  gbm_find_word(opt, "2.0"    ) != NULL );
+    const gbm_boolean inv     = ( gbm_find_word(opt, "inv"    ) != NULL );
+          gbm_boolean invb    = ( gbm_find_word(opt, "invb"   ) != NULL );
+    const gbm_boolean darkfg  = ( gbm_find_word(opt, "darkfg" ) != NULL );
+    const gbm_boolean lightfg = ( gbm_find_word(opt, "lightfg") != NULL );
     int cRGB;
     GBMRGB gbmrgb_1bpp[2];
 
@@ -798,17 +855,17 @@ GBM_ERR bmp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     if ( pm11 )
     /*...sOS\47\2 1\46\1:16:*/
     {
-       const word usType     = BFT_BMAP;
-       const word xHotspot   = 0;
-       const word yHotspot   = 0;
-       const dword cbFix     = (dword) 12;
-       const word cx         = (word) gbm->w;
-       const word cy         = (word) gbm->h;
-       const word cPlanes    = (word) 1;
-       const word cBitCount  = (word) gbm->bpp;
-       const int cLinesWorth = (((cBitCount * cx + 31) / 32) * cPlanes) * 4;
-       const dword offBits   = (dword) 26 + cRGB * (dword) 3;
-       const dword cbSize    = offBits + (dword) cy * (dword) cLinesWorth;
+       const gbm_u16 usType    = BFT_BMAP;
+       const gbm_u16 xHotspot  = 0;
+       const gbm_u16 yHotspot  = 0;
+       const gbm_u32 cbFix     = (gbm_u32) 12;
+       const gbm_u16 cx        = (gbm_u16) gbm->w;
+       const gbm_u16 cy        = (gbm_u16) gbm->h;
+       const gbm_u16 cPlanes   = (gbm_u16) 1;
+       const gbm_u16 cBitCount = (gbm_u16) gbm->bpp;
+       const int cLinesWorth   = (((cBitCount * cx + 31) / 32) * cPlanes) * 4;
+       const gbm_u32 offBits   = (gbm_u32) 26 + cRGB * (gbm_u32) 3;
+       const gbm_u32 cbSize    = offBits + (gbm_u32) cy * (gbm_u32) cLinesWorth;
        int i, total, actual;
 
        write_word(fd, usType);
@@ -824,7 +881,7 @@ GBM_ERR bmp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
        for ( i = 0; i < cRGB; i++ )
        {
-          byte b[3];
+          gbm_u8 b[3];
 
           b[0] = gbmrgb[i].b;
           b[1] = gbmrgb[i].g;
@@ -845,23 +902,23 @@ GBM_ERR bmp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     else
     /*...sOS\47\2 2\46\0 and Windows 3\46\0:16:*/
     {
-       const word usType         = BFT_BMAP;
-       const word xHotspot       = 0;
-       const word yHotspot       = 0;
-       const dword cbFix         = (dword) 40;
-       const dword cx            = (dword) gbm->w;
-       const dword cy            = (dword) gbm->h;
-       const word cPlanes        = (word) 1;
-       const word cBitCount      = (word) gbm->bpp;
-       const int cLinesWorth     = (((cBitCount * (int) cx + 31) / 32) * cPlanes) * 4;
-       const dword offBits       = (dword) 54 + cRGB * (dword) 4;
-       const dword cbSize        = offBits + (dword) cy * (dword) cLinesWorth;
-       const dword ulCompression = BCA_UNCOMP;
-       const dword cbImage       = (dword) cLinesWorth * (dword) gbm->h;
-       const dword cxResolution  = 0;
-       const dword cyResolution  = 0;
-       const dword cclrUsed      = 0;
-       const dword cclrImportant = 0;
+       const gbm_u16 usType        = BFT_BMAP;
+       const gbm_u16 xHotspot      = 0;
+       const gbm_u16 yHotspot      = 0;
+       const gbm_u32 cbFix         = (gbm_u32) 40;
+       const gbm_u32 cx            = (gbm_u32) gbm->w;
+       const gbm_u32 cy            = (gbm_u32) gbm->h;
+       const gbm_u16 cPlanes       = (gbm_u16) 1;
+       const gbm_u16 cBitCount     = (gbm_u16) gbm->bpp;
+       const int cLinesWorth       = (((cBitCount * (int) cx + 31) / 32) * cPlanes) * 4;
+       const gbm_u32 offBits       = (gbm_u32) 54 + cRGB * (gbm_u32) 4;
+       const gbm_u32 cbSize        = offBits + (gbm_u32) cy * (gbm_u32) cLinesWorth;
+       const gbm_u32 ulCompression = BCA_UNCOMP;
+       const gbm_u32 cbImage       = (gbm_u32) cLinesWorth * (gbm_u32) gbm->h;
+       const gbm_u32 cxResolution  = 0;
+       const gbm_u32 cyResolution  = 0;
+       const gbm_u32 cclrUsed      = 0;
+       const gbm_u32 cclrImportant = 0;
        int i, total, actual;
 
        write_word(fd, usType);
@@ -884,7 +941,7 @@ GBM_ERR bmp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
        for ( i = 0; i < cRGB; i++ )
        {
-          byte b[4];
+          gbm_u8 b[4];
 
           b[0] = gbmrgb[i].b;
           b[1] = gbmrgb[i].g;
@@ -931,21 +988,21 @@ const char *bmp_err(GBM_ERR rc)
 /* ------------------------------------------------- */
 
 /* Read 16bpp data with compression BI_RGB or BI_BITFIELDS (will be mapped to 24bpp, lossless) */
-static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
+static GBM_ERR read_16bpp_data(int fd, GBM *gbm, gbm_u8 *data,
                                const BMP_COLOR_MASKS * maskdef)
 
 {
    const int stride_src = ((gbm->w * 16 + 31) / 32) * 4;
    const int stride_dst = ((gbm->w * 24 + 31) / 32) * 4;
-   byte * data_src   = NULL;
-   byte * data_write = NULL;
-   byte * data8_dst  = NULL;
+   gbm_u8 * data_src   = NULL;
+   gbm_u8 * data_write = NULL;
+   gbm_u8 * data8_dst  = NULL;
 
    int h;
 
-   const word * data16_src = NULL;
-         word   data16;
-         int    block_count;
+   const gbm_u16 * data16_src = NULL;
+         gbm_u16   data16;
+         int       block_count;
 
    /* Only up to 8 bit per mask are allowed */
    if ((maskdef->valid_bits_b > 8) || (maskdef->valid_bits_g > 8) || (maskdef->valid_bits_r > 8))
@@ -953,7 +1010,7 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
      return GBM_ERR_BMP_COMP;
    }
 
-   data_src = (byte *) gbmmem_malloc(stride_src);
+   data_src = (gbm_u8 *) gbmmem_malloc(stride_src);
    if (data_src == NULL)
    {
      return GBM_ERR_MEM;
@@ -963,7 +1020,7 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
 
    for (h = 0; h < gbm->h; h++)
    {
-     data16_src  = (const word *) data_src;
+     data16_src  = (const gbm_u16 *) data_src;
      data8_dst   = data_write;
      block_count = gbm->w;
 
@@ -977,10 +1034,10 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
      /* Encoding starts at least significant bit, then xB,yG,zR (most significant bit is unused). */
      /* Map these into 24bpp BGR. */
 
-     /* (((dword) bgr16 & mask_color) >> bitoffset) << (8 - valid_bits) */
-     #define GetB(bgr16, mask) ( ((((dword) bgr16) & mask->mask_b) >> mask->bitoffset_b) << (8 - mask->valid_bits_b) )
-     #define GetG(bgr16, mask) ( ((((dword) bgr16) & mask->mask_g) >> mask->bitoffset_g) << (8 - mask->valid_bits_g) )
-     #define GetR(bgr16, mask) ( ((((dword) bgr16) & mask->mask_r) >> mask->bitoffset_r) << (8 - mask->valid_bits_r) )
+     /* (((gbm_u32) bgr16 & mask_color) >> bitoffset) << (8 - valid_bits) */
+     #define GetB(bgr16, mask) ( ((((gbm_u32) bgr16) & mask->mask_b) >> mask->bitoffset_b) << (8 - mask->valid_bits_b) )
+     #define GetG(bgr16, mask) ( ((((gbm_u32) bgr16) & mask->mask_g) >> mask->bitoffset_g) << (8 - mask->valid_bits_g) )
+     #define GetR(bgr16, mask) ( ((((gbm_u32) bgr16) & mask->mask_r) >> mask->bitoffset_r) << (8 - mask->valid_bits_r) )
 
      while (block_count > 0)
      {
@@ -1007,21 +1064,21 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, byte *data,
 /* ------------------------------------------------- */
 
 /* Read 32bpp data with compression BI_RGB or BI_BITFIELDS (will be mapped to 24bpp, lossless) */
-static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
+static GBM_ERR read_32bpp_data(int fd, GBM *gbm, gbm_u8 *data,
                                const BMP_COLOR_MASKS * maskdef)
 {
    /* almost identical to the internal format (last byte must be ignored)) */
    const int stride_src = gbm->w * 4;
    const int stride_dst = ((gbm->w * 24 + 31) / 32) * 4;
-   byte * data_src   = NULL;
-   byte * data_write = NULL;
-   byte * data8_dst  = NULL;
+   gbm_u8 * data_src   = NULL;
+   gbm_u8 * data_write = NULL;
+   gbm_u8 * data8_dst  = NULL;
 
    int h;
 
-   const dword * data32_src = NULL;
-         dword   data32;
-         int     block_count;
+   const gbm_u32 * data32_src = NULL;
+         gbm_u32   data32;
+         int       block_count;
 
    /* Only up to 8 bit per mask are allowed */
    if ((maskdef->valid_bits_b > 8) || (maskdef->valid_bits_g > 8) || (maskdef->valid_bits_r > 8))
@@ -1029,7 +1086,7 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
      return GBM_ERR_BMP_COMP;
    }
 
-   data_src = (byte *) gbmmem_malloc(stride_src);
+   data_src = (gbm_u8 *) gbmmem_malloc(stride_src);
    if (data_src == NULL)
    {
      return GBM_ERR_MEM;
@@ -1039,7 +1096,7 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
 
    for (h = 0; h < gbm->h; h++)
    {
-     data32_src  = (const dword *) data_src;
+     data32_src  = (const gbm_u32 *) data_src;
      data8_dst   = data_write;
      block_count = gbm->w;
 
@@ -1053,10 +1110,10 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
      /* Encoding starts at least significant bit, then xB,yG,zR (most significant bit is unused). */
      /* Map these into 24bpp BGR. */
 
-     /* (((dword) bgr32 & mask_color) >> bitoffset) << (8 - valid_bits) */
-     #define GetB(bgr32, mask) ( ((((dword) bgr32) & mask->mask_b) >> mask->bitoffset_b) << (8 - mask->valid_bits_b) )
-     #define GetG(bgr32, mask) ( ((((dword) bgr32) & mask->mask_g) >> mask->bitoffset_g) << (8 - mask->valid_bits_g) )
-     #define GetR(bgr32, mask) ( ((((dword) bgr32) & mask->mask_r) >> mask->bitoffset_r) << (8 - mask->valid_bits_r) )
+     /* (((gbm_u32) bgr32 & mask_color) >> bitoffset) << (8 - valid_bits) */
+     #define GetB(bgr32, mask) ( ((((gbm_u32) bgr32) & mask->mask_b) >> mask->bitoffset_b) << (8 - mask->valid_bits_b) )
+     #define GetG(bgr32, mask) ( ((((gbm_u32) bgr32) & mask->mask_g) >> mask->bitoffset_g) << (8 - mask->valid_bits_g) )
+     #define GetR(bgr32, mask) ( ((((gbm_u32) bgr32) & mask->mask_r) >> mask->bitoffset_r) << (8 - mask->valid_bits_r) )
 
      while (block_count > 0)
      {
@@ -1084,30 +1141,30 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, byte *data,
 /* ------------------------------------------------- */
 
 /* Read RLE24 encoded data */
-static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data)
+static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
 {
    const int cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-   const byte * dataEnd  = data + (cLinesWorth * gbm->h);
+   const gbm_u8 * dataEnd  = data + (cLinesWorth * gbm->h);
 
    AHEAD *ahead;
    int x = 0, y = 0;
-   BOOLEAN eof24 = FALSE;
+   gbm_boolean eof24 = GBM_FALSE;
 
    if ( (ahead = gbm_create_ahead(fd)) == NULL )
       return GBM_ERR_MEM;
 
    while ( !eof24 )
    {
-            byte c = (byte) gbm_read_ahead(ahead);
-      const byte d = (byte) gbm_read_ahead(ahead);
+            gbm_u8 c = (gbm_u8) gbm_read_ahead(ahead);
+      const gbm_u8 d = (gbm_u8) gbm_read_ahead(ahead);
       /* fprintf(stderr, "(%d,%d) c=%d,d=%d\n", x, y, c, d); */
 
       if ( c )
       {
          /* encoded run */
-         byte  i;
-         const byte g = (byte) gbm_read_ahead(ahead);
-         const byte r = (byte) gbm_read_ahead(ahead);
+         gbm_u8  i;
+         const gbm_u8 g = (gbm_u8) gbm_read_ahead(ahead);
+         const gbm_u8 r = (gbm_u8) gbm_read_ahead(ahead);
 
          if (data + (c * 3) > dataEnd)
          {
@@ -1139,7 +1196,7 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data)
                x = 0;
                if ( ++y == gbm->h )
                {
-                  eof24 = TRUE;
+                  eof24 = GBM_TRUE;
                }
             }
             break;
@@ -1172,14 +1229,14 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data)
                      y++;
                   }
                }
-               eof24 = TRUE;
+               eof24 = GBM_TRUE;
                break;
 
             /* MSWCC_DELTA */
             case MSWCC_DELTA:
             {
-               const byte dx  = (byte) gbm_read_ahead(ahead);
-               const byte dy  = (byte) gbm_read_ahead(ahead);
+               const gbm_u8 dx  = (gbm_u8) gbm_read_ahead(ahead);
+               const gbm_u8 dy  = (gbm_u8) gbm_read_ahead(ahead);
                int fill = (dx * 3) + (dy * cLinesWorth);
 
                if (data + fill > dataEnd)
@@ -1191,7 +1248,7 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data)
                x += dx * 3; y += dy;
                if ( y == gbm->h )
                {
-                  eof24 = TRUE;
+                  eof24 = GBM_TRUE;
                }
             }
             break;
@@ -1209,9 +1266,9 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data)
                }
                while ( n-- > 0 )
                {
-                  *data++ = (byte) gbm_read_ahead(ahead);
-                  *data++ = (byte) gbm_read_ahead(ahead);
-                  *data++ = (byte) gbm_read_ahead(ahead);
+                  *data++ = (gbm_u8) gbm_read_ahead(ahead);
+                  *data++ = (gbm_u8) gbm_read_ahead(ahead);
+                  *data++ = (gbm_u8) gbm_read_ahead(ahead);
                   x += 3;
                }
                data += 3 * diff;
@@ -1234,23 +1291,22 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, byte *data)
 /* ------------------------------------------------- */
 
 /* Read RLE8 encoded data */
-static GBM_ERR read_rle8_data(int fd, GBM *gbm, byte *data)
+static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
 {
    const int cLinesWorth  = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-   const byte * dataEnd   = data + (cLinesWorth * gbm->h);
+   const gbm_u8 * dataEnd   = data + (cLinesWorth * gbm->h);
 
    AHEAD *ahead;
    int x = 0, y = 0;
-   BOOLEAN eof8 = FALSE;
+   gbm_boolean eof8 = GBM_FALSE;
 
    if ( (ahead = gbm_create_ahead(fd)) == NULL )
       return GBM_ERR_MEM;
 
    while ( !eof8 )
    {
-            byte c = (byte) gbm_read_ahead(ahead);
-      const byte d = (byte) gbm_read_ahead(ahead);
-/*      fprintf(stderr, "(%d,%d) c=%d,d=%d\n", x, y, c, d); */
+            gbm_u8 c = (gbm_u8) gbm_read_ahead(ahead);
+      const gbm_u8 d = (gbm_u8) gbm_read_ahead(ahead);
 
       if ( c )
       {
@@ -1278,7 +1334,7 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, byte *data)
                x = 0;
                if ( ++y == gbm->h )
                {
-                  eof8 = TRUE;
+                  eof8 = GBM_TRUE;
                }
             }
             break;
@@ -1311,14 +1367,14 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, byte *data)
                      y++;
                   }
                }
-               eof8 = TRUE;
+               eof8 = GBM_TRUE;
                break;
 
             /* MSWCC_DELTA */
             case MSWCC_DELTA:
             {
-               const byte dx  = (byte) gbm_read_ahead(ahead);
-               const byte dy  = (byte) gbm_read_ahead(ahead);
+               const gbm_u8 dx  = (gbm_u8) gbm_read_ahead(ahead);
+               const gbm_u8 dy  = (gbm_u8) gbm_read_ahead(ahead);
                int fill = dx + dy * cLinesWorth;
 
                if (data + fill > dataEnd)
@@ -1330,7 +1386,7 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, byte *data)
                x += dx; y += dy;
                if ( y == gbm->h )
                {
-                  eof8 = TRUE;
+                  eof8 = GBM_TRUE;
                }
             }
             break;
@@ -1349,7 +1405,7 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, byte *data)
 
                while ( n-- > 0 )
                {
-                  *data++ = (byte) gbm_read_ahead(ahead);
+                  *data++ = (gbm_u8) gbm_read_ahead(ahead);
                }
                data += diff;
                x    += d;
@@ -1371,14 +1427,14 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, byte *data)
 /* ------------------------------------------------- */
 
 /* Read RLE4 encoded data */
-static GBM_ERR read_rle4_data(int fd, GBM *gbm, byte *data)
+static GBM_ERR read_rle4_data(int fd, GBM *gbm, gbm_u8 *data)
 {
    const int cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-   const byte * dataEnd  = data + (cLinesWorth * gbm->h);
+   const gbm_u8 * dataEnd  = data + (cLinesWorth * gbm->h);
 
    AHEAD *ahead;
    int x = 0, y = 0;
-   BOOLEAN eof4 = FALSE;
+   gbm_boolean eof4 = GBM_FALSE;
    int inx = 0;
 
    if ( (ahead = gbm_create_ahead(fd)) == NULL )
@@ -1388,17 +1444,17 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, byte *data)
 
    while ( !eof4 )
    {
-      byte c = (byte) gbm_read_ahead(ahead);
-      byte d = (byte) gbm_read_ahead(ahead);
+      gbm_u8 c = (gbm_u8) gbm_read_ahead(ahead);
+      gbm_u8 d = (gbm_u8) gbm_read_ahead(ahead);
 
       if ( c )
       {
-         byte h, l;
+         gbm_u8 h, l;
          int i;
          if ( x & 1 )
-            { h = (byte) (d >> 4); l = (byte) (d << 4); }
+            { h = (gbm_u8) (d >> 4); l = (gbm_u8) (d << 4); }
          else
-            { h = (byte) (d&0xf0); l = (byte) (d&0x0f); }
+            { h = (gbm_u8) (d&0xf0); l = (gbm_u8) (d&0x0f); }
 
          if (data + (c/2) > dataEnd)
          {
@@ -1421,28 +1477,28 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, byte *data)
                x = 0;
                if ( ++y == gbm->h )
                {
-                  eof4 = TRUE;
+                  eof4 = GBM_TRUE;
                }
                inx = cLinesWorth * y;
                break;
 
             /* MSWCC_EOB */
             case MSWCC_EOB:
-               eof4 = TRUE;
+               eof4 = GBM_TRUE;
                break;
 
             /* MSWCC_DELTA */
             case MSWCC_DELTA:
             {
-               const byte dx = (byte) gbm_read_ahead(ahead);
-               const byte dy = (byte) gbm_read_ahead(ahead);
+               const gbm_u8 dx = (gbm_u8) gbm_read_ahead(ahead);
+               const gbm_u8 dy = (gbm_u8) gbm_read_ahead(ahead);
 
                x += dx; y += dy;
                inx = y * cLinesWorth + (x/2);
 
                if ( y == gbm->h )
                {
-                  eof4 = TRUE;
+                  eof4 = GBM_TRUE;
                }
             }
             break;
@@ -1464,14 +1520,14 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, byte *data)
                {
                   for ( i = 0; i+2 <= (int) d; i += 2 )
                   {
-                     const byte b = (byte) gbm_read_ahead(ahead);
+                     const gbm_u8 b = (gbm_u8) gbm_read_ahead(ahead);
                      data[inx++] |= (b >> 4);
                      data[inx  ] |= (b << 4);
                      nr++;
                   }
                   if ( i < (int) d )
                   {
-                     data[inx++] |= ((byte) gbm_read_ahead(ahead) >> 4);
+                     data[inx++] |= ((gbm_u8) gbm_read_ahead(ahead) >> 4);
                      nr++;
                   }
                }
@@ -1479,12 +1535,12 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, byte *data)
                {
                   for ( i = 0; i+2 <= (int) d; i += 2 )
                   {
-                     data[inx++] = (byte) gbm_read_ahead(ahead);
+                     data[inx++] = (gbm_u8) gbm_read_ahead(ahead);
                      nr++;
                   }
                   if ( i < (int) d )
                   {
-                     data[inx] = (byte) gbm_read_ahead(ahead);
+                     data[inx] = (gbm_u8) gbm_read_ahead(ahead);
                      nr++;
                   }
                }

@@ -13,6 +13,7 @@ History:
 08-Feb-2008  Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+15-Aug-2008  Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -22,7 +23,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -117,12 +118,12 @@ static void usage(void)
 	}
 /*...e*/
 /*...ssame:0:*/
-static BOOLEAN same(const char *s1, const char *s2, int n)
+static gbm_boolean same(const char *s1, const char *s2, int n)
 	{
 	for ( ; n--; s1++, s2++ )
 		if ( tolower(*s1) != tolower(*s2) )
-			return FALSE;
-	return TRUE;
+			return GBM_FALSE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...smain:0:*/
@@ -167,26 +168,26 @@ static MAPINFO mapinfos[] =
 /*...e*/
 /*...sget_masks:0:*/
 /*
-Returns TRUE if a set of masks given at map.
+Returns GBM_TRUE if a set of masks given at map.
 Also sets *rm, *gm, *bm from these.
-Else returns FALSE.
+Else returns GBM_FALSE.
 */
 
-static byte mask[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
+static gbm_u8 mask[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 
-static BOOLEAN get_masks(char *map, byte *rm, byte *gm, byte *bm)
+static gbm_boolean get_masks(char *map, gbm_u8 *rm, gbm_u8 *gm, gbm_u8 *bm)
 	{
 	if ( map[0] <  '0' || map[0] > '8' ||
 	     map[1] != ':' ||
 	     map[2] <  '0' || map[2] > '8' ||
 	     map[3] != ':' ||
 	     map[4] <  '0' || map[4] > '8' )
-		return FALSE;
+		return GBM_FALSE;
 
 	*rm = mask[map[0] - '0'];
 	*gm = mask[map[2] - '0'];
 	*bm = mask[map[4] - '0'];
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sget_pal:0:*/
@@ -203,7 +204,7 @@ static void get_pal(const char *pal, GBMRGB *gbmrgb, int bpp, int *ncols)
 
 	/* Split filename and file options. */
 	gbmfilearg.argin = pal;
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse palette filename %s", gbmfilearg.argin);
 	}
@@ -253,12 +254,12 @@ static void get_pal(const char *pal, GBMRGB *gbmrgb, int bpp, int *ncols)
 	}
 /*...e*/
 /*...sexpand_to_24bit:0:*/
-static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
+static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, gbm_u8 **data)
 	{
 	int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
 	int new_stride = ((gbm->w * 3 + 3) & ~3);
 	int bytes, y;
-	byte *new_data;
+	gbm_u8 *new_data;
 
 	if ( gbm->bpp == 24 )
 		return;
@@ -269,8 +270,8 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		byte	*src = *data + y * stride;
-		byte	*dest = new_data + y * new_stride;
+		gbm_u8	*src = *data + y * stride;
+		gbm_u8	*dest = new_data + y * new_stride;
 		int	x;
 
 		switch ( gbm->bpp )
@@ -278,7 +279,7 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 /*...s1:24:*/
 case 1:
 	{
-	byte	c;
+	gbm_u8	c;
 
 	for ( x = 0; x < gbm->w; x++ )
 		{
@@ -298,7 +299,7 @@ case 1:
 case 4:
 	for ( x = 0; x + 1 < gbm->w; x += 2 )
 		{
-		byte	c = *src++;
+		gbm_u8	c = *src++;
 
 		*dest++ = gbmrgb[c >> 4].b;
 		*dest++ = gbmrgb[c >> 4].g;
@@ -310,7 +311,7 @@ case 4:
 
 	if ( x < gbm->w )
 		{
-		byte	c = *src;
+		gbm_u8	c = *src;
 
 		*dest++ = gbmrgb[c >> 4].b;
 		*dest++ = gbmrgb[c >> 4].g;
@@ -322,7 +323,7 @@ case 4:
 case 8:
 	for ( x = 0; x < gbm->w; x++ )
 		{
-		byte	c = *src++;
+		gbm_u8	c = *src++;
 
 		*dest++ = gbmrgb[c].b;
 		*dest++ = gbmrgb[c].g;
@@ -345,11 +346,11 @@ static void to_grey_pal(GBMRGB *gbmrgb)
 	for ( i = 0; i < 0x100; i++ )
 		gbmrgb[i].r =
 		gbmrgb[i].g =
-		gbmrgb[i].b = (byte) i;
+		gbmrgb[i].b = (gbm_u8) i;
 	}
 /*...e*/
 /*...sto_grey:0:*/
-static void to_grey(GBM *gbm, const byte *src_data, byte *dest_data)
+static void to_grey(GBM *gbm, const gbm_u8 *src_data, gbm_u8 *dest_data)
 	{
 	int src_stride  = ((gbm->w * 3 + 3) & ~3);
 	int dest_stride = ((gbm->w     + 3) & ~3);
@@ -357,17 +358,17 @@ static void to_grey(GBM *gbm, const byte *src_data, byte *dest_data)
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		const byte *src  = src_data;
-		      byte *dest = dest_data;
+		const gbm_u8 *src  = src_data;
+		      gbm_u8 *dest = dest_data;
 		int x;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			byte b = *src++;
-			byte g = *src++;
-			byte r = *src++;
+			gbm_u8 b = *src++;
+			gbm_u8 g = *src++;
+			gbm_u8 r = *src++;
 
-			*dest++ = (byte) (((word) r * 77U + (word) g * 150U + (word) b * 29U) >> 8);
+			*dest++ = (gbm_u8) (((gbm_u16) r * 77U + (gbm_u16) g * 150U + (gbm_u16) b * 29U) >> 8);
 			}
 
 		src_data  += src_stride;
@@ -385,14 +386,14 @@ static void tripel_pal(GBMRGB *gbmrgb)
 
 	for ( i = 0; i < 0x40; i++ )
 		{
-		gbmrgb[i       ].r = (byte) (i << 2);
-		gbmrgb[i + 0x40].g = (byte) (i << 2);
-		gbmrgb[i + 0x80].b = (byte) (i << 2);
+		gbmrgb[i       ].r = (gbm_u8) (i << 2);
+		gbmrgb[i + 0x40].g = (gbm_u8) (i << 2);
+		gbmrgb[i + 0x80].b = (gbm_u8) (i << 2);
 		}
 	}
 /*...e*/
 /*...stripel:0:*/
-static void tripel(GBM *gbm, const byte *src_data, byte *dest_data)
+static void tripel(GBM *gbm, const gbm_u8 *src_data, gbm_u8 *dest_data)
 	{
 	int src_stride  = ((gbm->w * 3 + 3) & ~3);
 	int dest_stride = ((gbm->w     + 3) & ~3);
@@ -400,21 +401,21 @@ static void tripel(GBM *gbm, const byte *src_data, byte *dest_data)
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		const byte *src  = src_data;
-		      byte *dest = dest_data;
+		const gbm_u8 *src  = src_data;
+		      gbm_u8 *dest = dest_data;
 		int x;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			byte b = *src++;
-			byte g = *src++;
-			byte r = *src++;
+			gbm_u8 b = *src++;
+			gbm_u8 g = *src++;
+			gbm_u8 r = *src++;
 
 			switch ( (x+y)%3 )
 				{
-				case 0:	*dest++ = (byte)         (r >> 2) ;	break;
-				case 1:	*dest++ = (byte) (0x40 + (g >> 2));	break;
-				case 2:	*dest++ = (byte) (0x80 + (b >> 2));	break;
+				case 0:	*dest++ = (gbm_u8)         (r >> 2) ;	break;
+				case 1:	*dest++ = (gbm_u8) (0x40 + (g >> 2));	break;
+				case 2:	*dest++ = (gbm_u8) (0x80 + (b >> 2));	break;
 				}
 			}
 
@@ -431,18 +432,18 @@ int main(int argc, char *argv[])
 	char    fn_src[GBMTOOL_FILENAME_MAX+1], fn_dst[GBMTOOL_FILENAME_MAX+1],
                 opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
-	BOOLEAN	errdiff = FALSE, halftone = FALSE, ok = TRUE;
+	gbm_boolean	errdiff = GBM_FALSE, halftone = GBM_FALSE, ok = GBM_TRUE;
 	int	htmode = 0;
 	char	*map = "7x8x4";
 	char	*pal = NULL;
 	int	fd, ft_src, ft_dst, i, stride, bytes, flag, m, dest_bpp;
-	byte	rm, gm, bm;
+	gbm_u8	rm, gm, bm;
 	int	ncols;
 	GBM_ERR	rc;
 	GBMFT	gbmft;
 	GBM	gbm;
 	GBMRGB	gbmrgb[0x100];
-	byte	*data;
+	gbm_u8	*data;
 
 /*...sprocess command line options:8:*/
 for ( i = 1; i < argc; i++ )
@@ -453,9 +454,9 @@ for ( i = 1; i < argc; i++ )
 		{ ++i; break; }
 	switch ( argv[i][1] )
 		{
-		case 'e':	errdiff = TRUE;
+		case 'e':	errdiff = GBM_TRUE;
 				break;
-		case 'h':	halftone = TRUE;
+		case 'h':	halftone = GBM_TRUE;
 				if ( argv[i][2] != '\0' && isdigit(argv[i][2]) )
 					htmode = argv[i][2] - '0';
 				break;
@@ -526,7 +527,7 @@ else
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse source filename %s", gbmfilearg.argin);
 	}
@@ -540,7 +541,7 @@ else
 	  usage();
 	}
 
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse destination filename %s", gbmfilearg.argin);
 	}

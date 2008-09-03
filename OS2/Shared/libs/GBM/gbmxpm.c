@@ -53,6 +53,7 @@ History:
 (Heiko Nitzsche)
 
 28-Nov-2006: Initial version
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -80,7 +81,7 @@ History:
 #define MIN(a,b)   ( ((a)<(b)) ? (a) : (b) )
 #define MAX(a,b)   ( ((a)>(b)) ? (a) : (b) )
 
-#define MakeBGR(b,g,r)  (((dword) r) | (((dword) (g)) << 8) | (((dword) (b)) << 16))
+#define MakeBGR(b,g,r)  (((gbm_u32) r) | (((gbm_u32) (g)) << 8) | (((gbm_u32) (b)) << 16))
 
 /* ---------------------------------------- */
 
@@ -110,20 +111,20 @@ typedef struct XPM_HASH_ENTRY_
 
 typedef struct
 {
-   dword             length;
+   gbm_u32           length;
    XPM_HASH_ENTRY ** entries;
-   dword             keyupshift;
-   byte            * pool;
-   dword             pool_high_mark;
+   gbm_u32           keyupshift;
+   gbm_u8          * pool;
+   gbm_u32           pool_high_mark;
    int               code_len;
 } XPM_CODE_HASH;
 
 typedef struct
 {
-   dword             length;
+   gbm_u32           length;
    XPM_HASH_ENTRY ** entries;
-   byte            * pool;
-   dword             pool_high_mark;
+   gbm_u8          * pool;
+   gbm_u32           pool_high_mark;
    int               code_len;
 } XPM_RGB_HASH;
 
@@ -132,8 +133,8 @@ typedef struct
    int chars_per_pixel;
    int valid_colors;
 
-   BOOLEAN has_deep_color;
-   BOOLEAN has_transparency;
+   gbm_boolean has_deep_color;
+   gbm_boolean has_transparency;
 
    GBMRGB_16BPP backrgb;   /* background RGB color for Alpha channel mixing */
 
@@ -141,7 +142,7 @@ typedef struct
     * It will keep the options for the case the header has to be reread.
     */
    char read_options[PRIV_SIZE - (2 * sizeof(int))
-                               - (2 * sizeof(BOOLEAN))
+                               - (2 * sizeof(gbm_boolean))
                                - sizeof(GBMRGB_16BPP)
                                - 8 /* space for structure element padding */ ];
 
@@ -151,13 +152,13 @@ typedef struct
 
 static GBM_ERR internal_xpm_rpal_16bpp(AHEAD *ahead, GBM * gbm, XPM_FMT_TYPE fmt_type, XPM_CODE_HASH * xpm_code_hash);
 
-static GBM_ERR read_data_1bpp (AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
-static GBM_ERR read_data_4bpp (AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
-static GBM_ERR read_data_8bpp (AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
-static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
-static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
-static GBM_ERR read_data_48bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
-static GBM_ERR read_data_64bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_1bpp (AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_4bpp (AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_8bpp (AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_48bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
+static GBM_ERR read_data_64bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash);
 
 /* ---------------------------------------- */
 /* ---------------------------------------- */
@@ -180,7 +181,7 @@ static void Base92(unsigned int num, char * code, int code_len)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static XPM_CODE_HASH * create_xpm_code_hash(dword num_entries, int code_len)
+static XPM_CODE_HASH * create_xpm_code_hash(gbm_u32 num_entries, int code_len)
 {
    if (num_entries > 0)
    {
@@ -208,7 +209,7 @@ static XPM_CODE_HASH * create_xpm_code_hash(dword num_entries, int code_len)
        * requirements as usuallay the C runtime would track each allocated block
        * by adding several bytes on top of each entry.
        */
-      xpm_code_hash->pool = (byte *) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
+      xpm_code_hash->pool = (gbm_u8 *) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
       if (xpm_code_hash->pool == NULL)
       {
           gbmmem_free(xpm_code_hash->entries);
@@ -217,13 +218,13 @@ static XPM_CODE_HASH * create_xpm_code_hash(dword num_entries, int code_len)
       }
       /* linkup the code buffers to the pool entries */
       {
-          dword            i;
+          gbm_u32          i;
           XPM_HASH_ENTRY * pEntry;
 
           for (i = 0; i < num_entries; i++)
           {
               pEntry       = (XPM_HASH_ENTRY *)(xpm_code_hash->pool + (i * (sizeof(XPM_HASH_ENTRY) + code_len + 1)));
-              pEntry->code = ((byte *)pEntry) + sizeof(XPM_HASH_ENTRY);
+              pEntry->code = ((gbm_u8 *)pEntry) + sizeof(XPM_HASH_ENTRY);
           }
       }
       xpm_code_hash->pool_high_mark = 0;
@@ -235,7 +236,7 @@ static XPM_CODE_HASH * create_xpm_code_hash(dword num_entries, int code_len)
 
 /* ---------------------------------------- */
 
-static XPM_RGB_HASH * create_xpm_rgb_hash(dword num_entries, int code_len)
+static XPM_RGB_HASH * create_xpm_rgb_hash(gbm_u32 num_entries, int code_len)
 {
    if (num_entries > 0)
    {
@@ -260,7 +261,7 @@ static XPM_RGB_HASH * create_xpm_rgb_hash(dword num_entries, int code_len)
        * requirements as usuallay the C runtime would track each allocated block
        * by adding several bytes on top of each entry.
        */
-      xpm_rgb_hash->pool = (byte *) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
+      xpm_rgb_hash->pool = (gbm_u8 *) gbmmem_calloc(num_entries, sizeof(XPM_HASH_ENTRY) + code_len + 1);
       if (xpm_rgb_hash->pool == NULL)
       {
           gbmmem_free(xpm_rgb_hash->entries);
@@ -269,13 +270,13 @@ static XPM_RGB_HASH * create_xpm_rgb_hash(dword num_entries, int code_len)
       }
       /* linkup the code buffers to the pool entries */
       {
-          dword            i;
+          gbm_u32          i;
           XPM_HASH_ENTRY * pEntry;
 
           for (i = 0; i < num_entries; i++)
           {
               pEntry       = (XPM_HASH_ENTRY *)(xpm_rgb_hash->pool + (i * (sizeof(XPM_HASH_ENTRY) + code_len + 1)));
-              pEntry->code = ((byte *)pEntry) + sizeof(XPM_HASH_ENTRY);
+              pEntry->code = ((gbm_u8 *)pEntry) + sizeof(XPM_HASH_ENTRY);
           }
       }
       xpm_rgb_hash->pool_high_mark = 0;
@@ -328,13 +329,13 @@ static void free_xpm_rgb_hash(XPM_RGB_HASH * xpm_rgb_hash)
 
 static int calc_xpm_code_hash_index(const XPM_CODE_HASH * xpm_code_hash, const char * code, int code_len)
 {
-    assert(code_len <= sizeof(dword));
+    assert(code_len <= sizeof(gbm_u32));
     if (xpm_code_hash->length > 0)
     {
         int   i;
-        dword key = 0;
-        const dword tlen       = xpm_code_hash->length;
-        const dword keyupshift = xpm_code_hash->keyupshift;
+        gbm_u32 key = 0;
+        const gbm_u32 tlen       = xpm_code_hash->length;
+        const gbm_u32 keyupshift = xpm_code_hash->keyupshift;
 
         for (i = 0; i < code_len; i++)
         {
@@ -347,12 +348,12 @@ static int calc_xpm_code_hash_index(const XPM_CODE_HASH * xpm_code_hash, const c
 
 /* ---------------------------------------- */
 
-static int calc_xpm_rgb_hash_index(const XPM_RGB_HASH * xpm_rgb_hash, dword r, dword g, dword b)
+static int calc_xpm_rgb_hash_index(const XPM_RGB_HASH * xpm_rgb_hash, gbm_u32 r, gbm_u32 g, gbm_u32 b)
 {
     if (xpm_rgb_hash->length > 0)
     {
         /* Division method */
-        const dword key = MakeBGR(b,g,r);
+        const gbm_u32 key = MakeBGR(b,g,r);
         return key % (xpm_rgb_hash->length);
     }
     return -1;
@@ -360,12 +361,12 @@ static int calc_xpm_rgb_hash_index(const XPM_RGB_HASH * xpm_rgb_hash, dword r, d
 
 /* ---------------------------------------- */
 
-static BOOLEAN add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
-                                 const byte         * code,
-                                 const short          code_len,
-                                 XPM_PAL_TYPE         type,
-                                 const GBMRGB_16BPP * rgb16,
-                                 int                  index)
+static gbm_boolean add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
+                                     const gbm_u8       * code,
+                                     const short          code_len,
+                                     XPM_PAL_TYPE         type,
+                                     const GBMRGB_16BPP * rgb16,
+                                     int                  index)
 {
    int               hash_index;
    XPM_HASH_ENTRY ** ppEntry = NULL;
@@ -373,22 +374,22 @@ static BOOLEAN add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
 
    if ((rgb16 == NULL) || (code == NULL))
    {
-       return FALSE;
+       return GBM_FALSE;
    }
    hash_index = calc_xpm_code_hash_index(xpm_code_hash, code, code_len);
    if (hash_index < 0)
    {
-       return FALSE;
+       return GBM_FALSE;
    }
    if (code_len > xpm_code_hash->code_len)
    {
-       return FALSE;
+       return GBM_FALSE;
    }
    /* check if there were too many requests (the pool is excausted) */
    if (xpm_code_hash->pool_high_mark >= xpm_code_hash->length)
    {
        /* too many requests */
-       return FALSE;
+       return GBM_FALSE;
    }
    ppEntry = &(xpm_code_hash->entries[hash_index]);
    if (*ppEntry == NULL)
@@ -418,7 +419,7 @@ static BOOLEAN add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
        pEntry->next = pNextEntry;
        pEntry       = pEntry->next;
    }
-   /* map the code into the dword */
+   /* map the code into the gbm_u32 */
    pEntry->next     = NULL;
    pEntry->index    = index;
    pEntry->type     = type;
@@ -427,17 +428,17 @@ static BOOLEAN add_xpm_code_hash(XPM_CODE_HASH      * xpm_code_hash,
 
    (xpm_code_hash->pool_high_mark)++;
 
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
-                                const byte         * code,
-                                const short          code_len,
-                                XPM_PAL_TYPE         type,
-                                const GBMRGB_16BPP * rgb16,
-                                int                  index)
+static gbm_boolean add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
+                                    const gbm_u8       * code,
+                                    const short          code_len,
+                                    XPM_PAL_TYPE         type,
+                                    const GBMRGB_16BPP * rgb16,
+                                    int                  index)
 {
    int               hash_index;
    XPM_HASH_ENTRY ** ppEntry = NULL;
@@ -445,22 +446,22 @@ static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
 
    if ((rgb16 == NULL) || (code == NULL))
    {
-       return FALSE;
+       return GBM_FALSE;
    }
    hash_index = calc_xpm_rgb_hash_index(xpm_rgb_hash, rgb16->r, rgb16->g, rgb16->b);
    if (hash_index < 0)
    {
-       return FALSE;
+       return GBM_FALSE;
    }
    if (code_len > xpm_rgb_hash->code_len)
    {
-       return FALSE;
+       return GBM_FALSE;
    }
    /* check if there were too many requests (the pool is excausted) */
    if (xpm_rgb_hash->pool_high_mark >= xpm_rgb_hash->length)
    {
        /* too many requests */
-       return FALSE;
+       return GBM_FALSE;
    }
    ppEntry = &(xpm_rgb_hash->entries[hash_index]);
    if (*ppEntry == NULL)
@@ -490,7 +491,7 @@ static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
        pEntry->next = pNextEntry;
        pEntry       = pEntry->next;
    }
-   /* map the code into the dword */
+   /* map the code into the gbm_u32 */
    pEntry->next     = NULL;
    pEntry->index    = index;
    pEntry->type     = type;
@@ -499,7 +500,7 @@ static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
 
    (xpm_rgb_hash->pool_high_mark)++;
 
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
@@ -507,7 +508,7 @@ static BOOLEAN add_xpm_rgb_hash(XPM_RGB_HASH       * xpm_rgb_hash,
 static const XPM_HASH_ENTRY * find_xpm_code_hash_transparent_entry(const XPM_CODE_HASH * xpm_code_hash)
 {
     int i;
-    const dword hashtable_len = xpm_code_hash->length;
+    const gbm_u32 hashtable_len = xpm_code_hash->length;
     for (i = 0; i < hashtable_len; i++)
     {
         const XPM_HASH_ENTRY * pEntry = xpm_code_hash->entries[i];
@@ -525,12 +526,12 @@ static const XPM_HASH_ENTRY * find_xpm_code_hash_transparent_entry(const XPM_COD
 
 /* ---------------------------------------- */
 
-static const XPM_HASH_ENTRY * find_xpm_rgb_hash_color_code(const XPM_RGB_HASH * xpm_rgb_hash, dword r, dword g, dword b)
+static const XPM_HASH_ENTRY * find_xpm_rgb_hash_color_code(const XPM_RGB_HASH * xpm_rgb_hash, gbm_u32 r, gbm_u32 g, gbm_u32 b)
 {
     const int hash_index = calc_xpm_rgb_hash_index(xpm_rgb_hash, r, g, b);
     if (hash_index < 0)
     {
-        return FALSE;
+        return GBM_FALSE;
     }
     {
         const XPM_HASH_ENTRY * pEntry = xpm_rgb_hash->entries[hash_index];
@@ -554,7 +555,7 @@ static const XPM_HASH_ENTRY * find_xpm_code_hash_color_entry(const XPM_CODE_HASH
     const int hash_index = calc_xpm_code_hash_index(xpm_code_hash, code, code_len);
     if (hash_index < 0)
     {
-        return FALSE;
+        return GBM_FALSE;
     }
     {
         const allocated_code_len      = xpm_code_hash->code_len;
@@ -579,7 +580,7 @@ static const XPM_HASH_ENTRY * find_xpm_code_hash_color_entry(const XPM_CODE_HASH
 static void downscale_xpm_code_hash_transparent(XPM_CODE_HASH * xpm_code_hash)
 {
     int i;
-    const dword hashtable_len = xpm_code_hash->length;
+    const gbm_u32 hashtable_len = xpm_code_hash->length;
     for (i = 0; i < hashtable_len; i++)
     {
         XPM_HASH_ENTRY * pEntry = xpm_code_hash->entries[i];
@@ -603,7 +604,7 @@ static void downscale_xpm_code_hash_transparent(XPM_CODE_HASH * xpm_code_hash)
 static void upscale_xpm_code_hash_name(XPM_CODE_HASH * xpm_code_hash)
 {
     int i;
-    const dword hashtable_len = xpm_code_hash->length;
+    const gbm_u32 hashtable_len = xpm_code_hash->length;
     for (i = 0; i < hashtable_len; i++)
     {
         XPM_HASH_ENTRY * pEntry = xpm_code_hash->entries[i];
@@ -625,10 +626,10 @@ static void upscale_xpm_code_hash_name(XPM_CODE_HASH * xpm_code_hash)
 /* ---------------------------------------- */
 
 /* check the colormap for 16 bit entries */
-static int check_color_map(const XPM_CODE_HASH * xpm_code_hash, const BOOLEAN ignore_transparent)
+static int check_color_map(const XPM_CODE_HASH * xpm_code_hash, const gbm_boolean ignore_transparent)
 {
     int i;
-    const dword hashtable_len = xpm_code_hash->length;
+    const gbm_u32 hashtable_len = xpm_code_hash->length;
     for (i = 0; i < hashtable_len; i++)
     {
         XPM_HASH_ENTRY * pEntry = xpm_code_hash->entries[i];
@@ -753,7 +754,7 @@ static void skip_C_comment(AHEAD *ahead)
 
 /* ---------------------------------------- */
 
-static BOOLEAN read_num(AHEAD *ahead, int *num)
+static gbm_boolean read_num(AHEAD *ahead, int *num)
 {
    int c;
    do
@@ -764,7 +765,7 @@ static BOOLEAN read_num(AHEAD *ahead, int *num)
 
    if ((c < '0') || (c > '9'))
    {
-       return FALSE;
+       return GBM_FALSE;
    }
 
    *num = c - '0';
@@ -772,7 +773,7 @@ static BOOLEAN read_num(AHEAD *ahead, int *num)
    {
       *num = *num * 10 + (c - '0');
    }
-   return TRUE;
+   return GBM_TRUE;
 }
 
 static int read_num_string(AHEAD *ahead, int *num)
@@ -794,7 +795,7 @@ static int read_num_string(AHEAD *ahead, int *num)
 
    if ((c < '0') || (c > '9'))
    {
-       return FALSE;
+       return GBM_FALSE;
    }
 
    *num = c - '0';
@@ -802,12 +803,12 @@ static int read_num_string(AHEAD *ahead, int *num)
    {
       *num = *num * 10 + (c - '0');
    }
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-static byte read_non_newline_byte_ahead(AHEAD * ahead)
+static gbm_u8 read_non_newline_byte_ahead(AHEAD * ahead)
 {
   int c;
   /* Discard to end of line */
@@ -819,7 +820,7 @@ static byte read_non_newline_byte_ahead(AHEAD * ahead)
   return c;
 }
 
-static int read_data_index(AHEAD * ahead, int bytes, byte * buffer)
+static int read_data_index(AHEAD * ahead, int bytes, gbm_u8 * buffer)
 {
     int to_read = bytes;
 
@@ -851,7 +852,7 @@ static GBM_ERR internal_xpm_rhdr(int fd, GBM * gbm, XPM_FMT_TYPE * type, XPM_COD
    const char  * s     = NULL;
          AHEAD * ahead = NULL;
 
-   BOOLEAN use_native_bpp, valid;
+   gbm_boolean use_native_bpp, valid;
 
    XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
@@ -860,12 +861,12 @@ static GBM_ERR internal_xpm_rhdr(int fd, GBM * gbm, XPM_FMT_TYPE * type, XPM_COD
       *xpm_code_hash = NULL;
    }
 
-   xpm_priv->has_deep_color   = FALSE;
-   xpm_priv->has_transparency = FALSE;
+   xpm_priv->has_deep_color   = GBM_FALSE;
+   xpm_priv->has_transparency = GBM_FALSE;
 
    /* check if extended color depths are requested */
    use_native_bpp = (gbm_find_word(xpm_priv->read_options, "ext_bpp") != NULL)
-                    ? TRUE : FALSE;
+                    ? GBM_TRUE : GBM_FALSE;
 
    /* set default background color to black */
    xpm_priv->backrgb.r = 0;
@@ -929,7 +930,7 @@ static GBM_ERR internal_xpm_rhdr(int fd, GBM * gbm, XPM_FMT_TYPE * type, XPM_COD
    }
 
    /* read width, height, color count, chars per pixel */
-   valid = FALSE;
+   valid = GBM_FALSE;
    switch(*type)
    {
       case XPM_FMT_XPM2:
@@ -967,8 +968,8 @@ static GBM_ERR internal_xpm_rhdr(int fd, GBM * gbm, XPM_FMT_TYPE * type, XPM_COD
    /* whether we have more than 8 bit per component. */
 
    /* read the color table */
-   xpm_priv->has_deep_color   = FALSE;
-   xpm_priv->has_transparency = FALSE;
+   xpm_priv->has_deep_color   = GBM_FALSE;
+   xpm_priv->has_transparency = GBM_FALSE;
    {
        XPM_CODE_HASH * local_xpm_code_hash = create_xpm_code_hash(xpm_priv->valid_colors, xpm_priv->chars_per_pixel);
        if (local_xpm_code_hash == NULL)
@@ -988,7 +989,7 @@ static GBM_ERR internal_xpm_rhdr(int fd, GBM * gbm, XPM_FMT_TYPE * type, XPM_COD
 
        if (find_xpm_code_hash_transparent_entry(local_xpm_code_hash) != NULL)
        {
-           xpm_priv->has_transparency = TRUE;
+           xpm_priv->has_transparency = GBM_TRUE;
        }
 
        /* check if we have more than 8 bit per color component */
@@ -999,7 +1000,7 @@ static GBM_ERR internal_xpm_rhdr(int fd, GBM * gbm, XPM_FMT_TYPE * type, XPM_COD
            {
                upscale_xpm_code_hash_name(local_xpm_code_hash);
            }
-           xpm_priv->has_deep_color = TRUE;
+           xpm_priv->has_deep_color = GBM_TRUE;
        }
        else
        {
@@ -1102,16 +1103,16 @@ GBM_ERR xpm_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static BOOLEAN read_color_line(AHEAD * ahead,
-                               byte  * code , int codeLen, int codeWidth,
-                               byte  * color, int colorLen, BOOLEAN skipStringChar)
+static gbm_boolean read_color_line(AHEAD * ahead,
+                                   gbm_u8  * code , int codeLen, int codeWidth,
+                                   gbm_u8  * color, int colorLen, gbm_boolean skipStringChar)
 {
     /* Format of a line: code c color (code can contain spaces, color can be #hex or a symbolic name) */
     int b, c;
 
     if (codeWidth > codeLen)
     {
-        return FALSE;
+        return GBM_FALSE;
     }
 
     memset(code , 0, codeLen);
@@ -1129,7 +1130,7 @@ static BOOLEAN read_color_line(AHEAD * ahead,
         /* read " (must be there) */
         if (c != '"')
         {
-            return FALSE;
+            return GBM_FALSE;
         }
     }
 
@@ -1142,7 +1143,7 @@ static BOOLEAN read_color_line(AHEAD * ahead,
     c = gbm_read_ahead(ahead);
     if ((c != ' ') && (c != '\t'))
     {
-        return FALSE;
+        return GBM_FALSE;
     }
 
     /* skip all following white spaces until a "c " was found */
@@ -1158,7 +1159,7 @@ static BOOLEAN read_color_line(AHEAD * ahead,
         c = gbm_read_ahead(ahead);
         if ((c != ' ') && (c != '\t') && (!(skipStringChar && (c != '"'))))
         {
-            return FALSE;
+            return GBM_FALSE;
         }
     }
 
@@ -1218,10 +1219,10 @@ static BOOLEAN read_color_line(AHEAD * ahead,
 
     if (b == colorLen)
     {
-        return FALSE; /* return buffer too small */
+        return GBM_FALSE; /* return buffer too small */
     }
 
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
@@ -1234,9 +1235,9 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
 {
     XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-          byte        * buffer   = NULL;
-          byte        * code     = NULL;
-          byte        * color    = NULL;
+          gbm_u8      * buffer   = NULL;
+          gbm_u8      * code     = NULL;
+          gbm_u8      * color    = NULL;
     const int           codeLen  = MAX(50, xpm_priv->chars_per_pixel + 1);
     const int           colorLen = codeLen;
           int           entry;
@@ -1253,7 +1254,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
     /* read the palette lines and decode them */
     /* Format: . c #00AAFF */
 
-    buffer = (byte *) gbmmem_malloc(codeLen + colorLen);
+    buffer = (gbm_u8 *) gbmmem_malloc(codeLen + colorLen);
     if (buffer == NULL)
     {
         return GBM_ERR_MEM;
@@ -1267,7 +1268,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
         {
            case XPM_FMT_XPM2:
               if (! read_color_line(ahead, code , codeLen, xpm_priv->chars_per_pixel,
-                                           color, colorLen, FALSE))
+                                           color, colorLen, GBM_FALSE))
               {
                   gbmmem_free(buffer);
                   return GBM_ERR_READ;
@@ -1276,7 +1277,7 @@ static GBM_ERR internal_xpm_rpal_16bpp(AHEAD         * ahead,
 
            case XPM_FMT_XPM3:
               if (! read_color_line(ahead, code , codeLen, xpm_priv->chars_per_pixel,
-                                           color, colorLen, TRUE))
+                                           color, colorLen, GBM_TRUE))
               {
                   gbmmem_free(buffer);
                   return GBM_ERR_READ;
@@ -1344,7 +1345,7 @@ static GBM_ERR internal_xpm_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb,
     if (palette_entries <= 256)
     {
        XPM_PRIV_READ * xpm_priv = (XPM_PRIV_READ *) gbm->priv;
-       const dword     len = xpm_code_hash->length;
+       const gbm_u32     len = xpm_code_hash->length;
        int i;
 
        /* copy to external GBMRGB struct and downscale if necessary */
@@ -1358,9 +1359,9 @@ static GBM_ERR internal_xpm_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb,
                 if (pEntry->index < palette_entries)
                 {
                   #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
-                   gbmrgb[pEntry->index].r = (byte) CVT(pEntry->rgb16.r);
-                   gbmrgb[pEntry->index].g = (byte) CVT(pEntry->rgb16.g);
-                   gbmrgb[pEntry->index].b = (byte) CVT(pEntry->rgb16.b);
+                   gbmrgb[pEntry->index].r = (gbm_u8) CVT(pEntry->rgb16.r);
+                   gbmrgb[pEntry->index].g = (gbm_u8) CVT(pEntry->rgb16.g);
+                   gbmrgb[pEntry->index].b = (gbm_u8) CVT(pEntry->rgb16.b);
                   #undef CVT
                 }
                 pEntry = pEntry->next;
@@ -1376,9 +1377,9 @@ static GBM_ERR internal_xpm_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb,
              {
                 if (pEntry->index < palette_entries)
                 {
-                   gbmrgb[pEntry->index].r = (byte) pEntry->rgb16.r;
-                   gbmrgb[pEntry->index].g = (byte) pEntry->rgb16.g;
-                   gbmrgb[pEntry->index].b = (byte) pEntry->rgb16.b;
+                   gbmrgb[pEntry->index].r = (gbm_u8) pEntry->rgb16.r;
+                   gbmrgb[pEntry->index].g = (gbm_u8) pEntry->rgb16.g;
+                   gbmrgb[pEntry->index].b = (gbm_u8) pEntry->rgb16.b;
                 }
                 pEntry = pEntry->next;
              }
@@ -1433,7 +1434,7 @@ GBM_ERR xpm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-GBM_ERR xpm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR xpm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
    XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
@@ -1566,7 +1567,7 @@ GBM_ERR xpm_rdata(int fd, GBM *gbm, byte *data)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gbmrgb, const byte * data,
+static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gbmrgb, const gbm_u8 * data,
                                               int transcol_idx, XPM_RGB_HASH ** xpm_rgb_hash)
 {
    if ((gbm->bpp != 1) && (gbm->bpp != 4) && (gbm->bpp != 8))
@@ -1580,8 +1581,8 @@ static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gb
       const int palette_entries = 1 << gbm->bpp;
       const int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
-      const byte * p = data;
-      byte * indices = (byte *) calloc(palette_entries, sizeof(byte));
+      const gbm_u8 * p = data;
+      gbm_u8 * indices = (gbm_u8 *) calloc(palette_entries, sizeof(gbm_u8));
       if (indices == NULL)
       {
           return GBM_ERR_MEM;
@@ -1593,8 +1594,8 @@ static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gb
           case 1:
               for (y = 0; y < gbm->h; y++)
               {
-                  byte c = 0;
-                  const byte * pt = p;
+                  gbm_u8 c = 0;
+                  const gbm_u8 * pt = p;
                   for (x = 0; x < gbm->w; x++)
                   {
                       if ((x & 7) == 0)
@@ -1614,8 +1615,8 @@ static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gb
           case 4:
               for (y = 0; y < gbm->h; y++)
               {
-                  byte c;
-                  const byte * pt = p;
+                  gbm_u8 c;
+                  const gbm_u8 * pt = p;
                   for (x = 0; x + 1 < gbm->w; x += 2)
                   {
                       c = *pt++;
@@ -1634,7 +1635,7 @@ static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gb
           case 8:
               for (y = 0; y < gbm->h; y++)
               {
-                  const byte * pt = p;
+                  const gbm_u8 * pt = p;
                   for (x = 0; x < gbm->w; x++)
                   {
                     indices[*pt++] = 1;
@@ -1742,32 +1743,32 @@ static GBM_ERR extract_unique_colors_of_table(const GBM * gbm, const GBMRGB * gb
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static BOOLEAN is_color_used(const byte *flags, byte r, byte g, byte b, dword *li, dword *lx)
+static gbm_boolean is_color_used(const gbm_u8 *flags, gbm_u8 r, gbm_u8 g, gbm_u8 b, gbm_u32 *li, gbm_u32 *lx)
 {
     /* Get the long value of the bit's color */
-    const dword cLong = MakeBGR(b, g, r);
+    const gbm_u32 cLong = MakeBGR(b, g, r);
 
     *li = cLong / 8; /* Divide by 8 to get it's section in our color registry */
     *lx = cLong % 8; /* Get the right bit in the index for the color */
 
-    return (flags[*li] & (1 << *lx)) ? TRUE : FALSE;
+    return (flags[*li] & (1 << *lx)) ? GBM_TRUE : GBM_FALSE;
 }
 
-static void set_color_used(byte *flags, dword li, dword lx)
+static void set_color_used(gbm_u8 *flags, gbm_u32 li, gbm_u32 lx)
 {
     flags[li] |= (1 << lx);
 }
 
-static void unset_color_used(byte *flags, dword li, dword lx)
+static void unset_color_used(gbm_u8 *flags, gbm_u32 li, gbm_u32 lx)
 {
     flags[li] -= (1 << lx);
 }
 
 /* ---------------------------------------- */
 
-static byte * create_table_of_used_colors(const GBM * gbm, const byte * data, int * used_colors)
+static gbm_u8 * create_table_of_used_colors(const GBM * gbm, const gbm_u8 * data, int * used_colors)
 {
-   byte * flags = NULL;
+   gbm_u8 * flags = NULL;
 
    if (gbm->bpp != 24)
    {
@@ -1776,15 +1777,15 @@ static byte * create_table_of_used_colors(const GBM * gbm, const byte * data, in
    {
       /* pack the color table to the really used entries */
       const int    stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-      const byte * p      = data;
+      const gbm_u8 * p      = data;
 
       /* A bit array's width must be a multiple of 4 per scan line */
       int   x, y;
-      dword li, lx;
-      byte  r, g, b;
+      gbm_u32 li, lx;
+      gbm_u8  r, g, b;
 
       /* Allocate our color registry (&H200000 bytes = 16,777,216 bits) */
-      flags = (byte *) gbmmem_calloc(0x200000, sizeof(byte));
+      flags = (gbm_u8 *) gbmmem_calloc(0x200000, sizeof(gbm_u8));
       if (flags == NULL)
       {
           return NULL;
@@ -1792,7 +1793,7 @@ static byte * create_table_of_used_colors(const GBM * gbm, const byte * data, in
       *used_colors = 0;
       for (y = 0; y < gbm->h; y++)
       {
-          const byte * pt = p;
+          const gbm_u8 * pt = p;
           for (x = 0; x < gbm->w; x++)
           {
             b = *pt++;
@@ -1814,7 +1815,7 @@ static byte * create_table_of_used_colors(const GBM * gbm, const byte * data, in
 
 /* ---------------------------------------- */
 
-static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * data,
+static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const gbm_u8 * data,
                                                const GBMRGB_16BPP * transcol_rgb16,
                                                XPM_RGB_HASH ** xpm_rgb_hash)
 {
@@ -1827,7 +1828,7 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
       int used_colors = 0;
 
       /* Build the color registry (&H200000 bytes = 16,777,216 bits) */
-      byte * flags = create_table_of_used_colors(gbm, data, &used_colors);
+      gbm_u8 * flags = create_table_of_used_colors(gbm, data, &used_colors);
       if (flags == NULL)
       {
           return GBM_ERR_MEM;
@@ -1835,11 +1836,11 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
       {
           const short  code_len = (short)(log((double)used_colors)/log(92.0)) + 1;
           const int    stride   = ((gbm->w * gbm->bpp + 31)/32) * 4;
-          const byte  *p        = data + ((gbm->h - 1) * stride);
+          const gbm_u8  *p        = data + ((gbm->h - 1) * stride);
           char        *codebuf  = NULL;
           GBMRGB_16BPP rgb16;
           int          x, y, color_index;
-          dword        li, lx;
+          gbm_u32        li, lx;
 
           /* add a unique color code to xpm_rgb_hash for every found index */
           *xpm_rgb_hash = create_xpm_rgb_hash(used_colors, code_len);
@@ -1861,7 +1862,7 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
           color_index = 0;
           for (y = gbm->h - 1; y >= 0; y--)
           {
-              const byte * pt = p;
+              const gbm_u8 * pt = p;
               for (x = 0; x < gbm->w; x++)
               {
                 rgb16.b = *pt++;
@@ -1913,7 +1914,7 @@ static GBM_ERR extract_unique_colors_of_bitmap(const GBM * gbm, const byte * dat
 
 static GBM_ERR xpm_w_index_based_bitmap_data(WCACHE * wcache,
                                              XPM_FMT_TYPE fmt_type,
-                                             const GBM * gbm, const GBMRGB * gbmrgb, const byte * data,
+                                             const GBM * gbm, const GBMRGB * gbmrgb, const gbm_u8 * data,
                                              const XPM_RGB_HASH * xpm_rgb_hash)
 {
    if ((gbm->bpp != 1) && (gbm->bpp != 4) && (gbm->bpp != 8))
@@ -1923,9 +1924,9 @@ static GBM_ERR xpm_w_index_based_bitmap_data(WCACHE * wcache,
    {
       int                   x, y;
       const int             stride   = ((gbm->w * gbm->bpp + 31)/32) * 4;
-      const byte           *p        = data + ((gbm->h - 1) * stride);
+      const gbm_u8         *p        = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY *pEntry   = NULL;
-      const dword           code_len = xpm_rgb_hash->code_len;
+      const gbm_u32           code_len = xpm_rgb_hash->code_len;
       const GBMRGB         *pRGB;
 
       switch(gbm->bpp)
@@ -1933,8 +1934,8 @@ static GBM_ERR xpm_w_index_based_bitmap_data(WCACHE * wcache,
           case 1:
               for (y = gbm->h - 1; y >= 0; y--)
               {
-                  byte c = 0;
-                  const byte * pt = p;
+                  gbm_u8 c = 0;
+                  const gbm_u8 * pt = p;
                   if (fmt_type != XPM_FMT_XPM2)
                   {
                       if (gbm_write_wcache(wcache, '\"') != 1)
@@ -1996,8 +1997,8 @@ static GBM_ERR xpm_w_index_based_bitmap_data(WCACHE * wcache,
           case 4:
               for (y = gbm->h - 1; y >= 0; y--)
               {
-                  byte c;
-                  const byte * pt = p;
+                  gbm_u8 c;
+                  const gbm_u8 * pt = p;
                   if (fmt_type != XPM_FMT_XPM2)
                   {
                       if (gbm_write_wcache(wcache, '\"') != 1)
@@ -2080,7 +2081,7 @@ static GBM_ERR xpm_w_index_based_bitmap_data(WCACHE * wcache,
           case 8:
               for (y = gbm->h - 1; y >= 0; y--)
               {
-                  const byte * pt = p;
+                  const gbm_u8 * pt = p;
                   if (fmt_type != XPM_FMT_XPM2)
                   {
                       if (gbm_write_wcache(wcache, '\"') != 1)
@@ -2143,7 +2144,7 @@ static GBM_ERR xpm_w_index_based_bitmap_data(WCACHE * wcache,
 
 static GBM_ERR xpm_w_direct_color_bitmap_data(WCACHE * wcache,
                                               XPM_FMT_TYPE fmt_type,
-                                              const GBM * gbm, const byte * data,
+                                              const GBM * gbm, const gbm_u8 * data,
                                               const XPM_RGB_HASH * xpm_rgb_hash)
 {
    if (gbm->bpp != 24)
@@ -2153,15 +2154,15 @@ static GBM_ERR xpm_w_direct_color_bitmap_data(WCACHE * wcache,
    {
       /* Calculate chars per pixel for color table encoding: */
       const int             stride   = ((gbm->w * gbm->bpp + 31)/32) * 4;
-      const byte           *p        = data + ((gbm->h - 1) * stride);
+      const gbm_u8         *p        = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY *pEntry   = NULL;
-      const dword           code_len = xpm_rgb_hash->code_len;
+      const gbm_u32           code_len = xpm_rgb_hash->code_len;
       GBMRGB_16BPP          rgb16;
       int                   x, y;
 
       for (y = gbm->h - 1; y >= 0; y--)
       {
-          const byte * pt = p;
+          const gbm_u8 * pt = p;
           if (fmt_type != XPM_FMT_XPM2)
           {
               if (gbm_write_wcache(wcache, '\"') != 1)
@@ -2217,7 +2218,7 @@ static GBM_ERR xpm_w_direct_color_bitmap_data(WCACHE * wcache,
 
 /* ---------------------------------------- */
 
-GBM_ERR xpm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR xpm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
    const char    *s_opt;
    char           s[300+1]        = { 0 };
@@ -2525,20 +2526,20 @@ const char *xpm_err(GBM_ERR rc)
 /* ---------------------------------------- */
 
 /* Read 1bpp encoded data */
-static GBM_ERR read_data_1bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_1bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    num_colors = xpm_priv->valid_colors;
-   const int    stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer     = NULL;
+   const int      num_colors = xpm_priv->valid_colors;
+   const int      stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer     = NULL;
 
    if ((gbm->bpp != 1) || (num_colors != 2))
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2547,8 +2548,8 @@ static GBM_ERR read_data_1bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      byte                 * pNumFill8;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u8               * pNumFill8;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry;
 
       for (y = gbm->h - 1; y >= 0; y--)
@@ -2590,20 +2591,20 @@ static GBM_ERR read_data_1bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
 /* ---------------------------------------- */
 
 /* Read 4bpp encoded data */
-static GBM_ERR read_data_4bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_4bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    num_colors = xpm_priv->valid_colors;
-   const int    stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer     = NULL;
+   const int      num_colors = xpm_priv->valid_colors;
+   const int      stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer     = NULL;
 
    if ((gbm->bpp != 4) || (num_colors > 16))
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2612,8 +2613,8 @@ static GBM_ERR read_data_4bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      byte                 * pNumFill8;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u8               * pNumFill8;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry0, *pEntry1;
 
       for (y = gbm->h - 1; y >= 0; y--)
@@ -2677,20 +2678,20 @@ static GBM_ERR read_data_4bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
 /* ---------------------------------------- */
 
 /* Read 8bpp encoded data */
-static GBM_ERR read_data_8bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_8bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    num_colors = xpm_priv->valid_colors;
-   const int    stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer     = NULL;
+   const int      num_colors = xpm_priv->valid_colors;
+   const int      stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer     = NULL;
 
    if ((gbm->bpp != 8) || (num_colors > 256))
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2699,8 +2700,8 @@ static GBM_ERR read_data_8bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      byte                 * pNumFill8;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u8               * pNumFill8;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry;
 
       for (y = gbm->h - 1; y >= 0; y--)
@@ -2720,7 +2721,7 @@ static GBM_ERR read_data_8bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
             free(buffer);
             return GBM_ERR_READ;
           }
-          *pNumFill8++ = (byte) pEntry->index;
+          *pNumFill8++ = (gbm_u8) pEntry->index;
         }
         p -= stride;
 
@@ -2738,19 +2739,19 @@ static GBM_ERR read_data_8bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, 
 /* ---------------------------------------- */
 
 /* Read 24bpp encoded data */
-static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer = NULL;
+   const int      stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer = NULL;
 
    if (gbm->bpp != 24)
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2759,8 +2760,8 @@ static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      byte                 * pNumFill8;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u8               * pNumFill8;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry;
 
       for (y = gbm->h - 1; y >= 0; y--)
@@ -2783,16 +2784,16 @@ static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
           if ((xpm_priv->has_deep_color) && (pEntry->type != XPM_PAL_NAME))
           {
            #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
-            *pNumFill8++ = (byte) CVT(pEntry->rgb16.b);
-            *pNumFill8++ = (byte) CVT(pEntry->rgb16.g);
-            *pNumFill8++ = (byte) CVT(pEntry->rgb16.r);
+            *pNumFill8++ = (gbm_u8) CVT(pEntry->rgb16.b);
+            *pNumFill8++ = (gbm_u8) CVT(pEntry->rgb16.g);
+            *pNumFill8++ = (gbm_u8) CVT(pEntry->rgb16.r);
            #undef CVT
           }
           else
           {
-            *pNumFill8++ = (byte) pEntry->rgb16.b;
-            *pNumFill8++ = (byte) pEntry->rgb16.g;
-            *pNumFill8++ = (byte) pEntry->rgb16.r;
+            *pNumFill8++ = (gbm_u8) pEntry->rgb16.b;
+            *pNumFill8++ = (gbm_u8) pEntry->rgb16.g;
+            *pNumFill8++ = (gbm_u8) pEntry->rgb16.r;
           }
         }
         p -= stride;
@@ -2811,19 +2812,19 @@ static GBM_ERR read_data_24bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
 /* ---------------------------------------- */
 
 /* Read 32bpp encoded data */
-static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer = NULL;
+   const int      stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer = NULL;
 
    if (gbm->bpp != 32)
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2832,8 +2833,8 @@ static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      byte                 * pNumFill8;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u8               * pNumFill8;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry;
 
       for (y = gbm->h - 1; y >= 0; y--)
@@ -2856,16 +2857,16 @@ static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
           if (xpm_priv->has_deep_color)
           {
            #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
-            *pNumFill8++ = (byte) CVT(pEntry->rgb16.b);
-            *pNumFill8++ = (byte) CVT(pEntry->rgb16.g);
-            *pNumFill8++ = (byte) CVT(pEntry->rgb16.r);
+            *pNumFill8++ = (gbm_u8) CVT(pEntry->rgb16.b);
+            *pNumFill8++ = (gbm_u8) CVT(pEntry->rgb16.g);
+            *pNumFill8++ = (gbm_u8) CVT(pEntry->rgb16.r);
            #undef CVT
           }
           else
           {
-            *pNumFill8++ = (byte) pEntry->rgb16.b;
-            *pNumFill8++ = (byte) pEntry->rgb16.g;
-            *pNumFill8++ = (byte) pEntry->rgb16.r;
+            *pNumFill8++ = (gbm_u8) pEntry->rgb16.b;
+            *pNumFill8++ = (gbm_u8) pEntry->rgb16.g;
+            *pNumFill8++ = (gbm_u8) pEntry->rgb16.r;
           }
           *pNumFill8++ = (pEntry->type == XPM_PAL_TRANSPARENT) ? 255 : 0;
         }
@@ -2885,19 +2886,19 @@ static GBM_ERR read_data_32bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
 /* ---------------------------------------- */
 
 /* Read 48bpp encoded data */
-static GBM_ERR read_data_48bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_48bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer = NULL;
+   const int      stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer = NULL;
 
    if (gbm->bpp != 48)
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2906,13 +2907,13 @@ static GBM_ERR read_data_48bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      word                 * pNumFill16;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u16              * pNumFill16;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry;
 
       for (y = gbm->h - 1; y >= 0; y--)
       {
-        pNumFill16 = (word *) p;
+        pNumFill16 = (gbm_u16 *) p;
 
         for (x = 0; x < gbm->w; x++)
         {
@@ -2947,19 +2948,19 @@ static GBM_ERR read_data_48bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
 /* ---------------------------------------- */
 
 /* Read 64bpp encoded data */
-static GBM_ERR read_data_64bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, byte *data, const XPM_CODE_HASH * xpm_code_hash)
+static GBM_ERR read_data_64bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm, gbm_u8 *data, const XPM_CODE_HASH * xpm_code_hash)
 {
    const XPM_PRIV_READ *xpm_priv = (XPM_PRIV_READ *) gbm->priv;
 
-   const int    stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-         byte * buffer = NULL;
+   const int      stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+         gbm_u8 * buffer = NULL;
 
    if (gbm->bpp != 64)
    {
        return GBM_ERR_READ;
    }
 
-   buffer = (byte *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(byte));
+   buffer = (gbm_u8 *) calloc(xpm_priv->chars_per_pixel + 1, sizeof(gbm_u8));
    if (buffer == NULL)
    {
      return GBM_ERR_MEM;
@@ -2968,13 +2969,13 @@ static GBM_ERR read_data_64bpp(AHEAD * ahead, XPM_FMT_TYPE type, const GBM *gbm,
    /* read bitmap ASCII data and convert to 8bpp palette binary */
    {
       int                    y, x;
-      word                 * pNumFill16;
-      byte                 * p = data + ((gbm->h - 1) * stride);
+      gbm_u16              * pNumFill16;
+      gbm_u8               * p = data + ((gbm->h - 1) * stride);
       const XPM_HASH_ENTRY * pEntry;
 
       for (y = gbm->h - 1; y >= 0; y--)
       {
-        pNumFill16 = (word *) p;
+        pNumFill16 = (gbm_u16 *) p;
 
         for (x = 0; x < gbm->w; x++)
         {

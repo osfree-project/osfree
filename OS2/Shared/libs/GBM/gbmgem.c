@@ -34,6 +34,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -57,8 +58,8 @@ History:
 /*...e*/
 
 /*...suseful:0:*/
-static word getword(byte *p) { return (p[0]<<8)|p[1]; }
-static void putword(byte *p, word w) { p[0] = (byte) (w>>8); p[1] = (byte) w; }
+static gbm_u16 get_u16(gbm_u8 *p) { return (p[0]<<8)|p[1]; }
+static void put_u16(gbm_u8 *p, gbm_u16 w) { p[0] = (gbm_u8) (w>>8); p[1] = (gbm_u8) w; }
 /*...e*/
 
 static GBMFT gem_gbmft =
@@ -83,18 +84,18 @@ static GBMFT gem_gbmft =
 
 typedef struct
 	{
-	word lenhdr, planes, patlen, flag;
-	BOOLEAN ximg;
+	gbm_u16 lenhdr, planes, patlen, flag;
+	gbm_boolean ximg;
 	} GEM_PRIV;
 
 /*...srgb_bgr:0:*/
-static void rgb_bgr(const byte *p, byte *q, int n)
+static void rgb_bgr(const gbm_u8 *p, gbm_u8 *q, int n)
 	{
 	while ( n-- )
 		{
-		byte r = *p++;
-		byte g = *p++;
-		byte b = *p++;
+		gbm_u8 r = *p++;
+		gbm_u8 g = *p++;
+		gbm_u8 b = *p++;
 
 		*q++ = b;
 		*q++ = g;
@@ -128,13 +129,13 @@ GBM_ERR gem_qft(GBMFT *gbmft)
       other size header, with XIMG signiture and planes==24, data
 */
 
-static byte imds_begin_image_segment[] = { 0x70, 0x04, 0x00, 0x00, 0x00, 0x00 };
-static byte imds_modca_wrapping     [] = { 0x08, 0x00, 0x05, 0x00, 0x01, 0x00, 0x00, 0x00 };
+static gbm_u8 imds_begin_image_segment[] = { 0x70, 0x04, 0x00, 0x00, 0x00, 0x00 };
+static gbm_u8 imds_modca_wrapping     [] = { 0x08, 0x00, 0x05, 0x00, 0x01, 0x00, 0x00, 0x00 };
 
 GBM_ERR gem_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	GEM_PRIV *priv = (GEM_PRIV *) gbm->priv;
-	byte hdr[22];
+	gbm_u8 hdr[22];
 
 	fn=fn; opt=opt; /* Suppress 'unref arg' compiler warnings */
 
@@ -148,10 +149,10 @@ GBM_ERR gem_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	     !memcmp(hdr, imds_modca_wrapping, sizeof(imds_modca_wrapping)) )
 		return GBM_ERR_GEM_IS_IMDS;
 
-	if ( getword(hdr) != 1 )
+	if ( get_u16(hdr) != 1 )
 		return GBM_ERR_GEM_BAD_VERSION;
 
-	priv->lenhdr = getword(hdr+1*2);
+	priv->lenhdr = get_u16(hdr+1*2);
 	if ( priv->lenhdr < 8 )
 		return GBM_ERR_GEM_BAD_HDRLEN;
 
@@ -160,14 +161,14 @@ GBM_ERR gem_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	if ( !memcmp(hdr+8*2, "XIMG", 4) )
 		/* XIMG signiture has been found */
 		{
-		priv->ximg = TRUE;
-		if ( getword(hdr+10*2) != 0 )
+		priv->ximg = GBM_TRUE;
+		if ( get_u16(hdr+10*2) != 0 )
 			return GBM_ERR_GEM_XIMG_TYPE;
 		}
 	else
-		priv->ximg = FALSE;
+		priv->ximg = GBM_FALSE;
 
-	priv->planes = getword(hdr+2*2);
+	priv->planes = get_u16(hdr+2*2);
 	if ( priv->planes >= 1 && priv->planes <= 8 )
 		; /* All ok */
 	else if ( priv->ximg && priv->planes == 24 )
@@ -176,14 +177,14 @@ GBM_ERR gem_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 		/* Don't know how to handle this */
 		return GBM_ERR_GEM_BAD_PLANES;
 
-	priv->patlen = getword(hdr+3*2);
+	priv->patlen = get_u16(hdr+3*2);
 
-	gbm->w = getword(hdr+6*2);
-	gbm->h = getword(hdr+7*2);
+	gbm->w = get_u16(hdr+6*2);
+	gbm->h = get_u16(hdr+7*2);
 
 	if ( priv->lenhdr == 9 )
 		{
-		priv->flag = getword(hdr+8*2);
+		priv->flag = get_u16(hdr+8*2);
 		if ( priv->flag != 0 && priv->flag != 1 )
 			return GBM_ERR_GEM_BAD_FLAG;
 		}
@@ -265,13 +266,13 @@ int i, ncols = (1 << priv->planes);
 gbm_file_lseek(fd, (8+3)*2, GBM_SEEK_SET);
 for ( i = 0; i < ncols; i++ )
 	{
-	byte palentry[3*2];
+	gbm_u8 palentry[3*2];
 	if ( gbm_file_read(fd, palentry, 3*2) != 3*2 )
 		return GBM_ERR_READ;
 	/* Guesswork, based on sample file intel.img */
-	gbmrgb[i].r = (byte) ((getword(palentry  )*255UL)/1000UL);
-	gbmrgb[i].g = (byte) ((getword(palentry+2)*255UL)/1000UL);
-	gbmrgb[i].b = (byte) ((getword(palentry+4)*255UL)/1000UL);
+	gbmrgb[i].r = (gbm_u8) ((get_u16(palentry  )*255UL)/1000UL);
+	gbmrgb[i].g = (gbm_u8) ((get_u16(palentry+2)*255UL)/1000UL);
+	gbmrgb[i].b = (gbm_u8) ((get_u16(palentry+4)*255UL)/1000UL);
 	}
 }
 /*...e*/
@@ -294,7 +295,7 @@ case 4:
 		for ( i = 0; i < cols; i++ )
 			gbmrgb[i].r =
 			gbmrgb[i].g =
-			gbmrgb[i].b = (byte) ((i*0xff)/(cols-1));
+			gbmrgb[i].b = (gbm_u8) ((i*0xff)/(cols-1));
 		}
 	else
 		switch ( priv->planes )
@@ -316,7 +317,7 @@ case 8:
 	for ( i = 0; i < 0x100; i++ )
 		gbmrgb[i].r =
 		gbmrgb[i].g =
-		gbmrgb[i].b = (byte) i;
+		gbmrgb[i].b = (gbm_u8) i;
 	}
 	break;
 /*...e*/
@@ -330,26 +331,26 @@ case 8:
 
 static void read_gem_line(
 	AHEAD *ahead,
-	byte *line, int scan,
+	gbm_u8 *line, int scan,
 	int patlen,
-	int *vrep, BOOLEAN allow_vrep
+	int *vrep, gbm_boolean allow_vrep
 	)
 	{
 	while ( scan )
 		{
-		byte b1 = (byte) gbm_read_ahead(ahead);
+		gbm_u8 b1 = (gbm_u8) gbm_read_ahead(ahead);
 		if ( b1 == 0x80 )
 			/* Literal run */
 			{
-			byte len = (byte) gbm_read_ahead(ahead);
+			gbm_u8 len = (gbm_u8) gbm_read_ahead(ahead);
 			scan -= len;
 			while ( len-- > 0 )
-				*line++ = (byte) gbm_read_ahead(ahead);
+				*line++ = (gbm_u8) gbm_read_ahead(ahead);
 			}
 		else if ( b1 == 0x00 )
 			/* Pattern code */
 			{
-			byte rep = (byte) gbm_read_ahead(ahead);
+			gbm_u8 rep = (gbm_u8) gbm_read_ahead(ahead);
 			if ( rep == 0 && allow_vrep )
 				/* Is actually a vertical replication */
 				{
@@ -361,7 +362,7 @@ static void read_gem_line(
 				int i;
 				scan -= patlen*rep;
 				for ( i = 0; i < patlen; i++ )
-					*line++ = (byte) gbm_read_ahead(ahead);
+					*line++ = (gbm_u8) gbm_read_ahead(ahead);
 				while ( rep-- > 1 )
 					for ( i = 0; i < patlen; i++, line++ )
 						*line = line[-patlen];
@@ -370,18 +371,18 @@ static void read_gem_line(
 		else
 			/* Is a black/white (=0xff's/0x00's) run code */
 			{
-			byte store = (byte) ( (signed char) b1 >> 7 );
+			gbm_u8 store = (gbm_u8) ( (signed char) b1 >> 7 );
 			b1 &= 0x7f;
 			memset(line, store, b1);
 			line += b1;
 			scan -= b1;
 			}
-		allow_vrep = FALSE;
+		allow_vrep = GBM_FALSE;
 		}
 	}
 /*...e*/
 /*...sspread:0:*/
-static void spread(byte b, byte bit_to_set, byte *dest)
+static void spread(gbm_u8 b, gbm_u8 bit_to_set, gbm_u8 *dest)
 	{
 	if ( b & 0x80 ) dest[0] |= (bit_to_set & 0xf0);
 	if ( b & 0x40 ) dest[0] |= (bit_to_set & 0x0f);
@@ -394,12 +395,12 @@ static void spread(byte b, byte bit_to_set, byte *dest)
 	}
 /*...e*/
 
-GBM_ERR gem_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR gem_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	GEM_PRIV *priv = (GEM_PRIV *) gbm->priv;
 	int scan = (gbm->w+7)/8;
 	int stride = ((gbm->w*gbm->bpp + 31) / 32) * 4;
-	byte *line;
+	gbm_u8 *line;
 	AHEAD *ahead;
 
 	if ( (ahead = gbm_create_ahead(fd)) == NULL )
@@ -422,7 +423,7 @@ case 1:
 		if ( vrep )
 			{ memcpy(data, data+stride, stride); vrep--; }
 		else
-			read_gem_line(ahead, data, scan, priv->patlen, &vrep, TRUE);
+			read_gem_line(ahead, data, scan, priv->patlen, &vrep, GBM_TRUE);
 	}
 	break;
 /*...e*/
@@ -441,17 +442,17 @@ case 4:
 		else
 			{
 			int p;
-			byte bit;
+			gbm_u8 bit;
 
 			for ( p = 0, bit = 0x11; p < priv->planes; p++, bit <<= 1 )
 				{
 				int x;
-				byte *dest = data;
+				gbm_u8 *dest = data;
 				read_gem_line(ahead, line, scan, priv->patlen, &vrep, p==0);
 				for ( x = 0; x < bytes; x++, dest += 4 )
 					spread(line[x], bit, dest);
 				if ( bits )
-					spread((byte) (line[x] & (0xff00U >> bits)), bit, dest);
+					spread((gbm_u8) (line[x] & (0xff00U >> bits)), bit, dest);
 				}
 			}
 	}
@@ -469,7 +470,7 @@ case 8:
 		else
 			{
 			int p;
-			byte bit;
+			gbm_u8 bit;
 			for ( p = 0, bit = 0x01; p < priv->planes; p++, bit <<= 1 )
 				{
 				int x;
@@ -498,7 +499,7 @@ case 24:
 			{ memcpy(data, data+stride, stride); vrep--; }
 		else
 			{
-			read_gem_line(ahead, data, gbm->w*3, priv->patlen, &vrep, TRUE);
+			read_gem_line(ahead, data, gbm->w*3, priv->patlen, &vrep, GBM_TRUE);
 			rgb_bgr(data, data, gbm->w);
 			}
 	}
@@ -515,30 +516,30 @@ case 24:
 /*...e*/
 /*...sgem_w:0:*/
 /*...swrite_pal:0:*/
-static BOOLEAN write_pal(int fd, const GBMRGB *gbmrgb, int cnt)
+static gbm_boolean write_pal(int fd, const GBMRGB *gbmrgb, int cnt)
 	{
 	int i;
 	for ( i = 0; i < cnt; i++ )
 		{
-		byte buf[3*2];
-		putword(buf  , (word) ((gbmrgb[i].r*1000UL)/255UL));
-		putword(buf+2, (word) ((gbmrgb[i].g*1000UL)/255UL));
-		putword(buf+4, (word) ((gbmrgb[i].b*1000UL)/255UL));
+		gbm_u8 buf[3*2];
+		put_u16(buf  , (gbm_u16) ((gbmrgb[i].r*1000UL)/255UL));
+		put_u16(buf+2, (gbm_u16) ((gbmrgb[i].g*1000UL)/255UL));
+		put_u16(buf+4, (gbm_u16) ((gbmrgb[i].b*1000UL)/255UL));
 		if ( gbm_file_write(fd, buf, 3*2) != 3*2 )
-			return FALSE;
+			return GBM_FALSE;
 		}
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...smap_to_grey4:0:*/
 /* Sum of R,G and B will be from 0 to 0x2fd. Sum/3 is from 0 to 0xff.
    Sum/0x30 is from 0 to 0x0f, which is what we want. */
 
-static byte map_to_grey4(const GBMRGB *gbmrgb)
+static gbm_u8 map_to_grey4(const GBMRGB *gbmrgb)
 	{
-	return (byte) ( ( (word) gbmrgb->r +
-			  (word) gbmrgb->g +
-			  (word) gbmrgb->b ) / 0x30 );
+	return (gbm_u8) ( ( (gbm_u16) gbmrgb->r +
+			  (gbm_u16) gbmrgb->g +
+			  (gbm_u16) gbmrgb->b ) / 0x30 );
 	}
 /*...e*/
 /*...smap_to_col4:0:*/
@@ -555,7 +556,7 @@ static int dist_between(const GBMRGB *p1, const GBMRGB *p2)
 	}
 /*...e*/
 
-static byte map_to_col4(const GBMRGB *gbmrgb)
+static gbm_u8 map_to_col4(const GBMRGB *gbmrgb)
 	{
 	int i, i_min = 0;
 	int dist_min = dist_between(gbmrgb, &gbmrgb_4[0]);
@@ -568,24 +569,24 @@ static byte map_to_col4(const GBMRGB *gbmrgb)
 			i_min = i;
 			}
 		}
-	return (byte) i_min;
+	return (gbm_u8) i_min;
 	}
 /*...e*/
 /*...shandle_vrep:0:*/
-static BOOLEAN handle_vrep(int fd, const byte *data, int step, int most, int *dy, int len)
+static gbm_boolean handle_vrep(int fd, const gbm_u8 *data, int step, int most, int *dy, int len)
 	{
-	byte buf[4];
+	gbm_u8 buf[4];
 	if ( most > 0xff )
 		most = 0xff;
 	for ( *dy = 1; *dy < most; (*dy)++, data += step )
 		if ( memcmp(data, data+step, len) )
 			break;
 	if ( (*dy) == 1 )
-		return TRUE;
+		return GBM_TRUE;
 	buf[0] = 0x00;
 	buf[1] = 0x00;
 	buf[2] = 0xff;
-	buf[3] = (byte) (*dy);
+	buf[3] = (gbm_u8) (*dy);
 	return gbm_file_write(fd, buf, 4) == 4;
 	}
 /*...e*/
@@ -605,15 +606,15 @@ static BOOLEAN handle_vrep(int fd, const byte *data, int step, int most, int *dy
 /*...sfind_run1:0:*/
 /* Look for a run of the same byte */
 
-static byte find_run1(const byte *data, int len)
+static gbm_u8 find_run1(const gbm_u8 *data, int len)
 	{
-	const byte *p = data;
-	byte b = *p++;
+	const gbm_u8 *p = data;
+	gbm_u8 b = *p++;
 	if ( len > 0x7f )
 		len = 0x7f;
 	while ( --len > 0 && *p == b )
 		p++;
-	return (byte) ( p-data );
+	return (gbm_u8) ( p-data );
 	}
 /*...e*/
 /*...sfind_lit1:0:*/
@@ -621,9 +622,9 @@ static byte find_run1(const byte *data, int len)
    We know the first 3 bytes (if there are as many as 3) differ.
    We can only return a number as high as 0x7f from this function. */
 
-static byte find_lit1(const byte *data, int len)
+static gbm_u8 find_lit1(const gbm_u8 *data, int len)
 	{
-	const byte *p;
+	const gbm_u8 *p;
 
 	if ( len <= 3 )
 		return len;
@@ -638,12 +639,12 @@ static byte find_lit1(const byte *data, int len)
 	}
 /*...e*/
 
-static int encode1(const byte *data, int scan, byte *enc)
+static int encode1(const gbm_u8 *data, int scan, gbm_u8 *enc)
 	{
-	byte *enc_start = enc;
+	gbm_u8 *enc_start = enc;
 	while ( scan )
 		{
-		byte len = find_run1(data, scan);
+		gbm_u8 len = find_run1(data, scan);
 		if ( *data == 0x00 || *data == 0xff )
 			*enc++ = ((*data&0x80)|len);
 		else if ( len >= 3 )
@@ -680,10 +681,10 @@ static int encode1(const byte *data, int scan, byte *enc)
    We know that data[0..2] are not all 0x00's or 0xff's on entry.
    Takes length in 3-byte-units and returns length in 3-byte-units */
 
-static byte find_run3(const byte *data, int len)
+static gbm_u8 find_run3(const gbm_u8 *data, int len)
 	{
-	const byte *p = data;
-	byte b0, b1, b2;
+	const gbm_u8 *p = data;
+	gbm_u8 b0, b1, b2;
 	if ( len <= 1 )
 		return len;
 	if ( len > 0x7f )
@@ -691,16 +692,16 @@ static byte find_run3(const byte *data, int len)
 	b0 = *p++; b1 = *p++; b2 = *p++;
 	while ( --len > 0 && p[0] == b0 && p[1] == b1 && p[2] == b2 )
 		p += 3;
-	return (byte) ( (p-data)/3 );
+	return (gbm_u8) ( (p-data)/3 );
 	}
 /*...e*/
 /*...sfind_lit3:0:*/
 /* On entry data[0..2] differs from data[3..5], assuming len>=2.
    Takes length in 3 byte units, returns length in bytes. */
 
-static byte find_lit3(const byte *data, int len)
+static gbm_u8 find_lit3(const gbm_u8 *data, int len)
 	{
-	const byte *p;
+	const gbm_u8 *p;
 
 	if ( len == 1 )
 		return 3;
@@ -715,16 +716,16 @@ static byte find_lit3(const byte *data, int len)
 		(p[0]|p[1]|p[2]) != 0x00 &&		/* Next not all 0x00's */
 		(p[0]&p[1]&p[2]) != 0xff )		/* And not all 0xff's */
 		p += 3;
-	return (byte) ( p-data );
+	return (gbm_u8) ( p-data );
 	}
 /*...e*/
 
-static int encode3(const byte *data, int scan, byte *enc)
+static int encode3(const gbm_u8 *data, int scan, gbm_u8 *enc)
 	{
-	byte *enc_start = enc;
+	gbm_u8 *enc_start = enc;
 	while ( scan )
 		{
-		byte len;
+		gbm_u8 len;
 		if ( (*data == 0x00 || *data == 0xff) &&
 		     (len = find_run1(data, scan)) >= 3 )
 			{
@@ -762,16 +763,16 @@ static int encode3(const byte *data, int scan, byte *enc)
    This routine checks that, and if so, re-encodes it literally.
    A literal encoding only adds 2 bytes in 127. */
 
-static int literally(const byte *data, int scan, byte *enc, int len_enc)
+static int literally(const gbm_u8 *data, int scan, gbm_u8 *enc, int len_enc)
 	{
-	byte *enc_start = enc;
+	gbm_u8 *enc_start = enc;
 	if ( len_enc <= (scan*(0x7f+2))/0x7f )
 		return len_enc;
 	while ( scan )
 		{
 		int len = min(scan, 0x7f);
 		*enc++ = 0x80;
-		*enc++ = (byte) len;
+		*enc++ = (gbm_u8) len;
 		memcpy(enc, data, len);
 		enc  += len;
 		data += len;
@@ -781,11 +782,11 @@ static int literally(const byte *data, int scan, byte *enc, int len_enc)
 	}
 /*...e*/
 
-GBM_ERR gem_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR gem_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	byte hdr[22];
+	gbm_u8 hdr[22];
 	int pixw = 85, pixh = 85;
-	BOOLEAN pal, grey;
+	gbm_boolean pal, grey;
 	int stride = ((gbm->w*gbm->bpp + 31) / 32) * 4;
 	int scan = (gbm->w+7)/8;
 
@@ -807,14 +808,14 @@ if ( (s = gbm_find_word_prefix(opt, "pixh=")) != NULL )
 /*...e*/
 
 	/* Initial stab at a header */
-	putword(hdr    , (word) 1);		/* Version */
-	putword(hdr+1*2, (word) 8);		/* Header length */
-	putword(hdr+2*2, (word) gbm->bpp);	/* Number of planes */
-	putword(hdr+3*2, (word) 1);		/* Pattern length */
-	putword(hdr+4*2, (word) pixw);		/* Pixel width in microns */
-	putword(hdr+5*2, (word) pixh);		/* Pixel height in microns */
-	putword(hdr+6*2, (word) gbm->w);	/* Width in pixels */
-	putword(hdr+7*2, (word) gbm->h);	/* Height in pixels */
+	put_u16(hdr    , (gbm_u16) 1);		/* Version */
+	put_u16(hdr+1*2, (gbm_u16) 8);		/* Header length */
+	put_u16(hdr+2*2, (gbm_u16) gbm->bpp);	/* Number of planes */
+	put_u16(hdr+3*2, (gbm_u16) 1);		/* Pattern length */
+	put_u16(hdr+4*2, (gbm_u16) pixw);		/* Pixel width in microns */
+	put_u16(hdr+5*2, (gbm_u16) pixh);		/* Pixel height in microns */
+	put_u16(hdr+6*2, (gbm_u16) gbm->w);	/* Width in pixels */
+	put_u16(hdr+7*2, (gbm_u16) gbm->h);	/* Height in pixels */
 
 	data += (gbm->h-1) * stride;
 
@@ -824,19 +825,19 @@ if ( (s = gbm_find_word_prefix(opt, "pixh=")) != NULL )
 case 1:
 	{
 	int y, dy;
-	byte *line, *enc;
-	BOOLEAN invert;
+	gbm_u8 *line, *enc;
+	gbm_boolean invert;
 
 	if ( pal )
 		{
-		putword(hdr+1*2, (word) (11+6));	/* Header length */
+		put_u16(hdr+1*2, (gbm_u16) (11+6));	/* Header length */
 		memcpy(hdr+8*2, "XIMG", 4);		/* Signiture */
-		putword(hdr+10*2, 0);			/* RGB */
+		put_u16(hdr+10*2, 0);			/* RGB */
 		if ( gbm_file_write(fd, hdr, 11*2) != 11*2 )
 			return GBM_ERR_WRITE;
 		if ( !write_pal(fd, gbmrgb, 2) )
 			return GBM_ERR_WRITE;
-		invert = FALSE;
+		invert = GBM_FALSE;
 		}
 	else
 		{
@@ -855,7 +856,7 @@ case 1:
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
 		int len_enc;
-		const byte *p;
+		const gbm_u8 *p;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, scan) )
 			{ gbmmem_free(enc); gbmmem_free(line); return GBM_ERR_WRITE; }
 		if ( invert )
@@ -882,14 +883,14 @@ case 1:
 case 4:
 	{
 	int y, dy;
-	byte *line, *mapped, *enc;
-	byte map[0x100];
+	gbm_u8 *line, *mapped, *enc;
+	gbm_u8 map[0x100];
 
 	if ( pal )
 		{
-		putword(hdr+1*2, (word) (11+0x30));	/* Header length */
+		put_u16(hdr+1*2, (gbm_u16) (11+0x30));	/* Header length */
 		memcpy(hdr+8*2, "XIMG", 4);		/* Signiture */
-		putword(hdr+10*2, 0);			/* RGB */
+		put_u16(hdr+10*2, 0);			/* RGB */
 		if ( gbm_file_write(fd, hdr, 11*2) != 11*2 )
 			return GBM_ERR_WRITE;
 		if ( !write_pal(fd, gbmrgb, 0x10) )
@@ -898,8 +899,8 @@ case 4:
 	else if ( grey )
 		{
 		unsigned int i;
-		putword(hdr+1*2, (word) 9);		/* Header length */
-		putword(hdr+8*2, (word) 1);		/* Greyscale data */
+		put_u16(hdr+1*2, (gbm_u16) 9);		/* Header length */
+		put_u16(hdr+8*2, (gbm_u16) 1);		/* Greyscale data */
 		if ( gbm_file_write(fd, hdr, 9*2) != 9*2 )
 			return GBM_ERR_WRITE;
 		for ( i = 0; i < 0x100; i++ )
@@ -928,8 +929,8 @@ case 4:
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
 		int x, len_enc, plane;
-		const byte *p;
-		byte bit, mask;
+		const gbm_u8 *p;
+		gbm_u8 bit, mask;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, gbm->w) )
 			{ gbmmem_free(enc); gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_WRITE; }
 		if ( pal )
@@ -963,14 +964,14 @@ case 4:
 case 8:
 	{
 	int y, dy;
-	byte *line, *mapped, *enc;
-	byte map[0x100];
+	gbm_u8 *line, *mapped, *enc;
+	gbm_u8 map[0x100];
 
 	if ( pal )
 		{
-		putword(hdr+1*2, (word) (11+0x300));	/* Header length */
+		put_u16(hdr+1*2, (gbm_u16) (11+0x300));	/* Header length */
 		memcpy(hdr+8*2, "XIMG", 4);		/* Signiture */
-		putword(hdr+10*2, 0);			/* RGB */
+		put_u16(hdr+10*2, 0);			/* RGB */
 		if ( gbm_file_write(fd, hdr, 11*2) != 11*2 )
 			return GBM_ERR_WRITE;
 		if ( !write_pal(fd, gbmrgb, 0x100) )
@@ -979,14 +980,14 @@ case 8:
 	else
 		{
 		int i;
-		putword(hdr+1*2, (word) 9);		/* Header length */
-		putword(hdr+8*2, (word) 1);		/* Greyscale data */
+		put_u16(hdr+1*2, (gbm_u16) 9);		/* Header length */
+		put_u16(hdr+8*2, (gbm_u16) 1);		/* Greyscale data */
 		if ( gbm_file_write(fd, hdr, 9*2) != 9*2 )
 			return GBM_ERR_WRITE;
 		for ( i = 0; i < 0x100; i++ )
-			map[i] = (byte) ( ( (word) gbmrgb[i].r+
-					    (word) gbmrgb[i].g+
-					    (word) gbmrgb[i].b) / 3 );
+			map[i] = (gbm_u8) ( ( (gbm_u16) gbmrgb[i].r+
+					    (gbm_u16) gbmrgb[i].g+
+					    (gbm_u16) gbmrgb[i].b) / 3 );
 		}
 
 	if ( (mapped = gbmmem_malloc((size_t) gbm->w)) == NULL )
@@ -1001,8 +1002,8 @@ case 8:
 	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
 		{
 		int x, len_enc, plane;
-		const byte *p;
-		byte bit;
+		const gbm_u8 *p;
+		gbm_u8 bit;
 		if ( !handle_vrep(fd, data, -stride, y, &dy, gbm->w) )
 			{ gbmmem_free(enc); gbmmem_free(line); gbmmem_free(mapped); return GBM_ERR_WRITE; }
 		if ( pal )
@@ -1036,12 +1037,12 @@ case 8:
 case 24:
 	{
 	int y, dy;
-	byte *line, *enc;
+	gbm_u8 *line, *enc;
 
-	putword(hdr+1*2, (word) 11);	/* Header length */
-	putword(hdr+3*2, (word) 3);	/* Pattern length */
+	put_u16(hdr+1*2, (gbm_u16) 11);	/* Header length */
+	put_u16(hdr+3*2, (gbm_u16) 3);	/* Pattern length */
 	memcpy(hdr+8*2, "XIMG", 4);	/* Signiture */
-	putword(hdr+10*2, (word) 0);	/* RGB */
+	put_u16(hdr+10*2, (gbm_u16) 0);	/* RGB */
 	if ( gbm_file_write(fd, hdr, 11*2) != 11*2 )
 		return GBM_ERR_WRITE;
 

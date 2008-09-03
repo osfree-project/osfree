@@ -17,25 +17,25 @@ gbmrect.c - Subrectangle Transfer
 
 /*...sgbm_subrectangle:0:*/
 /*...smiddle_4:0:*/
-static void middle_4(byte *dst, const byte *src, int x, int w)
+static void middle_4(gbm_u8 *dst, const gbm_u8 *src, int x, int w)
 	{
 	if ( x & 1 )
 		{
 		src += (x / 2);
 		for ( ; w >= 2; w -= 2 )
 			{
-			*dst    = (byte) (*src++ << 4);
-			*dst++ |= (byte) (*src   >> 4);
+			*dst    = (gbm_u8) (*src++ << 4);
+			*dst++ |= (gbm_u8) (*src   >> 4);
 			}
 		if ( w )
-			*dst = (byte) (*src << 4);
+			*dst = (gbm_u8) (*src << 4);
 		}
 	else
 		memcpy(dst, src + x / 2, (w + 1) / 2);
 	}
 /*...e*/
 /*...smiddle_1:0:*/
-static void middle_1(byte *dst, const byte *src, int x, int w)
+static void middle_1(gbm_u8 *dst, const gbm_u8 *src, int x, int w)
 	{
 	int	last = (x & 7);
 
@@ -44,15 +44,15 @@ static void middle_1(byte *dst, const byte *src, int x, int w)
 		{
 		for ( ; w >= 8; w -= 8 )
 			{
-			*dst    = (byte) (*src++ << last);
-			*dst++ |= (byte) (*src   >> (8U - last));
+			*dst    = (gbm_u8) (*src++ << last);
+			*dst++ |= (gbm_u8) (*src   >> (8U - last));
 			}
 		if ( w )
 			{
-			*dst = (byte) (*src++ << last);
+			*dst = (gbm_u8) (*src++ << last);
 			w -= (8U-last);
 			if ( w )
-				*dst |= (byte) (*src >> (8U - last));
+				*dst |= (gbm_u8) (*src >> (8U - last));
 			}
 		}
 	else
@@ -63,7 +63,7 @@ static void middle_1(byte *dst, const byte *src, int x, int w)
 void gbm_subrectangle(
 	const GBM *gbm,
 	int x, int y, int w, int h,
-	const byte *data_src, byte *data_dst
+	const gbm_u8 *data_src, gbm_u8 *data_dst
 	)
 	{
 	int i;
@@ -108,8 +108,8 @@ void gbm_subrectangle(
 /*...sgbm_blit:0:*/
 /*...sblit_1:0:*/
 static void blit_1(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -120,7 +120,7 @@ static void blit_1(
 /*...saligned transfer:16:*/
 {
 int left, right, middle = w;
-byte left_mask, right_mask;
+gbm_u8 left_mask, right_mask;
 
 /* If starting mid-byte, then remember this */
 if ( (sx&7)!=0 && middle > 0 )
@@ -135,13 +135,13 @@ else
 /* Remainder will be a multiple of 8, divide by 8 to give bytes */
 middle >>= 3;
 
-left_mask  = (byte) (0xffU<<left );
-right_mask = (byte) (0xffU>>right);
+left_mask  = (gbm_u8) (0xffU<<left );
+right_mask = (gbm_u8) (0xffU>>right);
 
 for ( ; h-- > 0; s += sts, d += dts )
 	{
-	const byte *sp = s;
-	      byte *dp = d;
+	const gbm_u8 *sp = s;
+	      gbm_u8 *dp = d;
 	if ( left > 0 )
 		{ *dp = ( (*dp&left_mask) | (*sp&~left_mask) ); dp++; sp++; }
 	memcpy(dp, sp, middle); dp += middle; sp += middle;
@@ -168,8 +168,8 @@ for ( ; h-- > 0; s += sts, d += dts )
 /*...e*/
 /*...sblit_4:0:*/
 static void blit_4(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -179,26 +179,26 @@ static void blit_4(
 	if ( sx == dx )
 /*...saligned transfer:16:*/
 {
-BOOLEAN lnibble, rnibble;
+gbm_boolean lnibble, rnibble;
 int middle = w;
 
 /* If starting mid-byte, then remember this */
 if ( (sx&1)!=0 && middle > 0 )
-	{ lnibble = TRUE; middle--; }
+	{ lnibble = GBM_TRUE; middle--; }
 else
-	lnibble = FALSE;
+	lnibble = GBM_FALSE;
 /* If ending mid-byte, then remember this */
 if ( ((sx+w)&1)!=0 && middle > 0 )
-	{ rnibble = TRUE; middle--; }
+	{ rnibble = GBM_TRUE; middle--; }
 else
-	rnibble = FALSE;
+	rnibble = GBM_FALSE;
 /* Remainder will be a multiple of 2, divide by 2 to give bytes */
 middle >>= 1;
 
 for ( ; h-- > 0; s += sts, d += dts )
 	{
-	const byte *sp = s;
-	      byte *dp = d;
+	const gbm_u8 *sp = s;
+	      gbm_u8 *dp = d;
 	if ( lnibble )
 		{ *dp = ( (*dp&0xf0) | (*sp&0x0f) ); dp++; sp++; }
 	memcpy(dp, sp, middle); dp += middle; sp += middle;
@@ -225,8 +225,8 @@ for ( ; h-- > 0; s += sts, d += dts )
 /*...e*/
 /*...sblit_8:0:*/
 static void blit_8(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -238,8 +238,8 @@ static void blit_8(
 /*...e*/
 /*...sblit_24:0:*/
 static void blit_24(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -251,8 +251,8 @@ static void blit_24(
 /*...e*/
 /*...sblit_32:0:*/
 static void blit_32(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -264,8 +264,8 @@ static void blit_32(
 /*...e*/
 /*...sblit_48:0:*/
 static void blit_48(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -277,8 +277,8 @@ static void blit_48(
 /*...e*/
 /*...sblit_64:0:*/
 static void blit_64(
-	const byte *s, int sts, int sx,
-	      byte *d, int dts, int dx,
+	const gbm_u8 *s, int sts, int sx,
+	      gbm_u8 *d, int dts, int dx,
 	int w, int h
 	)
 	{
@@ -290,8 +290,8 @@ static void blit_64(
 /*...e*/
 
 void gbm_blit(
-	const byte *s, int sw, int sx, int sy,
-	      byte *d, int dw, int dx, int dy,
+	const gbm_u8 *s, int sw, int sx, int sy,
+	      gbm_u8 *d, int dw, int dx, int dy,
 	int w, int h,
 	int bpp
 	)

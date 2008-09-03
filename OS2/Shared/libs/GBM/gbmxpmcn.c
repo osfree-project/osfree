@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-#define MakeRGB(r,g,b)  (((dword) r) | ((dword) g << 8) | ((dword) b << 16))
+#define MakeRGB(r,g,b)  (((gbm_u32) r) | ((gbm_u32) g << 8) | ((gbm_u32) b << 16))
 #define GetR(rgb)       ((rgb)         & 0xff)
 #define GetG(rgb)       (((rgb) >> 8)  & 0xff)
 #define GetB(rgb)       (((rgb) >> 16) & 0xff)
@@ -12,7 +12,7 @@
 
 struct GBM_XPM_RGB_NAMES_T
 {
-    const dword        rgb;
+    const gbm_u32      rgb;
     const char * const name;
 };
 
@@ -781,9 +781,9 @@ static const int GBM_XPM_RGB_NAMES_LENGTH = sizeof(GBM_XPM_RGB_NAMES) /
 /* ---------------------------------------- */
 
 /* convert hex color names, wrong digits (not a-f,A-F,0-9) are treated as zero */
-static word hexCharToWord(const char c)
+static gbm_u16 hexCharToWord(const char c)
 {
-    word r;
+    gbm_u16 r;
 
     if (c >= '0' && c <= '9')
     {
@@ -805,11 +805,11 @@ static word hexCharToWord(const char c)
 }
 
 /* Input: hex code string starting with # */
-BOOLEAN rgb16FromHex(const byte *hex, int hex_len, GBMRGB_16BPP * gbmrgb16)
+gbm_boolean rgb16FromHex(const gbm_u8 *hex, int hex_len, GBMRGB_16BPP * gbmrgb16)
 {
     if (hex == 0 || hex[0] != '#')
     {
-       return FALSE;
+       return GBM_FALSE;
     }
 
     if (hex_len == 3 + 1)
@@ -848,15 +848,15 @@ BOOLEAN rgb16FromHex(const byte *hex, int hex_len, GBMRGB_16BPP * gbmrgb16)
     }
     else
     {
-       return FALSE;
+       return GBM_FALSE;
     }
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-BOOLEAN rgb16FromColorName(const byte *color_name, int color_name_len, GBMRGB_16BPP * gbmrgb16)
+gbm_boolean rgb16FromColorName(const gbm_u8 *color_name, int color_name_len, GBMRGB_16BPP * gbmrgb16)
 {
     int i;
     color_name_len = color_name_len;
@@ -867,21 +867,21 @@ BOOLEAN rgb16FromColorName(const byte *color_name, int color_name_len, GBMRGB_16
             gbmrgb16->r = GetR(GBM_XPM_RGB_NAMES[i].rgb);
             gbmrgb16->g = GetG(GBM_XPM_RGB_NAMES[i].rgb);
             gbmrgb16->b = GetB(GBM_XPM_RGB_NAMES[i].rgb);
-            return TRUE;
+            return GBM_TRUE;
         }
     }
-    return FALSE;
+    return GBM_FALSE;
 }
 
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static char nibbleToHexChar(const byte b)
+static char nibbleToHexChar(const gbm_u8 b)
 {
     return (b <= 9) ? ('0' + b) : ('A' + b - 10);
 }
 
-BOOLEAN hexFromRgb16(const int bpp, const GBMRGB_16BPP * gbmrgb16, byte *hex, int hex_len)
+gbm_boolean hexFromRgb16(const int bpp, const GBMRGB_16BPP * gbmrgb16, gbm_u8 *hex, int hex_len)
 {
     switch(bpp)
     {
@@ -892,7 +892,7 @@ BOOLEAN hexFromRgb16(const int bpp, const GBMRGB_16BPP * gbmrgb16, byte *hex, in
             /* 8 bit per color component */
             if (hex_len < 7 + 1)
             {
-                return FALSE;
+                return GBM_FALSE;
             }
             hex[0] = '#';
             hex[1] = nibbleToHexChar((gbmrgb16->r >>  4) & 0xf);
@@ -908,7 +908,7 @@ BOOLEAN hexFromRgb16(const int bpp, const GBMRGB_16BPP * gbmrgb16, byte *hex, in
             /* 16 bit per color component */
             if (hex_len < 13 + 1)
             {
-                return FALSE;
+                return GBM_FALSE;
             }
             hex[0]  = '#';
             hex[1]  = nibbleToHexChar((gbmrgb16->r >> 12) & 0xf);
@@ -927,9 +927,9 @@ BOOLEAN hexFromRgb16(const int bpp, const GBMRGB_16BPP * gbmrgb16, byte *hex, in
             break;
 
         default:
-            return FALSE;
+            return GBM_FALSE;
     }
-    return TRUE;
+    return GBM_TRUE;
 }
 
 

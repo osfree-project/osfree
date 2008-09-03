@@ -30,6 +30,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -50,12 +51,6 @@ History:
 #ifndef min
 #define	min(a,b)	(((a)<(b))?(a):(b))
 #endif
-/*...e*/
-
-/*...suseful:0:*/
-#define	low_byte(w)	((byte)  ((w)&0x00ff)    )
-#define	high_byte(w)	((byte) (((w)&0xff00)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
 /*...e*/
 
 static GBMFT psg_gbmft =
@@ -80,7 +75,7 @@ typedef struct
 	{
 	long pos;
 	int xcellsizedef, ycellsizedef;
-	BOOLEAN fix_badrec;
+	gbm_boolean fix_badrec;
 	} PSEG_PRIV;
 
 /*...smax:0:*/
@@ -91,7 +86,7 @@ typedef struct
 /*...sascii \47\ ebcdic:0:*/
 #ifdef NEVER
 /*...sebcdic_to_ascii:0:*/
-static byte ebcdic_to_ascii[0x100] =
+static gbm_u8 ebcdic_to_ascii[0x100] =
 	{
 	0x00,0x01,0x02,0x03,0xcf,0x09,0xd3,0x7f,
 	0xd4,0xd5,0xc3,0x0b,0x0c,0x0d,0x0e,0x0f,
@@ -129,7 +124,7 @@ static byte ebcdic_to_ascii[0x100] =
 /*...e*/
 #endif
 /*...sascii_to_ebcdic:0:*/
-static byte ascii_to_ebcdic[0x100] =
+static gbm_u8 ascii_to_ebcdic[0x100] =
 	{
 	0x00,0x01,0x02,0x03,0x37,0x2d,0x2e,0x2f,
 	0x16,0x05,0x25,0x0b,0x0c,0x0d,0x0e,0x0f,
@@ -173,16 +168,16 @@ static void ebcdic(char *dst, char *src)
 	}
 /*...e*/
 /*...sgetword:0:*/
-static int getword(byte *c)
+static int getword(gbm_u8 *c)
 	{
 	return (int) ( ((unsigned int) c[0] << 8) + (unsigned int) c[1] );
 	}
 /*...e*/
 /*...sputword:0:*/
-static void putword(byte *c, int d)
+static void putword(gbm_u8 *c, int d)
 	{
-	c[0] = (byte) ((unsigned)d>>8);
-	c[1] = (byte)            d    ;
+	c[0] = (gbm_u8) ((unsigned)d>>8);
+	c[1] = (gbm_u8)            d    ;
 	}
 /*...e*/
 
@@ -197,7 +192,7 @@ GBM_ERR psg_qft(GBMFT *gbmft)
 GBM_ERR psg_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	PSEG_PRIV *psg_priv = (PSEG_PRIV *) gbm->priv;
-	byte buf[1+2+6];
+	gbm_u8 buf[1+2+6];
 
 	fn=fn; /* Suppress 'unref arg' compiler warnings */
 
@@ -232,7 +227,7 @@ GBM_ERR psg_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 		else if ( !memcmp(buf+1+2, "\xd3\xa6\x7b", 3) )
 			/* InputImageDescriptor, remember its info */
 			{
-			byte buf2[6+12+2+2+6+2+2+4];
+			gbm_u8 buf2[6+12+2+2+6+2+2+4];
 			if ( gbm_file_read(fd, buf2, sizeof(buf2)) != sizeof(buf2) )
 				return GBM_ERR_READ;
 			seek_by -= sizeof(buf2);
@@ -279,10 +274,10 @@ GBM_ERR psg_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...spsg_rdata:0:*/
-GBM_ERR psg_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR psg_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	PSEG_PRIV *psg_priv = (PSEG_PRIV *) gbm->priv;
-	byte buf[1+2+6];
+	gbm_u8 buf[1+2+6];
 	int stride = ( ( gbm->w*gbm->bpp + 31 ) / 32 ) * 4;
 	int xcellpos  = 0;
 	int ycellpos  = 0;
@@ -319,7 +314,7 @@ GBM_ERR psg_rdata(int fd, GBM *gbm, byte *data)
 		else if ( !memcmp(buf+1+2, "\xd3\xac\x7b", 3) )
 			/* ImageCellPosition, ignore it */
 			{
-			byte buf2[12], *p;
+			gbm_u8 buf2[12], *p;
 			int xfillsize, yfillsize, y;
 			if ( gbm_file_read(fd, buf2, sizeof(buf2)) != sizeof(buf2) )
 				return GBM_ERR_READ;
@@ -344,7 +339,7 @@ GBM_ERR psg_rdata(int fd, GBM *gbm, byte *data)
 		else if ( !memcmp(buf+1+2, "\xd3\xee\x7b", 3) )
 			/* RasterData, use the data */
 			{
-			byte *p = data + ( (gbm->h-1-ycellpos) * stride + xcellpos/8 );
+			gbm_u8 *p = data + ( (gbm->h-1-ycellpos) * stride + xcellpos/8 );
 			int xc = xcellsize/8;
 
 			for ( ; seek_by >= xc; seek_by -= xc, p -= stride, ycellpos++, ycellsize-- )
@@ -364,7 +359,7 @@ GBM_ERR psg_rdata(int fd, GBM *gbm, byte *data)
 /*...e*/
 /*...spsg_w:0:*/
 /*...srecord:0:*/
-static BOOLEAN record(int fd, byte *rec, char *three, int len, int *recnum)
+static gbm_boolean record(int fd, gbm_u8 *rec, char *three, int len, int *recnum)
 	{
 	rec[0] = 0x5a;
 	putword(rec+1, 2+6+len);
@@ -376,14 +371,14 @@ static BOOLEAN record(int fd, byte *rec, char *three, int len, int *recnum)
 	}
 /*...e*/
 
-GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	static char by_gbm[] = "Written by GBM", buf8[8+1];
-	static byte *rec, *r;
+	static gbm_u8 *rec, *r;
 	int stride = ( ( gbm->w + 31 ) / 32 ) * 4;
 	int len = (gbm->w+7)/8;
 	int i;
-	byte lastbits = 0xff;
+	gbm_u8 lastbits = 0xff;
 	const char *str;
 	int scalex = 1000, scaley = 1000;
 	int pelx = 2400, pely = 2400;
@@ -454,7 +449,7 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
  	if ( (unsigned)gbm->w&7U )
- 		lastbits = (byte) ( 0xff00U >> ((unsigned)gbm->w&7U) );
+ 		lastbits = (gbm_u8) ( 0xff00U >> ((unsigned)gbm->w&7U) );
 	data += (gbm->h-1) * stride;
  	for ( i = 0; i < gbm->h; i++, data -= stride )
  		{

@@ -13,6 +13,7 @@ History:
 08-Feb-2008  Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+15-Aug-2008  Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -22,7 +23,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -100,13 +101,13 @@ int main(int argc, char *argv[])
 	char    fn_src[GBMTOOL_FILENAME_MAX+1], fn_dst[GBMTOOL_FILENAME_MAX+1],
                 opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
-	BOOLEAN	horz = FALSE, vert = FALSE, trans = FALSE;
+	gbm_boolean	horz = GBM_FALSE, vert = GBM_FALSE, trans = GBM_FALSE;
 	int	fd, ft_src, ft_dst, i, stride, bytes, flag;
 	GBM_ERR	rc;
 	GBMFT	gbmft;
 	GBM	gbm;
 	GBMRGB	gbmrgb[0x100];
-	byte	*data;
+	gbm_u8	*data;
 
 	for ( i = 1; i < argc; i++ )
 		{
@@ -116,9 +117,9 @@ int main(int argc, char *argv[])
 			{ ++i; break; }
 		switch ( argv[i][1] )
 			{
-			case 'h':	horz = TRUE;	break;
-			case 'v':	vert = TRUE;	break;
-			case 't':	trans = TRUE;	break;
+			case 'h':	horz = GBM_TRUE;	break;
+			case 'v':	vert = GBM_TRUE;	break;
+			case 't':	trans = GBM_TRUE;	break;
 			default:	usage();	break;
 			}
 		}
@@ -132,7 +133,7 @@ int main(int argc, char *argv[])
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse source filename %s", gbmfilearg.argin);
 	}
@@ -145,7 +146,7 @@ int main(int argc, char *argv[])
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse destination filename %s", gbmfilearg.argin);
 	}
@@ -244,7 +245,7 @@ int main(int argc, char *argv[])
 	if ( trans )
 		{
 		int t, stride_t = ((gbm.h * gbm.bpp + 31) / 32) * 4;
-		byte *data_t;
+		gbm_u8 *data_t;
 		if ( (data_t = gbmmem_malloc(gbm.w * stride_t)) == NULL )
 			fatal("out of memory allocating %u bytes", gbm.w * stride_t);
 

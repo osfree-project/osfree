@@ -17,7 +17,18 @@ History:
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
              Removed maximum size limit
+15-Aug-2008  Integrate new GBM types
 */
+
+/* activate to enable measurement of conversion time */
+/* #define MEASURE_TIME */
+
+#ifdef MEASURE_TIME
+#ifdef __OS2__
+  #define INCL_DOSDATETIME
+  #include <os2.h>
+#endif
+#endif
 
 #include <stdio.h>
 #include <ctype.h>
@@ -25,7 +36,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -162,7 +173,7 @@ static int get_opt_value_filterIndex(const char *s,
 
 /* ---------------------------- */
 
-static BOOLEAN isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
+static gbm_boolean isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
 {
     if ((entries > 0) && (entries <= 0x100))
     {
@@ -173,12 +184,12 @@ static BOOLEAN isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
                 (gbmrgb[i].r != gbmrgb[i].b) ||
                 (gbmrgb[i].g != gbmrgb[i].b))
             {
-                return FALSE;
+                return GBM_FALSE;
             }
         }
-        return TRUE;
+        return GBM_TRUE;
     }
-    return FALSE;
+    return GBM_FALSE;
 }
 
 /* ---------------------------- */
@@ -195,10 +206,19 @@ int main(int argc, char *argv[])
    GBMFT    gbmft;
    GBM      gbm, gbm2;
    GBMRGB   gbmrgb[0x100];
-   BOOLEAN  aspect = FALSE;
-   BOOLEAN  qualityScalingEnabled = FALSE;
-   BOOLEAN  isGrayscale = FALSE;
-   byte    *data, *data2;
+   gbm_boolean aspect = GBM_FALSE;
+   gbm_boolean qualityScalingEnabled = GBM_FALSE;
+   gbm_boolean isGrayscale = GBM_FALSE;
+   gbm_u8    *data, *data2;
+
+#ifdef MEASURE_TIME
+#ifdef __OS2__
+   DATETIME start_time, end_time;
+   double   time_s;
+
+   DosGetDateTime(&start_time);
+#endif
+#endif
 
    for ( i = 1; i < argc; i++ )
    {
@@ -217,7 +237,7 @@ int main(int argc, char *argv[])
             h = get_opt_value_pos(argv[i], "h");
             break;
          case 'a':
-            aspect = TRUE;
+            aspect = GBM_TRUE;
             break;
          case 'f':
             if ( ++i == argc ) usage();
@@ -241,7 +261,7 @@ int main(int argc, char *argv[])
    }
    else if (filterIndex != FILTER_INDEX_SIMPLE)
    {
-      qualityScalingEnabled = TRUE;
+      qualityScalingEnabled = GBM_TRUE;
    }
 
    if ( i == argc )
@@ -253,7 +273,7 @@ int main(int argc, char *argv[])
    {
      usage();
    }
-   if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+   if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
    {
      fatal("can't parse source filename %s", gbmfilearg.argin);
    }
@@ -266,7 +286,7 @@ int main(int argc, char *argv[])
    {
      usage();
    }
-   if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+   if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
    {
      fatal("can't parse destination filename %s", gbmfilearg.argin);
    }
@@ -466,6 +486,15 @@ int main(int argc, char *argv[])
    gbmmem_free(data2);
 
    gbm_deinit();
+
+#ifdef MEASURE_TIME
+#ifdef __OS2__
+   DosGetDateTime(&end_time);
+   time_s = ((double) (end_time  .minutes * 60) + end_time  .seconds + (end_time  .hundredths/100.0)) -
+            ((double) (start_time.minutes * 60) + start_time.seconds + (start_time.hundredths/100.0));
+   printf("Elapsed time: %lf\n", time_s);
+#endif
+#endif
 
    return 0;
 }

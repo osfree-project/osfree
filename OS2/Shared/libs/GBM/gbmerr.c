@@ -15,13 +15,13 @@ gbmerr.c - Error diffusion Module
 /*...vgbm\46\h:0:*/
 /*...e*/
 /*...svars:0:*/
-static BOOLEAN inited = FALSE;
+static gbm_boolean inited = GBM_FALSE;
 
 /*
 Tables used for quick saturated addition and subtraction.
 */
 
-static byte usat[256+256+256];
+static gbm_u8 usat[256+256+256];
 #define	U_SAT_ADD(a,b)	usat[(a)+(b)+256]
 
 static short ssat[256+256+256+256];
@@ -31,20 +31,20 @@ static short ssat[256+256+256+256];
 For 6Rx6Gx6B, 7Rx8Gx4B, 4Rx4Gx4B palettes etc.
 */
 
-static byte index4[0x100];
-static byte index6[0x100];
-static byte index7[0x100];
-static byte index8[0x100];
-static byte index16[0x100];
-static byte scale4[] = { 0, 85, 170, 255 };
-static byte scale6[] = { 0, 51, 102, 153, 204, 255 };
-static byte scale7[] = { 0, 43, 85, 128, 170, 213, 255 };
-static byte scale8[] = { 0, 36, 73, 109, 146, 182, 219, 255 };
-static byte scale16[] = { 0, 17, 34, 51, 68, 85, 102, 119, 136,
-			   153, 170, 187, 204, 221, 238, 255 };
+static gbm_u8 index4[0x100];
+static gbm_u8 index6[0x100];
+static gbm_u8 index7[0x100];
+static gbm_u8 index8[0x100];
+static gbm_u8 index16[0x100];
+static gbm_u8 scale4[]  = { 0, 85, 170, 255 };
+static gbm_u8 scale6[]  = { 0, 51, 102, 153, 204, 255 };
+static gbm_u8 scale7[]  = { 0, 43, 85, 128, 170, 213, 255 };
+static gbm_u8 scale8[]  = { 0, 36, 73, 109, 146, 182, 219, 255 };
+static gbm_u8 scale16[] = { 0, 17, 34, 51, 68, 85, 102, 119, 136,
+                            153, 170, 187, 204, 221, 238, 255 };
 
-static word randtab[0x100];
-static int randinx = 0;
+static gbm_u16 randtab[0x100];
+static int     randinx = 0;
 /*...e*/
 /*...sinit:0:*/
 /*
@@ -57,9 +57,9 @@ It does this by preparing the quick saturated addition and subraction tables.
 #define	abs(x)	(((x)>=0)?(x):-(x))
 #endif
 
-static byte nearest_inx(byte value, const byte ab[], unsigned short cb)
+static gbm_u8 nearest_inx(gbm_u8 value, const gbm_u8 ab[], unsigned short cb)
 	{
-	byte b, inx, inx_min;
+	gbm_u8 b, inx, inx_min;
 	short diff, diff_min;
 
 	b = ab[0];
@@ -88,7 +88,7 @@ static void init(void)
 
 	memset(usat, 0, 0x100);
 	for ( i = 0; i < 0x100; i++ )
-		usat[i +  0x100] = (byte) i;
+		usat[i +  0x100] = (gbm_u8) i;
 	memset(usat + 0x200, 0xff, 0x100);
 
 	for ( i = -0x200; i < -0x100; i++ )
@@ -102,41 +102,41 @@ static void init(void)
 
 	for ( i = 0; i < 0x100; i++ )
 		{
-		index4 [i] = nearest_inx((byte) i, scale4 , sizeof(scale4 ));
-		index6 [i] = nearest_inx((byte) i, scale6 , sizeof(scale6 ));
-		index7 [i] = nearest_inx((byte) i, scale7 , sizeof(scale7 ));
-		index8 [i] = nearest_inx((byte) i, scale8 , sizeof(scale8 ));
-		index16[i] = nearest_inx((byte) i, scale16, sizeof(scale16));
+		index4 [i] = nearest_inx((gbm_u8) i, scale4 , sizeof(scale4 ));
+		index6 [i] = nearest_inx((gbm_u8) i, scale6 , sizeof(scale6 ));
+		index7 [i] = nearest_inx((gbm_u8) i, scale7 , sizeof(scale7 ));
+		index8 [i] = nearest_inx((gbm_u8) i, scale8 , sizeof(scale8 ));
+		index16[i] = nearest_inx((gbm_u8) i, scale16, sizeof(scale16));
 		}
 
 	/* For faster random number calculation */
 
 	for ( i = 0; i < 0x100; i++ )
-		randtab [i] = (word) (rand() % (51*0x100));
+		randtab [i] = (gbm_u16) (rand() % (51*0x100));
 
-	inited = TRUE;
+	inited = GBM_TRUE;
 	}
 /*...e*/
 /*...serrdiff:0:*/
-static BOOLEAN errdiff(
-	const GBM *gbm, const byte *src, byte *dest,
+static gbm_boolean errdiff(
+	const GBM *gbm, const gbm_u8 *src, gbm_u8 *dest,
 	int dest_bpp,
-	void (*errdiff_line)(byte *src, byte *dest, short *errs, int cx)
+	void (*errdiff_line)(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	)
 	{
 	int stride_src = ((gbm->w * 3 + 3) & ~3);
 	int stride_dest = ((gbm->w * dest_bpp + 31) / 32) * 4;
-	byte *buf;
+	gbm_u8 *buf;
 	short *errs;
 	int y;
 
 	if ( (buf = gbmmem_malloc((size_t) stride_src + 3)) == NULL )
-		return FALSE;
+		return GBM_FALSE;
 
 	if ( (errs = gbmmem_malloc((size_t) ((gbm->w + 1) * 3 * sizeof(short)))) == NULL )
 		{
 		gbmmem_free(buf);
-		return FALSE;
+		return GBM_FALSE;
 		}
 
 	memset(errs, 0, (gbm->w + 1) * 3 * sizeof(short));
@@ -150,7 +150,7 @@ static BOOLEAN errdiff(
 	gbmmem_free(buf);
 	gbmmem_free(errs);
 
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 
@@ -161,7 +161,7 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_24(byte *src, byte *dest, short *errs, int cx, byte rm, byte gm, byte bm)
+void gbm_errdiff_line_24(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm)
 	{
 	int x, ptr = 0;
 
@@ -182,16 +182,16 @@ void gbm_errdiff_line_24(byte *src, byte *dest, short *errs, int cx, byte rm, by
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte b     = *src++;
-		byte g     = *src++;
-		byte r     = *src++;
-		byte bi    = (b & bm);
-		byte gi    = (g & gm);
-		byte ri    = (r & rm);
+		gbm_u8 b   = *src++;
+		gbm_u8 g   = *src++;
+		gbm_u8 r   = *src++;
+		gbm_u8 bi  = (b & bm);
+		gbm_u8 gi  = (g & gm);
+		gbm_u8 ri  = (r & rm);
 		int  be    = b - (int) bi;
 		int  ge    = g - (int) gi;
 		int  re    = r - (int) ri;
-		word rn    = randtab[(byte) (randinx++)];
+		gbm_u16 rn = randtab[(gbm_u8) (randinx++)];
 		int  right = (rn >> 8);
 		int  down  = ((rn & 0xff) % (63 - right));
 		int  be1   = ((be * right) >> 6);
@@ -225,20 +225,20 @@ void gbm_errdiff_line_24(byte *src, byte *dest, short *errs, int cx, byte rm, by
 	}
 /*...e*/
 /*...sgbm_errdiff_24          \45\ error diffuse to fewer bits per pixel:0:*/
-BOOLEAN	gbm_errdiff_24(const GBM *gbm, const byte *data24, byte *data24a, byte rm, byte gm, byte bm)
+gbm_boolean	gbm_errdiff_24(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data24a, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm)
 	{
 	int stride = ((gbm->w * 3 + 3) & ~3);
-	byte *buf;
+	gbm_u8 *buf;
 	short *errs;
 	int y;
 
 	if ( (buf = gbmmem_malloc((size_t) (stride + 3))) == NULL )
-		return FALSE;
+		return GBM_FALSE;
 
 	if ( (errs = gbmmem_malloc((size_t) ((gbm->w + 1) * 3 * sizeof(short)))) == NULL )
 		{
 		gbmmem_free(buf);
-		return FALSE;
+		return GBM_FALSE;
 		}
 
 	memset(errs, 0, (gbm->w + 1) * 3 * sizeof(short));
@@ -252,7 +252,7 @@ BOOLEAN	gbm_errdiff_24(const GBM *gbm, const byte *data24, byte *data24a, byte r
 	gbmmem_free(buf);
 	gbmmem_free(errs);
 
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 
@@ -264,9 +264,9 @@ This function makes the palette for the 6 red x 6 green x 6 blue palette.
 
 void gbm_errdiff_pal_6R6G6B(GBMRGB *gbmrgb)
 	{
-	byte volatile r;	/* C-Set/2 optimiser fix */
-	byte volatile g;
-	byte volatile b;
+	gbm_u8 volatile r;	/* C-Set/2 optimiser fix */
+	gbm_u8 volatile g;
+	gbm_u8 volatile b;
 
 	init();
 	memset(gbmrgb, 0x80, 0x100 * sizeof(GBMRGB));
@@ -288,7 +288,7 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_6R6G6B(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_6R6G6B(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
 	int x, ptr = 0;
 
@@ -309,16 +309,16 @@ void gbm_errdiff_line_6R6G6B(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte b     = *src++;
-		byte g     = *src++;
-		byte r     = *src++;
-		byte bi    = index6[b];
-		byte gi    = index6[g];
-		byte ri    = index6[r];
+		gbm_u8 b   = *src++;
+		gbm_u8 g   = *src++;
+		gbm_u8 r   = *src++;
+		gbm_u8 bi  = index6[b];
+		gbm_u8 gi  = index6[g];
+		gbm_u8 ri  = index6[r];
 		int  be    = b - ((int) scale6[bi]);
 		int  ge    = g - ((int) scale6[gi]);
 		int  re    = r - ((int) scale6[ri]);
-		word rn    = randtab[(byte) (randinx++)];
+		gbm_u16 rn = randtab[(gbm_u8) (randinx++)];
 		int  right = (int) (rn >> 8);
 		int  down  = (int) ((rn & 0xff) % (63 - right));
 		int  be1   = ((be * right) >> 6);
@@ -331,7 +331,7 @@ void gbm_errdiff_line_6R6G6B(byte *src, byte *dest, short *errs, int cx)
 		int  ge3   = ge - ge1 - ge2;
 		int  re3   = re - re1 - re2;
 
-		*dest++ = (byte) (6 * (6 * ri + gi) + bi);
+		*dest++ = (gbm_u8) (6 * (6 * ri + gi) + bi);
 
 		src[0] = U_SAT_ADD((int) src[0], be1);
 		src[1] = U_SAT_ADD((int) src[1], ge1);
@@ -350,7 +350,7 @@ void gbm_errdiff_line_6R6G6B(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_6R6G6B      \45\ error diffuse to 6Rx6Gx6B:0:*/
-BOOLEAN	gbm_errdiff_6R6G6B(const GBM *gbm, const byte *data24, byte *data8)
+gbm_boolean	gbm_errdiff_6R6G6B(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8)
 	{
 	return errdiff(gbm, data24, data8, 8, gbm_errdiff_line_6R6G6B);
 	}
@@ -365,9 +365,9 @@ Colours calculated to match those used by 8514/A PM driver.
 
 void gbm_errdiff_pal_7R8G4B(GBMRGB *gbmrgb)
 	{
-	byte volatile r;	/* C-Set/2 optimiser fix */
-	byte volatile g;
-	byte volatile b;
+	gbm_u8 volatile r;	/* C-Set/2 optimiser fix */
+	gbm_u8 volatile g;
+	gbm_u8 volatile b;
 
 	init();
 
@@ -390,7 +390,7 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_7R8G4B(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_7R8G4B(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
 	int x, ptr = 0;
 
@@ -411,16 +411,16 @@ void gbm_errdiff_line_7R8G4B(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte b     = *src++;
-		byte g     = *src++;
-		byte r     = *src++;
-		byte bi    = index4[b];
-		byte gi    = index8[g];
-		byte ri    = index7[r];
+		gbm_u8 b   = *src++;
+		gbm_u8 g   = *src++;
+		gbm_u8 r   = *src++;
+		gbm_u8 bi  = index4[b];
+		gbm_u8 gi  = index8[g];
+		gbm_u8 ri  = index7[r];
 		int  be    = b - ((int) scale4[bi]);
 		int  ge    = g - ((int) scale8[gi]);
 		int  re    = r - ((int) scale7[ri]);
-		word rn    = randtab[(byte) (randinx++)];
+		gbm_u16 rn = randtab[(gbm_u8) (randinx++)];
 		int  right = (rn >> 8);
 		int  down  = ((rn & 0xff) % (63 - right));
 		int  be1   = ((be * right) >> 6);
@@ -433,7 +433,7 @@ void gbm_errdiff_line_7R8G4B(byte *src, byte *dest, short *errs, int cx)
 		int  ge3   = ge - ge1 - ge2;
 		int  re3   = re - re1 - re2;
 
-		*dest++ = (byte) (4 * (8 * ri + gi) + bi);
+		*dest++ = (gbm_u8) (4 * (8 * ri + gi) + bi);
 
 		src[0] = U_SAT_ADD((int) src[0], be1);
 		src[1] = U_SAT_ADD((int) src[1], ge1);
@@ -452,7 +452,7 @@ void gbm_errdiff_line_7R8G4B(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_7R8G4B      \45\ error diffuse to 7Rx8Gx4B:0:*/
-BOOLEAN	gbm_errdiff_7R8G4B(const GBM *gbm, const byte *data24, byte *data8)
+gbm_boolean	gbm_errdiff_7R8G4B(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8)
 	{
 	return errdiff(gbm, data24, data8, 8, gbm_errdiff_line_7R8G4B);
 	}
@@ -466,9 +466,9 @@ This function makes the palette for the 4 red x 4 green x 4 blue palette.
 
 void gbm_errdiff_pal_4R4G4B(GBMRGB *gbmrgb)
 	{
-	byte volatile r;	/* C-Set/2 optimiser fix */
-	byte volatile g;
-	byte volatile b;
+	gbm_u8 volatile r;	/* C-Set/2 optimiser fix */
+	gbm_u8 volatile g;
+	gbm_u8 volatile b;
 
 	init();
 	memset(gbmrgb, 0x80, 0x100 * sizeof(GBMRGB));
@@ -490,7 +490,7 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_4R4G4B(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_4R4G4B(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
 	int x, ptr = 0;
 
@@ -511,16 +511,16 @@ void gbm_errdiff_line_4R4G4B(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte b     = *src++;
-		byte g     = *src++;
-		byte r     = *src++;
-		byte bi    = index4[b];
-		byte gi    = index4[g];
-		byte ri    = index4[r];
+		gbm_u8 b   = *src++;
+		gbm_u8 g   = *src++;
+		gbm_u8 r   = *src++;
+		gbm_u8 bi  = index4[b];
+		gbm_u8 gi  = index4[g];
+		gbm_u8 ri  = index4[r];
 		int  be    = b - ((int) scale4[bi]);
 		int  ge    = g - ((int) scale4[gi]);
 		int  re    = r - ((int) scale4[ri]);
-		word rn    = randtab[(byte) (randinx++)];
+		gbm_u16 rn = randtab[(gbm_u8) (randinx++)];
 		int  right = (int) (rn >> 8);
 		int  down  = (int) ((rn & 0xff) % (63 - right));
 		int  be1   = ((be * right) >> 6);
@@ -533,7 +533,7 @@ void gbm_errdiff_line_4R4G4B(byte *src, byte *dest, short *errs, int cx)
 		int  ge3   = ge - ge1 - ge2;
 		int  re3   = re - re1 - re2;
 
-		*dest++ = (byte) (4 * (4 * ri + gi) + bi);
+		*dest++ = (gbm_u8) (4 * (4 * ri + gi) + bi);
 
 		src[0] = U_SAT_ADD((int) src[0], be1);
 		src[1] = U_SAT_ADD((int) src[1], ge1);
@@ -552,7 +552,7 @@ void gbm_errdiff_line_4R4G4B(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_4R4G4B      \45\ error diffuse to 4Rx4Gx4B:0:*/
-BOOLEAN	gbm_errdiff_4R4G4B(const GBM *gbm, const byte *data24, byte *data8)
+gbm_boolean	gbm_errdiff_4R4G4B(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8)
 	{
 	return errdiff(gbm, data24, data8, 8, gbm_errdiff_line_4R4G4B);
 	}
@@ -602,10 +602,10 @@ This function, when given am RGB colour, finds the VGA palette entry closest
 to it. We deliberately bias away from the two grey palette entries.
 */
 
-static byte calc_nearest(byte r, byte g, byte b)
+static gbm_u8 calc_nearest(gbm_u8 r, gbm_u8 g, gbm_u8 b)
 	{
 	long min_dist = 3L * 256L * 256L * 10L;
-	byte bi, bi_min;
+	gbm_u8 bi, bi_min;
 
 	for ( bi = 0; bi < 0x10; bi++ )
 		{
@@ -637,7 +637,7 @@ It uses a lookup table to avoid performing distance calculations to the
 /*...squick lookup table:0:*/
 /*...v_gbmerr\46\c \45\ used to make quick_tab:0:*/
 
-static byte quick_tab[16][16][16] =
+static gbm_u8 quick_tab[16][16][16] =
 	{
 	0,0,0,0,255,4,4,4,4,4,4,4,12,12,12,12,
 	0,0,0,0,255,4,4,4,4,4,4,4,12,12,12,12,
@@ -898,20 +898,20 @@ static byte quick_tab[16][16][16] =
 	};
 /*...e*/
 
-static byte nearest_colour(byte r, byte g, byte b)
+static gbm_u8 nearest_colour(gbm_u8 r, gbm_u8 g, gbm_u8 b)
 	{
-	byte i;
+	gbm_u8 i;
 
-	if ( (i = quick_tab[r >> 4][g >> 4][b >> 4]) != (byte) 0xff )
+	if ( (i = quick_tab[r >> 4][g >> 4][b >> 4]) != (gbm_u8) 0xff )
 		return i;
 
 	return calc_nearest(r, g, b);
 	}
 /*...e*/
 
-void gbm_errdiff_line_VGA(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_VGA(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
-	BOOLEAN left = TRUE;
+	gbm_boolean left = GBM_TRUE;
 	int x, ptr = 0;
 
 	init();
@@ -931,14 +931,14 @@ void gbm_errdiff_line_VGA(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte b     = *src++;
-		byte g     = *src++;
-		byte r     = *src++;
-		byte bi    = nearest_colour(r, g, b);
+		gbm_u8 b   = *src++;
+		gbm_u8 g   = *src++;
+		gbm_u8 r   = *src++;
+		gbm_u8 bi  = nearest_colour(r, g, b);
 		int  be    = (int) b - (int) gbmrgb_vga[bi].b;
 		int  ge    = (int) g - (int) gbmrgb_vga[bi].g;
 		int  re    = (int) r - (int) gbmrgb_vga[bi].r;
-		word rn    = randtab[(byte) (randinx++)];
+		gbm_u16 rn = randtab[(gbm_u8) (randinx++)];
 		int  right = (rn >> 8);
 		int  down  = ((rn & 0xff) % (63 - right));
 		int  be1   = ((be * right) >> 6);
@@ -952,7 +952,7 @@ void gbm_errdiff_line_VGA(byte *src, byte *dest, short *errs, int cx)
 		int  re3   = re - re1 - re2;
 
 		if ( left )
-			*dest = (byte) (bi << 4);
+			*dest = (gbm_u8) (bi << 4);
 		else
 			*dest++ |= bi;
 
@@ -975,7 +975,7 @@ void gbm_errdiff_line_VGA(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_VGA         \45\ error diffuse to default VGA palette:0:*/
-BOOLEAN	gbm_errdiff_VGA(const GBM *gbm, const byte *data24, byte *data4)
+gbm_boolean	gbm_errdiff_VGA(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data4)
 	{
 	return errdiff(gbm, data24, data4, 4, gbm_errdiff_line_VGA);
 	}
@@ -1019,9 +1019,9 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_8(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_8(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
-	BOOLEAN left = TRUE;
+	gbm_boolean left = GBM_TRUE;
 	int x, ptr = 0;
 
 	init();
@@ -1041,14 +1041,14 @@ void gbm_errdiff_line_8(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte b     = *src++;
-		byte g     = *src++;
-		byte r     = *src++;
-		byte bi    = ((r&0x80U)>>5) | ((g&0x80U)>>6) | ((b&0x80U)>>7);
+		gbm_u8 b   = *src++;
+		gbm_u8 g   = *src++;
+		gbm_u8 r   = *src++;
+		gbm_u8 bi  = ((r&0x80U)>>5) | ((g&0x80U)>>6) | ((b&0x80U)>>7);
 		int  be    = (int) b - (int) gbmrgb_8[bi].b;
 		int  ge    = (int) g - (int) gbmrgb_8[bi].g;
 		int  re    = (int) r - (int) gbmrgb_8[bi].r;
-		word rn    = randtab[(byte) (randinx++)];
+		gbm_u16 rn = randtab[(gbm_u8) (randinx++)];
 		int  right = (rn >> 8);
 		int  down  = ((rn & 0xff) % (63 - right));
 		int  be1   = ((be * right) >> 6);
@@ -1062,7 +1062,7 @@ void gbm_errdiff_line_8(byte *src, byte *dest, short *errs, int cx)
 		int  re3   = re - re1 - re2;
 
 		if ( left )
-			*dest = (byte) (bi << 4);
+			*dest = (gbm_u8) (bi << 4);
 		else
 			*dest++ |= bi;
 
@@ -1085,7 +1085,7 @@ void gbm_errdiff_line_8(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_8           \45\ error diffuse to default 8 colour palette:0:*/
-BOOLEAN	gbm_errdiff_8(const GBM *gbm, const byte *data24, byte *data4)
+gbm_boolean	gbm_errdiff_8(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data4)
 	{
 	return errdiff(gbm, data24, data4, 4, gbm_errdiff_line_8);
 	}
@@ -1116,11 +1116,11 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_4G(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_4G(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
-	BOOLEAN left = TRUE;
+	gbm_boolean left = GBM_TRUE;
 	int x, ptr = 0;
-	byte *pb;
+	gbm_u8 *pb;
 
 	init();
 
@@ -1128,11 +1128,11 @@ void gbm_errdiff_line_4G(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0, pb = src; x < cx; x++ )
 		{
-		byte b = *pb++;
-		byte g = *pb++;
-		byte r = *pb++;
+		gbm_u8 b = *pb++;
+		gbm_u8 g = *pb++;
+		gbm_u8 r = *pb++;
 
-		src[x] = (byte) (((word) r * 77U + (word) g * 150U + (word) b * 29U) >> 8);
+		src[x] = (gbm_u8) (((gbm_u16) r * 77U + (gbm_u16) g * 150U + (gbm_u16) b * 29U) >> 8);
 		src[x] = U_SAT_ADD((int) src[x], (int) errs[x]);
 		}
 
@@ -1146,18 +1146,18 @@ void gbm_errdiff_line_4G(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte grey  = *src++;
-		byte inx   = index16[grey];
-		int  err   = (int) grey - (int) scale16[inx];
-		word rn    = randtab[(byte) (randinx++)];
-		int  right = (rn >> 8);
-		int  down  = ((rn & 0xff) % (63 - right));
-		int  err1  = ((err * right) >> 6);
-		int  err2  = ((err * down ) >> 6);
-		int  err3  = err - err1 - err2;
+		gbm_u8 grey  = *src++;
+		gbm_u8 inx   = index16[grey];
+		int  err     = (int) grey - (int) scale16[inx];
+		gbm_u16 rn   = randtab[(gbm_u8) (randinx++)];
+		int  right   = (rn >> 8);
+		int  down    = ((rn & 0xff) % (63 - right));
+		int  err1    = ((err * right) >> 6);
+		int  err2    = ((err * down ) >> 6);
+		int  err3    = err - err1 - err2;
 
 		if ( left )
-			*dest = (byte) (inx << 4);
+			*dest = (gbm_u8) (inx << 4);
 		else
 			*dest++ |= inx;
 
@@ -1174,7 +1174,7 @@ void gbm_errdiff_line_4G(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_4G          \45\ error diffuse to 4 bit greyscale palette:0:*/
-BOOLEAN	gbm_errdiff_4G(const GBM *gbm, const byte *data24, byte *data4)
+gbm_boolean	gbm_errdiff_4G(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data4)
 	{
 	return errdiff(gbm, data24, data4, 4, gbm_errdiff_line_4G);
 	}
@@ -1206,10 +1206,10 @@ error terms and performs one lines worth (a given # of pixels) of error
 diffusion.
 */
 
-void gbm_errdiff_line_BW(byte *src, byte *dest, short *errs, int cx)
+void gbm_errdiff_line_BW(gbm_u8 *src, gbm_u8 *dest, short *errs, int cx)
 	{
 	int x, bit = 0, ptr = 0;
-	byte *pb;
+	gbm_u8 *pb;
 
 	init();
 
@@ -1217,11 +1217,11 @@ void gbm_errdiff_line_BW(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0, pb = src; x < cx; x++ )
 		{
-		byte b = *pb++;
-		byte g = *pb++;
-		byte r = *pb++;
+		gbm_u8 b = *pb++;
+		gbm_u8 g = *pb++;
+		gbm_u8 r = *pb++;
 
-		src[x] = (byte) (((word) r * 77U + (word) g * 150U + (word) b * 29U) >> 8);
+		src[x] = (gbm_u8) (((gbm_u16) r * 77U + (gbm_u16) g * 150U + (gbm_u16) b * 29U) >> 8);
 		src[x] = U_SAT_ADD((int) src[x], (int) errs[x]);
 		}
 		
@@ -1237,15 +1237,15 @@ void gbm_errdiff_line_BW(byte *src, byte *dest, short *errs, int cx)
 
 	for ( x = 0; x < cx; x++ )
 		{
-		byte grey  = *src++;
-		byte inx   = (byte) (grey < 0x80);
-		int  err   = (int) grey - (int) gbmrgb_bw[inx].b;
-		word rn    = randtab[(byte) (randinx++)];
-		int  right = (rn >> 8);
-		int  down  = ((rn & 0xff) % (63 - right));
-		int  err1  = ((err * right) >> 6);
-		int  err2  = ((err * down ) >> 6);
-		int  err3  = err - err1 - err2;
+		gbm_u8 grey  = *src++;
+		gbm_u8 inx   = (gbm_u8) (grey < 0x80);
+		int  err     = (int) grey - (int) gbmrgb_bw[inx].b;
+		gbm_u16 rn   = randtab[(gbm_u8) (randinx++)];
+		int  right   = (rn >> 8);
+		int  down    = ((rn & 0xff) % (63 - right));
+		int  err1    = ((err * right) >> 6);
+		int  err2    = ((err * down ) >> 6);
+		int  err3    = err - err1 - err2;
 
 		if ( inx )
 			*dest |= (0x80U >> bit);
@@ -1267,7 +1267,7 @@ void gbm_errdiff_line_BW(byte *src, byte *dest, short *errs, int cx)
 	}
 /*...e*/
 /*...sgbm_errdiff_BW          \45\ error diffuse to black and white:0:*/
-BOOLEAN	gbm_errdiff_BW(const GBM *gbm, const byte *data24, byte *data1)
+gbm_boolean	gbm_errdiff_BW(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data1)
 	{
 	return errdiff(gbm, data24, data1, 1, gbm_errdiff_line_BW);
 	}

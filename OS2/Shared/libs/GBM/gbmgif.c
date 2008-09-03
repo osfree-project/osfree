@@ -15,6 +15,7 @@ History:
 
 19-Feb-2006: Add function to query number of images
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -34,9 +35,9 @@ History:
 /*...e*/
 
 /*...suseful:0:*/
-#define	low_byte(w)	((byte)  (          (w)&0x00ffU)    )
-#define	high_byte(w)	((byte) (((unsigned)(w)&0xff00U)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
+#define	low_byte(w)     ((gbm_u8)  (          (w)&0x00ffU)    )
+#define	high_byte(w)    ((gbm_u8) (((unsigned)(w)&0xff00U)>>8))
+#define	make_word(a,b) (((gbm_u16)a) + (((gbm_u16)b) << 8))
 /*...e*/
 
 static GBMFT gif_gbmft =
@@ -56,9 +57,9 @@ static GBMFT gif_gbmft =
 
 typedef struct
 	{
-	BOOLEAN ilace, errok;
+	gbm_boolean ilace, errok;
 	int bpp;
-	byte pal[0x100*3];
+	gbm_u8 pal[0x100*3];
 	} GIF_PRIV;
 
 typedef unsigned int cword;
@@ -102,7 +103,7 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
 {
     GBM gbm;
     GIF_PRIV *gif_priv = (GIF_PRIV *) gbm.priv;
-    byte signiture[6], scn_desc[7], image_desc[10];
+    gbm_u8 signiture[6], scn_desc[7], image_desc[10];
     int bits_gct;
 
     fn=fn; /* Suppress 'unref arg' compiler warnings */
@@ -147,7 +148,7 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
                 }
                 /* Skip the image data */
                 {
-                    byte code_size, block_size;
+                    gbm_u8 code_size, block_size;
 
                     if ( gbm_file_read(fd, &code_size, 1) != 1 )
                         return GBM_ERR_READ;
@@ -168,7 +169,7 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
             /* Ignore all extension blocks */
             case 0x21:
             {
-                byte func_code, byte_count;
+                gbm_u8 func_code, byte_count;
 
                 if ( gbm_file_read(fd, &func_code, 1) != 1 )
                     return GBM_ERR_READ;
@@ -206,7 +207,7 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
 GBM_ERR gif_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	GIF_PRIV *gif_priv = (GIF_PRIV *) gbm->priv;
-	byte signiture[6], scn_desc[7], image_desc[10];
+	gbm_u8 signiture[6], scn_desc[7], image_desc[10];
 	const char *index;
 	int img = -1, img_want = 0;
 	int bits_gct;
@@ -276,7 +277,7 @@ case 0x2c:
 	if ( ++img != img_want )
 		/* Skip the image data */
 		{
-		byte code_size, block_size;
+		gbm_u8 code_size, block_size;
 
 		if ( gbm_file_read(fd, &code_size, 1) != 1 )
 			return GBM_ERR_READ;
@@ -296,7 +297,7 @@ case 0x2c:
 
 case 0x21:
 	{
-	byte func_code, byte_count;
+	gbm_u8 func_code, byte_count;
 
 	if ( gbm_file_read(fd, &func_code, 1) != 1 )
 		return GBM_ERR_READ;
@@ -343,7 +344,7 @@ default:
 GBM_ERR gif_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 	{
 	GIF_PRIV *gif_priv = (GIF_PRIV *) gbm->priv;
-	byte *pal = gif_priv->pal;
+	gbm_u8 *pal = gif_priv->pal;
 	int i;
 
 	fd=fd; /* Suppress 'unref arg' compiler warning */
@@ -366,14 +367,14 @@ typedef struct
 	{
 	int fd;				/* File descriptor to read */
 	int inx, size;			/* Index and size in bits */
-	byte buf[255+3];		/* Buffer holding bits */
+	gbm_u8 buf[255+3];		/* Buffer holding bits */
 	int code_size;			/* Number of bits to return at once */
 	cword read_mask;		/* 2^code_size-1 */
 	} READ_CONTEXT;
 
 static cword read_code(READ_CONTEXT *c)
 	{
-	dword raw_code; int byte_inx;
+	gbm_u32 raw_code; int byte_inx;
 
 	while ( c->inx + c->code_size > c->size )
 /*...snot enough bits in buffer\44\ refill it:16:*/
@@ -381,7 +382,7 @@ static cword read_code(READ_CONTEXT *c)
 
 {
 int bytes_to_lose = ((unsigned) c->inx >> 3);
-byte bytes;
+gbm_u8 bytes;
 
 /* Note biggest code size is 12 bits */
 /* And this can at worst span 3 bytes */
@@ -401,7 +402,7 @@ if ( gbm_file_read(c->fd, c->buf + ((unsigned) c->size >> 3), bytes) != bytes )
 	if ( c->code_size > 8 )
 		raw_code += ((c->buf[byte_inx + 2]) << 16);
 	raw_code >>= ((c->inx) & 7U);
-	(c->inx) += (byte) (c->code_size);
+	(c->inx) += (gbm_u8) (c->code_size);
 
 	return (cword) raw_code & c->read_mask;
 	}
@@ -410,12 +411,12 @@ if ( gbm_file_read(c->fd, c->buf + ((unsigned) c->size >> 3), bytes) != bytes )
 typedef struct
 	{
 	int x, y, w, h, bpp, pass;
-	BOOLEAN ilace;
+	gbm_boolean ilace;
 	int stride;
-	byte *data, *data_this_line;
+	gbm_u8 *data, *data_this_line;
 	} OUTPUT_CONTEXT;
 
-static void output(byte value, OUTPUT_CONTEXT *o)
+static void output(gbm_u8 value, OUTPUT_CONTEXT *o)
 	{
 	if ( o->y >= o->h )
 		return;
@@ -456,23 +457,23 @@ static void output(byte value, OUTPUT_CONTEXT *o)
 	}
 /*...e*/
 
-GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR gif_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	GIF_PRIV *gif_priv = (GIF_PRIV *) gbm->priv;
-	byte min_code_size;		/* As read from the file */
+	gbm_u8 min_code_size;		/* As read from the file */
 	int init_code_size;		/* Initial code size */
 	cword max_code;			/* 1 << code_size */
 	cword clear_code;		/* Code to clear table */
 	cword eoi_code;			/* End of information code */
 	cword first_free_code;		/* First free code */
 	cword free_code;		/* Next available free code slot */
-	word bit_mask;			/* Output pixel mask */
+	gbm_u16 bit_mask;			/* Output pixel mask */
 	int i, out_count = 0;
 	cword code = 0, cur_code = 0, old_code = 0, in_code = 0, fin_char = 0;
 	cword *prefix, *suffix, *outcode;
 	READ_CONTEXT c;
 	OUTPUT_CONTEXT o;
-	BOOLEAN table_full = FALSE;	/* To help implement deferred clear */
+	gbm_boolean table_full = GBM_FALSE;	/* To help implement deferred clear */
 
 	if ( (prefix = (cword *) gbmmem_malloc((size_t) (4096 * sizeof(cword)))) == NULL )
 		return GBM_ERR_MEM;
@@ -525,7 +526,7 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 	o.data           = data;
 	o.data_this_line = data + (gbm->h - 1) * o.stride;
 
-	bit_mask = (word) ((1 << gif_priv->bpp) - 1);
+	bit_mask = (gbm_u16) ((1 << gif_priv->bpp) - 1);
 
 	/* 2^min_code size accounts for all colours in file */
 
@@ -557,8 +558,8 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 				return gif_priv->errok ? GBM_ERR_OK : GBM_ERR_GIF_CORRUPT;
 				}
 			fin_char = (cur_code & bit_mask);
-			output((byte) fin_char, &o);
-			table_full = FALSE;
+			output((gbm_u8) fin_char, &o);
+			table_full = GBM_FALSE;
 			}
 		else
 			{
@@ -583,7 +584,7 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 			fin_char = (cur_code & bit_mask);
 			outcode[out_count++] = fin_char;
 			for ( i = out_count - 1; i >= 0; i-- )
-				output((byte) outcode[i], &o);
+				output((gbm_u8) outcode[i], &o);
 			out_count = 0;
 
 			/* Update dictionary */
@@ -604,7 +605,7 @@ GBM_ERR gif_rdata(int fd, GBM *gbm, byte *data)
 						c.read_mask = (cword) (( 1 << c.code_size ) - 1);
 						}
 					else
-						table_full = TRUE;
+						table_full = GBM_TRUE;
 					}
 				}
 			old_code = in_code;
@@ -634,47 +635,47 @@ typedef struct
 	int fd;				/* Open file descriptor to write to */
 	int inx;			/* Bit index into buf */
 	int code_size;			/* Code size in bits */
-	byte buf[255+2];		/* Biggest block + overflow space */
+	gbm_u8 buf[255+2];		/* Biggest block + overflow space */
 	} WRITE_CONTEXT;
 
-static BOOLEAN write_code(cword code, WRITE_CONTEXT *w)
+static gbm_boolean write_code(cword code, WRITE_CONTEXT *w)
 	{
-	byte *buf = w->buf + ((unsigned)w->inx >> 3);
+	gbm_u8 *buf = w->buf + ((unsigned)w->inx >> 3);
 
 	code <<= ((w->inx) & 7);
-	*buf++ |= (byte)  code       ;
-	*buf++  = (byte) (code >>  8);
-	*buf    = (byte) (code >> 16);
+	*buf++ |= (gbm_u8)  code       ;
+	*buf++  = (gbm_u8) (code >>  8);
+	*buf    = (gbm_u8) (code >> 16);
 
 	(w->inx) += (w->code_size);
 	if ( w->inx >= 255 * 8 )
 		/* Flush out full buffer */
 		{
-		byte bytes = 255;
+		gbm_u8 bytes = 255;
 
 		if ( gbm_file_write(w->fd, &bytes, 1) != 1 )
-			return FALSE;
+			return GBM_FALSE;
 		if ( gbm_file_write(w->fd, w->buf, 255) != 255 )
-			return FALSE;
+			return GBM_FALSE;
 
 		memcpy(w->buf, w->buf + 255, 2);
 		memset(w->buf + 2, 0, 255);
 		(w->inx) -= (255 * 8);
 		}
 
-	return TRUE;
+	return GBM_TRUE;
 	}
 
-static BOOLEAN flush_code(WRITE_CONTEXT *w)
+static gbm_boolean flush_code(WRITE_CONTEXT *w)
 	{
-	byte bytes = ((unsigned)(w->inx + 7) >> 3);
+	gbm_u8 bytes = ((unsigned)(w->inx + 7) >> 3);
 
 	if ( bytes )
 		{
 		if ( gbm_file_write(w->fd, &bytes, 1) != 1 )
-			return FALSE;
+			return GBM_FALSE;
 		if ( gbm_file_write(w->fd, w->buf, bytes) != bytes )
-			return FALSE;
+			return GBM_FALSE;
 		}
 
 	/* Data block terminator - a block of zero size */
@@ -684,14 +685,14 @@ static BOOLEAN flush_code(WRITE_CONTEXT *w)
 	}
 /*...e*/
 
-typedef struct { cword tail; byte col; } DICT;
+typedef struct { cword tail; gbm_u8 col; } DICT;
 
-GBM_ERR gif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR gif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	int xpos = 0, ypos = 0;
 	int xscreen = gbm->w, yscreen = gbm->h;
 	int inx_background = 0, inx_transcol = -1;
-	BOOLEAN ilace;
+	gbm_boolean ilace;
 
 /*...shandle options:8:*/
 {
@@ -735,7 +736,7 @@ if ( (s = gbm_find_word_prefix(opt, "transcol=")) != NULL )
 /*...e*/
 /*...swrite header etc\46\:8:*/
 {
-byte scn_desc[7], image_desc[10]; int p;
+gbm_u8 scn_desc[7], image_desc[10]; int p;
 char *sig = ( inx_transcol != -1 ) ? "GIF89a" : "GIF87a";
 
 /* Write signiture */
@@ -752,7 +753,7 @@ scn_desc[3] = high_byte(yscreen);
 scn_desc[4] = (0x80 | ((gbm->bpp - 1) * 0x11));
 			/* Global colour table follows */
 			/* Quality bpp == gct bpp == gbm->bpp */
-scn_desc[5] = (byte) inx_background;
+scn_desc[5] = (gbm_u8) inx_background;
 scn_desc[6] = 0;
 if ( gbm_file_write(fd, scn_desc, 7) != 7 )
 	return GBM_ERR_WRITE;
@@ -761,7 +762,7 @@ if ( gbm_file_write(fd, scn_desc, 7) != 7 )
 
 for ( p = 0; p < (1 << gbm->bpp); p++ )
 	{
-	byte pal[3];
+	gbm_u8 pal[3];
 
 	pal[0] = gbmrgb[p].r;
 	pal[1] = gbmrgb[p].g;
@@ -789,7 +790,7 @@ if ( inx_transcol != -1 )
 
 /* Do image descriptor block */
 
-image_desc[0] = (byte) 0x2c;
+image_desc[0] = (gbm_u8) 0x2c;
 image_desc[1] = low_byte(xpos);
 image_desc[2] = high_byte(xpos);
 image_desc[3] = low_byte(ypos);
@@ -819,7 +820,7 @@ hashtable is big enough so that MAX_HASH > 4*MAX_DICT.
 
 {
 int stride = ((gbm->w * gbm->bpp + 31) / 32) * 4;
-byte min_code_size;
+gbm_u8 min_code_size;
 int init_code_size, x, y, pass;
 cword clear_code = 0, eoi_code = 0, last_code = 0, max_code = 0, tail = 0;
 unsigned int hashvalue = 0, lenstring = 0, j;
@@ -878,10 +879,10 @@ for ( j = 0; j < MAX_HASH; j++ )
 data += ( (gbm->h - 1) * stride );
 for ( y = pass = 0; y < gbm->h; )
 	{
-	const byte *pdata = data - y * stride;
+	const gbm_u8 *pdata = data - y * stride;
 	for ( x = 0; x < gbm->w; x++ )
 		{
-		byte col;
+		gbm_u8 col;
 /*...sget col:24:*/
 switch ( gbm->bpp )
 	{
@@ -988,7 +989,7 @@ if ( !write_code(eoi_code, &w) ||
 /*...e*/
 /*...swrite terminator:8:*/
 {
-byte term = (byte) 0x3b;
+gbm_u8 term = (gbm_u8) 0x3b;
 if ( gbm_file_write(fd, &term, 1) != 1 )
 	return GBM_ERR_WRITE;
 }

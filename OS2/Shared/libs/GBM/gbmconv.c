@@ -13,6 +13,7 @@ History:
 08-Feb-2008  Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+15-Aug-2008  Integrate new GBM types
 */
 
 /* activate to enable measurement of conversion time */
@@ -32,7 +33,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -107,7 +108,7 @@ int main(int argc, char *argv[])
     GBMFT    gbmft;
     GBM      gbm;
     GBMRGB   gbmrgb[0x100];
-    byte    *data;
+    gbm_u8  *data;
 
 #ifdef MEASURE_TIME
 #ifdef __OS2__
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
     {
       usage();
     }
-    if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+    if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
     {
       fatal("can't parse source filename %s", gbmfilearg.argin);
     }
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
     {
       usage();
     }
-    if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+    if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
     {
       fatal("can't parse destination filename %s", gbmfilearg.argin);
     }

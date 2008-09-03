@@ -122,6 +122,15 @@ History:
                   provide a custom background color. Now a white background
                   is used instead of simply stripping the alpha channel.
 
+04-Apr-2008: Use read ahead cache and write cache mechanisms to speed up file accesses,
+             Fixed gbm_readbuf_ahead() in this context.
+
+15-Aug-2008: Integrate new GBM types
+
+26-Aug-2008: Register our own memory management functions to support
+             high memory also on OS/2 (gbmmem_).
+             Update to Libpng 1.2.31
+
 ******************************************************************************/
 
 #ifdef ENABLE_PNG
@@ -139,17 +148,6 @@ History:
 #include "gbmmap.h"
 #include "gbmmem.h"
 #include "png.h"
-
-/* ----------------------------------------------------------- */
-
-#if defined(PNGAPI)
-  #define PNGENTRY  PNGAPI
-  #ifdef __IBMC__
-    #define PNGENTRYP  * PNGAPI
-  #else
-    #define PNGENTRYP  PNGAPI *
-  #endif
-#endif
 
 /* ----------------------------------------------------------- */
 
@@ -186,10 +184,16 @@ static GBMFT png_gbmft =
     GBM_FT_W1 | GBM_FT_W4 | GBM_FT_W8 | GBM_FT_W24 | GBM_FT_W32 | GBM_FT_W48 | GBM_FT_W64,
 };
 
+union FILEIO_CACHE
+{
+    AHEAD  * ahead;  /* file read ahead  descriptor used for mapping to libpng I/O  */
+    WCACHE * wcache; /* file write cache descriptor used for mapping to libpng I/O  */
+};
+
 typedef struct
 {
-    int     fd;         /* file descriptor used for mapping to libpng I/O  */
-    BOOLEAN errok;      /* error code for I/O, 0 for succeeded else failed */
+    union FILEIO_CACHE file;
+    gbm_boolean  errok;  /* error code for I/O, 0 for succeeded else failed */
 } PNG_PRIV_IO;
 
 
@@ -211,8 +215,8 @@ typedef struct
 
     int          bpp_src;                  /* bpp of the source bitmap (used for format translation */
     int          color_type;               /* the bitmap color encoding */
-    BOOLEAN      upsamplePaletteToPalette; /* TRUE if palette file has to be upsampled to other palette */
-    BOOLEAN      unassociatedAlpha;        /* TRUE if an unassociated alpha channel exists */
+    gbm_boolean  upsamplePaletteToPalette; /* GBM_TRUE if palette file has to be upsampled to other palette */
+    gbm_boolean  unassociatedAlpha;        /* GBM_TRUE if an unassociated alpha channel exists */
     GBMRGB_16BPP backrgb;                  /* background RGB color for Alpha channel mixing */
 
     /* This entry will store the options provided during first header read.
@@ -222,7 +226,7 @@ typedef struct
                                 - sizeof(png_structp)
                                 - (2*sizeof(png_infop))
                                 - (2*sizeof(int))
-                                - (2*sizeof(BOOLEAN))
+                                - (2*sizeof(gbm_boolean))
                                 - sizeof(GBMRGB_16BPP)
                                 - 20 /* space for structure element padding */ ];
 
@@ -231,56 +235,71 @@ typedef struct
 
 /* ----------------------------------------------------------- */
 
+/* Replace standard libpng memory management functions by our own. */
+
+static png_voidp png_gbm_malloc(png_structp png_ptr, png_size_t size)
+{
+    png_ptr = png_ptr; /* prevent compiler warning */
+    return gbmmem_malloc(size);
+}
+
+static void png_gbm_free(png_structp png_ptr, png_voidp ptr)
+{
+    png_ptr = png_ptr; /* prevent compiler warning */
+    gbmmem_free(ptr);
+}
+
+/* ----------------------------------------------------------- */
 
 /* Replace standard libpng I/O functions by our own that simply call the
    GBM internal I/O functions.
 */
 
-static void PNGENTRY png_gbm_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
+static void PNGAPI png_gbm_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
    PNG_PRIV_IO *io_p = (PNG_PRIV_IO *) png_get_io_ptr(png_ptr); /* io_ptr is pointer to private IO struct */
 
    /* limit block size to INT_MAX */
    if (length > INT_MAX)
    {
-      io_p->errok = FALSE; /* error */
+      io_p->errok = GBM_FALSE; /* error */
       png_error(png_ptr, "write request too long");
       return;
    }
 
-   if (gbm_file_read(io_p->fd, data, (int) length) != (int) length)
+   if (gbm_readbuf_ahead(io_p->file.ahead, data, (int) length) != (int) length)
    {
-      io_p->errok = FALSE; /* error */
+      io_p->errok = GBM_FALSE; /* error */
       png_error(png_ptr, "read request failed");
       return;
    }
 
-   io_p->errok = TRUE; /* no error */
+   io_p->errok = GBM_TRUE; /* no error */
 }
 
-static void PNGENTRY png_gbm_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
+static void PNGAPI png_gbm_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
    PNG_PRIV_IO *io_p = (PNG_PRIV_IO *) png_get_io_ptr(png_ptr); /* io_ptr is pointer to private IO struct */
 
    /* limit block size to INT_MAX */
    if (length > INT_MAX)
    {
-      io_p->errok = FALSE; /* error */
+      io_p->errok = GBM_FALSE; /* error */
       png_error(png_ptr, "write request too long");
       return;
    }
 
-   if (gbm_file_write(io_p->fd, data, (int) length) != (int) length)
+   if (gbm_writebuf_wcache(io_p->file.wcache, data, (int) length) != (int) length)
    {
-      io_p->errok = FALSE; /* error */
+      io_p->errok = GBM_FALSE; /* error */
       png_error(png_ptr, "write request failed");
       return;
    }
 
-   io_p->errok = TRUE; /* no error */
+   io_p->errok = GBM_TRUE; /* no error */
 }
 
-static void PNGENTRY png_gbm_flush_data(png_structp png_ptr)
+static void PNGAPI png_gbm_flush_data(png_structp png_ptr)
 {
    /* We are using low level style function. No flushing necessary. */
    png_ptr = png_ptr; /* prevent compiler warning */
@@ -293,17 +312,17 @@ static void PNGENTRY png_gbm_flush_data(png_structp png_ptr)
    The replacement will be used temporarily during file I/O and sets
    an error code to the private IO struct.
 */
-static void PNGENTRY png_gbm_error(png_structp png_ptr, png_const_charp error_msg)
+static void PNGAPI png_gbm_error(png_structp png_ptr, png_const_charp error_msg)
 {
    PNG_PRIV_IO *io_p = (PNG_PRIV_IO *) png_get_io_ptr(png_ptr); /* io_ptr is pointer to private IO struct */
-   io_p->errok = FALSE; /* error occured */
+   io_p->errok = GBM_FALSE; /* error occured */
 
    longjmp(png_ptr->jmpbuf, 1);
 
    error_msg = error_msg; /* prevent compiler warning */
 }
 
-static void PNGENTRY png_gbm_warning(png_structp png_ptr, png_const_charp warning_msg)
+static void PNGAPI png_gbm_warning(png_structp png_ptr, png_const_charp warning_msg)
 {
    png_ptr     = png_ptr;     /* prevent compiler warning */
    warning_msg = warning_msg; /* prevent compiler warning */
@@ -340,24 +359,28 @@ static void unregister_write_mapping(png_structp write_ptr)
 /* ----------------------------------------------------------- */
 
 /* Initialize libpng structures for reading
-   Returns TRUE on success, else FALSE
+   Returns GBM_TRUE on success, else GBM_FALSE
 */
-static BOOLEAN png_read_init(PNG_PRIV_READ *png_priv, int fd)
+static gbm_boolean png_read_init(PNG_PRIV_READ *png_priv, int fd)
 {
     png_priv->png_ptr  = NULL;
     png_priv->info_ptr = NULL;
     png_priv->end_info = NULL;
+
+    png_priv->io.file.ahead = NULL;
+    png_priv->io.errok      = GBM_FALSE;
 
     /* Create and initialize the png_struct with the desired error handler
      * functions.
      * We also supply the the compiler header file version, so that we know
      * if the application was compiled with a compatible version of the library.
     */
-    png_priv->png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                                               NULL, png_gbm_error, png_gbm_warning);
+    png_priv->png_ptr = png_create_read_struct_2(PNG_LIBPNG_VER_STRING,
+                                                 NULL, png_gbm_error , png_gbm_warning,
+                                                 NULL, png_gbm_malloc, png_gbm_free);
     if (png_priv->png_ptr == NULL)
     {
-        return FALSE;
+        return GBM_FALSE;
     }
 
     png_priv->info_ptr = png_create_info_struct(png_priv->png_ptr);
@@ -365,7 +388,7 @@ static BOOLEAN png_read_init(PNG_PRIV_READ *png_priv, int fd)
     {
         png_destroy_read_struct(&(png_priv->png_ptr), NULL, NULL);
         png_priv->png_ptr = NULL;
-        return FALSE;
+        return GBM_FALSE;
     }
 
     png_priv->end_info = png_create_info_struct(png_priv->png_ptr);
@@ -374,18 +397,25 @@ static BOOLEAN png_read_init(PNG_PRIV_READ *png_priv, int fd)
         png_destroy_read_struct(&(png_priv->png_ptr), &(png_priv->info_ptr), NULL);
         png_priv->png_ptr  = NULL;
         png_priv->info_ptr = NULL;
-        return FALSE;
+        return GBM_FALSE;
     }
 
-    png_priv->io.fd    = fd;
-    png_priv->io.errok = TRUE;
+    png_priv->io.file.ahead = gbm_create_ahead(fd);
+    if (png_priv->io.file.ahead == NULL)
+    {
+        png_destroy_read_struct(&(png_priv->png_ptr), &(png_priv->info_ptr), NULL);
+        png_priv->png_ptr  = NULL;
+        png_priv->info_ptr = NULL;
+        return GBM_FALSE;
+    }
 
+    png_priv->io.errok = GBM_TRUE;
     png_priv->png_ptr->io_ptr = &png_priv->io;
 
     /* set up the input control */
     register_read_mapping(png_priv->png_ptr);
 
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* Cleanup libpng structs for reading. */
@@ -393,6 +423,12 @@ static void png_read_deinit(PNG_PRIV_READ *png_priv)
 {
     /* set default input control */
     unregister_read_mapping(png_priv->png_ptr);
+
+    if (png_priv->io.file.ahead != NULL)
+    {
+       gbm_destroy_ahead(png_priv->io.file.ahead);
+       png_priv->io.file.ahead = NULL;
+    }
 
     png_priv->png_ptr->io_ptr = NULL;
 
@@ -417,9 +453,7 @@ static void png_read_deinit(PNG_PRIV_READ *png_priv)
     png_priv->png_ptr  = NULL;
     png_priv->info_ptr = NULL;
     png_priv->end_info = NULL;
-
-    png_priv->io.fd    = -1;
-    png_priv->io.errok = FALSE;
+    png_priv->io.errok = GBM_FALSE;
 }
 
 /* ----------------------------------------------------------- */
@@ -427,24 +461,28 @@ static void png_read_deinit(PNG_PRIV_READ *png_priv)
 /* ----------------------------------------------------------- */
 
 /* Initialize libpng structures for writing
-   Returns TRUE on success, else FALSE
+   Returns GBM_TRUE on success, else GBM_FALSE
 */
-static BOOLEAN png_write_init(PNG_PRIV_WRITE *png_priv, int fd)
+static gbm_boolean png_write_init(PNG_PRIV_WRITE *png_priv, int fd)
 {
     png_priv->png_ptr     = NULL;
     png_priv->info_ptr    = NULL;
     png_priv->palette_ptr = NULL;
+
+    png_priv->io.file.wcache = NULL;
+    png_priv->io.errok       = GBM_FALSE;
 
     /* Create and initialize the png_struct with the desired error handler
      * functions.
      * We also supply the the compiler header file version, so that we know
      * if the application was compiled with a compatible version of the library.
     */
-    png_priv->png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-                                               NULL, png_gbm_error, png_gbm_warning);
+    png_priv->png_ptr = png_create_write_struct_2(PNG_LIBPNG_VER_STRING,
+                                                  NULL, png_gbm_error , png_gbm_warning,
+                                                  NULL, png_gbm_malloc, png_gbm_free);
     if (png_priv->png_ptr == NULL)
     {
-        return FALSE;
+        return GBM_FALSE;
     }
 
     png_priv->info_ptr = png_create_info_struct(png_priv->png_ptr);
@@ -452,23 +490,36 @@ static BOOLEAN png_write_init(PNG_PRIV_WRITE *png_priv, int fd)
     {
         png_destroy_write_struct(&(png_priv->png_ptr), NULL);
         png_priv->png_ptr = NULL;
-        return FALSE;
+        return GBM_FALSE;
     }
 
-    png_priv->io.fd    = fd;
-    png_priv->io.errok = TRUE;
+    png_priv->io.file.wcache = gbm_create_wcache(fd);
+    if (png_priv->io.file.wcache == NULL)
+    {
+        png_destroy_write_struct(&(png_priv->png_ptr), NULL);
+        png_priv->png_ptr = NULL;
+        return GBM_FALSE;
+    }
 
+    png_priv->io.errok = GBM_TRUE;
     png_priv->png_ptr->io_ptr = &png_priv->io;
 
     /* set up the ouput control */
     register_write_mapping(png_priv->png_ptr);
 
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* Cleanup libpng structs for writing. */
 static void png_write_deinit(PNG_PRIV_WRITE *png_priv)
 {
+    if (png_priv->io.file.wcache != NULL)
+    {
+       /* flush the rest of the write cache to file */
+       gbm_destroy_wcache(png_priv->io.file.wcache);
+       png_priv->io.file.wcache = NULL;
+    }
+
     /* set default input control */
     unregister_write_mapping(png_priv->png_ptr);
 
@@ -499,9 +550,7 @@ static void png_write_deinit(PNG_PRIV_WRITE *png_priv)
     }
     png_priv->png_ptr  = NULL;
     png_priv->info_ptr = NULL;
-
-    png_priv->io.fd    = -1;
-    png_priv->io.errok = FALSE;
+    png_priv->io.errok = GBM_FALSE;
 }
 
 
@@ -540,8 +589,8 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
     double image_gamma  = GBM_PNG_DEFAULT_IMAGE_GAMMA;
     double screen_gamma = GBM_PNG_DEFAULT_SCREEN_GAMMA;
 
-    BOOLEAN use_native_bpp = FALSE;
-    BOOLEAN ignore_back    = FALSE;
+    gbm_boolean use_native_bpp = GBM_FALSE;
+    gbm_boolean ignore_back    = GBM_FALSE;
 
     /* As we read the header multiple times, set file pointer to start. */
     if (gbm_file_lseek(fd, 0L, GBM_SEEK_SET) != 0)
@@ -564,7 +613,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
     }
 
     /* Initialize libpng structures */
-    if (png_read_init(png_priv, fd) == FALSE)
+    if (png_read_init(png_priv, fd) == GBM_FALSE)
     {
        return GBM_ERR_READ;
     }
@@ -587,7 +636,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
 
     /* read the file information */
     png_read_info(png_ptr, info_ptr);
-    if (io_p->errok != TRUE)
+    if (io_p->errok != GBM_TRUE)
     {
        png_read_deinit(png_priv);
        return GBM_ERR_READ;
@@ -610,11 +659,11 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
 
     /* check if extended color depths are requested */
     use_native_bpp = (gbm_find_word(png_priv->read_options, "ext_bpp") != NULL)
-                     ? TRUE : FALSE;
+                     ? GBM_TRUE : GBM_FALSE;
 
     /* check if a background is to be ignored */
     ignore_back = (gbm_find_word(png_priv->read_options, "ignore_back") != NULL)
-                  ? TRUE : FALSE;
+                  ? GBM_TRUE : GBM_FALSE;
 
     gbm->w = (int) width;
     gbm->h = (int) height;
@@ -622,8 +671,8 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
     channel_count = png_get_channels(png_ptr, info_ptr);
 
     /* check for palette availability based on the color type */
-    png_priv->upsamplePaletteToPalette = FALSE;
-    png_priv->unassociatedAlpha = FALSE;
+    png_priv->upsamplePaletteToPalette = GBM_FALSE;
+    png_priv->unassociatedAlpha = GBM_FALSE;
 
     /* program libpng transformations */
     switch(png_priv->color_type)
@@ -764,7 +813,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
        if (png_get_bKGD(png_ptr, info_ptr, &image_background))
        {
           /* Scale color to 16-bit values. */
-          #define SCALE(x) ((((word) x) * ((1L << 16) - 1)) / 255)
+          #define SCALE(x) ((((gbm_u16) x) * ((1L << 16) - 1)) / 255)
 
           if (ch_bit_depth < 16)
           {
@@ -782,7 +831,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
           /* if a background color exists, the alpha channel gets associated
            * and will not be returned separately
            */
-          png_priv->unassociatedAlpha = TRUE;
+          png_priv->unassociatedAlpha = GBM_TRUE;
        }
 
        /* parse RGB value for background mixing with alpha channel */
@@ -815,7 +864,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
           /* if a background color exists, the alpha channel gets associated
            * and will not be returned separately
            */
-          png_priv->unassociatedAlpha = TRUE;
+          png_priv->unassociatedAlpha = GBM_TRUE;
        }
     }
 
@@ -859,7 +908,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
     /* update info struct due to transformations (palette is also updated) */
     png_read_update_info(png_ptr, info_ptr);
 
-    if (io_p->errok != TRUE)
+    if (io_p->errok != GBM_TRUE)
     {
        png_read_deinit(png_priv);
        return GBM_ERR_READ;
@@ -896,7 +945,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
             case 2:
                /* the import of 2 bpp files is already supported (use_native_bpp) */
                /*  but we always upsample to 4 bpp to simplify external usage     */
-               png_priv->upsamplePaletteToPalette = TRUE;
+               png_priv->upsamplePaletteToPalette = GBM_TRUE;
                ch_bit_depth  = 4;
                break;
 
@@ -925,7 +974,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
             case 2:
                /* the import of 2 bpp files is already supported (use_native_bpp) */
                /*  but we always upsample to 4 bpp to simplify external usage     */
-               png_priv->upsamplePaletteToPalette = TRUE;
+               png_priv->upsamplePaletteToPalette = GBM_TRUE;
                ch_bit_depth = 4;
                break;
 
@@ -977,7 +1026,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
                      png_priv->backrgb.r =
                      png_priv->backrgb.g =
                      png_priv->backrgb.b = 65535;
-                     png_priv->unassociatedAlpha = TRUE;
+                     png_priv->unassociatedAlpha = GBM_TRUE;
                   }
                }
                break;
@@ -1212,7 +1261,7 @@ GBM_ERR png_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 
 /* png_rdata()  -  Read data */
 
-GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
     /* read the header again */
     GBM_ERR rc = internal_png_rhdr(fd, gbm);
@@ -1270,7 +1319,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
        else if (png_priv->upsamplePaletteToPalette)
        {
           GBM         gbm_src          = *gbm;
-          byte      * src_buffer       = NULL;
+          gbm_u8    * src_buffer       = NULL;
           png_bytep * src_row_pointers = NULL;
 
           gbm_src.bpp = png_priv->bpp_src;
@@ -1280,7 +1329,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
           /* Due to the way interlace handling must be done, we can't  */
           /* just read row after row and do the conversion on the fly. */
           /* We must read the whole image first and then convert. Really bad. */
-          src_buffer = (byte *) gbmmem_malloc(src_row_bytes * gbm_src.h);
+          src_buffer = (gbm_u8 *) gbmmem_malloc(src_row_bytes * gbm_src.h);
           if (src_buffer == NULL)
           {
              gbmmem_free(gbm_row_pointers);
@@ -1344,7 +1393,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
           /* use temporary one for downsampling */
           if (gbm_src.bpp != gbm->bpp)
           {
-             byte      * src_buffer       = NULL;
+             gbm_u8    * src_buffer       = NULL;
              png_bytep * src_row_pointers = NULL;
 
              /* If the source format is different then the target format  */
@@ -1352,7 +1401,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
              /* Due to the way interlace handling must be done, we can't  */
              /* just read row after row and do the conversion on the fly. */
              /* We must read the whole image first and then convert. Really bad. */
-             src_buffer = (byte *) gbmmem_malloc(src_row_bytes * gbm_src.h);
+             src_buffer = (gbm_u8 *) gbmmem_malloc(src_row_bytes * gbm_src.h);
              if (src_buffer == NULL)
              {
                 gbmmem_free(gbm_row_pointers);
@@ -1430,7 +1479,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
        /* close reading */
        png_read_end(png_ptr, end_info);
 
-       if (io_p->errok != TRUE)
+       if (io_p->errok != GBM_TRUE)
        {
           png_read_deinit(png_priv);
           return GBM_ERR_READ;
@@ -1448,7 +1497,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, byte *data)
 /* ----------------------------------------------------------- */
 
 /* png_w()  -  Write bitmap file */
-GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
     PNG_PRIV_WRITE png_priv;
 
@@ -1459,10 +1508,10 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     int color_type   = -1;
     int ch_bit_depth = 0;
 
-    BOOLEAN set_image_interlace = FALSE;
-    BOOLEAN set_background      = FALSE;
-    BOOLEAN set_transparency    = FALSE;
-    BOOLEAN has_alpha_channel   = FALSE;
+    gbm_boolean set_image_interlace = GBM_FALSE;
+    gbm_boolean set_background      = GBM_FALSE;
+    gbm_boolean set_transparency    = GBM_FALSE;
+    gbm_boolean has_alpha_channel   = GBM_FALSE;
 
     png_color_16 my_background = { 0, 0, 0, 0, 0 };
 
@@ -1479,11 +1528,11 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     /* parse interlace option if provided */
     if (gbm_find_word(opt, "ilace") != NULL)
     {
-        set_image_interlace = TRUE;
+        set_image_interlace = GBM_TRUE;
     }
 
     /* Initialize libpng structures */
-    if (png_write_init(&png_priv, fd) == FALSE)
+    if (png_write_init(&png_priv, fd) == GBM_FALSE)
     {
        return GBM_ERR_WRITE;
     }
@@ -1531,7 +1580,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
        case 32:
        case 64:
-          has_alpha_channel = TRUE;
+          has_alpha_channel = GBM_TRUE;
           ch_bit_depth      = gbm->bpp / 4;
           color_type        = PNG_COLOR_TYPE_RGB_ALPHA;
           break;
@@ -1641,7 +1690,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         trans = (png_byte) (255 - image_transparency);
 
         png_set_tRNS(png_ptr, info_ptr, &trans, 1, NULL);
-        set_transparency = TRUE;
+        set_transparency = GBM_TRUE;
     }
 
     /* parse RGB value for transparency */
@@ -1698,7 +1747,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         my_transparency.blue  = image_transcol_blue;
 
         png_set_tRNS(png_ptr, info_ptr, NULL, 0, &my_transparency);
-        set_transparency = TRUE;
+        set_transparency = GBM_TRUE;
     }
 
     /* ------------------------------------------------------ */
@@ -1730,7 +1779,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         }
 
         png_set_bKGD(png_ptr, info_ptr, &my_background);
-        set_background = TRUE;
+        set_background = GBM_TRUE;
     }
 
     /* parse RGB value for background mixing with alpha channel */
@@ -1785,7 +1834,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         my_background.blue  = image_background_blue;
 
         png_set_bKGD(png_ptr, info_ptr, &my_background);
-        set_background = TRUE;
+        set_background = GBM_TRUE;
     }
 
     /* ------------------------------------------------------ */
@@ -1812,7 +1861,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
     /* Write the file header information. */
     png_write_info(png_ptr, info_ptr);
-    if (io_p->errok != TRUE)
+    if (io_p->errok != GBM_TRUE)
     {
        png_write_deinit(&png_priv);
        return GBM_ERR_WRITE;
@@ -1855,7 +1904,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        gbmmem_free(row_pointers);
        row_pointers = NULL;
 
-       if (io_p->errok != TRUE)
+       if (io_p->errok != GBM_TRUE)
        {
           png_write_deinit(&png_priv);
           return GBM_ERR_WRITE;

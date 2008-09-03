@@ -12,9 +12,9 @@ gbmmir.h - Interface to Mirror Image of General Bitmap
   {
 #endif
 
-extern BOOLEAN gbm_ref_vert(const GBM *gbm, byte *data);
-extern BOOLEAN gbm_ref_horz(const GBM *gbm, byte *data);
-extern void gbm_transpose(const GBM *gbm, const byte *data, byte *data_t);
+extern gbm_boolean gbm_ref_vert(const GBM *gbm, gbm_u8 *data);
+extern gbm_boolean gbm_ref_horz(const GBM *gbm, gbm_u8 *data);
+extern void gbm_transpose(const GBM *gbm, const gbm_u8 *data, gbm_u8 *data_t);
 
 #ifdef __cplusplus
   }  /* extern "C" */

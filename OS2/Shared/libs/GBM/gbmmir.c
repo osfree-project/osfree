@@ -17,15 +17,15 @@ gbmmir.c - Produce Mirror Image of General Bitmap
 /*...e*/
 
 /*...sgbm_ref_vert:0:*/
-BOOLEAN gbm_ref_vert(const GBM *gbm, byte *data)
+gbm_boolean gbm_ref_vert(const GBM *gbm, gbm_u8 *data)
 	{
 	int stride = ( ((gbm->w * gbm->bpp + 31)/32) * 4 );
-	byte *p1 = data;
-	byte *p2 = data + (gbm->h - 1) * stride;
-	byte *p3;
+	gbm_u8 *p1 = data;
+	gbm_u8 *p2 = data + (gbm->h - 1) * stride;
+	gbm_u8 *p3;
 
 	if ( (p3 = gbmmem_malloc((size_t) stride)) == NULL )
-		return FALSE;
+		return GBM_FALSE;
 
 	for ( ; p1 < p2; p1 += stride, p2 -= stride )
 		{
@@ -36,15 +36,15 @@ BOOLEAN gbm_ref_vert(const GBM *gbm, byte *data)
 
 	gbmmem_free(p3);
 
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sgbm_ref_horz:0:*/
 /*...sref_horz_64:0:*/
-static void ref_horz_64(byte *dst, byte *src, int n)
+static void ref_horz_64(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
-        word * src16 = (word *) src;
-        word * dst16 = (word *) dst;
+        gbm_u16 * src16 = (gbm_u16 *) src;
+        gbm_u16 * dst16 = (gbm_u16 *) dst;
 	dst16 += n * 4;
 	while ( n-- )
 		{
@@ -57,10 +57,10 @@ static void ref_horz_64(byte *dst, byte *src, int n)
 	}
 /*...e*/
 /*...sref_horz_48:0:*/
-static void ref_horz_48(byte *dst, byte *src, int n)
+static void ref_horz_48(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
-        word * src16 = (word *) src;
-        word * dst16 = (word *) dst;
+        gbm_u16 * src16 = (gbm_u16 *) src;
+        gbm_u16 * dst16 = (gbm_u16 *) dst;
 	dst16 += n * 3;
 	while ( n-- )
 		{
@@ -72,7 +72,7 @@ static void ref_horz_48(byte *dst, byte *src, int n)
 	}
 /*...e*/
 /*...sref_horz_32:0:*/
-static void ref_horz_32(byte *dst, byte *src, int n)
+static void ref_horz_32(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
 	dst += n * 4;
 	while ( n-- )
@@ -86,7 +86,7 @@ static void ref_horz_32(byte *dst, byte *src, int n)
 	}
 /*...e*/
 /*...sref_horz_24:0:*/
-static void ref_horz_24(byte *dst, byte *src, int n)
+static void ref_horz_24(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
 	dst += n * 3;
 	while ( n-- )
@@ -99,7 +99,7 @@ static void ref_horz_24(byte *dst, byte *src, int n)
 	}
 /*...e*/
 /*...sref_horz_8:0:*/
-static void ref_horz_8(byte *dst, byte *src, int n)
+static void ref_horz_8(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
 	dst += n;
 	while ( n-- )
@@ -107,17 +107,17 @@ static void ref_horz_8(byte *dst, byte *src, int n)
 	}
 /*...e*/
 /*...sref_horz_4:0:*/
-static byte rev4[0x100];
+static gbm_u8 rev4[0x100];
 
 static void table_4(void)
 	{
 	unsigned int i;
 
 	for ( i = 0; i < 0x100; i++ )
-		rev4[i] = (byte) ( ((i & 0x0fU) << 4) | ((i & 0xf0U) >> 4) );
+		rev4[i] = (gbm_u8) ( ((i & 0x0fU) << 4) | ((i & 0xf0U) >> 4) );
 	}
 
-static void ref_horz_4(byte *dst, byte *src, int n)
+static void ref_horz_4(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
 	if ( (n & 1) == 0 )
 		{
@@ -132,18 +132,18 @@ static void ref_horz_4(byte *dst, byte *src, int n)
 		src += n;
 		while ( n-- )
 			{
-			*dst    = (byte) (*(src--) & 0xf0);
-			*dst++ |= (byte) (* src    & 0x0f);
+			*dst    = (gbm_u8) (*(src--) & 0xf0);
+			*dst++ |= (gbm_u8) (* src    & 0x0f);
 			}
-		*dst = (byte) (*src & 0xf0);
+		*dst = (gbm_u8) (*src & 0xf0);
 		}
 	}
 /*...e*/
 /*...sref_horz_1:0:*/
-static byte rev[0x100]; /* Reverses all bits in a byte */
-static byte rev_top[7][0x100]; /* Reverses top N bits of a byte */
-static byte rev_bot[7][0x100]; /* Reverses bottom N bits of a byte */
-static byte lmask[8] = { 0, 0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe };
+static gbm_u8 rev[0x100]; /* Reverses all bits in a gbm_u8 */
+static gbm_u8 rev_top[7][0x100]; /* Reverses top N bits of a gbm_u8 */
+static gbm_u8 rev_bot[7][0x100]; /* Reverses bottom N bits of a gbm_u8 */
+static gbm_u8 lmask[8] = { 0, 0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe };
 
 static void table_1(void)
 	{
@@ -160,9 +160,9 @@ static void table_1(void)
 
 		for ( j = 1; j < 8U; j++ )
 			{
-			byte l = 0, r = 0;
-			byte lm = 0x80U, lmr = (byte) (0x80U >> (j - 1));
-			byte rm = 0x01U, rmr = (byte) (0x01U << (j - 1));
+			gbm_u8 l = 0, r = 0;
+			gbm_u8 lm = 0x80U, lmr = (gbm_u8) (0x80U >> (j - 1));
+			gbm_u8 rm = 0x01U, rmr = (gbm_u8) (0x01U << (j - 1));
 			unsigned int k;
 
 			for ( k = 0; k < j; k++ )
@@ -176,7 +176,7 @@ static void table_1(void)
 		}
 	}
 
-static void ref_horz_1(byte *dst, byte *src, int n)
+static void ref_horz_1(gbm_u8 *dst, gbm_u8 *src, int n)
 	{
 	int last = ( n & 7 );
 
@@ -189,9 +189,9 @@ static void ref_horz_1(byte *dst, byte *src, int n)
 		}
 	else
 		{
-		byte	*lrev = rev_top[   last -1];
-		byte	*rrev = rev_bot[(8-last)-1];
-		byte	lm = lmask[last], rm = 0xff - lm;
+		gbm_u8	*lrev = rev_top[   last -1];
+		gbm_u8	*rrev = rev_bot[(8-last)-1];
+		gbm_u8	lm = lmask[last], rm = 0xff - lm;
 
 		src += n;
 		while ( n-- )
@@ -204,15 +204,15 @@ static void ref_horz_1(byte *dst, byte *src, int n)
 	}
 /*...e*/
 
-BOOLEAN gbm_ref_horz(const GBM *gbm, byte *data)
+gbm_boolean gbm_ref_horz(const GBM *gbm, gbm_u8 *data)
 	{
 	const int stride = ( ((gbm->w * gbm->bpp + 31)/32) * 4 );
 	int y;
-	byte *p = data;
-	byte *tmp;
+	gbm_u8 *p = data;
+	gbm_u8 *tmp;
 
 	if ( (tmp = gbmmem_malloc((size_t) stride)) == NULL )
-		return FALSE;
+		return GBM_FALSE;
 
 	switch ( gbm->bpp )
 		{
@@ -271,11 +271,11 @@ BOOLEAN gbm_ref_horz(const GBM *gbm, byte *data)
 
 	gbmmem_free(tmp);
 
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sgbm_transpose:0:*/
-void gbm_transpose(const GBM *gbm, const byte *data, byte *data_t)
+void gbm_transpose(const GBM *gbm, const gbm_u8 *data, gbm_u8 *data_t)
 	{
 	const int stride   = ((gbm->w * gbm->bpp + 31) / 32) * 4;
 	const int stride_t = ((gbm->h * gbm->bpp + 31) / 32) * 4;
@@ -289,12 +289,12 @@ case 64:
 	const int p_step = (stride_t - 6) / 2;
 	int x, y;
 
-        word * data16   = (word *) data;
-        word * data_t16 = (word *) data_t;
+        gbm_u16 * data16   = (gbm_u16 *) data;
+        gbm_u16 * data_t16 = (gbm_u16 *) data_t;
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		word *p = data_t16; data_t16 += 4;
+		gbm_u16 *p = data_t16; data_t16 += 4;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
@@ -316,12 +316,12 @@ case 48:
 	const int p_step = (stride_t - 3) / 2;
 	int x, y;
 
-        word * data16   = (word *) data;
-        word * data_t16 = (word *) data_t;
+        gbm_u16 * data16   = (gbm_u16 *) data;
+        gbm_u16 * data_t16 = (gbm_u16 *) data_t;
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		word *p = data_t16; data_t16 += 3;
+		gbm_u16 *p = data_t16; data_t16 += 3;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
@@ -340,12 +340,12 @@ case 32:
 	{
         const int p_step = stride_t / 4;
 	int x, y;
-        dword * data32   = (dword *) data;
-        dword * data_t32 = (dword *) data_t;
+        gbm_u32 * data32   = (gbm_u32 *) data;
+        gbm_u32 * data_t32 = (gbm_u32 *) data_t;
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		dword *p = data_t32++;
+		gbm_u32 *p = data_t32++;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
@@ -365,7 +365,7 @@ case 24:
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		byte *p = data_t; data_t += 3;
+		gbm_u8 *p = data_t; data_t += 3;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
@@ -387,7 +387,7 @@ case 8:
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		byte *p = data_t++;
+		gbm_u8 *p = data_t++;
 
 		for ( x = 0; x < gbm->w; x++ )
 			{
@@ -403,33 +403,33 @@ case 8:
 case 4:
   {
     int x, y;
-    const byte * end   = data   + (stride   * gbm->h);
-    const byte * end_t = data_t + (stride_t * gbm->w);
+    const gbm_u8 * end   = data   + (stride   * gbm->h);
+    const gbm_u8 * end_t = data_t + (stride_t * gbm->w);
 
     for ( y = 0; y < gbm->h; y += 2 )
     {
         for ( x = 0; x < gbm->w; x += 2 )
         /*...s2x2 transpose to 2x2:40:*/
         {
-            const byte *src = data + y * stride + ((unsigned)x >> 1);
-            byte ab         = src[0];
-            byte cd         = (src + stride < end) ? src[stride] : 0;
-            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
-            dst[0]          = (byte) ((ab & 0xf0) | (cd >> 4));
+            const gbm_u8 *src = data + y * stride + ((unsigned)x >> 1);
+            gbm_u8 ab         = src[0];
+            gbm_u8 cd         = (src + stride < end) ? src[stride] : 0;
+            gbm_u8 *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (gbm_u8) ((ab & 0xf0) | (cd >> 4));
             if (dst + stride_t < end_t)
             {
-              dst[stride_t] = (byte) ((ab << 4) | (cd & 0x0f));
+              dst[stride_t] = (gbm_u8) ((ab << 4) | (cd & 0x0f));
             }
         }
         /*...e*/
         if ( x < gbm->w )
         /*...s1x2 transpose to 2x1:40:*/
         {
-            const byte *src = data + y * stride + ((unsigned)x >> 1);
-            byte a0         = src[0];
-            byte b0         = (src + stride < end) ? src[stride] : 0;
-            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
-            dst[0]          = (byte) ((a0 & 0xf0) | (b0 >> 4));
+            const gbm_u8 *src = data + y * stride + ((unsigned)x >> 1);
+            gbm_u8 a0         = src[0];
+            gbm_u8 b0         = (src + stride < end) ? src[stride] : 0;
+            gbm_u8 *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (gbm_u8) ((a0 & 0xf0) | (b0 >> 4));
         }
         /*...e*/
     }
@@ -438,23 +438,23 @@ case 4:
         for ( x = 0; x < gbm->w; x += 2 )
         /*...s2x1 transpose to 1x2:40:*/
         {
-            const byte *src = data + y * stride + ((unsigned)x >> 1);
-            byte ab         = src[0];
-            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
-            dst[0]          = (byte) (ab & 0xf0);
+            const gbm_u8 *src = data + y * stride + ((unsigned)x >> 1);
+            gbm_u8 ab         = src[0];
+            gbm_u8 *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (gbm_u8) (ab & 0xf0);
             if (dst + stride_t < end_t)
             {
-              dst[stride_t] = (byte) (ab << 4);
+              dst[stride_t] = (gbm_u8) (ab << 4);
             }
         }
         /*...e*/
         if ( x < gbm->w )
         /*...s1x1 transpose to 1x1:40:*/
         {
-            const byte *src = data + y * stride + ((unsigned)x >> 1);
-            byte a0         = src[0];
-            byte *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
-            dst[0]          = (byte) (a0 & 0xf0);
+            const gbm_u8 *src = data + y * stride + ((unsigned)x >> 1);
+            gbm_u8 a0         = src[0];
+            gbm_u8 *dst       = data_t + x * stride_t + ((unsigned)y >> 1);
+            dst[0]          = (gbm_u8) (a0 & 0xf0);
         }
         /*...e*/
     }
@@ -465,7 +465,7 @@ case 4:
 case 1:
 	{
 	int x, y;
-	byte xbit, ybit;
+	gbm_u8 xbit, ybit;
 
 	memset(data_t, 0, gbm->w * stride_t);
 
@@ -475,8 +475,8 @@ case 1:
 		xbit = 0x80;
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			const byte *src = data   + y * stride   + ((unsigned)x >> 3);
-			      byte *dst = data_t + x * stride_t + ((unsigned)y >> 3);
+			const gbm_u8 *src = data   + y * stride   + ((unsigned)x >> 3);
+			      gbm_u8 *dst = data_t + x * stride_t + ((unsigned)y >> 3);
 
 			if ( *src & xbit )
 				*dst |= ybit;

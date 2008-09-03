@@ -57,14 +57,14 @@ typedef struct
 } GBMTOOL_FILEARG;
 
 
-#if defined(__OS2__) || defined(OS2)
+#if defined(__OS2__) || defined(OS2) || defined(__WIN32__) || defined(WIN32)
  #ifndef FILENAME_EXPANSION_MODE
   #define FILENAME_EXPANSION_MODE
  #endif
 
  /* Extension point for platform dependend implementation. */
  /* Just compile and link with the appropriate implementation file gbmtos2.c */
- BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned int * filecount);
+ gbm_boolean gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned int * filecount);
 
 #else
 
@@ -106,7 +106,7 @@ GBMTOOL_FILE * gbmtool_createFileNode(const char * filename);
  * @retval GBM_ERR_OK       Argument successfully parsed.
  * @retval GBM_ERR_BAD_ARG  Argument could not be parsed.
  */
-GBM_ERR gbmtool_parse_argument(GBMTOOL_FILEARG * gbmfilearg, const BOOLEAN expandRegEx);
+GBM_ERR gbmtool_parse_argument(GBMTOOL_FILEARG * gbmfilearg, const gbm_boolean expandRegEx);
 
 
 /**

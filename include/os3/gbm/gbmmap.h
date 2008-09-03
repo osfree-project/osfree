@@ -10,46 +10,46 @@ gbmmap.h - Map RGBA to palette or BGRx bitmap data
 #pragma pack(2)
 typedef struct
 {
-   word r;
-   word g;
-   word b;
+   gbm_u16 r;
+   gbm_u16 g;
+   gbm_u16 b;
 } GBMRGB_16BPP;
 #pragma pack()
 
-BOOLEAN gbm_map_row_PAL_PAL(const byte * data_src, const GBM * gbm_src,
-                                  byte * data_dst, const GBM * gbm_dst);
+gbm_boolean gbm_map_row_PAL_PAL(const gbm_u8 * data_src, const GBM * gbm_src,
+                                      gbm_u8 * data_dst, const GBM * gbm_dst);
 
-BOOLEAN gbm_map_row_PAL_BGR(const byte         * data_src, const GBM * gbm_src,
-                                  byte         * data_dst, const GBM * gbm_dst,
-                            const GBMRGB_16BPP * gbmrgb_src);
+gbm_boolean gbm_map_row_PAL_BGR(const gbm_u8       * data_src, const GBM * gbm_src,
+                                      gbm_u8       * data_dst, const GBM * gbm_dst,
+                                const GBMRGB_16BPP * gbmrgb_src);
 
-BOOLEAN gbm_map_row_RGBx_BGRx(const byte         * data_src, const GBM * gbm_src,
-                                    byte         * data_dst, const GBM * gbm_dst,
-                              const GBMRGB_16BPP * back_rgb, const BOOLEAN unassociatedAlpha);
+gbm_boolean gbm_map_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm_src,
+                                        gbm_u8       * data_dst, const GBM * gbm_dst,
+                                  const GBMRGB_16BPP * back_rgb, const gbm_boolean unassociatedAlpha);
 
-BOOLEAN gbm_map_row_CMYK_to_BGR(const byte * data_src, const GBM * gbm_src,
-                                      byte * data_dst, const GBM * gbm_dst,
-                                const BOOLEAN component_inverse);
+gbm_boolean gbm_map_row_CMYK_to_BGR(const gbm_u8 * data_src, const GBM * gbm_src,
+                                          gbm_u8 * data_dst, const GBM * gbm_dst,
+                                    const gbm_boolean component_inverse);
 
-BOOLEAN gbm_map_sep_row_CMYK_to_BGR(const byte * data_src, const GBM * gbm_src,
-                                          byte * data_dst, const GBM * gbm_dst,
-                                    const int    sample  , const BOOLEAN component_inverse);
+gbm_boolean gbm_map_sep_row_CMYK_to_BGR(const gbm_u8 * data_src, const GBM * gbm_src,
+                                              gbm_u8 * data_dst, const GBM * gbm_dst,
+                                        const int    sample  , const gbm_boolean component_inverse);
 
-BOOLEAN gbm_map_sep_row_RGBx_BGRx(const byte         * data_src, const GBM * gbm_src,
-                                        byte         * data_dst, const GBM * gbm_dst,
-                                  const GBMRGB_16BPP * back_rgb, const BOOLEAN unassociatedAlpha,
-                                  const int            sample);
+gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm_src,
+                                            gbm_u8       * data_dst, const GBM * gbm_dst,
+                                      const GBMRGB_16BPP * back_rgb, const gbm_boolean unassociatedAlpha,
+                                      const int            sample);
 
-BOOLEAN gbm_map_RGBA_BGR(const dword   * data_src,       byte         * data_dst,
-                         const GBM     * gbm_dst , const GBMRGB_16BPP * back_rgb,
-                         const BOOLEAN   unassociatedAlpha);
+gbm_boolean gbm_map_RGBA_BGR(const gbm_u32 * data_src,       gbm_u8       * data_dst,
+                             const GBM     * gbm_dst , const GBMRGB_16BPP * back_rgb,
+                             const gbm_boolean unassociatedAlpha);
 
-BOOLEAN gbm_map_RGBA_RGB(const dword * data_src,       byte         * data_dst,
-                         const GBM   * gbm_dst , const GBMRGB_16BPP * back_rgb,
-                         const BOOLEAN unassociatedAlpha);
+gbm_boolean gbm_map_RGBA_RGB(const gbm_u32 * data_src,       gbm_u8       * data_dst,
+                             const GBM     * gbm_dst , const GBMRGB_16BPP * back_rgb,
+                             const gbm_boolean unassociatedAlpha);
 
-BOOLEAN gbm_map_RGBA_PAL(const dword * data_src,       byte   * data_dst,
-                         const GBM   * gbm_dst , const GBMRGB * gbmrgb_dst);
+gbm_boolean gbm_map_RGBA_PAL(const gbm_u32 * data_src,       gbm_u8 * data_dst,
+                             const GBM     * gbm_dst , const GBMRGB * gbmrgb_dst);
 
 #endif
 

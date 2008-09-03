@@ -15,8 +15,8 @@ gbmscale.h - Interface to scaling code
 /* ------------------------ */
 
 extern GBM_ERR gbm_simple_scale(
-    const byte *s, int sw, int sh,
-          byte *d, int dw, int dh,
+    const gbm_u8 *s, int sw, int sh,
+          gbm_u8 *d, int dw, int dh,
     const int bpp);
 
 /* ------------------------ */
@@ -40,8 +40,8 @@ typedef enum { GBM_SCALE_FILTER_NEARESTNEIGHBOR = 1,
  *       Also the data target buffer must be able to hold 8bpp data.
  */
 extern GBM_ERR gbm_quality_scale_gray(
-    const byte *s , int sw, int sh, int sbpp, const GBMRGB * sgbmrgb,
-          byte *d8, int dw, int dh, GBMRGB * dgbmrgb,
+    const gbm_u8 *s , int sw, int sh, int sbpp, const GBMRGB * sgbmrgb,
+          gbm_u8 *d8, int dw, int dh, GBMRGB * dgbmrgb,
     const GBM_SCALE_FILTER filter);
 
 /* gbm_quality_scale_bgra - resample BGR[A] bitmaps using different filter types
@@ -52,8 +52,8 @@ extern GBM_ERR gbm_quality_scale_gray(
  *                         64bpp (48bpp with alpha channel)
  */
 extern GBM_ERR gbm_quality_scale_bgra(
-    const byte *s, int sw, int sh,
-          byte *d, int dw, int dh,
+    const gbm_u8 *s, int sw, int sh,
+          gbm_u8 *d, int dw, int dh,
           int  bpp,
     const GBM_SCALE_FILTER filter);
 

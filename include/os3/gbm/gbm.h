@@ -5,7 +5,7 @@ gbm.h - Generalised Bitmap Module
 Data is stored as an array of lines.
 Lines are stored with bottom line first, moving upwards.
 Each line is an array of pixels, leftmost first.
-Lines are padded to be a multiple of a dword long.
+Lines are padded to be a multiple of a gbm_u32 long.
 Palettised pixels are either a 1 bit, 4 bit, or 8 bit indexes.
 Alternately a B, G, R triple in that order is stored.
 This format exactly matches the format used by OS/2 and Windows bitmaps.
@@ -91,24 +91,45 @@ to older DLL versions. Use the API change log below for reference.
 1.40: Obsolete format codes GBM_FT_R16 and GBM_FT_W16 as these are not
       unique interpretable. Use 24bpp or 48bpp color depths instead.
       There has been no codec that used them so far anyway.
+
+1.60: Old types BOOLEAN, byte, word and dword are obsolete and should no longer be used.
+      Replacements are gbm_boolean, gbm_u8, gbm_u16, gbm_u32.
+      To enable backward compatible types, define OLD_GBM_TYPES.
 */
 
 #ifndef GBM_H
-#define  GBM_H
+#define GBM_H
 
-#ifndef BOOLEAN_DEFINED
-#define  BOOLEAN_DEFINED
-typedef    int BOOLEAN;
-#define    TRUE  1
-#define    FALSE 0
+#define GBM_TRUE  1
+#define GBM_FALSE 0
+typedef int             gbm_boolean;
+typedef unsigned  char  gbm_u8;
+typedef   signed  char  gbm_s8;
+typedef unsigned short  gbm_u16;
+typedef   signed short  gbm_s16;
+#ifdef __LP64__ /* gcc symbol meaning "long and ptr are 64 bits" */
+  typedef unsigned int  gbm_u32;
+  typedef   signed int  gbm_s32;
+#else
+  typedef unsigned long gbm_u32;
+  typedef unsigned long gbm_s32;
 #endif
 
-#ifndef BASICTYPES_DEFINED
-#define  BASICTYPES_DEFINED
-typedef unsigned  char  byte;
-typedef unsigned short  word;
-typedef unsigned  long dword;
-#endif
+/* Old types for backward compatibility. */
+#ifdef OLD_GBM_TYPES
+  #ifndef BOOLEAN_DEFINED
+    #define BOOLEAN_DEFINED
+    typedef gbm_boolean BOOLEAN;
+    #define TRUE  1
+    #define FALSE 0
+  #endif /* BOOLEAN_DEFINED */
+  #ifndef BASICTYPES_DEFINED
+    #define BASICTYPES_DEFINED
+    typedef gbm_u8  byte;
+    typedef gbm_u16 word;
+    typedef gbm_u32 dword;
+  #endif /* BASICTYPES_DEFINED */
+#endif /* OLD_GBM_TYPES */
 
 typedef int GBM_ERR;
 #define     GBM_ERR_OK         ((GBM_ERR) 0)
@@ -145,63 +166,32 @@ typedef int GBM_ERR;
  * The mode defines below can be combined via |.
  *
  * Don't use compiler specific defines O_* for portability reasons.
- * TEXT translation mode is not supported. BINARY or RAW mode is always used.
+ * TEXT translation mode is not supported. BINARY/RAW mode is always used.
+ *
+ * The new defines are backward compatible to IBM VAC++ 3.0 to keep
+ * programs using GBM.DLL running event though the DLL is compiled
+ * with an other compiler (e.g. Open Watcom).
+ * For backward compatibility O_BINARY or O_RAW of IBM VAC++ 3.0 defines
+ * is accepted but new code or recompiles should use the new defines.
  */
-#if defined(__OS2__) || defined(OS2)
-  /* The new defines are backward compatible to IBM VAC++ 3.0 to keep
-   * programs using GBM.DLL running event though the DLL is compiled
-   * with an other compiler (e.g. Open Watcom).
-   * For backward compatibility O_BINARY or O_RAW of IBM VAC++ 3.0 defines
-   * is accepted but new code or recompiles should use the new defines.
-   */
-  #define GBM_O_BINARY        0x00008000                  /* binary mode */
-  #define GBM_O_RDONLY        (0x00000004 | GBM_O_BINARY) /* open for read only                      */
-  #define GBM_O_WRONLY        (0x00000001 | GBM_O_BINARY) /* open for write only                     */
-  #define GBM_O_RDWR          (0x00000002 | GBM_O_BINARY) /* open for read and write                 */
-  #define GBM_O_EXCL          (0x00000400 | GBM_O_BINARY) /* open only if file doesn't already exist */
-  #define GBM_O_NOINHERIT     0x00000080                  /* child process doesn't inherit file      */
-
-#else
-  /* Add backward compatibility mapping of other platforms the DLL has been
-   * published in binary format (see OS2 description).
-   */
-
-  /* defaults where no portability requirements exist (e.g. static build with same compiler) */
-  #ifdef O_BINARY
-    #define GBM_O_BINARY        O_BINARY                /* binary mode */
-  #else
-    #define GBM_O_BINARY        0                       /* binary mode */
-  #endif
-  #define GBM_O_RDONLY        (O_RDONLY | GBM_O_BINARY) /* open for read only                      */
-  #define GBM_O_WRONLY        (O_WRONLY | GBM_O_BINARY) /* open for write only                     */
-  #define GBM_O_RDWR          (O_RDWR   | GBM_O_BINARY) /* open for read and write                 */
-  #define GBM_O_EXCL          (O_EXCL   | GBM_O_BINARY) /* open only if file doesn't already exist */
-  #define GBM_O_NOINHERIT     O_NOINHERIT               /* child process doesn't inherit file      */
-#endif
+#define GBM_O_BINARY        0x00008000                 /* binary mode                             */
+#define GBM_O_RDONLY       (0x00000004 | GBM_O_BINARY) /* open for read only                      */
+#define GBM_O_WRONLY       (0x00000001 | GBM_O_BINARY) /* open for write only                     */
+#define GBM_O_RDWR         (0x00000002 | GBM_O_BINARY) /* open for read and write                 */
+#define GBM_O_EXCL          0x00000400                 /* open only if file doesn't already exist */
+#define GBM_O_NOINHERIT     0x00000080                 /* child process doesn't inherit file      */
 
 /* File seek modes for gbm_io_lseek().
  *
  * Don't use compiler specific defines SEEK_* for portability reasons.
+ *
+ * The new defines are backward compatible to IBM VAC++ 3.0 to keep
+ * programs using GBM.DLL running event though the DLL is compiled
+ * with an other compiler (e.g. Open Watcom).
  */
-#if defined(__OS2__) || defined(OS2)
-  /* The new defines are backward compatible to IBM VAC++ 3.0 to keep
-   * programs using GBM.DLL running event though the DLL is compiled
-   * with an other compiler (e.g. Open Watcom).
-   */
-  #define GBM_SEEK_SET        0   /* fseek constants */
-  #define GBM_SEEK_CUR        1
-  #define GBM_SEEK_END        2
-
-#else
-  /* Add backward compatibility mapping of other platforms the DLL has been
-   * published in binary format (see OS2 description).
-   */
-
-  /* defaults where no portability requirements exist (e.g. static build with same compiler) */
-  #define GBM_SEEK_SET        SEEK_SET  /* fseek constants */
-  #define GBM_SEEK_CUR        SEEK_CUR
-  #define GBM_SEEK_END        SEEK_END
-#endif
+#define GBM_SEEK_SET        0   /* fseek constants */
+#define GBM_SEEK_CUR        1
+#define GBM_SEEK_END        2
 
 /* ----------------------------------------------------- */
 
@@ -225,15 +215,15 @@ typedef struct
     int   flags;        /* What functionality exists         */
 } GBMFT;
 
-typedef struct { byte r, g, b; } GBMRGB;
+typedef struct { gbm_u8 r, g, b; } GBMRGB;
 
 /* Don't change the size ! Otherwise backward compatibility of DLL is gone !!! */
 #define PRIV_SIZE 2000
 
 typedef struct
 {
-    int w, h, bpp;        /* Bitmap dimensions       */
-    byte priv[PRIV_SIZE]; /* Private internal buffer */
+    int w, h, bpp;          /* Bitmap dimensions       */
+    gbm_u8 priv[PRIV_SIZE]; /* Private internal buffer */
 } GBM;
 
 /* Enable compiler default packing. */
@@ -244,33 +234,33 @@ typedef struct
 #ifndef _GBM_
 
 #if defined(__OS2__) || defined(OS2)
-  #define  GBMEXPORT
-  #define  GBMENTRY_SYS  _System
-  #define  GBMENTRY      _Optlink
+  #define GBMEXPORT
+  #define GBMENTRY_SYS  _System
+  #define GBMENTRY      _Optlink
   #if defined(__IBMC__) || defined(__IBMCPP__)
-    #define GBMENTRYP       * _Optlink
-    #define GBMENTRYP_SYS   * _System
+    #define GBMENTRYP      * _Optlink
+    #define GBMENTRYP_SYS  * _System
   #else
     #define GBMENTRYP      _Optlink *
     #define GBMENTRYP_SYS  _System  *
   #endif
 #elif defined(WIN32)
   #define GBMEXPORT     __declspec(dllexport)
-  #define GBMENTRY_SYS
+  #define GBMENTRY_SYS  __stdcall
   #define GBMENTRY      __stdcall
-  #define GBMENTRYP     *
-  #define GBMENTRYP_SYS *
+  #define GBMENTRYP     __stdcall *
+  #define GBMENTRYP_SYS __stdcall *
 #elif defined(DOS32)
   #define GBMEXPORT
   #define GBMENTRY_SYS
   #define GBMENTRY __export _cdecl
-  #define GBMENTRYP   *
+  #define GBMENTRYP     *
   #define GBMENTRYP_SYS *
 #else
   #define GBMEXPORT
   #define GBMENTRY_SYS
   #define GBMENTRY
-  #define GBMENTRYP   *
+  #define GBMENTRYP     *
   #define GBMENTRYP_SYS *
 #endif
 
@@ -325,8 +315,8 @@ GBMEXPORT int     GBMENTRY     gbm_io_write (int fd, const void *buf, int len);
 GBMEXPORT GBM_ERR GBMENTRY_SYS gbm_read_imgcount(const char *fn, int fd, int ft, int *pimgcnt);
 GBMEXPORT GBM_ERR GBMENTRY     gbm_read_header  (const char *fn, int fd, int ft, GBM *gbm, const char *opt);
 GBMEXPORT GBM_ERR GBMENTRY     gbm_read_palette (int fd, int ft, GBM *gbm, GBMRGB *gbmrgb);
-GBMEXPORT GBM_ERR GBMENTRY     gbm_read_data    (int fd, int ft, GBM *gbm, byte *data);
-GBMEXPORT GBM_ERR GBMENTRY     gbm_write        (const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt);
+GBMEXPORT GBM_ERR GBMENTRY     gbm_read_data    (int fd, int ft, GBM *gbm, gbm_u8 *data);
+GBMEXPORT GBM_ERR GBMENTRY     gbm_write        (const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt);
 
 /* Common functionality (not file specific) */
 
@@ -352,8 +342,8 @@ int     _System Gbm_io_write (int fd, const void *buf, int len);
 
 GBM_ERR _System Gbm_read_header (const char *fn, int fd, int ft, GBM *gbm, const char *opt);
 GBM_ERR _System Gbm_read_palette(int fd, int ft, GBM *gbm, GBMRGB *gbmrgb);
-GBM_ERR _System Gbm_read_data   (int fd, int ft, GBM *gbm, byte *data);
-GBM_ERR _System Gbm_write       (const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt);
+GBM_ERR _System Gbm_read_data   (int fd, int ft, GBM *gbm, gbm_u8 *data);
+GBM_ERR _System Gbm_write       (const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt);
 
 GBM_ERR      _System Gbm_query_n_filetypes(int *n_ft);
 GBM_ERR      _System Gbm_guess_filetype   (const char *fn, int *ft);

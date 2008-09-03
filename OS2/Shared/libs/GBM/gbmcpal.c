@@ -13,6 +13,7 @@ History:
 08-Feb-2008  Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+15-Aug-2008  Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -22,7 +23,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -107,12 +108,12 @@ static void usage(void)
 	}
 /*...e*/
 /*...ssame:0:*/
-static BOOLEAN same(const char *s1, const char *s2, int n)
+static gbm_boolean same(const char *s1, const char *s2, int n)
 	{
 	for ( ; n--; s1++, s2++ )
 		if ( tolower(*s1) != tolower(*s2) )
-			return FALSE;
-	return TRUE;
+			return GBM_FALSE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...smain:0:*/
@@ -121,37 +122,37 @@ static BOOLEAN same(const char *s1, const char *s2, int n)
 #define	CVT_ROFREQ 2
 #define	CVT_ROMCUT 3
 
-static BOOLEAN verbose = FALSE;
+static gbm_boolean verbose = GBM_FALSE;
 
 /*...sget_masks:0:*/
 /*
-Returns TRUE if a set of masks given at map.
+Returns GBM_TRUE if a set of masks given at map.
 Also sets *rm, *gm, *bm from these.
-Else returns FALSE.
+Else returns GBM_FALSE.
 */
 
-static byte mask[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
+static gbm_u8 mask[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 
-static BOOLEAN get_masks(char *map, byte *rm, byte *gm, byte *bm)
+static gbm_boolean get_masks(char *map, gbm_u8 *rm, gbm_u8 *gm, gbm_u8 *bm)
 	{
 	if ( map[0] <  '0' || map[0] > '8' ||
 	     map[1] != ':' ||
 	     map[2] <  '0' || map[2] > '8' ||
 	     map[3] != ':' ||
 	     map[4] <  '0' || map[4] > '8' )
-		return FALSE;
+		return GBM_FALSE;
 
 	*rm = mask[map[0] - '0'];
 	*gm = mask[map[2] - '0'];
 	*bm = mask[map[4] - '0'];
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...salloc_mem:0:*/
-static byte *alloc_mem(const GBM *gbm)
+static gbm_u8 *alloc_mem(const GBM *gbm)
 	{
 	unsigned long stride, bytes;
-	byte *p;
+	gbm_u8 *p;
 
 	stride = ( ((gbm->w * gbm->bpp + 31)/32) * 4 );
 	bytes = stride * gbm->h;
@@ -164,7 +165,7 @@ static byte *alloc_mem(const GBM *gbm)
 /*...sread_bitmap:0:*/
 static void read_bitmap(
 	const char *fn, const char *opt,
-	GBM *gbm, GBMRGB gbmrgb[], byte **data
+	GBM *gbm, GBMRGB gbmrgb[], gbm_u8 **data
 	)
 	{
 	int ft, fd;
@@ -225,13 +226,13 @@ static void read_bitmap(
 /*...e*/
 /*...sread_bitmap_24:0:*/
 /*...sexpand_to_24bit:0:*/
-static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
+static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, gbm_u8 **data)
 	{
 	unsigned long stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
 	unsigned long new_stride = ((gbm->w * 3 + 3) & ~3);
 	unsigned long bytes;
     int y;
-	byte *new_data;
+	gbm_u8 *new_data;
 
 	if ( gbm->bpp == 24 )
 		return;
@@ -242,8 +243,8 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		byte	*src = *data + y * stride;
-		byte	*dest = new_data + y * new_stride;
+		gbm_u8	*src = *data + y * stride;
+		gbm_u8	*dest = new_data + y * new_stride;
 		int	x;
 
 		switch ( gbm->bpp )
@@ -251,7 +252,7 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 /*...s1:24:*/
 case 1:
 	{
-	byte c;
+	gbm_u8 c;
 
 	for ( x = 0; x < gbm->w; x++ )
 		{
@@ -271,7 +272,7 @@ case 1:
 case 4:
 	for ( x = 0; x + 1 < gbm->w; x += 2 )
 		{
-		byte	c = *src++;
+		gbm_u8	c = *src++;
 
 		*dest++ = gbmrgb[c >> 4].b;
 		*dest++ = gbmrgb[c >> 4].g;
@@ -283,7 +284,7 @@ case 4:
 
 	if ( x < gbm->w )
 		{
-		byte	c = *src;
+		gbm_u8	c = *src;
 
 		*dest++ = gbmrgb[c >> 4].b;
 		*dest++ = gbmrgb[c >> 4].g;
@@ -295,7 +296,7 @@ case 4:
 case 8:
 	for ( x = 0; x < gbm->w; x++ )
 		{
-		byte	c = *src++;
+		gbm_u8	c = *src++;
 
 		*dest++ = gbmrgb[c].b;
 		*dest++ = gbmrgb[c].g;
@@ -313,7 +314,7 @@ case 8:
 
 static void read_bitmap_24(
 	const char *fn, const char *opt,
-	GBM *gbm, byte **data
+	GBM *gbm, gbm_u8 **data
 	)
 	{
 	GBMRGB gbmrgb[0x100];
@@ -329,7 +330,7 @@ static void read_bitmap_24(
 /*...sread_bitmap_24_f:0:*/
 static void read_bitmap_24_f(
 	const char *fn, int f, const char *opt,
-	GBM *gbm, byte **data
+	GBM *gbm, gbm_u8 **data
 	)
 	{
 	char fn_f[GBMTOOL_FILENAME_MAX+1];
@@ -340,7 +341,7 @@ static void read_bitmap_24_f(
 /*...swrite_bitmap:0:*/
 static void write_bitmap(
 	const char *fn, const char *opt,
-	const GBM *gbm, const GBMRGB gbmrgb[], const byte *data
+	const GBM *gbm, const GBMRGB gbmrgb[], const gbm_u8 *data
 	)
 	{
 	int ft, fd, flag;
@@ -388,7 +389,7 @@ static void write_bitmap(
 /*...swrite_bitmap_f:0:*/
 static void write_bitmap_f(
 	const char *fn, int f, const char *opt,
-	const GBM *gbm, const GBMRGB gbmrgb[], const byte *data
+	const GBM *gbm, const GBMRGB gbmrgb[], const gbm_u8 *data
 	)
 	{
 	char fn_f[GBMTOOL_FILENAME_MAX+1];
@@ -401,7 +402,7 @@ static void freq_map(
 	int first, int last, int step,
 	const char *fn_src, const char *opt_src,
 	const char *fn_dst, const char *opt_dst,
-	int ncols, byte rm, byte gm, byte bm
+	int ncols, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm
 	)
 	{
 	int f;
@@ -417,8 +418,8 @@ static void freq_map(
 			fatal("can't create histogram data");
 		for ( f = first; f < last; f += step )
 			{
-			GBM gbm; byte *data;
-			BOOLEAN ok;
+			GBM gbm; gbm_u8 *data;
+			gbm_boolean ok;
 			read_bitmap_24_f(fn_src, f, opt_src, &gbm, &data);
 			ok = gbm_add_to_hist(hist, &gbm, data);
 			gbmmem_free(data);
@@ -452,7 +453,7 @@ static void freq_map(
 
 	for ( f = first; f < last; f += step )
 		{
-		GBM gbm; byte *data, *data8;
+		GBM gbm; gbm_u8 *data, *data8;
 		read_bitmap_24_f(fn_src, f, opt_src, &gbm, &data);
 		gbm.bpp = 8;
 		data8 = alloc_mem(&gbm);
@@ -486,7 +487,7 @@ static void mcut_map(
 		fatal("can't create median cut data");
 	for ( f = first; f < last; f += step )
 		{
-		GBM gbm; byte *data;
+		GBM gbm; gbm_u8 *data;
 		read_bitmap_24_f(fn_src, f, opt_src, &gbm, &data);
 		gbm_add_to_mcut(mcut, &gbm, data);
 		gbmmem_free(data);
@@ -502,7 +503,7 @@ static void mcut_map(
 
 	for ( f = first; f < last; f += step )
 		{
-		GBM gbm; byte *data, *data8;
+		GBM gbm; gbm_u8 *data, *data8;
 		read_bitmap_24_f(fn_src, f, opt_src, &gbm, &data);
 		gbm.bpp = 8;
 		data8 = alloc_mem(&gbm);
@@ -579,8 +580,8 @@ of close entries in the old palette.
 */
 
 static void calc_mapP(
-	const GBMRGB gbmrgb [], const word map [],
-	      GBMRGB gbmrgbP[],       word mapP[],
+	const GBMRGB gbmrgb [], const gbm_u16 map [],
+	      GBMRGB gbmrgbP[],       gbm_u16 mapP[],
 	int dists[],
 	int ncols
 	)
@@ -591,7 +592,7 @@ static void calc_mapP(
 		printf("Reordering palette to cause least flicker\n");
 
 	for ( i = 0; i < ncols; i++ )
-		mapP[i] = (word) 0xffff;
+		mapP[i] = (gbm_u16) 0xffff;
 
 	/* Go through old palette entries, in descending freq order */
 	for ( i = 0; i < ncols; i++ )
@@ -606,7 +607,7 @@ static void calc_mapP(
 			int dg = (int) ( (unsigned int) p->g - (unsigned int) gbmrgbP[j].g );
 			int db = (int) ( (unsigned int) p->b - (unsigned int) gbmrgbP[j].b );
 			int dist = dr*dr + dg*dg + db*db;
-			if ( dist < mindist && mapP[j] == (word) 0xffff )
+			if ( dist < mindist && mapP[j] == (gbm_u16) 0xffff )
 				{
 				minj = j;
 				mindist = dist;
@@ -622,16 +623,16 @@ static void ro_map(
 	int first, int last, int step,
 	const char *fn_src, const char *opt_src,
 	const char *fn_dst, const char *opt_dst,
-	int ncols, int ncolsextra, byte rm, byte gm, byte bm,
+	int ncols, int ncolsextra, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm,
 	void (*get)(
 		const char *fn, int f, const char *opt,
-		int ncols, byte rm, byte gm, byte bm,
-		GBM *gbm, GBMRGB gbmrgb[], byte **data8
+		int ncols, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm,
+		GBM *gbm, GBMRGB gbmrgb[], gbm_u8 **data8
 		)
 	)
 	{
-	GBM gbm; GBMRGB gbmrgb[0x100]; byte *data8;
-	word map[0x100], *extra = &(map[ncols]);
+	GBM gbm; GBMRGB gbmrgb[0x100]; gbm_u8 *data8;
+	gbm_u16 map[0x100], *extra = &(map[ncols]);
 	int i, f;
 
 	if ( first >= last )
@@ -639,14 +640,14 @@ static void ro_map(
 
 	(*get)(fn_src, first, opt_src, ncols, rm, gm, bm, &gbm, gbmrgb, &data8);
 	for ( i = 0; i < ncols+ncolsextra; i++ )
-		map[i] = (word) i;
+		map[i] = (gbm_u16) i;
 
 	write_bitmap_f(fn_dst, first, opt_dst, &gbm, gbmrgb, data8);
 
 	for ( f = first + step; f < last; f += step )
 		{
-		GBM gbmP; GBMRGB gbmrgbP[0x100]; byte *data8P, *p;
-		word mapP[0x100]; int dists[0x100];
+		GBM gbmP; GBMRGB gbmrgbP[0x100]; gbm_u8 *data8P, *p;
+		gbm_u16 mapP[0x100]; int dists[0x100];
 		int x, y, stride;
 
 		(*get)(fn_src, f, opt_src, ncols, rm, gm, bm, &gbmP, gbmrgbP, &data8P);
@@ -674,7 +675,7 @@ for ( i = 0; i < ncolsextra; i++ )
 
 for ( i = 0, j = 0; i < ncolsextra; i++, j++ )
 	{
-	word t;
+	gbm_u16 t;
 	while ( dists[j] != -1 )
 		j++;
 	t = mapP[j];		/* This is a bad palette entry */
@@ -690,14 +691,14 @@ for ( i = 0, j = 0; i < ncolsextra; i++, j++ )
 		stride = ((gbmP.w+3)&~3);
 		for ( y = 0, p = data8P; y < gbmP.h; y++, p += stride )
 			for ( x = 0; x < gbmP.w; x++ )
-				p[x] = (byte) mapP[p[x]];
+				p[x] = (gbm_u8) mapP[p[x]];
 
 		write_bitmap_f(fn_dst, f, opt_dst, &gbmP, gbmrgb, data8P);
 
 		gbm = gbmP;
 		gbmmem_free(data8);
 		data8 = data8P;
-		memcpy(map, mapP, ncols * sizeof(word));
+		memcpy(map, mapP, ncols * sizeof(gbm_u16));
 		}
 
 	gbmmem_free(data8);
@@ -707,11 +708,11 @@ for ( i = 0, j = 0; i < ncolsextra; i++, j++ )
 /*...sget_and_hist:0:*/
 static void get_and_hist(
 	const char *fn, int f, const char *opt,
-	int ncols, byte rm, byte gm, byte bm,
-	GBM *gbm, GBMRGB gbmrgb[], byte **data8
+	int ncols, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm,
+	GBM *gbm, GBMRGB gbmrgb[], gbm_u8 **data8
 	)
 	{
-	byte *data24;
+	gbm_u8 *data24;
 	read_bitmap_24_f(fn, f, opt, gbm, &data24);
 	gbm->bpp = 8;
 	(*data8) = alloc_mem(gbm);
@@ -725,7 +726,7 @@ static void rofreq_map(
 	int first, int last, int step,
 	const char *fn_src, const char *opt_src,
 	const char *fn_dst, const char *opt_dst,
-	int ncols, int ncolsextra, byte rm, byte gm, byte bm
+	int ncols, int ncolsextra, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm
 	)
 	{
 	ro_map(
@@ -740,11 +741,11 @@ static void rofreq_map(
 /*...sget_and_mcut:0:*/
 static void get_and_mcut(
 	const char *fn, int f, const char *opt,
-	int ncols, byte rm, byte gm, byte bm,
-	GBM *gbm, GBMRGB gbmrgb[], byte **data8
+	int ncols, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm,
+	GBM *gbm, GBMRGB gbmrgb[], gbm_u8 **data8
 	)
 	{
-	byte *data24;
+	gbm_u8 *data24;
 	rm=rm; gm=gm; bm=bm; /* Suppress 'unused arg warning' */
 	read_bitmap_24_f(fn, f, opt, gbm, &data24);
 	gbm->bpp = 8;
@@ -780,7 +781,7 @@ int main(int argc, char *argv[])
 
 	char *map = "freq6:6:6:256";
 	int i, m, ncols, ncolsextra, first, last, step;
-	byte rm, gm, bm;
+	gbm_u8 rm, gm, bm;
 
 /*...sprocess command line options:8:*/
 for ( i = 1; i < argc; i++ )
@@ -793,7 +794,7 @@ for ( i = 1; i < argc; i++ )
 					fatal("expected map argument");
 				map = argv[i];
 				break;
-		case 'v':	verbose = TRUE;
+		case 'v':	verbose = GBM_TRUE;
 				break;
 		default:	usage();
 				break;
@@ -822,7 +823,7 @@ if (strcmp(gbmfilearg.argin, "\"\"") == 0)
 {
   usage();
 }
-if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 {
   fatal("can't parse source filename %s", gbmfilearg.argin);
 }
@@ -835,7 +836,7 @@ if (strcmp(gbmfilearg.argin, "\"\"") == 0)
 {
   usage();
 }
-if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 {
   fatal("can't parse destination filename %s", gbmfilearg.argin);
 }

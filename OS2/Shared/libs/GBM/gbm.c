@@ -15,6 +15,7 @@ History:
 19-Jan-2007: Add missing braces around format decoder/encoder registry
 01-Mar-2007: Seek to file end after reading/writing the image data as some
              readers/writers operate non-sequential.
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <stdio.h>
@@ -22,7 +23,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -60,9 +61,9 @@ History:
 #include "gbmgem.h"
 #include "gbmcvp.h"
 #include "gbmjpg.h"
+#include "gbmj2k.h"
 
-
-#define GBM_VERSION   155  /* 1.55 */
+#define GBM_VERSION   160  /* 1.60 */
 
 /* --------------------------- */
 
@@ -73,8 +74,8 @@ typedef struct
     GBM_ERR      (*read_image_count )(const char *fn, int fd, int *pimgcnt);
     GBM_ERR      (*read_header      )(const char *fn, int fd, GBM *gbm, const char *opt);
     GBM_ERR      (*read_palette     )(int fd, GBM *gbm, GBMRGB *gbmrgb);
-    GBM_ERR      (*read_data        )(int fd, GBM *gbm, byte *data);
-    GBM_ERR      (*write            )(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt);
+    GBM_ERR      (*read_data        )(int fd, GBM *gbm, gbm_u8 *data);
+    GBM_ERR      (*write            )(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt);
     const char * (*err              )(GBM_ERR rc);
 } FT;
 
@@ -106,6 +107,11 @@ static FT fts[] =
 #endif
 #ifdef ENABLE_IJG
    { jpg_qft, NULL       , jpg_rhdr, jpg_rpal, jpg_rdata, jpg_w, jpg_err },
+#endif
+#ifdef ENABLE_J2K
+   { j2k_jp2_qft, NULL   , j2k_jp2_rhdr, j2k_rpal, j2k_rdata, j2k_jp2_w, j2k_err },
+   { j2k_j2k_qft, NULL   , j2k_j2k_rhdr, j2k_rpal, j2k_rdata, j2k_j2k_w, j2k_err },
+   { j2k_jpt_qft, NULL   , j2k_jpt_rhdr, j2k_rpal, j2k_rdata, NULL     , j2k_err }
 #endif
 };
 
@@ -316,7 +322,7 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_read_palette(int fd, int ft, GBM *gbm, GBMRGB *gb
 
 /* --------------------------- */
 
-GBMEXPORT GBM_ERR GBMENTRY gbm_read_data(int fd, int ft, GBM *gbm, byte *data)
+GBMEXPORT GBM_ERR GBMENTRY gbm_read_data(int fd, int ft, GBM *gbm, gbm_u8 *data)
 {
   int     flag = 0;
   GBMFT   gbmft = { 0 };
@@ -358,7 +364,7 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_read_data(int fd, int ft, GBM *gbm, byte *data)
 
 /* --------------------------- */
 
-GBMEXPORT GBM_ERR GBMENTRY gbm_write(const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBMEXPORT GBM_ERR GBMENTRY gbm_write(const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
   int     flag = 0;
   GBMFT   gbmft = { 0 };
@@ -503,10 +509,10 @@ GBM_ERR _System Gbm_read_header(const char *fn, int fd, int ft, GBM *gbm, const 
 GBM_ERR _System Gbm_read_palette(int fd, int ft, GBM *gbm, GBMRGB *gbmrgb)
 { return gbm_read_palette(fd, ft, gbm, gbmrgb); }
 
-GBM_ERR _System Gbm_read_data(int fd, int ft, GBM *gbm, byte *data)
+GBM_ERR _System Gbm_read_data(int fd, int ft, GBM *gbm, gbm_u8 *data)
 { return gbm_read_data(fd, ft, gbm, data); }
 
-GBM_ERR _System Gbm_write(const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR _System Gbm_write(const char *fn, int fd, int ft, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 { return gbm_write(fn, fd, ft, gbm, gbmrgb, data, opt); }
 
 /* --------------------------- */

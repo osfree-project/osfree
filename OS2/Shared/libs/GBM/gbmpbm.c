@@ -41,6 +41,7 @@ History:
 11-Jun-2006: Add support for reading multipage images (type P4 only)
 12-Jun-2006: Add support for reading & writing ASCII format P1
 23-Sep-2006: Use read ahead and write cache for ASCII format to improve speed
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <stdio.h>
@@ -79,9 +80,9 @@ typedef struct
 
 /* ---------------------------------------- */
 
-static byte read_byte(int fd)
+static gbm_u8 read_byte(int fd)
 {
-  byte b = 0;
+  gbm_u8 b = 0;
   gbm_file_read(fd, (char *) &b, 1);
   return b;
 }
@@ -363,11 +364,11 @@ GBM_ERR pbm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR pbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
   PBM_PRIV_READ *pbm_priv = (PBM_PRIV_READ *) gbm->priv;
-  int     type = 0;
-  BOOLEAN invert;
+  int         type = 0;
+  gbm_boolean invert;
 
   const int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
@@ -395,7 +396,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
     int i;
     const int line_bytes = (gbm->w + 7) / 8;
 
-    byte * p = data + ((gbm->h - 1) * stride);
+    gbm_u8 * p = data + ((gbm->h - 1) * stride);
 
     for (i = gbm->h - 1; i >= 0; i--)
     {
@@ -406,7 +407,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
        if (invert)
        {
           int x;
-          byte * pInv = p;
+          gbm_u8 * pInv = p;
 
           for (x = 0; x < line_bytes; x++)
           {
@@ -422,8 +423,8 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
   {
     int    i, x;
     int    num;
-    byte * pNumFill;
-    byte * p = data + ((gbm->h - 1) * stride);
+    gbm_u8 * pNumFill;
+    gbm_u8 * p = data + ((gbm->h - 1) * stride);
 
     const int line_bytes     = gbm->w / 8;
     const int line_bits_left = gbm->w % 8;
@@ -447,12 +448,12 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
             gbm_destroy_ahead(ahead);
             return GBM_ERR_READ;
           }
-          *pNumFill++ = ~((byte) num);
+          *pNumFill++ = ~((gbm_u8) num);
         }
         if (line_bits_left)
         {
           num = read_char_byte(ahead, line_bits_left);
-          *pNumFill++ = ~((byte) num);
+          *pNumFill++ = ~((gbm_u8) num);
         }
       }
       else
@@ -465,12 +466,12 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
             gbm_destroy_ahead(ahead);
             return GBM_ERR_READ;
           }
-          *pNumFill++ = (byte) num;
+          *pNumFill++ = (gbm_u8) num;
         }
         if (line_bits_left)
         {
           num = read_char_byte(ahead, line_bits_left);
-          *pNumFill++ = (byte) num;
+          *pNumFill++ = (gbm_u8) num;
         }
       }
 
@@ -490,7 +491,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, byte *data)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static BOOLEAN internal_pbm_w_ascii(WCACHE * wcache, const byte * data, int bits)
+static gbm_boolean internal_pbm_w_ascii(WCACHE * wcache, const gbm_u8 * data, int bits)
 {
   char d[2];
   int  b, i, xb, c;
@@ -506,7 +507,7 @@ static BOOLEAN internal_pbm_w_ascii(WCACHE * wcache, const byte * data, int bits
       c = 0;
       if (gbm_write_wcache(wcache, '\n') != 1)
       {
-        return FALSE;
+        return GBM_FALSE;
       }
     }
 
@@ -517,7 +518,7 @@ static BOOLEAN internal_pbm_w_ascii(WCACHE * wcache, const byte * data, int bits
       d[1] = ' ';
       if (gbm_writebuf_wcache(wcache, d, 2) != 2)
       {
-        return FALSE;
+        return GBM_FALSE;
       }
       i++;
       xb++;
@@ -527,15 +528,15 @@ static BOOLEAN internal_pbm_w_ascii(WCACHE * wcache, const byte * data, int bits
 
   if (gbm_write_wcache(wcache, '\n') != 1)
   {
-    return FALSE;
+    return GBM_FALSE;
   }
 
-  return TRUE;
+  return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-static BOOLEAN internal_pbm_write_comment(int fd, const char *options)
+static gbm_boolean internal_pbm_write_comment(int fd, const char *options)
 {
    const char *s;
 
@@ -548,42 +549,42 @@ static BOOLEAN internal_pbm_write_comment(int fd, const char *options)
      {
         if (sscanf(s + 8, "%200[^ ]", buf) != 1)
         {
-           return FALSE;
+           return GBM_FALSE;
         }
      }
 
      if (gbm_file_write(fd, "# ", 2) != 2)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
 
      len = strlen(buf);
      if (gbm_file_write(fd, buf, len) != len)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
 
      if (gbm_file_write(fd, "\n", 1) != 1)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
    }
 
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
   char s[100+1];
   int i, stride, line_bytes;
-  const byte *p;
-  byte   * linebuf = NULL;
+  const gbm_u8 *p;
+  gbm_u8   * linebuf = NULL;
   WCACHE * wcache  = NULL;
 
-  const BOOLEAN invert = ( gbm_find_word(opt, "invb"  ) != NULL );
-  const BOOLEAN ascii  = ( gbm_find_word(opt, "ascii" ) != NULL );
+  const gbm_boolean invert = ( gbm_find_word(opt, "invb"  ) != NULL );
+  const gbm_boolean ascii  = ( gbm_find_word(opt, "ascii" ) != NULL );
 
   fn=fn; opt=opt; gbmrgb=gbmrgb; /* Suppress 'unref arg' compiler warnings */
 
@@ -623,7 +624,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   }
   if (invert)
   {
-    linebuf = (byte *) gbmmem_malloc((size_t) line_bytes);
+    linebuf = (gbm_u8 *) gbmmem_malloc((size_t) line_bytes);
     if (linebuf == NULL)
     {
       if (ascii)
@@ -638,12 +639,12 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   p = data + ((gbm->h - 1) * stride);
   for ( i = gbm->h - 1; i >= 0; i-- )
   {
-    const byte * writep = p;
+    const gbm_u8 * writep = p;
     if (invert)
     {
        int x;
-       const byte * pTemp = p;
-       byte * pInv = linebuf;
+       const gbm_u8 * pTemp = p;
+       gbm_u8 * pInv = linebuf;
 
        for (x = 0; x < line_bytes; x++)
        {

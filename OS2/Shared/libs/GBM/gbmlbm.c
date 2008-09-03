@@ -13,6 +13,7 @@ History:
 22-Feb-2006: Move format description strings to gbmdesc.h
 23-Jul-2006: Prevent possible buffer overflows in RLE decoder due to badly
              encoded bitmap.
+15-Aug-2008: Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -31,40 +32,40 @@ History:
 /*...e*/
 
 /*...smapping:0:*/
-/*...sget_dword:0:*/
-static dword get_dword(byte *b)
+/*...sget_u32:0:*/
+static gbm_u32 get_u32(gbm_u8 *b)
 	{
-	return    (dword) b[3]         +
-	        (((dword) b[2]) <<  8) +
-	        (((dword) b[1]) << 16) +
-	        (((dword) b[0]) << 24) ;
+	return    (gbm_u32) b[3]         +
+	        (((gbm_u32) b[2]) <<  8) +
+	        (((gbm_u32) b[1]) << 16) +
+	        (((gbm_u32) b[0]) << 24) ;
 	}
 /*...e*/
-/*...sget_word:0:*/
-static word get_word(byte *b)
+/*...sget_u16:0:*/
+static gbm_u16 get_u16(gbm_u8 *b)
 	{
-	return    (word) b[1]        +
-	        (((word) b[0]) << 8) ;
+	return    (gbm_u16) b[1]        +
+	        (((gbm_u16) b[0]) << 8) ;
 	}
 /*...e*/
-/*...sput_dword:0:*/
-static void put_dword(byte *b, dword n)
+/*...sput_u32:0:*/
+static void put_u32(gbm_u8 *b, gbm_u32 n)
 	{
-	b[3] = (byte) n;
+	b[3] = (gbm_u8) n;
 	n >>= 8;
-	b[2] = (byte) n;
+	b[2] = (gbm_u8) n;
 	n >>= 8;
-	b[1] = (byte) n;
+	b[1] = (gbm_u8) n;
 	n >>= 8;
-	b[0] = (byte) n;
+	b[0] = (gbm_u8) n;
 	}
 /*...e*/
-/*...sput_word:0:*/
-static void put_word(byte *b, word n)
+/*...sput_u16:0:*/
+static void put_u16(gbm_u8 *b, gbm_u16 n)
 	{
-	b[1] = (byte) n;
+	b[1] = (gbm_u8) n;
 	n >>= 8;
-	b[0] = (byte) n;
+	b[0] = (gbm_u8) n;
 	}
 /*...e*/
 /*...e*/
@@ -91,9 +92,9 @@ static GBMFT lbm_gbmft =
 
 typedef struct
 	{
-	byte pal[0x100 * 3];
-	dword body, size_body;
-	byte actual_bpp, comp;
+	gbm_u8 pal[0x100 * 3];
+	gbm_u32 body, size_body;
+	gbm_u8 actual_bpp, comp;
 	long sham;
 	} LBM_PRIV;
 
@@ -116,10 +117,10 @@ GBM_ERR lbm_qft(GBMFT *gbmft)
 GBM_ERR lbm_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	LBM_PRIV *priv = (LBM_PRIV *) gbm->priv;
-	byte b[20];
+	gbm_u8 b[20];
 	int w, h, bpp, actual_size_cmap = 0;
-	BOOLEAN	had_bmhd = FALSE, had_cmap = FALSE, had_body = FALSE;
-	dword camg = 0;
+	gbm_boolean	had_bmhd = GBM_FALSE, had_cmap = GBM_FALSE, had_body = GBM_FALSE;
+	gbm_u32 camg = 0;
 
 	fn=fn; opt=opt; /* Suppress 'unref arg' compiler warnings */
 
@@ -136,11 +137,11 @@ GBM_ERR lbm_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 
 	while ( !had_bmhd || !had_cmap || !had_body )
 		{
-		dword size;
+		gbm_u32 size;
 
 		if ( gbm_file_read(fd, b, 8) != 8 )
 			return GBM_ERR_READ;
-		size = get_dword(b + 4);
+		size = get_u32(b + 4);
 		if ( !memcmp(b, "BMHD", 4) )
 /*...sbitmap header:24:*/
 {
@@ -158,8 +159,8 @@ if ( priv->comp != 0 && priv->comp != 1 )
 	/* Expect compression type to be uncomp or RLE */
 	return GBM_ERR_LBM_COMP;
 
-w = get_word(b);
-h = get_word(b + 2);
+w = get_u16(b);
+h = get_u16(b + 2);
 
 if ( w < 0 || w > 10000 || h < 0 || h > 10000 )
 	return GBM_ERR_BAD_SIZE;
@@ -175,7 +176,7 @@ switch ( priv->actual_bpp )
 	case 5: case 6: case 7: case 8:
 		bpp = 8; break;
 	case 24:
-		bpp = 24; had_cmap = TRUE; break;
+		bpp = 24; had_cmap = GBM_TRUE; break;
 	default:
 		return GBM_ERR_LBM_BPP;
 	}
@@ -185,7 +186,7 @@ if ( priv->actual_bpp == 6 )
 	/* Assume HAM6, and will probably be right */
 	camg = CAMG_HAM;
 
-had_bmhd = TRUE;
+had_bmhd = GBM_TRUE;
 }
 /*...e*/
 		else if ( !memcmp(b, "CAMG", 4) )
@@ -200,7 +201,7 @@ if ( size != 4 )
 if ( gbm_file_read(fd, b, 4) != 4 )
 	return GBM_ERR_READ;
 
-camg = get_dword(b);
+camg = get_u32(b);
 }
 /*...e*/
 		else if ( !memcmp(b, "CMAP", 4) )
@@ -209,9 +210,9 @@ camg = get_dword(b);
 if ( !had_bmhd )
 	return GBM_ERR_LBM_BMHD_0;
 actual_size_cmap = size;
-if ( (dword) gbm_file_read(fd, priv->pal, size) != size )
+if ( (gbm_u32) gbm_file_read(fd, priv->pal, size) != size )
 	return GBM_ERR_READ;
-had_cmap = TRUE;
+had_cmap = GBM_TRUE;
 }
 /*...e*/
 		else if ( !memcmp(b, "SHAM", 4) )
@@ -220,7 +221,7 @@ had_cmap = TRUE;
 if ( gbm_file_read(fd, b, 2) != 2 )
 	return GBM_ERR_READ;
 
-if ( get_word(b) != 0 )
+if ( get_u16(b) != 0 )
 	return GBM_ERR_LBM_SHAM_VER;
 
 priv->sham = gbm_file_lseek(fd, 0L, GBM_SEEK_CUR);
@@ -234,9 +235,9 @@ gbm_file_lseek(fd, ((size - 2 + 1) & ~1), GBM_SEEK_CUR);
 if ( !had_bmhd )
 	return GBM_ERR_LBM_BMHD_0;
 
-priv->body = (dword) gbm_file_lseek(fd, 0L, GBM_SEEK_CUR);
+priv->body = (gbm_u32) gbm_file_lseek(fd, 0L, GBM_SEEK_CUR);
 priv->size_body = size;
-had_body = TRUE;
+had_body = GBM_TRUE;
 }
 /*...e*/
 		else
@@ -247,16 +248,16 @@ had_body = TRUE;
 {
 int entrys = ( 1 << priv->actual_bpp );
 int size_cmap = entrys * 3;
-BOOLEAN ehb = FALSE, sham = FALSE, ham6 = FALSE, ham8 = FALSE;
+gbm_boolean ehb = GBM_FALSE, sham = GBM_FALSE, ham6 = GBM_FALSE, ham8 = GBM_FALSE;
 
 if ( priv->sham != -1L )
-	sham = TRUE; /* Allow Sliced HAM mode */
+	sham = GBM_TRUE; /* Allow Sliced HAM mode */
 if ( (camg & CAMG_EHB) != 0 && actual_size_cmap * 2 == size_cmap )
-	ehb = TRUE; /* Allow Extra-HalfBrite mode */
+	ehb = GBM_TRUE; /* Allow Extra-HalfBrite mode */
 else if ( (camg & CAMG_HAM) != 0 && actual_size_cmap == 0x10*3 && size_cmap == 0x40*3 )
-	ham6 = TRUE; /* Allow HAM6 mode */
+	ham6 = GBM_TRUE; /* Allow HAM6 mode */
 else if ( (camg & CAMG_HAM) != 0 && actual_size_cmap == 0x40*3 && size_cmap == 0x100*3 )
-	ham8 = TRUE; /* Allow HAM8 mode */
+	ham8 = GBM_TRUE; /* Allow HAM8 mode */
 else if ( priv->actual_bpp == 24 )
 	; /* Is a real 24 bpp mode */
 else if ( actual_size_cmap != size_cmap )
@@ -294,7 +295,7 @@ else if ( ham8 || sham )
 GBM_ERR lbm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 	{
 	LBM_PRIV *priv = (LBM_PRIV *) gbm->priv;
-	byte *p = priv->pal;
+	gbm_u8 *p = priv->pal;
 	int i, entrys = ( 1 << priv->actual_bpp );
 
 	fd=fd; /* Suppress 'unref arg' compiler warning */
@@ -315,30 +316,30 @@ GBM_ERR lbm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /*...slbm_rdata:0:*/
 /*...sget_line:0:*/
 /*...sread_line   \45\ compression type 0 \45\ uncompressed:0:*/
-static BOOLEAN read_line(AHEAD *ahead, byte *dest, int w)
+static gbm_boolean read_line(AHEAD *ahead, gbm_u8 *dest, int w)
 	{
 	while ( w-- )
 		{
 		int b = gbm_read_ahead(ahead);
 		if ( b == -1 )
-			return FALSE;
+			return GBM_FALSE;
 		*dest++ = b;
 		}
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sdecode_line \45\ compression type 1 \45\ RLE:0:*/
-static BOOLEAN decode_line(AHEAD *ahead, byte *dest, int w)
+static gbm_boolean decode_line(AHEAD *ahead, gbm_u8 *dest, int w)
 	{
 	int x = 0;
-	const byte * destEnd = dest + w;
+	const gbm_u8 * destEnd = dest + w;
 
 	while ( x < w )
 		{
 		int c = gbm_read_ahead(ahead);
 
 		if ( c == -1 )
-			return FALSE;
+			return GBM_FALSE;
 
 		if ( c & 0x80 )
 			{
@@ -347,7 +348,7 @@ static BOOLEAN decode_line(AHEAD *ahead, byte *dest, int w)
 				{
 				cnt = (destEnd - dest > 0) ? 0 : destEnd - dest;
 				}
-			memset(dest, (byte) gbm_read_ahead(ahead), cnt);
+			memset(dest, (gbm_u8) gbm_read_ahead(ahead), cnt);
 			x += cnt;
 			dest += cnt;
 			}
@@ -363,16 +364,16 @@ static BOOLEAN decode_line(AHEAD *ahead, byte *dest, int w)
 				{
 				int b = gbm_read_ahead(ahead);
 				if ( b == -1 )
-					return FALSE;
-				*dest++ = (byte) b;
+					return GBM_FALSE;
+				*dest++ = (gbm_u8) b;
 				}
 			}
 		}
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 
-static BOOLEAN get_line(LBM_PRIV *priv, AHEAD *ahead, byte *dest, int w)
+static gbm_boolean get_line(LBM_PRIV *priv, AHEAD *ahead, gbm_u8 *dest, int w)
 	{
 	switch ( priv->comp )
 		{
@@ -381,15 +382,15 @@ static BOOLEAN get_line(LBM_PRIV *priv, AHEAD *ahead, byte *dest, int w)
 		case 1:
 			return decode_line(ahead, dest, w);
 		}
-	return FALSE; /* Shouldn't get here */
+	return GBM_FALSE; /* Shouldn't get here */
 	}
 /*...e*/
 /*...sget_planes_8:0:*/
-static BOOLEAN get_planes_8(
+static gbm_boolean get_planes_8(
 	AHEAD *ahead,
 	LBM_PRIV *priv,
-	byte *buf,
-	byte *data,
+	gbm_u8 *buf,
+	gbm_u8 *data,
 	int w,
 	int n_planes
 	)
@@ -403,20 +404,20 @@ static BOOLEAN get_planes_8(
 		int i;
 
 		if ( !get_line(priv, ahead, buf, scan) )
-			return FALSE;
+			return GBM_FALSE;
 		for ( i = 0; i < w; i++ )
 			if ( buf[(unsigned)i >> 3] & (0x80U >> ((unsigned)i & 7U)) )
 				data[i] |= p;
 		}
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sget_planes_24:0:*/
-static BOOLEAN get_planes_24(
+static gbm_boolean get_planes_24(
 	AHEAD *ahead,
 	LBM_PRIV *priv,
-	byte *buf,
-	byte *data,
+	gbm_u8 *buf,
+	gbm_u8 *data,
 	int w
 	)
 	{
@@ -428,16 +429,16 @@ static BOOLEAN get_planes_24(
 		for ( plane = 0, p = 0x01; plane < 8; plane++, p <<= 1 )
 			{
 			if ( !get_line(priv, ahead, buf, scan) )
-				return FALSE;
+				return GBM_FALSE;
 			for ( i = 0; i < w; i++ )
 				if ( buf[(unsigned)i >> 3] & (0x80U >> ((unsigned)i & 7U)) )
 					data[c+i*3] |= p;
 			}
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 
-GBM_ERR lbm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR lbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	LBM_PRIV *priv = (LBM_PRIV *) gbm->priv;
 	AHEAD *ahead;
@@ -455,7 +456,7 @@ GBM_ERR lbm_rdata(int fd, GBM *gbm, byte *data)
 /*...s24:16:*/
 case 24:
 	{
-	byte *buf;
+	gbm_u8 *buf;
 	int y;
 
 	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
@@ -479,7 +480,7 @@ for ( y = 0; y < gbm->h; y++, data -= stride )
 	else
 /*...sHAM6\44\ HAM8 or SHAM6:32:*/
 {
-byte *ham, *sham_pals;
+gbm_u8 *ham, *sham_pals;
 int n_sham_pals, sham_inx = 0;
 
 if ( (ham = gbmmem_malloc((size_t) gbm->w)) == NULL )
@@ -533,19 +534,19 @@ for ( y = 0; y < gbm->h; y++, data -= stride )
 	if ( priv->sham != -1L )
 /*...sconvert from SHAM6 to 24 bit rgb:48:*/
 {
-byte r = 0, g = 0, b = 0;
+gbm_u8 r = 0, g = 0, b = 0;
 int i;
 for ( i = 0; i < gbm->w; i++ )
 	{
-	byte val = (ham[i] & 0x0f);
+	gbm_u8 val = (ham[i] & 0x0f);
 	switch ( ham[i] & 0x30 )
 		{
 		case 0x00:
 			{
-			word pal = get_word(sham_pals + ((sham_inx * 16 + val) * 2));
-			r = (byte) ((pal & 0x0f00U) >> 4);
-			g = (byte)  (pal & 0x00f0U)      ;
-			b = (byte) ((pal & 0x000fU) << 4);
+			gbm_u16 pal = get_u16(sham_pals + ((sham_inx * 16 + val) * 2));
+			r = (gbm_u8) ((pal & 0x0f00U) >> 4);
+			g = (gbm_u8)  (pal & 0x00f0U)      ;
+			b = (gbm_u8) ((pal & 0x000fU) << 4);
 			}
 			break;
 		case 0x10:
@@ -570,11 +571,11 @@ if ( gbm->h <= 200 || (y & 1) != 0 )
 	else if ( priv->actual_bpp == 6 )
 /*...sconvert from HAM6 to 24 bit rgb:48:*/
 {
-byte r = 0, g = 0, b = 0;
+gbm_u8 r = 0, g = 0, b = 0;
 int i;
 for ( i = 0; i < gbm->w; i++ )
 	{
-	byte val = (ham[i] & 0x0f);
+	gbm_u8 val = (ham[i] & 0x0f);
 	switch ( ham[i] & 0x30 )
 		{
 		case 0x00:
@@ -601,11 +602,11 @@ for ( i = 0; i < gbm->w; i++ )
 	else
 /*...sconvert from HAM8 to 24 bit rgb:48:*/
 {
-byte r = 0, g = 0, b = 0;
+gbm_u8 r = 0, g = 0, b = 0;
 int i;
 for ( i = 0; i < gbm->w; i++ )
 	{
-	byte val = (ham[i] & 0x3f);
+	gbm_u8 val = (ham[i] & 0x3f);
 	switch ( ham[i] & 0xc0 )
 		{
 		case 0x00:
@@ -644,7 +645,7 @@ gbmmem_free(ham);
 /*...s8:16:*/
 case 8:
 	{
-	byte *buf;
+	gbm_u8 *buf;
 	int y;
 
 	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
@@ -668,7 +669,7 @@ case 8:
 /*...s4:16:*/
 case 4:
 	{
-	byte *buf;
+	gbm_u8 *buf;
 	int y;
 
 	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
@@ -727,7 +728,7 @@ case 1:
 /*...swrite_bmhd:0:*/
 static GBM_ERR write_bmhd(int fd, const GBM *gbm, int bpp, const char *opt)
 	{
-	byte bmhd[8+20];
+	gbm_u8 bmhd[8+20];
 	int xpos = 0, ypos = 0, transcol = 0, xaspect = 1, yaspect = 1;
 	int xscreen = gbm->w, yscreen = gbm->h;
 
@@ -759,22 +760,22 @@ if ( (s = gbm_find_word_prefix(opt, "yscreen=")) != NULL )
 /*...e*/
 
 	memcpy(bmhd, "BMHD", 4);
-	put_dword(bmhd+4, (dword) 20);
-	put_word(bmhd+8, (word) gbm->w);
-	put_word(bmhd+8+2, (word) gbm->h);
-	put_word(bmhd+8+4, (word) xpos);
-	put_word(bmhd+8+6, (word) ypos);
-	bmhd[8+8] = (byte) bpp;
+	put_u32(bmhd+4, (gbm_u32) 20);
+	put_u16(bmhd+8, (gbm_u16) gbm->w);
+	put_u16(bmhd+8+2, (gbm_u16) gbm->h);
+	put_u16(bmhd+8+4, (gbm_u16) xpos);
+	put_u16(bmhd+8+6, (gbm_u16) ypos);
+	bmhd[8+8] = (gbm_u8) bpp;
 
 	bmhd[8+9] = 0;			/* Masking 0=None, 1=Mask, 2=Transparent, 3=Lasso */
 	bmhd[8+10] = 1;			/* Compression, 0=None, 1=RLE */
 	bmhd[8+11] = 0;			/* Unused */
-	put_word(bmhd+8+12, (word) transcol); /* Transparent colour */
-	bmhd[8+14] = (byte) xaspect;	/* X Aspect (often 10) */
-	bmhd[8+15] = (byte) yaspect;	/* Y Aspect (often 11) */
+	put_u16(bmhd+8+12, (gbm_u16) transcol); /* Transparent colour */
+	bmhd[8+14] = (gbm_u8) xaspect;	/* X Aspect (often 10) */
+	bmhd[8+15] = (gbm_u8) yaspect;	/* Y Aspect (often 11) */
 
-	put_word(bmhd+8+16, (word) xscreen);	/* Screen width */
-	put_word(bmhd+8+18, (word) yscreen);	/* Screen height */
+	put_u16(bmhd+8+16, (gbm_u16) xscreen);	/* Screen width */
+	put_u16(bmhd+8+18, (gbm_u16) yscreen);	/* Screen height */
 
 	if ( gbm_file_write(fd, bmhd, 8+20) != 8+20 )
 		return GBM_ERR_WRITE;
@@ -783,13 +784,13 @@ if ( (s = gbm_find_word_prefix(opt, "yscreen=")) != NULL )
 	}
 /*...e*/
 /*...swrite_camg:0:*/
-static GBM_ERR write_camg(int fd, dword camg_value)
+static GBM_ERR write_camg(int fd, gbm_u32 camg_value)
 	{
-	byte camg[8+4];
+	gbm_u8 camg[8+4];
 
 	memcpy(camg, "CAMG", 4);
-	put_dword(camg+4, (dword) 4);
-	put_dword(camg+8, camg_value);
+	put_u32(camg+4, (gbm_u32) 4);
+	put_u32(camg+8, camg_value);
 
 	if ( gbm_file_write(fd, camg, 8+4) != 8+4 )
 		return GBM_ERR_WRITE;
@@ -800,12 +801,12 @@ static GBM_ERR write_camg(int fd, dword camg_value)
 /*...swrite_cmap:0:*/
 static GBM_ERR write_cmap(int fd, const GBMRGB *gbmrgb, int bpp)
 	{
-	byte cmap[8+0x100*3];
+	gbm_u8 cmap[8+0x100*3];
 	int i, entrys = ( 1 << bpp );
 	int size_cmap = 3 * entrys;
 
 	memcpy(cmap, "CMAP", 4);
-	put_dword(cmap+4, (dword) size_cmap);
+	put_u32(cmap+4, (gbm_u32) size_cmap);
 	for ( i = 0; i < entrys; i++ )
 		{
 		cmap[8+i*3+0] = gbmrgb[i].r;
@@ -822,10 +823,10 @@ static GBM_ERR write_cmap(int fd, const GBMRGB *gbmrgb, int bpp)
 /*...swrite_body:0:*/
 /*...slbm_rle:0:*/
 /*...slbm_run:0:*/
-static byte lbm_run(const byte *src, int n_src)
+static gbm_u8 lbm_run(const gbm_u8 *src, int n_src)
 	{
-	byte cnt = 1;
-	byte b = *src++;
+	gbm_u8 cnt = 1;
+	gbm_u8 b = *src++;
 
 	--n_src;
 	while ( cnt < 0x81 && n_src > 0 && *src == b )
@@ -835,9 +836,9 @@ static byte lbm_run(const byte *src, int n_src)
 	}
 /*...e*/
 /*...slbm_lit:0:*/
-static byte lbm_lit(const byte *src, int n_src)
+static gbm_u8 lbm_lit(const gbm_u8 *src, int n_src)
 	{
-	byte cnt = 1;
+	gbm_u8 cnt = 1;
 
 	++src; --n_src;
 	while ( cnt < 0x80 && n_src > 0 && *src != src[-1] )
@@ -847,23 +848,23 @@ static byte lbm_lit(const byte *src, int n_src)
 	}
 /*...e*/
 
-static void lbm_rle(const byte *src, int n_src, byte *dst, int *n_dst)
+static void lbm_rle(const gbm_u8 *src, int n_src, gbm_u8 *dst, int *n_dst)
 	{
 	*n_dst = 0;	
 	while ( n_src )
 		{
-		byte	len;
+		gbm_u8	len;
 
 		if ( (len = lbm_run(src, n_src)) > 1 )
 			{
-			*dst++ = (byte) (0x100 - (len - 1));
+			*dst++ = (gbm_u8) (0x100 - (len - 1));
 			*dst++ = *src;
 			(*n_dst) += 2;
 			}
 		else
 			{
 			len = lbm_lit(src, n_src);
-			*dst++ = (byte) (len - 1);
+			*dst++ = (gbm_u8) (len - 1);
 			memcpy(dst, src, len);
 			dst += len;
 			(*n_dst) += ( 1 + len );
@@ -874,13 +875,13 @@ static void lbm_rle(const byte *src, int n_src, byte *dst, int *n_dst)
 	}
 /*...e*/
 
-static GBM_ERR write_body(int fd, const GBM *gbm, int bpp, int n_planes, const byte *data, long *end)
+static GBM_ERR write_body(int fd, const GBM *gbm, int bpp, int n_planes, const gbm_u8 *data, long *end)
 	{
 	int scan = ((((gbm->w + 7) / 8)+1)/2)*2;
 	int stride = ((gbm->w * bpp + 31) / 32) * 4;
-	byte *comp;
+	gbm_u8 *comp;
 	int n_comp;
-	byte body[8];
+	gbm_u8 body[8];
 	long offset_body, offset_end;
 
 	memcpy(body, "BODY", 4);
@@ -902,7 +903,7 @@ static GBM_ERR write_body(int fd, const GBM *gbm, int bpp, int n_planes, const b
 case 24:
 	{
 	int y, c, p, plane, j;
-	byte *buf;
+	gbm_u8 *buf;
 
 	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
@@ -934,7 +935,7 @@ case 24:
 case 8:
 	{
 	int y, p, plane, j;
-	byte *buf;
+	gbm_u8 *buf;
 
 	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
@@ -965,7 +966,7 @@ case 8:
 case 4:
 	{
 	int y, p, j, mask;
-	byte *buf;
+	gbm_u8 *buf;
 
 	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
 		{
@@ -1018,13 +1019,13 @@ case 1:
 	if ( (offset_end - offset_body) & 1 )
 		/* BODY is an odd # of bytes long! oops, better 'fix' this */
 		{
-		byte b = 0; /* Pad byte must be zero */
+		gbm_u8 b = 0; /* Pad byte must be zero */
 		if ( gbm_file_write(fd, &b, 1) != 1 )
 			return GBM_ERR_WRITE;
 		offset_end++;
 		}
 
-	put_dword(body + 4, offset_end - offset_body);
+	put_u32(body + 4, offset_end - offset_body);
 	gbm_file_lseek(fd, offset_body - 4L, GBM_SEEK_SET);
 	if ( gbm_file_write(fd, body + 4, 4) != 4 )
 		return GBM_ERR_WRITE;
@@ -1035,17 +1036,17 @@ case 1:
 	}
 /*...e*/
 
-static byte posdiff[0x100];
-#define	absdiff(a,b) posdiff[(byte)((a)-(b))]
+static gbm_u8 posdiff[0x100];
+#define	absdiff(a,b) posdiff[(gbm_u8)((a)-(b))]
 /*...slbm_build_abstab:0:*/
 static void lbm_build_abstab(void)
 	{
 	int i;
 
 	for ( i = 0; i < 0x80; i++ )
-		posdiff[i] = (byte) i;
+		posdiff[i] = (gbm_u8) i;
 	for ( i = 1; i <= 0x80; i++ )
-		posdiff[0x100 - i] = (byte) i;
+		posdiff[0x100 - i] = (gbm_u8) i;
 	}
 /*...e*/
 /*...slbm_ham6:0:*/
@@ -1057,13 +1058,13 @@ Try to get as many components right first time.
 Then for each pixel, pick colours to get as many components right each go.
 */
 
-static void lbm_ham6(const byte *data, byte *ham, int n)
+static void lbm_ham6(const gbm_u8 *data, gbm_u8 *ham, int n)
 	{
 	if ( n-- > 0 )
 		{
-		byte cb = (*data++ >> 4);
-		byte cg = (*data++ >> 4);
-		byte cr = (*data++ >> 4);
+		gbm_u8 cb = (*data++ >> 4);
+		gbm_u8 cg = (*data++ >> 4);
+		gbm_u8 cr = (*data++ >> 4);
 
 		switch ( (cr==cg?4:0) + (cg==cb?2:0) + (cb==cr?1:0) )
 			{
@@ -1096,9 +1097,9 @@ case 7:
 
 		while ( n-- > 0 )
 			{
-			byte b = (*data++ >> 4);
-			byte g = (*data++ >> 4);
-			byte r = (*data++ >> 4);
+			gbm_u8 b = (*data++ >> 4);
+			gbm_u8 g = (*data++ >> 4);
+			gbm_u8 r = (*data++ >> 4);
 
 			switch ( ((cr==r)?4:0) + ((cg==g)?2:0) + ((cb==b)?1:0) )
 				{
@@ -1201,12 +1202,12 @@ case 7:
 	}
 /*...e*/
 
-GBM_ERR lbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR lbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	byte formilbm[8+4];
+	gbm_u8 formilbm[8+4];
 	long end;
 	GBM_ERR	rc;
-	BOOLEAN ham6 = ( gbm_find_word(opt, "ham6") != NULL );
+	gbm_boolean ham6 = ( gbm_find_word(opt, "ham6") != NULL );
 
 	fn=fn; /* Suppress 'unref args' compiler warning */
 
@@ -1221,7 +1222,7 @@ GBM_ERR lbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 		if ( ham6 )
 /*...smap to ham6 write bmhd\44\ camg\44\ cmap and body:24:*/
 {
-byte *ham;
+gbm_u8 *ham;
 GBMRGB gbmrgb_grey[0x10];
 int stride8 = ((gbm->w + 3) & ~3);
 int stride24 = ((gbm->w * 3 + 3) & ~3);
@@ -1234,7 +1235,7 @@ if ( (rc = write_camg(fd, CAMG_HAM)) != GBM_ERR_OK )
 	return rc;
 
 for ( i = 0; i <= 0x10; i++ )
-	gbmrgb_grey[i].r = gbmrgb_grey[i].g = gbmrgb_grey[i].b = (byte) (i * 0x11);
+	gbmrgb_grey[i].r = gbmrgb_grey[i].g = gbmrgb_grey[i].b = (gbm_u8) (i * 0x11);
 
 if ( (rc = write_cmap(fd, gbmrgb_grey, 4)) != GBM_ERR_OK )
 	return rc;
@@ -1279,7 +1280,7 @@ if ( (rc = write_body(fd, gbm, gbm->bpp, gbm->bpp, data, &end)) != GBM_ERR_OK )
 }
 /*...e*/
 
-	put_dword(formilbm + 4, end - 8L);
+	put_u32(formilbm + 4, end - 8L);
 	gbm_file_lseek(fd, 4L, GBM_SEEK_SET);
 	if ( gbm_file_write(fd, formilbm + 4, 4) != 4 )
 		return GBM_ERR_WRITE;

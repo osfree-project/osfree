@@ -38,6 +38,10 @@ History
 08-Feb-2008: Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+
+08-Apr-2008: Performance fine tuning resampling scaler
+
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <assert.h>
@@ -57,13 +61,13 @@ History
 /* gbm_simple_scale - point sampled */
 
 static void simple_scale_1(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
     int sx = 0;
-    byte bit, value;
+    gbm_u8 bit, value;
 
     for ( ; dw >= 8; dw -= 8 )
     {
@@ -91,8 +95,8 @@ static void simple_scale_1(
 /* ---------- */
 
 static void simple_scale_4(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -114,8 +118,8 @@ static void simple_scale_4(
 /* ---------- */
 
 static void simple_scale_8(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -129,8 +133,8 @@ static void simple_scale_8(
 /* ---------- */
 
 static void simple_scale_24(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -146,8 +150,8 @@ static void simple_scale_24(
 /* ---------- */
 
 static void simple_scale_32(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -164,13 +168,13 @@ static void simple_scale_32(
 /* ---------- */
 
 static void simple_scale_48(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
-    const word * s16 = (const word *) s;
-          word * d16 = (word *) d;
+    const gbm_u16 * s16 = (const gbm_u16 *) s;
+          gbm_u16 * d16 = (gbm_u16 *) d;
 
     while ( dw-- > 0 )
     {
@@ -184,13 +188,13 @@ static void simple_scale_48(
 /* ---------- */
 
 static void simple_scale_64(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
-    const word * s16 = (const word *) s;
-          word * d16 = (word *) d;
+    const gbm_u16 * s16 = (const gbm_u16 *) s;
+          gbm_u16 * d16 = (gbm_u16 *) d;
 
     while ( dw-- > 0 )
     {
@@ -205,8 +209,8 @@ static void simple_scale_64(
 /* ---------- */
 
 static void fast_simple_scale_1(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -217,8 +221,8 @@ static void fast_simple_scale_1(
 /* ---------- */
 
 static void fast_simple_scale_4(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -229,8 +233,8 @@ static void fast_simple_scale_4(
 /* ---------- */
 
 static void fast_simple_scale_8(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -241,8 +245,8 @@ static void fast_simple_scale_8(
 /* ---------- */
 
 static void fast_simple_scale_24(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -253,8 +257,8 @@ static void fast_simple_scale_24(
 /* ---------- */
 
 static void fast_simple_scale_32(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -265,8 +269,8 @@ static void fast_simple_scale_32(
 /* ---------- */
 
 static void fast_simple_scale_48(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -277,8 +281,8 @@ static void fast_simple_scale_48(
 /* ---------- */
 
 static void fast_simple_scale_64(
-    const byte *s,
-    byte *d, int dw,
+    const gbm_u8 *s,
+    gbm_u8 *d, int dw,
     const int xs[]
     )
 {
@@ -289,15 +293,15 @@ static void fast_simple_scale_64(
 /* --------------------------------------- */
 
 GBM_ERR gbm_simple_scale(
-    const byte *s, int sw, int sh,
-          byte *d, int dw, int dh,
+    const gbm_u8 *s, int sw, int sh,
+          gbm_u8 *d, int dw, int dh,
     const int bpp
     )
 {
     int sst = ( (sw * bpp + 31) / 32 ) * 4;
     int dst = ( (dw * bpp + 31) / 32 ) * 4;
     int *xs, *ys, i;
-    void (*scaler)(const byte *s, byte *d, int dw, const int xs[]);
+    void (*scaler)(const gbm_u8 *s, gbm_u8 *d, int dw, const int xs[]);
 
     /* Allocate memory for step arrays */
 
@@ -395,20 +399,7 @@ GBM_ERR gbm_simple_scale(
  * filter function definitions
  */
 
-/* W = L = 0.5 */
-/* Note: Box filter is basically pixel replication which is also what
- * gbm_simple_scale() does. So we don't provide this for gbm_quality_scale()
- * as gbm_simple_scale() is much faster.
- */
-#if 0
-static float box_filter(float t)
-{
-    if ((t > -0.5f) && (t <= 0.5f)) return(1.0f);
-    return(0.0f);
-}
-#endif
-
-/* W = L = 1.0 */
+/* box filter, W = L = 1.0 */
 static float nearestneighbor_filter(float t)
 {
     if ((t > -0.5f) && (t <= 0.5f)) return(1.0f);
@@ -507,23 +498,23 @@ static float mitchell_filter(float t)
 /* ---------- */
 
 typedef struct {
-    int    xsize;      /* horizontal size of the image in Pixels */
-    int    ysize;      /* vertical size of the image in Pixels   */
-    int    span;       /* byte offset between two scanlines      */
-    int    bpp;        /* bytes per pixel                        */
-    byte * data;       /* pointer to first scanline of image     */
-    byte * graylevels; /* pointer to the grayscale array with 1<<bpp entries, bpp>8 = NULL */
+    int      xsize;      /* horizontal size of the image in Pixels */
+    int      ysize;      /* vertical size of the image in Pixels   */
+    int      span;       /* byte offset between two scanlines      */
+    int      bpp;        /* bytes per pixel                        */
+    gbm_u8 * data;       /* pointer to first scanline of image     */
+    gbm_u8 * graylevels; /* pointer to the grayscale array with 1<<bpp entries, bpp>8 = NULL */
 } Image;
 
 /* ---------- */
 
-static byte clamp2byte(const float l)
+static gbm_u8 clamp2byte(const float l)
 {
     const long t = MIN(l, 255);
     return MAX(0, t);
 }
 
-static word clamp2word(const float l)
+static gbm_u16 clamp2word(const float l)
 {
     const long t = MIN(l, 65535);
     return MAX(0, t);
@@ -532,7 +523,7 @@ static word clamp2word(const float l)
 /* ---------- */
 
 /* create a blank image */
-static Image * new_image(int xsize, int ysize, int bpp, byte * graylevels)
+static Image * new_image(int xsize, int ysize, int bpp, gbm_u8 * graylevels)
 {
     const unsigned long stride = ((xsize * bpp + 31)/32) * 4;
 
@@ -542,7 +533,7 @@ static Image * new_image(int xsize, int ysize, int bpp, byte * graylevels)
         return NULL;
     }
 
-    image->data = (byte *)gbmmem_malloc(stride * ysize);
+    image->data = (gbm_u8 *)gbmmem_malloc(stride * ysize);
     if (image->data == NULL)
     {
         gbmmem_free(image);
@@ -598,7 +589,7 @@ static CLIST * create_filter_contributions(const int   size_src,
     float fscale, width, weight;
     float center, left, right;
     CLIST * contrib = NULL;
-    byte  * contrib_data = NULL;
+    gbm_u8  * contrib_data = NULL;
     unsigned long contrib_data_row = 0;
 
     if (size_dst < 1)
@@ -624,7 +615,7 @@ static CLIST * create_filter_contributions(const int   size_src,
         fscale = ((float)1.0f) / scale;
 
         contrib_data_row = ((unsigned long)(width * 2 + 1)) * sizeof(CONTRIB);
-        contrib_data = (byte *)gbmmem_malloc(contrib_data_row * size_dst);
+        contrib_data = (gbm_u8 *)gbmmem_malloc(contrib_data_row * size_dst);
         memset(contrib_data, 0, contrib_data_row * size_dst);
 
         for (i = 0; i < size_dst; ++i)
@@ -663,7 +654,7 @@ static CLIST * create_filter_contributions(const int   size_src,
     else
     {
         contrib_data_row = ((unsigned long)(fwidth * 2 + 1)) * sizeof(CONTRIB);
-        contrib_data = (byte *)gbmmem_malloc(contrib_data_row * size_dst);
+        contrib_data = (gbm_u8 *)gbmmem_malloc(contrib_data_row * size_dst);
         memset(contrib_data, 0, contrib_data_row * size_dst);
 
         for (i = 0; i < size_dst; ++i)
@@ -724,25 +715,25 @@ static GBM_ERR apply_horizontal_contributions(
 {
     int    x, j;
     float  weightf, weightf_b, weightf_g, weightf_r, weightf_a;
-    byte   graylevel;
+    gbm_u8   graylevel;
 
     const CLIST   * contrib_x   = NULL;
     const CONTRIB * contrib_x_j = NULL;
-    const byte    * pBGR8       = NULL;
-    const word    * pBGR16      = NULL;
+    const gbm_u8  * pBGR8       = NULL;
+    const gbm_u16 * pBGR16      = NULL;
 
-    const byte *raster_src   = src->data;
-          byte *raster_tmp   = tmp->data;
-          byte *raster_tmp8  = NULL;
-          word *raster_tmp16 = NULL;
+    const gbm_u8  *raster_src   = src->data;
+          gbm_u8  *raster_tmp   = tmp->data;
+          gbm_u8  *raster_tmp8  = NULL;
+          gbm_u16 *raster_tmp16 = NULL;
     const int   rowspan_src  = src->span;
     const int   rowspan_tmp  = tmp->span;
     const int   xsize_tmp    = tmp->xsize;
           int   ysize_tmp    = tmp->ysize;
           int   xoffset_tmp  = 0;
 
-    const byte *graylevels_src = src->graylevels;
-          byte *graylevels_tmp = tmp->graylevels;
+    const gbm_u8 *graylevels_src = src->graylevels;
+          gbm_u8 *graylevels_tmp = tmp->graylevels;
 
     switch(src->bpp)
     {
@@ -751,24 +742,21 @@ static GBM_ERR apply_horizontal_contributions(
           {
               return GBM_ERR_BAD_ARG;
           }
-          while (ysize_tmp > 0)
+          while (ysize_tmp-- > 0)
           {
-              --ysize_tmp;
               for (x = 0; x < xsize_tmp; ++x)
               {
                   contrib_x = &(contrib[x]);
-                  weightf_g = 0.0f;
+                  weightf   = 0.0f;
 
                   for (j = 0; j < contrib_x->n; ++j)
                   {
                       contrib_x_j = &(contrib_x->p[j]);
-                      weightf     = contrib_x_j->weight;
                       pBGR8       = raster_src + contrib_x_j->pixel;
-
-                      weightf_g += weightf * graylevels_src[*pBGR8];
+                      weightf    += contrib_x_j->weight * graylevels_src[*pBGR8];
                   }
                   /* store the pixel and update the palette */
-                  graylevel                 = clamp2byte(weightf_g);
+                  graylevel                 = clamp2byte(weightf);
                   raster_tmp[x]             = graylevel;
                   graylevels_tmp[graylevel] = graylevel;
               }
@@ -781,9 +769,8 @@ static GBM_ERR apply_horizontal_contributions(
         /* ---------- */
 
         case 24: /* 24bpp */
-          while (ysize_tmp > 0)
+          while (ysize_tmp-- > 0)
           {
-              --ysize_tmp;
               xoffset_tmp = 0;
               for (x = 0; x < xsize_tmp; ++x)
               {
@@ -795,12 +782,11 @@ static GBM_ERR apply_horizontal_contributions(
                   for (j = 0; j < contrib_x->n; ++j)
                   {
                       contrib_x_j = &(contrib_x->p[j]);
-                      weightf     = contrib_x_j->weight;
                       pBGR8       = raster_src + (contrib_x_j->pixel * 3);
-
-                      weightf_b += weightf * *pBGR8++;
-                      weightf_g += weightf * *pBGR8++;
-                      weightf_r += weightf * *pBGR8;
+                      weightf     = contrib_x_j->weight;
+                      weightf_b  += weightf * *pBGR8++;
+                      weightf_g  += weightf * *pBGR8++;
+                      weightf_r  += weightf * *pBGR8;
                   }
                   /* store the pixel */
                    raster_tmp8   = raster_tmp + xoffset_tmp;
@@ -818,9 +804,8 @@ static GBM_ERR apply_horizontal_contributions(
         /* ---------- */
 
         case 32: /* 32bpp */
-          while (ysize_tmp > 0)
+          while (ysize_tmp-- > 0)
           {
-              --ysize_tmp;
               xoffset_tmp = 0;
               for (x = 0; x < xsize_tmp; ++x)
               {
@@ -833,13 +818,12 @@ static GBM_ERR apply_horizontal_contributions(
                   for (j = 0; j < contrib_x->n; ++j)
                   {
                       contrib_x_j = &(contrib_x->p[j]);
-                      weightf     = contrib_x_j->weight;
                       pBGR8       = raster_src + (contrib_x_j->pixel * 4);
-
-                      weightf_b += weightf * *pBGR8++;
-                      weightf_g += weightf * *pBGR8++;
-                      weightf_r += weightf * *pBGR8++;
-                      weightf_a += weightf * *pBGR8;
+                      weightf     = contrib_x_j->weight;
+                      weightf_b  += weightf * *pBGR8++;
+                      weightf_g  += weightf * *pBGR8++;
+                      weightf_r  += weightf * *pBGR8++;
+                      weightf_a  += weightf * *pBGR8;
                   }
                   /* store the pixel */
                    raster_tmp8   = raster_tmp + xoffset_tmp;
@@ -858,9 +842,8 @@ static GBM_ERR apply_horizontal_contributions(
         /* ---------- */
 
         case 48: /* 48bpp */
-          while (ysize_tmp > 0)
+          while (ysize_tmp-- > 0)
           {
-              --ysize_tmp;
               xoffset_tmp = 0;
               for (x = 0; x < xsize_tmp; ++x)
               {
@@ -872,15 +855,14 @@ static GBM_ERR apply_horizontal_contributions(
                   for (j = 0; j < contrib_x->n; ++j)
                   {
                       contrib_x_j = &(contrib_x->p[j]);
+                      pBGR16      = (const gbm_u16 *)(raster_src + (contrib_x_j->pixel * 6));
                       weightf     = contrib_x_j->weight;
-                      pBGR16      = (const word *)(raster_src + (contrib_x_j->pixel * 6));
-
-                      weightf_b += weightf * *pBGR16++;
-                      weightf_g += weightf * *pBGR16++;
-                      weightf_r += weightf * *pBGR16;
+                      weightf_b  += weightf * *pBGR16++;
+                      weightf_g  += weightf * *pBGR16++;
+                      weightf_r  += weightf * *pBGR16;
                   }
                   /* store the pixel */
-                   raster_tmp16   = (word *)(raster_tmp + xoffset_tmp);
+                   raster_tmp16   = (gbm_u16 *)(raster_tmp + xoffset_tmp);
                   *raster_tmp16++ = clamp2word(weightf_b);
                   *raster_tmp16++ = clamp2word(weightf_g);
                   *raster_tmp16   = clamp2word(weightf_r);
@@ -895,9 +877,8 @@ static GBM_ERR apply_horizontal_contributions(
         /* ---------- */
 
         case 64: /* 64bpp */
-          while (ysize_tmp > 0)
+          while (ysize_tmp-- > 0)
           {
-              --ysize_tmp;
               xoffset_tmp = 0;
               for (x = 0; x < xsize_tmp; ++x)
               {
@@ -910,16 +891,15 @@ static GBM_ERR apply_horizontal_contributions(
                   for (j = 0; j < contrib_x->n; ++j)
                   {
                       contrib_x_j = &(contrib_x->p[j]);
+                      pBGR16      = (const gbm_u16 *)(raster_src + (contrib_x_j->pixel * 8));
                       weightf     = contrib_x_j->weight;
-                      pBGR16      = (const word *)(raster_src + (contrib_x_j->pixel * 8));
-
-                      weightf_b += weightf * *pBGR16++;
-                      weightf_g += weightf * *pBGR16++;
-                      weightf_r += weightf * *pBGR16++;
-                      weightf_a += weightf * *pBGR16;
+                      weightf_b  += weightf * *pBGR16++;
+                      weightf_g  += weightf * *pBGR16++;
+                      weightf_r  += weightf * *pBGR16++;
+                      weightf_a  += weightf * *pBGR16;
                   }
                   /* store the pixel */
-                   raster_tmp16   = (word *)(raster_tmp + xoffset_tmp);
+                   raster_tmp16   = (gbm_u16 *)(raster_tmp + xoffset_tmp);
                   *raster_tmp16++ = clamp2word(weightf_b);
                   *raster_tmp16++ = clamp2word(weightf_g);
                   *raster_tmp16++ = clamp2word(weightf_r);
@@ -949,28 +929,28 @@ static GBM_ERR apply_vertical_contributions(
   const CLIST * contrib,
         Image * dst)
 {
-    int    x, y, j;
+    int    y, j;
     float  weightf, weightf_b, weightf_g, weightf_r, weightf_a;
-    byte   graylevel;
+    gbm_u8 graylevel;
 
     const CLIST   * contrib_y   = NULL;
     const CONTRIB * contrib_y_j = NULL;
-    const byte    * pBGR8       = NULL;
-    const word    * pBGR16      = NULL;
+    const gbm_u8  * pBGR8       = NULL;
+    const gbm_u16 * pBGR16      = NULL;
 
-          byte *raster_dst   = dst->data;
-          byte *raster_dst8  = NULL;
-          word *raster_dst16 = NULL;
-    const int   xsize_dst    = dst->xsize;
+          gbm_u8  *raster_dst   = dst->data;
+          gbm_u8  *raster_dst8  = NULL;
+          gbm_u16 *raster_dst16 = NULL;
+          int   xsize_dst    = dst->xsize;
     const int   ysize_dst    = dst->ysize;
     const int   rowspan_dst  = dst->span;
           int   xoffset_dst  = 0;
 
-    const byte *raster_tmp   = tmp->data;
-    const int   rowspan_tmp  = tmp->span;
+    const gbm_u8 *raster_tmp   = tmp->data;
+    const int     rowspan_tmp  = tmp->span;
 
-    const byte *graylevels_tmp = tmp->graylevels;
-          byte *graylevels_dst = dst->graylevels;
+    const gbm_u8 *graylevels_tmp = tmp->graylevels;
+          gbm_u8 *graylevels_dst = dst->graylevels;
 
     switch(dst->bpp)
     {
@@ -979,32 +959,31 @@ static GBM_ERR apply_vertical_contributions(
           {
               return GBM_ERR_BAD_ARG;
           }
-          for (x = 0; x < xsize_dst; ++x)
+          while (xsize_dst-- > 0)
           {
               /* set to first row */
-              raster_dst = dst->data + x;
+              raster_dst = dst->data + xoffset_dst;
 
               for (y = 0; y < ysize_dst; ++y)
               {
                   contrib_y = &(contrib[y]);
-                  weightf_g = 0.0f;
+                  weightf = 0.0f;
 
                   for (j = 0; j < contrib_y->n; ++j)
                   {
                       contrib_y_j = &(contrib_y->p[j]);
-                      weightf     = contrib_y_j->weight;
                       pBGR8       = raster_tmp + (contrib_y_j->pixel * rowspan_tmp);
-
-                      weightf_g  += weightf * graylevels_tmp[*pBGR8];
+                      weightf    += contrib_y_j->weight * graylevels_tmp[*pBGR8];
                   }
                   /* store the pixel and update the palette */
-                  graylevel                 = clamp2byte(weightf_g);
+                  graylevel                 = clamp2byte(weightf);
                   *raster_dst               = graylevel;
                   graylevels_dst[graylevel] = graylevel;
 
                   /* address next row */
                   raster_dst += rowspan_dst;
               }
+              xoffset_dst++;
               raster_tmp++;
           }
           break;
@@ -1012,7 +991,7 @@ static GBM_ERR apply_vertical_contributions(
         /* ---------- */
 
         case 24: /* 24bpp */
-          for (x = 0; x < xsize_dst; ++x)
+          while (xsize_dst-- > 0)
           {
               /* set to first row */
               raster_dst = dst->data + xoffset_dst;
@@ -1027,12 +1006,11 @@ static GBM_ERR apply_vertical_contributions(
                   for (j = 0; j < contrib_y->n; ++j)
                   {
                       contrib_y_j = &(contrib_y->p[j]);
-                      weightf     = contrib_y_j->weight;
                       pBGR8       = raster_tmp + (contrib_y_j->pixel * rowspan_tmp);
-
-                      weightf_b += weightf * *pBGR8++;
-                      weightf_g += weightf * *pBGR8++;
-                      weightf_r += weightf * *pBGR8;
+                      weightf     = contrib_y_j->weight;
+                      weightf_b  += weightf * *pBGR8++;
+                      weightf_g  += weightf * *pBGR8++;
+                      weightf_r  += weightf * *pBGR8;
                   }
                   /* store the pixel */
                    raster_dst8   = raster_dst;
@@ -1051,7 +1029,7 @@ static GBM_ERR apply_vertical_contributions(
         /* ---------- */
 
         case 32: /* 32bpp */
-          for (x = 0; x < xsize_dst; ++x)
+          while (xsize_dst-- > 0)
           {
               /* set to first row */
               raster_dst = dst->data + xoffset_dst;
@@ -1067,13 +1045,12 @@ static GBM_ERR apply_vertical_contributions(
                   for (j = 0; j < contrib_y->n; ++j)
                   {
                       contrib_y_j = &(contrib_y->p[j]);
-                      weightf     = contrib_y_j->weight;
                       pBGR8       = raster_tmp + (contrib_y_j->pixel * rowspan_tmp);
-
-                      weightf_b += weightf * *pBGR8++;
-                      weightf_g += weightf * *pBGR8++;
-                      weightf_r += weightf * *pBGR8++;
-                      weightf_a += weightf * *pBGR8;
+                      weightf     = contrib_y_j->weight;
+                      weightf_b  += weightf * *pBGR8++;
+                      weightf_g  += weightf * *pBGR8++;
+                      weightf_r  += weightf * *pBGR8++;
+                      weightf_a  += weightf * *pBGR8;
                   }
                   /* store the pixel */
                    raster_dst8   = raster_dst;
@@ -1093,7 +1070,7 @@ static GBM_ERR apply_vertical_contributions(
         /* ---------- */
 
         case 48: /* 48bpp */
-          for (x = 0; x < xsize_dst; ++x)
+          while (xsize_dst-- > 0)
           {
               /* set to first row */
               raster_dst = dst->data + xoffset_dst;
@@ -1108,15 +1085,14 @@ static GBM_ERR apply_vertical_contributions(
                   for (j = 0; j < contrib_y->n; ++j)
                   {
                       contrib_y_j = &(contrib_y->p[j]);
+                      pBGR16      = (const gbm_u16 *)(raster_tmp + (contrib_y_j->pixel * rowspan_tmp));
                       weightf     = contrib_y_j->weight;
-                      pBGR16      = (const word *)(raster_tmp + (contrib_y_j->pixel * rowspan_tmp));
-
-                      weightf_b += weightf * *pBGR16++;
-                      weightf_g += weightf * *pBGR16++;
-                      weightf_r += weightf * *pBGR16;
+                      weightf_b  += weightf * *pBGR16++;
+                      weightf_g  += weightf * *pBGR16++;
+                      weightf_r  += weightf * *pBGR16;
                   }
                   /* store the pixel */
-                   raster_dst16   = (word *) raster_dst;
+                   raster_dst16   = (gbm_u16 *) raster_dst;
                   *raster_dst16++ = clamp2word(weightf_b);
                   *raster_dst16++ = clamp2word(weightf_g);
                   *raster_dst16   = clamp2word(weightf_r);
@@ -1132,7 +1108,7 @@ static GBM_ERR apply_vertical_contributions(
         /* ---------- */
 
         case 64: /* 64bpp */
-          for (x = 0; x < xsize_dst; ++x)
+          while (xsize_dst-- > 0)
           {
               /* set to first row */
               raster_dst = dst->data + xoffset_dst;
@@ -1148,16 +1124,15 @@ static GBM_ERR apply_vertical_contributions(
                   for (j = 0; j < contrib_y->n; ++j)
                   {
                       contrib_y_j = &(contrib_y->p[j]);
+                      pBGR16      = (const gbm_u16 *)(raster_tmp + (contrib_y_j->pixel * rowspan_tmp));
                       weightf     = contrib_y_j->weight;
-                      pBGR16      = (const word *)(raster_tmp + (contrib_y_j->pixel * rowspan_tmp));
-
-                      weightf_b += weightf * *pBGR16++;
-                      weightf_g += weightf * *pBGR16++;
-                      weightf_r += weightf * *pBGR16++;
-                      weightf_a += weightf * *pBGR16;
+                      weightf_b  += weightf * *pBGR16++;
+                      weightf_g  += weightf * *pBGR16++;
+                      weightf_r  += weightf * *pBGR16++;
+                      weightf_a  += weightf * *pBGR16;
                   }
                   /* store the pixel */
-                   raster_dst16   = (word *) raster_dst;
+                   raster_dst16   = (gbm_u16 *) raster_dst;
                   *raster_dst16++ = clamp2word(weightf_b);
                   *raster_dst16++ = clamp2word(weightf_g);
                   *raster_dst16++ = clamp2word(weightf_r);
@@ -1262,7 +1237,7 @@ static GBM_ERR resample_scale(
 /* --------------------------------------- */
 /* --------------------------------------- */
 
-static BOOLEAN isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
+static gbm_boolean isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
 {
     if ((entries > 0) && (entries <= 0x100))
     {
@@ -1273,12 +1248,12 @@ static BOOLEAN isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
                 (gbmrgb[i].r != gbmrgb[i].b) ||
                 (gbmrgb[i].g != gbmrgb[i].b))
             {
-                return FALSE;
+                return GBM_FALSE;
             }
         }
-        return TRUE;
+        return GBM_TRUE;
     }
-    return FALSE;
+    return GBM_FALSE;
 }
 
 
@@ -1288,17 +1263,17 @@ static BOOLEAN isGrayscalePalette(const GBMRGB *gbmrgb, const int entries)
  * Supported are: 1 bpp -> 8 bpp
  *                4 bpp -> 8 bpp
  */
-static BOOLEAN expandLowGrayTo8bpp(const byte * data_src, const int w, const int h,
-                                   const int sbpp, const GBMRGB * gbmrgb_src,
-                                         byte * data_dst, GBMRGB * gbmrgb_dst)
+static gbm_boolean expandLowGrayTo8bpp(const gbm_u8 * data_src, const int w, const int h,
+                                       const int sbpp, const GBMRGB * gbmrgb_src,
+                                            gbm_u8 * data_dst, GBMRGB * gbmrgb_dst)
 {
     if ((sbpp != 1) && (sbpp != 4))
     {
-        return FALSE;
+        return GBM_FALSE;
     }
     if (! isGrayscalePalette(gbmrgb_src, 1 << sbpp))
     {
-        return FALSE;
+        return GBM_FALSE;
     }
 
     /* convert to 8bpp gray */
@@ -1306,12 +1281,12 @@ static BOOLEAN expandLowGrayTo8bpp(const byte * data_src, const int w, const int
         const int stride_src = ((w * sbpp + 31)/32) * 4;
         const int stride_dst = ((w * 8 + 31)/32) * 4;
         int   x, y, i;
-        byte  c;
+        gbm_u8  c;
 
         for (y = 0; y < h; y++)
         {
-          const byte *src  = data_src;
-                byte *dest = data_dst;
+          const gbm_u8 *src  = data_src;
+                gbm_u8 *dest = data_dst;
 
           switch (sbpp)
           {
@@ -1352,7 +1327,7 @@ static BOOLEAN expandLowGrayTo8bpp(const byte * data_src, const int w, const int
               break;
 
             default:
-              return FALSE;
+              return GBM_FALSE;
           }
           data_src += stride_src;
           data_dst += stride_dst;
@@ -1363,10 +1338,10 @@ static BOOLEAN expandLowGrayTo8bpp(const byte * data_src, const int w, const int
         {
             gbmrgb_dst[i].r =
             gbmrgb_dst[i].g =
-            gbmrgb_dst[i].b = (byte) i;
+            gbmrgb_dst[i].b = (gbm_u8) i;
         }
     }
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* --------------------------------------- */
@@ -1382,12 +1357,12 @@ static BOOLEAN expandLowGrayTo8bpp(const byte * data_src, const int w, const int
  *       Also the data target buffer must be able to hold 8bpp data.
  */
 GBM_ERR gbm_quality_scale_gray(
-    const byte *s , int sw, int sh, int sbpp, const GBMRGB * sgbmrgb,
-          byte *d8, int dw, int dh, GBMRGB * dgbmrgb,
+    const gbm_u8 *s , int sw, int sh, int sbpp, const GBMRGB * sgbmrgb,
+          gbm_u8 *d8, int dw, int dh, GBMRGB * dgbmrgb,
     const GBM_SCALE_FILTER filter)
 {
           GBM_ERR  rc          = GBM_ERR_NOT_SUPP;
-          byte   * data8_src   = NULL;
+          gbm_u8   * data8_src   = NULL;
     const GBMRGB * palette_src = NULL;
 
     /* the filter function that will be used */
@@ -1407,7 +1382,7 @@ GBM_ERR gbm_quality_scale_gray(
         case 4:
         {
           const unsigned long stride8_src = ((sw * 8 + 31)/32) * 4;
-          data8_src = (byte *) gbmmem_malloc(stride8_src * sh);
+          data8_src = (gbm_u8 *) gbmmem_malloc(stride8_src * sh);
           if (data8_src == NULL)
           {
             return GBM_ERR_MEM;
@@ -1422,7 +1397,7 @@ GBM_ERR gbm_quality_scale_gray(
         break;
 
         case 8:
-          data8_src   = (byte *) s;
+          data8_src   = (gbm_u8 *) s;
           palette_src = sgbmrgb;
           break;
 
@@ -1474,8 +1449,8 @@ GBM_ERR gbm_quality_scale_gray(
     {
         int i;
 
-        byte graylevels_src[0x100] = { 0 };
-        byte graylevels_dst[0x100] = { 0 };
+        gbm_u8 graylevels_src[0x100] = { 0 };
+        gbm_u8 graylevels_dst[0x100] = { 0 };
 
         Image img_src, img_dst;
 
@@ -1544,8 +1519,8 @@ GBM_ERR gbm_quality_scale_gray(
  *                         64bpp (48bpp with alpha channel)
  */
 GBM_ERR gbm_quality_scale_bgra(
-    const byte *s, int sw, int sh,
-          byte *d, int dw, int dh,
+    const gbm_u8 *s, int sw, int sh,
+          gbm_u8 *d, int dw, int dh,
           int  bpp,
     const GBM_SCALE_FILTER filter)
 {
@@ -1613,7 +1588,7 @@ GBM_ERR gbm_quality_scale_bgra(
 
         img_src.xsize      = sw;
         img_src.ysize      = sh;
-        img_src.data       = (byte *) s;
+        img_src.data       = (gbm_u8 *) s;
         img_src.span       = ((sw * bpp + 31) / 32) * 4;
         img_src.bpp        = bpp;
         img_src.graylevels = NULL;

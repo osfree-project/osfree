@@ -10,9 +10,10 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: "\"file.ext\",options"
-08-Feb-2008  Allocate memory from high memory for bitmap data to
+08-Feb-2008: Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+15-Aug-2008: Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -23,7 +24,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -111,12 +112,12 @@ static double get_opt_double(const char *s, const char *name)
 	}
 /*...e*/
 /*...ssame:0:*/
-static BOOLEAN same(const char *s1, const char *s2, int n)
+static gbm_boolean same(const char *s1, const char *s2, int n)
 	{
 	for ( ; n--; s1++, s2++ )
 		if ( tolower(*s1) != tolower(*s2) )
-			return FALSE;
-	return TRUE;
+			return GBM_FALSE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...smain:0:*/
@@ -190,7 +191,7 @@ static double i_from_pal(double y, double gam, double shelf)
 	}
 /*...e*/
 
-static void map_compute(int m, byte remap[], double gam, double shelf)
+static void map_compute(int m, gbm_u8 remap[], double gam, double shelf)
 {
    int    i;
    double y;
@@ -202,7 +203,7 @@ static void map_compute(int m, byte remap[], double gam, double shelf)
          {
             y = (double) i / 255.0;
             y = pal_from_i(y, gam, shelf);
-            remap[i] = (byte) (y * 255.0);
+            remap[i] = (gbm_u8) (y * 255.0);
          }
          break;
 
@@ -211,7 +212,7 @@ static void map_compute(int m, byte remap[], double gam, double shelf)
          {
             y = (double) i / 255.0;
             y = i_from_pal(y, gam, shelf);
-            remap[i] = (byte) (y * 255.0);
+            remap[i] = (gbm_u8) (y * 255.0);
          }
          break;
 
@@ -220,7 +221,7 @@ static void map_compute(int m, byte remap[], double gam, double shelf)
          {
             y = (double) i / 255.0;
             y = lstar_from_i(y);
-            remap[i] = (byte) (y * 255.0);
+            remap[i] = (gbm_u8) (y * 255.0);
          }
          break;
 
@@ -229,7 +230,7 @@ static void map_compute(int m, byte remap[], double gam, double shelf)
          {
             y = (double) i / 255.0;
             y = i_from_lstar(y);
-            remap[i] = (byte) (y * 255.0);
+            remap[i] = (gbm_u8) (y * 255.0);
          }
          break;
 
@@ -238,7 +239,7 @@ static void map_compute(int m, byte remap[], double gam, double shelf)
          {
             y = (double) i / 255.0;
             y = lstar_from_i(i_from_pal(y, gam, shelf));
-            remap[i] = (byte) (y * 255.0);
+            remap[i] = (gbm_u8) (y * 255.0);
          }
          break;
 
@@ -247,20 +248,20 @@ static void map_compute(int m, byte remap[], double gam, double shelf)
          {
             y = (double) i / 255.0;
             y = pal_from_i(i_from_lstar(y), gam, shelf);
-            remap[i] = (byte) (y * 255.0);
+            remap[i] = (gbm_u8) (y * 255.0);
          }
          break;
 
       default:
          for ( i = 0; i < 0x100; i++ )
          {
-            remap[i] = (byte) i;
+            remap[i] = (gbm_u8) i;
          }
          break;
    }
 }
 
-static void map_compute_16(int m, word remap[], double gam, double shelf)
+static void map_compute_16(int m, gbm_u16 remap[], double gam, double shelf)
 {
    int    i;
    double y;
@@ -272,7 +273,7 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
          {
             y = (double) i / 65535.0;
             y = pal_from_i(y, gam, shelf);
-            remap[i] = (word) (y * 65535.0);
+            remap[i] = (gbm_u16) (y * 65535.0);
          }
          break;
 
@@ -281,7 +282,7 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
          {
             y = (double) i / 65535.0;
             y = i_from_pal(y, gam, shelf);
-            remap[i] = (word) (y * 65535.0);
+            remap[i] = (gbm_u16) (y * 65535.0);
          }
          break;
 
@@ -290,7 +291,7 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
          {
             y = (double) i / 65535.0;
             y = lstar_from_i(y);
-            remap[i] = (word) (y * 65535.0);
+            remap[i] = (gbm_u16) (y * 65535.0);
          }
          break;
 
@@ -299,7 +300,7 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
          {
             y = (double) i / 65535.0;
             y = i_from_lstar(y);
-            remap[i] = (word) (y * 65535.0);
+            remap[i] = (gbm_u16) (y * 65535.0);
          }
          break;
 
@@ -308,7 +309,7 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
          {
             y = (double) i / 65535.0;
             y = lstar_from_i(i_from_pal(y, gam, shelf));
-            remap[i] = (word) (y * 65535.0);
+            remap[i] = (gbm_u16) (y * 65535.0);
          }
          break;
 
@@ -317,14 +318,14 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
          {
             y = (double) i / 65535.0;
             y = pal_from_i(i_from_lstar(y), gam, shelf);
-            remap[i] = (word) (y * 65535.0);
+            remap[i] = (gbm_u16) (y * 65535.0);
          }
          break;
 
       default:
          for ( i = 0; i < 0x10000; i++ )
          {
-            remap[i] = (word) i;
+            remap[i] = (gbm_u16) i;
          }
          break;
    }
@@ -332,7 +333,7 @@ static void map_compute_16(int m, word remap[], double gam, double shelf)
 
 
 /*...smap_data_24:0:*/
-static void map_data_24(byte *data, int w, int h, const byte remap[])
+static void map_data_24(gbm_u8 *data, int w, int h, const gbm_u8 remap[])
 {
    const int stride = ((w * 3 + 3) & ~3);
    int x, y;
@@ -347,7 +348,7 @@ static void map_data_24(byte *data, int w, int h, const byte remap[])
 }
 /*...e*/
 /*...smap_data_32:0:*/
-static void map_data_32(byte *data, int w, int h, const byte remap[])
+static void map_data_32(gbm_u8 *data, int w, int h, const gbm_u8 remap[])
 {
    const int stride = w * 4;
    int x, y;
@@ -365,16 +366,16 @@ static void map_data_32(byte *data, int w, int h, const byte remap[])
 }
 /*...e*/
 /*...smap_data_48:0:*/
-static void map_data_48(byte *data, int w, int h, const word remap[])
+static void map_data_48(gbm_u8 *data, int w, int h, const gbm_u16 remap[])
 {
    const int stride = ((w * 6 + 3) & ~3);
    int x, y;
 
-   word * data16;
+   gbm_u16 * data16;
 
    for ( y = 0; y < h; y++, data += stride )
    {
-      data16 = (word *) data;
+      data16 = (gbm_u16 *) data;
       for ( x = 0; x < w * 3; x++ )
       {
          data16[x] = remap[data16[x]];
@@ -383,16 +384,16 @@ static void map_data_48(byte *data, int w, int h, const word remap[])
 }
 /*...e*/
 /*...smap_data_64:0:*/
-static void map_data_64(byte *data, int w, int h, const word remap[])
+static void map_data_64(gbm_u8 *data, int w, int h, const gbm_u16 remap[])
 {
    const int stride = w * 8;
    int x, y;
 
-   word * data16;
+   gbm_u16 * data16;
 
    for ( y = 0; y < h; y++, data += stride )
    {
-      data16 = (word *) data;
+      data16 = (gbm_u16 *) data;
       for ( x = 0; x < w * 4; x += 4 )
       {
          data16[x]   = remap[data16[x]];
@@ -404,7 +405,7 @@ static void map_data_64(byte *data, int w, int h, const word remap[])
 }
 /*...e*/
 /*...smap_palette:0:*/
-static void map_palette(GBMRGB *gbmrgb, int npals, const byte remap[])
+static void map_palette(GBMRGB *gbmrgb, int npals, const gbm_u8 remap[])
 {
    for ( ; npals--; gbmrgb++ )
    {
@@ -426,10 +427,10 @@ int main(int argc, char *argv[])
 	GBMFT	gbmft;
 	GBM	gbm;
 	GBMRGB	gbmrgb[0x100];
-	byte	*data;
+	gbm_u8	*data;
 	char	*map = "none";
-	byte	* remap = NULL;
-	word	* remap16 = NULL;
+	gbm_u8	* remap = NULL;
+	gbm_u16	* remap16 = NULL;
 	double gam = 2.1, shelf = 0.0;
 
 /*...scommand line arguments:8:*/
@@ -485,7 +486,7 @@ m = mapinfos[j].m;
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse source filename %s", gbmfilearg.argin);
 	}
@@ -498,7 +499,7 @@ m = mapinfos[j].m;
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse destination filename %s", gbmfilearg.argin);
 	}
@@ -589,7 +590,7 @@ m = mapinfos[j].m;
 	switch(gbm.bpp)
         {
            case 64:
-                remap16 = (word *) gbmmem_malloc(0x10000 * sizeof(word));
+                remap16 = (gbm_u16 *) gbmmem_malloc(0x10000 * sizeof(gbm_u16));
                 if (remap16 == NULL)
                 {
                    gbm_io_close(fd);
@@ -601,7 +602,7 @@ m = mapinfos[j].m;
 		break;
 
            case 48:
-                remap16 = (word *) gbmmem_malloc(0x10000 * sizeof(word));
+                remap16 = (gbm_u16 *) gbmmem_malloc(0x10000 * sizeof(gbm_u16));
                 if (remap16 == NULL)
                 {
                    gbm_io_close(fd);
@@ -613,7 +614,7 @@ m = mapinfos[j].m;
 		break;
 
            case 32:
-                remap = (byte *) gbmmem_malloc(0x100 * sizeof(byte));
+                remap = (gbm_u8 *) gbmmem_malloc(0x100 * sizeof(gbm_u8));
                 if (remap == NULL)
                 {
                    gbm_io_close(fd);
@@ -625,7 +626,7 @@ m = mapinfos[j].m;
 		break;
 
            case 24:
-                remap = (byte *) gbmmem_malloc(0x100 * sizeof(byte));
+                remap = (gbm_u8 *) gbmmem_malloc(0x100 * sizeof(gbm_u8));
                 if (remap == NULL)
                 {
                    gbm_io_close(fd);
@@ -637,7 +638,7 @@ m = mapinfos[j].m;
 		break;
 
            default:
-                remap = (byte *) gbmmem_malloc(0x100 * sizeof(byte));
+                remap = (gbm_u8 *) gbmmem_malloc(0x100 * sizeof(gbm_u8));
                 if (remap == NULL)
                 {
                    gbm_io_close(fd);

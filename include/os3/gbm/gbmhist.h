@@ -22,14 +22,14 @@ functions for ease of compatibility.
 typedef void GBMHIST;
 
 extern GBMHIST *gbm_create_hist(
-	byte rm, byte gm, byte bm
+	gbm_u8 rm, gbm_u8 gm, gbm_u8 bm
 	);
 
 extern void gbm_delete_hist(GBMHIST *hist);
 
-extern BOOLEAN gbm_add_to_hist(
+extern gbm_boolean gbm_add_to_hist(
 	GBMHIST *hist,	
-	const GBM *gbm, const byte *data24
+	const GBM *gbm, const gbm_u8 *data24
 	);
 
 extern void gbm_pal_hist(
@@ -40,15 +40,15 @@ extern void gbm_pal_hist(
 
 extern void gbm_map_hist(
 	GBMHIST *hist,
-	const GBM *gbm, const byte *data24, byte *data8
+	const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8
 	);
 
-extern BOOLEAN gbm_hist(
-	const GBM *gbm, const byte *data24,
+extern gbm_boolean gbm_hist(
+	const GBM *gbm, const gbm_u8 *data24,
 	GBMRGB gbmrgb[],
-	byte *data8,
+	gbm_u8 *data8,
 	int n_cols_wanted,
-	byte rm, byte gm, byte bm
+	gbm_u8 rm, gbm_u8 gm, gbm_u8 bm
 	);
 
 #ifdef __cplusplus

@@ -39,6 +39,7 @@ History:
              Add read support for multipage images  (type P5 only)
 16-Jun-2006: Add support for reading & writing ASCII format P2
 23-Sep-2006: Use read ahead and write cache for ASCII format to improve speed
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <stdio.h>
@@ -80,19 +81,19 @@ typedef struct
 
 /* ---------------------------------------- */
 
-#define  low_byte(w)    ((byte)  ((w)&0x00ff)    )
-#define  high_byte(w)   ((byte) (((w)&0xff00)>>8))
-#define  make_word(a,b) (((word)a) + (((word)b) << 8))
+#define  low_byte(w)    ((gbm_u8)  ((w)&0x00ff)    )
+#define  high_byte(w)   ((gbm_u8) (((w)&0xff00)>>8))
+#define  make_word(a,b) (((gbm_u16)a) + (((gbm_u16)b) << 8))
 #define  SW4(a,b,c,d)   ((a)*8+(b)*4+(c)*2+(d))
 
 /* ---------------------------------------- */
 
-static BOOLEAN make_output_palette(const GBMRGB gbmrgb[], byte grey[], const char *opt)
+static gbm_boolean make_output_palette(const GBMRGB gbmrgb[], gbm_u8 grey[], const char *opt)
 {
-  BOOLEAN  k = ( gbm_find_word(opt, "k") != NULL );
-  BOOLEAN  r = ( gbm_find_word(opt, "r") != NULL );
-  BOOLEAN  g = ( gbm_find_word(opt, "g") != NULL );
-  BOOLEAN  b = ( gbm_find_word(opt, "b") != NULL );
+  gbm_boolean  k = ( gbm_find_word(opt, "k") != NULL );
+  gbm_boolean  r = ( gbm_find_word(opt, "r") != NULL );
+  gbm_boolean  g = ( gbm_find_word(opt, "g") != NULL );
+  gbm_boolean  b = ( gbm_find_word(opt, "b") != NULL );
   int i;
 
   switch ( SW4(k,r,g,b) )
@@ -102,41 +103,41 @@ static BOOLEAN make_output_palette(const GBMRGB gbmrgb[], byte grey[], const cha
     case SW4(1,0,0,0):
       for ( i = 0; i < 0x100; i++ )
       {
-        grey[i] = (byte) ( ((word) gbmrgb[i].r *  77U +
-                            (word) gbmrgb[i].g * 150U +
-                            (word) gbmrgb[i].b *  29U) >> 8 );
+        grey[i] = (gbm_u8) ( ((gbm_u16) gbmrgb[i].r *  77U +
+                              (gbm_u16) gbmrgb[i].g * 150U +
+                              (gbm_u16) gbmrgb[i].b *  29U) >> 8 );
       }
-      return TRUE;
+      return GBM_TRUE;
 
     case SW4(0,1,0,0):
       for ( i = 0; i < 0x100; i++ )
       {
         grey[i] = gbmrgb[i].r;
       }
-      return TRUE;
+      return GBM_TRUE;
 
     case SW4(0,0,1,0):
       for ( i = 0; i < 0x100; i++ )
       {
         grey[i] = gbmrgb[i].g;
       }
-      return TRUE;
+      return GBM_TRUE;
 
     case SW4(0,0,0,1):
       for ( i = 0; i < 0x100; i++ )
       {
         grey[i] = gbmrgb[i].b;
       }
-      return TRUE;
+      return GBM_TRUE;
   }
-  return FALSE;
+  return GBM_FALSE;
 }
 
 /* ---------------------------------------- */
 
-static byte read_byte(int fd)
+static gbm_u8 read_byte(int fd)
 {
-  byte b = 0;
+  gbm_u8 b = 0;
   gbm_file_read(fd, (char *) &b, 1);
   return b;
 }
@@ -423,7 +424,7 @@ GBM_ERR pgm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
     {
       gbmrgb[i].r =
       gbmrgb[i].g =
-      gbmrgb[i].b = (byte) (i * 255U / pgm_priv->max_intensity);
+      gbmrgb[i].b = (gbm_u8) (i * 255U / pgm_priv->max_intensity);
     }
   }
 
@@ -433,7 +434,7 @@ GBM_ERR pgm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-GBM_ERR pgm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR pgm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
   int type = 0;
   GBM gbm_src;
@@ -460,7 +461,7 @@ GBM_ERR pgm_rdata(int fd, GBM *gbm, byte *data)
   if (type == '5')
   {
     int    i;
-    byte * p = data + ((gbm->h - 1) * stride);
+    gbm_u8 * p = data + ((gbm->h - 1) * stride);
 
     const int line_bytes = gbm_src.w * (gbm_src.bpp / 8);
 
@@ -478,8 +479,8 @@ GBM_ERR pgm_rdata(int fd, GBM *gbm, byte *data)
   {
     int    i, x;
     int    num;
-    byte * pNumFill;
-    byte * p = data + ((gbm->h - 1) * stride);
+    gbm_u8 * pNumFill;
+    gbm_u8 * p = data + ((gbm->h - 1) * stride);
 
     AHEAD * ahead = gbm_create_ahead(fd);
     if (ahead == NULL)
@@ -498,7 +499,7 @@ GBM_ERR pgm_rdata(int fd, GBM *gbm, byte *data)
           gbm_destroy_ahead(ahead);
           return GBM_ERR_READ;
         }
-        *pNumFill++ = (byte) num;
+        *pNumFill++ = (gbm_u8) num;
       }
 
       p -= stride;
@@ -517,7 +518,7 @@ GBM_ERR pgm_rdata(int fd, GBM *gbm, byte *data)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static BOOLEAN internal_pgm_w_ascii(WCACHE * wcache, const byte * data, int bytes)
+static gbm_boolean internal_pgm_w_ascii(WCACHE * wcache, const gbm_u8 * data, int bytes)
 {
   char d[4] = { 0 };
   int  b, c;
@@ -533,7 +534,7 @@ static BOOLEAN internal_pgm_w_ascii(WCACHE * wcache, const byte * data, int byte
       c = 0;
       if (gbm_write_wcache(wcache, '\n') != 1)
       {
-        return FALSE;
+        return GBM_FALSE;
       }
     }
 
@@ -545,7 +546,7 @@ static BOOLEAN internal_pgm_w_ascii(WCACHE * wcache, const byte * data, int byte
 
     if (gbm_writebuf_wcache(wcache, d, 4) != 4)
     {
-      return FALSE;
+      return GBM_FALSE;
     }
     c += 4;
     data++;
@@ -553,15 +554,15 @@ static BOOLEAN internal_pgm_w_ascii(WCACHE * wcache, const byte * data, int byte
 
   if (gbm_write_wcache(wcache, '\n') != 1)
   {
-    return FALSE;
+    return GBM_FALSE;
   }
 
-  return TRUE;
+  return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-static BOOLEAN internal_pgm_write_comment(int fd, const char *options)
+static gbm_boolean internal_pgm_write_comment(int fd, const char *options)
 {
    const char *s;
 
@@ -574,42 +575,42 @@ static BOOLEAN internal_pgm_write_comment(int fd, const char *options)
      {
         if (sscanf(s + 8, "%200[^ ]", buf) != 1)
         {
-           return FALSE;
+           return GBM_FALSE;
         }
      }
 
      if (gbm_file_write(fd, "# ", 2) != 2)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
 
      len = strlen(buf);
      if (gbm_file_write(fd, buf, len) != len)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
 
      if (gbm_file_write(fd, "\n", 1) != 1)
      {
-       return FALSE;
+       return GBM_FALSE;
      }
    }
 
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* ---------------------------------------- */
 
-GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR pgm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
   char s[100+1];
   int i, j, stride;
-  byte grey[0x100];
-  const byte   *p;
-        byte   *linebuf;
+  gbm_u8 grey[0x100];
+  const gbm_u8 *p;
+        gbm_u8 *linebuf;
         WCACHE *wcache = NULL;
 
-  const BOOLEAN ascii = ( gbm_find_word(opt, "ascii" ) != NULL );
+  const gbm_boolean ascii = ( gbm_find_word(opt, "ascii" ) != NULL );
 
   fn=fn; opt=opt; /* Suppress 'unref arg' compiler warnings */
 

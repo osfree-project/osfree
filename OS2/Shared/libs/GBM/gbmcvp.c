@@ -7,10 +7,10 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008  Integrate new GBM types
 
 */
 
-/*...sincludes:0:*/
 #include <stdio.h>
 #include <ctype.h>
 #include <stddef.h>
@@ -20,10 +20,6 @@ History:
 #include "gbmhelp.h"
 #include "gbmdesc.h"
 #include "gbmmem.h"
-
-/*...vgbm\46\h:0:*/
-/*...vgbmhelp\46\h:0:*/
-/*...e*/
 
 static GBMFT cvp_gbmft =
 	{
@@ -37,14 +33,12 @@ static GBMFT cvp_gbmft =
 #define	GBM_ERR_CVP_FSIZE	((GBM_ERR) 1800)
 #define	GBM_ERR_CVP_SIZE	((GBM_ERR) 1801)
 
-/*...scvp_qft:0:*/
 GBM_ERR cvp_qft(GBMFT *gbmft)
 	{
 	*gbmft = cvp_gbmft;
 	return GBM_ERR_OK;
 	}
-/*...e*/
-/*...scvp_rhdr:0:*/
+
 GBM_ERR cvp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	long length;
@@ -63,26 +57,24 @@ GBM_ERR cvp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 
 	return GBM_ERR_OK;
 	}
-/*...e*/
-/*...scvp_rpal:0:*/
+
 GBM_ERR cvp_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 	{
 	fd=fd; gbm=gbm; gbmrgb=gbmrgb; /* Suppress 'unref arg' compiler warnings */
 
 	return GBM_ERR_OK;
 	}
-/*...e*/
-/*...scvp_rdata:0:*/
-GBM_ERR cvp_rdata(int fd, GBM *gbm, byte *data)
+
+GBM_ERR cvp_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	int p, stride = ((gbm->w*3+3)&~3);
-	byte *line;
+	gbm_u8 *line;
 	if ( (line = gbmmem_malloc((size_t) gbm->w)) == NULL )
 		return GBM_ERR_MEM;
 	for ( p = 2; p >= 0; p-- )
 		{
 		int y;
-		byte *ptr = data + ( (stride * (gbm->h-1)) + p );
+		gbm_u8 *ptr = data + ( (stride * (gbm->h-1)) + p );
 		for ( y = 0; y < gbm->h; y++, ptr-=stride )
 			{
 			int x;
@@ -98,12 +90,11 @@ GBM_ERR cvp_rdata(int fd, GBM *gbm, byte *data)
 	gbmmem_free(line);
 	return GBM_ERR_OK;
 	}
-/*...e*/
-/*...scvp_w:0:*/
-GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+
+GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	int p, stride = ((gbm->w*3+3)&~3);
-	byte *line;
+	gbm_u8 *line;
 
 	fn=fn; gbmrgb=gbmrgb; opt=opt; /* Suppress 'unref arg' compiler warning */
 
@@ -119,7 +110,7 @@ GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	for ( p = 2; p >= 0; p-- )
 		{
 		int y;
-		const byte *ptr = data + ( (stride * (gbm->h-1)) + p );
+		const gbm_u8 *ptr = data + ( (stride * (gbm->h-1)) + p );
 		for ( y = 0; y < gbm->h; y++, ptr-=stride )
 			{
 			int x;
@@ -135,8 +126,7 @@ GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	gbmmem_free(line);
 	return GBM_ERR_OK;
 	}
-/*...e*/
-/*...scvp_err:0:*/
+
 const char *cvp_err(GBM_ERR rc)
 	{
 	switch ( (int) rc )
@@ -148,4 +138,4 @@ const char *cvp_err(GBM_ERR rc)
 		}
 	return NULL;
 	}
-/*...e*/
+

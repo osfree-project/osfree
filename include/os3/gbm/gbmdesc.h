@@ -51,6 +51,21 @@ History:
   #define GBM_FMT_DESC_EXT_JPG    "JPG JPEG JPE"
 #endif
 
+/* JPEG 2000 Graphics Format */
+#ifdef ENABLE_J2K
+  #define GBM_FMT_DESC_SHORT_JP2  "JP2"
+  #define GBM_FMT_DESC_LONG_JP2   "JPEG2000 Graphics File Format"
+  #define GBM_FMT_DESC_EXT_JP2    "JP2 J2C"
+
+  #define GBM_FMT_DESC_SHORT_J2K  "J2K"
+  #define GBM_FMT_DESC_LONG_J2K   "JPEG2000 Codestream"
+  #define GBM_FMT_DESC_EXT_J2K    "J2K JPC"
+
+  #define GBM_FMT_DESC_SHORT_JPT  "JPT"
+  #define GBM_FMT_DESC_LONG_JPT   "JPT Stream (JPEG2000, JPIP)"
+  #define GBM_FMT_DESC_EXT_JPT    "JPT"
+#endif
+
 /* IBM KIPS file format */
 #define GBM_FMT_DESC_SHORT_KPS  "KIPS"
 #define GBM_FMT_DESC_LONG_KPS   "IBM KIPS"

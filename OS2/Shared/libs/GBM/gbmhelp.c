@@ -11,7 +11,7 @@ gbmhelp.c - Helpers for GBM file I/O stuff
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
 #include <io.h>
@@ -30,12 +30,12 @@ gbmhelp.c - Helpers for GBM file I/O stuff
 /* ---------------------------- */
 /* ---------------------------- */
 
-BOOLEAN gbm_same(const char *s1, const char *s2, int n)
+gbm_boolean gbm_same(const char *s1, const char *s2, int n)
 {
     for ( ; n--; s1++, s2++ )
         if ( tolower(*s1) != tolower(*s2) )
-            return FALSE;
-    return TRUE;
+            return GBM_FALSE;
+    return GBM_TRUE;
     }
 
 /* ---------------------------- */
@@ -119,15 +119,15 @@ static int get_checked_internal_open_mode(int mode)
    {
       open_mode |= O_RDWR;
    }
-   else if (mode & GBM_O_EXCL)
-   {
-      open_mode |= O_EXCL;
-   }
    else
    {
       return 0xffffffff;
    }
 
+   if (mode & GBM_O_EXCL)
+   {
+      open_mode |= O_EXCL;
+   }
    if (mode & GBM_O_NOINHERIT)
    {
       open_mode |= O_NOINHERIT;
@@ -330,10 +330,10 @@ int gbm_file_write(int fd, const void *buf, int len)
 
 typedef struct
 {
-   byte buf[AHEAD_BUF];
-   int  inx, cnt;
-   long pos; /* file pointer of the last read byte */
-   int  fd;
+   gbm_u8 buf[AHEAD_BUF];
+   int    inx, cnt;
+   long   pos; /* file pointer of the last read byte */
+   int    fd;
 } AHEAD;
 
 AHEAD *gbm_create_ahead(int fd)
@@ -371,7 +371,7 @@ int gbm_look_ahead(AHEAD *ahead)
         int b = 0;
 
         /* don't drop the current buffer but read a single byte locally */
-        if (gbm_file_read(ahead->fd, (byte *) &b, 1) != 1)
+        if (gbm_file_read(ahead->fd, (gbm_u8 *) &b, 1) != 1)
         {
             return -1;
         }
@@ -419,7 +419,7 @@ int gbm_read_ahead(AHEAD *ahead)
    {
      if ( ahead->inx >= ahead->cnt )
      {
-        ahead->cnt = gbm_file_read(ahead->fd, (byte *) ahead->buf, AHEAD_BUF);
+        ahead->cnt = gbm_file_read(ahead->fd, (gbm_u8 *) ahead->buf, AHEAD_BUF);
         if ( ahead->cnt <= 0 )
         {
            return -1;
@@ -432,38 +432,62 @@ int gbm_read_ahead(AHEAD *ahead)
    return -1;
 }
 
-int gbm_readbuf_ahead(AHEAD *ahead, byte * buf, int buflen)
+int gbm_readbuf_ahead(AHEAD *ahead, gbm_u8 * buf, int buflen)
 {
    if (ahead != NULL)
    {
-     int rest = 0;
-     if (ahead->inx > 0)
+     int bytesToRead = buflen;
+
+     int rest = ahead->cnt - ahead->inx;
+     if (bytesToRead <= rest)
      {
         /* copy the already read buffer */
-        memcpy(buf, ahead->buf, ahead->inx);
+        memcpy(buf, &(ahead->buf[ahead->inx]), bytesToRead);
+        buf         += bytesToRead;
+        ahead->inx  += bytesToRead;
+        bytesToRead  = 0;
      }
-     rest = buflen - ahead->inx;
-     if (rest > AHEAD_BUF)
+     else if (rest > 0)
      {
-         /* read the whole buffer directly */
-        if (gbm_file_read(ahead->fd, buf, rest) <= 0)
+        /* copy as much as the already read buffer contains that fits into client buffer */
+        memcpy(buf, &(ahead->buf[ahead->inx]), rest);
+        bytesToRead -= rest;
+        buf         += rest;
+        ahead->cnt   = 0;
+        ahead->inx   = 0;
+     }
+
+     if (bytesToRead > AHEAD_BUF)
+     {
+        /* read the buffer directly */
+        if (gbm_file_read(ahead->fd, buf, bytesToRead) <= 0)
         {
            return -1;
         }
-        ahead->cnt = 0;
-        ahead->inx = 0;
+        bytesToRead = 0;
+        ahead->cnt  = 0;
+        ahead->inx  = 0;
      }
      else
      {
-        /* read into ahead buffer */
-        ahead->cnt = gbm_file_read(ahead->fd, (byte *) ahead->buf, AHEAD_BUF);
-        if ( ahead->cnt <= 0 )
+        /* Read ahead buffer empty ? */
+        rest = ahead->cnt - ahead->inx;
+        if (rest < 1)
         {
-           return -1;
+           /* read into ahead buffer */
+           ahead->cnt = gbm_file_read(ahead->fd, (gbm_u8 *) ahead->buf, AHEAD_BUF);
+           if ( ahead->cnt < 0 )
+           {
+              return -1;
+           }
         }
-        memcpy(buf, ahead->buf, rest);
-        ahead->inx = rest;
+        if (bytesToRead > 0)
+        {
+           memcpy(buf, ahead->buf, bytesToRead);
+           ahead->inx = bytesToRead;
+        }
      }
+
      ahead->pos += buflen;
      return buflen;
    }
@@ -479,9 +503,9 @@ int gbm_readbuf_ahead(AHEAD *ahead, byte * buf, int buflen)
 
 typedef struct
 {
-   byte buf[WCACHE_BUF];
-   int  outx;
-   int  fd;
+   gbm_u8 buf[WCACHE_BUF];
+   int    outx;
+   int    fd;
 } WCACHE;
 
 WCACHE *gbm_create_wcache(int fd)
@@ -502,7 +526,7 @@ int gbm_destroy_wcache(WCACHE *wcache)
    {
      if (wcache->outx > 0)
      {
-        if (gbm_file_write(wcache->fd, (byte *) wcache->buf, wcache->outx) < wcache->outx)
+        if (gbm_file_write(wcache->fd, (gbm_u8 *) wcache->buf, wcache->outx) < wcache->outx)
         {
           wcache->fd = -1; /* safety: prevent further use */
           gbmmem_free(wcache);
@@ -515,7 +539,7 @@ int gbm_destroy_wcache(WCACHE *wcache)
    return 0;
 }
 
-int gbm_write_wcache(WCACHE *wcache, byte c)
+int gbm_write_wcache(WCACHE *wcache, gbm_u8 c)
 {
    if (wcache != NULL)
    {
@@ -524,7 +548,7 @@ int gbm_write_wcache(WCACHE *wcache, byte c)
 
      if ( wcache->outx >= WCACHE_BUF )
      {
-        if (gbm_file_write(wcache->fd, (byte *) wcache->buf, WCACHE_BUF) < WCACHE_BUF)
+        if (gbm_file_write(wcache->fd, (gbm_u8 *) wcache->buf, WCACHE_BUF) < WCACHE_BUF)
         {
            return -1;
         }
@@ -535,7 +559,7 @@ int gbm_write_wcache(WCACHE *wcache, byte c)
    return -1;
 }
 
-int gbm_writebuf_wcache(WCACHE *wcache, const byte * buf, int buflen)
+int gbm_writebuf_wcache(WCACHE *wcache, const gbm_u8 * buf, int buflen)
 {
    if (wcache != NULL)
    {
@@ -561,7 +585,7 @@ int gbm_writebuf_wcache(WCACHE *wcache, const byte * buf, int buflen)
        splitBuf      = buf + remaining;
        splitLen     -= remaining;
 
-       if (gbm_file_write(wcache->fd, (byte *) wcache->buf, WCACHE_BUF) < WCACHE_BUF)
+       if (gbm_file_write(wcache->fd, (gbm_u8 *) wcache->buf, WCACHE_BUF) < WCACHE_BUF)
        {
           return -1;
        }

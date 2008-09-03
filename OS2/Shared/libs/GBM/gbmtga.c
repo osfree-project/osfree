@@ -64,6 +64,7 @@ History:
 01-Oct-2006: Add support for reading 32bpp TGAs with alpha channel if option ext_bpp is set.
              Add support for writing 32bpp TGAs keeping the alpha channel if source data is 32bpp.
              Add read and write validation checks.
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <stdio.h>
@@ -78,9 +79,9 @@ History:
 
 /* ------------------------------------ */
 
-#define    low_byte(w)    ((byte)      (           (w)&0x00ff)    )
-#define    high_byte(w)   ((byte)      (((unsigned)(w)&0xff00)>>8))
-#define    make_word(a,b) (((word)a) + (((word)b) << 8))
+#define    low_byte(w)    ((gbm_u8)      (           (w)&0x00ff)    )
+#define    high_byte(w)   ((gbm_u8)      (((unsigned)(w)&0xff00)>>8))
+#define    make_word(a,b) (((gbm_u16)a) + (((gbm_u16)b) << 8))
 
 /* ------------------------------------ */
 
@@ -146,25 +147,25 @@ string and the color-map can be of zero length.
 #pragma pack(1)
 typedef struct
 {
-    byte n_chars_in_id;           /* Length of identification text     */
-    byte color_map_present;       /* 0 means no, 1 yes                 */
-    byte image_type;              /* Type of image file, one of TGA_   */
-    byte color_map_start_low;     /* These 5 bytes are only valid if   */
-    byte color_map_start_high;    /* color_map_present is 1. They      */
-    byte color_map_length_low;    /* Specify the size of the color map */
-    byte color_map_length_high;   /* and where it starts from          */
-    byte color_map_entry_bits;    /* Bits per color map entry          */
+    gbm_u8 n_chars_in_id;           /* Length of identification text     */
+    gbm_u8 color_map_present;       /* 0 means no, 1 yes                 */
+    gbm_u8 image_type;              /* Type of image file, one of TGA_   */
+    gbm_u8 color_map_start_low;     /* These 5 bytes are only valid if   */
+    gbm_u8 color_map_start_high;    /* color_map_present is 1. They      */
+    gbm_u8 color_map_length_low;    /* Specify the size of the color map */
+    gbm_u8 color_map_length_high;   /* and where it starts from          */
+    gbm_u8 color_map_entry_bits;    /* Bits per color map entry          */
                                   /* Typically 15, 16, 24 or 32        */
-    byte x_origin_low;
-    byte x_origin_high;
-    byte y_origin_low;
-    byte y_origin_high;
-    byte width_low;
-    byte width_high;
-    byte height_low;
-    byte height_high;
-    byte bpp;                     /* Typically 16, 24 or 32            */
-    byte image_descriptor;        /* Split into IDB_ bits              */
+    gbm_u8 x_origin_low;
+    gbm_u8 x_origin_high;
+    gbm_u8 y_origin_low;
+    gbm_u8 y_origin_high;
+    gbm_u8 width_low;
+    gbm_u8 width_high;
+    gbm_u8 height_low;
+    gbm_u8 height_high;
+    gbm_u8 bpp;                     /* Typically 16, 24 or 32            */
+    gbm_u8 image_descriptor;        /* Split into IDB_ bits              */
 } TGA_HEADER;
 #pragma pack()
 
@@ -172,7 +173,7 @@ typedef struct
 
 /* ------------------------------------ */
 
-static void t24_t32(byte *dest, const byte *src, int n)
+static void t24_t32(gbm_u8 *dest, const gbm_u8 *src, int n)
 {
     while ( n-- )
     {
@@ -185,7 +186,7 @@ static void t24_t32(byte *dest, const byte *src, int n)
 
 /* ------------------------------------ */
 
-static void t32_t24(byte *dest, const byte *src, int n)
+static void t32_t24(gbm_u8 *dest, const gbm_u8 *src, int n)
 {
     while ( n-- )
     {
@@ -198,57 +199,57 @@ static void t32_t24(byte *dest, const byte *src, int n)
 
 /* ------------------------------------ */
 
-static void t24_t16(byte *dest, const byte *src, int n)
+static void t24_t16(gbm_u8 *dest, const gbm_u8 *src, int n)
 {
     while ( n-- )
     {
-        word    b = (word) (*src++ & 0xf8);
-        word    g = (word) (*src++ & 0xf8);
-        word    r = (word) (*src++ & 0xf8);
-        word    w = ((r << 7) | (g << 2) | (b >> 3));
+        gbm_u16    b = (gbm_u16) (*src++ & 0xf8);
+        gbm_u16    g = (gbm_u16) (*src++ & 0xf8);
+        gbm_u16    r = (gbm_u16) (*src++ & 0xf8);
+        gbm_u16    w = ((r << 7) | (g << 2) | (b >> 3));
 
-        *dest++ = (byte)  w;
-        *dest++ = (byte) (w >> 8);
+        *dest++ = (gbm_u8)  w;
+        *dest++ = (gbm_u8) (w >> 8);
     }
 }
 
 /* ------------------------------------ */
 
-static void t32_t16(byte *dest, const byte *src, int n)
+static void t32_t16(gbm_u8 *dest, const gbm_u8 *src, int n)
 {
     while ( n-- )
     {
-        word    b = (word) (*src++ & 0xf8);
-        word    g = (word) (*src++ & 0xf8);
-        word    r = (word) (*src++ & 0xf8);
-        word    w = ((r << 7) | (g << 2) | (b >> 3));
+        gbm_u16    b = (gbm_u16) (*src++ & 0xf8);
+        gbm_u16    g = (gbm_u16) (*src++ & 0xf8);
+        gbm_u16    r = (gbm_u16) (*src++ & 0xf8);
+        gbm_u16    w = ((r << 7) | (g << 2) | (b >> 3));
 
         src++; /* discard alpha channel */
 
-        *dest++ = (byte)  w;
-        *dest++ = (byte) (w >> 8);
+        *dest++ = (gbm_u8)  w;
+        *dest++ = (gbm_u8) (w >> 8);
     }
 }
 
 /* ------------------------------------ */
 
-static void t16_t24(byte *dest, const byte *src, int n)
+static void t16_t24(gbm_u8 *dest, const gbm_u8 *src, int n)
 {
     while ( n-- )
     {
-        word l = *src++;
-        word h = *src++;
-        word w = l + (h << 8);
+        gbm_u16 l = *src++;
+        gbm_u16 h = *src++;
+        gbm_u16 w = l + (h << 8);
 
-        *dest++ = (byte) ((w & 0x001fU) << 3);
-        *dest++ = (byte) ((w & 0x03e0U) >> 2);
-        *dest++ = (byte) ((w & 0x7c00U) >> 7);
+        *dest++ = (gbm_u8) ((w & 0x001fU) << 3);
+        *dest++ = (gbm_u8) ((w & 0x03e0U) >> 2);
+        *dest++ = (gbm_u8) ((w & 0x7c00U) >> 7);
     }
 }
 
 /* ------------------------------------ */
 
-static void ref_horz_32(byte *dst, byte *src, int n)
+static void ref_horz_32(gbm_u8 *dst, gbm_u8 *src, int n)
 {
     dst += n * 4;
     while ( n-- )
@@ -263,7 +264,7 @@ static void ref_horz_32(byte *dst, byte *src, int n)
 
 /* ------------------------------------ */
 
-static void ref_horz_24(byte *dst, byte *src, int n)
+static void ref_horz_24(gbm_u8 *dst, gbm_u8 *src, int n)
 {
     dst += n * 3;
     while ( n-- )
@@ -277,7 +278,7 @@ static void ref_horz_24(byte *dst, byte *src, int n)
 
 /* ------------------------------------ */
 
-static void ref_horz_8(byte *dst, byte *src, int n)
+static void ref_horz_8(gbm_u8 *dst, gbm_u8 *src, int n)
 {
     dst += n;
     while ( n-- )
@@ -286,15 +287,15 @@ static void ref_horz_8(byte *dst, byte *src, int n)
 
 /* ------------------------------------ */
 
-static BOOLEAN ref_horz_8_24_32(const GBM *gbm, byte *data)
+static gbm_boolean ref_horz_8_24_32(const GBM *gbm, gbm_u8 *data)
 {
     const int stride = ( ((gbm->w * gbm->bpp + 31)/32) * 4 );
     int y;
-    byte *p = data;
-    byte *tmp;
+    gbm_u8 *p = data;
+    gbm_u8 *tmp;
 
     if ( (tmp = gbmmem_malloc((size_t) stride)) == NULL )
-        return FALSE;
+        return GBM_FALSE;
 
     switch ( gbm->bpp )
     {
@@ -321,11 +322,11 @@ static BOOLEAN ref_horz_8_24_32(const GBM *gbm, byte *data)
             break;
         default:
             gbmmem_free(tmp);
-            return FALSE;
+            return GBM_FALSE;
     }
 
     gbmmem_free(tmp);
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* ------------------------------------ */
@@ -428,7 +429,7 @@ GBM_ERR tga_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
             for (  i = 0; i < 0x100; i++ )
                 gbmrgb[i].b =
                 gbmrgb[i].g =
-                gbmrgb[i].r = (byte) i;
+                gbmrgb[i].r = (gbm_u8) i;
         }
         break;
 
@@ -446,7 +447,7 @@ GBM_ERR tga_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
             memset(gbmrgb, 0, 0x100 * sizeof(GBMRGB));
             for ( i = color_map_start; i < color_map_start + color_map_length; i++ )
             {
-                byte b[3];
+                gbm_u8 b[3];
 
                 if ( gbm_file_read(fd, (char *) b, 3) != 3 )
                     return GBM_ERR_READ;
@@ -463,10 +464,10 @@ GBM_ERR tga_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 
 /* ------------------------------------ */
 
-GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR tga_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
     TGA_PRIV *priv = (TGA_PRIV *) gbm->priv;
-    byte *p;
+    gbm_u8 *p;
     int i, stride;
 
     gbm_file_lseek(fd, (long) (SIZEOF_TGA_HEADER + priv->header.n_chars_in_id), GBM_SEEK_SET);
@@ -516,7 +517,7 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         }
                         if ( cnt & 0x80 )
                         {
-                            byte v = (byte) gbm_read_ahead(ahead);
+                            gbm_u8 v = (gbm_u8) gbm_read_ahead(ahead);
                             for ( i = 0x80; i <= cnt; i++ )
                             {
                                 p[x++] = v;
@@ -528,7 +529,7 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         {
                             for ( i = 0; i <= cnt; i++ )
                                 {
-                                p[x++] = (byte) gbm_read_ahead(ahead);
+                                p[x++] = (gbm_u8) gbm_read_ahead(ahead);
                                 if ( x == gbm->w )
                                     { x = 0; y++; p += stride; }
                                 }
@@ -555,8 +556,8 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         }
                         if ( cnt & 0x80 )
                         {
-                            byte v1 = (byte) gbm_read_ahead(ahead);
-                            byte v2 = (byte) gbm_read_ahead(ahead);
+                            gbm_u8 v1 = (gbm_u8) gbm_read_ahead(ahead);
+                            gbm_u8 v2 = (gbm_u8) gbm_read_ahead(ahead);
                             for ( i = 0x80; i <= cnt; i++ )
                             {
                                 p[x++] = v1;
@@ -568,8 +569,8 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         else
                             for ( i = 0; i <= cnt; i++ )
                             {
-                                p[x++] = (byte) gbm_read_ahead(ahead);
-                                p[x++] = (byte) gbm_read_ahead(ahead);
+                                p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                p[x++] = (gbm_u8) gbm_read_ahead(ahead);
                                 if ( x == gbm->w*2 )
                                 { x = 0; y++; p += stride; }
                             }
@@ -595,9 +596,9 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         }
                         if ( cnt & 0x80 )
                         {
-                            byte v1 = (byte) gbm_read_ahead(ahead);
-                            byte v2 = (byte) gbm_read_ahead(ahead);
-                            byte v3 = (byte) gbm_read_ahead(ahead);
+                            gbm_u8 v1 = (gbm_u8) gbm_read_ahead(ahead);
+                            gbm_u8 v2 = (gbm_u8) gbm_read_ahead(ahead);
+                            gbm_u8 v3 = (gbm_u8) gbm_read_ahead(ahead);
                             for ( i = 0x80; i <= cnt; i++ )
                             {
                                 p[x++] = v1;
@@ -610,9 +611,9 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         else
                             for ( i = 0; i <= cnt; i++ )
                             {
-                                p[x++] = (byte) gbm_read_ahead(ahead);
-                                p[x++] = (byte) gbm_read_ahead(ahead);
-                                p[x++] = (byte) gbm_read_ahead(ahead);
+                                p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                p[x++] = (gbm_u8) gbm_read_ahead(ahead);
                                 if ( x == gbm->w*3 )
                                 { x = 0; y++; p += stride; }
                             }
@@ -632,12 +633,12 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                         }
                         if ( cnt & 0x80 )
                         {
-                            const byte v1 = (byte) gbm_read_ahead(ahead);
-                            const byte v2 = (byte) gbm_read_ahead(ahead);
-                            const byte v3 = (byte) gbm_read_ahead(ahead);
+                            const gbm_u8 v1 = (gbm_u8) gbm_read_ahead(ahead);
+                            const gbm_u8 v2 = (gbm_u8) gbm_read_ahead(ahead);
+                            const gbm_u8 v3 = (gbm_u8) gbm_read_ahead(ahead);
                             if (gbm->bpp == 32)
                             {
-                                const byte v4 = (byte) gbm_read_ahead(ahead); /* alpha channel */
+                                const gbm_u8 v4 = (gbm_u8) gbm_read_ahead(ahead); /* alpha channel */
                                 for ( i = 0x80; i <= cnt; i++ )
                                 {
                                     p[x++] = v1;
@@ -667,10 +668,10 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                             {
                                 for ( i = 0; i <= cnt; i++ )
                                 {
-                                    p[x++] = (byte) gbm_read_ahead(ahead);
-                                    p[x++] = (byte) gbm_read_ahead(ahead);
-                                    p[x++] = (byte) gbm_read_ahead(ahead);
-                                    p[x++] = (byte) gbm_read_ahead(ahead); /* alpha channel */
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead); /* alpha channel */
                                     if ( x == gbm->w*4 )
                                     { x = 0; y++; p += stride; }
                                 }
@@ -679,9 +680,9 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                             {
                                 for ( i = 0; i <= cnt; i++ )
                                 {
-                                    p[x++] = (byte) gbm_read_ahead(ahead);
-                                    p[x++] = (byte) gbm_read_ahead(ahead);
-                                    p[x++] = (byte) gbm_read_ahead(ahead);
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead);
+                                    p[x++] = (gbm_u8) gbm_read_ahead(ahead);
                                     gbm_read_ahead(ahead); /* Discard alpha channel */
                                     if ( x == gbm->w*3 )
                                     { x = 0; y++; p += stride; }
@@ -734,7 +735,7 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
                 {
                     if (gbm->bpp != 32)
                     {
-                        byte *linebuf;
+                        gbm_u8 *linebuf;
                         if ( (linebuf = gbmmem_malloc((size_t) (gbm->w * 4))) == NULL )
                             return GBM_ERR_MEM;
 
@@ -781,16 +782,16 @@ GBM_ERR tga_rdata(int fd, GBM *gbm, byte *data)
 
 #define SW3(a,b,c)  ((a)*4+(b)*2+(c))
 
-GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
     TGA_HEADER tga_header;
     int i, stride, obpp;
-    const byte *p;
-    BOOLEAN o16   = ( gbm_find_word(opt, "16"   ) != NULL );
-    BOOLEAN o24   = ( gbm_find_word(opt, "24"   ) != NULL );
-    BOOLEAN o32   = ( gbm_find_word(opt, "32"   ) != NULL );
-    BOOLEAN yup   = ( gbm_find_word(opt, "yup"  ) != NULL );
-    BOOLEAN ydown = ( gbm_find_word(opt, "ydown") != NULL );
+    const gbm_u8 *p;
+    gbm_boolean o16   = ( gbm_find_word(opt, "16"   ) != NULL );
+    gbm_boolean o24   = ( gbm_find_word(opt, "24"   ) != NULL );
+    gbm_boolean o32   = ( gbm_find_word(opt, "32"   ) != NULL );
+    gbm_boolean yup   = ( gbm_find_word(opt, "yup"  ) != NULL );
+    gbm_boolean ydown = ( gbm_find_word(opt, "ydown") != NULL );
 
     fn=fn; /* Suppress 'unref arg' compiler warning */
 
@@ -836,14 +837,14 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     tga_header.color_map_start_high  = high_byte(0);
     if ( gbm->bpp == 8 )
     {
-        tga_header.color_map_present     = (byte) 1;
+        tga_header.color_map_present     = (gbm_u8) 1;
         tga_header.color_map_length_low  = low_byte(0x100);
         tga_header.color_map_length_high = high_byte(0x100);
         tga_header.color_map_entry_bits  = 24;
     }
     else
     {
-        tga_header.color_map_present     = (byte) 0;
+        tga_header.color_map_present     = (gbm_u8) 0;
         tga_header.color_map_length_low  = low_byte(0);
         tga_header.color_map_length_high = high_byte(0);
         tga_header.color_map_entry_bits  = 0;
@@ -852,7 +853,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     tga_header.width_high            = high_byte(gbm->w);
     tga_header.height_low            = low_byte(gbm->h);
     tga_header.height_high           = high_byte(gbm->h);
-    tga_header.bpp                   = (byte) obpp;
+    tga_header.bpp                   = (gbm_u8) obpp;
     tga_header.image_descriptor      = IDB_NON_INT;
 
     if ( ydown )
@@ -868,7 +869,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         case 8:
             for ( i = 0; i < 0x100; i++ )
             {
-                byte b[3];
+                gbm_u8 b[3];
 
                 b[0] = gbmrgb[i].b;
                 b[1] = gbmrgb[i].g;
@@ -902,7 +903,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
         case 16:
         {
-            byte *linebuf;
+            gbm_u8 *linebuf;
             const int writelen = gbm->w * 2;
 
             if ( (linebuf = gbmmem_malloc((size_t) writelen)) == NULL )
@@ -961,7 +962,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
             if (gbm->bpp == 32)
             {
-                byte *linebuf;
+                gbm_u8 *linebuf;
 
                 if ( (linebuf = gbmmem_malloc((size_t) stride)) == NULL )
                     return GBM_ERR_MEM;
@@ -1018,7 +1019,7 @@ GBM_ERR tga_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             }
             else
             {
-                byte *linebuf;
+                gbm_u8 *linebuf;
 
                 if ( (linebuf = gbmmem_malloc((size_t) writelen)) == NULL )
                     return GBM_ERR_MEM;

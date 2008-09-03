@@ -7,7 +7,7 @@ srcfiles = $(p)gbm$(e)    $(p)gbmpbm$(e)  $(p)gbmpgm$(e) $(p)gbmppm$(e) $(p)gbmp
            $(p)gbmtif$(e) $(p)gbmlbm$(e)  $(p)gbmvid$(e) $(p)gbmgif$(e) $(p)gbmxbm$(e)  &
            $(p)gbmspr$(e) $(p)gbmpsg$(e)  $(p)gbmgem$(e) $(p)gbmcvp$(e) $(p)gbmjpg$(e)  &
            $(p)gbmpng$(e) $(p)gbmxpm$(e)  $(p)gbmxpmcn$(e) $(p)gbmhelp$(e) $(p)gbmmap$(e) &
-           $(p)gbmmem$(e)
+           $(p)gbmmem$(e) $(p)gbmj2k$(e)
 
 !include $(%ROOT)/mk/libsos2.mk
 

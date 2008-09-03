@@ -9,6 +9,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -68,14 +69,14 @@ typedef struct
 	{
 	int fd;
 	int inx, cnt;
-	byte buf[MAX_BUF];
+	gbm_u8 buf[MAX_BUF];
 	char id[MAX_ID+1];
 	int number;
 	int size;
 	} XBM_PRIV;
 
 /*...srev:0:*/
-static byte rev[0x100] =
+static gbm_u8 rev[0x100] =
 	{
 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
 	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
@@ -129,10 +130,10 @@ static int nextbuf(XBM_PRIV *xbm_priv)
 static void pushchar(XBM_PRIV *xbm_priv, int c)
 	{
 	if ( c != -1 )
-		xbm_priv->buf[--(xbm_priv->inx)] = (byte) c;
+		xbm_priv->buf[--(xbm_priv->inx)] = (gbm_u8) c;
 	}
 
-typedef byte SYM;
+typedef gbm_u8 SYM;
 #define	S_DEFINE	((SYM)  1)
 #define	S_ID		((SYM)  2)
 #define	S_NUMBER	((SYM)  3)
@@ -429,13 +430,13 @@ GBM_ERR xbm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...sxbm_rdata:0:*/
-GBM_ERR xbm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR xbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	XBM_PRIV *xbm_priv = (XBM_PRIV *) gbm->priv;
 	int stride = ( ( gbm->w * gbm->bpp + 31 ) / 32 ) * 4;
 	int x, y;
 	SYM sym;
-	BOOLEAN keep_going = TRUE;
+	gbm_boolean keep_going = GBM_TRUE;
 
 	fd=fd; /* Suppres 'unref arg' compiler warning */
 
@@ -449,7 +450,7 @@ case 8:
 	for ( y = gbm->h - 1; keep_going && y >= 0; y--, data -= stride )
 		for ( x = 0; keep_going && x < (int) ((unsigned)(gbm->w + 7) >> 3); x++ )
 			if ( (sym = nextsym(xbm_priv)) == S_RCUR )
-				keep_going = FALSE;
+				keep_going = GBM_FALSE;
 			else if ( sym != S_NUMBER )
 				return GBM_ERR_XBM_EXP_NUMBER;
 			else
@@ -458,7 +459,7 @@ case 8:
 
 				sym = nextsym(xbm_priv);
 				if ( sym == S_RCUR )
-					keep_going = FALSE;
+					keep_going = GBM_FALSE;
 				else if ( sym != S_COMMA )
 					return GBM_ERR_XBM_EXP_COMMA;
 				}
@@ -469,7 +470,7 @@ case 16:
 	for ( y = gbm->h - 1; keep_going && y >= 0; y--, data -= stride )
 		for ( x = 0; keep_going && x < (int) ((unsigned)(gbm->w + 15) >> 4); x++ )
 			if ( (sym = nextsym(xbm_priv)) == S_RCUR )
-				keep_going = FALSE;
+				keep_going = GBM_FALSE;
 			else if ( sym != S_NUMBER )
 				return GBM_ERR_XBM_EXP_NUMBER;
 			else
@@ -479,7 +480,7 @@ case 16:
 
 				sym = nextsym(xbm_priv);
 				if ( sym == S_RCUR )
-					keep_going = FALSE;
+					keep_going = GBM_FALSE;
 				else if ( sym != S_COMMA )
 					return GBM_ERR_XBM_EXP_COMMA;
 				}
@@ -502,7 +503,7 @@ case 16:
 Write darkest colour as 1s, lightest colour with 0s.
 */
 
-GBM_ERR xbm_w(char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, char *opt)
+GBM_ERR xbm_w(char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, char *opt)
 	{
 	int stride = ((gbm->w * gbm->bpp + 31) / 32) * 4;
 	int x, y, col = 0;

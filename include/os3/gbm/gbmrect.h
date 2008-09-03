@@ -15,12 +15,12 @@ gbmrect.c - Subrectangle Transfer
 extern void gbm_subrectangle(
 	const GBM *gbm,
 	int x, int y, int w, int h,
-	const byte *data_src, byte *data_dst
+	const gbm_u8 *data_src, gbm_u8 *data_dst
 	);
 
 extern void gbm_blit(
-	const byte *s, int sw, int sx, int sy,
-	      byte *d, int dw, int dx, int dy,
+	const gbm_u8 *s, int sw, int sx, int sy,
+	      gbm_u8 *d, int dw, int dx, int dy,
 	int w, int h,
 	int bpp
 	);

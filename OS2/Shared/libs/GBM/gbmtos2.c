@@ -39,26 +39,29 @@ History
  *                    The caller is responsible to free the
  *                    allocated buffer.
  *
- * @retval TRUE   Success.
- * @retval FALSE  An error occured.
+ * @retval GBM_TRUE   Success.
+ * @retval GBM_FALSE  An error occured.
  */
-static BOOLEAN getPathFromFullFilename(const char * filename, char ** path)
+static gbm_boolean getPathFromFullFilename(const char * filename, char ** path)
 {
   char drive[_MAX_DRIVE] = { 0 };
   char dir[_MAX_DIR]     = { 0 };
- 
+  char * split_filename  = NULL;
+
   if ((filename == NULL) || (path == NULL))
   {
-     return FALSE;
+     return GBM_FALSE;
   }
 
-  _splitpath((char *)filename, drive, dir, NULL, NULL);
-
+  split_filename = strdup(filename);
+  _splitpath(split_filename, drive, dir, NULL, NULL);
+  free(split_filename); split_filename = NULL;
+  
   *path = (char *) malloc(strlen(drive) + strlen(dir) + 1);
   strcpy(*path, drive);
   strcat(*path, dir);
 
-  return TRUE;
+  return GBM_TRUE;
 }
 
 /************************************************************/
@@ -75,10 +78,10 @@ static BOOLEAN getPathFromFullFilename(const char * filename, char ** path)
  *
  * @param filearray_length  Number of filenames contained in filearray.
  *
- * @retval TRUE   Success.
- * @retval FALSE  An error occured.
+ * @retval GBM_TRUE   Success.
+ * @retval GBM_FALSE  An error occured.
  */
-BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned int * filecount)
+gbm_boolean gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned int * filecount)
 {
   HDIR          hdirFindHandle = HDIR_CREATE;
   FILEFINDBUF3  findBuffer     = {0};      /* Returned from FindFirst/Next */
@@ -86,18 +89,25 @@ BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned
   ULONG         ulFindCount    = 1;        /* Look for 1 file at a time    */
   APIRET        rc             = NO_ERROR; /* Return code                  */
 
-  char   buffer[1025];
-  char * path       = NULL;
+  char   buffer[1025] = { 0 };
+  char * path = NULL;
+#ifndef NDEBUG
   int    pathlength = 0;
+#endif
 
   GBMTOOL_FILE * firstNode   = NULL;
   GBMTOOL_FILE * currentNode = NULL;
 
+  *filecount = 0;
+  *files     = NULL;
+  
   if (! getPathFromFullFilename(filename, &path))
   {
-    return FALSE;
+    return GBM_FALSE;
   }
+#ifndef NDEBUG
   pathlength = strlen(path);
+#endif
 
   rc = DosFindFirst((char *)filename, /* File pattern              */
                     &hdirFindHandle,  /* Directory search handle   */
@@ -108,8 +118,9 @@ BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned
                     FIL_STANDARD);    /* Return Level 1 file info  */
   if ((rc != NO_ERROR) || (ulFindCount != 1))
   {
+    DosFindClose(hdirFindHandle);
     free(path);
-    return FALSE;
+    return GBM_FALSE;
   }
 
   /* add first found filename */
@@ -120,8 +131,9 @@ BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned
   *files = gbmtool_createFileNode(buffer);
   if (*files == NULL)
   {
+    DosFindClose(hdirFindHandle);
     free(path);
-    return FALSE;
+    return GBM_FALSE;
   }
   *filecount += ulFindCount;
 
@@ -132,21 +144,22 @@ BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned
   while (rc != ERROR_NO_MORE_FILES)
   {
     ulFindCount = 1;                  /* Reset find count.         */
- 
+
     rc = DosFindNext(hdirFindHandle,  /* Directory handle          */
                      &findBuffer,     /* Result buffer             */
                      ulResultBufLen,  /* Result buffer length      */
                      &ulFindCount);   /* Number of entries to find */
- 
+
      if ((rc != NO_ERROR && rc != ERROR_NO_MORE_FILES) || (ulFindCount > 1))
      {
        unsigned int count;
        gbmtool_free_all_subnodes(firstNode, &count);
        *filecount -= count;
        gbmtool_free_node(firstNode);
-       *filecount -= 1;
+       (*filecount)--;
+       DosFindClose(hdirFindHandle);
        free(path);
-       return FALSE;
+       return GBM_FALSE;
      }
 
      if ((rc != ERROR_NO_MORE_FILES) && (ulFindCount == 1))
@@ -162,30 +175,20 @@ BOOLEAN gbmtool_findFiles(const char * filename, GBMTOOL_FILE ** files, unsigned
          gbmtool_free_all_subnodes(firstNode, &count);
          *filecount -= count;
          gbmtool_free_node(firstNode);
-         *filecount -= 1;
+         (*filecount)--;
+         DosFindClose(hdirFindHandle);
          free(path);
-         return FALSE;
+         return GBM_FALSE;
        }
        *filecount += ulFindCount;
        currentNode = currentNode->next;
      }
   } /* endwhile */
- 
-  rc = DosFindClose(hdirFindHandle); /* Close our directory handle */
-  if (rc != NO_ERROR)
-  {
-    unsigned int count;
-    gbmtool_free_all_subnodes(firstNode, &count);
-    *filecount -= count;
-    gbmtool_free_node(firstNode);
-    *filecount -= 1;
-    free(path);
-    return FALSE;
-  }
 
+  DosFindClose(hdirFindHandle); /* Close our directory handle */
   free(path);
 
-  return TRUE;
+  return GBM_TRUE;
 }
 
 #endif /* FILENAME_EXPANSION_MODE */

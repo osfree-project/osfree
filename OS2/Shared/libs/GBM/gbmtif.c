@@ -164,6 +164,12 @@ History:
              - CMYK images (8/16bpp) can now be read (single and multiplane TIFFs)
              - Report more specific error message for data decoding problem
 
+15-Aug-2008: Integrate new GBM types
+
+ 1-Sep-2008: Reject unsupport samplesPerPixel
+             (IBM TIFF seems to write buggy images for 32bpp which are marked
+              as graylevel image but has 4 samples per pixel)
+
 ******************************************************************************/
 
 #ifdef ENABLE_TIF
@@ -231,11 +237,11 @@ typedef struct
     TIFFErrorHandler orgWarningHandler;  /* stores the original warning handler */
     TIFF             *tif_p;             /* Pointer to TIFF file structure */
 
-    BOOLEAN      upsamplePaletteToRGB;     /* TRUE if palette file has to be upsampled to RGB */
-    BOOLEAN      upsamplePaletteToPalette; /* TRUE if palette file has to be upsampled to other palette */
-    BOOLEAN      unassociatedAlpha;        /* TRUE if an unassociated alpha channel exists */
-    uint16       photometric;              /* Photographic representation    */
-    GBMRGB_16BPP backrgb;                  /* background RGB color for Alpha channel mixing */
+    gbm_boolean      upsamplePaletteToRGB;     /* GBM_TRUE if palette file has to be upsampled to RGB */
+    gbm_boolean      upsamplePaletteToPalette; /* GBM_TRUE if palette file has to be upsampled to other palette */
+    gbm_boolean      unassociatedAlpha;        /* GBM_TRUE if an unassociated alpha channel exists */
+    uint16           photometric;              /* Photographic representation    */
+    GBMRGB_16BPP     backrgb;                  /* background RGB color for Alpha channel mixing */
 
     /* This entry will store the filename provided during first header read.
      * It will be kept for the case the header has to be reread.
@@ -247,7 +253,7 @@ typedef struct
      */
     char read_options[PRIV_SIZE - 257 /* read_filename */
                                 - (2*sizeof(TIFFErrorHandler))
-                                - (3*sizeof(BOOLEAN))
+                                - (3*sizeof(gbm_boolean))
                                 - sizeof(TIFF *)
                                 - sizeof(uint16)
                                 - sizeof(GBMRGB_16BPP)
@@ -273,7 +279,26 @@ static tsize_t tif_gbm_write_data(thandle_t fd, tdata_t data, tsize_t length)
 
 static toff_t tif_gbm_seek(thandle_t fd, toff_t off, int whence)
 {
-   return ((toff_t) gbm_file_lseek((int) fd, (off_t) off, whence));
+   /* libtiff uses platform SEEK_ constants but we export GBM_SEEK_ constants, so we have to map */
+   int internal_whence = -1;
+   switch(whence)
+   {
+      case SEEK_SET:
+         internal_whence = GBM_SEEK_SET;
+         break;
+
+      case SEEK_CUR:
+         internal_whence = GBM_SEEK_CUR;
+         break;
+
+      case SEEK_END:
+         internal_whence = GBM_SEEK_END;
+         break;
+
+      default:
+	     return (toff_t) -1;
+   }
+   return ((toff_t) gbm_file_lseek((int) fd, (off_t) off, internal_whence));
 }
 
 static int tif_gbm_close(thandle_t fd)
@@ -286,7 +311,12 @@ static int tif_gbm_close(thandle_t fd)
 
 static toff_t tif_gbm_size(thandle_t fd)
 {
+   const long fpos  = gbm_file_lseek((int) fd, 0, GBM_SEEK_CUR);
    const long fsize = gbm_file_lseek((int) fd, 0, GBM_SEEK_END);
+   if (gbm_file_lseek((int) fd, fpos, GBM_SEEK_SET) < 0)
+   {
+      return (toff_t) 0;
+   }
    return (toff_t) (fsize < 0 ? 0 : fsize);
 }
 
@@ -335,9 +365,9 @@ static void tif_gbm_error_handler(const char* module, const char* fmt, va_list a
 /* ----------------------------------------------------------- */
 
 /* Initialize private structures for reading
-   Returns TRUE on success, else FALSE
+   Returns GBM_TRUE on success, else GBM_FALSE
 */
-static BOOLEAN tif_read_init(TIF_PRIV_READ *tif_priv, const char *fn, int fd)
+static gbm_boolean tif_read_init(TIF_PRIV_READ *tif_priv, const char *fn, int fd)
 {
     tif_priv->tif_p = NULL;
 
@@ -354,10 +384,10 @@ static BOOLEAN tif_read_init(TIF_PRIV_READ *tif_priv, const char *fn, int fd)
                                      NULL, NULL);
     if (tif_priv->tif_p == NULL)
     {
-       return FALSE;
+       return GBM_FALSE;
     }
 
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* Cleanup private structs for reading. */
@@ -377,9 +407,9 @@ static void tif_read_deinit(TIF_PRIV_READ *tif_priv)
 /* ----------------------------------------------------------- */
 
 /* Initialize private structures for writing
-   Returns TRUE on success, else FALSE
+   Returns GBM_TRUE on success, else GBM_FALSE
 */
-static BOOLEAN tif_write_init(TIF_PRIV_WRITE *tif_priv, const char *fn, int fd)
+static gbm_boolean tif_write_init(TIF_PRIV_WRITE *tif_priv, const char *fn, int fd)
 {
     tif_priv->tif_p = NULL;
 
@@ -396,10 +426,10 @@ static BOOLEAN tif_write_init(TIF_PRIV_WRITE *tif_priv, const char *fn, int fd)
                                      NULL, NULL);
     if (tif_priv->tif_p == NULL)
     {
-       return FALSE;
+       return GBM_FALSE;
     }
 
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* Cleanup structs for writing. */
@@ -470,9 +500,9 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
     uint16 inkset       = INKSET_MULTIINK;
     uint16 config;
 
-    BOOLEAN back_color_defined = FALSE;
-    BOOLEAN use_native_bpp     = FALSE;
-    BOOLEAN is_cmyk            = FALSE;
+    gbm_boolean back_color_defined = GBM_FALSE;
+    gbm_boolean use_native_bpp     = GBM_FALSE;
+    gbm_boolean is_cmyk            = GBM_FALSE;
 
     const char *s = NULL;
 
@@ -540,11 +570,11 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
 
     /* check if extended color depths are requested */
     use_native_bpp = (gbm_find_word(tif_priv->read_options, "ext_bpp") != NULL)
-                     ? TRUE : FALSE;
+                     ? GBM_TRUE : GBM_FALSE;
 
     /* check if a background color was specified */
     back_color_defined = (gbm_find_word_prefix(tif_priv->read_options, "back_rgb=") != NULL)
-                         ? TRUE : FALSE;
+                         ? GBM_TRUE : GBM_FALSE;
 
     gbm->w = width;
     gbm->h = height;
@@ -557,7 +587,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
     switch(extraSamples)
     {
        case 0:
-          tif_priv->unassociatedAlpha = FALSE;
+          tif_priv->unassociatedAlpha = GBM_FALSE;
           break;
 
        case 1:
@@ -566,7 +596,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
              tif_read_deinit(tif_priv);
              return GBM_ERR_TIF_HEADER;
           }
-          tif_priv->unassociatedAlpha = (*extraSamplesInfo == EXTRASAMPLE_UNASSALPHA) ? TRUE : FALSE;
+          tif_priv->unassociatedAlpha = (*extraSamplesInfo == EXTRASAMPLE_UNASSALPHA) ? GBM_TRUE : GBM_FALSE;
           break;
 
        default:
@@ -574,8 +604,8 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
           return GBM_ERR_TIF_HEADER;
     }
 
-    tif_priv->upsamplePaletteToRGB     = FALSE;
-    tif_priv->upsamplePaletteToPalette = FALSE;
+    tif_priv->upsamplePaletteToRGB     = GBM_FALSE;
+    tif_priv->upsamplePaletteToPalette = GBM_FALSE;
 
     /* check if data is splitted into multiple planes */
     if (! TIFFGetField(tif_p, TIFFTAG_PLANARCONFIG, &config))
@@ -589,7 +619,9 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
     {
       case PHOTOMETRIC_MINISWHITE:
       case PHOTOMETRIC_MINISBLACK:
-         if ((tif_priv->unassociatedAlpha) || (config != PLANARCONFIG_CONTIG))
+         if ((tif_priv->unassociatedAlpha)   ||
+             (config != PLANARCONFIG_CONTIG) ||
+             (samplesPerPixel != 1))
          {
             tif_read_deinit(tif_priv);
             return GBM_ERR_TIF_BPP;
@@ -604,14 +636,14 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
             case 2:
                /* the import of 2 bpp files is already supported (use_native_bpp) */
                /* but we always upsample to 4 bpp to simplify external usage      */
-               tif_priv->upsamplePaletteToPalette = TRUE;
+               tif_priv->upsamplePaletteToPalette = GBM_TRUE;
                bitsPerSample = 4;
                gbm->bpp      = 4;
                break;
 
             case 16:
                /* upsample to 24/48 bpp */
-               tif_priv->upsamplePaletteToRGB = TRUE;
+               tif_priv->upsamplePaletteToRGB = GBM_TRUE;
                bitsPerSample   = use_native_bpp ? 16 : 8;
                samplesPerPixel = 3;
                gbm->bpp        = samplesPerPixel * bitsPerSample;
@@ -626,7 +658,9 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
       /* ------------------------------------------------------- */
 
       case PHOTOMETRIC_PALETTE:
-         if ((tif_priv->unassociatedAlpha) || (config != PLANARCONFIG_CONTIG))
+         if ((tif_priv->unassociatedAlpha)   ||
+             (config != PLANARCONFIG_CONTIG) ||
+             (samplesPerPixel != 1))
          {
             tif_read_deinit(tif_priv);
             return GBM_ERR_TIF_BPP;
@@ -641,17 +675,16 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
             case 2:
                /* the import of 2 bpp files is already supported (use_native_bpp) */
                /*  but we always upsample to 4 bpp to simplify external usage     */
-               tif_priv->upsamplePaletteToPalette = TRUE;
+               tif_priv->upsamplePaletteToPalette = GBM_TRUE;
                bitsPerSample = 4;
                gbm->bpp      = 4;
                break;
 
             case 16:
                /* upsample to 24/48 bpp */
-               tif_priv->upsamplePaletteToRGB = TRUE;
-               bitsPerSample   = use_native_bpp ? 16 : 8;
-               samplesPerPixel = 3;
-               gbm->bpp        = samplesPerPixel * bitsPerSample;
+               tif_priv->upsamplePaletteToRGB = GBM_TRUE;
+               bitsPerSample = use_native_bpp ? 16 : 8;
+               gbm->bpp      = samplesPerPixel * bitsPerSample;
                break;
 
             default:
@@ -663,6 +696,11 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
       /* ------------------------------------------------------- */
 
       case PHOTOMETRIC_RGB:
+         if ((samplesPerPixel != 3) && (samplesPerPixel != 4))
+         {
+            tif_read_deinit(tif_priv);
+            return GBM_ERR_TIF_BPP;
+         }
          switch(bitsPerSample)
          {
             case 8: /* this is 24 bpp or 32 bpp (with alpha channel) */
@@ -676,7 +714,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                   if (! back_color_defined)
                   {
                      /* don't calculate alpha against background color */
-                     tif_priv->unassociatedAlpha = FALSE;
+                     tif_priv->unassociatedAlpha = GBM_FALSE;
                   }
                }
                else
@@ -698,7 +736,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                         else
                         {
                            /* don't calculate alpha against background color */
-                           tif_priv->unassociatedAlpha = FALSE;
+                           tif_priv->unassociatedAlpha = GBM_FALSE;
                         }
                      }
                      else
@@ -723,7 +761,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                   if (! back_color_defined)
                   {
                      /* don't calculate alpha against background color */
-                     tif_priv->unassociatedAlpha = FALSE;
+                     tif_priv->unassociatedAlpha = GBM_FALSE;
                   }
                }
                else
@@ -745,7 +783,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                         else
                         {
                            /* don't calculate alpha against background color */
-                           tif_priv->unassociatedAlpha = FALSE;
+                           tif_priv->unassociatedAlpha = GBM_FALSE;
                         }
                      }
                      else
@@ -767,9 +805,14 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
       /* ------------------------------------------------------- */
 
       case PHOTOMETRIC_SEPARATED: /* CMYK (4 samples), RGB(A) */
+         if ((samplesPerPixel != 3) && (samplesPerPixel != 4))
+         {
+            tif_read_deinit(tif_priv);
+            return GBM_ERR_TIF_BPP;
+         }
          inkset = INKSET_CMYK; /* CMYK is default */
          TIFFGetField(tif_p, TIFFTAG_INKSET, &inkset);
-         is_cmyk = (inkset == INKSET_CMYK) ? TRUE : FALSE;
+         is_cmyk = (inkset == INKSET_CMYK) ? GBM_TRUE : GBM_FALSE;
 
          switch(bitsPerSample)
          {
@@ -800,7 +843,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                      if (! back_color_defined)
                      {
                         /* don't calculate alpha against background color */
-                        tif_priv->unassociatedAlpha = FALSE;
+                        tif_priv->unassociatedAlpha = GBM_FALSE;
                      }
                   }
                   else
@@ -822,7 +865,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                            else
                            {
                               /* don't calculate alpha against background color */
-                              tif_priv->unassociatedAlpha = FALSE;
+                              tif_priv->unassociatedAlpha = GBM_FALSE;
                            }
                         }
                         else
@@ -863,7 +906,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                      if (! back_color_defined)
                      {
                         /* don't calculate alpha against background color */
-                        tif_priv->unassociatedAlpha = FALSE;
+                        tif_priv->unassociatedAlpha = GBM_FALSE;
                      }
                   }
                   else
@@ -885,7 +928,7 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
                            else
                            {
                               /* don't calculate alpha against background color */
-                              tif_priv->unassociatedAlpha = FALSE;
+                              tif_priv->unassociatedAlpha = GBM_FALSE;
                            }
                         }
                         else
@@ -933,7 +976,6 @@ static GBM_ERR internal_tif_rhdr(int fd, GBM *gbm)
          }
          break;
     }
-
 
     /* tile based organization ? (for now we only support this via RGBA-Reader (24 Bit) */
     if (TIFFIsTiled(tif_p))
@@ -1209,9 +1251,9 @@ static GBM_ERR internal_tif_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
           while (i > 0)
           {
              i--;
-             gbmrgb[i].r = (byte) CVT(gbmrgb16[i].r);
-             gbmrgb[i].g = (byte) CVT(gbmrgb16[i].g);
-             gbmrgb[i].b = (byte) CVT(gbmrgb16[i].b);
+             gbmrgb[i].r = (gbm_u8) CVT(gbmrgb16[i].r);
+             gbmrgb[i].g = (gbm_u8) CVT(gbmrgb16[i].g);
+             gbmrgb[i].b = (gbm_u8) CVT(gbmrgb16[i].b);
           }
        }
        else
@@ -1220,9 +1262,9 @@ static GBM_ERR internal_tif_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
           while (i > 0)
           {
              i--;
-             gbmrgb[i].r = (byte) gbmrgb16[i].r;
-             gbmrgb[i].g = (byte) gbmrgb16[i].g;
-             gbmrgb[i].b = (byte) gbmrgb16[i].b;
+             gbmrgb[i].r = (gbm_u8) gbmrgb16[i].r;
+             gbmrgb[i].g = (gbm_u8) gbmrgb16[i].g;
+             gbmrgb[i].b = (gbm_u8) gbmrgb16[i].b;
           }
        }
 
@@ -1284,12 +1326,12 @@ GBM_ERR tif_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /* ----------------------------------------------------------- */
 
 /* Read bitmap data Scanline based for a single plane (continuous) */
-GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, gbm_u8 * data)
 {
    TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
    TIFF          *tif_p    = tif_priv->tif_p;
 
-   byte ** gbm_row_pointers = NULL;
+   gbm_u8 ** gbm_row_pointers = NULL;
    int row;
 
    /* Read the image in scanlines. Attn: Align to 32 bit rows for GBM !!! */
@@ -1297,7 +1339,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
    const int gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
    /* start at buffer begin */
-   gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
+   gbm_row_pointers = (gbm_u8 **) gbmmem_malloc(gbm->h * sizeof(gbm_u8 *));
    if (gbm_row_pointers == NULL)
    {
       return GBM_ERR_MEM;
@@ -1330,8 +1372,8 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
    {
       uint16 bitsPerSample, samplesPerPixel;
 
-      GBM    gbm_src         = *gbm;
-      byte * scanline_buffer = NULL;
+      GBM      gbm_src         = *gbm;
+      gbm_u8 * scanline_buffer = NULL;
 
       if ((! TIFFGetField(tif_p, TIFFTAG_BITSPERSAMPLE  , &bitsPerSample))   ||
           (! TIFFGetField(tif_p, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel)))
@@ -1349,7 +1391,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
       }
 
       /* allocate temporary buffer for reading */
-      scanline_buffer = (byte *) gbmmem_malloc(scanline_bytes);
+      scanline_buffer = (gbm_u8 *) gbmmem_malloc(scanline_bytes);
       if (scanline_buffer == NULL)
       {
          gbmmem_free(gbm_row_pointers);
@@ -1445,7 +1487,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
           */
 
          /* allocate temporary buffer for reading */
-         byte *  scanline_buffer = (byte *) gbmmem_malloc(scanline_bytes);
+         gbm_u8 *  scanline_buffer = (gbm_u8 *) gbmmem_malloc(scanline_bytes);
          if (scanline_buffer == NULL)
          {
             gbmmem_free(gbm_row_pointers);
@@ -1473,7 +1515,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
                }
 
                if (! gbm_map_row_CMYK_to_BGR(scanline_buffer      , &gbm_src,
-                                             gbm_row_pointers[row],  gbm    , TRUE))
+                                             gbm_row_pointers[row],  gbm    , GBM_TRUE))
                {
                   gbmmem_free(scanline_buffer);
                   gbmmem_free(gbm_row_pointers);
@@ -1527,7 +1569,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
                }
 
                if (! gbm_map_row_CMYK_to_BGR(gbm_row_pointers[row],  gbm,
-                                             gbm_row_pointers[row],  gbm, TRUE))
+                                             gbm_row_pointers[row],  gbm, GBM_TRUE))
                {
                   gbmmem_free(gbm_row_pointers);
                   return GBM_ERR_READ;
@@ -1563,15 +1605,15 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, byte * data)
 /* ----------------------------------------------------------- */
 
 /* Read bitmap data Scanline based for multiple planes (separated) */
-GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, gbm_u8 * data)
 {
    TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
    TIFF          *tif_p    = tif_priv->tif_p;
 
    uint16 s, samplesPerPixel, bitsPerSample, inkset;
 
-   byte *  scanline_buffer  = NULL;
-   byte ** gbm_row_pointers = NULL;
+   gbm_u8 *  scanline_buffer  = NULL;
+   gbm_u8 ** gbm_row_pointers = NULL;
    int row;
 
    GBM gbm_src = *gbm;
@@ -1589,7 +1631,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
    }
 
    /* start at buffer begin */
-   gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
+   gbm_row_pointers = (gbm_u8 **) gbmmem_malloc(gbm->h * sizeof(gbm_u8 *));
    if (gbm_row_pointers == NULL)
    {
       return GBM_ERR_MEM;
@@ -1641,7 +1683,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
    }
 
    /* allocate temporary buffer for reading */
-   scanline_buffer = (byte *) gbmmem_malloc(scanline_bytes);
+   scanline_buffer = (gbm_u8 *) gbmmem_malloc(scanline_bytes);
    if (scanline_buffer == NULL)
    {
       gbmmem_free(gbm_row_pointers);
@@ -1663,7 +1705,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
 
             /* copy the current plane into one RGB plane */
             if (! gbm_map_sep_row_CMYK_to_BGR(scanline_buffer      , &gbm_src,
-                                              gbm_row_pointers[row],  gbm, s , TRUE))
+                                              gbm_row_pointers[row],  gbm, s , GBM_TRUE))
             {
                gbmmem_free(scanline_buffer);
                gbmmem_free(gbm_row_pointers);
@@ -1722,7 +1764,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, byte * data)
 /* ----------------------------------------------------------- */
 
 /* Read bitmap data Scanline based */
-GBM_ERR internal_tif_rdata_scanline(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_scanline(GBM *gbm, gbm_u8 * data)
 {
    TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
    TIFF          *tif_p    = tif_priv->tif_p;
@@ -1758,7 +1800,7 @@ GBM_ERR internal_tif_rdata_scanline(GBM *gbm, byte * data)
 #if 0
 
 /* Read bitmap data Tile based for a single plane (continuous) */
-GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, gbm_u8 * data)
 {
    TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
    TIFF          *tif_p    = tif_priv->tif_p;
@@ -1775,7 +1817,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
 
    uint32 tileWidth, tileHeight;
    uint32 x, y, t;
-   byte * tile_buffer;
+   gbm_u8 * tile_buffer;
 
    if ((! TIFFGetField(tif_p, TIFFTAG_TILEWIDTH , &tileWidth))  ||
        (! TIFFGetField(tif_p, TIFFTAG_TILELENGTH, &tileHeight)))
@@ -1784,7 +1826,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
    }
 
    /* start at buffer begin */
-   gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
+   gbm_row_pointers = (gbm_u8 **) gbmmem_malloc(gbm->h * sizeof(gbm_u8 *));
    if (gbm_row_pointers == NULL)
    {
       return GBM_ERR_MEM;
@@ -1800,7 +1842,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
    }
 
    /* Copy the tiles of one row sequence into a local buffer and convert to GBM rows. */
-   tile_buffer = (byte *) gbmmem_malloc(tif_tile_bytes);
+   tile_buffer = (gbm_u8 *) gbmmem_malloc(tif_tile_bytes);
    if (tile_buffer == NULL)
    {
       return GBM_ERR_MEM;
@@ -1839,7 +1881,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, byte * data)
 /* ----------------------------------------------------------- */
 
 /* Read bitmap data Tile based for multiple planes (separated) */
-GBM_ERR internal_tif_rdata_tile_separate(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_tile_separate(GBM *gbm, gbm_u8 * data)
 {
 
 /*   return GBM_ERR_OK; */
@@ -1849,7 +1891,7 @@ GBM_ERR internal_tif_rdata_tile_separate(GBM *gbm, byte * data)
 /* ----------------------------------------------------------- */
 
 /* Read bitmap data Tile based */
-GBM_ERR internal_tif_rdata_tile(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_tile(GBM *gbm, gbm_u8 * data)
 {
    TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
    TIFF          *tif_p    = tif_priv->tif_p;
@@ -1886,7 +1928,7 @@ GBM_ERR internal_tif_rdata_tile(GBM *gbm, byte * data)
 /* ----------------------------------------------------------- */
 
 /* Read bitmap data as RGBA */
-GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
+GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, gbm_u8 * data)
 {
    TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
    TIFF          *tif_p    = tif_priv->tif_p;
@@ -1920,7 +1962,7 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
       }
 
       /* convert the image from RGBA -> Palette */
-      if (! gbm_map_RGBA_PAL((const dword *) tif_data, data, gbm, gbmrgb))
+      if (! gbm_map_RGBA_PAL((const gbm_u32 *) tif_data, data, gbm, gbmrgb))
       {
          gbmmem_free(gbmrgb);
          gbmmem_free(tif_data);
@@ -1938,7 +1980,7 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
       }
 
       /* convert the image from RGBA -> BGR */
-      if (! gbm_map_RGBA_BGR((const dword *) tif_data, data, gbm, &tif_priv->backrgb, tif_priv->unassociatedAlpha))
+      if (! gbm_map_RGBA_BGR((const gbm_u32 *) tif_data, data, gbm, &tif_priv->backrgb, tif_priv->unassociatedAlpha))
       {
          gbmmem_free(tif_data);
          return GBM_ERR_READ;
@@ -1953,7 +1995,7 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, byte * data)
 /* ----------------------------------------------------------- */
 
 /* tif_rdata()  -  Read data */
-GBM_ERR tif_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR tif_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
    /* read the header again */
    GBM_ERR rc = internal_tif_rhdr(fd, gbm);
@@ -2027,7 +2069,7 @@ GBM_ERR tif_rdata(int fd, GBM *gbm, byte *data)
 /* ----------------------------------------------------------- */
 /* ----------------------------------------------------------- */
 
-static BOOLEAN set_user_tag(TIFF* tif_p, ttag_t tag, char *name, const char *opt, char *def)
+static gbm_boolean set_user_tag(TIFF* tif_p, ttag_t tag, char *name, const char *opt, char *def)
 {
    char buf[200+1] = { 0 };
    const char *s;
@@ -2038,7 +2080,7 @@ static BOOLEAN set_user_tag(TIFF* tif_p, ttag_t tag, char *name, const char *opt
       {
          if (sscanf(s + strlen(name), "%200[^ ]", buf) != 1)
          {
-            return FALSE;
+            return GBM_FALSE;
          }
       }
    }
@@ -2049,19 +2091,19 @@ static BOOLEAN set_user_tag(TIFF* tif_p, ttag_t tag, char *name, const char *opt
 
    if (*buf == '\0')
    {
-      return TRUE;
+      return GBM_TRUE;
    }
 
    if (! TIFFSetField(tif_p, tag, buf))
    {
-      return FALSE;
+      return GBM_FALSE;
    }
 
-   return TRUE;
+   return GBM_TRUE;
 }
 
 /* tif_w()  -  Write bitmap file */
-GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
    TIF_PRIV_WRITE  tif_priv;
    TIFF           *tif_p = NULL;
@@ -2077,7 +2119,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
           * pExtraSamplesInfoAlpha = { &extraSamplesInfoAlpha };
 
    uint16  compression           = COMPRESSION_NONE;
-   BOOLEAN compression_set       = FALSE;
+   gbm_boolean compression_set   = GBM_FALSE;
    uint16  lzw_predictor         = PREDICTOR_NONE;
    uint16  zip_compression_level = 6;
    uint16  jpeg_quality_level    = 75;
@@ -2085,13 +2127,13 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
    const char * s;
 
-   BOOLEAN associate_alpha = FALSE;
+   gbm_boolean associate_alpha = GBM_FALSE;
 
    if (gbm_find_word_prefix(opt, "back_rgb=") != NULL)
    {
       /* enforce using real palette instead of BW */
       extraSamplesInfoAlpha = EXTRASAMPLE_ASSOCALPHA;
-      associate_alpha = TRUE;
+      associate_alpha = GBM_TRUE;
    }
 
    /* map GBM to TIFF infos */
@@ -2184,13 +2226,13 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
    if (gbm_find_word(opt, "lzw") != NULL)
    {
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_LZW;
       lzw_predictor   = PREDICTOR_NONE;
    }
    if (gbm_find_word(opt, "lzw_pred_hor") != NULL)
    {
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_LZW;
       lzw_predictor   = PREDICTOR_HORIZONTAL;
    }
@@ -2201,7 +2243,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          return GBM_ERR_BAD_OPTION;
       }
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_PACKBITS;
    }
    if (gbm_find_word(opt, "deflate") != NULL)
@@ -2211,7 +2253,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          return GBM_ERR_BAD_OPTION;
       }
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_ADOBE_DEFLATE;
    }
    if (gbm_find_word(opt, "jpeg") != NULL)
@@ -2226,7 +2268,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          return GBM_ERR_BAD_OPTION;
       }
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_JPEG;
    }
 
@@ -2245,7 +2287,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          return GBM_ERR_BAD_OPTION;
       }
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_CCITTRLE;
    }
    if (gbm_find_word(opt, "ccittfax3") != NULL)
@@ -2261,7 +2303,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          return GBM_ERR_BAD_OPTION;
       }
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_CCITTFAX3;
    }
    if (gbm_find_word(opt, "ccittfax4") != NULL)
@@ -2277,7 +2319,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          return GBM_ERR_BAD_OPTION;
       }
-      compression_set = TRUE;
+      compression_set = GBM_TRUE;
       compression     = COMPRESSION_CCITTFAX4;
    }
 
@@ -2461,7 +2503,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
    /* write bitmap data (BGRA) as scanlines */
    {
-      byte ** gbm_row_pointers = NULL;
+      gbm_u8 ** gbm_row_pointers = NULL;
       int  row;
 
       /* Read the image in scanlines. Attn: Align to 32 bit rows for GBM !!! */
@@ -2480,7 +2522,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       }
 
       /* start at buffer begin */
-      gbm_row_pointers = (byte **) gbmmem_malloc(gbm->h * sizeof(byte *));
+      gbm_row_pointers = (gbm_u8 **) gbmmem_malloc(gbm->h * sizeof(gbm_u8 *));
       if (gbm_row_pointers == NULL)
       {
          tif_write_deinit(&tif_priv);
@@ -2490,7 +2532,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       /* init pointers from bottom to top because the image is internally a DIB
        * which is mirrored vertically
        */
-      gbm_row_pointers[0] = (byte *) data + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
+      gbm_row_pointers[0] = (gbm_u8 *) data + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
       for (row = 1; row < gbm->h; row++)
       {
          gbm_row_pointers[row] = gbm_row_pointers[row-1] - gbm_row_bytes;
@@ -2512,7 +2554,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       else
       {
          GBMRGB_16BPP backrgb = { 0, 0, 0 };
-         byte *  scanline_buffer = NULL;
+         gbm_u8 *  scanline_buffer = NULL;
 
          /* parse RGB value for background mixing with alpha channel */
          if ((s = gbm_find_word_prefix(opt, "back_rgb=")) != NULL)
@@ -2544,7 +2586,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          }
 
          /* allocate temporary buffer for reading */
-         scanline_buffer = (byte *) gbmmem_malloc(gbm_row_bytes);
+         scanline_buffer = (gbm_u8 *) gbmmem_malloc(gbm_row_bytes);
          if (scanline_buffer == NULL)
          {
             gbmmem_free(gbm_row_pointers);

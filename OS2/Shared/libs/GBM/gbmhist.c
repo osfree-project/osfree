@@ -17,21 +17,21 @@ gbmhist.c - Histogram/Frequency-of-use method of colour reduction
 
 #define	N_COLS	2049
 #define	N_HASH	5191
-#define	HASH(r,g,b)	(word) ( (((r)+(g))*((g)+(b))*((b)+(r))) % N_HASH )
+#define	HASH(r,g,b)	(gbm_u16) ( (((r)+(g))*((g)+(b))*((b)+(r))) % N_HASH )
 
-typedef struct { byte b, g, r; dword freq; byte nearest; } FREQ;
+typedef struct { gbm_u8 b, g, r; gbm_u32 freq; gbm_u8 nearest; } FREQ;
 
 typedef struct
 	{
-	int n_cols;
-	byte rm, gm, bm;
-	FREQ f[N_COLS];
-	word ht[N_HASH];
+	int     n_cols;
+	gbm_u8  rm, gm, bm;
+	FREQ    f[N_COLS];
+	gbm_u16 ht[N_HASH];
 	} GBMHIST;
 
 /*...sgbm_create_hist \45\ create empty hist:0:*/
 GBMHIST *gbm_create_hist(
-	byte rm, byte gm, byte bm
+	gbm_u8 rm, gbm_u8 gm, gbm_u8 bm
 	)
 	{
 	GBMHIST *hist;
@@ -42,7 +42,7 @@ GBMHIST *gbm_create_hist(
 	hist->gm = gm;
 	hist->bm = bm;
 	hist->n_cols = 0;
-	memset(hist->ht, 0xff, N_HASH * sizeof(word));
+	memset(hist->ht, 0xff, N_HASH * sizeof(gbm_u16));
 	return hist;
 	}
 /*...e*/
@@ -53,28 +53,28 @@ void gbm_delete_hist(GBMHIST *hist)
 	}
 /*...e*/
 /*...sgbm_add_to_hist \45\ add bitmap data to hist:0:*/
-BOOLEAN gbm_add_to_hist(
+gbm_boolean gbm_add_to_hist(
 	GBMHIST *hist,
-	const GBM *gbm, const byte *data24
+	const GBM *gbm, const gbm_u8 *data24
 	)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int step24   = stride24 - gbm->w * 3;
-	FREQ *f  = hist->f ;
-	word *ht = hist->ht;
-	byte rm = hist->rm;
-	byte gm = hist->gm;
-	byte bm = hist->bm;
+	FREQ *f      = hist->f ;
+	gbm_u16 *ht  = hist->ht;
+	gbm_u8 rm    = hist->rm;
+	gbm_u8 gm    = hist->gm;
+	gbm_u8 bm    = hist->bm;
 	int x, y, n_cols = hist->n_cols;
 
 	for ( y = 0; y < gbm->h; y++, data24 += step24 )
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			byte b = (byte) (*data24++ & bm);
-			byte g = (byte) (*data24++ & gm);
-			byte r = (byte) (*data24++ & rm);
-			word hc = HASH(r,g,b);
-			word inx;
+			gbm_u8 b   = (gbm_u8) (*data24++ & bm);
+			gbm_u8 g   = (gbm_u8) (*data24++ & gm);
+			gbm_u8 r   = (gbm_u8) (*data24++ & rm);
+			gbm_u16 hc = HASH(r,g,b);
+			gbm_u16 inx;
 
 			for ( ;; )
 				{
@@ -94,8 +94,8 @@ BOOLEAN gbm_add_to_hist(
 				/* Not found in hash table */
 				{
 				if ( n_cols == N_COLS )
-					return FALSE;
-				f[n_cols].freq = (dword) 1;
+					return GBM_FALSE;
+				f[n_cols].freq = (gbm_u32) 1;
 				f[n_cols].b    = b;
 				f[n_cols].g    = g;
 				f[n_cols].r    = r;
@@ -107,7 +107,7 @@ BOOLEAN gbm_add_to_hist(
 				f[inx].freq++;
 			}
 	hist->n_cols = n_cols;
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sgbm_pal_hist    \45\ work out a palette from hist:0:*/
@@ -125,7 +125,7 @@ void gbm_pal_hist(
 	for ( i = 0; i < n_cols_wanted && i < hist->n_cols; i++ )
 		{
 		int j, max_j;
-		dword max_freq = 0;
+		gbm_u32 max_freq = 0;
 
 		for ( j = 0; j < hist->n_cols; j++ )
 			if ( f[j].freq > max_freq )
@@ -133,8 +133,8 @@ void gbm_pal_hist(
 				max_j    = j;
 				max_freq = f[j].freq;
 				}
-		f[max_j].nearest = (byte) i;
-		f[max_j].freq = (dword) 0; /* Prevent later use of f[max_j] */
+		f[max_j].nearest = (gbm_u8) i;
+		f[max_j].freq = (gbm_u32) 0; /* Prevent later use of f[max_j] */
 		gbmrgb[i].b = f[max_j].b;
 		gbmrgb[i].g = f[max_j].g;
 		gbmrgb[i].r = f[max_j].r;
@@ -151,7 +151,7 @@ void gbm_pal_hist(
 	/* For the rest, find the closest one in the first n_cols_wanted */
 
 	for ( i = 0; i < hist->n_cols; i++ )
-		if ( f[i].freq != (dword) 0 )
+		if ( f[i].freq != (gbm_u32) 0 )
 			{
 			int j, min_j;
 			int min_dist = 3*256*256;
@@ -169,35 +169,35 @@ void gbm_pal_hist(
 					min_j    = j;
 					}
 				}
-			f[i].nearest = (byte) min_j;
+			f[i].nearest = (gbm_u8) min_j;
 			}
 	}
 /*...e*/
 /*...sgbm_map_hist    \45\ map bitmap data to hist palette:0:*/
 void gbm_map_hist(
 	GBMHIST *hist,
-	const GBM *gbm, const byte *data24, byte *data8
+	const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8
 	)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int step24   = stride24 - gbm->w * 3;
 	int stride8  = ((gbm->w + 3) & ~3);
 	int step8    = stride8 - gbm->w;
-	FREQ *f  = hist->f;
-	word *ht = hist->ht;
-	byte rm = hist->rm;
-	byte gm = hist->gm;
-	byte bm = hist->bm;
+	FREQ *f      = hist->f;
+	gbm_u16 *ht  = hist->ht;
+	gbm_u8 rm    = hist->rm;
+	gbm_u8 gm    = hist->gm;
+	gbm_u8 bm    = hist->bm;
 	int x, y;
 
 	for ( y = 0; y < gbm->h; y++, data24 += step24, data8 += step8 )
 		for ( x = 0; x < gbm->w; x++ )
 			{
-			byte b = (*data24++ & bm);
-			byte g = (*data24++ & gm);
-			byte r = (*data24++ & rm);
-			word hc = HASH(r,g,b);
-			word inx;
+			gbm_u8 b   = (*data24++ & bm);
+			gbm_u8 g   = (*data24++ & gm);
+			gbm_u8 r   = (*data24++ & rm);
+			gbm_u16 hc = HASH(r,g,b);
+			gbm_u16 inx;
 
 			for ( ;; )
 				{
@@ -224,12 +224,12 @@ Map colours from n_cols_wanted exactly to colours in palette.
 For other colours, map them to the closest in the palette.
 */
 
-BOOLEAN gbm_hist(
-	const GBM *gbm, const byte *data24,
+gbm_boolean gbm_hist(
+	const GBM *gbm, const gbm_u8 *data24,
 	GBMRGB gbmrgb[],
-	byte *data8,
+	gbm_u8 *data8,
 	int n_cols_wanted,
-	byte rm, byte gm, byte bm
+	gbm_u8 rm, gbm_u8 gm, gbm_u8 bm
 	)
 	{
 	GBMHIST *hist;
@@ -237,7 +237,7 @@ BOOLEAN gbm_hist(
 	for ( ;; )
 		{
 		if ( (hist = gbm_create_hist(rm, gm, bm)) == NULL )
-			return FALSE;
+			return GBM_FALSE;
 
 		if ( gbm_add_to_hist(hist, gbm, data24) )
 			break;
@@ -258,6 +258,6 @@ BOOLEAN gbm_hist(
 	gbm_pal_hist(hist, gbmrgb, n_cols_wanted);
 	gbm_map_hist(hist, gbm, data24, data8);
 	gbm_delete_hist(hist);
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/

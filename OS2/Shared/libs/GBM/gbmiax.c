@@ -12,6 +12,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -30,20 +31,15 @@ History:
 /*...vgbmhelp\46\h:0:*/
 /*...e*/
 
-/*...suseful:0:*/
-#define	low_byte(w)	((byte)  ((w)&0x00ff)    )
-#define	high_byte(w)	((byte) (((w)&0xff00)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
-/*...e*/
 /*...smake_output_palette:0:*/
 #define	SW4(a,b,c,d)	((a)*8+(b)*4+(c)*2+(d))
 
-static BOOLEAN make_output_palette(const GBMRGB gbmrgb[], byte grey[], const char *opt)
+static gbm_boolean make_output_palette(const GBMRGB gbmrgb[], gbm_u8 grey[], const char *opt)
 	{
-	BOOLEAN	k = ( gbm_find_word(opt, "k") != NULL );
-	BOOLEAN	r = ( gbm_find_word(opt, "r") != NULL );
-	BOOLEAN	g = ( gbm_find_word(opt, "g") != NULL );
-	BOOLEAN	b = ( gbm_find_word(opt, "b") != NULL );
+	gbm_boolean	k = ( gbm_find_word(opt, "k") != NULL );
+	gbm_boolean	r = ( gbm_find_word(opt, "r") != NULL );
+	gbm_boolean	g = ( gbm_find_word(opt, "g") != NULL );
+	gbm_boolean	b = ( gbm_find_word(opt, "b") != NULL );
 	int	i;
 
 	switch ( SW4(k,r,g,b) )
@@ -52,24 +48,24 @@ static BOOLEAN make_output_palette(const GBMRGB gbmrgb[], byte grey[], const cha
 			/* Default is the same as "k" */
 		case SW4(1,0,0,0):
 			for ( i = 0; i < 0x100; i++ )
-				grey[i] = (byte) ( ((word) gbmrgb[i].r *  77U +
-						    (word) gbmrgb[i].g * 150U +
-						    (word) gbmrgb[i].b *  29U) >> 8 );
-			return TRUE;
+				grey[i] = (gbm_u8) ( ((gbm_u16) gbmrgb[i].r *  77U +
+						    (gbm_u16) gbmrgb[i].g * 150U +
+						    (gbm_u16) gbmrgb[i].b *  29U) >> 8 );
+			return GBM_TRUE;
 		case SW4(0,1,0,0):
 			for ( i = 0; i < 0x100; i++ )
 				grey[i] = gbmrgb[i].r;
-			return TRUE;
+			return GBM_TRUE;
 		case SW4(0,0,1,0):
 			for ( i = 0; i < 0x100; i++ )
 				grey[i] = gbmrgb[i].g;
-			return TRUE;
+			return GBM_TRUE;
 		case SW4(0,0,0,1):
 			for ( i = 0; i < 0x100; i++ )
 				grey[i] = gbmrgb[i].b;
-			return TRUE;
+			return GBM_TRUE;
 		}
-	return FALSE;
+	return GBM_FALSE;
 	}
 /*...e*/
 
@@ -134,16 +130,16 @@ GBM_ERR iax_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 	for ( i = 0; i < 0x100; i++ )
 		gbmrgb[i].r =
 		gbmrgb[i].g =
-		gbmrgb[i].b = (byte) i;
+		gbmrgb[i].b = (gbm_u8) i;
 
 	return GBM_ERR_OK;
 	}
 /*...e*/
 /*...siax_rdata:0:*/
-GBM_ERR iax_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR iax_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	int	i, stride;
-	byte	*p;
+	gbm_u8	*p;
 
 	stride = ((gbm->w + 3) & ~3);
 	p = data + ((gbm->h - 1) * stride);
@@ -156,12 +152,12 @@ GBM_ERR iax_rdata(int fd, GBM *gbm, byte *data)
 	}
 /*...e*/
 /*...siax_w:0:*/
-GBM_ERR iax_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR iax_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	int i, j, stride;
-	byte grey[0x100];
-	const byte *p;
-	byte *linebuf;
+	gbm_u8 grey[0x100];
+	const gbm_u8 *p;
+	gbm_u8 *linebuf;
 
 	fn=fn; /* Suppress 'unref arg' compiler warning */
 

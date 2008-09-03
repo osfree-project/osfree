@@ -15,26 +15,26 @@ gbmht.c - Halftoner
 /*...vgbm\46\h:0:*/
 /*...e*/
 /*...svars:0:*/
-static BOOLEAN inited = FALSE;
+static gbm_boolean inited = GBM_FALSE;
 
 /*
 For 6Rx6Gx6B, 7Rx8Gx4B palettes etc.
 */
 
-static byte index4[0x400];
-static byte index6[0x400];
-static byte index7[0x400];
-static byte index8[0x400];
-static byte scale4[] = { 0, 85, 170, 255 };
-static byte scale6[] = { 0, 51, 102, 153, 204, 255 };
-static byte scale7[] = { 0, 43, 85, 128, 170, 213, 255 };
-static byte scale8[] = { 0, 36, 73, 109, 146, 182, 219, 255 };
+static gbm_u8 index4[0x400];
+static gbm_u8 index6[0x400];
+static gbm_u8 index7[0x400];
+static gbm_u8 index8[0x400];
+static gbm_u8 scale4[] = { 0, 85, 170, 255 };
+static gbm_u8 scale6[] = { 0, 51, 102, 153, 204, 255 };
+static gbm_u8 scale7[] = { 0, 43, 85, 128, 170, 213, 255 };
+static gbm_u8 scale8[] = { 0, 36, 73, 109, 146, 182, 219, 255 };
 
-static byte map_to_012[0x900];
+static gbm_u8 map_to_012[0x900];
 	/* Returns 0 if index <  0x80                  */
 	/*         1 if index >= 0x80 and index < 0xff */
 	/*         2 if index  = 0xff                  */
-static byte map_to_inx[3][3][3];
+static gbm_u8 map_to_inx[3][3][3];
 
 static GBMRGB gbmrgb_vga[] =
 	{
@@ -81,19 +81,19 @@ static GBMRGB gbmrgb_8[] =
 This fold encompasses a way to get rapid division via lookup tables.
 */
 
-static word divt9[9 * 0x100];
-static word divt7[9 * 0x100];
-static word divt6[9 * 0x100];
-static word divt5[9 * 0x100];
-static word divt3[9 * 0x100];
+static gbm_u16 divt9[9 * 0x100];
+static gbm_u16 divt7[9 * 0x100];
+static gbm_u16 divt6[9 * 0x100];
+static gbm_u16 divt5[9 * 0x100];
+static gbm_u16 divt3[9 * 0x100];
 
 /*...smake_divt:0:*/
-static void make_divt(word *divt, int size, int by)
+static void make_divt(gbm_u16 *divt, int size, int by)
 	{
 	int i;
 
 	for ( i = 0; i < size; i++ )
-		divt[i] = (word) (i / by);
+		divt[i] = (gbm_u16) (i / by);
 	}
 /*...e*/
 
@@ -117,14 +117,14 @@ For the supplied value, find the index of the highest value in the scale
 less than or equal to the value.
 */
 
-static byte takeout_inx(int value, const byte ab[], unsigned short cb)
+static gbm_u8 takeout_inx(int value, const gbm_u8 ab[], unsigned short cb)
 	{
-	byte inx = 0;
+	gbm_u8 inx = 0;
 	unsigned short i;
 
 	for ( i = 0; i < cb; i++ )
 		if ( (unsigned short) ab[i] <= (unsigned short) value )
-			inx = (byte) i;
+			inx = (gbm_u8) i;
 
 	return inx;
 	}
@@ -140,18 +140,18 @@ more to be taken than r,g and b. This gives less grey results, but the
 output is a lot dirtier and speckled.
 */
 
-static byte takeout_inx_vga(word r, word g, word b)
+static gbm_u8 takeout_inx_vga(gbm_u16 r, gbm_u16 g, gbm_u16 b)
 	{
-	byte inx;
-	byte inx_min = 0;
+	gbm_u8 inx;
+	gbm_u8 inx_min = 0;
 	int e_min = (int) ( r + g + b );
 
 	for ( inx = 1; inx < 16; inx++ )
 		if ( inx != 8 )
 			{
-			int re = (int) ( r - (word) gbmrgb_vga[inx].r );
-			int ge = (int) ( g - (word) gbmrgb_vga[inx].g );
-			int be = (int) ( b - (word) gbmrgb_vga[inx].b );
+			int re = (int) ( r - (gbm_u16) gbmrgb_vga[inx].r );
+			int ge = (int) ( g - (gbm_u16) gbmrgb_vga[inx].g );
+			int be = (int) ( b - (gbm_u16) gbmrgb_vga[inx].b );
 
 			if ( re >= 0 && ge >= 0 && be >= 0 )
 				{
@@ -170,7 +170,7 @@ static byte takeout_inx_vga(word r, word g, word b)
 
 static void init(void)
 	{
-	static word val[] = { 0, 0x80, 0xff };
+	static gbm_u16 val[] = { 0, 0x80, 0xff };
 	int i;
 	int volatile r;		/* C-Set/2 optimiser fix */
 	int volatile g;
@@ -198,13 +198,13 @@ static void init(void)
 			for ( b = 0; b < 3; b++ )
 				map_to_inx[r][g][b] = takeout_inx_vga(val[r], val[g], val[b]);
 
-	make_divt(divt9, sizeof(divt9)/sizeof(word), 9);
-	make_divt(divt7, sizeof(divt7)/sizeof(word), 7);
-	make_divt(divt6, sizeof(divt6)/sizeof(word), 6);
-	make_divt(divt5, sizeof(divt5)/sizeof(word), 5);
-	make_divt(divt3, sizeof(divt3)/sizeof(word), 3);
+	make_divt(divt9, sizeof(divt9)/sizeof(gbm_u16), 9);
+	make_divt(divt7, sizeof(divt7)/sizeof(gbm_u16), 7);
+	make_divt(divt6, sizeof(divt6)/sizeof(gbm_u16), 6);
+	make_divt(divt5, sizeof(divt5)/sizeof(gbm_u16), 5);
+	make_divt(divt3, sizeof(divt3)/sizeof(gbm_u16), 3);
 
-	inited = TRUE;
+	inited = GBM_TRUE;
 	}
 /*...e*/
 /*...stakefrom:0:*/
@@ -214,11 +214,11 @@ static void init(void)
 /* n is only ever 2, 3, 4, 6 or 9 */
 
 static void split_into(
-	word r, word g, word b,
-	int n, byte *inxs
+	gbm_u16 r, gbm_u16 g, gbm_u16 b,
+	int n, gbm_u8 *inxs
 	)
 	{
-	byte inx;
+	gbm_u8 inx;
 
 	if ( n >= 9 )
 		{
@@ -294,11 +294,11 @@ Find the largest colour from the 8 colour palette.
 /* n is only ever 2, 3, 4, 6 or 9 */
 
 static void split_into8(
-	word r, word g, word b,
-	int n, byte *inxs
+	gbm_u16 r, gbm_u16 g, gbm_u16 b,
+	int n, gbm_u8 *inxs
 	)
 	{
-	byte inx;
+	gbm_u8 inx;
 
 	if ( n >= 9 )
 		{
@@ -365,7 +365,7 @@ static void split_into8(
 /*...e*/
 
 /*...sgbm_ht_24_2x2     \45\ halftone by 2x2 to r\58\g\58\b bits:0:*/
-void gbm_ht_24_2x2(const GBM *gbm, const byte *src24, byte *dest24, byte rm, byte gm, byte bm)
+void gbm_ht_24_2x2(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest24, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm)
 	{
 	int stride = ((gbm->w * 3 + 3) & ~3);
 	int x, y;
@@ -377,17 +377,17 @@ void gbm_ht_24_2x2(const GBM *gbm, const byte *src24, byte *dest24, byte rm, byt
 
 	for ( y = 0; y < gbm->h - 1; y += 2 )
 		{
-		const byte *src24a  = (src24 += stride);
-		const byte *src24b  = (src24 += stride);
-		      byte *dest24a = (dest24 += stride);
-		      byte *dest24b = (dest24 += stride);
+		const gbm_u8 *src24a  = (src24 += stride);
+		const gbm_u8 *src24b  = (src24 += stride);
+		      gbm_u8 *dest24a = (dest24 += stride);
+		      gbm_u8 *dest24b = (dest24 += stride);
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte ri,gi,bi;
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 ri,gi,bi;
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -427,8 +427,8 @@ tmp = dest24a; dest24a = dest24b; dest24b = tmp;
 		if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a;
 b += *src24b++;	g += *src24b++;	r += *src24b;
@@ -448,14 +448,14 @@ bi = (b & bm); gi = (g & gm); ri = (r & rm);
 		}
 	if ( y < gbm->h )
 		{
-		const byte *src24a  = src24 + stride;
-		      byte *dest24a = dest24 + stride;
+		const gbm_u8 *src24a  = src24 + stride;
+		      gbm_u8 *dest24a = dest24 + stride;
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -475,7 +475,7 @@ bi = (b & bm); gi = (g & gm); ri = (r & rm);
 		if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-byte ri, gi, bi;
+gbm_u8 ri, gi, bi;
 
 bi = ((*src24a++) & bm); gi = ((*src24a++) & gm); ri = ((*src24a) & rm);
 *dest24a++ = bi; *dest24a++ = gi; *dest24a = ri;
@@ -493,9 +493,9 @@ This function makes the palette for the 6 red x 6 green x 6 blue palette.
 
 void gbm_ht_pal_6R6G6B(GBMRGB *gbmrgb)
 	{
-	byte volatile r;	/* C-Set/2 optimiser fix */
-	byte volatile g;
-	byte volatile b;
+	gbm_u8 volatile r;	/* C-Set/2 optimiser fix */
+	gbm_u8 volatile g;
+	gbm_u8 volatile b;
 
 	init();
 	memset(gbmrgb, 0x80, 0x100 * sizeof(GBMRGB));
@@ -511,9 +511,9 @@ void gbm_ht_pal_6R6G6B(GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...sgbm_ht_6R6G6B_2x2 \45\ halftone by 2x2 to 6Rx6Gx6B palette:0:*/
-#define	PIX666(ri,gi,bi) (byte) (6 * (6 * ri + gi) + bi)
+#define	PIX666(ri,gi,bi) (gbm_u8) (6 * (6 * ri + gi) + bi)
 
-void gbm_ht_6R6G6B_2x2(const GBM *gbm, const byte *src24, byte *dest8)
+void gbm_ht_6R6G6B_2x2(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest8)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride8  = ((gbm->w     + 3) & ~3);
@@ -526,17 +526,17 @@ void gbm_ht_6R6G6B_2x2(const GBM *gbm, const byte *src24, byte *dest8)
 
 	for ( y = 0; y < gbm->h - 1; y += 2 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest8a = (dest8 += stride8);
-		      byte *dest8b = (dest8 += stride8);
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest8a = (dest8 += stride8);
+		      gbm_u8 *dest8b = (dest8 += stride8);
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte ri,gi,bi;
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 ri,gi,bi;
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -564,8 +564,8 @@ tmp = dest8a; dest8a = dest8b; dest8b = tmp;
 		if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a;
 b += *src24b++;	g += *src24b++;	r += *src24b;
@@ -581,14 +581,14 @@ bi = index6[b      ]; gi = index6[g      ]; ri = index6[r      ];
 		}
 	if ( y < gbm->h )
 		{
-		const byte *src24a = src24 + stride24;
-		      byte *dest8a = dest8 + stride8;
+		const gbm_u8 *src24a = src24 + stride24;
+		      gbm_u8 *dest8a = dest8 + stride8;
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -604,7 +604,7 @@ bi = index6[b      ]; gi = index6[g      ]; ri = index6[r      ];
 		if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-byte ri, gi, bi;
+gbm_u8 ri, gi, bi;
 
 bi = index6[*src24a++]; gi = index6[*src24a++]; ri = index6[*src24a];
 *dest8a = PIX666(ri,gi,bi);
@@ -623,9 +623,9 @@ Colours calculated to match those used by 8514/A PM driver.
 
 void gbm_ht_pal_7R8G4B(GBMRGB *gbmrgb)
 	{
-	byte volatile r;	/* C-Set/2 optimiser fix */
-	byte volatile g;
-	byte volatile b;
+	gbm_u8 volatile r;	/* C-Set/2 optimiser fix */
+	gbm_u8 volatile g;
+	gbm_u8 volatile b;
 
 	init();
 
@@ -642,9 +642,9 @@ void gbm_ht_pal_7R8G4B(GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...sgbm_ht_7R8G4B_2x2 \45\ halftone by 2x2 to 7Rx8Gx4B palette:0:*/
-#define	PIX784(ri,gi,bi) (byte) (((((ri)<<3)+(gi))<<2)+(bi))
+#define	PIX784(ri,gi,bi) (gbm_u8) (((((ri)<<3)+(gi))<<2)+(bi))
 
-void gbm_ht_7R8G4B_2x2(const GBM *gbm, const byte *src24, byte *dest8)
+void gbm_ht_7R8G4B_2x2(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest8)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride8  = ((gbm->w     + 3) & ~3);
@@ -657,17 +657,17 @@ void gbm_ht_7R8G4B_2x2(const GBM *gbm, const byte *src24, byte *dest8)
 
 	for ( y = 0; y < gbm->h - 1; y += 2 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest8a = (dest8 += stride8);
-		      byte *dest8b = (dest8 += stride8);
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest8a = (dest8 += stride8);
+		      gbm_u8 *dest8b = (dest8 += stride8);
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte ri,gi,bi;
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 ri,gi,bi;
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -695,8 +695,8 @@ tmp = dest8a; dest8a = dest8b; dest8b = tmp;
 		if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a;
 b += *src24b++;	g += *src24b++;	r += *src24b;
@@ -712,14 +712,14 @@ bi = index4[b      ]; gi = index8[g      ]; ri = index7[r      ];
 		}
 	if ( y < gbm->h )
 		{
-		const byte *src24a = src24 + stride24;
-		      byte *dest8a = dest8 + stride8;
+		const gbm_u8 *src24a = src24 + stride24;
+		      gbm_u8 *dest8a = dest8 + stride8;
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -735,7 +735,7 @@ bi = index4[b      ]; gi = index8[g      ]; ri = index7[r      ];
 		if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-byte ri, gi, bi;
+gbm_u8 ri, gi, bi;
 
 bi = index4[*src24a++]; gi = index8[*src24a++]; ri = index7[*src24a];
 *dest8a = PIX784(ri,gi,bi);
@@ -753,9 +753,9 @@ This function makes the palette for the 4 red x 4 green x 4 blue palette.
 
 void gbm_ht_pal_4R4G4B(GBMRGB *gbmrgb)
 	{
-	byte volatile r;	/* C-Set/2 optimiser fix */
-	byte volatile g;
-	byte volatile b;
+	gbm_u8 volatile r;	/* C-Set/2 optimiser fix */
+	gbm_u8 volatile g;
+	gbm_u8 volatile b;
 
 	init();
 
@@ -772,9 +772,9 @@ void gbm_ht_pal_4R4G4B(GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...sgbm_ht_4R4G4B_2x2 \45\ halftone by 2x2 to 4Rx4Gx4B palette:0:*/
-#define	PIX444(ri,gi,bi) (byte) (((((ri)<<2)+(gi))<<2)+(bi))
+#define	PIX444(ri,gi,bi) (gbm_u8) (((((ri)<<2)+(gi))<<2)+(bi))
 
-void gbm_ht_4R4G4B_2x2(const GBM *gbm, const byte *src24, byte *dest8)
+void gbm_ht_4R4G4B_2x2(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest8)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride8  = ((gbm->w     + 3) & ~3);
@@ -787,17 +787,17 @@ void gbm_ht_4R4G4B_2x2(const GBM *gbm, const byte *src24, byte *dest8)
 
 	for ( y = 0; y < gbm->h - 1; y += 2 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest8a = (dest8 += stride8);
-		      byte *dest8b = (dest8 += stride8);
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest8a = (dest8 += stride8);
+		      gbm_u8 *dest8b = (dest8 += stride8);
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte ri,gi,bi;
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 ri,gi,bi;
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -825,8 +825,8 @@ tmp = dest8a; dest8a = dest8b; dest8b = tmp;
 		if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a;
 b += *src24b++;	g += *src24b++;	r += *src24b;
@@ -842,14 +842,14 @@ bi = index4[b      ]; gi = index4[g      ]; ri = index4[r      ];
 		}
 	if ( y < gbm->h )
 		{
-		const byte *src24a = src24 + stride24;
-		      byte *dest8a = dest8 + stride8;
+		const gbm_u8 *src24a = src24 + stride24;
+		      gbm_u8 *dest8a = dest8 + stride8;
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte ri, gi, bi;
+gbm_u16 r,g,b;
+gbm_u8 ri, gi, bi;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -865,7 +865,7 @@ bi = index4[b      ]; gi = index4[g      ]; ri = index4[r      ];
 		if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-byte ri, gi, bi;
+gbm_u8 ri, gi, bi;
 
 bi = index4[*src24a++]; gi = index4[*src24a++]; ri = index4[*src24a];
 *dest8a = PIX444(ri,gi,bi);
@@ -887,7 +887,7 @@ void gbm_ht_pal_VGA(GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...sgbm_ht_VGA_2x2    \45\ halftone by 2x2 to default VGA palette:0:*/
-void gbm_ht_VGA_2x2(const GBM *gbm, const byte *src24, byte *dest4)
+void gbm_ht_VGA_2x2(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest4)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride4  = ((gbm->w * 4 + 31) / 32) * 4;
@@ -900,17 +900,17 @@ void gbm_ht_VGA_2x2(const GBM *gbm, const byte *src24, byte *dest4)
 
 	for ( y = 0; y < gbm->h - 1; y += 2 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		      byte *dest4b = (dest4 += stride4);
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		      gbm_u8 *dest4b = (dest4 += stride4);
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte inx;
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 inx;
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -934,8 +934,8 @@ tmp = dest4a; dest4a = dest4b; dest4b = tmp;
 		if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte inx;
+gbm_u16 r,g,b;
+gbm_u8 inx;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a;
 b += *src24b++;	g += *src24b++;	r += *src24b;
@@ -949,14 +949,14 @@ inx = takefrom(r      , g      , b      ); *dest4b = (inx << 4);
 		}
 	if ( y < gbm->h )
 		{
-		const byte *src24a = src24 + stride24;
-		      byte *dest4a = dest4 + stride4;
+		const gbm_u8 *src24a = src24 + stride24;
+		      gbm_u8 *dest4a = dest4 + stride4;
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte inx;
+gbm_u16 r,g,b;
+gbm_u8 inx;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -970,8 +970,8 @@ inx = takefrom(r      , g      , b      ); *dest4a++ |= inx;
 		if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-word r, g, b;
-byte inx;
+gbm_u16 r, g, b;
+gbm_u8 inx;
 
 b = *src24a++; g = *src24a++; r = *src24a;
 inx = takefrom(r, g, b); *dest4a = (inx << 4);
@@ -981,7 +981,7 @@ inx = takefrom(r, g, b); *dest4a = (inx << 4);
 	}
 /*...e*/
 /*...sgbm_ht_VGA_3x3    \45\ halftone by 3x3 to default VGA palette:0:*/
-void gbm_ht_VGA_3x3(const GBM *gbm, const byte *src24, byte *dest4)
+void gbm_ht_VGA_3x3(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest4)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride4  = ((gbm->w * 4 + 31) / 32) * 4;
@@ -994,20 +994,20 @@ void gbm_ht_VGA_3x3(const GBM *gbm, const byte *src24, byte *dest4)
 
 	for ( y = 0; y < gbm->h - 2; y += 3 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		const byte *src24c = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		      byte *dest4b = (dest4 += stride4);
-		      byte *dest4c = (dest4 += stride4);
-		BOOLEAN left = TRUE;
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		const gbm_u8 *src24c = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		      gbm_u8 *dest4b = (dest4 += stride4);
+		      gbm_u8 *dest4c = (dest4 += stride4);
+		gbm_boolean left = GBM_TRUE;
 
 		for ( x = 0; x < gbm->w - 2; x += 3, left = !left )
 /*...s3x3 case:24:*/
 {
-word r,g,b;
-byte inxs[9];
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 inxs[9];
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1040,8 +1040,8 @@ tmp = dest4a; dest4a = dest4b; dest4b = dest4c; dest4c = tmp;
 		if ( x < gbm->w - 1 )
 /*...s2x3 case:24:*/
 {
-word r,g,b;
-byte inxs[6];
+gbm_u16 r,g,b;
+gbm_u8 inxs[6];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1069,8 +1069,8 @@ else
 		else if ( x < gbm->w )
 /*...s1x3 case:24:*/
 {
-word r,g,b;
-byte inxs[3];
+gbm_u16 r,g,b;
+gbm_u8 inxs[3];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24b++;	g += *src24b++;	r += *src24b++;
@@ -1095,18 +1095,18 @@ else
 		}
 	if ( y < gbm->h - 1 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		      byte *dest4b = (dest4 += stride4);
-		BOOLEAN left = TRUE;
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		      gbm_u8 *dest4b = (dest4 += stride4);
+		gbm_boolean left = GBM_TRUE;
 
 		for ( x = 0; x < gbm->w - 2; x += 3, left = !left )
 /*...s3x2 case:24:*/
 {
-word r,g,b;
-byte inxs[6];
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 inxs[6];
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1134,8 +1134,8 @@ tmp = dest4a; dest4a = dest4b; dest4b = tmp;
 		if ( x < gbm->w - 1 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte inxs[4];
+gbm_u16 r,g,b;
+gbm_u8 inxs[4];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1159,8 +1159,8 @@ else
 		else if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte inxs[2];
+gbm_u16 r,g,b;
+gbm_u8 inxs[2];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24b++;	g += *src24b++;	r += *src24b++;
@@ -1182,15 +1182,15 @@ else
 		}
 	else if ( y < gbm->h )
 		{
-		const byte *src24a = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		BOOLEAN left = TRUE;
+		const gbm_u8 *src24a = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		gbm_boolean left = GBM_TRUE;
 
 		for ( x = 0; x < gbm->w - 2; x += 3, left = !left )
 /*...s3x1 case:24:*/
 {
-word r,g,b;
-byte inxs[3];
+gbm_u16 r,g,b;
+gbm_u8 inxs[3];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1211,8 +1211,8 @@ else
 		if ( x < gbm->w - 1 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte inxs[2];
+gbm_u16 r,g,b;
+gbm_u8 inxs[2];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1230,8 +1230,8 @@ else
 		else if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-word r,g,b;
-byte inx;
+gbm_u16 r,g,b;
+gbm_u8 inx;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 
@@ -1259,7 +1259,7 @@ void gbm_ht_pal_8(GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...sgbm_ht_8_2x2      \45\ halftone by 2x2 to default 8 colour palette:0:*/
-void gbm_ht_8_2x2(const GBM *gbm, const byte *src24, byte *dest4)
+void gbm_ht_8_2x2(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest4)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride4  = ((gbm->w * 4 + 31) / 32) * 4;
@@ -1272,17 +1272,17 @@ void gbm_ht_8_2x2(const GBM *gbm, const byte *src24, byte *dest4)
 
 	for ( y = 0; y < gbm->h - 1; y += 2 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		      byte *dest4b = (dest4 += stride4);
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		      gbm_u8 *dest4b = (dest4 += stride4);
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte inx;
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 inx;
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1306,8 +1306,8 @@ tmp = dest4a; dest4a = dest4b; dest4b = tmp;
 		if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte inx;
+gbm_u16 r,g,b;
+gbm_u8 inx;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a;
 b += *src24b++;	g += *src24b++;	r += *src24b;
@@ -1321,14 +1321,14 @@ inx = takefrom8(r     , g     , b     ); *dest4b = (inx << 4);
 		}
 	if ( y < gbm->h )
 		{
-		const byte *src24a = src24 + stride24;
-		      byte *dest4a = dest4 + stride4;
+		const gbm_u8 *src24a = src24 + stride24;
+		      gbm_u8 *dest4a = dest4 + stride4;
 
 		for ( x = 0; x < gbm->w - 1; x += 2 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte inx;
+gbm_u16 r,g,b;
+gbm_u8 inx;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1342,8 +1342,8 @@ inx = takefrom8(r     , g     , b     ); *dest4a++ |= inx;
 		if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-word r, g, b;
-byte inx;
+gbm_u16 r, g, b;
+gbm_u8 inx;
 
 b = *src24a++; g = *src24a++; r = *src24a;
 inx = takefrom8(r, g, b); *dest4a = (inx << 4);
@@ -1353,7 +1353,7 @@ inx = takefrom8(r, g, b); *dest4a = (inx << 4);
 	}
 /*...e*/
 /*...sgbm_ht_8_3x3      \45\ halftone by 3x3 to default 8 colour palette:0:*/
-void gbm_ht_8_3x3(const GBM *gbm, const byte *src24, byte *dest4)
+void gbm_ht_8_3x3(const GBM *gbm, const gbm_u8 *src24, gbm_u8 *dest4)
 	{
 	int stride24 = ((gbm->w * 3 + 3) & ~3);
 	int stride4  = ((gbm->w * 4 + 31) / 32) * 4;
@@ -1366,20 +1366,20 @@ void gbm_ht_8_3x3(const GBM *gbm, const byte *src24, byte *dest4)
 
 	for ( y = 0; y < gbm->h - 2; y += 3 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		const byte *src24c = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		      byte *dest4b = (dest4 += stride4);
-		      byte *dest4c = (dest4 += stride4);
-		BOOLEAN left = TRUE;
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		const gbm_u8 *src24c = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		      gbm_u8 *dest4b = (dest4 += stride4);
+		      gbm_u8 *dest4c = (dest4 += stride4);
+		gbm_boolean left = GBM_TRUE;
 
 		for ( x = 0; x < gbm->w - 2; x += 3, left = !left )
 /*...s3x3 case:24:*/
 {
-word r,g,b;
-byte inxs[9];
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 inxs[9];
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1412,8 +1412,8 @@ tmp = dest4a; dest4a = dest4b; dest4b = dest4c; dest4c = tmp;
 		if ( x < gbm->w - 1 )
 /*...s2x3 case:24:*/
 {
-word r,g,b;
-byte inxs[6];
+gbm_u16 r,g,b;
+gbm_u8 inxs[6];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1441,8 +1441,8 @@ else
 		else if ( x < gbm->w )
 /*...s1x3 case:24:*/
 {
-word r,g,b;
-byte inxs[3];
+gbm_u16 r,g,b;
+gbm_u8 inxs[3];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24b++;	g += *src24b++;	r += *src24b++;
@@ -1467,18 +1467,18 @@ else
 		}
 	if ( y < gbm->h - 1 )
 		{
-		const byte *src24a = (src24 += stride24);
-		const byte *src24b = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		      byte *dest4b = (dest4 += stride4);
-		BOOLEAN left = TRUE;
+		const gbm_u8 *src24a = (src24 += stride24);
+		const gbm_u8 *src24b = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		      gbm_u8 *dest4b = (dest4 += stride4);
+		gbm_boolean left = GBM_TRUE;
 
 		for ( x = 0; x < gbm->w - 2; x += 3, left = !left )
 /*...s3x2 case:24:*/
 {
-word r,g,b;
-byte inxs[6];
-byte *tmp;
+gbm_u16 r,g,b;
+gbm_u8 inxs[6];
+gbm_u8 *tmp;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1506,8 +1506,8 @@ tmp = dest4a; dest4a = dest4b; dest4b = tmp;
 		if ( x < gbm->w - 1 )
 /*...s2x2 case:24:*/
 {
-word r,g,b;
-byte inxs[4];
+gbm_u16 r,g,b;
+gbm_u8 inxs[4];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1531,8 +1531,8 @@ else
 		else if ( x < gbm->w )
 /*...s1x2 case:24:*/
 {
-word r,g,b;
-byte inxs[2];
+gbm_u16 r,g,b;
+gbm_u8 inxs[2];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24b++;	g += *src24b++;	r += *src24b++;
@@ -1554,15 +1554,15 @@ else
 		}
 	else if ( y < gbm->h )
 		{
-		const byte *src24a = (src24 += stride24);
-		      byte *dest4a = (dest4 += stride4);
-		BOOLEAN left = TRUE;
+		const gbm_u8 *src24a = (src24 += stride24);
+		      gbm_u8 *dest4a = (dest4 += stride4);
+		gbm_boolean left = GBM_TRUE;
 
 		for ( x = 0; x < gbm->w - 2; x += 3, left = !left )
 /*...s3x1 case:24:*/
 {
-word r,g,b;
-byte inxs[3];
+gbm_u16 r,g,b;
+gbm_u8 inxs[3];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1583,8 +1583,8 @@ else
 		if ( x < gbm->w - 1 )
 /*...s2x1 case:24:*/
 {
-word r,g,b;
-byte inxs[2];
+gbm_u16 r,g,b;
+gbm_u8 inxs[2];
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 b += *src24a++;	g += *src24a++;	r += *src24a++;
@@ -1602,8 +1602,8 @@ else
 		else if ( x < gbm->w )
 /*...s1x1 case:24:*/
 {
-word r,g,b;
-byte inx;
+gbm_u16 r,g,b;
+gbm_u8 inx;
 
 b  = *src24a++;	g  = *src24a++;	r  = *src24a++;
 

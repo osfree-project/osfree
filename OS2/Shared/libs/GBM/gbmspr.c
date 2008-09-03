@@ -17,6 +17,7 @@ History:
 22-Feb-2006: Move format description strings to gbmdesc.h
 28-Sep-2006: Attempt to protect the format detection better against wrong interpretations.
              Number of pages is now restricted to 10000 due to this.
+15-Aug-2008: Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -38,45 +39,45 @@ History:
 #endif
 /*...e*/
 /*...suseful:0:*/
-#define	low_byte(w)	((byte)  ((w)&0x00ff)    )
-#define	high_byte(w)	((byte) (((w)&0xff00)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
+#define	low_byte(w)	((gbm_u8)  ((w)&0x00ff)    )
+#define	high_byte(w)	((gbm_u8) (((w)&0xff00)>>8))
+#define	make_word(a,b)	(((gbm_u16)a) + (((gbm_u16)b) << 8))
 
 /*...sread_word:0:*/
-static BOOLEAN read_word(int fd, word *w)
+static gbm_boolean read_word(int fd, gbm_u16 *w)
 	{
-	byte low = 0, high = 0;
+	gbm_u8 low = 0, high = 0;
 
 	gbm_file_read(fd, (char *) &low, 1);
 	gbm_file_read(fd, (char *) &high, 1);
-	*w = (word) (low + ((word) high << 8));
-	return TRUE;
+	*w = (gbm_u16) (low + ((gbm_u16) high << 8));
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...sread_dword:0:*/
-static BOOLEAN read_dword(int fd, dword *d)
+static gbm_boolean read_dword(int fd, gbm_u32 *d)
 	{
-	word low, high;
+	gbm_u16 low, high;
 
 	read_word(fd, &low);
 	read_word(fd, &high);
-	*d = low + ((dword) high << 16);
-	return TRUE;
+	*d = low + ((gbm_u32) high << 16);
+	return GBM_TRUE;
 	}
 /*...e*/
 /*...swrite_word:0:*/
-static BOOLEAN write_word(int fd, word w)
+static gbm_boolean write_word(int fd, gbm_u16 w)
 	{
-	byte low  = (byte) w;
-	byte high = (byte) (w >> 8);
+	gbm_u8 low  = (gbm_u8) w;
+	gbm_u8 high = (gbm_u8) (w >> 8);
 
 	return gbm_file_write(fd, &low, 1) == 1 && gbm_file_write(fd, &high, 1) == 1;
 	}
 /*...e*/
 /*...swrite_dword:0:*/
-static BOOLEAN write_dword(int fd, dword d)
+static gbm_boolean write_dword(int fd, gbm_u32 d)
 	{
-	return write_word(fd, (word) d) && write_word(fd, (word) (d >> 16));
+	return write_word(fd, (gbm_u16) d) && write_word(fd, (gbm_u16) (d >> 16));
 	}
 /*...e*/
 /*...e*/
@@ -98,7 +99,7 @@ static GBMFT spr_gbmft =
 typedef struct
 	{
 	long pos_palette, pos_image, pos_mask;
-	dword bytes_per_line, first_bit, last_bit, actual_bpp;
+	gbm_u32 bytes_per_line, first_bit, last_bit, actual_bpp;
 	} SPR_PRIV;
 
 /*...sbpp_of_mode\44\ mode_of_bpp:0:*/
@@ -144,7 +145,7 @@ static int mode_of_bpp[] = { -1,23,-1,-1,17,-1,-1,-1,24 };
 /*...squick tables:0:*/
 /* These are to account for the reverse ordering of pixels in a scan line. */
 
-static byte nibble_swap[0x100] =
+static gbm_u8 nibble_swap[0x100] =
 	{
 	0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,
 	0x80,0x90,0xa0,0xb0,0xc0,0xd0,0xe0,0xf0,
@@ -179,7 +180,7 @@ static byte nibble_swap[0x100] =
 	0x0f,0x1f,0x2f,0x3f,0x4f,0x5f,0x6f,0x7f,
 	0x8f,0x9f,0xaf,0xbf,0xcf,0xdf,0xef,0xff,
 	};
-static byte bit_swap[0x100] =
+static gbm_u8 bit_swap[0x100] =
 	{
 	0x00,0x80,0x40,0xc0,0x20,0xa0,0x60,0xe0,
 	0x10,0x90,0x50,0xd0,0x30,0xb0,0x70,0xf0,
@@ -215,7 +216,7 @@ static byte bit_swap[0x100] =
 	0x1f,0x9f,0x5f,0xdf,0x3f,0xbf,0x7f,0xff,
 	};
 
-static byte pair_swap[0x10] =
+static gbm_u8 pair_swap[0x10] =
 	{
 	0x00,0x10,0x20,0x30,0x01,0x11,0x21,0x31,
 	0x02,0x12,0x22,0x32,0x03,0x13,0x23,0x33,
@@ -235,7 +236,7 @@ GBM_ERR spr_qft(GBMFT *gbmft)
 /* Read number of directories in the TIFF file. */
 GBM_ERR spr_rimgcnt(const char *fn, int fd, int *pimgcnt)
 {
-    dword num_sprites;
+    gbm_u32 num_sprites;
     fn=fn; /* Suppress 'unref arg' compiler warnings */
 
     read_dword(fd, &num_sprites);
@@ -260,9 +261,9 @@ GBM_ERR spr_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	int i;
 	int num_sprites;
 	long pos_sprite;
-	dword offset_sprite;
-	dword dword_w, scans_h, first_bit, last_bit, bits_per_line;
-	dword offset_image, offset_mask, mode;
+	gbm_u32 offset_sprite;
+	gbm_u32 dword_w, scans_h, first_bit, last_bit, bits_per_line;
+	gbm_u32 offset_image, offset_mask, mode;
 	GBM_ERR rc;
 
 	fn=fn; /* Suppress 'unref arg' compiler warnings */
@@ -341,15 +342,15 @@ GBM_ERR spr_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 /* Palette entry is 2 dwords, which are same if no flashing */
 /* We will simply use first dword in each case */
 
-static BOOLEAN read_pal(int fd, GBMRGB *gbmrgb)
+static gbm_boolean read_pal(int fd, GBMRGB *gbmrgb)
 	{
-	byte pal[8];
+	gbm_u8 pal[8];
 	if ( gbm_file_read(fd, pal, 8) != 8 )
-		return FALSE;
+		return GBM_FALSE;
 	gbmrgb->r = pal[1];
 	gbmrgb->g = pal[2];
 	gbmrgb->b = pal[3];
-	return TRUE;
+	return GBM_TRUE;
 	}
 /*...e*/
 
@@ -426,9 +427,9 @@ static void expand_0x10(GBMRGB *gbmrgb)
 
 	for ( bank = 0x10; bank < 0x100; bank += 0x10 )
 		{
-		byte override_r = ((bank & 0x10) << 3);
-		byte override_g = ((bank & 0x60) << 1);
-		byte override_b =  (bank & 0x80)      ;
+		gbm_u8 override_r = ((bank & 0x10) << 3);
+		gbm_u8 override_g = ((bank & 0x60) << 1);
+		gbm_u8 override_b =  (bank & 0x80)      ;
 		for ( i = 0; i < 0x10; i++ )
 			{
 			gbmrgb[bank + i].r = ((gbmrgb[i].r & 0x7f) | override_r);
@@ -459,8 +460,8 @@ static void expand_0x40(GBMRGB *gbmrgb)
 
 	for ( bank = 0; bank < 0x100; bank += 0x40 )
 		{
-		byte override_g = ((bank & 0x40) << 1);
-		byte override_b =  (bank & 0x80)      ;
+		gbm_u8 override_g = ((bank & 0x40) << 1);
+		gbm_u8 override_b =  (bank & 0x80)      ;
 		for ( i = 0; i < 0x40; i++ )
 			{
 			gbmrgb[bank + i].r =   gbmrgb[i].r;
@@ -489,7 +490,7 @@ switch ( priv->actual_bpp )
 int i;
 for ( i = 0; i < 0x10; i++ )
 	{
-	byte tint = ((i & 0x03) << 4);
+	gbm_u8 tint = ((i & 0x03) << 4);
 	gbmrgb[i].r = tint + ((i & 0x04) << 4);
 	gbmrgb[i].g = tint;
 	gbmrgb[i].b = tint + ((i & 0x08) << 3);
@@ -527,14 +528,14 @@ if ( gbm->bpp == 8 )
 	}
 /*...e*/
 /*...sspr_rdata:0:*/
-GBM_ERR spr_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR spr_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	int stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
 	SPR_PRIV *priv = (SPR_PRIV *) gbm->priv;
 	int scan_stride = priv->bytes_per_line;
 	int scan_first = ((priv->first_bit) >> 3);
 	int scan_bytes, i, j;
-	byte *datal = data + (gbm->h - 1) * stride;
+	gbm_u8 *datal = data + (gbm->h - 1) * stride;
 
 	gbm_file_lseek(fd, priv->pos_image, GBM_SEEK_SET);
 
@@ -624,28 +625,28 @@ We will map all incoming palette entrys first, to give a quick lookup table.
 */
 
 /*...swrite_pal:0:*/
-static BOOLEAN write_pal(int fd, GBMRGB gbmrgb)
+static gbm_boolean write_pal(int fd, GBMRGB gbmrgb)
 	{
-	byte pal[8];
+	gbm_u8 pal[8];
 	int j;
 	pal[0] = pal[4] = 0x00;
-	pal[1] = pal[5] = (byte) (gbmrgb.r & 0xf0);
-	pal[2] = pal[6] = (byte) (gbmrgb.g & 0xf0);
-	pal[3] = pal[7] = (byte) (gbmrgb.b & 0xf0);
+	pal[1] = pal[5] = (gbm_u8) (gbmrgb.r & 0xf0);
+	pal[2] = pal[6] = (gbm_u8) (gbmrgb.g & 0xf0);
+	pal[3] = pal[7] = (gbm_u8) (gbmrgb.b & 0xf0);
 	for ( j = 0; j < 8; j++ )
 		pal[j] += (pal[j] >> 4);
 	return gbm_file_write(fd, pal, 8) == 8;
 	}
 /*...e*/
 
-GBM_ERR spr_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR spr_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	int stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
 	int i, j, npal = ( 1 << gbm->bpp );
-	dword dword_w, last_bit, offset_image, mode;
+	gbm_u32 dword_w, last_bit, offset_image, mode;
 	char name[12];
-	byte qpal[0x100], *buf;
-	BOOLEAN ok;
+	gbm_u8 qpal[0x100], *buf;
+	gbm_boolean ok;
 
 	opt=opt; /* Suppress 'unref arg' warning */
 
@@ -714,7 +715,7 @@ case 8:
 	for ( i = 0; i < 0x10; i++ )
 		{
 		GBMRGB gbmrgb_def;
-		byte tint = ((i & 0x03) << 4);
+		gbm_u8 tint = ((i & 0x03) << 4);
 		gbmrgb_def.r = tint + ((i & 0x04) << 4);
 		gbmrgb_def.g = tint;
 		gbmrgb_def.b = tint + ((i & 0x08) << 3);
@@ -725,10 +726,10 @@ case 8:
 	/* Determine palette mapping */
 	for ( i = 0; i < 0x100; i++ )
 		{
-		byte r = gbmrgb[i].r;
-		byte g = gbmrgb[i].g;
-		byte b = gbmrgb[i].b;
-		byte k32 = ((((r & 0x30) + (g & 0x30) + (b & 0x30)) / 3) & 0x30);
+		gbm_u8 r = gbmrgb[i].r;
+		gbm_u8 g = gbmrgb[i].g;
+		gbm_u8 b = gbmrgb[i].b;
+		gbm_u8 k32 = ((((r & 0x30) + (g & 0x30) + (b & 0x30)) / 3) & 0x30);
 		qpal[i] =  (b & 0x80U)       +
 			  ((g & 0xc0U) >> 1) +
 			  ((r & 0x80U) >> 3) +

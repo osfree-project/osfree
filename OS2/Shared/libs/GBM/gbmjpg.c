@@ -9,9 +9,6 @@ This file is just as public domain as the rest of GBM.
 
 This module makes use of the work of the Independent JPEG group version 6a/6b,
 
-Compiling the IJG 6a/6b using VisualAge C++ 3.0 for OS/2, I find I get quite
-a few warnings, which appear to be harmless so far.
-
 Reads JPEG-FIF images with 8 Bit per component (YUV, YCCK, CMYK)
 Also reads progressive JPEG images
 Also reads greyscale JPEG images (Y only)
@@ -66,6 +63,7 @@ History:
              * Undo hack in jmorecfg.h (changing oder of RGB out put from RGB to BGR),
                it is now back to the original order as this is required by TIFF decoder.
                The color component order is now swapped in the jpg codec.
+15-Aug-2008: Integrate new GBM types
 */
 
 /* ---------------------------------------- */
@@ -230,7 +228,7 @@ METHODDEF(boolean) empty_output_buffer(j_compress_ptr cinfo)
         ERREXIT(cinfo, JERR_FILE_WRITE);
     d->pub.next_output_byte = d->buf;
     d->pub.free_in_buffer = DBUFSIZE;
-    return TRUE;
+    return GBM_TRUE;
 }
 
 METHODDEF(void) term_destination(j_compress_ptr cinfo)
@@ -260,16 +258,16 @@ static void init_fd_dest(j_compress_ptr cinfo, int fd, DST *d)
 
 typedef struct
 {
-    struct jpeg_source_mgr pub;
-    int fd;
-    JOCTET buf[SBUFSIZE];
-    BOOLEAN start_of_file;
+    struct      jpeg_source_mgr pub;
+    int         fd;
+    JOCTET      buf[SBUFSIZE];
+    gbm_boolean start_of_file;
 } SRC;
 
 METHODDEF(void) init_source(j_decompress_ptr dinfo)
 {
     SRC *s = (SRC *) dinfo->src;
-    s->start_of_file = TRUE;
+    s->start_of_file = GBM_TRUE;
 }
 
 METHODDEF(boolean) fill_input_buffer(j_decompress_ptr dinfo)
@@ -286,8 +284,8 @@ METHODDEF(boolean) fill_input_buffer(j_decompress_ptr dinfo)
     }
     s->pub.next_input_byte = s->buf;
     s->pub.bytes_in_buffer = bytes;
-    s->start_of_file = FALSE;
-    return TRUE;
+    s->start_of_file = GBM_FALSE;
+    return GBM_TRUE;
 }
 
 METHODDEF(void) skip_input_data(j_decompress_ptr dinfo, long num_bytes)
@@ -348,7 +346,7 @@ GBM_ERR jpg_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
     struct jpeg_decompress_struct dinfo;
     ERR err;
     SRC src;
-    BOOLEAN map_CMYK_to_BGR = FALSE;
+    gbm_boolean map_CMYK_to_BGR = GBM_FALSE;
 
     fn=fn; opt=opt; /* Suppress compiler warnings */
 
@@ -371,10 +369,10 @@ GBM_ERR jpg_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
     init_fd_src(&dinfo, fd, &src);
 
     /* Read file header, set default decompression parameters */
-    (void) jpeg_read_header(&dinfo, TRUE);
+    (void) jpeg_read_header(&dinfo, GBM_TRUE);
     /* We can ignore the return value from jpeg_read_header since
      *   (a) suspension is not possible with the stdio data source, and
-     *   (b) we passed TRUE to reject a tables-only JPEG file as an error.
+     *   (b) we passed GBM_TRUE to reject a tables-only JPEG file as an error.
      * See libjpeg.doc for more info.
      */
 
@@ -386,7 +384,7 @@ GBM_ERR jpg_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 #endif
 
     /* check for supported color-spaces */
-    map_CMYK_to_BGR = FALSE;
+    map_CMYK_to_BGR = GBM_FALSE;
     switch(dinfo.out_color_space)
     {
         case JCS_RGB:
@@ -402,12 +400,12 @@ GBM_ERR jpg_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
         case JCS_YCCK:
             /* Request output as CMYK, we do a simple conversion to BGR then. */
             dinfo.out_color_space = JCS_CMYK;
-            map_CMYK_to_BGR = TRUE;
+            map_CMYK_to_BGR = GBM_TRUE;
             break;
 
         case JCS_CMYK:
             /* We do a simple conversion to BGR then. */
-            map_CMYK_to_BGR = TRUE;
+            map_CMYK_to_BGR = GBM_TRUE;
             break;
 
         default:
@@ -452,7 +450,7 @@ GBM_ERR jpg_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
         for ( p = 0; p < 0x100; p++ )
             gbmrgb[p].r =
             gbmrgb[p].g =
-            gbmrgb[p].b = (byte) p;
+            gbmrgb[p].b = (gbm_u8) p;
     }
     return GBM_ERR_OK;
 }
@@ -464,14 +462,14 @@ GBM_ERR jpg_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
    We can't expect it in the gbm.priv, as jpg_rhdr may be called without
    ever calling this routine. Who would clean up the dinfo in that case? */
 
-GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR jpg_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
     struct jpeg_decompress_struct dinfo;
     ERR err;
     SRC src;
     int jrc;
-    BOOLEAN map_CMYK_to_BGR = FALSE;
-    byte * cmykData = NULL;
+    gbm_boolean map_CMYK_to_BGR = GBM_FALSE;
+    gbm_u8 * cmykData = NULL;
 
     gbm_file_lseek(fd, 0L, GBM_SEEK_SET);
 
@@ -498,10 +496,10 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
     init_fd_src(&dinfo, fd, &src);
 
     /* Read file header, set default decompression parameters */
-    (void) jpeg_read_header(&dinfo, TRUE);
+    (void) jpeg_read_header(&dinfo, GBM_TRUE);
 
     /* check for supported color-spaces */
-    map_CMYK_to_BGR = FALSE;
+    map_CMYK_to_BGR = GBM_FALSE;
     switch(dinfo.out_color_space)
     {
         case JCS_RGB:
@@ -517,12 +515,12 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
         case JCS_YCCK:
             /* Request output as CMYK, we do a simple conversion to BGR then. */
             dinfo.out_color_space = JCS_CMYK;
-            map_CMYK_to_BGR = TRUE;
+            map_CMYK_to_BGR = GBM_TRUE;
             break;
 
         case JCS_CMYK:
             /* We do a simple conversion to BGR then. */
-            map_CMYK_to_BGR = TRUE;
+            map_CMYK_to_BGR = GBM_TRUE;
             break;
 
         default:
@@ -542,8 +540,8 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
     {
         const int stride_src = dinfo.output_width * dinfo.output_components;
         const int stride_dst = (dinfo.output_width * 3 + 3) & ~3;
-        GBM   gbm_src        = *gbm;
-        byte *c_data         = NULL;
+        GBM     gbm_src      = *gbm;
+        gbm_u8 *c_data       = NULL;
 
         if (dinfo.output_components != 4)
         {
@@ -555,7 +553,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
         gbm_src.bpp = dinfo.output_components * 8;
 
         /* Create a local buffer for the CMYK data */
-        cmykData = (byte *) gbmmem_malloc(stride_src);
+        cmykData = (gbm_u8 *) gbmmem_malloc(stride_src);
         if (cmykData == NULL)
         {
            /* This is an important step since it will release a good deal of memory. */
@@ -582,7 +580,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
 
             /* convert CMYK data to BGR */
             if (! gbm_map_row_CMYK_to_BGR(cmykData, &gbm_src,
-                                          c_data  ,  gbm    , FALSE))
+                                          c_data  ,  gbm    , GBM_FALSE))
             {
                 /* This is an important step since it will release a good deal of memory. */
                 jpeg_destroy_decompress(&dinfo);
@@ -606,7 +604,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
         const int stride = ((dinfo.output_width * dinfo.output_components + 3) & ~3);
 
         /* Process data */
-        byte * c_data = data + (dinfo.output_height - 1) * stride;
+        gbm_u8 * c_data = data + (dinfo.output_height - 1) * stride;
 
         if (dinfo.output_components > 3)
         {
@@ -634,7 +632,7 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
             {
                 if (! gbm_map_row_RGBx_BGRx(c_data, gbm,
                                             c_data, gbm,
-                                            NULL, FALSE))
+                                            NULL, GBM_FALSE))
                 {
                     /* This is an important step since it will release a good deal of memory. */
                     jpeg_destroy_decompress(&dinfo);
@@ -666,12 +664,12 @@ GBM_ERR jpg_rdata(int fd, GBM *gbm, byte *data)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-static BOOLEAN make_output_palette(const GBMRGB gbmrgb[], byte grey[], const char *opt)
+static gbm_boolean make_output_palette(const GBMRGB gbmrgb[], gbm_u8 grey[], const char *opt)
 {
-  const BOOLEAN  k = ( gbm_find_word(opt, "k") != NULL );
-  const BOOLEAN  r = ( gbm_find_word(opt, "r") != NULL );
-  const BOOLEAN  g = ( gbm_find_word(opt, "g") != NULL );
-  const BOOLEAN  b = ( gbm_find_word(opt, "b") != NULL );
+  const gbm_boolean  k = ( gbm_find_word(opt, "k") != NULL );
+  const gbm_boolean  r = ( gbm_find_word(opt, "r") != NULL );
+  const gbm_boolean  g = ( gbm_find_word(opt, "g") != NULL );
+  const gbm_boolean  b = ( gbm_find_word(opt, "b") != NULL );
   int i;
 
 #define  SW4(a,b,c,d)   ((a)*8+(b)*4+(c)*2+(d))
@@ -683,39 +681,39 @@ static BOOLEAN make_output_palette(const GBMRGB gbmrgb[], byte grey[], const cha
     case SW4(1,0,0,0):
       for ( i = 0; i < 0x100; i++ )
       {
-        grey[i] = (byte) ( ((word) gbmrgb[i].r *  77U +
-                            (word) gbmrgb[i].g * 150U +
-                            (word) gbmrgb[i].b *  29U) >> 8 );
+        grey[i] = (gbm_u8) ( ((gbm_u16) gbmrgb[i].r *  77U +
+                              (gbm_u16) gbmrgb[i].g * 150U +
+                              (gbm_u16) gbmrgb[i].b *  29U) >> 8 );
       }
-      return TRUE;
+      return GBM_TRUE;
 
     case SW4(0,1,0,0):
       for ( i = 0; i < 0x100; i++ )
       {
         grey[i] = gbmrgb[i].r;
       }
-      return TRUE;
+      return GBM_TRUE;
 
     case SW4(0,0,1,0):
       for ( i = 0; i < 0x100; i++ )
       {
         grey[i] = gbmrgb[i].g;
       }
-      return TRUE;
+      return GBM_TRUE;
 
     case SW4(0,0,0,1):
       for ( i = 0; i < 0x100; i++ )
       {
         grey[i] = gbmrgb[i].b;
       }
-      return TRUE;
+      return GBM_TRUE;
   }
-  return FALSE;
+  return GBM_FALSE;
 }
 
 /* ---------------------------------------- */
 
-GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
     int jrc;
     int quality = 75;
@@ -723,8 +721,8 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     int stride  = 0;
     const char *s      = NULL;
     const char *index  = NULL;
-    const byte *c_data = NULL;
-          byte *t_data = NULL;
+    const gbm_u8 *c_data = NULL;
+          gbm_u8 *t_data = NULL;
     struct jpeg_compress_struct cinfo;
     ERR err;
     DST dst;
@@ -802,12 +800,12 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     /* Now you can set any non-default parameters you wish to.
      * Here we just illustrate the use of quality (quantization table) scaling:
      */
-    jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+    jpeg_set_quality(&cinfo, quality, GBM_TRUE /* limit to baseline-JPEG values */);
 
     /* Optionally allow huffman table optimization (needs a second pass -> slower). */
     if ( gbm_find_word(opt, "optimize") != NULL )
     {
-        cinfo.optimize_coding = TRUE;
+        cinfo.optimize_coding = GBM_TRUE;
     }
 
     /* smoothing factor: 0 is off */
@@ -819,10 +817,10 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
         jpeg_simple_progression(&cinfo);
     }
 
-    /* TRUE ensures that we will write a complete interchange-JPEG file.
-     * Pass TRUE unless you are very sure of what you're doing.
+    /* GBM_TRUE ensures that we will write a complete interchange-JPEG file.
+     * Pass GBM_TRUE unless you are very sure of what you're doing.
      */
-    jpeg_start_compress(&cinfo, TRUE);
+    jpeg_start_compress(&cinfo, GBM_TRUE);
 
     /* Write a comment to the "COM" marker */
     if ((s = gbm_find_word_prefix(opt, "comment=")) != NULL)
@@ -845,7 +843,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     if (cinfo.input_components == 3)
     {
        /* Create a local buffer for the BGR->RGB data conversion */
-       t_data = (byte *) gbmmem_malloc(stride);
+       t_data = (gbm_u8 *) gbmmem_malloc(stride);
        if (t_data == NULL)
        {
           jpeg_destroy_compress(&cinfo);
@@ -869,7 +867,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
            /* convert BGR data to RGB */
            if (! gbm_map_row_RGBx_BGRx(c_data, gbm,
                                        t_data, gbm,
-                                       NULL, FALSE))
+                                       NULL, GBM_FALSE))
            {
                jpeg_destroy_compress(&cinfo);
                /* Don't forget to cleanup temporary conversion buffer. */
@@ -878,7 +876,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                return GBM_ERR_WRITE;
            }
 
-           row_pointer[0] = (byte *) t_data;
+           row_pointer[0] = (gbm_u8 *) t_data;
            num_scanlines  = jpeg_write_scanlines(&cinfo, row_pointer, 1);
            c_data        -= num_scanlines * stride;
        }
@@ -890,10 +888,10 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     else /* Grayscale */
     {
        int  j;
-       byte grey[0x100];
+       gbm_u8 grey[0x100];
 
        /* Create a local buffer for the data conversion to gray */
-       t_data = (byte *) gbmmem_malloc(stride);
+       t_data = (gbm_u8 *) gbmmem_malloc(stride);
        if (t_data == NULL)
        {
           jpeg_destroy_compress(&cinfo);
@@ -928,7 +926,7 @@ GBM_ERR jpg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             * Here the array is only one element long, but you could pass
             * more than one scanline at a time if that's more convenient.
             */
-           row_pointer[0] = (byte *) t_data;
+           row_pointer[0] = (gbm_u8 *) t_data;
            num_scanlines  = jpeg_write_scanlines(&cinfo, row_pointer, 1);
            c_data        -= num_scanlines * stride;
        }

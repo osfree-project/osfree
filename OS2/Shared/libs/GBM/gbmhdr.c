@@ -27,6 +27,8 @@ History:
 
 01-Oct-2006: Fix a division by zero crash that happened for bitmaps with size smaller
              than 1 byte (e.g. 1x1x1bpp).
+
+15-Aug-2008: Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -36,7 +38,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MAC)
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
  #include <unistd.h>
 #else
  #include <io.h>
@@ -60,8 +62,8 @@ History:
 
 /* ----------------------------- */
 
-BOOLEAN SupportsNumberOfPagesQuery(void);
-BOOLEAN GetNumberOfPages(const char * fileName, const int fd, const int ft, int * numPages);
+static gbm_boolean SupportsNumberOfPagesQuery(void);
+static gbm_boolean GetNumberOfPages(const char * fileName, const int fd, const int ft, int * numPages);
 
 /* ----------------------------- */
 
@@ -103,9 +105,9 @@ static void usage(void)
 
 /* ----------------------------- */
 
-static BOOLEAN guess     = TRUE;
-static BOOLEAN silent    = FALSE;
-static BOOLEAN multipage = FALSE;
+static gbm_boolean guess     = GBM_TRUE;
+static gbm_boolean silent    = GBM_FALSE;
+static gbm_boolean multipage = GBM_FALSE;
 
 /* ----------------------------- */
 
@@ -117,7 +119,7 @@ static void show_error(const char *fn, const char *reason)
 
 /* ----------------------------- */
 
-static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
+static gbm_boolean show_guess(const char *fn, const char *opt, int fd)
 {
     int ft, rc;
     int imgcount = 0;
@@ -129,7 +131,7 @@ static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
     {
         gbm_io_close(fd);
         show_error(fn, "can't guess bitmap file format from extension");
-        return FALSE;
+        return GBM_FALSE;
     }
 
     gbm_query_filetype(ft, &gbmft);
@@ -138,7 +140,7 @@ static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
     if (multipage)
     {
         int i;
-        BOOLEAN ext_bpp = FALSE;
+        gbm_boolean ext_bpp = GBM_FALSE;
 
         if (! GetNumberOfPages(fn, fd, ft, &imgcount))
         {
@@ -146,7 +148,7 @@ static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
             gbm_io_close(fd);
             sprintf(s, "can't read file header: %s", gbm_err(rc));
             show_error(fn, s);
-            return FALSE;
+            return GBM_FALSE;
         }
 
         ext_bpp = (strstr(opt, "ext_bpp") != NULL);
@@ -166,7 +168,7 @@ static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
                 gbm_io_close(fd);
                 sprintf(s, "can't read file header: %s", gbm_err(rc));
                 show_error(fn, s);
-                return FALSE;
+                return GBM_FALSE;
             }
 
             datalen += (gbm.w*gbm.h*gbm.bpp+7)/8;
@@ -188,7 +190,7 @@ static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
             gbm_io_close(fd);
             sprintf(s, "can't read file header: %s", gbm_err(rc));
             show_error(fn, s);
-            return FALSE;
+            return GBM_FALSE;
         }
 
         filelen = gbm_io_lseek(fd, 0L, GBM_SEEK_END);
@@ -201,7 +203,7 @@ static BOOLEAN show_guess(const char *fn, const char *opt, int fd)
                fn);
     }
 
-    return TRUE;
+    return GBM_TRUE;
 }
 
 /* ----------------------------- */
@@ -238,9 +240,9 @@ static void show_noguess(const char *fn, const char *opt, int fd)
 
 /* ----------------------------- */
 
-static BOOLEAN show(const char *fn, const char *opt)
+static gbm_boolean show(const char *fn, const char *opt)
 {
-    BOOLEAN ret = TRUE;
+    gbm_boolean ret = GBM_TRUE;
     int     fd;
     struct  stat buf;
 
@@ -248,13 +250,13 @@ static BOOLEAN show(const char *fn, const char *opt)
     /* Is a directory */
     {
         show_error(fn, "is a directory");
-        return FALSE;
+        return GBM_FALSE;
     }
 
     if ( (fd = gbm_io_open(fn, GBM_O_RDONLY)) == -1 )
     {
         show_error(fn, "can't open");
-        return FALSE;
+        return GBM_FALSE;
     }
 
     if ( guess )
@@ -275,7 +277,7 @@ static BOOLEAN show(const char *fn, const char *opt)
 int main(int argc, char *argv[])
 {
     int i, x;
-    BOOLEAN oneParsed = FALSE;
+    gbm_boolean oneParsed = GBM_FALSE;
 
     /* process command line options */
     if ( argc == 1 )
@@ -296,9 +298,9 @@ int main(int argc, char *argv[])
 
        switch ( argv[i][1] )
        {
-          case 'g': guess     = FALSE; break;
-          case 's': silent    = TRUE;  break;
-          case 'c': multipage = TRUE;  break;
+          case 'g': guess     = GBM_FALSE; break;
+          case 's': silent    = GBM_TRUE;  break;
+          case 'c': multipage = GBM_TRUE;  break;
           default : usage();           break;
        }
     }
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
        {
           continue;
        }
-       oneParsed = TRUE;
+       oneParsed = GBM_TRUE;
     }
     if (! oneParsed)
     {
@@ -341,9 +343,9 @@ int main(int argc, char *argv[])
 
        /* This also expands possible regular expression based filename templates. */
      #ifdef FILENAME_EXPANSION_MODE
-       if (gbmtool_parse_argument(&gbmfilearg, TRUE) != GBM_ERR_OK)
+       if (gbmtool_parse_argument(&gbmfilearg, GBM_TRUE) != GBM_ERR_OK)
      #else
-       if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+       if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
      #endif
        {
           show_error(gbmfilearg.argin, "cannot parse filename");
@@ -369,7 +371,7 @@ int main(int argc, char *argv[])
        /* free dynamically allocated filename */
        gbmtool_free_argument(&gbmfilearg);
 
-       oneParsed = TRUE;
+       oneParsed = GBM_TRUE;
     }
 
     return 0;
@@ -382,7 +384,7 @@ int main(int argc, char *argv[])
  *
  * Dynamically link the specific function to support also older versions of GBM.DLL.
  */
-BOOLEAN SupportsNumberOfPagesQuery(void)
+gbm_boolean SupportsNumberOfPagesQuery(void)
 {
 #if defined(__OS2__) || defined(OS2)
 
@@ -393,14 +395,14 @@ BOOLEAN SupportsNumberOfPagesQuery(void)
    /* check version first */
    if (gbm_version() < 135)
    {
-      return FALSE;
+      return GBM_FALSE;
    }
 
    /* now dynamically link GBM.DLL */
    rc = DosLoadModule("", 0, "GBM", &hmod);
    if (rc)
    {
-      return FALSE;
+      return GBM_FALSE;
    }
 
    /* lookup gbm_read_imgcount() */
@@ -408,10 +410,10 @@ BOOLEAN SupportsNumberOfPagesQuery(void)
 
    DosFreeModule(hmod);
 
-   return rc ? FALSE : TRUE;
+   return rc ? GBM_FALSE : GBM_TRUE;
 #else
    /* On all other platforms we assume so far that the correct lib is there. */
-   return TRUE;
+   return GBM_TRUE;
 #endif
 }
 
@@ -422,7 +424,7 @@ BOOLEAN SupportsNumberOfPagesQuery(void)
  *
  * Dynamically link the specific function to support also older versions of GBM.DLL.
  */
-BOOLEAN GetNumberOfPages(const char * fileName, const int fd, const int ft, int * numPages)
+gbm_boolean GetNumberOfPages(const char * fileName, const int fd, const int ft, int * numPages)
 {
 #if defined(__OS2__) || defined(OS2)
 
@@ -433,14 +435,14 @@ BOOLEAN GetNumberOfPages(const char * fileName, const int fd, const int ft, int 
    /* check version first */
    if (gbm_version() < 135)
    {
-      return FALSE;
+      return GBM_FALSE;
    }
 
    /* now dynamically link GBM.DLL */
    rc = DosLoadModule("", 0, "GBM", &hmod);
    if (rc)
    {
-      return FALSE;
+      return GBM_FALSE;
    }
 
    /* lookup gbm_read_imgcount() */
@@ -448,22 +450,22 @@ BOOLEAN GetNumberOfPages(const char * fileName, const int fd, const int ft, int 
    if (rc)
    {
       DosFreeModule(hmod);
-      return FALSE;
+      return GBM_FALSE;
    }
 
    /* call gbm_read_imgcount(const char *fn, int fd, int ft, int *pimgcnt) */
    if (functionAddr(fileName, fd, ft, numPages) != GBM_ERR_OK)
    {
       DosFreeModule(hmod);
-      return FALSE;
+      return GBM_FALSE;
    }
 
    DosFreeModule(hmod);
 
-   return TRUE;
+   return GBM_TRUE;
 #else
    /* On all other platforms we assume so far that the correct lib is there. */
-   return (gbm_read_imgcount(fileName, fd, ft, numPages) != GBM_ERR_OK) ? FALSE : TRUE;
+   return (gbm_read_imgcount(fileName, fd, ft, numPages) != GBM_ERR_OK) ? GBM_FALSE : GBM_TRUE;
 #endif
 }
 

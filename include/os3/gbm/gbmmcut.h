@@ -24,7 +24,7 @@ extern void gbm_delete_mcut(GBMMCUT *mcut);
 
 extern void gbm_add_to_mcut(
 	GBMMCUT *mcut,	
-	const GBM *gbm, const byte *data24
+	const GBM *gbm, const gbm_u8 *data24
 	);
 
 extern void gbm_pal_mcut(
@@ -35,13 +35,13 @@ extern void gbm_pal_mcut(
 
 extern void gbm_map_mcut(
 	GBMMCUT *mcut,
-	const GBM *gbm, const byte *data24, byte *data8
+	const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8
 	);
 
-extern BOOLEAN gbm_mcut(
-	const GBM *gbm, const byte *data24,
+extern gbm_boolean gbm_mcut(
+	const GBM *gbm, const gbm_u8 *data24,
 	GBMRGB gbmrgb[],
-	byte *data8,
+	gbm_u8 *data8,
 	int n_cols_wanted
 	);
 

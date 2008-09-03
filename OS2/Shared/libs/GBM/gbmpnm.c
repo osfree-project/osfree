@@ -58,6 +58,7 @@ History:
 
 11-Jun-2006: Initial release
 16-Jun-2006: Add support for ASCII subformats
+15-Aug-2008: Integrate new GBM types
 */
 
 #include <stdio.h>
@@ -90,9 +91,9 @@ static GBMFT pnm_gbmft =
 
 /* ---------------------------------------- */
 
-static byte read_byte(int fd)
+static gbm_u8 read_byte(int fd)
 {
-   byte b = 0;
+   gbm_u8 b = 0;
    gbm_file_read(fd, (char *) &b, 1);
    return b;
 }
@@ -284,7 +285,7 @@ GBM_ERR pnm_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-GBM_ERR pnm_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR pnm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 {
    GBM_ERR rc;
    int     type;
@@ -333,7 +334,7 @@ GBM_ERR pnm_rdata(int fd, GBM *gbm, byte *data)
 /* ---------------------------------------- */
 /* ---------------------------------------- */
 
-GBM_ERR pnm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR pnm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
    /* dispatch to the specific codec (PBM, PGM or PPM) */
    switch(gbm->bpp)

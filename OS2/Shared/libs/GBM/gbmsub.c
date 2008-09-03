@@ -10,9 +10,10 @@ History:
              Now the file can have quotes and thus clearly separating
              it from the options.
              On OS/2 command line use: "\"file.ext\",options"
-08-Feb-2008  Allocate memory from high memory for bitmap data to
+08-Feb-2008: Allocate memory from high memory for bitmap data to
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
+15-Aug-2008: Integrate new GBM types
 */
 
 /*...sincludes:0:*/
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
 	GBMFT	gbmft;
 	GBM	gbm;
 	GBMRGB	gbmrgb[0x100];
-	byte	*data;
+	gbm_u8	*data;
 
 	for ( i = 1; i < argc; i++ )
 		{
@@ -175,7 +176,7 @@ int main(int argc, char *argv[])
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse source filename %s", gbmfilearg.argin);
 	}
@@ -188,7 +189,7 @@ int main(int argc, char *argv[])
 	{
 	  usage();
 	}
-	if (gbmtool_parse_argument(&gbmfilearg, FALSE) != GBM_ERR_OK)
+	if (gbmtool_parse_argument(&gbmfilearg, GBM_FALSE) != GBM_ERR_OK)
 	{
 	  fatal("can't parse destination filename %s", gbmfilearg.argin);
 	}

@@ -12,6 +12,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -31,9 +32,9 @@ History:
 /*...e*/
 
 /*...suseful:0:*/
-#define	low_byte(w)	((byte)  (          (w)&0x00ffU)    )
-#define	high_byte(w)	((byte) (((unsigned)(w)&0xff00U)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
+#define	low_byte(w)	((gbm_u8)  (          (w)&0x00ffU)    )
+#define	high_byte(w)	((gbm_u8) (((unsigned)(w)&0xff00U)>>8))
+#define	make_word(a,b)	(((gbm_u16)a) + (((gbm_u16)b) << 8))
 /*...e*/
 /*...sextension:0:*/
 static char *extension(char *fn)
@@ -71,19 +72,19 @@ This defines the 32 byte header found on .KPS and .KPL files.
 
 typedef struct
 	{
-	byte	signiture[8];		/* Usually "DFIMAG00"                */
-	byte	height_low;	
-	byte	height_high;		/* Image height in pixels            */
-	byte	width_low;	
-	byte	width_high;		/* Image width in pixels             */
-	byte	unknown[20];		/* 20 unknown bytes                  */
+	gbm_u8	signiture[8];		/* Usually "DFIMAG00"                */
+	gbm_u8	height_low;	
+	gbm_u8	height_high;		/* Image height in pixels            */
+	gbm_u8	width_low;	
+	gbm_u8	width_high;		/* Image width in pixels             */
+	gbm_u8	unknown[20];		/* 20 unknown bytes                  */
 	} KPS_HEADER;
 /*...e*/
 
 typedef struct
 	{
 	char fn[600+1];
-	BOOLEAN kpl;
+	gbm_boolean kpl;
 	} KPS_PRIV;
 
 /*...skps_qft:0:*/
@@ -96,8 +97,8 @@ GBM_ERR kps_qft(GBMFT *gbmft)
 /*...skps_rhdr:0:*/
 GBM_ERR kps_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
-	BOOLEAN	pal = ( gbm_find_word(opt, "pal") != NULL );
-	BOOLEAN	kpl = ( gbm_find_word(opt, "kpl") != NULL );
+	gbm_boolean	pal = ( gbm_find_word(opt, "pal") != NULL );
+	gbm_boolean	kpl = ( gbm_find_word(opt, "kpl") != NULL );
 	KPS_HEADER kps_header;
 	KPS_PRIV *priv = (KPS_PRIV *) gbm->priv;
 	int	w, h;
@@ -142,7 +143,7 @@ GBM_ERR kps_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /*...sread a \46\kpl palette file:16:*/
 {
 int	fd2, i, w, h;
-byte	p[3][0x100];
+gbm_u8	p[3][0x100];
 KPS_HEADER kps_header;
 
 if ( ext != NULL )
@@ -178,7 +179,7 @@ for ( i = 0; i < 0x100; i++ )
 /*...sread a \46\pal palette file:16:*/
 {
 int	fd2, i;
-byte	b[4];
+gbm_u8	b[4];
 
 if ( ext != NULL )
 	strcpy(ext, "pal");
@@ -203,10 +204,10 @@ gbm_file_close(fd2);
 	}
 /*...e*/
 /*...skps_rdata:0:*/
-GBM_ERR kps_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR kps_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	int	i, stride;
-	byte	*p;
+	gbm_u8	*p;
 
 	stride = ((gbm->w + 3) & ~3);
 	p = data + ((gbm->h - 1) * stride);
@@ -220,14 +221,14 @@ GBM_ERR kps_rdata(int fd, GBM *gbm, byte *data)
 	}
 /*...e*/
 /*...skps_w:0:*/
-GBM_ERR kps_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR kps_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	KPS_HEADER kps_header;
 	int i, stride;
-	const byte *p;
+	const gbm_u8 *p;
 	char fn2[600+1], *ext;
-	BOOLEAN	pal = ( gbm_find_word(opt, "pal") != NULL );
-	BOOLEAN	kpl = ( gbm_find_word(opt, "kpl") != NULL );
+	gbm_boolean	pal = ( gbm_find_word(opt, "pal") != NULL );
+	gbm_boolean	kpl = ( gbm_find_word(opt, "kpl") != NULL );
 
 	if ( gbm->bpp != 8 )
 		return GBM_ERR_NOT_SUPP;
@@ -258,7 +259,7 @@ GBM_ERR kps_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 /*...swrite a \46\kpl palette file:16:*/
 {
 int fd2, j;
-byte palette[3][0x100];
+gbm_u8 palette[3][0x100];
 
 if ( ext != NULL )
 	strcpy(ext, "kpl");
@@ -289,7 +290,7 @@ gbm_file_close(fd2);
 /*...swrite a \46\pal palette file:16:*/
 {
 int	fd2;
-byte	b[4];
+gbm_u8	b[4];
 
 if ( ext != NULL )
 	strcpy(ext, "pal");

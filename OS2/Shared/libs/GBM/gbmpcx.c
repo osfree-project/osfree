@@ -9,6 +9,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -28,9 +29,9 @@ History:
 /*...e*/
 
 /*...suseful:0:*/
-#define	low_byte(w)	((byte)  (          (w)&0x00ffU)    )
-#define	high_byte(w)	((byte) (((unsigned)(w)&0xff00U)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
+#define	low_byte(w)	((gbm_u8)  (          (w)&0x00ffU)    )
+#define	high_byte(w)	((gbm_u8) (((unsigned)(w)&0xff00U)>>8))
+#define	make_word(a,b)	(((gbm_u16)a) + (((gbm_u16)b) << 8))
 /*...e*/
 
 static GBMFT pcx_gbmft =
@@ -49,9 +50,9 @@ static GBMFT pcx_gbmft =
 
 typedef struct
 	{
-	byte version, bpppp, planes;
+	gbm_u8 version, bpppp, planes;
 	int bytes_per_line;
-	BOOLEAN	trunc;
+	gbm_boolean	trunc;
 	} PCX_PRIV;
 
 /*...spcx_qft:0:*/
@@ -65,8 +66,8 @@ GBM_ERR pcx_qft(GBMFT *gbmft)
 GBM_ERR pcx_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	PCX_PRIV *pcx_priv = (PCX_PRIV *) gbm->priv;
-	byte hdr[70];
-	word x1, y1, x2, y2;
+	gbm_u8 hdr[70];
+	gbm_u16 x1, y1, x2, y2;
 	int w, h, bpp;
 
 	fn=fn; /* Suppress 'unref arg' compiler warning */
@@ -129,7 +130,7 @@ case 1:
 case 4:
 	/* Use inline palette */
 	{
-	byte b[16*3];
+	gbm_u8 b[16*3];
 	int i;
 
 	gbm_file_lseek(fd, 16L, GBM_SEEK_SET);
@@ -146,8 +147,8 @@ case 4:
 /*...s8 \45\ read palette from end of file:16:*/
 case 8:
 	{
-	byte trailer_id;
-	byte b[0x100*3];
+	gbm_u8 trailer_id;
+	gbm_u8 b[0x100*3];
 	int i;
 
 	gbm_file_lseek(fd, -0x301L, GBM_SEEK_END);
@@ -172,8 +173,8 @@ case 8:
 /*...spcx_rdata:0:*/
 /*...sread_pcx_line:0:*/
 static void read_pcx_line(
-	AHEAD *ahead, byte *line, int bytes_per_line,
-	byte *runleft, byte *runval
+	AHEAD *ahead, gbm_u8 *line, int bytes_per_line,
+	gbm_u8 *runleft, gbm_u8 *runval
 	)
 	{
 	/* Handle left overs from previous line */
@@ -189,16 +190,16 @@ static void read_pcx_line(
 
 	while ( bytes_per_line )
 		{
-		byte b1 = (byte) gbm_read_ahead(ahead);
+		gbm_u8 b1 = (gbm_u8) gbm_read_ahead(ahead);
 
 		if ( (b1 & 0xc0) == 0xc0 )
 			{
-			byte b2 = (byte) gbm_read_ahead(ahead);
+			gbm_u8 b2 = (gbm_u8) gbm_read_ahead(ahead);
 
 			b1 &= 0x3f;
 			if ( b1 > bytes_per_line )
 				{
-				(*runleft) = (byte) (b1 - bytes_per_line);
+				(*runleft) = (gbm_u8) (b1 - bytes_per_line);
 				(*runval) = b2;
 				b1 = bytes_per_line;
 				}
@@ -215,7 +216,7 @@ static void read_pcx_line(
 	}
 /*...e*/
 /*...sspread:0:*/
-static void spread(byte b, byte bit_to_set, byte *dest)
+static void spread(gbm_u8 b, gbm_u8 bit_to_set, gbm_u8 *dest)
 	{
 	if ( b & 0x80 ) dest[0] |= (bit_to_set & 0xf0);
 	if ( b & 0x40 ) dest[0] |= (bit_to_set & 0x0f);
@@ -228,15 +229,15 @@ static void spread(byte b, byte bit_to_set, byte *dest)
 	}
 /*...e*/
 
-GBM_ERR pcx_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR pcx_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	PCX_PRIV *pcx_priv = (PCX_PRIV *) gbm->priv;
-	BOOLEAN trunc = pcx_priv->trunc;
+	gbm_boolean trunc = pcx_priv->trunc;
 	int bytes_per_line = pcx_priv->bytes_per_line;
 	int stride, y;
-	byte *line;
+	gbm_u8 *line;
 	AHEAD *ahead;
-	byte runleft = 0, runval;
+	gbm_u8 runleft = 0, runval;
 
 	if ( (ahead = gbm_create_ahead(fd)) == NULL )
 		return GBM_ERR_MEM;
@@ -282,15 +283,15 @@ case 4:
 		for ( y = gbm->h - 1; y >= 0; y-- )
 			for ( p = 0x11; p <= 0x88 ; p <<= 1 )
 				{
-				byte *dest = data + y * stride;
+				gbm_u8 *dest = data + y * stride;
 
 				read_pcx_line(ahead, line, bytes_per_line, &runleft, &runval);
 				if ( trunc )
 					runleft = 0;
 				for ( x = 0; x < bytes; x++, dest += 4 )
-					spread(line[x], (byte) p, dest);
+					spread(line[x], (gbm_u8) p, dest);
 				if ( bits )
-					spread((byte) (line[x] & (0xff00U >> bits)), (byte) p, dest);
+					spread((gbm_u8) (line[x] & (0xff00U >> bits)), (gbm_u8) p, dest);
 				}
 		}
 	break;
@@ -341,10 +342,10 @@ static int bright(const GBMRGB *gbmrgb)
 	}
 /*...e*/
 /*...spcx_rle:0:*/
-static byte pcx_run(const byte *src, int n_src)
+static gbm_u8 pcx_run(const gbm_u8 *src, int n_src)
 	{
-	byte cnt = 1;
-	byte b = *src++;
+	gbm_u8 cnt = 1;
+	gbm_u8 b = *src++;
 
 	--n_src;
 	while ( cnt < 0x3f && n_src > 0 && *src == b )
@@ -353,16 +354,16 @@ static byte pcx_run(const byte *src, int n_src)
 	return cnt;
 	}
 
-static void pcx_rle(const byte *src, int n_src, byte *dst, int *n_dst)
+static void pcx_rle(const gbm_u8 *src, int n_src, gbm_u8 *dst, int *n_dst)
 	{
 	*n_dst = 0;	
 	while ( n_src )
 		{
-		byte	len;
+		gbm_u8	len;
 
 		if ( (len = pcx_run(src, n_src)) > 1 || (*src & 0xc0) == 0xc0 )
 			{
-			*dst++ = (byte) (0xc0 | len);
+			*dst++ = (gbm_u8) (0xc0 | len);
 			*dst++ = *src;
 			(*n_dst) += 2;
 			}
@@ -377,11 +378,11 @@ static void pcx_rle(const byte *src, int n_src, byte *dst, int *n_dst)
 	}
 /*...e*/
 
-GBM_ERR pcx_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR pcx_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
 	int i, y, stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-	byte *line;
-	byte hdr[128];
+	gbm_u8 *line;
+	gbm_u8 hdr[128];
 	int bytes_per_line, cnt;
 
 	fn=fn; opt=opt; /* Suppress 'unref arg' compiler warning */
@@ -390,7 +391,7 @@ GBM_ERR pcx_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 	hdr[ 0] = 0x0a;				/* Magic # */
 	hdr[ 1] = 5;				/* Version 5 */
 	hdr[ 2] = 1;				/* RLE compression */
-	hdr[ 3] = (byte) ( ( gbm->bpp == 24 ) ? 8 : gbm->bpp );
+	hdr[ 3] = (gbm_u8) ( ( gbm->bpp == 24 ) ? 8 : gbm->bpp );
 						/* Bits per plane */
 	hdr[ 4] = low_byte(0);
 	hdr[ 5] = high_byte(0);			/* Top left x */
@@ -413,7 +414,7 @@ GBM_ERR pcx_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 			hdr[16 + i * 3 + 2] = gbmrgb[i].b;
 			}
 
-	hdr[65] = (byte) ( ( gbm->bpp == 24 ) ? 3 : 1 );
+	hdr[65] = (gbm_u8) ( ( gbm->bpp == 24 ) ? 3 : 1 );
 						/* Planes */
 	bytes_per_line = (gbm->w * hdr[3] + 7) / 8;
 	if ( bytes_per_line & 1 )
@@ -434,7 +435,7 @@ case 1:
 	if ( bright(&gbmrgb[0]) > bright(&gbmrgb[1]) )
 		/* Need to invert bitmap bits */
 		{
-		byte *b;
+		gbm_u8 *b;
 		if ( (b = gbmmem_malloc(bytes_per_line)) == NULL )
 			{
 			gbmmem_free(line);
@@ -475,7 +476,7 @@ case 8:
 /*...s24:16:*/
 case 24:
 	{
-	byte *line2;
+	gbm_u8 *line2;
 	int p, x;
 
 	if ( (line2 = gbmmem_malloc((size_t) bytes_per_line)) == NULL )
@@ -487,7 +488,7 @@ case 24:
 	for ( y = gbm->h - 1; y >= 0; y-- )
 		for ( p = 2; p >= 0; p-- )
 			{
-			const byte *src = data + y * stride;
+			const gbm_u8 *src = data + y * stride;
 
 			for ( x = 0; x < gbm->w; x++ )
 				line2[x] = src[x * 3 + p];
@@ -510,7 +511,7 @@ case 24:
 
 	if ( gbm->bpp == 8 )
 		{
-		byte	pal[1 + 0x100 * 3];
+		gbm_u8	pal[1 + 0x100 * 3];
 
 		pal[0] = 0x0c;
 		for ( i = 0; i < 0x100; i++ )

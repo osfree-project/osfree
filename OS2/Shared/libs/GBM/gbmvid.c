@@ -9,6 +9,7 @@ History:
 (Heiko Nitzsche)
 
 22-Feb-2006: Move format description strings to gbmdesc.h
+15-Aug-2008: Integrate new GBM types
 
 */
 
@@ -28,9 +29,9 @@ History:
 /*...e*/
 
 /*...suseful:0:*/
-#define	low_byte(w)	((byte)  (          (w)&0x00ff)    )
-#define	high_byte(w)	((byte) (((unsigned)(w)&0xff00)>>8))
-#define	make_word(a,b)	(((word)a) + (((word)b) << 8))
+#define	low_byte(w)	((gbm_u8)  (          (w)&0x00ff)    )
+#define	high_byte(w)	((gbm_u8) (((unsigned)(w)&0xff00)>>8))
+#define	make_word(a,b)	(((gbm_u16)a) + (((gbm_u16)b) << 8))
 /*...e*/
 
 static GBMFT vid_gbmft =
@@ -54,7 +55,7 @@ GBM_ERR vid_qft(GBMFT *gbmft)
 GBM_ERR vid_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	int w, h;
-	byte buf[16];
+	gbm_u8 buf[16];
 
 	fn=fn; opt=opt; /* Suppress 'unref arg' compiler warnings */
 
@@ -216,24 +217,24 @@ What comp:	yyyyyyy_ yyyyyyy_ yyyyyyy_ yyyyyyy_ uuuuuuu_ vvvvvvv_
 
 */
 
-static void decode_sites(byte *src, byte *dest, int n_sites)
+static void decode_sites(gbm_u8 *src, gbm_u8 *dest, int n_sites)
 	{
 	for ( ; n_sites--; src += 6 )
 		{
-		*dest++ = (byte) ( ((byte) (src[0] & 0xe0)>>4) |
-				   ((byte) (src[1] & 0x0f)<<4) );
-		*dest++ = (byte)    (byte) (src[3] & 0xfe)      ;
-		*dest++ = (byte) ( ((byte) (src[2] & 0x0f)<<4) |
-				   ((byte) (src[5] & 0xe0)>>4) );
-		*dest++ = (byte)    (byte) (src[4] & 0xfe)      ;
-		*dest++ = (byte) ( ((byte) (src[0] & 0x0c)<<2) |
-				    (byte) (src[1] & 0xc0)     |
-				   ((byte) (src[2] & 0xc0)>>4) |
-				   ((byte) (src[5] & 0x08)>>2) );
-		*dest++ = (byte) ( ((byte) (src[0] & 0x03)<<4) |
-				   ((byte) (src[1] & 0x30)<<2) |
-				   ((byte) (src[2] & 0x30)>>2) |
-				    (byte) (src[5] & 0x02)     );
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[0] & 0xe0)>>4) |
+				   ((gbm_u8) (src[1] & 0x0f)<<4) );
+		*dest++ = (gbm_u8)    (gbm_u8) (src[3] & 0xfe)      ;
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[2] & 0x0f)<<4) |
+				   ((gbm_u8) (src[5] & 0xe0)>>4) );
+		*dest++ = (gbm_u8)    (gbm_u8) (src[4] & 0xfe)      ;
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[0] & 0x0c)<<2) |
+				    (gbm_u8) (src[1] & 0xc0)     |
+				   ((gbm_u8) (src[2] & 0xc0)>>4) |
+				   ((gbm_u8) (src[5] & 0x08)>>2) );
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[0] & 0x03)<<4) |
+				   ((gbm_u8) (src[1] & 0x30)<<2) |
+				   ((gbm_u8) (src[2] & 0x30)>>2) |
+				    (gbm_u8) (src[5] & 0x02)     );
 		}
 	}
 /*...e*/
@@ -289,12 +290,12 @@ G = Y - 0.5751 * V - 0.2717 * U
 */
 /*...e*/
 
-static void convert_sites(byte *src, byte *dest, int n_sites)
+static void convert_sites(gbm_u8 *src, gbm_u8 *dest, int n_sites)
 	{
 	for ( ; n_sites--; src += 6 )
 		{
-		byte u   = (src[4] >> 1);
-		byte v   = (src[5] >> 1);
+		gbm_u8 u   = (src[4] >> 1);
+		gbm_u8 v   = (src[5] >> 1);
 		short tu = tab1[u];
 		short ts = tab2[u] + tab3[v];
 		short tv = tab4[v];
@@ -310,19 +311,19 @@ static void convert_sites(byte *src, byte *dest, int n_sites)
 			if ( g < 0 ) g = 0; else if ( g > 0xff ) g = 0xff;
 			if ( r < 0 ) r = 0; else if ( r > 0xff ) r = 0xff;
 
-			*dest++ = (byte) b;
-			*dest++ = (byte) g;
-			*dest++ = (byte) r;
+			*dest++ = (gbm_u8) b;
+			*dest++ = (gbm_u8) g;
+			*dest++ = (gbm_u8) r;
 			}
 		}
 	}
 /*...e*/
 
-GBM_ERR vid_rdata(int fd, GBM *gbm, byte *data)
+GBM_ERR vid_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	int stride = ((gbm->w * 3 + 3) & ~3);
 	int n_sites = gbm->w / 4;
-	byte *ibuffer, *sbuffer, *p;
+	gbm_u8 *ibuffer, *sbuffer, *p;
 	int i;
 
 	if ( (ibuffer = gbmmem_malloc((size_t) (n_sites * 6))) == NULL )
@@ -383,7 +384,7 @@ V = (1 / 0.8) * ( R - Y ) * 127 / 179
 */
 /*...e*/
 
-static void convert_to_yuv(const byte *src, byte *dest, int n_sites)
+static void convert_to_yuv(const gbm_u8 *src, gbm_u8 *dest, int n_sites)
 	{
 	while ( n_sites-- )
 		{
@@ -392,9 +393,9 @@ static void convert_to_yuv(const byte *src, byte *dest, int n_sites)
 
 		for ( i = 0; i < 4; i++ )
 			{
-			byte b = *src++;
-			byte g = *src++;
-			byte r = *src++;
+			gbm_u8 b = *src++;
+			gbm_u8 g = *src++;
+			gbm_u8 r = *src++;
 			short y = ( 51 * r + 100 * g + 19 * b ) / 170;
 
 			u += ( (b - y) * (127 * 5) / (227 * 4) );
@@ -402,7 +403,7 @@ static void convert_to_yuv(const byte *src, byte *dest, int n_sites)
 
 			if ( y < 0 ) y = 0; else if ( y > 0xff ) y = 0xff;
 
-			*dest++ = (byte) (y & 0xfe);
+			*dest++ = (gbm_u8) (y & 0xfe);
 			}
 
 		u >>= 2; v >>= 2;
@@ -410,8 +411,8 @@ static void convert_to_yuv(const byte *src, byte *dest, int n_sites)
 		if ( u < -0x80 ) u = -0x80; else if ( u > 0x7f ) u = 0x7f;
 		if ( v < -0x80 ) v = -0x80; else if ( v > 0x7f ) v = 0x7f;
 
-		*dest++ = (byte) (u & 0xfe);
-		*dest++ = (byte) (v & 0xfe);
+		*dest++ = (gbm_u8) (u & 0xfe);
+		*dest++ = (gbm_u8) (v & 0xfe);
 		}
 	}
 /*...e*/
@@ -431,36 +432,36 @@ Bit posn:	321 5454 76767654 32327654 7654321  7654321  321 1 1
 
 */
 
-static void encode_sites(const byte *src, byte *dest, int n_sites)
+static void encode_sites(const gbm_u8 *src, gbm_u8 *dest, int n_sites)
 	{
 	for ( ; n_sites--; src += 6 )
 		{
-		*dest++ = (byte) ( ((byte) (src[0] & 0x0e)<<4) |
-				   ((byte) (src[4] & 0x30)>>2) |
-				   ((byte) (src[5] & 0x30)>>4) );
-		*dest++ = (byte) (  (byte) (src[4] & 0xc0)     |
-				   ((byte) (src[5] & 0xc0)>>2) |
-				   ((byte) (src[0] & 0xf0)>>4) );
-		*dest++ = (byte) ( ((byte) (src[4] & 0x0c)<<4) |
-				   ((byte) (src[5] & 0x0c)<<2) |
-				   ((byte) (src[2] & 0xf0)>>4) );
-		*dest++ = (byte)    (byte) (src[1] & 0xfe)      ;
-		*dest++ = (byte)    (byte) (src[3] & 0xfe)      ;
-		*dest++ = (byte) ( ((byte) (src[2] & 0x0e)<<4) |
-				   ((byte) (src[4] & 0x02)<<2) |
-				    (byte) (src[5] & 0x02)     );
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[0] & 0x0e)<<4) |
+				   ((gbm_u8) (src[4] & 0x30)>>2) |
+				   ((gbm_u8) (src[5] & 0x30)>>4) );
+		*dest++ = (gbm_u8) (  (gbm_u8) (src[4] & 0xc0)     |
+				   ((gbm_u8) (src[5] & 0xc0)>>2) |
+				   ((gbm_u8) (src[0] & 0xf0)>>4) );
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[4] & 0x0c)<<4) |
+				   ((gbm_u8) (src[5] & 0x0c)<<2) |
+				   ((gbm_u8) (src[2] & 0xf0)>>4) );
+		*dest++ = (gbm_u8)    (gbm_u8) (src[1] & 0xfe)      ;
+		*dest++ = (gbm_u8)    (gbm_u8) (src[3] & 0xfe)      ;
+		*dest++ = (gbm_u8) ( ((gbm_u8) (src[2] & 0x0e)<<4) |
+				   ((gbm_u8) (src[4] & 0x02)<<2) |
+				    (gbm_u8) (src[5] & 0x02)     );
 		}
 	}
 /*...e*/
 
-GBM_ERR vid_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const byte *data, const char *opt)
+GBM_ERR vid_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	byte buf[16];
+	gbm_u8 buf[16];
 	int xpos = 0, ypos = 0;
 	int stride = ((gbm->w * 3 + 3) & ~3);
 	int n_sites = gbm->w / 4;
-	byte *obuffer, *sbuffer;
-	const byte *p;
+	gbm_u8 *obuffer, *sbuffer;
+	const gbm_u8 *p;
 	int i;
 	const char *s;
 
