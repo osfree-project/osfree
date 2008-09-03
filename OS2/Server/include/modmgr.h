@@ -33,7 +33,7 @@ struct module_rec * register_module(const char * name, void * mod_struct);
 
 unsigned long ModInitialize();
 
-unsigned long ModLoadModule(const char *    pszName,
+unsigned long ModLoadModule(char *    pszName,
                             unsigned long   cbName,
                             const char *    pszModname,
                             unsigned long * phmod);

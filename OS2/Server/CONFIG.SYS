@@ -1,4 +1,4 @@
-PROTSHELL=mini33.exe
+PROTSHELL=mini34.exe
 RUN=runtest1.exe
 CALL=calltest1.exe
 RUN=runtest2.exe

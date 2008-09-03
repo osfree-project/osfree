@@ -18,6 +18,11 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+#define INCL_ORDINALS
+#define INCL_DOS
+#define INCL_BSEDOS
+#define INCL_DOSEXCEPTIONS
+#define INCL_DOSPROCESS
 #define INCL_DOSMODULEMGR
 #define INCL_ERRORS
 #include <os2.h>
@@ -37,7 +42,7 @@ struct native_module_rec native_module_root; /* Root for module list.*/
 //const int LOADING = 1;
 //const int DONE_LOADING = 0;
 
-char **mini_native_libpath;
+char *mini_native_libpath="c:\\os2\\dll";
 int sz_native_mini_libpath; /* Number of elements in mini_libpath (zero-based).*/
 
 const char *dll_suf = ".dll";  /* DLL extension (native libs). */
@@ -112,27 +117,89 @@ void * native_find_module(char * name)
 }
 
 
-        /* Searches a module in the mini_libpath. */
-void native_find_module_path(char * name, char * full_path_name) {
-        char * p_buf = full_path_name;
-        int i =0;
-        FILE *f=0;
-        do {
-                p_buf = full_path_name;
-                p_buf[0] = 0;
-                strcat(p_buf, mini_native_libpath[i]);
-                strcat(p_buf, sep);
-                strcat(p_buf, lib_pre);
-                strcat(p_buf, name);
-                strcat(p_buf, dll_suf);
-                io_printf("native dynlink search: %s\n", p_buf);
-                f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
-                ++i;
-        }while(!f && (i <= sz_native_mini_libpath));
-        if(f)
-                fclose(f);
-        else
-                p_buf[0] = 0;
+struct STR_SAVED_TOKENS_ {
+        char *str_next_saved_tokens;
+        char str_ch_saved_tokens;
+};
+
+typedef struct STR_SAVED_TOKENS_ STR_SAVED_TOKENS;
+
+
+static char *nxtToken = 0;              /* pointer to previous scanned string */
+static char ch;                                         /* previous token delimiter */
+
+char *StrTokenize(char *str, const char * const token)
+{
+
+        if(!str) {
+                if((str = nxtToken) == 0                /* nothing to do */
+                 || (*str++ = ch) == 0)               /* end of string reached */
+                        return( nxtToken = 0);
+        }
+
+        if(!token || !*token)                   /* assume all the string */
+                nxtToken = 0;
+        else {
+                nxtToken = str - 1;
+                while(!strchr(token, *++nxtToken));
+                ch = *nxtToken;
+                *nxtToken = 0;
+        }
+
+        return( str);
+}
+
+void StrTokSave(STR_SAVED_TOKENS *st)
+{
+
+        if(st) {
+                st->str_next_saved_tokens = nxtToken;
+                st->str_ch_saved_tokens = ch;
+        }
+
+}
+
+void StrTokRestore(STR_SAVED_TOKENS *st)
+{
+
+        if(st) {
+                nxtToken = st->str_next_saved_tokens;
+                ch = st->str_ch_saved_tokens;
+        }
+
+}
+
+
+#define StrTokStop() (void)StrTokenize(0, 0)
+
+
+unsigned long native_find_module_path(char * name, char * full_path_name)
+{
+  FILE *f;
+  char *p = mini_native_libpath - 1;
+  STR_SAVED_TOKENS st;
+  char * p_buf = full_path_name;
+
+
+  StrTokSave(&st);
+  if((p = StrTokenize((char*)mini_native_libpath, ";")) != 0) do if(*p)
+  {
+    p_buf = full_path_name;
+    p_buf[0] = 0;
+    strcat(p_buf, p);
+    strcat(p_buf, "\\");
+    strcat(p_buf, name);
+    strcat(p_buf, ".dll");
+    f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
+    if(f)
+    {
+      StrTokStop();
+      return NO_ERROR;
+    }
+  } while((p = StrTokenize(0, ";")) != 0);
+  StrTokRestore(&st);
+
+  return ERROR_FILE_NOT_FOUND;
 }
 
         /* Loads a module name which proc needs. */
@@ -141,6 +208,12 @@ void * native_load_module(char * name) {
         const int buf_size = 4096;
         char buf[4096];
         char *p_buf = (char *) &buf;
+
+        if (!strcmp(name, "KAL"))
+        {
+          native_register_module(name, name, (void *)0xffff);
+          return (void *)0xffff;
+        }
 
         native_find_module_path(name, p_buf); /* Searches for module name and returns the full path in
                                                                         the buffer p_buf. */
@@ -256,7 +329,7 @@ void * native_get_func_ptr_ord_modname(int ord, char * modname)
         return mydltest;
 }
 
-APIRET APIENTRY  test(HFILE hfile,
+APIRET APIENTRY  tempDosPutMessage(HFILE hfile,
                                   ULONG cbMsg,
                                   PCHAR pBuf)
 {
@@ -264,6 +337,47 @@ APIRET APIENTRY  test(HFILE hfile,
   return NO_ERROR;
 }
 
+#if 0
+Writes a specified number of bytes from a buffer to the specified file.
+
+#define INCL_DOSFILEMGR
+#include <os2.h>
+
+HFILE     hFile;      /*  File handle from DosOpen. */
+PVOID     pBuffer;    /*  Address of the buffer that contains the data to write. */
+ULONG     cbWrite;    /*  Number of bytes to write. */
+PULONG    pcbActual;  /*  Address of the variable to receive the number of bytes actually written. */
+APIRET    ulrc;       /*  Return Code. */
+#endif
+
+APIRET APIENTRY tempDosWrite(HFILE hFile, PVOID pBuffer, ULONG cbWrite, PULONG pcbActual)
+{
+  io_printf(pBuffer);
+  return NO_ERROR;
+}
+
+APIRET APIENTRY tempDosExit(ULONG action, ULONG result)
+{
+  io_printf("__FINCTION__ not implemented yet\n");
+  return NO_ERROR;
+}
+
+APIRET APIENTRY tempDosQuerySysInfo(ULONG iStart, ULONG iLast, PVOID pBuf,
+         ULONG cbBuf)
+{
+  io_printf("__FINCTION__ not implemented yet\n");
+  return NO_ERROR;
+}
+
+
+APIRET APIENTRY tempDosFSCtl(PVOID pData, ULONG cbData, PULONG pcbData,
+                             PVOID pParms, ULONG cbParms, PULONG pcbParms,
+                             ULONG function, PSZ pszRoute, HFILE hFile,
+                             ULONG method)
+{
+  io_printf("__FINCTION__ not implemented yet\n");
+  return NO_ERROR;
+}
 
 void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
 {
@@ -272,9 +386,24 @@ void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
         void * mydltest;
         APIRET rval;
 
-        if (ord==387)
+        if (native_mod_handle==(void *)0xffff)
         {
-          mydltest=&test;
+          io_printf("KAL module. Special handling.\n");
+          if (ord==1) //DosFSCtl
+          {
+            mydltest=&tempDosFSCtl;
+          } else if (ord==2) //DosWrite
+          {
+            mydltest=&tempDosWrite;
+          } else if (ord==3) // DosExit
+          {
+            mydltest=&tempDosExit;
+          } else if (ord==4) //DosQuerySysInfo
+          {
+            mydltest=&tempDosQuerySysInfo;
+          } else {
+            io_printf("Unsupported ordinal in KAL.\n");
+          }
           rval=0;
         } else {
           rval = DosQueryProcAddr( (HMODULE)native_mod_handle, ord, NULL, (PFN *)&mydltest);
@@ -287,12 +416,4 @@ void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
         return mydltest;
 }
 
-void set_native_libpath(char ** path, int nr) {
-  mini_native_libpath = path;
-  sz_native_mini_libpath = nr;
-}
-
-char ** get_native_libpath() {
-  return mini_native_libpath;
-}
 

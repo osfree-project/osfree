@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 #define INCL_DOS
+#define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
 typedef EXCEPTIONREGISTRATIONRECORD mmap_reg_t;

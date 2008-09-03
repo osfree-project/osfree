@@ -43,7 +43,7 @@ struct native_module_rec {
 void init_native_dynlink(void);
 struct native_module_rec * native_register_module(char * name, char * filepath, void * mod_struct);
 void * native_find_module(char * name);
-void native_find_module_path(char * name, char * full_path_name);
+unsigned long native_find_module_path(char * name, char * full_path_name);
 void native_load_dyn_link(char * name);
 void * native_get_func_ptr_ord_modname(int ord, char * modname);
 void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle);

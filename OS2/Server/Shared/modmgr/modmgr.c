@@ -26,14 +26,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-//#include <modlx.h>
-#include "io.h"
-//#include "execlx.h"
-//#include "loadobjlx.h"
-#include "modmgr.h"
+#include <io.h>
+#include <modmgr.h>
 #include <ixfmgr.h>
-#include "cfgparser.h"
-#include "native_dynlink.h"
+#include <cfgparser.h>
 
 unsigned int find_module_path(const char * name, char * full_path_name);
 
@@ -109,9 +105,10 @@ struct module_rec module_root; /* Root for module list.*/
       ERROR_FILENAME_EXCED_RANGE
       ERROR_INIT_ROUTINE_FAILED
 */
-unsigned long ModLoadModule(const char *    pszName,
+
+unsigned long ModLoadModule(char *          pszName,
                             unsigned long   cbName,
-                            const char *    pszModname,
+                            char const *    pszModname,
                             unsigned long * phmod)
 {
   struct module_rec * new_module_el;
@@ -126,9 +123,21 @@ unsigned long ModLoadModule(const char *    pszName,
   struct module_rec * prev;
 
   // Check input arguments
-  if ((phmod==NULL)||(pszModname==NULL)) return ERROR_INVALID_PARAMETER;
+  if ((phmod==NULL)||
+      (pszModname==NULL)||
+      (pszName==NULL)) return ERROR_INVALID_PARAMETER;
+
+  // Initialize return vars
+  *pszName=0;
+  *phmod=0;
 
   // @todo extract filename only because can be fullname with path
+
+  // Specail case - KAL.DLL
+  if (!strcmp(pszModname, "KAL"))
+  {
+    return 1; // KAL module always has handle 1
+  }
 
   // First search in the module list
   prev = (struct module_rec *) module_root.next;
@@ -159,13 +168,20 @@ unsigned long ModLoadModule(const char *    pszName,
     rc=find_module_path(pszModname, p_buf);
     if (!rc) rc=io_load_file(p_buf, &addr, &size);
   }
-  if (rc) return rc;
+  if (rc)
+  {
+    strcpy(pszName, pszModname);
+    *phmod=NULL;
+    return rc;
+  }
 
   ixfModule = (IXFModule *) malloc(sizeof(IXFModule));
 
   rc=IXFIdentifyModule(addr, size, ixfModule);
   if (rc)
   {
+    strcpy(pszName, pszModname);
+    *phmod=NULL;
     free(ixfModule);
     return rc;
   }
@@ -174,6 +190,8 @@ unsigned long ModLoadModule(const char *    pszName,
   rc=IXFLoadModule(addr, size, ixfModule);
   if (rc)
   {
+    strcpy(pszName, pszModname);
+    *phmod=NULL;
     free(ixfModule);
     return rc;
   }
@@ -183,10 +201,15 @@ unsigned long ModLoadModule(const char *    pszName,
   new_module_el = register_module(pszModname, ixfModule);
   new_module_el->load_status = LOADING;
 
+  // Load modules which not loaded yet
+
+
   // Fixup module
   rc=IXFFixupModule(ixfModule);
   if (rc)
   {
+    strcpy(pszName, pszModname);
+    *phmod=NULL;
     free(ixfModule);
     return rc;
   }
@@ -243,15 +266,6 @@ register_module(const char * name, void * mod_struct)
 
   return new_mod;
 }
-
-
-struct DFN_Search_Request {
-        const char *basename;                   /* search for <<path>>\basename.* */
-        const char *extensions;
-        char *foundMatch;
-        int flags;
-        char delim;
-};
 
 
 struct STR_SAVED_TOKENS_ {

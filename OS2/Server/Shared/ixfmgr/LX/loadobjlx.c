@@ -18,6 +18,11 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+#define INCL_DOS
+#define INCL_DOSEXCEPTIONS
+#include <os2.h>
+
+
 #include <io.h>
 #include <cfgparser.h>
 #include <loadobjlx.h>
@@ -269,6 +274,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
   int page_nr=0;
   int startpage = lx_obj->o32_pagemap;
   int lastpage  = lx_obj->o32_pagemap + lx_obj->o32_mapsize;
+  UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from DosExecPgm */
 
   io_printf("--------------------Listing fixup data ------------------------- %p\n", lx_obj);
 
@@ -345,7 +351,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
             vm_start_target_obj = target_object->o32_base;
 
             /* Get address of target offset and put in source offset. */
-            vm_target = vm_start_target_obj + trgoffs;
+            vm_target = vm_start_target_obj + get_imp_ord1_rlc(min_rlc)/*trgoffs*/;
             vm_source = vm_start_of_page + srcoff_cnt1;
 
             //io_printf(" ###### vm_start_of_page= %lu, srcoff_cnt1 = %lu \n",
@@ -382,11 +388,11 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
             //io_printf(" module name: '%s' \n", mod_name);
             /* Look for module if it's already loaded, if it's not try to load it.*/
             //found_module = (struct LX_module *)find_module(mod_name);
-            rc=ModLoadModule(NULL, 0, mod_name, (unsigned long *)&found_module);
-            found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
+            rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), mod_name, (unsigned long *)&found_module);
+            if (found_module) found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
             if(!found_module) { /* Unable to find and load module. */
                     //io_printf("Can't find module: '%s' \n", mod_name);
-                    return 0;
+                   return 0;
             }
             cont_mod_name = (char*)&cont_buf_mod_name;
             copy_pas_str(cont_mod_name, get_module_name_res_name_tbl_entry(lx_exe_mod));
@@ -428,8 +434,8 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
             //io_printf(" module name: '%s' \n", mod_name);
                             /* Look for module if it's already loaded, if it's not try to load it.*/
             //found_module = (struct LX_module *)find_module(mod_name);
-            rc=ModLoadModule(NULL, 0, mod_name, (unsigned long *)&found_module);
-            found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
+            rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), mod_name, (unsigned long *)&found_module);
+            if (found_module) found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
             if(!found_module) { /* Unable to find and load module. */
               //io_printf("Can't find module: '%s' \n", mod_name);
               return 0;
@@ -493,6 +499,8 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
   unsigned long int ret_offset;
   char buf_mod_name[255];
   char * mod_name = (char*)&buf_mod_name;
+  UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from DosExecPgm */
+
   /* Get name of imported module. */
   org_mod_name = get_imp_mod_name(this_module, mod_nr);
 
@@ -533,11 +541,11 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
                       frw_mod_name, ret_offset);
       prev_mod = forward_found_module;
       //forward_found_module = (struct LX_module *)find_module(frw_mod_name);
-      rc=ModLoadModule(NULL, 0, frw_mod_name, (unsigned long *)&forward_found_module);
-      forward_found_module=(struct LX_module *)(((IXFModule *)forward_found_module)->FormatStruct);
+      rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), frw_mod_name, (unsigned long *)&forward_found_module);
+      if (forward_found_module) forward_found_module=(struct LX_module *)(((IXFModule *)forward_found_module)->FormatStruct);
 
       if(!forward_found_module) { /* Unable to find and load module. */
-        io_printf("Can't find forward module: '%s' \n", mod_name);
+        io_printf("Can't find forward module: '%s' \n", frw_mod_name);
 
         native_module = native_find_module(frw_mod_name);
         if(native_module != 0) {

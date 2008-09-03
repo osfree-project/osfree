@@ -1,5 +1,6 @@
-#include <osfree.h>
+#include <os2.h>
 
+#if 0
 // Implementation of kernel-independed functions via kernel-depended functions
 
 APIRET APIENTRY DosCancelLockRequest(HFILE,PFILELOCK);
@@ -46,3 +47,5 @@ APIRET APIENTRY DosSetPathInfo(PCSZ,ULONG,PVOID,ULONG,ULONG);
 APIRET APIENTRY DosSetRelMaxFH(PLONG,PULONG);
 APIRET APIENTRY DosSetVerify(BOOL32);
 APIRET APIENTRY DosShutdown(ULONG);
+#endif
+

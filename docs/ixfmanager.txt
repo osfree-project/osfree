@@ -1,0 +1,14 @@
+IXF Manager implementation
+==========================
+
+IXF Manager provides following interface:
+
+IFXIdentifyModule  - identifies module format in memory and fills IXFModule
+                     structure.
+IXFLoadModule      - parses module format in memory
+                     and fills information about imports and exports.
+IXFFixup           - resolves fixups. This function must be
+                     executed AFTER all required modules will be loaded.
+
+This document describes how IXF manager work on LX IXF example.
+

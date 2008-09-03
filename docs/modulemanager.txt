@@ -1,0 +1,34 @@
+OS/2 Server module manager internals
+====================================
+
+Module manager uses concept of IXF (Installable eXecutable Format) similar
+to OS/2 IFS (Installable File System). This means from developers point of
+view program modules has same interface not depended on format. Original
+approach of most OSes is to use hardcoded file format parsers. But we don't
+like this. We reusing logic of IFS but for executable file formats.
+
+Module manager provides following functions:
+
+ModLoadModule
+ModQueryProcAddr
+ModFreeModule
+(to do: add more)
+
+This is abstract interface functions which in turn uses IFX manager
+functions. For more information about IXF manager refer IXFMANAGER.TXT
+document.
+
+ModLoadModule works with following logic:
+
+1. Is module KAL.DLL? If yes, then special handle.
+2. Find module file in BEGINLIBPATH, LIBPATH, ENDLIBPATH.
+3. Identify module via IXFIdentifyModule
+4. If success, then call corresponding IXFLoadModule which will
+   parse module, fill internal module structure.
+5. If all modules was be loaded, then apply fixups via IXFFixupModule for
+   all loaded modules.
+
+After such logic we will have fixed up modules in memory and will have
+full entry points table.
+
+ModQueryProcAddr will search corresponding module structure for entry.

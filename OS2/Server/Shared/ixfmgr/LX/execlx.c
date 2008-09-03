@@ -18,6 +18,9 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+#define INCL_DOS
+#define INCL_DOSEXCEPTIONS
+#include <os2.h>
 
 #include "execlx.h"
 #include "fixuplx.h"
@@ -199,7 +202,7 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
 
         my_execute = /*(int (*)()) (void*)*/ main_ptr;
 
-                io_printf("Exerkverar LX program**********************\n");
+                io_printf("Executing LX program**********************\n");
                 tmp_data_mmap = (unsigned long int) data_mmap;
                 tmp_data_mmap += esp - 8;
                 io_printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );

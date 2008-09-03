@@ -21,13 +21,20 @@
 #ifndef PROCESSLX_H
 #define PROCESSLX_H
 
+#define INCL_DOS
+#define INCL_BSEDOS
+#define INCL_DOSPROCESS
+#include <os2.h>
+
 #include <memmgr.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "gcc_os2def.h"
+
+//#include "gcc_os2def.h"
+
 
 #if 0
 #ifndef __OS2__
@@ -126,7 +133,13 @@ struct t_processlx * processlx_create(struct LX_module * lx_m);
 
 void processlx_destroy(struct t_processlx * proc);
 
-APIRET APIENTRY PrcExecuteModule(char * filename);
+APIRET APIENTRY PrcExecuteModule(char * pObjname,
+                                 long cbObjname,
+                                 unsigned long execFlag,
+                                 char * pArg,
+                                 char * pEnv,
+                                 PRESULTCODES pRes,
+                                 char * pName);
 
 #ifdef __cplusplus
 };

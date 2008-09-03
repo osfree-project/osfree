@@ -28,12 +28,21 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 
 !include $(%ROOT)/mk/appsos2.mk
 
+.obj: $(PATH)shared$(SEP)os2server
+.obj: $(PATH)shared$(SEP)modmgr
+.obj: $(PATH)shared$(SEP)ixfmgr
+.obj: $(PATH)shared$(SEP)ixfmgr$(SEP)lx
+.obj: $(PATH)shared$(SEP)ixfmgr$(SEP)ne
+.obj: $(PATH)shared$(SEP)memmgr
+.obj: $(PATH)shared$(SEP)cfgparser
+.obj: $(PATH)shared$(SEP)processmgr
+.obj: $(PATH)os2
+
 .c: $(MYDIR)shared$(SEP)os2server
 .c: $(MYDIR)shared$(SEP)modmgr
 .c: $(MYDIR)shared$(SEP)ixfmgr
 .c: $(MYDIR)shared$(SEP)ixfmgr$(SEP)lx
 .c: $(MYDIR)shared$(SEP)ixfmgr$(SEP)ne
-.c: $(MYDIR)shared$(SEP)ixfmgr$(SEP)lx
 .c: $(MYDIR)shared$(SEP)memmgr
 .c: $(MYDIR)shared$(SEP)cfgparser
 .c: $(MYDIR)shared$(SEP)processmgr
@@ -44,20 +53,7 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 .h: $(MYDIR)shared$(SEP)ixfmgr
 .h: $(MYDIR)shared$(SEP)ixfmgr$(SEP)lx
 .h: $(MYDIR)shared$(SEP)ixfmgr$(SEP)ne
-.h: $(MYDIR)shared$(SEP)ixfmgr$(SEP)lx
 .h: $(MYDIR)shared$(SEP)memmgr
 .h: $(MYDIR)shared$(SEP)cfgparser
 .h: $(MYDIR)shared$(SEP)processmgr
 .h: $(MYDIR)os2
-
-
-.obj: $(PATH)shared$(SEP)os2server
-.obj: $(PATH)shared$(SEP)modmgr
-.obj: $(PATH)shared$(SEP)ixfmgr
-.obj: $(PATH)shared$(SEP)ixfmgr$(SEP)lx
-.obj: $(PATH)shared$(SEP)ixfmgr$(SEP)ne
-.obj: $(PATH)shared$(SEP)ixfmgr$(SEP)lx
-.obj: $(PATH)shared$(SEP)memmgr
-.obj: $(PATH)shared$(SEP)cfgparser
-.obj: $(PATH)shared$(SEP)processmgr
-.obj: $(PATH)os2

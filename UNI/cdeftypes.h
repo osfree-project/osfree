@@ -30,6 +30,10 @@
   #define INCL_BSESUB
 #endif
 
+#ifdef INCL_ERRORS
+  #define INCL_BSEERR
+#endif
+
 #ifdef INCL_DOSERRORS
   #define INCL_BSEERR
 #endif

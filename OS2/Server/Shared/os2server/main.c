@@ -29,6 +29,10 @@
 
 */
 
+#define INCL_DOS
+#define INCL_BSEDOS
+#define INCL_DOSEXCEPTIONS
+#define INCL_DOSPROCESS
 #define INCL_ERRORS
 #include <os2.h>
 
@@ -101,7 +105,7 @@ int main(int argc, const char **argv)
     return ERROR_INVALID_PARAMETER;
   } else {
     // Load and execute shell
-    rc=PrcExecuteModule(options.protshell);
+    rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
   }
 
   // Clean up config data

@@ -1,3 +1,7 @@
+#define INCL_DOS
+#define INCL_BSEDOS
+#define INCL_DOSEXCEPTIONS
+#define INCL_DOSPROCESS
 #define INCL_ERRORS
 #include <os2.h>
 

@@ -7,9 +7,19 @@ typedef unsigned long fnFixup(void * FormatStruct);
 typedef
   struct
   {
-    fnLoad * Load;
-    fnFixup * Fixup;
-    void * FormatStruct;
+    char * Name;           // Name of function (NULL if none)
+    unsigned long Ordinal; // Ordinal of function (always >0)
+    void * Address;        // Address of function
+  } IXFMODULEENTRY;
+
+typedef
+  struct
+  {
+    fnLoad * Load;            // Fill format structure
+    fnFixup * Fixup;          // Fixup module address
+    void * FormatStruct;      // Format specific structure (subject to remove)
+    unsigned long cbEntries;  // Number of items in entries array
+    IXFMODULEENTRY Entries[]; // Array of module entries
   } IXFModule;
 
 unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixfModule);
