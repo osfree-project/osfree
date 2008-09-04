@@ -9,38 +9,18 @@
 
 module os2vdm;
 
-(*
-INT 21 U - OS/2 v1.x FAPI - OS/2 FILE SYSTEM JOIN/SUBST
-        AH = 61h
-        BP = 6467h ("dg")
-        AL = function
-            00h list (i.e. get)
-            01h add
-            02h delete
-        BX = drive number
-        CX = size of buffer
-        SI = type (0002h JOIN, 0003h SUBST)
-        ES:DI -> buffer
-Return: CF clear if successful
-            AX = 0000h
-            ES:DI buffer filled, if appropriate
-        CF set on error
-            AX = error code
-Notes:  used by JOIN and SUBST to communicate with the OS/2 file system
-        for function 00h (list), the ES:DI buffer is filled with the ASCIZ
-          JOIN/SUBST path or an empty string if the drive is not JOINed/SUBSTed
-        also supported by OS/2 v2.0+ Virtual DOS Machines
-*)
-
+(* Query JOIN array *)
 function VdmJoinQuery(cDrive: CHAR; usBufferSize: USHORT; Buffer: PVOID): APIRET;
+(* Add element to JOIN array *)
+function VdmJoinSet(cDrive: CHAR; pszPath: PSZ): APIRET;
+(* Remove element from JOIN array *)
+function VdmJoinDelete(cDrive: CHAR): APIRET;
 
-APIRET APIENTRY VdmJoinSet(CHAR cDrive, PSZ pszPath);
-APIRET APIENTRY VdmJoinDelete(CHAR cDrive);
+function VdmSubstQuery(cDrive: CHAR; usBufferSize: USHORT; Buffer: PVOID): APIRET;
+function VdmSubstSet(cDrive: CHAR; pszPath: PSZ): APIRET;
+function VdmSubstDelete(cDrive: CHAR): APIRET;
 
-APIRET APIENTRY VdmSubstQuery(CHAR cDrive, USHORT usBufferSize, PVOID Buffer);
-APIRET APIENTRY VdmSubstSet(CHAR cDrive, PSZ pszPath);
-APIRET APIENTRY VdmSubstDelete(CHAR cDrive);
-
+(*
 /*
 INT 21 U - OS/2 v2.0+ Virtual DOS Machine - ENABLE AUTOMATIC TITLE SWITCH
         AH = 64h
@@ -52,7 +32,7 @@ Note:   if CX is not 636Ch on entry, INT 21/AH=6Ch is invoked, because a bug
 SeeAlso: AH=64h/DX=0001h,INT 21/AH=4Bh
 */
 
-APIRET APIENTRY VdmEnableAutoTitle(VOID);
+function VdmEnableAutoTitle(): APIRET;
 
 /*
 --------O-2164--DX0001-----------------------
@@ -67,7 +47,7 @@ Note:   if CX is not 636Ch on entry, INT 21/AH=6Ch is invoked, because a bug
 SeeAlso: AH=64h/DX=0000h,AH=64h/DX=0002h,INT 15/AH=12h/BH=05h
 */
 
-APIRET APIENTRY VdmSetTitle(PSZ pszTitle);
+function VdmSetTitle(pszTitle: PSZ): APIRET;
 
 /*
 --------O-2164--DX0002-----------------------
@@ -83,7 +63,7 @@ Note:   if CX is not 636Ch on entry, INT 21/AH=6Ch is invoked, because a bug
 SeeAlso: AH=64h/DX=0000h,AH=64h/DX=0001h,INT 15/AH=12h/BH=05h
 */
 
-APIRET APIENTRY VdmQueryTitle(PSZ pszTitle);
+function VdmQueryTitle(pszTitle: PSZ): APIRET;
 
 /*
 --------O-2164--DX0003-----------------------
@@ -100,7 +80,7 @@ Notes:  if CX is not 636Ch on entry, INT 21/AH=6Ch is invoked, because a bug
 SeeAlso: AH=52h
 */
 
-APIRET APIENTRY VdmQueryLastDrive(CHAR cDrive);
+function VdmQueryLastDrive(cDrive: CHAR): APIRET;
 
 /*
 --------O-2164--DX0004-----------------------
@@ -517,4 +497,5 @@ Notes:  this function was introduced by LAN Manager but is also supported by
         not documented in the LAN Manager Toolkit
 SeeAlso: AX=5F39h,AX=5F3Bh,INT 2F/AX=118Fh
 */
-
+*)
+end.
