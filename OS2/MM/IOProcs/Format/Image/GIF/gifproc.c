@@ -61,7 +61,7 @@ void debug(const char* chrFormat, ...)
 #endif
 
 
-static BOOLEAN same(const char *s1, const char *s2, int n)
+static gbm_boolean same(const char *s1, const char *s2, int n)
         {
         for ( ; n--; s1++, s2++ )
                 if ( tolower(*s1) != tolower(*s2) )
@@ -116,9 +116,9 @@ Also sets *rm, *gm, *bm from these.
 Else returns FALSE.
 */
 
-static byte mask[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
+static gbm_u8 mask[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 
-static BOOLEAN get_masks(char *map, byte *rm, byte *gm, byte *bm)
+static gbm_boolean get_masks(char *map, gbm_u8 *rm, gbm_u8 *gm, gbm_u8 *bm)
         {
         if ( map[0] <  '0' || map[0] > '8' ||
              map[1] != ':' ||
@@ -134,12 +134,12 @@ static BOOLEAN get_masks(char *map, byte *rm, byte *gm, byte *bm)
         }
 /*...e*/
 /*...sexpand_to_24bit:0:*/
-static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
+static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, gbm_u8 **data)
         {
         int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
         int new_stride = ((gbm->w * 3 + 3) & ~3);
         int bytes, y;
-        byte *new_data;
+        gbm_u8 *new_data;
 
         if ( gbm->bpp == 24 )
                 return;
@@ -150,8 +150,8 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 
         for ( y = 0; y < gbm->h; y++ )
                 {
-                byte    *src = *data + y * stride;
-                byte    *dest = new_data + y * new_stride;
+                gbm_u8    *src = *data + y * stride;
+                gbm_u8    *dest = new_data + y * new_stride;
                 int     x;
 
                 switch ( gbm->bpp )
@@ -159,7 +159,7 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, byte **data)
 /*...s1:24:*/
 case 1:
         {
-        byte    c;
+        gbm_u8    c;
 
         for ( x = 0; x < gbm->w; x++ )
                 {
@@ -179,7 +179,7 @@ case 1:
 case 4:
         for ( x = 0; x + 1 < gbm->w; x += 2 )
                 {
-                byte    c = *src++;
+                gbm_u8    c = *src++;
 
                 *dest++ = gbmrgb[c >> 4].b;
                 *dest++ = gbmrgb[c >> 4].g;
@@ -191,7 +191,7 @@ case 4:
 
         if ( x < gbm->w )
                 {
-                byte    c = *src;
+                gbm_u8    c = *src;
 
                 *dest++ = gbmrgb[c >> 4].b;
                 *dest++ = gbmrgb[c >> 4].g;
@@ -203,7 +203,7 @@ case 4:
 case 8:
         for ( x = 0; x < gbm->w; x++ )
                 {
-                byte    c = *src++;
+                gbm_u8    c = *src++;
 
                 *dest++ = gbmrgb[c].b;
                 *dest++ = gbmrgb[c].g;
@@ -226,11 +226,11 @@ static void to_grey_pal(GBMRGB *gbmrgb)
         for ( i = 0; i < 0x100; i++ )
                 gbmrgb[i].r =
                 gbmrgb[i].g =
-                gbmrgb[i].b = (byte) i;
+                gbmrgb[i].b = (gbm_u8) i;
         }
 /*...e*/
 /*...sto_grey:0:*/
-static void to_grey(GBM *gbm, const byte *src_data, byte *dest_data)
+static void to_grey(GBM *gbm, const gbm_u8 *src_data, gbm_u8 *dest_data)
         {
         int src_stride  = ((gbm->w * 3 + 3) & ~3);
         int dest_stride = ((gbm->w     + 3) & ~3);
@@ -238,17 +238,17 @@ static void to_grey(GBM *gbm, const byte *src_data, byte *dest_data)
 
         for ( y = 0; y < gbm->h; y++ )
                 {
-                const byte *src  = src_data;
-                      byte *dest = dest_data;
+                const gbm_u8 *src  = src_data;
+                      gbm_u8 *dest = dest_data;
                 int x;
 
                 for ( x = 0; x < gbm->w; x++ )
                         {
-                        byte b = *src++;
-                        byte g = *src++;
-                        byte r = *src++;
+                        gbm_u8 b = *src++;
+                        gbm_u8 g = *src++;
+                        gbm_u8 r = *src++;
 
-                        *dest++ = (byte) (((word) r * 77U + (word) g * 150U + (word) b * 29U) >> 8);
+                        *dest++ = (gbm_u8) (((gbm_u16) r * 77U + (gbm_u16) g * 150U + (gbm_u16) b * 29U) >> 8);
                         }
 
                 src_data  += src_stride;
@@ -266,14 +266,14 @@ static void tripel_pal(GBMRGB *gbmrgb)
 
         for ( i = 0; i < 0x40; i++ )
                 {
-                gbmrgb[i       ].r = (byte) (i << 2);
-                gbmrgb[i + 0x40].g = (byte) (i << 2);
-                gbmrgb[i + 0x80].b = (byte) (i << 2);
+                gbmrgb[i       ].r = (gbm_u8) (i << 2);
+                gbmrgb[i + 0x40].g = (gbm_u8) (i << 2);
+                gbmrgb[i + 0x80].b = (gbm_u8) (i << 2);
                 }
         }
 /*...e*/
 /*...stripel:0:*/
-static void tripel(GBM *gbm, const byte *src_data, byte *dest_data)
+static void tripel(GBM *gbm, const gbm_u8 *src_data, gbm_u8 *dest_data)
         {
         int src_stride  = ((gbm->w * 3 + 3) & ~3);
         int dest_stride = ((gbm->w     + 3) & ~3);
@@ -281,21 +281,21 @@ static void tripel(GBM *gbm, const byte *src_data, byte *dest_data)
 
         for ( y = 0; y < gbm->h; y++ )
                 {
-                const byte *src  = src_data;
-                      byte *dest = dest_data;
+                const gbm_u8 *src  = src_data;
+                      gbm_u8 *dest = dest_data;
                 int x;
 
                 for ( x = 0; x < gbm->w; x++ )
                         {
-                        byte b = *src++;
-                        byte g = *src++;
-                        byte r = *src++;
+                        gbm_u8 b = *src++;
+                        gbm_u8 g = *src++;
+                        gbm_u8 r = *src++;
 
                         switch ( (x+y)%3 )
                                 {
-                                case 0: *dest++ = (byte)         (r >> 2) ;     break;
-                                case 1: *dest++ = (byte) (0x40 + (g >> 2));     break;
-                                case 2: *dest++ = (byte) (0x80 + (b >> 2));     break;
+                                case 0: *dest++ = (gbm_u8)         (r >> 2) ;     break;
+                                case 1: *dest++ = (gbm_u8) (0x40 + (g >> 2));     break;
+                                case 2: *dest++ = (gbm_u8) (0x80 + (b >> 2));     break;
                                 }
                         }
 
@@ -311,22 +311,22 @@ static void tripel(GBM *gbm, const byte *src_data, byte *dest_data)
 /*...vgbm\46\h:0:*/
 /*...e*/
 /*...svars:0:*/
-static BOOLEAN inited = FALSE;
+static gbm_boolean inited = FALSE;
 
 /*
 For 7Rx8Gx4B.
 */
 
-static byte index4[0x100];
-static byte index6[0x100];
-static byte index7[0x100];
-static byte index8[0x100];
-static byte index16[0x100];
-static byte scale4[] = { 0, 85, 170, 255 };
-static byte scale6[] = { 0, 51, 102, 153, 204, 255 };
-static byte scale7[] = { 0, 43, 85, 128, 170, 213, 255 };
-static byte scale8[] = { 0, 36, 73, 109, 146, 182, 219, 255 };
-static byte scale16[] = { 0, 17, 34, 51, 68, 85, 102, 119, 136,
+static gbm_u8 index4[0x100];
+static gbm_u8 index6[0x100];
+static gbm_u8 index7[0x100];
+static gbm_u8 index8[0x100];
+static gbm_u8 index16[0x100];
+static gbm_u8 scale4[] = { 0, 85, 170, 255 };
+static gbm_u8 scale6[] = { 0, 51, 102, 153, 204, 255 };
+static gbm_u8 scale7[] = { 0, 43, 85, 128, 170, 213, 255 };
+static gbm_u8 scale8[] = { 0, 36, 73, 109, 146, 182, 219, 255 };
+static gbm_u8 scale16[] = { 0, 17, 34, 51, 68, 85, 102, 119, 136,
                            153, 170, 187, 204, 221, 238, 255 };
 /*...e*/
 /*...sinit:0:*/
@@ -339,9 +339,9 @@ This function initialises this module.
 #define abs(x)  (((x)>=0)?(x):-(x))
 #endif
 
-static byte nearest_inx(byte value, const byte ab[], unsigned short cb)
+static gbm_u8 nearest_inx(gbm_u8 value, const gbm_u8 ab[], unsigned short cb)
         {
-        byte b, inx, inx_min;
+        gbm_u8 b, inx, inx_min;
         short diff, diff_min;
 
         b = ab[0];
@@ -372,11 +372,11 @@ static void init(void)
 
         for ( i = 0; i < 0x100; i++ )
                 {
-                index4 [i] = nearest_inx((byte) i, scale4 , sizeof(scale4 ));
-                index6 [i] = nearest_inx((byte) i, scale6 , sizeof(scale6 ));
-                index7 [i] = nearest_inx((byte) i, scale7 , sizeof(scale7 ));
-                index8 [i] = nearest_inx((byte) i, scale8 , sizeof(scale8 ));
-                index16[i] = nearest_inx((byte) i, scale16, sizeof(scale16));
+                index4 [i] = nearest_inx((gbm_u8) i, scale4 , sizeof(scale4 ));
+                index6 [i] = nearest_inx((gbm_u8) i, scale6 , sizeof(scale6 ));
+                index7 [i] = nearest_inx((gbm_u8) i, scale7 , sizeof(scale7 ));
+                index8 [i] = nearest_inx((gbm_u8) i, scale8 , sizeof(scale8 ));
+                index16[i] = nearest_inx((gbm_u8) i, scale16, sizeof(scale16));
                 }
 
         inited = TRUE;
@@ -385,9 +385,9 @@ static void init(void)
 
 /*...strunc:0:*/
 static void trunc(
-        const GBM *gbm, const byte *src, byte *dest,
+        const GBM *gbm, const gbm_u8 *src, gbm_u8 *dest,
         int dest_bpp,
-        void (*trunc_line)(const byte *src, byte *dest, int cx)
+        void (*trunc_line)(const gbm_u8 *src, gbm_u8 *dest, int cx)
         )
         {
         int stride_src = ((gbm->w * 3 + 3) & ~3);
@@ -400,7 +400,7 @@ static void trunc(
 /*...e*/
 
 /*...snearest_color:0:*/
-static byte nearest_color(byte r, byte g, byte b, GBMRGB *gbmrgb, int n_gbmrgb)
+static gbm_u8 nearest_color(gbm_u8 r, gbm_u8 g, gbm_u8 b, GBMRGB *gbmrgb, int n_gbmrgb)
         {
         int i, i_min, dist_min = 0x30000;
         for ( i = 0; i < n_gbmrgb; i++ )
@@ -412,7 +412,7 @@ static byte nearest_color(byte r, byte g, byte b, GBMRGB *gbmrgb, int n_gbmrgb)
                 if ( dist < dist_min )
                         { dist_min = dist; i_min = i; }
                 }
-        return (byte) i_min;
+        return (gbm_u8) i_min;
         }
 /*...e*/
 
@@ -423,7 +423,7 @@ static byte nearest_color(byte r, byte g, byte b, GBMRGB *gbmrgb, int n_gbmrgb)
 
 typedef struct
         {
-        word inx[0x20][0x20][0x20]; /* 64KB */
+        gbm_u16 inx[0x20][0x20][0x20]; /* 64KB */
         } MAP;
 
 static void build_map(GBMRGB *gbmrgb, int n_gbmrgb, MAP *map)
@@ -433,31 +433,31 @@ static void build_map(GBMRGB *gbmrgb, int n_gbmrgb, MAP *map)
                 for ( g = 0; g < 0x100; g += 8 )
                         for ( b = 0; b < 0x100; b += 8 )
                                 {
-                                byte i  = nearest_color((byte)  r   , (byte)  g   , (byte)  b   , gbmrgb, n_gbmrgb);
-                                if ( i == nearest_color((byte)  r   , (byte)  g   , (byte) (b+7), gbmrgb, n_gbmrgb) &&
-                                     i == nearest_color((byte)  r   , (byte) (g+7), (byte)  b   , gbmrgb, n_gbmrgb) &&
-                                     i == nearest_color((byte)  r   , (byte) (g+7), (byte) (b+7), gbmrgb, n_gbmrgb) &&
-                                     i == nearest_color((byte) (r+7), (byte)  g   , (byte)  b   , gbmrgb, n_gbmrgb) &&
-                                     i == nearest_color((byte) (r+7), (byte)  g   , (byte) (b+7), gbmrgb, n_gbmrgb) &&
-                                     i == nearest_color((byte) (r+7), (byte) (g+7), (byte)  b   , gbmrgb, n_gbmrgb) &&
-                                     i == nearest_color((byte) (r+7), (byte) (g+7), (byte) (b+7), gbmrgb, n_gbmrgb) )
+                                gbm_u8 i  = nearest_color((gbm_u8)  r   , (gbm_u8)  g   , (gbm_u8)  b   , gbmrgb, n_gbmrgb);
+                                if ( i == nearest_color((gbm_u8)  r   , (gbm_u8)  g   , (gbm_u8) (b+7), gbmrgb, n_gbmrgb) &&
+                                     i == nearest_color((gbm_u8)  r   , (gbm_u8) (g+7), (gbm_u8)  b   , gbmrgb, n_gbmrgb) &&
+                                     i == nearest_color((gbm_u8)  r   , (gbm_u8) (g+7), (gbm_u8) (b+7), gbmrgb, n_gbmrgb) &&
+                                     i == nearest_color((gbm_u8) (r+7), (gbm_u8)  g   , (gbm_u8)  b   , gbmrgb, n_gbmrgb) &&
+                                     i == nearest_color((gbm_u8) (r+7), (gbm_u8)  g   , (gbm_u8) (b+7), gbmrgb, n_gbmrgb) &&
+                                     i == nearest_color((gbm_u8) (r+7), (gbm_u8) (g+7), (gbm_u8)  b   , gbmrgb, n_gbmrgb) &&
+                                     i == nearest_color((gbm_u8) (r+7), (gbm_u8) (g+7), (gbm_u8) (b+7), gbmrgb, n_gbmrgb) )
                                         map->inx[r/8][g/8][b/8] = i;
                                 else
-                                        map->inx[r/8][g/8][b/8] = (word) 0xffff;
+                                        map->inx[r/8][g/8][b/8] = (gbm_u16) 0xffff;
                                 }
         }
 
-static byte nearest_color_via_map(byte r, byte g, byte b, MAP *map, GBMRGB *gbmrgb, int n_gbmrgb)
+static gbm_u8 nearest_color_via_map(gbm_u8 r, gbm_u8 g, gbm_u8 b, MAP *map, GBMRGB *gbmrgb, int n_gbmrgb)
         {
-        word i = map->inx[r/8][g/8][b/8];
-        return ( i != (word) 0xffff )
-                ? (byte) i
+        gbm_u16 i = map->inx[r/8][g/8][b/8];
+        return ( i != (gbm_u16) 0xffff )
+                ? (gbm_u8) i
                 : nearest_color(r, g, b, gbmrgb, n_gbmrgb);
         }
 /*...e*/
 
 /*...sgbm_trunc_line_24     \45\ truncate to fewer bits per pixel one line:0:*/
-void gbm_trunc_line_24(const byte *src, byte *dest, int cx, byte rm, byte gm, byte bm)
+void gbm_trunc_line_24(const gbm_u8 *src, gbm_u8 *dest, int cx, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm)
         {
         int x;
 
@@ -470,7 +470,7 @@ void gbm_trunc_line_24(const byte *src, byte *dest, int cx, byte rm, byte gm, by
         }
 /*...e*/
 /*...sgbm_trunc_24          \45\ truncate to fewer bits per pixel:0:*/
-void gbm_trunc_24(const GBM *gbm, const byte *data24, byte *data8, byte rm, byte gm, byte bm)
+void gbm_trunc_24(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8, gbm_u8 rm, gbm_u8 gm, gbm_u8 bm)
         {
         int     stride = ((gbm->w * 3 + 3) & ~3);
         int     y;
@@ -490,9 +490,9 @@ Colours calculated to match those used by 8514/A PM driver.
 
 void gbm_trunc_pal_7R8G4B(GBMRGB *gbmrgb)
         {
-        byte volatile r;        /* C-Set/2 optimiser fix */
-        byte volatile g;
-        byte volatile b;
+        gbm_u8 volatile r;        /* C-Set/2 optimiser fix */
+        gbm_u8 volatile g;
+        gbm_u8 volatile b;
 
         init();
 
@@ -510,7 +510,7 @@ void gbm_trunc_pal_7R8G4B(GBMRGB *gbmrgb)
 /*...e*/
 
 /*...sgbm_trunc_line_7R8G4B \45\ truncate to 7Rx8Gx4B one line:0:*/
-void gbm_trunc_line_7R8G4B(const byte *src, byte *dest, int cx)
+void gbm_trunc_line_7R8G4B(const gbm_u8 *src, gbm_u8 *dest, int cx)
         {
         int x;
 
@@ -518,17 +518,17 @@ void gbm_trunc_line_7R8G4B(const byte *src, byte *dest, int cx)
 
         for ( x = 0; x < cx; x++ )
                 {
-                byte bi = index4[*src++];
-                byte gi = index8[*src++];
-                byte ri = index7[*src++];
+                gbm_u8 bi = index4[*src++];
+                gbm_u8 gi = index8[*src++];
+                gbm_u8 ri = index7[*src++];
 
-                *dest++ = (byte) (4 * (8 * ri + gi) + bi);
+                *dest++ = (gbm_u8) (4 * (8 * ri + gi) + bi);
                 }
         }
 /*...e*/
 
 /*...sgbm_trunc_7R8G4B      \45\ truncate to 7Rx8Gx4B:0:*/
-void gbm_trunc_7R8G4B(const GBM *gbm, const byte *data24, byte *data8)
+void gbm_trunc_7R8G4B(const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8)
         {
         trunc(gbm, data24, data8, 8, gbm_trunc_line_7R8G4B);
         }
