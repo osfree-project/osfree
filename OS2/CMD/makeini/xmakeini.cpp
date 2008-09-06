@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define INCL_WINSHELLDATA
 #define INCL_DOSERRORS
 #include <os2.h>
 
