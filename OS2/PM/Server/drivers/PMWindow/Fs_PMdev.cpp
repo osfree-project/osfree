@@ -42,7 +42,7 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
    MPARAM mpParm2 ) ;
 
 
-extern "C" void APIENTRY FPM_PMWinStart(void *param);
+extern "C" void APIENTRY FPM_DeviceStart(void *param);
 
 LONG *GetVideoConfig(HDC hdc);
 int ErrInfoMsg2(char *str);
@@ -63,7 +63,7 @@ static int     *pVBuffmem = NULL;
 //extern class VideoPowerPresentation videopres;
 //extern const char *const _FreePM_Application_Name;
 
-void APIENTRY FPM_PMWinStart(void *param)
+void APIENTRY FPM_DeviceStart(void *param)
 {
    //HMQ         hmqQueue;
    //ULONG       ulFlags;
