@@ -17,6 +17,7 @@ ADD_COPT =            $(ADD_COPT) &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)lpng &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)jpeglib &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff &
+                      -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)ojpeg &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)glib &

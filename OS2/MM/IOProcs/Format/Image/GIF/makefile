@@ -1,5 +1,5 @@
 #
-# A Makefile for jpgio.dll
+# A Makefile for gifio.dll
 # (c) osFree project,
 # author, date
 #
@@ -8,7 +8,6 @@ PROJ     = mmioGIF
 DESC     = GIF Format I/O Procedure
 srcfiles = $(p)gifproc$(e)
 ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, jpeglib.lib, lpng.lib, libz.lib
 ADD_LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, &
                libjpeg.lib, libpng.lib, libz.lib &
                segment type DATA shared
