@@ -1,0 +1,366 @@
+<!DOCTYPE article PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
+
+<!-- This is the dosemu EMUproblem SGML source -->
+
+<article>
+
+<artheader>
+
+<title>EMUfailure.txt</title>
+
+<author>
+<firstname>Uwe Bonnes (original author), <emphasis remap="bf"><ulink
+url="mailto:bon@elektron.ikp.physik.th-darmstadt.de"
+>bon@elektron.ikp.physik.th-darmstadt.de</ulink
+></emphasis> </firstname>
+</author>
+
+<pubdate> May 20, 2005 for dosemu 1.3.2 (and possibly earlier
+versions) </pubdate>
+
+<abstract>
+
+<para>
+This file lists programs and groups of programs not running or running
+only partially under dosemu. The most up-to-date version of this file
+may be found on: 
+<emphasis remap="bf"><ulink
+url="http://www.dosemu.org/"
+>http://www.dosemu.org/</ulink
+></emphasis>.
+Please report about possible additions to
+<emphasis remap="bf"><ulink
+url="mailto:linux-msdos@vger.kernel.org"
+>linux-msdos@vger.kernel.org</ulink
+></emphasis> 
+or the SourceForge BTS at 
+<emphasis remap="bf"><ulink
+url="http://www.dosemu.org/"
+>http://www.dosemu.org/</ulink
+></emphasis>.
+Perhaps your program can be made going
+with the help of others. Have a look at the dosemu-howto how to do so.
+</para>
+
+</abstract>
+
+</artheader>
+
+<sect1>
+<title>Fundamental problems</title>
+
+<para>
+Programs that don't work under the MSDOS Emulator and probably won't
+ever work, because of fundamental problems. Some of these fundamental
+problems result in these programs not being runnable on
+Win3.x/Win95/WinNT and under OS/2 DOS box either. These programs
+are characterized by using any of these features:
+</para>
+
+<sect2>
+<title>Virtual Control Program Interface (VCPI)</title>
+
+<para>
+VCPI allows programs to run in ring 0. This is kernel mode in Linux
+and not sensible.
+</para>
+
+<para>
+Example: sim2181.exe from Analog Devices DSP Kit
+</para>
+
+</sect2>
+
+<sect2>
+<title>Programs using older versions of the Pharlap Extender </title>
+
+<para>
+Older versions of the Pharlap Extender (run286) need ring-0 access
+under DOSEMU to install their own DPMI server. The use of proprietary
+undocumented extensions to the DPMI protocol makes DOSEMU's DPMI server
+unsuitable for this extender.
+</para>
+
+<para>
+Example: Autocad Version 12c1 For DOS
+</para>
+
+<para>
+Example: the game BioForge by Origin Systems.
+</para>
+
+</sect2>
+
+<sect2>
+<title>Programs using the JEMM memory manager</title>
+
+<para>
+The JEMM memory manager provides proprietary extensions to the EMS
+protocol. These are not supported by DOSEMU.
+</para>
+
+<para>
+Example: Wing Commander Privateer by Origin Systems
+</para>
+
+</sect2>
+
+<sect2>
+<title>Does my failing program belong to these groups?</title>
+
+<para>
+Check with "strings &lt;program.exe&gt; | less" if the program
+contains some of these keywords: <emphasis remap="bf"> vcpi, RUN286</emphasis>.
+</para>
+
+</sect2>
+
+<sect2>
+<title>
+Fundamental problem with the Linux kernel
+</title>
+<para>
+The Programmable Interval Timer (PIT) can be programmed to produce
+interrupts with frequencies up to almost 2MHz. Linux sets this to
+only 100Hz (2.6 kernels can set it to 1KHz) and doesn't allow the
+software to change that. This limits the minimal interval between subsequent
+SIGALRM notifications for software that uses the setitimer(2) syscall.
+To emulate the PIT frequencies that are higher than the frequency Linux
+sets the PIT to, dosemu uses "interrupt bursts": on every SIGALRM
+reception dosemu triggers the timer interrupt as many times as necessary
+to compensate the gap since the previous SIGALRM reception. This allows
+to keep a precise timing but causes problems for some programs. When
+the timer interrupt handler is invoked more than once without letting
+the main thread to execute, some programs can lock up. The game "Cosmo" is
+one of those.
+</para>
+<para>
+Another problem is that due to the aforementioned low timer frequency
+dosemu is not able to properly emulate the timings for different
+emulated hardware. That also causes problems for some programs.
+Scream Tracker 3, for example, can lock up at startup because the
+interrupt from an emulated SB card can be triggered earlier than it
+should be in a real system.
+</para>
+<para>
+Possibly a workaround may be found in future DOSEMU versions.
+</para>
+</sect2>
+
+<sect2>
+<title>
+Fundamental problems with the CPU
+</title>
+<para>
+There are several defects in Intel's x86 CPUs that are causing
+problems for some software. Below is a description of the defects
+that are known to cause problems for software running under dosemu.
+</para>
+
+<sect3>
+<title>
+Problem with the virtualization of the IF flag
+</title>
+
+<para>
+Intel's manual
+<ulink url="http://www.intel.com/design/intarch/techinfo/pentium/inout.htm">
+http://www.intel.com/design/intarch/techinfo/pentium/inout.htm
+</ulink>
+says:
+</para>
+<para>
+" A procedure may use the POPF instruction to change the setting of the IF
+ flag only if the CPL is less than or equal to the current IOPL. An attempt
+ by a less privileged procedure to change the IF flag does not result in
+ an exception; the IF flag simply remains unchanged. "
+</para>
+<para>
+The fact that the exception is not being generated, prevents dosemu from
+catching and properly simulating the POPF instruction executed in protected
+mode. That, in particular, means that the following code, executed in
+protected mode (not in v86 mode) under dosemu, will end up with interrupts
+disabled (IF cleared):
+</para>
+
+<para>
+<screen>
+sti
+pushf
+cli
+popf
+</screen>
+[ the interrupts are still disabled here ]
+</para>
+<para>
+This bug can only affect DPMI programs, as using DPMI is the only way
+to execute protected mode code under dosemu.
+Known programs that are affected are the games from ID software, namely
+Doom2 and Duke Nukem 3D, but only when configured with sound.
+An optional work-around was added to dosemu, which just re-enables the
+interrupts if they were disabled for too long in protected mode.
+Additionally the address of the instruction that disabled the interrupts,
+is added to a black-list and this instruction is ignored for subsequent
+passes so that it can't disable the interrupts any more.
+This is potentially unsafe, but if the timeout is long enough, no harm
+was observed so far.
+The timeout is configured via the $_cli_timeout option, which is measured
+in a 10ms timer ticks. Setting that option to 0 disables the workaround
+completely, making Doom2 unplayable with sound enabled.
+</para>
+
+</sect3>
+<sect3>
+<title>ESP register corruption</title>
+
+<para>
+Intel's x86 CPUs have a defect described here:
+<ulink url="http://www.intel.com/design/intarch/specupdt/27287402.PDF">
+http://www.intel.com/design/intarch/specupdt/27287402.PDF
+</ulink>
+chapter "Specification Clarifications"
+section 4: "Use Of ESP In 16-Bit Code With 32-Bit Interrupt Handlers",
+which reads as follows:
+</para>
+<para>
+"ISSUE: When a 32-bit IRET is used to return to another privilege level,
+and the old level uses a 4G stack (D/B bit in the segment register = 1),
+while the new level uses a 64k stack (D/B bit = 0), then only the 
+lower word of ESP is updated. The upper word remains unchanged. This is 
+fine for pure 16-bit code, as well as pure 32-bit code. However, when
+ 32-bit interrupt handlers are present, 16-bit code should avoid any
+dependence on the upper word of ESP. No changes are necessary in existing
+16-bit code, since the only way to access ESP in USE16 segments is 
+through the 32-bit address size prefix."
+</para>
+<para>
+The corruption happens when the Linux kernel returns control to the dosemu
+process, while a 32-bit DPMI client that uses a 16-bit data segment for
+the stack is active. This is not the usual case, but unfortunately some
+32-bit DPMI clients are actually using a 16-bit segment for the stack,
+and even the dos4gw extender behaves that way sometimes.
+</para>
+<para>
+Programs that are known to be affected by this issue are:
+<itemizedlist>
+<listitem>
+<para>
+Need For Speed 1 (demo version at least, when configured with sound)
+</para>
+</listitem>
+<listitem>
+<para>
+Syndicate Wars (when used with dos4gw 0.8)
+</para>
+</listitem>
+<listitem>
+<para>
+Open Cubic Player   
+</para>
+</listitem>
+</itemizedlist>
+</para>
+
+<para>
+These programs are crashing shortly after startup, but this problem
+is difficult to detect reliably, so there may be many more programs
+that experience a random crashes due to this CPU bug.
+</para>
+
+<para>
+The reliable work-around was developed and added into linux-2.6.12.
+If you hit that problem, consider upgrading your linux kernel.
+</para>
+
+</sect3>
+
+</sect2>
+
+</sect1>
+
+<sect1>
+<title>Known bugs</title>
+
+<sect2>
+<title>Things YOU may help changing</title>
+
+<sect3>
+<title>
+List of currently known bugs in Dosemu 1.2.2.
+</title>
+<itemizedlist>
+
+<listitem>
+<para>
+Some documentation is known to be well out of date. 
+</para>
+</listitem>
+
+<listitem>
+<para>
+OPL3 FM is not implemented yet (but Midi, SB8 and SB16 work)
+</para>
+</listitem>
+
+<listitem>
+<para>
+Some database programs (Clipper, FoxPro) have problems with
+locking in certain configurations. smbfs doesn't support
+locking. $_full_file_locks=(on) may or may not help.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Mortal Kombat 1 and 2 are not producing any sound for unknown reasons.
+</para>
+</listitem>
+
+<listitem>
+<para>
+X-COM Apocalypse (DEMO version) locks up at startup if configured with sound.
+</para>
+</listitem>
+</itemizedlist>
+
+</sect3>
+</sect2>
+
+</sect1>
+
+<sect1>
+<title>Programs exhibiting graphical problems in xdosemu</title>
+<para>
+The following programs work perfectly on the Linux console
+(suid/sudo/root) with graphics enabled but exhibit minor or
+major glitches in xdosemu.
+</para>
+
+<sect2>
+<title>
+Games with graphical problems
+</title>
+<para>
+The following games exhibit glitches or don't work at all in
+xdosemu. Please let us know when any problems are solved or
+even better, help us solving!
+</para>
+<itemizedlist>
+<listitem>
+<para>
+Commander Keen 1 wobbles like jelly and the window shakes 
+every time it scrolls.
+</para>
+</listitem>
+<listitem>
+<para>
+Pinball Dreams 2 takes a long time to start. Once it's past
+the startup screen it runs fine though.
+</para>
+</listitem>
+</itemizedlist>
+</sect2>
+
+</sect1>
+
+</article>

@@ -1,0 +1,9 @@
+#!/bin/sh
+# getrom: get VBIOS ROM image from /dev/mem
+#
+# $Date: 2003-06-22 20:02:05 -0400 (Sun, 22 Jun 2003) $
+# $Source$
+# $Revision: 2 $
+# $State$
+#
+dd if=/dev/mem bs=32k skip=24 count=2
