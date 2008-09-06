@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = shared msg nls sesmgr kbdcalls moucalls quecalls viocalls kal # doscalls
+DIRS = shared msg nls sesmgr kbdcalls moucalls quecalls viocalls kal doscalls
 
 !include $(%ROOT)/mk/all.mk
 

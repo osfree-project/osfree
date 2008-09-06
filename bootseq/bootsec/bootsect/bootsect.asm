@@ -143,7 +143,7 @@ start:
 ;                push mapLoadSeg
 ;endif
 
-                mov  dl, diskNum
+                ;mov  dl, diskNum
                 test dl, 80h
                 jnz  short no_floppy
                 call floppy_Init                           ; Set floppy parameters, if booting from floppy
@@ -308,6 +308,8 @@ call_muFSD:
                 push ax                                    ; loader segment
                 mov  ds, ax
                 push si
+
+                mov  dx, bx
 
 ifdef IBM_FAT_COMPAT
                 lea  si, BPB                               ; address in ds:si
@@ -638,6 +640,7 @@ readsec_lba proc near
 
                 mov  word ptr [si + 8],  ax                ; LBA of the 1st
                 mov  word ptr [si + 10], dx                ; sector of partition (bootsector)
+                mov  dword ptr [si + 12], 0                ;
 
                 mov  word ptr [si + 2], 1                  ; number of blocks to transfer
                 mov  word ptr [si + 6], es                 ; segment

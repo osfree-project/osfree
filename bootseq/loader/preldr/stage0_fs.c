@@ -1384,7 +1384,7 @@ int init(void)
 
   /* fixup preldr and uFSD */
   reloc((char *)(STAGE0_BASE  + relshift), "/boot/loader/preldr0.rel", relshift);
-  reloc((char *)(EXT3HIBUF_BASE), "/boot/loader/fsd/fat.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+  reloc((char *)(EXT3HIBUF_BASE), "/boot/loader/fsd/ext2fs.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
 
   /* jump to relocated pre-loader */
   jmp_reloc(relshift);
@@ -1461,9 +1461,10 @@ int init(void)
   ft.ft_muTerminate.seg  = STAGE0_BASE >> 4;
   ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
+  /* set BPB */
+  bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
+
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
-    /* set BPB */
-    bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
     // fill fake BPB
     grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
 
@@ -1477,6 +1478,11 @@ int init(void)
     bpb->log_drive  = conf.driveletter; // 0x92;
     bpb->marker     = 0x29;
   }
+
+  bpb->disk_num    = 0x3;
+  bpb->log_drive   = 0x48;
+  bpb->marker      = 0x41;
+  bpb->vol_ser_no  = 0x00000082;
 
   /* Init terminal */
   init_term();

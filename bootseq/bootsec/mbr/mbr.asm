@@ -12,65 +12,92 @@
 
 public start
 
-SecSize        equ         200h                            ; Sector size
-
-ScrSeg         equ         7c0h                            ; MBR load segment (aka scratch sector)
-mbrAddr        equ         ScrSeg * 10h                    ; MBR load address
-newSeg         equ         60h                             ; MBR relocation segment
-NewAddr        equ         newSeg * 10h                    ; MBR relocation address
-
                 ;
                 ; A macro to check if a partition is extended
                 ;
 
 check_ext macro lbl                                        ;
-                mov  bh, byte ptr [si + 4]                 ; Type of partition
+                mov  bh, byte ptr [di + 4]                 ; Type of partition
                 cmp  bh, 05h                               ; si --> partition descriptor in MBR or EBR.
                 je   lbl                                   ;
                 cmp  bh, 0fh                               ; if part. is extended, then goto lbl
                 je   lbl                                   ;
           endm                                             ;
 
+include bpb.inc
+
+disk_addr_packet struc
+pkt_size         db          ?
+reserved         db          ?
+num_blocks       dw          ?
+buffer           dd          ?
+starting_block   dq          ?
+disk_addr_packet ends
+
+ext_params struc
+;
+; bp register points here
+;
+force_chs        db               ?
+drive            db               ?
+part             db               ?
+disk_addr_pkt    disk_addr_packet <>
+;
+; bootsector boundary
+; (at address 0x0:0x7c00)
+;
+jump             dw               ?
+nop1             db               ?
+oemid            db               8 dup (?)
+bpb              bios_parameters_block <>
+ext_params ends
+
+EXT_PARAMS_SIZE  equ (size ext_params - size bios_parameters_block - 11)
+
 DGROUP group MbrSeg
 
 MbrSeg segment para public 'CODE' USE16
-       assume cs:MbrSeg, ds:MbrSeg, es:PktSeg ,ss:nothing
+       assume cs:MbrSeg, ds:MbrSeg, es:MbrSeg ,ss:MbrSeg
 
+                org 7c00h
 start proc far
+                xor  ax, ax                                ; Set stack
+                mov  bp, 7c00h - EXT_PARAMS_SIZE           ; now bp points at the ext_params
 
                 cli                                        ; Disable interrupts
-                                                           ;
-                xor  ax, ax                                ; Set stack
                 mov  ss, ax                                ;
-                mov  sp, mbrAddr - 1                       ; to above the bootsector
-                                                           ;
+                mov  sp, bp                                ; to above the ext_params
                 sti                                        ; Enable interrupts
 
-		;mov  ds, ax
-		;mov  es, ax
+                mov  ds, ax
+                mov  es, ax
 
                 cld                                        ; scan strings forward
-                mov  si, mbrAddr + boot                    ;
-                mov  di, NewAddr + boot                    ;
-                mov  cx, SecSize                           ; Relocate itself
-                sub  cx, boot                              ; to address 0x60:0x0
-                push newSeg                                ;
-                push boot                                  ;
-                rep  movsb                                 ;
+                mov  si, 7c00h                             ;
+                mov  di, 600h                              ;
+                mov  cx, 100h                              ; Relocate itself
+                rep  movsw                                 ;
+
+                push 0h
+                push 600h + (boot - start)                 ;
 
                 retf                                       ; "return" to the new location at 0x60:0x0 + boot
 boot:
+.386
+                mov  ax, 3000h                             ; InfoSeg
+                mov  fs, ax                                ; with LBA flag
+.286
                 ;
                 ; cs:ip --> 0x60:0x0 + boot
                 ; ss:sp --> stack with ss = 0x0, bottom = 0x7bff
                 ;
 
-                push NewSeg
-                pop  ds
-                push PktSeg
-                pop  es
+                ;push NewSeg
+                ;pop  ds
+                ;push PktSeg
+                ;pop  es
 
-                push ScrSeg
+                ;push ScrSeg
 
                 ;
                 ; ds --> 0x60
@@ -96,22 +123,20 @@ probeLba:
                                                            ; functions are supported
 use_lba:
 .386
-                mov  eax, 58333149h                        ; i13X
+                mov  eax, 'I13X'
                 mov  bl, 0
                 jmp  short switchBootDrv
 use_chs:
                 xor  eax, eax
                 mov  bl, 1
 switchBootDrv:
-                push 03000h
-                pop  fs
                 mov  fs:[0], eax
-.286
-                mov  byte ptr es:UseCHS, bl
+
+                mov  [bp].force_chs, bl
                 ; dl      --> drive we booted from (set by BIOS when control is given to MBR code)
                 ; BootDev --> drive to continue booting from (set in MBR sector field)
 
-                lea  si, parttable                         ; si --> parttable at 0x60:0x1be, si = 0x1be
+                lea  di, parttable                         ; di --> parttable at 0x0:0x7c00 + 0x1be, si = 0x1be
 
                 ;
                 ; From here, ds:si address partition table entry
@@ -122,6 +147,11 @@ switchBootDrv:
                 ; and load its MBR into scratch sector
 
                 cmp  byte ptr BootDev, dl                  ; compare disk to continue booting from with disk MBR loaded from
+
+                mov  [bp].drive, dl
+                mov  al, BootPart
+                mov  [bp].part, al
+
                 jz   searchPartition                       ; if they're equal, then no need to change them.
                 mov  dl, BootDev                           ; else set drive to BootDev
 
@@ -131,9 +161,9 @@ switchBootDrv:
                 ; pointed by ds:si:
                 ;
 
-                mov  byte ptr [si + 1], 0                  ; Head 0
-                mov  word ptr [si + 2], 1h                 ; Cyl  0, Sec 1 (like ch = 00, cl = 01 in int 13h)
-                mov dword ptr [si + 8], 0                  ; LBA
+                mov  byte ptr [di + 1], 0                  ; Head 0
+                mov  word ptr [di + 2], 1h                 ; Cyl  0, Sec 1 (like ch = 00, cl = 01 in int 13h)
+                mov dword ptr [di + 8], 0                  ; LBA
 
                 call ReadSec                               ; Load the MBR of the HDD we continue booting from
 searchPartition:
@@ -146,7 +176,7 @@ searchPartition:
                 mov  al, byte ptr BootPart                 ; now ax = BootPart
                 cbw                                        ; (partition to continue booting from)
 
-                pop  ds                                    ; ds --> ScrSeg = 0x7c0 (points to the new MBR)
+                ;pop  ds                                    ; ds --> ScrSeg = 0x7c0 (points to the new MBR)
 
                 cmp  ax, 0                                 ;
                 jz   findActive                            ; if BootPart = 0, then boot from active partition
@@ -156,14 +186,14 @@ searchPartition:
                 ; partition
 findActive:
                 ;
-                ; now ds:si --> PT of the new MBR
+                ; now es:di --> PT of the new MBR
                 ;
 lp3:
-                mov  bh, byte ptr [si]                     ; partition status
+                mov  bh, byte ptr [di]                     ; partition status
                 test bh, 80h                               ; if active bit set
                 jnz  lpEnd
 
-                add  si, 10h                               ; go to the next partition
+                add  di, 10h                               ; go to the next partition
                 loop lp3
                 jmp  Err$PartNotFound                      ; active partition not found, panic
 lpEnd:                                                     ; active partition found
@@ -183,40 +213,41 @@ logicalPart:
 findExtended:   ; 1st find extended partition in PT
 
                 check_ext extendedFound                    ; If partition is extended, goto extendedFound
-                add  si, 10h
+                add  di, 10h
                 loop findExtended
                 jmp  Err$PartNotFound                      ; Ext. part. not found, panic
 extendedFound:                                             ; Ext part. found
                 mov  cx, ax                                ; Set loop counter to logical part. number
 
-                mov  dx, word ptr [si + 10]                ; save LBA address of the beginning
-                mov  ax, word ptr [si + 8]                 ; of extended partition in dx:ax
+                mov  ax, word ptr [di + 10]                ; save LBA address of the beginning
+                shl  eax, 10h
+                mov  ax, word ptr [di + 8]                 ; of extended partition in dx:ax
 
                 call ReadSec                               ; Read 1st EBR into scratch sector
 
 searchEBR:                                                 ; find the EBR of needed partition
-                lea  si, parttable                         ; si --> partition table of EBR
+                lea  di, parttable                         ; si --> partition table of EBR
 
                 jcxz ebrFound
 
                 dec  cx
 
-                add  si, 10h                               ; ds:si --> reference to the next EBR
+                add  di, 10h                               ; ds:si --> reference to the next EBR
 
 newEbrFound:                                               ; found a reference to the next EBR
-                add  word ptr [si + 8], ax                 ; now
-                adc  word ptr [si + 10], dx                ; dword ptr [si + 8] --> beginning of the next EBR
+                add  dword ptr [di + 8], eax               ; now
+                                                           ; dword ptr [di + 8] --> beginning of the next EBR
 
                 test cx, cx                                ;
                 jnz  skip                                  ; Save the beginning of
-                mov  ax, word ptr [si + 8]                 ; our EBR in dx:ax
-                mov  dx, word ptr [si + 10]                ;
+                mov  ax, word ptr [di + 8]                 ; our EBR in dx:ax
+                shl  eax, 10h
+                mov  ax, word ptr [di + 10]                ;
 skip:
                 call ReadSec                               ; Read the next EBR
                 jmp  searchEBR
 ebrFound:                                                  ; It is a EBR of our partition, let's take part. descriptor
-                add  word ptr [si + 8], ax                 ; dx:ax --> beginning of our partition
-                adc  word ptr [si + 10], dx                ;
+                add  dword ptr [di + 8], eax                 ; dx:ax --> beginning of our partition
 
                 mov  bx, 1                                 ; Logical partition condition is TRUE
 
@@ -231,21 +262,21 @@ primaryPart:
                 dec  ax
                 mov  bh, 10h
                 mul  bh
-                add  si, ax
+                add  di, ax
 
 if 0
 
                 mov  cx, 10h                               ; partition descriptor size
 
-                push si
+                push di
 checkZero:                                                 ; check if part. desc. is zero
-                cmp  byte ptr [si], 0
+                cmp  byte ptr [di], 0
                 jnz  endCheck
-                inc  si
+                inc  di
                 loop checkZero
-                jmp Err$PartNotFound                       ; partition doesn't exist, its desc = 0
+                jmp  Err$PartNotFound                       ; partition doesn't exist, its desc = 0
 endCheck:
-                pop  si
+                pop  di
 
 endif
 
@@ -261,61 +292,27 @@ bootFound:
                 ; Fix hiddensectors value if booting from logical partition
                 ;
 
-                add  word ptr hiddenSecs, ax
-                adc  word ptr hiddenSecs + 2, dx
+                add  dword ptr [bp].bpb.hidden_secs, eax
 
 nofix_hiddensecs:
                 ;
                 ; Fix diskNum and logDrive values
                 ;
 
-                mov  dl, byte ptr cs:BootDev
-                mov  byte ptr diskNum, dl
+                mov  dl, [bp].drive
+                mov  byte ptr [bp].bpb.disk_num, dl
 
-                mov  bl, byte ptr cs:BootPart
+                mov  bl, [bp].part
                 inc  bl
                 inc  bl
                 or   bl, 80h
-                mov  byte ptr logDrive, bl
+                mov  [bp].bpb.log_drive, bl
 
-                push ds                                    ; ScrSeg = 0x7c0
-                push 0                                     ; address
+                push ds                                    ; zero ds
+                push 7c00h                                 ;
 
                 retf                                       ; "return" to bootsector
 start endp
-
-if 0
-
-Err proc near
-                assume ds:NewSeg
-Err$Read:
-                mov  al, 'R'
-                lea  si, Err_DskReadError
-                jmp  short entry
-Err$PartNotFound:
-                mov  al, 'P'
-                lea  si, Err_PartNotFound
-entry:
-                push NewSeg
-                pop  ds
-beginloop:
-                cld
-Disp1:
-                lodsb
-                test al, al
-                jz Disp2
-                mov ah, 0eh                                ; int 10h/ah=0eh: write char on screen in teletype mode
-                xor bx, bx
-                push si
-                int 10h
-int10_exit:
-                pop si
-                jmp Disp1
-Disp2:
-                hlt
-Err endp
-
-else
 
 Err proc near
 Err$Read:       mov  al, 'R'
@@ -330,8 +327,6 @@ int10_exit:
                 hlt
 Err endp
 
-endif
-
 ;
 ; ReadSec:
 ;
@@ -344,36 +339,35 @@ endif
 ;               es    --> PktSeg
 
 ReadSec proc near
-                push dx
+                ;push dx
                 mov  dl, byte ptr cs:BootDev               ; Drive Number
 
-                cmp  byte ptr cs:ForceLBA, 0               ; force LBA?
-                jnz  lba
+                ;cmp  byte ptr cs:ForceLBA, 0               ; force LBA?
+                ;jnz  lba
 
-                cmp  byte ptr es:UseCHS, 0                 ; LBA or CHS?
-                jz   lba
+                cmp  byte ptr [bp].use_chs, 0                 ; LBA or CHS?
+                jz  lba
 chs:
-                push es
+                ;push es
                 pusha
                 call ReadSecCHS                            ; Read by CHS
                 popa
-                pop  es
+                ;pop  es
                 jmp  return_lb
 lba:
-                push es
+                ;push es
                 pusha
                 call ReadSecLBA                            ; Read by LBA
                 popa
-                pop  es
+                ;pop  es
                 jnc  return_lb                             ; if LBA fails, fallback to CHS
                 jmp  chs
 return_lb:
-                pop  dx
+                ;pop  dx
 
                 ret
 
 ReadSec endp
-
 ;
 ; ReadSecLBA:
 ;
@@ -399,34 +393,34 @@ ReadSecLBA proc near
                 ;
                 ;            al = 0 if success,
                 ;            error code otherwise
-                push ds
-                pop  es
+                ;push 7c0h
+                ;pop  es
 
-                assume ds:PktSeg
+                ;assume ds:PktSeg
 
-                push PktSeg
-                pop  ds
+                ;push PktSeg
+                ;pop  ds
 
-                mov  di, si                                ; save part. desc. in di
+                ;mov  di, si                                ; save part. desc. in di
 
-                lea  si, disk_addr_pkt                     ; disk address packet
-                mov  word  ptr [si], 10h                   ; size of packet absolute starting address
+                lea  si, [bp].disk_addr_pkt                ; disk address packet
 
-                mov  ax, word ptr es:[di + 8]              ;
-                mov  word ptr [si + 8], ax                 ; LBA of the 1st
-                mov  ax, word ptr es:[di + 10]             ; sector of partition (bootsector)
-                mov  word ptr [si + 10], ax                ;
+                mov  [si].pkt_size, 10h                    ; size of packet absolute starting address
 
-                mov  word ptr [si + 2], 1                  ; number of blocks to transfer
-                mov  word ptr [si + 6], ScrSeg             ; segment of disk read buffer at 0x7c0
-                mov  word ptr [si + 4], 0                  ; offset of disk read buffer = 0x0
+                mov  eax, [di + 8]                         ;
+                mov  dword ptr [si].starting_block, eax    ; LBA of the 1st
+                mov  dword ptr [si].starting_block + 4, 0  ;
+
+                mov  word ptr [si].num_blocks, 1           ; number of blocks to transfer
+                mov  word ptr [si].buffer, 7c00h       ; segment of disk read buffer at 0x7c0
+                mov  word ptr [si].buffer + 2, 0               ; offset of disk read buffer = 0x0
                 mov  ah, 42h
                 int  13h
 lb2:
-                mov  si, di                                ; restore part. descriptor in si
+                ;mov  si, di                                ; restore part. descriptor in si
 
-                push es
-                pop  ds
+                ;push es
+                ;pop  ds
 
                 ret
 
@@ -446,11 +440,12 @@ ReadSecLBA endp
 
 ReadSecCHS proc near
                                                            ; phys disk no. in dl
-                mov  cx, word ptr [si + 2]                 ; cyl. and sector
-                mov  dh, byte ptr [si + 1]                 ; head no.
-                push ScrSeg                                ;
-                pop  es                                    ; buffer address
-                xor  bx, bx                                ; in es:bx
+                mov  cx, word ptr [di + 2]                 ; cyl. and sector
+                mov  dh, byte ptr [di + 1]                 ; head no.
+                ;push ScrSeg                                ;
+                ;pop  es                                    ; buffer address
+                ;xor  bx, bx                                ; in es:bx
+                mov  bx, 7c00h
 
                 mov  ax, 0201h                             ; ah = 2 -- function and al = 1 -- count of sectors
                 int  13h                                   ; read one sector at 0x7c0:0x0
@@ -486,10 +481,7 @@ BootPart        db          0                              ; if 1 to 4, then it 
                                                            ; primary partition. If > 4, then it is a
                                                            ; number of logical partition
 
-;Err_DskReadError db         "DRE", 0                       ; Disk read error
-;Err_PartNotFound db         "PNF", 0                       ; Partition not found
 BootDev         db          80h                            ; Boot device in BIOS int 13h format
-forceLBA        db          0                              ; force LBA mode flag
 
 ;
 ; Partition table
@@ -499,37 +491,5 @@ parttable       db          40h      dup (?)               ; Partition table
 signature       db          055h,0aah                      ; MBR signature
 
 MbrSeg ends
-
-;
-; Additional data. Not included in MBR.
-;
-
-PktSeg segment at 7e0h
-disk_addr_pkt   db          10h     dup (0)                ; disk address packet structure for LBA mode
-UseCHS          db          0                              ; whether to use CHS
-PktSeg ends
-
-;
-; Bootsector
-;
-
-BootSeg segment at 7c0h
-                db          1ch     dup (?)
-hiddenSecs      dd          ?
-                dd          ?
-diskNum         db          ?
-logDrive        db          ?
-BootSeg ends
-
-;
-; The segment of MBR relocation
-;
-
-NewSeg segment at 60h
-NewSeg ends
-
-;InfoSeg segment at 3000h
-;I13XFlag        dd  ?
-;InfoSeg ends
 
        end start

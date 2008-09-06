@@ -6,7 +6,7 @@
 PROJ       = mbr
 PROJ0      = mbr
 DEFINES    =
-ADD_ASMOPT = $(DEFINES)
+ADD_ASMOPT = $(DEFINES) -i=$(%ROOT)include
 
 STARTUP    =
 ALL        = $(p)$(PROJ0)$(e)
