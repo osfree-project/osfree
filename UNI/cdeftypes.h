@@ -12,6 +12,10 @@
 
 /* Original OS/2 default definitions */
 
+#ifdef INCL_WINMESSAGEMGR
+#define INCL_WIN
+#endif
+
 #ifdef INCL_WINSHELLDATA
 #define INCL_WIN
 #endif

@@ -1,7 +1,7 @@
 #include <os2vdm.h>
 
 #include <dos.h>
-#include <strings.h>
+#include <string.h>
 
 /*
 INT 21 U - OS/2 v1.x FAPI - OS/2 FILE SYSTEM JOIN/SUBST

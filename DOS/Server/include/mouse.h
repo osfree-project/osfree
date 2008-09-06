@@ -1,4 +1,4 @@
-/* 
+/*
  * (C) Copyright 1992, ..., 2007 the "DOSEMU-Development-Team".
  *
  * for details see file COPYING.DOSEMU in the DOSEMU distribution
@@ -11,12 +11,12 @@
 #define MOUSE_H
 
 #include "config.h"
-#include <termios.h>
+//#include <termios.h>
 
-#define MOUSE_BASE_VERSION	0x0700	/* minimum driver version 7.00 */
-#define MOUSE_EMU_VERSION	0x0005	/* my driver version 0.05 */
+#define MOUSE_BASE_VERSION      0x0700  /* minimum driver version 7.00 */
+#define MOUSE_EMU_VERSION       0x0005  /* my driver version 0.05 */
 /* this is the version returned to DOS programs */
-#define MOUSE_VERSION	  (MOUSE_BASE_VERSION + MOUSE_EMU_VERSION)
+#define MOUSE_VERSION     (MOUSE_BASE_VERSION + MOUSE_EMU_VERSION)
 
 #define MOUSE_NONE -1
 #define MOUSE_MICROSOFT 0
@@ -35,16 +35,16 @@
 #define MOUSE_SDL 13
 
 /* types of mouse events */
-#define DELTA_CURSOR		1
-#define DELTA_LEFTBDOWN		2	/* pressed  */
-#define DELTA_LEFTBUP		4	/* released */
-#define DELTA_RIGHTBDOWN	8
-#define DELTA_RIGHTBUP		16
+#define DELTA_CURSOR            1
+#define DELTA_LEFTBDOWN         2       /* pressed  */
+#define DELTA_LEFTBUP           4       /* released */
+#define DELTA_RIGHTBDOWN        8
+#define DELTA_RIGHTBUP          16
 #define DELTA_MIDDLEBDOWN  32
 #define DELTA_MIDDLEBUP    64
 
-#define MICKEY			9	/* mickeys per move */
-#define M_DELTA			8
+#define MICKEY                  9       /* mickeys per move */
+#define M_DELTA                 8
 
 #define HEIGHT 16
 #define PLANES 4
@@ -135,7 +135,7 @@ struct mouse_struct {
   short min_max_x, min_max_y;
 
   /* ignore application's x/y speed settings?  might not be necessary
-  	anymore if I managed to get the speed settings correct. */
+        anymore if I managed to get the speed settings correct. */
   boolean ignorexy;
 
   struct {
@@ -160,7 +160,7 @@ void register_mouse_client(struct mouse_client *mouse);
 extern struct mouse_client *Mouse;
 extern struct mouse_client Mouse_raw;
 
-#include "keyboard.h"
+//#include "keyboard.h"
 void mouse_keyboard(Boolean make, t_keysym key);
 void mouse_curtick(void);
 
