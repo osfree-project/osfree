@@ -1,11 +1,5 @@
 Interrupt List, part 2 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
---------V-10BF--CX0000-----------------------
-INT 10 - Athena Digital HGCIBM.COM - INSTALLATION CHECK
-        AH = BFh
-        CX = 0000h (???)
-Return: CX = 0202h
-        DL = ??? (internal data, possibly version number)
 --------b-10BF00-----------------------------
 INT 10 - VIDEO - Compaq Extensions - SELECT EXTERNAL MONITOR
         AX = BF00h
