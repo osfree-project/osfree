@@ -2111,16 +2111,6 @@ Return: AH = status code (see #00234)
 Program: V10DISK.SYS is a driver for the Flagstaff Engineering 8" floppies
 Note:   details not available
 SeeAlso: AH=03h,AH=06h"V10DISK.SYS"
---------y-130800DLF0-------------------------
-INT 13 - SecureDrive - INSTALLATION CHECK
-        AX = 08000h
-        DL = F0h
-Return: AX = EDCBh for version 1.0-1.2
-        AX = EDCCh for version 1.3
-        CX = code segment
-        DX = data address within code segment
-Program: SecureDrive by Mike Ingle <mikeingle@delphi.com> allows you to create
-          an encrypted partition on your harddisk.
 --------B-1309-------------------------------
 INT 13 - HARD DISK - INITIALIZE CONTROLLER WITH DRIVE PARAMETERS (AT,PS)
         AH = 09h

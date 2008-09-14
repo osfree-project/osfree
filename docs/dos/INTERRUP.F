@@ -4325,30 +4325,6 @@ Format of BW-TCP server records:
 Offset  Size    Description      (Table 01413)
  00h    BYTE    number of server records following
  01h  N DWORDs  internet addresses of servers
---------y-213F-------------------------------
-INT 21 - Trusted Access - NB.SYS - GET STATE
-        AH = 3Fh
-        BX = file handle for device "$$NB$$NB"
-        CX = 0002h (size of state)
-        DS:DX -> buffer for state record (see #01414)
-Return: CF clear if successful
-            AX = number of bytes actually read (0 if at EOF before call)
-        CF set on error
-            AX = error code (05h,06h) (see #01680 at AH=59h/BX=0000h)
-Program: Trusted Access is a security and access-control package by Lassen
-          Software, Inc.; NB.SYS is a device driver to prevent the user from
-          terminating CONFIG.SYS or AUTOEXEC.BAT with Ctrl-Break
-SeeAlso: AH=40h"NB.SYS",AX=4101h
-
-Format of Trusted Access state record:
-Offset  Size    Description     (Table 01414)
- 00h    BYTE    00h off, 01h on
- 01h    BYTE    keys being disabled
-                bit 0: Ctrl-Break
-                bit 1: SysReq
-                bit 2: Ctrl and Alt
-                bit 3: Ctrl-Alt-Del
-                bit 7: all keys (overrides other bits)
 ----------213F-------------------------------
 INT 21 U - IFSHLP.SYS - GET ENTRY POINT
         AH = 3Fh
@@ -4573,20 +4549,6 @@ Notes:  if less than the entire data is read or written, the next read/write
           of IPCUST.SYS for backward compatibility with other software which
           must read the PC/TCP configuration
 SeeAlso: AH=3Fh"IPCUST",AX=4402h"IPCUST"
---------y-2140-------------------------------
-INT 21 U - Trusted Access - NB.SYS - SET STATE
-        AH = 40h
-        BX = handle for character device "$$NB$$NB"
-        DS:DX -> state record (see #01414)
-        CX ignored
-Return: CF clear if successful
-            AX = number of bytes actually written
-        CF set on error
-            AX = error code (05h,06h) (see #01680 at AH=59h/BX=0000h)
-Program: Trusted Access is a security and access-control package by Lassen
-          Software, Inc.; NB.SYS is a device driver to prevent the user from
-          terminating CONFIG.SYS or AUTOEXEC.BAT with Ctrl-Break
-SeeAlso: AH=3Fh"NB.SYS"
 --------j-214000BX0002-----------------------
 INT 21 - FARTBELL.EXE - INSTALLATION CHECK
         AX = 4000h
@@ -4633,13 +4595,6 @@ Notes:  (DOS 3.1+) wildcards are allowed if invoked via AX=5D00h, in which case
 BUG:    DR DOS 3.41 crashes if called via AX=5D00h
 SeeAlso: AH=13h,AX=4301h,AX=4380h,AX=5D00h,AH=60h,AX=7141h,AX=F244h
 SeeAlso: INT 2F/AX=1113h
---------y-214101DXFFFE-----------------------
-INT 21 - SoftLogic Data Guardian - ???
-        AX = 4101h
-        DX = FFFEh
-Return: AX = 0000h if installed
-Note:   resident code sets several internal variables on this call
-SeeAlso: AH=3Fh"NB.SYS",INT 16/AX=FFA3h/BX=0000h
 --------D-2142-------------------------------
 INT 21 - DOS 2+ - "LSEEK" - SET CURRENT FILE POSITION
         AH = 42h

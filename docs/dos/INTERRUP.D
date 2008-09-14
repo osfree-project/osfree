@@ -2842,55 +2842,6 @@ INT 16 U - PC Tools v7+ DESKTOP - ???
 Return: ???
 Note:   calls AX=FFC7h (remove window) and AX=FFFDh
 SeeAlso: AX=FFA1h,AX=FFC7h,AX=FFFDh
---------y-16FFA3BX0000-----------------------
-INT 16 U - PC Tools v7-8 DATAMON, v9+ DPROTECT - INSTALLATION CHECK
-        AX = FFA3h
-        BX = 0000h
-        CX = 0000h
-Return: AX = segment of resident code
-        BX = 5555h
-        CX = 5555h
-Note:   also supported by DOS 6 UNDELETE which is licensed from PC Tools
-SeeAlso: INT 21/AH=3Fh"NB.SYS",INT 21/AX=4101h,INT 2F/AX=6284h
---------y-16FFA3BX0001-----------------------
-INT 16 U - PC Tools v7-8 DATAMON, v9+ DPROTECT - GET ???
-        AX = FFA3h
-        BX = 0001h
-        CX = 0001h
-Return: AX:BX -> ???
-        CX = BX
---------y-16FFA3BX0002-----------------------
-INT 16 U - PC Tools v7-8 DATAMON, v9+ DPROTECT - GET ???
-        AX = FFA3h
-        BX = 0002h
-        CX = 0002h
-Return: AX = ??? (0 or 1)
-        CX = BX = AX
---------y-16FFA3BX0003-----------------------
-INT 16 U - PC Tools v7-8 DATAMON, v9+ DPROTECT - GET ???
-        AX = FFA3h
-        BX = 0003h
-        CX = 0003h
-Return: AX = ??? (0 or 1)
-        CX = BX = AX
---------y-16FFA3BX0004-----------------------
-INT 16 U - PC Tools v7+ DATAMON - SET ??? FLAG
-        AX = FFA3h
-        BX = 0004h
-        CX = 0004h
-SeeAlso: AX=FFA3h/BX=0005h
---------y-16FFA3BX0005-----------------------
-INT 16 U - PC Tools v7+ DATAMON - CLEAR ??? FLAG
-        AX = FFA3h
-        BX = 0005h
-        CX = 0005h
-SeeAlso: AX=FFA3h/BX=0004h
---------y-16FFA3BX0006-----------------------
-INT 16 U - PC Tools v7+ DATAMON - SET PSP SEGMENT ???
-        AX = FFA3h
-        BX = 0006h
-        CX = 0006h
-        DX = current PSP segment as known to DOS??? or 0000h
 --------d-16FFA3BXFFA3-----------------------
 INT 16 U - PC Tools v9 DSKLIGHT - INSTALLATION CHECK
         AX = FFA3h

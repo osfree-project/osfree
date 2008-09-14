@@ -1950,37 +1950,6 @@ Offset  Size    Description     (Table 01504)
  08h    DWORD   (ret) pointer to ???
 ---function 07h---
  04h    DWORD   (ret) pointer to ??? record
---------y-214402-----------------------------
-INT 21 U - PC Tools 9 CPRLOW.EXE - GET CODE AND DATA ADDRESSES
-        AX = 4402h
-        BX = file handle referencing device "RECLOWLD"
-        DS:DX -> buffer for address list (see #01505)
-        CX ignored
-Return: CF clear if successful
-            buffer filled
-        CF set on error
-            AX = error code (01h,05h,06h,0Dh) (see #01680 at AH=59h/BX=0000h)
-
-Format of CPRLOW address list:
-Offset  Size    Description     (Table 01505)
- 00h    WORD    segment of CPRLOW code
- 02h    WORD    offset in code segment of ??? entry point
-                (switches into protected mode)
- 04h    WORD    offset in code segment of jump array (see #01506)
- 06h    WORD    segment of copy of interrupt vector table at CPRLOW load time
-Note:   neither the entry point nor the jump array is valid until after a
-          CPR /LOAD, because CPR.EXE installs the code into CPRLOW at runtime.
-
-Format of CPRLOW jump array:
-Offset  Size    Description     (Table 01506)
- 00h  3 BYTEs   initialize CPRLOW interrupt hooks
- 03h  3 BYTEs   reset timers and enable CPR (hotkey enable)
- 06h  3 BYTEs   disable CPR (hotkey disable)
- 09h  3 BYTEs   clear ??? flag, hotkey disable, and ???
- 0Ch  3 BYTEs   initialize delay loop counter (destroys AX,BX,CX,DX)
- 0Fh  3 BYTEs   disable CPR completely (commandline /DISABLE)
- 12h  3 BYTEs   enable ??? if CPR enabled by both cmdline and hotkey
- 15h  3 BYTEs   enable CPR (commandline /ENABLE)
 --------s-214402-----------------------------
 INT 21 U - Creative Technology CTMMSYS.SYS v1.00.01 - API
         AX = 4402h
@@ -4305,21 +4274,6 @@ Values for character set:
  00h    Windows ANSI
  01h    current OEM character set
  02h    Unicode
---------y-21440DCXEDC1-----------------------
-INT 21 - DR PalmDOS - GENERIC IOCTL - LOGIN SECURITY
-        AX = 440Dh
-        CX = EDC1h (category code EDh, minor code C1h)
-        BL = boot drive number (01h=A:,02h=B:,etc)
-Return: AL = 0 if already logged in
-        AL <> 0 if system is still secured (not logged in)
-        ES:DI -> ???
-Notes:  This function is called by DR PalmDOS IBMBIO.COM after CONFIG.SYS
-          processing has finished and it has launched the LOGIN.SYS utility
-          (if this is not in the root of the boot drive, the undocumented
-          CONFIG.SYS LOGIN directive can be used to change the path and the
-          moment when the login prompt will be displayed).
-        If security is active and the user has still not logged in,
-          IBMBIO.COM will display an error message and halt the system.
 --------D-21440E-----------------------------
 INT 21 - DOS 3.2+ - IOCTL - GET LOGICAL DRIVE MAP
         AX = 440Eh
