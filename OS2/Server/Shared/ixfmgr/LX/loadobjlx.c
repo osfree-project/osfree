@@ -115,7 +115,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
 
         for(obj_cnt=1; obj_cnt<=number_of_objects; obj_cnt++) {
                 kod_obj = get_obj(lx_exe_mod, obj_cnt);
-                io_printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
+                //io_printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
                 vm_code_obj = 0;
 #ifndef __OS2__
                 if( !is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, (void *) kod_obj->o32_base, kod_obj->o32_size) ) {
@@ -132,9 +132,9 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
                         if( is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, (void *) new_base, kod_obj->o32_size) )
                                 io_printf("Error allocating used memory!!! 0x%lx \n", new_base);
                         kod_obj->o32_base = new_base;
-                        io_printf(" new_base: 0x%lx, %lu \n", new_base, new_base);
+                        //io_printf(" new_base: 0x%lx, %lu \n", new_base, new_base);
                         vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
-                        io_printf(" new_base == %p ?\n", vm_code_obj);
+                        //io_printf(" new_base == %p ?\n", vm_code_obj);
                 }
 
 #else
@@ -276,7 +276,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
   int lastpage  = lx_obj->o32_pagemap + lx_obj->o32_mapsize;
   UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from DosExecPgm */
 
-  io_printf("--------------------Listing fixup data ------------------------- %p\n", lx_obj);
+  //io_printf("--------------------Listing fixup data ------------------------- %p\n", lx_obj);
 
   /* Goes through every page of the object.
      The fixups are variable size and a bit messy to traverse.*/
@@ -525,7 +525,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
     int frw_flags=0, frw_offset=0, frw_obj=0, frw_modord=0, frw_type=0;
     int frw_mod_nr;
     int forward_counter;
-    io_printf(" Forward Entry.\n");
+    //io_printf(" Forward Entry.\n");
     forward_found_module=found_module;
 
     org_mod_name = get_imp_mod_name(found_module, ret_modord);
@@ -537,15 +537,15 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
       frw_mod_name = (char *) &frw_buf_mod_name;
       org_mod_name = get_imp_mod_name(forward_found_module, ret_modord);
       copy_pas_str(frw_mod_name, org_mod_name);
-      io_printf("Forward imp mod: %s, ret_offset: %d\n",
-                      frw_mod_name, ret_offset);
+      //io_printf("Forward imp mod: %s, ret_offset: %d\n",
+      //                frw_mod_name, ret_offset);
       prev_mod = forward_found_module;
       //forward_found_module = (struct LX_module *)find_module(frw_mod_name);
       rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), frw_mod_name, (unsigned long *)&forward_found_module);
       if (forward_found_module) forward_found_module=(struct LX_module *)(((IXFModule *)forward_found_module)->FormatStruct);
 
       if(!forward_found_module) { /* Unable to find and load module. */
-        io_printf("Can't find forward module: '%s' \n", frw_mod_name);
+        //io_printf("Can't find forward module: '%s' \n", frw_mod_name);
 
         native_module = native_find_module(frw_mod_name);
         if(native_module != 0) {
@@ -585,8 +585,8 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
     ret_flags=frw_flags;  ret_offset=frw_offset; ret_obj=frw_obj;
     ret_modord=frw_modord; ret_type=frw_type;
     fn_ptr = frw_fn_ptr;
-    io_printf(" frw_modord=%d, frw_mod_nr=%d", frw_modord, frw_mod_nr);
-    io_printf(" Done with Forward Entry running. (%d) \n", forward_counter);
+    //io_printf(" frw_modord=%d, frw_mod_nr=%d", frw_modord, frw_mod_nr);
+    //io_printf(" Done with Forward Entry running. (%d) \n", forward_counter);
   }
 
   if (fn_ptr == 0)

@@ -608,11 +608,11 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                 bbuf[0] = magic[0];
                 bbuf[1] = magic[1];
                 bbuf[2] = 0;
-                io_printf("magic: %s \n", (char *)&bbuf);
-                io_printf("get_entry( lx_mod: %p, entry_ord_to_search: %d \n",lx_mod, entry_ord_to_search);
+                //io_printf("magic: %s \n", (char *)&bbuf);
+                //io_printf("get_entry( lx_mod: %p, entry_ord_to_search: %d \n",lx_mod, entry_ord_to_search);
         }
         else {
-                io_printf("Testing get_entry.\n");
+                //io_printf("Testing get_entry.\n");
                 cptr_ent_tbl = (char*) *ret_type;
                 entry_table = (struct b32_bundle *)cptr_ent_tbl;
         }
@@ -621,21 +621,21 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
         /*io_printf("entry_table: %p \n", entry_table);*/
 
-        io_printf("get_entry: entry_ord_to_search: %d, b32_cnt: %d, b32_type: %d, b32_obj: %d\n", entry_ord_to_search,
-                        entry_table->b32_cnt, entry_table->b32_type, entry_table->b32_obj);
+//        io_printf("get_entry: entry_ord_to_search: %d, b32_cnt: %d, b32_type: %d, b32_obj: %d\n", entry_ord_to_search,
+//                        entry_table->b32_cnt, entry_table->b32_type, entry_table->b32_obj);
 
         /*io_printf("EMPTY: %d, ENTRYFWD: %d, _32BIT_ENTRY_SIZE: %d \n", EMPTY, ENTRYFWD, _32BIT_ENTRY_SIZE);*/
 
         unused_entry = 0;
         while(entry_ord_index <= entry_ord_to_search) {
                 while(entry_table->b32_type == EMPTY) { /* Unused Entry, just skip over them.*/
-                    io_printf("EMPTY\n");
+                    //io_printf("EMPTY\n");
                         entry_ord_index += entry_table->b32_cnt;
                         entry_table = (struct b32_bundle *)&cptr_ent_tbl[UNUSED_ENTRY_SIZE+unused_entry];
                         unused_entry += UNUSED_ENTRY_SIZE;
-                        io_printf("EMPTY, entry_table: %p\n", entry_table);
+                        //io_printf("EMPTY, entry_table: %p\n", entry_table);
                 }
-                io_printf("entry_ord_index: %d, entry_ord_to_search: %d\n", entry_ord_index, entry_ord_to_search);
+                //io_printf("entry_ord_index: %d, entry_ord_to_search: %d\n", entry_ord_index, entry_ord_to_search);
                 if(entry_ord_to_search < entry_ord_index) {
                                 *ret_flags = 0; // Unused entry ==0
                                 *ret_offset = 0;
@@ -645,8 +645,8 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 return (void *) 0; // Can't find entry.
                 }
                 if(entry_table->b32_cnt == 0) {
-                       io_printf("End of entry table reached! %d, entry_table: %p\n",
-                                         entry_table->b32_cnt, entry_table);
+                       //io_printf("End of entry table reached! %d, entry_table: %p\n",
+                       //                  entry_table->b32_cnt, entry_table);
                                 *ret_flags = 0;
                                 *ret_offset = 0;
                                 *ret_obj = 0;
@@ -658,8 +658,8 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                         case EMPTY:;
                     case ENTRYFWD:;
                     case ENTRY32: break;
-                        default: io_printf("Invalid entry type! %d, entry_table: %p\n",
-                                         entry_table->b32_type, entry_table);
+                        default: //io_printf("Invalid entry type! %d, entry_table: %p\n",
+                                         //entry_table->b32_type, entry_table);
                                 *ret_flags = 0;
                                 *ret_offset = 0;
                                 *ret_obj = 0;
@@ -678,15 +678,15 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                    && (entry_ord_to_search<(entry_table->b32_cnt+entry_ord_index))
                    &&  (entry_table->b32_type == ENTRY32)) { /* 32-bit Entry.*/
 
-                                io_printf("32-bit Entry.\n");
+                                //io_printf("32-bit Entry.\n");
                                 cptr_ent_tbl = (char*)entry_table;
                                 entry_post = (struct e32_entry *)&cptr_ent_tbl[ENTRY_HEADER_SIZE];
                                 cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
                                 i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                                 elements_in_bundle = entry_table->b32_cnt + entry_ord_index;
                                 for(entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) {
-                                        io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
-                                                        entry_ord_to_search, entry_ord_index);
+                                        //io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
+                                                        //entry_ord_to_search, entry_ord_index);
                                     if(entry_ord_to_search == entry_ord_index)
                                                 break;
                                         i_cptr_ent_tbl += _32BIT_ENTRY_SIZE;
@@ -696,11 +696,11 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
                                 cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;
-                                io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
+                                //io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
 
-                                io_printf("entry_post: %p \n", entry_post);
-                                io_printf("32-bit Entry: Flags=0x%x, Offset=%lu \n",
-                                                entry_post->e32_flags, entry_post->e32_variant.e32_offset.offset32);
+                                //io_printf("entry_post: %p \n", entry_post);
+                                //io_printf("32-bit Entry: Flags=0x%x, Offset=%lu \n",
+                                //                entry_post->e32_flags, entry_post->e32_variant.e32_offset.offset32);
                                 *ret_flags = entry_post->e32_flags;
                                 *ret_offset = entry_post->e32_variant.e32_offset.offset32;
                                 *ret_obj = entry_table->b32_obj;
@@ -708,7 +708,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 return (void *) entry_table;
 
                 } else if(entry_table->b32_type == ENTRY32) { /* Jump over the that bundle. */
-                        io_printf("ENTRY32\n");
+                        //io_printf("ENTRY32\n");
                         cptr_ent_tbl = (char*)entry_table;
                         cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
                         i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
@@ -717,34 +717,34 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
                         cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                         entry_table= (struct b32_bundle *)cptr_ent_tbl;
-                        io_printf("ENTRY32, entry_table: %p\n", entry_table);
+                        //io_printf("ENTRY32, entry_table: %p\n", entry_table);
                 }
 
                 if((entry_ord_to_search >= entry_ord_index)
                     && (entry_ord_to_search<(entry_table->b32_cnt+entry_ord_index))
                     && (entry_table->b32_type == ENTRYFWD)) { /* Forward Entry.*/
-                        io_printf("Forward Entry.\n");
+                        //io_printf("Forward Entry.\n");
                         cptr_ent_tbl = (char*)entry_table;
-                        io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
+                        //io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
                         entry_post = (struct e32_entry *)&cptr_ent_tbl[ENTRY_HEADER_SIZE];
                         cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
-                        io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
+                        //io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
                                 i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                                 elements_in_bundle = entry_table->b32_cnt + entry_ord_index;
                                 for(entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) {
-                                    io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
-                                                        entry_ord_to_search, entry_ord_index);
+                                    //io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
+                                    //                    entry_ord_to_search, entry_ord_index);
                                         if(entry_ord_to_search == entry_ord_index)
                                                 break;
                                         i_cptr_ent_tbl += FORWARD_ENTRY_SIZE;
                                 }
                                 cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;
-                        io_printf("entry_post: %p \n", entry_post);
-                        io_printf("Forward Entry: Flags=0x%x, Proc name offset or ordinal=%lu, Module ordinal number: %d \n",
-                                        entry_post->e32_flags,
-                                        entry_post->e32_variant.e32_fwd.value,
-                                        entry_post->e32_variant.e32_fwd.modord);
+                        //io_printf("entry_post: %p \n", entry_post);
+                        //io_printf("Forward Entry: Flags=0x%x, Proc name offset or ordinal=%lu, Module ordinal number: %d \n",
+                        //                entry_post->e32_flags,
+                        //                entry_post->e32_variant.e32_fwd.value,
+                        //                entry_post->e32_variant.e32_fwd.modord);
                                  /* Flags */
                         *ret_flags = entry_post->e32_flags;
                          /* Procedure Name Offset or Import Ordinal Number */
@@ -761,24 +761,24 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 e32_fwd;        / Forwarder */
                         return (void *) entry_table;
                 } else if(entry_table->b32_type == ENTRYFWD) { /* Jump over the that bundle. */
-                    io_printf("ENTRYFWD\n");
+                    //io_printf("ENTRYFWD\n");
 
                         cptr_ent_tbl = (char*)entry_table;
-                        io_printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
+                        //io_printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
                         cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
-                        io_printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
+                        //io_printf("cptr_ent_tbl: %p\n", cptr_ent_tbl);
                         i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                         entry_ord_index += entry_table->b32_cnt;
-                        io_printf("FORWARD_ENTRY_SIZE: %d, entry_table->b32_cnt: %d\n", FORWARD_ENTRY_SIZE, entry_table->b32_cnt);
+                        //io_printf("FORWARD_ENTRY_SIZE: %d, entry_table->b32_cnt: %d\n", FORWARD_ENTRY_SIZE, entry_table->b32_cnt);
                         i_cptr_ent_tbl += FORWARD_ENTRY_SIZE*entry_table->b32_cnt;
 
                         cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                         entry_table= (struct b32_bundle *)cptr_ent_tbl;
-                        io_printf("ENTRYFWD, entry_table: %p\n", entry_table);
+                        //io_printf("ENTRYFWD, entry_table: %p\n", entry_table);
                 }
 
         }
-        io_printf("RET, get_entry()\n");
+        //io_printf("RET, get_entry()\n");
         return (void *) entry_table;
 }
 

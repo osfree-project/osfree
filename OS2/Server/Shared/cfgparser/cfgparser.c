@@ -40,11 +40,13 @@ char *skiplist[]={"DEVICE","BASEDEV","IFS","REM "};
 char  *run[30];
 char  *call[30];
 char  *set[150];
+char  *ixf[30];
 
 struct types type[]={
    {"CALL",'=',call,0},
    {"RUN",'=',run,0},
-   {"SET",'=',set,0}
+   {"SET",'=',set,0},
+   {"IXF",'=',ixf,0}
 };
 
 cfg_opts options;
@@ -553,7 +555,7 @@ unsigned long cfg_getenv(char * name, char ** value)
 
   for(i=0;i<type[2].ip;i++)
   {
-    printf("%s\n", type[2].sp[i]);
+    //printf("%s\n", type[2].sp[i]);
     for(j=0;j<strlen(type[2].sp[i]);j++)
     {
       if(type[2].sp[i][j]!=toupper(name[j]))

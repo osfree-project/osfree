@@ -3,3 +3,11 @@ New keywords of CONFIG.SYS
 DEBUGMODMGR=YES|NO
 
 Turns on/off Module Manager debug messages. Default: NO
+
+DEBUGIXFMGR=YES|NO
+
+Turns on/off IXF Manager debug messages. Default: NO
+
+IXF=path
+
+Path to IXF file for corresponding executable format

@@ -28,6 +28,7 @@
 #include <sys/mman.h>
 #include <string.h>
 
+#include <token.h>
 #include <cfgparser.h>
 #include <processlx.h>
 #include <modlx.h>
@@ -372,7 +373,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
 
   /* Print info about used memory loaded modules. */
-  print_used_mem(&tiny_process->root_mem_area);
+  //print_used_mem(&tiny_process->root_mem_area);
 
   /* Starts to execute the process. */
   exec_lx((struct LX_module *)(ixfModule->FormatStruct), tiny_process);
@@ -383,63 +384,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   return NO_ERROR;
 }
-
-
-struct STR_SAVED_TOKENS_ {
-        char *str_next_saved_tokens;
-        char str_ch_saved_tokens;
-};
-
-typedef struct STR_SAVED_TOKENS_ STR_SAVED_TOKENS;
-
-
-static char *nxtToken = 0;              /* pointer to previous scanned string */
-static char ch;                                         /* previous token delimiter */
-
-char *StrTokenize(char *str, const char * const token)
-{
-
-        if(!str) {
-                if((str = nxtToken) == 0                /* nothing to do */
-                 || (*str++ = ch) == 0)               /* end of string reached */
-                        return( nxtToken = 0);
-        }
-
-        if(!token || !*token)                   /* assume all the string */
-                nxtToken = 0;
-        else {
-                nxtToken = str - 1;
-                while(!strchr(token, *++nxtToken));
-                ch = *nxtToken;
-                *nxtToken = 0;
-        }
-
-        return( str);
-}
-
-void StrTokSave(STR_SAVED_TOKENS *st)
-{
-
-        if(st) {
-                st->str_next_saved_tokens = nxtToken;
-                st->str_ch_saved_tokens = ch;
-        }
-
-}
-
-void StrTokRestore(STR_SAVED_TOKENS *st)
-{
-
-        if(st) {
-                nxtToken = st->str_next_saved_tokens;
-                ch = st->str_ch_saved_tokens;
-        }
-
-}
-
-
-#define StrTokStop() (void)StrTokenize(0, 0)
-
 
 unsigned long find_path(char * name, char * full_path_name)
 {

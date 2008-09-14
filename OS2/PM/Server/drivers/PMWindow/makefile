@@ -13,7 +13,7 @@ ADD_COPT    = -i=..$(SEP)include -bd
 ADD_LIB     = cmd_shared.lib,all_shared.lib
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib
 DLL = 1
-EXPORTS = FPM_DeviceStart=FPM_PMWinStart
+EXPORTS = FPM_DeviceStart
 DEST = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

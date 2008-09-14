@@ -171,11 +171,14 @@ INSTALL_PRE = 1
 
 !include $(%ROOT)/mk/appsos2.mk
 
+!ifeq ENV OS/2
 install_pre: $(PATH)$(PROJ).dll .SYMBOLIC
  @$(CD) $[:
- !ifeq ENV OS/2
  renmodul /r $[. pmdrag fmdrag
  $(CP) pmdrag.dll fmdrag.dll
- !else
- !endif
  @$(CD) $(MYDIR)
+!else
+install_pre: $(PATH)$(PROJ).dll .SYMBOLIC
+ @$(CD) $[:
+ @$(CD) $(MYDIR)
+!endif

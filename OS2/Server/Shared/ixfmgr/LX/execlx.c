@@ -202,12 +202,12 @@ void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
 
         my_execute = /*(int (*)()) (void*)*/ main_ptr;
 
-                io_printf("Executing LX program**********************\n");
+                //io_printf("Executing LX program**********************\n");
                 tmp_data_mmap = (unsigned long int) data_mmap;
                 tmp_data_mmap += esp - 8;
-                io_printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
-                io_printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
-                io_printf(" my_execute: %p, eip: 0x%lx \n", my_execute, get_eip(lx_exe_mod));
+                //io_printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
+                //io_printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
+                //io_printf(" my_execute: %p, eip: 0x%lx \n", my_execute, get_eip(lx_exe_mod));
 
                 /* DosPutMessage(1, 6, "Hello\n"); */
                 esp_data=0;
@@ -311,7 +311,7 @@ _asm{
                 #endif
                 /*  my_execute("" , "" , 0, (unsigned int)lx_exe_mod );   */
 
-                io_printf("Slutförd exerkvering LX program**********************\n");
+                //io_printf("End of LX program execution**********************\n");
 
 }
 
