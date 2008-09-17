@@ -4549,26 +4549,6 @@ Notes:  if less than the entire data is read or written, the next read/write
           of IPCUST.SYS for backward compatibility with other software which
           must read the PC/TCP configuration
 SeeAlso: AH=3Fh"IPCUST",AX=4402h"IPCUST"
---------j-214000BX0002-----------------------
-INT 21 - FARTBELL.EXE - INSTALLATION CHECK
-        AX = 4000h
-        BX = 0002h
-        CX = 0000h
-        DS:DX = 0000h:0000h
-Return: CF clear if installed
-            AX = CS of resident code
-Program: FARTBELL is a joke program by Guenther Thiele which makes various
-          noises when programs output a bell
-SeeAlso: AX=4001h
---------j-214001BX0002-----------------------
-INT 21 - FARTBELL.EXE - FORCE NOISE
-        AX = 4001h
-        BX = 0002h
-        CX = 0000h
-        DS:DX = 0000h:0000h
-Program: FARTBELL is a joke program by Guenther Thiele which makes various
-          noises when programs output a bell
-SeeAlso: AX=4000h
 --------D-2141-------------------------------
 INT 21 - DOS 2+ - "UNLINK" - DELETE FILE
         AH = 41h
@@ -4811,40 +4791,6 @@ Bit(s)  Description     (Table 01422)
  6      shareable
  5      execute-only
  4-0    unused
---------u-214321BX0000-----------------------
-INT 21 - Q87, Q387 - INSTALLATION CHECK
-        AX = 4321h
-        BX = 0000h
-        EAX = 87654321h (entire EAX value is required, not just AX)
-Return: EAX = 12345678h if installed
-Program: Q387 (renamed to Q87 as of v3.7) is a math coprocessor emulator from
-          Quickware
-Note:   this function is available only in virtual-86 mode in older versions;
-          newer versions also provide it in MS Windows 16- and 32-bit protected
-          mode
-SeeAlso: AX=4321h/BX=0001h,AX=4321h/BX=0002h,INT 67/AX=4321h
---------u-214321BX0001-----------------------
-INT 21 - Q87, Q387 - ENABLE EMULATOR
-        AX = 4321h
-        BX = 0001h
-        EAX = 87654321h (entire EAX value is required, not just AX)
-Desc:   enable the emulator by setting the CPU MSW's EM bit and updating
-          the BIOS equipment list
-Note:   this function is available only in virtual-86 mode in older versions;
-          newer versions also provide it in MS Windows 16- and 32-bit protected
-          mode
-SeeAlso: AX=4321h/BX=0000h,AX=4321h/BX=0002h
---------u-214321BX0002-----------------------
-INT 21 - Q87, Q387 - DISABLE EMULATOR
-        AX = 4321h
-        BX = 0002h
-        EAX = 87654321h (entire EAX value is required, not just AX)
-Desc:   disable the emulator by clearing the CPU MSW's EM bit and updating
-          the BIOS equipment list
-Note:   this function is available only in virtual-86 mode in older versions;
-          newer versions also provide it in MS Windows 16- and 32-bit protected
-          mode
-SeeAlso: AX=4321h/BX=0000h,AX=4321h/BX=0001h
 --------O-214380-----------------------------
 INT 21 - Novell DOS 7 - UNDELETE PENDING DELETE FILE
         AX = 4380h

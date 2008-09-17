@@ -1,10 +1,10 @@
 Many thanks to whose projects:
 
 Regina REXX - our Classic REXX replacement http://regina-rexx.sourceforge.net/index.html
+
 THE - our TEDIT replacement http://hessling-editor.sourceforge.net/index.html
 
-And lot of other things from Mark Hessling. His products allowed us not to reinvent
-the wheel.
+And lot of other things from Mark Hessling. His products allowed us not to reinvent the wheel.
 
 OS2Linux project as a base for CPI implementation on top of Fiasco microkernel.
 
@@ -49,3 +49,6 @@ MMImage Pak as Image File Format I/O Procedures
 MMAudio Pak 2 as Audio File Format I/O Procedures
 
 FreeDos parts as DOS subsystem base
+
+Ralf Brown documentation (Interrupt list). Great source of DOS and DOS VM information.
+

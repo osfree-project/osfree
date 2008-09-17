@@ -531,14 +531,6 @@ Program: SETDRVER is a public domain TSR by Jacob Rieper which sets the
 Notes:  this installation check differs from the usual one of returning AL=FFh
         the SETDRVER API is fully emulated by Matthias Paul's FREEVER
 SeeAlso: AX=E000h/DX=4D50h,AX=E001h,INT 21/AH=52h
---------j-2FE000-----------------------------
-INT 2F - KAOSHIDE - INSTALLATION CHECK
-        AX = E000h
-Return: AL = FFh if installed
-Program: KAOSHIDE ('Hidden Kaos') is a PD joke TSR which randomly capitalizes
-          alphabetic keys, written by Philip Maland. Although not a virus,
-          v2.0 uses some viral-like techniques to hide itself from
-          memory-reports by reducing DOS memory size.
 --------U-2FE000DX4D50-----------------------
 INT 2F - FREEVER v1.0+ - INSTALLATION CHECK
         AX = E000h
@@ -6229,9 +6221,6 @@ SeeAlso: INT FE"OVERLAY"
 --------r-3F---------------------------------
 INT 3F - Microsoft Dynamic Link Library manager
 SeeAlso: INT 21/AH=4Bh
---------B-40---------------------------------
-INT 40 - DISKETTE - ROM BIOS DISKETTE HANDLER RELOCATED BY HARD DISK BIOS
-SeeAlso: INT 13/AH=00h,INT 13/AH=02h,INT 47"SuperBIOS",INT 63"Adaptec"
 --------h-40---------------------------------
 INT 40 - Z100 - Master 8259 - Parity error or S100 error
 SeeAlso: INT 41"Z100",INT FF"Z100"
@@ -6252,66 +6241,6 @@ INT 40 - TI Professional PC - IRQ0
 Note:   on the TI Pro, IRQ0 is connected to the same pin on the expansion bus
           that IBM connects to IRQ2
 SeeAlso: INT 0A"IRQ2",INT 41"TI Professional"
---------B-41---------------------------------
-INT 41 - SYSTEM DATA - HARD DISK 0 PARAMETER TABLE ADDRESS [NOT A VECTOR!]
-Notes:  the default parameter table array is located at F000h:E401h in 100%
-          compatible BIOSes; the pointer may be overridden by the hard disk
-          controller's BIOS to support drive formats unknown to the ROM BIOS
-        not used by some PS/2 models
-        BIOSes which support four hard drives may store the parameter tables
-          for drives 81h-83h immediately following the parameter table pointed
-          at by INT 41, with a separate copy of the drive 81h table for INT 46.
-          The check for such an arrangement is to test whether INT 46 points
-          somewhere other than exactly 16 bytes past INT 41, and the sixteen
-          bytes starting at offset 10h from INT 41 are identical to the sixteen
-          bytes pointed at by INT 46
-        another arrangement for BIOSes which support four IDE drives is to have
-          four tables pointed at by INT 41 in the order primary master,
-          primary slave, secondary master, and secondary slave, in which case
-          (for example) a system with only primary master and secondary master
-          will have valid tables at offsets 00h and 20h, with garbage (but
-          sectors-per-track = 00h) at offsets 10h and 30h
-SeeAlso: #03196,INT 13/AH=09h,INT 1E,INT 46"HARD DISK 1",INT 60"Adaptec"
-SeeAlso: INT C0"AMI"
-
-Format of fixed disk parameters:
-Offset  Size    Description     (Table 03196)
- 00h    WORD    number of cylinders
- 02h    BYTE    number of heads
- 03h    WORD    starting reduced write current cylinder (XT only, 0 for others)
- 05h    WORD    starting write precompensation cylinder number
- 07h    BYTE    maximum ECC burst length (XT only)
- 08h    BYTE    control byte (see #03197,#03198)
- 09h    BYTE    standard timeout (XT only, 0 for others)
- 0Ah    BYTE    formatting timeout (XT and WD1002 only, 0 for others)
- 0Bh    BYTE    timeout for checking drive (XT and WD1002 only, 0 for others)
- 0Ch    WORD    cylinder number of landing zone (AT and later only)
- 0Eh    BYTE    number of sectors per track (AT and later only)
- 0Fh    BYTE    reserved
-SeeAlso: #00273,#00277
-
-Bitfields for XT fixed disk control byte:
-Bit(s)  Description     (Table 03197)
- 2-0    drive step speed
-        000  3ms
-        100  200ms
-        101  70ms (default)
-        110  3ms
-        111  3ms
- 5-3    unused
- 6      disable ECC retries
- 7      disable access retries
-
-Bitfields for AT fixed disk control byte:
-Bit(s)  Description     (Table 03198)
- 0      unused
- 1      reserved (0)  (disable IRQ)
- 2      reserved (0)  (no reset)
- 3      set if more than 8 heads
- 4      always 0
- 5      set if manufacturer's defect map on max cylinder+1  (AT and later only)
- 6      disable ECC retries
- 7      disable access retries
 --------h-41---------------------------------
 INT 41 - Z100 - Master 8259 - Processor Swap
 SeeAlso: INT 40"Z100",INT 42"Z100"
@@ -6656,10 +6585,6 @@ Bit(s)  Description     (Table 03202)
  5      no public write access
  6      not executable with public access
  7      not deletable with public access
---------B-46---------------------------------
-INT 46 - SYSTEM DATA - HARD DISK 1 DRIVE PARAMETER TABLE ADDRESS [NOT A VECTOR!]
-Note:   not used by some PS/2 models
-SeeAlso: INT 13/AH=09h,INT 41"HARD DISK 0",INT 60"Adaptec",INT C0"AMI"
 --------h-46---------------------------------
 INT 46 - Z100 - Master 8259 - Keyboard, Retrace, and Light Pen
 SeeAlso: INT 45"Z100",INT 47"Z100"
@@ -6797,17 +6722,6 @@ INT 47 - SQL Base - GET VERSION NUMBER
 Return: ???
 Program: SQL Base is a network-oriented database engine by Gupta Technologies
 SeeAlso: AX=8000h
---------B-48---------------------------------
-INT 48 - KEYBOARD - CORDLESS KEYBOARD TRANSLATION (PCjr)
-        AL = scan code???
-Note:   This interrupt may be un-initialized (0000h:0000h) on old machines.
-          This should be checked before calling or hooking this vector.
-        MS-DOS/PC DOS 3.3x-4.x KEYB hooked the INT 48h handler. For AL <= 80h
-          it checked that either ALT and neither CTRL key was pressed,
-          and in that case, it cleared the CTRL flag in the BIOS variable at
-          0040:0017h and stored its contents in an internal variable,
-          before continuing with the previous (non-zero) INT 48h handler.
-SeeAlso: INT 49"PCjr"
 --------h-48---------------------------------
 INT 48 - Z100 - Slave 8259 - S100 vectored line 0
 SeeAlso: INT 47"Z100",INT 49"Z100"
@@ -6989,16 +6903,6 @@ Values for UILIB call type:
  0001h  far
  0002h  INT (only valid call type when using INT 48)
  0003h  near
---------B-49---------------------------------
-INT 49 - SYSTEM DATA - NON-KEYBOARD SCAN-CODE TRANSLATION TABLE (PCjr)
-SeeAlso: #03208,INT 48"PCjr"
-
-Format of PCjr scan-code translation table:
-Offset  Size    Description     (Table 03208)
- 00h    BYTE    number of non-keyboard scancodes in the table
- 01h  N WORDs   high byte 00h (NUL) byte scancode with low order byte
-                  representing the scancode mapped values relative to their
-                  input values within the range of 56h through 7Eh
 --------h-49---------------------------------
 INT 49 - Z100 - Slave 8259 - S100 vectored line 1
 SeeAlso: INT 48"Z100",INT 4A"Z100"
@@ -7294,14 +7198,6 @@ Notes:  AH=00h,04h,05h,0Bh,0Ch,0Dh,0Fh are documented as NOPs
           which want to hook INT 49 must check for this function and emulate
           it, because the BIOS retrieves the caller's CS from the stack
 SeeAlso: AH=01h,AH=02h,AH=0Eh
---------B-4A---------------------------------
-INT 4A C - SYSTEM - USER ALARM HANDLER
-Desc:   This interrupt is invoked by the BIOS when a real-time clock alarm
-          occurs; an application may use it to perform an action at a
-          predetermined time.
-Note:   this interrupt is called from within a hardware interrupt handler,
-          so all usual precautions against reentering DOS must be taken
-SeeAlso: INT 1A/AH=06h
 --------h-4A---------------------------------
 INT 4A - Z100 - Slave 8259 - S100 vectored line 2
 SeeAlso: INT 49"Z100",INT 4B"Z100"
@@ -7905,161 +7801,6 @@ SeeAlso: INT 4C"Z100",INT 4E"Z100"
 --------s-4D---------------------------------
 INT 4D - IBM - M-Audio Adapter SUPPORT
         no details available; supposedly documented in IBM form G571-0203-01
---------B-4D00-------------------------------
-INT 4D - TI Professional PC - DISK - RESET DISK SYSTEM
-        AH = 00h
-        DL = drive (if bit 7 is set both hard disks and floppy disks reset)
-Return: AH = status (see #00234 at INT 13/AH=01h)
-        CF clear if successful (returned AH=00h)
-        CF set on error
-Note:   this function is the same as INT 13/AH=00h on a standard PC BIOS
-SeeAlso: AH=01h,AH=02h,AH=08h,AH=0Bh,INT 13/AH=00h,INT 46"TI Professional"
-SeeAlso: INT 48/AH=00h"TI Professional",INT 4A/AH=00h"TI"
---------B-4D01-------------------------------
-INT 4D - TI Professional PC - DISK - GET STATUS OF LAST OPERATION
-        AH = 01h
-        DL = drive (bit 7 set for hard disk)
-Return: CF clear if status unchanged
-        CF set if status changed since last call
-        AH = 00h
-        AL = status of previous operation (see #00234 at INT 13/AH=01h)
-Notes:  this function is nearly the same as INT 13/AH=01h on a standard PC BIOS
-        the TI's BIOS tranparently performs a number of retries, and an error
-          status is only reported if all of the retries fail.  To get the error
-          status if the operation succeeded on a retry, use AH=07h instead
-SeeAlso: AH=00h,AH=07h,INT 13/AH=01h
---------B-4D02-------------------------------
-INT 4D - TI Professional PC - DISK - READ SECTOR(S) INTO MEMORY
-        AH = 02h
-        AL = number of sectors to read (must be nonzero)
-        CH = low eight bits of cylinder number
-        CL = sector number 1-63 (bits 0-5)
-             high two bits of cylinder (bits 6-7, hard disk only)
-        DH = head number
-        DL = drive number (bit 7 set for hard disk)
-        ES:BX -> data buffer
-Return: CF set on error
-            if AH = 11h (corrected ECC error), AL = burst length
-        CF clear if successful
-        AH = status (see #00234 at INT 13/AH=01h)
-        AL = number of sectors transferred
-        ES:BX -> buffer for last sector processed (including one with errors)
-SeeAlso: AH=00h,AH=01h,AH=03h,AH=04h,INT 13/AH=02h
---------B-4D03-------------------------------
-INT 4D - TI Professional PC - DISK - WRITE SECTOR(S) FROM MEMORY
-        AH = 03h
-        AL = number of sectors to write (must be nonzero)
-        CH = low eight bits of cylinder number
-        CL = sector number 1-63 (bits 0-5)
-             high two bits of cylinder (bits 6-7, hard disk only)
-        DH = head number
-        DL = drive number (bit 7 set for hard disk)
-        ES:BX -> buffer containing data
-Return: CF set on error
-            if AH = 11h (corrected ECC error), AL = burst length
-        CF clear if successful
-        AH = status (see #00234 at INT 13/AH=01h)
-        AL = number of sectors transferred
-        ES:BX -> buffer for last sector processed (including one with errors)
-SeeAlso: AH=00h,AH=01h,AH=02h,AH=04h,INT 13/AH=03h
---------B-4D04-------------------------------
-INT 4D - TI Professional PC - DISK - VERIFY DISK SECTOR CRC(S)
-        AH = 04h
-        AL = number of sectors to verify (must be nonzero)
-        CH = low eight bits of cylinder number
-        CL = sector number 1-63 (bits 0-5)
-             high two bits of cylinder (bits 6-7, hard disk only)
-        DH = head number
-        DL = drive number (bit 7 set for hard disk)
-        ES:BX -> data buffer
-Return: CF set on error
-            if AH = 11h (corrected ECC error), AL = burst length
-        CF clear if successful
-        AH = status (see #00234 at INT 13/AH=01h)
-        AL = number of sectors transferred
-        ES:BX -> buffer for last sector processed (including one with errors)
-Note:   even though no data is transferred, ES:BX must still be valid
-SeeAlso: AH=00h,AH=01h,AH=02h,AH=06h,INT 13/AH=04h
---------B-4D05-------------------------------
-INT 4D - TI Professional PC - DISK - NOP
-        AH = 05h
-Note:   on the TI Pro, FORMAT.COM contains direct port I/O commands to perform
-          disk formatting, rather than using the BIOS
---------B-4D06-------------------------------
-INT 4D - TI Professional PC - DISK - VERIFY DISK SECTOR(S)
-        AH = 06h
-        AL = number of sectors to verify (must be nonzero)
-        CH = low eight bits of cylinder number
-        CL = sector number 1-63 (bits 0-5)
-             high two bits of cylinder (bits 6-7, hard disk only)
-        DH = head number
-        DL = drive number (bit 7 set for hard disk)
-        ES:BX -> data buffer
-Return: CF set on error
-            if AH = 11h (corrected ECC error), AL = burst length
-        CF clear if successful
-        AH = status (see #00234 at INT 13/AH=01h)
-        AL = number of sectors transferred
-        ES:BX -> buffer for last sector processed (including one with errors)
-Note:   even though no data is transferred, ES:BX must still be valid because
-          an actual comparison with disk data is performed, not just the CRC
-          check of the standard PC BIOS or INT 4D/AH=04h
-SeeAlso: AH=00h,AH=01h,AH=02h,AH=04h,INT 13/AH=04h
---------B-4D07-------------------------------
-INT 4D - TI Professional PC - DISK - GET RETRY STATUS OF LAST OPERATION
-        AH = 07h
-        DL = drive (bit 7 set for hard disk)
-Return: CF clear if status unchanged
-        CF set if status changed since last call
-        AH = 00h
-        AL = status of previous operation (see #00234 at INT 13/AH=01h)
-Notes:  this function is nearly the same as INT 13/AH=01h on a standard PC BIOS
-        the TI's BIOS tranparently performs a number of retries; this function
-          returns the error status of a failed operation even if the operation
-          succeeded on a retry
-SeeAlso: AH=00h,AH=01h,INT 13/AH=01h
---------B-4D08-------------------------------
-INT 4D - TI Professional PC - DISK - SET STANDARD DEVICE INTERFACE TABLE
-        AH = 08h
-        DL = drive number (00h-03h)
-        AL = drive type
-            00h single-sided 48 tpi (40-track, 8 sectors, 512 bytes/sector)
-            01h double-sided 48 tpi (40-track, 8 sectors, 512 bytes/sector)
-            02h single-sided 96 tpi (80-track, 8 sectors, 512 bytes/sector)
-            03h double-sided 96 tpi (80-track, 8 sectors, 512 bytes/sector)
-Return: nothing???
-SeeAlso: AH=00h,AH=09h
---------B-4D09-------------------------------
-INT 4D - TI Professional PC - DISK - SET DEVICE INTERFACE TABLE ADDRESS
-        AH = 09h
-        DL = drive number (00h-07h)
-        ES:BX -> Device Interface Table (see #03226)
-Return: nothing???
-SeeAlso: AH=00h,AH=08h,AH=0Ah,INT 1E
-
-Format of TI Professional PC Device Interface Table:
-Offset  Size    Description     (Table 03226)
- 00h    DWORD   -> entry point for disk routine
- 04h    WORD    bytes per sector
- 06h    BYTE    sectors per track
- 07h    BYTE    number of heads
- 08h    BYTE    number of cylinders
- 09h    BYTE    retry count
- 0Ah    BYTE    precompensation start
-SeeAlso: #01264 at INT 1E
---------B-4D0A-------------------------------
-INT 4D - TI Professional PC - DISK - GET DEVICE INTERFACE TABLE ADDRESS
-        AH = 0Ah
-        DL = drive number (00h-07h)
-Return: AH = status
-        ES:BX -> Device Interface Table (see #03226)
-SeeAlso: AH=00h,AH=08h,AH=09h,INT 1E
---------B-4D0B-------------------------------
-INT 4D - TI Professional PC - DISK - TURN OFF ALL DRIVES
-        AH = 0Bh
-Return: AH = 00h
-Note:   used for diagnostics or to conserve power
-SeeAlso: AH=00h
 --------h-4E---------------------------------
 INT 4E - Z100 - Slave 8259 - S100 vectored line 6
 SeeAlso: INT 4D"Z100",INT 4F"Z100"

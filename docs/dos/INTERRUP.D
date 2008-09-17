@@ -274,88 +274,6 @@ Return: CF clear if hardware already initialised
                 ...
                 bit 11: EC00-EFFF
         CF set if hardware not initialised yet
---------B-1600-------------------------------
-INT 16 - KEYBOARD - GET KEYSTROKE
-        AH = 00h
-Return: AH = BIOS scan code
-        AL = ASCII character
-Notes:  on extended keyboards, this function discards any extended keystrokes,
-          returning only when a non-extended keystroke is available
-        the BIOS scan code is usually, but not always, the same as the hardware
-          scan code processed by INT 09.  It is the same for ASCII keystrokes
-          and most unshifted special keys (F-keys, arrow keys, etc.), but
-          differs for shifted special keys
-        some (older) clone BIOSes do not discard extended keystrokes and manage
-          function AH=00h and AH=10h the same
-        the K3PLUS v6.00+ INT 16 BIOS replacement doesn't discard extended
-          keystrokes (same as with functions 10h and 20h), but will always
-          translate prefix E0h to 00h. This allows old programs to use extended
-          keystrokes and should not cause compatibility problems
-SeeAlso: AH=01h,AH=05h,AH=10h,AH=20h,AX=AF4Dh"K3PLUS",INT 18/AH=00h
-SeeAlso: INT 09,INT 15/AH=4Fh
---------B-1601-------------------------------
-INT 16 - KEYBOARD - CHECK FOR KEYSTROKE
-        AH = 01h
-Return: ZF set if no keystroke available
-        ZF clear if keystroke available
-            AH = BIOS scan code
-            AL = ASCII character
-Note:   if a keystroke is present, it is not removed from the keyboard buffer;
-          however, any extended keystrokes which are not compatible with 83/84-
-          key keyboards are removed by IBM and most fully-compatible BIOSes in
-          the process of checking whether a non-extended keystroke is available
-        some (older) clone BIOSes do not discard extended keystrokes and manage
-          function AH=00h and AH=10h the same
-        the K3PLUS v6.00+ INT 16 BIOS replacement doesn't discard extended
-          keystrokes (same as with functions 10h and 20h), but will always
-          translate prefix E0h to 00h. This allows old programs to use extended
-          keystrokes and should not cause compatibility problems
-SeeAlso: AH=00h,AH=11h,AH=21h,INT 18/AH=01h,INT 09,INT 15/AH=4Fh
---------B-1602-------------------------------
-INT 16 - KEYBOARD - GET SHIFT FLAGS
-        AH = 02h
-Return: AL = shift flags (see #00582)
-        AH destroyed by many BIOSes
-SeeAlso: AH=12h,AH=22h,INT 17/AH=0Dh,INT 18/AH=02h,MEM 0040h:0017h
-
-Bitfields for keyboard shift flags:
-Bit(s)  Description     (Table 00582)
- 7      Insert active
- 6      CapsLock active
- 5      NumLock active
- 4      ScrollLock active
- 3      Alt key pressed (either Alt on 101/102-key keyboards)
- 2      Ctrl key pressed (either Ctrl on 101/102-key keyboards)
- 1      left shift key pressed
- 0      right shift key pressed
-SeeAlso: #00587,#03743,MEM 0040h:0017h,#M0010
---------B-1603-------------------------------
-INT 16 - KEYBOARD - SET TYPEMATIC RATE AND DELAY
-        AH = 03h
-        AL = subfunction
-            00h set default delay and rate (PCjr and some PS/2)
-            01h increase delay before repeat (PCjr)
-            02h decrease repeat rate by factor of 2 (PCjr)
-            03h increase delay and decrease repeat rate (PCjr)
-            04h turn off typematic repeat (PCjr and some PS/2)
-            05h set repeat rate and delay (AT,PS)
-                BH = delay value (00h = 250ms to 03h = 1000ms)
-                BL = repeat rate (00h=30/sec to 0Ch=10/sec [def] to 1Fh=2/sec)
-            06h get current typematic rate and delay (newer PS/2s)
-                Return: BL = repeat rate (above)
-                        BH = delay (above)
-Return: AH destroyed by many BIOSes
-Note:   use INT 16/AH=09h to determine whether some of the subfunctions are
-          supported
-SeeAlso: INT 16/AH=09h,AH=29h"HUNTER",AH=2Ah"HUNTER"
---------B-1604-------------------------------
-INT 16 - KEYBOARD - SET KEYCLICK (PCjr only)
-        AH = 04h
-        AL = keyclick state
-            00h off
-            01h on
-Return: AH destroyed by many BIOSes
-SeeAlso: AH=03h,AH=04h"K3PLUS"
 --------b-1604-------------------------------
 INT 16 - Tandy 2000 - KEYBOARD - FLUSH KEYBOARD BUFFER
         AH = 04h
@@ -377,49 +295,6 @@ Note:   Applications which try to set a new loudness, but are unsure of the
           loudness first, and then call this function again with AL=01h or
           AL=00h
 SeeAlso: AH=03h,AH=04h"KEYBOARD",AX=AF4Dh
---------B-1605-------------------------------
-INT 16 - KEYBOARD - STORE KEYSTROKE IN KEYBOARD BUFFER (AT/PS w enh keybd only)
-        AH = 05h
-        CH = BIOS scan code
-        CL = ASCII character
-Return: AL = status
-            00h if successful
-            01h if keyboard buffer full
-        AH destroyed by many BIOSes
-Notes:  under DESQview, a number of "keystrokes" invoke specific
-          DESQview-related actions when they are read from the keyboard
-          buffer (see #00583)
-        similarly, some "keystrokes" invoke special functions on the HP 100LX
-          and HP 200LX (see #00584)
-SeeAlso: AH=00h,AH=25h"K3",AH=71h,AX=AF4Dh,AH=FFh,INT 15/AX=DE10h
-SeeAlso: MEM 0040h:001Eh
-
-(Table 00583)
-Values for pseudo-keystrokes for DESQview:
- 38FBh or FB00h switch to next window (only if main menu already popped up)
- 38FCh or FC00h pop up DESQview main menu
- 38FEh or FE00h close the current window
- 38FFh or FF00h pop up DESQview learn menu
-
-(Table 00584)
-Values for pseudo-keystrokes for HP 100LX/200LX:
- EE00h  pop up topcard display and set other system manager applications
-          into sleep mode
---------B-1605-------------------------------
-INT 16 - KEYBOARD - SELECT KEYBOARD LAYOUT (PCjr only)
-        AH = 05h
-        AL = function
-            01h set keyboard layout to French
-            02h set keyboard layout to German
-            03h set keyboard layout to Italian
-            04h set keyboard layout to Spanish
-            05h set keyboard layout to UK
-            80h check if function supported
-                Return: AL <> 80h if supported
-Return: ???
-        AH destroyed by many BIOSes
-Note:   this function is called by the DOS 3.2 KEYBxx.COM
-SeeAlso: AH=92h,AH=A2h,AX=AF4Dh
 --------b-1605-------------------------------
 INT 16 - Tandy 2000 - KEYBOARD - RESET KEYBOARD
         AH = 05h
@@ -464,26 +339,6 @@ INT 16 - AAKEYS - EMPTY BIOS KEYBOARD BUFFER
         AX = 0604h
 Return: AX destroyed
 SeeAlso: AX=0600h,AX=0601h,AX=0602h,AX=0603h
---------B-1609-------------------------------
-INT 16 - KEYBOARD - GET KEYBOARD FUNCTIONALITY
-        AH = 09h
-Return: AL = supported keyboard functions (see #00585)
-        AH destroyed by many BIOSes
-Note:   this function is only available if bit 6 of the second feature byte
-          returned by INT 15/AH=C0h is set (see #00509)
-SeeAlso: AH=03h,AH=0Ah,AH=10h,AH=11h,AH=12h,AH=20h,AH=21h,AH=22h,INT 15/AH=C0h
-
-Bitfields for supported keyboard functions:
-Bit(s)  Description     (Table 00585)
- 7      reserved
- 6      INT 16/AH=20h-22h supported (122-key keyboard support)
- 5      INT 16/AH=10h-12h supported (enhanced keyboard support)
- 4      INT 16/AH=0Ah supported
- 3      INT 16/AX=0306h supported
- 2      INT 16/AX=0305h supported
- 1      INT 16/AX=0304h supported
- 0      INT 16/AX=0300h supported
-SeeAlso: #00511
 --------K-160A-------------------------------
 INT 16 - KEYBOARD - GET KEYBOARD ID
         AH = 0Ah
@@ -508,73 +363,6 @@ Values for keyboard ID:
  90ABh  old Japanese "G" keyboard
  91ABh  old Japanese "P" keyboard
  92ABh  old Japanese "A" keyboard
---------B-1610-------------------------------
-INT 16 - KEYBOARD - GET ENHANCED KEYSTROKE (enhanced kbd support only)
-        AH = 10h
-Return: AH = BIOS scan code
-        AL = ASCII character
-Notes:  if no keystroke is available, this function waits until one is placed
-          in the keyboard buffer
-        the BIOS scan code is usually, but not always, the same as the hardware
-          scan code processed by INT 09.  It is the same for ASCII keystrokes
-          and most unshifted special keys (F-keys, arrow keys, etc.), but
-          differs for shifted special keys.
-        unlike AH=00h, this function does not discard extended keystrokes
-        INT 16/AH=09h can be used to determine whether this function is
-          supported, but only on later model PS/2s
-SeeAlso: AH=00h,AH=09h,AH=11h,AH=20h,MEM 0040h:0019h,MEM 0040h:001Eh
---------B-1611-------------------------------
-INT 16 - KEYBOARD - CHECK FOR ENHANCED KEYSTROKE (enh kbd support only)
-        AH = 11h
-Return: ZF set if no keystroke available
-        ZF clear if keystroke available
-            AH = BIOS scan code
-            AL = ASCII character
-Notes:  if a keystroke is available, it is not removed from the keyboard buffer
-        unlike AH=01h, this function does not discard extended keystrokes
-        some versions of the IBM BIOS Technical Reference erroneously report
-          that CF is returned instead of ZF
-        INT 16/AH=09h can be used to determine whether this function is
-          supported, but only on later model PS/2s
-SeeAlso: AH=01h,AH=09h,AH=10h,AH=21h,INT 09,INT 15/AH=4Fh
---------B-1612-------------------------------
-INT 16 - KEYBOARD - GET EXTENDED SHIFT STATES (enh kbd support only)
-        AH = 12h
-Return: AL = shift flags 1 (same as returned by AH=02h) (see #00587)
-        AH = shift flags 2 (see #00588)
-Notes:  AL bit 3 set only for left Alt key on many machines
-        AH bits 7 through 4 always clear on a Compaq SLT/286
-        INT 16/AH=09h can be used to determine whether this function is
-          supported, but only on later model PS/2s
-        many BIOSes (including at least some versions of Phoenix and AMI) will
-          destroy AH on return from functions higher than AH=12h, returning
-          12h less than was in AH on entry (due to a chain of DEC/JZ
-          instructions)
-SeeAlso: AH=02h,AH=09h,AH=22h,AH=51h,INT 17/AH=0Dh,MEM 0040h:0017h
-
-Bitfields for keyboard shift flags 1:
-Bit(s)  Description     (Table 00587)
- 7      Insert active
- 6      CapsLock active
- 5      NumLock active
- 4      ScrollLock active
- 3      Alt key pressed (either Alt on 101/102-key keyboards)
- 2      Ctrl key pressed (either Ctrl on 101/102-key keyboards)
- 1      left shift key pressed
- 0      right shift key pressed
-SeeAlso: #00582,#00588,MEM 0040h:0017h,#M0010
-
-Bitfields for keyboard shift flags 2:
-Bit(s)  Description     (Table 00588)
- 7      SysReq key pressed (SysReq is often labeled SysRq)
- 6      CapsLock pressed
- 5      NumLock pressed
- 4      ScrollLock pressed
- 3      right Alt key pressed
- 2      right Ctrl key pressed
- 1      left Alt key pressed
- 0      left Ctrl key pressed
-SeeAlso: #00587,MEM 0040h:0018h,#M0011
 --------J-1613-------------------------------
 INT 16 - DOS/V - DOUBLE-BYTE CHARACTER SET SHIFT CONTROL
         AH = 13h
@@ -607,13 +395,6 @@ INT 16 - DOS/V - SHIFT STATUS DISPLAY CONTROL
 Desc:   control the screen-bottom shift status row(s) for the Japanese
           Front-End Processor
 SeeAlso: AH=13h,INT 10/AH=19h,INT 10/AH=1Dh
---------B-1620-------------------------------
-INT 16 - KEYBOARD - GET 122-KEY KEYSTROKE (122-key kbd support only)
-        AH = 20h
-Return: AH = BIOS scan code (see AH=10h)
-        AL = ASCII character
-Note:   use AH=09h to determine whether this function is supported
-SeeAlso: AH=00h,AH=09h,AH=10h,AH=21h,AH=22h
 --------b-1620------------------------------------
 INT 16 - HUNTER 16 - SET TEMPORARY SHIFT
         AH = 20h
@@ -642,18 +423,6 @@ Program: K3PLUS is an extended keyboard driver by Matthias Paul and Axel C.
 Note:   this function was normally unsupported under K3PLUS v6.00-v6.22 and
           is no longer supported by v6.30+; use AX=AF20h instead
 SeeAlso: AH=25h"K3",AX=AF20h,INT 2F/AX=D44Fh/BX=0000h,INT 2F/AX=ED58h
---------B-1621-------------------------------
-INT 16 - KEYBOARD - CHECK FOR 122-KEY KEYSTROKE (122-key kbd support only)
-        AH = 21h
-Return: ZF set if no keystroke available
-        ZF clear if keystroke available
-            AH = BIOS scan code
-            AL = ASCII character
-Notes:  use AH=09h to determine whether this function is supported
-        some versions of the IBM BIOS Technical Reference erroneously report
-          that CF is returned instead of ZF
-        K3PLUS v6.00+ supports this function as an alias of AH=11h
-SeeAlso: AH=01h,AH=09h,AH=11h,AH=20h,AH=21h
 --------b-1621------------------------------------
 INT 16 - HUNTER 16 - CONTROL SHIFT KEYS
         AH = 21h
@@ -662,14 +431,6 @@ INT 16 - HUNTER 16 - CONTROL SHIFT KEYS
 Note:   If a bit in AL is set the key is disabled and set to the state of the
           corresponding bit in BL
 SeeAlso: AH=20h"HUNTER",AH=22h"HUNTER"
---------B-1622-------------------------------
-INT 16 - KEYBOARD - GET 122-KEY SHIFT STATUS (122-key kbd support only)
-        AH = 22h
-Return: AL = shift flags 1 (see #00587)
-        AH = shift flags 2 (see #00588)
-Notes:  use AH=09h to determine whether this function is supported
-        K3PLUS v6.00+ supports this function as an alias of AH=12h
-SeeAlso: AH=02h,AH=09h,AH=12h,AH=20h,AH=21h
 --------b-1622------------------------------------
 INT 16 - HUNTER 16 - CONTROL CTRL-ALT-DEL
         AH = 22h
@@ -3696,55 +3457,6 @@ INT 17 - PRINTER - LPTx v4.x INSTALLATION CHECK
 Return: AX = AAAAh
         DX = F555h
         ES = code segment of resident portion
---------B-1700-------------------------------
-INT 17 - PRINTER - WRITE CHARACTER
-        AH = 00h
-        AL = character to write
-        DX = printer number (00h-02h)
-Return: AH = printer status (see #00631)
-Note:   Under PhysTechSoft's PTS ROM-DOS the parallel port can also be
-          accessed as COM5.
-BUGS:   Some print spoolers trash the BX register on return.
-        Some original IBM BIOSes set more than one printer status bits at
-          a time, while only one of them is correct.
-SeeAlso: AH=02h,AH=84h"AX",AX=6F02h,AH=F1h,INT 16/AX=FFE3h,INT 1A/AH=11h"NEC"
-SeeAlso: INT 4B/AH=00h,PORT 0278h"PRINTER",MEM 0040h:0008h,MEM 0040h:0078h
-
-Bitfields for printer status:
-Bit(s)  Description     (Table 00631)
- 7      not busy
- 6      acknowledge
- 5      out of paper
- 4      selected
- 3      I/O error
- 2-1    unused
- 0      timeout
-Notes:  If both, bit 5 "out of paper" and 4 "selected" are set, the MS-DOS/
-          PC DOS kernel assumes that no printer is attached.
-        for Tandy 2000, bit 7 indicates printer-busy when set rather than clear
---------B-1701-------------------------------
-INT 17 - PRINTER - INITIALIZE PORT
-        AH = 01h
-        DX = printer number (00h-02h)
-Return: AH = printer status (see #00631)
-Note:   some printers report that they are ready immediately after
-          initialization when they actually are not; a more reliable result may
-          be obtained by calling AH=02h after a brief delay
-SeeAlso: AH=02h,AH=FFh"PC-MOS",INT 1A/AH=10h"NEC",INT 4B/AH=01h
---------B-1702-------------------------------
-INT 17 - PRINTER - GET STATUS
-        AH = 02h
-        DX = printer number (00h-02h)
-Return: AH = printer status (see #00631)
-Note:   PRINTFIX from MS-DOS 5.0 hooks this function and always returns AH=90h
-SeeAlso: AH=01h,AH=F2h,INT 1A/AH=12h"NEC",INT 4B/AH=02h
---------P-1702--DX0000-----------------------
-INT 17 - INSET - INSTALLATION CHECK
-        AH = 02h
-        DX = 0000h
-        CX = 07C3h (1987d)
-Return: CX = 07C2h (1986d) if installed
-Program: INSET is a text/graphics integration program
 --------b-170200BX5050-----------------------
 INT 17 - Enhanced Parallel Port (EPP) BIOS - INSTALLATION CHECK
         AX = 0200h
@@ -5229,24 +4941,6 @@ Program: PC-MOS/386 v5.01 is a multitasking, multiuser MS-DOS 5.0-compatible
 Desc:   close the spool file immediately instead of waiting for the close time
           to elapse
 SeeAlso: AH=01h,AH=03h"PC-MOS"
---------B-18---------------------------------
-INT 18 - DISKLESS BOOT HOOK (START CASSETTE BASIC)
-Desc:   called when there is no bootable disk available to the system
-Notes:  very few PCs other than those produced by IBM contain BASIC in ROM, so
-          the action is unpredictable on compatibles; this interrupt often
-          reboots the system, and often has no effect at all
-        some PC and XT clones had an optional IBM CASSETTE BASIC stored
-          in the ROM, too.
-        most BIOSes will display an error message similar to "NO BASIC", and
-          either reboot or return to the caller.
-        PS/2 machines usually pop up a graphical box to the effect that
-          the user should enter a floppy and press F1.
-        Some clones display the message "No boot device available,
-          strike F1 to retry, F2 for setup utility"
-        network cards with their own BIOS can hook this interrupt to allow
-          a diskless boot off the network (even when a hard disk is present
-          if none of the partitions is marked as the boot partition)
-SeeAlso: INT 2F/AX=4A06h,INT 86"NetBIOS",INT 2F/AX=4A06h,INT 2F/AX=4A07h
 --------J-1800-------------------------------
 INT 18 - NEC PC-9800 series - KEYBOARD - GET KEYSTROKE
         AH = 00h
@@ -5468,302 +5162,6 @@ INT 18 - Gravis Ultra Sound EURO_MOD.EXE - STOP PLAYING
 INT 18 - Gravis Ultra Sound EURO_MOD.EXE - SHUTDOWN
         AX = 8004h
 SeeAlso: AX=8000h,AX=8003h
---------B-19---------------------------------
-INT 19 - SYSTEM - BOOTSTRAP LOADER
-Desc:   This interrupt reboots the system without clearing memory or restoring
-          interrupt vectors.  Because interrupt vectors are preserved, this
-          interrupt usually causes a system hang if any TSRs have hooked
-          vectors from 00h through 1Ch, particularly INT 08.
-Notes:  Usually, the BIOS will try to read sector 1, head 0, track 0 from drive
-          A: to 0000h:7C00h.  If this fails, and a hard disk is installed, the
-          BIOS will read sector 1, head 0, track 0 of the first hard disk.
-          This sector should contain a master bootstrap loader and a partition
-          table (see #00650).  After loading the master boot sector at
-          0000h:7C00h, the master bootstrap loader is given control
-          (see #00653). It will scan the partition table for an active
-          partition, and will then load the operating system's bootstrap
-          loader (contained in the first sector of the active partition) and
-          give it control.
-        true IBM PCs and most clones issue an INT 18 if neither floppy nor hard
-          disk have a valid boot sector
-        to accomplish a warm boot equivalent to Ctrl-Alt-Del, store 1234h in
-          0040h:0072h and jump to FFFFh:0000h.  For a cold boot equivalent to
-          a reset, store 0000h at 0040h:0072h before jumping.
-        VDISK.SYS hooks this interrupt to allow applications to find out how
-          much extended memory has been used by VDISKs (see #00649).  DOS 3.3+
-          PRINT hooks INT 19 but does not set up a correct VDISK header block
-          at the beginning of its INT 19 handler segment, thus causing some
-          programs to overwrite extended memory which is already in use.
-        the default handler is at F000h:E6F2h for 100% compatible BIOSes
-        MS-DOS 3.2+ hangs on booting (even from floppy) if the hard disk
-          contains extended partitions which point at each other in a loop,
-          since it will never find the end of the linked list of extended
-          partitions
-        under Windows Real and Enhanced modes, calling INT 19 will hang the
-          system in the same was as under bare DOS; under Windows Standard
-          mode, INT 19 will successfully perform a cold reboot as it appears
-          to have been redirected to a MOV AL,0FEh/OUT 64h,AL sequence
-BUG:    when loading the remainder of the DOS system files fails, various
-          versions of IBMBIO.COM/IO.SYS incorrectly restore INT 1E before
-          calling INT 19, assuming that the boot sector had stored the
-          contents of INT 1E at DS:SI instead of on the stack as it actually
-          does
-SeeAlso: INT 14/AH=17h,INT 18"BOOT HOOK",INT 49"Tandy 2000",INT 5B"PC Cluster"
-SeeAlso: MEM 0040h:0067h,MEM F000h:FFF0h,CMOS 0Fh
-
-Format of VDISK header block (at beginning of INT 19 handler's segment):
-Offset  Size    Description     (Table 00649)
- 00h 18 BYTEs   n/a (for VDISK.SYS, the device driver header)
- 12h 11 BYTEs   signature string "VDISK  Vn.m" for VDISK.SYS version n.m
- 1Dh 15 BYTEs   n/a
- 2Ch  3 BYTEs   linear address of first byte of available extended memory
-
-Format of hard disk master boot sector:
-Offset  Size    Description     (Table 00650)
- 00h 446 BYTEs  Master bootstrap loader code
-1BEh 16 BYTEs   partition record for partition 1 (see #00651)
-1CEh 16 BYTEs   partition record for partition 2
-1DEh 16 BYTEs   partition record for partition 3
-1EEh 16 BYTEs   partition record for partition 4
-1FEh    WORD    signature, AA55h indicates valid boot block
-
-Format of partition record:
-Offset  Size    Description     (Table 00651)
- 00h    BYTE    boot indicator (80h = active partition)
- 01h    BYTE    partition start head
- 02h    BYTE    partition start sector (bits 0-5)
- 03h    BYTE    partition start track (bits 8,9 in bits 6,7 of sector)
- 04h    BYTE    operating system indicator (see #00652)
- 05h    BYTE    partition end head
- 06h    BYTE    partition end sector (bits 0-5)
- 07h    BYTE    partition end track (bits 8,9 in bits 6,7 of sector)
- 08h    DWORD   sectors preceding partition
- 0Ch    DWORD   length of partition in sectors
-SeeAlso: #00650
-
-(Table 00652)
-Values for operating system indicator:
- 00h    empty partition-table entry
- 01h    DOS 12-bit FAT
- 02h    XENIX root file system
- 03h    XENIX /usr file system (obsolete)
- 04h    DOS 16-bit FAT (up to 32M)
- 05h    DOS 3.3+ extended partition
- 06h    DOS 3.31+ Large File System (16-bit FAT, over 32M)
- 07h    QNX
- 07h    OS/2 HPFS
- 07h    Windows NT NTFS
- 07h    Advanced Unix
- 07h    see partition boot record; could be any of the above or others
- 08h    OS/2 (v1.0-1.3 only)
- 08h    AIX bootable partition, SplitDrive
- 08h    Commodore DOS
- 08h    DELL partition spanning multiple drives
- 09h    AIX data partition
- 09h    Coherent filesystem
- 0Ah    OS/2 Boot Manager
- 0Ah    OPUS
- 0Ah    Coherent swap partition
- 0Bh    Windows95 with 32-bit FAT
- 0Ch    Windows95 with 32-bit FAT (using LBA-mode INT 13 extensions)
- 0Eh    logical-block-addressable VFAT (same as 06h but using LBA-mode INT 13)
- 0Fh    logical-block-addressable VFAT (same as 05h but using LBA-mode INT 13)
- 10h    OPUS
- 11h    OS/2 Boot Manager hidden 12-bit FAT partition
- 12h    Compaq Diagnostics partition
- 14h    (resulted from using Novell DOS 7.0 FDISK to delete Linux Native part)
- 14h    OS/2 Boot Manager hidden sub-32M 16-bit FAT partition
- 16h    OS/2 Boot Manager hidden over-32M 16-bit FAT partition
- 17h    OS/2 Boot Manager hidden HPFS partition
- 17h    hidden NTFS partition
- 18h    AST special Windows swap file ("Zero-Volt Suspend" partition)
- 19h    Willowtech Photon coS
- 1Bh    hidden Windows95 FAT32 partition
- 1Ch    hidden Windows95 FAT32 partition (using LBA-mode INT 13 extensions)
- 1Eh    hidden LBA VFAT partition
- 20h    Willowsoft Overture File System (OFS1)
- 21h    officially listed as reserved
- 21h    FSo2
- 23h    officially listed as reserved
- 24h    NEC MS-DOS 3.x
- 26h    officially listed as reserved
- 31h    officially listed as reserved
- 33h    officially listed as reserved
- 34h    officially listed as reserved
- 36h    officially listed as reserved
- 38h    Theos
- 3Ch    PowerQuest PartitionMagic recovery partition
- 40h    VENIX 80286
- 41h    Personal RISC Boot
- 41h    PowerPC boot partition
- 42h    SFS (Secure File System) by Peter Gutmann
- 45h    EUMEL/Elan
- 46h    EUMEL/Elan
- 47h    EUMEL/Elan
- 48h    EUMEL/Elan
- 4Fh    Oberon boot/data partition
- 50h    OnTrack Disk Manager, read-only partition
- 51h    OnTrack Disk Manager, read/write partition
- 51h    NOVELL
- 52h    CP/M
- 52h    Microport System V/386
- 53h    OnTrack Disk Manager, write-only partition???
- 54h    OnTrack Disk Manager (DDO)
- 55h    EZ-Drive (see also INT 13/AH=FFh"EZ-Drive")
- 56h    GoldenBow VFeature
- 5Ch    Priam EDISK
- 61h    SpeedStor
- 63h    Unix SysV/386, 386/ix
- 63h    Mach, MtXinu BSD 4.3 on Mach
- 63h    GNU HURD
- 64h    Novell NetWare 286
- 64h    SpeedStore
- 65h    Novell NetWare (3.11)
- 67h    Novell
- 68h    Novell
- 69h    Novell
- 70h    DiskSecure Multi-Boot
- 71h    officially listed as reserved
- 73h    officially listed as reserved
- 74h    officially listed as reserved
- 75h    PC/IX
- 76h    officially listed as reserved
- 7Eh    F.I.X.
- 80h    Minix v1.1 - 1.4a
- 81h    Minix v1.4b+
- 81h    Linux
- 81h    Mitac Advanced Disk Manager
- 82h    Linux Swap partition
- 82h    Prime
- 82h    Solaris (Unix)
- 83h    Linux native file system (ext2fs/xiafs)
- 84h    OS/2-renumbered type 04h partition (related to hiding DOS C: drive)
- 85h    Linux EXT
- 86h    FAT16 volume/stripe set (Windows NT)
- 87h    HPFS Fault-Tolerant mirrored partition
- 87h    NTFS volume/stripe set
- 93h    Amoeba file system
- 94h    Amoeba bad block table
- 98h    Datalight ROM-DOS SuperBoot
- 99h    Mylex EISA SCSI
- A0h    Phoenix NoteBIOS Power Management "Save-to-Disk" partition
- A1h    officially listed as reserved
- A3h    officially listed as reserved
- A4h    officially listed as reserved
- A5h    FreeBSD, BSD/386
- A6h    OpenBSD
- A9h    NetBSD (http://www.netbsd.org/)
- B1h    officially listed as reserved
- B3h    officially listed as reserved
- B4h    officially listed as reserved
- B6h    officially listed as reserved
- B6h    Windows NT mirror set (master), FAT16 file system
- B7h    BSDI file system (secondarily swap)
- B7h    Windows NT mirror set (master), NTFS file system
- B8h    BSDI swap partition (secondarily file system)
- BEh    Solaris boot partition
- C0h    DR DOS/DR-DOS/Novell DOS secured partition
- C0h    CTOS
- C1h    DR DOS 6.0 LOGIN.EXE-secured 12-bit FAT partition
- C4h    DR DOS 6.0 LOGIN.EXE-secured 16-bit FAT partition
- C6h    DR DOS 6.0 LOGIN.EXE-secured Huge partition
- C6h    corrupted FAT16 volume/stripe set (Windows NT)
- C6h    Windows NT mirror set (slave), FAT16 file system
- C7h    Syrinx Boot
- C7h    corrupted NTFS volume/stripe set
- C7h    Windows NT mirror set (slave), NTFS file system
- CBh    Reserved for DR DOS/DR-DOS/OpenDOS secured FAT32
- CCh    Reserved for DR DOS/DR-DOS secured FAT32 (LBA)
- CEh    Reserved for DR DOS/DR-DOS secured FAT16 (LBA)
- D0h    Multiuser DOS secured FAT12
- D1h    Old Multiuser DOS secured FAT12
- D4h    Old Multiuser DOS secured FAT16 (<= 32M)
- D5h    Old Multiuser DOS secured extended partition
- D6h    Old Multiuser DOS secured FAT16 (> 32M)
- D8h    CP/M-86
- DBh    CP/M, Concurrent CP/M, Concurrent DOS
- DBh    CTOS (Convergent Technologies OS)
- E1h    SpeedStor 12-bit FAT extended partition
- E2h    DOS read-only (Florian Painke's XFDISK 1.0.4)
- E3h    DOS read-only
- E3h    Storage Dimensions
- E4h    SpeedStor 16-bit FAT extended partition
- E5h    officially listed as reserved
- E6h    officially listed as reserved
- EBh    BeOS BFS (BFS1)
- F1h    Storage Dimensions
- F2h    DOS 3.3+ secondary partition
- F3h    officially listed as reserved
- F4h    SpeedStor
- F4h    Storage Dimensions
- F5h    Prologue
- F6h    officially listed as reserved
- FEh    LANstep
- FEh    IBM PS/2 IML (Initial Microcode Load) partition
- FFh    Xenix bad block table
-Note:   for partition type 07h, one should inspect the partition boot record
-          for the actual file system type
-SeeAlso: #00651
-
-(Table 00653)
-Values Bootstrap loader is called with (IBM BIOS):
-        CS:IP = 0000h:7C00h
-        DH = access
-            bits 7-6,4-0: don't care
-            bit 5: =0 device supported by INT 13
-        DL = boot drive
-            00h first floppy
-            80h first hard disk
---------B-1A00-------------------------------
-INT 1A - TIME - GET SYSTEM TIME
-        AH = 00h
-Return: CX:DX = number of clock ticks since midnight
-        AL = midnight flag, nonzero if midnight passed since time last read
-Notes:  there are approximately 18.2 clock ticks per second, 1800B0h per 24 hrs
-          (except on Tandy 2000, where the clock runs at 20 ticks per second)
-        IBM and many clone BIOSes set the flag for AL rather than incrementing
-          it, leading to loss of a day if two consecutive midnights pass
-          without a request for the time (e.g. if the system is on but idle)
-        since the midnight flag is cleared, if an application calls this
-          function after midnight before DOS does, DOS will not receive the
-          midnight flag and will fail to advance the date
-        Modern releases of MS-DOS/PC DOS (5.0+???) assume that AL is a day
-          rollover counter rather than a flag, as expected by older releases.
-          DOS 5 - 7.10 (Windows 98 SE) provide an undocumented CONFIG.SYS
-          SWITCHES=/T option to force the old behaviour of the day advancing
-          code, that is using a flag instead of a counter.
-        DR DOS 3.31 - DR-DOS 7.03 handle AL as a flag.
-SeeAlso: AH=01h,AH=02h,INT 21/AH=2Ch,INT 55"Tandy 2000",INT 4E/AH=02h"TI"
-SeeAlso: INT 62/AX=0099h,MEM 0040h:006Ch,MEM 0040h:0070h
---------B-1A01-------------------------------
-INT 1A - TIME - SET SYSTEM TIME
-        AH = 01h
-        CX:DX = number of clock ticks since midnight
-Return: nothing
-Notes:  there are approximately 18.2 clock ticks per second, 1800B0h per 24 hrs
-          (except on Tandy 2000, where the clock runs at 20 ticks per second)
-        this call resets the midnight-passed flag
-SeeAlso: AH=00h,AH=03h,INT 21/AH=2Dh
---------B-1A02-------------------------------
-INT 1A - TIME - GET REAL-TIME CLOCK TIME (AT,XT286,PS)
-        AH = 02h
-        CF clear to avoid bug (see below)
-Return: CF clear if successful
-            CH = hour (BCD)
-            CL = minutes (BCD)
-            DH = seconds (BCD)
-            DL = daylight savings flag (00h standard time, 01h daylight time)
-        CF set on error (i.e. clock not running or in middle of update)
-Notes:  this function is also supported by the Sperry PC, which predates the
-          IBM AT; the data is returned in binary rather than BCD on the Sperry,
-          and DL is always 00h
-        MS-DOS/PC DOS IO.SYS/IBMBIO.COM use this function to detect if a RTC
-          is preset by checking if the returned values are non-zero. If they
-          are, this function is called one more time, before it is assumed
-          that no RTC is present.
-BUG:    some BIOSes leave CF unchanged if successful, so CF should be cleared
-          before calling this function
-SeeAlso: AH=00h,AH=03h,AH=04h,INT 21/AH=2Ch
 --------b-1A02-------------------------------
 INT 1A - Tandy 2000 - TIME - GET DATE AND TIME
         AH = 02h
@@ -5773,18 +5171,6 @@ Return: BX = number of days since January 1, 1980
         DH = seconds
         DL = hundredths
 SeeAlso: AH=03h"Tandy 2000",INT 55"Tandy 2000"
---------B-1A03-------------------------------
-INT 1A - TIME - SET REAL-TIME CLOCK TIME (AT,XT286,PS)
-        AH = 03h
-        CH = hour (BCD)
-        CL = minutes (BCD)
-        DH = seconds (BCD)
-        DL = daylight savings flag (00h standard time, 01h daylight time)
-Return: nothing
-Note:   this function is also supported by the Sperry PC, which predates the
-          IBM AT; the data is specified in binary rather than BCD on the
-          Sperry, and the value of DL is ignored
-SeeAlso: AH=01h,AH=03h,AH=05h,INT 21/AH=2Dh,INT 4B/AH=01h
 --------b-1A03-------------------------------
 INT 1A - Tandy 2000 - TIME - SET DATE AND TIME
         AH = 03h
@@ -5795,42 +5181,6 @@ INT 1A - Tandy 2000 - TIME - SET DATE AND TIME
         DL = hundredths
 Return: nothing
 SeeAlso: AH=02h"Tandy 2000",INT 55"Tandy 2000"
---------B-1A04-------------------------------
-INT 1A - TIME - GET REAL-TIME CLOCK DATE (AT,XT286,PS)
-        AH = 04h
-        CF clear to avoid bug (see below)
-Return: CF clear if successful
-            CH = century (BCD)
-            CL = year (BCD)
-            DH = month (BCD)
-            DL = day (BCD)
-        CF set on error
-Notes:  DR-DOS 7.02 (after 1998-06-06) and 7.03 hook this function and correct
-          the century to 20xx if the reported year is 1900..1980 to auto-fix
-          ROM-BIOSes which are not Year 2000 compliant. On a running system,
-          it would also correct the rollover bug from 1999/12/31 to 2000/01/01.
-          The latter can be turned off using the new CONFIG.SYS YEAR2000=ON|OFF
-          command, as hooking INT 1Ah can sometimes cause compatibility
-          problems with 3rd party software, e.g. NCR/Symbios/LSI Logic-based
-          SDMS PCI SCSI drivers (including all OEM drivers like from Asus,
-          Noma, etc.), some Flash-BIOS software like Asus PFLASH, Quarterdeck's
-          QEMM Stealth and Quick-Boot features.
-        Using EXCLUDESTEALTHINT=1A, though, will allow QEMM's Stealth features
-          to coexist with the DR-DOS Year 2000 rollover support.
-        Actually, the Y2K-fix is provided since OpenDOS 7.02 BETA 2+
-          (1997-08-13), but although these older releases corrected the
-          ROM-BIOS, they didn't pass all Y2K-test suites and had some obscure
-          and inexplicable PCI problems due to the fact that the original
-          INT 1Ah was called via indirect means.  Newer releases, however, use
-          a dynamically fixed-up direct jump to avoid these problems.
-        PC DOS 7 plus Y2K fixes and PC DOS 2000 provide similar, though not
-          identical means, which cannot be switched off.
-        MS-DOS and older issues of PC DOS do not provide any such means, and
-          thus requires extra Y2K-TSRs to be loaded when run on buggy BIOSes.
-BUG:    some BIOSes, such as the 1998/07/25 system ROM in the Compaq Deskpro
-          EP/SB, leave CF unchanged if successful, so CF should be cleared
-          before calling this function
-SeeAlso: AH=02h,AH=04h"Sperry",AH=05h,INT 21/AH=2Ah,INT 4B/AH=02h"TI"
 --------b-1A04-------------------------------
 INT 1A - Sperry PC - GET REAL-TIME CLOCK DATE
         AH = 04h
@@ -5850,15 +5200,6 @@ Return: BX <> 0000h if installed
             BX = major/minor/sub version (2068h = version 2.06.8)
 Program: CheckIt is a TSR by Eurosoft (UK) Ltd. which corrects some Y2K-related
           RTC bugs
---------B-1A05-------------------------------
-INT 1A - TIME - SET REAL-TIME CLOCK DATE (AT,XT286,PS)
-        AH = 05h
-        CH = century (BCD)
-        CL = year (BCD)
-        DH = month (BCD)
-        DL = day (BCD)
-Return: nothing
-SeeAlso: AH=04h,INT 21/AH=2Bh"DATE",INT 4B/AH=00h"TI"
 --------b-1A05-------------------------------
 INT 1A - Sperry PC - SET REAL-TIME CLOCK DATE
         AH = 05h
@@ -5868,101 +5209,6 @@ INT 1A - Sperry PC - SET REAL-TIME CLOCK DATE
         DL = day (binary) (01h-1Fh)
 Return: nothing
 SeeAlso: AH=02h,AH=04h"Sperry",AH=05h,INT 21/AH=2Bh"DATE"
---------B-1A06-------------------------------
-INT 1A - TIME - SET ALARM (AT,XT286,PS)
-        AH = 06h
-        CH = hour (BCD)
-        CL = minutes (BCD)
-        DH = seconds (BCD)
-Return: CF set on error (alarm already set or clock stopped for update)
-        CF clear if successful
-Notes:  the alarm occurs every 24 hours until turned off, invoking INT 4A each
-          time
-        the BIOS does not check for invalid values for the time, so the CMOS
-          clock chip's "don't care" setting (any values between C0h and FFh)
-          may be used for any or all three parts.  For example, to create an
-          alarm once a minute, every minute, call with CH=FFh, CL=FFh, and
-          DH=00h.
-SeeAlso: AH=07h,AH=0Ch,INT 4A"SYSTEM"
---------B-1A07-------------------------------
-INT 1A - TIME - CANCEL ALARM (AT,XT286,PS)
-        AH = 07h
-Return: alarm disabled
-Note:   does not disable the real-time clock's IRQ
-SeeAlso: AH=06h,AH=0Dh,INT 70
---------B-1A08-------------------------------
-INT 1A - TIME - SET RTC ACTIVATED POWER ON MODE (CONVERTIBLE)
-        AH = 08h
-        CH = hours in BCD
-        CL = minutes in BCD
-        DH = seconds in BCD
-SeeAlso: AH=09h
---------B-1A09-------------------------------
-INT 1A - TIME - READ RTC ALARM TIME AND STATUS (CONV,PS30)
-        AH = 09h
-Return: CH = hours in BCD
-        CL = minutes in BCD
-        DH = seconds in BCD
-        DL = alarm status
-            00h alarm not enabled
-            01h alarm enabled but will not power up system
-            02h alarm will power up system
-SeeAlso: AH=08h
---------B-1A0A-------------------------------
-INT 1A - TIME - READ SYSTEM-TIMER DAY COUNTER (XT2,PS)
-        AH = 0Ah
-Return: CF set on error
-        CF clear if successful
-            CX = count of days since Jan 1,1980
-SeeAlso: AH=04h,AH=0Bh
---------B-1A0B-------------------------------
-INT 1A - TIME - SET SYSTEM-TIMER DAY COUNTER (XT2,PS)
-        AH = 0Bh
-        CX = count of days since Jan 1,1980
-Return: CF set on error
-        CF clear if successful
-SeeAlso: AH=05h,AH=0Ah
---------B-1A0C-------------------------------
-INT 1A - TIME - SET RTC DATE/TIME ACTIVATED POWER-ON MODE (IBM)
-        AH = 0Ch
-        CH = hours (BCD)
-        CL = minutes (BCD)
-        DH = seconds (BCD)
-        DL = day of month (BCD)
-Return: CF clear if successful
-        CF set on error (alarm already set or clock nonfunctional)
-Desc:   set an automatic power-on for a given time in the future
-Note:   IBM classifies this function as optional
-SeeAlso: AH=06h,AH=0Dh,AH=0Eh,INT 4A
---------B-1A0D-------------------------------
-INT 1A - TIME - RESET RTC DATE/TIME ACTIVATED POWER-ON MODE (IBM)
-        AH = 0Dh
-Return: CF clear if successful
-        CF set on error
-Desc:   cancel a previously-set power-on alarm
-Note:   IBM classifies this function as optional
-SeeAlso: AH=07h,AH=0Ch,AH=0Eh
---------B-1A0E-------------------------------
-INT 1A - TIME - GET RTC DATE/TIME ALARM AND STATUS (IBM)
-        AH = 0Eh
-Return: CF clear if successful
-            BH = alarm status
-                00h disabled
-                01h enabled but will not power-up system
-                02h enabled, system will power-up on activation
-            CH = alarm time, hours (BCD)
-            CL = alarm time, minutes (BCD)
-            DH = seconds (BCD)
-            DL = day of month (BCD)
-        CF set on error
-SeeAlso: AH=0Ch,AH=0Dh,AH=0Fh
---------B-1A0F-------------------------------
-INT 1A - TIME - INITIALIZE REAL-TIME CLOCK
-        AH = 0Fh
-        AL = reserved (0)
-Return: CF clear if successful
-        CF set on error
-SeeAlso: AH=0Ch,AH=0Dh,AH=0Eh
 --------J-1A10-------------------------------
 INT 1A - NEC PC-9800 series - PRINTER - INITIALIZE
         AH = 10h
@@ -7892,3 +7138,10 @@ Notes:  the source and destination buffers may not overlap
         application should not update the contents of the MRCREQUEST structure
           between incremental decompression calls
 --------!---Section--------------------------
+--------P-1702--DX0000-----------------------
+INT 17 - INSET - INSTALLATION CHECK
+        AH = 02h
+        DX = 0000h
+        CX = 07C3h (1987d)
+Return: CX = 07C2h (1986d) if installed
+Program: INSET is a text/graphics integration program
