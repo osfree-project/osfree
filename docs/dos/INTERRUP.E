@@ -1,4 +1,3 @@
-Interrupt List, part 5 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
 --------X-1AB101-----------------------------
 INT 1A - PCI BIOS v2.0c+ - INSTALLATION CHECK

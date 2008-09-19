@@ -1,4 +1,3 @@
-Interrupt List, part 13 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
 --------N-2F7A00-----------------------------
 INT 2F - Novell NetWare - LOW-LEVEL API (IPX) INSTALLATION CHECK

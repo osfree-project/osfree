@@ -1,4 +1,3 @@
-Interrupt List, part 9 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
 --------E-21E3-------------------------------
 INT 21 - OS/286, OS/386 - ISSUE REAL INTERRUPT

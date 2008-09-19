@@ -1,4 +1,3 @@
-Interrupt List, part 4 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
 --------b-15E800-----------------------------
 INT 15 - Compaq Contura - GET ???

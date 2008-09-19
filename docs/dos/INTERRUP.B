@@ -1,4 +1,3 @@
-Interrupt List, part 2 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
 --------b-10BF00-----------------------------
 INT 10 - VIDEO - Compaq Extensions - SELECT EXTERNAL MONITOR

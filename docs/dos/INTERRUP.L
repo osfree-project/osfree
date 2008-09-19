@@ -1,39 +1,4 @@
-Interrupt List, part 12 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
---------D-2F160E-----------------------------
-INT 2F U - MS-DOS 7 kernel - BOOT LOGO SUPPORT???
-        AX = 160Eh
-        BL = subfunction
-            00h get ???
-                AX = state of flag manipulated by subfn 04h and 05h
-                    0000h clear
-                    FFFFh set
-                DX = ??? (0000h)
-            01h link in INT 10h??? handlers
-            02h unlink INT 10h??? handlers
-            03h ???
-            04h set ??? flag
-            05h clear ??? flag
-Return: AX = 0000h if supported
-            ???
-SeeAlso: AX=160Fh,AX=1611h,AX=1614h
---------D-2F160F-----------------------------
-INT 2F U - MS-DOS 7 kernel - GET/SET ??? HANDLER
-        AX = 160Fh
-        BL = subfunction
-            00h get ??? handler
-                Return: AX = 0000h if supported
-                            CX:DX -> handler to which control is passed after
-                                      ??? executes
-                           = 160Fh inside a Windows 95B DOS box
-            01h set ??? handler
-                CX:DX -> new handler for ???
-                Return: AX = 0000h if supported
-Notes:  this function is not supported if ??? in the IO.SYS drivers portion of
-          the kernel is an IRET instruction (as is the case on my system)
-          rather than a FAR JMP
-        the indicated handler seems to be related to INT 10 processing
-SeeAlso: AX=160Eh,AX=1611h,AX=1614h
 --------m-2F1610-----------------------------
 INT 2F - XMS v1.x only - GET DRIVER ADDRESS
         AX = 1610h
@@ -41,57 +6,6 @@ INT 2F - XMS v1.x only - GET DRIVER ADDRESS
 Note:   this function and AX=1600h were only used in XMS version 1 and are now
           obsolete.  Use AX=4300h and AX=4310h instead
 SeeAlso: AX=1600h,AX=4310h
---------D-2F1611-----------------------------
-INT 2F U - MS-DOS 7 kernel - GET SHELL PARAMETERS
-        AX = 1611h
-Return: AX = 0000h if supported
-            DS:DX -> primary shell's executable name
-            DS:SI -> prinary shell command line (counted string)
-            BH = ??? (00h)
-            BL = ??? (00h,40h)
-Desc:   return the program name and commandline from the CONFIG.SYS SHELL=
-          statement
-SeeAlso: AX=160Eh,AX=160Fh,AX=1612h,AX=4A33h
---------D-2F1612-----------------------------
-INT 2F U - MS-DOS 7 kernel - GET ???
-        AX = 1612h
-Return: AX = 0000h if supported
-            ES:BX -> DOS 7 kernel data (see #02641)
-Note:   called by VTD.VXD; one of the returned data items is a pointer to the
-          WORD in which the default CLOCK$ driver maintains its count of days
-          since 01jan1980
-SeeAlso: AX=160Fh,AX=1611h,AX=1613h
-
-Format of MS-DOS 7.x ??? kernel data:
-Offset  Size    Description     (Table 02641)
- 00h    WORD    structure revision??? (0001h)
- 02h    DWORD   -> ??? function (call with DS=high word of this field)
-                the indicated function vectors through the INT 13 hook at
-                  0070h:00B4h and then forces the A20 gate open
- 06h    DWORD   -> ??? function
- 0Ah    WORD    DOS DS
- 0Ch  8 BYTEs   zeros seen
- 14h    DWORD   -> ??? data
- 18h    DWORD   -> ??? data
-        ???
---------D-2F1613-----------------------------
-INT 2F - MS-DOS 7 kernel - GET SYSTEM.DAT (REGISTRY FILE) PATHNAME
-        AX = 1613h
-        ES:DI -> buffer for full ASCIZ pathname to Windows95 SYSTEM.DAT
-        CX = buffer size in bytes
-Return: AX = 0000h if supported
-            ES:DI buffer filled
-            CX = number of bytes copied into buffer
-SeeAlso: AX=160Eh,AX=1611h,AX=1612h,AX=1614h,AX=1690h
---------D-2F1614-----------------------------
-INT 2F U - MS-DOS 7 kernel - SET SYSTEM.DAT (REGISTRY FILE) PATHNAME
-        AX = 1614h
-        ES:DI -> ASCIZ pathname to Windows95 SYSTEM.DAT
-Return: AX = status
-            0000h if successful
-            1614h not supported
-            other: maximum length of pathname (004Eh for v4.00.950)
-SeeAlso: AX=160Eh,AX=1611h,AX=1613h,AX=1690h
 --------x-2F1684BX0034-----------------------
 INT 2F - Intel Plug-and-Play - CONFIGURATION MANAGER - GET ENTRY POINT
         AX = 1684h
@@ -322,17 +236,6 @@ Call Phar Lap RUN286 entry point with:
         BX = new value for MSW register (low word of CR0)
 Return: ???
 SeeAlso: #02719
---------D-2F1690-----------------------------
-INT 2F U - MS-DOS 7 kernel - GET/SET ???
-        AX = 1690h
-        ES:BX -> ???
-Return: ES:BX -> ??? data (see #02722)
-SeeAlso: AX=1611h,AX=1614h
-
-Format of MS-DOS 7 kernel ??? data:
-Offset  Size    Description     (Table 02722)
- 00h    DWORD   -> ??? data (appears to list the installed drivers)
- 04h    DWORD   -> ??? (value passed in via ES:BX is stored here)
 ----------2F18-------------------------------
 INT 2F U - MS-Manager
         AH = 18h
@@ -3024,25 +2927,6 @@ Notes:  this call is an alternate entry to the profiler's SEGDEBUG
           with symbol files to provide information in a useful form.
         this call does not have a corresponding Windows function
 SeeAlso: AX=4500h
---------D-2F4601-----------------------------
-INT 2F CU - MS Windows WINOLDAP - SWITCHING ???
-        AX = 4601h
-Return: ???
-Note:   the DOS 5+ kernel intercepts this function and copies the MCB
-           following the caller's PSP memory block into the DOS data segment;
-           in conjunction with AX=4602h, this intercept is used by DOS to
-           avoid corruption of the Windows real-mode heap's end sentinel
-SeeAlso: AX=1700h,AX=4602h
---------D-2F4602-----------------------------
-INT 2F CU - MS Windows WINOLDAP - SWITCHING ???
-        AX = 4602h
-Return: ???
-Note:   the DOS 5+ kernel intercepts this function and copies the
-          previously-saved MCB from the DOS data segment into the MCB following
-          the caller's PSP memory block; in conjunction with AX=4601h, this
-          intercept is used by DOS to avoid corruption of the Windows real-mode
-          heap's end sentinel
-SeeAlso: AX=1700h,AX=4601h
 --------E-2F46-------------------------------
 INT 2F U - Windows/286 DOS Extender
         AH = 46h
@@ -3276,71 +3160,6 @@ INT 2F U - DOS 5.0+ SETUP
                     ES:BX -> internal structure
         ???
 Return: ???
---------D-2F4A00CX0000-----------------------
-INT 2F CU - DOS 5+ - FLOPPY-DISK LOGICAL DRIVE CHANGE NOTIFICATION
-        AX = 4A00h
-        CX = 0000h
-        DH = new drive number
-        DL = current drive number
-Return: CX = FFFFh to skip "Insert diskette for drive X:" message
-Note:   called by MS-DOS 5.0+ IO.SYS just before displaying the message
-          "Insert diskette for drive X:" on single-floppy systems
---------D-2F4A01-----------------------------
-INT 2F - DOS 5+ - QUERY FREE HMA SPACE
-        AX = 4A01h
-Return: BX = number of bytes available in HMA (0000h if DOS not using HMA)
-        ES:DI -> start of available HMA area (FFFFh:FFFFh if not using HMA)
-Notes:  called by Windows 3.1 DOSX.EXE
-        supported by Novell DOS 7
-SeeAlso: AX=4310h,AX=4A02h
---------D-2F4A02-----------------------------
-INT 2F - DOS 5+ - ALLOCATE HMA SPACE
-        AX = 4A02h
-        BX = number of bytes
-Return: ES:DI -> start of allocated HMA block or FFFFh:FFFFh
-        BX = number of bytes actually allocated (rounded up to next paragraph
-              for DOS 5.0 and 6.0)
-Notes:  this call is not valid unless DOS is loaded in the HMA (DOS=HIGH)
-        called by Windows 3.1 DOSX.EXE
-        supported by Novell DOS 7
-SeeAlso: AX=4A01h,AX=4A03h
---------D-2F4A03-----------------------------
-INT 2F U - Windows95 - DOS KERNEL - (DE)ALLOCATE HMA MEMORY BLOCK
-        AX = 4A03h
-        CX = segment of block's owner???
-        DL = subfunction
-            00h allocate block
-                BX = number of bytes
-                Return: DI=FFFFh if unable to allocate
-                        ES:DI -> allocated block
-            01h resize block
-                ES:DI -> previously-allocated block
-                BX = new size in bytes (must be less than original size???)
-                Return: DI=FFFFh if unable to allocate
-                        ES:DI -> reallocated block
-                Note:   the contents of the original block are NOT copied
-            02h free block???
-                ES:DI -> block to be freed
-Note:   in MS-DOS 7.x, function 4A02h is implemented by calling this function
-          with DL=00h
-SeeAlso: AX=4A02h
---------D-2F4A04-----------------------------
-INT 2F U - Windows95 - DOS KERNEL - GET START OF HMA MEMORY CHAIN
-        AX = 4A04h
-Return: AX = 0000h if function supported
-            ES:DI -> first HMA memory control block (see #02800)
-
-Format of Windows95 HMA memory control block:
-Offset  Size    Description     (Table 02800)
- 00h  2 BYTEs   signature "MS" (4Dh 53h)
- 02h    WORD    segment of owner (or segment at which to address block???)
-                0000h = free
-                0001h = DOS???
-                FF33h = IO.SYS
-                FFFFh = MSDOS.SYS
- 04h    WORD    size of memory block (not including this header)
- 06h    WORD    offset of next memory block in segment FFFFh, or 0000h if last
- 08h  8 BYTEs   unused (explicitly set to 0 for MS-DOS 7.10)
 --------T-2F4A05-----------------------------
 INT 2F U - DOS 5+ DOSSHELL - TASK SWITCHING API???
         AX = 4A05h
@@ -3377,37 +3196,6 @@ Notes:  DOSSHELL chains to the previous handler if SI is not one of the values
         the DOSSWAP.EXE module calls functions 03h,04h,05h,07h,08h,09h,0Ch
         the Windows 3.1 DSWAP.EXE and WSWAP.EXE task switchers use these calls
 SeeAlso: AX=4B01h
---------D-2F4A06-----------------------------
-INT 2F CU - DOS 5+ - DOS SUPERVISOR "REBOOT PANEL" - ADJUST MEMORY SIZE
-        AX = 4A06h
-        DX = segment following last byte of conventional memory
-Return: DX = segment following last byte of memory available for use by DOS
-Desc:   used to override the default memory size when booting diskless
-          workstations
-Notes:  called by MS-DOS 5+ IO.SYS and DR DOS 6.0+ IBMBIO.OCM startup code if
-          the signature "RPL" is present three bytes beyond the INT 2F handler;
-          this call overrides the value returned by INT 12
-        hooked by RPL code at the top of memory to protect itself from being
-          overwritten; DOS builds a memory block with owner = 0008h and name
-          "RPL" which must be freed by the RPL code when it is done.
-          Under DR DOS, it is sufficient to set the owner field of the MCB to
-          0000h.
-        In addition to the test for "RPL", DR PalmDOS (since 1992/08/25),
-          DR DOS 6.0 "Business update March 1993", DR DOS "Panther" and
-          "StarTrek", and Novell DOS 7+ also check for a "RPLOADER" signature.
-          If this 2nd signature is found, IBMBIO.COM will store the INT 2Fh
-          vector for later use after the BIOS init, when at several points it
-          directly calls the RPLOADER via an emulated INT 2Fh with
-          AX=12FFh/BX=5/CX=0/DX=1 and a phase code 1, 2 or 3 on the stack.
-          This permits the RPLOADER to keep track of the initialization
-          process and clean or fix up anything it wishes.  The "phase 1"
-          broadcast is issued after the BIOS init code and data have been
-          relocated (e.g. into the HMA), "phase 2" gets issued immediately
-          before the CONFIG.SYS processing begins and the DOS code and data
-          are relocated, and the closing "phase 3" happens to permit any
-          final tidy ups before the memory manager gets acknowledgement of
-          completion.
-SeeAlso: INT 12"BIOS",INT 18"BOOT HOOK",AX=4A07h,INT 2F/AX=12FFh/BX=0005h
 --------N-2F4A07-----------------------------
 INT 2F U - RESERVED FOR PROTMAN SUPPORT
         AX = 4A07h
@@ -4012,72 +3800,6 @@ Return: (via FAR RET)
               perform the I/O)
 BUG:    32-bit I/O on trapped ports hangs the DOS 6.22 EMM386
 SeeAlso: #02815
---------D-2F4A16-----------------------------
-INT 2F U - Windows95 - OPEN BOOT LOG
-        AX = 4A16h
-Return: AX = status
-            0000h successful
-            FFFFh boot log file already open
-            else  DOS error code
-        BX destroyed
-SeeAlso: AX=4A17h,AX=4A18h
---------D-2F4A17-----------------------------
-INT 2F U - Windows95 - WRITE TO BOOT LOG
-        AX = 4A17h
-        CX = number of bytes to write
-        DS:DX -> message to write (must include CR-LF if it is desired)
-Return: AX = status
-            0000h successful
-            FFFFh boot log file not open
-            else  DOS error code
-Note:   calls the code for INT 2F/AX=4A21h after writing to the file
-SeeAlso: AX=4A17h,AX=4A18h,AX=4A21h
---------D-2F4A18-----------------------------
-INT 2F U - Windows95 - CLOSE BOOT LOG
-        AX = 4A18h
-Return: AX = status
-            0000h successful
-            FFFFh boot log file not open
-            else  DOS error code from closing file
-        BX destroyed
-SeeAlso: AX=4A16h,AX=4A17h
---------D-2F4A21-----------------------------
-INT 2F U - Windows95 - ???
-        AX = 4A21h
-Return: AX destroyed
-Note:   calls INT 21/AX=4404h"IOCTL" with a five-byte buffer containing "MDF??"
-SeeAlso: AX=4A17h
---------D-2F4A31-----------------------------
-INT 2F U - Windows95 - ???
-        AX = 4A31h
-        CL = new value for ???
-        DS:SI -> BYTE to be set to CL
-Return: nothing
---------D-2F4A32-----------------------------
-INT 2F U - Windows95 - PATCH ???
-        AX = 4A32h
-        BL = subfunction
-            00h get ???
-                Return: AX = flag: subfunction 04h has been used (0000h/FFFFh)
-                        DX = ??? (0000h/?)
-            01h patch ??? in IO.SYS (segment 0070h)
-            02h unpatch ??? in IO.SYS
-            03h ???
-            04h set ???, then do subfunction 01h
-            05h unset ???, then do subfunction 02h
-            else
-                Return: nothing
---------D-2F4A33-----------------------------
-INT 2F - Windows95 - CHECK MS-DOS VERSION 7
-        AX = 4A33h
-Return: AX = 0000h for MS-DOS 7.00+
-            (officially) BX,DX,SI,DS may be destroyed
-            (undoc) DS:DX -> ASCIZ primary shell executable name
-            (undoc) DS:SI -> CONFIG.SYS SHELL= command line (counted string)
-            (undoc) BH = ??? (0000h)
-            (undoc) BL = ??? (0000h)
-        AX nonzero (usually 4A33h) if MS-DOS 6- or other DOS
-SeeAlso: AX=1611h,INT 21/AH=30h
 --------N-2F4B-------------------------------
 INT 2F - LAN Manager 2.0 DOS Enh NETWKSTA.EXE - NETWORK WORKSTATION REDIRECTOR
         AH = 4Bh

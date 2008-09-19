@@ -1,4 +1,3 @@
-Interrupt List, part 3 of 18
 Copyright (c) 1989-1999,2000 Ralf Brown
 --------O-1510-------------------------------
 INT 15 - VMiX - "sys_virtual" - EXECUTE CONFORMING FUNCTION IN PROTECTED MODE
