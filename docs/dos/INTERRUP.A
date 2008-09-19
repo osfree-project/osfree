@@ -9060,45 +9060,6 @@ INT 10 - ???
         AH = 86h
 Note:   called by Diamond Stealth64 Video STLTH64.VXD
 SeeAlso: INT 2F/AX=4021h
---------N-108B-------------------------------
-INT 10 - Alloy MW386 - FORCE WORKSTATION SCREEN UPDATE
-        AH = 8Bh
-Return: nothing
-SeeAlso: AH=92h,AH=93h
---------N-1090-------------------------------
-INT 10 - Alloy MW386 - GET PHYSICAL WORKSTATION DISPLAY MODE
-        AH = 90h
-Return: AL = current video mode (see #00010 at AH=00h)
-SeeAlso: AH=91h
---------N-1091-------------------------------
-INT 10 - Alloy MW386 - GET PHYSICAL WORKSTATION ADAPTER TYPE
-        AH = 91h
-Return: AL = video adapter type (see #00210)
-Note:   types less than 80h do not imply that the current user is on the host
-SeeAlso: AH=90h
-
-(Table 00210)
-Values for Alloy MW386 video adapter type:
- 00h    monochrome
- 01h    Hercules monochrome graphics
- 02h    CGA
- 03h    EGA
- 04h    VGA
- 80h    monochrome text terminal
- 81h    Hercules graphics terminal
- 82h    color graphics terminal
---------N-1092-------------------------------
-INT 10 - Alloy MW386 - INHIBIT WORKSTATION SCREEN UPDATES
-        AH = 92h
-Return: nothing
-Note:   the terminal will be updated even when screen updates are inhibited if
-          TTY output is used
-SeeAlso: AH=8Bh
---------N-1093-------------------------------
-INT 10 - Alloy MW386 - REDRAW SCREEN
-        AH = 93h
-Return: nothing
-SeeAlso: AH=8Bh,AH=FFh
 --------p-10A000-----------------------------
 INT 10 - ATI BIOS Extensions - ???
         AX = A000h

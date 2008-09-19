@@ -2879,13 +2879,6 @@ Offset  Size    Description     (Table 00272)
                   SelectedSector - 1
  10h    QWORD   (EDD-3.0, optional) 64-bit flat address of transfer buffer;
                   used if DWORD at 04h is FFFFh:FFFFh
---------N-134257DX1234-----------------------
-INT 13 U - Beame&Whiteside BWLPD - INSTALLATION CHECK
-        AX = 4257h ("BW")
-        DX = 1234h
-Return: BX = 414Ch if installed
-Program: BWLPD is the printer daemon from the BW-NFS package
-SeeAlso: INT 62/AH=00h"ETHDEV"
 --------d-1343-------------------------------
 INT 13 - IBM/MS INT 13 Extensions - EXTENDED WRITE
         AH = 43h
@@ -4282,28 +4275,6 @@ Bit(s)  Description     (Table 00302)
  2      stop bits (set = 2, clear = 1)
  1-0    data bits (00 = 5, 01 = 6, 10 = 7, 11 = 8)
 SeeAlso: #00300
---------N-1400--DXFFFF-----------------------
-INT 14 - Connection Manager - MODIFY DEFAULT CONNECTION PARAMETERS
-        AH = 00h
-        DX = FFFFh
-        ES:DI -> vector string specifying new parameters
-Return: AH = return code (00h,03h) (see #00303)
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-Note:   if DX is 0-3 on entry, Connection Manager emulates the standard BIOS
-          function, but redirects the port over the network; if DX is any other
-          value, the call is chained
-SeeAlso: AH=04h/DX=FFFFh,AH=08h/DX=FFFFh,AH=0Ah/DX=FFFFh
-
-(Table 00303)
-Values for Connection Manager return code:
- 00h    successful
- 01h    no such connection
- 02h    invalid connection ID
- 03h    invalid subvector found
- 04h    communication error (check BH)
- 06h    insufficient resources, retry later
- FFh    no data available
 --------S-1401-------------------------------
 INT 14 - SERIAL - WRITE CHARACTER TO PORT
         AH = 01h
@@ -4316,18 +4287,6 @@ Notes:  various network and serial-port drivers support the standard BIOS
           functions with interrupt-driven I/O instead of the BIOS's polled I/O
         the 1993/04/08 Compaq system ROM uses only the low two bits of DX
 SeeAlso: AH=02h,AH=0Bh"FOSSIL",AX=8000h"ARTICOM",AH=89h,MEM 0040h:007Ch
---------N-1401--DXFFFF-----------------------
-INT 14 - Connection Manager - SEND CHARACTER
-        AH = 01h
-        DX = FFFFh
-        BH = character to send
-Return: AH = return code (00h-02h,06h) (see #00303)
-Notes:  if DX is 0-3 on entry, Connection Manager emulates the standard BIOS
-          function, but redirects the port over the network; if DX is any other
-          value, the call is chained
-        this function is provided primarily for compatibility; AH=06h/DX=FFFFh
-          is the preferred function because it provides better performance
-SeeAlso: AH=02h/DX=FFFFh,AH=06h/DX=FFFFh,AH=09h/DX=FFFFh
 --------S-1402-------------------------------
 INT 14 - SERIAL - READ CHARACTER FROM PORT
         AH = 02h
@@ -4348,20 +4307,6 @@ INT 14 - FOSSIL - RECEIVE CHARACTER WITH WAIT
 Return: AL = character received
         AH = 00h
 SeeAlso: AH=01h,AH=02h"SERIAL"
---------N-1402--DXFFFF-----------------------
-INT 14 - Connection Manager - RECEIVE CHARACTER
-        AH = 02h
-        DX = FFFFh
-        BH = character to send
-Return: AH = return code (00h-02h,04h,FFh) (see #00303)
-        BH = line status (see #00304)
-        AL = received character (if any)
-Notes:  if DX is 0-3 on entry, Connection Manager emulates the standard BIOS
-          function, but redirects the port over the network; if DX is any other
-          value, the call is chained
-        this function is provided primarily for compatibility; AH=07h/DX=FFFFh
-          is the preferred function because it provides better performance
-SeeAlso: AH=02h/DX=FFFFh,AH=03h/DX=FFFFh,AH=06h/DX=FFFFh
 --------S-1403-------------------------------
 INT 14 - SERIAL - GET PORT STATUS
         AH = 03h
@@ -4396,29 +4341,6 @@ Bit(s)  Description     (Table 00305)
  2      trailing edge of ring indicator
  1      delta data set ready
  0      delta clear to send
---------N-1403--DXFFFF-----------------------
-INT 14 - Connection Manager - RETURN COMMUNICATION PORT STATUS
-        AH = 03h
-        DX = FFFFh
-        AL = connection ID
-Return: AH = return code (00h-02h) (see #00303)
-        BH = line status (see #00306)
-        BL = modem status (see #00305) (only bits 4,5,7; all others zero)
-Notes:  if DX is 0-3 on entry, Connection Manager emulates the standard BIOS
-          function, but redirects the port over the network; if DX is any other
-          value, the call is chained
-SeeAlso: AH=00h/DX=FFFFh,AH=04h/DX=FFFFh,AH=0Ah/DX=FFFFh
-
-Bitfields for Connection Manager line status:
-Bit(s)  Description     (Table 00306)
- 7      CTS changed
- 6      current CTS state
- 5      timeout
- 4      break
- 3      framing error
- 2      parity error
- 1      overrun
- 0      current carrier state (0 active, 1 no carrier)
 --------S-1404-------------------------------
 INT 14 - SERIAL - EXTENDED INITIALIZE (CONVERTIBLE,PS)
         AH = 04h
@@ -4526,228 +4448,6 @@ INT 14 - MBBIOS - INSTALLATION CHECK
         DX = port number
 Return: AX = AA55h if installed on specified port
 SeeAlso: AH=00h"MBBIOS",AH=09h"MBBIOS"
---------N-1404--DXFFFF-----------------------
-INT 14 - Connection Manager - OPEN COMMUNICATION
-        AH = 04h
-        DX = FFFFh
-        ES:DI -> Connection Request protocol vector (see #00311)
-Return: AH = return code
-            00h successful
-                AL = connection ID
-                BH = connection type
-                    00h direct connection or no dialing
-                    01h Connection Server dialed phone
-            01h no response from Connection Server
-            03h invalid request
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-Desc:   initiate a connection to the Connection Server listed in the current
-          Client parameter set
-Notes:  if DX is 0-3 on entry, Connection Manager emulates the standard BIOS
-          function, but redirects the port over the network; if DX is any other
-          value, the call is chained
-        all subvectors of the Connection Request vector are optional; if
-          missing, default values are provided by the default connection
-          parameter set
-SeeAlso: AH=00h/DX=FFFFh,AH=05h/DX=FFFFh,AH=06h/DX=FFFFh,AH=07h/DX=FFFFh
-SeeAlso: AH=0Ah/DX=FFFFh,AH=0Ch/DX=FFFFh
-
-Format of Connection Manager protocol command vector:
-Offset  Size    Description     (Table 00311)
- 00h    WORD    (big-endian) total length of command (including this word)
- 02h    WORD    (big-endian) command code
-                EF01h Connection Request
-                EF06h Modify Connection Parameters
- 04h  N BYTEs   list of subvectors (see #00313)
-                allowable subvector types are 01h-04h,17h,18h for command code
-                  EF01h; 03h,04h for command code EF06h (see #00312)
-
-(Table 00312)
-Values for Connection Manager subvector type code:
- 01h    Connection ID
- 02h    Destination ID
- 03h    Asynchronous line parameters
- 04h    Data transfer parameters
- 09h    Line speed
- 0Ah    Serial coding
- 0Bh    Packet size
- 0Ch    Timers
- 0Dh    Special characters
- 0Eh    Target ID
- 0Fh    Telephone number
- 10h    ASCII destination ID
- 11h    Parity
- 12h    Bits per character
- 13h    Number of stop bits
- 14h    Packet timer
- 15h    Intercharacter timer
- 17h    Flags
- 18h    Parameter ranges
- 19h    Flow control
-
-Format of Connection Manager subvector:
-Offset  Size    Description     (Table 00313)
- 00h    BYTE    length of subvector
- 01h    BYTE    type code (see #00312)
- 02h N-2 BYTEs  data, which may include subvectors
-SeeAlso: #00314,#00315,#00316,#00317,#00318,#00319,#00320,#00321,#00322,#00323,#00324
-SeeAlso: #00325,#00326,#00328,#00329,#00330,#00331,#00332,#00333,#00311
-
-Format of Connection ID subvector:
-Offset  Size    Description     (Table 00314)
- 00h    BYTE    03h (length)
- 01h    BYTE    01h (subvector "Connection ID")
- 02h    BYTE    connection ID
-SeeAlso: #00313
-
-Format of Destination ID subvector:
-Offset  Size    Description     (Table 00315)
- 00h    BYTE    length
- 01h    BYTE    02h (subvector "Destination ID")
- 02h  N BYTEs   subvector(s) of type 0Eh, 0Fh, or 10h
-SeeAlso: #00313
-
-Format of Asynchronous line parameters subvector:
-Offset  Size    Description     (Table 00316)
- 00h    BYTE    length
- 01h    BYTE    03h (subvector "Asynchronous line parameters")
- 02h  N BYTEs   subvector(s) of type 09h, 0Ah, or 19h
-SeeAlso: #00313
-
-Format of Data transfer parameters subvector:
-Offset  Size    Description     (Table 00317)
- 00h    BYTE    length
- 01h    BYTE    04h (subvector "Data transfer parameters")
- 02h  N BYTEs   subvector(s) of type 0Bh, 0Ch, or 0Dh
-SeeAlso: #00313
-
-Format of Line speed subvector:
-Offset  Size    Description     (Table 00318)
- 00h    BYTE    04h (length)
- 01h    BYTE    09h (subvector "Line speed")
- 02h    WORD    bit map, highest set bit selects speed
-                bit 0: 2400
-                bits 1-7: 1800, 1200, 600, 300, 115200, 150, 110 bps
-                bits 8-15: 57600, 38400, 19200, 14400, 9600, 7200, 4800, 3600
-SeeAlso: #00313
-
-Format of Serial coding subvector:
-Offset  Size    Description     (Table 00319)
- 00h    BYTE    length
- 01h    BYTE    0Ah (subvector "Serial coding")
- 02h  N BYTEs   subvector(s) of type 11h, 12h, or 13h
-SeeAlso: #00313
-
-Format of Packet size subvector:
-Offset  Size    Description     (Table 00320)
- 00h    BYTE    04h (length)
- 01h    BYTE    0Bh (subvector "Packet size")
- 02h    WORD    (big-endian) packet size, 1 to 1024
-SeeAlso: #00313
-
-Format of Timers subvector:
-Offset  Size    Description     (Table 00321)
- 00h    BYTE    length
- 01h    BYTE    0Ch (subvector "Timers")
- 02h  8 BYTEs   subvector of type 14h or 15h
-SeeAlso: #00313
-
-Format of Special characters subvector:
-Offset  Size    Description     (Table 00322)
- 00h    BYTE    length
- 01h    BYTE    0Dh (subvector "Special characters")
- 02h  N BYTEs   list of ASCII characters to be used as EOM or EOB
-SeeAlso: #00313
-
-Format of Target ID:
-Offset  Size    Description     (Table 00323)
- 00h    BYTE    length
- 01h    BYTE    0Eh (subvector "Target ID")
- 02h  N BYTEs   target ID, 1-16 bytes
-SeeAlso: #00313
-
-Format of Telephone number subvector:
-Offset  Size    Description     (Table 00324)
- 00h    BYTE    length
- 01h    BYTE    0Fh (subvector "Telephone number")
- 02h  N BYTEs   telephone number
-SeeAlso: #00313
-
-Format of ASCII destination ID subvector:
-Offset  Size    Description     (Table 00325)
- 00h    BYTE    length
- 01h    BYTE    10h (subvector "ASCII destination ID")
- 02h  N BYTEs   destination ID
-SeeAlso: #00313
-
-Format of Parity subvector:
-Offset  Size    Description     (Table 00326)
- 00h    BYTE    03h (length)
- 01h    BYTE    11h (subvector "Parity")
- 02h    BYTE    parity type (see #00327)
-SeeAlso: #00313
-
-Bitfields for Connection Manager parity type:
-Bit(s)  Description     (Table 00327)
- 7      odd
- 6      even
- 5      mark
- 4      space
- 3      none
-SeeAlso: #00326
-
-Format of Bits per character subvector:
-Offset  Size    Description     (Table 00328)
- 00h    BYTE    03h (length)
- 01h    BYTE    12h (subvector "Bits per character")
- 02h    BYTE    bits per character
-                bit 7: seven
-                bit 6: eight
-SeeAlso: #00313
-
-Format of Number of stop bits subvector:
-Offset  Size    Description     (Table 00329)
- 00h    BYTE    03h (length)
- 01h    BYTE    13h (subvector "Number of stop bits")
- 02h    BYTE    stop bits
-                bit 7: one
-                bit 6: 1.5
-                bit 5: two
-SeeAlso: #00313
-
-Format of Packet timer and Intercharacter timer subvectors:
-Offset  Size    Description     (Table 00330)
- 00h    BYTE    04h (length)
- 01h    BYTE    subvector type
-                14h Packet timer
-                15h Intercharacter timer
- 02h    WORD    (big-endian) unit of value representing 20ms
-SeeAlso: #00313
-
-Format of Flags subvector:
-Offset  Size    Description     (Table 00331)
- 00h    BYTE    03h (length)
- 01h    BYTE    17h (subvector "Flags")
- 02h    BYTE    flags
-                bit 7: queueing requested
-SeeAlso: #00313
-
-Format of Parameter ranges subvector:
-Offset  Size    Description     (Table 00332)
- 00h    BYTE    length
- 01h    BYTE    18h (subvector "Parameter ranges")
- 02h  N BYTEs   subvector(s) of type 09h, 11h, 12h, or 13h
-SeeAlso: #00313
-
-Format of Flow control subvector:
-Offset  Size    Description     (Table 00333)
- 00h    BYTE    length (02h-04h)
- 01h    BYTE    19h (subvector "Flow control")
- 02h    BYTE    XOFF character
- 03h    BYTE    XON character
-Note:   if length is 02h, flow control is disabled; if length is 03h, any
-          character will be accepted as XON after an XOFF
-SeeAlso: #00313
 --------S-140400-----------------------------
 INT 14 - Microsoft Systems Journal TSRCOMM INT14 - INSTALLATION CHECK
         AX = 0400h
@@ -4946,21 +4646,6 @@ Notes:  The embedded PC can send messages at any time. The managing PC may
           59h, 59h. If the sender does not receive the confirmation, it
           tries 4 more times before returning an error.
 SeeAlso: INT 14h/AH=06h, INT 15h/AX=E908h, INT 15h/E909h
---------N-1405--DXFFFF-----------------------
-INT 14 - Connection Manager - CLOSE COMMUNICATION
-        AH = 05h
-        DX = FFFFh
-        AL = connection ID
-Return: AH = return code
-            00h successful
-            01h no such connection
-            02h invalid connection ID
-                AL = correct connection ID
-Desc:   terminate existing connection to allow another one to be established
-Note:   if DX is 0-3 on entry, Connection Manager emulates the standard BIOS
-          function, but redirects the port over the network; if DX is any other
-          value, the call is chained
-SeeAlso: AH=04h/DX=FFFFh,AH=0Dh/DX=FFFFh
 --------S-1406-------------------------------
 INT 14 - FOSSIL - RAISE/LOWER DTR
         AH = 06h
@@ -4996,15 +4681,6 @@ Return: AH bit 7 set
 Program: PC-MOS/386 v5.01 is a multitasking, multiuser MS-DOS 5.0-compatible
           operating system by The Software Link, Inc.
 SeeAlso: AH=18h"PC-MOS"
---------N-1406-------------------------------
-INT 14 - TelAPI - WRITE BLOCK
-        AH = 06h
-        CX = number of characters to write
-        DX = port number
-        ES:DI -> buffer containing data
-Return: AX = number of characters actually sent (negative on error)
-        CX = ???
-SeeAlso: AH=07h"TelAPI",AH=E0h"TelAPI",AH=E3h"TelAPI"
 ----------1406-------------------------------
 INT 14 - PhysTechSoft PTS ROM-DOS - GET PACKET
         AH = 06h
@@ -5014,17 +4690,6 @@ INT 14 - PhysTechSoft PTS ROM-DOS - GET PACKET
 Return: AH = error code (00h = no error, FFh = error)
         CX = packet size
 SeeAlso: AH=05h"PTS ROM-DOS",INT 15/AX=E908h,INT 15/AX=E909h
---------N-1406--DXFFFF-----------------------
-INT 14 - Connection Manager - SEND CHARACTER BLOCK
-        AH = 06h
-        DX = FFFFh
-        AL = connection ID
-        CX = number of characters to send
-        ES:DI -> buffer containing data to be sent
-Return: AH = return code (see #00303)
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=04h/DX=FFFFh,AH=07h/DX=FFFFh,AH=09h/DX=FFFFh
 --------S-1407-------------------------------
 INT 14 - FOSSIL - RETURN TIMER TICK PARAMETERS
         AH = 07h
@@ -5053,36 +4718,6 @@ INT 14 - PC-MOS/386 v5.01 $serial.sys v5.04 - SEND RS-232 BREAK
         BX = duration of break in clock ticks
         DX = port number
 Return: nothing
---------N-1407-------------------------------
-INT 14 - TelAPI - READ BLOCK
-        AH = 07h
-        CX = length of buffer in bytes
-        DX = port number
-        ES:DI -> buffer for data
-Return: AX > 0000h number of characters actually read
-        AX = 0000h host has closed connection
-        AX < 0000h error code (see #00397)
-        CX = ???
-Note:   translates CRLF into local EOL if the connection is in ASCII mode,
-          negotiates various Telnet options, and immediately executes several
-          different Telnet action commands
-SeeAlso: AH=06h"TelAPI",AH=E0h"TelAPI",AH=E2h"TelAPI"
---------N-1407--DXFFFF-----------------------
-INT 14 - Connection Manager - RECEIVE CHARACTER BLOCK
-        AH = 07h
-        DX = FFFFh
-        AL = connection ID
-        BL = flag
-            00h wait for data
-            nonzero do not wait if no data avaiable
-        CX = size of receive buffer
-        ES:DI -> buffer for received characters
-Return: AH = return code (00h-02h,04h,FFh) (see #00303)
-        BH = line status (see #00306)
-        CX = number of characters received
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=01h/DX=FFFFh,AH=04h/DX=FFFFh,AH=06h/DX=FFFFh
 --------S-1408-------------------------------
 INT 14 - FOSSIL - FLUSH OUTPUT BUFFER WAITING TILL ALL OUTPUT IS DONE
         AH = 08h
@@ -5123,20 +4758,6 @@ Return: CF set if carrier loss detected
         ZF set if input buffer empty
         ZF clear if characters available
             AL = next character dequeued
---------N-1408--DXFFFF-----------------------
-INT 14 - Connection Manager - RETURN DEFAULT CONNECTION PARAMETERS
-        AH = 08h
-        DX = FFFFh
-        CX = size of buffer for parameters or 0000h to get length
-        ES:DI -> buffer for parameter vector (see #00311)
-Return: AH = return code
-            00h successful
-                CX = number of bytes required (if CX=0000h on entry)
-                CX = number of bytes omitted for lack of space (if CX nonzero)
-            nonzero invalid request
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=00h/DX=FFFFh,AH=0Fh/DX=FFFFh
 --------S-1409-------------------------------
 INT 14 - FOSSIL - PURGE OUTPUT BUFFER THROWING AWAY ALL PENDING OUTPUT
         AH = 09h
@@ -5177,15 +4798,6 @@ INT 14 - PC-MOS/386 v5.01 $serial.sys v5.04 - RESET I/O BUFFER POINTERS
         DX = port number
 Return: nothing
 SeeAlso: AH=13h"PC-MOS"
---------N-1409--DXFFFF-----------------------
-INT 14 - Connection Manager - SEND BREAK
-        AH = 09h
-        DX = FFFFh
-        AL = connection ID
-Return: AH = return code (00h-02h) (see #00303 at AH=00h/DX=FFFFh)
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=02h/DX=FFFFh,AH=03h/DX=FFFFh
 --------S-140A-------------------------------
 INT 14 - FOSSIL - PURGE INPUT BUFFER THROWING AWAY ALL PENDING INPUT
         AH = 0Ah
@@ -5223,17 +4835,6 @@ Offset  Size    Description     (Table 00338)
 1FBh    BYTE    reserved (0) for additional flags/status
 1FCh    WORD    user data
 1FEh    WORD    MBBIOS-internal pointer to next buffer
---------N-140A--DXFFFF-----------------------
-INT 14 - Connection Manager - MODIFY ACTIVE CONNECTION PARAMETERS
-        AH = 0Ah
-        DX = FFFFh
-        ES:DI -> vector string containing new parameters (see #00311)
-Return: AH = return code (00h-03h,06h) (see #00303)
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-Note:   any subvectors valid for the Change Parameters command replace the
-          existing values in the current set
-SeeAlso: AH=00h/DX=FFFFh,AH=0Fh/DX=FFFFh
 --------S-140B-------------------------------
 INT 14 - FOSSIL - TRANSMIT NO WAIT
         AH = 0Bh
@@ -5259,24 +4860,6 @@ Note:   the PACCOM version of MBBIOS does not use CX or ES:DI on call,
           received packet, or 0000h if no packets available; the buffer may
           be freed with AH=0Ch"MBBIOS"
 SeeAlso: AH=02h,AH=08h"MBBIOS",AH=0Ah"MBBIOS",AH=0Ch"MBBIOS",AH=18h"FOSSIL"
---------N-140B--DXFFFF-----------------------
-INT 14 - Connection Manager - PREPARE FOR INBOUND CONNECTION
-        AH = 0Bh
-        DX = FFFFh
-        AL = service name
-            00h use parameter file or default
-            01h use specified name
-                ES:DI -> 16-byte blank-padded name
-        BH = connection notification
-            00h program awaiting connection, don't notify user
-            01h notify user on connecting
-        BL = connection type
-            00h connection will use Connection Manager API
-Return: AH = return code (00h-02h) (see #00303 at AH=00h/DX=FFFFh)
-        AL = connection ID if AH=00h
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=04h/DX=FFFFh,AH=0Ch/DX=FFFFh,AH=10h/DX=FFFFh
 --------S-140C-------------------------------
 INT 14 - FOSSIL - NON-DESTRUCTIVE READ AHEAD
         AH = 0Ch
@@ -5292,17 +4875,6 @@ Return: ES = segment of allocated buffer (if ES=0000h on entry)
 Note:   the PACCOM version of MBBIOS uses only ES as buffer address for
           AH=0Ah and AH=0Bh
 SeeAlso: AH=0Ah"MBBIOS",AH=0Bh"MBBIOS"
---------N-140C--DXFFFF-----------------------
-INT 14 - Connection Manager - TEST FOR INBOUND CONNECTION REQUEST
-        AH = 0Ch
-        DX = FFFFh
-        AL = connection ID from AH=0Bh/DX=FFFFh
-Return: AH = return code (00h-03h) (see also #00303 at AH=00h/DX=FFFFh)
-            03h not prepared for inbound connection
-        AL = connection ID (if AH=00h) or correct connection ID (if AH=02h)
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=03h/DX=FFFFh,AH=04h/DX=FFFFh,AH=0Bh/DX=FFFFh
 --------S-140D-------------------------------
 INT 14 - FOSSIL - KEYBOARD READ WITHOUT WAIT
         AH = 0Dh
@@ -5328,18 +4900,6 @@ INT 14 - MBBIOS PACCOM support - SET TXD
 Return: nothing
 Desc:   specify the time from RTS to start or packet
 SeeAlso: AX=0D00h,AH=0Eh"MBBIOS",AH=0Fh"MBBIOS"
---------N-140D--DXFFFF-----------------------
-INT 14 - Connection Manager - TERMINATE CONNECTION CLIENT ACTIVITY
-        AH = 0Dh
-        DX = FFFFh
-Return: AH = return code
-            00h successful
-            nonzero operation not terminated
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-Desc:   end all Connection Client TSR activity to allow it to be removed from
-          memory
-SeeAlso: AH=05h/DX=FFFFh,AH=6Fh/BX=FFFFh
 --------S-140D00-----------------------------
 INT 14 - MBBIOS - GET AVAILABLE BYTES
         AX = 0D00h
@@ -5386,17 +4946,6 @@ INT 14 - MBBIOS PACCOM support - SET PERSISTENCE
 Return: nothing
 Desc:   specify the time from end of DCD to RTS
 SeeAlso: AH=0Dh"MBBIOS",AH=0Fh"MBBIOS"
---------N-140E--DXFFFF-----------------------
-INT 14 - Connection Manager - SET HARDWARE FLOW STATE
-        AH = 0Eh
-        DX = FFFFh
-        AL = connection ID from AH=04h/DX=FFFFh
-        BL = RTS state (00h off, 01h on)
-Return: AH = return code (00h-03h) (see also #00303 at AH=00h/DX=FFFFh)
-            03h invalid request (BL not 00h or 01h)
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=03h/DX=FFFFh,AH=0Ah/DX=FFFFh
 --------S-140F-------------------------------
 INT 14 - FOSSIL - ENABLE/DISABLE FLOW CONTROL
         AH = 0Fh
@@ -5429,19 +4978,6 @@ INT 14 - MBBIOS PACCOM support - SET SLOT TIME
 Return: nothing
 Desc:   specify the time from end of DCD to RTS
 SeeAlso: AH=0Dh"MBBIOS",AH=0Eh"MBBIOS",AH=10h"MBBIOS"
---------N-140F--DXFFFF-----------------------
-INT 14 - Connection Manager - RETURN ACTIVE CONNECTION PARAMETERS
-        AH = 0Fh
-        DX = FFFFh
-        AL = connection ID
-        CX = size of buffer or 0000h to get length of returned vector
-        ES:DI -> buffer for connection parameter vector (see #00311)
-Return: AH = return code (00h-02h,06h) (see #00303 at AH=00h/DX=FFFFh)
-        CX = number of bytes which could not be returned because the given
-              buffer was too small
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-SeeAlso: AH=08h/DX=FFFFh,AH=0Ah/DX=FFFFh
 --------S-1410-------------------------------
 INT 14 - FOSSIL - EXTENDED ^C/^K CHECKING AND TRANSMIT ON/OFF
         AH = 10h
@@ -5466,37 +5002,6 @@ INT 14 - MBBIOS PACCOM support - SET CRC WAIT
 Return: nothing
 Desc:   specify the time from start of last character to dropping RTS
 SeeAlso: AH=0Dh"MBBIOS",AH=0Fh"MBBIOS"
---------N-1410--DXFFFF-----------------------
-INT 14 - Connection Manager - QUERY SERVICE NAMES
-        AH = 10h
-        DX = FFFFh
-        CL = subfunction
-            00h search first
-            01h search next
-        ES:DI -> pattern buffer (see #00341)
-Return: AH = return code (00h,01h,03h,06h) (see also #00303 at AH=00h/DX=FFFFh)
-            01h no (more) matching names
-            03h invalid request
-        ES:DI buffer filled with reply buffer (see #00341) containing matched
-                  name if AH=00h
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
-Desc:   obtain the names of groups and lines available for connection requests,
-          and the names of active Connection Servers
-SeeAlso: AH=04h/DX=FFFFh,AH=0Bh/DX=FFFFh
-
-Format of Connection Manager pattern/reply buffer:
-Offset  Size    Description     (Table 00341)
- 00h    WORD    length of pattern (30h or 32h)
- 02h 16 BYTEs   server pattern or name
- 12h 16 BYTEs   group pattern or name
- 22h 16 BYTEs   line pattern or name
- 23h    BYTE    (optional) ???
- 24h    BYTE    (optional, returned) current line status
-                00h available
-                01h out of service
-                02h currently allocated to a connection
-Note:   pattern may include '?' wildcard to match any character
 --------S-1411-------------------------------
 INT 14 - FOSSIL - SET CURRENT CURSOR LOCATION
         AH = 11h
@@ -6372,19 +5877,6 @@ INT 14 - HUNTER 16 - SET DTR
 Return: AH = 00h
 Desc:   determine whether the DTR signal on COM1 should be forced high
 SeeAlso: AX=2C00h
---------N-1436-------------------------------
-INT 14 - ComShare - INSTALLATION CHECK
-        AH = 36h
-Return: AX = 4353h ('CS') if installed
-            BX = bitmap of installed ports (bit 0: COM1 is gateway, etc.)
-            CX reserved for future use
-            WORD DX:[0100h] = ComShare version number
-Program: The ComShare System is a modem-sharing program for NetBIOS and
-          NetWare-based networks by NashaKala Corporation
-Note:   ComShare supports the standard BIOS INT 14h calls with a slight
-          change in the interpretation of speed values
-          (see #00309 at AH=04h"SERIAL")
-SeeAlso: AH=00h"SERIAL",AH=04h"SERIAL",AX=F4FFh
 --------t-144000-----------------------------
 INT 14 - I1541 - INSTALLATION CHECK
         AX = 4000h
@@ -6551,21 +6043,6 @@ INT 14 U - BWCOM14 - SHUTDOWN
 Return: CX = status (0001h successful, 0002h not initialized)
 Note:   after this call, BWCOM14 will no longer redirect the COM port
 SeeAlso: AH=56h,AH=57h
---------N-146F--BXFFFE-----------------------
-INT 14 U - Connection Manager - ???
-        AH = 6Fh
-        BX = FFFEh
-        ???
-Return: ???
-Program: Connection Manager by Softwarehouse Corp. permits the sharing of
-          serial ports over an IPX or NetBIOS-based network
---------N-146F--BXFFFF-----------------------
-INT 14 - Connection Manager - INSTALLATION CHECK
-        AH = 6Fh
-        BX = FFFFh
-Return: DX:BX -> Connection Manager Communication Table if installed
-        BX = FFFFh if not installed
-SeeAlso: AH=0Dh/DX=FFFFh
 --------S-146F00-----------------------------
 INT 14 - HP Vectra EX-BIOS - "F14_INQUIRE" - INSTALLATION CHECK
         AX = 6F00h
@@ -7724,42 +7201,6 @@ INT 14 - Interconnections Inc. TES - SEND STRING TO COMMAND INTERPRETER
         AL = 00h no visible response
         ES:SI -> ASCIZ command
 Return: ???
---------N-14A8-------------------------------
-INT 14 - Novell TelAPI v4.01 - CONNECTION INFORMATION???
-        AH = A8h
-        DH = session ID???
-        CH = subfunction
-            02h ???
-            0Dh ???
-            0Fh ???
-            10h ???
-            11h ???
-            28h ???
-            else
-                Return: AH = 09h (not supported)
-Return: AH = return code (see #00394)
-            00h successful
-                CL = ??? (0/1/8) (subfunctions 02h,0Dh,0Fh,10h)
-                CL = ??? (7Fh/FFh) (subfunction 28h)
-                CX = ??? (subfunction 11h)
-SeeAlso: AH=A9h"TelAPI"
---------N-14A9-------------------------------
-INT 14 - Novell TelAPI v4.01 - CONNECTION CONTROL???
-        AH = A9h
-        DH = session ID???
-        CH = subfunction
-            02h ???
-            0Dh ???
-            0Fh ???
-            10h ???
-            11h ???
-            28h ???
-            else
-                Return: AH = 09h (not supported)
-        ???
-Return: AH = return code (see #00394)
-        ???
-SeeAlso: AH=A8h"TelAPI",AH=E4h,INT 6B/AX=0600h
 --------V-14AA01-----------------------------
 INT 14 - DimVGA v2.0+ - INSTALLATION CHECK
         AX = AA01h
@@ -7958,32 +7399,6 @@ Return: AH = return code (00h,03h,09h-0Bh) (see #00394)
         ---if AL=00h---
         CX = configuration item value (above)
 SeeAlso: AH=B2h
---------N-14E0-------------------------------
-INT 14 - TelAPI - "telopen" - CREATE TELNET CONNECTION (BLOCKING)
-        AH = E0h
-        BX = port number to connect with (default 0017h used if <= 0)
-        CX:DX = Internet address of remote host
-        DS:DI -> 2-byte remote host (session) identifier
-        ES:SI -> 1700-byte buffer for Telnet state record
-            0000h:0000h to use TelAPI internally-allocated space
-Return: AX = status (0000h-0009h,FED3h,FF37h,FFBDh,FFC0h,FFCDh) (see #00397)
-        ES:SI buffer filled with state record
-        ES:SI -> internally-allocated state record in some versions
-Note:   the remote host identifier may be used to refer to this connection
-SeeAlso: AH=E1h,AH=ECh,AX=FF00h
-
-(Table 00397)
-Values for TelAPI status:
- 0000h-7FFFh    successful (session number)
- FED3h  (-301)  no session allocated, or out of TelAPI data space
- FF37h  (-201)  all sessions in use
- FFBDh  (-67)   unknown hostname
- FFC0h  (-64)   host not functioning
- FFC3h  (-61)   connection attempt refused
- FFC4h  (-60)   connection attempt timed out
- FFC8h  (-56)   socket already connected
- FFCDh  (-51)   network is unreachable
- FFDDh  (-35)   operation would block
 --------S-14E000-----------------------------
 INT 14 - MX5 Extended FOSSIL - GET MNP STATUS BLOCK
         AX = E000h
@@ -8067,191 +7482,6 @@ INT 14 - MX5 Extended FOSSIL - WAIT SPECIFIED NUMBER OF TICKS
         CX = number of ticks to wait
 Return: nothing
 SeeAlso: AX=E006h
---------N-14E1-------------------------------
-INT 14 - TelAPI - "telclose" - TERMINATE TELNET CONNECTION
-        AH = E1h
-        BX = connection ID
-Return: AX = status (0000h,FFF7h,maybe others) (see #00397)
-Note:   flushes and releases all buffers and data space used by the connection
-SeeAlso: AH=E0h,AH=E6h,AX=FF00h
---------N-14E2-------------------------------
-INT 14 - TelAPI - "telread" - BUFFERED READ
-        AH = E2h
-        BX = connection ID (see AH=E0h"TelAPI")
-        CX = length of buffer in bytes
-        ES:SI -> buffer for data
-Return: AX > 0000h number of characters actually read
-        AX = 0000h host has closed connection
-        AX < 0000h error code (see #00397)
-Note:   translates CRLF into local EOL if the connection is in ASCII mode,
-          negotiates various Telnet options, and immediately executes several
-          different Telnet action commands
-SeeAlso: AH=07h"TelAPI",AH=E3h,AH=E6h,AX=FF00h,INT 6B/AH=01h
---------N-14E3-------------------------------
-INT 14 - TelAPI - "telwrite" - BUFFERED WRITE
-        AH = E3h
-        BX = connection ID
-        CX = length of buffer in bytes
-        ES:SI -> buffer containing data
-Return: AX > 0000h number of characters actually written
-        AX < 0000h error code (see #00397)
-Note:   translates local EOL into CRLF if the connection is in ASCII mode,
-          sends the appropriate Telnet commands for the characters selected
-          for IP, AYT, AO, EC, EL, and Break
-SeeAlso: AH=06h"TelAPI",AH=E2h,AH=E6h,AX=FF00h,INT 6B/AH=00h
---------N-14E4-------------------------------
-INT 14 - TelAPI - "telioctl" - CONNECTION CONTROL
-        AH = E4h
-        BX = connection ID (see AH=E0h"TelAPI")
-        CX = Telnet command/option identifier (see #00400)
-        ES:SI -> buffer containing command/option argument (see #00399)
-Return: AX = status (0000h, etc.) (see #00397)
-Desc:   start filter control, initiate Telnet option negotiation, or get filter
-          control status
-SeeAlso: AH=A9h,AH=E6h,AX=FF00h,INT 6B/AX=0600h
-
-Format of TelAPI Telnet command/option argument:
-Offset  Size    Description     (Table 00399)
- 00h  5 WORD    numeric arguments
- 0Ah    DWORD   -> ASCIZ string
-SeeAlso: #00400
-
-(Table 00400)
-Values for TelAPI Telnet command/option identifier:
- 01h    ASCII           args: none
- 02h    BINARY          args: none
- 03h    LOCALECHO       args: none              client echos data
- 04h    REMOTEECHO      args: none              server echos data
- 05h    SGA             args: none              Suppress Go-Ahead signal
- 07h    CHARMODE        args: none              no line-buffering
- 08h    LINEMODE        args: -> erase-line ch  perform line-buffering
- 09h    RECVEOL         args: EOL type
- 0Ah    SENDEOL         args: EOL type
- 0Bh    EOR             args: none              enable end-of-record sequence
- 0Dh    BREAK           args: -> break char
- 0Eh    VERBOSE         args: verbosity         display Telnet negotiations?
- 0Fh    AYT             args: -> AYT escape ch
- 10h    AO              args: -> AO escape char
- 11h    IP              args: -> IP escape char
- 12h    EC              args: -> escape char
- 13h    EL              args: -> escape char
- 14h    STATUS          args: type; returns data in structure
- 18h    TERMTYPE        args: -> terminal type
- 19h    ATTACHPORT      args: port number ; returns session number
- 1Bh    TRANSMIT_EOR    args: EOR enabled       append EOR to every telwrite?
-SeeAlso: #00399
---------N-14E5-------------------------------
-INT 14 - TelAPI - "telreset" - RESET ALL CONNECTIONS
-        AH = E5h
-Return: AX = status (0000h,other) (see also #00397)
-            FFFFh unable to reset
-Desc:   close all sessions and reset TelAPI to defaults
-SeeAlso: AH=E1h,AH=E6h,AX=FF00h
---------N-14E6-------------------------------
-INT 14 - TelAPI - "telunload" - UNINSTALL
-        AH = E6h
-Return: AX = status
-            0000h successful
-            FFFFh unable to uninstall
-Notes:  TelAPI also supports the NASI/NACS and NCSI APIs on INT 6B
-        this function invokes AH=E5h internally
-SeeAlso: AH=E5h,AX=FF00h,INT 6B/AH=00h,INT 6B/AH=10h
---------N-14E7-------------------------------
-INT 14 - TelAPI - "tellist" - GET TELNET SESSION LIST
-        AH = E7h
-        ES:SI -> 10-word buffer for session list
-Return: AX = 0000h (successful)
-        ES:SI buffer filled
-Desc:   determine, for each of the ten allowable sessions, whether the session
-          is currently available
-Note:   each word in the buffer is filled with either 0000h to indicate that
-         the corresponding sesion is unavailable, or 0001h if available
-SeeAlso: AH=E0h,AH=E5h,AX=FF00h
---------N-14E8-------------------------------
-INT 14 - TelAPI - "telattach" - ATTACH COM PORT TO/FROM TELNET SESSION
-        AH = E8h
-        BX = connection ID (see AH=E0h"TelAPI")
-        CX = serial port number (0000h-0003h = COM1-COM4)
-Return: AX = status
-            0000h successful
-            FFFFh failed
-SeeAlso: AH=E0h,AH=E9h,AX=FF00h
---------N-14E9-------------------------------
-INT 14 - TelAPI - "telportosn" - GET SESSION NUMBER FOR COM PORT
-        AH = E9h
-        DX = serial port number (0000h-0003h = COM1-COM4)
-Return: AX >= 0000h session number
-        AX < 0000h error code (see #00397)
-SeeAlso: AH=E0h,AH=E8h,AH=EAh,AX=FF00h
---------N-14EA-------------------------------
-INT 14 - TelAPI - "telstatus" - GET TELNET CONNECTION STATUS INFORMATION
-        AH = EAh
-        BX = connection ID (see AH=E0h"TelAPI")
-        ES:SI -> buffer for status info (see #00401)
-Return: AX = status (0000h,FFFFh,etc.)
-SeeAlso: AH=E9h,AH=EBh,AX=FF00h
-
-Format of TelAPI Telnet connection status information:
-Offset  Size    Description     (Table 00401)
- 00h  4 BYTEs   remote host IP address
- 04h 20 BYTEs   reserved
- 18h    WORD    local port number
- 1Ah    BYTE    connection mode (00h = ASCII, 01h = Binary)
- 1Bh    BYTE    echo flag (00h local, 01h remote)
- 1Ch    BYTE    SGA flag (00h will, 01h won't)
- 1Dh    BYTE    EOR negotation flag (00h do negotiate, 01h don't)
- 1Eh    BYTE    buffering (00h line mode, 01h character mode)
- 1Fh    BYTE    reserved
- 20h    BYTE    verbose flag (00h no, 01h verbose mode)
- 21h    BYTE    received EOL (00h no xlat, 01h CR, 02h LF, 03h CRLF)
- 22h    BYTE    sent EOL (00h no translation, 01h CR, 02h LF)
- 23h    BYTE    break character
- 24h    BYTE    IP escape character
- 25h    BYTE    AO escape character
- 26h    BYTE    AYT escape character
- 27h    BYTE    EC escape character
- 28h    BYTE    EL escape character
- 29h 41 BYTEs   ASCIZ Telnet-negotiated terminal type
- 52h  9 BYTEs   session ID
-SeeAlso: #00402
---------N-14EB-------------------------------
-INT 14 - TelAPI - "telname" - GET AVAILABLE/INUSE STATUS FOR ALL SESSIONS
-        AH = EBh
-        ES:SI -> buffer for session statuses (see #00402)
-Return: ES:SI buffer filled
-SeeAlso: AH=E9h,AH=EAh,AX=FF00h
-
-Format of TelAPI session status information [array]:
-Offset  Size    Description     (Table 00402)
- 00h    BYTE    session state (00h available, 01h connected)
- 01h  9 BYTEs   session ID if connected
- 0Ah    WORD    attached COM port if connected, FFFFh if not
-SeeAlso: #00401
---------N-14EC-------------------------------
-INT 14 - TelAPI - "telnblkopen" - CREATE TELNET CONNECTION (NON-BLOCKING)
-        AH = ECh
-        BX = port number to connect with (default 0017h used if <= 0)
-        CX:DX = Internet address of remote host
-        DS:DI -> 2-byte remote host (connection) identifier
-        ES:SI -> 1700-byte buffer for Telnet state record
-            0000h:0000h to use TelAPI internally-allocated space
-Return: AX = status (0000h-0009h,FED3h,FF37h,FFBDh,FFC0h,FFCDh) (see #00397)
-        ES:SI buffer filled with state record
-        ES:SI -> internally-allocated state record in some versions
-Notes:  the remote host identifier may be used to refer to this connection
-        this function returns immediately; use AH=EDh to check whether the
-          connection has been established yet
-        this function is not supported by the Microdyne TelAPI v3.7
-SeeAlso: AH=E0h"TelAPI",AH=EDh,AX=FF00h
---------N-14ED-------------------------------
-INT 14 - TelAPI - "telpoll" - POLL TELNET SESSION FOR CONNECTION COMPLETION
-        AH = EDh
-        BX = connection ID (see AH=ECh)
-Return: AX = status (0000h,0001h,FFFFh,etc.) (see also #00397)
-            0000h session now connected
-            0001h connection still in progress
-Note:   this function is not supported by the Microdyne TelAPI v3.7
-SeeAlso: AH=EDh,AX=FF00h
 --------a-14F0F0-----------------------------
 INT 14 - ASAP v1.0 - ???
         AX = F0F0h
@@ -8309,12 +7539,6 @@ SeeAlso: AH=02h,AH=0Ch,AX=FF02h
 INT 14 - IBM/Yale EBIOS SERIAL I/O - READ STATUS
         AX = FD02h
 Return: CX = number of characters available
---------N-14FF00-----------------------------
-INT 14 - TelAPI - "telcheck" - INSTALLATION CHECK
-        AX = FF00h
-Return: AX = 00FFh if installed
-            BX = version number * 100 (decimal)
-SeeAlso: AH=E6h,AX=F4FFh
 --------S-14FF01-----------------------------
 INT 14 - IBM/Yale EBIOS SERIAL I/O - SET SEND BUFFER
         AX = FF01h

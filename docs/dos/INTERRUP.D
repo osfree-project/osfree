@@ -3733,24 +3733,6 @@ Return: AX = 5ACBh
         ES = DMP code segment (also data segment)
 Program: DMP is a Printer driver/spooler, by DMP (USA), available on the
           PCTODAY disk, volume 10, March 1991
---------N-170300-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "socket"
-        AX = 0300h
-        CX = type of socket from  socket( domain, type, protocol )
-        DX = local identifier of socket (0 - 31)
-Return: AX = 0000h success
-            CX = segment of 4500 byte transfer buffer
-            DX = offset of 4500 byte transfer buffer
-           = FFFFH failure
-            CX = error code
-                ENFILE      23
-Program: DOSISODE is the ISO developers environment which has been ported to
-          DOS and will run with the Waterloo TCP turned into a resident TSR.
-          Currently it allows a maximum of 6 open sockets.
-Note:   this function will initialize the interface the first time it is
-          called
-SeeAlso: AX=0400h"DOSISODE",AX=0600h"DOSISODE",AX=0800h"DOSISODE"
-SeeAlso: AX=0A00h"DOSISODE",AX=0C00h"DOSISODE",AX=0E00h"DOSISODE"
 --------P-1704-------------------------------
 INT 17 U - Emulaser ELTSR - BEGIN CAPTURING OUTPUT
         AH = 04h
@@ -3760,11 +3742,6 @@ SeeAlso: AH=03h"Emulaser",AX=0503h,INT 1A/AH=E5h
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 04h
 SeeAlso: AH=03h"IBM",AH=05h"IBM"
---------N-170400-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "bind"
-        AX = 0400h
-Note:   this function just returns
-SeeAlso: AX=0300h"DOSISODE",AX=0500h"DOSISODE",AX=0C00h"DOSISODE"
 ----------1705-------------------------------
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 05h
@@ -3780,10 +3757,6 @@ Return: AX = unload status (0001h safe to unload, 0002h not safe)
         SI = ???
         DI = ???
 SeeAlso: AH=04h,INT 1A/AH=E5h
---------N-170500-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "connect"
-        AX = 0500h
-SeeAlso: AX=0400h"DOSISODE",AX=0700h"DOSISODE",AX=0C00h"DOSISODE"
 --------P-170501-----------------------------
 INT 17 U - Emulaser ELTSR - UNHOOK INTERRUPTS
         AX = 0501h
@@ -3812,12 +3785,6 @@ INT 17 U - Emulaser ELTSR - ???
         ???
 Return: ???
 SeeAlso: AX=0500h,AX=0503h,AH=07h"ELTSR",INT 1A/AH=E5h
---------N-170600-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "listen"
-        AX = 0600h
-Note:   this function just returns
-SeeAlso: AX=0300h"DOSISODE",AX=0700h"DOSISODE",AX=0C00h"DOSISODE"
-SeeAlso: AX=0E00h"DOSISODE"
 --------P-1707-------------------------------
 INT 17 U - Emulaser ELTSR - OPEN CAPTURE FILE
         AH = 07h
@@ -3825,11 +3792,6 @@ INT 17 U - Emulaser ELTSR - OPEN CAPTURE FILE
 Return: ???
 Note:   new output will be appended to the specified file
 SeeAlso: AH=08h,INT 1A/AH=E5h
---------N-170700-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "accept"
-        AX = 0700h
-Note:   this function just returns
-SeeAlso: AX=0600h"DOSISODE",AX=0800h"DOSISODE",AX=0C00h"DOSISODE"
 --------P-1708-------------------------------
 INT 17 U - Emulaser ELTSR - CLOSE CAPTURE FILE
         AH = 08h
@@ -3837,10 +3799,6 @@ INT 17 U - Emulaser ELTSR - CLOSE CAPTURE FILE
 Return: ???
 Desc:   close the file previously opened by function 07h
 SeeAlso: AH=07h,INT 1A/AH=E5h
---------N-170800-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "recvfrom"
-        AX = 0800h
-SeeAlso: AX=0500h"DOSISODE",AX=0900h"DOSISODE",AX=0A00h"DOSISODE"
 --------P-1709-------------------------------
 INT 17 U - Emulaser ELTSR - PRINT CAPTURE FILE???
         AH = 09h
@@ -3855,10 +3813,6 @@ Program: ELTSR is the resident portion of the Emulaser PostScript emulator by
 Note:   this function calls through to INT 1A/AX=E401h, and thus requires
           that either ELSPL or Disk Spool II be installed
 SeeAlso: AH=0Ah,INT 1A/AX=E401h,INT 1A/AH=E5h
---------N-170900-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "sendto"
-        AX = 0900h
-SeeAlso: AX=0700h"DOSISODE",AX=0800h"DOSISODE",AX=0A00h"DOSISODE"
 --------P-170A-------------------------------
 INT 17 U - Emulaser ELTSR - SET ??? FILENAME
         AH = 0Ah
@@ -3868,10 +3822,6 @@ Return: ???
 Note:   copies the specified name into the buffer passed to ELSPL as the
           filename by AH=09h
 SeeAlso: AH=09h,INT 1A/AH=E5h
---------N-170A00-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "select"
-        AX = 0A00h
-SeeAlso: AX=0800h"DOSISODE",AX=0B00h"DOSISODE",AX=0E00h"DOSISODE"
 --------P-170B-------------------------------
 INT 17 U - Emulaser ELTSR - GET ???
         AH = 0Bh
@@ -3881,12 +3831,6 @@ SeeAlso: AH=0Ah,INT 1A/AH=E5h
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 0Bh
 SeeAlso: AH=03h"IBM",AH=0Ch"IBM"
---------N-170B00-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "ioctl"
-        AX = 0B00h
-        DX = local identifier of socket (0 - 31)
-Note:   this function sets the socket into non_block mode
-SeeAlso: AX=0A00h"DOSISODE",AX=0C00h"DOSISODE",AX=0E00h"DOSISODE"
 --------P-170C-------------------------------
 INT 17 U - Emulaser ELTSR - SET ??? FLAG
         AH = 0Ch
@@ -3897,10 +3841,6 @@ SeeAlso: AH=0Bh,INT 1A/AH=E5h
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 0Ch
 SeeAlso: AH=0Bh"IBM",AH=0Dh"IBM"
---------N-170C00-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "close"
-        AX = 0C00h
-SeeAlso: AX=0300h"DOSISODE",AX=0500h"DOSISODE",AX=0D00h"DOSISODE"
 --------P-170D-------------------------------
 INT 17 U - Emulaser ELTSR - GET TRUE ScrlLk STATE
         AH = 0Dh
@@ -3912,11 +3852,6 @@ SeeAlso: AH=0Ch,INT 16/AH=02h,INT 1A/AH=E5h
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 0Dh
 SeeAlso: AH=0Ch"IBM",AH=0Eh"IBM"
---------N-170D00-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - "shutdown" - SHUTDOWN INTERFACE
-        AX = 0D00h
-Note:   this function is used to shutdown the interface
-SeeAlso: AX=0C00h"DOSISODE",AX=0E00h"DOSISODE"
 --------P-170E-------------------------------
 INT 17 U - Emulaser ELTSR - BACKGROUND PROCESSING
         AH = 0Eh
@@ -3930,15 +3865,6 @@ SeeAlso: AH=0Dh,INT 1A/AH=E5h
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 0Eh
 SeeAlso: AH=03h"IBM",AH=0Dh"IBM",AH=80h"IBM"
---------N-170E00-----------------------------
-INT 17 - DOSISODE to WATTCP TSR Interface - INSTALLATION CHECK
-        AX = 0E00h
-Return: CX = 1234h if installed
-Program: DOSISODE is the ISO developers environment which has been ported to
-          DOS and will run with the Waterloo TCP turned into a resident TSR.
-          Currently it allows a maximum of 6 open sockets.
-Note:   this function is used to check if the interface is loaded
-SeeAlso: AX=0300h"DOSISODE",AX=0A00h"DOSISODE"
 --------P-172000-----------------------------
 INT 17 - PC Paint Plus 2.0 - PRINTER DRIVER - INSTALLATION CHECK
         AX = 2000h
@@ -4020,109 +3946,6 @@ INT 17 - PC Paint Plus 2.0 - PRINTER DRIVER - UNIMPLEMENTED
         AX = 2007h
 Return: AX unchanged
 SeeAlso: AX=2000h
---------N-172400-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - ENABLE/DISABLE API FUNCTIONS
-        AX = 2400h
-        DL = new state
-            00h disabled
-            01h enabled
-Return: DL = 24h if installed
-        DH = minor version number
-        CX = network address of this machine
-        AL = status (see #00640)
-SeeAlso: AX=2403h,INT 16/AX=4500h
-
-(Table 00640)
-Values for NET.24 function status:
- 00h    successful
- 01h    timeout
- 02h    header error
- 03h    data error
- 04h    busy
- 05h    invalid parameters
---------N-172401-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - RECEIVE BLOCK, NO HANDSHAKE
-        AX = 2401h
-        BL = timeout in clock ticks
-Return: AL = status (see #00640)
-        DX:BX -> receive buffer
-SeeAlso: AX=2402h,AX=2404h,AX=2408h
---------N-172402-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - TRANSMIT BLOCK, NO HANDSHAKE
-        AX = 2402h
-        transmit buffer filled (see AX=2403h)
-Return: AL = status (see #00640)
-SeeAlso: AX=2401h,AX=2403h,AX=2404h,AX=2409h
---------N-172403-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - GET STATUS AND TRANSMISSION BUFFER
-        AX = 2403h
-Return: AL = status (see #00640)
-        CX = number of characters in receive ring buffer
-        DX:BX -> transmit buffer
-SeeAlso: AX=2400h,AX=2402h
---------N-172404-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - SEND ACK BLOCK
-        AX = 2404h
-        BX = target address
-Return: AL = status (see #00640)
-SeeAlso: AX=2402h,AX=2405h
---------N-172405-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - SEND NAK BLOCK
-        AX = 2405h
-        BX = target address
-Return: AL = status (see #00640)
-SeeAlso: AX=2402h,AX=2404h
---------N-172406-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - PREPARE CHARACTER-ORIENTED RECEIVE
-        AX = 2406h
-Return: AL = status (see #00640)
-SeeAlso: AX=2407h,AX=240Ah
---------N-172407-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - RECEIVE CHARACTER FROM REMOTE
-        AX = 2407h
-Return: AL = status (see also #00640)
-            06h end of data
-        DL = received character
-SeeAlso: AX=2406h
---------N-172408-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - RECEIVE BLOCK, WITH HANDSHAKE
-        AX = 2408h
-Return: AL = status (see also #00640)
-            06h end of data
-        CX = number of bytes in receive buffer
-        DX:SI -> receive buffer
-SeeAlso: AX=2401h,AX=2405h,AX=2409h
---------N-172409-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - TRANSMIT COMMAND, WITH HANDSHAKE
-        AX = 2409h
-        BX = target address
-        CX = number of data bytes
-        DL = command code to send
-        DS:SI -> data bytes for command
-Return: AL = status (see also #00640)
-            03h no response
-            06h remote currently unable to perform command
-SeeAlso: AX=2405h,AX=2408h
---------N-17240A-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - PREPARE CHARACTER-ORIENTED TRANSMIT
-        AX = 240Ah
-Return: AL = status (see #00640)
-SeeAlso: AX=2406h,AX=240Bh,AX=240Ch
---------N-17240B-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - TRANSMIT SINGLE CHARACTER TO REMOTE
-        AX = 240Bh
-        DL = character to send
-Return: AL = status (see also AX=2400h)
-            03h transmission error
-            06h write error
-SeeAlso: AX=2407h,AX=240Ah,AX=240Ch
---------N-17240C-----------------------------
-INT 17 - Shamrock Software NET.24 v3.11+ - END CHARACTER-ORIENTED TRANSMIT
-        AX = 240Ch
-Return: AL = status (see also AX=2400h)
-            03h transmission error
-            06h remote breaks connection
-SeeAlso: AX=240Ah,AX=240Bh
 --------p-174B00-----------------------------
 INT 17 - Brother P-Touch - INSTALLATION CHECK
         AX = 4B00h
@@ -4278,64 +4101,6 @@ SeeAlso: AH=00h,AX=6F00h,INT 14/AX=6F02h
 INT 17 - IBM SurePath BIOS - Officially "Private" Function
         AH = 80h
 SeeAlso: AH=03h"IBM",AH=0Bh"IBM"
---------N-1781-------------------------------
-INT 17 - Alloy NTNX, MW386 - CANCEL JOBS FOR CURRENT USER
-        AH = 81h
-        AL = 00h (NTNX compatibility mode)
-        CL = number of jobs to cancel
-Return: AL = status (see #00642)
-Note:   this function cancels the last CL printouts for the current task
-SeeAlso: AH=82h
-
-(Table 00642)
-Values for Alloy status:
- 00h    success
- 01h-7Fh warning
- 80h    general failure
- 81h    host overloaded (NTNX only)
- 82h    module busy (NTNX only)
- 83h    host busy (NTNX only)
- 84h    re-entry flag set
- 85h    invalid request
- 86h    invalid printer
- 87h    invalid process ID
- 89h    access denied
- 8Ah    option not available for given port type
- 8Bh    option not available for given task type
- 91h    printer busy
- C2h    file not found
- C3h    path not found
- C4h    file access failure
---------N-1782-------------------------------
-INT 17 - Alloy NTNX, MW386 - CANCEL ALL JOBS FOR CURRENT USER
-        AH = 82h
-        AL = 00h (NTNX compatibility mode)
-Return: AL = status (see #00642)
-SeeAlso: AH=81h
---------N-1783-------------------------------
-INT 17 - Alloy NTNX, MW386 - SET NUMBER OF COPIES
-        AH = 83h
-        AL = mode
-            00h NTNX compatibility
-                CL = number of copies (max 99, default 1)
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-                CX = number of copies
-Return: AL = status (see #00642)
-Note:   in NTNX compatibility mode, this function only affects LPT1
---------N-1784-------------------------------
-INT 17 - Alloy NTNX, MW386 - GENERATE PRINT BREAK
-        AH = 84h
-        AL = mode
-            00h NTNX compatibility
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-Note:   closes spool file and tells spooler to queue the print job (LPT1 only
-          under MW386 in NTNX compatibility mode)
 --------J-1784-------------------------------
 INT 17 - AX (Japanese AT) PRINTER - OUTPUT CHARACTER WITHOUT CONVERSION
         AH = 84h
@@ -4348,340 +4113,6 @@ INT 17 - AX (Japanese AT) PRINTER - ENABLE/DISABLE CHARACTER CONVERSION
         AH = 85h
         AL = new state (00h enabled, 01h disabled)
 SeeAlso: AH=84h"AX"
---------N-1787-------------------------------
-INT 17 - Alloy NTNX - SET INDOS POINTER
-        AH = 87h
-        AL = 00h
-        CX:BX -> buffer for user-written printer drivers
-Return: BX,CX destroyed
-Note:   must be executed before the printer is enabled
-SeeAlso: AH=8Ah
---------N-1788-------------------------------
-INT 17 - Alloy NTNX, MW386 - REMOVE PRINTER FROM SPOOLER
-        AH = 88h
-        AL = mode
-            00h NTNX compatibility
-                DX = NTNX printer number (see #00643)
-            01h MW386
-                DX = MW386 printer number
-Return: AH = status (see #00642)
-Note:   removes specified printer from the spooler's list of printers
-SeeAlso: AH=89h,AH=8Bh
-
-(Table 00643)
-Values for Alloy NTNX printer number:
- 00h    host LPT1
- 01h    host LPT2
- 02h    host LPT3
- 03h    host LPT4
- 04h    host COM1
- 05h    host COM2
- 06h    user's logical COM2
- 07h    user's terminal AUX port
- 08h    user's logical COM1 (MW386 only)
---------N-1789-------------------------------
-INT 17 - Alloy NTNX, MW386 - ADD PRINTER TO SPOOLER
-        AH = 89h
-        AL = mode
-            00h NTNX compatibility
-                DX = NTNX printer number (see #00643)
-            01h MW386
-                DX = MW386 printer number
-Return: AL = status (see #00642)
-Note:   the specified printer is added to the spooler's list of available
-          printers
-SeeAlso: AH=88h,AH=8Bh
---------N-178A-------------------------------
-INT 17 - Alloy NTNX - ACTIVATE USER-WRITTEN PRINTER DRIVER
-        AH = 8Ah
-        ???
-SeeAlso: AH=92h
---------N-178B-------------------------------
-INT 17 - Alloy MW386 - GET PHYSICAL DEVICE NUMBER FROM NAME
-        AH = 8Bh
-        DS:DX -> ASCIZ printer name
-Return: AL = status (see also AH=81h)
-            00h successful
-                DX = physical device number
-SeeAlso: AH=89h,AH=8Ch,INT 14/AH=20h"Alloy"
---------N-178C-------------------------------
-INT 17 - Alloy MW386 - GET DEVICE NAME FROM PHYSICAL DEVICE NUMBER
-        AH = 8Ch
-        DX = physical device number
-        ES:DI -> 17-byte buffer for ASCIZ device name
-Return: AL = status (see also AH=81h)
-            00h successful
-                ES:DI buffer filled
-SeeAlso: AH=88h,AH=8Bh
---------N-178D-------------------------------
-INT 17 - Alloy NTNX,MW386 - RESET SPOOLER
-        AH = 8Dh
-        AL = 00h
-Return: AL = status (see #00642)
-Notes:  clears all buffers and resets spooler to boot-up values
-        MW386 supports this function for compatibility only; it is a NOP
---------N-178E-------------------------------
-INT 17 - Alloy NTNX - GET INT 28 ENTRY POINT
-        AH = 8Eh
-        AL = 00h
-Return: CX:BX -> INT 28 entry point
-SeeAlso: AH=8Fh
---------N-178F-------------------------------
-INT 17 - Alloy NTNX - GET DOS INTERCEPT ENTRY POINT
-        AH = 8Fh
-        AL = 00h
-Return: CX:BX -> DOS intercept routine
-SeeAlso: AH=8Eh
---------N-1790-------------------------------
-INT 17 - Alloy NTNX, MW386 - SPOOL FILE BY NAME
-        AH = 90h
-        AL = mode
-            00h NTNX compatibility
-                DL = printer code (FFh=current) (NTNX, MW386 v1.x only)
-                DH = number of copies (FFh=current) (NTNX, MW386 v1.x only)
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-        CX:SI -> ASCIZ pathname
-Return: AL = status (see #00642)
-Note:   in mode 00h, the file is always sent to logical LPT1
-SeeAlso: AH=A0h
---------N-1791-------------------------------
-INT 17 - Alloy NTNX, MW386 - GET USER NUMBER AND CURRENT PRINTER
-        AH = 91h
-        AL = mode
-            00h NTNX compatibility
-                Return: CX = user number (00h = host)
-                        DX = currently selected printer number (00h-08h)
-            01h MW386
-                Return: CX = user number
-                        DX = physical dev number of currently selected printer
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-                Return: CX = user number
-                        DX = physical device number
-Return: AL = status (see #00642)
-SeeAlso: AH=8Ch
---------N-1792-------------------------------
-INT 17 - Alloy NTNX - CHECK PRINTER DRIVER
-        AH = 92h
-        AL = 00h
-        CL = 00h
-Return: CL = driver state
-            01h initialized
-            80h not initialized
-        AX = status (see #00642)
-SeeAlso: AH=8Ah
---------N-1794-------------------------------
-INT 17 - Alloy NTNX, MW386 - SELECT PRINTER
-        AH = 94h
-        AL = mode
-            00h NTNX compatibility
-                DX = NTNX printer number (see #00643)
-            01h MW386
-                DX = MW386 printer number
-            02h MW386 v2+
-                BX = logical printer number
-                DX = MW386 printer number
-Return: AL = status (see #00642)
-Note:   modes 00h and 01h affect only logical LPT1
-SeeAlso: AH=8Bh,AH=95h
---------N-1795-------------------------------
-INT 17 - Alloy NTNX, MW386 - GET CURRENT PRINTER
-        AH = 95h
-        AL = mode
-            00h NTNX compatibility
-                Return: DX = NTNX printer number (see #00643)
-                            (FFFFh if current printer not compatible with NTNX)
-            01h MW386
-                Return: DX = MW386 printer number
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-                Return: DX = MW386 printer number (FFFFh = none)
-Return: AL = status (see #00642)
-Note:   modes 00h and 01h return the printer number of logical LPT1 only
-SeeAlso: AH=94h
---------N-1796-------------------------------
-INT 17 - Alloy NTNX - SET SERIAL PORT PARAMETERS
-        AH = 96h
-        AL = 00h
-Note:   documentation states that this is a NOP, doing only XOR AX,AX before
-          returning
-SeeAlso: INT 14/AH=24h
---------N-1797-------------------------------
-INT 17 - Alloy NTNX, MW386 - SET DATA DRIVEN PRINT BREAK
-        AH = 97h
-        AL = mode
-            00h NTNX compatibility
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-        CH,CL,DH = three character break sequence
-        DL = subfunction
-            00h set break string
-            else reset break
-Return: AL = status (see #00642)
-Notes:  mode 00h affects only logical LPT1
-        when the break string is encountered, the spool file will be closed and
-          queued for printing automatically
-        the break string is not permanently saved, and will be reset each time
-          MW386 or the user is rebooted
-SeeAlso: AH=9Bh
---------N-1798-------------------------------
-INT 17 - Alloy NTNX,MW386 - RESTART PRINTER
-        AH = 98h
-        AL = 00h
-        DL = printer number (FFh=current)
-Return: AL = status
-            00h successful
-            01h incorrect printer
-            02h task not found
-Note:   MW386 supports this function for compatibility only; it is a NOP
---------N-1799-------------------------------
-INT 17 - Alloy NTNX, MW386 - GET/SET PRINTER MODE
-        AH = 99h
-        AL = mode
-            00h NTNX compatibility
-                DL = NTNX printer number (see #00643)
-                        (FFh = task's current logical LPT1)
-                DH = mode (see #00644)
-            01h MW386
-                DX = MW386 printer number
-                CL = mode (as for DH above)
-Return: AL = status (see #00642)
-        DH = mode (bits 1 and 2 set as above)
-        DL = printer owner's user number if not spooled
-
-Bitfields for Alloy printer mode:
- 0      get mode if 1, set mode if 0    (Table 00644)
- 1      private ("attached")
- 2      direct instead of spooled
- 3-7    reserved (0)
---------N-179A-------------------------------
-INT 17 - Alloy NTNX,MW386 - SET TAB EXPANSION
-        AH = 9Ah
-        AL = mode
-            00h NTNX compatibility
-                DX = NTNX printer number (see #00643)
-                        (FFFFh = current logical LPT1)
-            01h MW386
-                DX = MW386 printer number
-        CL = tab length (00h = no expansion, 01h-63h = spaces per tab)
-Return: AL = status (see #00642)
-Note:   beginning with MW386 v2.0, tab expansion is set on a per-printer basis
-          rather than a per-user basis; NTNX and MW386 v1.x ignore DX
-SeeAlso: AH=A4h
---------N-179B-------------------------------
-INT 17 - Alloy NTNX,MW386 - SET PRINT BREAK TIMEOUT
-        AH = 9Bh
-        AL = mode
-            00h NTNX compatibility
-                CX = timeout value in clock ticks (1/18 sec) (00h = never)
-            01h MW386
-                CX = timeout value in seconds (00h = never)
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-                CX = timeout value in seconds (00h = never)
-Return: AL = status (see #00642)
-Notes:  modes 00h and 01h affect only the current logical LPT1
-        if no data is sent to a printer for the specified amount of time, the
-          spool file will be closed and queued for printing automatically
-SeeAlso: AH=97h
---------N-17A0-------------------------------
-INT 17 - Alloy MW386 - SPOOL COPY OF FILE
-        AH = A0h
-        AL = mode
-            00h NTNX compatibility
-                DX = ??? (NTNX, MW386 v1.x only)
-            02h MW386 v2+
-                BX = logical device number
-                    00h-03h = LPT1-LPT4
-                    04h-07h = COM1-COM4
-        CX:SI -> ASCIZ pathname
-Return: AL = status (see #00642)
-Notes:  makes a copy of the specified file in the spooler's directory, allowing
-          the original file to be modified or deleted while the copy is printed
-        in mode 00h, the file is printed on logical LPT1
-SeeAlso: AH=90h
---------N-17A4-------------------------------
-INT 17 - Alloy MW386 - ENABLE/DISABLE FORM FEED
-        AH = A4h
-        AL = new state
-            00h form feed after end of print job disabled
-            01h form feed enabled
-Return: AL = status (see #00642)
-Note:   only affects the current logical LPT1
-SeeAlso: AH=9Ah,AH=A6h,INT 7F/AH=05h"NTNX (Host)"
---------N-17A6-------------------------------
-INT 17 - Alloy MW386 - ENABLE/DISABLE BANNER PAGE
-        AH = A6h
-        AL = new state
-            00h banner page before print job disabled
-            01h banner page enabled
-Return: AL = status (see #00642)
-Note:   only affects the current logical LPT1
-SeeAlso: AH=A4h
---------N-17A7-------------------------------
-INT 17 - Alloy MW386 v2+ - GET/SET SPOOL FLAGS
-        AH = A7h
-        AL = spool flags (see #00645)
-        BX = logical device number
-            00h-03h = LPT1-LPT4
-            04h-07h = COM1-COM4
-Return: AL = status (see #00642)
-Note:   the documentation does not state which register contains the result of
-          a GET
-SeeAlso: AH=A4h,AH=A6h
-
-Bitfields for Alloy spool flags:
-Bit(s)  Description     (Table 00645)
- 0      banner page enabled (see AH=A6h)
- 1      form feed enabled (see AH=A4h)
- 2-6    reserved (0)
- 7      set flags if 1, get flags if 0
---------N-17A8-------------------------------
-INT 17 - Alloy MW386 - DEFINE TEMPORARY FILENAME
-        AH = A8h
-        CX:SI -> ASCIZ filename without extension (max 8 chars)
-Return: AL = status (see #00642)
-Note:   allows application to specify banner page filename for spool files
-          collected from the application's printer output
-SeeAlso: AH=A9h
---------N-17A9-------------------------------
-INT 17 - Alloy MW386 - CHANGE TEMPORARY SPOOL DRIVE
-        AH = A9h
-        AL = new spool drive (2=C:,3=D:,etc)
-Return: AL = status (see #00642)
-Note:   does not remove previous spooling directory since jobs may be pending
-SeeAlso: AH=A8h
---------N-17AA-------------------------------
-INT 17 - Alloy MW386 v2+ - GET REAL-TIME PRINTER STATUS
-        AH = AAh
-        AL = mode
-            00h NTNX
-                DX = NTNX printer number (see #00643)
-            01h MW386
-                DX = MW386 printer number
-Return: AH = instantaneous printer status
-            00h printer ready
-            01h not ready
-            12h off line
-            13h out of paper
-            14h general device failure
-            15h device timeout
-            16h bad device number
---------N-17AF-------------------------------
-INT 17 - Alloy MW386 - CHECK SPOOLER
-        AH = AFh
-Return: AX = 55AAh if spooler available
 --------c-17C0-------------------------------
 INT 17 - PC Magazine PCSpool - GET CONTROL BLOCK ADDRESS
         AH = C0h
@@ -5249,229 +4680,6 @@ Notes:  WordPerfect 5.0 will call this interrupt at start up to determine if a
                         BX = 0 or segment address of buffer with key codes
         See the "WordPerfect 5.0 Developer's Toolkit" for further information.
 SeeAlso: INT 16/AX=5500h
---------N-1A6108-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_SENDWITHREPLY" - SEND MSG AND GET REPLY
-        AX = 6108h
-        STACK:  WORD    conversation ID (0000h-0009h)
-                DWORD   pointer to message buffer
-                WORD    length of message
-                DWORD   pointer to reply buffer
-                WORD    length of reply buffer
-                WORD    0000h (use default "Cparams" structure)
-Return: AX = status (see #00654)
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
-SeeAlso: AX=6205h
-
-(Table 00654)
-Values for SNAP.EXE status:
- 0000h  successful
- F830h  "SNAP_ABORTED"
- FC04h  "SNAP_SERVERDIED"
- FC05h  "SNAP_RESEND"
- FC06h  "SNAP_SELECTFAILED"
- FC07h  "SNAP_WRONGVERSION"
- FC08h  "SNAP_INVALIDACK"
- FC09h  "SNAP_TIMEOUT"
- FC0Ah  "SNAP_SERVERREJECT"
- FC0Bh  "SNAP_NOREPLYDUE"
- FC0Ch  "SNAP_NOAUTHENTICATE"/"SNAP_GUARDIAN_ERROR"
- FC0Dh  "SNAP_NOINIT"
- FC0Eh  "SNAP_SOCKETERROR"
- FC0Fh  "SNAP_BUFFERLIMIT"
- FC10h  "SNAP_INVALIDCID"
- FC11h  "SNAP_INVALIDOP"
- FC12h  "SNAP_XMITFAIL"
- FC13h  "SNAP_NOMORERETRIES"
- FC14h  "SNAP_BADPARMS"
- FC15h  "SNAP_NOMEMORY"
- FC16h  "SNAP_NOMORECONVS"
- FFFFh  failed (invalid function/parameter)
---------N-1A6205-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_SENDNOREPLY" - SEND MSG, DON'T AWAIT REPLY
-        AX = 6205h
-        STACK:  WORD    conversation ID (0000h-0009h)
-                DWORD   pointer to message
-                WORD    length of message
-                WORD    0000h (use default "Cparms" structure)
-Return: AX = status (see #00654)
-        STACK unchanged
-SeeAlso: AX=6108h
---------N-1A6308-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_BEGINCONV" - BEGIN CONVERSATION
-        AX = 6308h
-        STACK:  WORD    offset of ASCIZ "guardian"
-                WORD    offset of ASCIZ hostname
-                WORD    offset of ASCIZ server name
-                WORD    offset of ASCIZ userid
-                WORD    offset of ASCIZ password
-                WORD    offset of password length
-                WORD    offset of password type
-                WORD    offset of "Cparms" structure (see #00655)
-Return: ???
-        STACK unchanged
-Note:   all stacked offsets are within the SNAP data segment (use AX=6A01h
-          to allocate a buffer)
-SeeAlso: AX=6405h,AX=7202h
-
-Format of SNAP.EXE Cparms structure:
-Offset  Size    Description     (Table 00655)
- 00h    WORD    retry delay in seconds
- 02h    WORD    timeout delay in seconds
- 04h    WORD    maximum buffer size
- 06h    WORD    encryption level
---------N-1A6405-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_ENDCONV" - END CONVERSATION
-        AX = 6405h
-        STACK:  WORD    conversation ID (0000h-0009h)
-                DWORD   pointer to message buffer
-                WORD    length of message
-                WORD    0000h (use default "Cparms" structure)
-Return: AX = status (see #00654)
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
-SeeAlso: AX=6308h
---------N-1A6900-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_DATASEG" - GET RESIDENT DATA SEGMENT
-        AX = 6900h
-Return: AX = value used for DS by resident code
-SeeAlso: AX=6A01h,AX=6F01h
---------N-1A6A01-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_ALLOC" - ALLOCATE BUFFER IN SNAP DATA SEGMENT
-        AX = 6A01h
-        STACK:  WORD    number of bytes to allocate
-Return: AX = offset of allocated buffer or 0000h if out of memory
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
-SeeAlso: AX=6B01h
---------N-1A6B01-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_FREE" - DEALLOCATE BUFFER IN SNAP DATA SEGMENT
-        AX = 6B01h
-        STACK:  WORD    offset within SNAP data segment of previously allocated
-                        buffer
-Return: STACK unchanged
-Note:   this call is a NOP if the specified offset is 0000h
-SeeAlso: AX=6A01h
---------N-1A6C04-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_COPYTO" - COPY DATA TO RESIDENT SNAP PACKAGE
-        AX = 6C04h
-        STACK:  WORD    offset within SNAP data segment of dest (nonzero)
-                WORD    segment of source buffer
-                WORD    offset of source buffer
-                WORD    number of bytes to copy
-Return: AX = offset of byte after last one copied to destination
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
-SeeAlso: AX=6D04h
---------N-1A6D04-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_COPYFROM" - COPY DATA FROM RESIDENT SNAP PACKAGE
-        AX = 6D04h
-        STACK:  WORD    offset within SNAP data segment of source buffer
-                WORD    segment of destination buffer
-                WORD    offset of destination buffer
-                WORD    number of bytes to copy
-Return: AX = offset of byte after last one copied from source
-        buffer filled
-        STACK unchanged
-SeeAlso: AX=6C04h
---------N-1A6E01-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_SETDEBUG" - SET ???
-        AX = 6E01h
-        STACK:  WORD    new value for ???
-Return: AX = old value of ???
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
---------N-1A6F01-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_CHKINSTALL" - INSTALLATION CHECK
-        AX = 6F01h
-        STACK: WORD 0000h
-Return: AX = status
-            0000h SNAP is resident
-            other SNAP not present
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol, and is
-          required by PCVENUS (a network shell).  The combination of SNAP and
-          PCVENUS allows the use of the Andrew File System as one or more
-          networked drives.
-SeeAlso: AX=6900h,AX=7400h
---------N-1A7002-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_SETANCHOR"
-        AX = 7002h
-        STACK:  WORD    anchor number (0000h-0009h)
-                WORD    new value for the anchor
-Return: AX = status
-            0000h successful
-            FFFFh failed (top word on stack not in range 00h-09h)
-        STACK unchanged
-SeeAlso: AX=7101h
---------N-1A7101-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_GETANCHOR"
-        AX = 7101h
-        STACK:  WORD    anchor number (0000h-0009h)
-Return: AX = anchor's value
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
-SeeAlso: AX=7002h
---------N-1A7202-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_SETCONVPARMS" - SET CONVERSATION PARAMETERS
-        AX = 7202h
-        STACK:  WORD    conversation ID (0000h-0009h)
-                WORD    offset within resident data segment of "Cparms"
-                          structure (see #00655)
-Return: AX = status???
-        STACK unchanged
-SeeAlso: AX=6308h
---------N-1A7302-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_CLIENTVERSION" - ???
-        AX = 7302h
-        STACK:  WORD    conversation ID (0000h-0009h)
-                WORD    offset within resident data segment of ???
-Return: AX = ???
-        ???
-        STACK unchanged
-SeeAlso: AX=7400h
---------N-1A7400-----------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_VERSION" - GET VERSION
-        AX = 7400h
-Return: AX = version (AH=major, AL=minor)
-Note:   this call is only valid if SNAP is installed
-SeeAlso: AX=7302h,INT 1A/AX=6F01h
---------N-1A75-------------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_NOP" - ???
-        AH = 75h
-        AL = ???
-Return: AX = ??? (0000h)
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
---------N-1A76-------------------------------
-INT 1A - SNAP.EXE 3.2+ - "SNAP_802_5" - ???
-        AH = 76h
-        AL = ???
-Return: AX = ???
---------N-1A77-------------------------------
-INT 1A - SNAP.EXE 3.4 - ???
-        AH = 77h
-        AL = ??? (at least 01h)
-        STACK:  WORD    ???
-                ???
-Return: ???
-        STACK unchanged
---------N-1A7802-----------------------------
-INT 1A - SNAP.EXE 3.4 - ???
-        AX = 7802h
-        STACK:  WORD    ???
-                WORD    ???
-Return: ???
-        STACK unchanged
-Program: SNAP.EXE is a TSR written by IBM and Carnegie Mellon University
-          which implements the Simple Network Application Protocol
 --------s-1A7F-------------------------------
 INT 1A - Tandy 2500, Tandy 1000L series - DIGITAL SOUND???
         AH = 7Fh

@@ -1673,24 +1673,6 @@ Offset  Size    Description     (Table 01484)
  14h    WORD    graphics buffer bits per pixel
  16h    WORD    monitor bits per pixel
 --------N-214402-----------------------------
-INT 21 - PC/TCP IPCUST.SYS - RESET CONFIGURATION DATA READ POINTER
-        AX = 4402h
-        BX = file handle referencing device "$IPCUST"
-        CX, DS:DX ignored
-Return: CF clear if successful
-            AX destroyed
-        CF set on error
-            AX = error code (01h,05h,06h,0Dh) (see #01680 at AH=59h/BX=0000h)
-Notes:  there are a total of 378h bytes of configuration data for IPCUST.SYS
-          version 2.05.  If less than the entire data is read or written,
-          the next read/write continues where the previous one ended; this
-          call and AX=4403h both reset the location at which the next
-          operation starts to zero
-        v2.1+ uses a new configuration method, but allows the installation
-          of IPCUST.SYS for backward compatibility with other software which
-          must read the PC/TCP configuration
-SeeAlso: AH=3Fh"IPCUST",AH=40h"IPCUST",AX=4403h"IPCUST"
---------N-214402-----------------------------
 INT 21 - WORKGRP.SYS - GET API ENTRY POINT
         AX = 4402h
         BX = file handle for device "NET$HLP$"
@@ -1767,64 +1749,6 @@ Call WORKGRP functions 07h-09h with:
 Return: STACK unchanged
         AX = 0001h
         DX = 0000h
---------N-214402-----------------------------
-INT 21 - 10NET v5.0 - 10BEUI.DOS - API
-        AX = 4402h
-        BX = file handle referencing device "10BEUI$"
-        DS:DX -> parameter record (see #01495)
-        CX ignored
-Return: CF clear if successful
-            AX destroyed
-        CF set on error
-            AX = error code (01h,05h,06h,0Dh) (see #01680 at AH=59h/BX=0000h)
-SeeAlso: AX=4402h"10MEMMGR",INT 6F/AH=00h"10NET"
-
-Format of 10NET 10BEUI.DOS parameter record:
-Offset  Size    Description     (Table 01495)
- 00h    WORD    000Ah (function number???)
- 02h    WORD    ???
- 04h    DWORD   pointer to buffer for ???
- 08h  4 BYTEs   ???
- 0Ch    WORD    transfer size
---------N-214402-----------------------------
-INT 21 - 10NET v5.0 - 10MEMMGR.SYS - API
-        AX = 4402h
-        BX = file handle referencing device "MEMMGR0$"
-        DS:DX -> 6-byte buffer for interface info (see #01496)
-        CX ignored
-Return: CF clear if successful
-            AX destroyed
-        CF set on error
-            AX = error code (01h,05h,06h,0Dh) (see #01680 at AH=59h/BX=0000h)
-SeeAlso: AX=4402h"10BEUI",INT 6F/AH=00h"10NET"
-
-Format of 10NET 10MEMMGR.SYS interface info:
-Offset  Size    Description     (Table 01496)
- 00h    DWORD   address of entry point (see #01497)
- 04h    WORD    version (0500h for v5.00)
-
-(Table 01497)
-Call 10NET 10MEMMGR.SYS entry point with:
-        AL = 01h ???
-            BX = ???
-            Return: CF clear if successful
-                    CF set on error
-                        AX = error code
-        AL = 02h ???
-            ???
-        AL = 03h ???
-            ???
-        AL = 04h set/restore memory allocation strategy
-            BX = subfunction
-                0000h set strategy
-                0001h restore strategy
-            Return: CF clear if successful
-                    CF set on error (if function disabled)
-                    various registers destroyed
-        AL = other
-            Return: CF set
-                    AX = 0000h
-                    BL = 01h
 --------V-214402-----------------------------
 INT 21 - Compaq AG1024.SYS - RGDI - GET DRIVER LOCATION
         AX = 4402h
@@ -1843,33 +1767,6 @@ Offset  Size    Description     (Table 01498)
  00h    WORD    signature 55AAh
  02h    WORD    segment of ???
  04h    WORD    segment of device driver's code
---------N-214402-----------------------------
-INT 21 - FTPSOFT.DOS v3.1 - GET ???
-        AX = 4402h
-        BX = file handle for device "FTPSOFT$"
-        CX = size of buffer
-        DS:DX -> buffer for data (see #01499)
-Return: CF clear if successful
-            buffer filled
-        CF set on error
-            AX = error code (01h,05h,06h,0Dh) (see #01680 at AH=59h/BX=0000h)
-Program: FTPSOFT.DOS is a device driver for Protocol Manager support from
-           FTP Software, Inc.
-SeeAlso: AH=3Fh"PC/TCP",AX=4402h"NDIS"
-
-Format of FTPSOFT.DOS data:
-Offset  Size    Description     (Table 01499)
- 00h    WORD    (call) BA98h (if different, no data returned)
- 02h    DWORD   -> NDIS common characteristics table
-                  (see #01435 at AX=4402h"NDIS")
- 06h    DWORD   (call) -> new dispatch table (see #01437 at AX=4402h"NDIS")
- 0Ah    DWORD   -> 28-byte buffer for ??? data
- 0Eh    DWORD   ???
- 12h    DWORD   -> FAR function to reset dispatch jump table to defaults
- 16h    BYTE    ???
-Note:   the addresses in the new dispatch table are copied into an internal
-          jump table which may be reset by calling the function pointed at by
-          offset 12h
 --------n-214402-----------------------------
 INT 21 U - PenDOS PENDEV.SYS - GET ENTRY POINTS
         AX = 4402h

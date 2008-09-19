@@ -3184,14 +3184,6 @@ BUG:    DR DOS 5.0 and 6.0 return CF set/AX=0001h for INT 21/AH=33h
           subfunctions other than 00h-02h and 05h, while MS-DOS returns AL=FFh
           for invalid subfunctions
 SeeAlso: AH=30h,INT 2F/AX=122Fh,INT 2F/AX=E000h"SETDRVER"
---------N-213306-----------------------------
-INT 21 - CBIS network - NETWORK REDIRECTOR - ???
-        AX = 3306h
-Return: AX = 3306h
-        BL = ??? (usually 00h)
-        BH = ??? (usually 00h or FFh)
-Note:   unknown function, is in conflict with DOS 5+ version call
-SeeAlso: AX=3306h"DOS"
 --------D-213307-----------------------------
 INT 21 - Windows95 - SET/CLEAR DOS_FLAG
         AX = 3307h
@@ -4186,70 +4178,6 @@ Bit(s)  Description     (Table 01410)
  7      within range
  8      outside range
 --------N-213F-------------------------------
-INT 21 - PC/TCP IPCUST.SYS - READ CONFIGURATION DATA
-        AH = 3Fh
-        BX = handle for character device "$IPCUST"
-        CX = number of bytes to read
-        DS:DX -> buffer for configuration data (see #01411)
-Return: CF clear if successful
-            AX = number of bytes actually read
-        CF set on error
-            AX = error code (05h,06h) (see #01680 at AH=59h/BX=0000h)
-Notes:  if less than the entire data is read or written, the next read/write
-          continues where the previous one ended; IOCTL calls AX=4402h and
-          AX=4403h both reset the location at which the next operation starts
-          to zero
-        the data pointer is also reset to zero if the previous read or write
-          reached or exceeded the end of the data, when the current function
-          is read and the previous was write, or vice versa
-        v2.1+ uses a new configuration method, but allows the installation
-          of IPCUST.SYS for backward compatibility with other software which
-          must read the PC/TCP configuration
-SeeAlso: AH=40h"IPCUST",AX=4402h"IPCUST",AX=4402h"FTPSOFT"
-
-Format of PC/TCP configuration data:
-Offset  Size    Description     (Table 01411)
- 00h 12 BYTEs   IPCUST.SYS device driver header (see #01646)
- 12h    BYTE    ???
- 13h    BYTE    ???
- 14h    WORD    ???
- 16h    BYTE    bit flags
-                bit 0: send BS rather than DEL for BackSpace key
-                bit 1: wrap long lines
- 17h    BYTE    ???
- 18h 64 BYTEs   ASCIZ hostname
- 58h 64 BYTEs   ASCIZ domain name
-                (fully qualified domain name is hostname.domain-name)
- 98h 16 BYTEs   ASCIZ username
- A8h 64 BYTEs   ASCIZ full name
- E8h 64 BYTEs   ASCIZ office address
-128h 32 BYTEs   ASCIZ phone number
-148h    WORD    offset from GMT in minutes
-14Ah  4 BYTEs   ASCIZ timezone name
-14Eh    WORD    number of time servers
-150h  ? DWORDs  (big-endian) IP addresses for time servers
-        ???
-164h    WORD    number of old-style name servers
-166h  3 DWORDs  (big-endian) IP addresses for name servers
-172h    WORD    number of domain name servers
-174h  3 DWORDs  (big-endian) IP addresses for domain name servers
-180h    DWORD   (big-endian) IP address of default gateway
-184h    DWORD   (big-endian) IP address of log server
-188h    DWORD   (big-endian) IP address of cookie server
-18Ch    DWORD   (big-endian) IP address of lpr server
-190h    DWORD   (big-endian) IP address of imagen print server
-194h 54 BYTEs   ???
-1E8h    WORD    TCP default window size in bytes
-1EAh    WORD    TCP low window size
-1ECh 64 BYTEs   ASCIZ host tabel filename
-22Ch  2 BYTEs   ???
-22Eh 80 BYTEs   ASCIZ mail relay host name
-27Eh    BYTE    ???
-27Fh    BYTE    ??? bit flags
-280h 44 BYTEs   ???
-2ACh    WORD    ???
-2AEh 202 BYTEs  ???
---------N-213F-------------------------------
 INT 21 - WORKGRP.SYS - GET ENTRY POINT
         AH = 3Fh
         BX = file handle for device "NET$HLP$"
@@ -4263,68 +4191,6 @@ Program: WORKGRP.SYS is the portion of Microsoft's Workgroup Connection which
           permits communication with PCs running Windows for Workgroups or
           LAN Manager
 SeeAlso: AX=4402h"WORKGRP.SYS",INT 2F/AX=9400h
---------N-213F-------------------------------
-INT 21 - BW-TCP - GET DRIVER INFO
-        AH = 3Fh
-        BX = file handle for device "ETHDEV27"
-        CX = 002Bh
-        DS:DX -> buffer for driver info (see #01412)
-Return: CF clear if successful
-            AX = number of bytes actually read (0 if at EOF before call)
-        CF set on error
-            AX = error code (05h,06h) (see #01680 at AH=59h/BX=0000h)
-Program: BW-TCP is a TCP/IP protocol stack by Beame & Whiteside Software
-InstallCheck:   for the TCP/IP stack, test for the existence of the character
-          device UDP-IP10
-Note:   the B&W socket library performs an INT 21/AX=4401h with DX=0060h before
-          making this call to retrieve the driver information; one should also
-          call the private API interrupt with AH=15h
-SeeAlso: INT 14/AH=56h,INT 62/AH=00h"ETHDEV",INT 63/AH=03h,INT 64/AH=01h
-Index:  installation check;BW-TCP hardware driver
-Index:  installation check;BW-TCP TCPIP.SYS
-
-Format of BW-TCP driver info:
-Offset  Size    Description     (Table 01412)
- 00h    WORD    I/O base address
- 02h    BYTE    shared memory page (01h = segment 0100h, etc.)
- 03h    BYTE    interrupt vector for private API
- 04h    BYTE    IRQ used by board
- 05h    WORD    size of data buffer
- 07h    WORD    maximum transfer window
- 09h    WORD    time zone
- 0Bh    BYTE    address type (01h user, 04h RARP, 05h BOOTP)
- 0Ch    DWORD   internet address
- 10h    WORD    "value" ???
- 12h    BYTE    subnet mask
- 13h    WORD    "ether_pointer" ???
- 15h    WORD    offset in device driver of log server records (see #01413)
- 17h    WORD    offset in device driver of name server records (see #01413)
- 19h    WORD    offset in device driver of print server records (see #01413)
- 1Bh    WORD    offset in device driver of time server records (see #01413)
- 1Dh    WORD    offset in device driver of gateway records (see #01413)
- 1Fh    WORD    segment address of device driver
- 21h    BYTE    transfer size
- 22h  9 BYTEs   network adapter board name
----11/21/91+ ---
- 23h    BYTE    ETHDEV version (major in high nybble, minor in low nybble)
- 24h    BYTE    ETHDEV revision
- 25h    BYTE    TCPIP version (major in high nybble, minor in low nybble)
- 26h    BYTE    TCPIP revision
- 27h    BYTE    BWRPC version (major in high nybble, minor in low nybble)
- 28h    BYTE    BWRPC revision
- 29h    BYTE    BWNFS version (major in high nybble, minor in low nybble)
- 2Ah    BYTE    BWNFS revision
- 2Bh    BYTE    Telnet version (major in high nybble, minor in low nybble)
- 2Ch    BYTE    Telnet revision
- 2Dh    BYTE    NETBIOS version (major in high nybble, minor in low nybble)
- 2Eh    BYTE    NETBIOS revision
-Note:   for each driver, if version=0, the driver is not installed or does
-          not support the version check
-
-Format of BW-TCP server records:
-Offset  Size    Description      (Table 01413)
- 00h    BYTE    number of server records following
- 01h  N DWORDs  internet addresses of servers
 ----------213F-------------------------------
 INT 21 U - IFSHLP.SYS - GET ENTRY POINT
         AH = 3Fh
@@ -4528,27 +4394,6 @@ Values for Turbo Debugger address/data matching mode:
  06h    above or equal to test value
  07h    within inclusive range
  08h    outside specified range
---------N-2140-------------------------------
-INT 21 - PC/TCP IPCUST.SYS - WRITE CONFIGURATION DATA
-        AH = 40h
-        BX = handle for character device "$IPCUST"
-        CX = number of bytes to write
-        DS:DX -> buffer for configuration data (AH=3Fh"IPCUST")
-Return: CF clear if successful
-            AX = number of bytes actually written
-        CF set on error
-            AX = error code (05h,06h) (see #01680 at AH=59h/BX=0000h)
-Notes:  if less than the entire data is read or written, the next read/write
-          continues where the previous one ended; IOCTL calls AX=4402h and
-          AX=4403h both reset the location at which the next operation starts
-          to zero
-        the data pointer is also reset to zero if the previous read or write
-          reached or exceeded the end of the data, when the current function
-          is read and the previous was write, or vice versa
-        v2.1+ uses a new configuration method, but allows the installation
-          of IPCUST.SYS for backward compatibility with other software which
-          must read the PC/TCP configuration
-SeeAlso: AH=3Fh"IPCUST",AX=4402h"IPCUST"
 --------D-2141-------------------------------
 INT 21 - DOS 2+ - "UNLINK" - DELETE FILE
         AH = 41h
@@ -4764,33 +4609,6 @@ Return: CF clear if successful
             AX = error code (see #01680 at AH=59h/BX=0000h)
 Note:   no longer supported by Novell DOS 7 / OpenDOS
 SeeAlso: AX=4306h
---------N-214310-----------------------------
-INT 21 - Banyan VINES 2.1+ - GET EXTENDED FILE ATTRIBUTES
-        AX = 4310h
-        DS:DX -> ASCIZ filename
-Return: CF clear if successful
-            CH = attributes (see #01422)
-        CF set on error
-            AX = error code (01h,02h,03h,05h) (see #01680 at AH=59h/BX=0000h)
-Note:   the filename may be a directory but must be on a VINES file service
-SeeAlso: AX=4300h,AX=4311h,AH=B6h,INT 2F/AX=110Fh
---------N-214311-----------------------------
-INT 21 - Banyan VINES 2.1+ - SET EXTENDED FILE ATTRIBUTES
-        AX = 4311h
-        CH = new attributes (see #01422)
-        DS:DX -> ASCIZ filename
-Return: CF clear if successful
-        CF set on error
-            AX = error code (01h,02h,03h,05h) (see #01680 at AH=59h/BX=0000h)
-Note:   the filename may be a directory but must be on a VINES file service
-SeeAlso: AX=4301h,AX=4305h,AX=4310h,INT 2F/AX=110Eh
-
-Bitfields for VINES extended file attributes:
-Bit(s)  Description     (Table 01422)
- 7      unused
- 6      shareable
- 5      execute-only
- 4-0    unused
 --------O-214380-----------------------------
 INT 21 - Novell DOS 7 - UNDELETE PENDING DELETE FILE
         AX = 4380h
