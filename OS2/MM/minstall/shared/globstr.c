@@ -16,7 +16,7 @@
 // º              ÜÛÛÛÄÄÄÄÄÄÄÄÄ    º    ÄÎÍÍÍÄÍÍÍÍÍÄÍÍÍÍÄÍÍÄÄÍÄÄÍÄÄÄúÄÄ  ú
 // º             ÜÛÛÛİ³ ³Ú¿³³Ä     º
 // ³            ÜÛÛÛÛ ÀÄ³³ÀÙ³Ä     ³
-//             ßÛÛÛÛİÄÄÄÄÄÄÄÄÄÄ     
+//             ßÛÛÛÛİÄÄÄÄÄÄÄÄÄÄ
 // ³             ßß                ³
 // ù Ä´-=’iç éï-Liïî SéŸâW’çî=-ÃÄÄ ù
 
@@ -24,6 +24,8 @@
 #define INCL_BASE
 #define INCL_DOSMODULEMGR
 #include <os2.h>
+
+#include <string.h>
 
 #include <global.h>
 #include <globstr.h>
@@ -148,7 +150,7 @@ PCHAR STRING_BuildEscaped (PCHAR DestPtr, PULONG DestMaxSizePtr, PSZ StringPtr) 
    PCHAR CurDestPos    = DestPtr;
    ULONG DestMaxSize   = *DestMaxSizePtr;
    PCHAR MaxDestPos    = DestPtr+DestMaxSize;
-   
+
    while ((CurDestPos<MaxDestPos)) {
       CurChar = *StringPtr;
       if (CurChar==0) {                     // End-of-String?

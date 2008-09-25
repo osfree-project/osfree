@@ -42,27 +42,11 @@ uses pmwin;        { OS/2 Window Manager definitions    }
 uses pmgpi;        { OS/2 GPI definitions               }
 uses pmdev;        { OS/2 Device Context definitions    }
 uses pmwp;         { OS/2 Workplace Shell               }
-
-#ifdef INCL_AVIO
-   uses pmavio;    { OS/2 AVIO definitions              }
-#endif
-
-#ifdef INCL_SPL
-   uses pmspl;     { OS/2 Spooler definitions           }
-#endif
-
-#ifdef INCL_PIC
-   uses pmpic;     { OS/2 Picture Utilities definitions }
-#endif
-
-#ifdef INCL_ORDERS
-   uses pmord;     { OS/2 Graphical Order Formats       }
-#endif
-
-#ifdef INCL_FONTFILEFORMAT
-   uses pmfont;    { OS/2 Font File Format definition   }
-#endif
-
+uses pmavio;       { OS/2 AVIO definitions              }
+uses pmspl;        { OS/2 Spooler definitions           }
+uses pmpic;        { OS/2 Picture Utilities definitions }
+uses pmord;        { OS/2 Graphical Order Formats       }
+uses pmfont;       { OS/2 Font File Format definition   }
 uses pmstddlg;     { CUA controls and dialogs           }
 
 end.

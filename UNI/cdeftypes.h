@@ -10,6 +10,26 @@
 #define INCL_BSEDOS
 #define INCL_CDEFTYPES2
 
+#ifdef INCL_AVIO
+#define INCL_PMAVIO
+#endif
+
+#ifdef INCL_SPL
+#define INCL_PMSPL
+#endif
+
+#ifdef INCL_PIC
+#define INCL_PMPIC
+#endif
+
+#ifdef INCL_ORDERS
+#define INCL_PMORD
+#endif
+
+#ifdef INCL_FONTFILEFORMAT
+#define INCL_PMFONT
+#endif
+
 /* Original OS/2 default definitions */
 
 #ifdef INCL_WINMESSAGEMGR

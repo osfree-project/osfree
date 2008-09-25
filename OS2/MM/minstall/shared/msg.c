@@ -16,7 +16,7 @@
 // є              ЬЫЫЫДДДДДДДДД    є    ДОНННДНННННДННННДННДДНДДНДДДъДД  ъ
 // є             ЬЫЫЫЭі іЪїііД     є
 // і            ЬЫЫЫЫ АДііАЩіД     і
-//             ЯЫЫЫЫЭДДДДДДДДДД     
+//             ЯЫЫЫЫЭДДДДДДДДДД
 // і             ЯЯ                і
 // щ Дґ-=’iз йп-Liпо SйџвW’зо=-ГДД щ
 
@@ -25,7 +25,10 @@
 #define INCL_BASE
 #define INCL_DOSMODULEMGR
 #include <os2.h>
+
 #include <malloc.h>
+#include <string.h>
+#include <stdio.h>
 
 #include <global.h>
 #include <msg.h>

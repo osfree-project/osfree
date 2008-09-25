@@ -3,7 +3,7 @@
 # (c) osFree project,
 #
 
-DIRS = src
+DIRS = shared src dll
 
 !include $(%ROOT)/mk/all.mk
 

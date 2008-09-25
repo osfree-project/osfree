@@ -24,7 +24,9 @@
 #define INCL_BASE
 #define INCL_DOSMODULEMGR
 #include <os2.h>
+
 #include <malloc.h>
+#include <string.h>
 
 #include <global.h>
 #include <crcs.h>
