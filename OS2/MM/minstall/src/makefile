@@ -4,40 +4,31 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-
 PROJ = minstall
-DESC = Multimedia Installer
-#defines object file names in format objname.$(O)
-OBJS = minstall.$(O)
+DESC = Control utility for MINSTALL
+#defines object file names in format $(p)objname$(e)
+srcfiles = $(p)minstall$(e) $(p)file$(e) $(p)globstr$(e) &
+           $(p)mciini$(e) $(p)msg$(e) $(p)dll$(e) $(p)crc$(e)
 # defines additional options for C compiler
-#ADD_COPT = -i=..$(SEP)include
-#ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
+STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+IMPORTS = MINSTALL_Init MINSTALL, &
+          MINSTALL_InitPackage MINSTALL, &
+          MINSTALL_InstallPackage MINSTALL, &
+          MINSTALL_GetErrorMsgPtr MINSTALL, &
+          MINSTALL_GetErrorMsgCIDCode MINSTALL, &
+          MINSTALL_GetErrorMsgCIDCodeDescription MINSTALL, &
+          MINSTALL_GetSourcePathPtr MINSTALL, &
+          MINSTALL_GetTargetPathPtr MINSTALL, &
+          MINSTALL_GetPublicGroupArrayPtr MINSTALL, &
+          MINSTALL_GetPublicGroupCustomDataPtr MINSTALL, &
+          MINSTALL_SetPublicGroupCustomData MINSTALL, &
+          MINSTALL_GetPackageTitlePtr MINSTALL, &
+          MINSTALL_SelectGroup MINSTALL, &
+          MINSTALL_DeSelectGroup MINSTALL, &
+          MINSTALL_SetCARDINFOCardCountForGroup MINSTALL, &
+          MINSTALL_GetCARDINFOChoiceForGroup MINSTALL, &
+          MINSTALL_SetCARDINFOChoiceForGroup MINSTALL, &
+          MINSTALL_CleanUp MINSTALL
+#ADD_LINKOPT = lib math387s, os2386, clib3r
 
-!include $(%ROOT)/mk/all.mk
-
-
-all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
-
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM os2v2
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)os2
+!include $(%ROOT)/mk/appsos2.mk

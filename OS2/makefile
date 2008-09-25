@@ -4,7 +4,6 @@
 # valerius, 2006/10/30
 #
 
-# First directory must be UNI which produces C/C++ header files
 DIRS = Shared CMD CPI UtlAPI PM MM SOM REXX Server
 
 !include $(%ROOT)/mk/all.mk

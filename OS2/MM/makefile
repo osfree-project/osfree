@@ -1,10 +1,9 @@
 #
-# A main Makefile for OS/3 boot sequence project
+# A main Makefile for MM
 # (c) osFree project,
-# valerius, 2006/10/30
 #
 
-DIRS = IOProcs # minstall
+DIRS = IOProcs minstall
 
 !include $(%ROOT)/mk/all.mk
 

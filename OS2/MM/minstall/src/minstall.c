@@ -22,7 +22,9 @@
 #define INCL_WINMESSAGEMGR
 #define INCL_WINWINDOWMGR
 #include <os2.h>
+
 #include <malloc.h>
+#include <string.h>
 
 #define INCLUDE_STD_MAIN
 #include <global.h>
@@ -702,7 +704,7 @@ BOOL MINSTCLI_ReadResponseData (void) {
    return TRUE;
  }
 
-USHORT maincode (int argc, char *argv[]) {
+USHORT main (int argc, char *argv[]) {
    HAB       OurPMHandle   = 0;
    HMQ       OurMSGQHandle = 0;
    PSZ       ErrorMsgPtr   = 0;
@@ -728,13 +730,16 @@ USHORT maincode (int argc, char *argv[]) {
    USHORT    ReturnCode;
    PSZ       ReturnCodeDescription;
 
+   printf("1\n");
    // Make ourself an PM application...
    DosGetInfoBlocks (&tib, &pib);
    pib->pib_ultype = 3;
+   printf("1\n");
 
    // Initialize with message-file...
    if (!MSG_Init ("minstall.msg"))
       return FALSE;
+   printf("1\n");
 
    MSG_Print (MINSTMSG_CLITrailer);
 
@@ -827,6 +832,7 @@ USHORT maincode (int argc, char *argv[]) {
       MSG_Print (MINSTMSG_CLISyntaxExplanation); return 0; }
 
    if (argc<2) {
+      APIRET rc;
       // User did not specify any command-line options, so try to execute
       //  MINSTPM.EXE, if possible. If this works, exit directly. Otherwise
       //  continue with normal CLI processing.
