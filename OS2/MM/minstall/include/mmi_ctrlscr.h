@@ -17,8 +17,10 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-BOOL MINSTALL_LoadCARDINFO (void);
-BOOL MINSTALL_ProcessCARDINFO (void);
-BOOL MINSTALL_UseCARDINFOCustomData (PMINSTGRP GroupPtr);
-VOID MINSTALL_FillCARDINFOCustomData (PMINSTGRP GroupPtr);
-VOID MINSTALL_CleanUpCARDINFO (void);
+#ifndef _MMI_CTRLSCR_H_
+#define _MMI_CTRLSCR_H_
+
+BOOL MINSTALL_LoadCustomControl (void);
+VOID MINSTALL_CleanUpCustomControl (void);
+
+#endif

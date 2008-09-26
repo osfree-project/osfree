@@ -24,8 +24,11 @@
 #define INCL_MMIO_CODEC
 #define INCL_AUDIO_CODEC_ONLY
 #include <os2.h>
+#include <pmdef.h>
 #include <os2me.h>
+
 #include <malloc.h>
+#include <string.h>
 
 #include <global.h>
 #include <crcs.h>

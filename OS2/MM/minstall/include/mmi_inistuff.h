@@ -17,6 +17,10 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_INISTUFF_H_
+#define _MMI_INISTUFF_H_
+
+
 // Byte-Packing, these structures are fixed. They must not get optimized
 #pragma pack(1)
 
@@ -253,3 +257,5 @@ MINSTINI_DEFENTRY MINSTINI_FuncList[];
 MINSTINI_DEFENTRY MINSTINIWPS_WPObject[];
 
 #pragma pack()
+
+#endif

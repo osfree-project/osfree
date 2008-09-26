@@ -1,3 +1,5 @@
+#ifndef _MCIINI_H_
+#define _MCIINI_H_
 //#include <os2.h>
 #include <file.h>
 #include <mmi_public.h>
@@ -14,3 +16,7 @@
 #include <mmi_inistuff.h>
 #include <mmi_imports.h>
 #include <mmi_customdll.h>
+
+CODE_MCISENDCOMMAND MCIINI_MciSendCommandFunc = 0;
+
+#endif

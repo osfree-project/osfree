@@ -21,6 +21,9 @@
 //  because otherwise FILT.DLL f00ks up, if no MMOS/2 installed.
 //  These routines will only get loaded during MINSTALL_InstallPackage()
 
+#ifndef _MMI_IMPORTS_H_
+#define _MMI_IMPORTS_H_
+
 // Internal, export from SSMINI.DLL
 APIRET SpiInstall (PSZ SpiDllName);
 typedef APIRET (*CODE_SPIINSTALL) (PSZ SpiDllName);
@@ -64,3 +67,5 @@ CODE_SPIINSTALL         CODE_SpiInstallFunc;
 CODE_MMIOINIFILEHANDLER CODE_mmioIniFileHandlerFunc;
 CODE_MMIOINIFILECODEC   CODE_mmioIniFileCODECFunc;
 CODE_MMIOMIGRATEINIFILE CODE_mmioMigrateIniFileFunc;
+
+#endif

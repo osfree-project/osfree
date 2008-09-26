@@ -25,7 +25,9 @@
 // #define INCL_AUDIO_CODEC_ONLY
 #include <os2.h>
 // #include <os2me.h>
+
 #include <malloc.h>
+#include <string.h>
 
 #include <global.h>
 #include <cfgsys.h>                         // CONFIG.SYS Changing

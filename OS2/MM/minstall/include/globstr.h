@@ -1,3 +1,6 @@
+#ifndef _GLOBSTR_H_
+#define _GLOBSTR_H_
+
 #define INCL_NOPMAPI
 #define INCL_BASE
 #define INCL_DOSMODULEMGR
@@ -32,3 +35,5 @@ PCHAR STRING_GetNumericValue (PULONG DestPtr, PCHAR StartPos, PCHAR EndPos);
 //            IsolateWord -> 'brown'
 //            etc.
 PCHAR STRING_IsolateWord (PCHAR *WordBeginPosPtr, PULONG WordLengthPtr, PCHAR StartPos, PCHAR EndPos);
+
+#endif

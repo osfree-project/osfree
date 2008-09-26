@@ -19,6 +19,9 @@
 
 // Before executing Custom-DLLs, MINSTALL_LinkInImports() must have been called
 
+#ifndef _MMI_CUSTOMDLL_H_
+#define _MMI_CUSTOMDLL_H_
+
 BOOL MINSTALL_CreateCustomAPIThread (void);
 VOID MINSTALL_RemoveCustomAPIThread (void);
 BOOL MINSTALL_ExecuteCustomDLLs (void);
@@ -385,3 +388,5 @@ typedef MINSTOLD_WPS_WPCLASS *PMINSTOLD_WPS_WPCLASS;
 #define MINSTOLD_RETVARIABLENOTFOUND      (MINSTOLD_RETERRSTART+ 10)
 
 #pragma pack()
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef _FILE_H_
+#define _FILE_H_
+
 #include <stdio.h>
 
 typedef struct
@@ -34,3 +37,5 @@ BOOL FILE_IncludesPath (PSZ FileName);
 VOID FILE_SetDefaultExtension (PSZ FileName, ULONG FileNameMaxSize, PSZ DefaultExtension);
 VOID FILE_PutS (HFILE FileHandle, PSZ String);
 BOOL FILE_GetCurrentPath (PSZ DestCurrentPath, ULONG PathMaxSize);
+
+#endif

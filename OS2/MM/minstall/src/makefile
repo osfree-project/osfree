@@ -6,6 +6,7 @@
 
 PROJ = minstall
 DESC = Control utility for MINSTALL
+ADD_COPT = -i=$(MYDIR)..$(SEP)include
 #defines object file names in format $(p)objname$(e)
 srcfiles = $(p)minstall$(e)
 # defines additional options for C compiler

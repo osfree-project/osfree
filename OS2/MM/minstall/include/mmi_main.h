@@ -17,6 +17,9 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_MAIN_H_
+#define _MMI_MAIN_H_
+
 FILECONTROL   CONTROLSCR;
 FILECONTROL   FILELISTSCR;
 FILECONTROL   CHANGESCR;
@@ -104,3 +107,5 @@ PMINSTFILE     MINSTALL_SearchFileCRC32 (ULONG FileCRC32);
 PCHAR          MINSTALL_ExtractValue (PULONG DestPtr, PCHAR StartPos, PCHAR EndPos);
 PSZ            MINSTALL_GetPointerToMacro (PCHAR *CurPosPtr, PCHAR EndPos);
 PCHAR          MINSTALL_ExtractMacroString (PCHAR DestPtr, ULONG DestMaxSize, PCHAR CurPos, PCHAR EndPos);
+
+#endif

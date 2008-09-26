@@ -17,6 +17,9 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_TYPES_H_
+#define _MMI_TYPES_H_
+
 // from mmi_inistuff.h
 #define MCIMAX_DEVICENAMELENGTH    20
 #define MCIMAX_VERSIONLENGTH        6
@@ -209,3 +212,5 @@ typedef struct _MINSTINI_DEFENTRY {
    ULONG               MaxSize;     // Maximum size (per list!) of total array
  } MINSTINI_DEFENTRY;
 typedef MINSTINI_DEFENTRY *PMINSTINI_DEFENTRY;
+
+#endif

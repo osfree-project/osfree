@@ -1,3 +1,6 @@
+#ifndef _MSG_H_
+#define _MSG_H_
+
 #define INCL_NOPMAPI
 #define INCL_BASE
 #define INCL_DOSMODULEMGR
@@ -15,3 +18,5 @@ BOOL MSG_FillInsert (ULONG InsertNo, MSGID MessageID);
 BOOL MSG_SetInsertViaPSZ (ULONG InsertNo, PSZ String);
 BOOL MSG_SetInsertViaString (ULONG InsertNo, PCHAR StringPtr, ULONG StringLen);
 BOOL MSG_SetInsertFileLocation (ULONG InsertNo, PSZ FileName, ULONG LineNo);
+
+#endif

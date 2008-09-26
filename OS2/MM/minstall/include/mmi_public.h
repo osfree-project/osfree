@@ -17,6 +17,10 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_PUBLIC_H_
+#define _MMI_PUBLIC_H_
+
+
 #define MINSTMAX_STRLENGTH                   128
 #define MINSTMAX_PATHLENGTH                  256
 #define MINSTMAX_GENINCARDS                    9
@@ -63,3 +67,5 @@ VOID   EXPENTRY MINSTALL_SetCARDINFOCardCountForGroup (ULONG GroupID, ULONG Sele
 ULONG  EXPENTRY MINSTALL_GetCARDINFOChoiceForGroup (ULONG GroupID, ULONG CardNo, ULONG PromptNo);
 VOID   EXPENTRY MINSTALL_SetCARDINFOChoiceForGroup (ULONG GroupID, ULONG CardNo, ULONG PromptNo, ULONG ChoiceNo);
 VOID   EXPENTRY MINSTALL_CleanUp (void);
+
+#endif

@@ -17,6 +17,9 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_MSG_H_
+#define _MMI_MSG_H_
+
 #define MINSTMSG_OutOfMemory                1
 #define MINSTMSG_CouldNotLoad               2
 #define MINSTMSG_StringTooLong              3
@@ -125,3 +128,5 @@
 #define MINSTMSG_CIDDataResourceNotFound     153
 #define MINSTMSG_CIDUnexpectedCondition      154
 #define MINSTMSG_CIDNotEnoughDiskSpace       155
+
+#endif

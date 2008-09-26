@@ -21,10 +21,14 @@
 #define INCL_DOSMODULEMGR
 #define INCL_WINSHELLDATA
 #include <os2.h>
+
 #include <malloc.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 #include <global.h>
-#include <stdarg.h>
 #include <crcs.h>
 #include <dll.h>
 #include <file.h>

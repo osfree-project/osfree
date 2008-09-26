@@ -17,6 +17,11 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_INSTALL_H_
+#define _MMI_INSTALL_H_
+
 VOID MINSTALL_SelectFiles (VOID);
 BOOL MINSTALL_CreateDestinDirectories (VOID);
 BOOL MINSTALL_CopyFiles (VOID);
+
+#endif

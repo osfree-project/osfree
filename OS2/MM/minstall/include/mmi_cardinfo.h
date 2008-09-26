@@ -17,11 +17,13 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-BOOL MINSTALL_LoadMasterControl (void);
-BOOL MINSTALL_LoadFileControl (void);
-BOOL MINSTALL_FilterControlFileData (void);
-BOOL MINSTALL_GeneratePublicGroup (void);
-BOOL MINSTALL_SaveInstalledVersions (void);
-VOID MINSTALL_CleanUpMasterControl (void);
-VOID MINSTALL_CleanUpFileControl (void);
-VOID MINSTALL_CleanUpPublicGroup (void);
+#ifndef _MMI_CARDINFO_H_
+#define _MMI_CARDINFO_H_
+
+BOOL MINSTALL_LoadCARDINFO (void);
+BOOL MINSTALL_ProcessCARDINFO (void);
+BOOL MINSTALL_UseCARDINFOCustomData (PMINSTGRP GroupPtr);
+VOID MINSTALL_FillCARDINFOCustomData (PMINSTGRP GroupPtr);
+VOID MINSTALL_CleanUpCARDINFO (void);
+
+#endif

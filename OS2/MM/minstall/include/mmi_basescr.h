@@ -17,5 +17,16 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-BOOL MINSTALL_ProcessConfigControl (ULONG ChangeCount, PVOID ChangeArrayPtr);
-BOOL MINSTALL_ProcessScripts (VOID);
+#ifndef _MMI_BASESCR_H_
+#define _MMI_BASESCR_H_
+
+BOOL MINSTALL_LoadMasterControl (void);
+BOOL MINSTALL_LoadFileControl (void);
+BOOL MINSTALL_FilterControlFileData (void);
+BOOL MINSTALL_GeneratePublicGroup (void);
+BOOL MINSTALL_SaveInstalledVersions (void);
+VOID MINSTALL_CleanUpMasterControl (void);
+VOID MINSTALL_CleanUpFileControl (void);
+VOID MINSTALL_CleanUpPublicGroup (void);
+
+#endif

@@ -28,10 +28,11 @@
 #include <pmdef.h>
 #include <os2me.h>
 
+#include <string.h>
+
 #include <global.h>
 #include <mciini.h>
 
-CODE_MCISENDCOMMAND MCIINI_MciSendCommandFunc = 0;
 
 APIRET MCIINI_SendSysInfoExtCommand (ULONG FunctionID, PVOID SysInfoParm) {
    MCI_SYSINFO_PARMS SysInfo;

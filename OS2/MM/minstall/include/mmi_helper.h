@@ -17,6 +17,9 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _MMI_HELPER_H_
+#define _MMI_HELPER_H_
+
 PMINSTDIR  MINSTALL_SearchSourceDirID (ULONG DirectoryID);
 PMINSTDIR  MINSTALL_SearchRootSourceDirID (void);
 PMINSTDIR  MINSTALL_SearchDestinDirID (ULONG DirectoryID);
@@ -44,3 +47,5 @@ VOID       MINSTLOG_CloseFile (void);
 VOID       MINSTLOG_ToFile (PSZ FormatStr,...);
 VOID       MINSTLOG_ToScreen (PSZ FormatStr,...);
 VOID       MINSTLOG_ToAll (PSZ FormatStr,...);
+
+#endif

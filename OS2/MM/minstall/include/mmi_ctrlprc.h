@@ -17,5 +17,10 @@
 //  along with MINSTALL.DLL.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-BOOL MINSTALL_LoadCustomControl (void);
-VOID MINSTALL_CleanUpCustomControl (void);
+#ifndef _MMI_CTRLPRC_H_
+#define _MMI_CTRLPRC_H_
+
+BOOL MINSTALL_ProcessConfigControl (ULONG ChangeCount, PVOID ChangeArrayPtr);
+BOOL MINSTALL_ProcessScripts (VOID);
+
+#endif
