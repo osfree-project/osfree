@@ -401,8 +401,8 @@ char SET_PROGRAM[] = "4OS2 %u%c%02u%s";
 char *OS2_NAME = "4OS2.EXE";
 char *SHORT_NAME = "4OS2";
 char OS2_INI[] = "4OS2.INI";
-char OS2_FS[] = "4OS2 Full Screen";
-char OS2_WIN[] = "4OS2 Window";
+char OS2_FS[] = "OS/2 Full Screen";
+char OS2_WIN[] = "OS/2 Window";
 char NO_DLL[] = "Warning:  Can't load JPOS2DLL";
 
 
