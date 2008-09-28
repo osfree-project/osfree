@@ -1,2 +1,0 @@
-Seems ansicall.dll not used in most OS/2 programs. Only reference found is
-Theseus. Most probably we'll not to clone this dll at all.

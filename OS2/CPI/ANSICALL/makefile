@@ -1,47 +1,24 @@
 #
-# A Makefile for ANSI
-# (c) osFree project,
-# author, date
+# A Makefile for ansicall.dll
+# (c) osFree project
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-32_BITS  = 1
-DIR      = $(ROOT)\bin\os2\dll
 PROJ     = ansicall
-DESC     = ANSI Control Programm API
-OBJS     = ..\shared\stub.obj
+DESC     = ANSI escape sequence API
+OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment   type DATA shared
+DLL     = 1
+DLLOPT  = initglobal
+IMPORTS = ANSIINJECT DOSCALLS.848, &
+          ANSIKEYDEF DOSCALLS.849, &
+          ANSIINTERP DOSCALLS.850
+EXPORTS = ANSIINJECT.1 RESIDENT, &
+          ANSIKEYDEF.2 RESIDENT, &
+          ANSIINTERP.3 RESIDENT
 
-!include $(%ROOT)/mk/all.mk
+DEST    = os2$(SEP)dll
 
-all: $(PROJ).dll .SYMBOLIC
+!include $(%ROOT)/mk/appsos2.mk
 
-$(PROJ).dll: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk name      $(PROJ).dll
- @%append $^&.lnk format    os2 lx dll initglobal
- @%append $^&.lnk option    manyautodata
- @%append $^&.lnk segment   type DATA shared
- @%append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- @%append $^&.lnk OPTION MAP=$^&.wmp
- @%append $^&.lnk export
- @%append $^&.lnk   ANSIINJECT.0001,
- @%append $^&.lnk   ANSIKEYDEF.0002,
- @%append $^&.lnk   ANSIINTERP.0003
 
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).dll $(FILESDIR)$(SEP)os2$(SEP)dll

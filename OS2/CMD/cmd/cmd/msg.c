@@ -704,9 +704,6 @@ char COMMAND_GROUP_MORE[] = "More? ";
 char CMDLINE_VAR[] = "CMDLINE=";
 char PROMPT_NAME[] = "PROMPT";
 
-char OS2_PROMPT[] = "  OS/2     Ctrl+Esc = Window List                             Type HELP = help  ";
-
-
 // SCREENIO.C
 char HISTORY_TITLE[] = " History ";
 char DIRECTORY_TITLE[] = " Directories ";

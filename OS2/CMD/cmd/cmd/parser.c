@@ -1312,6 +1312,10 @@ void show_prompt( void )
         char *ptr;
         PCH feptr;
 
+        UCHAR   pBuf[81] = "";
+        ULONG   cbMsgL;
+        APIRET  ulrc;
+
         // odd kludge for UNC names
         if (( gnCurrentDisk = _getdrive()) < 0 )
                 gnCurrentDisk = 0;
@@ -1384,7 +1388,11 @@ void show_prompt( void )
                                 // set attribute (inverse white on mono screen,
                                 //   white on blue for color screen)
                                 i = ( vioMode.fbType == 0 ) ? 0x70 : 0x1F;
-                                (void)VioWrtCharStrAtt( OS2_PROMPT, strlen( OS2_PROMPT ), 0, 0, (PBYTE)&i, 0 );
+
+                                ulrc = DosGetMessage(NULL, 0, pBuf, sizeof(pBuf), 1492, "OSO001.MSG", &cbMsgL);
+                                if (ulrc != NO_ERROR)
+                                printf(all_GetSystemErrorMessage(ulrc));
+                                (void)VioWrtCharStrAtt( pBuf, strlen( pBuf ), 0, 0, (PBYTE)&i, 0 );
 
                                 // kludge if we're on line 0
                                 GetCurPos( &i, &n );
