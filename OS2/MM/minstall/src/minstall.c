@@ -25,6 +25,8 @@
 
 #include <malloc.h>
 #include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
 
 #define INCLUDE_STD_MAIN
 #include <global.h>

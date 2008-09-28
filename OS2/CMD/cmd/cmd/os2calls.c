@@ -440,7 +440,7 @@ int _help(char *arg, char *opts)
         lpMsg = AllocMem( &size );
         nMsgLen = size;
         if (findcmdhelp( arg, 1 )==0) {
-            if ( DosGetMessage( NULL, 0, lpMsg, size, findcmd( arg, 1 ), "4OS2H.MSG", &nMsgLen ) == 0 ) {
+            if ( DosGetMessage( NULL, 0, lpMsg, size, findcmd( arg, 1 ), "OSO001H.MSG", &nMsgLen ) == 0 ) {
                 lpMsg[nMsgLen] = '\0';
                 printf( FMT_FAR_STR, lpMsg);
 
@@ -482,7 +482,7 @@ int _help(char *arg, char *opts)
     else if ( gpIniptr->HelpBook != INI_EMPTYSTR)
         strcpy( argline, ( char *)( gpIniptr->StrData + gpIniptr->HelpBook) );
     else {
-        strcpy( argline, "4OS2+CMDREF" );
+        strcpy( argline, "CMDREF" );
     }
 
     // check for command line arguments

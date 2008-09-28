@@ -21,14 +21,14 @@
 
 // INI file item list
 typedef struct {
-	char *pszItemName;
-	unsigned char cParseType;
-	unsigned int uDefValue;
-	void *pValidate;
-	void *pItemData;
-	unsigned int uControlID;
-	unsigned char cControlType;
-	unsigned char cRadioCnt;
+        char *pszItemName;
+        unsigned char cParseType;
+        unsigned int uDefValue;
+        void *pValidate;
+        void *pItemData;
+        unsigned int uControlID;
+        unsigned char cControlType;
+        unsigned char cRadioCnt;
 } INI_ITEM;
 
 // ASCII and scan codes for all keys
@@ -296,7 +296,7 @@ typedef struct {
 #define INI_INCLUDE  10
 
 #define INI_PTMASK   0x7F
-#define INI_NOMOD		0x80
+#define INI_NOMOD               0x80
 
 
 // bits for cvtkey, used in key mapping directives
@@ -324,13 +324,13 @@ static int V_HMRng[] = {0, 1024};               // history minimum save range
 static int V_WPRng[] = {0, 2048};               // window position range
 static int V_WSRng[] = {0, 4096};               // window size range
 
-static int V_FuzzyCD[] = {0, 3};	        // Fuzzy completion style
+static int V_FuzzyCD[] = {0, 3};                // Fuzzy completion style
 static int V_BaseRng[] = {0, 1, 1};             // Base 0 or 1 for 1st element
 static int V_EvalRng[] = {0, 8, 1};             // @EVAL precision range
 static int V_BFRng[] = {0, 20000, 1000};        // beep frequency range
 static int V_BLRng[] = {0, 54, 1};              // beep length range
 static int V_RCRng[] = {0, 2048, 1};            // row / column count range
-static int V_Tabs[] = {1, 32, 1};	 	         // tabstops
+static int V_Tabs[] = {1, 32, 1};                        // tabstops
 
 static char *YNList[] = {"No", "Yes"};      // yes or no
 TOKEN_LIST(V_YesNo, YNList);
@@ -357,173 +357,173 @@ TOKEN_LIST(SectionNames, SecNames);
 // Take Command dialog box control number macros
 //    Embed Dialog ID in high byte, control type in third nibble, and
 //    ID count for radio buttons in fourth nibble.
-//#define DLG_DATA(CtlID, CtlType, RadioCnt) ((unsigned int)(((CtlID - IDI_BASE) << 8) | (CtlType << 4) | RadioCnt)), 
-#define DLG_DATA(CtlID, CtlType, RadioCnt) (unsigned int)(CtlID - IDI_BASE),  CtlType, RadioCnt, 
-#define DLG_NULL 0, 0, 0, 
+//#define DLG_DATA(CtlID, CtlType, RadioCnt) ((unsigned int)(((CtlID - IDI_BASE) << 8) | (CtlType << 4) | RadioCnt)),
+#define DLG_DATA(CtlID, CtlType, RadioCnt) (unsigned int)(CtlID - IDI_BASE),  CtlType, RadioCnt,
+#define DLG_NULL 0, 0, 0,
 
 
 INI_ITEM gaINIItemList[] = {
 
-	// All products
-	"AmPm", INI_CHOICE, 2, &V_YesNoAuto, &gaInifile.TimeFmt, DLG_DATA(IDI_AmPm, INI_CTL_RADIO, 3)
-	"AppendToDir", INI_CHOICE, 0, &V_YesNo, &gaInifile.AppendDir, DLG_DATA(IDI_AppendToDir, INI_CTL_CHECK, 0)
-	//"Base", INI_UINT, 0, &V_BaseRng, &gaInifile.Base, DLG_NULL
-	"BatchEcho", INI_CHOICE, 1, &V_YesNo, &gaInifile.BatEcho, DLG_DATA(IDI_BatchEcho, INI_CTL_CHECK, 0)
-	"BeepFreq", INI_UINT, 440, &V_BFRng, &gaInifile.BeepFreq, DLG_DATA(IDI_BeepFreq, INI_CTL_INT, 0)
-	"BeepLength", INI_UINT, 2, &V_BLRng, &gaInifile.BeepDur, DLG_DATA(IDI_BeepLength, INI_CTL_INT, 0)
-	"CDDWinLeft", INI_UINT, 3, &V_RCRng, &gaInifile.CDDLeft, DLG_DATA(IDI_CDDWinLeft, INI_CTL_INT, 0)
-	"CDDWinTop", INI_UINT, 3, &V_RCRng, &gaInifile.CDDTop, DLG_DATA(IDI_CDDWinTop, INI_CTL_INT, 0)
-	"CDDWinWidth", INI_UINT, 72, &V_RCRng, &gaInifile.CDDWidth, DLG_DATA(IDI_CDDWinWidth, INI_CTL_INT, 0)
-	"CDDWinHeight", INI_UINT, 16, &V_RCRng, &gaInifile.CDDHeight, DLG_DATA(IDI_CDDWinHeight, INI_CTL_INT, 0)
-	"ClearKeyMap", INI_KEY_MAP, 0, VNULL, NULL, DLG_NULL
-	"ColorDir", INI_STR, 0, VNULL, &gaInifile.DirColor, DLG_DATA(IDI_ColorDir, INI_CTL_TEXT, 0)
-	"Debug", INI_UINT, 0, VNULL, &gaInifile.INIDebug, DLG_NULL
-	"DecimalChar", INI_CHOICE, 0, &V_DTChar, &gaInifile.DecimalChar, DLG_DATA(IDI_DecimalChar, INI_CTL_RADIO, 3)
-	"DescriptionMax", INI_UINT, 512, &V_DesRng, &gaInifile.DescriptMax, DLG_DATA(IDI_DescriptionMax, INI_CTL_INT, 0)
-	"DescriptionName", INI_STR, 0, VNULL, &gaInifile.DescriptName, DLG_NULL
-	"Descriptions", INI_CHOICE, 1, &V_YesNo, &gaInifile.Descriptions, DLG_DATA(IDI_Descriptions, INI_CTL_CHECK, 0)
-	// Kludge - we use two entries here so that changes made by OPTION
-	// get into the .INI file with the correct name, but do not affect the
-	// values for the current session
-	"DirHistory", (INI_UINT | INI_NOMOD), 512, &V_DirHstRng, &gaInifile.DirHistorySize, DLG_NULL
-	"DirHistory", INI_UINT, 512, &V_DirHstRng, &gaInifile.DirHistoryNew, DLG_DATA(IDI_DirHistory, INI_CTL_INT, 0)
-	//"ErrorColors", INI_COLOR, 0, VNULL, &gaInifile.ErrorColor, DLG_NULL
-	"EvalMax", INI_UINT, 8, &V_EvalRng, &gaInifile.EvalMax, DLG_DATA(IDI_EvalMax, INI_CTL_INT, 0)
-	"EvalMin", INI_UINT, 0, &V_EvalRng, &gaInifile.EvalMin, DLG_DATA(IDI_EvalMin, INI_CTL_INT, 0)
-	"FileCompletion", INI_STR, 0, VNULL, &gaInifile.FC, DLG_DATA(IDI_FileCompletion, INI_CTL_TEXT, 0)
-	"FuzzyCD", INI_UINT, 0, &V_FuzzyCD, &gaInifile.FuzzyCD, DLG_DATA(IDI_FuzzyCD, INI_CTL_RADIO, 4)
-	"HistMin", INI_UINT, 0, &V_HMRng, &gaInifile.HistMin, DLG_DATA(IDI_HistMin, INI_CTL_INT, 0)
-	// Kludge - see note under DirHistory directive above
-	"History", (INI_UINT | INI_NOMOD), 1024, &V_HstRng, &gaInifile.HistorySize, DLG_NULL
-	"History", INI_UINT, 1024, &V_HstRng, &gaInifile.HistoryNew, DLG_DATA(IDI_History, INI_CTL_INT, 0)
-	"HistCopy", INI_CHOICE, 0, &V_YesNo, &gaInifile.HistoryCopy, DLG_DATA(IDI_HistCopy, INI_CTL_CHECK, 0)
-	"HistMove", INI_CHOICE, 0, &V_YesNo, &gaInifile.HistoryMove, DLG_DATA(IDI_HistMove, INI_CTL_CHECK, 0)
-	"HistLogName", INI_PATH, 0, (void *)0x4000, &gaInifile.HistLogName, DLG_DATA(IDI_HistLogName, INI_CTL_TEXT, 0)
-	"HistLogOn", INI_CHOICE, 0, &V_YesNo, &gaInifile.HistLogOn, DLG_DATA(IDI_HistLogOn, INI_CTL_CHECK, 0)
-	"HistWrap", INI_CHOICE, 1, &V_YesNo, &gaInifile.HistoryWrap, DLG_DATA(IDI_HistWrap, INI_CTL_CHECK, 0)
-	"Include", INI_INCLUDE, 0, VNULL, NULL, DLG_NULL
-	"INIQuery", INI_CHOICE, 0, &V_YesNo, &gaInifile.INIQuery, DLG_NULL
-	"InputColors", INI_COLOR, 0, VNULL, &gaInifile.InputColor, DLG_DATA(IDI_InputColors, INI_CTL_COLOR, 0)
+        // All products
+        "AmPm", INI_CHOICE, 2, &V_YesNoAuto, &gaInifile.TimeFmt, DLG_DATA(IDI_AmPm, INI_CTL_RADIO, 3)
+        "AppendToDir", INI_CHOICE, 0, &V_YesNo, &gaInifile.AppendDir, DLG_DATA(IDI_AppendToDir, INI_CTL_CHECK, 0)
+        //"Base", INI_UINT, 0, &V_BaseRng, &gaInifile.Base, DLG_NULL
+        "BatchEcho", INI_CHOICE, 1, &V_YesNo, &gaInifile.BatEcho, DLG_DATA(IDI_BatchEcho, INI_CTL_CHECK, 0)
+        "BeepFreq", INI_UINT, 440, &V_BFRng, &gaInifile.BeepFreq, DLG_DATA(IDI_BeepFreq, INI_CTL_INT, 0)
+        "BeepLength", INI_UINT, 2, &V_BLRng, &gaInifile.BeepDur, DLG_DATA(IDI_BeepLength, INI_CTL_INT, 0)
+        "CDDWinLeft", INI_UINT, 3, &V_RCRng, &gaInifile.CDDLeft, DLG_DATA(IDI_CDDWinLeft, INI_CTL_INT, 0)
+        "CDDWinTop", INI_UINT, 3, &V_RCRng, &gaInifile.CDDTop, DLG_DATA(IDI_CDDWinTop, INI_CTL_INT, 0)
+        "CDDWinWidth", INI_UINT, 72, &V_RCRng, &gaInifile.CDDWidth, DLG_DATA(IDI_CDDWinWidth, INI_CTL_INT, 0)
+        "CDDWinHeight", INI_UINT, 16, &V_RCRng, &gaInifile.CDDHeight, DLG_DATA(IDI_CDDWinHeight, INI_CTL_INT, 0)
+        "ClearKeyMap", INI_KEY_MAP, 0, VNULL, NULL, DLG_NULL
+        "ColorDir", INI_STR, 0, VNULL, &gaInifile.DirColor, DLG_DATA(IDI_ColorDir, INI_CTL_TEXT, 0)
+        "Debug", INI_UINT, 0, VNULL, &gaInifile.INIDebug, DLG_NULL
+        "DecimalChar", INI_CHOICE, 0, &V_DTChar, &gaInifile.DecimalChar, DLG_DATA(IDI_DecimalChar, INI_CTL_RADIO, 3)
+        "DescriptionMax", INI_UINT, 512, &V_DesRng, &gaInifile.DescriptMax, DLG_DATA(IDI_DescriptionMax, INI_CTL_INT, 0)
+        "DescriptionName", INI_STR, 0, VNULL, &gaInifile.DescriptName, DLG_NULL
+        "Descriptions", INI_CHOICE, 1, &V_YesNo, &gaInifile.Descriptions, DLG_DATA(IDI_Descriptions, INI_CTL_CHECK, 0)
+        // Kludge - we use two entries here so that changes made by OPTION
+        // get into the .INI file with the correct name, but do not affect the
+        // values for the current session
+        "DirHistory", (INI_UINT | INI_NOMOD), 512, &V_DirHstRng, &gaInifile.DirHistorySize, DLG_NULL
+        "DirHistory", INI_UINT, 512, &V_DirHstRng, &gaInifile.DirHistoryNew, DLG_DATA(IDI_DirHistory, INI_CTL_INT, 0)
+        //"ErrorColors", INI_COLOR, 0, VNULL, &gaInifile.ErrorColor, DLG_NULL
+        "EvalMax", INI_UINT, 8, &V_EvalRng, &gaInifile.EvalMax, DLG_DATA(IDI_EvalMax, INI_CTL_INT, 0)
+        "EvalMin", INI_UINT, 0, &V_EvalRng, &gaInifile.EvalMin, DLG_DATA(IDI_EvalMin, INI_CTL_INT, 0)
+        "FileCompletion", INI_STR, 0, VNULL, &gaInifile.FC, DLG_DATA(IDI_FileCompletion, INI_CTL_TEXT, 0)
+        "FuzzyCD", INI_UINT, 0, &V_FuzzyCD, &gaInifile.FuzzyCD, DLG_DATA(IDI_FuzzyCD, INI_CTL_RADIO, 4)
+        "HistMin", INI_UINT, 0, &V_HMRng, &gaInifile.HistMin, DLG_DATA(IDI_HistMin, INI_CTL_INT, 0)
+        // Kludge - see note under DirHistory directive above
+        "History", (INI_UINT | INI_NOMOD), 1024, &V_HstRng, &gaInifile.HistorySize, DLG_NULL
+        "History", INI_UINT, 1024, &V_HstRng, &gaInifile.HistoryNew, DLG_DATA(IDI_History, INI_CTL_INT, 0)
+        "HistCopy", INI_CHOICE, 0, &V_YesNo, &gaInifile.HistoryCopy, DLG_DATA(IDI_HistCopy, INI_CTL_CHECK, 0)
+        "HistMove", INI_CHOICE, 0, &V_YesNo, &gaInifile.HistoryMove, DLG_DATA(IDI_HistMove, INI_CTL_CHECK, 0)
+        "HistLogName", INI_PATH, 0, (void *)0x4000, &gaInifile.HistLogName, DLG_DATA(IDI_HistLogName, INI_CTL_TEXT, 0)
+        "HistLogOn", INI_CHOICE, 0, &V_YesNo, &gaInifile.HistLogOn, DLG_DATA(IDI_HistLogOn, INI_CTL_CHECK, 0)
+        "HistWrap", INI_CHOICE, 1, &V_YesNo, &gaInifile.HistoryWrap, DLG_DATA(IDI_HistWrap, INI_CTL_CHECK, 0)
+        "Include", INI_INCLUDE, 0, VNULL, NULL, DLG_NULL
+        "INIQuery", INI_CHOICE, 0, &V_YesNo, &gaInifile.INIQuery, DLG_NULL
+        "InputColors", INI_COLOR, 0, VNULL, &gaInifile.InputColor, DLG_DATA(IDI_InputColors, INI_CTL_COLOR, 0)
 //FIXME, need dialog info
-	"ListColors", INI_COLOR, 0, VNULL, &gaInifile.ListColor, DLG_DATA(IDI_ListColors, INI_CTL_COLOR, 0)
-	"ListRowStart", INI_UINT, 1, &V_BaseRng, &gaInifile.ListRowStart, DLG_NULL
-	"LogName", INI_PATH, 0, (void *)0x4000, &gaInifile.LogName, DLG_DATA(IDI_LogName, INI_CTL_TEXT, 0)
-	"LogOn", INI_CHOICE, 0, &V_YesNo, &gaInifile.LogOn, DLG_DATA(IDI_LogOn, INI_CTL_CHECK, 0)
-	"NoClobber", INI_CHOICE, 0, &V_YesNo, &gaInifile.NoClobber, DLG_DATA(IDI_NoClobber, INI_CTL_CHECK, 0)
-	"PathExt", INI_CHOICE, 0, &V_YesNo, &gaInifile.PathExt, DLG_NULL
-	"PopupWinHeight", INI_UINT, 12, &V_RCRng, &gaInifile.PWHeight, DLG_DATA(IDI_PopupWinHeight, INI_CTL_INT, 0)
-	"PopupWinTop", INI_UINT, 1, &V_RCRng, &gaInifile.PWTop, DLG_DATA(IDI_PopupWinTop, INI_CTL_INT, 0)
-	"ScreenRows", INI_UINT, 0, &V_RCRng, &gaInifile.Rows, DLG_DATA(IDI_ScreenRows, INI_CTL_INT, 0)
-	"SelectColors", INI_COLOR, 0, VNULL, &gaInifile.SelectColor, DLG_DATA(IDI_SelectColors, INI_CTL_COLOR, 0)
-	"StdColors", INI_COLOR, 0, VNULL, &gaInifile.StdColor, DLG_DATA(IDI_StdColors, INI_CTL_COLOR, 0)
-	"TabStops", INI_UINT, 8, &V_Tabs, &gaInifile.Tabs, DLG_DATA(IDI_Tabs, INI_CTL_INT, 0)
-	"ThousandsChar", INI_CHOICE, 0, &V_DTChar, &gaInifile.ThousandsChar, DLG_DATA(IDI_ThousandsChar, INI_CTL_RADIO, 3)
-	"TreePath", INI_PATH, 0, VNULL, &gaInifile.TreePath, DLG_DATA(IDI_TreePath, INI_CTL_TEXT, 0)
-	"SwitchChar", INI_CHAR, '/', VNULL, &gaInifile.SwChr, DLG_NULL
-	"UnixPaths", INI_CHOICE, 0, &V_YesNo, &gaInifile.UnixPaths, DLG_NULL
-	"UpperCase", INI_CHOICE, 0, &V_YesNo, &gaInifile.Upper, DLG_DATA(IDI_UpperCase, INI_CTL_CHECK, 0)
+        "ListColors", INI_COLOR, 0, VNULL, &gaInifile.ListColor, DLG_DATA(IDI_ListColors, INI_CTL_COLOR, 0)
+        "ListRowStart", INI_UINT, 1, &V_BaseRng, &gaInifile.ListRowStart, DLG_NULL
+        "LogName", INI_PATH, 0, (void *)0x4000, &gaInifile.LogName, DLG_DATA(IDI_LogName, INI_CTL_TEXT, 0)
+        "LogOn", INI_CHOICE, 0, &V_YesNo, &gaInifile.LogOn, DLG_DATA(IDI_LogOn, INI_CTL_CHECK, 0)
+        "NoClobber", INI_CHOICE, 0, &V_YesNo, &gaInifile.NoClobber, DLG_DATA(IDI_NoClobber, INI_CTL_CHECK, 0)
+        "PathExt", INI_CHOICE, 0, &V_YesNo, &gaInifile.PathExt, DLG_NULL
+        "PopupWinHeight", INI_UINT, 12, &V_RCRng, &gaInifile.PWHeight, DLG_DATA(IDI_PopupWinHeight, INI_CTL_INT, 0)
+        "PopupWinTop", INI_UINT, 1, &V_RCRng, &gaInifile.PWTop, DLG_DATA(IDI_PopupWinTop, INI_CTL_INT, 0)
+        "ScreenRows", INI_UINT, 0, &V_RCRng, &gaInifile.Rows, DLG_DATA(IDI_ScreenRows, INI_CTL_INT, 0)
+        "SelectColors", INI_COLOR, 0, VNULL, &gaInifile.SelectColor, DLG_DATA(IDI_SelectColors, INI_CTL_COLOR, 0)
+        "StdColors", INI_COLOR, 0, VNULL, &gaInifile.StdColor, DLG_DATA(IDI_StdColors, INI_CTL_COLOR, 0)
+        "TabStops", INI_UINT, 8, &V_Tabs, &gaInifile.Tabs, DLG_DATA(IDI_Tabs, INI_CTL_INT, 0)
+        "ThousandsChar", INI_CHOICE, 0, &V_DTChar, &gaInifile.ThousandsChar, DLG_DATA(IDI_ThousandsChar, INI_CTL_RADIO, 3)
+        "TreePath", INI_PATH, 0, VNULL, &gaInifile.TreePath, DLG_DATA(IDI_TreePath, INI_CTL_TEXT, 0)
+        "SwitchChar", INI_CHAR, '/', VNULL, &gaInifile.SwChr, DLG_NULL
+        "UnixPaths", INI_CHOICE, 0, &V_YesNo, &gaInifile.UnixPaths, DLG_NULL
+        "UpperCase", INI_CHOICE, 0, &V_YesNo, &gaInifile.Upper, DLG_DATA(IDI_UpperCase, INI_CTL_CHECK, 0)
 
-	"CommandSep", INI_CHAR, '&', VNULL, &gaInifile.CmdSep, DLG_DATA(IDI_CommandSep, INI_CTL_TEXT, 0)
-	"EscapeChar", INI_CHAR, '^', VNULL, &gaInifile.EscChr, DLG_DATA(IDI_EscapeChar, INI_CTL_TEXT, 0)
-	"ParameterChar", INI_CHAR, '$', VNULL, &gaInifile.ParamChr, DLG_DATA(IDI_ParameterChar, INI_CTL_TEXT, 0)
+        "CommandSep", INI_CHAR, '&', VNULL, &gaInifile.CmdSep, DLG_DATA(IDI_CommandSep, INI_CTL_TEXT, 0)
+        "EscapeChar", INI_CHAR, '^', VNULL, &gaInifile.EscChr, DLG_DATA(IDI_EscapeChar, INI_CTL_TEXT, 0)
+        "ParameterChar", INI_CHAR, '$', VNULL, &gaInifile.ParamChr, DLG_DATA(IDI_ParameterChar, INI_CTL_TEXT, 0)
 
-	// OS/2 only
-	"HelpBook", INI_STR, 0, VNULL, &gaInifile.HelpBook, DLG_DATA(IDI_HelpBook, INI_CTL_TEXT, 0)
-	"SwapFilePath", INI_PATH, 0, (void *)0x4000, &gaInifile.SwapPath, DLG_DATA(IDI_SwapPath, INI_CTL_TEXT, 0)
+        // OS/2 only
+        "HelpBook", INI_STR, 0, VNULL, &gaInifile.HelpBook, DLG_DATA(IDI_HelpBook, INI_CTL_TEXT, 0)
+        "SwapFilePath", INI_PATH, 0, (void *)0x4000, &gaInifile.SwapPath, DLG_DATA(IDI_SwapPath, INI_CTL_TEXT, 0)
 
-	"4StartPath", INI_PATH, 0, VNULL, &gaInifile.FSPath, DLG_DATA(IDI_4StartPath, INI_CTL_TEXT, 0)
-	"CursorIns", INI_INT, 100, &V_CurRng, &gaInifile.CursI, DLG_DATA(IDI_CursorIns, INI_CTL_INT, 0)
-	"CursorOver", INI_INT, 15, &V_CurRng, &gaInifile.CursO, DLG_DATA(IDI_CursorOver, INI_CTL_INT, 0)
-	"EditMode", INI_CHOICE, 0, &V_EMList, &gaInifile.EditMode, DLG_DATA(IDI_EditMode, INI_CTL_RADIO, 2)
-	"CDDWinColors", INI_COLOR, 0, VNULL, &gaInifile.CDDColor, DLG_DATA(IDI_CDDWinColors, INI_CTL_COLOR, 0)
-	"ListboxBarColors", INI_COLOR, 0, VNULL, &gaInifile.LBBar, DLG_DATA(IDI_ListBoxBarColors, INI_CTL_COLOR, 0)
-	"PopupWinColors", INI_COLOR, 0, VNULL, &gaInifile.PWColor, DLG_DATA(IDI_PopupWinColors, INI_CTL_COLOR, 0)
-	"PopupWinLeft", INI_UINT, 40, &V_RCRng, &gaInifile.PWLeft, DLG_DATA(IDI_PopupWinLeft, INI_CTL_INT, 0)
-	"PopupWinWidth", INI_UINT, 36, &V_RCRng, &gaInifile.PWWidth, DLG_DATA(IDI_PopupWinWidth, INI_CTL_INT, 0)
-	"Printer", INI_STR, 0, VNULL, &gaInifile.Printer, DLG_DATA(IDI_Printer, INI_CTL_TEXT, 0)
+        "4StartPath", INI_PATH, 0, VNULL, &gaInifile.FSPath, DLG_DATA(IDI_4StartPath, INI_CTL_TEXT, 0)
+        "CursorIns", INI_INT, 100, &V_CurRng, &gaInifile.CursI, DLG_DATA(IDI_CursorIns, INI_CTL_INT, 0)
+        "CursorOver", INI_INT, 15, &V_CurRng, &gaInifile.CursO, DLG_DATA(IDI_CursorOver, INI_CTL_INT, 0)
+        "EditMode", INI_CHOICE, 0, &V_EMList, &gaInifile.EditMode, DLG_DATA(IDI_EditMode, INI_CTL_RADIO, 2)
+        "CDDWinColors", INI_COLOR, 0, VNULL, &gaInifile.CDDColor, DLG_DATA(IDI_CDDWinColors, INI_CTL_COLOR, 0)
+        "ListboxBarColors", INI_COLOR, 0, VNULL, &gaInifile.LBBar, DLG_DATA(IDI_ListBoxBarColors, INI_CTL_COLOR, 0)
+        "PopupWinColors", INI_COLOR, 0, VNULL, &gaInifile.PWColor, DLG_DATA(IDI_PopupWinColors, INI_CTL_COLOR, 0)
+        "PopupWinLeft", INI_UINT, 40, &V_RCRng, &gaInifile.PWLeft, DLG_DATA(IDI_PopupWinLeft, INI_CTL_INT, 0)
+        "PopupWinWidth", INI_UINT, 36, &V_RCRng, &gaInifile.PWWidth, DLG_DATA(IDI_PopupWinWidth, INI_CTL_INT, 0)
+        "Printer", INI_STR, 0, VNULL, &gaInifile.Printer, DLG_DATA(IDI_Printer, INI_CTL_TEXT, 0)
 
-	"ExecWait", INI_CHOICE, 0, &V_YesNo, &gaInifile.ExecWait, DLG_DATA(IDI_ExecWait, INI_CTL_CHECK, 0)
-	"WindowHeight", INI_UINT, 0, &V_WSRng, &gaInifile.WindowHeight, DLG_DATA(IDI_WindowHeight, INI_CTL_INT, 0)
-	"WindowState", INI_CHOICE, 0, &V_WState, &gaInifile.WindowState, DLG_DATA(IDI_WindowState, INI_CTL_RADIO, 4)
-	"WindowWidth", INI_UINT, 0, &V_WSRng, &gaInifile.WindowWidth, DLG_DATA(IDI_WindowWidth, INI_CTL_INT, 0)
-	"WindowX", INI_UINT, 0, &V_WPRng, &gaInifile.WindowX, DLG_DATA(IDI_WindowX, INI_CTL_INT, 0)
-	"WindowY", INI_UINT, 0, &V_WPRng, &gaInifile.WindowY, DLG_DATA(IDI_WindowY, INI_CTL_INT, 0)
+        "ExecWait", INI_CHOICE, 0, &V_YesNo, &gaInifile.ExecWait, DLG_DATA(IDI_ExecWait, INI_CTL_CHECK, 0)
+        "WindowHeight", INI_UINT, 0, &V_WSRng, &gaInifile.WindowHeight, DLG_DATA(IDI_WindowHeight, INI_CTL_INT, 0)
+        "WindowState", INI_CHOICE, 0, &V_WState, &gaInifile.WindowState, DLG_DATA(IDI_WindowState, INI_CTL_RADIO, 4)
+        "WindowWidth", INI_UINT, 0, &V_WSRng, &gaInifile.WindowWidth, DLG_DATA(IDI_WindowWidth, INI_CTL_INT, 0)
+        "WindowX", INI_UINT, 0, &V_WPRng, &gaInifile.WindowX, DLG_DATA(IDI_WindowX, INI_CTL_INT, 0)
+        "WindowY", INI_UINT, 0, &V_WPRng, &gaInifile.WindowY, DLG_DATA(IDI_WindowY, INI_CTL_INT, 0)
 
-	"BrightBG", INI_CHOICE, 2, &V_YesNo, &gaInifile.BrightBG, DLG_DATA(IDI_BrightBG, INI_CTL_CHECK, 0)
-	"LineInput", INI_CHOICE, 0, &V_YesNo, &gaInifile.LineIn, DLG_NULL
+        "BrightBG", INI_CHOICE, 2, &V_YesNo, &gaInifile.BrightBG, DLG_DATA(IDI_BrightBG, INI_CTL_CHECK, 0)
+        "LineInput", INI_CHOICE, 0, &V_YesNo, &gaInifile.LineIn, DLG_NULL
 
-	"ListStatBarColors", INI_COLOR, 0, VNULL, &gaInifile.ListStatusColor, DLG_DATA(IDI_ListStatBarColors, INI_CTL_COLOR, 0)
-	"PauseOnError", INI_CHOICE, 1, &V_YesNo, &gaInifile.PauseErr, DLG_NULL
-	"SelectStatBarColors", INI_COLOR, 0, VNULL, &gaInifile.SelectStatusColor, DLG_DATA(IDI_SelectStatBarColors, INI_CTL_COLOR, 0)
+        "ListStatBarColors", INI_COLOR, 0, VNULL, &gaInifile.ListStatusColor, DLG_DATA(IDI_ListStatBarColors, INI_CTL_COLOR, 0)
+        "PauseOnError", INI_CHOICE, 1, &V_YesNo, &gaInifile.PauseErr, DLG_NULL
+        "SelectStatBarColors", INI_COLOR, 0, VNULL, &gaInifile.SelectStatusColor, DLG_DATA(IDI_SelectStatBarColors, INI_CTL_COLOR, 0)
 
-	// Everything but TCMD/16
-	"DuplicateBugs", INI_CHOICE, 0, &V_YesNo, &gaInifile.DupBugs, DLG_NULL
-	"LocalAliases", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalAliases, DLG_DATA(IDI_LocalAliases, INI_CTL_CHECK, 0)
-	"LocalDirHistory", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalDirHistory, DLG_DATA(IDI_LocalDirHistory, INI_CTL_CHECK, 0)
-	"LocalHistory", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalHistory, DLG_DATA(IDI_LocalHistory, INI_CTL_CHECK, 0)
-	"NextINIFile", INI_STR, 0, VNULL, &gaInifile.NextININame, DLG_NULL
+        // Everything but TCMD/16
+        "DuplicateBugs", INI_CHOICE, 1, &V_YesNo, &gaInifile.DupBugs, DLG_NULL
+        "LocalAliases", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalAliases, DLG_DATA(IDI_LocalAliases, INI_CTL_CHECK, 0)
+        "LocalDirHistory", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalDirHistory, DLG_DATA(IDI_LocalDirHistory, INI_CTL_CHECK, 0)
+        "LocalHistory", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalHistory, DLG_DATA(IDI_LocalHistory, INI_CTL_CHECK, 0)
+        "NextINIFile", INI_STR, 0, VNULL, &gaInifile.NextININame, DLG_NULL
 
-	// Dummy item to hold name of primary INI file, set up here so
-	// INIStr will move it around as needed, but with blank name so user
-	// can't modify it
-	" ", INI_STR, 0, VNULL, &gaInifile.PrimaryININame, DLG_NULL
+        // Dummy item to hold name of primary INI file, set up here so
+        // INIStr will move it around as needed, but with blank name so user
+        // can't modify it
+        " ", INI_STR, 0, VNULL, &gaInifile.PrimaryININame, DLG_NULL
 
-	// Key mapping items (same in all products)
-	"AddFile", INI_KEY, (K_F10 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"AliasExpand", INI_KEY, (K_CtlF + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"Backspace", INI_KEY, (K_Bksp + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"BeginLine", INI_KEY, (K_Home + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"CommandEscape", INI_KEY, (K_255 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"Del", INI_KEY, (K_Del + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"DelHistory", INI_KEY, (K_CtlD + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"DelToBeginning", INI_KEY, (K_CtlHm + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"DelToEnd", INI_KEY, (K_CtlEnd + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"DelWordLeft", INI_KEY, (K_CtlL + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"DelWordRight", INI_KEY, (K_CtlR + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"Down", INI_KEY, (K_Down + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"EndHistory", INI_KEY, (K_CtlE + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"EndLine", INI_KEY, (K_End + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"EraseLine", INI_KEY, (K_Esc + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"ExecLine", INI_KEY, (K_Enter + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"Help", INI_KEY, (K_F1 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"PopupWinBegin", INI_KEY, (K_CtlPgU + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"PopupWinDel", INI_KEY, (K_CtlD + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"PopupWinEdit", INI_KEY, (K_CtlEnt + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"PopupWinEnd", INI_KEY, (K_CtlPgD + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"PopupWinExec", INI_KEY, (K_Enter + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"Ins", INI_KEY, (K_Ins + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"Left", INI_KEY, (K_Left + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"LFNToggle", INI_KEY, (K_CtlA + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"LineToEnd", INI_KEY, (K_CtlEnt + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"ListContinue", INI_KEY, (K_C + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListExit", INI_KEY, (K_Esc + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListFind", INI_KEY, (K_F + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListFindReverse", INI_KEY, (K_CtlF + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListHex", INI_KEY, (K_X + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListHighBit", INI_KEY, (K_H + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListInfo", INI_KEY, (K_I + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListNext", INI_KEY, (K_N + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListPrevious", INI_KEY, (K_CtlN + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListPrint", INI_KEY, (K_P + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"ListWrap", INI_KEY, (K_W + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"NextFile", INI_KEY, (K_F9 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"NormalEditKey", INI_KEY, (D_NORM_KEY + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"NormalHWinKey", INI_KEY, (D_NORM_KEY + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"NormalKey", INI_KEY, (D_NORM_KEY + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"NormalListKey", INI_KEY, (D_NORM_KEY + D_MAP_LIST), VNULL, NULL, DLG_NULL
-	"NormalPopupKey", INI_KEY, (D_NORM_KEY + D_MAP_HWIN), VNULL, NULL, DLG_NULL
-	"PopFile", INI_KEY, (K_F7 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"PrevFile", INI_KEY, (K_F8 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"Right", INI_KEY, (K_Right + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"SaveHistory", INI_KEY, (K_CtlK + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"Up", INI_KEY, (K_Up + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"WordLeft", INI_KEY, (K_CtlLft + D_MAP_GEN), VNULL, NULL, DLG_NULL
-	"WordRight", INI_KEY, (K_CtlRt + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        // Key mapping items (same in all products)
+        "AddFile", INI_KEY, (K_F10 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "AliasExpand", INI_KEY, (K_CtlF + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "Backspace", INI_KEY, (K_Bksp + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "BeginLine", INI_KEY, (K_Home + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "CommandEscape", INI_KEY, (K_255 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "Del", INI_KEY, (K_Del + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "DelHistory", INI_KEY, (K_CtlD + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "DelToBeginning", INI_KEY, (K_CtlHm + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "DelToEnd", INI_KEY, (K_CtlEnd + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "DelWordLeft", INI_KEY, (K_CtlL + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "DelWordRight", INI_KEY, (K_CtlR + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "Down", INI_KEY, (K_Down + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "EndHistory", INI_KEY, (K_CtlE + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "EndLine", INI_KEY, (K_End + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "EraseLine", INI_KEY, (K_Esc + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "ExecLine", INI_KEY, (K_Enter + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "Help", INI_KEY, (K_F1 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "PopupWinBegin", INI_KEY, (K_CtlPgU + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "PopupWinDel", INI_KEY, (K_CtlD + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "PopupWinEdit", INI_KEY, (K_CtlEnt + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "PopupWinEnd", INI_KEY, (K_CtlPgD + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "PopupWinExec", INI_KEY, (K_Enter + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "Ins", INI_KEY, (K_Ins + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "Left", INI_KEY, (K_Left + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "LFNToggle", INI_KEY, (K_CtlA + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "LineToEnd", INI_KEY, (K_CtlEnt + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "ListContinue", INI_KEY, (K_C + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListExit", INI_KEY, (K_Esc + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListFind", INI_KEY, (K_F + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListFindReverse", INI_KEY, (K_CtlF + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListHex", INI_KEY, (K_X + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListHighBit", INI_KEY, (K_H + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListInfo", INI_KEY, (K_I + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListNext", INI_KEY, (K_N + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListPrevious", INI_KEY, (K_CtlN + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListPrint", INI_KEY, (K_P + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "ListWrap", INI_KEY, (K_W + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "NextFile", INI_KEY, (K_F9 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "NormalEditKey", INI_KEY, (D_NORM_KEY + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "NormalHWinKey", INI_KEY, (D_NORM_KEY + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "NormalKey", INI_KEY, (D_NORM_KEY + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "NormalListKey", INI_KEY, (D_NORM_KEY + D_MAP_LIST), VNULL, NULL, DLG_NULL
+        "NormalPopupKey", INI_KEY, (D_NORM_KEY + D_MAP_HWIN), VNULL, NULL, DLG_NULL
+        "PopFile", INI_KEY, (K_F7 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "PrevFile", INI_KEY, (K_F8 + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "Right", INI_KEY, (K_Right + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "SaveHistory", INI_KEY, (K_CtlK + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "Up", INI_KEY, (K_Up + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "WordLeft", INI_KEY, (K_CtlLft + D_MAP_GEN), VNULL, NULL, DLG_NULL
+        "WordRight", INI_KEY, (K_CtlRt + D_MAP_GEN), VNULL, NULL, DLG_NULL
 
-	"DirWinOpen", INI_KEY, (K_CtlPgU + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"HistWinOpen", INI_KEY, (K_PgUp + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"NextHistory", INI_KEY, (K_Down + D_MAP_EDIT), VNULL, NULL, DLG_NULL
-	"PrevHistory", INI_KEY, (K_Up + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "DirWinOpen", INI_KEY, (K_CtlPgU + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "HistWinOpen", INI_KEY, (K_PgUp + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "NextHistory", INI_KEY, (K_Down + D_MAP_EDIT), VNULL, NULL, DLG_NULL
+        "PrevHistory", INI_KEY, (K_Up + D_MAP_EDIT), VNULL, NULL, DLG_NULL
 };
 
 TOKEN_LIST(INIItems, gaINIItemList);
@@ -549,8 +549,8 @@ extern unsigned int guINIItemCount;
 #define E_BADCOL  "Invalid color for"
 #define E_BADPTH  "Invalid path or file name for"
 #define E_STROVR  "String area overflow"
-#define E_INCL		"Include file not found"
-#define E_NEST		"Include files nested too deep"
+#define E_INCL          "Include file not found"
+#define E_NEST          "Include files nested too deep"
 #define E_LIVEMOD "Value can only be changed at startup"
 
 #define CONTEXT_BITS(keyval) (keyval & 0xFF00 & (~(D_EXTKEY | D_NORM_KEY)))
@@ -562,38 +562,38 @@ extern unsigned int guINIItemCount;
 
 // key prefixes with function key base scan codes
 struct {
-	char *prefixstr;
-	unsigned char F1Pref;      // scan code base for F1 - F10
-	unsigned char F11Pref;     // scan code base for F11 - F12, minus 10
+        char *prefixstr;
+        unsigned char F1Pref;      // scan code base for F1 - F10
+        unsigned char F11Pref;     // scan code base for F11 - F12, minus 10
 } KeyPrefixList[] = {
-	"@", 0x3B, (0x85 - 10),       // no prefix ("@" is checked before prefix),
+        "@", 0x3B, (0x85 - 10),       // no prefix ("@" is checked before prefix),
                                  // F1, F11
-	"Alt", 0x68, (0x8B - 10),     // Alt-F1, Alt-F11
-	"Ctrl", 0x5E, (0x89 - 10),    // Ctrl-F1, Ctrl-F11
-	"Shift", 0x54, (0x87 - 10),   // Shift-F1, Shift-F11
+        "Alt", 0x68, (0x8B - 10),     // Alt-F1, Alt-F11
+        "Ctrl", 0x5E, (0x89 - 10),    // Ctrl-F1, Ctrl-F11
+        "Shift", 0x54, (0x87 - 10),   // Shift-F1, Shift-F11
 };
 TOKEN_LIST(KeyPrefixes, KeyPrefixList);
 
-// names and codes for non-printing keys 
+// names and codes for non-printing keys
 struct {
-	char *namestr;
-	unsigned int NPStd;      // standard ASCII or scan code
-	unsigned int NPSecond;   // secondary ASCII or scan code
+        char *namestr;
+        unsigned int NPStd;      // standard ASCII or scan code
+        unsigned int NPSecond;   // secondary ASCII or scan code
 } KeyNameList[] = {           // second key:
-	"Esc", K_Esc, 0,              // none
-	"Bksp", K_Bksp, K_CtlBS,      // Ctrl-Bksp
-	"Tab", K_Tab, K_ShfTab,       // Shift-Tab
-	"Enter", K_Enter, K_CtlEnt,   // Ctrl-Enter
-	"Up", K_Up, K_CtlUp,          // Ctrl-Up
-	"Down", K_Down, K_CtlDn,      // Ctrl-Down
-	"Left", K_Left, K_CtlLft,     // Ctrl-Left
-	"Right", K_Right, K_CtlRt,    // Ctrl-Right
-	"PgUp", K_PgUp, K_CtlPgU,     // Ctrl-PgUp
-	"PgDn", K_PgDn, K_CtlPgD,     // Ctrl-PgDn
-	"Home", K_Home, K_CtlHm,      // Ctrl-Home
-	"End", K_End, K_CtlEnd,       // Ctrl-End
-	"Ins", K_Ins, K_CtlIns,       // Ctrl-Ins
-	"Del", K_Del, K_CtlDel,       // Ctrl-Del
+        "Esc", K_Esc, 0,              // none
+        "Bksp", K_Bksp, K_CtlBS,      // Ctrl-Bksp
+        "Tab", K_Tab, K_ShfTab,       // Shift-Tab
+        "Enter", K_Enter, K_CtlEnt,   // Ctrl-Enter
+        "Up", K_Up, K_CtlUp,          // Ctrl-Up
+        "Down", K_Down, K_CtlDn,      // Ctrl-Down
+        "Left", K_Left, K_CtlLft,     // Ctrl-Left
+        "Right", K_Right, K_CtlRt,    // Ctrl-Right
+        "PgUp", K_PgUp, K_CtlPgU,     // Ctrl-PgUp
+        "PgDn", K_PgDn, K_CtlPgD,     // Ctrl-PgDn
+        "Home", K_Home, K_CtlHm,      // Ctrl-Home
+        "End", K_End, K_CtlEnd,       // Ctrl-End
+        "Ins", K_Ins, K_CtlIns,       // Ctrl-Ins
+        "Del", K_Del, K_CtlDel,       // Ctrl-Del
 };
 TOKEN_LIST(KeyNames, KeyNameList);
 

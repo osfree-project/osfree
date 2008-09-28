@@ -29,6 +29,7 @@
 #include <os2me.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <global.h>
 #include <mciini.h>

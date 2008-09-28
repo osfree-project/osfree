@@ -17,24 +17,29 @@ DLL     = 1
 DLLOPT  = initinstance terminstance op manyautodata
 # defines additional options for C compiler
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
-exports = MINSTALL_Init MINSTALL, &
-          MINSTALL_InitPackage MINSTALL, &
-          MINSTALL_InstallPackage MINSTALL, &
-          MINSTALL_GetErrorMsgPtr MINSTALL, &
-          MINSTALL_GetErrorMsgCIDCode MINSTALL, &
-          MINSTALL_GetErrorMsgCIDCodeDescription MINSTALL, &
-          MINSTALL_GetSourcePathPtr MINSTALL, &
-          MINSTALL_GetTargetPathPtr MINSTALL, &
-          MINSTALL_GetPublicGroupArrayPtr MINSTALL, &
-          MINSTALL_GetPublicGroupCustomDataPtr MINSTALL, &
-          MINSTALL_SetPublicGroupCustomData MINSTALL, &
-          MINSTALL_GetPackageTitlePtr MINSTALL, &
-          MINSTALL_SelectGroup MINSTALL, &
-          MINSTALL_DeSelectGroup MINSTALL, &
-          MINSTALL_SetCARDINFOCardCountForGroup MINSTALL, &
-          MINSTALL_GetCARDINFOChoiceForGroup MINSTALL, &
-          MINSTALL_SetCARDINFOChoiceForGroup MINSTALL, &
-          MINSTALL_CleanUp MINSTALL
+imports = CONFIGSYS_Process CFGSYS, &
+          CONFIGSYS_DelayInit CFGSYS, &
+          CONFIGSYS_DelayCopyFile CFGSYS, &
+          CONFIGSYS_DelayFinalize CFGSYS
+
+exports = MINSTALL_Init, &
+          MINSTALL_InitPackage, &
+          MINSTALL_InstallPackage, &
+          MINSTALL_GetErrorMsgPtr, &
+          MINSTALL_GetErrorMsgCIDCode, &
+          MINSTALL_GetErrorMsgCIDCodeDescription, &
+          MINSTALL_GetSourcePathPtr, &
+          MINSTALL_GetTargetPathPtr, &
+          MINSTALL_GetPublicGroupArrayPtr, &
+          MINSTALL_GetPublicGroupCustomDataPtr, &
+          MINSTALL_SetPublicGroupCustomData, &
+          MINSTALL_GetPackageTitlePtr, &
+          MINSTALL_SelectGroup, &
+          MINSTALL_DeSelectGroup, &
+          MINSTALL_SetCARDINFOCardCountForGroup, &
+          MINSTALL_GetCARDINFOChoiceForGroup, &
+          MINSTALL_SetCARDINFOChoiceForGroup, &
+          MINSTALL_CleanUp
 ADD_LINKOPT = lib mm_shared
 
 !include $(%ROOT)/mk/appsos2.mk
