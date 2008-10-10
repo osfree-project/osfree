@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.  
+ * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -28,7 +28,7 @@
  * In addition, messages will be logged to file or syslog if they
  * are more serious than the log level specified with the log/debug_level
  * parameter in the configuration file.  These messages get the file
- * and line number prepended.  'stack' (without arguments) can be used 
+ * and line number prepended.  'stack' (without arguments) can be used
  * to log this information at debug level.
  *
  * log_sys_error and log_sys_very_verbose are for errors from system calls
@@ -37,12 +37,12 @@
  *
  */
 
-#include <stdio.h>		/* FILE */
-#include <string.h>		/* strerror() */
+#include <stdio.h>              /* FILE */
+#include <string.h>             /* strerror() */
 #include <errno.h>
 
 #define _LOG_STDERR 128 /* force things to go to stderr, even if loglevel
-			   would make them go to stdout */
+                           would make them go to stdout */
 #define _LOG_DEBUG 7
 #define _LOG_INFO 6
 #define _LOG_NOTICE 5
@@ -106,40 +106,40 @@ int log_suppress(int suppress);
 void syslog_suppress(int suppress);
 
 typedef void (*lvm2_log_fn_t) (int level, const char *file, int line,
-			       const char *message);
+                               const char *message);
 
 void init_log_fn(lvm2_log_fn_t log_fn);
 
-void print_log(int level, const char *file, int line, const char *format, ...)
-    __attribute__ ((format(printf, 4, 5)));
+void print_log(int level, const char *file, int line, const char *format, ...);
+//  __attribute__ ((format(printf, 4, 5)));
 
-#define plog(l, x...) print_log(l, __FILE__, __LINE__ , ## x)
+#define plog(l, x,...) print_log(l, __FILE__, __LINE__ , ## x)
 
-#define log_debug(x...) plog(_LOG_DEBUG, x)
-#define log_info(x...) plog(_LOG_INFO, x)
-#define log_notice(x...) plog(_LOG_NOTICE, x)
-#define log_warn(x...) plog(_LOG_WARN | _LOG_STDERR, x)
-#define log_err(x...) plog(_LOG_ERR, x)
-#define log_fatal(x...) plog(_LOG_FATAL, x)
+#define log_debug(x,...) plog(_LOG_DEBUG, x)
+#define log_info(x,...) plog(_LOG_INFO, x)
+#define log_notice(x,...) plog(_LOG_NOTICE, x)
+#define log_warn(x,...) plog(_LOG_WARN | _LOG_STDERR, x)
+#define log_err(x,...) plog(_LOG_ERR, x)
+#define log_fatal(x,...) plog(_LOG_FATAL, x)
 
-#define stack log_debug("<backtrace>")	/* Backtrace on error */
+#define stack log_debug("<backtrace>")  /* Backtrace on error */
 
-#define log_error(args...) log_err(args)
-#define log_print(args...) plog(_LOG_WARN, args)
-#define log_verbose(args...) log_notice(args)
-#define log_very_verbose(args...) log_info(args)
+#define log_error(args,...) log_err(args)
+#define log_print(args,...) plog(_LOG_WARN, args)
+#define log_verbose(args,...) log_notice(args)
+#define log_very_verbose(args,...) log_info(args)
 
 /* Two System call equivalents */
 #define log_sys_error(x, y) \
-		log_err("%s: %s failed: %s", y, x, strerror(errno))
+                log_err("%s: %s failed: %s", y, x, strerror(errno))
 #define log_sys_very_verbose(x, y) \
-		log_info("%s: %s failed: %s", y, x, strerror(errno))
+                log_info("%s: %s failed: %s", y, x, strerror(errno))
 #define log_sys_debug(x, y) \
-		log_debug("%s: %s failed: %s", y, x, strerror(errno))
+                log_debug("%s: %s failed: %s", y, x, strerror(errno))
 
-#define return_0	do { stack; return 0; } while (0)
-#define return_NULL	do { stack; return NULL; } while (0)
-#define goto_out	do { stack; goto out; } while (0)
-#define goto_bad	do { stack; goto bad; } while (0)
+#define return_0        do { stack; return 0; } while (0)
+#define return_NULL     do { stack; return NULL; } while (0)
+#define goto_out        do { stack; goto out; } while (0)
+#define goto_bad        do { stack; goto bad; } while (0)
 
 #endif

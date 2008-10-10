@@ -37,6 +37,8 @@ unsigned int relshift;
 #pragma aux linux_data_tmp_addr "*"
 #pragma aux linux_text_len "*"
 
+#pragma aux install_filesys "*"
+
 #pragma aux get_vbe_controller_info "*"
 #pragma aux get_vbe_mode_info       "*"
 #pragma aux set_vbe_mode            "*"
@@ -169,6 +171,7 @@ extern FileTable ft;
 extern unsigned short boot_flags;
 extern unsigned long  boot_drive;
 extern unsigned long  install_partition;
+extern char install_filesys[0x10];
 
 extern int mem_lower;
 extern int mem_upper;
@@ -1132,6 +1135,7 @@ void reloc(char *base, char *rel_file, unsigned long shift)
 int init(void)
 {
   char cfg[0x20];
+  char str[0x80];
   int rc, files;
   char *buf;
   char *fn;
@@ -1144,7 +1148,7 @@ int init(void)
   unsigned long  *q;
   struct desc *z;
   unsigned long base;
-  int i, k;
+  int i, k, l;
   int key;
 
 #ifndef STAGE1_5
@@ -1382,9 +1386,20 @@ int init(void)
      before it gets re-initted (old preldr copy) */
   use_term = 0;
 
-  /* fixup preldr and uFSD */
+  /* fixup preldr */
   reloc((char *)(STAGE0_BASE  + relshift), "/boot/loader/preldr0.rel", relshift);
-  reloc((char *)(EXT3HIBUF_BASE), "/boot/loader/fsd/ext2fs.rel", EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+
+  /* build filesystem driver .rel file path */
+  grub_strcpy(str, preldr_path);
+  i = grub_strlen(preldr_path);
+  grub_strcpy(str + i, fsd_dir);
+  k = grub_strlen(fsd_dir);
+  grub_strcpy(str + i + k, install_filesys);
+  l = grub_strlen(install_filesys);
+  grub_strcpy(str + i + k + l, ".rel\0");
+
+  /* fixup uFSD */
+  reloc((char *)(EXT3HIBUF_BASE), str, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
 
   /* jump to relocated pre-loader */
   jmp_reloc(relshift);
@@ -1479,10 +1494,10 @@ int init(void)
     bpb->marker     = 0x29;
   }
 
-  bpb->disk_num    = 0x3;
-  bpb->log_drive   = 0x48;
-  bpb->marker      = 0x41;
-  bpb->vol_ser_no  = 0x00000082;
+  //bpb->disk_num    = 0x3;
+  //bpb->log_drive   = 0x48;
+  //bpb->marker      = 0x41;
+  //bpb->vol_ser_no  = 0x00000082;
 
   /* Init terminal */
   init_term();

@@ -29,18 +29,18 @@ public base
 public stop
 public start_kernel
 
-K_RDWR          equ	0x60	; keyboard data & cmds (read/write)
-K_STATUS        equ	0x64	; keyboard status
-K_CMD           equ	0x64	; keybd ctlr command (write-only) 
+K_RDWR          equ     0x60    ; keyboard data & cmds (read/write)
+K_STATUS        equ     0x64    ; keyboard status
+K_CMD           equ     0x64    ; keybd ctlr command (write-only)
 
-K_OBUF_FUL      equ 	0x01	; output buffer full
-K_IBUF_FUL      equ 	0x02	; input buffer full
+K_OBUF_FUL      equ     0x01    ; output buffer full
+K_IBUF_FUL      equ     0x02    ; input buffer full
 
-KC_CMD_WIN      equ	0xd0	; read  output port
-KC_CMD_WOUT     equ 	0xd1	; write output port
-KB_OUTPUT_MASK  equ     0xdd	; enable output buffer full interrupt
-				;   enable data line
-				;   enable clock line
+KC_CMD_WIN      equ     0xd0    ; read  output port
+KC_CMD_WOUT     equ     0xd1    ; write output port
+KB_OUTPUT_MASK  equ     0xdd    ; enable output buffer full interrupt
+                                ;   enable data line
+                                ;   enable clock line
 KB_A20_ENABLE   equ     0x02
 
 _TEXT16  segment dword public 'CODE'  use16
@@ -94,20 +94,20 @@ real_start:
         retf
 
 gateA20_rm:
-	mov	ax, 2400h
-	test	dx, dx
-	jz	ft1
-	inc	ax
-ft1:	stc
-	int	15h
-	jnc	ft2
+        mov     ax, 2400h
+        test    dx, dx
+        jz      ft1
+        inc     ax
+ft1:    stc
+        int     15h
+        jnc     ft2
 
-	; set non-zero if failed 
-	mov	ah, 1
+        ; set non-zero if failed
+        mov     ah, 1
 
-	; save the status
-ft2:	mov	dl, ah
-      
+        ; save the status
+ft2:    mov     dl, ah
+
         retf
 
 hard_stop:
@@ -165,7 +165,7 @@ entry:
         mov     ecx, 0x80
         mov     esi, KERN_BASE
         mov     edi, REAL_BASE
- 
+
         rep     movsd
 
         call    cmain
@@ -206,7 +206,7 @@ set_gdt:
         ;rep  movsd
 
         ; fix gdt descriptors base
-	mov  ebx, GDT_ADDR
+        mov  ebx, GDT_ADDR
         mov  eax, REAL_BASE
         mov  [ebx][8*8].ds_baselo, ax
         mov  [ebx][9*8].ds_baselo, ax
@@ -217,10 +217,10 @@ set_gdt:
         mov  [ebx][8*8].ds_basehi2, al
         mov  [ebx][9*8].ds_basehi2, al
 
-	; fill GDT descriptor
-	mov  ebx, offset _TEXT:gdtdesc
-	mov  eax, GDT_ADDR
-	mov  [ebx].g_base, eax
+        ; fill GDT descriptor
+        mov  ebx, offset _TEXT:gdtdesc
+        mov  eax, GDT_ADDR
+        mov  [ebx].g_base, eax
 
         lgdt fword ptr [ebx]
 
@@ -232,10 +232,10 @@ set_gdt:
 start_kernel:
         xor  eax, eax
         push eax
-	call gateA20	
+        call gateA20
         add  eax, 4
 
-        mov  ebx, boot_drive   
+        mov  ebx, boot_drive
         mov  eax, REAL_BASE
         shl  eax, 12
         mov  ax, offset _TEXT16:start
@@ -260,10 +260,10 @@ start_kernel:
 ;
 
 gateA20:
-	; first, try a BIOS call 
-	push	ebp
-	mov	edx, [esp + 8]
-	
+        ; first, try a BIOS call
+        push    ebp
+        mov     edx, [esp + 8]
+
         mov     eax, REAL_BASE
         shl     eax, 12
         mov     ax,  offset _TEXT16:gateA20_rm
@@ -271,58 +271,58 @@ gateA20:
         call    call_rm
         add     esp, 4
 
-	pop	ebp
-	test	dl, dl
-	jnz	ft3
+        pop     ebp
+        test    dl, dl
+        jnz     ft3
 
-	ret
+        ret
 
-ft3:	; use keyboard controller 
-	push	eax
+ft3:    ; use keyboard controller
+        push    eax
 
-	call    gloop1
+        call    gloop1
 
-	mov	al, KC_CMD_WOUT
-	out	K_CMD, al
+        mov     al, KC_CMD_WOUT
+        out     K_CMD, al
 
 gloopint1:
-	in	al, K_STATUS
-	and	al, K_IBUF_FUL
-	jnz	gloopint1
+        in      al, K_STATUS
+        and     al, K_IBUF_FUL
+        jnz     gloopint1
 
-	mov	al, KB_OUTPUT_MASK
-	cmp	byte ptr [esp + 8], 0
-	jz	gdoit
+        mov     al, KB_OUTPUT_MASK
+        cmp     byte ptr [esp + 8], 0
+        jz      gdoit
 
-	or	al, KB_A20_ENABLE
+        or      al, KB_A20_ENABLE
 gdoit:
-	out	K_RDWR, al
+        out     K_RDWR, al
 
-	call	gloop1
+        call    gloop1
 
-	; output a dummy command (USB keyboard hack)
-	mov	al, 0ffh
-	out	K_CMD, al
-	call	gloop1
-	
-	pop	eax
+        ; output a dummy command (USB keyboard hack)
+        mov     al, 0ffh
+        out     K_CMD, al
+        call    gloop1
 
-	ret
+        pop     eax
+
+        ret
 
 gloop1:
-	in	al, K_STATUS
-	and	al, K_IBUF_FUL
-	jnz	gloop1
+        in      al, K_STATUS
+        and     al, K_IBUF_FUL
+        jnz     gloop1
 
 gloop2:
-	in	al, K_STATUS
-	and	al, K_OBUF_FUL
-	jz	gloop2ret
-	in	al, K_RDWR
-	jmp	gloop2
+        in      al, K_STATUS
+        and     al, K_OBUF_FUL
+        jz      gloop2ret
+        in      al, K_RDWR
+        jmp     gloop2
 
 gloop2ret:
-	ret
+        ret
 
 ;
 ;  stop_floppy()

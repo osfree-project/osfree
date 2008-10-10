@@ -16,13 +16,13 @@
 /***********  Replace with script?
 xx(e2fsadm,
    "Resize logical volume and ext2 filesystem",
-   "e2fsadm "
-   "[-d|--debug] " "[-h|--help] " "[-n|--nofsck]" "\n"
-   "\t{[-l|--extents] [+|-]LogicalExtentsNumber |" "\n"
-   "\t [-L|--size] [+|-]LogicalVolumeSize[kKmMgGtTpPeE]}" "\n"
-   "\t[-t|--test] "  "\n"
-   "\t[-v|--verbose] "  "\n"
-   "\t[--version] " "\n"
+   "e2fsadm " \
+   "[-d|--debug] " "[-h|--help] " "[-n|--nofsck]" "\n" \
+   "\t{[-l|--extents] [+|-]LogicalExtentsNumber |" "\n" \
+   "\t [-L|--size] [+|-]LogicalVolumeSize[kKmMgGtTpPeE]}" "\n" \
+   "\t[-t|--test] "  "\n" \
+   "\t[-v|--verbose] "  "\n" \
+   "\t[--version] " "\n" \
    "\tLogicalVolumePath" "\n",
 
     extents_ARG, size_ARG, nofsck_ARG, test_ARG)
@@ -30,8 +30,8 @@ xx(e2fsadm,
 
 xx(dumpconfig,
    "Dump active configuration",
-   "dumpconfig "
-   "\t[-f|--file filename] " "\n"
+   "dumpconfig " \
+   "\t[-f|--file filename] " "\n" \
    "[ConfigurationVariable...]\n",
    file_ARG)
 
@@ -46,38 +46,38 @@ xx(help,
 /*********
 xx(lvactivate,
    "Activate logical volume on given partition(s)",
-   "lvactivate "
-   "\t[-d|--debug]\n"
-   "\t[-h|--help]\n"
-   "\t[-v|--verbose]\n"
+   "lvactivate " \
+   "\t[-d|--debug]\n" \
+   "\t[-h|--help]\n" \
+   "\t[-v|--verbose]\n" \
    "Logical Volume(s)\n")
 ***********/
 
 xx(lvchange,
    "Change the attributes of logical volume(s)",
-   "lvchange\n"
-   "\t[-A|--autobackup y|n]\n"
-   "\t[-a|--available [e|l]y|n]\n"
-   "\t[--addtag Tag]\n"
-   "\t[--alloc AllocationPolicy]\n"
-   "\t[-C|--contiguous y|n]\n"
-   "\t[-d|--debug]\n"
-   "\t[--deltag Tag]\n"
-   "\t[-f|--force]\n"
-   "\t[-h|--help]\n"
-   "\t[--ignorelockingfailure]\n"
-   "\t[--ignoremonitoring]\n"
-   "\t[--monitor {y|n}]\n"
-   "\t[-M|--persistent y|n] [--major major] [--minor minor]\n"
-   "\t[-P|--partial] " "\n"
-   "\t[-p|--permission r|rw]\n"
-   "\t[-r|--readahead ReadAheadSectors]\n"
-   "\t[--refresh]\n"
-   "\t[--resync]\n"
-   "\t[-t|--test]\n"
-   "\t[-v|--verbose]\n"
-   "\t[-y|--yes]\n"
-   "\t[--version]" "\n"
+   "lvchange\n" \
+   "\t[-A|--autobackup y|n]\n" \
+   "\t[-a|--available [e|l]y|n]\n" \
+   "\t[--addtag Tag]\n" \
+   "\t[--alloc AllocationPolicy]\n" \
+   "\t[-C|--contiguous y|n]\n" \
+   "\t[-d|--debug]\n" \
+   "\t[--deltag Tag]\n" \
+   "\t[-f|--force]\n" \
+   "\t[-h|--help]\n" \
+   "\t[--ignorelockingfailure]\n" \
+   "\t[--ignoremonitoring]\n" \
+   "\t[--monitor {y|n}]\n" \
+   "\t[-M|--persistent y|n] [--major major] [--minor minor]\n" \
+   "\t[-P|--partial] " "\n" \
+   "\t[-p|--permission r|rw]\n" \
+   "\t[-r|--readahead ReadAheadSectors]\n" \
+   "\t[--refresh]\n" \
+   "\t[--resync]\n" \
+   "\t[-t|--test]\n" \
+   "\t[-v|--verbose]\n" \
+   "\t[-y|--yes]\n" \
+   "\t[--version]" "\n" \
    "\tLogicalVolume[Path] [LogicalVolume[Path]...]\n",
 
    alloc_ARG, autobackup_ARG, available_ARG, contiguous_ARG, force_ARG,

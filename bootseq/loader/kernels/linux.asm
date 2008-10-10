@@ -153,7 +153,7 @@ entry:
         mov     ecx, 0x80
         mov     esi, KERN_BASE
         mov     edi, REAL_BASE
- 
+
         rep     movsd
 
         call    cmain
@@ -205,10 +205,10 @@ set_gdt:
         mov  [ebx][8*8].ds_basehi2, al
         mov  [ebx][9*8].ds_basehi2, al
 
-	; fill GDT descriptor
-	mov  ebx, offset _TEXT:gdtdesc
-	mov  eax, GDT_ADDR
-	mov  [ebx].g_base, eax
+        ; fill GDT descriptor
+        mov  ebx, offset _TEXT:gdtdesc
+        mov  eax, GDT_ADDR
+        mov  [ebx].g_base, eax
 
         lgdt fword ptr [ebx]
 

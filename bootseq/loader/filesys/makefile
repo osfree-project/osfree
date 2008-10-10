@@ -13,15 +13,15 @@
 # filesystems list with path (p) and extension (e) placeholder
 #
 blackboxes           = $(p)fat$(e) $(p)ext2fs$(e) $(p)jfs$(e) $(p)iso9660$(e) $(p)reiserfs$(e) &
-                       $(p)minix$(e) $(p)ufs2$(e) $(p)vstafs$(e) $(p)ffs$(e) $(p)xfs$(e)
+                       $(p)minix$(e) $(p)ufs2$(e) $(p)vstafs$(e) $(p)ffs$(e) $(p)xfs$(e) $(p)ntfs$(e)
 
 # filesys without $(p) and $(e):
 p                    =
 e                    =
 bbx                  = $+$(blackboxes)$-
 
-common_SRCS          = dummy.asm start.asm fsys.c
-common_OBJS          = $(p)start$(e)  $(p)fsys$(e) $(p)dummy$(e)
+common_SRCS          = start.asm dummy.asm fsys.c
+common_OBJS          = $(p)start$(e) $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 
 MOD_BASE             = EXT_BUF_BASE
@@ -45,7 +45,6 @@ p = fsys_
 e = .c
 spec_SRCS = $+$(blackboxes)$-
 
-
 F = 1
 
 !ifeq sh sh_
@@ -54,3 +53,8 @@ defs=-d$(basename) -dSHIFT=$$(SHIFT)
 defs=-d$(basename) -dSHIFT=0
 !endif
 
+$(PATH)start.$(O): $(MYDIR)start.asm
+ $(ASM) -d$(basename) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)start.$(SO): $(MYDIR)start.asm
+ $(ASM) -d$(basename) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@

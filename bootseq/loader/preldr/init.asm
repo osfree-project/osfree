@@ -10,6 +10,7 @@ public  base
 public  boot_flags
 public  boot_drive
 public  install_partition
+public  install_filesys
 
 public  stage0_init
 public  force_lba
@@ -67,27 +68,33 @@ stage0_init:
 ;
 
 ; variables block size
-CONF_VARS_SIZE equ  20h
+CONF_VARS_SIZE     equ  40h
 
 ; this variable is filled with uFSD size,
 ; if stage0 is loaded concatenated with
 ; uFSD and needs to be relocated to proper
 ; addresses, otherwise it must be zero.
-uFSD_size     dw    0
-stage0_size   dw    0
-force_lba     db    0
-              org   10h
-base          dd    STAGE0_BASE
+uFSD_size          dw    0
+stage0_size        dw    0
+force_lba          db    0
+
+                   org   10h
+
+base               dd    STAGE0_BASE
+install_part       dd    0ffffffh
+install_fsys       db    "iso9660"
+                   db    9 dup (0)
 
 ;padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
 ;pad           db    padsize dup (0)
-              org   20h
+                   org   40h
 real_start:
         ; Set segment registers
         ; to CS value, set stack
         ; to the end of this segment
         mov  ax, cs
         mov  ds, ax
+        mov  es, ax
 
         cli
 
@@ -99,9 +106,21 @@ real_start:
 
         ; Save physical boot drive
         mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
-        mov  [eax], dl
+        mov  byte ptr [eax], dl
 
+        ; copy install_part to 32-bit segment
+        mov  eax, offset _TEXT:install_partition - STAGE0_BASE
+        mov  ebx, dword ptr install_part
+        mov  dword ptr [eax], ebx
+
+
+        ; copy install filesystem name to 32-bit segment
         cld
+        lea  esi, install_fsys
+        mov  edi, offset _TEXT:install_filesys - STAGE0_BASE
+        mov  cx, 16
+        rep  movsb
+
         mov  cx, uFSD_size
         jcxz skip_reloc  ; if uFSD_size == 0, it means that
                          ; uFSD and stage0 are already loaded
@@ -321,7 +340,8 @@ _TEXT   segment dword public 'CODE' use32
 
 boot_flags         dw 0
 boot_drive         dd 0
-install_partition  dd 00ffffh
+install_partition  dd 0
+install_filesys    db 16 dup (?)
 
 ifndef STAGE1_5
 ft                 FileTable <>

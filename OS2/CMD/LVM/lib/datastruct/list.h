@@ -25,14 +25,14 @@
  */
 
 struct list {
-	struct list *n, *p;
+        struct list *n, *p;
 };
 
 /*
  * Initialise a list before use.
  * The list head's next and previous pointers point back to itself.
  */
-#define LIST_INIT(name)	struct list name = { &(name), &(name) }
+#define LIST_INIT(name) struct list name = { &(name), &(name) }
 void list_init(struct list *head);
 
 /*
@@ -90,7 +90,7 @@ struct list *list_prev(struct list *head, struct list *elem);
 struct list *list_next(struct list *head, struct list *elem);
 
 /*
- * Given the address v of an instance of 'struct list' called 'head' 
+ * Given the address v of an instance of 'struct list' called 'head'
  * contained in a structure of type t, return the containing structure.
  */
 #define list_struct_base(v, t, head) \
@@ -119,17 +119,17 @@ struct list *list_next(struct list *head, struct list *elem);
  * Set v to each element of a list in turn.
  */
 #define list_iterate(v, head) \
-	for (v = (head)->n; v != head; v = v->n)
+        for (v = (head)->n; v != head; v = v->n)
 
 /*
- * Set v to each element in a list in turn, starting from the element 
+ * Set v to each element in a list in turn, starting from the element
  * in front of 'start'.
  * You can use this to 'unwind' a list_iterate and back out actions on
  * already-processed elements.
  * If 'start' is 'head' it walks the list backwards.
  */
 #define list_uniterate(v, head, start) \
-	for (v = (start)->p; v != head; v = v->p)
+        for (v = (start)->p; v != head; v = v->p)
 
 /*
  * A safe way to walk a list and delete and free some elements along
@@ -137,24 +137,30 @@ struct list *list_next(struct list *head, struct list *elem);
  * t must be defined as a temporary variable of the same type as v.
  */
 #define list_iterate_safe(v, t, head) \
-	for (v = (head)->n, t = v->n; v != head; v = t, t = v->n)
+        for (v = (head)->n, t = v->n; v != head; v = t, t = v->n)
 
 /*
  * Walk a list, setting 'v' in turn to the containing structure of each item.
  * The containing structure should be the same type as 'v'.
  * The 'struct list' variable within the containing structure is 'field'.
  */
+/*
 #define list_iterate_items_gen(v, head, field) \
-	for (v = list_struct_base((head)->n, typeof(*v), field); \
-	     &v->field != (head); \
-	     v = list_struct_base(v->field.n, typeof(*v), field))
+        for (v = list_struct_base((head)->n, typeof(*v), field); \
+             &v->field != (head); \
+             v = list_struct_base(v->field.n, typeof(*v), field)) */
+#define list_iterate_items_gen(v, tv, head, field) \
+        for (v = list_struct_base((head)->n, tv, field); \
+             &v->field != (head); \
+             v = list_struct_base(v->field.n, tv, field))
 
 /*
  * Walk a list, setting 'v' in turn to the containing structure of each item.
  * The containing structure should be the same type as 'v'.
  * The list should be 'struct list list' within the containing structure.
  */
-#define list_iterate_items(v, head) list_iterate_items_gen(v, (head), list)
+//#define list_iterate_items(v, head) list_iterate_items_gen(v, (head), list)
+#define list_iterate_items(v, tv, head) list_iterate_items_gen(v, tv, (head), list)
 
 /*
  * Walk a list, setting 'v' in turn to the containing structure of each item.
@@ -162,38 +168,50 @@ struct list *list_next(struct list *head, struct list *elem);
  * The 'struct list' variable within the containing structure is 'field'.
  * t must be defined as a temporary variable of the same type as v.
  */
-#define list_iterate_items_gen_safe(v, t, head, field) \
-	for (v = list_struct_base((head)->n, typeof(*v), field), \
-	     t = list_struct_base(v->field.n, typeof(*v), field); \
-	     &v->field != (head); \
-	     v = t, t = list_struct_base(v->field.n, typeof(*v), field))
+/* #define list_iterate_items_gen_safe(v, t, head, field) \
+        for (v = list_struct_base((head)->n, typeof(*v), field), \
+             t = list_struct_base(v->field.n, typeof(*v), field); \
+             &v->field != (head); \
+             v = t, t = list_struct_base(v->field.n, typeof(*v), field)) */
+#define list_iterate_items_gen_safe(v, t, tv, head, field) \
+        for (v = list_struct_base((head)->n,  tv, field), \
+             t = list_struct_base(v->field.n, tv, field); \
+             &v->field != (head); \
+             v = t, t = list_struct_base(v->field.n, tv, field))
 /*
  * Walk a list, setting 'v' in turn to the containing structure of each item.
  * The containing structure should be the same type as 'v'.
  * The list should be 'struct list list' within the containing structure.
  * t must be defined as a temporary variable of the same type as v.
  */
-#define list_iterate_items_safe(v, t, head) \
-	list_iterate_items_gen_safe(v, t, (head), list)
+/* #define list_iterate_items_safe(v, t, tv, head) \
+        list_iterate_items_gen_safe(v, t, tv, (head), list) */
+#define list_iterate_items_safe(v, t, tv, head) \
+        list_iterate_items_gen_safe(v, t, tv, (head), list)
 
 /*
- * Walk a list backwards, setting 'v' in turn to the containing structure 
+ * Walk a list backwards, setting 'v' in turn to the containing structure
  * of each item.
  * The containing structure should be the same type as 'v'.
  * The 'struct list' variable within the containing structure is 'field'.
  */
-#define list_iterate_back_items_gen(v, head, field) \
-	for (v = list_struct_base((head)->p, typeof(*v), field); \
-	     &v->field != (head); \
-	     v = list_struct_base(v->field.p, typeof(*v), field))
+/* #define list_iterate_back_items_gen(v, head, field) \
+        for (v = list_struct_base((head)->p, typeof(*v), field); \
+             &v->field != (head); \
+             v = list_struct_base(v->field.p, typeof(*v), field)) */
+#define list_iterate_back_items_gen(v, tv, head, field) \
+        for (v = list_struct_base((head)->p, tv, field); \
+             &v->field != (head); \
+             v = list_struct_base(v->field.p, tv, field))
 
 /*
- * Walk a list backwards, setting 'v' in turn to the containing structure 
+ * Walk a list backwards, setting 'v' in turn to the containing structure
  * of each item.
  * The containing structure should be the same type as 'v'.
  * The list should be 'struct list list' within the containing structure.
  */
-#define list_iterate_back_items(v, head) list_iterate_back_items_gen(v, (head), list)
+//#define list_iterate_back_items(v, head) list_iterate_back_items_gen(v, (head), list)
+#define list_iterate_back_items(v, tv, head) list_iterate_back_items_gen(v, tv, (head), list)
 
 /*
  * Return the number of elements in a list by walking it.

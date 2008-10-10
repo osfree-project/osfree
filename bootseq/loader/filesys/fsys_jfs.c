@@ -20,6 +20,8 @@
 
 #if defined(fsys_jfs) || defined(FSYS_JFS)
 
+int print_possibilities = 0;
+
 #include "shared.h"
 #include "filesys.h"
 #include "jfs.h"
@@ -32,8 +34,6 @@
 
 #define DTTYPE_INLINE   0
 #define DTTYPE_PAGE     1
-
-int print_possibilities = 0;
 
 struct jfs_info
 {
@@ -239,20 +239,20 @@ jfs_read (char *buf, int len)
         int toread, startpos, endpos;
 
         startpos = *pfilepos;
-        endpos = (*pfilepos) + len;
+        endpos = *pfilepos + len;
         endofprev = (1ULL << 62) - 1;
         xad = first_extent (inode);
         do {
                 offset = offsetXAD (xad);
                 xadlen = lengthXAD (xad);
-                if (isinxt ((*pfilepos) >> jfs.l2bsize, offset, xadlen)) {
+                if (isinxt (*pfilepos >> jfs.l2bsize, offset, xadlen)) {
                         endofcur = (offset + xadlen) << jfs.l2bsize;
                         toread = (endofcur >= endpos)
                                   ? len : (endofcur - *pfilepos);
 
                         disk_read_func = disk_read_hook;
                         (*pdevread) (addressXAD (xad) << jfs.bdlog,
-                                 (*pfilepos) - (offset << jfs.l2bsize), toread, buf);
+                                 *pfilepos - (offset << jfs.l2bsize), toread, buf);
                         disk_read_func = NULL;
 
                         buf += toread;
@@ -272,7 +272,7 @@ jfs_read (char *buf, int len)
                 xad = next_extent ();
         } while (len > 0 && xad);
 
-        return (*pfilepos) - startpos;
+        return *pfilepos - startpos;
 }
 
 int
@@ -361,7 +361,7 @@ jfs_dir (char *dirname)
                                 *ptr = 0;
                         }
 
-                        cmp = (!*dirname) ? -1 : (*psubstring) (dirname, namebuf);
+                        cmp = (!*dirname) ? -1 : substring (dirname, namebuf);
 #ifndef STAGE1_5
                         if (print_possibilities && ch != '/'
                             && cmp <= 0) {

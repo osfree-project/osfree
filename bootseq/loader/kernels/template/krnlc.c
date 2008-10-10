@@ -18,6 +18,9 @@ grub_error_t errnum;
 extern void stop(void);
 struct multiboot_info *m;
 lip2_t *l;
+struct term_entry *t;
+// lip present flag
+char lip = 0;
 
 void init(void)
 {
@@ -53,11 +56,12 @@ int check_lip(char *mods_addr, unsigned long mods_count)
   {
     // set LIP pointer
     l = (lip2_t *)mod->mod_start;
-    // check if the LIP begins with a 
+    // check if the LIP begins with a
     // magic number of 0x3badb002
     if (*((unsigned long *)l) == LIP2_MAGIC)
     {
-      printf("boot_chain started\r\n");
+      t = l->u_termctl(-1);
+      printf("boot_os2 started\r\n");
       return 1;
     }
     else
@@ -69,24 +73,25 @@ int check_lip(char *mods_addr, unsigned long mods_count)
 
 void cmain(void)
 {
+  char *cmdline;         // multiboot kernel command line
   char *mods_addr;
   int mods_count;
-  struct mod_list *mod; 
+  struct mod_list *mod;
 
   mods_addr  = (char *)m->mods_addr;
   mods_count = m->mods_count;
 
-  // kernel is the first module in the list,
-  // and initrd is the second 
   mod = (struct mod_list *)mods_addr;
 
-  if (mods_count < 2)
-    stop();
-  else
-  {
-    if (!check_lip(mods_addr, mods_count))
+  cmdline = (char *)m->cmdline;
+
+  // if lip module present
+  if (grub_strstr(cmdline, "-lip")) lip = 1;
+
+  if (lip && !check_lip(mods_addr, mods_count))
       stop();
-  }
 
-
+  //
+  // place for additional code
+  //
 }

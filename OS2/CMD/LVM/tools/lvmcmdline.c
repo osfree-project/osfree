@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.   
+ * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -33,7 +33,10 @@
 #  define GETOPTLONG_FN(a, b, c, d, e) getopt_long((a), (b), (c), (d), (e))
 #  define OPTIND_INIT 0
 #else
+//struct option {
+//};
 struct option {
+  char c[1];
 };
 extern int optind;
 extern char *optarg;
@@ -52,459 +55,469 @@ static struct arg _the_args[ARG_COUNT + 1] = {
 
 static struct cmdline_context _cmdline;
 
-int yes_no_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int yes_no_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int yes_no_arg(struct cmd_context *cmd, struct arg *a)
 {
-	a->sign = SIGN_NONE;
-	a->percent = PERCENT_NONE;
+        a->sign = SIGN_NONE;
+        a->percent = PERCENT_NONE;
 
-	if (!strcmp(a->value, "y")) {
-		a->i_value = 1;
-		a->ui_value = 1;
-	}
+        if (!strcmp(a->value, "y")) {
+                a->i_value = 1;
+                a->ui_value = 1;
+        }
 
-	else if (!strcmp(a->value, "n")) {
-		a->i_value = 0;
-		a->ui_value = 0;
-	}
+        else if (!strcmp(a->value, "n")) {
+                a->i_value = 0;
+                a->ui_value = 0;
+        }
 
-	else
-		return 0;
+        else
+                return 0;
 
-	return 1;
+        return 1;
 }
 
-int yes_no_excl_arg(struct cmd_context *cmd __attribute((unused)),
-		    struct arg *a)
+int yes_no_excl_arg(struct cmd_context *cmd, //__attribute((unused)),
+                    struct arg *a)
 {
-	a->sign = SIGN_NONE;
-	a->percent = PERCENT_NONE;
+        a->sign = SIGN_NONE;
+        a->percent = PERCENT_NONE;
 
-	if (!strcmp(a->value, "e") || !strcmp(a->value, "ey") ||
-	    !strcmp(a->value, "ye")) {
-		a->i_value = CHANGE_AE;
-		a->ui_value = CHANGE_AE;
-	}
+        if (!strcmp(a->value, "e") || !strcmp(a->value, "ey") ||
+            !strcmp(a->value, "ye")) {
+                a->i_value = CHANGE_AE;
+                a->ui_value = CHANGE_AE;
+        }
 
-	else if (!strcmp(a->value, "y")) {
-		a->i_value = CHANGE_AY;
-		a->ui_value = CHANGE_AY;
-	}
+        else if (!strcmp(a->value, "y")) {
+                a->i_value = CHANGE_AY;
+                a->ui_value = CHANGE_AY;
+        }
 
-	else if (!strcmp(a->value, "n") || !strcmp(a->value, "en") ||
-		 !strcmp(a->value, "ne")) {
-		a->i_value = CHANGE_AN;
-		a->ui_value = CHANGE_AN;
-	}
+        else if (!strcmp(a->value, "n") || !strcmp(a->value, "en") ||
+                 !strcmp(a->value, "ne")) {
+                a->i_value = CHANGE_AN;
+                a->ui_value = CHANGE_AN;
+        }
 
-	else if (!strcmp(a->value, "ln") || !strcmp(a->value, "nl")) {
-		a->i_value = CHANGE_ALN;
-		a->ui_value = CHANGE_ALN;
-	}
+        else if (!strcmp(a->value, "ln") || !strcmp(a->value, "nl")) {
+                a->i_value = CHANGE_ALN;
+                a->ui_value = CHANGE_ALN;
+        }
 
-	else if (!strcmp(a->value, "ly") || !strcmp(a->value, "yl")) {
-		a->i_value = CHANGE_ALY;
-		a->ui_value = CHANGE_ALY;
-	}
+        else if (!strcmp(a->value, "ly") || !strcmp(a->value, "yl")) {
+                a->i_value = CHANGE_ALY;
+                a->ui_value = CHANGE_ALY;
+        }
 
-	else
-		return 0;
+        else
+                return 0;
 
-	return 1;
+        return 1;
 }
 
 int metadatatype_arg(struct cmd_context *cmd, struct arg *a)
 {
-	struct format_type *fmt;
-	char *format;
+        struct format_type *fmt;
+        char *format;
 
-	format = a->value;
+        format = a->value;
 
-	list_iterate_items(fmt, &cmd->formats) {
-		if (!strcasecmp(fmt->name, format) ||
-		    !strcasecmp(fmt->name + 3, format) ||
-		    (fmt->alias && !strcasecmp(fmt->alias, format))) {
-			a->ptr = fmt;
-			return 1;
-		}
-	}
+        //list_iterate_items(fmt, &cmd->formats) {
+        list_iterate_items(fmt, struct format_type, &cmd->formats) {
+                if (!strcasecmp(fmt->name, format) ||
+                    !strcasecmp(fmt->name + 3, format) ||
+                    (fmt->alias && !strcasecmp(fmt->alias, format))) {
+                        a->ptr = fmt;
+                        return 1;
+                }
+        }
 
-	return 0;
+        return 0;
 }
 
 static int _get_int_arg(struct arg *a, char **ptr)
 {
-	char *val;
-	long v;
+        char *val;
+        long v;
 
-	a->percent = PERCENT_NONE;
+        a->percent = PERCENT_NONE;
 
-	val = a->value;
-	switch (*val) {
-	case '+':
-		a->sign = SIGN_PLUS;
-		val++;
-		break;
-	case '-':
-		a->sign = SIGN_MINUS;
-		val++;
-		break;
-	default:
-		a->sign = SIGN_NONE;
-	}
+        val = a->value;
+        switch (*val) {
+        case '+':
+                a->sign = SIGN_PLUS;
+                val++;
+                break;
+        case '-':
+                a->sign = SIGN_MINUS;
+                val++;
+                break;
+        default:
+                a->sign = SIGN_NONE;
+        }
 
-	if (!isdigit(*val))
-		return 0;
+        if (!isdigit(*val))
+                return 0;
 
-	v = strtol(val, ptr, 10);
+        v = strtol(val, ptr, 10);
 
-	if (*ptr == val)
-		return 0;
+        if (*ptr == val)
+                return 0;
 
-	a->i_value = (int32_t) v;
-	a->ui_value = (uint32_t) v;
-	a->i64_value = (int64_t) v;
-	a->ui64_value = (uint64_t) v;
+        a->i_value = (int32_t) v;
+        a->ui_value = (uint32_t) v;
+        a->i64_value = (int64_t) v;
+        a->ui64_value = (uint64_t) v;
 
-	return 1;
+        return 1;
 }
 
-static int _size_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a, int factor)
+//static int _size_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a, int factor)
+static int _size_arg(struct cmd_context *cmd, struct arg *a, int factor)
 {
-	char *ptr;
-	int i;
-	static const char *suffixes = "kmgtpe";
-	char *val;
-	double v;
+        char *ptr;
+        int i;
+        static const char *suffixes = "kmgtpe";
+        char *val;
+        double v;
 
-	a->percent = PERCENT_NONE;
+        a->percent = PERCENT_NONE;
 
-	val = a->value;
-	switch (*val) {
-	case '+':
-		a->sign = SIGN_PLUS;
-		val++;
-		break;
-	case '-':
-		a->sign = SIGN_MINUS;
-		val++;
-		break;
-	default:
-		a->sign = SIGN_NONE;
-	}
+        val = a->value;
+        switch (*val) {
+        case '+':
+                a->sign = SIGN_PLUS;
+                val++;
+                break;
+        case '-':
+                a->sign = SIGN_MINUS;
+                val++;
+                break;
+        default:
+                a->sign = SIGN_NONE;
+        }
 
-	if (!isdigit(*val))
-		return 0;
+        if (!isdigit(*val))
+                return 0;
 
-	v = strtod(val, &ptr);
+        v = strtod(val, &ptr);
 
-	if (ptr == val)
-		return 0;
+        if (ptr == val)
+                return 0;
 
-	if (*ptr) {
-		for (i = strlen(suffixes) - 1; i >= 0; i--)
-			if (suffixes[i] == tolower((int) *ptr))
-				break;
+        if (*ptr) {
+                for (i = strlen(suffixes) - 1; i >= 0; i--)
+                        if (suffixes[i] == tolower((int) *ptr))
+                                break;
 
-		if (i < 0)
-			return 0;
+                if (i < 0)
+                        return 0;
 
-		while (i-- > 0)
-			v *= 1024;
-	} else
-		v *= factor;
+                while (i-- > 0)
+                        v *= 1024;
+        } else
+                v *= factor;
 
-	a->i_value = (int32_t) v;
-	a->ui_value = (uint32_t) v;
-	a->i64_value = (int64_t) v;
-	a->ui64_value = (uint64_t) v;
+        a->i_value = (int32_t) v;
+        a->ui_value = (uint32_t) v;
+        a->i64_value = (int64_t) v;
+        a->ui64_value = (uint64_t) v;
 
-	return 1;
+        return 1;
 }
 
 int size_kb_arg(struct cmd_context *cmd, struct arg *a)
 {
-	return _size_arg(cmd, a, 1);
+        return _size_arg(cmd, a, 1);
 }
 
 int size_mb_arg(struct cmd_context *cmd, struct arg *a)
 {
-	return _size_arg(cmd, a, 1024);
+        return _size_arg(cmd, a, 1024);
 }
 
-int int_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int int_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int int_arg(struct cmd_context *cmd, struct arg *a)
 {
-	char *ptr;
+        char *ptr;
 
-	if (!_get_int_arg(a, &ptr) || (*ptr) || (a->sign == SIGN_MINUS))
-		return 0;
+        if (!_get_int_arg(a, &ptr) || (*ptr) || (a->sign == SIGN_MINUS))
+                return 0;
 
-	return 1;
+        return 1;
 }
 
-int int_arg_with_sign(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int int_arg_with_sign(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int int_arg_with_sign(struct cmd_context *cmd, struct arg *a)
 {
-	char *ptr;
+        char *ptr;
 
-	if (!_get_int_arg(a, &ptr) || (*ptr))
-		return 0;
+        if (!_get_int_arg(a, &ptr) || (*ptr))
+                return 0;
 
-	return 1;
+        return 1;
 }
 
-int int_arg_with_sign_and_percent(struct cmd_context *cmd __attribute((unused)),
-				  struct arg *a)
+int int_arg_with_sign_and_percent(struct cmd_context *cmd, //__attribute((unused)),
+                                  struct arg *a)
 {
-	char *ptr;
+        char *ptr;
 
-	if (!_get_int_arg(a, &ptr))
-		return 0;
+        if (!_get_int_arg(a, &ptr))
+                return 0;
 
-	if (!*ptr)
-		return 1;
+        if (!*ptr)
+                return 1;
 
-	if (*ptr++ != '%')
-		return 0;
+        if (*ptr++ != '%')
+                return 0;
 
-	if (!strcasecmp(ptr, "V") || !strcasecmp(ptr, "VG"))
-		a->percent = PERCENT_VG;
-	else if (!strcasecmp(ptr, "L") || !strcasecmp(ptr, "LV"))
-		a->percent = PERCENT_LV;
-	else if (!strcasecmp(ptr, "F") || !strcasecmp(ptr, "FR") ||
-		 !strcasecmp(ptr, "FREE"))
-		a->percent = PERCENT_FREE;
-	else
-		return 0;
+        if (!strcasecmp(ptr, "V") || !strcasecmp(ptr, "VG"))
+                a->percent = PERCENT_VG;
+        else if (!strcasecmp(ptr, "L") || !strcasecmp(ptr, "LV"))
+                a->percent = PERCENT_LV;
+        else if (!strcasecmp(ptr, "F") || !strcasecmp(ptr, "FR") ||
+                 !strcasecmp(ptr, "FREE"))
+                a->percent = PERCENT_FREE;
+        else
+                return 0;
 
-	return 1;
+        return 1;
 }
 
-int minor_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int minor_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int minor_arg(struct cmd_context *cmd, struct arg *a)
 {
-	char *ptr;
+        char *ptr;
 
-	if (!_get_int_arg(a, &ptr) || (*ptr) || (a->sign == SIGN_MINUS))
-		return 0;
+        if (!_get_int_arg(a, &ptr) || (*ptr) || (a->sign == SIGN_MINUS))
+                return 0;
 
-	if (a->i_value > 255) {
-		log_error("Minor number outside range 0-255");
-		return 0;
-	}
+        if (a->i_value > 255) {
+                log_error("Minor number outside range 0-255");
+                return 0;
+        }
 
-	return 1;
+        return 1;
 }
 
-int major_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int major_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int major_arg(struct cmd_context *cmd, struct arg *a)
 {
-	char *ptr;
+        char *ptr;
 
-	if (!_get_int_arg(a, &ptr) || (*ptr) || (a->sign == SIGN_MINUS))
-		return 0;
+        if (!_get_int_arg(a, &ptr) || (*ptr) || (a->sign == SIGN_MINUS))
+                return 0;
 
-	if (a->i_value > 255) {
-		log_error("Major number outside range 0-255");
-		return 0;
-	}
+        if (a->i_value > 255) {
+                log_error("Major number outside range 0-255");
+                return 0;
+        }
 
-	/* FIXME Also Check against /proc/devices */
+        /* FIXME Also Check against /proc/devices */
 
-	return 1;
+        return 1;
 }
 
-int string_arg(struct cmd_context *cmd __attribute((unused)),
-	       struct arg *a __attribute((unused)))
+int string_arg(struct cmd_context *cmd, //__attribute((unused)),
+               struct arg *a) //__attribute((unused)))
 {
-	return 1;
+        return 1;
 }
 
-int tag_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int tag_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int tag_arg(struct cmd_context *cmd, struct arg *a)
 {
-	char *pos = a->value;
+        char *pos = a->value;
 
-	if (*pos == '@')
-		pos++;
+        if (*pos == '@')
+                pos++;
 
-	if (!validate_name(pos))
-		return 0;
+        if (!validate_name(pos))
+                return 0;
 
-	return 1;
+        return 1;
 }
 
-int permission_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int permission_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int permission_arg(struct cmd_context *cmd, struct arg *a)
 {
-	a->sign = SIGN_NONE;
+        a->sign = SIGN_NONE;
 
-	if ((!strcmp(a->value, "rw")) || (!strcmp(a->value, "wr")))
-		a->ui_value = LVM_READ | LVM_WRITE;
+        if ((!strcmp(a->value, "rw")) || (!strcmp(a->value, "wr")))
+                a->ui_value = LVM_READ | LVM_WRITE;
 
-	else if (!strcmp(a->value, "r"))
-		a->ui_value = LVM_READ;
+        else if (!strcmp(a->value, "r"))
+                a->ui_value = LVM_READ;
 
-	else
-		return 0;
+        else
+                return 0;
 
-	return 1;
+        return 1;
 }
 
-int alloc_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+//int alloc_arg(struct cmd_context *cmd __attribute((unused)), struct arg *a)
+int alloc_arg(struct cmd_context *cmd, struct arg *a)
 {
-	alloc_policy_t alloc;
+        alloc_policy_t alloc;
 
-	a->sign = SIGN_NONE;
+        a->sign = SIGN_NONE;
 
-	alloc = get_alloc_from_string(a->value);
-	if (alloc == ALLOC_INVALID)
-		return 0;
+        alloc = get_alloc_from_string(a->value);
+        if (alloc == ALLOC_INVALID)
+                return 0;
 
-	a->ui_value = (uint32_t) alloc;
+        a->ui_value = (uint32_t) alloc;
 
-	return 1;
+        return 1;
 }
 
 int segtype_arg(struct cmd_context *cmd, struct arg *a)
 {
-	if (!(a->ptr = (void *) get_segtype_from_string(cmd, a->value)))
-		return 0;
+        if (!(a->ptr = (void *) get_segtype_from_string(cmd, a->value)))
+                return 0;
 
-	return 1;
+        return 1;
 }
 
 char yes_no_prompt(const char *prompt, ...)
 {
-	int c = 0, ret = 0;
-	va_list ap;
+        int c = 0, ret = 0;
+        va_list ap;
 
-	sigint_allow();
-	do {
-		if (c == '\n' || !c) {
-			va_start(ap, prompt);
-			vprintf(prompt, ap);
-			va_end(ap);
-		}
+        sigint_allow();
+        do {
+                if (c == '\n' || !c) {
+                        va_start(ap, prompt);
+                        vprintf(prompt, ap);
+                        va_end(ap);
+                }
 
-		if ((c = getchar()) == EOF) {
-			ret = 'n';
-			break;
-		}
+                if ((c = getchar()) == EOF) {
+                        ret = 'n';
+                        break;
+                }
 
-		c = tolower(c);
-		if ((c == 'y') || (c == 'n'))
-			ret = c;
-	} while (!ret || c != '\n');
+                c = tolower(c);
+                if ((c == 'y') || (c == 'n'))
+                        ret = c;
+        } while (!ret || c != '\n');
 
-	sigint_restore();
+        sigint_restore();
 
-	if (c != '\n')
-		printf("\n");
+        if (c != '\n')
+                printf("\n");
 
-	return ret;
+        return ret;
 }
 
 static void __alloc(int size)
 {
-	if (!(_cmdline.commands = dm_realloc(_cmdline.commands, sizeof(*_cmdline.commands) * size))) {
-		log_fatal("Couldn't allocate memory.");
-		exit(ECMD_FAILED);
-	}
+        if (!(_cmdline.commands = dm_realloc(_cmdline.commands, sizeof(*_cmdline.commands) * size))) {
+                log_fatal("Couldn't allocate memory.");
+                exit(ECMD_FAILED);
+        }
 
-	_cmdline.commands_size = size;
+        _cmdline.commands_size = size;
 }
 
 static void _alloc_command(void)
 {
-	if (!_cmdline.commands_size)
-		__alloc(32);
+        if (!_cmdline.commands_size)
+                __alloc(32);
 
-	if (_cmdline.commands_size <= _cmdline.num_commands)
-		__alloc(2 * _cmdline.commands_size);
+        if (_cmdline.commands_size <= _cmdline.num_commands)
+                __alloc(2 * _cmdline.commands_size);
 }
 
 static void _create_new_command(const char *name, command_fn command,
-				const char *desc, const char *usagestr,
-				int nargs, int *args)
+                                const char *desc, const char *usagestr,
+                                int nargs, int *args)
 {
-	struct command *nc;
+        struct command *nc;
 
-	_alloc_command();
+        _alloc_command();
 
-	nc = _cmdline.commands + _cmdline.num_commands++;
+        nc = _cmdline.commands + _cmdline.num_commands++;
 
-	nc->name = name;
-	nc->desc = desc;
-	nc->usage = usagestr;
-	nc->fn = command;
-	nc->num_args = nargs;
-	nc->valid_args = args;
+        nc->name = name;
+        nc->desc = desc;
+        nc->usage = usagestr;
+        nc->fn = command;
+        nc->num_args = nargs;
+        nc->valid_args = args;
 }
 
 static void _register_command(const char *name, command_fn fn,
-			      const char *desc, const char *usagestr, ...)
+                              const char *desc, const char *usagestr, ...)
 {
-	int nargs = 0, i;
-	int *args;
-	va_list ap;
+        int nargs = 0, i;
+        int *args;
+        va_list ap;
 
-	/* count how many arguments we have */
-	va_start(ap, usagestr);
-	while (va_arg(ap, int) >= 0)
-		 nargs++;
-	va_end(ap);
+        /* count how many arguments we have */
+        va_start(ap, usagestr);
+        while (va_arg(ap, int) >= 0)
+                 nargs++;
+        va_end(ap);
 
-	/* allocate space for them */
-	if (!(args = dm_malloc(sizeof(*args) * nargs))) {
-		log_fatal("Out of memory.");
-		exit(ECMD_FAILED);
-	}
+        /* allocate space for them */
+        if (!(args = dm_malloc(sizeof(*args) * nargs))) {
+                log_fatal("Out of memory.");
+                exit(ECMD_FAILED);
+        }
 
-	/* fill them in */
-	va_start(ap, usagestr);
-	for (i = 0; i < nargs; i++)
-		args[i] = va_arg(ap, int);
-	va_end(ap);
+        /* fill them in */
+        va_start(ap, usagestr);
+        for (i = 0; i < nargs; i++)
+                args[i] = va_arg(ap, int);
+        va_end(ap);
 
-	/* enter the command in the register */
-	_create_new_command(name, fn, desc, usagestr, nargs, args);
+        /* enter the command in the register */
+        _create_new_command(name, fn, desc, usagestr, nargs, args);
 }
 
 void lvm_register_commands(void)
 {
-#define xx(a, b, c...) _register_command(# a, a, b, ## c, \
-					driverloaded_ARG, \
-					debug_ARG, help_ARG, help2_ARG, \
-					version_ARG, verbose_ARG, \
-					quiet_ARG, config_ARG, -1);
+#define xx(a, b, c,...) _register_command(# a, a, b, ## c, \
+                                        driverloaded_ARG, \
+                                        debug_ARG, help_ARG, help2_ARG, \
+                                        version_ARG, verbose_ARG, \
+                                        quiet_ARG, config_ARG, -1);
 #include "commands.h"
 #undef xx
 }
 
 static struct command *_find_command(const char *name)
 {
-	int i;
-	char *namebase, *base;
+        int i;
+        char *namebase, *base;
 
-	namebase = strdup(name);
-	base = basename(namebase);
+        namebase = strdup(name);
+        base = basename(namebase);
 
-	for (i = 0; i < _cmdline.num_commands; i++) {
-		if (!strcmp(base, _cmdline.commands[i].name))
-			break;
-	}
+        for (i = 0; i < _cmdline.num_commands; i++) {
+                if (!strcmp(base, _cmdline.commands[i].name))
+                        break;
+        }
 
-	free(namebase);
+        free(namebase);
 
-	if (i >= _cmdline.num_commands)
-		return 0;
+        if (i >= _cmdline.num_commands)
+                return 0;
 
-	return _cmdline.commands + i;
+        return _cmdline.commands + i;
 }
 
 static void _usage(const char *name)
 {
-	struct command *com = _find_command(name);
+        struct command *com = _find_command(name);
 
-	if (!com)
-		return;
+        if (!com)
+                return;
 
-	log_error("%s: %s\n\n%s", com->name, com->desc, com->usage);
+        log_error("%s: %s\n\n%s", com->name, com->desc, com->usage);
 }
 
 /*
@@ -516,588 +529,589 @@ static void _usage(const char *name)
  */
 static void _add_getopt_arg(int arg, char **ptr, struct option **o)
 {
-	struct arg *a = _cmdline.the_args + arg;
+        struct arg *a = _cmdline.the_args + arg;
 
-	if (a->short_arg) {
-		*(*ptr)++ = a->short_arg;
+        if (a->short_arg) {
+                *(*ptr)++ = a->short_arg;
 
-		if (a->fn)
-			*(*ptr)++ = ':';
-	}
+                if (a->fn)
+                        *(*ptr)++ = ':';
+        }
 #ifdef HAVE_GETOPTLONG
-	if (*(a->long_arg + 2)) {
-		(*o)->name = a->long_arg + 2;
-		(*o)->has_arg = a->fn ? 1 : 0;
-		(*o)->flag = NULL;
-		if (a->short_arg)
-			(*o)->val = a->short_arg;
-		else
-			(*o)->val = arg;
-		(*o)++;
-	}
+        if (*(a->long_arg + 2)) {
+                (*o)->name = a->long_arg + 2;
+                (*o)->has_arg = a->fn ? 1 : 0;
+                (*o)->flag = NULL;
+                if (a->short_arg)
+                        (*o)->val = a->short_arg;
+                else
+                        (*o)->val = arg;
+                (*o)++;
+        }
 #endif
 }
 
 static struct arg *_find_arg(struct command *com, int opt)
 {
-	struct arg *a;
-	int i, arg;
+        struct arg *a;
+        int i, arg;
 
-	for (i = 0; i < com->num_args; i++) {
-		arg = com->valid_args[i];
-		a = _cmdline.the_args + arg;
+        for (i = 0; i < com->num_args; i++) {
+                arg = com->valid_args[i];
+                a = _cmdline.the_args + arg;
 
-		/*
-		 * opt should equal either the
-		 * short arg, or the index into
-		 * the_args.
-		 */
-		if ((a->short_arg && (opt == a->short_arg)) ||
-		    (!a->short_arg && (opt == arg)))
-			return a;
-	}
+                /*
+                 * opt should equal either the
+                 * short arg, or the index into
+                 * the_args.
+                 */
+                if ((a->short_arg && (opt == a->short_arg)) ||
+                    (!a->short_arg && (opt == arg)))
+                        return a;
+        }
 
-	return 0;
+        return 0;
 }
 
 static int _process_command_line(struct cmd_context *cmd, int *argc,
-				 char ***argv)
+                                 char ***argv)
 {
-	int i, opt;
-	char str[((ARG_COUNT + 1) * 2) + 1], *ptr = str;
-	struct option opts[ARG_COUNT + 1], *o = opts;
-	struct arg *a;
+        int i, opt;
+        char str[((ARG_COUNT + 1) * 2) + 1], *ptr = str;
+        struct option opts[ARG_COUNT + 1], *o = opts;
+        struct arg *a;
 
-	for (i = 0; i < ARG_COUNT; i++) {
-		a = _cmdline.the_args + i;
+        for (i = 0; i < ARG_COUNT; i++) {
+                a = _cmdline.the_args + i;
 
-		/* zero the count and arg */
-		a->count = 0;
-		a->value = 0;
-		a->i_value = 0;
-		a->ui_value = 0;
-		a->i64_value = 0;
-		a->ui64_value = 0;
-	}
+                /* zero the count and arg */
+                a->count = 0;
+                a->value = 0;
+                a->i_value = 0;
+                a->ui_value = 0;
+                a->i64_value = 0;
+                a->ui64_value = 0;
+        }
 
-	/* fill in the short and long opts */
-	for (i = 0; i < cmd->command->num_args; i++)
-		_add_getopt_arg(cmd->command->valid_args[i], &ptr, &o);
+        /* fill in the short and long opts */
+        for (i = 0; i < cmd->command->num_args; i++)
+                _add_getopt_arg(cmd->command->valid_args[i], &ptr, &o);
 
-	*ptr = '\0';
-	memset(o, 0, sizeof(*o));
+        *ptr = '\0';
+        memset(o, 0, sizeof(*o));
 
-	/* initialise getopt_long & scan for command line switches */
-	optarg = 0;
-	optind = OPTIND_INIT;
-	while ((opt = GETOPTLONG_FN(*argc, *argv, str, opts, NULL)) >= 0) {
+        /* initialise getopt_long & scan for command line switches */
+        optarg = 0;
+        optind = OPTIND_INIT;
+        while ((opt = GETOPTLONG_FN(*argc, *argv, str, opts, NULL)) >= 0) {
 
-		if (opt == '?')
-			return 0;
+                if (opt == '?')
+                        return 0;
 
-		a = _find_arg(cmd->command, opt);
+                a = _find_arg(cmd->command, opt);
 
-		if (!a) {
-			log_fatal("Unrecognised option.");
-			return 0;
-		}
+                if (!a) {
+                        log_fatal("Unrecognised option.");
+                        return 0;
+                }
 
-		if (a->fn) {
-			if (a->count) {
-				log_error("Option%s%c%s%s may not be repeated",
-					  a->short_arg ? " -" : "",
-					  a->short_arg ? : ' ',
-					  (a->short_arg && a->long_arg) ?
-					  "/" : "", a->long_arg ? : "");
-				return 0;
-			}
+                if (a->fn) {
+                        if (a->count) {
+                                log_error("Option%s%c%s%s may not be repeated",
+                                          a->short_arg ? " -" : "",
+                                          a->short_arg ? : ' ',
+                                          (a->short_arg && a->long_arg) ?
+                                          "/" : "", a->long_arg ? : "");
+                                return 0;
+                        }
 
-			if (!optarg) {
-				log_error("Option requires argument.");
-				return 0;
-			}
+                        if (!optarg) {
+                                log_error("Option requires argument.");
+                                return 0;
+                        }
 
-			a->value = optarg;
+                        a->value = optarg;
 
-			if (!a->fn(cmd, a)) {
-				log_error("Invalid argument %s", optarg);
-				return 0;
-			}
-		}
+                        if (!a->fn(cmd, a)) {
+                                log_error("Invalid argument %s", optarg);
+                                return 0;
+                        }
+                }
 
-		a->count++;
-	}
+                a->count++;
+        }
 
-	*argc -= optind;
-	*argv += optind;
-	return 1;
+        *argc -= optind;
+        *argv += optind;
+        return 1;
 }
 
 static int _merge_synonym(struct cmd_context *cmd, int oldarg, int newarg)
 {
-	const struct arg *old;
-	struct arg *new;
+        const struct arg *old;
+        struct arg *new;
 
-	if (arg_count(cmd, oldarg) && arg_count(cmd, newarg)) {
-		log_error("%s and %s are synonyms.  Please only supply one.",
-			  _cmdline.the_args[oldarg].long_arg, _cmdline.the_args[newarg].long_arg);
-		return 0;
-	}
+        if (arg_count(cmd, oldarg) && arg_count(cmd, newarg)) {
+                log_error("%s and %s are synonyms.  Please only supply one.",
+                          _cmdline.the_args[oldarg].long_arg, _cmdline.the_args[newarg].long_arg);
+                return 0;
+        }
 
-	if (!arg_count(cmd, oldarg))
-		return 1;
+        if (!arg_count(cmd, oldarg))
+                return 1;
 
-	old = _cmdline.the_args + oldarg;
-	new = _cmdline.the_args + newarg;
+        old = _cmdline.the_args + oldarg;
+        new = _cmdline.the_args + newarg;
 
-	new->count = old->count;
-	new->value = old->value;
-	new->i_value = old->i_value;
-	new->ui_value = old->ui_value;
-	new->i64_value = old->i64_value;
-	new->ui64_value = old->ui64_value;
-	new->sign = old->sign;
+        new->count = old->count;
+        new->value = old->value;
+        new->i_value = old->i_value;
+        new->ui_value = old->ui_value;
+        new->i64_value = old->i64_value;
+        new->ui64_value = old->ui64_value;
+        new->sign = old->sign;
 
-	return 1;
+        return 1;
 }
 
-int version(struct cmd_context *cmd __attribute((unused)),
-	    int argc __attribute((unused)),
-	    char **argv __attribute((unused)))
+int version(struct cmd_context *cmd, //__attribute((unused)),
+            int argc, //__attribute((unused)),
+            char **argv) //__attribute((unused)))
 {
-	char vsn[80];
+        char vsn[80];
 
-	log_print("LVM version:     %s", LVM_VERSION);
-	if (library_version(vsn, sizeof(vsn)))
-		log_print("Library version: %s", vsn);
-	if (driver_version(vsn, sizeof(vsn)))
-		log_print("Driver version:  %s", vsn);
+        log_print("LVM version:     %s", LVM_VERSION);
+        if (library_version(vsn, sizeof(vsn)))
+                log_print("Library version: %s", vsn);
+        if (driver_version(vsn, sizeof(vsn)))
+                log_print("Driver version:  %s", vsn);
 
-	return ECMD_PROCESSED;
+        return ECMD_PROCESSED;
 }
 
 static int _get_settings(struct cmd_context *cmd)
 {
-	cmd->current_settings = cmd->default_settings;
+        cmd->current_settings = cmd->default_settings;
 
-	if (arg_count(cmd, debug_ARG))
-		cmd->current_settings.debug = _LOG_FATAL +
-		    (arg_count(cmd, debug_ARG) - 1);
+        if (arg_count(cmd, debug_ARG))
+                cmd->current_settings.debug = _LOG_FATAL +
+                    (arg_count(cmd, debug_ARG) - 1);
 
-	if (arg_count(cmd, verbose_ARG))
-		cmd->current_settings.verbose = arg_count(cmd, verbose_ARG);
+        if (arg_count(cmd, verbose_ARG))
+                cmd->current_settings.verbose = arg_count(cmd, verbose_ARG);
 
-	if (arg_count(cmd, quiet_ARG)) {
-		cmd->current_settings.debug = 0;
-		cmd->current_settings.verbose = 0;
-	}
+        if (arg_count(cmd, quiet_ARG)) {
+                cmd->current_settings.debug = 0;
+                cmd->current_settings.verbose = 0;
+        }
 
-	if (arg_count(cmd, test_ARG))
-		cmd->current_settings.test = arg_count(cmd, test_ARG);
+        if (arg_count(cmd, test_ARG))
+                cmd->current_settings.test = arg_count(cmd, test_ARG);
 
-	if (arg_count(cmd, driverloaded_ARG)) {
-		cmd->current_settings.activation =
-		    arg_int_value(cmd, driverloaded_ARG,
-				  cmd->default_settings.activation);
-	}
+        if (arg_count(cmd, driverloaded_ARG)) {
+                cmd->current_settings.activation =
+                    arg_int_value(cmd, driverloaded_ARG,
+                                  cmd->default_settings.activation);
+        }
 
-	cmd->current_settings.archive = arg_int_value(cmd, autobackup_ARG, cmd->current_settings.archive);
-	cmd->current_settings.backup = arg_int_value(cmd, autobackup_ARG, cmd->current_settings.backup);
+        cmd->current_settings.archive = arg_int_value(cmd, autobackup_ARG, cmd->current_settings.archive);
+        cmd->current_settings.backup = arg_int_value(cmd, autobackup_ARG, cmd->current_settings.backup);
 
-	if (arg_count(cmd, partial_ARG)) {
-		init_partial(1);
-		log_print("Partial mode. Incomplete volume groups will "
-			  "be activated read-only.");
-	} else
-		init_partial(0);
+        if (arg_count(cmd, partial_ARG)) {
+                init_partial(1);
+                log_print("Partial mode. Incomplete volume groups will "
+                          "be activated read-only.");
+        } else
+                init_partial(0);
 
-	if (arg_count(cmd, ignorelockingfailure_ARG))
-		init_ignorelockingfailure(1);
-	else
-		init_ignorelockingfailure(0);
+        if (arg_count(cmd, ignorelockingfailure_ARG))
+                init_ignorelockingfailure(1);
+        else
+                init_ignorelockingfailure(0);
 
-	if (arg_count(cmd, nosuffix_ARG))
-		cmd->current_settings.suffix = 0;
+        if (arg_count(cmd, nosuffix_ARG))
+                cmd->current_settings.suffix = 0;
 
-	if (arg_count(cmd, units_ARG))
-		if (!(cmd->current_settings.unit_factor =
-		      units_to_bytes(arg_str_value(cmd, units_ARG, ""),
-				     &cmd->current_settings.unit_type))) {
-			log_error("Invalid units specification");
-			return EINVALID_CMD_LINE;
-		}
+        if (arg_count(cmd, units_ARG))
+                if (!(cmd->current_settings.unit_factor =
+                      units_to_bytes(arg_str_value(cmd, units_ARG, ""),
+                                     &cmd->current_settings.unit_type))) {
+                        log_error("Invalid units specification");
+                        return EINVALID_CMD_LINE;
+                }
 
-	if (arg_count(cmd, trustcache_ARG)) {
-		if (arg_count(cmd, all_ARG)) {
-			log_error("--trustcache is incompatible with --all");
-			return EINVALID_CMD_LINE;
-		}
-		init_trust_cache(1);
-		log_warn("WARNING: Cache file of PVs will be trusted.  "
-			  "New devices holding PVs may get ignored.");
-	} else
-		init_trust_cache(0);
+        if (arg_count(cmd, trustcache_ARG)) {
+                if (arg_count(cmd, all_ARG)) {
+                        log_error("--trustcache is incompatible with --all");
+                        return EINVALID_CMD_LINE;
+                }
+                init_trust_cache(1);
+                log_warn("WARNING: Cache file of PVs will be trusted.  "
+                          "New devices holding PVs may get ignored.");
+        } else
+                init_trust_cache(0);
 
-	/* Handle synonyms */
-	if (!_merge_synonym(cmd, resizable_ARG, resizeable_ARG) ||
-	    !_merge_synonym(cmd, allocation_ARG, allocatable_ARG) ||
-	    !_merge_synonym(cmd, allocation_ARG, resizeable_ARG))
-		return EINVALID_CMD_LINE;
+        /* Handle synonyms */
+        if (!_merge_synonym(cmd, resizable_ARG, resizeable_ARG) ||
+            !_merge_synonym(cmd, allocation_ARG, allocatable_ARG) ||
+            !_merge_synonym(cmd, allocation_ARG, resizeable_ARG))
+                return EINVALID_CMD_LINE;
 
-	/* Zero indicates success */
-	return 0;
+        /* Zero indicates success */
+        return 0;
 }
 
 static int _process_common_commands(struct cmd_context *cmd)
 {
-	if (arg_count(cmd, help_ARG) || arg_count(cmd, help2_ARG)) {
-		_usage(cmd->command->name);
-		return ECMD_PROCESSED;
-	}
+        if (arg_count(cmd, help_ARG) || arg_count(cmd, help2_ARG)) {
+                _usage(cmd->command->name);
+                return ECMD_PROCESSED;
+        }
 
-	if (arg_count(cmd, version_ARG)) {
-		return version(cmd, 0, (char **) NULL);
-	}
+        if (arg_count(cmd, version_ARG)) {
+                return version(cmd, 0, (char **) NULL);
+        }
 
-	/* Zero indicates it's OK to continue processing this command */
-	return 0;
+        /* Zero indicates it's OK to continue processing this command */
+        return 0;
 }
 
 static void _display_help(void)
 {
-	int i;
+        int i;
 
-	log_error("Available lvm commands:");
-	log_error("Use 'lvm help <command>' for more information");
-	log_error(" ");
+        log_error("Available lvm commands:");
+        log_error("Use 'lvm help <command>' for more information");
+        log_error(" ");
 
-	for (i = 0; i < _cmdline.num_commands; i++) {
-		struct command *com = _cmdline.commands + i;
+        for (i = 0; i < _cmdline.num_commands; i++) {
+                struct command *com = _cmdline.commands + i;
 
-		log_error("%-16.16s%s", com->name, com->desc);
-	}
+                log_error("%-16.16s%s", com->name, com->desc);
+        }
 }
 
-int help(struct cmd_context *cmd __attribute((unused)), int argc, char **argv)
+//int help(struct cmd_context *cmd __attribute((unused)), int argc, char **argv)
+int help(struct cmd_context *cmd, int argc, char **argv)
 {
-	if (!argc)
-		_display_help();
-	else {
-		int i;
-		for (i = 0; i < argc; i++)
-			_usage(argv[i]);
-	}
+        if (!argc)
+                _display_help();
+        else {
+                int i;
+                for (i = 0; i < argc; i++)
+                        _usage(argv[i]);
+        }
 
-	return 0;
+        return 0;
 }
 
 static int _override_settings(struct cmd_context *cmd)
 {
-	if (!(cmd->cft_override = create_config_tree_from_string(cmd, arg_str_value(cmd, config_ARG, "")))) {
-		log_error("Failed to set overridden configuration entries.");
-		return EINVALID_CMD_LINE;
-	}
+        if (!(cmd->cft_override = create_config_tree_from_string(cmd, arg_str_value(cmd, config_ARG, "")))) {
+                log_error("Failed to set overridden configuration entries.");
+                return EINVALID_CMD_LINE;
+        }
 
-	return 0;
+        return 0;
 }
 
 static void _apply_settings(struct cmd_context *cmd)
 {
-	init_debug(cmd->current_settings.debug);
-	init_verbose(cmd->current_settings.verbose + VERBOSE_BASE_LEVEL);
-	init_test(cmd->current_settings.test);
-	init_full_scan_done(0);
-	init_mirror_in_sync(0);
+        init_debug(cmd->current_settings.debug);
+        init_verbose(cmd->current_settings.verbose + VERBOSE_BASE_LEVEL);
+        init_test(cmd->current_settings.test);
+        init_full_scan_done(0);
+        init_mirror_in_sync(0);
 
-	init_msg_prefix(cmd->default_settings.msg_prefix);
-	init_cmd_name(cmd->default_settings.cmd_name);
+        init_msg_prefix(cmd->default_settings.msg_prefix);
+        init_cmd_name(cmd->default_settings.cmd_name);
 
-	archive_enable(cmd, cmd->current_settings.archive);
-	backup_enable(cmd, cmd->current_settings.backup);
+        archive_enable(cmd, cmd->current_settings.archive);
+        backup_enable(cmd, cmd->current_settings.backup);
 
-	set_activation(cmd->current_settings.activation);
+        set_activation(cmd->current_settings.activation);
 
-	cmd->fmt = arg_ptr_value(cmd, metadatatype_ARG,
-				 cmd->current_settings.fmt);
+        cmd->fmt = arg_ptr_value(cmd, metadatatype_ARG,
+                                 cmd->current_settings.fmt);
 }
 
 static char *_copy_command_line(struct cmd_context *cmd, int argc, char **argv)
 {
-	int i, space;
+        int i, space;
 
-	/*
-	 * Build up the complete command line, used as a
-	 * description for backups.
-	 */
-	if (!dm_pool_begin_object(cmd->mem, 128))
-		goto_bad;
+        /*
+         * Build up the complete command line, used as a
+         * description for backups.
+         */
+        if (!dm_pool_begin_object(cmd->mem, 128))
+                goto_bad;
 
-	for (i = 0; i < argc; i++) {
-		space = strchr(argv[i], ' ') ? 1 : 0;
+        for (i = 0; i < argc; i++) {
+                space = strchr(argv[i], ' ') ? 1 : 0;
 
-		if (space && !dm_pool_grow_object(cmd->mem, "'", 1))
-			goto_bad;
+                if (space && !dm_pool_grow_object(cmd->mem, "'", 1))
+                        goto_bad;
 
-		if (!dm_pool_grow_object(cmd->mem, argv[i], strlen(argv[i])))
-			goto_bad;
+                if (!dm_pool_grow_object(cmd->mem, argv[i], strlen(argv[i])))
+                        goto_bad;
 
-		if (space && !dm_pool_grow_object(cmd->mem, "'", 1))
-			goto_bad;
+                if (space && !dm_pool_grow_object(cmd->mem, "'", 1))
+                        goto_bad;
 
-		if (i < (argc - 1))
-			if (!dm_pool_grow_object(cmd->mem, " ", 1))
-				goto_bad;
-	}
+                if (i < (argc - 1))
+                        if (!dm_pool_grow_object(cmd->mem, " ", 1))
+                                goto_bad;
+        }
 
-	/*
-	 * Terminate.
-	 */
-	if (!dm_pool_grow_object(cmd->mem, "\0", 1))
-		goto_bad;
+        /*
+         * Terminate.
+         */
+        if (!dm_pool_grow_object(cmd->mem, "\0", 1))
+                goto_bad;
 
-	return dm_pool_end_object(cmd->mem);
+        return dm_pool_end_object(cmd->mem);
 
       bad:
-	log_err("Couldn't copy command line.");
-	dm_pool_abandon_object(cmd->mem);
-	return NULL;
+        log_err("Couldn't copy command line.");
+        dm_pool_abandon_object(cmd->mem);
+        return NULL;
 }
 
 int lvm_run_command(struct cmd_context *cmd, int argc, char **argv)
 {
-	int ret = 0;
-	int locking_type;
+        int ret = 0;
+        int locking_type;
 
-	/* each command should start out with sigint flag cleared */
-	sigint_clear();
+        /* each command should start out with sigint flag cleared */
+        sigint_clear();
 
-	if (!(cmd->cmd_line = _copy_command_line(cmd, argc, argv)))
-		return ECMD_FAILED;
+        if (!(cmd->cmd_line = _copy_command_line(cmd, argc, argv)))
+                return ECMD_FAILED;
 
-	log_debug("Parsing: %s", cmd->cmd_line);
+        log_debug("Parsing: %s", cmd->cmd_line);
 
-	if (!(cmd->command = _find_command(argv[0])))
-		return ENO_SUCH_CMD;
+        if (!(cmd->command = _find_command(argv[0])))
+                return ENO_SUCH_CMD;
 
-	if (!_process_command_line(cmd, &argc, &argv)) {
-		log_error("Error during parsing of command line.");
-		return EINVALID_CMD_LINE;
-	}
+        if (!_process_command_line(cmd, &argc, &argv)) {
+                log_error("Error during parsing of command line.");
+                return EINVALID_CMD_LINE;
+        }
 
-	set_cmd_name(cmd->command->name);
+        set_cmd_name(cmd->command->name);
 
-	if (arg_count(cmd, config_ARG))
-		if ((ret = _override_settings(cmd)))
-			goto_out;
+        if (arg_count(cmd, config_ARG))
+                if ((ret = _override_settings(cmd)))
+                        goto_out;
 
-	if (arg_count(cmd, config_ARG) || !cmd->config_valid || config_files_changed(cmd)) {
-		/* Reinitialise various settings inc. logging, filters */
-		if (!refresh_toolcontext(cmd)) {
-			log_error("Updated config file invalid. Aborting.");
-			return ECMD_FAILED;
-		}
-	}
+        if (arg_count(cmd, config_ARG) || !cmd->config_valid || config_files_changed(cmd)) {
+                /* Reinitialise various settings inc. logging, filters */
+                if (!refresh_toolcontext(cmd)) {
+                        log_error("Updated config file invalid. Aborting.");
+                        return ECMD_FAILED;
+                }
+        }
 
-	if ((ret = _get_settings(cmd)))
-		goto_out;
-	_apply_settings(cmd);
+        if ((ret = _get_settings(cmd)))
+                goto_out;
+        _apply_settings(cmd);
 
-	log_debug("Processing: %s", cmd->cmd_line);
+        log_debug("Processing: %s", cmd->cmd_line);
 
 #ifdef O_DIRECT_SUPPORT
-	log_debug("O_DIRECT will be used");
+        log_debug("O_DIRECT will be used");
 #endif
 
-	if ((ret = _process_common_commands(cmd)))
-		goto_out;
+        if ((ret = _process_common_commands(cmd)))
+                goto_out;
 
-	if (arg_count(cmd, nolocking_ARG))
-		locking_type = 0;
-	else
-		locking_type = find_config_tree_int(cmd,
-					       "global/locking_type", 1);
+        if (arg_count(cmd, nolocking_ARG))
+                locking_type = 0;
+        else
+                locking_type = find_config_tree_int(cmd,
+                                               "global/locking_type", 1);
 
-	if (!init_locking(locking_type, cmd)) {
-		log_error("Locking type %d initialisation failed.",
-			  locking_type);
-		ret = ECMD_FAILED;
-		goto out;
-	}
+        if (!init_locking(locking_type, cmd)) {
+                log_error("Locking type %d initialisation failed.",
+                          locking_type);
+                ret = ECMD_FAILED;
+                goto out;
+        }
 
-	ret = cmd->command->fn(cmd, argc, argv);
+        ret = cmd->command->fn(cmd, argc, argv);
 
-	fin_locking();
+        fin_locking();
 
       out:
-	if (test_mode()) {
-		log_verbose("Test mode: Wiping internal cache");
-		lvmcache_destroy();
-	}
+        if (test_mode()) {
+                log_verbose("Test mode: Wiping internal cache");
+                lvmcache_destroy();
+        }
 
-	if (cmd->cft_override) {
-		destroy_config_tree(cmd->cft_override);
-		cmd->cft_override = NULL;
-		/* Move this? */
-		if (!refresh_toolcontext(cmd))
-			stack;
-	}
- 
-	/* FIXME Move this? */
-	cmd->current_settings = cmd->default_settings;
-	_apply_settings(cmd);
+        if (cmd->cft_override) {
+                destroy_config_tree(cmd->cft_override);
+                cmd->cft_override = NULL;
+                /* Move this? */
+                if (!refresh_toolcontext(cmd))
+                        stack;
+        }
 
-	/*
-	 * free off any memory the command used.
-	 */
-	dm_pool_empty(cmd->mem);
+        /* FIXME Move this? */
+        cmd->current_settings = cmd->default_settings;
+        _apply_settings(cmd);
 
-	if (ret == EINVALID_CMD_LINE && !_cmdline.interactive)
-		_usage(cmd->command->name);
+        /*
+         * free off any memory the command used.
+         */
+        dm_pool_empty(cmd->mem);
 
-	log_debug("Completed: %s", cmd->cmd_line);
+        if (ret == EINVALID_CMD_LINE && !_cmdline.interactive)
+                _usage(cmd->command->name);
 
-	return ret;
+        log_debug("Completed: %s", cmd->cmd_line);
+
+        return ret;
 }
 
 int lvm_split(char *str, int *argc, char **argv, int max)
 {
-	char *b = str, *e;
-	*argc = 0;
+        char *b = str, *e;
+        *argc = 0;
 
-	while (*b) {
-		while (*b && isspace(*b))
-			b++;
+        while (*b) {
+                while (*b && isspace(*b))
+                        b++;
 
-		if ((!*b) || (*b == '#'))
-			break;
+                if ((!*b) || (*b == '#'))
+                        break;
 
-		e = b;
-		while (*e && !isspace(*e))
-			e++;
+                e = b;
+                while (*e && !isspace(*e))
+                        e++;
 
-		argv[(*argc)++] = b;
-		if (!*e)
-			break;
-		*e++ = '\0';
-		b = e;
-		if (*argc == max)
-			break;
-	}
+                argv[(*argc)++] = b;
+                if (!*e)
+                        break;
+                *e++ = '\0';
+                b = e;
+                if (*argc == max)
+                        break;
+        }
 
-	return *argc;
+        return *argc;
 }
 
 static void _init_rand(void)
 {
-	srand((unsigned) time(NULL) + (unsigned) getpid());
+        srand((unsigned) time(NULL) + (unsigned) getpid());
 }
 
 static void _close_stray_fds(void)
 {
-	struct rlimit rlim;
-	int fd;
-	int suppress_warnings = 0;
+        struct rlimit rlim;
+        int fd;
+        int suppress_warnings = 0;
 
-	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
-		fprintf(stderr, "getrlimit(RLIMIT_NOFILE) failed: %s\n",
-			strerror(errno));
-		return;
-	}
+        if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
+                fprintf(stderr, "getrlimit(RLIMIT_NOFILE) failed: %s\n",
+                        strerror(errno));
+                return;
+        }
 
-	if (getenv("LVM_SUPPRESS_FD_WARNINGS"))
-		suppress_warnings = 1;
+        if (getenv("LVM_SUPPRESS_FD_WARNINGS"))
+                suppress_warnings = 1;
 
-	for (fd = 3; fd < rlim.rlim_cur; fd++) {
-		if (suppress_warnings)
-			close(fd);
-		else if (!close(fd))
-			fprintf(stderr, "File descriptor %d left open\n", fd);
-		else if (errno != EBADF)
-			fprintf(stderr, "Close failed on stray file "
-				"descriptor %d: %s\n", fd, strerror(errno));
-	}
+        for (fd = 3; fd < rlim.rlim_cur; fd++) {
+                if (suppress_warnings)
+                        close(fd);
+                else if (!close(fd))
+                        fprintf(stderr, "File descriptor %d left open\n", fd);
+                else if (errno != EBADF)
+                        fprintf(stderr, "Close failed on stray file "
+                                "descriptor %d: %s\n", fd, strerror(errno));
+        }
 }
 
 struct cmd_context *init_lvm(unsigned is_static)
 {
-	struct cmd_context *cmd;
+        struct cmd_context *cmd;
 
-	_cmdline.the_args = &_the_args[0];
+        _cmdline.the_args = &_the_args[0];
 
-	if (!(cmd = create_toolcontext(_cmdline.the_args, is_static, 0))) {
-		stack;
-		return NULL;
-	}
+        if (!(cmd = create_toolcontext(_cmdline.the_args, is_static, 0))) {
+                stack;
+                return NULL;
+        }
 
-	_init_rand();
+        _init_rand();
 
-	_apply_settings(cmd);
+        _apply_settings(cmd);
 
-	return cmd;
+        return cmd;
 }
 
 static void _fin_commands(void)
 {
-	int i;
+        int i;
 
-	for (i = 0; i < _cmdline.num_commands; i++)
-		dm_free(_cmdline.commands[i].valid_args);
+        for (i = 0; i < _cmdline.num_commands; i++)
+                dm_free(_cmdline.commands[i].valid_args);
 
-	dm_free(_cmdline.commands);
+        dm_free(_cmdline.commands);
 }
 
 void lvm_fin(struct cmd_context *cmd)
 {
-	_fin_commands();
-	destroy_toolcontext(cmd);
+        _fin_commands();
+        destroy_toolcontext(cmd);
 }
 
 static int _run_script(struct cmd_context *cmd, int argc, char **argv)
 {
-	FILE *script;
+        FILE *script;
 
-	char buffer[CMD_LEN];
-	int ret = 0;
-	int magic_number = 0;
-	char *script_file = argv[0];
+        char buffer[CMD_LEN];
+        int ret = 0;
+        int magic_number = 0;
+        char *script_file = argv[0];
 
-	if ((script = fopen(script_file, "r")) == NULL)
-		return ENO_SUCH_CMD;
+        if ((script = fopen(script_file, "r")) == NULL)
+                return ENO_SUCH_CMD;
 
-	while (fgets(buffer, sizeof(buffer), script) != NULL) {
-		if (!magic_number) {
-			if (buffer[0] == '#' && buffer[1] == '!')
-				magic_number = 1;
-			else {
-				ret = ENO_SUCH_CMD;
-				break;
-			}
-		}
-		if ((strlen(buffer) == sizeof(buffer) - 1)
-		    && (buffer[sizeof(buffer) - 1] - 2 != '\n')) {
-			buffer[50] = '\0';
-			log_error("Line too long (max 255) beginning: %s",
-				  buffer);
-			ret = EINVALID_CMD_LINE;
-			break;
-		}
-		if (lvm_split(buffer, &argc, argv, MAX_ARGS) == MAX_ARGS) {
-			buffer[50] = '\0';
-			log_error("Too many arguments: %s", buffer);
-			ret = EINVALID_CMD_LINE;
-			break;
-		}
-		if (!argc)
-			continue;
-		if (!strcmp(argv[0], "quit") || !strcmp(argv[0], "exit"))
-			break;
-		lvm_run_command(cmd, argc, argv);
-	}
+        while (fgets(buffer, sizeof(buffer), script) != NULL) {
+                if (!magic_number) {
+                        if (buffer[0] == '#' && buffer[1] == '!')
+                                magic_number = 1;
+                        else {
+                                ret = ENO_SUCH_CMD;
+                                break;
+                        }
+                }
+                if ((strlen(buffer) == sizeof(buffer) - 1)
+                    && (buffer[sizeof(buffer) - 1] - 2 != '\n')) {
+                        buffer[50] = '\0';
+                        log_error("Line too long (max 255) beginning: %s",
+                                  buffer);
+                        ret = EINVALID_CMD_LINE;
+                        break;
+                }
+                if (lvm_split(buffer, &argc, argv, MAX_ARGS) == MAX_ARGS) {
+                        buffer[50] = '\0';
+                        log_error("Too many arguments: %s", buffer);
+                        ret = EINVALID_CMD_LINE;
+                        break;
+                }
+                if (!argc)
+                        continue;
+                if (!strcmp(argv[0], "quit") || !strcmp(argv[0], "exit"))
+                        break;
+                lvm_run_command(cmd, argc, argv);
+        }
 
-	if (fclose(script))
-		log_sys_error("fclose", script_file);
+        if (fclose(script))
+                log_sys_error("fclose", script_file);
 
-	return ret;
+        return ret;
 }
 
 /*
@@ -1105,112 +1119,112 @@ static int _run_script(struct cmd_context *cmd, int argc, char **argv)
  */
 static int _lvm1_fallback(struct cmd_context *cmd)
 {
-	char vsn[80];
-	int dm_present;
+        char vsn[80];
+        int dm_present;
 
-	if (!find_config_tree_int(cmd, "global/fallback_to_lvm1",
-			     DEFAULT_FALLBACK_TO_LVM1) ||
-	    strncmp(cmd->kernel_vsn, "2.4.", 4))
-		return 0;
+        if (!find_config_tree_int(cmd, "global/fallback_to_lvm1",
+                             DEFAULT_FALLBACK_TO_LVM1) ||
+            strncmp(cmd->kernel_vsn, "2.4.", 4))
+                return 0;
 
-	log_suppress(1);
-	dm_present = driver_version(vsn, sizeof(vsn));
-	log_suppress(0);
+        log_suppress(1);
+        dm_present = driver_version(vsn, sizeof(vsn));
+        log_suppress(0);
 
-	if (dm_present || !lvm1_present(cmd))
-		return 0;
+        if (dm_present || !lvm1_present(cmd))
+                return 0;
 
-	return 1;
+        return 1;
 }
 
 static void _exec_lvm1_command(char **argv)
 {
-	char path[PATH_MAX];
+        char path[PATH_MAX];
 
-	if (dm_snprintf(path, sizeof(path), "%s.lvm1", argv[0]) < 0) {
-		log_error("Failed to create LVM1 tool pathname");
-		return;
-	}
+        if (dm_snprintf(path, sizeof(path), "%s.lvm1", argv[0]) < 0) {
+                log_error("Failed to create LVM1 tool pathname");
+                return;
+        }
 
-	execvp(path, argv);
-	log_sys_error("execvp", path);
+        execvp(path, argv);
+        log_sys_error("execvp", path);
 }
 
 int lvm2_main(int argc, char **argv, unsigned is_static)
 {
-	char *namebase, *base;
-	int ret, alias = 0;
-	struct cmd_context *cmd;
+        char *namebase, *base;
+        int ret, alias = 0;
+        struct cmd_context *cmd;
 
-	_close_stray_fds();
+        _close_stray_fds();
 
-	namebase = strdup(argv[0]);
-	base = basename(namebase);
-	while (*base == '/')
-		base++;
-	if (strcmp(base, "lvm") && strcmp(base, "lvm.static") &&
-	    strcmp(base, "initrd-lvm"))
-		alias = 1;
+        namebase = strdup(argv[0]);
+        base = basename(namebase);
+        while (*base == '/')
+                base++;
+        if (strcmp(base, "lvm") && strcmp(base, "lvm.static") &&
+            strcmp(base, "initrd-lvm"))
+                alias = 1;
 
-	if (is_static && strcmp(base, "lvm.static") && 
-	    path_exists(LVM_SHARED_PATH) &&
-	    !getenv("LVM_DID_EXEC")) {
-		setenv("LVM_DID_EXEC", base, 1);
-		execvp(LVM_SHARED_PATH, argv);
-		unsetenv("LVM_DID_EXEC");
-	}
+        if (is_static && strcmp(base, "lvm.static") &&
+            path_exists(LVM_SHARED_PATH) &&
+            !getenv("LVM_DID_EXEC")) {
+                setenv("LVM_DID_EXEC", base, 1);
+                execvp(LVM_SHARED_PATH, argv);
+                unsetenv("LVM_DID_EXEC");
+        }
 
-	free(namebase);
+        free(namebase);
 
-	if (!(cmd = init_lvm(is_static)))
-		return -1;
+        if (!(cmd = init_lvm(is_static)))
+                return -1;
 
-	cmd->argv = argv;
-	lvm_register_commands();
+        cmd->argv = argv;
+        lvm_register_commands();
 
-	if (_lvm1_fallback(cmd)) {
-		/* Attempt to run equivalent LVM1 tool instead */
-		if (!alias) {
-			argv++;
-			argc--;
-			alias = 0;
-		}
-		if (!argc) {
-			log_error("Falling back to LVM1 tools, but no "
-				  "command specified.");
-			return ECMD_FAILED;
-		}
-		_exec_lvm1_command(argv);
-		return ECMD_FAILED;
-	}
+        if (_lvm1_fallback(cmd)) {
+                /* Attempt to run equivalent LVM1 tool instead */
+                if (!alias) {
+                        argv++;
+                        argc--;
+                        alias = 0;
+                }
+                if (!argc) {
+                        log_error("Falling back to LVM1 tools, but no "
+                                  "command specified.");
+                        return ECMD_FAILED;
+                }
+                _exec_lvm1_command(argv);
+                return ECMD_FAILED;
+        }
 #ifdef READLINE_SUPPORT
-	if (!alias && argc == 1) {
-		ret = lvm_shell(cmd, &_cmdline);
-		goto out;
-	}
+        if (!alias && argc == 1) {
+                ret = lvm_shell(cmd, &_cmdline);
+                goto out;
+        }
 #endif
 
-	if (!alias) {
-		if (argc < 2) {
-			log_fatal("Please supply an LVM command.");
-			_display_help();
-			ret = EINVALID_CMD_LINE;
-			goto out;
-		}
+        if (!alias) {
+                if (argc < 2) {
+                        log_fatal("Please supply an LVM command.");
+                        _display_help();
+                        ret = EINVALID_CMD_LINE;
+                        goto out;
+                }
 
-		argc--;
-		argv++;
-	}
+                argc--;
+                argv++;
+        }
 
-	ret = lvm_run_command(cmd, argc, argv);
-	if ((ret == ENO_SUCH_CMD) && (!alias))
-		ret = _run_script(cmd, argc, argv);
-	if (ret == ENO_SUCH_CMD)
-		log_error("No such command.  Try 'help'.");
+        ret = lvm_run_command(cmd, argc, argv);
+        if ((ret == ENO_SUCH_CMD) && (!alias))
+                ret = _run_script(cmd, argc, argv);
+        if (ret == ENO_SUCH_CMD)
+                log_error("No such command.  Try 'help'.");
 
       out:
-	lvm_fin(cmd);
-	if (ret == ECMD_PROCESSED)
-		ret = 0;
-	return ret;
+        lvm_fin(cmd);
+        if (ret == ECMD_PROCESSED)
+                ret = 0;
+        return ret;
 }

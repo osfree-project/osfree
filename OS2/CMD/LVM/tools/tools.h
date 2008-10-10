@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.  
+ * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -63,7 +63,7 @@
 /* command functions */
 typedef int (*command_fn) (struct cmd_context * cmd, int argc, char **argv);
 
-#define xx(a, b...) int a(struct cmd_context *cmd, int argc, char **argv);
+#define xx(a, b,...) int a(struct cmd_context *cmd, int argc, char **argv);
 #include "commands.h"
 #undef xx
 
@@ -75,54 +75,54 @@ enum {
 };
 
 typedef enum {
-	SIGN_NONE = 0,
-	SIGN_PLUS = 1,
-	SIGN_MINUS = 2
+        SIGN_NONE = 0,
+        SIGN_PLUS = 1,
+        SIGN_MINUS = 2
 } sign_t;
 
 typedef enum {
-	PERCENT_NONE = 0,
-	PERCENT_VG,
-	PERCENT_FREE,
-	PERCENT_LV
+        PERCENT_NONE = 0,
+        PERCENT_VG,
+        PERCENT_FREE,
+        PERCENT_LV
 } percent_t;
 
 enum {
-	CHANGE_AY = 0,
-	CHANGE_AN = 1,
-	CHANGE_AE = 2,
-	CHANGE_ALY = 3,
-	CHANGE_ALN = 4
+        CHANGE_AY = 0,
+        CHANGE_AN = 1,
+        CHANGE_AE = 2,
+        CHANGE_ALY = 3,
+        CHANGE_ALN = 4
 };
 
 /* a global table of possible arguments */
 struct arg {
-	const char short_arg;
-	char _padding[7];
-	const char *long_arg;
+        const char short_arg;
+        char _padding[7];
+        const char *long_arg;
 
-	int (*fn) (struct cmd_context * cmd, struct arg * a);
+        int (*fn) (struct cmd_context * cmd, struct arg * a);
 
-	unsigned count;
-	char *value;
-	int32_t i_value;
-	uint32_t ui_value;
-	int64_t i64_value;
-	uint64_t ui64_value;
-	sign_t sign;
-	percent_t percent;
-	void *ptr;
+        unsigned count;
+        char *value;
+        int32_t i_value;
+        uint32_t ui_value;
+        int64_t i64_value;
+        uint64_t ui64_value;
+        sign_t sign;
+        percent_t percent;
+        void *ptr;
 };
 
 /* a register of the lvm commands */
 struct command {
-	const char *name;
-	const char *desc;
-	const char *usage;
-	command_fn fn;
+        const char *name;
+        const char *desc;
+        const char *usage;
+        command_fn fn;
 
-	int num_args;
-	int *valid_args;
+        int num_args;
+        int *valid_args;
 };
 
 void usage(const char *name);
@@ -151,7 +151,7 @@ char yes_no_prompt(const char *prompt, ...);
 unsigned int arg_count(struct cmd_context *cmd, int a);
 const char *arg_value(struct cmd_context *cmd, int a);
 const char *arg_str_value(struct cmd_context *cmd, int a, const char *def);
-int32_t arg_int_value(struct cmd_context *cmd, int a, const int32_t def); 
+int32_t arg_int_value(struct cmd_context *cmd, int a, const int32_t def);
 uint32_t arg_uint_value(struct cmd_context *cmd, int a, const uint32_t def);
 int64_t arg_int64_value(struct cmd_context *cmd, int a, const int64_t def);
 uint64_t arg_uint64_value(struct cmd_context *cmd, int a, const uint64_t def);

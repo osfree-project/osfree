@@ -19,7 +19,9 @@ DEST     = ..$(SEP)build$(SEP)lib
 # makes library $(library) from object files $(OBJS)
 library: $(OBJS)
  $(SAY) Creating library $(library)...
+!ifndef NODELETE
  -@if exist $(library) @$(DC) $(library)
+!endif
  @$(LIB) $(LIBOPT) $(library) +$(OBJS) $(LOG)
 
 !endif

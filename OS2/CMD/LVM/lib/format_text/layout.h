@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.  
+ * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -22,60 +22,68 @@
 #include "uuid.h"
 
 /* On disk */
+#pragma pack(1)
 struct disk_locn {
-	uint64_t offset;	/* Offset in bytes to start sector */
-	uint64_t size;		/* Bytes */
-} __attribute__ ((packed));
+        uint64_t offset;        /* Offset in bytes to start sector */
+        uint64_t size;          /* Bytes */
+}; //__attribute__ ((packed));
+#pragma pack()
 
 /* Data areas (holding PEs) */
 struct data_area_list {
-	struct list list;
-	struct disk_locn disk_locn;
+        struct list list;
+        struct disk_locn disk_locn;
 };
 
 /* Fields with the suffix _xl should be xlate'd wherever they appear */
 /* On disk */
+#pragma pack(1)
 struct pv_header {
-	int8_t pv_uuid[ID_LEN];
+        int8_t pv_uuid[ID_LEN];
 
-	/* This size can be overridden if PV belongs to a VG */
-	uint64_t device_size_xl;	/* Bytes */
+        /* This size can be overridden if PV belongs to a VG */
+        uint64_t device_size_xl;        /* Bytes */
 
-	/* NULL-terminated list of data areas followed by */
-	/* NULL-terminated list of metadata area headers */
-	struct disk_locn disk_areas_xl[0];	/* Two lists */
-} __attribute__ ((packed));
+        /* NULL-terminated list of data areas followed by */
+        /* NULL-terminated list of metadata area headers */
+        struct disk_locn disk_areas_xl[0];      /* Two lists */
+}; //__attribute__ ((packed));
+#pragma pack()
 
 /* On disk */
+#pragma pack(1)
 struct raw_locn {
-	uint64_t offset;	/* Offset in bytes to start sector */
-	uint64_t size;		/* Bytes */
-	uint32_t checksum;
-	uint32_t filler;
-} __attribute__ ((packed));
+        uint64_t offset;        /* Offset in bytes to start sector */
+        uint64_t size;          /* Bytes */
+        uint32_t checksum;
+        uint32_t filler;
+}; //__attribute__ ((packed));
+#pragma pack()
 
 /* On disk */
 /* Structure size limited to one sector */
+#pragma pack(1)
 struct mda_header {
-	uint32_t checksum_xl;	/* Checksum of rest of mda_header */
-	int8_t magic[16];	/* To aid scans for metadata */
-	uint32_t version;
-	uint64_t start;		/* Absolute start byte of mda_header */
-	uint64_t size;		/* Size of metadata area */
+        uint32_t checksum_xl;   /* Checksum of rest of mda_header */
+        int8_t magic[16];       /* To aid scans for metadata */
+        uint32_t version;
+        uint64_t start;         /* Absolute start byte of mda_header */
+        uint64_t size;          /* Size of metadata area */
 
-	struct raw_locn raw_locns[0];	/* NULL-terminated list */
-} __attribute__ ((packed));
+        struct raw_locn raw_locns[0];   /* NULL-terminated list */
+}; //__attribute__ ((packed));
+#pragma pack()
 
 struct mda_lists {
-	struct list dirs;
-	struct list raws;
-	struct metadata_area_ops *file_ops;
-	struct metadata_area_ops *raw_ops;
+        struct list dirs;
+        struct list raws;
+        struct metadata_area_ops *file_ops;
+        struct metadata_area_ops *raw_ops;
 };
 
 struct mda_context {
-	struct device_area area;
-	struct raw_locn rlocn;	/* Store inbetween write and commit */
+        struct device_area area;
+        struct raw_locn rlocn;  /* Store inbetween write and commit */
 };
 
 /* FIXME Convert this at runtime */

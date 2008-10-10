@@ -24,193 +24,199 @@
  */
 static void _insert_area(struct list *head, struct pv_area *a)
 {
-	struct pv_area *pva;
+        struct pv_area *pva;
 
-	list_iterate_items(pva, head) {
-		if (a->count > pva->count)
-			break;
-	}
+        //list_iterate_items(pva, head) {
+        list_iterate_items(pva, struct pv_area, head) {
+                if (a->count > pva->count)
+                        break;
+        }
 
-	list_add(&pva->list, &a->list);
-	a->map->pe_count += a->count;
+        list_add(&pva->list, &a->list);
+        a->map->pe_count += a->count;
 }
 
 static int _create_single_area(struct dm_pool *mem, struct pv_map *pvm,
-			       uint32_t start, uint32_t length)
+                               uint32_t start, uint32_t length)
 {
-	struct pv_area *pva;
+        struct pv_area *pva;
 
-	if (!(pva = dm_pool_zalloc(mem, sizeof(*pva)))) {
-		stack;
-		return 0;
-	}
+        if (!(pva = dm_pool_zalloc(mem, sizeof(*pva)))) {
+                stack;
+                return 0;
+        }
 
-	log_debug("Allowing allocation on %s start PE %" PRIu32 " length %"
-		  PRIu32, dev_name(pvm->pv->dev), start, length);
-	pva->map = pvm;
-	pva->start = start;
-	pva->count = length;
-	_insert_area(&pvm->areas, pva);
+        log_debug("Allowing allocation on %s start PE %" PRIu32 " length %"
+                  PRIu32, dev_name(pvm->pv->dev), start, length);
+        pva->map = pvm;
+        pva->start = start;
+        pva->count = length;
+        _insert_area(&pvm->areas, pva);
 
-	return 1;
+        return 1;
 }
 
 static int _create_alloc_areas_for_pv(struct dm_pool *mem, struct pv_map *pvm,
-				      uint32_t start, uint32_t count)
+                                      uint32_t start, uint32_t count)
 {
         struct pv_segment *peg;
-	uint32_t pe, end, area_len;
+        uint32_t pe, end, area_len;
 
-	/* Only select extents from start to end inclusive */
-	end = start + count - 1;
-	if (end > pvm->pv->pe_count - 1)
-		end = pvm->pv->pe_count - 1;
+        /* Only select extents from start to end inclusive */
+        end = start + count - 1;
+        if (end > pvm->pv->pe_count - 1)
+                end = pvm->pv->pe_count - 1;
 
-	pe = start;
+        pe = start;
 
-	/* Walk through complete ordered list of device segments */
-        list_iterate_items(peg, &pvm->pv->segments) {
-		/* pe holds the next extent we want to check */
+        /* Walk through complete ordered list of device segments */
+        //list_iterate_items(peg, &pvm->pv->segments) {
+        list_iterate_items(peg, struct pv_segment, &pvm->pv->segments) {
+                /* pe holds the next extent we want to check */
 
-		/* Beyond the range we're interested in? */
-		if (pe > end)
-			break;
+                /* Beyond the range we're interested in? */
+                if (pe > end)
+                        break;
 
-		/* Skip if we haven't reached the first seg we want yet */
-		if (pe > peg->pe + peg->len - 1)
-			continue;
+                /* Skip if we haven't reached the first seg we want yet */
+                if (pe > peg->pe + peg->len - 1)
+                        continue;
 
-		/* Free? */
-		if (peg->lvseg)
-			goto next;
+                /* Free? */
+                if (peg->lvseg)
+                        goto next;
 
-		/* How much of this peg do we need? */
-		area_len = (end >= peg->pe + peg->len - 1) ?
-			   peg->len - (pe - peg->pe) : end - pe + 1;
+                /* How much of this peg do we need? */
+                area_len = (end >= peg->pe + peg->len - 1) ?
+                           peg->len - (pe - peg->pe) : end - pe + 1;
 
-		if (!_create_single_area(mem, pvm, pe, area_len)) {
-			stack;
-			return 0;
-		}
+                if (!_create_single_area(mem, pvm, pe, area_len)) {
+                        stack;
+                        return 0;
+                }
 
       next:
-		pe = peg->pe + peg->len;
+                pe = peg->pe + peg->len;
         }
 
-	return 1;
+        return 1;
 }
 
 static int _create_all_areas_for_pv(struct dm_pool *mem, struct pv_map *pvm,
-				    struct list *pe_ranges)
+                                    struct list *pe_ranges)
 {
-	struct pe_range *aa;
+        struct pe_range *aa;
 
-	if (!pe_ranges) {
-		/* Use whole PV */
-		if (!_create_alloc_areas_for_pv(mem, pvm, UINT32_C(0),
-						pvm->pv->pe_count)) {
-			stack;
-			return 0;
-		}
+        if (!pe_ranges) {
+                /* Use whole PV */
+                if (!_create_alloc_areas_for_pv(mem, pvm, UINT32_C(0),
+                                                pvm->pv->pe_count)) {
+                        stack;
+                        return 0;
+                }
 
-		return 1;
-	}
+                return 1;
+        }
 
-	list_iterate_items(aa, pe_ranges) {
-		if (!_create_alloc_areas_for_pv(mem, pvm, aa->start,
-						aa->count)) {
-			stack;
-			return 0;
-		}
-	}
+        //list_iterate_items(aa, pe_ranges) {
+        list_iterate_items(aa, struct pe_range, pe_ranges) {
+                if (!_create_alloc_areas_for_pv(mem, pvm, aa->start,
+                                                aa->count)) {
+                        stack;
+                        return 0;
+                }
+        }
 
-	return 1;
+        return 1;
 }
 
 static int _create_maps(struct dm_pool *mem, struct list *pvs, struct list *pvms)
 {
-	struct pv_map *pvm, *pvm2;
-	struct pv_list *pvl;
+        struct pv_map *pvm, *pvm2;
+        struct pv_list *pvl;
 
-	list_iterate_items(pvl, pvs) {
-		if (!(pvl->pv->status & ALLOCATABLE_PV))
-			continue;
+        //list_iterate_items(pvl, pvs) {
+        list_iterate_items(pvl, struct pv_list, pvs) {
+                if (!(pvl->pv->status & ALLOCATABLE_PV))
+                        continue;
 
-		pvm = NULL;
+                pvm = NULL;
 
-		list_iterate_items(pvm2, pvms)
-			if (pvm2->pv->dev == pvl->pv->dev) {
-				pvm = pvm2;
-				break;
-			}
+                //list_iterate_items(pvm2, pvms)
+                list_iterate_items(pvm2, struct pv_map, pvms)
+                        if (pvm2->pv->dev == pvl->pv->dev) {
+                                pvm = pvm2;
+                                break;
+                        }
 
-		if (!pvm) {
-			if (!(pvm = dm_pool_zalloc(mem, sizeof(*pvm)))) {
-				stack;
-				return 0;
-			}
+                if (!pvm) {
+                        if (!(pvm = dm_pool_zalloc(mem, sizeof(*pvm)))) {
+                                stack;
+                                return 0;
+                        }
 
-			pvm->pv = pvl->pv;
-			list_init(&pvm->areas);
-			list_add(pvms, &pvm->list);
-		}
+                        pvm->pv = pvl->pv;
+                        list_init(&pvm->areas);
+                        list_add(pvms, &pvm->list);
+                }
 
-		if (!_create_all_areas_for_pv(mem, pvm, pvl->pe_ranges)) {
-			stack;
-			return 0;
-		}
-	}
+                if (!_create_all_areas_for_pv(mem, pvm, pvl->pe_ranges)) {
+                        stack;
+                        return 0;
+                }
+        }
 
-	return 1;
+        return 1;
 }
 
 /*
  * Create list of PV areas available for this particular allocation
  */
 struct list *create_pv_maps(struct dm_pool *mem, struct volume_group *vg,
-			    struct list *allocatable_pvs)
+                            struct list *allocatable_pvs)
 {
-	struct list *pvms;
+        struct list *pvms;
 
-	if (!(pvms = dm_pool_zalloc(mem, sizeof(*pvms)))) {
-		log_error("create_pv_maps alloc failed");
-		return NULL;
-	}
+        if (!(pvms = dm_pool_zalloc(mem, sizeof(*pvms)))) {
+                log_error("create_pv_maps alloc failed");
+                return NULL;
+        }
 
-	list_init(pvms);
+        list_init(pvms);
 
-	if (!_create_maps(mem, allocatable_pvs, pvms)) {
-		log_error("Couldn't create physical volume maps in %s",
-			  vg->name);
-		dm_pool_free(mem, pvms);
-		return NULL;
-	}
+        if (!_create_maps(mem, allocatable_pvs, pvms)) {
+                log_error("Couldn't create physical volume maps in %s",
+                          vg->name);
+                dm_pool_free(mem, pvms);
+                return NULL;
+        }
 
-	return pvms;
+        return pvms;
 }
 
 void consume_pv_area(struct pv_area *pva, uint32_t to_go)
 {
-	list_del(&pva->list);
-	pva->map->pe_count -= pva->count;
+        list_del(&pva->list);
+        pva->map->pe_count -= pva->count;
 
-	assert(to_go <= pva->count);
+        assert(to_go <= pva->count);
 
-	if (to_go < pva->count) {
-		/* split the area */
-		pva->start += to_go;
-		pva->count -= to_go;
-		_insert_area(&pva->map->areas, pva);
-	}
+        if (to_go < pva->count) {
+                /* split the area */
+                pva->start += to_go;
+                pva->count -= to_go;
+                _insert_area(&pva->map->areas, pva);
+        }
 }
 
 uint32_t pv_maps_size(struct list *pvms)
 {
-	struct pv_map *pvm;
-	uint32_t pe_count = 0;
+        struct pv_map *pvm;
+        uint32_t pe_count = 0;
 
-	list_iterate_items(pvm, pvms)
-		pe_count += pvm->pe_count;
+        //list_iterate_items(pvm, pvms)
+        list_iterate_items(pvm, struct pv_map, pvms)
+                pe_count += pvm->pe_count;
 
-	return pe_count;
+        return pe_count;
 }

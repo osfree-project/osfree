@@ -52,7 +52,9 @@ disk_num         db          ?                              ; 00 -- floppy; 80 -
 log_drive        db          ?                              ; if (logDrive & 80h) = true, (logDrive & 7Fh) is
                                                             ; the number of logical disk (c: is 00)
 marker           db          ?                              ;
+
 vol_ser_no       dd          ?                              ; Volume serial number
+
 vol_label        db          11 dup (?)                     ; Volume label
 fs_name          db          8  dup (?)                     ; File system name
 bios_parameters_block ends

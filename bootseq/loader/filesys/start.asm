@@ -9,6 +9,7 @@ extern  init:NEAR
 public  fsd_init
 
 include fsd.inc
+include fsname.inc
 
 .386
 
@@ -25,8 +26,25 @@ _BSS     ends
 
 DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS
 
+;lala     equ 'ext2fs'
+
 _TEXT    segment dword public 'CODE'  use32
-         org EXT_BUF_BASE
+           org EXT_BUF_BASE
+;
+;           jmp  fsd_init
+;           nop
+;           nop
+;           nop
+;           ; return
+;           db   0c3h
+;           org EXT_BUF_BASE + 8h
+;           ;
+;modname    db mdl
+;           org EXT_BUF_BASE + 20h
+;           ; base of realmode part segment
+;base       dd    0
+;
+;           org EXT_BUF_BASE + 40h
 fsd_init:
 _TEXT    ends
 

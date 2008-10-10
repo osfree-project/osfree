@@ -54,15 +54,13 @@ real_start:
                 mov   bp, bt_addr - EXT_PARAMS_SIZE
 
                 xor   ax, ax
-                push  ax
 
                 cli
-                pop   ss
+                mov   ss, ax
                 mov   sp, bp
                 sti
 
-                push  ax
-                pop   ds
+                mov   ds, ax
 
                 mov   [bp].drive, dl
 
@@ -289,6 +287,23 @@ eof:
 load_file endp
 
 ;
+; cx == max word length
+; compare while nr of symbols <= cx
+; and while symbol <> '.'
+;
+;compare:
+;cmploop:
+;                cmp    byte ptr [si], '.'
+;                je     short ext
+;                cmpsb
+;                loope  short cmploop
+;                jmp    short qt
+;ext:
+;                cmp    byte ptr [di], ' '
+;qt:
+;                ret
+
+;
 ; Find a directory entry by name
 ; Input:
 ; es:di -- directory
@@ -305,7 +320,18 @@ cmp_loop:
                 repe  cmpsb
                 popa
 
+                ;pusha
+                ;mov    cx, 8
+                ;call   compare
+                ;jne    short neql
+
+                ;inc    si
+                ;mov    cx, 3
+                ;call   compare
+                ;popa
+
                 je    short name_found
+neql:
                 add   di, 20h
                 loop  short cmp_loop
                 call  err_name_not_found
@@ -368,7 +394,7 @@ find_next_cluster endp
 
 read_run proc near
                 pusha
-		push  es
+                push  es
                 push  ds
                 add   eax, [bp].bpb.hidden_secs             ; Add hidden sectors value
                 mov   dl,  [bp].drive
@@ -414,7 +440,7 @@ go_on:
                 loop  short begin_read
 end_read:
                 pop  ds
-		pop  es
+                pop  es
                 popa
 
                 ret
@@ -565,11 +591,11 @@ if padsize gt 0
 padding      db     padsize  dup (0)
 endif
 
-if padsize lt 0
-  %out             'Bootsector does not fit in 512 bytes!'
-  %out             'Please clean up code.'
-  .err
-endif
+;if padsize lt 0
+;  %out             'Bootsector does not fit in 512 bytes!'
+;  %out             'Please clean up code.'
+;  .err
+;endif
 
 ; Various segments
 bt_seg         equ   07c0h                                  ; bootsector
@@ -590,6 +616,7 @@ vars           label byte
 
 ;cfg_path       db    'BOOT    ','   '                       ; path to the
 cfg_path       db    'BOOTSEC ','CFG'                       ; bootsector config file
+;cfg_path       db    'BS.CFG'
                db    ';'                                    ; path end marker
 bootsig        dw    0aa55h                                 ; boot signature
 

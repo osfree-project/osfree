@@ -1,7 +1,7 @@
 /*  Set environment variables
  */
 
-if address()='CMD' then '@echo off'
+'@echo off'
 
 parse arg cfg
 parse upper source os addr src

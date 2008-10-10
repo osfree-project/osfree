@@ -40,7 +40,7 @@ ext_params struc
 ;
 force_chs        db               ?
 drive            db               ?
-part             db               ?
+part             db               3 dup (?)
 disk_addr_pkt    disk_addr_packet <>
 ;
 ; bootsector boundary
@@ -50,6 +50,9 @@ jump             dw               ?
 nop1             db               ?
 oemid            db               8 dup (?)
 bpb              bios_parameters_block <>
+; here the bootsector code starts. if bit 7 of [bp].bpb.log_drive is set
+; then the following filelds are valid (they overwrite the bootsector code):
+drivepart        dd               ?
 ext_params ends
 
 EXT_PARAMS_SIZE  equ (size ext_params - size bios_parameters_block - 11)
@@ -149,8 +152,10 @@ switchBootDrv:
                 cmp  byte ptr BootDev, dl                  ; compare disk to continue booting from with disk MBR loaded from
 
                 mov  [bp].drive, dl
+
                 mov  al, BootPart
-                mov  [bp].part, al
+                mov  byte ptr [bp].part, al
+                mov  word ptr [bp].part + 1, 0ffffh
 
                 jz   searchPartition                       ; if they're equal, then no need to change them.
                 mov  dl, BootDev                           ; else set drive to BootDev
@@ -307,6 +312,9 @@ nofix_hiddensecs:
                 inc  bl
                 or   bl, 80h
                 mov  [bp].bpb.log_drive, bl
+
+                mov  eax, dword ptr [bp].drive
+                mov  [bp].drivepart, eax
 
                 push ds                                    ; zero ds
                 push 7c00h                                 ;

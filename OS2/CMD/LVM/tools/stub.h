@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.  
+ * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -14,30 +14,30 @@
  */
 
 #define unimplemented \
-	log_error("Command not implemented yet."); return ECMD_FAILED
+        log_error("Command not implemented yet."); return ECMD_FAILED
 
 /*int e2fsadm(struct cmd_context *cmd, int argc, char **argv) unimplemented*/
-int lvmsadc(struct cmd_context *cmd __attribute((unused)),
-	    int argc __attribute((unused)),
-	    char **argv __attribute((unused)))
+int lvmsadc(struct cmd_context *cmd, // __attribute((unused)),
+            int argc,  //__attribute((unused)),
+            char **argv) //__attribute((unused)))
 {
-	unimplemented;
+        unimplemented;
 }
 
-int lvmsar(struct cmd_context *cmd __attribute((unused)),
-	   int argc __attribute((unused)),
-	   char **argv __attribute((unused)))
+int lvmsar(struct cmd_context *cmd, //__attribute((unused)),
+           int argc, //__attribute((unused)),
+           char **argv) //__attribute((unused)))
 {
-	unimplemented;
+        unimplemented;
 }
 
-int pvdata(struct cmd_context *cmd __attribute((unused)),
-	   int argc __attribute((unused)),
-	   char **argv __attribute((unused)))
+int pvdata(struct cmd_context *cmd, //__attribute((unused)),
+           int argc, //__attribute((unused)),
+           char **argv) //__attribute((unused)))
 {
-	log_error("There's no 'pvdata' command in LVM2.");
-	log_error("Use lvs, pvs, vgs instead; or use vgcfgbackup and read the text file backup.");
-	log_error("Metadata in LVM1 format can still be displayed using LVM1's pvdata command.");
-	return ECMD_FAILED;
+        log_error("There's no 'pvdata' command in LVM2.");
+        log_error("Use lvs, pvs, vgs instead; or use vgcfgbackup and read the text file backup.");
+        log_error("Metadata in LVM1 format can still be displayed using LVM1's pvdata command.");
+        return ECMD_FAILED;
 }
 

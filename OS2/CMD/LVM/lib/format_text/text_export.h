@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 Sistina Software, Inc. All rights reserved.  
+ * Copyright (C) 2003-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -16,22 +16,22 @@
 #ifndef _LVM_TEXT_EXPORT_H
 #define _LVM_TEXT_EXPORT_H
 
-#define outf(args...) do {if (!out_text(args)) {stack; return 0;}} while (0)
+#define outf(f, fmt,...) do {if (!out_text(f, fmt)) {stack; return 0;}} while (0)
 #define outnl(f) do {if (!f->nl(f)) {stack; return 0;}} while (0)
 
 struct formatter;
 struct lv_segment;
 
-int out_size(struct formatter *f, uint64_t size, const char *fmt, ...)
-    __attribute__ ((format(printf, 3, 4)));
+int out_size(struct formatter *f, uint64_t size, const char *fmt, ...);
+//    __attribute__ ((format(printf, 3, 4)));
 
-int out_hint(struct formatter *f, const char *fmt, ...)
-    __attribute__ ((format(printf, 2, 3)));
+int out_hint(struct formatter *f, const char *fmt, ...);
+//    __attribute__ ((format(printf, 2, 3)));
 
-int out_text(struct formatter *f, const char *fmt, ...)
-    __attribute__ ((format(printf, 2, 3)));
+int out_text(struct formatter *f, const char *fmt, ...);
+//    __attribute__ ((format(printf, 2, 3)));
 
 int out_areas(struct formatter *f, const struct lv_segment *seg,
-	      const char *type);
+              const char *type);
 
 #endif

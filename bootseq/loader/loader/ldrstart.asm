@@ -118,16 +118,16 @@ loop1:
 ;      jmp     $
 
 ; lip2 address
-l            dd   0
+l             dd   0
 ; filetable address
-ft           dd   0
+ft            dd   0
 ; BPB address
-bpb          dd   0
+bpb           dd   0
 ; boot drive
-boot_drive   dd   0
+boot_drive    dd   0
 
-errmsg       db   "No boot magic in EAX, panic...",13,10,0
-oldstack     dd   0
+errmsg        db   "No boot magic in EAX, panic...",13,10,0
+oldstack      dd   0
 
 start endp
 

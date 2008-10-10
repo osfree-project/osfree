@@ -99,6 +99,9 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  @%append $^@ ALIAS _check_int13_extensions=check_int13_extensions
  @%append $^@ ALIAS _get_diskinfo_standard=get_diskinfo_standard
 !endif
+!ifdef ORDER
+ @%append $^@ $(ORDER)
+!endif
  @%append $^@ LIBPATH $(BLD)lib
  @%append $^@ LIBRARY ldr_shared.lib
  @for %%i in ($(OBJS)) do @%append $^@ FILE %%i

@@ -157,7 +157,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
         u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       }
       str = "elf";
-     
+
     }
   else if (flags & MULTIBOOT_AOUT_KLUDGE)
     {
@@ -215,7 +215,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
     }
 
   /* fill the multiboot info structure */
-  m->cmdline = (int) arg;
+  //m->cmdline = (int) arg;
   m->mods_count = 0;
   m->mods_addr = 0;
   m->boot_device = (current_drive << 24) | current_partition;
@@ -511,6 +511,12 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   //u_parm(PARM_LINUX_DATA_TMP_ADDR, ACT_SET,  (unsigned int *)(&linux_data_tmp_addr));
   //u_parm(PARM_LINUX_TEXT_LEN, ACT_SET, (unsigned int *)&linux_text_len);
 
+  // add kernel command line after executable end
+  cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
+  m->cmdline = cur_addr;
+  grub_strcpy((char *)cur_addr, arg);
+  cur_addr += grub_strlen(arg);
+
   return type;
 }
 
@@ -556,11 +562,15 @@ load_module (char *module, char *arg)
   m->flags |= MB_INFO_MODS;
   m->mods_addr = (int) mll;
 
-  mll[m->mods_count].cmdline = (int) arg;
   mll[m->mods_count].mod_start = cur_addr;
+  //mll[m->mods_count].cmdline = arg;
   cur_addr += len;
   mll[m->mods_count].mod_end = cur_addr;
   mll[m->mods_count].pad = 0;
+
+  grub_strcpy((char *)cur_addr, arg);
+  mll[m->mods_count].cmdline = cur_addr;
+  cur_addr += grub_strlen(arg);
 
   /* increment number of modules included */
   m->mods_count++;
@@ -598,7 +608,7 @@ create_vbe_module(void *ctrl_info, int ctrl_info_len,
   m->vbe_interface_len = pmif_len;
 }
 
-void 
+void
 create_lip_module(lip2_t **l)
 {
   int lip2_len;
@@ -606,7 +616,7 @@ create_lip_module(lip2_t **l)
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
-  printf("   [Lip-module @ 0x%x, 0x%x bytes]\r\n", 
+  printf("   [Lip-module @ 0x%x, 0x%x bytes]\r\n",
          cur_addr, sizeof(lip2_t));
 
   lip2_len = sizeof(lip2_t);
@@ -637,8 +647,8 @@ set_load_addr (int addr)
   cur_addr = addr;
 }
 
-vbe_mode_set(struct vbe_controller *controller, int mode_number, 
-             struct vbe_mode *mode, unsigned int *pmif_segoff, 
+vbe_mode_set(struct vbe_controller *controller, int mode_number,
+             struct vbe_mode *mode, unsigned int *pmif_segoff,
              unsigned int *pmif_len)
 {
   struct pmif pmif;
@@ -663,7 +673,7 @@ vbe_mode_set(struct vbe_controller *controller, int mode_number,
 
   if (controller->version < 0x0200)
     {
-      printf (" VBE version %u.%u is not supported.\r\n", 
+      printf (" VBE version %u.%u is not supported.\r\n",
               (int) (controller->version >> 8),
               (int) (controller->version & 0xFF));
       errnum = MAX_ERR_NUM;

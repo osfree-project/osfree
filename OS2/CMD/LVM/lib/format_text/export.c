@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.  
+ * Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
  * Copyright (C) 2004 Red Hat, Inc. All rights reserved.
  *
  * This file is part of LVM2.
@@ -27,7 +27,7 @@
 
 struct formatter;
 typedef int (*out_with_comment_fn) (struct formatter * f, const char *comment,
-				    const char *fmt, va_list ap);
+                                    const char *fmt, va_list ap);
 typedef int (*nl_fn) (struct formatter * f);
 
 /*
@@ -37,51 +37,51 @@ typedef int (*nl_fn) (struct formatter * f);
  */
 #define _out_with_comment(f, buffer, fmt, ap) \
         do { \
-		va_start(ap, fmt); \
-		r = f->out_with_comment(f, buffer, fmt, ap); \
-		va_end(ap); \
-	} while (r == -1)
+                va_start(ap, fmt); \
+                r = f->out_with_comment(f, buffer, fmt, ap); \
+                va_end(ap); \
+        } while (r == -1)
 
 /*
  * The first half of this file deals with
  * exporting the vg, ie. writing it to a file.
  */
 struct formatter {
-	struct dm_pool *mem;	/* pv names allocated from here */
-	struct dm_hash_table *pv_names;	/* dev_name -> pv_name (eg, pv1) */
+        struct dm_pool *mem;    /* pv names allocated from here */
+        struct dm_hash_table *pv_names; /* dev_name -> pv_name (eg, pv1) */
 
-	union {
-		FILE *fp;	/* where we're writing to */
-		struct {
-			char *start;
-			uint32_t size;
-			uint32_t used;
-		} buf;
-	} data;
+        union {
+                FILE *fp;       /* where we're writing to */
+                struct {
+                        char *start;
+                        uint32_t size;
+                        uint32_t used;
+                } buf;
+        } data;
 
-	out_with_comment_fn out_with_comment;
-	nl_fn nl;
+        out_with_comment_fn out_with_comment;
+        nl_fn nl;
 
-	int indent;		/* current level of indentation */
-	int error;
-	int header;		/* 1 => comments at start; 0 => end */
+        int indent;             /* current level of indentation */
+        int error;
+        int header;             /* 1 => comments at start; 0 => end */
 };
 
 static struct utsname _utsname;
 
 static void _init(void)
 {
-	static int _initialised = 0;
+        static int _initialised = 0;
 
-	if (_initialised)
-		return;
+        if (_initialised)
+                return;
 
-	if (uname(&_utsname)) {
-		log_error("uname failed: %s", strerror(errno));
-		memset(&_utsname, 0, sizeof(_utsname));
-	}
+        if (uname(&_utsname)) {
+                log_error("uname failed: %s", strerror(errno));
+                memset(&_utsname, 0, sizeof(_utsname));
+        }
 
-	_initialised = 1;
+        _initialised = 1;
 }
 
 /*
@@ -91,16 +91,16 @@ static void _init(void)
 #define MAX_INDENT 5
 static void _inc_indent(struct formatter *f)
 {
-	if (++f->indent > MAX_INDENT)
-		f->indent = MAX_INDENT;
+        if (++f->indent > MAX_INDENT)
+                f->indent = MAX_INDENT;
 }
 
 static void _dec_indent(struct formatter *f)
 {
-	if (!f->indent--) {
-		log_error("Internal error tracking indentation");
-		f->indent = 0;
-	}
+        if (!f->indent--) {
+                log_error("Internal error tracking indentation");
+                f->indent = 0;
+        }
 }
 
 /*
@@ -108,104 +108,104 @@ static void _dec_indent(struct formatter *f)
  */
 static int _nl_file(struct formatter *f)
 {
-	fprintf(f->data.fp, "\n");
+        fprintf(f->data.fp, "\n");
 
-	return 1;
+        return 1;
 }
 
 static int _extend_buffer(struct formatter *f)
 {
-	char *newbuf;
+        char *newbuf;
 
-	log_debug("Doubling metadata output buffer to %" PRIu32,
-		  f->data.buf.size * 2);
-	if (!(newbuf = dm_realloc(f->data.buf.start,
-				   f->data.buf.size * 2))) {
-		log_error("Buffer reallocation failed.");
-		return 0;
-	}
-	f->data.buf.start = newbuf;
-	f->data.buf.size *= 2;
+        log_debug("Doubling metadata output buffer to %" PRIu32,
+                  f->data.buf.size * 2);
+        if (!(newbuf = dm_realloc(f->data.buf.start,
+                                   f->data.buf.size * 2))) {
+                log_error("Buffer reallocation failed.");
+                return 0;
+        }
+        f->data.buf.start = newbuf;
+        f->data.buf.size *= 2;
 
-	return 1;
+        return 1;
 }
 
 static int _nl_raw(struct formatter *f)
 {
-	/* If metadata doesn't fit, extend buffer */
-	if ((f->data.buf.used + 2 > f->data.buf.size) &&
-	    (!_extend_buffer(f))) {
-		stack;
-		return 0;
-	}
+        /* If metadata doesn't fit, extend buffer */
+        if ((f->data.buf.used + 2 > f->data.buf.size) &&
+            (!_extend_buffer(f))) {
+                stack;
+                return 0;
+        }
 
-	*(f->data.buf.start + f->data.buf.used) = '\n';
-	f->data.buf.used += 1;
+        *(f->data.buf.start + f->data.buf.used) = '\n';
+        f->data.buf.used += 1;
 
-	*(f->data.buf.start + f->data.buf.used) = '\0';
+        *(f->data.buf.start + f->data.buf.used) = '\0';
 
-	return 1;
+        return 1;
 }
 
 #define COMMENT_TAB 6
 static int _out_with_comment_file(struct formatter *f, const char *comment,
-				  const char *fmt, va_list ap)
+                                  const char *fmt, va_list ap)
 {
-	int i;
-	char white_space[MAX_INDENT + 1];
+        int i;
+        char white_space[MAX_INDENT + 1];
 
-	if (ferror(f->data.fp))
-		return 0;
+        if (ferror(f->data.fp))
+                return 0;
 
-	for (i = 0; i < f->indent; i++)
-		white_space[i] = '\t';
-	white_space[i] = '\0';
-	fputs(white_space, f->data.fp);
-	i = vfprintf(f->data.fp, fmt, ap);
+        for (i = 0; i < f->indent; i++)
+                white_space[i] = '\t';
+        white_space[i] = '\0';
+        fputs(white_space, f->data.fp);
+        i = vfprintf(f->data.fp, fmt, ap);
 
-	if (comment) {
-		/*
-		 * line comments up if possible.
-		 */
-		i += 8 * f->indent;
-		i /= 8;
-		i++;
+        if (comment) {
+                /*
+                 * line comments up if possible.
+                 */
+                i += 8 * f->indent;
+                i /= 8;
+                i++;
 
-		do
-			fputc('\t', f->data.fp);
+                do
+                        fputc('\t', f->data.fp);
 
-		while (++i < COMMENT_TAB);
+                while (++i < COMMENT_TAB);
 
-		fputs(comment, f->data.fp);
-	}
-	fputc('\n', f->data.fp);
+                fputs(comment, f->data.fp);
+        }
+        fputc('\n', f->data.fp);
 
-	return 1;
+        return 1;
 }
 
 static int _out_with_comment_raw(struct formatter *f,
-				 const char *comment __attribute((unused)),
-				 const char *fmt, va_list ap)
+                                 const char *comment, //__attribute((unused)),
+                                 const char *fmt, va_list ap)
 {
-	int n;
+        int n;
 
-	n = vsnprintf(f->data.buf.start + f->data.buf.used,
-		      f->data.buf.size - f->data.buf.used, fmt, ap);
+        n = vsnprintf(f->data.buf.start + f->data.buf.used,
+                      f->data.buf.size - f->data.buf.used, fmt, ap);
 
-	/* If metadata doesn't fit, extend buffer */
-	if (n < 0 || (n + f->data.buf.used + 2 > f->data.buf.size)) {
-		if (!_extend_buffer(f)) {
-			stack;
-			return 0;
-		}
-		return -1; /* Retry */
-	}
+        /* If metadata doesn't fit, extend buffer */
+        if (n < 0 || (n + f->data.buf.used + 2 > f->data.buf.size)) {
+                if (!_extend_buffer(f)) {
+                        stack;
+                        return 0;
+                }
+                return -1; /* Retry */
+        }
 
-	f->data.buf.used += n;
+        f->data.buf.used += n;
 
-	outnl(f);
+        outnl(f);
 
-	return 1;
+        return 1;
 }
 
 /*
@@ -216,26 +216,26 @@ static int _out_with_comment_raw(struct formatter *f,
  */
 static int _sectors_to_units(uint64_t sectors, char *buffer, size_t s)
 {
-	static const char *_units[] = {
-		"Kilobytes",
-		"Megabytes",
-		"Gigabytes",
-		"Terabytes",
-		"Petabytes",
-		"Exabytes",
-		NULL
-	};
+        static const char *_units[] = {
+                "Kilobytes",
+                "Megabytes",
+                "Gigabytes",
+                "Terabytes",
+                "Petabytes",
+                "Exabytes",
+                NULL
+        };
 
-	int i;
-	double d = (double) sectors;
+        int i;
+        double d = (double) sectors;
 
-	/* to convert to K */
-	d /= 2.0;
+        /* to convert to K */
+        d /= 2.0;
 
-	for (i = 0; (d > 1024.0) && _units[i]; i++)
-		d /= 1024.0;
+        for (i = 0; (d > 1024.0) && _units[i]; i++)
+                d /= 1024.0;
 
-	return dm_snprintf(buffer, s, "# %g %s", d, _units[i]) > 0;
+        return dm_snprintf(buffer, s, "# %g %s", d, _units[i]) > 0;
 }
 
 /*
@@ -244,16 +244,16 @@ static int _sectors_to_units(uint64_t sectors, char *buffer, size_t s)
  */
 int out_size(struct formatter *f, uint64_t size, const char *fmt, ...)
 {
-	char buffer[64];
-	va_list ap;
-	int r;
+        char buffer[64];
+        va_list ap;
+        int r;
 
-	if (!_sectors_to_units(size, buffer, sizeof(buffer)))
-		return 0;
+        if (!_sectors_to_units(size, buffer, sizeof(buffer)))
+                return 0;
 
-	_out_with_comment(f, buffer, fmt, ap);
+        _out_with_comment(f, buffer, fmt, ap);
 
-	return r;
+        return r;
 }
 
 /*
@@ -262,12 +262,12 @@ int out_size(struct formatter *f, uint64_t size, const char *fmt, ...)
  */
 int out_hint(struct formatter *f, const char *fmt, ...)
 {
-	va_list ap;
-	int r;
+        va_list ap;
+        int r;
 
-	_out_with_comment(f, "# Hint only", fmt, ap);
+        _out_with_comment(f, "# Hint only", fmt, ap);
 
-	return r;
+        return r;
 }
 
 /*
@@ -275,82 +275,82 @@ int out_hint(struct formatter *f, const char *fmt, ...)
  */
 int out_text(struct formatter *f, const char *fmt, ...)
 {
-	va_list ap;
-	int r;
+        va_list ap;
+        int r;
 
-	_out_with_comment(f, NULL, fmt, ap);
+        _out_with_comment(f, NULL, fmt, ap);
 
-	return r;
+        return r;
 }
 
 static int _print_header(struct formatter *f,
-			 const char *desc)
+                         const char *desc)
 {
-	time_t t;
+        time_t t;
 
-	t = time(NULL);
+        t = time(NULL);
 
-	outf(f, "# Generated by LVM2: %s", ctime(&t));
-	outf(f, CONTENTS_FIELD " = \"" CONTENTS_VALUE "\"");
-	outf(f, FORMAT_VERSION_FIELD " = %d", FORMAT_VERSION_VALUE);
-	outnl(f);
+        outf(f, "# Generated by LVM2: %s", ctime(&t));
+        outf(f, CONTENTS_FIELD " = \"" CONTENTS_VALUE "\"");
+        outf(f, FORMAT_VERSION_FIELD " = %d", FORMAT_VERSION_VALUE);
+        outnl(f);
 
-	outf(f, "description = \"%s\"", desc);
-	outnl(f);
-	outf(f, "creation_host = \"%s\"\t# %s %s %s %s %s", _utsname.nodename,
-	     _utsname.sysname, _utsname.nodename, _utsname.release,
-	     _utsname.version, _utsname.machine);
-	outf(f, "creation_time = %lu\t# %s", t, ctime(&t));
+        outf(f, "description = \"%s\"", desc);
+        outnl(f);
+        outf(f, "creation_host = \"%s\"\t# %s %s %s %s %s", _utsname.nodename,
+             _utsname.sysname, _utsname.nodename, _utsname.release,
+             _utsname.version, _utsname.machine);
+        outf(f, "creation_time = %lu\t# %s", t, ctime(&t));
 
-	return 1;
+        return 1;
 }
 
 static int _print_vg(struct formatter *f, struct volume_group *vg)
 {
-	char buffer[4096];
+        char buffer[4096];
 
-	if (!id_write_format(&vg->id, buffer, sizeof(buffer))) {
-		stack;
-		return 0;
-	}
+        if (!id_write_format(&vg->id, buffer, sizeof(buffer))) {
+                stack;
+                return 0;
+        }
 
-	outf(f, "id = \"%s\"", buffer);
+        outf(f, "id = \"%s\"", buffer);
 
-	outf(f, "seqno = %u", vg->seqno);
+        outf(f, "seqno = %u", vg->seqno);
 
-	if (!print_flags(vg->status, VG_FLAGS, buffer, sizeof(buffer))) {
-		stack;
-		return 0;
-	}
-	outf(f, "status = %s", buffer);
+        if (!print_flags(vg->status, VG_FLAGS, buffer, sizeof(buffer))) {
+                stack;
+                return 0;
+        }
+        outf(f, "status = %s", buffer);
 
-	if (!list_empty(&vg->tags)) {
-		if (!print_tags(&vg->tags, buffer, sizeof(buffer))) {
-			stack;
-			return 0;
-		}
-		outf(f, "tags = %s", buffer);
-	}
+        if (!list_empty(&vg->tags)) {
+                if (!print_tags(&vg->tags, buffer, sizeof(buffer))) {
+                        stack;
+                        return 0;
+                }
+                outf(f, "tags = %s", buffer);
+        }
 
-	if (vg->system_id && *vg->system_id)
-		outf(f, "system_id = \"%s\"", vg->system_id);
+        if (vg->system_id && *vg->system_id)
+                outf(f, "system_id = \"%s\"", vg->system_id);
 
-	if (!out_size(f, (uint64_t) vg->extent_size, "extent_size = %u",
-		      vg->extent_size)) {
-		stack;
-		return 0;
-	}
-	outf(f, "max_lv = %u", vg->max_lv);
-	outf(f, "max_pv = %u", vg->max_pv);
+        if (!out_size(f, (uint64_t) vg->extent_size, "extent_size = %u",
+                      vg->extent_size)) {
+                stack;
+                return 0;
+        }
+        outf(f, "max_lv = %u", vg->max_lv);
+        outf(f, "max_pv = %u", vg->max_pv);
 
-	/* Default policy is NORMAL; INHERIT is meaningless */
-	if (vg->alloc != ALLOC_NORMAL && vg->alloc != ALLOC_INHERIT) {
-		outnl(f);
-		outf(f, "allocation_policy = \"%s\"",
-		     get_alloc_string(vg->alloc));
-	}
+        /* Default policy is NORMAL; INHERIT is meaningless */
+        if (vg->alloc != ALLOC_NORMAL && vg->alloc != ALLOC_INHERIT) {
+                outnl(f);
+                outf(f, "allocation_policy = \"%s\"",
+                     get_alloc_string(vg->alloc));
+        }
 
-	return 1;
+        return 1;
 }
 
 /*
@@ -359,253 +359,257 @@ static int _print_vg(struct formatter *f, struct volume_group *vg)
  */
 static const char *_get_pv_name(struct formatter *f, struct physical_volume *pv)
 {
-	return (pv) ? (const char *)
-	    dm_hash_lookup(f->pv_names, dev_name(pv->dev)) : "Missing";
+        return (pv) ? (const char *)
+            dm_hash_lookup(f->pv_names, dev_name(pv->dev)) : "Missing";
 }
 
 static int _print_pvs(struct formatter *f, struct volume_group *vg)
 {
-	struct pv_list *pvl;
-	struct physical_volume *pv;
-	char buffer[4096];
-	const char *name;
+        struct pv_list *pvl;
+        struct physical_volume *pv;
+        char buffer[4096];
+        const char *name;
 
-	outf(f, "physical_volumes {");
-	_inc_indent(f);
+        outf(f, "physical_volumes {");
+        _inc_indent(f);
 
-	list_iterate_items(pvl, &vg->pvs) {
-		pv = pvl->pv;
+        //list_iterate_items(pvl, &vg->pvs) {
+        list_iterate_items(pvl, struct pv_list, &vg->pvs) {
+                pv = pvl->pv;
 
-		if (!(name = _get_pv_name(f, pv))) {
-			stack;
-			return 0;
-		}
+                if (!(name = _get_pv_name(f, pv))) {
+                        stack;
+                        return 0;
+                }
 
-		outnl(f);
-		outf(f, "%s {", name);
-		_inc_indent(f);
+                outnl(f);
+                outf(f, "%s {", name);
+                _inc_indent(f);
 
-		if (!id_write_format(&pv->id, buffer, sizeof(buffer))) {
-			stack;
-			return 0;
-		}
+                if (!id_write_format(&pv->id, buffer, sizeof(buffer))) {
+                        stack;
+                        return 0;
+                }
 
-		outf(f, "id = \"%s\"", buffer);
-		if (!out_hint(f, "device = \"%s\"", dev_name(pv->dev))) {
-			stack;
-			return 0;
-		}
-		outnl(f);
+                outf(f, "id = \"%s\"", buffer);
+                if (!out_hint(f, "device = \"%s\"", dev_name(pv->dev))) {
+                        stack;
+                        return 0;
+                }
+                outnl(f);
 
-		if (!print_flags(pv->status, PV_FLAGS, buffer, sizeof(buffer))) {
-			stack;
-			return 0;
-		}
-		outf(f, "status = %s", buffer);
+                if (!print_flags(pv->status, PV_FLAGS, buffer, sizeof(buffer))) {
+                        stack;
+                        return 0;
+                }
+                outf(f, "status = %s", buffer);
 
-		if (!list_empty(&pv->tags)) {
-			if (!print_tags(&pv->tags, buffer, sizeof(buffer))) {
-				stack;
-				return 0;
-			}
-			outf(f, "tags = %s", buffer);
-		}
+                if (!list_empty(&pv->tags)) {
+                        if (!print_tags(&pv->tags, buffer, sizeof(buffer))) {
+                                stack;
+                                return 0;
+                        }
+                        outf(f, "tags = %s", buffer);
+                }
 
-		if (!out_size(f, pv->size, "dev_size = %" PRIu64, pv->size)) {
-			stack;
-			return 0;
-		}
+                if (!out_size(f, pv->size, "dev_size = %" PRIu64, pv->size)) {
+                        stack;
+                        return 0;
+                }
 
-		outf(f, "pe_start = %" PRIu64, pv->pe_start);
-		if (!out_size(f, vg->extent_size * (uint64_t) pv->pe_count,
-			      "pe_count = %u", pv->pe_count)) {
-			stack;
-			return 0;
-		}
+                outf(f, "pe_start = %" PRIu64, pv->pe_start);
+                if (!out_size(f, vg->extent_size * (uint64_t) pv->pe_count,
+                              "pe_count = %u", pv->pe_count)) {
+                        stack;
+                        return 0;
+                }
 
-		_dec_indent(f);
-		outf(f, "}");
-	}
+                _dec_indent(f);
+                outf(f, "}");
+        }
 
-	_dec_indent(f);
-	outf(f, "}");
-	return 1;
+        _dec_indent(f);
+        outf(f, "}");
+        return 1;
 }
 
 static int _print_segment(struct formatter *f, struct volume_group *vg,
-			  int count, struct lv_segment *seg)
+                          int count, struct lv_segment *seg)
 {
-	char buffer[4096];
+        char buffer[4096];
 
-	outf(f, "segment%u {", count);
-	_inc_indent(f);
+        outf(f, "segment%u {", count);
+        _inc_indent(f);
 
-	outf(f, "start_extent = %u", seg->le);
-	if (!out_size(f, (uint64_t) seg->len * vg->extent_size,
-		      "extent_count = %u", seg->len)) {
-		stack;
-		return 0;
-	}
+        outf(f, "start_extent = %u", seg->le);
+        if (!out_size(f, (uint64_t) seg->len * vg->extent_size,
+                      "extent_count = %u", seg->len)) {
+                stack;
+                return 0;
+        }
 
-	outnl(f);
-	outf(f, "type = \"%s\"", seg->segtype->name);
+        outnl(f);
+        outf(f, "type = \"%s\"", seg->segtype->name);
 
-	if (!list_empty(&seg->tags)) {
-		if (!print_tags(&seg->tags, buffer, sizeof(buffer))) {
-			stack;
-			return 0;
-		}
-		outf(f, "tags = %s", buffer);
-	}
+        if (!list_empty(&seg->tags)) {
+                if (!print_tags(&seg->tags, buffer, sizeof(buffer))) {
+                        stack;
+                        return 0;
+                }
+                outf(f, "tags = %s", buffer);
+        }
 
-	if (seg->segtype->ops->text_export &&
-	    !seg->segtype->ops->text_export(seg, f)) {
-		stack;
-		return 0;
-	}
+        if (seg->segtype->ops->text_export &&
+            !seg->segtype->ops->text_export(seg, f)) {
+                stack;
+                return 0;
+        }
 
-	_dec_indent(f);
-	outf(f, "}");
+        _dec_indent(f);
+        outf(f, "}");
 
-	return 1;
+        return 1;
 }
 
 int out_areas(struct formatter *f, const struct lv_segment *seg,
-	      const char *type)
+              const char *type)
 {
-	const char *name;
-	unsigned int s;
+        const char *name;
+        unsigned int s;
 
-	outnl(f);
+        outnl(f);
 
-	outf(f, "%ss = [", type);
-	_inc_indent(f);
+        outf(f, "%ss = [", type);
+        _inc_indent(f);
 
-	for (s = 0; s < seg->area_count; s++) {
-		switch (seg_type(seg, s)) {
-		case AREA_PV:
-			if (!(name = _get_pv_name(f, seg_pv(seg, s)))) {
-				stack;
-				return 0;
-			}
+        for (s = 0; s < seg->area_count; s++) {
+                switch (seg_type(seg, s)) {
+                case AREA_PV:
+                        if (!(name = _get_pv_name(f, seg_pv(seg, s)))) {
+                                stack;
+                                return 0;
+                        }
 
-			outf(f, "\"%s\", %u%s", name,
-			     seg_pe(seg, s),
-			     (s == seg->area_count - 1) ? "" : ",");
-			break;
-		case AREA_LV:
-			outf(f, "\"%s\", %u%s",
-			     seg_lv(seg, s)->name,
-			     seg_le(seg, s),
-			     (s == seg->area_count - 1) ? "" : ",");
-			break;
-		case AREA_UNASSIGNED:
-			return 0;
-		}
-	}
+                        outf(f, "\"%s\", %u%s", name,
+                             seg_pe(seg, s),
+                             (s == seg->area_count - 1) ? "" : ",");
+                        break;
+                case AREA_LV:
+                        outf(f, "\"%s\", %u%s",
+                             seg_lv(seg, s)->name,
+                             seg_le(seg, s),
+                             (s == seg->area_count - 1) ? "" : ",");
+                        break;
+                case AREA_UNASSIGNED:
+                        return 0;
+                }
+        }
 
-	_dec_indent(f);
-	outf(f, "]");
-	return 1;
+        _dec_indent(f);
+        outf(f, "]");
+        return 1;
 }
 
 static int _print_lv(struct formatter *f, struct logical_volume *lv)
 {
-	struct lv_segment *seg;
-	char buffer[4096];
-	int seg_count;
+        struct lv_segment *seg;
+        char buffer[4096];
+        int seg_count;
 
-	outnl(f);
-	outf(f, "%s {", lv->name);
-	_inc_indent(f);
+        outnl(f);
+        outf(f, "%s {", lv->name);
+        _inc_indent(f);
 
-	/* FIXME: Write full lvid */
-	if (!id_write_format(&lv->lvid.id[1], buffer, sizeof(buffer))) {
-		stack;
-		return 0;
-	}
+        /* FIXME: Write full lvid */
+        if (!id_write_format(&lv->lvid.id[1], buffer, sizeof(buffer))) {
+                stack;
+                return 0;
+        }
 
-	outf(f, "id = \"%s\"", buffer);
+        outf(f, "id = \"%s\"", buffer);
 
-	if (!print_flags(lv->status, LV_FLAGS, buffer, sizeof(buffer))) {
-		stack;
-		return 0;
-	}
-	outf(f, "status = %s", buffer);
+        if (!print_flags(lv->status, LV_FLAGS, buffer, sizeof(buffer))) {
+                stack;
+                return 0;
+        }
+        outf(f, "status = %s", buffer);
 
-	if (!list_empty(&lv->tags)) {
-		if (!print_tags(&lv->tags, buffer, sizeof(buffer))) {
-			stack;
-			return 0;
-		}
-		outf(f, "tags = %s", buffer);
-	}
+        if (!list_empty(&lv->tags)) {
+                if (!print_tags(&lv->tags, buffer, sizeof(buffer))) {
+                        stack;
+                        return 0;
+                }
+                outf(f, "tags = %s", buffer);
+        }
 
-	if (lv->alloc != ALLOC_INHERIT)
-		outf(f, "allocation_policy = \"%s\"",
-		     get_alloc_string(lv->alloc));
+        if (lv->alloc != ALLOC_INHERIT)
+                outf(f, "allocation_policy = \"%s\"",
+                     get_alloc_string(lv->alloc));
 
-	if (lv->read_ahead)
-		outf(f, "read_ahead = %u", lv->read_ahead);
-	if (lv->major >= 0)
-		outf(f, "major = %d", lv->major);
-	if (lv->minor >= 0)
-		outf(f, "minor = %d", lv->minor);
-	outf(f, "segment_count = %u", list_size(&lv->segments));
-	outnl(f);
+        if (lv->read_ahead)
+                outf(f, "read_ahead = %u", lv->read_ahead);
+        if (lv->major >= 0)
+                outf(f, "major = %d", lv->major);
+        if (lv->minor >= 0)
+                outf(f, "minor = %d", lv->minor);
+        outf(f, "segment_count = %u", list_size(&lv->segments));
+        outnl(f);
 
-	seg_count = 1;
-	list_iterate_items(seg, &lv->segments) {
-		if (!_print_segment(f, lv->vg, seg_count++, seg)) {
-			stack;
-			return 0;
-		}
-	}
+        seg_count = 1;
+        //list_iterate_items(seg, &lv->segments) {
+        list_iterate_items(seg, struct lv_segment, &lv->segments) {
+                if (!_print_segment(f, lv->vg, seg_count++, seg)) {
+                        stack;
+                        return 0;
+                }
+        }
 
-	_dec_indent(f);
-	outf(f, "}");
+        _dec_indent(f);
+        outf(f, "}");
 
-	return 1;
+        return 1;
 }
 
 static int _print_lvs(struct formatter *f, struct volume_group *vg)
 {
-	struct lv_list *lvl;
+        struct lv_list *lvl;
 
-	/*
-	 * Don't bother with an lv section if there are no lvs.
-	 */
-	if (list_empty(&vg->lvs))
-		return 1;
+        /*
+         * Don't bother with an lv section if there are no lvs.
+         */
+        if (list_empty(&vg->lvs))
+                return 1;
 
-	outf(f, "logical_volumes {");
-	_inc_indent(f);
+        outf(f, "logical_volumes {");
+        _inc_indent(f);
 
-	/*
-	 * Write visible LVs first
-	 */
-	list_iterate_items(lvl, &vg->lvs) {
-		if (!(lvl->lv->status & VISIBLE_LV))
-			continue;
-		if (!_print_lv(f, lvl->lv)) {
-			stack;
-			return 0;
-		}
-	}
+        /*
+         * Write visible LVs first
+         */
+        //list_iterate_items(lvl, &vg->lvs) {
+        list_iterate_items(lvl, struct lv_list, &vg->lvs) {
+                if (!(lvl->lv->status & VISIBLE_LV))
+                        continue;
+                if (!_print_lv(f, lvl->lv)) {
+                        stack;
+                        return 0;
+                }
+        }
 
-	list_iterate_items(lvl, &vg->lvs) {
-		if ((lvl->lv->status & VISIBLE_LV))
-			continue;
-		if (!_print_lv(f, lvl->lv)) {
-			stack;
-			return 0;
-		}
-	}
+        //list_iterate_items(lvl, &vg->lvs) {
+        list_iterate_items(lvl, struct lv_list, &vg->lvs) {
+                if ((lvl->lv->status & VISIBLE_LV))
+                        continue;
+                if (!_print_lv(f, lvl->lv)) {
+                        stack;
+                        return 0;
+                }
+        }
 
-	_dec_indent(f);
-	outf(f, "}");
+        _dec_indent(f);
+        outf(f, "}");
 
-	return 1;
+        return 1;
 }
 
 /*
@@ -615,146 +619,147 @@ static int _print_lvs(struct formatter *f, struct volume_group *vg)
  */
 static int _build_pv_names(struct formatter *f, struct volume_group *vg)
 {
-	int count = 0;
-	struct pv_list *pvl;
-	struct physical_volume *pv;
-	char buffer[32], *name;
+        int count = 0;
+        struct pv_list *pvl;
+        struct physical_volume *pv;
+        char buffer[32], *name;
 
-	if (!(f->mem = dm_pool_create("text pv_names", 512)))
-		return_0;
+        if (!(f->mem = dm_pool_create("text pv_names", 512)))
+                return_0;
 
-	if (!(f->pv_names = dm_hash_create(128)))
-		return_0;
+        if (!(f->pv_names = dm_hash_create(128)))
+                return_0;
 
-	list_iterate_items(pvl, &vg->pvs) {
-		pv = pvl->pv;
+        //list_iterate_items(pvl, &vg->pvs) {
+        list_iterate_items(pvl, struct pv_list, &vg->pvs) {
+                pv = pvl->pv;
 
-		/* FIXME But skip if there's already an LV called pv%d ! */
-		if (dm_snprintf(buffer, sizeof(buffer), "pv%d", count++) < 0)
-			return_0;
+                /* FIXME But skip if there's already an LV called pv%d ! */
+                if (dm_snprintf(buffer, sizeof(buffer), "pv%d", count++) < 0)
+                        return_0;
 
-		if (!(name = dm_pool_strdup(f->mem, buffer)))
-			return_0;
+                if (!(name = dm_pool_strdup(f->mem, buffer)))
+                        return_0;
 
-		if (!dm_hash_insert(f->pv_names, dev_name(pv->dev), name))
-			return_0;
-	}
+                if (!dm_hash_insert(f->pv_names, dev_name(pv->dev), name))
+                        return_0;
+        }
 
-	return 1;
+        return 1;
 }
 
 static int _text_vg_export(struct formatter *f,
-			   struct volume_group *vg, const char *desc)
+                           struct volume_group *vg, const char *desc)
 {
-	int r = 0;
+        int r = 0;
 
-	if (!_build_pv_names(f, vg)) {
-		stack;
-		goto out;
-	}
+        if (!_build_pv_names(f, vg)) {
+                stack;
+                goto out;
+        }
 
-	if (f->header && !_print_header(f, desc))
-		goto_out;
+        if (f->header && !_print_header(f, desc))
+                goto_out;
 
-	if (!out_text(f, "%s {", vg->name))
-		goto_out;
+        if (!out_text(f, "%s {", vg->name))
+                goto_out;
 
-	_inc_indent(f);
+        _inc_indent(f);
 
-	if (!_print_vg(f, vg))
-		goto_out;
+        if (!_print_vg(f, vg))
+                goto_out;
 
-	outnl(f);
-	if (!_print_pvs(f, vg))
-		goto_out;
+        outnl(f);
+        if (!_print_pvs(f, vg))
+                goto_out;
 
-	outnl(f);
-	if (!_print_lvs(f, vg))
-		goto_out;
+        outnl(f);
+        if (!_print_lvs(f, vg))
+                goto_out;
 
-	_dec_indent(f);
-	if (!out_text(f, "}"))
-		goto_out;
+        _dec_indent(f);
+        if (!out_text(f, "}"))
+                goto_out;
 
-	if (!f->header && !_print_header(f, desc))
-		goto_out;
+        if (!f->header && !_print_header(f, desc))
+                goto_out;
 
-	r = 1;
+        r = 1;
 
       out:
-	if (f->mem)
-		dm_pool_destroy(f->mem);
+        if (f->mem)
+                dm_pool_destroy(f->mem);
 
-	if (f->pv_names)
-		dm_hash_destroy(f->pv_names);
+        if (f->pv_names)
+                dm_hash_destroy(f->pv_names);
 
-	return r;
+        return r;
 }
 
 int text_vg_export_file(struct volume_group *vg, const char *desc, FILE *fp)
 {
-	struct formatter *f;
-	int r;
+        struct formatter *f;
+        int r;
 
-	_init();
+        _init();
 
-	if (!(f = dm_malloc(sizeof(*f)))) {
-		stack;
-		return 0;
-	}
+        if (!(f = dm_malloc(sizeof(*f)))) {
+                stack;
+                return 0;
+        }
 
-	memset(f, 0, sizeof(*f));
-	f->data.fp = fp;
-	f->indent = 0;
-	f->header = 1;
-	f->out_with_comment = &_out_with_comment_file;
-	f->nl = &_nl_file;
+        memset(f, 0, sizeof(*f));
+        f->data.fp = fp;
+        f->indent = 0;
+        f->header = 1;
+        f->out_with_comment = &_out_with_comment_file;
+        f->nl = &_nl_file;
 
-	r = _text_vg_export(f, vg, desc);
-	if (r)
-		r = !ferror(f->data.fp);
-	dm_free(f);
-	return r;
+        r = _text_vg_export(f, vg, desc);
+        if (r)
+                r = !ferror(f->data.fp);
+        dm_free(f);
+        return r;
 }
 
 /* Returns amount of buffer used incl. terminating NUL */
 int text_vg_export_raw(struct volume_group *vg, const char *desc, char **buf)
 {
-	struct formatter *f;
-	int r = 0;
+        struct formatter *f;
+        int r = 0;
 
-	_init();
+        _init();
 
-	if (!(f = dm_malloc(sizeof(*f)))) {
-		stack;
-		return 0;
-	}
+        if (!(f = dm_malloc(sizeof(*f)))) {
+                stack;
+                return 0;
+        }
 
-	memset(f, 0, sizeof(*f));
+        memset(f, 0, sizeof(*f));
 
-	f->data.buf.size = 65536;	/* Initial metadata limit */
-	if (!(f->data.buf.start = dm_malloc(f->data.buf.size))) {
-		log_error("text_export buffer allocation failed");
-		goto out;
-	}
+        f->data.buf.size = 65536;       /* Initial metadata limit */
+        if (!(f->data.buf.start = dm_malloc(f->data.buf.size))) {
+                log_error("text_export buffer allocation failed");
+                goto out;
+        }
 
-	f->indent = 0;
-	f->header = 0;
-	f->out_with_comment = &_out_with_comment_raw;
-	f->nl = &_nl_raw;
+        f->indent = 0;
+        f->header = 0;
+        f->out_with_comment = &_out_with_comment_raw;
+        f->nl = &_nl_raw;
 
-	if (!_text_vg_export(f, vg, desc)) {
-		stack;
-		dm_free(f->data.buf.start);
-		goto out;
-	}
+        if (!_text_vg_export(f, vg, desc)) {
+                stack;
+                dm_free(f->data.buf.start);
+                goto out;
+        }
 
-	r = f->data.buf.used + 1;
-	*buf = f->data.buf.start;
+        r = f->data.buf.used + 1;
+        *buf = f->data.buf.start;
 
       out:
-	dm_free(f);
-	return r;
+        dm_free(f);
+        return r;
 }
 
 #undef outf
