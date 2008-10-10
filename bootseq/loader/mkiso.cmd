@@ -50,12 +50,12 @@ set files=preldr0.mdl preldr0.rel preldr.ini freeldr.mdl freeldr.rel boot.cfg bt
 @copy loader\fsd\* ..\..\..\cd\boot\loader\fsd
 @copy loader\term\* ..\..\..\cd\boot\loader\term
 
-rem cd ..\..\fiasco
-rem @copy * ..\..\cd\l4
-rem cd ..\pns
-rem @copy * ..\..\cd\pns
-rem cd ..\pistachio
-rem @copy * ..\..\cd\l4ka
+cd ..\..\fiasco
+@copy * ..\..\cd\l4
+cd ..\pns
+@copy * ..\..\cd\pns
+cd ..\pistachio
+@copy * ..\..\cd\l4ka
 
 cd ..\os2\server
 set files=os2server VioWrtTTY_test config.sys libkal.s.so os2.cfg MiniELFExe.Exe

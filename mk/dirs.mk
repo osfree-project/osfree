@@ -43,7 +43,7 @@ MYDIR = $(MYDIR://=\)
 MYDIR = $(MYDIR:\/=\)
 MYDIR = $(MYDIR:/\=\)
 
-# change slashes accordind to $(SEP)
+# change slashes according to $(SEP)
 !ifeq SEP \
 PATH  = $(PATH:/=\)
 MYDIR = $(MYDIR:/=\)
