@@ -4,9 +4,8 @@
 # author, date
 #
 
-PROJ = read
-DESC = readmbr
-#defines object file names in format objname.$(O)
+PROJ = newmbr
+DESC = Writes new MBR to the first hard disk
 srcfiles = $(p)read$(e)
 # defines additional options for C compiler
 ADD_COPT    = -i=$(MYDIR)..$(SEP)include
