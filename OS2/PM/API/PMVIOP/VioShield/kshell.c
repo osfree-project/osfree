@@ -1,7 +1,6 @@
 #define INCL_VIO
 #define INCL_DOS
 #define INCL_DOSERRORS
-#define INCL_DEV
 #define INCL_WIN
 #define INCL_GPI
 #include <os2.h>
@@ -10,6 +9,10 @@
 #include <string.h>
 #include <time.h>
 #include <process.h>
+
+#include <uconv.h>
+
+#include "ft2lib.h"
 
 #include "kshell.h"
 #include "viodmn.h"
@@ -35,6 +38,7 @@
 #define PRF_KEY_SIZE    "SIZE"
 #define PRF_KEY_HEIGHT  "HEIGHT"
 #define PRF_KEY_WIDTH   "WIDTH"
+#define PRF_KEY_FT2LIB  "FT2LIB"
 
 #define DEFAULT_CODEPAGE    0
 #define DEFAULT_FONT_FACE   "GulimChe"
@@ -47,6 +51,11 @@
 static VIOMODEINFO  m_vmi;
 
 #define VIO_CISIZE      ( sizeof( USHORT ) * 2 + sizeof( VIOCURSORINFO ))
+
+#define MAX_CP_NAME     12      // maximum length of a codepage name
+#define MAX_CP_SPEC     64      // maximum length of a UconvObject codepage specifier
+
+static ATOM     m_cfUnicode;    // atom for "text/unicode" clipboard format
 
 static FATTRS   m_fat;
 static FIXED    m_fxPointSize;
@@ -90,6 +99,24 @@ static ULONG    m_ulSGID = ( ULONG )-1;
 static HPIPE    m_hpipeVioSub = NULLHANDLE;
 static TID      m_tidPipeThread = 0;
 
+static BOOL     m_fFt2LibLoaded = FALSE;
+static BOOL     m_fUseFt2Lib = FALSE;
+
+PFNENABLEFONTENGINE     ksEnableFontEngine;
+PFNSETCOLOR             ksSetColor;
+PFNSETBACKCOLOR         ksSetBackColor;
+PFNCHARSTRINGPOSAT      ksCharStringPosAt;
+PFNQUERYCHARSTRINGPOSAT ksQueryCharStringPosAt;
+PFNCREATELOGFONT        ksCreateLogFont;
+PFNSETCHARSET           ksSetCharSet;
+PFNSETCHARBOX           ksSetCharBox;
+PFNQUERYFONTMETRICS     ksQueryFontMetrics;
+PFNBEGINPAINT           ksBeginPaint;
+PFNENDPAINT             ksEndPaint;
+PFNGETPS                ksGetPS;
+PFNGETSCREENPS          ksGetScreenPS;
+PFNRELEASEPS            ksReleasePS;
+
 static BOOL init( VOID );
 static VOID done( VOID );
 
@@ -116,19 +143,23 @@ static VOID doneMarkingMode( HWND hwnd );
 
 static VOID invertRect( HPS hps, PPOINTS pptsStart, PPOINTS pptsEnd, PPOINTS pptsEndNew );
 
+static VOID insertCBText( HWND hwnd, PSZ pszCBText );
 static VOID copyFromClipbrd( HWND hwnd );
 static VOID copyToClipbrd( HWND hwnd, BOOL fAll );
+
+static VOID setFontMode( VOID );
 
 static MRESULT EXPENTRY windowProc( HWND, ULONG, MPARAM, MPARAM );
 
 INT main( VOID )
 {
-    HAB     hab;
-    HMQ     hmq;
-    ULONG   flFrameFlags;
-    HWND    hwndFrame;
-    HWND    hwndClient;
-    QMSG    qm;
+    HAB      hab;
+    HMQ      hmq;
+    ULONG    flFrameFlags;
+    HWND     hwndFrame;
+    HWND     hwndClient;
+    QMSG     qm;
+    HATOMTBL hSATbl;        // handle to system atom table
 
     int     result = 0;
 
@@ -171,7 +202,7 @@ INT main( VOID )
     );
 
     flFrameFlags = FCF_SYSMENU | FCF_TITLEBAR | FCF_TASKLIST | FCF_DLGBORDER |
-                   FCF_VERTSCROLL;
+                   FCF_VERTSCROLL | FCF_ICON;
 
     hwndFrame = WinCreateStdWindow(
                 HWND_DESKTOP,               // parent window handle
@@ -190,10 +221,17 @@ INT main( VOID )
 
     initFrame( hwndFrame );
 
+    // Register the Unicode clipboard format
+    hSATbl      = WinQuerySystemAtomTable();
+    m_cfUnicode = WinAddAtom( hSATbl, "text/unicode");
+
     while( WinGetMsg( hab, &qm, NULLHANDLE, 0, 0 ))
         WinDispatchMsg( hab, &qm );
 
     donePipeThreadForVioSub();
+
+    // Deregister the Unicode clipboard format
+    WinDeleteAtom( hSATbl, m_cfUnicode );
 
     WinDestroyWindow( hwndFrame );
 
@@ -216,11 +254,14 @@ static VOID convertVio2Win( PRECTL prcl )
 
 static int findXCol( int x )
 {
-    int left = 0;
-    int right = m_vmi.col;
+    int min_key = 0;
+    int max_key = m_vmi.col;
+    int left = min_key;
+    int right = max_key;
     int key = ( left + right ) / 2;
 
-    while(( x < m_aptlPos[ key ].x ) || ( x >= m_aptlPos[ key + 1 ].x ))
+    while(( key > min_key && x < m_aptlPos[ key ].x ) ||
+          ( key < max_key && x >= m_aptlPos[ key + 1 ].x ))
     {
         if( x < m_aptlPos[ key ].x )
             right = key - 1;
@@ -353,8 +394,8 @@ static VOID setAttr( HPS hps, UCHAR uchAttr )
             CLR_WHITE
     };
 
-    GpiSetColor( hps, aiColorTable[ uchAttr & 0x0F ]);
-    GpiSetBackColor( hps, aiColorTable[ ( uchAttr & 0xF0 ) >> 4 ]);
+    ksSetColor( hps, aiColorTable[ uchAttr & 0x0F ]);
+    ksSetBackColor( hps, aiColorTable[ ( uchAttr & 0xF0 ) >> 4 ]);
 }
 
 static VOID drawCharStringPosAt( HAB hab, PKSHELLDATA pKShellData, HPS hps, USHORT usAttr, PPOINTL pptl, int xStart, int count, PCH pchBase )
@@ -392,7 +433,7 @@ static VOID drawCharStringPosAt( HAB hab, PKSHELLDATA pKShellData, HPS hps, USHO
     rcl.yBottom = pptl->y - m_lMaxDescender;
     rcl.xRight = rcl.xLeft + ( X_Vio2Win( xEnd ) - X_Vio2Win( xStart )) - 1;
     rcl.yTop = rcl.yBottom + m_lCharHeight - 1;
-    GpiCharStringPosAt( hps, pptl, &rcl, CHS_OPAQUE | CHS_VECTOR, count, pchBase, palXInc );
+    ksCharStringPosAt( hps, pptl, &rcl, CHS_OPAQUE | CHS_VECTOR, count, pchBase, palXInc );
 
     if( pKShellData->ulKShellMode == KSM_MARKING && pKShellData->fUpdateInvertRect )
     {
@@ -436,21 +477,21 @@ VOID updateWindow( HWND hwnd, PRECTL prcl )
 
     setCursor( hwnd, FALSE );
 
-    hps = WinGetPS( hwnd );
+    hps = ksGetPS( hwnd );
 
     xStart = X_Win2Vio( prcl->xLeft );
     yStart = Y_Win2Vio( prcl->yTop - 1 );
     xEnd = X_Win2Vio( prcl->xRight - 1 );
     yEnd = Y_Win2Vio( prcl->yBottom );
 
-    GpiCreateLogFont( hps, NULL, 1L, &m_fat );
+    ksCreateLogFont( hps, NULL, 1L, &m_fat );
 
-    GpiSetCharSet( hps, 1L );
+    ksSetCharSet( hps, 1L );
 
     sizef.cx = (( m_fxPointSize * m_lHoriFontRes / 72 ) + 0x10000L ) & -0x20000L; // nearest even size
     sizef.cy = m_fxPointSize * m_lVertFontRes / 72;
 
-    GpiSetCharBox( hps, &sizef );
+    ksSetCharBox( hps, &sizef );
 
     {
         int     x, y;
@@ -530,7 +571,7 @@ VOID updateWindow( HWND hwnd, PRECTL prcl )
         }
     }
 
-    WinReleasePS( hps );
+    ksReleasePS( hps );
 
     setCursor( hwnd, TRUE );
 }
@@ -590,9 +631,9 @@ static VOID scrollWindow( HWND hwnd, LONG lDx, LONG lDy, PRECTL prcl )
     if( lDy < 0 )
         aptl[ 1 ].y += lDy;
 
-    hps = WinGetPS( hwnd );
+    hps = ksGetPS( hwnd );
     GpiBitBlt( hps, hps, 3, aptl, ROP_SRCCOPY, BBO_IGNORE );
-    WinReleasePS( hps );
+    ksReleasePS( hps );
 
     if( lDx > 0 )
         prcl->xRight = prcl->xLeft + lDx;
@@ -735,15 +776,8 @@ VOID invertRect( HPS hps, PPOINTS pptsStart, PPOINTS pptsEnd, PPOINTS pptsEndNew
         WinInvertRect( hps, &rcl );
 }
 
-VOID copyFromClipbrd( HWND hwnd )
+VOID insertCBText( HWND hwnd, PSZ pszCBText )
 {
-    HAB hab = WinQueryAnchorBlock( hwnd );
-    PSZ pszCBText;
-
-    if( WinOpenClipbrd( hab ))
-    {
-        if(( pszCBText = ( PSZ )WinQueryClipbrdData( hab, CF_TEXT )) != 0 )
-        {
             USHORT  fsFlags;
             UCHAR   uchRepeat;
             UCHAR   uchScan;
@@ -776,6 +810,56 @@ VOID copyFromClipbrd( HWND hwnd )
                             MPFROMSH2CH( fsFlags, uchRepeat, uchScan ),
                             MPFROM2SHORT( usCh, usVk ));
             }
+}
+
+
+VOID copyFromClipbrd( HWND hwnd )
+{
+    HAB hab = WinQueryAnchorBlock( hwnd );
+    PSZ pszCBText;
+
+    UconvObject uconv;                      // conversion object
+    UniChar     suCodepage[ MAX_CP_SPEC ],  // conversion specifier
+                *psuCBText;                 // pointer into psuClipText
+    ULONG       ulBufLen;
+    APIRET      rc;
+
+    if( WinOpenClipbrd( hab ))
+    {
+
+// Paste as Unicode text if available...
+        if (( psuCBText = (UniChar *) WinQueryClipbrdData( hab, m_cfUnicode )) != NULL )
+        {
+            // Create the conversion object
+            UniMapCpToUcsCp( m_fat.usCodePage, suCodepage, MAX_CP_NAME );
+            UniStrcat( suCodepage, (UniChar *) L"@map=cdra,path=no");
+
+            if (( rc = UniCreateUconvObject( suCodepage, &uconv )) == ULS_SUCCESS )
+            {
+                // Convert to the current codepage
+                ulBufLen = ( UniStrlen(psuCBText) * 4 ) + 1;
+                pszCBText = (PSZ) calloc( ulBufLen, sizeof(CHAR) );
+                if (( rc = UniStrFromUcs( uconv, pszCBText, psuCBText, ulBufLen )) == ULS_SUCCESS )
+                {
+                    // Output the converted text
+                    insertCBText( hwnd, pszCBText );
+                }
+#if DEBUG
+                else dprintf("Failed to convert Unicode clipboard text: UniStrFromUcs() = %08X\n", rc );
+#endif
+                UniFreeUconvObject( uconv );
+                free( pszCBText );
+
+            }
+#if DEBUG
+            else dprintf("Failed to convert Unicode clipboard text: UniCreateUconvObject() = %08X\n", rc );
+#endif
+        }
+// Done pasting Unicode
+
+        else if(( pszCBText = ( PSZ )WinQueryClipbrdData( hab, CF_TEXT )) != 0 )
+        {
+            insertCBText( hwnd, pszCBText );
         }
 
         WinCloseClipbrd( hab );
@@ -796,6 +880,21 @@ VOID copyToClipbrd( HWND hwnd, BOOL fAll )
         int     xStart1;
         PUSHORT pVioBufShell;
         PCH     pchBase, pch;
+
+        UconvObject uconv;                      // UCS-2 conversion object
+        UniChar     suCodepage[ MAX_CP_SPEC ],  // conversion specifier
+                    *psuCopyText,               // Unicode text to be copied
+                    *psuShareMem,               // Unicode text in clipboard
+                    *psuOffset;                 // pointer into psuCopyText
+        PSZ         pszCopyText,                // plain text to be converted
+                    pszOffset;                  // pointer into pszCopyText
+        ULONG       ulBufLen;                   // length of copied string
+        APIRET      rc;
+        size_t      stIn,
+                    stOut,
+                    stSub;
+
+        WinEmptyClipbrd( hab );
 
         if( fAll )
         {
@@ -875,9 +974,104 @@ VOID copyToClipbrd( HWND hwnd, BOOL fAll )
 
         *pch = '\0';
 
+        WinEmptyClipbrd( hab );
+
+        ulBufLen = strlen( pchBase ) + 1;
+        pszCopyText = (PSZ) calloc( ulBufLen, sizeof(CHAR) );
+        strncpy( pszCopyText, pchBase, ulBufLen - 1 );
+
         WinSetClipbrdData( hab, ( ULONG )pchBase, CF_TEXT, CFI_POINTER );
 
+// Now copy as "text/unicode" (UCS-2)
+        if ( pszCopyText )
+        {
+            UniMapCpToUcsCp( m_fat.usCodePage, suCodepage, MAX_CP_NAME );
+            UniStrcat( suCodepage, (UniChar *) L"@map=cdra,path=no");
+            if (( rc = UniCreateUconvObject( suCodepage, &uconv )) == ULS_SUCCESS )
+            {
+                // Convert string to Unicode
+                if (( psuCopyText = (UniChar *) calloc( ulBufLen, sizeof(UniChar) )) != NULL ) {
+                    pszOffset = pszCopyText;
+                    psuOffset = psuCopyText;
+                    stIn  = ulBufLen - 1;
+                    stOut = ulBufLen - 1;
+                    stSub = 0;
+                    if (( rc = UniUconvToUcs( uconv, (PPVOID) &pszOffset, &stIn, &psuOffset, &stOut, &stSub )) == ULS_SUCCESS )
+                    {
+                        // (CP850 erroneously maps U+0131 to the euro sign)
+                        if ( m_fat.usCodePage == 850 )
+                            while (( psuOffset = UniStrchr( psuCopyText, 0x0131 )) != NULL ) *psuOffset = 0xFFFD;
+
+                        // Place the UCS-2 string on the clipboard as "text/unicode"
+                        rc = DosAllocSharedMem( (PVOID) &psuShareMem, NULL, ulBufLen,
+                                                PAG_WRITE | PAG_COMMIT | OBJ_GIVEABLE );
+                        if ( rc == 0 ) {
+                            UniStrncpy( psuShareMem, psuCopyText, ulBufLen - 1 );
+                            if ( !WinSetClipbrdData( hab, (ULONG) psuShareMem, m_cfUnicode, CFI_POINTER )) {
+#ifdef DEBUG
+                                dprintf("[copyToClipbrd] Failed to copy Unicode text: error %08X from WinSetClipbrdData().\n",  WinGetLastError(hab) );
+#endif
+                            }
+                        }
+                    }
+#ifdef DEBUG
+                    else dprintf("[copyToClipbrd] Failed to convert text: UniStrToUcs() = %08X.\n", rc );
+#endif
+                    free( psuCopyText );
+                }
+                UniFreeUconvObject( uconv );
+            }
+#if DEBUG
+            else dprintf("[copyToClipbrd] Failed to created conversion object %ls: UniCreateUconvObject() = %08X.\n", suCodepage, rc );
+#endif
+            free ( pszCopyText );
+        }
+// Done copying UCS-2
+
         WinCloseClipbrd( hab );
+    }
+}
+
+VOID setFontMode( VOID )
+{
+    if( m_fFt2LibLoaded )
+    {
+        ksEnableFontEngine = getFt2EnableFontEngine();
+
+        ksEnableFontEngine( m_fUseFt2Lib );
+    }
+
+    if( m_fFt2LibLoaded && m_fUseFt2Lib )
+    {
+        ksSetColor              = getFt2SetColor();
+        ksSetBackColor          = getFt2SetBackColor();
+        ksCharStringPosAt       = getFt2CharStringPosAt();
+        ksQueryCharStringPosAt  = getFt2QueryCharStringPosAt();
+        ksCreateLogFont         = getFt2CreateLogFont();
+        ksSetCharSet            = getFt2SetCharSet();
+        ksSetCharBox            = getFt2SetCharBox();
+        ksQueryFontMetrics      = getFt2QueryFontMetrics();
+        ksBeginPaint            = getFt2BeginPaint();
+        ksEndPaint              = getFt2EndPaint();
+        ksGetPS                 = getFt2GetPS();
+        ksGetScreenPS           = getFt2GetScreenPS();
+        ksReleasePS             = getFt2ReleasePS();
+    }
+    else
+    {
+        ksSetColor              = GpiSetColor;
+        ksSetBackColor          = GpiSetBackColor;
+        ksCharStringPosAt       = GpiCharStringPosAt;
+        ksQueryCharStringPosAt  = GpiQueryCharStringPosAt;
+        ksCreateLogFont         = GpiCreateLogFont;
+        ksSetCharSet            = GpiSetCharSet;
+        ksSetCharBox            = GpiSetCharBox;
+        ksQueryFontMetrics      = GpiQueryFontMetrics;
+        ksBeginPaint            = WinBeginPaint;
+        ksEndPaint              = WinEndPaint;
+        ksGetPS                 = WinGetPS;
+        ksGetScreenPS           = WinGetScreenPS;
+        ksReleasePS             = WinReleasePS;
     }
 }
 
@@ -962,8 +1156,8 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
             HPS     hps;
             RECTL   rcl;
 
-            hps = WinBeginPaint( hwnd, NULLHANDLE, &rcl );
-            WinEndPaint( hps );
+            hps = ksBeginPaint( hwnd, NULLHANDLE, &rcl );
+            ksEndPaint( hps );
 
             updateWindow( hwnd, &rcl );
 
@@ -1109,7 +1303,7 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
 
                     memset( &fd, 0, sizeof( FONTDLG ));
 
-                    hps = WinGetPS( hwnd );
+                    hps = ksGetPS( hwnd );
 
                     fd.cbSize = sizeof(FONTDLG);
                     fd.hpsScreen = hps;
@@ -1130,7 +1324,6 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
                     if( hwndFontDlg &&( fd.lReturn == DID_OK ))
                     {
                         CHAR    szNum[ 10 ];
-
 
                         memcpy( &m_fat, &fd.fAttrs, sizeof( FATTRS ));
                         m_fat.usCodePage = PrfQueryProfileInt( HINI_USERPROFILE, PRF_APP, PRF_KEY_CP, DEFAULT_CODEPAGE );
@@ -1154,7 +1347,7 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
                         updateWindow( hwnd, NULL );
                     }
 
-                    WinReleasePS( hps );
+                    ksReleasePS( hps );
 
                     return 0;
                 }
@@ -1169,6 +1362,21 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
                 case IDM_PASTE :
                     copyFromClipbrd( hwnd );
                     return 0;
+
+                case IDM_FT2LIB :
+                {
+                    CHAR    szNum[ 10 ];
+
+                    m_fUseFt2Lib = !m_fUseFt2Lib;
+
+                    _ltoa( m_fUseFt2Lib, szNum, 10 );
+                    PrfWriteProfileString( HINI_USERPROFILE, PRF_APP, PRF_KEY_FT2LIB, szNum );
+
+                    initFrame( WinQueryWindow( hwnd, QW_PARENT ));
+                    updateWindow( hwnd, NULL );
+
+                    return 0;
+                }
             }
 
         case WM_VSCROLL :
@@ -1300,11 +1508,14 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
         case WM_BUTTON2CLICK :
         {
             POINTS  pts;
-            ULONG   fs = PU_NONE | PU_KEYBOARD | PU_MOUSEBUTTON1;
-
+            ULONG   fs = PU_NONE | PU_KEYBOARD | PU_MOUSEBUTTON1 |
+                         PU_HCONSTRAIN | PU_VCONSTRAIN;
 
             WinEnableMenuItem( pKShellData->hwndPopup, IDM_COPY,
                                pKShellData->ulKShellMode == KSM_MARKING );
+
+            WinEnableMenuItem( pKShellData->hwndPopup, IDM_FT2LIB, m_fFt2LibLoaded );
+            WinCheckMenuItem( pKShellData->hwndPopup, IDM_FT2LIB, m_fUseFt2Lib );
 
             pts.x = SHORT1FROMMP( mp1 );
             pts.y = SHORT2FROMMP( mp1 );
@@ -1340,9 +1551,9 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
 
             pKShellData->fMarking = TRUE;
 
-            hps = WinGetPS( hwnd );
+            hps = ksGetPS( hwnd );
             invertRect( hps, &pKShellData->ptsStart, &pKShellData->ptsEnd, NULL );
-            WinReleasePS( hps );
+            ksReleasePS( hps );
 
             WinSetCapture( HWND_DESKTOP, hwnd );
 
@@ -1385,9 +1596,9 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
                 ptsEndNew.x = X_Win2Vio( ptsEndNew.x );
                 ptsEndNew.y = Y_Win2Vio( ptsEndNew.y );
 
-                hps = WinGetPS( hwnd );
+                hps = ksGetPS( hwnd );
                 invertRect( hps, &pKShellData->ptsStart, &pKShellData->ptsEnd, &ptsEndNew );
-                WinReleasePS( hps );
+                ksReleasePS( hps );
 
                 pKShellData->ptsEnd.x = ptsEndNew.x;
                 pKShellData->ptsEnd.y = ptsEndNew.y;
@@ -1453,17 +1664,25 @@ BOOL init( VOID )
 
     initDBCSEnv( m_fat.usCodePage );
 
-    hps = WinGetScreenPS( HWND_DESKTOP );
+    m_fFt2LibLoaded = loadFt2Lib();
+    lResult = PrfQueryProfileInt( HINI_USERPROFILE, PRF_APP, PRF_KEY_FT2LIB, FALSE );
+    m_fUseFt2Lib = lResult ? lResult : FALSE;
+
+    setFontMode();
+
+    hps = ksGetScreenPS( HWND_DESKTOP );
     hdc = GpiQueryDevice( hps );
     DevQueryCaps( hdc, CAPS_HORIZONTAL_FONT_RES, 1, &m_lHoriFontRes );
     DevQueryCaps( hdc, CAPS_VERTICAL_FONT_RES, 1, &m_lVertFontRes );
-    WinReleasePS( hps );
+    ksReleasePS( hps );
 
     return TRUE;
 }
 
 VOID done( VOID )
 {
+    freeFt2Lib();
+
     DosCloseEventSem( m_hevVioDmn );
 
     DosFreeMem( m_pVioBuf );
@@ -1521,6 +1740,7 @@ VOID initFrame( HWND hwndFrame )
     MENUITEM    mi;
     HPS         hps;
     SIZEF       sizef;
+    POINTL      ptlStart = { 0, 0 };
     FONTMETRICS fm;
     RECTL       rcl;
     int         i;
@@ -1562,28 +1782,33 @@ VOID initFrame( HWND hwndFrame )
         memset( m_achXChar, 'k', sizeof( m_achXChar ));
     }
 
+    setFontMode();
+
     hwndClient = WinWindowFromID( hwndFrame, FID_CLIENT );
 
-    hps = WinGetPS( hwndClient );
+    hps = ksGetPS( hwndClient );
 
-    GpiCreateLogFont( hps, NULL, 1L, &m_fat );
-    GpiSetCharSet( hps, 1L );
+    ksCreateLogFont( hps, NULL, 1L, &m_fat );
+    ksSetCharSet( hps, 1L );
 
     sizef.cx = (( m_fxPointSize * m_lHoriFontRes / 72 ) + 0x10000L ) & -0x20000L; // nearest even size
     sizef.cy = m_fxPointSize * m_lVertFontRes / 72;
 
-    GpiSetCharBox( hps, &sizef );
+    ksSetCharBox( hps, &sizef );
 
-    GpiQueryCharStringPos( hps, 0, MAX_XCHARS, m_achXChar, NULL, m_aptlPos );
+    ksQueryCharStringPosAt( hps, &ptlStart, 0, MAX_XCHARS, m_achXChar, NULL, m_aptlPos );
+    // workaround for FT2LIB. First position can be non-zero, maybe 1
+    if( m_fFt2LibLoaded && m_fUseFt2Lib )
+        m_aptlPos[ 0 ].x = 0;
     for( i = 0; i < MAX_XCHARS; i++ )
         m_alXInc[ i ] = m_aptlPos[ i + 1 ].x - m_aptlPos[ i ].x;
 
-    GpiQueryFontMetrics( hps, sizeof( FONTMETRICS ), &fm );
+    ksQueryFontMetrics( hps, sizeof( FONTMETRICS ), &fm );
 
     m_lCharHeight = fm.lMaxBaselineExt + fm.lExternalLeading;
     m_lMaxDescender = fm.lMaxDescender;
 
-    WinReleasePS( hps );
+    ksReleasePS( hps );
 
     WinQueryWindowRect( hwndClient, &rcl );
     WinMapWindowPoints( hwndClient, HWND_DESKTOP, ( PPOINTL )&rcl, 2 );

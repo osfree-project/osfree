@@ -17,6 +17,7 @@
 #define IDM_COPY        0x203
 #define IDM_COPYALL     0x204
 #define IDM_PASTE       0x205
+#define IDM_FT2LIB      0x210
 
 #define VIO_CELLSIZE    2
 
