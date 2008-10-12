@@ -1,15 +1,15 @@
-/* read.c  Grab MBR code.  12-20-98 dcz */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #define INCL_DOSERRORS
 #define INCL_DOSDEVICES
 #define INCL_DOSDEVIOCTL
 #define INCL_DOSPROCESS
 #define INCL_DOSMISC
 #include <os2.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <cmd_shared.h>
 
 #include "mbr.h"
 #include "mbrdefs.h"
@@ -19,31 +19,44 @@ char sectorBuff[512];
 void read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector);
 void write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector);
 
-void main()
+int main (int argc, char* argv[], char* envp[])
 {
 
- ULONG     function;  /*  The type of information to obtain about the
-                          partitionable disks. */
- /* Can be INFO_COUNT_PARTITIONABLE_DISKS, INFO_GETIOCTLHANDLE,
-    INFO_FREEIOCTLHANDLE */
-
- PVOID pBuf;      /*  The address of the buffer where the returned
+  PVOID pBuf;      /*  The address of the buffer where the returned
                       information is placed. */
- ULONG cbBuf;     /*  The length, in bytes, of the data buffer. */
- PVOID pParams;   /*  The address of the buffer used for input parameters. */
- USHORT usNumDrives = 0;                  /* Data return buffer */
- ULONG ulDataLen = sizeof(USHORT);     /* Data return buffer length */
- USHORT hDevice;
- unsigned short int bufPtr;
- int i;
- unsigned char partType;
- int bmgrHead,bmgrSec,bmgrCyl;
- FILE *fp;
+  ULONG cbBuf;     /*  The length, in bytes, of the data buffer. */
+  PVOID pParams;   /*  The address of the buffer used for input parameters. */
+  ULONG ulDataLen = sizeof(USHORT);     /* Data return buffer length */
+  USHORT hDevice;
+  unsigned short int bufPtr;
+  int i;
+  FILE *fp;
 
- APIRET rc = NO_ERROR;
+  APIRET rc = NO_ERROR;
 
- /* Now get a handle to the first physical disk. */
- rc = DosPhysicalDisk(
+  int rez=0;
+  int index;
+
+  while ( (rez = getopt(argc,argv,"i:I:p:P:d:D:hH")) != -1)
+  {
+    switch (rez)
+    {
+      case 'i':;
+      case 'I': ulTargetDrive=optarg; break;
+      case 'p':;
+      case 'P': printf("found argument \"p = %s\".\n",optarg); break;
+      case 'd':;
+      case 'D': printf("found argument \"d = %s\".\n",optarg); break;
+      case 'h':;
+      case 'H':;
+      case '?': printf("Error found !\n"); /* usage(); */ break;
+    };
+  };
+
+  if (argc>optind) printf ("Non-option argument %s\n", argv[optind]);
+
+  /* Now get a handle to the first physical disk. */
+  rc = DosPhysicalDisk(
           INFO_GETIOCTLHANDLE,  /* function */
           &hDevice,
           sizeof(hDevice),
@@ -51,19 +64,20 @@ void main()
           4
           );
 
- if (rc != NO_ERROR) {
-  printf("DosPhysicalDisk (INFO_GETIOCTLHANDLE) error: return code = %u\n", rc);
-  exit(-1);
+  if (rc != NO_ERROR)
+  {
+    printf("DosPhysicalDisk (INFO_GETIOCTLHANDLE) error: return code = %u\n", rc);
+    exit(-1);
   }
  else {
-  printf("DosPhysicalDisk:  Disk 1 handle: %ld\n",hDevice);
+//  printf("DosPhysicalDisk:  Disk 1 handle: %ld\n",hDevice);
   }
 
  /* Now read the Master Boot Record (MBR) from Disk 1 */
  read_chs(sectorBuff,hDevice,0,0,1);
 
  /* Copy partition table to the new mbr */
- memcpy((void *)mbr[PartTable], (void *)sectorBuff[PartTable], 16*4);
+ memcpy((void *)&mbr[PartTable], (void *)&sectorBuff[PartTable], 16*4);
 
  /* Write new MBR */
  write_chs(mbr,hDevice,0,0,1);
@@ -82,7 +96,7 @@ void main()
   exit(-1);
   }
  else {
-  printf("DosPhysicalDisk:  Closed Disk 1 handle.\n");
+//  printf("DosPhysicalDisk:  Closed Disk 1 handle.\n");
   }
 
 }

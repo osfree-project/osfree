@@ -123,7 +123,8 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
   if (fVerbose)
      cmd_ShowSystemMessage(cmd_MSG_FSUTIL_HAS_STARTED,1L,"%s",pszFSName);
 
-  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
+//  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
+  rc=pvFSEntry((short)ulArgc, newargv, newenvp);
 
   DosFreeModule(hUtilDllHandle);
   free(pszUtilDllName);

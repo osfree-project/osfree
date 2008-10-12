@@ -27,7 +27,9 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(INCLUDES) .SYMBOLIC
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif
+!ifndef UNIX
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+!endif
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
 
