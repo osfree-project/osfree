@@ -31,6 +31,11 @@ int main (int argc, char* argv[], char* envp[])
   unsigned short int bufPtr;
   int i;
   FILE *fp;
+  ULONG ulTargetDrive=0;
+  ULONG ulBootPart=0x80;
+  ULONG ulBootDrive=0;
+  PSZ pszFilename=NULL;
+  BYTE buf[10];
 
   APIRET rc = NO_ERROR;
 
@@ -42,26 +47,50 @@ int main (int argc, char* argv[], char* envp[])
     switch (rez)
     {
       case 'i':;
-      case 'I': ulTargetDrive=optarg; break;
+      case 'I': ulTargetDrive=atoi(optarg); break;
       case 'p':;
-      case 'P': printf("found argument \"p = %s\".\n",optarg); break;
+      case 'P': ulBootPart=atoi(optarg); break;
       case 'd':;
-      case 'D': printf("found argument \"d = %s\".\n",optarg); break;
+      case 'D': ulBootDrive=atoi(optarg); break;
       case 'h':;
       case 'H':;
       case '?': printf("Error found !\n"); /* usage(); */ break;
     };
   };
 
-  if (argc>optind) printf ("Non-option argument %s\n", argv[optind]);
+  if (argc>optind)
+  {
+    APIRET apiret;
+    HFILE hfile;
+    ULONG action;
+    ULONG bytesread;
+
+    pszFilename=strdup(argv[optind]);
+    // This options are ignored if fileneme of MBR image is set to prevent
+    // damages of non-osFree MBRs
+    ulBootPart=0x80;
+    ulBootDrive=0;
+
+    apiret = DosOpen(pszFilename, &hfile, &action, 0, 0, OPEN_ACTION_OPEN_IF_EXISTS,
+                     OPEN_ACCESS_READONLY, NULL);
+    if (apiret != NO_ERROR) {
+        return 0;
+    }
+
+    apiret = DosRead(hfile, &mbr, 512, &bytesread);
+
+    apiret = DosClose(hfile);
+  }
+
+  sprintf(&buf, "%d:\0\0", ulTargetDrive+1);
 
   /* Now get a handle to the first physical disk. */
   rc = DosPhysicalDisk(
           INFO_GETIOCTLHANDLE,  /* function */
           &hDevice,
           sizeof(hDevice),
-          "1:\0\0",
-          4
+          &buf,
+          strlen(buf)+1
           );
 
   if (rc != NO_ERROR)
@@ -69,21 +98,28 @@ int main (int argc, char* argv[], char* envp[])
     printf("DosPhysicalDisk (INFO_GETIOCTLHANDLE) error: return code = %u\n", rc);
     exit(-1);
   }
- else {
+  else {
 //  printf("DosPhysicalDisk:  Disk 1 handle: %ld\n",hDevice);
   }
 
- /* Now read the Master Boot Record (MBR) from Disk 1 */
- read_chs(sectorBuff,hDevice,0,0,1);
+  /* Now read the Master Boot Record (MBR) from Disk 1 */
+  read_chs(sectorBuff,hDevice,0,0,1);
 
- /* Copy partition table to the new mbr */
- memcpy((void *)&mbr[PartTable], (void *)&sectorBuff[PartTable], 16*4);
+  /* Copy partition table to the new mbr */
+  memcpy((void *)&mbr[PartTable], (void *)&sectorBuff[PartTable], 16*4);
 
- /* Write new MBR */
- write_chs(mbr,hDevice,0,0,1);
+  /* Set MBR options in case of osFree MBR */
+  if (!pszFilename)
+  {
+    mbr[BootPart]=ulBootPart;
+    mbr[BootDev]=ulBootDrive;
+  }
 
- /* Now close the handle. */
- rc = DosPhysicalDisk(
+  /* Write new MBR */
+  write_chs(mbr,hDevice,0,0,1);
+
+  /* Now close the handle. */
+  rc = DosPhysicalDisk(
           INFO_FREEIOCTLHANDLE,  /* function */
           NULL,
           0,
@@ -91,11 +127,12 @@ int main (int argc, char* argv[], char* envp[])
           sizeof(hDevice)
           );
 
- if (rc != NO_ERROR) {
-  printf("DosPhysicalDisk (INFO_FREEIOCTLHANDLE) error: return code = %u\n", rc);
-  exit(-1);
+  if (rc != NO_ERROR)
+  {
+    printf("DosPhysicalDisk (INFO_FREEIOCTLHANDLE) error: return code = %u\n", rc);
+    exit(-1);
   }
- else {
+  else {
 //  printf("DosPhysicalDisk:  Closed Disk 1 handle.\n");
   }
 
