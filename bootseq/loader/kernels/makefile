@@ -12,7 +12,7 @@
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
-kernels          = $(p)linux$(e) $(p)chain$(e) $(p)os2$(e) $(p)ufsd$(e)
+kernels          = $(p)linux$(e) $(p)chain$(e) $(p)startup$(e) $(p)ufsd$(e)
 
 msw              = $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)modesw-npl$(e)
 
@@ -21,16 +21,16 @@ p                = bt_
 e                =
 bbx              = $+$(kernels)$-
 
-linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)..$(SEP)modesw-npl$(e)
+linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)..$(SEP)modesw-npl$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
 
-chain_OBJS    = $(p)chain$(e) $(p)chainc$(e) $(p)..$(SEP)setdev$(e) $(p)..$(SEP)modesw-npc$(e)
+chain_OBJS    = $(p)chain$(e) $(p)chainc$(e) $(p)..$(SEP)setdev$(e) $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
 
-os2_OBJS      = $(p)os2$(e) $(p)os2c$(e) $(p)..$(SEP)modesw-npo$(e)
+startup_OBJS      = $(p)startup$(e)
 
 ufsd_OBJS     = $(p)ufsd$(e) $(p)ufsdc$(e)
 
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
-common_OBJS      = $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)end$(e)
+common_OBJS      = $(p)..$(SEP)end$(e)
 
 !     ifeq basename bt_linux
 #t = -c
@@ -38,9 +38,9 @@ OBJS                    = $(linux_OBJS) $(common_OBJS)
 !else ifeq basename bt_chain
 #t = -h
 OBJS                    = $(chain_OBJS) $(common_OBJS)
-!else ifeq basename bt_os2
+!else ifeq basename bt_startup
 #t = -o
-OBJS                    = $(os2_OBJS) $(common_OBJS)
+OBJS                    = $(startup_OBJS) $(common_OBJS)
 !else ifeq basename bt_ufsd
 OBJS                    = $(ufsd_OBJS)
 !endif
@@ -58,7 +58,7 @@ rels         = $+$(kernels)$-
 
 p            = $(PATH)bt_
 e            = .mdl
-TARGETS      = $+$(kernels)$- $(rels)
+TARGETS      = $+$(kernels)$- $(rels) $(PATH)bt_os2.mdl
 
 files     = $(bbx)
 
@@ -72,7 +72,7 @@ F =
 base = 0x8000
 !else ifeq basename chain
 base = 0x90000
-!else ifeq basename os2
+!else ifeq basename startup
 base = 0x50000
 !else ifeq basename ufsd
 base = 0x50000
@@ -104,4 +104,12 @@ $(PATH)..$(SEP)modesw-npo.$(SO): $(MYDIR)..$(SEP)modesw.asm
 
 $(PATH)ufsd: $(PATH)bt_ufsd.mdl
  $(CUT) 0 0x200 $[@ >$^@
- 
+
+$(PATH)bt_os2.mdl: $(PATH)bt_startup.mdl $(PATH)bt_ufsd.mdl $(PATH)os2boot $(PATH)os2ldr
+ mkbundle.cmd $< $^@
+
+$(PATH)os2boot: $(MYDIR)os2boot
+ $(CP) $< $^@
+
+$(PATH)os2ldr: $(MYDIR)os2ldr
+ $(CP) $< $^@

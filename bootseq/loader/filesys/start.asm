@@ -9,7 +9,7 @@ extern  init:NEAR
 public  fsd_init
 
 include fsd.inc
-include fsname.inc
+;include fsname.inc
 
 .386
 

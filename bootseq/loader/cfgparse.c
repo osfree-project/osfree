@@ -1,6 +1,6 @@
 /*  Config parsing routines
  *  (c) osFree project,
- *  2003 Apr 21
+ *  2008 Apr 21
  *  author valerius
  *
  *  These routines are common for loader
@@ -101,7 +101,7 @@ char *trim(char *s)
   if (l) s[l - 1] = '\0';
   l = grub_index('\n', s);
   if (l) s[l - 1] = '\0';
-  
+
   return s;
 }
 
@@ -148,12 +148,12 @@ int process_cfg(char *cfg)
     printf("Cannot open config file!\r\n");
     return 0;
   }
-  u_close(); 
+  u_close();
 
   //grub_memset(s, 0, sizeof(s));
 
   sz = size;
-  while (sz) 
+  while (sz)
   {
     // read new buffer
     if (u_open(cfg, &size)) {
@@ -173,17 +173,17 @@ int process_cfg(char *cfg)
     {
       printf("Can't read from config file!\r\n");
       return 0;
-    }      
+    }
 
     f = 1;
     p = buf;
-    while (*p && f) 
+    while (*p && f)
     {
       // read new line from current buffer
       line = getline(&p, rd);
       i = grub_strlen(line);
-      if (s_pos + i > BUFSIZE) 
-	panic("string s too long to fit in buffer!\r\n", cfg);
+      if (s_pos + i > BUFSIZE)
+        panic("string s too long to fit in buffer!\r\n", cfg);
       grub_strcpy(s + s_pos, line);
       s_pos += i;
       f = (p - buf < rd);
@@ -201,38 +201,38 @@ int process_cfg(char *cfg)
         // delete leading and trailing spaces
         line = strip(line);
 
-	// line continuation symbol ('^' or '&') support
+        // line continuation symbol ('^' or '&') support
         i = grub_strlen(line);
         if (line[i - 1] == '^' || line[i - 1] == '&')
         {
           // the current line continued
           line[i - 1] = '\0';
           if (str_pos + i - 1 > BUFSIZE)
-	    panic("string str too long to fit in buffer!\r\n", cfg);
-	  grub_strcpy(str + str_pos, line);
+            panic("string str too long to fit in buffer!\r\n", cfg);
+          grub_strcpy(str + str_pos, line);
           str_pos += i - 1;
           s[0] = '\0';
           s_pos = 0;
 
-	  continue;
+          continue;
         }
         else
         {
           // the line ends
-	  if (str_pos + i > BUFSIZE)
-	    panic("string str too long to fit in buffer!\r\n", cfg);
-	  grub_strcpy(str + str_pos, line);
-	  str_pos = 0;
+          if (str_pos + i > BUFSIZE)
+            panic("string str too long to fit in buffer!\r\n", cfg);
+          grub_strcpy(str + str_pos, line);
+          str_pos = 0;
           s[0] = '\0';
           s_pos = 0;
         }
 
-	// expand variables
-	expand_vars(s, str);
+        // expand variables
+        expand_vars(s, str);
 
-	// process the line
-        if (!process_cfg_line(s)) 
-	  return -1;
+        // process the line
+        if (!process_cfg_line(s))
+          return -1;
       }
     }
   }

@@ -21,12 +21,20 @@
 #include "stub.h"
 #include "lvm2cmd.h"
 
+#ifdef __OS2__
+#include <porting.h>
+#include <process.h>
+#endif
+
 #include <signal.h>
-#include <syslog.h>
+//#include <syslog.h>
 #include <libgen.h>
 #include <sys/stat.h>
 #include <time.h>
+
+#ifndef __OS2__
 #include <sys/resource.h>
+#endif
 
 #ifdef HAVE_GETOPTLONG
 #  include <getopt.h>
