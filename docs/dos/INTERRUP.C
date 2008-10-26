@@ -2962,22 +2962,6 @@ Return: AX = current state
             0000h multitasking enabled
             other TCB of task that disabled multitasking
 SeeAlso: AH=0Dh"MultiDOS",AH=13h"MultiDOS"
---------c-152000-----------------------------
-INT 15 U - DOS 3.0+ PRINT.COM - DISABLE CRITICAL REGION FLAG
-        AX = 2000h
-Return: nothing
-Desc:   stop setting user flag on entry to PRINT critical region
-Note:   also supported by PC Network v1.00 RECEIVER.COM
-SeeAlso: AX=2001h
---------c-152001-----------------------------
-INT 15 U - DOS 3.0+ PRINT.COM - SET CRITICAL REGION FLAG
-        AX = 2001h
-        ES:BX -> byte which is to be incremented while in a DOS call
-Return: nothing
-Desc:   specify a user flag which PRINT should set to let an interested
-          application know it is in a critical region
-Note:   also supported by PC Network v1.00 RECEIVER.COM
-SeeAlso: AX=2000h
 --------O-152010-----------------------------
 INT 15 - OS HOOK - SETUP SYSREQ ROUTINE (AT,XT286,PS50+)
         AX = 2010h

@@ -4579,13 +4579,6 @@ Return: CF clear if successful
         CF set on error
 Note:   this function is a NOP if the active code page has never been set
           (AX=AD02h returns BX=FFFFh); its purpose otherwise is not known
---------V-2FAD40-----------------------------
-INT 2F - DOS 4.0+ - ???
-        AX = AD40h
-        DX = ???
-        ???
-Return: ???
-Note:   called by PC-DOS 4.01 PRINT.COM
 --------V-2FAD41-----------------------------
 INT 2F - Arabic/Hebrew DOS 5.0???+ - GET CURRENT FONTPAGE
         AX = AD41h

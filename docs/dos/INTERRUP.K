@@ -2181,31 +2181,11 @@ Offset  Size    Description     (Table 02592)
  07h    DWORD   pointer to first variable to initialize on the copy reloaded
                   from the previous TSR still resident
  0Bh    DWORD   pointer to last variable (all variables packed in one block)
---------c-2F00-------------------------------
-INT 2F U - DOS 2.x only PRINT.COM - SUBMIT FILE FOR PRINTING
-        AH = 00h
-        DS:DX -> opened FCB (see #01345 at INT 21/AX=0Fh)
-Return: AH = number of files currently in print queue
-        AL = status
-            00h file successfully added
-            01h queue is full
-        ES:BX -> print queue (10 FCBs; first byte of FFh indicates unused)
-        ES:DX -> currently-printing FCB (if DX=FFFFh, none printing)
-Notes:  DOS 2.x PRINT.COM does not chain to previous INT 2F handler
-        values in AH other than 00h or 01h cause PRINT to return the number of
-          files in the queue in AH
-SeeAlso: AH=01h"PRINT",AX=0102h
 --------P-2F00-------------------------------
 INT 2F U - PSPRINT - PRINT JOB CONTROL
         AH = 00h
         ???
 Return: ???
---------c-2F0080-----------------------------
-INT 2F - DOS 3.1+ PRINT - GIVE PRINT A TIME SLICE
-        AX = 0080h
-Return: after PRINT executes
-Notes:  PRINT returns AL=01h if AH=00h but AL is not 80h on entry
-        this function is not supported by the Novell DOS 7 PRINT.COM
 --------N-2F00D8-----------------------------
 INT 2F - Personal NetWare - VLM - ???
         AX = 00D8h
@@ -2213,40 +2193,6 @@ INT 2F - Personal NetWare - VLM - ???
 Return: ???
 Note:   hooked by one of the .VLMs loaded by VLM.EXE v1.10, but apparently a
           NOP
---------c-2F01-------------------------------
-INT 2F U - DOS 2.x only PRINT.COM - REMOVE FILE FROM PRINT QUEUE
-        AH = 01h
-        DS:DX -> FCB (see #01345 at INT 21/AH=0Fh) for file to be canceled
-Return: AH = number of files currently in print queue
-        AL = 00h (successful)
-        ES:BX -> print queue (10 FCBs; first byte of FFh indicates unused)
-        ES:DX -> currently-printing FCB (if DX=FFFFh, none printing)
-Notes:  DOS 2.x PRINT.COM does not chain to previous INT 2F handler
-        values in AH other than 00h or 01h cause PRINT to return the number of
-          files in the queue in AH
-SeeAlso: AH=00h"PRINT.COM",AX=0103h
---------c-2F0100-----------------------------
-INT 2F - DOS 3.0+ PRINT - INSTALLATION CHECK
-        AX = 0100h
-Return: AL = status
-            00h not installed
-            01h not installed, but not OK to install
-            FFh installed
-                AH = 00h (Novell DOS 7)
-SeeAlso: AX=0101h
---------c-2F0100SI20D6-----------------------
-INT 2F U - PrintCache 3.1 PRINT.COM - INSTALLATION CHECK
-        AX = 0100h
-        SI = 20D6h
-        DI = 8761h
-Return: AX = 00FFh if installed
-        DI = 0001h if PrintCache's PRINT.COM installed and magic values match
-            SI = resident code segment
-Program: PrintCache PRINT.COM is a DOS PRINT replacement included in
-          LaserTools' PrintCache memory/disk-based print spooler package
-Note:   if either of SI or DI differ from the indicated magic values, only AX
-          will be modified on return, for compatibility with DOS PRINT
-SeeAlso: AX=0101h/SI=20D6h,AX=C000h"PCACHE"
 --------c-2F0101-----------------------------
 INT 2F - DOS 3.0+ PRINT - SUBMIT FILE FOR PRINTING
         AX = 0101h
@@ -2275,26 +2221,6 @@ Values for PRINT error code:
  0009h  spooler busy
  000Ch  name too long
  000Fh  invalid drive
---------c-2F0101SI20D6-----------------------
-INT 2F U - PrintCache v3.1 PRINT.COM - SUBMIT FILE FOR PRINTING
-        AX = 0101h
-        SI = 20D6h
-        DI = 8761h
-        DS:DX -> submit packet (see #02593)
-        CL = print options
-            bit 4: use default options
-Return: CF clear if successful
-            AL = status
-                01h added to queue
-                9Eh now printing
-        CF set on error
-            AX = error code (see #02594)
-Program: PrintCache PRINT.COM is a DOS PRINT replacement included in
-          LaserTools' PrintCache memory/disk-based print spooler package
-Note:   if either SI or DI differs from the indicated magic values on entry,
-          PrintCache will use the default print options for the file for
-          compatibility with DOS PRINT
-SeeAlso: AX=0100h/SI=20D6h,AX=0101h,AH=00h"PRINT",AX=0107h"PrintCache"
 --------c-2F0102-----------------------------
 INT 2F - DOS 3.0+ PRINT - REMOVE FILE FROM PRINT QUEUE
         AX = 0102h
@@ -2347,55 +2273,12 @@ Notes:  undocumented prior to the release of MS-DOS 5.0
         this function can be used to allow a program to avoid printing to the
           printer on which PRINT is currently performing output
 SeeAlso: AX=0104h
---------c-2F0107-----------------------------
-INT 2F U - PrintCache v3.1 PRINT.COM - SET TRAILING FORM FEEDS
-        AX = 0107h
-        CL bit 0: output form feed between print jobs
-Return: AL destroyed
-SeeAlso: AX=0100h/SI=20D6h,AX=0101h/SI=20D6h
 --------N-2F0200-----------------------------
 INT 2F U - PC LAN PROGRAM REDIR/REDIRIFS internal - INSTALLATION CHECK
         AX = 0200h
 Return: AL = FFh if installed
 Desc:   determine whether the PC LAN Program redirector is installed
 SeeAlso: AX=0201h,AX=0203h
---------N-2F0201-----------------------------
-INT 2F U - PC LAN PROGRAM REDIR/REDIRIFS internal - ???
-        AX = 0201h
-Return: nothing???
-Notes:  this function is called by the DOS 3.3+ PRINT.COM
-        AX=0202h appears to be the opposite function
-        these functions are supposedly used to signal opening and closing of
-          printers
-SeeAlso: AX=0202h
---------N-2F0202-----------------------------
-INT 2F U - PC LAN PROGRAM REDIR/REDIRIFS internal - ???
-        AX = 0202h
-        ???
-Return: nothing???
-Notes:  this function is called by the DOS 3.3+ PRINT.COM
-        these functions are supposedly used to signal opening and closing of
-          printers
-SeeAlso: AX=0201h
---------N-2F0203-----------------------------
-INT 2F U - PC LAN PROGRAM REDIR/REDIRIFS internal - ???
-        AX = 0203h
-Return: nothing???
-Notes:  this function is called by the DOS 3.3+ PRINT.COM
-        AX=0204h appears to be the opposite function
-        these functions are supposedly used to signal opening and closing of
-          printers
-SeeAlso: AX=0200h,AX=0204h
---------N-2F0204-----------------------------
-INT 2F U - PC LAN PROGRAM REDIR/REDIRIFS internal - ???
-        AX = 0204h
-        ???
-Return: nothing???
-Notes:  this function is called by the DOS 3.3+ PRINT.COM
-        AX=0203h appears to be the opposite function
-        these functions are supposedly used to signal opening and closing of
-          printers
-SeeAlso: AX=0200h,AX=0203h
 --------N-2F---------------------------------
 INT 2F U - PC LAN PROGRAM REDIR/REDIRIFS internal - ???
         AX = 02xxh
