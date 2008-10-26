@@ -30,6 +30,7 @@ DIRS = shared ansi   &
               mkdir &
               mode &
               more &
+              newmbr &
 #              print &
               recover &
               sort &

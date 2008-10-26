@@ -11,10 +11,10 @@
    @author Michael Neceasek <MichalN@prodigy.net>
 */
 
-unsigned short _far16 _pascal FSENTRY16(void *funcptr, short argc, char _far16 * _far16 *argv,
+unsigned short _far16 _pascal FSENTRY16(void _far16 *funcptr, short argc, char _far16 * _far16 *argv,
                                  char _far16 * _far16 *envp)
 {
-    unsigned short _pascal (*func16)();
+    unsigned short _pascal (* _far16 func16)();
 
     func16 = funcptr;
 

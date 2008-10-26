@@ -45,6 +45,7 @@ typedef WORD FAR *PWORD;                // pw
 // To convert a tiled 16:16 address to a 0:32 address
 #define MAKEFLATP(fp)   ((PVOID)((SEGMENTOF16(fp)&~7)<<13 | OFFSETOF16(fp)))
 
+
 /*
 RexxLoadSubcom.10,
 RexxCallExit.15,

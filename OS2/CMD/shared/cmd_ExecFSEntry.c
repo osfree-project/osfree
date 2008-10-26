@@ -44,6 +44,10 @@ USHORT _far16 _pascal FSENTRY16(void *, short, char _far16 * _far16 *, char _far
 
   @bug due Watcom's bug/feature we need to use environ here instead of envp...
 */
+
+
+APIRET16 (* APIENTRY16 func16)(short, char _far16 * _far16 *, char _far16 * _far16 *);
+
 APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
                        ULONG ulArgc, PSZ argv[],PSZ envp[])
 {
@@ -88,7 +92,7 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
 
   /* get requested entry procedure address */
   rc= DosQueryProcAddr(hUtilDllHandle,0L,
-                       strupr(pszEntryName),(PFN*)&pvFSEntry);
+                       strupr(pszEntryName),(PFN*)&func16);
 
   if (rc!=NO_ERROR)
   {
@@ -96,6 +100,8 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
    free(pszUtilDllName);
    return cmd_ERROR_EXIT;
   };
+
+//  func16 = (PVOID) (ULONG) (PVOID16) func16;
 
   /* this was only for debug purposes ;)
   DosQueryProcType(hUtilDllHandle,0L,strupr(pszEntryName),&ulType);
@@ -108,7 +114,7 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
   newargv= (char _far16 * _far16 *)malloc(ulArgc*sizeof(char _far16*));
 
   for (i=0;i<ulArgc;i++)
-    newargv[i]=(char far *)argv[i];
+    newargv[i]=MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
 
     /* get number of envs */
   for (ulEnvpCount=0;environ[ulEnvpCount];ulEnvpCount++);
@@ -116,15 +122,17 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
   newenvp= (char _far16 * _far16 *)malloc((ulEnvpCount+1)*sizeof(char _far16*));
 
   for (i=0;i<ulEnvpCount;i++)
-    newenvp[i]=(char far *)environ[i];
+    newenvp[i]=MAKE16P(SELECTOROF(environ[i]),OFFSETOF(environ[i]));
 
   newenvp[ulEnvpCount]=NULL;
 
   if (fVerbose)
      cmd_ShowSystemMessage(cmd_MSG_FSUTIL_HAS_STARTED,1L,"%s",pszFSName);
 
-//  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
-  rc=pvFSEntry((short)ulArgc, newargv, newenvp);
+//  rc=func16((short)ulArgc, newargv, newenvp);
+
+  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
+//  rc=pvFSEntry((short)ulArgc, newargv, newenvp);
 
   DosFreeModule(hUtilDllHandle);
   free(pszUtilDllName);

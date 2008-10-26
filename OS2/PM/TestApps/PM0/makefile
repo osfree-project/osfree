@@ -16,14 +16,7 @@ srcfiles = $(p)pm0$(e)
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
 ADD_COPT    = -bm -od -mf -sg -d2 -mf
-INSTALL_PRE = 1
 DEST        = os2$(SEP)test
 
 !include $(%ROOT)/mk/appsos2.mk
 
-install_pre: $(PATH)$(PROJ).exe .SYMBOLIC
-! ifeq ENV OS/2
- renmodul.exe /i $[@ pmwin fmwin
-! else
- @rem
-! endif

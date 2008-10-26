@@ -1,6 +1,4 @@
 /*!
-   $Id: chkdsk.c,v 1.1.1.1 2003/10/04 08:19:08 prokushev Exp $
-
    @file chkdsk.c
 
    @brief chkdsk command - frontend for chkdsk entry in fs utility dll
@@ -13,7 +11,6 @@
 
 #define INCL_DOSERRORS
 #include <osfree.h> /* system header */
-
 
 /* C standard library headers */
 #include <malloc.h>
@@ -42,22 +39,22 @@ int main (int argc, char* argv[], char* envp[])
   APIRET rc;
   ULONG ulAvailableDisks;
 
- /* check if user wants info from us (/? or -?) */
- if (argc>1)
-   if (((argv[1][0]==PARAM_CHAR1) || (argv[1][0]==PARAM_CHAR2)) &&
-      (argv[1][1]=='?')&& (argv[1][2]=='\0'))
- {
-   cmd_ShowSystemMessage(cmd_MSG_CHKDSK_HELP,0L);
-   return NO_ERROR;
- };
-
- /* is there a disk specified on a command line? if not, use current */
- for (i=1;i<argc;i++)
-  if (argv[i][1]==':')
+  /* check if user wants info from us (/? or -?) */
+  if (argc>1)
+    if (((argv[1][0]==PARAM_CHAR1) || (argv[1][0]==PARAM_CHAR2)) &&
+       (argv[1][1]=='?')&& (argv[1][2]=='\0'))
   {
-    strncpy(disk,argv[i],2);
-    break;
+    cmd_ShowSystemMessage(cmd_MSG_CHKDSK_HELP,0L);
+    return NO_ERROR;
   };
+
+  /* is there a disk specified on a command line? if not, use current */
+  for (i=1;i<argc;i++)
+   if (argv[i][1]==':')
+   {
+     strncpy(disk,argv[i],2);
+     break;
+   };
 
   /* get current disk drive name */
   if (i==argc)
@@ -66,20 +63,20 @@ int main (int argc, char* argv[], char* envp[])
 
   cmd_ShowSystemMessage(cmd_MSG_CURRENT_HARD_DISK_IS,1L,"%s",strupr(disk));
 
- /* get name of FS for the specified disk */
- pszFSName=calloc(CCHMAXPATH,1);
+  /* get name of FS for the specified disk */
+  pszFSName=calloc(CCHMAXPATH,1);
 
- /* execute appriate function from FS utility dll */
- if (cmd_QueryFSName(disk,pszFSName))
- {
-   free(pszFSName);
-   return cmd_ERROR_EXIT;
- };
+  /* execute appriate function from FS utility dll */
+  if (cmd_QueryFSName(disk,pszFSName))
+  {
+    free(pszFSName);
+    return cmd_ERROR_EXIT;
+  };
 
- cmd_ShowSystemMessage(cmd_MSG_TYPE_OF_FS_IS,1L,"%s",pszFSName);
+  cmd_ShowSystemMessage(cmd_MSG_TYPE_OF_FS_IS,1L,"%s",pszFSName);
 
- rc=cmd_ExecFSEntry(pszFSName,cmd_FS_CHKDSK,TRUE,argc,argv,envp);
+  rc=cmd_ExecFSEntry(pszFSName,cmd_FS_CHKDSK,TRUE,argc,argv,envp);
 
- free(pszFSName);
- return rc;
+  free(pszFSName);
+  return rc;
 };

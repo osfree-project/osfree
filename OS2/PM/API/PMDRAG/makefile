@@ -167,18 +167,6 @@ EXPORTS = DRGACCESSDRAGINFO.            00001,  &
           Undocumented1.                00075,  &
           Undocumented2.                00076
 DEST     = os2$(SEP)dll
-INSTALL_PRE = 1
 
 !include $(%ROOT)/mk/appsos2.mk
 
-!ifeq ENV OS/2
-install_pre: $(PATH)$(PROJ).dll .SYMBOLIC
- @$(CD) $[:
- renmodul /r $[. pmdrag fmdrag
- $(CP) pmdrag.dll fmdrag.dll
- @$(CD) $(MYDIR)
-!else
-install_pre: $(PATH)$(PROJ).dll .SYMBOLIC
- @$(CD) $[:
- @$(CD) $(MYDIR)
-!endif

@@ -1491,17 +1491,5 @@ EXPORTS = WinInitialize.              00763,  &
           Undocumented37              .10020,  &
           Undocumented38              .10021
 DEST     = os2$(SEP)dll
-INSTALL_PRE = 1
-
 
 !include $(%ROOT)/mk/appsos2.mk
-
-install_pre: $(PATH)pmwin.dll .SYMBOLIC
- @$(CD) $[:
- !ifeq ENV OS/2
- renmodul /r $[. pmwin fmwin
- $(CP) pmwin.dll fmwin.dll
- renmodul /i $[:fmwin.dll pmmerge fmmerge
- !else
- !endif
- @$(CD) $(MYDIR)

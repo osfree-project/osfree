@@ -11,7 +11,6 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include
 # Watcom compiler.
 srcfiles = $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_FSEntry16$(e) &
            $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)
-
 TARGETS  = $(PATH)$(PROJ).lib subdirs
 
 !include $(%ROOT)/mk/libsos2.mk
@@ -19,6 +18,3 @@ TARGETS  = $(PATH)$(PROJ).lib subdirs
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
 
-#cmd_fsentry16.obj: cmd_fsentry16.c
-# $(SAY) Compiling $<
-# @wcc -s -ml -zl -bt=os2 cmd_fsentry16.c $(LOG)
