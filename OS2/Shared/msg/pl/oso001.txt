@@ -11027,17 +11027,24 @@ gdzie:
 Aby sprawdzi† bie¾¥cy dysk, wpisz: CHKDSK
 ;
 ;
-SYS3094I: U¾yj polecenia COMP, aby por¢wna† zawarto˜† dw¢ch plik¢w
-lub zbioru plik¢w.
-Skˆadnia:
-  COMP [dysk:][˜cie¾ka][plik] [dysk:][˜cie¾ka][plik]
-gdzie:
-  dysk:\˜cie¾ka\plik   okre˜la umiejscowienie i nazw© pierwszego pliku,
-                       kt¢ry b©dzie por¢wnywany.
-  dysk:\˜cie¾ka\plik   okre˜la umiejscowienie i nazw© drugiego pliku,
-                       kt¢ry b©dzie por¢wnywany.
+SYS3094I: Use the COMP command to compare the contents of two files or
+sets of files.
+Syntax:
+  COMP [options] [drive:][path][filename] [drive:][path][filename]
+where:
+  drive:\path\filename   Specifies the location and name of the first
+                         file to compare.
+  drive:\path\filename   Specifies the location and name of the second
+                         file to compare.
 
-Aby por¢wna† zbiory plik¢w, u¾yj znak¢w zast©pczych w parametrach plik¢w.
+  -s<[+]|->      Silent execution.       default: -s-
+  -q<[+]|->      Same as -s.
+  -h|?           Help screen (this).
+
+To compare sets of files, use wildcards in filename parameters.
+
+This program is published according to the GNU GENERAL PUBLIC LICENSE V2.
+Copyright (c) 2002 knut st. osmundsen
 ;
 ;
 SYS3095I: U¾yj polecenia DISKCOMP, aby por¢wna† zawarto˜† dw¢ch dyskietek.

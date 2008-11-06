@@ -1,8 +1,4 @@
 /*
- * $Source: /netlabs.cvs/osfree/src/cmd/xcopy/rcopy.c,v $
- * $Revision: 1.1 $
- * $Date: 2003/10/20 13:59:42 $
- * $Author: prokushev $
  *
  * Copies directory tree, optional excluding some files or directories
  *

@@ -10,21 +10,20 @@
 
 
 /*******************************************************************************
-*   Defined Constants And Macros                                               *
-*******************************************************************************/
-#define INCL_BASE
-
-
-/*******************************************************************************
 *   Header Files                                                               *
 *******************************************************************************/
-#include <osfree.h>
+// Include OS/2 specific files first
+#define INCL_BASE
+#include <os2.h>
 
+// stdlib files
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
+// shared files
+#include <cmd_shared.h>
 
 /*******************************************************************************
 *   Global Variables                                                           *
@@ -74,7 +73,7 @@ int main(int argc, char **argv)
 
     for (argi = 1; argi < argc; argi++)
     {
-        if (argv[argi][0] == '-')
+        if ((argv[argi][0] == '-')||(argv[argi][0] == '/'))
         {
             switch (argv[argi][1])
             {
@@ -94,8 +93,9 @@ int main(int argc, char **argv)
                     break;
 
                 default:
-                    fprintf(stderr, "Unknown options '%s'.\n", argv[argi]);
-                    return -1;
+                  // Invalid parameter
+                  cmd_ShowSystemMessage(MSG_BAD_PARM1, 0);
+                  return -1;
             }
         }
         else if (argi1st == -1)
@@ -135,19 +135,7 @@ int main(int argc, char **argv)
 
 void syntax(void)
 {
-    fputs(
-         "Cmp! quick and dirty\n"
-         "--------------------------------\n"
-         "Syntax: cmp.exe <options> <files..> [[options] <files> ...]\n"
-         "  options:\n"
-         "   -s<[+]|->      Silent execution.       default: -s-\n"
-         "   -q<[+]|->      Same as -s.\n"
-         "   -h|?           Help screen (this).\n"
-         "\n"
-         "\n"
-         "This program is published according to the GNU GENERAL PUBLIC LICENSE V2.\n"
-         "Copyright (c) 2002 knut st. osmundsen\n",
-         stdout);
+  cmd_ShowSystemMessage(cmd_MSG_COMP_HELP, 0);
 }
 
 
@@ -160,94 +148,94 @@ void syntax(void)
  */
 int ProcessFiles(const char *pszFilePattern1, const char *pszFilePattern2)
 {
-    int             cPrevTotalFiles = cTotalFiles;
-    char            szFilename[CCHMAXPATH];
-    char *          pszFilename;
-    const char *    pszPath;
-    const char *    pszPath1;
-    const char *    pszPath2;
-    APIRET          rc;
-    ULONG           cFiles = 500;
-    HDIR            hDir = HDIR_CREATE;
-    char            achfindbuf[1024*16];
-    PFILEFINDBUF3   pfindbuf = (PFILEFINDBUF3)&achfindbuf[0];
+  int             cPrevTotalFiles = cTotalFiles;
+  char            szFilename[CCHMAXPATH];
+  char *          pszFilename;
+  const char *    pszPath;
+  const char *    pszPath1;
+  const char *    pszPath2;
+  APIRET          rc;
+  ULONG           cFiles = 500;
+  HDIR            hDir = HDIR_CREATE;
+  char            achfindbuf[1024*16];
+  PFILEFINDBUF3   pfindbuf = (PFILEFINDBUF3)&achfindbuf[0];
 
 
-    /*
-     * Extract path from pattern.
-     */
-    pszPath1 = strrchr(pszFilePattern1, '\\');
-    pszPath2 = strrchr(pszFilePattern1, '/');
-    if (pszPath1 != NULL && pszPath1 > pszPath2)
-        pszPath = pszPath1+1;
-    else if (pszPath2 != NULL && pszPath2 > pszPath1)
-        pszPath = pszPath2+1;
-    else if (pszFilePattern1[1] == ':')
-        pszPath = &pszFilePattern1[2];
-    else
-        pszPath = &pszFilePattern1[0];
-    memcpy(szFilename, pszFilePattern1, pszPath - pszFilePattern1);
-    pszFilename = &szFilename[pszPath - pszFilePattern1];
-    *pszFilename = '\0';
+  /*
+   * Extract path from pattern.
+   */
+  pszPath1 = strrchr(pszFilePattern1, '\\');
+  pszPath2 = strrchr(pszFilePattern1, '/');
+  if (pszPath1 != NULL && pszPath1 > pszPath2)
+      pszPath = pszPath1+1;
+  else if (pszPath2 != NULL && pszPath2 > pszPath1)
+      pszPath = pszPath2+1;
+  else if (pszFilePattern1[1] == ':')
+      pszPath = &pszFilePattern1[2];
+  else
+      pszPath = &pszFilePattern1[0];
+  memcpy(szFilename, pszFilePattern1, pszPath - pszFilePattern1);
+  pszFilename = &szFilename[pszPath - pszFilePattern1];
+  *pszFilename = '\0';
 
-    /*
-     * First search.
-     */
-    rc = DosFindFirst((PSZ)pszFilePattern1,
-                           &hDir,
-                           0,
-                           pfindbuf,
-                           sizeof(achfindbuf),
-                           &cFiles,
-                           FIL_STANDARD);
-    while (rc == NO_ERROR && cFiles > 0)
-    {
-        PFILEFINDBUF3   pCur = pfindbuf;
+  /*
+   * First search.
+   */
+  rc = DosFindFirst((PSZ)pszFilePattern1,
+                         &hDir,
+                         0,
+                         pfindbuf,
+                         sizeof(achfindbuf),
+                         &cFiles,
+                         FIL_STANDARD);
+  while (rc == NO_ERROR && cFiles > 0)
+  {
+      PFILEFINDBUF3   pCur = pfindbuf;
 
-        /*
-         * Loop thru the result.
-         */
-        while (pCur && cFiles--)
-        {
-            /*
-             * Make filename.
-             * Process the file.
-             * Maintain statistics.
-             */
-            strcpy(pszFilename, pCur->achName);
-            rc = ProcessFile(szFilename, pCur->cbFile,  pszFilePattern2);
-            if (rc == 0)
-                cSuccess++;
-            else
-                cErrors++;
-            cTotalFiles++;
+      /*
+       * Loop thru the result.
+       */
+      while (pCur && cFiles--)
+      {
+          /*
+           * Make filename.
+           * Process the file.
+           * Maintain statistics.
+           */
+          strcpy(pszFilename, pCur->achName);
+          rc = ProcessFile(szFilename, pCur->cbFile,  pszFilePattern2);
+          if (rc == 0)
+              cSuccess++;
+          else
+              cErrors++;
+          cTotalFiles++;
 
-            /*
-             * Next file.
-             */
-            pCur = pCur->oNextEntryOffset == 0
-                    ? NULL
-                    : (PFILEFINDBUF3)((char*)pCur + pCur->oNextEntryOffset);
-        }
+          /*
+           * Next file.
+           */
+          pCur = pCur->oNextEntryOffset == 0
+                  ? NULL
+                  : (PFILEFINDBUF3)((char*)pCur + pCur->oNextEntryOffset);
+      }
 
-        /*
-         * Next chunk.
-         */
-        cFiles = 500;
-        rc = DosFindNext(hDir, pfindbuf, sizeof(achfindbuf), &cFiles);
-    }
+      /*
+       * Next chunk.
+       */
+      cFiles = 500;
+      rc = DosFindNext(hDir, pfindbuf, sizeof(achfindbuf), &cFiles);
+  }
 
-    /*
-     * Terminate find.
-     */
-    DosFindClose(hDir);
+  /*
+   * Terminate find.
+   */
+  DosFindClose(hDir);
 
-    /*
-     * Warning about no files and return.
-     */
-    if (cTotalFiles == cPrevTotalFiles)
-        fprintf(stderr, "No files found matching the pattern: %s\n", pszFilePattern1);
-    return rc == ERROR_NO_MORE_FILES ? NO_ERROR : rc;
+  /*
+   * Warning about no files and return.
+   */
+  if (cTotalFiles == cPrevTotalFiles)
+      fprintf(stderr, "No files found matching the pattern: %s\n", pszFilePattern1);
+  return rc == ERROR_NO_MORE_FILES ? NO_ERROR : rc;
 }
 
 

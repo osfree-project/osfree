@@ -10728,14 +10728,21 @@ To check the current disk, type: CHKDSK
 SYS3094I: Use the COMP command to compare the contents of two files or
 sets of files.
 Syntax:
-  COMP [drive:][path][filename] [drive:][path][filename]
+  COMP [options] [drive:][path][filename] [drive:][path][filename]
 where:
   drive:\path\filename   Specifies the location and name of the first
                          file to compare.
   drive:\path\filename   Specifies the location and name of the second
                          file to compare.
 
+  -s<[+]|->      Silent execution.       default: -s-
+  -q<[+]|->      Same as -s.
+  -h|?           Help screen (this).
+
 To compare sets of files, use wildcards in filename parameters.
+
+This program is published according to the GNU GENERAL PUBLIC LICENSE V2.
+Copyright (c) 2002 knut st. osmundsen
 ;
 ;
 SYS3095I: Use the DISKCOMP command to compare the contents of two

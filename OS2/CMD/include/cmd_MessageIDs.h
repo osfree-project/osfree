@@ -61,6 +61,7 @@
 #define cmd_MSG_CLS_HELP                3067  /*!< Help screen for cls */
 #define cmd_MSG_ATTRIB_HELP             3092  /*!< Help screen for attrib */
 #define cmd_MSG_CHKDSK_HELP             3093  /*!< Help screen for chkdsk */
+#define cmd_MSG_COMP_HELP               3094  /*!< Help screen for comp */
 #define cmd_MSG_DISKCOPY_HELP           3096L /*!< Help screen for diskcopy */
 #define cmd_MSG_FIND_HELP               3099L /*!< Help screen for find */
 #define cmd_MSG_FORMAT_HELP             3120  /*!< Help screen for format */
