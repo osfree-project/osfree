@@ -19,11 +19,21 @@ smclasses=value("SMCLASSES",,"ENVIRONMENT")
 
 sompp='sompp.exe'
 
-say argc
-if arg(1)='-V' then
-'bldlevel sc.exe'
+if arg() then
+  do i=0 to arg()
+    say arg(i)
+    if pos('-', arg(i))>0 then
+    do
+      if arg(i)='-V' then
+        'bldlevel sc.exe'
+      else
+      if arg(i)='-h' then
+        call usage;
+    end
+    else say arg(i)
+  end
 else
-call usage;
+  say 'fatal error: No source file specified.'
 
 return
 
