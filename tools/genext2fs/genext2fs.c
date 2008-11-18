@@ -50,6 +50,15 @@
 //       6 Jan 2003     Erik Andersen <andersee@debian.org> added
 //                      mkfs.jffs2 compatible device table support,
 //                      along with -q, -P, -U
+#ifdef __OS2__
+#define __CPM__
+#endif
+    
+#ifdef __NT__
+#define __CPM__
+#endif
+
+
 #ifdef __WATCOM__
 #include "getline.h"
 //#include "porting.h"
@@ -238,7 +247,7 @@ typedef unsigned int uint32;
 #else
   #define SCANF_PREFIX "511"
   #define SCANF_STRING(s) (s = malloc(512))
-  #ifndef __OS2__
+  #ifndef __CPM__
     #define GETCWD_SIZE -1
   #else
     #define GETCWD_SIZE 0
@@ -246,7 +255,7 @@ typedef unsigned int uint32;
   #define SNPRINTF_STORAGE_CLASS static inline
 #endif // defined __GNUC__
 
-#ifndef __OS2__
+#ifndef __CPM__
 #ifdef SNPRINTF_STORAGE_CLASS
 SNPRINTF_STORAGE_CLASS int
 snprintf(char *str, size_t n, const char *fmt, ...)
@@ -666,7 +675,7 @@ xrealloc(void *ptr, size_t size)
         return ptr;
 }
 
-#ifndef __OS2__
+#ifndef __CPM__
 static char *
 xreadlink(const char *path)
 {
@@ -1605,7 +1614,7 @@ add2fs_from_dir(filesystem *fs, uint32 this_nod, int squash_uids, int squash_per
                                 case S_IFSOCK:
                                         nod = mknod_fs(fs, this_nod, name, mode|FM_IFSOCK, uid, gid, 0, 0, ctime, mtime);
                                         break;
-#ifndef __OS2__
+#ifndef __CPM__
                                 case S_IFLNK:
                                         b = xreadlink(dent->d_name);
                                         mklink_fs(fs, this_nod, name, st.st_size, b, uid, gid, ctime, mtime);
@@ -1613,7 +1622,7 @@ add2fs_from_dir(filesystem *fs, uint32 this_nod, int squash_uids, int squash_per
                                         break;
 #endif
                                 case S_IFREG:
-#ifdef __OS2__
+#ifdef __CPM__
                                         fh = xfopen(dent->d_name, "rb");
 #else
                                         fh = xfopen(dent->d_name, "r");
@@ -2449,7 +2458,7 @@ main(int argc, char **argv)
         {
                 if(strcmp(fsin, "-"))
                 {
-#ifdef __OS2__
+#ifdef __CPM__
                         FILE * fh = xfopen(fsin, "rb");
 #else
                         FILE * fh = xfopen(fsin, "r");
@@ -2477,7 +2486,7 @@ main(int argc, char **argv)
                         switch(st.st_mode & S_IFMT)
                         {
                                 case S_IFREG:
-#ifdef __OS2__
+#ifdef __CPM__
                                         fh = xfopen(dopt[i], "rb");
 #else
                                         fh = xfopen(dopt[i], "r");
@@ -2551,7 +2560,7 @@ main(int argc, char **argv)
                 switch(st.st_mode & S_IFMT)
                 {
                         case S_IFREG:
-#ifdef __OS2__
+#ifdef __CPM__
                                 fh = xfopen(dopt[i], "rb");
 #else
                                 fh = xfopen(dopt[i], "r");
@@ -2590,7 +2599,7 @@ main(int argc, char **argv)
                 while((p = strchr(gopt[i], '/')))
                         *p = '_';
                 snprintf(fname, MAX_FILENAME-1, "%s.blk", gopt[i]);
-#ifdef __OS2__
+#ifdef __CPM__
                 fh = xfopen(fname, "wb");
 #else
                 fh = xfopen(fname, "w");
@@ -2601,7 +2610,7 @@ main(int argc, char **argv)
         }
         if(strcmp(fsout, "-"))
         {
-#ifdef __OS2__
+#ifdef __CPM__
                 FILE * fh = xfopen(fsout, "wb");
 #else
                 FILE * fh = xfopen(fsout, "w");

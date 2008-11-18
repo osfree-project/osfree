@@ -72,10 +72,10 @@
 /* #undef HAVE_STPCPY */
 
 /* The location of the simple parser (bison.simple).  */
-#define XPFILE "/emx/share/bison.simple"
+#define XPFILE "bison.simple"
 
 /* The location of the semantic parser (bison.hairy).   */
-#define XPFILE1 "/emx/share/bison.hairy"
+#define XPFILE1 "bison.hairy"
 
 /* The location of the local directory.  */
 #define LOCALEDIR "/emx/share/locale"

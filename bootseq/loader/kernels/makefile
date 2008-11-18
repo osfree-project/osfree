@@ -106,7 +106,7 @@ $(PATH)ufsd: $(PATH)bt_ufsd.mdl
  $(CUT) 0 0x200 $[@ >$^@
 
 $(PATH)bt_os2.mdl: $(PATH)bt_startup.mdl $(PATH)bt_ufsd.mdl $(PATH)os2boot $(PATH)os2ldr
- mkbundle.cmd $< $^@
+ $(REXX) mkbundle.cmd $< $^@
 
 $(PATH)os2boot: $(MYDIR)os2boot
  $(CP) $< $^@

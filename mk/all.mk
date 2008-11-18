@@ -70,7 +70,7 @@ MAKE      = wmake
 MAKEOPT   = -h
 
 PC        = ppc386
-PCOPT     = -Sg2h
+PCOPT     = -Sg2h $(ADD_PCOPT)
 
 DD        = dd
 

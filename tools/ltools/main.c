@@ -250,10 +250,15 @@
 #include <string.h>
 #include <math.h>
 #ifndef __OS2__
-  #ifdef _MSC_VER 
-    #include <io.h>
+  #ifndef __NT__
+    #ifdef _MSC_VER 
+      #include <io.h>
+    #else
+      #include <dir.h>
+    #endif
   #else
-    #include <dir.h>
+    #include <io.h>
+    #include "porting.h"
   #endif
 #else
 #include <io.h>
@@ -379,7 +384,7 @@ int main(int argc, char **argv)
 #ifdef UNIX
     static int blocks_per_block;
 #else
-#ifndef __WIN32__
+#ifndef __NT__
 #ifndef __OS2__
     union REGS inregs, outregs;
     struct SREGS segregs;
@@ -423,7 +428,7 @@ int main(int argc, char **argv)
     	if (!strcmp(temp, "x86"))				//this is Windows NT, this variable is not defined under DOS or Windows 9x
     	    isNT=1;
 
-#if !defined(__WIN32__)
+#if !defined(__NT__)
     //inregs.x.ax = 0x1687;
     inregs.x.ax = 0x160A;					//check, if we are running under Windows
     int86x(0x2F, &inregs, &outregs, &segregs);
@@ -584,7 +589,7 @@ int main(int argc, char **argv)
 	#endif
 #endif
 #endif
-#ifdef __WIN32__
+#ifdef __NT__
 #ifndef USEDLL
     	    fprintf(STDOUT, "as 32bit EXE\n");
 #else
@@ -803,7 +808,7 @@ int main(int argc, char **argv)
     DebugOut(1,"\n");
     DebugOut(1,"Mode: %u   Source:%s---Destin:%s---\n",modus,source,destin);
 
-#ifdef __WIN32__
+#ifdef __NT__
 #ifndef _MSC_VER
     DebugOut(1,"Running ldirNT under %s %d.%d\n", isNT?"Windows NT ":"OS ",_osmajor, _osminor);
 #endif
@@ -832,7 +837,7 @@ int main(int argc, char **argv)
     	fprintf(STDOUT, "Compiled with unknown compiler on %s ", __DATE__);
 #endif
 #endif
-#ifdef __WIN32__
+#ifdef __NT__
     	fprintf(STDOUT, "as 32bit binary\n");
 #else
 #ifndef UNIX
@@ -846,7 +851,7 @@ int main(int argc, char **argv)
 #ifdef UNIX
 	fprintf(STDOUT, "UNIX/QDOS port by Richard Zidlicky\n");
 #endif
-#ifdef __WIN32__
+#ifdef __NT__
 #ifndef _MSC_VER
     	fprintf(STDOUT,"Running ldirNT under %s %d.%d\n", isNT?"Windows NT ":"OS ",_osmajor, _osminor);
 #endif
@@ -1045,7 +1050,7 @@ int main(int argc, char **argv)
                 {   case CHANGE:
                         {
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(1);			//lock the drive
 #endif
 #endif
@@ -1073,7 +1078,7 @@ int main(int argc, char **argv)
 			    }
 			    search_dir(NULL, NULL, inode_name, KILL_BUF);
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(0);			//unlock the drive
 #endif
 #endif
@@ -1083,7 +1088,7 @@ int main(int argc, char **argv)
 		    case REN:
 			{
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(1);			//lock the drive
 #endif
 #endif
@@ -1123,7 +1128,7 @@ int main(int argc, char **argv)
 			    store_inode(inode_num, in);
 
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(0);				//unlock the drive
 #endif
 #endif
@@ -1136,7 +1141,7 @@ int main(int argc, char **argv)
    -When the filename contains wildcards, this only works with the first file.
  */
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(1);			//lock the drive
 #endif
 #endif
@@ -1223,7 +1228,7 @@ int main(int argc, char **argv)
 			    }
 
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(0);			//unlock the drive
 #endif
 #endif
@@ -1250,7 +1255,7 @@ int main(int argc, char **argv)
 			    }
 
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(1);			//lock the drive
 #endif
 #endif
@@ -1647,7 +1652,7 @@ onlyLink:		    sb.s_free_inodes_count--;		//adapt superblock's free inode count
 				exit(-1);
 			    }
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			    lockDrive(0);			//unlock the drive
 #endif
 #endif
@@ -1685,7 +1690,7 @@ onlyLink:		    sb.s_free_inodes_count--;		//adapt superblock's free inode count
 			    }
 			}
 #ifndef UNIX
-#if !defined(__WIN32__) && !defined(__OS2__)
+#if !defined(__NT__) && !defined(__OS2__)
 			fd = dos_long_creat(destin);
 #else
 			fd = creat(destin, S_IREAD | S_IWRITE | O_BINARY);

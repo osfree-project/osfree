@@ -4,7 +4,6 @@
 # valerius, 2006/10/30
 #
 
-# This is the operating system, only LINUX and SOLARIS (x86) are supported
 OS       = __OS2__
 # No need to change anything beyond this line ##########################################
 ADD_COPT     = -d$(OS) -dSANITY_CHECKS -d_FILE_OFFSET_BITS=64 -d__WATCOM__ &
@@ -27,4 +26,5 @@ inst: $(PATH)ldir.exe
  @for %i in ($(list)) do $(CP) $(MYDIR)cmd$(SEP)%i.cmd $(DEST)
  $(CP) $(PATH)ldir.exe $(DEST)
 
-readdisk.o: UNIXdisk.h
+readdisk.o: UNIXdisk.h DOSdisk.h
+

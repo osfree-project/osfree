@@ -13,6 +13,8 @@ CLEAN_ADD = *.oo2 *.ppo
 DEST    = os2
 !endif
 
+ADD_PCOPT = -Tos2
+
 #CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 

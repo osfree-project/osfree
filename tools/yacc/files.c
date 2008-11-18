@@ -80,6 +80,11 @@ extern int noparserflag;
 #ifdef __OS2__
 #define mktemp _mktemp
 #endif
+
+#ifdef __NT__
+#define mktemp _mktemp
+#endif
+
 extern char     *getenv();
 extern void     perror();
 
@@ -127,9 +132,7 @@ void
 openfiles (void)
 {
   char *name_base;
-#ifdef MSDOS
   register char *cp;
-#endif
   char *filename;
   int base_length;
   int short_base_length;
@@ -252,6 +255,28 @@ openfiles (void)
            strcpy(cp, PFILE);
          }
 #endif /* MSDOS */
+#ifdef __NT__
+      cp = dirname(program_name);
+      if (filename == 0 && cp != NULL)
+         {
+           filename = xmalloc(strlen(cp) + strlen(PFILE) + 2);
+           strcpy(filename, cp);
+           cp = filename + strlen(filename);
+           *cp++ = '\\';
+           strcpy(cp, PFILE);
+         }
+#endif
+#ifdef __OS2__
+      cp = dirname(program_name);
+      if (filename == 0 && cp != NULL)
+         {
+           filename = xmalloc(strlen(cp) + strlen(PFILE) + 2);
+           strcpy(filename, cp);
+           cp = filename + strlen(filename);
+           *cp++ = '\\';
+           strcpy(cp, PFILE);
+         }
+#endif
       fparser = tryopen(filename ? filename : PFILE, "r");
     }
 
@@ -338,9 +363,7 @@ open_extra_files (void)
   FILE *ftmp;
   int c;
   char *filename;
-#ifdef MSDOS
   char *cp;
-#endif
 
   tryclose(fparser);
 
@@ -356,6 +379,28 @@ open_extra_files (void)
            strcpy(filename, cp);
            cp = filename + strlen(filename);
            *cp++ = '/';
+           strcpy(cp, PFILE1);
+         }
+#endif
+#ifdef __NT__
+      cp = dirname(program_name);
+      if (filename == 0 && cp != NULL)
+         {
+           filename = xmalloc(strlen(cp) + strlen(PFILE1) + 2);
+           strcpy(filename, cp);
+           cp = filename + strlen(filename);
+           *cp++ = '\\';
+           strcpy(cp, PFILE1);
+         }
+#endif
+#ifdef __OS2__
+      cp = dirname(program_name);
+      if (filename == 0 && cp != NULL)
+         {
+           filename = xmalloc(strlen(cp) + strlen(PFILE1) + 2);
+           strcpy(filename, cp);
+           cp = filename + strlen(filename);
+           *cp++ = '\\';
            strcpy(cp, PFILE1);
          }
 #endif

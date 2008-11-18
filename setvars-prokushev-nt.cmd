@@ -1,1 +1,2 @@
-start cmd.exe /cc:\regina\rexx setvars-prokushev-nt.rex
+set path=e:\osfree\starterkit\regina;%path%
+regina setvars-prokushev-nt.rex
