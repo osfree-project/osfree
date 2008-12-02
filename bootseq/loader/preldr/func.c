@@ -393,6 +393,8 @@ open_device2(void)
   int fst;
   unsigned int cd = current_drive;
   unsigned int cp = current_partition;
+  unsigned int fp = filepos;
+  unsigned int fm = filemax;
 
   set_boot_fsys();
   if (open_device())
@@ -405,6 +407,8 @@ open_device2(void)
 
     current_drive = cd;
     current_partition = cp;
+    filepos = fp;
+    filemax = fm;
 
     if (open_device())
       return 1;

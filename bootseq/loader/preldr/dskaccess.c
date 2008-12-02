@@ -178,7 +178,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
 
       if (size > ((num_sect << sector_size_bits) - byte_offset))
         size = (num_sect << sector_size_bits) - byte_offset;
-#ifndef STAGE1_5
+//#ifndef STAGE1_5
       /*
        *  Instrumentation to tell which sectors were read and used.
        */
@@ -200,7 +200,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
               (*disk_read_func) (sector_num, 0, length);
             }
         }
-#endif
+//#endif
       grub_memmove (buf, bufaddr, size);
 
       buf += size;

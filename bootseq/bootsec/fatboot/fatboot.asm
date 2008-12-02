@@ -53,44 +53,46 @@ BPBlock         bios_parameters_block <>
 real_start:
                 mov   bp, bt_addr - EXT_PARAMS_SIZE
 
-                xor   ax, ax
+                xor   si, si
 
                 cli
-                mov   ss, ax
+                mov   ss, si
                 mov   sp, bp
                 sti
 
-                mov   ds, ax
+                mov   ds, si
 
-                mov   [bp].drive, dl
+                push  si
 
-                push  ax
-                push  ax
+                push  si
                 push  the_start
                 retf
 the_start:
+                ;xor   dh, dh                                ; CHS/LBA flag
+
                 test  dl, 80h
-                jnz   short no_floppy
-                jmp   short use_chs                         ; floppy drive -- use CHS
+                jz    short use_chs                         ; floppy drive -- use CHS
 no_floppy:
+                ;mov   si, bootsig                           ; 0xaa55
+                ;ror   si, 8
+
                 mov   ah, 41h                               ; try 41h of int 13h
                 mov   bx, 55aah                             ; (probe if LBA is available)
+                ;mov   bx, si
                 int   13h
 
-                jc    short use_chs
+                jnc   short use_lba
                 cmp   bx, 0aa55h
-                jnz   short use_chs
+                ;cmp   bx, bootsig
+                jz    short use_lba
 
                 and   cx, 1                                 ; check bit 0 of cx register,
-                jz    short use_chs                         ; if set then int13 ext disk read
-                                                            ; functions are supported
+                jnz   short use_lba                         ; if set then int13 ext disk read
+use_chs:                                                            ; functions are supported
+                inc   si
 use_lba:
-                mov   bl, 0
-                jmp   short return
-use_chs:
-                mov   bl, 1
-return:
-                mov   byte ptr [bp].force_chs, bl
+                mov   word ptr [bp].force_chs, si
+                mov   byte ptr [bp].drive, dl
 read_fat:
                 ; load FAT at fat_seg
                 mov   cx, [bp].bpb.fat_size
@@ -99,6 +101,7 @@ read_fat:
                 pop   es
 
                 xor   bx, bx
+                ;pop   bx
 
                 movzx eax, [bp].bpb.res_sectors             ; 1st FAT offset (reserved sectors)
 
@@ -286,6 +289,50 @@ eof:
                 ret
 load_file endp
 
+
+;
+; Find next cluster number
+; Input:
+; ax = cluster number
+; ds    -- fat_seg
+; Output:
+; ax = cluster value
+;
+find_next_cluster proc near
+                mov   cx, 0fff1h                            ; EOF
+
+                push  si
+
+                mov   si, ax
+                add   si, ax                                ; si = 2*ax
+                ;jnc   no_dx_adjust
+                ;add   dh, 10h                              ; dx = dx + 4096
+no_dx_adjust:
+                cmp   [bp].bpb.fat_size, 12                 ; FAT12 or FAT16?
+
+                jae   short fat_16
+fat_12:
+                add   si, ax                                ; si = 3*ax
+                shr   si, 1                                 ; si = 1.5*ax
+                mov   ax, [si]                              ; oooo oooo oooo ....|.... oooo oooo oooo
+                mov   ch, 0fh                               ; EOF = 0ff1h
+                jc    short even_entry
+odd_entry:
+                shl   ax, 4                                 ; oooo oooo oooo ....|oooo oooo oooo 0000
+even_entry:
+                shr   ax, 4                                 ; 0000 oooo oooo oooo|0000 oooo oooo oooo
+                jmp   short cmp_eof
+fat_16:
+                mov   ax, [si]                              ; now ax contains FAT entry
+cmp_eof:
+                cmp   ax, cx                                ; = EOF?
+
+                pop   si
+
+                ret
+find_next_cluster endp
+
+
 ;
 ; cx == max word length
 ; compare while nr of symbols <= cx
@@ -334,226 +381,68 @@ cmp_loop:
 neql:
                 add   di, 20h
                 loop  short cmp_loop
-                call  err_name_not_found
+
+                mov   al, 'N'
+                jmp   short err_name
 name_found:
                 ret
 find_name endp
 
+
+if 0
 ;
-; Find next cluster number
-; Input:
-; ax = cluster number
-; ds    -- fat_seg
-; Output:
-; ax = cluster value
-;
-find_next_cluster proc near
-                mov   cx, 0fff1h                            ; EOF
-
-                push  si
-
-                mov   si, ax
-                add   si, ax                                ; si = 2*ax
-                ;jnc   no_dx_adjust
-                ;add   dh, 10h                              ; dx = dx + 4096
-no_dx_adjust:
-                cmp   [bp].bpb.fat_size, 12                 ; FAT12 or FAT16?
-
-                jae   short fat_16
-fat_12:
-                add   si, ax                                ; si = 3*ax
-                shr   si, 1                                 ; si = 1.5*ax
-                mov   ax, [si]                              ; oooo oooo oooo ....|.... oooo oooo oooo
-                mov   ch, 0fh                               ; EOF = 0ff1h
-                jc    short even_entry
-odd_entry:
-                shl   ax, 4                                 ; oooo oooo oooo ....|oooo oooo oooo 0000
-even_entry:
-                shr   ax, 4                                 ; 0000 oooo oooo oooo|0000 oooo oooo oooo
-                jmp   short cmp_eof
-fat_16:
-                mov   ax, [si]                              ; now ax contains FAT entry
-cmp_eof:
-                cmp   ax, cx                                ; = EOF?
-
-                pop   si
-
-                ret
-find_next_cluster endp
-
-;
-; read_run:
-; Reads a contiguous run of sectors.
-;
-;          Input:
-;          eax    -- logical sector number to read from
-;          cx     -- sector count to read 1 <= cx <= 128
-;          es:bx  -- address to read to
-;          dl     -- drive number
+; printhex[248]: Write a hex number in (AL, AX, EAX) to the console
 ;
 
-read_run proc near
-                pusha
-                push  es
-                push  ds
-                add   eax, [bp].bpb.hidden_secs             ; Add hidden sectors value
-                mov   dl,  [bp].drive
-begin_read:
-;                push  cx
+printhex2:
+        pusha
+        rol     eax, 24
+        mov     cx, 2
+        jmp     pp1
+printhex4:
+        pusha
+        rol     eax, 16
+        mov     cx, 4
+        jmp     pp1
+printhex8:
+        pusha
+        mov     cx, 8
+pp1:
+        rol     eax, 4
+        push    eax
+        and     al, 0Fh
+        cmp     al, 10
+        jae     high1
+low1:
+        add     al, '0'
+        jmp     pp2
+high1:
+        add     al, 'A' - 10
+pp2:
+        mov     bx, 0001h
+        mov     ah, 0Eh
+        int     10h              ; display a char
+        pop     eax
+        loop    pp1
+        popa
 
-;                mov   cx, 5
-;retry_loop:
-                ;cmp   [bp].force_lba, 0                     ; force LBA?
-                ;jnz   short lba
+        ret
 
-                pushad
+endif
 
-                cmp   [bp].force_chs, 0                     ; LBA or CHS?
-                jnz   short chs
-
-lba:
-                call  readsec_lba                           ; Read by LBA
-                jmp   chk
-chs:
-                call  readsec_chs                           ; Read by CHS
-chk:
-                popad
-                jnc   short go_on
-
-;                pusha
-;                mov   ah, 0                                ; Controller reset
-;                int   13h                                  ;
-;                popa
-
-;                loop  short retry_loop
-                jmp   short err_read                        ; Signal a read error
-go_on:
-;                pop   cx
-
-                inc   eax
-                ;add   bx, 200h
-
-                mov  di, es
-                add  di, 20h
-                mov  es, di
-
-                loop  short begin_read
-end_read:
-                pop  ds
-                pop  es
-                popa
-
-                ret
-read_run endp
-
-;
-; readsec_lba:
-;
-;               Reads a sector
-;               using LBA,
-;               to es:bx
-;               from LBA address in eax
-;               from disk device at dl
-;
-
-readsec_lba proc near
-                ;
-                ; int 13h 42h function
-                ; Input:
-                ;
-                ;            ah = 42h
-                ;            dl = drive number
-                ;            ds:si = pointer to disk address packet
-                ;
-                ; Returns:
-                ;
-                ;            al = 0 if success,
-                ;            error code otherwise
-                ;push ds
-
-                push ss
-                pop  ds
-
-                lea  si, [bp].disk_addr_pkt
-                mov  byte  ptr [si].pkt_size, 10h           ; size of packet absolute starting address
-                mov  dword ptr [si].starting_block, eax     ; LBA of the 1st
-
-                mov  word ptr  [si].num_blocks, 1           ; number of blocks to transfer
-                mov  word ptr  [si].buffer + 2, es          ; segment
-                mov  word ptr  [si].buffer, bx              ; offset of read buffer
-                mov  ax, 4200h
-                int  13h
-lb2:
-                ;pop  ds
-
-                ret
-
-readsec_lba endp
-
-;
-; readsec_chs:
-;
-;               Reads a sector
-;               using CHS,
-;               to es:bx
-;               from LBA address in eax
-;               from disk device in dl
-;
-
-readsec_chs proc near
-                push dx
-
-                push eax
-
-                mov  ax, [bp].bpb.heads_cnt                 ; headsCnt * trackSize
-                mul  byte ptr [bp].bpb.track_size           ; --> ax (cyl size)
-                mov  di, ax                                 ; di = cylinder size
-
-                pop  ax                                     ;
-                pop  dx                                     ;
-                                                            ; divide LSN in dx:ax by cyl size in si
-                div  di                                     ; now dx holds remainder
-                                                            ; and ax holds quotient
-                mov  cx, ax                                 ; cx = Cylinder no
-                mov  ax, dx                                 ;
-                div  byte ptr [bp].bpb.track_size           ; now al holds Head no
-                                                            ; and ah holds sector no
-                inc  ah                                     ; sectors in CHS are numbered from 1, not 0 !!!
-
-                pop  dx
-
-                mov  dh, al                                 ; head no
-
-                xchg cl, ch                                 ;
-
-                or   cl, ah                                 ;
-                mov  ax, 0201h                              ; ah = 2 -- function and al = 1 -- count of sectors
-                int  13h
-
-                ret
-readsec_chs endp
-
-;
-; Err:
 ;
 ;          Displays an error message (one letter)
-;
+;          al: symbol to output
+err_read:
+                mov    al, 'R'
+err_name:
+err:
+                ; int 10h/ah=0eh: write char on screen in teletype mode
+                xor    bx, bx
+                mov    ah, 0eh ; ah=0eh -- function
 
-
-err   proc near
-err_read:       ; sector read error
-                mov  al, 'R'
-                jmp  short out3
-err_name_not_found:
-                ; filename not found error
-                mov  al, 'N'
-out3:
-                mov    ah, 0eh  ; int 10h/ah=0eh: write char on screen in teletype mode
-                sub    bx, bx
                 int    10h
                 jmp    short $
-err   endp
-
 
 ;err   proc near
 ;err_read:
@@ -585,6 +474,168 @@ err   endp
 ;                ret
 ;outstr endp
 
+
+;
+; read_run:
+; Reads a contiguous run of sectors.
+;
+;          Input:
+;          eax    -- logical sector number to read from
+;          cx     -- sector count to read 1 <= cx <= 128
+;          es:bx  -- address to read to
+;          dl     -- drive number
+;
+
+read_run proc near
+                pusha
+                push  es
+                push  ds
+                add   eax, [bp].bpb.hidden_secs             ; Add hidden sectors value
+                mov   dl,  [bp].drive
+begin_read:
+                ;push  eax
+
+                pusha
+
+;;;;!!!
+                cmp   [bp].force_chs, 0                     ; LBA or CHS?
+                jnz   short chs
+
+lba:
+                call  readsec_lba                           ; Read by LBA
+                jmp   short chk
+;;;;!!!
+chs:
+                call  readsec_chs                           ; Read by CHS
+chk:
+                popa
+
+                jc   short err_read                         ; Signal a read error
+                ;jnc   go_on
+                ;mov   ax, es
+                ;call  printhex4
+
+                ;mov   ax, bx
+                ;call  printhex4
+
+                ;pop   eax
+                ;call  printhex8
+
+                ;cli
+                ;hlt
+go_on:
+                ;pop   eax
+
+                inc   eax
+                ;add   bx, 200h
+
+                mov  di, es
+                add  di, 20h
+                mov  es, di
+
+                loop  short begin_read
+end_read:
+                pop  ds
+                pop  es
+                popa
+
+                ret
+read_run endp
+
+;
+; readsec_lba:
+;
+;               Reads a sector
+;               using LBA,
+;               to es:bx
+;               from LBA address in eax
+;               from disk device at dl
+;
+
+
+readsec_lba proc near
+                ;
+                ; int 13h 42h function
+                ; Input:
+                ;
+                ;            ah = 42h
+                ;            dl = drive number
+                ;            ds:si = pointer to disk address packet
+                ;
+                ; Returns:
+                ;
+                ;            al = 0 if success,
+                ;            error code otherwise
+                ;push ds
+
+                xor  ecx, ecx
+                mov  ds, cx
+                ;push  ss
+                ;pop   ds
+
+                lea  si, [bp].disk_addr_pkt
+                mov  dword ptr [si].starting_block, eax     ; LBA of the 1st
+                mov  dword ptr [si].starting_block + 4, ecx ; clear high dword
+                mov  dword ptr [si], 00010010h              ; 0x10 - packet size, 0x00 -- reserved, 0x0001 -- sector count
+                ;mov  word  ptr [si].pkt_size, 10h           ; size of packet absolute starting address
+                ;mov  word ptr  [si].num_blocks, 1           ; number of blocks to transfer
+
+                mov  word  ptr [si].buffer, bx              ; offset of read buffer
+                mov  word  ptr [si].buffer + 2, es          ; segment
+                ;mov  dword ptr [si].buffer + 4, ecx         ; clear high dword
+
+                mov  ah, 42h
+                int  13h
+
+                ret
+
+readsec_lba endp
+
+
+;
+; readsec_chs:
+;
+;               Reads a sector
+;               using CHS,
+;               to es:bx
+;               from LBA address in eax
+;               from disk device in dl
+;
+
+
+readsec_chs proc near
+                push dx
+
+                push eax
+
+                mov  ax, [bp].bpb.heads_cnt                 ; headsCnt * trackSize
+                mul  byte ptr [bp].bpb.track_size           ; --> ax (cyl size)
+                mov  di, ax                                 ; di = cylinder size
+
+                pop  ax                                     ;
+                pop  dx                                     ;
+                                                            ; divide LSN in dx:ax by cyl size in di
+                div  di                                     ; now dx holds remainder
+                                                            ; and ax holds quotient
+                mov  cx, ax                                 ; cx = Cylinder no
+                mov  ax, dx                                 ;
+                div  byte ptr [bp].bpb.track_size           ; now al holds Head no
+                                                            ; and ah holds sector no
+                inc  ah                                     ; sectors in CHS are numbered from 1, not 0 !!!
+
+                pop  dx
+
+                mov  dh, al                                 ; head no
+
+                xchg cl, ch                                 ;
+
+                or   cl, ah                                 ;
+                mov  ax, 0201h                              ; ah = 2 -- function and al = 1 -- count of sectors
+                int  13h
+
+                ret
+readsec_chs endp
+
 padsize      equ    512 - ($ - start) - 2 - (bootsig - vars)
 
 if padsize gt 0
@@ -608,15 +659,8 @@ bt_addr        equ   bt_seg * 16
 
 vars           label byte
 
-;error_loader_not_found:
-;               db    'N',0
-;
-;error_dsk_read_error:
-;               db    'R',0
-
-;cfg_path       db    'BOOT    ','   '                       ; path to the
-cfg_path       db    'BOOTSEC ','CFG'                       ; bootsector config file
-;cfg_path       db    'BS.CFG'
+cfg_path       db    'BOOT    ','   '                       ; path to the
+               db    'BOOTSEC ','CFG'                       ; bootsector config file
                db    ';'                                    ; path end marker
 bootsig        dw    0aa55h                                 ; boot signature
 

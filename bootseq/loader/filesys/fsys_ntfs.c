@@ -703,7 +703,7 @@ int ntfs_read(char *buf, int len){
     if((cmft->attr_flag&~ATTR_SPARSE) != ATTR_NORMAL)
         return 0;
     disk_read_func = disk_read_hook;
-    ret = read_attribute(cmft, filepos, buf, len, 0);
+    ret = read_attribute(cmft, *pfilepos, buf, len, 0);
     disk_read_func = NULL;
     *pfilepos += ret;
 #else
