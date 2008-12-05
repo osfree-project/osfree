@@ -85,14 +85,14 @@ check_int13_extensions_rm proc far
       mov     bl, ah          ; save the major version into bl
 
       ; check if AH=0x42 is supported if FORCE_LBA is zero
-      mov     ax, offset _TEXT16:force_lba
+      mov     al, force_lba
       test    al, al
       jnz     uu2
       and     cx, 1
       jnz     uu2
 
 uu1:
-      xor     bl, bl
+      xor     bl, bl                                  
 uu2:
       ; back to protected mode
       retf
@@ -106,18 +106,18 @@ check_int13_extensions_rm endp
 ;
 
 get_diskinfo_standard_rm proc far
-      mov     ah, 8h
-      int     13h             ; do the operation
+      mov    ah, 8
+      int    13h              ; do the operation
       ; check if successful
-      test    ah, ah
-      jnz     b1
+      test   ah, ah
+      jnz    f1
       ; bogus BIOSes may not return an error number
-      test    cl, 3fh         ; 0 sectors means no disk
-      jnz     b1              ; if non-zero, then succeed
+      test   cl, 3fh          ; 0 sectors means no disk
+      jnz    f1               ; if non-zero, then succeed
       ; XXX 0x60 is one of the unused error numbers
-      mov     ah, 60h
-b1:
-      mov     bl, ah          ; save return value in bl
+      mov    ah, 60h
+f1:
+      mov    bl, ah           ; save return value in bl
       ; back to protected mode
       retf
 get_diskinfo_standard_rm endp
@@ -285,6 +285,8 @@ get_diskinfo_standard proc near
         call    call_rm
         add     esp, 4
 
+        xor     eax, eax
+
         ; restore ebp
         lea     ebp, [esp + 8]
 
@@ -295,7 +297,7 @@ get_diskinfo_standard proc near
         mov     [edi], eax
 
         ; sectors
-        xor     eax, eax
+        ;xor     eax, eax
         mov     al, cl
         and     al, 3fh
         mov     edi, [ebp + 14h]

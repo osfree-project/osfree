@@ -22,6 +22,28 @@ extern unsigned char use_term;
 extern unsigned long extended_memory;
 #pragma aux extended_memory "*"
 
+void *filetab_ptr;
+
+#pragma aux mu_Open_wr      "*"
+#pragma aux mu_Read_wr      "*"
+#pragma aux mu_Close_wr     "*"
+#pragma aux mu_Terminate_wr "*"
+
+unsigned short __cdecl
+  mu_Open_wr(char *pName,
+             unsigned long *pulFileSize);
+
+unsigned long  __cdecl
+  mu_Read_wr(long loffseek,
+             char *pBuf,
+             unsigned long cbBuf);
+
+void __cdecl
+  mu_Close_wr(void);
+
+void __cdecl
+  mu_Terminate_wr(void);
+
 char test = 0;
 
 struct multiboot_info mbi;
@@ -564,6 +586,8 @@ u_termctl(int termno)
 
   test++;
 
+  //printf("terminal: %s\r\n", term);
+
   if (blackbox_load(term, 2, &trm))
   {
     printf("terminal loaded\r\n");
@@ -606,6 +630,7 @@ freeldr_open (char *filename)
    int  i;
    int  i0 = 0;
    int  rc;
+   unsigned short ret;
    char buf[0x100];
 
    printf("o %s", filename);
@@ -613,54 +638,76 @@ freeldr_open (char *filename)
    //u_msg(filename);
    //u_msg("\r\n");
 
-   /* prepend "/" to filename */
-   if (*filename != '/' && *filename != '(') {
-     buf[0] = '/';
-     i0 = 1;
+   if (filetab_ptr)
+   {
+     // we're using 16-bit uFSD
+     ret = mu_Open_wr(filename,
+                      (unsigned long *)&rc);
+
+     if (!ret)
+     {
+       // success
+       return rc;
+     }
+     else
+     {
+       // failure
+       return 0;
+     }
    }
+   else
+   {
+     // we're using 32-bit uFSD
 
-   grub_strcpy(buf + i0, filename);
+     /* prepend "/" to filename */
+     if (*filename != '/' && *filename != '(') {
+       buf[0] = '/';
+       i0 = 1;
+     }
 
-   for (i = 0; i < 128 && buf[i]; i++) {
-     /* change "\" to "/" */
-     if (buf[i] == '\\')
-       buf[i] = '/';
-   }
+     grub_strcpy(buf + i0, filename);
 
-   /* try open filename as is */
-   rc = grub_open(buf);
+     for (i = 0; i < 128 && buf[i]; i++) {
+       /* change "\" to "/" */
+       if (buf[i] == '\\')
+         buf[i] = '/';
+     }
 
-   if (conf.mufsd.ignorecase) {
-     /* if ignore case */
-     if (!rc) {
-       /* try to open uppercase filename */
-       /* skip device name like "(cd)" */
-       i = 0;
-       if (*buf == '(')
-         while (buf[i] && buf[i] != ')') i++;
+     /* try open filename as is */
+     rc = grub_open(buf);
 
-       for (; i < 128 && buf[i]; i++) {
-         buf[i] = grub_toupper(buf[i]);
+     if (conf.mufsd.ignorecase) {
+       /* if ignore case */
+       if (!rc) {
+         /* try to open uppercase filename */
+         /* skip device name like "(cd)" */
+         i = 0;
+         if (*buf == '(')
+           while (buf[i] && buf[i] != ')') i++;
+
+         for (; i < 128 && buf[i]; i++) {
+           buf[i] = grub_toupper(buf[i]);
+         }
+
+         rc = grub_open(buf);
        }
 
-       rc = grub_open(buf);
+       if (!rc) {
+         /* try to open lowercase filename */
+         for (i = 0; i < 128 && buf[i]; i++)
+           buf[i] = grub_tolower(buf[i]);
+
+         rc = grub_open(buf);
+       }
      }
 
-     if (!rc) {
-       /* try to open lowercase filename */
-       for (i = 0; i < 128 && buf[i]; i++)
-         buf[i] = grub_tolower(buf[i]);
+     if (!rc)
+       printf(" fail!");
 
-       rc = grub_open(buf);
-     }
+     printf("\r\n");
+
+     return rc;
    }
-
-   if (!rc)
-     printf(" fail!");
-
-   printf("\r\n");
-
-   return rc;
 #else
    return grub_open(filename);
 #endif
@@ -673,7 +720,16 @@ freeldr_read (char *buf, int len)
 #ifndef STAGE1_5
    printf("r 0x%x %d", buf, len);
 #endif
-   rc = grub_read(buf, len);
+   if (filetab_ptr)
+   {
+     // use 16-bit uFSD
+     rc = mu_Read_wr(filepos, buf, len);
+   }
+   else
+   {
+     // use 32-bit uFSD
+     rc = grub_read(buf, len);
+   }
 #ifndef STAGE1_5
    printf(" sz %d\r\n", rc);
 #endif
@@ -689,7 +745,16 @@ freeldr_seek (int offset)
 void
 freeldr_close (void)
 {
-   grub_close();
+   if (filetab_ptr)
+   {
+     // use 16-bit uFSD
+     mu_Close_wr();
+   }
+   else
+   {
+     // use 32-bit uFSD
+     grub_close();
+   }
 }
 
 int  stage0_mount (void)
@@ -1174,6 +1239,7 @@ int init(void)
   /* setting LIP */
   setlip();
 
+  // backup uFSD
   grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
 
   /* call uFSD init (set linkage) */

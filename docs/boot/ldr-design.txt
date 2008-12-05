@@ -1,5 +1,5 @@
-     FreeLdr design.
-     ~~~~~~~~~~~~~~~
+     FreeLdr design and ideas (draft).
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 author: Valery V. Sedletski,
 aka valerius,
 2007, Nov 12-Dec 11.
@@ -14,24 +14,24 @@ many ideas from OS/2 boot process.
 History of the project.
 
      In  1999,  David  Zimmerli  wrote  an article in EDM/2 about a project to
-replace   os2ldr   (http://www.edm2.com/).   He   wrote  a  small  rudimentary
-os2ldr-like   program,   which   was   supposed   to   begin   a  free  os2ldr
-reimplementation  from  scratch. This program was started by the bootblock and
-tested  the  micro-FSD  functions,  opening a file and showing parameters, got
-from  the  bootblock.  It was a stub for a loader. These sources were taken by
-osFree  team  and  they  were  used  as  a  starting  point  for osFree loader
-implementation. The osFree loader, like Zimmerli's program, is called FreeLdr.
-We  took  this  name  because  it  reflects  the  fact that our loader is free
-software  and  is  a loader intended for use with osFree operating system. The
-first  version  was  continued in 2003 by Yuri Prokushev and in 2005 by Sascha
-Schmidt.  Then  the development was paused. Sascha started to port portions of
-GRUB  sources  to incorporate multiboot protocol support, but did not finished
-the  work. In the end of 2006, I took their results and finished the micro-FSD
-functions  and  combined  them with completed working version of GRUB routines
-for multiboot loading. The loader worked. The L4 microkernel was loading using
-micro-FSD  and  started  by  kickstart bootstrapper. The loader worked in real
-mode  and  GRUB routines were ported to a realmode 16-bit environment (GRUB is
-mostly 32-bit).
+replace  os2ldr  (http://www.edm2.com/0705/freeldr/freeldr.html).  He  wrote a
+small  rudimentary  os2ldr-like  program,  which  was supposed to begin a free
+os2ldr  reimplementation  from  scratch.  This  program  was  started  by  the
+bootblock  and  tested  the  micro-FSD  functions,  opening a file and showing
+parameters,  got from the bootblock. It was a stub for a loader. These sources
+were  taken  by  osFree team and they were used as a starting point for osFree
+loader  implementation.  The osFree loader, like Zimmerli's program, is called
+FreeLdr.  We  took  this  name because it reflects the fact that our loader is
+free  software  and is a loader intended for use with osFree operating system.
+The  first  version  was  continued  in  2003 by Yuri Prokushev and in 2005 by
+Sascha  Schmidt.  Then  the  development  was  paused.  Sascha started to port
+portions  of  GRUB  sources to incorporate multiboot protocol support, but did
+not  finished  the work. In the end of 2006, I took their results and finished
+the  micro-FSD  functions  and combined them with completed working version of
+GRUB routines for multiboot loading. The loader worked. The L4 microkernel was
+loading  using  micro-FSD  and  started  by kickstart bootstrapper. The loader
+worked  in  real  mode  and  GRUB  routines  were  ported to a realmode 16-bit
+environment (GRUB is mostly 32-bit).
 
      The  last  time,  the  design  was  reworked and now I was redesigned the
 loader.  It  was  decided  to  move most parts to 32-bits protected mode. Only
@@ -70,7 +70,7 @@ loader (os2ldr).
 structure.  This  implies  the  use  of  BlackBox  metaphor.  The  blackbox is
 something,  doing  its  work  internally and not exposing its internals to the
 outside.  From  the  software  point  of  view,  the  blackbox  is  a program,
-incapsulating  its  inner  workings and exposing only its interfaces. The main
+encapsulating  its  inner  workings and exposing only its interfaces. The main
 kind  of  a  blackbox is uFSD (micro-FSD, micro File System Driver), the small
 program,  designed  to  abstract the loader from the filesystem structure. The
 loader  only  uses four uFSD functions to read files from the disk and details
@@ -112,11 +112,11 @@ allows  the  user to choose OS configuration parameters and passes them to the
 OS.
 
      8) The bootmanager functionality of FreeLdr is designed to be replaceable
-by standard OS/2 bootmanager. So, if the user more likes the OS/2 bootmanager,
-it  can switch off the loader bootmanager functionality (but then it loses the
-possibility to pass the OS boot parameters from the bootmanager menu) When the
-bootmanager  functionality  is  switched off, the boot menu is simply disabled
-and the fixed boot script is executed.
+with  standard  OS/2  bootmanager.  So,  if  the  user  more  likes  the  OS/2
+bootmanager,  it can switch off the loader bootmanager functionality (but then
+it  loses  the possibility to pass the OS boot parameters from the bootmanager
+menu)  When  the  bootmanager  functionality is switched off, the boot menu is
+simply disabled and the fixed boot script is executed.
 
      9) The loader must have an abstraction layer hiding 16-bit BIOS calls and
 the firmware (BIOS or EFI) from the main part of the loader.
@@ -140,7 +140,7 @@ Loader structure.
 -----------------
 
      The  loader consists of several parts, or modules. First, loader consists
-of  loader itself, /boot/freeldr/freeldr module and a pre-loader. A pre-loader
+of  loader itself, /boot/loader/freeldr module and a pre-loader. A pre-loader
 shields  a  main module from knowing different low-level details. It abstracts
 the  loader from filesystem structure, the structure of executable modules and
 compression  formats;  from  structure  of  tags  in text files, read from the
@@ -171,9 +171,9 @@ executed and control is returned to the caller. So, the code looks like this:
 
      Note.  These  two  32-bit  instructions  are  situated at the 16-bit code
 segment. It is done for the following purpose: The module is loaded first into
-the  buffer  and  and  to call init() function, the starting module address is
-called.  The  call  instruction  at  the module start just routes this call to
-correct init() function address.
+the buffer and to call init() function, the starting module address is called.
+The  call  instruction  at  the  module start just routes this call to correct
+init() function address.
 
 After the two starting instructions, at the offset of 8h, goes the signature
 '$header$'. Then follows a load address of 16-bit part (below 1 Mb). It goes
@@ -277,3 +277,77 @@ there  must  be  a separate version of NTLDR -- for fat32 the one,for NTFS the
 other. The NTLDR is tied to a filesystem type. In the case of FreeLdr, we have
 the  choice  in  filesystem  and even to add a new filesystem, no recompile is
 needed.
+
+2. Interface between a pre-loader and a program which loads it (e.g., a bootsector)
+
+Interface between a pre-loader and bootsector is fully compatible with the interface
+of OS2LDR and microfsd.
+
+The interface is the following. The following info is passed in registers:
+
+DL    --> boot disk BIOS number
+DH    --> flags
+DS:SI --> boot disk BIOS parameter block (BPB)
+ES:DI --> FileTable structure
+
+DH register bits:
+
+0 - NOVOLIO  - minifsd does not use MFSH_DOVOLIO
+1 - RIPL     - boot volume is not local (RIPL)
+2 - MINIFSD  - minifsd present
+3 - reserved
+4 - MICROFSD - microfsd present
+5-7 reserved and must be zero
+
+FileTable structure:
+
+struct FileTable {
+    unsigned short ft_cfiles; /* # of entries in this table             */
+    unsigned short ft_ldrseg; /* paragraph # where OS2LDR is loaded     */
+    unsigned long  ft_ldrlen; /* length of OS2LDR in bytes              */
+    unsigned short ft_museg;  /* paragraph # where microFSD is loaded   */
+    unsigned long  ft_mulen;  /* length of microFSD in bytes            */
+    unsigned short ft_mfsseg; /* paragraph # where miniFSD is loaded    */
+    unsigned long  ft_mfslen; /* length of miniFSD in bytes             */
+    unsigned short ft_ripseg; /* paragraph # where RIPL data is loaded  */
+    unsigned long  ft_riplen; /* length of RIPL data in bytes           */
+
+    /* The next four elements are pointers to microFSD entry points     */
+
+    unsigned short (far *ft_muOpen)
+                     (char far *pName, unsigned long far *pulFileSize);
+    unsigned long (far *ft_muRead)
+                     (long loffseek, char far *pBuf, unsigned long cbBuf);
+    unsigned long (far *ft_muClose)(void);
+    unsigned long (far *ft_muTerminate)(void);
+}
+
+     also,  there  are  flags  in  pre-loader  file header <to be documented>,
+namely,  microfsd  size and a pre-loader size and also loader directory (where
+all files and configs are located). These must be set properly by caller.
+
+There are three cases when loading a pre-loader:
+
+     a)  DH <> 0 and valid microfsd and minifsd bit mask is set. -- this means
+that the pre-loader is given control from standard 16-bit IBM microfsd. Then a
+pre-  loader  uses  16-bit microfsd for loading its own 32-bit microfsd's with
+subdirectories support.
+
+     b)  DH  = 0 and microfsd size field in pre-loader header is zero. -- this
+means  that a pre-loader and 32-bit microfsd is loaded to proper addresses and
+no  relocation is needed. This is the case, for example, when loading with our
+FAT bootsector.
+
+     c)  DH  = 0 and microfsd size field in pre-loader header is <> 0. -- this
+means  that  a  pre-loader  and  32-bit  microfsd  are  loaded  as a bundle (a
+pre-loader  is concatenated with the microfsd -- this is the case when loading
+from a bootblock) and they need to be relocated.
+
+     So,  the  pre-loader can be given 16-bit old-type microfsd as well as the
+new  kind  32-bit  microfsd. The 32-bit ones are generally used -- they can be
+switched   and  different  volumes  can  be  mounted  and  subdirectories  are
+supported. But 16-bit old ones also can be used. Their use is limited, though,
+as  subdirectories  are often not supported and volumes can't be switched. But
+it  can  be useful, if, 32-bit microfsd for some filesystem does not exist (as
+it  is  now for HPFS), or this can be useful when starting FreeLdr from OS2LDR
+by OS/4 team.

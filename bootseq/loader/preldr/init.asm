@@ -15,6 +15,9 @@ public  install_filesys
 public  stage0_init
 public  force_lba
 
+public  filetab_ptr
+public  filetab_ptr16
+
 public  _text16_begin
 extrn   _text16_end  :dword
 extrn   bss_end      :dword
@@ -92,7 +95,11 @@ real_start:
         ; Set segment registers
         ; to CS value, set stack
         ; to the end of this segment
+
         mov  ax, cs
+        mov  bx, ds
+        mov  cx, es
+
         mov  ds, ax
         mov  es, ax
 
@@ -108,6 +115,34 @@ real_start:
         mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
         mov  byte ptr [eax], dl
 
+        ; save boot flags in dx
+        mov  eax, offset _TEXT:boot_flags - STAGE0_BASE
+        mov  word ptr [eax], dx
+
+        mov  eax, offset _TEXT:bpb_ptr - STAGE0_BASE
+        mov  word ptr [eax + 2], bx
+        mov  word ptr [eax], si
+
+        cmp  dh, 0
+        jz   non_16bit_ufsd
+
+        ; are minifsd and microfsd bits set?
+        and  dh, 14h
+        cmp  dh, 14h
+        jne  non_16bit_ufsd
+
+        ; we're started from old-type 16-bit uFSD
+
+        ; copy to 32-bit variable
+        mov  eax, offset _TEXT:filetab_ptr - STAGE0_BASE
+        mov  word ptr [eax + 2], cx
+        mov  word ptr [eax], di
+
+        ; copy to 16-bit variable
+        mov  eax, offset _TEXT16:filetab_ptr16
+        mov  word ptr [eax + 2], cx
+        mov  word ptr [eax], di
+non_16bit_ufsd:
         ; copy install_part to 32-bit segment
         mov  eax, offset _TEXT:install_partition - STAGE0_BASE
         mov  ebx, dword ptr install_part
@@ -122,9 +157,9 @@ real_start:
         rep  movsb
 
         mov  cx, uFSD_size
-        jcxz skip_reloc  ; if uFSD_size == 0, it means that
-                         ; uFSD and stage0 are already loaded
-                         ; to proper places by the bootsector.
+        jcxz skip_reloc_ufsd  ; if uFSD_size == 0, it means that
+                              ; uFSD and stage0 are already loaded
+                              ; to proper places by the bootsector.
 
         ; relocate uFSD to EXT_BUF_BASE
         shr  cx, 1
@@ -133,7 +168,7 @@ real_start:
         ; preldr0 size = uFSD begin
         mov  si, stage0_size
 
-        push si
+        ;push si
 
         mov  eax, EXT_BUF_BASE
         shr  eax, 4
@@ -142,8 +177,11 @@ real_start:
 
         rep  movsw
 
+skip_reloc_ufsd:
         ; relocate itself to STAGE0_BASE
-        pop  cx          ; stage0 length
+        ;pop  cx          ; stage0 length
+        mov  cx, stage0_size
+        jcxz skip_reloc_stage0
 
         push cx
 
@@ -158,7 +196,8 @@ real_start:
         xor  di, di
 
         rep  movsw
-skip_reloc:
+
+skip_reloc_stage0:
         ; clear BSS
         mov  ecx, offset _TEXT:bss_end
         mov  eax, offset _TEXT:exe_end
@@ -334,12 +373,18 @@ endif
 ;fname   db "/boot/bootblock",0
 ;fsize   dd 0
 
+filetab_ptr16      dd 0
+
 _TEXT16 ends
 
 _TEXT   segment dword public 'CODE' use32
 
-boot_flags         dw 0
-boot_drive         dd 0
+; these we get on entry to a pre-loader
+bpb_ptr            dd 0         ; pointer to the BPB
+filetab_ptr        dd 0         ; pointer to the FileTable. If <> 0 then we got called from 16-bit uFSD
+boot_flags         dw 0         ; <-- DX
+boot_drive         dd 0         ; <-- DL
+; copied from pre-loader header
 install_partition  dd 0
 install_filesys    db 16 dup (?)
 
