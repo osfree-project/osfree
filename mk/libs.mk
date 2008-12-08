@@ -22,9 +22,15 @@ library: $(OBJS)
 !ifndef NODELETE
  -@if exist $(library) @$(DC) $(library)
 !endif
- @$(LIB) $(LIBOPT) $(library) +$(OBJS) $(LOG)
+ @$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
 !ifdef OBJS16
- @$(LIB) $(LIBOPT) $(library) +$(OBJS16) $(LOG)
+ @$(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG)
+ @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2
+ @$(DC) $(library).tmp1
+ @$(DC) $(library).tmp2
+!else
+ @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1
+ @$(DC) $(library).tmp1
 !endif
 
 
