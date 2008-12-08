@@ -90,7 +90,15 @@ no_floppy:
                 jnz   short use_lba                         ; if set then int13 ext disk read
 use_chs:                                                            ; functions are supported
                 inc   si
+
+                ;mov   al, 'C'
+                ;call  err
+                ;jmp   short $
 use_lba:
+                ;mov   al, 'L'
+                ;call  err
+                ;jmp   short $
+
                 mov   word ptr [bp].force_chs, si
                 mov   byte ptr [bp].drive, dl
 read_fat:
@@ -101,7 +109,6 @@ read_fat:
                 pop   es
 
                 xor   bx, bx
-                ;pop   bx
 
                 movzx eax, [bp].bpb.res_sectors             ; 1st FAT offset (reserved sectors)
 
@@ -361,11 +368,30 @@ find_next_cluster endp
 ;
 
 find_name proc near
+                ;mov    al, '<'
+                ;call   err
+
+                ;mov   ax, es
+                ;shl   eax, 16
+                ;mov   ax, di
+                ;call  printhex8
+                ;jmp   short $
+
+                shr   cx, 5
 cmp_loop:
                 pusha
                 mov   cx, 8 + 3
                 repe  cmpsb
                 popa
+
+;                pusha
+;                mov   cx, 32
+;lll:
+;                mov   al, ds:[si]
+;                inc   si
+;                call  printhex2
+;                loop  lll
+;                popa
 
                 ;pusha
                 ;mov    cx, 8
@@ -379,17 +405,28 @@ cmp_loop:
 
                 je    short name_found
 neql:
-                add   di, 20h
+                ;mov   ax, 20h
+                ;add   di, ax
+                ;sub   cx, ax
+                ;jcxz  err1
+                add    di, 20h
                 loop  short cmp_loop
-
+err1:
                 mov   al, 'N'
                 jmp   short err_name
 name_found:
+                ;mov   al, ';'
+                ;call  err
+
+                ;mov    al, '>'
+                ;call   err
+
                 ret
 find_name endp
 
 
 if 0
+
 ;
 ; printhex[248]: Write a hex number in (AL, AX, EAX) to the console
 ;
@@ -495,20 +532,19 @@ read_run proc near
 begin_read:
                 ;push  eax
 
-                pusha
-
+                pushad
 ;;;;!!!
-                cmp   [bp].force_chs, 0                     ; LBA or CHS?
-                jnz   short chs
-
+;                cmp   [bp].force_chs, 0                     ; LBA or CHS?
+;                jnz   short chs
+;
 lba:
                 call  readsec_lba                           ; Read by LBA
-                jmp   short chk
-;;;;!!!
-chs:
-                call  readsec_chs                           ; Read by CHS
-chk:
-                popa
+;                jmp   short chk
+;
+;chs:
+;                call  readsec_chs                           ; Read by CHS
+;chk:
+                popad
 
                 jc   short err_read                         ; Signal a read error
                 ;jnc   go_on
@@ -602,6 +638,7 @@ readsec_lba endp
 ;               from disk device in dl
 ;
 
+if 0
 
 readsec_chs proc near
                 push dx
@@ -635,6 +672,8 @@ readsec_chs proc near
 
                 ret
 readsec_chs endp
+
+endif
 
 padsize      equ    512 - ($ - start) - 2 - (bootsig - vars)
 

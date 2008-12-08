@@ -57,6 +57,9 @@ CC        = @wcc
 CPPC      = @wpp
 !endif
 
+CC16      = @wcc
+CPPC16    = @wpp
+
 ASM       = @wasm
 
 LINKER    = @wlink
@@ -104,7 +107,7 @@ ADDFILES_CMD = @for %i in ($(OBJS)) do @%append $^@ FILE %i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.dlo *.lnk *.map *.obj *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst *.res $(CLEAN_ADD)
+CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst *.res $(CLEAN_ADD)
 
 !ifeq UNIX FALSE                 # Non-unix
 
@@ -121,6 +124,7 @@ RN  = @ren                       # Rename command
 SEP       = \                  # dir components separator
 PS        = ;                  # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
+O16       = o16                  # 16-bit obj
 DC        = @del                 # Delete command is rm on linux and del on OS/2
 CP        = @copy                # Copy command
 SAY       = @echo                # Echo message
@@ -146,6 +150,7 @@ BLACKHOLE = 2>&1 >$(NULL)
 SEP       = /                  # dir components separator
 PS        = :                  # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
+O16       = o16                  # 16-bit obj
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command
 RN        = mv                   # Rename command
@@ -169,6 +174,14 @@ MAPSYM    = @mapsym
 
 LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
 
+!ifndef OBJS16
+!ifdef  srcfiles16
+p = $(PATH)
+e = .$(O16)
+OBJS16 = $+$(srcfiles16)$-
+!endif
+!endif
+
 !ifndef OBJS
 !ifdef  srcfiles
 p = $(PATH)
@@ -177,7 +190,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -201,6 +214,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 .cmd: $(MYDIR)
 
 .obj: $(PATH)
+
+.o16: $(PATH)
 
 .c:   $(PATH)
 
@@ -228,6 +243,10 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .obj .c .cpp .asm .h .y .l .hpp 
 .pas: $(MYDIR)
 
 .pp:  $(MYDIR)
+
+.c16.o16: .AUTODEPEND
+ $(SAY)  Compiling $[. $(LOG)
+ $(CC16) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.obj: .AUTODEPEND
  $(SAY) Compiling $[. $(LOG)

@@ -23,5 +23,9 @@ library: $(OBJS)
  -@if exist $(library) @$(DC) $(library)
 !endif
  @$(LIB) $(LIBOPT) $(library) +$(OBJS) $(LOG)
+!ifdef OBJS16
+ @$(LIB) $(LIBOPT) $(library) +$(OBJS16) $(LOG)
+!endif
+
 
 !endif
