@@ -10,6 +10,8 @@ DESC = CHKDSK front-end
 srcfiles = $(p)chkdsk$(e)
 # defines additional options for C compiler
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
-STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+#STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+#STACKSIZE = 40960
+#OPTIONS = MIXED1632
 
 !include $(%ROOT)/mk/appsos2.mk

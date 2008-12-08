@@ -9,7 +9,7 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include
 # For performance/compatibility reasons, we build a "_System" and
 # "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of
 # Watcom compiler.
-srcfiles   = $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) &
+srcfiles   = $(p)segord$(e) $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_SetCurrentDisk$(e) &
              $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)
 srcfiles16 = $(p)cmd_FSEntry16$(e)
 
@@ -19,3 +19,9 @@ TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
 $(PATH)$(PROJ).lib: $(OBJS) $(OBJS16)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+
+#$(PATH)cmd_fsentry16.o16: $(MYDIR)cmd_fsentry16.c16
+# $(SAY) Compiling $[.
+# @wcc $(C16OPT) $(COPT) -s -ml -zl -bt=os2 -fo=$^@ $[@ $(LOG)
+
+

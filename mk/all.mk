@@ -37,6 +37,7 @@ COPT      = $(C_DEFS) $(ADD_COPT) &
             -i=$(MYDIR) -i=$(MYDIR).. &
             -i=$(PATH)  -i=$(PATH)..
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
+C16OPT    = -nt=_TEXT16 -nd=D
 #!else
 #COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
 #ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
@@ -246,7 +247,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 
 .c16.o16: .AUTODEPEND
  $(SAY)  Compiling $[. $(LOG)
- $(CC16) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.obj: .AUTODEPEND
  $(SAY) Compiling $[. $(LOG)

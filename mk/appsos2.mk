@@ -22,7 +22,7 @@ ADD_COPT =            $(ADD_COPT) -d__OS2__ &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=os2
-ADD_LINKOPT =         $(ADD_LINKOPT) lib cmd_shared.lib,all_shared.lib libpath $(ROOT)build$(SEP)lib
+ADD_LINKOPT =         $(ADD_LINKOPT) OPTION NODEFAULTLIBS OPTION REDEFSOK lib clib3r,os2386,all_shared.lib,cmd_shared.lib libpath $(ROOT)build$(SEP)lib
 
 !ifndef DEST
 DEST    = os2
