@@ -11,15 +11,18 @@ Memory Mapped Files Emulation Layer v1.75
 #include <sys/types.h>
 #include <os2/types.h>
 
+
 #if defined (__cplusplus)
 extern "C" {
 #endif
 
+#ifdef __OS2__
 #define INCL_DOS
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
 typedef EXCEPTIONREGISTRATIONRECORD mmap_reg_t;
+#endif
 
 #define HAVE_MSYNC      0x1
 #define MSYNC_3         0x1
@@ -52,8 +55,10 @@ int             msync(caddr_t pAddr, int cbLen, int fFlags);
 int             munlockall(void);
 int             munmap(caddr_t pAddr, int cbLen);
 int             merror(void);
+#ifdef __OS2__
 int      mregister(mmap_reg_t *pReg);
 int      mderegister(mmap_reg_t *pReg);
+#endif
 
 //added by valerius:
 /* Return value of `mmap' in case of an error.  */

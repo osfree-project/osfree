@@ -6,6 +6,9 @@
 
 #include "io.h"
 
+#define NO_ERROR 0
+#define ERROR_FILE_NOT_FOUND 2
+
 void io_printf(const char* chrFormat, ...)
 {
     va_list arg_ptr;

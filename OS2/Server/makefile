@@ -7,12 +7,13 @@
 PROJ = os2server
 DESC = OS/2 Personality Server
 DIRS = shared $(ENV)
-srcfiles = &
+srcfiles = $(p)stub$(e) $(p)main$(e) 
 # defines additional options for C compiler
 ADD_COPT    = -i=$(MYDIR)include
-STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+ADD_LINKOPT = lib os2server_shared.lib, os2server_arch.lib
 
-!include $(%ROOT)/mk/appsos2.mk
+#!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/tools.mk
 
 TARGETS  = subdirs $(PATH)$(PROJ).exe
 TARGET = all

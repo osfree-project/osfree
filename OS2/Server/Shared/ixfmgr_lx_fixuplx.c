@@ -18,6 +18,12 @@
     Or see <http://www.gnu.org/licenses/>
  */
 
+#define INCL_ERRORS
+#define INCL_DOS
+#define INCL_BSEDOS
+#define INCL_DOSEXCEPTIONS
+#define INCL_DOSPROCESS
+#include <os2.h>
 
 #include <modlx.h>
 #include <processlx.h>

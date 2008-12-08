@@ -21,6 +21,7 @@
 #ifndef _FIXUPLX_H
 #define _FIXUPLX_H
 
+#include <os2.h>
 
 #ifdef __cplusplus
 extern "C"
