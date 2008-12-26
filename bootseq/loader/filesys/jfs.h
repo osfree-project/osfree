@@ -103,6 +103,18 @@ typedef int s32;
 typedef unsigned long long u64;
 typedef long long s64;
 
+/*
+typedef struct _u64 {
+  u32  lo;
+  u32  hi;
+} u64;
+
+typedef struct _s64 {
+  u32  lo;
+  u32  hi;
+} s64;
+*/
+
 typedef u16 UniChar;
 
 /* these from jfs_btree.h */
@@ -133,7 +145,21 @@ typedef struct {
 
 /* xd_t field extraction */
 #define lengthPXD(pxd)  ((pxd)->len)
-#define addressPXD(pxd) (((s64)((pxd)->addr1)) << 32 | ((pxd)->addr2))
+
+//#ifndef __WATCOMC__
+//#define addressPXD(pxd) (((s64)((pxd)->addr1)) << 32 | ((pxd)->addr2))
+//#else
+
+static inline s64 addressPXD(pxd_t *pxd)
+{
+  __asm {
+    mov  eax, pxd
+    mov  edx, [eax]
+    shr  edx, 24
+    mov  eax, [eax + 4]
+  }
+}
+//#endif
 
 /*
  *      data extent descriptor (dxd)
@@ -411,8 +437,30 @@ typedef struct xad {
 } xad_t;                        /* (16) */
 
 /* xad_t field extraction */
-#define offsetXAD(xad)  (((s64)((xad)->off1)) << 32 | ((xad)->off2))
-#define addressXAD(xad) (((s64)((xad)->addr1)) << 32 | ((xad)->addr2))
+//#ifndef __WATCOMC__
+//#define offsetXAD(xad)  (((s64)((xad)->off1)) << 32 | ((xad)->off2))
+//#define addressXAD(xad) (((s64)((xad)->addr1)) << 32 | ((xad)->addr2))
+//#else
+static inline s64 offsetXAD(xad_t *xad)
+{
+  __asm {
+    mov  eax, xad
+    mov  edx, [eax]
+    shr  edx, 24
+    mov  eax, [eax + 4]
+  }
+}
+
+static inline s64 addressXAD(xad_t *xad)
+{
+  __asm {
+    mov  eax, xad
+    mov  edx, [eax + 8]
+    shr  edx, 24
+    mov  eax, [eax + 12]
+  }
+}
+//#endif
 #define lengthXAD(xad)  ((xad)->len)
 
 /* possible values for maxentry */

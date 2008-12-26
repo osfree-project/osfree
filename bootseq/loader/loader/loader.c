@@ -18,6 +18,11 @@ extern lip2_t *l;
 extern bios_parameters_block *bpb;
 extern FileTable ft;
 
+extern struct variable_list_struct {
+  char *name;
+  char *value;
+} variable_list[VARIABLES_MAX];
+
 struct multiboot_info *m;
 struct term_entry *t;
 
@@ -62,6 +67,7 @@ int  config_len = 0;
 int  default_item = -1;
 int  menu_timeout;
 
+
 /* menu colors */
 int background_color = 0; // black
 int foreground_color = 7; // white
@@ -105,11 +111,11 @@ void init(lip2_t *l)
 int
 process_cfg_line1(char *line)
 {
-  int n;
-  int i;
-  char *s, *p;
-  char *title; // current menu item title
-  static int section = 0;
+  int    n;
+  int    i;
+  char   *s, *p;
+  char   *title; // current menu item title
+  static int  section = 0;
   static script_t *sc = 0, *sc_prev = 0;
 
   if (!*line) return 1;
@@ -600,7 +606,16 @@ exec_cfg(char *cfg)
   // boot scripts and menu items
   menu_len = 0; config_len = 0;
   process_cfg_line = process_cfg_line1;
+    
+  // clear variable store
+  memset(variable_list, 0, sizeof(variable_list));
+   
   rc = process_cfg(cfg);
+  
+  if (!rc) 
+    return 0;
+  else if (rc == -1)
+    panic("exec_cfg(): Error processing config file: ", cfg);
 
   // starting point 0 instead of 1
   num_items--;
@@ -635,13 +650,10 @@ KernelLoader(void)
   printf("Kernel loader started.\r\n");
 
   // exec the config file
-  if (!(rc = exec_cfg(cfg)))
+  rc = exec_cfg(cfg);
+  if (!rc)
   {
     printf("Error processing loader config file!\r\n");
-  }
-  else if (rc == -1)
-  {
-    panic("Load error!", "");
   }
   else
   {

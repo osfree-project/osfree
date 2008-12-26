@@ -20,7 +20,6 @@
 
 #include "shared.h"
 
-
 /* These are defined in asm.S, and never be used elsewhere, so declare the
    prototypes here.  */
 extern int __cdecl biosdisk_int13_extensions (int ax, int drive, void *dap);
@@ -45,7 +44,11 @@ void low_stack(void);
 #pragma aux high_stack "*"
 #pragma aux low_stack  "*"
 
-
+#pragma aux biosdisk_int13_extensions "*"
+#pragma aux biosdisk_standard         "*"
+#pragma aux check_int13_extensions    "*"
+#pragma aux get_diskinfo_standard     "*"
+
 /* Read/write NSEC sectors starting from SECTOR in DRIVE disk with GEOMETRY
    from/into SEGMENT segment. If READ is BIOSDISK_READ, then read it,
    else if READ is BIOSDISK_WRITE, then write it. If an geometry error
@@ -86,9 +89,7 @@ biosdisk (int read, int drive, struct geometry *geometry,
          SEGMENT:ADDRESS.  */
       dap.buffer = segment << 16;
 
-      //low_stack();
       err = biosdisk_int13_extensions ((read + 0x42) << 8, drive, &dap);
-      //high_stack();
 
 /* #undef NO_INT13_FALLBACK */
 #ifndef NO_INT13_FALLBACK
@@ -102,9 +103,7 @@ biosdisk (int read, int drive, struct geometry *geometry,
                                      * geometry->heads
                                      * geometry->sectors);
 
-	  //low_stack();
-	  err = biosdisk (read, drive, geometry, sector, nsec, segment);
-	  //high_stack();
+          err = biosdisk (read, drive, geometry, sector, nsec, segment);
 
           return err;
         }
@@ -126,11 +125,13 @@ biosdisk (int read, int drive, struct geometry *geometry,
       if (cylinder_offset >= geometry->cylinders)
         return BIOSDISK_ERROR_GEOMETRY;
 
-      //low_stack();
+      //printf("biosdisk_standard(%u,%u,%u,%u,%u,%u,%u)=",read + 0x02, drive,
+      //                         cylinder_offset, head_offset, sector_offset,
+      //                         nsec, segment);
       err = biosdisk_standard (read + 0x02, drive,
                                cylinder_offset, head_offset, sector_offset,
                                nsec, segment);
-      //high_stack();
+      //printf("%u\r\n", err);
     }
 
   return err;
@@ -222,7 +223,7 @@ get_diskinfo (int drive, struct geometry *geometry)
       if (drive >= 0x88 || version)
         {
           /* Possible CD-ROM - check the status.  */
-	  //low_stack();
+          //low_stack();
           err = get_cdinfo (drive, geometry);
           //high_stack();
 

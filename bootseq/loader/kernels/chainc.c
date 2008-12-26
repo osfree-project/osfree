@@ -5,10 +5,16 @@
 #pragma aux m     "*"
 #pragma aux l     "*"
 #pragma aux stop  "*"
-//#pragma aux errnum               "*"
+#pragma aux force_lba            "*"
 #pragma aux start_kernel         "*"
 #pragma aux boot_drive           "*"
+#pragma aux ldr_drive            "*"
+//#pragma aux printk               "*"
+#pragma aux lip_module_present   "*"
 
+//#include <string.h>
+//#include <ctype.h>
+#include <stdarg.h>
 #include <lip.h>
 #include "fsys.h"
 #include "term.h"
@@ -20,12 +26,20 @@ struct multiboot_info *m;
 lip2_t *l;
 struct term_entry *t;
 
+unsigned char lip_module_present = 0;
+//unsigned char force_lba = 0;
+
+//void printk(const char *fmt,...);
+//#define printk printf
+
+unsigned long ldr_drive;
 unsigned long boot_drive;
 unsigned long current_drive;
 unsigned long current_partition;
 unsigned long cdrom_drive;
 unsigned long saved_drive;
 unsigned long saved_partition;
+
 
 void init(void)
 {
@@ -42,12 +56,12 @@ int check_lip(char *mods_addr, unsigned long mods_count)
   {
     // set LIP pointer
     l = (lip2_t *)mod->mod_start;
-    // check if the LIP begins with a 
+    // check if the LIP begins with a
     // magic number of 0x3badb002
     if (*((unsigned long *)l) == LIP2_MAGIC)
     {
       t = l->u_termctl(-1);
-      printf("boot_chain started\r\n");
+      if (lip_module_present) printf("boot_chain started\r\n");
       return 1;
     }
     else
@@ -59,17 +73,23 @@ int check_lip(char *mods_addr, unsigned long mods_count)
 
 int kernel_ldr(char *kernel, unsigned long kernel_len)
 {
-  printf("kernel_ldr() started\r\n");
-  printf("kernel loaded @ 0x%x, len = %u\r\n", kernel, kernel_len);
+  if (lip_module_present)
+  {
+    printf("kernel_ldr() started\r\n");
+    printf("kernel loaded @ 0x%x, len = %u\r\n", kernel, kernel_len);
+  }
 
   // Copy kernel
   grub_memmove((char *)BOOTSEC_LOCATION, kernel, kernel_len);
 
   // Get boot_drive value
-  u_parm(PARM_BOOT_DRIVE, ACT_GET, (unsigned int *)&boot_drive);
-  u_parm(PARM_CDROM_DRIVE, ACT_GET, (unsigned int *)&cdrom_drive);
-  u_parm(PARM_SAVED_DRIVE, ACT_GET, (unsigned int *)&saved_drive);
-  u_parm(PARM_SAVED_PARTITION, ACT_GET, (unsigned int *)&saved_partition);
+  //u_parm(PARM_BOOT_DRIVE, ACT_GET, (unsigned int *)&boot_drive);
+  //u_parm(PARM_CDROM_DRIVE, ACT_GET, (unsigned int *)&cdrom_drive);
+  //u_parm(PARM_SAVED_DRIVE, ACT_GET, (unsigned int *)&saved_drive);
+  //u_parm(PARM_SAVED_PARTITION, ACT_GET, (unsigned int *)&saved_partition);
+
+  //saved_drive = boot_drive;
+  //saved_partition = 0x00ffffff;
 
   start_kernel();
 
@@ -80,7 +100,8 @@ void cmain(void)
 {
   char *mods_addr;
   int mods_count;
-  struct mod_list *mod; 
+  struct mod_list *mod;
+  struct geometry geom;
 
   char *cmdline;
   char *kernel;
@@ -93,41 +114,58 @@ void cmain(void)
 
   cmdline = (char *)m->cmdline;
 
-  // kernel is the first module in the list,
-  // and initrd is the second 
   mod = (struct mod_list *)mods_addr;
 
-  if (mods_count < 2)
+  if (mods_count < 1)
     stop();
   else
   {
-    if (!check_lip(mods_addr, mods_count))
-      stop();
+    if (check_lip(mods_addr, mods_count))
+       lip_module_present = 1;
 
     kernel = (char *)mod->mod_start;
     kernel_len = mod->mod_end - mod->mod_start;
     kernel_cmdline = (char *)mod->cmdline;
 
-    printf("cmdline=%s\r\n", cmdline);
+    if (lip_module_present) printf("cmdline=%s\r\n", cmdline);
 
-    if (grub_strstr(cmdline, "-force"))
+    if (grub_strstr(cmdline, "--force"))
       force = 1;
 
-    if (s = grub_strstr(cmdline, "-bootdev"))
+    if (lip_module_present) printf("boot_drive=%u\r\n", boot_drive);
+
+    if (get_diskinfo (boot_drive, &geom)
+        || ! (geom.flags & BIOSDISK_FLAG_CDROM))
+      cdrom_drive = GRUB_INVALID_DRIVE;
+    else
+      cdrom_drive = boot_drive;
+
+    // set I13X flag, if appropriate
+    if (s = grub_strstr(kernel_cmdline, "--lba"))
+    {
+      if (geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
+      {
+        char *p;
+        p = (char *)(0x30000);
+        grub_strcpy(p, "I13X"); // I13X
+      }
+    }
+
+    if (s = grub_strstr(kernel_cmdline, "--bootdev"))
     {
       s = skip_to(1, s);
       if (!set_device(s) || (current_partition != 0xffffff))
       {
-        printf("bootdev is incorrect!\r\n");
+        if (lip_module_present) printf("bootdev is incorrect!\r\n");
         stop();
       }
-      boot_drive = current_drive;
-      printf("boot_drive=%u\r\n", boot_drive);
+      ldr_drive = current_drive;
+      if (lip_module_present) printf("ldr_drive=%u\r\n", boot_drive);
     }
 
     if (!kernel_ldr(kernel, kernel_len))
     {
-      printf("Error chainloading!\r\n");
+      if (lip_module_present) printf("Error chainloading!\r\n");
       stop();
     }
   }

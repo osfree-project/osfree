@@ -91,6 +91,10 @@ multi_boot:
       mov     ebx, offset _TEXT:m
       mov     ebx, [ebx]
 
+      mov     dl, byte ptr boot_drive
+      mov     edi, ft
+      mov     esi, bpb
+
       ; boot kernel here (absolute address call)
       mov     ebp, offset _TEXT:entry_addr
 

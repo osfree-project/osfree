@@ -53,9 +53,10 @@ DATA       segment dword public 'DATA'  use32
 DATA       ends
 _BSS       segment dword public 'BSS'   use32
 _BSS       ends
-stack      segment dword public 'STACK' use16
+stack      segment dword public 'STACK' use32
 stack      ends
 
-DGROUP group BEGTEXT,_TEXT,_MSGSEG32,_NULL,_AFTERNULL,CONST,CONST2,_DATA,XIB,XI,XIE,YIB,YI,YIE,TIB,TI,TIE,DATA,_BSS
+DGROUP group _NULL,_AFTERNULL,CONST,CONST2,_DATA,XIB,XI,XIE,YIB,YI,YIE,TIB,TI,TIE,DATA,_BSS,stack
+;BEGTEXT,_TEXT,_MSGSEG32,
 
            end

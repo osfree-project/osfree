@@ -23,7 +23,9 @@ bbx              = $+$(kernels)$-
 
 linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)..$(SEP)modesw-npl$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
 
-chain_OBJS    = $(p)chain$(e) $(p)chainc$(e) $(p)..$(SEP)setdev$(e) $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
+chain_OBJS    = $(p)chain$(e) $(p)chainc$(e) $(p)..$(SEP)setdev$(e) &
+                $(p)..$(SEP)preldr$(SEP)bios$(e) $(p)..$(SEP)preldr$(SEP)biosdisk-ch$(e) &
+                $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
 
 startup_OBJS      = $(p)startup$(e)
 
@@ -101,6 +103,12 @@ $(PATH)..$(SEP)modesw-npl.$(SO): $(MYDIR)..$(SEP)modesw.asm
 
 $(PATH)..$(SEP)modesw-npo.$(SO): $(MYDIR)..$(SEP)modesw.asm
  $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)..$(SEP)preldr$(SEP)biosdisk-ch.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
+ $(ASM) -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)..$(SEP)preldr$(SEP)biosdisk-ch.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
+ $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)ufsd: $(PATH)bt_ufsd.mdl
  $(CUT) 0 0x200 $[@ >$^@

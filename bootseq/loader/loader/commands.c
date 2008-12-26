@@ -57,26 +57,28 @@ int slot;
 
 #define VARIABLE_STORE_SIZE 1024
 char variable_store[VARIABLE_STORE_SIZE];
-unsigned int variable_store_actpos; /* Points to the next free entry */
+unsigned int variable_store_actpos = 0; /* Points to the next free entry */
 struct variable_list_struct {
   char *name;
   char *value;
 } variable_list[VARIABLES_MAX];
 
-static void var_show(void)
+//static
+void var_show(void)
 {
   int i = 0;
 
   for (; i < VARIABLES_MAX; i++)
     if (variable_list[i].name)
       {
-	grub_printf("%s = %s\n",
-	            variable_list[i].name,
-		    variable_list[i].value);
+        grub_printf("%s = %s\n",
+                    variable_list[i].name,
+                    variable_list[i].value);
       }
 }
 
-static int var_get_index(char *var)
+//static
+int var_get_index(char *var)
 {
   int i = 0;
 
@@ -85,7 +87,7 @@ static int var_get_index(char *var)
 
   for (; i < VARIABLES_MAX; i++)
     if (variable_list[i].name &&
-	grub_strcmp(variable_list[i].name, var) == 0)
+        grub_strcmp(variable_list[i].name, var) == 0)
       return i;
 
   return -1;
@@ -101,18 +103,23 @@ char *var_get(char *var)
   return variable_list[i].value;
 }
 
-static char *var_alloc_mem(unsigned int len)
+//static
+char *var_alloc_mem(unsigned int len)
 {
   if (VARIABLE_STORE_SIZE < variable_store_actpos + len
       || !len)
+  {
+    printf("len = %d, variable_store_actpos = 0x%x\r\n", len, variable_store_actpos);
     return NULL;
+  }
 
   variable_store_actpos += len;
   return &variable_store[variable_store_actpos - len];
 }
 
 /* Maybe we're implementing "unset" later? */
-static int var_get_free_var(void)
+//static
+int var_get_free_var(void)
 {
   int i = 0;
 
@@ -123,7 +130,7 @@ static int var_get_free_var(void)
   return -1;
 }
 
-static inline 
+//static inline
 char *skip_ws(char *s)
 {
   while (isspace(*s))
@@ -131,48 +138,49 @@ char *skip_ws(char *s)
   return s;
 }
 
-static int var_sprint_once(char *buf, char *str)
+//static
+int var_sprint_once(char *buf, char *str)
 {
   char *b = buf;
 
   while (*str)
     {
       if (*str == '$' && *(str + 1) == '(')
-	{
-	  /* Found start of variable */
-	  char *end_var;
-	  char *c = str + 2;
+        {
+          /* Found start of variable */
+          char *end_var;
+          char *c = str + 2;
 
-	  end_var = c;
-	  while (*end_var && *end_var != ')')
-	    end_var++;
+          end_var = c;
+          while (*end_var && *end_var != ')')
+            end_var++;
 
-	  if (*end_var == ')')
-	    {
-	      char *val;
+          if (*end_var == ')')
+            {
+              char *val;
 
-	      /* Copy variable name into var */
+              /* Copy variable name into var */
 
               str = end_var + 1;
 
-	      *end_var = 0;
-	      if ((val = var_get(c)))
-		{
-		  /* All ok, we got it */
-		  /* Copy to buf */
-		  while (*val)
-		    *b++ = *val++;
+              *end_var = 0;
+              if ((val = var_get(c)))
+                {
+                  /* All ok, we got it */
+                  /* Copy to buf */
+                  while (*val)
+                    *b++ = *val++;
 
-		  *end_var = ')';
+                  *end_var = ')';
 
-		  continue;
-		}
-	      /* else
-		grub_printf("Unknown variable: %var!\n", var); */
+                  continue;
+                }
+              /* else
+                grub_printf("Unknown variable: %var!\n", var); */
 
-	      *end_var = ')';
-	    }
-	}
+              *end_var = ')';
+            }
+        }
 
       *b++ = *str++;
     }
@@ -196,11 +204,11 @@ int var_sprint(char *buf, char *str)
   do
     {
       if (grub_strlen(buf) > buffer_size)
-	{
-	  grub_printf("Buffer overflow: %s(%d)\n", __FILE__, __LINE__);
-	  while (1) {}
-	}
-      
+        {
+          grub_printf("Buffer overflow: %s(%d)\n", __FILE__, __LINE__);
+          while (1) {}
+        }
+
       grub_strcpy(buffer, buf);
 
       var_sprint_once(buf, buffer);
@@ -236,9 +244,10 @@ char *var_sprint_buf(char *str, int *bytes)
   return var_sprint_buffer;
 }
 
-/* This function just updates the pointer to the value, this value has to 
+/* This function just updates the pointer to the value, this value has to
  * be inside the variable_store */
-static int var_set_no_copy(char *name, char *val)
+//static
+int var_set_no_copy(char *name, char *val)
 {
   int i;
 
@@ -254,18 +263,18 @@ static int var_set_no_copy(char *name, char *val)
 
       /* Some sanity check */
       while (*a)
-	{
-	  if (*a == '(' || *a == ')' || *a == ' ')
-	    return 1;
-	  a++;
+        {
+          if (*a == '(' || *a == ')' || *a == ' ')
+            return 1;
+          a++;
         }
-      
+
 
       if ((i = var_get_free_var()) == -1)
-	return 1;
+        return 1;
 
       if ((a = var_alloc_mem(grub_strlen(name) + 1)) == NULL)
-	return 1;
+        return 1;
 
       grub_strcpy(a, name);
       variable_list[i].name = a;
@@ -276,7 +285,7 @@ static int var_set_no_copy(char *name, char *val)
   return 0; /* Ok */
 }
 
-/* XXX: this is a bit code duplication with var_set_no_copy, 
+/* XXX: this is a bit code duplication with var_set_no_copy,
  *      so if someone has some free time, feel free to join this
  */
 int var_set(char *name, char *value, int parse)
@@ -295,48 +304,48 @@ int var_set(char *name, char *value, int parse)
 
       /* Some sanity check */
       while (*a)
-	{
-	  if (*a == '(' || *a == ')' || *a == ' ')
-	    return 1;
-	  a++;
+        {
+          if (*a == '(' || *a == ')' || *a == ' ')
+            return 1;
+          a++;
         }
-      
+
       if ((i = var_get_free_var()) == -1)
-	return 1;
+        return 1;
 
       if ((a = var_alloc_mem(grub_strlen(name) + 1)) == NULL)
-	return 1;
+        return 1;
 
       grub_strcpy(a, name);
       variable_list[i].name = a;
 
       if ((a = var_alloc_mem(grub_strlen(value) + 1)) == NULL)
-	return 1;
+        return 1;
 
       grub_strcpy(a, value);
       variable_list[i].value = a;
-    } 
+    }
   else
     {
       /* Variable already exists */
       if (grub_strlen(variable_list[i].value) >= grub_strlen(value))
-	{
-	  /* We can just replace the value but we're potentially 
-	   * loosing space */
-	  grub_strcpy(variable_list[i].value, value);
-	}
+        {
+          /* We can just replace the value but we're potentially
+           * loosing space */
+          grub_strcpy(variable_list[i].value, value);
+        }
       else
-	{
-	  /* New value is longer then the old one, we need to
-	   * allocate a new place and drop the old one (i.e. wasting it) */
-	  char *a;
-	  if ((a = var_alloc_mem(grub_strlen(value) + 1)) == NULL)
-	    return 1;
+        {
+          /* New value is longer then the old one, we need to
+           * allocate a new place and drop the old one (i.e. wasting it) */
+          char *a;
+          if ((a = var_alloc_mem(grub_strlen(value) + 1)) == NULL)
+            return 1;
 
-	  grub_strcpy(a, value);
+          grub_strcpy(a, value);
 
-	  variable_list[i].value = a;
-	}
+          variable_list[i].value = a;
+        }
     }
 
   //grub_printf("Saved %s=\"%s\" in slot %d.\n", variable_list[i].name, variable_list[i].value, i + 1);
@@ -414,7 +423,9 @@ kernel_func (char *arg, int flags)
   grub_memmove (mb_cmdline, arg, len + 1);
   kernel_type = load_image (arg, mb_cmdline, suggested_type, load_flags);
   if (kernel_type == KERNEL_TYPE_NONE)
+  {
     return 1;
+  }
 
   mb_cmdline += len + 1;
   return 0;
@@ -509,14 +520,14 @@ vbeset_func (char *arg, int flags)
 
   safe_parse_maxint (&arg, &mode_number);
 
-  if (vbe_mode_set(&controller, mode_number, 
-                   &mode, (unsigned int *)&pmif_segoff, 
+  if (vbe_mode_set(&controller, mode_number,
+                   &mode, (unsigned int *)&pmif_segoff,
                    (unsigned int *)&pmif_len) == -1)
     return 1;
 
   create_vbe_module(&controller, sizeof(struct vbe_controller),
-		    &mode, sizeof(struct vbe_mode),
-		    mode_number, pmif_segoff, pmif_len, controller.version);
+                    &mode, sizeof(struct vbe_mode),
+                    mode_number, pmif_segoff, pmif_len, controller.version);
 
   /* mode setting was successful */
   return 0;
@@ -526,7 +537,7 @@ vbeset_func (char *arg, int flags)
 #endif
 }
 
-//static 
+//static
 int
 set_func(char *arg, int flags)
 {
@@ -546,7 +557,8 @@ set_func(char *arg, int flags)
     }
 
   variable = a;
-  while (*a && *a != ':' && *a != '=' && *a != ' ')
+  //while (*a && *a != ':' && *a != '=' && *a != ' ')
+  while (*a && *a != ':' && *a != '=' && *a != '?' && *a != ' ')
     a++;
   end_variable_val = *a;
   end_variable = a;
@@ -595,11 +607,13 @@ set_func(char *arg, int flags)
   return i;
 
 bad_arg:
-  grub_printf("%s: ERR_BAD_ARGUMENT\n", __func__);
+  //grub_printf("%s: ERR_BAD_ARGUMENT\n", __func__);
   //getkey();
   errnum = ERR_BAD_ARGUMENT;
   return 1;
 }
+
+
 
 static struct builtin builtin_set =
 {
@@ -621,8 +635,8 @@ struct toggle_data_struct {
   struct {
     char nr_vars;
     struct {
-      int var;		/* index of variable_list */
-      char *value;	/* pointer to value */
+      int var;          /* index of variable_list */
+      char *value;      /* pointer to value */
     } var[MAX_VAR_PER_BLOCK];
   } block[MAX_BLOCKS];
 } toggle_data[TOGGLES];
@@ -630,7 +644,8 @@ int toggles_used = 0;
 
 char toggle_trigger_init_done;
 
-static int get_toggle_slot_for_key(int key)
+//static
+int get_toggle_slot_for_key(int key)
 {
   int i = 0;
 
@@ -661,45 +676,46 @@ int toggle_print_status(int x, int y)
   for (t = 0; t < toggles_used; t++)
     {
       for (b = 0; b < toggle_data[t].nr_blocks; b++)
-	{
-	  for (v = 0; v < toggle_data[t].block[b].nr_vars; v++)
-	    {
-	      i = toggle_data[t].block[b].var[v].var;
-	      if (!printed[i])
-		{
-		  int len;
-		  char *vals;
+        {
+          for (v = 0; v < toggle_data[t].block[b].nr_vars; v++)
+            {
+              i = toggle_data[t].block[b].var[v].var;
+              if (!printed[i])
+                {
+                  int len;
+                  char *vals;
 
-		  //gotoxy(xpos[dy], y + dy);
+                  //gotoxy(xpos[dy], y + dy);
 
-		  /* don't use printf here since we need the lengths
-		   * of the printed string and we don't want to use another
-		   * buffer for sprintf
-		   */
-		  grub_putstr(variable_list[i].name);
-		  grub_putchar('=');
-		  len = grub_strlen(variable_list[i].name) + 1;
+                  /* don't use printf here since we need the lengths
+                   * of the printed string and we don't want to use another
+                   * buffer for sprintf
+                   */
+                  grub_putstr(variable_list[i].name);
+                  grub_putchar('=');
+                  len = grub_strlen(variable_list[i].name) + 1;
 
-		  vals = var_sprint_buf(variable_list[i].value, &dummy);
-		  grub_putstr(vals);
-		  len += grub_strlen(vals);
+                  vals = var_sprint_buf(variable_list[i].value, &dummy);
+                  grub_putstr(vals);
+                  len += grub_strlen(vals);
 
-		  xpos[dy] += len + 2;
+                  xpos[dy] += len + 2;
 
-		  if (++dy == ylines) {
-		    dy = 0;
-		  }
+                  if (++dy == ylines) {
+                    dy = 0;
+                  }
 
-		  printed[i] = printed_something = 1;
-		}
-	    }
-	}
+                  printed[i] = printed_something = 1;
+                }
+            }
+        }
     }
 
   return printed_something;
 }
 
-static int toggle_do_block(int slot, int block_nr)
+//static
+int toggle_do_block(int slot, int block_nr)
 {
   int v;
 
@@ -717,16 +733,17 @@ static int toggle_do_block(int slot, int block_nr)
   return 1; /* Ok */
 }
 
-static int toggle_find_slot(int key)
+//static
+int toggle_find_slot(int key)
 {
   int i = 0;
 
   for (; i < toggles_used; i++)
       if (toggle_data[i].key == key)
-	return i;
+        return i;
 
   return -1;
-} 
+}
 
 int toggle_do_key(int key)
 {
@@ -761,7 +778,7 @@ int process_var(int bl, int var, char *start, char *end)
     p = skip_ws(p);
     if (*p != '=')
       return 1;
-    
+
     p = skip_ws(p+1);
 
     // value is now from p to end (both inclusive)
@@ -773,24 +790,24 @@ int process_var(int bl, int var, char *start, char *end)
     /* See if we already have the same value in that toggle
      * (in case we're entering a menu multiple time we would
      *  allocate memory multiple time) */
-    
+
     if (toggle_data[slot].block[bl].var[var].value &&
-	var_get_index(start) != -1 &&
-	!grub_strcmp(toggle_data[slot].block[bl].var[var].value, p))
+        var_get_index(start) != -1 &&
+        !grub_strcmp(toggle_data[slot].block[bl].var[var].value, p))
       {
       }
     else
       {
-	/* Allocate space for the value and hang it in */
-	if ((v = var_alloc_mem(grub_strlen(p) + 1)) == NULL)
-	  return 1;
-	grub_strcpy(v, p);
+        /* Allocate space for the value and hang it in */
+        if ((v = var_alloc_mem(grub_strlen(p) + 1)) == NULL)
+          return 1;
+        grub_strcpy(v, p);
 
-	var_set_no_copy(start, v);
+        var_set_no_copy(start, v);
 
-	if ((toggle_data[slot].block[bl].var[var].var = var_get_index(start)) == -1)
-	  return 1; /* internal error */
-	toggle_data[slot].block[bl].var[var].value = v;
+        if ((toggle_data[slot].block[bl].var[var].var = var_get_index(start)) == -1)
+          return 1; /* internal error */
+        toggle_data[slot].block[bl].var[var].value = v;
       }
 
     *origvarp = origvar;
@@ -813,24 +830,25 @@ int process_block(int bl, char *start, char *end)
 
     while (p <= end)
       {
-	if (*p == ',' || p == end)
-	  {
-	    if (var == MAX_VAR_PER_BLOCK)
-	      return ERR_WONT_FIT;
+        if (*p == ',' || p == end)
+          {
+            if (var == MAX_VAR_PER_BLOCK)
+              return ERR_WONT_FIT;
 
-	    if (process_var(bl, var, start, (p == end) ? p : (p-1)))
-	      return ERR_BAD_ARGUMENT;
+            if (process_var(bl, var, start, (p == end) ? p : (p-1)))
+              return ERR_BAD_ARGUMENT;
 
-	    var++;
-	    start = p + 1;
-	  }
-	p++;
+            var++;
+            start = p + 1;
+          }
+        p++;
       }
 
     return 0;
 }
 
-static int
+//static
+int
 toggle_func(char *arg, int flags)
 {
   int  key, block = 0, i;
@@ -854,7 +872,7 @@ toggle_func(char *arg, int flags)
 
     while (!isspace(*eb))
       eb++;
-    
+
     if (!isspace(*eb))
       goto bad_arg;
 
@@ -870,7 +888,7 @@ toggle_func(char *arg, int flags)
       command = COMMAND_TRIGGER;
     else
       {
-	grub_printf("toggle: Unknown command!\n");
+        grub_printf("toggle: Unknown command!\n");
         goto bad_arg;
       }
 
@@ -884,7 +902,7 @@ toggle_func(char *arg, int flags)
     {
 
       if (!*a || !*(a+1))
-	goto bad_arg;
+        goto bad_arg;
 
       key = *a;
       a++;
@@ -894,52 +912,52 @@ toggle_func(char *arg, int flags)
       /* Find slot for key */
       slot = get_toggle_slot_for_key(key);
       if (slot == -1)
-	{
-	  /* Get next free toggle_data slot */
-	  slot = toggles_used;
-	  if (slot == TOGGLES)
-	    goto wont_fit;
-	  toggle_data[slot].key = key;
-	  toggles_used++;
-	}
+        {
+          /* Get next free toggle_data slot */
+          slot = toggles_used;
+          if (slot == TOGGLES)
+            goto wont_fit;
+          toggle_data[slot].key = key;
+          toggles_used++;
+        }
 
       /* Reset current slot */
       toggle_data[slot].nr_blocks = toggle_data[slot].current_block = 0;
       for (i = 0; i < MAX_VAR_PER_BLOCK; i++)
-	toggle_data[slot].block[i].nr_vars = 0;
+        toggle_data[slot].block[i].nr_vars = 0;
 
       while (*a)
-	{
-	  int ret;
+        {
+          int ret;
 
-	  a = skip_ws(a);
+          a = skip_ws(a);
 
-	  if (*a == 0)
-	    break;
+          if (*a == 0)
+            break;
 
-	  if (*a != '{')
-	    goto bad_arg;
-	  /* find the correspondig '}' */
-	  eb = a++;
-	  while (*eb && *eb != '}')
-	    eb++;
-	  if (*eb != '}')
-	    goto bad_arg;
-	  /* Now we have the block between a and eb-1 */
-	  ret = process_block(block, a, eb-1);
-	  if (ret == ERR_WONT_FIT)
-	    goto wont_fit;
-	  if (ret)
-	    goto bad_arg;
+          if (*a != '{')
+            goto bad_arg;
+          /* find the correspondig '}' */
+          eb = a++;
+          while (*eb && *eb != '}')
+            eb++;
+          if (*eb != '}')
+            goto bad_arg;
+          /* Now we have the block between a and eb-1 */
+          ret = process_block(block, a, eb-1);
+          if (ret == ERR_WONT_FIT)
+            goto wont_fit;
+          if (ret)
+            goto bad_arg;
 
-	  a = eb + 1;
+          a = eb + 1;
 
-	  block++;
-	  if (*a) {
-	    if (block == MAX_BLOCKS)
-	      goto wont_fit;
-	  }
-	}
+          block++;
+          if (*a) {
+            if (block == MAX_BLOCKS)
+              goto wont_fit;
+          }
+        }
       toggle_data[slot].nr_blocks = block;
 
       /* finally, set all vars from the first block */
@@ -948,29 +966,29 @@ toggle_func(char *arg, int flags)
   else if (command == COMMAND_SELECT)
     {
       while (*a)
-	{
-	  int k, b, s;
+        {
+          int k, b, s;
 
-	  /* there's something between a and eb-1 now*/ 
-	  /* *a is a key and *(a+1) == '=' */
-	  k = *a++;
+          /* there's something between a and eb-1 now*/
+          /* *a is a key and *(a+1) == '=' */
+          k = *a++;
 
-	  if (*a++ != '=')
-	    goto bad_arg;
+          if (*a++ != '=')
+            goto bad_arg;
 
-	  if (!safe_parse_maxint(&a, &b))
-	    goto bad_arg;
+          if (!safe_parse_maxint(&a, &b))
+            goto bad_arg;
 
-	  if ((s = toggle_find_slot(k)) == -1)
-	    goto bad_arg;
+          if ((s = toggle_find_slot(k)) == -1)
+            goto bad_arg;
 
-	  if (!toggle_do_block(s, b))
-	    goto bad_arg;
+          if (!toggle_do_block(s, b))
+            goto bad_arg;
 
           toggle_data[s].current_block = b;
 
-	  a = skip_ws(a);
-	}
+          a = skip_ws(a);
+        }
     }
   else if (command == COMMAND_TRIGGER)
     {
@@ -983,26 +1001,26 @@ toggle_func(char *arg, int flags)
       /* Find the '=' */
       vr = a;
       while (*a && *a != ' ' && *a != '=')
-	a++;
+        a++;
 
       if (*a != '=' || *(a+1) != '=')
-	goto bad_arg;
+        goto bad_arg;
 
       vre = a;
 
       if (vr == vre)
-	goto bad_arg;
+        goto bad_arg;
 
       a += 2;
       vl = a;
 
       while (!isspace(*a))
-	a++;
+        a++;
 
       vle = a;
 
       if (vl == vle)
-	goto bad_arg;
+        goto bad_arg;
 
 
       *vre = 0;
@@ -1010,7 +1028,7 @@ toggle_func(char *arg, int flags)
       *vre = '=';
 
       if (!vrval)
-	goto bad_arg;
+        goto bad_arg;
 
       o = *vle;
       *vle = 0;
@@ -1052,7 +1070,7 @@ int detect_vmware(void)
     {
       p++;
       if (!s[p])
-	return 1;
+        return 1;
     }
     else
       p = 0;
@@ -1087,7 +1105,7 @@ char is_var_expand(void)
   return var_expand_line_edit;
 }
 
-//static 
+//static
 int
 varexpand_func(char *arg, int flags)
 {
@@ -1100,14 +1118,14 @@ varexpand_func(char *arg, int flags)
   for (i = 0; i < sizeof(on_vals) / sizeof(on_vals[0]); i++)
     if (!grub_memcmp(arg, on_vals[i], sizeof(*on_vals[i])))
       {
-	var_expand_line_edit = 1;
-	goto out;
+        var_expand_line_edit = 1;
+        goto out;
       }
   for (i = 0; i < sizeof(off_vals) / sizeof(off_vals[0]); i++)
     if (!grub_memcmp(arg, off_vals[i], sizeof(*off_vals[i])))
       {
-	var_expand_line_edit = 0;
-	goto out;
+        var_expand_line_edit = 0;
+        goto out;
       }
 
   if (*arg)
@@ -1147,7 +1165,7 @@ real_root_func (char *arg, int attempt_mount)
   //    print_root_device ();
   //    return 0;
   //  }
-  
+
   /* Call set_device to get the drive and the partition in ARG.  */
   next = set_device (arg);
   if (! next)
@@ -1157,20 +1175,20 @@ real_root_func (char *arg, int attempt_mount)
   if (attempt_mount)
     {
       if (! open_device () && errnum != ERR_FSYS_MOUNT)
-	return 1;
+        return 1;
     }
   else
     {
       /* This is necessary, because the location of a partition table
-	 must be set appropriately.  */
+         must be set appropriately.  */
       if (open_partition ())
-	{
-	  set_bootdev (0);
-	  if (errnum)
-	    return 1;
-	}
+        {
+          set_bootdev (0);
+          if (errnum)
+            return 1;
+        }
     }
-  
+
   /* Clear ERRNUM.  */
   errnum = 0;
   saved_partition = current_partition;
@@ -1184,12 +1202,12 @@ real_root_func (char *arg, int attempt_mount)
       errnum = 0;
       bootdev = set_bootdev (hdbias);
       if (errnum)
-  	return 1;
-      
+        return 1;
+
       /* Print the type of the filesystem.  */
       //print_fsys_type ();
     }
-  
+
   return 0;
 }
 

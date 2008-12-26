@@ -22,7 +22,7 @@ extern unsigned char use_term;
 extern unsigned long extended_memory;
 #pragma aux extended_memory "*"
 
-void *filetab_ptr;
+void *filetab_ptr = 0;
 
 #pragma aux mu_Open_wr      "*"
 #pragma aux mu_Read_wr      "*"
@@ -1375,7 +1375,7 @@ int init(void)
     }
   }
 
-  printf("low mem 0x%x\r\n", mem_lower);
+  printf("mem_lower=0x%x\r\n", mem_lower);
   //printmsg("mem_lower=");
   //printd(mem_lower);
 
@@ -1555,10 +1555,12 @@ int init(void)
     bpb->media_desc = 0xf8;
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
-    bpb->disk_num   = (unsigned char)(boot_drive & 0xff);
-    bpb->log_drive  = conf.driveletter; // 0x92;
     bpb->marker     = 0x29;
   }
+
+  bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
+  bpb->log_drive   = conf.driveletter; // 0x92;
+  bpb->hidden_secs = part_start;
 
   //bpb->disk_num    = 0x3;
   //bpb->log_drive   = 0x48;

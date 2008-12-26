@@ -49,7 +49,7 @@ char *linux_data_real_addr;
 char *linux_data_tmp_addr;
 unsigned long linux_text_len;
 
-grub_error_t errnum;
+grub_error_t errnum = ERR_NONE;
 
 /*
  *  The next two functions, 'load_image' and 'load_module', are the building
@@ -98,6 +98,8 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   if (u_open (kernel, &size))
     return KERNEL_TYPE_NONE;
 
+  errnum = ERR_NONE;
+
   if (!(len = u_read (buffer, MULTIBOOT_SEARCH)) || len < 32)
     {
       u_close ();
@@ -135,7 +137,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   /* ELF loading supported if multiboot, FreeBSD and NetBSD.  */
   if ((type == KERNEL_TYPE_MULTIBOOT
        || pu.elf->e_ident[EI_OSABI] == ELFOSABI_FREEBSD
-       || grub_strcmp (pu.elf->e_indent + EI_BRAND, "FreeBSD") == 0
+       || grub_strcmp (pu.elf->e_ident + EI_BRAND, "FreeBSD") == 0
        || suggested_type == KERNEL_TYPE_NETBSD)
       && len > sizeof (Elf32_Ehdr)
       && BOOTABLE_I386_ELF ((*((Elf32_Ehdr *) buffer))))

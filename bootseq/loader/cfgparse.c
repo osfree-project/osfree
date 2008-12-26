@@ -164,6 +164,12 @@ int process_cfg(char *cfg)
     u_seek(bytes_read);
 
     rd = u_read(buf, sizeof(buf));
+    if (!rd)
+    {
+      printf("process_cfg(): read returned zero bytes\r\n");
+      return 0;
+    }
+    
     sz -= rd;
     bytes_read += rd;
 

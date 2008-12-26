@@ -14,6 +14,7 @@ include mb_info.inc
 include mb_header.inc
 include mb_etc.inc
 
+extrn ldr_drive       :dword
 extrn boot_drive      :dword
 extrn call_rm         :near
 extrn cmain           :near
@@ -23,11 +24,14 @@ extrn gdtsrc          :byte
 extrn gdtdesc         :fword
 extrn l               :dword
 extrn m               :dword
+extrn lip_module_present :byte
+;extrn grub_printf_    :near
 
 public base
-
+public force_lba
 public stop
 public start_kernel
+;public printk
 
 K_RDWR          equ     0x60    ; keyboard data & cmds (read/write)
 K_STATUS        equ     0x64    ; keyboard status
@@ -119,6 +123,7 @@ stop_flop:
         int     13h
         retf
 
+force_lba       db  0
 pad1size        equ STARTUP_SIZE - ($ - start)
 pad1            db  pad1size dup (0)
 
@@ -154,6 +159,8 @@ entry:
         ; save multiboot structure address
         mov   m, ebx
 
+        mov   byte ptr boot_drive, dl
+
         call  set_gdt
 
         ; set stack
@@ -174,6 +181,13 @@ entry:
         cli
         hlt
 ;        jmp     $
+
+;printk:
+;        cmp     lip_module_present, 0
+;        je      nopr
+;        call    grub_printf_
+;nopr:
+;        ret
 
 stop:
         cld
@@ -235,7 +249,7 @@ start_kernel:
         call gateA20
         add  eax, 4
 
-        mov  ebx, boot_drive
+        mov  ebx, ldr_drive
         mov  eax, REAL_BASE
         shl  eax, 12
         mov  ax, offset _TEXT16:start
