@@ -9,28 +9,43 @@ if emitappend='' then emitappend=0
 ir=value("SOMIR",,"ENVIRONMENT")
 include=value("SMINCLUDE",,"ENVIRONMENT")
 if include='' then include=value("SMINCLUDE",,"ENVIRONMENT")
-if include='' then include='.'
+if include='' then include='.;\som\include'
 knownexts=value("SMKNOWEXTS",,"ENVIRONMENT")
 addstar=value("SMADDSTAR",,"ENVIRONMENT")
 if addstar='' then addstar=1
 sombase=value("SOMBASE",,"ENVIRONMENT")
 somruntime=value("SOMRUNTIME",,"ENVIRONMENT")
 smclasses=value("SMCLASSES",,"ENVIRONMENT")
-
-sompp='sompp.exe'
+tmpdir=value("TEMP",,"ENVIRONMENT")||'\'
+comment='-C'
+verbose=''
+somcpp='somcpp.exe'
+somipc='somipc.exe'
 
 if arg() then
-  do i=0 to arg()
-    say arg(i)
+  do i=1 to arg()
     if pos('-', arg(i))>0 then
     do
       if arg(i)='-V' then
         'bldlevel sc.exe'
       else
+      if arg(i)='-c' then
+        comment=''
+      else
+      if arg(i)='-v' then
+        verbose='-v'
+      else
       if arg(i)='-h' then
         call usage;
     end
-    else say arg(i)
+    else
+    do
+      if verbose='-v' then say 'Running shell command:'
+      '@'||somcpp||' -D__OS2__  -I. -IC:\os2tk45\h -IC:\os2tk45\idl -IC:\os2tk45\som\include -D__SOMIDL_VERSION_1__  -D__SOMIDL__  '||comment||' '||arg(i)||' > '||tmpdir||'e8100000.CTN'
+      '@'||somipc||' -mppfile='||tmpdir||'e8100000.CTN    '||verbose||' -e emith -e emitih -e emitctm -e emitc  -o somcls '||arg(i)
+      if verbose='-v' then say 'Removed "'||tmpdir||'e8100000.CTN".'
+      '@del /q '||tmpdir||'e8100000.CTN'
+    end
   end
 else
   say 'fatal error: No source file specified.'

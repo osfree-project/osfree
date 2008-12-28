@@ -92,7 +92,7 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
 
   /* get requested entry procedure address */
   rc= DosQueryProcAddr(hUtilDllHandle,0L,
-                       strupr(pszEntryName),(PFN*)&func16);
+                       strupr(pszEntryName),(PFN*)&pvFSEntry);
 
   if (rc!=NO_ERROR)
   {

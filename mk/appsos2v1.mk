@@ -1,6 +1,6 @@
 #
 # make macros for
-# win16 apps
+# os2 16bit apps
 #
 
 !ifndef __appsos2v1_mk__

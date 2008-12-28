@@ -545,8 +545,8 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
       if (forward_found_module) forward_found_module=(struct LX_module *)(((IXFModule *)forward_found_module)->FormatStruct);
 
       if(!forward_found_module) { /* Unable to find and load module. */
-        //io_printf("Can't find forward module: '%s' \n", frw_mod_name);
-
+        io_printf("Can't find forward module: '%s' \n", frw_mod_name);
+#if 0
         native_module = native_find_module(frw_mod_name);
         if(native_module != 0) {
           /* Try to load a native library instead. */
@@ -572,6 +572,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
           frw_type = ENTRYNATIVE;
           goto cont_native_entry;
         }
+#endif
         return 0;
       }
       frw_fn_ptr = get_entry(forward_found_module, frw_mod_nr,

@@ -64,7 +64,7 @@ CPPC16    = @wpp
 ASM       = @wasm
 
 LINKER    = @wlink
-LINKOPT   = op q $(ADD_LINKOPT)
+LINKOPT   = op internalrelocs op q $(ADD_LINKOPT)
 
 LIB       = @wlib
 LIBOPT    = -q -n -fo
