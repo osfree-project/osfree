@@ -84,7 +84,7 @@ $(OUT)$(SEP)OS2$(SEP)dosdebug.h: os2$(SEP)dosdebug.uni
 $(OUT)$(SEP)OS2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
 
 ## DOS Personality files
-dos: $(OUT)$(SEP)DOS$(SEP)dos.h $(OUT)$(SEP)DOS$(SEP)os2vdm.h .symbolic
+dos: $(OUT)$(SEP)DOS$(SEP)dos.h .symbolic # $(OUT)$(SEP)DOS$(SEP)os2vdm.h
 
 $(OUT)$(SEP)DOS$(SEP)dos.h: dos$(SEP)dos.uni
 
