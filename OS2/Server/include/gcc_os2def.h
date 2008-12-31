@@ -23,12 +23,16 @@
 #define FIELDOFFSET(type, field)   ((SHORT)&(((type *)0)->field))
 
 #define MAKEULONG(l, h)  ((ULONG)(((USHORT)(l)) | ((ULONG)((USHORT)(h))) << 16))
+#ifndef __WIN32__
 #define MAKELONG(l, h)   ((LONG)MAKEULONG(l, h))
+#endif
 #define MAKEUSHORT(l, h) (((USHORT)(l)) | ((USHORT)(h)) << 8)
 #define MAKESHORT(l, h)  ((SHORT)MAKEUSHORT(l, h))
 
+#ifndef __WIN32__
 #define LOBYTE(w)   LOUCHAR(w)
 #define HIBYTE(w)   HIUCHAR(w)
+#endif
 #define LOUCHAR(w)  ((UCHAR)(w))
 #define HIUCHAR(w)  ((UCHAR)(((USHORT)(w) >> 8) & 0xff))
 #define LOUSHORT(l) ((USHORT)((ULONG)l))
@@ -42,7 +46,9 @@
 
 #define SEVERITY_NOERROR       0x0000
 #define SEVERITY_WARNING       0x0004
+#ifndef __WIN32__
 #define SEVERITY_ERROR         0x0008
+#endif
 #define SEVERITY_SEVERE        0x000C
 #define SEVERITY_UNRECOVERABLE 0x0010
 
@@ -59,8 +65,14 @@
 #define APIENTRY16 _Far16 _Pascal
 #define PASCAL16   _Far16 _Pascal
 
+#ifdef __OS2__
 #define EXPENTRY  _System
 #define APIENTRY  _System
+#else
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#endif
 
 #define CHAR     char
 #define SHORT    short
@@ -96,7 +108,9 @@ typedef char *PSZ;
 typedef char *PCH;
 typedef const char *PCSZ;
 
+#ifndef __WIN32__
 typedef unsigned long BOOL, *PBOOL;
+#endif
 typedef unsigned LONG BOOL32, *PBOOL32;
 
 typedef CHAR     *PCHAR;
@@ -115,8 +129,10 @@ typedef _PFN  *PFN;
 */
 typedef USHORT  SEL, *PSEL;
 
+#ifndef __WIN32__
 typedef LHANDLE HFILE, *PHFILE;
 typedef LHANDLE HMODULE, *PHMODULE;
+#endif
 //typedef LHANDLE PID, *PPID;
 //typedef LHANDLE TID, *PTID;
 typedef ULONG   HEV,  *PHEV;
@@ -127,6 +143,11 @@ typedef HSEM    *PHSEM;
 typedef USHORT  SGID;
 
 typedef ULONG   ERRORID, *PERRORID;
+
+#ifndef CCHMAXPATH
+#define CCHMAXPATH          260
+#define CCHMAXPATHCOMP      256
+#endif
 
 #if 0
 #ifndef __OS2__

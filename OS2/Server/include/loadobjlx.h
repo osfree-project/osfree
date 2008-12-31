@@ -40,15 +40,15 @@ unsigned int vm_alloc_obj_lx(struct LX_module * lx_exe_mod, struct o32_obj * lx_
 int load_obj_lx(struct LX_module * lx_exe_mod,
                                 struct o32_obj * lx_obj, void *vm_ptr_obj);
 
-int do_fixup_code_data_lx(struct LX_module * lx_exe_mod);
+int do_fixup_code_data_lx(struct LX_module * lx_exe_mod, int *ret_rc);
 
 int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
-                                struct o32_obj * lx_obj);
+                                struct o32_obj * lx_obj, int *ret_rc);
 
 int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_module,
                                                 struct o32_obj * lx_obj,
                                                 int mod_nr, int import_ord, int addit, int srcoff_cnt1,
-                                                struct r32_rlc * min_rlc);
+                                                struct r32_rlc * min_rlc, int *ret_rc);
 
 #define ENTRYNATIVE 5
 

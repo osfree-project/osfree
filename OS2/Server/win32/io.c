@@ -6,6 +6,8 @@
 
 #include "io.h"
 
+#undef NO_ERROR
+#undef ERROR_FILE_NOT_FOUND
 #define NO_ERROR 0
 #define ERROR_FILE_NOT_FOUND 2
 

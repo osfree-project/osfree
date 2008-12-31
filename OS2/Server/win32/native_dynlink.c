@@ -17,10 +17,16 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Or see <http://www.gnu.org/licenses/>
 */
-
+/*
 #define INCL_DOSMODULEMGR
 #define INCL_ERRORS
 #include <os2.h>
+*/
+
+#include <windows.h>
+/*  Causes clashes with OS/2 defined identifiers in gcc_os2def.h*/
+
+
 
 #include <stdio.h>
 #include <string.h>
@@ -113,7 +119,7 @@ void * native_find_module(char * name)
 
 
         /* Searches a module in the mini_libpath. */
-void native_find_module_path(char * name, char * full_path_name) {
+unsigned long native_find_module_path(char * name, char * full_path_name) {
         char * p_buf = full_path_name;
         int i =0;
         FILE *f=0;
@@ -154,10 +160,11 @@ void * native_load_module(char * name) {
                 char buf[128];
                 struct native_module_rec * new_module_el;
 
-                rval = DosLoadModule( buf, sizeof(buf), p_buf, &handle );
+                /*rval = DosLoadModule( buf, sizeof(buf), p_buf, &handle );*/
+                handle = rval = LoadLibrary( p_buf);
 
                 if (rval) {
-                        fprintf(stderr, "Could not open '%s': %s\n", p_buf, buf);
+                        io_printf( "Could not open '%s': %s\n", p_buf, buf);
                         return (void *)handle;
                 }
                 new_module_el = native_register_module(name, p_buf, (void *)handle);
@@ -212,10 +219,11 @@ void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
 
         mod_handle = native_find_module(modname);
 
-        rval = DosQueryProcAddr( (HMODULE)mod_handle, 0, funcname, (PFN *)&mydltest);
+        /*rval = DosQueryProcAddr( (HMODULE)mod_handle, 0, funcname, (PFN *)&mydltest); */
+         mydltest = rval = GetProcAddress( mod_handle, funcname ); 
 
         if (rval)  {
-                fprintf(stderr, "Could not locate symbol '%s': %d\n", funcname, rval);
+                io_printf( "Could not locate symbol '%s': %d\n", funcname, rval);
                 //exit(1);
         }
         return mydltest;
@@ -226,9 +234,10 @@ void * native_get_func_ptr_handle_modname(char * funcname, void * native_mod_han
         void * mydltest;
         APIRET rval;
 
-        rval = DosQueryProcAddr( (HMODULE)native_mod_handle, 0, funcname, (PFN *)&mydltest);
+        /*rval = DosQueryProcAddr( (HMODULE)native_mod_handle, 0, funcname, (PFN *)&mydltest);*/
+        mydltest = rval = GetProcAddress( native_mod_handle, funcname );
         if (rval)  {
-                fprintf(stderr, "Could not locate symbol '%s': %d\n", funcname, rval);
+                io_printf( "Could not locate symbol '%s': %d\n", funcname, rval);
                 //exit(1);
         }
         io_printf("native_get_func_ptr_handle_modname( %s, %p)=%p\n",
@@ -247,10 +256,10 @@ void * native_get_func_ptr_ord_modname(int ord, char * modname)
 
         mod_handle = native_find_module(modname);
 
-        rval = DosQueryProcAddr( (HMODULE)mod_handle, ord, NULL, (PFN *)&mydltest);
-
+       /* rval = DosQueryProcAddr( (HMODULE)mod_handle, ord, NULL, (PFN *)&mydltest);*/
+        /*mydltest = rval = GetProcAddress( ord, modname ); */
         if (rval)  {
-                fprintf(stderr, "Could not locate ordinal '%d': %d\n", ord, rval);
+                io_printf( "Could not locate ordinal '%d': %d\n", ord, rval);
                 //exit(1);
         }
         return mydltest;
@@ -261,7 +270,7 @@ APIRET APIENTRY  test(HFILE hfile,
                                   PCHAR pBuf)
 {
   io_printf(pBuf);
-  return NO_ERROR;
+  return 0; /*NO_ERROR;*/
 }
 
 
@@ -277,11 +286,12 @@ void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle)
           mydltest=&test;
           rval=0;
         } else {
-          rval = DosQueryProcAddr( (HMODULE)native_mod_handle, ord, NULL, (PFN *)&mydltest);
+          /*rval = DosQueryProcAddr( (HMODULE)native_mod_handle, ord, NULL, (PFN *)&mydltest);*/
+          mydltest = rval = GetProcAddress( native_mod_handle, "Win386LibEntry" ); /* ?? */
         }
 
         if (rval)  {
-                fprintf(stderr, "Could not locate ordinal '%d': %d\n", ord, rval);
+                io_printf( "Could not locate ordinal '%d': %d\n", ord, rval);
                 //exit(1);
         }
         return mydltest;

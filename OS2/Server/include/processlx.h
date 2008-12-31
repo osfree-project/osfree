@@ -32,9 +32,9 @@
 extern "C" {
 #endif
 
-
-//#include "gcc_os2def.h"
-
+#if defined(__WIN32__) || defined(__LINUX__)
+#include <gcc_os2def.h>
+#endif
 
 #if 0
 #ifndef __OS2__
@@ -132,13 +132,18 @@ struct t_processlx {
 struct t_processlx * processlx_create(struct LX_module * lx_m);
 
 void processlx_destroy(struct t_processlx * proc);
+/*
+typedef struct _RESULTCODES {
+    ULONG codeTerminate;
+    ULONG codeResult;
+} RESULTCODES, *PRESULTCODES; */
 
 APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  long cbObjname,
                                  unsigned long execFlag,
                                  char * pArg,
                                  char * pEnv,
-                                 PRESULTCODES pRes,
+                                 struct _RESULTCODES *pRes, /*PRESULTCODES */
                                  char * pName);
 
 #ifdef __cplusplus

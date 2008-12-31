@@ -44,5 +44,3 @@ void StrTokRestore(STR_SAVED_TOKENS *st)
         }
 
 }
-
-

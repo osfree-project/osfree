@@ -11,6 +11,7 @@
 #include <ixfmgr.h>
 #include <lx.h>
 #include <ne.h>
+#include <os2errcodes.h>
 
 typedef
   struct

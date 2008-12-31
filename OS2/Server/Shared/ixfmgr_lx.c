@@ -5,6 +5,7 @@
 #define INCL_ERRORS
 #include <os2.h>
 
+#include <os2errcodes.h>
 #include <lx.h>
 
 #ifndef ENEWHDR
@@ -47,7 +48,8 @@ unsigned long LXLoad(void * addr, unsigned long size, void ** lx_exe_mod)
 
 unsigned long LXFixup(void * lx_exe_mod)
 {
-  do_fixup_code_data_lx((struct LX_module *)lx_exe_mod);
+  int rc=NO_ERROR;
+  do_fixup_code_data_lx((struct LX_module *)lx_exe_mod, &rc);
   /* Apply fixups. */
-  return NO_ERROR;
+  return rc; /*NO_ERROR;*/
 }

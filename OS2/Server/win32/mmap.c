@@ -1,8 +1,8 @@
 #include <windows.h>
 #include <sys/mman.h>
 
-/* getpagesize for windows */
-long getpagesize (void) {
+/* getpagesize for windows, long*/
+int getpagesize (void) {
     static long g_pagesize = 0;
     if (! g_pagesize) {
         SYSTEM_INFO system_info;
@@ -23,20 +23,20 @@ long getregionsize (void) {
 
 /* Wait for spin lock */
 int slwait (int *sl) {
-    while (InterlockedCompareExchange ((void **) sl, (void *) 1, (void *) 0) != 0)
+    while (InterlockedCompareExchange ((long *) sl, (long) 1, (long) 0) != 0)
         Sleep (0);
     return 0;
 }
 /* Release spin lock */
 int slrelease (int *sl) {
-    InterlockedExchange (sl, 0);
+    InterlockedExchange ((long *)sl, 0);
     return 0;
 }
 
 static int g_sl;
 
 /* mmap for windows */
-void *mmap (void *ptr, long size, long prot, long type, long handle, long arg) {
+void *mmap (void *ptr, size_t size, int prot, int type, int handle, off_t arg) {
     static long g_pagesize;
     static long g_regionsize;
     /* Wait for spin lock */
@@ -59,7 +59,7 @@ mmap_exit:
     return ptr;
 }
 /* munmap for windows */
-long munmap (void *ptr, long size) {
+int munmap (caddr_t ptr, int size) {
     static long g_pagesize;
     static long g_regionsize;
     int rc = MUNMAP_FAILURE;

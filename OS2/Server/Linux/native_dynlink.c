@@ -24,6 +24,7 @@
 #include <modlx.h>
 #include <loadobjlx.h>
 #include <io.h>
+#include <modmgr.h>
 
 #ifndef __WATCOMC__
 #include <dlfcn.h>
@@ -39,8 +40,10 @@ struct native_module_rec native_module_root; /* Root for module list.*/
 //const int LOADING = 1;
 //const int DONE_LOADING = 0;
 
-char **mini_native_libpath;
-int sz_native_mini_libpath; /* Number of elements in mini_libpath (zero-based).*/
+/*char **mini_native_libpath;
+ int sz_native_mini_libpath;*/
+char *mini_native_libpath[]={"."};
+int sz_native_mini_libpath=0; /* Number of elements in mini_libpath (zero-based).*/
 
 const char *dll_suf = ".so";  /* DLL extension (native libs). */
 const char *lib_pre = "lib";  /* lib prefix. lib<module name>.so*/
@@ -121,7 +124,7 @@ void * native_find_module(char * name) {
 
 
         /* Searches a module in the mini_libpath. */
-void native_find_module_path(char * name, char * full_path_name) {
+unsigned long native_find_module_path(char * name, char * full_path_name) {
 
         /* /pub/projekt_src/os2start/libmsg.so */
         /*const char *mini_libpath[] = {
@@ -152,6 +155,7 @@ void native_find_module_path(char * name, char * full_path_name) {
                 fclose(f);
         else
                 p_buf[0] = 0;
+        return 0;
 }
 
         /* Loads a module name which proc needs. */
@@ -272,11 +276,10 @@ void * native_get_func_ptr_handle_modname(char * funcname, void * native_mod_han
 }
 
 void set_native_libpath(char ** path, int nr) {
-  mini_native_libpath = path;
+  *mini_native_libpath = *path;
   sz_native_mini_libpath = nr;
 }
 
 char ** get_native_libpath() {
   return mini_native_libpath;
 }
-

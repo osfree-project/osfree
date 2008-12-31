@@ -78,10 +78,13 @@ void showRegDump() {
         unsigned long int _EDI,_ESI,_EIP,_ESP,_EBP;
         unsigned short int _DS,_ES,_FS,_GS,_CS,_SS;
         unsigned char _FLG=0;
+        unsigned long int variable_is_used=0;
+        variable_is_used=_EDI=_ESI=_EIP=_ESP=_EBP=0;
+        variable_is_used=_DS=_ES=_FS=_GS=_CS=_SS=0;
 
         #ifdef __WATCOMC__
         extern void show_regs(void);
-    #pragma aux show_regs = \
+        #pragma aux show_regs = \
           "mov _ESP, esp \n" \
                   "mov _EBP, ebp \n" \
                   "mov _EDI, edi \n" \
@@ -520,7 +523,7 @@ void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * p
         #include <sched.h>
         int clone(int (*fn)(void *),  void *child_stack,  int flags,  void *arg);
                 */
-                /*int ret = clone(my_execute, get_esp(lx_exe_mod) + proc->stack_mmap,
+                /*int ret = clone(my_te, get_esp(lx_exe_mod) + proc->stack_mmap,
                 CLONE_VM, ""); */
 
                  /* (int (*)()) */

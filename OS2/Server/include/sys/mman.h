@@ -43,6 +43,9 @@ typedef EXCEPTIONREGISTRATIONRECORD mmap_reg_t;
 
 #define MS_MUNMAP       0x10     /* not standard, used internally by munmap() */
 
+#ifdef __WIN32__
+typedef void* caddr_t;
+#endif
 
 int             getpagesize(void);
 int             mprotect(caddr_t pAddr, int cbLen, int fProtection);
@@ -64,6 +67,7 @@ int      mderegister(mmap_reg_t *pReg);
 /* Return value of `mmap' in case of an error.  */
 #define MAP_FAILED      ((void *) -1)
 
+#define MUNMAP_FAILURE MAP_FAILED
 #define MMAP_FAILURE 0
 
 #if defined (__cplusplus)

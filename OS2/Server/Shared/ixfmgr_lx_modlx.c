@@ -267,7 +267,7 @@ int load_lx_module_header(struct LX_module * lx_mod)
   }
 
   if(lx_module_header_offset == 0) {
-    //io_printf(" Inte en MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
+    //io_printf(" Not an MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
     //   ((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')),
     //   ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')), exe_sig[0], exe_sig[1] );
     //io_printf("LX header offset: %d \n", lx_module_header_offset);
@@ -295,7 +295,7 @@ int load_lx_module_header(struct LX_module * lx_mod)
     }
     return TRUE;
   } else {
-    io_printf("Ogiltig LX fil !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
+    io_printf("Invalid LX file !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
     return FALSE;
   }
 
@@ -487,7 +487,7 @@ char * get_imp_mod_name_cstr(struct LX_module * lx_mod, int mod_idx, char *buf, 
 
 /* unsigned long       e32_impproc;    // Offset of Import Procedure Name Table */
 
-        /* Get a string from Import Procedure Name Table. The names of imported functions. */
+        /* Get a (pascal) string from Import Procedure Name Table. The names of imported functions. */
 char * get_imp_proc_name(struct LX_module * lx_mod, int proc_idx) {
         int offs_imp_proc_table = lx_mod->lx_head_e32_exe->e32_impproc -
                                                      lx_mod->lx_head_e32_exe->e32_fpagetab;
@@ -642,6 +642,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 *ret_obj = 0;
                                 *ret_type = 0;
                                 io_printf("RET, Can't find entry.\n");
+                                io_printf("entry_ord_index: %d, entry_ord_to_search: %d\n", entry_ord_index, entry_ord_to_search);
                                 return (void *) 0; // Can't find entry.
                 }
                 if(entry_table->b32_cnt == 0) {
@@ -839,11 +840,11 @@ int get_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name)
                 c_len = lx_mod->loader_section[offs_res_name_table + entry_lenghts];
                 copy_pas_str(ptr_buf_name,
                                         (char *)&lx_mod->loader_section[offs_res_name_table + entry_lenghts]);
-                io_printf(" Hittade: %s \n", ptr_buf_name);
+                io_printf(" Found: %s \n", ptr_buf_name);
 
                 ordinal = *((unsigned short int*)&lx_mod->loader_section[
                                                         offs_res_name_table + c_len+1+entry_lenghts]);
-                io_printf(" Hittade (ord): %d \n", ordinal);
+                io_printf(" Found (ord): %d \n", ordinal);
                 if(strcmp(entry_name,ptr_buf_name)==0)
                         return ordinal;
 

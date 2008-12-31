@@ -36,6 +36,8 @@
 #define INCL_ERRORS
 #include <os2.h>
 
+#include <os2errcodes.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,9 +52,10 @@
 struct t_mem_area os2server_root_mem_area;
 
 #define  size_t unsigned long int
-
-int munmap( void *__addr, size_t __len ){return 0;}
-
+/* munmap is not available with Open Watcom.*/
+#if defined(__LINUX__) 
+int munmap( void *__addr, size_t __len ){ printf("munmap not implemented\n"); return 0;}
+#endif
 /*! @brief This is the main function of the osFree OS/2 Personality Server.
            Loads config.sys, executes all CALL and RUN stataments, creates
            initial environment using SET stataments, starts main shell
@@ -102,10 +105,11 @@ int main(int argc, const char **argv)
   if (!options.protshell||(strlen(options.protshell)==0))
   {
     io_printf("No PROTSHELL statament in CONFIG.SYS\n");
-    return ERROR_INVALID_PARAMETER;
+    return 87; /*ERROR_INVALID_PARAMETER; Not defined for Windows*/
   } else {
     // Load and execute shell
     rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
+    if(rc) io_printf("execute error: %d\n", rc);
   }
 
   // Clean up config data
