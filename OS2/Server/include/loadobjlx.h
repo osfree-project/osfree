@@ -22,7 +22,7 @@
 #define _LOADOBJLX_H_
 //#define FALSE 1
 #include <modlx.h>
-#include <processlx.h>
+#include <processmgr.h>
 #include "gcc_os2def.h"
 #include <exe386.h>
 
@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc);
+int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc);
 
 int load_dll_code_obj_lx(struct LX_module * lx_exe_mod);
 

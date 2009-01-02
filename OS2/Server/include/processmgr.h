@@ -27,6 +27,8 @@
 #include <os2.h>
 
 #include <memmgr.h>
+#include <modmgr.h>
+#include <ixfmgr.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,7 +120,7 @@ Note:  The fields of this data structure should not be modified unless you are s
        stacks, in which case only the tib_pstack and tib_pstacklimit should changed.
 */
 
-struct t_processlx {
+typedef struct t_os2process {
         struct LX_module * lx_mod;
         int pid;
 
@@ -129,9 +131,13 @@ struct t_processlx {
         struct t_mem_area root_mem_area;
 };
 
-struct t_processlx * processlx_create(struct LX_module * lx_m);
+// APIRET APIENTRY PrcCreate(IXFModule ixfModule,
+//                           struct t_os2process * process);
 
-void processlx_destroy(struct t_processlx * proc);
+
+struct t_os2process * PrcCreate(IXFModule ixfModule);
+
+void processlx_destroy(struct t_os2process * proc);
 /*
 typedef struct _RESULTCODES {
     ULONG codeTerminate;

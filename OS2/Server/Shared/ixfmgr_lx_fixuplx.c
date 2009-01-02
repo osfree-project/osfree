@@ -26,7 +26,7 @@
 #include <os2.h>
 
 #include <modlx.h>
-#include <processlx.h>
+#include <processmgr.h>
 #include <modmgr.h>
 #include <fixuplx.h>
 #include <io.h>
@@ -528,7 +528,7 @@ int get_reloc_size_rlc(struct r32_rlc * rlc) {
         */
 
 /*
-void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_processlx * proc) {
+void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_os2process * proc) {
 
         //struct o32_obj * kod_obj = get_obj(lx_mod->lx_head_e32_exe->e32_startobj);
         //Sök först i vilket objekt som offs finns i.
@@ -625,4 +625,4 @@ void fake_pagefault_code(struct LX_module * lx_mod, unsigned int offs, struct t_
         }
         io_printf("\n%s på %d\n", __func__, offs);
 }
-*/ 
+*/

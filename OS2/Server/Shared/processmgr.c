@@ -30,7 +30,7 @@
 
 #include <token.h>
 #include <cfgparser.h>
-#include <processlx.h>
+#include <processmgr.h>
 #include <modlx.h>
 #include <execlx.h>
 #include <modmgr.h>
@@ -80,9 +80,10 @@ typedef struct _PIB {
   ULONG     pib_ultype;     Process' type code. */
 
 /* Creates a process for an LX-module. */
-struct t_processlx * processlx_create(struct LX_module * lx_m) {
+struct t_os2process * PrcCreate(IXFModule ixfModule)
+{
 
-    struct t_processlx * c = (struct t_processlx *) malloc(sizeof(struct t_processlx));
+    struct t_os2process * c = (struct t_os2process *) malloc(sizeof(struct t_os2process));
     c->lx_pib   = (struct _PIB*) malloc(sizeof(PIB));
     c->main_tid = (struct _TIB*) malloc(sizeof(TIB));
 
@@ -90,11 +91,11 @@ struct t_processlx * processlx_create(struct LX_module * lx_m) {
         c->pid = 1;
         c->code_mmap = 0;
         c->stack_mmap = 0;
-        c->lx_mod = lx_m;
+        c->lx_mod = (struct LX_module *)(ixfModule.FormatStruct);
 
         c->lx_pib->pib_ulpid = 1;
         c->lx_pib->pib_ulppid = 0;
-        c->lx_pib->pib_hmte = (ULONG) lx_m;
+        c->lx_pib->pib_hmte = (ULONG) (struct LX_module *)(ixfModule.FormatStruct);
         c->lx_pib->pib_pchcmd = "";
         c->lx_pib->pib_pchenv = "";
 
@@ -106,7 +107,7 @@ struct t_processlx * processlx_create(struct LX_module * lx_m) {
     return(c);
 }
 
-void processlx_destroy(struct t_processlx * proc) {
+void processlx_destroy(struct t_os2process * proc) {
         /* Avmappar filen. */
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(proc->lx_mod);
         int ret_munmap = munmap((void*) kod_obj->o32_base,
@@ -132,18 +133,18 @@ Lets a program run another program as a child process.
 #define INCL_DOSPROCESS
 #include <os2.h>
 
-PCHAR           pObjname;     Address of the buffer in which the name of the object that 
+PCHAR           pObjname;     Address of the buffer in which the name of the object that
                                    contributed to the failure of DosExecPgm is returned.
 LONG            cbObjname;    Length, in bytes, of the buffer described by pObjname.
-ULONG           execFlag;     Flag indicating how the program runs in relation to the 
-                                 requester, and whether execution is under conditions for 
+ULONG           execFlag;     Flag indicating how the program runs in relation to the
+                                 requester, and whether execution is under conditions for
                                  debugging.
 PSZ             pArg;         Address of the ASCIIZ argument strings passed to the program.
 PSZ             pEnv;         Address of the ASCIIZ environment strings passed to the program.
-PRESULTCODES    pRes;         Pointer to the RESULTCODES structure where the process ID, or 
-                                 the termination code and the result code indicating the 
+PRESULTCODES    pRes;         Pointer to the RESULTCODES structure where the process ID, or
+                                 the termination code and the result code indicating the
                                  reason for ending the child process is returned.
-PSZ             pName;        Address of the name of the file that contains the program to 
+PSZ             pName;        Address of the name of the file that contains the program to
                                  be executed.
 APIRET          ulrc;         Return Code.
 
@@ -152,74 +153,74 @@ ulrc = DosExecPgm(pObjname, cbObjname, execFlag,
 
 
 pObjname (PCHAR) - output
-Address of the buffer in which the name of the object that contributed to the failure 
+Address of the buffer in which the name of the object that contributed to the failure
 of DosExecPgm is returned.
 
 cbObjname (LONG) - input
 Length, in bytes, of the buffer described by pObjname.
 
 execFlag (ULONG) - input
-Flag indicating how the program runs in relation to the requester, and whether execution 
+Flag indicating how the program runs in relation to the requester, and whether execution
 is under conditions for debugging.
 
 The values of this field are shown in the following list:
 
 0 EXEC_SYNC
-Execution is synchronous to the parent process. The termination code and result code are 
+Execution is synchronous to the parent process. The termination code and result code are
 stored in the RESULTCODES structure pointed to by pRes.
 
 1 EXEC_ASYNC
-Execution is asynchronous to the parent process. When the child process ends, its 
-result code is discarded. The process ID is stored in the codeTerminate field of the 
+Execution is asynchronous to the parent process. When the child process ends, its
+result code is discarded. The process ID is stored in the codeTerminate field of the
 RESULTCODES structure pointed to by pRes.
 
 2 EXEC_ASYNCRESULT
-Execution is asynchronous to the parent process. When the child process ends, its 
-result code is saved for examination by a DosWaitChild request. The process ID is 
+Execution is asynchronous to the parent process. When the child process ends, its
+result code is saved for examination by a DosWaitChild request. The process ID is
 stored in the codeTerminate field of the RESULTCODES structure pointed to by pRes.
 
 3 EXEC_TRACE
-Execution is the same as if EXEC_ASYNCRESULT were specified for execFlag. Debugging 
+Execution is the same as if EXEC_ASYNCRESULT were specified for execFlag. Debugging
 conditions are present for the child process.
 
 4 EXEC_BACKGROUND
-Execution is asynchronous to and detached from the parent-process session. When the 
-detached process starts, it is not affected by the ending of the parent process. The 
+Execution is asynchronous to and detached from the parent-process session. When the
+detached process starts, it is not affected by the ending of the parent process. The
 detached process is treated as an orphan of the parent process.
 
-A program executed with this option runs in the background, and should not require 
-any input from the keyboard or output to the screen other than VioPopups. It should 
+A program executed with this option runs in the background, and should not require
+any input from the keyboard or output to the screen other than VioPopups. It should
 not issue any console I/O calls (VIO, KBD, or MOU functions).
 
 5 EXEC_LOAD
-The program is loaded into storage and made ready to execute, but is not executed 
+The program is loaded into storage and made ready to execute, but is not executed
 until the session manager dispatches the threads belonging to the process.
 
 6 EXEC_ASYNCRESULTDB
-Execution is the same as if EXEC_ASYNCRESULT were specified for execFlag, with the 
-addition of debugging conditions being present for the child process and any of its 
+Execution is the same as if EXEC_ASYNCRESULT were specified for execFlag, with the
+addition of debugging conditions being present for the child process and any of its
 descendants. In this way, it is possible to debug even detached and synchronous processes.
 
-Some memory is consumed for uncollected result codes. Issue DosWaitChild to release 
-this memory. If result codes are not collected, then EXEC_SYNC or EXEC_ASYNC should 
+Some memory is consumed for uncollected result codes. Issue DosWaitChild to release
+this memory. If result codes are not collected, then EXEC_SYNC or EXEC_ASYNC should
 be used for execFlag.
 
 pArg (PSZ) - input
 Address of the ASCIIZ argument strings passed to the program.
 
-These strings represent command parameters, which are copied to the environment segment 
+These strings represent command parameters, which are copied to the environment segment
 of the new process.
 
-The convention used by CMD.EXE is that the first of these strings is the program name 
-(as entered from the command prompt or found in a batch file), and the second string 
-consists of the parameters for the program. The second ASCIIZ string is followed by 
-an additional byte of zeros. A value of zero for the address of pArg means that no 
+The convention used by CMD.EXE is that the first of these strings is the program name
+(as entered from the command prompt or found in a batch file), and the second string
+consists of the parameters for the program. The second ASCIIZ string is followed by
+an additional byte of zeros. A value of zero for the address of pArg means that no
 arguments are to be passed to the program.
 
 pEnv (PSZ) - input
 Address of the ASCIIZ environment strings passed to the program.
 
-These strings represent environment variables and their current values. An environment 
+These strings represent environment variables and their current values. An environment
 string has the following form:
 
 
@@ -228,7 +229,7 @@ variable=value
 
 The last ASCIIZ environment string must be followed by an additional byte of zeros.
 
-A value of 0 for the address of pEnv results in the new process' inheriting the 
+A value of 0 for the address of pEnv results in the new process' inheriting the
 environment of its parent process.
 
 When the new process is given control, it receives:
@@ -265,35 +266,35 @@ ao:   ASCIIZ           ; argument string 1
       Byte of 0
 
 
-The beginning of the environment segment is "eo", and "ao" is the offset of the first 
-argument string in that segment. The offset to the command line, "ao", is passed to 
+The beginning of the environment segment is "eo", and "ao" is the offset of the first
+argument string in that segment. The offset to the command line, "ao", is passed to
 the program on the stack at SS:[ESP+16].
 
 The environment strings typically have the form: parameter = value
 
-A value of zero for pEnv causes the newly created process to inherit the parent's 
+A value of zero for pEnv causes the newly created process to inherit the parent's
 environment unchanged.
 
 pRes (PRESULTCODES) - output
-Pointer to the RESULTCODES structure where the process ID, or the termination code 
+Pointer to the RESULTCODES structure where the process ID, or the termination code
 and the result code indicating the reason for ending the child process is returned.
 
-This structure also is used by a DosWaitChild request, which waits for an asynchronous 
+This structure also is used by a DosWaitChild request, which waits for an asynchronous
 child process to end.
 
 pName (PSZ) - input
 Address of the name of the file that contains the program to be executed.
 
-When the environment is passed to the target program, this name is copied into "po" 
+When the environment is passed to the target program, this name is copied into "po"
 in the environment description shown above.
 
-If the string appears to be a fully qualified file specification (that is, it contains 
-a ":" or a "\" in the second position), then the file name must include the extension, 
+If the string appears to be a fully qualified file specification (that is, it contains
+a ":" or a "\" in the second position), then the file name must include the extension,
 and the program is loaded from the indicated drive:directory.
 
-If the string is not a fully qualified path, the current directory is searched. If the 
-file name is not found in the current directory, each drive:directory specification in 
-the PATH defined in the current-process environment is searched for this file. Note that 
+If the string is not a fully qualified path, the current directory is searched. If the
+file name is not found in the current directory, each drive:directory specification in
+the PATH defined in the current-process environment is searched for this file. Note that
 any extension (.XXX) is acceptable for the executable file being loaded.
 
 ulrc (APIRET) - returns
@@ -332,72 +333,72 @@ For a full list of error codes, see Errors.
 
 DosExecPgm allows a program to request that another program execute as a child process.
 
-The target program is located and loaded into storage (if necessary), a process is 
-created for it and placed into execution. The execution of a child process can be 
-synchronous or asynchronous to the execution of its parent process. If synchronous 
-execution is indicated, the requesting thread waits for completion of the child process. 
+The target program is located and loaded into storage (if necessary), a process is
+created for it and placed into execution. The execution of a child process can be
+synchronous or asynchronous to the execution of its parent process. If synchronous
+execution is indicated, the requesting thread waits for completion of the child process.
 Other threads in the requesting process may continue to run.
 
-If asynchronous execution is indicated, DosExecPgm places the process ID of the started 
-child process into the first doubleword of the pRes structure. If EXEC_ASYNCRESULT is 
-specified for execFlag, the parent process can issue DosWaitChild (after DosExecPgm) 
-to examine the result code returned when the child process ends. If the value of execFlag, 
-is EXEC_ASYNC, the result code of the asynchronous child process is not returned to 
+If asynchronous execution is indicated, DosExecPgm places the process ID of the started
+child process into the first doubleword of the pRes structure. If EXEC_ASYNCRESULT is
+specified for execFlag, the parent process can issue DosWaitChild (after DosExecPgm)
+to examine the result code returned when the child process ends. If the value of execFlag,
+is EXEC_ASYNC, the result code of the asynchronous child process is not returned to
 the parent process.
 
-If synchronous execution is indicated, DosExecPgm places the termination code and 
+If synchronous execution is indicated, DosExecPgm places the termination code and
 result code into the pRes structure.
 
-The new process is created with an address space separate and distinct from its parent; 
+The new process is created with an address space separate and distinct from its parent;
 that is, a new linear address space is built for the process.
 
-The new process inherits all file handles and pipes of its parent, although not 
+The new process inherits all file handles and pipes of its parent, although not
 necessarily with the same access rights:
 
  Files are inherited except for those opened with no inheritance indicated.
  Pipes are inherited.
 
-A child process inherits file handles obtained by its parent process with DosOpen 
-calls that indicated inheritance. The child process also inherits handles to pipes 
-created by the parent process with DosCreatePipe. This means that the parent process 
-has control over the meanings of standard input, output, and error. For example, the 
-parent could write a series of records to a file, open the file as standard input, 
-open a listing file as standard output, and then execute a sort program that takes 
+A child process inherits file handles obtained by its parent process with DosOpen
+calls that indicated inheritance. The child process also inherits handles to pipes
+created by the parent process with DosCreatePipe. This means that the parent process
+has control over the meanings of standard input, output, and error. For example, the
+parent could write a series of records to a file, open the file as standard input,
+open a listing file as standard output, and then execute a sort program that takes
 its input from standard input and writes to standard output.
 
-Because a child process can inherit handles, and a parent process controls the meanings 
-of handles for standard I/O, the parent can duplicate inherited handles as handles for 
-standard I/O. This permits the parent process and the child process to coordinate I/O 
-to a pipe or file. For example, a parent process can create two pipes with DosCreatePipe 
-requests. It can issue DosDupHandle to redefine the read handle of one pipe as 
-standard input (0x0000), and the write handle of the other pipe as standard output (0x0001). 
-The child process uses the standard I/O handles, and the parent process uses the remaining 
-read and write pipe handles. Thus, the child process reads what the parent process writes 
+Because a child process can inherit handles, and a parent process controls the meanings
+of handles for standard I/O, the parent can duplicate inherited handles as handles for
+standard I/O. This permits the parent process and the child process to coordinate I/O
+to a pipe or file. For example, a parent process can create two pipes with DosCreatePipe
+requests. It can issue DosDupHandle to redefine the read handle of one pipe as
+standard input (0x0000), and the write handle of the other pipe as standard output (0x0001).
+The child process uses the standard I/O handles, and the parent process uses the remaining
+read and write pipe handles. Thus, the child process reads what the parent process writes
 to one pipe, and the parent process reads what the child process writes to the other pipe.
 
-When an inherited file handle is duplicated, the position of the file pointer is always 
+When an inherited file handle is duplicated, the position of the file pointer is always
 the same for both handles, regardless of which handle repositions the file pointer.
 
-An asynchronous process that was started because the value of execFlag was EXEC_TRACE or 
-EXEC_ASYNCRESULTDB is provided a trace flag facility. This facility and the trace buffers 
-provided by DosDebug enable a debugger to perform breakpoint debugging. DosStartSession 
-provides additional debugging capabilities that allow a debugger to trace all processes 
-associated with an application running in a child session, regardless of whether the 
+An asynchronous process that was started because the value of execFlag was EXEC_TRACE or
+EXEC_ASYNCRESULTDB is provided a trace flag facility. This facility and the trace buffers
+provided by DosDebug enable a debugger to perform breakpoint debugging. DosStartSession
+provides additional debugging capabilities that allow a debugger to trace all processes
+associated with an application running in a child session, regardless of whether the
 process is started with DosExecPgm or DosStartSession.
 
-A detached process is treated as an orphan of the parent process and runs in the background. 
-Thus, it cannot make any VIO, KBD, or MOU calls, except from within a video pop-up 
-requested by VioPopUp. To test whether a program is running detached, use the following 
-method. Issue a video call, (for example, VioGetAnsi). If the call is not issued within 
-a video pop-up and the process is detached, the video call returns error code 
+A detached process is treated as an orphan of the parent process and runs in the background.
+Thus, it cannot make any VIO, KBD, or MOU calls, except from within a video pop-up
+requested by VioPopUp. To test whether a program is running detached, use the following
+method. Issue a video call, (for example, VioGetAnsi). If the call is not issued within
+a video pop-up and the process is detached, the video call returns error code
 ERROR_VIO_DETACHED.
 
-You may use DosExecPgm to start a process that is of the same type as the starting process. 
-Process types include Presentation Manager, text-windowed, and full-screen. You may not 
+You may use DosExecPgm to start a process that is of the same type as the starting process.
+Process types include Presentation Manager, text-windowed, and full-screen. You may not
 use DosExecPgm to start a process that is of a different type than the starting process.
 
-You must use DosStartSession to start a new process from a process that is of a different 
-type. For example, use DosStopSession to start a Presentation Manager process from a 
+You must use DosStartSession to start a new process from a process that is of a different
+type. For example, use DosStopSession to start a Presentation Manager process from a
 non-Presentation Manager process.
 
 The following are the register conventions for 32-bit programs:
@@ -433,52 +434,47 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   int rc=NO_ERROR;
   void * addr;
   unsigned long size;
-  IXFModule * ixfModule;
-  struct t_processlx * tiny_process;
+  IXFModule ixfModule;
+  struct t_os2process * tiny_process;
   #define buf_size 4096
   char buf[buf_size+1];
   char *p_buf = (char *) &buf;
 
-/*// Ok. No module found. Try to load file
-  // (consider fully-qualified name specified)
-//  rc=io_load_file(filename, &addr, &size);
-//  if (rc)
-//  {
-//     Searches for module name and returns the full path in the buffer p_buf. */
+  // Try to load file (consider fully-qualified name specified)
+  rc=io_load_file(pName, &addr, &size);
+  if (rc) // if error then
+  {
+    // Searches for module name and returns the full path in the buffer p_buf.
     rc=find_path(pName, p_buf);
     if (!rc) rc=io_load_file(p_buf, &addr, &size);
-//  }
+  }
   if (rc) return rc;
 
-  ixfModule = (IXFModule *) malloc(sizeof(IXFModule));
-  rc=IXFIdentifyModule(addr, size, ixfModule);
+  rc=IXFIdentifyModule(addr, size, &ixfModule);
   if (rc)
   {
-    free(ixfModule);
     return rc;
   }
 
   // Load module
-  rc=IXFLoadModule(addr, size, ixfModule);
+  rc=IXFLoadModule(addr, size, &ixfModule);
   if (rc)
   {
-    free(ixfModule);
     return rc;
   }
 
-  /* Creates an simple process(keeps info about it, does not start to execute). */
-  tiny_process = processlx_create((struct LX_module *)(ixfModule->FormatStruct));
+  /* Creates an simple process (keeps info about it, does not start to execute). */
+  tiny_process = PrcCreate(ixfModule);
 
   /* Register the exe with the module table. With the complete path. */
   /* @todo Is we really need to register executable??? Don't see any reason */
   // @todo extract filename only because can be fullname with path
-  register_module(pName, ixfModule);
-  
+  register_module(pName, &ixfModule);
+
   // Fixup module
-  rc=IXFFixupModule(ixfModule);
+  rc=IXFFixupModule(&ixfModule);
   if (rc)
   {
-    free(ixfModule);
     return rc;
   }
 
@@ -486,7 +482,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   //print_used_mem(&tiny_process->root_mem_area);
   if(rc == NO_ERROR)
     /* Starts to execute the process. */
-    exec_lx((struct LX_module *)(ixfModule->FormatStruct), tiny_process);
+    exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
 
   processlx_destroy(tiny_process); /* Removes the process.
              Maybe use garbage collection here? Based on reference counter?
@@ -494,6 +490,21 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   return rc; /*NO_ERROR;*/
 }
+
+/*! @brief This is function searches files in PATH environment variables which
+           pointed by CONFIG.SYS SET PATH statament. It is uses only OS/2 style
+           paths.
+
+    @param name             Filename to find
+    @param full_path_name   Fully qualified filename
+
+    @return
+      NO_ERROR                  Server finished successfully
+      ERROR_FILE_NOT_FOUND      Searched file not found
+
+      See also other error codes
+
+*/
 
 unsigned long find_path(char * name, char * full_path_name)
 {
@@ -504,13 +515,8 @@ unsigned long find_path(char * name, char * full_path_name)
   char *path = (char *) &buf;
   STR_SAVED_TOKENS st;
   char * p_buf = full_path_name;
-  #ifndef __LINUX__
-  char *sep="\\";
-  char *psep=";";
-  #else
   char *sep="/";
   char *psep=";";
-  #endif
 
   cfg_getenv("PATH", &path);
 
@@ -524,9 +530,7 @@ unsigned long find_path(char * name, char * full_path_name)
     strcat(p_buf, p);
     strcat(p_buf, sep);
     strcat(p_buf, name);
-    printf("%s:find_path(), '%s'\n", __FILE__, p_buf);
     f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
-
     if(f)
     {
       StrTokStop();
@@ -537,5 +541,3 @@ unsigned long find_path(char * name, char * full_path_name)
 
   return ERROR_FILE_NOT_FOUND;
 }
-
-

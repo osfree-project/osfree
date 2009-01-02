@@ -9,6 +9,9 @@
 
 */
 
+#ifndef _modmgr_H_
+#define _modmgr_H_
+
 #include <exe.h>
 #include "gcc_os2def.h"
 #include <exe386.h>
@@ -99,3 +102,6 @@ APIRET  APIENTRY DosQueryABIOSSupport(ULONG reserved);
 APIRET16 APIENTRY16 Dos16QueryModFromCS(SEL, PQMRESULT);
 
 #endif
+
+#endif
+

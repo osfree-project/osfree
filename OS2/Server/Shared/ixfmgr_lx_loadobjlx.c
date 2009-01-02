@@ -40,7 +40,7 @@ extern struct t_mem_area os2server_root_mem_area;
 
 #if 0
   /* Loads the objects for code and data, for programs. NOT used. */
-int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
+int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) {
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
 
         struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
@@ -119,7 +119,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
                 //io_printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
                 vm_code_obj = 0;
 #if 0 /*!defined(__OS2__) && !defined(__LINUX__)*/
-                if( !is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, 
+                if( !is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/,
                                     (void *) kod_obj->o32_base, kod_obj->o32_size) ) {
                         vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
                 } else {
@@ -133,8 +133,8 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
                             But, for now, just allocate the space somewhere.
                             Which just goes through the memory registry from beginning,
                             position 1 and upward and grabs first free space. */
-                        if( is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, 
-                                        (void *) new_base, 
+                        if( is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/,
+                                        (void *) new_base,
                                         kod_obj->o32_size) )
                                 io_printf("Error allocating used memory!!! 0x%lx \n", new_base);
                         kod_obj->o32_base = new_base;
@@ -168,7 +168,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
         return 1;
 }
 
-/* void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) { */
+/* void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) { */
 
   /*   Allocates virtual memory for an object at an absolute virtual address.
        Some GNU/Linux specific flags to mmap(MAP_GROWSDOWN). */
@@ -229,7 +229,7 @@ int load_obj_lx(struct LX_module * lx_exe_mod,
 }
 
 
-        /* Applies fixups to all objects. Used for programs and dlls. 
+        /* Applies fixups to all objects. Used for programs and dlls.
            ret_rc is an OS/2 error number. */
 int do_fixup_code_data_lx(struct LX_module * lx_exe_mod, int *ret_rc)
 {
@@ -240,9 +240,9 @@ int do_fixup_code_data_lx(struct LX_module * lx_exe_mod, int *ret_rc)
   {
     struct o32_obj * obj = get_obj(lx_exe_mod, i);
     if(obj != 0)
-      if(!do_fixup_obj_lx(lx_exe_mod, obj, ret_rc)) 
+      if(!do_fixup_obj_lx(lx_exe_mod, obj, ret_rc))
         return 0; /*Some error happend, return false and forward error in ret_rc.*/
-  }           
+  }
  return 1;
 }
 
@@ -335,7 +335,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
       print_struct_r32_rlc_info(min_rlc);
       //io_printf(" pg_offs_fix = %d (0x%x)\n", pg_offs_fix, pg_offs_fix);
       //io_printf(" pg_end_offs_fix = %d (0x%x)\n",pg_end_offs_fix, pg_end_offs_fix);
-      //io_printf(" fixup_offset = %d (0x%x)\n",  fixup_offset, fixup_offset); 
+      //io_printf(" fixup_offset = %d (0x%x)\n",  fixup_offset, fixup_offset);
 
       fixup_source = min_rlc->nr_stype & 0xf;
       fixup_source_flag = min_rlc->nr_stype & 0xf0;
@@ -398,7 +398,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
             //io_printf(" module name: '%s' \n", mod_name);
             /* Look for module if it's already loaded, if it's not try to load it.*/
             //found_module = (struct LX_module *)find_module(mod_name);
-            rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), 
+            rc=ModLoadModule(uchLoadError, sizeof(uchLoadError),
                               mod_name, (unsigned long *)&found_module);
             if (found_module)
                found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
@@ -423,8 +423,8 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
                                                     addit, srcoff_cnt1, min_rlc, ret_rc)) {
                char tmp_buf[255];
                char *s_buf=(char*) &tmp_buf[0];
-               copy_pas_str(s_buf, get_imp_proc_name(found_module,import_ord)); 
-               io_printf("Import error in '%s', can't find '%s'(%d)\n", 
+               copy_pas_str(s_buf, get_imp_proc_name(found_module,import_ord));
+               io_printf("Import error in '%s', can't find '%s'(%d)\n",
                             mod_name, s_buf, import_ord);
                *ret_rc = 182; /* ERROR_ORDINAL_NOT_FOUND 182, ERROR_FILE_NOT_FOUND 2*/
                return 0;
@@ -455,11 +455,11 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
             //io_printf(" module name: '%s' \n", mod_name);
                   /* Look for module if it's already loaded, if it's not try to load it.*/
             //found_module = (struct LX_module *)find_module(mod_name);
-            rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), 
+            rc=ModLoadModule(uchLoadError, sizeof(uchLoadError),
                              mod_name, (unsigned long *)&found_module);
             if (found_module)
                found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
-               
+
             if(!found_module) { /* Unable to find and load module. */
               //io_printf("Can't find module: '%s' \n", mod_name);
               *ret_rc = rc;
@@ -480,7 +480,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
                                    ord_found, addit, srcoff_cnt1, min_rlc, ret_rc)) {
                char tmp_buf[255];
                char *s_buf=(char*) &tmp_buf[0];
-               copy_pas_str(s_buf, get_imp_proc_name(found_module,import_ord)); 
+               copy_pas_str(s_buf, get_imp_proc_name(found_module,import_ord));
                io_printf("Import error in '%s', can't find '%s'\n", mod_name, s_buf);
                *ret_rc = 182; /* ERROR_ORDINAL_NOT_FOUND 182, ERROR_FILE_NOT_FOUND 2*/
                return 0;
@@ -500,7 +500,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
           fixup_offset += get_reloc_size_rlc(min_rlc);
           break;
 
-        default: io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source); 
+        default: io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
                  return 0; /* Is there any OS/2 error number for this? */
       } /* switch(fixup_source) */
     } /* while(fixup_offset < pg_end_offs_fix) { */
@@ -508,7 +508,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
   return 1;
 }
 
-/*  Used functions: get_entry, get_imp_mod_name, get_module_name_res_name_tbl_entry, 
+/*  Used functions: get_entry, get_imp_mod_name, get_module_name_res_name_tbl_entry,
                     copy_pas_str, ModLoadModule, native_find_module, get_imp_proc_name,
                     native_get_func_ptr_ord_handle, native_get_func_ptr_handle_modname,
                     get_obj
@@ -555,11 +555,11 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
      can refer to another module and entrypoint.
      So, to load the modules, find the chain of entrypoints as long it is a
      forward entry. Up to a maximum of 1024 forward entrys.
-     
-     There is some sort of bug with the loop below, it works as long the entries 
-     are forward entries but does not look up the last (which could be a 32-bit entry) 
+
+     There is some sort of bug with the loop below, it works as long the entries
+     are forward entries but does not look up the last (which could be a 32-bit entry)
      with the correct function ordinal from the previous forward entry.
-     
+
      An example:
       forward entry              32-bit entry
       MSG.5 (DosPutMessage)  ->  DOSCALLS.387
@@ -578,13 +578,13 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
     org_mod_name = get_imp_mod_name(found_module, ret_modord);
     frw_mod_nr = ret_offset;
     forward_counter=1;
-    
+
     //frw_mod_name = (char *) &frw_buf_mod_name;
     //get_res_name_tbl_entry(struct LX_module * lx_mod, char *entry_name)
     //org_mod_name = get_imp_mod_name(forward_found_module, 0); /* Find out the module name.*/
     //copy_pas_str(frw_mod_name, org_mod_name);
-    io_printf("Start module:%s, forward_found_module=0x%x\n", 
-                                get_module_name_res_name_tbl_entry(forward_found_module), 
+    io_printf("Start module:%s, forward_found_module=0x%x\n",
+                                get_module_name_res_name_tbl_entry(forward_found_module),
                                 forward_found_module);
 
     do {
@@ -595,12 +595,12 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
       //                frw_mod_name, ret_offset);
       prev_mod = forward_found_module;
       //forward_found_module = (struct LX_module *)find_module(frw_mod_name);
-      rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), frw_mod_name, 
+      rc=ModLoadModule(uchLoadError, sizeof(uchLoadError), frw_mod_name,
                         (unsigned long *)&forward_found_module);
-      
+
       if (forward_found_module) {
          forward_found_module=(struct LX_module *)(((IXFModule *)forward_found_module)->FormatStruct);
-         io_printf("Loading module: %s, forward_found_module=0x%x\n", 
+         io_printf("Loading module: %s, forward_found_module=0x%x\n",
                      get_module_name_res_name_tbl_entry(forward_found_module),
                      forward_found_module);
       }
@@ -611,7 +611,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
         native_module = native_find_module(frw_mod_name);
         if(native_module != 0) {
           /* Try to load a native library instead. */
-          /* void * native_find_module(char * name, struct t_processlx *proc);
+          /* void * native_find_module(char * name, struct t_os2process *proc);
              void * native_get_func_ptr_handle_modname(char * funcname, void * native_mod_handle);
           */
           *ret_rc = 0; /*NO_ERROR 0;*/
@@ -639,22 +639,22 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
         return 0;
       }
       io_printf(" frw_type=%d, frw_modord=%d, frw_mod_nr=%d\n", frw_type, frw_modord, frw_mod_nr);
-      
+
       frw_fn_ptr = get_entry(forward_found_module, frw_mod_nr,
                               &frw_flags, &frw_offset, &frw_obj, &frw_modord, &frw_type);
-      io_printf(" get_entry: forward_found_module=0x%x, ordinal:%d, entry type:%d\n", 
+      io_printf(" get_entry: forward_found_module=0x%x, ordinal:%d, entry type:%d\n",
                  forward_found_module, frw_offset, frw_type );
       frw_mod_nr = frw_offset;
       forward_counter++;
       /*io_printf("## }while((frw_type & ... forward_counter=%d\n", forward_counter);*/
     }while((frw_type & ENTRYFWD)==ENTRYFWD && (forward_counter<1024));
     found_module = forward_found_module;
-    
+
     cont_native_entry:; /* A label that is used from inside the do..while-loop. */
     ret_flags=frw_flags;  ret_offset=frw_offset; ret_obj=frw_obj;
     ret_modord=frw_modord; ret_type=frw_type;
     fn_ptr = frw_fn_ptr;
-    io_printf(" frw_modord=%d, frw_mod_nr=%d, frw_type:%d, ENTRYFWD:%d, ENTRY32:%d\n", 
+    io_printf(" frw_modord=%d, frw_mod_nr=%d, frw_type:%d, ENTRYFWD:%d, ENTRY32:%d\n",
                    frw_modord, frw_mod_nr, frw_type, ENTRYFWD, ENTRY32);
     //io_printf(" Done with Forward Entry running. (%d) \n", forward_counter);
   }

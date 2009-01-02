@@ -182,7 +182,7 @@ void do_mmap_code_stack(struct LX_module * lx_exe_mod) {
 #ifndef SDIOS
 
 
-void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
+void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) {
 
                 void * my_execute;
                 unsigned long int tmp_data_mmap;
@@ -323,7 +323,7 @@ _asm{
 /* Old stuff. My first attempts :) with LX loading.*/
 
 /* Exerkverar en process. */
-void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
+void exec_lx_old_for_linux(struct LX_module * lx_exe_mod, struct t_os2process * proc) {
         /* struct o32_obj * kod_obj = get_obj(lx_exe_mod, lx_exe_mod->lx_head_e32_exe->e32_startobj); */
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
 
@@ -895,7 +895,7 @@ static L4_Word_t makenewstack(L4_ThreadId_t pagerid, L4_ThreadId_t newthread,
 
 // Implementation of loading an LX file into memory in SDIOS. I am reusing parts from elfexec.cc.
 
-void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc) {
+void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) {
 
         L4_ThreadId_t pagerid = L4_Pager();
 

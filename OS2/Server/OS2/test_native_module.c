@@ -41,7 +41,7 @@ tmydl_DosPutMessage mydl_DosPutMessage;
 
 void test_native_module(void) {
         char mod_path[4096];
-//        struct t_processlx proc;
+//        struct t_os2process proc;
         char * module_to_find;
         void * handle_msg;
         char* native_libpath[] = {

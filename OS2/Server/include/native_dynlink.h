@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Or see <http://www.gnu.org/licenses/>
 */
-//#include <processlx.h>
+//#include <processmgr.h>
 
 #ifndef _NATIVE_DYNLINK_H_
 #define _NATIVE_DYNLINK_H_

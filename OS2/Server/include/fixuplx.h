@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Or see <http://www.gnu.org/licenses/>
  */
- 
+
 #ifndef _FIXUPLX_H
 #define _FIXUPLX_H
 
@@ -53,10 +53,10 @@ int get_reloc_size_rlc(struct r32_rlc * rlc);
 /*Testar ett sidfel på ett ställe i det virtuella utrymmet.
   Då ska den leta efter vilken sida den finns i, läsa in den från
   filen, göra fixups på den. */
-/*void fake_pagefault_code(struct LX_module * lx_mod, unsigned int off, struct t_processlx * proc);*/
+/*void fake_pagefault_code(struct LX_module * lx_mod, unsigned int off, struct t_os2process * proc);*/
 
 
-/* newexe.h */				
+/* newexe.h */
 #define NRSTYP          0x0f            /* Source type mask */
 #define NRSBYT          0x00            /* lo byte (8-bits)*/
 #define NRSSEG          0x02            /* 16-bit segment (16-bits) */

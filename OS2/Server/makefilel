@@ -19,10 +19,10 @@
 #SEP=$(%SEP)
 SEP=\
 #SEP=/
-TARG_DIR=OS2 
+TARG_DIR=OS2
 # Linux OS2 win32
 
-#When building for Win32, don't include $WATCOM/h/os2 for all targets, it leads to 
+#When building for Win32, don't include $WATCOM/h/os2 for all targets, it leads to
 #compiler errors in $WATCOM/h/os2/machine/endian.h at lines 70 and 71 'htonl'
 #Therefore include OS/2 dir explicit when building for OS/2
 # Note, the Linux and win32 subdirectories contains a zero size os2.h, please don't delete it,
@@ -33,13 +33,13 @@ EXE_SUFFIX=
 LINKOP_TARGET=
 INCL_TARGET=
 
-!ifeq  TARG_DIR  Linux 
+!ifeq  TARG_DIR  Linux
 COPT_TARGET=-blinux -D__LINUX__
 EXE_SUFFIX=l
 INCL_TARGET=-I$(%WATCOM)$(SEP)lh -I. -ILinux
 !endif
 
-!ifeq TARG_DIR  OS2 
+!ifeq TARG_DIR  OS2
 COPT_TARGET=-bos2v2 -D__OS2__
 EXE_SUFFIX=.exe
 INCL_TARGET=-I$(%WATCOM)$(SEP)h -I$(%WATCOM)$(SEP)h$(SEP)os2
@@ -47,7 +47,7 @@ LINKOP_TARGET="-Wl,option map option internalrelocs alias mmap_=_mmap alias munm
 !endif
 
 
-!ifeq TARG_DIR  win32 
+!ifeq TARG_DIR  win32
 COPT_TARGET=-bnt -D__WIN32__
 EXE_SUFFIX=w.exe
 INCL_TARGET=-I$(%WATCOM)$(SEP)h$(SEP)nt -I. -Iwin32
@@ -63,9 +63,9 @@ OS2LINKOP=
 # -Wc,-q  -Wextra
 
 INCL=-I.$(SEP)include -I$(%ROOT)OS2$(SEP)Server$(SEP)Shared$(SEP)modmgr -I$(%ROOT)OS2$(SEP)Server$(SEP)include $(INCL_TARGET)
-COPT=-std=c99   $(COPT_TARGET) -O1 -g2 -Wall    
+COPT=-std=c99   $(COPT_TARGET) -O1 -g2 -Wall
 
-LINKOP= $(LINKOP_TARGET) 
+LINKOP= $(LINKOP_TARGET)
 
 cmd1=@echo $(TARG_DIR) $^
 
@@ -91,7 +91,7 @@ memmgr.$(SUFFIX) &
 io.$(SUFFIX) &
 native_dynlink.$(SUFFIX) &
 cfgparser.$(SUFFIX) &
-processlx.$(SUFFIX) &
+processmgr.$(SUFFIX) &
 !ifeq TARG_DIR  win32
 mmap.$(SUFFIX)
 !endif
@@ -113,7 +113,7 @@ mmap.$(SUFFIX)
 #$(TARG_DIR)$(SEP)io.$(SUFFIX) &
 #$(TARG_DIR)$(SEP)native_dynlink.$(SUFFIX) &
 #Shared$(SEP)cfgparser.$(SUFFIX) &
-#Shared$(SEP)processlx.$(SUFFIX)
+#Shared$(SEP)processmgr.$(SUFFIX)
 #win32\mmap.c
 
 
@@ -124,7 +124,7 @@ all: main$(EXE_SUFFIX) .symbolic
 .before:
  @echo    Builds main$(EXE_SUFFIX) for $(TARG_DIR)
 
-#TARG_DIR=OS2 
+#TARG_DIR=OS2
 # Linux OS2 win32
 
 #linux: all .symbolic
@@ -137,83 +137,83 @@ all: main$(EXE_SUFFIX) .symbolic
 #TARG_DIR=win32
 
 
-token.obj:               Shared$(SEP)token.c 
-   @echo "cmd1 $(cmd1)" 
+token.obj:               Shared$(SEP)token.c
+   @echo "cmd1 $(cmd1)"
    @$(cmd1)
    $(cmd2)
 %null
 
-modmgr.obj:              Shared$(SEP)modmgr.c 
+modmgr.obj:              Shared$(SEP)modmgr.c
    $(cmd1)
    $(cmd2)
    %null
 
-ow_dlfcn.obj: Shared$(SEP)modmgr$(SEP)ow_dlfcn.c 
+ow_dlfcn.obj: Shared$(SEP)modmgr$(SEP)ow_dlfcn.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr.obj:              Shared$(SEP)ixfmgr.c 
+ixfmgr.obj:              Shared$(SEP)ixfmgr.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_lx.obj:           Shared$(SEP)ixfmgr_lx.c 
+ixfmgr_lx.obj:           Shared$(SEP)ixfmgr_lx.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_ne.obj:           Shared$(SEP)ixfmgr_ne.c 
+ixfmgr_ne.obj:           Shared$(SEP)ixfmgr_ne.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_lx_fixuplx.obj:   Shared$(SEP)ixfmgr_lx_fixuplx.c 
+ixfmgr_lx_fixuplx.obj:   Shared$(SEP)ixfmgr_lx_fixuplx.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_lx_loadobjlx.obj: Shared$(SEP)ixfmgr_lx_loadobjlx.c 
+ixfmgr_lx_loadobjlx.obj: Shared$(SEP)ixfmgr_lx_loadobjlx.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_lx_modlx.obj:     Shared$(SEP)ixfmgr_lx_modlx.c 
+ixfmgr_lx_modlx.obj:     Shared$(SEP)ixfmgr_lx_modlx.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_lx_execlx.obj:    Shared$(SEP)ixfmgr_lx_execlx.c 
+ixfmgr_lx_execlx.obj:    Shared$(SEP)ixfmgr_lx_execlx.c
    $(cmd1)
    $(cmd2)
    %null
 
-ixfmgr_lx_debuglx.obj:   Shared$(SEP)ixfmgr_lx_debuglx.c 
+ixfmgr_lx_debuglx.obj:   Shared$(SEP)ixfmgr_lx_debuglx.c
    $(cmd1)
    $(cmd2)
    %null
 
-memmgr.obj:              Shared$(SEP)memmgr.c 
+memmgr.obj:              Shared$(SEP)memmgr.c
    $(cmd1)
    $(cmd2)
    %null
 
-io.obj:             $(TARG_DIR)$(SEP)io.c 
+io.obj:             $(TARG_DIR)$(SEP)io.c
    $(cmd1)
    $(cmd2)
    %null
 
-native_dynlink.obj: $(TARG_DIR)$(SEP)native_dynlink.c 
+native_dynlink.obj: $(TARG_DIR)$(SEP)native_dynlink.c
    $(cmd1)
    $(cmd2)
    %null
 
-cfgparser.obj:           Shared$(SEP)cfgparser.c 
+cfgparser.obj:           Shared$(SEP)cfgparser.c
    $(cmd1)
    $(cmd2)
    %null
 
-processlx.obj:           Shared$(SEP)processlx.c
+processmgr.obj:           Shared$(SEP)processmgr.c
    $(cmd1)
    $(cmd2)
    %null
@@ -223,32 +223,32 @@ mmap.obj:                 win32$(SEP)mmap.c
    $(cmd2)
    %null
 
-#Shared$(SEP)token.c:                  Shared$(SEP)token.obj  
-#        echo            
+#Shared$(SEP)token.c:                  Shared$(SEP)token.obj
+#        echo
 #        $(cmd1)
-#Shared$(SEP)modmgr.c:                  Shared$(SEP)modmgr.obj             
+#Shared$(SEP)modmgr.c:                  Shared$(SEP)modmgr.obj
 #Shared$(SEP)modmgr$(SEP)ow_dlfcn.c:    Shared$(SEP)modmgr$(SEP)ow_dlfcn.obj
-#Shared$(SEP)ixfmgr.c:                  Shared$(SEP)ixfmgr.obj             
-#Shared$(SEP)ixfmgr_lx.c:               Shared$(SEP)ixfmgr_lx.obj          
-#Shared$(SEP)ixfmgr_ne.c:               Shared$(SEP)ixfmgr_ne.obj          
-#Shared$(SEP)ixfmgr_lx_fixuplx.c:       Shared$(SEP)ixfmgr_lx_fixuplx.obj  
+#Shared$(SEP)ixfmgr.c:                  Shared$(SEP)ixfmgr.obj
+#Shared$(SEP)ixfmgr_lx.c:               Shared$(SEP)ixfmgr_lx.obj
+#Shared$(SEP)ixfmgr_ne.c:               Shared$(SEP)ixfmgr_ne.obj
+#Shared$(SEP)ixfmgr_lx_fixuplx.c:       Shared$(SEP)ixfmgr_lx_fixuplx.obj
 #Shared$(SEP)ixfmgr_lx_loadobjlx.c:     Shared$(SEP)ixfmgr_lx_loadobjlx.obj
-#Shared$(SEP)ixfmgr_lx_modlx.c:         Shared$(SEP)ixfmgr_lx_modlx.obj    
-#Shared$(SEP)ixfmgr_lx_execlx.c:        Shared$(SEP)ixfmgr_lx_execlx.obj   
-#Shared$(SEP)ixfmgr_lx_debuglx.c:       Shared$(SEP)ixfmgr_lx_debuglx.obj  
-#Shared$(SEP)memmgr.c:                  Shared$(SEP)memmgr.obj             
-#$(TARG_DIR)$(SEP)io.c:                 $(TARG_DIR)$(SEP)io.obj            
+#Shared$(SEP)ixfmgr_lx_modlx.c:         Shared$(SEP)ixfmgr_lx_modlx.obj
+#Shared$(SEP)ixfmgr_lx_execlx.c:        Shared$(SEP)ixfmgr_lx_execlx.obj
+#Shared$(SEP)ixfmgr_lx_debuglx.c:       Shared$(SEP)ixfmgr_lx_debuglx.obj
+#Shared$(SEP)memmgr.c:                  Shared$(SEP)memmgr.obj
+#$(TARG_DIR)$(SEP)io.c:                 $(TARG_DIR)$(SEP)io.obj
 #$(TARG_DIR)$(SEP)native_dynlink.c:     $(TARG_DIR)$(SEP)native_dynlink.obj
-#Shared$(SEP)cfgparser.c:               Shared$(SEP)cfgparser.obj          
-#Shared$(SEP)processlx.c:               Shared$(SEP)processlx.obj 
-#.c: Shared Shared/modmgr $(TARG_DIR) 
+#Shared$(SEP)cfgparser.c:               Shared$(SEP)cfgparser.obj
+#Shared$(SEP)processlx.c:               Shared$(SEP)processlx.obj
+#.c: Shared Shared/modmgr $(TARG_DIR)
 
 # $(cmd1) $(cmd2)
 
 
 
 
-main$(EXE_SUFFIX): 
+main$(EXE_SUFFIX):
     @echo $(TARG_DIR)  $^ $[
     @echo $(%WATCOM) $(%INCLUDE)
     $(CC) -v -fd $(INCL) $(COPT) $(CCOMP) $(LINKOP) -o main$(EXE_SUFFIX)
@@ -257,9 +257,9 @@ main$(EXE_SUFFIX):
 
 main$(EXE_SUFFIX): $(CCOMP)
 
-#    @echo $(TARG_DIR) $^ 
+#    @echo $(TARG_DIR) $^
 
-.c.obj:   
+.c.obj:
     $(CC) $(INCL) $(COPT) $(LINKOP) -c $< -o $^
 
 

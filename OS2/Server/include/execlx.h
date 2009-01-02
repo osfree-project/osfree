@@ -21,7 +21,7 @@
 #ifndef EXECLX_H
 #define EXECLX_H
 
-#include "processlx.h"
+#include "processmgr.h"
 #include "modlx.h"
 
 
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-void exec_lx(struct LX_module * lx_exe_mod, struct t_processlx * proc);
+void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc);
 
 int test_elfexecf(const char* path);
 
