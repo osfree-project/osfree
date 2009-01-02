@@ -451,7 +451,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   if (rc) return rc;
 
   ixfModule = (IXFModule *) malloc(sizeof(IXFModule));
-  printf("%s:'%s(), IXFIdentifyModule'\n", __FILE__, __FUNCTION__);
   rc=IXFIdentifyModule(addr, size, ixfModule);
   if (rc)
   {
@@ -459,7 +458,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     return rc;
   }
 
-  printf("%s:'%s(), IXFLoadModule'\n", __FILE__, __FUNCTION__);
   // Load module
   rc=IXFLoadModule(addr, size, ixfModule);
   if (rc)
@@ -476,7 +474,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   // @todo extract filename only because can be fullname with path
   register_module(pName, ixfModule);
   
-  printf("%s:'%s(), IXFFixupModule'\n", __FILE__, __FUNCTION__);
   // Fixup module
   rc=IXFFixupModule(ixfModule);
   if (rc)

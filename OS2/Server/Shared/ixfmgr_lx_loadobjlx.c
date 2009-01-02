@@ -118,7 +118,7 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
                 kod_obj = get_obj(lx_exe_mod, obj_cnt);
                 //io_printf("obj_cnt: %d, number_of_objects: %d\n", obj_cnt, number_of_objects);
                 vm_code_obj = 0;
-#if !defined(__OS2__) && !defined(__LINUX__)
+#if 0 /*!defined(__OS2__) && !defined(__LINUX__)*/
                 if( !is_mem_used(&os2server_root_mem_area/*proc->root_mem_area*/, 
                                     (void *) kod_obj->o32_base, kod_obj->o32_size) ) {
                         vm_code_obj = (void*) vm_alloc_obj_lx(lx_exe_mod, kod_obj);
@@ -176,14 +176,14 @@ unsigned int vm_alloc_obj_lx(struct LX_module * lx_exe_mod, struct o32_obj * lx_
 
         void * mmap_obj = 0;
 
-#if !defined(__OS2__) && !defined(__LINUX__)
+#if 0 /*!defined(__OS2__) && !defined(__LINUX__) */
         mmap_obj = mmap((void *)lx_obj->o32_base, lx_obj->o32_size,
                                  PROT_WRITE | PROT_READ | PROT_EXEC  ,       /* | PROT_EXEC */
                                   MAP_GROWSDOWN | MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, 0/*lx_exe_mod->fh*/,
                                  0 /*lx_exe_mod->lx_head_e32_exe->e32_datapage*/);
 #else
 // Under OS/2 return always unique address
-  #if defined(__LINUX__)
+  #if defined(__LINUX__) || defined(__WIN32__)
         mmap_obj = malloc(lx_obj->o32_size);
   #else
         DosAllocMem(&mmap_obj, lx_obj->o32_size, PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);

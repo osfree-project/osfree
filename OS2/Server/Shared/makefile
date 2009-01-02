@@ -19,7 +19,7 @@ $(p)ixfmgr_lx_debuglx$(e) &
 $(p)ixfmgr_lx_modlx$(e) &
 $(p)ixfmgr_ne$(e)
 
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=..$(SEP)include -i$(%WATCOM)$(SEP)lh -za
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
 !include $(%ROOT)/mk/libs.mk

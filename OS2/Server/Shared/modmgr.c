@@ -336,21 +336,21 @@ unsigned int find_module_path(const char * name, char * full_path_name)
   if((p = StrTokenize((char*)options.libpath, psep)) != 0) do if(*p)
   {
     p_buf = full_path_name;
-    p_buf[0] = 0;
+    p_buf[0] = '\0';
     strcat(p_buf, p);
     strcat(p_buf, sep);
     
     strcat(p_buf, name);
     strcat(p_buf, ".dll");
     printf("%s:find_module_path(), %s\n", __FILE__, p_buf);
-    
+
     int B_LEN = 250;
     char buf[251];
     char *str_buf=(char*) &buf;
     char buf2[251];
     char * file_to_find=(char*) &buf2;
-    buf[0] = 0;
-    buf2[0] = 0;
+    buf[0] = '\0';
+    buf2[0] = '\0';
     strcat(file_to_find, name);
     strcat(file_to_find, ".dll");
     /*printf("find_case_file(), %s, %s\n", file_to_find, p);*/
