@@ -29,6 +29,10 @@
 #include <io.h>
 #include "cfgparser.h"
 
+void error(char *);
+int warn(char *);
+
+
 #define MAXLENGTH 1512  // Maximal line length
 
 
@@ -61,7 +65,9 @@ char *options_list[]={"AUTOFAIL","BUFFERS","CLOCKSCALE","CLOSEFILES",
 "SUPPRESSPOPUPS","SWAPPATH","SXFAKEHWFPU","SYSDUMP","THREADS","TIMESLICE",
 "TRACE","TRACEBUF","TRAPDUMP","TRAPLOG","TRUEMODE","VIRTUALADDRESSLIMIT",
 "VME","WORKPLACE_NATIVE","WORKPLACE_PRIMARY_CP","WORKPLACE_PROCESS","WP_OBJHANDLE",
-"DEBUGMODMGR"};
+// Debugging options
+"DEBUGMODMGR",
+"DEBUGIXFMGR"};
 
 
 /**********************************************************************
@@ -467,6 +473,12 @@ unsigned long cfg_parse_line(char line[], int len)
                   options.debugmodmgr=0;
           }
           else options.debugmodmgr=1;
+          break;
+        case 56:// DEBUGIXFMGR
+          if(toupper(line[0])=='N'&&toupper(line[1])=='O') {
+                  options.debugixfmgr=0;
+          }
+          else options.debugixfmgr=1;
           break;
       default:
           io_printf("Oh, well, this should not occure. Please note down the following to lines:\n%s\n%s\n",options_list[i],line);

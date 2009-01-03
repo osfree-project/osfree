@@ -74,7 +74,52 @@ void dump_header_lx(struct e32_exe hdr)
   io_printf("# of instance pages in the demand load section    = %08XH\n", E32_INSTDEMAND(hdr));
   io_printf("size of heap (for 16-bit apps)                    = %08XH\n", E32_HEAPSIZE(hdr));
   io_printf("size of stack                                     = %08XH\n", E32_STACKSIZE(hdr));
-  io_printf("Module Flags = PROGRAM | WINDOWCOMPAT\n");
-  io_printf("\n");
+  io_printf("Module Flags = ");
+  if( (E32_MFLAGS(hdr) & E32MODMASK) == E32MODVDEV ) {
+      io_printf( "VIRTDEVICE" );
+  } else if( (E32_MFLAGS(hdr) & E32MODMASK) == E32MODPDEV ) {
+      io_printf( "PHYSDEVICE" );
+  } else if( (E32_MFLAGS(hdr) & E32MODMASK) == E32MODDLL ) {
+      io_printf( "LIBRARY" );
+  } else {
+      io_printf( "PROGRAM" );
+  }
+  if( E32_MFLAGS(hdr) & 0x0001 ) {
+      io_printf( " | SINGLEDATA" );
+  }
+  if( E32_MFLAGS(hdr) & E32LIBINIT ) {
+      io_printf( " | INITINSTANCE" );
+  }
+  if( E32_MFLAGS(hdr) & E32LIBTERM ) {
+      io_printf( " | TERMINSTANCE" );
+  }
+  if( E32_MFLAGS(hdr) & E32PROTDLL ) {
+      io_printf( " | PROTDLL" );
+  }
+  if( E32_MFLAGS(hdr) & E32NOINTFIX ) {
+      io_printf( " | NO_INT_FIXUPS" );
+  }
+  if( E32_MFLAGS(hdr) & E32NOEXTFIX ) {
+      io_printf( " | NO_EXT_FIXUPS" );
+  }
+  if( E32_MFLAGS(hdr) & E32NOLOAD ) {
+      io_printf( " | LINKERRORSDETECTED" );
+  }
+  switch( E32_MFLAGS(hdr) & E32APPMASK ) {
+  case E32NOPMW:
+      io_printf( " | NOTWINDOWCOMPAT" );
+      break;
+  case E32PMW:
+      io_printf( " | WINDOWCOMPAT" );
+      break;
+  case E32PMAPI:
+      io_printf( " | WINDOWAPI" );
+      break;
+  }
+  if( E32_MFLAGS(hdr) & 0x80000 ) {
+      io_printf( " | MPUNSAFE" );
+  }
+  io_printf( "\n" );
+  io_printf( "\n" );
 }
 

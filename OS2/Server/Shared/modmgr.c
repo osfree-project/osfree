@@ -139,12 +139,14 @@ unsigned long ModLoadModule(char *          pszName,
 
   // Specail case - KAL.DLL
   #ifndef __LINUX__
-  /* A test under Linux with a specially compiled kal.dll (LX format) but with 
+  /* A test under Linux with a specially compiled kal.dll (LX format) but with
      Open Watcoms C library for Linux. */
 
   if (!strcmp(pszModname, "KAL"))
   {
-    return 1; // KAL module always has handle 1
+    // KAL module always has handle 1
+    *phmod=1;
+    return rc;
   }
   #endif
   // First search in the module list
@@ -283,15 +285,15 @@ register_module(const char * name, void * mod_struct)
 typedef struct dirent tdirentry;
 
 /*
-   Find a file in directory (case insensitive) and copy the real file name 
+   Find a file in directory (case insensitive) and copy the real file name
    to a buffer and return true if success or false if not found.
         char * file_to_find=argv[1];
         int B_LEN = 250;
         char buf[251];
         char *str_buf=(char*) &buf;
         if(find_case_file(file_to_find, argv[2], str_buf, B_LEN)) {
-            printf("Found file: %s (%s) in %s\n", file_to_find, str_buf, argv[2]);   
-   
+            printf("Found file: %s (%s) in %s\n", file_to_find, str_buf, argv[2]);
+
 */
 int find_case_file(char *file_to_find, char *path, char *buffer_of_found_file, int buf_len) {
     DIR *dir = opendir(path);
@@ -308,7 +310,7 @@ int find_case_file(char *file_to_find, char *path, char *buffer_of_found_file, i
             printf("                 %s, %d, %d, %d \n",
               diren->d_name,  diren->d_reclen,  diren->d_off,  diren->d_ino); */
 
-            strncpy(buffer_of_found_file, diren->d_name, buf_len); 
+            strncpy(buffer_of_found_file, diren->d_name, buf_len);
             closedir(dir);
             return 1;
         }
@@ -317,6 +319,7 @@ int find_case_file(char *file_to_find, char *path, char *buffer_of_found_file, i
     return 0;
 }
 
+// This function searches LIBPATH option. Only OS/2 path formats are supported.
 
 unsigned int find_module_path(const char * name, char * full_path_name)
 {
@@ -324,13 +327,8 @@ unsigned int find_module_path(const char * name, char * full_path_name)
   char *p = options.libpath - 1;
   STR_SAVED_TOKENS st;
   char * p_buf = full_path_name;
-  #ifndef __LINUX__
-  char *sep="\\";
-  char *psep=";";
-  #else
   char *sep="/";
   char *psep=";";
-  #endif
 
   StrTokSave(&st);
   if((p = StrTokenize((char*)options.libpath, psep)) != 0) do if(*p)
@@ -339,10 +337,10 @@ unsigned int find_module_path(const char * name, char * full_path_name)
     p_buf[0] = '\0';
     strcat(p_buf, p);
     strcat(p_buf, sep);
-    
+
     strcat(p_buf, name);
     strcat(p_buf, ".dll");
-    printf("%s:find_module_path(), %s\n", __FILE__, p_buf);
+    io_printf("%s:find_module_path(), %s\n", __FILE__, p_buf);
 
     int B_LEN = 250;
     char buf[251];
@@ -353,15 +351,15 @@ unsigned int find_module_path(const char * name, char * full_path_name)
     buf2[0] = '\0';
     strcat(file_to_find, name);
     strcat(file_to_find, ".dll");
-    /*printf("find_case_file(), %s, %s\n", file_to_find, p);*/
+    /*io_printf("find_case_file(), %s, %s\n", file_to_find, p);*/
     if(find_case_file(file_to_find, p, str_buf, B_LEN)) {
-        printf("Found file: %s (%s) in %s\n", file_to_find, str_buf, p);
+        io_printf("Found file: %s (%s) in %s\n", file_to_find, str_buf, p);
         p_buf[0] = 0;
         strcat(p_buf, p);
         strcat(p_buf, sep);
         strcat(p_buf, str_buf); /* Case corrected for file, Needed on Linux. */
     }
-    
+
     f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
     if(f)
     {

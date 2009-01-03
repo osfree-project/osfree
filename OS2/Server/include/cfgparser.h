@@ -58,6 +58,7 @@ typedef struct {
         short int workplace_process;    // =NO
         int wp_objhandle;       // =n
         short int debugmodmgr;     // =NO
+        short int debugixfmgr;     // =NO
 } cfg_opts;
 
 extern cfg_opts options;
@@ -76,5 +77,3 @@ unsigned long cfg_cleanup(void);
 unsigned long cfg_parse_config(void * addr, int size);
 unsigned long cfg_getenv(char * name, char ** value);
 
-void error(char *);
-int warn(char *);

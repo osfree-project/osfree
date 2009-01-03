@@ -29,6 +29,12 @@ unsigned long LXIdentify(void * addr, unsigned long size)
   if ((*(char *)((unsigned long)addr+lx_module_header_offset) == 'L') &&
       (*(char *)((unsigned long)addr+lx_module_header_offset+1) == 'X'))
   {
+    #ifdef __OS2__
+    // This is check for internal relocations support. Specific for OS/2 host because
+    // it is hard to manage virtual memory and processes without kernel driver support.
+    // We don't want to loss forces for such driver so debug only code with internal relocations
+    // support
+    #endif
     return NO_ERROR;
   };
 

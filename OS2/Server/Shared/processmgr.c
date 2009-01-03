@@ -107,7 +107,7 @@ struct t_os2process * PrcCreate(IXFModule ixfModule)
     return(c);
 }
 
-void processlx_destroy(struct t_os2process * proc) {
+void PrcDestroy(struct t_os2process * proc) {
         /* Avmappar filen. */
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(proc->lx_mod);
         int ret_munmap = munmap((void*) kod_obj->o32_base,
@@ -484,7 +484,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     /* Starts to execute the process. */
     exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
 
-  processlx_destroy(tiny_process); /* Removes the process.
+  PrcDestroy(tiny_process); /* Removes the process.
              Maybe use garbage collection here? Based on reference counter?
                 And when the counter reeches zero, release process. */
 

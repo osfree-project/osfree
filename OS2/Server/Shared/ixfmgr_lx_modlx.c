@@ -293,6 +293,7 @@ int load_lx_module_header(struct LX_module * lx_mod)
     {
       dump_header_lx(*lx_e32_exe);
     }
+    E32_MFLAGS(*lx_e32_exe);
     return TRUE;
   } else {
     io_printf("Invalid LX file !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);

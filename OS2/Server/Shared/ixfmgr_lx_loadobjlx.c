@@ -168,8 +168,6 @@ int load_dll_code_obj_lx(struct LX_module * lx_exe_mod) {
         return 1;
 }
 
-/* void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) { */
-
   /*   Allocates virtual memory for an object at an absolute virtual address.
        Some GNU/Linux specific flags to mmap(MAP_GROWSDOWN). */
 unsigned int vm_alloc_obj_lx(struct LX_module * lx_exe_mod, struct o32_obj * lx_obj) {

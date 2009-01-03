@@ -182,7 +182,8 @@ void do_mmap_code_stack(struct LX_module * lx_exe_mod) {
 #ifndef SDIOS
 
 
-void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) {
+void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc)
+{
 
                 void * my_execute;
                 unsigned long int tmp_data_mmap;
@@ -312,11 +313,10 @@ _asm{
                     "pop %%ebx \n"
                                         : /*: [tcc_bugg_] "m" (tcc_bugg_)*/ );
                 #endif
-                /*  my_execute("" , "" , 0, (unsigned int)lx_exe_mod );   */
-
-                //io_printf("End of LX program execution**********************\n");
 
 }
+
+
 
 #ifdef NOT_DEFINED_AND_NOT_USED
 

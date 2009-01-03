@@ -137,7 +137,7 @@ typedef struct t_os2process {
 
 struct t_os2process * PrcCreate(IXFModule ixfModule);
 
-void processlx_destroy(struct t_os2process * proc);
+void PrcDestroy(struct t_os2process * proc);
 /*
 typedef struct _RESULTCODES {
     ULONG codeTerminate;
