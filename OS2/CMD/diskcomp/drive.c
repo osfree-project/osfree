@@ -304,8 +304,8 @@ void dosreaddriveinfo(unsigned short driveno, struct mydiskinfo *diskinfo)
         diskinfo->secpertrack = 18; /* ignored anyway... */
         /* ignored in DOS mode */
 
-        if ((firstdisk==false) &&
-                (memcmp(&olddiskinfo, diskinfo, sizeof(struct fatinfo))!=0))
+        if ((firstdisk==false) &&                    //struct fatinfo
+                (memcmp(&olddiskinfo, diskinfo, sizeof(struct mydiskinfo))!=0))
         {
                 /* if not the same format quit */
                 PutString("Disks formats are not the same\r\n");

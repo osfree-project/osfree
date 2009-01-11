@@ -237,7 +237,8 @@ int catread (char *catfile)
 
   /* Get the whole catfile into a buffer and parse it */
 
-  file = _dos_open (catfile, O_RDONLY | O_TEXT, &file);
+  //file = _dos_open (catfile, O_RDONLY | O_TEXT, &file);
+  file = open (catfile, O_RDONLY | O_TEXT);
   if (file < 0)
       /* Cannot open the file.  Return failure */
       return 0;
@@ -249,7 +250,8 @@ int catread (char *catfile)
     catcontents[i] = '\0';
 
   /* Read the file into memory */
-  _dos_read (file, catcontents, sizeof(catcontents)-1, &i);
+  //_dos_read (file, catcontents, sizeof(catcontents)-1, &i);
+  i = read (file, catcontents, sizeof(catcontents)-1);
 
   if ((i == sizeof(catcontents)-1) || (i < 1))
       return 0; /* file was too big or too small */
@@ -266,7 +268,8 @@ int catread (char *catfile)
     tok = strchr(where, '\n');
 
     if (tok == NULL) { /* done? */
-      _dos_close(file);
+      //_dos_close(file);
+      close(file);
       return 1; /* success */
     }
 
@@ -465,7 +468,8 @@ int get_char(int file) {
 
 
   if (getlrem <= 0) { /* (re)init buffer */
-    _dos_read(file, getlbuf, sizeof(getlbuf), &getlrem);
+    //_dos_read(file, getlbuf, sizeof(getlbuf), &getlrem);
+    getlrem = read(file, getlbuf, sizeof(getlbuf));
     if (getlrem <= 0)
       return -1; /* fail: read error / EOF */
     getlp = getlbuf; /* init pointer */

@@ -18,6 +18,8 @@
 // #define DSKCPY_ERROR_CANT_FORMAT  0xffbe  /* Remove this definition when */
                                              /* the format problem is fixed */
 
+#define HARDERROR_DISABLE 0
+
 #define BUFSIZE   1024
 #define OPENFLAGS (OPEN_FLAGS_DASD | OPEN_SHARE_DENYREADWRITE | OPEN_ACCESS_READWRITE)
 
@@ -126,7 +128,7 @@ HFILE opendrive(char *drive)
 
   if ((strlen(drive) != 2) || (drive[1] != ':'))
     _DosError = ERROR_INVALID_DATA;
-  else 
+  else
     do
       {
       _DosError = DosOpen(drive, &dHandle, &result, 0L, 0, FILE_OPEN, OPENFLAGS, 0L);
