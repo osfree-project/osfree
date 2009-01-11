@@ -28,7 +28,7 @@ ADD_LINKOPT = libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_shared_$(ARCH).
 
 !ifeq ARCH os2
 PLATFORM = os2
-ADD_COPT =            -d__OS2__ &
+ADD_COPT =            -u__WINNT__ -u__WIN32__ -u__LINUX__ -d__OS2__ &
                       $(ADD_COPT) -i=$(SrvDir)os2 &
                       -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
@@ -51,7 +51,7 @@ ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)os2 &
 !ifeq ARCH linux
 PLATFORM = linux
 EXE_SUFFIX=l
-ADD_COPT =            -d__LINUX__ &
+ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
                       $(ADD_COPT) -i=$(SrvDir)Linux &
                       -i=$(%WATCOM)$(SEP)lh &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
@@ -73,9 +73,9 @@ ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
 !else
 !ifeq ARCH win32
 PLATFORM = nt
-ADD_COPT =            -d__WIN32__ -d__WINNT__ &
+ADD_COPT =            -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
                       $(ADD_COPT) -i=$(SrvDir)win32 &
-                      -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)nt &
+                      -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=$(%WATCOM)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &

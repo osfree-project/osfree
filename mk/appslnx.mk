@@ -52,7 +52,7 @@ deps = $(RESOURCE)
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM linux $(dllopts)
- @%append $^@ NAME $^*
+ @%append $^@ NAME $^*.exe
  #@%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
@@ -78,6 +78,8 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
 #!ifdef STUB
 # @%append $^@ OPTION STUB=$(STUB)
 #!endif
+ #@%append $^@ OPTION noextension
+ @%append $^@ OPTION caseexact
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
 

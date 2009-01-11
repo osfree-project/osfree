@@ -75,11 +75,14 @@ int strcasecmp(const char* dest, const char* src)
         /* Register a module with the name. */
 struct native_module_rec *
 native_register_module(char * name, char * filepath, void * mod_struct) {
+        struct native_module_rec *new_mod;
+        struct native_module_rec *prev;
+
         io_printf("register_module: %s, %p \n", name, mod_struct);
-        struct native_module_rec *new_mod = (struct native_module_rec *) malloc(sizeof(struct native_module_rec));
+        new_mod = (struct native_module_rec *) malloc(sizeof(struct native_module_rec));
         new_mod->mod_name = (char *)malloc(strlen(name)+1);
         strcpy(new_mod->mod_name, name);
-        struct native_module_rec *prev = &native_module_root;
+        prev = &native_module_root;
 
         while(prev->next) /* Find free node at end. */
                 prev = (struct native_module_rec *) prev->next;
@@ -97,7 +100,10 @@ native_register_module(char * name, char * filepath, void * mod_struct) {
            It first sees if it's already loaded and then just returns the found module.
            If it can't be found load_module() searches the mini_libpath inside find_module_path(). */
 void * native_find_module(char * name) {
-        struct native_module_rec * prev = (struct native_module_rec *) native_module_root.next;
+        struct native_module_rec * prev;
+        void *ptr_mod;
+
+        prev = (struct native_module_rec *) native_module_root.next;
 
         while(prev) {
                 io_printf("find_module: %s == %s, mod=%p \n", name, prev->mod_name, prev->module_struct);
@@ -113,7 +119,7 @@ void * native_find_module(char * name) {
                 prev = (struct native_module_rec *) prev->next;
         }
 
-        void *ptr_mod = native_load_module(name);
+        ptr_mod = native_load_module(name);
         if(ptr_mod != 0) { /* If the module has been loaded, register it. */
                 /* register_module(name, ptr_mod); */
                 return ptr_mod;
@@ -188,6 +194,7 @@ void * native_load_module(char * name) {
 
 
                 void *handle;
+                struct native_module_rec *new_module_el;
                 /*int (*mydltest)(const char *s);
                 char *error; */
 
@@ -196,7 +203,7 @@ void * native_load_module(char * name) {
                         fprintf(stderr, "Could not open '%s': %s\n", p_buf, dlerror());
                         return handle;
                 }
-                struct native_module_rec * new_module_el = native_register_module(name, p_buf, handle);
+                new_module_el = native_register_module(name, p_buf, handle);
                 new_module_el->load_status = LOADING;
 
                 /*mydltest = dlsym(handle, "dltest");
@@ -252,10 +259,13 @@ void native_print_module_table(void) {
 
 
 void * native_get_func_ptr_str_modname(char * funcname, char * modname) {
+        void *mod_handle;
+        void *mydltest;
+        char *error;
+        
         io_printf(" Searching func ptr '%s' in '%s' \n", funcname, modname);
-        void * mod_handle = native_find_module(modname);
-        char * error;
-        void * mydltest = dlsym(mod_handle, funcname);
+        mod_handle = native_find_module(modname);
+        mydltest = dlsym(mod_handle, funcname);
         if ((error = dlerror()) != (char *)0)  {
                 fprintf(stderr, "Could not locate symbol 'dltest': %s\n", error);
                 //exit(1);

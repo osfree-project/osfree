@@ -11,7 +11,6 @@ Memory Mapped Files Emulation Layer v1.75
 #include <sys/types.h>
 #include <os2/types.h>
 
-
 #if defined (__cplusplus)
 extern "C" {
 #endif
