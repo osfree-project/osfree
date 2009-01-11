@@ -173,6 +173,7 @@ endif
 
         pop     ebx
         pop     esi
+
         pop     ebp
 
         ret
@@ -341,6 +342,7 @@ endif
 
         pop     edi
         pop     ebx
+
         pop     ebp
 
         ret

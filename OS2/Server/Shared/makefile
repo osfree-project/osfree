@@ -2,7 +2,7 @@
 #
 # Makefile for common shared libs
 
-# 
+#
 
 PROJ = os2server_shared
 srcfiles = $(p)modmgr$(e) &
@@ -10,7 +10,8 @@ $(p)token$(e) &
 $(p)ixfmgr$(e) &
 $(p)memmgr$(e) &
 $(p)cfgparser$(e) &
-$(p)processlx$(e) &
+#$(p)processlx$(e) &
+$(p)processmgr$(e) &
 $(p)ixfmgr_lx_fixuplx$(e) &
 $(p)ixfmgr_lx_loadobjlx$(e) &
 $(p)ixfmgr_lx_execlx$(e) &
@@ -19,10 +20,11 @@ $(p)ixfmgr_lx_debuglx$(e) &
 $(p)ixfmgr_lx_modlx$(e) &
 $(p)ixfmgr_ne$(e)
 
-ADD_COPT = -i=..$(SEP)include -i$(%WATCOM)$(SEP)lh -za
+ADD_COPT = #-i=$(MYDIR)..$(SEP)include
+
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)/mk/libsos2server.mk
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

@@ -1243,8 +1243,11 @@ int init(void)
   grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
 
   /* call uFSD init (set linkage) */
-  fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
-  fsd_init(l1);
+  if (!filetab_ptr)
+  {
+    fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
+    fsd_init(l1);
+  }
 
 #ifndef STAGE1_5
 

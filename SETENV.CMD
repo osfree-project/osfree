@@ -47,6 +47,7 @@ imgdir1 = translate(imgdir, '/', '\')
 say os
 
 if os == 'OS/2' then do
+  os = 'OS2'
   wosdir = '\binp'
 end; else
 if os == 'WINDOWS' | os == 'WINNT' | os == 'WIN32' then do
@@ -71,7 +72,7 @@ include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\os2;' || watco
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
 
-if os == 'OS/2' then do
+if os == 'OS2' then do
   help = value('HELP',, env)
   help = watcom || wosdir || '\help;' || help
   bookshelf = value('BOOKSHELF',, env)
@@ -98,7 +99,7 @@ do i = 1 to words(vars)
   say var || '=' || val
 end
 
-if os == 'OS/2' then 'set beginlibpath=' || beginlibpath
+if os == 'OS2' then 'set beginlibpath=' || beginlibpath
 
 
 exit 0

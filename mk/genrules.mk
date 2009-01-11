@@ -17,15 +17,6 @@ drv = $(%cdrive):
 drv =
 !endif
 
-#!ifeq ROOT $(MYDIR:$(drv)=)
-# if topmost makefile
-#tgts =
-#!else ifeq NOPREREQ 1
-#tgts =
-#!else
-#tgts = dirhier $(mf)
-#!endif
-
 mfh = $(MYDIR)makefile
 mf  = $(PATH)makefile
 

@@ -31,21 +31,11 @@ ASM_DEFS  = -zq -d__WATCOM__
 # ADD_COPT and ADD_ASMOPT are defined in
 # a file which includes this file.
 #
-#!ifndef __bootseq_mk__ # if this file is not included from bootseq.mk
-#!ifeq 32_BITS 1
 COPT      = $(C_DEFS) $(ADD_COPT) &
             -i=$(MYDIR) -i=$(MYDIR).. &
             -i=$(PATH)  -i=$(PATH)..
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 C16OPT    = -nt=_TEXT16 -nd=D
-#!else
-#COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include$(SEP)os3 -i=. -i=.. -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)pm -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)zlib -i=$(ROOT)$(SEP)include$(SEP)os3$(SEP)gbm $(ADD_COPT)
-#ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
-#!endif
-#!else
-#COPT      = $(C_DEFS) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD  -i=. -i=.. $(ADD_COPT)
-#ASMOPT    = $(ASM_DEFS) -i=. -i=.. $(ADD_ASMOPT)
-#!endif
 
 #
 # Tools:
@@ -64,7 +54,11 @@ CPPC16    = @wpp
 ASM       = @wasm
 
 LINKER    = @wlink
-LINKOPT   = op internalrelocs op q $(ADD_LINKOPT)
+# Note by valerius:
+# don't add the following option to all.mk
+# -----op internalrelocs----
+# as it breaks all non-LX executables, for ex., bootsectors
+LINKOPT   = op q $(ADD_LINKOPT)
 
 LIB       = @wlib
 LIBOPT    = -q -n -fo
@@ -116,10 +110,14 @@ CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.err *.log *.bak *.lib *.com *.sym *.
 COMSPEC   = $(OS_SHELL)          # Shell
 OS2_SHELL = $(OS_SHELL)          #
 RN  = @move                      # Rename command
-!else ifeq ENV Windows
+!else
+!ifeq ENV Windows
 RN  = @ren                       # Rename command
-!else ifeq ENV WIN32
+!else
+!ifeq ENV WIN32
 RN  = @ren                       # Rename command
+!endif
+!endif
 !endif
 
 SEP       = \                  # dir components separator
@@ -139,14 +137,23 @@ CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist $(PATH)%i $(DC) $(PATH)%i 
 
 !ifeq ENV Windows
 NULL      = nul
-!else ifeq ENV WIN32
+!else
+!ifeq ENV WIN32
 NULL      = nul
 !else
 NULL      = \dev\nul
 !endif
+!endif
 BLACKHOLE = 2>&1 >$(NULL)
 
-!else ifeq UNIX TRUE             # UNIX
+EXE_SUFFIX = .exe
+LIB_SUFFIX = .lib
+LIB_PREFIX =
+DLL_PREFIX =
+DLL_SUFFIX = .dll
+
+!else
+!ifeq UNIX TRUE             # UNIX
 
 SEP       = /                  # dir components separator
 PS        = :                  # paths separator
@@ -168,6 +175,13 @@ CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist $(PATH)%i $(DC) $(PATH)%i 
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
 
+EXE_SUFFIX = l
+LIB_SUFFIX = .a
+LIB_PREFIX =
+DLL_PREFIX =
+DLL_SUFFIX = .so
+
+!endif
 !endif
 
 MKDIR     = @mkdir
@@ -298,14 +312,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
-
-subdirs: .SYMBOLIC
+subdirs: .symbolic
  @for %%i in ($(DIRS)) do @cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
-
-#subdirs: $(DIRS)
-#
-#$(DIRS): .SYMBOLIC
-# cd $@ && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: .SYMBOLIC
  @$(MDHIER) $(PATH)
@@ -337,6 +345,7 @@ precopy: .SYMBOLIC
  @%abort
 
 !ifndef WRAPPERS
+
 # define if gen_compile_rules_wrapper and gen_deps_wrapper
 # are not defined
 gen_compile_rules_wrapper: .SYMBOLIC

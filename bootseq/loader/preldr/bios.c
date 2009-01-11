@@ -89,6 +89,7 @@ biosdisk (int read, int drive, struct geometry *geometry,
          SEGMENT:ADDRESS.  */
       dap.buffer = segment << 16;
 
+      //printf("---LBA!!!");
       err = biosdisk_int13_extensions ((read + 0x42) << 8, drive, &dap);
 
 /* #undef NO_INT13_FALLBACK */
@@ -128,6 +129,7 @@ biosdisk (int read, int drive, struct geometry *geometry,
       //printf("biosdisk_standard(%u,%u,%u,%u,%u,%u,%u)=",read + 0x02, drive,
       //                         cylinder_offset, head_offset, sector_offset,
       //                         nsec, segment);
+      //printf("---CHS!!!");
       err = biosdisk_standard (read + 0x02, drive,
                                cylinder_offset, head_offset, sector_offset,
                                nsec, segment);

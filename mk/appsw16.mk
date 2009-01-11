@@ -48,6 +48,9 @@ $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
 !ifdef OPTIONS
  @%append $^@ OPTION $(OPTIONS)
 !endif
+!ifdef ALIASES
+ alias $(ALIASES)
+!endif
 !ifdef DEBUG
  @%append $^@ DEBUG $(DEBUG)
 !endif

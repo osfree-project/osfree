@@ -4,23 +4,18 @@
 # author, date
 #
 
-PROJ = os2server
+ARCH=win32 # os2 linux win32
+PROJ = os2server_$(ARCH)
 DESC = OS/2 Personality Server
 DEST = .
-ARCH=OS2
-#ARCH=Linux
-!ifeq ENV OS/2
-sadfsd
-!endif
 DIRS = Shared $(ARCH)
 srcfiles = $(p)main$(e)
 # defines additional options for C compiler
-ADD_COPT    = -i=$(MYDIR)$(SEP)include 
+ADD_COPT = #-i=$(MYDIR)$(SEP)include
 
-ADD_LINKOPT = lib os2server_shared.lib, os2server_arch.lib
-
-!include $(%ROOT)/mk/appsos2.mk
-#!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)/mk/os2server.mk
 
 TARGETS  = subdirs $(PATH)$(PROJ).exe
-TARGET = all
+
+qwe: .symbolic
+ @echo $(SrvDir)

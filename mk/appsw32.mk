@@ -2,14 +2,14 @@
 #
 #
 
-!ifndef __appsos2_mk__
-!define __appsos2_mk__
+!ifndef __appsw32_mk__
+!define __appsw32_mk__
 
 32_BITS = 1
-PLATFORM = os2
+PLATFORM = nt
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
-ADD_COPT =            $(ADD_COPT) -d__OS2__ &
-                      -i=$(%WATCOM)$(SEP)h &
+ADD_COPT =            -d__WIN32__ -d__WINNT__ $(ADD_COPT) &
+                      -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=. -i=.. -i=win32
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
@@ -22,30 +22,14 @@ ADD_COPT =            $(ADD_COPT) -d__OS2__ &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
-                      -bt=os2
+                      -bt=nt
 ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib libpath $(ROOT)build$(SEP)lib
 
 !ifndef DEST
-DEST    = os2
+DEST    = nt
 !endif
 
-SUF = .msg .rsf
-
 !include $(%ROOT)/mk/all.mk
-
-cplist = en pl ru
-
-.rsf: $(PATH)
-
-.rsf.msg:
- @$(MC) @$<
-
-rsf: .SYMBOLIC .PROCEDURE
- @%create $(PATH)$(T)
- #@for %i in ($(cplist)) do @%append $@ $(MYDIR)en$(SEP)oso001.txt $(PATH)oso001.%i
- @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /P 850 /L 1,1
- @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /P 852 /L 48,1
- @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /P 866 /L 25,1
 
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
@@ -57,7 +41,7 @@ dllopts = $(dllopts) $(DLLOPT)
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopts =
 !endif
-RCOPT    = -bt=os2 $(RCOPT)
+RCOPT    = -bt=nt $(RCOPT)
 
 !ifdef RESOURCE
 deps = $(RESOURCE)
@@ -65,7 +49,7 @@ deps = $(RESOURCE)
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
- @%append $^@ SYSTEM os2v2 $(dllopts)
+ @%append $^@ SYSTEM win32 $(dllopts)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE

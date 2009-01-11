@@ -76,10 +76,10 @@ int strcasecmp(const char* dest, const char* src)
 struct native_module_rec *
 native_register_module(char * name, char * filepath, void * mod_struct) {
         io_printf("register_module: %s, %p \n", name, mod_struct);
-        struct native_module_rec * new_mod = (struct native_module_rec *) malloc(sizeof(struct native_module_rec));
+        struct native_module_rec *new_mod = (struct native_module_rec *) malloc(sizeof(struct native_module_rec));
         new_mod->mod_name = (char *)malloc(strlen(name)+1);
         strcpy(new_mod->mod_name, name);
-        struct native_module_rec * prev = &native_module_root;
+        struct native_module_rec *prev = &native_module_root;
 
         while(prev->next) /* Find free node at end. */
                 prev = (struct native_module_rec *) prev->next;

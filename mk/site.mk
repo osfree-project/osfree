@@ -37,7 +37,7 @@ SHELL   = OS_SHELL
 !endif
 
 # Determine a type of OS:
-!ifeq ENV OS/2
+!ifeq ENV OS2
 UNIX = FALSE
 !else ifeq ENV Windows
 UNIX = FALSE

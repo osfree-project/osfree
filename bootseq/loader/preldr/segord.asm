@@ -24,9 +24,9 @@ TEXT16_LEN equ (TEXT16_END - TEXT16_BEG)
 ; hardcoded for now
 ; ! todo: fix
 ifndef STAGE1_5
-BASE       equ (BASE1 + 780h)    ; 600h; TEXT16_LEN
+BASE       equ (BASE1 + 800h)    ; 600h; TEXT16_LEN
 else
-BASE       equ (BASE1 + 300h)    ; 233h
+BASE       equ (BASE1 + 380h)    ; 233h
 endif
 
 _TEXT    segment dword public 'CODE'  use32

@@ -7,12 +7,6 @@
 
 !include $(%ROOT)/mk/site.mk
 
-#drv =
-#
-#!ifneq %cdrive
-#drv = $(%cdrive):
-#!endif
-
 MYDIR        = $(%cwd)$(SEP)
 ROOT         = $(%ROOT)
 RELDIR       = $(MYDIR:$(ROOT)=)
@@ -22,7 +16,6 @@ BLD  = $(ROOT)build$(SEP)
 
 q = $(MYDIR:$(BLD)=)
 x = build$(SEP)
-#y = $(SEP)$(SEP)
 
 !ifneq q $(MYDIR)
 # we're starting make in build dir, not in src dir

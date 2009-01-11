@@ -17,9 +17,9 @@
 #   wmake -h  clean all -f makefilel TARG_DIR=win32
 
 #SEP=$(%SEP)
-SEP=\
-#SEP=/
-TARG_DIR=OS2
+#SEP=\
+SEP=/
+TARG_DIR=Linux
 # Linux OS2 win32
 
 #When building for Win32, don't include $WATCOM/h/os2 for all targets, it leads to
@@ -141,7 +141,7 @@ token.obj:               Shared$(SEP)token.c
    @echo "cmd1 $(cmd1)"
    @$(cmd1)
    $(cmd2)
-%null
+   %null
 
 modmgr.obj:              Shared$(SEP)modmgr.c
    $(cmd1)
@@ -267,6 +267,6 @@ main$(EXE_SUFFIX): $(CCOMP)
 clean: .symbolic
    @echo Removing object files *.obj
 #   @echo "" > bla.obj
-%erase -f *.obj
+ %erase -f *.obj
 
 # del is also available as a wmake internal command, must be on first column.

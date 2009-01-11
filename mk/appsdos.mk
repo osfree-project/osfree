@@ -25,6 +25,9 @@ $(PATH)$(PROJ).lnk: .SYMBOLIC
  @%create $^@
  @%append $^@ SYSTEM dos
  @%append $^@ NAME $^*
+!ifdef ALIASES
+ alias $(ALIASES)
+!endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif

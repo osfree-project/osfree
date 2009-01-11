@@ -187,6 +187,7 @@ rmode1:
         shr  eax, 16
         push ax
         push bp
+        xor  ebp, ebp
         mov  bp, sp
         call dword ptr [bp]
         add  sp, 4

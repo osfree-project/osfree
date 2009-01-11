@@ -73,29 +73,33 @@ asm("movl %%esp, %[esp_data] \n"
                                         : [ebp_data]  "=m" (ebp_data),
                                           [esp_data]  "=m" (esp_data) : );
 */
+
+unsigned long  _EDI,_ESI,_EIP,_ESP,_EBP;
+unsigned short _DS,_ES,_FS,_GS,_CS,_SS;
+unsigned char  _FLG=0;
+
+#ifdef __WATCOMC__
+ extern void show_regs(void);
+ #pragma aux show_regs = \
+     "mov _ESP, esp \n" \
+     "mov _EBP, ebp \n" \
+     "mov _EDI, edi \n" \
+     "mov _ESI, esi \n" \
+     "mov _DS,  ds  \n" \
+     "mov _ES,  es  \n" \
+     "mov _FS,  fs  \n" \
+     "mov _GS,  gs  \n" \
+     "mov _CS,  cs  \n" \
+     "mov _SS,  ss";
+#endif
+
 /*inline */
 void showRegDump() {
-        unsigned long int _EDI,_ESI,_EIP,_ESP,_EBP;
-        unsigned short int _DS,_ES,_FS,_GS,_CS,_SS;
-        unsigned char _FLG=0;
         unsigned long int variable_is_used=0;
         variable_is_used=_EDI=_ESI=_EIP=_ESP=_EBP=0;
         variable_is_used=_DS=_ES=_FS=_GS=_CS=_SS=0;
 
-        #ifdef __WATCOMC__
-        extern void show_regs(void);
-        #pragma aux show_regs = \
-          "mov _ESP, esp \n" \
-                  "mov _EBP, ebp \n" \
-                  "mov _EDI, edi \n" \
-                  "mov _ESI, esi \n" \
-                  "mov _DS,  ds  \n" \
-                  "mov _ES,  es  \n" \
-                  "mov _FS,  fs  \n" \
-                  "mov _GS,  gs  \n" \
-                  "mov _CS,  cs  \n" \
-                  "mov _SS,  ss";
-        #elif 1
+        #ifndef __WATCOMC__
         asm("movl %%esp, %[ESP] \n"
                   "movl %%ebp, %[EBP] \n"
                   "movl %%edi, %[EDI] \n"
