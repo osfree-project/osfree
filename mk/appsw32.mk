@@ -9,7 +9,7 @@
 PLATFORM = nt
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 ADD_COPT =            -d__WIN32__ -d__WINNT__ $(ADD_COPT) &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=. -i=.. -i=win32
+                      -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=. -i=.. -i=win32 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &

@@ -27,10 +27,14 @@ PROJ = $(PROJ0)$(EXE_SUF)
 
 DESC = OS/2 Personality Server
 DEST = .
-DIRS = Shared $(ARCH)
+DIRS = Shared $(ARCH) test
 srcfiles = $(p)main$(e)
 # defines additional options for C compiler
+INSTALL_ADD = 1
 
 !include $(%ROOT)/mk/os2server.mk
 
 TARGETS  = subdirs $(PATH)$(PROJ).exe
+
+install_add: $(MYDIR)config.sys
+ $(CP) $< $(DEST)

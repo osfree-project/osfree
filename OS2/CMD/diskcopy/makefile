@@ -14,6 +14,3 @@ ADD_COPT = #-i=$(MYDIR)..$(SEP)include
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 
 !include $(%ROOT)/mk/appsos2v1.mk
-
-qwe: .SYMBOLIC
- $(SAY) $(COPT)
