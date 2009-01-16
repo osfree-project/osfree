@@ -22,7 +22,7 @@ SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
 
 ADD_COPT = -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &
            -i=$(SrvDir)include &
-           -std=c99 -O1 -g2 -Wall
+#           -std=c99 -O1 -g2 -Wall
 
 ADD_LINKOPT = $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_shared.lib, os2server_$(ARCH).lib
 

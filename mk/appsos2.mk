@@ -63,6 +63,10 @@ RCOPT    = -bt=os2 $(RCOPT)
 deps = $(RESOURCE)
 !endif
 
+!ifdef OBJS16
+OBJS = $(OBJS) $(OBJS16)
+!endif
+
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM os2v2 $(dllopts)

@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = interp # rexx rexxapi libs cmd
+DIRS = interp rexx rexxapi # libs cmd
 
 !include $(%ROOT)/mk/all.mk
 

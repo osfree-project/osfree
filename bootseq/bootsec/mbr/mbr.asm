@@ -85,28 +85,17 @@ start proc far
                 push ax
                 push 600h + (boot - start)                 ;
 
-                retf                                       ; "return" to the new location at 0x60:0x0 + boot
+                retf                                       ; "return" to the new location at 0x0:0x600 + boot
 boot:
 .386
                 mov  ax, 3000h                             ; InfoSeg
                 mov  fs, ax                                ; with LBA flag
 .286
                 ;
-                ; cs:ip --> 0x60:0x0 + boot
+                ; cs:ip --> 0x0:0x600 + boot
                 ; ss:sp --> stack with ss = 0x0, bottom = 0x7bff
                 ;
 
-                ;push NewSeg
-                ;pop  ds
-                ;push PktSeg
-                ;pop  es
-
-                ;push ScrSeg
-
-                ;
-                ; ds --> 0x60
-                ; es --> 0x7e0
-                ;
 probeLba:
                 ;
                 ; Test if LBA

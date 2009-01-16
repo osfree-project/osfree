@@ -9,8 +9,8 @@
 !include $(%ROOT)/mk/site.mk
 
 ADD_COPT =            $(ADD_COPT) &
-                      #-i=$(ROOT)$(SEP)build$(SEP)include &
-                      #-i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
+#                      -i=$(ROOT)$(SEP)build$(SEP)include &
+#                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
                       -bt=dos
 
 !ifndef DEST
