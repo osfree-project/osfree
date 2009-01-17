@@ -1,0 +1,327 @@
+DYN_COPT = -dDYNAMIC
+
+
+execiser.exe : $(IMPFILE) execiser.obj
+        @%create dummy.lnk
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk system os2v2
+        @%append dummy.lnk name execiser.exe
+        @%append dummy.lnk file execiser.obj
+        @%append dummy.lnk file .\$(IMPFILE)
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
+$(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
+        @%create lib.rsp
+        @%append lib.rsp +dbg.obj
+        @%append lib.rsp +client.obj
+        @%append lib.rsp +drexx.obj
+        @%append lib.rsp +rexxsaa.obj
+        @%append lib.rsp +funcs.obj
+        @%append lib.rsp +builtin.obj
+        @%append lib.rsp +error.obj
+        @%append lib.rsp +variable.obj
+        @%append lib.rsp +interprt.obj
+        @%append lib.rsp +debug.obj
+        @%append lib.rsp +dbgfuncs.obj
+        @%append lib.rsp +memory.obj
+        @%append lib.rsp +parsing.obj
+        @%append lib.rsp +files.obj
+        @%append lib.rsp +misc.obj
+        @%append lib.rsp +unxfuncs.obj
+        @%append lib.rsp +arxfuncs.obj
+        @%append lib.rsp +os2funcs.obj
+        @%append lib.rsp +cmsfuncs.obj
+        @%append lib.rsp +shell.obj
+        @%append lib.rsp +rexxext.obj
+        @%append lib.rsp +stack.obj
+        @%append lib.rsp +tracing.obj
+        @%append lib.rsp +interp.obj
+        @%append lib.rsp +cmath.obj
+        @%append lib.rsp +convert.obj
+        @%append lib.rsp +strings.obj
+        @%append lib.rsp +library.obj
+        @%append lib.rsp +strmath.obj
+        @%append lib.rsp +signals.obj
+        @%append lib.rsp +macros.obj
+        @%append lib.rsp +envir.obj
+        @%append lib.rsp +mt_notmt.obj
+        @%append lib.rsp +instore.obj
+        @%append lib.rsp +expr.obj
+        @%append lib.rsp +extlib.obj
+        @%append lib.rsp +yaccsrc.obj
+        @%append lib.rsp +lexsrc.obj
+        @%append lib.rsp +wrappers.obj
+        @%append lib.rsp +options.obj
+        @%append lib.rsp +doscmd.obj
+        @%append lib.rsp +extstack.obj
+        @%append lib.rsp +rexxbif.obj
+        $(LIBEXE) $(LIBFLAGS) $@ @lib.rsp
+        del lib.rsp
+
+
+$(DLLTEST1): test1.dlo $(IMPFILE)
+        @%create dummy.lnk
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk system os2v2 dll
+        @%append dummy.lnk name $(DLLTEST1)
+        @%append dummy.lnk file test1.dlo
+        @%append dummy.lnk export Test1Function1
+        @%append dummy.lnk export Test1Function2
+        @%append dummy.lnk export Test1LoadFuncs
+        @%append dummy.lnk export Test1DropFuncs
+        @%append dummy.lnk library $(IMPFILE)
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
+$(DLLTEST2): test2.dlo $(IMPFILE)
+        @%create dummy.lnk
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk system os2v2 dll
+        @%append dummy.lnk name $(DLLTEST2)
+        @%append dummy.lnk file test2.dlo
+        @%append dummy.lnk export Test2Function1
+        @%append dummy.lnk export Test2Function2
+        @%append dummy.lnk export Test2LoadFuncs
+        @%append dummy.lnk export Test2DropFuncs
+        @%append dummy.lnk library $(IMPFILE)
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
+rxstack.exe : rxstack.obj erexxbif.obj eextstack.obj
+        @%create dummy.lnk
+        @%append dummy.lnk system os2v2
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option stack=0x20000
+        @%append dummy.lnk option heapsize=40960
+        @%append dummy.lnk name rxstack.exe
+        @%append dummy.lnk file rxstack.obj
+        @%append dummy.lnk file eextstack.obj
+        @%append dummy.lnk file erexxbif.obj
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
+rxqueue.exe : rxqueue.obj erexxbif.obj eextstack.obj
+        @%create dummy.lnk
+        @%append dummy.lnk system os2v2
+        @%append dummy.lnk option caseexact
+        @%append dummy.lnk option quiet
+        @%append dummy.lnk option stack=0x20000
+        @%append dummy.lnk option heapsize=40960
+        @%append dummy.lnk name rxqueue.exe
+        @%append dummy.lnk file rxqueue.obj
+        @%append dummy.lnk file eextstack.obj
+        @%append dummy.lnk file erexxbif.obj
+        $(LINK) $(LDFLAGS) @dummy.lnk
+        del dummy.lnk
+
+
+$(IMPFILE): $(DLLFILE)
+        $(LIBEXE) $(LIBFLAGS) $(DLLBASE) +$(DLLFILE)
+
+
+
+
+#
+# rules for DLL objects
+#
+funcs.dlo:    $(MYDIR)funcs.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+builtin.dlo:  $(MYDIR)builtin.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+error.dlo:    $(MYDIR)error.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+variable.dlo: $(MYDIR)variable.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+interprt.dlo: $(MYDIR)interprt.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+debug.dlo:    $(MYDIR)debug.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+dbgfuncs.dlo: $(MYDIR)dbgfuncs.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+memory.dlo:   $(MYDIR)memory.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+parsing.dlo:  $(MYDIR)parsing.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+files.dlo:    $(MYDIR)files.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+misc.dlo:     $(MYDIR)misc.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+unxfuncs.dlo: $(MYDIR)unxfuncs.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+arxfuncs.dlo: $(MYDIR)arxfuncs.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+os2funcs.dlo: $(MYDIR)os2funcs.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+cmsfuncs.dlo: $(MYDIR)cmsfuncs.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+shell.dlo:    $(MYDIR)shell.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+rexxext.dlo:  $(MYDIR)rexxext.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+stack.dlo:    $(MYDIR)stack.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+tracing.dlo:  $(MYDIR)tracing.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+interp.dlo:   $(MYDIR)interp.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+cmath.dlo:    $(MYDIR)cmath.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+convert.dlo:  $(MYDIR)convert.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+strings.dlo:  $(MYDIR)strings.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+library.dlo:  $(MYDIR)library.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+strmath.dlo:  $(MYDIR)strmath.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+signals.dlo:  $(MYDIR)signals.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+macros.dlo:   $(MYDIR)macros.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+envir.dlo:    $(MYDIR)envir.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+mt_os2.dlo:   $(MYDIR)mt_os2.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+mt_notmt.dlo: $(MYDIR)mt_notmt.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+instore.dlo:  $(MYDIR)instore.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+expr.dlo:     $(MYDIR)expr.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+extlib.dlo:   $(MYDIR)extlib.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+wrappers.dlo: $(MYDIR)wrappers.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+options.dlo:  $(MYDIR)options.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+doscmd.dlo:   $(MYDIR)doscmd.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+extstack.dlo: $(MYDIR)extstack.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+rexxbif.dlo:  $(MYDIR)rexxbif.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+rexx.dlo:   $(MYDIR)rexx.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+lexsrc.dlo : $(MYDIR)lexsrc.c $(MYDIR)yaccsrc.h $(MYDIR)rexx.h
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+#lexsrc.c : lexsrc.l
+#       $(LEX) lexsrc.l
+#       $(MV) lex.yy.c lexsrc.c
+
+yaccsrc.dlo: $(MYDIR)yaccsrc.c $(MYDIR)defs.h $(MYDIR)rexx.h
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /dYYMAXDEPTH=10000 /bd /fo=$*.dlo $(MYDIR)$*.c
+
+#yaccsrc.c yaccsrc.h : yaccsrc.y
+#       $(YACC) -dv yaccsrc.y
+#       $(MV) y.tab.h yaccsrc.h
+#       $(MV) y.tab.c yaccsrc.c
+
+drexx.dlo: $(MYDIR)rexx.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /fo=drexx.dlo /dRXLIB $(MYDIR)rexx.c
+
+client.dlo: $(MYDIR)client.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+rexxsaa.dlo: $(MYDIR)rexxsaa.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+gci_call.dlo: $(MYDIR)gci\gci_call.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_convert.dlo: $(MYDIR)gci\gci_convert.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_execute.dlo: $(MYDIR)gci\gci_execute.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_helper.dlo: $(MYDIR)gci\gci_helper.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_prepare.dlo: $(MYDIR)gci\gci_prepare.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_reginabridge.dlo: $(MYDIR)gci\gci_reginabridge.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_rxfuncdefine.dlo: $(MYDIR)gci\gci_rxfuncdefine.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_tree.dlo: $(MYDIR)gci\gci_tree.c $(GCIHEADERS)
+        $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(MYDIR)gci\$*.c
+
+gci_convert.h: $(MYDIR)\gci\gci_convert.os2.wcc
+         copy $(MYDIR)\gci\gci_convert.os2.wcc .\gci_convert.h
+
+test1.dlo:   $(MYDIR)test1.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+test2.dlo:   $(MYDIR)test2.c $(HFILES)
+        $(CC) $(CCFLAGS) $(THREADING) /bd /fo=$*.dlo $(MYDIR)$*.c
+
+$(PATH)regina.obj:   $(MYDIR)regina.c $(HFILES)
+ $(CC) $(COPT) $(THREADING) $(HAVE_GCI) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)execiser.obj:   $(MYDIR)execiser.c $(HFILES)
+ $(CC) $(COPT) $(THREADING) $(HAVE_GCI) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)eextstack.obj:  $(MYDIR)extstack.c $(HFILES)
+ $(CC) -DEXTERNAL_TO_REGINA $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)erexxbif.obj:  $(MYDIR)rexxbif.c $(HFILES)
+ $(CC) -DEXTERNAL_TO_REGINA $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)rxstack.obj:  $(MYDIR)rxstack.c $(HFILES)
+ $(CC) -DEXTERNAL_TO_REGINA $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)rxqueue.obj:  $(MYDIR)rxqueue.c $(HFILES)
+ $(CC) -DEXTERNAL_TO_REGINA $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)drexx.obj: $(MYDIR)rexx.c $(HFILES)
+ $(CC) -dRXLIB $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

@@ -1,0 +1,19 @@
+This file describes how an author of a Rexx external function package
+needs to alter their package to be supported by Regina.
+
+o The external package needs to be provided as a statically linkable library.
+  Under Unix platforms, this is usually built with the "ar" command, and has
+  a name of "libpackage.a", where "package" is the package name.
+o You need to include in the library a function:
+     void *getpackageFunctionAddress( char *name );
+  where "package" is the package name.
+  This function returns the address of the Rexx external function with the
+  name "name". The comparison between "name" and the function name within
+  the package should be done irrespective of case.
+  Note that the address of the package's "load" function; eg SysLoadFuncs, must
+  be returned with a call to this function.
+  See the included test1 and test2 external function packages (test1.c and
+  test2.c).
+o Changes are also required to Regina; staticld.c and the aclocal.m4 autoconf
+  file.  See the other supported external function packages for what to
+  include.

@@ -1,0 +1,72 @@
+                         Regina 2.0
+                         13 Mar 2000
+
+  The version numbering of Regina has changed.  Anders' original intent
+  was for Regina to be released as version 1.0 when it achieved
+  100% ANSI Compliance.  I originally concurred with this approach
+  by releasing the 0.08 series, but with this release, Regina has
+  changed internally sufficient to warrant a major version number
+  change.  By continuing to release version numbers of 0.xx, the
+  implications are that Regina is not a mature product. Obviously,
+  this is not the case, and rather than confuse the situation and
+  release a version 1.0, version 2.0 was decided upon.
+  Anders is aware of the change and is happy with the change
+  provided there is no confusion with users. Hopefully that isn't
+  the case.
+
+Changes in this release (from 0.08h)
+------------------------------------
+
+o Added thread support. Support available for platforms that use
+  Posix Threads, Win32 threads and OS/2 threads.  This is the first
+  version of Regina with thread support, so don't expect a flawless
+  implementation yet. 
+  Platforms that are known to work:
+  - Linux RedHat 6.1
+  - Windows NT/98/2000
+  - Solaris 2.5 using gcc
+  Platforms that are known not to work:
+  - Linux RedHat 5.1 - threads library too old
+  - Digital Unix 4.0 - compilation errors
+  OS/2 thread support is only available with EMX, and that hasn't
+  been tested thoroughly.
+o A new sample program; threader, has been written to demonstrate
+  Regina's multi-threading capabilities.
+o This version now includes support for Linux/390 and BeOS.
+o Removed limitation on maximum value of NUMERIC DIGITS. Now no
+  effective limit.
+o Regina now returns a tokenised version of a Rexx program via
+  RexxStart() that can be re-loaded from another session.
+  Tokenisation, without execution, passing '//T' as the first
+  program parameter in RexxStart() also works.
+o Regina can now be built on the Amiga with gcc.
+o Fixed "groundhog day" bug with TIME('L'), where times at .5 second
+  would be rounded up to the next second.
+o Regina's stack usage has been dramatically reduced.
+o Removed limitation of nested functions and loops. Now no effective
+  limit.
+o Reduced common global symbols in the library. Reduced symbols
+  in shared libraries (ELF format) and DLLs.
+o Changed the method for Unix installation. Should now work on all
+  Unix platforms.
+o Fixed bug with CALLing external routines with parameters; eg
+  CALL "extrout" parm1
+o Fixed bug with EXIT expr and RETURN expr, where expr was non-numeric.
+o STREAM subcommand SEEK, now behaves like Object Rexx.
+o Regina can now be built on Win32 platforms with the free Borland C++
+  5.5 compiler. Thanks to Dan Sharp for the patches.
+o RANDOM BIF would return a maximum value of 32767 on most platforms.
+  Now returns up to 100000.
+o A new make target for Unix platforms; 'make binary' builds a binary
+  release of Regina. You must have gzip installed for this to work properly.
+
+Once again Florian Grosse-Coosmann has made the majority of the 
+contributions to the success of this release. 
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

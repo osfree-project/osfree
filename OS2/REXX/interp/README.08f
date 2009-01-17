@@ -1,0 +1,105 @@
+                         Regina 0.08f
+                        30 October 1998
+
+
+Changes in this release (from 0.08e)
+------------------------------------
+
+o Changed the extension of Rexx external function libraries under
+  AIX from .a to .so.
+o Removed the messy shared library naming conventions under Un*x
+  platforms.  Now, there are no symbolic links created.
+o Fixed GPF bug in TIME and DATE BIFs when no third parameter was
+  passed, but a second parameter was passed.
+o Ignore EOF character; (^Z) in source file.
+o Included changes for Amiga port using SAS compiler. Thanks to
+  Stefan Haubenthal <wwwsth@sx1.hrz.uni-dortmund.de> for the port.
+o Fixed a bug in PARSE command introduced in 0.08e. The last argument
+  in a PARSE statement, when parsing a string into words would have
+  incorrect leading space.
+o Added more sub-error messages to BIFs.
+o Added the ANSI standard QUALIFY BIF.
+o The STREAM command QUERY POSITION had syntax errors. These have now
+  been fixed.
+o While the Y2K support was fixed for date conversions in 0.08e, the
+  current date as returned by DATE('N') was incorrect for dates >
+  31 Dec 1999.
+o The value returned by CHARS BIF was incorrect especially after a
+  LINEIN call.  The result was some programs would never end.
+o On some platforms, if operating system command redirection was
+  done using >FIFO, and the current directory was not writeable by
+  the user, the command would fail. The cause is that the tmpnam()
+  C library function is broken on several compilers.
+  Added workaround to use environment variables, TMP, TEMP or TMPDIR.
+o On platforms that did not have a C library function, alloca()
+  Regina would leak memory.  This has now been fixed by inclusion
+  of our own alloca() function if one doesn't exist.
+o A bug in the Win95/98 command processor results in any call to
+  an operating system command ALWAYS return 0, even though the
+  command fails.
+  This change attempts to circumvent this bug, but it can't in all
+  circumstances.  If the operating system command called is an
+  executable file, and there is no output/input redirection, then
+  the return code from the executable program will be returned. Any
+  internal COMMAND.COM command, such as COPY, will ALWAYS return 0;
+  there is no way around this until M$ fix there COMMAND.COM.
+  If you use JP Software's 4DOS for NT, then you will have no problems
+  as it correctly returns the error from the internal command.
+  Reported and fixed by Michael Sundermann
+o Changed some internal #defines in rexxsaa.h. These changes will
+  require a rebuild of any applications that are linked with Regina.
+  This change was made to make Regina more binary-compatible with
+  other Win32 Rexx interpreters.
+o All references to program names within the interpreter should now
+  be fully qualified. ie in errors reported and in PARSE SOURCE.
+o Fixed a problem with external function packages implemented as
+  shared libraries on HP-UX.  If the external function package was not
+  in the current directory, Regina could not find it.  The dynamic
+  loader in HP-UX does not behave the same way as on other platforms;
+  ie. it doesn't look for a shared library using an environment variable.
+  Regina now searches for the shared library in the directories specified
+  by SHLIB_PATH.
+o Fixed bug with dropping compound variables.
+o Fixed bug with output of operating system command under Win32 losing
+  data:
+  eg: rc = 'dir'('*.txt')'
+o Regina's "default" filenames; "<stdout>", "<stdin>" and "<stderr>"
+  can also be specified without the angle brackets. ie "stdout",
+  "stdin" and "stderr".
+o Fixed bug with updating variables exposed in a PROCEDURE.
+o Fixed bug with internal variable SIGL being updated prematurely.
+o (0 = 0.000) is now true.
+o This version now works (mostly) on OpenVMS; VAX and AXP platforms.
+  Thanks to Steve Harris for most of this porting effort.
+o NUMERIC FORM VALUE now works.
+o Changes to trip/builtin.rexx to reflect the ANSI standard.  Changes
+  made to Regina to comply with these tests.
+o Bug fixed in DATE BIF conversion. Dates specified in "Normal' format
+  with months of 'Dec' would not be recognised.
+o Under DOS, OS/2 and W32 ports, stdout and stderr are now set to
+  binary mode.  This stops the operating system from translating
+  '0d'x characters (LF) into CR/LF pairs.
+o Fixed bug in DATE('C'); returned with a number 1 more than it should
+  have.
+o Fixed bug with \<< and \>> operators.
+o Increased the limit on the length of a clause to 1024 characters
+  (from 512).
+o Better reliability when calling nested Rexx programs.
+
+Please report any bugs with this release of Regina to me.
+
+===========================================================================
+Many of the bug fixes in this release were done by Florian Grosse-Coosmann.
+I would like to thank him for his efforts in helping to make Regina a better
+interpreter.
+===========================================================================
+
+Cheers, Mark.
+------------------------------------------------------------------------
+ Mark Hessling                       Email:       M.Hessling@qut.edu.au
+ PO Box 203                          http://www.lightlink.com/hessling/
+ Bellara                                AUTHOR of  |  MAINTAINER of
+ QLD 4507                                 THE      |    PDCurses
+ Australia                              Rexx/SQL   |     Regina
+                Member of RexxLA: http://www.rexxla.org/
+------------------------------------------------------------------------

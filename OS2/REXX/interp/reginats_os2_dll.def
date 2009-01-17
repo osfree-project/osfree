@@ -1,0 +1,43 @@
+;
+; reginats_os2_dll.def
+;
+LIBRARY REGINATS INITINSTANCE
+DESCRIPTION 'Regina Rexx Interpreter - Thread Safe'
+DATA    MULTIPLE NONSHARED
+
+STACKSIZE   40960
+
+EXPORTS
+        RexxAllocateMemory
+        RexxDeregisterExit
+        RexxDeregisterFunction
+        RexxDeregisterSubcom
+        RexxFreeMemory
+        RexxQueryExit
+        RexxQueryFunction
+        RexxQuerySubcom
+        RexxRegisterExitDll
+        RexxRegisterExitExe
+        RexxRegisterFunctionDll
+        RexxRegisterFunctionExe
+        RexxRegisterSubcomDll
+        RexxRegisterSubcomExe
+        RexxSetHalt
+        RexxStart
+        RexxVariablePool
+        ReginaVersion
+        __regina_faked_main
+        RexxAddMacro
+        RexxAddQueue
+        RexxClearMacroSpace
+        RexxCreateQueue
+        RexxDeleteQueue
+        RexxDropMacro
+        RexxLoadMacroSpace
+        RexxPullQueue
+        RexxQueryMacro
+        RexxQueryQueue
+        RexxReorderMacro
+        RexxSaveMacroSpace
+        RexxCallBack
+        ReginaCleanup

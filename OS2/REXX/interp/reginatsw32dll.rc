@@ -1,0 +1,36 @@
+#include "winver.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 3,1,1,0
+ PRODUCTVERSION 3,1,1,0
+ FILEFLAGSMASK 0x0L
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE VFT_DLL
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Author", "Anders Christensen\0"
+            VALUE "FileDescription", "Regina Rexx Interpreter (Thread-Safe)\0"
+            VALUE "FileVersion", "3.1.1\0"
+            VALUE "InternalName", "Regina (Thread-Safe)\0"
+            VALUE "LegalCopyright", "Copyright © 1990 - 2003\0"
+            VALUE "License", "GNU Library General Public License. See file COPYING-LIB for details.\0"
+            VALUE "Maintainer", "Mark Hessling\0"
+            VALUE "OriginalFilename", "REGINATS.DLL\0"
+            VALUE "ProductName", "Regina Rexx Interpreter\0"
+            VALUE "ProductVersion", "3.1.1\0"
+            VALUE "ProductDate", "????????\0"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+2 ICON    DISCARDABLE     "reginaw32.ico"

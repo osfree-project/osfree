@@ -1,0 +1,82 @@
+#
+# Makefile for Regina REXX Interpreter
+#
+# Using gcc 2.95 under Amiga
+#
+# No support for DLLs under Amiga so no instructions applicable
+#
+#SHELL = command.com
+SRCDIR=.
+CC = gcc
+LD = gcc
+
+ifeq ($(DEBUG),Y)
+OPTIMIZE = -g
+LDOPT = -g
+LDEXTRA=
+else
+OPTIMIZE = -O2 -DNDEBUG
+LDOPT = -O2
+LDEXTRA=
+endif
+
+ifeq ($(TRACEMEM),Y)
+MEMTRACE = -DTRACEMEM
+else
+MEMTRACE =
+endif
+
+ifeq ($(FLISTS),N)
+USEFLISTS = -DNOFLISTS
+else
+USEFLISTS =
+endif
+
+CEXTRA = -DPOSIX_SOURCE -DAMIGA -DGCC -funsigned-char
+EEXTRA =
+EXTQUEUE_OBJS = extstack.$(OBJ) rexxbif.$(OBJ)
+EXTQUEUE_SHOBJS = #extstack.sho rexxbif.sho
+DYN_COMP =
+LIBS =
+TCPLIBS =
+SHLIBS =
+SHL =
+LD_RXLIB1=
+LD_RXLIB2=
+SHL_LD=
+SHL_TARGETS= rxstack rxqueue
+LDEXTRA1=
+LIBPRE = lib
+LIBFILE = regina
+OBJECTS = $(OFILES)
+OSAVE = .sav
+MV= +ren
+#
+SHLFILE = regina
+OBJ = o
+EXE =
+LIBPST = a
+LIBEXE = ar
+LIBFLAGS = cr $(LIBPRE)$(LIBFILE).$(LIBPST)
+LIBLINK = -L. -l$(LIBFILE)
+LINKSHL = $(LIBPRE)$(SHLFILE).$(SHL)
+RXLIB = rxlib
+RM = -delete
+THREADING =
+MT_FILE = mt_notmt
+OS_FILE = os_other
+
+RANLIB_LIB=-ranlib $(LIBPRE)$(LIBFILE).a
+
+#
+# If your compiler can handle the combination of: -c -o file.sho, then
+# uncomment the macro CC2O and comment out the 3 macros before CC2O
+#
+CC2O=-o $@
+#
+# Include the common rules for the interpreter
+#
+include $(SRCDIR)/makefile.com
+#
+# End of makefile
+#

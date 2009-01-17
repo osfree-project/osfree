@@ -1,0 +1,161 @@
+#
+# Makefile for Regina REXX Interpreter
+#
+# Using Cygwin to build for SkyOS
+#
+SKYOS_BASE = c:/skyos
+SKYOS_INC  = $(SKYOS_BASE)/include
+SKYOS_LIB  = $(SKYOS_BASE)/lib
+#LIB_SKYGI = $(SKYOS_LIB)/libskygi.a $(SKYOS_LIB)/librsm.a
+#LIB_LIBNEWC  = $(SKYOS_LIB)/libnewc.a
+LIB_LIBM     = $(SKYOS_LIB)/libm.a
+#LIB_NET = $(SKYOS_LIB)/libnet.a
+LIB_SKYGI = -lskygi
+LIB_LIBNEWC  = -lnewc
+#LIB_LIBM     = -lm
+LIB_NET = -lnet -lrsm
+
+SHARED_LIBSKY = $(SKYOS_BASE)/lib/libsky.lib
+SHARED_LIBRSM = $(SKYOS_BASE)/lib/librsm.lib
+SHARED_LIBSKYGI = $(SKYOS_BASE)/lib/libskygi.lib
+SHARED_LIBLINUX = #$(SKYOS_BASE)/lib/liblinux.lib
+SHARED_LIBNET = $(SKYOS_BASE)/lib/libnet.lib
+STATIC_SKYLIBS = #$(SKYOS_BASE)/lib/libm.a
+SHARED_GUILIBS = $(SHARED_LIBSKY) $(SHARED_LIBRSM) $(SHARED_LIBSKYGI) $(SHARED_LIBLINUX) $(SHARED_LIBNET) $(STATIC_SKYLIBS) #div.o
+LIB_CRT0 = $(SKYOS_BASE)/lib/crt0_pe.o
+LD_FLAGS = $(LD_DEBUG_FLAGS) -L $(SKYOS_BASE)/lib $(LIB_CRT0) --subsystem native -e start
+
+CYGWIN = c:/cygwin
+
+
+SHELL =        sh
+SRCDIR=$(REGINA_SRCDIR)
+CC = gcc
+LD = ld
+include $(SRCDIR)\regina.ver
+VERDOT = $(VER_DOT)
+VERDATE = $(VER_DATE)
+
+
+ifeq ($(DEBUG),Y)
+OPTIMIZE = -g -DDEBUG
+LDOPT = -g
+LDEXTRA=
+ISODIR = debug
+else
+OPTIMIZE = -O2 -DNDEBUG -g
+LDOPT = -O2 -g
+LDEXTRA=#-strip $@
+ISODIR = opt
+endif
+
+ifeq ($(TRACEMEM),Y)
+MEMTRACE = -DTRACEMEM
+else
+MEMTRACE =
+endif
+
+ifeq ($(FLISTS),N)
+USEFLISTS = -DNOFLISTS
+else
+USEFLISTS =
+endif
+SKYOS_C_FLAGS = -nostdinc -nostdlib -fno-builtin -funsigned-char -Wall -I$(SKYOS_INC) -I$(SKYOS_INC)/sys -I$(SKYOS_INC)/skyos -DREGINA_SHARE_DIRECTORY=\"/boot/programs/rexx/share\"
+SKYOS_LD_FLAGS = -nostdlib $(LD_FLAGS) -Map $@.map
+
+CEXTRA = -DSKYOS -funsigned-char $(SKYOS_C_FLAGS) -DREGINA_VERSION_DATE=\"$(VER_DATE)\" -DREGINA_VERSION_MAJOR=\"$(VER_MAJOR)\" -DREGINA_VERSION_MINOR=\"$(VER_MINOR)\" -DREGINA_VERSION_SUPP=\"$(VER_SUPP)\"  #-DPOSIX_SOURCE
+EEXTRA = $(SKYOS_LD_FLAGS)
+EXTQUEUE_OBJS =        extstack.$(OBJ) rexxbif.$(OBJ)
+EXTQUEUE_SHOBJS      = extstack.sho rexxbif.sho
+DYN_COMP = -DDYNAMIC #-D_REENTRANT -DPOSIX
+LIBS = $(SHARED_GUILIBS) #$(LIB_SKYGI) $(LIB_CRT0) $(LIB_LIBNEWC) $(LIB_LIBM) $(LIB_NET)
+TCPLIBS        =
+SHLDEF = $(REGINA_SRCDIR)/regina_skyos_dll.def
+TEST1DEF = $(REGINA_SRCDIR)/test1_skyos_dll.def
+TEST2DEF = $(REGINA_SRCDIR)/test2_skyos_dll.def
+SHLIBS =
+SHL = dll
+LD_RXLIB1=
+LD_RXLIB2=
+SHL_TARGETS= rxstack.app rxqueue.app regina.app librxtest1.dll librxtest2.dll
+
+SHL_LD = dlltool --machine i386 --output-exp libregina.exp --input-def $(SHLDEF) --dllname libregina.dll --output-lib libregina.lib
+SHL1 = ld $(SHOFILES) -o libregina.dll libregina.exp $(LIBS) --image-base 0x69500000 --entry _DllMain -Map mapfile
+
+TEST1_LD= dlltool --machine i386 --output-exp libtest1.exp --input-def $(TEST1DEF) --dllname librxtest1.dll
+TEST1_SHL1= ld $(LDOPT) test1.sho -o librxtest1.dll libtest1.exp $(LIBS) libregina.lib --image-base 069600000 --entry _DllMain -Map mapfile
+
+TEST2_LD= dlltool --machine i386 --output-exp libtest2.exp --input-def $(TEST2DEF) --dllname librxtest2.dll
+TEST2_SHL1= ld $(LDOPT) test2.sho -o librxtest2.dll libtest2.exp $(LIBS) libregina.lib --image-base 069700000 --entry _DllMain -Map mapfile
+
+LDEXTRA1=
+LIBPRE = lib
+LIBFILE        = regina
+OBJECTS        = `cat $(SRCDIR)/go32.rsp`
+OSAVE =        .sav
+MV= +ren
+#
+SHLFILE        = regina
+OBJ = o
+EXE = .app
+LIBPRE = lib
+LIBPST = a
+LIBEXE = ar
+LIBFLAGS = cr $(LIBPRE)$(LIBFILE).$(LIBPST)
+LIBLINK        = -L. -l$(LIBFILE) $(LIBS)
+LINKSHL        = $(LIBPRE)$(SHLFILE).$(SHL)
+RXLIB =        rxlib
+RM = -del
+THREADING =
+MT_FILE        = mt_notmt
+
+RANLIB_LIB=-ranlib $(LIBPRE)$(LIBFILE).a
+
+CC2O=-o        $@
+#
+# Include the common rules for the interpreter
+#
+include        $(SRCDIR)/makefile.com
+#
+# Make temporary ISO image for testing SkyOS under VirtualPC
+iso: all pkg
+	-mkdir -p ../iso/$(ISODIR)
+	-mkdir -p ../iso/rexx
+	cp *.pkg ../iso/$(ISODIR)
+	cp *.app ../iso/$(ISODIR)
+	cp *.dll ../iso/$(ISODIR)
+	cp *.lib iso
+	cp $(SRCDIR)/rexxsaa.h ../iso
+	cp $(SRCDIR)/demo/*.rexx ../iso/rexx
+	cp $(SRCDIR)/*.mts ../iso/rexx
+	(cd ../iso;zip -r regina.zip *)
+	(cd ../iso;mkisofs -v -r -T -l -L -J -V "Regina for SkyOS" -A "Regina" -o ../regina.iso .)
+	isoinfo -l -i ../regina.iso
+
+pkg: all
+#	-mkdir -p programs/rexx/extensions
+	-mkdir -p programs/rexx/demo
+	-mkdir -p programs/rexx/share
+	regina $(SRCDIR)/common/fixrc.rexx $(SRCDIR)/install.sif ./install.sif $(VERDOT) $(VERDATE)
+	strip rexx.app execiser.app rxstack.app rxqueue.app
+	cp rexx.app programs/rexx
+	cp execiser.app programs/rexx
+	cp rxstack.app programs/rexx
+	cp rxqueue.app programs/rexx
+	cp $(SRCDIR)/cyg-$(USER)/*.mtb programs/rexx/share
+
+#	strip regina.app libregina.dll librxtest1.dll librxtest2.dll
+#	cp regina.app programs/rexx
+#	cp libregina.dll programs/rexx
+#	cp librxtest1.dll programs/rexx/extensions
+#	cp librxtest2.dll programs/rexx/extensions
+#	cp $(SRCDIR)/demo/dynfunc.rexx programs/rexx/demo
+	cp $(SRCDIR)/demo/rexxcps.rexx programs/rexx/demo
+	cp $(SRCDIR)/demo/newstr.rexx programs/rexx/demo
+	cp $(SRCDIR)/demo/block.rexx programs/rexx/demo
+	cp $(SRCDIR)/README.SkyOS programs/rexx
+	cp $(SRCDIR)/COPYING-LIB programs/rexx
+	zip -r Regina-REXX-SkyOS-$(VERDOT).pkg install.sif programs
+#
+# End of makefile
+#

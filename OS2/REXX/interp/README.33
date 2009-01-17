@@ -1,0 +1,49 @@
+                          Regina 3.3
+                        25 April 2004
+
+Changes in this release (from 3.2)
+----------------------------------
+o Integration of Florian's Generic Call Interface (GCI) into Regina.
+  Supported platforms to date are Windows, OS/2 and Linux.
+o Fixed bug with TRACE F and its "conversion" into "N" on a subsequent call
+  to TRACE BIF.
+o Addition of Polish native language support courtesy of Bartosz Kozlowski.
+o PARSE LOWER and PARSE CASELESS added.
+o Major changes to EXIT handling
+o Regina determines internal and external queues by the fact that external
+  queues MUST have a '@' in the name. Therefore any time a queue name is
+  used; in RXQUEUE or ADDRESS...WITH, then if the queue name has a '@'
+  then Regina treats this as an external queue, and requires the RXSTACK
+  server to be running.
+o New BIF POOLID. Allows the current variable pool number to be obtained
+  (effectively the level of called subroutines).
+o VALUE BIF allows environment to be a number corresponding to a variable
+  pool number. Therefore unEXPOSEd variables in any subroutine can be accessed.
+o API functions Rexx*Dll() now implemented.
+o Locale support for BIFs like TRANSLATE now supported, and can be overridden 
+  from command line. (-l switch)
+o Algorithm for determining where a Rexx program is (either from command line, or
+  a CALL statement called.  Apart from a change in the precedence of directories
+  an environment variable REGINA_SUFFIXES is used to supplement the file extensions
+  that Regina uses to append to the passed file name. More details can be found in the
+  Regina documentation.
+o Regina OPTIONS can now be specified as an environment variable, which will set the
+  default values for OPTIONS. The OPTIONS instruction can still be used and will
+  override the defaults.
+o A new OPTION has been added; CALLS_AS_FUNCS to allow programs that use the non-ANSI
+  format of "CALL label(arg1,arg2)". Although this is implemented as an OPTION, it can
+  only be set via the REGINA_OPTIONS environment variable!
+o Another new OPTION; QUEUES_301 to duplicate the behaviour of Regina queues; both 
+  internal and external.
+o Some memory leak fixes with INTERPRET and some "handle leaks" under Windows fixed.
+o Initial support for SkyOS
+o Fixed some old bugs: (documented in BUGS file)
+  19991216-29512, 20000319-63722, 36
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

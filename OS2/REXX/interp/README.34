@@ -1,0 +1,57 @@
+                          Regina 3.4
+                        15 September 2007
+
+Changes in this release (from 3.3)
+----------------------------------
+o Fixed bugs 918739, 952229, 952380, 961301, 972850, 982062, 995505, 1000227,
+  1009248, 1021823, 1026572, 1107760, 1116894, 1107763, 1107759, 1107969,
+  1109296, 1112956, 1113373
+o Cygwin port will now return "UNIX" as the first word from
+  PARSE SOURCE
+o The default behaviour of LINEOUT(fn) has reverted back to the
+  "normal" behaviour. It now behaves as a "close" of the file.
+  If the STRICT_ANSI OPTION is set, it will NOT close the file.
+o Regina now has support for error messages in Turkish; thanks to
+  Haluk Polat
+o Fix crash bug with DATE() and TIME() converting to type 'T' when date/time
+  is negative.
+o Improved speed of SUBSTR() BIF courtesy of Julian Onions
+o Another 32-bit DOS port using OpenWatcom's DOS4G
+o Better VMS support courtesy of Bernard Giroud
+o Fixed minor memory leak with ADDRESS WITH
+o Better support for MinGW compiler
+o Builtin external libraries with static dynamic loading now displayed
+  with -v command line switch to "regina" executable
+o "threader" test program can now be used as a harness to test thread-safe
+  Rexx programs
+o ADDRESS BIF now correctly reports more details when an option of I, O or
+  E is passed. This is now correct ANSI behaviour.
+o Preliminary support for large files (ie > 4gb)
+o Performance of large stems significantly improved.
+o Use of 64bit time functions on Win32 allows negative time_t values
+o EPOC32 port now builds again.
+o Added PUTENV BIF to enable environment variables to be deleted.
+o Changed syntax of LOWER and UPPER BIFs, to have similar arguments to
+  SUBSTR. It is now possible to lower/upper case portion of a string.
+o On Un*x platforms where GCI is supported, including GCI is now the default.
+  If you DON'T want GCI included, configure with: --disable-gci switch
+o The default type of function pointers to API functions is now
+  "strongly" typed as the default. To use "weak" typing, #define
+  RX_WEAKTYPING. (API developers only need to take note of this)
+o Changes to allow Regina to be built with a C++ compiler.
+o Fixed bug with QUALIFY BIF. Now works correctly when file does not exist.
+o Added 'I' ISO DATE BIF format option.
+o Documented 'J' TIME BIF format option.
+o Added Object Rexx line comment; "--" based on code from Robert Hodge.
+o Added .LINE reserved symbol which provides the line number of the current file
+  based on code from Robert Hodge.
+o Builds as native 64bit application on Windows XP 64bit.
+o GCI builds under Cygwin.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  mark@rexx.org  http://www.rexx.org/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL, Rexx/CURL, etc.
+* Maintainer of Regina Rexx interpreter and Rexx/Tk
+* Use Rexx? join the Rexx Language Association: http://www.rexxla.org/
+------------------------------------------------------------------------

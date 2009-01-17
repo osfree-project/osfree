@@ -1,0 +1,790 @@
+#
+# Makefile for Regina REXX Interpreter
+#
+# Using gcc 3.3.5 on OS/2 with GNU make
+#
+
+SRCDIR=$(REGINA_SRCDIR)
+CC = gcc
+
+include $(SRCDIR)\regina.ver
+VERDOT = $(VER_DOT)
+VERDATE = $(VER_DATE)
+
+ifeq ($(DEBUG),Y)
+OPTIMIZE = -g -fbounds-checking -Wall
+OPTIMIZE_DLL = -g -Wall
+STRIP_FLAG =
+LXLITE = echo
+else
+OPTIMIZE = -O3 -fomit-frame-pointer -Wall -DNDEBUG
+OPTIMIZE_DLL = -O -Wall -DNDEBUG
+STRIP_FLAG = -s
+LXLITE = lxlite
+endif
+
+ifeq ($(MULTI),N)
+THREADING =
+THREADING_LINK =
+THREADING_FILE = mt_notmt
+else
+THREADING = -Zmt -DREGINA_MULTI
+THREADING_LINK = -Zmt
+THREADING_FILE = mt_os2
+endif
+
+DYN_COMP = -DDYNAMIC -Zdll $(DYN_CRT)
+
+ifeq ($(TRACEMEM),Y)
+MEMTRACE = -DTRACEMEM
+else
+MEMTRACE =
+endif
+
+ifeq ($(FLISTS),N)
+USEFLISTS = -DNOFLISTS
+else
+USEFLISTS =
+endif
+
+#
+# GCI is default
+#
+ifeq ($(GCI),N)
+GCI_SHO =
+HAVE_GCI =
+else
+GCI_SHO = gci_call.obj gci_convert.obj gci_execute.obj gci_helper.obj \
+   gci_prepare.obj gci_reginabridge.obj gci_rxfuncdefine.obj \
+   gci_tree.obj
+HAVE_GCI = -DHAVE_GCI -I$(SRCDIR)\gci -I.
+endif
+
+DYN_CRT =  -Zcrtdll -Zomf -mprobe
+CEXTRA = -DOS2 -DEMX -funsigned-char $(HAVE_GCI) -DREGINA_VERSION_DATE=\"$(VER_DATE)\" -DREGINA_VERSION_MAJOR=\"$(VER_MAJOR)\" -DREGINA_VERSION_MINOR=\"$(VER_MINOR)\" -DREGINA_VERSION_SUPP=\"$(VER_SUPP)\"
+EEXTRA =
+DYN_COMP = -DDYNAMIC -Zdll $(DYN_CRT)
+LIBS = #-ll -lm
+SOCKET = -lsocket
+SHLIBS = $(SHLLIB).$(SHLPST)
+SHLIMPLIB = $(SHLLIB).$(SHLPST)
+SHLLIB = $(SHLFILE)
+DYNAMIC_LDFLAGS = $(THREADING_LINK) $(STRIP_FLAG) -Zcrtdll -Zomf -mprobe
+SHLDEF = $(SRCDIR)\$(SHLLIB)_os2_dll.def
+SHL1 = emximp -o $(SHLLIB).$(LIBPST) $(SHLDEF)
+SHL2 = emximp -o $(SHLLIB).lib $(SHLDEF)
+SHL = dll
+SHLPST = lib
+RXLIB = dll
+OBJ=o
+EXE=.exe
+LD_RXLIB_PRE = $(CC) -Zdll -Zomf -Zcrtdll #-Zso -Zsys
+LD_RXLIB1 = -Zmap=test1.map -o rxtest1.dll $(SRCDIR)\test1_os2_dll.def $(SHLLIB).lib
+LD_RXLIB2 = -Zmap=test2.map -o rxtest2.dll $(SRCDIR)\test2_os2_dll.def $(SHLLIB).lib
+SHL_LD=gcc $(THREADING_LINK) -Zdll -Zcrtdll -Zomf -Zmap=regina.map -o $(SHLFILE).$(SHL) $(SHOFILES) $(SHLDEF) $(SOCKET)
+SHL_TARGETS = $(SHLFILE).$(SHL) $(SHLFILE)$(EXE) pmregina.exe rxtest1.$(SHL) rxtest2.$(SHL)
+LDEXTRA=emxbind
+LIBPRE =
+LIBFILE = rexx
+SHLFILE = regina
+LIBEXE = ar
+LIBPST = a
+LIBFLAGS = cr $(LIBFILE).$(LIBPST)
+LIBLINK = $(LIBFILE).$(LIBPST)
+OBJECTS = $(OFILES)
+OSAVE = .o.save
+CC2O=-o $@
+RC = rc reginaos2.rc $@
+MV=-ren
+RM=-del
+
+RANLIB_LIB=#ranlib $(LIBFILE).a
+
+MISCDEFS = -I$(SRCDIR) -Wno-char-subscripts
+#DEBUG    = #-g -DNDEBUG #-Dlint
+PROF     = #-p #g
+#OPTIMIZE = -O -DNDEBUG
+
+COPT = $(DEBUGFLAG) $(CEXTRA) $(OPTIMIZE) $(PROF) $(MISCDEFS) $(MEMTRACE) $(USEFLISTS)
+COPT_DLL = $(DEBUGFLAG) $(CEXTRA) $(OPTIMIZE_DLL) $(PROF) $(MISCDEFS) $(MEMTRACE) $(USEFLISTS) $(THREADING)
+LINKOPT = $(DEBUGFLAG) $(OPTIMIZE) $(PROF) $(EEXTRA)
+LINKOPT_DLL = $(DEBUGFLAG) $(OPTIMIZE_DLL) $(PROF) $(EEXTRA)
+OTHERCOPT = $(DEBUGFLAG) $(OPTIMIZE) $(PROF) $(CEXTRA) $(MISCDEFS) $(MEMTRACE) $(USEFLISTS)
+OTHERCOPT_DLL = $(DEBUGFLAG) $(OPTIMIZE_DLL) $(PROF) $(CEXTRA) $(MISCDEFS) $(MEMTRACE) $(USEFLISTS) $(THREADING)
+
+YACC = yacc
+#YACC = bison -ly #-d #-lyt
+
+LEX = lex
+#LEX = flex -8 #-d
+#LL = -L\store\lib -lfl
+
+README = $(SRCDIR)\README.* COPYING-LIB
+
+FILES = funcs builtin error variable interprt debug dbgfuncs \
+	memory parsing files misc os2funcs unxfuncs arxfuncs cmsfuncs shell rexxext stack \
+	tracing interp cmath convert strings library strmath signals \
+	macros envir wrappers options os_os2 os_other #r2perl
+
+CSRCFILES = $(SRCDIR)\funcs.c $(SRCDIR)\builtin.c $(SRCDIR)\error.c $(SRCDIR)\variable.c \
+	$(SRCDIR)\interprt.c $(SRCDIR)\debug.c $(SRCDIR)\dbgfuncs.c $(SRCDIR)\memory.c $(SRCDIR)\parsing.c $(SRCDIR)\files.c \
+	$(SRCDIR)\misc.c $(SRCDIR)\unxfuncs.c $(SRCDIR)\arxfuncs.c $(SRCDIR)\cmsfuncs.c $(SRCDIR)\os2funcs.c $(SRCDIR)\shell.c $(SRCDIR)\rexxext.c $(SRCDIR)\stack.c \
+	$(SRCDIR)\tracing.c $(SRCDIR)\interp.c $(SRCDIR)\cmath.c $(SRCDIR)\convert.c $(SRCDIR)\strings.c $(SRCDIR)\library.c \
+	$(SRCDIR)\strmath.c $(SRCDIR)\signals.c $(SRCDIR)\macros.c $(SRCDIR)\envir.c $(SRCDIR)\expr.c \
+	$(SRCDIR)\wrappers.c $(SRCDIR)\options.c $(SRCDIR)\os_os2.c \
+	$(SRCDIR)\os_other.c
+
+OFILES = funcs.$(OBJ) builtin.$(OBJ) error.$(OBJ) variable.$(OBJ) \
+	interprt.$(OBJ) debug.$(OBJ) dbgfuncs.$(OBJ) memory.$(OBJ) parsing.$(OBJ) files.$(OBJ) \
+	misc.$(OBJ) unxfuncs.$(OBJ) arxfuncs.$(OBJ) cmsfuncs.$(OBJ) os2funcs.$(OBJ) shell.$(OBJ) rexxext.$(OBJ) stack.$(OBJ) \
+	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strings.$(OBJ) library.$(OBJ) \
+	strmath.$(OBJ) signals.$(OBJ) macros.$(OBJ) envir.$(OBJ) expr.$(OBJ) mt_notmt.$(OBJ) instore.$(OBJ) \
+	yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) os_os2.$(OBJ) wrappers.$(OBJ) \
+	extstack.$(OBJ) rexxbif.$(OBJ) os_other.$(OBJ)
+
+SHOFILES = funcs.obj builtin.obj error.obj variable.obj \
+	interprt.obj debug.obj dbgfuncs.obj memory.obj parsing.obj files.obj \
+	misc.obj unxfuncs.obj arxfuncs.obj cmsfuncs.obj shell.obj os2funcs.obj rexxext.obj stack.obj \
+	tracing.obj interp.obj cmath.obj convert.obj strings.obj library.obj \
+	strmath.obj signals.obj macros.obj envir.obj expr.obj $(THREADING_FILE).obj \
+	yaccsrc.obj lexsrc.obj wrappers.obj options.obj os_os2.obj \
+	drexx.obj client.obj rexxsaa.obj instore.obj \
+	extstack.obj rexxbif.obj os_other.obj \
+	$(GCI_SHO)
+
+DEMODIR = $(SRCDIR)\demo
+DEMOFILES = $(DEMODIR)\*
+TRIPDIR = $(SRCDIR)\trip
+TRIPFILES = $(TRIPDIR)\*
+
+ALLSRC = $(CFILES) $(HFILES)
+
+HFILES = $(SRCDIR)\rexx.h $(SRCDIR)\defs.h $(SRCDIR)\extern.h $(SRCDIR)\regina_t.h \
+	$(SRCDIR)\config.h $(SRCDIR)\strings.h $(SRCDIR)\configur.h $(SRCDIR)\yaccsrc.h \
+	$(SRCDIR)\rxiface.h $(SRCDIR)\rexxsaa.h $(SRCDIR)\utsname.h
+
+CFILES = $(SRCDIR)\yaccsrc.c $(SRCDIR)\lexsrc.c $(CSRCFILES) $(SRCDIR)\execiser.c \
+	$(SRCDIR)\rexxsaa.c $(SRCDIR)\rexx.c $(SRCDIR)\regina.c $(SRCDIR)\client.c \
+	$(SRCDIR)\r2perl.c $(SRCDIR)\test1.c $(SRCDIR)\test2.c
+
+MTSSRC = $(SRCDIR)\en.mts $(SRCDIR)\pt.mts $(SRCDIR)\no.mts \
+	$(SRCDIR)\de.mts $(SRCDIR)\es.mts $(SRCDIR)\pl.mts \
+	$(SRCDIR)\tr.mts
+
+GCIHEADERS = $(SRCDIR)\gci\gci.h $(SRCDIR)\gci\embedded.h gci_convert.h
+
+#.SUFFIXES: .sho $(SUFFIXES)
+#
+# Do not use default suffixes rule
+#
+.SUFFIXES:
+
+all : rexx$(EXE) $(LIBFILE).$(LIBPST) execiser$(EXE) rxstack$(EXE) rxqueue$(EXE) $(SHL_TARGETS) mtb_files threader$(EXE) rexx.dll rexxapi.dll
+
+$(CSRCFILES) : $(SRCDIR)\rexx.h
+
+$(SRCDIR)\rexx.h : $(SRCDIR)\extern.h $(SRCDIR)\strings.h $(SRCDIR)\defs.h $(SRCDIR)\regina_t.h $(SRCDIR)\mt.h
+
+rexx$(EXE) : $(OFILES) rexx.$(OBJ) nosaa.$(OBJ)
+	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rexx$(EXE) $(OBJECTS) rexx.$(OBJ) nosaa.$(OBJ) $(LIBS) $(SOCKET)
+	-copy $(SRCDIR)\reginaos2.ico
+	-copy  $(SRCDIR)\reginaos2.rc
+	-$(RC)
+	-$(LXLITE) rexx$(EXE)
+
+regina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
+	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o regina $(SRCDIR)\regina_os2.def regina.obj $(LIBS) $(SHLIBS) $(SOCKET)
+
+regina$(EXE) : regina
+	-copy $(SRCDIR)\reginaos2.ico
+	-copy  $(SRCDIR)\reginaos2.rc
+	-$(RC)
+	-$(LXLITE) regina$(EXE)
+
+pmregina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
+	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o pmregina regina.obj $(LIBS) $(SHLIBS) $(SOCKET) $(SRCDIR)\pmregina.def
+
+pmregina$(EXE) : pmregina
+	-copy $(SRCDIR)\reginaos2.ico
+	-copy  $(SRCDIR)\reginaos2.rc
+	-$(RC)
+	-$(LXLITE) pmregina$(EXE)
+
+execiser : execiser.obj $(SHLFILE).$(SHL)
+	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o execiser execiser.obj $(LIBS) $(SHLIBS) $(SOCKET)
+
+threader : threader.obj $(SHLFILE).$(SHL)
+	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o threader threader.obj $(LIBS) $(SHLIBS) $(SOCKET)
+
+execiser$(EXE) : execiser
+	-$(LXLITE) execiser$(EXE)
+
+threader$(EXE) : threader
+	-$(LXLITE) threader$(EXE)
+
+rxqueue$(EXE) : $(OFILES) rxqueue.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ)
+	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rxqueue$(EXE) rxqueue.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) $(SOCKET)
+	-$(LXLITE) rxqueue$(EXE)
+
+rxstack$(EXE) : $(OFILES) rxstack.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ)
+	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rxstack$(EXE) rxstack.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) $(SOCKET)
+	-$(LXLITE) rxstack$(EXE)
+
+$(LIBFILE).$(LIBPST): $(OFILES) client.$(OBJ) drexx.$(OBJ) rexxsaa.$(OBJ)
+	$(LIBEXE) $(LIBFLAGS) $(OBJECTS) client.$(OBJ) drexx.$(OBJ) rexxsaa.$(OBJ)
+	$(RANLIB_LIB)
+	emxomf -p 32 -o $(LIBFILE).$(SHLPST) $(LIBFILE).$(LIBPST)
+
+$(SHLFILE).$(SHL): $(SHOFILES) $(SHLDEF)
+	$(SHL_LD)
+	$(SHL1)
+	$(SHL2)
+	$(SHL3)
+	$(SHL4)
+	-copy $(SRCDIR)\reginaos2.ico
+	-copy  $(SRCDIR)\reginaos2.rc
+	-$(RC)
+	-$(LXLITE) $(SHLFILE).$(SHL)
+
+rexx.dll: os2rexx.obj
+	gcc $(THREADING_LINK) -Zdll -Zcrtdll -Zomf -Zmap=rexx.map -o rexx.dll os2rexx.obj $(SRCDIR)\os2\rexx.def
+
+rexxapi.dll: os2rexxapi.obj
+	gcc $(THREADING_LINK) -Zdll -Zcrtdll -Zomf -Zmap=rexxapi.map -o rexxapi.dll os2rexxapi.obj $(SRCDIR)\os2\rexxapi.def
+
+os2rexx.obj: $(SRCDIR)\os2\rexx.c
+	$(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c -o os2rexx.obj $(SRCDIR)\os2\rexx.c
+
+os2rexxapi.obj: $(SRCDIR)\os2\rexxapi.c
+	$(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c -o os2rexxapi.obj $(SRCDIR)\os2\rexxapi.c
+
+#
+# Convert .mts to .mtb
+#
+mtb_files: msgcmp$(EXE) $(MTSSRC)
+	msgcmp $(MTSSRC)
+
+msgcmp$(EXE): msgcmp.$(OBJ)
+	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o msgcmp$(EXE) msgcmp.$(OBJ)
+
+msgcmp.$(OBJ): $(SRCDIR)\msgcmp.c
+	$(CC) $(COPT) $(CC2O) -c $(SRCDIR)\msgcmp.c
+
+#
+# Rules for static objects
+#
+#$(SRCDIR)\lexsrc.c: $(SRCDIR)\lexsrc.l
+#       flex -Scontrib\flex.skl -8 -o$(SRCDIR)\lexsrc.c $(SRCDIR)\lexsrc.l
+
+#$(SRCDIR)\yaccsrc.c $(SRCDIR)\yaccsrc.h: $(SRCDIR)\yaccsrc.y
+#       bison -d -o$(SRCDIR)\yaccsrc.c $(SRCDIR)\yaccsrc.y
+
+funcs.$(OBJ) :   $(SRCDIR)\funcs.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\funcs.c
+
+builtin.$(OBJ) : $(SRCDIR)\builtin.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\builtin.c
+
+error.$(OBJ) :   $(SRCDIR)\error.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\error.c
+
+variable.$(OBJ) :$(SRCDIR)\variable.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\variable.c
+
+interprt.$(OBJ) :$(SRCDIR)\interprt.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\interprt.c
+
+debug.$(OBJ) :   $(SRCDIR)\debug.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\debug.c
+
+dbgfuncs.$(OBJ) :$(SRCDIR)\dbgfuncs.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\dbgfuncs.c
+
+memory.$(OBJ) :  $(SRCDIR)\memory.c      $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\memory.c
+
+parsing.$(OBJ) : $(SRCDIR)\parsing.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\parsing.c
+
+files.$(OBJ) :   $(SRCDIR)\files.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\files.c
+
+misc.$(OBJ) :    $(SRCDIR)\misc.c        $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\misc.c
+
+unxfuncs.$(OBJ) :$(SRCDIR)\unxfuncs.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\unxfuncs.c
+
+arxfuncs.$(OBJ) :$(SRCDIR)\arxfuncs.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\arxfuncs.c
+
+os2funcs.$(OBJ) :$(SRCDIR)\os2funcs.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\os2funcs.c
+
+cmsfuncs.$(OBJ) :$(SRCDIR)\cmsfuncs.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\cmsfuncs.c
+
+shell.$(OBJ) :   $(SRCDIR)\shell.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\shell.c
+
+rexxext.$(OBJ) : $(SRCDIR)\rexxext.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\rexxext.c
+
+stack.$(OBJ) :   $(SRCDIR)\stack.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\stack.c
+
+tracing.$(OBJ) : $(SRCDIR)\tracing.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\tracing.c
+
+interp.$(OBJ) :  $(SRCDIR)\interp.c      $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\interp.c
+
+cmath.$(OBJ) :   $(SRCDIR)\cmath.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\cmath.c
+
+convert.$(OBJ) : $(SRCDIR)\convert.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\convert.c
+
+strings.$(OBJ) : $(SRCDIR)\strings.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\strings.c
+
+library.$(OBJ) : $(SRCDIR)\library.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\library.c
+
+strmath.$(OBJ) : $(SRCDIR)\strmath.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\strmath.c
+
+signals.$(OBJ) : $(SRCDIR)\signals.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\signals.c
+
+macros.$(OBJ) :  $(SRCDIR)\macros.c      $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\macros.c
+
+envir.$(OBJ) :   $(SRCDIR)\envir.c       $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\envir.c
+
+expr.$(OBJ) :    $(SRCDIR)\expr.c        $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\expr.c
+
+wrappers.$(OBJ) :$(SRCDIR)\wrappers.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\wrappers.c
+
+options.$(OBJ) : $(SRCDIR)\options.c     $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\options.c
+
+os_os2.$(OBJ) :  $(SRCDIR)\os_os2.c      $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\os_os2.c
+
+os_other.$(OBJ) :  $(SRCDIR)\os_other.c  $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\os_other.c
+
+rexx.$(OBJ) :    $(SRCDIR)\rexx.c        $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\rexx.c
+
+client.$(OBJ) :    $(SRCDIR)\client.c    $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\client.c
+
+rexxsaa.$(OBJ) :    $(SRCDIR)\rexxsaa.c  $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\rexxsaa.c
+
+nosaa.$(OBJ) :    $(SRCDIR)\nosaa.c  $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) $(CC2O) -c $(SRCDIR)\nosaa.c
+
+regina.obj :  $(SRCDIR)\regina.c      $(SRCDIR)\rexx.h
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -c $(SRCDIR)\regina.c
+
+drexx.$(OBJ) : $(SRCDIR)\rexx.c          $(SRCDIR)\rexx.h
+	       $(CC) $(COPT) -c -o drexx.$(OBJ) -DRXLIB $(SRCDIR)\rexx.c
+
+mt_notmt.$(OBJ) : $(SRCDIR)\mt_notmt.c
+	        $(CC) $(COPT) -c -o mt_notmt.$(OBJ) $(SRCDIR)\mt_notmt.c
+
+mt_os2.$(OBJ) : $(SRCDIR)\mt_os2.c
+	        $(CC) $(COPT) -c -o mt_os2.$(OBJ) $(SRCDIR)\mt_os2.c
+
+instore.$(OBJ) : $(SRCDIR)\instore.c
+	        $(CC) $(COPT) -c -o instore.$(OBJ) $(SRCDIR)\instore.c
+
+extstack.$(OBJ) : $(SRCDIR)\extstack.c $(SRCDIR)\rexxbif.h $(SRCDIR)\extstack.h
+	        $(CC) $(COPT) -c -o extstack.$(OBJ) $(SRCDIR)\extstack.c
+
+eextstack.$(OBJ) : $(SRCDIR)\extstack.c $(SRCDIR)\rexxbif.h $(SRCDIR)\extstack.h
+	        $(CC) -DEXTERNAL_TO_REGINA $(COPT) -c -o eextstack.$(OBJ) $(SRCDIR)\extstack.c
+
+rexxbif.$(OBJ) : $(SRCDIR)\rexxbif.c $(SRCDIR)\rexxbif.h
+	        $(CC) $(COPT) -c -o rexxbif.$(OBJ) $(SRCDIR)\rexxbif.c
+
+erexxbif.$(OBJ) : $(SRCDIR)\rexxbif.c $(SRCDIR)\rexxbif.h $(SRCDIR)\extstack.h
+	        $(CC) -DEXTERNAL_TO_REGINA $(COPT) -c -o erexxbif.$(OBJ) $(SRCDIR)\rexxbif.c
+
+rxqueue.$(OBJ) : $(SRCDIR)\rxqueue.c $(SRCDIR)\rexxbif.h $(SRCDIR)\extstack.h
+	        $(CC) -DEXTERNAL_TO_REGINA $(COPT) -c -o rxqueue.$(OBJ) $(SRCDIR)\rxqueue.c
+
+rxstack.$(OBJ) : $(SRCDIR)\rxstack.c $(SRCDIR)\rexxbif.h $(SRCDIR)\extstack.h
+	        $(CC) -DEXTERNAL_TO_REGINA $(COPT) -c -o rxstack.$(OBJ) $(SRCDIR)\rxstack.c
+
+lexsrc.$(OBJ) : $(SRCDIR)\lexsrc.c $(SRCDIR)\rexx.h $(SRCDIR)\yaccsrc.h
+	       $(CC) $(OTHERCOPT) $(CC2O) -c $(SRCDIR)\lexsrc.c
+
+yaccsrc.$(OBJ) : $(SRCDIR)\yaccsrc.c $(SRCDIR)\defs.h $(SRCDIR)\rexx.h
+	       $(CC) $(OTHERCOPT) $(CC2O) -c -DYYMAXDEPTH=10000 $(SRCDIR)\yaccsrc.c
+
+execiser.obj : $(SRCDIR)\execiser.c $(SRCDIR)\rexx.h
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -c $(SRCDIR)\execiser.c
+
+getopt.obj : $(SRCDIR)\getopt.c
+	       $(CC) $(COPT_DLL) $(CC2O) -c $(SRCDIR)\getopt.c
+
+#
+# Rules for shared objects
+#
+funcs.obj :   $(SRCDIR)\funcs.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\funcs.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+builtin.obj : $(SRCDIR)\builtin.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\builtin.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+error.obj :   $(SRCDIR)\error.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\error.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+variable.obj :$(SRCDIR)\variable.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\variable.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+interprt.obj :$(SRCDIR)\interprt.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\interprt.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+debug.obj :   $(SRCDIR)\debug.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\debug.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+dbgfuncs.obj :$(SRCDIR)\dbgfuncs.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\dbgfuncs.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+memory.obj :  $(SRCDIR)\memory.c         $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\memory.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+parsing.obj : $(SRCDIR)\parsing.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\parsing.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+files.obj :   $(SRCDIR)\files.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\files.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+misc.obj :    $(SRCDIR)\misc.c           $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\misc.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+unxfuncs.obj :$(SRCDIR)\unxfuncs.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\unxfuncs.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+arxfuncs.obj :$(SRCDIR)\arxfuncs.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\arxfuncs.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+os2funcs.obj :$(SRCDIR)\os2funcs.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\os2funcs.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+cmsfuncs.obj :$(SRCDIR)\cmsfuncs.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\cmsfuncs.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+shell.obj :   $(SRCDIR)\shell.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\shell.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+rexxext.obj : $(SRCDIR)\rexxext.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\rexxext.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+stack.obj :   $(SRCDIR)\stack.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\stack.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+tracing.obj : $(SRCDIR)\tracing.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\tracing.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+interp.obj :  $(SRCDIR)\interp.c         $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\interp.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+cmath.obj :   $(SRCDIR)\cmath.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\cmath.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+convert.obj : $(SRCDIR)\convert.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\convert.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+strings.obj : $(SRCDIR)\strings.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\strings.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+library.obj : $(SRCDIR)\library.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\library.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+strmath.obj : $(SRCDIR)\strmath.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\strmath.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+signals.obj : $(SRCDIR)\signals.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\signals.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+macros.obj :  $(SRCDIR)\macros.c         $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\macros.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+envir.obj :   $(SRCDIR)\envir.c          $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\envir.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+expr.obj :    $(SRCDIR)\expr.c           $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\expr.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+wrappers.obj :$(SRCDIR)\wrappers.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\wrappers.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+options.obj : $(SRCDIR)\options.c        $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\options.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+os_os2.obj :  $(SRCDIR)\os_os2.c         $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\os_os2.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+os_other.obj :  $(SRCDIR)\os_other.c     $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\os_other.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+rexx.obj :  $(SRCDIR)\rexx.c             $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\rexx.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+client.obj :  $(SRCDIR)\client.c         $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\client.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+rexxsaa.obj :  $(SRCDIR)\rexxsaa.c       $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\rexxsaa.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+extstack.obj : $(SRCDIR)\extstack.c $(SRCDIR)\extstack.h $(SRCDIR)\rexxbif.h
+	        $(CC) $(COPT_DLL) $(DYN_COMP) -c -o extstack.obj $(SRCDIR)\extstack.c
+
+rexxbif.obj : $(SRCDIR)\rexxbif.c $(SRCDIR)\rexxbif.h
+	        $(CC) $(COPT_DLL) $(DYN_COMP) -c -o rexxbif.obj $(SRCDIR)\rexxbif.c
+
+drexx.obj : $(SRCDIR)\rexx.c             $(SRCDIR)\rexx.h
+	       $(CC) $(COPT_DLL) $(DYN_COMP) -c -o drexx.obj -DRXLIB $(SRCDIR)\rexx.c
+
+mt_notmt.obj : $(SRCDIR)\mt_notmt.c
+	        $(CC) $(COPT_DLL) $(DYN_COMP) -c -o mt_notmt.obj $(SRCDIR)\mt_notmt.c
+
+instore.obj : $(SRCDIR)\instore.c
+	        $(CC) $(COPT_DLL) $(DYN_COMP) -c -o instore.obj $(SRCDIR)\instore.c
+
+mt_os2.obj : $(SRCDIR)\mt_os2.c
+	        $(CC) $(COPT_DLL) $(DYN_COMP) -c -o mt_os2.obj $(SRCDIR)\mt_os2.c
+
+lexsrc.obj : $(SRCDIR)\lexsrc.c $(SRCDIR)\rexx.h $(SRCDIR)\yaccsrc.h
+	       $(O2SAVE)
+	       $(CC) $(OTHERCOPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\lexsrc.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+yaccsrc.obj : $(SRCDIR)\yaccsrc.c $(SRCDIR)\defs.h $(SRCDIR)\rexx.h
+	       $(O2SAVE)
+	       $(CC) $(OTHERCOPT_DLL) $(CC2O) $(DYN_COMP) -c -DYYMAXDEPTH=10000 $(SRCDIR)\yaccsrc.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+threader.obj : $(SRCDIR)\threader.c $(SRCDIR)\rexx.h
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -DOS2_THREADS -c $(SRCDIR)\threader.c
+
+#
+# Rules for GCI
+#
+gci_convert.h : $(SRCDIR)\gci\gci_convert.os2.emx
+	       copy $(SRCDIR)\gci\gci_convert.os2.emx .\gci_convert.h
+
+gci_call.obj : $(SRCDIR)\gci\gci_call.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_call.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_convert.obj : $(SRCDIR)\gci\gci_convert.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_convert.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_execute.obj : $(SRCDIR)\gci\gci_execute.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_execute.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_helper.obj : $(SRCDIR)\gci\gci_helper.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_helper.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_prepare.obj : $(SRCDIR)\gci\gci_prepare.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_prepare.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_reginabridge.obj : $(SRCDIR)\gci\gci_reginabridge.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_reginabridge.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_rxfuncdefine.obj : $(SRCDIR)\gci\gci_rxfuncdefine.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_rxfuncdefine.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+gci_tree.obj : $(SRCDIR)\gci\gci_tree.c  $(GCIHEADERS)
+	       $(O2SAVE)
+	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_COMP) -c $(SRCDIR)\gci\gci_tree.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+#
+# Rules for sample programs
+#
+test1.$(OBJ): $(SRCDIR)\test1.c
+	       $(CC) -c $(COPT_DLL) $(CC2O) $(DYN_COMP) $(SRCDIR)\test1.c
+
+rxtest1.$(RXLIB): test1.$(OBJ) $(SHLFILE).$(SHL)
+	       $(LD_RXLIB_PRE) test1.$(OBJ) $(LD_RXLIB1)
+
+test2.$(OBJ): $(SRCDIR)\test2.c
+	       $(CC) -c $(COPT_DLL) $(CC2O) $(DYN_COMP) $(SRCDIR)\test2.c
+
+rxtest2.$(RXLIB): test2.$(OBJ) $(SHLFILE).$(SHL)
+	       $(LD_RXLIB_PRE) test2.$(OBJ) $(LD_RXLIB2)
+
+depend:
+	        makedepend $(CSRCFILES)
+
+ARCHIVE_FILES = $(ALLSRC) $(README) $(SRCDIR)\makefile* $(SRCDIR)\*.rsp $(DEMOFILES) $(TRIPFILES)
+
+dist:
+	        tar -cvf - $(ARCHIVE_FILES) | gzip > Regina_$(VERDOT).tar.gz
+
+tar:
+	        tar -cvf - $(ARCHIVE_FILES) | compress > Regina_$(VERDOT).tar.Z
+
+zip:
+	        zip regna$(VER) $(ARCHIVE_FILES)
+
+#
+# below here not tested
+#
+
+install: rexx $(LIBFILE).a
+	        copy rexx$(PROGEXT) $(BINDIR)\$(PROGNAME)$(PROGEXT)
+	        copy ..\regina.1 $(MANDIR)\regina.$(MANEXT)
+	        copy $(LIBFILE).a $(LIBDIR)\$(LIBFILE).a
+	        ranlib $(LIBDIR)\$(LIBFILE).a
+
+clean:
+		rm -f *.a *.map	*.lib *.exe *.bak *.dll	*.res *.exp *.o	*.obj *.mtb
+#
+# End of makefile
+#
+#
+# End of makefile
+#

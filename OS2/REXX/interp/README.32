@@ -1,0 +1,37 @@
+                          Regina 3.2
+                        25 April 2003
+
+Changes in this release (from 3.1)
+----------------------------------
+o Changed the problematic building of thread-safe shared libraries introduced 
+  with 3.1.
+  Building of separate libraries for the single-threaded and thread-safe shared 
+  libraries WAS meant to make things easier, but it made things worse. So, 
+  only one shared library is ever built. If threads are supported, the Regina
+  shared library is thread-safe. If threads are not supported, then the Regina
+  shared library is single-thread only. PARSE VERSION will identify whether the
+  interpreter is thread-safe or not.
+  Win32, OS/2, Linux, Solaris, FreeBSD will have thread-safe shared libraries
+  built by default.
+o Builds on Unix platforms with gcc no longer use soname for the shared library.
+o Fixed bug 722717 - Regina not handling string constants correctly in loops,
+  if the strings are valid numbers.
+o Fixed bug 724390 - Incorrect parsing of strings like '003'x1
+o Fixed crash with CRYPT BIF under Windows.
+o Documented threader.c sample program.
+o Error handling is now thread-safe.
+o Reduced memory leak with thread-safe library.
+o Added --disable-posix-threads to NOT build the thread-safe version of
+  libregina.so on platforms where the default is to build the thread-safe
+  version.
+o Changed the behaviour of LINEIN to be more consistent with Object Rexx.
+  Regina will now treat a line as any string of characters that ends in
+  CRLF, LF, or CR on all platforms.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

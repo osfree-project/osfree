@@ -1,0 +1,8 @@
+#{"Regina Rexx Starter"},(0x101f401e),3,4,0
+; The Rexx starter application
+"\epoc32\wins\c\system\apps\regina\Regina.app"-"!:\system\apps\Regina\Regina.app"
+"\epoc32\wins\c\system\apps\regina\Regina.aif"-"!:\system\apps\Regina\Regina.aif"
+"regina.hlp"-"!:\system\apps\Regina\regina.hlp"
+; the Rexx file recogniser
+"\epoc32\release\wins\deb\z\system\recogs\recrexx.mdl"-"!:\system\recogs\recrexx.mdl"
+@"sysram1w.sis",(0x10000405)

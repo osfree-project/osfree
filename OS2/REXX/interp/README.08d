@@ -1,0 +1,98 @@
+                         Regina 0.08d
+                         26 March 1998
+
+
+Changes in this release (from 0.08c)
+------------------------------------
+
+o Rexx programs are now searched for, using a combination of the
+  REGINA_MACROS environment variable and the addition of filename
+  extensions.  This rule applies to both external function calls
+  and operating system command line arguments.
+  Assume you have a call to an external function, and it is coded as
+  follows:
+     Call myextfunc arg1, arg2
+  First, Regina looks for a file called "myextfunc" in the current
+  directory. If it can't find that file, it looks in each directory
+  specified in the REGINA_MACROS environment variable for a file called
+  "myextfunc". If the file is not found, Regina then attempts to find a
+  file called "myextfunc.rexx" in the current directory, then in each
+  directory in REGINA_MACROS.  Regina continues, next by appending
+  ".rex" to the supplied external function name, and lastly by appending
+  ".cmd".
+  Only if a file does not exist in either the current directory, or
+  any directory in REGINA_MACROS, either with the supplied filename or
+  with that filename appended with ".rexx", ".rex" or ".cmd" does Regina
+  complain that the external function is unknown.
+o External function names with embedded spaces would be truncated at
+  the first space. This has now been corrected.
+o Applied some patches from Bernard Antoine to reduce memory leaks.
+o Fixed a couple of memory leaks and a couple of crash situations.
+o Added support for the "strict" operators >>, <<, >>=, <<=, \>> and
+  \<<.
+o Added support in the API for system exits for subcommands.
+o The configure script has been changed in this release to better
+  work out how to build shared libraries.
+o Another change in the configure script is the --enable-tracemem
+  switch.  This enables the internal memory tracing of Regina.
+o Fixed a problem with calling external routines from within an
+  internally called routine. See the test suite of of
+  goober/IDIOT/TESTFUNC (courtesy of Chuck Moore).
+o Added the "QUERY" commands for the STREAM() BIF.
+o Added the "OPEN" commands for the STREAM() BIF.
+o The DOS and OS/2 ports of Regina can now use operating system commands
+  in function calls. eg rc = fred('parm1')  where fred.exe is an
+  executable somewhere in the PATH.
+o A bug has been fixed when pushing lines > 512 characters in length
+  onto the stack from an external program running under OS/2, DOS or
+  win32.
+o Some progress has been made on displaying more detailed error messages
+  (as per the ANSI standard) after the "normal" Rexx error messages.
+o One of the header files that Regina uses (sys/stat.h) has been broken
+  on RedHat Linux 5.0. The only effects, hopefully, that you should see
+  are some compilation warnings when compiling files.c.
+o A change has been made in the API function RexxVariablePool(). The
+  SAA API documentation specifies the following when fetching the
+  value of a variable from the interpreter:
+  "On return, shvvalue.strlength will be set to the length of the
+   returned value; shvvaluelen will be unchanged."
+  In previous version of Regina the above condition was met, but the
+  actual situation with IBM OS/2 REXX, is the reverse; shvvaluelen is
+  changed, but shvalue.strlength remains the same.  Quercus Systems
+  Personal Rexx and Enterprise Rexx follows the IBM OS/2 REXX behaviour.
+  IBM's Object Rexx however, changes both values.  Regina now follows
+  Object Rexx's behaviour, as this will allow programs written to the
+  OS/2 REXX behaviour to work with Regina.
+o Several changes in the API have been made that will require any
+  programs linked to previous versions of Regina to be rebuilt. The
+  main change was in the number indicating how the interpreter is
+  invoked.  These changes were done to bring Regina in line with other
+  interpreters.
+o The curses interface for Regina has been enhanced, to include support
+  for colour (that's how I spell it!) and support for creation of curses
+  windows.  This release will be the last to include the curses
+  interface as part of the Regina distribution; I will be distributing
+  it as a seperate product in future.  See the updated version of
+  hanoi.rexx for examples of some of the new features.
+o Some corrections were made to the DATE() BIF, particularly in the
+  day of the week conversion, and Y2K changes.
+  This release of Regina should now be fully Y2K compliant.
+  See additions to the demo program; dateconv.rexx, for Y2K examples.
+o Addition of RexxSetHalt() API function.
+o Several API changes to enable Regina to be used with JP Software's
+  4NT and TCMD32 products.  You will require a version of 4NT > 3.01
+  or a version of TCMD32 > 2.01 for the Regina support.  See
+  http://www.jpsoft.com for further details.
+
+Please report any bugs with this release of Regina to me, NOT to Anders.
+Most likely the bugs are of my origin, so I will attempt to fix them.
+As with previous bugs fixed by me, I will pass these fixes on to Anders.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+ Mark Hessling                 Email:             M.Hessling@qut.edu.au
+ PO Box 203                    Phone:                    +617 3802 0800
+ Bellara                          http://www.lightlink.com/hessling/
+ QLD 4507                      **** Maintainer PDCurses & REXX/SQL ****
+ Australia                     ************* Author of THE ************
++------------------------------------------------------------------------

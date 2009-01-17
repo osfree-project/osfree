@@ -1,0 +1,14 @@
+;
+; test1_os2_dll.def
+;
+LIBRARY rxtest1 INITINSTANCE
+DESCRIPTION 'Regina Test DLL 1'
+DATA    MULTIPLE NONSHARED
+
+STACKSIZE   40960
+
+EXPORTS
+Test1Function1
+Test1Function2
+Test1LoadFuncs
+Test1DropFuncs
