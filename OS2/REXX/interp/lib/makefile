@@ -4,6 +4,7 @@
 #
 
 PROJ = rexx
+DEST =
 srcfiles = &
 $(p)client$(e)   &
 $(p)drexx$(e)    &

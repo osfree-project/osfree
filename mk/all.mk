@@ -265,7 +265,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 
 .c.obj: .AUTODEPEND
  $(SAY) Compiling $[. $(LOG)
- $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
  $(SAY) Assembling $[. $(LOG)

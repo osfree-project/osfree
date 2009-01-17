@@ -1,26 +1,12 @@
 #
-# A Makefile for Regina REXX Interpreter
+# A main Makefile for OS/3 boot sequence project
 # (c) osFree project,
-# author, date
+# valerius, 2006/10/30
 #
 
-PROJ     = rexx
-DESC     = Regina REXX interpreter
-DEST     = os2
+DIRS = exe dll lib implib regina
 
-!include $(%ROOT)mk/dirs.mk
-!include $(MYDIR)regina.mk
+!include $(%ROOT)/mk/all.mk
 
-$(PATH)rexx.exe: $(OBJS)
-
-$(OBJS): $(HFILES)
-
-$(PATH)drexx.obj: $(MYDIR)rexx.c $(HFILES)
-
-$(PATH)client.obj: $(MYDIR)client.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
-
-$(PATH)rexxsaa.obj: $(MYDIR)rexxsaa.c $(HFILES) $(MYDIR)rexxsaa.h $(MYDIR)rxiface.h
-
-$(PATH)yaccsrc.obj: $(MYDIR)yaccsrc.c $(MYDIR)defs.h $(MYDIR)rexx.h
-
-$(PATH)lexsrc.obj: $(MYDIR)lexsrc.c $(MYDIR)yaccsrc.h $(MYDIR)rexx.h
+TARGETS = subdirs
+TARGET = all
