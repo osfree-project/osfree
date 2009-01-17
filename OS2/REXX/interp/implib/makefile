@@ -4,7 +4,7 @@
 #
 
 
-PROJ        = regina
+PROJ        = REGINA
 DESC        = Regina REXX import library
 DEST        =
 OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll

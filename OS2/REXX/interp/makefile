@@ -4,7 +4,8 @@
 # valerius, 2006/10/30
 #
 
-DIRS = exe dll lib implib regina
+DIRS = exe dll lib implib regina pmregina execiser &
+       rxqueue rxstack threader
 
 !include $(%ROOT)/mk/all.mk
 

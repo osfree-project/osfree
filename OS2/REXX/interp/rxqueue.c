@@ -30,6 +30,10 @@ static char *RCSid = "$Id: rxqueue.c,v 1.13 2005/08/04 11:28:40 mark Exp $";
 # include "configur.h"
 #endif
 
+#if defined(OS2) && defined(__WATCOMC__)
+#include <os2/types.h>
+#endif
+
 #ifdef WIN32
 # if defined(_MSC_VER)
 #  if _MSC_VER >= 1100

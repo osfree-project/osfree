@@ -3,11 +3,11 @@
 #
 #
 
-PROJ      = regina
+PROJ      = REGINA
 DESC      = Regina interpreter DLL
 DEST      = os2$(SEP)dll
 STACKSIZE = 0x20000
-OPTIONS   = heapsize=40960,quiet, caseexact
+OPTIONS   = heapsize=40960,quiet,caseexact
 DLL       = 1
 ADD_COPT  = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) -bd
 

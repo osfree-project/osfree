@@ -91,13 +91,22 @@ ADD_COPT       =  -4s -wx -zq -mf $(THREADING) &
                   -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
 
+
 !include $(%ROOT)/mk/appsos2.mk
+
+.c: $(SRC)
+
+.c: $(MYDIR)
 
 .c: $(MYDIR)..
 
 .c: $(MYDIR)..$(SEP)gci
 
+.h: $(SRC)
+
 .h: $(MYDIR)
+
+.h: $(MYDIR)..
 
 .h: $(MYDIR)..$(SEP)gci
 
@@ -110,3 +119,9 @@ $(PATH)yaccsrc.$(O): $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
 
 $(PATH)drexx.obj: $(MYDIR)..$(SEP)rexx.c $(HFILES)
  $(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)eextstack.obj:  $(SRC)extstack.c $(HFILES)
+ $(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)erexxbif.obj:  $(SRC)rexxbif.c $(HFILES)
+ $(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
