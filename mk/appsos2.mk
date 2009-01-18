@@ -51,13 +51,14 @@ rsf: .SYMBOLIC .PROCEDURE
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 dllopts = dll
 !ifdef DLLOPT
-dllopts = $(dllopts) $(DLLOPT)
+dllopts += $(DLLOPT)
 !endif
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopts =
 !endif
 RCOPT    = -bt=os2 $(RCOPT)
+
 
 !ifdef RESOURCE
 deps = $(RESOURCE)
@@ -69,7 +70,11 @@ OBJS = $(OBJS) $(OBJS16)
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
+!ifdef WINDOWCOMPAT
+ @%append $^@ SYSTEM os2v2_pm $(dllopts)
+!else
  @%append $^@ SYSTEM os2v2 $(dllopts)
+!endif
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE

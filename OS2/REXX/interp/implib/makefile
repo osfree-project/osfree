@@ -6,7 +6,7 @@
 
 PROJ        = REGINA
 DESC        = Regina REXX import library
-DEST        =
+DEST        = ..$(SEP)build$(SEP)lib
 OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll
 OPTIONS     = caseexact, quiet
 
