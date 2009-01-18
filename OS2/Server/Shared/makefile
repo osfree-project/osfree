@@ -3,7 +3,7 @@
 # Makefile for common shared libs
 
 #
-ARCH = $(%env)
+ARCH = $(%SERVERENV)
 
 PROJ = os2server_shared
 DIRS = modmgr
