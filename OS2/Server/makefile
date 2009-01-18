@@ -36,5 +36,5 @@ INSTALL_ADD = 1
 
 TARGETS  = subdirs $(PATH)$(PROJ).exe
 
-install_add: $(MYDIR)config.sys
+install_add: $(MYDIR)CONFIG.SYS
  $(CP) $< $(DEST)

@@ -145,6 +145,7 @@ NULL      = \dev\nul
 !endif
 !endif
 BLACKHOLE = 2>&1 >$(NULL)
+MKDIR     = @mkdir
 
 EXE_SUFFIX = .exe
 LIB_SUFFIX = .lib
@@ -174,6 +175,7 @@ CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist $(PATH)%i $(DC) $(PATH)%i 
 
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
+MKDIR     = mkdir
 
 EXE_SUFFIX = l
 LIB_SUFFIX = .a
@@ -184,7 +186,6 @@ DLL_SUFFIX = .so
 !endif
 !endif
 
-MKDIR     = @mkdir
 MAPSYM    = @mapsym
 
 LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
@@ -316,7 +317,7 @@ subdirs: .symbolic
  @for %%i in ($(DIRS)) do @cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: .SYMBOLIC
- @$(MDHIER) $(PATH)
+ $(MDHIER) $(PATH)
 
 .IGNORE
 clean: .SYMBOLIC
@@ -330,7 +331,7 @@ install: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) install_pre
 !endif
 !ifneq DEST
- @$(MDHIER) $(DEST)
+ $(MDHIER) $(DEST)
  @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
 !endif
 !ifeq INSTALL_ADD 1

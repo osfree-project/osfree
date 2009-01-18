@@ -43,7 +43,7 @@ UNIX = FALSE
 UNIX = FALSE
 !else ifeq ENV WIN32
 UNIX = FALSE
-!else ifeq ENV Linux
+!else ifeq ENV LINUX
 UNIX = TRUE
 !else ifeq ENV FreeBSD
 UNIX = TRUE

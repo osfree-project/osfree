@@ -34,8 +34,9 @@ then do
   drv = substr(dir, 1, 2)
 end
 
-if substr(dir, 1, 1) = sep
+if substr(dir, 1, 1) = '\'
 then absolute = 1
+
 
 /* if the path is absolute, then go root */
 if absolute then do
@@ -52,7 +53,7 @@ do while path \= ''
   else if dir = '' then iterate
   else if directory(dir) = ''
   then do
-    '@mkdir ' || dir
+    'mkdir ' || dir
     call directory dir
   end
 end

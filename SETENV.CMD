@@ -1,13 +1,13 @@
 /*  Set environment variables
  */
 
-'@echo off'
+/* '@echo off' */
 
 parse arg cfg
-parse upper source os addr src
 
-if cfg = ''
-  then signal usage
+parse source os addr src
+
+if cfg = '' then signal usage
 
 /* Build the full path to the config file */
 if pos('/', translate(cfg, '/', '\')) == 0 then do
@@ -15,8 +15,9 @@ if pos('/', translate(cfg, '/', '\')) == 0 then do
    if l > 0 then cfg = delstr(src, l + 1) || cfg
 end
 
-if stream(cfg, 'c', 'query exists') = ''
-  then signal usage
+
+if stream(cfg, 'c', 'query exists') = '' then signal usage
+
 
 /* Read config file */
 rc = stream(cfg, 'c', 'open read')
@@ -62,6 +63,7 @@ end
 
 /* delete a driveletter from root */
 if pos(':', root) = 2 then root = substr(root, 3)
+root = translate(root, '/', '\')
 /* append '\' */
 if lastpos('\', root) \= length(root) then root = root || '\'
 
