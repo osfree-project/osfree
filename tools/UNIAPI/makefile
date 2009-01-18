@@ -12,4 +12,4 @@ INSTALL_ADD = 1
 install_add: .SYMBOLIC
  @cd $(ROOT)$(SEP)UNI
  @$(MAKE) $(MAKEOPT) all
- @cd $(ROOT)$(SEP)tools$(SEP)uniapi
+ @cd $(ROOT)$(SEP)tools$(SEP)UNIAPI

@@ -81,6 +81,10 @@ extern int noparserflag;
 #define mktemp _mktemp
 #endif
 
+#ifdef __LINUX__
+#define mktemp _mktemp
+#endif
+
 #ifdef __NT__
 #define mktemp _mktemp
 #endif
