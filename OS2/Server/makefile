@@ -8,7 +8,7 @@
 # os2 linux win32
 #
 
-ARCH  = $(%env)
+ARCH  = $(%SERVERENV)
 PROJ0 = main
 
 !ifeq ARCH linux
