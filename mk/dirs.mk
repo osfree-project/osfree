@@ -15,7 +15,7 @@ PATH         = $(RELDIR)
 BLD  = $(ROOT)build$(SEP)
 
 q = $(MYDIR:$(BLD)=)
-x = build$(SEP)
+x = build
 
 !ifneq q $(MYDIR)
 # we're starting make in build dir, not in src dir

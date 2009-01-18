@@ -8,16 +8,20 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: install
+all: install .symbolic
 
-install: build
-
+test: .symbolic
+  echo $(MYDIR)
+  echo $(PATH)
+  echo $(mfh)
+  
 !include $(%ROOT)/mk/dirs.mk
 !include $(%ROOT)/mk/genrules.mk
 
+
 # build and install each target in sequence
-build: precopy prereq # .SYMBOLIC
- @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
+build: precopy prereq .SYMBOLIC
+ $(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
 
@@ -163,7 +167,7 @@ O16       = o16                  # 16-bit obj
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command
 RN        = mv                   # Rename command
-SAY       = echo                 # Echo message
+SAY       = @echo                 # Echo message
 MKBIN     = mkbin
 GENHDD    = genhdd
 GENFDD    = genfdd
@@ -314,9 +318,9 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %%i in ($(DIRS)) do @cd %%i && cd && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
-dirhier: .SYMBOLIC
+dirhier: precopy .symbolic
  $(MDHIER) $(PATH)
 
 .IGNORE
@@ -325,7 +329,7 @@ clean: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(CLEAN_CMD)
 
-install: .SYMBOLIC
+install: build
  $(SAY) Making install... $(LOG)
 !ifeq INSTALL_PRE 1
  @$(MAKE) $(MAKEOPT) install_pre
@@ -339,7 +343,7 @@ install: .SYMBOLIC
 !endif
 
 precopy: .SYMBOLIC
- @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
+ $(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
 
 .error
  @$(SAY) Error (!)

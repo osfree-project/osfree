@@ -20,8 +20,8 @@ drv =
 mfh = $(MYDIR)makefile
 mf  = $(PATH)makefile
 
-prereq: dirhier $(mf)
- @%null
+prereq: dirhier $(mf) .symbolic
+# @%null
 
 $(mf): $(MYDIR)makefile
  @%create $(mf)
