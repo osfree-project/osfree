@@ -201,7 +201,7 @@ procedure THWriter.WriteModule(AModule: TPasModule);
 begin
   WrtLn( '/*****************************************************************************');
   WrtLn( '    '+AModule.Name+'.h');
-  WrtLn( '    (C) 2004-2008 osFree project');
+  WrtLn( '    (C) 2004-2009 osFree project');
   WrtLn;
   WrtLn( '    WARNING! Automaticaly generated file! Don''t edit it manually!');
   WrtLn( '*****************************************************************************/');

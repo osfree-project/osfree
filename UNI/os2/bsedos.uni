@@ -23,6 +23,22 @@ uses dosdatetimecommon;
 uses dosdatetime;
 uses dosresourcescommon;
 uses dosresources;
+uses dossesmgrfilemgr; (* Need to move to both areas *)
+uses dosfilemgr;
+uses dosmodulemgr;
+uses dosnls;
+uses dosexceptions;
+uses dosmisc;
+uses dossesmgr;
+uses dosdevices;
+uses dosnmpipes;
+uses dosprofile;
+uses dosmvdm;
+uses dosspinlock;
+uses bdcalls;
+
+end.
+
 
 /*** Pipe and queue support */
 
@@ -106,18 +122,3 @@ uses dosresources;
 #endif /* INCL_DOSQUEUES */
 
 
-uses dossesmgrfilemgr; (* Need to move to both areas *)
-uses dosfilemgr;
-uses dosmodulemgr;
-uses dosnls;
-uses dosexceptions;
-uses dosmisc;
-uses dossesmgr;
-uses dosdevices;
-uses dosnmpipes;
-uses dosprofile;
-uses dosmvdm;
-uses dosspinlock;
-uses bdcalls;
-
-end.

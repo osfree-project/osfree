@@ -1,7 +1,7 @@
 # Makefile for common shared libs
 #
 
-ARCH = $(%env)
+ARCH = $(%SERVERENV)
 PROJ = os2server_$(ARCH)
 srcfiles =  $(p)io$(e)
             #$(p)mmap$(e)

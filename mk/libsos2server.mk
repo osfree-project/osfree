@@ -52,8 +52,9 @@ ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)os2 &
 PLATFORM = linux
 EXE_SUFFIX=l
 ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
-                      $(ADD_COPT) -i=$(SrvDir)Linux &
+                       -i=$(SrvDir)Linux &
                       -i=$(%WATCOM)$(SEP)lh &
+                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
@@ -66,8 +67,8 @@ ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -bt=linux
+                      $(ADD_COPT)
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
               $(ADD_LINKOPT)
 !else

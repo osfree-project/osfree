@@ -9,7 +9,7 @@
 # $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)debuglx$(e) &
 
 
-ARCH = $(%env)
+ARCH = $(%SERVERENV)
 PROJ = os2server_$(ARCH)
 srcfiles = $(p)io$(e) $(p)mmap$(e) &
            $(p)native_dynlink$(e)

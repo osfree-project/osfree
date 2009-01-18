@@ -45,7 +45,7 @@ C16OPT    = -nt=_TEXT16 -nd=D
 # Tools:
 #
 !ifeq 32_BITS 1
-CC        = @wcc386
+CC        = wcc386
 CPPC      = @wpp386
 !else
 CC        = @wcc
@@ -270,7 +270,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 
 .c.obj: .AUTODEPEND
  $(SAY) Compiling $[. $(LOG)
- @$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
  $(SAY) Assembling $[. $(LOG)
