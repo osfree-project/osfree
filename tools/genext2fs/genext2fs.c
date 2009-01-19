@@ -256,8 +256,7 @@ typedef unsigned int uint32;
 #endif // defined __GNUC__
 
 #ifndef __CPM__
-#ifdef SNPRINTF_STORAGE_CLASS
-SNPRINTF_STORAGE_CLASS int
+int
 snprintf(char *str, size_t n, const char *fmt, ...)
 {
         int ret;
@@ -267,7 +266,6 @@ snprintf(char *str, size_t n, const char *fmt, ...)
         va_end(ap);
         return ret;
 }
-#endif // defined SNPRINTF_STORAGE_CLASS
 #endif
 
 #if defined(__APPLE__) && defined(__GNUC__)
