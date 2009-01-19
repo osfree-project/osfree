@@ -14,7 +14,7 @@ test: .symbolic
   echo $(MYDIR)
   echo $(PATH)
   echo $(mfh)
-  
+
 !include $(%ROOT)/mk/dirs.mk
 !include $(%ROOT)/mk/genrules.mk
 

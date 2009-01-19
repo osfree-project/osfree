@@ -96,7 +96,9 @@ vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
 do i = 1 to words(vars)
   var = word(vars, i)
   val = value(var)
-  if os == 'UNIX' | os == 'LINUX' then val = translate(val, '/:', '\;')
+  if os == 'UNIX' | os == 'LINUX'
+     then val = translate(val, '/:', '\;')
+     else val = translate(val, '\;', '/:')
   call value var, val, env
   say var || '=' || val
 end

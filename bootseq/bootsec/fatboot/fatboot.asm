@@ -227,8 +227,9 @@ path_loop:
 
                 push  ds
 
-                push  fat_seg
-                pop   ds
+                ;push  fat_seg
+                ;pop   ds
+                ;mov   dx, fat_seg
 
                 push  bx
                 call  load_file
@@ -253,7 +254,7 @@ load_file_by_path endp
 ; Loads a file by directory entry
 ; Input:
 ; es:di --  file directory entry
-; ds    --> fat_seg
+; dx    --> fat_seg
 ; bx    --> segment to load at
 ; Result:
 ; File loaded
@@ -263,8 +264,8 @@ load_file_by_path endp
 load_file proc near
                 movzx eax, es:[di].dir_fst_clus_lo          ; 1st cluster number
 
-                push  bx
-                pop   es
+                mov   dx, fat_seg
+                mov   es, bx
                 xor   bx, bx
 
 load_new_cluster:
@@ -274,11 +275,11 @@ load_new_cluster:
                 dec   eax
                 dec   eax
 
-                movzx dx, [bp].bpb.clus_size
-                bsf   cx, dx
+                movzx di, [bp].bpb.clus_size
+                bsf   cx, di
                 shl   eax, cl
 
-                mov   cx, dx
+                mov   cx, di
 
                 add   eax, [bp].cluster_base                ; eax = sector number
 
@@ -301,7 +302,7 @@ load_file endp
 ; Find next cluster number
 ; Input:
 ; ax = cluster number
-; ds    -- fat_seg
+; dx    -- fat_seg
 ; Output:
 ; ax = cluster value
 ;
@@ -309,12 +310,14 @@ find_next_cluster proc near
                 mov   cx, 0fff1h                            ; EOF
 
                 push  si
+                push  dx
 
                 mov   si, ax
                 add   si, ax                                ; si = 2*ax
-                ;jnc   no_dx_adjust
-                ;add   dh, 10h                              ; dx = dx + 4096
+                jnc   short no_dx_adjust
+                add   dh, 10h                               ; dx = dx + 4096
 no_dx_adjust:
+                mov   ds, dx
                 cmp   [bp].bpb.fat_size, 12                 ; FAT12 or FAT16?
 
                 jae   short fat_16
@@ -334,6 +337,7 @@ fat_16:
 cmp_eof:
                 cmp   ax, cx                                ; = EOF?
 
+                pop   dx
                 pop   si
 
                 ret
@@ -537,7 +541,7 @@ begin_read:
 ;                cmp   [bp].force_chs, 0                     ; LBA or CHS?
 ;                jnz   short chs
 ;
-lba:
+;lba:
                 call  readsec_lba                           ; Read by LBA
 ;                jmp   short chk
 ;
@@ -638,7 +642,7 @@ readsec_lba endp
 ;               from disk device in dl
 ;
 
-if 0
+if 1
 
 readsec_chs proc near
                 push dx

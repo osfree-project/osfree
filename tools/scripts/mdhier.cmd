@@ -37,7 +37,6 @@ end
 if substr(dir, 1, 1) = '\'
 then absolute = 1
 
-
 /* if the path is absolute, then go root */
 if absolute then do
   if drv \= '' then drv /* change drive */
