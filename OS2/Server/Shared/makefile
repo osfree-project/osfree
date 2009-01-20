@@ -23,6 +23,8 @@ $(p)ixfmgr_lx_debuglx$(e) &
 $(p)ixfmgr_lx_modlx$(e) &
 $(p)ixfmgr_ne$(e)
 
+ADD_COPT= -d2
+
 !include $(%ROOT)/mk/libsos2server.mk
 
 TARGETS  = subdirs $(PATH)$(PROJ).lib

@@ -1,0 +1,18 @@
+(****************************** Module Header ******************************
+*
+* Module Name: PMSHL.H
+*
+* OS/2 Presentation Manager Shell constants, types, messages and
+* function declarations include file.
+*
+***************************************************************************)
+
+
+module pmshl;
+
+const HINI_PROFILE       =  0;
+const HINI_USERPROFILE   =  -1;
+const HINI_SYSTEMPROFILE =  -2;
+
+end.
+

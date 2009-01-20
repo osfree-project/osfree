@@ -292,7 +292,7 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
 
   for(page_nr=startpage; page_nr < lastpage; page_nr++)
   {
-    io_printf("-----  Object %d of %d\n",startpage, lastpage);
+    if (options.debugixfmgr) io_printf("-----  Object %d of %d\n",startpage, lastpage);
 
     /* Go and get byte position for fixup from the page logisk_sida.
        Start offset for fixup in the page*/

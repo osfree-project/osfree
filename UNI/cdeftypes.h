@@ -94,6 +94,9 @@
   #define INCL_BSESUB
 #endif
 
+#ifdef INCL_WINWORKPLACE
+  #define INCL_PMWIN
+#endif
 
 /** if INCL_PM defined then define all the symbols ***********************/
 #ifdef INCL_PM

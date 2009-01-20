@@ -1,7 +1,7 @@
 <WARPIN>
 <HEAD>
 <PCK INDEX=1
-  PACKAGEID="osFree\OS/2\Command Line Tools\0\0\3\1"
+  PACKAGEID="osFree\OS/2\Command Line Tools\0\0\3\2"
   TARGET="?:\OS2"
   LONGFILENAMES
   TITLE="Command Line Tools"
@@ -39,15 +39,7 @@ Select "Cancel" to abort installation.</TEXT>
 + New feature
 ! Bugfix
 
-! fixed incorrect installation script
-+ FIND now dual target executable (OS/2/MDOS sessions)
-+ ATTRIB now dual target executables
-+ LABEL now dual target executable
-+ XCOPY now dual target executable
-+ MORE now dual target executable
-! Trap in CMD.EXE/JPOS2DLL.DLL fixed
-! OPTION command now works
-! %0 sign now not shown in messages
++ SORT, NEWMBR
 
 Select "Next" to continue.
 Select "Cancel" to abort installation.</TEXT>

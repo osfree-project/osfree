@@ -118,16 +118,6 @@ APIRET APIENTRY HndpAllocateSomeHandles(HANDLE_TABLE * pHandleTable)
         if (HandleTable->ReservedMemory >= HandleTable->MaxHandle)
             return STATUS_NO_MEMORY; /* the handle table is completely full */
 
-        status = NtAllocateVirtualMemory(
-            NtCurrentProcess(),
-            &NextAvailAddr,
-            0,
-            &CommitSize,
-            MEM_COMMIT,
-            PAGE_READWRITE);
-        if (status != STATUS_SUCCESS)
-            return status;
-
         for (Offset = 0; Offset < CommitSize; Offset += HandleTable->HandleSize)
         {
             /* make sure we don't go over handle limit, even if we can
@@ -245,7 +235,7 @@ BOOL APIENTRY HndFreeHandle(RTL_HANDLE_TABLE * HandleTable, RTL_HANDLE * Handle)
  */
 BOOL APIENTRY HndIsValidHandle(const RTL_HANDLE_TABLE * HandleTable, const RTL_HANDLE * Handle)
 {
-    TRACE("(%p, %p)\n", HandleTable, Handle);
+//    TRACE("(%p, %p)\n", HandleTable, Handle);
     /* make sure handle is within used region and that it is aligned on
      * a HandleTable->HandleSize boundary and that Handle->Next is odd,
      * indicating that the handle is active */
@@ -276,7 +266,7 @@ BOOL APIENTRY HndIsValidIndexHandle(const RTL_HANDLE_TABLE * HandleTable, ULONG 
 {
     RTL_HANDLE * Handle;
 
-    TRACE("(%p, %u, %p)\n", HandleTable, Index, ValidHandle);
+//    TRACE("(%p, %u, %p)\n", HandleTable, Index, ValidHandle);
     Handle = (RTL_HANDLE *)
         ((char *)HandleTable->FirstHandle + Index * HandleTable->HandleSize);
 

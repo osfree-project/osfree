@@ -1,7 +1,4 @@
-/*  Set environment variables
- */
-
-/* '@echo off' */
+/*  Set environment variables */
 
 parse arg cfg
 
@@ -63,7 +60,10 @@ end
 
 /* delete a driveletter from root */
 if pos(':', root) = 2 then root = substr(root, 3)
-root = translate(root, '/', '\')
+
+if os == 'UNIX' | os == 'LINUX' then do
+  root = translate(root, '/', '\')
+end
 /* append '\' */
 if lastpos('\', root) \= length(root) then root = root || '\'
 

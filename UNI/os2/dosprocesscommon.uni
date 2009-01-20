@@ -1,0 +1,13 @@
+module dosprocesscommon;
+
+(* General services *)
+function DosBeep(freq: ULONG, dur: ULONG): APIRET;
+
+(* Process and Thread support *)
+procedure DosExit(action: ULONG, result: ULONG);
+
+(* DosExit codes *)
+const EXIT_THREAD      =  0;
+const EXIT_PROCESS     =  1;
+
+end.

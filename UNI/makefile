@@ -36,12 +36,15 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)dosmisc.h &
      $(OUT)$(SEP)os2$(SEP)dosmvdm.h &
      $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h &
+     $(OUT)$(SEP)os2$(SEP)dosfilemgr.h &
      $(OUT)$(SEP)os2$(SEP)dosprocess.h &
      $(OUT)$(SEP)os2$(SEP)dosresources.h &
      $(OUT)$(SEP)os2$(SEP)dosexceptions.h &
      $(OUT)$(SEP)os2$(SEP)dosdevices.h &
      $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
+     $(OUT)$(SEP)OS2$(SEP)pmshl.h &
+     $(OUT)$(SEP)OS2$(SEP)pmwp.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -77,6 +80,8 @@ $(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)dosmvdm.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
 
+$(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)dosfilemgr.uni
+
 $(OUT)$(SEP)os2$(SEP)dosexceptions.h: os2$(SEP)dosexceptions.uni
 
 $(OUT)$(SEP)os2$(SEP)dosresources.h: os2$(SEP)dosresources.uni
@@ -86,6 +91,10 @@ $(OUT)$(SEP)os2$(SEP)dosdevices.h: os2$(SEP)dosdevices.uni
 $(OUT)$(SEP)os2$(SEP)dosdebug.h: os2$(SEP)dosdebug.uni
 
 $(OUT)$(SEP)os2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
+
+$(OUT)$(SEP)OS2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
+
+$(OUT)$(SEP)OS2$(SEP)pmwp.h: os2$(SEP)pmwp.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

@@ -20,7 +20,7 @@
 
 SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
 
-ADD_COPT = -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &
+ADD_COPT = $(ADD_COPT) -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &
            -i=$(SrvDir)include &
 #           -std=c99 -O1 -g2 -Wall
 

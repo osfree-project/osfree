@@ -39,6 +39,15 @@ unsigned int find_module_path(const char * name, char * full_path_name);
 
 struct module_rec module_root; /* Root for module list.*/
 
+/* Some general ideas here:
+     We use static array of modules structures here. We limit now to 1024 module handles.
+     Such approach is much protected in comparation of allowing direct access to module structure.
+
+@todo: Add option MAXLOADEDMODULES=xxxx to config.sys for more flexability?
+*/
+
+struct module_rec modulehandles[1024];
+
 /*! @brief Searches for the module name which the process needs.
     It first sees if it's already loaded and then just returns the
     found module handle. If it can't be found then loads module
@@ -149,6 +158,7 @@ unsigned long ModLoadModule(char *          pszName,
     return rc;
   }
   #endif
+
   // First search in the module list
   prev = (struct module_rec *) module_root.next;
   while(prev)

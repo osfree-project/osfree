@@ -1,388 +1,347 @@
-#if (defined(INCL_DOSFILEMGR) || !defined(INCL_NOCOMMON))
-   /*** File manager */
-   /* DosSetFilePtr() file position codes */
+module dosfilemgrcommon;
 
-   #define FILE_BEGIN      0x0000   /* Move relative to beginning of file */
-   #define FILE_CURRENT    0x0001   /* Move relative to current fptr position */
-   #define FILE_END        0x0002   /* Move relative to end of file */
-   #define FILE_SECTOR     0x8000   /* Interpret offset as a sector */
+   (*** File manager *)
+   (* DosSetFilePtr() file position codes *)
 
-   /* DosListIO() operation flags  154932 */
+   const FILE_BEGIN    =  $0000;   (* Move relative to beginning of file *)
+   const FILE_CURRENT  =  $0001;   (* Move relative to current fptr position *)
+   const FILE_END      =  $0002;   (* Move relative to end of file *)
+   const FILE_SECTOR   =  $8000;   (* Interpret offset as a sector *)
 
-   #define LISTIO_READ     0x0004  /* perform seek/read */
-   #define LISTIO_WRITE    0x0008  /* perform seek/write */
+   (* DosListIO() operation flags   *)
 
-   /* DosListIO() operation modes 154932 */
+   const LISTIO_READ   =  $0004;  (* perform seek/read *)
+   const LISTIO_WRITE  =  $0008;  (* perform seek/write *)
 
-   #define LISTIO_ORDERED    0x0001  /* guarantee ordering of operations */
-   #define LISTIO_UNORDERED  0x0002  /* speed is king */
+   (* DosListIO() operation modes  *)
 
-   /* DosFindFirst/Next Directory handle types */
-   #define HDIR_SYSTEM        1     /* Use system handle (1) */
-   #define HDIR_CREATE      (-1)    /* Allocate a new, unused handle */
+   const LISTIO_ORDERED   = $0001;  (* guarantee ordering of operations *)
+   const LISTIO_UNORDERED = $0002;  (* speed is king *)
 
-   /* DosCopy control bits; may be or'ed together */
-   #define DCPY_EXISTING   0x0001   /* Copy even if target exists */
-   #define DCPY_APPEND     0x0002   /* Append to existing file, do not replace */
-   #define DCPY_FAILEAS    0x0004   /* Fail if EAs not supported on target*/
+   (* DosFindFirst/Next Directory handle types *)
+   const HDIR_SYSTEM     =   1;     (* Use system handle (1) *)
+   const HDIR_CREATE     = (-1);    (* Allocate a new, unused handle *)
 
-   /* DosOpen/DosQFHandState/DosQueryFileInfo et al file attributes; also */
-   /* known as Dos File Mode bits... */
-   #define FILE_NORMAL     0x0000
-   #define FILE_READONLY   0x0001
-   #define FILE_HIDDEN     0x0002
-   #define FILE_SYSTEM     0x0004
-   #define FILE_DIRECTORY  0x0010
-   #define FILE_ARCHIVED   0x0020
+   (* DosCopy control bits; may be or'ed together *)
+   const DCPY_EXISTING  = $0001;   (* Copy even if target exists *)
+   const DCPY_APPEND    = $0002;   (* Append to existing file, do not replace *)
+   const DCPY_FAILEAS   = $0004;   (* Fail if EAs not supported on target*)
 
-   #define FILE_IGNORE     0x10000     /* ignore file attribute in */
-   /* DosSetPath/File Info if */
-   /* this bit is set*/
+   (* DosOpen/DosQFHandState/DosQueryFileInfo et al file attributes; also *)
+   (* known as Dos File Mode bits... *)
+   const FILE_NORMAL    = $0000;
+   const FILE_READONLY  = $0001;
+   const FILE_HIDDEN    = $0002;
+   const FILE_SYSTEM    = $0004;
+   const FILE_DIRECTORY = $0010;
+   const FILE_ARCHIVED  = $0020;
 
-   #define MUST_HAVE_READONLY      ( (FILE_READONLY  << 8) | FILE_READONLY  )
-   #define MUST_HAVE_HIDDEN        ( (FILE_HIDDEN    << 8) | FILE_HIDDEN    )
-   #define MUST_HAVE_SYSTEM        ( (FILE_SYSTEM    << 8) | FILE_SYSTEM    )
-   #define MUST_HAVE_DIRECTORY     ( (FILE_DIRECTORY << 8) | FILE_DIRECTORY )
-   #define MUST_HAVE_ARCHIVED      ( (FILE_ARCHIVED  << 8) | FILE_ARCHIVED  )
+   const FILE_IGNORE    = $10000;     (* ignore file attribute in *)
+   (* DosSetPath/File Info if *)
+   (* this bit is set*)
 
-   /* DosOpen() actions */
-   #define FILE_EXISTED    0x0001
-   #define FILE_CREATED    0x0002
-   #define FILE_TRUNCATED  0x0003
+   const MUST_HAVE_READONLY  =    ( (FILE_READONLY  shl 8) or FILE_READONLY  );
+   const MUST_HAVE_HIDDEN    =    ( (FILE_HIDDEN    shl 8) or FILE_HIDDEN    );
+   const MUST_HAVE_SYSTEM    =    ( (FILE_SYSTEM    shl 8) or FILE_SYSTEM    );
+   const MUST_HAVE_DIRECTORY =    ( (FILE_DIRECTORY shl 8) or FILE_DIRECTORY );
+   const MUST_HAVE_ARCHIVED  =    ( (FILE_ARCHIVED  shl 8) or FILE_ARCHIVED  );
 
-   /* DosOpen() open flags */
-   #define FILE_OPEN       0x0001
-   #define FILE_TRUNCATE   0x0002
-   #define FILE_CREATE     0x0010
+   (* DosOpen() actions *)
+   const FILE_EXISTED   = $0001;
+   const FILE_CREATED   = $0002;
+   const FILE_TRUNCATED = $0003;
 
-   /*     this nibble applies if file already exists                xxxx */
-   #define OPEN_ACTION_FAIL_IF_EXISTS     0x0000  /* ---- ---- ---- 0000 */
-   #define OPEN_ACTION_OPEN_IF_EXISTS     0x0001  /* ---- ---- ---- 0001 */
-   #define OPEN_ACTION_REPLACE_IF_EXISTS  0x0002  /* ---- ---- ---- 0010 */
+   (* DosOpen() open flags *)
+   const FILE_OPEN      = $0001;
+   const FILE_TRUNCATE  = $0002;
+   const FILE_CREATE    = $0010;
 
-   /*     this nibble applies if file does not exist           xxxx      */
-   #define OPEN_ACTION_FAIL_IF_NEW        0x0000  /* ---- ---- 0000 ---- */
-   #define OPEN_ACTION_CREATE_IF_NEW      0x0010  /* ---- ---- 0001 ---- */
+   (*     this nibble applies if file already exists                xxxx *)
+   const OPEN_ACTION_FAIL_IF_EXISTS    = $0000;  (* ---- ---- ---- 0000 *)
+   const OPEN_ACTION_OPEN_IF_EXISTS    = $0001;  (* ---- ---- ---- 0001 *)
+   const OPEN_ACTION_REPLACE_IF_EXISTS = $0002;  (* ---- ---- ---- 0010 *)
 
-   /* DosOpen/DosSetFHandState mode flags */
-   #define OPEN_ACCESS_READONLY           0x0000  /* ---- ---- ---- -000 */
-   #define OPEN_ACCESS_WRITEONLY          0x0001  /* ---- ---- ---- -001 */
-   #define OPEN_ACCESS_READWRITE          0x0002  /* ---- ---- ---- -010 */
-   #define OPEN_SHARE_DENYREADWRITE       0x0010  /* ---- ---- -001 ---- */
-   #define OPEN_SHARE_DENYWRITE           0x0020  /* ---- ---- -010 ---- */
-   #define OPEN_SHARE_DENYREAD            0x0030  /* ---- ---- -011 ---- */
-   #define OPEN_SHARE_DENYNONE            0x0040  /* ---- ---- -100 ---- */
-   #define OPEN_FLAGS_NOINHERIT           0x0080  /* ---- ---- 1--- ---- */
-   #define OPEN_FLAGS_NO_LOCALITY         0x0000  /* ---- -000 ---- ---- */
-   #define OPEN_FLAGS_SEQUENTIAL          0x0100  /* ---- -001 ---- ---- */
-   #define OPEN_FLAGS_RANDOM              0x0200  /* ---- -010 ---- ---- */
-   #define OPEN_FLAGS_RANDOMSEQUENTIAL    0x0300  /* ---- -011 ---- ---- */
-   #define OPEN_FLAGS_NO_CACHE            0x1000  /* ---1 ---- ---- ---- */
-   #define OPEN_FLAGS_FAIL_ON_ERROR       0x2000  /* --1- ---- ---- ---- */
-   #define OPEN_FLAGS_WRITE_THROUGH       0x4000  /* -1-- ---- ---- ---- */
-   #define OPEN_FLAGS_DASD                0x8000  /* 1--- ---- ---- ---- */
-   #define OPEN_FLAGS_NONSPOOLED          0x00040000
-   #define OPEN_SHARE_DENYLEGACY       0x10000000   /* 2GB */
-   #define OPEN_FLAGS_PROTECTED_HANDLE 0x40000000
+   (*     this nibble applies if file does not exist           xxxx      *)
+   const OPEN_ACTION_FAIL_IF_NEW       = $0000;  (* ---- ---- 0000 ---- *)
+   const OPEN_ACTION_CREATE_IF_NEW     = $0010;  (* ---- ---- 0001 ---- *)
 
-
-   /* DosSearchPath() constants */
-   #define SEARCH_PATH           0x0000
-   #define SEARCH_CUR_DIRECTORY  0x0001
-   #define SEARCH_ENVIRONMENT    0x0002
-   #define SEARCH_IGNORENETERRS  0x0004
+   (* DosOpen/DosSetFHandState mode flags *)
+   const OPEN_ACCESS_READONLY          = $0000;  (* ---- ---- ---- -000 *)
+   const OPEN_ACCESS_WRITEONLY         = $0001;  (* ---- ---- ---- -001 *)
+   const OPEN_ACCESS_READWRITE         = $0002;  (* ---- ---- ---- -010 *)
+   const OPEN_SHARE_DENYREADWRITE      = $0010;  (* ---- ---- -001 ---- *)
+   const OPEN_SHARE_DENYWRITE          = $0020;  (* ---- ---- -010 ---- *)
+   const OPEN_SHARE_DENYREAD           = $0030;  (* ---- ---- -011 ---- *)
+   const OPEN_SHARE_DENYNONE           = $0040;  (* ---- ---- -100 ---- *)
+   const OPEN_FLAGS_NOINHERIT          = $0080;  (* ---- ---- 1--- ---- *)
+   const OPEN_FLAGS_NO_LOCALITY        = $0000;  (* ---- -000 ---- ---- *)
+   const OPEN_FLAGS_SEQUENTIAL         = $0100;  (* ---- -001 ---- ---- *)
+   const OPEN_FLAGS_RANDOM             = $0200;  (* ---- -010 ---- ---- *)
+   const OPEN_FLAGS_RANDOMSEQUENTIAL   = $0300;  (* ---- -011 ---- ---- *)
+   const OPEN_FLAGS_NO_CACHE           = $1000;  (* ---1 ---- ---- ---- *)
+   const OPEN_FLAGS_FAIL_ON_ERROR      = $2000;  (* --1- ---- ---- ---- *)
+   const OPEN_FLAGS_WRITE_THROUGH      = $4000;  (* -1-- ---- ---- ---- *)
+   const OPEN_FLAGS_DASD               = $8000;  (* 1--- ---- ---- ---- *)
+   const OPEN_FLAGS_NONSPOOLED         = $00040000;
+   const OPEN_SHARE_DENYLEGACY     =  $10000000;   (* 2GB *)
+   const OPEN_FLAGS_PROTECTED_HANDLE = $40000000;
 
 
-   /************************************************************
+   (* DosSearchPath() constants *)
+   const SEARCH_PATH          = $0000;
+   const SEARCH_CUR_DIRECTORY = $0001;
+   const SEARCH_ENVIRONMENT   = $0002;
+   const SEARCH_IGNORENETERRS = $0004;
+
+
+   (************************************************************
    EA Info Levels & Find First/Next
    =========================================
    API's: DosFindFirst, DosQueryFileInfo, DosQueryPathInfo, DosSetFileInfo,
    DosSetPathInfo
-   ************************************************************/
+   ************************************************************)
 
-   /* File info levels&gml All listed API's */
-   #define FIL_STANDARD           1     /* Info level 1, standard file info */
-   #define FIL_QUERYEASIZE        2     /* Level 2, return Full EA size */
-   #define FIL_QUERYEASFROMLIST   3     /* Level 3, return requested EA's */
-   #define FIL_STANDARDL         11     /* LFS - Info level 11, standard file info for large files*/
-   #define FIL_QUERYEASIZEL      12     /* LFS - Level 12, return Full EA size for large files */
-   #define FIL_QUERYEASFROMLISTL 13     /* LFS - Level 13, return requested EA's */
-
-
-   /* File info levels: Dos...PathInfo only */
-   #define FIL_QUERYFULLNAME     5     /* Level 5, return fully qualified
-   name of file */
+   (* File info levels&gml All listed API's *)
+   const FIL_STANDARD          =  1;     (* Info level 1, standard file info *)
+   const FIL_QUERYEASIZE       =  2;     (* Level 2, return Full EA size *)
+   const FIL_QUERYEASFROMLIST  =  3;     (* Level 3, return requested EA's *)
+   const FIL_STANDARDL         = 11;     (* LFS - Info level 11, standard file info for large files*)
+   const FIL_QUERYEASIZEL      = 12;     (* LFS - Level 12, return Full EA size for large files *)
+   const FIL_QUERYEASFROMLISTL = 13;     (* LFS - Level 13, return requested EA's *)
 
 
-   /* DosFsAttach() */
-   /* Attact or detach */
-   #define FS_ATTACH             0     /* Attach file server */
-   #define FS_DETACH             1     /* Detach file server */
-   #define FS_SPOOLATTACH        2     /* Register a spooler device */
-   #define FS_SPOOLDETACH        3     /* De-register a spooler device */
+   (* File info levels: Dos...PathInfo only *)
+   const FIL_QUERYFULLNAME    = 5;     (* Level 5, return fully qualified
+   name of file *)
 
 
-   /* DosFsCtl() */
-   /* Routing type */
-   #define FSCTL_HANDLE          1     /* File Handle directs req routing */
-   #define FSCTL_PATHNAME        2     /* Path Name directs req routing   */
-   #define FSCTL_FSDNAME         3     /* FSD Name directs req routing    */
-
-   /* defined FSCTL functions */
-   #define FSCTL_ERROR_INFO            1  /* return error info from FSD  */
-   #define FSCTL_MAX_EASIZE            2  /* Max ea size for the FSD     */
-   #define FSCTL_GET_NEXT_ROUTE_NAME   3  /* Rtrn next valid FSD name    */
-   #define FSCTL_DAEMON_QUERY          4  /* FSD query for daemon rqrmnt */
-
-   /* defined FSCTL query flags */
-   #define FSCTL_QUERY_COMPLETE     0x0000
-   #define FSCTL_QUERY_AGAIN        0x0001
-
-   typedef struct _EASIZEBUF      /* easizebuf struct for FSCTL fn 2  */
-   {                              /* max ea size                      */
-      USHORT  cbMaxEASize;        /* max. size of one EA              */
-      ULONG   cbMaxEAListSize;    /* max size of the full EA List     */
-   } EASIZEBUF;
-   typedef EASIZEBUF  *PEASIZEBUF;
-
-   typedef struct _ROUTENAMEBUF /* routenamebuf struct for FSCTL fn 3 - return next FSD name */
-   {
-      ULONG   hRouteHandle;   /* Input- set to 0 for first name, use    */
-                              /*   the value returned for next name     */
-                              /* Output- handle to use to get next name */
-      UCHAR   szRouteName;    /* Registered FSD name that can be used   */
-                              /*   for FSCTL_FSDNAME routing type       */
-   } ROUTENAMEBUF;
-   typedef ROUTENAMEBUF *PROUTENAMEBUF;
-
-   /* Data associated with an FSD Daemon thread spawning action  */
-
-   typedef struct _FSDTHREAD  /* fsdthread struct for FSCTL fn 4 */
-   {
-      USHORT  usFunc;
-      USHORT  usStackSize;
-      ULONG   ulPriorityClass;
-      LONG    lPriorityLevel;
-   } FSDTHREAD;
-
-   /* Data associated with an FSD Daemon thread requirements     */
-   typedef struct _FSDDAEMON  /* fsddaemon struct for FSCTL fn 4 */
-   {
-      USHORT     usNumThreads;
-      USHORT     usMoreFlag;
-      USHORT     usCallInstance;
-      FSDTHREAD  tdThrds[16];
-   } FSDDAEMON;
-
-   /* DosQueryFSAttach() */
-   /* Information level types (defines method of query) */
-   #define FSAIL_QUERYNAME       1     /* Return data for a Drive or Device */
-   #define FSAIL_DEVNUMBER       2     /* Return data for Ordinal Device # */
-   #define FSAIL_DRVNUMBER       3     /* Return data for Ordinal Drive # */
-
-   /* Item types (from data structure item "iType") */
-   #define FSAT_CHARDEV          1     /* Resident character device */
-   #define FSAT_PSEUDODEV        2     /* Pusedu-character device */
-   #define FSAT_LOCALDRV         3     /* Local drive */
-   #define FSAT_REMOTEDRV        4     /* Remote drive attached to FSD */
-
-   typedef struct _FSQBUFFER      /* fsqbuf Data structure for QFSAttach */
-   {
-      USHORT  iType;              /* Item type */
-      USHORT  cbName;             /* Length of item name, sans NULL */
-      UCHAR   szName[1];          /* ASCIIZ item name */
-      USHORT  cbFSDName;          /* Length of FSD name, sans NULL */
-      UCHAR   szFSDName[1];       /* ASCIIZ FSD name */
-      USHORT  cbFSAData;          /* Length of FSD Attach data returned */
-      UCHAR   rgFSAData[1];       /* FSD Attach data from FSD */
-   } FSQBUFFER;
-   typedef FSQBUFFER  *PFSQBUFFER;
+   (* DosFsAttach() *)
+   (* Attact or detach *)
+   const FS_ATTACH            = 0;     (* Attach file server *)
+   const FS_DETACH            = 1;     (* Detach file server *)
+   const FS_SPOOLATTACH       = 2;     (* Register a spooler device *)
+   const FS_SPOOLDETACH       = 3;     (* De-register a spooler device *)
 
 
-   typedef struct _FSQBUFFER2       /* fsqbuf2 Data structure for QFSAttach */
-   {
-      USHORT  iType;
-      USHORT  cbName;
-      USHORT  cbFSDName;
-      USHORT  cbFSAData;
-      UCHAR   szName[1];
-      UCHAR   szFSDName[1];
-      UCHAR   rgFSAData[1];
-   } FSQBUFFER2;
-   typedef FSQBUFFER2 *PFSQBUFFER2;
+   (* DosFsCtl() *)
+   (* Routing type *)
+   const FSCTL_HANDLE         = 1;     (* File Handle directs req routing *)
+   const FSCTL_PATHNAME       = 2;     (* Path Name directs req routing   *)
+   const FSCTL_FSDNAME        = 3;     (* FSD Name directs req routing    *)
 
-   typedef struct _SPOOLATTACH      /* spool Data structure for spooler operations */
-   {
-      USHORT  hNmPipe;              /* Named pipe handle */
-      ULONG   ulKey;                /* Attached key */
-   } SPOOLATTACH;
-   typedef SPOOLATTACH  *PSPOOLATTACH;
+   (* defined FSCTL functions *)
+   const FSCTL_ERROR_INFO           = 1;  (* return error info from FSD  *)
+   const FSCTL_MAX_EASIZE           = 2;  (* Max ea size for the FSD     *)
+   const FSCTL_GET_NEXT_ROUTE_NAME  = 3;  (* Rtrn next valid FSD name    *)
+   const FSCTL_DAEMON_QUERY         = 4;  (* FSD query for daemon rqrmnt *)
+
+   (* defined FSCTL query flags *)
+   const FSCTL_QUERY_COMPLETE    = $0000;
+   const FSCTL_QUERY_AGAIN       = $0001;
+
+   type EASIZEBUF=structure      (* easizebuf struct for FSCTL fn 2  *)
+                                (* max ea size                      *)
+      cbMaxEASize: USHORT;        (* max. size of one EA              *)
+      cbMaxEAListSize: ULONG;    (* max size of the full EA List     *)
+   end;
+   type PEASIZEBUF=EASIZEBUF;
+
+   type ROUTENAMEBUF=structure (* routenamebuf struct for FSCTL fn 3 - return next FSD name *)
+      hRouteHandle: ULONG;   (* Input- set to 0 for first name, use    *)
+                              (*   the value returned for next name     *)
+                              (* Output- handle to use to get next name *)
+      szRouteName: UCHAR;    (* Registered FSD name that can be used   *)
+                              (*   for FSCTL_FSDNAME routing type       *)
+   end;
+   type PROUTENAMEBUF=PROUTENAMEBUF;
+
+   (* Data associated with an FSD Daemon thread spawning action  *)
+
+   type FSDTHREAD=structure  (* fsdthread struct for FSCTL fn 4 *)
+      usFunc: USHORT;
+      usStackSize: USHORT;
+      ulPriorityClass: ULONG;
+      lPriorityLevel: LONG;
+   end;
+
+   (* Data associated with an FSD Daemon thread requirements     *)
+   type FSDDAEMON=structure  (* fsddaemon struct for FSCTL fn 4 *)
+           usNumThreads: USHORT;
+           usMoreFlag: USHORT;
+           usCallInstance: USHORT;
+           tdThrds=array[0..15] of FSDTHREAD;
+   end;
+
+   (* DosQueryFSAttach() *)
+   (* Information level types (defines method of query) *)
+   const FSAIL_QUERYNAME      = 1;     (* Return data for a Drive or Device *)
+   const FSAIL_DEVNUMBER      = 2;     (* Return data for Ordinal Device # *)
+   const FSAIL_DRVNUMBER      = 3;     (* Return data for Ordinal Drive # *)
+
+   (* Item types (from data structure item "iType") *)
+   const FSAT_CHARDEV         = 1;     (* Resident character device *)
+   const FSAT_PSEUDODEV       = 2;     (* Pusedu-character device *)
+   const FSAT_LOCALDRV        = 3;     (* Local drive *)
+   const FSAT_REMOTEDRV       = 4;     (* Remote drive attached to FSD *)
+
+   type FSQBUFFER=structure      (* fsqbuf Data structure for QFSAttach *)
+      iType: USHORT;              (* Item type *)
+      cbName: USHORT;             (* Length of item name, sans NULL *)
+      szName:array[0..0] of UCHAR;          (* ASCIIZ item name *)
+      cbFSDName: USHORT;          (* Length of FSD name, sans NULL *)
+      szFSDName:array[0..0] of UCHAR;       (* ASCIIZ FSD name *)
+      cbFSAData: USHORT;          (* Length of FSD Attach data returned *)
+      rgFSAData:array[0..0] of UCHAR;       (* FSD Attach data from FSD *)
+   end;
+   type PFSQBUFFER=^FSQBUFFER;
 
 
-   /*****************************************************************************
+   type FSQBUFFER2 =structure      (* fsqbuf2 Data structure for QFSAttach *)
+      iType: USHORT;
+      cbName: USHORT;
+      cbFSDName: USHORT;
+      cbFSAData: USHORT;
+      szName:array[0..0] of UCHAR;
+      szFSDName: array[0..0] of UCHAR;
+      rgFSAData: array[0..0] of UCHAR ;
+   end;
+   type PFSQBUFFER2=^FSQBUFFER2;
+
+   type SPOOLATTACH=structure      (* spool Data structure for spooler operations *)
+      hNmPipe: USHORT;              (* Named pipe handle *)
+      ulKey: ULONG;                (* Attached key *)
+   end;
+   type PSPOOLATTACH=^SPOOLATTACH;
+
+
+   (*****************************************************************************
    * File System Drive Information&gml DosQueryFSInfo DosSetFSInfo              *
-   *****************************************************************************/
+   *****************************************************************************)
 
-   /* FS Drive Info Levels */
-   #define FSIL_ALLOC            1     /* Drive allocation info (Query only) */
-   #define FSIL_VOLSER           2     /* Drive Volum/Serial info */
+   (* FS Drive Info Levels *)
+   const FSIL_ALLOC           = 1;     (* Drive allocation info (Query only) *)
+   const FSIL_VOLSER          = 2;     (* Drive Volum/Serial info *)
 
-   /* DosQueryFHType() */
-   /* Handle classes (low 8 bits of Handle Type) */
-   #define FHT_DISKFILE          0x0000   /* Disk file handle */
-   #define FHT_CHRDEV            0x0001   /* Character device handle */
-   #define FHT_PIPE              0x0002   /* Pipe handle */
+   (* DosQueryFHType() *)
+   (* Handle classes (low 8 bits of Handle Type) *)
+   const FHT_DISKFILE         = $0000;   (* Disk file handle *)
+   const FHT_CHRDEV           = $0001;   (* Character device handle *)
+   const FHT_PIPE             = $0002;   (* Pipe handle *)
 
-   /* Handle bits (high 8 bits of Handle Type) */
-   #define FHB_DSKREMOTE         0x8000   /* Remote disk */
-   #define FHB_CHRDEVREMOTE      0x8000   /* Remote character device */
-   #define FHB_PIPEREMOTE        0x8000   /* Remote pipe */
-
-
-
-   #ifndef INCL_SAADEFS
-      /* File time and date types */
-#if __IBMC__ || __IBMCPP__
-         typedef struct _FTIME           /* ftime */
-         {
-            UINT   twosecs : 5;
-            UINT   minutes : 6;
-            UINT   hours   : 5;
-         } FTIME;
-         typedef FTIME *PFTIME;
-      #else
-         typedef struct _FTIME           /* ftime */
-         {
-            USHORT   twosecs : 5;
-            USHORT   minutes : 6;
-            USHORT   hours   : 5;
-         } FTIME;
-         typedef FTIME *PFTIME;
-      #endif
-
-#if __IBMC__ || __IBMCPP__
-         typedef struct _FDATE           /* fdate */
-         {
-            UINT   day     : 5;
-            UINT   month   : 4;
-            UINT   year    : 7;
-         } FDATE;
-         typedef FDATE   *PFDATE;
-      #else
-         typedef struct _FDATE           /* fdate */
-         {
-            USHORT   day     : 5;
-            USHORT   month   : 4;
-            USHORT   year    : 7;
-         } FDATE;
-         typedef FDATE   *PFDATE;
-      #endif
-   #endif /* INCL_SAADEFS */
+   (* Handle bits (high 8 bits of Handle Type) *)
+   const FHB_DSKREMOTE        = $8000;   (* Remote disk *)
+   const FHB_CHRDEVREMOTE     = $8000;   (* Remote character device *)
+   const FHB_PIPEREMOTE       = $8000;   (* Remote pipe *)
 
 
-   typedef struct _VOLUMELABEL      /* vol */
-   {
-      BYTE cch;
-      CHAR szVolLabel[12];
-   } VOLUMELABEL;
-   typedef VOLUMELABEL  *PVOLUMELABEL;
 
-   typedef struct _FSINFO      /* fsinf */
-   {
-      FDATE fdateCreation;
-      FTIME ftimeCreation;
-      VOLUMELABEL vol;
-   } FSINFO;
-   typedef FSINFO *PFSINFO;
+      (* File time and date types *)
+         type FTIME=structure           (* ftime *)
+            twosecs: USHORT; (* : 5; *)
+            minutes: USHORT; (* : 6; *)
+            hours: USHORT; (*  : 5; *)
+         end;
+         type PFTIME=^FTIME;
 
-   /* HANDTYPE values */
-   #define HANDTYPE_FILE         0x0000
-   #define HANDTYPE_DEVICE       0x0001
-   #define HANDTYPE_PIPE         0x0002
-   #define HANDTYPE_PROTECTED    0x4000
-   #define HANDTYPE_NETWORK      0x8000
-
-   typedef struct _FILELOCK      /* flock */
-   {
-      LONG lOffset;
-      LONG lRange;
-   } FILELOCK;
-   typedef FILELOCK  *PFILELOCK;
-
-   /* Large File Support >2GB */
-   typedef struct _FILELOCKL     /* flock */
-   {
-      LONGLONG lOffset;
-      LONGLONG lRange;
-   } FILELOCKL;
-   typedef FILELOCKL  *PFILELOCKL;
-
-   #ifndef __HEV__            /* INCL_SEMAPHORE may also define HEV */
-      #define __HEV__
-      typedef  ULONG    HEV;             /* hev */
-      typedef  HEV      *PHEV;
-   #endif
-
-   typedef  ULONG  FHLOCK;
-   typedef  PULONG PFHLOCK;
-
-   APIRET APIENTRY DosSetFileLocks(HFILE hFile,
-                                   PFILELOCK pflUnlock,
-                                   PFILELOCK pflLock,
-                                   ULONG timeout,
-                                   ULONG flags);
-
-   /* Large File Support >2GB */
-   APIRET APIENTRY DosSetFileLocksL(HFILE hFile,
-                                    PFILELOCKL pflUnlock,
-                                    PFILELOCKL pflLock,
-                                    ULONG timeout,
-                                    ULONG flags);
-
-   APIRET APIENTRY DosProtectSetFileLocks(HFILE hFile,
-                                          PFILELOCK pflUnlock,
-                                          PFILELOCK pflLock,
-                                          ULONG timeout, ULONG flags,
-                                          FHLOCK fhFileHandleLockID);
-
-   /* Large File Support >2GB */
-   APIRET APIENTRY DosProtectSetFileLocksL(HFILE hFile,
-                                           PFILELOCKL pflUnlock,
-                                           PFILELOCKL pflLock,
-                                           ULONG timeout, ULONG flags,
-                                           FHLOCK fhFileHandleLockID);
-
-   APIRET APIENTRY DosCancelLockRequest(HFILE hFile,
-                                        PFILELOCK pflLock);
+         type FDATE=structure           (* fdate *)
+            day: USHORT;   (*  : 5;    *)
+            month: USHORT; (*  : 4; *)
+            year: USHORT;  (*  : 7; *)
+         end;
+         type PFDATE=^FDATE;
 
 
-   /* Large File Support >2GB */
-   APIRET APIENTRY DosCancelLockRequestL(HFILE hFile,
-                                         PFILELOCKL pflLock);
+   type VOLUMELABEL=structure      (* vol *)
+      cch: BYTE;
+      szVolLabel:array[0..11] of CHAR;
+   end;
+   type PVOLUMELABEL=^VOLUMELABEL;
 
-   #ifndef INCL_SAADEFS
+   type FSINFO=structure      (* fsinf *)
+      fdateCreation: FDATE;
+      ftimeCreation: FTIME;
+      vol: VOLUMELABEL;
+   end;
+   type PFSINFO=^FSINFO;
 
-      typedef struct _FILEFINDBUF     /* findbuf */
-      {
-         FDATE  fdateCreation;
-         FTIME  ftimeCreation;
-         FDATE  fdateLastAccess;
-         FTIME  ftimeLastAccess;
-         FDATE  fdateLastWrite;
-         FTIME  ftimeLastWrite;
-         ULONG  cbFile;
-         ULONG  cbFileAlloc;
-         USHORT attrFile;
-         UCHAR  cchName;
-         CHAR   achName[CCHMAXPATHCOMP];
-      } FILEFINDBUF;
+   (* HANDTYPE values *)
+   const HANDTYPE_FILE        = $0000;
+   const HANDTYPE_DEVICE      = $0001;
+   const HANDTYPE_PIPE        = $0002;
+   const HANDTYPE_PROTECTED   = $4000;
+   const HANDTYPE_NETWORK     = $8000;
 
-      typedef FILEFINDBUF *PFILEFINDBUF;
+   type FILELOCK=structure     (* flock *)
+      lOffset: LONG;
+      lRange: LONG;
+   end;
+   type PFILELOCK=^FILELOCK;
 
-      /*NOINC */
-      #pragma pack(2)
-      /*INC  */
-      typedef struct _FILEFINDBUF2    /* findbuf2 */
+   (* Large File Support >2GB *)
+   type FILELOCKL=structure     (* flock *)
+       lOffset: LONGLONG;
+       lRange: LONGLONG;
+   end;
+   type PFILELOCKL=^FILELOCKL;
+
+   type  HEV=ULONG;             (* hev *)
+   type  PHEV=^HEV;
+
+   type    FHLOCK=ULONG;
+   type    PFHLOCK=PULONG;
+
+   function DosSetFileLocks(hFile: HFILE;
+                                   pflUnlock:PFILELOCK;
+                                   pflLock:PFILELOCK;
+                                   timeout: ULONG;
+                                   flags: ULONG): APIRET;
+
+   (* Large File Support >2GB *)
+function DosSetFileLocksL( hFile:HFILE;
+                                     pflUnlock: PFILELOCKL;
+                                     pflLock:PFILELOCKL;
+                                     timeout:ULONG;
+                                     flags:ULONG): APIRET;
+
+function DosProtectSetFileLocks( hFile: HFILE;
+                                           pflUnlock:PFILELOCK;
+                                           pflLock: PFILELOCK;
+                                           timeout:ULONG;
+                                           flags: ULONG;
+                                           fhFileHandleLockID: FHLOCK): APIRET;
+
+   (* Large File Support >2GB *)
+function DosProtectSetFileLocksL(hFile: HFILE;
+                                            pflUnlock: PFILELOCKL;
+                                            pflLock: PFILELOCKL;
+                                            timeout: ULONG;
+                                            flags: ULONG;
+                                            fhFileHandleLockID: FHLOCK): APIRET;
+
+function DosCancelLockRequest(hFile: HFILE; pflLock: PFILELOCK): APIRET;
+
+
+   (* Large File Support >2GB *)
+function DosCancelLockRequestL(hFile: HFILE; pflLock: PFILELOCKL): APIRET;
+
+
+      type FILEFINDBUF=structure     (* findbuf *)
+           fdateCreation: FDATE;
+           ftimeCreation: FTIME;
+           fdateLastAccess: FDATE;
+           ftimeLastAccess: FTIME;
+           fdateLastWrite: FDATE;
+           ftimeLastWrite: FTIME;
+           cbFile: ULONG;
+           cbFileAlloc: ULONG;
+           attrFile: USHORT;
+           cchName: UCHAR;
+           achName: array[0..CCHMAXPATHCOMP-1] of CHAR;
+      end;
+
+      type PFILEFINDBUF=^FILEFINDBUF;
+
+      type struct _FILEFINDBUF2    (* findbuf2 *)
       {
          FDATE  fdateCreation;
          FTIME  ftimeCreation;
@@ -397,11 +356,11 @@
          UCHAR  cchName;
          CHAR   achName[CCHMAXPATHCOMP];
       } FILEFINDBUF2;
-      typedef FILEFINDBUF2 *PFILEFINDBUF2;
+      type FILEFINDBUF2 *PFILEFINDBUF2;
 
-      typedef struct _FILEFINDBUF3                 /* findbuf3 */
+      type struct _FILEFINDBUF3                 (* findbuf3 *)
       {
-         ULONG   oNextEntryOffset;            /* new field */
+         ULONG   oNextEntryOffset;            (* new field *)
          FDATE   fdateCreation;
          FTIME   ftimeCreation;
          FDATE   fdateLastAccess;
@@ -410,15 +369,15 @@
          FTIME   ftimeLastWrite;
          ULONG   cbFile;
          ULONG   cbFileAlloc;
-         ULONG   attrFile;                    /* widened field */
+         ULONG   attrFile;                    (* widened field *)
          UCHAR   cchName;
          CHAR    achName[CCHMAXPATHCOMP];
       } FILEFINDBUF3;
-      typedef FILEFINDBUF3 *PFILEFINDBUF3;
+      type FILEFINDBUF3 *PFILEFINDBUF3;
 
-      typedef struct _FILEFINDBUF4                 /* findbuf4 */
+      type struct _FILEFINDBUF4                 (* findbuf4 *)
       {
-         ULONG   oNextEntryOffset;            /* new field */
+         ULONG   oNextEntryOffset;            (* new field *)
          FDATE   fdateCreation;
          FTIME   ftimeCreation;
          FDATE   fdateLastAccess;
@@ -427,16 +386,16 @@
          FTIME   ftimeLastWrite;
          ULONG   cbFile;
          ULONG   cbFileAlloc;
-         ULONG   attrFile;                    /* widened field */
+         ULONG   attrFile;                    (* widened field *)
          ULONG   cbList;
          UCHAR   cchName;
          CHAR    achName[CCHMAXPATHCOMP];
       } FILEFINDBUF4;
-      typedef FILEFINDBUF4  *PFILEFINDBUF4;
+      type FILEFINDBUF4  *PFILEFINDBUF4;
 
-      typedef struct _FILEFINDBUF3L                 /* findbuf3l */
+      type struct _FILEFINDBUF3L                 (* findbuf3l *)
       {
-         ULONG    oNextEntryOffset;            /* new field */
+         ULONG    oNextEntryOffset;            (* new field *)
          FDATE    fdateCreation;
          FTIME    ftimeCreation;
          FDATE    fdateLastAccess;
@@ -445,15 +404,15 @@
          FTIME    ftimeLastWrite;
          LONGLONG cbFile;
          LONGLONG cbFileAlloc;
-         ULONG    attrFile;                    /* widened field */
+         ULONG    attrFile;                    (* widened field *)
          UCHAR    cchName;
          CHAR     achName[CCHMAXPATHCOMP];
       } FILEFINDBUF3L;
-      typedef FILEFINDBUF3L *PFILEFINDBUF3L;
+      type FILEFINDBUF3L *PFILEFINDBUF3L;
 
-      typedef struct _FILEFINDBUF4L                /* findbuf4l */
+      type struct _FILEFINDBUF4L                (* findbuf4l *)
       {
-         ULONG    oNextEntryOffset;            /* new field */
+         ULONG    oNextEntryOffset;            (* new field *)
          FDATE    fdateCreation;
          FTIME    ftimeCreation;
          FDATE    fdateLastAccess;
@@ -462,736 +421,579 @@
          FTIME    ftimeLastWrite;
          LONGLONG cbFile;
          LONGLONG cbFileAlloc;
-         ULONG    attrFile;                    /* widened field */
+         ULONG    attrFile;                    (* widened field *)
          ULONG    cbList;
          UCHAR    cchName;
          CHAR     achName[CCHMAXPATHCOMP];
       } FILEFINDBUF4L;
-      typedef FILEFINDBUF4L  *PFILEFINDBUF4L;
+      type FILEFINDBUF4L  *PFILEFINDBUF4L;
 
-      /* extended attribute structures */
+      (* extended attribute structures *)
 
-      typedef struct _GEA         /* gea */
+      type struct _GEA         (* gea *)
       {
-         BYTE cbName;        /* name length not including NULL */
-         CHAR szName[1];     /* attribute name */
+         BYTE cbName;        (* name length not including NULL *)
+         CHAR szName[1];     (* attribute name *)
       } GEA;
-      typedef GEA *PGEA;
+      type GEA *PGEA;
 
-      typedef struct _GEALIST     /* geal */
+      type struct _GEALIST     (* geal *)
       {
-         ULONG cbList;       /* total bytes of structure including full list */
-         GEA list[1];        /* variable length GEA structures */
+         ULONG cbList;       (* total bytes of structure including full list *)
+         GEA list[1];        (* variable length GEA structures *)
       } GEALIST;
-      typedef GEALIST  *PGEALIST;
+      type GEALIST  *PGEALIST;
 
-      typedef struct _FEA         /* fea */
+      type struct _FEA         (* fea *)
       {
-         BYTE fEA;           /* flags                              */
-         BYTE cbName;        /* name length not including NULL */
-         USHORT cbValue;     /* value length */
+         BYTE fEA;           (* flags                              *)
+         BYTE cbName;        (* name length not including NULL *)
+         USHORT cbValue;     (* value length *)
       } FEA;
-      typedef FEA *PFEA;
+      type FEA *PFEA;
 
-      /* flags for _FEA.fEA */
-      #define FEA_NEEDEA         0x80     /* need EA bit */
+      (* flags for _FEA.fEA *)
+      const FEA_NEEDEA         $80     (* need EA bit *)
 
-      typedef struct _FEALIST     /* feal */
+      type struct _FEALIST     (* feal *)
       {
-         ULONG cbList;       /* total bytes of structure including full list */
-         FEA list[1];        /* variable length FEA structures */
+         ULONG cbList;       (* total bytes of structure including full list *)
+         FEA list[1];        (* variable length FEA structures *)
       } FEALIST;
-      typedef FEALIST *PFEALIST;
+      type FEALIST *PFEALIST;
 
-      typedef struct _EAOP        /* eaop */
+      type struct _EAOP        (* eaop *)
       {
-         PGEALIST fpGEAList; /* general EA list */
-         PFEALIST fpFEAList; /* full EA list */
+         PGEALIST fpGEAList; (* general EA list *)
+         PFEALIST fpFEAList; (* full EA list *)
          ULONG oError;
       } EAOP;
-      typedef EAOP *PEAOP;
+      type EAOP *PEAOP;
 
-      /*NOINC*/
-      #pragma pack(1)
-      /*INC*/
 
-      typedef struct _FEA2         /* fea2 */
+      type struct _FEA2         (* fea2 *)
       {
-         ULONG   oNextEntryOffset;    /* new field */
+         ULONG   oNextEntryOffset;    (* new field *)
          BYTE    fEA;
          BYTE    cbName;
          USHORT  cbValue;
-         CHAR    szName[1];           /* new field */
+         CHAR    szName[1];           (* new field *)
       } FEA2;
-      typedef FEA2 *PFEA2;
+      type FEA2 *PFEA2;
 
 
-      typedef struct _FEA2LIST     /* fea2l */
+      type struct _FEA2LIST     (* fea2l *)
       {
          ULONG   cbList;
          FEA2    list[1];
       } FEA2LIST;
-      typedef FEA2LIST *PFEA2LIST;
+      type FEA2LIST *PFEA2LIST;
 
-      typedef struct _GEA2          /* gea2 */
+      type struct _GEA2          (* gea2 *)
       {
-         ULONG   oNextEntryOffset;     /* new field */
+         ULONG   oNextEntryOffset;     (* new field *)
          BYTE    cbName;
-         CHAR    szName[1];            /* new field */
+         CHAR    szName[1];            (* new field *)
       } GEA2;
-      typedef GEA2 *PGEA2;
+      type GEA2 *PGEA2;
 
-      typedef struct _GEA2LIST      /* gea2l */
+      type struct _GEA2LIST      (* gea2l *)
       {
          ULONG   cbList;
          GEA2    list[1];
       } GEA2LIST;
-      typedef GEA2LIST *PGEA2LIST;
+      type GEA2LIST *PGEA2LIST;
 
-      typedef struct _EAOP2         /* eaop2 */
+      type struct _EAOP2         (* eaop2 *)
       {
-         PGEA2LIST   fpGEA2List;       /* GEA set */
-         PFEA2LIST   fpFEA2List;       /* FEA set */
-         ULONG       oError;           /* offset of FEA error */
+         PGEA2LIST   fpGEA2List;       (* GEA set *)
+         PFEA2LIST   fpFEA2List;       (* FEA set *)
+         ULONG       oError;           (* offset of FEA error *)
       } EAOP2;
-      typedef EAOP2 *PEAOP2;
+      type EAOP2 *PEAOP2;
 
 
-      /*
+      (*
       * Equates for the types of EAs that follow the convention that we have
       * established.
       *
-      * Values 0xFFFE thru 0x8000 are reserved.
-      * Values 0x0000 thru 0x7fff are user definable.
-      * Value  0xFFFC is not used
-      */
+      * Values $FFFE thru $8000 are reserved.
+      * Values $0000 thru $7fff are user definable.
+      * Value  $FFFC is not used
+      *)
 
-      #define EAT_BINARY      0xFFFE      /* length preceeded binary */
-      #define EAT_ASCII       0xFFFD      /* length preceeded ASCII */
-      #define EAT_BITMAP      0xFFFB      /* length preceeded bitmap */
-      #define EAT_METAFILE    0xFFFA      /* length preceeded metafile */
-      #define EAT_ICON        0xFFF9      /* length preceeded icon */
-      #define EAT_EA          0xFFEE      /* length preceeded ASCII */
-                                          /* name of associated data (#include) */
-      #define EAT_MVMT        0xFFDF      /* multi-valued, multi-typed field */
-      #define EAT_MVST        0xFFDE      /* multi-valued, single-typed field */
-      #define EAT_ASN1        0xFFDD      /* ASN.1 field */
+      const EAT_BINARY     = $FFFE;      (* length preceeded binary *)
+      const EAT_ASCII      = $FFFD;      (* length preceeded ASCII *)
+      const EAT_BITMAP     = $FFFB;      (* length preceeded bitmap *)
+      const EAT_METAFILE   = $FFFA;      (* length preceeded metafile *)
+      const EAT_ICON       = $FFF9;      (* length preceeded icon *)
+      const EAT_EA         = $FFEE;      (* length preceeded ASCII *)
+                                          (* name of associated data (#include) *)
+      const EAT_MVMT       = $FFDF;      (* multi-valued, multi-typed field *)
+      const EAT_MVST       = $FFDE;      (* multi-valued, single-typed field *)
+      const EAT_ASN1       = $FFDD;      (* ASN.1 field *)
 
-   #endif  /* !INCL_SAADEFS */
-   /*NOINC*/
-   #pragma pack()
-   /*INC*/
 
-   /* list i/o structures  154932 */
+   (* list i/o structures  154932 *)
 
-   typedef struct _LISTIO_CB { /* LIO */
-       HFILE   hFile;          /* file handle */
-       ULONG   CmdFlag;        /* command flag */
-       LONG    Offset;         /* seek offset */
-       PVOID   pBuffer;        /* pointer to buffer */
-       ULONG   NumBytes;       /* number of bytes to r/w */
-       ULONG   Actual;         /* actual number of bytes r/w */
-       ULONG   RetCode;        /* operation return code */
-       ULONG   Reserved;       /* (internal) */
-       ULONG   Reserved2[3];   /* (internal) */
-       ULONG   Reserved3[2];   /* (internal) */
+   type struct _LISTIO_CB { (* LIO *)
+       HFILE   hFile;          (* file handle *)
+       ULONG   CmdFlag;        (* command flag *)
+       LONG    Offset;         (* seek offset *)
+       PVOID   pBuffer;        (* pointer to buffer *)
+       ULONG   NumBytes;       (* number of bytes to r/w *)
+       ULONG   Actual;         (* actual number of bytes r/w *)
+       ULONG   RetCode;        (* operation return code *)
+       ULONG   Reserved;       (* (internal) *)
+       ULONG   Reserved2[3];   (* (internal) *)
+       ULONG   Reserved3[2];   (* (internal) *)
    } LISTIO;
-   typedef LISTIO   *PLISTIO;
+   type LISTIO   *PLISTIO;
 
-   /* Large File Support >2GB */
-   typedef struct _LISTIO_CBL { /* LIO */
-       HFILE    hFile;          /* file handle */
-       ULONG    CmdFlag;        /* command flag */
-       LONGLONG Offset;         /* seek offset */
-       PVOID    pBuffer;        /* pointer to buffer */
-       ULONG    NumBytes;       /* number of bytes to r/w */
-       ULONG    Actual;         /* actual number of bytes r/w */
-       ULONG    RetCode;        /* operation return code */
-       ULONG    Reserved;       /* (internal) */
-       ULONG    Reserved2[3];   /* (internal) */
-       ULONG    Reserved3[2];   /* (internal) */
+   (* Large File Support >2GB *)
+   type struct _LISTIO_CBL { (* LIO *)
+       HFILE    hFile;          (* file handle *)
+       ULONG    CmdFlag;        (* command flag *)
+       LONGLONG Offset;         (* seek offset *)
+       PVOID    pBuffer;        (* pointer to buffer *)
+       ULONG    NumBytes;       (* number of bytes to r/w *)
+       ULONG    Actual;         (* actual number of bytes r/w *)
+       ULONG    RetCode;        (* operation return code *)
+       ULONG    Reserved;       (* (internal) *)
+       ULONG    Reserved2[3];   (* (internal) *)
+       ULONG    Reserved3[2];   (* (internal) *)
    } LISTIOL;
-   typedef LISTIOL   *PLISTIOL;
+   type LISTIOL   *PLISTIOL;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosOpen(PCSZ     pszFileName,
-                            PHFILE pHf,
-                            PULONG pulAction,
-                            ULONG  cbFile,
-                            ULONG  ulAttribute,
-                            ULONG  fsOpenFlags,
-                            ULONG  fsOpenMode,
-                            PEAOP2 peaop2);
-#else
-   APIRET APIENTRY  DosOpen(PSZ    pszFileName,
-                            PHFILE pHf,
-                            PULONG pulAction,
-                            ULONG  cbFile,
-                            ULONG  ulAttribute,
-                            ULONG  fsOpenFlags,
-                            ULONG  fsOpenMode,
-                            PEAOP2 peaop2);
-#endif
+function  DosOpen(pszFileName: PCSZ;
+                            pHf: PHFILE;
+                            pulAction: PULONG;
+                            cbFile: ULONG;
+                            ulAttribute: ULONG;
+                            fsOpenFlags: ULONG;
+                            fsOpenMode: ULONG;
+                            peaop2: PEAOP2): APIRET;
 
-   /* Large File Support > 2GB */
-#ifdef __cplusplus
-   APIRET APIENTRY DosOpenL(PCSZ  pszFileName,
-                            PHFILE phf,
-                            PULONG pulAction,
-                            LONGLONG cbFile,
-                            ULONG ulAttribute,
-                            ULONG fsOpenFlags,
-                            ULONG fsOpenMode,
-                            PEAOP2 peaop2);
-#else
-   APIRET APIENTRY DosOpenL(PSZ pszFileName,
-                            PHFILE phf,
-                            PULONG pulAction,
-                            LONGLONG cbFile,
-                            ULONG ulAttribute,
-                            ULONG fsOpenFlags,
-                            ULONG fsOpenMode,
-                            PEAOP2 peaop2);
-#endif
+   (* Large File Support > 2GB *)
+function DosOpenL(  pszFileName: PCSZ;
+                             phf: PHFILE;
+                             pulAction: PULONG;
+                             cbFile: LONGLONG;
+                             ulAttribute: ULONG;
+                             fsOpenFlags: ULONG;
+                             fsOpenMode: ULONG;
+                             peaop2: PEAOP2): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosProtectOpen(PCSZ  pszFileName,
-                                   PHFILE phf,
-                                   PULONG pulAction,
-                                   ULONG cbFile,
-                                   ULONG ulAttribute,
-                                   ULONG fsOpenFlags,
-                                   ULONG fsOpenMode,
-                                   PEAOP2 peaop2,
-                                   PFHLOCK pfhFileHandleLockID);
-#else
-   APIRET APIENTRY  DosProtectOpen(PSZ pszFileName,
-                                   PHFILE phf,
-                                   PULONG pulAction,
-                                   ULONG cbFile,
-                                   ULONG ulAttribute,
-                                   ULONG fsOpenFlags,
-                                   ULONG fsOpenMode,
-                                   PEAOP2 peaop2,
-                                   PFHLOCK pfhFileHandleLockID);
-#endif
+function  DosProtectOpen(pszFileName: PCSZ;
+                                    phf: PHFILE;
+                                    pulAction: PULONG;
+                                    cbFile: ULONG;
+                                    ulAttribute: ULONG;
+                                    fsOpenFlags: ULONG;
+                                    fsOpenMode: ULONG;
+                                    peaop2: PEAOP2;
+                                    pfhFileHandleLockID: PFHLOCK): APIRET;
 
-   /* Large File Support >2GB */
-#ifdef __cplusplus
-   APIRET APIENTRY  DosProtectOpenL(PCSZ  pszFileName,
-                                    PHFILE phf,
-                                    PULONG pulAction,
-                                    LONGLONG cbFile,
-                                    ULONG ulAttribute,
-                                    ULONG fsOpenFlags,
-                                    ULONG fsOpenMode,
-                                    PEAOP2 peaop2,
-                                    PFHLOCK pfhFileHandleLockID);
-#else
-   APIRET APIENTRY  DosProtectOpenL(PSZ pszFileName,
-                                    PHFILE phf,
-                                    PULONG pulAction,
-                                    LONGLONG cbFile,
-                                    ULONG ulAttribute,
-                                    ULONG fsOpenFlags,
-                                    ULONG fsOpenMode,
-                                    PEAOP2 peaop2,
-                                    PFHLOCK pfhFileHandleLockID);
-#endif
+   (* Large File Support >2GB *)
+function  DosProtectOpenL(  pszFileName: PCSZ;
+                                     phf: PHFILE;
+                                     pulAction: PULONG;
+                                     cbFile: LONGLONG;
+                                     ulAttribute: ULONG;
+                                     fsOpenFlags: ULONG;
+                                     fsOpenMode: ULONG;
+                                     peaop2: PEAOP2;
+                                     pfhFileHandleLockID: PFHLOCK): APIRET;
 
-   APIRET APIENTRY  DosClose(HFILE hFile);
+function  DosClose(hFile: HFILE): APIRET;
 
-   APIRET APIENTRY  DosProtectClose(HFILE hFile,
-                                    FHLOCK fhFileHandleLockID);
+function  DosProtectClose( hFile: HFILE;
+                                     fhFileHandleLockID: FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosRead(HFILE hFile,
-                            PVOID pBuffer,
-                            ULONG cbRead,
-                            PULONG pcbActual);
+function  DosRead(hFile: HFILE;
+                             pBuffer: PVOID;
+                             cbRead: ULONG;
+                             pcbActual: PULONG): APIRET;
 
-   APIRET APIENTRY  DosProtectRead(HFILE hFile,
-                                   PVOID pBuffer,
-                                   ULONG cbRead,
-                                   PULONG pcbActual,
-                                   FHLOCK fhFileHandleLockID);
+function  DosProtectRead( hFile: HFILE;
+                                    pBuffer: PVOID;
+                                    cbRead: ULONG;
+                                    pcbActual: PULONG;
+                                    fhFileHandleLockID: FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosWrite(HFILE hFile,
-                             PVOID pBuffer,
-                             ULONG cbWrite,
-                             PULONG pcbActual);
+function  DosWrite( hFile: HFILE;
+                              pBuffer: PVOID;
+                              cbWrite: ULONG;
+                              pcbActual: PULONG): APIRET;
 
-   APIRET APIENTRY  DosProtectWrite(HFILE hFile,
-                                    PVOID pBuffer,
-                                    ULONG cbWrite,
-                                    PULONG pcbActual,
-                                    FHLOCK fhFileHandleLockID);
+function  DosProtectWrite( hFile: HFILE;
+                                     pBuffer: PVOID;
+                                     cbWrite: ULONG;
+                                     pcbActual: PULONG;
+                                     fhFileHandleLockID: FHLOCK): APIRET;
 
-   /* 154932 */
-   APIRET  APIENTRY        DosListIO(ULONG ulCmdMode, ULONG ulNumentries,
-                                           PLISTIO pListIO);
+function    DosListIO( ulCmdMode: ULONG;  ulNumentries: ULONG;
+                                            pListIO: PLISTIO): APIRET;
 
-   /* File time and date types */
+   (* File time and date types *)
 
-   typedef struct _FILESTATUS      /* fsts */
+   type FILESTATUS=structure      (* fsts *)
+        fdateCreation: FDATE;
+        ftimeCreation: FTIME;
+        fdateLastAccess: FDATE;
+        ftimeLastAccess: FTIME;
+        fdateLastWrite: FDATE;
+        ftimeLastWrite: FTIME;
+        cbFile: ULONG;
+        cbFileAlloc: ULONG;
+        attrFile: USHORT;
+   end;
+   type PFILESTATUS=^FILESTATUS;
+
+   type FILESTATUS2=structure     (* fsts2 *)
+        fdateCreation: FDATE;
+        ftimeCreation: FTIME;
+        fdateLastAccess: FDATE;
+        ftimeLastAccess: FTIME;
+        fdateLastWrite: FDATE;
+        ftimeLastWrite: FTIME;
+        cbFile: ULONG;
+        cbFileAlloc: ULONG;
+        attrFile: USHORT;
+        cbList: ULONG;
+   end;
+   type PFILESTATUS2=^FILESTATUS2;
+
+   type FILESTATUS3=structure     (* fsts3 *)
    {
-      FDATE  fdateCreation;
-      FTIME  ftimeCreation;
-      FDATE  fdateLastAccess;
-      FTIME  ftimeLastAccess;
-      FDATE  fdateLastWrite;
-      FTIME  ftimeLastWrite;
-      ULONG  cbFile;
-      ULONG  cbFileAlloc;
-      USHORT attrFile;
-   } FILESTATUS;
-   typedef FILESTATUS *PFILESTATUS;
+        fdateCreation: FDATE;
+        ftimeCreation: FTIME;
+        fdateLastAccess: FDATE;
+        ftimeLastAccess: FTIME;
+        fdateLastWrite: FDATE;
+        ftimeLastWrite: FTIME;
+        cbFile: ULONG;
+        cbFileAlloc: ULONG;
+        attrFile: ULONG;
+   end;
+   type PFILESTATUS3=^FILESTATUS3;
 
-   typedef struct _FILESTATUS2     /* fsts2 */
+   type FILESTATUS4=structure      (* fsts4 *)
+        fdateCreation: FDATE;
+        ftimeCreation: FTIME;
+        fdateLastAccess: FDATE;
+        ftimeLastAccess: FTIME;
+        fdateLastWrite: FDATE;
+        ftimeLastWrite: FTIME;
+        cbFile: ULONG;
+        cbFileAlloc: ULONG;
+        attrFile: ULONG;
+        cbList: ULONG;
+   end;
+   type PFILESTATUS4=^FILESTATUS4;
+
+
+   (* Large File Support >2GB *)
+   type FILESTATUS3L=structure     (* fsts3L *)
+          fdateCreation: FDATE;
+          ftimeCreation: FTIME;
+          fdateLastAccess: FDATE;
+          ftimeLastAccess: FTIME;
+          fdateLastWrite: FDATE;
+          ftimeLastWrite: FTIME;
+          cbFile: LONGLONG;
+          cbFileAlloc: LONGLONG;
+          attrFile: ULONG;
+   end;
+   type PFILESTATUS3L=^FILESTATUS3L;
+
+   (* Large File Support >2GB *)
+   type FILESTATUS4L=structure      (* fsts4L *)
    {
-      FDATE  fdateCreation;
-      FTIME  ftimeCreation;
-      FDATE  fdateLastAccess;
-      FTIME  ftimeLastAccess;
-      FDATE  fdateLastWrite;
-      FTIME  ftimeLastWrite;
-      ULONG  cbFile;
-      ULONG  cbFileAlloc;
-      USHORT attrFile;
-      ULONG  cbList;
-   } FILESTATUS2;
-   typedef FILESTATUS2 *PFILESTATUS2;
-
-   typedef struct _FILESTATUS3     /* fsts3 */
-   {
-      FDATE  fdateCreation;
-      FTIME  ftimeCreation;
-      FDATE  fdateLastAccess;
-      FTIME  ftimeLastAccess;
-      FDATE  fdateLastWrite;
-      FTIME  ftimeLastWrite;
-      ULONG  cbFile;
-      ULONG  cbFileAlloc;
-      ULONG  attrFile;
-   } FILESTATUS3;
-   typedef FILESTATUS3 *PFILESTATUS3;
-
-   typedef struct _FILESTATUS4      /* fsts4 */
-   {
-      FDATE  fdateCreation;
-      FTIME  ftimeCreation;
-      FDATE  fdateLastAccess;
-      FTIME  ftimeLastAccess;
-      FDATE  fdateLastWrite;
-      FTIME  ftimeLastWrite;
-      ULONG  cbFile;
-      ULONG  cbFileAlloc;
-      ULONG  attrFile;
-      ULONG  cbList;
-   } FILESTATUS4;
-   typedef FILESTATUS4  *PFILESTATUS4;
+          fdateCreation: FDATE;
+          ftimeCreation: FTIME;
+          fdateLastAccess: FDATE;
+          ftimeLastAccess: FTIME;
+          fdateLastWrite: FDATE;
+          ftimeLastWrite: FTIME;
+          cbFile: LONGLONG;
+          cbFileAlloc: LONGLONG;
+          attrFile: ULONG;
+          cbList: ULONG;
+   end;
+   type PFILESTATUS4L=^FILESTATUS4L;
 
 
-   /* Large File Support >2GB */
-   typedef struct _FILESTATUS3L     /* fsts3L */
-   {
-      FDATE    fdateCreation;
-      FTIME    ftimeCreation;
-      FDATE    fdateLastAccess;
-      FTIME    ftimeLastAccess;
-      FDATE    fdateLastWrite;
-      FTIME    ftimeLastWrite;
-      LONGLONG cbFile;
-      LONGLONG cbFileAlloc;
-      ULONG    attrFile;
-   } FILESTATUS3L;
-   typedef FILESTATUS3L *PFILESTATUS3L;
+   type FSALLOCATE=structure      (* fsalloc *)
+        idFileSystem: ULONG;
+        cSectorUnit: ULONG;
+        cUnit: ULONG;
+        cUnitAvail: ULONG;
+        cbSector: USHORT;
+   end;
+   type PFSALLOCATE=^FSALLOCATE;
 
-   /* Large File Support >2GB */
-   typedef struct _FILESTATUS4L      /* fsts4L */
-   {
-      FDATE    fdateCreation;
-      FTIME    ftimeCreation;
-      FDATE    fdateLastAccess;
-      FTIME    ftimeLastAccess;
-      FDATE    fdateLastWrite;
-      FTIME    ftimeLastWrite;
-      LONGLONG cbFile;
-      LONGLONG cbFileAlloc;
-      ULONG    attrFile;
-      ULONG    cbList;
-   } FILESTATUS4L;
-   typedef FILESTATUS4L  *PFILESTATUS4L;
+   type  HDIR=LHANDLE;        (* hdir *)
+   type PHDIR=^HDIR;
 
+(*
+   const DosOpen2        DosOpen
+   const DosFindFirst2   DosFindFirst
+   const DosQFHandState  DosQueryFHState
+   const DosProtectQFHandState  DosProtectQueryFHState
+   const DosSetFHandState  DosSetFHState
+   const DosProtectSetFHandState  DosProtectSetFHState
+   const DosQHandType    DosQueryHType
+   const DosQFSAttach    DosQueryFSAttach
+   const DosNewSize      DosSetFileSize
+   const DosProtectNewSize  DosProtectSetFileSize
+   const DosBufReset     DosResetBuffer
+   const DosChgFilePtr   DosSetFilePtr
+   const DosProtectChgFilePtr   DosProtectSetFilePtr
+   const DosMkDir        DosCreateDir
+   const DosMkDir2       DosCreateDir
+   const DosRmDir        DosDeleteDir
+   const DosSelectDisk   DosSetDefaultDisk
+   const DosQCurDisk     DosQueryCurrentDisk
+   const DosChDir        DosSetCurrentDir
+   const DosQCurDir      DosQueryCurrentDir
+   const DosQFSInfo      DosQueryFSInfo
+   const DosQVerify      DosQueryVerify
+   const DosQFileInfo    DosQueryFileInfo
+   const DosProtectQFileInfo    DosProtectQueryFileInfo
+   const DosQPathInfo    DosQueryPathInfo
+*)
 
-   typedef struct _FSALLOCATE      /* fsalloc */
-   {
-      ULONG  idFileSystem;
-      ULONG  cSectorUnit;
-      ULONG  cUnit;
-      ULONG  cUnitAvail;
-      USHORT cbSector;
-   } FSALLOCATE;
-   typedef FSALLOCATE *PFSALLOCATE;
+function  DosDelete(pszFile: PCSZ): APIRET;
 
-   typedef LHANDLE HDIR;        /* hdir */
-   typedef HDIR    *PHDIR;
+function  DosForceDelete(pszFile: PCSZ): APIRET;
 
-   #define DosOpen2        DosOpen
-   #define DosFindFirst2   DosFindFirst
-   #define DosQFHandState  DosQueryFHState
-   #define DosProtectQFHandState  DosProtectQueryFHState
-   #define DosSetFHandState  DosSetFHState
-   #define DosProtectSetFHandState  DosProtectSetFHState
-   #define DosQHandType    DosQueryHType
-   #define DosQFSAttach    DosQueryFSAttach
-   #define DosNewSize      DosSetFileSize
-   #define DosProtectNewSize  DosProtectSetFileSize
-   #define DosBufReset     DosResetBuffer
-   #define DosChgFilePtr   DosSetFilePtr
-   #define DosProtectChgFilePtr   DosProtectSetFilePtr
-   #define DosMkDir        DosCreateDir
-   #define DosMkDir2       DosCreateDir
-   #define DosRmDir        DosDeleteDir
-   #define DosSelectDisk   DosSetDefaultDisk
-   #define DosQCurDisk     DosQueryCurrentDisk
-   #define DosChDir        DosSetCurrentDir
-   #define DosQCurDir      DosQueryCurrentDir
-   #define DosQFSInfo      DosQueryFSInfo
-   #define DosQVerify      DosQueryVerify
-   #define DosQFileInfo    DosQueryFileInfo
-   #define DosProtectQFileInfo    DosProtectQueryFileInfo
-   #define DosQPathInfo    DosQueryPathInfo
+function  DosDupHandle( hFile: HFILE;
+                                  pHfile: PHFILE): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosDelete(PCSZ  pszFile);
-#else
-   APIRET APIENTRY  DosDelete(PSZ pszFile);
-#endif
+function  DosQueryFHState( hFile: HFILE;
+                                     pMode: PULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosForceDelete(PCSZ  pszFile);
-#else
-   APIRET APIENTRY  DosForceDelete(PSZ pszFile);
-#endif
+function  DosProtectQueryFHState( hFile: HFILE;
+                                            pMode: PULONG;
+                                            fhFileHandleLockID: FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosDupHandle(HFILE hFile,
-                                 PHFILE pHfile);
+function  DosSetFHState( hFile: HFILE;
+                                   mode: ULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryFHState(HFILE hFile,
-                                    PULONG pMode);
-   APIRET APIENTRY  DosProtectQueryFHState(HFILE hFile,
-                                           PULONG pMode,
-                                           FHLOCK fhFileHandleLockID);
+function  DosProtectSetFHState( hFile: HFILE;
+                                          mode: ULONG;
+                                          fhFileHandleLockID: FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosSetFHState(HFILE hFile,
-                                  ULONG mode);
+function  DosQueryHType( hFile: HFILE;
+                                   pType: PULONG;
+                                   pAttr: PULONG): APIRET;
 
-   APIRET APIENTRY  DosProtectSetFHState(HFILE hFile,
-                                         ULONG mode,
-                                         FHLOCK fhFileHandleLockID);
+function  DosFindFirst(     pszFileSpec: PCSZ;
+                                   phdir: PHDIR;
+                                   flAttribute: ULONG;
+                                   pfindbuf: PVOID;
+                                   cbBuf: ULONG;
+                                  pcFileNames: PULONG;
+                                   ulInfoLevel: ULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryHType(HFILE hFile,
-                                  PULONG pType,
-                                  PULONG pAttr);
+function  DosFindNext(   hDir: HDIR;
+                                  pfindbuf: PVOID;
+                                  cbfindbuf: ULONG;
+                                 pcFilenames: PULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosFindFirst(PCSZ     pszFileSpec,
-                                 PHDIR  phdir,
-                                 ULONG  flAttribute,
-                                 PVOID  pfindbuf,
-                                 ULONG  cbBuf,
-                                 PULONG pcFileNames,
-                                 ULONG  ulInfoLevel);
-#else
-   APIRET APIENTRY  DosFindFirst(PSZ    pszFileSpec,
-                                 PHDIR  phdir,
-                                 ULONG  flAttribute,
-                                 PVOID  pfindbuf,
-                                 ULONG  cbBuf,
-                                 PULONG pcFileNames,
-                                 ULONG  ulInfoLevel);
-#endif
+function  DosFindClose( hDir: HDIR): APIRET;
 
-   APIRET APIENTRY  DosFindNext(HDIR   hDir,
-                                PVOID  pfindbuf,
-                                ULONG  cbfindbuf,
-                                PULONG pcFilenames);
+function  DosFSAttach(  pszDevice: PCSZ;
+                                  pszFilesystem: PCSZ;
+                                 pData: PVOID;
+                                 cbData: ULONG;
+                                 flag: ULONG): APIRET;
 
-   APIRET APIENTRY  DosFindClose(HDIR hDir);
+function  DosQueryFSAttach(     pszDeviceName: PCSZ;
+                                       ulOrdinal: ULONG;
+                                       ulFSAInfoLevel: ULONG;
+                                      pfsqb: PFSQBUFFER2;
+                                      pcbBuffLength: PULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosFSAttach(PCSZ  pszDevice,
-                                PCSZ  pszFilesystem,
-                                PVOID pData,
-                                ULONG cbData,
-                                ULONG flag);
-#else
-   APIRET APIENTRY  DosFSAttach(PSZ pszDevice,
-                                PSZ pszFilesystem,
-                                PVOID pData,
-                                ULONG cbData,
-                                ULONG flag);
-#endif
+function  DosFSCtl( pData: PVOID;
+                              cbData: ULONG;
+                              pcbData: PULONG;
+                              pParms: PVOID;
+                              cbParms: ULONG;
+                              pcbParms: PULONG;
+                              function: ULONG;
+                               pszRoute: PCSZ;
+                              hFile: HFILE;
+                              method: ULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosQueryFSAttach(PCSZ     pszDeviceName,
-                                     ULONG  ulOrdinal,
-                                     ULONG  ulFSAInfoLevel,
-                                     PFSQBUFFER2 pfsqb,
-                                     PULONG pcbBuffLength);
-#else
-   APIRET APIENTRY  DosQueryFSAttach(PSZ    pszDeviceName,
-                                     ULONG  ulOrdinal,
-                                     ULONG  ulFSAInfoLevel,
-                                     PFSQBUFFER2 pfsqb,
-                                     PULONG pcbBuffLength);
-#endif
+function  DosSetFileSize( hFile: HFILE;
+                                    cbSize: ULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosFSCtl(PVOID pData,
-                             ULONG cbData,
-                             PULONG pcbData,
-                             PVOID pParms,
-                             ULONG cbParms,
-                             PULONG pcbParms,
-                             ULONG function,
-                             PCSZ  pszRoute,
-                             HFILE hFile,
-                             ULONG method);
-#else
-   APIRET APIENTRY  DosFSCtl(PVOID pData,
-                             ULONG cbData,
-                             PULONG pcbData,
-                             PVOID pParms,
-                             ULONG cbParms,
-                             PULONG pcbParms,
-                             ULONG function,
-                             PSZ pszRoute,
-                             HFILE hFile,
-                             ULONG method);
-#endif
+   (* Large File Support >2GB *)
+function  DosSetFileSizeL( hFile: HFILE;
+                                     cbSize: LONGLONG): APIRET;
 
-   APIRET APIENTRY  DosSetFileSize(HFILE hFile,
-                                   ULONG cbSize);
+function  DosProtectSetFileSize( hFile: HFILE;
+                                           cbSize: ULONG;
+                                           fhFileHandleLockID: FHLOCK): APIRET;
 
-   /* Large File Support >2GB */
-   APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
-                                    LONGLONG cbSize);
+   (* Large File Support >2GB *)
+function   DosProtectSetFileSizeL( hFile:HFILE;
+                                             cbSize: LONGLONG;
+                                             fhFileHandleLockID: FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosProtectSetFileSize(HFILE hFile,
-                                          ULONG cbSize,
-                                          FHLOCK fhFileHandleLockID);
+function  DosResetBuffer(hFile: HFILE): APIRET;
 
-   /* Large File Support >2GB */
-   APIRET APIENTRY   DosProtectSetFileSizeL(HFILE hFile,
-                                            LONGLONG cbSize,
-                                            FHLOCK fhFileHandleLockID);
+function  DosSetFilePtr( hFile: HFILE;
+                                   ib: LONG;
+                                   method: ULONG;
+                                   ibActual: PULONG): APIRET;
 
-   APIRET APIENTRY  DosResetBuffer(HFILE hFile);
+   (* Large File Support >2GB *)
+function  DosSetFilePtrL( hFile: HFILE;
+                                    ib:LONGLONG;
+                                    method:ULONG;
+                                    ibActual: PLONGLONG): APIRET;
 
-   APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
-                                  LONG ib,
-                                  ULONG method,
-                                  PULONG ibActual);
+function  DosProtectSetFilePtr(hFile: HFILE;
+                                          ib: LONG;
+                                          method:ULONG;
+                                          ibActual:PULONG;
+                                          fhFileHandleLockID:FHLOCK): APIRET;
 
-   /* Large File Support >2GB */
-   APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
-                                   LONGLONG ib,
-                                   ULONG method,
-                                   PLONGLONG ibActual);
+   (* Large File Support >2GB *)
+function  DosProtectSetFilePtrL( hFile:HFILE;
+                                           ib:LONGLONG;
+                                           method:ULONG;
+                                           ibActual:PLONGLONG;
+                                           fhFileHandleLockID:FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
-                                         LONG ib,
-                                         ULONG method,
-                                         PULONG ibActual,
-                                         FHLOCK fhFileHandleLockID);
+   (* Large File Support >2GB *)
+function  DosListIOL( CmdMODE:LONG;
+                                NumEntries:LONG;
+                                pListIO: PLISTIO): APIRET;
 
-   /* Large File Support >2GB */
-   APIRET APIENTRY  DosProtectSetFilePtrL(HFILE hFile,
-                                          LONGLONG ib,
-                                          ULONG method,
-                                          PLONGLONG ibActual,
-                                          FHLOCK fhFileHandleLockID);
+function  DosMove(  pszOld: PCSZ;
+                              pszNew: PCSZ): APIRET;
 
-   /* Large File Support >2GB */
-   APIRET APIENTRY  DosListIOL(LONG CmdMODE,
-                               LONG NumEntries,
-                               VOID * pListIO);
+function  DosCopy(  pszOld: PCSZ;
+                              pszNew: PCSZ;
+                             option: ULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosMove(PCSZ  pszOld,
-                            PCSZ  pszNew);
-#else
-   APIRET APIENTRY  DosMove(PSZ pszOld,
-                            PSZ pszNew);
-#endif
+function  DosEditName( metalevel: ULONG;
+                                  pszSource: PCSZ;
+                                  pszEdit: PCSZ;
+                                 pszTarget: PBYTE;
+                                 cbTarget:ULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosCopy(PCSZ  pszOld,
-                            PCSZ  pszNew,
-                            ULONG option);
-#else
-   APIRET APIENTRY  DosCopy(PSZ pszOld,
-                            PSZ pszNew,
-                            ULONG option);
-#endif
+function  DosCreateDir(  pszDirName: PCSZ;
+                                  peaop2:PEAOP2): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosEditName(ULONG metalevel,
-                                PCSZ  pszSource,
-                                PCSZ  pszEdit,
-                                PBYTE pszTarget,
-                                ULONG cbTarget);
-#else
-   APIRET APIENTRY  DosEditName(ULONG metalevel,
-                                PSZ pszSource,
-                                PSZ pszEdit,
-                                PBYTE pszTarget,
-                                ULONG cbTarget);
-#endif
+function  DosDeleteDir(  pszDir:PCSZ): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
-                                 PEAOP2 peaop2);
-#else
-   APIRET APIENTRY  DosCreateDir(PSZ pszDirName,
-                                 PEAOP2 peaop2);
-#endif
+function  DosSetDefaultDisk( disknum:ULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir);
-#else
-   APIRET APIENTRY  DosDeleteDir(PSZ pszDir);
-#endif
+function  DosQueryCurrentDisk( pdisknum: PULONG;
+                                         plogical:PULONG): APIRET;
 
-   APIRET APIENTRY  DosSetDefaultDisk(ULONG disknum);
+function  DosSetCurrentDir(  pszDir:PCSZ): APIRET;
 
-   APIRET APIENTRY  DosQueryCurrentDisk(PULONG pdisknum,
-                                        PULONG plogical);
+function  DosQueryCurrentDir( disknum:ULONG;
+                                        pBuf:PBYTE;
+                                        pcbBuf:PULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosSetCurrentDir(PCSZ  pszDir);
-#else
-   APIRET APIENTRY  DosSetCurrentDir(PSZ pszDir);
-#endif
+function  DosQueryFSInfo( disknum:ULONG;
+                                    infolevel:ULONG;
+                                    pBuf:PVOID;
+                                    cbBuf:ULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryCurrentDir(ULONG disknum,
-                                       PBYTE pBuf,
-                                       PULONG pcbBuf);
+function  DosSetFSInfo( disknum:ULONG;
+                                  infolevel:ULONG;
+                                  pBuf:PVOID;
+                                  cbBuf:ULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryFSInfo(ULONG disknum,
-                                   ULONG infolevel,
-                                   PVOID pBuf,
-                                   ULONG cbBuf);
+function  DosQueryVerify( pBool:PBOOL32): APIRET;
 
-   APIRET APIENTRY  DosSetFSInfo(ULONG disknum,
-                                 ULONG infolevel,
-                                 PVOID pBuf,
-                                 ULONG cbBuf);
+function  DosSetVerify(vstate:BOOL32): APIRET;
 
-   APIRET APIENTRY  DosQueryVerify(PBOOL32 pBool);
+function  DosSetMaxFH( cFH:ULONG): APIRET;
 
-   APIRET APIENTRY  DosSetVerify(BOOL32);
+function  DosSetRelMaxFH( pcbReqCount:PLONG;
+                                    pcbCurMaxFH:PULONG): APIRET;
 
-   APIRET APIENTRY  DosSetMaxFH(ULONG cFH);
+function  DosQueryFileInfo( hf:HFILE;
+                                      ulInfoLevel:ULONG;
+                                      pInfo:PVOID;
+                                      cbInfoBuf:ULONG): APIRET;
 
-   APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
-                                   PULONG pcbCurMaxFH);
+function  DosProtectQueryFileInfo( hf:HFILE;
+                                             ulInfoLevel:ULONG;
+                                             pInfo:PVOID;
+                                             cbInfoBuf:ULONG;
+                                             fhFileHandleLockID:FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
-                                     ULONG ulInfoLevel,
-                                     PVOID pInfo,
-                                     ULONG cbInfoBuf);
+function  DosSetFileInfo( hf:HFILE;
+                                    ulInfoLevel:ULONG;
+                                    pInfoBuf:PVOID;
+                                    cbInfoBuf:ULONG): APIRET;
 
-   APIRET APIENTRY  DosProtectQueryFileInfo(HFILE hf,
-                                            ULONG ulInfoLevel,
-                                            PVOID pInfo,
-                                            ULONG cbInfoBuf,
-                                            FHLOCK fhFileHandleLockID);
+function  DosProtectSetFileInfo( hf:HFILE;
+                                           ulInfoLevel:ULONG;
+                                           pInfoBuf:PVOID;
+                                           cbInfoBuf:ULONG;
+                                           fhFileHandleLockID:FHLOCK): APIRET;
 
-   APIRET APIENTRY  DosSetFileInfo(HFILE hf,
-                                   ULONG ulInfoLevel,
-                                   PVOID pInfoBuf,
-                                   ULONG cbInfoBuf);
+function  DosQueryPathInfo(    pszPathName:PCSZ;
+                                      ulInfoLevel:ULONG;
+                                      pInfoBuf:PVOID;
+                                      cbInfoBuf:ULONG): APIRET;
 
-   APIRET APIENTRY  DosProtectSetFileInfo(HFILE hf,
-                                          ULONG ulInfoLevel,
-                                          PVOID pInfoBuf,
-                                          ULONG cbInfoBuf,
-                                          FHLOCK fhFileHandleLockID);
+function  DosSetPathInfo(    pszPathName:PCSZ;
+                                    ulInfoLevel:ULONG;
+                                    pInfoBuf:PVOID;
+                                    cbInfoBuf:ULONG;
+                                    flOptions:ULONG): APIRET;
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosQueryPathInfo(PCSZ    pszPathName,
-                                     ULONG ulInfoLevel,
-                                     PVOID pInfoBuf,
-                                     ULONG cbInfoBuf);
-#else
-   APIRET APIENTRY  DosQueryPathInfo(PSZ   pszPathName,
-                                     ULONG ulInfoLevel,
-                                     PVOID pInfoBuf,
-                                     ULONG cbInfoBuf);
-#endif
+   (* defines for DosSetPathInfo -pathinfo flag *)
+   const DSPI_WRTTHRU   = $10;    (* write through *)
 
-#ifdef __cplusplus
-   APIRET APIENTRY  DosSetPathInfo(PCSZ    pszPathName,
-                                   ULONG ulInfoLevel,
-                                   PVOID pInfoBuf,
-                                   ULONG cbInfoBuf,
-                                   ULONG flOptions);
-#else
-   APIRET APIENTRY  DosSetPathInfo(PSZ   pszPathName,
-                                   ULONG ulInfoLevel,
-                                   PVOID pInfoBuf,
-                                   ULONG cbInfoBuf,
-                                   ULONG flOptions);
-#endif
+function  DosShutdown( ulReserved:ULONG): APIRET;
 
-   /* defines for DosSetPathInfo -pathinfo flag */
-   #define DSPI_WRTTHRU    0x10    /* write through */
+function  DosEnumAttribute(  ulRefType:ULONG;
+                                       pvFile:PVOID;
+                                       ulEntry:ULONG;
+                                       pvBuf:PVOID;
+                                       cbBuf:ULONG;
+                                       pulCount:PULONG;
+                                       ulInfoLevel:ULONG): APIRET;
 
-   APIRET APIENTRY  DosShutdown(ULONG ulReserved);
+function  DosProtectEnumAttribute( ulRefType:ULONG;
+                                             pvFile:PVOID;
+                                             ulEntry:ULONG;
+                                             pvBuf:PVOID;
+                                             cbBuf:ULONG;
+                                             pulCount:PULONG;
+                                             ulInfoLevel:ULONG;
+                                             fhFileHandleLockID:FHLOCK ): APIRET;
 
-   APIRET APIENTRY  DosEnumAttribute(ULONG  ulRefType,
-                                     PVOID  pvFile,
-                                     ULONG  ulEntry,
-                                     PVOID  pvBuf,
-                                     ULONG  cbBuf,
-                                     PULONG pulCount,
-                                     ULONG  ulInfoLevel);
+   type DENA1=structure (* _dena1 level 1 info returned from DosEnumAttribute *)
+             reserved:UCHAR;       (* 0 *)
+             cbName:UCHAR;         (* length of name exculding NULL *)
+             cbValue:USHORT;        (* length of value *)
+             szName:array[0..0] of UCHAR;      (* variable length asciiz name *)
+   end;
+   type PDENA1=^DENA1;
 
-   APIRET APIENTRY  DosProtectEnumAttribute(ULONG ulRefType,
-                                            PVOID pvFile,
-                                            ULONG ulEntry,
-                                            PVOID pvBuf,
-                                            ULONG cbBuf,
-                                            PULONG pulCount,
-                                            ULONG ulInfoLevel,
-                                            FHLOCK fhFileHandleLockID );
+   type   DENA2=FEA2;
+   type  PDENA2=PFEA2;
 
-   /*NOINC*/
-   #pragma pack(1)
-   /*INC */
+   (* Infolevels for DosEnumAttribute  *)
+   const ENUMEA_LEVEL_NO_VALUE  = 1;      (* FEA without value *)
+   (* Reference types for DosEnumAttribute *)
+   const ENUMEA_REFTYPE_FHANDLE = 0;       (* file handle *)
+   const ENUMEA_REFTYPE_PATH    = 1;       (* path name *)
+   const ENUMEA_REFTYPE_MAX     = ENUMEA_REFTYPE_PATH;
 
-   typedef struct _DENA1 /* _dena1 level 1 info returned from DosEnumAttribute */
-   {
-      UCHAR       reserved;       /* 0 */
-      UCHAR       cbName;         /* length of name exculding NULL */
-      USHORT      cbValue;        /* length of value */
-      UCHAR       szName[1];      /* variable length asciiz name */
-   } DENA1;
-   typedef DENA1 *PDENA1;
+end.
 
-   typedef FEA2  DENA2;
-   typedef PFEA2 PDENA2;
-
-   /*NOINC*/
-   #pragma pack()
-   /*INC */
-   /* Infolevels for DosEnumAttribute  */
-   #define ENUMEA_LEVEL_NO_VALUE   1L      /* FEA without value */
-   /* Reference types for DosEnumAttribute */
-   #define ENUMEA_REFTYPE_FHANDLE  0       /* file handle */
-   #define ENUMEA_REFTYPE_PATH     1       /* path name */
-   #define ENUMEA_REFTYPE_MAX      ENUMEA_REFTYPE_PATH
-
-#endif /* common INCL_DOSFILEMGR */

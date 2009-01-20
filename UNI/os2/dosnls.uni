@@ -1,6 +1,4 @@
-/*** NLS Support */
-
-#ifdef INCL_DOSNLS
+module dosnls;
 
    typedef struct _COUNTRYCODE   /* ctryc */
    {
@@ -27,35 +25,25 @@
       USHORT      abReserved2[5];
    } COUNTRYINFO, *PCOUNTRYINFO;
 
+(*
    #define DosGetCtryInfo  DosQueryCtryInfo
    #define DosGetDBCSEv    DosQueryDBCSEnv
    #define DosCaseMap      DosMapCase
    #define DosGetCollate   DosQueryCollate
    #define DosGetCp        DosQueryCp
    #define DosSetProcCp    DosSetProcessCp
+*)
 
-   APIRET APIENTRY  DosQueryCtryInfo(ULONG cb,
-                                     PCOUNTRYCODE pcc,
-                                     PCOUNTRYINFO pci,
-                                     PULONG pcbActual);
+function DosQueryCtryInfo(cb: ULONG; pcc: PCOUNTRYCODE; pci: PCOUNTRYINFO; pcbActual: PULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryDBCSEnv(ULONG cb,
-                                    PCOUNTRYCODE pcc,
-                                    PCHAR pBuf);
+function DosQueryDBCSEnv(cb: ULONG; pcc: PCOUNTRYCODE; pBuf: PCHAR): APIRET;
 
-   APIRET APIENTRY  DosMapCase(ULONG cb,
-                               PCOUNTRYCODE pcc,
-                               PCHAR pch);
+function DosMapCase(cb: ULONG; pcc: PCOUNTRYCODE; pch: PCHAR): APIRET;
 
-   APIRET APIENTRY  DosQueryCollate(ULONG cb,
-                                    PCOUNTRYCODE pcc,
-                                    PCHAR pch,
-                                    PULONG pcch);
+function DosQueryCollate(cb: ULONG; pcc: PCOUNTRYCODE; pch: PCHAR; pcch: PULONG): APIRET;
 
-   APIRET APIENTRY  DosQueryCp(ULONG cb,
-                               PULONG arCP,
-                               PULONG pcCP);
+function DosQueryCp(cb: ULONG; arCP: PULONG; pcCP: PULONG): APIRET;
 
-   APIRET APIENTRY  DosSetProcessCp(ULONG cp);
+function DosSetProcessCp(cp: ULONG): APIRET;
 
-#endif /* INCL_DOSNLS */
+end.

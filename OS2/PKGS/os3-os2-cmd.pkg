@@ -1,7 +1,7 @@
 os3-os2-cmd -a 1 -c..\..\bin\os2
 ansi.exe
 attrib.exe
-bldlevel.exe
+bldlevel.cmd
 chkdsk.com
 cls.exe
 cmd.exe
@@ -30,6 +30,7 @@ undelete.exe
 vdm2os2.exe
 xcopy.exe
 keystack.exe
+sort.exe
 shralias.exe
 sysinstx.exe
 tedit.hlp

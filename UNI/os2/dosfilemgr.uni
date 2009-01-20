@@ -1,0 +1,10 @@
+module dosfilemgr;
+
+const EAT_APPTYP_PMAPI      =  $00;            (* Uses PM API *)
+const EAT_APPTYP_DOS        =  $01;            (* DOS APP *)
+const EAT_APPTYP_PMW        =  $02;            (* Window compatible *)
+const EAT_APPTYP_NOPMW      =  $03;            (* Not Window compatible *)
+const EAT_APPTYP_EXETYPE    =  $03;            (* EXE type mask *)
+(* const EAT_APPTYP_RESERVED  =   not EAT_APPTYP_EXETYPE; *)
+
+end.

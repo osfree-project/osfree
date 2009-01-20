@@ -47,6 +47,9 @@
 ;
 
 ;%include "../include/model.inc"
+@CodeSize EQU 1
+@DataSize EQU 1
+
 ;%include "../include/stuff.inc"
 
 _TEXT segment

@@ -40,3 +40,10 @@ And in oso001.txt this string will be added
 SYS0123I: Searched path not found
 
 x. #pragma pack(xxx) handling
+x. add __required__ access flag to arguments list
+
+function DosLaLaLa(in input: ULONG; out output: ULONG; inout inpout: ULONG): ULONG;
+
+result of generation is:
+
+ULONG APIENTRY DosLaLaLa( /* in */ const ULONG input, /* out */ ULONG * output, /* inout */ ULONG * inpout);

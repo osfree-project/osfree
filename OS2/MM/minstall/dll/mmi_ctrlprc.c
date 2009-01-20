@@ -25,6 +25,8 @@
 // #define INCL_AUDIO_CODEC_ONLY
 #include <os2.h>
 #include <pmdef.h>
+#include <pmshl.h>
+#include <pmwp.h>
 #define INCL_MCIOS2
 #include <os2me.h>
 

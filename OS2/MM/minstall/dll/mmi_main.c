@@ -573,7 +573,7 @@ ULONG EXPENTRY MINSTALL_GetCARDINFOChoiceForGroup (ULONG GroupID, ULONG CardNo, 
    PMINSTGRP      CurGroup       = MCF_GroupArrayPtr;
    ULONG          CurGroupNo     = 0;
 
-   if ((!CardNo) || (!PromptNo)) return;    // Invalid input
+   if ((!CardNo) || (!PromptNo)) return (0);    // Invalid input
    CardNo--; PromptNo--;
 
    // Cycle through all groups and match GroupID. Set Choice only, if Genin-
@@ -583,16 +583,16 @@ ULONG EXPENTRY MINSTALL_GetCARDINFOChoiceForGroup (ULONG GroupID, ULONG CardNo, 
          if (CurGroup->GeninPtr) {
             // Check, if CardNo/PromptNo is a valid value
             if (CardNo>=CurGroup->GeninPtr->SelectedCards)
-               return 0;
+               return (0);
             if (PromptNo>=CurGroup->GeninPtr->PromptsCount)
-               return 0;
+               return (0);
             return (CurGroup->GeninPtr->PromptSelectedValueNo[CardNo][PromptNo])+1;
           }
          break;
        }
       CurGroupNo++; CurGroup++;
     }
-   return 0;
+   return (0);
  }
 
 // ChoiceNo in that case is 1-based

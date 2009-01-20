@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = cmd suppl lib # utils strings criter
+DIRS = src
 
 !include $(%ROOT)/mk/all.mk
 
