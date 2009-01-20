@@ -105,8 +105,10 @@ read_fat:
                 ; load FAT at fat_seg
                 mov   cx, [bp].bpb.fat_size
 
-                push  fat_seg
-                pop   es
+                mov   dx, fat_seg
+                mov   es, dx
+                ;push  fat_seg
+                ;pop   es
 
                 xor   bx, bx
 
@@ -116,11 +118,14 @@ read_fat:
 
                 call  read_run                              ; read FAT
 read_root:
+                ;mov   dx, fat_seg
+
                 ; load root directory at root_dir_seg
                 ;movzx eax, cx                               ;
-                mov   ax, cx
-                movzx cx, [bp].bpb.n_fats                   ;
-                mul   cx                                    ; result in dx:ax
+                mov   ax, cx                                ;  size of FAT max 128k takes 1 byte in sectors
+                ;mov   cl, [bp].bpb.n_fats                   ;
+                ;mul   cl                                    ; result in ax
+                mul   byte ptr [bp].bpb.n_fats
 
                 ;xor   eax, eax
                 ;xor   ebx, ebx
@@ -130,13 +135,15 @@ read_root:
                 ;add   eax, ebx
 
                 add   ax, bx                                ; root dir offset == res_sectors + fat_size * n_fats
-                adc   dx, 0
+                ;adc   dx, 0
+                movzx  eax, ax
+
 
                 ;shl   edx, 16
                 ;add   eax, edx
 
-                push  dx                                    ; 1st rootdir sector number in dx:ax
-                push  ax
+                ;push  dx                                    ; 1st rootdir sector number in dx:ax
+                ;push  ax
 
                 movzx ecx, [bp].bpb.root_dir_size
                 shr   ecx, 4
@@ -151,7 +158,7 @@ read_root:
                 ;div   bx
                 ;mov   cx, ax
 
-                pop   eax                                   ; 1st rootdir sector in eax
+                ;pop   eax                                   ; 1st rootdir sector in eax
 
                 mov   ebx, eax
                 add   ebx, ecx
@@ -221,7 +228,7 @@ start endp
 ;
 load_file_by_path proc near
                 push  es
-                push  cx
+                ;push  cx
 path_loop:
                 call  find_name
 
@@ -244,7 +251,7 @@ path_loop:
                 cmp   byte ptr [si], ';'                    ; end of path? (';' -- path end marker)
                 jne   short path_loop
 
-                pop   cx
+                ;pop   cx
                 pop   es
 
                 ret
@@ -264,7 +271,6 @@ load_file_by_path endp
 load_file proc near
                 movzx eax, es:[di].dir_fst_clus_lo          ; 1st cluster number
 
-                mov   dx, fat_seg
                 mov   es, bx
                 xor   bx, bx
 
@@ -310,6 +316,7 @@ find_next_cluster proc near
                 mov   cx, 0fff1h                            ; EOF
 
                 push  si
+                ;push  ds
                 push  dx
 
                 mov   si, ax
@@ -338,6 +345,7 @@ cmp_eof:
                 cmp   ax, cx                                ; = EOF?
 
                 pop   dx
+                ;pop   ds
                 pop   si
 
                 ret
@@ -530,24 +538,24 @@ err:
 read_run proc near
                 pusha
                 push  es
-                push  ds
+                ;push  ds
                 add   eax, [bp].bpb.hidden_secs             ; Add hidden sectors value
-                mov   dl,  [bp].drive
 begin_read:
+                mov   dl,  [bp].drive
                 ;push  eax
 
                 pushad
 ;;;;!!!
-;                cmp   [bp].force_chs, 0                     ; LBA or CHS?
-;                jnz   short chs
-;
-;lba:
+                cmp   [bp].force_chs, 0                     ; LBA or CHS?
+                jnz   short chs
+
+lba:
                 call  readsec_lba                           ; Read by LBA
-;                jmp   short chk
-;
-;chs:
-;                call  readsec_chs                           ; Read by CHS
-;chk:
+                jmp   short chk
+
+chs:
+                call  readsec_chs                           ; Read by CHS
+chk:
                 popad
 
                 jc   short err_read                         ; Signal a read error
@@ -575,7 +583,7 @@ go_on:
 
                 loop  short begin_read
 end_read:
-                pop  ds
+                ;pop  ds
                 pop  es
                 popa
 
@@ -642,7 +650,7 @@ readsec_lba endp
 ;               from disk device in dl
 ;
 
-if 1
+
 
 readsec_chs proc near
                 push dx
@@ -676,8 +684,6 @@ readsec_chs proc near
 
                 ret
 readsec_chs endp
-
-endif
 
 padsize      equ    512 - ($ - start) - 2 - (bootsig - vars)
 
