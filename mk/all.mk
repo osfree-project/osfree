@@ -10,6 +10,8 @@
 
 all: install .symbolic
 
+install: build
+
 test: .symbolic
   echo $(MYDIR)
   echo $(PATH)

@@ -22,7 +22,7 @@
 ; (+) Both LBA and CHS addressing is supported
 ; (-) No support for non-standard format floppies
 ; (*) Presently hangs when booting from a flash disk on some
-;     BIOSes.
+;     BIOSes. (?)
 ; (+) Like os2ldr.sek, can load OS2LDR directly, without
 ;     a need in OS2BOOT
 ; (-) Loads one sector at one read operation
