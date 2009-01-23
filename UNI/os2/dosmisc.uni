@@ -104,8 +104,8 @@ function DosQuerySysInfo(iStart: ULONG;
                          pBuf: PVOID;
                          cbBuf: ULONG): APIRET;
 
-function DosScanEnv(const pszName: PSZ,
-                    const ppszValue: ^PSZ): APIRET;
+function DosScanEnv(pszName: PSZ,
+                    ppszValue: ^PSZ): APIRET;
 
 function DosSearchPath(flag: ULONG;
                        const pszPathOrName: PSZ;

@@ -181,7 +181,9 @@ begin
     if ATypeDecl then wrtln(';');
   end else if AType.ClassType = TPasAliasType then
   begin
-    WrtLn(ConvertToCType(TPasAliasType(AType).DestType.Name)+' '+TPasAliasType(AType).Name+';');
+    if ATypeDecl then Wrt(ConvertToCType(TPasAliasType(AType).DestType.Name)+' ');
+    wrt(TPasAliasType(AType).Name);
+    if ATypeDecl then WrtLn(';');
   end else if AType.ClassType = TPasRecordType then
   begin
     if aTypeDecl then
@@ -190,7 +192,8 @@ begin
       wrt(TPasRecordType(AType).Name);
   end else if AType.ClassType = TPasArrayType then
   begin
-    wrtln(ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + '];');
+    wrt(ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + ']');
+    if ATypeDecl then WrtLn(';');
   end else
     raise Exception.Create('Writing not implemented for ' +
       AType.ElementTypeName + ' nodes');
@@ -228,6 +231,12 @@ procedure THWriter.WriteSection(ASection: TPasSection);
 var
   i: Integer;
 begin
+
+  CurDeclSection := '';
+
+  for i := 0 to ASection.Declarations.Count - 1 do
+    WriteElement(TPasElement(ASection.Declarations[i]));
+
   if ASection.UsesList.Count > 0 then
   begin
     for i := 0 to ASection.UsesList.Count - 1 do
@@ -239,10 +248,6 @@ begin
     end;
   end;
 
-  CurDeclSection := '';
-
-  for i := 0 to ASection.Declarations.Count - 1 do
-    WriteElement(TPasElement(ASection.Declarations[i]));
 end;
 
 procedure THWriter.WriteClass(AClass: TPasClassType);
@@ -311,16 +316,24 @@ begin
     S:=Copy(S, 1, p-1)+'0x'+Copy(S, p+1, Length(S)-p);
   end;
 
-  While pos('or', S)>0 do
+  While pos(' or ', S)>0 do
   begin
-    p:=pos('or', S);
-    S:=Copy(S, 1, p-1)+'|'+Copy(S, p+2, Length(S)-p-1);
+    p:=pos(' or ', S);
+    S:=Copy(S, 1, p-1)+' | '+Copy(S, p+4, Length(S)-p-1);
+  end;
+
+  while pos(' shl ', S)>0 do
+  begin
+    p:=pos(' shl ', S);
+    S:=Copy(S, 1, p-1)+' << '+Copy(S, p+5, Length(S)-p-1);
   end;
 
   Result:=S;
 end;
 
 procedure THWriter.WriteConstant(AVar: TPasConst);
+var
+  a: word;
 begin
   if (AVar.Parent.ClassType <> TPasClassType) and
     (AVar.Parent.ClassType <> TPasRecordType) then

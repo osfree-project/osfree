@@ -1,0 +1,20 @@
+module dosdatetime;
+
+//   #define DosTimerAsync   DosAsyncTimer
+//   #define DosTimerStart   DosStartTimer
+//   #define DosTimerStop    DosStopTimer
+
+   type HTIMER=LHANDLE;
+   type PHTIMER=^HTIMER;
+
+   function   DosAsyncTimer( msec: ULONG;
+                                    hsem: HSEM;
+                                    phtimer: PHTIMER): APIRET;
+
+   function   DosStartTimer( msec: ULONG;
+                                    hsem: HSEM;
+                                    phtimer: PHTIMER): APIRET;
+
+   function   DosStopTimer( htimer: HTIMER): APIRET;
+
+end.

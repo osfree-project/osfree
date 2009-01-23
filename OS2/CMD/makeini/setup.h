@@ -49,7 +49,7 @@
         #define XWPENTRY _Optlink
     #else
     // EMX or Watcom
-        #define XWPENTRY _System 
+        #define XWPENTRY _System
     #endif
 
     // All these have been added with V0.9.12 (2001-05-18) [umoeller].
@@ -265,8 +265,8 @@
         // will fail. That is, XWorkplace classes can neither be registered
         // nor loaded at Desktop startup. This has cost me a lot of thought
         // once, and you'll get no error message, so be warned.
-            #define _PMPRINTF_
-            #define _WPSDEBUG_
+            //#define _PMPRINTF_
+            //#define _WPSDEBUG_
 
         typedef enum _DEBUGGINGFLAGS
         {
@@ -540,8 +540,10 @@
         // the following reacts to the _PMPRINTF_ macro def'd above;
         // if that's #define'd, _Pmpf(()) commands will produce output,
         // if not, no code will be produced.
-        #include "pmprintf.h"
-        #include "wpsdebug.h"
+        #ifdef _PMPRINTF_
+          #include "pmprintf.h"
+          #include "wpsdebug.h"
+        #endif
 
         // SOMMethodDebug is the macro defined for all those
         // xxxMethodDebug thingies created by the SOM compiler.

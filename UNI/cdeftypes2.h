@@ -66,6 +66,12 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 #define NP_WMESG                   0x0400 /* write messages          */
 #define NP_RMESG                   0x0100 /* read as messages        */
 
+typedef  VOID APIENTRY FNTHREAD(ULONG);
+typedef FNTHREAD *PFNTHREAD;
+
+typedef VOID APIENTRY FNEXITLIST(ULONG);
+typedef FNEXITLIST *PFNEXITLIST;
+
 #endif
 
 #endif

@@ -26,7 +26,7 @@ type tib_s=structure                           (* TIB Thread Information Block *
 
 type tib_t=tib_s;
 type TIB=tib_s;
-type PTIB=^PTIB;
+type PTIB=^TIB;
 
 
 (*

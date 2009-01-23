@@ -35,13 +35,18 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)dosdebug.h &
      $(OUT)$(SEP)os2$(SEP)dosmisc.h &
      $(OUT)$(SEP)os2$(SEP)dosmvdm.h &
+     $(OUT)$(SEP)os2$(SEP)dosnmpipes.h &
      $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgr.h &
+     $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h &
+     $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosprocess.h &
+     $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h &
      $(OUT)$(SEP)os2$(SEP)dosresources.h &
      $(OUT)$(SEP)os2$(SEP)dosexceptions.h &
      $(OUT)$(SEP)os2$(SEP)dosdevices.h &
-     $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h &
+     $(OUT)$(SEP)os2$(SEP)dosdatetime.h &
+     $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
      $(OUT)$(SEP)OS2$(SEP)pmshl.h &
      $(OUT)$(SEP)OS2$(SEP)pmwp.h &
@@ -76,11 +81,21 @@ $(OUT)$(SEP)os2$(SEP)dosprocess.h: os2$(SEP)dosprocess.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmisc.h: os2$(SEP)dosmisc.uni
 
+$(OUT)$(SEP)os2$(SEP)dosnmpipes.h: os2$(SEP)dosnmpipes.uni
+
 $(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)dosmvdm.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)dosfilemgr.uni
+
+$(OUT)$(SEP)os2$(SEP)dosdatetime.h: os2$(SEP)dosdatetime.uni
+
+$(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h: os2$(SEP)dosdatetimecommon.uni
+
+$(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)dosfilemgrcommon.uni
+
+$(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h: os2$(SEP)dosmemmgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosexceptions.h: os2$(SEP)dosexceptions.uni
 
