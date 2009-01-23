@@ -1,0 +1,5 @@
+module pmwin;
+
+uses pmshl;
+
+end.
