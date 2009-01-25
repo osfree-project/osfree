@@ -106,7 +106,7 @@ int main(int argc, const char **argv)
   // Check PROTSHELL statament value
   if (!options.protshell||(strlen(options.protshell)==0))
   {
-    io_printf("No PROTSHELL statament in CONFIG.SYS\n");
+    io_printf("No PROTSHELL statement in CONFIG.SYS\n");
     return 87; /* ERROR_INVALID_PARAMETER; Not defined for Windows*/
   } else {
     // Load and execute shell

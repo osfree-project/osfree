@@ -16,6 +16,7 @@ srcfiles = $(p)io$(e) $(p)mmap$(e) &
 
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
+
 !include $(%ROOT)/mk/libsos2server.mk
 
 $(PATH)$(PROJ).lib: $(OBJS)

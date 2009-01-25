@@ -19,12 +19,12 @@
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
 
-ADD_COPT = $(ADD_COPT) &
+ADD_COPT = $(ADD_COPT) -d2 -db &
            -i=$(SrvDir)Shared$(SEP)modmgr &
            -i=$(SrvDir)include -i=. -i=..
 #           -std=c99   $(COPT_TARGET) -O1 -g2 -Wall
 
-ADD_LINKOPT = libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_shared_$(ARCH).lib, os2server_$(ARCH).lib
+ADD_LINKOPT = debug all libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_shared_$(ARCH).lib, os2server_$(ARCH).lib
 
 !ifeq ARCH os2
 PLATFORM = os2

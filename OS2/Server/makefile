@@ -31,7 +31,7 @@ DIRS = Shared $(ARCH) test
 srcfiles = $(p)main$(e)
 # defines additional options for C compiler
 INSTALL_ADD = 1
-ADD_COPT= -d2
+ADD_COPT= -d2 -db
 
 !include $(%ROOT)/mk/os2server.mk
 

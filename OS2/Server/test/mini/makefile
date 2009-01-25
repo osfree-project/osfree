@@ -11,6 +11,7 @@ srcfiles  = $(p)mini33$(e)
 ADD_COPT  = -db -d2 -s -g=DGROUP -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
 OPTIONS   = start=startup,internalrelocs
 IMPORTS   = DosPutMessage MSG.5
+#IMPORTS   = DOSPUTMESSAGE MSG.1
 STACKSIZE = 32k
 
 !include $(%ROOT)/mk/appsos2.mk

@@ -24,7 +24,7 @@ ADD_COPT =            $(ADD_COPT) -d__OS2__ &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=os2
-ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib libpath $(ROOT)build$(SEP)lib
+ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK, internalrelocs lib all_shared.lib,cmd_shared.lib libpath $(ROOT)build$(SEP)lib
 
 !ifndef DEST
 DEST    = os2

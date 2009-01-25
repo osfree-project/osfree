@@ -12,6 +12,9 @@ ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata, caseexact
+
+
+
 IMPORTS = DOSPUTMESSAGE DOSCALLS.383,      &
           DOSTRUEGETMESSAGE DOSCALLS.384,  &
           DOSINSMESSAGE DOSCALLS.385,      &
@@ -30,6 +33,13 @@ EXPORTS = DOSPUTMESSAGE.1,      &
           DOSIQUERYMESSAGECP.7, &
           DosIQueryMessageCP.8, &
           DOSCLOSEMESSAGEFILE.9
+#EXPORTS = &
+#          DOSINSMESSAGE.3, &
+#          DOSPUTMESSAGE.5, &
+#          DOSTRUEGETMESSAGE.2, &
+#          DOSIQUERYMESSAGECP.7, &
+#          DOSCLOSEMESSAGEFILE.9
+
 DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

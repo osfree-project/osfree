@@ -9,11 +9,13 @@ void puts(char *s);
 #include <os2.h>
 
 APIRET APIENTRY DosPutMessage(HFILE hfile, ULONG cbMsg, PCHAR pBuf);
+//APIRET APIENTRY DOSPUTMESSAGE(HFILE hfile, ULONG cbMsg, PCHAR pBuf);
 /*int _System DosPutMessage(unsigned int hfile, unsigned int cbMsg, char * pBuf);*/
 
 void _System startup(void) {
     /*puts(msg); */
         char  msg[] = "I'm really small!\n";
+        //DOSPUTMESSAGE(1, sizeof(msg), &msg);
         DosPutMessage(1, sizeof(msg), &msg);
 }
 

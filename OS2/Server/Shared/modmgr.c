@@ -151,12 +151,12 @@ unsigned long ModLoadModule(char *          pszName,
   /* A test under Linux with a specially compiled kal.dll (LX format) but with
      Open Watcoms C library for Linux. */
 
-  if (!strcmp(pszModname, "KAL"))
-  {
-    // KAL module always has handle 1
-    *phmod=1;
-    return rc;
-  }
+  //if (!strcmp(pszModname, "KAL"))
+  //{
+  //  // KAL module always has handle 1
+  //  *phmod=1;
+  //  return rc;
+  //}
   #endif
 
   // First search in the module list
