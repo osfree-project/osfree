@@ -33,7 +33,7 @@
 
 #ifdef __OS2__
 #define INCL_DOSERRORS
-#define INCL_VIO
+//#define INCL_VIO
 
 #include <osfree.h>             // Include file for osfree
 #include <cmd_shared.h>         // Include file for cmd tools

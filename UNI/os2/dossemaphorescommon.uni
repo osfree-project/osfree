@@ -1,0 +1,37 @@
+module dossemaphorescommon;
+
+
+   (*
+   *     32-bit Semaphore Support
+   *)
+
+   (* Semaphore Attributes *)
+
+   const DC_SEM_SHARED  = $01;   (* DosCreateMutex, DosCreateEvent, and     *)
+                                  (*   DosCreateMuxWait use it to indicate   *)
+                                  (*   whether the semaphore is shared or    *)
+                                  (*   private when the PSZ is null          *)
+   const DCMW_WAIT_ANY  = $02;   (* DosCreateMuxWait option for wait on any *)
+                                  (*   event/mutex to occur                  *)
+   const DCMW_WAIT_ALL  = $04;   (* DosCreateMuxWait option for wait on all *)
+                                  (*   events/mutexs to occur                *)
+  const DCE_AUTORESET  = $1000;  (* DosCreateEventSem option to auto-reset  *)
+                                  (* event semaphore on post.                *)
+  const DCE_POSTONE    = $0800;  (* DosCreateEventSem option to post only   *)
+                                  (* waiter and auto-reset the semaphore when*)
+                                  (* there are multiple waiters.             *)
+
+
+   const SEM_INDEFINITE_WAIT    = -1;
+   const SEM_IMMEDIATE_RETURN   =  0;
+
+      type  HSEM=ULONG;
+      type PHSEM=^HSEM;
+
+   type SEMRECORD=structure      (* psr *)
+              hsemCur: HSEM;
+              ulUser: ULONG;
+   end;
+   type PSEMRECORD=^SEMRECORD;
+
+end.

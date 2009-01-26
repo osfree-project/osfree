@@ -199,8 +199,9 @@ type COLOR=LONG;
 type PCOLOR=^COLOR;
 type FIXED=LONG;
 type PFIXED=^FIXED;
-type HEV=ULONG;
-type PHEV=^HEV;
+
+uses hevdef;
+
 type HMTX=ULONG;
 type PHMTX=^HMTX;
 type HMUX=ULONG;

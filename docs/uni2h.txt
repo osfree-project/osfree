@@ -1,0 +1,40 @@
+Unified Interface to C/C++ headers bindings
+===========================================
+
+1. Module:
+
+module <name>;
+
+[stataments]
+
+end.
+
+will be converted to
+
+#ifdef __<NAME>_H__
+#define __<NAME>_H__
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
+[stataments]
+
+#ifdef __cplusplus
+   }
+#endif
+
+#endif /* __<NAME>_H__ */
+
+x. error key to define error
+
+error [ERROR_ID] error_number [MESAGE_ID];
+
+ERROR_ID or MESAGE_ID is optional but not both.
+
+As result must be produced:
+
+error ERROR_PATH_NOT_FOUND 123 MSG_PATH_NOT_FOUND;
+
+#define ERROR_PATH_NOT_FOUND 123
+#define MSG_PATH_NOT_FOUND   123

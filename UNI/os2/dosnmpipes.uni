@@ -5,7 +5,7 @@ module dosnmpipes;
    (*** Data structures used with named pipes ***)
 
    type  HPIPE=LHANDLE;     (* hp *)
-   type  PHPIPE=^PHPIPE;
+   type  PHPIPE=^HPIPE;
 
    type AVAILDATA=structure              (* AVAILDATA *)
             cbpipe: USHORT;            (* bytes left in the pipe *)

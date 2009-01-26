@@ -132,6 +132,7 @@ type
     procedure ParseMain(var Module: TPasModule);
     procedure ParseUnit(var Module: TPasModule);
     procedure ParseUsesList(ASection: TPasSection);
+    procedure ParseError(ASection: TPasSection);
     function ParseConstDecl(Parent: TPasElement): TPasConst;
     function ParseResourcestringDecl(Parent: TPasElement): TPasResString;
     function ParseTypeDecl(Parent: TPasElement): TPasType;
@@ -696,7 +697,6 @@ begin
     Engine.Package.Modules.Add(Module);
   end;
   ExpectToken(tkSemicolon);
-//  ExpectToken(tkInterface);
   Section := TPasSection(CreateElement(TPasSection, '', Module));
   Module.InterfaceSection := Section;
   CurBlock := declNone;
@@ -711,6 +711,8 @@ begin
         ParseUsesList(Section);
       tkConst:
         CurBlock := declConst;
+      tkError:
+        ParseError(Section);
       tkResourcestring:
         CurBlock := declResourcestring;
       tkType:
@@ -843,6 +845,65 @@ begin
     end else if CurToken <> tkAlias then
       ParseExc(SParserExpectedCommaSemicolon);
   end;
+end;
+
+// Starts after the "error" token
+procedure TPasParser.ParseError(ASection: TPasSection);
+var
+  ErrorCodeName: String;
+  ErrorMsgName: String;
+  Element: TPasElement;
+  v: string;
+begin
+  ErrorCodeName:='';
+  ErrorMsgName:='';
+
+  while True do
+  begin
+    NextToken;
+    if CurToken = tkIdentifier then
+    begin
+      UngetToken;
+      ErrorCodeName := ExpectIdentifier;
+    end else
+      UngetToken;
+
+    ExpectToken(tkNumber);
+    v := CurTokenString;
+
+    NextToken;
+    if CurToken = tkIdentifier then
+    begin
+      UngetToken;
+      ErrorMsgName := ExpectIdentifier;
+    end else
+      UngetToken;
+
+    NextToken;
+
+    if CurToken = tkSemicolon then
+    begin
+      break;
+    end else if CurToken <> tkAlias then
+      ParseExc(SParserExpectedCommaSemicolon);
+  end;
+
+  if ErrorCodeName<>'' then
+  begin
+    Element := TPasConst(CreateElement(TPasConst, ErrorCodeName, ASection));
+    TPasConst(Element).Value:=v;
+    ASection.Consts.Add(Element);
+    ASection.Declarations.Add(Element);
+  end;
+
+  if ErrorMsgName<>'' then
+  begin
+    Element := TPasConst(CreateElement(TPasConst, ErrorMsgName, ASection));
+    TPasConst(Element).Value:=v;
+    ASection.Consts.Add(Element);
+    ASection.Declarations.Add(Element);
+  end;
+
 end;
 
 // Starts after the variable name

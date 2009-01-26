@@ -1,5 +1,7 @@
 module dosfilemgrcommon;
 
+uses hevdef;
+
    (*** File manager *)
    (* DosSetFilePtr() file position codes *)
 
@@ -287,8 +289,6 @@ module dosfilemgrcommon;
    end;
    type PFILELOCKL=^FILELOCKL;
 
-   type  HEV=ULONG;             (* hev *)
-   type  PHEV=^HEV;
 
    type    FHLOCK=ULONG;
    type    PFHLOCK=PULONG;

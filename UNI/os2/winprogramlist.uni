@@ -1,0 +1,38 @@
+module winprogramlist;
+
+   type PROGCATEGORY=ULONG;       (* progc *)
+
+   type PPROGCATEGORY=^PROGCATEGORY;
+
+   (*** values acceptable for PROGCATEGORY for PM groups *******************)
+   const PROG_DEFAULT              =0;
+   const PROG_FULLSCREEN           =1;
+   const PROG_WINDOWABLEVIO        =2;
+   const PROG_PM                   =3;
+   const PROG_GROUP                =5;
+   const PROG_REAL                 =4;
+   const PROG_VDM                  =4;
+   const PROG_WINDOWEDVDM          =7;
+   const PROG_DLL                  =6;
+   const PROG_PDD                  =8;
+   const PROG_VDD                  =9;
+   const PROG_WINDOW_REAL          =10;
+   const PROG_WINDOW_PROT          =11;
+   const PROG_30_STD               =11;
+   const PROG_WINDOW_AUTO          =12;
+   const PROG_SEAMLESSVDM          =13;
+   const PROG_30_STDSEAMLESSVDM    =13;
+   const PROG_SEAMLESSCOMMON       =14;
+   const PROG_30_STDSEAMLESSCOMMON =14;
+   const PROG_31_STDSEAMLESSVDM    =15;
+   const PROG_31_STDSEAMLESSCOMMON =16;
+   const PROG_31_ENHSEAMLESSVDM    =17;
+   const PROG_31_ENHSEAMLESSCOMMON =18;
+   const PROG_31_ENH               =19;
+   const PROG_31_STD               =20;
+   const PROG_DOS_GAME             =21;
+   const PROG_WIN_GAME             =22;
+   const PROG_DOS_MODE             =23;
+   const PROG_RESERVED             =255;
+
+end.

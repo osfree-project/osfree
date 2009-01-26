@@ -22,22 +22,6 @@ will produce
 #include <bse.h>
 #endif
 
-x. error key to define error
-
-error [ERROR_ID] error_number MESAGE_ID 'message';
-
-ERROR_ID is optional
-
-As result must be produced:
-
-error ERROR_PATH_NOT_FOUND 123 MSG_PATH_NOT_FOUND 'Searched path not found' 'oso001.txt';
-
-#define ERROR_PATH_NOT_FOUND 123
-#define MSG_PATH_NOT_FOUND   123
-
-And in oso001.txt this string will be added
-
-SYS0123I: Searched path not found
 
 x. #pragma pack(xxx) handling
 x. add __required__ access flag to arguments list

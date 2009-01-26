@@ -1,5 +1,6 @@
 module pmwin;
 
 uses pmshl;
+uses winclipboarddde;
 
 end.

@@ -328,6 +328,12 @@ begin
     S:=Copy(S, 1, p-1)+' << '+Copy(S, p+5, Length(S)-p-1);
   end;
 
+  while pos('not ', S)>0 do
+  begin
+    p:=pos('not ', S);
+    S:=Copy(S, 1, p-1)+'~'+Copy(S, p+4, Length(S)-p-1);
+  end;
+
   Result:=S;
 end;
 
@@ -337,7 +343,6 @@ var
 begin
   if (AVar.Parent.ClassType <> TPasClassType) and
     (AVar.Parent.ClassType <> TPasRecordType) then
-//    PrepareDeclSection('');
   wrt('#define '+AVar.Name + ' ');
   Wrtln(ConvertToC(AVar.Value));
 end;
@@ -354,6 +359,7 @@ begin
     wrt('VOID');
   end;
 
+  // Here we must get function via ABI list
   wrt(' APIENTRY '+AProc.Name);
 
   if Assigned(AProc.ProcType) and (AProc.ProcType.Args.Count > 0) then

@@ -56,40 +56,8 @@
 
    #endif  /* end of #ifndef SESMGR */
 
-   typedef ULONG PROGCATEGORY;       /* progc */
+uses winprogramlist;
 
-   typedef PROGCATEGORY *PPROGCATEGORY;
-
-   /*** values acceptable for PROGCATEGORY for PM groups *******************/
-   #define PROG_DEFAULT             (PROGCATEGORY)0
-   #define PROG_FULLSCREEN          (PROGCATEGORY)1
-   #define PROG_WINDOWABLEVIO       (PROGCATEGORY)2
-   #define PROG_PM                  (PROGCATEGORY)3
-   #define PROG_GROUP               (PROGCATEGORY)5
-   #define PROG_REAL                (PROGCATEGORY)4
-   #define PROG_VDM                 (PROGCATEGORY)4
-   #define PROG_WINDOWEDVDM         (PROGCATEGORY)7
-   #define PROG_DLL                 (PROGCATEGORY)6
-   #define PROG_PDD                 (PROGCATEGORY)8
-   #define PROG_VDD                 (PROGCATEGORY)9
-   #define PROG_WINDOW_REAL         (PROGCATEGORY)10
-   #define PROG_WINDOW_PROT         (PROGCATEGORY)11
-   #define PROG_30_STD              (PROGCATEGORY)11
-   #define PROG_WINDOW_AUTO         (PROGCATEGORY)12
-   #define PROG_SEAMLESSVDM         (PROGCATEGORY)13
-   #define PROG_30_STDSEAMLESSVDM   (PROGCATEGORY)13
-   #define PROG_SEAMLESSCOMMON      (PROGCATEGORY)14
-   #define PROG_30_STDSEAMLESSCOMMON (PROGCATEGORY)14
-   #define PROG_31_STDSEAMLESSVDM   (PROGCATEGORY)15
-   #define PROG_31_STDSEAMLESSCOMMON (PROGCATEGORY)16
-   #define PROG_31_ENHSEAMLESSVDM   (PROGCATEGORY)17
-   #define PROG_31_ENHSEAMLESSCOMMON (PROGCATEGORY)18
-   #define PROG_31_ENH              (PROGCATEGORY)19
-   #define PROG_31_STD              (PROGCATEGORY)20
-   #define PROG_DOS_GAME            (PROGCATEGORY)21
-   #define PROG_WIN_GAME            (PROGCATEGORY)22
-   #define PROG_DOS_MODE            (PROGCATEGORY)23
-   #define PROG_RESERVED            (PROGCATEGORY)255
 
    #ifndef SESMGR
 

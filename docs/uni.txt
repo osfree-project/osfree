@@ -1,0 +1,54 @@
+Unified Interface
+=================
+
+Unified Interface (UNI) is API description file which used for generation of actual header,
+include, unit, etc files for corresponding languages. UNI is much stricted in comparation of
+standard C/C++ header files. This means less errors and easy support. Pascal-like syntax as
+base is used with some modifications.
+
+UNI files (.uni) can be converted to C/C++ header files (.h) using uni2h tool (see uni2h
+documentation for more details). For Pascal units uni2pas tool can be used. Fortran
+.fi and .fap files can be generated using uni2f. For REXX GCI uni2gci can be used.
+Generation of assembler include files (.inc) use uni2inc. Other tools can be created
+for different languages.
+
+UNI syntax
+----------
+
+
+[statament] optional;
+<name> string or number;
+(* comment *) ignored by parser;
+
+1. UNI Module:
+
+module <name>;
+
+[stataments]
+
+end.
+
+Examples:
+
+module os2;
+
+uses os2def;
+
+end.
+
+2. List of used modules
+
+Module can use another module. It is equal to #include directofe of C Preprocessor.
+
+uses <name>;
+
+Example:
+
+module os2;
+
+uses os2def;
+
+end.
+
+3. ....!!TODO!!....
+

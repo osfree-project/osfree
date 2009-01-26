@@ -72,7 +72,7 @@ module dosmisc;
    #define DosQSysInfo     DosQuerySysInfo
 *)
 
-function DosError(error: ULONG): APIRET;
+function DosError(errorno: ULONG): APIRET;
 
 function DosGetMessage(pTable: ^PCHAR;
                        cTable: ULONG;

@@ -1,0 +1,33 @@
+module dosdevices;
+
+function  DosDevConfig(pdevinfo: PVOID; item: ULONG): APIRET;
+
+const DEVINFO_PRINTER =0;
+const DEVINFO_RS232 =1;
+const DEVINFO_FLOPPY= 2;
+const DEVINFO_COPROCESSOR= 3;
+const DEVINFO_SUBMODEL= 4;
+const DEVINFO_MODEL =5;
+const DEVINFO_ADAPTER= 6;
+
+function DosDevIOCtl(hDevice: HFILE;
+                     category: ULONG;
+                     xfunction: ULONG;
+                     pParams: PVOID;
+                     cbParmLenMax: ULONG;
+                     pcbParmLen: PULONG;
+                     pData: PVOID;
+                     cbDataLenMax: ULONG;
+                     pcbDataLen: PULONG): APIRET;
+
+function DosPhysicalDisk(xfunction: ULONG;
+                         pBuf: PVOID;
+                         cbBuf: ULONG;
+                         pParams: PVOID;
+                         cbParams: ULONG): APIRET;
+
+const INFO_COUNT_PARTITIONABLE_DISKS =1;
+const INFO_GETIOCTLHANDLE =2;
+const INFO_FREEIOCTLHANDLE =3;
+
+end.

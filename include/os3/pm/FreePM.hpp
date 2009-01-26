@@ -5,6 +5,9 @@
   #define FREEPM_FREEPM
 
 // OS/2 Headers
+#define INCL_OS2
+#define INCL_BSE
+#define INCL_BSEDOS
 #define INCL_PM
 #define INCL_WIN
 #define INCL_ERRORS

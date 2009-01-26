@@ -70,7 +70,7 @@ if lastpos('\', root) \= length(root) then root = root || '\'
 tools = root || '\bin\tools'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
-include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\os2;' || watcom || '\h\win'
+include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
 

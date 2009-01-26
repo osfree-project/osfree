@@ -771,8 +771,8 @@ const ALLOWED_IGNORE                  = $0008;
 const ALLOWED_ACKNOWLEDGE             = $0010;
 const ALLOWED_DISPATCH                = $8000;
 const ALLOWED_REGDUMP                 = $0020;
-const ALLOWED_DETACHED                = ALLOWED_DISPATCH
-const ALLOWED_RESERVED                = ~(ALLOWED_FAIL or ALLOWED_ABORT or ALLOWED_RETRY or ALLOWED_IGNORE or ALLOWED_ACKNOWLEDGE)
+const ALLOWED_DETACHED                = ALLOWED_DISPATCH;
+const ALLOWED_RESERVED                = not (ALLOWED_FAIL or ALLOWED_ABORT or ALLOWED_RETRY or ALLOWED_IGNORE or ALLOWED_ACKNOWLEDGE)
 
 const I24_OPERATION                  = $01;
 const I24_AREA                       = $06;
@@ -817,5 +817,245 @@ const TC_HARDERR                      = 1;
 const TC_GP_TRAP                      = 2;
 const TC_SIGNAL                       = 3;
 const TC_XCPT                         = 4;
+
+
+error 1001 MSG_BAD_PARM1;                        (* invalid parm *)
+error 1002 MSG_BAD_PARM2;                        (* invalid parm with specified input *)
+error 1003 MSG_BAD_SYNTAX;                       (* invalid syntax *)
+error 1004 MSG_STAND_BY;                         (* stand by the process is in process *)
+error 1036 MSG_INVALID_DATE;                     (* invalid date *)
+error 1111 MSG_DEV_INSTALL_FAIL;                 (* device name from the header *)
+error 1112 MSG_DEV_AT_ONLY;                      (* non-ABIOS type driver installed *)
+error 1113 MSG_DEV_PS2_ONLY;                     (* ABIOS installed on an AT *)
+error 1114 MSG_DEV_HW_UNSUPPORTED;               (* bad or imcompatable card *)
+error 1115 MSG_DEV_HW_UNAVAILABLE;               (* adaptor not installed *)
+error 1116 MSG_DEV_IRQ;                          (* IRQ call failed *)
+error 1117 MSG_DEV_ABIOS;                        (* ABIOS not present error *)
+error 1118 MSG_NO_HELP_MSG;                      (* no help msg. ID *)
+(*  1119 not used *)
+error 1120 MSG_NEXT_DISKETTE;                    (* Sys load next disk *)
+(* 1121 - 1187 not used *)
+error 1188 MSG_SYSINIT_PROCS_INITED;             (* Processors Initialized *)
+error 1190 MSG_SYSINIT_PSD_NOT_FND;              (* PSD not found *)
+error 1191 MSG_SYSINIT_NO_IFS_STMT;              (* no IFS statment in config.sys *)
+error 1193 MSG_SYSINIT_287_DISABLED;
+error 1194 MSG_SYSINIT_387_WITH_386B1;
+error 1195 MSG_SYSINIT_INVAL_CMD;                (* Unrecognized command *)
+error 1196 MSG_SYSINIT_INVAL_PARM;               (* Invalid parameter *)
+error 1197 MSG_SYSINIT_MISSING_PARM;             (* Missing parameter *)
+error 1198 MSG_SYSINIT_BAD_DOS_DD;               (* invalid DOS mode device driver *)
+error 1199 MSG_SYSINIT_BOOT_FAILURE;             (* sys unable to start OS/2 *)
+error 1200 MSG_SYSINIT_DOS_FAIL;                 (* Cannot create DOS mode *)
+error 1201 MSG_SYSINIT_UDRVR_FAIL;               (* user device driver failed to install *)
+error 1202 MSG_SYSINIT_SDRVR_FAIL;               (* system device driver failed to install *)
+error 1203 MSG_SYSINIT_UFILE_IOPL;               (* User file requires privilege level *)
+error 1204 MSG_SYSINIT_SFILE_IOPL;               (* System file requires privilege level *)
+error 1205 MSG_SYSINIT_DOS_MODIFIED;             (* DOS mode memory modified by DD *)
+error 1206 MSG_SYSINIT_UFILE_NO_MEM;             (* Out of memory loading user program or DD *)
+(* 1207 not used *)
+error 1210 MSG_INCORRECT_DOSVERSION;             (* incorrect DOS version *)
+error 1211 MSG_ABORT_RTRY_IGNORE;                (* abort, retry, or ignore *)
+error 1271 MSG_HPFS_FORMAT_YES_NO;               (* format disk, yes or no *)
+error 1272 MSG_HPFS_SYS_FILES_COPIED;            (* system files transferred *)
+error 1279 MSG_HPFS_BAD_BLOCKS_CRIT_AREA;        (* bad blocks in critical system areas *)
+error 1288 MSG_HPFS_TYPE_VOLUME_LABEL;           (* Enter volume label *)
+error 1310 MSG_HPFS_SPECIFY_DRIVE_LETTER;        (* FORMAT entered without drive letter, specify *)
+error 1338 MSG_HPFS_DIRECTORY;                   (* directory *)
+error 1341 MSG_HPFS_CHKDSK_NOREAD_DATA;          (* cannot read disk data *)
+
+
+
+error 1394 MSG_SAD_REMOTE_DUMP;                  (* remote dump initiated *)
+error 1395 MSG_SAD_INSERT_DUMP;                  (* insert dump disk - rasmsg *)
+error 1398 MSG_SAD_NOT_AVAILABLE;                (* dump not available *)
+
+error 1417 MSG_DLL_CANT_LOAD_RESOURCE;           (* app resources not available *)
+
+
+error 1470 MSG_SWAP_INVALID_DRIVE;               (* Invalid drive %1 specified SWAPPATH *)
+error 1471 MSG_SWAP_INVALID_PATH;                (* Invalid path %1 specified in SWAPPATH *)
+error 1472 MSG_SWAP_CANNOT_CREATE;               (* Cannot create swap file %1 *)
+error 1473 MSG_SWAP_DISABLED;                    (* Segment swapping is disabled *)
+error 1474 MSG_SWAP_CANT_INIT;                   (* Cannot initialize swapper *)
+error 1475 MSG_SYSINIT_BOOT_NOT_FD;
+error 1476 MSG_SWAP_INVALID_PATH_ROOT;           (* invalid path %1 specified, use root *)
+error 1490 MSG_STRI_FILE_NOT_FOUND;              (* %1 file not found *)
+error 1500 MSG_SWAP_NOT_READY;                   (* diskette containing swap file not rdy *)
+error 1501 MSG_SWAP_WRITE_PROTECT;               (* Diskette containing swap file wrpro *)
+error 1502 MSG_SWAP_IN_ERROR;                    (* I/O error on swap file *)
+error 1502 MSG_SWAP_IO_ERROR;                    (* I/O error on swap file *)
+error 1503 MSG_SWAP_FILE_FULL;                   (* Swap file is full *)
+error 1504 MSG_SWAP_TABLE_FULL;                  (* Swap control table full *)
+(* 1517 not used *)
+error 1518 MSG_SYSINIT_SFILE_NOT_FND;            (* System file not found *)
+error 1519 MSG_SYSINIT_SFILE_NO_MEM;             (* Out of memory loading system program or DD *)
+error 1520 MSG_SYSINIT_DSKT_NOT_INSTALLED;       (* additional diskette drive not installed *)
+error 1521 MSG_SYSINIT_TOO_MANY_PARMS;           (* Too many parms on line *)
+error 1522 MSG_SYSINIT_DSKT_INSTALLED_AS;        (* diskette drive installed as letter %1 *)
+error 1523 MSG_SYSINIT_MISSING_SYMB;             (* No equal or space *)
+(* 1708 not used *)
+error 1709 MSG_SYSINIT_START_NO_LOAD;            (* startup not loaded *)
+error 1710 MSG_SYSINIT_START_NO_INIT;            (* startup no initialize *)
+(* 1711 - 1717 not used *)
+error 1718 MSG_SYSINIT_UFILE_NOT_FND;            (* User file not found *)
+error 1719 MSG_SYSINIT_UDRVR_INVAL;              (* User device driver invalid *)
+error 1720 MSG_SYSINIT_FSD_NOT_VAL;              (* data to ipl incorrect *)
+error 1721 MSG_SYSINIT_BANNER;                   (* Version banner message *)
+error 1722 MSG_SYSINIT_CANT_LOAD_MOD;            (* Can't load module *)
+error 1723 MSG_SYSINIT_EPT_MISSING;              (* Entry point missing *)
+error 1724 MSG_SYSINIT_CANT_OPEN_CON;            (* Can't open con *)
+error 1725 MSG_SYSINIT_WRONG_HANDLE;             (* wrong handle for standard input file *)
+error 1726 MSG_SYSINIT_PRESS_ENTER;              (* Press enter to continue *)
+error 1727 MSG_SYSINIT_CANT_GET_CACHE;           (* Can't allocate cache memory *)
+error 1728 MSG_SYSINIT_CANT_INIT_CACHE;          (* not enough memory for diskcache *)
+error 1729 MSG_SYSINIT_VIO_CP;                   (* VioSetCp failed *)
+error 1730 MSG_SYSINIT_KBD_CP;                   (* KbdSetCp failed *)
+(* 1731 - 1732 not used *)
+error 1733 MSG_SYSINIT_SCFILE_INVAL;             (* System country file is bad *)
+(* 1734 not used *)
+error 1735 MSG_SYSINIT_CP_ASSUME;                (* Assumed codepage *)
+(* 1736 not used *)
+error 1737 MSG_SYSINIT_CP_FATAL;                 (* Codepage switching disabled *)
+error 1738 MSG_SYSINIT_NOT_INIT_NMI;             (* cannot initial NMI ALSO FOR MODE MGR *)
+
+error 1797 MSG_VLPT_NO_SPOOL;                    (* could not access spool file *)
+error 1798 MSG_VCOM_DEVICE_IN_USE;               (* COM port in use *)
+error 1799 MSG_VLPT_DEVICE_BUSY;                 (* parallel port in use *)
+
+
+(* 1901 - 1914 utilmid2 *)
+error 1903 MSG_ASYNC_BAD_ARBT;                   (* COM02 bad arbit level *)
+error 1914 MSG_SYSINIT_DRV_RESERVE;              (* Drive not reserved *)
+error 1915 MSG_INTERNAL_ERROR;                   (* Internal error in the Kernel *)
+error 1916 MSG_USER_ERROR;                       (* user error *)
+error 1919 MSG_SYSINIT_UEXEC_FAIL;               (* User program won't execute *)
+(* 1920 - 1923 not used *)
+error 1923 MSG_PAGE_FAULT;                       (* page fault trap *)
+error 1924 MSG_INTERRUPTS_DISABLED;              (* system called with interrupts *)
+error 1925 MSG_SYSINIT_SEXEC_FAIL;               (* System program won't execute *)
+error 1926 MSG_GEN_PROT_FAULT;                   (* General protect fault trap d *)
+error 1927 MSG_CHANGE_INT_VECTOR;                (* real mode changed interrupt vector *)
+error 1928 MSG_NOMEM_FOR_RELOAD;                 (* no storage to reload code or segment *)
+error 1929 MSG_STACK_OVERFLOW;                   (* argument stack low *)
+error 1930 MSG_TRAP0;                            (* divide error *)
+error 1931 MSG_TRAP1;                            (* single step trap *)
+error 1932 MSG_TRAP2;                            (* hardware memory error *)
+error 1933 MSG_TRAP3;                            (* breakpoint instruction *)
+error 1934 MSG_TRAP4;                            (* computation overflow *)
+error 1935 MSG_TRAP5;                            (* index out of range *)
+error 1936 MSG_TRAP6;                            (* incorrect instruction *)
+error 1937 MSG_TRAP7;                            (* cannot process instruction *)
+error 1938 MSG_TRAP8;                            (* double exception error *)
+error 1939 MSG_TRAP9;                            (* math coprocessor *)
+error 1940 MSG_TRAPA;                            (* task state segment *)
+error 1941 MSG_TRAPB;                            (* segment not in memory *)
+error 1942 MSG_TRAPC;                            (* memory beyond the stack segment *)
+error 1943 MSG_TRAPD;                            (* bad segment value *)
+error 1944 MSG_NMI;                              (* nonmaskable interrupt *)
+error 1945 MSG_NMI_EXC1;                         (* error with memory system board *)
+error 1946 MSG_NM12_EXC2;                        (* error memory cards *)
+error 1947 MSG_NMI2_EXC3;                        (* timeout on dma *)
+error 1948 MSG_NMI2_EXC4;                        (* timeout by watchdog timer *)
+error 1949 MSG_TRAPE;                            (* bad linear address *)
+error 1950 MSG_NPXIEMSG;                         (* incorrect operation *)
+error 1951 MSG_NPXDEMSG;                         (* denormalized operand *)
+error 1952 MSG_NPXZEMSG;                         (* zero divide *)
+error 1953 MSG_NPXOEMSG;                         (* overflow *)
+error 1954 MSG_NPXUEMSG;                         (* underflow *)
+error 1955 MSG_NPXPEMSG;                         (* precision *)
+error 1956 MSG_NPXINSTEMSG;                      (* error occurred at address *)
+error 1957 MSG_NPXBADSW;                         (* bad coprocess.status word *)
+error 1958 MSG_PAGEMGR_TRAP02_MEM_REC;           (* mem parity error phys loc *)
+error 1959 MSG_PAGEMGR_TRAP02_APP_TERM;          (* mem parity error phys loc *)
+error 2025 MSG_SYSINIT_BOOT_ERROR;               (* boot error *)
+error 2026 MSG_SYSINIT_BIO_NOT_FD;               (* COMMAND.COM not found *)
+error 2027 MSG_SYSINIT_INSER_DK;                 (* Insert diskette *)
+error 2028 MSG_SYSINIT_DOS_NOT_FD;               (* IBMDOS.COM not found *)
+error 2029 MSG_SYSINIT_DOS_NOT_VAL;              (* IBMDOS.COM not valid *)
+error 2030 MSG_SYSINIT_MORE_MEM;                 (* need more memory *)
+(* 2031 - 2056 utilmid3 *)
+(* 2057 - 2062 not used *)
+error 2063 MSG_SYSINIT_DOS_TOO_BIG;              (* not enough memory for PC DOS mode *)
+error 2064 MSG_SYSINIT_DOS_NO_MEM;               (* Out of memory starting DOS mode *)
+error 2065 MSG_SYSINIT_SYS_STOPPED;              (* System is stopped *)
+error 2066 MSG_SYSINIT_DOS_STOPPED;              (* DOS mode not started *)
+error 2067 MSG_SYSINIT_SDRVR_INVAL;              (* System device driver invalid *)
+error 2068 MSG_SYSINIT_MSG_LOST;                 (* Messages lost *)
+error 2069 MSG_SYSINIT_UCFILE_INVAL;             (* User country file is bad *)
+error 2070 MSG_DEMAND_LOAD_FAILED;               (* the demand load has failed *)
+
+(* Messages for CDROM, messages 3100-3125 *)
+error 3100 MSG_CDFS_BAD_OS_VERSION;
+error 3101 MSG_CDFS_DEB_STAT_SIGNON;
+error 3102 MSG_CDFS_DEB_SIGNON;
+error 3103 MSG_CDFS_STAT_SIGNON;
+error 3104 MSG_CDFS_SIGNON;
+error 3105 MSG_CDFS_UNKNOWN_ERR_CODE;
+error 3106 MSG_CDFS_BAD_PARM;
+error 3107 MSG_CDFS_MIN_SECTORS;
+error 3108 MSG_CDFS_DEBUG;
+error 3109 MSG_CDFS_MAX_SECTORS;
+error 3110 MSG_CDFS_MIN_FILE_SECT;
+error 3111 MSG_CDFS_MAX_FILE_SECT;
+error 3112 MSG_CDFS_PRIMARY_VD;
+error 3113 MSG_CDFS_SECONDARY_VD;
+error 3114 MSG_CDFS_SECTOR_CACHE;
+error 3115 MSG_CDFS_SECTORS_READ;
+error 3116 MSG_CDFS_INIT_FAIL;
+error 3117 MSG_CDFS_MEM_INIT_FAIL;
+error 3118 MSG_CDFS_PARTIAL_MEM_FAIL;
+error 3119 MSG_CDFS_NO_INFOSEG;
+
+(* Display driver errors *)
+error 3135 MSG_SYSINIT_DISPLAY_MISMATCH;         (* display.dll invalid with current hardware *)
+
+(* EISA NMI messages. *)
+error 3140 MSG_EISA_NMI_SOFTWARE;
+error 3141 MSG_EISA_NMI_BUS;
+error 3142 MSG_EISA_NMI_FAILSAFE;
+error 3143 MSG_EISA_NMI_IOCHK;
+error 3144 MSG_EISA_NMI_PARITY;
+
+error 3145 MSG_BAD_COMMAND_COM;
+error 3146 MSG_SYSINIT_LDR_MSG_NOT_FD;
+error 3147 MSG_SYSINIT_LDR_MSG_NOT_VAL;
+
+error 3161 MSG_NOT_80386_CPU;                    (* can't boot on 8086/286 *)
+error 3162 MSG_80_STEPPING;                      (* can't boot on a 386 BO *)
+error 3163 MSG_32BIT_MULTIPLY;                   (* 386 with bad 32 bit multiply *)
+
+(* Exception HardErr Popup messages. *)
+error 3170 MSG_XCPT_USER;                        (* Fatal user exception. *)
+error 3171 MSG_XCPT_STACK_OVERRUN;               (* Stack overrun dispatching exception *)
+error 3172 MSG_XCPT_CANNOT_DISPATCH;             (* Fatal error dispatching exception *)
+error 3173 MSG_XCPT_BREAKPOINT;
+error 3174 MSG_XCPT_SINGLE_STEP;
+error 3175 MSG_XCPT_ACCESS_VIOLATION;
+error 3176 MSG_XCPT_ILLEGAL_INSTRUCTION;
+error 3177 MSG_XCPT_FLOAT_DENORMAL_OPERAND;
+error 3178 MSG_XCPT_FLOAT_DIVIDE_BY_ZERO;
+error 3179 MSG_XCPT_FLOAT_INEXACT_RESULT;
+error 3180 MSG_XCPT_FLOAT_INVALID_OPERATIO;
+error 3181 MSG_XCPT_FLOAT_OVERFLOW;
+error 3182 MSG_XCPT_FLOAT_STACK_CHECK;
+error 3183 MSG_XCPT_FLOAT_UNDERFLOW;
+error 3184 MSG_XCPT_INTEGER_DIVIDE_BY_ZERO;
+error 3185 MSG_XCPT_INTEGER_OVERFLOW;
+error 3186 MSG_XCPT_PRIVILEGED_INSTRUCTION;
+error 3187 MSG_XCPT_IN_PAGE_ERROR;
+error 3188 MSG_XCPT_NONCONTINUABLE_EXCEPTI;
+error 3189 MSG_XCPT_INVALID_DISPOSITION;
+error 3190 MSG_XCPT_INVALID_LOCK_SEQUENCE;
+error 3191 MSG_XCPT_ARRAY_BOUNDS_EXCEEDED;
+error 3192 MSG_XCPT_B1NPX_ERRATA_02;
+
+(* FAT to HPFS conversion (FATBALL) messages *)
+
+error 3332 MSG_HARDWARE_CONFIGURATION;
+
+error 3357 MSG_SYSINIT_CMOS_ERR;
+
+error 3358 MSG_SYSINIT_BAD_TRAPDUMP_DRV;
+
 
 end.

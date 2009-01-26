@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <FreePM.hpp>
+#include <bsedos.h>
 
 #define FREEPM_BASE_PIPE_NAME        "\\PIPE\\FREEPM"  /* Base pipe name */
 

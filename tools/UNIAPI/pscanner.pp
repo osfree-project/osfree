@@ -98,6 +98,7 @@ type
     tkinitialization,
     tkinline,
 //    tkinterface,
+    tkerror,
     tkis,
     tklabel,
     tklibrary,
@@ -135,7 +136,8 @@ type
     tkwhile,
     tkwith,
     tkxor,
-    tkalias);
+    tkalias
+    );
 
   TLineReader = class
   public
@@ -285,6 +287,7 @@ const
     'initialization',
     'inline',
 //    'interface',
+    'error',
     'is',
     'label',
     'library',
