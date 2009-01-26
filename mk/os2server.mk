@@ -18,13 +18,19 @@
 
 32_BITS = 1
 
+!ifdef ALIASES
+comma = ,
+!else
+comma =
+!endif
+
 SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
 
 ADD_COPT = $(ADD_COPT) -d2 -db -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &
            -i=$(SrvDir)include &
 #           -std=c99 -O1 -g2 -Wall
 
-ADD_LINKOPT = $(ADD_LINKOPT) debug all libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_shared.lib, os2server_$(ARCH).lib
+ADD_LINKOPT = $(ADD_LINKOPT) debug all libpath $(%ROOT)$(SEP)build$(SEP)lib # lib os2server_shared.lib, os2server_$(ARCH).lib
 
 !ifeq ARCH os2
 ADD_COPT    = -u__LINUX__ -u__WIN32__ -u__WINNT__ -d__OS2__ &
@@ -32,7 +38,7 @@ ADD_COPT    = -u__LINUX__ -u__WIN32__ -u__WINNT__ -d__OS2__ &
               -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)os2 &
               $(ADD_LINKOPT) lib libmmap.lib
-ALIASES = mmap_=_mmap,munmap_=_munmap
+ALIASES = $(ALIASES) $(comma)mmap_=_mmap,munmap_=_munmap
 OPTIONS = internalrelocs
 !include $(%ROOT)/mk/appsos2.mk
 !else
@@ -43,7 +49,7 @@ ADD_COPT    = -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
               -i=$(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
               $(ADD_LINKOPT)
-#ALIASES = _PrcExecuteModule=PrcExecuteModule_
+#ALIASES = $(ALIASES) $(comma)_PrcExecuteModule=PrcExecuteModule_
 !include $(%ROOT)/mk/appslnx.mk
 !else
 !ifeq ARCH win32

@@ -34,7 +34,7 @@ DEST    = linux
 !include $(%ROOT)/mk/all.mk
 
 !ifeq DLL 1
-TARGETS  = $(PATH)$(PROJ).so # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 dllopts = dll
 !ifdef DLLOPT
 dllopts = $(dllopts) $(DLLOPT)
@@ -51,8 +51,13 @@ deps = $(RESOURCE)
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
- @%append $^@ SYSTEM linux $(dllopts)
+ #@%append $^@ system linux dll
+ @%append $^@ format elf $(dllopts)
+!ifndef DLL
  @%append $^@ NAME $^*.exe
+!else
+ @%append $^@ NAME $^*.dll
+!endif
  #@%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)

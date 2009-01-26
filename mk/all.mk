@@ -311,6 +311,10 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
  $(SAY) Linking $^.... $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
+.lnk.dll: .symbolic
+ $(SAY) Linking $^.... $(LOG)
+ $(LINKER) $(LINKOPT) @$[@ $(LOG)
+
 .rexx.exe: .AUTODEPEND
   $(SAY) Wrapping REXX code $[....
   rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress

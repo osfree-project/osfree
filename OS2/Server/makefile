@@ -27,11 +27,12 @@ PROJ = $(PROJ0)$(EXE_SUF)
 
 DESC = OS/2 Personality Server
 DEST = .
-DIRS = kal Shared $(ARCH) test
+DIRS = kal Shared $(ARCH) test ixf
 srcfiles = $(p)main$(e)
 # defines additional options for C compiler
 INSTALL_ADD = 1
-ADD_COPT= -d2 -db
+ADD_COPT    = -d2 -db
+ADD_LINKOPT = lib os2server_shared.lib, os2server_$(ARCH).lib
 
 !include $(%ROOT)/mk/os2server.mk
 
