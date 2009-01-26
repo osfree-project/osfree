@@ -6,6 +6,7 @@
 
 PROJ     = kal
 DESC     = Kernel Abstracion Layer API
+DIRS     = os2 # linux win32 l4
 srcfiles = $(p)file$(e)
 ADD_COPT = -i=..\include
 ADD_LINKOPT  = op nod lib os2386.lib lib clib3r.lib segment   type DATA shared
@@ -21,3 +22,5 @@ EXPORTS = DosFSCtl.1,        &
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
+
+TARGETS  = subdirs # $(PATH)$(PROJ).exe
