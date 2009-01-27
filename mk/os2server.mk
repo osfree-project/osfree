@@ -24,6 +24,8 @@ comma = ,
 comma =
 !endif
 
+!include $(%ROOT)/mk/dirs.mk
+
 SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
 
 ADD_COPT = $(ADD_COPT) -d2 -db -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &

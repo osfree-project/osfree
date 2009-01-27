@@ -25,9 +25,9 @@ typedef
     fnFixup * Fixup;          // Fixup module address
     void * FormatStruct;      // Format specific structure (subject to remove)
     unsigned long cbEntries;  // Number of items in entries array
-    IXFMODULEENTRY Entries[]; // Array of module entries
+    IXFMODULEENTRY *Entries; //[]; // Array of module entries
     unsigned long cbModules;  // Number of items in modules array
-    char * Modules[];         // Array of modules names
+    char **Modules; //[];         // Array of modules names
   } IXFModule;
 
 unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixfModule);

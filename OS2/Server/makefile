@@ -40,3 +40,7 @@ TARGETS  = subdirs $(PATH)$(PROJ).exe
 
 install_add: $(MYDIR)CONFIG.SYS
  $(CP) $< $(DEST)
+
+qwe: .symbolic
+ @echo $(COPT)
+ 

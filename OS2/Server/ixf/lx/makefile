@@ -7,9 +7,9 @@ ARCH        =  $(%SERVERENV)
 
 PROJ        =  lx
 DESC        =  LX executable format support
-srcfiles    =  $(p)lx$(e) $(p)debuglx$(e) $(p)execlx$(e) $(p)fixuplx$(e) &
+srcfiles    =  $(p)lx$(e) $(p)debuglx$(e) $(p)fixuplx$(e) &
                $(p)modlx$(e) $(p)loadobjlx$(e)
-ADD_COPT    =  
+ADD_COPT    =
 ADD_LINKOPT =  lib clib3r,libmmap.lib
 
 DLL         =  1

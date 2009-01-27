@@ -11,8 +11,8 @@
 
 #include <cmd_shared.h>
 
-#include "mbr.h"
-#include "mbrdefs.h"
+#include <mbr.h>
+#include <mbrdefs.h>
 
 char sectorBuff[512];
 

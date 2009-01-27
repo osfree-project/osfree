@@ -8,7 +8,7 @@
 32_BITS = 1
 PLATFORM = os2
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
-ADD_COPT =            $(ADD_COPT) -d__OS2__ &
+ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%WATCOM)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
