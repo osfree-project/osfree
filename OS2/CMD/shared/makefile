@@ -9,7 +9,7 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include
 # For performance/compatibility reasons, we build a "_System" and
 # "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of
 # Watcom compiler. $(p)segord$(e)
-srcfiles   =  $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_SetCurrentDisk$(e) &
+srcfiles   =  $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_setcurrentdisk$(e) &
              $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)
 srcfiles16 = $(p)cmd_FSEntry16$(e)
 

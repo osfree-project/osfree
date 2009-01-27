@@ -206,8 +206,8 @@ type HMTX=ULONG;
 type PHMTX=^HMTX;
 type HMUX=ULONG;
 type PHMUX=^HMUX;
-type HSEM=PVOID;
-type PHSEM=^HSEM;
+(*type HSEM=PVOID;
+type PHSEM=^HSEM;*)
 type SGID=USHORT;
 
 type MPARAM=PVOID;

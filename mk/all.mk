@@ -90,7 +90,7 @@ DOX       = doxygen
 RC        = wrc
 RCOPT     = $(RCOPT) $(ADD_RCOPT)
 
-MC        = mkmsgf
+MC        = mkmsgf.exe
 
 HC        = ipfc
 
