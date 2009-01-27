@@ -65,15 +65,22 @@ extern void done PARAMS((int));
 int
 main (int argc, char *argv[])
 {
-  program_name = argv[0];
+  program_name = getfilepath(argv[0]);
+  printf("%s\n", program_name);
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
 
   failure = 0;
   lineno = 0;
+  
+  printf("x1\n");
+  
   getargs(argc, argv);
+  printf("x2\n");
   openfiles();
+
+  printf("x3\n");
 
   /* read the input.  Copy some parts of it to fguard, faction, ftable and fattrs.
      In file reader.c.
@@ -81,14 +88,17 @@ main (int argc, char *argv[])
   reader();
   if (failure)
 	done(failure);
+  printf("x4\n");
 
   /* find useless nonterminals and productions and reduce the grammar.  In
      file reduce.c */
+  printf("x5\n");
   reduce_grammar();
 
   /* record other info about the grammar.  In files derives and nullable.  */
   set_derives();
   set_nullable();
+  printf("x6\n");
 
   /* convert to nondeterministic finite state machine.  In file LR0.
      See state.h for more info.  */

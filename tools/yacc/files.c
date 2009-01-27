@@ -98,32 +98,33 @@ char * mktemp (char *tmpl)
   size_t len;
   size_t i;
                                                          
-                                                           len = strlen (tmpl);
-                                                             if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
-                                                                 {
-                                                                             return NULL;
-                                                                                 }
-                                                                                 
-                                                                                   if (sprintf (&tmpl[len - 5], "%.5u",
-                                                                                           (unsigned int) getpid () % 100000) != 5)
-                                                                                               /* Inconceivable lossage.  */
-                                                                                                   return NULL;
+  len = strlen (tmpl);
+  if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
+  {
+     return NULL;
+  }
+  
+  if (sprintf (&tmpl[len - 5], "%.5u",
+    (unsigned int) getpid () % 100000) != 5)
+
+  /* Inconceivable lossage.  */
+  return NULL;
                                                                                                    
-                                                                                                     for (i = 0; i < sizeof (letters); ++i)
-                                                                                                         {
-                                                                                                               struct stat ignored;
+  for (i = 0; i < sizeof (letters); ++i)
+  {
+    struct stat ignored;
                                                                                                                
-                                                                                                                     tmpl[len - 6] = letters[i];
+    tmpl[len - 6] = letters[i];
                                                                                                                      
-                                                                                                                           if (stat (tmpl, &ignored) < 0 )
-                                                                                                                            /* The file does not exist.  So return this name.  */
-                                                                                                                        	return tmpl;
-                                                                                                                        	    }
+    if (stat (tmpl, &ignored) < 0 )
+    /* The file does not exist.  So return this name.  */
+	return tmpl;
+  }
                                                                                                                         	    
-                                                                                                                        	      /* We return the null string if we can't find a unique file name.  */
-                                                                                                                        	        tmpl[0] = '\0';
-                                                                                                                        	          return tmpl;
-                                                                                                                        	          }
+  /* We return the null string if we can't find a unique file name.  */
+  tmpl[0] = '\0';
+  return tmpl;
+}
 #endif                                                                                                                        	          
 
 extern char     *getenv();
@@ -203,23 +204,29 @@ openfiles (void)
   strlwr (infile);
   }
 #endif /* _WIN32 && !__CYGWIN32__ */
-
-#if (defined(unix) || defined(__unix) || defined(__unix__) || defined(__EMX__))
+printf("a1\n");
+#if (defined(unix) || defined(__LINUX__) || defined(__unix) || defined(__unix__) || defined(__EMX__))
   {
     char *tmp_ptr = getenv("TMPDIR");
+printf("a3\n");
 
     if (tmp_ptr != 0)
       tmp_base = stringappend (tmp_ptr, strlen (tmp_ptr), "/b.");
   }
 #endif  /* unix || __unix || __unix__ */
 
+printf("a2\n");
+
   tmp_len = strlen (tmp_base);
+printf("a4\n");
 
   if (spec_outfile)
     {
       /* -o was specified.  The precise -o name will be used for ftable.
          For other output files, remove the ".c" or ".tab.c" suffix.  */
       name_base = spec_outfile;
+      printf("a5\n");
+
 #ifdef MSDOS
       strlwr (name_base);
 #endif /* MSDOS */
@@ -233,6 +240,7 @@ openfiles (void)
         short_base_length -= 4;
       else if (!strncmp (name_base + short_base_length - 4, "_tab", 4))
         short_base_length -= 4;
+      printf("a6\n");
     }
   else if (spec_file_prefix)
     {
@@ -279,7 +287,11 @@ openfiles (void)
       base_length = short_base_length + 4;
     }
 
+      printf("a7\n");
+
   finput = tryopen(infile, "r");
+
+      printf("a8\n");
 
   if (! noparserflag)
     {
@@ -309,7 +321,7 @@ openfiles (void)
 #endif
 #ifdef __OS2__
       cp = dirname(program_name);
-      if (filename == 0 && cp != NULL)
+      if ( cp != NULL)
          {
            filename = xmalloc(strlen(cp) + strlen(PFILE) + 2);
            strcpy(filename, cp);
@@ -318,8 +330,29 @@ openfiles (void)
            strcpy(cp, PFILE);
          }
 #endif
+#ifdef __LINUX__
+      printf("a9 s=%s\n", program_name);
+      cp = dirname(program_name);
+      printf("a10 s=%s\n", cp);
+      if ( cp != NULL)
+         {
+      printf("a11\n");
+           filename = xmalloc(strlen(cp) + strlen(PFILE) + 2);
+           strcpy(filename, cp);
+      printf("a12\n");
+           cp = filename + strlen(filename);
+           *cp++ = '/';
+      printf("a13\n");
+           strcpy(cp, PFILE);
+      printf("a13a\n");
+         }
+#endif
+      printf("a13b fn=%s\n", filename);
       fparser = tryopen(filename ? filename : PFILE, "r");
+      printf("a13c fn=%s\n", filename);
     }
+
+      printf("a14\n");
 
   if (verboseflag)
     {
@@ -333,12 +366,16 @@ openfiles (void)
       foutput = tryopen(outfile, "w");
     }
 
+      printf("a15\n");
+
   if (noparserflag)
     {
       /* use permanent name for actions file */
       actfile = stringappend(name_base, short_base_length, ".act");
       faction = tryopen(actfile, "w");
     }
+
+      printf("a16\n");
 
 #ifdef MSDOS
   if (! noparserflag)
@@ -347,11 +384,16 @@ openfiles (void)
   tmptabfile = mktemp(stringappend(tmp_base, tmp_len, "taXXXXXX"));
   tmpdefsfile = mktemp(stringappend(tmp_base, tmp_len, "deXXXXXX"));
 #else
+  printf("1\n");
   if (! noparserflag)
     actfile = mktemp(stringappend(tmp_base, tmp_len, "act.XXXXXX"));
+  printf("2\n");
   tmpattrsfile = mktemp(stringappend(tmp_base, tmp_len, "attrs.XXXXXX"));
+  printf("3\n");
   tmptabfile = mktemp(stringappend(tmp_base, tmp_len, "tab.XXXXXX"));
+  printf("4\n");
   tmpdefsfile = mktemp(stringappend(tmp_base, tmp_len, "defs.XXXXXX"));
+  printf("5\n");
 #endif /* not MSDOS */
 
   if (! noparserflag)
