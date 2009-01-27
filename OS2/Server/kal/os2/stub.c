@@ -12,6 +12,20 @@
 PPVOID entry_Table;
 APIRET APIENTRY (*func)();
 
+#define NOTYPES(vars) (vars)
+
+#define APIFUNC(F, ord, vars)         \
+        APIRET APIENTRY               \
+        F(vars)                       \
+        {                             \
+          /* get function address */  \
+          func = entry_Table[ord];    \
+          if (!func) return ERROR_INVALID_FUNCTION; \
+          return func(NOTYPES(vars)); \
+        }
+
+//APIFUNC(lalala, 10, int, x)
+
 VOID APIENTRY
 KalInit(PPVOID entryTable)
 {
@@ -28,6 +42,7 @@ DosWrite(HFILE hFile, PVOID pBuffer,
   if (!func) return ERROR_INVALID_FUNCTION;
   return func(hFile, pBuffer, cbWrite, pcbActual);
 }
+
 
 APIRET APIENTRY
 DosFSCtl(PVOID pData, ULONG cbData,

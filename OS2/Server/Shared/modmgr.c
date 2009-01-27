@@ -238,8 +238,12 @@ unsigned long ModLoadModule(char *          pszName,
   {
     strcpy(pszName, pszModname);
     *phmod=NULL;
-
-    if (!strcmp(pszModname, "KAL"))
+    free(ixfModule);
+    return rc;
+  }
+  else
+  { /*
+      if (!strcmp(pszModname, "KAL"))
     {
       IXFMODULEENTRY *e;
       char *name;
@@ -253,16 +257,14 @@ unsigned long ModLoadModule(char *          pszName,
       {
         func = e->Address;
         func(entry_Table);
+        io_printf("KalInit() found and called @ 0x%x\n", func);
       }
       else
       {
         io_printf("No KalInit.1 function in KAL.dll, fatal!");
         rc = ERROR_INVALID_FUNCTION;
       }
-    }
-
-    free(ixfModule);
-    return rc;
+    } */
   }
 
   new_module_el->load_status = DONE_LOADING;
