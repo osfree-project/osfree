@@ -13,8 +13,8 @@ DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
 EXPORTS = KalInit.1, &
-          DosFSCtl.2, &
-          DosWrite.3, &
+          DosWrite.2, &
+          DosFSCtl.3, &
           DosExit.4, &
           DosQuerySysInfo.5
 
