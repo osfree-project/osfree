@@ -252,7 +252,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 .y.c: .AUTODEPEND
  $(DC) $^*.h
  $(DC) $^*.c
- yacc -y -d -o $^@ $[@
+ yacc.exe -y -d -o $^@ $[@
 
 .c:   $(MYDIR)
 

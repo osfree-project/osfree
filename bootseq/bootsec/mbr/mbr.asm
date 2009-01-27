@@ -6,7 +6,7 @@
 ; valerius, 2006/10/08
 ;
 
-.286
+.386
 
 .model tiny
 

@@ -23,7 +23,7 @@ $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(INCLUDES) .SYMBOLIC
  @%create $^@
- @%append $^@ NAME $^*
+ @%append $^@ NAME $^*.exe
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif
