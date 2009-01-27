@@ -6,7 +6,7 @@
 ARCH = $(%SERVERENV)
 
 PROJ = os2server_shared
-DIRS = modmgr
+DIRS = modmgr api
 srcfiles = $(p)modmgr$(e) &
 $(p)modmgr$(SEP)ow_dlfcn$(e) &
 $(p)token$(e) &
@@ -25,6 +25,7 @@ $(p)ixfmgr_lx_modlx$(e) &
 $(p)ixfmgr_ne$(e)
 
 ADD_COPT= -d2 -db
+ADD_LINKOPT = debug all
 
 !include $(%ROOT)/mk/libsos2server.mk
 

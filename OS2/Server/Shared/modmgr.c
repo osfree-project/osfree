@@ -18,8 +18,14 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+#define INCL_DOSERRORS
+#define INCL_MISC
 #define INCL_ERRORS
 #include <os2.h>
+
+//#include <os2def.h>
+typedef unsigned long APIRET;
+//typedef ULONG APIRET;
 
 #include <stdio.h>
 #include <string.h>
@@ -38,6 +44,8 @@
 unsigned int find_module_path(const char * name, char * full_path_name);
 
 struct module_rec module_root; /* Root for module list.*/
+
+extern PVOID entry_Table[];
 
 /* Some general ideas here:
      We use static array of modules structures here. We limit now to 1024 module handles.
@@ -151,12 +159,12 @@ unsigned long ModLoadModule(char *          pszName,
   /* A test under Linux with a specially compiled kal.dll (LX format) but with
      Open Watcoms C library for Linux. */
 
-  //if (!strcmp(pszModname, "KAL"))
-  //{
-  //  // KAL module always has handle 1
-  //  *phmod=1;
-  //  return rc;
-  //}
+  if (!strcmp(pszModname, "KAL"))
+  {
+    // KAL module always has handle 1
+    //*phmod=1;
+    //return rc;
+  }
   #endif
 
   // First search in the module list
@@ -230,6 +238,29 @@ unsigned long ModLoadModule(char *          pszName,
   {
     strcpy(pszName, pszModname);
     *phmod=NULL;
+
+    if (!strcmp(pszModname, "KAL"))
+    {
+      IXFMODULEENTRY *e;
+      char *name;
+      int  ord;
+      APIRET APIENTRY (*func) ();
+
+      e = ixfModule->Entries;
+      ord  = e->Ordinal;
+      name = e->FunctionName;
+      if (!strcmp(name, "KalInit") && ord == 1)
+      {
+        func = e->Address;
+        func(entry_Table);
+      }
+      else
+      {
+        io_printf("No KalInit.1 function in KAL.dll, fatal!");
+        rc = ERROR_INVALID_FUNCTION;
+      }
+    }
+
     free(ixfModule);
     return rc;
   }

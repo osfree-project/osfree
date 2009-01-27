@@ -12,10 +12,10 @@ ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS = DosFSCtl        KAL.1, &
-          DosWrite        KAL.2, &
-          DosExit         KAL.3, &
-          DosQuerySysInfo KAL.4
+IMPORTS = DosFSCtl        KAL.2, &
+          DosWrite        KAL.3, &
+          DosExit         KAL.4, &
+          DosQuerySysInfo KAL.5
 EXPORTS = DosPutMessage.387, &
           DosWrite.282,      &
           DosExit.234,       &
