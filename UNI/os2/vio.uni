@@ -1,5 +1,5 @@
 {Video Input Output (Vio) functions (32-bit version)}
-unit vio;
+module vio;
 
 {Vio handles}
 type HVIO=longword;
@@ -18,7 +18,7 @@ const VQF_PRIVATE    = $0002;
 const VQF_ALL        = $0003;
 
 {Cursor structure for VioSetCurType and VioGetCurType()}
-type VIOCURSORINFO=record
+type VIOCURSORINFO=structure
        yStart: USHORT;
        cEnd:   USHORT;
        cx:     USHORT;
@@ -29,7 +29,7 @@ type VIOCURSORINFO=record
 type PVIOCURSORINFO=^VIOCURSORINFO;
 
 {Mode structure for VioSetMode and VioGetMode (field added for 32 bit alignment)}
-type VIOMODEINFO=record
+type VIOMODEINFO=structure
        cb: USHORT;            { structure length }
        fbType: UCHAR;        { mode type }
        color: UCHAR;         { number of colors }
@@ -132,7 +132,7 @@ const MONITOR_LCD1024    = 22;
 
 
 {Configuration structure for VioGetConfig (all fields changed to ULONG)}
-type VIOCONFIGINFO=record
+type VIOCONFIGINFO=structure
         cb: ULONG;              { Size of data      }
         adapter: ULONG;         { Adapter type      }
         display: ULONG;         { Display type      }
@@ -154,29 +154,29 @@ const VIO_CONFIG_PRIMARY  = 1;
 const VIO_CONFIG_SECONDARY= 2;
 
 {Structures for VioSetState and VioGetState}
-type VIOPALSTATE=record
+type VIOPALSTATE=structure
         cb: USHORT;
         type: USHORT;
         iFirst: USHORT;
-        acolor: array[0..0] of USHORT;
+        acolor: array[1] of USHORT;
     end;
 type PVIOPALSTATE=^PVIOPALSTATE;
 
-type VIOOVERSCAN=record
+type VIOOVERSCAN=structure
         cb: USHORT;
         type: USHORT;
         color: USHORT;
     end;
 type PVIOOVERSCAN=^VIOOVERSCAN;
 
-type VIOINTENSITY=record
+type VIOINTENSITY=structure
         cb: USHORT;
         type: USHORT;
         fs: USHORT;
     end;
 type PVIOINTENSITY=^VIOINTENSITY;
 
-type VIOCOLORREG=record
+type VIOCOLORREG=structure
         cb: USHORT;
         type: USHORT;
         firstcolorreg: USHORT;
@@ -186,7 +186,7 @@ type VIOCOLORREG=record
 
 type PVIOCOLORREG=^VIOCOLORREG;
 
-type VIOSETULINELOC=record
+type VIOSETULINELOC=structure
         cb: USHORT;
         type: USHORT;
         scanline: USHORT;
@@ -194,7 +194,7 @@ type VIOSETULINELOC=record
 
 type PVIOSETULINELOC=^VIOSETULINELOC;
 
-type VIOSETTARGET=record
+type VIOSETTARGET=structure
         cb: USHORT;
         type: USHORT;
         defaultalgorithm: USHORT;
@@ -202,5 +202,29 @@ type VIOSETTARGET=record
 
 type PVIOSETTARGET=^VIOSETTARGET;
 
+
+function VioGetAnsi          (Ansi: PULONG; Handle: HVIO): APIRET;
+function VioGetCp            (Reserved: ULONG; IdCodePage: PUSHORT; Handle: HVIO): APIRET;
+function VioGetCurPos        (Row: PULONG; Column: PULONG; Handle: HVIO): APIRET;
+function VioGetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): APIRET;
+function VioGetMode          (ModeInfo: PVIOMODEINFO; Handle: HVIO): APIRET;
+function VioReadCellStr      (CellStr: PCHAR; Count: PULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioReadCharStr      (CellStr: PCHAR; Count: PULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioScrollDown       (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Lines: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
+function VioScrollLeft       (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Columns: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
+function VioScrollRight      (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Columns: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
+function VioScrollUp         (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Lines: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
+function VioSetAnsi          (Ansi: ULONG; Handle: HVIO): APIRET;
+function VioSetCp            (Reserved: ULONG; IdCodePage: USHORT; Handle: HVIO): APIRET;
+function VioSetCurPos        (Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioSetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): APIRET;
+function VioSetMode          (ModeInfo: PVIOMODEINFO; hvio: HVIO): APIRET;
+function VioWrtCellStr       (CellStr: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioWrtCharStr       (Str: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioWrtCharStrAttr   (Str: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; pAttr: PBYTE; Handle: HVIO): APIRET;
+function VioWrtNAttr         (Attr: PBYTE; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioWrtNCell         (Cell: PBYTE; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioWrtNChar         (Char: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
+function VioWrtTTY           (Str: PCHAR; Count: ULONG; Handle: HVIO): APIRET;
 
 end.

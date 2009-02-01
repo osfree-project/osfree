@@ -32,7 +32,7 @@ srcfiles = $(p)main$(e)
 # defines additional options for C compiler
 INSTALL_ADD = 1
 ADD_COPT    = -d2 -db
-ADD_LINKOPT = lib os2server_shared.lib, os2server_$(ARCH).lib, apistub.lib
+ADD_LINKOPT = debug all lib os2server_shared.lib, os2server_$(ARCH).lib, apistub.lib
 
 !include $(%ROOT)/mk/os2server.mk
 

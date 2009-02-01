@@ -6,7 +6,7 @@
 ; valerius, 2006/10/08
 ;
 
-.386
+.286
 
 .model tiny
 
@@ -64,6 +64,8 @@ MbrSeg segment para public 'CODE' USE16
 
                 org 7c00h
 start proc far
+
+.386
                 xor  ax, ax                                ; Set stack
                 mov  bp, 7c00h - EXT_PARAMS_SIZE           ; now bp points at the ext_params
 
@@ -211,7 +213,7 @@ findExtended:   ; 1st find extended partition in PT
 
                 check_ext extendedFound                    ; If partition is extended, goto extendedFound
                 add  di, 10h
-                loop findExtended 
+                loop findExtended
 
                 jmp  Err$PartNotFound                      ; Ext. part. not found, panic
 extendedFound:                                             ; Ext part. found

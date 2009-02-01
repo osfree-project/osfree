@@ -34,6 +34,9 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)bsedev.h &
      $(OUT)$(SEP)os2$(SEP)hevdef.h &
      $(OUT)$(SEP)os2$(SEP)dosdevices.h &
+     $(OUT)$(SEP)os2$(SEP)bsesub.h &
+     $(OUT)$(SEP)os2$(SEP)sub.h &
+     $(OUT)$(SEP)os2$(SEP)vio.h &
      $(OUT)$(SEP)os2$(SEP)bseerr.h &
      $(OUT)$(SEP)os2$(SEP)basemid.h &
      $(OUT)$(SEP)os2$(SEP)bsetib.h &
@@ -90,6 +93,12 @@ $(OUT)$(SEP)os2$(SEP)bsedev.h: os2$(SEP)bsedev.uni
 $(OUT)$(SEP)os2$(SEP)bsetib.h: os2$(SEP)bsetib.uni
 
 $(OUT)$(SEP)os2$(SEP)bsexcpt.h: os2$(SEP)bsexcpt.uni
+
+$(OUT)$(SEP)os2$(SEP)bsesub.h: os2$(SEP)bsesub.uni
+
+$(OUT)$(SEP)os2$(SEP)sub.h: os2$(SEP)sub.uni
+
+$(OUT)$(SEP)os2$(SEP)vio.h: os2$(SEP)vio.uni
 
 $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h: os2$(SEP)dosprocesscommon.uni
 

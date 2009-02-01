@@ -382,6 +382,8 @@ begin
         wrt(Name);
       end;
     wrt(')');
+  end else begin
+    wrt('(VOID)');
   end;
 
   wrt(';');

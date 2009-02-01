@@ -15,7 +15,11 @@
 //#define INCL_OS2DEF
 #include <os2def.h>
 #define INCL_DOSFILEMGR
-#include <osfree.h>
+#define INCL_ERRORS
+#include <os2.h>
+
+#include <string.h>
+#include <sys/stat.h>
 
 /*!
    @brief Copies file from one location to another
@@ -54,6 +58,12 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
   //PCHAR
   void **pIOBuf;
   ULONG  ulTransfer;
+  ULONG  ulWritten;
+  ULONG  ulOpenType;
+  LONGLONG llZero;
+
+  llZero.ulLo=0;
+  llZero.ulHi=0;
 
   rc = DosAllocMem(pIOBuf,
                    IOBUF_SIZ,
@@ -63,7 +73,7 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
   rc = DosOpenL(pszSrc,             // Address of ASCIIZ with source path
                 &hSrc,              // Handle
                 &ulAction,          // Action was taken (not used)
-                (LONGLONG) 0,       // Initial file size (not used)
+                llZero,             // Initial file size (not used)
                 0,                  // File attributes (not used)
                 OPEN_ACTION_FAIL_IF_NEW |
                 OPEN_ACTION_OPEN_IF_EXISTS, // Open type
@@ -95,7 +105,7 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
   rc = DosOpenL(pszDst,             // Address of ASCIIZ with source path
                 &hDst,              // Handle
                 &ulAction,          // Action was taken
-                (LONGLONG) 0,       // Initial file size (not used)
+                llZero,             // Initial file size (not used)
                 FILE_ARCHIVED |
                 FILE_NORMAL, // File attributes
                 OPEN_ACTION_CREATE_IF_NEW |
@@ -120,7 +130,7 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
   if (ulOptions&DCPY_APPEND)
   {
     DosSetFilePtrL (hDst,
-                    0,
+                    llZero,
                     FILE_END,
                     NULL);
   }
@@ -136,7 +146,7 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
 
   while(ulTransfer)
   {
-    rc = DosWrite(hDst, pIOBuf, ulTransfer, ulWritten);
+    rc = DosWrite(hDst, pIOBuf, ulTransfer, &ulWritten);
     if (rc)
     {
       DosClose(hDst);
@@ -163,6 +173,59 @@ APIRET CopyFile(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
   return NO_ERROR;
 }
 
+/*#
+ * NAME
+ *      CheckPath
+ * CALL
+ *      CheckPath(path,create)
+ * PARAMETER
+ *      path            absolute directory name
+ *      create          create directory if not existing
+ * RETURNS
+ *      0               directory is now existing
+ *      /0              file, not existing, etc.
+ * GLOBAL
+ *      none
+ * DESPRIPTION
+ * REMARKS
+ */
+int
+CheckPath(char *path,int create)
+{
+    char   dir[CCHMAXPATH];
+    struct stat stbuf;
+
+    strcpy( dir, path );
+    if( dir[strlen(dir)-1] == '/'  &&  dir[strlen(dir)-2] != ':' )
+        dir[strlen(dir)-1] = '\0';
+    if( stat(dir, &stbuf) != 0 )
+    {
+        if( !create )
+        {
+//            Verbose(1,"stat(%s) - errno %u (%s)", dir, errno, strerror(errno) );
+            return 0;//errno;
+        }
+        else
+        {
+            if( DosCreateDir(dir, NULL))
+            {
+//                Verbose(1,"mkdir(%s) - errno %u (%s)",dir,errno,strerror(errno));
+                return 0;//errno;
+            }
+        }
+    }
+    else
+    {
+        if( (stbuf.st_mode & S_IFMT) != S_IFDIR )
+        {
+//            Verbose(1,"stat(%s) - no directory",dir);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+
 /*!
     @brief Copy directory tree
 
@@ -183,8 +246,8 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
     int          result = 0, i;
     char        *nsp, *ndp;
     struct dirlist_t {
-        char              src[_MAX_PATH]; //@todo detect maximum path name!!!
-        char              dst[_MAX_PATH]; //@todo detect maximum path name!!!
+        char              src[CCHMAXPATH]; //@todo detect maximum path name!!!
+        char              dst[CCHMAXPATH]; //@todo detect maximum path name!!!
         struct dirlist_t *next;
     } *pDirListRoot=NULL, *pDirList=NULL, *pHelp;
 
@@ -218,18 +281,22 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
             strcat( pszSrc, "/" );
             strcat( pszDst, "/" );
 
-            /* Tyv„r, vi kan inte kopiera nu */
 
             if( pDirList )
             {
-                pDirList->next = malloc( sizeof(struct dirlist_t) );
-                assert( pDirList->next != NULL );
+                rc = DosAllocMem(&(pDirList->next),
+                                 sizeof(struct dirlist_t),
+                                 fPERM|PAG_COMMIT);
+//                assert( pDirList->next != NULL );
                 pDirList = pDirList->next;
             }
             else
             {
-                pDirList = pDirListRoot = malloc( sizeof(struct dirlist_t) );
-                assert( pDirList != NULL );
+                rc = DosAllocMem(&(pDirListRoot),
+                                 sizeof(struct dirlist_t),
+                                 fPERM|PAG_COMMIT);
+                pDirList = pDirListRoot;
+//                assert( pDirList != NULL );
             }
             pDirList->next = NULL;
             strcpy( pDirList->src, pszSrc );
@@ -250,7 +317,7 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
         {
             CopyTree( pHelp->src, pHelp->dst, ulOptions );
         }
-        free( pHelp );
+        DosFreeMem(pHelp);
     }
 
     /* Copy the files in actual directory */
@@ -332,7 +399,7 @@ Bit flag DCPY_FAILEAS can be used in combination with bit flag DCPY_APPEND or DC
      ERROR_NOT_ENOUGH_MEMORY
 
 */
-APIRET APIENTRY Dos32Copy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
+APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
 {
   FILESTATUS3 fileStatus;
   APIRET rc;
@@ -358,27 +425,8 @@ APIRET APIENTRY Dos32Copy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
     // DCPY_APPEND flag not valid in directory copy
     return CopyTree(pszOld, pszNew, ulOptions & ~DCPY_APPEND);
   } else {
-    return CopyFile(pszOld, pszNew); //FIXME pass options
+    return CopyFile(pszOld, pszNew, ulOptions); // @todo pass options
   };
 }
 
-/*!
-   Copies files from one location to another (16-bit wrapper of Dos32Copy function)
-*/
-APIRET16 APIENTRY16 DosCopy(PCSZ16 pszOld, PCSZ16 pszNew, USHORT usOptions, ULONG ulReserved)
-{
-  // Check arguments
-  if (ulReserved) return ERROR_INVALID_PARAMETER;
 
-  // Other arguments will be checked in 32-bit version
-  return Dos32Copy(MAKEFLATP(pszOld), MAKEFLATP(pszNew), usOptions);
-}
-
-/*!
-   Copies file from one location to another (16-bit wrapper).
-   Note: Seems to be full copy of DosCopy
-*/
-APIRET16 APIENTRY16 DosICopy(PCSZ16 pszOld, PCSZ16 pszNew, USHORT usOptions, ULONG ulReserved)
-{
-  return DosCopy(pszOld, pszNew, usOptions);
-}

@@ -21,11 +21,11 @@ Boston, MA 02111-1307, USA.  */
 
 #include <stdio.h>
 #include "system.h"
-#include "machine.h"	/* for MAXSHORT */
+#include "machine.h"    /* for MAXSHORT */
 
-extern	int lineno;
-extern	int verboseflag;
-extern	char *infile;
+extern  int lineno;
+extern  int verboseflag;
+extern  char *infile;
 
 /* Nonzero means failure has been detected; don't write a parser file.  */
 int failure;
@@ -65,7 +65,7 @@ extern void done PARAMS((int));
 int
 main (int argc, char *argv[])
 {
-  program_name = getfilepath(argv[0]);
+  program_name = argv[0];
   printf("%s\n", program_name);
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
@@ -73,9 +73,9 @@ main (int argc, char *argv[])
 
   failure = 0;
   lineno = 0;
-  
+
   printf("x1\n");
-  
+
   getargs(argc, argv);
   printf("x2\n");
   openfiles();
@@ -87,7 +87,7 @@ main (int argc, char *argv[])
      The other parts are recorded in the grammar; see gram.h.  */
   reader();
   if (failure)
-	done(failure);
+        done(failure);
   printf("x4\n");
 
   /* find useless nonterminals and productions and reduce the grammar.  In
@@ -231,7 +231,7 @@ warns (char *fmt, char *x1)
 }
 
 /* Print a warning message containing the two strings X1 and X2.
-	The message is given by the format FMT.  */
+        The message is given by the format FMT.  */
 
 void
 warnss (char *fmt, char *x1, char *x2)

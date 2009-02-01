@@ -26,6 +26,7 @@ $(p)ixfmgr_ne$(e)
 
 ADD_COPT= -d2 -db
 ADD_LINKOPT = debug all
+DEBUG=all
 
 !include $(%ROOT)/mk/libsos2server.mk
 

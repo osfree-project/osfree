@@ -1,0 +1,250 @@
+module kbd;
+
+
+#ifdef INCL_KBD
+
+   #define Kbd16CharIn        KBD16CHARIN
+   #define Kbd16Close         KBD16CLOSE
+   #define Kbd16DeRegister    KBD16DEREGISTER
+   #define Kbd16FlushBuffer   KBD16FLUSHBUFFER
+   #define Kbd16FreeFocus     KBD16FREEFOCUS
+   #define Kbd16GetCp         KBD16GETCP
+   #define Kbd16GetFocus      KBD16GETFOCUS
+   #define Kbd16GetHWID       KBD16GETHWID
+   #define Kbd16GetStatus     KBD16GETSTATUS
+   #define Kbd16Open          KBD16OPEN
+   #define Kbd16Peek          KBD16PEEK
+   #define Kbd16Register      KBD16REGISTER
+   #define Kbd16SetCp         KBD16SETCP
+   #define Kbd16SetCustXt     KBD16SETCUSTXT
+   #define Kbd16SetFgnd       KBD16SETFGND
+   #define Kbd16SetHWID       KBD16SETHWID
+   #define Kbd16SetStatus     KBD16SETSTATUS
+   #define Kbd16StringIn      KBD16STRINGIN
+   #define Kbd16Synch         KBD16SYNCH
+   #define Kbd16Xlate         KBD16XLATE
+
+   #define KbdCharIn          KBD16CHARIN
+   #define KbdClose           KBD16CLOSE
+   #define KbdDeRegister      KBD16DEREGISTER
+   #define KbdFlushBuffer     KBD16FLUSHBUFFER
+   #define KbdFreeFocus       KBD16FREEFOCUS
+   #define KbdGetCp           KBD16GETCP
+   #define KbdGetFocus        KBD16GETFOCUS
+   #define KbdGetHWID         KBD16GETHWID
+   #define KbdGetStatus       KBD16GETSTATUS
+   #define KbdOpen            KBD16OPEN
+   #define KbdPeek            KBD16PEEK
+   #define KbdRegister        KBD16REGISTER
+   #define KbdSetCp           KBD16SETCP
+   #define KbdSetCustXt       KBD16SETCUSTXT
+   #define KbdSetFgnd         KBD16SETFGND
+   #define KbdSetHWID         KBD16SETHWID
+   #define KbdSetStatus       KBD16SETSTATUS
+   #define KbdStringIn        KBD16STRINGIN
+   #define KbdSynch           KBD16SYNCH
+   #define KbdXlate           KBD16XLATE
+
+   typedef unsigned short  HKBD;
+   typedef HKBD        *   PHKBD;
+
+   APIRET16 APIENTRY16 KbdRegister (PSZ pszModName,
+                                    PSZ pszEntryPt,
+                                    ULONG FunMask);
+
+   #define KR_KBDCHARIN               0x00000001L
+   #define KR_KBDPEEK                 0x00000002L
+   #define KR_KBDFLUSHBUFFER          0x00000004L
+   #define KR_KBDGETSTATUS            0x00000008L
+   #define KR_KBDSETSTATUS            0x00000010L
+   #define KR_KBDSTRINGIN             0x00000020L
+   #define KR_KBDOPEN                 0x00000040L
+   #define KR_KBDCLOSE                0x00000080L
+   #define KR_KBDGETFOCUS             0x00000100L
+   #define KR_KBDFREEFOCUS            0x00000200L
+   #define KR_KBDGETCP                0x00000400L
+   #define KR_KBDSETCP                0x00000800L
+   #define KR_KBDXLATE                0x00001000L
+   #define KR_KBDSETCUSTXT            0x00002000L
+
+   #define IO_WAIT                    0
+   #define IO_NOWAIT                  1
+
+   APIRET16 APIENTRY16 KbdDeRegister (void);
+
+   /* KBDKEYINFO structure, for KbdCharIn and KbdPeek */
+   /* NOINC */
+   #pragma pack(2)
+   /* INC */
+
+
+   typedef  struct _KBDKEYINFO      /* kbci */
+   {
+      UCHAR    chChar;
+      UCHAR    chScan;
+      UCHAR    fbStatus;
+      UCHAR    bNlsShift;
+      USHORT   fsState;
+      ULONG    time;
+   }KBDKEYINFO;
+   typedef KBDKEYINFO *PKBDKEYINFO;
+
+   /* NOINC */
+   #pragma pack()
+   /* INC */
+
+
+   APIRET16 APIENTRY16  KbdCharIn(PKBDKEYINFO pkbci,
+                                  USHORT fWait,
+                                  HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdPeek (PKBDKEYINFO pkbci,
+                                 HKBD hkbd);
+
+   /* structure for KbdStringIn() */
+
+   typedef struct _STRINGINBUF     /* kbsi */
+   {
+      USHORT cb;
+      USHORT cchIn;
+   } STRINGINBUF;
+   typedef STRINGINBUF  *PSTRINGINBUF;
+
+   APIRET16 APIENTRY16  KbdStringIn (PCH pch,
+                                     PSTRINGINBUF pchIn,
+                                     USHORT fsWait,
+                                     HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdFlushBuffer (HKBD hkbd);
+
+   /* KBDINFO.fsMask */
+
+   #define KEYBOARD_ECHO_ON                0x0001
+   #define KEYBOARD_ECHO_OFF               0x0002
+   #define KEYBOARD_BINARY_MODE            0x0004
+   #define KEYBOARD_ASCII_MODE             0x0008
+   #define KEYBOARD_MODIFY_STATE           0x0010
+   #define KEYBOARD_MODIFY_INTERIM         0x0020
+   #define KEYBOARD_MODIFY_TURNAROUND      0x0040
+   #define KEYBOARD_2B_TURNAROUND          0x0080
+   #define KEYBOARD_SHIFT_REPORT           0x0100
+
+   #ifndef INCL_DOSDEVIOCTL  /* following constants defined in bsedev.h */
+      /* KBDINFO.fsState/KBDKEYINFO.fsState/KBDTRANS.fsState */
+      #define KBDSTF_RIGHTSHIFT               0x0001
+      #define KBDSTF_LEFTSHIFT                0x0002
+      #define KBDSTF_CONTROL                  0x0004
+      #define KBDSTF_ALT                      0x0008
+      #define KBDSTF_SCROLLLOCK_ON            0x0010
+      #define KBDSTF_NUMLOCK_ON               0x0020
+      #define KBDSTF_CAPSLOCK_ON              0x0040
+      #define KBDSTF_INSERT_ON                0x0080
+      #define KBDSTF_LEFTCONTROL              0x0100
+      #define KBDSTF_LEFTALT                  0x0200
+      #define KBDSTF_RIGHTCONTROL             0x0400
+      #define KBDSTF_RIGHTALT                 0x0800
+      #define KBDSTF_SCROLLLOCK               0x1000
+      #define KBDSTF_NUMLOCK                  0x2000
+      #define KBDSTF_CAPSLOCK                 0x4000
+      #define KBDSTF_SYSREQ                   0x8000
+   #endif  /* INCL_DOSDEVIOCTL */
+
+   /* KBDINFO structure, for KbdSet/GetStatus */
+   typedef struct _KBDINFO         /* kbst */
+   {
+      USHORT cb;
+      USHORT fsMask;
+      USHORT chTurnAround;
+      USHORT fsInterim;
+      USHORT fsState;
+   }KBDINFO;
+   typedef KBDINFO *PKBDINFO;
+
+
+   APIRET16 APIENTRY16  KbdSetStatus (PKBDINFO pkbdinfo,
+                                      HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdGetStatus (PKBDINFO pkbdinfo,
+                                      HKBD hdbd);
+
+   APIRET16 APIENTRY16  KbdSetCp (USHORT usReserved,
+                                  USHORT pidCP,
+                                  HKBD hdbd);
+
+   APIRET16 APIENTRY16  KbdGetCp (ULONG ulReserved,
+                                  PUSHORT pidCP,
+                                  HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdOpen (PHKBD phkbd);
+
+   APIRET16 APIENTRY16  KbdClose (HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdGetFocus (USHORT fWait,
+                                     HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdFreeFocus (HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdSynch (USHORT fsWait);
+
+   APIRET16 APIENTRY16  KbdSetFgnd(VOID);
+
+   /* structure for KbdGetHWID() */
+   typedef struct _KBDHWID         /* kbhw */
+   {
+      USHORT cb;
+      USHORT idKbd;
+      USHORT usReserved1;
+      USHORT usReserved2;
+   } KBDHWID;
+   typedef KBDHWID  *PKBDHWID;
+
+   APIRET16 APIENTRY16  KbdGetHWID (PKBDHWID pkbdhwid,
+                                    HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdSetHWID (PKBDHWID pkbdhwid,
+                                    HKBD hkbd);
+
+
+   /* KBDTRANS.fbStatus */
+
+   #define KBDTRF_SHIFT_KEY_IN             0x01
+   #define KBDTRF_CONVERSION_REQUEST       0x20
+   #define KBDTRF_FINAL_CHAR_IN            0x40
+   #define KBDTRF_INTERIM_CHAR_IN          0x80
+
+   /* structure for KbdXlate() */
+   /* NOINC */
+   #pragma pack(2)
+   /* INC */
+
+   typedef  struct _KBDTRANS        /* kbxl */
+   {
+      UCHAR      chChar;
+      UCHAR      chScan;
+      UCHAR      fbStatus;
+      UCHAR      bNlsShift;
+      USHORT     fsState;
+      ULONG      time;
+      USHORT     fsDD;
+      USHORT     fsXlate;
+      USHORT     fsShift;
+      USHORT     sZero;
+   } KBDTRANS;
+   typedef KBDTRANS *PKBDTRANS;
+
+   /* NOINC */
+   #pragma pack()
+   /* INC */
+
+   APIRET16 APIENTRY16  KbdXlate (PKBDTRANS pkbdtrans,
+                                  HKBD hkbd);
+
+   APIRET16 APIENTRY16  KbdSetCustXt (PUSHORT usCodePage,
+                                      HKBD hkbd);
+
+#endif /* INCL_KBD */
+
+
+
+
+end.

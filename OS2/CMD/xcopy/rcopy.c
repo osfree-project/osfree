@@ -49,7 +49,6 @@
  * just for copying it.
  * Autor: Vitus Jensen, can be reached via fidonet 2:2474/424
  */
-static char vcid[]="$Id: rcopy.c,v 1.1 2003/10/20 13:59:42 prokushev Exp $";
 
 
 #define VERSION         2

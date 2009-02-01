@@ -18,7 +18,7 @@
  */
 
 #define INCL_DOSFILEMGR
-#include <osfree.h>
+#include <os2.h>
 
 void myfnsplit( const char *path,
                       char *drv,
