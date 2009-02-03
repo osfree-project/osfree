@@ -618,3 +618,306 @@
                                      HVIO hvio);
 
 #endif /* INCL_VIO */
+
+
+
+из os2emx.h
+
+
+#define ANSI_OFF                        0
+#define ANSI_ON                         1
+
+#define COLORS_2                        0x01
+#define COLORS_4                        0x02
+#define COLORS_16                       0x04
+
+#define VGMT_OTHER                      0x01
+#define VGMT_GRAPHICS                   0x02
+#define VGMT_DISABLEBURST               0x04
+
+#define VP_NOWAIT                       0x0000
+#define VP_WAIT                         0x0001
+#define VP_OPAQUE                       0x0000
+#define VP_TRANSPARENT                  0x0002
+
+#define VMWR_POPUP                      0
+#define VMWN_POPUP                      0
+
+#define VSRWI_SAVEANDREDRAW             0
+#define VSRWI_REDRAW                    1
+
+#define VSRWN_SAVE                      0
+#define VSRWN_REDRAW                    1
+
+#define UNDOI_GETOWNER                  0
+#define UNDOI_RELEASEOWNER              1
+
+#define UNDOK_ERRORCODE                 0
+#define UNDOK_TERMINATE                 1
+
+#define LOCKIO_NOWAIT                   0
+#define LOCKIO_WAIT                     1
+
+#define LOCK_SUCCESS                    0
+#define LOCK_FAIL                       1
+
+#define VCC_SBCSCHAR                    0
+#define VCC_DBCSFULLCHAR                1
+#define VCC_DBCS1STHALF                 2
+#define VCC_DBCS2NDHALF                 3
+
+#define VGFI_GETCURFONT                 0
+#define VGFI_GETROMFONT                 1
+
+#define VIO_CONFIG_CURRENT              0
+#define VIO_CONFIG_PRIMARY              1
+#define VIO_CONFIG_SECONDARY            2
+
+#define DISPLAY_MONOCHROME              0
+#define DISPLAY_CGA                     1
+#define DISPLAY_EGA                     2
+#define DISPLAY_VGA                     3
+#define DISPLAY_8514A                   7
+#define DISPLAY_IMAGEADAPTER            8
+#define DISPLAY_XGA                     9
+
+#define MONITOR_MONOCHROME              0x0000
+#define MONITOR_COLOR                   0x0001
+#define MONITOR_ENHANCED                0x0002
+#define MONITOR_8503                    0x0003
+#define MONITOR_851X_COLOR              0x0004
+#define MONITOR_8514                    0x0009
+#define MONITOR_FLATPANEL               0x000a
+#define MONITOR_8507_8604               0x000b
+#define MONITOR_8515                    0x000c
+#define MONITOR_9515                    0x000f
+#define MONITOR_9517                    0x0011
+#define MONITOR_9518                    0x0012
+
+#define VR_VIOGETCURPOS                 0x00000001
+#define VR_VIOGETCURTYPE                0x00000002
+#define VR_VIOGETMODE                   0x00000004
+#define VR_VIOGETBUF                    0x00000008
+#define VR_VIOGETPHYSBUF                0x00000010
+#define VR_VIOSETCURPOS                 0x00000020
+#define VR_VIOSETCURTYPE                0x00000040
+#define VR_VIOSETMODE                   0x00000080
+#define VR_VIOSHOWBUF                   0x00000100
+#define VR_VIOREADCHARSTR               0x00000200
+#define VR_VIOREADCELLSTR               0x00000400
+#define VR_VIOWRTNCHAR                  0x00000800
+#define VR_VIOWRTNATTR                  0x00001000
+#define VR_VIOWRTNCELL                  0x00002000
+#define VR_VIOWRTTTY                    0x00004000
+#define VR_VIOWRTCHARSTR                0x00008000
+#define VR_VIOWRTCHARSTRATT             0x00010000
+#define VR_VIOWRTCELLSTR                0x00020000
+#define VR_VIOSCROLLUP                  0x00040000
+#define VR_VIOSCROLLDN                  0x00080000
+#define VR_VIOSCROLLLF                  0x00100000
+#define VR_VIOSCROLLRT                  0x00200000
+#define VR_VIOSETANSI                   0x00400000
+#define VR_VIOGETANSI                   0x00800000
+#define VR_VIOPRTSC                     0x01000000
+#define VR_VIOSCRLOCK                   0x02000000
+#define VR_VIOSCRUNLOCK                 0x04000000
+#define VR_VIOSAVREDRAWWAIT             0x08000000
+#define VR_VIOSAVREDRAWUNDO             0x10000000
+#define VR_VIOPOPUP                     0x20000000
+#define VR_VIOENDPOPUP                  0x40000000
+#define VR_VIOPRTSCTOGGLE               0x80000000
+
+#define VR_VIOMODEWAIT                  0x00000001
+#define VR_VIOMODEUNDO                  0x00000002
+#define VR_VIOGETFONT                   0x00000004
+#define VR_VIOGETCONFIG                 0x00000008
+#define VR_VIOSETCP                     0x00000010
+#define VR_VIOGETCP                     0x00000020
+#define VR_VIOSETFONT                   0x00000040
+#define VR_VIOGETSTATE                  0x00000080
+#define VR_VIOSETSTATE                  0x00000100
+
+
+typedef USHORT HVIO;
+typedef HVIO *PHVIO;
+
+
+typedef struct _VIOMODEINFO
+{
+  USHORT cb;
+  UCHAR  fbType;
+  UCHAR  color;
+  USHORT col;
+  USHORT row;
+  USHORT hres;
+  USHORT vres;
+  UCHAR  fmt_ID;
+  UCHAR  attrib;
+  ULONG  buf_addr;
+  ULONG  buf_length;
+  ULONG  full_length;
+  ULONG  partial_length;
+  PCH    ext_data_addr;
+} VIOMODEINFO;
+typedef VIOMODEINFO *PVIOMODEINFO;
+
+typedef struct _VIOCONFIGINFO
+{
+  USHORT cb;
+  USHORT adapter;
+  USHORT display;
+  ULONG  cbMemory;
+  USHORT Configuration;
+  USHORT VDHVersion;
+  USHORT Flags;
+  ULONG  HWBufferSize;
+  ULONG  FullSaveSize;
+  ULONG  PartSaveSize;
+  USHORT EMAdaptersOFF;
+  USHORT EMDisplaysOFF;
+} VIOCONFIGINFO;
+typedef VIOCONFIGINFO *PVIOCONFIGINFO;
+
+typedef struct _VIOPHYSBUF
+{
+  PBYTE pBuf;
+  ULONG cb;
+  SEL   asel[1];
+} VIOPHYSBUF;
+typedef VIOPHYSBUF *PVIOPHYSBUF;
+
+typedef struct _VIOPALSTATE
+{
+  USHORT cb;
+  USHORT type;
+  USHORT iFirst;
+  USHORT acolor[1];
+} VIOPALSTATE;
+typedef VIOPALSTATE *PVIOPALSTATE;
+
+typedef struct _VIOOVERSCAN
+{
+  USHORT cb;
+  USHORT type;
+  USHORT color;
+} VIOOVERSCAN;
+typedef VIOOVERSCAN *PVIOOVERSCAN;
+
+typedef struct _VIOINTENSITY
+{
+  USHORT cb;
+  USHORT type;
+  USHORT fs;
+} VIOINTENSITY;
+typedef VIOINTENSITY *PVIOINTENSITY;
+
+typedef struct _VIOCOLORREG
+{
+  USHORT cb;
+  USHORT type;
+  USHORT firstcolorreg;
+  USHORT numcolorregs;
+  PCH    colorregaddr;
+} VIOCOLORREG;
+typedef VIOCOLORREG *PVIOCOLORREG;
+
+typedef struct _VIOSETULINELOC
+{
+  USHORT cb;
+  USHORT type;
+  USHORT scanline;
+} VIOSETULINELOC;
+typedef VIOSETULINELOC *PVIOSETULINELOC;
+
+typedef struct _VIOSETTARGET
+{
+  USHORT cb;
+  USHORT type;
+  USHORT defaultalgorithm;
+} VIOSETTARGET;
+typedef VIOSETTARGET *PVIOSETTARGET;
+
+typedef struct _VIOCURSORINFO
+{
+  USHORT yStart;
+  USHORT cEnd;
+  USHORT cx;
+  USHORT attr;
+} VIOCURSORINFO;
+typedef VIOCURSORINFO *PVIOCURSORINFO;
+
+typedef struct _VIOFONTINFO
+{
+  USHORT cb;
+  USHORT type;
+  USHORT cxCell;
+  USHORT cyCell;
+  ULONG  pbData;                /* PVOID16 / _far16ptr */
+  USHORT cbData;
+} VIOFONTINFO;
+typedef VIOFONTINFO *PVIOFONTINFO;
+
+
+USHORT VioCheckCharType (PUSHORT pType, USHORT usRow, USHORT usColumn,
+    HVIO hvio);
+USHORT VioDeRegister (VOID);
+USHORT VioEndPopUp (HVIO hvio);
+USHORT VioGetAnsi (PUSHORT pfAnsi, HVIO hvio);
+USHORT VioGetBuf (PULONG pLVB, PUSHORT pcbLVB, HVIO hvio);
+USHORT VioGetConfig (USHORT usConfigId, PVIOCONFIGINFO pvioin, HVIO hvio);
+USHORT VioGetCp (USHORT usReserved, PUSHORT pusCodePage, HVIO hvio);
+USHORT VioGetCurPos (PUSHORT pusRow, PUSHORT pusColumn, HVIO hvio);
+USHORT VioGetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio);
+USHORT VioGetFont (PVIOFONTINFO pviofi, HVIO hvio);
+USHORT VioGetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio);
+USHORT VioGetPhysBuf (PVIOPHYSBUF pvioPhysBuf, USHORT usReserved);
+USHORT VioGetState (PVOID pState, HVIO hvio);
+USHORT VioGlobalReg (PCSZ pszModName, PCSZ pszEntryName, ULONG ulFunMask1,
+    ULONG ulFunMask2, USHORT usReturn);
+USHORT VioModeUndo (USHORT usOwnerInd, USHORT usKillInd, USHORT usReserved);
+USHORT VioModeWait (USHORT usReqType, PUSHORT pNotifyType, USHORT usReserved);
+USHORT VioPopUp (PUSHORT pfWait, HVIO hvio);
+USHORT VioPrtSc (HVIO hvio);
+USHORT VioPrtScToggle (HVIO hvio);
+USHORT VioReadCellStr (PCH pchCellStr, PUSHORT pcb, USHORT usRow,
+    USHORT usColumn, HVIO hvio);
+USHORT VioReadCharStr (PCH pch, PUSHORT pcb, USHORT usRow, USHORT usColumn,
+    HVIO hvio);
+USHORT VioRegister (PCSZ pszModName, PCSZ pszEntryName, ULONG ulFunMask1,
+    ULONG ulFunMask2);
+USHORT VioSavRedrawUndo (USHORT usOwnerInd, USHORT usKillInd,
+    USHORT usReserved);
+USHORT VioSavRedrawWait (USHORT usRedrawInd, PUSHORT pusNotifyType,
+    USHORT usReserved);
+USHORT VioScrLock (USHORT fWait, PUCHAR pfNotLocked, HVIO hvio);
+USHORT VioScrollDn (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio);
+USHORT VioScrollLf (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio);
+USHORT VioScrollRt (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio);
+USHORT VioScrollUp (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio);
+USHORT VioScrUnLock (HVIO hvio);
+USHORT VioSetAnsi (USHORT fAnsi, HVIO hvio);
+USHORT VioSetCp (USHORT usReserved, USHORT usCodePage, HVIO hvio);
+USHORT VioSetCurPos (USHORT usRow, USHORT usColumn, HVIO hvio);
+USHORT VioSetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio);
+USHORT VioSetFont (PVIOFONTINFO pviofi, HVIO hvio);
+USHORT VioSetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio);
+USHORT VioSetState (CPVOID pState, HVIO hvio);
+USHORT VioShowBuf (USHORT offLVB, USHORT cb, HVIO hvio);
+USHORT VioWrtCellStr (PCCH pchCellStr, USHORT cb, USHORT usRow,
+    USHORT usColumn, HVIO hvio);
+USHORT VioWrtCharStr (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
+    HVIO hvio);
+USHORT VioWrtCharStrAtt (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
+    PBYTE pAttr, HVIO hvio);
+USHORT VioWrtNAttr (__const__ BYTE *pAttr, USHORT cb, USHORT usRow,
+    USHORT usColumn, HVIO hvio);
+USHORT VioWrtNCell (__const__ BYTE *pCell, USHORT cb, USHORT usRow,
+    USHORT usColumn, HVIO hvio);
+USHORT VioWrtNChar (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
+    HVIO hvio);
+USHORT VioWrtTTY (PCCH pch, USHORT cb, HVIO hvio);
+

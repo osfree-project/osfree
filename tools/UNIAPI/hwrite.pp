@@ -338,8 +338,6 @@ begin
 end;
 
 procedure THWriter.WriteConstant(AVar: TPasConst);
-var
-  a: word;
 begin
   if (AVar.Parent.ClassType <> TPasClassType) and
     (AVar.Parent.ClassType <> TPasRecordType) then
@@ -671,9 +669,9 @@ end;
 
 procedure THWriter.WriteRecordType(AElement: TPasRecordType; NestingLevel: Integer);
 var
-  i, j: Integer;
+  i: Integer;
   Variable: TPasVariable;
-  CurVariant: TPasVariant;
+//  CurVariant: TPasVariant;
 begin
   if not (AElement.Parent is TPasVariant) then
     if AElement.IsPacked then
