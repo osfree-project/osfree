@@ -62,6 +62,8 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)pmshl.h &
      $(OUT)$(SEP)os2$(SEP)pmwp.h &
      $(OUT)$(SEP)os2$(SEP)pmwin.h &
+     $(OUT)$(SEP)os2$(SEP)winclipboard.h &
+     $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winclipboarddde.h &
      $(OUT)$(SEP)os2$(SEP)winprogramlist.h &
      .symbolic
@@ -152,6 +154,10 @@ $(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pmwp.uni
 $(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pmwin.uni
 
 $(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)winprogramlist.uni
+
+$(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)winwindowmgrcommon.uni
+
+$(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)winclipboard.uni
 
 $(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)winclipboarddde.uni
 

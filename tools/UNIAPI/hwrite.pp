@@ -49,6 +49,8 @@ type
     procedure WriteConstant(AVar: TPasConst);
     procedure WriteVariable(AVar: TPasVariable);
     procedure WriteProcDecl(AProc: TPasProcedure);
+    procedure WriteFunctionType(AProc: TPasFunctionType);
+    procedure WriteProcedureType(AProc: TPasProcedureType);
     procedure WriteProcImpl(AProc: TPasProcedureImpl);
     procedure WriteProperty(AProp: TPasProperty);
     procedure WriteImplBlock(ABlock: TPasImplBlock);
@@ -194,9 +196,15 @@ begin
   begin
     wrt(ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + ']');
     if ATypeDecl then WrtLn(';');
+  end else if AType.ClassType = TPasFunctionType then
+  begin
+    WriteFunctionType(TPasFunctionType(AType));
+  end else if AType.ClassType = TPasProcedureType then
+  begin
+    WriteProcedureType(TPasProcedureType(AType));
   end else
     raise Exception.Create('Writing not implemented for ' +
-      AType.ElementTypeName + ' nodes');
+      AType.ElementTypeName + ' type nodes');
 end;
 
 
@@ -388,6 +396,81 @@ begin
 
   wrtln;
 end;
+
+procedure THWriter.WriteProcedureType(AProc: TPasProcedureType);
+var
+  i: Integer;
+begin
+  // Here we must get function via ABI list
+  wrt('VOID (APIENTRY '+AProc.Name+')');
+
+  if (AProc.Args.Count > 0) then
+  begin
+    wrt('(');
+    for i := 0 to AProc.Args.Count - 1 do
+      with TPasArgument(AProc.Args[i]) do
+      begin
+        if i > 0 then
+          wrt(', ');
+        case Access of
+          argConst: wrt('const ');
+          argVar: wrt('var ');
+        end;
+        if Assigned(ArgType) then
+        begin
+          WriteType(ArgType, false);
+          wrt(' ');
+        end;
+        wrt(Name);
+      end;
+    wrt(')');
+  end else begin
+    wrt('(VOID)');
+  end;
+
+  wrt(';');
+
+  wrtln;
+end;
+
+procedure THWriter.WriteFunctionType(AProc: TPasFunctionType);
+var
+  i: Integer;
+begin
+  WriteType(AProc.ResultEl.ResultType, false);
+
+  // Here we must get function via ABI list
+  wrt('(APIENTRY '+AProc.Name+')');
+
+  if (AProc.Args.Count > 0) then
+  begin
+    wrt('(');
+    for i := 0 to AProc.Args.Count - 1 do
+      with TPasArgument(AProc.Args[i]) do
+      begin
+        if i > 0 then
+          wrt(', ');
+        case Access of
+          argConst: wrt('const ');
+          argVar: wrt('var ');
+        end;
+        if Assigned(ArgType) then
+        begin
+          WriteType(ArgType, false);
+          wrt(' ');
+        end;
+        wrt(Name);
+      end;
+    wrt(')');
+  end else begin
+    wrt('(VOID)');
+  end;
+
+  wrt(';');
+
+  wrtln;
+end;
+
 
 procedure THWriter.WriteProcImpl(AProc: TPasProcedureImpl);
 var

@@ -1,0 +1,92 @@
+module winwindowmgrcommon;
+
+       function WinRegisterClass(hab: HAB;
+                                     pszClassName: PCSZ;
+                                     pfnWndProc: PFNWP;
+                                     flStyle: ULONG;
+                                     cbWindowData: ULONG): BOOL;
+
+    function WinDefWindowProc(hwnd: HWND;
+                                      msg: ULONG;
+                                      mp1: MPARAM;
+                                      mp2: MPARAM): MRESULT;
+
+       function WinDestroyWindow(hwnd: HWND): BOOL;
+
+       function WinShowWindow(hwnd: HWND;
+                                   fShow: BOOL): BOOL;
+
+       function WinQueryWindowRect(hwnd: HWND;
+                                   prclDest: PRECTL): BOOL;
+
+       function WinGetPS(hwnd: HWND): HPS;
+
+       function WinReleasePS(hps: HPS): BOOL;
+
+       function WinEndPaint(hps: HPS): BOOL;
+
+
+      function WinGetClipPS(hwnd: HWND;
+                                  hwndClip: HWND;
+                                  fl: ULONG): HPS;
+
+     function WinIsWindowShowing(hwnd: HWND): BOOL;
+
+
+      function WinBeginPaint(hwnd: HWND;
+                                hps: HPS;
+                                prclPaint: PRECTL): HPS;
+
+      function WinOpenWindowDC(hwnd: HWND): HDC;
+
+    function WinScrollWindow(hwnd: HWND;
+                                 dx: LONG;
+                                 dy: LONG;
+                                 prclScroll: PRECTL;
+                                 prclClip: PRECTL;
+                                 hrgnUpdate: HRGN;
+                                 prclUpdate: PRECTL;
+                                 rgfsw: ULONG): LONG;
+
+   (*** WinGetClipPS() flags ***********************************************)
+
+      const PSF_LOCKWINDOWUPDATE    =   $0001;
+      const PSF_CLIPUPWARDS         =   $0002;
+      const PSF_CLIPDOWNWARDS       =   $0004;
+      const PSF_CLIPSIBLINGS        =   $0008;
+      const PSF_CLIPCHILDREN        =   $0010;
+      const PSF_PARENTCLIP          =   $0020;
+
+   (*** WinScrollWindow() flags ********************************************)
+
+   const SW_SCROLLCHILDREN        = $0001;
+   const SW_INVALIDATERGN         = $0002;
+
+     function WinFillRect(hps: HPS;
+                              prcl: PRECTL;
+                              lColor: LONG): BOOL;
+
+   (*** WinInitialize/WinTerminate Interface declarations ******************)
+
+   type QVERSDATA=structure    (* qver *)
+      environment: USHORT;
+      version: USHORT;
+   end;
+   type PQVERSDATA=^QVERSDATA;
+
+   const QV_OS2                    = $0000;
+   const QV_CMS                    = $0001;
+   const QV_TSO                    = $0002;
+   const QV_TSOBATCH               = $0003;
+   const QV_OS400                  = $0004;
+
+
+     function WinQueryVersion(hab: HAB): ULONG;
+
+       function WinInitialize(flOptions: ULONG): HAB;
+
+      function WinTerminate(hab: HAB): BOOL;
+
+       function WinQueryAnchorBlock(hwnd: HWND): HAB;
+
+end.

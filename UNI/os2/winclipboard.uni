@@ -1,0 +1,34 @@
+module winclipboard;
+
+function WinSetClipbrdOwner(hab: HAB;
+                                 hwnd: HWND): BOOL;
+function WinSetClipbrdData(hab: HAB;
+                                ulData: ULONG;
+                                fmt: ULONG;
+                                rgfFmtInfo: ULONG): BOOL;
+function WinQueryClipbrdData( hab: HAB;
+                                   fmt: ULONG): ULONG;
+function WinQueryClipbrdFmtInfo( hab: HAB;
+                                     fmt: ULONG;
+                                     prgfFmtInfo: PULONG): BOOL;
+function WinSetClipbrdViewer( hab: HAB;
+                                  hwndNewClipViewer: HWND): BOOL;
+
+(* WinSetClipbrdData() flags *)
+
+const CFI_OWNERFREE             = $0001;
+const CFI_OWNERDISPLAY          = $0002;
+const CFI_POINTER               = $0400;
+const CFI_HANDLE                = $0200;
+
+
+function WinEnumClipbrdFmts(hab: HAB;
+                                  fmt: ULONG): ULONG;
+function WinEmptyClipbrd(hab: HAB): BOOL;
+function WinOpenClipbrd(hab: HAB): BOOL;
+function WinCloseClipbrd(hab: HAB): BOOL;
+
+function WinQueryClipbrdOwner(hab: HAB): HWND;
+function WinQueryClipbrdViewer(hab: HAB): HWND;
+
+end.

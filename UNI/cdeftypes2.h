@@ -10,10 +10,6 @@ typedef UCHAR    * _Seg16 PUCHAR16;
 typedef VOID     * _Seg16 PVOID16;
 
 
-typedef int (APIENTRY _PFN)();
-typedef _PFN  *PFN;
-
-
 #ifndef LONGLONG_INCLUDED
 #define LONGLONG_INCLUDED 1
 
@@ -62,15 +58,6 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 #define PASCAL16   _Far16 _Pascal
 #define CDECL16    _Far16 _Cdecl
 
-// remove this after nmpipe.uni will be ready
-#define NP_WMESG                   0x0400 /* write messages          */
-#define NP_RMESG                   0x0100 /* read as messages        */
-
-typedef  VOID APIENTRY FNTHREAD(ULONG);
-typedef FNTHREAD *PFNTHREAD;
-
-typedef VOID APIENTRY FNEXITLIST(ULONG);
-typedef FNEXITLIST *PFNEXITLIST;
 
 #endif
 

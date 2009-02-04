@@ -39,4 +39,8 @@ type WPOINT  =POINTL;
 type PWPOINT =PPOINTL;
 type NPWPOINT=NPPOINTL;
 
+(*** Pointer to a window procedure function ********************************)
+type FNWP=function(hwnd: HWND; ul: ULONG; mp1: MPARAM; mp2: MPARAM): MRESULT;
+type PFNWP=^FNWP;
+
 end.
