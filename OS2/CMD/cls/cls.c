@@ -13,7 +13,7 @@
 
 #define INCL_VIO
 #define INCL_DOSERRORS
-#include <osfree.h>
+#include <os2.h>
 #include <cmd_shared.h>
 
 /* characters to be used as parameter specifiers */

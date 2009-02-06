@@ -37,6 +37,8 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)bsesub.h &
      $(OUT)$(SEP)os2$(SEP)sub.h &
      $(OUT)$(SEP)os2$(SEP)vio.h &
+     $(OUT)$(SEP)os2$(SEP)kbd.h &
+     $(OUT)$(SEP)os2$(SEP)mou.h &
      $(OUT)$(SEP)os2$(SEP)bseerr.h &
      $(OUT)$(SEP)os2$(SEP)basemid.h &
      $(OUT)$(SEP)os2$(SEP)bsetib.h &
@@ -63,6 +65,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)pmwp.h &
      $(OUT)$(SEP)os2$(SEP)pmwin.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
+     $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winclipboarddde.h &
      $(OUT)$(SEP)os2$(SEP)winprogramlist.h &
@@ -101,6 +104,10 @@ $(OUT)$(SEP)os2$(SEP)bsesub.h: os2$(SEP)bsesub.uni
 $(OUT)$(SEP)os2$(SEP)sub.h: os2$(SEP)sub.uni
 
 $(OUT)$(SEP)os2$(SEP)vio.h: os2$(SEP)vio.uni
+
+$(OUT)$(SEP)os2$(SEP)kbd.h: os2$(SEP)kbd.uni
+
+$(OUT)$(SEP)os2$(SEP)mou.h: os2$(SEP)mou.uni
 
 $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h: os2$(SEP)dosprocesscommon.uni
 
@@ -156,6 +163,8 @@ $(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pmwin.uni
 $(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)winprogramlist.uni
 
 $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)winwindowmgrcommon.uni
+
+$(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)winmessagemgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)winclipboard.uni
 

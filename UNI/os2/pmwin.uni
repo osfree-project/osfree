@@ -2,6 +2,7 @@ module pmwin;
 
 uses pmshl;
 uses winwindowmgrcommon;
+uses winmessagemgrcommon;
 uses winclipboard;
 uses winclipboarddde;
 

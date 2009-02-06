@@ -1,226 +1,208 @@
-#if (defined(INCL_WINMESSAGEMGR) || !defined(INCL_NOCOMMON))
+module winmessagemgrcommon;
 
-   /* QMSG structure */
-   typedef struct _QMSG    /* qmsg */
-   {
-      HWND    hwnd;
-      ULONG   msg;
-      MPARAM  mp1;
-      MPARAM  mp2;
-      ULONG   time;
-      POINTL  ptl;
-      ULONG   reserved;
-   } QMSG;
-   typedef QMSG *PQMSG;
+   (* QMSG structure *)
+   type QMSG=structure    (* qmsg *)
+      hwnd: HWND;
+      msg: ULONG;
+      mp1: MPARAM;
+      mp2: MPARAM;
+      time: ULONG;
+      ptl: POINTL;
+      reserved: ULONG;
+   end;
+   type PQMSG=^QMSG;
 
-   /*** Standard Window Messages *******************************************/
-   #define WM_NULL                    0x0000
-   #define WM_CREATE                  0x0001
-   #define WM_DESTROY                 0x0002
+   (*** Standard Window Messages *******************************************)
+   const WM_NULL                    = $0000;
+   const WM_CREATE                  = $0001;
+   const WM_DESTROY                 = $0002;
 
-   #ifndef INCL_SAADEFS
-   #endif /* !INCL_SAADEFS */
+   const WM_ENABLE                  = $0004;
+   const WM_SHOW                    = $0005;
+   const WM_MOVE                    = $0006;
+   const WM_SIZE                    = $0007;
+   const WM_ADJUSTWINDOWPOS         = $0008;
 
-   #define WM_ENABLE                  0x0004
-   #define WM_SHOW                    0x0005
-   #define WM_MOVE                    0x0006
-   #define WM_SIZE                    0x0007
-   #define WM_ADJUSTWINDOWPOS         0x0008
+   const WM_CALCVALIDRECTS          = $0009;
 
-   #define WM_CALCVALIDRECTS          0x0009
+   const WM_SETWINDOWPARAMS         = $000a;
+   const WM_QUERYWINDOWPARAMS       = $000b;
+   const WM_HITTEST                 = $000c;
+   const WM_ACTIVATE                = $000d;
+   const WM_SETFOCUS                = $000f;
+   const WM_SETSELECTION            = $0010;
 
-   #define WM_SETWINDOWPARAMS         0x000a
-   #define WM_QUERYWINDOWPARAMS       0x000b
-   #define WM_HITTEST                 0x000c
-   #define WM_ACTIVATE                0x000d
-   #define WM_SETFOCUS                0x000f
-   #define WM_SETSELECTION            0x0010
+   (* language support Winproc *)
+   const WM_PPAINT                  = $0011;
+   const WM_PSETFOCUS               = $0012;
+   const WM_PSYSCOLORCHANGE         = $0013;
+   const WM_PSIZE                   = $0014;
+   const WM_PACTIVATE               = $0015;
+   const WM_PCONTROL                = $0016;
 
-   /* language support Winproc */
-   #define WM_PPAINT                  0x0011
-   #define WM_PSETFOCUS               0x0012
-   #define WM_PSYSCOLORCHANGE         0x0013
-   #define WM_PSIZE                   0x0014
-   #define WM_PACTIVATE               0x0015
-   #define WM_PCONTROL                0x0016
+   const WM_COMMAND                 = $0020;
+   const WM_SYSCOMMAND              = $0021;
+   const WM_HELP                    = $0022;
+   const WM_PAINT                   = $0023;
 
-   #define WM_COMMAND                 0x0020
-   #define WM_SYSCOMMAND              0x0021
-   #define WM_HELP                    0x0022
-   #define WM_PAINT                   0x0023
+      const WM_TIMER                = $0024;
+      const WM_SEM1                 = $0025;
+      const WM_SEM2                 = $0026;
+      const WM_SEM3                 = $0027;
+      const WM_SEM4                 = $0028;
 
-   #ifndef INCL_SAADEFS
-      #define WM_TIMER                0x0024
-      #define WM_SEM1                 0x0025
-      #define WM_SEM2                 0x0026
-      #define WM_SEM3                 0x0027
-      #define WM_SEM4                 0x0028
-   #endif /* !INCL_SAADEFS */
+   const WM_CLOSE                   = $0029;
+   const WM_QUIT                    = $002a;
+   const WM_SYSCOLORCHANGE          = $002b;
+   const WM_SYSVALUECHANGED         = $002d;
+   const WM_APPTERMINATENOTIFY      = $002e;
+   const WM_PRESPARAMCHANGED        = $002f;
 
-   #define WM_CLOSE                   0x0029
-   #define WM_QUIT                    0x002a
-   #define WM_SYSCOLORCHANGE          0x002b
-   #define WM_SYSVALUECHANGED         0x002d
-   #define WM_APPTERMINATENOTIFY      0x002e
-   #define WM_PRESPARAMCHANGED        0x002f
+   (* Control notification messages *)
+   const WM_CONTROL                 = $0030;
+   const WM_VSCROLL                 = $0031;
+   const WM_HSCROLL                 = $0032;
+   const WM_INITMENU                = $0033;
+   const WM_MENUSELECT              = $0034;
+   const WM_MENUEND                 = $0035;
+   const WM_DRAWITEM                = $0036;
+   const WM_MEASUREITEM             = $0037;
+   const WM_CONTROLPOINTER          = $0038;
+   const WM_QUERYDLGCODE            = $003a;
+   const WM_INITDLG                 = $003b;
+   const WM_SUBSTITUTESTRING        = $003c;
+   const WM_MATCHMNEMONIC           = $003d;
+   const WM_SAVEAPPLICATION         = $003e;
 
-   /* Control notification messages */
-   #define WM_CONTROL                 0x0030
-   #define WM_VSCROLL                 0x0031
-   #define WM_HSCROLL                 0x0032
-   #define WM_INITMENU                0x0033
-   #define WM_MENUSELECT              0x0034
-   #define WM_MENUEND                 0x0035
-   #define WM_DRAWITEM                0x0036
-   #define WM_MEASUREITEM             0x0037
-   #define WM_CONTROLPOINTER          0x0038
-   #define WM_QUERYDLGCODE            0x003a
-   #define WM_INITDLG                 0x003b
-   #define WM_SUBSTITUTESTRING        0x003c
-   #define WM_MATCHMNEMONIC           0x003d
-   #define WM_SAVEAPPLICATION         0x003e
-
-   #define WM_SEMANTICEVENT           0x0490
+   const WM_SEMANTICEVENT           = $0490;
 
 
-   /*************************************************************************
+   (*************************************************************************
    * Reserve a range of messages for help manager.  This range includes
    * public messages, defined below, and private ones, which need to be
    * reserved here to prevent clashing with application messages
-   *************************************************************************/
+   *************************************************************************)
 
-   #define WM_HELPBASE                0x0F00 /* Start of msgs for help manager   */
-   #define WM_HELPTOP                 0x0FFF /* End of msgs for help manager     */
+   const WM_HELPBASE                = $0F00; (* Start of msgs for help manager   *)
+   const WM_HELPTOP                 = $0FFF; (* End of msgs for help manager     *)
 
-   #define WM_USER                    0x1000
+   const WM_USER                    = $1000;
 
-   /*** WM_COMMAND msg source codes ****************************************/
-   #define CMDSRC_PUSHBUTTON      1
-   #define CMDSRC_MENU            2
-   #define CMDSRC_ACCELERATOR     3
-   #define CMDSRC_FONTDLG         4
-   #define CMDSRC_FILEDLG         5
-   #define CMDSRC_PRINTDLG        6
-   #define CMDSRC_COLORDLG        7
-   #define CMDSRC_OTHER           0
+   (*** WM_COMMAND msg source codes ****************************************)
+   const CMDSRC_PUSHBUTTON     = 1;
+   const CMDSRC_MENU           = 2;
+   const CMDSRC_ACCELERATOR    = 3;
+   const CMDSRC_FONTDLG        = 4;
+   const CMDSRC_FILEDLG        = 5;
+   const CMDSRC_PRINTDLG       = 6;
+   const CMDSRC_COLORDLG       = 7;
+   const CMDSRC_OTHER          = 0;
 
-   #pragma pack(1) /* force structure alignment packing */
-
-   /*
+   (*
    * The following structure and macro are used to access the
    * WM_COMMAND, WM_HELP, and WM_SYSCOMMAND message parameters:
-   */
-   typedef struct _COMMANDMSG    /* commandmsg */
-   {
-      USHORT  cmd;              /* mp1 */
-      USHORT  unused;
-      USHORT  source;           /* mp2 */
-      USHORT  fMouse;
-   } CMDMSG;
-   typedef CMDMSG *PCMDMSG;
+   *)
+   type COMMANDMSG=structure    (* commandmsg *)
+        cmd: USHORT;              (* mp1 *)
+        unused: USHORT;
+        source: USHORT;           (* mp2 *)
+        fMouse: USHORT;
+   end;
+   type CMDMSG=COMMANDMSG;
+   type PCMDMSG=^CMDMSG;
 
+(*
    #define COMMANDMSG(pmsg) \
    ((PCMDMSG)((PBYTE)pmsg + sizeof(MPARAM) ))
+*)
 
-   #pragma pack()  /* restore packing to default */
+   (*** The following structure is used by the WinQueryQueueInfo() routine *)
+   type MQINFO=structure    (* mqi *)
+         cb: ULONG;
+         pid: PID;
+         tid: TID;
+         cmsgs: ULONG;
+         pReserved: PVOID;
+   end;
+   type PMQINFO=^MQINFO;
 
-   /*** The following structure is used by the WinQueryQueueInfo() routine */
-   typedef struct _MQINFO    /* mqi */
-   {
-      ULONG   cb;
-      PID     pid;
-      TID     tid;
-      ULONG   cmsgs;
-      PVOID   pReserved;
-   } MQINFO;
-   typedef MQINFO *PMQINFO;
+   function WinSendMsg(hwnd: HWND;
+                               msg: ULONG;
+                               mp1: MPARAM;
+                               mp2: MPARAM): MRESULT;
 
-   MRESULT APIENTRY WinSendMsg(HWND hwnd,
-                               ULONG msg,
-                               MPARAM mp1,
-                               MPARAM mp2);
+        function WinCreateMsgQueue(hab: HAB;
+                                       cmsg: LONG): HMQ;
 
-   HMQ     APIENTRY WinCreateMsgQueue(HAB hab,
-                                      LONG cmsg);
+       function WinDestroyMsgQueue(hmq: HMQ): BOOL;
 
-   BOOL    APIENTRY WinDestroyMsgQueue(HMQ hmq);
+       function WinQueryQueueInfo(hmq: HMQ;
+                                      pmqi: PMQINFO;
+                                      cbCopy: ULONG): BOOL;
 
-   BOOL    APIENTRY WinQueryQueueInfo(HMQ hmq,
-                                      PMQINFO pmqi,
-                                      ULONG cbCopy);
+          function WinCancelShutdown(hmq: HMQ;
+                                         fCancelAlways: BOOL): BOOL;
 
-   #ifndef INCL_SAADEFS
-      BOOL    APIENTRY WinCancelShutdown(HMQ hmq,
-                                         BOOL fCancelAlways);
-   #endif /* INCL_SAADEFS */
+       function WinGetMsg(hab: HAB;
+                              pqmsg: PQMSG;
+                              hwndFilter: HWND;
+                              msgFilterFirst: ULONG;
+                              msgFilterLast: ULONG): BOOL;
 
-   BOOL    APIENTRY WinGetMsg(HAB hab,
-                              PQMSG pqmsg,
-                              HWND hwndFilter,
-                              ULONG msgFilterFirst,
-                              ULONG msgFilterLast);
+       function WinPeekMsg(hab: HAB;
+                               pqmsg: PQMSG;
+                               hwndFilter: HWND;
+                               msgFilterFirst: ULONG;
+                               msgFilterLast: ULONG;
+                               fl: ULONG): BOOL;
 
-   BOOL    APIENTRY WinPeekMsg(HAB hab,
-                               PQMSG pqmsg,
-                               HWND hwndFilter,
-                               ULONG msgFilterFirst,
-                               ULONG msgFilterLast,
-                               ULONG fl);
+    function WinDispatchMsg(hab: HAB;
+                                    pqmsg: PQMSG): MRESULT;
 
-   MRESULT APIENTRY WinDispatchMsg(HAB hab,
-                                   PQMSG pqmsg);
+       function WinPostMsg(hwnd: HWND;
+                               msg: ULONG;
+                               mp1: MPARAM;
+                               mp2: MPARAM): BOOL;
 
-   BOOL    APIENTRY WinPostMsg(HWND hwnd,
-                               ULONG msg,
-                               MPARAM mp1,
-                               MPARAM mp2);
+       function WinRegisterUserMsg(hab: HAB;
+                                       msgid: ULONG;
+                                       datatype1: LONG;
+                                       dir1: LONG;
+                                       datatype2: LONG;
+                                       dir2: LONG;
+                                       datatyper: LONG): BOOL;
 
-   BOOL    APIENTRY WinRegisterUserMsg(HAB hab,
-                                       ULONG msgid,
-                                       LONG datatype1,
-                                       LONG dir1,
-                                       LONG datatype2,
-                                       LONG dir2,
-                                       LONG datatyper);
+       function WinRegisterUserDatatype(hab: HAB;
+                                            datatype: LONG;
+                                            count: LONG;
+                                            types: PLONG): BOOL;
 
-   BOOL    APIENTRY WinRegisterUserDatatype(HAB hab,
-                                            LONG datatype,
-                                            LONG count,
-                                            PLONG types);
-#ifdef __cplusplus
-   BOOL    APIENTRY WinSetMsgMode(HAB hab,
-                                  PCSZ  classname,
-                                  LONG control);
-#else
-   BOOL    APIENTRY WinSetMsgMode(HAB hab,
-                                  PSZ classname,
-                                  LONG control);
-#endif
+       function WinSetMsgMode(hab: HAB;
+                                    classname: PCSZ;
+                                   control: LONG): BOOL;
 
-   BOOL    APIENTRY WinSetSynchroMode(HAB hab,
-                                      LONG mode);
+       function WinSetSynchroMode(hab: HAB;
+                                       mode: LONG): BOOL;
 
-   /*** WinPeekMsg() constants *********************************************/
-   #define PM_REMOVE                  0x0001
-   #define PM_NOREMOVE                0x0000
+   (*** WinPeekMsg() constants *********************************************)
+   const PM_REMOVE                  = $0001;
+   const PM_NOREMOVE                = $0000;
 
-   /*** WinRegisterUserDatatype datatypes defined in separate file *********/
-   #ifdef INCL_WINTYPES
-      #include <pmtypes.h>
-   #endif /*INCL_WINTYPES*/
+   (*** WinRegisterUserDatatype datatypes defined in separate file *********)
+uses pmtypes;
 
-   /*** WinRegisterUserMsg direction codes *********************************/
-   #define RUM_IN                     1
-   #define RUM_OUT                    2
-   #define RUM_INOUT                  3
+   (*** WinRegisterUserMsg direction codes *********************************)
+   const RUM_IN                     = 1;
+   const RUM_OUT                    = 2;
+   const RUM_INOUT                  = 3;
 
-   /*** WinSetMsgMode constants *******************************************/
-   #define SMD_DELAYED                0x0001
-   #define SMD_IMMEDIATE              0x0002
+   (*** WinSetMsgMode constants *******************************************)
+   const SMD_DELAYED                = $0001;
+   const SMD_IMMEDIATE              = $0002;
 
-   /*** WinSetSynchroMode constants ***************************************/
-   #define SSM_SYNCHRONOUS            0x0001
-   #define SSM_ASYNCHRONOUS           0x0002
-   #define SSM_MIXED                  0x0003
+   (*** WinSetSynchroMode constants ***************************************)
+   const SSM_SYNCHRONOUS            = $0001;
+   const SSM_ASYNCHRONOUS           = $0002;
+   const SSM_MIXED                  = $0003;
 
-#endif /* WINMESSAGEMGR || !INCL_NOCOMMON       */
+end.

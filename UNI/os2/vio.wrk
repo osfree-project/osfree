@@ -1,12 +1,5 @@
 
 {Vio function prototypes}
-    #define VioScrollDn VioScrollDown
-    #define VioScrollLf VioScrollLeft
-    #define VioScrollRt VioScrollRight
-    #define VioWrtCharStrAtt VioWrtCharStrAttr
-
-    #define VioSavRedrawUndo VioSaveRedrawUndo
-    #define VioSavRedrawWait VioSaveRedrawWait
     APIRET APIENTRY  VioModeUndo (ULONG OwnerInd, ULONG KillInd, ULONG Reserved) ;
     APIRET APIENTRY  VioModeWait (ULONG ReqType, ULONG * NotifyType, ULONG Reserved) ;
     APIRET APIENTRY  VioSaveRedrawUndo (ULONG OwnerInd, ULONG KillInd, ULONG Reserved) ;
@@ -36,8 +29,6 @@
     APIRET APIENTRY  VioGetBuf (PULONG pLVB, PULONG pcbLVB, HVIO hvio) ;
     APIRET APIENTRY  VioShowBuf (ULONG offLVB, ULONG cb, HVIO hvio) ;
 
-    APIRET APIENTRY  VioGetState (void * State, HVIO hvio) ;
-    APIRET APIENTRY  VioSetState (void * State, HVIO hvio) ;
 
     APIRET APIENTRY  VioCharWidthUni(USHORT uch) ;
 
@@ -61,11 +52,8 @@
    #define VioCheckCharType        VIO16CHECKCHARTYPE
    #define VioDeRegister           VIO16DEREGISTER
    #define VioEndPopUp             VIO16ENDPOPUP
-   #define VioGetAnsi              VIO16GETANSI
    #define VioGetBuf               VIO16GETBUF
    #define VioGetConfig            VIO16GETCONFIG
-   #define VioGetCp                VIO16GETCP
-   #define VioGetCurPos            VIO16GETCURPOS
    #define VioGetCurType           VIO16GETCURTYPE
    #define VioGetFont              VIO16GETFONT
    #define VioGetMode              VIO16GETMODE
@@ -77,14 +65,12 @@
    #define VioPrtSc                VIO16PRTSC
    #define VioPrtScToggle          VIO16PRTSCTOGGLE
    #define VioReadCellStr          VIO16READCELLSTR
-   #define VioReadCharStr          VIO16READCHARSTR
    #define VioRedrawSize           VIO16REDRAWSIZE
    #define VioRegister             VIO16REGISTER
    #define VioSavRedrawUndo        VIO16SAVREDRAWUNDO
    #define VioSavRedrawWait        VIO16SAVREDRAWWAIT
    #define VioScrLock              VIO16SCRLOCK
    #define VioScrUnLock            VIO16SCRUNLOCK
-   #define VioScrollDn             VIO16SCROLLDN
    #define VioScrollLf             VIO16SCROLLLF
    #define VioScrollRt             VIO16SCROLLRT
    #define VioScrollUp             VIO16SCROLLUP
@@ -154,76 +140,12 @@
    typedef unsigned short  HVIO;
    typedef HVIO        *   PHVIO;
 
-   APIRET16 APIENTRY16  VioRegister (PSZ pszModName,
-                                     PSZ pszEntryName,
-                                     ULONG flFun1,
-                                     ULONG flFun2);
-
-   APIRET16 APIENTRY16  VioGlobalReg(PSZ pszModName,
-                                     PSZ pszEntryName,
-                                     ULONG flFun1,
-                                     ULONG flFun2,
-                                     USHORT usReturn);
-
-   /* first parameter registration constants   */
-   #define VR_VIOGETCURPOS            0x00000001L
-   #define VR_VIOGETCURTYPE           0x00000002L
-   #define VR_VIOGETMODE              0x00000004L
-   #define VR_VIOGETBUF               0x00000008L
-   #define VR_VIOGETPHYSBUF           0x00000010L
-   #define VR_VIOSETCURPOS            0x00000020L
-   #define VR_VIOSETCURTYPE           0x00000040L
-   #define VR_VIOSETMODE              0x00000080L
-   #define VR_VIOSHOWBUF              0x00000100L
-   #define VR_VIOREADCHARSTR          0x00000200L
-   #define VR_VIOREADCELLSTR          0x00000400L
-   #define VR_VIOWRTNCHAR             0x00000800L
-   #define VR_VIOWRTNATTR             0x00001000L
-   #define VR_VIOWRTNCELL             0x00002000L
-   #define VR_VIOWRTTTY               0x00004000L
-   #define VR_VIOWRTCHARSTR           0x00008000L
-
-   #define VR_VIOWRTCHARSTRATT        0x00010000L
-   #define VR_VIOWRTCELLSTR           0x00020000L
-   #define VR_VIOSCROLLUP             0x00040000L
-   #define VR_VIOSCROLLDN             0x00080000L
-   #define VR_VIOSCROLLLF             0x00100000L
-   #define VR_VIOSCROLLRT             0x00200000L
-   #define VR_VIOSETANSI              0x00400000L
-   #define VR_VIOGETANSI              0x00800000L
-   #define VR_VIOPRTSC                0x01000000L
-   #define VR_VIOSCRLOCK              0x02000000L
-   #define VR_VIOSCRUNLOCK            0x04000000L
-   #define VR_VIOSAVREDRAWWAIT        0x08000000L
-   #define VR_VIOSAVREDRAWUNDO        0x10000000L
-   #define VR_VIOPOPUP                0x20000000L
-   #define VR_VIOENDPOPUP             0x40000000L
-   #define VR_VIOPRTSCTOGGLE          0x80000000L
-
-   /* second parameter registration constants  */
-   #define VR_VIOMODEWAIT             0x00000001L
-   #define VR_VIOMODEUNDO             0x00000002L
-   #define VR_VIOGETFONT              0x00000004L
-   #define VR_VIOGETCONFIG            0x00000008L
-   #define VR_VIOSETCP                0x00000010L
-   #define VR_VIOGETCP                0x00000020L
-   #define VR_VIOSETFONT              0x00000040L
-   #define VR_VIOGETSTATE             0x00000080L
-   #define VR_VIOSETSTATE             0x00000100L
-
-   APIRET16 APIENTRY16  VioDeRegister (void);
 
    APIRET16 APIENTRY16  VioGetBuf (PULONG pLVB,
                                    PUSHORT pcbLVB,
                                    HVIO hvio);
 
-   APIRET16 APIENTRY16  VioGetCurPos (PUSHORT pusRow,
-                                      PUSHORT pusColumn,
-                                      HVIO hvio);
 
-   APIRET16 APIENTRY16  VioSetCurPos (USHORT usRow,
-                                      USHORT usColumn,
-                                      HVIO hvio);
 
    /* structure for VioSet/GetCurType() */
    typedef struct _VIOCURSORINFO   /* vioci */
@@ -301,23 +223,8 @@
    APIRET16 APIENTRY16  VioGetPhysBuf (PVIOPHYSBUF pvioPhysBuf,
                                        USHORT usReserved);
 
-   APIRET16 APIENTRY16  VioReadCellStr (PCH pchCellStr,
-                                        PUSHORT pcb,
-                                        USHORT usRow,
-                                        USHORT usColumn,
-                                        HVIO hvio);
 
-   APIRET16 APIENTRY16  VioReadCharStr (PCH pchCellStr,
-                                        PUSHORT pcb,
-                                        USHORT usRow,
-                                        USHORT usColumn,
-                                        HVIO hvio);
 
-   APIRET16 APIENTRY16  VioWrtCellStr (PCH pchCellStr,
-                                       USHORT cb,
-                                       USHORT usRow,
-                                       USHORT usColumn,
-                                       HVIO hvio);
 
    APIRET16  APIENTRY16 VioWrtCharStr (PCH pchStr,
                                        USHORT cb,
@@ -325,13 +232,6 @@
                                        USHORT usColumn,
                                        HVIO hvio);
 
-   APIRET16 APIENTRY16  VioScrollDn (USHORT usTopRow,
-                                     USHORT usLeftCol,
-                                     USHORT usBotRow,
-                                     USHORT usRightCol,
-                                     USHORT cbLines,
-                                     PBYTE pCell,
-                                     HVIO hvio);
 
    APIRET16 APIENTRY16  VioScrollUp (USHORT usTopRow,
                                      USHORT usLeftCol,
@@ -407,8 +307,6 @@
    APIRET16 APIENTRY16  VioSetAnsi (USHORT fAnsi,
                                     HVIO hvio);
 
-   APIRET16 APIENTRY16  VioGetAnsi (PUSHORT pfAnsi,
-                                    HVIO hvio);
 
    APIRET16 APIENTRY16  VioPrtSc (HVIO hvio);
 
@@ -553,9 +451,6 @@
    APIRET16 APIENTRY16  VioSetFont (PVIOFONTINFO pviofi,
                                     HVIO hvio);
 
-   APIRET16 APIENTRY16  VioGetCp (USHORT usReserved,
-                                  PUSHORT pIdCodePage,
-                                  HVIO hvio);
 
    APIRET16 APIENTRY16  VioSetCp (USHORT usReserved,
                                   USHORT idCodePage,
@@ -612,10 +507,6 @@
    } VIOSETTARGET;
    typedef VIOSETTARGET *PVIOSETTARGET;
 
-   APIRET16 APIENTRY16  VioGetState (PVOID pState,
-                                     HVIO hvio);
-   APIRET16 APIENTRY16  VioSetState (PVOID pState,
-                                     HVIO hvio);
 
 #endif /* INCL_VIO */
 
@@ -862,11 +753,8 @@ USHORT VioCheckCharType (PUSHORT pType, USHORT usRow, USHORT usColumn,
     HVIO hvio);
 USHORT VioDeRegister (VOID);
 USHORT VioEndPopUp (HVIO hvio);
-USHORT VioGetAnsi (PUSHORT pfAnsi, HVIO hvio);
 USHORT VioGetBuf (PULONG pLVB, PUSHORT pcbLVB, HVIO hvio);
 USHORT VioGetConfig (USHORT usConfigId, PVIOCONFIGINFO pvioin, HVIO hvio);
-USHORT VioGetCp (USHORT usReserved, PUSHORT pusCodePage, HVIO hvio);
-USHORT VioGetCurPos (PUSHORT pusRow, PUSHORT pusColumn, HVIO hvio);
 USHORT VioGetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio);
 USHORT VioGetFont (PVIOFONTINFO pviofi, HVIO hvio);
 USHORT VioGetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio);
@@ -879,10 +767,6 @@ USHORT VioModeWait (USHORT usReqType, PUSHORT pNotifyType, USHORT usReserved);
 USHORT VioPopUp (PUSHORT pfWait, HVIO hvio);
 USHORT VioPrtSc (HVIO hvio);
 USHORT VioPrtScToggle (HVIO hvio);
-USHORT VioReadCellStr (PCH pchCellStr, PUSHORT pcb, USHORT usRow,
-    USHORT usColumn, HVIO hvio);
-USHORT VioReadCharStr (PCH pch, PUSHORT pcb, USHORT usRow, USHORT usColumn,
-    HVIO hvio);
 USHORT VioRegister (PCSZ pszModName, PCSZ pszEntryName, ULONG ulFunMask1,
     ULONG ulFunMask2);
 USHORT VioSavRedrawUndo (USHORT usOwnerInd, USHORT usKillInd,
@@ -890,25 +774,11 @@ USHORT VioSavRedrawUndo (USHORT usOwnerInd, USHORT usKillInd,
 USHORT VioSavRedrawWait (USHORT usRedrawInd, PUSHORT pusNotifyType,
     USHORT usReserved);
 USHORT VioScrLock (USHORT fWait, PUCHAR pfNotLocked, HVIO hvio);
-USHORT VioScrollDn (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio);
-USHORT VioScrollLf (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio);
-USHORT VioScrollRt (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio);
-USHORT VioScrollUp (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio);
-USHORT VioScrUnLock (HVIO hvio);
-USHORT VioSetAnsi (USHORT fAnsi, HVIO hvio);
-USHORT VioSetCp (USHORT usReserved, USHORT usCodePage, HVIO hvio);
-USHORT VioSetCurPos (USHORT usRow, USHORT usColumn, HVIO hvio);
 USHORT VioSetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio);
 USHORT VioSetFont (PVIOFONTINFO pviofi, HVIO hvio);
 USHORT VioSetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio);
 USHORT VioSetState (CPVOID pState, HVIO hvio);
 USHORT VioShowBuf (USHORT offLVB, USHORT cb, HVIO hvio);
-USHORT VioWrtCellStr (PCCH pchCellStr, USHORT cb, USHORT usRow,
-    USHORT usColumn, HVIO hvio);
 USHORT VioWrtCharStr (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
     HVIO hvio);
 USHORT VioWrtCharStrAtt (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,

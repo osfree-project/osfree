@@ -12,6 +12,7 @@
 
 #define INCL_DOSSEMAPHORESCOMMON
 #define INCL_WINWINDOWMGRCOMMON
+#define INCL_WINMESSAGEMGRCOMMON
 #define INCL_WINCLIPBOARDDDE
 #define INCL_WINCLIPBOARD
 #define INCL_DOSDATETIMECOMMON
@@ -75,6 +76,13 @@
 
 /* Aliases (alias modifier of uses) */
 
+#ifdef INCL_VIO
+  #define INCL_SUB
+#endif
+
+#ifdef INCL_BSESUB
+  #define INCL_SUB
+#endif
 
 #ifdef INCL_SUB
   #define INCL_BSESUB

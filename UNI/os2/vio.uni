@@ -2,7 +2,7 @@
 module vio;
 
 {Vio handles}
-type HVIO=longword;
+type HVIO=USHORT;
 type PHVIO=^HVIO;
 
 {VioCreatePS format constants}
@@ -47,7 +47,7 @@ type VIOMODEINFO=structure
        ext_data_addr: PCH;
     end;
 
-type PVIOMODEINFO=^PVIOMODEINFO;
+type PVIOMODEINFO=^VIOMODEINFO;
 
 {VIOMODEINFO.fbType constants}
 const VGMT_OTHER          = 1;
@@ -160,7 +160,7 @@ type VIOPALSTATE=structure
         iFirst: USHORT;
         acolor: array[1] of USHORT;
     end;
-type PVIOPALSTATE=^PVIOPALSTATE;
+type PVIOPALSTATE=^VIOPALSTATE;
 
 type VIOOVERSCAN=structure
         cb: USHORT;
@@ -202,29 +202,80 @@ type VIOSETTARGET=structure
 
 type PVIOSETTARGET=^VIOSETTARGET;
 
+(* first parameter registration constants   *)
+const VR_VIOGETCURPOS            = $00000001;
+const VR_VIOGETCURTYPE           = $00000002;
+const VR_VIOGETMODE              = $00000004;
+const VR_VIOGETBUF               = $00000008;
+const VR_VIOGETPHYSBUF           = $00000010;
+const VR_VIOSETCURPOS            = $00000020;
+const VR_VIOSETCURTYPE           = $00000040;
+const VR_VIOSETMODE              = $00000080;
+const VR_VIOSHOWBUF              = $00000100;
+const VR_VIOREADCHARSTR          = $00000200;
+const VR_VIOREADCELLSTR          = $00000400;
+const VR_VIOWRTNCHAR             = $00000800;
+const VR_VIOWRTNATTR             = $00001000;
+const VR_VIOWRTNCELL             = $00002000;
+const VR_VIOWRTTTY               = $00004000;
+const VR_VIOWRTCHARSTR           = $00008000;
 
-function VioGetAnsi          (Ansi: PULONG; Handle: HVIO): APIRET;
-function VioGetCp            (Reserved: ULONG; IdCodePage: PUSHORT; Handle: HVIO): APIRET;
-function VioGetCurPos        (Row: PULONG; Column: PULONG; Handle: HVIO): APIRET;
-function VioGetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): APIRET;
-function VioGetMode          (ModeInfo: PVIOMODEINFO; Handle: HVIO): APIRET;
-function VioReadCellStr      (CellStr: PCHAR; Count: PULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioReadCharStr      (CellStr: PCHAR; Count: PULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioScrollDown       (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Lines: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
-function VioScrollLeft       (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Columns: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
-function VioScrollRight      (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Columns: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
-function VioScrollUp         (TopRow: ULONG; LeftCol: ULONG; BotRow: ULONG; RightCol: ULONG; Lines: ULONG; Cell: PBYTE; Handle: HVIO): APIRET;
-function VioSetAnsi          (Ansi: ULONG; Handle: HVIO): APIRET;
-function VioSetCp            (Reserved: ULONG; IdCodePage: USHORT; Handle: HVIO): APIRET;
-function VioSetCurPos        (Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioSetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): APIRET;
-function VioSetMode          (ModeInfo: PVIOMODEINFO; hvio: HVIO): APIRET;
-function VioWrtCellStr       (CellStr: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioWrtCharStr       (Str: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioWrtCharStrAttr   (Str: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; pAttr: PBYTE; Handle: HVIO): APIRET;
-function VioWrtNAttr         (Attr: PBYTE; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioWrtNCell         (Cell: PBYTE; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioWrtNChar         (Char: PCHAR; Count: ULONG; Row: ULONG; Column: ULONG; Handle: HVIO): APIRET;
-function VioWrtTTY           (Str: PCHAR; Count: ULONG; Handle: HVIO): APIRET;
+const VR_VIOWRTCHARSTRATT        = $00010000;
+const VR_VIOWRTCELLSTR           = $00020000;
+const VR_VIOSCROLLUP             = $00040000;
+const VR_VIOSCROLLDN             = $00080000;
+const VR_VIOSCROLLLF             = $00100000;
+const VR_VIOSCROLLRT             = $00200000;
+const VR_VIOSETANSI              = $00400000;
+const VR_VIOGETANSI              = $00800000;
+const VR_VIOPRTSC                = $01000000;
+const VR_VIOSCRLOCK              = $02000000;
+const VR_VIOSCRUNLOCK            = $04000000;
+const VR_VIOSAVREDRAWWAIT        = $08000000;
+const VR_VIOSAVREDRAWUNDO        = $10000000;
+const VR_VIOPOPUP                = $20000000;
+const VR_VIOENDPOPUP             = $40000000;
+const VR_VIOPRTSCTOGGLE          = $80000000;
+
+(* second parameter registration constants  *)
+const VR_VIOMODEWAIT             = $00000001;
+const VR_VIOMODEUNDO             = $00000002;
+const VR_VIOGETFONT              = $00000004;
+const VR_VIOGETCONFIG            = $00000008;
+const VR_VIOSETCP                = $00000010;
+const VR_VIOGETCP                = $00000020;
+const VR_VIOSETFONT              = $00000040;
+const VR_VIOGETSTATE             = $00000080;
+const VR_VIOSETSTATE             = $00000100;
+
+function VioDeRegister       (): USHORT;
+function VioRegister         (pszModName: PSZ; pszEntryName: PSZ; flFun1: ULONG; flFun2: ULONG): USHORT;
+function VioGlobalReg        (pszModName: PSZ; pszEntryName: PSZ; flFun1: ULONG; flFun2: ULONG; usReturn: USHORT): USHORT;
+function VioGetAnsi          (Ansi: PUSHORT; Handle: HVIO): USHORT;
+function VioGetCp            (Reserved: USHORT; IdCodePage: PUSHORT; Handle: HVIO): USHORT;
+function VioGetCurPos        (Row: PUSHORT; Column: PUSHORT; Handle: HVIO): USHORT;
+function VioGetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): USHORT;
+function VioGetMode          (ModeInfo: PVIOMODEINFO; Handle: HVIO): USHORT;
+function VioReadCellStr      (CellStr: PCHAR; Count: PUSHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioReadCharStr      (CellStr: PCHAR; Count: PUSHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioScrollDown       (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Lines: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
+function VioScrollDn         (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Lines: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
+function VioScrollLeft       (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Columns: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
+function VioScrollRight      (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Columns: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
+function VioScrollUp         (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Lines: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
+function VioSetAnsi          (Ansi: USHORT; Handle: HVIO): USHORT;
+function VioSetCp            (Reserved: USHORT; IdCodePage: USHORT; Handle: HVIO): USHORT;
+function VioSetCurPos        (Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioSetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): USHORT;
+function VioSetMode          (ModeInfo: PVIOMODEINFO; hvio: HVIO): USHORT;
+function VioWrtCellStr       (CellStr: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioWrtCharStr       (Str: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioWrtCharStrAttr   (Str: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; pAttr: PBYTE; Handle: HVIO): USHORT;
+function VioWrtNAttr         (Attr: PBYTE; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioWrtNCell         (Cell: PBYTE; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioWrtNChar         (Char: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
+function VioWrtTTY           (Str: PCHAR; Count: USHORT; Handle: HVIO): USHORT;
+function VioGetState         (pState: PVOID; Handle: HVIO): USHORT;
+function VioSetState         (pState: PVOID; Handle: HVIO): USHORT;
 
 end.
