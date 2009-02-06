@@ -54,4 +54,9 @@ DEST = $(FILESDIR)$(SEP)$(DEST)
 !endif
 !endif
 
+!ifneq DEST1
+# DEST is relative from $(FILESDIR)
+DEST1 = $(FILESDIR)$(SEP)$(DEST1)
+!endif
+
 !endif

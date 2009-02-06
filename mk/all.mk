@@ -212,7 +212,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -242,6 +242,10 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
 .c:   $(PATH)
 
 .h:   $(PATH)
+
+.hlp: $(PATH)
+
+.inf: $(PATH)
 
 .ipf: $(MYDIR)
 
@@ -291,7 +295,11 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .inf .o16 .obj .c16 .c .cpp .asm .h .
  $(MAPSYM) $[@
  $(RN) $^. $^:
 
-.ipf.inf: .symbolic
+.ipf.inf: .AUTODEPEND
+ $(SAY) Compiling IPF source file $[.... $(LOG)
+ $(HC) -i $[@ $^@
+
+.ipf.hlp: .AUTODEPEND
  $(SAY) Compiling IPF source file $[.... $(LOG)
  $(HC) -i $[@ $^@
 

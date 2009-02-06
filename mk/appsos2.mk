@@ -29,7 +29,7 @@ ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK, internalrelocs lib all_sha
 DEST    = os2
 !endif
 
-SUF = .msg .rsf
+SUF += .msg .rsf
 
 !include $(%ROOT)/mk/all.mk
 
@@ -79,6 +79,9 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
+!endif
+!ifdef HEAPSIZE
+ @%append $^@ OPTION HEAP=$(HEAPSIZE)
 !endif
 !ifdef RESOURCE
  @%append $^@ OPTION RESOURCE=$(RESOURCE)
