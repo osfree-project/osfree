@@ -243,7 +243,7 @@ unsigned long ModLoadModule(char *          pszName,
   }
   else
   { /*
-      if (!strcmp(pszModname, "KAL"))
+    if (!strcmp(pszModname, "KAL"))
     {
       IXFMODULEENTRY *e;
       char *name;

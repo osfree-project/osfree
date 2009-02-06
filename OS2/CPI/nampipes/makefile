@@ -3,7 +3,7 @@
 # (c) osFree project
 #
 
-PROJ     = nampipes.dll
+PROJ     = nampipes
 DESC     = Named Pipes API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

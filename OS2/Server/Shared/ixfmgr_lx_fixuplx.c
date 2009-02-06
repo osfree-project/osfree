@@ -78,7 +78,7 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
                 io_printf("import name      = %s\n", get_imp_name_rlc(rlc));
 
         if(((rlc->nr_flags & NRRTYP) == NRRINT) && (source_type_mask != NRSSEG))
-                io_printf("target off       = %04d\n", get_imp_ord1_rlc(rlc));
+                io_printf("target off       = %04X\n", get_imp_ord1_rlc(rlc));
 //                io_printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
 
         source_type_mask = rlc->nr_stype & NRSTYP;

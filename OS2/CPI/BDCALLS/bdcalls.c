@@ -2,19 +2,19 @@
 #include <os2.h>
 #include <bdcalls.h>
 
-APIRET16 APIENTRY16 NlsQueryBidiAtt ( LONG       Effect,
+APIRET16 APIENTRY16 Nls16QueryBidiAtt ( LONG       Effect,
                                        PRETINFO   RetInfo)
 {
   return NO_ERROR;
 }
 
-APIRET16 APIENTRY16 NlsSetBidiAtt ( LONG       Effect,
+APIRET16 APIENTRY16 Nls16SetBidiAtt ( LONG       Effect,
                                       PSETINFO   SetInfo)
 {
   return NO_ERROR;
 }
 
-APIRET16 APIENTRY16 NlsShapeBidiString ( ULONG      BidiAtts,
+APIRET16 APIENTRY16 Nls16ShapeBidiString ( ULONG      BidiAtts,
                                           ULONG      Reserved,
                                           PCHAR16    Source  ,
                                           PCHAR16    Target  ,
@@ -24,7 +24,7 @@ APIRET16 APIENTRY16 NlsShapeBidiString ( ULONG      BidiAtts,
   return NO_ERROR;
 }
 
-APIRET16 APIENTRY16 NlsEditShape ( ULONG      BidiAtts,
+APIRET16 APIENTRY16 Nls16EditShape ( ULONG      BidiAtts,
                                     LONG       Effect,
                                     PCSDRec    Source,
                                     PCSDRec    Target,
@@ -35,7 +35,7 @@ APIRET16 APIENTRY16 NlsEditShape ( ULONG      BidiAtts,
 }
 
 
-APIRET16 APIENTRY16 NlsInverseString( PCHAR16    Source,
+APIRET16 APIENTRY16 Nls16InverseString( PCHAR16    Source,
                                        PCHAR16    Target,
                                        ULONG      Length,
                                        ULONG      Increment)
@@ -44,7 +44,7 @@ APIRET16 APIENTRY16 NlsInverseString( PCHAR16    Source,
 }
 
 
-APIRET16 APIENTRY16 NlsConvertBidiNumerics ( ULONG    BidiAtts,
+APIRET16 APIENTRY16 Nls16ConvertBidiNumerics ( ULONG    BidiAtts,
                                               LONG     Reserved,
                                               PUCHAR16 Source,
                                               PUCHAR16 Target,
@@ -55,7 +55,7 @@ APIRET16 APIENTRY16 NlsConvertBidiNumerics ( ULONG    BidiAtts,
 }
 
 
-APIRET16 APIENTRY16 NlsSetBidiPrint ( ULONG  BidiAtts,
+APIRET16 APIENTRY16 Nls16SetBidiPrint ( ULONG  BidiAtts,
                                        ULONG  Length,
                                        USHORT FileHandle)
 {
@@ -63,7 +63,7 @@ APIRET16 APIENTRY16 NlsSetBidiPrint ( ULONG  BidiAtts,
 }
 
 
-APIRET16 APIENTRY16 NlsConvertBidiString ( PUCHAR16 Source,
+APIRET16 APIENTRY16 Nls16ConvertBidiString ( PUCHAR16 Source,
                                             PUCHAR16 Target,
                                             ULONG    Length,
                                             ULONG    Increment,
