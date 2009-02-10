@@ -38,7 +38,7 @@ extern "C" {
 #include <gcc_os2def.h>
 #endif
 
-#if 0
+#ifdef L4API_l4v2
 #ifndef __OS2__
 /* Process Information Block structure. */
 #ifdef INCL_DOSPROCESS
@@ -99,6 +99,15 @@ typedef struct _TIB {
 
 typedef TIB *PTIB;
 
+
+ 
+struct _RESULTCODES {
+    ULONG codeTerminate;
+    ULONG codeResult;
+}; 
+typedef struct _RESULTCODES RESULTCODES;
+typedef struct _RESULTCODES *PRESULTCODES;
+
 #endif
 
 #endif
@@ -138,11 +147,7 @@ typedef struct t_os2process {
 struct t_os2process * PrcCreate(IXFModule ixfModule);
 
 void PrcDestroy(struct t_os2process * proc);
-/*
-typedef struct _RESULTCODES {
-    ULONG codeTerminate;
-    ULONG codeResult;
-} RESULTCODES, *PRESULTCODES; */
+
 
 APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  long cbObjname,

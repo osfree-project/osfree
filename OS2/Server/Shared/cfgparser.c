@@ -111,6 +111,7 @@ unsigned long cfg_parse_line(char line[], int len)
     for(count=0;count<strlen(type[i].name);count++){
     /* Compares line and type[i].name and breaks on a
      * difference */
+     
       if(toupper(line[count])!=type[i].name[count]) {
               break;
       }

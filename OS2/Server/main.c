@@ -50,6 +50,13 @@
 #include <memmgr.h>
 #include <processmgr.h>
 
+#include <modlx.h>
+
+#if defined(L4API_l4v2)
+ #include <gcc_os2def.h>
+ #include "globals.h"
+#endif
+
 struct t_mem_area os2server_root_mem_area;
 
 #define  size_t unsigned long int
@@ -79,7 +86,12 @@ int main(int argc, const char **argv)
   void *addr;           // Pointer to CONFIG.SYS in memory
   unsigned long size;   // Size of CONFIG.SYS in memory
 
-  io_printf("osFree OS/2 Personality Server\n");
+  io_printf(" osFree OS/2 Personality Server\n");
+  
+  #if defined(L4API_l4v2)
+  init_globals();
+  l4_test_mem_alloc();
+  #endif
 
   // Initialize initial values from CONFIG.SYS
   rc=cfg_init_options();
@@ -107,11 +119,31 @@ int main(int argc, const char **argv)
   if (!options.protshell||(strlen(options.protshell)==0))
   {
     io_printf("No PROTSHELL statement in CONFIG.SYS\n");
-    return 87; /* ERROR_INVALID_PARAMETER; Not defined for Windows*/
+    return ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
+    /*ModLoadModule(char *          pszName,
+                            unsigned long   cbName,
+                            char const *    pszModname,
+                            unsigned long * phmod) */
+//     char errbuf[256];
+//     char *p_errbuf = (char *) &errbuf;
+//     unsigned long m=0;
+//     struct LX_module *found_module=0;
+//     ModLoadModule(p_errbuf, 255, "KAL", &m); /* Seems to compare module names case sensitive.*/
+//     ModLoadModule(p_errbuf, 255, "DOSCALLS", (int*)&found_module);
+//     ModLoadModule(p_errbuf, 255, "MSG", &m);
+//     if (found_module) {
+//          found_module=(struct LX_module *)(((IXFModule *)found_module)->FormatStruct);
+//     }
+//     int ret_flags, ret_offset, ret_obj, ret_modord, ret_type;
+//     int *fn_ptr=0;
+//     fn_ptr = get_entry((struct LX_module *)found_module, 387,
+//                      &ret_flags, &ret_offset, &ret_obj, &ret_modord, &ret_type);
+//     io_printf("fn_ptr: %p, ret_type:%d\n", fn_ptr, ret_type);
+    
     // Load and execute shell
     rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
-    if(rc) io_printf("execute error: %d\n", rc);
+    if(rc) io_printf("execute error: %d ('%s')\n", rc, options.protshell);
   }
 
   // Clean up config data

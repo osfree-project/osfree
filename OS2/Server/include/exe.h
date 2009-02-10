@@ -23,11 +23,13 @@ extern "C" {
 
 #define EXEID   0x5a4d
 
-#ifndef BYTE
+#ifndef BYTE_DEFINED
+#define BYTE_DEFINED
 typedef unsigned char   BYTE;
 #endif
 
-#ifndef WORD
+#ifndef WORD_DEFINED
+#define WORD_DEFINED
 typedef unsigned short  WORD;
 #endif
 

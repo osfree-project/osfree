@@ -37,9 +37,7 @@ typedef unsigned long APIRET;
 #include <modmgr.h>
 #include <ixfmgr.h>
 #include <cfgparser.h>
-#if defined(__WIN32__) || defined(__LINUX__)
-#include <os2/bseerr.h>
-#endif
+#include <os2errcodes.h>
 
 unsigned int find_module_path(const char * name, char * full_path_name);
 
@@ -159,7 +157,7 @@ unsigned long ModLoadModule(char *          pszName,
   /* A test under Linux with a specially compiled kal.dll (LX format) but with
      Open Watcoms C library for Linux. */
 
-  if (!strcmp(pszModname, "KAL"))
+  if (!strcasecmp(pszModname, "KAL"))
   {
     // KAL module always has handle 1
     //*phmod=1;
@@ -171,7 +169,7 @@ unsigned long ModLoadModule(char *          pszName,
   prev = (struct module_rec *) module_root.next;
   while(prev)
   {
-    if(strcmp(pszModname, prev->mod_name)==0)
+    if(strcasecmp(pszModname, prev->mod_name)==0)
     {
       if(prev->load_status == LOADING)
       {
@@ -323,8 +321,15 @@ register_module(const char * name, void * mod_struct)
 #ifdef __LINUX__
 #include <dirent.h>
 #else
+#ifdef L4API_l4v2
+ /* #include <dirent.h> */
+#else
 #include <direct.h>
 #endif
+#endif
+
+/* On L4/Fiasco there is problems with opendir/open/close and such (not implemented) */
+#ifndef L4API_l4v2 
 typedef struct dirent tdirentry;
 
 /*
@@ -361,6 +366,7 @@ int find_case_file(char *file_to_find, char *path, char *buffer_of_found_file, i
     closedir(dir);
     return 0;
 }
+#endif
 
 // This function searches LIBPATH option. Only OS/2 path formats are supported.
 
@@ -396,6 +402,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
     strcat(file_to_find, name);
     strcat(file_to_find, ".dll");
     /*io_printf("find_case_file(), %s, %s\n", file_to_find, p);*/
+    #ifndef L4API_l4v2
     if(find_case_file(file_to_find, p, str_buf, B_LEN)) {
         io_printf("Found file: %s (%s) in %s\n", file_to_find, str_buf, p);
         p_buf[0] = 0;
@@ -403,7 +410,8 @@ unsigned int find_module_path(const char * name, char * full_path_name)
         strcat(p_buf, sep);
         strcat(p_buf, str_buf); /* Case corrected for file, Needed on Linux. */
     }
-
+    #endif
+    
     f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
     if(f)
     {

@@ -41,8 +41,8 @@
 //#define INCL_DOSPROCESS
 //#include <bsetib.h>
 
-#if defined(__WIN32__) || defined(__LINUX__)
 #include <os2errcodes.h>
+#if defined(__WIN32__) /* || defined(__LINUX__) */
 #include <gcc_os2def.h>
 typedef struct _TIB2 {
     ULONG  tib2_ultid;
@@ -480,9 +480,15 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   /* Print info about used memory loaded modules. */
   //print_used_mem(&tiny_process->root_mem_area);
-  if(rc == NO_ERROR)
+  if(rc == NO_ERROR) {
     /* Starts to execute the process. */
+    io_printf("Executing exe...\n");
+    #if defined(L4API_l4v2)
+    l4_exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
+    #endif
     exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
+    io_printf("Done executing exe.\n");
+  }
 
   PrcDestroy(tiny_process); /* Removes the process.
              Maybe use garbage collection here? Based on reference counter?

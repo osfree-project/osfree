@@ -69,9 +69,20 @@
 #define EXPENTRY  _System
 #define APIENTRY  _System
 #else
-#ifndef APIENTRY
-#define APIENTRY
+#ifdef L4API_l4v2
+ #define APIENTRY 
 #endif
+#endif
+
+#ifdef L4API_l4v2
+#define ERROR_INVALID_PARAMETER 87
+#define NO_ERROR                0
+#define ERROR_ENVVAR_NOT_FOUND	203
+#define PAG_READ		0x0001
+#define PAG_WRITE		0x0002
+#define PAG_EXECUTE		0x0004
+#define PAG_GUARD		0x0008
+#define PAG_COMMIT		0x0010
 #endif
 
 #define CHAR     char
@@ -85,7 +96,8 @@ typedef unsigned long   APIRET;
 typedef unsigned short  APIRET16;
 
 typedef unsigned char   UCHAR, *PUCHAR;
-#ifndef BYTE
+#ifndef BYTE_DEFINED
+#define BYTE_DEFINED
 typedef char            BYTE, *PBYTE, *NPBYTE;
 #endif
 typedef unsigned short  USHORT, *PUSHORT;
@@ -95,7 +107,8 @@ typedef unsigned long   ULONG, *PULONG;
 // Från os2medef.h
 //#ifndef __WORDBYTEDWORD__
   #define __WORDBYTEDWORD__
-  #ifndef WORD
+  #ifndef WORD_DEFINED
+    #define WORD_DEFINED
     typedef USHORT WORD;
   #endif
   #ifndef DWORD

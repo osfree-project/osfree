@@ -163,8 +163,8 @@ load_lx(FILE* fh, struct LX_module * lx_mod)
 struct LX_module *
 load_lx_stream(char * stream_fh, int str_size, struct LX_module * lx_mod) {
         lx_mod->lx_fseek = &lx_fseek_stream; /* Copy functionpointer which does fseek on
-                                                                                        memory buffer. An attempt to streamline
-                                                                                        access to booth disk files and memory buffers.*/
+                                                memory buffer. An attempt to streamline
+                                                access to booth disk files and memory buffers.*/
         lx_mod->lx_fread = &lx_fread_stream;
         lx_mod->lx_file_stream = stream_fh;
         lx_mod->lx_stream_size = str_size;
@@ -319,7 +319,7 @@ int load_lx_loader_section(struct LX_module * lx_mod)
 
 
 
-        /* Läser fixup-delen. */
+        /* Reads fixup part. */
 int load_lx_fixup_section(struct LX_module * lx_mod)
 {
   lx_mod->fixup_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_fixupsize);
@@ -609,8 +609,9 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                 bbuf[0] = magic[0];
                 bbuf[1] = magic[1];
                 bbuf[2] = 0;
-                //io_printf("magic: %s \n", (char *)&bbuf);
-                //io_printf("get_entry( lx_mod: %p, entry_ord_to_search: %d \n",lx_mod, entry_ord_to_search);
+                /*io_printf("magic: %s \n", (char *)&bbuf);
+                  io_printf("get_entry( lx_mod: %p, entry_ord_to_search: %d \n",
+                              lx_mod, entry_ord_to_search); */
         }
         else {
                 //io_printf("Testing get_entry.\n");
@@ -622,10 +623,14 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
         /*io_printf("entry_table: %p \n", entry_table);*/
 
-//        io_printf("get_entry: entry_ord_to_search: %d, b32_cnt: %d, b32_type: %d, b32_obj: %d\n", entry_ord_to_search,
-//                        entry_table->b32_cnt, entry_table->b32_type, entry_table->b32_obj);
+      /*io_printf(
+          "get_entry: entry_ord_to_search: %d, b32_cnt: %d, b32_type: %d, b32_obj: %d\n",
+                          entry_ord_to_search,
+                         entry_table->b32_cnt, entry_table->b32_type, entry_table->b32_obj);
+         */
 
-        /*io_printf("EMPTY: %d, ENTRYFWD: %d, _32BIT_ENTRY_SIZE: %d \n", EMPTY, ENTRYFWD, _32BIT_ENTRY_SIZE);*/
+        /*io_printf("EMPTY: %d, ENTRYFWD: %d, _32BIT_ENTRY_SIZE: %d \n", 
+          EMPTY, ENTRYFWD, _32BIT_ENTRY_SIZE);*/
 
         unused_entry = 0;
         while(entry_ord_index <= entry_ord_to_search) {
@@ -634,9 +639,11 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                         entry_ord_index += entry_table->b32_cnt;
                         entry_table = (struct b32_bundle *)&cptr_ent_tbl[UNUSED_ENTRY_SIZE+unused_entry];
                         unused_entry += UNUSED_ENTRY_SIZE;
-                        //io_printf("EMPTY, entry_table: %p\n", entry_table);
+                        io_printf("EMPTY, entry_table: %p\n", entry_table);
                 }
-                //io_printf("entry_ord_index: %d, entry_ord_to_search: %d\n", entry_ord_index, entry_ord_to_search);
+                io_printf("entry_ord_index: %d (0x%x), entry_ord_to_search: %d (0x%x)\n", 
+                  entry_ord_index,entry_ord_index, 
+                  entry_ord_to_search,entry_ord_to_search); 
                 if(entry_ord_to_search < entry_ord_index) {
                                 *ret_flags = 0; // Unused entry ==0
                                 *ret_offset = 0;
@@ -660,8 +667,8 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                         case EMPTY:;
                     case ENTRYFWD:;
                     case ENTRY32: break;
-                        default: //io_printf("Invalid entry type! %d, entry_table: %p\n",
-                                         //entry_table->b32_type, entry_table);
+                        default: io_printf("Invalid entry type! %d, entry_table: %p\n",
+                                         entry_table->b32_type, entry_table);
                                 *ret_flags = 0;
                                 *ret_offset = 0;
                                 *ret_obj = 0;
@@ -719,7 +726,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
 
                         cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                         entry_table= (struct b32_bundle *)cptr_ent_tbl;
-                        //io_printf("ENTRY32, entry_table: %p\n", entry_table);
+                        io_printf("ENTRY32, entry_table: %p\n", entry_table);
                 }
 
                 if((entry_ord_to_search >= entry_ord_index)
@@ -742,11 +749,11 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 }
                                 cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;
-                        //io_printf("entry_post: %p \n", entry_post);
-                        //io_printf("Forward Entry: Flags=0x%x, Proc name offset or ordinal=%lu, Module ordinal number: %d \n",
-                        //                entry_post->e32_flags,
-                        //                entry_post->e32_variant.e32_fwd.value,
-                        //                entry_post->e32_variant.e32_fwd.modord);
+                        io_printf("entry_post: %p \n", entry_post);
+                        io_printf("Forward Entry: Flags=0x%x, Proc name offset or ordinal=%lu, Module ordinal number: %d \n",
+                                        entry_post->e32_flags,
+                                        entry_post->e32_variant.e32_fwd.value,
+                                        entry_post->e32_variant.e32_fwd.modord);
                                  /* Flags */
                         *ret_flags = entry_post->e32_flags;
                          /* Procedure Name Offset or Import Ordinal Number */

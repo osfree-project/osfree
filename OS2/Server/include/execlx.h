@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc);
+void l4_exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc);
 
 int test_elfexecf(const char* path);
 

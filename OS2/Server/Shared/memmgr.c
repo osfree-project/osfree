@@ -24,6 +24,8 @@
 
 /* struct t_mem_area root_area; */
 
+unsigned long int round_up_to_4KiB(unsigned long int i);
+
 void init_memmgr(struct t_mem_area *root_area) {
         root_area->start = 0;
         root_area->size = 0;

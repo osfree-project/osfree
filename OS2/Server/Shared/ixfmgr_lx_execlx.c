@@ -185,6 +185,59 @@ void do_mmap_code_stack(struct LX_module * lx_exe_mod) {
 
 #ifndef SDIOS
 
+#if defined(L4API_l4v2)
+// L4 headers
+
+#include <l4/env/cdefs.h>
+#include <l4/sys/types.h>
+
+#include <l4/env/system.h>
+#include <l4/env/errno.h>
+#include <l4/sys/syscalls.h>
+#include <l4/log/l4log.h>
+#include <l4/l4rm/l4rm.h>
+#include <l4/util/util.h>
+#include <l4/env/env.h>
+#include <l4/names/libnames.h>
+#include <l4/generic_ts/generic_ts.h>
+
+
+void l4_exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc)
+{
+
+                void * my_execute;
+                unsigned long int tmp_data_mmap;
+                unsigned long int tmp_ptr_data_mmap_16;
+                unsigned long int tmp_ptr_data_mmap_21;
+                unsigned int esp_data;
+                unsigned int ebp_data;
+                unsigned long int tmp_ptr_data_mmap;
+
+
+        struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
+
+        struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
+
+        unsigned long eip = get_eip(lx_exe_mod) + kod_obj->o32_base;
+        unsigned long esp = get_esp(lx_exe_mod);
+
+        void * main_ptr = (void *)eip;
+        void * data_mmap = (void *)stack_obj->o32_base;
+        
+        l4_taskid_t taskid;
+
+        int task_status = l4ts_allocate_task2(&taskid);
+        int r = l4ts_create_task( &taskid,  main_ptr,  data_mmap, 
+                                  0, 0, 
+                                  L4ENV_DEFAULT_PRIO, "MyOSFreeTask", 0);
+                        /* getmodulename(lx_exe_mod) */
+       /* l4ts_create_task(l4_taskid_t *taskid, l4_addr_t entry, l4_addr_t stack,
+                 l4_uint32_t mcp,  const l4_taskid_t *pager, 
+                 l4_int32_t prio,  const char *resname, l4_uint32_t flags); */
+}
+
+#endif /* L4API_l4v2 */
+
 
 void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc)
 {

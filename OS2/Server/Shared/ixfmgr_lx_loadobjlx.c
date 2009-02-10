@@ -183,8 +183,15 @@ unsigned int vm_alloc_obj_lx(struct LX_module * lx_exe_mod, struct o32_obj * lx_
 // Under OS/2 return always unique address
   #if defined(__LINUX__) || defined(__WIN32__)
 	mmap_obj = malloc(lx_obj->o32_size);
+  /* void * l4_alloc_mem(int base, int size, int flags) */
   #else
-	DosAllocMem(&mmap_obj, lx_obj->o32_size, PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);
+    #ifdef L4API_l4v2
+        #include <l4_alloc_mem.h>
+        mmap_obj = l4_alloc_mem(lx_obj->o32_base, lx_obj->o32_size,
+                                 PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);
+    #else
+        DosAllocMem(&mmap_obj, lx_obj->o32_size, PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);
+    #endif
   #endif
 #endif
 	return (unsigned int) mmap_obj;
@@ -549,7 +556,9 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
 		     &ret_flags, (int*)&ret_offset, &ret_obj, &ret_modord, &ret_type);
   io_printf(" get_entry1: forward_found_module=0x%x, ordinal:%d, entry type:%d, entry:%d\n",
 	     found_module, ret_offset, ret_type, fn_ptr);
-
+  /* import ordinal -> forward import ordinal  
+      import_ord        ret_offset    */
+   
   /* Forward Entry */
   /* A Forward Entry refers to another module and entry point which itself
      can refer to another module and entrypoint.
@@ -565,18 +574,24 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
       MSG.5 (DosPutMessage)  ->  DOSCALLS.387
 				   ^
 				   Error it checks for DOSCALLS.5
+      NOTE! This is possible when the function ordinals inside a dll are UNSORTED (only one
+      unsorted item is enough to cause the error). 
+      Troublesome code is in ixfmgr_lx_modlx.c:576:get_entry()
   */
 
   if((ret_type & ENTRYFWD)==ENTRYFWD)
   {
-    int frw_flags=0, frw_offset=0, frw_obj=0, frw_modord=0, frw_type=0;
-    int frw_mod_nr;
+    int frw_flags=ret_flags, frw_offset=ret_offset, frw_obj=ret_obj, frw_modord=ret_modord, frw_type=ret_type;
+    int frw_ord;
     int forward_counter;
     //io_printf(" Forward Entry.\n");
     forward_found_module=found_module;
 
     org_mod_name = get_imp_mod_name(found_module, ret_modord);
-    frw_mod_nr = ret_offset;
+    io_printf("get_entry, import_ord:%d, ret_offset:%d, ret_type:%d\n",  
+               import_ord, ret_offset, ret_type);
+    frw_ord = ret_offset;
+    /*****  ret_offset  ->  frw_ord      ***************/
     forward_counter=1;
 
     //frw_mod_name = (char *) &frw_buf_mod_name;
@@ -642,25 +657,37 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
 	}
 #endif
 	return 0;
-      }
-      io_printf(" frw_type=%d, frw_modord=%d, frw_mod_nr=%d\n", frw_type, frw_modord, frw_mod_nr);
+      }           /* ERROR, frw_ord has an ORDINAL! Not a module index!
+                   frw_ord  index of module name in imported module table  
+                   mod_nr     */
+      io_printf(" frw_type=%d, frw_modord=%d(0x%x), frw_ord=%d(0x%x)\n", frw_type, 
+                 frw_modord, frw_modord, frw_ord, frw_ord);
+      /* If the next ordinal lookup returns no found ordinal, save previous info and return that
+         instead. Or/and just call this function recursively instead of return? 
+         A forward entry is a traversal on modules and should probably be put in a separate 
+         function. */
 
-      frw_fn_ptr = get_entry(forward_found_module, frw_mod_nr,
-			      &frw_flags, &frw_offset, &frw_obj, &frw_modord, &frw_type);
-      io_printf(" get_entry2: forward_found_module=0x%x, ordinal:%d, entry type:%d, entry:%d\n",
-		 forward_found_module, frw_offset, frw_type, frw_fn_ptr);
-      frw_mod_nr = frw_offset;
+      
+      frw_fn_ptr = get_entry(forward_found_module, frw_ord,
+                  &frw_flags, &frw_offset, &frw_obj, &frw_modord, &frw_type);
+      io_printf(" get_entry: forward_found_module=0x%x, ordinal:%d, entry type:%d, entry:%d\n",
+         forward_found_module, frw_ord, frw_type, frw_fn_ptr );
+      io_printf("get_entry 2, frw_ord:%d, frw_offset:%d \n",  frw_ord, frw_offset);
+      frw_ord = frw_offset;
+      /***** var rename:  frw_offset  ->  frw_ord      ***************/
       forward_counter++;
       /*io_printf("## }while((frw_type & ... forward_counter=%d\n", forward_counter);*/
     }while((frw_type & ENTRYFWD)==ENTRYFWD && (forward_counter<1024));
     found_module = forward_found_module;
 
     cont_native_entry:; /* A label that is used from inside the do..while-loop. */
-    ret_flags=frw_flags;  ret_offset=frw_offset; ret_obj=frw_obj;
+    ret_flags=frw_flags;   ret_offset=frw_offset; ret_obj=frw_obj;
     ret_modord=frw_modord; ret_type=frw_type;
     fn_ptr = frw_fn_ptr;
-    io_printf(" frw_modord=%d, frw_mod_nr=%d, frw_type:%d, ENTRYFWD:%d, ENTRY32:%d\n",
-		   frw_modord, frw_mod_nr, frw_type, ENTRYFWD, ENTRY32);
+
+    io_printf(" frw_modord=%d, frw_ord=%d, frw_type:%d, ENTRYFWD:%d, ENTRY32:%d\n", 
+           frw_modord, frw_ord, frw_type, ENTRYFWD, ENTRY32);
+           /*   ENTRYFWD:4, ENTRY32:3   */
     //io_printf(" Done with Forward Entry running. (%d) \n", forward_counter);
   }
 
