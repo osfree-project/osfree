@@ -1,6 +1,4 @@
-(****************************** Module Header ******************************
-*
-* Module Name: PMSHL.H
+(***************************************************************************
 *
 * OS/2 Presentation Manager Shell constants, types, messages and
 * function declarations include file.
@@ -50,5 +48,6 @@ type PHSWITCH=^HSWITCH;
 
 uses winswitchlistcommon;
 uses winswitchlist;
+uses winprogramlist;
 
 end.

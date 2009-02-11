@@ -40,6 +40,8 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)kbd.h &
      $(OUT)$(SEP)os2$(SEP)mou.h &
      $(OUT)$(SEP)os2$(SEP)bseerr.h &
+     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
+     $(OUT)$(SEP)os2$(SEP)dosexcptfunc.h &
      $(OUT)$(SEP)os2$(SEP)basemid.h &
      $(OUT)$(SEP)os2$(SEP)bsetib.h &
      $(OUT)$(SEP)os2$(SEP)dosdebug.h &
@@ -48,6 +50,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)dosnls.h &
      $(OUT)$(SEP)os2$(SEP)dosnmpipes.h &
      $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h &
+     $(OUT)$(SEP)os2$(SEP)dossesmgr.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgr.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h &
@@ -124,6 +127,8 @@ $(OUT)$(SEP)os2$(SEP)dosnmpipes.h: os2$(SEP)dosnmpipes.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)dosmvdm.uni
 
+$(OUT)$(SEP)os2$(SEP)dossesmgr.h: os2$(SEP)dossesmgr.uni
+
 $(OUT)$(SEP)os2$(SEP)dosnls.h: os2$(SEP)dosnls.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
@@ -145,6 +150,8 @@ $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)dosfilemgrcommon.uni
 $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h: os2$(SEP)dosmemmgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosexceptions.h: os2$(SEP)dosexceptions.uni
+
+$(OUT)$(SEP)os2$(SEP)dosexcptfunc.h: os2$(SEP)dosexcptfunc.uni
 
 $(OUT)$(SEP)os2$(SEP)dosresources.h: os2$(SEP)dosresources.uni
 

@@ -1,8 +1,5 @@
 module bsedos;
 
-uses dosprocesscommon;
-uses dosprocess;
-
 (*************************************************************************\
 * CCHMAXPATH is the maximum fully qualified path name length including  *
 * the drive letter, colon, backslashes and terminating NULL.            *
@@ -15,6 +12,8 @@ const CCHMAXPATH=260;
 \*************************************************************************)
 const CCHMAXPATHCOMP=256;
 
+uses dosprocesscommon;
+uses dosprocess;
 uses dosfilemgrcommon;
 uses dosmemmgrcommon;
 uses dossemaphorescommon;
@@ -37,88 +36,69 @@ uses dosmvdm;
 uses dosspinlock;
 uses bdcalls;
 
+(*** Pipe and queue support *)
+
+
+      type HQUEUE=LHANDLE;
+      type PHQUEUE=^HQUEUE;
+      type REQUESTDATA=structure
+                pid: PID;
+                ulData: ULONG;
+        end;
+      type PREQUESTDATA=^REQUESTDATA;
+
+      const QUE_FIFO              =0;
+      const QUE_LIFO              =1;
+      const QUE_PRIORITY          =2;
+      const QUE_NOCONVERT_ADDRESS =0;
+      const QUE_CONVERT_ADDRESS   =4;
+
+
+function  DosCreatePipe(phfRead: PHFILE;
+                                     phfWrite: PHFILE;
+                                     cb: ULONG): APIRET;
+
+function  DosCloseQueue(hq: HQUEUE): APIRET;
+
+function  DosCreateQueue(phq: PHQUEUE;
+                                      priority: ULONG;
+                                      pszName: PCSZ): APIRET;
+
+function  DosOpenQueue(ppid: PPID;
+                                    phq: PHQUEUE;
+                                    pszName: PCSZ): APIRET;
+
+function  DosPeekQueue(hq: HQUEUE;
+                                    pRequest: PREQUESTDATA;
+                                    pcbData: PULONG;
+                                    ppbuf: PPVOID;
+                                    element: PULONG;
+                                    nowait: BOOL32;
+                                    ppriority: PBYTE;
+                                    hsem: HEV): APIRET;
+
+function  DosPurgeQueue(hq: HQUEUE): APIRET;
+
+function  DosQueryQueue(hq: HQUEUE;
+                                     pcbEntries: PULONG): APIRET;
+
+function  DosReadQueue(hq: HQUEUE;
+                                    pRequest: PREQUESTDATA;
+                                    pcbData: PULONG;
+                                    ppbuf: PPVOID;
+                                    element: ULONG;
+                                    wait: BOOL32;
+                                    ppriority: PBYTE;
+                                    hsem: HEV): APIRET;
+
+function  DosWriteQueue(hq: HQUEUE;
+                                      request: ULONG;
+                                      cbData: ULONG;
+                                      pbData: PVOID;
+                                      priority: ULONG): APIRET;
+
+
+
 end.
-
-
-/*** Pipe and queue support */
-
-#ifdef INCL_DOSQUEUES
-   #if (defined(INCL_DOSFILEMGR) || !defined(INCL_NOCOMMON))
-
-      typedef LHANDLE HQUEUE;  /* hq */
-      typedef HQUEUE  *PHQUEUE;
-      typedef struct _REQUESTDATA     /* reqqdata */
-      {
-         PID         pid;
-         ULONG       ulData;
-      } REQUESTDATA;
-      typedef REQUESTDATA *PREQUESTDATA;
-
-      #define QUE_FIFO              0L
-      #define QUE_LIFO              1L
-      #define QUE_PRIORITY          2L
-      #define QUE_NOCONVERT_ADDRESS 0L
-      #define QUE_CONVERT_ADDRESS   4L
-
-
-      APIRET APIENTRY  DosCreatePipe(PHFILE phfRead,
-                                     PHFILE phfWrite,
-                                     ULONG cb);
-
-      APIRET APIENTRY  DosCloseQueue(HQUEUE hq);
-
-#ifdef __cplusplus
-      APIRET APIENTRY  DosCreateQueue(PHQUEUE phq,
-                                      ULONG priority,
-                                      PCSZ  pszName);
-#else
-      APIRET APIENTRY  DosCreateQueue(PHQUEUE phq,
-                                      ULONG priority,
-                                      PSZ pszName);
-#endif
-
-#ifdef __cplusplus
-      APIRET APIENTRY  DosOpenQueue(PPID ppid,
-                                    PHQUEUE phq,
-                                    PCSZ  pszName);
-#else
-      APIRET APIENTRY  DosOpenQueue(PPID ppid,
-                                    PHQUEUE phq,
-                                    PSZ pszName);
-#endif
-
-      APIRET APIENTRY  DosPeekQueue(HQUEUE hq,
-                                    PREQUESTDATA pRequest,
-                                    PULONG pcbData,
-                                    PPVOID ppbuf,
-                                    PULONG element,
-                                    BOOL32 nowait,
-                                    PBYTE ppriority,
-                                    HEV hsem);
-
-      APIRET APIENTRY  DosPurgeQueue(HQUEUE hq);
-
-      APIRET APIENTRY  DosQueryQueue(HQUEUE hq,
-                                     PULONG pcbEntries);
-
-      APIRET APIENTRY  DosReadQueue(HQUEUE hq,
-                                    PREQUESTDATA pRequest,
-                                    PULONG pcbData,
-                                    PPVOID ppbuf,
-                                    ULONG element,
-                                    BOOL32 wait,
-                                    PBYTE ppriority,
-                                    HEV hsem);
-
-      APIRET APIENTRY  DosWriteQueue(HQUEUE hq,
-                                     ULONG request,
-                                     ULONG cbData,
-                                     PVOID pbData,
-                                     ULONG priority);
-
-   #else /* INCL_DOSFILEMGR || !INCL_NOCOMMON */
-      #error PHFILE not defined - define INCL_DOSFILEMGR or undefine INCL_NOCOMMON
-   #endif /* INCL_DOSFILEMGR || !INCL_NOCOMMON */
-#endif /* INCL_DOSQUEUES */
 
 

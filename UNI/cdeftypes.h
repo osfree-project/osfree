@@ -9,6 +9,9 @@
 #define INCL_BSE
 #define INCL_BSEDOS
 #define INCL_CDEFTYPES2
+#define INCL_HEVDEF
+#define INCL_KBD
+#define INCL_VIO
 
 #define INCL_DOSSEMAPHORESCOMMON
 #define INCL_WINWINDOWMGRCOMMON
@@ -22,10 +25,16 @@
 #define INCL_DOSMEMMGRCOMMON
 #define INCL_BSEMEMF
 #define INCL_DOSPROCESS
+#define INCL_DOSEXCEPTIONS
+#define INCL_BSEXCPT
+#define INCL_DOSEXCPTFUNC
+#define INCL_DOSSESMGR
 #define INCL_DOSPROCESSCOMMON
 #define INCL_DOSNMPIPES
 #define INCL_BSETIB
 #define INCL_PMWIN
+#define INCL_PMSHL
+#define INCL_WINPROGRAMLIST
 
 #ifdef INCL_DOSNMPIPES
 #define INCL_DOS
@@ -79,6 +88,10 @@
 /* Aliases (alias modifier of uses) */
 
 #ifdef INCL_VIO
+  #define INCL_SUB
+#endif
+
+#ifdef INCL_KBD
   #define INCL_SUB
 #endif
 

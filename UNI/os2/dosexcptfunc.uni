@@ -1,0 +1,29 @@
+module dosexcptfunc;
+
+   function DosSetExceptionHandler(pERegRec: PEXCEPTIONREGISTRATIONRECORD): APIRET;
+
+   function DosUnsetExceptionHandler(pERegRec: PEXCEPTIONREGISTRATIONRECORD): APIRET;
+
+   function DosRaiseException(pexcept: PEXCEPTIONREPORTRECORD): APIRET;
+
+   function DosSendSignalException(apid: PID;
+                                   exception: ULONG): APIRET;
+
+   function DosUnwindException(phandler: PEXCEPTIONREGISTRATIONRECORD;
+                               pTargetIP: PVOID;
+                               pERepRec: PEXCEPTIONREPORTRECORD): APIRET;
+
+   function DosSetSignalExceptionFocus(flag: BOOL32;
+                                       pulTimes: PULONG): APIRET;
+
+   function DosEnterMustComplete(pulNesting: PULONG): APIRET;
+
+   function DosExitMustComplete(pulNesting: PULONG): APIRET;
+
+   function DosAcknowledgeSignalException(ulSignalNum: ULONG): APIRET;
+
+   function DosQueryThreadContext(atid: TID;
+                                  level: ULONG;
+                                  pcxt: PCONTEXTRECORD): APIRET;
+
+end.

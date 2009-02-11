@@ -272,16 +272,16 @@ type PCONTEXTRECORD=^CONTEXT;
 
 const EXCEPTION_MAXIMUM_PARAMETERS =4;  (* Enough for all system exceptions. *)
 
-type PEXCEPTIONREPORTRECORD=^EXCEPTIONREPORTRECORD;
 type EXCEPTIONREPORTRECORD=structure
    ExceptionNum: ULONG;                (* exception number *)
    fHandlerFlags: ULONG;
-   NestedExceptionReportRecord: PEXCEPTIONREPORTRECORD;
+   NestedExceptionReportRecord: PVOID (*PEXCEPTIONREPORTRECORD*);
    ExceptionAddress: PVOID;
    cParameters: ULONG;                 (* Size of Exception Specific Info *)
    ExceptionInfo: array[EXCEPTION_MAXIMUM_PARAMETERS] of ULONG;
                                         (* Exception Specfic Info *)
   end;
+type PEXCEPTIONREPORTRECORD=^EXCEPTIONREPORTRECORD;
 
 
 (*
@@ -292,19 +292,20 @@ type EXCEPTIONREPORTRECORD=structure
  *)
 
 
-type function _ERR(per: PEXCEPTIONREPORTRECORD;
+
+type EXCEPTIONREGISTRATIONRECORD=structure
+   prev_structure: PVOID (*^EXCEPTIONREGISTRATIONRECORD*); (* * volatile; *)
+   ExceptionHandler: PVOID (*^_ERR*); (* volatile *)
+  end;
+
+type PEXCEPTIONREGISTRATIONRECORD=^EXCEPTIONREGISTRATIONRECORD;
+
+type _ERR=function(per: PEXCEPTIONREPORTRECORD;
                             perr: ^EXCEPTIONREGISTRATIONRECORD;
                             pcr: PCONTEXTRECORD;
                             p: PVOID): APIRET;
 
 type ERR=^_ERR;
-
-type EXCEPTIONREGISTRATIONRECORD=structure
-   prev_structure: ^EXCEPTIONREGISTRATIONRECORD; (* * volatile; *)
-   ExceptionHandler: ^_ERR; (* volatile *)
-  end;
-
-type PEXCEPTIONREGISTRATIONRECORD=^EXCEPTIONREGISTRATIONRECORD;
 
 (* End of exception chain marker. *)
 

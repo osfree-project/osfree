@@ -1,5 +1,18 @@
 module winprogramlist;
 
+
+      (*** maximum path length *********************************************)
+      const MAXPATHL= 128;
+
+      (*** root group handle ***********************************************)
+      const SGH_ROOT    =  -1;
+
+      type HPROGARRAY=structure
+          ahprog: array[1] of HPROGRAM;
+        end;
+      type PHPROGARRAY=^HPROGARRAY;
+
+
    type PROGCATEGORY=ULONG;       (* progc *)
 
    type PPROGCATEGORY=^PROGCATEGORY;
@@ -34,5 +47,140 @@ module winprogramlist;
    const PROG_WIN_GAME             =22;
    const PROG_DOS_MODE             =23;
    const PROG_RESERVED             =255;
+
+      type PROGTYPE=structure
+         progc: PROGCATEGORY;
+         fbVisible: ULONG;
+        end;
+      type PPROGTYPE=^PROGTYPE;
+
+
+      (*** visibility flag for PROGTYPE structure **************************)
+      const SHE_VISIBLE         = $00;
+      const SHE_INVISIBLE       = $01;
+      const SHE_RESERVED        = $FF;
+
+      (*** Protected group flag for PROGTYPE structure *********************)
+      const SHE_UNPROTECTED     = $00;
+      const SHE_PROTECTED       = $02;
+
+
+
+      (*** Structures associated with 'Prf' calls **************************)
+      type PROGDETAILS=structure    (* progde *)
+         Length: ULONG;         (* set this to sizeof(PROGDETAILS)  *)
+         progt: PROGTYPE;
+         pszTitle: PSZ;       (* any of the pointers can be NULL  *)
+         pszExecutable: PSZ;
+         pszParameters: PSZ;
+         pszStartupDir: PSZ;
+         pszIcon: PSZ;
+         pszEnvironment: PSZ; (* this is terminated by  /0/0      *)
+         swpInitial: SWP;     (* this replaces XYWINSIZE          *)
+      end;
+      type  PPROGDETAILS=^PROGDETAILS;
+
+      type PROGTITLE=structure             (* progti *)
+         hprog: HPROGRAM;
+         progt: PROGTYPE;
+         pszTitle: PSZ;
+        end;
+      type PPROGTITLE=^PROGTITLE;
+
+      (*** Program List API Function Definitions ***************************)
+
+
+      (*** Program List API available 'Prf' calls **************************)
+
+      function PrfQueryProgramTitles(hini: HINI;
+                                           hprogGroup: HPROGRAM;
+                                           pTitles: PPROGTITLE;
+                                           cchBufferMax: ULONG;
+                                           pulCount:PULONG): ULONG;
+
+      (*********************************************************************)
+      (*  NOTE: string information is concatanated after the array of      *)
+      (*        PROGTITLE structures so you need to allocate storage       *)
+      (*        greater than sizeof(PROGTITLE)*cPrograms to query programs *)
+      (*        in a group.                                                *)
+      (*                                                                   *)
+      (*  PrfQueryProgramTitles recommended usage to obtain titles of all  *)
+      (*  programs in a group (Hgroup=SGH_ROOT is for all groups):         *)
+      (*                                                                   *)
+      (*  BufLen = PrfQueryProgramTitles(Hini, Hgroup,                     *)
+      (*                                  (PPROGTITLE)NULL, 0, &Count);    *)
+      (*                                                                   *)
+      (*  Alocate buffer of  Buflen                                        *)
+      (*                                                                   *)
+      (*  Len = PrfQueryProgramTitles(Hini, Hgroup, (PPROGTITLE)pBuffer,   *)
+      (*                               BufLen, pCount);                    *)
+      (*                                                                   *)
+      (*********************************************************************)
+
+      function PrfAddProgram(hini: HINI;
+                                      pDetails: PPROGDETAILS;
+                                      hprogGroup: HPROGRAM): HPROGRAM;
+
+      function PrfChangeProgram(hini: HINI;
+                                         hprog: HPROGRAM;
+                                         pDetails: PPROGDETAILS): BOOL;
+
+      function PrfQueryDefinition(hini: HINI;
+                                           hprog: HPROGRAM;
+                                           pDetails: PPROGDETAILS;
+                                           cchBufferMax: ULONG): ULONG;
+
+      (*********************************************************************)
+      (*  NOTE: string information is concatanated after the PROGDETAILS   *)
+      (*        field structure so you need to allocate storage greater    *)
+      (*        than sizeof(PROGDETAILS) to query programs                 *)
+      (*                                                                   *)
+      (*  PrfQueryDefinition recomended usage:                             *)
+      (*                                                                   *)
+      (*  bufferlen = PrfQueryDefinition(Hini,Hprog,(PPROGDETAILS)NULL,0)  *)
+      (*                                                                   *)
+      (*  Alocate buffer of bufferlen bytes                                *)
+      (*  set Length field (0 will be supported)                           *)
+      (*                                                                   *)
+      (*  (PPROGDETAILS)pBuffer->Length=sizeof(PPROGDETAILS)               *)
+      (*                                                                   *)
+      (*  len = PrfQueryDefinition(Hini, Hprog, (PPROGDETAILS)pBuffer,     *)
+      (*      bufferlen)                                                   *)
+      (*********************************************************************)
+
+      function PrfRemoveProgram(hini: HINI;
+                                         hprog: HPROGRAM): BOOL;
+
+      function PrfQueryProgramHandle(hini: HINI;
+                                              pszExe: PSZ;
+                                              phprogArray: PHPROGARRAY;
+                                              cchBufferMax: ULONG;
+                                              pulCount: PULONG): ULONG;
+
+      function PrfCreateGroup(hini: HINI;
+                                       pszTitle: PSZ;
+                                       chVisibility: UCHAR): HPROGRAM;
+
+      function PrfDestroyGroup(hini: HINI;
+                                        hprogGroup: HPROGRAM): BOOL;
+
+      function PrfQueryProgramCategory(hini: HINI; pszExe: PSZ): PROGCATEGORY;
+      function WinStartApp(hwndNotify: HWND;
+                                pDetails: PPROGDETAILS;
+                                pszParams: PSZ;
+                                Reserved: PVOID;
+                                fbOptions: ULONG): HAPP;
+
+      (*** bit values for Options parameter ********************************)
+      const SAF_VALIDFLAGS  = $001F;
+
+      const SAF_INSTALLEDCMDLINE  = $0001;     (* use installed parameters *)
+      const SAF_STARTCHILDAPP     = $0002;     (* related application      *)
+      const SAF_MAXIMIZED         = $0004;     (* Start App maximized *)
+      const SAF_MINIMIZED         = $0008;     (* Start App minimized, if !SAF_MAXIMIZED *)
+      const SAF_BACKGROUND        = $0010;     (* Start app in the background *)
+
+
+      function WinTerminateApp(happ: HAPP): BOOL;
 
 end.
