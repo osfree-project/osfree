@@ -48,7 +48,7 @@ const RXSUBROUTINE    =1;              (* Program called as Subroutin*)
 const RXFUNCTION      =2;              (* Program called as Function *)
 
 (***    Subcommand Interface defines*)
-#ifdef INCL_RXSUBCOM
+//#ifdef INCL_RXSUBCOM
 
 
 (***    Drop Authority for RXSUBCOM interface *)
@@ -76,10 +76,10 @@ const RXSUBCOM_NOCANDROP   = 40;       (* Name not droppable          *)
 const RXSUBCOM_LOADERR     = 50;       (* Could not load function     *)
 const RXSUBCOM_NOPROC      =127;       (* RXSUBCOM routine - not found*)
 
-#endif (* INCL_RXSUBCOM for defines *)
+//#endif (* INCL_RXSUBCOM for defines *)
 
 (***    Shared Variable Pool Interface defines *)
-#ifdef INCL_RXSHV
+//#ifdef INCL_RXSHV
 
 (***    Function Codes for Variable Pool Interface (shvcode) *)
 
@@ -111,7 +111,7 @@ const RXSHV_BADF         = $80;       (* Invalid funct code (shvcode)*)
 (***    Structure of Shared Variable Request Block (SHVBLOCK) *)
 
 type SHVBLOCK=structure            (* shvb *)
-    shvnext: ^SHVBLOCK;       (* pointer to the next block   *)
+    shvnext: PVOID;       (* pointer to the next block   *)
     shvname: RXSTRING;       (* Pointer to the name buffer  *)
     shvvalue: RXSTRING;      (* Pointer to the value buffer *)
     shvnamelen: ULONG;    (* Length of the name value    *)
@@ -122,10 +122,11 @@ type SHVBLOCK=structure            (* shvb *)
 
 type PSHVBLOCK=^SHVBLOCK;
 
-#endif (* INCL_RXSHV for defines *)
+
+//#endif (* INCL_RXSHV for defines *)
 
 (***    External Function Interface *)
-#ifdef INCL_RXFUNC
+//#ifdef INCL_RXFUNC
 
 (***    Registration Type Identifiers for Available Function Table *)
 
@@ -144,10 +145,10 @@ const RXFUNC_MODNOTFND    = 40;        (* Funct Dll Module Not Found *)
 const RXFUNC_ENTNOTFND    = 50;        (* Funct Entry Point Not Found*)
 const RXFUNC_NOTINIT      = 60;        (* API not initialized        *)
 const RXFUNC_BADTYPE      = 70;        (* Bad function type          *)
-#endif (* INCL_RXFUNC for defines *)
+//#endif (* INCL_RXFUNC for defines *)
 
 (***   System Exits defines *)
-#ifdef INCL_RXSYSEXIT
+//#ifdef INCL_RXSYSEXIT
 
 (***    Drop Authority for Rexx Exit interface *)
 
@@ -213,20 +214,20 @@ const    RXTEREXT= 1;                 (* subcode value.              *)
 const RXNOOFEXITS= 11;                (* 1 + largest exit number.    *)
 
 type PEXIT=PUCHAR;                 (* ptr to exit parameter block *)
-#endif (* INCL_RXSYSEXIT for defines *)
+//#endif (* INCL_RXSYSEXIT for defines *)
 
 (***    Asynchronous Request Interface defines *)
-#ifdef INCL_RXARI
+//#ifdef INCL_RXARI
 
 (***    Return Codes from Asynchronous Request interface *)
 
 const RXARI_OK               =    0;  (* Interface completed         *)
 const RXARI_NOT_FOUND        =    1;  (* Target program not found    *)
 const RXARI_PROCESSING_ERROR =    2;  (* Error processing request    *)
-#endif (* INCL_RXARI for defines *)
+//#endif (* INCL_RXARI for defines *)
 
 (***    Macro Space Interface defines *)
-#ifdef INCL_RXMACRO
+//#ifdef INCL_RXMACRO
 
 (***    Registration Search Order Flags *)
 
@@ -246,7 +247,7 @@ const RXMACRO_SIGNATURE_ERROR    =6;  (* Incorrect format for load   *)
 const RXMACRO_SOURCE_NOT_FOUND   =7;  (* Requested cannot be found   *)
 const RXMACRO_INVALID_POSITION   =8;  (* Invalid search order pos    *)
 const RXMACRO_NOT_INIT           =9;  (* API not initialized         *)
-#endif (* INCL_RXMACRO for defines *)
+//#endif (* INCL_RXMACRO for defines *)
 
 (*********************************************************************)
 (*                                                                   *)
@@ -269,435 +270,330 @@ function RexxStart(ArgC: LONG;                        (* Num of args passed to r
 
 
 (***    Subcommand Interface *)
-#ifdef INCL_RXSUBCOM
+//#ifdef INCL_RXSUBCOM
 
 
 (* This type simplifies coding of a Subcommand handler.           *)
-type RexxSubcomHandler=function RexxSubcomHandler(PRXSTRING,
-                                PUSHORT,
-                                PRXSTRING): ULONG;
+type RexxSubcomHandler=function(str: PRXSTRING;
+                                pus: PUSHORT;
+                                prxstr: PRXSTRING): ULONG;
 
 (***   RexxRegisterSubcomDll -- Register a DLL entry point           *)
 (***   as a Subcommand handler *)
 
-function RexxRegisterSubcomDll(PCSZ ,                          (* Name of subcom handler     *)
-         PCSZ ,                          (* Name of DLL                *)
-         PCSZ ,                          (* Name of procedure in DLL   *)
-         PUCHAR,                       (* User area                  *)
-         ULONG  );                     (* Drop authority.            *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREGISTERSUBCOMDLL  RexxRegisterSubcomDll
+function RexxRegisterSubcomDll(Name : PCSZ ;                          (* Name of subcom handler     *)
+         DllName: PCSZ;                          (* Name of DLL                *)
+         ProcName: PCSZ;                          (* Name of procedure in DLL   *)
+         UserArea: PUCHAR;                       (* User area                  *)
+         Drop: ULONG  ): APIRET;                     (* Drop authority.            *)
 
 
 (***   RexxRegisterSubcomExe -- Register an EXE entry point          *)
 (***   as a Subcommand handler *)
 
-function RexxRegisterSubcomExe(PCSZ ,                          (* Name of subcom handler     *)
-         PFN,                          (* address of handler in EXE  *)
-         PUCHAR);                      (* User area                  *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREGISTERSUBCOMEXE  RexxRegisterSubcomExe
+function RexxRegisterSubcomExe(Name: PCSZ;                          (* Name of subcom handler     *)
+         Addr: PFN;                          (* address of handler in EXE  *)
+         UserArea: PUCHAR): APIRET;                      (* User area                  *)
 
 
 
 (***    RexxQuerySubcom - Query an environment for Existance *)
 
-function RexxQuerySubcom(PCSZ ,                          (* Name of the Environment    *)
-         PCSZ ,                          (* DLL Module Name            *)
-         PUSHORT,                      (* Stor for existance code    *)
-         PUCHAR );                     (* Stor for user word         *)
-
-(***   Uppercase Entry Point Name *)
-const REXXQUERYSUBCOM  RexxQuerySubcom
-
-
+function RexxQuerySubcom(EnvName: PCSZ;                          (* Name of the Environment    *)
+         DLLName: PCSZ;                          (* DLL Module Name            *)
+         Storage: PUSHORT;                      (* Stor for existance code    *)
+         UserWord: PUCHAR): APIRET;                     (* Stor for user word         *)
 
 (***    RexxDeregisterSubcom - Drop registration of a Subcommand     *)
 (***    environment *)
 
-function RexxDeregisterSubcom(PCSZ ,                          (* Name of the Environment    *)
-         PCSZ  );                        (* DLL Module Name            *)
-
-(***   Uppercase Entry Point Name *)
-const REXXDEREGISTERSUBCOM  RexxDeregisterSubcom
+function RexxDeregisterSubcom(EnvName: PCSZ;                          (* Name of the Environment    *)
+         DllName: PCSZ): APIRET;                        (* DLL Module Name            *)
 
 
-(* XLATON *)
-#endif (* INCL_RXSUBCOM *)
+//#endif (* INCL_RXSUBCOM *)
 
 
 
 (***    Shared Variable Pool Interface *)
-#ifdef INCL_RXSHV
+//#ifdef INCL_RXSHV
 
-(* XLATOFF *)
 
 (***    RexxVariablePool - Request Variable Pool Service *)
 
-function RexxVariablePool(PSHVBLOCK);                  (* Pointer to list of SHVBLOCKs *)
-
-(***   Uppercase Entry Point Name *)
-const REXXVARIABLEPOOL  RexxVariablePool
-(* XLATON *)
+function RexxVariablePool(pshv: PSHVBLOCK): APIRET;                  (* Pointer to list of SHVBLOCKs *)
 
 
-#endif (* INCL_RXSHV *)
+//#endif (* INCL_RXSHV *)
 
 
 (***    External Function Interface *)
-#ifdef INCL_RXFUNC
-
-(* XLATOFF *)
+//#ifdef INCL_RXFUNC
 
 (* This type simplifies coding of an External Function.           *)
-type ULONG APIENTRY RexxFunctionHandler(PUCHAR,
-                                  ULONG,
-                                  PRXSTRING,
-                                  PSZ,
-                                  PRXSTRING);
+type RexxFunctionHandler=function(a: PUCHAR;
+                                  b: ULONG;
+                                  c: PRXSTRING;
+                                  d: PSZ;
+                                  e: PRXSTRING): ULONG;
 
 (***    RexxRegisterFunctionDll - Register a function in the AFT *)
 
-function RexxRegisterFunctionDll(PCSZ ,                           (* Name of function to add    *)
-        PCSZ ,                           (* Dll file name (if in dll)  *)
-        PCSZ );                          (* Entry in dll               *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREGISTERFUNCTIONDLL  RexxRegisterFunctionDll
+function RexxRegisterFunctionDll(FuncName: PCSZ;                           (* Name of function to add    *)
+        DllName: PCSZ;                           (* Dll file name (if in dll)  *)
+        DllEntry: PCSZ): APIRET;                          (* Entry in dll               *)
 
 
 (***    RexxRegisterFunctionExe - Register a function in the AFT *)
 
-function RexxRegisterFunctionExe(PCSZ ,                           (* Name of function to add    *)
-        PFN);                          (* Entry point in EXE         *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREGISTERFUNCTIONEXE  RexxRegisterFunctionExe
-
-
+function RexxRegisterFunctionExe(FuncName: PCSZ;                           (* Name of function to add    *)
+        Addr: PFN): APIRET;                          (* Entry point in EXE         *)
 
 (***    RexxDeregisterFunction - Delete a function from the AFT *)
 
-function RexxDeregisterFunction(PCSZ  );                         (* Name of function to remove *)
-
-(***   Uppercase Entry Point Name *)
-const REXXDEREGISTERFUNCTION  RexxDeregisterFunction
-
+function RexxDeregisterFunction(FuncName: PCSZ): APIRET;                         (* Name of function to remove *)
 
 
 (***    RexxQueryFunction - Scan the AFT for a function *)
 
-function RexxQueryFunction(PCSZ  );                         (* Name of function to find   *)
-
-(***   Uppercase Entry Point Name *)
-const REXXQUERYFUNCTION  RexxQueryFunction
+function RexxQueryFunction(FuncName: PCSZ): APIRET;                         (* Name of function to find   *)
 
 
-
-(* XLATON *)
-
-
-#endif (* INCL_RXFUNC *)
+//#endif (* INCL_RXFUNC *)
 
 
 (***   System Exits *)
-#ifdef INCL_RXSYSEXIT
+//#ifdef INCL_RXSYSEXIT
 
 (***    Subfunction RXFNCCAL - External Function Calls *)
 
-type _Packed struct _RXFNC_FLAGS {          (* fl *)
-   unsigned rxfferr  : 1;              (* Invalid call to routine.   *)
-   unsigned rxffnfnd : 1;              (* Function not found.        *)
-   unsigned rxffsub  : 1;              (* Called as a subroutine     *)
-}  RXFNC_FLAGS ;
+type RXFNC_FLAGS=structure          (* fl *)
+   rxfferr: ULONG ;              (* Invalid call to routine.   *)
+   rxffnfnd: ULONG ;              (* Function not found.        *)
+   rxffsub: ULONG ;              (* Called as a subroutine     *)
+  end;
 
-type _Packed struct _RXFNCCAL_PARM {        (* fnc *)
-   RXFNC_FLAGS       rxfnc_flags ;     (* function flags             *)
-   PUCHAR            rxfnc_name;       (* Pointer to function name.  *)
-   USHORT            rxfnc_namel;      (* Length of function name.   *)
-   PUCHAR            rxfnc_que;        (* Current queue name.        *)
-   USHORT            rxfnc_quel;       (* Length of queue name.      *)
-   USHORT            rxfnc_argc;       (* Number of args in list.    *)
-   PRXSTRING         rxfnc_argv;       (* Pointer to argument list.  *)
-   RXSTRING          rxfnc_retc;       (* Return value.              *)
-}  RXFNCCAL_PARM;
+type RXFNCCAL_PARM=structure        (* fnc *)
+   rxfnc_flags: RXFNC_FLAGS ;     (* function flags             *)
+   rxfnc_name: PUCHAR;       (* Pointer to function name.  *)
+   rxfnc_namel: USHORT;      (* Length of function name.   *)
+   rxfnc_que: PUCHAR;        (* Current queue name.        *)
+   rxfnc_quel: USHORT;       (* Length of queue name.      *)
+   rxfnc_argc: USHORT;       (* Number of args in list.    *)
+   rxfnc_argv: PRXSTRING;       (* Pointer to argument list.  *)
+   rxfnc_retc: RXSTRING;       (* Return value.              *)
+  end;
 
 
 (***    Subfunction RXCMDHST -- Process Host Commands     *)
 
-type _Packed struct _RXCMD_FLAGS {          (* fl *)
-   unsigned rxfcfail : 1;              (* Command failed.            *)
-   unsigned rxfcerr  : 1;              (* Command ERROR occurred.    *)
-}  RXCMD_FLAGS;
+type RXCMD_FLAGS=structure          (* fl *)
+   rxfcfail: ULONG;              (* Command failed.            *)
+   rxfcerr: ULONG;              (* Command ERROR occurred.    *)
+  end;
 
-type struct _RXCMDHST_PARM {        (* rx *)
-   RXCMD_FLAGS       rxcmd_flags;      (* error/failure flags        *)
-   PUCHAR            rxcmd_address;    (* Pointer to address name.   *)
-   USHORT            rxcmd_addressl;   (* Length of address name.    *)
-   PUCHAR            rxcmd_dll;        (* dll name for command.      *)
-   USHORT            rxcmd_dll_len;    (* Length of dll name.        *)
-   RXSTRING          rxcmd_command;    (* The command string.        *)
-   RXSTRING          rxcmd_retc;       (* Pointer to return buffer   *)
-}  RXCMDHST_PARM;
+type RXCMDHST_PARM= structure        (* rx *)
+   rxcmd_flags: RXCMD_FLAGS;      (* error/failure flags        *)
+   rxcmd_address: PUCHAR;    (* Pointer to address name.   *)
+   rxcmd_addressl: USHORT;   (* Length of address name.    *)
+   rxcmd_dll: PUCHAR;        (* dll name for command.      *)
+   rxcmd_dll_len: USHORT;    (* Length of dll name.        *)
+   rxcmd_command: RXSTRING;    (* The command string.        *)
+   rxcmd_retc: RXSTRING;       (* Pointer to return buffer   *)
+  end;
 
 
 (***     Subfunction RXMSQPLL -- Pull Entry from Queue *)
 
-type struct _RXMSQPLL_PARM {        (* pll *)
-   RXSTRING          rxmsq_retc;       (* Pointer to dequeued entry  *)
+type RXMSQPLL_PARM=structure        (* pll *)
+             rxmsq_retc: RXSTRING;       (* Pointer to dequeued entry  *)
                                        (* buffer.  User allocated.   *)
-} RXMSQPLL_PARM;
+  end;
 
 
 (***    Subfunction RXMSQPSH -- Push Entry on Queue *)
 
-type _Packed struct _RXMSQ_FLAGS {          (* fl *)
-   unsigned rxfmlifo : 1;              (* Stack entry LIFO if set    *)
-}  RXMSQ_FLAGS;
+type RXMSQ_FLAGS=structure          (* fl *)
+   rxfmlifo: ULONG ;              (* Stack entry LIFO if set    *)
+  end;
 
-type _Packed struct _RXMSQPSH_PARM {        (* psh *)
-   RXMSQ_FLAGS       rxmsq_flags;      (* LIFO/FIFO flag             *)
-   RXSTRING          rxmsq_value;      (* The entry to be pushed.    *)
-}  RXMSQPSH_PARM;
+type RXMSQPSH_PARM=structure        (* psh *)
+          rxmsq_flags: RXMSQ_FLAGS;      (* LIFO/FIFO flag             *)
+          rxmsq_value: RXSTRING;      (* The entry to be pushed.    *)
+  end;
 
 
 (***    Subfunction RXMSQSIZ -- Return the Current Queue Size *)
 
-type struct _RXMSQSIZ_PARM {        (* siz *)
-   ULONG             rxmsq_size;       (* Number of Lines in Queue   *)
-}  RXMSQSIZ_PARM;
+type RXMSQSIZ_PARM=structure        (* siz *)
+       rxmsq_size: ULONG;       (* Number of Lines in Queue   *)
+  end;
 
 
 (***    Subfunction RXMSQNAM -- Set Current Queue Name *)
 
-type struct _RXMSQNAM_PARM {        (* nam *)
-   RXSTRING          rxmsq_name;       (* RXSTRING containing        *)
+type RXMSQNAM_PARM=structure        (* nam *)
+             rxmsq_name: RXSTRING;       (* RXSTRING containing        *)
                                        (* queue name.                *)
-}  RXMSQNAM_PARM;
+ end;
 
 
 (***    Subfunction RXSIOSAY -- Perform SAY Clause *)
 
-type struct _RXSIOSAY_PARM {        (* say *)
-   RXSTRING          rxsio_string;     (* String to display.         *)
-}  RXSIOSAY_PARM;
+type RXSIOSAY_PARM=structure        (* say *)
+       rxsio_string: RXSTRING;     (* String to display.         *)
+  end;
 
 
 (***    Subfunction RXSIOTRC -- Write Trace Output *)
 
-type struct _RXSIOTRC_PARM { (* trcparm *)
-   RXSTRING          rxsio_string;     (* Trace line to display.     *)
-}  RXSIOTRC_PARM;
+type RXSIOTRC_PARM=structure (* trcparm *)
+        rxsio_string: RXSTRING;     (* Trace line to display.     *)
+  end;
 
 
 (***    Subfunction RXSIOTRD -- Read Input from the Terminal *)
 
-type struct _RXSIOTRD_PARM {        (* trd *)
-   RXSTRING          rxsiotrd_retc;    (* RXSTRING for output.       *)
-}  RXSIOTRD_PARM;
+type RXSIOTRD_PARM=structure        (* trd *)
+       rxsiotrd_retc: RXSTRING;    (* RXSTRING for output.       *)
+  end;
 
 
 (***    Subfunction RXSIODTR -- Read Debug Input from the Terminal *)
 
-type struct _RXSIODTR_PARM {        (* dtr *)
-   RXSTRING          rxsiodtr_retc;    (* RXSTRING for output.       *)
-}  RXSIODTR_PARM;
+type RXSIODTR_PARM=structure        (* dtr *)
+       rxsiodtr_retc: RXSTRING;    (* RXSTRING for output.       *)
+  end;
 
 
 (***    Subfunction RXHSTTST -- Test for HALT Condition *)
 
-type struct _RXHLT_FLAGS {          (* fl Halt flag               *)
-   unsigned rxfhhalt : 1;              (* Set if HALT occurred.      *)
-}  RXHLT_FLAGS;
+type RXHLT_FLAGS=structure          (* fl Halt flag               *)
+    rxfhhalt: ULONG;              (* Set if HALT occurred.      *)
+  end;
 
-type struct _RXHLTTST_PARM {        (* tst *)
-   RXHLT_FLAGS rxhlt_flags;            (* Set if HALT occurred       *)
-}  RXHLTTST_PARM;
+type RXHLTTST_PARM=structure        (* tst *)
+       rxhlt_flags: RXHLT_FLAGS;            (* Set if HALT occurred       *)
+  end;
 
 
 (***    Subfunction RXTRCTST -- Test for TRACE Condition *)
 
-type struct _RXTRC_FLAGS {          (* fl Trace flags             *)
-   unsigned rxftrace : 1;              (* Set to run external trace. *)
-}  RXTRC_FLAGS;
+type RXTRC_FLAGS=structure          (* fl Trace flags             *)
+       rxftrace: ULONG;              (* Set to run external trace. *)
+  end;
 
-type struct _RXTRCTST_PARM {        (* tst *)
-   RXTRC_FLAGS rxtrc_flags;            (* Set to run external trace  *)
-}  RXTRCTST_PARM;
+type RXTRCTST_PARM=structure        (* tst *)
+       rxtrc_flags: RXTRC_FLAGS;            (* Set to run external trace  *)
+  end;
 
-
-(* XLATOFF *)
 
 (* This type simplifies coding of an Exit handler.                *)
-type LONG APIENTRY RexxExitHandler(LONG,
-                             LONG,
-                             PEXIT);
+type RexxExitHandler=function(a: LONG;
+                              b: LONG;
+                              c: PEXIT): LONG;
 
 (***      RexxRegisterExitDll - Register a system exit. *)
 
-function RexxRegisterExitDll(PCSZ ,                          (* Name of the exit handler   *)
-         PCSZ ,                          (* Name of the DLL            *)
-         PCSZ ,                          (* Name of the procedure      *)
-         PUCHAR,                       (* User area                  *)
-         ULONG );                      (* Drop authority             *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREGISTEREXITDLL  RexxRegisterExitDll
+function RexxRegisterExitDll(Name: PCSZ;                          (* Name of the exit handler   *)
+         DllName: PCSZ;                          (* Name of the DLL            *)
+         ProcName: PCSZ;                          (* Name of the procedure      *)
+         UserArea: PUCHAR;                       (* User area                  *)
+         Drop: ULONG): APIRET;                      (* Drop authority             *)
 
 
 (***      RexxRegisterExitExe - Register a system exit. *)
 
-function RexxRegisterExitExe(PCSZ ,                          (* Name of the exit handler   *)
-         PFN,                          (* Address of exit handler    *)
-         PUCHAR);                      (* User area                  *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREGISTEREXITEXE  RexxRegisterExitExe
-
+function RexxRegisterExitExe(Name: PCSZ;                          (* Name of the exit handler   *)
+         pf: PFN,                          (* Address of exit handler    *)
+         UserArea: PUCHAR): APIRET;                      (* User area                  *)
 
 
 (***    RexxDeregisterExit - Drop registration of a system exit. *)
 
-function RexxDeregisterExit(PCSZ ,                          (* Exit name                  *)
-         PCSZ  ) ;                       (* DLL module name            *)
+function RexxDeregisterExit(Name: PCSZ;                          (* Exit name                  *)
+         DllName: PCSZ): APIRET;                       (* DLL module name            *)
 
-(***   Uppercase Entry Point Name *)
-const REXXDEREGISTEREXIT  RexxDeregisterExit
 
 
 
 (***    RexxQueryExit - Query an exit for existance. *)
 
-function RexxQueryExit(PCSZ ,                          (* Exit name                  *)
-         PCSZ ,                          (* DLL Module name.           *)
-         PUSHORT,                      (* Existance flag.            *)
-         PUCHAR );                     (* User data.                 *)
-
-(***   Uppercase Entry Point Name *)
-const REXXQUERYEXIT  RexxQueryExit
-(* XLATON *)
+function RexxQueryExit(Name: PCSZ;                          (* Exit name                  *)
+         DllName: PCSZ;                          (* DLL Module name.           *)
+         Flag: PUSHORT;                      (* Existance flag.            *)
+         UserData: PUCHAR): APIRET;                     (* User data.                 *)
 
 
-#endif (* INCL_RXSYSEXIT *)
+
+//#endif (* INCL_RXSYSEXIT *)
 
 
 (***    Asynchronous Request Interface *)
-#ifdef INCL_RXARI
-
-(* XLATOFF *)
+//#ifdef INCL_RXARI
 
 (***    RexxSetHalt - Request Program Halt *)
 
-function RexxSetHalt(PID,                         (* Process Id                  *)
-         TID);                        (* Thread Id                   *)
-
-(***   Uppercase Entry Point Name *)
-const REXXSETHALT  RexxSetHalt
+function RexxSetHalt(pid:PID;                         (* Process Id                  *)
+         tid: TID): APIRET;                        (* Thread Id                   *)
 
 
 (***    RexxSetTrace - Request Program Trace *)
 
-function RexxSetTrace(PID,                         (* Process Id                  *)
-         TID);                        (* Thread Id                   *)
-
-(***   Uppercase Entry Point Name *)
-const REXXSETTRACE  RexxSetTrace
-
+function RexxSetTrace(pid: PID;                         (* Process Id                  *)
+         tid: TID): APIRET;                        (* Thread Id                   *)
 
 (***    RexxResetTrace - Turn Off Program Trace *)
 
-function RexxResetTrace(PID,                         (* Process Id                  *)
-         TID);                        (* Thread Id                   *)
-
-(***   Uppercase Entry Point Name *)
-const REXXRESETTRACE  RexxResetTrace
-
-(* XLATON *)
+function RexxResetTrace(pid: PID;                         (* Process Id                  *)
+         tid: TID): APIRET;                        (* Thread Id                   *)
 
 
-#endif (* INCL_RXARI *)
+//#endif (* INCL_RXARI *)
 
 
 (***    Macro Space Interface *)
-#ifdef INCL_RXMACRO
+//#ifdef INCL_RXMACRO
 
-(* XLATOFF *)
 
 (***    RexxAddMacro - Register a function in the Macro Space        *)
 
-function RexxAddMacro(PCSZ ,                         (* Function to add or change   *)
-         PCSZ ,                         (* Name of file to get function*)
-         ULONG  );                    (* Flag indicating search pos  *)
-
-(***   Uppercase Entry Point Name *)
-const REXXADDMACRO  RexxAddMacro
-
-
+function RexxAddMacro(Func: PCSZ;                         (* Function to add or change   *)
+         Name: PCSZ;                         (* Name of file to get function*)
+         Flag: ULONG): APIRET;                    (* Flag indicating search pos  *)
 
 (***    RexxDropMacro - Remove a function from the Macro Space       *)
 
-function RexxDropMacro(PCSZ  );                        (* Name of function to remove *)
-
-(***   Uppercase Entry Point Name *)
-const REXXDROPMACRO  RexxDropMacro
-
+function RexxDropMacro(Name: PCSZ): APIRET;                        (* Name of function to remove *)
 
 
 (***    RexxSaveMacroSpace - Save Macro Space functions to a file    *)
 
-function RexxSaveMacroSpace(ULONG ,                      (* Argument count (0==save all) *)
-         PCSZ  *,                       (* List of funct names to save *)
-         PCSZ );                        (* File to save functions in   *)
-
-(***   Uppercase Entry Point Name *)
-const REXXSAVEMACROSPACE  RexxSaveMacroSpace
-
-
+function RexxSaveMacroSpace(argc: ULONG;                      (* Argument count (0==save all) *)
+         funcnames: ^PCSZ;                       (* List of funct names to save *)
+         FileName: PCSZ): APIRET;                        (* File to save functions in   *)
 
 (***    RexxLoadMacroSpace - Load Macro Space functions from a file  *)
 
-function RexxLoadMacroSpace(ULONG ,                      (* Argument count (0==load all) *)
-         PCSZ  *,                       (* List of funct names to load *)
-         PCSZ );                        (* File to load functions from *)
-
-(***   Uppercase Entry Point Name *)
-const REXXLOADMACROSPACE  RexxLoadMacroSpace
-
-
+function RexxLoadMacroSpace(Argc: ULONG;                      (* Argument count (0==load all) *)
+         FuncNames: ^PCSZ;                       (* List of funct names to load *)
+         FileName: PCSZ): APIRET;                        (* File to load functions from *)
 
 (***    RexxQueryMacro - Find a function's search-order position     *)
 
-function RexxQueryMacro(PCSZ ,                         (* Function to search for      *)
-         PUSHORT );                   (* Ptr for position flag return *)
-
-(***   Uppercase Entry Point Name *)
-const REXXQUERYMACRO  RexxQueryMacro
-
-
+function RexxQueryMacro(Func: PCSZ;                         (* Function to search for      *)
+         Ptr: PUSHORT): APIRET;                   (* Ptr for position flag return *)
 
 (***    RexxReorderMacro - Change a function's search-order          *)
 (***                            position                             *)
 
-function RexxReorderMacro(PCSZ ,                         (* Name of funct change order  *)
-         ULONG  );                    (* New position for function   *)
-
-(***   Uppercase Entry Point Name *)
-const REXXREORDERMACRO  RexxReorderMacro
-
-
+function RexxReorderMacro(Func: PCSZ;                         (* Name of funct change order  *)
+         Pos: ULONG): APIRET;                    (* New position for function   *)
 
 (***    RexxClearMacroSpace - Remove all functions from a MacroSpace *)
 
+function RexxClearMacroSpace(): APIRET;                      (* No Arguments.               *)
 
-function RexxClearMacroSpace(VOID );                      (* No Arguments.               *)
-
-(***   Uppercase Entry Point Name *)
-const REXXCLEARMACROSPACE  RexxClearMacroSpace
-
-(* XLATON *)
-
-#endif (* INCL_RXMACRO *)
+//#endif (* INCL_RXMACRO *)
 
 end.

@@ -10,9 +10,45 @@
 
 module pmshl;
 
+
+   (*** common types, constants and function declarations ******************)
+
+
+   (*** maximum title length ***********************************************)
+const MAXNAMEL = 60;
+
+
+   (*** program handle *****************************************************)
+type HPROGRAM=LHANDLE;       (* hprog *)
+type PHPROGRAM=^HPROGRAM;
+type HAPP=LHANDLE;
+
+
+   (*** ini file handle ****************************************************)
+type  HINI=LHANDLE;           (* hini *)
+type PHINI=^HINI;
+
+
 const HINI_PROFILE       =  0;
 const HINI_USERPROFILE   =  -1;
 const HINI_SYSTEMPROFILE =  -2;
+const HINI_USER=HINI_USERPROFILE;
+const HINI_SYSTEM=HINI_SYSTEMPROFILE;
+
+
+type PRFPROFILE=structure    (* prfpro *)
+        cchUserName: ULONG;
+        pszUserName: PSZ;
+        cchSysName: ULONG;
+        pszSysName: PSZ;
+   end;
+type PPRFPROFILE=^PRFPROFILE;
+
+
+type HSWITCH=LHANDLE;
+type PHSWITCH=^HSWITCH;
+
+uses winswitchlistcommon;
+uses winswitchlist;
 
 end.
-

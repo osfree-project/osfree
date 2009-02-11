@@ -1,0 +1,31 @@
+module winswitchlistcommon;
+
+      type SWCNTRL=structure
+              hwnd: HWND;
+              hwndIcon: HWND;
+              hprog: HPROGRAM;
+              idProcess: PID;
+              idSession: ULONG;
+              uchVisibility: ULONG;
+              fbJump: ULONG;
+              szSwtitle: array[MAXNAMEL+4] of CHAR;
+              bProgType: ULONG;
+      end;
+
+      type PSWCNTRL=^SWCNTRL;
+
+      (*** visibility flag for SWCNTRL structure ***************************)
+      const SWL_VISIBLE    = $04;
+      const SWL_INVISIBLE  = $01;
+      const SWL_GRAYED     = $02;
+
+      (*** jump flag for SWCNTRL structure *********************************)
+      const SWL_JUMPABLE    = $02;
+      const SWL_NOTJUMPABLE = $01;
+
+
+      (*** Switching Program functions *************************************)
+      function WinAddSwitchEntry(se: PSWCNTRL): HSWITCH;
+      function WinRemoveSwitchEntry(hs: HSWITCH): ULONG;
+
+end.

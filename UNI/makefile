@@ -9,7 +9,7 @@
 OUT = $(%ROOT)$(SEP)build$(SEP)include
 TARGETS = h
 
-subdirs = $(OUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2
+subdirs = $(OUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
 
 h: pre workaround $(OUT)$(SEP)osfree.h os2 dos
   @%null
@@ -62,8 +62,11 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)pm.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
      $(OUT)$(SEP)os2$(SEP)pmshl.h &
+     $(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h &
+     $(OUT)$(SEP)os2$(SEP)winswitchlist.h &
      $(OUT)$(SEP)os2$(SEP)pmwp.h &
      $(OUT)$(SEP)os2$(SEP)pmwin.h &
+     $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h &
@@ -156,9 +159,15 @@ $(OUT)$(SEP)os2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
 
 $(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
 
+$(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)winswitchlist.uni
+
+$(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h: os2$(SEP)winswitchlistcommon.uni
+
 $(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pmwp.uni
 
 $(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pmwin.uni
+
+$(OUT)$(SEP)shared$(SEP)rexxsaa.h: shared$(SEP)rexxsaa.uni
 
 $(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)winprogramlist.uni
 
@@ -180,6 +189,7 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .SUFFIXES:
 .SUFFIXES: .h .uni
 
+.uni: $(MYDIR)shared
 .uni: $(MYDIR)os2
 .uni: $(MYDIR)dos
 

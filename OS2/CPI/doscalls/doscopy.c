@@ -13,7 +13,6 @@
 
 */
 //#define INCL_OS2DEF
-#include <os2def.h>
 #define INCL_DOSFILEMGR
 #define INCL_ERRORS
 #include <os2.h>

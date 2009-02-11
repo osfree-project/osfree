@@ -1,6 +1,253 @@
 module pmwin;
 
 uses pmshl;
+
+function WinCreateWindow(hwndParent: HWND;
+                                   pszClass: PCSZ;
+                                   pszName: PCSZ;
+                                   flStyle: ULONG;
+                                   x: LONG;
+                                   y: LONG;
+                                   cx: LONG;
+                                   cy: LONG;
+                                   hwndOwner: HWND;
+                                   hwndInsertBehind: HWND;
+                                   id: ULONG;
+                                   pCtlData: PVOID;
+                                   pPresParams: PVOID): HWND;
+
+function WinEnableWindow(hwnd: HWND;
+                                 fEnable: BOOL): BOOL;
+
+function WinIsWindowEnabled(hwnd: HWND): BOOL;
+
+function WinEnableWindowUpdate(hwnd: HWND;
+                                        fEnable: BOOL): BOOL;
+
+function WinIsWindowVisible(hwnd: HWND): BOOL;
+
+function WinQueryWindowText(hwnd: HWND;
+                                     cchBufferMax: LONG;
+                                     pchBuffer: PCH): LONG;
+
+function WinSetWindowText(hwnd: HWND;
+                                  pszText: PCSZ): BOOL;
+
+function WinQueryWindowTextLength(hwnd: HWND): LONG;
+
+function WinWindowFromID(hwndParent: HWND;
+                                 id: ULONG): HWND;
+
+function WinIsWindow(hab: HAB;
+                             hwnd: HWND): BOOL;
+
+function WinQueryWindow(hwnd: HWND;
+                                cmd: LONG): HWND;
+
+function WinMultWindowFromIDs(hwndParent: HWND;
+                                       prghwnd: PHWND;
+                                       idFirst: ULONG;
+                                       idLast: ULONG): LONG;
+
+(*** WinQueryWindow() codes ************************************************)
+
+const QW_NEXT        = 0;
+const QW_PREV        = 1;
+const QW_TOP         = 2;
+const QW_BOTTOM      = 3;
+const QW_OWNER       = 4;
+const QW_PARENT      = 5;
+const QW_NEXTTOP     = 6;
+const QW_PREVTOP     = 7;
+const QW_FRAMEOWNER  = 8;
+
+function WinSetParent(hwnd: HWND;
+                             hwndNewParent: HWND;
+                             fRedraw: BOOL): BOOL;
+
+function WinIsChild(hwnd: HWND;
+                           hwndParent: HWND): BOOL;
+
+function WinSetOwner(hwnd: HWND;
+                            hwndNewOwner: HWND): BOOL;
+
+function WinQueryWindowProcess(hwnd: HWND;
+                                      ppid: PPID;
+                                      ptid: PTID): BOOL;
+
+function WinQueryObjectWindow(hwndDesktop: HWND): HWND;
+
+function WinQueryDesktopWindow(hab: HAB;
+                                      hdc: HDC): HWND;
+
+(*** Window positioning functions *)
+
+(* WinSetMultWindowPos() structure *)
+
+type SWP=structure
+      fl: ULONG;
+      cy: LONG;
+      cx: LONG;
+      y: LONG;
+      x: LONG;
+      hwndInsertBehind: HWND;
+      hwnd: HWND;
+      ulReserved1: ULONG;
+      ulReserved2: ULONG;
+  end;
+type PSWP=^SWP;
+
+function WinSetWindowPos(hwnd: HWND;
+                                 hwndInsertBehind: HWND;
+                                 x: LONG;
+                                 y: LONG;
+                                 cx: LONG;
+                                 cy: LONG;
+                                 fl: ULONG): BOOL;
+
+function WinSetMultWindowPos(hab: HAB;
+                                    pswp: PSWP;
+                                    cswp: ULONG): BOOL;
+
+function WinQueryWindowPos(hwnd: HWND;
+                                  pswp: PSWP): BOOL;
+
+(* Values returned from WM_ADJUSTWINDOWPOS and passed to WM_WINDOWPOSCHANGED *)
+
+const AWP_MINIMIZED              = $00010000;
+const AWP_MAXIMIZED              = $00020000;
+const AWP_RESTORED               = $00040000;
+const AWP_ACTIVATE               = $00080000;
+const AWP_DEACTIVATE             = $00100000;
+
+(* WinSetWindowPos() flags *)
+
+const SWP_SIZE                   = $0001;
+const SWP_MOVE                   = $0002;
+const SWP_ZORDER                 = $0004;
+const SWP_SHOW                   = $0008;
+const SWP_HIDE                   = $0010;
+const SWP_NOREDRAW               = $0020;
+const SWP_NOADJUST               = $0040;
+const SWP_ACTIVATE               = $0080;
+const SWP_DEACTIVATE             = $0100;
+const SWP_EXTSTATECHANGE         = $0200;
+const SWP_MINIMIZE               = $0400;
+const SWP_MAXIMIZE               = $0800;
+const SWP_RESTORE                = $1000;
+const SWP_FOCUSACTIVATE          = $2000;
+const SWP_FOCUSDEACTIVATE        = $4000;
+const SWP_NOAUTOCLOSE            = $8000;    (* Valid in PROGDETAILS struct only *)
+
+(* Window painting *)
+
+function WinUpdateWindow(hwnd: HWND): BOOL;
+
+function WinInvalidateRect(hwnd: HWND;
+                                 pwrc: PRECTL;
+                                 fIncludeChildren: BOOL): BOOL;
+
+function WinInvalidateRegion(hwnd: HWND;
+                                   hrgn: HRGN;
+                                   fIncludeChildren: BOOL): BOOL;
+
+
+(* Drawing helpers *)
+
+function WinInvertRect(hps: HPS;
+                              prcl: PRECTL): BOOL;
+
+function WinDrawBitmap(hpsDst: HPS;
+                             hbm: HBITMAP;
+                             pwrcSrc: PRECTL;
+                             pptlDst: PPOINTL;
+                             clrFore: LONG;
+                             clrBack: LONG;
+                             fl: ULONG): BOOL;
+
+(* WinDrawBitmap() flags *)
+
+const DBM_NORMAL                 = $0000;
+const DBM_INVERT                 = $0001;
+const DBM_HALFTONE               = $0002;
+const DBM_STRETCH                = $0004;
+const DBM_IMAGEATTRS             = $0008;
+const DBM_XOR                    = $0010;
+
+
+
+function WinDrawText(hps: HPS;
+                             cchText: LONG;
+                             lpchText: PCH;
+                             prcl: PRECTL;
+                             clrFore: LONG;
+                             clrBack: LONG;
+                             flCmd: ULONG): LONG;
+
+
+(*
+* WinDrawText()/WinDrawTabbedText() codes:
+* From DT_LEFT to DT_EXTERNALLEADING, the codes are designed to be OR'ed with
+* SS_TEXT to create variations of the basic text static item.
+*)
+const DT_LEFT                    = $00000000;
+const DT_QUERYEXTENT             = $00000002;
+const DT_UNDERSCORE              = $00000010;
+const DT_STRIKEOUT               = $00000020;
+const DT_TEXTATTRS               = $00000040;
+const DT_EXTERNALLEADING         = $00000080;
+const DT_CENTER                  = $00000100;
+const DT_RIGHT                   = $00000200;
+const DT_TOP                     = $00000000;
+const DT_VCENTER                 = $00000400;
+const DT_BOTTOM                  = $00000800;
+const DT_HALFTONE                = $00001000;
+const DT_MNEMONIC                = $00002000;
+const DT_WORDBREAK               = $00004000;
+const DT_ERASERECT               = $00008000;
+
+
+
+function WinDrawBorder(hps: HPS;
+                            prcl: PRECTL;
+                            cx: LONG;
+                            cy: LONG;
+                            clrFore: LONG;
+                            clrBack: LONG;
+                            flCmd: ULONG): BOOL;
+
+
+(* WinDrawBorder() flags *)
+
+const DB_PATCOPY                 = $0000;
+const DB_PATINVERT               = $0001;
+const DB_DESTINVERT              = $0002;
+const DB_AREAMIXMODE             = $0003;
+
+const DB_ROP                     = $0007;
+const DB_INTERIOR                = $0008;
+const DB_AREAATTRS               = $0010;
+const DB_STANDARD                = $0100;
+const DB_DLGBORDER               = $0200;
+
+
+
+(** Resource loading functions *)
+
+function WinLoadString(hab: HAB;
+                               hmod: HMODULE;
+                               id: ULONG;
+                               cchMax: LONG;
+                               pchBuffer: PCSZ): LONG;
+
+function  WinLoadMessage(hab: HAB;
+                                   hmod: HMODULE;
+                                   id: ULONG;
+                                   cchMax: LONG;
+                                   pchBuffer: PCSZ): LONG;
+
+
+
 uses winwindowmgrcommon;
 uses winmessagemgrcommon;
 uses winclipboard;
