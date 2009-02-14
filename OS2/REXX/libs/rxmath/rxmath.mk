@@ -19,6 +19,4 @@ DLL         = 1
 DLLOPT      = initinstance terminstance
 EXPORTS     = MATHLOADFUNCS.1 = mathloadfuncs
 
-DEST         = os2$(SEP)dll
-
 !include $(%ROOT)/mk/appsos2.mk
