@@ -29,12 +29,12 @@ struct module_rec {
 
 void dump_header_mz(struct exe hdr);
 void dump_header_lx(struct e32_exe hdr);
-void print_detailed_module_table();
-void print_module_table();
+void print_detailed_module_table(void);
+void print_module_table(void);
 
 struct module_rec * register_module(const char * name, void * mod_struct);
 
-unsigned long ModInitialize();
+unsigned long ModInitialize(void);
 
 unsigned long ModLoadModule(char *    pszName,
                             unsigned long   cbName,

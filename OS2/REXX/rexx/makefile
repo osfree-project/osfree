@@ -8,9 +8,9 @@
 # The link works with 32 bit.
 PROJ = rexx
 DESC = Classic REXX
-srcfiles     = $(p)rexx$(e) # $(p)debug$(e)
-srcfiles16   = $(p)rexx16$(e)
-ADD_COPT = -i=. -bd -s
+srcfiles     = $(p)rexx$(e) $(p)rexx16$(e) # $(p)debug$(e)
+#srcfiles16   = $(p)rexx16$(e)
+ADD_COPT     = -i=. -bd -s
 ADD_LINKOPT  = segment   type DATA shared lib clib3r.lib,math387r.lib,emu387.lib,rexx.lib #,clibdls.lib
 DLL          = 1
 OPTIONS      = manyautodata, caseexact, mixed1632, heapsize=40960, quiet
@@ -30,8 +30,8 @@ EXPORTS      = RexxStart.1, &
                RXTRACESET.11 RESIDENT, &
 # This function not found in any of OS/2 Toolkits
                RXBREAKCLEANUP.7 RESIDENT
-DLLOPT       = initglobal
-STACKSIZE    = 0x20000
+DLLOPT       = initinstance # initglobal
+STACKSIZE    = 81920
 DEST         = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

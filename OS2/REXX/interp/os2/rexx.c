@@ -25,6 +25,7 @@
 #include "configur.h"
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #define INCL_REXXSAA
 

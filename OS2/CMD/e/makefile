@@ -16,11 +16,11 @@ ADD_LINKOPT = lib os2386.lib, clib3r.lib
 #STUB       = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 !define WINDOWCOMPAT
 RESOURCE    = $(PATH)sty_main.res
-RCOPT       += -i=$(%WATCOM)$(SEP)h$(SEP)os2
+RCOPT       += -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI modules will be done
 INSTALL_ADD = 1
 DEST1       = os2$(SEP)help
-HEAPSIZE    = 10240k
-STACKSIZE   = 24576k
+HEAPSIZE    = 10240
+STACKSIZE   = 24576
 
 SUF         = .bmp .ico
 

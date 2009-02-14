@@ -50,13 +50,13 @@ void * native_get_func_ptr_ord_handle(int ord, void * native_mod_handle);
 void * native_get_func_ptr_str_modname(char * funcname, char * modname);
 void * native_get_func_ptr_handle_modname(char * funcname, void * native_mod_handle);
 void * native_load_module(char * name);
-struct native_module_rec * native_get_root();
+struct native_module_rec * native_get_root(void);
 struct native_module_rec * native_get_next(struct native_module_rec * el);
 char * native_get_name(struct native_module_rec * el);
 //struct LX_module * native_get_module(struct native_module_rec * el);
 void native_print_module_table(void);
 void set_native_libpath(char ** path, int nr);
-char ** get_native_libpath();
+char ** get_native_libpath(void);
 
 /*
 DosFreeModule(hk_module);       // Decrement the DLL usage count
