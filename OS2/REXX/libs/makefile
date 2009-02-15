@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = rexxutil rxmath # rxsock
+DIRS = rexxutil rxmath rxuls rxsock # rxregexp
 
 !include $(%ROOT)/mk/all.mk
 
