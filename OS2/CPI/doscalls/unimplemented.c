@@ -1,4 +1,7 @@
 #include <stdio.h>
+#define INCL_DOSNMPIPES
+#define INCL_DOSPROCESS
+#define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
 APIRET APIENTRY      DosICreateThread(void)
@@ -1845,7 +1848,8 @@ APIRET APIENTRY      DosFreeModule(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryAppType(void)
+APIRET APIENTRY      DosQueryAppType(PCSZ pszName,
+                                     PULONG pFlags)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -2008,22 +2012,24 @@ APIRET APIENTRY      DosFreeResource(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosSetExceptionHandler(void)
+APIRET APIENTRY      DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosUnsetExceptionHandler(void)
+APIRET APIENTRY      DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosRaiseException(void)
+APIRET APIENTRY      DosRaiseException(PEXCEPTIONREPORTRECORD pexcept)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosUnwindException(void)
+APIRET APIENTRY      DosUnwindException(PEXCEPTIONREGISTRATIONRECORD phandler,
+                                        PVOID pTargetIP,
+                                        PEXCEPTIONREPORTRECORD pERepRec)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -2130,22 +2136,24 @@ APIRET APIENTRY      Dos16SetDosProperty(void)
   return 0; }
 
 
-APIRET APIENTRY      DosSetSignalExceptionFocus(void)
+APIRET APIENTRY      DosSetSignalExceptionFocus(BOOL32 flag,
+                                                PULONG pulTimes)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosSendSignalException(void)
+APIRET APIENTRY      DosSendSignalException(PID apid,
+                                            ULONG exception)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosEnterMustComplete(void)
+APIRET APIENTRY      DosEnterMustComplete(PULONG pulNesting)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosExitMustComplete(void)
+APIRET APIENTRY      DosExitMustComplete(PULONG pulNesting)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -2313,7 +2321,7 @@ APIRET APIENTRY      DosReplaceModule(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosAcknowledgeSignalException(void)
+APIRET APIENTRY      DosAcknowledgeSignalException(ULONG ulSignalNum)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -3380,7 +3388,9 @@ APIRET APIENTRY      DosSysCtl(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryThreadContext(void)
+APIRET APIENTRY      DosQueryThreadContext(TID atid,
+                                           ULONG level,
+                                           PCONTEXTRECORD pcxt)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }

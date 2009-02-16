@@ -7,7 +7,7 @@
 PROJ     = doscalls
 DESC     = Control Program API
 srcfiles = $(p)msg$(e) $(p)doscopy$(e) $(p)unimplemented$(e) # $(p)doseditname$(e)
-ADD_COPT = -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(%ROOT)build$(SEP)include$(SEP)os2 -i=. # -i=..\include
+ADD_COPT = #-i=$(%ROOT)build$(SEP)include$(SEP)os2 -i=. # -i=..\include
 ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
 DLL     = 1
 DLLOPT  = initglobal

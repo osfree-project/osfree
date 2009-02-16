@@ -47,11 +47,11 @@ MYDIR = $(MYDIR:\=/)
 
 TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
 
-!ifneq ABSOLUTE_DEST
-!ifneq DEST
+!ifndef DEST
+DEST = $(FILESDIR)$(SEP)os2
+!else
 # DEST is relative from $(FILESDIR)
 DEST = $(FILESDIR)$(SEP)$(DEST)
-!endif
 !endif
 
 !ifneq DEST1

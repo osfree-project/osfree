@@ -100,7 +100,7 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
                             PSZ pszSource,
                             PSZ pszEdit,
                             PSZ pszTarget,
-                            ULONG cbTarget);
+                            ULONG cbTarget)
 { char *s;
 
   assert(len);

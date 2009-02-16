@@ -13,6 +13,8 @@ srcfiles = $(p)read$(e)
 ADD_COPT = -i=$(MYDIR) -i=$(PATH) -i=$(MYDIR)..$(SEP)include
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 
+#DEST = os2
+
 !include $(%ROOT)/mk/appsos2.mk
 
 $(PATH)read.obj: $(PATH)mbr.h
