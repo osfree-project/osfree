@@ -49,5 +49,6 @@ type PHSWITCH=^HSWITCH;
 uses winswitchlistcommon;
 uses winswitchlist;
 uses winprogramlist;
+uses winshelldata;
 
 end.

@@ -781,8 +781,6 @@ USHORT VioSetState (CPVOID pState, HVIO hvio);
 USHORT VioShowBuf (USHORT offLVB, USHORT cb, HVIO hvio);
 USHORT VioWrtCharStr (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
     HVIO hvio);
-USHORT VioWrtCharStrAtt (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
-    PBYTE pAttr, HVIO hvio);
 USHORT VioWrtNAttr (__const__ BYTE *pAttr, USHORT cb, USHORT usRow,
     USHORT usColumn, HVIO hvio);
 USHORT VioWrtNCell (__const__ BYTE *pCell, USHORT cb, USHORT usRow,

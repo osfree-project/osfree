@@ -271,11 +271,13 @@ function VioSetMode          (ModeInfo: PVIOMODEINFO; hvio: HVIO): USHORT;
 function VioWrtCellStr       (CellStr: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
 function VioWrtCharStr       (Str: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
 function VioWrtCharStrAttr   (Str: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; pAttr: PBYTE; Handle: HVIO): USHORT;
+function VioWrtCharStrAtt    (pch: PCCH; cb: USHORT; usRow: USHORT; usColumn: USHORT; pAttr: PBYTE; hvio: HVIO): USHORT;
 function VioWrtNAttr         (Attr: PBYTE; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
 function VioWrtNCell         (Cell: PBYTE; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
 function VioWrtNChar         (Char: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
 function VioWrtTTY           (Str: PCHAR; Count: USHORT; Handle: HVIO): USHORT;
 function VioGetState         (pState: PVOID; Handle: HVIO): USHORT;
 function VioSetState         (pState: PVOID; Handle: HVIO): USHORT;
+function VioGetConfig        (ConfigId: USHORT; pvioin: PVIOCONFIGINFO; hvio: HVIO): USHORT;
 
 end.

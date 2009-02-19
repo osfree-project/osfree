@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = Shared CMD CPI UtlAPI PM MM SOM REXX Server
+DIRS = Shared CPI CMD UtlAPI PM MM SOM REXX Server
 
 !include $(%ROOT)/mk/all.mk
 

@@ -1,0 +1,52 @@
+module winshelldata;
+
+(*** OS2.INI Access functions ****************************************)
+
+function PrfQueryProfileInt(hini: HINI;
+                                         pszApp: PCSZ;
+                                         pszKey: PCSZ;
+                                         sDefault: LONG): LONG;
+
+function PrfQueryProfileString(hini: HINI;
+                                            pszApp: PCSZ;
+                                            pszKey: PCSZ;
+                                            pszDefault: PCSZ;
+                                            pBuffer: PVOID;
+                                            cchBufferMax: ULONG): ULONG;
+
+function PrfWriteProfileString(hini: HINI;
+                                            pszApp: PCSZ;
+                                            pszKey: PCSZ;
+                                            pszData: PCSZ): BOOL;
+
+function PrfQueryProfileSize(hini: HINI;
+                                          pszApp: PCSZ;
+                                          pszKey: PCSZ;
+                                          pulReqLen: PULONG): BOOL;
+
+function PrfQueryProfileData(hini: HINI;
+                                          pszApp: PSZ;
+                                          pszKey: PSZ;
+                                          pBuffer: PVOID;
+                                          pulBuffLen: PULONG): BOOL;
+
+function PrfWriteProfileData(hini: HINI;
+                                          pszApp: PSZ;
+                                          pszKey: PSZ;
+                                          pData: PVOID;
+                                          cchDataLen: ULONG): BOOL;
+
+function PrfOpenProfile(hab: HAB;
+                                     pszFileName: PSZ): HINI;
+
+function PrfCloseProfile(hini: HINI): BOOL;
+
+function PrfReset(hab: HAB; pPrfProfile: PPRFPROFILE): BOOL;
+
+function PrfQueryProfile(hab: HAB;
+                                      pPrfProfile: PPRFPROFILE): BOOL;
+
+(*** public message, broadcast on WinReset ***************************)
+const PL_ALTERED=$x008E;  (* WM_SHELLFIRST + 0E *)
+
+end.
