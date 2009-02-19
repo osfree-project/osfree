@@ -213,7 +213,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -263,6 +263,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .asm
 
 .cpp: $(MYDIR)
 
+.cc: $(MYDIR)
+
 .h:   $(MYDIR)
 
 .asm: $(MYDIR)
@@ -284,6 +286,10 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .asm
  $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
+ $(SAY) Compiling $[. $(LOG)
+ $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+
+.cc.obj: .AUTODEPEND
  $(SAY) Compiling $[. $(LOG)
  $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 

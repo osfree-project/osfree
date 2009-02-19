@@ -28,7 +28,7 @@
  *  9 Dec 99 - CC: Linux places libelf.h in <libelf/libelf.h>
  * 14 Feb 00 - Mike: Added MC68K source and target
  * 14 Mar 00 - Cristina: added idAGP (abstract global pointer id)
- * 15 Mar 00 - Cristina: added enumerated type AXP (abstract x pointer) 
+ * 15 Mar 00 - Cristina: added enumerated type AXP (abstract x pointer)
  * 27 Sep 00 - Mike: Added SRCINTPROMSZ
  * 29 Nov 00 - Mike: Added "the line" to enum INDEX; defined idMachSpec
  * 30 Nov 00 - Mike: idTrunc -> idTruncu, idTruncs
@@ -224,7 +224,10 @@ typedef unsigned int        Word;      /* 32 bits */
 typedef unsigned int        ADDRESS;   /* 32-bit unsigned */
 #elif defined MSDOS
 typedef unsigned short      Word;      /* 16 bits */
-typedef unsigned long       ADDRESS;   /* 32-bit unsigned */ 
+typedef unsigned long       ADDRESS;   /* 32-bit unsigned */
+#elif defined __OS2__
+typedef unsigned int        Word;      /* 16 bits */
+typedef unsigned int        ADDRESS;   /* 32-bit unsigned */
 #elif defined WIN32
 typedef unsigned int        Word;      /* 32 bits */
 typedef unsigned int        ADDRESS;   /* 32-bit unsigned */
@@ -355,15 +358,15 @@ enum INDEX
 
     // All machines are assumed to have these following registers:
     idPC,                    // program counter
-    // This is the abstract frame pointer register (CSR/PAL analysis). 
+    // This is the abstract frame pointer register (CSR/PAL analysis).
     idAFP,                   // abstract frame pointer
     // This is the abstract global pointer register (CSR/PAL analysis)
     idAGP,                   // abstract global pointer
 
 
     // Added for type analysis
-    idHLCTI,		     // High level Control transfer instruction
-    idDEFINE,		     // Define Type of use with lexer
+    idHLCTI,                 // High level Control transfer instruction
+    idDEFINE,                // Define Type of use with lexer
 
     //---------------------- "The line" --------------------------//
     // All id's greater or equal to idMachSpec are assumed to be source machine
@@ -378,7 +381,7 @@ enum INDEX
     idFGF,                   // floating point greater flag
     idCTI,                   // Control transfer instruction (boolean)
     idNEXT,                  // Next PC pseudo-register
-    
+
     // ALWAYS LAST!
     idNumOf                  // Special index: MUST BE LAST!
 };
@@ -400,8 +403,8 @@ enum FLAGOP_TYPE {
 // Kinds of abstract pointer abstractions
 enum AXP {
     AFP,                     // abstract frame pointer (ptr to the stack frame)
-    AGP                      // abstract global pointer (ptr to global data) 
-}; 
+    AGP                      // abstract global pointer (ptr to global data)
+};
 
 // Control flow types
 enum INSTTYPE {
@@ -534,6 +537,8 @@ typedef set < ADDRESS>                      SETPROC;
 
 #ifdef WIN32
 typedef list<Proc*>::iterator               PROC_IT;
+#elif __OS2__
+typedef list<Proc*>::iterator               PROC_IT;
 #else
 /* this looks like an error to me - Trent */
 typedef list<Proc>::iterator                PROC_IT;
@@ -547,7 +552,7 @@ typedef list<HRTL*>::iterator               HRTLList_IT;
 typedef list<HRTL*>::reverse_iterator       HRTLList_RIT;
 typedef list<HRTL*>::const_iterator         HRTLList_CIT;
 typedef HRTL*                               PRTL;
-typedef map<string, int, less<string> >     RMAP; 
+typedef map<string, int, less<string> >     RMAP;
 typedef list<int>::const_iterator           SSCIT;
 typedef list<int>::iterator                 SSIT;
 typedef set<HLCall*>                        SET_CALLS;
@@ -560,10 +565,10 @@ typedef map<ADDRESS,string,less<ADDRESS> >  RelocMap;
  *============================================================================*/
 
 //#include "SymTab.h"
-//#include "ArchiveFile.h"
+#include "ArchiveFile.h"
 //#include "ElfArchiveFile.h"
-//#include "AutoDetectBF.h"
-//#include "BinaryFile.h"
+#include "AutoDetectBF.h"
+#include "BinaryFile.h"
 //#include "ElfBinaryFile.h"
 //#ifndef NODETAILS
 //#include "ElfDetails.h"
@@ -782,7 +787,7 @@ string searchAndReplace(const string &in, const string &match,
                         const string &rep);
 
 // Convert a C string to upper case (and write to d)
-void upperStr(const char* s, char* d); 
+void upperStr(const char* s, char* d);
 
 // additional stuff for win32
 #ifdef WIN32
