@@ -31,3 +31,5 @@ function DosLaLaLa(in input: ULONG; out output: ULONG; inout inpout: ULONG): ULO
 result of generation is:
 
 ULONG APIENTRY DosLaLaLa( /* in */ const ULONG input, /* out */ ULONG * output, /* inout */ ULONG * inpout);
+
+x. FDATE and FTIME need special representation!!!

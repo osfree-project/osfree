@@ -27,6 +27,7 @@ typedef struct _ULONGLONG {
 typedef long long LONGLONG, *PLONGLONG;
 typedef unsigned long long ULONGLONG, *PULONGLONG;
 #endif
+#endif
 
 #define MAKEULONG(l, h)  ((ULONG)(((USHORT)(l)) | ((ULONG)((USHORT)(h))) << 16))
 #define MAKELONG(l, h)   ((LONG)MAKEULONG(l, h))
@@ -58,7 +59,15 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 #define PASCAL16   _Far16 _Pascal
 #define CDECL16    _Far16 _Cdecl
 
+#define MPFROMSHORT(x)          ((MPARAM)(ULONG)(USHORT)(x))
+#define MPFROM2SHORT(x1,x2)     ((MPARAM)MAKELONG (x1, x2))
 
-#endif
+#define  MOUSEMSG(pmsg) \
+   ((PMSEMSG)((PBYTE)pmsg + sizeof(MPARAM) ))
+
+#define  CHARMSG(pmsg) \
+   ((PCHRMSG)((PBYTE)pmsg + sizeof(MPARAM) ))
+
+#define MPFROMHWND(x)           ((MPARAM)(HWND)(x))
 
 #endif

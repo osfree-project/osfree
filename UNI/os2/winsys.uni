@@ -1,0 +1,454 @@
+module winsys;
+
+   (*** System values *)
+
+function WinQuerySysValue(hwndDesktop: HWND;
+                                  iSysValue: LONG): LONG;
+function WinSetSysValue(hwndDesktop: HWND;
+                                 iSysValue: LONG;
+                                 lValue: LONG): BOOL;
+
+const SV_SWAPBUTTON             = 0;
+const SV_DBLCLKTIME             = 1;
+const SV_CXDBLCLK               = 2;
+const SV_CYDBLCLK               = 3;
+const SV_CXSIZEBORDER           = 4;
+const SV_CYSIZEBORDER           = 5;
+const SV_ALARM                  = 6;
+
+const SV_RESERVEDFIRST1         = 7;
+const SV_RESERVEDLAST1          = 8;
+
+const SV_CURSORRATE             = 9;
+const SV_FIRSTSCROLLRATE        = 10;
+const SV_SCROLLRATE             = 11;
+const SV_NUMBEREDLISTS          = 12;
+const SV_WARNINGFREQ            = 13;
+const SV_NOTEFREQ               = 14;
+const SV_ERRORFREQ              = 15;
+const SV_WARNINGDURATION        = 16;
+const SV_NOTEDURATION           = 17;
+const SV_ERRORDURATION          = 18;
+
+const SV_RESERVEDFIRST          = 19;
+const SV_RESERVEDLAST           = 19;
+
+const SV_CXSCREEN               = 20;
+const SV_CYSCREEN               = 21;
+const SV_CXVSCROLL              = 22;
+const SV_CYHSCROLL              = 23;
+const SV_CYVSCROLLARROW         = 24;
+const SV_CXHSCROLLARROW         = 25;
+const SV_CXBORDER               = 26;
+const SV_CYBORDER               = 27;
+const SV_CXDLGFRAME             = 28;
+const SV_CYDLGFRAME             = 29;
+const SV_CYTITLEBAR             = 30;
+const SV_CYVSLIDER              = 31;
+const SV_CXHSLIDER              = 32;
+const SV_CXMINMAXBUTTON         = 33;
+const SV_CYMINMAXBUTTON         = 34;
+const SV_CYMENU                 = 35;
+const SV_CXFULLSCREEN           = 36;
+const SV_CYFULLSCREEN           = 37;
+const SV_CXICON                 = 38;
+const SV_CYICON                 = 39;
+const SV_CXPOINTER              = 40;
+const SV_CYPOINTER              = 41;
+
+const SV_DEBUG                  = 42;
+const SV_CMOUSEBUTTONS          = 43;
+const SV_CPOINTERBUTTONS        = 43;
+const SV_POINTERLEVEL           = 44;
+const SV_CURSORLEVEL            = 45;
+const SV_TRACKRECTLEVEL         = 46;
+
+const SV_CTIMERS                = 47;
+
+const SV_MOUSEPRESENT           = 48;
+
+const SV_CXBYTEALIGN            = 49;
+const SV_CXALIGN                = 49;
+const SV_CYBYTEALIGN            = 50;
+const SV_CYALIGN                = 50;
+
+   (* The following value enables any greater value to be set by WinSetSysValue. *)
+   (* This is to enable the setting of SV_EXTRAKEYBEEP by applications.          *)
+
+const SV_NOTRESERVED            = 56;
+const SV_EXTRAKEYBEEP           = 57;
+
+   (* The following system value controls whether PM controls the keyboard      *)
+   (* lights for light key keystrokes (else applications will)                  *)
+const SV_SETLIGHTS              = 58;
+const SV_INSERTMODE             = 59;
+
+
+const SV_MENUROLLDOWNDELAY      = 64;
+const SV_MENUROLLUPDELAY        = 65;
+const SV_ALTMNEMONIC            = 66;
+const SV_TASKLISTMOUSEACCESS    = 67;
+
+const SV_CXICONTEXTWIDTH        = 68;
+const SV_CICONTEXTLINES         = 69;
+
+const SV_CHORDTIME              = 70;
+const SV_CXCHORD                = 71;
+const SV_CYCHORD                = 72;
+const SV_CXMOTIONSTART          = 73;
+const SV_CYMOTIONSTART          = 74;
+
+const SV_BEGINDRAG              = 75;
+const SV_ENDDRAG                = 76;
+const SV_SINGLESELECT           = 77;
+const SV_OPEN                   = 78;
+const SV_CONTEXTMENU            = 79;
+const SV_CONTEXTHELP            = 80;
+const SV_TEXTEDIT               = 81;
+const SV_BEGINSELECT            = 82;
+const SV_ENDSELECT              = 83;
+
+const SV_BEGINDRAGKB            = 84;
+const SV_ENDDRAGKB              = 85;
+const SV_SELECTKB               = 86;
+const SV_OPENKB                 = 87;
+const SV_CONTEXTMENUKB          = 88;
+const SV_CONTEXTHELPKB          = 89;
+const SV_TEXTEDITKB             = 90;
+const SV_BEGINSELECTKB          = 91;
+const SV_ENDSELECTKB            = 92;
+
+const SV_ANIMATION              = 93;
+const SV_ANIMATIONSPEED         = 94;
+
+const SV_MONOICONS              = 95;
+
+const SV_KBDALTERED             = 96;
+
+const SV_PRINTSCREEN            = 97;
+
+const SV_LOCKSTARTINPUT         = 98;
+
+const SV_CSYSVALUES             = 108;
+
+   (*
+   * Presentation parameter structures.
+   *)
+   type PARAM=structure    (* param *)
+          id: ULONG;
+          cb: ULONG;
+          ab: array[1] of BYTE;
+     end;
+   type NPPARAM =^PARAM;
+   type PPARAM =^PARAM;
+
+   type PRESPARAMS=structure    (* pres *)
+         cb: ULONG;
+         aparam: array[1] of PARAM;
+     end;
+   type NPPRESPARAMS=^PRESPARAMS;
+   type PPRESPARAMS=^PRESPARAMS;
+
+   (*
+   * Presentation parameter APIs
+   *)
+function WinSetPresParam(hwnd: HWND;
+                                   id: ULONG;
+                                   cbParam: ULONG;
+                                   pbParam: PVOID): BOOL;
+function WinQueryPresParam(hwnd: HWND;
+                                    id1: ULONG;
+                                    id2: ULONG;
+                                    pulId: PULONG;
+                                    cbBuf: ULONG;
+                                    pbBuf: PVOID;
+                                    fs: ULONG): ULONG;
+function WinRemovePresParam(hwnd: HWND;
+                                     id: ULONG): BOOL;
+
+   (*
+   * Presentation parameter types.
+   *)
+
+const PP_FOREGROUNDCOLOR                     = 1;
+const PP_FOREGROUNDCOLORINDEX                = 2;
+const PP_BACKGROUNDCOLOR                     = 3;
+const PP_BACKGROUNDCOLORINDEX                = 4;
+const PP_HILITEFOREGROUNDCOLOR               = 5;
+const PP_HILITEFOREGROUNDCOLORINDEX          = 6;
+const PP_HILITEBACKGROUNDCOLOR               = 7;
+const PP_HILITEBACKGROUNDCOLORINDEX          = 8;
+const PP_DISABLEDFOREGROUNDCOLOR             = 9;
+const PP_DISABLEDFOREGROUNDCOLORINDEX        = 10;
+const PP_DISABLEDBACKGROUNDCOLOR             = 11;
+const PP_DISABLEDBACKGROUNDCOLORINDEX        = 12;
+const PP_BORDERCOLOR                         = 13;
+const PP_BORDERCOLORINDEX                    = 14;
+const PP_FONTNAMESIZE                        = 15;
+const PP_FONTHANDLE                          = 16;
+const PP_RESERVED                            = 17;
+const PP_ACTIVECOLOR                         = 18;
+const PP_ACTIVECOLORINDEX                    = 19;
+const PP_INACTIVECOLOR                       = 20;
+const PP_INACTIVECOLORINDEX                  = 21;
+const PP_ACTIVETEXTFGNDCOLOR                 = 22;
+const PP_ACTIVETEXTFGNDCOLORINDEX            = 23;
+const PP_ACTIVETEXTBGNDCOLOR                 = 24;
+const PP_ACTIVETEXTBGNDCOLORINDEX            = 25;
+const PP_INACTIVETEXTFGNDCOLOR               = 26;
+const PP_INACTIVETEXTFGNDCOLORINDEX          = 27;
+const PP_INACTIVETEXTBGNDCOLOR               = 28;
+const PP_INACTIVETEXTBGNDCOLORINDEX          = 29;
+const PP_SHADOW                              = 30;
+const PP_MENUFOREGROUNDCOLOR                 = 31;
+const PP_MENUFOREGROUNDCOLORINDEX            = 32;
+const PP_MENUBACKGROUNDCOLOR                 = 33;
+const PP_MENUBACKGROUNDCOLORINDEX            = 34;
+const PP_MENUHILITEFGNDCOLOR                 = 35;
+const PP_MENUHILITEFGNDCOLORINDEX            = 36;
+const PP_MENUHILITEBGNDCOLOR                 = 37;
+const PP_MENUHILITEBGNDCOLORINDEX            = 38;
+const PP_MENUDISABLEDFGNDCOLOR               = 39;
+const PP_MENUDISABLEDFGNDCOLORINDEX          = 40;
+const PP_MENUDISABLEDBGNDCOLOR               = 41;
+const PP_MENUDISABLEDBGNDCOLORINDEX          = 42;
+const PP_SHADOWTEXTCOLOR                     = 43;
+const PP_SHADOWTEXTCOLORINDEX                = 44;
+const PP_SHADOWHILITEFGNDCOLOR               = 45;
+const PP_SHADOWHILITEFGNDCOLORINDEX          = 46;
+const PP_SHADOWHILITEBGNDCOLOR               = 47;
+const PP_SHADOWHILITEBGNDCOLORINDEX          = 48;
+const PP_ICONTEXTBACKGROUNDCOLOR             = 49;
+const PP_ICONTEXTBACKGROUNDCOLORINDEX        = 50;
+const PP_BORDERLIGHTCOLOR                    = 51;
+const PP_BORDERDARKCOLOR                     = 52;
+const PP_BORDER2COLOR                        = 53;
+const PP_BORDER2LIGHTCOLOR                   = 54;
+const PP_BORDER2DARKCOLOR                    = 55;
+const PP_BORDERDEFAULTCOLOR                  = 56;
+const PP_FIELDBACKGROUNDCOLOR                = 57;
+const PP_BUTTONBACKGROUNDCOLOR               = 58;
+const PP_BUTTONBORDERLIGHTCOLOR              = 59;
+const PP_BUTTONBORDERDARKCOLOR               = 60;
+const PP_ARROWCOLOR                          = 61;
+const PP_ARROWBORDERLIGHTCOLOR               = 62;
+const PP_ARROWBORDERDARKCOLOR                = 63;
+const PP_ARROWDISABLEDCOLOR                  = 64;
+const PP_CHECKLIGHTCOLOR                     = 65;
+const PP_CHECKMIDDLECOLOR                    = 66;
+const PP_CHECKDARKCOLOR                      = 67;
+const PP_PAGEFOREGROUNDCOLOR                 = 68;
+const PP_PAGEBACKGROUNDCOLOR                 = 69;
+const PP_MAJORTABFOREGROUNDCOLOR             = 70;
+const PP_MAJORTABBACKGROUNDCOLOR             = 71;
+const PP_MINORTABFOREGROUNDCOLOR             = 72;
+const PP_MINORTABBACKGROUNDCOLOR             = 73;
+
+   (* PP_ values = $100 - = $012F are reserved*)
+   (* for bidirectional language support.   *)
+
+const PP_BIDI_FIRST                           = $0100;
+const PP_BIDI_LAST                            = $012F;
+
+const PP_USER                                 = $8000;
+
+   (*
+   * Flags for WinQueryPresParams()
+   *)
+const QPF_NOINHERIT            = $0001; (* Don't inherit                      *)
+const QPF_ID1COLORINDEX        = $0002; (* Convert id1 color index into RGB   *)
+const QPF_ID2COLORINDEX        = $0004; (* Convert id2 color index into RGB   *)
+const QPF_PURERGBCOLOR         = $0008; (* Return pure RGB colors             *)
+const QPF_VALIDFLAGS           = $000F; (* Valid WinQueryPresParams() flags.  *)
+
+   (*** System color functions *)
+
+function WinQuerySysColor(hwndDesktop: HWND;
+                                   clr: LONG;
+                                   lReserved: LONG): LONG;
+function WinSetSysColors(hwndDesktop: HWND;
+                                 flOptions: ULONG;
+                                 flFormat: ULONG;
+                                 clrFirst: LONG;
+                                 cclr: ULONG;
+                                 pclr: PLONG): BOOL;
+
+const SYSCLR_SHADOWHILITEBGND        = (-50);
+const SYSCLR_SHADOWHILITEFGND        = (-49);
+const SYSCLR_SHADOWTEXT              = (-48);
+const SYSCLR_ENTRYFIELD              = (-47);
+const SYSCLR_MENUDISABLEDTEXT        = (-46);
+const SYSCLR_MENUHILITE              = (-45);
+const SYSCLR_MENUHILITEBGND          = (-44);
+const SYSCLR_PAGEBACKGROUND          = (-43);
+const SYSCLR_FIELDBACKGROUND         = (-42);
+const SYSCLR_BUTTONLIGHT             = (-41);
+const SYSCLR_BUTTONMIDDLE            = (-40);
+const SYSCLR_BUTTONDARK              = (-39);
+const SYSCLR_BUTTONDEFAULT           = (-38);
+const SYSCLR_TITLEBOTTOM             = (-37);
+const SYSCLR_SHADOW                  = (-36);
+const SYSCLR_ICONTEXT                = (-35);
+const SYSCLR_DIALOGBACKGROUND        = (-34);
+const SYSCLR_HILITEFOREGROUND        = (-33);
+const SYSCLR_HILITEBACKGROUND        = (-32);
+const SYSCLR_INACTIVETITLETEXTBGND   = (-31);
+const SYSCLR_ACTIVETITLETEXTBGND     = (-30);
+const SYSCLR_INACTIVETITLETEXT       = (-29);
+const SYSCLR_ACTIVETITLETEXT         = (-28);
+const SYSCLR_OUTPUTTEXT              = (-27);
+const SYSCLR_WINDOWSTATICTEXT        = (-26);
+const SYSCLR_SCROLLBAR               = (-25);
+const SYSCLR_BACKGROUND              = (-24);
+const SYSCLR_ACTIVETITLE             = (-23);
+const SYSCLR_INACTIVETITLE           = (-22);
+const SYSCLR_MENU                    = (-21);
+const SYSCLR_WINDOW                  = (-20);
+const SYSCLR_WINDOWFRAME             = (-19);
+const SYSCLR_MENUTEXT                = (-18);
+const SYSCLR_WINDOWTEXT              = (-17);
+const SYSCLR_TITLETEXT               = (-16);
+const SYSCLR_ACTIVEBORDER            = (-15);
+const SYSCLR_INACTIVEBORDER          = (-14);
+const SYSCLR_APPWORKSPACE            = (-13);
+const SYSCLR_HELPBACKGROUND          = (-12);
+const SYSCLR_HELPTEXT                = (-11);
+const SYSCLR_HELPHILITE              = (-10);
+
+const SYSCLR_CSYSCOLORS              = 41;
+
+   (*
+   *  Control color type constants
+   *)
+
+const CCT_STATIC                     = 1;
+const CCT_STATICTEXT                 = 2;
+const CCT_GROUPBOX                   = 3;
+const CCT_PUSHBUTTON                 = 4;
+const CCT_CHECKBOX                   = 5;
+const CCT_RADIOBUTTON                = 6;
+const CCT_ENTRYFIELD                 = 7;
+const CCT_LISTBOX                    = 8;
+const CCT_COMBOBOX                   = 9;
+const CCT_SCROLLBAR                  = 10;
+const CCT_FRAME                      = 11;
+const CCT_MENU                       = 12;
+const CCT_TITLEBAR                   = 13;
+const CCT_SPINBUTTON                 = 14;
+const CCT_SLIDER                     = 15;
+const CCT_CIRCULARSLIDER             = 16;
+const CCT_VALUESET                   = 17;
+const CCT_MLE                        = 18;
+const CCT_CONTAINER                  = 19;
+const CCT_NOTEBOOK                   = 20;
+
+const CCT_MAXTYPE                    = 20;
+
+   (*
+   *  Control color index constants
+   *)
+
+const CCI_FOREGROUND                 = 1;
+const CCI_FOREGROUNDREADONLY         = 2;
+const CCI_BACKGROUND                 = 3;
+const CCI_BACKGROUNDDIALOG           = 4;
+const CCI_DISABLEDFOREGROUND         = 5;
+const CCI_DISABLEDFOREGROUNDREADONLY = 6;
+const CCI_DISABLEDBACKGROUND         = 7;
+const CCI_DISABLEDBACKGROUNDDIALOG   = 8;
+const CCI_HIGHLIGHTFOREGROUND        = 9;
+const CCI_HIGHLIGHTBACKGROUND        = 10;
+const CCI_HIGHLIGHTBACKGROUNDDIALOG  = 11;
+const CCI_INACTIVEFOREGROUND         = 12;
+const CCI_INACTIVEFOREGROUNDDIALOG   = 13;
+const CCI_INACTIVEBACKGROUND         = 14;
+const CCI_INACTIVEBACKGROUNDTEXT     = 15;
+const CCI_ACTIVEFOREGROUND           = 16;
+const CCI_ACTIVEFOREGROUNDDIALOG     = 17;
+const CCI_ACTIVEBACKGROUND           = 18;
+const CCI_ACTIVEBACKGROUNDTEXT       = 19;
+const CCI_PAGEBACKGROUND             = 20;
+const CCI_PAGEFOREGROUND             = 21;
+const CCI_FIELDBACKGROUND            = 22;
+const CCI_BORDER                     = 23;
+const CCI_BORDERLIGHT                = 24;
+const CCI_BORDERDARK                 = 25;
+const CCI_BORDER2                    = 26;
+const CCI_BORDER2LIGHT               = 27;
+const CCI_BORDER2DARK                = 28;
+const CCI_BORDERDEFAULT              = 29;
+const CCI_BUTTONBACKGROUND           = 30;
+const CCI_BUTTONFOREGROUND           = 31;
+const CCI_BUTTONBORDERLIGHT          = 32;
+const CCI_BUTTONBORDERDARK           = 33;
+const CCI_ARROW                      = 34;
+const CCI_DISABLEDARROW              = 35;
+const CCI_ARROWBORDERLIGHT           = 36;
+const CCI_ARROWBORDERDARK            = 37;
+const CCI_CHECKLIGHT                 = 38;
+const CCI_CHECKMIDDLE                = 39;
+const CCI_CHECKDARK                  = 40;
+const CCI_ICONFOREGROUND             = 41;
+const CCI_ICONBACKGROUND             = 42;
+const CCI_ICONBACKGROUNDDESKTOP      = 43;
+const CCI_ICONHILITEFOREGROUND       = 44;
+const CCI_ICONHILITEBACKGROUND       = 45;
+const CCI_MAJORTABFOREGROUND         = 46;
+const CCI_MAJORTABBACKGROUND         = 47;
+const CCI_MINORTABFOREGROUND         = 48;
+const CCI_MINORTABBACKGROUND         = 49;
+
+const CCI_MAXINDEX                   = 49;
+
+   (*
+   *  Control color flags
+   *)
+
+const CCF_GLOBAL                      = $0000;
+const CCF_APPLICATION                 = $0001;
+const CCF_COUNTCOLORS                 = $0010;
+const CCF_ALLCOLORS                   = $0020;
+
+   (*
+   *  Control color values
+   *)
+
+const CCV_NOTFOUND                 =  (-125);
+const CCV_IGNORE                   =  (-126);
+const CCV_DEFAULT                  =  (-127 );
+
+   (*
+   *  Control color structure
+   *)
+
+   type CTLCOLOR=structure    (* ctlclr *)
+      clrIndex: LONG;
+      clrValue: LONG;
+     end;
+
+   type PCTLCOLOR=^CTLCOLOR;
+
+   (*
+   *  Control color functions
+   *)
+
+function WinQueryControlColors(hwnd: HWND;
+                                        clrType: LONG;
+                                        flCtlColor: ULONG;
+                                        cCtlColor: ULONG;
+                                        pCtlColor: PCTLCOLOR): LONG;
+
+function WinSetControlColors(hwnd: HWND;
+                                     clrType: LONG;
+                                     flCtlColor: ULONG;
+                                     cCtlColor: ULONG;
+                                     pCtlColor: PCTLCOLOR): LONG;
+
+   (*
+   * Control color messages
+   *)
+
+const WM_CTLCOLORCHANGE          = $0129;
+const WM_QUERYCTLTYPE            = $0130;
+
+end.

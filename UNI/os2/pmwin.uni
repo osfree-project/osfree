@@ -1,5 +1,14 @@
 module pmwin;
 
+
+const HWND_DESKTOP            = 1;
+const HWND_OBJECT             = 2;
+
+const HWND_TOP                = 3;
+const HWND_BOTTOM             = 4;
+
+const HWND_THREADCAPTURE      = 5;
+
 uses pmshl;
 
 function WinCreateWindow(hwndParent: HWND;
@@ -252,5 +261,9 @@ uses winwindowmgrcommon;
 uses winmessagemgrcommon;
 uses winclipboard;
 uses winclipboarddde;
+uses winframemgrcommon;
+uses winframemgr;
+uses winsys;
+uses wininput;
 
 end.

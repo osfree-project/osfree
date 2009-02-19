@@ -1,0 +1,100 @@
+module winframemgrcommon;
+
+   (*** Frame Manager Common subsection *)
+
+//   #pragma pack(2) (* force structure alignment packing *)
+
+   (* Binary resources may be bound into application executables or *)
+   (* passed as a parameter when creating a window or dialog        *)
+   (* Currently they must be the same for both 16-bit and 32-bit    *)
+   (* so we pack the structures.                                    *)
+   type FRAMECDATA=structure   (* fcdata *)
+        cb: USHORT;
+        flCreateFlags: ULONG;
+        hmodResources: USHORT;
+        idResources: USHORT;
+     end;
+   type PFRAMECDATA=^FRAMECDATA;
+
+//   #pragma pack()  (* restore packing to default *)
+
+   (* Frame window styles *)
+   (* All unused FCF_xxx bits are reserved *)
+const FCF_TITLEBAR               = $00000001;
+const FCF_SYSMENU                = $00000002;
+const FCF_MENU                   = $00000004;
+const FCF_SIZEBORDER             = $00000008;
+const FCF_MINBUTTON              = $00000010;
+const FCF_MAXBUTTON              = $00000020;
+const FCF_MINMAX                 = $00000030; (* minmax means BOTH buttons *)
+const FCF_VERTSCROLL             = $00000040;
+const FCF_HORZSCROLL             = $00000080;
+const FCF_DLGBORDER              = $00000100;
+const FCF_BORDER                 = $00000200;
+const FCF_SHELLPOSITION          = $00000400;
+const FCF_TASKLIST               = $00000800;
+const FCF_NOBYTEALIGN            = $00001000;
+const FCF_NOMOVEWITHOWNER        = $00002000;
+const FCF_ICON                   = $00004000;
+const FCF_ACCELTABLE             = $00008000;
+const FCF_SYSMODAL               = $00010000;
+const FCF_SCREENALIGN            = $00020000;
+const FCF_MOUSEALIGN             = $00040000;
+const FCF_HIDEBUTTON             = $01000000;
+const FCF_HIDEMAX                = $01000020; (* hidemax means BOTH buttons *)
+const FCF_CLOSEBUTTON            = $04000000; (* use when no other min/max  *)
+   (*   button is present        *)
+   const FCF_DBE_APPSTAT         = $80000000;
+const FCF_AUTOICON               = $40000000;
+
+   (* FCF_TITLEBAR | FCF_SYSMENU | FCF_MENU | FCF_SIZEBORDER | FCF_MINMAX |
+   FCF_ICON | FCF_ACCELTABLE | FCF_SHELLPOSITION | FCF_TASKLIST *)
+const FCF_STANDARD            = $0000CC3F;
+
+
+const FS_ICON                    = $00000001;
+const FS_ACCELTABLE              = $00000002;
+
+   const FS_SHELLPOSITION        = $00000004;
+
+const FS_TASKLIST                = $00000008;
+const FS_NOBYTEALIGN             = $00000010;
+const FS_NOMOVEWITHOWNER         = $00000020;
+const FS_SYSMODAL                = $00000040;
+const FS_DLGBORDER               = $00000080;
+const FS_BORDER                  = $00000100;
+const FS_SCREENALIGN             = $00000200;
+const FS_MOUSEALIGN              = $00000400;
+const FS_SIZEBORDER              = $00000800;
+const FS_AUTOICON                = $00001000;
+   const FS_DBE_APPSTAT          = $00008000;
+
+   (* FS_ICON | FS_ACCELTABLE | FS_SHELLPOSITION | FS_TASKLIST *)
+const FS_STANDARD                = $0000000F;
+
+
+   (* Frame Window Flags accessed via WinSet/QueryWindowUShort(QWS_FLAGS) *)
+
+   const FF_FLASHWINDOW             = $0001;
+   const FF_ACTIVE                  = $0002;
+   const FF_FLASHHILITE             = $0004;
+   const FF_OWNERHIDDEN             = $0008;
+   const FF_DLGDISMISSED            = $0010;
+   const FF_OWNERDISABLED           = $0020;
+   const FF_SELECTED                = $0040;
+   const FF_NOACTIVATESWP           = $0080;
+   const FF_DIALOGBOX               = $0100;
+
+
+function WinCreateStdWindow(hwndParent: HWND;
+                                     flStyle: ULONG;
+                                     pflCreateFlags: PULONG;
+                                     pszClientClass: PCSZ;
+                                     pszTitle: PCSZ;
+                                     styleClient: ULONG,
+                                     hmod: HMODULE;
+                                     idResources: ULONG;
+                                     phwndClient: PHWND): HWND;
+
+
+end.

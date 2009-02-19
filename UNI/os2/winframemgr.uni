@@ -1,0 +1,118 @@
+module winframemgr;
+
+function WinFlashWindow(hwndFrame: HWND;
+                                 fFlash: BOOL): BOOL;
+
+   (* Frame window related messages *)
+
+const WM_FLASHWINDOW             = $0040;
+const WM_FORMATFRAME             = $0041;
+const WM_UPDATEFRAME             = $0042;
+const WM_FOCUSCHANGE             = $0043;
+
+const WM_SETBORDERSIZE           = $0044;
+const WM_TRACKFRAME              = $0045;
+const WM_MINMAXFRAME             = $0046;
+const WM_SETICON                 = $0047;
+const WM_QUERYICON               = $0048;
+const WM_SETACCELTABLE           = $0049;
+const WM_QUERYACCELTABLE         = $004a;
+const WM_TRANSLATEACCEL          = $004b;
+const WM_QUERYTRACKINFO          = $004c;
+const WM_QUERYBORDERSIZE         = $004d;
+const WM_NEXTMENU                = $004e;
+const WM_ERASEBACKGROUND         = $004f;
+const WM_QUERYFRAMEINFO          = $0050;
+const WM_QUERYFOCUSCHAIN         = $0051;
+const WM_OWNERPOSCHANGE          = $0052;
+const WM_CALCFRAMERECT           = $0053;
+   (* Note = $0054 is reserved *)
+const WM_WINDOWPOSCHANGED        = $0055;
+const WM_ADJUSTFRAMEPOS          = $0056;
+const WM_QUERYFRAMECTLCOUNT      = $0059;
+      (* Note = $005A is reserved *)
+   const WM_QUERYHELPINFO        = $005B;
+   const WM_SETHELPINFO          = $005C;
+   const WM_ERROR                = $005D;
+   const WM_REALIZEPALETTE       = $005E;
+
+
+      (* WM_QUERYFRAMEINFO constants *)
+
+   const FI_FRAME                = $00000001;
+   const FI_OWNERHIDE            = $00000002;
+   const FI_ACTIVATEOK           = $00000004;
+   const FI_NOMOVEWITHOWNER      = $00000008;
+
+
+function WinCreateFrameControls(hwndFrame: HWND;
+                                         pfcdata: PFRAMECDATA;
+                                         pszTitle: PCSZ): BOOL;
+
+function WinCalcFrameRect(hwndFrame: HWND;
+                                   prcl: PRECTL;
+                                   fClient: BOOL): BOOL;
+
+function WinGetMinPosition(hwnd: HWND;
+                                    pswp: PSWP;
+                                    pptl: PPOINTL): BOOL;
+
+function WinGetMaxPosition(hwnd: HWND; pswp: PSWP): BOOL;
+
+   type HSAVEWP=LHANDLE;      (* hsvwp *)
+
+function WinSaveWindowPos(hsvwp: HSAVEWP;
+                                  pswp: PSWP;
+                                  cswp: ULONG): BOOL;
+
+   (* Frame control IDs    *)
+
+const FID_SYSMENU                = $8002;
+const FID_TITLEBAR               = $8003;
+const FID_MINMAX                 = $8004;
+const FID_MENU                   = $8005;
+const FID_VERTSCROLL             = $8006;
+const FID_HORZSCROLL             = $8007;
+const FID_CLIENT                 = $8008;
+   (* Note = $8009 is reserved *)
+
+const FID_DBE_APPSTAT            = $8010;
+const FID_DBE_KBDSTAT            = $8011;
+const FID_DBE_PECIC              = $8012;
+const FID_DBE_KKPOPUP            = $8013;
+
+   (* Standard WM_SYSCOMMAND command values *)
+
+const SC_SIZE                    = $8000;
+const SC_MOVE                    = $8001;
+const SC_MINIMIZE                = $8002;
+const SC_MAXIMIZE                = $8003;
+const SC_CLOSE                   = $8004;
+const SC_NEXT                    = $8005;
+const SC_APPMENU                 = $8006;
+const SC_SYSMENU                 = $8007;
+const SC_RESTORE                 = $8008;
+const SC_NEXTFRAME               = $8009;
+const SC_NEXTWINDOW              = $8010;
+   const SC_TASKMANAGER             = $8011;
+   const SC_HELPKEYS                = $8012;
+   const SC_HELPINDEX               = $8013;
+   const SC_HELPEXTENDED            = $8014;
+   const SC_SWITCHPANELIDS          = $8015;
+   const SC_DBE_FIRST               = $8018;
+   const SC_DBE_LAST                = $801F;
+
+   const SC_BEGINDRAG               = $8020;
+   const SC_ENDDRAG                 = $8021;
+   const SC_SELECT                  = $8022;
+   const SC_OPEN                    = $8023;
+   const SC_CONTEXTMENU             = $8024;
+   const SC_CONTEXTHELP             = $8025;
+   const SC_TEXTEDIT                = $8026;
+   const SC_BEGINSELECT             = $8027;
+   const SC_ENDSELECT               = $8028;
+   const SC_WINDOW                  = $8029;
+   const SC_HIDE                    = $802a;
+
+
+end.

@@ -69,12 +69,16 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)winswitchlist.h &
      $(OUT)$(SEP)os2$(SEP)pmwp.h &
      $(OUT)$(SEP)os2$(SEP)pmwin.h &
+     $(OUT)$(SEP)os2$(SEP)winsys.h &
+     $(OUT)$(SEP)os2$(SEP)wininput.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winclipboarddde.h &
      $(OUT)$(SEP)os2$(SEP)winprogramlist.h &
+     $(OUT)$(SEP)os2$(SEP)winframemgr.h &
+     $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -170,6 +174,10 @@ $(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)winswitchlist.uni
 
 $(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h: os2$(SEP)winswitchlistcommon.uni
 
+$(OUT)$(SEP)os2$(SEP)winframemgr.h: os2$(SEP)winframemgr.uni
+
+$(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)winframemgrcommon.uni
+
 $(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pmwp.uni
 
 $(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pmwin.uni
@@ -178,6 +186,8 @@ $(OUT)$(SEP)shared$(SEP)rexxsaa.h: shared$(SEP)rexxsaa.uni
 
 $(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)winprogramlist.uni
 
+$(OUT)$(SEP)os2$(SEP)winsys.h: os2$(SEP)winsys.uni
+
 $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)winwindowmgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)winmessagemgrcommon.uni
@@ -185,6 +195,8 @@ $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)winmessagemgrcommon.uni
 $(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)winclipboard.uni
 
 $(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)winclipboarddde.uni
+
+$(OUT)$(SEP)os2$(SEP)wininput.h: os2$(SEP)wininput.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

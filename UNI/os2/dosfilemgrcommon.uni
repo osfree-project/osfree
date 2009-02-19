@@ -236,23 +236,23 @@ uses hevdef;
    const FHB_PIPEREMOTE       = $8000;   (* Remote pipe *)
 
 
-   type FTIME=USHORT;
-   type FDATE=USHORT;
+//   type FTIME=USHORT;
+//   type FDATE=USHORT;
 
 
       (* File time and date types *)
-//         type FTIME=structure           (* ftime *)
-//            twosecs: USHORT; (* : 5; *)
-//            minutes: USHORT; (* : 6; *)
-//            hours: USHORT; (*  : 5; *)
-//         end;
+         type FTIME=structure           (* ftime *)
+            twosecs: USHORT; (* : 5; *)
+            minutes: USHORT; (* : 6; *)
+            hours: USHORT; (*  : 5; *)
+         end;
          type PFTIME=^FTIME;
 
-//         type FDATE=structure           (* fdate *)
-//            day: USHORT;   (*  : 5;    *)
-//            month: USHORT; (*  : 4; *)
-//            year: USHORT;  (*  : 7; *)
-//         end;
+         type FDATE=structure           (* fdate *)
+            day: USHORT;   (*  : 5;    *)
+            month: USHORT; (*  : 4; *)
+            year: USHORT;  (*  : 7; *)
+         end;
          type PFDATE=^FDATE;
 
 

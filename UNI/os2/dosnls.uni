@@ -43,6 +43,8 @@ function DosQueryCollate(cb: ULONG; pcc: PCOUNTRYCODE; pch: PCHAR; pcch: PULONG)
 
 function DosQueryCp(cb: ULONG; arCP: PULONG; pcCP: PULONG): APIRET;
 
+function DosGetCp(cb: ULONG; arCP: PULONG; pcCP: PULONG): APIRET;
+
 function DosSetProcessCp(cp: ULONG): APIRET;
 
 end.
