@@ -26,98 +26,97 @@ SYS0005E: Доступ запрещен.
 SYS0006I: Неверный внутренний идентификатор файла.
 ;
 ;
-SYS0007I: The storage control blocks were destroyed.
+SYS0007I: storage control blocks были уничтожены.
 ;
 ;
-SYS0008E: There is not enough memory available to process this command.
-All available memory is in use.
+SYS0008E: Не хватает памяти для выполнения этой команды.
+Вся имеющаяся память уже исползуется.
 ;
 ;
-SYS0009I: The storage control block address is invalid.
+SYS0009I: Неверный адрес storage control block.
 ;
 ;
-SYS0010I: The environment is incorrect.
+SYS0010I: Неверный environment.
 ;
 ;
-SYS0011I: An attempt was made to load a program with an incorrect
-format.
+SYS0011I: Была сделана попытка загрузить программу
+неизвестного формата.
 ;
 ;
-SYS0012I: The access code is invalid.
+SYS0012I: Код доступа недействителен.
 ;
 ;
-SYS0013I: The data is invalid.
+SYS0013I: Неверные данные.
 ;
 ;
 SYS0014?:
 ;
 ;
-SYS0015E: The system cannot find the specified drive.
+SYS0015E: Системе не удаётся найти указанный диск.
 ;
 ;
-SYS0016E: The directory cannot be removed.
+SYS0016E: Каталог не может быть удалён.
 ;
 ;
-SYS0017E: The system cannot move the file to a different disk drive.
+SYS0017E: Система не может переместить файл на другой диск.
 ;
 ;
-SYS0018I: There are no more files.
+SYS0018I: Нет файлов для обработки.
 ;
 ;
-SYS0019E: The drive is currently write-protected.
+SYS0019E: В настоящее время диск защищён от записи.
 ;
 ;
-SYS0020E: The system cannot find the device specified.
+SYS0020E: Системе не удаётся найти указанное устройство.
 ;
 ;
-SYS0021E: The drive is not ready.
+SYS0021E: Диск не готов.
 ;
 ;
-SYS0022I: The device does not recognize the command.
+SYS0022I: Устройство не отвечает на команды.
 ;
 ;
-SYS0023E: Data error (cyclic redundancy check).
+SYS0023E: Ошибка данных (cyclic redundancy check).
 ;
 ;
-SYS0024I: The program issued a command but the command length is
-incorrect.
+SYS0024I: Неверная длинна команды полученной от программы.
 ;
 ;
-SYS0025E: The drive cannot locate a specific area or track on the disk.
+SYS0025E: Привод не может найти запрошенный сектор или дорожку на диске.
 ;
 ;
-SYS0026E: The specified disk or diskette cannot be accessed.
+SYS0026E: Указанный диск или дискета недоступны.
 ;
 ;
-SYS0027E: The drive cannot find the sector (area) requested.
+SYS0027E: Привод не может найти запрошенную дорожку или сектор на диске.
 ;
 ;
-SYS0028E: The printer is out of paper or there is not enough space to
-create a spool file.
+SYS0028E: В принтере закончилась бумага или законилось свободное место на
+диске дляя создания spool файла.
 ;
 ;
-SYS0029E: The system cannot write to the specified device.
+SYS0029E: Система не может запись в данное устройство.
 ;
 ;
-SYS0030E: The system cannot read from the specified device.
+SYS0030E: Система не может прочитать из данного устройства.
 ;
 ;
-SYS0031E: A device attached to the system is not functioning.
+SYS0031E: Подклюённое устройство не функционирует.
 ;
 ;
-SYS0032E: The process cannot access the file because it is being used
-by another process.
+SYS0032E: Процесс не может полуить доступ к файлу так как файл
+используется другим процессом.
 ;
 ;
-SYS0033E: The process cannot access the file because another
-process has locked a portion of the file.
+SYS0033E: Процесс не может полуить доступ к файлу так как другой
+процесс блокирует часть файла.
 ;
 ;
 SYS0034P: The wrong diskette is in the drive.  Insert %2
 (Volume Serial Number: %3) into drive %1.
 ;
 ;
-SYS0035E: The program could not open the requested file.
+SYS0035E: Программа не может открыть запрошенный файл.
 ;
 ;
 SYS0036E: The system has detected an overflow in the sharing buffer.
@@ -5008,7 +5007,7 @@ o  Type EXIT to end this OS/2 session.
 
 ;
 ;
-SYS1492P: OS/2      Ctrl+Esc = Window List       Type HELP = help
+SYS1492P: OS/2   Ctrl+Esc = Список задач   ? = команды   HELP = помощь
 ;
 ;
 SYS1493I: No help is available for the message ID number requested.
