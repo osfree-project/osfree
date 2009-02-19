@@ -6,7 +6,7 @@
 
 PROJ     = doscalls
 DESC     = Control Program API
-srcfiles = $(p)msg$(e) $(p)doscopy$(e) $(p)unimplemented$(e) # $(p)doseditname$(e)
+srcfiles = $(p)msg$(e) $(p)doscopy$(e) $(p)unimplemented$(e) # $(p)dossearchpath$(e) # $(p)doseditname$(e)
 ADD_COPT = #-i=$(%ROOT)build$(SEP)include$(SEP)os2 -i=. # -i=..\include
 ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
 DLL     = 1
@@ -392,6 +392,7 @@ EXPORTS = &
      DosPutMessage              .383   , &
      DosInsMessage              .385   , &
      DosInsertMessage           .386   , &
+     Dos32PutMessage            .387 = DosPutMessage  , &
      DosCaseMap                     .391, &
      DosGetCollate                  .392, &
      DosGetCtryInfo                 .393, &
@@ -664,6 +665,30 @@ EXPORTS = &
 #     Dos16IRead               .79, &
 #     Dos16IWrite            .87, &
 
+# <04:47> <_dixie_> объявляецца конкурс знание того, что делает doscalls.995 :)
+# <04:48> <[Pasha]> _dixie_ DosJAVAIOCtl ? ;-)
+# <04:48> <[Pasha]> _dixie_ думается у них оно обзывалось DosJITDispatcherThread
+# <04:49> <_dixie_> [Pasha] похоже ;)
+# <valeriusN> _dixie_ [Pasha] ничего не видно про Java:
+# <valeriusN> DosSystemService .995
+# <04:50> <[Pasha]> valeriusN а у вас ея и нету ;-) этож аврора
+# <valeriusN> вот оно у нас в .lnk как обзывается
+# <valeriusN> [Pasha] а у нас что? мерлин типа?
+# <04:51> <[Pasha]> видимо хто-то обозвал чем-то приблизительным ;-)
+# <04:51> <[Pasha]> valeriusN: у вас в начале было среднее между мерлиным и warp 3
+# <04:51> <[Pasha]> что сейчас - не знаю
+# <valeriusN> [Pasha] наверное, разные источники противоречивы ;)
+# <valeriusN> [Pasha] то было давно и неправда ;)
+# <04:54> <_dixie_> valeriusN DosSystemService это 88 ;)
+# <04:54> <_dixie_> valeriusN Dos32SystemService нету, т.е. похоже, что кто-то от фонаря записал,
+#         да ;)
+# <04:55> <[Pasha]> _dixie_ ну жабу с нуля в отсусвии док всунуть проблематично ;-)
+# <valeriusN> _dixie_ ну, это я щас глянул -- если верить Прокушеву, он мейкфайл составлял ;)
+# <valeriusN> [Pasha] поэтому его надо похерить? ;)
+# * <04:56> [Pasha] в таких делах бы Прокушеву не верил, вот Белову можно, но явно это не он
+#   делал ;-)
+# <04:59> <[Pasha]> valeriusN: ну тогда намотай Прокушеву на ус, что это жабоские internal
+#         function ;-)
 
 #DOSCOPY.201 RESIDENT, &
 #          DOSICOPY.200,         &
@@ -675,15 +700,3 @@ DEST    = os2$(SEP)dll
 
 qwe: .symbolic
  @echo $(COPT)
-
-
-
-
-
-
-
-
-
-
-
-

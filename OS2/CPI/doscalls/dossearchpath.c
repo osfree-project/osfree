@@ -87,6 +87,11 @@ fi(le): dfnsearc.c
 #include <stdlib.h>
 #include <io.h>
 
+#define INCL_OS2DEF
+#include <os2.h>
+
+typedef unsigned char FLAG;
+
 enum {
         OK, NOT_FOUND, ERROR
 };
@@ -98,6 +103,21 @@ struct DFN_Search_Request {
         int flags;
         char delim;
 };
+
+struct DFN_GLOB_t {
+        char *dfn_basedir;
+        struct {
+                unsigned dfn_rewind:1;
+                unsigned dfn_eof:1;
+        } dfn_flags;
+        unsigned dfn_searchattr;
+        size_t dfn_basedirlen;
+        size_t dfn_basediroffset;
+        void *dfn_data;
+        char dfn_pattern[1];
+};
+
+typedef struct DFN_GLOB_t DFN_GLOB;
 
         /* Default search extensions */
 #define DFLT_SEARCH_EXT "COM.EXE.BAT"
@@ -112,7 +132,7 @@ static int matchFile(DFN_GLOB * const dir, const char * const ext)
         p = dfnglobfilename(dir);
 
         assert(p);
-        DBG_RETURN_BI( dfnmatchext(p, ext) )
+        //DBG_RETURN_BI( dfnmatchext(p, ext) )
 }
 
 static int scanDir(struct DFN_Search_Request *r)
@@ -123,7 +143,7 @@ static int scanDir(struct DFN_Search_Request *r)
         assert(r->basename);
 
         if(0 == (dir = dfnglobinit(r->basename, r->flags))) {
-                DBG_RETURN_I(ERROR)
+                //DBG_RETURN_I(ERROR)
         }
 
         if(!r->delim) {         /* no extensions --> one match max */
@@ -169,12 +189,12 @@ foundIT:
                 eno_set(oldErrno);
         if(found) {
                 if(r->foundMatch) {
-                        DBG_RETURN_I(OK)
+                        //DBG_RETURN_I(OK)
                 }
                 /* Some error occured */
-                DBG_RETURN_I(ERROR)
+                //DBG_RETURN_I(ERROR)
         }
-        DBG_RETURN_I(NOT_FOUND);
+        //DBG_RETURN_I(NOT_FOUND);
 }
 
 APIRET APIENTRY  DosSearchPath(ULONG flag,
@@ -196,7 +216,7 @@ char *dfnsearch(const char * const fnam
 
         if(!fnam || !*fnam) {
                 eno_set(EINVAL);
-                DBG_RETURN_S( 0)
+                //DBG_RETURN_S( 0)
         }
 
         r.flags = 0;
@@ -317,12 +337,12 @@ errRet:
         switch(rc) {
         case OK:
                 eno_set(oldErrno);              /* may be clobbered by dfnglob() */
-                DBG_RETURN_S(r.foundMatch)
+                //DBG_RETURN_S(r.foundMatch)
 
         case NOT_FOUND:
                 eno_set(ENOENT);                /* Not found ID */
                 break;
         }
 
-        DBG_RETURN_S(0)
+        //DBG_RETURN_S(0)
 }
