@@ -265,5 +265,7 @@ uses winframemgrcommon;
 uses winframemgr;
 uses winsys;
 uses wininput;
+uses winerrors;
+uses winhooks;
 
 end.

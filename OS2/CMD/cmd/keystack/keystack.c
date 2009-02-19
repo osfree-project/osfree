@@ -5,8 +5,8 @@
 
 #include <string.h>
 
-#define INCL_BASE 1
-#define INCL_PM 1
+#define INCL_BASE
+#define INCL_PM
 #include <osfree.h>
 
 

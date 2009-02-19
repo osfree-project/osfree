@@ -2,7 +2,7 @@
 #
 
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include
-DEST     =
+#DEST     =
 
 !include $(%ROOT)/mk/appsos2.mk
 

@@ -80,6 +80,8 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)winframemgr.h &
      $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winshelldata.h &
+     $(OUT)$(SEP)os2$(SEP)winerrors.h &
+     $(OUT)$(SEP)os2$(SEP)winhooks.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -200,6 +202,10 @@ $(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)winclipboarddde.uni
 $(OUT)$(SEP)os2$(SEP)wininput.h: os2$(SEP)wininput.uni
 
 $(OUT)$(SEP)os2$(SEP)winshelldata.h: os2$(SEP)winshelldata.uni
+
+$(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)winerrors.uni
+
+$(OUT)$(SEP)os2$(SEP)winhooks.h: os2$(SEP)winhooks.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

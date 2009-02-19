@@ -1,0 +1,44 @@
+module winerrors;
+
+uses pmerr;
+
+
+   (* Error codes for debugging support                                       *)
+   (* = $1001 - = $1021, = $1034, = $1036 - = $1050 are reserved                   *)
+
+const WINDBG_HWND_NOT_DESTROYED           = $1022;
+const WINDBG_HPTR_NOT_DESTROYED           = $1023;
+const WINDBG_HACCEL_NOT_DESTROYED         = $1024;
+const WINDBG_HENUM_NOT_DESTROYED          = $1025;
+const WINDBG_VISRGN_SEM_BUSY              = $1026;
+const WINDBG_USER_SEM_BUSY                = $1027;
+const WINDBG_DC_CACHE_BUSY                = $1028;
+const WINDBG_HOOK_STILL_INSTALLED         = $1029;
+const WINDBG_WINDOW_STILL_LOCKED          = $102a;
+const WINDBG_UPDATEPS_ASSERTION_FAIL      = $102b;
+const WINDBG_SENDMSG_WITHIN_USER_SEM      = $102c;
+const WINDBG_USER_SEM_NOT_ENTERED         = $102d;
+const WINDBG_PROC_NOT_EXPORTED            = $102e;
+const WINDBG_BAD_SENDMSG_HWND             = $102f;
+const WINDBG_ABNORMAL_EXIT                = $1030;
+const WINDBG_INTERNAL_REVISION            = $1031;
+const WINDBG_INITSYSTEM_FAILED            = $1032;
+const WINDBG_HATOMTBL_NOT_DESTROYED       = $1033;
+const WINDBG_WINDOW_UNLOCK_WAIT           = $1035;
+
+   (* Get/Set Error Information Interface declarations *)
+
+   type ERRINFO=structure    (* erri *)
+      cbFixedErrInfo: ULONG;
+      idError: ERRORID;
+      cDetailLevel: ULONG;
+      offaoffszMsg: ULONG;
+      offBinaryData: ULONG;
+    end;
+   type PERRINFO=^ERRINFO;
+
+function WinGetLastError(hab: HAB): ERRORID;
+function WinGetErrorInfo(hab: HAB): PERRINFO;
+function WinFreeErrorInfo(perrinfo: PERRINFO): BOOL;
+
+end.
