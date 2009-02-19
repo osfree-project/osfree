@@ -70,4 +70,7 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 
 #define MPFROMHWND(x)           ((MPARAM)(HWND)(x))
 
+#define MAKERXSTRING(r,p,l) \
+    ((r).strptr = (PCH)p, (r).strlength = (ULONG)l)
+
 #endif

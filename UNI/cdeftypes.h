@@ -12,6 +12,7 @@
 #define INCL_HEVDEF
 #define INCL_KBD
 #define INCL_VIO
+#define INCL_MOU
 
 #define INCL_DOSSEMAPHORESCOMMON
 #define INCL_DOSSEMAPHORES
@@ -101,6 +102,10 @@
 /* Aliases (alias modifier of uses) */
 
 #ifdef INCL_VIO
+  #define INCL_SUB
+#endif
+
+#ifdef INCL_MOU
   #define INCL_SUB
 #endif
 
