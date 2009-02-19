@@ -25,6 +25,8 @@
 
 */
 
+#define  INCL_OS2DEF
+#include <os2.h>
 #include <rexxsaa.h>
 
 

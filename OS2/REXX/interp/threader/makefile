@@ -16,3 +16,7 @@ ADD_LINKOPT = lib $(PATH)..$(SEP)implib$(SEP)regina.lib,tcpip32.lib
 !include $(MYDIR)..$(SEP)regina.mk
 
 $(PATH)threader.obj: $(SRC)threader.c $(HFILES)
+
+qwe: .symbolic
+ @echo $(COPT)
+ 

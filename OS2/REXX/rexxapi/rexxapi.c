@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define  INCL_OS2DEF
+#include <os2.h>
 #include <rexxsaa.h>
 
 typedef unsigned short WORD;            // w
