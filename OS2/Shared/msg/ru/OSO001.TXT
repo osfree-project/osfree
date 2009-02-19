@@ -26,14 +26,14 @@ SYS0005E: Доступ запрещен.
 SYS0006I: Неверный внутренний идентификатор файла.
 ;
 ;
-SYS0007I: storage control blocks были уничтожены.
+SYS0007I: Storage Control Blocks (SCB) были уничтожены.
 ;
 ;
 SYS0008E: Не хватает памяти для выполнения этой команды.
 Вся имеющаяся память уже исползуется.
 ;
 ;
-SYS0009I: Неверный адрес storage control block.
+SYS0009I: Неверный адрес Storage Control Block (SCB).
 ;
 ;
 SYS0010I: Неверный environment.
@@ -76,7 +76,7 @@ SYS0021E: Диск не готов.
 SYS0022I: Устройство не отвечает на команды.
 ;
 ;
-SYS0023E: Ошибка данных (cyclic redundancy check).
+SYS0023E: Ошибка данных cyclic redundancy check (CRC).
 ;
 ;
 SYS0024I: Неверная длинна команды полученной от программы.
@@ -95,7 +95,7 @@ SYS0028E: В принтере закончилась бумага или законилось свободное место на
 диске дляя создания spool файла.
 ;
 ;
-SYS0029E: Система не может запись в данное устройство.
+SYS0029E: Система не может записать в данное устройство.
 ;
 ;
 SYS0030E: Система не может прочитать из данного устройства.
@@ -149,107 +149,106 @@ SYS0044I: Диск %1 имеет неправильный формат для
 OS/2.
 ;
 ;
-SYS0045E: Диск %1 не может найти запрошенный сектор.
+SYS0045E: Привод %1 не может найти запрошенный сектор.
 ;
 ;
-SYS0046E: The %1 printer is out of paper.
+SYS0046E: В принтере %1 закончилась бумага.
 ;
 ;
-SYS0047E: The system cannot write to the %1 device.
+SYS0047E: Система не может записать в устройство %1.
 ;
 ;
-SYS0048E: The system cannot read from the %1 device.
+SYS0048E: Система не может прочитать из устройства %1.
 ;
 ;
-SYS0049E: The %1 device is not functioning.
+SYS0049E: Устройство %1 не функционирует.
 ;
 ;
-SYS0050E: The network request is not supported.
+SYS0050E: Сетевой запрос не поддерживается.
 ;
 ;
-SYS0051E: The remote computer is not available.
+SYS0051E: Удалённый сетевой компьютер недоступен.
 ;
 ;
-SYS0052E: A duplicate name exists on the network.
+SYS0052E: Обнаружен конфликт сетевых имён.
 ;
 ;
-SYS0053E: The network path was not found.
+SYS0053E: Сетевой путь не найден.
 ;
 ;
-SYS0054E: The network is busy or is out of resources.
+SYS0054E: Сеть занята или не хватает ресурсов.
 ;
 ;
-SYS0055E: The specified network resource is no longer available.
+SYS0055E: Указанный сетевой ресурс более недоступен.
 ;
 ;
-SYS0056E: The network BIOS command limit has been reached.
+SYS0056E: Лимит NetBIOS команд исчерпан.
 ;
 ;
-SYS0057E: A network adapter hardware error occurred.
+SYS0057E: Аппаратная ошибка сетевого адаптера.
 ;
 ;
-SYS0058E: The specified server cannot perform the requested operation.
+SYS0058E: Указанный сервер не может выполнить требуемую операцию.
 ;
 ;
-SYS0059E: An unexpected network error occurred.
+SYS0059E: Непредвиденная ошибка сети.
 ;
 ;
-SYS0060E: The remote adapter is not compatible.
+SYS0060E: Обнаружена несовместимость удалённого сетевого адаптера.
 ;
 ;
-SYS0061E: The printer queue is full.
+SYS0061E: Переполнение очереди печати.
 ;
 ;
-SYS0062E: Space to store the file waiting to be printed is not
-available on the server.
+SYS0062E: Переполнение оереди печати на сервере.
 ;
 ;
-SYS0063E: Your file waiting to be printed was deleted.
+SYS0063E: Ваше задание на печать было удалено.
 ;
 ;
-SYS0064E: The specified network name is no longer available.
+SYS0064E: Указанное сетевое имя более недоступно.
 ;
 ;
-SYS0065E: Network access is denied.
+SYS0065E: Сетевой доступ запрещён.
 ;
 ;
-SYS0066E: The network resource type is incorrect.
+SYS0066E: Неверный тип сетевого ресурса.
 ;
 ;
-SYS0067E: The network name cannot be found.
+SYS0067E: Сетевое имя не найдено.
 ;
 ;
-SYS0068E: The name limit for the local computer network adapter card
-was exceeded.
+SYS0068E: Был превышен лимитмён для локального сетевого адаптера.
 ;
 ;
-SYS0069E: The network BIOS session limit was exceeded.
+SYS0069E: Был превышен лимит сессии NetBIOS.
 ;
 ;
-SYS0070E: The remote server has been paused or is in the process of
-being started.
+SYS0070E: Удалённый сервер был приостановлен или находится
+в процессе запуска.
 ;
 ;
-SYS0071E: The network request was not accepted.
+SYS0071E: Сетевой запрос не был принят.
 ;
 ;
-SYS0072E: The specified printer or disk device has been paused.
+SYS0072E: Указанный диск или принтер был приостановлен.
 ;
 ;
-SYS0073E: The diskette is write protected.
+SYS0073E: Дискета защищена от записи.
 ;
 ;
-SYS0074E: A device attached to the system is not functioning.
+SYS0074E: Подключённое к компьютеру устройство не функционирует.
 ;
 ;
-SYS0075E: There is not enough memory to run this XGA application.
-If you want the application to continue running, do the following:
-1. Select End program/command/operation.
-2. Press Ctrl+Esc or Alt+Esc to switch this application to the
-   background.
-3. Free memory by ending some running programs.
-4. Return the XGA application to the foreground by selecting it
-   from the Window List.
+SYS0075E: Недостатчно памяти для выполнения данного XGA приложения.
+Если вы хотите, чтобы приложение по-прежнему работало,
+выполните следующие действия:
+1. Выберите завершение программы/команды/операции.
+2. Нажмите Ctrl+Esc или Alt+Esc для переклюения данного приложения
+   в фоновый режим.
+3. Освободите память, завершив некоторые из запущеных программ.
+4. Вернитесь в данное XGA приложение выбрав его из списка задач
+   или переключившись на него.
 ;
 ;
 SYS0076?:
@@ -273,22 +272,22 @@ SYS0081?:
 SYS0082E: Каталог или файл не может быть создан.
 ;
 ;
-SYS0083I: Fail on INT 24.
+SYS0083I: Сбой на INT 24.
 ;
 ;
-SYS0084E: Storage to process this request is not available.
+SYS0084E: Отсутствуют ресурсы для обработки данного запрса.
 ;
 ;
-SYS0085E: The local device name is already in use.
+SYS0085E: Имя локального устройства уже используется.
 ;
 ;
-SYS0086E: The specified network password is incorrect.
+SYS0086E: Сетевой пароль указан неверно.
 ;
 ;
-SYS0087I: The parameter is incorrect.
+SYS0087I: Параметр задан неверно.
 ;
 ;
-SYS0088W: A write fault occurred on the network.
+SYS0088W: Сетевая ошибка записи.
 ;
 ;
 SYS0089E: Система не может запустить другой процесс в данный момент.
@@ -312,7 +311,8 @@ SYS0094?:
 SYS0095?:
 ;
 ;
-SYS0096E: Invalid Disk Transfer Address (DTA) used.
+SYS0096E: Попытка использования недействительного DTA
+(Disk Transfer Address).
 ;
 ;
 SYS0097?:
