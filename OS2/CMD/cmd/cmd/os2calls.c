@@ -953,7 +953,7 @@ void SetVerifyWrite( int fVerify )
 int QueryCodePage( void )
 {
     ULONG CodePageList, DataLength;
-    (void)DosGetCp( sizeof(CodePageList), &CodePageList, &DataLength );
+    (void)DosQueryCp( sizeof(CodePageList), &CodePageList, &DataLength );
 
     return (int)CodePageList;
 }

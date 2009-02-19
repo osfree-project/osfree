@@ -29,7 +29,6 @@ module dosnls;
    #define DosGetDBCSEv    DosQueryDBCSEnv
    #define DosCaseMap      DosMapCase
    #define DosGetCollate   DosQueryCollate
-   #define DosGetCp        DosQueryCp
    #define DosSetProcCp    DosSetProcessCp
 *)
 
