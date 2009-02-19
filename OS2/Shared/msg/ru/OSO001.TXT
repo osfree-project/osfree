@@ -104,52 +104,52 @@ SYS0030E: Система не может прочитать из данного устройства.
 SYS0031E: Подклюённое устройство не функционирует.
 ;
 ;
-SYS0032E: Процесс не может полуить доступ к файлу так как файл
+SYS0032E: Процесс не может получить доступ к файлу так как файл
 используется другим процессом.
 ;
 ;
-SYS0033E: Процесс не может полуить доступ к файлу так как другой
+SYS0033E: Процесс не может получить доступ к файлу так как другой
 процесс блокирует часть файла.
 ;
 ;
-SYS0034P: The wrong diskette is in the drive.  Insert %2
-(Volume Serial Number: %3) into drive %1.
+SYS0034P: В дисководе неправильная дискета. Вставьте %2
+(Серийный номер тома: %3) в привод %1.
 ;
 ;
 SYS0035E: Программа не может открыть запрошенный файл.
 ;
 ;
-SYS0036E: The system has detected an overflow in the sharing buffer.
+SYS0036E: Системой обнаружено переполнение разделяемого буфера.
 ;
 ;
-SYS0037E: The system cannot write to the write-protected %1 drive.
+SYS0037E: Система не может записать на диск %1, защищенный от записи.
 ;
 ;
-SYS0038E: The system cannot find the %1 device.
+SYS0038E: Система не может найти устройство %1.
 ;
 ;
-SYS0039E: The %1 device is not ready.
+SYS0039E: Устройство %1 не готово.
 ;
 ;
-SYS0040I: The %1 device does not recognize the command.
+SYS0040I: Устройство %1 не распознает данную команду.
 ;
 ;
-SYS0041E: Data error (cyclic redundancy check) on %1.
+SYS0041E: Ошибка данных (неправильный CRC) на %1.
 ;
 ;
-SYS0042I: The program issued a command to %1
-but the command length was incorrect.
+SYS0042I: Программа дала команду  %1,
+но длина команды была неправильна.
 ;
 ;
-SYS0043E: Drive %1 cannot locate a specific area or track on
-the disk.
+SYS0043E: Привод %1 не может найти область или дорожку на
+диске.
 ;
 ;
-SYS0044I: Drive %1 is not properly formatted for the
-operating system.
+SYS0044I: Диск %1 имеет неправильный формат для
+OS/2.
 ;
 ;
-SYS0045E: Drive %1 cannot find the sector requested.
+SYS0045E: Диск %1 не может найти запрошенный сектор.
 ;
 ;
 SYS0046E: The %1 printer is out of paper.
