@@ -45,6 +45,7 @@
 /******************************************************************************/
 
 #include <stdbool.h>
+
 #include <rexxsaa.h>
 
 #define LIBVERSION_MAJOR  2
