@@ -6,7 +6,7 @@
 
 srcfiles = $(p)habmgr$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -bd
-DEST =
+DEST = none
 
 !include $(%ROOT)/mk/appsos2.mk
 

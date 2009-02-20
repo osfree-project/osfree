@@ -6,7 +6,7 @@
 
 srcfiles = $(p)WindowClass$(e) $(p)windowmgr$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
-DEST =
+DEST = none
 
 !include $(%ROOT)/mk/appsos2.mk
 

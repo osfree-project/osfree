@@ -50,8 +50,13 @@ TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
 !ifndef DEST
 DEST = $(FILESDIR)$(SEP)os2
 !else
+!ifeq DEST none
+# stay in build directory
+DEST = .
+!else
 # DEST is relative from $(FILESDIR)
 DEST = $(FILESDIR)$(SEP)$(DEST)
+!endif
 !endif
 
 !ifneq DEST1
