@@ -1,0 +1,80 @@
+module winlistboxes;
+
+   (**** Listboxes *)
+
+   (* List box styles *)
+
+const LS_MULTIPLESEL             = $00000001;
+
+const LS_OWNERDRAW               = $00000002;
+
+const LS_NOADJUSTPOS             = $00000004;
+const LS_HORZSCROLL              = $00000008;
+
+const LS_EXTENDEDSEL             = $00000010;
+
+
+   (* List box notification messages *)
+
+const LN_SELECT                 = 1;
+const LN_SETFOCUS               = 2;
+const LN_KILLFOCUS              = 3;
+const LN_SCROLL                 = 4;
+const LN_ENTER                  = 5;
+
+   (* List box messages *)
+
+const LM_QUERYITEMCOUNT          = $0160;
+const LM_INSERTITEM              = $0161;
+const LM_SETTOPINDEX             = $0162;
+const LM_DELETEITEM              = $0163;
+const LM_SELECTITEM              = $0164;
+const LM_QUERYSELECTION          = $0165;
+const LM_SETITEMTEXT             = $0166;
+const LM_QUERYITEMTEXTLENGTH     = $0167;
+const LM_QUERYITEMTEXT           = $0168;
+
+const LM_SETITEMHANDLE           = $0169;
+const LM_QUERYITEMHANDLE         = $016a;
+const LM_SEARCHSTRING            = $016b;
+const LM_SETITEMHEIGHT           = $016c;
+const LM_QUERYTOPINDEX           = $016d;
+const LM_DELETEALL               = $016e;
+const LM_INSERTMULTITEMS         = $016f;
+const LM_SETITEMWIDTH            = $0660;
+
+
+   (* List box constants *)
+
+const LIT_CURSOR                = (-4);
+const LIT_ERROR                 = (-3);
+const LIT_MEMERROR              = (-2);
+const LIT_NONE                  = (-1);
+const LIT_FIRST                 = (-1);
+
+   (* For LM_INSERTITEM msg *)
+
+const LIT_END                   = (-1);
+const LIT_SORTASCENDING         = (-2);
+const LIT_SORTDESCENDING        = (-3);
+
+   (* For LM_SEARCHSTRING msg *)
+
+const LSS_SUBSTRING              = $0001;
+const LSS_PREFIX                 = $0002;
+const LSS_CASESENSITIVE          = $0004;
+
+   (*******************************************************************)
+   (* Structure for use with LM_INSERTMULTITEMS                       *)
+   (*******************************************************************)
+
+   type LBOXINFO=structure         (* lboxinfo *)
+        lItemIndex: LONG;            (* Item index *)
+        ulItemCount: ULONG;           (* Item count *)
+        reserved: ULONG;              (* Reserved - must be zero *)
+        reserved2: ULONG;             (* Reserved - must be zero *)
+     end;
+
+   type PLBOXINFO=^LBOXINFO;
+
+end.

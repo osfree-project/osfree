@@ -59,6 +59,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphorescommon.h &
      $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h &
      $(OUT)$(SEP)os2$(SEP)dosresources.h &
+     $(OUT)$(SEP)os2$(SEP)dosresourcescommon.h &
      $(OUT)$(SEP)os2$(SEP)dosexceptions.h &
      $(OUT)$(SEP)os2$(SEP)dosdatetime.h &
      $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h &
@@ -69,12 +70,15 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)winswitchlist.h &
      $(OUT)$(SEP)os2$(SEP)pmwp.h &
      $(OUT)$(SEP)os2$(SEP)pmwin.h &
+     $(OUT)$(SEP)os2$(SEP)pmstddlg.h &
+     $(OUT)$(SEP)os2$(SEP)winstdbook.h &
      $(OUT)$(SEP)os2$(SEP)winsys.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h &
+     $(OUT)$(SEP)os2$(SEP)winwindowmgr.h &
      $(OUT)$(SEP)os2$(SEP)winclipboarddde.h &
      $(OUT)$(SEP)os2$(SEP)winprogramlist.h &
      $(OUT)$(SEP)os2$(SEP)winframemgr.h &
@@ -82,6 +86,11 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)winshelldata.h &
      $(OUT)$(SEP)os2$(SEP)winerrors.h &
      $(OUT)$(SEP)os2$(SEP)winhooks.h &
+     $(OUT)$(SEP)os2$(SEP)winentryfields.h &
+     $(OUT)$(SEP)os2$(SEP)windialogs.h &
+     $(OUT)$(SEP)os2$(SEP)windialogscommon.h &
+     $(OUT)$(SEP)os2$(SEP)winbuttons.h &
+     $(OUT)$(SEP)os2$(SEP)winlistboxes.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -162,6 +171,7 @@ $(OUT)$(SEP)os2$(SEP)dosexcptfunc.h: os2$(SEP)dosexcptfunc.uni
 
 $(OUT)$(SEP)os2$(SEP)dosresources.h: os2$(SEP)dosresources.uni
 
+$(OUT)$(SEP)os2$(SEP)dosresourcescommon.h: os2$(SEP)dosresourcescommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosdebug.h: os2$(SEP)dosdebug.uni
 
@@ -172,6 +182,10 @@ $(OUT)$(SEP)os2$(SEP)pm.h: os2$(SEP)pm.uni
 $(OUT)$(SEP)os2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
 
 $(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
+
+$(OUT)$(SEP)os2$(SEP)pmstddlg.h: os2$(SEP)pmstddlg.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)winstdbook.uni
 
 $(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)winswitchlist.uni
 
@@ -193,6 +207,8 @@ $(OUT)$(SEP)os2$(SEP)winsys.h: os2$(SEP)winsys.uni
 
 $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)winwindowmgrcommon.uni
 
+$(OUT)$(SEP)os2$(SEP)winwindowmgr.h: os2$(SEP)winwindowmgr.uni
+
 $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)winmessagemgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)winclipboard.uni
@@ -206,6 +222,16 @@ $(OUT)$(SEP)os2$(SEP)winshelldata.h: os2$(SEP)winshelldata.uni
 $(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)winerrors.uni
 
 $(OUT)$(SEP)os2$(SEP)winhooks.h: os2$(SEP)winhooks.uni
+
+$(OUT)$(SEP)os2$(SEP)windialogscommon.h: os2$(SEP)windialogscommon.uni
+
+$(OUT)$(SEP)os2$(SEP)windialogs.h: os2$(SEP)windialogs.uni
+
+$(OUT)$(SEP)os2$(SEP)winentryfields.h: os2$(SEP)winentryfields.uni
+
+$(OUT)$(SEP)os2$(SEP)winbuttons.h: os2$(SEP)winbuttons.uni
+
+$(OUT)$(SEP)os2$(SEP)winlistboxes.h: os2$(SEP)winlistboxes.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

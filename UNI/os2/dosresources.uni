@@ -1,0 +1,21 @@
+module dosresources;
+
+
+function DosGetResource(hmod: HMODULE;
+                                    idType: ULONG;
+                                    idName: ULONG;
+                                    ppb: PPVOID): APIRET;
+
+function DosGetResource2(hmod: HMODULE;
+                                    idType: ULONG;
+                                    idName: ULONG;
+                                    ppb: PPVOID): APIRET;
+
+function DosFreeResource(pb: PVOID): APIRET;
+
+function DosQueryResourceSize(hmod: HMODULE;
+                                          idt: ULONG;
+                                          idn: ULONG;
+                                          pulsize: PULONG): APIRET;
+
+end.

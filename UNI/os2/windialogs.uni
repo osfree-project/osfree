@@ -1,0 +1,114 @@
+module windialogs;
+
+   (* Dialog codes: returned by WM_QUERYDLGCODE msg     *)
+
+const DLGC_ENTRYFIELD    = $0001;  (* Entry field item understands EM_SETSEL) *)
+const DLGC_BUTTON        = $0002;  (* Button item                             *)
+const DLGC_RADIOBUTTON   = $0004;  (* Radio button                            *)
+const DLGC_STATIC        = $0008;  (* Static item                             *)
+const DLGC_DEFAULT       = $0010;  (* Default push button                     *)
+const DLGC_PUSHBUTTON    = $0020;  (* Normal (Non-default) push button        *)
+const DLGC_CHECKBOX      = $0040;  (* Check box button control                *)
+const DLGC_SCROLLBAR     = $0080;  (* Scroll bar                              *)
+const DLGC_MENU          = $0100;  (* Menu                                    *)
+const DLGC_TABONCLICK    = $0200;
+const DLGC_MLE           = $0400;  (* Multiple Line Entry                     *)
+
+
+function WinProcessDlg(hwndDlg: HWND): ULONG;
+function WinSendDlgItemMsg(hwndDlg: HWND;
+                                      idItem: ULONG;
+                                      msg: ULONG;
+                                      mp1: MPARAM;
+                                      mp2: MPARAM): MRESULT;
+function WinMapDlgPoints(hwndDlg: HWND;
+                                    prgwptl: PPOINTL;
+                                    cwpt: ULONG;
+                                    fCalcWindowCoords: BOOL): BOOL;
+function WinEnumDlgItem(hwndDlg: HWND;
+                                   hwnd: HWND;
+                                   code: ULONG): HWND;
+
+function WinSubstituteStrings(hwnd: HWND;
+                                         pszSrc: PCSZ;
+                                         cchDstMax: LONG;
+                                         pszDst: PCSZ): LONG;
+
+
+
+   (* WinEnumDlgItem() constants *)
+
+const EDI_FIRSTTABITEM          = 0;
+const EDI_LASTTABITEM           = 1;
+const EDI_NEXTTABITEM           = 2;
+const EDI_PREVTABITEM           = 3;
+const EDI_FIRSTGROUPITEM        = 4;
+const EDI_LASTGROUPITEM         = 5;
+const EDI_NEXTGROUPITEM         = 6;
+const EDI_PREVGROUPITEM         = 7;
+
+   (*** Dialog template definitions *)
+
+   (*** Variable-sized dialog template items: ******************************)
+
+//   #pragma pack(2) (* force structure alignment packing *)
+
+   (*************************************************************************
+   *
+   *  We pack the structures _DLGTITEM and _DLGTEMPLATE so that the
+   *  structures are identical in the 32-bit and 16-bit worlds. We have
+   *  to do this because is has been documented that one can pass a
+   *  pointer to 'the binary resource format' when calling WinCreateDlg.
+   *
+   *************************************************************************)
+
+   (* Binary resources may be bound into application executables or *)
+   (* passed as a parameter when creating a window or dialog        *)
+   (* Currently they must be the same for both 16-bit and 32-bit    *)
+   (* so we pack the structures.                                    *)
+   type DLGTITEM=structure    (* dlgti *)
+        fsItemStatus: USHORT;
+        cChildren: USHORT;
+        cchClassName: USHORT;
+        offClassName: USHORT;
+        cchText: USHORT;
+        offText: USHORT;
+        flStyle: ULONG;
+        x: SHORT;
+        y: SHORT;
+        cx: SHORT;
+        cy: SHORT;
+        id: USHORT;
+        offPresParams: USHORT;
+        offCtlData: USHORT;
+     end;
+   type PDLGTITEM=^DLGTITEM;
+
+   (*** Dialog Template structure ******************************************)
+
+   (* Binary resources may be bound into application executables or *)
+   (* passed as a parameter when creating a window or dialog        *)
+   (* Currently they must be the same for both 16-bit and 32-bit    *)
+   (* so we pack the structures.                                    *)
+   type DLGTEMPLATE=structure    (* dlgt *)
+        cbTemplate: USHORT;
+        type: USHORT;
+        codepage: USHORT;
+        offadlgti: USHORT;
+        fsTemplateStatus: USHORT;
+        iItemFocus: USHORT;
+        coffPresParams: USHORT;
+        adlgti: array[1] of DLGTITEM;
+     end;
+   type PDLGTEMPLATE=^DLGTEMPLATE;
+
+//   #pragma pack()  (* restore packing to default *)
+
+function WinCreateDlg(hwndParent: HWND;
+                                hwndOwner: HWND;
+                                pfnDlgProc: PFNWP;
+                                pdlgt: PDLGTEMPLATE;
+                                pCreateParams: PVOID): HWND;
+
+
+end.

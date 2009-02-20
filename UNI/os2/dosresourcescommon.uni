@@ -1,0 +1,38 @@
+module dosresourcescommon;
+
+   (*** Resource support *)
+
+   (* Predefined resource types *)
+
+const RT_POINTER     = 1;   (* mouse pointer shape *)
+const RT_BITMAP      = 2;   (* bitmap *)
+const RT_MENU        = 3;   (* menu template *)
+const RT_DIALOG      = 4;   (* dialog template *)
+const RT_STRING      = 5;   (* string tables *)
+const RT_FONTDIR     = 6;   (* font directory *)
+const RT_FONT        = 7;   (* font *)
+const RT_ACCELTABLE  = 8;   (* accelerator tables *)
+const RT_RCDATA      = 9;   (* binary data *)
+const RT_MESSAGE     = 10;  (* error msg     tables *)
+const RT_DLGINCLUDE  = 11;  (* dialog include file name *)
+const RT_VKEYTBL     = 12;  (* key to vkey tables *)
+const RT_KEYTBL      = 13;  (* key to UGL tables *)
+const RT_CHARTBL     = 14;  (* glyph to character tables *)
+const RT_DISPLAYINFO = 15;  (* screen display information *)
+
+const RT_FKASHORT    = 16;  (* function key area short form *)
+const RT_FKALONG     = 17;  (* function key area long form *)
+
+const RT_HELPTABLE   = 18;  (* Help table for Cary Help manager *)
+const RT_HELPSUBTABLE= 19;  (* Help subtable for Cary Help manager *)
+
+const RT_FDDIR       = 20;  (* DBCS uniq/font driver directory *)
+const RT_FD          = 21;  (* DBCS uniq/font driver *)
+
+const RT_MAX         = 22;  (* 1st unused Resource Type *)
+const RT_RESNAMES    = 255; (* Resource ID of the resource names table *)
+
+
+const RF_ORDINALID    = $80000000;     (* ordinal id flag in resource table *)
+
+end.

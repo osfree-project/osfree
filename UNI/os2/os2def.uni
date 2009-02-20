@@ -265,5 +265,78 @@ type ACCEL=structure
   end;
 type PACCEL=^ACCEL;
 
+(* font metrics returned by GpiQueryFonts and others *)
+
+type PANOSE=structure
+       bFamilyType: BYTE;
+       bSerifStyle: BYTE;
+       bWeight: BYTE;
+       bProportion: BYTE;
+       bContrast: BYTE;
+       bStrokeVariation: BYTE;
+       bArmStyle: BYTE;
+       bLetterform: BYTE;
+       bMidline: BYTE;
+       bXHeight: BYTE;
+       fbPassedISO: BYTE;
+       fbFailedISO: BYTE;
+  end;
+
+type FONTMETRICS=structure
+       szFamilyname: array[FACESIZE] of CHAR;
+       szFacename: array[FACESIZE] of CHAR;
+       idRegistry: USHORT;
+       usCodePage: USHORT;
+       lEmHeight: LONG;
+       lXHeight: LONG;
+       lMaxAscender: LONG;
+       lMaxDescender: LONG;
+       lLowerCaseAscent: LONG;
+       lLowerCaseDescent: LONG;
+       lInternalLeading: LONG;
+       lExternalLeading: LONG;
+       lAveCharWidth: LONG;
+       lMaxCharInc: LONG;
+       lEmInc: LONG;
+       lMaxBaselineExt: LONG;
+       sCharSlope: SHORT;
+       sInlineDir: SHORT;
+       sCharRot: SHORT;
+       usWeightClass: USHORT;
+       usWidthClass: USHORT;
+       sXDeviceRes: SHORT;
+       sYDeviceRes: SHORT;
+       sFirstChar: SHORT;
+       sLastChar: SHORT;
+       sDefaultChar: SHORT;
+       sBreakChar: SHORT;
+       sNominalPointSize: SHORT;
+       sMinimumPointSize: SHORT;
+       sMaximumPointSize: SHORT;
+       fsType: USHORT;
+       fsDefn: USHORT;
+       fsSelection: USHORT;
+       fsCapabilities: USHORT;
+       lSubscriptXSize: LONG;
+       lSubscriptYSize: LONG;
+       lSubscriptXOffset: LONG;
+       lSubscriptYOffset: LONG;
+       lSuperscriptXSize: LONG;
+       lSuperscriptYSize: LONG;
+       lSuperscriptXOffset: LONG;
+       lSuperscriptYOffset: LONG;
+       lUnderscoreSize: LONG;
+       lUnderscorePosition: LONG;
+       lStrikeoutSize: LONG;
+       lStrikeoutPosition: LONG;
+       sKerningPairs: SHORT;
+       sFamilyClass: SHORT;
+       lMatch: LONG;
+       FamilyNameAtom: LONG;
+       FaceNameAtom: LONG;
+       panose: PANOSE;
+end;
+type PFONTMETRICS=^FONTMETRICS;
+
 end.
 

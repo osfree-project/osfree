@@ -9,6 +9,77 @@ const HWND_BOTTOM             = 4;
 
 const HWND_THREADCAPTURE      = 5;
 
+(*** Standard Window Classes ***********************************************)
+
+const WC_FRAME             = $ffff0001;
+const WC_COMBOBOX          = $ffff0002;
+const WC_BUTTON            = $ffff0003;
+const WC_MENU              = $ffff0004;
+const WC_STATIC            = $ffff0005;
+const WC_ENTRYFIELD        = $ffff0006;
+const WC_LISTBOX           = $ffff0007;
+const WC_SCROLLBAR         = $ffff0008;
+const WC_TITLEBAR          = $ffff0009;
+const WC_MLE               = $ffff000A;
+(* 000B to 000F reserved *)
+const WC_APPSTAT           = $ffff0010;
+const WC_KBDSTAT           = $ffff0011;
+const WC_PECIC             = $ffff0012;
+const WC_DBE_KKPOPUP       = $ffff0013;
+(* 0014 to 001F reserved *)
+const WC_SPINBUTTON        = $ffff0020;
+(* 0021 to 0024 reserved *)
+const WC_CONTAINER         = $ffff0025;
+const WC_SLIDER            = $ffff0026;
+const WC_VALUESET          = $ffff0027;
+const WC_NOTEBOOK          = $ffff0028;
+(* 0029 to 002C used by PEN *)
+const WC_PENFIRST          = $ffff0029;
+const WC_PENLAST           = $ffff002C;
+(* 002D to 0030 reserved *)
+(* 0030 to 003F reserved *)
+const WC_MMPMFIRST         = $ffff0040;
+const WC_CIRCULARSLIDER    = $ffff0041;
+const WC_MMPMLAST          = $ffff004f;
+(* 0050 to 005f reserved *)
+const WC_PRISTDDLGFIRST    = $ffff0050;
+const WC_PRISTDDLGLAST     = $ffff0057;
+const WC_PUBSTDDLGFIRST    = $ffff0058;
+const WC_PUBSTDDLGLAST     = $ffff005f;
+(* 0060 to 006f reserved *)
+
+(*** Standard Window Styles ************************************************)
+
+const WS_VISIBLE                 = $80000000;
+const WS_DISABLED                = $40000000;
+const WS_CLIPCHILDREN            = $20000000;
+const WS_CLIPSIBLINGS            = $10000000;
+const WS_PARENTCLIP              = $08000000;
+const WS_SAVEBITS                = $04000000;
+const WS_SYNCPAINT               = $02000000;
+const WS_MINIMIZED               = $01000000;
+const WS_MAXIMIZED               = $00800000;
+const WS_ANIMATE                 = $00400000;
+
+(*** Dialog manager styles *************************************************)
+
+const WS_GROUP                   = $00010000;
+const WS_TABSTOP                 = $00020000;
+const WS_MULTISELECT             = $00040000;
+
+(*** Class styles *********************************************************)
+
+const CS_MOVENOTIFY              = $00000001;
+const CS_SIZEREDRAW              = $00000004;
+const CS_HITTEST                 = $00000008;
+const CS_PUBLIC                  = $00000010;
+const CS_FRAME                   = $00000020;
+const CS_CLIPCHILDREN            = $20000000;
+const CS_CLIPSIBLINGS            = $10000000;
+const CS_PARENTCLIP              = $08000000;
+const CS_SAVEBITS                = $04000000;
+const CS_SYNCPAINT               = $02000000;
+
 uses pmshl;
 
 function WinCreateWindow(hwndParent: HWND;
@@ -257,6 +328,7 @@ function  WinLoadMessage(hab: HAB;
 
 
 
+uses winwindowmgr;
 uses winwindowmgrcommon;
 uses winmessagemgrcommon;
 uses winclipboard;
@@ -267,5 +339,12 @@ uses winsys;
 uses wininput;
 uses winerrors;
 uses winhooks;
+uses windialogscommon;
+uses windialogs;
+uses winentryfields;
+uses pmstddlg;
+uses winentryfields;
+uses winbuttons;
+uses winlistboxes;
 
 end.

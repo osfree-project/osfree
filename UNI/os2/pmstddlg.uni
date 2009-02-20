@@ -1,0 +1,5 @@
+module pmstddlg;
+
+uses winstdbook;
+
+end.
