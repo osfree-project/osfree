@@ -28,7 +28,7 @@ rem ---------prereqs-------------------
   (cd %d% && (@if not exist %%i @wmake %%i))))
 
 cd %ROOT%bin
-@%rexx% mkboot.cmd boot\sectors\eltorito.bin boot\loader\preldr0.mdl boot\loader\fsd\iso9660.mdl boot\bootblk
+@mkboot.cmd boot\sectors\eltorito.bin boot\loader\preldr0.mdl boot\loader\fsd\iso9660.mdl boot\bootblk
 
 cd ..\..
 set dirs=cd cd\boot cd\boot\loader cd\boot\loader\fsd ^

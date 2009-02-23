@@ -327,46 +327,46 @@ SYS0099E: Устройство %1 уже используется другим процессом.
 SYS0100E: Не могу создать другой системный семафор.
 ;
 ;
-SYS0101E: The exclusive semaphore is owned by another process.
+SYS0101E: Исключительный семафор принадлежит другому процессу.
 ;
 ;
-SYS0102E: The semaphore is set and cannot be closed.
+SYS0102E: Семафор установлен и не может быть закрыт.
 ;
 ;
-SYS0103E: The semaphore cannot be set again.
+SYS0103E: Семафор снова не может быть установлен.
 ;
 ;
-SYS0104E: Cannot request exclusive semaphores at interrupt time.
+SYS0104E: Невозможен запрос исключительнго семафора, во время прерывания.
 ;
 ;
-SYS0105I: The previous ownership of this semaphore has ended.
+SYS0105I: Процесс, предыдущий владелец семафора, завершён.
 ;
 ;
-SYS0106P: Insert the diskette for drive %1
+SYS0106P: Вставьте дискету в дисовод %1
 ;
 ;
-SYS0107P: Program stopped because alternate diskette was not inserted.
+SYS0107P: Программа приостановлена, так как дискета не заменена.
 ;
 ;
-SYS0108E: The disk is in use or locked by another process.
+SYS0108E: Диск используется или заблокирован другим процессом.
 ;
 ;
-SYS0109E: The pipe has been ended.
+SYS0109E: Пайп (pipe) закрыт.
 ;
 ;
-SYS0110I: The system cannot open the device or file specified.
+SYS0110I: Система не может открыть запрошенное устройство или файл.
 ;
 ;
-SYS0111E: Имя файла слишком длинное.
+SYS0111E: Слишком длинное имя файла.
 ;
 ;
 SYS0112E: На диске недостаточно свободного места.
 ;
 ;
-SYS0113I: No more internal file identifiers available.
+SYS0113I: Отсутствуют внутренние файловые идентификаторы.
 ;
 ;
-SYS0114I: The target internal file identifier is incorrect.
+SYS0114I: Неверный целевой внутренний файловый идентификатор.
 ;
 ;
 SYS0115?:
@@ -375,29 +375,30 @@ SYS0115?:
 SYS0116?:
 ;
 ;
-SYS0117I: The IOCTL call made by the application is incorrect.
+SYS0117I: Неверный вызов IOCTL созданный процессом.
 ;
 ;
-SYS0118I: The verify-on-write parameter value is incorrect.
+SYS0118I: Неверное значение параметра проверки-при-записи.
 ;
 ;
 SYS0119I: Система не поддерживает запрошенную команду.
 ;
 ;
-SYS0120I: The Application Program Interface (API) entered
-will only work in OS/2 mode.
+SYS0120I: Полученное Application Program Interface (API)
+работает только в режиме OS/2.
 ;
 ;
-SYS0121I: The semaphore timeout period has expired.
+SYS0121I: Закончился таймаут семафора.
 ;
 ;
-SYS0122I: The data area passed to a system call is too small.
+SYS0122I: Размер области данных переданный в системном вызове
+слишком мал.
 ;
 ;
-SYS0123E: A file name or volume label contains an incorrect character.
+SYS0123E: Имя файла, или метка тома содержит неправильный символ.
 ;
 ;
-SYS0124I: The system call level is incorrect.
+SYS0124I: Неверный уровень системного вызова.
 ;
 ;
 SYS0125I: Диск не имеет метки тома.
@@ -406,7 +407,7 @@ SYS0125I: Диск не имеет метки тома.
 SYS0126E: Указанный модуль не может быть найден.
 ;
 ;
-SYS0127E: The specified procedure could not be found.
+SYS0127E: Указанная процедура не найдена.
 ;
 ;
 SYS0128?:
@@ -424,8 +425,8 @@ SYS0131I: c9 bb c8 bc ba ba cd cd cc b9 cb ca ce
 SYS0132I: 18 19 1b 1a
 ;
 ;
-SYS0133I: A JOIN or SUBST command cannot be used for a drive that
-contains previously joined drives.
+SYS0133I: Команда JOIN или SUBST не может быть применена к дискам
+уже содержащим подключённые диски.
 ;
 ;
 SYS0134I: An attempt was made to use a JOIN or SUBST command on a
@@ -467,10 +468,10 @@ SYS0143I: The system cannot join or substitute a drive to or for a
 directory on the same drive.
 ;
 ;
-SYS0144E: The directory is not a subdirectory of the root directory.
+SYS0144E: Данный каталог расположен не в корне диска.
 ;
 ;
-SYS0145E: The directory is not empty.
+SYS0145E: Не пустой каталог.
 ;
 ;
 SYS0146E: The path specified is being used in a substitute.
@@ -480,83 +481,83 @@ SYS0147E: Not enough resources are available to process this command.
 The process for which this pop-up is displayed will end.
 ;
 ;
-SYS0148E: The path specified cannot be used at this time.
+SYS0148E: В данное время заданный путь не может быть использован.
 ;
 ;
 SYS0149I: An attempt was made to join or substitute a drive for which
 a directory on the drive is the target of a previous substitute.
 ;
 ;
-SYS0150E: System trace information was not specified in your CONFIG.SYS
-file or tracing is not allowed.
+SYS0150E: Информация необходимая для трассировки не указана
+в файле CONFIG.SYS и/или трассировка отключена.
 ;
 ;
 SYS0151E: The number of specified semaphore events for DosMuxSemWait
 is incorrect.
 ;
 ;
-SYS0152E: DosMuxSemWait did not execute.  Too many semaphores are
-already set.
+SYS0152E: Вызов DosMuxSemWait не выполнен. Установлено слишком много
+семафоров.
 ;
 ;
-SYS0153E: The DosMuxSemWait list is incorrect.
+SYS0153E: Неверный форат вызова DosMuxSemWait list.
 ;
 ;
-SYS0154I: The volume label you entered exceeds the 11-character limit.
-The first 11 characters were written to disk.  Any characters that
-exceeded the 11-character limit were automatically deleted.
+SYS0154I: Длинна введённой вами метки тома превышает 11 символов.
+Только первые 11 символов записаны на диск. Все остальные символы
+автоматически удалены.
 ;
 ;
-SYS0155E: Cannot create another thread.
+SYS0155E: Невозможно создать поток (thread).
 ;
 ;
-SYS0156E: The recipient process has refused the signal.
+SYS0156E: Принимающий процесс отклонил сигнал.
 ;
 ;
-SYS0157I: The segment is already discarded and cannot be locked.
+SYS0157I: Сегмент уже отброшен и не может быть заблокирован.
 ;
 ;
-SYS0158I: The segment is already unlocked.
+SYS0158I: Сегмент уже разблокирован.
 ;
 ;
-SYS0159E: The address for the thread ID is incorrect.
+SYS0159E: Неверный адрес идентификатора потока (thread ID).
 ;
 ;
-SYS0160E: Стока аргументов, переданная DosExecPgm, неверна.
+SYS0160E: Стока аргументов, переданная функции DosExecPgm, неверна.
 ;
 ;
 SYS0161?:
 ;
 ;
-SYS0162E: A signal is already pending.
+SYS0162E: Сигнал уже отправлен. Ждите.
 ;
 ;
 SYS0163?:
 ;
 ;
-SYS0164E: No more threads can be created in the system.
+SYS0164E: В системе больше невозможно создавать потоки (threads).
 ;
 ;
 SYS0165?:
 ;
 ;
-SYS0166E: The network has not been installed.
+SYS0166E: Сетевые компоненты не установлены.
 ;
 ;
-SYS0167I: The system cannot lock the required segment in memory.
+SYS0167I: Система не может заблокировать запрошенный в памяти сегмент.
 ;
 ;
-SYS0168I: The system experienced an error while swapping in a segment.
+SYS0168I: Система столкнулась с ошибкой во время загрузки сегмента в память.
+;Система получила опыт (exp) во время подкаки сегмента в память.
+;
+SYS0169I: Система не может выгрузить данные в сегмент.
 ;
 ;
-SYS0169I: The system cannot swap in a segment.
+SYS0170I: Сегмент используется другим процессом.
 ;
 ;
-SYS0170I: The segment is in use by another process.
-;
-;
-SYS0171E: A program in this session encountered a problem and cannot
-continue.
+SYS0171E: У программы работающей в этой сессии возникли проблемы.
+Продолжение выполнения программы невозможно.
 ;
 ;
 SYS0172?:
@@ -583,7 +584,7 @@ SYS0178?:
 SYS0179?:
 ;
 ;
-SYS0180E: The system detected a segment number that was incorrect.
+SYS0180E: Система обнаружила неверный номер сегмента.
 ;
 ;
 SYS0181?:
@@ -601,10 +602,10 @@ SYS0184?:
 SYS0185?:
 ;
 ;
-SYS0186E: The flag passed is incorrect.
+SYS0186E: Неверно принят флаг.
 ;
 ;
-SYS0187E: The specified system semaphore name was not found.
+SYS0187E: Заданное имя системного сеафора не найдено.
 ;
 ;
 SYS0188E: Операционная система не может запустить %1.
@@ -616,13 +617,13 @@ SYS0189E: Операционная система не может запустить %1.
 SYS0190E: Операционная система не может запустить %1.
 ;
 ;
-SYS0191E: %1 cannot be run in an OS/2 session.
+SYS0191E: %1 не может быть запущена в OS/2 сессии.
 ;
 ;
 SYS0192E: Операционная система не может запустить %1.
 ;
 ;
-SYS0193E: %1 cannot be run in a OS/2 session.
+SYS0193E: %1 не может быть запущена в OS/2 сессии.
 ;
 ;
 SYS0194E: Операционная система не может запустить %1.
@@ -631,20 +632,20 @@ SYS0194E: Операционная система не может запустить %1.
 SYS0195E: Операционная система не может запустить %1.
 ;
 ;
-SYS0196E: The operating system cannot run this application program.
+SYS0196E: Операционная система не может запустить это приложение.
 ;
 ;
-SYS0197E: The operating system is not presently configured to run this
-application.
+SYS0197E: В настоящее время операционная система не настроена
+для запуска этого приложения.
 ;
 ;
 SYS0198E: Операционная система не может запустить %1.
 ;
 ;
-SYS0199E: The operating system cannot run this application program.
+SYS0199E: Операционная система не может запустить это приложение.
 ;
 ;
-SYS0200I: The code segment cannot be greater than or equal to 64KB.
+SYS0200I: Сегмент кода не может быть больше или равняться 64Кб.
 ;
 ;
 SYS0201E: Операционная система не может запустить %1.
@@ -653,30 +654,30 @@ SYS0201E: Операционная система не может запустить %1.
 SYS0202E: Операционная система не может запустить %1.
 ;
 ;
-SYS0203I: The system could not find the environment option that was
-entered.
+SYS0203I: Система не может найти введённый параметр окружения.
 ;
 ;
 SYS0204?:
 ;
 ;
-SYS0205I: No process in the command subtree has a signal handler.
+SYS0205I: В поддереве команд отсутствует процесс
+имеющий обработик сигнала.
 ;
 ;
-SYS0206E: The file name or extension is too long.
+SYS0206E: Слишком длинное ия файла или расширения.
 ;
 ;
-SYS0207I: The ring 2 stack is in use.
+SYS0207I: Ring 2 stack используется.
 ;
 ;
-SYS0208I: The global file name characters * or ? are entered
-incorrectly or too many global file name characters are specified.
+SYS0208I: Введено слишком много "масочных" символов (* или ?)
+или они неверно использованы.
 ;
 ;
-SYS0209E: The signal being posted is incorrect.
+SYS0209E: Неверный номер сигнала.
 ;
 ;
-SYS0210E: The signal handler cannot be set.
+SYS0210E: Обработик сигнала не может быть установлен.
 ;
 ;
 SYS0211?:
@@ -688,14 +689,14 @@ SYS0212I: The segment is locked and cannot be reallocated.
 SYS0213?:
 ;
 ;
-SYS0214E: Too many dynamic-link modules are attached to this program
-or dynamic-link module.
+SYS0214E: Слишком много динамически подклюаемых модулей подключено
+к данной програме или DLL.
 ;
 ;
 SYS0215?:
 ;
 ;
-SYS0216I: The ring 2 stack is not allowed to shrink.
+SYS0216I: Ring 2 stack не мжет быть уменьшен.
 ;
 ;
 SYS0217?:
