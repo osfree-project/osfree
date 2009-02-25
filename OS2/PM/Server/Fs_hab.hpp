@@ -16,7 +16,7 @@ struct _FreePM_HABserverinf
    int used;           /* =1 - used */
    int clientId;       /* magic number, assigned to client */
                        /* may be usefull for situations with client reconnect  */
-   time_t disconnect;  /* time of client disconnect, without F_CMD_CLIENT_EXIT */
+   DATETIME disconnect;  /* time of client disconnect, without F_CMD_CLIENT_EXIT */
 };
 
 /* поддерживаемый и раздаваемый сервером список  (i)HAB'ов */

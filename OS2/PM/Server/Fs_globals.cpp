@@ -42,9 +42,9 @@ int _FreePM_shutting_down = 0;
 int _FreePM_FatalInProgress = 0;
 
 /* time variables */
-time_t  _FreePM_curtime = 0;
-struct timeval _FreePM_current_time;
-struct timeval _FreePM_start;
+DATETIME  _FreePM_curtime;
+DATETIME _FreePM_current_time;
+DATETIME _FreePM_start;
 double _FreePM_current_dtime = 0.;
 
 #define LONGfromRGB(R,G,B) (LONG)(((LONG)R<<16)+((LONG)G<<8)+(LONG)B)

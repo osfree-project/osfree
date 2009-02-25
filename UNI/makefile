@@ -74,8 +74,10 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)winstdbook.h &
      $(OUT)$(SEP)os2$(SEP)winsys.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
+     $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
+     $(OUT)$(SEP)os2$(SEP)winmessagemgr.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgr.h &
@@ -85,12 +87,24 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winshelldata.h &
      $(OUT)$(SEP)os2$(SEP)winerrors.h &
+     $(OUT)$(SEP)os2$(SEP)shlerrors.h &
+     $(OUT)$(SEP)os2$(SEP)pmerr.h &
+     $(OUT)$(SEP)os2$(SEP)wperrors.h &
+     $(OUT)$(SEP)os2$(SEP)gpierrors.h &
+     $(OUT)$(SEP)os2$(SEP)splerrors.h &
+     $(OUT)$(SEP)os2$(SEP)picerrors.h &
      $(OUT)$(SEP)os2$(SEP)winhooks.h &
+     $(OUT)$(SEP)os2$(SEP)wintimer.h &
+     $(OUT)$(SEP)os2$(SEP)wincountry.h &
      $(OUT)$(SEP)os2$(SEP)winentryfields.h &
      $(OUT)$(SEP)os2$(SEP)windialogs.h &
      $(OUT)$(SEP)os2$(SEP)windialogscommon.h &
      $(OUT)$(SEP)os2$(SEP)winbuttons.h &
      $(OUT)$(SEP)os2$(SEP)winlistboxes.h &
+     $(OUT)$(SEP)os2$(SEP)pmgpi.h &
+     $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &
+     $(OUT)$(SEP)os2$(SEP)gpilcids.h &
+     $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -211,17 +225,37 @@ $(OUT)$(SEP)os2$(SEP)winwindowmgr.h: os2$(SEP)winwindowmgr.uni
 
 $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)winmessagemgrcommon.uni
 
+$(OUT)$(SEP)os2$(SEP)winmessagemgr.h: os2$(SEP)winmessagemgr.uni
+
 $(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)winclipboard.uni
 
 $(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)winclipboarddde.uni
 
 $(OUT)$(SEP)os2$(SEP)wininput.h: os2$(SEP)wininput.uni
 
+$(OUT)$(SEP)os2$(SEP)wininputcommon.h: os2$(SEP)wininputcommon.uni
+
 $(OUT)$(SEP)os2$(SEP)winshelldata.h: os2$(SEP)winshelldata.uni
 
 $(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)winerrors.uni
 
+$(OUT)$(SEP)os2$(SEP)shlerrors.h: os2$(SEP)shlerrors.uni
+
+$(OUT)$(SEP)os2$(SEP)pmerr.h: os2$(SEP)pmerr.uni
+
+$(OUT)$(SEP)os2$(SEP)wperrors.h: os2$(SEP)wperrors.uni
+
+$(OUT)$(SEP)os2$(SEP)gpierrors.h: os2$(SEP)gpierrors.uni
+
+$(OUT)$(SEP)os2$(SEP)splerrors.h: os2$(SEP)splerrors.uni
+
+$(OUT)$(SEP)os2$(SEP)picerrors.h: os2$(SEP)picerrors.uni
+
 $(OUT)$(SEP)os2$(SEP)winhooks.h: os2$(SEP)winhooks.uni
+
+$(OUT)$(SEP)os2$(SEP)wintimer.h: os2$(SEP)wintimer.uni
+
+$(OUT)$(SEP)os2$(SEP)wincountry.h: os2$(SEP)wincountry.uni
 
 $(OUT)$(SEP)os2$(SEP)windialogscommon.h: os2$(SEP)windialogscommon.uni
 
@@ -232,6 +266,14 @@ $(OUT)$(SEP)os2$(SEP)winentryfields.h: os2$(SEP)winentryfields.uni
 $(OUT)$(SEP)os2$(SEP)winbuttons.h: os2$(SEP)winbuttons.uni
 
 $(OUT)$(SEP)os2$(SEP)winlistboxes.h: os2$(SEP)winlistboxes.uni
+
+$(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pmgpi.uni
+
+$(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpiprimitives.uni
+
+$(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpilcids.uni
+
+$(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpicontrolcommon.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

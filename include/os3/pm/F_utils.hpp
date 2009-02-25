@@ -7,7 +7,6 @@
 #ifndef FREEPM_UTILS
  #define FREEPM_UTILS
 
-#include <sys/time.h>
 
 /**** FreePM extension/utilities **********************/
 /*
@@ -21,9 +20,6 @@
 */
 int QueryProcessType(void);
 extern "C" int QueryThreadOrdinal(int &tid);
-
-
-time_t getCurrentTime(void);
 
 int OS2SetRelMaxFH(int ReqCount);
 

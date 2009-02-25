@@ -25,7 +25,6 @@ const char * xstrerror_type(int type);
 
 static char *debug_log_file = NULL;
 static int Ctx_Lock = 0;
-static const char *debugLogTime(time_t);
 static void ctx_print(void);
 #if HAVE_SYSLOG
 static void _db_print_syslog(const char *format, va_list args);
@@ -54,7 +53,7 @@ static char strOldLogTime[32]="";
     va_start(args1, format);
     va_start(args2, format);
     va_start(args3, format);
-    strcpy(strLogTime,debugLogTime(_FreePM_curtime));
+//    strcpy(strLogTime,debugLogTime(_FreePM_curtime));
     if(strcmp(strLogTime,strOldLogTime) || DebugCount < 1)
     {  snprintf(f, BUFSIZ, "%i %s|%s",DebugCount ,strLogTime, format);
        strcpy(strOldLogTime,strLogTime);
@@ -261,19 +260,6 @@ _db_rotate_log(void)
        debugOpenLog(_FreePMconfig.Log.log);
 }
 
-static const char *
-debugLogTime(time_t t)
-{
-    struct tm *tm;
-    static char buf[128];
-    static time_t last_t = 0;
-    if (t != last_t) {
-       tm = localtime(&t);
-       strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
-       last_t = t;
-    }
-    return buf;
-}
 
 void
 xassert(const char *msg, const char *file, int line)

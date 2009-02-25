@@ -1,0 +1,21 @@
+module wintimer;
+
+(**** Timer manager *)
+
+function WinStartTimer(hab: HAB;
+                                   hwnd: HWND;
+                                   idTimer: ULONG;
+                                   dtTimeout: ULONG): ULONG;
+
+function WinStopTimer(hab: HAB;
+                                   hwnd: HWND;
+                                   idTimer: ULONG): BOOL;
+
+function WinGetCurrentTime(hab: HAB): ULONG;
+
+const TID_CURSOR          = $ffff;  (* Reserved cursor timer ID              *)
+const TID_SCROLL          = $fffe;  (* Reserved scrolling timer ID           *)
+const TID_FLASHWINDOW     = $fffd;  (* Reserved for window flashing timer ID *)
+const TID_USERMAX         = $7fff;  (* Maximum user timer ID                 *)
+
+end.

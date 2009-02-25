@@ -6,8 +6,8 @@
 /* Fs_globals.hpp */
 /* ver 0.00 20.08.2002       */
 
-#include <time.h>
-#include <sys/time.h>
+//#include <time.h>
+//#include <sys/time.h>
 #include "F_def.hpp"
 #include "FreePMs.hpp"
 #include "Fs_WND.hpp"

@@ -338,5 +338,19 @@ type FONTMETRICS=structure
 end;
 type PFONTMETRICS=^FONTMETRICS;
 
+type FATTRS=structure
+     usRecordLength: USHORT;
+     fsSelection: USHORT;
+     lMatch: LONG;
+     szFacename: array[FACESIZE] of CHAR;
+     idRegistry: USHORT;
+     usCodePage: USHORT;
+     lMaxBaselineExt: LONG;
+     lAveCharWidth: LONG;
+     fsType: USHORT;
+     fsFontUse: USHORT;
+  end;
+type PFATTRS=^FATTRS;
+
 end.
 

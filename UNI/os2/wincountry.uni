@@ -1,0 +1,58 @@
+module wincountry;
+
+function WinQueryCp(hmq: HMQ): ULONG;
+
+function WinSetCp(hmq: HMQ;
+                                 idCodePage: ULONG): BOOL;
+
+function WinQueryCpList(hab: HAB;
+                                     ccpMax: ULONG;
+                                     prgcp: PULONG): ULONG;
+
+function WinCpTranslateString(hab: HAB;
+                                            cpSrc: ULONG;
+                                            pszSrc: PCSZ;
+                                            cpDst: ULONG;
+                                            cchDestMax: ULONG;
+                                            pchDest: PCSZ): BOOL;
+
+function WinCpTranslateChar(hab: HAB;
+                                          cpSrc: ULONG;
+                                          chSrc: UCHAR;
+                                          cpDst: ULONG): UCHAR;
+
+function WinUpper(hab: HAB;
+                                idcp: ULONG;
+                                idcc: ULONG;
+                                psz: PCSZ): ULONG;
+
+
+function WinUpperChar(hab: HAB;
+                                    idcp: ULONG;
+                                    idcc: ULONG;
+                                    c: ULONG): ULONG;
+
+function WinNextChar(hab: HAB;
+                                   idcp: ULONG;
+                                   idcc: ULONG;
+                                   psz: PCSZ): PCSZ;
+
+function WinPrevChar(hab: HAB;
+                                   idcp: ULONG;
+                                   idcc: ULONG;
+                                   pszStart: PCSZ;
+                                   psz: PCSZ): PCSZ;
+
+function WinCompareStrings(hab: HAB;
+                                         idcp: ULONG;
+                                         idcc: ULONG;
+                                         psz1: PCSZ;
+                                         psz2: PCSZ;
+                                         reserved: ULONG): ULONG;
+
+const WCS_ERROR                 = 0;
+const WCS_EQ                    = 1;
+const WCS_LT                    = 2;
+const WCS_GT                    = 3;
+
+end.

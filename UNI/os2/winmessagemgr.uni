@@ -1,0 +1,114 @@
+module winmessagemgr;
+
+   (*** WM_CALCVALIDRECTS return flags *************************************)
+const CVR_ALIGNLEFT               = $0001;
+const CVR_ALIGNBOTTOM             = $0002;
+const CVR_ALIGNRIGHT              = $0004;
+const CVR_ALIGNTOP                = $0008;
+const CVR_REDRAW                  = $0010;
+
+   (*** WM_HITTEST return codes ********************************************)
+const HT_NORMAL                  = 0;
+const HT_TRANSPARENT             = (-1);
+const HT_DISCARD                 = (-2);
+const HT_ERROR                   = (-3);
+
+   (*** WM_SET/QUERYWINDOWPARAMS structures and flags **********************)
+   type WNDPARAMS=structure    (* wprm *)
+         fsStatus: ULONG;
+         cchText: ULONG;
+         pszText: PSZ;
+         cbPresParams: ULONG;
+         pPresParams: PVOID;
+         cbCtlData: ULONG;
+         pCtlData: PVOID;
+     end;
+   type PWNDPARAMS=^WNDPARAMS;
+
+const WPM_TEXT                   = $0001;
+const WPM_CTLDATA                = $0002;
+const WPM_PRESPARAMS             = $0004;
+const WPM_CCHTEXT                = $0008;
+const WPM_CBCTLDATA              = $0010;
+const WPM_CBPRESPARAMS           = $0020;
+
+function WinInSendMsg(hab: HAB): BOOL;
+
+function WinBroadcastMsg(hwnd: HWND;
+                                     msg: ULONG;
+                                     mp1: MPARAM;
+                                     mp2: MPARAM;
+                                     rgf: ULONG): BOOL;
+
+   (*** WinBroadcastMsg codes **********************************************)
+const BMSG_POST                  = $0000;
+const BMSG_SEND                  = $0001;
+const BMSG_POSTQUEUE             = $0002;
+const BMSG_DESCENDANTS           = $0004;
+const BMSG_FRAMEONLY             = $0008;
+
+function WinWaitMsg(hab: HAB;
+                              msgFirst: ULONG;
+                              msgLast: ULONG): BOOL;
+
+function WinQueryQueueStatus(hwndDesktop: HWND): ULONG;
+
+      (*** WinQueryQueueStatus() constants *********************************)
+   const QS_KEY                     = $0001;
+   const QS_MOUSEBUTTON             = $0002;
+   const QS_MOUSEMOVE               = $0004;
+   const QS_MOUSE                   = $0006;   (* QS_MOUSEMOVE|QS_MOUSEBUTTON *)
+   const QS_TIMER                   = $0008;
+   const QS_PAINT                   = $0010;
+   const QS_POSTMSG                 = $0020;
+   const QS_SEM1                    = $0040;
+   const QS_SEM2                    = $0080;
+   const QS_SEM3                    = $0100;
+   const QS_SEM4                    = $0200;
+   const QS_SENDMSG                 = $0400;
+   const QS_MSGINPUT                = $0800;
+
+function WinQueryMsgPos(hab: HAB;
+                                    pptl: PPOINTL): BOOL;
+
+function WinQueryMsgTime(hab: HAB): ULONG;
+
+uses hevdef;
+
+type HMTX=ULONG;   (* hmtx *)
+type HMUX=ULONG;   (* hmux *)
+
+function WinWaitEventSem(hev: HEV;
+                                      ulTimeout: ULONG): APIRET;
+
+function WinRequestMutexSem(hmtx: HMTX;
+                                         ulTimeout: ULONG): APIRET;
+
+function WinWaitMuxWaitSem(hmux: HMUX;
+                                         ulTimeout: ULONG;
+                                         pulUser: PULONG): APIRET;
+
+
+
+function WinPostQueueMsg(hmq: HMQ;
+                                   msg: ULONG;
+                                   mp1: MPARAM;
+                                   mp2: MPARAM): BOOL;
+
+   (*** WinSetMsgInterest()/WinSetClassMsgInterest() constants *************)
+const SMIM_ALL                   = $0EFF;
+const SMI_NOINTEREST             = $0001;
+const SMI_INTEREST               = $0002;
+const SMI_RESET                  = $0004;
+const SMI_AUTODISPATCH           = $0008;
+
+function WinSetMsgInterest(hwnd: HWND;
+                                    msg_class: ULONG;
+                                    control: LONG): BOOL;
+
+function WinSetClassMsgInterest(hab: HAB;
+                                           pszClassName: PCSZ;
+                                           msg_class: ULONG;
+                                           control: LONG): BOOL;
+
+end.

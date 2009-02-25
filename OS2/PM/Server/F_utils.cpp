@@ -6,14 +6,14 @@
 
 #include <stdio.h>
 #include <time.h>
+
+#include <os2.h>
 #include "F_def.hpp"
 #include "F_config.hpp"
 #include "F_globals.hpp"
 
 #include "FreePM.hpp"
 #include "F_utils.hpp"
-#define INCL_DOSPROCESS
-#include <os2.h>
 
 #include <sys/types.h>
 #include <sys/timeb.h>

@@ -83,7 +83,7 @@ APIRET APIENTRY InitServerConnection(char *remotemachineName)
   char buf[256];
 
 /* init time */
-  getCurrentTime();
+  DosGetDateTime(&_FreePM_current_time);
 
   _FreePM_start = _FreePM_current_time;
 

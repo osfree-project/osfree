@@ -8,9 +8,10 @@
    #define FREEPM_GLOBALS
 
 #include <stdio.h>
-#include <time.h>
-#include <sys/time.h>
+//#include <time.h>
+//#include <sys/time.h>
 #include "F_def.hpp"
+#include <os2.h>
 
 /*+---------------------------------+*/
 /*| Global variables                |*/
@@ -31,9 +32,9 @@ extern int _FreePM_shutting_down;      /* 0 */
 extern int _FreePM_FatalInProgress;    /* 0 */
 
 /* time variables */
-extern time_t _FreePM_curtime;         /* 0 */
-extern struct timeval _FreePM_current_time;
-extern struct timeval _FreePM_start;
+extern DATETIME _FreePM_curtime;         /* 0 */
+extern DATETIME _FreePM_current_time;
+extern DATETIME _FreePM_start;
 extern double _FreePM_current_dtime;  /* 0. */
 
 

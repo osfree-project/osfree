@@ -107,7 +107,7 @@ int ThreadPipe::InitClientConnection(char *externMachineName)
 static  char lastquery[MAX_PIPE_BUF]="",bufout[MAX_PIPE_BUF];
   char str[256];
   char *redirect;
-  time_t t;
+//  time_t t;
       int fd=-1;
       int rc, t0,t01;
 

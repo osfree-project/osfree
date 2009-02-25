@@ -330,6 +330,7 @@ function  WinLoadMessage(hab: HAB;
 
 uses winwindowmgr;
 uses winwindowmgrcommon;
+uses winmessagemgr;
 uses winmessagemgrcommon;
 uses winclipboard;
 uses winclipboarddde;
@@ -337,6 +338,7 @@ uses winframemgrcommon;
 uses winframemgr;
 uses winsys;
 uses wininput;
+uses wininputcommon;
 uses winerrors;
 uses winhooks;
 uses windialogscommon;
@@ -346,5 +348,7 @@ uses pmstddlg;
 uses winentryfields;
 uses winbuttons;
 uses winlistboxes;
+uses wincountry;
+uses wintimer;
 
 end.

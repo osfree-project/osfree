@@ -1,0 +1,14 @@
+module picerrors;
+
+const PMERR_INV_TYPE         = $5001;
+const PMERR_INV_CONV         = $5002;
+const PMERR_INV_SEGLEN       = $5003;
+const PMERR_DUP_SEGNAME      = $5004;
+const PMERR_INV_XFORM        = $5005;
+const PMERR_INV_VIEWLIM      = $5006;
+const PMERR_INV_3DCOORD      = $5007;
+const PMERR_SMB_OVFLOW       = $5008;
+const PMERR_SEG_OVFLOW       = $5009;
+const PMERR_PIC_DUP_FILENAME = $5010;
+
+end.

@@ -1,0 +1,56 @@
+module gpicontrolcommon;
+
+   (* units for GpiCreatePS and others *)
+const PU_ARBITRARY               = $0004;
+const PU_PELS                    = $0008;
+const PU_LOMETRIC                = $000C;
+const PU_HIMETRIC                = $0010;
+const PU_LOENGLISH               = $0014;
+const PU_HIENGLISH               = $0018;
+const PU_TWIPS                   = $001C;
+
+   (* format for GpiCreatePS *)
+const GPIF_DEFAULT                   = 0;
+const GPIF_SHORT                 = $0100;
+const GPIF_LONG                  = $0200;
+
+
+   (* PS type for GpiCreatePS *)
+const GPIT_NORMAL                    = 0;
+const GPIT_MICRO                 = $1000;
+const GPIT_INK                   = $2000;
+
+
+   (* implicit associate flag for GpiCreatePS *)
+const GPIA_NOASSOC                   = 0;
+const GPIA_ASSOC                 = $4000;
+
+   (* PS Fill type for GpiCreatePS *)
+const GPIM_AREAEXCL              = $8000;
+
+
+      (* return error for GpiQueryDevice *)
+   const HDC_ERROR              =  (-1);
+
+   (* common GPICONTROL functions *)
+
+function GpiCreatePS(hab: HAB;
+                               hdc: HDC;
+                               psizlSize: PSIZEL;
+                               flOptions: ULONG): HPS;
+
+function GpiDestroyPS(hps: HPS): BOOL;
+
+function GpiAssociate(hps: HPS;
+                               hdc: HDC): BOOL;
+
+function GpiRestorePS(hps: HPS;
+                                lPSid: LONG): BOOL;
+
+function GpiSavePS(hps: HPS): LONG;
+
+function GpiErase(hps: HPS): BOOL;
+
+function GpiQueryDevice(hps: HPS): HDC;
+
+end.

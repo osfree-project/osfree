@@ -1,29 +1,12 @@
 /* F_utils.cpp */
-/* ver 0.00 22.08.2002       */
 
 #include <stdio.h>
-#include <time.h>
+//#include <time.h>
 
 #include "FreePM.hpp"
 
 #include <sys/types.h>
-#include <sys/timeb.h>
-
-
-time_t
-getCurrentTime(void)
-{
-    struct _timeb timebuffer;
-
-    _ftime(&timebuffer);
-    _FreePM_current_time.tv_sec  = (long) timebuffer.time;
-    _FreePM_current_time.tv_usec = (long) timebuffer.millitm * 1000;
-
-    _FreePM_current_dtime = (double)timebuffer.time   +
-       (double) timebuffer.millitm / 1000.0;
-    return _FreePM_curtime = timebuffer.time;
-}
-
+//#include <sys/timeb.h>
 
 
 /* добавить процессу ReqCount файловых хендлов, возвращает текущее число хендлов (новое) */

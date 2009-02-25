@@ -66,7 +66,6 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
 #define  CHARMSG(pmsg) \
    ((PCHRMSG)((PBYTE)pmsg + sizeof(MPARAM) ))
 
-#define MPFROMHWND(x)           ((MPARAM)(HWND)(x))
 
 #define MAKERXSTRING(r,p,l) \
     ((r).strptr = (PCH)p, (r).strlength = (ULONG)l)
@@ -216,5 +215,12 @@ typedef unsigned long long ULONGLONG, *PULONGLONG;
    #define WinQueryLboxSelectedItem(hwndLbox) \
    ((LONG)WinSendMsg(hwndLbox, LM_QUERYSELECTION, MPFROMLONG(LIT_FIRST), \
    (MPARAM)NULL))
+
+/* make FIXED number from SHORT integer part and USHORT fractional part */
+#define MAKEFIXED(intpart,fractpart) MAKELONG(fractpart,intpart)
+/* extract fractional part from a fixed quantity */
+#define FIXEDFRAC(fx)                (LOUSHORT(fx))
+/* extract integer part from a fixed quantity */
+#define FIXEDINT(fx)                 ((SHORT)HIUSHORT(fx))
 
 #endif

@@ -1,0 +1,32 @@
+module pmgpi;
+
+(* General GPI return values *)
+const GPI_ERROR                  =     0;
+const GPI_OK                     =     1;
+const GPI_ALTERROR               =   (-1);
+
+(* fixed point number - implicit binary point between 1st and 2nd hex digits *)
+type  FIXED88=USHORT;  (* fx88 *)
+
+(* fixed point signed number - implicit binary point between bits 14 and 13. *)
+(*                             Bit 15 is the sign bit.                       *)
+(*                             Thus 1.0 is represented by 16384 (0x4000)     *)
+(*                             and -1.0 is represented by -16384 (0xc000)    *)
+type FIXED114=USHORT; (* fx114 *)
+
+
+(* structure for size parameters e.g. for GpiCreatePS *)
+type SIZEL=structure            (* sizl *)
+    cx: LONG;
+    cy: LONG;
+  end;
+type PSIZEL=^SIZEL;
+
+(* return code on GpiQueryLogColorTable,GpiQueryRealColors and GpiQueryPel *)
+const CLR_NOINDEX              =    (-254);
+
+uses gpiprimitives;
+uses gpilcids;
+uses gpicontrolcommon;
+
+end.

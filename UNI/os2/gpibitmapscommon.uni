@@ -1,0 +1,63 @@
+#if (defined(INCL_GPIBITMAPS) || !defined(INCL_NOCOMMON))
+   /* raster operations defined for GpiBitBlt */
+   #define ROP_SRCCOPY                0x00CCL
+   #define ROP_SRCPAINT               0x00EEL
+   #define ROP_SRCAND                 0x0088L
+   #define ROP_SRCINVERT              0x0066L
+   #define ROP_SRCERASE               0x0044L
+   #define ROP_NOTSRCCOPY             0x0033L
+   #define ROP_NOTSRCERASE            0x0011L
+   #define ROP_MERGECOPY              0x00C0L
+   #define ROP_MERGEPAINT             0x00BBL
+   #define ROP_PATCOPY                0x00F0L
+   #define ROP_PATPAINT               0x00FBL
+   #define ROP_PATINVERT              0x005AL
+   #define ROP_DSTINVERT              0x0055L
+   #define ROP_ZERO                   0x0000L
+   #define ROP_ONE                    0x00FFL
+
+   /* Blt options for GpiBitBlt */
+   #define BBO_OR                          0L
+   #define BBO_AND                         1L
+   #define BBO_IGNORE                      2L
+   #define BBO_PAL_COLORS                  4L
+   #define BBO_NO_COLOR_INFO               8L
+
+   /* Fill options for GpiFloodFill */
+   #define FF_BOUNDARY                     0L
+   #define FF_SURFACE                      1L
+
+   /* error return for GpiSetBitmap */
+   #define HBM_ERROR            ((HBITMAP)-1L)
+
+   #ifndef INCL_DDIDEFS
+      /*** bitmap and pel functions */
+
+      LONG     APIENTRY GpiBitBlt(HPS hpsTarget,
+                                  HPS hpsSource,
+                                  LONG lCount,
+                                  PPOINTL aptlPoints,
+                                  LONG lRop,
+                                  ULONG flOptions);
+
+      BOOL     APIENTRY GpiDeleteBitmap(HBITMAP hbm);
+
+      HBITMAP  APIENTRY GpiLoadBitmap(HPS hps,
+                                      HMODULE Resource,
+                                      ULONG idBitmap,
+                                      LONG lWidth,
+                                      LONG lHeight);
+
+      HBITMAP  APIENTRY GpiSetBitmap(HPS hps,
+                                     HBITMAP hbm);
+
+      LONG     APIENTRY GpiWCBitBlt(HPS hpsTarget,
+                                    HBITMAP hbmSource,
+                                    LONG lCount,
+                                    PPOINTL aptlPoints,
+                                    LONG lRop,
+                                    ULONG flOptions);
+
+   #endif /* no INCL_DDIDEFS */
+
+#endif /* common GPIBITMAPS */
