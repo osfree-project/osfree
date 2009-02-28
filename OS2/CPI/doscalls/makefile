@@ -389,8 +389,6 @@ EXPORTS = &
      DosEnterMustComplete       .380   , &
      DosExitMustComplete        .381   , &
      DosSetRelMaxFH             .382   , &
-     DosPutMessage              .383   , &
-     DosInsMessage              .385   , &
      DosInsertMessage           .386   , &
      Dos32PutMessage            .387 = DosPutMessage  , &
      DosCaseMap                     .391, &
@@ -556,7 +554,6 @@ EXPORTS = &
      T32PROFILE                     .570              , &
      T32QUERYRESOURCESIZE           .571              , &
      DosQueryResourceSize           .572              , &
-     Dos16QueryResourceSize         .573            , &
      T32SETSIGNALEXCEPTIONFOCUS     .574    , &
      T32SENDSIGNALEXCEPTION         .575    , &
      T32STARTTIMER                  .576    , &
@@ -570,7 +567,6 @@ EXPORTS = &
      Dos16QueryHeaderInfo           .584  , &
      T32QUERYPROCTYPE               .585    , &
      DosQueryProcType               .586    , &
-     Dos16QueryProcType             .587  , &
      T32IEXITMUSTCOMPLETE           .588    , &
      DosISigDispatch                .589    , &
      T32ICACHEMODULE                .590    , &
@@ -694,6 +690,13 @@ EXPORTS = &
 #          DOSICOPY.200,         &
 #          Dos32Copy.258,        &
 #          Dos32EditName.261
+# 16-bit functions. No need to implements because 32-bit versions exists and calls to
+# 16-bit will be raplaced by 32-bit calls.
+#     Dos16QueryResourceSize         .573            , &
+#     Dos16QueryProcType             .587  , &
+#     DosInsMessage              .385   , &
+#     DosPutMessage              .383   , &
+
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

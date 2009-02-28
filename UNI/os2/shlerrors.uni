@@ -1,0 +1,207 @@
+module shlerrors;
+
+const PMERR_INVALID_PIB                = $1101;
+const PMERR_INSUFF_SPACE_TO_ADD        = $1102;
+const PMERR_INVALID_GROUP_HANDLE       = $1103;
+const PMERR_DUPLICATE_TITLE            = $1104;
+const PMERR_INVALID_TITLE              = $1105;
+const PMERR_HANDLE_NOT_IN_GROUP        = $1107;
+const PMERR_INVALID_TARGET_HANDLE      = $1106;
+const PMERR_INVALID_PATH_STATEMENT     = $1108;
+const PMERR_NO_PROGRAM_FOUND           = $1109;
+const PMERR_INVALID_BUFFER_SIZE        = $110A;
+const PMERR_BUFFER_TOO_SMALL           = $110B;
+const PMERR_PL_INITIALISATION_FAIL     = $110C;
+const PMERR_CANT_DESTROY_SYS_GROUP     = $110D;
+const PMERR_INVALID_TYPE_CHANGE        = $110E;
+const PMERR_INVALID_PROGRAM_HANDLE     = $110F;
+
+const PMERR_NOT_CURRENT_PL_VERSION     = $1110;
+const PMERR_INVALID_CIRCULAR_REF       = $1111;
+const PMERR_MEMORY_ALLOCATION_ERR      = $1112;
+const PMERR_MEMORY_DEALLOCATION_ERR    = $1113;
+const PMERR_TASK_HEADER_TOO_BIG        = $1114;
+
+const PMERR_INVALID_INI_FILE_HANDLE    = $1115;
+const PMERR_MEMORY_SHARE               = $1116;
+const PMERR_OPEN_QUEUE                 = $1117;
+const PMERR_CREATE_QUEUE               = $1118;
+const PMERR_WRITE_QUEUE                = $1119;
+const PMERR_READ_QUEUE                 = $111A;
+const PMERR_CALL_NOT_EXECUTED          = $111B;
+const PMERR_UNKNOWN_APIPKT             = $111C;
+const PMERR_INITHREAD_EXISTS           = $111D;
+const PMERR_CREATE_THREAD              = $111E;
+const PMERR_NO_HK_PROFILE_INSTALLED    = $111F;
+const PMERR_INVALID_DIRECTORY          = $1120;
+const PMERR_WILDCARD_IN_FILENAME       = $1121;
+const PMERR_FILENAME_BUFFER_FULL       = $1122;
+const PMERR_FILENAME_TOO_LONG          = $1123;
+const PMERR_INI_FILE_IS_SYS_OR_USER    = $1124;
+const PMERR_BROADCAST_PLMSG            = $1125;
+const PMERR_190_INIT_DONE              = $1126;
+const PMERR_HMOD_FOR_PMSHAPI           = $1127;
+const PMERR_SET_HK_PROFILE             = $1128;
+const PMERR_API_NOT_ALLOWED            = $1129;
+const PMERR_INI_STILL_OPEN             = $112A;
+
+const PMERR_PROGDETAILS_NOT_IN_INI     = $112B;
+const PMERR_PIBSTRUCT_NOT_IN_INI       = $112C;
+const PMERR_INVALID_DISKPROGDETAILS    = $112D;
+const PMERR_PROGDETAILS_READ_FAILURE   = $112E;
+const PMERR_PROGDETAILS_WRITE_FAILURE  = $112F;
+const PMERR_PROGDETAILS_QSIZE_FAILURE  = $1130;
+const PMERR_INVALID_PROGDETAILS        = $1131;
+const PMERR_SHEPROFILEHOOK_NOT_FOUND   = $1132;
+const PMERR_190PLCONVERTED             = $1133;
+const PMERR_FAILED_TO_CONVERT_INI_PL   = $1134;
+const PMERR_PMSHAPI_NOT_INITIALISED    = $1135;
+const PMERR_INVALID_SHELL_API_HOOK_ID  = $1136;
+
+const PMERR_DOS_ERROR                  = $1200;
+
+const PMERR_NO_SPACE                   = $1201;
+const PMERR_INVALID_SWITCH_HANDLE      = $1202;
+const PMERR_NO_HANDLE                  = $1203;
+const PMERR_INVALID_PROCESS_ID         = $1204;
+const PMERR_NOT_SHELL                  = $1205;
+const PMERR_INVALID_WINDOW             = $1206;
+const PMERR_INVALID_POST_MSG           = $1207;
+const PMERR_INVALID_PARAMETERS         = $1208;
+const PMERR_INVALID_PROGRAM_TYPE       = $1209;
+const PMERR_NOT_EXTENDED_FOCUS         = $120A;
+const PMERR_INVALID_SESSION_ID         = $120B;
+const PMERR_SMG_INVALID_ICON_FILE      = $120C;
+const PMERR_SMG_ICON_NOT_CREATED       = $120D;
+const PMERR_SHL_DEBUG                  = $120E;
+
+const PMERR_OPENING_INI_FILE           = $1301;
+const PMERR_INI_FILE_CORRUPT           = $1302;
+const PMERR_INVALID_PARM               = $1303;
+const PMERR_NOT_IN_IDX                 = $1304;
+const PMERR_NO_ENTRIES_IN_GROUP        = $1305;
+
+const PMERR_INI_WRITE_FAIL             = $1306;
+const PMERR_IDX_FULL                   = $1307;
+const PMERR_INI_PROTECTED              = $1308;
+const PMERR_MEMORY_ALLOC               = $1309;
+const PMERR_INI_INIT_ALREADY_DONE      = $130A;
+const PMERR_INVALID_INTEGER            = $130B;
+const PMERR_INVALID_ASCIIZ             = $130C;
+const PMERR_CAN_NOT_CALL_SPOOLER       = $130D;
+const PMERR_VALIDATION_REJECTED        = PMERR_CAN_NOT_CALL_SPOOLER;
+
+const PMERR_WARNING_WINDOW_NOT_KILLED  = $1401;
+const PMERR_ERROR_INVALID_WINDOW       = $1402;
+const PMERR_ALREADY_INITIALIZED        = $1403;
+const PMERR_MSG_PROG_NO_MOU            = $1405;
+const PMERR_MSG_PROG_NON_RECOV         = $1406;
+const PMERR_WINCONV_INVALID_PATH       = $1407;
+const PMERR_PI_NOT_INITIALISED         = $1408;
+const PMERR_PL_NOT_INITIALISED         = $1409;
+const PMERR_NO_TASK_MANAGER            = $140A;
+const PMERR_SAVE_NOT_IN_PROGRESS       = $140B;
+const PMERR_NO_STACK_SPACE             = $140C;
+const PMERR_INVALID_COLR_FIELD         = $140d;
+const PMERR_INVALID_COLR_VALUE         = $140e;
+const PMERR_COLR_WRITE                 = $140f;
+
+const PMERR_TARGET_FILE_EXISTS         = $1501;
+const PMERR_SOURCE_SAME_AS_TARGET      = $1502;
+const PMERR_SOURCE_FILE_NOT_FOUND      = $1503;
+const PMERR_INVALID_NEW_PATH           = $1504;
+const PMERR_TARGET_FILE_NOT_FOUND      = $1505;
+const PMERR_INVALID_DRIVE_NUMBER       = $1506;
+const PMERR_NAME_TOO_LONG              = $1507;
+const PMERR_NOT_ENOUGH_ROOM_ON_DISK    = $1508;
+const PMERR_NOT_ENOUGH_MEM             = $1509;
+
+const PMERR_LOG_DRV_DOES_NOT_EXIST     = $150B;
+const PMERR_INVALID_DRIVE              = $150C;
+const PMERR_ACCESS_DENIED              = $150D;
+const PMERR_NO_FIRST_SLASH             = $150E;
+const PMERR_READ_ONLY_FILE             = $150F;
+const PMERR_GROUP_PROTECTED            = $151F;
+const PMERR_INVALID_PROGRAM_CATEGORY   = $152F;
+const PMERR_INVALID_APPL               = $1530;
+const PMERR_CANNOT_START               = $1531;
+const PMERR_STARTED_IN_BACKGROUND      = $1532;
+const PMERR_INVALID_HAPP               = $1533;
+const PMERR_CANNOT_STOP                = $1534;
+
+      (**********************************************************************
+      * Errors generated by Language Bindings layer.
+      *
+      * (Range = $1600 thru = $16FF reserved for Bindings)
+      **********************************************************************)
+
+      (*** SEVERITY_UNRECOVERABLE ***)
+const PMERR_INTERNAL_ERROR_1           = $1601;
+const PMERR_INTERNAL_ERROR_2           = $1602;
+const PMERR_INTERNAL_ERROR_3           = $1603;
+const PMERR_INTERNAL_ERROR_4           = $1604;
+const PMERR_INTERNAL_ERROR_5           = $1605;
+const PMERR_INTERNAL_ERROR_6           = $1606;
+const PMERR_INTERNAL_ERROR_7           = $1607;
+const PMERR_INTERNAL_ERROR_8           = $1608;
+const PMERR_INTERNAL_ERROR_9           = $1609;
+const PMERR_INTERNAL_ERROR_10          = $160A;
+const PMERR_INTERNAL_ERROR_11          = $160B;
+const PMERR_INTERNAL_ERROR_12          = $160C;
+const PMERR_INTERNAL_ERROR_13          = $160D;
+const PMERR_INTERNAL_ERROR_14          = $160E;
+const PMERR_INTERNAL_ERROR_15          = $160F;
+const PMERR_INTERNAL_ERROR_16          = $1610;
+const PMERR_INTERNAL_ERROR_17          = $1611;
+const PMERR_INTERNAL_ERROR_18          = $1612;
+const PMERR_INTERNAL_ERROR_19          = $1613;
+const PMERR_INTERNAL_ERROR_20          = $1614;
+const PMERR_INTERNAL_ERROR_21          = $1615;
+const PMERR_INTERNAL_ERROR_22          = $1616;
+const PMERR_INTERNAL_ERROR_23          = $1617;
+const PMERR_INTERNAL_ERROR_24          = $1618;
+const PMERR_INTERNAL_ERROR_25          = $1619;
+const PMERR_INTERNAL_ERROR_26          = $161A;
+const PMERR_INTERNAL_ERROR_27          = $161B;
+const PMERR_INTERNAL_ERROR_28          = $161C;
+const PMERR_INTERNAL_ERROR_29          = $161D;
+
+      (*** SEVERITY_WARNING ***)
+const PMERR_INVALID_FREE_MESSAGE_ID    = $1630;
+
+      (*** SEVERITY_ERROR ***)
+
+const PMERR_FUNCTION_NOT_SUPPORTED     = $1641;
+const PMERR_INVALID_ARRAY_COUNT        = $1642;
+const PMERR_INVALID_LENGTH             = $1643;
+const PMERR_INVALID_BUNDLE_TYPE        = $1644;
+const PMERR_INVALID_PARAMETER          = $1645;
+const PMERR_INVALID_NUMBER_OF_PARMS    = $1646;
+const PMERR_GREATER_THAN_64K           = $1647;
+const PMERR_INVALID_PARAMETER_TYPE     = $1648;
+const PMERR_NEGATIVE_STRCOND_DIM       = $1649;
+const PMERR_INVALID_NUMBER_OF_TYPES    = $164A;
+const PMERR_INCORRECT_HSTRUCT          = $164B;
+const PMERR_INVALID_ARRAY_SIZE         = $164C;
+const PMERR_INVALID_CONTROL_DATATYPE   = $164D;
+const PMERR_INCOMPLETE_CONTROL_SEQU    = $164E;
+const PMERR_INVALID_DATATYPE           = $164F;
+const PMERR_INCORRECT_DATATYPE         = $1650;
+const PMERR_NOT_SELF_DESCRIBING_DTYP   = $1651;
+const PMERR_INVALID_CTRL_SEQ_INDEX     = $1652;
+const PMERR_INVALID_TYPE_FOR_LENGTH    = $1653;
+const PMERR_INVALID_TYPE_FOR_OFFSET    = $1654;
+const PMERR_INVALID_TYPE_FOR_MPARAM    = $1655;
+const PMERR_INVALID_MESSAGE_ID         = $1656;
+const PMERR_C_LENGTH_TOO_SMALL         = $1657;
+const PMERR_APPL_STRUCTURE_TOO_SMALL   = $1658;
+const PMERR_INVALID_ERRORINFO_HANDLE   = $1659;
+const PMERR_INVALID_CHARACTER_INDEX    = $165A;
+
+      (**********************************************************************
+      * End of Errors generated by Language Bindings layer.
+      *
+      * (Range = $1600 thru = $16FF reserved for Bindings)
+      **********************************************************************)
+
+end.

@@ -633,20 +633,17 @@ APIRET APIENTRY      DosIDevIOCtl(void)
 APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 
 APIRET APIENTRY DosKillThread(TID tid)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
-APIRET APIENTRY      DosQueryRASInfo(void)
+APIRET APIENTRY DosQueryRASInfo(ULONG Index, PPVOID Addr)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 APIRET APIENTRY      DosDumpProcess(void)
@@ -658,7 +655,6 @@ APIRET APIENTRY      DosDumpProcess(void)
 APIRET APIENTRY      DosSuppressPopUps(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 APIRET APIENTRY      DosOpen2Compt(void)
@@ -676,19 +672,16 @@ APIRET APIENTRY      DosGetSTDA(void)
 APIRET APIENTRY      Dos16Error(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 APIRET APIENTRY      Dos16GetSeg(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 APIRET APIENTRY      Dos16LockSeg(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 APIRET APIENTRY      Dos16UnlockSeg(void)
@@ -1147,10 +1140,11 @@ APIRET APIENTRY  DosErrClass(ULONG code,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosError(void)
+APIRET APIENTRY DosError(ULONG errorno)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosCreateVDM(void)
 {
@@ -1263,7 +1257,7 @@ APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosDevConfig(void)
+APIRET APIENTRY DosDevConfig(PVOID pdevinfo, ULONG item)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -1615,10 +1609,11 @@ APIRET APIENTRY DosExecPgm(PCHAR pObjname,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosDevIOCtl(void)
+APIRET APIENTRY DosDevIOCtl(HFILE hDevice, ULONG category, ULONG xfunction, PVOID pParams, ULONG cbParmLenMax, PULONG pcbParmLen, PVOID pData, ULONG cbDataLenMax, PULONG pcbDataLen)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY  DosFSCtl(PVOID pData,
                           ULONG cbData,
@@ -1632,18 +1627,21 @@ APIRET APIENTRY  DosFSCtl(PVOID pData,
                           ULONG method)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY DosBeep(ULONG freq,
                         ULONG dur)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosPhysicalDisk(void)
+APIRET APIENTRY DosPhysicalDisk(ULONG xfunction, PVOID pBuf, ULONG cbBuf, PVOID pParams, ULONG cbParams)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosSetCp(void)
 {
@@ -1828,131 +1826,156 @@ APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryModuleHandle(void)
+APIRET APIENTRY DosQueryModuleHandle(const PSZ pszModname, PHMODULE phmod)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQueryModuleName(void)
+APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQueryProcAddr(void)
+APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PSZ pszName, PFN *  ppfn)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosFreeModule(void)
+APIRET APIENTRY DosFreeModule(HMODULE hmod)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosQueryAppType(PCSZ pszName,
                                      PULONG pFlags)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosCreateEventSem(void)
+APIRET APIENTRY DosCreateEventSem(PCSZ pszName, PHEV phev, ULONG flAttr, BOOL32 fState)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosOpenEventSem(void)
+APIRET APIENTRY DosOpenEventSem(PCSZ pszName, PHEV phev)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosCloseEventSem(void)
+APIRET APIENTRY DosCloseEventSem(HEV hev)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosResetEventSem(void)
+APIRET APIENTRY DosResetEventSem(HEV hev, PULONG pulPostCt)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosPostEventSem(void)
+APIRET APIENTRY DosPostEventSem(HEV hev)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosWaitEventSem(void)
+APIRET APIENTRY DosWaitEventSem(HEV hev, ULONG ulTimeout)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQueryEventSem(void)
+APIRET APIENTRY DosQueryEventSem(HEV hev, PULONG pulPostCt)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosCreateMutexSem(void)
+APIRET APIENTRY DosCreateMutexSem(PCSZ pszName, PHMTX phmtx, ULONG flAttr, BOOL32 fState)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosOpenMutexSem(void)
+APIRET APIENTRY DosOpenMutexSem(PCSZ pszName, PHMTX phmtx)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosCloseMutexSem(void)
+APIRET APIENTRY DosCloseMutexSem(HMTX hmtx)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosRequestMutexSem(void)
+APIRET APIENTRY DosRequestMutexSem(HMTX hmtx, ULONG ulTimeout)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosReleaseMutexSem(void)
+APIRET APIENTRY DosReleaseMutexSem(HMTX hmtx)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQueryMutexSem(void)
+APIRET APIENTRY DosQueryMutexSem(HMTX hmtx, PPID ppid, PTID ptid, PULONG pulCount)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosCreateMuxWaitSem(void)
+APIRET APIENTRY DosCreateMuxWaitSem(PCSZ pszName, PHMUX phmux, ULONG cSemRec, PSEMRECORD pSemRec, ULONG flAttr)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosOpenMuxWaitSem(void)
+APIRET APIENTRY DosOpenMuxWaitSem(PCSZ pszName, PHMUX phmux)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosCloseMuxWaitSem(void)
+APIRET APIENTRY DosCloseMuxWaitSem(HMUX hmux)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosWaitMuxWaitSem(void)
+APIRET APIENTRY DosWaitMuxWaitSem(HMUX hmux, ULONG ulTimeout, PULONG pulUser)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosAddMuxWaitSem(void)
+APIRET APIENTRY DosAddMuxWaitSem(HMUX hmux, PSEMRECORD pSemRec)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosDeleteMuxWaitSem(void)
+APIRET APIENTRY DosDeleteMuxWaitSem(HMUX hmux, HSEM hSem)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQueryMuxWaitSem(void)
+APIRET APIENTRY DosQueryMuxWaitSem(HMUX hmux, PULONG pcSemRec, PSEMRECORD pSemRec, PULONG pflAttr)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
                               ULONG flag,
@@ -1967,55 +1990,64 @@ APIRET APIENTRY  DosSubAllocMem(PVOID pbBase,
                                 ULONG cb)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY  DosSubFreeMem(PVOID pbBase,
                                PVOID pb,
                                ULONG cb)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQuerySysInfo(void)
+APIRET APIENTRY DosQuerySysInfo(ULONG iStart, ULONG iLast, PVOID pBuf, ULONG cbBuf)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY DosWaitThread(PTID ptid,
                               ULONG option)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosAsyncTimer(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosStartTimer(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosGetResource(void)
+APIRET APIENTRY DosGetResource(HMODULE hmod, ULONG idType, ULONG idName, PPVOID ppb)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosFreeResource(void)
+APIRET APIENTRY DosFreeResource(PVOID pb)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
@@ -2044,10 +2076,11 @@ APIRET APIENTRY      DosQueryModFromCS(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryModFromEIP(void)
+APIRET APIENTRY DosQueryModFromEIP(HMODULE *  phMod, ULONG *  pObjNum, ULONG BuffLen, PCHAR pBuff, ULONG *  pOffset, ULONG Address)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosFPDataArea(void)
 {
@@ -2099,10 +2132,11 @@ APIRET APIENTRY      DosFlatDS(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryABIOSSupport(void)
+APIRET APIENTRY DosQueryABIOSSupport(ULONG reserved)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY  DosEnumAttribute(ULONG  ulRefType,
                                   PVOID  pvFile,
@@ -2165,20 +2199,7 @@ APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
   return 0; }
 
 
-APIRET APIENTRY      DosTrueGetMessage(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
-APIRET APIENTRY      DosInsMessage(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      DosInsertMessage(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
 
 APIRET APIENTRY      DosIQueryMessageCP(void)
@@ -2316,10 +2337,11 @@ APIRET APIENTRY      DosICacheModule(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosReplaceModule(void)
+APIRET APIENTRY DosReplaceModule(const PSZ pszOldModule, const PSZ pszNewModule, const PSZ pszBackupModule)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      DosAcknowledgeSignalException(ULONG ulSignalNum)
 {
@@ -2466,10 +2488,11 @@ APIRET APIENTRY DosFreeThreadLocalMemory(ULONG *p)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosVerifyPidTid(void)
+APIRET APIENTRY DosVerifyPidTid(PID Pid, TID Tid)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      PTDA_LANMAN_SEC(void)
 {
@@ -2997,15 +3020,11 @@ APIRET APIENTRY      T32QUERYRESOURCESIZE(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryResourceSize(void)
+APIRET APIENTRY DosQueryResourceSize(HMODULE hmod, ULONG idt, ULONG idn, PULONG pulsize)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16QueryResourceSize(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      T32SETSIGNALEXCEPTIONFOCUS(void)
 {
@@ -3067,15 +3086,11 @@ APIRET APIENTRY      T32QUERYPROCTYPE(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosQueryProcType(void)
+APIRET APIENTRY DosQueryProcType(HMODULE hmod, ULONG ordinal, const PSZ pszName, PULONG pulproctype)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16QueryProcType(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY      T32IEXITMUSTCOMPLETE(void)
 {
@@ -3368,12 +3383,13 @@ APIRET APIENTRY      DosCloseMessageFile(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosSetExtLIBPATH(void)
+APIRET APIENTRY DosSetExtLIBPATH(const PSZ pszExtLIBPATH, ULONG flags)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
-APIRET APIENTRY      DosQueryExtLIBPATH(void)
+APIRET APIENTRY DosQueryExtLIBPATH(const PSZ pszExtLIBPATH, ULONG flags)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
