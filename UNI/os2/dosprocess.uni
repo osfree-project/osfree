@@ -187,10 +187,10 @@ function DosExitList(ordercode: ULONG;
 function DosExecPgm(pObjname: PCHAR;
                     cbObjname: LONG;
                     execFlag: ULONG,
-                    const pArg: PSZ;
-                    const pEnv: PSZ;
+                    in pArg: PSZ;
+                    in pEnv: PSZ;
                     pRes: PRESULTCODES;
-                    const pName: PSZ): APIRET;
+                    in pName: PSZ): APIRET;
 
    (* DosExecPgm functions *)
 

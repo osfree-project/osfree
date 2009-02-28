@@ -377,7 +377,7 @@ begin
         if i > 0 then
           wrt(', ');
         case Access of
-          argConst: wrt('const ');
+          argIn: wrt('const ');
           argVar: wrt('var ');
         end;
         if Assigned(ArgType) then
@@ -413,7 +413,7 @@ begin
         if i > 0 then
           wrt(', ');
         case Access of
-          argConst: wrt('const ');
+          argIn: wrt('const ');
           argVar: wrt('var ');
         end;
         if Assigned(ArgType) then
@@ -451,7 +451,7 @@ begin
         if i > 0 then
           wrt(', ');
         case Access of
-          argConst: wrt('const ');
+          argIn: wrt('const ');
           argVar: wrt('var ');
         end;
         if Assigned(ArgType) then
@@ -493,7 +493,7 @@ begin
         if i > 0 then
           wrt('; ');
         case Access of
-          argConst: wrt('const ');
+          argIn: wrt('const ');
           argVar: wrt('var ');
         end;
         wrt(Name);

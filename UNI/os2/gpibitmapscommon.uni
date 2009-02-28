@@ -1,63 +1,62 @@
-#if (defined(INCL_GPIBITMAPS) || !defined(INCL_NOCOMMON))
-   /* raster operations defined for GpiBitBlt */
-   #define ROP_SRCCOPY                0x00CCL
-   #define ROP_SRCPAINT               0x00EEL
-   #define ROP_SRCAND                 0x0088L
-   #define ROP_SRCINVERT              0x0066L
-   #define ROP_SRCERASE               0x0044L
-   #define ROP_NOTSRCCOPY             0x0033L
-   #define ROP_NOTSRCERASE            0x0011L
-   #define ROP_MERGECOPY              0x00C0L
-   #define ROP_MERGEPAINT             0x00BBL
-   #define ROP_PATCOPY                0x00F0L
-   #define ROP_PATPAINT               0x00FBL
-   #define ROP_PATINVERT              0x005AL
-   #define ROP_DSTINVERT              0x0055L
-   #define ROP_ZERO                   0x0000L
-   #define ROP_ONE                    0x00FFL
+module gpibitmapscommon;
 
-   /* Blt options for GpiBitBlt */
-   #define BBO_OR                          0L
-   #define BBO_AND                         1L
-   #define BBO_IGNORE                      2L
-   #define BBO_PAL_COLORS                  4L
-   #define BBO_NO_COLOR_INFO               8L
+   (* raster operations defined for GpiBitBlt *)
+const ROP_SRCCOPY                = $00CC;
+const ROP_SRCPAINT               = $00EE;
+const ROP_SRCAND                 = $0088;
+const ROP_SRCINVERT              = $0066;
+const ROP_SRCERASE               = $0044;
+const ROP_NOTSRCCOPY             = $0033;
+const ROP_NOTSRCERASE            = $0011;
+const ROP_MERGECOPY              = $00C0;
+const ROP_MERGEPAINT             = $00BB;
+const ROP_PATCOPY                = $00F0;
+const ROP_PATPAINT               = $00FB;
+const ROP_PATINVERT              = $005A;
+const ROP_DSTINVERT              = $0055;
+const ROP_ZERO                   = $0000;
+const ROP_ONE                    = $00FF;
 
-   /* Fill options for GpiFloodFill */
-   #define FF_BOUNDARY                     0L
-   #define FF_SURFACE                      1L
+   (* Blt options for GpiBitBlt *)
+const BBO_OR                         = 0;
+const BBO_AND                        = 1;
+const BBO_IGNORE                     = 2;
+const BBO_PAL_COLORS                 = 4;
+const BBO_NO_COLOR_INFO              = 8;
 
-   /* error return for GpiSetBitmap */
-   #define HBM_ERROR            ((HBITMAP)-1L)
+   (* Fill options for GpiFloodFill *)
+const FF_BOUNDARY                    = 0;
+const FF_SURFACE                     = 1;
 
-   #ifndef INCL_DDIDEFS
-      /*** bitmap and pel functions */
+   (* error return for GpiSetBitmap *)
+const HBM_ERROR           = (-1);
 
-      LONG     APIENTRY GpiBitBlt(HPS hpsTarget,
-                                  HPS hpsSource,
-                                  LONG lCount,
-                                  PPOINTL aptlPoints,
-                                  LONG lRop,
-                                  ULONG flOptions);
+      (*** bitmap and pel functions *)
 
-      BOOL     APIENTRY GpiDeleteBitmap(HBITMAP hbm);
+function GpiBitBlt(hpsTarget: HPS;
+                                   hpsSource: HPS;
+                                   lCount: LONG;
+                                   aptlPoints: PPOINTL;
+                                   lRop: LONG;
+                                   flOptions: ULONG): LONG;
 
-      HBITMAP  APIENTRY GpiLoadBitmap(HPS hps,
-                                      HMODULE Resource,
-                                      ULONG idBitmap,
-                                      LONG lWidth,
-                                      LONG lHeight);
+function GpiDeleteBitmap(hbm: HBITMAP): BOOL;
 
-      HBITMAP  APIENTRY GpiSetBitmap(HPS hps,
-                                     HBITMAP hbm);
+function GpiLoadBitmap(hps: HPS;
+                                       Resource: HMODULE;
+                                       idBitmap: ULONG;
+                                       lWidth: LONG;
+                                       lHeight: LONG): HBITMAP;
 
-      LONG     APIENTRY GpiWCBitBlt(HPS hpsTarget,
-                                    HBITMAP hbmSource,
-                                    LONG lCount,
-                                    PPOINTL aptlPoints,
-                                    LONG lRop,
-                                    ULONG flOptions);
+function GpiSetBitmap(hps: HPS;
+                                     hbm: HBITMAP): HBITMAP;
 
-   #endif /* no INCL_DDIDEFS */
+function GpiWCBitBlt(hpsTarget: HPS;
+                                     hbmSource: HBITMAP;
+                                     lCount: LONG;
+                                     aptlPoints: PPOINTL;
+                                     lRop: LONG;
+                                     flOptions: ULONG): LONG;
 
-#endif /* common GPIBITMAPS */
+
+end.

@@ -35,7 +35,7 @@ resourcestring
   SParserExpectedLBracketSemicolon = 'Expected "(" or ";"';
   SParserExpectedColonSemicolon = 'Expected ":" or ";"';
   SParserExpectedSemiColonEnd = 'Expected ";" or "End"';
-  SParserExpectedConstVarID = 'Expected "const", "var" or identifier';
+  SParserExpectedConstVarID = 'Expected "in", "var" or identifier';
   SParserExpectedColonID = 'Expected ":" or identifier';
   SParserSyntaxError = 'Syntax error';
   SParserTypeSyntaxError = 'Syntax error in type';
@@ -318,19 +318,9 @@ var
   Name, s: String;
   EnumValue: TPasEnumValue;
   Ref: TPasElement;
-  HadPackedModifier : Boolean;           // 12/04/04 - Dave - Added
 begin
   Result := nil;         // !!!: Remove in the future
-  HadPackedModifier := False;     { Assume not present }
   NextToken;
-  if CurToken = tkPacked then     { If PACKED modifier }
-     begin                        { Handle PACKED modifier for all situations }
-     NextToken;                   { Move to next token for rest of parse }
-     if CurToken in [tkArray, tkRecord, tkObject, tkClass] then  { If allowed }
-       HadPackedModifier := True  { rememeber for later }
-     else                         { otherwise, syntax error }
-       ParseExc(Format(SParserExpectTokenError,['ARRAY, RECORD, OBJECT or CLASS']))
-     end;
   case CurToken of
     tkIdentifier:
       begin
@@ -392,7 +382,6 @@ begin
     tkArray:
       begin
         Result := TPasArrayType(CreateElement(TPasArrayType, '', Parent));
-        TPasArrayType(Result).IsPacked := HadPackedModifier;
         ParseArrayType(TPasArrayType(Result));
       end;
     tkBraceOpen:
@@ -434,7 +423,6 @@ begin
     tkRecord:
       begin
         Result := TPasRecordType(CreateElement(TPasRecordType, '', Parent));
-        TPasRecordType(Result).IsPacked := HadPackedModifier;
         try
           ParseRecordDecl(TPasRecordType(Result), False);
         except
@@ -719,8 +707,6 @@ begin
         CurBlock := declType;
       tkVar:
         CurBlock := declVar;
-      tkThreadVar:
-        CurBlock := declThreadVar;
       tkProcedure:
         begin
           AddProcOrFunction(Section, ParseProcedureOrFunctionDecl(Section, ptProcedure));
@@ -963,21 +949,11 @@ var
 var
   EnumValue: TPasEnumValue;
   Prefix : String;
-  HadPackedModifier : Boolean;           // 12/04/04 - Dave - Added
 
 begin
   TypeName := CurTokenString;
   ExpectToken(tkEqual);
   NextToken;
-  HadPackedModifier := False;     { Assume not present }
-  if CurToken = tkPacked then     { If PACKED modifier }
-     begin                        { Handle PACKED modifier for all situations }
-     NextToken;                   { Move to next token for rest of parse }
-     if CurToken in [tkArray, tkRecord, tkObject, tkClass] then  { If allowed }
-       HadPackedModifier := True  { rememeber for later }
-     else                         { otherwise, syntax error }
-       ParseExc(Format(SParserExpectTokenError,['ARRAY, RECORD, OBJECT or CLASS']))
-     end;
   case CurToken of
     tkRecord:
       begin
@@ -986,23 +962,14 @@ begin
         try
           ParseRecordDecl(TPasRecordType(Result), False);
           ExpectToken(tkSemicolon);
-          TPasRecordType(Result).IsPacked := HadPackedModifier;
         except
           Result.Free;
           raise;
         end;
       end;
-    tkObject:
-      begin
-        Result := ParseClassDecl(Parent, TypeName, okObject);
-        TPasClassType(Result).IsPacked := HadPackedModifier;
-      end;
     tkClass:
       begin
         Result := ParseClassDecl(Parent, TypeName, okClass);
-        { could be TPasClassOfType }
-        if result is TPasClassType then
-          TPasClassType(Result).IsPacked := HadPackedModifier;
       end;
 //    tkInterface:
 //      Result := ParseClassDecl(Parent, TypeName, okInterface);
@@ -1080,7 +1047,6 @@ begin
         Result := TPasArrayType(CreateElement(TPasArrayType, TypeName, Parent));
         try
           ParseArrayType(TPasArrayType(Result));
-          TPasArrayType(Result).IsPacked := HadPackedModifier;
           ExpectToken(tkSemicolon);
         except
           Result.Free;
@@ -1345,9 +1311,9 @@ begin
     while True do
     begin
       NextToken;
-      if CurToken = tkConst then
+      if CurToken = tkInArg then
       begin
-        Access := argConst;
+        Access := argIn;
         Name := ExpectIdentifier;
       end else if CurToken = tkVar then
       begin
@@ -1397,6 +1363,7 @@ begin
         ArgType.AddRef;
       Arg.Value := Value;
       Args.Add(Arg);
+      If Access = argDefault then WriteLn('WARNING: Argument ', Args.Count, ' direction is not set in line ', Scanner.CurRow, '! This will be error in future versions of tool.');
     end;
 
     ArgNames.Free;
@@ -1411,8 +1378,8 @@ end;
 procedure TPasParser.ParseProcedureOrFunctionHeader(Parent: TPasElement;
   Element: TPasProcedureType; ProcType: TProcType; OfObjectPossible: Boolean);
 
-Var
-  Tok : String;
+//Var
+//  Tok : String;
 
 begin
   NextToken;
@@ -1472,14 +1439,6 @@ begin
   end;
 
   NextToken;
-  if OfObjectPossible and (CurToken = tkOf) then
-  begin
-    ExpectToken(tkObject);
-    Element.IsOfObject := True;
-  end else
-    UngetToken;
-
-  NextToken;
   if CurToken = tkEqual then
   begin
     // for example: const p: procedure = nil;
@@ -1493,100 +1452,7 @@ begin
   while True do
     begin
     NextToken;
-    if (CurToken = tkIdentifier) then
-      begin
-      Tok:=UpperCase(CurTokenString);
-      If (Tok='CDECL') then
-        begin
- {       El['calling-conv'] := 'cdecl';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='PASCAL') then
-        begin
-{        El['calling-conv'] := 'pascal';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='STDCALL') then
-        begin
-{        El['calling-conv'] := 'stdcall';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='OLDFPCCALL') then
-        begin
-{        El['calling-conv'] := 'oldfpccall';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='EXTDECL') then
-        begin
-{        El['calling-conv'] := 'extdecl';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='REGISTER') then
-        begin
-{        El['calling-conv'] := 'register';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='COMPILERPROC') then
-        begin
-{      El['calling-conv'] := 'compilerproc';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (Tok='VARARGS') then
-        begin
-{      'varargs': needs CDECL & EXTERNAL }
-        ExpectToken(tkSemicolon);
-        end
-      else if (tok='DEPRECATED') then
-        begin
-{       El['calling-conv'] := 'deprecated';}
-        ExpectToken(tkSemicolon);
-        end
-      else if (tok='OVERLOAD') then
-        begin
-        TPasProcedure(Parent).IsOverload := True;
-        ExpectToken(tkSemicolon);
-        end
-      else if (tok='INLINE') then
-        begin
-        ExpectToken(tkSemicolon);
-        end
-      else if (tok='ASSEMBLER') then
-        begin
-        ExpectToken(tkSemicolon);
-        end
-      else if (tok = 'EXTERNAL') then
-        repeat
-          NextToken;
-        until CurToken = tkSemicolon
-      else if (tok = 'PUBLIC') then
-        begin
-          NextToken;
-          { Should be token Name,
-            if not we're in a class and the public section starts }
-          If (Uppercase(CurTokenString)<>'NAME') then
-            begin
-            UngetToken;
-            UngetToken;
-            Break;
-            end
-          else
-            begin
-            NextToken;  // Should be export name string.
-            ExpectToken(tkSemicolon);
-            end;
-        end
-      else
-        begin
-        UnGetToken;
-        Break;
-        end
-      end
-    else if (CurToken = tkInline) then
-      begin
-{      TPasProcedure(Parent).IsInline := True;}
-      ExpectToken(tkSemicolon);
-      end
-    else if (CurToken = tkSquaredBraceOpen) then
+    if (CurToken = tkSquaredBraceOpen) then
       begin
       repeat
         NextToken

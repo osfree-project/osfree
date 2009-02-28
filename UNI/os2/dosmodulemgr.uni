@@ -2,19 +2,19 @@ module dosmodulemgr;
 
 (*** Module manager *)
 
-function DosLoadModule(const pszName: PSZ;
+function DosLoadModule(in pszName: PSZ;
                        cbName: ULONG;
-                       const pszModname: PSZ;
+                       in pszModname: PSZ;
                        phmod: PHMODULE): APIRET;
 
 function DosFreeModule(hmod: HMODULE): APIRET;
 
 function DosQueryProcAddr(hmod: HMODULE;
                            ordinal: ULONG;
-                           const pszName: PSZ;
+                           in pszName: PSZ;
                            ppfn: ^PFN): APIRET;
 
-function DosQueryModuleHandle(const pszModname: PSZ;
+function DosQueryModuleHandle(in pszModname: PSZ;
                               phmod: PHMODULE): APIRET;
 
 function DosQueryModuleName(hmod: HMODULE;
@@ -26,7 +26,7 @@ function DosQueryModuleName(hmod: HMODULE;
 
 function DosQueryProcType(hmod: HMODULE;
                           ordinal: ULONG;
-                          const pszName: PSZ;
+                          in pszName: PSZ;
                           pulproctype: PULONG): APIRET;
 
 function DosQueryModFromEIP(phMod: ^HMODULE;
@@ -47,9 +47,9 @@ function DosQueryModFromEIP(phMod: ^HMODULE;
 
 function DosQueryABIOSSupport(reserved: ULONG): APIRET;
 
-function DosReplaceModule(const pszOldModule: PSZ;
-                          const pszNewModule: PSZ;
-                          const pszBackupModule: PSZ): APIRET;
+function DosReplaceModule(in pszOldModule: PSZ;
+                          in pszNewModule: PSZ;
+                          in pszBackupModule: PSZ): APIRET;
 
    (* structure returned by DosQueryModFromCS *)
 

@@ -79,7 +79,7 @@ function DosGetMessage(pTable: ^PCHAR;
                        pBuf: PCHAR;
                        cbBuf: ULONG;
                        msgnumber: ULONG;
-                       const pszFile: PSZ;
+                       in pszFile: PSZ;
                        pcbMsg: PULONG): APIRET;
 
 function DosErrClass(code: ULONG;
@@ -89,7 +89,7 @@ function DosErrClass(code: ULONG;
 
 function DosInsertMessage(pTable: ^PCHAR;
                           cTable: ULONG;
-                          const pszMsg: PSZ;
+                          in pszMsg: PSZ;
                           cbMsg: ULONG;
                           pBuf: PCHAR;
                           cbBuf: ULONG;
@@ -108,23 +108,23 @@ function DosScanEnv(pszName: PSZ,
                     ppszValue: ^PSZ): APIRET;
 
 function DosSearchPath(flag: ULONG;
-                       const pszPathOrName: PSZ;
-                       const pszFilename: PSZ;
+                       in pszPathOrName: PSZ;
+                       in pszFilename: PSZ;
                        pBuf: PBYTE;
                        cbBuf: ULONG): APIRET;
 
 function DosQueryMessageCP(pb: PCHAR;
                            cb: ULONG;
-                           const pszFilename: PSZ,
+                           in pszFilename: PSZ,
                            cbBuf: PULONG): APIRET;
 
 function DosQueryRASInfo(Index: ULONG;
                          Addr: PPVOID): APIRET;
 
-function DosSetExtLIBPATH(const pszExtLIBPATH: PSZ;
+function DosSetExtLIBPATH(in pszExtLIBPATH: PSZ;
                           flags: ULONG): APIRET;
 
-function DosQueryExtLIBPATH(const pszExtLIBPATH: PSZ;
+function DosQueryExtLIBPATH(in pszExtLIBPATH: PSZ;
                             flags: ULONG): APIRET;
 
 function DosVerifyPidTid(Pid: PID;

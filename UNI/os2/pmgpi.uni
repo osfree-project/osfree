@@ -28,5 +28,6 @@ const CLR_NOINDEX              =    (-254);
 uses gpiprimitives;
 uses gpilcids;
 uses gpicontrolcommon;
+uses gpibitmapscommon;
 
 end.

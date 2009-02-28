@@ -105,6 +105,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &
      $(OUT)$(SEP)os2$(SEP)gpilcids.h &
      $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h &
+     $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -272,6 +273,8 @@ $(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pmgpi.uni
 $(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpiprimitives.uni
 
 $(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpilcids.uni
+
+$(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpibitmapscommon.uni
 
 $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpicontrolcommon.uni
 
