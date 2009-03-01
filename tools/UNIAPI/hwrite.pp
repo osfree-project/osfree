@@ -51,7 +51,6 @@ type
     procedure WriteProcDecl(AProc: TPasProcedure);
     procedure WriteFunctionType(AProc: TPasFunctionType);
     procedure WriteProcedureType(AProc: TPasProcedureType);
-    procedure WriteProcImpl(AProc: TPasProcedureImpl);
     procedure WriteProperty(AProp: TPasProperty);
     procedure WriteImplBlock(ABlock: TPasImplBlock);
     procedure WriteImplElement(AElement: TPasImplElement;
@@ -141,8 +140,6 @@ begin
     WriteType(TPasType(AElement), true)
   else if AElement.InheritsFrom(TPasProcedure) then
     WriteProcDecl(TPasProcedure(AElement))
-  else if AElement.InheritsFrom(TPasProcedureImpl) then
-    WriteProcImpl(TPasProcedureImpl(AElement))
   else if AElement.ClassType = TPasProperty then
     WriteProperty(TPasProperty(AElement))
   else
@@ -377,13 +374,19 @@ begin
         if i > 0 then
           wrt(', ');
         case Access of
-          argIn: wrt('const ');
-          argVar: wrt('var ');
+          argIn:    wrt('const ');
+          argInOut: wrt('');
+          argOut:   wrt('');
         end;
         if Assigned(ArgType) then
         begin
           WriteType(ArgType, false);
           wrt(' ');
+        end;
+        case Access of
+          argIn:    wrt('');
+          argInOut: wrt('* ');
+          argOut:   wrt('* ');
         end;
         wrt(Name);
       end;
@@ -413,13 +416,19 @@ begin
         if i > 0 then
           wrt(', ');
         case Access of
-          argIn: wrt('const ');
-          argVar: wrt('var ');
+          argIn:    wrt('const ');
+          argInOut: wrt('');
+          argOut: wrt('');
         end;
         if Assigned(ArgType) then
         begin
           WriteType(ArgType, false);
           wrt(' ');
+        end;
+        case Access of
+          argIn:    wrt('');
+          argInOut: wrt('* ');
+          argOut:   wrt('* ');
         end;
         wrt(Name);
       end;
@@ -452,12 +461,18 @@ begin
           wrt(', ');
         case Access of
           argIn: wrt('const ');
-          argVar: wrt('var ');
+          argInOut: wrt('');
+          argOut: wrt('');
         end;
         if Assigned(ArgType) then
         begin
           WriteType(ArgType, false);
           wrt(' ');
+        end;
+        case Access of
+          argIn: wrt('');
+          argInOut: wrt('* ');
+          argOut: wrt('* ');
         end;
         wrt(Name);
       end;
@@ -471,77 +486,6 @@ begin
   wrtln;
 end;
 
-
-procedure THWriter.WriteProcImpl(AProc: TPasProcedureImpl);
-var
-  i: Integer;
-begin
-  PrepareDeclSection('');
-  wrt(AProc.TypeName + ' ');
-
-  if AProc.Parent.ClassType = TPasClassType then
-    wrt(AProc.Parent.Name + '.');
-
-  wrt(AProc.Name);
-
-  if Assigned(AProc.ProcType) and (AProc.ProcType.Args.Count > 0) then
-  begin
-    wrt('(');
-    for i := 0 to AProc.ProcType.Args.Count - 1 do
-      with TPasArgument(AProc.ProcType.Args[i]) do
-      begin
-        if i > 0 then
-          wrt('; ');
-        case Access of
-          argIn: wrt('const ');
-          argVar: wrt('var ');
-        end;
-        wrt(Name);
-        if Assigned(ArgType) then
-        begin
-          wrt(': ');
-          WriteElement(ArgType);
-        end;
-        if Value <> '' then
-          wrt(' = ' + Value);
-      end;
-    wrt(')');
-  end;
-
-  if Assigned(AProc.ProcType) and
-    (AProc.ProcType.ClassType = TPasFunctionType) then
-  begin
-    wrt(': ');
-    WriteElement(TPasFunctionType(AProc.ProcType).ResultEl.ResultType);
-  end;
-
-  wrtln(';');
-  IncDeclSectionLevel;
-  for i := 0 to AProc.Locals.Count - 1 do
-  begin
-    if TPasElement(AProc.Locals[i]).InheritsFrom(TPasProcedureImpl) then
-    begin
-      IncIndent;
-      if (i = 0) or not
-        TPasElement(AProc.Locals[i - 1]).InheritsFrom(TPasProcedureImpl) then
-        wrtln;
-    end;
-
-    WriteElement(TPasElement(AProc.Locals[i]));
-
-    if TPasElement(AProc.Locals[i]).InheritsFrom(TPasProcedureImpl) then
-      DecIndent;
-  end;
-  DecDeclSectionLevel;
-
-  wrtln('begin');
-  IncIndent;
-  if Assigned(AProc.Body) then
-    WriteImplBlock(AProc.Body);
-  DecIndent;
-  wrtln('end;');
-  wrtln;
-end;
 
 procedure THWriter.WriteProperty(AProp: TPasProperty);
 var

@@ -250,7 +250,7 @@ type
     Members: TList;     // array of TPasElement objects
   end;
 
-  TArgumentAccess = (argDefault, argIn, argVar, argOut);
+  TArgumentAccess = (argDefault, argIn, argInOut, argOut);
 
   TPasArgument = class(TPasElement)
   public

@@ -1,15 +1,15 @@
 module bsedos;
 
-(*************************************************************************\
+(************************************************************************
 * CCHMAXPATH is the maximum fully qualified path name length including  *
 * the drive letter, colon, backslashes and terminating NULL.            *
-\*************************************************************************)
+*************************************************************************)
 const CCHMAXPATH=260;
 
-(*************************************************************************\
+(************************************************************************
 * CCHMAXPATHCOMP is the maximum individual path component name length   *
 * including a terminating NULL.                                         *
-\*************************************************************************)
+*************************************************************************)
 const CCHMAXPATHCOMP=256;
 
 uses dosprocesscommon;
@@ -39,66 +39,63 @@ uses bdcalls;
 (*** Pipe and queue support *)
 
 
-      type HQUEUE=LHANDLE;
-      type PHQUEUE=^HQUEUE;
-      type REQUESTDATA=structure
-                pid: PID;
-                ulData: ULONG;
-        end;
-      type PREQUESTDATA=^REQUESTDATA;
+type HQUEUE=LHANDLE;
+type PHQUEUE=^HQUEUE;
+type REQUESTDATA=structure
+          pid: PID;
+          ulData: ULONG;
+     end;
+type PREQUESTDATA=^REQUESTDATA;
 
-      const QUE_FIFO              =0;
-      const QUE_LIFO              =1;
-      const QUE_PRIORITY          =2;
-      const QUE_NOCONVERT_ADDRESS =0;
-      const QUE_CONVERT_ADDRESS   =4;
+const QUE_FIFO              =0;
+const QUE_LIFO              =1;
+const QUE_PRIORITY          =2;
+const QUE_NOCONVERT_ADDRESS =0;
+const QUE_CONVERT_ADDRESS   =4;
 
 
-function  DosCreatePipe(phfRead: PHFILE;
-                                     phfWrite: PHFILE;
-                                     cb: ULONG): APIRET;
+function  DosCreatePipe(out hfRead:  HFILE;
+                        out hfWrite: HFILE;
+                        in  cb:      ULONG): APIRET;
 
-function  DosCloseQueue(hq: HQUEUE): APIRET;
+function  DosCloseQueue(in hq: HQUEUE): APIRET;
 
-function  DosCreateQueue(phq: PHQUEUE;
-                                      priority: ULONG;
-                                      pszName: PCSZ): APIRET;
+function  DosCreateQueue(out hq:       HQUEUE;
+                         in  priority: ULONG;
+                         in  pszName:  PCSZ): APIRET;
 
-function  DosOpenQueue(ppid: PPID;
-                                    phq: PHQUEUE;
-                                    pszName: PCSZ): APIRET;
+function  DosOpenQueue(out ppid:    PID;
+                       out phq:     HQUEUE;
+                       in  pszName: PCSZ): APIRET;
 
-function  DosPeekQueue(hq: HQUEUE;
-                                    pRequest: PREQUESTDATA;
-                                    pcbData: PULONG;
-                                    ppbuf: PPVOID;
-                                    element: PULONG;
-                                    nowait: BOOL32;
-                                    ppriority: PBYTE;
-                                    hsem: HEV): APIRET;
+function  DosPeekQueue(in    hq:       HQUEUE;
+                       out   pRequest: REQUESTDATA;
+                       out   pcbData:  ULONG;
+                       out   ppbuf:    PVOID;
+                       inout element:  ULONG;
+                       in    nowait:   BOOL32;
+                       out   priority: BYTE;
+                       in    hsem:     HEV): APIRET;
 
-function  DosPurgeQueue(hq: HQUEUE): APIRET;
+function  DosPurgeQueue(in hq: HQUEUE): APIRET;
 
-function  DosQueryQueue(hq: HQUEUE;
-                                     pcbEntries: PULONG): APIRET;
+function  DosQueryQueue(in  hq:         HQUEUE;
+                        out pcbEntries: ULONG): APIRET;
 
-function  DosReadQueue(hq: HQUEUE;
-                                    pRequest: PREQUESTDATA;
-                                    pcbData: PULONG;
-                                    ppbuf: PPVOID;
-                                    element: ULONG;
-                                    wait: BOOL32;
-                                    ppriority: PBYTE;
-                                    hsem: HEV): APIRET;
+function  DosReadQueue(in  hq:        HQUEUE;
+                       out pRequest:  REQUESTDATA;
+                       out pcbData:   ULONG;
+                       out ppbuf:     PVOID;
+                       in  element:   ULONG;
+                       in  wait:      BOOL32;
+                       out ppriority: BYTE;
+                       in  hsem:      HEV): APIRET;
 
-function  DosWriteQueue(hq: HQUEUE;
-                                      request: ULONG;
-                                      cbData: ULONG;
-                                      pbData: PVOID;
-                                      priority: ULONG): APIRET;
-
+function  DosWriteQueue(in hq:       HQUEUE;
+                        in request:  ULONG;
+                        in cbData:   ULONG;
+                        in pbData:   PVOID;
+                        in priority: ULONG): APIRET;
 
 
 end.
-
-

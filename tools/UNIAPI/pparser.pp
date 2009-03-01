@@ -566,7 +566,7 @@ begin
       NextAppendSpace := False;
       case CurToken of
         tkBraceOpen, tkBraceClose, tkDivision, tkEqual, tkCaret, tkAnd, tkAs,
-          tkDiv, tkIn, tkIs, tkMinus, tkMod, tkMul, tkNot, tkOf, tkOn,
+          tkDiv, tkIs, tkMinus, tkMod, tkMul, tkNot, tkOf, tkOn,
           tkOr, tkPlus, tkSHL, tkSHR, tkXOR:
 {        tkPlus.._ASSIGNMENT, _UNEQUAL, tkPlusASN.._XORASN, _AS, _AT, _IN, _IS,
           tkOf, _ON, _OR, _AND, _DIV, _MOD, _NOT, _SHL, _SHR, _XOR:}
@@ -1313,13 +1313,13 @@ begin
       NextToken;
       if CurToken = tkInArg then
       begin
-        Access := argIn;
+        Access := ArgIn;
         Name := ExpectIdentifier;
-      end else if CurToken = tkVar then
+      end else if CurToken = tkInOutArg then
       begin
-        Access := ArgVar;
+        Access := ArgInOut;
         Name := ExpectIdentifier;
-      end else if (CurToken = tkIdentifier) and (UpperCase(CurTokenString) = 'OUT') then
+      end else if CurToken = tkOutArg then
       begin
         Access := ArgOut;
         Name := ExpectIdentifier;

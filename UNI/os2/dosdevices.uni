@@ -10,21 +10,21 @@ const DEVINFO_SUBMODEL= 4;
 const DEVINFO_MODEL =5;
 const DEVINFO_ADAPTER= 6;
 
-function DosDevIOCtl(hDevice: HFILE;
-                     category: ULONG;
-                     xfunction: ULONG;
-                     pParams: PVOID;
-                     cbParmLenMax: ULONG;
-                     pcbParmLen: PULONG;
-                     pData: PVOID;
-                     cbDataLenMax: ULONG;
-                     pcbDataLen: PULONG): APIRET;
+function DosDevIOCtl(in    hDevice:      HFILE;
+                     in    category:     ULONG;
+                     in    xfunction:    ULONG;
+                     in    pParams:      PVOID;
+                     in    cbParmLenMax: ULONG;
+                     inout pcbParmLen:   ULONG;
+                     in    pData:        PVOID;
+                     in    cbDataLenMax: ULONG;
+                     inout pcbDataLen:   ULONG): APIRET;
 
-function DosPhysicalDisk(xfunction: ULONG;
-                         pBuf: PVOID;
-                         cbBuf: ULONG;
-                         pParams: PVOID;
-                         cbParams: ULONG): APIRET;
+function DosPhysicalDisk(in xfunction: ULONG;
+                         in pBuf:      PVOID;
+                         in cbBuf:     ULONG;
+                         in pParams:   PVOID;
+                         in cbParams:  ULONG): APIRET;
 
 const INFO_COUNT_PARTITIONABLE_DISKS =1;
 const INFO_GETIOCTLHANDLE =2;
