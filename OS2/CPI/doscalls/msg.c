@@ -69,45 +69,45 @@ APIRET APIENTRY DosInsertMessage(PCHAR *  pTable, ULONG cTable, const PSZ pszMsg
 
     while (srclen!=0)
     {
-      if (*src=="%")
+      if (*src=='%')
       {
         src++;
         switch (*src)
         {
-          "%": { *dst=*src; break; } // %%
-          "1": // %1
+          case '%': { *dst=*src; break; } // %%
+          case '1': // %1
           {
             break;
           }
-          "2": // %2
+          case '2': // %2
           {
             break;
           }
-          "3": // %3
+          case '3': // %3
           {
             break;
           }
-          "4": // %4
+          case '4': // %4
           {
             break;
           }
-          "5": // %5
+          case '5': // %5
           {
             break;
           }
-          "6": // %6
+          case '6': // %6
           {
             break;
           }
-          "7": // %7
+          case '7': // %7
           {
             break;
           }
-          "8": // %8
+          case '8': // %8
           {
             break;
           }
-          "9": // %9
+          case '9': // %9
           {
             break;
           }
