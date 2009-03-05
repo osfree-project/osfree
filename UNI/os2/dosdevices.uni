@@ -1,7 +1,5 @@
 module dosdevices;
 
-function  DosDevConfig(pdevinfo: PVOID; item: ULONG): APIRET;
-
 const DEVINFO_PRINTER =0;
 const DEVINFO_RS232 =1;
 const DEVINFO_FLOPPY= 2;
@@ -9,6 +7,14 @@ const DEVINFO_COPROCESSOR= 3;
 const DEVINFO_SUBMODEL= 4;
 const DEVINFO_MODEL =5;
 const DEVINFO_ADAPTER= 6;
+
+(*************************************************************************************)
+(* Original function uses VOID as storage, but according to docs only BYTE returned. *)
+(* So exact type are used.                                                           *)
+(*************************************************************************************)
+function  DosDevConfig(out pdevinfo: BYTE;
+                       in  item:     ULONG): APIRET;
+
 
 function DosDevIOCtl(in    hDevice:      HFILE;
                      in    category:     ULONG;

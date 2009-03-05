@@ -251,33 +251,149 @@ const VR_VIOSETSTATE             = $00000100;
 function VioDeRegister       (): USHORT;
 function VioRegister         (pszModName: PSZ; pszEntryName: PSZ; flFun1: ULONG; flFun2: ULONG): USHORT;
 function VioGlobalReg        (pszModName: PSZ; pszEntryName: PSZ; flFun1: ULONG; flFun2: ULONG; usReturn: USHORT): USHORT;
-function VioGetAnsi          (Ansi: PUSHORT; Handle: HVIO): USHORT;
-function VioGetCp            (Reserved: USHORT; IdCodePage: PUSHORT; Handle: HVIO): USHORT;
-function VioGetCurPos        (Row: PUSHORT; Column: PUSHORT; Handle: HVIO): USHORT;
-function VioGetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): USHORT;
-function VioGetMode          (ModeInfo: PVIOMODEINFO; Handle: HVIO): USHORT;
-function VioReadCellStr      (CellStr: PCHAR; Count: PUSHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioReadCharStr      (CellStr: PCHAR; Count: PUSHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioScrollDown       (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Lines: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
-function VioScrollDn         (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Lines: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
-function VioScrollLeft       (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Columns: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
-function VioScrollRight      (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Columns: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
-function VioScrollUp         (TopRow: USHORT; LeftCol: USHORT; BotRow: USHORT; RightCol: USHORT; Lines: USHORT; Cell: PBYTE; Handle: HVIO): USHORT;
-function VioSetAnsi          (Ansi: USHORT; Handle: HVIO): USHORT;
-function VioSetCp            (Reserved: USHORT; IdCodePage: USHORT; Handle: HVIO): USHORT;
-function VioSetCurPos        (Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioSetCurType       (CursorInfo: PVIOCURSORINFO; Handle: HVIO): USHORT;
-function VioSetMode          (ModeInfo: PVIOMODEINFO; hvio: HVIO): USHORT;
-function VioWrtCellStr       (CellStr: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioWrtCharStr       (Str: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioWrtCharStrAttr   (Str: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; pAttr: PBYTE; Handle: HVIO): USHORT;
-function VioWrtCharStrAtt    (pch: PCCH; cb: USHORT; usRow: USHORT; usColumn: USHORT; pAttr: PBYTE; hvio: HVIO): USHORT;
-function VioWrtNAttr         (Attr: PBYTE; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioWrtNCell         (Cell: PBYTE; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioWrtNChar         (Char: PCHAR; Count: USHORT; Row: USHORT; Column: USHORT; Handle: HVIO): USHORT;
-function VioWrtTTY           (Str: PCHAR; Count: USHORT; Handle: HVIO): USHORT;
-function VioGetState         (pState: PVOID; Handle: HVIO): USHORT;
-function VioSetState         (pState: PVOID; Handle: HVIO): USHORT;
-function VioGetConfig        (ConfigId: USHORT; pvioin: PVIOCONFIGINFO; hvio: HVIO): USHORT;
+
+function VioGetAnsi          (out Ansi:   USHORT;
+                              in  Handle: HVIO): USHORT;
+
+function VioGetCp            (in  Reserved:   USHORT;
+                              out IdCodePage: USHORT;
+                              in  Handle:     HVIO): USHORT;
+
+function VioGetCurPos        (out Row:    USHORT;
+                              out Column: USHORT;
+                              in  Handle: HVIO): USHORT;
+
+function VioGetCurType       (out CursorInfo: VIOCURSORINFO;
+                              in  Handle:     HVIO): USHORT;
+
+(* Missed VioGetDeviceCellSize *)
+
+function VioGetMode          (inout ModeInfo: VIOMODEINFO;
+                              in    Handle:   HVIO): USHORT;
+
+function VioReadCellStr      (out   CellStr: CHAR;
+                              inout Count:   USHORT;
+                              in    Row:     USHORT;
+                              in    Column:  USHORT;
+                              in    Handle:  HVIO): USHORT;
+
+function VioReadCharStr      (out   CellStr: CHAR;
+                              inout Count:   USHORT;
+                              in    Row:     USHORT;
+                              in    Column:  USHORT;
+                              in    Handle:  HVIO): USHORT;
+
+function VioScrollDown       (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Lines:    USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollDn         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Lines:    USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollLeft       (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollRight      (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollUp         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Lines:    USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioSetAnsi          (in Ansi:   USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioSetCp            (in Reserved:   USHORT;
+                              in IdCodePage: USHORT;
+                              in Handle:     HVIO): USHORT;
+
+function VioSetCurPos        (in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioSetCurType       (in CursorInfo: PVIOCURSORINFO;
+                              in Handle:     HVIO): USHORT;
+
+function VioSetMode          (in ModeInfo: PVIOMODEINFO;
+                              in hvio:     HVIO): USHORT;
+
+function VioWrtCellStr       (in CellStr: PCHAR;
+                              in Count:   USHORT;
+                              in Row:     USHORT;
+                              in Column:  USHORT;
+                              in Handle:  HVIO): USHORT;
+
+function VioWrtCharStr       (in Str:    PCHAR;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtCharStrAttr   (in Str:    PCHAR;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in pAttr:  PBYTE;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtCharStrAtt    (in pch:      PCCH;
+                              in cb:       USHORT;
+                              in usRow:    USHORT;
+                              in usColumn: USHORT;
+                              in pAttr:    PBYTE;
+                              in hvio: HVIO): USHORT;
+
+function VioWrtNAttr         (in Attr:   PBYTE;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtNCell         (in Cell:   PBYTE;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtNChar         (in Char:   PCHAR;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtTTY           (in Str:   PCHAR;
+                              in Count: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioGetState         (in pState: PVOID; in Handle: HVIO): USHORT;
+
+function VioSetState         (in pState: PVOID; in Handle: HVIO): USHORT;
+
+function VioGetConfig        (in  ConfigId: USHORT;
+                              out vioin:    VIOCONFIGINFO;
+                              in  hvio:     HVIO): USHORT;
 
 end.
