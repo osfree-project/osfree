@@ -1,11 +1,11 @@
-{****************************** Module Header ******************************
+(****************************** Module Header ******************************
 *                                                                          *
 * Module Name: OS2VDM.UNI                                                  *
 *                                                                          *
 * This is OS/2 VDM specific module that includes all the files necessary   *
 * for writing an DOS Personality application with OS/2 VDM API.            *
 *                                                                          *
-***************************************************************************}
+***************************************************************************)
 
 module os2vdm;
 

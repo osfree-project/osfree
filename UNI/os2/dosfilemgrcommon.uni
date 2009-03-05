@@ -236,8 +236,8 @@ uses hevdef;
    const FHB_PIPEREMOTE       = $8000;   (* Remote pipe *)
 
 
-//   type FTIME=USHORT;
-//   type FDATE=USHORT;
+(*   type FTIME=USHORT;
+   type FDATE=USHORT; *)
 
 
       (* File time and date types *)

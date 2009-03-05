@@ -1,13 +1,13 @@
 module os2def;
 
-type BYTE   = T_BYTE; {8bit}
-type UCHAR  = T_BYTE; {8bit}
-type USHORT = T_WORD; {16bit}
-type ULONG  = T_DWORD; {32bit}
-type SHORT  = T_LONG16; {16bit}
-type LONG   = T_LONG32; {32bit}
-type WORD   = T_WORD; {16bit}
-type DWORD  = T_DWORD; {32bit}
+type BYTE   = T_BYTE; (* 8bit *)
+type UCHAR  = T_BYTE; (* 8bit *)
+type USHORT = T_WORD; (* 16bit *)
+type ULONG  = T_DWORD; (* 32bit *)
+type SHORT  = T_LONG16; (* 16bit *)
+type LONG   = T_LONG32; (* 32bit *)
+type WORD   = T_WORD; (* 16bit *)
+type DWORD  = T_DWORD; (* 32bit *)
 
 type INT   = T_LONG32;
 type UINT  = T_DWORD;
@@ -152,24 +152,24 @@ type PBOOL=^BOOL;
 type BOOL32=ULONG;
 type PBOOL32=^BOOL32;
 type BOOL16=USHORT;
-type PBOOL16=^BOOL16; {Непонятно, как сделать модификатор _Seg16}
+type PBOOL16=^BOOL16; (* Непонятно, как сделать модификатор _Seg16 *)
 
 type PCHAR=^CHAR;
 type PSHORT=^SHORT;
 type PINT=^INT;
 type PLONG=^LONG;
 
-{type CHAR     * _Seg16 PCHAR16;}
-{type UCHAR    * _Seg16 PUCHAR16;}
+(* type CHAR     * _Seg16 PCHAR16; *)
+(* type UCHAR    * _Seg16 PUCHAR16; *)
 
 type PVOID=T_POINTER;
 type PPVOID=^PVOID;
-{type VOID     * _Seg16 PVOID16;}
+(* type VOID     * _Seg16 PVOID16; *)
 
-{type int (APIENTRY _PFN)();
+(*  type int (APIENTRY _PFN)();
 type _PFN  *PFN;
 type int (APIENTRY _NPFN)();
-type _NPFN *NPFN;}
+type _NPFN *NPFN; *)
 
 type SEL=USHORT;
 type PSEL=^SEL;

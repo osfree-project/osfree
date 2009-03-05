@@ -5,7 +5,7 @@ module dosprocess;
    #define DosSetPrty         DosSetPriority
 * INC *)
 
-//uses bsetib;
+(* uses bsetib; *)
 
 (*
  *      Thread Information Block (TIB)

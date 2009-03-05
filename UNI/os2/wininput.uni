@@ -99,7 +99,7 @@ const  KC_INVALIDCOMP             = $0800;
    const  KC_DBCSRSRVD1           = $4000;
    const  KC_DBCSRSRVD2           = $8000;
 
-//   #pragma pack(1) (* force structure alignment packing *)
+(*   #pragma pack(1) force structure alignment packing *)
 
    (*
    * The following structure and macro are used to access the
@@ -126,7 +126,7 @@ const  KC_INVALIDCOMP             = $0800;
    type PCHRMSG=^CHRMSG;
 
 
-//   #pragma pack()  (* restore packing to default *)
+(*   #pragma pack()   restore packing to default *)
 
 const  INP_NONE                   = $0000;
 const  INP_KBD                    = $0001;

@@ -52,6 +52,7 @@ type
     procedure WriteFunctionType(AProc: TPasFunctionType);
     procedure WriteProcedureType(AProc: TPasProcedureType);
     procedure WriteProperty(AProp: TPasProperty);
+    property Stream: TStream read FStream;
   end;
 
 

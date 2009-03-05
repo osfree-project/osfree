@@ -1,13 +1,11 @@
-{*
+(*
  *  bse.uni    OS/2 Base System module for 32-bit development.
  *
- *
- * =========================================================================
- *}
+ *)
 
 module bse;
 
-{workaround of unimplemented uni2h feature}
+(* workaround of unimplemented uni2h feature *)
 uses cdeftypes2;
 
 uses bsedos;

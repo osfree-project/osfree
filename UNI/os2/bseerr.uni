@@ -672,8 +672,8 @@ error ERROR_LF_RESUME_SUCCESS         2058 MSG_LF_RESUM_SUCCESS;
 error ERROR_LF_REDIRECT_SUCCESS       2059 MSG_LF_REDIR_SUCCESS;
 error ERROR_LF_REDIRECT_FAILURE       2060 MSG_LF_REDIR_FAILURE;
 
-{-----------------------------------------------------------------}
-{Errors without corresponded message}
+(* ----------------------------------------------------------------- *)
+(* Errors without corresponded message *)
 
 const ERROR_SWAPPER_NOT_ACTIVE        = 32768;
 const ERROR_INVALID_SWAPID            = 32769;

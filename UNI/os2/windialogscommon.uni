@@ -80,7 +80,7 @@ function WinMessageBox(hwndParent: HWND;
 
 const MAX_MBDTEXT              = 70;
 
-//   #pragma pack(4)
+(*   #pragma pack(4) *)
 
    type MB2D=structure
       achText: array[MAX_MBDTEXT + 1] of CHAR; (* Text of the button. eg. "~Cancel"    *)
@@ -103,7 +103,7 @@ const MAX_MBDTEXT              = 70;
 
    type PMB2INFO=^MB2INFO;
 
-//   #pragma pack()
+(*   #pragma pack() *)
 
    (************************************************************************)
    (* WinMessageBox2                                                       *)

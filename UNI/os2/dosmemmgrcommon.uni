@@ -41,26 +41,26 @@ module dosmemmgrcommon;
                                  pcb: PULONG;
                                  pFlag: PULONG): APIRET;
 
-//   #define DosSubAlloc     DosSubAllocMem
-//   #define DOSSUBALLOC     DosSubAllocMem
+(*    #define DosSubAlloc     DosSubAllocMem *)
+(*    #define DOSSUBALLOC     DosSubAllocMem *)
    function  DosSubAllocMem(pbBase: PVOID;
                                     ppb: PPVOID;
                                     cb: ULONG): APIRET;
 
-//   #define DosSubFree      DosSubFreeMem
-//   #define DOSSUBFREE      DosSubFreeMem
+(*   #define DosSubFree      DosSubFreeMem *)
+(*   #define DOSSUBFREE      DosSubFreeMem *)
    function  DosSubFreeMem( pbBase: PVOID;
                                    pb: PVOID;
                                    cb: ULONG): APIRET;
 
-//   #define DosSubSet       DosSubSetMem
-//   #define DOSSUBSET       DosSubSetMem
+(*   #define DosSubSet       DosSubSetMem *)
+(*   #define DOSSUBSET       DosSubSetMem *)
    function  DosSubSetMem(pbBase: PVOID;
                                   flag: ULONG;
                                   cb: ULONG): APIRET;
 
-//   #define DosSubUnset     DosSubUnsetMem
-//   #define DOSSUBUNSET     DosSubUnsetMem
+(*   #define DosSubUnset     DosSubUnsetMem *)
+(*   #define DOSSUBUNSET     DosSubUnsetMem *)
    function  DosSubUnsetMem(pbBase: PVOID): APIRET;
 
 uses bsememf;

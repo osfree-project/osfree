@@ -86,7 +86,7 @@ uses Classes;
 
 type
 
-  TDeclType = (declNone, declConst, declResourcestring, declType, declVar, declThreadvar);
+  TDeclType = (declNone, declConst, declType, declVar, declThreadvar);
 
   TProcType = (ptProcedure, ptFunction, ptOperator);
 
@@ -134,7 +134,6 @@ type
     procedure ParseUsesList(ASection: TPasSection);
     procedure ParseError(ASection: TPasSection);
     function ParseConstDecl(Parent: TPasElement): TPasConst;
-    function ParseResourcestringDecl(Parent: TPasElement): TPasResString;
     function ParseTypeDecl(Parent: TPasElement): TPasType;
     procedure ParseInlineVarDecl(Parent: TPasElement; VarList: TList);
     procedure ParseInlineVarDecl(Parent: TPasElement; VarList: TList;
@@ -669,7 +668,6 @@ var
   CurBlock: TDeclType;
   Section: TPasSection;
   ConstEl: TPasConst;
-  ResStrEl: TPasResString;
   TypeEl: TPasType;
   ClassEl: TPasClassType;
   List: TList;
@@ -701,8 +699,6 @@ begin
         CurBlock := declConst;
       tkError:
         ParseError(Section);
-      tkResourcestring:
-        CurBlock := declResourcestring;
       tkType:
         CurBlock := declType;
       tkVar:
@@ -722,11 +718,6 @@ begin
           ExpectIdentifier;
           ParseProperty(CreateElement(TPasProperty, CurTokenString, Section));
         end;
-      tkOperator:
-        begin
-          AddProcOrFunction(Section, ParseProcedureOrFunctionDecl(Section, ptOperator));
-          CurBlock := declNone;
-        end;
       tkIdentifier:
         begin
           case CurBlock of
@@ -735,12 +726,6 @@ begin
                 ConstEl := ParseConstDecl(Section);
                 Section.Declarations.Add(ConstEl);
                 Section.Consts.Add(ConstEl);
-              end;
-            declResourcestring:
-              begin
-                ResStrEl := ParseResourcestringDecl(Section);
-                Section.Declarations.Add(ResStrEl);
-                Section.ResStrings.Add(ResStrEl);
               end;
             declType:
               begin
@@ -904,20 +889,6 @@ begin
     else
       UngetToken;
 
-    ExpectToken(tkEqual);
-    Result.Value := ParseExpression;
-    ExpectToken(tkSemicolon);
-  except
-    Result.Free;
-    raise;
-  end;
-end;
-
-// Starts after the variable name
-function TPasParser.ParseResourcestringDecl(Parent: TPasElement): TPasResString;
-begin
-  Result := TPasResString(CreateElement(TPasResString, CurTokenString, Parent));
-  try
     ExpectToken(tkEqual);
     Result.Value := ParseExpression;
     ExpectToken(tkSemicolon);

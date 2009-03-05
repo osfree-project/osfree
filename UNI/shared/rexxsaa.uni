@@ -48,7 +48,7 @@ const RXSUBROUTINE    =1;              (* Program called as Subroutin*)
 const RXFUNCTION      =2;              (* Program called as Function *)
 
 (***    Subcommand Interface defines*)
-//#ifdef INCL_RXSUBCOM
+(* #ifdef INCL_RXSUBCOM *)
 
 
 (***    Drop Authority for RXSUBCOM interface *)
@@ -76,10 +76,10 @@ const RXSUBCOM_NOCANDROP   = 40;       (* Name not droppable          *)
 const RXSUBCOM_LOADERR     = 50;       (* Could not load function     *)
 const RXSUBCOM_NOPROC      =127;       (* RXSUBCOM routine - not found*)
 
-//#endif (* INCL_RXSUBCOM for defines *)
+(* #endif INCL_RXSUBCOM for defines *)
 
 (***    Shared Variable Pool Interface defines *)
-//#ifdef INCL_RXSHV
+(* #ifdef INCL_RXSHV *)
 
 (***    Function Codes for Variable Pool Interface (shvcode) *)
 
@@ -123,10 +123,10 @@ type SHVBLOCK=structure            (* shvb *)
 type PSHVBLOCK=^SHVBLOCK;
 
 
-//#endif (* INCL_RXSHV for defines *)
+(* #endif INCL_RXSHV for defines *)
 
 (***    External Function Interface *)
-//#ifdef INCL_RXFUNC
+(* #ifdef INCL_RXFUNC *)
 
 (***    Registration Type Identifiers for Available Function Table *)
 
@@ -145,10 +145,10 @@ const RXFUNC_MODNOTFND    = 40;        (* Funct Dll Module Not Found *)
 const RXFUNC_ENTNOTFND    = 50;        (* Funct Entry Point Not Found*)
 const RXFUNC_NOTINIT      = 60;        (* API not initialized        *)
 const RXFUNC_BADTYPE      = 70;        (* Bad function type          *)
-//#endif (* INCL_RXFUNC for defines *)
+(* #endif INCL_RXFUNC for defines *)
 
 (***   System Exits defines *)
-//#ifdef INCL_RXSYSEXIT
+(* #ifdef INCL_RXSYSEXIT *)
 
 (***    Drop Authority for Rexx Exit interface *)
 
@@ -214,20 +214,20 @@ const    RXTEREXT= 1;                 (* subcode value.              *)
 const RXNOOFEXITS= 11;                (* 1 + largest exit number.    *)
 
 type PEXIT=PUCHAR;                 (* ptr to exit parameter block *)
-//#endif (* INCL_RXSYSEXIT for defines *)
+(* #endif INCL_RXSYSEXIT for defines *)
 
 (***    Asynchronous Request Interface defines *)
-//#ifdef INCL_RXARI
+(* #ifdef INCL_RXARI *)
 
 (***    Return Codes from Asynchronous Request interface *)
 
 const RXARI_OK               =    0;  (* Interface completed         *)
 const RXARI_NOT_FOUND        =    1;  (* Target program not found    *)
 const RXARI_PROCESSING_ERROR =    2;  (* Error processing request    *)
-//#endif (* INCL_RXARI for defines *)
+(* #endif  INCL_RXARI for defines *)
 
 (***    Macro Space Interface defines *)
-//#ifdef INCL_RXMACRO
+(* #ifdef INCL_RXMACRO *)
 
 (***    Registration Search Order Flags *)
 
@@ -247,7 +247,7 @@ const RXMACRO_SIGNATURE_ERROR    =6;  (* Incorrect format for load   *)
 const RXMACRO_SOURCE_NOT_FOUND   =7;  (* Requested cannot be found   *)
 const RXMACRO_INVALID_POSITION   =8;  (* Invalid search order pos    *)
 const RXMACRO_NOT_INIT           =9;  (* API not initialized         *)
-//#endif (* INCL_RXMACRO for defines *)
+(* #endif INCL_RXMACRO for defines *)
 
 (*********************************************************************)
 (*                                                                   *)
@@ -270,7 +270,7 @@ function RexxStart(ArgC: LONG;                        (* Num of args passed to r
 
 
 (***    Subcommand Interface *)
-//#ifdef INCL_RXSUBCOM
+(* #ifdef INCL_RXSUBCOM *)
 
 
 (* This type simplifies coding of a Subcommand handler.           *)
@@ -311,12 +311,12 @@ function RexxDeregisterSubcom(EnvName: PCSZ;                          (* Name of
          DllName: PCSZ): APIRET;                        (* DLL Module Name            *)
 
 
-//#endif (* INCL_RXSUBCOM *)
+(* #endif INCL_RXSUBCOM *)
 
 
 
 (***    Shared Variable Pool Interface *)
-//#ifdef INCL_RXSHV
+(* #ifdef INCL_RXSHV *)
 
 
 (***    RexxVariablePool - Request Variable Pool Service *)
@@ -324,11 +324,11 @@ function RexxDeregisterSubcom(EnvName: PCSZ;                          (* Name of
 function RexxVariablePool(pshv: PSHVBLOCK): APIRET;                  (* Pointer to list of SHVBLOCKs *)
 
 
-//#endif (* INCL_RXSHV *)
+(* #endif INCL_RXSHV *)
 
 
 (***    External Function Interface *)
-//#ifdef INCL_RXFUNC
+(* #ifdef INCL_RXFUNC *)
 
 (* This type simplifies coding of an External Function.           *)
 type RexxFunctionHandler=function(a: PUCHAR;
@@ -359,11 +359,11 @@ function RexxDeregisterFunction(FuncName: PCSZ): APIRET;                        
 function RexxQueryFunction(FuncName: PCSZ): APIRET;                         (* Name of function to find   *)
 
 
-//#endif (* INCL_RXFUNC *)
+(* #endif INCL_RXFUNC *)
 
 
 (***   System Exits *)
-//#ifdef INCL_RXSYSEXIT
+(* #ifdef INCL_RXSYSEXIT *)
 
 (***    Subfunction RXFNCCAL - External Function Calls *)
 
@@ -526,11 +526,11 @@ function RexxQueryExit(Name: PCSZ;                          (* Exit name        
 
 
 
-//#endif (* INCL_RXSYSEXIT *)
+(* #endif  INCL_RXSYSEXIT *)
 
 
 (***    Asynchronous Request Interface *)
-//#ifdef INCL_RXARI
+(* #ifdef INCL_RXARI *)
 
 (***    RexxSetHalt - Request Program Halt *)
 
@@ -549,11 +549,11 @@ function RexxResetTrace(pid: PID;                         (* Process Id         
          tid: TID): APIRET;                        (* Thread Id                   *)
 
 
-//#endif (* INCL_RXARI *)
+(* #endif INCL_RXARI *)
 
 
 (***    Macro Space Interface *)
-//#ifdef INCL_RXMACRO
+(* #ifdef INCL_RXMACRO *)
 
 
 (***    RexxAddMacro - Register a function in the Macro Space        *)
@@ -594,6 +594,6 @@ function RexxReorderMacro(Func: PCSZ;                         (* Name of funct c
 
 function RexxClearMacroSpace(): APIRET;                      (* No Arguments.               *)
 
-//#endif (* INCL_RXMACRO *)
+(* #endif INCL_RXMACRO *)
 
 end.

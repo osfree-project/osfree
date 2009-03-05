@@ -25,12 +25,8 @@ resourcestring
   SErrInvalidCharacter = 'Invalid character ''%s''';
   SErrOpenString = 'string exceeds end of line';
   SErrIncludeFileNotFound = 'Could not find include file ''%s''';
-  SErrIfXXXNestingLimitReached = 'Nesting of $IFxxx too deep';
-  SErrInvalidPPElse = '$ELSE without matching $IFxxx';
-  SErrInvalidPPEndif = '$ENDIF without matching $IFxxx';
 
 type
-
   TToken = (
     tkEOF,
     tkWhitespace,
@@ -70,7 +66,6 @@ type
     tkand,
     tkarray,
     tkas,
-//    tkasm,
     tkbegin,
     tkcase,
     tkclass,
@@ -82,61 +77,40 @@ type
     tkdestructor,
     tkdiv,
     tkdo,
-//    tkdownto,
-    tkelse,
     tkend,
-    tkexcept,
-    tkexports,
+//    tkexcept,
+//    tkexports,
     tkfalse,
     tkfile,
-//    tkfinalization,
     tkfinally,
-    tkfor,
     tkfunction,
-    tkgoto,
-    tkif,
-//    tkimplementation,
-//    tkin,
     tkinherited,
-//    tkinitialization,
-//    tkinline,
-//    tkinterface,
     tkerror,
     tkis,
-//    tklabel,
-//    tklibrary,
     tkmod,
     tknil,
     tknot,
-//    tkobject,
     tkof,
     tkon,
-    tkoperator,
+//    tkoperator,
     tkor,
-//    tkpacked,
     tkprocedure,
-    tkprogram,
     tkproperty,
-    tkraise,
+//    tkraise,
     tkrecord,
-    tkrepeat,
-    tkResourceString,
-    tkself,
+//    tkrepeat,
     tkset,
     tkshl,
     tkshr,
-//    tkstring,
-    tkthen,
-//    tkthreadvar,
     tkto,
     tktrue,
-    tktry,
+//    tktry,
     tktype,
     tkunit,
-    tkuntil,
+//    tkuntil,
     tkuses,
     tkvar,
-    tkwhile,
+//    tkwhile,
     tkwith,
     tkxor,
     tkalias
@@ -173,8 +147,6 @@ type
   EScannerError       = class(Exception);
   EFileNotFoundError  = class(Exception);
 
-  TPascalScannerPPSkipMode = (ppSkipNone, ppSkipIfBranch, ppSkipElseBranch,
-    ppSkipAll);
 
   TPOptions = (po_delphi);
 
@@ -190,13 +162,6 @@ type
     FDefines: TStrings;
     TokenStr: PChar;
     FIncludeStack: TList;
-
-    // Preprocessor $IFxxx skipping data
-    PPSkipMode: TPascalScannerPPSkipMode;
-    PPIsSkipping: Boolean;
-    PPSkipStackIndex: Integer;
-    PPSkipModeStack: array[0..255] of TPascalScannerPPSkipMode;
-    PPIsSkippingStack: array[0..255] of Boolean;
 
     function GetCurColumn: Integer;
   protected
@@ -262,7 +227,6 @@ const
     'and',
     'array',
     'as',
-//    'asm',
     'begin',
     'case',
     'class',
@@ -274,61 +238,40 @@ const
     'destructor',
     'div',
     'do',
-//    'downto',
-    'else',
     'end',
-    'except',
-    'exports',
+//    'except',
+//    'exports',
     'false',
     'file',
-//    'finalization',
     'finally',
-    'for',
     'function',
-    'goto',
-    'if',
-//    'implementation',
-//    'in',
     'inherited',
-//    'initialization',
-//    'inline',
-//    'interface',
     'error',
     'is',
-//    'label',
-//    'library',
     'mod',
     'nil',
     'not',
-//    'object',
     'of',
     'on',
-    'operator',
+//    'operator',
     'or',
-//    'packed',
     'procedure',
-    'program',
     'property',
-    'raise',
+//    'raise',
     'structure',
-    'repeat',
-    'resourcestring',
-    'self',
+//    'repeat',
     'set',
     'shl',
     'shr',
-//    'string',
-    'then',
-//    'threadvar',
     'to',
     'true',
-    'try',
+//    'try',
     'type',
     'module',
-    'until',
+//    'until',
     'uses',
     'var',
-    'while',
+//    'while',
     'with',
     'xor',
     'alias'
@@ -486,8 +429,7 @@ begin
       end else
         break
     else
-      if not PPIsSkipping then
-        break;
+      break;
   end;
 end;
 
@@ -520,11 +462,9 @@ function TPascalScanner.DoFetchToken: TToken;
   end;
 
 var
-  TokenStart, CurPos: PChar;
+  TokenStart: PChar;
   i: TToken;
-  OldLength, SectionLength, NestingLevel, Index: Integer;
-  Directive, Param: string;
-  IncludeStackItem: TIncludeStackItem;
+  OldLength, SectionLength: Integer;
 begin
   if TokenStr = nil then
     if not FetchLine then
@@ -716,21 +656,7 @@ begin
     '/':
       begin
         Inc(TokenStr);
-        if TokenStr[0] = '/' then       // Single-line comment
-        begin
-          Inc(TokenStr);
-          TokenStart := TokenStr;
-          FCurTokenString := '';
-          while TokenStr[0] <> #0 do
-            Inc(TokenStr);
-          SectionLength := TokenStr - TokenStart;
-          SetLength(FCurTokenString, SectionLength);
-          if SectionLength > 0 then
-            Move(TokenStart^, FCurTokenString[1], SectionLength);
-          Result := tkComment;
-          //WriteLn('Einzeiliger Kommentar: "', CurTokenString, '"');
-        end else
-          Result := tkDivision;
+        Result := tkDivision;
       end;
     '0'..'9':
       begin
@@ -837,208 +763,6 @@ begin
       begin
         Inc(TokenStr);
         Result := tkCaret;
-      end;
-    '{':        // Multi-line comment
-      begin
-        Inc(TokenStr);
-        TokenStart := TokenStr;
-        FCurTokenString := '';
-        OldLength := 0;
-        NestingLevel := 0;
-        while (TokenStr[0] <> '}') or (NestingLevel > 0) do
-        begin
-          if TokenStr[0] = #0 then
-          begin
-            SectionLength := TokenStr - TokenStart + 1;
-            SetLength(FCurTokenString, OldLength + SectionLength);
-            if SectionLength > 1 then
-              Move(TokenStart^, FCurTokenString[OldLength + 1],
-                SectionLength - 1);
-            Inc(OldLength, SectionLength);
-            FCurTokenString[OldLength] := #10;
-            if not FetchLine then
-            begin
-              Result := tkEOF;
-              FCurToken := Result;
-              exit;
-            end;
-            TokenStart := TokenStr;
-          end else
-          begin
-            if not(po_delphi in Options) and (TokenStr[0] = '{') then
-              Inc(NestingLevel)
-            else if TokenStr[0] = '}' then
-              Dec(NestingLevel);
-            Inc(TokenStr);
-          end;
-        end;
-        SectionLength := TokenStr - TokenStart;
-        SetLength(FCurTokenString, OldLength + SectionLength);
-        if SectionLength > 0 then
-          Move(TokenStart^, FCurTokenString[OldLength + 1], SectionLength);
-        Inc(TokenStr);
-        Result := tkComment;
-        //WriteLn('Kommentar: "', CurTokenString, '"');
-        if (Length(CurTokenString) > 0) and (CurTokenString[1] = '$') then
-        begin
-          TokenStart := @CurTokenString[2];
-          CurPos := TokenStart;
-          while (CurPos[0] <> ' ') and (CurPos[0] <> #0) do
-            Inc(CurPos);
-          SectionLength := CurPos - TokenStart;
-          SetLength(Directive, SectionLength);
-          if SectionLength > 0 then
-          begin
-            Move(TokenStart^, Directive[1], SectionLength);
-            Directive := UpperCase(Directive);
-            if CurPos[0] <> #0 then
-            begin
-              TokenStart := CurPos + 1;
-              CurPos := TokenStart;
-              while CurPos[0] <> #0 do
-                Inc(CurPos);
-              SectionLength := CurPos - TokenStart;
-              SetLength(Param, SectionLength);
-              if SectionLength > 0 then
-                Move(TokenStart^, Param[1], SectionLength);
-            end else
-              Param := '';
-            // WriteLn('Direktive: "', Directive, '", Param: "', Param, '"');
-            if (Directive = 'I') or (Directive = 'INCLUDE') then
-            begin
-              if not PPIsSkipping then
-              begin
-                IncludeStackItem := TIncludeStackItem.Create;
-                IncludeStackItem.SourceFile := CurSourceFile;
-                IncludeStackItem.Filename := CurFilename;
-                IncludeStackItem.Token := CurToken;
-                IncludeStackItem.TokenString := CurTokenString;
-                IncludeStackItem.Line := CurLine;
-                IncludeStackItem.Row := CurRow;
-                IncludeStackItem.TokenStr := TokenStr;
-                FIncludeStack.Add(IncludeStackItem);
-                FCurSourceFile := FileResolver.FindIncludeFile(Param);
-                if not Assigned(CurSourceFile) then
-                  Error(SErrIncludeFileNotFound, [Param]);
-                FCurFilename := Param;
-                FCurRow := 0;
-              end;
-            end else if Directive = 'DEFINE' then
-            begin
-              if not PPIsSkipping then
-              begin
-                Param := UpperCase(Param);
-                if Defines.IndexOf(Param) < 0 then
-                  Defines.Add(Param);
-              end;
-            end else if Directive = 'UNDEF' then
-            begin
-              if not PPIsSkipping then
-              begin
-                Param := UpperCase(Param);
-                Index := Defines.IndexOf(Param);
-                if Index >= 0 then
-                  Defines.Delete(Index);
-              end;
-            end else if Directive = 'IFDEF' then
-            begin
-              if PPSkipStackIndex = High(PPSkipModeStack) then
-                Error(SErrIfXXXNestingLimitReached);
-              PPSkipModeStack[PPSkipStackIndex] := PPSkipMode;
-              PPIsSkippingStack[PPSkipStackIndex] := PPIsSkipping;
-              Inc(PPSkipStackIndex);
-              if PPIsSkipping then
-              begin
-                PPSkipMode := ppSkipAll;
-                PPIsSkipping := true;
-              end else
-              begin
-                Param := UpperCase(Param);
-                Index := Defines.IndexOf(Param);
-                if Index < 0 then
-                begin
-                  PPSkipMode := ppSkipIfBranch;
-                  PPIsSkipping := true;
-                end else
-                  PPSkipMode := ppSkipElseBranch;
-              end;
-            end else if Directive = 'IFNDEF' then
-            begin
-              if PPSkipStackIndex = High(PPSkipModeStack) then
-                Error(SErrIfXXXNestingLimitReached);
-              PPSkipModeStack[PPSkipStackIndex] := PPSkipMode;
-              PPIsSkippingStack[PPSkipStackIndex] := PPIsSkipping;
-              Inc(PPSkipStackIndex);
-              if PPIsSkipping then
-              begin
-                PPSkipMode := ppSkipAll;
-                PPIsSkipping := true;
-              end else
-              begin
-                Param := UpperCase(Param);
-                Index := Defines.IndexOf(Param);
-                if Index >= 0 then
-                begin
-                  PPSkipMode := ppSkipIfBranch;
-                  PPIsSkipping := true;
-                end else
-                  PPSkipMode := ppSkipElseBranch;
-              end;
-            end else if Directive = 'IFOPT' then
-            begin
-              if PPSkipStackIndex = High(PPSkipModeStack) then
-                Error(SErrIfXXXNestingLimitReached);
-              PPSkipModeStack[PPSkipStackIndex] := PPSkipMode;
-              PPIsSkippingStack[PPSkipStackIndex] := PPIsSkipping;
-              Inc(PPSkipStackIndex);
-              if PPIsSkipping then
-              begin
-                PPSkipMode := ppSkipAll;
-                PPIsSkipping := true;
-              end else
-              begin
-                { !!!: Currently, options are not supported, so they are just
-                  assumed as not being set. }
-                PPSkipMode := ppSkipIfBranch;
-                PPIsSkipping := true;
-              end;
-            end else if Directive = 'IF' then
-            begin
-              if PPSkipStackIndex = High(PPSkipModeStack) then
-                Error(SErrIfXXXNestingLimitReached);
-              PPSkipModeStack[PPSkipStackIndex] := PPSkipMode;
-              PPIsSkippingStack[PPSkipStackIndex] := PPIsSkipping;
-              Inc(PPSkipStackIndex);
-              if PPIsSkipping then
-              begin
-                PPSkipMode := ppSkipAll;
-                PPIsSkipping := true;
-              end else
-              begin
-                { !!!: Currently, expressions are not supported, so they are
-                  just assumed as evaluating to false. }
-                PPSkipMode := ppSkipIfBranch;
-                PPIsSkipping := true;
-              end;
-            end else if Directive = 'ELSE' then
-            begin
-              if PPSkipStackIndex = 0 then
-                Error(SErrInvalidPPElse);
-              if PPSkipMode = ppSkipIfBranch then
-                PPIsSkipping := false
-              else if PPSkipMode = ppSkipElseBranch then
-                PPIsSkipping := true;
-            end else if Directive = 'ENDIF' then
-            begin
-              if PPSkipStackIndex = 0 then
-                Error(SErrInvalidPPEndif);
-              Dec(PPSkipStackIndex);
-              PPSkipMode := PPSkipModeStack[PPSkipStackIndex];
-              PPIsSkipping := PPIsSkippingStack[PPSkipStackIndex];
-            end;
-          end else
-            Directive := '';
-        end;
       end;
     'A'..'Z', 'a'..'z', '_':
       begin

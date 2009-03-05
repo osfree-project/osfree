@@ -118,11 +118,11 @@ const PMERR_OLD_RESOURCE                  = $1055;
 const PMERR_BIDI_FIRST                    = $10F0;
 const PMERR_BIDI_LAST                     = $10FF;
 
-//      #ifdef SOM2VERSION                                                             (* EEO:85870 *)
+(*      #ifdef SOM2VERSION           *)
    const PMERR_WPDSERVER_IS_ACTIVE        = $1056;
    const PMERR_WPDSERVER_NOT_STARTED      = $1057;
    const PMERR_SOMDD_IS_ACTIVE            = $1058;
    const PMERR_SOMDD_NOT_STARTED          = $1059;
-//      #endif                                                                         (* EEO:85870 *)
+(*       #endif                      *)
 
 end.

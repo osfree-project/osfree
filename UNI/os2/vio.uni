@@ -1,23 +1,23 @@
-{Video Input Output (Vio) functions (32-bit version)}
+(* Video Input Output (Vio) functions (32-bit version) *)
 module vio;
 
-{Vio handles}
+(* Vio handles *)
 type HVIO=USHORT;
 type PHVIO=^HVIO;
 
-{VioCreatePS format constants}
+(* VioCreatePS format constants *)
 const FORMAT_CGA     = $0001;
 const FORMAT_VGA     = $0001;
 const FORMAT_4BYTE   = $0003;
 const FORMAT_EXTEND  = $0003;
 const FORMAT_UNICODE = $0002;
 
-{options for VioQueryFonts}
+(* options for VioQueryFonts *)
 const VQF_PUBLIC     = $0001;
 const VQF_PRIVATE    = $0002;
 const VQF_ALL        = $0003;
 
-{Cursor structure for VioSetCurType and VioGetCurType()}
+(* Cursor structure for VioSetCurType and VioGetCurType() *)
 type VIOCURSORINFO=structure
        yStart: USHORT;
        cEnd:   USHORT;
@@ -28,18 +28,18 @@ type VIOCURSORINFO=structure
 
 type PVIOCURSORINFO=^VIOCURSORINFO;
 
-{Mode structure for VioSetMode and VioGetMode (field added for 32 bit alignment)}
+(* Mode structure for VioSetMode and VioGetMode (field added for 32 bit alignment) *)
 type VIOMODEINFO=structure
-       cb: USHORT;            { structure length }
-       fbType: UCHAR;        { mode type }
-       color: UCHAR;         { number of colors }
-       col: USHORT;           { number of columns }
-       row: USHORT;           { number of rows }
-       hres: USHORT;          { horizontal size in pels }
-       vres: USHORT;          { vertical size in pels }
-       fmt_ID: UCHAR;        { format of attributes }
-       attrib: UCHAR;        { length of attributes }
-       resvd: USHORT;         { Reserved   (added field) }
+       cb: USHORT;            (*  structure length  *)
+       fbType: UCHAR;        (*  mode type  *)
+       color: UCHAR;         (*  number of colors  *)
+       col: USHORT;           (*  number of columns  *)
+       row: USHORT;           (*  number of rows  *)
+       hres: USHORT;          (*  horizontal size in pels  *)
+       vres: USHORT;          (*  vertical size in pels  *)
+       fmt_ID: UCHAR;        (*  format of attributes  *)
+       attrib: UCHAR;        (*  length of attributes  *)
+       resvd: USHORT;         (*  Reserved   (added field)  *)
        buf_addr: ULONG;
        buf_length: ULONG;
        full_length: ULONG;
@@ -49,14 +49,14 @@ type VIOMODEINFO=structure
 
 type PVIOMODEINFO=^VIOMODEINFO;
 
-{VIOMODEINFO.fbType constants}
+(* VIOMODEINFO.fbType constants *)
 const VGMT_OTHER          = 1;
 const VGMT_COLOR          = 1;
 const VGMT_GRAPHICS       = 2;
 const VGMT_DISABLEBURST   = 4;
 const VGMT_NOTBIOS        = 8;
 
-{VIOMODEINFO.color constants}
+(* VIOMODEINFO.color constants *)
 const COLORS_2           =  1;
 const COLORS_4           =  2;
 const COLORS_16          =  4;
@@ -64,13 +64,13 @@ const COLORS_256         =  8;
 const COLORS_64K         = 16;
 const COLORS_16M         = 24;
 
-{Return types for VioCheckCharType}
+(* Return types for VioCheckCharType *)
 const VCC_SBCSCHAR        = 0;
 const VCC_DBCSFULLCHAR    = 1;
 const VCC_DBCS1STHALF     = 2;
 const VCC_DBCS2NDHALF     = 3;
 
-{Values for graphics mode screen synchronization}
+(* Values for graphics mode screen synchronization *)
 const VSRWI_SAVEANDREDRAW = 0;
 const VSRWI_REDRAW        = 1;
 
@@ -89,11 +89,11 @@ const LOCKIO_WAIT         = 1;
 const LOCK_SUCCESS        = 0;
 const LOCK_FAIL           = 1;
 
-{Values for VioSetAnsi and VioGetAnsi}
+(* Values for VioSetAnsi and VioGetAnsi *)
 const ANSI_ON             = 1;
 const ANSI_OFF            = 0;
 
-{Values for VioPopup}
+(* Values for VioPopup *)
 const VMWR_POPUP          = 0;
 const VMWN_POPUP          = 0;
 const VP_NOWAIT           = 0;
@@ -101,7 +101,7 @@ const VP_WAIT             = 1;
 const VP_OPAQUE           = 0;
 const VP_TRANSPARENT      = 2;
 
-{VIOCONFIGINFO.adapter constants}
+(* VIOCONFIGINFO.adapter constants *)
 const DISPLAY_MONOCHROME =  0;
 const DISPLAY_CGA        =  1;
 const DISPLAY_EGA        =  2;
@@ -112,7 +112,7 @@ const DISPLAY_XGA        =  9;
 const DISPLAY_SVGA       = 10;
 const DISPLAY_NONVGA     = 12;
 
-{VIOCONFIGINFO.display constants}
+(* VIOCONFIGINFO.display constants *)
 const MONITOR_MONOCHROME =  0;
 const MONITOR_COLOR      =  1;
 const MONITOR_ENHANCED   =  2;
@@ -131,20 +131,20 @@ const MONITOR_LCD800     = 21;
 const MONITOR_LCD1024    = 22;
 
 
-{Configuration structure for VioGetConfig (all fields changed to ULONG)}
+(* Configuration structure for VioGetConfig (all fields changed to ULONG) *)
 type VIOCONFIGINFO=structure
-        cb: ULONG;              { Size of data      }
-        adapter: ULONG;         { Adapter type      }
-        display: ULONG;         { Display type      }
-        cbMemory: ULONG;        { Adapter memory    }
-        Configuration: ULONG;   { Which config      }
-        Version: ULONG;         { Driver version    }
-        Flags: ULONG;           {                   }
-        HWBufferSize: ULONG;    { State save size   }
-        FullSaveSize: ULONG;    { Buffer save size  }
-        PartSaveSize: ULONG;    { Partial save size }
-        VideoID: ULONG;         { Adapter ID        }
-        VideoData: ULONG;       { Adapter user data }
+        cb: ULONG;              (*  Size of data       *)
+        adapter: ULONG;         (*  Adapter type       *)
+        display: ULONG;         (*  Display type       *)
+        cbMemory: ULONG;        (*  Adapter memory     *)
+        Configuration: ULONG;   (*  Which config       *)
+        Version: ULONG;         (*  Driver version     *)
+        Flags: ULONG;           (*                     *)
+        HWBufferSize: ULONG;    (*  State save size    *)
+        FullSaveSize: ULONG;    (*  Buffer save size   *)
+        PartSaveSize: ULONG;    (*  Partial save size  *)
+        VideoID: ULONG;         (*  Adapter ID         *)
+        VideoData: ULONG;       (*  Adapter user data  *)
     end;
 
 type PVIOCONFIGINFO=^VIOCONFIGINFO;
@@ -153,7 +153,7 @@ const VIO_CONFIG_CURRENT  = 0;
 const VIO_CONFIG_PRIMARY  = 1;
 const VIO_CONFIG_SECONDARY= 2;
 
-{Structures for VioSetState and VioGetState}
+(* Structures for VioSetState and VioGetState *)
 type VIOPALSTATE=structure
         cb: USHORT;
         type: USHORT;

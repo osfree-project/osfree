@@ -1,11 +1,11 @@
-{****************************** Module Header ******************************
+(****************************** Module Header ******************************
 *                                                                          *
 * Module Name: BSEORD.UNI                                                  *
 *                                                                          *
 * This is module that includes all ordinal numbers for OS/2 API            *
 * for writing an OS/2 Personality application.                             *
 *                                                                          *
-***************************************************************************}
+***************************************************************************)
 
 module bseord;
 

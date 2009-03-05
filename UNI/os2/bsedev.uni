@@ -354,7 +354,7 @@ const KBD_READ_NOWAIT                   = $8000;
 (* KBD_SETINPUTMODE *)
 const SHIFT_REPORT_MODE                 = $01;
 
-//#ifndef INCL_MOU
+(* #ifndef INCL_MOU *)
 
    const MOUSE_MOTION                   = $0001;
    const MOUSE_MOTION_WITH_BN1_DOWN     = $0002;
@@ -371,7 +371,7 @@ const SHIFT_REPORT_MODE                 = $01;
    const MOU_NOWAIT                     = $0000;
    const MOU_WAIT                       = $0001;
 
-//#endif (* #ifndef INCL_MOU *)
+(* #endif  #ifndef INCL_MOU *)
 
 (* MOU_GETHOTKEYBUTTON, MOU_SETHOTKEYBUTTON *)
 const MHK_NO_HOTKEY                     = $0000;

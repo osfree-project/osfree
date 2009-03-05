@@ -1,15 +1,15 @@
-{****************************** Module Header ******************************
+(****************************** Module Header ******************************
 *                                                                          *
 * Module Name: OS2.UNI                                                     *
 *                                                                          *
 * This is the top level module that includes all the files necessary       *
 * for writing an OS/2 Personality application.                             *
 *                                                                          *
-***************************************************************************}
+***************************************************************************)
 
 module os2;
 
-{workaround of unimplemented uni2h feature}
+(* workaround of unimplemented uni2h feature *)
 uses cdeftypes;
 
 uses os2def;
