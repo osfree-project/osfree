@@ -1,6 +1,0 @@
-version.lo : \
- version.c config.h global.h version.h
-version.c :
-config.h :
-global.h :
-version.h :
