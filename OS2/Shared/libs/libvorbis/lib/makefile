@@ -11,7 +11,7 @@ srcfiles = &
  $(p)lpc$(e) $(p)analysis$(e) $(p)synthesis$(e) $(p)psy$(e) $(p)info$(e) &
  $(p)floor1$(e) $(p)floor0$(e) &
  $(p)res0$(e) $(p)mapping0$(e) $(p)registry$(e) $(p)codebook$(e) $(p)sharedbook$(e) &
- $(p)lookup$(e) $(p)bitrate$(e) $(p)porting$(e)
+ $(p)lookup$(e) $(p)bitrate$(e) $(p)vorbisfile$(e) $(p)vorbisenc$(e)  $(p)porting$(e)
 
 !include $(%ROOT)/mk/libsos2.mk
 
