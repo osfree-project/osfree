@@ -187,7 +187,7 @@ EXPORTS = &
   ov_bitrate_instant = ov_bitrate_instant_, &
   vorbis_book_codelen = vorbis_book_codelen_
 
-DEST = os2$(SEP)dll
+DEST = mmos2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
 
