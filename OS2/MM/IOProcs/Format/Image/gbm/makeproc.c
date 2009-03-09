@@ -2,8 +2,9 @@
 
 #include <os2.h>
 
-#define INCL_MMIOOS2
-#include <os2me.h>
+//#define INCL_MMIOOS2
+//#include <os2me.h>
+#include <mmioos2.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -79,8 +80,9 @@ void main(void)
   printf("#define INCL_GPI\n");
   printf("#define INCL_PM\n");
   printf("#include <os2.h>\n");
-  printf("#define INCL_MMIOOS2\n");
-  printf("#include <os2me.h>\n");
+  printf("//#define INCL_MMIOOS2\n");
+  printf("//#include <os2me.h>\n");
+  printf("#include <mmioos2.h>\n");
   printf("#include <stdio.h>\n");
   printf("#include <stddef.h>\n");
   printf("#include <stdlib.h>\n");
