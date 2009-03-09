@@ -3,7 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = libmad
-DIRS = dll
+#DIRS = dll
 ADD_COPT = -dHAVE_CONFIG_H -dOPT_OCCURACY -dFPM_INTEL -d_MSC_VER -i=$(MYDIR)
 
 srcfiles = &
@@ -12,7 +12,7 @@ srcfiles = &
 
 !include $(%ROOT)/mk/libsos2.mk
 
-TARGETS  = $(PATH)$(PROJ).lib subdirs
+TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
