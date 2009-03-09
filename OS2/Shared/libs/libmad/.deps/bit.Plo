@@ -1,0 +1,7 @@
+bit.lo : \
+ bit.c config.h global.h H:\emx\include\limits.h bit.h
+bit.c :
+config.h :
+global.h :
+H:\emx\include\limits.h :
+bit.h :
