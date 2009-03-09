@@ -3,7 +3,7 @@
 # Makefile for Watcom/LIBC interface layer
 
 PROJ = mm_shared
-ADD_COPT = -i=$(MYDIR)..$(SEP)include
+ADD_COPT = -i=$(MYDIR)..$(SEP)include # -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until mmos2 .uni modules will be ready
 
 # For performance/compatibility reasons, we build a "_System" and
 # "_Optlink"-like libraries, corresponding to "-5r" and "-5s" options of

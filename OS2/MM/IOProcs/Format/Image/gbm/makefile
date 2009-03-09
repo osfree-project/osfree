@@ -13,6 +13,8 @@ ADD_COPT    = -i=$(%WATCOM)$(SEP)h$(SEP)os2
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 ADD_LINKOPT  = lib mmpm2.lib, gbm.lib, libtiff.lib, libjpeg.lib, png.lib, libz.lib, ojpeg.lib
 
+#DEST = mmos2$(SEP)dll
+
 !include $(%ROOT)/mk/appsos2.mk
 
 .c: $(PATH)

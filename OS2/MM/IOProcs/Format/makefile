@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = image
+DIRS = image Audio
 
 !include $(%ROOT)/mk/all.mk
 

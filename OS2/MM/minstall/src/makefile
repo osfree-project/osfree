@@ -31,4 +31,6 @@ IMPORTS = MINSTALL_Init MINSTALL, &
           MINSTALL_CleanUp MINSTALL
 ADD_LINKOPT = lib mm_shared
 
+DEST = mmos2
+
 !include $(%ROOT)/mk/appsos2.mk
