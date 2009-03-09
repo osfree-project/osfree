@@ -60,7 +60,7 @@ EXPORTS = &
   oggpack_bits = oggpack_bits_, &
   oggpack_get_buffer = oggpack_get_buffer_
 
-DEST = os2$(SEP)dll
+DEST = mmos2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
 
