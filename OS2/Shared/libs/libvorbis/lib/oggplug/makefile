@@ -1,20 +1,35 @@
-CC      = icc
-CFLAGS  = /Iinclude /Ivorbis /Ti /Gm /Gd- /Ge- /qtune=pentium2 /Oi9999 /Oi+ /O+
-LD      = ilink
-LDFLAGS = /de /dll
+# $Id: makefile,v 1.3 2004/08/21 14:49:22 prokushev Exp $
+#
+# Makefile for common shared libs
 
+PROJ = OggPlay
+ADD_COPT = -sg -i=$(MYDIR)include -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)..$..$(SEP)..$(SEP)..$(SEP)..$(SEP)libogg$(SEP)include
+ADD_LINKOPT = lib clib3r.lib, os2386.lib, libvorbis.lib, libogg.lib &
+              segment DATA nonshared readwrite
 
-all: OggPlay.dll
+srcfiles = &
+ $(p)command$(e) $(p)oggplay$(e)
 
-.c.obj:
-        $(CC) $(CFLAGS) /C+ /Fo"%|dpfF.obj" %s
+DLL = 1
+DLLOPT = initinstance terminstance
+#STACKSIZE = 0xa0000000
 
-OggPlay.dll : OggPlay.obj command.obj OggPlay.def vorbis/Vorbis.lib
-    $(LD) $(LDFLAGS) -out:$@ $**
+EXPORTS = &
+    decoder_init, &
+    decoder_uninit, &
+    decoder_command, &
+    decoder_status, &
+    decoder_length, &
+    decoder_fileinfo, &
+    decoder_support, &
+    decoder_trackinfo, &
+    decoder_cdinfo, &
+    plugin_query
 
-OggPlay.obj : OggPlay.c
+DEST = os2$(SEP)dll
 
-command.obj : command.c
+!include $(%ROOT)/mk/appsos2.mk
 
-clean :
-    -del *.obj OggPlay.dll 2>nul:
+TARGETS  = $(PATH)$(PROJ).dll
+
+.c: $(MYDIR)..
