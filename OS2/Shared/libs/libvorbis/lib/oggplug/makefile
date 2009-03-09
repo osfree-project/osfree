@@ -26,7 +26,7 @@ EXPORTS = &
     decoder_cdinfo, &
     plugin_query
 
-DEST = os2$(SEP)dll
+DEST = mmos2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
 
