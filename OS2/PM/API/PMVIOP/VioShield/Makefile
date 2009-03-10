@@ -3,6 +3,8 @@
 .SUFFIXES :
 .SUFFIXES : .exe .dll .res .obj .h .asm .c .dlg .rc
 
+SEP = \
+
 AS = wasm
 AFLAGS = -zq
 
@@ -15,15 +17,15 @@ LFLAGS = option quiet, map
 
 !ifdef RELEASE
 AFLAGS += -d0
-CFLAGS += -d0 -oaxt
+CFLAGS += -d0 -oaxt -i=$(%WATCOM)$(SEP)h$(SEP)os2
 !else
 AFLAGS += -d2
-CFLAGS += -d2 -DDEBUG
+CFLAGS += -d2 -DDEBUG -i=$(%WATCOM)$(SEP)h$(SEP)os2
 LFLAGS += debug watcom all
 !endif
 
 RC = wrc
-RCFLAGS = -q
+RCFLAGS = -q -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 ZIP = zip
 

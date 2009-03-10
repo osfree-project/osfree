@@ -8,7 +8,7 @@
 #
 
 # include configuration setting for nmake (except compiler options)
-!INCLUDE ..\..\nmake.opt
+#!INCLUDE ..\..\nmake.opt
 
 GBM  = ..\..\gbmos2
 IDIR = ..\bin
@@ -43,8 +43,8 @@ LFLAGS     = $(LFLAGS_DBG)
 !endif
 
 #
-
-.SUFFIXES:	.c .obj
+.SUFFIXES:
+.SUFFIXES:	.obj .c
 
 .c.obj:
 		$(CC) $(CFLAGS) $*.c
@@ -62,7 +62,7 @@ gbmdlg.dll:	gbmdlg.obj $(GBM)\gbm.lib gbmdlg.lnk gbmdlg.res
 gbmdlg.lib:	gbmdlg.lnk
                 $(CLIB) $(LIBFLAGS) $@ +gbmdlg.dll
 
-gbmdlg.obj:	gbmdlg.c gbmdlg.h gbmdlgrc.h $(GBM)\gbm.h $(GBM)\gbmscale.h
+gbmdlg.obj:	gbmdlg.c gbmdlg.h gbmdlgrc.h # $(GBM)\gbm.h $(GBM)\gbmscale.h
 
 gbmdlg.res:	gbmdlg.rc gbmdlgrc.h
 		rc -n -r -x2 gbmdlg.rc
