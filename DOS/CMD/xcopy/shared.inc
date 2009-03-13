@@ -467,7 +467,7 @@ void copy_file(const char *src_filename,
 
   /* copy file attributes */
   fileattrib = _chmod(src_filename, 0);
-  _chmod(dest_filename, 1, fileattrib);
+  _chmod(dest_filename,  fileattrib);
 }
 
 int getftime (int handle, struct ftime *ftimep) /* Get a file's time */
@@ -508,6 +508,7 @@ int setftime (int handle, struct ftime *ftimep) /* Set a file's time */
       return DOS_SETFTIME(handle, FTIME.msc_time.date, FTIME.msc_time.time);
 }
 
+#if __WATCOMC__ < 1280
 int _chmod(const char *filename, int func, ...) /* Get/set file attributes */
 {
         va_list l;
@@ -524,7 +525,7 @@ int _chmod(const char *filename, int func, ...) /* Get/set file attributes */
         if (_dos_setfileattr(filename, attributes) != 0) return -1;
         return 0;
 }
-
+#endif
 unsigned long dostounix (struct date *d, struct time *t)
 {
   struct tm tm;

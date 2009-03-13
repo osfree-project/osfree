@@ -83,7 +83,7 @@ extern int noparserflag;
 #include <libgen.h>
 #endif
 
-#ifdef __WINNT__
+#ifdef __NT__
 #define mktemp _mktemp
 #endif
 

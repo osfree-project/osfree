@@ -1,14 +1,6 @@
 module os2me;
 
 (*
-#if !defined(_ENABLE_AUTODEPEND)
-  #pragma read_only_file;
-#endif
-
-#define OS2ME_INCLUDED
-*)
-
-(*
 uses os2mm;
 *)
 

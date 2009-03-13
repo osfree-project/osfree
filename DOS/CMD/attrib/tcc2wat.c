@@ -119,6 +119,8 @@ int GetCurAtr(void)
       return (chat >> 8);
 }
 
+#if __WATCOMC__ < 1280
+
 int _chmod(const char *filename, int func, ...)	/* Get/set file attributes */
 {
 	va_list l;
@@ -135,6 +137,8 @@ int _chmod(const char *filename, int func, ...)	/* Get/set file attributes */
 	if (_dos_setfileattr(filename, attributes) != 0) return -1;
 	return 0;
 }
+
+#endif
 
 int getftime (int handle, struct ftime *ftimep)	/* Get a file's time */
 {
@@ -437,6 +441,8 @@ int _read(int handle, void *buf, unsigned nbyte)
 	return a;
 }
 
+#if __WATCOMC__ < 1280
+
 int _write(int handle, void *buf, int nbyte)
 {
 	unsigned a;
@@ -445,6 +451,7 @@ int _write(int handle, void *buf, int nbyte)
 	setmode(handle, oldmode);
 	return -1;
 }
+#endif
 
 int _creat(const char *filename, int attrib)
 {

@@ -27,8 +27,10 @@ workaround: cdeftypes.h cdeftypes2.h
   $(CP) cdeftypes2.h $(OUT)$(SEP)cdeftypes2.h $(BLACKHOLE)
 
 ## OS/2 Personality files
-os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
-     $(OUT)$(SEP)os2$(SEP)bse.h $(OUT)$(SEP)os2$(SEP)bseord.h &
+os2: $(OUT)$(SEP)os2$(SEP)os2.h &
+     $(OUT)$(SEP)os2$(SEP)os2def.h &
+     $(OUT)$(SEP)os2$(SEP)bse.h &
+     $(OUT)$(SEP)os2$(SEP)bseord.h &
      $(OUT)$(SEP)os2$(SEP)bsememf.h &
      $(OUT)$(SEP)os2$(SEP)bsedos.h &
      $(OUT)$(SEP)os2$(SEP)bsedev.h &
@@ -106,6 +108,9 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)gpilcids.h &
      $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h &
      $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h &
+     $(OUT)$(SEP)os2$(SEP)os2me.h &
+     $(OUT)$(SEP)os2$(SEP)os2mm.h &
+     $(OUT)$(SEP)os2$(SEP)meerror.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -277,6 +282,13 @@ $(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpilcids.uni
 $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpibitmapscommon.uni
 
 $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpicontrolcommon.uni
+
+$(OUT)$(SEP)dos$(SEP)os2me.h: dos$(SEP)os2me.uni
+
+$(OUT)$(SEP)dos$(SEP)os2mm.h: dos$(SEP)os2mm.uni
+
+$(OUT)$(SEP)dos$(SEP)meerror.h: dos$(SEP)meerror.uni
+
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

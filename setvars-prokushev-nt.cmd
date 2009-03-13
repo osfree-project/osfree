@@ -1,2 +1,2 @@
-set path=e:\osfree\starterkit\regina;%path%
+set path=c:\regina;%path%
 regina setvars-prokushev-nt.rex

@@ -833,7 +833,7 @@ void xcopy_file(const char *src_filename,
       if (!switch_listmode) {
         /* remove readonly attribute from destination file */
         fileattrib = fileattrib ^ FA_RDONLY;
-        _chmod(dest_filename, 1, fileattrib);
+        _chmod(dest_filename, fileattrib);
       }
     }
   }
@@ -863,7 +863,7 @@ void xcopy_file(const char *src_filename,
     if (switch_archive_reset) {
       /* remove archive attribute from source file */
       fileattrib = _chmod(src_filename, 0);
-      _chmod(src_filename, 1, fileattrib ^ FA_ARCH);
+      _chmod(src_filename, fileattrib ^ FA_ARCH);
     }
   }
 

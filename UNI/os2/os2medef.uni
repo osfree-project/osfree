@@ -2,7 +2,7 @@ module os2medef;
 
 (*
 #ifndef __WORDBYTEDWORD__
-  #define __WORDBYTEDWORD__
+  const __WORDBYTEDWORD__
   #ifndef WORD
     typedef USHORT WORD;
   #endif
@@ -37,7 +37,7 @@ typedef struct _SPCBKEY {
     ULONG ulIntKey;
 } SPCBKEY, FAR *PSPCBKEY;
 
-#define  _SPCBKEY_DEFINED 1
+const  _SPCBKEY_DEFINED 1
 
 typedef struct _MMTRACKINFO {
     ULONG ulTrackID;
@@ -48,137 +48,139 @@ typedef struct _MMTRACKINFO {
     ULONG ulReserved2;
 } MMTRACKINFO, *PMMTRACKINFO;
 
-#define CF_RMID 10
-#define CF_RIFF 11
-#define CF_WAVE 12
-#define CF_AVI  13
+const CF_RMID =10;
+const CF_RIFF =11;
+const CF_WAVE =12;
+const CF_AVI  =13;
 
-#define RT_RMID 100
-#define RT_RIFF 101
-#define RT_WAVE 102
-#define RT_AVI  103
-#define RT_AVS  104
+const RT_RMID =100;
+const RT_RIFF =101;
+const RT_WAVE =102;
+const RT_AVI  =103;
+const RT_AVS  =104;
 
-#define DRT_WAVE "Digital audio"
-#define DRT_AVI  "Digital video"
-#define DRT_MIDI "MIDI"
+const DRT_WAVE='Digital audio';
+const DRT_AVI='Digital video';
+const DRT_MIDI='MIDI';
 
-#define HZ_8000  8000
-#define HZ_11025 11025
-#define HZ_14700 14700
-#define HZ_18900 18900
-#define HZ_22050 22050
-#define HZ_37800 37800
-#define HZ_44100 44100
+const HZ_8000  =8000;
+const HZ_11025 =11025;
+const HZ_14700 =14700;
+const HZ_18900 =18900;
+const HZ_22050 =22050;
+const HZ_37800 =37800;
+const HZ_44100 =44100;
 
-#define BPS_4  4
-#define BPS_8  8
-#define BPS_16 16
+const BPS_4 = 4;
+const BPS_8 = 8;
+const BPS_16 = 16;
 
-#define CH_1 1
-#define CH_2 2
-#define CH_4 4
+const CH_1 =1;
+const CH_2 =2;
+const CH_4 =4;
 
-#define DATATYPE_NULL 0
-#define SUBTYPE_NONE  0
+const DATATYPE_NULL =0;
+const SUBTYPE_NONE  =0;
 
-#define DATATYPE_WAVEFORM 1
+const DATATYPE_WAVEFORM =1;
 
-#define WAVE_FORMAT_1M08 0x0001
-#define WAVE_FORMAT_1S08 0x0002
-#define WAVE_FORMAT_1M16 0x0003
-#define WAVE_FORMAT_1S16 0x0004
-#define WAVE_FORMAT_2M08 0x0005
-#define WAVE_FORMAT_2S08 0x0006
-#define WAVE_FORMAT_2M16 0x0007
-#define WAVE_FORMAT_2S16 0x0008
-#define WAVE_FORMAT_4M08 0x0009
-#define WAVE_FORMAT_4S08 0x000a
-#define WAVE_FORMAT_4M16 0x000b
-#define WAVE_FORMAT_4S16 0x000c
-#define WAVE_FORMAT_8M08 0x000d
-#define WAVE_FORMAT_8S08 0x000e
-#define WAVE_FORMAT_8M16 0x000f
-#define WAVE_FORMAT_8S16 0x0010
+const WAVE_FORMAT_1M08 = $0001;
+const WAVE_FORMAT_1S08 = $0002;
+const WAVE_FORMAT_1M16 = $0003;
+const WAVE_FORMAT_1S16 = $0004;
+const WAVE_FORMAT_2M08 = $0005;
+const WAVE_FORMAT_2S08 = $0006;
+const WAVE_FORMAT_2M16 = $0007;
+const WAVE_FORMAT_2S16 = $0008;
+const WAVE_FORMAT_4M08 = $0009;
+const WAVE_FORMAT_4S08 = $000a;
+const WAVE_FORMAT_4M16 = $000b;
+const WAVE_FORMAT_4S16 = $000c;
+const WAVE_FORMAT_8M08 = $000d;
+const WAVE_FORMAT_8S08 = $000e;
+const WAVE_FORMAT_8M16 = $000f;
+const WAVE_FORMAT_8S16 = $0010;
 
-#define DATATYPE_DIGVIDEO 2
+const DATATYPE_DIGVIDEO =2;
 
-#define DIGVIDEO_PHOTOM  0x544F4850
-#define DIGVIDEO_ULTIM   0x49544c55
-#define DIGVIDEO_AVI     0x20495641
-#define DIGVIDEO_MONITOR 0x206E6F6D
-#define DIGVIDEO_FLC     0x63696C66
-#define DIGVIDEO_MPEG    0x4745504D
+const DIGVIDEO_PHOTOM  = $544F4850;
+const DIGVIDEO_ULTIM   = $49544c55;
+const DIGVIDEO_AVI     = $20495641;
+const DIGVIDEO_MONITOR = $206E6F6D;
+const DIGVIDEO_FLC     = $63696C66;
+const DIGVIDEO_MPEG    = $4745504D;
 
-#define DATATYPE_MULAW 0x0101
-#define DATATYPE_RIFF_MULAW 7
+const DATATYPE_MULAW = $0101;
+const DATATYPE_RIFF_MULAW =7;
 
-#define MULAW_8B8KS  1
-#define MULAW_8B11KS 2
-#define MULAW_8B22KS 3
-#define MULAW_8B44KS 4
-#define MULAW_8B8KM  5
-#define MULAW_8B11KM 6
-#define MULAW_8B22KM 7
-#define MULAW_8B44KM 8
+const MULAW_8B8KS  =1;
+const MULAW_8B11KS =2;
+const MULAW_8B22KS =3;
+const MULAW_8B44KS =4;
+const MULAW_8B8KM  =5;
+const MULAW_8B11KM =6;
+const MULAW_8B22KM =7;
+const MULAW_8B44KM =8;
 
-#define DATATYPE_ALAW 0x0102
-#define DATATYPE_RIFF_ALAW 6
+const DATATYPE_ALAW = $0102;
+const DATATYPE_RIFF_ALAW =6;
 
-#define ALAW_8B8KS  1
-#define ALAW_8B11KS 2
-#define ALAW_8B22KS 3
-#define ALAW_8B44KS 4
-#define ALAW_8B8KM  5
-#define ALAW_8B11KM 6
-#define ALAW_8B22KM 7
-#define ALAW_8B44KM 8
+const ALAW_8B8KS  =1;
+const ALAW_8B11KS =2;
+const ALAW_8B22KS =3;
+const ALAW_8B44KS =4;
+const ALAW_8B8KM  =5;
+const ALAW_8B11KM =6;
+const ALAW_8B22KM =7;
+const ALAW_8B44KM =8;
 
-#define DATATYPE_ADPCM_AVC 0x0103
+const DATATYPE_ADPCM_AVC = $0103;
 
-#define ADPCM_AVC_VOICE  1
-#define ADPCM_AVC_MUSIC  2
-#define ADPCM_AVC_STEREO 3
-#define ADPCM_AVC_HQ     4
+const ADPCM_AVC_VOICE  =1;
+const ADPCM_AVC_MUSIC  =2;
+const ADPCM_AVC_STEREO =3;
+const ADPCM_AVC_HQ     =4;
 
-#define DATATYPE_CT_ADPCM 0x0200
+const DATATYPE_CT_ADPCM = $0200;
 
-#define CT_ADPCM_16B8KS  1
-#define CT_ADPCM_16B11KS 2
-#define CT_ADPCM_16B22KS 3
-#define CT_ADPCM_16B44KS 4
-#define CT_ADPCM_16B8KM  5
-#define CT_ADPCM_16B11KM 6
-#define CT_ADPCM_16B22KM 7
-#define CT_ADPCM_16B44KM 8
+const CT_ADPCM_16B8KS  =1;
+const CT_ADPCM_16B11KS =2;
+const CT_ADPCM_16B22KS =3;
+const CT_ADPCM_16B44KS =4;
+const CT_ADPCM_16B8KM  =5;
+const CT_ADPCM_16B11KM =6;
+const CT_ADPCM_16B22KM =7;
+const CT_ADPCM_16B44KM =8;
 
-#define DATATYPE_MIDI    0x0201
-#define DATATYPE_GENERIC 0x0202
-#define DATATYPE_SPV2    0x0203
+const DATATYPE_MIDI    = $0201;
+const DATATYPE_GENERIC = $0202;
+const DATATYPE_SPV2    = $0203;
 
-#define SPV2_BPCM 1
-#define SPV2_PCM  2
-#define SPV2_NONE 3
+const SPV2_BPCM =1;
+const SPV2_PCM  =2;
+const SPV2_NONE =3;
 
-#define DATATYPE_CDXA_VIDEO    0x0204
-#define DATATYPE_CDXA_DATA     0x0205
-#define DATATYPE_CDXA_AUDIO    0x0206
-#define DATATYPE_CDXA_AUDIO_HD 0x0207
-#define DATATYPE_CDXA_HEADERS  0x0208
+const DATATYPE_CDXA_VIDEO    = $0204;
+const DATATYPE_CDXA_DATA     = $0205;
+const DATATYPE_CDXA_AUDIO    = $0206;
+const DATATYPE_CDXA_AUDIO_HD = $0207;
+const DATATYPE_CDXA_HEADERS  = $0208;
 
-#define CDXA_LEVELB      0
-#define CDXA_LEVELC      1
-#define CDXA_LEVELB_MONO 2
-#define CDXA_LEVELC_MONO 3
+const CDXA_LEVELB      =0;
+const CDXA_LEVELC      =1;
+const CDXA_LEVELB_MONO =2;
+const CDXA_LEVELC_MONO =3;
 
-#define DATATYPE_DIGISPEECH 0x0208
-#define DIGISPEECH_NATIVE 1
+const DATATYPE_DIGISPEECH = $0208;
+const DIGISPEECH_NATIVE =1;
 
-#define DATATYPE_MPEG1AUDIO 0x0050
+const DATATYPE_MPEG1AUDIO = $0050;
 
-#define MPEG1_FORMAT_3M16 1
-#define MPEG1_FORMAT_3S16 2
-#define MPEG1_FORMAT_4M16 3
-#define MPEG1_FORMAT_4S16 4
+const MPEG1_FORMAT_3M16 =1;
+const MPEG1_FORMAT_3S16 =2;
+const MPEG1_FORMAT_4M16 =3;
+const MPEG1_FORMAT_4S16 =4;
 
-#define DATATYPE_UNKNOWN 0xFFFFFFFF
+const DATATYPE_UNKNOWN = $FFFFFFFF;
+
+end.
