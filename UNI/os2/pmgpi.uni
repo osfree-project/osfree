@@ -29,5 +29,6 @@ uses gpiprimitives;
 uses gpilcids;
 uses gpicontrolcommon;
 uses gpibitmapscommon;
+uses gpibitmaps;
 
 end.
