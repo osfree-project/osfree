@@ -9,77 +9,13 @@ APIRET APIENTRY      DosICreateThread(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16Cwait(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16EnterCritSec(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosIExecPgm(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16Exit(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ExitCritSec(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ExitList(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GetInfoSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GetPrty(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16KillProcess(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SetPrty(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
 APIRET APIENTRY      DosPtrace(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16HoldSignal(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SetSigHandler(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FlagProcess(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16MakePipe(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -102,205 +38,7 @@ APIRET APIENTRY      DosISysSemSet(void)
   return 0;
   return 0; }
 
-APIRET APIENTRY      Dos16SemSetWait(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
 APIRET APIENTRY      DosISemWait(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16MuxSemWait(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16CloseSem(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16CreateSem(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16OpenSem(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16ResumeThread(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SuspendThread(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetDateTime(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16TimerAsync(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16TimerStart(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16TimerStop(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Sleep(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetDateTime(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16AllocSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16AllocShrSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetShrSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GiveSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16ReallocSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16FreeSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16AllocHuge(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetHugeShift(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16ReallocHuge(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16CreateCSAlias(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16LoadModule(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetProcAddr(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16FreeModule(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetModHandle(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetModName(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetMachineMode(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Beep(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16CLIAccess(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16DevConfig(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16DevIOCtl(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0;
@@ -318,187 +56,7 @@ APIRET APIENTRY      DosSGSwitchMe(void)
   return 0;
   return 0; }
 
-APIRET APIENTRY      Dos16BufReset(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16ChDir(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16ChgFilePtr(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Close(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Delete(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16DupHandle(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16FileLocks(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16FindClose(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16FindFirst(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16FindNext(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16MkDir(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Move(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16NewSize(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16PortAccess(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Open(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QCurDir(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QCurDisk(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QFHandState(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QFileInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QFileMode(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QFSInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QHandType(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QVerify(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
 APIRET APIENTRY      DosIRead(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16RmDir(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SelectDisk(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetFHandState(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetFileInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetFileMode(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetMaxFH(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetVerify(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0;
@@ -510,73 +68,7 @@ APIRET APIENTRY      DosIWrite(void)
   return 0;
   return 0; }
 
-APIRET APIENTRY      Dos16SystemService(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetVec(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SysTrace(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetEnv(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetVersion(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
 APIRET APIENTRY      DosQTraceInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetPID(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16Open2(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16LibInit(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetFSInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16QPathInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16DevIOCtl2(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0;
@@ -601,12 +93,6 @@ APIRET APIENTRY      DosSwapTaskInit(void)
   return 0; }
 
 APIRET APIENTRY      DosReadPhys(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16SetPathInfo(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0;
@@ -669,27 +155,6 @@ APIRET APIENTRY      DosGetSTDA(void)
   return 0;
   return 0; }
 
-APIRET APIENTRY      Dos16Error(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GetSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16LockSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16UnlockSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
 APIRET APIENTRY      DosSGSwitchProc(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
@@ -702,34 +167,9 @@ APIRET APIENTRY      DosIRamSemWake(void)
   return 0;
   return 0; }
 
-APIRET APIENTRY      Dos16SizeSeg(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16MemAvail(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
 APIRET APIENTRY      DosIRamSemRequest(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16PhysicalDisk(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-  return 0; }
-
-APIRET APIENTRY      Dos16GetCP(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
   return 0; }
 
 APIRET APIENTRY      DosISetCP(void)
@@ -747,122 +187,7 @@ APIRET APIENTRY      DosProfile(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16SendSignal(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16HugeShift(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16HugeIncr(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16Read(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16Write(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ErrClass(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SemRequest(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SemClear(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SemWait(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SemSet(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ExecPgm(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16CreateThread(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SubSet(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SubAlloc(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SubFree(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ReadAsync(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16WriteAsync(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SearchPath(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ScanEnv(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SetCP(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosQProcStatus(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GetResource(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GetPPID(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16CallBack(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -873,41 +198,6 @@ APIRET APIENTRY      DosICallBack(void)
   return 0; }
 
 APIRET APIENTRY      DosRetForward(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16R2StackRealloc(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FSRamSemRequest(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FSRamSemClear(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16QAppType(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SetProcCP(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16DynamicTrace(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16QSysInfo(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -982,57 +272,7 @@ APIRET APIENTRY      DosIRawWriteNmPipe(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16FSAttach(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16QFSAttach(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FSCtl(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FindFirst2(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16MkDir2(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FileIO(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FindNotifyClose(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FindNotifyFirst(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FindNotifyNext(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosSetTraceInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16EditName(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -1082,42 +322,12 @@ APIRET APIENTRY      DosICopy(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16Copy(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosIQAppType(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16ForceDelete(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16EnumAttribute(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosOPLockShutdown(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16Shutdown(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GetResource2(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FreeResource(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -1147,26 +357,6 @@ APIRET APIENTRY DosError(ULONG errorno)
 }
 
 APIRET APIENTRY      DosCreateVDM(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16MaxPathLen(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16PageSize(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16LocalInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16GlobalInfo(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -1257,7 +447,7 @@ APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY DosDevConfig(PVOID pdevinfo, ULONG item)
+APIRET APIENTRY DosDevConfig(PCSZ pdevinfo, ULONG item)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -1471,21 +661,6 @@ APIRET APIENTRY  DosFindNext(HDIR   hDir,
                              PVOID  pfindbuf,
                              ULONG  cbfindbuf,
                              PULONG pcFilenames)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16OpenVDD(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16RequestVDD(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16CloseVDD(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -2159,16 +1334,6 @@ APIRET APIENTRY      DosSetDOSProperty(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16QueryDosProperty(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SetDosProperty(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 
 APIRET APIENTRY      DosSetSignalExceptionFocus(BOOL32 flag,
                                                 PULONG pulTimes)
@@ -2353,31 +1518,6 @@ APIRET APIENTRY      DosTIB(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16TmrQueryFreq(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16TmrQueryTime(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16RegisterPerfCtrs(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16FlatToSel(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16SelToFlat(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosFlatToSel(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
@@ -2439,21 +1579,6 @@ APIRET APIENTRY      LogSetName(void)
   return 0; }
 
 APIRET APIENTRY      LogQueryState(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16OpenChangeNotify(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ResetChangeNotify(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16CloseChangeNotify(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -3071,16 +2196,6 @@ APIRET APIENTRY      DosQueryHeaderInfo(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      Dos16InitializePorthole(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16QueryHeaderInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      T32QUERYPROCTYPE(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
@@ -3222,61 +2337,6 @@ APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
                                       ULONG method,
                                       PULONG ibActual,
                                       FHLOCK fhFileHandleLockID)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectClose(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectFileIO(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectFileLocks(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectNewSize(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectOpen(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectQFHandState(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectSetFHandState(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectQFileInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectSetFileInfo(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectChgFilePtr(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      Dos16ProtectEnumAttribute(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -3507,16 +2567,6 @@ APIRET APIENTRY  DosListIOL(LONG CmdMODE,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DOS16FSRAMSEMREQUEST2(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      DOS16FSRAMSEMCLEAR2(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosSystemService(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
@@ -3530,16 +2580,6 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
   return 0; }
 
 APIRET  APIENTRY        DosCreateThread2(PTHREADCREATE ptc)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      DOS16SETEXTLIBPATH(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-APIRET APIENTRY      DOS16QUERYEXTLIBPATH(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }

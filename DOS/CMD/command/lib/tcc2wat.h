@@ -225,7 +225,9 @@ typedef struct _complex complex;
 struct _complex complex(double real, double imag);
 int random(int num);
 int stime(time_t *tp);
+#if __WATCOMC__ < 1280
 int _chmod(const char *filename, int func, ...);
+#endif
 int getftime (int handle, struct ftime *ftimep);
 int setftime (int handle, struct ftime *ftimep);
 char *searchpath(const char *filename);
@@ -257,7 +259,9 @@ void textattr(int attr);
 void highvideo (void);
 void lowvideo (void);
 void normvideo (void);
+#if __WATCOMC__ < 1280
 int _write(int handle, void *buf, int nbyte);
+#endif
 int _creat(const char *filename, int attrib);
 int creatnew(const char *filename, int attrib);
 int creattemp(char *filename, int attrib);

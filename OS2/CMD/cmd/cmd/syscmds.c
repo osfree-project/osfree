@@ -323,7 +323,7 @@ ExitUpdateFuzzy:
 }
 
 
-#if __WATCOMC__
+#if __WATCOMC__ < 1280
 int _chdrive( unsigned nDrive )
 {
     unsigned nTotDrives, nCurDrive;

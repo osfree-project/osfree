@@ -349,8 +349,8 @@ printf("a4\n");
          }
 #endif
 
-     CharToOem(filename, buffer);
-      printf("a13b fn=%s\n", buffer);
+//     CharToOem(filename, buffer);
+//      printf("a13b fn=%s\n", buffer);
 
       printf("a13b fn=%s\n", filename);
       fparser = tryopen(filename ? filename : PFILE, "r");

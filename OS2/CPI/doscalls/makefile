@@ -18,107 +18,19 @@ IMPORTS = DosFSCtl        KAL.2, &
           DosQuerySysInfo KAL.5
 EXPORTS = &
      DosICreateThread       .1, &
-     Dos16Cwait             .2, &
-     Dos16EnterCritSec      .3, &
      DosIExecPgm            .4, &
-     Dos16Exit              .5, &
-     Dos16ExitCritSec       .6, &
-     Dos16ExitList          .7, &
-     Dos16GetInfoSeg        .8, &
-     Dos16GetPrty           .9, &
-     Dos16KillProcess       .10, &
-     Dos16SetPrty           .11, &
      DosPtrace              .12, &
-     Dos16HoldSignal        .13, &
-     Dos16SetSigHandler     .14, &
-     Dos16FlagProcess       .15, &
-     Dos16MakePipe          .16, &
      DosISysSemClear        .17, &
      DosISemRequest         .18, &
      DosISysSemSet          .19, &
-     Dos16SemSetWait        .20, &
      DosISemWait            .21, &
-     Dos16MuxSemWait        .22, &
-     Dos16CloseSem          .23, &
-     Dos16CreateSem         .24, &
-     Dos16OpenSem           .25, &
-     Dos16ResumeThread      .26, &
-     Dos16SuspendThread     .27, &
-     Dos16SetDateTime       .28, &
-     Dos16TimerAsync        .29, &
-     Dos16TimerStart        .30, &
-     Dos16TimerStop         .31, &
-     Dos16Sleep             .32, &
-     Dos16GetDateTime       .33, &
-     Dos16AllocSeg          .34, &
-     Dos16AllocShrSeg       .35, &
-     Dos16GetShrSeg         .36, &
-     Dos16GiveSeg           .37, &
-     Dos16ReallocSeg        .38, &
-     Dos16FreeSeg           .39, &
-     Dos16AllocHuge         .40, &
-     Dos16GetHugeShift      .41, &
-     Dos16ReallocHuge       .42, &
-     Dos16CreateCSAlias     .43, &
-     Dos16LoadModule        .44, &
-     Dos16GetProcAddr       .45, &
-     Dos16FreeModule        .46, &
-     Dos16GetModHandle      .47, &
-     Dos16GetModName        .48, &
-     Dos16GetMachineMode    .49, &
-     Dos16Beep              .50, &
-     Dos16CLIAccess         .51, &
-     Dos16DevConfig         .52, &
-     Dos16DevIOCtl          .53, &
      DosSGSwitch            .54, &
      DosSGSwitchMe          .55, &
-     Dos16BufReset          .56, &
-     Dos16ChDir             .57, &
-     Dos16ChgFilePtr        .58, &
-     Dos16Close             .59, &
-     Dos16Delete            .60, &
-     Dos16DupHandle         .61, &
-     Dos16FileLocks         .62, &
-     Dos16FindClose         .63, &
-     Dos16FindFirst         .64, &
-     Dos16FindNext          .65, &
-     Dos16MkDir             .66, &
-     Dos16Move              .67, &
-     Dos16NewSize           .68, &
-     Dos16PortAccess        .69, &
-     Dos16Open              .70, &
-     Dos16QCurDir           .71, &
-     Dos16QCurDisk          .72, &
-     Dos16QFHandState       .73, &
-     Dos16QFileInfo         .74, &
-     Dos16QFileMode         .75, &
-     Dos16QFSInfo           .76, &
-     Dos16QHandType         .77, &
-     Dos16QVerify           .78, &
-     Dos16RmDir             .80, &
-     Dos16SelectDisk        .81, &
-     Dos16SetFHandState     .82, &
-     Dos16SetFileInfo       .83, &
-     Dos16SetFileMode       .84, &
-     Dos16SetMaxFH          .85, &
-     Dos16SetVerify         .86, &
-     Dos16SystemService     .88, &
-     Dos16SetVec            .89, &
-     Dos16SysTrace          .90, &
-     Dos16GetEnv            .91, &
-     Dos16GetVersion        .92, &
      DosQTraceInfo          .93, &
-     Dos16GetPID            .94, &
-     Dos16Open2             .95, &
-     Dos16LibInit           .96, &
-     Dos16SetFSInfo         .97, &
-     Dos16QPathInfo         .98, &
-     Dos16DevIOCtl2         .99, &
      DosICanonicalize       .100, &
      DosSetFgnd             .101, &
      DosSwapTaskInit        .102, &
      DosReadPhys            .103, &
-     Dos16SetPathInfo       .104, &
      DosSGSwitchProc2       .105, &
      DosISetRelMaxFH        .108, &
      DosIDevIOCtl           .109, &
@@ -129,52 +41,14 @@ EXPORTS = &
      DosSuppressPopUps      .114, &
      DosOpen2Compt          .118, &
      DosGetSTDA             .119, &
-     Dos16Error             .120, &
-     Dos16GetSeg            .121, &
-     Dos16LockSeg           .122, &
-     Dos16UnlockSeg         .123, &
      DosSGSwitchProc        .124, &
      DosIRamSemWake         .125, &
-     Dos16SizeSeg           .126, &
-     Dos16MemAvail          .127, &
      DosIRamSemRequest      .128, &
-     Dos16PhysicalDisk      .129, &
-     Dos16GetCP             .130, &
      DosISetCP              .131, &
      DosGlobalSeg           .132, &
-     Dos16SendSignal        .134, &
-     Dos16HugeShift         .135, &
-     Dos16HugeIncr          .136, &
-     Dos16Read              .137, &
-     Dos16Write             .138, &
-     Dos16ErrClass          .139, &
-     Dos16SemRequest        .140, &
-     Dos16SemClear          .141, &
-     Dos16SemWait           .142, &
-     Dos16SemSet            .143, &
-     Dos16ExecPgm           .144, &
-     Dos16CreateThread      .145, &
-     Dos16SubSet            .146, &
-     Dos16SubAlloc          .147, &
-     Dos16SubFree           .148, &
-     Dos16ReadAsync         .149, &
-     Dos16WriteAsync        .150, &
-     Dos16SearchPath        .151, &
-     Dos16ScanEnv           .152, &
-     Dos16SetCP             .153, &
      DosQProcStatus         .154, &
-     Dos16GetResource       .155, &
-     Dos16GetPPID           .156, &
-     Dos16CallBack          .157, &
      DosICallBack           .158, &
      DosRetForward          .159, &
-     Dos16R2StackRealloc    .160, &
-     Dos16FSRamSemRequest   .161, &
-     Dos16FSRamSemClear     .162, &
-     Dos16QAppType          .163, &
-     Dos16SetProcCP         .164, &
-     Dos16DynamicTrace      .165, &
-     Dos16QSysInfo          .166, &
      DosIMakeNmPipe         .167, &
      DosICallNmPipe         .168, &
      DosIConnectNmPipe      .169, &
@@ -189,17 +63,7 @@ EXPORTS = &
      DosIQNmPipeSemState    .178, &
      DosIRawReadNmPipe      .179, &
      DosIRawWriteNmPipe     .180, &
-     Dos16FSAttach          .181, &
-     Dos16QFSAttach         .182, &
-     Dos16FSCtl             .183, &
-     Dos16FindFirst2        .184, &
-     Dos16MkDir2            .185, &
-     Dos16FileIO            .186, &
-     Dos16FindNotifyClose   .187, &
-     Dos16FindNotifyFirst   .188, &
-     Dos16FindNotifyNext    .189, &
      DosSetTraceInfo      .190  , &
-     Dos16EditName          .191, &
      DosLogMode           .192  , &
      DosLogEntry          .193  , &
      DosGetLogBuffer      .194  , &
@@ -209,23 +73,13 @@ EXPORTS = &
      DosOPLockRelease     .198  , &
      DosOPLockWait        .199  , &
      DosICopy             .200  , &
-     Dos16Copy              .201, &
      DosIQAppType         .202  , &
-     Dos16ForceDelete       .203, &
-     Dos16EnumAttribute     .204, &
      DosOPLockShutdown    .205  , &
-     Dos16Shutdown          .206, &
-     Dos16GetResource2      .207, &
-     Dos16FreeResource      .208, &
      DosSetMaxFH          .209  , &
      DosSetVerify         .210  , &
      DosErrClass          .211  , &
      DosError             .212  , &
      DosCreateVDM         .213  , &
-     Dos16MaxPathLen        .214, &
-     Dos16PageSize          .215, &
-     Dos16LocalInfo         .216, &
-     Dos16GlobalInfo        .217, &
      DosSetFileInfo       .218  , &
      DosSetPathInfo       .219  , &
      DosSetDefaultDisk    .220  , &
@@ -273,9 +127,6 @@ EXPORTS = &
      DosFindClose          .263  , &
      DosFindFirst          .264  , &
      DosFindNext           .265  , &
-     Dos16OpenVDD            .266, &
-     Dos16RequestVDD         .267, &
-     Dos16CloseVDD           .268, &
      DosFSAttach           .269  , &
      DosCreateDir          .270  , &
      DosMove               .271  , &
@@ -382,8 +233,6 @@ EXPORTS = &
      DosEnumAttribute           .372 , &
      DosQueryDOSProperty        .373 , &
      DosSetDOSProperty          .374 , &
-     Dos16QueryDosProperty        .375 , &
-     Dos16SetDosProperty          .376 , &
      DosSetSignalExceptionFocus .378   , &
      DosSendSignalException     .379   , &
      DosEnterMustComplete       .380   , &
@@ -420,11 +269,6 @@ EXPORTS = &
      DosReplaceModule               .417, &
      DosAcknowledgeSignalException  .418, &
      DosTIB                         .419, &
-     Dos16TmrQueryFreq              .420, &
-     Dos16TmrQueryTime              .421, &
-     Dos16RegisterPerfCtrs          .422, &
-     Dos16FlatToSel                 .423, &
-     Dos16SelToFlat                 .424, &
      DosFlatToSel                   .425  , &
      DosSelToFlat                   .426  , &
      DosIODelayCnt                  .427  , &
@@ -437,9 +281,6 @@ EXPORTS = &
      LogSetState                    .434  , &
      LogSetName                     .435  , &
      LogQueryState                  .436  , &
-     Dos16OpenChangeNotify            .437, &
-     Dos16ResetChangeNotify           .438, &
-     Dos16CloseChangeNotify           .439, &
      DosOpenChangeNotify            .440  , &
      DosResetChangeNotify           .441  , &
      DosCloseChangeNotify           .442  , &
@@ -563,8 +404,6 @@ EXPORTS = &
      DosInitializePorthole          .580    , &
      T32QUERYHEADERINFO             .581    , &
      DosQueryHeaderInfo             .582    , &
-     Dos16InitializePorthole        .583  , &
-     Dos16QueryHeaderInfo           .584  , &
      T32QUERYPROCTYPE               .585    , &
      DosQueryProcType               .586    , &
      T32IEXITMUSTCOMPLETE           .588    , &
@@ -593,17 +432,6 @@ EXPORTS = &
      T32KILLTHREAD                  .611              , &
      TQUERYRASINFO                  .612              , &
      DosProtectSetFilePtr           .621              , &
-     Dos16ProtectClose                .622            , &
-     Dos16ProtectFileIO               .623            , &
-     Dos16ProtectFileLocks            .624            , &
-     Dos16ProtectNewSize              .627            , &
-     Dos16ProtectOpen                 .628            , &
-     Dos16ProtectQFHandState          .629            , &
-     Dos16ProtectSetFHandState        .630            , &
-     Dos16ProtectQFileInfo            .631            , &
-     Dos16ProtectSetFileInfo          .632            , &
-     Dos16ProtectChgFilePtr           .634            , &
-     Dos16ProtectEnumAttribute        .635            , &
      DosProtectEnumAttribute        .636              , &
      DosProtectOpen                 .637              , &
      DosProtectClose                .638              , &
@@ -633,13 +461,9 @@ EXPORTS = &
      DosSetFilePtrL                              .988, &
      DosSetFileSizeL                             .989, &
      DosListIOL                                  .990, &
-     DOS16FSRAMSEMREQUEST2                       .991, &
-     DOS16FSRAMSEMCLEAR2                         .992, &
      DosSystemService                            .995, &
      DosListIO                                   .996, &
-     DosCreateThread2                            .997, &
-     DOS16SETEXTLIBPATH                          .998, &
-     DOS16QUERYEXTLIBPATH                        .999
+     DosCreateThread2                            .997
 
 # alias     DosSetSignalExceptionFoc                  @378
 # conflict? DOS16PMSEMWAIT                              @574
@@ -660,6 +484,19 @@ EXPORTS = &
 #     DosIQueryMessageCP             .390, &
 #     Dos16IRead               .79, &
 #     Dos16IWrite            .87, &
+#     Dos16Cwait             .2, &
+#     Dos16EnterCritSec      .3, &
+#     Dos16Exit              .5, &
+#     Dos16ExitCritSec       .6, &
+#     Dos16ExitList          .7, &
+#     Dos16GetInfoSeg        .8, &
+#     Dos16GetPrty           .9, &
+#     Dos16KillProcess       .10, &
+#     Dos16SetPrty           .11, &
+#     Dos16HoldSignal        .13, &
+#     Dos16SetSigHandler     .14, &
+#     Dos16FlagProcess       .15, &
+#     Dos16MakePipe          .16, &
 
 # <04:47> <_dixie_> объявляецца конкурс знание того, что делает doscalls.995 :)
 # <04:48> <[Pasha]> _dixie_ DosJAVAIOCtl ? ;-)
@@ -696,6 +533,170 @@ EXPORTS = &
 #     Dos16QueryProcType             .587  , &
 #     DosInsMessage              .385   , &
 #     DosPutMessage              .383   , &
+#     Dos16SemSetWait        .20, &
+#     Dos16MuxSemWait        .22, &
+#     Dos16CloseSem          .23, &
+#     Dos16CreateSem         .24, &
+#     Dos16OpenSem           .25, &
+#     Dos16ResumeThread      .26, &
+#     Dos16SuspendThread     .27, &
+#     Dos16SetDateTime       .28, &
+#     Dos16TimerAsync        .29, &
+#     Dos16TimerStart        .30, &
+#     Dos16TimerStop         .31, &
+#     Dos16Sleep             .32, &
+#     Dos16GetDateTime       .33, &
+#     Dos16AllocSeg          .34, &
+#     Dos16AllocShrSeg       .35, &
+#     Dos16GetShrSeg         .36, &
+#     Dos16GiveSeg           .37, &
+#     Dos16ReallocSeg        .38, &
+#     Dos16FreeSeg           .39, &
+#     Dos16AllocHuge         .40, &
+#     Dos16GetHugeShift      .41, &
+#     Dos16ReallocHuge       .42, &
+#     Dos16CreateCSAlias     .43, &
+#     Dos16LoadModule        .44, &
+#     Dos16GetProcAddr       .45, &
+#     Dos16FreeModule        .46, &
+#     Dos16GetModHandle      .47, &
+#     Dos16GetModName        .48, &
+#     Dos16GetMachineMode    .49, &
+#     Dos16Beep              .50, &
+#     Dos16CLIAccess         .51, &
+#     Dos16DevConfig         .52, &
+#     Dos16DevIOCtl          .53, &
+#     Dos16BufReset          .56, &
+#     Dos16ChDir             .57, &
+#     Dos16ChgFilePtr        .58, &
+#     Dos16Close             .59, &
+#     Dos16Delete            .60, &
+#     Dos16DupHandle         .61, &
+#     Dos16FileLocks         .62, &
+#     Dos16FindClose         .63, &
+#     Dos16FindFirst         .64, &
+#     Dos16FindNext          .65, &
+#     Dos16MkDir             .66, &
+#     Dos16Move              .67, &
+#     Dos16NewSize           .68, &
+#     Dos16PortAccess        .69, &
+#     Dos16Open              .70, &
+#     Dos16QCurDir           .71, &
+#     Dos16QCurDisk          .72, &
+#     Dos16QFHandState       .73, &
+#     Dos16QFileInfo         .74, &
+#     Dos16QFileMode         .75, &
+#     Dos16QFSInfo           .76, &
+#     Dos16QHandType         .77, &
+#     Dos16QVerify           .78, &
+#     Dos16RmDir             .80, &
+#     Dos16SelectDisk        .81, &
+#     Dos16SetFHandState     .82, &
+#     Dos16SetFileInfo       .83, &
+#     Dos16SetFileMode       .84, &
+#     Dos16SetMaxFH          .85, &
+#     Dos16SetVerify         .86, &
+#     Dos16SystemService     .88, &
+#     Dos16SetVec            .89, &
+#     Dos16SysTrace          .90, &
+#     Dos16GetEnv            .91, &
+#     Dos16GetVersion        .92, &
+#     Dos16GetPID            .94, &
+#     Dos16Open2             .95, &
+#     Dos16LibInit           .96, &
+#     Dos16SetFSInfo         .97, &
+#     Dos16QPathInfo         .98, &
+#     Dos16DevIOCtl2         .99, &
+#     Dos16SetPathInfo       .104, &
+#     Dos16Error             .120, &
+#     Dos16GetSeg            .121, &
+#     Dos16LockSeg           .122, &
+#     Dos16UnlockSeg         .123, &
+#     Dos16SizeSeg           .126, &
+#     Dos16MemAvail          .127, &
+#     Dos16PhysicalDisk      .129, &
+#     Dos16GetCP             .130, &
+#     Dos16SendSignal        .134, &
+#     Dos16HugeShift         .135, &
+#     Dos16HugeIncr          .136, &
+#     Dos16Read              .137, &
+#     Dos16Write             .138, &
+#     Dos16ErrClass          .139, &
+#     Dos16SemRequest        .140, &
+#     Dos16SemClear          .141, &
+#     Dos16SemWait           .142, &
+#     Dos16SemSet            .143, &
+#     Dos16ExecPgm           .144, &
+#     Dos16CreateThread      .145, &
+#     Dos16SubSet            .146, &
+#     Dos16SubAlloc          .147, &
+#     Dos16SubFree           .148, &
+#     Dos16ReadAsync         .149, &
+#     Dos16WriteAsync        .150, &
+#     Dos16SearchPath        .151, &
+#     Dos16ScanEnv           .152, &
+#     Dos16SetCP             .153, &
+#     Dos16GetResource       .155, &
+#     Dos16GetPPID           .156, &
+#     Dos16CallBack          .157, &
+#     Dos16R2StackRealloc    .160, &
+#     Dos16FSRamSemRequest   .161, &
+#     Dos16FSRamSemClear     .162, &
+#     Dos16QAppType          .163, &
+#     Dos16SetProcCP         .164, &
+#     Dos16DynamicTrace      .165, &
+#     Dos16QSysInfo          .166, &
+#     Dos16FSAttach          .181, &
+#     Dos16QFSAttach         .182, &
+#     Dos16FSCtl             .183, &
+#     Dos16FindFirst2        .184, &
+#     Dos16MkDir2            .185, &
+#     Dos16FileIO            .186, &
+#     Dos16FindNotifyClose   .187, &
+#     Dos16FindNotifyFirst   .188, &
+#     Dos16FindNotifyNext    .189, &
+#     Dos16EditName          .191, &
+#     Dos16Copy              .201, &
+#     Dos16ForceDelete       .203, &
+#     Dos16EnumAttribute     .204, &
+#     Dos16Shutdown          .206, &
+#     Dos16GetResource2      .207, &
+#     Dos16FreeResource      .208, &
+#     Dos16MaxPathLen        .214, &
+#     Dos16PageSize          .215, &
+#     Dos16LocalInfo         .216, &
+#     Dos16GlobalInfo        .217, &
+#     Dos16OpenVDD            .266, &
+#     Dos16RequestVDD         .267, &
+#     Dos16CloseVDD           .268, &
+#     Dos16QueryDosProperty        .375 , &
+#     Dos16SetDosProperty          .376 , &
+#     Dos16TmrQueryFreq              .420, &
+#     Dos16TmrQueryTime              .421, &
+#     Dos16RegisterPerfCtrs          .422, &
+#     Dos16FlatToSel                 .423, &
+#     Dos16SelToFlat                 .424, &
+#     Dos16OpenChangeNotify            .437, &
+#     Dos16ResetChangeNotify           .438, &
+#     Dos16CloseChangeNotify           .439, &
+#     Dos16InitializePorthole        .583  , &
+#     Dos16QueryHeaderInfo           .584  , &
+#     Dos16ProtectClose                .622            , &
+#     Dos16ProtectFileIO               .623            , &
+#     Dos16ProtectFileLocks            .624            , &
+#     Dos16ProtectNewSize              .627            , &
+#     Dos16ProtectOpen                 .628            , &
+#     Dos16ProtectQFHandState          .629            , &
+#     Dos16ProtectSetFHandState        .630            , &
+#     Dos16ProtectQFileInfo            .631            , &
+#     Dos16ProtectSetFileInfo          .632            , &
+#     Dos16ProtectChgFilePtr           .634            , &
+#     Dos16ProtectEnumAttribute        .635            , &
+#     DOS16FSRAMSEMREQUEST2                       .991, &
+#     DOS16FSRAMSEMCLEAR2                         .992, &
+#     DOS16SETEXTLIBPATH                          .998, &
+#     DOS16QUERYEXTLIBPATH                        .999
+
 
 DEST    = os2$(SEP)dll
 

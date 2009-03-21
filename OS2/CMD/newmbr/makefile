@@ -20,4 +20,4 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 $(PATH)read.obj: $(PATH)mbr.h
 
 $(PATH)mbr.h: $(ROOT)bin$(SEP)boot$(SEP)sectors$(SEP)mbr.bin
- @$(MYDIR)mkstrct.cmd >$^@
+ @$(REXX) $(MYDIR)mkstrct.cmd >$^@
