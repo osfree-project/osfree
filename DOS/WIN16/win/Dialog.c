@@ -388,7 +388,7 @@ InternalCreateDialog(HINSTANCE hInst, LPSTR lpDlg,
 	LOGFONT LogFont;
 	BOOL	bVisible;
 	DWORD	dwStyle;
-#ifdef 0
+#if 0
 	HDC hDC;
 	HCURSOR	hCursOld, hCursHourGlass;
 #endif

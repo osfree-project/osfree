@@ -449,15 +449,15 @@ typedef SIZE FAR        *LPSIZEL;
 #ifndef _MAX_DRIVE
 #define _MAX_DRIVE  3
 #endif
-#ifndef _MAX_DIR
-#define _MAX_DIR    256
-#endif
-#ifndef _MAX_FNAME
-#define _MAX_FNAME  256
-#endif
-#ifndef _MAX_EXT
-#define _MAX_EXT    256
-#endif
+//#ifndef _MAX_DIR
+//#define _MAX_DIR    256
+//#endif
+//#ifndef _MAX_FNAME
+//#define _MAX_FNAME  256
+//#endif
+//#ifndef _MAX_EXT
+//#define _MAX_EXT    256
+//#endif
 
 #ifndef RC_INVOKED
 #include "Win_NT.h"
@@ -495,7 +495,7 @@ typedef SIZE FAR        *LPSIZEL;
 #endif
 
 #ifndef RC_BUILD
-#include "Win_Clib.h"   /* standard C library functions and definitions */
+//#include "Win_Clib.h"   /* standard C library functions and definitions */
 #endif
 
 #ifdef __cplusplus

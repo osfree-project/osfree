@@ -76,7 +76,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <ctype.h>
 
 #define _SVID3
-#include <termios.h>
+//#include <termios.h>
 #undef _SVID3
 
 #ifndef CRTSCTS

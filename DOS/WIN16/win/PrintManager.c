@@ -28,6 +28,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 
  */
 
+#define NEEDED
 #define	PRINTDRIVER
 #include "windows.h"
 #include "commdlg.h"

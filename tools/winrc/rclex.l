@@ -30,8 +30,8 @@ at the address twin@willows.com
 #include <string.h>
 #include <ctype.h>
 #include "buffer.h"
-#include "rc.y.tab.h"
-#include "rc.z.tab.h"
+#include "rcyacc.h"
+#include "ifyacc.h"
 #include "rc.h"
 
 #define YY_FATAL_ERROR(msg) my_fatal_error( msg )

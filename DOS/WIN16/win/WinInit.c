@@ -96,8 +96,8 @@ LPARAM SetCompatibilityFlags(int);
 BOOL   		TWIN_LibExit(int,DWORD);	
 LPMODULETAB    	TWIN_LibEntry(char *,ENTRYTAB *,MODULEDSCR *);
 
-int __argc;
-char **__argv;
+//int __argc;
+//char **__argv;
 
 /* this should be moved down to the driver when we understand the MAC... */
 static LPSTR SetCommandLine(int, char **);

@@ -178,6 +178,7 @@ openfiles (void)
   char *filename;
   int base_length;
   int short_base_length;
+  char buffer[2000];
 
 #if defined (VMS) & !defined (__VMS_POSIX)
   char *tmp_base = "sys$scratch:b_";
@@ -347,6 +348,10 @@ printf("a4\n");
       printf("a13a\n");
          }
 #endif
+
+     CharToOem(filename, buffer);
+      printf("a13b fn=%s\n", buffer);
+
       printf("a13b fn=%s\n", filename);
       fparser = tryopen(filename ? filename : PFILE, "r");
       printf("a13c fn=%s\n", filename);

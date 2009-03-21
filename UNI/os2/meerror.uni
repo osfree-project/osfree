@@ -9,7 +9,7 @@ module meerror;
 const   MCIERR_BASE                                   = 5000;
 const   MCIERR_SUCCESS                                = 0;
 const   MCIERR_INVALID_DEVICE_ID                      = (MCIERR_BASE+1);
-const   MCIERR_NO_MASTER (MCIERR_BASE+2)              = 5000;
+const   MCIERR_NO_MASTER = (MCIERR_BASE+2);
 const   MCIERR_UNRECOGNIZED_KEYWORD                   = (MCIERR_BASE+3);
 const   MCIERR_BASE                                   = 5000;
 const   MCIERR_MASTER_CONFLICT                        = (MCIERR_BASE+4);
@@ -61,7 +61,7 @@ const   MCIERR_INVALID_CONNECTOR_INDEX                = (MCIERR_BASE+52);
 const   MCIERR_NO_CONNECTION                          = (MCIERR_BASE+53);
 const   MCIERR_INVALID_FLAG                           = (MCIERR_BASE+54);
 const   MCIERR_CANNOT_LOAD_DSP_MOD                    = (MCIERR_BASE+55);
-const   MCIERR_ALREADY_CONNECTED (MCIERR_BASE+56);
+const   MCIERR_ALREADY_CONNECTED = (MCIERR_BASE+56);
 
 const   MCIERR_INVALID_CALLBACK_HANDLE                = (MCIERR_BASE+57);
 const   MCIERR_DRIVER_NOT_FOUND                       = (MCIERR_BASE+58);

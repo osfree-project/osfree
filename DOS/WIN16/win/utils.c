@@ -44,7 +44,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <fcntl.h>
  
 static int      opnlog_fd;
-static char     opnlog_fmt[64*1024];
+static char     opnlog_fmt[16*1024]; // was 64
 
 #define LOG_INIT	0
 #define LOG_NOOP	1
