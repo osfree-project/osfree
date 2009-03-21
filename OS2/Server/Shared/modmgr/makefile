@@ -5,7 +5,7 @@
 #
 
 PROJ     = ow_dlfcn
-DEST     =
+DEST     = none
 
 !include $(%ROOT)/mk/appsos2.mk
 

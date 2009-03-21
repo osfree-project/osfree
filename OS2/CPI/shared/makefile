@@ -4,7 +4,7 @@
 
 srcfiles = $(p)stub$(e)
 ADD_COPT=-bm -od -mf -sg -d2 -mf
-DEST     =
+DEST     = none
 
 !include $(%ROOT)/mk/appsos2.mk
 
