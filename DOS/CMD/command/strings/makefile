@@ -4,33 +4,23 @@
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-#32_BITS  = 1
-
-PROJ = fixstrs
-DESC = Control file attributes
+PROJ  = fixstrs
+DIRS  = critstrs
+DESC  = Control file attributes
 #defines object file names in format objname.$(O)
-OBJS = fixstrs.$(O) tcc2wat.$(O)
+srcfiles = $(p)fixstrs$(e) $(p)porting$(e) # $(p)tcc2wat$(e)
 # defines additional options for C compiler
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
+LNG = $(MYDIR)russian.lng
+CFG = $(MYDIR)..$(SEP)config.h
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/mk/tools.mk
 
+TARGETS = $(PATH)$(PROJ).exe subdirs $(PATH)strings.h
+TARGET = all
 
-all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
+.h: $(PATH)
 
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM dos
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
+$(PATH)strings.h: $(MYDIR)default.lng $(PATH)fixstrs.exe
+ $(PATH)fixstrs.exe /lib $(LNG)
 

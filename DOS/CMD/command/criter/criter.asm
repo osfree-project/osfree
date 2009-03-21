@@ -112,22 +112,24 @@
 ;
 
 ;;; Settings for stand-alone variant
-%define COMPILE_STRINGS		;; always keep this enabled in this release!!
-%define INCLUDE_STRINGS		;; use STRINGS.INC instead of hard-coded strings
-;; %define AUTO_FAIL		;; make the autofail variant of Criter
-%define HIDE_CRITER_DRIVES 26	;; For how many drives hide-multiple is active
+COMPILE_STRINGS	equ 1	;; always keep this enabled in this release!!
+;;;;INCLUDE_STRINGS	equ 1	;; use STRINGS.INC instead of hard-coded strings
+;; AUTO_FAIL equ 1		;; make the autofail variant of Criter
+HIDE_CRITER_DRIVES equ 26	;; For how many drives hide-multiple is active
 
 ;; Version of this module
 MODULE_VERSION EQU 2
 
-%include "../include/stuff.inc"
-%ifndef XMS_SWAP_CRITER
-%include "resource.inc"
-%endif
+include "../include/stuff.inc"
+ifndef XMS_SWAP_CRITER
+include "resource.inc"
+endif
+
+_TEXT  segment dword public 'CODE'  use16
 
 ???start:
 
-%ifdef COMPILE_COM
+ifdef COMPILE_COM
 ORG 100h
 
 mov ax, cs
@@ -154,39 +156,39 @@ int 20h
 
 dummy_file DB "a:\ux", 0
 
-%ifndef COMPILE_STRINGS
-%define COMPILE_STRINGS
-%endif
-%endif
+ifndef COMPILE_STRINGS
+COMPILE_STRINGS equ 1
+endif
+endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Real start
 ;; Join both modules into the same memory image in order to handle
 ;; them easier
 
-%ifndef XMS_SWAP_CRITER
+ifndef XMS_SWAP_CRITER
 	;; Static context of KSwap support
-%include "context.def" 
+include context.def 
 
-%include "dmy_cbrk.asm"
-%endif
+include dmy_cbrk.asm
+endif
 
 ;; Low level Critical Error handler
 ;; Note: Both I/O functions should use the channel to read/write
 ;;	the characters. In this case: the BIOS.
 ;; Sidenote: RBIL states that some BIOSes destroy the BP register.
-%macro printALtoConsole 0
+printALtoConsole macro 
 	call ?oChar
-%endmacro
-%macro readALfromConsole 0
+endm
+readALfromConsole macro 
 	mov ax, 0c07h	; clear buffer, read from STDIN one key without echo
 	int 21h
-%endmacro
+endm
 
 
 LOCAL_BELL	EQU 7
 
 ;; Return values
-IGNORE		EQU 0
+IGNORE_		EQU 0
 RETRY		EQU 1
 ABORT		EQU 2
 FAIL		EQU 3
@@ -239,48 +241,48 @@ StrErrCodes		EQU 15
 ;		ES:BX == pointer to context, package int24
 ;		else: as normal INT-24 handler
 
-%ifdef XMS_SWAP_CRITER
+ifdef XMS_SWAP_CRITER
 	global _autofail_err_handler
 _autofail_err_handler:
 	mov al, FAIL
 	iret
-%endif
+endif
 
-	global _lowlevel_err_handler
+	public _lowlevel_err_handler
 _lowlevel_err_handler:
-%ifdef AUTO_FAIL
+ifdef AUTO_FAIL
 	;; most simple <-> return AL := 3
 	mov al, FAIL
 	iret
-%else
+else
 	push dx
-	push es, ds, bp, si, di, cx, bx, ax
+	pushreg es, ds, bp, si, di, cx, bx, ax
 
 	mov cx, cs
 	mov ds, cx		; DS := local code/data segment
 
-%ifdef DEBUG
+ifdef DEBUG
 	call ??dispAX
-%endif
+endif
 
 	push ax			; save AH bit 7  and AL for later
 
 			;; free AL
 	add al, 'A'		; AL may contain the drive number
-	mov BYTE [??strargA], al	;; will be overwritten, if char device
+	mov BYTE PTR [??strargA], al	;; will be overwritten, if char device
 	xor al, al
-	mov BYTE [??strargA + 1], al	; end of string
+	mov BYTE PTR [??strargA + 1], al	; end of string
 
 	mov es, cx		; still shared local code/data segm
 
 	shr ah, 1		; Carry := 0-> read; 1->write
 	adc al, al		; AL := 0-> read; 1->write
-	mov BYTE [??strarg1], al
+	mov BYTE PTR [??strarg1], al
 
 	mov al, ah
 	and al, 3		; AL := 0/1/2/3 -> DOS/FAT/root/data area
 	add al, StrArea	;  make it a string#
-	mov BYTE [??strarg2], al	;; will be ignored if char device
+	mov BYTE PTR [??strarg2], al	;; will be ignored if char device
 
 ;;
 ;; and al, (CodeIgnore or CodeRetry or CodeFail) / 2
@@ -296,7 +298,7 @@ _lowlevel_err_handler:
 	mov [??allowIgnore], ah
 
 ;; AX is empty now
-%ifdef DEBUG
+ifdef DEBUG
 	push ds
 	mov ax, bp
 	mov ds, bp
@@ -322,18 +324,18 @@ _lowlevel_err_handler:
 	call ??dispAX
 	mov bx, ??_d
 	call ?oBuffer
-%endif
+endif
 
-%if 0		;; No need when doing I/O through DOS
+if 0		;; No need when doing I/O through DOS
 	mov ah, 0fh		; Get current video mode
 	int 10h
-	mov BYTE [??actPage], bh
-	mov BYTE [??actColour], 255
-%endif
+	mov BYTE PTR [??actPage], bh
+	mov BYTE PTR [??actColour], 255
+endif
 
 	mov ax, di		; AL := lobyte(DI) -> error number
 	add al, StrErrCodes
-	mov BYTE [??strarg3], al
+	mov BYTE PTR [??strarg3], al
 
 	mov bl, StrBlockDevice		; by default issue block device error
 	pop ax						; AL := drive letter again
@@ -341,12 +343,12 @@ _lowlevel_err_handler:
 	jnc ?noCharDevice
 
 	mov ds, bp					; is still segment of device driver
-	test BYTE [si+5], 128		; bit 7 == 1 if block device
+	test BYTE PTR [si+5], 128		; bit 7 == 1 if block device
 	jz ?noCharDevice
 			; fetch the name of the character device
 		mov cx, 8		; max eight characters to display
 		add si, 10		; located at offset 10
-		mov di, ??strargA
+		mov di, word ptr ??strargA
 		mov ah, ' '
 		cld
 ?drvNameGetLoop:
@@ -364,7 +366,7 @@ _lowlevel_err_handler:
 		std
 		dec di			; stosb leaves DI behind the last written byte
 		repe scasb
-		mov BYTE [ES:di+2], ch	; place termination character
+		mov BYTE PTR [ES:di+2], ch	; place termination character
 		mov cx, cs
 		mov bl, StrCharDevice		; issue device driver message
 		mov al, 0ffh		; AL := invalidate
@@ -379,7 +381,7 @@ _lowlevel_err_handler:
 	;; Perform the repeat check; AL == -1 (char device), 0..31 if block
 	mov bx, ?repCheck
 	mov di, dummyByte	; Tha byte at [DI} will be decremented eventually
-	inc WORD [BX]	; check if enabled
+	inc WORD PTR [BX]	; check if enabled
 	jz ?noRepCheck
 	;; paranoid check to avoid memory overflow
 	;; also skips if char device
@@ -389,13 +391,13 @@ _lowlevel_err_handler:
 	add al, 2		; correction as BX is two bytes below
 	add ax, bx		; repCheckByte area 
 	mov di, ax
-	inc BYTE [DI]	; will display the 1st and every 256th Criter
+	inc BYTE PTR [DI]	; will display the 1st and every 256th Criter
 	jnz	?fail		; displayed already --> AutoFail && keep incremented [BX]
 					; NOTE: There is no output generated til now!!
 					;	The output channels have not been touched
 ?noRepCheck:
-	dec WORD [BX]	; keep the word at value -1
-	mov WORD [repCheckDecAddr], di
+	dec WORD PTR [BX]	; keep the word at value -1
+	mov WORD PTR [repCheckDecAddr], di
 
 ;; Try to find a suitable I/O channel
 	mov ah, 62h		; Get PSP
@@ -406,10 +408,10 @@ _lowlevel_err_handler:
 	mov al, [es:bx+2]	; stderr
 	; patch STDIN & STDOUT to point to the found channel
 	mov ah, al
-	xchg WORD [ES:bx], ax
-	mov WORD [?orgIOchannels], ax
-	mov WORD [??repatchAddr], bx
-	mov WORD [??repatchAddr+2], es
+	xchg WORD PTR [ES:bx], ax
+	mov WORD PTR [?orgIOchannels], ax
+	mov WORD PTR [??repatchAddr], bx
+	mov WORD PTR [??repatchAddr+2], es
 	pop bx
 	mov es, cx			;; reset ES to the shared code/data segement
 
@@ -439,7 +441,7 @@ _lowlevel_err_handler:
 
 ?inputLoop:
 	; Prepare to decode the character
-	mov di, [StrKeys * 2 + 1 + ??strings]	; address of enumerated valid keys
+	mov di, word ptr [StrKeys * 2 + 1 + ??strings]	; address of enumerated valid keys
 	xor ax, ax
 	mov al, [di]
 	inc di
@@ -466,7 +468,7 @@ _lowlevel_err_handler:
 	les di, [??repatchAddr]
 	mov ax, 1234h
 ?orgIOchannels EQU $-2
-	mov WORD [ES:di], ax
+	mov WORD PTR [ES:di], ax
 
 ?iret:
 	pop ax			; preserve AH
@@ -477,10 +479,10 @@ _lowlevel_err_handler:
 	je ?iretNow
 	;; AutoFail is activated for ABORT and FAIL only
 	;; as user selected something else, reset the AutoFail state of the drive
-	dec BYTE [1234h]
+	dec BYTE PTR ds:[1234h]
 repCheckDecAddr EQU $-2
 ?iretNow:
-	pop es, ds, bp, si, di, cx, bx
+	popreg es, ds, bp, si, di, cx, bx
 	pop dx
 	iret
 
@@ -494,8 +496,8 @@ repCheckDecAddr EQU $-2
 	or bh, [bx+??allow]
 	jz ?oRet			; not allowed
 	add bl, '5'			; local strarg code
-	mov BYTE [??input+3], bl	; construct the temp output buffer
-	mov bx, ??input
+	mov BYTE PTR [??input+3], bl	; construct the temp output buffer
+	mov bx, word ptr ??input
 	jmp short ?oBuffer
 
 ;; dump string #BL onto screen
@@ -504,14 +506,14 @@ repCheckDecAddr EQU $-2
 
 ?oString:
 	;; make sure BL is within limit
-	mov al, BYTE [??strings]
+	mov al, BYTE PTR [??strings]
 	cmp bl, al
 	jc ?oS_idOK
 	mov bl, al
 ?oS_idOK:
 	mov bh, 0
 	add bx, bx
-	mov bx, WORD [bx+??strings+1]
+	mov bx, WORD PTR [bx+??strings+1]
 	jmp short ?oBuffer
 
 ;; dump character sequence pointed to by BX onto screen
@@ -520,7 +522,7 @@ repCheckDecAddr EQU $-2
 
 ?oB_bufA:		;; Dump string argument A
 	push bx
-	mov bx, ??strargA
+	mov bx, word ptr ??strargA
 	call ?oBuffer
 	jmp short ?oB_1
 
@@ -547,12 +549,12 @@ repCheckDecAddr EQU $-2
 ?oB_loop:
 	cmp al, '%'
 	je ?oB_special
-?oB_dump
+?oB_dump:
 	printALtoConsole
 ?oB_2:
 	inc bx
 ?oBuffer:
-	mov al, BYTE [BX]
+	mov al, BYTE PTR [BX]
 	or al, al
 	jnz ?oB_loop
 ?oRet:
@@ -569,20 +571,20 @@ repCheckDecAddr EQU $-2
 ;; IN: AL = character
 
 ?oChar:
-%if 0		;; no need when doing I/O through DOS
+if 0		;; no need when doing I/O through DOS
 	push bx
 	mov bx, [??0Earg]
 	mov ah, 0eh		; teletype output
 	int 10h
 	pop bx
-%else
+else
 	mov ah, 2		; output to STDOUT
 	mov dl, al
 	int 21h
-%endif
+endif
 	ret
 
-%ifdef DEBUG
+ifdef DEBUG
 ??_a DB "AX == 0x"
 ??_b DB 1,2,3,4, 13, 10, 0
 ??_d DB "Device name: >>"
@@ -614,16 +616,22 @@ repCheckDecAddr EQU $-2
 	jc ??__c
 	add al, 'A' - '0' - 10
 ??__c:
-	mov BYTE [bx], al
+	mov BYTE PTR [bx], al
 	inc bx
 	ret
-%endif
+endif
 
-%if 0		;; no need for I/O through DOS
+
+_TEXT  ends
+
+
+_DATA  segment dword public 'DATA'  use16
+
+if 0		;; no need for I/O through DOS
 ??0Earg:
 ??actColour	DB 7
 ??actPage	DB 0
-%endif
+endif
 
 ??repatchAddr DD 0
 
@@ -649,12 +657,12 @@ dummyByte:	;; This byte is destroyed, when no repeatCheck AutoFail is
 ;;	+ the number of drives available to be checked is determined by
 ;;		counting the number of 0xFF bytes the immediately after the module
 ;;		got loaded into memory
-%ifdef XMS_SWAP_CRITER
+ifdef XMS_SWAP_CRITER
 	global _criter_repeat_checkarea
 _criter_repeat_checkarea:
-%endif
+endif
 ?repCheck	DW -1	;; disabled
-TIMES HIDE_CRITER_DRIVES DB -1		;; not displayed already
+                DB HIDE_CRITER_DRIVES dup (-1)		;; not displayed already
 
 ??allow:
 ??allowIgnore	DB 0
@@ -664,12 +672,12 @@ TIMES HIDE_CRITER_DRIVES DB -1		;; not displayed already
 ??input			DB '%4%6', 0		;; temporary storage
 
 
-%ifndef COMPILE_STRINGS
+ifndef COMPILE_STRINGS
 ??strings:
-%else
-%ifdef INCLUDE_STRINGS
-%include "../strings/strings.err"
-%else
+else
+ifdef INCLUDE_STRINGS
+include ../strings/strings.err
+else
 ??strings		DB 36	;; number of strings
 	;; Here start all the strings!
 
@@ -749,31 +757,35 @@ S33 DB '(DOS 4.0+) code page mismatch', 0
 S34 DB '(DOS 4.0+) out of input', 0
 S35 DB '(DOS 4.0+) insufficient disk space', 0
 S36	DB 'Unknown error code', 0
-%endif		; INCLUDE_STRINGS
-%endif		; COMPILE_STRINGS
-%endif		; AUTO_FILE
+endif		; INCLUDE_STRINGS
+endif		; COMPILE_STRINGS
+endif		; AUTO_FILE
 
 
-%ifndef NO_RESOURCE_BLOCK
-%ifndef AUTO_FAIL
+ifndef NO_RESOURCE_BLOCK
+ifndef AUTO_FAIL
 	DW ?repCheck
-%endif
-%endif
+endif
+endif
 
 ???ende:
 
-%ifndef NO_RESOURCE_BLOCK
+ifndef NO_RESOURCE_BLOCK
 ;; Include resource block
-%ifdef AUTO_FAIL
+ifdef AUTO_FAIL
 	resIdBlock RES_ID_CRITER, 0
-%else
-%ifndef COMPILE_STRINGS
+else
+ifndef COMPILE_STRINGS
 	resIdBlock RES_ID_CRITER, 1
-%else
+else
 	resIdBlock RES_ID_CRITER, 3
-%endif		; COMPILER_STRINGS
-%endif		; AUTO_FAIL
-%endif		; NO_RESOURCE_BLOCK
+endif		; COMPILER_STRINGS
+endif		; AUTO_FAIL
+endif		; NO_RESOURCE_BLOCK
+
+_DATA  ends
+
+       end
 
 ;;END
 

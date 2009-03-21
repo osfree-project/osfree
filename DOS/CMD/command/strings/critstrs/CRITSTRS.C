@@ -51,12 +51,13 @@ typedef struct {
 
 typedef unsigned short word;            /* MUST BE EXACTLY unsigned 16bit */
 typedef unsigned char byte;                     /* MUST BE EXACTLY unsigned 8bit */
-#if sizeof(word) != 2
-#error "word must be exactly an unsigned 16-bit value"
-#endif
-#if sizeof(byte) != 1
-#error "byte must be exactly an unsigned 8-bit value"
-#endif
+
+//#if sizeof(word) != 2
+//#error "word must be exactly an unsigned 16-bit value"
+//#endif
+//#if sizeof(byte) != 1
+//#error "byte must be exactly an unsigned 8-bit value"
+//#endif
 
 strings strg[MAXSTRINGS] = {
          { "READ", NULL }                       /* 0 */
@@ -90,9 +91,9 @@ strings special[] = {
         ,{ NULL, NULL }
 };
 
-#if sizeof(char*) != 4
-#error "This program must be compiled with far data pointers"
-#endif
+//#if sizeof(char*) != 4
+//#error "This program must be compiled with far data pointers"
+//#endif
 
 char temp[256];
 
