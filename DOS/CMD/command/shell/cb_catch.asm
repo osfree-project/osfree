@@ -51,55 +51,58 @@
 ;   chg: moving all assembly files to NASM
 ;
 
-;%include "../include/model.inc"
-;%include "../include/stuff.inc"
+include model.inc
+include stuff.inc
 
-;segment _DATA
-;       EXTERN _ctrlBreak
+;_DATA segment
+;       EXTRN _ctrlBreak :near
+;_DATA ends
 
-_TEXT segment
-;       GLOBAL _initCBreak
+TEXT segment word public 'CODE' use16
+
+        public _initCBreak
         public cbreak_handler_
         public _CBreakCounter
 
-;_initCBreak:
-;       ;; At this point DS is the segment of _ctrlBreak
-;       mov WORD [CS:?freecomSegment], ds
-;       ret
+_initCBreak:
+       ;; At this point DS is the segment of _ctrlBreak
+       mov WORD PTR CS:[?freecomSegment], ds
+       ret
 
-;?freecomSegment DW 0
-_CBreakCounter DW 0
+?freecomSegment DW 0
+_CBreakCounter  DW 0
 
 cbreak_handler_:
-;%ifdef DEBUG
-;                dec BYTE [CS:strEnd]
-;                jz noRecurs
-;                inc BYTE [CS:strEnd]
-;                jmp short recurs
-;
-;noRecurs:
-;                push ds, dx, ax, bp
-;                mov dx, strBeg
-;                mov ax, cs
-;                mov ds, ax
-;                mov ah, 9
-;                int 21h
-;                inc BYTE [strEnd]
-;                pop ds, dx, ax, bp
-;%endif
+ifdef DEBUG
+                dec BYTE [CS:strEnd]
+                jz noRecurs
+                inc BYTE [CS:strEnd]
+                jmp short recurs
+
+noRecurs:
+                pushreg ds, dx, ax, bp
+                mov dx, strBeg
+                mov ax, cs
+                mov ds, ax
+                mov ah, 9
+                int 21h
+                inc BYTE PTR [strEnd]
+                popreg ds, dx, ax, bp
+endif
 
                 ;; ^Break of COMAMND --> just set the variable
-                inc WORD PTR [CS:_CBreakCounter]
+                inc WORD PTR CS:[_CBreakCounter]
 
 recurs:
                 clc                     ;; tell DOS to proceed
                 retf 2
 
-;%ifdef DEBUG
-;strBeg:
-;        db 0dh, 0ah, 'COMMAND: ^Break detected.  ', 0dh, 0ah, 0dh, 0ah, '$'
-;strEnd db 1
-;%endif
+ifdef DEBUG
+strBeg:
+        db 0dh, 0ah, 'COMMAND: ^Break detected.  ', 0dh, 0ah, 0dh, 0ah, '$'
+strEnd  db 1
+endif
 
-_TEXT ends
+TEXT ends
+
       end

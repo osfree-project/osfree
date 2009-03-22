@@ -77,7 +77,7 @@ char *fDAT    = "STRINGS.DAT";
 char *fTXT    = "DEFAULT.LNG";
 char *fH      = "STRINGS.H";
 char *fEXT    = ".LNG";
-char *fDMAKEFILE  = "makefile";
+char *fDMAKEFILE  = "makefile.mk";
 char *fTCMAKEFILE = "strings.rsp";
 
 typedef enum STATE {
@@ -103,6 +103,7 @@ const char promptID[] = "PROMPT_";
 
 #define cfmt "str%04x.c"
 #define objfmt "str%04x.obj"
+#define objfmt1 "$(p)str%04x$(e) "
 //char cfile[] = STRINGLIB_DIR "\0str45678.obj";
 char name[] = "0str45678.obj";
 char *cfilename = name;
@@ -850,60 +851,40 @@ puts("FIXSTRS: building STRINGS resource");
 puts("FIXSTRS: building STRINGS library source files");
                 /********************** prologue */
                 fputs("\
-MAXLINELENGTH := 8192\n\
-# Project specific C compiler flags\n\
-MYCFLAGS_DBG = -UNDEBUG $(null,$(DEBUG) $(NULL) -DDEBUG=1)\n\
-MYCFLAGS_NDBG = -DNDEBUG=1 -UDEBUG\n\
-MYCFLAGS = $(null,$(NDEBUG) $(MYCFLAGS_DBG) $(MYCFLAGS_NDBG))\n\
+#\n\
+# A Makefile for ATTRIB\n\
+# (c) osFree project,\n\
+# author, date\n\
+#\n\
 \n\
-#       Default target\n\
-all: $(CFG) strings.lib\n\
-\n\
-strings.lib .LIBRARY : ", fdmake);
+PROJ  = strings\n\
+DESC  = Control file attributes\n\
+#defines object file names in format objname.$(O)\n\
+srcfiles = ", fdmake);
 
                 /********************* individual files */
                 for(cnt = 0; cnt < maxCnt; ++cnt) {
                         dumpString(cnt);
-                        fprintf(fdmake, "\\\n\t" objfmt, cnt);
+                        fprintf(fdmake, " &\n\t" objfmt1, cnt);
                 }
                 for(cnt = 0; cnt < maxCnt - 1; ++cnt)
-                        fprintf(ftc101, "+" objfmt " &\n", cnt);
+                        fprintf(ftc101, "+" objfmt " \n", cnt);
                 fprintf(ftc101, "+" objfmt " \n", cnt);
                 /********************** epilogue */
 
-                fputs("\n\
+                fputs("\n\n\
+# defines additional options for C compiler\n\
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl\n\
 \n\
-.IF $(CFG) != $(NULL)\n\
+!include $(%ROOT)/mk/libsdos.mk\n\
 \n\
-CONFIGURATION = $(CONF_BASE)\n\
+TARGETS  = $(PATH)$(PROJ).lib\n\
 \n\
-.IF $(_COMPTYPE) == BC\n\
-CONF_BASE =     \\\n\
--f- \\\n\
--I$(INCDIR:s/;/ /:t\";\")       \\\n\
--L$(LIBDIR:s/;/ /:t\";\")       \\\n\
--w\n\
+$(TARGETS): $(OBJS)\n\
+ @$(MAKE) $(MAKEOPT) -f $(PATH)makefile.mk library=$(TARGETS) library install\n\
 \n\
-.IF $(_COMPILER)==BC5\n\
-CONFIGURATION += -RT- -x-\n\
-.ENDIF\n\
-\n\
-CONF_DBG =      $(MYCFLAGS_DBG)\n\
-CONF_NDBG =     $(MYCFLAGS_NDBG)\n\
-\n\
-.ENDIF\n\
-\n\
-.IF $(_COMPTYPE) == TC\n\
-CONF_BASE =     \\\n\
--I$(INCDIR:s/;/ /:t\";\")       \\\n\
--L$(LIBDIR:s/;/ /:t\";\")       \\\n\
--w\n\
-\n\
-CONF_DBG =      $(MYCFLAGS_DBG)\n\
-CONF_NDBG =     $(MYCFLAGS_NDBG)\n\
-\n\
-.ENDIF\n\
-.ENDIF\n", fdmake);
+lib: $(TARGETS)\n\
+\n", fdmake);
 
                 fflush(ftc101);
                 if(ferror(ftc101)) {

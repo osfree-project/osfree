@@ -15,7 +15,9 @@
 #include "../include/context.h"
 #include "../include/command.h"
 #include "../strings.h"
+#ifdef __WATCOMC__
 #include "tcc2wat.h"
+#endif
 
 static void displayTag(int string, Context_Tag tag)
 {       ctxt_info_t *info;

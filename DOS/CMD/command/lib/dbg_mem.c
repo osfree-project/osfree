@@ -45,6 +45,10 @@
 
 #include "../config.h"
 
+#ifdef __WATCOMC__
+#include "tcc2wat.h"
+#endif
+
 #ifdef DEBUG
 
 #include <conio.h>	/* cputs */

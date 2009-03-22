@@ -1,44 +1,21 @@
 #
-# A Makefile for ATTRIB
+# A main Makefile for FreeCOM
 # (c) osFree project,
 # author, date
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
-
-#32_BITS  = 1
 
 PROJ = command
 DESC = Command processor
 #defines object file names in format objname.$(O)
-OBJS = batch.$(O) cmdtable.$(O) command.$(O) dummies.$(O) expalias.$(O) init.$(O) &
-        kswap.$(O) loadhigh.$(O) module.$(O) redir.$(O) ver.$(O) tcc2wat.$(O) cb_catch.$(O)
+srcfiles = $(p)batch$(e) $(p)cmdtable$(e) $(p)command$(e) $(p)dummies$(e) $(p)expalias$(e) $(p)init$(e) &
+           $(p)kswap$(e) $(p)loadhigh$(e) $(p)module$(e) $(p)redir$(e) $(p)ver$(e) $(p)tcc2wat$(e) &
+           $(p)cb_catch$(e) $(p)cswap$(e) $(p)xms_2e$(e) $(p)xms_brk$(e) $(p)xms_crit$(e) # $(p)cswapc$(e)
 # defines additional options for C compiler
 
-ADD_COPT=-i=..$(SEP)suppl -ml
-ADD_LINKOPT=lib ..\cmd\cmd.lib, ..\lib\lib.lib, ..\suppl\src\suppl.lib
+ADD_COPT    = -ml -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include
+ADD_ASMOPT  = -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include &
+              -i=$(MYDIR)..$(SEP)criter -i=$(PATH)..$(SEP)strings$(SEP)critstrs
+ADD_LINKOPT = libpath $(%ROOT)build$(SEP)lib lib cmd.lib, lib.lib, suppl.lib, strings.lib
 
-!include $(%ROOT)/mk/all.mk
-
-
-all: $(PROJ).exe $(PROJ).sym .SYMBOLIC
-
-$(PROJ).exe: $(OBJS)
- @%create $^&.lnk
- @%append $^&.lnk SYSTEM dos
- @%append $^&.lnk NAME $^&
- @%append $^&.lnk OPTION MAP=$^&.wmp
- $(ADDFILES_CMD)
- $(SAY) Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
- @$(MAKE) $(MAKEOPT) install
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).exe $(FILESDIR)$(SEP)dos
+!include $(%ROOT)/mk/appsdos.mk

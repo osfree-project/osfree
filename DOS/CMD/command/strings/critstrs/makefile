@@ -11,7 +11,9 @@ srcfiles = $(p)critstrs$(e) $(p)..$(SEP)porting$(e) # $(p)..$(SEP)tcc2wat$(e)
 # defines additional options for C compiler
 ADD_COPT =  -d2 -db -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)suppl
 ADD_LINKOPT = debug all lib suppl.lib
-LNG = $(MYDIR)..$(SEP)russian.err
+LANG = russian
+LNG = $(MYDIR)..$(SEP)$(LANG).err
+DEST = none
 
 !include $(%ROOT)/mk/tools.mk
 

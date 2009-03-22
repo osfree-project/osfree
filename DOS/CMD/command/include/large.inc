@@ -1,13 +1,20 @@
 
 ; Large header
-group	DGROUP		_DATA _BSS
-segment	_TEXT		class=CODE
-segment	_DATA		class=DATA align=2
-segment	_BSS		class=BSS align=2
+group	DGROUP		_DATA, _BSS
+
+
+TEXT  segment word public 'CODE' use16
+TEXT  ends
+_TEXT segment word public 'CODE' use16
+_TEXT ends
+_DATA segment word public 'DATA' use16
+_DATA ends
+_BSS  segment word public 'BSS'  use16
+_BSS  ends
 
 @CodeSize EQU 1
 @DataSize EQU 1
 
-%macro ret 0-1
-	retf %1
-%endmacro
+return macro amt
+	retf amt
+endm

@@ -46,13 +46,16 @@
 ; chg: moving all assembly files to NASM
 ;
 
-;%include "../include/model.inc"
+include model.inc
 @CodeSize EQU 1
 @DataSize EQU 1
 
-;%include "../include/stuff.inc"
+include stuff.inc
 
-_TEXT segment
+;_TXT group TEXT
+
+_TEXT segment word public 'CODE' use16
+
         public lowLevelExec_
 
 lowLevelExec_:
@@ -88,4 +91,5 @@ saveSP dw 0
 saveSS dw 0
 
 _TEXT ends
-        end
+ 
+      end

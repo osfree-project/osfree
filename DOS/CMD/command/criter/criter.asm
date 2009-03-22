@@ -125,12 +125,18 @@ ifndef XMS_SWAP_CRITER
 include "resource.inc"
 endif
 
-_TEXT  segment dword public 'CODE'  use16
+;ifndef INCLUDED
 
-???start:
+;DGROUP group _TEXT
+
+_TEXT  segment word public 'CODE'  use16
+
+;endif
 
 ifdef COMPILE_COM
-ORG 100h
+    org 100h
+
+???start:
 
 mov ax, cs
 mov ds, ax
@@ -140,7 +146,7 @@ int 21h
 
 ;; Trying to open a file on drive A:
 mov ax, 3d02h
-mov dx, dummy_file
+lea dx, dummy_file
 int 21h
 
 ;; Trying to copy stuff on PRN:
@@ -242,7 +248,7 @@ StrErrCodes		EQU 15
 ;		else: as normal INT-24 handler
 
 ifdef XMS_SWAP_CRITER
-	global _autofail_err_handler
+	public _autofail_err_handler
 _autofail_err_handler:
 	mov al, FAIL
 	iret
@@ -621,12 +627,6 @@ ifdef DEBUG
 	ret
 endif
 
-
-_TEXT  ends
-
-
-_DATA  segment dword public 'DATA'  use16
-
 if 0		;; no need for I/O through DOS
 ??0Earg:
 ??actColour	DB 7
@@ -658,7 +658,7 @@ dummyByte:	;; This byte is destroyed, when no repeatCheck AutoFail is
 ;;		counting the number of 0xFF bytes the immediately after the module
 ;;		got loaded into memory
 ifdef XMS_SWAP_CRITER
-	global _criter_repeat_checkarea
+	public _criter_repeat_checkarea
 _criter_repeat_checkarea:
 endif
 ?repCheck	DW -1	;; disabled
@@ -783,7 +783,11 @@ endif		; COMPILER_STRINGS
 endif		; AUTO_FAIL
 endif		; NO_RESOURCE_BLOCK
 
-_DATA  ends
+;ifndef INCLUDED
+
+_TEXT  ends
+
+;endif
 
        end
 

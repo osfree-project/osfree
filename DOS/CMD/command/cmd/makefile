@@ -18,7 +18,7 @@ srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e)
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT = -i=$(MYDIR)..$(SEP)suppl
+ADD_COPT = -ml -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
 TARGETS = $(PATH)cmd.lib
 
 $(TARGETS): $(OBJS)

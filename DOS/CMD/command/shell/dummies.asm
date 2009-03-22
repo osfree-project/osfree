@@ -2,9 +2,10 @@
 
 ; Dummy drivers to be included into FreeCOM itself
 
-;%include "../include/model.inc"
+include model.inc
 
-_TEXT segment
+TEXT segment word public 'CODE' use16
+
         public dummy_criter_handler_
         public end_dummy_criter_handler_
 dummy_criter_handler_:
@@ -12,6 +13,6 @@ dummy_criter_handler_:
         iret
 end_dummy_criter_handler_:
 
-_TEXT ends
+TEXT ends
 
       end

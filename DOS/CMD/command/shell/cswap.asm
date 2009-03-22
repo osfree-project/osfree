@@ -26,85 +26,85 @@
 ;
 ;
 
-;                %include "segs.inc"
+;include "segs.inc"
 
-segment _TEXT class=CODE
+TEXT segment word public 'CODE' use16
 
-	global _dosFCB1,_dosFCB2
-_dosFCB1 times 37 db 0
-_dosFCB2 times 37 db 0
+        public _dosFCB1,_dosFCB2
+_dosFCB1 db 37 dup (0)
+_dosFCB2 db 37 dup (0)
 
-;;	global _dosCMDTAIL, _dosCMDNAME		use command line from within PSP
-	global _dosCMDNAME
-;;_dosCMDTAIL  times 128 db 0
-_dosCMDNAME times 128 db 0
- 		times 256	db 0
-;;    global localStack
+	public _dosCMDTAIL, _dosCMDNAME		; use command line from within PSP
+	public _dosCMDNAME
+_dosCMDTAIL db 128 dup (0)
+_dosCMDNAME db 128 dup (0)
+ 	    db 256 dup (0)
+        public localStack
 localStack:
 
 
-	global _dosParamDosExec
-_dosParamDosExec times 22	db 0
+	public _dosParamDosExec
+_dosParamDosExec db 22 dup (0)
 
 
-	global _XMSdriverAdress
+	public _XMSdriverAdress
 _XMSdriverAdress dd 0
-%define callXMS		call far [_XMSdriverAdress]
+callXMS	 EQU call far ptr [_XMSdriverAdress]
 
- 	global _SwapResidentSize
-_SwapResidentSize  dw 0
+ 	public _SwapResidentSize
+_SwapResidentSize   dw 0
 
- 	global _SwapTransientSize
+ 	public _SwapTransientSize
 _SwapTransientSize  dw 0
 
-	global _XMSsave, _XMSrestore
-_XMSsave	times 8 DW 0
-%define currentSegmOfFreeCOM	_XMSsave+8
-%define xms_handle	_XMSsave+10
+	public _XMSsave ; , _XMSrestore
+_XMSsave            db 8 dup (0)
+currentSegmOfFreeCOM  EQU	_XMSsave+8
+xms_handle	      EQU       _XMSsave+10
 
-	global _termAddr
+	public _termAddr
 _termAddr:
 terminationAddressOffs	DW 0
 terminationAddressSegm	DW 0
-	global _myPID, _residentCS
-_myPID	DW 0
+	public _myPID, _residentCS
+_myPID	    DW 0
 _residentCS DW 0
-	global _origPPID
-_origPPID DW 0
-	global _canexit
-_canexit	DB 0		; 1 -> can exit; _else_ --> cannot exit
+	public _origPPID
+_origPPID   DW 0
+	public _canexit
+_canexit    DB 0		; 1 -> can exit; _else_ --> cannot exit
 
-    global _mySS, _mySP
-_mySS DW 0
-_mySP DW 0
+        public _mySS, _mySP
+_mySS       DW 0
+_mySP       DW 0
 
-execSS dw 0
-execSP dw 0
+execSS      dw 0
+execSP      dw 0
 
-execRetval dw 0
+execRetval  dw 0
 
-first_time db 1
+first_time  db 1
 
-global SWAPXMSdirection
+public SWAPXMSdirection
 
 ;;TODO make XMSsave two structures in order to drop this subroutine
 SWAPXMSdirection:
-	push word [_XMSsave+4]
-	push word [_XMSsave+6]
-	push word [_XMSsave+8]
+	push word ptr [_XMSsave+4]
+	push word ptr [_XMSsave+6]
+	push word ptr [_XMSsave+8]
 
-	push word [_XMSsave+10]
-	push word [_XMSsave+12]
-	push word [_XMSsave+14]
+	push word ptr [_XMSsave+10]
+	push word ptr [_XMSsave+12]
+	push word ptr [_XMSsave+14]
 
 
-	pop  word [_XMSsave+8]
-	pop  word [_XMSsave+6]
-	pop  word [_XMSsave+4]
+	pop  word ptr [_XMSsave+8]
+	pop  word ptr [_XMSsave+6]
+	pop  word ptr [_XMSsave+4]
 
-	pop  word [_XMSsave+14]
-	pop  word [_XMSsave+12]
-	pop  word [_XMSsave+10]
+	pop  word ptr [_XMSsave+14]
+	pop  word ptr [_XMSsave+12]
+	pop  word ptr [_XMSsave+10]
 
 	ret
 
@@ -131,14 +131,14 @@ real_XMSexec:
         mov  sp,localStack
 						; save everything to XMS
 		mov ah,0bh
-		mov si,_XMSsave
+		mov si, word ptr _XMSsave
 		callXMS
 
 ;;TODO: test of result
 
-		mov es,[currentSegmOfFreeCOM]
+		mov es, word ptr [currentSegmOfFreeCOM]
 						; first time: shrink current psp
-		cmp byte [first_time],1
+		cmp byte ptr [first_time],1
 		jne second_time
 
 ;;TODO: first_time either 04ah or 049h --> no jumps
@@ -146,7 +146,7 @@ real_XMSexec:
 		mov bx,[_SwapResidentSize]
 		int 21h
 
-		mov byte [first_time],0
+		mov byte ptr [first_time],0
 		jmp save_done
 
 second_time:							; this memory was allocated
@@ -161,19 +161,19 @@ save_done:
 		; do exec
 
 
-;;		mov ax, cs
+		mov ax, cs
                    		; ds:dx = ASCIZ program name
-;;		mov ds, ax
-		mov  dx,_dosCMDNAME
+		mov ds, ax
+		mov  dx, word ptr _dosCMDNAME
 		       
                         ; es:bx = parameter block
 		mov es, cx
-		mov bx, _dosParamDosExec
+		mov bx, word ptr _dosParamDosExec
 
 
 						; our temporary stack
-;;        mov ss, ax
-;;        mov  sp,localStack
+        mov  ss, ax
+        mov  sp,localStack
 
 
 		mov ax,04b00h		; load & execute
@@ -188,9 +188,9 @@ exec_error:
 
 	; reload into memory
 
-        mov cx, cs
-        mov ss, cx
-        mov  sp,localStack
+        mov  cx, cs
+        mov  ss, cx
+        mov  sp, localStack
 
 		; restore:
 
@@ -225,15 +225,15 @@ exec_error:
 
                                 ; calculate relocation factor
 
-		mov bx,ax				; new execute address
-		sub bx,[currentSegmOfFreeCOM]		; new address - old address
+		mov  bx, ax				; new execute address
+		sub  bx, word ptr [currentSegmOfFreeCOM]		; new address - old address
 		push bx					;
-		mov  [currentSegmOfFreeCOM],ax	; new prog address
+		mov  word ptr [currentSegmOfFreeCOM], ax	; new prog address
 
 		call SWAPXMSdirection
 								; restore everything to XMS
 		mov ah,0bh
-		mov si,_XMSsave
+		mov si, word ptr _XMSsave
 		callXMS
 
 		call SWAPXMSdirection	; re-construct the XMSsave area
@@ -266,16 +266,16 @@ DOS_err 		db 'Memory allocation error$'
 common_error	db 0dh,0ah,0ah,'FreeCOM: XMSSwap-In: $'
 
 XMS_trouble_while_swapping_in:
-	mov bx,XMS_err
+	mov bx, word ptr XMS_err
 	jmp short trouble_while_swapping_in
 
 DOS_trouble_while_swapping_in:
-	mov bx,DOS_err
+	mov bx, word ptr DOS_err
 
 trouble_while_swapping_in:
 ;		push cs							; do some error message
 ;		pop  ds
-		mov dx, common_error
+		mov dx, word ptr common_error
 		mov ah,09
 		int 21h
 
@@ -291,7 +291,7 @@ terminate_myself:
 		;; DOS-4C for shells
 
 	;; central PSP:0xa hook <-> may be called in every circumstance
-	global _terminateFreeCOMHook
+	public _terminateFreeCOMHook
 _terminateFreeCOMHook:
 	mov ax, cs				; setup run environment (in this module)
 	mov ss, ax
@@ -299,7 +299,7 @@ _terminateFreeCOMHook:
 	mov ds, ax
 
 	; Next time we hit here it's != 1 --> no zero flag --> I_AM_DEAD status
-	dec BYTE [_canexit]
+	dec BYTE PTR [_canexit]
 	jnz I_AM_DEAD
 
 	mov ax, [_myPID]		; our own PSP [in case we arrived here
@@ -321,7 +321,7 @@ _terminateFreeCOMHook:
 	mov [es:16h], ax
 
 	; Kill the XMS memory block
-	mov dx, [xms_handle]
+	mov dx, word ptr [xms_handle]
 	or dx, dx
 	jz terminate_myself		; no block to deallocate
 	mov ah, 0ah				; deallocate XMS memory block
@@ -332,7 +332,7 @@ _terminateFreeCOMHook:
 
 
 I_AM_DEAD:								; process 0 can't terminate ...
-	mov dx, dead_loop_string
+	mov dx, word ptr dead_loop_string
 	mov ah, 9
 	int 21h
 I_AM_DEAD_loop:
@@ -348,7 +348,7 @@ dead_loop_string	DB 13,10,7,'Cannot terminate permanent FreeCOM instance'
 ; or we use the TURBO_C _restorezero() and use the
 ; DOS default handler for that
 
-%if 0
+if 0
 MsgZerodivide db 'integer zero divide$'
 	global _ZeroDivideInterrupt
 _ZeroDivideInterrupt:
@@ -362,16 +362,16 @@ _ZeroDivideInterrupt:
         mov ax,04c7fh       ; terminate with errorlevel 127
         int 21h
 		jmp _ZeroDivideInterrupt
-%endif
+endif
 
 
 ;********************************************************************
 ; *************   END OF RESIDENT AREA ******************************
 ;********************************************************************
-	global _SWAPresidentEnd
+	public _SWAPresidentEnd
 _SWAPresidentEnd:
 
-%if 0
+if 0
 ;
 ; normal EXEC
 ;
@@ -415,7 +415,7 @@ exec_error2:
 		pop di
 		pop	si
 		retf
-%endif
+endif
 
 ;; Added here to make it more easier for the C-part to make a XMS
 ;; request, because the code:
@@ -427,11 +427,11 @@ exec_error2:
 ;; detroying AX already holding the API function number
 
 ;; To be called with _far_!!
-	global _XMSrequest
+	public _XMSrequest
 	;; Note: Because [CS:driverAdress] == [residentCS:driverAdress]
 	;; we need not use a similiar approach as with XMSexec
 _XMSrequest:
-		jmp far [cs:_XMSdriverAdress]
+		jmp far ptr [cs:_XMSdriverAdress]
 
 ;; Added here to make it more easier for the C-part to call functions
 ;; located in the resident part, because:
@@ -442,8 +442,12 @@ _XMSrequest:
 ;;		call _XMSexec
 
 ;; ALL To be called with _far_!!
-		global	_XMSexec
+		public	_XMSexec
 _XMSexec:
-		push WORD [CS:_residentCS]
-		push WORD real_XMSexec
+		push WORD PTR [CS:_residentCS]
+		push WORD PTR real_XMSexec
 		retf
+
+TEXT ends
+
+      end

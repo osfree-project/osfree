@@ -39,6 +39,6 @@ co(mpilers): Micro-C only
 
 #include "initsupl.loc"
 
-#ifdef _MICROC_
+#if defined(_MICROC_) || defined(__WATCOMC__)
 unsigned _FLAGS;
 #endif
