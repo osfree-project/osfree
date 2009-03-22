@@ -76,7 +76,7 @@
  * add: find_arg() returns a valid string for all, even negative indexes
  */
 
-#include "../config.h"
+#include <config.h>
 
 #include <assert.h>
 #include <stdio.h>

@@ -4,7 +4,7 @@
 
 include model.inc
 
-TEXT segment word public 'CODE' use16
+_TEXT segment word public 'CODE' use16
 
         public dummy_criter_handler_
         public end_dummy_criter_handler_
@@ -13,6 +13,6 @@ dummy_criter_handler_:
         iret
 end_dummy_criter_handler_:
 
-TEXT ends
+_TEXT ends
 
       end

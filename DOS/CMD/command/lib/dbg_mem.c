@@ -52,11 +52,13 @@
 #ifdef DEBUG
 
 #include <conio.h>	/* cputs */
+#ifndef __WATCOMC__
 #include <alloc.h>	/* heapcheck, coreleft, farcoreleft */
-
-#if sizeof(void*) != sizeof(void far*)
-#define DISP_NEAR
 #endif
+
+//#if sizeof(void*) != sizeof(void far*)
+#define DISP_NEAR
+//#endif
 
 void dbg_printmem (void) {
 #ifdef DISP_NEAR

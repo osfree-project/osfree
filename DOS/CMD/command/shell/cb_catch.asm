@@ -80,14 +80,24 @@ ifdef DEBUG
                 jmp short recurs
 
 noRecurs:
-                pushreg ds, dx, ax, bp
+                ;pushreg ds, dx, ax, bp
+                push ds
+                push dx
+                push ax
+                push bp
+
                 mov dx, strBeg
                 mov ax, cs
                 mov ds, ax
                 mov ah, 9
                 int 21h
                 inc BYTE PTR [strEnd]
-                popreg ds, dx, ax, bp
+
+                ;popreg ds, dx, ax, bp
+                pop bp
+                pop ax
+                pop dx
+                pop ds
 endif
 
                 ;; ^Break of COMAMND --> just set the variable

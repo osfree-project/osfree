@@ -20,7 +20,8 @@
 #include <graph.h>
 #include <time.h>
 
-#define coreleft() 0L
+#define coreleft()    0L
+#define farcoreleft() 0L
 
 struct ftime /* As defined by Borland C */
 {

@@ -7,8 +7,8 @@ if 1
 
 TEXT segment word public 'CODE' use16
 
-public _lowlevel_int_2e_handler
-    _lowlevel_int_2e_handler:
+public lowlevel_int_2e_handler_
+    lowlevel_int_2e_handler_:
         mov ax, 0FFFFh
         iret
 
@@ -18,19 +18,20 @@ else
 
 TEXT segment word public 'CODE' use16
 
-extrn _residentCS, _mySS, _mySP, _XMSsave, _XMSdriverAdress, _SwapTransientSize, _SwapResidentSize :word
+extrn _residentCS, _mySS, _mySP, XMSdriverAdress, SwapTransientSize, SwapResidentSize :word
 extrn _my2e_parsecommandline, SWAPXMSdirection :near
+extrn XMSsave :far
 
-callXMS                EQU   call far ptr [cs:_XMSdriverAdress]
-currentSegmOfFreeCOM   EQU   _XMSsave+8
+callXMS                EQU   call far ptr [cs:XMSdriverAdress]
+currentSegmOfFreeCOM   EQU   XMSsave+8
 
     public myfar2e_parsecommandline
 myfar2e_parsecommandline:
     call _my2e_parsecommandline
     retf
 
-	public _lowlevel_int_2e_handler
-_lowlevel_int_2e_handler:
+	public lowlevel_int_2e_handler_
+lowlevel_int_2e_handler_:
         cld
         push si
 ;       lss sp, word ptr [_mySP]
@@ -41,7 +42,7 @@ _lowlevel_int_2e_handler:
 ;       mov es,ds
 ;       mov ds,ss
         mov ah,48h       ; move into conventional memory
-        mov bx, word ptr [cs:_SwapTransientSize]
+        mov bx, word ptr [cs:SwapTransientSize]
         int 21h
         jc swaperr
         mov bx,ax
@@ -50,7 +51,7 @@ _lowlevel_int_2e_handler:
         mov word ptr [cs:currentSegmOfFreeCOM], ax
         call SWAPXMSdirection
         mov ah,0bh
-        mov si, _XMSsave
+        mov si, XMSsave
         callXMS
 ;        call SWAPXMSdirection
         pop bx
@@ -78,7 +79,7 @@ endif
 if 0
         push ax
         mov  ah, 0bh       ; move into XMS again
-        mov  si, _XMSsave
+        mov  si, XMSsave
         callXMS
         call SWAPXMSdirection
         pop  ax

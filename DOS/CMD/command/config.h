@@ -5,7 +5,7 @@
 
 /* define DEBUG to add debugging code */
 #ifndef DEBUG           /* possibly already defined via command line */
-/*#define DEBUG*/
+#define DEBUG
 #endif
 
 /* Define to enable the alias command, and aliases. */
@@ -92,7 +92,7 @@
 /* Define to support XMS-only swap support of FreeCOM
     This setting is incompatible with the above one!
 */
-/* #define FEATURE_XMS_SWAP */
+//#define FEATURE_XMS_SWAP
 
 /* Define the size of the buffer used to store old paths for PUSHD/POPD */
 #define DIRSTACK_DEFAULT_SIZE 256
@@ -245,4 +245,4 @@
 //#pragma warn -sig
 //#endif
 
-#include "../include/debug.h"
+#include "debug.h"

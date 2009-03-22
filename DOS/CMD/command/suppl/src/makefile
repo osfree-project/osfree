@@ -462,7 +462,7 @@ $(p)_getdcwd$(e) $(p)tcc2wat$(e)
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT = -ml -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT = -ml -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 TARGETS = $(PATH)suppl.lib
 
 $(TARGETS): $(OBJS)

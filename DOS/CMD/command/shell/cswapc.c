@@ -50,16 +50,34 @@
 
 */
 
-#include "../config.h"
+#include <config.h>
 
 #include <assert.h>
 #include <suppl.h>
 #include <mcb.h>
-#include "../include/command.h"
 
-#include "../include/cswap.h"
+#ifdef __WATCOMC__
+#include <i86.h>
+#include <tcc2wat.h>
+#endif
 
-/*#define XMSALLOCSIZE 128*/	/* 128Kb available */
+#include <command.h>
+
+#include <cswap.h>
+
+#define XMSALLOCSIZE 128	/* 128Kb available */
+
+//extern int XMSdriverAdress;
+//extern int SwapResidentSize;
+extern int SWAPresidentEnd;
+//extern int SwapTransientSize;
+
+#pragma aux XMSdriverAdress   "*"
+#pragma aux SwapResidentSize  "*"
+#pragma aux SWAPresidentEnd   "*"
+#pragma aux SwapTransientSize "*"
+#pragma aux XMSsave           "*"
+#pragma aux XMSrequest        "*"
 
 #if 0
 	#define MK_FP(seg,ofs)	((void far *) \
@@ -71,6 +89,8 @@
 
 #define RM2PHYS_ADDR(segm,ofs)	(SEG2PHYS_ADDR((segm)) | (ofs))
 #define SEG2PHYS_ADDR(segm)		((unsigned long)(segm) << 16)
+
+union REGS regs;
 
 static word XMSmsglen = 0;
 static enum {
@@ -106,12 +126,20 @@ static int XMScopy(
 /*	asm push si;
 	asm lea si,length
 	asm mov ah,0bh;	*/
-	_SI = (unsigned)&length;
-	_AH = 0xb;
+	//_SI = (unsigned)&length;
+	//_AH = 0xb;
+        __asm {
+          push si
+          lea  si, length
+          mov  ah, 0bh
+        }
 	XMSrequest();
+        __asm {
+          pop si
+        }
 /*	asm pop si; */
 
-	return _AX;		/* shut up warning */
+	//return _AX;		/* shut up warning */
 }
 
 
@@ -142,22 +170,31 @@ void XMSinit(void)
 
 /*   asm     mov ax, 4300h; */
 /*   asm     int 2fh; */                /*  XMS installation check */
-	_AX = 0x4300;
-	geninterrupt(0x2f);
+	//_AX = 0x4300;
+	//geninterrupt(0x2f);
+        regs.w.ax = 0x4300;
+        int86(0x2f, &regs, &regs);
 
-	if(_AL != 0x80)			/* No XMS driver installed */
-		return;
+	//if(_AL != 0x80)			/* No XMS driver installed */
+	if (regs.h.al != 0x80)
+           return;
 /*   asm     cmp al, 80h;		*/
 /*   asm     jne not_detected;	*/
 
 /*   asm     mov ax, 4310h; */          /*  XMS get driver address */
 /*   asm     int 2fh; */
-	_AX = 0x4310;
-	geninterrupt(0x2f);
+	//_AX = 0x4310;
+	//geninterrupt(0x2f);
+        regs.w.ax = 0x4310;
+        int86(0x2f, &regs, &regs);
 
-	xmsaddr = MK_FP(_ES, _BX);
+	//xmsaddr = MK_FP(regs.w.es, regs.w.bx);
 /*   asm     mov word ptr xmsaddr, bx;	*/
 /*   asm     mov word ptr xmsaddr+2, es;	*/
+        __asm {
+          mov  word ptr xmsaddr, bx
+          mov  word ptr xmsaddr + 2, es
+        }
 	if(!xmsaddr)		return;		/* sanity check */
 
 	SwapResidentSize =
@@ -177,17 +214,20 @@ void XMSinit(void)
 /*	asm	mov ah, 09	*/
 /*	asm mov dx, XMSALLOCSIZE; */		/* will do for first try */
 
-	_DX = xms_block_size + 1;
-	_AH = 9;
+	//_DX = xms_block_size + 1;
+	//_AH = 9;
+        regs.w.dx = xms_block_size + 1;
+        regs.h.ah = 9;
 
 	(*xmsaddr)();
 
-	if(_AX) {			/* Got the XMS block */
+	//if(_AX) {			/* Got the XMS block */
+        if (regs.w.ax) {
 /*	asm or ax,ax			*/
 /*	asm jz not_detected			*/
 
 /*		asm mov xmshandle,dx	*/
-		xmshandle = _DX;
+		xmshandle = regs.w.dx; //_DX;
 
 		XMSsave.length = SwapTransientSize * 16l;
 		XMSdriverAdress = xmsaddr;
@@ -245,20 +285,22 @@ void XMSinit(void)
 
 void XMSexit(void)
 {
-/*	unsigned (far *xmsaddr)(void) = XMSdriverAdress; */
-/*	unsigned handle = XMSsave.dhandle; */
+	unsigned (far *xmsaddr)(void) = XMSdriverAdress;
+	unsigned handle = XMSsave.dhandle;
 
 	if(initialized == INIT_SUCCEEDED) {
 		/* asm     mov dx, XMSsave.dhandle;
-		asm     mov ah, 0ah;   			/* free XMS memory */
-		_DX = XMSsave.dhandle;
-		_AH = 0xa;   			/* free XMS memory */
+		asm     mov ah, 0ah;   	*/		/* free XMS memory */
+		//_DX = XMSsave.dhandle;
+		//_AH = 0xa;   			/* free XMS memory */
+                regs.w.dx = XMSsave.dhandle;
+                regs.h.ah = 0xa;
 		XMSrequest();
 	}
 
 }
 
-#if 0
+#if 1
 	/* Joined with XMSinit() in order to allocate a block
 		of memory large enough ska*/
 void InitSwapping(void)
@@ -400,7 +442,9 @@ void exit()
 
 	exitfct();					/* restore the old owner_psp */
 
-	_AX = 0x4c00;
-	geninterrupt(0x21);
+	//_AX = 0x4c00;
+	//geninterrupt(0x21);
+        regs.w.ax = 0x4c00;
+        int86(0x21, &regs, &regs);
 }
 #endif

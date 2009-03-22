@@ -47,20 +47,20 @@ localStack:
 _dosParamDosExec db 22 dup (0)
 
 
-	public _XMSdriverAdress
-_XMSdriverAdress dd 0
-callXMS	 EQU call far ptr [_XMSdriverAdress]
+	public XMSdriverAdress
+XMSdriverAdress dd 0
+callXMS	 EQU call far ptr [XMSdriverAdress]
 
- 	public _SwapResidentSize
-_SwapResidentSize   dw 0
+ 	public SwapResidentSize
+SwapResidentSize   dw 0
 
- 	public _SwapTransientSize
-_SwapTransientSize  dw 0
+ 	public SwapTransientSize
+SwapTransientSize  dw 0
 
-	public _XMSsave ; , _XMSrestore
-_XMSsave            db 8 dup (0)
-currentSegmOfFreeCOM  EQU	_XMSsave+8
-xms_handle	      EQU       _XMSsave+10
+	public XMSsave ; , _XMSrestore
+XMSsave            db 8 dup (0)
+currentSegmOfFreeCOM  EQU	XMSsave+8
+xms_handle	      EQU       XMSsave+10
 
 	public _termAddr
 _termAddr:
@@ -89,22 +89,22 @@ public SWAPXMSdirection
 
 ;;TODO make XMSsave two structures in order to drop this subroutine
 SWAPXMSdirection:
-	push word ptr [_XMSsave+4]
-	push word ptr [_XMSsave+6]
-	push word ptr [_XMSsave+8]
+	push word ptr [XMSsave+4]
+	push word ptr [XMSsave+6]
+	push word ptr [XMSsave+8]
 
-	push word ptr [_XMSsave+10]
-	push word ptr [_XMSsave+12]
-	push word ptr [_XMSsave+14]
+	push word ptr [XMSsave+10]
+	push word ptr [XMSsave+12]
+	push word ptr [XMSsave+14]
 
 
-	pop  word ptr [_XMSsave+8]
-	pop  word ptr [_XMSsave+6]
-	pop  word ptr [_XMSsave+4]
+	pop  word ptr [XMSsave+8]
+	pop  word ptr [XMSsave+6]
+	pop  word ptr [XMSsave+4]
 
-	pop  word ptr [_XMSsave+14]
-	pop  word ptr [_XMSsave+12]
-	pop  word ptr [_XMSsave+10]
+	pop  word ptr [XMSsave+14]
+	pop  word ptr [XMSsave+12]
+	pop  word ptr [XMSsave+10]
 
 	ret
 
@@ -131,7 +131,7 @@ real_XMSexec:
         mov  sp,localStack
 						; save everything to XMS
 		mov ah,0bh
-		mov si, word ptr _XMSsave
+		mov si, word ptr XMSsave
 		callXMS
 
 ;;TODO: test of result
@@ -143,7 +143,7 @@ real_XMSexec:
 
 ;;TODO: first_time either 04ah or 049h --> no jumps
 		mov ah,04ah						; resize memory block
-		mov bx,[_SwapResidentSize]
+		mov bx,[SwapResidentSize]
 		int 21h
 
 		mov byte ptr [first_time],0
@@ -210,7 +210,7 @@ exec_error:
 		; ignore any errors
 
 		mov ah,48h
-		mov bx,[_SwapTransientSize]
+		mov bx,[SwapTransientSize]
 		int 21h
 
 ;;ska		pushf
@@ -233,7 +233,7 @@ exec_error:
 		call SWAPXMSdirection
 								; restore everything to XMS
 		mov ah,0bh
-		mov si, word ptr _XMSsave
+		mov si, word ptr XMSsave
 		callXMS
 
 		call SWAPXMSdirection	; re-construct the XMSsave area
@@ -368,15 +368,15 @@ endif
 ;********************************************************************
 ; *************   END OF RESIDENT AREA ******************************
 ;********************************************************************
-	public _SWAPresidentEnd
-_SWAPresidentEnd:
+	public SWAPresidentEnd
+SWAPresidentEnd:
 
 if 0
 ;
 ; normal EXEC
 ;
 
-		global _DosEXEC
+		public _DosEXEC
 _DosEXEC:
 						; save ALL registers needed later
 		push si
@@ -423,15 +423,15 @@ endif
 ;; is translated into something like:
 ;;		mov ax, _CODE		;; immediate value
 ;;		mov es, ax
-;;		call DWORD PTR es:[_XMSdriverAdress]
+;;		call DWORD PTR es:[XMSdriverAdress_]
 ;; detroying AX already holding the API function number
 
 ;; To be called with _far_!!
-	public _XMSrequest
+	public XMSrequest
 	;; Note: Because [CS:driverAdress] == [residentCS:driverAdress]
 	;; we need not use a similiar approach as with XMSexec
-_XMSrequest:
-		jmp far ptr [cs:_XMSdriverAdress]
+XMSrequest:
+		jmp far ptr [cs:XMSdriverAdress]
 
 ;; Added here to make it more easier for the C-part to call functions
 ;; located in the resident part, because:
@@ -442,8 +442,8 @@ _XMSrequest:
 ;;		call _XMSexec
 
 ;; ALL To be called with _far_!!
-		public	_XMSexec
-_XMSexec:
+		public	XMSexec
+XMSexec:
 		push WORD PTR [CS:_residentCS]
 		push WORD PTR real_XMSexec
 		retf

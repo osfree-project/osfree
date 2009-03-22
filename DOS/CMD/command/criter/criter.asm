@@ -262,7 +262,15 @@ ifdef AUTO_FAIL
 	iret
 else
 	push dx
-	pushreg es, ds, bp, si, di, cx, bx, ax
+	;pushreg es, ds, bp, si, di, cx, bx, ax
+        push es
+        push ds
+        push bp
+        push si
+        push di
+        push cx
+        push bx
+        push ax
 
 	mov cx, cs
 	mov ds, cx		; DS := local code/data segment
@@ -488,8 +496,16 @@ endif
 	dec BYTE PTR ds:[1234h]
 repCheckDecAddr EQU $-2
 ?iretNow:
-	popreg es, ds, bp, si, di, cx, bx
-	pop dx
+	;popreg es, ds, bp, si, di, cx, bx
+	pop bx
+        pop cx
+        pop di
+        pop si
+        pop bp
+        pop ds
+        pop es
+
+        pop dx
 	iret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

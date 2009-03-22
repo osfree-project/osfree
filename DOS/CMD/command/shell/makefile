@@ -9,13 +9,13 @@ PROJ = command
 DESC = Command processor
 #defines object file names in format objname.$(O)
 srcfiles = $(p)batch$(e) $(p)cmdtable$(e) $(p)command$(e) $(p)dummies$(e) $(p)expalias$(e) $(p)init$(e) &
-           $(p)kswap$(e) $(p)loadhigh$(e) $(p)module$(e) $(p)redir$(e) $(p)ver$(e) $(p)tcc2wat$(e) &
-           $(p)cb_catch$(e) $(p)cswap$(e) $(p)xms_2e$(e) $(p)xms_brk$(e) $(p)xms_crit$(e) # $(p)cswapc$(e)
+           $(p)kswap$(e) $(p)loadhigh$(e) $(p)module$(e) $(p)redir$(e) $(p)ver$(e)  &
+           $(p)cb_catch$(e) $(p)tcc2wat$(e) # $(p)xms_crit$(e) $(p)xms_brk$(e) $(p)xms_2e$(e) $(p)cswap$(e) 
 # defines additional options for C compiler
 
-ADD_COPT    = -ml -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include
-ADD_ASMOPT  = -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include &
+ADD_COPT    = -ml -d2 -db -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include
+ADD_ASMOPT  = -d2 -db -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include &
               -i=$(MYDIR)..$(SEP)criter -i=$(PATH)..$(SEP)strings$(SEP)critstrs
-ADD_LINKOPT = libpath $(%ROOT)build$(SEP)lib lib cmd.lib, lib.lib, suppl.lib, strings.lib
+ADD_LINKOPT = debug all libpath $(%ROOT)build$(SEP)lib lib cmd.lib, lib.lib, suppl.lib, strings.lib
 
 !include $(%ROOT)/mk/appsdos.mk

@@ -4,8 +4,8 @@
 
 TEXT segment word public 'CODE' use16
 
-	public _lowlevel_cbreak_handler
-_lowlevel_cbreak_handler:
+	public lowlevel_cbreak_handler_
+lowlevel_cbreak_handler_:
 
 include dmy_cbrk.asm
 

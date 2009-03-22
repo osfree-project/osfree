@@ -30,7 +30,7 @@
  *	chg: to behave as documented in DOCS\LOADHIGH.TXT
  */
 
-#include "../config.h"
+#include <config.h>
 
 #include <assert.h>
 #include <string.h>

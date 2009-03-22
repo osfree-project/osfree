@@ -32,9 +32,9 @@
 
 #include <stdlib.h>
 
-#include "../config.h"
-#include "../include/command.h"
-#include "../strings.h"
+#include <config.h>
+#include <command.h>
+#include <strings.h>
 
 
 /* a list of all the internal commands, associating their command names */
