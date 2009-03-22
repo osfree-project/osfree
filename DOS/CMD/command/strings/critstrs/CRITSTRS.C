@@ -37,9 +37,9 @@ started
 
 /*ska: no resource in this project! #include "../resource.h"*/
 
-#define fDAT "STRINGS.ERR"
-#define fTXT "DEFAULT.ERR"
-#define fEXT ".ERR"
+char *fDAT = "STRINGS.ERR";
+char *fTXT = "DEFAULT.ERR";
+char *fEXT = ".ERR";
 
 
 #define MAXSTRINGS       256
@@ -96,6 +96,9 @@ strings special[] = {
 //#endif
 
 char temp[256];
+char temp1[256];
+char temp2[256];
+char fDIR[256];
 
         /* keep it a single-file project */
 /*ska: no resource in this project! #include "../res_w.c"*/
@@ -246,6 +249,16 @@ int main(int argc, char **argv)
         byte *p;
         /*byte b, *p;*/
 
+        *fDIR = '\0';
+
+        // output directory
+        if (argc > 1 && stricmp(argv[1], "/dir") == 0) {
+          --argc;
+          ++argv; 
+          strcpy(fDIR, argv[1]);
+          --argc;
+          ++argv;
+        }
 
         if(argc > 2) {
                 puts("CRITSTRS - Generate Critical Error string for a language\n"
@@ -256,12 +269,15 @@ int main(int argc, char **argv)
                 return 127;
         }
 
-
+        if (*fDIR) {
+          strcpy(temp1, fDIR);
+          fTXT = strcat(temp1, fTXT);
+        }
 
         if((rc = loadFile(fTXT)) != 0)
                 return rc;
         if(argc > 1 && (rc = loadFile(argv[1])) != 0)
-                return rc;
+           return rc;
 
 /* Now all the strings are cached into memory */
 
@@ -315,8 +331,15 @@ int main(int argc, char **argv)
 
 /* Dump the stuff into a file */
         /*if((dat = fopen(fDAT, "wb")) == NULL) {*/
+        if (*fDIR) {
+          strcpy(temp1, fDIR);
+          fDAT = strcat(temp1, fDAT);
+        }
+
         if((dat = fopen(fDAT, "wt")) == NULL) {
-                perror("creating " fDAT);
+                strcpy(temp2, "creating ");
+                strcat(temp2, fDAT);
+                perror(temp2);
                 return 35;
         }
 
@@ -363,7 +386,10 @@ int main(int argc, char **argv)
 
         fflush(dat);
         if(ferror(dat)) {
-                fputs("General write error into: " fDAT "\n", stderr);
+                strcpy(temp2, "General write error into: ");
+                strcat(temp2, fDAT);
+                strcat(temp2, "\n");
+                fputs(temp2, stderr);
                 return 36;
         }
         fclose(dat);

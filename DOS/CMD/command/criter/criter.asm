@@ -676,7 +676,7 @@ ifndef COMPILE_STRINGS
 ??strings:
 else
 ifdef INCLUDE_STRINGS
-include ../strings/strings.err
+include strings.err
 else
 ??strings		DB 36	;; number of strings
 	;; Here start all the strings!
