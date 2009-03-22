@@ -1,0 +1,5 @@
+module pmdev;
+
+uses devcommon;
+
+end.

@@ -67,6 +67,8 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h &
      $(OUT)$(SEP)os2$(SEP)pm.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
+     $(OUT)$(SEP)os2$(SEP)pmdev.h &
+     $(OUT)$(SEP)os2$(SEP)devcommon.h &
      $(OUT)$(SEP)os2$(SEP)pmshl.h &
      $(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h &
      $(OUT)$(SEP)os2$(SEP)winswitchlist.h &
@@ -109,6 +111,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h &
      $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h &
      $(OUT)$(SEP)os2$(SEP)gpibitmaps.h &
+     $(OUT)$(SEP)os2$(SEP)gpilogcoltable.h &
      $(OUT)$(SEP)os2$(SEP)os2me.h &
      $(OUT)$(SEP)os2$(SEP)os2mm.h &
      $(OUT)$(SEP)os2$(SEP)meerror.h &
@@ -276,6 +279,10 @@ $(OUT)$(SEP)os2$(SEP)winlistboxes.h: os2$(SEP)winlistboxes.uni
 
 $(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pmgpi.uni
 
+$(OUT)$(SEP)os2$(SEP)pmdev.h: os2$(SEP)pmdev.uni
+
+$(OUT)$(SEP)os2$(SEP)devcommon.h: os2$(SEP)devcommon.uni
+
 $(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpiprimitives.uni
 
 $(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpilcids.uni
@@ -285,6 +292,9 @@ $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpibitmapscommon.uni
 $(OUT)$(SEP)os2$(SEP)gpibitmaps.h: os2$(SEP)gpibitmaps.uni
 
 $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpicontrolcommon.uni
+
+$(OUT)$(SEP)os2$(SEP)gpilogcoltable.h: os2$(SEP)gpilogcoltable.uni
+
 
 $(OUT)$(SEP)dos$(SEP)os2me.h: dos$(SEP)os2me.uni
 

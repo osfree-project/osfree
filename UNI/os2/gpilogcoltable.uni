@@ -1,0 +1,51 @@
+module gpilogcoltable;
+
+const LCOL_RESET                   = $0001;
+const LCOL_REALIZABLE              = $0002;
+const LCOL_PURECOLOR               = $0004;
+const LCOL_OVERRIDE_DEFAULT_COLORS = $0008;
+const LCOL_REALIZED                = $0010;
+
+const LCOLF_DEFAULT   =0;
+const LCOLF_INDRGB    =1;
+const LCOLF_CONSECRGB =2;
+const LCOLF_RGB       =3;
+const LCOLF_PALETTE   =4;
+
+const LCOLOPT_REALIZED =1;
+const LCOLOPT_INDEX    =2;
+
+const PC_RESERVED   =1;
+const PC_EXPLICIT   =2;
+const PC_NOCOLLAPSE =4;
+
+const QCD_LCT_FORMAT  =0;
+const QCD_LCT_LOINDEX =1;
+const QCD_LCT_HIINDEX =2;
+const QCD_LCT_OPTIONS =3;
+
+const QLCT_ERROR     =(-1);
+const QLCT_RGB       =(-2);
+const QLCT_NOTLOADED =(-1);
+
+const PAL_ERROR =(-1);
+
+function GpiAnimatePalette(a: HPAL;b: ULONG;c: ULONG;d: ULONG;e: PULONG): LONG;
+function GpiCreateLogColorTable(a: HPS;b: ULONG;c: LONG;d: LONG;e: LONG;f: PLONG): BOOL;
+function GpiCreatePalette(a: HAB;b: ULONG;c: ULONG;d: ULONG;e: PULONG): HPAL;
+function GpiDeletePalette(a: HPAL): BOOL;
+function GpiQueryColorData(a: HPS; b:LONG; c:PLONG): BOOL;
+function GpiQueryColorIndex(a: HPS;b: ULONG; c:LONG): LONG;
+function GpiQueryLogColorTable(a: HPS; b: ULONG; c:LONG;d:LONG;e:PLONG): LONG;
+function GpiQueryNearestColor(a: HPS;b: ULONG;c: LONG): LONG;
+function GpiQueryNearestPaletteIndex(a: HPAL;b: ULONG): LONG;
+function GpiQueryPalette(a: HPS): HPAL;
+function GpiQueryPaletteInfo(a: HPAL;b: HPS;c: ULONG;d: ULONG;e: ULONG;f: PULONG): LONG;
+function GpiQueryRealColors(a: HPS;b: ULONG;c: LONG;d: LONG;e: PLONG): LONG;
+function GpiQueryRGBColor(a: HPS; b: ULONG; c:LONG): LONG;
+function GpiSelectPalette(a: HPS;b: HPAL): HPAL;
+function GpiSetPaletteEntries(a: HPAL;b: ULONG;c: ULONG;d: ULONG;e: PULONG): BOOL;
+function GpiResizePalette(a: HPAL;b: ULONG): ULONG;
+
+end.
+

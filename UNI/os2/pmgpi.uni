@@ -30,5 +30,6 @@ uses gpilcids;
 uses gpicontrolcommon;
 uses gpibitmapscommon;
 uses gpibitmaps;
+uses gpilogcoltable;
 
 end.

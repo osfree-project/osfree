@@ -19,18 +19,18 @@
 #include <sys/timeb.h>
 
 
-time_t
+DATETIME
 getCurrentTime(void)
 {
     struct _timeb timebuffer;
 
     _ftime(&timebuffer);
-    _FreePM_current_time.tv_sec  = (long) timebuffer.time;
-    _FreePM_current_time.tv_usec = (long) timebuffer.millitm * 1000;
+    _FreePM_current_time.seconds  = (long) timebuffer.time;
+    _FreePM_current_time.hundredths = (long) timebuffer.millitm * 1000;
 
     _FreePM_current_dtime = (double)timebuffer.time   +
        (double) timebuffer.millitm / 1000.0;
-    return _FreePM_curtime = timebuffer.time;
+    return _FreePM_curtime = _FreePM_current_time;
 }
 
 

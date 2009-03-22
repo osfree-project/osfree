@@ -23,7 +23,7 @@ class DeskTopWindow:public FPM_Window
      DeskTopWindow(void):FPM_Window()
      {
      }
-     CreateDeskTopWindow( ULONG _flStyle,    /*  Window style. */
+     int CreateDeskTopWindow( ULONG _flStyle,    /*  Window style. */
                    LONG _nx,          /*  Width of window, in window coordinates. */
                    LONG _ny,          /*  Height of window, in window coordinates. */
                    PVOID pCtlData,    /*  Pointer to control data. */
