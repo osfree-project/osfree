@@ -72,13 +72,13 @@ add: version number of strings and logfile entries
 #include "../include/resource.h"
 #include "../include/keys.h"
 
-#define logfile "STRINGS.LOG"
-#define fDAT "STRINGS.DAT"
-#define fTXT "DEFAULT.LNG"
-#define fH "STRINGS.H"
-#define fEXT ".LNG"
-#define fDMAKEFILE "makefile"
-#define fTCMAKEFILE "strings.rsp"
+char *logfile = "STRINGS.LOG";
+char *fDAT    = "STRINGS.DAT";
+char *fTXT    = "DEFAULT.LNG";
+char *fH      = "STRINGS.H";
+char *fEXT    = ".LNG";
+char *fDMAKEFILE  = "makefile";
+char *fTCMAKEFILE = "strings.rsp";
 
 typedef enum STATE {
          LOOKING_FOR_START
@@ -98,12 +98,15 @@ const char id[]="FreeDOS STRINGS v";
 const char promptID[] = "PROMPT_";
 #define promptIDlen (sizeof(promptID) - 1)
 
-#define STRINGLIB_DIR "STRINGS"
-#define stringdir cfile
-#define cfilename (&cfile[sizeof(STRINGLIB_DIR)])
+//#define STRINGLIB_DIR "STRINGS"
+//#define cfilename (&cfile[sizeof(STRINGLIB_DIR)])
+
 #define cfmt "str%04x.c"
 #define objfmt "str%04x.obj"
-char cfile[] = STRINGLIB_DIR "\0str45678.obj";
+//char cfile[] = STRINGLIB_DIR "\0str45678.obj";
+char name[] = "0str45678.obj";
+char *cfilename = name;
+char *cfile = name;
 
 /*
         Implementation details about to cache the strings within memory:
@@ -146,6 +149,9 @@ string_count_t maxCnt = 0;      /* number of strings within array */
 //#endif
 
 char temp[1024];
+char temp1[256];
+char temp2[256];
+char fDIR[256];
 
 static const char besFromChar[] =
  "abcdefghijklmnopqrstuvwxyz,.[{}]\\?0";
@@ -363,14 +369,14 @@ int loadFile(const char * const fnam)
 printf("FIXSTRS: loading file %s\n", fnam);
 
         join(fnam, fEXT);
-        if((fin = fopen(fnam, "rt")) == NULL
-         && (fin = fopen(temp, "rt")) == NULL) {
+        if((fin = fopen(fnam, "rt")) == NULL) {
+          //&& (fin = fopen(temp, "rt")) == NULL) {
                 pxerror("opening ", fnam);
                 return 33;
         }
 
         linenr = 0;
-        while (fgets(temp, sizeof(temp), fin)) {
+       while (fgets(temp, sizeof(temp), fin)) {
                 ++linenr;
                 p = strchr(temp, '\0');
                 if(p[-1] != '\n') {
@@ -405,7 +411,7 @@ printf("FIXSTRS: loading file %s\n", fnam);
                                 }
                                 vstring.length = text.length = 0;
                                 version = (vers && *++vers)? atoi(vers): 0;
-                                if(strchr(vers, '%'))
+                                if(vers && strchr(vers, '%'))
                                         strg[cnt].flags |= PERFORM_VALIDATION;
                                 if(memcmp(strg[cnt].name, promptID, promptIDlen) == 0)
                                         state = GETTING_PROMPT_LINE_1;
@@ -585,6 +591,7 @@ printf("FIXSTRS: loading file %s\n", fnam);
                                 while((p = strchr(q + 1, '%')) != 0) {
                                         if((q = strpbrk(p, "%diouxXfegEGcsnp")) == 0)
                                                 q = strchr(p, '\0') - 1;
+                                                //q = p + strlen(p) - 1;
                                         if(!appMem(vstring, p, (unsigned)(q - p) + 2))
                                                 return 51;
                                 }
@@ -627,30 +634,41 @@ int main(int argc, char **argv)
         string_size_t lsize;
         int makeLib = 0;
 
-        unlink(logfile);
-
+        *fDIR = '\0';
+ 
         if(argv[1] && stricmp(argv[1], "/lib") == 0) {
                 --argc;
                 ++argv;
                 makeLib = 1;
         }
 
-        if(argc > 2) {
+        // output directory
+        if (argc > 1 && stricmp(argv[1], "/dir") == 0) {
+          --argc;
+          ++argv; 
+          strcpy(fDIR, argv[1]);
+          --argc;
+          ++argv;
+        }
+
+        if (argc > 2) {
                 puts("FIXSTRS - Generate STRINGS.DAT and STRINGS.H for a language\n"
-                        "Useage: FIXSTRS [/lib] [language]\n"
+                        "Useage: FIXSTRS [/lib] [language] [directory]\n"
                         "\tIf no language is specified, only the default strings are read.\n"
                         "\tThe <language>.LNG file must reside in the current directory.\n"
                         "Note: DEFAULT.LNG must be present in the current directory, too.");
                 return 127;
         }
 
-
         in_file = 1;
         if((rc = loadFile(fTXT)) != 0)
                 return rc;
         in_file = 2;
-        if(argc > 1 && (rc = loadFile(argv[1])) != 0)
-                return rc;
+        if(argc > 1 && (rc = loadFile(argv[1])) != 0) {
+          --argc;
+          ++argv;      
+          return rc;
+        }
 
 /* Now all the strings are cached into memory */
 
@@ -659,6 +677,11 @@ int main(int argc, char **argv)
                 return 43;
         }
 
+        /* Prepend a directory, if needed */
+        if (*fDIR) {
+          strcpy(temp1, fDIR);
+          logfile = strcat(temp1, logfile);
+        }
         /* Create the LOG file */
         if(argc > 1) {          /* Only if a local LNG file was specified */
                 log = NULL;                     /* No LOG entry til this time */
@@ -725,13 +748,25 @@ breakLogFile:
                 return 44;
         }
 
+        if (*fDIR) {
+          strcpy(temp1, fDIR);
+          fDAT = strcat(temp1, fDAT);
+        }
         /* 2. Open STRINGS.DAT and STRINGS.H and dump control information */
         if ((dat = fopen(fDAT,"wb")) == NULL) {
-                perror("creating " fDAT);
+                strcpy(temp2, "creating ");
+                strcpy(temp2, fDAT);
+                perror(temp2);
                 return 36;
         }
+        if (*fDIR) {
+          strcpy(temp1, fDIR);
+          fH = strcat(temp1, fH);
+        }
         if ((inc = fopen(fH,"wt")) == NULL) {
-                perror("creating " fH);
+                strcpy(temp2, "creating ");
+                strcat(temp2, fH);
+                perror(temp2);
                 return 37;
         }
 
@@ -773,12 +808,18 @@ puts("FIXSTRS: building STRINGS resource");
 
         fflush(dat);
         if(ferror(dat)) {
-                fputs("Unspecific write error into " fDAT "\n", stderr);
+                strcpy(temp2, "Unspecific write error into ");
+                strcat(temp2, fDAT);
+                strcat(temp2, "\n");
+                fputs(temp2, stderr);
                 return 38;
         }
         fflush(inc);
         if(ferror(inc)) {
-                fputs("Unspecific write error into " fH "\n", stderr);
+                strcpy(temp2, "Unspecific write error into ");
+                strcat(temp2, fH);
+                strcat(temp2, "\n");
+                fputs(temp2, stderr);
                 return 39;
         }
 
@@ -786,11 +827,16 @@ puts("FIXSTRS: building STRINGS resource");
         fclose(inc);
 
         if(makeLib) {
-                mkdir(stringdir);
+                mkdir(fDIR);
 #define fdmake inc
 #define ftc101 dat
-                cfilename[-1] = '\\';
-                strcpy(cfilename, fDMAKEFILE);
+                //cfilename[-1] = '\\';
+                //strcpy(cfilename, fDMAKEFILE);
+                if (*fDIR) {
+                  strcpy(temp1, fDIR);
+                  cfile = strcat(temp1, fDMAKEFILE);
+                  cfilename = cfile + strlen(fDIR);
+                }
                 if((fdmake = fopen(cfile, "wt")) == NULL) {
                         pxerror("creating ", cfile);
                         return 100;
@@ -861,13 +907,17 @@ CONF_NDBG =     $(MYCFLAGS_NDBG)\n\
 
                 fflush(ftc101);
                 if(ferror(ftc101)) {
-                        puts("Unspecific error writing to " fTCMAKEFILE);
+                        strcpy(temp2, "Unspecific error writing to ");
+                        strcat(temp2, fTCMAKEFILE);
+                        puts(temp2);
                         return 104;
                 }
                 fclose(ftc101);
                 fflush(fdmake);
                 if(ferror(fdmake)) {
-                        puts("Unspecific error writing to " fDMAKEFILE);
+                        strcpy(temp2, "Unspecific error writing to ");
+                        strcat(temp2, fDMAKEFILE);
+                        puts(temp2);
                         return 105;
                 }
                 fclose(fdmake);

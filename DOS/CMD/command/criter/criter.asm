@@ -113,7 +113,7 @@
 
 ;;; Settings for stand-alone variant
 COMPILE_STRINGS	equ 1	;; always keep this enabled in this release!!
-;;;;INCLUDE_STRINGS	equ 1	;; use STRINGS.INC instead of hard-coded strings
+INCLUDE_STRINGS	equ 1	;; use STRINGS.INC instead of hard-coded strings
 ;; AUTO_FAIL equ 1		;; make the autofail variant of Criter
 HIDE_CRITER_DRIVES equ 26	;; For how many drives hide-multiple is active
 

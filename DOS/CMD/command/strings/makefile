@@ -5,22 +5,19 @@
 #
 
 PROJ  = fixstrs
-DIRS  = critstrs
 DESC  = Control file attributes
 #defines object file names in format objname.$(O)
-srcfiles = $(p)fixstrs$(e) $(p)porting$(e) # $(p)tcc2wat$(e)
+srcfiles = $(p)fixstrs$(e) $(p)..$(SEP)porting$(e) # $(p)..$(SEP)tcc2wat$(e)
 # defines additional options for C compiler
-ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
+ADD_COPT =  -d2 -db -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
+ADD_LINKOPT = debug all lib suppl.lib
 LNG = $(MYDIR)russian.lng
-CFG = $(MYDIR)..$(SEP)config.h
 
 !include $(%ROOT)/mk/tools.mk
 
-TARGETS = $(PATH)$(PROJ).exe subdirs $(PATH)strings.h
+TARGETS = $(PATH)$(PROJ).exe $(PATH)strings.h # subdirs
 TARGET = all
 
-.h: $(PATH)
-
-$(PATH)strings.h: $(MYDIR)default.lng $(PATH)fixstrs.exe
- $(PATH)fixstrs.exe /lib $(LNG)
+$(PATH)strings.h : $(MYDIR)default.lng $(PATH)$(PROJ).exe
+ $(PATH)fixstrs.exe /lib /dir $(PATH) $(LNG)
 
