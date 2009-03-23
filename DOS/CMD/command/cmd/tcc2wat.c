@@ -439,6 +439,7 @@ int _read(int handle, void *buf, unsigned nbyte)
 	return a;
 }
 
+#if __WATCOMC__ < 1280
 int _write(int handle, void *buf, int nbyte)
 {
 	unsigned a;
@@ -447,6 +448,7 @@ int _write(int handle, void *buf, int nbyte)
 	setmode(handle, oldmode);
 	return -1;
 }
+#endif
 
 int _creat(const char *filename, int attrib)
 {

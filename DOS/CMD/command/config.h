@@ -115,7 +115,7 @@
   ID_: the error ID when no default pattern is to be created, but
     the out-of-memory string is to be displayed
 */
-#define MSG_DFL_PATTERN "String #%u\n"
+#define MSG_DFL_PATTERN "String #%x\n"
 #define MSG_DFL_OUTOFMEMORY "Out of memory!"
 #define MSG_ERR_ID_OUTOFMEMORY TEXT_ERROR_OUT_OF_MEMORY
 
