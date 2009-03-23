@@ -39,7 +39,7 @@
 #include "../include/command.h"
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include <strings.h>
 
 #include "tcc2wat.h"
 

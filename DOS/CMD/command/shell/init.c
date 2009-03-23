@@ -25,7 +25,7 @@
 #include "../include/misc.h"
 #include "../include/module.h"
 #include "../include/keys.h"
-#include "../strings.h"
+#include <strings.h>
 #include "../include/kswap.h"
 #include "../include/cswap.h"
 #include "tcc2wat.h"

@@ -125,18 +125,12 @@ ifndef XMS_SWAP_CRITER
 include "resource.inc"
 endif
 
-;ifndef INCLUDED
-
-;DGROUP group _TEXT
-
 _TEXT  segment word public 'CODE'  use16
 
-;endif
+???start:
 
 ifdef COMPILE_COM
     org 100h
-
-???start:
 
 mov ax, cs
 mov ds, ax
@@ -805,7 +799,7 @@ _TEXT  ends
 
 ;endif
 
-       end
+       end ???start
 
 ;;END
 

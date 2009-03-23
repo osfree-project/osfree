@@ -27,7 +27,7 @@
 #include "../include/batch.h"
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include <strings.h>
 #ifdef FEATURE_NLS
 #include "../include/nls.h"
 #endif

@@ -44,7 +44,7 @@
 #include "../include/command.h"
 #include "../err_fcts.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include <strings.h>
 
 /* Macro to convert bytes to paragraphs */
 #define topara(x) (((x) + 0xf) >> 4)
