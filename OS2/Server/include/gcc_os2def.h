@@ -71,6 +71,7 @@
 #else
 #ifdef L4API_l4v2
  #define APIENTRY 
+#else
 #endif
 #endif
 

@@ -57,8 +57,8 @@ ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
 !ifeq ARCH win32
 ADD_COPT    = -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
               $(ADD_COPT) -i=$(SrvDir)win32 &
-              -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)nt &
-              -i=$(%WATCOM)$(SEP)h$(SEP)os2
+              -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)nt 
+
 ADD_LINKOPT = lib kernel32 libpath $(%WATCOM)$(SEP)lib386$(SEP)nt &
               $(ADD_LINKOPT)
 OPTIONS = OFFSET=524288

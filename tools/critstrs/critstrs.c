@@ -103,6 +103,18 @@ char fDIR[256];
         /* keep it a single-file project */
 /*ska: no resource in this project! #include "../res_w.c"*/
 
+char *stpcpy (char *dest, const char *src)
+{
+  register char *d = dest;
+  register const char *s = src;
+
+  do
+    *d++ = *s;
+  while (*s++ != '\0');
+
+  return d - 1;
+}
+
 #define join(s1,s2)     strcpy(stpcpy(temp, s1), s2);
 void pxerror(char *msg1, char *msg2)
 {       join(msg1, msg2);

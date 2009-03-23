@@ -22,6 +22,7 @@ SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
 ADD_COPT = $(ADD_COPT) -d2 -db &
            -i=$(SrvDir)Shared$(SEP)modmgr &
            -i=$(SrvDir)include -i=. -i=..
+
 #           -std=c99   $(COPT_TARGET) -O1 -g2 -Wall
 
 ADD_LINKOPT = debug all libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_shared_$(ARCH).lib, os2server_$(ARCH).lib
@@ -68,15 +69,14 @@ ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=linux
-                      $(ADD_COPT)
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
               $(ADD_LINKOPT)
 !else
 !ifeq ARCH win32
 PLATFORM = nt
-ADD_COPT =            -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
+ADD_COPT =  -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
                       $(ADD_COPT) -i=$(SrvDir)win32 &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=$(%WATCOM)$(SEP)h &
+                      -i=$(%WATCOM)$(SEP)h$(SEP)nt &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
@@ -89,8 +89,8 @@ ADD_COPT =            -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -bt=nt
+
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)nt &
               $(ADD_LINKOPT)
 !endif

@@ -53,7 +53,7 @@ typedef struct _PIB {
 } PIB;
 
 typedef PIB *PPIB;
-#endif
+#endif /* INCL_DOSPROCESS */
 /*
 An OS/2 application that has been loaded into memory and prepared for execution is
 called a process. A process is the code, data, and other resources of an application,
@@ -135,8 +135,8 @@ typedef struct t_os2process {
 
         void * code_mmap;
         void * stack_mmap;
-        struct _PIB * lx_pib;
-        struct _TIB * main_tid;
+        PPIB lx_pib;
+        PTIB main_tid;
         struct t_mem_area root_mem_area;
 };
 

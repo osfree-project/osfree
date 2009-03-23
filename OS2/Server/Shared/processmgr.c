@@ -38,39 +38,6 @@
 #include <io.h>
 
 
-//#define INCL_DOSPROCESS
-//#include <bsetib.h>
-
-#include <os2errcodes.h>
-#if defined(__WIN32__) /* || defined(__LINUX__) */
-#include <gcc_os2def.h>
-typedef struct _TIB2 {
-    ULONG  tib2_ultid;
-    ULONG  tib2_ulpri;
-    ULONG  tib2_version;
-    USHORT tib2_usMCCount;
-    USHORT tib2_fMCForceFlag;
-} TIB2, *PTIB2;
-typedef struct _TIB {
-    PVOID tib_pexchain;
-    PVOID tib_pstack;
-    PVOID tib_pstacklimit;
-    PTIB2 tib_ptib2;
-    ULONG tib_version;
-    ULONG tib_ordinal;
-} TIB, *PTIB;
-typedef struct _PIB {
-    ULONG pib_ulpid;
-    ULONG pib_ulppid;
-    ULONG pib_hmte;
-    PCHAR pib_pchcmd;
-    PCHAR pib_pchenv;
-    ULONG pib_flstatus;
-    ULONG pib_ultype;
-} PIB, *PPIB;
-#endif
-
-
 /*ULONG     pib_ulpid;      Process identifier.
   ULONG     pib_ulppid;     Parent process identifier.
   ULONG     pib_hmte;       Module handle of executable program.
@@ -84,8 +51,8 @@ struct t_os2process * PrcCreate(IXFModule ixfModule)
 {
 
     struct t_os2process * c = (struct t_os2process *) malloc(sizeof(struct t_os2process));
-    c->lx_pib   = (struct _PIB*) malloc(sizeof(PIB));
-    c->main_tid = (struct _TIB*) malloc(sizeof(TIB));
+    c->lx_pib   = (PPIB) malloc(sizeof(PIB));
+    c->main_tid = (PTIB) malloc(sizeof(TIB));
 
     if (c != NULL) {
         c->pid = 1;

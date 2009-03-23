@@ -10,7 +10,7 @@ DESC = Critical Error & Dummy ^Break handler & Kernel Swap Context
 srcfiles = $(p)criter$(e)
 
 # defines additional options for C compiler
-ADD_ASMOPT = -dCOMPILE_COM -i=$(PATH)..$(SEP)strings$(SEP)critstrs
+ADD_ASMOPT = -dCOMPILE_COM -i=$(PATH)..$(SEP)strings$(SEP)critstrs 
 ADD_LINKOPT = lib suppl.lib
 COM = 1
 
