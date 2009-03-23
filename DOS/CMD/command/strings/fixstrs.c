@@ -801,8 +801,8 @@ puts("FIXSTRS: building STRINGS resource");
                 fwrite(strg[cnt].text, string[cnt].size, 1, dat);
                 if(makeLib)
                         fprintf(inc, "extern const char %s[];\n", strg[cnt].name);
-                fprintf(inc, "#define  %-34s 0x%02x  /* @ 0x%04x */\n"
-                 , strg[cnt].name, cnt, string[cnt].index);
+                //fprintf(inc, "#define  %-34s 0x%02x  /* @ 0x%04x */\n"
+                // , strg[cnt].name, cnt, string[cnt].index);
         }
         fputs("\n/* END OF FILE */\n", inc);
         endResource(dat);

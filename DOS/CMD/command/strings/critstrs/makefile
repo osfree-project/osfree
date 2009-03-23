@@ -16,6 +16,6 @@ TARGETS = $(PATH)strings.err
 
 .err: $(PATH)
 
-$(PATH)strings.err: $(MYDIR)..$(SEP)default.err $(PATH)critstrs.exe
+$(PATH)strings.err: $(MYDIR)..$(SEP)default.err
  $(CP) $[@ $(PATH)
  critstrs.exe /dir $(PATH) $(LNG)
