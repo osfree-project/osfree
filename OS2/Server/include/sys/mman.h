@@ -9,7 +9,9 @@ Memory Mapped Files Emulation Layer v1.75
 #define _SYS_MMAN_H
 
 #include <sys/types.h>
+#ifdef __OS2__
 #include <os2/types.h>
+#endif
 
 #if defined (__cplusplus)
 extern "C" {

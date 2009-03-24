@@ -376,7 +376,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
   char *p = options.libpath - 1;
   STR_SAVED_TOKENS st;
   char * p_buf = full_path_name;
-  char *sep="/";
+  char *sep="\\";
   char *psep=";";
 
   StrTokSave(&st);

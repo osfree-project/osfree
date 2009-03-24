@@ -18,9 +18,9 @@ OPTIONS     =  manyautodata, caseexact
 
 #IMPORTS     =
 
-EXPORTS     =  ixfIdentify.1, &
-               ixfLoad.2, &
-               ixfFixup.3
+EXPORTS     =  LXIdentify=ixfIdentify.1, &
+               LXIdentify=ixfLoad.2, &
+               LXIdentify=ixfFixup.3
 
 ALIASES     =  ixfIdentify=LXIdentify_, ixfLoad=LXLoad_, ixfFixup=LXFixup_
 

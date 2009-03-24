@@ -16,7 +16,10 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
 {
   FILE *f;
 
-  f = fopen(filename, "rb");
+  f = fopen(strlwr(filename), "rb");
+  if(!f) {
+  f = fopen(strupr(filename), "rb");
+  }
   if(f) {
     fseek(f, 0, SEEK_END);
     *size = ftell(f);  /* Extract the size of the file and reads it into a buffer.*/

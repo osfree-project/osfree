@@ -2,6 +2,7 @@
  *
  *
  */
+#include <os2.h>
 
 APIRET APIENTRY
 api_DosWrite(HFILE hFile, PVOID pBuffer,

@@ -17,7 +17,7 @@
 
 32_BITS = 1
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
-SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
+SrvDir = $(%ROOT)OS2$(SEP)Server$(SEP)
 
 ADD_COPT = $(ADD_COPT) -d2 -db &
            -i=$(SrvDir)Shared$(SEP)modmgr &
@@ -31,7 +31,7 @@ ADD_LINKOPT = debug all libpath $(%ROOT)$(SEP)build$(SEP)lib lib os2server_share
 PLATFORM = os2
 ADD_COPT =            -u__WINNT__ -u__WIN32__ -u__LINUX__ -d__OS2__ &
                       $(ADD_COPT) -i=$(SrvDir)os2 &
-                      -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
+                      -i=$(%WATCOM)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
@@ -55,7 +55,6 @@ EXE_SUFFIX=l
 ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
                       $(ADD_COPT) -i=$(SrvDir)Linux &
                       -i=$(%WATCOM)$(SEP)lh &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &

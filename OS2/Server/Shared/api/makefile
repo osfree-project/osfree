@@ -7,7 +7,7 @@
 PROJ     = apistub
 DESC     = Kernel Abstraction Layer API
 srcfiles = $(p)apistub$(e)
-ADD_COPT = -d2 -db -i=$(MYDIR).. -i=$(MYDIR)
+ADD_COPT =  -d2 -db -i=$(MYDIR).. -i=$(MYDIR)
 ADD_LINKOPT  = debug all op nod lib clib3r.lib segment   type DATA shared
 ARCH = $(%SERVERENV)
 

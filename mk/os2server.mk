@@ -26,7 +26,7 @@ comma =
 
 !include $(%ROOT)/mk/dirs.mk
 
-SrvDir = $(%ROOT)os2$(SEP)Server$(SEP)
+SrvDir = $(%ROOT)OS2$(SEP)Server$(SEP)
 
 ADD_COPT = $(ADD_COPT) -d2 -db -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &
            -i=$(SrvDir)include &
@@ -47,8 +47,7 @@ OPTIONS = internalrelocs
 !ifeq ARCH linux
 ADD_COPT    = -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
               $(ADD_COPT) -i=$(SrvDir)linux &
-              -i=$(%WATCOM)$(SEP)lh &
-              -i=$(%WATCOM)$(SEP)h$(SEP)os2
+              -i=$(%WATCOM)$(SEP)lh
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
               $(ADD_LINKOPT)
 #ALIASES = $(ALIASES) $(comma)_PrcExecuteModule=PrcExecuteModule_

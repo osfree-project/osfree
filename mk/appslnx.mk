@@ -34,7 +34,7 @@ DEST    = linux
 !include $(%ROOT)/mk/all.mk
 
 !ifeq DLL 1
-TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).so # $(PATH)$(PROJ).sym
 dllopts = dll
 !ifdef DLLOPT
 dllopts = $(dllopts) $(DLLOPT)
