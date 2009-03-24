@@ -377,6 +377,11 @@ unsigned int find_module_path(const char * name, char * full_path_name)
   STR_SAVED_TOKENS st;
   char * p_buf = full_path_name;
   char *sep="\\";
+#ifdef __LINUX__
+  char *hostsep="/";
+#else
+  char *hostsep="\\";
+#endif
   char *psep=";";
 
   StrTokSave(&st);
@@ -387,11 +392,17 @@ unsigned int find_module_path(const char * name, char * full_path_name)
     char *str_buf=(char*) &buf;
     char buf2[251];
     char * file_to_find=(char*) &buf2;
+    long i=0;
 
     p_buf = full_path_name;
     p_buf[0] = '\0';
+    
+    while (p[i]!='\0') {if (p[i]=='\\') p[i]=*hostsep; ++i;
+//        io_printf("%s\n", p);
+}
+    
     strcat(p_buf, p);
-    strcat(p_buf, sep);
+    strcat(p_buf, hostsep);
 
     strcat(p_buf, name);
     strcat(p_buf, ".dll");
@@ -407,7 +418,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
         io_printf("Found file: %s (%s) in %s\n", file_to_find, str_buf, p);
         p_buf[0] = 0;
         strcat(p_buf, p);
-        strcat(p_buf, sep);
+        strcat(p_buf, hostsep);
         strcat(p_buf, str_buf); /* Case corrected for file, Needed on Linux. */
     }
     #endif
