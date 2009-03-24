@@ -52,16 +52,16 @@ static struct {
         const char *string;
 } cached_ids[] = {
         { TEXT_ERROR_OUT_OF_MEMORY,
-//#undef TEXT_ERROR_OUT_OF_MEMORY
+#undef TEXT_ERROR_OUT_OF_MEMORY
                 TEXT_ERROR_OUT_OF_MEMORY }
         , { TEXT_ERROR_OPEN_FILE,
-//#undef TEXT_ERROR_OPEN_FILE
+#undef TEXT_ERROR_OPEN_FILE
                 TEXT_ERROR_OPEN_FILE }
         , { TEXT_ERROR_FCOM_INVALID,
-//#undef TEXT_ERROR_FCOM_INVALID
+#undef TEXT_ERROR_FCOM_INVALID
                 TEXT_ERROR_FCOM_INVALID }
         , { TEXT_ERROR_SET_ENV_VAR,
-//#undef TEXT_ERROR_SET_ENV_VAR
+#undef TEXT_ERROR_SET_ENV_VAR
                 TEXT_ERROR_SET_ENV_VAR }
         , { ~0, 0 }
 };

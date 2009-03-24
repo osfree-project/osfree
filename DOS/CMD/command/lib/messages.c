@@ -231,8 +231,8 @@ unsigned msgSegment(void)              /* load messages into memory */
                                 break;
                         if(inInit > 1)  /* Don't fetch the name interactively too early */
                                 break;
-//#undef TEXT_ERROR_OUT_OF_MEMORY
-//#undef TEXT_ERROR_LOADING_STRINGS
+#undef TEXT_ERROR_OUT_OF_MEMORY
+#undef TEXT_ERROR_LOADING_STRINGS
                         puts(TEXT_ERROR_LOADING_STRINGS);
                         {       char *buf = malloc(128 + 1);
 

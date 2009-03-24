@@ -403,9 +403,9 @@ int initialize(void)
         if(!ComPath) {
                 /* FreeCom is unable to find itself --> print error message */
                 /* Emergency error */
-//#undef TEXT_MSG_FREECOM_NOT_FOUND
+#undef TEXT_MSG_FREECOM_NOT_FOUND
                 puts(TEXT_MSG_FREECOM_NOT_FOUND);
-//#undef TEXT_TERMINATING
+#undef TEXT_TERMINATING
                 puts(TEXT_TERMINATING);
                 return E_Useage;
         }

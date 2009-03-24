@@ -832,7 +832,7 @@ static void hangForever(void)
      "a multitasking environment, terminate this process/task manually.\r\n"
     );
 #else
-//#undef  TEXT_MSG_REBOOT_NOW
+#undef  TEXT_MSG_REBOOT_NOW
         puts(TEXT_MSG_REBOOT_NOW);
 #endif
     beep();
