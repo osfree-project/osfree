@@ -60,7 +60,7 @@ int exitflag = 0;               /* indicates EXIT was typed */
 int canexit = 0;                /* indicates if this shell is exitable
                                                                         enable within initialize() */
 #endif
-/*int ctrlBreak = 0;*/              /* Ctrl-Break or Ctrl-C hit */
+int ctrlBreak = 0;              /* Ctrl-Break or Ctrl-C hit */
 int errorlevel = 0;             /* Errorlevel of last launched external prog */
 int forceLow = 0;               /* load resident copy into low memory */
 int oldinfd = -1;       /* original file descriptor #0 (stdin) */
@@ -849,11 +849,27 @@ int _Cdecl my2e_parsecommandline( char *s ) {
     return( errorlevel );
 }
 
-int main(void)
+int main(int argc, char **argv, char **envp)
+//int main(void)
 {
   /*
    * * main function
    */
+
+  int i = 0;
+/*
+
+  printf("argc = %d", argc);
+  while (*argv[i++])
+    printf("argv[%u] = %s\n", i, argv[i]);
+
+  i = 0;
+ */
+
+  for (i = 0; i < 5; i++)
+    printf("envp[%u] = %s\n", i, envp[i]);
+
+  return 0;
 
   if(setjmp(jmp_beginning) == 0 && initialize() == E_None)
     process_input(0, 0);

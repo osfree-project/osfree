@@ -11,7 +11,7 @@ DIRS = criter1
 srcfiles = $(p)criter$(e)
 
 # defines additional options for C compiler
-ADD_ASMOPT = -i=$(PATH)..$(SEP)strings$(SEP)critstrs 
+ADD_ASMOPT =  -dMODEL=l -i=$(PATH)..$(SEP)strings$(SEP)critstrs 
 ADD_LINKOPT = lib suppl.lib
 #COM = 1
 

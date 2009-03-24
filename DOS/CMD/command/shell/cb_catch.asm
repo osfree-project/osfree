@@ -55,14 +55,14 @@ include model.inc
 include stuff.inc
 
 ;_DATA segment
-;       EXTRN _ctrlBreak :near
+;       EXTRN ctrlBreak_ :word
 ;_DATA ends
 
-TEXT segment word public 'CODE' use16
-
+_TEXT segment word public 'CODE' use16
         public _initCBreak
+
         public cbreak_handler_
-        public _CBreakCounter
+        public CBreakCounter_
 
 _initCBreak:
        ;; At this point DS is the segment of _ctrlBreak
@@ -70,7 +70,7 @@ _initCBreak:
        ret
 
 ?freecomSegment DW 0
-_CBreakCounter  DW 0
+CBreakCounter_  DW 0
 
 cbreak_handler_:
 ifdef DEBUG
@@ -101,7 +101,7 @@ noRecurs:
 endif
 
                 ;; ^Break of COMAMND --> just set the variable
-                inc WORD PTR CS:[_CBreakCounter]
+                inc WORD PTR CS:[CBreakCounter_]
 
 recurs:
                 clc                     ;; tell DOS to proceed
@@ -113,6 +113,6 @@ strBeg:
 strEnd  db 1
 endif
 
-TEXT ends
+_TEXT ends
 
       end

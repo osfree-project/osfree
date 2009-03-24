@@ -127,8 +127,8 @@ $(p)err9$(e)
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT   = -ml -d2 -db -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
-ADD_ASMOPT = -ml -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
+ADD_COPT   = -ml -dMODEL=l -d2 -db -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
+ADD_ASMOPT = -ml -dMODEL=l -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
 TARGETS = $(PATH)lib.lib
 
 $(TARGETS): $(OBJS)

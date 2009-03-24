@@ -26,20 +26,20 @@
 ;
 ;
 
-;include "segs.inc"
+;                %include "segs.inc"
 
-TEXT segment word public 'CODE' use16
+_TEXT segment word public 'CODE' use16
 
-        public _dosFCB1,_dosFCB2
-_dosFCB1 db 37 dup (0)
-_dosFCB2 db 37 dup (0)
+	public _dosFCB1,_dosFCB2
+_dosFCB1 times 37 db 0
+_dosFCB2 times 37 db 0
 
-	public _dosCMDTAIL, _dosCMDNAME		; use command line from within PSP
+;;	global _dosCMDTAIL, _dosCMDNAME		use command line from within PSP
 	public _dosCMDNAME
-_dosCMDTAIL db 128 dup (0)
+;;_dosCMDTAIL  times 128 db 0
 _dosCMDNAME db 128 dup (0)
  	    db 256 dup (0)
-        public localStack
+;;    global localStack
 localStack:
 
 
@@ -47,64 +47,64 @@ localStack:
 _dosParamDosExec db 22 dup (0)
 
 
-	public XMSdriverAdress
-XMSdriverAdress dd 0
-callXMS	 EQU call far ptr [XMSdriverAdress]
+	public _XMSdriverAdress
+_XMSdriverAdress dd 0
+callXMS	 EQU	call far ptr [_XMSdriverAdress]
 
- 	public SwapResidentSize
-SwapResidentSize   dw 0
+ 	public _SwapResidentSize
+_SwapResidentSize  dw 0
 
- 	public SwapTransientSize
-SwapTransientSize  dw 0
+ 	pulic _SwapTransientSize
+_SwapTransientSize  dw 0
 
-	public XMSsave ; , _XMSrestore
-XMSsave            db 8 dup (0)
-currentSegmOfFreeCOM  EQU	XMSsave+8
-xms_handle	      EQU       XMSsave+10
+	public _XMSsave, _XMSrestore
+_XMSsave dw 8 dup (0)
+currentSegmOfFreeCOM EQU _XMSsave+8
+xms_handle	     EQU _XMSsave+10
 
 	public _termAddr
 _termAddr:
 terminationAddressOffs	DW 0
 terminationAddressSegm	DW 0
 	public _myPID, _residentCS
-_myPID	    DW 0
+_myPID      DW 0
 _residentCS DW 0
 	public _origPPID
-_origPPID   DW 0
+_origPPID DW 0
 	public _canexit
 _canexit    DB 0		; 1 -> can exit; _else_ --> cannot exit
 
         public _mySS, _mySP
-_mySS       DW 0
-_mySP       DW 0
+_mySS DW 0
+_mySP DW 0
 
-execSS      dw 0
-execSP      dw 0
+execSS dw 0
+execSP dw 0
 
-execRetval  dw 0
+execRetval dw 0
 
-first_time  db 1
+first_time db 1
 
 public SWAPXMSdirection
 
 ;;TODO make XMSsave two structures in order to drop this subroutine
 SWAPXMSdirection:
-	push word ptr [XMSsave+4]
-	push word ptr [XMSsave+6]
-	push word ptr [XMSsave+8]
+	push word ptr [_XMSsave+4]
+	push word ptr [_XMSsave+6]
+	push word ptr [_XMSsave+8]
 
-	push word ptr [XMSsave+10]
-	push word ptr [XMSsave+12]
-	push word ptr [XMSsave+14]
+	push word ptr [_XMSsave+10]
+	push word ptr [_XMSsave+12]
+	push word ptr [_XMSsave+14]
 
 
-	pop  word ptr [XMSsave+8]
-	pop  word ptr [XMSsave+6]
-	pop  word ptr [XMSsave+4]
+	pop  word ptr [_XMSsave+8]
+	pop  word ptr [_XMSsave+6]
+	pop  word ptr [_XMSsave+4]
 
-	pop  word ptr [XMSsave+14]
-	pop  word ptr [XMSsave+12]
-	pop  word ptr [XMSsave+10]
+	pop  word ptr [_XMSsave+14]
+	pop  word ptr [_XMSsave+12]
+	pop  word ptr [_XMSsave+10]
 
 	ret
 
@@ -131,7 +131,7 @@ real_XMSexec:
         mov  sp,localStack
 						; save everything to XMS
 		mov ah,0bh
-		mov si, word ptr XMSsave
+		mov si,_XMSsave
 		callXMS
 
 ;;TODO: test of result
@@ -142,8 +142,8 @@ real_XMSexec:
 		jne second_time
 
 ;;TODO: first_time either 04ah or 049h --> no jumps
-		mov ah,04ah						; resize memory block
-		mov bx,[SwapResidentSize]
+		mov ah, 04ah						; resize memory block
+		mov bx, word ptr [_SwapResidentSize]
 		int 21h
 
 		mov byte ptr [first_time],0
@@ -161,22 +161,22 @@ save_done:
 		; do exec
 
 
-		mov ax, cs
+;;		mov ax, cs
                    		; ds:dx = ASCIZ program name
-		mov ds, ax
-		mov  dx, word ptr _dosCMDNAME
+;;		mov ds, ax
+		mov  dx,_dosCMDNAME
 		       
                         ; es:bx = parameter block
 		mov es, cx
-		mov bx, word ptr _dosParamDosExec
+		mov bx, _dosParamDosExec
 
 
 						; our temporary stack
-        mov  ss, ax
-        mov  sp,localStack
+;;        mov ss, ax
+;;        mov  sp,localStack
 
 
-		mov ax,04b00h		; load & execute
+		mov ax, 04b00h		; load & execute
 		int 21h
 
 		jc  exec_error
@@ -188,14 +188,14 @@ exec_error:
 
 	; reload into memory
 
-        mov  cx, cs
-        mov  ss, cx
-        mov  sp, localStack
+        mov cx, cs
+        mov ss, cx
+        mov  sp,localStack
 
 		; restore:
 
         mov ds, cx
-		mov [execRetval],ax
+		mov word ptr [execRetval],ax
 							; we need some memory
 
 		;; First ensure that FreeCOM is reloaded in low memory
@@ -210,7 +210,7 @@ exec_error:
 		; ignore any errors
 
 		mov ah,48h
-		mov bx,[SwapTransientSize]
+		mov bx, word ptr [_SwapTransientSize]
 		int 21h
 
 ;;ska		pushf
@@ -225,15 +225,15 @@ exec_error:
 
                                 ; calculate relocation factor
 
-		mov  bx, ax				; new execute address
-		sub  bx, word ptr [currentSegmOfFreeCOM]		; new address - old address
+		mov bx,ax				; new execute address
+		sub bx, word ptr [currentSegmOfFreeCOM]		; new address - old address
 		push bx					;
-		mov  word ptr [currentSegmOfFreeCOM], ax	; new prog address
+		mov word ptr [currentSegmOfFreeCOM],ax	; new prog address
 
 		call SWAPXMSdirection
 								; restore everything to XMS
 		mov ah,0bh
-		mov si, word ptr XMSsave
+		mov si,_XMSsave
 		callXMS
 
 		call SWAPXMSdirection	; re-construct the XMSsave area
@@ -243,21 +243,21 @@ exec_error:
 		jnz XMS_trouble_while_swapping_in
 
                                     ; relocate segment registers
-		mov ax,[execSS]
+		mov ax, word ptr [execSS]
 		add ax,bx
 		mov ss,ax
-		mov sp,[execSP]
+		mov sp, word ptr [execSP]
 
 		mov bp,sp
-		add [bp+0],bx				; ds
-		add [bp+10],bx				; ret addr
+		add word ptr [bp+0],bx				; ds
+		add word ptr [bp+10],bx				; ret addr
 
-		mov ax,[execRetval]
+		mov ax, word ptr [execRetval]
 
 		pop ds
 		pop bp
 		pop di
-		pop	si
+		pop si
 
 		retf						; done
 
@@ -266,16 +266,16 @@ DOS_err 		db 'Memory allocation error$'
 common_error	db 0dh,0ah,0ah,'FreeCOM: XMSSwap-In: $'
 
 XMS_trouble_while_swapping_in:
-	mov bx, word ptr XMS_err
+	mov bx,XMS_err
 	jmp short trouble_while_swapping_in
 
 DOS_trouble_while_swapping_in:
-	mov bx, word ptr DOS_err
+	mov bx,DOS_err
 
 trouble_while_swapping_in:
 ;		push cs							; do some error message
 ;		pop  ds
-		mov dx, word ptr common_error
+		mov dx, common_error
 		mov ah,09
 		int 21h
 
@@ -291,7 +291,7 @@ terminate_myself:
 		;; DOS-4C for shells
 
 	;; central PSP:0xa hook <-> may be called in every circumstance
-	public _terminateFreeCOMHook
+	global _terminateFreeCOMHook
 _terminateFreeCOMHook:
 	mov ax, cs				; setup run environment (in this module)
 	mov ss, ax
@@ -302,7 +302,7 @@ _terminateFreeCOMHook:
 	dec BYTE PTR [_canexit]
 	jnz I_AM_DEAD
 
-	mov ax, [_myPID]		; our own PSP [in case we arrived here
+	mov ax, word ptr [_myPID]		; our own PSP [in case we arrived here
 	mov es, ax				; in some strange ways]
 
 	; Make sure the current PSP hasn't patched to nonsense already
@@ -311,14 +311,14 @@ _terminateFreeCOMHook:
 	int 21h
 
 	; Reset old termination address
-	mov ax, [terminationAddressOffs]
-	mov [es:0ah], ax
-	mov ax, [terminationAddressSegm]
-	mov [es:0ch], ax
+	mov ax, word ptr [terminationAddressOffs]
+	mov word ptr [es:0ah], ax
+	mov ax, word ptr [terminationAddressSegm]
+	mov word ptr [es:0ch], ax
 
 	; Drop our "Shell" privileges
-	mov ax, [_origPPID]		; original parent process ID
-	mov [es:16h], ax
+	mov ax, word ptr [_origPPID]		; original parent process ID
+	mov word ptr [es:16h], ax
 
 	; Kill the XMS memory block
 	mov dx, word ptr [xms_handle]
@@ -332,7 +332,7 @@ _terminateFreeCOMHook:
 
 
 I_AM_DEAD:								; process 0 can't terminate ...
-	mov dx, word ptr dead_loop_string
+	mov dx, dead_loop_string
 	mov ah, 9
 	int 21h
 I_AM_DEAD_loop:
@@ -350,7 +350,7 @@ dead_loop_string	DB 13,10,7,'Cannot terminate permanent FreeCOM instance'
 
 if 0
 MsgZerodivide db 'integer zero divide$'
-	global _ZeroDivideInterrupt
+	public _ZeroDivideInterrupt
 _ZeroDivideInterrupt:
 
 		push cs
@@ -368,15 +368,15 @@ endif
 ;********************************************************************
 ; *************   END OF RESIDENT AREA ******************************
 ;********************************************************************
-	public SWAPresidentEnd
-SWAPresidentEnd:
+	public _SWAPresidentEnd
+_SWAPresidentEnd:
 
 if 0
 ;
 ; normal EXEC
 ;
 
-		public _DosEXEC
+		global _DosEXEC
 _DosEXEC:
 						; save ALL registers needed later
 		push si
@@ -389,8 +389,8 @@ _DosEXEC:
 
 		mov  dx,_dosCMDNAME
 
-		mov [execSS],ss
-		mov [execSP],sp
+		mov word ptr [execSS],ss
+		mov word ptr [execSP],sp
 
 		push cs
 		pop  es
@@ -407,8 +407,8 @@ exec_error2:
 
 		cld					; don't rely on that
 
-		mov ss,[cs:execSS]
-		mov sp,[cs:execSP]
+		mov ss, word ptr [cs:execSS]
+		mov sp, word ptr [cs:execSP]
 
 		pop ds
 		pop bp
@@ -423,15 +423,15 @@ endif
 ;; is translated into something like:
 ;;		mov ax, _CODE		;; immediate value
 ;;		mov es, ax
-;;		call DWORD PTR es:[XMSdriverAdress_]
+;;		call DWORD PTR es:[_XMSdriverAdress]
 ;; detroying AX already holding the API function number
 
 ;; To be called with _far_!!
-	public XMSrequest
+	public _XMSrequest
 	;; Note: Because [CS:driverAdress] == [residentCS:driverAdress]
 	;; we need not use a similiar approach as with XMSexec
-XMSrequest:
-		jmp far ptr [cs:XMSdriverAdress]
+_XMSrequest:
+		jmp far ptr [cs:_XMSdriverAdress]
 
 ;; Added here to make it more easier for the C-part to call functions
 ;; located in the resident part, because:
@@ -442,12 +442,14 @@ XMSrequest:
 ;;		call _XMSexec
 
 ;; ALL To be called with _far_!!
-		public	XMSexec
-XMSexec:
+		public	_XMSexec
+_XMSexec:
 		push WORD PTR [CS:_residentCS]
 		push WORD PTR real_XMSexec
 		retf
 
-TEXT ends
+_TEXT ends
 
       end
+
+

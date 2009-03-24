@@ -47,12 +47,10 @@
 ;
 
 include model.inc
-@CodeSize EQU 1
-@DataSize EQU 1
+;@CodeSize EQU 1
+;@DataSize EQU 1
 
 include stuff.inc
-
-;_TXT group TEXT
 
 _TEXT segment word public 'CODE' use16
 

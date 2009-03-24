@@ -5,18 +5,18 @@
 
 if 1
 
-TEXT segment word public 'CODE' use16
+_TEXT segment word public 'CODE' use16
 
 public lowlevel_int_2e_handler_
     lowlevel_int_2e_handler_:
         mov ax, 0FFFFh
         iret
 
-TEXT ends
+_TEXT ends
 
 else
 
-TEXT segment word public 'CODE' use16
+_TEXT segment word public 'CODE' use16
 
 extrn _residentCS, _mySS, _mySP, XMSdriverAdress, SwapTransientSize, SwapResidentSize :word
 extrn _my2e_parsecommandline, SWAPXMSdirection :near
@@ -90,7 +90,7 @@ swaperr:
 finish:
         iret
 
-TEXT ends
+_TEXT ends
 
 endif
 

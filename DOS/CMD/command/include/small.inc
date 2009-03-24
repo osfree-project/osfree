@@ -1,6 +1,6 @@
 
 ; Small header
-group	DGROUP		_DATA, _BSS
+DGROUP	group	_DATA, _BSS
 
 TEXT  segment word public 'CODE' use16
 TEXT  ends

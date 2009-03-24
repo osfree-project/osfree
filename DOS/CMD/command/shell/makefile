@@ -16,8 +16,8 @@ srcfiles = $(p)batch$(e) $(p)cmdtable$(e) $(p)command$(e) $(p)dummies$(e) $(p)ex
 # utils\mkinfres.exe infores shell\command.map shell\command.exe
 # copy /b shell\command.exe + infores + criter\criter1 + criter\criter + strings\strings.dat command.com
 
-ADD_COPT    = -ml -d2 -db -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
-ADD_ASMOPT  = -ml -d2 -db  -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. &
+ADD_COPT    = -ml -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
+ADD_ASMOPT  = -ml -dMODEL=l -d2 -db  -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. &
               -i=$(MYDIR)..$(SEP)criter -i=$(PATH)..$(SEP)strings$(SEP)critstrs
 ADD_LINKOPT = debug all libpath $(%ROOT)build$(SEP)lib lib cmd.lib, lib.lib, suppl.lib, strings.lib
 

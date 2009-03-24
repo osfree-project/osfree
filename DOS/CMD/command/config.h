@@ -74,7 +74,7 @@
 /* standard name of AUTOEXEC.BAT */
 #define AUTO_EXEC "\\autoexec.bat"
 /* Logfile for some logging features; MUST be fully-qualified! */
-#define LOG_FILE "C:\\FreeCom.log"
+#define LOG_FILE "d:\\FreeCom.log"
 
 /* Define to number of loops when to redirect to CON if the
     shells hangs in the "hangForEver()" loop
