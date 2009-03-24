@@ -85,6 +85,7 @@ extern int noparserflag;
 
 #ifdef __NT__
 #define mktemp _mktemp
+#include <libgen.h>
 #endif
 
 #ifdef __LINUX__

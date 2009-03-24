@@ -36,7 +36,7 @@ APIRET APIENTRY VdmSubstSet(CHAR cDrive, PSZ pszPath)
   rp.w.bp=0x6467;// ("dg")
   rp.h.al=0x01;        // add
   rp.w.bx=cDrive - 'A';
-  rp.w.cx=strlen(pszPath)+1;
+  rp.w.cx=_fstrlen(pszPath)+1;
   rp.w.si=0x0003;
   rp.w.es=FP_SEG(pszPath);
   rp.w.di=FP_OFF(pszPath);
