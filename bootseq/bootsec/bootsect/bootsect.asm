@@ -454,6 +454,7 @@ adjust_es endp
 
 endif
 
+.386p
 
 floppy_Init proc near
                 push ds
