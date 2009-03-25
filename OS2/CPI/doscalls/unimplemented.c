@@ -447,7 +447,7 @@ APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY DosDevConfig(PCSZ pdevinfo, ULONG item)
+APIRET APIENTRY DosDevConfig(PSZ pdevinfo, ULONG item)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
