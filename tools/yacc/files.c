@@ -209,28 +209,23 @@ openfiles (void)
   strlwr (infile);
   }
 #endif /* _WIN32 && !__CYGWIN32__ */
-printf("a1\n");
 #if (defined(unix) || defined(__LINUX__) || defined(__unix) || defined(__unix__) || defined(__EMX__))
   {
     char *tmp_ptr = getenv("TMPDIR");
-printf("a3\n");
 
     if (tmp_ptr != 0)
       tmp_base = stringappend (tmp_ptr, strlen (tmp_ptr), "/b.");
   }
 #endif  /* unix || __unix || __unix__ */
 
-printf("a2\n");
 
   tmp_len = strlen (tmp_base);
-printf("a4\n");
 
   if (spec_outfile)
     {
       /* -o was specified.  The precise -o name will be used for ftable.
          For other output files, remove the ".c" or ".tab.c" suffix.  */
       name_base = spec_outfile;
-      printf("a5\n");
 
 #ifdef MSDOS
       strlwr (name_base);
@@ -245,7 +240,6 @@ printf("a4\n");
         short_base_length -= 4;
       else if (!strncmp (name_base + short_base_length - 4, "_tab", 4))
         short_base_length -= 4;
-      printf("a6\n");
     }
   else if (spec_file_prefix)
     {
@@ -292,11 +286,9 @@ printf("a4\n");
       base_length = short_base_length + 4;
     }
 
-      printf("a7\n");
 
   finput = tryopen(infile, "r");
 
-      printf("a8\n");
 
   if (! noparserflag)
     {
@@ -336,32 +328,23 @@ printf("a4\n");
          }
 #endif
 #ifdef __LINUX__
-      printf("a9 s=%s\n", program_name);
       cp = dirname(program_name);
-      printf("a10 s=%s\n", cp);
       if ( cp != NULL)
          {
-      printf("a11\n");
            filename = xmalloc(strlen(cp) + strlen(PFILE) + 2);
            strcpy(filename, cp);
-      printf("a12\n");
            cp = filename + strlen(filename);
            *cp++ = '/';
-      printf("a13\n");
            strcpy(cp, PFILE);
-      printf("a13a\n");
          }
 #endif
 
 //     CharToOem(filename, buffer);
 //      printf("a13b fn=%s\n", buffer);
 
-      printf("a13b fn=%s\n", filename);
       fparser = tryopen(filename ? filename : PFILE, "r");
-      printf("a13c fn=%s\n", filename);
     }
 
-      printf("a14\n");
 
   if (verboseflag)
     {
@@ -375,7 +358,6 @@ printf("a4\n");
       foutput = tryopen(outfile, "w");
     }
 
-      printf("a15\n");
 
   if (noparserflag)
     {
@@ -384,7 +366,6 @@ printf("a4\n");
       faction = tryopen(actfile, "w");
     }
 
-      printf("a16\n");
 
 #ifdef MSDOS
   if (! noparserflag)
@@ -393,16 +374,11 @@ printf("a4\n");
   tmptabfile = mktemp(stringappend(tmp_base, tmp_len, "taXXXXXX"));
   tmpdefsfile = mktemp(stringappend(tmp_base, tmp_len, "deXXXXXX"));
 #else
-  printf("1\n");
   if (! noparserflag)
     actfile = mktemp(stringappend(tmp_base, tmp_len, "act.XXXXXX"));
-  printf("2\n");
   tmpattrsfile = mktemp(stringappend(tmp_base, tmp_len, "attrs.XXXXXX"));
-  printf("3\n");
   tmptabfile = mktemp(stringappend(tmp_base, tmp_len, "tab.XXXXXX"));
-  printf("4\n");
   tmpdefsfile = mktemp(stringappend(tmp_base, tmp_len, "defs.XXXXXX"));
-  printf("5\n");
 #endif /* not MSDOS */
 
   if (! noparserflag)

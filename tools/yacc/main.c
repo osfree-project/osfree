@@ -32,6 +32,7 @@ int failure;
 
 /* The name this program was run with, for messages.  */
 char *program_name;
+char program_name_buf[1024];
 
 char *printable_version PARAMS((int));
 char *int_to_string PARAMS((int));
@@ -66,7 +67,12 @@ int
 main (int argc, char *argv[])
 {
   program_name = argv[0];
-  printf("%s\n", program_name);
+#ifdef __LINUX__
+  if (readlink ("/proc/self/exe", program_name_buf, 1024) != -1)
+  {
+    program_name=&program_name_buf;    
+  }
+#endif
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
@@ -74,13 +80,10 @@ main (int argc, char *argv[])
   failure = 0;
   lineno = 0;
 
-  printf("x1\n");
 
   getargs(argc, argv);
-  printf("x2\n");
   openfiles();
 
-  printf("x3\n");
 
   /* read the input.  Copy some parts of it to fguard, faction, ftable and fattrs.
      In file reader.c.
@@ -88,17 +91,14 @@ main (int argc, char *argv[])
   reader();
   if (failure)
         done(failure);
-  printf("x4\n");
 
   /* find useless nonterminals and productions and reduce the grammar.  In
      file reduce.c */
-  printf("x5\n");
   reduce_grammar();
 
   /* record other info about the grammar.  In files derives and nullable.  */
   set_derives();
   set_nullable();
-  printf("x6\n");
 
   /* convert to nondeterministic finite state machine.  In file LR0.
      See state.h for more info.  */

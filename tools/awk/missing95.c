@@ -2,6 +2,7 @@
    but it appears that _popen and _pclose "work".
    if this won't load, use the return NULL statements. */
 
+#ifndef __LINUX__
 #include <stdio.h>
 FILE *popen(char *s, char *m) {
 	return _popen(s, m);	/* return NULL; */
@@ -10,3 +11,5 @@ FILE *popen(char *s, char *m) {
 int pclose(FILE *f) {
 	return _pclose(f);	/* return NULL; */
 }
+
+#endif
