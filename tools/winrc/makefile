@@ -12,24 +12,30 @@ $(p)printres$(e) &
 $(p)cmdline$(e) &
 $(p)buffer$(e) &
 $(p)cleanup$(e) &
+#$(p)mac$(e) &
 $(p)mdc$(e)
+
+ADD_COPT = -i=..$(SEP)include
 
 !include $(%ROOT)/mk/tools.mk
 
-ADD_COPT = -i=..$(SEP)include
-TARGETS = $(PATH)$(PROJ).exe
+TARGETS = $(PATH)$(PROJ).exe # post
 
 $(PATH)rclex.obj: $(PATH)rclex.c
 
 $(PATH)rcyacc.obj: $(PATH)rcyacc.c
 
-$(p)ifyacc.obj: $(p)ifyacc.c post
+$(PATH)ifyacc.obj: $(PATH)ifyacc.c post
+
+.c: $(PATH)
+
+.h: $(PATH)
 
 post: .symbolic
-  sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(p)rc.z.tab.c
-  sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(p)rc.z.tab.h
-  $(DC) $(p)ifyacc.c
-  $(DC) $(p)ifyacc.h
-  $(RN) $(p)rc.z.tab.c $(p)ifyacc.c
-  $(RN) $(p)rc.z.tab.h $(p)ifyacc.h
+  sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(PATH)rc.z.tab.c
+  sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(PATH)rc.z.tab.h
+  $(DC) $(PATH)ifyacc.c
+  $(DC) $(PATH)ifyacc.h
+  $(RN) $(PATH)rc.z.tab.c $(PATH)ifyacc.c
+  $(RN) $(PATH)rc.z.tab.h $(PATH)ifyacc.h
 
