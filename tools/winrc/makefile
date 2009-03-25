@@ -23,13 +23,13 @@ $(PATH)rclex.obj: $(PATH)rclex.c
 
 $(PATH)rcyacc.obj: $(PATH)rcyacc.c
 
-$(p)ifyacc.obj: $(p)ifyacc.c preproc
+$(p)ifyacc.obj: $(p)ifyacc.c post
 
-preproc: .symbolic
+post: .symbolic
   sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(p)rc.z.tab.c
   sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(p)rc.z.tab.h
-  del $(p)ifyacc.c
-  del $(p)ifyacc.h
-   move $(p)rc.z.tab.c $(p)ifyacc.c
-   move $(p)rc.z.tab.h $(p)ifyacc.h
+  $(DC) $(p)ifyacc.c
+  $(DC) $(p)ifyacc.h
+  $(RN) $(p)rc.z.tab.c $(p)ifyacc.c
+  $(RN) $(p)rc.z.tab.h $(p)ifyacc.h
 
