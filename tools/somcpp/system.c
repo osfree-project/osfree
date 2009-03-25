@@ -47,7 +47,9 @@
 #include    "unistd.h"              /* For getcwd(), readlink() */
 #elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC || HOST_COMPILER == __WATCOMC__
 #include    "direct.h"
+#if __WATCOMC__ < 1280
 #define getcwd( buf, size)  _getcwd( buf, size)
+#endif
 #elif   HOST_COMPILER == BORLANDC
 #include    "dir.h"
 #endif
