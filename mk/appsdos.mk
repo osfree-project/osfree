@@ -21,9 +21,15 @@ DEST     = os2$(SEP)mdos
 
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
+!ifeq COM 1
+com = com
+!else
+com = 
+!endif
+
 $(PATH)$(PROJ).lnk: .SYMBOLIC
  @%create $^@
- @%append $^@ SYSTEM dos
+ @%append $^@ SYSTEM dos $(com)
  @%append $^@ NAME $^*
 !ifdef ALIASES
  alias $(ALIASES)

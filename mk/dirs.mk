@@ -52,7 +52,7 @@ DEST = $(FILESDIR)$(SEP)os2
 !else
 !ifeq DEST none
 # stay in build directory
-DEST = .
+DEST = $(PATH)
 !else
 # DEST is relative from $(FILESDIR)
 DEST = $(FILESDIR)$(SEP)$(DEST)

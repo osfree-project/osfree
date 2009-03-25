@@ -23,7 +23,7 @@ ADD_COPT =            -d__WIN32__ -d__WINNT__ $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=nt
-ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib libpath $(ROOT)build$(SEP)lib
+ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib
 
 !ifndef DEST
 DEST    = nt

@@ -65,7 +65,7 @@ LINKER    = @wlink
 # don't add the following option to all.mk
 # -----op internalrelocs----
 # as it breaks all non-LX executables, for ex., bootsectors
-LINKOPT   = op q $(ADD_LINKOPT)
+LINKOPT   = op q libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
 
 LIB       = @wlib
 LIBOPT    = -q -n -fo
@@ -113,10 +113,10 @@ CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.err *.log *.bak *.lib *.com *.sym *.
 
 !ifeq UNIX FALSE                 # Non-unix
 
-!ifeq ENV OS/2
+!ifeq ENV OS2
 COMSPEC   = $(OS_SHELL)          # Shell
 OS2_SHELL = $(OS_SHELL)          #
-RN  = @move                      # Rename command
+RN  = @ren                       # Rename command
 !else
 !ifeq ENV Windows
 RN  = @ren                       # Rename command

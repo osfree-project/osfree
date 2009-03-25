@@ -32,7 +32,7 @@ ADD_COPT = $(ADD_COPT) -d2 -db -i=$(SrvDir)Shared$(SEP)modmgr -i=. -i=.. &
            -i=$(SrvDir)include &
 #           -std=c99 -O1 -g2 -Wall
 
-ADD_LINKOPT = $(ADD_LINKOPT) debug all libpath $(%ROOT)$(SEP)build$(SEP)lib # lib os2server_shared.lib, os2server_$(ARCH).lib
+ADD_LINKOPT = $(ADD_LINKOPT) debug all # lib os2server_shared.lib, os2server_$(ARCH).lib
 
 !ifeq ARCH os2
 ADD_COPT    = -u__LINUX__ -u__WIN32__ -u__WINNT__ -d__OS2__ &

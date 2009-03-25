@@ -33,5 +33,4 @@ library: $(OBJS)
  @$(DC) $(library).tmp1
 !endif
 
-
 !endif
