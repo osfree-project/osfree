@@ -11,7 +11,7 @@ DIRS  = critstrs
 srcfiles = $(p)fixstrs$(e) $(p)porting$(e) # $(p)..$(SEP)tcc2wat$(e)
 # defines additional options for C compiler
 ADD_COPT = -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
-ADD_LINKOPT = debug all lib suppl.lib
+ADD_LINKOPT = debug all 
 LANG = russian
 LNG = $(MYDIR)$(LANG).lng
 DEST = none

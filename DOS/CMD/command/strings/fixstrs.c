@@ -72,11 +72,11 @@ add: version number of strings and logfile entries
 #include "../include/resource.h"
 #include "../include/keys.h"
 
-char *logfile = "STRINGS.LOG";
-char *fDAT    = "STRINGS.DAT";
-char *fTXT    = "DEFAULT.LNG";
-char *fH      = "STRINGS.H";
-char *fEXT    = ".LNG";
+char *logfile = "strings.log";
+char *fDAT    = "strings.dar";
+char *fTXT    = "default.lng";
+char *fH      = "strings.h";
+char *fEXT    = ".lng";
 char *fDMAKEFILE  = "makefile.mk";
 char *fTCMAKEFILE = "strings.rsp";
 
