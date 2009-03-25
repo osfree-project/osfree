@@ -89,6 +89,9 @@ extern int noparserflag;
 #endif
 
 #ifdef __LINUX__
+#include <libgen.h>
+#include <process.h> //getpid()
+
 /* Generate a unique temporary file name from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
    they are replaced with a string that makes the filename unique.  */
