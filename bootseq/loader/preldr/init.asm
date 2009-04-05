@@ -95,8 +95,25 @@ real_start:
         ; Set segment registers
         ; to CS value, set stack
         ; to the end of this segment
-
-        mov  ax, cs
+        xor  eax, eax        
+        xor  ebx, ebx
+        mov  ax,  cs
+        shl  eax, 4
+        call getaddr
+        ; now rel0 ansolute address is in EBX
+rel0:
+        add  eax, ebx
+        add  eax, rel1 - rel0
+        ; now phys addr of rel1 is in EAX
+        mov  ebx, rel1 - stage0_init
+        sub  eax, ebx
+        shr  eax, 4
+        push ax
+        push bx
+        ; now ax:bx is the rel1 address, and ax:0 is the 
+        ; beginning of the executable
+        retf   
+rel1:
         mov  bx, ds
         mov  cx, es
 
@@ -167,7 +184,6 @@ non_16bit_ufsd:
 
         ; preldr0 size = uFSD begin
         mov  si, stage0_size
-
         ;push si
 
         mov  eax, EXT_BUF_BASE
@@ -177,6 +193,7 @@ non_16bit_ufsd:
 
         rep  movsw
 
+        ;pop  ds
 skip_reloc_ufsd:
         ; relocate itself to STAGE0_BASE
         ;pop  cx          ; stage0 length
@@ -362,6 +379,11 @@ EnableA20Line:
     out  0x92, al
     pop  ax
 
+    ret
+
+getaddr:
+    mov  bp, sp
+    mov  bx, [bp]
     ret
 
 else
