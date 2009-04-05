@@ -17,8 +17,8 @@ CLEAN_ADD = *.mdl *.rel *.sob *.lob
 
 32_BITS      = 1       # Use 32-bit C compiler
 DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__
-ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..
-ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include  -i=$(MYDIR)..$(SEP)include -i=. -i=..
+ADD_COPT     += -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..
+ADD_ASMOPT   += $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include  -i=$(MYDIR)..$(SEP)include -i=. -i=..
 
 !ifndef DEST
 DEST         = boot
@@ -62,12 +62,12 @@ LOUT         = lbi
 
 .$(OUT).mdl:
  $(DC) $^@
- $(RIP) $[@ $(MOD_BASE) $(MYDIR)..$(SEP)include$(SEP)fsd.inc >$^@
+ $(RIP) $[@ $(MOD_BASE) $(%ROOT)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@
  $(DC) $[@
 
 .$(SOUT).mds:
  $(DC) $^@
- $(RIP) $[@ $(MOD_BASE) $(MYDIR)..$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
+ $(RIP) $[@ $(MOD_BASE) $(%ROOT)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
  $(DC) $[@
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
@@ -84,6 +84,7 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  @%append $^@ NAME $(PATH)$(T).$(E)
  @%append $^@ ALIAS init=_init
 !ifneq T preldr0
+!ifneq T preldr_mini
 !ifeq FS 1
  @%append $^@ ALIAS fs_mount_=$(T)_mount_
  @%append $^@ ALIAS fs_dir_=$(T)_dir_
@@ -98,6 +99,10 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  #@%append $^@ ALIAS _biosdisk_standard=biosdisk_standard
  #@%append $^@ ALIAS _check_int13_extensions=check_int13_extensions
  #@%append $^@ ALIAS _get_diskinfo_standard=get_diskinfo_standard
+!endif
+!endif
+!ifneq ALIASES
+ %append $^@ ALIAS $(ALIASES)
 !endif
 !ifdef ORDER
  @%append $^@ $(ORDER)
