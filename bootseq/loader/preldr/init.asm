@@ -100,7 +100,7 @@ real_start:
         mov  ax,  cs
         shl  eax, 4
         call getaddr
-        ; now rel0 ansolute address is in EBX
+        ; now rel0 absolute address is in EBX
 rel0:
         add  eax, ebx
         add  eax, rel1 - rel0
@@ -381,16 +381,16 @@ EnableA20Line:
 
     ret
 
-getaddr:
-    mov  bp, sp
-    mov  bx, [bp]
-    ret
-
 else
 
 ; Control transferring from lite version to full one
 
 endif
+
+getaddr:
+    mov  bp, sp
+    mov  bx, [bp]
+    ret
 
 ;fname   db "/boot/bootblock",0
 ;fsize   dd 0

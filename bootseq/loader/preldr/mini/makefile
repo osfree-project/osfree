@@ -13,18 +13,19 @@ DEST             =  boot$(SEP)loader
 
 !include $(%ROOT)/mk/dirs.mk
 
-DIRS             = mini
-STAGE0_OBJS      = $(p)segord$(e) $(p)init$(e) $(p)..$(SEP)modesw$(e) $(p)asmcode$(e) $(p)apm$(e) $(p)biosdisk$(e) $(p)filesys$(e) $(p)filesys16$(e) &
-                   $(p)video$(e) $(p)vbe$(e) $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) $(p)..$(SEP)setdev$(e) $(p)..$(SEP)cmdline$(e) &
-                   $(p)dskaccess$(e) $(p)part$(e) $(p)..$(SEP)cfgparse$(e) $(p)idt$(e) $(p)bios$(e) $(p)end$(e)
+STAGE0_OBJS   =    $(p)segord$(e) $(p)init$(e) $(p)..$(SEP)modesw$(e) $(p)biosdisk$(e) $(p)filesys$(e) $(p)filesys16$(e) &
+                   $(p)dskaccess$(e) $(p)part$(e) $(p)video$(e) $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) &
+                   $(p)..$(SEP)setdev$(e) $(p)bios$(e) $(p)end$(e)
 
-
+ADD_COPT         = -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include 
+ADD_ASMOPT       = -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include
+ALIASES          = init_=_init
 MOD_BASE         = STAGE0_BASE
-
+ 
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
-ldrfiles         = $(p)preldr0$(e)
+ldrfiles         = $(p)preldr_mini$(e)
 
 # filesys without $(p) and $(e):
 p                =
@@ -32,7 +33,6 @@ e                =
 bbx              = $+$(ldrfiles)$-
 
 OBJS             = $(STAGE0_OBJS)
-ALIASES          = mem_lower=_mem_lower
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -44,8 +44,7 @@ rels         = $+$(ldrfiles)$-
 
 p            = $(PATH)
 e            = .mdl
-
-TARGETS      = $+$(ldrfiles)$- $(rels) subdirs
+TARGETS      = $+$(ldrfiles)$- $(rels)
 
 files     = $(bbx)
 
@@ -55,21 +54,22 @@ spec_SRCS = # $+$(blackboxes)$-
 
 F =
 
-#!ifeq sh
-#defs=-d$(basename) -dSHIFT=0
-#!else
-#defs=-d$(basename) -dSHIFT=$$(SHIFT)
-#!endif
+.c:   $(MYDIR)..
 
-$(PATH)..$(SEP)func.$(O): $(MYDIR)..$(SEP)func.c
- $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
+.c:   $(MYDIR)..$(SEP)..
 
-$(PATH)..$(SEP)func.$(LO): $(MYDIR)..$(SEP)func.c
+.asm: $(MYDIR)..
+
+.asm: $(MYDIR)..$(SEP)..
+
+
+$(PATH)func.$(O): $(MYDIR)..$(SEP)func.c
  $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
 
-$(PATH)..$(SEP)func.$(SO): $(MYDIR)..$(SEP)func.c
+$(PATH)func.$(SO): $(MYDIR)..$(SEP)func.c
  $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
 
-$(PATH)..$(SEP)cfgparse.$(O): $(MYDIR)..$(SEP)cfgparse.c
+$(PATH)cfgparse.$(O): $(MYDIR)..$(SEP)..$(SEP)cfgparse.c
 
-$(PATH)..$(SEP)cfgparse.$(SO): $(MYDIR)..$(SEP)cfgparse.c
+$(PATH)cfgparse.$(SO): $(MYDIR)..$(SEP)..$(SEP)cfgparse.c
+
