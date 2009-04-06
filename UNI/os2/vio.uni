@@ -251,8 +251,8 @@ const VR_VIOGETSTATE             = $00000080;
 const VR_VIOSETSTATE             = $00000100;
 
 function VioDeRegister       (): USHORT;
-function VioRegister         (pszModName: PSZ; pszEntryName: PSZ; flFun1: ULONG; flFun2: ULONG): USHORT;
-function VioGlobalReg        (pszModName: PSZ; pszEntryName: PSZ; flFun1: ULONG; flFun2: ULONG; usReturn: USHORT): USHORT;
+function VioRegister         (in pszModName: PSZ; in pszEntryName: PSZ; in flFun1: ULONG; in flFun2: ULONG): USHORT;
+function VioGlobalReg        (in pszModName: PSZ; in pszEntryName: PSZ; in flFun1: ULONG; in flFun2: ULONG; in usReturn: USHORT): USHORT;
 
 function VioGetAnsi          (out Ansi:   USHORT;
                               in  Handle: HVIO): USHORT;

@@ -5,9 +5,9 @@ module kbd;
 type HKBD=USHORT;
 type PHKBD=^HKBD;
 
-function KbdRegister(pszModName: PSZ;
-                                    pszEntryPt: PSZ;
-                                    FunMask: ULONG): USHORT;
+function KbdRegister(in pszModName: PSZ;
+                                    in pszEntryPt: PSZ;
+                                    in FunMask: ULONG): USHORT;
 
 const KR_KBDCHARIN               = $00000001;
 const KR_KBDPEEK                 = $00000002;
@@ -44,12 +44,12 @@ type  KBDKEYINFO=structure     (* kbci *)
 type PKBDKEYINFO=^KBDKEYINFO;
 
 
-function KbdCharIn(pkbci: PKBDKEYINFO;
-                                  fWait: USHORT;
-                                  hkbd: HKBD): USHORT;
+function KbdCharIn(out pkbci: KBDKEYINFO;
+                                  in fWait: USHORT;
+                                  in hkbd: HKBD): USHORT;
 
-function KbdPeek (pkbci: PKBDKEYINFO;
-                                 hkbd: HKBD): USHORT;
+function KbdPeek (out pkbci: KBDKEYINFO;
+                                 in hkbd: HKBD): USHORT;
 
    (* structure for KbdStringIn() *)
 
@@ -59,12 +59,12 @@ type STRINGINBUF=structure     (* kbsi *)
    end;
 type PSTRINGINBUF=^STRINGINBUF;
 
-function KbdStringIn(pch: PCH;
-                                     pchIn: PSTRINGINBUF;
-                                     fsWait: USHORT;
-                                     hkbd: HKBD): USHORT;
+function KbdStringIn(out pch: CHAR;
+                                     inout pchIn: STRINGINBUF;
+                                     in fsWait: USHORT;
+                                     in hkbd: HKBD): USHORT;
 
-function KbdFlushBuffer (hkbd: HKBD): USHORT;
+function KbdFlushBuffer (in hkbd: HKBD): USHORT;
 
    (* KBDINFO.fsMask *)
 
@@ -110,30 +110,30 @@ type KBDINFO=structure         (* kbst *)
 type PKBDINFO=^KBDINFO;
 
 
-function KbdSetStatus (pkbdinfo: PKBDINFO;
-                                      hkbd: HKBD): USHORT;
+function KbdSetStatus (in pkbdinfo: PKBDINFO;
+                                      in hkbd: HKBD): USHORT;
 
-function KbdGetStatus (pkbdinfo: PKBDINFO;
-                                      hdbd: HKBD): USHORT;
+function KbdGetStatus (out pkbdinfo: KBDINFO;
+                                      in hdbd: HKBD): USHORT;
 
-function KbdSetCp ( usReserved: USHORT;
-                                   pidCP: USHORT;
-                                   hdbd: HKBD): USHORT;
+function KbdSetCp (in usReserved: USHORT;
+                                in   pidCP: USHORT;
+                                 in  hdbd: HKBD): USHORT;
 
-function KbdGetCp (ulReserved: ULONG;
-                                   pidCP: PUSHORT;
-                                   hkbd: HKBD): USHORT;
+function KbdGetCp (in ulReserved: ULONG;
+                                  out  pidCP: USHORT;
+                                  in hkbd: HKBD): USHORT;
 
-function KbdOpen (phkbd: PHKBD): USHORT;
+function KbdOpen (out hkbd: PHKBD): USHORT;
 
-function KbdClose ( hkbd: HKBD): USHORT;
+function KbdClose (in hkbd: HKBD): USHORT;
 
-function KbdGetFocus ( fWait: USHORT;
-                                      hkbd: HKBD): USHORT;
+function KbdGetFocus (in fWait: USHORT;
+                                     in hkbd: HKBD): USHORT;
 
-function KbdFreeFocus ( hkbd: HKBD): USHORT;
+function KbdFreeFocus (in hkbd: HKBD): USHORT;
 
-function KbdSynch ( fsWait: USHORT): USHORT;
+function KbdSynch (in fsWait: USHORT): USHORT;
 
 function KbdSetFgnd(): USHORT;
 
@@ -146,11 +146,11 @@ type KBDHWID=structure         (* kbhw *)
    end;
 type PKBDHWID=^KBDHWID;
 
-function KbdGetHWID (pkbdhwid: PKBDHWID;
-                                    hkbd: HKBD): USHORT;
+function KbdGetHWID (out kbdhwid: PKBDHWID;
+                                    in hkbd: HKBD): USHORT;
 
-function KbdSetHWID (pkbdhwid: PKBDHWID;
-                                     hkbd: HKBD): USHORT;
+function KbdSetHWID (in pkbdhwid: PKBDHWID;
+                                    in hkbd: HKBD): USHORT;
 
 
    (* KBDTRANS.fbStatus *)
@@ -177,11 +177,11 @@ type  KBDTRANS=structure        (* kbxl *)
 type PKBDTRANS=^KBDTRANS;
 
 
-function KbdXlate (pkbdtrans: PKBDTRANS;
-                                   hkbd: HKBD): USHORT;
+function KbdXlate (in pkbdtrans: PKBDTRANS;
+                                  in hkbd: HKBD): USHORT;
 
-function KbdSetCustXt (usCodePage: PUSHORT;
-                                       hkbd: HKBD): USHORT;
+function KbdSetCustXt (in usCodePage: PUSHORT;
+                                      in hkbd: HKBD): USHORT;
 
 
 

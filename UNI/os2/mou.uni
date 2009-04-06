@@ -4,9 +4,9 @@ module mou;
 type HMOU=USHORT;
 type PHMOU=^HMOU;
 
-function  MouRegister (pszModName: PSZ;
-                                      pszEntryName: PSZ;
-                                      flFuns: ULONG): USHORT;
+function  MouRegister (in pszModName: PSZ;
+                                      in pszEntryName: PSZ;
+                                      in flFuns: ULONG): USHORT;
 
 const MR_MOUGETNUMBUTTONS        = $00000001;
 const MR_MOUGETNUMMICKEYS        = $00000002;
@@ -30,7 +30,7 @@ const MR_MOUSETDEVSTATUS         = $00100000;
 
 function  MouDeRegister (): USHORT;
 
-function  MouFlushQue (hmou: HMOU): USHORT;
+function  MouFlushQue (in hmou: HMOU): USHORT;
 
 const MHK_BUTTON1                = $0001;
 const MHK_BUTTON2                = $0002;
@@ -43,10 +43,10 @@ type PTRLOC=structure      (* moupl *)
   end;
 type PPTRLOC=^PTRLOC;
 
-function  MouGetPtrPos (pmouLoc: PPTRLOC;
-                                       hmou: HMOU): USHORT;
-function  MouSetPtrPos (pmouLoc: PPTRLOC;
-                                       hmou: HMOU): USHORT;
+function  MouGetPtrPos (out pmouLoc: PTRLOC;
+                                       in hmou: HMOU): USHORT;
+function  MouSetPtrPos (in pmouLoc: PPTRLOC;
+                                       in hmou: HMOU): USHORT;
 
    (* structure for MouGet/SetPtrShape() *)
 type PTRSHAPE=structure    (* moups *)
@@ -58,13 +58,13 @@ type PTRSHAPE=structure    (* moups *)
    end;
 type PPTRSHAPE=^PTRSHAPE;
 
-function  MouSetPtrShape (pBuf: PBYTE;
-                                         pmoupsInfo: PPTRSHAPE;
-                                         hmou: HMOU): USHORT;
+function  MouSetPtrShape (in pBuf: PBYTE;
+                                         in pmoupsInfo: PPTRSHAPE;
+                                         in hmou: HMOU): USHORT;
 
-function  MouGetPtrShape ( pBuf: PBYTE;
-                                         pmoupsInfo: PPTRSHAPE;
-                                         hmou: HMOU): USHORT;
+function  MouGetPtrShape (out pBuf: BYTE;
+                                         inout pmoupsInfo: PTRSHAPE;
+                                         in hmou: HMOU): USHORT;
 
    (* MouGetDevStatus/MouSetDevStatus device status constants *)
 
@@ -76,14 +76,14 @@ const MOUSE_DISABLED         = $0100;
 const MOUSE_MICKEYS          = $0200;
 
 
-function  MouGetDevStatus ( pfsDevStatus: PUSHORT;
-                                          hmou: HMOU): USHORT;
+function  MouGetDevStatus (out pfsDevStatus: USHORT;
+                                          in hmou: HMOU): USHORT;
 
-function  MouGetNumButtons (pcButtons: PUSHORT;
-                                           hmou: HMOU): USHORT;
+function  MouGetNumButtons(out pcButtons: USHORT;
+                                           in hmou: HMOU): USHORT;
 
-function  MouGetNumMickeys (pcMickeys: PUSHORT;
-                                           hmou: HMOU): USHORT;
+function  MouGetNumMickeys (out pcMickeys: USHORT;
+                                           in hmou: HMOU): USHORT;
 
    (* MouReadEventQue *)
 
@@ -100,9 +100,9 @@ type  MOUEVENTINFO=structure    (* mouev *)
   end;
 type PMOUEVENTINFO=^MOUEVENTINFO;
 
-function  MouReadEventQue (pmouevEvent: PMOUEVENTINFO;
-                                          pfWait: PUSHORT;
-                                          hmou: HMOU): USHORT;
+function  MouReadEventQue (out pmouevEvent: MOUEVENTINFO;
+                                          in pfWait: PUSHORT;
+                                          in hmou: HMOU): USHORT;
 
    (* structure for MouGetNumQueEl() *)
 type MOUQUEINFO=structure      (* mouqi *)
@@ -111,8 +111,8 @@ type MOUQUEINFO=structure      (* mouqi *)
    end;
 type PMOUQUEINFO=^MOUQUEINFO;
 
-function  MouGetNumQueEl (qmouqi: PMOUQUEINFO;
-                                         hmou: HMOU): USHORT;
+function  MouGetNumQueEl (out qmouqi: MOUQUEINFO;
+                                         in hmou: HMOU): USHORT;
 
    (* MouGetEventMask/MouSetEventMask events *)
 
@@ -124,11 +124,11 @@ const MOUSE_BN2_DOWN               = $0010;
 const MOUSE_MOTION_WITH_BN3_DOWN   = $0020;
 const MOUSE_BN3_DOWN               = $0040;
 
-function  MouGetEventMask (pfsEvents: PUSHORT;
-                                          hmou: HMOU): USHORT;
+function  MouGetEventMask (out pfsEvents: USHORT;
+                                          in hmou: HMOU): USHORT;
 
-function  MouSetEventMask (pfsEvents: PUSHORT;
-                                          hmou: HMOU): USHORT;
+function  MouSetEventMask (in pfsEvents: PUSHORT;
+                                          out hmou: HMOU): USHORT;
 
    (* structure for MouGet/SetScaleFact() *)
 type  SCALEFACT=structure   (* mousc *)
@@ -137,16 +137,16 @@ type  SCALEFACT=structure   (* mousc *)
    end;
 type PSCALEFACT=^SCALEFACT;
 
-function  MouGetScaleFact (pmouscFactors: PSCALEFACT;
-                                          hmou: HMOU): USHORT;
+function  MouGetScaleFact (out pmouscFactors: SCALEFACT;
+                                          in hmou: HMOU): USHORT;
 
-function  MouSetScaleFact (pmouscFactors: PSCALEFACT;
-                                          hmou: HMOU): USHORT;
+function  MouSetScaleFact (in pmouscFactors: PSCALEFACT;
+                                          in hmou: HMOU): USHORT;
 
-function  MouOpen (pszDvrName: PSZ;
-                                  phmou: PHMOU): USHORT;
+function  MouOpen (in pszDvrName: PSZ;
+                                 out phmou: HMOU): USHORT;
 
-function  MouClose (hmou: HMOU): USHORT;
+function  MouClose (in hmou: HMOU): USHORT;
 
    (* structure for MouRemovePtr() *)
 type NOPTRRECT=structure   (* mourt *)
@@ -157,22 +157,22 @@ type NOPTRRECT=structure   (* mourt *)
    end;
 type PNOPTRRECT=^NOPTRRECT;
 
-function  MouRemovePtr ( pmourtRect: PNOPTRRECT;
-                                       hmou: HMOU): USHORT;
+function  MouRemovePtr (in pmourtRect: PNOPTRRECT;
+                                       in hmou: HMOU): USHORT;
 
-function  MouDrawPtr ( hmou: HMOU): USHORT;
+function  MouDrawPtr (in hmou: HMOU): USHORT;
 
 const MOU_NODRAW                 = $0001;
 const MOU_DRAW                   = $0000;
 const MOU_MICKEYS                = $0002;
 const MOU_PELS                   = $0000;
 
-function  MouSetDevStatus (pfsDevStatus: PUSHORT;
-                                          hmou: HMOU): USHORT;
+function  MouSetDevStatus (in pfsDevStatus: PUSHORT;
+                                          in hmou: HMOU): USHORT;
 
-function  MouInitReal (str :PSZ): USHORT;
+function  MouInitReal (in str :PSZ): USHORT;
 
-function  MouSynch( pszDvrName: USHORT): USHORT;
+function  MouSynch(in pszDvrName: USHORT): USHORT;
 
 type THRESHOLD=structure       (* threshold *)
        Length: USHORT;          (* Length Field            *)
@@ -183,11 +183,11 @@ type THRESHOLD=structure       (* threshold *)
    end;
 type PTHRESHOLD=^THRESHOLD;
 
-function  MouGetThreshold(pthreshold: PTHRESHOLD;
-                                         hmou: HMOU): USHORT;
+function  MouGetThreshold(out pthreshold: THRESHOLD;
+                                         in hmou: HMOU): USHORT;
 
-function  MouSetThreshold( pthreshold: PTHRESHOLD;
-                                         hmou: HMOU): USHORT;
+function  MouSetThreshold(in pthreshold: PTHRESHOLD;
+                                         in hmou: HMOU): USHORT;
 
 
 

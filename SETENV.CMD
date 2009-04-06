@@ -73,6 +73,7 @@ path  = watcom || wosdir || ';' || tools || ';' || tkpath || '\bin;' || fppath |
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
+wipfc = watcom || '\wipfc'
 
 if os == 'OS2' then do
   help = value('HELP',, env)
@@ -90,7 +91,7 @@ lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win
 
 vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
-       'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV'
+       'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 
 /* Set vars */
 do i = 1 to words(vars)

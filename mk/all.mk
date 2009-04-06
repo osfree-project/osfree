@@ -93,7 +93,7 @@ RCOPT     = $(RCOPT) $(ADD_RCOPT)
 
 MC        = mkmsgf.exe
 
-HC        = ipfc
+HC        = wipfc
 
 CD        = $(REXX) cdir.cmd
 MDHIER    = $(REXX) mdhier.cmd
@@ -304,11 +304,11 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 
 .ipf.inf: .AUTODEPEND
  $(SAY) Compiling IPF source file $[.... $(LOG)
- $(HC) -i $[@ $^@
+ $(HC) -i $[@ -o $^@
 
 .ipf.hlp: .AUTODEPEND
  $(SAY) Compiling IPF source file $[.... $(LOG)
- $(HC) -i $[@ $^@
+ $(HC) $[@ -o $^@
 
 .rc.res: .AUTODEPEND
  $(SAY) Compiling resource file $[.... $(LOG)
