@@ -12,14 +12,37 @@ type
 type
   TABI=record
     Name: ShortString;
+    CallingConvertion: ShortString;
     case AbiType: TAbiType of
     AbiDynamicLibrary: 
     (
       DLL: ShortString;
       ImportLibrary: ShortString;
       Ordinal: ShortString;
-      CallingConvertion: ShortString;
       ImportName: ShortString;
+    );
+    AbiStaticLibrary: 
+    (
+      LibraryName: ShortString;
+    );
+    AbiInterrupt: 
+    (
+      InterruptNumber: ShortString;
+      Argument1: ShortString;
+      Argument2: ShortString;
+      Argument3: ShortString;
+      Argument4: ShortString;
+      Argument5: ShortString;
+      Argument6: ShortString;
+      Argument7: ShortString;
+      Argument8: ShortString;
+      Argument9: ShortString;
+      Argument10: ShortString;
+      Argument11: ShortString;
+      Argument12: ShortString;
+      Argument13: ShortString;
+      Argument14: ShortString;
+      Argument15: ShortString;
     )
   end;
 

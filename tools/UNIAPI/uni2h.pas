@@ -80,17 +80,17 @@ begin
  if paramstr(1)='-edef' then
  begin
    AModule:=ParseSource(AEngine, paramstr(2),'','');
-   rootpath:=extractfilepath(paramstr(2));
+   rootpath:=extractfiledir(paramstr(2));
    WriteDefFile(AModule, paramstr(3)) 
  end else
  if paramstr(1)='-eh' then 
  begin 
    AModule:=ParseSource(AEngine, paramstr(2),'','');
-   rootpath:=extractfilepath(paramstr(2));
+   rootpath:=extractfiledir(paramstr(2));
    WriteHFile(AModule, paramstr(3)) 
  end else begin
    AModule:=ParseSource(AEngine, paramstr(1),'','');
-   rootpath:=extractfilepath(paramstr(1));
+   rootpath:=extractfiledir(paramstr(1));
    WriteHFile(AModule, paramstr(2));
  end;
 end.

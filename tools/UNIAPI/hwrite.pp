@@ -256,6 +256,7 @@ function THWriter.MultiAbiGet(Symbol: String): TAbi;
 var
   i: word;
 begin
+  if FAbiList.AbiList.Count>0 then
   for i := 0 to FAbiList.AbiList.Count - 1 do
   begin
     Result:=AbiGet(TPasElement(FAbiList.AbiList[i]).Name+'.abi', Symbol);
@@ -584,7 +585,6 @@ procedure THWriter.WriteRecordType(AElement: TPasRecordType; NestingLevel: Integ
 var
   i: Integer;
   Variable: TPasVariable;
-//  CurVariant: TPasVariant;
 begin
   if not (AElement.Parent is TPasVariant) then
     if AElement.IsPacked then
