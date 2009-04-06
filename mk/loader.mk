@@ -101,8 +101,8 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  #@%append $^@ ALIAS _get_diskinfo_standard=get_diskinfo_standard
 !endif
 !endif
-!ifneq ALIASES
- %append $^@ ALIAS $(ALIASES)
+!ifdef ALIASES
+ @%append $^@ ALIAS  $(ALIASES)
 !endif
 !ifdef ORDER
  @%append $^@ $(ORDER)
