@@ -7,11 +7,12 @@
 !include $(%ROOT)/mk/all.mk
 
 OUT = $(%ROOT)$(SEP)build$(SEP)include
+LIBOUT = $(%ROOT)$(SEP)build$(SEP)lib
 TARGETS = h
 
 subdirs = $(OUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
 
-h: pre workaround $(OUT)$(SEP)osfree.h os2 dos
+h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
   @%null
 
 pre: .SYMBOLIC
@@ -118,6 +119,14 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
+
+os2libs: $(LIBOUT)$(SEP)sub32.lib &
+         .symbolic
+
+$(LIBOUT)$(SEP)sub32.lib: os2$(SEP)vio.uni
+ uni2h.exe -edef $< $^@.def
+ $(LIB) $(LIBOPT) $^@ @$^@.def
+ $(DC) $^@.def
 
 $(OUT)$(SEP)os2$(SEP)os2.h: os2$(SEP)os2.uni
 
@@ -311,7 +320,7 @@ $(OUT)$(SEP)dos$(SEP)dos.h: dos$(SEP)dos.uni
 $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 
 .SUFFIXES:
-.SUFFIXES: .h .uni
+.SUFFIXES: .lib .h .uni
 
 .uni: $(MYDIR)shared
 .uni: $(MYDIR)os2
@@ -323,3 +332,7 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
  $(DC) $^@
  $(CP) tmp $^@ $(BLACKHOLE)
  $(DC) tmp
+
+.uni.lib: .AUTODEPEND
+ uni2h.exe -edef $< $^@.def
+ $(LIB) $(LIBOPT) $^@ @$^@.def

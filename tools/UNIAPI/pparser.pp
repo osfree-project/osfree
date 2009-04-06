@@ -132,6 +132,7 @@ type
     procedure ParseMain(var Module: TPasModule);
     procedure ParseUnit(var Module: TPasModule);
     procedure ParseUsesList(ASection: TPasSection);
+    procedure ParseAbiList(ASection: TPasSection);
     procedure ParseError(ASection: TPasSection);
     function ParseConstDecl(Parent: TPasElement): TPasConst;
     function ParseTypeDecl(Parent: TPasElement): TPasType;
@@ -689,12 +690,13 @@ begin
   while True do
   begin
     NextToken;
-//    if CurToken = tkImplementation then
     if CurToken = tkEnd then
       break;
     case CurToken of
       tkUses:
         ParseUsesList(Section);
+      tkAbi:
+        ParseAbiList(Section);
       tkConst:
         CurBlock := declConst;
       tkError:
@@ -814,6 +816,30 @@ begin
     begin
       break;
     end else if CurToken <> tkAlias then
+      ParseExc(SParserExpectedCommaSemicolon);
+  end;
+end;
+
+// Starts after the "abi" token
+procedure TPasParser.ParseAbiList(ASection: TPasSection);
+var
+  AbiName: String;
+  Element: TPasElement;
+begin
+  while True do
+  begin
+    AbiName := ExpectIdentifier;
+
+      Element := TPasType(CreateElement(TPasUnresolvedTypeRef, AbiName,
+        ASection));
+    ASection.AbiList.Add(Element);
+
+    NextToken;
+
+    if CurToken = tkSemicolon then
+    begin
+      break;
+    end else
       ParseExc(SParserExpectedCommaSemicolon);
   end;
 end;

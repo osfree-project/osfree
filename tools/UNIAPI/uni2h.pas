@@ -1,7 +1,7 @@
 Program UNI2H;
 
 uses
-  hwrite,pparser, pastree, sysutils, classes;
+  abi, defwrite, hwrite, pparser, pastree, sysutils, classes;
 
 Type
   TUNIAPIEngine = class(TPasTreeContainer)
@@ -77,8 +77,20 @@ var
   AModule: TPasModule;
 begin
  AEngine:=TUNIAPIEngine.Create;
- WriteLn('Parsing...');
- AModule:=ParseSource(AEngine, paramstr(1),'','');
- writeln('Writing...');
- WriteHFile(AModule, paramstr(2));
+ if paramstr(1)='-edef' then
+ begin
+   AModule:=ParseSource(AEngine, paramstr(2),'','');
+   rootpath:=extractfilepath(paramstr(2));
+   WriteDefFile(AModule, paramstr(3)) 
+ end else
+ if paramstr(1)='-eh' then 
+ begin 
+   AModule:=ParseSource(AEngine, paramstr(2),'','');
+   rootpath:=extractfilepath(paramstr(2));
+   WriteHFile(AModule, paramstr(3)) 
+ end else begin
+   AModule:=ParseSource(AEngine, paramstr(1),'','');
+   rootpath:=extractfilepath(paramstr(1));
+   WriteHFile(AModule, paramstr(2));
+ end;
 end.

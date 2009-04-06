@@ -101,6 +101,7 @@ type
     function ElementTypeName: string; override;
     procedure AddUnitToUsesList(const AUnitName: string);
     UsesList: TList;            // TPasUnresolvedTypeRef or TPasModule elements
+    AbiList: TList;            // TPasUnresolvedTypeRef or TPasModule elements
     Declarations, ResStrings, Types, Consts, Classes,
       Functions, Variables: TList;
   end;
@@ -598,6 +599,7 @@ constructor TPasSection.Create(const AName: string; AParent: TPasElement);
 begin
   inherited Create(AName, AParent);
   UsesList := TList.Create;
+  AbiList := TList.Create;
   Declarations := TList.Create;
   ResStrings := TList.Create;
   Types := TList.Create;
@@ -625,6 +627,10 @@ begin
   for i := 0 to UsesList.Count - 1 do
     TPasType(UsesList[i]).Release;
   UsesList.Free;
+
+  for i := 0 to AbiList.Count - 1 do
+    TPasType(AbiList[i]).Release;
+  AbiList.Free;
 
   inherited Destroy;
 end;

@@ -19,7 +19,7 @@ unit HWrite;
 
 interface
 
-uses Classes, PasTree;
+uses Classes, PasTree, ABI;
 
 type
   THWriter = class
@@ -28,11 +28,13 @@ type
     IsStartOfLine: Boolean;
     Indent, CurDeclSection: string;
     DeclSectionStack: TList;
+    FAbiList: TPasSection; 
     procedure IncIndent;
     procedure DecIndent;
     procedure IncDeclSectionLevel;
     procedure DecDeclSectionLevel;
     procedure PrepareDeclSection(const ADeclSection: string);
+    function MultiAbiGet(Symbol: String): TAbi;
   public
     constructor Create(AStream: TStream);
     destructor Destroy; override;
@@ -235,6 +237,8 @@ begin
   for i := 0 to ASection.Declarations.Count - 1 do
     WriteElement(TPasElement(ASection.Declarations[i]));
 
+  FAbiList:=ASection;
+  
   if ASection.UsesList.Count > 0 then
   begin
     for i := 0 to ASection.UsesList.Count - 1 do
@@ -246,6 +250,17 @@ begin
     end;
   end;
 
+end;
+
+function THWriter.MultiAbiGet(Symbol: String): TAbi;
+var
+  i: word;
+begin
+  for i := 0 to FAbiList.AbiList.Count - 1 do
+  begin
+    Result:=AbiGet(TPasElement(FAbiList.AbiList[i]).Name+'.abi', Symbol);
+    If Result.Name=Symbol then break;
+  end;
 end;
 
 procedure THWriter.WriteClass(AClass: TPasClassType);
@@ -346,6 +361,7 @@ end;
 procedure THWriter.WriteProcDecl(AProc: TPasProcedure);
 var
   i: Integer;
+  ABI: TABI;
 begin
   if Assigned(AProc.ProcType) and
     (AProc.ProcType.ClassType = TPasFunctionType) then
@@ -355,8 +371,8 @@ begin
     wrt('VOID');
   end;
 
-  // Here we must get function via ABI list
-  wrt(' APIENTRY '+AProc.Name);
+  ABI:=MultiAbiGet(AProc.Name);
+  wrt(' '+ABI.CallingConvertion+' '+AProc.Name);
 
   if Assigned(AProc.ProcType) and (AProc.ProcType.Args.Count > 0) then
   begin
@@ -396,9 +412,10 @@ end;
 procedure THWriter.WriteProcedureType(AProc: TPasProcedureType);
 var
   i: Integer;
+  ABI: TABI;
 begin
-  // Here we must get function via ABI list
-  wrt('VOID (APIENTRY '+AProc.Name+')');
+  ABI:=MultiAbiGet(AProc.Name);
+  wrt('VOID ('+ABI.CallingConvertion+' '+AProc.Name+')');
 
   if (AProc.Args.Count > 0) then
   begin
@@ -438,11 +455,12 @@ end;
 procedure THWriter.WriteFunctionType(AProc: TPasFunctionType);
 var
   i: Integer;
+  ABI: TAbi;
 begin
   WriteType(AProc.ResultEl.ResultType, false);
 
-  // Here we must get function via ABI list
-  wrt('(APIENTRY '+AProc.Name+')');
+  ABI:=MultiAbiGet(AProc.Name);
+  wrt('('+ABI.CallingConvertion+' '+AProc.Name+')');
 
   if (AProc.Args.Count > 0) then
   begin
