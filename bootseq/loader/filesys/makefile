@@ -13,12 +13,21 @@
 # filesystems list with path (p) and extension (e) placeholder
 #
 blackboxes           = $(p)fat$(e) $(p)ext2fs$(e) $(p)jfs$(e) $(p)iso9660$(e) $(p)reiserfs$(e) &
-                       $(p)minix$(e) $(p)ufs2$(e) $(p)vstafs$(e) $(p)ffs$(e) $(p)xfs$(e) $(p)ntfs$(e)
+                       $(p)minix$(e) $(p)ufs2$(e) $(p)vstafs$(e) $(p)ffs$(e) $(p)xfs$(e) $(p)ntfs$(e) &
+                       $(p)ntfs_nocomp$(e)
 
 # filesys without $(p) and $(e):
 p                    =
 e                    =
 bbx                  = $+$(blackboxes)$-
+
+#ADD_COPT             = -dSTAGE1_5
+
+!ifeq T ntfs_nocomp
+ALIASES              = ntfs_nocomp_mount_=ntfs_mount_, &
+                       ntfs_nocomp_dir_=ntfs_dir_, &
+                       ntfs_nocomp_read_=ntfs_read_
+!endif
 
 common_SRCS          = start.asm dummy.asm fsys.c
 common_OBJS          = $(p)start$(e) $(p)fsys$(e) $(p)dummy$(e)
@@ -58,3 +67,9 @@ $(PATH)start.$(O): $(MYDIR)start.asm
 
 $(PATH)start.$(SO): $(MYDIR)start.asm
  $(ASM) -d$(basename) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)fsys_ntfs_nocomp.$(O): $(MYDIR)fsys_ntfs.c
+ $(CC) -dfsys_ntfs -dSHIFT=0 -dSTAGE1_5 $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)fsys_ntfs_nocomp.$(SO): $(MYDIR)fsys_ntfs.c
+ $(CC) -dfsys_ntfs -dSHIFT=$(SHIFT) -dSTAGE1_5 $(COPT) -fr=$^*.err -fo=$^@ $[@
