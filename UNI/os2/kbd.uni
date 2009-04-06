@@ -1,6 +1,6 @@
 module kbd;
 
-
+abi sub32;
 
 type HKBD=USHORT;
 type PHKBD=^HKBD;

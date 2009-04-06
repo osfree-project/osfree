@@ -1,5 +1,6 @@
 module mou;
 
+abi sub32;
 
 type HMOU=USHORT;
 type PHMOU=^HMOU;
