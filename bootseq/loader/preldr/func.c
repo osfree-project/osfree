@@ -59,6 +59,8 @@ sane_partition (void);
 #include "freebsd.h"
 int bsd_evil_hack;
 
+#if 0
+
 struct fsys_entry fsys_table[NUM_FSYS + 1] =
 {
   /* TFTP should come first because others don't handle net device.  */
@@ -102,6 +104,8 @@ struct fsys_entry fsys_table[NUM_FSYS + 1] =
 # endif
   {0, 0, 0, 0, 0, 0}
 };
+
+#endif
 
 /* These are defined in asm.S, and never be used elsewhere, so declare the
    prototypes here.  */

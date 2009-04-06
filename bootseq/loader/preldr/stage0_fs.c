@@ -719,13 +719,13 @@ freeldr_read (char *buf, int len)
    int rc;
 #ifndef STAGE1_5
    printf("r 0x%x %d", buf, len);
-#endif
    if (filetab_ptr)
    {
      // use 16-bit uFSD
      rc = mu_Read_wr(filepos, buf, len);
    }
    else
+#endif
    {
      // use 32-bit uFSD
      rc = grub_read(buf, len);
@@ -736,21 +736,25 @@ freeldr_read (char *buf, int len)
    return rc;
 }
 
+#ifndef STAGE1_5
 int
 freeldr_seek (int offset)
 {
    return grub_seek(offset);
 }
+#endif
 
 void
 freeldr_close (void)
 {
+#ifndef STAGE1_5
    if (filetab_ptr)
    {
      // use 16-bit uFSD
      mu_Close_wr();
    }
    else
+#endif
    {
      // use 32-bit uFSD
      grub_close();
@@ -778,6 +782,8 @@ void stage0_close(void)
     l1->lip_fs_close();
 }
 
+#ifndef STAGE1_5
+
 int  stage0_embed(int *start_sector, int needed_sectors)
 {
   if (l1->lip_fs_embed)
@@ -786,7 +792,6 @@ int  stage0_embed(int *start_sector, int needed_sectors)
   return 0;
 }
 
-#ifndef STAGE1_5
 
 void setlip2(lip2_t *l2)
 {
@@ -812,9 +817,11 @@ void setlip1(lip1_t *l1)
 {
   l1->lip_open  = &freeldr_open;
   l1->lip_read  = &freeldr_read;
+#ifndef STAGE1_5
   l1->lip_seek  = &freeldr_seek;
-  l1->lip_close = &freeldr_close;
   l1->lip_term  = 0;
+#endif
+  l1->lip_close = &freeldr_close;
 
   //l->lip_memcheck = 0; //&grub_memcheck;
   l1->lip_memset   = &grub_memset;
@@ -1217,7 +1224,6 @@ int init(void)
   int key;
 
 #ifndef STAGE1_5
-
   gateA20(1);
   /* use putchar() implementation through printmsg() */
   use_term = 0;
@@ -1239,8 +1245,10 @@ int init(void)
   /* setting LIP */
   setlip();
 
+#ifndef STAGE1_5
   // backup uFSD
   grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
+#endif
 
   /* call uFSD init (set linkage) */
   if (!filetab_ptr)

@@ -22,7 +22,11 @@ extrn filemax           :dword
 extrn call_pm           :near
 extrn freeldr_open      :near
 extrn freeldr_read      :near
+
+ifndef STAGE1_5
 extrn freeldr_seek      :near
+endif
+
 extrn freeldr_close     :near
 
 .386p
@@ -60,6 +64,7 @@ switch_to_ldr macro
         mov  es, bx
         lss  sp, ldr_ss_sp
 endm
+
 
 _TEXT16 segment dword public 'CODE' use16
 

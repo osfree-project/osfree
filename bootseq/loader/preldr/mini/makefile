@@ -13,13 +13,13 @@ DEST             =  boot$(SEP)loader
 
 !include $(%ROOT)/mk/dirs.mk
 
-STAGE0_OBJS   =    $(p)segord$(e) $(p)init$(e) $(p)..$(SEP)modesw$(e) $(p)biosdisk$(e) $(p)filesys$(e) $(p)filesys16$(e) &
-                   $(p)dskaccess$(e) $(p)part$(e) $(p)video$(e) $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) &
+STAGE0_OBJS   =    $(p)segord$(e) $(p)init$(e) $(p)..$(SEP)modesw$(e) $(p)biosdisk$(e) $(p)filesys$(e) &
+                   $(p)dskaccess$(e) $(p)part$(e) $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) &
                    $(p)..$(SEP)setdev$(e) $(p)bios$(e) $(p)end$(e)
 
 ADD_COPT         = -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include 
 ADD_ASMOPT       = -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include
-ALIASES          = init_=_init
+!define ALIASES          init_=_init
 MOD_BASE         = STAGE0_BASE
  
 #

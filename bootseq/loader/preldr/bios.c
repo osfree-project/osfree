@@ -139,6 +139,8 @@ biosdisk (int read, int drive, struct geometry *geometry,
   return err;
 }
 
+#ifndef STAGE1_5
+
 /* Check bootable CD-ROM emulation status.  */
 static int
 get_cdinfo (int drive, struct geometry *geometry)
@@ -200,6 +202,8 @@ get_cdinfo (int drive, struct geometry *geometry)
   return 0;
 }
 
+#endif
+
 /* Return the geometry of DRIVE in GEOMETRY. If an error occurs, return
    non-zero, otherwise zero.  */
 int
@@ -222,6 +226,7 @@ get_diskinfo (int drive, struct geometry *geometry)
       version = check_int13_extensions (drive);
       //high_stack();
 
+#ifndef STAGE1_5
       if (drive >= 0x88 || version)
         {
           /* Possible CD-ROM - check the status.  */
@@ -232,6 +237,7 @@ get_diskinfo (int drive, struct geometry *geometry)
           if (err)
             return 0;
         }
+#endif
 
       if (version)
         {
@@ -321,6 +327,7 @@ get_diskinfo (int drive, struct geometry *geometry)
       geometry->total_sectors = total_sectors;
       geometry->sector_size = SECTOR_SIZE;
     }
+#ifndef STAGE1_5
   else
     {
       /* floppy disk */
@@ -354,6 +361,7 @@ get_diskinfo (int drive, struct geometry *geometry)
                                  * geometry->sectors);
       geometry->sector_size = SECTOR_SIZE;
     }
+#endif
 
   return 0;
 }
