@@ -112,7 +112,7 @@ function TDefWriter.MultiAbiGet(Symbol: String): TAbi;
 var
   i: word;
 begin
-  if FAbiList.AbiList.Count>0 then
+  if assigned(fabilist) then if fabiList.AbiList.Count>0 then
   for i:=0 to FAbiList.AbiList.Count-1 do
   begin
     Result:=AbiGet(TPasElement(FAbiList.AbiList[i]).Name+'.abi', Symbol);
