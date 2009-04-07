@@ -300,10 +300,10 @@ type EXCEPTIONREGISTRATIONRECORD=structure
 
 type PEXCEPTIONREGISTRATIONRECORD=^EXCEPTIONREGISTRATIONRECORD;
 
-type _ERR=function(per: PEXCEPTIONREPORTRECORD;
-                            perr: ^EXCEPTIONREGISTRATIONRECORD;
-                            pcr: PCONTEXTRECORD;
-                            p: PVOID): APIRET;
+type _ERR=function(in per: PEXCEPTIONREPORTRECORD;
+                   in perr: ^EXCEPTIONREGISTRATIONRECORD;
+                   in pcr: PCONTEXTRECORD;
+                   in p: PVOID): APIRET;
 
 type ERR=^_ERR;
 

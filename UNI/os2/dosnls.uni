@@ -32,18 +32,32 @@ module dosnls;
    #define DosSetProcCp    DosSetProcessCp
 *)
 
-function DosQueryCtryInfo(cb: ULONG; pcc: PCOUNTRYCODE; pci: PCOUNTRYINFO; pcbActual: PULONG): APIRET;
+function DosQueryCtryInfo(in  cb: ULONG; 
+						  in  pcc: PCOUNTRYCODE; 
+						  out pci: COUNTRYINFO; 
+						  out pcbActual: ULONG): APIRET;
 
-function DosQueryDBCSEnv(cb: ULONG; pcc: PCOUNTRYCODE; pBuf: PCHAR): APIRET;
+function DosQueryDBCSEnv(in  cb: ULONG; 
+						 in  pcc: PCOUNTRYCODE; 
+						 out pBuf: CHAR): APIRET;
 
-function DosMapCase(cb: ULONG; pcc: PCOUNTRYCODE; pch: PCHAR): APIRET;
+function DosMapCase(in    cb: ULONG; 
+					in    pcc: PCOUNTRYCODE; 
+					inout pch: PCHAR): APIRET;
 
-function DosQueryCollate(cb: ULONG; pcc: PCOUNTRYCODE; pch: PCHAR; pcch: PULONG): APIRET;
+function DosQueryCollate(in  cb: ULONG; 
+						 in  pcc: PCOUNTRYCODE; 
+						 out pch: CHAR; 
+						 out pcch: ULONG): APIRET;
 
-function DosQueryCp(cb: ULONG; arCP: PULONG; pcCP: PULONG): APIRET;
+function DosQueryCp(in  cb: ULONG; 
+					out arCP: ULONG; 
+					out pcCP: ULONG): APIRET;
 
-function DosGetCp(cb: ULONG; arCP: PULONG; pcCP: PULONG): APIRET;
+function DosGetCp(in  cb: ULONG; 
+				  out arCP: ULONG; 
+				  out pcCP: ULONG): APIRET;
 
-function DosSetProcessCp(cp: ULONG): APIRET;
+function DosSetProcessCp(in cp: ULONG): APIRET;
 
 end.

@@ -6,25 +6,25 @@ module dosmvdm;
    type PHVDD=^HVDD;      (* phvdd *)
 
    function DosOpenVDD(in pszVDD: PSZ;
-                       phvdd: PHVDD): APIRET;
+                       out phvdd: HVDD): APIRET;
 
-   function DosRequestVDD(hvdd: HVDD;
-                          sgid: SGID;
-                          cmd: ULONG;
-                          cbInput: ULONG;
-                          pInput: PVOID;
-                          cbOutput: ULONG;
-                          pOutput: PVOID): APIRET;
+   function DosRequestVDD(in hvdd: HVDD;
+                          in sgid: SGID;
+                          in cmd: ULONG;
+                          in cbInput: ULONG;
+                          in pInput: PVOID;
+                          in cbOutput: ULONG;
+                          in pOutput: PVOID): APIRET;  (* untyped var returned *)
 
-   function DosCloseVDD(hvdd: HVDD): APIRET;
+   function DosCloseVDD(in hvdd: HVDD): APIRET;
 
-   function DosQueryDOSProperty(sgid: SGID;
+   function DosQueryDOSProperty(in sgid: SGID;
                                 in pszName: PSZ;
-                                cb: ULONG;
-                                in pch: PCSZ): APIRET;
+                                in cb: ULONG;
+                                out pch: CHAR): APIRET; 
 
-   function DosSetDOSProperty(sgid: SGID;
+   function DosSetDOSProperty(in sgid: SGID;
                               in pszName: PSZ;
-                              cb: ULONG;
+                              in cb: ULONG;
                               in pch: PSZ): APIRET;
 end;

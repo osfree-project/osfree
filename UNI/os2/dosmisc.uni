@@ -72,68 +72,63 @@ module dosmisc;
    #define DosQSysInfo     DosQuerySysInfo
 *)
 
-function DosError(errorno: ULONG): APIRET;
+function DosError(in errorno: ULONG): APIRET;
 
-function DosGetMessage(pTable: ^PCHAR;
-                       cTable: ULONG;
-                       pBuf: PCHAR;
-                       cbBuf: ULONG;
-                       msgnumber: ULONG;
+function DosGetMessage(in pTable: ^PCHAR;
+                       in cTable: ULONG;
+                       out pBuf: CHAR;
+                       in cbBuf: ULONG;
+                       in msgnumber: ULONG;
                        in pszFile: PSZ;
-                       pcbMsg: PULONG): APIRET;
+                       out pcbMsg: ULONG): APIRET;
 
-function DosErrClass(code: ULONG;
-                     pClass: PULONG;
-                     pAction: PULONG;
-                     pLocus: PULONG): APIRET;
+function DosErrClass(in code: ULONG;
+                     out pClass: ULONG;
+                     out pAction: ULONG;
+                     out pLocus: ULONG): APIRET;
 
-function DosInsertMessage(pTable: ^PCHAR;
-                          cTable: ULONG;
+function DosInsertMessage(in pTable: ^PCHAR;
+                          in cTable: ULONG;
                           in pszMsg: PSZ;
-                          cbMsg: ULONG;
-                          pBuf: PCHAR;
-                          cbBuf: ULONG;
-                          pcbMsg: PULONG): APIRET;
+                          in cbMsg: ULONG;
+                          out pBuf: CHAR;
+                          in cbBuf: ULONG;
+                          out pcbMsg: ULONG): APIRET;
 
-function DosPutMessage(hfile: HFILE;
-                       cbMsg: ULONG;
-                       pBuf: PCHAR): APIRET;
+function DosPutMessage(in hfile: HFILE;
+                       in cbMsg: ULONG;
+                       in pBuf: PCHAR): APIRET;
 
-function DosQuerySysInfo(iStart: ULONG;
-                         iLast: ULONG;
-                         pBuf: PVOID;
-                         cbBuf: ULONG): APIRET;
+function DosQuerySysInfo(in iStart: ULONG;
+                         in iLast: ULONG;
+                         in pBuf: PVOID; (* untyped variable returned, sigh! *)
+                         in cbBuf: ULONG): APIRET;
 
-function DosScanEnv(pszName: PSZ,
-                    ppszValue: ^PSZ): APIRET;
+function DosScanEnv(in pszName: PSZ,
+                    out ppszValue: PSZ): APIRET;
 
-function DosSearchPath(flag: ULONG;
+function DosSearchPath(in flag: ULONG;
                        in pszPathOrName: PSZ;
                        in pszFilename: PSZ;
-                       pBuf: PBYTE;
-                       cbBuf: ULONG): APIRET;
+                       out pBuf: BYTE;
+                       in cbBuf: ULONG): APIRET;
 
-function DosQueryMessageCP(pb: PCHAR;
-                           cb: ULONG;
+function DosQueryMessageCP(out pb: CHAR;
+                           in cb: ULONG;
                            in pszFilename: PSZ,
-                           cbBuf: PULONG): APIRET;
+                           out cbBuf: ULONG): APIRET;
 
-function DosQueryRASInfo(Index: ULONG;
-                         Addr: PPVOID): APIRET;
+function DosQueryRASInfo(in Index: ULONG;
+                         out Addr: PVOID): APIRET;
 
 function DosSetExtLIBPATH(in pszExtLIBPATH: PSZ;
-                          flags: ULONG): APIRET;
+                          in flags: ULONG): APIRET;
 
 function DosQueryExtLIBPATH(in pszExtLIBPATH: PSZ;
-                            flags: ULONG): APIRET;
+                            in flags: ULONG): APIRET;
 
-function DosVerifyPidTid(Pid: PID;
-                         Tid: TID): APIRET;
+function DosVerifyPidTid(in Pid: PID;
+                         in Tid: TID): APIRET;
 
-(*
-   APIRET16  APIENTRY16 Dos16SysTrace(USHORT major,
-                                      USHORT cpBuf,
-                                      USHORT minor,
-                                      PCHAR pBuf);
-*)
+
 end.

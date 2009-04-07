@@ -6,7 +6,7 @@
 
 TARGETS   = $(MYDIR)sub32.lib
 
-#PROJ        = cons32
+#PROJ        = sub32
 #DESC        = Base Subsystems API
 #OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 #ADD_COPT    = -i=..\include
@@ -14,6 +14,34 @@ TARGETS   = $(MYDIR)sub32.lib
 #DLL     = 1
 #DLLOPT  = initglobal
 #OPTIONS = manyautodata
+#IMPORTS = MOUGETPTRSHAPE       DOSCALLS.719, &
+#          MOUSETPTRSHAPE       DOSCALLS.720, &
+#          MOUGETNUMMICKEYS     DOSCALLS.721, &
+#          MOUGETHOTKEY         DOSCALLS.853, &
+#          MOUSHELLINIT         DOSCALLS.723, &
+#          MOUGETSCALEFACT      DOSCALLS.724, &
+#          MOUFLUSHQUE          DOSCALLS.725, &
+#          MOUGETNUMBUTTONS     DOSCALLS.726, &
+#          MOUCLOSE             DOSCALLS.727, &
+#          MOUSETHOTKEY         DOSCALLS.854, &
+#          MOUSETSCALEFACT      DOSCALLS.729, &
+#          MOUGETNUMQUEEL       DOSCALLS.730, &
+#          MOUDEREGISTER        DOSCALLS.731, &
+#          MOUGETEVENTMASK      DOSCALLS.732, &
+#          MOUSETEVENTMASK      DOSCALLS.733, &
+#          MOUOPEN              DOSCALLS.734, &
+#          MOUREMOVEPTR         DOSCALLS.735, &
+#          MOUGETPTRPOS         DOSCALLS.736, &
+#          MOUREADEVENTQUE      DOSCALLS.737, &
+#          MOUSETPTRPOS         DOSCALLS.738, &
+#          MOUGETDEVSTATUS      DOSCALLS.739, &
+#          MOUSYNCH             DOSCALLS.740, &
+#          MOUREGISTER          DOSCALLS.741, &
+#          MOUSETDEVSTATUS      DOSCALLS.742, &
+#          MOUDRAWPTR           DOSCALLS.743, &
+#          MOUINITREAL          DOSCALLS.744, &
+#          MOUGETTHRESHOLD      DOSCALLS.722, &
+#          MOUSETTHRESHOLD      DOSCALLS.728
 #EXPORTS = EMX_REVISION.1 RESIDENT, &
 #  WinDefAVioWindowProc        .30, &
 #  VioEndPopUp                 .101, &
