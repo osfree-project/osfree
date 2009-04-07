@@ -26,7 +26,7 @@ TEXT16_LEN equ (TEXT16_END - TEXT16_BEG)
 ifndef STAGE1_5
 BASE       equ (BASE1 + 800h)    ; 600h; TEXT16_LEN
 else
-BASE       equ (BASE1 + 340h)    ; 233h
+BASE       equ (BASE1 + 3b8h)    ; 233h
 endif
 
 _TEXT    segment dword public 'CODE'  use32

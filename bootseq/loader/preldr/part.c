@@ -24,8 +24,6 @@ int buf_drive = -1;
 int buf_track;
 struct geometry buf_geom;
 
-#ifndef STAGE1_5
-
 #pragma aux errnum "*"
 
 extern grub_error_t errnum;
@@ -467,16 +465,14 @@ check_and_print_mount (int flags)
   //print_error ();
 }
 
-#endif
-
 int
 open_partition (void)
 {
-#ifndef STAGE1_5
+//#ifndef STAGE1_5
   return real_open_partition (0);
-#else
-  return 1;
-#endif
+//#else
+//  return 1;
+//#endif
 }
 
 

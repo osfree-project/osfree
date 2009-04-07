@@ -30,6 +30,12 @@ extrn   init         :near
 extrn   call_pm      :near
 extrn   lip1         :dword
 
+extrn   mem_lower    :dword
+
+extrn   preldr_ss_sp :dword
+extrn   preldr_ds    :word
+extrn   preldr_es    :word
+
 ifndef STAGE1_5
 
 public  ft
@@ -41,12 +47,6 @@ extrn   mu_Close     :far
 extrn   mu_Terminate :far
 
 extrn   printhex8    :near
-
-extrn   preldr_ds    :word
-extrn   preldr_ss_sp :dword
-extrn   preldr_es    :word
-
-extrn   mem_lower    :dword
 
 endif
 
@@ -311,13 +311,11 @@ reloc:
         mov  eax, GDT_ADDR
         mov  [bx].g_base, eax
 
-ifndef STAGE1_5
         ; get available memory
         call getmem
 
         ; enable A20 address line
         ;call EnableA20Line
-endif
 
         ; call 32-bit protected mode init
         mov  eax, offset _TEXT:init
@@ -328,14 +326,14 @@ endif
 ifndef STAGE1_5
         ; save pre-loader segment registers and stack
         mov  ax, ds
-        mov  preldr_ds, ax
+        mov  word ptr preldr_ds, ax
         mov  ax, es
-        mov  preldr_es, ax
+        mov  word ptr preldr_es, ax
         mov  ax, sp
         mov  word ptr preldr_ss_sp, ax
         mov  ax, ss
         mov  word ptr preldr_ss_sp + 2, ax
-
+endif
         ;
         ; pass structures to os2ldr
         ;
@@ -364,6 +362,12 @@ ifndef STAGE1_5
         push 0
         retf
 
+;else
+
+; Control transferring from lite version to full one
+
+;endif
+
 getmem:
         xor  eax, eax
         int  12h
@@ -371,21 +375,15 @@ getmem:
         mov  [ebx], eax
         ret
 
-EnableA20Line:
-    ; Enable A20 address line:
-    push ax
-    in   al, 0x92
-    or   al, 2
-    out  0x92, al
-    pop  ax
-
-    ret
-
-else
-
-; Control transferring from lite version to full one
-
-endif
+;EnableA20Line:
+;    ; Enable A20 address line:
+;    push ax
+;    in   al, 0x92
+;    or   al, 2
+;    out  0x92, al
+;    pop  ax
+;
+;    ret
 
 getaddr:
     mov  bp, sp
@@ -410,9 +408,9 @@ boot_drive         dd 0         ; <-- DL
 install_partition  dd 0
 install_filesys    db 16 dup (?)
 
-ifndef STAGE1_5
 ft                 FileTable <>
 
+ifndef STAGE1_5
 ;
 ; void jmp_reloc(unsigned long addr);
 ;

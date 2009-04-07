@@ -1,6 +1,6 @@
 /*
  *
- *
+ *endif
  */
 
 #include <lip.h>
@@ -1206,25 +1206,31 @@ void reloc(char *base, char *rel_file, unsigned long shift)
 
 int init(void)
 {
+#ifndef STAGE1_5
   char cfg[0x20];
   char str[0x80];
-  int rc, files;
-  char *buf;
-  char *fn;
+  int files;
   char *s;
   unsigned long ldrlen = 0, mfslen = 0;
   unsigned long ldrbase;
   bios_parameters_block *bpb;
-  struct geometry geom;
   unsigned short *p;
   unsigned long  *q;
   struct desc *z;
   unsigned long base;
   int i, k, l;
   int key;
+#else
+  char preldr[] = "\377\377\0\200/boot/loader/preldr0.mdl\0";
+#endif
+  char *fn;
+  int  rc; 
+  char *buf;
+  struct geometry geom;
+
+  gateA20(1);
 
 #ifndef STAGE1_5
-  gateA20(1);
   /* use putchar() implementation through printmsg() */
   use_term = 0;
 #endif
@@ -1234,6 +1240,7 @@ int init(void)
   saved_drive = boot_drive;
   saved_partition = install_partition;
 
+#ifndef STAGE1_5
   /* Set cdrom drive.   */
   /* Get the geometry.  */
   if (get_diskinfo (boot_drive, &geom)
@@ -1241,6 +1248,9 @@ int init(void)
     cdrom_drive = GRUB_INVALID_DRIVE;
   else
     cdrom_drive = boot_drive;
+#else
+  cdrom_drive = GRUB_INVALID_DRIVE;
+#endif
 
   /* setting LIP */
   setlip();
@@ -1613,6 +1623,27 @@ int init(void)
 
 #else
 
+  /* Load a pre-loader full version */
+  //fn = preldr;
+  rc = freeldr_open(preldr);
+
+  buf = (char *)(0x10000);
+
+  if (rc) {
+    rc = freeldr_read(buf, -1);
+   /*
+    __asm {
+      mov  dx, boot_flags
+      mov  dl, byte ptr boot_drive
+
+      push  0x10000
+      retn
+    }
+    */
+  } else __asm {
+    cli
+    hlt
+  }
 
 #endif
 

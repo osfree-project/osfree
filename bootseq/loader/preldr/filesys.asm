@@ -12,11 +12,11 @@ public mu_Read
 public mu_Close
 public mu_Terminate
 
+endif
+
 public preldr_ds
 public preldr_ss_sp
 public preldr_es
-
-endif
 
 extrn filemax           :dword
 extrn call_pm           :near
@@ -206,12 +206,11 @@ ldr_ds       dw 0
 ldr_ss_sp    dd 0
 ldr_es       dw 0
 
+endif
+
 preldr_ds    dw 0
 preldr_ss_sp dd 0
 preldr_es    dw 0
-
-
-endif
 
 
 _TEXT16 ends

@@ -10,17 +10,20 @@ include fsd.inc
 extrn   call_rm             :near
 extrn   bss_end             :near
 
+public gateA20
+
 ifndef STAGE1_5
 
 public stop
 public stop_floppy
 
 public get_memsize
-public gateA20
 public get_code_end
 public get_mmap_entry
 public get_rom_config_table
 public get_eisamemsize
+
+endif
 
 K_RDWR          equ	0x60	; keyboard data & cmds (read/write)
 K_STATUS        equ	0x64	; keyboard status
@@ -43,6 +46,8 @@ _TEXT16 segment dword public 'CODE' use16
         ;  byte ordering on the x86 to work in either 16-bit or 32-bit
         ;  mode, so think about it before changing it.
         ;
+
+ifndef STAGE1_5
 
 hard_stop:
         cli
@@ -78,6 +83,7 @@ get_eisamemsize_rm:
 
         retf
 
+endif
 
 gateA20_rm:
 	mov	ax, 2400h
@@ -96,6 +102,8 @@ ft2:	mov	dl, ah
       
         retf
 
+
+ifndef STAGE1_5
 
 get_mmap_entry_rm:
 	mov	es, si
@@ -141,7 +149,7 @@ no_rom_table:
 found_rom_table:
         retf
 
-
+endif
 
 _TEXT16 ends
 
@@ -154,6 +162,7 @@ _TEXT    segment dword public 'CODE'  use32
 ;  This starts a kernel in the manner expected of the multiboot standard.
 ;
 
+ifndef STAGE1_5
 
 ;
 ;  This call is special...  it never returns...  in fact it should simply
@@ -257,6 +266,8 @@ xnoteisa:
 ; It also eats any keystrokes in the keyboard buffer.  :-(
 ;
 
+endif 
+
 gateA20:
 	; first, try a BIOS call 
 	push	ebp
@@ -320,6 +331,7 @@ gloop2:
 gloop2ret:
 	ret
 
+ifndef STAGE1_5
 
 ;
 ; get_code_end() :  return the address of the end of the code
@@ -425,8 +437,8 @@ get_rom_config_table:
 	pop	ebp
 	ret
 
-_TEXT   ends
-
 endif
+
+_TEXT   ends
 
         end
