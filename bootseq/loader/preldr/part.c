@@ -4,6 +4,7 @@
 #include <shared.h>
 #include <pc_slice.h>
 #include <freebsd.h>
+#include <bpb.h>
 
 #include "fsd.h"
 
@@ -11,6 +12,12 @@ extern unsigned long saved_drive;
 extern unsigned long saved_partition;
 extern unsigned long cdrom_drive;
 unsigned long saved_slice;
+
+extern unsigned long boot_drive;
+extern unsigned long install_partition;
+
+#pragma aux boot_drive        "*"
+#pragma aux install_partition "*"
 
 unsigned long current_drive;
 unsigned long current_partition;
@@ -27,6 +34,8 @@ struct geometry buf_geom;
 #pragma aux errnum "*"
 
 extern grub_error_t errnum;
+
+#ifndef STAGE1_5
 
 int
 attempt_mount (void);
@@ -465,14 +474,67 @@ check_and_print_mount (int flags)
   //print_error ();
 }
 
+#else // STAGE1_5
+
+#pragma pack(1)
+
+typedef struct _desc {
+  char active;
+  char start_chs[3];
+  char id;
+  char end_chs[3];
+  unsigned long start_lba;
+  unsigned long len;
+} desc;
+
+/* Partitioning sector: bootsector or EBR/MBR */
+typedef struct _partsect {
+  char jump[3];
+  char oemid[8];
+  bios_parameters_block bpb;
+  char code[512 - 3 - 8 - sizeof(bios_parameters_block) - 4 * sizeof(desc) - 2];
+  desc pt[4];
+  char sig[2];
+} partsect;
+
+#pragma pack()
+
+int open_partition_hiddensecs(void)
+{
+  partsect *p;
+  int     lba;
+  struct  geometry *geo;
+  char    *buf = (char *)0x20000;
+  desc    *q;
+
+  p = (partsect *)(BOOTSEC_BASE);
+  /* LBA of partition EBR */
+  lba = p->bpb.hidden_secs - p->bpb.track_size;
+  part_start = p->bpb.hidden_secs;
+
+  rawread (boot_drive, lba, 0, 512, buf);
+  p = (partsect *)buf;
+
+  /* 1st partition descriptor */
+  q = p->pt;
+
+  current_slice = q->id;
+  part_length   = q->len;
+
+  current_drive = boot_drive;
+  current_partition = install_partition;
+
+  errnum = ERR_NONE;
+  return 1;
+}
+#endif
+
 int
 open_partition (void)
 {
-//#ifndef STAGE1_5
+#ifndef STAGE1_5
   return real_open_partition (0);
-//#else
-//  return 1;
-//#endif
+#else
+  return open_partition_hiddensecs();
+#endif
 }
-
-
