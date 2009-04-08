@@ -2,39 +2,40 @@ module dosmodulemgr;
 
 (*** Module manager *)
 
-function DosLoadModule(in pszName: PSZ;
-                       cbName: ULONG;
+function DosLoadModule(out pszName: CHAR;
+                       in cbName: ULONG;
                        in pszModname: PSZ;
-                       phmod: PHMODULE): APIRET;
+                       out phmod: HMODULE): APIRET;
 
-function DosFreeModule(hmod: HMODULE): APIRET;
+function DosFreeModule(in hmod: HMODULE): APIRET;
 
-function DosQueryProcAddr(hmod: HMODULE;
-                           ordinal: ULONG;
+function DosQueryProcAddr(in hmod: HMODULE;
+                           in ordinal: ULONG;
                            in pszName: PSZ;
-                           ppfn: ^PFN): APIRET;
+                           out ppfn: PFN): APIRET;
 
 function DosQueryModuleHandle(in pszModname: PSZ;
-                              phmod: PHMODULE): APIRET;
+                              out phmod: HMODULE): APIRET;
 
-function DosQueryModuleName(hmod: HMODULE;
-                            cbName: ULONG;
-                            pch: PCHAR): APIRET;
+function DosQueryModuleName(in hmod: HMODULE;
+                            in cbName: ULONG;
+                            out pch: CHAR): APIRET;
 
    const PT_16BIT        =0;
    const PT_32BIT        =1;
 
-function DosQueryProcType(hmod: HMODULE;
-                          ordinal: ULONG;
+function DosQueryProcType(in hmod: HMODULE;
+                          in ordinal: ULONG;
                           in pszName: PSZ;
-                          pulproctype: PULONG): APIRET;
+                          out pulproctype: ULONG): APIRET;
 
-function DosQueryModFromEIP(phMod: ^HMODULE;
-                            pObjNum: ^ULONG;
-                            BuffLen: ULONG;
-                            pBuff: PCHAR;
-                            pOffset: ^ULONG;
-                            Address: ULONG): APIRET;
+(* Undocumented function *)						  
+function DosQueryModFromEIP(in phMod: ^HMODULE;
+                            in pObjNum: ^ULONG;
+                            in BuffLen: ULONG;
+                            in pBuff: PCHAR;
+                            in pOffset: ^ULONG;
+                            in Address: ULONG): APIRET;
 
    const HW_CFG_MCA              =$00000001;
    const HW_CFG_EISA             =$00000002;
@@ -45,7 +46,7 @@ function DosQueryModFromEIP(phMod: ^HMODULE;
    const HW_CFG_OEM_ABIOS        =$00000020;
    const HW_CFG_PENTIUM_CPU      =$00000040;
 
-function DosQueryABIOSSupport(reserved: ULONG): APIRET;
+function DosQueryABIOSSupport(in reserved: ULONG): APIRET;
 
 function DosReplaceModule(in pszOldModule: PSZ;
                           in pszNewModule: PSZ;
