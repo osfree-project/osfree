@@ -293,39 +293,43 @@ uses hevdef;
    type    FHLOCK=ULONG;
    type    PFHLOCK=PULONG;
 
-   function DosSetFileLocks(hFile: HFILE;
-                                   pflUnlock:PFILELOCK;
-                                   pflLock:PFILELOCK;
-                                   timeout: ULONG;
-                                   flags: ULONG): APIRET;
+(* Function is obsoled. Use DosSetFileLocksL instead. *)
+function DosSetFileLocks(in hFile: HFILE;
+                         in pflUnlock:PFILELOCK;
+                         in pflLock:PFILELOCK;
+                         in timeout: ULONG;
+                         in flags: ULONG): APIRET;
 
    (* Large File Support >2GB *)
-function DosSetFileLocksL( hFile:HFILE;
-                                     pflUnlock: PFILELOCKL;
-                                     pflLock:PFILELOCKL;
-                                     timeout:ULONG;
-                                     flags:ULONG): APIRET;
+function DosSetFileLocksL(in hFile:HFILE;
+                          in pflUnlock: PFILELOCKL;
+                          in pflLock:PFILELOCKL;
+                          in timeout:ULONG;
+                          in flags:ULONG): APIRET;
 
-function DosProtectSetFileLocks( hFile: HFILE;
-                                           pflUnlock:PFILELOCK;
-                                           pflLock: PFILELOCK;
-                                           timeout:ULONG;
-                                           flags: ULONG;
-                                           fhFileHandleLockID: FHLOCK): APIRET;
-
-   (* Large File Support >2GB *)
-function DosProtectSetFileLocksL(hFile: HFILE;
-                                            pflUnlock: PFILELOCKL;
-                                            pflLock: PFILELOCKL;
-                                            timeout: ULONG;
-                                            flags: ULONG;
-                                            fhFileHandleLockID: FHLOCK): APIRET;
-
-function DosCancelLockRequest(hFile: HFILE; pflLock: PFILELOCK): APIRET;
-
+(* Function is obsoled. Use DosProtectSetFileLocksL instead. *)
+function DosProtectSetFileLocks(in hFile: HFILE;
+                                in pflUnlock:PFILELOCK;
+                                in pflLock: PFILELOCK;
+                                in timeout:ULONG;
+                                in flags: ULONG;
+                                in fhFileHandleLockID: FHLOCK): APIRET;
 
    (* Large File Support >2GB *)
-function DosCancelLockRequestL(hFile: HFILE; pflLock: PFILELOCKL): APIRET;
+function DosProtectSetFileLocksL(in hFile: HFILE;
+                                 in pflUnlock: PFILELOCKL;
+                                 in pflLock: PFILELOCKL;
+                                 in timeout: ULONG;
+                                 in flags: ULONG;
+                                 in fhFileHandleLockID: FHLOCK): APIRET;
+
+(* Function is obsoled. Use DosCancelLockRequestL instead. *)
+function DosCancelLockRequest(in hFile: HFILE; 
+                              in  pflLock: PFILELOCK): APIRET;
+
+(* Large File Support >2GB *)
+function DosCancelLockRequestL(in hFile: HFILE; 
+                               in pflLock: PFILELOCKL): APIRET;
 
 
       type FILEFINDBUF=structure     (* findbuf *)
@@ -552,77 +556,79 @@ function DosCancelLockRequestL(hFile: HFILE; pflLock: PFILELOCKL): APIRET;
    end;
    type PLISTIOL=^LISTIOL;
 
+(* Function is obsoled. Use DosOpenL instead. *)
+function  DosOpen(in    pszFileName: PCSZ;
+                  out   pHf: HFILE;
+                  out   pulAction: ULONG;
+                  in    cbFile: ULONG;
+                  in    ulAttribute: ULONG;
+                  in    fsOpenFlags: ULONG;
+                  in    fsOpenMode: ULONG;
+                  inout peaop2: EAOP2): APIRET;
 
-function  DosOpen(pszFileName: PCSZ;
-                            pHf: PHFILE;
-                            pulAction: PULONG;
-                            cbFile: ULONG;
-                            ulAttribute: ULONG;
-                            fsOpenFlags: ULONG;
-                            fsOpenMode: ULONG;
-                            peaop2: PEAOP2): APIRET;
+(* Large File Support > 2GB *)
+function DosOpenL(in    pszFileName: PCSZ;
+                  out   phf: HFILE;
+                  out   pulAction: ULONG;
+                  in    cbFile: LONGLONG;
+                  in    ulAttribute: ULONG;
+                  in    fsOpenFlags: ULONG;
+                  in    fsOpenMode: ULONG;
+                  inout peaop2: EAOP2): APIRET;
 
-   (* Large File Support > 2GB *)
-function DosOpenL(  pszFileName: PCSZ;
-                             phf: PHFILE;
-                             pulAction: PULONG;
-                             cbFile: LONGLONG;
-                             ulAttribute: ULONG;
-                             fsOpenFlags: ULONG;
-                             fsOpenMode: ULONG;
-                             peaop2: PEAOP2): APIRET;
-
-function  DosProtectOpen(pszFileName: PCSZ;
-                                    phf: PHFILE;
-                                    pulAction: PULONG;
-                                    cbFile: ULONG;
-                                    ulAttribute: ULONG;
-                                    fsOpenFlags: ULONG;
-                                    fsOpenMode: ULONG;
-                                    peaop2: PEAOP2;
-                                    pfhFileHandleLockID: PFHLOCK): APIRET;
+(* Function is obsoled. Use DosProtectOpenL instead. *)
+function  DosProtectOpen(in    pszFileName: PCSZ;
+                         out   phf: HFILE;
+                         out   pulAction: ULONG;
+                         in    cbFile: ULONG;
+                         in    ulAttribute: ULONG;
+                         in    fsOpenFlags: ULONG;
+                         in    fsOpenMode: ULONG;
+                         inout peaop2: EAOP2;
+                         out   pfhFileHandleLockID: FHLOCK): APIRET;
 
    (* Large File Support >2GB *)
-function  DosProtectOpenL(  pszFileName: PCSZ;
-                                     phf: PHFILE;
-                                     pulAction: PULONG;
-                                     cbFile: LONGLONG;
-                                     ulAttribute: ULONG;
-                                     fsOpenFlags: ULONG;
-                                     fsOpenMode: ULONG;
-                                     peaop2: PEAOP2;
-                                     pfhFileHandleLockID: PFHLOCK): APIRET;
+function  DosProtectOpenL(in    pszFileName: PCSZ;
+                          out   phf: HFILE;
+                          out   pulAction: ULONG;
+                          in    cbFile: LONGLONG;
+                          in    ulAttribute: ULONG;
+                          in    fsOpenFlags: ULONG;
+                          in    fsOpenMode: ULONG;
+                          inout peaop2: EAOP2;
+                          out   pfhFileHandleLockID: FHLOCK): APIRET;
 
-function  DosClose(hFile: HFILE): APIRET;
+function  DosClose(in hFile: HFILE): APIRET;
 
-function  DosProtectClose( hFile: HFILE;
-                                     fhFileHandleLockID: FHLOCK): APIRET;
+function  DosProtectClose(in hFile: HFILE;
+                          in fhFileHandleLockID: FHLOCK): APIRET;
 
 
-function  DosRead(hFile: HFILE;
-                             pBuffer: PVOID;
-                             cbRead: ULONG;
-                             pcbActual: PULONG): APIRET;
+function  DosRead(in  hFile: HFILE;
+                  in  pBuffer: PVOID; (* Untyped var *)
+                  in  cbRead: ULONG;
+                  out pcbActual: ULONG): APIRET;
 
-function  DosProtectRead( hFile: HFILE;
-                                    pBuffer: PVOID;
-                                    cbRead: ULONG;
-                                    pcbActual: PULONG;
-                                    fhFileHandleLockID: FHLOCK): APIRET;
+function  DosProtectRead(in  hFile: HFILE;
+                         in  pBuffer: PVOID; (* Untyped var *)
+                         in  cbRead: ULONG;
+                         out pcbActual: ULONG;
+                         in  fhFileHandleLockID: FHLOCK): APIRET;
 
-function  DosWrite( hFile: HFILE;
-                              pBuffer: PVOID;
-                              cbWrite: ULONG;
-                              pcbActual: PULONG): APIRET;
+function  DosWrite(in  hFile: HFILE;
+                   in  pBuffer: PVOID; (* Untyped var *)
+                   in  cbWrite: ULONG;
+                   out pcbActual: ULONG): APIRET;
 
-function  DosProtectWrite( hFile: HFILE;
-                                     pBuffer: PVOID;
-                                     cbWrite: ULONG;
-                                     pcbActual: PULONG;
-                                     fhFileHandleLockID: FHLOCK): APIRET;
+function  DosProtectWrite(in  hFile: HFILE;
+                          in  pBuffer: PVOID; (* Untyped var *)
+                          in  cbWrite: ULONG;
+                          out pcbActual: ULONG;
+                          in  fhFileHandleLockID: FHLOCK): APIRET;
 
-function    DosListIO( ulCmdMode: ULONG;  ulNumentries: ULONG;
-                                            pListIO: PLISTIO): APIRET;
+function    DosListIO(in  ulCmdMode: ULONG;  
+                      in  ulNumentries: ULONG;
+                      out pListIO: LISTIO): APIRET;
 
    (* File time and date types *)
 
@@ -751,45 +757,45 @@ function    DosListIO( ulCmdMode: ULONG;  ulNumentries: ULONG;
    const DosQPathInfo    DosQueryPathInfo
 *)
 
-function  DosDelete(pszFile: PCSZ): APIRET;
+function  DosDelete(in pszFile: PCSZ): APIRET;
 
-function  DosForceDelete(pszFile: PCSZ): APIRET;
+function  DosForceDelete(in pszFile: PCSZ): APIRET;
 
-function  DosDupHandle( hFile: HFILE;
-                                  pHfile: PHFILE): APIRET;
+function  DosDupHandle(in  hFile: HFILE;
+                       out pHfile: HFILE): APIRET;
 
-function  DosQueryFHState( hFile: HFILE;
-                                     pMode: PULONG): APIRET;
+function  DosQueryFHState(in  hFile: HFILE;
+                          out pMode: ULONG): APIRET;
 
-function  DosProtectQueryFHState( hFile: HFILE;
-                                            pMode: PULONG;
-                                            fhFileHandleLockID: FHLOCK): APIRET;
+function  DosProtectQueryFHState(in  hFile: HFILE;
+                                 out pMode: ULONG;
+                                 in  fhFileHandleLockID: FHLOCK): APIRET;
 
-function  DosSetFHState( hFile: HFILE;
-                                   mode: ULONG): APIRET;
+function  DosSetFHState(in hFile: HFILE;
+                        in mode: ULONG): APIRET;
 
-function  DosProtectSetFHState( hFile: HFILE;
-                                          mode: ULONG;
-                                          fhFileHandleLockID: FHLOCK): APIRET;
+function  DosProtectSetFHState(in hFile: HFILE;
+                               in mode: ULONG;
+                               in fhFileHandleLockID: FHLOCK): APIRET;
 
-function  DosQueryHType( hFile: HFILE;
-                                   pType: PULONG;
-                                   pAttr: PULONG): APIRET;
+function  DosQueryHType(in  hFile: HFILE;
+                        out pType: ULONG;
+                        out pAttr: ULONG): APIRET;
 
-function  DosFindFirst(     pszFileSpec: PCSZ;
-                                   phdir: PHDIR;
-                                   flAttribute: ULONG;
-                                   pfindbuf: PVOID;
-                                   cbBuf: ULONG;
-                                  pcFileNames: PULONG;
-                                   ulInfoLevel: ULONG): APIRET;
+function  DosFindFirst(in    pszFileSpec: PCSZ;
+                       inout phdir: HDIR;
+                       in    flAttribute: ULONG;
+                       in    pfindbuf: PVOID; (* Untyped var *)
+                       in    cbBuf: ULONG;
+                       inout pcFileNames: ULONG;
+                       in    ulInfoLevel: ULONG): APIRET;
 
-function  DosFindNext(   hDir: HDIR;
-                                  pfindbuf: PVOID;
-                                  cbfindbuf: ULONG;
-                                 pcFilenames: PULONG): APIRET;
+function  DosFindNext(in    hDir: HDIR;
+                      in    pfindbuf: PVOID; (* Untyped var *)
+                      in    cbfindbuf: ULONG;
+                      inout pcFilenames: ULONG): APIRET;
 
-function  DosFindClose( hDir: HDIR): APIRET;
+function  DosFindClose(in hDir: HDIR): APIRET;
 
 function  DosFSAttach(  pszDevice: PCSZ;
                                   pszFilesystem: PCSZ;

@@ -79,20 +79,20 @@ module dossesmgr;
    const STOP_SESSION_ALL           =1;
 
 
-function  DosStartSession( psd: PSTARTDATA;
-                                    pidSession: PULONG;
-                                    ppid: PPID): APIRET;
+function  DosStartSession(in  psd: PSTARTDATA;
+                          out pidSession: ULONG;
+                          out ppid: PID): APIRET;
 
-function  DosSetSession(idSession: ULONG;
-                                  psd: PSTATUSDATA): APIRET;
+function  DosSetSession(in idSession: ULONG;
+                        in psd: PSTATUSDATA): APIRET;
 
-function  DosSelectSession(idSession: ULONG): APIRET;
+function  DosSelectSession(in idSession: ULONG): APIRET;
 
-function  DosStopSession(scope: ULONG;
-                                    idSession: ULONG): APIRET;
+function  DosStopSession(in scope: ULONG;
+                         in idSession: ULONG): APIRET;
 
-function DosQueryAppType(pszName: PCSZ;
-                                    pFlags: PULONG): APIRET;
+function DosQueryAppType(in  pszName: PCSZ;
+                         out pFlags: PULONG): APIRET;
 
 end.
 
