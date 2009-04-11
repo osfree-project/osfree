@@ -797,178 +797,178 @@ function  DosFindNext(in    hDir: HDIR;
 
 function  DosFindClose(in hDir: HDIR): APIRET;
 
-function  DosFSAttach(  pszDevice: PCSZ;
-                                  pszFilesystem: PCSZ;
-                                 pData: PVOID;
-                                 cbData: ULONG;
-                                 flag: ULONG): APIRET;
+function  DosFSAttach(in pszDevice: PCSZ;
+                      in pszFilesystem: PCSZ;
+                      in pData: PVOID;
+                      in cbData: ULONG;
+                      in flag: ULONG): APIRET;
 
-function  DosQueryFSAttach(     pszDeviceName: PCSZ;
-                                       ulOrdinal: ULONG;
-                                       ulFSAInfoLevel: ULONG;
-                                      pfsqb: PFSQBUFFER2;
-                                      pcbBuffLength: PULONG): APIRET;
+function  DosQueryFSAttach(in    pszDeviceName: PCSZ;
+                           in    ulOrdinal: ULONG;
+                           in    ulFSAInfoLevel: ULONG;
+                           out   pfsqb: FSQBUFFER2;
+                           inout pcbBuffLength: ULONG): APIRET;
 
-function  DosFSCtl( pData: PVOID;
-                              cbData: ULONG;
-                              pcbData: PULONG;
-                              pParms: PVOID;
-                              cbParms: ULONG;
-                              pcbParms: PULONG;
-                              xfunction: ULONG;
-                              pszRoute: PCSZ;
-                              hFile: HFILE;
-                              method: ULONG): APIRET;
+function  DosFSCtl(in    pData: PVOID;
+                   in    cbData: ULONG;
+                   inout pcbData: ULONG;
+                   in    pParms: PVOID;
+                   in    cbParms: ULONG;
+                   inout pcbParms: PULONG;
+                   in    xfunction: ULONG;
+                   in    pszRoute: PCSZ;
+                   in    hFile: HFILE;
+                   in    method: ULONG): APIRET;
 
-function  DosSetFileSize( hFile: HFILE;
-                                    cbSize: ULONG): APIRET;
-
-   (* Large File Support >2GB *)
-function  DosSetFileSizeL( hFile: HFILE;
-                                     cbSize: LONGLONG): APIRET;
-
-function  DosProtectSetFileSize( hFile: HFILE;
-                                           cbSize: ULONG;
-                                           fhFileHandleLockID: FHLOCK): APIRET;
+function  DosSetFileSize(in hFile: HFILE;
+                         in cbSize: ULONG): APIRET;
 
    (* Large File Support >2GB *)
-function   DosProtectSetFileSizeL( hFile:HFILE;
-                                             cbSize: LONGLONG;
-                                             fhFileHandleLockID: FHLOCK): APIRET;
+function  DosSetFileSizeL(in hFile: HFILE;
+                          in cbSize: LONGLONG): APIRET;
 
-function  DosResetBuffer(hFile: HFILE): APIRET;
-
-function  DosSetFilePtr( hFile: HFILE;
-                                   ib: LONG;
-                                   method: ULONG;
-                                   ibActual: PULONG): APIRET;
+function  DosProtectSetFileSize(in hFile: HFILE;
+                                in cbSize: ULONG;
+                                in fhFileHandleLockID: FHLOCK): APIRET;
 
    (* Large File Support >2GB *)
-function  DosSetFilePtrL( hFile: HFILE;
-                                    ib:LONGLONG;
-                                    method:ULONG;
-                                    ibActual: PLONGLONG): APIRET;
+function   DosProtectSetFileSizeL(in hFile:HFILE;
+                                  in cbSize: LONGLONG;
+                                  in fhFileHandleLockID: FHLOCK): APIRET;
 
-function  DosProtectSetFilePtr(hFile: HFILE;
-                                          ib: LONG;
-                                          method:ULONG;
-                                          ibActual:PULONG;
-                                          fhFileHandleLockID:FHLOCK): APIRET;
+function  DosResetBuffer(in hFile: HFILE): APIRET;
 
-   (* Large File Support >2GB *)
-function  DosProtectSetFilePtrL( hFile:HFILE;
-                                           ib:LONGLONG;
-                                           method:ULONG;
-                                           ibActual:PLONGLONG;
-                                           fhFileHandleLockID:FHLOCK): APIRET;
+function  DosSetFilePtr(in  hFile: HFILE;
+                        in  ib: LONG;
+                        in  method: ULONG;
+                        out ibActual: ULONG): APIRET;
 
    (* Large File Support >2GB *)
-function  DosListIOL( CmdMODE:LONG;
-                                NumEntries:LONG;
-                                pListIO: PLISTIO): APIRET;
+function  DosSetFilePtrL(in  hFile: HFILE;
+                         in  ib:LONGLONG;
+                         in  method:ULONG;
+                         out ibActual: LONGLONG): APIRET;
 
-function  DosMove(  pszOld: PCSZ;
-                              pszNew: PCSZ): APIRET;
+function  DosProtectSetFilePtr(in  hFile: HFILE;
+                               in  ib: LONG;
+                               in  method:ULONG;
+                               out ibActual:ULONG;
+                               in  fhFileHandleLockID:FHLOCK): APIRET;
 
-function  DosCopy(  pszOld: PCSZ;
-                              pszNew: PCSZ;
-                             option: ULONG): APIRET;
+   (* Large File Support >2GB *)
+function  DosProtectSetFilePtrL(in  hFile:HFILE;
+                                in  ib:LONGLONG;
+                                in  method:ULONG;
+                                out ibActual:LONGLONG;
+                                in  fhFileHandleLockID:FHLOCK): APIRET;
 
-function  DosEditName( metalevel: ULONG;
-                                  pszSource: PCSZ;
-                                  pszEdit: PCSZ;
-                                 pszTarget: PBYTE;
-                                 cbTarget:ULONG): APIRET;
+   (* Large File Support >2GB *)
+function  DosListIOL(in  CmdMODE:LONG;
+                     in  NumEntries:LONG;
+                     out pListIO: LISTIOL): APIRET;
 
-function  DosCreateDir(  pszDirName: PCSZ;
-                                  peaop2:PEAOP2): APIRET;
+function  DosMove(in pszOld: PCSZ;
+                  in pszNew: PCSZ): APIRET;
 
-function  DosDeleteDir(  pszDir:PCSZ): APIRET;
+function  DosCopy(in pszOld: PCSZ;
+                  in pszNew: PCSZ;
+                  in option: ULONG): APIRET;
 
-function  DosSetDefaultDisk( disknum:ULONG): APIRET;
+function  DosEditName(in  metalevel: ULONG;
+                      in  pszSource: PCSZ;
+                      in  pszEdit: PCSZ;
+                      out pszTarget: BYTE;
+                      in  cbTarget:ULONG): APIRET;
 
-function  DosQueryCurrentDisk( pdisknum: PULONG;
-                                         plogical:PULONG): APIRET;
+function  DosCreateDir(in pszDirName: PCSZ;
+                       in peaop2:PEAOP2): APIRET;
 
-function  DosSetCurrentDir(  pszDir:PCSZ): APIRET;
+function  DosDeleteDir(in pszDir:PCSZ): APIRET;
 
-function  DosQueryCurrentDir( disknum:ULONG;
-                                        pBuf:PBYTE;
-                                        pcbBuf:PULONG): APIRET;
+function  DosSetDefaultDisk(in disknum:ULONG): APIRET;
 
-function  DosQueryFSInfo( disknum:ULONG;
-                                    infolevel:ULONG;
-                                    pBuf:PVOID;
-                                    cbBuf:ULONG): APIRET;
+function  DosQueryCurrentDisk(out pdisknum: ULONG;
+                              out plogical: ULONG): APIRET;
 
-function  DosSetFSInfo( disknum:ULONG;
-                                  infolevel:ULONG;
-                                  pBuf:PVOID;
-                                  cbBuf:ULONG): APIRET;
+function  DosSetCurrentDir(in pszDir:PCSZ): APIRET;
 
-function  DosQueryVerify( pBool:PBOOL32): APIRET;
+function  DosQueryCurrentDir(in    disknum:ULONG;
+                             out   pBuf:BYTE;
+                             inout pcbBuf: ULONG): APIRET;
 
-function  DosSetVerify(vstate:BOOL32): APIRET;
+function  DosQueryFSInfo(in disknum:ULONG;
+                         in infolevel:ULONG;
+                         in pBuf:PVOID; (* Untyped var *)
+                         in cbBuf:ULONG): APIRET;
 
-function  DosSetMaxFH( cFH:ULONG): APIRET;
+function  DosSetFSInfo(in disknum:ULONG;
+                       in infolevel:ULONG;
+                       in pBuf:PVOID;  (* Untyped var *)
+                       in cbBuf:ULONG): APIRET;
 
-function  DosSetRelMaxFH( pcbReqCount:PLONG;
-                                    pcbCurMaxFH:PULONG): APIRET;
+function  DosQueryVerify(out pBool:BOOL32): APIRET;
 
-function  DosQueryFileInfo( hf:HFILE;
-                                      ulInfoLevel:ULONG;
-                                      pInfo:PVOID;
-                                      cbInfoBuf:ULONG): APIRET;
+function  DosSetVerify(in vstate:BOOL32): APIRET;
 
-function  DosProtectQueryFileInfo( hf:HFILE;
-                                             ulInfoLevel:ULONG;
-                                             pInfo:PVOID;
-                                             cbInfoBuf:ULONG;
-                                             fhFileHandleLockID:FHLOCK): APIRET;
+function  DosSetMaxFH(in cFH:ULONG): APIRET;
 
-function  DosSetFileInfo( hf:HFILE;
-                                    ulInfoLevel:ULONG;
-                                    pInfoBuf:PVOID;
-                                    cbInfoBuf:ULONG): APIRET;
+function  DosSetRelMaxFH(in  pcbReqCount:PLONG;
+                         out pcbCurMaxFH:ULONG): APIRET;
 
-function  DosProtectSetFileInfo( hf:HFILE;
-                                           ulInfoLevel:ULONG;
-                                           pInfoBuf:PVOID;
-                                           cbInfoBuf:ULONG;
-                                           fhFileHandleLockID:FHLOCK): APIRET;
+function  DosQueryFileInfo(in hf:HFILE;
+                           in ulInfoLevel:ULONG;
+                           in pInfo:PVOID; (* Untyped var *)
+                           in cbInfoBuf:ULONG): APIRET;
 
-function  DosQueryPathInfo(    pszPathName:PCSZ;
-                                      ulInfoLevel:ULONG;
-                                      pInfoBuf:PVOID;
-                                      cbInfoBuf:ULONG): APIRET;
+function  DosProtectQueryFileInfo(in hf:HFILE;
+                                  in ulInfoLevel:ULONG;
+                                  in pInfo:PVOID; (* Untyped var *)
+                                  in cbInfoBuf:ULONG;
+                                  in fhFileHandleLockID:FHLOCK): APIRET;
 
-function  DosSetPathInfo(    pszPathName:PCSZ;
-                                    ulInfoLevel:ULONG;
-                                    pInfoBuf:PVOID;
-                                    cbInfoBuf:ULONG;
-                                    flOptions:ULONG): APIRET;
+function  DosSetFileInfo(in hf:HFILE;
+                         in ulInfoLevel:ULONG;
+                         in pInfoBuf:PVOID; (* Untyped var *)
+                         in cbInfoBuf:ULONG): APIRET;
+
+function  DosProtectSetFileInfo(in hf:HFILE;
+                                in ulInfoLevel:ULONG;
+                                in pInfoBuf:PVOID; (* Untyped var *)
+                                in cbInfoBuf:ULONG;
+                                in fhFileHandleLockID:FHLOCK): APIRET;
+
+function  DosQueryPathInfo(in pszPathName:PCSZ;
+                           in ulInfoLevel:ULONG; (* Untyped var *)
+                           in pInfoBuf:PVOID;
+                           in cbInfoBuf:ULONG): APIRET;
+
+function  DosSetPathInfo(in pszPathName:PCSZ;
+                         in ulInfoLevel:ULONG;
+                         in pInfoBuf:PVOID;
+                         in cbInfoBuf:ULONG;
+                         in flOptions:ULONG): APIRET;
 
    (* defines for DosSetPathInfo -pathinfo flag *)
    const DSPI_WRTTHRU   = $10;    (* write through *)
 
-function  DosShutdown( ulReserved:ULONG): APIRET;
+function  DosShutdown(in ulReserved:ULONG): APIRET;
 
-function  DosEnumAttribute(  ulRefType:ULONG;
-                                       pvFile:PVOID;
-                                       ulEntry:ULONG;
-                                       pvBuf:PVOID;
-                                       cbBuf:ULONG;
-                                       pulCount:PULONG;
-                                       ulInfoLevel:ULONG): APIRET;
+function  DosEnumAttribute(in    ulRefType:ULONG;
+                           in    pvFile:PVOID;
+                           in    ulEntry:ULONG;
+                           in    pvBuf:PVOID;
+                           in    cbBuf:ULONG;
+                           inout pulCount: ULONG;
+                           in    ulInfoLevel:ULONG): APIRET;
 
-function  DosProtectEnumAttribute( ulRefType:ULONG;
-                                             pvFile:PVOID;
-                                             ulEntry:ULONG;
-                                             pvBuf:PVOID;
-                                             cbBuf:ULONG;
-                                             pulCount:PULONG;
-                                             ulInfoLevel:ULONG;
-                                             fhFileHandleLockID:FHLOCK ): APIRET;
+function  DosProtectEnumAttribute(in    ulRefType:ULONG;
+                                  in    pvFile:PVOID;
+                                  in    ulEntry:ULONG;
+                                  in    pvBuf:PVOID;
+                                  in    cbBuf:ULONG;
+                                  inout pulCount:ULONG;
+                                  in    ulInfoLevel:ULONG;
+                                  in    fhFileHandleLockID:FHLOCK ): APIRET;
 
 
    type DENA1=structure (* _dena1 level 1 info returned from DosEnumAttribute *)
