@@ -20,29 +20,10 @@
 
 //#ifdef SUPPORT_SERIAL
 
-#define TERM_SERIAL
-
 #include <shared.h>
 #include <serial.h>
 #include <term.h>
 #include <terminfo.h>
-
-// to make libc happy
-//struct term_entry *t;
-
-#pragma aux u_msg "*"
-
-void u_msg(char *s)
-{
-  //grub_putstr(s);
-}
-
-//#pragma aux u_msg "*" 
-//
-//void u_msg(char c)
-//{
-//  serial_putchar(c);
-//}
 
 /* An input buffer.  */
 static char input_buf[8];
@@ -78,6 +59,7 @@ static struct divisor divisor_tab[] =
     { 57600,  0x0002 },
     { 115200, 0x0001 }
   };
+
 
 /* Read a byte from a port.  */
 static inline unsigned char
@@ -204,9 +186,10 @@ serial_hw_init (unsigned short port, unsigned int speed,
   
   /* Drain the input buffer.  */
   while (serial_checkkey () != -1)
-    serial_getkey ();
+    (void) serial_getkey ();
 
-  /* Get rid of TERM_NEED_INIT from the serial terminal.  */ /*
+  /* Get rid of TERM_NEED_INIT from the serial terminal.  */
+  /*
   for (i = 0; term_table[i].name; i++)
     if (grub_strcmp (term_table[i].name, "serial") == 0)
       {
@@ -221,6 +204,35 @@ serial_hw_init (unsigned short port, unsigned int speed,
 #endif /* ! GRUB_UTIL */
 
 
+/*		Table of Serial Terminal Escape Sequences
+ *=======================================================================
+ *  Key		 ANSI		VT100 extension		VT220 extension
+ * ---------	-------		---------------		---------------
+ * Up arrow	<Esc>[A
+ * Down arrow	<Esc>[B
+ * Right arrow	<Esc>[C
+ * Left arrow	<Esc>[D
+ * F1		<Esc>Op	
+ * F2		<Esc>Oq	
+ * F3		<Esc>Or	
+ * F4		<Esc>Os	
+ * F5		<Esc>Ot	
+ * F6		<Esc>Ou		<Esc>[17~		<Esc>[17~
+ * F7		<Esc>Ov		<Esc>[18~		<Esc>[18~
+ * F8		<Esc>Ow		<Esc>[19~		<Esc>[19~
+ * F9		<Esc>Ox		<Esc>[20~		<Esc>[20~
+ * F10		<Esc>Oy		<Esc>[21~		<Esc>[21~
+ * F11		<Esc>Oz		<Esc>[23~		<Esc>[23~
+ * F12		<Esc>Oa		<Esc>[24~		<Esc>[24~
+ * Home							<Esc>[1~
+ * End							<Esc>[4~
+ * Insert						<Esc>[2~
+ * Delete						<Esc>[3~
+ * Page Up						<Esc>[5~
+ * Page Down						<Esc>[6~
+ * Shift-Tab			<Esc>[Z			<Esc>[0Z
+ */
+
 /* Generic definitions.  */
 
 static void
@@ -228,31 +240,31 @@ serial_translate_key_sequence (void)
 {
   const struct
   {
-    char key;
-    char ascii;
+    short /*char*/ key;
+    short /*char*/ ascii;
   }
   three_code_table[] =
     {
-      {'A', 16},
-      {'B', 14},
-      {'C', 6},
-      {'D', 2},
-      {'F', 5},
-      {'H', 1},
-      {'4', 4}
+      {'A', KEY_UP/*16*/},		/* Up arrow */
+      {'B', KEY_DOWN/*14*/},		/* Down arrow */
+      {'C', KEY_RIGHT/*6*/},		/* Right arrow */
+      {'D', KEY_LEFT/*2*/},		/* Left arrow */
+      {'F', KEY_END/*5*/},		/* End */
+      {'H', KEY_HOME/*1*/},		/* Home */
+      {'4', KEY_DC/*4*/}		/* Delete */
     };
 
   const struct
   {
     short key;
-    char ascii;
+    short /*char*/ ascii;
   }
   four_code_table[] =
     {
-      {('1' | ('~' << 8)), 1},
-      {('3' | ('~' << 8)), 4},
-      {('5' | ('~' << 8)), 7},
-      {('6' | ('~' << 8)), 3},
+      {('1' | ('~' << 8)), KEY_HOME/*1*/},	/* Home */
+      {('3' | ('~' << 8)), KEY_DC/*4*/},	/* Delete */
+      {('5' | ('~' << 8)), KEY_PPAGE/*7*/},	/* Page Up */
+      {('6' | ('~' << 8)), KEY_NPAGE/*3*/},	/* Page Down */
     };
   
   /* The buffer must start with ``ESC [''.  */
@@ -268,9 +280,9 @@ serial_translate_key_sequence (void)
 	   i++)
 	if (three_code_table[i].key == input_buf[2])
 	  {
-	    input_buf[0] = three_code_table[i].ascii;
-	    npending -= 2;
-	    grub_memmove (input_buf + 1, input_buf + 3, npending - 1);
+	    *(short *)input_buf = three_code_table[i].ascii;
+	    npending--;//npending -= 2;
+	    grub_memmove (input_buf + 2/*1*/, input_buf + 3, npending - 2/*1*/);
 	    return;
 	  }
     }
@@ -285,16 +297,16 @@ serial_translate_key_sequence (void)
 	   i++)
 	if (four_code_table[i].key == key)
 	  {
-	    input_buf[0] = four_code_table[i].ascii;
-	    npending -= 3;
-	    grub_memmove (input_buf + 1, input_buf + 4, npending - 1);
+	    *(short *)input_buf = four_code_table[i].ascii;
+	    npending -= 2/*3*/;
+	    grub_memmove (input_buf + 2/*1*/, input_buf + 4, npending - 2/*1*/);
 	    return;
 	  }
     }
 }
     
-static
-int fill_input_buf (int nowait)
+static int
+fill_input_buf (int nowait)
 {
   int i;
 
@@ -322,7 +334,7 @@ int fill_input_buf (int nowait)
 }
 
 /* The serial version of getkey.  */
-int __cdecl
+int
 serial_getkey (void)
 {
   int c;
@@ -330,30 +342,37 @@ serial_getkey (void)
   while (! fill_input_buf (0))
     ;
 
-  c = input_buf[0];
   npending--;
-  grub_memmove (input_buf, input_buf + 1, npending);
+  if ((c = input_buf[0]))
+	grub_memmove (input_buf, input_buf + 1, npending);
+  else
+  {
+	npending--;
+	c = *(unsigned short *)input_buf;
+	grub_memmove (input_buf, input_buf + 2, npending);
+  }
   
   return c;
 }
 
 /* The serial version of checkkey.  */
-int __cdecl
+int
 serial_checkkey (void)
 {
   if (fill_input_buf (1))
-    return input_buf[0];
+    return input_buf[0] ? input_buf[0] : *(unsigned short *)input_buf;
 
   return -1;
 }
 
 /* The serial version of grub_putchar.  */
-void __cdecl
+void
 serial_putchar (int c)
 {
   /* Keep track of the cursor.  */
   if (keep_track)
     {
+#if 0
       /* The serial terminal doesn't have VGA fonts.  */
       switch (c)
 	{
@@ -390,6 +409,7 @@ serial_putchar (int c)
 	default:
 	  break;
 	}
+#endif
       
       switch (c)
 	{
@@ -424,13 +444,13 @@ serial_putchar (int c)
   serial_hw_put (c);
 }
 
-int __cdecl
+int
 serial_getxy (void)
 {
   return (serial_x << 8) | serial_y;
 }
 
-void __cdecl
+void
 serial_gotoxy (int x, int y)
 {
   keep_track = 0;
@@ -441,7 +461,7 @@ serial_gotoxy (int x, int y)
   serial_y = y;
 }
 
-void __cdecl
+void
 serial_cls (void)
 {
   keep_track = 0;
@@ -451,7 +471,7 @@ serial_cls (void)
   serial_x = serial_y = 0;
 }
 
-void __cdecl
+void
 serial_setcolorstate (color_state state)
 {
   keep_track = 0;
@@ -460,6 +480,13 @@ serial_setcolorstate (color_state state)
   else
     ti_exit_standout_mode ();
   keep_track = 1;
+}
+
+#pragma aux u_msg "*"
+
+void u_msg(char *s)
+{
+  //grub_putstr(s);
 }
 
 //#endif /* SUPPORT_SERIAL */

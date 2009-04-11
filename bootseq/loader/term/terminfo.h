@@ -35,9 +35,9 @@ terminfo;
 
 
 /* Function prototypes.  */
-char *ti_escape_memory (const char *in, const char *end);
+//char *ti_escape_memory (const char *in, const char *end);
 char *ti_escape_string (const char *in);
-char *ti_unescape_memory (const char *in, const char *end);
+//char *ti_unescape_memory (const char *in, const char *end);
 char *ti_unescape_string (const char *in);
 
 void ti_set_term (const struct terminfo *new);

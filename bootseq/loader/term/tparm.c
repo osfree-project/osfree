@@ -46,7 +46,7 @@
  */
 
 #include "shared.h"
-
+#include <term.h>
 #include "tparm.h"
 
 /*
@@ -63,7 +63,7 @@ typedef char grub_bool;
 #define MAX_FORMAT_LEN 256
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
-//MODULE_ID("$Id: tparm.c,v 1.1.1.1 2003/11/20 02:04:59 fengshuo Exp $")
+//MODULE_ID("$Id: tparm.c,v 1.1 2002/11/29 20:39:24 okuji Exp $")
 
 /*
  *	char *
@@ -716,7 +716,7 @@ char *
 grub_tparm(const char *string,...)
 {
     char *result;
-    int *dataptr = (int *) &string;
+    int *dataptr = (int *)(void *) &string;
 
     dataptr++;
 

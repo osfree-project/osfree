@@ -12,7 +12,7 @@
 #
 # blackboxes list with path (p) and extension (e) placeholder
 #
-blackboxes           = $(p)console$(e) $(p)hercules$(e) $(p)serial$(e)
+blackboxes           = $(p)console$(e) $(p)hercules$(e) $(p)serial$(e) $(p)graphics$(e)
 
 # filesys without $(p) and $(e):
 p   =
@@ -32,6 +32,9 @@ OBJS                    = $(common_OBJS) $(p)hercules$(e) $(p)console$(e) $(p)mo
 !else ifeq basename serial
 t = -s
 OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)tparm$(e) $(p)modesw-npt$(e)
+!else ifeq basename graphics
+t = -g
+OBJS                    = $(common_OBJS) $(p)graphics$(e) $(p)vmode$(e) $(p)console$(e) $(p)modesw-npt$(e)
 !endif
 
 MOD_BASE             = EXT_BUF_BASE
@@ -78,6 +81,12 @@ $(PATH)terminit-s.$(O): $(MYDIR)terminit.c
 
 $(PATH)terminit-s.$(SO): $(MYDIR)terminit.c
  $(CC) -dSHIFT=$(SHIFT) -dTERM_SERIAL $(COPT) -fr=$^*.err -fo=$^@ $<
+
+$(PATH)terminit-g.$(O): $(MYDIR)terminit.c
+ $(CC) -dSHIFT=0 -dTERM_GRAPHICS $(COPT) -fr=$^*.err -fo=$^@ $<
+
+$(PATH)terminit-g.$(SO): $(MYDIR)terminit.c
+ $(CC) -dSHIFT=$(SHIFT) -dTERM_GRAPHICS $(COPT) -fr=$^*.err -fo=$^@ $<
 
 $(PATH)console-c.$(O): $(MYDIR)console.asm
  $(ASM) -dSHIFT=0 -dTERM_CONSOLE $(ASMOPT) -fr=$^*.err -fo=$^@ $<

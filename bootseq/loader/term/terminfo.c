@@ -26,6 +26,7 @@
  */
 
 #include <shared.h>
+#include <term.h>
 #include "terminfo.h"
 #include "tparm.h"
 #include "serial.h"
@@ -51,7 +52,7 @@ struct terminfo term =
    ing CS7 is specified.  See stty(1).)  Finally, characters may be
    given as three octal digits after a \.  */
 
-char *
+static char *
 ti_unescape_memory (const char *in, const char *end) 
 {
   static char out_buffer[256];
@@ -156,7 +157,7 @@ ti_unescape_string (const char *in)
 /* convert a memory region containing binary character into an external
  * ascii representation. The binary characters will be replaced by an
  * "ecsape notation". E.g. "033" will become "\e". */
-char *
+static char *
 ti_escape_memory (const char *in, const char *end) 
 {
   static char out_buffer[256];
@@ -169,7 +170,7 @@ ti_escape_memory (const char *in, const char *end)
       c = *(in++);
       switch (c)
 	{
-	case '\0x27':  // escape symbol
+	case '\33':
 	  *out++ = '\\'; *out++ = 'e'; break;
 	case ' ':
 	  *out++ = '\\'; *out++ = 's'; break;
@@ -310,17 +311,7 @@ ti_cursor_address (int x, int y)
 void 
 ti_clear_screen (void)
 {
-#define FANCY_CLEAR_SCREEN
-#ifdef FANCY_CLEAR_SCREEN
-  /* Hack: probably wrong place for this */
-  int i;
-  grub_putstr ("\e[127;1H");
-  for (i=0; i < 25; i++)
-    grub_putchar ('\n');
-  grub_printf ("\e[H");
-#else
   grub_putstr (grub_tparm (term.clear_screen));
-#endif
 }
 
 /* enter reverse video */

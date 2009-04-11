@@ -23,7 +23,7 @@ include struc.inc
 BASE1      equ EXT_BUF_BASE - 10000h
 ; Start of 32-bit code. 380h is
 ; the limit of 16-bit part size
-BASE2      equ BASE1 + 380h
+BASE2      equ BASE1 + 3e0h
 
 _TEXT16  segment dword public 'CODE'  use16
            org 0h
