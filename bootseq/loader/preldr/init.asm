@@ -7,6 +7,8 @@ name init
 
 public  base
 
+public  _preldr
+
 public  boot_flags
 public  boot_drive
 public  install_partition
@@ -81,10 +83,12 @@ uFSD_size          dw    0
 stage0_size        dw    0
 force_lba          db    0
 
-                   org   10h
+                   org   8h
 
 base               dd    STAGE0_BASE
 install_part       dd    0ffffffh
+                   db    '/boot/loader/preldr0.mdl'
+                   db    4 dup (0)
 install_fsys       db    "iso9660"
                    db    9 dup (0)
 
@@ -168,9 +172,9 @@ non_16bit_ufsd:
 
         ; copy install filesystem name to 32-bit segment
         cld
-        lea  esi, install_fsys
-        mov  edi, offset _TEXT:install_filesys - STAGE0_BASE
-        mov  cx, 16
+        lea  esi, install_part
+        mov  edi, offset _TEXT:install_partition - STAGE0_BASE
+        mov  cx, 16 + 32
         rep  movsb
 
         mov  cx, uFSD_size
@@ -200,7 +204,7 @@ skip_reloc_ufsd:
         mov  cx, stage0_size
         jcxz skip_reloc_stage0
 
-        push cx
+        ;push cx
 
         shr  cx, 1
         inc  cx
@@ -311,9 +315,10 @@ reloc:
         mov  eax, GDT_ADDR
         mov  [bx].g_base, eax
 
+;ifndef STAGE1_5
         ; get available memory
         call getmem
-
+;endif
         ; enable A20 address line
         ;call EnableA20Line
 
@@ -368,12 +373,14 @@ endif
 
 ;endif
 
+;ifndef STAGE1_5
 getmem:
         xor  eax, eax
         int  12h
         mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
         mov  [ebx], eax
         ret
+;endif
 
 ;EnableA20Line:
 ;    ; Enable A20 address line:
@@ -405,9 +412,10 @@ filetab_ptr        dd 0         ; pointer to the FileTable. If <> 0 then we got 
 boot_flags         dw 0         ; <-- DX
 boot_drive         dd 0         ; <-- DL
 ; copied from pre-loader header
+_preldr            label byte
 install_partition  dd 0
+                   db 28 dup (?)
 install_filesys    db 16 dup (?)
-
 ft                 FileTable <>
 
 ifndef STAGE1_5

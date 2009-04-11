@@ -1,6 +1,6 @@
 /*
  *
- *endif
+ *
  */
 
 #include <lip.h>
@@ -15,14 +15,24 @@
 #include "fsd.h"
 #include "struc.h"
 
+lip1_t *l1, lip1;
+void *filetab_ptr = 0;
+
+int __cdecl (*fsd_init)(lip1_t *l);
+
+#pragma aux gateA20 "*"
+void gateA20(int);
+
+int  num_fsys = 0;
+
+extern int mem_lower;
+extern int mem_upper;
+
 #ifndef STAGE1_5
 extern unsigned char use_term;
-#endif
 
 extern unsigned long extended_memory;
 #pragma aux extended_memory "*"
-
-void *filetab_ptr = 0;
 
 #pragma aux mu_Open_wr      "*"
 #pragma aux mu_Read_wr      "*"
@@ -67,21 +77,12 @@ unsigned int relshift;
 #pragma aux reset_vbe_mode          "*"
 #pragma aux get_vbe_pmif            "*"
 
-#pragma aux gateA20 "*"
-
-void gateA20(int);
-
-lip1_t *l1, lip1;
 lip2_t *l2, lip2;
 
-extern int __cdecl (*fsd_init)(lip1_t *l);
 int (*process_cfg_line)(char *line);
 
 int i;
-int  num_fsys = 0;
 int  num_term = 0;
-
-#ifndef STAGE1_5
 
 #pragma aux  jmp_reloc    "*"
 #pragma aux  high_stack   "*"
@@ -195,8 +196,6 @@ extern unsigned long  boot_drive;
 extern unsigned long  install_partition;
 extern char install_filesys[0x10];
 
-extern int mem_lower;
-extern int mem_upper;
 extern int fsmax;
 
 void __cdecl real_test(void);
@@ -591,32 +590,13 @@ u_termctl(int termno)
   if (blackbox_load(term, 2, &trm))
   {
     printf("terminal loaded\r\n");
+    trm.startup();
   }
   else
     return 0;
 
   return &trm;
 }
-
-/*
-int open2 (char *filename)
-{
-  char buf[0x100];
-  int  rc;
-
-  for (fsys_type = 0; fsys_type < num_fsys; fsys_type++)
-  {
-    fsys_by_num(fsys_type, buf);
-    set_fsys(buf);
-    rc = grub_open(filename);
-
-    if (errnum == ERR_NONE)
-      return rc;
-  }
-
-  return 1;
-}
-*/
 
 #endif
 
@@ -836,7 +816,6 @@ void setlip1(lip1_t *l1)
   l1->lip_substring = &substring;
   //l1->lip_pos       = 0;
   //l1->lip_clear     = 0;
-
   l1->lip_devread   = &devread;
   l1->lip_rawread   = &rawread;
 
@@ -1089,7 +1068,7 @@ void init_term(void)
  */
 int blackbox_load(char *path, int bufno, void *p)
 {
-  void (*blackbox_init)(void *p, unsigned int shift);
+  void (*blackbox_init)(lip1_t *l, void *p, unsigned int shift);
   //char buf[EXT_LEN];
   char rel_file[0x100];
   char *lodest, *hidest;
@@ -1147,7 +1126,7 @@ int blackbox_load(char *path, int bufno, void *p)
 
   /* init blackbox */
   blackbox_init = (void *)hidest;
-  blackbox_init(p, relshift);
+  blackbox_init(l1, p, relshift);
 
   return 1;
 }
@@ -1221,7 +1200,7 @@ int init(void)
   int i, k, l;
   int key;
 #else
-  char preldr[] = "\377\377\0\200/boot/loader/preldr0.mdl\0";
+  extern char preldr[];
 #endif
   char *fn;
   int  rc; 
@@ -1624,22 +1603,18 @@ int init(void)
 #else
 
   /* Load a pre-loader full version */
-  //fn = preldr;
   rc = freeldr_open(preldr);
 
   buf = (char *)(0x10000);
 
   if (rc) {
     rc = freeldr_read(buf, -1);
-   /*
-    __asm {
-      mov  dx, boot_flags
-      mov  dl, byte ptr boot_drive
-
-      push  0x10000
-      retn
+    if (!rc) {
+      __asm {
+        cli
+        hlt
+      }
     }
-    */
   } else __asm {
     cli
     hlt
