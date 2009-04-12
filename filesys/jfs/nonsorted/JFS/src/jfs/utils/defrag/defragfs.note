@@ -1,0 +1,1629 @@
+/* static char *SCCSID = "@(#)1.1  11/12/97 09:57:45 src/jfs/utils/defrag/defragfs.note, jfsdefrag, w45.fs32, 990417.1";*/
+/*
+ *   Copyright (c) International Business Machines  Corp., 2000
+ *
+ *   This program is free software;  you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or 
+ *   (at your option) any later version.
+ * 
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY;  without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+ *   the GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program;  if not, write to the Free Software 
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ *	notes for defragfs()
+ *
+ * current defragfs() implements heuristics of simple compaction
+ * per allocation group with base infrastructures that may be used
+ * for further improvement of heuristics/policy.
+ *
+ * below are collection of notes and code fragments from Amy's 
+ * initial work. much of code have been rewritten during cleanup
+ * and names may differ, but it may be of interest if you want to 
+ * work on new heuristics.
+ */
+
+/* status as 2/7/97: 
+ *
+ * All the main flow code is finished ( including application level and
+ * kernel level) except that SSSO support.
+ * The SSSO support should also include the report code for query.
+ *
+ * The error handling needs to take a further look - currently the non-zero
+ * rc from reOrg() is ignored. 
+ * If the inode or extent is staled, then the non-zero rc can be ignored.
+ * But if it is an I/O error, then defrag should be stopped. 
+ * I have not figured out how to get the detailed error info from
+ * DosFSCtl call. I don't think we can use the rc reported by  DosFSCtl.
+ * There may be some parameters that can hold the returned information.
+ *
+ * Not pass the compiler yet.
+ *
+ */
+
+/* Things to do:
+   1) When extendfs is available, defrag should check the flag
+      in i_ipmnt to see if there is an extendfs running.
+      Defrag require logging. extendfs querce the file system
+      no log. 
+   2) What if when defrag is running, someone umount the file system
+      and mkfs again and mount again?
+*/
+
+/* things to think about it:
+
+   In order to reduce the spaning size of xtree, can we sub-divide
+   DMAPSET to be 4 * 4?
+
+   When DMAPSET is smaller, the movement area will be smaller. 
+   We can divide DMAPSET into 4 SUBSET. The inoxaddrtbl is built
+   into 4 sub_tbls as well.
+
+   If we cannot find anyting to move for runs in DMAPSET1 from 
+   inoxaddrtbl1, then go to inoxaddrtbl2, inoxaddrtbl2 or 
+   inoxaddrtbl4. 
+
+   how do I avoid to move the special file stuff.
+*/
+
+/*
+ *************************************************************
+ * Design Description of defrag utility
+ *************************************************************
+ * Terminology:
+ *
+ * run --  a run is a set of free contigous blks. In the bmap, a run
+ *       is a set of '0' bits string. 
+ *
+ * file-belong-to-ag  --  a file is considered to be in an AG if the 
+ *                        file's inode is located in this AG's extent.
+ *
+ * large_size_ext or large_free_ext  -- length is >= 64 aggregate blocks.
+ *
+ * small_size_ext or small_free_ext -- length is < 64 aggregate blocks.
+ *
+ * xtree size -- The total number of the XADs in a file's meta data.
+ *
+ * xtree spanning size -- For a file, the xtree is the index structure of
+ *    the data extents. The difference between the maximum data extent's
+ *    address and the minimum data entent's address is called xtree
+ *    spanning size.
+ *
+ * ...........................................................
+ *   Syntax:
+ *
+ *   defrag  [-q | [-g]] [-D] {device_name|path_name}
+ *
+ *   JFS defrag utility option list:
+ *
+ *   1) -q -- query. It will give the current fs status. If this flag
+ *            is used, we have to use "-g" option to start the defragment.
+ *            Without "-g", only the status is reported, nothing is done.
+ *   2) -g -- use with "-q"  option to indicate that go ahead to do defrag.
+ *            A report for the system status after the defragmentation is also
+ *            generated.
+ *   3) no option -- indicate to do the defragmentation and generate the result
+ *            report.
+ *   4) -D -- debug flag. It is for internal use.
+ *   5) device_name or path_name -- This is the only required argument.
+ *
+ *    fs status report format:
+ *   __________________________________________________________
+ *    AG_num   num_alloc_exts  small_free_exts  large_free_exts
+ *       ....
+ *   __________________________________________________________ 
+ *
+ *   Note: the num_alloc_exts is the least value  of the allocated extents.
+ *         Since we don't want to go through tree to find the owner of the
+ *         allocated extents, we just regard what between two runs is 
+ *         one extent. ( It may be more than one extent.)
+ *
+ * If only "-q" is used, then the status information before running
+ * defragmentation is reported.
+ * if "-q " and "-g" are used, or no option is used,  the status 
+ * infomation for both before and after defragfs execution will be 
+ * reported at the end of defragmentation.
+ *
+ *  other statistics :
+ *
+ *   num_exts_moved 
+ *   num_file_xtree_reduced
+ *   num_file_xtree_growed
+ *
+ *.....................................................................
+ * The criteria for File system defrag and reorg 
+ *.....................................................................
+ *
+ * If more than 40% of the free space is formed by he small extents
+ * ( < 64 aggre. blks), the file system is considered fragmented
+ * and need a defrag.
+ * 
+ * If a "-q" only is called, then at the end of the report a warning
+ * will be given the user to remind the user to do defragmentation.
+ *
+ *  Since an extent can be any size, so any file with a xtree that has
+ *  more than 6 XADs is the candidate to be reorg. 
+ *
+ *....................................................................
+ * NOTE: The design is based on OS/2 system. This code is not 100% 
+ *	 common to AIX and OS/2 in the following aspects:
+ *	 It assumes that the file system is mounted when call the
+ *	 defragfs. ( This may not be true for AIX ).
+ *
+ *	 The defrag/reorg utility execution condition:
+ *
+ *	 The file system must be mounted read-write while the defrag/reorg 
+ *	 utility runs. If it is not mounted prior to invoking the utility,
+ *	 it will be mounted for the duration of the utility execution.
+ *	
+ *	 Note that OS/2 does not have "mount" and "umount" concept. That is
+ *	 another reason that we have to assume defrag/reorg running under
+ *	 a mounted r/w file system. 
+ *
+ *  There are two reasons for the mount requirement:
+ *
+ *  1) defrag should be run on-line. In the other word, the user can still
+ *     use the file system. So allocation and deallocation files' 
+ *     extents or directory tree can take place during the defrag/reorg.
+ *
+ *  2) we need to journal the defrag/reorg activitiess so when system crashed
+ *     during defrag/reorg, logredo will able to recover the defrag/reorg
+ *     activities.
+ ********************************************************************
+ * The defrag utility design decisions:
+ ********************************************************************
+ *
+ * 1) The defragfs utility function usually covers defrag and reorg 
+ *    two aspects.
+ *
+ *    A defrag means that it separates the allocated bits from the 
+ *    unallocated bits in bmap. This is the requirement from the feature of
+ *    the binary buddy system. Pushing as many as allocated extents onto 
+ *    the left of the aggregate. Starting from the beginning of the first 
+ *    AG,find the first free block, then to see if there is any allocated 
+ *    extent behind that free block. If yes, push the allocated extent 
+ *    to the left. 
+ *
+ *    In Veritas, it defines a Large_size for the extent consolidation.
+ *    Here, we prefer not to have that size. 
+ *
+ *    Reorganizing the file systems should have the following functions:
+ *
+ *    i) The start point is to shrink the file's Xtree. To arrange the
+ *       extents such that the file gets less XADs and smaller
+ *	 xtree spanning size.
+ *    ii) put the ino extent close to its directory tree. 
+ *    iii) arrange recent access file and aged file in the same AG
+ *       then arrange files that are not belonged to the current AG
+ *
+ *  This utility does certain degree of defragment and reorg: 
+ *
+ *   a) The work unit for defragment and reorg is AG. In other word, 
+ *	The first stage is to handle defrag and reorg on an AG basis. 
+ *      it does very limited movement between AG boundary. 
+ *      For each AG, we push the allocated bits to the left and 
+ *      move the unallocated bits to the right of AG. 
+ *
+ *	Note: for the first release, the process unit is dmap set.
+ *	      If AG has > 16 dmaps, then the defrag process 16 dmaps at
+ *	      one time. Otherwise, process whatever dmaps a AG has. 
+ *	      For dmap set, we process one dmap at a time. The current
+ *	      algorithm is that if the dmap is completely free, don't
+ *	      do defrag against it. If we want to push the allocated bits
+ *	      to the left  of a AG, then we may want to process a free
+ *	      dmap when it is located at the left site of the AG. 
+ *
+ *	      Question1: In what circumstance will it happen?
+ *	      Question2: Is it worth to do defrag against it?
+ *	      My opinion: It is unlikely to happen because of the allocation
+ *			  policy. And if it happens, it is not worth to
+ *			  move the allocated extents into this complete
+ *			  free dmap. 
+ *
+ *   b) It does not reorg the xtree according to the order of offset.
+ *   c) This utility does not move inodes. It does not
+ *      move the extents that don't know the ownership. It won't do
+ *      a massive search to find the owner of the extents.
+ *
+ *   The defrag will move the following items:
+ *	   i) data extents for regular file 
+ *	   ii) xtree internal node and leaf extents
+ *	   iii) dtree internal node and leaf extents ( for dtree, the leaf
+ *	        is also its data extent.)
+ *	   
+ *   d) In the first release, this utility won't do xtree shrink.
+ *      It means that it does not merge the xad entries. 
+ *
+ *      Later considertation: 
+ *	   i) stage 1 -- merge xad entries up to one left in the xpage 
+ *	      but still don't do xtree shrink.
+ *  	   ii) stage 2 -- merge xad entries and shrink the xtree.
+ *
+ *   e) If an allocated extent is bigger than   XMOVESZ ( we 
+ *      currently set it as 64 aggr. blks), then no move will be done.
+ *   f) The target of defrag is to get small number of long runs.
+ *      (In the best case, we have only one run in the aggregate.)
+ *      The one target of reorg is to get small number of XADs for a file
+ *      and small spanning size of the file's xtree.
+ *      These two targets may conflict in certain cases. Assuming that
+ *      we want to get long run, then we have to move some file's
+ *      XAD's which may enlarge the spanning size of a file's
+ *      xtree; or if there is no best fit for the allocated extents
+ *      to move, we have to split the extent which increase the
+ *      number of a file's XADs. 
+ *      In the first release, we don't split the extent. If without
+ *      extent split there is no way to move the small run from left 
+ *      to right in order to merge it to other run,  the small run
+ *      is left alone.
+ *      Also we don't ensure that the spanning size of the xtree is
+ *      kept in the same or reduced. By sort the xaddr of the extents
+ *      in the ascending order and process the runs from left to 
+ *      right, we hope that the enlarge cases will not happen so
+ *      often. 
+ *
+ *     From the following work flow, we will see that the work 
+ *     is based on a dmap set. Since the inodes examed are within
+ *     this set, and the movement is either within this set or
+ *     from outside of the set to inside set,  so in the worst case,
+ *     the enlargement will be within the processed dmap set.
+ *
+ * 2) This utility only does "move" instead of "shift". In other
+ *	   words, during the defragment period, the data extent is moved
+ *	   from the source location to the destination location. Both
+ *	   locations are NOT overlay each other. Since the defragfs 
+ *	   utility only journal the meta data, not the data itself. So
+ *	   no-overlay policy will ensure that the data won't be messed
+ *	   up in case of system crash in the middle of data movement.
+ *
+ *	   If the candidate extent is bigger than any available free
+ *	   space, no move will be done. In other words, no split will
+ *	   be done to the candidate extent. Splitting an extent may
+ *	   result a large xtree for the file and end up with a worse
+ *	   performance. If the file system is very fragmented, then
+ *	   the defragfs utility may not be able to do anything. It is
+ * 	   the user's responsibility to not let the file system getting 
+ *	   very fragmented before call defragfs utility. If this happens,
+ *	   The user have to backup and delete some files to make room 
+ *	   for defragfs utility. 
+ *
+ * 3) the defragfs should have very limited performance imapct on
+ *	   the file system. In other word,  Defrag should be run as a
+ *	   side-job. Should not be noticed.
+ *         So Read imap, dmap and inodes from disk instead of reading from
+ *	   kernel mem. 
+ *         Joon opinion: icahce only occupy a small percentage of the whole
+ *         inodes the file system has. If we read inoext, we may read whole
+ *	   ino extent, If we go through iget, we just get one by one. 
+ *	   Tom's opinion: When asking kernel to do the job for defrag, 
+ *	   the kernel resource are used so the kernel performance got hit.
+ *         Plus read off the kernel may still will get the garbge. 
+ *         Veritas use utility space to do defrag as well.
+ *         another reason: OS/2 is a non-preempted kernel. When copyin
+ *         or copyout is called ( copy a large data ), no one else will 
+ *	   get the CPU. AIX is a preempt-kernel. 
+ *	
+ *	  When read the inodes, starting from the ipimap root, 
+ *	  read the iag pages one by one; then from the iag_t.wmap, 
+ *	  if the bit is on, read in the inoext.
+ *        For each inode in the inoext, check their nlink. process only
+ *        ones that nlink > 0.
+ *
+ *        Since defrag is running when the file system is mounted. So 
+ *        information from the disk may not be accurate.
+ *        The inoext address could be changed in the icache. So
+ *	  i_nlink, i_gen, and ip->i_fileset needs to be checked to ensure 
+ *	  it is a valid inode.
+ *	  We don't have to verify di_ixpxd if i_gen is the same.
+ *	  ( ??? Do we need to check di_inostamp  ???? )
+ *
+ *
+ * 4) The work base is inode. The work flow is as follows:
+ *
+ *    Process all the AGs in the file system starting from AG0.
+ *    Each AG contains number of dmaps. processing a set of dmaps at
+ *    a time. A dmap set has 16 or less dmaps. If one AG
+ *    has more than 16 dmaps, then handle 16 dmaps at a time.
+ *    otherwise, process all the dmaps in this AG at a time. 
+ *    A AG is min 32M byte. ( 65536 blks (512-byte blk), 8 dmap_t ).
+ *    the inoxaddrtable covers one AG.
+ *    For all the runs in the dmaps, find the best fit of
+ *    an allocated extent to move in. 
+ *
+ *    A IAG is a group of 4096 inodes. each AG may have several IAG 
+ *    associated with it; Each IAG only belongs to one AG. 
+ *    The iag.agstart indicates that at least the
+ *    first inoext is located inside the AG. But it does not ensure
+ *    that all the inoext are located inside the AG. The iag.agstart
+ *    is just a hint that if the current AG is full, then we can
+ *    find the inoext near by. 
+ *    Also for one AG, it may contain some allocated blks that are associated 
+ *    with files that are not file-belong-to-ag.
+ *
+ *    In order to find the best fit for the runs, we need to create a 
+ *    table inoxaddrtable of XMOVESZ.
+ *    Starting from imap, read one iag_t at a time. Find the proper
+ *    IAGs that are associated with the current AG. From the inoext,
+ *    read in the inodes and generate the table inoxaddrtable. 
+ *   The index of table is the (size_of_allocated_ext - 1) from
+ *   0 to (XMOVESZ - 1); Each table element is an anchor
+ *   of a xaddr ordered list. ( See struct inoxaddrtable.)  
+ *   The inoxaddrtable is localized to a set of dmaps.
+ *   The localization means that read only inodes whose inoext
+ *   is within the set of dmaps. The table is generated from all
+ *   the xtree of these inodes. Please note that the xaddresses 
+ *   of the xtrees of these inodes may not within this set of dmaps. 
+ *   It is ok to enter them into the table. 
+ *   Each list is sorted by xaddr in ascending order. If an inode 
+ *   has a data extent located at outside of the current AG, 
+ *   the xaddr will be put at the front of the list so that those 
+ *   extents can be moved back into the current AG first.
+ *
+ *	   It always process starting from dmap0 for each AG.
+ *	   When dmap0 is processed by defragfs process, it may be 
+ *	   altered by the file system at the same time.
+ *	   But we won't recheck dmap0 again after each movement.
+ *
+ *	   Process runs one by one in one dmap. The process is from left
+ *	   run (lower xaddr) to the right run (higher xaddr). That is why
+ *	   the lists in inoxaddrtable are in ascending order. 
+ *	   By moving the lower xadde extent into lower xaddr run, we
+ *	   may able to not enlarge the spanning size covered 
+ *	   by the xtree (if we cannot shrink that size at all.) 
+ *	   Pick up the best fit from the inoxaddrtable and call fscntl()
+ *	   to move it into the current run. Once the extent is 
+ *	   moved, it will be dropped from the inoxaddrtable.
+ *
+ *	   A pointer is maintained for the current xaddr of the run.
+ *	   It is inited as the xaddr of the first run in the smallest
+ *	   dmap. Any extent whose xaddr is small than the pointer
+ *	   should not be entered into the inoxaddrtable. As the runs
+ *	   are filled and the pointer moves, Any extent whose xaddr is 
+ *	   smaller than the pointer should be dropped from the inoxaddrtable.
+ *
+ *	   If there is no best fit for the current run, try to find the best
+ *	   fit from the combination of the allocated extent. 
+ *	   The strategy of finding the combination of the allocated extent:
+ *	   
+ *	    a) Only finding the combination of the allocated extent for 
+ *	       small runs. ( length < 20 aggr. blks )
+ *	    b) Only do combination of 2. The strategy is to find the next
+ *	       larger and next smaller. ( ex: if no best fit for size of
+ *	       7, try to find 6 and 1; if not, then try 5 and 2, etc..)
+ *
+ *	       reason: As the movement is progressing, the size of runs 
+ *	       is getting bigger. So we want to consume the small extent
+ *	       first.
+ *
+ *	     To implementing the fast search for the combination, a bit
+ *	     vector of XMOVESZ is set up to monitor the list_count.
+ *	     bit is zero if the list_count is zero; otherwise the bit is 1. 
+ *	       
+ *	   If any allocated extent is bigger than the current run, ignore it.
+ *	   We are not doing the extent split.  
+ *
+ *	   If the current run is bigger than the XMOVESZ, then
+ *	   do the movement using the largest allocated extents first
+ *	   until the run is reduced to within the XMOVESZ.
+ *	   Then apply the above rule.
+ *
+ *   Memory estimation:
+ *
+ * 	   The sizeof (struct inodexaddr) is about 40 Bytes. 
+ *	   
+ *	   Each struct inodexaddr is for one extent. 
+ *	   Assuming that on average each extent has 2 aggr. blks,
+ *	   then one dmap at most need 4096 inodexaddr. 
+ *	   So one dmap needs at most 256KB. ( 40 * 4096, the result is
+ *	   rounded to 2**18). A 4MB mem can at least handle
+ *	   16 dmaps. This is our upper bound to process AG. Since AG
+ *	   size is vary but dmap size is fixed, so we are based on
+ *	   dmaps. 
+ *
+ *  Note:the above estimation is based on one extent having
+ *	 length of 2 aggr. blk. Usually one extent will have
+ *	 more than 2 aggr. blk, so 16 dmaps may not need
+ *	 4MB mem.
+ *
+ *	 At the first release, we allocate amount memory of
+ *		dmapinc * (2**18)
+
+ *	 When call inoxaddrtbl() to build the table, we need to exam all
+ *	 IAGs whose inodes are belonged to the current dmap set.
+ *	 If we exhaust the allocated MEM, just do the reorg which 
+ *	 will release some mem.  Then go back to continue to build the
+ *	 table, and to reorg and so on until we exam all IAGs. 
+ *
+ *  Note:  The following strategy is not used in the first release.
+ *	   It can be an enhancement in the future:
+ *
+ *	   If the fs is small ( ex: one AG has one dmap ), then
+ *	   we build 16 tables at one time to save i/o, with each table
+ *	   covers one AG. If file system is bigger, ( ex: one AG has
+ *	   16 dmaps), then we only build one table at one tome with 
+ *	   one table covers 16 dmaps. If one AG has more than 16 dmaps,
+ *	   process 16 dmaps at a time.
+ *
+ *	More monitors are needed:
+ *
+ *	a) For iag.agstart in the current AG, inoext may not in the 
+ *	   current dmap set. A list is set up to keep these unprocessed
+ *	   inoext.
+ *
+ *      b) A list is set up for the some dmaps that still have runs that
+ *        are unable to be filled in.  ( ?????)
+ *
+ *	If we have examed all iags, but we still have some runs to 
+ *	filled ins,  then we start to exam iag0 again and iag1 and etc. 
+ *	until we finished all the runs in the dmaps.
+ *
+ *	Go to the summary tree first to find dmaps that have interleaved
+ *	runs that are among the allocated bit string.
+
+>             If this is the case, we can start to do movement without the
+>             entire IAGs to be read in since once moved, extent's xaddr will
+>             dropped from the inodexaddrtable. 
+	  The strategy: read in about 1MB inodexaddr (1K inodes) and start
+          to do movement. When there no way to move anything, read in 
+          additional amount of inodes and xaddr.
+            
+ *	    ( Another approach is to use dmap as the work base. For each
+ *	   dmap, find its runs and allocs. Then for those allocs behind
+ *	   runs, find the owner of the alloc and move it.)
+ *
+ * 5) Special treatments:  
+ *   a) Bad block inode : There is a spacial inode ( AGGREGATE INODE ??)
+ *        All the data block under this file are bad blocks. At mkfs()
+ *        mkfs will do write and read all zeroes to make sure this is not
+  *       a bad block. When it found, then put this bad blk into the 
+ *        special file and mark it as allocated.
+ *        Defrag should never move these blocks.
+ *   b)  There are certain special
+ *       files those data blks should not be moved ( Prmary Superblk and
+ *        secondary Superblk; bmap, all the imaps; AGGRE. imap inode; 
+ *	  The aggregate inode table and secondary aggregate inode table;
+ *        logfile, fsck work space. how do I know where is the fsck work space )
+ *
+ * 6) Moving extent will be done at kernel mode. The activities 
+ *    need to be journaled for recovery.
+ *
+ *    Defrag does not need a ICACHE_LOCK for reading inode, but need
+ *    an IWRITE_LOCK for the inode. Hopefully it does not generate much
+ *    impact on performance. When the defrag holds an inode, it should 
+ *    increase its ref. count so that the inode cannot be unlink or 
+ *    released by someone else.
+ *
+ *   For a regular file, the data pages are written to disk by the sync
+ *   daemon. 
+ *   Since defrag is holding IWRITE_LOCK, so the sync daemon is blocked by
+ *   defrag for the file defrag processed. We want to flush the data pages 
+ *   to disk so that in case of system crash when doing defrag, the
+ *   user won't suffer too much. In other word, the defrag will first do
+ *   whatever the sync daemon does:
+ *     start T, call commit with COMMIT_FLUSH, and end T.
+ *   Note inside the commit process, it will flush the data pages first,
+ *   then write the log rec for the XAD and finish the commit.
+ *
+ *   a) For extents has XAD_NEW on, it is uncommitted extents.
+ *            defrag does not need a T and just go ahead to release it.
+ *   b) For extents has XAD_EXTENDED, it has a partial committed and 
+ *            partial uncommitted extents.
+ *            When defrag move this piece, it will start a T to release the
+ *            extend since partial has been released.
+ *            XAD_EXTENDED should be treated as a committed extent. 
+ *
+ *   c) For an extent having no XAD_NEW and XAD_EXTENDED,
+ *      it has been committed, Defrag will start a T to release it.
+ *
+
+    Be careful about the extents movement. a xtree should be put near
+    by such that the user seq. read can be fast.
+..................................................................
+ *
+ * 8) Performance consideration:
+ *
+ * Mode switch ( from user mode to kernel mode) 
+ * in OS/2 is more expensive than in AIX. In OS/2 the 
+ * path link number ( i.e. the number of inst. ) is much high than in AIX. 
+ * But It may still not be so significant. 
+ *
+ *  Why OS/2 high path link number? because it has much overhead to go before
+ * even get to the file system.
+ *
+ *  So pass a big buffer to fs_fsctl(). 
+ *.....................................................
+ * note:
+ *...................................................
+ *  1)struct dinode:
+ *     di_size is the data size of the file
+ *     di_nblocks is the total blks allocated for this file. So it
+ *                will contain the xtree stuff.
+ *  2) The allocation policy for the data extent: it must be a multiple
+ *    of 4KB unless this is the last data extent.
+ *  3) The min AG size is 32MB. given that a 4K blk size, so an AG
+ *     will min have one dmap.
+ *     An AG can have 2**n dmaps where n is 0, 1,...to N.
+ *     Based on this nature, an AG have more than 16 dmaps, must be
+ *     a multiple of 16.
+ *  4) A file system can have maxi 128 AGs. The actual number of AGs
+ *     are in dbmap_t.dn_numag. or it can be calculated through 
+ *     the fssize and agsize using info in superblock. 
+ *  5) If the fs is in level 2, then 
+ *     a AG can have up to 8 L1s': one L1, two L1's, four L1's and eight L1's.
+ *     If the fs is in level 1, then 
+ *     a AG can have up to 8 L0s': one L0, two L0's, four L0's and eight L0's.
+ *     If the fs is in level 0, then 
+ *     a AG can have up to 8 dmaps': one dmap, two dmaps, four dmaps 
+ *     and eight dmaps.
+ *  6) an AG will never cross the buddy boundary. 
+ *     Suppose fs has 3 ASs and each AG has 8 dmap. Then the L0.0 will be 
+ *     padded with all virtual dmaps starting from dmap #25 to #1023. 
+ *     So the result is:
+ *         AG0 and AG1 will be buddy.
+ *         AG2 with virtual AG3 will be buddy.
+ *	   Because of that we can exam AG individually.
+ *
+ *	   The bmap control page has the data for AG characteristis:
+ *
+ *	  a)control_page->dn_maxlevel = BMAPSZTOLEV(nblocks);
+ *		It is the level for the file system. ( 0, 1,2).
+ *	  b)control_page->dn_aglevel = BMAPSZTOLEV(control_page->dn_agsize);
+ *		It is the level for one AG  ( 0, 1, 2).
+ *	  c)l2nl = control_page->dn_agl2size -
+ *               (L2BPERDMAP + control_page->dn_aglevel * L2LPERCTL);
+ *		This value gives the log2 number of the current aglevel.
+ *	  d)control_page->dn_agheigth = l2nl >> 1;
+ *		It gives the heigth of the current aglevel.
+ *		leaf is 0, and root is 5. ( 0, 1, ... 5 )
+ *	  e)control_page->dn_agwidth = 
+ *		1 << (l2nl - (control_page->dn_agheigth << 1));
+ *		It gives the number of nodes in the current stree level
+ *		to cover an AG. ( the value is 1 or 2. If more than 2 which
+ *	 	will be 4, then it should be go to one level above. )
+ *	  f)control_page->dn_agstart is the start stree index at AG heigh
+ *
+ *  7) Term inconsistancy: 
+ *     In general, the "logical block number referred to 
+ *     aggregate block number. 
+ *     but in cachemgr, ( jfs_cachemgr.c jfs_rdwr.c), the "logical
+ *     block number" means the logical file page number. It is the
+ *     offset interms of unit of CM page ( Cache buffer page ).
+ * 
+ */
+=========================================================================
+
+/* the following is Amy's heuristic for deciding whether 
+ * to perform defragfs for a given AG or not.
+ * a more simple, conservative policy is implemented instead.
+ */
+
+/* The following macro finds out the max buddy value and
+ * the next one and/or two buddy values in a non-defragmented AG 
+ * for a given free rate. 
+ * For example,  if the AG's l2agsize is 16.
+ * if the free rate is 87%, the max buddy value is 15. The next
+ * buddy values are 14 and 12. 
+ * if the free rate is 71%, the max buddy value is 15. The next
+ * buddy value is 14. No third value.
+ * if the free rate is 57%, the max buddy value is 15. No other
+ * two values.
+ */ 
+
+#define RATETOBUDVAL(BUDMAX, BUDMIN1, BUDMIN2, RATE, VALUE) \
+{\
+        while ( (RATE) < (VALUE)) \
+        {\
+		(VALUE) /= 2;\
+                BUDMAX--;\
+        }\
+	(RATE) -= (VALUE);\
+	(VALUE) /= 2;\
+	if ( (RATE) >= (VALUE) ) \	
+	{\
+		(RATE) -= (VALUE);\
+                (BUDMIN1) = (BUDMAX) - 1;\
+	}\
+	(VALUE) /= 2;\
+	if ( (RATE) >= (VALUE) ) \
+	{\
+		(RATE) -= (VALUE);\
+		(BUDMIN2) = (BUDMAX) - 2;\
+	}\
+        else \
+        if ( (RATE) >= 10) \
+        {\
+                (VALUE) /= 2;\
+                if ( ((RATE) -= (VALUE)) >= 0 )\
+                        (BUDMIN2) = (BUDMAX) - 3;\
+        }\
+	if ( (BUDMIN1) == -1  && (BUDMIN2) != -1 )\
+	{\
+		(BUDMIN1) = (BUDMIN2);\
+		(BUDMIN2) = -1;\
+	}\
+}
+
+
+/*
+ * NAME:        examAG()
+ *
+ * FUNCTION:    Look at the stree of L2, L1 or L0, which depending on
+ *		the size of AG, to determine if this AG need a defrag.  
+ *
+ *		The algorithm: 
+ *		First we find out the values of	budmax and/or budmin1 
+ *		and/or budmin2 for this AG according to its free rate. 
+ *		If the AG is >= 90% free, then we only do defrag for
+ *		it when its max buddy value is < (budmax - 2) 
+ *
+ *		If the AG has < 7% free, don't do defrag. (TBD ) 
+ *		If the AG has <  100 blks left, don't do defrag
+ *		
+ *		Otherwise do the check. Starting from the top stree.
+ *		If the stree[0] has value < budmax, do defrag.
+ *		If the stree[0] has the budmax, we need to go down 
+ *		the stree to see if it has budmin1 and/or budmin2.  
+ *		Note that based on the nature of the binary buddy
+ *		system and the defrag feature, it is good enough to
+ *		go down only one level. ( otherwise the algorithm will
+ *		be too complicated.)
+ *		In the top level, an AG can have one node ( width is 1 )
+ *		or two nodes ( width is 2). An AG cannot have more than
+ *		two nodes in the top level. If it has four nodes, then
+ *		these 4 nodes will be combined into another higher
+ *		level one node.
+ *		So when we go down one level, its will be either
+ *		4 nodes ( width is 1 ) or 8 nodes ( width is 2).
+ *		If these nodes contains the budmin1 and/or budmin2. 
+ *		then this AG does not need a defrag. Otherwise do
+ *		defrag for it.
+ *		Also note that this Alg. is used to check L0, L1 and
+ *		L2 stree only. If an AG is small ( has one or two dmaps
+ *		only), then we only check the top level stree[0]. 
+ *		dmap stree will be check at the defrag process. 
+ *		an AG may have several dmaps. When it needs to be
+ *		defraged, some of its dmap may not need to do defrag. 
+ *
+ *		Theoretically an non-fragmented AG with certain free 
+ *		rate may have more than three buddy values. For example, 
+ *		when free rate is 49, given l2agsize 16, its buddy values 
+ *		are 14,13,12,11,10,..etc..
+ *		Our algorithm is just a heuristic determination, checking
+ *		three buddy values is good enough.
+ */
+int32 examAG(
+dbmap_t * bctl_pg,
+dmapctl_t *dcp_root,  /* root L page of the file system */ 
+dmapctl_t *dcp,	/* L page of the current ag   */
+int32 agno, 	/* this AG number */
+int32 s_agstart,  /*the start stree index of this AG within the dcp L page */
+int32 *start_dmap, /* the start dmap number to participate the defrag */
+int32 *end_dmap)   /* the end dmap number to participate the defrag */_
+{
+	dmapctl_t lsdcp, rsdcp;
+	int16 curlvl, curh, b_value,budmax, budmin;
+	float freerate, b_value;
+	lxdlist_t lxdl;
+	xdalist_t xadl;
+	lxd_t lxd;
+	xad_t xad[1];  /* xtFind() is used to find the next L page which
+			* will be covered by only one extent
+			*/
+	int64	offset, *poffset = &offset;
+	int64	agblk;
+	int32   delta;
+
+	curlvl = bctl_pg->dn_aglevel;
+	curh = bctl_pg->dn_agheigth; 
+	agblk = agno << l2agsize;
+
+	if ( dcp->stree[s_agstart] == bctl_pg->dn_agl2size )
+		 /* whole AG is free, this includes both agwidth 1 or 2 */
+		retrun NODEFRAG;
+
+	freerate =  bctl_pg->dn_agfree[agno] / bctl_pg->dn_agsize;
+/*
+	if ( freerate < 7 ) 
+		return NODEFRAG;
+*/
+	if ( bctl_pg->dn_agfree[agno] < 100 )
+		return NODEFRAG;
+
+	b_value = 100;
+	budmin1 = budmin2 = -1;
+	budmax = bctl_pg->dn_agl2size;
+	RATETOBUDVAL(budmax,budmin1, budmin2, freerate, b_value);
+	inx_diff = s_agstart - bctl_pg->dn_agstart;
+	if ( bctl_pg->dn_agwidth == 1 )
+	{
+		if ( freerate > = 90 )
+		{
+			if ( dcp->stree[s_agstart] < ( budmax -2 ) )
+				return DEFRAG;
+			else
+				return NODEFRAG;
+		}
+
+		if ( dcp->stree[s_agstart] < budmax )
+			retrun DEFRAG;
+		
+		if ( budmin1 == -1 && budmin2 == -1 )
+			/* this AG has the budmax and only one value */
+			return NODEFRAG;
+
+		/* Even though we have the budmax, but check down the stree
+		 * to ensure we have all budmin1 and budmin2  
+		 */
+		if ( curh > 0 )
+		{
+			dstinx = s_agstart + (inx_diff * 3) +
+					1 << ((5 - curh) << 1 );
+			curh -= 1;
+		}
+		else
+		{
+			if ( curlvl == 0 )  /* it  is in dmap level */
+				return DEFRAG;
+   			
+			/* if dn_agwidth is 1, 
+			 * the curh will not be 0 when curlvl > 0
+			 */  
+		}
+		rc = readStree(dcp, budmax, budmin1, budmin2, dstinx
+				start_dmap, end_dmap, freerate);
+		return rc;
+	}
+	else   /* bctl_pg->dn_agwidth is 2 */ 
+	{   
+		if ( freerate > = 10 )
+		{
+			if ( dcp->stree[s_agstart] < ( budmax -2 ) &&
+				 dcp->stree[s_agstart+1] < ( budmax -2 ) )
+				return DEFRAG;
+			else
+				return NODEFRAG:
+		}
+		if ( dcp->stree[s_agstart] < budmax && 
+			dcp->stree[s_agstart+1] < budmax )
+			return DEFRAG;
+
+		/* dcp->stree[s_agstart] or dcp->stree[s_agstart+1] == budmax */
+		if ( budmin1 == -1 && budmin2 == -1 )
+                        /* this AG has the budmax and only one value */
+			return NODEFRAG;
+		if ( freerate >= 50 )
+		{
+		/* when freerate >= 50, the budmax must be 
+		 * (bctl_pg->dn_agl2size - 1). Then if one node has
+		 * budmax, its subtree must be all free. We will
+		 * further check its buddy subtree.
+		 */
+			if ( dcp->stree[s_agstart] == budmax )
+			{
+				/* look at s_agstart +1 */
+				inx_diff++;
+				s_agstart += 1;
+				*start_dmap += dmapsperpg >> 1;
+				delta = 1;
+			}
+			else   /*  dcp->stree[s_agstart+1] == budmax
+				* look at s_agstart subtree */
+			{
+				*end_dmap -= dmapsperpg >> 1;
+				delta = 0;
+			}
+
+			if ( curh > 0 )
+			{
+				dstinx = s_agstart +(inx_diff * 3) +
+						1 << ((5 - curh) << 1 );
+				curh -= 1;
+			}
+			else
+			{
+				agblk = agno << l2agsize;
+				it ( curlvl == 0 )
+					return DEFRAG;
+   				else if ( curlvl == 1 ) /* read in L0s */
+	   				offset = 
+	      	   		BLKTOL0(agblk+delta<<(L2LPERCTL+L2BPERDMAP),
+						bctl_pg->dn_l2nbperpage);
+				else /* level is 2, read in L1s */
+	   				offset = 
+	      	   		BLKTOL1(agblk+delta<<((L2LPERCTL<<1)+L2BPERDMAP),
+					bctl_pg->dn_l2nbperpage);
+				rc = getSubstree(offset, &lsdcp );
+				if ( rc != 0 )
+					return rc;
+				curh = 4;
+				curlvl -= 1;
+				dstinx = 1;
+			}
+			rc = readStree(&lsdcp, budmax, budmin1, budmin2, dstinx
+				start_dmap, end_dmap, freerate);
+			return rc;
+		}
+		else  /* freerate < 50, check both subtrees */
+		{
+			if ( curh > 0 )
+			{
+				ldstinx = s_agstart +(inx_diff * 3) +
+						1 << ((5 - curh) << 1 );
+				for ( i = 0; i < 8; i++)
+				{
+					if ( dcp->stree[ldstinx+i] == budmin1 )
+					{
+						found1 = 1;
+						break;
+					}
+				}
+				if ( found1 )
+				{
+					if ( budmin2 != -1 )
+					{
+						for ( i=0; i < 8; i++)
+							if ( dcp->stree[ldstinx+i] == budmin2)
+								return NODEFRAG;
+						return DEFRAG;
+					}
+					else
+						return NODEFRAG;
+				}
+				else
+					return DEFRAG;
+			}
+			else
+			{
+				if ( curlvl == 0 )
+					return DEFRAG;
+				/* read in the left subtree
+				 */
+   				if ( curlvl == 1 ) /* read in L0s */
+	   				offset = BLKTOL0(agblk, 
+						  bctl_pg->dn_l2nbperpage);
+				else /* level is 2, read in L1s */
+	   				offset = BLKTOL1(agblk, 
+						  bctl_pg->dn_l2nbperpage);
+				rc = getSubstree(offset, &lsdcp );
+				if ( rc != 0 )
+					return rc;
+
+				/* read in right subtree
+				 */
+   				if ( curlvl == 1 ) /* read in L0s */
+	   				offset = 
+	      	   		    BLKTOL0(agblk+1<<(L2LPERCTL+L2BPERDMAP),
+						bctl_pg->dn_l2nbperpage);
+				else /* level is 2, read in L1s */
+	   				offset = 
+	      	   		BLKTOL1(agblk+1<<((L2LPERCTL<<1)+L2BPERDMAP),
+					bctl_pg->dn_l2nbperpage);
+
+				rc = getSubstree(offset, &rsdcp );
+				if ( rc != 0 )
+					return rc;
+
+				found1 = 0;
+				for ( i = 0; i < 4; i++)
+				{
+					if (lsdcp->stree[1+i] == budmin1)
+					{
+						found1 = 1;
+						break;
+					}
+				}
+				if ( found1)
+					goto check_2;
+				else  /* not found in lsdcp, now look at 
+				       * rsdcp 
+				       */
+				{
+					for ( i=0; i< 4; i++)
+						if ( rsdcp->stree[1+i] == 
+								budmin1 )
+							goto check_2;
+					return DEFRAG;
+				}
+			}	
+		}
+	}
+check_2:
+	if ( budmin2 == -1 )
+		return NODEFRAG;
+	else
+	{
+		for ( i=0; i< 4; i++)
+			if ( lsdcp->stree[1+i] == budmin2)
+				return NODEFRAG;
+		for (i = 0; i < 4; i++)
+			if ( rsdcp->stree[1+i] == budmin2)
+				return NODEFRAG;	
+		return DEFRAG;
+	}
+}
+
+/*
+ * NAME: readStree()
+ *
+ * FUNCTION:  	Look at the substree to determine if the AG
+ *		needs a defrag. 
+ */
+int32
+readStree(
+dmapctl_t *dcp,  /* pointer of the dmap control page */
+int32   budmax,
+int16	budmin1,
+int16 	budmin2,
+int32 	dstinx,  /* the start stree index number of this subtree */
+int32 	*sdmap,  /* pointer of the start dmap number of the AG */
+int32 	*edmap,  /* pointer of the end dmap number of the AG */
+float 	frate)   /* free rate of the AG */
+{
+
+	int16 found1;
+
+	found1 = 0;
+	for ( i = dstinx; i < dstinx + 4 ; i++)
+	{
+		if ( dcp->stree[i] == budmin1 )
+		{
+		 	found1 = 1;
+			break;
+		}
+	}
+	if ( found1 )
+	{
+		if ( budmin2 == -1 )
+			return NODEFRAG;
+		else
+		{
+			for ( i = dstinx; i < dstinx + 4 ; i++)
+				if ( dcp->stree[i] == budmin2)
+					return NODEFRAG;
+			goto defrag;
+		}
+	}
+			
+defrag:
+	/* before return DEFRAG, adjust the start
+	 * and end dmap number to save work
+	 * only check free rate >= 50 or 25 two cases. 
+	 * Other cases need another
+  	 * level of subtree, don't bother.
+	 */
+	if ( frate >= 50  )
+	{
+		if ( dcp->stree[dstinx] == budmax )
+			*edmap -= dmapsperag >> 1;
+		if ( dcp->stree[dstinx+2] == budmax )
+			*sdmap += dmapsperag >> 1;
+	}
+	if ( frate >= 25  )
+	{
+		for (i = 0; i < 4 ; i++)
+		{
+			if ( dcp->stree[dstinx+i] == budmax )
+				break;
+		}
+		
+		if ( i = 0 )
+			*sdamp += dmapsperag >> 2;
+		if ( i == 3)	
+			*edmap -= dmapsperag >> 2;
+	}
+	return DEFRAG;
+}
+
+=========================================================================
+Amy's old design note:
+
+   Terminology:
+
+   run --  a run is a set of free contigous blks. In the bmap, a run
+         is a set of '0' bits string. 
+
+   file-belong-to-ag  --  a file is considered to be in an AG if the 
+                          file's inode is located in this AG's extent.
+   large_size extent  -- An extent is considered to be large if
+                         it has > 64 aggregate blks.
+.....................................................................
+   In AIX defragfs, 
+
+      option "-q" only give the statistics before running defragfs.
+
+      option "-r" give the statistics before and after running defragfs.
+                  and also give the other statistics.
+
+     EX: defragfs -r /tmp 
+
+statistics before running defragfs:
+number of free fragments 3274
+number of allocated fragments 2870
+number of free spaces shorter than a block 0
+number of free fragments in short free spaces 0
+
+statistics after running defragfs:
+number of free spaces shorter than a block 0
+number of free fragments in short free spaces 0
+
+other statistics:
+number of fragments moved 56
+number of logical blocks moved 56
+number of allocation attempts 27
+number of exact matches 2
+
+.....................................................................
+   In the best case, we have only one run in the aggregate.
+
+   The target of defrag is to get small number of long runs.
+   The target of reorg is to get small number of XADs for a file.
+
+   These two targets may conflict in certain cases. Assuming that
+   we want to get long run. Then we have to move some file's
+   XAD's which may cause a file getting more XADs.
+   The trade-off is if a file only has one XAD (and we say we can 
+   tolerate a file to have up to 6 XADs, still has two to grow )
+   So we enlarge the file xtree size to get defragment done.
+
+   The defrag/reorg utility execution condition:
+
+
+   The file system must be mounted read-write while the defrag/reorg 
+   utility runs. If it is not mounted prior to invoking the utility,
+   it will be mounted for the duration of the utility execution.
+
+   Note that OS/2 does not have "mount" and "umount" concept. That is
+   another reason that we have to assume defrag/reorg running under
+   a mounted r/w file system. 
+
+   There are two reasons for the mount requirement:
+
+    1) defrag should be run on-line. In the other word, the user can still
+       use the file system. So allocation and deallocation files' 
+       extents or directory tree can take place during the defrag/reorg.
+
+       issue: old committed frags free.
+
+    2) we need to journal the defrag/reorg activitiess so when system crashed
+       during defrag/reorg, logredo will able to recover the defrag/reorg
+       activities.
+
+
+  The xjfs function for defrag are as follows:
+
+
+   1) separate the allocated bits from the unallocated bits
+      in bmap. This is the requirement from the feature of
+      the binary buddy system.
+      Push as many as allocated pxds onto the left of the aggregate.
+
+      The first pass is working on each AG basis. 
+      Starting from the beginning of the AG,find the first free block,
+      then to see if there is any file behind that free block.
+      If yes, push the file allocation to the left. 
+ 
+      In Veritas, it defines a Large_size for the extent consolidation.
+      Here, we prefer not to have that size. For each AG, we push
+      the allocated bits to the left and move the unallocated bits
+      to the right of AG. The stop point is that if we cannot find any
+      file-belong-to-ag that can be enlarged its xtree.
+
+   2) reorganizing the file systems. The reorganizer try to arrange
+      the extents for files on an AG basis:
+
+	The first stage is to handle on an AG basis. 
+
+      a) The start point is to shrink the file's Xtree. 
+      b) put the ino extent close to its directory tree. 
+      c) arrange recent access file and aged file in the same AG
+         then arrange files that are not belonged to the current AG
+
+
+  What is the defrag condition? How do I report the fragmentation?
+   3) If more than 40% of the free space is formed by he small extents
+      ( < 64 aggre. blks), the file system is considered fragmented
+      and need a defrag.
+
+
+  Since an extent can be any size, so any file with a xtree that has
+  more than 8 XADs is the candidate to be reorg. 
+
+  Report the file fragmentation in terms of the number of XADs. 
+  We set up the fragmentation severity number 1,2,3:
+
+     severity 1: If the number of XADs is > 8.
+     severity 2: If the number of XADs is > 256. 
+     severity 3: If the number of XADs is > 512.
+
+  When the file is in severity 3 fragmented, it should be defrag/reorg
+  immediately.
+
+*****************************************************************
+    Syntax:
+
+    defragfs  [-q | [-d]] [-D] {device_name|path_name}
+
+   XJFS defragfs utility option list:
+
+    1) -q -- query. It will give the current fs status. If this flag
+	     is used, we have to use "-d" option to start the defragment.
+	     Without "-d", only the status is reported, nothing is done.
+    2) -d -- use with "-q"  option to indicate that go ahead to do defragmentation.
+	     A report for the system status after the defragmentation is also
+	     generated. 
+    3) no option -- indicate to do the defragmentation and generate the result
+	     report. 
+    4) -D -- debug flag. It is for internal use.
+    5) device_name or path_name -- This is the only required argument. 
+
+
+
+  if "-q" is used, the following info will be printed:
+
+     statistics before running defragfs:
+     ......................................
+     AG_num   num_alloc_exts  small_free_exts  large_free_exts
+        ....
+        ....
+
+
+  if "-r" is used, the following info will be printed:
+
+     statistics before running defragfs:
+     ......................................
+     AG_num   num_alloc_exts  small_free_exts  large_free_exts
+        ....
+        ....
+     statistics after running defragfs:
+     ......................................
+     AG_num   num_alloc_exts  small_free_exts  large_free_exts
+        ....
+        ....
+
+     other statistics:
+
+    num_exts_moved 
+    num_file_xtree_reduced
+    num_file_xtree_growed
+
+
+   Note: the definition of 
+
+     small_free_exts: length is < 64 aggregate blocks.
+     large_free_exts: length is >= 64 aggregate blocks.
+*********************************************************************
+   How to make a system real fragmented fast?
+
+   Make concurrent processes ( many). each one seq. write small
+   files. Then delete some of files. make it holes.
+
+   1) preparation for defrag:
+
+      For the system to be fragmented fast, starting as many as processes,
+      each of it runs seq. write file ( small amount bytes.)
+
+      once file is created, then delete some of them. In that way,
+      the system is fragmented and with certain small holes.
+
+      Note: FAT and HPFS does not support sparse file. JFS will support 
+            both dense file and sparse file. 
+      Note that OS/2 does not support sparse file, every file is created
+      as dense file. So creating sparse files may not get what we want.
+
+
+  C) After the defragmentation, we should get better response time for
+     file access and dir access. But this is not within FVT scope to
+     verify it.
+
+
+
+*********************************************************************
+  in struct dinode:
+
+       di_size is the data size of the file
+       di_nblocks is the total blks allocated for this file. So it
+                  will contain the xtree stuff.
+********
+
+  How is about the file system/aggregate defragmentation?
+
+  
+
+  Defrag/reorg policies:
+
+  Defrag/reorg follows the XJFS resource allocation policies. 
+*****************************************************************
+ data structure:
+
+  Given a pxd.addr, how to determine that which file/dir it is used?
+
+  In AIX, there is a fraginode which is a cross-ref for inode_t and 
+  the fragment it used.
+
+  Here we create extent-inode map. struct extinode gives the 
+  cross-ref for inode_t and the extents it used.
+
+  Do we really need it? Read in the imap. for each iag_T, there is
+  agstart 
+
+  A IAG is a group of 4096 inodes. A AG is a chunk piece of 
+  disk space. an IAG can not be allocated for more than one AG, 
+  But a AG can have more than one IAG allocated to it.
+
+  starting from imap, read one iag_t at a time. for all the ag, get
+  their iag list. iag_t.agstart gives a hint about file-belong-ag.
+  But for one AG, it may contain some blks that are associated 
+  with some inodes that are not in this AG.
+
+  Given a AG, how may IAG do we have?
+
+   
+*****************************************************************
+strategy:
+
+  In AIX, it breaks up each AG into groups of 64-lblks. It process
+  the 64-block groups from right to left, skip groups with all used
+  or all free blocks. 
+
+  In XJFS, since there is dmap_t ( covers 8192 lblks ). so we uses dmap_t
+  as the process units. from AG0 to numag (left to right), computer nruns
+  in each dmap_t. Using stree to get the information.
+  we don't use threshold here since we want to push all allocated extents 
+  to left and keep all runs to right. 
+
+  A AG is min 32M byte. ( 65536 blks (512-byte blk), 8 dmap_t ).
+
+****************** jfs_dmap.c *********************
+
+/*
+ * NAME:        dbNextAG(inode_t *ipbmap)
+ *
+ * FUNCTION:    find the preferred allocation group for new allocations.
+ *
+ *              we try to keep the trailing (rightmost) allocation groups
+ *              free for large allocations.  we try to do this by targeting
+ *              new inode allocations towards the leftmost or 'active'
+ *              allocation groups while keeping the rightmost or 'inactive'
+ *              allocation groups free. once the active allocation groups
+ *              have dropped to a certain percentage of free space, we add
+ *              the leftmost inactive allocation group to the active set.
+ *
+ *              within the active allocation groups, we maintain a preferred
+ *              allocation group which consists of a group with at least
+ *              average free space over the active set. it is the preferred
+ *              group that we target new inode allocation towards.  the
+ *              tie-in between inode allocation and block allocation occurs
+ *              as we allocate the first (data) block of an inode and specify
+ *              the inode (block) as the allocation hint for this block.
+
+        if (actags < mp->db_numag)
+        {
+                /* not all of the allocation groups are active.  determine
+                 * if we should extend the active set by 1 (i.e. add the
+                 * group following the current active set).  we do so if
+                 * the number of free blocks within the active set is less
+                 * than the allocation group set and average free within
+                 * the active set is less than 60%.  we activate a new group
+                 * by setting the allocation group preference to the new
+                 * group.
+                 */
+                if (actfree < mp->db_agsize &&
+                    ((avgfree * 100) >> l2agsize) < 60)
+                        mp->db_agpref = actags;
+        }
+        else
+        {
+                /* all allocation groups are in the active set.  check if
+                 * the preferred allocation group has average free space.
+                 * if not, re-establish the preferred group as the leftmost
+                 * group with average free space.
+                 */
+                if (mp->db_agfree[mp->db_agpref] < avgfree)
+                {
+                        for (mp->db_agpref = 0; mp->db_agpref < actags;
+                                                         mp->db_agpref++)
+                        {
+                                if (mp->db_agfree[mp->db_agpref] <= avgfree)
+                                        break;
+                        }
+                        assert( mp->db_agpref < mp->db_numag );
+                }
+
+/*
+ * NAME:        dbAlloc(inode_t *ip
+ *                      int64 hint,
+ *                      int64 nblocks,
+ *                      int64 *results)
+ *
+ * FUNCTION:    attempt to allocate a specified number of contiguous free
+ *              blocks from the working allocation block map.
+ *
+ *              the block allocation policy uses hints and a multi-step
+ *              approach.
+ *
+ *              for allocation requests smaller than the number of blocks
+ *              per dmap, we first try to allocate the new blocks
+ *              immediately following the hint.  if these blocks are not
+ *              available, we try to allocate blocks near the hint.  if
+ *              no blocks near the hint are available, we next try to
+ *              allocate within the same dmap as contains the hint.
+ *
+ *              if no blocks are available in the dmap or the allocation
+ *              request is larger than the dmap size, we try to allocate
+ *              within the same allocation group as contains the hint. if
+ *              this does not succeed, we finally try to allocate anywhere
+ *              within the aggregate.
+ *
+ *              we also try to allocate anywhere within the aggregate for
+ *              for allocation requests larger than the allocation group
+ *              size or requests that specify no hint value.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The one exception is due to the JFS journaling
+environment and involves
+the reallocation of partial direct blocks with committed allocations.
+Reallocation occurs when a partial direct block's storage requirements grow
+and the new requirements cannot be satisfied by expanding the block's current
+allocation in place.  In performing reallocation, the JFS allocates a new set
+of disk resources that is large enough to fully cover the block's new storage
+requirements, including the block's existing requirements,
+and frees the block's existing allocation.  However, the
+existing allocation cannot be freed directly if it represents committed
+resources since committed resource can only be freed through file system
+transaction commit processing.  Rather than starting a file system
+transaction to
+free the old committed resource, the JFS holds on to these resources
+until the associated file or directory is committed to the file system as
+part of a transaction, at which time the old resources will be
+freed.  For files, old resources will typically be held
+until the next file system \fIsync\fP operation.  For directories, resource
+allocation is performed under file system transactions, so the old resources
+will be held for a relatively short period of time. 
+
+Also, a file or directory can have at most one committed partial allocation.
+
+
+For the committed allocation, we don't want to expand the extent allocation
+in-line since doing so would result in allocation consisting of 
+intersections of committed and uncommitted extents.
+
+
+
+/* moved fragment structures are used to reperesent the old
+ * committed disk allocation for up to 4 pages. each  structure
+ * is the same size as a lockword (32-bytes) and storage for a
+ * moved fragment structure is allocated from the same pool
+ * as lockwords (see vmm/vmlock.h). the anchor for the list of
+ * movedfrag structures for a file is in the inode (i_movedfrag).
+ */
+struct movedfrag
+{
+        struct movedfrag * next; /* pointer to next on hash chain */
+        struct movedfrag * nextsid; /* next for same base sid */
+        int     sid;            /* base sid */
+        int     pno;            /* first of 4 consecutive pages */
+        uint    olddisk[4];     /* frag pointers for corresponding pages */
+};
+
+#############################################################
+implementation issues
+#############################################################
+
+0) The overall goal -- the defragfs should not have more than 
+                       5% performance imapct on the file system so that 
+                       for those who run it at daytime won't complain
+                       about it.
+                       
+
+1) getinode() -- 
+
+   in AIX, it reads in all the dinodes from disk and check if the n_link == 0 
+   process only those inodes that n_link > 0.
+   AIX can do that because dinode location is fixed. 
+
+   In XJFS, we can have two ways to do it:
+
+    a) starting from the ipimap root, read the iag pages one by one;
+       then from the iag_t.wmap, if the bit is on, read in the inoext.
+       For each inode in the inoext, check their nlink. process only
+       ones that nlink > 0.
+
+       Since defrag is running when the file system is mounted. So 
+       information from the disk may not be the most current one. 
+       The inoext address could be changed in the icache. So
+       di_inostamp  needs to be checked to ensure it is a valid inode.
+
+    b) Read inodes from the icache. If the desired inode is not in the
+       icache, then read it from the disk.
+
+       Doing that we save a lot unnecessary I/Os and get more current
+       information. 
+
+       Defrag does not need a ICACHE_LOCK for reading inode, but need
+       an IXLOCK for the inode. Hopefully it does not generate much
+       impact on performance.
+
+    joon opinion: icahce only occupy a small percentage of the whole
+                  inodes the file system has. If we read inoext, we 
+                   may read whole ino extent, If we go through iget,
+                   we just get one by one. My opinion: I can get the
+                   buffer address so I get 8 dinode at once.
+
+                   On-line is different from off-line. Thing is dynamically
+                   change. If we bypass the file system itself, we may
+                   get totally gabdge.  So we should follow the what 
+                   the file system do.
+
+
+    Should defrag take a ref. count? May be not. If some one want to
+    unlink it and release the resource, should I allow to do it?
+    No. I should only take as a snap shut. Lock at this mount to do
+    defragment. Cannot let everything dynamic. if I catch an inode, inc.
+    it ref count so that it cannot be release by other one. 
+
+    and journal all the activities. 
+
+    AIX defrag does all the info collection in the utility level and do real
+    thing in the kernel level. The  kernel level thing may fail because when
+    the time come thing is changed.
+
+
+2) How does defragfs know that an extent is an uncommitted allocation?
+    XAD_NEW flag?
+
+3) AIX defragfs is written in a quicken-dirty way. So forget about the
+   threadhold.
+
+
+    2 ** 10 = 1kB
+    2 ** 20 = 1MB
+    2 ** 30 = 1GB
+
+    XJFS: EX 128GB file system -- each ag is 1GB with a lblk of 512-byte
+          then the dmap need 1M bits to monitor it. 
+
+          each dmap page is for 8192 bits ( 2 ** 13 )
+          2**30  /  2**9 = 2**21 (blks)
+
+          2 ** 21 / 2 ** 13 = 2 ** 8 = 256 dmap pages. 
+
+       min agsize is 32MB.( 2 ** 25 )
+            with 1K lbksize, dmap need 2 ** 15 bits 
+           2 ** 16 / 2 ** 13 = 8 dmap pages.
+
+     defrag need to read n dmap page for one ag.  
+
+      ndmap = agsize / 8192.  ( agsize is in terms of aggr. blks.)
+      mem need is ndmap * 4096 bytes.
+      if ag is too big, 
+
+         The maximun bmap is 2**43 blks,  given that 128 fixed number
+      of ags, then agsize will be 2**36 blks.
+
+       2**36 / 2**13 = 2**23 dmap pages for one ag. ( 8M dmaps )
+       ( 2**23 * 2**12 = 2**35 bytes, = 32768 MB)
+       plus 2**13 (8192) L0n pages and 2**3 (8) L1n pages.
+
+       each dmap is 4096 bytes (2**12). SO the total will be 2**35 bytes
+       for the mem.
+
+       So what is the reasonable size in mem?
+
+        1024 dmap pages. ( L00 ) easy to process.
+
+      defragfs will allocate 1024 * 4096 (4MB) mem plus all L0 and L1
+      pages.
+  
+      In the worst case, all L1 and L0 for one AG will be 33MB. 
+
+      if one ag needs more, just process one by one.
+
+       strategy: process one L0n at a time. so 1024 dmap pages plus one
+                 l0n plus one L1n and L2. 
+
+        Allocate 4MB mem.
+
+
+   Work flow:
+     
+     loop for each iag_t in imap, build a x-ref :
+         each ag, a list of iag_t.
+
+     min: one iag_t.
+          get dinomap_t to get in_nextiag to see how many. 
+          1MB mem will has 256 iag_t.
+
+     If the fssize is <  8M aggr.blks ( 4GB with 512-byte aggr. blksize).
+     ( 2**32 = 4 GB ).
+    
+	readBmap at once
+     
+     othersie process 1024 dmap_t at a time. 
+
+     For each dmap_t,look at the stree to figure out the first "1" bit
+     behind the zero. starting from that blk no. ( which can show
+     the AG number ), from the iag_t list read in all the inodes in the
+     list. If Any blk could not be find in the current list, save into
+     non-iag-blk area, we need to do mess search for these blks.    
+     If it is found in the current list, insert into the hash table
+     of extinode-map.
+
+         
+
+........................................................
+
+    For extents has XAD_NEW on, it is uncommitted extents.
+
+        defrag does not need a T and just go ahead to release it.
+
+    For extents has XAD_EXTENDED, it has a partial committed and 
+         partial uncommitted extents.
+
+        When defrag move this piece, it will start a T to release the
+        extend since partial has been released.
+      XAD_EXTENDED should be treated as a committed extent. 
+
+    For an extent having no XAD_NEW and XAD_EXTENDED ( it has been committed),
+        Defrag will start a T to release it.
+
+
+    For this reason, it may be better to start new transaction to
+    commit the moved extents. 
+
+{ALT}: attaching to inode. let regular T to commit them.
+
+    Be careful about the extents movement. a xtree should be put near
+    by such that the user seq. read can be fast.
+
+
+..................................................................
+
+   Mode switch in OS/2 is more expensive than in AIX. In OS/2 the 
+   path link number ( i.e. the number of inst. ) is much high than
+   in AIX. But It may still not be so significant. 
+
+   Why OS/2 high path link number? because it has much overhead to go before
+   even get to the file system.
+
+   So pass a big buffer to fs_fsctl(). 
+
+...................................................................
+
+   Tom's opinion --
+
+        Read imap, dmap and inodes from disk instead of reading from
+        kernel mem. 
+
+        Reason: When asking kernel to do the job for defrag, the kernel
+                resource are used so the kernel performance got hit.
+             
+                Plus read off the kernel still will get the garbge 
+                defrag does not get any benifit.
+
+                Veritas use utility space to do defrag as well.
+
+        another reason: OS/2 is a non-preempted kernel. When copyin
+                 or copyout is called ( copy a large data ), no one
+                 else will get the CPU. 
+
+                 AIX is a preempt-kernel. 
+
+         Defrag should be run as a side-job. Should not be noticed.

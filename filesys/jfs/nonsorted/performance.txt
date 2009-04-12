@@ -1,0 +1,44 @@
+/* $Id: performance.txt,v 1.1 2001/12/22 02:30:59 bird Exp $ */
+
+Just some quick notes after doing some comparations with HPFS386.
+
+Two volumes on about 1.1GB on a very fast cached RAID. The RAID
+
+controller have a 64MB cache. The RAID is made up of 4 36GB Seagate
+15.000 RPM disks configured as a RAID-5.
+The computer is an Dual AMD, 1200MHz with 512MB ram.
+Timings are done by 4OS2.
+
+
+1. Unpacking FreeDB (november release), approximately 450.000
+files and 430MB of data (though the tar files is 700+MB).
+
+HPFS: 4.58min
+JFS:  5.58min
+
+2. Run an OS/2 specific disk usage (du) clone (means it uses
+DosFindxxxx efficiently).
+
+HPFS:   25.9 sec
+JFS:  5.03 sec
+- JFS is 11 times slower than HPFS.
+
+Output:
+  18.466.879  19.086 .\blues
+  47.573.409  41.465 .\classical
+  12.146.213  11.963 .\country
+   2.091.502   2.458 .\data
+  22.528.539  22.836 .\folk
+  28.522.472  32.217 .\jazz
+ 124.754.665 127.760 .\misc
+  12.749.072  15.278 .\newage
+   4.809.915   5.188 .\reggae
+ 141.230.408 158.838 .\rock
+  14.714.713  13.261 .\soundtrack
+ 429.607.590 450.352 .
+429.607.590 bytes and 450.352 files in 12 directories
+
+Remark: JFS CPU utilization is very very low. It varies from 5-8%.
+        There got to be something very wrong in the code somewhere!
+
+

@@ -60,11 +60,11 @@ type FNTHREAD=procedure(ul: ULONG);
 type PFNTHREAD=^FNTHREAD;
 
 
-function DosCreateThread(ptid: PTID;
-                         pfn: PFNTHREAD;
-                         param: ULONG;
-                         flag: ULONG;
-                         cbStack: ULONG): APIRET;
+function DosCreateThread(out ptid: TID;
+                         in  pfn: PFNTHREAD;
+                         in  param: ULONG;
+                         in  flag: ULONG;
+                         in  cbStack: ULONG): APIRET;
 
 type THREADCREATE=structure
       cbSize: ULONG;
@@ -78,14 +78,14 @@ type THREADCREATE=structure
 
 type PTHREADCREATE=^THREADCREATE;
 
-function DosCreateThread2(ptc: PTHREADCREATE): APIRET;
+function DosCreateThread2(in ptc: PTHREADCREATE): APIRET;
 
-function DosResumeThread(tid: TID): APIRET;
+function DosResumeThread(in tid: TID): APIRET;
 
-function DosSuspendThread(tid: TID): APIRET;
+function DosSuspendThread(in tid: TID): APIRET;
 
-function DosGetInfoBlocks(pptib: ^PTIB;
-                          pppib: ^PPIB): APIRET;
+function DosGetInfoBlocks(out pptib: PTIB;
+                          out pppib: PPIB): APIRET;
 
 (* Process Type codes (Process Information Block (PIB) pib_ultype field)      *)
 
@@ -99,11 +99,11 @@ const PT_DETACHED                =4; (* Detached application                  *)
 
 const PS_EXITLIST                =1; (* Thread is in exitlist routine         *)
 
-function DosKillThread(tid: TID): APIRET;
+function DosKillThread(in tid: TID): APIRET;
 
-function DosAllocThreadLocalMemory(cb: ULONG; p: ^PULONG): APIRET;
+function DosAllocThreadLocalMemory(in cb: ULONG; out p: PULONG): APIRET;
 
-function DosFreeThreadLocalMemory(p: ^ULONG): APIRET;
+function DosFreeThreadLocalMemory(in p: PULONG): APIRET;
 
    (* Action code values *)
 
@@ -129,35 +129,35 @@ type RESULTCODES=structure       (* resc *)
 
 type PRESULTCODES=^RESULTCODES;
 
-function DosWaitChild(action: ULONG;
-                      option: ULONG;
-                      pres: PRESULTCODES;
-                      ppid: PPID;
-                      pid: PID): APIRET;
+function DosWaitChild(in  action: ULONG;
+                      in  option: ULONG;
+                      out pres: RESULTCODES;
+                      out ppid: PID;
+                      in  pid: PID): APIRET;
 
-function DosWaitThread(ptid: PTID;
-                       option: ULONG): APIRET;
+function DosWaitThread(in ptid: PTID;
+                       in option: ULONG): APIRET;
 
-function DosSleep(msec: ULONG): APIRET;
+function DosSleep(in msec: ULONG): APIRET;
 
 type MPAFFINITY=structure (* afnty *)
       mask: array[2] of ULONG; (* CPUs 0 thru 31 in [0], CPUs 32 thru 63 in [1] *)
   end;
 type PMPAFFINITY=^MPAFFINITY;
 
-function DosQueryThreadAffinity(scope: ULONG;
-                                pAffinity: PMPAFFINITY): APIRET;
+function DosQueryThreadAffinity(in scope: ULONG;
+                                in pAffinity: PMPAFFINITY): APIRET;
 
    (* scope values for QueryThreadAffinity *)
 
 const AFNTY_THREAD      = 0;
 const AFNTY_SYSTEM      = 1;
 
-function DosSetThreadAffinity(pAffinity: PMPAFFINITY): APIRET;
+function DosSetThreadAffinity(in pAffinity: PMPAFFINITY): APIRET;
 
 uses dosdebug;
 
-function DosDebug(pdbgbuf: PVOID): APIRET;
+function DosDebug(in pdbgbuf: PVOID): APIRET;
 
 
    (* codeTerminate values (also passed to ExitList routines) *)
@@ -175,8 +175,8 @@ function DosEnterCritSec(): APIRET;
 
 function DosExitCritSec(): APIRET;
 
-function DosExitList(ordercode: ULONG;
-                     pfn: PFNEXITLIST): APIRET;
+function DosExitList(in ordercode: ULONG;
+                     in pfn: PFNEXITLIST): APIRET;
 
    (* DosExitList functions *)
 
@@ -184,12 +184,12 @@ function DosExitList(ordercode: ULONG;
    const EXLST_REMOVE      = 2;
    const EXLST_EXIT        = 3;
 
-function DosExecPgm(pObjname: PCHAR;
-                    cbObjname: LONG;
-                    execFlag: ULONG,
-                    in pArg: PSZ;
-                    in pEnv: PSZ;
-                    pRes: PRESULTCODES;
+function DosExecPgm(out pObjname: CHAR;
+                    in  cbObjname: LONG;
+                    in  execFlag: ULONG,
+                    in  pArg: PSZ;
+                    in  pEnv: PSZ;
+                    out pRes: RESULTCODES;
                     in pName: PSZ): APIRET;
 
    (* DosExecPgm functions *)
@@ -203,10 +203,10 @@ function DosExecPgm(pObjname: PCHAR;
    const EXEC_ASYNCRESULTDB = 6;
 
 
-function DosSetPriority(scope: ULONG;
-                        ulClass: ULONG;
-                        delta: LONG;
-                        PorTid: ULONG): APIRET;
+function DosSetPriority(in scope: ULONG;
+                        in ulClass: ULONG;
+                        in delta: LONG;
+                        in PorTid: ULONG): APIRET;
 
    (* Priority scopes *)
 
@@ -227,8 +227,8 @@ function DosSetPriority(scope: ULONG;
    const PRTYD_MINIMUM   =  -31;
    const PRTYD_MAXIMUM   =   31;
 
-function DosKillProcess(action: ULONG;
-                        pid: PID): APIRET;
+function DosKillProcess(in action: ULONG;
+                        in pid: PID): APIRET;
 
    const DKP_PROCESSTREE  =  0;
    const DKP_PROCESS      =  1;

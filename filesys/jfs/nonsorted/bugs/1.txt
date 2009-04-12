@@ -1,0 +1,17 @@
+$Id: 1.txt,v 1.2 2001/09/09 23:54:22 bird Exp $
+-----
+This bug occurs even with late jfs's (2001-06-22). Someone is not clearing the
+INODE mutex before freeing it. Then when another thread allocates it, it will
+block in iAlloc on WRITE_LOCK(&ip->i_rdwrlock);
+
+Typically this occurs during "heavy" cvs activity in the Odin32 tree on
+netlabs.
+ (bird)
+
+-----
+Sep 10 2001 2:07am:
+Found some new stuff:
+ - _iSyncFS@4+151 is probably the bad boy. But, it might be _jfs_mkdir@20+188 as well.
+ - setting the synctime to a very low value helps recreating the problem.
+ (bird)
+

@@ -1,0 +1,33 @@
+results on quad xeon box:
+
+dbench 30: 88MB/sec
+dbench 60: 83MB/sec
+dbench 90: 77MB/sec
+dbench 120: 63
+dbench 150: 59
+dbench 180: 50
+dbench 210: 48
+dbench 240: 44
+
+
+smbtorture results in scaled nb units (MB/sec)
+
+plain 2.2.9 with normal bdflush and update
+client on smbo200
+
+16  16.1
+32  20.1
+48  20.9
+64  19.9
+80  19.1
+
+plain 2.2.9 with normal bdflush and update
+client on smbo200
+smbd modified to discard all reads and writes
+
+16  16.9
+32  22.4
+48  23.7
+64  24.0
+80  24.1
+
