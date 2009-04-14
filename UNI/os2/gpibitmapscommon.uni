@@ -33,30 +33,30 @@ const HBM_ERROR           = (-1);
 
       (*** bitmap and pel functions *)
 
-function GpiBitBlt(hpsTarget: HPS;
-                                   hpsSource: HPS;
-                                   lCount: LONG;
-                                   aptlPoints: PPOINTL;
-                                   lRop: LONG;
-                                   flOptions: ULONG): LONG;
+function GpiBitBlt(in hpsTarget: HPS;
+                   in hpsSource: HPS;
+                   in lCount: LONG;
+                   in aptlPoints: PPOINTL;
+                   in lRop: LONG;
+                   in flOptions: ULONG): LONG;
 
-function GpiDeleteBitmap(hbm: HBITMAP): BOOL;
+function GpiDeleteBitmap(in hbm: HBITMAP): BOOL;
 
-function GpiLoadBitmap(hps: HPS;
-                                       Resource: HMODULE;
-                                       idBitmap: ULONG;
-                                       lWidth: LONG;
-                                       lHeight: LONG): HBITMAP;
+function GpiLoadBitmap(in hps: HPS;
+                       in Resource: HMODULE;
+                       in idBitmap: ULONG;
+                       in lWidth: LONG;
+                       in lHeight: LONG): HBITMAP;
 
-function GpiSetBitmap(hps: HPS;
-                                     hbm: HBITMAP): HBITMAP;
+function GpiSetBitmap(in hps: HPS;
+                      in hbm: HBITMAP): HBITMAP;
 
-function GpiWCBitBlt(hpsTarget: HPS;
-                                     hbmSource: HBITMAP;
-                                     lCount: LONG;
-                                     aptlPoints: PPOINTL;
-                                     lRop: LONG;
-                                     flOptions: ULONG): LONG;
+function GpiWCBitBlt(in hpsTarget: HPS;
+                     in hbmSource: HBITMAP;
+                     in lCount: LONG;
+                     in aptlPoints: PPOINTL;
+                     in lRop: LONG;
+                     in flOptions: ULONG): LONG;
 
 
 end.

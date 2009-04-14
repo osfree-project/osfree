@@ -34,23 +34,23 @@ const GPIM_AREAEXCL              = $8000;
 
    (* common GPICONTROL functions *)
 
-function GpiCreatePS(hab: HAB;
-                               hdc: HDC;
-                               psizlSize: PSIZEL;
-                               flOptions: ULONG): HPS;
+function GpiCreatePS(in hab: HAB;
+                     in hdc: HDC;
+                     in psizlSize: PSIZEL;
+                     in flOptions: ULONG): HPS;
 
-function GpiDestroyPS(hps: HPS): BOOL;
+function GpiDestroyPS(in hps: HPS): BOOL;
 
-function GpiAssociate(hps: HPS;
-                               hdc: HDC): BOOL;
+function GpiAssociate(in hps: HPS;
+                      in hdc: HDC): BOOL;
 
-function GpiRestorePS(hps: HPS;
-                                lPSid: LONG): BOOL;
+function GpiRestorePS(in hps: HPS;
+                      in lPSid: LONG): BOOL;
 
-function GpiSavePS(hps: HPS): LONG;
+function GpiSavePS(in hps: HPS): LONG;
 
-function GpiErase(hps: HPS): BOOL;
+function GpiErase(in hps: HPS): BOOL;
 
-function GpiQueryDevice(hps: HPS): HDC;
+function GpiQueryDevice(in hps: HPS): HDC;
 
 end.
