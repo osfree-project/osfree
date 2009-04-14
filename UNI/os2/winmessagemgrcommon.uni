@@ -126,63 +126,63 @@ module winmessagemgrcommon;
    end;
    type PMQINFO=^MQINFO;
 
-   function WinSendMsg(hwnd: HWND;
-                               msg: ULONG;
-                               mp1: MPARAM;
-                               mp2: MPARAM): MRESULT;
+   function WinSendMsg(in hwnd: HWND;
+                               in msg: ULONG;
+                               in mp1: MPARAM;
+                               in mp2: MPARAM): MRESULT;
 
-        function WinCreateMsgQueue(hab: HAB;
-                                       cmsg: LONG): HMQ;
+        function WinCreateMsgQueue(in hab: HAB;
+                                       in cmsg: LONG): HMQ;
 
-       function WinDestroyMsgQueue(hmq: HMQ): BOOL;
+       function WinDestroyMsgQueue(in hmq: HMQ): BOOL;
 
-       function WinQueryQueueInfo(hmq: HMQ;
-                                      pmqi: PMQINFO;
-                                      cbCopy: ULONG): BOOL;
+       function WinQueryQueueInfo(in hmq: HMQ;
+                                      out pmqi: MQINFO;
+                                      in cbCopy: ULONG): BOOL;
 
-          function WinCancelShutdown(hmq: HMQ;
-                                         fCancelAlways: BOOL): BOOL;
+          function WinCancelShutdown(in hmq: HMQ;
+                                         in fCancelAlways: BOOL): BOOL;
 
-       function WinGetMsg(hab: HAB;
-                              pqmsg: PQMSG;
-                              hwndFilter: HWND;
-                              msgFilterFirst: ULONG;
-                              msgFilterLast: ULONG): BOOL;
+       function WinGetMsg(in hab: HAB;
+                              out pqmsg: QMSG;
+                              in hwndFilter: HWND;
+                              in msgFilterFirst: ULONG;
+                              in msgFilterLast: ULONG): BOOL;
 
-       function WinPeekMsg(hab: HAB;
-                               pqmsg: PQMSG;
-                               hwndFilter: HWND;
-                               msgFilterFirst: ULONG;
-                               msgFilterLast: ULONG;
-                               fl: ULONG): BOOL;
+       function WinPeekMsg(in hab: HAB;
+                               out pqmsg: QMSG;
+                               in hwndFilter: HWND;
+                               in msgFilterFirst: ULONG;
+                               in msgFilterLast: ULONG;
+                               in fl: ULONG): BOOL;
 
-    function WinDispatchMsg(hab: HAB;
-                                    pqmsg: PQMSG): MRESULT;
+    function WinDispatchMsg(in hab: HAB;
+                                    out pqmsg: QMSG): MRESULT;
 
-       function WinPostMsg(hwnd: HWND;
-                               msg: ULONG;
-                               mp1: MPARAM;
-                               mp2: MPARAM): BOOL;
+       function WinPostMsg(in hwnd: HWND;
+                               in msg: ULONG;
+                               in mp1: MPARAM;
+                               in mp2: MPARAM): BOOL;
 
-       function WinRegisterUserMsg(hab: HAB;
-                                       msgid: ULONG;
-                                       datatype1: LONG;
-                                       dir1: LONG;
-                                       datatype2: LONG;
-                                       dir2: LONG;
-                                       datatyper: LONG): BOOL;
+       function WinRegisterUserMsg(in hab: HAB;
+                                       in msgid: ULONG;
+                                       in datatype1: LONG;
+                                       in dir1: LONG;
+                                       in datatype2: LONG;
+                                       in dir2: LONG;
+                                       in datatyper: LONG): BOOL;
 
-       function WinRegisterUserDatatype(hab: HAB;
-                                            datatype: LONG;
-                                            count: LONG;
-                                            types: PLONG): BOOL;
+       function WinRegisterUserDatatype(in hab: HAB;
+                                            in datatype: LONG;
+                                            in count: LONG;
+                                            in types: PLONG): BOOL;
 
-       function WinSetMsgMode(hab: HAB;
-                                    classname: PCSZ;
-                                   control: LONG): BOOL;
+       function WinSetMsgMode(in hab: HAB;
+                                    in classname: PCSZ;
+                                   in control: LONG): BOOL;
 
-       function WinSetSynchroMode(hab: HAB;
-                                       mode: LONG): BOOL;
+       function WinSetSynchroMode(in hab: HAB;
+                                       in mode: LONG): BOOL;
 
    (*** WinPeekMsg() constants *********************************************)
    const PM_REMOVE                  = $0001;

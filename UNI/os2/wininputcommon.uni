@@ -15,9 +15,9 @@ const QFC_FRAME        = 3;
 const QFC_SELECTACTIVE = 4;
 const QFC_PARTOFCHAIN  = 5;
 
-function WinFocusChange(hwnd1: HWND; hwnd2: HWND: ul: ULONG): BOOL;
-function WinLockupSystem(hab: HAB): BOOL;
-function WinSetFocus(hwnd1: HWND; hwnd2: HWND): BOOL;
-function WinUnlockSystem(hab: HAB: psz: PSZ): BOOL;
+function WinFocusChange(in hwnd1: HWND; in hwnd2: HWND: in ul: ULONG): BOOL;
+function WinLockupSystem(in hab: HAB): BOOL;
+function WinSetFocus(in hwnd1: HWND; in hwnd2: HWND): BOOL;
+function WinUnlockSystem(in hab: HAB: in psz: PSZ): BOOL;
 
 end.

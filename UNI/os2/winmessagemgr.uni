@@ -32,13 +32,13 @@ const WPM_CCHTEXT                = $0008;
 const WPM_CBCTLDATA              = $0010;
 const WPM_CBPRESPARAMS           = $0020;
 
-function WinInSendMsg(hab: HAB): BOOL;
+function WinInSendMsg(in hab: HAB): BOOL;
 
-function WinBroadcastMsg(hwnd: HWND;
-                                     msg: ULONG;
-                                     mp1: MPARAM;
-                                     mp2: MPARAM;
-                                     rgf: ULONG): BOOL;
+function WinBroadcastMsg(in hwnd: HWND;
+                                     in msg: ULONG;
+                                     in mp1: MPARAM;
+                                     in mp2: MPARAM;
+                                     in rgf: ULONG): BOOL;
 
    (*** WinBroadcastMsg codes **********************************************)
 const BMSG_POST                  = $0000;
@@ -47,11 +47,11 @@ const BMSG_POSTQUEUE             = $0002;
 const BMSG_DESCENDANTS           = $0004;
 const BMSG_FRAMEONLY             = $0008;
 
-function WinWaitMsg(hab: HAB;
-                              msgFirst: ULONG;
-                              msgLast: ULONG): BOOL;
+function WinWaitMsg(in hab: HAB;
+                              in msgFirst: ULONG;
+                              in msgLast: ULONG): BOOL;
 
-function WinQueryQueueStatus(hwndDesktop: HWND): ULONG;
+function WinQueryQueueStatus(in hwndDesktop: HWND): ULONG;
 
       (*** WinQueryQueueStatus() constants *********************************)
    const QS_KEY                     = $0001;
@@ -68,32 +68,32 @@ function WinQueryQueueStatus(hwndDesktop: HWND): ULONG;
    const QS_SENDMSG                 = $0400;
    const QS_MSGINPUT                = $0800;
 
-function WinQueryMsgPos(hab: HAB;
-                                    pptl: PPOINTL): BOOL;
+function WinQueryMsgPos(in hab: HAB;
+                                    out pptl: POINTL): BOOL;
 
-function WinQueryMsgTime(hab: HAB): ULONG;
+function WinQueryMsgTime(in hab: HAB): ULONG;
 
 uses hevdef;
 
 type HMTX=ULONG;   (* hmtx *)
 type HMUX=ULONG;   (* hmux *)
 
-function WinWaitEventSem(hev: HEV;
-                                      ulTimeout: ULONG): APIRET;
+function WinWaitEventSem(in hev: HEV;
+                                      in ulTimeout: ULONG): APIRET;
 
-function WinRequestMutexSem(hmtx: HMTX;
-                                         ulTimeout: ULONG): APIRET;
+function WinRequestMutexSem(in hmtx: HMTX;
+                                         in ulTimeout: ULONG): APIRET;
 
-function WinWaitMuxWaitSem(hmux: HMUX;
-                                         ulTimeout: ULONG;
-                                         pulUser: PULONG): APIRET;
+function WinWaitMuxWaitSem(in hmux: HMUX;
+                                         in ulTimeout: ULONG;
+                                         in pulUser: PULONG): APIRET;
 
 
 
-function WinPostQueueMsg(hmq: HMQ;
-                                   msg: ULONG;
-                                   mp1: MPARAM;
-                                   mp2: MPARAM): BOOL;
+function WinPostQueueMsg(in hmq: HMQ;
+                                   in msg: ULONG;
+                                   in mp1: MPARAM;
+                                   in mp2: MPARAM): BOOL;
 
    (*** WinSetMsgInterest()/WinSetClassMsgInterest() constants *************)
 const SMIM_ALL                   = $0EFF;
@@ -102,13 +102,14 @@ const SMI_INTEREST               = $0002;
 const SMI_RESET                  = $0004;
 const SMI_AUTODISPATCH           = $0008;
 
-function WinSetMsgInterest(hwnd: HWND;
-                                    msg_class: ULONG;
-                                    control: LONG): BOOL;
+function WinSetMsgInterest(in hwnd: HWND;
+                                    in msg_class: ULONG;
+                                    in control: LONG): BOOL;
 
-function WinSetClassMsgInterest(hab: HAB;
-                                           pszClassName: PCSZ;
-                                           msg_class: ULONG;
-                                           control: LONG): BOOL;
+function WinSetClassMsgInterest(in hab: HAB;
+                                           in pszClassName: PCSZ;
+                                           in msg_class: ULONG;
+                                           in control: LONG): BOOL;
 
 end.
+

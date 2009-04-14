@@ -1,11 +1,11 @@
 module wininput;
 
-function WinSetCapture(hwndDesktop: HWND;
-                                   hwnd: HWND): BOOL;
+function WinSetCapture(in hwndDesktop: HWND;
+                                  in hwnd: HWND): BOOL;
 
-function WinQueryCapture(hwndDesktop: HWND): HWND;
+function WinQueryCapture(in hwndDesktop: HWND): HWND;
 
-function WinCheckInput(hab: HAB): BOOL;
+function WinCheckInput(in hab: HAB): BOOL;
 
    (*** Mouse input messages ***********************************************)
    const  WM_MOUSEFIRST           = $0070;
@@ -71,7 +71,7 @@ const  WM_BUTTON2DBLCLK           = $0076;
    const   WM_BIDI_LAST            = $0BFF;
 
 
-function WinQueryFocus(hwndDesktop: HWND): HWND;
+function WinQueryFocus(in hwndDesktop: HWND): HWND;
 
 
    (*** Key/Character input messages ***************************************)
@@ -223,17 +223,17 @@ const  VK_USERFIRST               = $0100;
 const  VK_USERLAST                = $01ff;
 
 
-function WinGetKeyState(hwndDesktop: HWND;
-                                    vkey: LONG): LONG;
-function WinGetPhysKeyState( hwndDesktop: HWND;
-                                        sc: LONG): LONG;
-function WinEnablePhysInput( hwndDesktop: HWND;
-                                         fEnable: BOOL): BOOL;
-function WinIsPhysInputEnabled( hwndDesktop: HWND): BOOL;
+function WinGetKeyState(in hwndDesktop: HWND;
+                                   in vkey: LONG): LONG;
+function WinGetPhysKeyState(in hwndDesktop: HWND;
+                                        in sc: LONG): LONG;
+function WinEnablePhysInput(in hwndDesktop: HWND;
+                                       in  fEnable: BOOL): BOOL;
+function WinIsPhysInputEnabled(in hwndDesktop: HWND): BOOL;
 
-function WinSetKeyboardStateTable(hwndDesktop: HWND;
-                                               pKeyStateTable: PBYTE;
-                                               fSet: BOOL): BOOL;
+function WinSetKeyboardStateTable(in hwndDesktop: HWND;
+                                               in pKeyStateTable: PBYTE;
+                                               in fSet: BOOL): BOOL;
 
 
       (* Journal Notification messages  *)
