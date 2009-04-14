@@ -383,206 +383,206 @@ function GpiQueryCurrentPosition(in hps: HPS;
 function GpiSetArcParams(in hps: HPS;
                                      in parcpArcParams: PARCPARAMS): BOOL;
 
-function GpiQueryArcParams(hps: HPS;
-                                       parcpArcParams: PARCPARAMS): BOOL;
+function GpiQueryArcParams(in  hps: HPS;
+                           out parcpArcParams: ARCPARAMS): BOOL;
 
-function GpiPointArc(hps: HPS;
-                                 pptl2: PPOINTL): LONG;
+function GpiPointArc(in hps: HPS;
+                     in pptl2: PPOINTL): LONG;
 
-function GpiFullArc(hps: HPS;
-                                lControl: LONG;
-                                fxMultiplier: FIXED): LONG;
+function GpiFullArc(in hps: HPS;
+                    in lControl: LONG;
+                    in fxMultiplier: FIXED): LONG;
 
-function GpiPartialArc(hps: HPS;
-                                   pptlCenter: PPOINTL;
-                                   fxMultiplier: FIXED;
-                                   fxStartAngle: FIXED;
-                                   fxSweepAngle: FIXED): LONG;
+function GpiPartialArc(in hps: HPS;
+                       in pptlCenter: PPOINTL;
+                       in fxMultiplier: FIXED;
+                       in fxStartAngle: FIXED;
+                       in fxSweepAngle: FIXED): LONG;
 
-function GpiOval(hps: HPS;
-                             aptlPoints: PPOINTL;
-                             fxStartAngle: FIXED;
-                             fxSweepAngle: FIXED;
-                             ulOptions: ULONG): LONG;
+function GpiOval(in hps: HPS;
+                 in aptlPoints: PPOINTL;
+                 in fxStartAngle: FIXED;
+                 in fxSweepAngle: FIXED;
+                 in ulOptions: ULONG): LONG;
 
-function GpiPolyFillet(hps: HPS;
-                                   lCount: LONG;
-                                   aptlPoints: PPOINTL): LONG;
+function GpiPolyFillet(in hps: HPS;
+                       in lCount: LONG;
+                       in aptlPoints: PPOINTL): LONG;
 
-function GpiPolySpline(hps: HPS;
-                                   lCount: LONG;
-                                   aptlPoints: PPOINTL): LONG;
+function GpiPolySpline(in hps: HPS;
+                       in lCount: LONG;
+                       in aptlPoints: PPOINTL): LONG;
 
-function GpiPolyFilletSharp(hps: HPS;
-                                        lCount: LONG;
-                                        aptlPoints: PPOINTL;
-                                        afxPoints: PFIXED): LONG;
+function GpiPolyFilletSharp(in hps: HPS;
+                            in lCount: LONG;
+                            in aptlPoints: PPOINTL;
+                            in afxPoints: PFIXED): LONG;
 
       (*** area primitive functions *)
-function GpiSetPatternSet(hps: HPS;
-                                      lSet: LONG): BOOL;
+function GpiSetPatternSet(in hps: HPS;
+                          in lSet: LONG): BOOL;
 
-function GpiQueryPatternSet(hps: HPS): LONG;
+function GpiQueryPatternSet(in hps: HPS): LONG;
 
-function GpiSetPatternRefPoint(hps: HPS;
-                                           pptlRefPoint: PPOINTL): BOOL;
+function GpiSetPatternRefPoint(in hps: HPS;
+                               in pptlRefPoint: PPOINTL): BOOL;
 
-function GpiQueryPatternRefPoint(hps: HPS;
-                                           pptlRefPoint: PPOINTL): BOOL;
+function GpiQueryPatternRefPoint(in  hps: HPS;
+                                 out pptlRefPoint: POINTL): BOOL;
 
       (*** character primitive functions *)
-function GpiQueryCharStringPos(hps: HPS;
-                                           flOptions: ULONG;
-                                           lCount: LONG;
-                                           pchString: PCH;
-                                           alXincrements: PLONG;
-                                           aptlPositions: PPOINTL): BOOL;
+function GpiQueryCharStringPos(in  hps: HPS;
+                               in  flOptions: ULONG;
+                               in  lCount: LONG;
+                               in  pchString: PCH;
+                               in  alXincrements: PLONG;
+                               out aptlPositions: POINTL): BOOL;
 
-function GpiQueryCharStringPosAt(hps: HPS;
-                                             pptlStart: PPOINTL;
-                                             flOptions: ULONG;
-                                             lCount: LONG;
-                                             pchString: PCH;
-                                             alXincrements: PLONG;
-                                             aptlPositions: PPOINTL): BOOL;
+function GpiQueryCharStringPosAt(in hps: HPS;
+                                 in pptlStart: PPOINTL;
+                                 in flOptions: ULONG;
+                                 in lCount: LONG;
+                                 in pchString: PCH;
+                                 in alXincrements: PLONG;
+                                 in aptlPositions: PPOINTL): BOOL;
 
-function GpiQueryTabbedTextExtent(hps: HPS;
-                                             lCount: LONG;
-                                             pchString: PCH;
-                                             lTabCount: LONG;
-                                             puTabStops: PULONG): LONG;
+function GpiQueryTabbedTextExtent(in hps: HPS;
+                                  in lCount: LONG;
+                                  in pchString: PCH;
+                                  in lTabCount: LONG;
+                                  in puTabStops: PULONG): LONG;
 
-function GpiQueryTextBox(hps: HPS;
-                                     lCount1: LONG;
-                                     pchString: PCH;
-                                     lCount2: LONG;
-                                     aptlPoints: PPOINTL): BOOL;
+function GpiQueryTextBox(in hps: HPS;
+                         in lCount1: LONG;
+                         in pchString: PCH;
+                         in lCount2: LONG;
+                         in aptlPoints: PPOINTL): BOOL;
 
-function GpiQueryDefCharBox(hps: HPS;
-                                        psizlSize: PSIZEL): BOOL;
+function GpiQueryDefCharBox(in hps: HPS;
+                            in psizlSize: PSIZEL): BOOL;
 
-function GpiSetCharSet(hps: HPS;
-                                   llcid: LONG): BOOL;
+function GpiSetCharSet(in hps: HPS;
+                       in llcid: LONG): BOOL;
 
-function GpiQueryCharSet(hps: HPS): LONG;
+function GpiQueryCharSet(in hps: HPS): LONG;
 
-function GpiSetCharBox(hps: HPS;
-                                   psizfxBox: PSIZEF): BOOL;
+function GpiSetCharBox(in hps: HPS;
+                       in psizfxBox: PSIZEF): BOOL;
 
-function GpiQueryCharBox(hps: HPS;
-                                     psizfxSize: PSIZEF): BOOL;
+function GpiQueryCharBox(in  hps: HPS;
+                         out psizfxSize: SIZEF): BOOL;
 
-function GpiSetCharAngle(hps: HPS;
-                                      pgradlAngle: PGRADIENTL): BOOL;
+function GpiSetCharAngle(in hps: HPS;
+                         in pgradlAngle: PGRADIENTL): BOOL;
 
-function GpiQueryCharAngle(hps: HPS;
-                                       pgradlAngle: PGRADIENTL): BOOL;
+function GpiQueryCharAngle(in  hps: HPS;
+                           out pgradlAngle: GRADIENTL): BOOL;
 
-function GpiSetCharShear(hps: HPS;
-                                     pptlAngle: PPOINTL): BOOL;
+function GpiSetCharShear(in hps: HPS;
+                         in pptlAngle: PPOINTL): BOOL;
 
-function GpiQueryCharShear(hps: HPS;
-                                       pptlShear: PPOINTL): BOOL;
+function GpiQueryCharShear(in  hps: HPS;
+                           out pptlShear: POINTL): BOOL;
 
-function GpiSetCharDirection(hps: HPS;
-                                         lDirection: LONG): BOOL;
+function GpiSetCharDirection(in hps: HPS;
+                             in lDirection: LONG): BOOL;
 
-function GpiQueryCharDirection(hps: HPS): LONG;
+function GpiQueryCharDirection(in hps: HPS): LONG;
 
-function GpiSetCharMode(hps: HPS;
-                                    lMode: LONG): BOOL;
+function GpiSetCharMode(in hps: HPS;
+                        in lMode: LONG): BOOL;
 
-function GpiQueryCharMode(hps: HPS): LONG;
+function GpiQueryCharMode(in hps: HPS): LONG;
 
-function GpiSetTextAlignment(hps: HPS;
-                                          lHoriz: LONG;
-                                          lVert: LONG): BOOL;
+function GpiSetTextAlignment(in hps: HPS;
+                             in lHoriz: LONG;
+                             in lVert: LONG): BOOL;
 
-function GpiQueryTextAlignment(hps: HPS;
-                                           plHoriz: PLONG;
-                                           plVert: PLONG): BOOL;
+function GpiQueryTextAlignment(in  hps: HPS;
+                               out plHoriz: LONG;
+                               out plVert: LONG): BOOL;
 
-function GpiCharStringPos(hps: HPS;
-                                       prclRect: PRECTL;
-                                       flOptions: ULONG;
-                                       lCount: LONG;
-                                       pchString: PCH;
-                                       alAdx: PLONG): LONG;
+function GpiCharStringPos(in hps: HPS;
+                          in prclRect: PRECTL;
+                          in flOptions: ULONG;
+                          in lCount: LONG;
+                          in pchString: PCH;
+                          in alAdx: PLONG): LONG;
 
-function GpiTabbedCharStringAt(hps: HPS;
-                                           pPtStart: PPOINTL;
-                                           prclRect: PRECTL;
-                                           flOptions: ULONG;
-                                           lCount: LONG;
-                                           pchString: PCH;
-                                           lTabCount: LONG;
-                                           puTabStops: PULONG;
-                                           lTabOrigin: LONG): LONG;
+function GpiTabbedCharStringAt(in hps: HPS;
+                               in pPtStart: PPOINTL;
+                               in prclRect: PRECTL;
+                               in flOptions: ULONG;
+                               in lCount: LONG;
+                               in pchString: PCH;
+                               in lTabCount: LONG;
+                               in puTabStops: PULONG;
+                               in lTabOrigin: LONG): LONG;
 
-function GpiCharStringPosAt(hps: HPS;
-                                        pptlStart: PPOINTL;
-                                        prclRect: PRECTL;
-                                        flOptions: ULONG;
-                                        lCount: LONG;
-                                        pchString: PCH;
-                                        alAdx: PLONG): LONG;
+function GpiCharStringPosAt(in hps: HPS;
+                            in pptlStart: PPOINTL;
+                            in prclRect: PRECTL;
+                            in flOptions: ULONG;
+                            in lCount: LONG;
+                            in pchString: PCH;
+                            in alAdx: PLONG): LONG;
 
-function GpiSetCharExtra(hps: HPS;
-                                       Extra: FIXED): BOOL;
+function GpiSetCharExtra(in hps: HPS;
+                         in Extra: FIXED): BOOL;
 
-function GpiSetCharBreakExtra(hps: HPS;
-                                           BreakExtra: FIXED): BOOL;
+function GpiSetCharBreakExtra(in hps: HPS;
+                              in BreakExtra: FIXED): BOOL;
 
-function GpiQueryCharExtra(hps: HPS;
-                                       Extra: PFIXED): BOOL;
+function GpiQueryCharExtra(in  hps: HPS;
+                           out Extra: FIXED): BOOL;
 
-function GpiQueryCharBreakExtra(hps: HPS;
-                                            BreakExtra: PFIXED): BOOL;
+function GpiQueryCharBreakExtra(in  hps: HPS;
+                                out BreakExtra: FIXED): BOOL;
 
       (*** marker primitive functions  *)
-function GpiMarker(hps: HPS;
-                               pptlPoint: PPOINTL): LONG;
+function GpiMarker(in hps: HPS;
+                   in pptlPoint: PPOINTL): LONG;
 
-function GpiPolyMarker(hps: HPS;
-                                   lCount: LONG;
-                                   aptlPoints: PPOINTL): LONG;
+function GpiPolyMarker(in hps: HPS;
+                       in lCount: LONG;
+                       in aptlPoints: PPOINTL): LONG;
 
-function GpiSetMarker(hps: HPS;
-                                  lSymbol: LONG): BOOL;
+function GpiSetMarker(in hps: HPS;
+                      in lSymbol: LONG): BOOL;
 
-function GpiSetMarkerBox(hps: HPS;
-                                     psizfxSize: PSIZEF): BOOL;
+function GpiSetMarkerBox(in hps: HPS;
+                         in psizfxSize: PSIZEF): BOOL;
 
-function GpiSetMarkerSet(hps: HPS;
-                                     lSet: LONG): BOOL;
+function GpiSetMarkerSet(in hps: HPS;
+                         in lSet: LONG): BOOL;
 
-function GpiQueryMarker(hps: HPS): LONG;
+function GpiQueryMarker(in hps: HPS): LONG;
 
-function GpiQueryMarkerBox(hps: HPS;
-                                       psizfxSize: PSIZEF): BOOL;
+function GpiQueryMarkerBox(in  hps: HPS;
+                           out psizfxSize: SIZEF): BOOL;
 
-function GpiQueryMarkerSet(hps: HPS): LONG;
+function GpiQueryMarkerSet(in hps: HPS): LONG;
 
       (*** image primitive functions *)
-function GpiImage(hps: HPS;
-                              lFormat: LONG;
-                              psizlImageSize: PSIZEL;
-                              lLength: LONG;
-                              pbData: PBYTE): LONG;
+function GpiImage(in hps: HPS;
+                  in lFormat: LONG;
+                  in psizlImageSize: PSIZEL;
+                  in lLength: LONG;
+                  in pbData: PBYTE): LONG;
 
       (*** miscellaneous primitive functions *)
-function GpiPop(hps: HPS;
-                            lCount: LONG): BOOL;
+function GpiPop(in hps: HPS;
+                in lCount: LONG): BOOL;
 
-function GpiPtVisible(hps: HPS;
-                                  pptlPoint: PPOINTL): LONG;
+function GpiPtVisible(in hps: HPS;
+                      in pptlPoint: PPOINTL): LONG;
 
-function GpiRectVisible(hps: HPS;
-                                    prclRectangle: PRECTL): LONG;
+function GpiRectVisible(in hps: HPS;
+                        in prclRectangle: PRECTL): LONG;
 
-function GpiComment(hps: HPS;
-                                lLength: LONG;
-                                pbData: PBYTE): BOOL;
+function GpiComment(in hps: HPS;
+                    in lLength: LONG;
+                    in pbData: PBYTE): BOOL;
 
 
 end.
