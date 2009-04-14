@@ -82,52 +82,52 @@ const CS_SYNCPAINT               = $02000000;
 
 uses pmshl;
 
-function WinCreateWindow(hwndParent: HWND;
-                                   pszClass: PCSZ;
-                                   pszName: PCSZ;
-                                   flStyle: ULONG;
-                                   x: LONG;
-                                   y: LONG;
-                                   cx: LONG;
-                                   cy: LONG;
-                                   hwndOwner: HWND;
-                                   hwndInsertBehind: HWND;
-                                   id: ULONG;
-                                   pCtlData: PVOID;
-                                   pPresParams: PVOID): HWND;
+function WinCreateWindow(in hwndParent: HWND;
+                                   in pszClass: PCSZ;
+                                   in pszName: PCSZ;
+                                   in flStyle: ULONG;
+                                   in x: LONG;
+                                   in y: LONG;
+                                   in cx: LONG;
+                                   in cy: LONG;
+                                   in hwndOwner: HWND;
+                                   in hwndInsertBehind: HWND;
+                                   in id: ULONG;
+                                   in pCtlData: PVOID;
+                                   in pPresParams: PVOID): HWND;
 
-function WinEnableWindow(hwnd: HWND;
-                                 fEnable: BOOL): BOOL;
+function WinEnableWindow(in hwnd: HWND;
+                                 in fEnable: BOOL): BOOL;
 
-function WinIsWindowEnabled(hwnd: HWND): BOOL;
+function WinIsWindowEnabled(in hwnd: HWND): BOOL;
 
-function WinEnableWindowUpdate(hwnd: HWND;
-                                        fEnable: BOOL): BOOL;
+function WinEnableWindowUpdate(in hwnd: HWND;
+                                        in fEnable: BOOL): BOOL;
 
-function WinIsWindowVisible(hwnd: HWND): BOOL;
+function WinIsWindowVisible(in hwnd: HWND): BOOL;
 
-function WinQueryWindowText(hwnd: HWND;
-                                     cchBufferMax: LONG;
-                                     pchBuffer: PCH): LONG;
+function WinQueryWindowText(in hwnd: HWND;
+                                     in cchBufferMax: LONG;
+                                     out pchBuffer: CHAR): LONG;
 
-function WinSetWindowText(hwnd: HWND;
-                                  pszText: PCSZ): BOOL;
+function WinSetWindowText(in hwnd: HWND;
+                                  in pszText: PCSZ): BOOL;
 
-function WinQueryWindowTextLength(hwnd: HWND): LONG;
+function WinQueryWindowTextLength(in hwnd: HWND): LONG;
 
-function WinWindowFromID(hwndParent: HWND;
-                                 id: ULONG): HWND;
+function WinWindowFromID(in hwndParent: HWND;
+                                 in id: ULONG): HWND;
 
-function WinIsWindow(hab: HAB;
-                             hwnd: HWND): BOOL;
+function WinIsWindow(in hab: HAB;
+                             in hwnd: HWND): BOOL;
 
-function WinQueryWindow(hwnd: HWND;
-                                cmd: LONG): HWND;
+function WinQueryWindow(in hwnd: HWND;
+                                in cmd: LONG): HWND;
 
-function WinMultWindowFromIDs(hwndParent: HWND;
-                                       prghwnd: PHWND;
-                                       idFirst: ULONG;
-                                       idLast: ULONG): LONG;
+function WinMultWindowFromIDs(in hwndParent: HWND;
+                                       out prghwnd: HWND;
+                                       in idFirst: ULONG;
+                                       in idLast: ULONG): LONG;
 
 (*** WinQueryWindow() codes ************************************************)
 
@@ -141,24 +141,24 @@ const QW_NEXTTOP     = 6;
 const QW_PREVTOP     = 7;
 const QW_FRAMEOWNER  = 8;
 
-function WinSetParent(hwnd: HWND;
-                             hwndNewParent: HWND;
-                             fRedraw: BOOL): BOOL;
+function WinSetParent(in hwnd: HWND;
+                             in hwndNewParent: HWND;
+                             in fRedraw: BOOL): BOOL;
 
-function WinIsChild(hwnd: HWND;
-                           hwndParent: HWND): BOOL;
+function WinIsChild(in hwnd: HWND;
+                           in hwndParent: HWND): BOOL;
 
-function WinSetOwner(hwnd: HWND;
-                            hwndNewOwner: HWND): BOOL;
+function WinSetOwner(in hwnd: HWND;
+                            in hwndNewOwner: HWND): BOOL;
 
-function WinQueryWindowProcess(hwnd: HWND;
-                                      ppid: PPID;
-                                      ptid: PTID): BOOL;
+function WinQueryWindowProcess(in hwnd: HWND;
+                                      out ppid: PID;
+                                      out ptid: TID): BOOL;
 
-function WinQueryObjectWindow(hwndDesktop: HWND): HWND;
+function WinQueryObjectWindow(in hwndDesktop: HWND): HWND;
 
-function WinQueryDesktopWindow(hab: HAB;
-                                      hdc: HDC): HWND;
+function WinQueryDesktopWindow(in hab: HAB;
+                                      in hdc: HDC): HWND;
 
 (*** Window positioning functions *)
 
@@ -177,20 +177,20 @@ type SWP=structure
   end;
 type PSWP=^SWP;
 
-function WinSetWindowPos(hwnd: HWND;
-                                 hwndInsertBehind: HWND;
-                                 x: LONG;
-                                 y: LONG;
-                                 cx: LONG;
-                                 cy: LONG;
-                                 fl: ULONG): BOOL;
+function WinSetWindowPos(in hwnd: HWND;
+                                 in hwndInsertBehind: HWND;
+                                 in x: LONG;
+                                 in y: LONG;
+                                 in cx: LONG;
+                                 in cy: LONG;
+                                 in fl: ULONG): BOOL;
 
-function WinSetMultWindowPos(hab: HAB;
-                                    pswp: PSWP;
-                                    cswp: ULONG): BOOL;
+function WinSetMultWindowPos(in hab: HAB;
+                                    in pswp: PSWP;
+                                    in cswp: ULONG): BOOL;
 
-function WinQueryWindowPos(hwnd: HWND;
-                                  pswp: PSWP): BOOL;
+function WinQueryWindowPos(in hwnd: HWND;
+                                  out pswp: SWP): BOOL;
 
 (* Values returned from WM_ADJUSTWINDOWPOS and passed to WM_WINDOWPOSCHANGED *)
 
@@ -221,29 +221,29 @@ const SWP_NOAUTOCLOSE            = $8000;    (* Valid in PROGDETAILS struct only
 
 (* Window painting *)
 
-function WinUpdateWindow(hwnd: HWND): BOOL;
+function WinUpdateWindow(in hwnd: HWND): BOOL;
 
-function WinInvalidateRect(hwnd: HWND;
-                                 pwrc: PRECTL;
-                                 fIncludeChildren: BOOL): BOOL;
+function WinInvalidateRect(in hwnd: HWND;
+                                 in pwrc: PRECTL;
+                                 in fIncludeChildren: BOOL): BOOL;
 
-function WinInvalidateRegion(hwnd: HWND;
-                                   hrgn: HRGN;
-                                   fIncludeChildren: BOOL): BOOL;
+function WinInvalidateRegion(in hwnd: HWND;
+                                   in hrgn: HRGN;
+                                   in fIncludeChildren: BOOL): BOOL;
 
 
 (* Drawing helpers *)
 
-function WinInvertRect(hps: HPS;
-                              prcl: PRECTL): BOOL;
+function WinInvertRect(in hps: HPS;
+                              in prcl: PRECTL): BOOL;
 
-function WinDrawBitmap(hpsDst: HPS;
-                             hbm: HBITMAP;
-                             pwrcSrc: PRECTL;
-                             pptlDst: PPOINTL;
-                             clrFore: LONG;
-                             clrBack: LONG;
-                             fl: ULONG): BOOL;
+function WinDrawBitmap(in hpsDst: HPS;
+                             in hbm: HBITMAP;
+                             in pwrcSrc: PRECTL;
+                             in pptlDst: PPOINTL;
+                             in clrFore: LONG;
+                             in clrBack: LONG;
+                             in fl: ULONG): BOOL;
 
 (* WinDrawBitmap() flags *)
 
@@ -256,13 +256,13 @@ const DBM_XOR                    = $0010;
 
 
 
-function WinDrawText(hps: HPS;
-                             cchText: LONG;
-                             lpchText: PCH;
-                             prcl: PRECTL;
-                             clrFore: LONG;
-                             clrBack: LONG;
-                             flCmd: ULONG): LONG;
+function WinDrawText(in hps: HPS;
+                             in cchText: LONG;
+                             in lpchText: PCH;
+                             in prcl: PRECTL;
+                             in clrFore: LONG;
+                             in clrBack: LONG;
+                             in flCmd: ULONG): LONG;
 
 
 (*
@@ -288,13 +288,13 @@ const DT_ERASERECT               = $00008000;
 
 
 
-function WinDrawBorder(hps: HPS;
-                            prcl: PRECTL;
-                            cx: LONG;
-                            cy: LONG;
-                            clrFore: LONG;
-                            clrBack: LONG;
-                            flCmd: ULONG): BOOL;
+function WinDrawBorder(in hps: HPS;
+                            in prcl: PRECTL;
+                            in cx: LONG;
+                            in cy: LONG;
+                            in clrFore: LONG;
+                            in clrBack: LONG;
+                            in flCmd: ULONG): BOOL;
 
 
 (* WinDrawBorder() flags *)
@@ -314,17 +314,17 @@ const DB_DLGBORDER               = $0200;
 
 (** Resource loading functions *)
 
-function WinLoadString(hab: HAB;
-                               hmod: HMODULE;
-                               id: ULONG;
-                               cchMax: LONG;
-                               pchBuffer: PCSZ): LONG;
+function WinLoadString(in hab: HAB;
+                               in hmod: HMODULE;
+                               in id: ULONG;
+                               in cchMax: LONG;
+                               out  pchBuffer: SZ): LONG;
 
-function  WinLoadMessage(hab: HAB;
-                                   hmod: HMODULE;
-                                   id: ULONG;
-                                   cchMax: LONG;
-                                   pchBuffer: PCSZ): LONG;
+function  WinLoadMessage(in hab: HAB;
+                                   in hmod: HMODULE;
+                                   in id: ULONG;
+                                   in cchMax: LONG;
+                                   out pchBuffer: SZ): LONG;
 
 
 

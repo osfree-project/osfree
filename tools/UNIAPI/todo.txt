@@ -35,3 +35,5 @@ ULONG APIENTRY DosLaLaLa( /* in */ const ULONG input, /* out */ ULONG * output, 
 x. FDATE and FTIME need special representation!!!
 
 x. DefWriter must write not to one file, but to set of files
+
+x. Remove ',' in function arguments

@@ -15,8 +15,8 @@ module dosdatetimecommon;
    end;
    type PDATETIME=^DATETIME;
 
-   function   DosGetDateTime(pdt: PDATETIME): APIRET;
+   function   DosGetDateTime(out pdt: DATETIME): APIRET;
 
-   function   DosSetDateTime(pdt: PDATETIME): APIRET;
+   function   DosSetDateTime(in pdt: PDATETIME): APIRET;
 
 end.

@@ -257,6 +257,7 @@ type CONTEXT=structure
 
   end;
 
+type CONTEXTRECORD=CONTEXT;
 type PCONTEXTRECORD=^CONTEXT;
 
 

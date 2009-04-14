@@ -7,14 +7,14 @@ module dosdatetime;
    type HTIMER=LHANDLE;
    type PHTIMER=^HTIMER;
 
-   function   DosAsyncTimer( msec: ULONG;
-                                    hsem: HSEM;
-                                    phtimer: PHTIMER): APIRET;
+   function   DosAsyncTimer(in msec: ULONG;
+                                    in hsem: HSEM;
+                                    out phtimer: HTIMER): APIRET;
 
-   function   DosStartTimer( msec: ULONG;
-                                    hsem: HSEM;
-                                    phtimer: PHTIMER): APIRET;
+   function   DosStartTimer(in msec: ULONG;
+                                   in hsem: HSEM;
+                                   out phtimer: HTIMER): APIRET;
 
-   function   DosStopTimer( htimer: HTIMER): APIRET;
+   function   DosStopTimer(in htimer: HTIMER): APIRET;
 
 end.

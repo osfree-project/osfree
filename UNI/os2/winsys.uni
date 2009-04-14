@@ -2,11 +2,11 @@ module winsys;
 
    (*** System values *)
 
-function WinQuerySysValue(hwndDesktop: HWND;
-                                  iSysValue: LONG): LONG;
-function WinSetSysValue(hwndDesktop: HWND;
-                                 iSysValue: LONG;
-                                 lValue: LONG): BOOL;
+function WinQuerySysValue(in hwndDesktop: HWND;
+                                  in iSysValue: LONG): LONG;
+function WinSetSysValue(in hwndDesktop: HWND;
+                                 in iSysValue: LONG;
+                                 in lValue: LONG): BOOL;
 
 const SV_SWAPBUTTON             = 0;
 const SV_DBLCLKTIME             = 1;
@@ -152,19 +152,21 @@ const SV_CSYSVALUES             = 108;
    (*
    * Presentation parameter APIs
    *)
-function WinSetPresParam(hwnd: HWND;
-                                   id: ULONG;
-                                   cbParam: ULONG;
-                                   pbParam: PVOID): BOOL;
-function WinQueryPresParam(hwnd: HWND;
-                                    id1: ULONG;
-                                    id2: ULONG;
-                                    pulId: PULONG;
-                                    cbBuf: ULONG;
-                                    pbBuf: PVOID;
-                                    fs: ULONG): ULONG;
-function WinRemovePresParam(hwnd: HWND;
-                                     id: ULONG): BOOL;
+function WinSetPresParam(in hwnd: HWND;
+                                   in id: ULONG;
+                                   in cbParam: ULONG;
+                                   in pbParam: PVOID): BOOL;
+
+function WinQueryPresParam(in hwnd: HWND;
+                                    in id1: ULONG;
+                                    in id2: ULONG;
+                                    inout pulId: PULONG;
+                                    in cbBuf: ULONG;
+                                    in pbBuf: PVOID; (* Untyped variable *)
+                                    in fs: ULONG): ULONG;
+
+function WinRemovePresParam(in hwnd: HWND;
+                                     in id: ULONG): BOOL;
 
    (*
    * Presentation parameter types.
@@ -263,15 +265,15 @@ const QPF_VALIDFLAGS           = $000F; (* Valid WinQueryPresParams() flags.  *)
 
    (*** System color functions *)
 
-function WinQuerySysColor(hwndDesktop: HWND;
-                                   clr: LONG;
-                                   lReserved: LONG): LONG;
-function WinSetSysColors(hwndDesktop: HWND;
-                                 flOptions: ULONG;
-                                 flFormat: ULONG;
-                                 clrFirst: LONG;
-                                 cclr: ULONG;
-                                 pclr: PLONG): BOOL;
+function WinQuerySysColor(in hwndDesktop: HWND;
+                                   in clr: LONG;
+                                   in lReserved: LONG): LONG;
+function WinSetSysColors(in hwndDesktop: HWND;
+                                 in flOptions: ULONG;
+                                 in flFormat: ULONG;
+                                 in clrFirst: LONG;
+                                 in cclr: ULONG;
+                                 in pclr: PLONG): BOOL;
 
 const SYSCLR_SHADOWHILITEBGND        = (-50);
 const SYSCLR_SHADOWHILITEFGND        = (-49);
@@ -432,17 +434,17 @@ const CCV_DEFAULT                  =  (-127 );
    *  Control color functions
    *)
 
-function WinQueryControlColors(hwnd: HWND;
-                                        clrType: LONG;
-                                        flCtlColor: ULONG;
-                                        cCtlColor: ULONG;
-                                        pCtlColor: PCTLCOLOR): LONG;
+function WinQueryControlColors(in hwnd: HWND;
+                                        in clrType: LONG;
+                                        in flCtlColor: ULONG;
+                                        in cCtlColor: ULONG;
+                                        out pCtlColor: CTLCOLOR): LONG;
 
-function WinSetControlColors(hwnd: HWND;
-                                     clrType: LONG;
-                                     flCtlColor: ULONG;
-                                     cCtlColor: ULONG;
-                                     pCtlColor: PCTLCOLOR): LONG;
+function WinSetControlColors(in hwnd: HWND;
+                                     in clrType: LONG;
+                                     in flCtlColor: ULONG;
+                                     in cCtlColor: ULONG;
+                                     in pCtlColor: PCTLCOLOR): LONG;
 
    (*
    * Control color messages

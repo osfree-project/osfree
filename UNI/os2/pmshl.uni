@@ -34,7 +34,7 @@ const HINI_USER=HINI_USERPROFILE;
 const HINI_SYSTEM=HINI_SYSTEMPROFILE;
 
 
-type PRFPROFILE=structure    (* prfpro *)
+type PRFPROFILE=structure    
         cchUserName: ULONG;
         pszUserName: PSZ;
         cchSysName: ULONG;

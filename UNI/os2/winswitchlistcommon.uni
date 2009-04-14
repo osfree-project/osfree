@@ -25,7 +25,7 @@ module winswitchlistcommon;
 
 
       (*** Switching Program functions *************************************)
-      function WinAddSwitchEntry(se: PSWCNTRL): HSWITCH;
-      function WinRemoveSwitchEntry(hs: HSWITCH): ULONG;
+      function WinAddSwitchEntry(in se: PSWCNTRL): HSWITCH;
+      function WinRemoveSwitchEntry(in hs: HSWITCH): ULONG;
 
 end.

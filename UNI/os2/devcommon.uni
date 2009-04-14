@@ -154,10 +154,10 @@ end;
 
 type PDEVOPENSTRUC=^DEVOPENSTRUC;
 
-function DevCloseDC(a: HDC): HMF;
-function DevOpenDC(a: HAB;b: LONG;c: PCSZ;d: LONG;e: PDEVOPENDATA;f: HDC): HDC;
-function DevPostDeviceModes(a: HAB; b: PDRIVDATA; c: PCSZ;d:PCSZ;e:PCSZ;f:ULONG): LONG;
-function DevQueryCaps(a:HDC;b:LONG;c:LONG;d:PLONG): BOOL;
+function DevCloseDC(in a: HDC): HMF;
+function DevOpenDC(in a: HAB; in b: LONG; in c: PCSZ; in d: LONG; in e: PDEVOPENDATA; in f: HDC): HDC;
+function DevPostDeviceModes(in a: HAB; inout b: DRIVDATA; in c: PCSZ; in d:PCSZ; in e:PCSZ; in f:ULONG): LONG;
+function DevQueryCaps(in a:HDC; in b:LONG; in c:LONG; out d: LONG): BOOL;
 
 end;
 

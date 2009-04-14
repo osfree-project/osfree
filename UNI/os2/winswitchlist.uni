@@ -13,34 +13,35 @@ module winswitchlist;
         end;
       type PSWBLOCK=^SWBLOCK;
 
-      function WinChangeSwitchEntry(hswitchSwitch: HSWITCH;
-                                             pswctlSwitchData: PSWCNTRL): ULONG;
+      function WinChangeSwitchEntry(in hswitchSwitch: HSWITCH;
+                                             in pswctlSwitchData: PSWCNTRL): ULONG;
 
-      function WinCreateSwitchEntry(hab: HAB; pswctlSwitchData: PSWCNTRL): HSWITCH;
+      function WinCreateSwitchEntry(in hab: HAB; in pswctlSwitchData: PSWCNTRL): HSWITCH;
 
-      function WinQuerySessionTitle(hab: HAB; usSession: ULONG;
-                                            pszTitle: PCSZ;
-                                            usTitlelen: ULONG): ULONG;
+      function WinQuerySessionTitle(in hab: HAB; 
+				in usSession: ULONG;
+                                            in pszTitle: PCSZ;
+                                            in usTitlelen: ULONG): ULONG;
 
-      function WinQuerySwitchEntry(hswitchSwitch: HSWITCH;
-                                            pswctlSwitchData: PSWCNTRL): ULONG;
+      function WinQuerySwitchEntry(in hswitchSwitch: HSWITCH;
+                                            out pswctlSwitchData: SWCNTRL): ULONG;
 
-      function WinQuerySwitchHandle(hwnd: HWND;
-                                              pidProcess: PID): HSWITCH;
+      function WinQuerySwitchHandle(in hwnd: HWND;
+                                              in pidProcess: PID): HSWITCH;
 
-      function WinQuerySwitchList(hab: HAB;
-                                           pswblkSwitchEntries: PSWBLOCK;
-                                           usDataLength: ULONG): ULONG;
+      function WinQuerySwitchList(in hab: HAB;
+                                           inout pswblkSwitchEntries: PSWBLOCK;
+                                           in usDataLength: ULONG): ULONG;
 
-      function WinQueryTaskSizePos( hab: HAB;
-                                            usScreenGroup: ULONG;
-                                            pswpPositionData: PSWP): ULONG;
+      function WinQueryTaskSizePos(in hab: HAB;
+                                            in usScreenGroup: ULONG;
+                                            out pswpPositionData: SWP): ULONG;
 
-      function WinQueryTaskTitle( usSession: ULONG;
-                                           pszTitle: PCSZ;
-                                           usTitlelen: ULONG): ULONG;
+      function WinQueryTaskTitle(in usSession: ULONG;
+                                           out pszTitle: SZ;
+                                           in usTitlelen: ULONG): ULONG;
 
-      function WinSwitchToProgram(hswitchSwHandle: HSWITCH): ULONG;
+      function WinSwitchToProgram(in hswitchSwHandle: HSWITCH): ULONG;
 
 
 end.

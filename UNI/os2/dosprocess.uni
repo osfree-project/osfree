@@ -56,7 +56,7 @@ type PIB=pib_s;
 type PPIB=^PIB;
 
 
-type FNTHREAD=procedure(ul: ULONG);
+type FNTHREAD=procedure(in ul: ULONG);
 type PFNTHREAD=^FNTHREAD;
 
 
@@ -168,7 +168,7 @@ function DosDebug(in pdbgbuf: PVOID): APIRET;
    const TC_KILLPROCESS    = 3;
    const TC_EXCEPTION      = 4;
 
-type FNEXITLIST=procedure(ul: ULONG);
+type FNEXITLIST=procedure(in ul: ULONG);
 type PFNEXITLIST=^FNEXITLIST;
 
 function DosEnterCritSec(): APIRET;
