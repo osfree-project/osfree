@@ -92,11 +92,11 @@ module winprogramlist;
 
       (*** Program List API available 'Prf' calls **************************)
 
-      function PrfQueryProgramTitles(hini: HINI;
-                                           hprogGroup: HPROGRAM;
-                                           pTitles: PPROGTITLE;
-                                           cchBufferMax: ULONG;
-                                           pulCount:PULONG): ULONG;
+      function PrfQueryProgramTitles(in hini: HINI;
+                                           in hprogGroup: HPROGRAM;
+                                           out pTitles: PROGTITLE;
+                                           in cchBufferMax: ULONG;
+                                           out pulCount: ULONG): ULONG;
 
       (*********************************************************************)
       (*  NOTE: string information is concatanated after the array of      *)
@@ -117,18 +117,18 @@ module winprogramlist;
       (*                                                                   *)
       (*********************************************************************)
 
-      function PrfAddProgram(hini: HINI;
-                                      pDetails: PPROGDETAILS;
-                                      hprogGroup: HPROGRAM): HPROGRAM;
+      function PrfAddProgram(in hini: HINI;
+                                      in pDetails: PPROGDETAILS;
+                                      in hprogGroup: HPROGRAM): HPROGRAM;
 
-      function PrfChangeProgram(hini: HINI;
-                                         hprog: HPROGRAM;
-                                         pDetails: PPROGDETAILS): BOOL;
+      function PrfChangeProgram(in hini: HINI;
+                                         in hprog: HPROGRAM;
+                                         in pDetails: PPROGDETAILS): BOOL;
 
-      function PrfQueryDefinition(hini: HINI;
-                                           hprog: HPROGRAM;
-                                           pDetails: PPROGDETAILS;
-                                           cchBufferMax: ULONG): ULONG;
+      function PrfQueryDefinition(in hini: HINI;
+                                           in hprog: HPROGRAM;
+                                           out pDetails: PROGDETAILS;
+                                           in cchBufferMax: ULONG): ULONG;
 
       (*********************************************************************)
       (*  NOTE: string information is concatanated after the PROGDETAILS   *)
@@ -148,28 +148,29 @@ module winprogramlist;
       (*      bufferlen)                                                   *)
       (*********************************************************************)
 
-      function PrfRemoveProgram(hini: HINI;
-                                         hprog: HPROGRAM): BOOL;
+      function PrfRemoveProgram(in hini: HINI;
+                                         in hprog: HPROGRAM): BOOL;
 
-      function PrfQueryProgramHandle(hini: HINI;
-                                              pszExe: PSZ;
-                                              phprogArray: PHPROGARRAY;
-                                              cchBufferMax: ULONG;
-                                              pulCount: PULONG): ULONG;
+      function PrfQueryProgramHandle(in hini: HINI;
+                                              in pszExe: PSZ;
+                                              out phprogArray: HPROGARRAY;
+                                              in cchBufferMax: ULONG;
+                                              out pulCount: ULONG): ULONG;
 
-      function PrfCreateGroup(hini: HINI;
-                                       pszTitle: PSZ;
-                                       chVisibility: UCHAR): HPROGRAM;
+      function PrfCreateGroup(in hini: HINI;
+                                       in pszTitle: PSZ;
+                                       in chVisibility: UCHAR): HPROGRAM;
 
-      function PrfDestroyGroup(hini: HINI;
-                                        hprogGroup: HPROGRAM): BOOL;
+      function PrfDestroyGroup(in hini: HINI;
+                                        in hprogGroup: HPROGRAM): BOOL;
 
-      function PrfQueryProgramCategory(hini: HINI; pszExe: PSZ): PROGCATEGORY;
-      function WinStartApp(hwndNotify: HWND;
-                                pDetails: PPROGDETAILS;
-                                pszParams: PSZ;
-                                Reserved: PVOID;
-                                fbOptions: ULONG): HAPP;
+      function PrfQueryProgramCategory(in hini: HINI; in pszExe: PSZ): PROGCATEGORY;
+
+      function WinStartApp(in hwndNotify: HWND;
+                                in pDetails: PPROGDETAILS;
+                                in pszParams: PSZ;
+                                in Reserved: PVOID;
+                                in fbOptions: ULONG): HAPP;
 
       (*** bit values for Options parameter ********************************)
       const SAF_VALIDFLAGS  = $001F;
@@ -181,6 +182,7 @@ module winprogramlist;
       const SAF_BACKGROUND        = $0010;     (* Start app in the background *)
 
 
-      function WinTerminateApp(happ: HAPP): BOOL;
+      function WinTerminateApp(in happ: HAPP): BOOL;
 
 end.
+

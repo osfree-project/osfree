@@ -28,46 +28,53 @@ module winwindowmgr;
     end;
    type PCLASSINFO=^CLASSINFO;
 
-function WinSubclassWindow(hwnd: HWND;
-                                        pfnwp: PFNWP): PFNWP;
+function WinSubclassWindow(in hwnd: HWND;
+                                        in pfnwp: PFNWP): PFNWP;
 
-function WinQueryClassName(hwnd: HWND;
-                                      cchMax: LONG;
-                                      pch: PCH): LONG;
-function WinQueryClassInfo(hab: HAB;
-                                     pszClassName: PCSZ;
-                                     pClassInfo: PCLASSINFO): BOOL;
+function WinQueryClassName(in hwnd: HWND;
+                                      in cchMax: LONG;
+                                      out pch: CHAR): LONG;
 
-function WinQueryActiveWindow(hwndDesktop: HWND): HWND;
+function WinQueryClassInfo(in hab: HAB;
+                                     in pszClassName: PCSZ;
+                                     out pClassInfo: CLASSINFO): BOOL;
 
-function WinIsThreadActive(hab: HAB): BOOL;
+function WinQueryActiveWindow(in hwndDesktop: HWND): HWND;
 
-function WinQuerySysModalWindow(hwndDesktop: HWND): HWND;
+function WinIsThreadActive(in hab: HAB): BOOL;
 
-
-function WinSetSysModalWindow(hwndDesktop: HWND;
-                                        hwnd: HWND): BOOL;
+function WinQuerySysModalWindow(in hwndDesktop: HWND): HWND;
 
 
-function WinQueryWindowUShort(hwnd: HWND;
-                                           index: LONG): USHORT;
-function WinSetWindowUShort(hwnd: HWND;
-                                         index: LONG;
-                                         us: USHORT): BOOL;
-function WinQueryWindowULong(hwnd: HWND;
-                                           index: LONG): ULONG;
-function WinSetWindowULong(hwnd: HWND;
-                                         index: LONG;
-                                         ul: ULONG): BOOL;
-function WinQueryWindowPtr(hwnd: HWND;
-                                        index: LONG): PVOID;
-function WinSetWindowPtr(hwnd: HWND;
-                                       index: LONG;
-                                       p: PVOID): BOOL;
-function WinSetWindowBits(hwnd: HWND;
-                                        index: LONG;
-                                        flData: ULONG;
-                                        flMask: ULONG): BOOL;
+function WinSetSysModalWindow(in hwndDesktop: HWND;
+                                        in hwnd: HWND): BOOL;
+
+
+function WinQueryWindowUShort(in hwnd: HWND;
+                                           in index: LONG): USHORT;
+
+function WinSetWindowUShort(in hwnd: HWND;
+                                         in index: LONG;
+                                         in us: USHORT): BOOL;
+
+function WinQueryWindowULong(in hwnd: HWND;
+                                           in index: LONG): ULONG;
+
+function WinSetWindowULong(in hwnd: HWND;
+                                         in index: LONG;
+                                         in ul: ULONG): BOOL;
+
+function WinQueryWindowPtr(in hwnd: HWND;
+                                        in index: LONG): PVOID;
+
+function WinSetWindowPtr(in hwnd: HWND;
+                                       in index: LONG;
+                                       in p: PVOID): BOOL;
+
+function WinSetWindowBits(in hwnd: HWND;
+                                        in index: LONG;
+                                        in flData: ULONG;
+                                        in flMask: ULONG): BOOL;
 
       (*** Standard WinQueryWindowUShort/ULong() indices *******************)
    const QWS_USER                 =  0;
@@ -109,61 +116,62 @@ function WinSetWindowBits(hwnd: HWND;
       (*** Window enumeration **********************************************)
 type HENUM=LHANDLE;  (* henum *)
 
-function WinBeginEnumWindows(hwnd: HWND): HENUM;
-function WinGetNextWindow(henum: HENUM): HWND;
-function WinEndEnumWindows(henum: HENUM): BOOL;
+function WinBeginEnumWindows(in hwnd: HWND): HENUM;
+function WinGetNextWindow(in henum: HENUM): HWND;
+function WinEndEnumWindows(in henum: HENUM): BOOL;
 
 
-function WinWindowFromPoint(hwnd: HWND;
-                                     pptl: PPOINTL;
-                                     fChildren: BOOL): HWND;
+function WinWindowFromPoint(in hwnd: HWND;
+                                     in pptl: PPOINTL;
+                                     in fChildren: BOOL): HWND;
 
-function WinMapWindowPoints(hwndFrom: HWND;
-                                      hwndTo: HWND;
-                                      prgptl: PPOINTL;
-                                      cwpt: LONG): BOOL;
+function WinMapWindowPoints(in hwndFrom: HWND;
+                                      in hwndTo: HWND;
+                                      in prgptl: PPOINTL;
+                                      in cwpt: LONG): BOOL;
 
 
    (* More window painting functions *)
 
-function WinValidateRect(hwnd: HWND;
-                                   prcl: PRECTL;
-                                   fIncludeChildren: BOOL): BOOL;
+function WinValidateRect(in hwnd: HWND;
+                                   in prcl: PRECTL;
+                                   in fIncludeChildren: BOOL): BOOL;
 
-function WinValidateRegion(hwnd: HWND;
-                                     hrgn: HRGN;
-                                     fIncludeChildren: BOOL): BOOL;
+function WinValidateRegion(in hwnd: HWND;
+                                     in hrgn: HRGN;
+                                     in fIncludeChildren: BOOL): BOOL;
 
-function WinWindowFromDC(hdc: HDC): HWND;
+function WinWindowFromDC(in hdc: HDC): HWND;
 
-function WinQueryWindowDC(hwnd: HWND): HDC;
+function WinQueryWindowDC(in hwnd: HWND): HDC;
 
-function WinGetScreenPS(hwndDesktop: HWND): HPS;
+function WinGetScreenPS(in hwndDesktop: HWND): HPS;
 
-function WinLockWindowUpdate(hwndDesktop: HWND;
-                                          hwndLockUpdate: HWND): BOOL;
+function WinLockWindowUpdate(in hwndDesktop: HWND;
+                                          in hwndLockUpdate: HWND): BOOL;
 
-function WinLockVisRegions(hwndDesktop: HWND;
-                                       fLock: BOOL): BOOL;
+function WinLockVisRegions(in hwndDesktop: HWND;
+                                       in fLock: BOOL): BOOL;
 
-function WinQueryUpdateRect(hwnd: HWND;
-                                      prcl: PRECTL): BOOL;
+function WinQueryUpdateRect(in hwnd: HWND;
+                                      out prcl: RECTL): BOOL;
 
-function WinQueryUpdateRegion(hwnd: HWND;
-                                       hrgn: HRGN): LONG;
+function WinQueryUpdateRegion(in hwnd: HWND;
+                                       in hrgn: HRGN): LONG;
 
-function WinExcludeUpdateRegion(hps: HPS;
-                                         hwnd: HWND): LONG;
+function WinExcludeUpdateRegion(in hps: HPS;
+                                         in hwnd: HWND): LONG;
 
    (* WinQueryClipRegion return codes *)
 const QCRGN_ERROR                = 0;
 const QCRGN_OK                   = 1;
 const QCRGN_NO_CLIP_REGION       = 2;
 
-function WinQueryClipRegion(hwnd: HWND;
-                                     hrgnClip: HRGN): LONG;
+function WinQueryClipRegion(in hwnd: HWND;
+                                     in hrgnClip: HRGN): LONG;
 
-function WinSetClipRegion(hwnd: HWND;
-                                   hrgnClip: HRGN): BOOL;
+function WinSetClipRegion(in hwnd: HWND;
+                                   in hrgnClip: HRGN): BOOL;
 
 end.
+

@@ -2,51 +2,52 @@ module winshelldata;
 
 (*** OS2.INI Access functions ****************************************)
 
-function PrfQueryProfileInt(hini: HINI;
-                                         pszApp: PCSZ;
-                                         pszKey: PCSZ;
-                                         sDefault: LONG): LONG;
+function PrfQueryProfileInt(in hini: HINI;
+                                         in pszApp: PCSZ;
+                                         in pszKey: PCSZ;
+                                         in sDefault: LONG): LONG;
 
-function PrfQueryProfileString(hini: HINI;
-                                            pszApp: PCSZ;
-                                            pszKey: PCSZ;
-                                            pszDefault: PCSZ;
-                                            pBuffer: PVOID;
-                                            cchBufferMax: ULONG): ULONG;
+function PrfQueryProfileString(in hini: HINI;
+                                            in pszApp: PCSZ;
+                                            in pszKey: PCSZ;
+                                            in pszDefault: PCSZ;
+                                            in pBuffer: PVOID; (* Untyped variable *)
+                                            in cchBufferMax: ULONG): ULONG;
 
-function PrfWriteProfileString(hini: HINI;
-                                            pszApp: PCSZ;
-                                            pszKey: PCSZ;
-                                            pszData: PCSZ): BOOL;
+function PrfWriteProfileString(in hini: HINI;
+                                            in pszApp: PCSZ;
+                                            in pszKey: PCSZ;
+                                            in pszData: PCSZ): BOOL;
 
-function PrfQueryProfileSize(hini: HINI;
-                                          pszApp: PCSZ;
-                                          pszKey: PCSZ;
-                                          pulReqLen: PULONG): BOOL;
+function PrfQueryProfileSize(in hini: HINI;
+                                          in pszApp: PCSZ;
+                                          in pszKey: PCSZ;
+                                          out pulReqLen: ULONG): BOOL;
 
-function PrfQueryProfileData(hini: HINI;
-                                          pszApp: PSZ;
-                                          pszKey: PSZ;
-                                          pBuffer: PVOID;
-                                          pulBuffLen: PULONG): BOOL;
+function PrfQueryProfileData(in hini: HINI;
+                                          in pszApp: PSZ;
+                                          in pszKey: PSZ;
+                                          in pBuffer: PVOID; (* Untyped variable *)
+                                          out pulBuffLen: ULONG): BOOL;
 
-function PrfWriteProfileData(hini: HINI;
-                                          pszApp: PSZ;
-                                          pszKey: PSZ;
-                                          pData: PVOID;
-                                          cchDataLen: ULONG): BOOL;
+function PrfWriteProfileData(in hini: HINI;
+                                          in pszApp: PSZ;
+                                          in pszKey: PSZ;
+                                          in pData: PVOID; (* Untyped variable *)
+                                          in cchDataLen: ULONG): BOOL;
 
-function PrfOpenProfile(hab: HAB;
-                                     pszFileName: PSZ): HINI;
+function PrfOpenProfile(in hab: HAB;
+                                     in pszFileName: PSZ): HINI;
 
-function PrfCloseProfile(hini: HINI): BOOL;
+function PrfCloseProfile(in hini: HINI): BOOL;
 
-function PrfReset(hab: HAB; pPrfProfile: PPRFPROFILE): BOOL;
+function PrfReset(in hab: HAB; in pPrfProfile: PPRFPROFILE): BOOL;
 
-function PrfQueryProfile(hab: HAB;
-                                      pPrfProfile: PPRFPROFILE): BOOL;
+function PrfQueryProfile(in hab: HAB;
+                                      out pPrfProfile: PRFPROFILE): BOOL;
 
 (*** public message, broadcast on WinReset ***************************)
 const PL_ALTERED=$x008E;  (* WM_SHELLFIRST + 0E *)
 
 end.
+

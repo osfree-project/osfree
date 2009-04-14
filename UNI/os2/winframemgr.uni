@@ -1,7 +1,7 @@
 module winframemgr;
 
-function WinFlashWindow(hwndFrame: HWND;
-                                 fFlash: BOOL): BOOL;
+function WinFlashWindow(in hwndFrame: HWND;
+                                 in fFlash: BOOL): BOOL;
 
    (* Frame window related messages *)
 
@@ -45,25 +45,25 @@ const WM_QUERYFRAMECTLCOUNT      = $0059;
    const FI_NOMOVEWITHOWNER      = $00000008;
 
 
-function WinCreateFrameControls(hwndFrame: HWND;
-                                         pfcdata: PFRAMECDATA;
-                                         pszTitle: PCSZ): BOOL;
+function WinCreateFrameControls(in hwndFrame: HWND;
+                                         in pfcdata: PFRAMECDATA;
+                                         in pszTitle: PCSZ): BOOL;
 
-function WinCalcFrameRect(hwndFrame: HWND;
-                                   prcl: PRECTL;
-                                   fClient: BOOL): BOOL;
+function WinCalcFrameRect(in hwndFrame: HWND;
+                                   in prcl: RECTL;
+                                   in fClient: BOOL): BOOL;
 
-function WinGetMinPosition(hwnd: HWND;
-                                    pswp: PSWP;
-                                    pptl: PPOINTL): BOOL;
+function WinGetMinPosition(in hwnd: HWND;
+                                    out pswp: SWP;
+                                    out pptl: POINTL): BOOL;
 
-function WinGetMaxPosition(hwnd: HWND; pswp: PSWP): BOOL;
+function WinGetMaxPosition(in hwnd: HWND; out pswp: SWP): BOOL;
 
    type HSAVEWP=LHANDLE;      (* hsvwp *)
 
-function WinSaveWindowPos(hsvwp: HSAVEWP;
-                                  pswp: PSWP;
-                                  cswp: ULONG): BOOL;
+function WinSaveWindowPos(in hsvwp: HSAVEWP;
+                                  in pswp: PSWP;
+                                  in cswp: ULONG): BOOL;
 
    (* Frame control IDs    *)
 
@@ -116,3 +116,4 @@ const SC_NEXTWINDOW              = $8010;
 
 
 end.
+

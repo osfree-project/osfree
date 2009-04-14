@@ -4,52 +4,52 @@ module windialogscommon;
 
    (**** Dialog Manager COMMON subsection *)
 
-function WinGetDlgMsg(hwndDlg: HWND;
-                                 pqmsg: PQMSG): BOOL;
+function WinGetDlgMsg(in hwndDlg: HWND;
+                                 out pqmsg: QMSG): BOOL;
 
-function WinLoadDlg(hwndParent: HWND;
-                               hwndOwner: HWND;
-                               pfnDlgProc: PFNWP;
-                               hmod: HMODULE;
-                               idDlg: ULONG;
-                               pCreateParams: PVOID): HWND;
+function WinLoadDlg(in hwndParent: HWND;
+                               in hwndOwner: HWND;
+                               in pfnDlgProc: PFNWP;
+                               in hmod: HMODULE;
+                               in idDlg: ULONG;
+                               in pCreateParams: PVOID): HWND;
 
-function WinDlgBox(hwndParent: HWND;
-                             hwndOwner: HWND;
-                             pfnDlgProc: PFNWP;
-                             hmod: HMODULE;
-                             idDlg: ULONG;
-                             pCreateParams: PVOID): ULONG;
+function WinDlgBox(in hwndParent: HWND;
+                             in hwndOwner: HWND;
+                             in pfnDlgProc: PFNWP;
+                             in hmod: HMODULE;
+                             in idDlg: ULONG;
+                             in pCreateParams: PVOID): ULONG;
 
-function WinDismissDlg(hwndDlg: HWND;
-                                  usResult: ULONG): BOOL;
+function WinDismissDlg(in hwndDlg: HWND;
+                                  in usResult: ULONG): BOOL;
 
-function WinQueryDlgItemShort(hwndDlg: HWND;
-                                         idItem: ULONG;
-                                         pResult: PSHORT;
-                                         fSigned: BOOL): BOOL;
+function WinQueryDlgItemShort(in hwndDlg: HWND;
+                                         in idItem: ULONG;
+                                         out pResult: SHORT;
+                                         in fSigned: BOOL): BOOL;
 
-function WinSetDlgItemShort(hwndDlg: HWND;
-                                       idItem: ULONG;
-                                       usValue: USHORT;
-                                       fSigned: BOOL): BOOL;
+function WinSetDlgItemShort(in hwndDlg: HWND;
+                                       in idItem: ULONG;
+                                       in usValue: USHORT;
+                                       in fSigned: BOOL): BOOL;
 
-function WinSetDlgItemText(hwndDlg: HWND;
-                                      idItem: ULONG;
-                                      pszText: PCSZ): BOOL;
+function WinSetDlgItemText(in hwndDlg: HWND;
+                                      in idItem: ULONG;
+                                      in pszText: PCSZ): BOOL;
 
-function WinQueryDlgItemText(hwndDlg: HWND;
-                                       idItem: ULONG;
-                                       cchBufferMax: LONG;
-                                       pchBuffer: PCSZ): ULONG;
+function WinQueryDlgItemText(in hwndDlg: HWND;
+                                       in idItem: ULONG;
+                                       in cchBufferMax: LONG;
+                                       out pchBuffer: SZ): ULONG;
 
-function WinQueryDlgItemTextLength(hwndDlg: HWND;
-                                             idItem: ULONG): LONG;
+function WinQueryDlgItemTextLength(in hwndDlg: HWND;
+                                             in idItem: ULONG): LONG;
 
-function WinDefDlgProc(hwndDlg: HWND;
-                                  msg: ULONG;
-                                  mp1: MPARAM;
-                                  mp2: MPARAM): MRESULT;
+function WinDefDlgProc(in hwndDlg: HWND;
+                                  in msg: ULONG;
+                                  in mp1: MPARAM;
+                                  in mp2: MPARAM): MRESULT;
 
    (* Special item IDs *)
 
@@ -57,8 +57,8 @@ const DID_OK      = 1;
 const DID_CANCEL  = 2;
 const DID_ERROR   = $ffff;
 
-function WinAlarm(hwndDesktop: HWND;
-                          rgfType: ULONG): BOOL;
+function WinAlarm(in hwndDesktop: HWND;
+                          in rgfType: ULONG): BOOL;
 
    (* WinAlarm Codes *)
 
@@ -68,12 +68,12 @@ const WA_ERROR                 =  2;
 const WA_CWINALARMS            = 13;     (* count of valid alarms *)
 
 
-function WinMessageBox(hwndParent: HWND;
-                                hwndOwner: HWND;
-                                pszText: PCSZ;
-                                pszCaption: PCSZ;
-                                idWindow: ULONG;
-                                flStyle: ULONG): ULONG;
+function WinMessageBox(in hwndParent: HWND;
+                                in hwndOwner: HWND;
+                                in pszText: PCSZ;
+                                in pszCaption: PCSZ;
+                                in idWindow: ULONG;
+                                in flStyle: ULONG): ULONG;
 
 
 
@@ -115,12 +115,12 @@ const MAX_MBDTEXT              = 70;
    (*             ULONG  idWindow     - Message box id                     *)
    (*             PMB2INFO pmb2info   - pointer to button/icon info        *)
    (************************************************************************)
-   function WinMessageBox2(hwndParent: HWND;
-        hwndOwner: HWND;
-        pszText: PSZ;
-        pszCaption: PSZ;
-        idWindow: ULONG;
-        pmb2info: PMB2INFO): ULONG;
+   function WinMessageBox2(in hwndParent: HWND;
+        in hwndOwner: HWND;
+        in pszText: PSZ;
+        in pszCaption: PSZ;
+        in idWindow: ULONG;
+        in pmb2info: PMB2INFO): ULONG;
 
    (* Message box types *)
 

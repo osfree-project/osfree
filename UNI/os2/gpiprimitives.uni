@@ -312,76 +312,76 @@ const RVIS_VISIBLE                 =   3;
 
 
       (*** attribute mode functions *)
-function GpiSetAttrMode(hps: HPS;
-                                    lMode: LONG ): BOOL;
+function GpiSetAttrMode(in hps: HPS;
+                                    in lMode: LONG ): BOOL;
 
-function GpiQueryAttrMode(hps: HPS): LONG;
+function GpiQueryAttrMode(in hps: HPS): LONG;
       (*** bundle primitive functions *)
-function GpiSetAttrs(hps: HPS;
-                                 lPrimType: LONG;
-                                 flAttrMask: ULONG;
-                                 flDefMask: ULONG;
-                                 ppbunAttrs: PBUNDLE): BOOL;
+function GpiSetAttrs(in hps: HPS;
+                                 in lPrimType: LONG;
+                                 in flAttrMask: ULONG;
+                                 in flDefMask: ULONG;
+                                 in ppbunAttrs: PBUNDLE): BOOL;
 
 
-function GpiQueryAttrs(hps: HPS;
-                                      lPrimType: LONG;
-                                      flAttrMask: ULONG,
-                                      ppbunAttrs: PBUNDLE): LONG;
+function GpiQueryAttrs(in hps: HPS;
+                                      in lPrimType: LONG;
+                                      in flAttrMask: ULONG,
+                                      out ppbunAttrs: BUNDLE): LONG;
 
 
 
       (*** global primitive functions *)
-function GpiSetBackColor(hps: HPS;
-                                     lColor: LONG): BOOL;
+function GpiSetBackColor(in hps: HPS;
+                                     in lColor: LONG): BOOL;
 
-function GpiQueryBackColor(hps: HPS): LONG;
+function GpiQueryBackColor(in hps: HPS): LONG;
 
-function GpiSetMix(hps: HPS;
-                               lMixMode: LONG): BOOL;
+function GpiSetMix(in hps: HPS;
+                               in lMixMode: LONG): BOOL;
 
-function GpiQueryMix(hps: HPS): LONG;
+function GpiQueryMix(in hps: HPS): LONG;
 
-function GpiSetBackMix(hps: HPS;
-                                   lMixMode: LONG): BOOL;
+function GpiSetBackMix(in hps: HPS;
+                                   in lMixMode: LONG): BOOL;
 
-function GpiQueryBackMix(hps: HPS): LONG;
+function GpiQueryBackMix(in hps: HPS): LONG;
 
       (*** line primitive functions *)
-function GpiSetLineType(hps: HPS;
-                                    lLineType: LONG): BOOL;
+function GpiSetLineType(in hps: HPS;
+                                    in lLineType: LONG): BOOL;
 
-function GpiQueryLineType(hps: HPS): LONG;
+function GpiQueryLineType(in hps: HPS): LONG;
 
-function GpiSetLineWidth(hps: HPS;
-                                     fxLineWidth: FIXED): BOOL;
+function GpiSetLineWidth(in hps: HPS;
+                                     in fxLineWidth: FIXED): BOOL;
 
-function GpiQueryLineWidth(hps: HPS): FIXED;
+function GpiQueryLineWidth(in hps: HPS): FIXED;
 
-function GpiSetLineWidthGeom(hps: HPS;
-                                         lLineWidth: LONG): BOOL;
+function GpiSetLineWidthGeom(in hps: HPS;
+                                         in lLineWidth: LONG): BOOL;
 
-function GpiQueryLineWidthGeom(hps: HPS): LONG;
+function GpiQueryLineWidthGeom(in hps: HPS): LONG;
 
-function GpiSetLineEnd(hps: HPS;
-                                   lLineEnd: LONG): BOOL;
+function GpiSetLineEnd(in hps: HPS;
+                                   in lLineEnd: LONG): BOOL;
 
-function GpiQueryLineEnd(hps: HPS): LONG;
+function GpiQueryLineEnd(in hps: HPS): LONG;
 
-function GpiSetLineJoin(hps: HPS;
-                                    lLineJoin: LONG): BOOL;
+function GpiSetLineJoin(in hps: HPS;
+                                    in lLineJoin: LONG): BOOL;
 
-function GpiQueryLineJoin(hps: HPS): LONG;
+function GpiQueryLineJoin(in hps: HPS): LONG;
 
-function GpiSetCurrentPosition(hps: HPS;
-                                           pptlPoint: PPOINTL): BOOL;
+function GpiSetCurrentPosition(in hps: HPS;
+                                           in pptlPoint: PPOINTL): BOOL;
 
-function GpiQueryCurrentPosition(hps: HPS;
-                                             pptlPoint: PPOINTL): BOOL;
+function GpiQueryCurrentPosition(in hps: HPS;
+                                             out pptlPoint: POINTL): BOOL;
 
       (*** arc primitive functions *)
-function GpiSetArcParams(hps: HPS;
-                                     parcpArcParams: PARCPARAMS): BOOL;
+function GpiSetArcParams(in hps: HPS;
+                                     in parcpArcParams: PARCPARAMS): BOOL;
 
 function GpiQueryArcParams(hps: HPS;
                                        parcpArcParams: PARCPARAMS): BOOL;

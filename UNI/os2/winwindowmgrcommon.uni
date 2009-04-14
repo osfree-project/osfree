@@ -1,52 +1,52 @@
 module winwindowmgrcommon;
 
-       function WinRegisterClass(hab: HAB;
-                                     pszClassName: PCSZ;
-                                     pfnWndProc: PFNWP;
-                                     flStyle: ULONG;
-                                     cbWindowData: ULONG): BOOL;
+       function WinRegisterClass(in hab: HAB;
+                                     in pszClassName: PCSZ;
+                                     in pfnWndProc: PFNWP;
+                                     in flStyle: ULONG;
+                                     in cbWindowData: ULONG): BOOL;
 
-    function WinDefWindowProc(hwnd: HWND;
-                                      msg: ULONG;
-                                      mp1: MPARAM;
-                                      mp2: MPARAM): MRESULT;
+    function WinDefWindowProc(in hwnd: HWND;
+                                      in msg: ULONG;
+                                      in mp1: MPARAM;
+                                      in mp2: MPARAM): MRESULT;
 
-       function WinDestroyWindow(hwnd: HWND): BOOL;
+       function WinDestroyWindow(in hwnd: HWND): BOOL;
 
-       function WinShowWindow(hwnd: HWND;
-                                   fShow: BOOL): BOOL;
+       function WinShowWindow(in hwnd: HWND;
+                                   in fShow: BOOL): BOOL;
 
-       function WinQueryWindowRect(hwnd: HWND;
-                                   prclDest: PRECTL): BOOL;
+       function WinQueryWindowRect(in hwnd: HWND;
+                                   out prclDest: RECTL): BOOL;
 
-       function WinGetPS(hwnd: HWND): HPS;
+       function WinGetPS(in hwnd: HWND): HPS;
 
-       function WinReleasePS(hps: HPS): BOOL;
+       function WinReleasePS(in hps: HPS): BOOL;
 
-       function WinEndPaint(hps: HPS): BOOL;
-
-
-      function WinGetClipPS(hwnd: HWND;
-                                  hwndClip: HWND;
-                                  fl: ULONG): HPS;
-
-     function WinIsWindowShowing(hwnd: HWND): BOOL;
+       function WinEndPaint(in hps: HPS): BOOL;
 
 
-      function WinBeginPaint(hwnd: HWND;
-                                hps: HPS;
-                                prclPaint: PRECTL): HPS;
+      function WinGetClipPS(in hwnd: HWND;
+                                  in hwndClip: HWND;
+                                  in fl: ULONG): HPS;
 
-      function WinOpenWindowDC(hwnd: HWND): HDC;
+     function WinIsWindowShowing(in hwnd: HWND): BOOL;
 
-    function WinScrollWindow(hwnd: HWND;
-                                 dx: LONG;
-                                 dy: LONG;
-                                 prclScroll: PRECTL;
-                                 prclClip: PRECTL;
-                                 hrgnUpdate: HRGN;
-                                 prclUpdate: PRECTL;
-                                 rgfsw: ULONG): LONG;
+
+      function WinBeginPaint(in hwnd: HWND;
+                                in hps: HPS;
+                                in prclPaint: PRECTL): HPS;
+
+      function WinOpenWindowDC(in hwnd: HWND): HDC;
+
+    function WinScrollWindow(in hwnd: HWND;
+                                 in dx: LONG;
+                                 in dy: LONG;
+                                 in prclScroll: PRECTL;
+                                 in prclClip: PRECTL;
+                                 in hrgnUpdate: HRGN;
+                                 in prclUpdate: PRECTL;
+                                 in rgfsw: ULONG): LONG;
 
    (*** WinGetClipPS() flags ***********************************************)
 
@@ -62,9 +62,9 @@ module winwindowmgrcommon;
    const SW_SCROLLCHILDREN        = $0001;
    const SW_INVALIDATERGN         = $0002;
 
-     function WinFillRect(hps: HPS;
-                              prcl: PRECTL;
-                              lColor: LONG): BOOL;
+     function WinFillRect(in hps: HPS;
+                              in prcl: PRECTL;
+                              in lColor: LONG): BOOL;
 
    (*** WinInitialize/WinTerminate Interface declarations ******************)
 
@@ -81,12 +81,13 @@ module winwindowmgrcommon;
    const QV_OS400                  = $0004;
 
 
-     function WinQueryVersion(hab: HAB): ULONG;
+     function WinQueryVersion(in hab: HAB): ULONG;
 
-       function WinInitialize(flOptions: ULONG): HAB;
+       function WinInitialize(in flOptions: ULONG): HAB;
 
-      function WinTerminate(hab: HAB): BOOL;
+      function WinTerminate(in hab: HAB): BOOL;
 
-       function WinQueryAnchorBlock(hwnd: HWND): HAB;
+       function WinQueryAnchorBlock(in hwnd: HWND): HAB;
 
 end.
+

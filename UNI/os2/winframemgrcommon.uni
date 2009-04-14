@@ -86,15 +86,16 @@ const FS_STANDARD                = $0000000F;
    const FF_DIALOGBOX               = $0100;
 
 
-function WinCreateStdWindow(hwndParent: HWND;
-                                     flStyle: ULONG;
-                                     pflCreateFlags: PULONG;
-                                     pszClientClass: PCSZ;
-                                     pszTitle: PCSZ;
-                                     styleClient: ULONG,
-                                     hmod: HMODULE;
-                                     idResources: ULONG;
-                                     phwndClient: PHWND): HWND;
+function WinCreateStdWindow(in hwndParent: HWND;
+                                     in flStyle: ULONG;
+                                     in pflCreateFlags: PULONG;
+                                     in pszClientClass: PCSZ;
+                                     in pszTitle: PCSZ;
+                                     in styleClient: ULONG,
+                                     in hmod: HMODULE;
+                                     in idResources: ULONG;
+                                     in phwndClient: PHWND): HWND;
 
 
 end.
+

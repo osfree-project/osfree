@@ -15,24 +15,26 @@ const DLGC_TABONCLICK    = $0200;
 const DLGC_MLE           = $0400;  (* Multiple Line Entry                     *)
 
 
-function WinProcessDlg(hwndDlg: HWND): ULONG;
-function WinSendDlgItemMsg(hwndDlg: HWND;
-                                      idItem: ULONG;
-                                      msg: ULONG;
-                                      mp1: MPARAM;
-                                      mp2: MPARAM): MRESULT;
-function WinMapDlgPoints(hwndDlg: HWND;
-                                    prgwptl: PPOINTL;
-                                    cwpt: ULONG;
-                                    fCalcWindowCoords: BOOL): BOOL;
-function WinEnumDlgItem(hwndDlg: HWND;
-                                   hwnd: HWND;
-                                   code: ULONG): HWND;
+function WinProcessDlg(in hwndDlg: HWND): ULONG;
+function WinSendDlgItemMsg(in hwndDlg: HWND;
+                                      in idItem: ULONG;
+                                      in msg: ULONG;
+                                      in mp1: MPARAM;
+                                      in mp2: MPARAM): MRESULT;
 
-function WinSubstituteStrings(hwnd: HWND;
-                                         pszSrc: PCSZ;
-                                         cchDstMax: LONG;
-                                         pszDst: PCSZ): LONG;
+function WinMapDlgPoints(in hwndDlg: HWND;
+                                    in prgwptl: PPOINTL;
+                                    in cwpt: ULONG;
+                                    in fCalcWindowCoords: BOOL): BOOL;
+
+function WinEnumDlgItem(in hwndDlg: HWND;
+                                   in hwnd: HWND;
+                                   in code: ULONG): HWND;
+
+function WinSubstituteStrings(in hwnd: HWND;
+                                         in pszSrc: PCSZ;
+                                         in cchDstMax: LONG;
+                                         in pszDst: PCSZ): LONG;
 
 
 
@@ -104,11 +106,12 @@ const EDI_PREVGROUPITEM         = 7;
 
 (*   #pragma pack()   restore packing to default *)
 
-function WinCreateDlg(hwndParent: HWND;
-                                hwndOwner: HWND;
-                                pfnDlgProc: PFNWP;
-                                pdlgt: PDLGTEMPLATE;
-                                pCreateParams: PVOID): HWND;
+function WinCreateDlg(in hwndParent: HWND;
+                                in hwndOwner: HWND;
+                                in pfnDlgProc: PFNWP;
+                                in pdlgt: PDLGTEMPLATE;
+                                in pCreateParams: PVOID): HWND;
 
 
 end.
+

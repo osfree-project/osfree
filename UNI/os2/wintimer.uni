@@ -2,16 +2,16 @@ module wintimer;
 
 (**** Timer manager *)
 
-function WinStartTimer(hab: HAB;
-                                   hwnd: HWND;
-                                   idTimer: ULONG;
-                                   dtTimeout: ULONG): ULONG;
+function WinStartTimer(in hab: HAB;
+                                   in hwnd: HWND;
+                                   in idTimer: ULONG;
+                                   in dtTimeout: ULONG): ULONG;
 
-function WinStopTimer(hab: HAB;
-                                   hwnd: HWND;
-                                   idTimer: ULONG): BOOL;
+function WinStopTimer(in hab: HAB;
+                                   in hwnd: HWND;
+                                   in idTimer: ULONG): BOOL;
 
-function WinGetCurrentTime(hab: HAB): ULONG;
+function WinGetCurrentTime(in hab: HAB): ULONG;
 
 const TID_CURSOR          = $ffff;  (* Reserved cursor timer ID              *)
 const TID_SCROLL          = $fffe;  (* Reserved scrolling timer ID           *)

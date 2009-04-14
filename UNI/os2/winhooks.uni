@@ -1,18 +1,18 @@
 module winhooks;
 
-function WinSetHook(hab: HAB;
-                               hmq: HMQ;
-                               iHook: LONG;
-                               pfnHook: PFN;
-                               hmod: HMODULE): BOOL;
-function WinReleaseHook(hab: HAB;
-                                   hmq: HMQ;
-                                   iHook: LONG;
-                                   pfnHook: PFN;
-                                   hmod: HMODULE): BOOL;
-function WinCallMsgFilter(hab: HAB;
-                                     pqmsg: PQMSG;
-                                     msgf: ULONG): BOOL;
+function WinSetHook(in hab: HAB;
+                               in hmq: HMQ;
+                               in iHook: LONG;
+                               in pfnHook: PFN;
+                               in hmod: HMODULE): BOOL;
+function WinReleaseHook(in hab: HAB;
+                                   in hmq: HMQ;
+                                   in iHook: LONG;
+                                   in pfnHook: PFN;
+                                   in hmod: HMODULE): BOOL;
+function WinCallMsgFilter(in hab: HAB;
+                                     in pqmsg: PQMSG;
+                                     in msgf: ULONG): BOOL;
 
 
       (**********************************************************************

@@ -37,9 +37,9 @@ const WINDBG_WINDOW_UNLOCK_WAIT           = $1035;
     end;
    type PERRINFO=^ERRINFO;
 
-function WinGetLastError(hab: HAB): ERRORID;
-function WinGetErrorInfo(hab: HAB): PERRINFO;
-function WinFreeErrorInfo(perrinfo: PERRINFO): BOOL;
+function WinGetLastError(in hab: HAB): ERRORID;
+function WinGetErrorInfo(in hab: HAB): PERRINFO;
+function WinFreeErrorInfo(in perrinfo: PERRINFO): BOOL;
 
 const PMERR_INVALID_HWND                  = $1001;
 const PMERR_INVALID_HMQ                   = $1002;
