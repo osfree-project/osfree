@@ -30,22 +30,78 @@ const QLCT_NOTLOADED =(-1);
 
 const PAL_ERROR =(-1);
 
-function GpiAnimatePalette(a: HPAL;b: ULONG;c: ULONG;d: ULONG;e: PULONG): LONG;
-function GpiCreateLogColorTable(a: HPS;b: ULONG;c: LONG;d: LONG;e: LONG;f: PLONG): BOOL;
-function GpiCreatePalette(a: HAB;b: ULONG;c: ULONG;d: ULONG;e: PULONG): HPAL;
-function GpiDeletePalette(a: HPAL): BOOL;
-function GpiQueryColorData(a: HPS; b:LONG; c:PLONG): BOOL;
-function GpiQueryColorIndex(a: HPS;b: ULONG; c:LONG): LONG;
-function GpiQueryLogColorTable(a: HPS; b: ULONG; c:LONG;d:LONG;e:PLONG): LONG;
-function GpiQueryNearestColor(a: HPS;b: ULONG;c: LONG): LONG;
-function GpiQueryNearestPaletteIndex(a: HPAL;b: ULONG): LONG;
-function GpiQueryPalette(a: HPS): HPAL;
-function GpiQueryPaletteInfo(a: HPAL;b: HPS;c: ULONG;d: ULONG;e: ULONG;f: PULONG): LONG;
-function GpiQueryRealColors(a: HPS;b: ULONG;c: LONG;d: LONG;e: PLONG): LONG;
-function GpiQueryRGBColor(a: HPS; b: ULONG; c:LONG): LONG;
-function GpiSelectPalette(a: HPS;b: HPAL): HPAL;
-function GpiSetPaletteEntries(a: HPAL;b: ULONG;c: ULONG;d: ULONG;e: PULONG): BOOL;
-function GpiResizePalette(a: HPAL;b: ULONG): ULONG;
+function GpiAnimatePalette(in a: HPAL;
+						   in b: ULONG;
+						   in c: ULONG;
+						   in d: ULONG;
+						   in e: PULONG): LONG;
+
+function GpiCreateLogColorTable(in a: HPS;
+						        in b: ULONG;
+								in c: LONG;
+								in d: LONG;
+								in e: LONG;
+								in f: PLONG): BOOL;
+								
+function GpiCreatePalette(in a: HAB;
+						  in b: ULONG;
+						  in c: ULONG;
+						  in d: ULONG;
+						  in e: PULONG): HPAL;
+						  
+function GpiDeletePalette(in a: HPAL): BOOL;
+
+function GpiQueryColorData(in  a: HPS; 
+						   in  b: LONG; 
+						   out c: LONG): BOOL;
+
+function GpiQueryColorIndex(in a: HPS;
+						    in b: ULONG; 
+							in c:LONG): LONG;
+							
+function GpiQueryLogColorTable(in  a: HPS; 
+							   in  b: ULONG; 
+							   in  c: LONG;
+							   in  d: LONG;
+							   out e: LONG): LONG;
+							   
+function GpiQueryNearestColor(in a: HPS;
+							  in b: ULONG;
+							  in c: LONG): LONG;
+							  
+function GpiQueryNearestPaletteIndex(in a: HPAL;
+									 in b: ULONG): LONG;
+									 
+function GpiQueryPalette(in a: HPS): HPAL;
+
+function GpiQueryPaletteInfo(in  a: HPAL;
+							 in  b: HPS;
+							 in  c: ULONG;
+							 in  d: ULONG;
+							 in  e: ULONG;
+							 out f: ULONG): LONG;
+							 
+function GpiQueryRealColors(in  a: HPS;
+							in  b: ULONG;
+							in  c: LONG;
+							in  d: LONG;
+							out e: LONG): LONG;
+							
+function GpiQueryRGBColor(in a: HPS; 
+						  in b: ULONG; 
+						  in c:LONG): LONG;
+						  
+function GpiSelectPalette(in a: HPS;
+						  in b: HPAL): HPAL;
+						  
+function GpiSetPaletteEntries(in a: HPAL;
+						      in b: ULONG;
+							  in c: ULONG;
+							  in d: ULONG;
+							  in e: PULONG): BOOL;
+							  
+function GpiResizePalette(in a: HPAL;
+						  in b: ULONG): ULONG;
 
 end.
 

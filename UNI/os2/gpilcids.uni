@@ -32,7 +32,7 @@ const RC_TTENABLED     = 2;
      end;
    type PRASTERIZERCAPS=^RASTERIZERCAPS;
 
-function GpiQueryRasterizerCaps(prcaps: PRASTERIZERCAPS): BOOL;
+function GpiQueryRasterizerCaps(out prcaps: RASTERIZERCAPS): BOOL;
 
    (* data required by GpiQueryFaceString *)
    type FACENAMEDESC=structure     (* fnd *)
