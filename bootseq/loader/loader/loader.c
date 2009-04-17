@@ -84,6 +84,7 @@ int screen_fg_color = 7;
 int screen_bg_color_hl = 0;
 int screen_fg_color_hl = 7;
 
+char cmdbuf[0x200];
 
 /* menu width and height */
 #define MENU_WIDTH  56
@@ -600,12 +601,66 @@ void draw_menu(int item, int shift)
   t->setcolor(7, 7);
 }
 
+void showpath(void)
+{
+  printf("\r\n[freeldr] ");
+}
+
+char *getcmd(int key)
+{
+  int ch = key;
+  int ind = 0;
+ 
+  do 
+  {
+    switch (ch)
+    {
+       case 0x1c0d: // enter key
+         cmdbuf[ind++] = '\0';
+         //if (ind > 1)
+         return cmdbuf;
+         //break;
+       case 0x11b:  // esc key
+         break;   
+       default:
+         printf("%c", ch);
+         cmdbuf[ind++] = (char)(ch & 0xff);
+         ch = t->getkey();
+         continue;
+    }
+    break;
+  } while (1);
+
+  return NULL;
+}
+
+int exec_cmd(char *cmd)
+{
+  return exec_line(cmd);
+}
+
 void cmdline(int item, int shift)
 {
-  int ii;
+  int  ii;
+  char exitflag = 0;
+  char *cmd;
+  int  ch;
 
-  printf("cmdline!\r\n");
-  while (t->getkey() != 0x11b) ; //checking for esc key
+  //printf("cmdline!\r\n");
+
+  while (1) //checking for exit flag 
+  {
+    showpath();
+    ch = t->getkey();
+    if (ch == 0x11b) break; // esc
+    if (cmd = getcmd(ch))
+    {
+      printf("\r\n%s", cmd);
+      exec_cmd(cmd);
+    }
+    else 
+      break;
+  } 
 
   t->cls();
   state = 0;
