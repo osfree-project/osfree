@@ -29,6 +29,9 @@ struct term_entry *t;
 int num_items = 0;
 int scrollnum = 0;
 
+void show_background_screen(void);
+void draw_menu(int item, int shift);
+
 void create_lip_module(lip2_t **l);
 void multi_boot(void);
 
@@ -67,6 +70,7 @@ int  config_len = 0;
 int  default_item = -1;
 int  menu_timeout;
 
+static char state = 0;
 
 /* menu colors */
 int background_color = 0; // black
@@ -372,13 +376,52 @@ get_user_input(int *item, int *shift)
         if (*shift < 0) ++*shift;
         return 1;
       }
+      case 0x3: // pgdn
+      {
+        *item += menu_height - 1;
+        if (*item >= num_items + 1) *item = 0;
+        return 1;
+      }
+      case 0x7: // pgup
+      {
+        *item -= menu_height - 1;
+        if (*item < 0) *item = num_items;
+        return 1;
+      }
+      case 0x7400: // ctrl-right
+      case 0x7600: // end
+      {
+        *shift += menu_width;
+        return 1;
+      }
+      case 0x7300: // ctrl-left
+      case 0x8400: // home
+      {
+        *shift -= menu_width;
+        return 1;
+      }
+      case 0x11b: // esc
+      {
+        int ii;
+        if (state == 0) 
+        {
+          state++;
+          t->cls();
+          for (ii = 0; ii < 0x1000; ii++) ;
+        }
+        return 0;
+      }
       case 0x1c0d: // enter
       {
         ++*item;
+        //state = 0;
         return 0;
       }
       default:
-        ;
+       {
+         printf("0x%x\r\n", c);
+         return 1;
+       }
     }
   }
 
@@ -557,6 +600,20 @@ void draw_menu(int item, int shift)
   t->setcolor(7, 7);
 }
 
+void cmdline(int item, int shift)
+{
+  int ii;
+
+  printf("cmdline!\r\n");
+  while (t->getkey() != 0x11b) ; //checking for esc key
+
+  t->cls();
+  state = 0;
+  show_background_screen();
+  draw_menu(item, shift);
+  for (ii = 0; ii < 0x1000; ii++) ;
+}
+
 int
 exec_menu(void)
 {
@@ -566,9 +623,24 @@ exec_menu(void)
 
   item = default_item;
 
-  do {
-    draw_menu(item, shift);
-  }   while (get_user_input(&item, &shift));
+  for (;;)
+  {
+    switch (state)
+    {
+      case 0: // menu
+        do {
+          draw_menu(item, shift);
+        }   while (get_user_input(&item, &shift));
+        if (state == 1) continue; // if we got here by pressing Esc key
+        break;                    // otherwise, if Enter key pressed
+      case 1: // cmd line
+        cmdline(item, shift);
+        continue;
+      default:
+        break;
+    }
+    break;
+  } 
 
   return item;
 }
