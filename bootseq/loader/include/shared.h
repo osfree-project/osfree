@@ -337,6 +337,7 @@ extern char *grub_scratch_mem;
 #ifndef WITHOUT_LIBC_STUBS
 #define memmove grub_memmove
 #define memcpy grub_memmove     /* we don't need a separate memcpy */
+#define grub_memcpy grub_memmove
 #define memset grub_memset
 #define isspace grub_isspace
 #define printf grub_printf
@@ -640,7 +641,7 @@ typedef void (*entry_func) (int, int, int, int, int, int);
 extern entry_func entry_addr;
 
 /* Enter the stage1.5/stage2 C code after the stack is set up. */
-void cmain (void);
+//void cmain (void);
 
 /* Halt the processor (called after an unrecoverable error). */
 void __cdecl stop (void); //__attribute__ ((noreturn));
@@ -915,6 +916,12 @@ int make_saved_active (void);
 
 /* Set or clear the current root partition's hidden flag.  */
 int set_partition_hidden_flag (int hidden);
+
+#pragma aux grub_open     "*_"
+#pragma aux grub_read     "*_"
+#pragma aux grub_dir      "*_"
+#pragma aux grub_seek     "*_"
+#pragma aux grub_close    "*_"
 
 /* Open a file or directory on the active device, using GRUB's
    internal filesystem support. */

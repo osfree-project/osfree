@@ -156,7 +156,9 @@ void panic(char *msg, char *file);
 #pragma aux grub_close "*"
 #pragma aux freeldr_open  "*"
 #pragma aux freeldr_read  "*"
+#ifndef STAGE1_5
 #pragma aux freeldr_seek  "*"
+#endif
 #pragma aux freeldr_close "*"
 
 int  stage0_mount (void);
@@ -167,7 +169,9 @@ int  stage0_embed(int *start_sector, int needed_sectors);
 
 int  freeldr_open (char *filename);
 int  freeldr_read (char *buf, int len);
+#ifndef STAGE1_5
 int  freeldr_seek (int offset);
+#endif
 void freeldr_close (void);
 
 int  grub_open (char *filename);
