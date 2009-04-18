@@ -1,37 +1,4 @@
-x. add default modifier to uses
-
-uses os2 default;
-
-will produce
-
-#define INCL_OS2
-#ifdef INCL_OS2
-#include <os2.h>
-#endif
-
-x. add alias modifier to uses
-
-uses bse alias base;
-
-will produce
-
-#ifdef INCL_BASE
-#define INCL_BSE
-#endif
-#ifdef INCL_BSE
-#include <bse.h>
-#endif
-
-
 x. #pragma pack(xxx) handling
-x. add __required__ access flag to arguments list
-
-function DosLaLaLa(in input: ULONG; out output: ULONG; inout inpout: ULONG): ULONG;
-
-result of generation is:
-
-ULONG APIENTRY DosLaLaLa( /* in */ const ULONG input, /* out */ ULONG * output, /* inout */ ULONG * inpout);
-
 x. FDATE and FTIME need special representation!!!
 
 x. DefWriter must write not to one file, but to set of files

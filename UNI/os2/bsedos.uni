@@ -12,27 +12,32 @@ const CCHMAXPATH=260;
 *************************************************************************)
 const CCHMAXPATHCOMP=256;
 
-uses dosprocesscommon;
-uses dosprocess;
-uses dosfilemgrcommon;
-uses dosmemmgrcommon;
-uses dossemaphorescommon;
-uses dossemaphores;
-uses dosdatetimecommon;
+uses dos;
+
 uses dosdatetime;
-uses dosresourcescommon;
-uses dosresources;
-uses dossesmgrfilemgr; (* Need to move to both areas *)
-uses dosfilemgr;
-uses dosmodulemgr;
-uses dosnls;
-uses dosexceptions;
-uses dosmisc;
-uses dossesmgr;
 uses dosdevices;
-uses dosnmpipes;
-uses dosprofile;
+uses dosexceptions;
+uses dosfilemgr;
+uses dosmemmgr;
+uses dosmisc;
+uses dosmodulemgr;
+uses dosmonitors;
 uses dosmvdm;
+uses dosnls;
+uses dosnmpipes;
+uses dosprocess;
+uses dosprofile;
+uses dosqueues;
+uses dosresources;
+uses dossemaphores;
+uses dossesmgr;
+uses dosmemmgrcommon;
+uses dosprocesscommon;
+uses dosfilemgrcommon;
+uses dossemaphorescommon;
+uses dosdatetimecommon;
+uses dosresourcescommon;
+uses dossesmgrfilemgr; (* Need to move to both areas *)
 uses dosspinlock;
 uses bdcalls;
 
@@ -54,7 +59,7 @@ const QUE_NOCONVERT_ADDRESS =0;
 const QUE_CONVERT_ADDRESS   =4;
 
 
-function  DosCreatePipe(out hfRead:  HFILE;
+function  DosCreatePipe(out hfRead:  HFILE; 
                         out hfWrite: HFILE;
                         in  cb:      ULONG): APIRET;
 

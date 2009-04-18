@@ -9,12 +9,9 @@
 
 module os2;
 
-(* workaround of unimplemented uni2h feature *)
-uses cdeftypes;
-
-uses os2def;
-uses bse;
-uses utlapi;
+uses os2def default;
+uses bse default;
+uses utlapi default;
 uses pm;
 
 end.

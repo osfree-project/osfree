@@ -119,10 +119,10 @@ OS2_SHELL = $(OS_SHELL)          #
 RN  = @ren                       # Rename command
 !else
 !ifeq ENV Windows
-RN  = @ren                       # Rename command
+RN  = move                       # Rename command
 !else
 !ifeq ENV WIN32
-RN  = @ren                       # Rename command
+RN  = move                       # Rename command
 !endif
 !endif
 !endif

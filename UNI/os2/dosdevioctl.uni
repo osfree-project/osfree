@@ -1,0 +1,5 @@
+module dosdevioctl;
+
+uses bsedos default;
+
+end.

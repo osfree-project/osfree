@@ -798,26 +798,34 @@ var
   UnitName: String;
   Element: TPasElement;
 begin
-  while True do
-  begin
     UnitName := ExpectIdentifier;
-
-    Element := Engine.FindModule(UnitName);
-    if Assigned(Element) then
-      Element.AddRef
-    else
-      Element := TPasType(CreateElement(TPasUnresolvedTypeRef, UnitName,
-        ASection));
-    ASection.UsesList.Add(Element);
 
     NextToken;
 
+	while CurToken = tkAlias do
+	begin
+	  UnitName:=UnitName+'|'+ExpectIdentifier; 
+      NextToken;
+	end;
+	
+	if CurToken = tkDefault then
+	begin
+	  UnitName:='!'+UnitName; 
+      NextToken;
+	end;
+
     if CurToken = tkSemicolon then
     begin
-      break;
+      Element := Engine.FindModule(UnitName);
+      if Assigned(Element) then
+        Element.AddRef
+      else
+        Element := TPasType(CreateElement(TPasUnresolvedTypeRef, UnitName,
+          ASection));
+      ASection.UsesList.Add(Element);
+      exit;
     end else if CurToken <> tkAlias then
       ParseExc(SParserExpectedCommaSemicolon);
-  end;
 end;
 
 // Starts after the "abi" token

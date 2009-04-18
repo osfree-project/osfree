@@ -22,9 +22,8 @@ pre: .SYMBOLIC
 $(OUT)$(SEP)osfree.h: osfree.uni
 # Main osFree file
 
-workaround: cdeftypes.h cdeftypes2.h
+workaround: cdeftypes2.h
 # Workaround of uniplemented features of uni2h tool
-  $(CP) cdeftypes.h $(OUT)$(SEP)cdeftypes.h $(BLACKHOLE)
   $(CP) cdeftypes2.h $(OUT)$(SEP)cdeftypes2.h $(BLACKHOLE)
 
 ## OS/2 Personality files
@@ -328,10 +327,6 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 
 .uni.h: .AUTODEPEND
  uni2h.exe $< $^@
- $(REXX) cut.cmd $^@
- $(DC) $^@
- $(CP) tmp $^@ $(BLACKHOLE)
- $(DC) tmp
 
 .uni.lib: .AUTODEPEND
  uni2h.exe -edef $< $^@.def

@@ -1,0 +1,5 @@
+module doserrors;
+
+uses bseerr default;
+
+end.

@@ -6,12 +6,11 @@
 module bse;
 
 (* workaround of unimplemented uni2h feature *)
-uses cdeftypes2;
+uses cdeftypes2 default;
 
-uses bsedos;
-uses bsesub;
-uses bseerr;
+uses base;
+uses dosdevioctl;
 uses bsedev;
-uses bseord;
+uses bsedos alias ordinals default;
 
 end.

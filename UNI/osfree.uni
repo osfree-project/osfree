@@ -10,7 +10,6 @@
 module osfree;
 
 (* This is temporary workaround of unimplementet default modifiers *)
-uses cdeftypes;
 
 uses os2;
 uses dos;

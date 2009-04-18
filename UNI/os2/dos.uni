@@ -1,0 +1,21 @@
+module dos;
+
+uses dosdatetime default;
+uses dosdevices default;
+uses dosexceptions default;
+uses dosfilemgr default;
+uses dosmemmgr default;
+uses dosmisc default;
+uses dosmodulemgr default;
+uses dosmonitors default;
+uses dosmvdm default;
+uses dosnls default;
+uses dosnmpipes default;
+uses dosprocess default;
+uses dosprofile default;
+uses dosqueues default;
+uses dosresources default;
+uses dossemaphores default;
+uses dossesmgr default;
+
+end.

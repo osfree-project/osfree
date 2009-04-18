@@ -215,7 +215,39 @@ begin
   WrtLn( '#ifdef __cplusplus');
   WrtLn( '   extern "C" {');
   WrtLn( '#endif');
-
+  WrtLn;
+  WrtLn( '#ifndef NULL');
+  WrtLn( '#define NULL  0');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef TRUE');
+  WrtLn( '#define TRUE  1');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef FALSE');
+  WrtLn( '#define FALSE 0');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef VIOD');
+  WrtLn( '#define VOID void');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef EXPENTRY');
+  WrtLn( '#define EXPENTRY  _System');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef APIENTRY');
+  WrtLn( '#define APIENTRY  _System');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef FAR');
+  WrtLn( '#define FAR');
+  WrtLn( '#endif');
+  WrtLn;
+  WrtLn( '#ifndef NEAR');
+  WrtLn( '#define NEAR');
+  WrtLn( '#endif');
+  
   WrtLn;
   WriteSection(AModule.InterfaceSection);
   Indent := '';
@@ -227,9 +259,19 @@ begin
   WrtLn( '#endif /* __'+Upcase(AModule.Name)+'_H__ */');
 end;
 
+function LastPos(Needle: Char; Haystack: String): integer;
+begin
+  for Result := Length(Haystack) downto 1 do
+    if Haystack[Result] = Needle then
+      Break;
+end;
+
 procedure THWriter.WriteSection(ASection: TPasSection);
 var
   i: Integer;
+  UsesName: String;
+  Alias: String;
+  BaseName: String;
 begin
 
   CurDeclSection := '';
@@ -243,8 +285,27 @@ begin
   begin
     for i := 0 to ASection.UsesList.Count - 1 do
     begin
-      wrtln('#ifdef INCL_'+upcase(TPasElement(ASection.UsesList[i]).Name));
-      wrtln('  #include <'+TPasElement(ASection.UsesList[i]).Name+'.h>');
+	  UsesName:=TPasElement(ASection.UsesList[i]).Name;
+
+	  While pos('|',UsesName)>0 do
+	  begin
+	    BaseName:=Copy(UsesName, 1, Pos('|', UsesName)-1);
+		If BaseName[1]='!' then Delete(BaseName, 1, 1);
+	    Alias:=Copy(UsesName, LastPos('|', UsesName)+1, Length(UsesName)-LastPos('|', UsesName));
+		Delete(UsesName, LastPos('|', UsesName), Length(UsesName)-LastPos('|', UsesName)+1);
+        wrtln('#ifdef INCL_'+upcase(Alias));
+        wrtln('#define INCL_'+upcase(BaseName));
+        wrtln('#endif');
+	  end;
+	  
+	  If UsesName[1]='!' then
+	  begin
+		Delete(UsesName, 1, 1);
+        wrtln('#define INCL_'+upcase(UsesName));
+	  end;
+	  
+      wrtln('#ifdef INCL_'+upcase(UsesName));
+      wrtln('  #include <'+UsesName+'.h>');
       wrtln('#endif');
       wrtln;
     end;
