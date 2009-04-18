@@ -608,24 +608,54 @@ void showpath(void)
 
 char *getcmd(int key)
 {
-  int ch = key;
-  int ind = 0;
- 
+  int ch = key; // keycode
+  int ind = 0;  // cmd line length
+  int cur = 0;  // cursor pos in the cmd line
+  int pos;      // cursor pos on the screen
+  int p;
+
+  memset(cmdbuf, 0, sizeof(cmdbuf));
+
   do 
   {
     switch (ch)
     {
-       case 0x1c0d: // enter key
-         cmdbuf[ind++] = '\0';
-         //if (ind > 1)
-         return cmdbuf;
-         //break;
+       case 0x0:    // reget char
+         ch = t->getkey();
+         continue;
+       case 0x2:    // left arrow
+         cur--;
+         ch = 0x0;
+         continue;
+       case 0x6:    // right arrow
+         cur++;
+         ch = 0x0;
+         continue;
+       case 0xe08:  // backspace
+         ch = 0x0;
+         cur--;
+         ind--;
+         pos = t->getxy();
+         t->gotoxy((pos >> 8) - 1, pos & 0xff);
+         p = cur;
+         while (*(cmdbuf + p) = *(cmdbuf + p + 1)) p++;
+         cmdbuf[p++] = '\0';
+         pos = t->getxy();
+         t->gotoxy((pos >> 8) - strlen(cmdbuf), pos & 0xff);
+         printf("%s ", cmdbuf);
+         pos = t->getxy();
+         t->gotoxy((pos >> 8) - 1, pos & 0xff);
+         continue;
        case 0x11b:  // esc key
          break;   
+       case 0x1c0d: // enter key
+         cmdbuf[ind++] = '\0';
+         return cmdbuf;
        default:
          printf("%c", ch);
          cmdbuf[ind++] = (char)(ch & 0xff);
          ch = t->getkey();
+         cur = ind;
          continue;
     }
     break;
@@ -648,7 +678,7 @@ void cmdline(int item, int shift)
 
   //printf("cmdline!\r\n");
 
-  while (1) //checking for exit flag 
+  while (1) 
   {
     showpath();
     ch = t->getkey();
