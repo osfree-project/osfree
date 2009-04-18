@@ -69,7 +69,7 @@ $(PATH)start.$(SO): $(MYDIR)start.asm
  $(ASM) -d$(basename) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)fsys_ntfs_nocomp.$(O): $(MYDIR)fsys_ntfs.c
- $(CC) -dfsys_ntfs -dSHIFT=0 -dSTAGE1_5 $(COPT) -fr=$^*.err -fo=$^@ $[@
+ $(CC) -dfsys_ntfs -dSHIFT=0 -dSTAGE1_5 -dNO_NON_RESIDENT_ATTRIBUTE_LIST -dNO_ALTERNATE_DATASTREAM -dNO_ATTRIBUTE_LIST $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)fsys_ntfs_nocomp.$(SO): $(MYDIR)fsys_ntfs.c
- $(CC) -dfsys_ntfs -dSHIFT=$(SHIFT) -dSTAGE1_5 $(COPT) -fr=$^*.err -fo=$^@ $[@
+ $(CC) -dfsys_ntfs -dSHIFT=$(SHIFT) -dSTAGE1_5 -dNO_NON_RESIDENT_ATTRIBUTE_LIST -dNO_ALTERNATE_DATASTREAM -dNO_ATTRIBUTE_LIST $(COPT) -fr=$^*.err -fo=$^@ $[@

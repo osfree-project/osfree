@@ -26,7 +26,7 @@
 #include "block_int.h"
 #include <sys/mman.h>
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 #include "porting.h"
 #endif
 

@@ -9,12 +9,12 @@
     /*
      * Toolkit (4.5) main directory.
      */
-    sTKMain    = 'f:\toolkit\v4.5';
+    sTKMain    = 'f:\os2tk45';
 
     /*
      * Device Driver Kit (DDK) (v4.0+) base (important not main) directory.
      */
-    sDDKBase    = 'f:\ddk_os2\200402\ddk\base';
+    sDDKBase    = 'f:\ddk\base';
 
     /*
      * IBM C/C++ Compiler and Tools Version 3.6.5 main directory.

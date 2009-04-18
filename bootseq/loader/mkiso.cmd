@@ -13,7 +13,7 @@ set cwd=%ROOT%bootseq\loader
 
 rem ---------prereqs-------------------
 set dir1=%cwd%\preldr
-set files1=preldr0.mdl preldr0.rel
+set files1=preldr0.mdl preldr0.rel preldr_mini.mdl preldr_mini.rel
 
 set dir2=%cwd%\filesys
 set files2=iso9660.mdl iso9660.rel
@@ -29,6 +29,7 @@ rem ---------prereqs-------------------
 
 cd %ROOT%bin
 @mkboot.cmd boot\sectors\eltorito.bin boot\loader\preldr0.mdl boot\loader\fsd\iso9660.mdl boot\bootblk
+rem @mkboot.cmd boot\sectors\eltorito.bin boot\loader\preldr_mini.mdl boot\loader\fsd\iso9660.mdl boot\bootblk
 
 cd ..\..
 set dirs=cd cd\boot cd\boot\loader cd\boot\loader\fsd ^
@@ -43,7 +44,7 @@ rem for %%i in (%files%) do if exist %%i move ..\..\..\cd\boot\freeldr\fsd\%%i .
 
 cd boot
 @move bootblk ..\..\..\cd\boot
-set files=preldr0.mdl preldr0.rel preldr.ini freeldr.mdl freeldr.rel boot.cfg bt_linux.mdl bt_linux.rel ^
+set files=preldr0.mdl preldr0.rel preldr_mini.mdl preldr_mini.rel preldr.ini freeldr.mdl freeldr.rel boot.cfg bt_linux.mdl bt_linux.rel ^
     bt_chain.mdl bt_chain.rel bt_disk.mdl bt_disk.rel bt_os2.mdl bt_os2.rel bt_bsd.mdl bt_bsd.rel
 @for %%i in (%files%) do if exist loader\%%i copy loader\%%i  ..\..\..\cd\boot\loader
 

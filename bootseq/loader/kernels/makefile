@@ -24,8 +24,8 @@ bbx              = $+$(kernels)$-
 linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)..$(SEP)modesw-npl$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
 
 chain_OBJS    = $(p)chain$(e) $(p)chainc$(e) $(p)..$(SEP)setdev$(e) &
-                $(p)..$(SEP)preldr$(SEP)bios$(e) $(p)..$(SEP)preldr$(SEP)biosdisk-ch$(e) &
-                $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
+                $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) &
+                $(p)..$(SEP)preldr$(SEP)bios$(e) $(p)..$(SEP)preldr$(SEP)biosdisk-ch$(e)
 
 startup_OBJS      = $(p)startup$(e)
 
@@ -75,9 +75,9 @@ base = 0x8000
 !else ifeq basename chain
 base = 0x90000
 !else ifeq basename startup
-base = 0x50000
+base = 0x90000
 !else ifeq basename ufsd
-base = 0x50000
+base = 0x90000
 !endif
 
 !ifeq sh sh_
@@ -87,28 +87,28 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 !endif
 
 $(PATH)..$(SEP)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dREAL_BASE=0x50000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)modesw-npl.$(O): $(MYDIR)..$(SEP)modesw.asm
  $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)modesw-npo.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dREAL_BASE=0x50000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)modesw-npc.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dREAL_BASE=0x50000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)modesw-npl.$(SO): $(MYDIR)..$(SEP)modesw.asm
  $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)modesw-npo.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dREAL_BASE=0x50000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)preldr$(SEP)biosdisk-ch.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- $(ASM) -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dREAL_BASE=0x50000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)preldr$(SEP)biosdisk-ch.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dREAL_BASE=0x50000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)ufsd: $(PATH)bt_ufsd.mdl
  $(CUT) 0 0x200 $[@ >$^@

@@ -143,6 +143,12 @@ start:
 ;                push mapLoadSeg
 ;endif
 
+                ;lea  si, teststr
+                ;call outstr
+                ;jmp  short $
+
+;if 0
+
                 ;mov  dl, diskNum
                 test dl, 80h
                 jnz  short no_floppy
@@ -413,6 +419,8 @@ endif
 endif
 endif
 endif
+
+;endif ; ///
 
 boot endp
 
@@ -741,6 +749,8 @@ int10_exit:
 Disp2:
                 ret
 outstr endp
+
+;teststr         db           'test string',0
 
 ;
 ; Defines

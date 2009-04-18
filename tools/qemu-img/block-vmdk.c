@@ -25,7 +25,7 @@
 #include "vl.h"
 #include "block_int.h"
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 #include "porting.h"
 #endif
 
@@ -45,7 +45,7 @@ typedef struct {
     uint32_t sectors_per_track;
 } VMDK3Header;
 
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 typedef struct {
     uint32_t version;
     uint32_t flags;

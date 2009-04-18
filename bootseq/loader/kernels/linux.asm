@@ -107,8 +107,8 @@ stop_flop:
         int     13h
         retf
 
-pad1size        equ STARTUP_SIZE - ($ - start)
-pad1            db  pad1size dup (0)
+;pad1size        equ STARTUP_SIZE - ($ - start)
+;pad1            db  pad1size dup (0)
 
 _TEXT16  ends
 

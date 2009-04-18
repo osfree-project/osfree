@@ -125,6 +125,7 @@ use_chs:
                 xor  eax, eax
                 mov  bl, 1
 switchBootDrv:
+
                 mov  fs:[0], eax
 
                 mov  [bp].force_chs, bl
@@ -317,7 +318,11 @@ nofix_hiddensecs:
                 push ds                                    ; zero ds
                 push 7c00h                                 ;
 
+                ;mov  al, 'J'
+                ;call err
+                
                 retf                                       ; "return" to bootsector
+
 start endp
 
 

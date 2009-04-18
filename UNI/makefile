@@ -7,7 +7,7 @@
 !include $(%ROOT)/mk/all.mk
 
 OUT = $(%ROOT)$(SEP)build$(SEP)include
-LIBOUT = $(%ROOT)$(SEP)build$(SEP)lib
+LIBOUT = $(%ROOT)$(SEP)build$(SEP)lib$(SEP)
 TARGETS = h
 
 subdirs = $(OUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
@@ -119,13 +119,13 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
 
-os2libs: $(LIBOUT)$(SEP)sub32.lib &
+os2libs: $(LIBOUT)sub32.lib &
          .symbolic
 
-$(LIBOUT)$(SEP)sub32.lib: os2$(SEP)vio.uni
- uni2h.exe -edef $< $^@.def
- $(LIB) $(LIBOPT) $^@ @$^@.def
- $(DC) $^@.def
+$(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
+ uni2h.exe -edef $< $^*.def
+ $(LIB) $(LIBOPT) $^@ @$^*.def
+ $(DC) $^*.def
 
 $(OUT)$(SEP)os2$(SEP)os2.h: os2$(SEP)os2.uni
 
@@ -325,9 +325,11 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .uni: $(MYDIR)os2
 .uni: $(MYDIR)dos
 
+.lib: $(PATH)
+
 .uni.h: .AUTODEPEND
  uni2h.exe $< $^@
 
 .uni.lib: .AUTODEPEND
- uni2h.exe -edef $< $^@.def
- $(LIB) $(LIBOPT) $^@ @$^@.def
+ uni2h.exe -edef $< $^*.def
+ $(LIB) $(LIBOPT) $^@ @$^*.def

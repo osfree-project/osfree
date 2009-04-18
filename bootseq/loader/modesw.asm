@@ -390,6 +390,8 @@ endif
         ret
 call_rm endp
 
+
+ifndef STAGE1_5
 ;
 ; set protect mode IDT
 ;
@@ -416,6 +418,8 @@ set_rm_idt:
 	lidt  fword ptr [eax]
 
 	ret
+
+endif
 
 __CHK:
         ret  4

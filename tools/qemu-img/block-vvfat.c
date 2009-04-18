@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 #include <sys/stat.h>
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 #include <dirent.h>
 #else
 #include <direct.h>
@@ -148,7 +148,7 @@ int array_remove(array_t* array,int index)
 /* These structures are used to fake a disk and the VFAT filesystem.
  * For this reason we need to use __attribute__((packed)). */
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 typedef _Packed struct bootsector_t {
 #else
 typedef struct bootsector_t {
@@ -168,7 +168,7 @@ typedef struct bootsector_t {
     uint32_t hidden_sectors;
     uint32_t total_sectors;
     union {
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
         _Packed struct {
 #else
         struct {
@@ -178,13 +178,13 @@ typedef struct bootsector_t {
 	    uint8_t signature;
 	    uint32_t id;
 	    uint8_t volume_label[11];
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 	} __attribute__((packed)) fat16;
 #else
 	} fat16;
 #endif
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 	_Packed struct {
 #else
 	struct {
@@ -196,7 +196,7 @@ typedef struct bootsector_t {
 	    uint16_t info_sector;
 	    uint16_t backup_boot_sector;
 	    uint16_t ignored;
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 	} __attribute__((packed)) fat32;
 #else
 	} fat32;
@@ -205,13 +205,13 @@ typedef struct bootsector_t {
     uint8_t fat_type[8];
     uint8_t ignored[0x1c0];
     uint8_t magic[2];
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 } __attribute__((packed)) bootsector_t;
 #else
 } bootsector_t;
 #endif
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 typedef _Packed struct partition_t {
 #else
 typedef struct partition_t {
@@ -226,13 +226,13 @@ typedef struct partition_t {
     uint8_t end_cylinder;
     uint32_t start_sector_long;
     uint32_t end_sector_long;
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 } __attribute__((packed)) partition_t;
 #else
 } partition_t;
 #endif
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 typedef _Packed struct mbr_t {
 #else
 typedef struct mbr_t {
@@ -240,13 +240,13 @@ typedef struct mbr_t {
     uint8_t ignored[0x1be];
     partition_t partition[4];
     uint8_t magic[2];
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 } __attribute__((packed)) mbr_t;
 #else
 } mbr_t;
 #endif
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 typedef _Packed struct direntry_t {
 #else
 typedef struct direntry_t {
@@ -263,7 +263,7 @@ typedef struct direntry_t {
     uint16_t mdate;
     uint16_t begin;
     uint32_t size;
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 } __attribute__((packed)) direntry_t;
 #else
 } direntry_t;
@@ -415,7 +415,7 @@ static inline uint8_t fat_chksum(direntry_t* entry)
 /* if return_time==0, this returns the fat_date, else the fat_time */
 static uint16_t fat_datetime(time_t time,int return_time) {
     struct tm* t;
-#if defined(_WIN32) || defined(__WATCOM__)
+#if defined(_WIN32) || defined(__WATCOMC__)
     t=localtime(&time); /* this is not thread safe */
 #else
     struct tm t1;

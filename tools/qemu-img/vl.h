@@ -861,7 +861,7 @@ int cuda_init(SetIRQFunc *set_irq, void *irq_opaque, int irq);
 void monitor_init(CharDriverState *hd, int show_banner);
 void term_puts(const char *str);
 void term_vprintf(const char *fmt, va_list ap);
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 void term_printf(const char *fmt, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
 #else
 void term_printf(const char *fmt, ...);

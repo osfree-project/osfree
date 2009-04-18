@@ -590,7 +590,8 @@ u_termctl(int termno)
   if (blackbox_load(term, 2, &trm))
   {
     printf("terminal loaded\r\n");
-    trm.startup();
+    if (trm.flags == TERM_NEED_INIT)
+      trm.startup();
   }
   else
     return 0;

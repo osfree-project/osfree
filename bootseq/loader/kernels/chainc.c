@@ -19,6 +19,10 @@
 #include "fsys.h"
 #include "term.h"
 
+// BootPart address. Here we copy 
+// ((current_partion & 0xff0000) >> 12)
+#define BOOTPART_ADDR (0x7c00 + 0x200 - 0x44)
+
 void start_kernel(void);
 grub_error_t errnum;
 extern void stop(void);
@@ -71,7 +75,7 @@ int check_lip(char *mods_addr, unsigned long mods_count)
   return 0;
 }
 
-int kernel_ldr(char *kernel, unsigned long kernel_len)
+void kernel_ldr(char *kernel, unsigned long kernel_len)
 {
   if (lip_module_present)
   {
@@ -92,8 +96,6 @@ int kernel_ldr(char *kernel, unsigned long kernel_len)
   //saved_partition = 0x00ffffff;
 
   start_kernel();
-
-  return 0;
 }
 
 void cmain(void)
@@ -108,6 +110,8 @@ void cmain(void)
   unsigned long kernel_len;
   char *s, *kernel_cmdline;
   int force = 0;
+  unsigned char ch, *p;
+
 
   mods_addr  = (char *)m->mods_addr;
   mods_count = m->mods_count;
@@ -154,19 +158,22 @@ void cmain(void)
     if (s = grub_strstr(kernel_cmdline, "--bootdev"))
     {
       s = skip_to(1, s);
-      if (!set_device(s) || (current_partition != 0xffffff))
+      if (!set_device(s))
       {
         if (lip_module_present) printf("bootdev is incorrect!\r\n");
         stop();
       }
       ldr_drive = current_drive;
-      if (lip_module_present) printf("ldr_drive=%u\r\n", boot_drive);
+      if (lip_module_present) printf("ldr_drive=%u\r\n",  current_drive);
     }
 
-    if (!kernel_ldr(kernel, kernel_len))
-    {
-      if (lip_module_present) printf("Error chainloading!\r\n");
-      stop();
-    }
+    // Copy BootPart value
+    ch = (unsigned char)((current_partition & 0xff0000) >> 16);
+    if (ch == 0xff) ch = 0;
+    p  = (unsigned char *)BOOTPART_ADDR;
+    *p = ch;
+    ldr_drive = current_partition & (current_drive << 24);
+    
+    kernel_ldr(kernel, kernel_len);
   }
 }

@@ -26,7 +26,7 @@
 #include <zlib.h>
 #include "aes.h"
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 #include "porting.h"
 #endif
 

@@ -8,9 +8,10 @@
 PROJ = command
 DESC = Command processor
 #defines object file names in format objname.$(O)
-srcfiles = $(p)batch$(e) $(p)cmdtable$(e) $(p)command$(e) $(p)dummies$(e) $(p)expalias$(e) $(p)init$(e) &
+srcfiles = $(p)cb_catch$(e) &
+           $(p)batch$(e) $(p)cmdtable$(e) $(p)command$(e) $(p)dummies$(e) $(p)expalias$(e) $(p)init$(e) &
            $(p)kswap$(e) $(p)loadhigh$(e) $(p)module$(e) $(p)redir$(e) $(p)ver$(e)  &
-           $(p)cb_catch$(e) $(p)tcc2wat$(e) # $(p)xms_crit$(e) $(p)xms_brk$(e) $(p)xms_2e$(e) $(p)cswap$(e) 
+           $(p)tcc2wat$(e) # $(p)xms_crit$(e) $(p)xms_brk$(e) $(p)xms_2e$(e) $(p)cswap$(e) 
 # defines additional options for C compiler
 
 # utils\mkinfres.exe infores shell\command.map shell\command.exe

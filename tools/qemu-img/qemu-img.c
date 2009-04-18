@@ -23,7 +23,7 @@
  */
 #include "vl.h"
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 #include "porting.h"
 #endif
 
@@ -113,7 +113,7 @@ void term_printf(const char *fmt, ...)
     va_end(ap);
 }
 
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 void __attribute__((noreturn)) error(const char *fmt, ...) 
 #else
 void error(const char *fmt, ...) 
@@ -603,7 +603,7 @@ static int img_convert(int argc, char **argv)
     return 0;
 }
 
-#if defined(_WIN32) || (defined(__OS2__) && defined(__WATCOM__))
+#if defined(_WIN32) || (defined(__OS2__) && defined(__WATCOMC__))
 static int64_t get_allocated_file_size(const char *filename)
 {
     struct _stati64 st;

@@ -99,6 +99,12 @@ use_lba:
                 ;call  err
                 ;jmp   short $
 
+                mov   al, 'T'
+                call  err
+                jmp   short $
+
+if 0
+
                 mov   word ptr [bp].force_chs, si
                 mov   byte ptr [bp].drive, dl
 read_fat:
@@ -215,6 +221,9 @@ final_setup:    ; set up registers according to
 
                 retf                                        ; "return" to the loader
                                                             ; according to the address on stack
+
+endif  ; if 0 -- hide the end of code
+
 start endp
 
 ;

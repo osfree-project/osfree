@@ -149,7 +149,7 @@ void init(lip1_t *l, struct term_entry *te, unsigned int shift)
   te->setcursor     = &hercules_setcursor;
 #else
 #ifdef TERM_SERIAL
-  te->flags         = 0; //TERM_NEED_INIT;
+  te->flags         = TERM_NEED_INIT;
   te->putchar       = &serial_putchar;
   te->checkkey      = &serial_checkkey;
   te->getkey        = &serial_getkey;
@@ -161,7 +161,7 @@ void init(lip1_t *l, struct term_entry *te, unsigned int shift)
   te->setcursor     = 0;
 #else
 #ifdef TERM_GRAPHICS
-  te->flags         = 0;
+  te->flags         = TERM_NEED_INIT;
   te->putchar       = &graphics_putchar;
   te->checkkey      = &console_checkkey;
   te->getkey        = &console_getkey;

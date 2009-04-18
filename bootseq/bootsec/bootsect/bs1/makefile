@@ -19,7 +19,7 @@
 
 PROJ       = bootsect_1
 PROJ0      = bootsect
-DEFINES    = -dCODE_1 -dIBM_FAT_COMPAT
+DEFINES    = -dCODE_1 # -dIBM_FAT_COMPAT
 ADD_ASMOPT = $(DEFINES)
 
 STARTUP    =

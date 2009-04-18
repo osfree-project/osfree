@@ -24,7 +24,7 @@
 #include "vl.h"
 #include "block_int.h"
 
-#ifdef __WATCOM__
+#ifdef __WATCOMC__
 #include "porting.h"
 #endif
 
