@@ -85,10 +85,15 @@ int screen_bg_color_hl = 0;
 int screen_fg_color_hl = 7;
 
 char cmdbuf[0x200];
+char path[] = "freeldr";
+static int promptlen;
+
+#define SCREEN_WIDTH  80
+#define SCREEN_HEIGHT 25
 
 /* menu width and height */
-#define MENU_WIDTH  56
-#define MENU_HEIGHT 10
+#define MENU_WIDTH    56
+#define MENU_HEIGHT   10
 int menu_width  = MENU_WIDTH;
 int menu_height = MENU_HEIGHT;
 
@@ -603,7 +608,9 @@ void draw_menu(int item, int shift)
 
 void showpath(void)
 {
-  printf("\r\n[freeldr] ");
+  printf("\r\n[%s] ", path);
+  promptlen = strlen(path) + 3; 
+  t->setcursor(5);
 }
 
 char *getcmd(int key)
@@ -615,7 +622,7 @@ char *getcmd(int key)
   int p;
 
   memset(cmdbuf, 0, sizeof(cmdbuf));
-
+ 
   do 
   {
     switch (ch)
@@ -625,26 +632,57 @@ char *getcmd(int key)
          continue;
        case 0x2:    // left arrow
          cur--;
+         if (cur <= 0) cur = 0;
+         pos = t->getxy();
+         if ((pos >> 8) <= promptlen + 1) pos = ((promptlen + 1) << 8) | (pos & 0xff);
+         t->gotoxy((pos >> 8) - 1, pos & 0xff);
+         t->setcursor(5);
          ch = 0x0;
          continue;
        case 0x6:    // right arrow
          cur++;
+         if (cur > ind) cur = ind;
+         pos = t->getxy();
+         if ((pos >> 8) < promptlen + 1) pos = ((promptlen + 1) << 8) | (pos & 0xff);
+         if ((pos >> 8) >= promptlen + ind - 1) pos = ((promptlen + ind - 1) << 8) | (pos & 0xff);
+         t->gotoxy((pos >> 8) + 1, pos & 0xff);
+         t->setcursor(5);
          ch = 0x0;
          continue;
        case 0xe08:  // backspace
+         pos = t->getxy();
+         if ((pos >> 8) > promptlen + 1)
+         {
+           cur--;
+           ind--;
+           t->gotoxy((pos >> 8) - 1, pos & 0xff);
+           if ((pos >> 8) <= promptlen + 1) pos = ((promptlen + 1) << 8) | (pos & 0xff);
+           if (cur <= 0) cur = 0;
+           if (ind <= 0) ind = 0;
+           p = cur; 
+           while (*(cmdbuf + p) = *(cmdbuf + p + 1)) p++;
+           cmdbuf[p++] = '\0';
+           t->gotoxy(promptlen, pos & 0xff);
+           printf("%s ", cmdbuf);
+           t->gotoxy((pos >> 8) - 1, pos & 0xff);
+           t->setcursor(5);
+         }
          ch = 0x0;
-         cur--;
-         ind--;
+         continue;
+       case 0x4:    // del key
          pos = t->getxy();
-         t->gotoxy((pos >> 8) - 1, pos & 0xff);
-         p = cur;
-         while (*(cmdbuf + p) = *(cmdbuf + p + 1)) p++;
-         cmdbuf[p++] = '\0';
-         pos = t->getxy();
-         t->gotoxy((pos >> 8) - strlen(cmdbuf), pos & 0xff);
-         printf("%s ", cmdbuf);
-         pos = t->getxy();
-         t->gotoxy((pos >> 8) - 1, pos & 0xff);
+         if ((pos >> 8) < promptlen + ind)
+         {
+           ind--;
+           p = cur; 
+           while (*(cmdbuf + p) = *(cmdbuf + p + 1)) p++;
+           cmdbuf[p++] = '\0';
+           t->gotoxy(promptlen, pos & 0xff);
+           printf("%s ", cmdbuf);
+           t->gotoxy((pos >> 8), pos & 0xff);
+           t->setcursor(5);
+         }
+         ch = 0x0;
          continue;
        case 0x11b:  // esc key
          break;   
@@ -653,6 +691,7 @@ char *getcmd(int key)
          return cmdbuf;
        default:
          printf("%c", ch);
+         t->setcursor(5);
          cmdbuf[ind++] = (char)(ch & 0xff);
          ch = t->getkey();
          cur = ind;
