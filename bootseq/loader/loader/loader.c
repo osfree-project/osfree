@@ -395,13 +395,13 @@ get_user_input(int *item, int *shift)
         return 1;
       }
       case 0x7400: // ctrl-right
-      case 0x7600: // end
+      case 0x5:    // end
       {
         *shift += menu_width;
         return 1;
       }
       case 0x7300: // ctrl-left
-      case 0x8400: // home
+      case 0x1:    // home
       {
         *shift -= menu_width;
         return 1;
@@ -682,6 +682,34 @@ char *getcmd(int key)
            t->gotoxy((pos >> 8), pos & 0xff);
            t->setcursor(5);
          }
+         ch = 0x0;
+         continue;
+       case 0x1:    // home key
+         pos = t->getxy();
+         cur = 0;
+         t->gotoxy(promptlen, pos & 0xff);
+         t->setcursor(5);
+         ch = 0x0;
+         continue;
+       case 0x5:    // end key
+         pos = t->getxy();
+         cur = ind;
+         t->gotoxy(promptlen + ind, pos & 0xff);
+         t->setcursor(5);
+         ch = 0x0;
+         continue;
+       case 0x7300: // ctrl-left
+         pos = t->getxy();
+         while (cur && !isspace(cmdbuf[cur--])) ; // move to the next space symbol to the left
+         t->gotoxy(promptlen + cur, pos & 0xff);
+         t->setcursor(5);
+         ch = 0x0;
+         continue;
+       case 0x7400: // ctrl-right
+         pos = t->getxy();
+         while ((cur < ind) && !isspace(cmdbuf[cur++])) ; // move to the next space symbol to the right
+         t->gotoxy(promptlen + cur, pos & 0xff);
+         t->setcursor(5);
          ch = 0x0;
          continue;
        case 0x11b:  // esc key
