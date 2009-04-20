@@ -375,15 +375,15 @@ attempt_mount (void)
 int
 open_device (void)
 {
-  //if (open_partition ())
-  //  attempt_mount ();
-  //
-  //if (errnum != ERR_NONE)
-  //  return 0;
-  //
-  //return 1;
+  if (open_partition ())
+    attempt_mount ();
+  
+  if (errnum != ERR_NONE)
+    return 0;
+  
+  return 1;
 
-  return open_partition() && attempt_mount();
+  //return open_partition() && attempt_mount();
 }
 
 /* open_device() wrapper. Attempts to set a filesystem

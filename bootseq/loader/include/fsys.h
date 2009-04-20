@@ -190,6 +190,8 @@ extern int    (*pgrub_isspace) (int c);
 extern int    (*pgrub_tolower) (int c);
 extern int    (*pgrub_read)    (char *buf, int len);
 
+int mkroot (char *arg);
+
 extern int *pmem_lower; // = 639;
 extern int *pmem_upper; // = 16384;
 

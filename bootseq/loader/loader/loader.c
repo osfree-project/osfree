@@ -273,7 +273,7 @@ exec_line(char *line)
       return 0;
     }
   }
-/*  else if (abbrev(s, "root", 4))
+  else if (abbrev(s, "root", 4))
   {
     s = skip_to(1, s);
     if (root_func(s, 0x2))
@@ -281,7 +281,7 @@ exec_line(char *line)
       printf("An error occured during execution of kernel_func\r\n");
       return 0;
     }
-  } */
+  }
   else if (abbrev(s, "kernel", 6))
   {
     s = skip_to(1, s);
@@ -651,12 +651,12 @@ char *getcmd(int key)
          continue;
        case 0xe08:  // backspace
          pos = t->getxy();
-         if ((pos >> 8) > promptlen + 1)
+         if ((pos >> 8) > promptlen)
          {
            cur--;
            ind--;
            t->gotoxy((pos >> 8) - 1, pos & 0xff);
-           if ((pos >> 8) <= promptlen + 1) pos = ((promptlen + 1) << 8) | (pos & 0xff);
+           if ((pos >> 8) <= promptlen) pos = ((promptlen) << 8) | (pos & 0xff);
            if (cur <= 0) cur = 0;
            if (ind <= 0) ind = 0;
            p = cur; 
@@ -752,7 +752,7 @@ void cmdline(int item, int shift)
     if (ch == 0x11b) break; // esc
     if (cmd = getcmd(ch))
     {
-      printf("\r\n%s", cmd);
+      printf("\r\n%s\r\n", cmd);
       exec_cmd(cmd);
     }
     else 

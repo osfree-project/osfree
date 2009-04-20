@@ -282,8 +282,8 @@ int next (int *bsd_part, int *pc_slice,
 }
 
 #ifndef STAGE1_5
-static unsigned long cur_part_offset;
-static unsigned long cur_part_addr;
+unsigned long cur_part_offset;
+unsigned long cur_part_addr;
 #endif
 
 /* Open a partition.  */

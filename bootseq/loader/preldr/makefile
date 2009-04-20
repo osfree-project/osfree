@@ -16,7 +16,7 @@ DEST             =  boot$(SEP)loader
 DIRS             = mini
 STAGE0_OBJS      = $(p)segord$(e) $(p)init$(e) $(p)..$(SEP)modesw$(e) $(p)asmcode$(e) $(p)apm$(e) $(p)biosdisk$(e) $(p)filesys$(e) $(p)filesys16$(e) &
                    $(p)video$(e) $(p)vbe$(e) $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) $(p)..$(SEP)setdev$(e) $(p)..$(SEP)cmdline$(e) &
-                   $(p)dskaccess$(e) $(p)part$(e) $(p)..$(SEP)cfgparse$(e) $(p)idt$(e) $(p)bios$(e) $(p)end$(e)
+                   $(p)dskaccess$(e) $(p)part$(e) $(p)..$(SEP)cfgparse$(e) $(p)root$(e) $(p)idt$(e) $(p)bios$(e) $(p)end$(e)
 
 
 MOD_BASE         = STAGE0_BASE

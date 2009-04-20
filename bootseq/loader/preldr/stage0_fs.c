@@ -614,6 +614,14 @@ freeldr_open (char *filename)
    unsigned short ret;
    char buf[0x100];
 
+   if (*filename == '(' && filename[strlen(filename) - 1] == ')')
+   {
+     printf("rt %s", filename);
+     rc = mkroot(filename);
+     if (rc) printf(" failed!\r\n");
+     return !rc;
+   }
+
    printf("o %s", filename);
    //u_msg("o ");
    //u_msg(filename);
