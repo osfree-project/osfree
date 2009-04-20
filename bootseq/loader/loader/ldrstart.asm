@@ -12,7 +12,7 @@ public l
 public ft
 public bpb
 public boot_drive
-public multi_boot
+public multi_boot_
 public oldstack
 public loader_stack_top
 
@@ -76,7 +76,7 @@ ok:
       hlt
 ;      jmp     $
 
-multi_boot:
+multi_boot_:
       ;
       ; Now booting the kernel
       ;

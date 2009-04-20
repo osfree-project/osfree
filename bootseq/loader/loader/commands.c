@@ -43,6 +43,26 @@ static char *mb_cmdline;
 extern lip2_t *l;
 void create_lip_module(lip2_t **l);
 
+extern int default_item;
+int  menu_timeout;
+
+/* menu colors */
+extern int background_color; // black
+extern int foreground_color; // white
+extern int background_color_hl;
+extern int foreground_color_hl;
+
+extern int screen_bg_color;
+extern int screen_fg_color;
+extern int screen_bg_color_hl;
+extern int screen_fg_color_hl;
+
+/* menu width and height */
+#define MENU_WIDTH    56
+#define MENU_HEIGHT   10
+int menu_width  = MENU_WIDTH;
+int menu_height = MENU_HEIGHT;
+
 int slot;
 
 #define VARIABLE_STORE_SIZE 1024
@@ -421,6 +441,21 @@ kernel_func (char *arg, int flags)
   return 0;
 }
 
+static struct builtin builtin_kernel =
+{
+  "kernel",
+  kernel_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "kernel [--no-mem-option] [--type=TYPE] FILE [ARG ...]",
+  "Attempt to load the primary boot image from FILE. The rest of the"
+  " line is passed verbatim as the \"kernel command line\".  Any modules"
+  " must be reloaded after using this command. The option --type is used"
+  " to suggest what type of kernel to be loaded. TYPE must be either of"
+  " \"netbsd\", \"freebsd\", \"openbsd\", \"linux\", \"biglinux\" and"
+  " \"multiboot\". The option --no-mem-option tells GRUB not to pass a"
+  " Linux's mem option automatically."
+};
+
 /* module */
 int
 module_func (char *arg, int flags)
@@ -457,6 +492,19 @@ module_func (char *arg, int flags)
   return 0;
 }
 
+static struct builtin builtin_module =
+{
+  "module",
+  module_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "module FILE [ARG ...]",
+  "Load a boot module FILE for a Multiboot format boot image (no"
+  " interpretation of the file contents is made, so users of this"
+  " command must know what the kernel in question expects). The"
+  " rest of the line is passed as the \"module command line\", like"
+  " the `kernel' command."
+};
+
 /* modaddr */
 int
 modaddr_func (char *arg, int flags)
@@ -483,6 +531,15 @@ modaddr_func (char *arg, int flags)
   return 0;
 }
 
+static struct builtin builtin_modaddr =
+{
+  "modaddr",
+  modaddr_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "modaddr ADDRESS", 
+  "Set the load address for the next Multiboot module to ADDRESS"
+};
+
 /* lipmod */
 int
 lipmodule_func (char *arg, int flags)
@@ -490,6 +547,15 @@ lipmodule_func (char *arg, int flags)
   create_lip_module(&l);
   return 0;
 }
+
+static struct builtin builtin_lipmodule =
+{
+  "lipmodule",
+  lipmodule_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "lipmodule", 
+  "Create a module with LIP table in it"
+};
 
 /* vbeset MODE */
 int
@@ -526,6 +592,15 @@ vbeset_func (char *arg, int flags)
   return 1;
 #endif
 }
+
+static struct builtin builtin_vbeset =
+{
+  "vbeset",
+  vbeset_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "vbeset [MODE]",
+  "Set the VBE mode MODE. If no MODE is given, switch back to text mode."
+};
 
 //static
 int
@@ -602,8 +677,6 @@ bad_arg:
   errnum = ERR_BAD_ARGUMENT;
   return 1;
 }
-
-
 
 static struct builtin builtin_set =
 {
@@ -1164,4 +1237,157 @@ static struct builtin builtin_root =
   " how many BIOS drive numbers are on controllers before the current"
   " one. For example, if there is an IDE disk and a SCSI disk, and your"
   " FreeBSD root partition is on the SCSI disk, then use a `1' for HDBIAS."
+};
+
+int
+boot_func(char *arg, int flags)
+{
+  multi_boot();
+
+  return 0;
+}
+
+static struct builtin builtin_boot =
+{
+  "boot",
+  boot_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "boot",
+  "Transfer control to the multiboot kernel."
+};
+
+int
+default_func(char *arg, int flags)
+{
+  int n;
+  safe_parse_maxint(&arg, &n);
+  default_item = n;
+  return 0;
+}
+
+static struct builtin builtin_default =
+{
+  "default",
+  default_func,
+  BUILTIN_HELP_LIST,
+  "default <menuitem>",
+  "Set default menuitem."
+};
+
+int
+timeout_func(char *arg, int flags)
+{
+  safe_parse_maxint(&arg, &menu_timeout);
+  return 0;
+}
+
+static struct builtin builtin_timeout =
+{
+  "timeout",
+  timeout_func,
+  BUILTIN_HELP_LIST,
+  "timeout <interval>",
+  "Set menu timeout."
+};
+
+int
+color_func(char *arg, int flags)
+{
+  int color;
+
+  safe_parse_maxint(&arg, &color);
+  background_color    = color & 0xff;
+  foreground_color    = (color >> 8)  & 0xff;
+  background_color_hl = (color >> 16) & 0xff;
+  foreground_color_hl = (color >> 24) & 0xff;
+  return 0;
+}
+
+static struct builtin builtin_color =
+{
+  "color",
+  color_func,
+  BUILTIN_HELP_LIST,
+  "color <color>",
+  "Set menu colors. 4-byte integer. Lowest byte is menu"
+  "background; second byte is menu foreground. 3rd byte"
+  "is a highlighted background color. 4th byte is a"
+  "highlighted foreground color."
+};
+
+int
+width_func(char *arg, int flags)
+{
+  safe_parse_maxint(&arg, &menu_width);
+  return 0;
+}
+
+static struct builtin builtin_width =
+{
+  "width",
+  width_func,
+  BUILTIN_HELP_LIST,
+  "width <menu width>",
+  "Set menu width."
+};
+
+int
+height_func(char *arg, int flags)
+{
+  safe_parse_maxint(&arg, &menu_height);
+  return 0;
+}
+
+static struct builtin builtin_height =
+{
+  "height",
+  height_func,
+  BUILTIN_HELP_LIST,
+  "height <menu height>",
+  "Set menu heigt."
+};
+
+int
+screen_func(char *arg, int flags)
+{
+  int screen;
+
+  safe_parse_maxint(&arg, &screen);
+  screen_bg_color    = screen & 0xff;
+  screen_fg_color    = (screen >> 8)  & 0xff;
+  screen_bg_color_hl = (screen >> 16) & 0xff;
+  screen_fg_color_hl = (screen >> 24) & 0xff;
+  return 0;
+}
+
+static struct builtin builtin_screen =
+{
+  "screen",
+  screen_func,
+  BUILTIN_HELP_LIST,
+  "screen <screen colors>",
+  "Set screen colors. 4-byte integer. Lowest byte is screen"
+  "background; second byte is screen foreground. 3rd byte"
+  "is a highlighted background color. 4th byte is a"
+  "highlighted foreground color."
+};
+
+struct builtin *builtins[] = {
+  &builtin_kernel,
+  &builtin_module,
+  &builtin_modaddr,
+  &builtin_lipmodule,
+  &builtin_vbeset,
+  &builtin_set,
+  &builtin_toggle,
+  &builtin_varexpand,
+  &builtin_root,
+  &builtin_boot,
+  &builtin_default,
+  &builtin_timeout,
+  &builtin_color,
+  &builtin_width,
+  &builtin_height,
+  &builtin_screen,
+  0    
 };

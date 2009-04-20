@@ -23,8 +23,28 @@ extern struct variable_list_struct {
   char *value;
 } variable_list[VARIABLES_MAX];
 
+extern struct builtin *builtins[];
+
+extern int menu_timeout;
+
 struct multiboot_info *m;
 struct term_entry *t;
+
+static char state = 0;
+
+int  default_item = -1;
+
+/* menu colors */
+int background_color = 0; // black
+int foreground_color = 7; // white
+int background_color_hl = 0;
+int foreground_color_hl = 7;
+
+
+int screen_bg_color = 0;
+int screen_fg_color = 7;
+int screen_bg_color_hl = 0;
+int screen_fg_color_hl = 7;
 
 int num_items = 0;
 int scrollnum = 0;
@@ -40,7 +60,7 @@ skip_to (int after_equal, char *cmdline);
 
 int (*process_cfg_line)(char *line);
 
-#pragma aux multi_boot     "*"
+//#pragma aux multi_boot     "*"
 #pragma aux m              "*"
 #pragma aux l              "*"
 
@@ -48,6 +68,7 @@ int (*process_cfg_line)(char *line);
 
 extern entry_func entry_addr;
 
+int boot_func (char *arg, int flags);
 int root_func (char *arg, int flags);
 int kernel_func (char *arg, int flags);
 int module_func (char *arg, int flags);
@@ -67,22 +88,6 @@ char *menu_items = (char *)MENU_BUF;
 int  menu_cnt, menu_len = 0;
 char *config_lines;
 int  config_len = 0;
-int  default_item = -1;
-int  menu_timeout;
-
-static char state = 0;
-
-/* menu colors */
-int background_color = 0; // black
-int foreground_color = 7; // white
-int background_color_hl = 0;
-int foreground_color_hl = 7;
-
-
-int screen_bg_color = 0;
-int screen_fg_color = 7;
-int screen_bg_color_hl = 0;
-int screen_fg_color_hl = 7;
 
 char cmdbuf[0x200];
 char path[] = "freeldr";
@@ -91,11 +96,8 @@ static int promptlen;
 #define SCREEN_WIDTH  80
 #define SCREEN_HEIGHT 25
 
-/* menu width and height */
-#define MENU_WIDTH    56
-#define MENU_HEIGHT   10
-int menu_width  = MENU_WIDTH;
-int menu_height = MENU_HEIGHT;
+extern int menu_width;
+extern int menu_height;
 
 typedef struct script script_t;
 // a structure corresponding to a
@@ -127,89 +129,11 @@ process_cfg_line1(char *line)
   char   *title; // current menu item title
   static int  section = 0;
   static script_t *sc = 0, *sc_prev = 0;
+  struct builtin **b;
 
   if (!*line) return 1;
 
-  if (!section && abbrev(line, "default", 7))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &n);
-    default_item = n;
-  }
-  else if (!section && abbrev(line, "timeout", 7))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &menu_timeout);
-  }
-  else if (!section && abbrev(line, "menubg", 6))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &background_color);
-  }
-  else if (!section && abbrev(line, "menufg", 6))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &foreground_color);
-  }
-  else if (!section && abbrev(line, "menubghl", 8))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &background_color_hl);
-  }
-  else if (!section && abbrev(line, "menufghl", 8))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &foreground_color_hl);
-  }
-  else if (!section && abbrev(line, "width", 5))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &menu_width);
-  }
-  else if (!section && abbrev(line, "height", 6))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &menu_height);
-  }
-  else if (!section && abbrev(line, "screenbg", 8))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &screen_bg_color);
-  }
-  else if (!section && abbrev(line, "screenfg", 8))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &screen_fg_color);
-  }
-  else if (!section && abbrev(line, "screenbghl", 10))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &screen_bg_color_hl);
-  }
-  else if (!section && abbrev(line, "screenfghl", 10))
-  {
-    line = skip_to(1, line);
-    safe_parse_maxint(&line, &screen_fg_color_hl);
-  }
-  else if (!section && abbrev(line, "set", 3))
-  {
-    line = strip(skip_to(0, line));
-    if (set_func(line, 0x2))
-    {
-      printf("An error occured during execution of set_func\r\n");
-      return 0;
-    }
-  }
-  else if (!section && abbrev(line, "varexpand", 9))
-  {
-    line = strip(skip_to(0, line));
-    if (varexpand_func(line, 0x2))
-    {
-      printf("An error occured during execution of varexpand_func\r\n");
-      return 0;
-    }
-  }
-  else if (abbrev(line, "title", 5))
+  if (abbrev(line, "title", 5))
   {
     section++;
     num_items++;
@@ -243,9 +167,20 @@ process_cfg_line1(char *line)
   }
   else
   {
+    for (b = builtins; *b; b++)
+    {
+      if (abbrev(line, (*b)->name, strlen((*b)->name)))
+      {
+        line = skip_to(1, line);
+        if (((*b)->func)(line, 0x2))
+        {
+          printf("Error occured during execution of %s\r\n", (*b)->name);
+          return 0;
+        }
+        return 1;
+      } 
+    }
   }
-
-  //for (i = 0; i < 0xFFFFFF; i++) ;
 
   return 1;
 }
@@ -256,6 +191,7 @@ exec_line(char *line)
 {
   int i;
   char *p, *s = line;
+  struct builtin **b;
 
   if (!*line) return 1;
 
@@ -264,74 +200,18 @@ exec_line(char *line)
   while (*p++)
     if (*p == '\\') *p = '/';
 
-  if (abbrev(s, "modaddr", 7))
+  for (b = builtins; *b; b++)
   {
-    s = skip_to(1, s);
-    if (modaddr_func(s, 0x2))
+    if (abbrev(line, (*b)->name, strlen((*b)->name)))
     {
-      printf("An error occured during execution of modaddr_func\r\n");
-      return 0;
-    }
-  }
-  else if (abbrev(s, "root", 4))
-  {
-    s = skip_to(1, s);
-    if (root_func(s, 0x2))
-    {
-      printf("An error occured during execution of kernel_func\r\n");
-      return 0;
-    }
-  }
-  else if (abbrev(s, "kernel", 6))
-  {
-    s = skip_to(1, s);
-    if (kernel_func(s, 0x2))
-    {
-      printf("An error occured during execution of kernel_func\r\n");
-      return 0;
-    }
-  }
-  else if (abbrev(s, "module", 6))
-  {
-    s = skip_to(1, s);
-    if (abbrev(s, "--type", 6))
-    {
-      s = skip_to(1, s);
-      if (abbrev(s, "lip", 3))
+      line = skip_to(1, line);
+      if (((*b)->func)(line, 0x2))
       {
-        if (lipmodule_func(s, 0x2))
-        {
-          printf("An error occured during execution of lipmod_func\r\n");
-          return 0;
-        }
+        printf("Error occured during execution of %s\r\n", (*b)->name);
+        return 0;
       }
-      else if (abbrev(s, "bootsector", 10))
-      {
-        //if (bootsecmodule_func(s, 0x2))
-        //{
-        //  printf("An error occured during execution of lipmod_func\r\n");
-        //  return 0;
-        //}
-      }
+      break;
     }
-    else
-    if (module_func(s, 0x2))
-    {
-      printf("An error occured during execution of module_func\r\n");
-      return 0;
-    }
-  }
-  else if (abbrev(s, "vbeset", 6))
-  {
-    s = skip_to(1, s);
-    if (vbeset_func(s, 0x2))
-    {
-      printf("An error occured during execution of vbeset_func\r\n");
-      return 0;
-    }
-  }
-  else
-  {
   }
 
   return 1;
@@ -355,22 +235,12 @@ get_user_input(int *item, int *shift)
         ++*item;
         if (*item == num_items + 1) *item = 0;
         return 1;
-
-       /* if (t->checkkey() == -1)
-          return 1;
-        else
-          continue; */
       }
       case 0x10:  // up arrow
       {
         --*item;
         if (*item == -1) *item = num_items;
         return 1;
-
-       /* if (t->checkkey() == -1)
-          return 1;
-        else
-          continue; */
       }
       case 0x6:   // right arrow
       {
@@ -420,7 +290,6 @@ get_user_input(int *item, int *shift)
       case 0x1c0d: // enter
       {
         ++*item;
-        //state = 0;
         return 0;
       }
       default:
