@@ -283,7 +283,7 @@ get_user_input(int *item, int *shift)
         {
           state++;
           t->cls();
-          for (ii = 0; ii < 0x1000; ii++) ;
+          //for (ii = 0; ii < 0x1000; ii++) ;
         }
         return 0;
       }
@@ -632,7 +632,7 @@ void cmdline(int item, int shift)
   state = 0;
   show_background_screen();
   draw_menu(item, shift);
-  for (ii = 0; ii < 0x1000; ii++) ;
+  //for (ii = 0; ii < 0x1000; ii++) ;
 }
 
 int

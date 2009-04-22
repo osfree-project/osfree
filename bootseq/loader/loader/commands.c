@@ -57,6 +57,9 @@ extern int screen_fg_color;
 extern int screen_bg_color_hl;
 extern int screen_fg_color_hl;
 
+int abbrev(char *s1, char *s2, int n);
+int lipmodule_func (char *arg, int flags);
+
 /* menu width and height */
 #define MENU_WIDTH    56
 #define MENU_HEIGHT   10
@@ -461,6 +464,20 @@ int
 module_func (char *arg, int flags)
 {
   int len = grub_strlen (arg);
+
+  if (abbrev(arg, "--type", 6))
+  {
+    arg = skip_to(1, arg);
+    if (abbrev(arg, "lip", 3))
+    {
+      if (lipmodule_func(arg, 0x2))
+      {
+        printf("An error occured during execution of lipmod\r\n");
+        return 1;
+      }
+      return 0;
+    }
+  }
 
   switch (kernel_type)
     {

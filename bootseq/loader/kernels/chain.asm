@@ -53,8 +53,9 @@ ext_params struc
 ;
 force_chs        db               ?
 drive            db               ?
-cluster_base     dd               ?
+part             db               3 dup (?)
 disk_addr_pkt    disk_addr_packet <>
+
 ;
 ; bootsector boundary
 ; (at address 0x0:0x7c00)
@@ -98,11 +99,11 @@ KB_OUTPUT_MASK  equ     0xdd    ; enable output buffer full interrupt
                                 ;   enable clock line
 KB_A20_ENABLE   equ     0x02
 
-_TEXT16  segment dword public 'CODE'  use16
+_TEXT16  segment para public 'CODE'  use16
 _TEXT16  ends
-_TEXT    segment dword public 'CODE'  use32
+_TEXT    segment para public 'CODE'  use32
 _TEXT    ends
-_DATA    segment dword public 'DATA'  use32
+_DATA    segment para public 'DATA'  use32
 _DATA    ends
 CONST    segment dword public 'DATA'  use32
 CONST    ends
@@ -131,7 +132,7 @@ stack_bottom     db STACK_SIZE dup (?)
 stack_top        label byte
 _STACK   ends
 
-_TEXT16  segment dword public 'CODE' use16
+_TEXT16  segment para public 'CODE' use16
 begin:
 
         org   0h
@@ -143,35 +144,36 @@ base    dd    REAL_BASE
 real_start:
 
 .386
-        xor  ax, ax                                ; Set stack
-        mov  bp, 0x7c00 - EXT_PARAMS_OFFS
+        mov  ax, 5000h                             ; Set stack
+        mov  bp, 0x8000 - EXT_PARAMS_OFFS
 
         cli                                        ; Disable interrupts
         mov  ss, ax                                ;
-        mov  sp, bp                                ; to above the ext_params
+        mov  sp, 0ffffh                            ; to above the ext_params
         sti                                        ; Enable interrupts
 
         mov  ds, ax
         mov  es, ax
 
-        ; Start loader
-        mov   edx, ebx
-        shr   edx, 12                              ; extract drive number
+        mov   edx, ebx 
+        shr   edx, 24                              ; extract drive number
 
         mov   eax, ebx
-        and   eax, 0ff0000h
-        shr   eax, 24                              ; extract partition number
+        and   eax, 0ffffffh                      ; extract partition number
+
+        cmp   eax, 0x00ffffffh
+        je    no_hiddensecs
+
+        shr   eax, 16
 
         cmp   eax, 0ffh
-        je    skip1
-
-        call  set_hidden_sectors
+        jne   skip1
+        xor   eax, eax
+        jmp   short detect_lba_chs
 skip1:
-        push  0
-        push  0x7c00
-        retf
-
-set_hidden_sectors:
+        inc   eax
+        mov   esi, eax
+detect_lba_chs:
         ;
         ; Test if LBA
         ; is supported
@@ -212,6 +214,8 @@ switchBootDrv:
         ; and load its MBR into scratch sector
 
         mov  [bp].drive, dl
+        mov  eax, esi
+        mov  byte ptr [bp].BootPart, al
 
         ;
         ; descriptor of the MBR of hard disk to continue load from
@@ -307,9 +311,33 @@ bootFound:
         ;
 
         add  dword ptr [bp].bpb.hidden_secs, eax
-nofix_hiddensecs:
 
-        ret
+nofix_hiddensecs:
+        ;
+        ; Fix diskNum and logDrive values
+        ;
+
+        mov  dl, [bp].drive
+        mov  byte ptr [bp].bpb.disk_num, dl
+
+        mov  bl, [bp].part
+        inc  bl
+        inc  bl
+        or   bl, 80h
+        mov  [bp].bpb.log_drive, bl
+
+        ;mov  eax, dword ptr [bp].drive
+        ;mov  [bp].drivepart, eax
+
+no_hiddensecs:
+        push 0                                     ; zero ds
+        push 7c00h                                 ;
+
+        ;mov  al, 'J'
+        ;call err
+                
+        retf                                       ; "return" to bootsector
+
 
 err_read:
         mov  al, 'R'
@@ -463,11 +491,10 @@ force_lba       db  0
 ;pad1            db  pad1size dup (0)
 ;pad1size        equ  100h
 ;pad1            db   pad1size dup (0)
-
 _TEXT16  ends
 
 
-_TEXT    segment dword public 'CODE'  use32
+_TEXT    segment para public 'CODE'  use32
 
 BASE1           equ     KERN_BASE - 0x10000
 VIDEO_BUF       equ     0xb8000
@@ -489,6 +516,7 @@ _mbhdr          multiboot_header  <_magic,_flags,_checksum,_mbhdr,start1,exe_end
 
         org     start2 + 0x80
 
+        align   0x10
 entry:
         cmp   eax, MULTIBOOT_VALID
         jne   stop
@@ -506,7 +534,7 @@ entry:
 
         ; copy realmode part of boot_chain at REAL_BASE
         cld
-        mov     ecx, 0x80
+        mov     ecx, 0x100
         mov     esi, KERN_BASE
         mov     edi, REAL_BASE
 

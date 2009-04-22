@@ -23,9 +23,9 @@ bbx              = $+$(kernels)$-
 
 linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)..$(SEP)modesw-npl$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e)
 
-chain_OBJS    = $(p)chain$(e) $(p)chainc$(e) $(p)..$(SEP)setdev$(e) &
-                $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) &
-                $(p)..$(SEP)preldr$(SEP)bios$(e) $(p)..$(SEP)preldr$(SEP)biosdisk-ch$(e)
+chain_OBJS    = $(p)chain$(e) $(p)..$(SEP)modesw-npc$(e) $(p)..$(SEP)preldr$(SEP)biosdisk-ch$(e) &
+                $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
+                $(p)..$(SEP)preldr$(SEP)bios$(e)
 
 startup_OBJS      = $(p)startup$(e)
 
@@ -73,7 +73,7 @@ F =
 !     ifeq basename linux
 base = 0x8000
 !else ifeq basename chain
-base = 0x90000
+base = 0x50000
 !else ifeq basename startup
 base = 0x90000
 !else ifeq basename ufsd

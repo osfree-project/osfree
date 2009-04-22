@@ -38,6 +38,7 @@ unsigned char lip_module_present = 0;
 
 unsigned long ldr_drive;
 unsigned long boot_drive;
+unsigned long boot_part;
 unsigned long current_drive;
 unsigned long current_partition;
 unsigned long cdrom_drive;
@@ -112,6 +113,8 @@ void cmain(void)
   int force = 0;
   unsigned char ch, *p;
 
+  boot_part  = (boot_drive >> 8) << 8;
+  boot_drive = boot_drive & 0xff;
 
   mods_addr  = (char *)m->mods_addr;
   mods_count = m->mods_count;
@@ -168,12 +171,12 @@ void cmain(void)
     }
 
     // Copy BootPart value
-    ch = (unsigned char)((current_partition & 0xff0000) >> 16);
+    ch = (unsigned char)((current_partition >> 8) & 0xff);
     if (ch == 0xff) ch = 0;
     p  = (unsigned char *)BOOTPART_ADDR;
     *p = ch;
-    ldr_drive = current_partition & (current_drive << 24);
-    
+    ldr_drive = current_partition | (ldr_drive << 24);
+  
     kernel_ldr(kernel, kernel_len);
   }
 }
