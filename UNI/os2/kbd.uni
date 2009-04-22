@@ -9,23 +9,23 @@ function KbdRegister(in pszModName: PSZ;
                                     in pszEntryPt: PSZ;
                                     in FunMask: ULONG): USHORT;
 
-const KR_KBDCHARIN               = $00000001;
-const KR_KBDPEEK                 = $00000002;
-const KR_KBDFLUSHBUFFER          = $00000004;
-const KR_KBDGETSTATUS            = $00000008;
-const KR_KBDSETSTATUS            = $00000010;
-const KR_KBDSTRINGIN             = $00000020;
-const KR_KBDOPEN                 = $00000040;
-const KR_KBDCLOSE                = $00000080;
-const KR_KBDGETFOCUS             = $00000100;
-const KR_KBDFREEFOCUS            = $00000200;
-const KR_KBDGETCP                = $00000400;
-const KR_KBDSETCP                = $00000800;
-const KR_KBDXLATE                = $00001000;
-const KR_KBDSETCUSTXT            = $00002000;
+constant KR_KBDCHARIN               = $00000001;
+constant KR_KBDPEEK                 = $00000002;
+constant KR_KBDFLUSHBUFFER          = $00000004;
+constant KR_KBDGETSTATUS            = $00000008;
+constant KR_KBDSETSTATUS            = $00000010;
+constant KR_KBDSTRINGIN             = $00000020;
+constant KR_KBDOPEN                 = $00000040;
+constant KR_KBDCLOSE                = $00000080;
+constant KR_KBDGETFOCUS             = $00000100;
+constant KR_KBDFREEFOCUS            = $00000200;
+constant KR_KBDGETCP                = $00000400;
+constant KR_KBDSETCP                = $00000800;
+constant KR_KBDXLATE                = $00001000;
+constant KR_KBDSETCUSTXT            = $00002000;
 
-const IO_WAIT                   = 0;
-const IO_NOWAIT                 = 1;
+constant IO_WAIT                   = 0;
+constant IO_NOWAIT                 = 1;
 
 function KbdDeRegister(): USHORT;
 
@@ -68,35 +68,35 @@ function KbdFlushBuffer (in hkbd: HKBD): USHORT;
 
    (* KBDINFO.fsMask *)
 
-const KEYBOARD_ECHO_ON                = $0001;
-const KEYBOARD_ECHO_OFF               = $0002;
-const KEYBOARD_BINARY_MODE            = $0004;
-const KEYBOARD_ASCII_MODE             = $0008;
-const KEYBOARD_MODIFY_STATE           = $0010;
-const KEYBOARD_MODIFY_INTERIM         = $0020;
-const KEYBOARD_MODIFY_TURNAROUND      = $0040;
-const KEYBOARD_2B_TURNAROUND          = $0080;
-const KEYBOARD_SHIFT_REPORT           = $0100;
+constant KEYBOARD_ECHO_ON                = $0001;
+constant KEYBOARD_ECHO_OFF               = $0002;
+constant KEYBOARD_BINARY_MODE            = $0004;
+constant KEYBOARD_ASCII_MODE             = $0008;
+constant KEYBOARD_MODIFY_STATE           = $0010;
+constant KEYBOARD_MODIFY_INTERIM         = $0020;
+constant KEYBOARD_MODIFY_TURNAROUND      = $0040;
+constant KEYBOARD_2B_TURNAROUND          = $0080;
+constant KEYBOARD_SHIFT_REPORT           = $0100;
 
 (*   #ifndef INCL_DOSDEVIOCTL *) (* following constants defined in bsedev.h *)
 
       (* KBDINFO.fsState/KBDKEYINFO.fsState/KBDTRANS.fsState *)
-   const KBDSTF_RIGHTSHIFT               = $0001;
-   const KBDSTF_LEFTSHIFT                = $0002;
-   const KBDSTF_CONTROL                  = $0004;
-   const KBDSTF_ALT                      = $0008;
-   const KBDSTF_SCROLLLOCK_ON            = $0010;
-   const KBDSTF_NUMLOCK_ON               = $0020;
-   const KBDSTF_CAPSLOCK_ON              = $0040;
-   const KBDSTF_INSERT_ON                = $0080;
-   const KBDSTF_LEFTCONTROL              = $0100;
-   const KBDSTF_LEFTALT                  = $0200;
-   const KBDSTF_RIGHTCONTROL             = $0400;
-   const KBDSTF_RIGHTALT                 = $0800;
-   const KBDSTF_SCROLLLOCK               = $1000;
-   const KBDSTF_NUMLOCK                  = $2000;
-   const KBDSTF_CAPSLOCK                 = $4000;
-   const KBDSTF_SYSREQ                   = $8000;
+   constant KBDSTF_RIGHTSHIFT               = $0001;
+   constant KBDSTF_LEFTSHIFT                = $0002;
+   constant KBDSTF_CONTROL                  = $0004;
+   constant KBDSTF_ALT                      = $0008;
+   constant KBDSTF_SCROLLLOCK_ON            = $0010;
+   constant KBDSTF_NUMLOCK_ON               = $0020;
+   constant KBDSTF_CAPSLOCK_ON              = $0040;
+   constant KBDSTF_INSERT_ON                = $0080;
+   constant KBDSTF_LEFTCONTROL              = $0100;
+   constant KBDSTF_LEFTALT                  = $0200;
+   constant KBDSTF_RIGHTCONTROL             = $0400;
+   constant KBDSTF_RIGHTALT                 = $0800;
+   constant KBDSTF_SCROLLLOCK               = $1000;
+   constant KBDSTF_NUMLOCK                  = $2000;
+   constant KBDSTF_CAPSLOCK                 = $4000;
+   constant KBDSTF_SYSREQ                   = $8000;
 (*   #endif *) (* INCL_DOSDEVIOCTL *)
 
    (* KBDINFO structure, for KbdSet/GetStatus *)
@@ -155,10 +155,10 @@ function KbdSetHWID (in pkbdhwid: PKBDHWID;
 
    (* KBDTRANS.fbStatus *)
 
-const KBDTRF_SHIFT_KEY_IN             = $01;
-const KBDTRF_CONVERSION_REQUEST       = $20;
-const KBDTRF_FINAL_CHAR_IN            = $40;
-const KBDTRF_INTERIM_CHAR_IN          = $80;
+constant KBDTRF_SHIFT_KEY_IN             = $01;
+constant KBDTRF_CONVERSION_REQUEST       = $20;
+constant KBDTRF_FINAL_CHAR_IN            = $40;
+constant KBDTRF_INTERIM_CHAR_IN          = $80;
 
    (* structure for KbdXlate() *)
 

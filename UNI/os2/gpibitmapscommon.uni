@@ -1,35 +1,35 @@
 module gpibitmapscommon;
 
    (* raster operations defined for GpiBitBlt *)
-const ROP_SRCCOPY                = $00CC;
-const ROP_SRCPAINT               = $00EE;
-const ROP_SRCAND                 = $0088;
-const ROP_SRCINVERT              = $0066;
-const ROP_SRCERASE               = $0044;
-const ROP_NOTSRCCOPY             = $0033;
-const ROP_NOTSRCERASE            = $0011;
-const ROP_MERGECOPY              = $00C0;
-const ROP_MERGEPAINT             = $00BB;
-const ROP_PATCOPY                = $00F0;
-const ROP_PATPAINT               = $00FB;
-const ROP_PATINVERT              = $005A;
-const ROP_DSTINVERT              = $0055;
-const ROP_ZERO                   = $0000;
-const ROP_ONE                    = $00FF;
+constant ROP_SRCCOPY                = $00CC;
+constant ROP_SRCPAINT               = $00EE;
+constant ROP_SRCAND                 = $0088;
+constant ROP_SRCINVERT              = $0066;
+constant ROP_SRCERASE               = $0044;
+constant ROP_NOTSRCCOPY             = $0033;
+constant ROP_NOTSRCERASE            = $0011;
+constant ROP_MERGECOPY              = $00C0;
+constant ROP_MERGEPAINT             = $00BB;
+constant ROP_PATCOPY                = $00F0;
+constant ROP_PATPAINT               = $00FB;
+constant ROP_PATINVERT              = $005A;
+constant ROP_DSTINVERT              = $0055;
+constant ROP_ZERO                   = $0000;
+constant ROP_ONE                    = $00FF;
 
    (* Blt options for GpiBitBlt *)
-const BBO_OR                         = 0;
-const BBO_AND                        = 1;
-const BBO_IGNORE                     = 2;
-const BBO_PAL_COLORS                 = 4;
-const BBO_NO_COLOR_INFO              = 8;
+constant BBO_OR                         = 0;
+constant BBO_AND                        = 1;
+constant BBO_IGNORE                     = 2;
+constant BBO_PAL_COLORS                 = 4;
+constant BBO_NO_COLOR_INFO              = 8;
 
    (* Fill options for GpiFloodFill *)
-const FF_BOUNDARY                    = 0;
-const FF_SURFACE                     = 1;
+constant FF_BOUNDARY                    = 0;
+constant FF_SURFACE                     = 1;
 
    (* error return for GpiSetBitmap *)
-const HBM_ERROR           = (-1);
+constant HBM_ERROR           = (-1);
 
       (*** bitmap and pel functions *)
 

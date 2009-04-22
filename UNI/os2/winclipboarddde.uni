@@ -2,49 +2,49 @@ module winclipboarddde;
 
 (* Clipboard messages *)
 
-const WM_RENDERFMT              = $0060;
-const WM_RENDERALLFMTS          = $0061;
-const WM_DESTROYCLIPBOARD       = $0062;
-const WM_PAINTCLIPBOARD         = $0063;
-const WM_SIZECLIPBOARD          = $0064;
-const WM_HSCROLLCLIPBOARD       = $0065;
-const WM_VSCROLLCLIPBOARD       = $0066;
-const WM_DRAWCLIPBOARD          = $0067;
+constant WM_RENDERFMT              = $0060;
+constant WM_RENDERALLFMTS          = $0061;
+constant WM_DESTROYCLIPBOARD       = $0062;
+constant WM_PAINTCLIPBOARD         = $0063;
+constant WM_SIZECLIPBOARD          = $0064;
+constant WM_HSCROLLCLIPBOARD       = $0065;
+constant WM_VSCROLLCLIPBOARD       = $0066;
+constant WM_DRAWCLIPBOARD          = $0067;
 
 (*
 * Standard Clipboard formats
 *)
-const CF_TEXT                   = 1;
-const CF_BITMAP                 = 2;
-const CF_DSPTEXT                = 3;
-const CF_DSPBITMAP              = 4;
-const CF_METAFILE               = 5;
-const CF_DSPMETAFILE            = 6;
-const CF_PALETTE                = 9;
-const CF_MMPMFIRST              =10;
-const CF_MMPMLAST               =19;
+constant CF_TEXT                   = 1;
+constant CF_BITMAP                 = 2;
+constant CF_DSPTEXT                = 3;
+constant CF_DSPBITMAP              = 4;
+constant CF_METAFILE               = 5;
+constant CF_DSPMETAFILE            = 6;
+constant CF_PALETTE                = 9;
+constant CF_MMPMFIRST              =10;
+constant CF_MMPMLAST               =19;
 (*
 * standard DDE and clipboard format stings
 *)
-const SZFMT_TEXT                =   '#1';
-const SZFMT_BITMAP              =   '#2';
-const SZFMT_DSPTEXT             =   '#3';
-const SZFMT_DSPBITMAP           =   '#4';
-const SZFMT_METAFILE            =   '#5';
-const SZFMT_DSPMETAFILE         =   '#6';
-const SZFMT_PALETTE             =   '#9';
-const SZFMT_SYLK                =   'Sylk';
-const SZFMT_DIF                 =   'Dif';
-const SZFMT_TIFF                =   'Tiff';
-const SZFMT_OEMTEXT             =   'OemText';
-const SZFMT_DIB                 =   'Dib';
-const SZFMT_OWNERDISPLAY        =   'OwnerDisplay';
-const SZFMT_LINK                =   'Link';
-const SZFMT_METAFILEPICT        =   'MetaFilePict';
-const SZFMT_DSPMETAFILEPICT     =   'DspMetaFilePict';
-const SZFMT_CPTEXT              =   'Codepage Text';
-const SZDDEFMT_RTF              =   'Rich Text Format';
-const SZDDEFMT_PTRPICT          =   'Printer_Picture';
+constant SZFMT_TEXT                =   '#1';
+constant SZFMT_BITMAP              =   '#2';
+constant SZFMT_DSPTEXT             =   '#3';
+constant SZFMT_DSPBITMAP           =   '#4';
+constant SZFMT_METAFILE            =   '#5';
+constant SZFMT_DSPMETAFILE         =   '#6';
+constant SZFMT_PALETTE             =   '#9';
+constant SZFMT_SYLK                =   'Sylk';
+constant SZFMT_DIF                 =   'Dif';
+constant SZFMT_TIFF                =   'Tiff';
+constant SZFMT_OEMTEXT             =   'OemText';
+constant SZFMT_DIB                 =   'Dib';
+constant SZFMT_OWNERDISPLAY        =   'OwnerDisplay';
+constant SZFMT_LINK                =   'Link';
+constant SZFMT_METAFILEPICT        =   'MetaFilePict';
+constant SZFMT_DSPMETAFILEPICT     =   'DspMetaFilePict';
+constant SZFMT_CPTEXT              =   'Codepage Text';
+constant SZDDEFMT_RTF              =   'Rich Text Format';
+constant SZDDEFMT_PTRPICT          =   'Printer_Picture';
 
 
 (* Metafiles are the same no matter whether they are used in     *)

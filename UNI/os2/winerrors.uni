@@ -6,25 +6,25 @@ uses pmerr;
    (* Error codes for debugging support                                       *)
    (* = $1001 - = $1021, = $1034, = $1036 - = $1050 are reserved                   *)
 
-const WINDBG_HWND_NOT_DESTROYED           = $1022;
-const WINDBG_HPTR_NOT_DESTROYED           = $1023;
-const WINDBG_HACCEL_NOT_DESTROYED         = $1024;
-const WINDBG_HENUM_NOT_DESTROYED          = $1025;
-const WINDBG_VISRGN_SEM_BUSY              = $1026;
-const WINDBG_USER_SEM_BUSY                = $1027;
-const WINDBG_DC_CACHE_BUSY                = $1028;
-const WINDBG_HOOK_STILL_INSTALLED         = $1029;
-const WINDBG_WINDOW_STILL_LOCKED          = $102a;
-const WINDBG_UPDATEPS_ASSERTION_FAIL      = $102b;
-const WINDBG_SENDMSG_WITHIN_USER_SEM      = $102c;
-const WINDBG_USER_SEM_NOT_ENTERED         = $102d;
-const WINDBG_PROC_NOT_EXPORTED            = $102e;
-const WINDBG_BAD_SENDMSG_HWND             = $102f;
-const WINDBG_ABNORMAL_EXIT                = $1030;
-const WINDBG_INTERNAL_REVISION            = $1031;
-const WINDBG_INITSYSTEM_FAILED            = $1032;
-const WINDBG_HATOMTBL_NOT_DESTROYED       = $1033;
-const WINDBG_WINDOW_UNLOCK_WAIT           = $1035;
+constant WINDBG_HWND_NOT_DESTROYED           = $1022;
+constant WINDBG_HPTR_NOT_DESTROYED           = $1023;
+constant WINDBG_HACCEL_NOT_DESTROYED         = $1024;
+constant WINDBG_HENUM_NOT_DESTROYED          = $1025;
+constant WINDBG_VISRGN_SEM_BUSY              = $1026;
+constant WINDBG_USER_SEM_BUSY                = $1027;
+constant WINDBG_DC_CACHE_BUSY                = $1028;
+constant WINDBG_HOOK_STILL_INSTALLED         = $1029;
+constant WINDBG_WINDOW_STILL_LOCKED          = $102a;
+constant WINDBG_UPDATEPS_ASSERTION_FAIL      = $102b;
+constant WINDBG_SENDMSG_WITHIN_USER_SEM      = $102c;
+constant WINDBG_USER_SEM_NOT_ENTERED         = $102d;
+constant WINDBG_PROC_NOT_EXPORTED            = $102e;
+constant WINDBG_BAD_SENDMSG_HWND             = $102f;
+constant WINDBG_ABNORMAL_EXIT                = $1030;
+constant WINDBG_INTERNAL_REVISION            = $1031;
+constant WINDBG_INITSYSTEM_FAILED            = $1032;
+constant WINDBG_HATOMTBL_NOT_DESTROYED       = $1033;
+constant WINDBG_WINDOW_UNLOCK_WAIT           = $1035;
 
    (* Get/Set Error Information Interface declarations *)
 
@@ -41,88 +41,88 @@ function WinGetLastError(in hab: HAB): ERRORID;
 function WinGetErrorInfo(in hab: HAB): PERRINFO;
 function WinFreeErrorInfo(in perrinfo: PERRINFO): BOOL;
 
-const PMERR_INVALID_HWND                  = $1001;
-const PMERR_INVALID_HMQ                   = $1002;
-const PMERR_PARAMETER_OUT_OF_RANGE        = $1003;
-const PMERR_WINDOW_LOCK_UNDERFLOW         = $1004;
-const PMERR_WINDOW_LOCK_OVERFLOW          = $1005;
-const PMERR_BAD_WINDOW_LOCK_COUNT         = $1006;
-const PMERR_WINDOW_NOT_LOCKED             = $1007;
-const PMERR_INVALID_SELECTOR              = $1008;
-const PMERR_CALL_FROM_WRONG_THREAD        = $1009;
-const PMERR_RESOURCE_NOT_FOUND            = $100A;
-const PMERR_INVALID_STRING_PARM           = $100B;
-const PMERR_INVALID_HHEAP                 = $100C;
-const PMERR_INVALID_HEAP_POINTER          = $100D;
-const PMERR_INVALID_HEAP_SIZE_PARM        = $100E;
-const PMERR_INVALID_HEAP_SIZE             = $100F;
-const PMERR_INVALID_HEAP_SIZE_WORD        = $1010;
-const PMERR_HEAP_OUT_OF_MEMORY            = $1011;
-const PMERR_HEAP_MAX_SIZE_REACHED         = $1012;
-const PMERR_INVALID_HATOMTBL              = $1013;
-const PMERR_INVALID_ATOM                  = $1014;
-const PMERR_INVALID_ATOM_NAME             = $1015;
-const PMERR_INVALID_INTEGER_ATOM          = $1016;
-const PMERR_ATOM_NAME_NOT_FOUND           = $1017;
-const PMERR_QUEUE_TOO_LARGE               = $1018;
-const PMERR_INVALID_FLAG                  = $1019;
-const PMERR_INVALID_HACCEL                = $101A;
-const PMERR_INVALID_HPTR                  = $101B;
-const PMERR_INVALID_HENUM                 = $101C;
-const PMERR_INVALID_SRC_CODEPAGE          = $101D;
-const PMERR_INVALID_DST_CODEPAGE          = $101E;
+constant PMERR_INVALID_HWND                  = $1001;
+constant PMERR_INVALID_HMQ                   = $1002;
+constant PMERR_PARAMETER_OUT_OF_RANGE        = $1003;
+constant PMERR_WINDOW_LOCK_UNDERFLOW         = $1004;
+constant PMERR_WINDOW_LOCK_OVERFLOW          = $1005;
+constant PMERR_BAD_WINDOW_LOCK_COUNT         = $1006;
+constant PMERR_WINDOW_NOT_LOCKED             = $1007;
+constant PMERR_INVALID_SELECTOR              = $1008;
+constant PMERR_CALL_FROM_WRONG_THREAD        = $1009;
+constant PMERR_RESOURCE_NOT_FOUND            = $100A;
+constant PMERR_INVALID_STRING_PARM           = $100B;
+constant PMERR_INVALID_HHEAP                 = $100C;
+constant PMERR_INVALID_HEAP_POINTER          = $100D;
+constant PMERR_INVALID_HEAP_SIZE_PARM        = $100E;
+constant PMERR_INVALID_HEAP_SIZE             = $100F;
+constant PMERR_INVALID_HEAP_SIZE_WORD        = $1010;
+constant PMERR_HEAP_OUT_OF_MEMORY            = $1011;
+constant PMERR_HEAP_MAX_SIZE_REACHED         = $1012;
+constant PMERR_INVALID_HATOMTBL              = $1013;
+constant PMERR_INVALID_ATOM                  = $1014;
+constant PMERR_INVALID_ATOM_NAME             = $1015;
+constant PMERR_INVALID_INTEGER_ATOM          = $1016;
+constant PMERR_ATOM_NAME_NOT_FOUND           = $1017;
+constant PMERR_QUEUE_TOO_LARGE               = $1018;
+constant PMERR_INVALID_FLAG                  = $1019;
+constant PMERR_INVALID_HACCEL                = $101A;
+constant PMERR_INVALID_HPTR                  = $101B;
+constant PMERR_INVALID_HENUM                 = $101C;
+constant PMERR_INVALID_SRC_CODEPAGE          = $101D;
+constant PMERR_INVALID_DST_CODEPAGE          = $101E;
 
       (* These are not real error codes, but just used to access special  *)
       (* error message strings used by WinGetErrorInfo to format an error *)
       (* message.                                                         *)
 
-const PMERR_UNKNOWN_COMPONENT_ID          = $101f;
-const PMERR_UNKNOWN_ERROR_CODE            = $1020;
-const PMERR_SEVERITY_LEVELS               = $1021;
+constant PMERR_UNKNOWN_COMPONENT_ID          = $101f;
+constant PMERR_UNKNOWN_ERROR_CODE            = $1020;
+constant PMERR_SEVERITY_LEVELS               = $1021;
 
       (* = $1022 - = $1033, = $1035, = $104B - = $104C used elsewhere          *)
-const PMERR_INVALID_RESOURCE_FORMAT       = $1034;
-const WINDBG_WINDOW_UNLOCK_WAIT           = $1035;
-const PMERR_NO_MSG_QUEUE                  = $1036;
-const PMERR_CANNOT_SET_FOCUS              = $1037;
-const PMERR_QUEUE_FULL                    = $1038;
+constant PMERR_INVALID_RESOURCE_FORMAT       = $1034;
+constant WINDBG_WINDOW_UNLOCK_WAIT           = $1035;
+constant PMERR_NO_MSG_QUEUE                  = $1036;
+constant PMERR_CANNOT_SET_FOCUS              = $1037;
+constant PMERR_QUEUE_FULL                    = $1038;
 
-const PMERR_LIBRARY_LOAD_FAILED           = $1039;
-const PMERR_PROCEDURE_LOAD_FAILED         = $103A;
-const PMERR_LIBRARY_DELETE_FAILED         = $103B;
-const PMERR_PROCEDURE_DELETE_FAILED       = $103C;
-const PMERR_ARRAY_TOO_LARGE               = $103D;
-const PMERR_ARRAY_TOO_SMALL               = $103E;
-const PMERR_DATATYPE_ENTRY_BAD_INDEX      = $103F;
-const PMERR_DATATYPE_ENTRY_CTL_BAD        = $1040;
-const PMERR_DATATYPE_ENTRY_CTL_MISS       = $1041;
-const PMERR_DATATYPE_ENTRY_INVALID        = $1042;
-const PMERR_DATATYPE_ENTRY_NOT_NUM        = $1043;
-const PMERR_DATATYPE_ENTRY_NOT_OFF        = $1044;
-const PMERR_DATATYPE_INVALID              = $1045;
-const PMERR_DATATYPE_NOT_UNIQUE           = $1046;
-const PMERR_DATATYPE_TOO_LONG             = $1047;
-const PMERR_DATATYPE_TOO_SMALL            = $1048;
-const PMERR_DIRECTION_INVALID             = $1049;
-const PMERR_INVALID_HAB                   = $104A;
-const PMERR_INVALID_HSTRUCT               = $104D;
-const PMERR_LENGTH_TOO_SMALL              = $104E;
-const PMERR_MSGID_TOO_SMALL               = $104F;
-const PMERR_NO_HANDLE_ALLOC               = $1050;
-const PMERR_NOT_IN_A_PM_SESSION           = $1051;
-const PMERR_MSG_QUEUE_ALREADY_EXISTS      = $1052;
-const PMERR_SEND_MSG_TIMEOUT              = $1053;
-const PMERR_SEND_MSG_FAILED               = $1054;
-const PMERR_OLD_RESOURCE                  = $1055;
+constant PMERR_LIBRARY_LOAD_FAILED           = $1039;
+constant PMERR_PROCEDURE_LOAD_FAILED         = $103A;
+constant PMERR_LIBRARY_DELETE_FAILED         = $103B;
+constant PMERR_PROCEDURE_DELETE_FAILED       = $103C;
+constant PMERR_ARRAY_TOO_LARGE               = $103D;
+constant PMERR_ARRAY_TOO_SMALL               = $103E;
+constant PMERR_DATATYPE_ENTRY_BAD_INDEX      = $103F;
+constant PMERR_DATATYPE_ENTRY_CTL_BAD        = $1040;
+constant PMERR_DATATYPE_ENTRY_CTL_MISS       = $1041;
+constant PMERR_DATATYPE_ENTRY_INVALID        = $1042;
+constant PMERR_DATATYPE_ENTRY_NOT_NUM        = $1043;
+constant PMERR_DATATYPE_ENTRY_NOT_OFF        = $1044;
+constant PMERR_DATATYPE_INVALID              = $1045;
+constant PMERR_DATATYPE_NOT_UNIQUE           = $1046;
+constant PMERR_DATATYPE_TOO_LONG             = $1047;
+constant PMERR_DATATYPE_TOO_SMALL            = $1048;
+constant PMERR_DIRECTION_INVALID             = $1049;
+constant PMERR_INVALID_HAB                   = $104A;
+constant PMERR_INVALID_HSTRUCT               = $104D;
+constant PMERR_LENGTH_TOO_SMALL              = $104E;
+constant PMERR_MSGID_TOO_SMALL               = $104F;
+constant PMERR_NO_HANDLE_ALLOC               = $1050;
+constant PMERR_NOT_IN_A_PM_SESSION           = $1051;
+constant PMERR_MSG_QUEUE_ALREADY_EXISTS      = $1052;
+constant PMERR_SEND_MSG_TIMEOUT              = $1053;
+constant PMERR_SEND_MSG_FAILED               = $1054;
+constant PMERR_OLD_RESOURCE                  = $1055;
 
-const PMERR_BIDI_FIRST                    = $10F0;
-const PMERR_BIDI_LAST                     = $10FF;
+constant PMERR_BIDI_FIRST                    = $10F0;
+constant PMERR_BIDI_LAST                     = $10FF;
 
 (*      #ifdef SOM2VERSION           *)
-   const PMERR_WPDSERVER_IS_ACTIVE        = $1056;
-   const PMERR_WPDSERVER_NOT_STARTED      = $1057;
-   const PMERR_SOMDD_IS_ACTIVE            = $1058;
-   const PMERR_SOMDD_NOT_STARTED          = $1059;
+   constant PMERR_WPDSERVER_IS_ACTIVE        = $1056;
+   constant PMERR_WPDSERVER_NOT_STARTED      = $1057;
+   constant PMERR_SOMDD_IS_ACTIVE            = $1058;
+   constant PMERR_SOMDD_NOT_STARTED          = $1059;
 (*       #endif                      *)
 
 end.

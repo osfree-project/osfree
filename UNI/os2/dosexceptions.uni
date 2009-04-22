@@ -4,8 +4,8 @@ module dosexceptions;
 
    (* DosSetSigExceptionFocus codes *)
 
-   const SIG_UNSETFOCUS = 0;
-   const SIG_SETFOCUS   = 1;
+   constant SIG_UNSETFOCUS = 0;
+   constant SIG_SETFOCUS   = 1;
 
    uses bsexcpt;
    uses dosexcptfunc;

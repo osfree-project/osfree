@@ -13,7 +13,7 @@ module pmshl;
 
 
    (*** maximum title length ***********************************************)
-const MAXNAMEL = 60;
+constant MAXNAMEL = 60;
 
 
    (*** program handle *****************************************************)
@@ -27,11 +27,11 @@ type  HINI=LHANDLE;           (* hini *)
 type PHINI=^HINI;
 
 
-const HINI_PROFILE       =  0;
-const HINI_USERPROFILE   =  -1;
-const HINI_SYSTEMPROFILE =  -2;
-const HINI_USER=HINI_USERPROFILE;
-const HINI_SYSTEM=HINI_SYSTEMPROFILE;
+constant HINI_PROFILE       =  0;
+constant HINI_USERPROFILE   =  -1;
+constant HINI_SYSTEMPROFILE =  -2;
+constant HINI_USER=HINI_USERPROFILE;
+constant HINI_SYSTEM=HINI_SYSTEMPROFILE;
 
 
 type PRFPROFILE=structure    

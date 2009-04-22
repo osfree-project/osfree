@@ -1,12 +1,12 @@
 module dosdevices;
 
-const DEVINFO_PRINTER =0;
-const DEVINFO_RS232 =1;
-const DEVINFO_FLOPPY= 2;
-const DEVINFO_COPROCESSOR= 3;
-const DEVINFO_SUBMODEL= 4;
-const DEVINFO_MODEL =5;
-const DEVINFO_ADAPTER= 6;
+constant DEVINFO_PRINTER =0;
+constant DEVINFO_RS232 =1;
+constant DEVINFO_FLOPPY= 2;
+constant DEVINFO_COPROCESSOR= 3;
+constant DEVINFO_SUBMODEL= 4;
+constant DEVINFO_MODEL =5;
+constant DEVINFO_ADAPTER= 6;
 
 (*************************************************************************************)
 (* Original function uses VOID as storage, but according to docs only BYTE returned. *)
@@ -32,8 +32,8 @@ function DosPhysicalDisk(in xfunction: ULONG;
                          in pParams:   PVOID;
                          in cbParams:  ULONG): APIRET;
 
-const INFO_COUNT_PARTITIONABLE_DISKS =1;
-const INFO_GETIOCTLHANDLE =2;
-const INFO_FREEIOCTLHANDLE =3;
+constant INFO_COUNT_PARTITIONABLE_DISKS =1;
+constant INFO_GETIOCTLHANDLE =2;
+constant INFO_FREEIOCTLHANDLE =3;
 
 end.

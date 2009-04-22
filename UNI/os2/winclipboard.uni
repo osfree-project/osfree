@@ -20,10 +20,10 @@ function WinSetClipbrdViewer(in hab: HAB;
 
 (* WinSetClipbrdData() flags *)
 
-const CFI_OWNERFREE             = $0001;
-const CFI_OWNERDISPLAY          = $0002;
-const CFI_POINTER               = $0400;
-const CFI_HANDLE                = $0200;
+constant CFI_OWNERFREE             = $0001;
+constant CFI_OWNERDISPLAY          = $0002;
+constant CFI_POINTER               = $0400;
+constant CFI_HANDLE                = $0200;
 
 
 function WinEnumClipbrdFmts(in hab: HAB;

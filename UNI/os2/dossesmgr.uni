@@ -27,38 +27,38 @@ module dossesmgr;
      end;
    type PSTARTDATA=^STARTDATA;
 
-   const SSF_RELATED_INDEPENDENT =0;
-   const SSF_RELATED_CHILD       =1;
+   constant SSF_RELATED_INDEPENDENT =0;
+   constant SSF_RELATED_CHILD       =1;
 
-   const SSF_FGBG_FORE           =0;
-   const SSF_FGBG_BACK           =1;
+   constant SSF_FGBG_FORE           =0;
+   constant SSF_FGBG_BACK           =1;
 
-   const SSF_TRACEOPT_NONE       =0;
-   const SSF_TRACEOPT_TRACE      =1;
-   const SSF_TRACEOPT_TRACEALL   =2;
+   constant SSF_TRACEOPT_NONE       =0;
+   constant SSF_TRACEOPT_TRACE      =1;
+   constant SSF_TRACEOPT_TRACEALL   =2;
 
-   const SSF_INHERTOPT_SHELL     =0;
-   const SSF_INHERTOPT_PARENT    =1;
+   constant SSF_INHERTOPT_SHELL     =0;
+   constant SSF_INHERTOPT_PARENT    =1;
 
    (* note that these types are identical to those in pmshl.h for PROG_* *)
-   const SSF_TYPE_DEFAULT       = 0;
-   const SSF_TYPE_FULLSCREEN    = 1;
-   const SSF_TYPE_WINDOWABLEVIO = 2;
-   const SSF_TYPE_PM            = 3;
-   const SSF_TYPE_VDM           = 4;
-   const SSF_TYPE_GROUP         = 5;
-   const SSF_TYPE_DLL           = 6;
-   const SSF_TYPE_WINDOWEDVDM   = 7;
-   const SSF_TYPE_PDD           = 8;
-   const SSF_TYPE_VDD           = 9;
+   constant SSF_TYPE_DEFAULT       = 0;
+   constant SSF_TYPE_FULLSCREEN    = 1;
+   constant SSF_TYPE_WINDOWABLEVIO = 2;
+   constant SSF_TYPE_PM            = 3;
+   constant SSF_TYPE_VDM           = 4;
+   constant SSF_TYPE_GROUP         = 5;
+   constant SSF_TYPE_DLL           = 6;
+   constant SSF_TYPE_WINDOWEDVDM   = 7;
+   constant SSF_TYPE_PDD           = 8;
+   constant SSF_TYPE_VDD           = 9;
 
    (* note that these flags are identical to those in pmshl.h for SHE_* *)
-   const SSF_CONTROL_VISIBLE     = $0000;
-   const SSF_CONTROL_INVISIBLE   = $0001;
-   const SSF_CONTROL_MAXIMIZE    = $0002;
-   const SSF_CONTROL_MINIMIZE    = $0004;
-   const SSF_CONTROL_NOAUTOCLOSE = $0008;
-   const SSF_CONTROL_SETPOS      = $8000;
+   constant SSF_CONTROL_VISIBLE     = $0000;
+   constant SSF_CONTROL_INVISIBLE   = $0001;
+   constant SSF_CONTROL_MAXIMIZE    = $0002;
+   constant SSF_CONTROL_MINIMIZE    = $0004;
+   constant SSF_CONTROL_NOAUTOCLOSE = $0008;
+   constant SSF_CONTROL_SETPOS      = $8000;
 
    type STATUSDATA=structure   (* stsdata *)
       Length: USHORT;
@@ -68,15 +68,15 @@ module dossesmgr;
    type PSTATUSDATA=^STATUSDATA;
 
    (* SelectInd and BondInd paramater values for DosSetSession *)
-   const SET_SESSION_UNCHANGED      =0;
-   const SET_SESSION_SELECTABLE     =1;
-   const SET_SESSION_NON_SELECTABLE =2;
-   const SET_SESSION_BOND           =1;
-   const SET_SESSION_NO_BOND        =2;
+   constant SET_SESSION_UNCHANGED      =0;
+   constant SET_SESSION_SELECTABLE     =1;
+   constant SET_SESSION_NON_SELECTABLE =2;
+   constant SET_SESSION_BOND           =1;
+   constant SET_SESSION_NO_BOND        =2;
 
    (* TargetOption (scope) parameter values for DosStopSession *)
-   const STOP_SESSION_SPECIFIED     =0;
-   const STOP_SESSION_ALL           =1;
+   constant STOP_SESSION_SPECIFIED     =0;
+   constant STOP_SESSION_ALL           =1;
 
 
 function  DosStartSession(in  psd: PSTARTDATA;

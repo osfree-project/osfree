@@ -50,10 +50,10 @@ function WinCompareStrings(in hab: HAB;
                                          in psz2: PCSZ;
                                          in reserved: ULONG): ULONG;
 
-const WCS_ERROR                 = 0;
-const WCS_EQ                    = 1;
-const WCS_LT                    = 2;
-const WCS_GT                    = 3;
+constant WCS_ERROR                 = 0;
+constant WCS_EQ                    = 1;
+constant WCS_LT                    = 2;
+constant WCS_GT                    = 3;
 
 end.
 

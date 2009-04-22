@@ -78,45 +78,45 @@ type uDB_t=uDB;
  *
  *)
 
-const DBG_C_Null             = 0;       (* Null                         *)
-const DBG_C_ReadMem          = 1;       (* Read Word                    *)
-const DBG_C_ReadMem_I        = 1;       (* Read Word                    *)
-const DBG_C_ReadMem_D        = 2;       (* Read Word (same as 1)        *)
-const DBG_C_ReadReg          = 3;       (* Read Register Set            *)
-const DBG_C_WriteMem         = 4;       (* Write Word                   *)
-const DBG_C_WriteMem_I       = 4;       (* Write Word                   *)
-const DBG_C_WriteMem_D       = 5;       (* Write Word (same as 4)       *)
-const DBG_C_WriteReg         = 6;       (* Write Register Set           *)
-const DBG_C_Go               = 7;       (* Go                           *)
-const DBG_C_Term             = 8;       (* Terminate                    *)
-const DBG_C_SStep            = 9;       (* Single Step                  *)
-const DBG_C_Stop             = 10;      (* Stop                         *)
-const DBG_C_Freeze           = 11;      (* Freeze Thread                *)
-const DBG_C_Resume           = 12;      (* Resume Thread                *)
-const DBG_C_NumToAddr        = 13;      (* Object Number to Address     *)
-const DBG_C_ReadCoRegs       = 14;      (* Read Coprocessor Registers   *)
-const DBG_C_WriteCoRegs      = 15;      (* Write Coprocessor Registers  *)
+constant DBG_C_Null             = 0;       (* Null                         *)
+constant DBG_C_ReadMem          = 1;       (* Read Word                    *)
+constant DBG_C_ReadMem_I        = 1;       (* Read Word                    *)
+constant DBG_C_ReadMem_D        = 2;       (* Read Word (same as 1)        *)
+constant DBG_C_ReadReg          = 3;       (* Read Register Set            *)
+constant DBG_C_WriteMem         = 4;       (* Write Word                   *)
+constant DBG_C_WriteMem_I       = 4;       (* Write Word                   *)
+constant DBG_C_WriteMem_D       = 5;       (* Write Word (same as 4)       *)
+constant DBG_C_WriteReg         = 6;       (* Write Register Set           *)
+constant DBG_C_Go               = 7;       (* Go                           *)
+constant DBG_C_Term             = 8;       (* Terminate                    *)
+constant DBG_C_SStep            = 9;       (* Single Step                  *)
+constant DBG_C_Stop             = 10;      (* Stop                         *)
+constant DBG_C_Freeze           = 11;      (* Freeze Thread                *)
+constant DBG_C_Resume           = 12;      (* Resume Thread                *)
+constant DBG_C_NumToAddr        = 13;      (* Object Number to Address     *)
+constant DBG_C_ReadCoRegs       = 14;      (* Read Coprocessor Registers   *)
+constant DBG_C_WriteCoRegs      = 15;      (* Write Coprocessor Registers  *)
                                        (* 16 is reserved               *)
-const DBG_C_ThrdStat         = 17;      (* Get Thread Status            *)
-const DBG_C_MapROAlias       = 18;      (* Map read-only alias          *)
-const DBG_C_MapRWAlias       = 19;      (* Map read-write alias         *)
-const DBG_C_UnMapAlias       = 20;      (* Unmap Alias                  *)
-const DBG_C_Connect          = 21;      (* Connect to Debuggee          *)
-const DBG_C_ReadMemBuf       = 22;      (* Read Memory Buffer           *)
-const DBG_C_WriteMemBuf      = 23;      (* Write Memory Buffer          *)
-const DBG_C_SetWatch         = 24;      (* Set Watchpoint               *)
-const DBG_C_ClearWatch       = 25;      (* Clear Watchpoint             *)
-const DBG_C_RangeStep        = 26;      (* Range Step                   *)
-const DBG_C_Continue         = 27;      (* Continue after an Exception  *)
-const DBG_C_AddrToObject     = 28;      (* Address to Object            *)
-const DBG_C_XchgOpcode       = 29;      (* Exchange opcode and go       *)
-const DBG_C_LinToSel         = 30;      (* 32 to 16 conversion      A001*)
-const DBG_C_SelToLin         = 31;      (* 16 to 32 conversion      A001*)
-const DBG_C_RegisterSemList  = 32;      (* Internal use only            *)
-const DBG_C_Attach           = 33;      (* Attach to Debuggee           *)
-const DBG_C_Detach           = 34;      (* Detach from debuggee         *)
-const DBG_C_RegDebug         = 35;      (* Register Debugger            *)
-const DBG_C_QueryDebug       = 36;      (* Query Currently Reg Debugger *)
+constant DBG_C_ThrdStat         = 17;      (* Get Thread Status            *)
+constant DBG_C_MapROAlias       = 18;      (* Map read-only alias          *)
+constant DBG_C_MapRWAlias       = 19;      (* Map read-write alias         *)
+constant DBG_C_UnMapAlias       = 20;      (* Unmap Alias                  *)
+constant DBG_C_Connect          = 21;      (* Connect to Debuggee          *)
+constant DBG_C_ReadMemBuf       = 22;      (* Read Memory Buffer           *)
+constant DBG_C_WriteMemBuf      = 23;      (* Write Memory Buffer          *)
+constant DBG_C_SetWatch         = 24;      (* Set Watchpoint               *)
+constant DBG_C_ClearWatch       = 25;      (* Clear Watchpoint             *)
+constant DBG_C_RangeStep        = 26;      (* Range Step                   *)
+constant DBG_C_Continue         = 27;      (* Continue after an Exception  *)
+constant DBG_C_AddrToObject     = 28;      (* Address to Object            *)
+constant DBG_C_XchgOpcode       = 29;      (* Exchange opcode and go       *)
+constant DBG_C_LinToSel         = 30;      (* 32 to 16 conversion      A001*)
+constant DBG_C_SelToLin         = 31;      (* 16 to 32 conversion      A001*)
+constant DBG_C_RegisterSemList  = 32;      (* Internal use only            *)
+constant DBG_C_Attach           = 33;      (* Attach to Debuggee           *)
+constant DBG_C_Detach           = 34;      (* Detach from debuggee         *)
+constant DBG_C_RegDebug         = 35;      (* Register Debugger            *)
+constant DBG_C_QueryDebug       = 36;      (* Query Currently Reg Debugger *)
 
 
 (***    DBG_C_RegDebug - Register JIT Debug Information
@@ -128,10 +128,10 @@ const DBG_C_QueryDebug       = 36;      (* Query Currently Reg Debugger *)
  *      These values are passing through kDB_t->Value field.
  *)
 
-const JIT_REG_INHERIT        = $00010000;
-const JIT_REG_NOINHERIT      = $00020000;
-const JIT_REG_DETACH         = $00030000;
-const JIT_REG_FG             = $00040000;
+constant JIT_REG_INHERIT        = $00010000;
+constant JIT_REG_NOINHERIT      = $00020000;
+constant JIT_REG_DETACH         = $00030000;
+constant JIT_REG_FG             = $00040000;
 
 (***    DBG_C_QueryDebug - Query JIT Debug Information
  *
@@ -141,8 +141,8 @@ const JIT_REG_FG             = $00040000;
  *
  *      These values are passing through kDB_t->Offset field.
  *)
-const DBGQ_JIT_GLOBAL        = $10000000;
-const DBGQ_JIT_PERPROC       = $20000000;
+constant DBGQ_JIT_GLOBAL        = $10000000;
+constant DBGQ_JIT_PERPROC       = $20000000;
 
 
 (***            DosDebug Notification Numbers
@@ -155,20 +155,20 @@ const DBGQ_JIT_PERPROC       = $20000000;
  *
  *)
 
-const DBG_N_Success           =0;      (* Command completed successfully  *)
-const DBG_N_Error             =-1;     (* Error detected during command   *)
-const DBG_N_ProcTerm          =-6;     (* Process exiting - ExitList done *)
-const DBG_N_Exception         =-7;     (* Exception detected              *)
-const DBG_N_ModuleLoad        =-8;     (* Module loaded                   *)
-const DBG_N_CoError           =-9;     (* Coprocessor not in use error    *)
-const DBG_N_ThreadTerm        =-10;    (* Thread exiting - Exitlist soon  *)
-const DBG_N_AsyncStop         =-11;    (* Async Stop detected             *)
-const DBG_N_NewProc           =-12;    (* New Process started             *)
-const DBG_N_AliasFree         =-13;    (* Alias needs to be freed         *)
-const DBG_N_Watchpoint        =-14;    (* Watchpoint hit                  *)
-const DBG_N_ThreadCreate      =-15;    (* New thread created              *)
-const DBG_N_ModuleFree        =-16;    (* Module freed                    *)
-const DBG_N_RangeStep         =-17;    (* Range Step completed            *)
+constant DBG_N_Success           =0;      (* Command completed successfully  *)
+constant DBG_N_Error             =-1;     (* Error detected during command   *)
+constant DBG_N_ProcTerm          =-6;     (* Process exiting - ExitList done *)
+constant DBG_N_Exception         =-7;     (* Exception detected              *)
+constant DBG_N_ModuleLoad        =-8;     (* Module loaded                   *)
+constant DBG_N_CoError           =-9;     (* Coprocessor not in use error    *)
+constant DBG_N_ThreadTerm        =-10;    (* Thread exiting - Exitlist soon  *)
+constant DBG_N_AsyncStop         =-11;    (* Async Stop detected             *)
+constant DBG_N_NewProc           =-12;    (* New Process started             *)
+constant DBG_N_AliasFree         =-13;    (* Alias needs to be freed         *)
+constant DBG_N_Watchpoint        =-14;    (* Watchpoint hit                  *)
+constant DBG_N_ThreadCreate      =-15;    (* New thread created              *)
+constant DBG_N_ModuleFree        =-16;    (* Module freed                    *)
+constant DBG_N_RangeStep         =-17;    (* Range Step completed            *)
 
 (***          - Thread Status Buffer structure
  *
@@ -211,8 +211,8 @@ type TStat_t=TStat;
  *
  *)
 
-const DBG_D_Thawed    =0;
-const DBG_D_Frozen    =1;
+constant DBG_D_Thawed    =0;
+constant DBG_D_Frozen    =1;
 
 (***            TState values
  *
@@ -222,10 +222,10 @@ const DBG_D_Frozen    =1;
  *
  *)
 
-const DBG_T_Runnable  =0;
-const DBG_T_Suspended =1;
-const DBG_T_Blocked   =2;
-const DBG_T_CritSec   =3;
+constant DBG_T_Runnable  =0;
+constant DBG_T_Suspended =1;
+constant DBG_T_Blocked   =2;
+constant DBG_T_CritSec   =3;
 
 (***             Coprocessor Type Parameters
  *
@@ -235,7 +235,7 @@ const DBG_T_CritSec   =3;
  *
  *)
 
-const DBG_CO_387      =1;
+constant DBG_CO_387      =1;
 
 (***EK+ DBG_LEN - Coprocessor Buffer Lengths
  *
@@ -245,7 +245,7 @@ const DBG_CO_387      =1;
  *
  *)
 
-const DBG_LEN_387     =108;
+constant DBG_LEN_387     =108;
 
 (***            Debugging Level Parameter
  *
@@ -254,7 +254,7 @@ const DBG_LEN_387     =108;
  *
  *)
 
-const DBG_L_386       =1;
+constant DBG_L_386       =1;
 
 (***            Watchpoint Scope and Type Parameters
  *
@@ -267,14 +267,14 @@ const DBG_L_386       =1;
 
 (*      Watchpoint Scope Parameters     *)
 
-const DBG_W_Global   = $00000001;
-const DBG_W_Local    = $00000002;
+constant DBG_W_Global   = $00000001;
+constant DBG_W_Local    = $00000002;
 
 (*      Watchpoint Type Parameters      *)
 
-const DBG_W_Execute   =$00010000;
-const DBG_W_Write     =$00020000;
-const DBG_W_ReadWrite =$00030000;
+constant DBG_W_Execute   =$00010000;
+constant DBG_W_Write     =$00020000;
+constant DBG_W_ReadWrite =$00030000;
 
 (***            Object flags
  *
@@ -283,7 +283,7 @@ const DBG_W_ReadWrite =$00030000;
  *
  *)
 
-const DBG_O_OBJMTE    =$10000000;
+constant DBG_O_OBJMTE    =$10000000;
 
 (***            Exception chances
  *
@@ -319,9 +319,9 @@ const DBG_O_OBJMTE    =$10000000;
  *              Buffer = Exception number
  *)
 
-const DBG_X_PRE_FIRST_CHANCE = $00000000;
-const DBG_X_FIRST_CHANCE     = $00000001;
-const DBG_X_LAST_CHANCE      = $00000002;
-const DBG_X_STACK_INVALID    = $00000003;
+constant DBG_X_PRE_FIRST_CHANCE = $00000000;
+constant DBG_X_FIRST_CHANCE     = $00000001;
+constant DBG_X_LAST_CHANCE      = $00000002;
+constant DBG_X_STACK_INVALID    = $00000003;
 
 end.

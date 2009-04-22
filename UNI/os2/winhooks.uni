@@ -24,38 +24,38 @@ function WinCallMsgFilter(in hab: HAB;
       *
       **********************************************************************)
 
-const HK_SENDMSG                = 0;
+constant HK_SENDMSG                = 0;
       (* VOID EXPENTRY SendMsgHook(HAB hab,               ** installer's hab
       *                            PSMHSTRUCT psmh,       ** p send msg struct
       *                            BOOL fInterTask);      ** between threads *)
 
-const HK_INPUT                  = 1;
+constant HK_INPUT                  = 1;
       (* BOOL EXPENTRY InputHook(HAB hab,                 ** installer's hab
       *                          PQMSG pQmsg,             ** p qmsg
       *                          ULONG/USHORT fs);        ** remove/noremove *)
 
-const HK_MSGFILTER              = 2;
+constant HK_MSGFILTER              = 2;
       (* BOOL EXPENTRY MsgFilterHook(HAB hab,             ** installer's hab
       *                              PQMSG pQmsg,         ** p qmsg
       *                              ULONG/USHORT msgf);  ** filter flag *)
 
-const HK_JOURNALRECORD          = 3;
+constant HK_JOURNALRECORD          = 3;
       (* VOID EXPENTRY JournalRecordHook(HAB hab,         ** installer's hab
       *                                  PQMSG pQmsg);    ** p qmsg *)
 
-const HK_JOURNALPLAYBACK        = 4;
+constant HK_JOURNALPLAYBACK        = 4;
       (* ULONG EXPENTRY JournalPlaybackHook(HAB hab,      **installer's hab
       *                                     BOOL fSkip,   ** skip messages
       *                                     PQMSG pQmsg); ** p qmsg *)
 
-const HK_HELP                   = 5;
+constant HK_HELP                   = 5;
       (* BOOL EXPENTRY HelpHook(HAB hab,                  ** installer's hab
       *                         ULONG/USHORT usMode,      ** mode
       *                         ULONG/USHORT idTopic,     ** main topic
       *                         ULONG/USHORT idSubTopic,  ** sub topic
       *                         PRECTL prcPosition);      ** associated position *)
 
-const HK_LOADER                 = 6;
+constant HK_LOADER                 = 6;
       (* BOOL EXPENTRY LoaderHook(HAB hab,                ** installer's hab
       *                           LONG/USHORT idContext,  ** who called hook
       *                           PSZ pszLibname,         ** lib name string
@@ -64,7 +64,7 @@ const HK_LOADER                 = 6;
       *                           PFNWP wndProc,          ** window procedure
       *                           PBOOL pfSuccess);       ** success indicator *)
 
-const HK_REGISTERUSERMSG        = 7;
+constant HK_REGISTERUSERMSG        = 7;
       (* BOOL EXPENTRY RegisterUserHook(HAB hab,              ** installer's hab
       *                                 LONG/SHORT idContext, ** who called hook
       *                                 ULONG/USHORT msg,     ** message
@@ -77,7 +77,7 @@ const HK_REGISTERUSERMSG        = 7;
       *                                 PLONG/PSHORT arRMP,   ** element data types
       *                                 PBOOL fRegistered);   ** msg parms already reg*)
 
-const HK_MSGCONTROL             = 8;
+constant HK_MSGCONTROL             = 8;
       (* BOOL EXPENTRY MsgControlHook(HAB hab,            ** installer's hab
       *                               LONG/SHORT idContext,** who called hook
       *                               HWND hwnd,          ** SEI window handle
@@ -86,16 +86,16 @@ const HK_MSGCONTROL             = 8;
       *                               LONG/SHORT idControl,** SMI_*
       *                               PBOOL fSuccess);    ** mode already set *)
 
-const HK_PLIST_ENTRY            = 9;
+constant HK_PLIST_ENTRY            = 9;
       (* BOOL EXPENTRY ProgramListEntryHook(HAB hab,      ** installer's hab
       *                                     PPRFHOOKPARMS pProfileHookParams,** data
       *                                     PBOOL fNoExecute);  ** cease hook processing*)
 
-const HK_PLIST_EXIT             = 10;
+constant HK_PLIST_EXIT             = 10;
       (* BOOL EXPENTRY ProgramListExitHook(HAB hab,       ** installer's hab
       *                                    PPRFHOOKPARMS pProfileHookParams);** data*)
 
-const HK_FINDWORD               = 11;
+constant HK_FINDWORD               = 11;
       (* BOOL EXPENTRY FindWordHook(USHORT usCodepage,    ** code page to use
       *                             PSZ pszText,          ** text to break
       *                             ULONG cb,             ** maximum text size
@@ -104,59 +104,59 @@ const HK_FINDWORD               = 11;
       *                             PULONG pichEnd,       ** where break ended
       *                             PULONG pichNext);     ** where next word begin*)
 
-const HK_CODEPAGECHANGED        = 12;
+constant HK_CODEPAGECHANGED        = 12;
       (* VOID EXPENTRY CodePageChangedHook(HMQ hmq,       ** msg q handle
       *                                    ULONG/USHORT usOldCodepage, ** old code page
       *                                    ULONG/USHORT usNewCodepage);** new code page*)
 
-const HK_WINDOWDC               = 15;
+constant HK_WINDOWDC               = 15;
       (* BOOL EXPENTRY WindowDCHook(HAB  hab,             ** installer's hab
       *                             HDC  hdc,             ** current hdc
       *                             HWND hwnd,            ** current hwnd
       *                             BOOL);                ** association flag *)
 
-const HK_DESTROYWINDOW           = 16;
+constant HK_DESTROYWINDOW           = 16;
       (* BOOL EXPENTRY DestroyWindowHook (HAB  hab,       ** installer's hab
       *                                   HWND hwnd,      ** destroyed win hwnd
       *                                   ULONG Reserved);** association flag  *)
 
-const HK_CHECKMSGFILTER         = 20;
+constant HK_CHECKMSGFILTER         = 20;
       (* BOOL EXPENTRY CheckMsgFilterHook(HAB  hab,       ** installer's hab
       *                                   PQMSG pQmsg,    ** p qmsg
       *                                   ULONG/USHORT usFirst,  ** first msg
       *                                   ULONG/USHORT usLast,   ** last msg
       *                                   ULONG/USHORT fOptions);** flags  *)
 
-const HK_MSGINPUT               = 21;
+constant HK_MSGINPUT               = 21;
       (* BOOL EXPENTRY MsgInputHook (HAB  hab,            ** installer's hab
       *                              PQMSG pQmsg,         ** p qmsg
       *                              BOOL fSkip,          ** skip msg
       *                              PBOOL pfNoRecord);   ** journal record event *)
 
-const HK_LOCKUP                 = 23;
+constant HK_LOCKUP                 = 23;
       (* BOOL EXPENTRY LockupHook (HAB  hab,              ** installer's hab
       *                            HWND hwndLockupFrame); ** hwnd     *)
 
-const HK_FLUSHBUF               = 24;
+constant HK_FLUSHBUF               = 24;
       (* BOOL EXPENTRY FlushBufHook (HAB  hab);           ** installer's hab *)
 
       (*** Current message queue constant **********************************)
-const HMQ_CURRENT         = 1;
+constant HMQ_CURRENT         = 1;
 
       (*** WH_MSGFILTER context codes **************************************)
-const MSGF_DIALOGBOX            = 1;
-const MSGF_MESSAGEBOX           = 2;
-const MSGF_TRACK                = 8;
-const MSGF_DDEPOSTMSG           = 3;
+constant MSGF_DIALOGBOX            = 1;
+constant MSGF_MESSAGEBOX           = 2;
+constant MSGF_TRACK                = 8;
+constant MSGF_DDEPOSTMSG           = 3;
 
       (*** HK_HELP Help modes **********************************************)
-const HLPM_FRAME             = (-1);
-const HLPM_WINDOW            = (-2);
-const HLPM_MENU              = (-3);
+constant HLPM_FRAME             = (-1);
+constant HLPM_WINDOW            = (-2);
+constant HLPM_MENU              = (-3);
 
       (*** HK_SENDMSG structure ********************************************)
-const PM_MODEL_1X     = 0;
-const PM_MODEL_2X     = 1;
+constant PM_MODEL_1X     = 0;
+constant PM_MODEL_2X     = 1;
 
       type SMHSTRUCT=structure      (* smhs *)
          mp2: MPARAM;
@@ -169,21 +169,21 @@ const PM_MODEL_2X     = 1;
 
       (*HK_LOADER context codes *)
 
-const LHK_DELETEPROC           =  1;
-const LHK_DELETELIB            =  2;
-const LHK_LOADPROC             =  3;
-const LHK_LOADLIB               = 4;
+constant LHK_DELETEPROC           =  1;
+constant LHK_DELETELIB            =  2;
+constant LHK_LOADPROC             =  3;
+constant LHK_LOADLIB               = 4;
 
       (*HK_MSGCONTROL context codes *)
 
-const MCHK_MSGINTEREST          = 1;
-const MCHK_CLASSMSGINTEREST     = 2;
-const MCHK_SYNCHRONISATION      = 3;
-const MCHK_MSGMODE              = 4;
+constant MCHK_MSGINTEREST          = 1;
+constant MCHK_CLASSMSGINTEREST     = 2;
+constant MCHK_SYNCHRONISATION      = 3;
+constant MCHK_MSGMODE              = 4;
 
       (*HK_REGISTERUSERMSG conext codes *)
 
-const RUMHK_DATATYPE            = 1;
-const RUMHK_MSG                 = 2;
+constant RUMHK_DATATYPE            = 1;
+constant RUMHK_MSG                 = 2;
 
 end.

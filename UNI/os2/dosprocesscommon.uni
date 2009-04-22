@@ -7,7 +7,7 @@ function DosBeep(in freq: ULONG; in dur: ULONG): APIRET;
 procedure DosExit(in action: ULONG; in result: ULONG);
 
 (* DosExit codes *)
-const EXIT_THREAD      =  0;
-const EXIT_PROCESS     =  1;
+constant EXIT_THREAD      =  0;
+constant EXIT_PROCESS     =  1;
 
 end.

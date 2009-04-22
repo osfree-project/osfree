@@ -38,37 +38,37 @@ module dosnmpipes;
    end;
    type PPIPESEMSTATE=^PIPESEMSTATE;
 
-   const NP_INDEFINITE_WAIT     = -1;
-   const NP_DEFAULT_WAIT        = 0;
+   constant NP_INDEFINITE_WAIT     = -1;
+   constant NP_DEFAULT_WAIT        = 0;
 
    (* DosPeekNmPipe() pipe states *)
 
-   const NP_STATE_DISCONNECTED  = $0001;
-   const NP_STATE_LISTENING     = $0002;
-   const NP_STATE_CONNECTED     = $0003;
-   const NP_STATE_CLOSING       = $0004;
+   constant NP_STATE_DISCONNECTED  = $0001;
+   constant NP_STATE_LISTENING     = $0002;
+   constant NP_STATE_CONNECTED     = $0003;
+   constant NP_STATE_CLOSING       = $0004;
 
    (* DosCreateNPipe open modes *)
 
-   const NP_ACCESS_INBOUND      = $0000;
-   const NP_ACCESS_OUTBOUND     = $0001;
-   const NP_ACCESS_DUPLEX       = $0002;
-   const NP_INHERIT             = $0000;
-   const NP_NOINHERIT           = $0080;
-   const NP_WRITEBEHIND         = $0000;
-   const NP_NOWRITEBEHIND       = $4000;
+   constant NP_ACCESS_INBOUND      = $0000;
+   constant NP_ACCESS_OUTBOUND     = $0001;
+   constant NP_ACCESS_DUPLEX       = $0002;
+   constant NP_INHERIT             = $0000;
+   constant NP_NOINHERIT           = $0080;
+   constant NP_WRITEBEHIND         = $0000;
+   constant NP_NOWRITEBEHIND       = $4000;
 
    (* DosCreateNPipe and DosQueryNPHState state *)
 
-   const NP_READMODE_BYTE      =  $0000;
-   const NP_READMODE_MESSAGE   =  $0100;
-   const NP_TYPE_BYTE          =  $0000;
-   const NP_TYPE_MESSAGE       =  $0400;
-   const NP_END_CLIENT         =  $0000;
-   const NP_END_SERVER         =  $4000;
-   const NP_WAIT               =  $0000;
-   const NP_NOWAIT             =  $8000;
-   const NP_UNLIMITED_INSTANCES=  $00FF;
+   constant NP_READMODE_BYTE      =  $0000;
+   constant NP_READMODE_MESSAGE   =  $0100;
+   constant NP_TYPE_BYTE          =  $0000;
+   constant NP_TYPE_MESSAGE       =  $0400;
+   constant NP_END_CLIENT         =  $0000;
+   constant NP_END_SERVER         =  $4000;
+   constant NP_WAIT               =  $0000;
+   constant NP_NOWAIT             =  $8000;
+   constant NP_UNLIMITED_INSTANCES=  $00FF;
 
 
    function  DosCallNPipe(in  pszName: PCSZ;
@@ -138,21 +138,21 @@ module dosnmpipes;
                           in msec: ULONG): APIRET;
 
    (* values in fStatus *)
-   const NPSS_EOI             =      0;     (* End Of Information    *)
-   const NPSS_RDATA           =      1;     (* read data available   *)
-   const NPSS_WSPACE          =      2;     (* write space available *)
-   const NPSS_CLOSE           =      3;     (* pipe in CLOSING state *)
+   constant NPSS_EOI             =      0;     (* End Of Information    *)
+   constant NPSS_RDATA           =      1;     (* read data available   *)
+   constant NPSS_WSPACE          =      2;     (* write space available *)
+   constant NPSS_CLOSE           =      3;     (* pipe in CLOSING state *)
 
    (* values in npss_flag *)
-   const NPSS_WAIT           =       $01;  (* waiting thread on end of pipe *)
+   constant NPSS_WAIT           =       $01;  (* waiting thread on end of pipe *)
 
 
    (* defined bits in pipe mode *)
-   const NP_NBLK               =     $8000; (* non-blocking read/write *)
-   const NP_SERVER             =     $4000; (* set if server end       *)
-   const NP_WMESG              =     $0400; (* write messages          *)
-   const NP_RMESG              =     $0100; (* read as messages        *)
-   const NP_ICOUNT             =     $00FF; (* instance count field    *)
+   constant NP_NBLK               =     $8000; (* non-blocking read/write *)
+   constant NP_SERVER             =     $4000; (* set if server end       *)
+   constant NP_WMESG              =     $0400; (* write messages          *)
+   constant NP_RMESG              =     $0100; (* read as messages        *)
+   constant NP_ICOUNT             =     $00FF; (* instance count field    *)
 
 
    (*Named pipes may be in one of several states depending on the actions
@@ -179,10 +179,10 @@ module dosnmpipes;
    *      Values for named pipe state
    *)
 
-   const NP_DISCONNECTED      = 1;         (* after pipe creation or Disconnect *)
-   const NP_LISTENING         = 2;         (* after DosNmPipeConnect            *)
-   const NP_CONNECTED         = 3;         (* after Client open                 *)
-   const NP_CLOSING           = 4;         (* after Client or Server close      *)
+   constant NP_DISCONNECTED      = 1;         (* after pipe creation or Disconnect *)
+   constant NP_LISTENING         = 2;         (* after DosNmPipeConnect            *)
+   constant NP_CONNECTED         = 3;         (* after Client open                 *)
+   constant NP_CLOSING           = 4;         (* after Client or Server close      *)
 
 
 end.

@@ -5,95 +5,95 @@ uses hevdef;
    (*** File manager *)
    (* DosSetFilePtr() file position codes *)
 
-   const FILE_BEGIN    =  $0000;   (* Move relative to beginning of file *)
-   const FILE_CURRENT  =  $0001;   (* Move relative to current fptr position *)
-   const FILE_END      =  $0002;   (* Move relative to end of file *)
-   const FILE_SECTOR   =  $8000;   (* Interpret offset as a sector *)
+   constant FILE_BEGIN    =  $0000;   (* Move relative to beginning of file *)
+   constant FILE_CURRENT  =  $0001;   (* Move relative to current fptr position *)
+   constant FILE_END      =  $0002;   (* Move relative to end of file *)
+   constant FILE_SECTOR   =  $8000;   (* Interpret offset as a sector *)
 
    (* DosListIO() operation flags   *)
 
-   const LISTIO_READ   =  $0004;  (* perform seek/read *)
-   const LISTIO_WRITE  =  $0008;  (* perform seek/write *)
+   constant LISTIO_READ   =  $0004;  (* perform seek/read *)
+   constant LISTIO_WRITE  =  $0008;  (* perform seek/write *)
 
    (* DosListIO() operation modes  *)
 
-   const LISTIO_ORDERED   = $0001;  (* guarantee ordering of operations *)
-   const LISTIO_UNORDERED = $0002;  (* speed is king *)
+   constant LISTIO_ORDERED   = $0001;  (* guarantee ordering of operations *)
+   constant LISTIO_UNORDERED = $0002;  (* speed is king *)
 
    (* DosFindFirst/Next Directory handle types *)
-   const HDIR_SYSTEM     =   1;     (* Use system handle (1) *)
-   const HDIR_CREATE     = (-1);    (* Allocate a new, unused handle *)
+   constant HDIR_SYSTEM     =   1;     (* Use system handle (1) *)
+   constant HDIR_CREATE     = (-1);    (* Allocate a new, unused handle *)
 
    (* DosCopy control bits; may be or'ed together *)
-   const DCPY_EXISTING  = $0001;   (* Copy even if target exists *)
-   const DCPY_APPEND    = $0002;   (* Append to existing file, do not replace *)
-   const DCPY_FAILEAS   = $0004;   (* Fail if EAs not supported on target*)
+   constant DCPY_EXISTING  = $0001;   (* Copy even if target exists *)
+   constant DCPY_APPEND    = $0002;   (* Append to existing file, do not replace *)
+   constant DCPY_FAILEAS   = $0004;   (* Fail if EAs not supported on target*)
 
    (* DosOpen/DosQFHandState/DosQueryFileInfo et al file attributes; also *)
    (* known as Dos File Mode bits... *)
-   const FILE_NORMAL    = $0000;
-   const FILE_READONLY  = $0001;
-   const FILE_HIDDEN    = $0002;
-   const FILE_SYSTEM    = $0004;
-   const FILE_DIRECTORY = $0010;
-   const FILE_ARCHIVED  = $0020;
+   constant FILE_NORMAL    = $0000;
+   constant FILE_READONLY  = $0001;
+   constant FILE_HIDDEN    = $0002;
+   constant FILE_SYSTEM    = $0004;
+   constant FILE_DIRECTORY = $0010;
+   constant FILE_ARCHIVED  = $0020;
 
-   const FILE_IGNORE    = $10000;     (* ignore file attribute in *)
+   constant FILE_IGNORE    = $10000;     (* ignore file attribute in *)
    (* DosSetPath/File Info if *)
    (* this bit is set*)
 
-   const MUST_HAVE_READONLY  =    ( (FILE_READONLY  shl 8) or FILE_READONLY  );
-   const MUST_HAVE_HIDDEN    =    ( (FILE_HIDDEN    shl 8) or FILE_HIDDEN    );
-   const MUST_HAVE_SYSTEM    =    ( (FILE_SYSTEM    shl 8) or FILE_SYSTEM    );
-   const MUST_HAVE_DIRECTORY =    ( (FILE_DIRECTORY shl 8) or FILE_DIRECTORY );
-   const MUST_HAVE_ARCHIVED  =    ( (FILE_ARCHIVED  shl 8) or FILE_ARCHIVED  );
+   constant MUST_HAVE_READONLY  =    ( (FILE_READONLY  shl 8) or FILE_READONLY  );
+   constant MUST_HAVE_HIDDEN    =    ( (FILE_HIDDEN    shl 8) or FILE_HIDDEN    );
+   constant MUST_HAVE_SYSTEM    =    ( (FILE_SYSTEM    shl 8) or FILE_SYSTEM    );
+   constant MUST_HAVE_DIRECTORY =    ( (FILE_DIRECTORY shl 8) or FILE_DIRECTORY );
+   constant MUST_HAVE_ARCHIVED  =    ( (FILE_ARCHIVED  shl 8) or FILE_ARCHIVED  );
 
    (* DosOpen() actions *)
-   const FILE_EXISTED   = $0001;
-   const FILE_CREATED   = $0002;
-   const FILE_TRUNCATED = $0003;
+   constant FILE_EXISTED   = $0001;
+   constant FILE_CREATED   = $0002;
+   constant FILE_TRUNCATED = $0003;
 
    (* DosOpen() open flags *)
-   const FILE_OPEN      = $0001;
-   const FILE_TRUNCATE  = $0002;
-   const FILE_CREATE    = $0010;
+   constant FILE_OPEN      = $0001;
+   constant FILE_TRUNCATE  = $0002;
+   constant FILE_CREATE    = $0010;
 
    (*     this nibble applies if file already exists                xxxx *)
-   const OPEN_ACTION_FAIL_IF_EXISTS    = $0000;  (* ---- ---- ---- 0000 *)
-   const OPEN_ACTION_OPEN_IF_EXISTS    = $0001;  (* ---- ---- ---- 0001 *)
-   const OPEN_ACTION_REPLACE_IF_EXISTS = $0002;  (* ---- ---- ---- 0010 *)
+   constant OPEN_ACTION_FAIL_IF_EXISTS    = $0000;  (* ---- ---- ---- 0000 *)
+   constant OPEN_ACTION_OPEN_IF_EXISTS    = $0001;  (* ---- ---- ---- 0001 *)
+   constant OPEN_ACTION_REPLACE_IF_EXISTS = $0002;  (* ---- ---- ---- 0010 *)
 
    (*     this nibble applies if file does not exist           xxxx      *)
-   const OPEN_ACTION_FAIL_IF_NEW       = $0000;  (* ---- ---- 0000 ---- *)
-   const OPEN_ACTION_CREATE_IF_NEW     = $0010;  (* ---- ---- 0001 ---- *)
+   constant OPEN_ACTION_FAIL_IF_NEW       = $0000;  (* ---- ---- 0000 ---- *)
+   constant OPEN_ACTION_CREATE_IF_NEW     = $0010;  (* ---- ---- 0001 ---- *)
 
    (* DosOpen/DosSetFHandState mode flags *)
-   const OPEN_ACCESS_READONLY          = $0000;  (* ---- ---- ---- -000 *)
-   const OPEN_ACCESS_WRITEONLY         = $0001;  (* ---- ---- ---- -001 *)
-   const OPEN_ACCESS_READWRITE         = $0002;  (* ---- ---- ---- -010 *)
-   const OPEN_SHARE_DENYREADWRITE      = $0010;  (* ---- ---- -001 ---- *)
-   const OPEN_SHARE_DENYWRITE          = $0020;  (* ---- ---- -010 ---- *)
-   const OPEN_SHARE_DENYREAD           = $0030;  (* ---- ---- -011 ---- *)
-   const OPEN_SHARE_DENYNONE           = $0040;  (* ---- ---- -100 ---- *)
-   const OPEN_FLAGS_NOINHERIT          = $0080;  (* ---- ---- 1--- ---- *)
-   const OPEN_FLAGS_NO_LOCALITY        = $0000;  (* ---- -000 ---- ---- *)
-   const OPEN_FLAGS_SEQUENTIAL         = $0100;  (* ---- -001 ---- ---- *)
-   const OPEN_FLAGS_RANDOM             = $0200;  (* ---- -010 ---- ---- *)
-   const OPEN_FLAGS_RANDOMSEQUENTIAL   = $0300;  (* ---- -011 ---- ---- *)
-   const OPEN_FLAGS_NO_CACHE           = $1000;  (* ---1 ---- ---- ---- *)
-   const OPEN_FLAGS_FAIL_ON_ERROR      = $2000;  (* --1- ---- ---- ---- *)
-   const OPEN_FLAGS_WRITE_THROUGH      = $4000;  (* -1-- ---- ---- ---- *)
-   const OPEN_FLAGS_DASD               = $8000;  (* 1--- ---- ---- ---- *)
-   const OPEN_FLAGS_NONSPOOLED         = $00040000;
-   const OPEN_SHARE_DENYLEGACY     =  $10000000;   (* 2GB *)
-   const OPEN_FLAGS_PROTECTED_HANDLE = $40000000;
+   constant OPEN_ACCESS_READONLY          = $0000;  (* ---- ---- ---- -000 *)
+   constant OPEN_ACCESS_WRITEONLY         = $0001;  (* ---- ---- ---- -001 *)
+   constant OPEN_ACCESS_READWRITE         = $0002;  (* ---- ---- ---- -010 *)
+   constant OPEN_SHARE_DENYREADWRITE      = $0010;  (* ---- ---- -001 ---- *)
+   constant OPEN_SHARE_DENYWRITE          = $0020;  (* ---- ---- -010 ---- *)
+   constant OPEN_SHARE_DENYREAD           = $0030;  (* ---- ---- -011 ---- *)
+   constant OPEN_SHARE_DENYNONE           = $0040;  (* ---- ---- -100 ---- *)
+   constant OPEN_FLAGS_NOINHERIT          = $0080;  (* ---- ---- 1--- ---- *)
+   constant OPEN_FLAGS_NO_LOCALITY        = $0000;  (* ---- -000 ---- ---- *)
+   constant OPEN_FLAGS_SEQUENTIAL         = $0100;  (* ---- -001 ---- ---- *)
+   constant OPEN_FLAGS_RANDOM             = $0200;  (* ---- -010 ---- ---- *)
+   constant OPEN_FLAGS_RANDOMSEQUENTIAL   = $0300;  (* ---- -011 ---- ---- *)
+   constant OPEN_FLAGS_NO_CACHE           = $1000;  (* ---1 ---- ---- ---- *)
+   constant OPEN_FLAGS_FAIL_ON_ERROR      = $2000;  (* --1- ---- ---- ---- *)
+   constant OPEN_FLAGS_WRITE_THROUGH      = $4000;  (* -1-- ---- ---- ---- *)
+   constant OPEN_FLAGS_DASD               = $8000;  (* 1--- ---- ---- ---- *)
+   constant OPEN_FLAGS_NONSPOOLED         = $00040000;
+   constant OPEN_SHARE_DENYLEGACY     =  $10000000;   (* 2GB *)
+   constant OPEN_FLAGS_PROTECTED_HANDLE = $40000000;
 
 
    (* DosSearchPath() constants *)
-   const SEARCH_PATH          = $0000;
-   const SEARCH_CUR_DIRECTORY = $0001;
-   const SEARCH_ENVIRONMENT   = $0002;
-   const SEARCH_IGNORENETERRS = $0004;
+   constant SEARCH_PATH          = $0000;
+   constant SEARCH_CUR_DIRECTORY = $0001;
+   constant SEARCH_ENVIRONMENT   = $0002;
+   constant SEARCH_IGNORENETERRS = $0004;
 
 
    (************************************************************
@@ -104,42 +104,42 @@ uses hevdef;
    ************************************************************)
 
    (* File info levels *)
-   const FIL_STANDARD          =  1;     (* Info level 1, standard file info *)
-   const FIL_QUERYEASIZE       =  2;     (* Level 2, return Full EA size *)
-   const FIL_QUERYEASFROMLIST  =  3;     (* Level 3, return requested EA's *)
-   const FIL_STANDARDL         = 11;     (* LFS - Info level 11, standard file info for large files*)
-   const FIL_QUERYEASIZEL      = 12;     (* LFS - Level 12, return Full EA size for large files *)
-   const FIL_QUERYEASFROMLISTL = 13;     (* LFS - Level 13, return requested EA's *)
+   constant FIL_STANDARD          =  1;     (* Info level 1, standard file info *)
+   constant FIL_QUERYEASIZE       =  2;     (* Level 2, return Full EA size *)
+   constant FIL_QUERYEASFROMLIST  =  3;     (* Level 3, return requested EA's *)
+   constant FIL_STANDARDL         = 11;     (* LFS - Info level 11, standard file info for large files*)
+   constant FIL_QUERYEASIZEL      = 12;     (* LFS - Level 12, return Full EA size for large files *)
+   constant FIL_QUERYEASFROMLISTL = 13;     (* LFS - Level 13, return requested EA's *)
 
 
    (* File info levels: Dos...PathInfo only *)
-   const FIL_QUERYFULLNAME    = 5;     (* Level 5, return fully qualified
+   constant FIL_QUERYFULLNAME    = 5;     (* Level 5, return fully qualified
    name of file *)
 
 
    (* DosFsAttach() *)
    (* Attact or detach *)
-   const FS_ATTACH            = 0;     (* Attach file server *)
-   const FS_DETACH            = 1;     (* Detach file server *)
-   const FS_SPOOLATTACH       = 2;     (* Register a spooler device *)
-   const FS_SPOOLDETACH       = 3;     (* De-register a spooler device *)
+   constant FS_ATTACH            = 0;     (* Attach file server *)
+   constant FS_DETACH            = 1;     (* Detach file server *)
+   constant FS_SPOOLATTACH       = 2;     (* Register a spooler device *)
+   constant FS_SPOOLDETACH       = 3;     (* De-register a spooler device *)
 
 
    (* DosFsCtl() *)
    (* Routing type *)
-   const FSCTL_HANDLE         = 1;     (* File Handle directs req routing *)
-   const FSCTL_PATHNAME       = 2;     (* Path Name directs req routing   *)
-   const FSCTL_FSDNAME        = 3;     (* FSD Name directs req routing    *)
+   constant FSCTL_HANDLE         = 1;     (* File Handle directs req routing *)
+   constant FSCTL_PATHNAME       = 2;     (* Path Name directs req routing   *)
+   constant FSCTL_FSDNAME        = 3;     (* FSD Name directs req routing    *)
 
    (* defined FSCTL functions *)
-   const FSCTL_ERROR_INFO           = 1;  (* return error info from FSD  *)
-   const FSCTL_MAX_EASIZE           = 2;  (* Max ea size for the FSD     *)
-   const FSCTL_GET_NEXT_ROUTE_NAME  = 3;  (* Rtrn next valid FSD name    *)
-   const FSCTL_DAEMON_QUERY         = 4;  (* FSD query for daemon rqrmnt *)
+   constant FSCTL_ERROR_INFO           = 1;  (* return error info from FSD  *)
+   constant FSCTL_MAX_EASIZE           = 2;  (* Max ea size for the FSD     *)
+   constant FSCTL_GET_NEXT_ROUTE_NAME  = 3;  (* Rtrn next valid FSD name    *)
+   constant FSCTL_DAEMON_QUERY         = 4;  (* FSD query for daemon rqrmnt *)
 
    (* defined FSCTL query flags *)
-   const FSCTL_QUERY_COMPLETE    = $0000;
-   const FSCTL_QUERY_AGAIN       = $0001;
+   constant FSCTL_QUERY_COMPLETE    = $0000;
+   constant FSCTL_QUERY_AGAIN       = $0001;
 
    type EASIZEBUF=structure      (* easizebuf struct for FSCTL fn 2  *)
                                 (* max ea size                      *)
@@ -176,15 +176,15 @@ uses hevdef;
 
    (* DosQueryFSAttach() *)
    (* Information level types (defines method of query) *)
-   const FSAIL_QUERYNAME      = 1;     (* Return data for a Drive or Device *)
-   const FSAIL_DEVNUMBER      = 2;     (* Return data for Ordinal Device # *)
-   const FSAIL_DRVNUMBER      = 3;     (* Return data for Ordinal Drive # *)
+   constant FSAIL_QUERYNAME      = 1;     (* Return data for a Drive or Device *)
+   constant FSAIL_DEVNUMBER      = 2;     (* Return data for Ordinal Device # *)
+   constant FSAIL_DRVNUMBER      = 3;     (* Return data for Ordinal Drive # *)
 
    (* Item types (from data structure item "iType") *)
-   const FSAT_CHARDEV         = 1;     (* Resident character device *)
-   const FSAT_PSEUDODEV       = 2;     (* Pusedu-character device *)
-   const FSAT_LOCALDRV        = 3;     (* Local drive *)
-   const FSAT_REMOTEDRV       = 4;     (* Remote drive attached to FSD *)
+   constant FSAT_CHARDEV         = 1;     (* Resident character device *)
+   constant FSAT_PSEUDODEV       = 2;     (* Pusedu-character device *)
+   constant FSAT_LOCALDRV        = 3;     (* Local drive *)
+   constant FSAT_REMOTEDRV       = 4;     (* Remote drive attached to FSD *)
 
    type FSQBUFFER=structure      (* fsqbuf Data structure for QFSAttach *)
       iType: USHORT;              (* Item type *)
@@ -221,19 +221,19 @@ uses hevdef;
    *****************************************************************************)
 
    (* FS Drive Info Levels *)
-   const FSIL_ALLOC           = 1;     (* Drive allocation info (Query only) *)
-   const FSIL_VOLSER          = 2;     (* Drive Volum/Serial info *)
+   constant FSIL_ALLOC           = 1;     (* Drive allocation info (Query only) *)
+   constant FSIL_VOLSER          = 2;     (* Drive Volum/Serial info *)
 
    (* DosQueryFHType() *)
    (* Handle classes (low 8 bits of Handle Type) *)
-   const FHT_DISKFILE         = $0000;   (* Disk file handle *)
-   const FHT_CHRDEV           = $0001;   (* Character device handle *)
-   const FHT_PIPE             = $0002;   (* Pipe handle *)
+   constant FHT_DISKFILE         = $0000;   (* Disk file handle *)
+   constant FHT_CHRDEV           = $0001;   (* Character device handle *)
+   constant FHT_PIPE             = $0002;   (* Pipe handle *)
 
    (* Handle bits (high 8 bits of Handle Type) *)
-   const FHB_DSKREMOTE        = $8000;   (* Remote disk *)
-   const FHB_CHRDEVREMOTE     = $8000;   (* Remote character device *)
-   const FHB_PIPEREMOTE       = $8000;   (* Remote pipe *)
+   constant FHB_DSKREMOTE        = $8000;   (* Remote disk *)
+   constant FHB_CHRDEVREMOTE     = $8000;   (* Remote character device *)
+   constant FHB_PIPEREMOTE       = $8000;   (* Remote pipe *)
 
 
 (*   type FTIME=USHORT;
@@ -270,11 +270,11 @@ uses hevdef;
    type PFSINFO=^FSINFO;
 
    (* HANDTYPE values *)
-   const HANDTYPE_FILE        = $0000;
-   const HANDTYPE_DEVICE      = $0001;
-   const HANDTYPE_PIPE        = $0002;
-   const HANDTYPE_PROTECTED   = $4000;
-   const HANDTYPE_NETWORK     = $8000;
+   constant HANDTYPE_FILE        = $0000;
+   constant HANDTYPE_DEVICE      = $0001;
+   constant HANDTYPE_PIPE        = $0002;
+   constant HANDTYPE_PROTECTED   = $4000;
+   constant HANDTYPE_NETWORK     = $8000;
 
    type FILELOCK=structure     (* flock *)
       lOffset: LONG;
@@ -452,7 +452,7 @@ function DosCancelLockRequestL(in hFile: HFILE;
       type PFEA=^FEA;
 
       (* flags for _FEA.fEA *)
-      const FEA_NEEDEA     =    $80;     (* need EA bit *)
+      constant FEA_NEEDEA     =    $80;     (* need EA bit *)
 
       type FEALIST=structure     (* feal *)
           cbList: ULONG;       (* total bytes of structure including full list *)
@@ -513,16 +513,16 @@ function DosCancelLockRequestL(in hFile: HFILE;
       * Value  $FFFC is not used
       *)
 
-      const EAT_BINARY     = $FFFE;      (* length preceeded binary *)
-      const EAT_ASCII      = $FFFD;      (* length preceeded ASCII *)
-      const EAT_BITMAP     = $FFFB;      (* length preceeded bitmap *)
-      const EAT_METAFILE   = $FFFA;      (* length preceeded metafile *)
-      const EAT_ICON       = $FFF9;      (* length preceeded icon *)
-      const EAT_EA         = $FFEE;      (* length preceeded ASCII *)
+      constant EAT_BINARY     = $FFFE;      (* length preceeded binary *)
+      constant EAT_ASCII      = $FFFD;      (* length preceeded ASCII *)
+      constant EAT_BITMAP     = $FFFB;      (* length preceeded bitmap *)
+      constant EAT_METAFILE   = $FFFA;      (* length preceeded metafile *)
+      constant EAT_ICON       = $FFF9;      (* length preceeded icon *)
+      constant EAT_EA         = $FFEE;      (* length preceeded ASCII *)
                                           (* name of associated data (#include) *)
-      const EAT_MVMT       = $FFDF;      (* multi-valued, multi-typed field *)
-      const EAT_MVST       = $FFDE;      (* multi-valued, single-typed field *)
-      const EAT_ASN1       = $FFDD;      (* ASN.1 field *)
+      constant EAT_MVMT       = $FFDF;      (* multi-valued, multi-typed field *)
+      constant EAT_MVST       = $FFDE;      (* multi-valued, single-typed field *)
+      constant EAT_ASN1       = $FFDD;      (* ASN.1 field *)
 
 
    (* list i/o structures  154932 *)
@@ -730,31 +730,31 @@ function    DosListIO(in  ulCmdMode: ULONG;
    type PHDIR=^HDIR;
 
 (*
-   const DosOpen2        DosOpen
-   const DosFindFirst2   DosFindFirst
-   const DosQFHandState  DosQueryFHState
-   const DosProtectQFHandState  DosProtectQueryFHState
-   const DosSetFHandState  DosSetFHState
-   const DosProtectSetFHandState  DosProtectSetFHState
-   const DosQHandType    DosQueryHType
-   const DosQFSAttach    DosQueryFSAttach
-   const DosNewSize      DosSetFileSize
-   const DosProtectNewSize  DosProtectSetFileSize
-   const DosBufReset     DosResetBuffer
-   const DosChgFilePtr   DosSetFilePtr
-   const DosProtectChgFilePtr   DosProtectSetFilePtr
-   const DosMkDir        DosCreateDir
-   const DosMkDir2       DosCreateDir
-   const DosRmDir        DosDeleteDir
-   const DosSelectDisk   DosSetDefaultDisk
-   const DosQCurDisk     DosQueryCurrentDisk
-   const DosChDir        DosSetCurrentDir
-   const DosQCurDir      DosQueryCurrentDir
-   const DosQFSInfo      DosQueryFSInfo
-   const DosQVerify      DosQueryVerify
-   const DosQFileInfo    DosQueryFileInfo
-   const DosProtectQFileInfo    DosProtectQueryFileInfo
-   const DosQPathInfo    DosQueryPathInfo
+   constant DosOpen2        DosOpen
+   constant DosFindFirst2   DosFindFirst
+   constant DosQFHandState  DosQueryFHState
+   constant DosProtectQFHandState  DosProtectQueryFHState
+   constant DosSetFHandState  DosSetFHState
+   constant DosProtectSetFHandState  DosProtectSetFHState
+   constant DosQHandType    DosQueryHType
+   constant DosQFSAttach    DosQueryFSAttach
+   constant DosNewSize      DosSetFileSize
+   constant DosProtectNewSize  DosProtectSetFileSize
+   constant DosBufReset     DosResetBuffer
+   constant DosChgFilePtr   DosSetFilePtr
+   constant DosProtectChgFilePtr   DosProtectSetFilePtr
+   constant DosMkDir        DosCreateDir
+   constant DosMkDir2       DosCreateDir
+   constant DosRmDir        DosDeleteDir
+   constant DosSelectDisk   DosSetDefaultDisk
+   constant DosQCurDisk     DosQueryCurrentDisk
+   constant DosChDir        DosSetCurrentDir
+   constant DosQCurDir      DosQueryCurrentDir
+   constant DosQFSInfo      DosQueryFSInfo
+   constant DosQVerify      DosQueryVerify
+   constant DosQFileInfo    DosQueryFileInfo
+   constant DosProtectQFileInfo    DosProtectQueryFileInfo
+   constant DosQPathInfo    DosQueryPathInfo
 *)
 
 function  DosDelete(in pszFile: PCSZ): APIRET;
@@ -949,7 +949,7 @@ function  DosSetPathInfo(in pszPathName:PCSZ;
                          in flOptions:ULONG): APIRET;
 
    (* defines for DosSetPathInfo -pathinfo flag *)
-   const DSPI_WRTTHRU   = $10;    (* write through *)
+   constant DSPI_WRTTHRU   = $10;    (* write through *)
 
 function  DosShutdown(in ulReserved:ULONG): APIRET;
 
@@ -983,11 +983,11 @@ function  DosProtectEnumAttribute(in    ulRefType:ULONG;
    type  PDENA2=PFEA2;
 
    (* Infolevels for DosEnumAttribute  *)
-   const ENUMEA_LEVEL_NO_VALUE  = 1;      (* FEA without value *)
+   constant ENUMEA_LEVEL_NO_VALUE  = 1;      (* FEA without value *)
    (* Reference types for DosEnumAttribute *)
-   const ENUMEA_REFTYPE_FHANDLE = 0;       (* file handle *)
-   const ENUMEA_REFTYPE_PATH    = 1;       (* path name *)
-   const ENUMEA_REFTYPE_MAX     = ENUMEA_REFTYPE_PATH;
+   constant ENUMEA_REFTYPE_FHANDLE = 0;       (* file handle *)
+   constant ENUMEA_REFTYPE_PATH    = 1;       (* path name *)
+   constant ENUMEA_REFTYPE_MAX     = ENUMEA_REFTYPE_PATH;
 
 end.
 

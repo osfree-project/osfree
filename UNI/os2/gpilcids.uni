@@ -1,16 +1,16 @@
 module gpilcids;
 
    (* return codes from GpiCreateLogFont *)
-const FONT_DEFAULT                  =  1;
-const FONT_MATCH                    =  2;
+constant FONT_DEFAULT                  =  1;
+constant FONT_MATCH                    =  2;
 
    (* lcid type for GpiQuerySetIds *)
-const LCIDT_FONT                    =  6;
+constant LCIDT_FONT                    =  6;
 
-const LCIDT_BITMAP                  =  7;
+constant LCIDT_BITMAP                  =  7;
 
    (* constant used to delete all lcids by GpiDeleteSetId *)
-const LCID_ALL                     = (-1);
+constant LCID_ALL                     = (-1);
 
    (* kerning data returned by GpiQueryKerningPairs *)
    type KERNINGPAIRS=structure     (* krnpr *)
@@ -20,10 +20,10 @@ const LCID_ALL                     = (-1);
      end;
    type PKERNINGPAIRS=^KERNINGPAIRS;
 
-const RC_ATMAVAIL      = 1;
-const RC_ATMENABLED    = 1;
-const RC_TTAVAIL       = 2;
-const RC_TTENABLED     = 2;
+constant RC_ATMAVAIL      = 1;
+constant RC_ATMENABLED    = 1;
+constant RC_TTAVAIL       = 2;
+constant RC_TTENABLED     = 2;
 
    type RASTERIZERCAPS=structure    (* ffdescs2 *)
         cb: ULONG;
@@ -45,51 +45,51 @@ function GpiQueryRasterizerCaps(out prcaps: RASTERIZERCAPS): BOOL;
    type PFACENAMEDESC=^FACENAMEDESC;
 
    (* FACENAMEDESC 'WeightClass' options for GpiQueryFaceString *)
-const FWEIGHT_DONT_CARE     = 0;
-const FWEIGHT_ULTRA_LIGHT   = 1;
-const FWEIGHT_EXTRA_LIGHT   = 2;
-const FWEIGHT_LIGHT         = 3;
-const FWEIGHT_SEMI_LIGHT    = 4;
-const FWEIGHT_NORMAL        = 5;
-const FWEIGHT_SEMI_BOLD     = 6;
-const FWEIGHT_BOLD          = 7;
-const FWEIGHT_EXTRA_BOLD    = 8;
-const FWEIGHT_ULTRA_BOLD    = 9;
+constant FWEIGHT_DONT_CARE     = 0;
+constant FWEIGHT_ULTRA_LIGHT   = 1;
+constant FWEIGHT_EXTRA_LIGHT   = 2;
+constant FWEIGHT_LIGHT         = 3;
+constant FWEIGHT_SEMI_LIGHT    = 4;
+constant FWEIGHT_NORMAL        = 5;
+constant FWEIGHT_SEMI_BOLD     = 6;
+constant FWEIGHT_BOLD          = 7;
+constant FWEIGHT_EXTRA_BOLD    = 8;
+constant FWEIGHT_ULTRA_BOLD    = 9;
 
    (* FACENAMEDESC 'WidthClass' options for GpiQueryFaceString *)
-const FWIDTH_DONT_CARE      = 0;
-const FWIDTH_ULTRA_CONDENSED= 1;
-const FWIDTH_EXTRA_CONDENSED= 2;
-const FWIDTH_CONDENSED      = 3;
-const FWIDTH_SEMI_CONDENSED = 4;
-const FWIDTH_NORMAL         = 5;
-const FWIDTH_SEMI_EXPANDED  = 6;
-const FWIDTH_EXPANDED       = 7;
-const FWIDTH_EXTRA_EXPANDED = 8;
-const FWIDTH_ULTRA_EXPANDED = 9;
+constant FWIDTH_DONT_CARE      = 0;
+constant FWIDTH_ULTRA_CONDENSED= 1;
+constant FWIDTH_EXTRA_CONDENSED= 2;
+constant FWIDTH_CONDENSED      = 3;
+constant FWIDTH_SEMI_CONDENSED = 4;
+constant FWIDTH_NORMAL         = 5;
+constant FWIDTH_SEMI_EXPANDED  = 6;
+constant FWIDTH_EXPANDED       = 7;
+constant FWIDTH_EXTRA_EXPANDED = 8;
+constant FWIDTH_ULTRA_EXPANDED = 9;
 
    (* FACENAMEDESC 'options' for GpiQueryFaceString *)
-const FTYPE_ITALIC            = $0001;
-const FTYPE_ITALIC_DONT_CARE  = $0002;
-const FTYPE_OBLIQUE           = $0004;
-const FTYPE_OBLIQUE_DONT_CARE = $0008;
-const FTYPE_ROUNDED           = $0010;
-const FTYPE_ROUNDED_DONT_CARE = $0020;
+constant FTYPE_ITALIC            = $0001;
+constant FTYPE_ITALIC_DONT_CARE  = $0002;
+constant FTYPE_OBLIQUE           = $0004;
+constant FTYPE_OBLIQUE_DONT_CARE = $0008;
+constant FTYPE_ROUNDED           = $0010;
+constant FTYPE_ROUNDED_DONT_CARE = $0020;
 
    (* actions for GpiQueryFontAction *)
-const QFA_PUBLIC     = 1;
-const QFA_PRIVATE    = 2;
-const QFA_ERROR      = GPI_ALTERROR;
+constant QFA_PUBLIC     = 1;
+constant QFA_PRIVATE    = 2;
+constant QFA_ERROR      = GPI_ALTERROR;
 
    (* options for GpiQueryFonts *)
-const QF_PUBLIC                  = $0001;
-const QF_PRIVATE                 = $0002;
-const QF_NO_GENERIC              = $0004;
-const QF_NO_DEVICE               = $0008;
+constant QF_PUBLIC                  = $0001;
+constant QF_PRIVATE                 = $0002;
+constant QF_NO_GENERIC              = $0004;
+constant QF_NO_DEVICE               = $0008;
 
    (* options for GpiSetFontMatchFlags *)
-const FONT_IGNORE_FONTRES            = 1;
-const FONT_MATCH_NEAREST             = 2;
+constant FONT_IGNORE_FONTRES            = 1;
+constant FONT_MATCH_NEAREST             = 2;
 
 
       (* font file descriptions for GpiQueryFontFileDescriptions *)

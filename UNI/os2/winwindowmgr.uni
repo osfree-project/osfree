@@ -77,40 +77,40 @@ function WinSetWindowBits(in hwnd: HWND;
                                         in flMask: ULONG): BOOL;
 
       (*** Standard WinQueryWindowUShort/ULong() indices *******************)
-   const QWS_USER                 =  0;
-   const QWS_ID                   =  (-1);
-   const QWS_MIN                  =  (-1);
+   constant QWS_USER                 =  0;
+   constant QWS_ID                   =  (-1);
+   constant QWS_MIN                  =  (-1);
 
-   const QWL_USER                  = 0;
-   const QWL_STYLE                 = (-2);
-   const QWP_PFNWP                 = (-3);
-   const QWL_HMQ                   = (-4);
-   const QWL_RESERVED              = (-5);
+   constant QWL_USER                  = 0;
+   constant QWL_STYLE                 = (-2);
+   constant QWP_PFNWP                 = (-3);
+   constant QWL_HMQ                   = (-4);
+   constant QWL_RESERVED              = (-5);
 
-   const QWL_PENDATA               = (-7);
+   constant QWL_PENDATA               = (-7);
 
-   const QWL_BD_ATTR               = (-9);
-   const QWL_BD_STAT               = (-10);
-   const QWL_KBDLAYER              = (-11);
+   constant QWL_BD_ATTR               = (-9);
+   constant QWL_BD_STAT               = (-10);
+   constant QWL_KBDLAYER              = (-11);
 
-   const QWL_MIN                   = (-11);
+   constant QWL_MIN                   = (-11);
 
       (*** WC_FRAME WinQueryWindowUShort/ULong() indices *******************)
-   const QWL_HHEAP                  = $0004;
-   const QWL_HWNDFOCUSSAVE          = $0018;
-   const QWL_DEFBUTTON              = $0040;
-   const QWL_PSSCBLK                = $0048;
-   const QWL_PFEPBLK                = $004c;
-   const QWL_PSTATBLK               = $0050;
+   constant QWL_HHEAP                  = $0004;
+   constant QWL_HWNDFOCUSSAVE          = $0018;
+   constant QWL_DEFBUTTON              = $0040;
+   constant QWL_PSSCBLK                = $0048;
+   constant QWL_PFEPBLK                = $004c;
+   constant QWL_PSTATBLK               = $0050;
 
-   const QWS_FLAGS                  = $0008;
-   const QWS_RESULT                 = $000a;
-   const QWS_XRESTORE               = $000c;
-   const QWS_YRESTORE               = $000e;
-   const QWS_CXRESTORE              = $0010;
-   const QWS_CYRESTORE              = $0012;
-   const QWS_XMINIMIZE              = $0014;
-   const QWS_YMINIMIZE              = $0016;
+   constant QWS_FLAGS                  = $0008;
+   constant QWS_RESULT                 = $000a;
+   constant QWS_XRESTORE               = $000c;
+   constant QWS_YRESTORE               = $000e;
+   constant QWS_CXRESTORE              = $0010;
+   constant QWS_CYRESTORE              = $0012;
+   constant QWS_XMINIMIZE              = $0014;
+   constant QWS_YMINIMIZE              = $0016;
 
 
       (*** Window enumeration **********************************************)
@@ -163,9 +163,9 @@ function WinExcludeUpdateRegion(in hps: HPS;
                                          in hwnd: HWND): LONG;
 
    (* WinQueryClipRegion return codes *)
-const QCRGN_ERROR                = 0;
-const QCRGN_OK                   = 1;
-const QCRGN_NO_CLIP_REGION       = 2;
+constant QCRGN_ERROR                = 0;
+constant QCRGN_OK                   = 1;
+constant QCRGN_NO_CLIP_REGION       = 2;
 
 function WinQueryClipRegion(in hwnd: HWND;
                                      in hrgnClip: HRGN): LONG;

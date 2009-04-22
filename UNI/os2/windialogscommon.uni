@@ -53,19 +53,19 @@ function WinDefDlgProc(in hwndDlg: HWND;
 
    (* Special item IDs *)
 
-const DID_OK      = 1;
-const DID_CANCEL  = 2;
-const DID_ERROR   = $ffff;
+constant DID_OK      = 1;
+constant DID_CANCEL  = 2;
+constant DID_ERROR   = $ffff;
 
 function WinAlarm(in hwndDesktop: HWND;
                           in rgfType: ULONG): BOOL;
 
    (* WinAlarm Codes *)
 
-const WA_WARNING               =  0;
-const WA_NOTE                  =  1;
-const WA_ERROR                 =  2;
-const WA_CWINALARMS            = 13;     (* count of valid alarms *)
+constant WA_WARNING               =  0;
+constant WA_NOTE                  =  1;
+constant WA_ERROR                 =  2;
+constant WA_CWINALARMS            = 13;     (* count of valid alarms *)
 
 
 function WinMessageBox(in hwndParent: HWND;
@@ -78,7 +78,7 @@ function WinMessageBox(in hwndParent: HWND;
 
 
 
-const MAX_MBDTEXT              = 70;
+constant MAX_MBDTEXT              = 70;
 
 (*   #pragma pack(4) *)
 
@@ -124,53 +124,53 @@ const MAX_MBDTEXT              = 70;
 
    (* Message box types *)
 
-const MB_OK                      = $0000;
-const MB_OKCANCEL                = $0001;
-const MB_RETRYCANCEL             = $0002;
-const MB_ABORTRETRYIGNORE        = $0003;
-const MB_YESNO                   = $0004;
-const MB_YESNOCANCEL             = $0005;
-const MB_CANCEL                  = $0006;
-const MB_ENTER                   = $0007;
-const MB_ENTERCANCEL             = $0008;
+constant MB_OK                      = $0000;
+constant MB_OKCANCEL                = $0001;
+constant MB_RETRYCANCEL             = $0002;
+constant MB_ABORTRETRYIGNORE        = $0003;
+constant MB_YESNO                   = $0004;
+constant MB_YESNOCANCEL             = $0005;
+constant MB_CANCEL                  = $0006;
+constant MB_ENTER                   = $0007;
+constant MB_ENTERCANCEL             = $0008;
 
-const MB_NOICON                  = $0000;
-const MB_CUANOTIFICATION         = $0000;
-const MB_ICONQUESTION            = $0010;
-const MB_ICONEXCLAMATION         = $0020;
-const MB_CUAWARNING              = $0020;
-const MB_ICONASTERISK            = $0030;
-const MB_ICONHAND                = $0040;
-const MB_CUACRITICAL             = $0040;
-const MB_QUERY                   = MB_ICONQUESTION;
-const MB_WARNING                 = MB_CUAWARNING;
-const MB_INFORMATION             = MB_ICONASTERISK;
-const MB_CRITICAL                = MB_CUACRITICAL;
-const MB_ERROR                   = MB_CRITICAL;
-const MB_CUSTOMICON              = $0080;
+constant MB_NOICON                  = $0000;
+constant MB_CUANOTIFICATION         = $0000;
+constant MB_ICONQUESTION            = $0010;
+constant MB_ICONEXCLAMATION         = $0020;
+constant MB_CUAWARNING              = $0020;
+constant MB_ICONASTERISK            = $0030;
+constant MB_ICONHAND                = $0040;
+constant MB_CUACRITICAL             = $0040;
+constant MB_QUERY                   = MB_ICONQUESTION;
+constant MB_WARNING                 = MB_CUAWARNING;
+constant MB_INFORMATION             = MB_ICONASTERISK;
+constant MB_CRITICAL                = MB_CUACRITICAL;
+constant MB_ERROR                   = MB_CRITICAL;
+constant MB_CUSTOMICON              = $0080;
 
-const MB_DEFBUTTON1              = $0000;
-const MB_DEFBUTTON2              = $0100;
-const MB_DEFBUTTON3              = $0200;
+constant MB_DEFBUTTON1              = $0000;
+constant MB_DEFBUTTON2              = $0100;
+constant MB_DEFBUTTON3              = $0200;
 
-const MB_APPLMODAL               = $0000;
-const MB_SYSTEMMODAL             = $1000;
-const MB_HELP                    = $2000;
-const MB_MOVEABLE                = $4000;
-const MB_NONMODAL                = $8000;
+constant MB_APPLMODAL               = $0000;
+constant MB_SYSTEMMODAL             = $1000;
+constant MB_HELP                    = $2000;
+constant MB_MOVEABLE                = $4000;
+constant MB_NONMODAL                = $8000;
 
 
    (* Message box return codes *)
 
-const MBID_OK                    = 1;
-const MBID_CANCEL                = 2;
-const MBID_ABORT                 = 3;
-const MBID_RETRY                 = 4;
-const MBID_IGNORE                = 5;
-const MBID_YES                   = 6;
-const MBID_NO                    = 7;
-const MBID_HELP                  = 8;
-const MBID_ENTER                 = 9;
-const MBID_ERROR                 = $ffff;
+constant MBID_OK                    = 1;
+constant MBID_CANCEL                = 2;
+constant MBID_ABORT                 = 3;
+constant MBID_RETRY                 = 4;
+constant MBID_IGNORE                = 5;
+constant MBID_YES                   = 6;
+constant MBID_NO                    = 7;
+constant MBID_HELP                  = 8;
+constant MBID_ENTER                 = 9;
+constant MBID_ERROR                 = $ffff;
 
 end.

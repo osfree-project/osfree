@@ -1,36 +1,36 @@
 module gpicontrolcommon;
 
    (* units for GpiCreatePS and others *)
-const PU_ARBITRARY               = $0004;
-const PU_PELS                    = $0008;
-const PU_LOMETRIC                = $000C;
-const PU_HIMETRIC                = $0010;
-const PU_LOENGLISH               = $0014;
-const PU_HIENGLISH               = $0018;
-const PU_TWIPS                   = $001C;
+constant PU_ARBITRARY               = $0004;
+constant PU_PELS                    = $0008;
+constant PU_LOMETRIC                = $000C;
+constant PU_HIMETRIC                = $0010;
+constant PU_LOENGLISH               = $0014;
+constant PU_HIENGLISH               = $0018;
+constant PU_TWIPS                   = $001C;
 
    (* format for GpiCreatePS *)
-const GPIF_DEFAULT                   = 0;
-const GPIF_SHORT                 = $0100;
-const GPIF_LONG                  = $0200;
+constant GPIF_DEFAULT                   = 0;
+constant GPIF_SHORT                 = $0100;
+constant GPIF_LONG                  = $0200;
 
 
    (* PS type for GpiCreatePS *)
-const GPIT_NORMAL                    = 0;
-const GPIT_MICRO                 = $1000;
-const GPIT_INK                   = $2000;
+constant GPIT_NORMAL                    = 0;
+constant GPIT_MICRO                 = $1000;
+constant GPIT_INK                   = $2000;
 
 
    (* implicit associate flag for GpiCreatePS *)
-const GPIA_NOASSOC                   = 0;
-const GPIA_ASSOC                 = $4000;
+constant GPIA_NOASSOC                   = 0;
+constant GPIA_ASSOC                 = $4000;
 
    (* PS Fill type for GpiCreatePS *)
-const GPIM_AREAEXCL              = $8000;
+constant GPIM_AREAEXCL              = $8000;
 
 
       (* return error for GpiQueryDevice *)
-   const HDC_ERROR              =  (-1);
+   constant HDC_ERROR              =  (-1);
 
    (* common GPICONTROL functions *)
 

@@ -1,29 +1,29 @@
 module gpibitmaps;
 
-const CBM_INIT = 4;
+constant CBM_INIT = 4;
 
-const BCA_UNCOMP         =0;
-const BCA_HUFFMAN1D      =3;
-const BCA_RLE4           =2;
-const BCA_RLE8           =1;
-const BCA_RLE24          =4;
-const BRU_METRIC         =0;
-const BRA_BOTTOMUP       =0;
-const BRH_NOTHALFTONED   =0;
-const BRH_ERRORDIFFUSION =1;
-const BRH_PANDA         = 2;
-const BRH_SUPERCIRCLE =   3;
-const BCE_PALETTE    =  (-1);
-const BCE_RGB          =  0;
+constant BCA_UNCOMP         =0;
+constant BCA_HUFFMAN1D      =3;
+constant BCA_RLE4           =2;
+constant BCA_RLE8           =1;
+constant BCA_RLE24          =4;
+constant BRU_METRIC         =0;
+constant BRA_BOTTOMUP       =0;
+constant BRH_NOTHALFTONED   =0;
+constant BRH_ERRORDIFFUSION =1;
+constant BRH_PANDA         = 2;
+constant BRH_SUPERCIRCLE =   3;
+constant BCE_PALETTE    =  (-1);
+constant BCE_RGB          =  0;
 
-const BFT_ICON         = $4349;
-const BFT_BMAP         = $4d42;
-const BFT_POINTER      = $5450;
-const BFT_COLORICON    = $4943;
-const BFT_COLORPOINTER = $5043;
-const BFT_BITMAPARRAY  = $4142;
+constant BFT_ICON         = $4349;
+constant BFT_BMAP         = $4d42;
+constant BFT_POINTER      = $5450;
+constant BFT_COLORICON    = $4943;
+constant BFT_COLORPOINTER = $5043;
+constant BFT_BITMAPARRAY  = $4142;
 
-const BMB_ERROR = (-1);
+constant BMB_ERROR = (-1);
 
 (* #pragma pack(1) *)
 

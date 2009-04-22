@@ -1,201 +1,201 @@
 module gpiprimitives;
 
    (* mode for GpiSetAttrMode *)
-const AM_ERROR                     = (-1);
-const AM_PRESERVE                  =   0;
-const AM_NOPRESERVE                =   1;
+constant AM_ERROR                     = (-1);
+constant AM_PRESERVE                  =   0;
+constant AM_NOPRESERVE                =   1;
 
    (* foreground mixes *)
-const FM_ERROR                     = (-1);
-const FM_DEFAULT                   =   0;
-const FM_OR                        =   1;
-const FM_OVERPAINT                 =   2;
-const FM_LEAVEALONE                =   5;
+constant FM_ERROR                     = (-1);
+constant FM_DEFAULT                   =   0;
+constant FM_OR                        =   1;
+constant FM_OVERPAINT                 =   2;
+constant FM_LEAVEALONE                =   5;
 
-const FM_XOR                       =   4;
-const FM_AND                       =   6;
-const FM_SUBTRACT                  =   7;
-const FM_MASKSRCNOT                =   8;
-const FM_ZERO                      =   9;
-const FM_NOTMERGESRC               =  10;
-const FM_NOTXORSRC                 =  11;
-const FM_INVERT                    =  12;
-const FM_MERGESRCNOT               =  13;
-const FM_NOTCOPYSRC                =  14;
-const FM_MERGENOTSRC               =  15;
-const FM_NOTMASKSRC                =  16;
-const FM_ONE                       =  17;
+constant FM_XOR                       =   4;
+constant FM_AND                       =   6;
+constant FM_SUBTRACT                  =   7;
+constant FM_MASKSRCNOT                =   8;
+constant FM_ZERO                      =   9;
+constant FM_NOTMERGESRC               =  10;
+constant FM_NOTXORSRC                 =  11;
+constant FM_INVERT                    =  12;
+constant FM_MERGESRCNOT               =  13;
+constant FM_NOTCOPYSRC                =  14;
+constant FM_MERGENOTSRC               =  15;
+constant FM_NOTMASKSRC                =  16;
+constant FM_ONE                       =  17;
 
 
    (* background mixes *)
-const BM_ERROR                     = (-1);
-const BM_DEFAULT                   =   0;
-const BM_OR                        =   1;
-const BM_OVERPAINT                 =   2;
-const BM_LEAVEALONE                =   5;
+constant BM_ERROR                     = (-1);
+constant BM_DEFAULT                   =   0;
+constant BM_OR                        =   1;
+constant BM_OVERPAINT                 =   2;
+constant BM_LEAVEALONE                =   5;
 
-const BM_XOR                       =   4;
-const BM_AND                       =   6;
-const BM_SUBTRACT                  =   7;
-const BM_MASKSRCNOT                =   8;
-const BM_ZERO                      =   9;
-const BM_NOTMERGESRC               =  10;
-const BM_NOTXORSRC                 =  11;
-const BM_INVERT                    =  12;
-const BM_MERGESRCNOT               =  13;
-const BM_NOTCOPYSRC                =  14;
-const BM_MERGENOTSRC               =  15;
-const BM_NOTMASKSRC                =  16;
-const BM_ONE                       =  17;
-const BM_SRCTRANSPARENT            =  18;
-const BM_DESTTRANSPARENT           =  19;
+constant BM_XOR                       =   4;
+constant BM_AND                       =   6;
+constant BM_SUBTRACT                  =   7;
+constant BM_MASKSRCNOT                =   8;
+constant BM_ZERO                      =   9;
+constant BM_NOTMERGESRC               =  10;
+constant BM_NOTXORSRC                 =  11;
+constant BM_INVERT                    =  12;
+constant BM_MERGESRCNOT               =  13;
+constant BM_NOTCOPYSRC                =  14;
+constant BM_MERGENOTSRC               =  15;
+constant BM_NOTMASKSRC                =  16;
+constant BM_ONE                       =  17;
+constant BM_SRCTRANSPARENT            =  18;
+constant BM_DESTTRANSPARENT           =  19;
 
 
 
    (* basic line type styles *)
-const LINETYPE_ERROR               = (-1);
-const LINETYPE_DEFAULT             =   0;
-const LINETYPE_DOT                 =   1;
-const LINETYPE_SHORTDASH           =   2;
-const LINETYPE_DASHDOT             =   3;
-const LINETYPE_DOUBLEDOT           =   4;
-const LINETYPE_LONGDASH            =   5;
-const LINETYPE_DASHDOUBLEDOT       =   6;
-const LINETYPE_SOLID               =   7;
-const LINETYPE_INVISIBLE           =   8;
-const LINETYPE_ALTERNATE           =   9;
+constant LINETYPE_ERROR               = (-1);
+constant LINETYPE_DEFAULT             =   0;
+constant LINETYPE_DOT                 =   1;
+constant LINETYPE_SHORTDASH           =   2;
+constant LINETYPE_DASHDOT             =   3;
+constant LINETYPE_DOUBLEDOT           =   4;
+constant LINETYPE_LONGDASH            =   5;
+constant LINETYPE_DASHDOUBLEDOT       =   6;
+constant LINETYPE_SOLID               =   7;
+constant LINETYPE_INVISIBLE           =   8;
+constant LINETYPE_ALTERNATE           =   9;
 
    (* cosmetic line widths *)
-const LINEWIDTH_ERROR              = (-1);
-const LINEWIDTH_DEFAULT            =   0;
-const LINEWIDTH_NORMAL       = $00010000;   (* MAKEFIXED(1,0) *)
-const LINEWIDTH_THICK        = $00020000;   (* MAKEFIXED(2,0) *)
+constant LINEWIDTH_ERROR              = (-1);
+constant LINEWIDTH_DEFAULT            =   0;
+constant LINEWIDTH_NORMAL       = $00010000;   (* MAKEFIXED(1,0) *)
+constant LINEWIDTH_THICK        = $00020000;   (* MAKEFIXED(2,0) *)
 
    (* actual line widths *)
-const LINEWIDTHGEOM_ERROR          = (-1);
+constant LINEWIDTHGEOM_ERROR          = (-1);
 
    (* line end styles *)
-const LINEEND_ERROR                = (-1);
-const LINEEND_DEFAULT              =   0;
-const LINEEND_FLAT                 =   1;
-const LINEEND_SQUARE               =   2;
-const LINEEND_ROUND                =   3;
+constant LINEEND_ERROR                = (-1);
+constant LINEEND_DEFAULT              =   0;
+constant LINEEND_FLAT                 =   1;
+constant LINEEND_SQUARE               =   2;
+constant LINEEND_ROUND                =   3;
 
    (* line join styles *)
-const LINEJOIN_ERROR               = (-1);
-const LINEJOIN_DEFAULT             =   0;
-const LINEJOIN_BEVEL               =   1;
-const LINEJOIN_ROUND               =   2;
-const LINEJOIN_MITRE               =   3;
+constant LINEJOIN_ERROR               = (-1);
+constant LINEJOIN_DEFAULT             =   0;
+constant LINEJOIN_BEVEL               =   1;
+constant LINEJOIN_ROUND               =   2;
+constant LINEJOIN_MITRE               =   3;
 
    (* character directions *)
-const CHDIRN_ERROR                 = (-1);
-const CHDIRN_DEFAULT               =   0;
-const CHDIRN_LEFTRIGHT             =   1;
-const CHDIRN_TOPBOTTOM             =   2;
-const CHDIRN_RIGHTLEFT             =   3;
-const CHDIRN_BOTTOMTOP             =   4;
+constant CHDIRN_ERROR                 = (-1);
+constant CHDIRN_DEFAULT               =   0;
+constant CHDIRN_LEFTRIGHT             =   1;
+constant CHDIRN_TOPBOTTOM             =   2;
+constant CHDIRN_RIGHTLEFT             =   3;
+constant CHDIRN_BOTTOMTOP             =   4;
 
    (* character text alignments *)
-const TA_NORMAL_HORIZ     = $0001;
-const TA_LEFT             = $0002;
-const TA_CENTER           = $0003;
-const TA_RIGHT            = $0004;
-const TA_STANDARD_HORIZ   = $0005;
-const TA_NORMAL_VERT      = $0100;
-const TA_TOP              = $0200;
-const TA_HALF             = $0300;
-const TA_BASE             = $0400;
-const TA_BOTTOM           = $0500;
-const TA_STANDARD_VERT    = $0600;
+constant TA_NORMAL_HORIZ     = $0001;
+constant TA_LEFT             = $0002;
+constant TA_CENTER           = $0003;
+constant TA_RIGHT            = $0004;
+constant TA_STANDARD_HORIZ   = $0005;
+constant TA_NORMAL_VERT      = $0100;
+constant TA_TOP              = $0200;
+constant TA_HALF             = $0300;
+constant TA_BASE             = $0400;
+constant TA_BOTTOM           = $0500;
+constant TA_STANDARD_VERT    = $0600;
 
    (* character modes *)
-const CM_ERROR                     = (-1);
-const CM_DEFAULT                   =   0;
-const CM_MODE1                     =   1;
-const CM_MODE2                     =   2;
-const CM_MODE3                     =   3;
+constant CM_ERROR                     = (-1);
+constant CM_DEFAULT                   =   0;
+constant CM_MODE1                     =   1;
+constant CM_MODE2                     =   2;
+constant CM_MODE3                     =   3;
 
    (* basic marker symbols *)
-const MARKSYM_ERROR                = (-1);
-const MARKSYM_DEFAULT              =   0;
-const MARKSYM_CROSS                =   1;
-const MARKSYM_PLUS                 =   2;
-const MARKSYM_DIAMOND              =   3;
-const MARKSYM_SQUARE               =   4;
-const MARKSYM_SIXPOINTSTAR         =   5;
-const MARKSYM_EIGHTPOINTSTAR       =   6;
-const MARKSYM_SOLIDDIAMOND         =   7;
-const MARKSYM_SOLIDSQUARE          =   8;
-const MARKSYM_DOT                  =   9;
-const MARKSYM_SMALLCIRCLE          =  10;
-const MARKSYM_BLANK                =  64;
+constant MARKSYM_ERROR                = (-1);
+constant MARKSYM_DEFAULT              =   0;
+constant MARKSYM_CROSS                =   1;
+constant MARKSYM_PLUS                 =   2;
+constant MARKSYM_DIAMOND              =   3;
+constant MARKSYM_SQUARE               =   4;
+constant MARKSYM_SIXPOINTSTAR         =   5;
+constant MARKSYM_EIGHTPOINTSTAR       =   6;
+constant MARKSYM_SOLIDDIAMOND         =   7;
+constant MARKSYM_SOLIDSQUARE          =   8;
+constant MARKSYM_DOT                  =   9;
+constant MARKSYM_SMALLCIRCLE          =  10;
+constant MARKSYM_BLANK                =  64;
 
    (* formatting options for GpiCharStringPosAt *)
-const CHS_OPAQUE                 = $0001;
-const CHS_VECTOR                 = $0002;
-const CHS_LEAVEPOS               = $0008;
-const CHS_CLIP                   = $0010;
-const CHS_UNDERSCORE             = $0200;
-const CHS_STRIKEOUT              = $0400;
+constant CHS_OPAQUE                 = $0001;
+constant CHS_VECTOR                 = $0002;
+constant CHS_LEAVEPOS               = $0008;
+constant CHS_CLIP                   = $0010;
+constant CHS_UNDERSCORE             = $0200;
+constant CHS_STRIKEOUT              = $0400;
 
    (* bundle codes for GpiSetAttributes and GpiQueryAttributes *)
-const PRIM_LINE                    =   1;
-const PRIM_CHAR                    =   2;
-const PRIM_MARKER                  =   3;
-const PRIM_AREA                    =   4;
-const PRIM_IMAGE                   =   5;
+constant PRIM_LINE                    =   1;
+constant PRIM_CHAR                    =   2;
+constant PRIM_MARKER                  =   3;
+constant PRIM_AREA                    =   4;
+constant PRIM_IMAGE                   =   5;
 
    (* line bundle mask bits *)
-const LBB_COLOR                  = $0001;
-const LBB_BACK_COLOR             = $0002;
-const LBB_MIX_MODE               = $0004;
-const LBB_BACK_MIX_MODE          = $0008;
-const LBB_WIDTH                  = $0010;
-const LBB_GEOM_WIDTH             = $0020;
-const LBB_TYPE                   = $0040;
-const LBB_END                    = $0080;
-const LBB_JOIN                   = $0100;
+constant LBB_COLOR                  = $0001;
+constant LBB_BACK_COLOR             = $0002;
+constant LBB_MIX_MODE               = $0004;
+constant LBB_BACK_MIX_MODE          = $0008;
+constant LBB_WIDTH                  = $0010;
+constant LBB_GEOM_WIDTH             = $0020;
+constant LBB_TYPE                   = $0040;
+constant LBB_END                    = $0080;
+constant LBB_JOIN                   = $0100;
 
    (* character bundle mask bits *)
-const CBB_COLOR                  = $0001;
-const CBB_BACK_COLOR             = $0002;
-const CBB_MIX_MODE               = $0004;
-const CBB_BACK_MIX_MODE          = $0008;
-const CBB_SET                    = $0010;
-const CBB_MODE                   = $0020;
-const CBB_BOX                    = $0040;
-const CBB_ANGLE                  = $0080;
-const CBB_SHEAR                  = $0100;
-const CBB_DIRECTION              = $0200;
-const CBB_TEXT_ALIGN             = $0400;
-const CBB_EXTRA                  = $0800;
-const CBB_BREAK_EXTRA            = $1000;
+constant CBB_COLOR                  = $0001;
+constant CBB_BACK_COLOR             = $0002;
+constant CBB_MIX_MODE               = $0004;
+constant CBB_BACK_MIX_MODE          = $0008;
+constant CBB_SET                    = $0010;
+constant CBB_MODE                   = $0020;
+constant CBB_BOX                    = $0040;
+constant CBB_ANGLE                  = $0080;
+constant CBB_SHEAR                  = $0100;
+constant CBB_DIRECTION              = $0200;
+constant CBB_TEXT_ALIGN             = $0400;
+constant CBB_EXTRA                  = $0800;
+constant CBB_BREAK_EXTRA            = $1000;
 
    (* marker bundle mask bits *)
-const MBB_COLOR                  = $0001;
-const MBB_BACK_COLOR             = $0002;
-const MBB_MIX_MODE               = $0004;
-const MBB_BACK_MIX_MODE          = $0008;
-const MBB_SET                    = $0010;
-const MBB_SYMBOL                 = $0020;
-const MBB_BOX                    = $0040;
+constant MBB_COLOR                  = $0001;
+constant MBB_BACK_COLOR             = $0002;
+constant MBB_MIX_MODE               = $0004;
+constant MBB_BACK_MIX_MODE          = $0008;
+constant MBB_SET                    = $0010;
+constant MBB_SYMBOL                 = $0020;
+constant MBB_BOX                    = $0040;
 
    (* pattern bundle mask bits *)
-const ABB_COLOR                  = $0001;
-const ABB_BACK_COLOR             = $0002;
-const ABB_MIX_MODE               = $0004;
-const ABB_BACK_MIX_MODE          = $0008;
-const ABB_SET                    = $0010;
-const ABB_SYMBOL                 = $0020;
-const ABB_REF_POINT              = $0040;
+constant ABB_COLOR                  = $0001;
+constant ABB_BACK_COLOR             = $0002;
+constant ABB_MIX_MODE               = $0004;
+constant ABB_BACK_MIX_MODE          = $0008;
+constant ABB_SET                    = $0010;
+constant ABB_SYMBOL                 = $0020;
+constant ABB_REF_POINT              = $0040;
 
 
   (* image bundle mask bits *)
-const IBB_COLOR                  = $0001;
-const IBB_BACK_COLOR             = $0002;
-const IBB_MIX_MODE               = $0004;
-const IBB_BACK_MIX_MODE          = $0008;
+constant IBB_COLOR                  = $0001;
+constant IBB_BACK_COLOR             = $0002;
+constant IBB_MIX_MODE               = $0004;
+constant IBB_BACK_MIX_MODE          = $0008;
 
    (* structure for GpiSetArcParams and GpiQueryArcParams *)
    type ARCPARAMS=structure       (* arcp *)
@@ -290,24 +290,24 @@ const IBB_BACK_MIX_MODE          = $0008;
    type PBUNDLE=PVOID;
 
    (* array indices for GpiQueryTextBox *)
-const TXTBOX_TOPLEFT               =   0;
-const TXTBOX_BOTTOMLEFT            =   1;
-const TXTBOX_TOPRIGHT              =   2;
-const TXTBOX_BOTTOMRIGHT           =   3;
-const TXTBOX_CONCAT                =   4;
+constant TXTBOX_TOPLEFT               =   0;
+constant TXTBOX_BOTTOMLEFT            =   1;
+constant TXTBOX_TOPRIGHT              =   2;
+constant TXTBOX_BOTTOMRIGHT           =   3;
+constant TXTBOX_CONCAT                =   4;
    (* array count for GpiQueryTextBox *)
-const TXTBOX_COUNT                 =   5;
+constant TXTBOX_COUNT                 =   5;
 
    (* return codes for GpiPtVisible *)
-const PVIS_ERROR                   =   0;
-const PVIS_INVISIBLE               =   1;
-const PVIS_VISIBLE                 =   2;
+constant PVIS_ERROR                   =   0;
+constant PVIS_INVISIBLE               =   1;
+constant PVIS_VISIBLE                 =   2;
 
    (* return codes for GpiRectVisible *)
-const RVIS_ERROR                   =   0;
-const RVIS_INVISIBLE               =   1;
-const RVIS_PARTIAL                 =   2;
-const RVIS_VISIBLE                 =   3;
+constant RVIS_ERROR                   =   0;
+constant RVIS_INVISIBLE               =   1;
+constant RVIS_PARTIAL                 =   2;
+constant RVIS_VISIBLE                 =   3;
 
 
 

@@ -2,17 +2,17 @@ module windialogs;
 
    (* Dialog codes: returned by WM_QUERYDLGCODE msg     *)
 
-const DLGC_ENTRYFIELD    = $0001;  (* Entry field item understands EM_SETSEL) *)
-const DLGC_BUTTON        = $0002;  (* Button item                             *)
-const DLGC_RADIOBUTTON   = $0004;  (* Radio button                            *)
-const DLGC_STATIC        = $0008;  (* Static item                             *)
-const DLGC_DEFAULT       = $0010;  (* Default push button                     *)
-const DLGC_PUSHBUTTON    = $0020;  (* Normal (Non-default) push button        *)
-const DLGC_CHECKBOX      = $0040;  (* Check box button control                *)
-const DLGC_SCROLLBAR     = $0080;  (* Scroll bar                              *)
-const DLGC_MENU          = $0100;  (* Menu                                    *)
-const DLGC_TABONCLICK    = $0200;
-const DLGC_MLE           = $0400;  (* Multiple Line Entry                     *)
+constant DLGC_ENTRYFIELD    = $0001;  (* Entry field item understands EM_SETSEL) *)
+constant DLGC_BUTTON        = $0002;  (* Button item                             *)
+constant DLGC_RADIOBUTTON   = $0004;  (* Radio button                            *)
+constant DLGC_STATIC        = $0008;  (* Static item                             *)
+constant DLGC_DEFAULT       = $0010;  (* Default push button                     *)
+constant DLGC_PUSHBUTTON    = $0020;  (* Normal (Non-default) push button        *)
+constant DLGC_CHECKBOX      = $0040;  (* Check box button control                *)
+constant DLGC_SCROLLBAR     = $0080;  (* Scroll bar                              *)
+constant DLGC_MENU          = $0100;  (* Menu                                    *)
+constant DLGC_TABONCLICK    = $0200;
+constant DLGC_MLE           = $0400;  (* Multiple Line Entry                     *)
 
 
 function WinProcessDlg(in hwndDlg: HWND): ULONG;
@@ -40,14 +40,14 @@ function WinSubstituteStrings(in hwnd: HWND;
 
    (* WinEnumDlgItem() constants *)
 
-const EDI_FIRSTTABITEM          = 0;
-const EDI_LASTTABITEM           = 1;
-const EDI_NEXTTABITEM           = 2;
-const EDI_PREVTABITEM           = 3;
-const EDI_FIRSTGROUPITEM        = 4;
-const EDI_LASTGROUPITEM         = 5;
-const EDI_NEXTGROUPITEM         = 6;
-const EDI_PREVGROUPITEM         = 7;
+constant EDI_FIRSTTABITEM          = 0;
+constant EDI_LASTTABITEM           = 1;
+constant EDI_NEXTTABITEM           = 2;
+constant EDI_PREVTABITEM           = 3;
+constant EDI_FIRSTGROUPITEM        = 4;
+constant EDI_LASTGROUPITEM         = 5;
+constant EDI_NEXTGROUPITEM         = 6;
+constant EDI_PREVGROUPITEM         = 7;
 
    (*** Dialog template definitions *)
 

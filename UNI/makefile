@@ -46,6 +46,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosexcptfunc.h &
      $(OUT)$(SEP)os2$(SEP)basemid.h &
      $(OUT)$(SEP)os2$(SEP)bsetib.h &
+     $(OUT)$(SEP)os2$(SEP)dosqueues.h &
      $(OUT)$(SEP)os2$(SEP)dosdebug.h &
      $(OUT)$(SEP)os2$(SEP)dosmisc.h &
      $(OUT)$(SEP)os2$(SEP)dosmvdm.h &
@@ -178,6 +179,8 @@ $(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)dosmvdm.uni
 $(OUT)$(SEP)os2$(SEP)dossesmgr.h: os2$(SEP)dossesmgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dosnls.h: os2$(SEP)dosnls.uni
+
+$(OUT)$(SEP)os2$(SEP)dosqueues.h: os2$(SEP)dosqueues.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
 

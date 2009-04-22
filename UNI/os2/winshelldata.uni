@@ -47,7 +47,7 @@ function PrfQueryProfile(in hab: HAB;
                                       out pPrfProfile: PRFPROFILE): BOOL;
 
 (*** public message, broadcast on WinReset ***************************)
-const PL_ALTERED=$x008E;  (* WM_SHELLFIRST + 0E *)
+constant PL_ALTERED=$x008E;  (* WM_SHELLFIRST + 0E *)
 
 end.
 

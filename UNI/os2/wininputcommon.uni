@@ -1,19 +1,19 @@
 module wininputcommon;
 
-const FC_NOSETFOCUS            = $0001;
-const FC_NOBRINGTOTOP          = FC_NOSETFOCUS;
-const FC_NOLOSEFOCUS           = $0002;
-const FC_NOBRINGTOPFIRSTWINDOW = FC_NOLOSEFOCUS;
-const FC_NOSETACTIVE           = $0004;
-const FC_NOLOSEACTIVE          = $0008;
-const FC_NOSETSELECTION        = $0010;
-const FC_NOLOSESELECTION       = $0020;
+constant FC_NOSETFOCUS            = $0001;
+constant FC_NOBRINGTOTOP          = FC_NOSETFOCUS;
+constant FC_NOLOSEFOCUS           = $0002;
+constant FC_NOBRINGTOPFIRSTWINDOW = FC_NOLOSEFOCUS;
+constant FC_NOSETACTIVE           = $0004;
+constant FC_NOLOSEACTIVE          = $0008;
+constant FC_NOSETSELECTION        = $0010;
+constant FC_NOLOSESELECTION       = $0020;
 
-const QFC_NEXTINCHAIN  = 1;
-const QFC_ACTIVE       = 2;
-const QFC_FRAME        = 3;
-const QFC_SELECTACTIVE = 4;
-const QFC_PARTOFCHAIN  = 5;
+constant QFC_NEXTINCHAIN  = 1;
+constant QFC_ACTIVE       = 2;
+constant QFC_FRAME        = 3;
+constant QFC_SELECTACTIVE = 4;
+constant QFC_PARTOFCHAIN  = 5;
 
 function WinFocusChange(in hwnd1: HWND; in hwnd2: HWND: in ul: ULONG): BOOL;
 function WinLockupSystem(in hab: HAB): BOOL;

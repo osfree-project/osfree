@@ -15,13 +15,13 @@ module winswitchlistcommon;
       type PSWCNTRL=^SWCNTRL;
 
       (*** visibility flag for SWCNTRL structure ***************************)
-      const SWL_VISIBLE    = $04;
-      const SWL_INVISIBLE  = $01;
-      const SWL_GRAYED     = $02;
+      constant SWL_VISIBLE    = $04;
+      constant SWL_INVISIBLE  = $01;
+      constant SWL_GRAYED     = $02;
 
       (*** jump flag for SWCNTRL structure *********************************)
-      const SWL_JUMPABLE    = $02;
-      const SWL_NOTJUMPABLE = $01;
+      constant SWL_JUMPABLE    = $02;
+      constant SWL_NOTJUMPABLE = $01;
 
 
       (*** Switching Program functions *************************************)

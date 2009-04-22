@@ -50,17 +50,17 @@ module winwindowmgrcommon;
 
    (*** WinGetClipPS() flags ***********************************************)
 
-      const PSF_LOCKWINDOWUPDATE    =   $0001;
-      const PSF_CLIPUPWARDS         =   $0002;
-      const PSF_CLIPDOWNWARDS       =   $0004;
-      const PSF_CLIPSIBLINGS        =   $0008;
-      const PSF_CLIPCHILDREN        =   $0010;
-      const PSF_PARENTCLIP          =   $0020;
+      constant PSF_LOCKWINDOWUPDATE    =   $0001;
+      constant PSF_CLIPUPWARDS         =   $0002;
+      constant PSF_CLIPDOWNWARDS       =   $0004;
+      constant PSF_CLIPSIBLINGS        =   $0008;
+      constant PSF_CLIPCHILDREN        =   $0010;
+      constant PSF_PARENTCLIP          =   $0020;
 
    (*** WinScrollWindow() flags ********************************************)
 
-   const SW_SCROLLCHILDREN        = $0001;
-   const SW_INVALIDATERGN         = $0002;
+   constant SW_SCROLLCHILDREN        = $0001;
+   constant SW_INVALIDATERGN         = $0002;
 
      function WinFillRect(in hps: HPS;
                               in prcl: PRECTL;
@@ -74,11 +74,11 @@ module winwindowmgrcommon;
    end;
    type PQVERSDATA=^QVERSDATA;
 
-   const QV_OS2                    = $0000;
-   const QV_CMS                    = $0001;
-   const QV_TSO                    = $0002;
-   const QV_TSOBATCH               = $0003;
-   const QV_OS400                  = $0004;
+   constant QV_OS2                    = $0000;
+   constant QV_CMS                    = $0001;
+   constant QV_TSO                    = $0002;
+   constant QV_TSOBATCH               = $0003;
+   constant QV_OS400                  = $0004;
 
 
      function WinQueryVersion(in hab: HAB): ULONG;

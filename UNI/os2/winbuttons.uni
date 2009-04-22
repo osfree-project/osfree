@@ -4,29 +4,29 @@ module winbuttons;
 
    (* Button control styles *)
 
-const BS_PUSHBUTTON             = 0;
-const BS_CHECKBOX               = 1;
-const BS_AUTOCHECKBOX           = 2;
-const BS_RADIOBUTTON            = 3;
-const BS_AUTORADIOBUTTON        = 4;
-const BS_3STATE                 = 5;
-const BS_AUTO3STATE             = 6;
+constant BS_PUSHBUTTON             = 0;
+constant BS_CHECKBOX               = 1;
+constant BS_AUTOCHECKBOX           = 2;
+constant BS_RADIOBUTTON            = 3;
+constant BS_AUTORADIOBUTTON        = 4;
+constant BS_3STATE                 = 5;
+constant BS_AUTO3STATE             = 6;
 
-   const BS_USERBUTTON             = 7;
-const BS_NOTEBOOKBUTTON         = 8;
-const BS_PRIMARYSTYLES       = $000f;
+   constant BS_USERBUTTON             = 7;
+constant BS_NOTEBOOKBUTTON         = 8;
+constant BS_PRIMARYSTYLES       = $000f;
 
-const BS_TEXT                 = $0010;
-const BS_MINIICON             = $0020;
-const BS_BITMAP           = $0040;
-const BS_ICON             = $0080;
-const BS_HELP                    = $0100;
-const BS_SYSCOMMAND              = $0200;
-const BS_DEFAULT                 = $0400;
-const BS_NOPOINTERFOCUS          = $0800;
-const BS_NOBORDER                = $1000;
-const BS_NOCURSORSELECT          = $2000;
-const BS_AUTOSIZE             = $4000;
+constant BS_TEXT                 = $0010;
+constant BS_MINIICON             = $0020;
+constant BS_BITMAP           = $0040;
+constant BS_ICON             = $0080;
+constant BS_HELP                    = $0100;
+constant BS_SYSCOMMAND              = $0200;
+constant BS_DEFAULT                 = $0400;
+constant BS_NOPOINTERFOCUS          = $0800;
+constant BS_NOBORDER                = $1000;
+constant BS_NOCURSORSELECT          = $2000;
+constant BS_AUTOSIZE             = $4000;
 
 
 
@@ -59,26 +59,26 @@ const BS_AUTOSIZE             = $4000;
 
    (* Button control messages *)
 
-const BM_CLICK                   = $0120;
-const BM_QUERYCHECKINDEX         = $0121;
-const BM_QUERYHILITE             = $0122;
-const BM_SETHILITE               = $0123;
-const BM_QUERYCHECK              = $0124;
-const BM_SETCHECK                = $0125;
-const BM_SETDEFAULT              = $0126;
-const BM_AUTOSIZE                = $0128;
+constant BM_CLICK                   = $0120;
+constant BM_QUERYCHECKINDEX         = $0121;
+constant BM_QUERYHILITE             = $0122;
+constant BM_SETHILITE               = $0123;
+constant BM_QUERYCHECK              = $0124;
+constant BM_SETCHECK                = $0125;
+constant BM_SETDEFAULT              = $0126;
+constant BM_AUTOSIZE                = $0128;
 
    (* Button notification codes *)
 
-const BN_CLICKED                = 1;
-const BN_DBLCLICKED             = 2;
-const BN_PAINT                  = 3;
+constant BN_CLICKED                = 1;
+constant BN_DBLCLICKED             = 2;
+constant BN_PAINT                  = 3;
 
    (* BN_PAINT button draw state codes (must be in high byte) *)
 
-   const BDS_HILITED                = $0100;
-   const BDS_DISABLED               = $0200;
-   const BDS_DEFAULT                = $0400;
+   constant BDS_HILITED                = $0100;
+   constant BDS_DISABLED               = $0200;
+   constant BDS_DEFAULT                = $0400;
 
 
 end.

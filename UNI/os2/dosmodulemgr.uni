@@ -21,8 +21,8 @@ function DosQueryModuleName(in hmod: HMODULE;
                             in cbName: ULONG;
                             out pch: CHAR): APIRET;
 
-   const PT_16BIT        =0;
-   const PT_32BIT        =1;
+   constant PT_16BIT        =0;
+   constant PT_32BIT        =1;
 
 function DosQueryProcType(in hmod: HMODULE;
                           in ordinal: ULONG;
@@ -37,14 +37,14 @@ function DosQueryModFromEIP(in phMod: ^HMODULE;
                             in pOffset: ^ULONG;
                             in Address: ULONG): APIRET;
 
-   const HW_CFG_MCA              =$00000001;
-   const HW_CFG_EISA             =$00000002;
-   const HW_CFG_ABIOS_SUPPORTED  =$00000004;
-   const HW_CFG_ABIOS_PRESENT    =$00000008;
-   const HW_CFG_PCI              =$00000010;
-   const HW_CFG_IBM_ABIOS        =$00000000;  (* OEM flag is OFF, ABIOS is IBM *)
-   const HW_CFG_OEM_ABIOS        =$00000020;
-   const HW_CFG_PENTIUM_CPU      =$00000040;
+   constant HW_CFG_MCA              =$00000001;
+   constant HW_CFG_EISA             =$00000002;
+   constant HW_CFG_ABIOS_SUPPORTED  =$00000004;
+   constant HW_CFG_ABIOS_PRESENT    =$00000008;
+   constant HW_CFG_PCI              =$00000010;
+   constant HW_CFG_IBM_ABIOS        =$00000000;  (* OEM flag is OFF, ABIOS is IBM *)
+   constant HW_CFG_OEM_ABIOS        =$00000020;
+   constant HW_CFG_PENTIUM_CPU      =$00000040;
 
 function DosQueryABIOSSupport(in reserved: ULONG): APIRET;
 

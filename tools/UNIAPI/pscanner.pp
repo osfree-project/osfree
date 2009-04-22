@@ -73,8 +73,8 @@ type
     tkInArg,
     tkInOutArg,
     tkOutArg,
-	tkdefault,
-	tkalias,
+        tkdefault,
+        tkalias,
     tkconstructor,
     tkdestructor,
     tkdiv,
@@ -115,7 +115,7 @@ type
     tkvar,
 //    tkwhile,
     tkwith,
-    tkxor   
+    tkxor
     );
 
   TLineReader = class
@@ -232,12 +232,12 @@ const
     'begin',
     'case',
     'class',
-    'const',
+    'constant',
     'in',
     'inout',
     'out',
-	'default',
-	'alias',
+    'default',
+    'alias',
     'constructor',
     'destructor',
     'div',
