@@ -144,7 +144,7 @@ base    dd    REAL_BASE
 real_start:
 
 .386
-        mov  ax, 5000h                             ; Set stack
+        mov  ax, 9000h                             ; Set stack
         mov  bp, 0x8000 - EXT_PARAMS_OFFS
 
         cli                                        ; Disable interrupts
