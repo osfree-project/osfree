@@ -1,5 +1,8 @@
 module dosprocess;
 
+abi os2386;
+
+
 (* NOINC *
    #define DosCwait           DosWaitChild
    #define DosSetPrty         DosSetPriority

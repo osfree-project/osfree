@@ -1,5 +1,8 @@
 /*** DosProfile API support */
 
+abi os2386;
+
+
 
    /*** Perfview API support */
 

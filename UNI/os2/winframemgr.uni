@@ -1,5 +1,8 @@
 module winframemgr;
 
+abi os2386;
+
+
 function WinFlashWindow(in hwndFrame: HWND;
                                  in fFlash: BOOL): BOOL;
 

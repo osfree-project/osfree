@@ -1,5 +1,8 @@
 module winwindowmgrcommon;
 
+abi os2386;
+
+
        function WinRegisterClass(in hab: HAB;
                                      in pszClassName: PCSZ;
                                      in pfnWndProc: PFNWP;

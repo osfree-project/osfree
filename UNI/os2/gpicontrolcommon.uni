@@ -1,5 +1,8 @@
 module gpicontrolcommon;
 
+abi os2386;
+
+
    (* units for GpiCreatePS and others *)
 constant PU_ARBITRARY               = $0004;
 constant PU_PELS                    = $0008;

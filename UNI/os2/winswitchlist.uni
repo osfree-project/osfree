@@ -1,5 +1,7 @@
 module winswitchlist;
 
+abi os2386;
+
 
       type SWENTRY=structure          (* swent *)
          hswitch: HSWITCH;

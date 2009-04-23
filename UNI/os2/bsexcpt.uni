@@ -1,5 +1,8 @@
 module bsexcpt;
 
+abi os2386;
+
+
 (*
  * User Exception Handler Return Codes:
  *)

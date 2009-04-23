@@ -1,5 +1,8 @@
 module winprogramlist;
 
+abi os2386;
+
+
 
       (*** maximum path length *********************************************)
       constant MAXPATHL= 128;

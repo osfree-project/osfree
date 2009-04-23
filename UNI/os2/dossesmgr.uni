@@ -1,5 +1,8 @@
 module dossesmgr;
 
+abi os2386;
+
+
 (*** Session manager support *)
 
    type STARTDATA=structure     (* stdata *)

@@ -276,10 +276,10 @@ begin
 
   CurDeclSection := '';
 
+  FAbiList:=ASection;
+
   for i := 0 to ASection.Declarations.Count - 1 do
     WriteElement(TPasElement(ASection.Declarations[i]));
-
-  FAbiList:=ASection;
   
   if ASection.UsesList.Count > 0 then
   begin
@@ -322,6 +322,7 @@ begin
   begin
     Result:=AbiGet(TPasElement(FAbiList.AbiList[i]).Name+'.abi', Symbol);
     If Result.Name=Symbol then break;
+    Result.Name:='';
   end;
 end;
 
@@ -434,6 +435,8 @@ begin
   end;
 
   ABI:=MultiAbiGet(AProc.Name);
+  if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
+
   wrt(' '+ABI.CallingConvertion+' '+AProc.Name);
 
   if Assigned(AProc.ProcType) and (AProc.ProcType.Args.Count > 0) then
@@ -477,6 +480,7 @@ var
   ABI: TABI;
 begin
   ABI:=MultiAbiGet(AProc.Name);
+  if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
   wrt('VOID ('+ABI.CallingConvertion+' '+AProc.Name+')');
 
   if (AProc.Args.Count > 0) then
@@ -522,6 +526,7 @@ begin
   WriteType(AProc.ResultEl.ResultType, false);
 
   ABI:=MultiAbiGet(AProc.Name);
+  if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
   wrt('('+ABI.CallingConvertion+' '+AProc.Name+')');
 
   if (AProc.Args.Count > 0) then

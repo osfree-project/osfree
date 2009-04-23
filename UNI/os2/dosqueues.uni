@@ -1,6 +1,9 @@
 (*** Pipe and queue support *)
 module dosqueues;
 
+abi os2386;
+
+
 type HQUEUE=LHANDLE;
 type PHQUEUE=^HQUEUE;
 type REQUESTDATA=structure

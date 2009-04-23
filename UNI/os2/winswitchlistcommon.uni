@@ -1,5 +1,8 @@
 module winswitchlistcommon;
 
+abi os2386;
+
+
       type SWCNTRL=structure
               hwnd: HWND;
               hwndIcon: HWND;

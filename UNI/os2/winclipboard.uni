@@ -1,5 +1,7 @@
 module winclipboard;
 
+abi os2386;
+
 function WinSetClipbrdOwner(in hab: HAB;
                                  in hwnd: HWND): BOOL;
 

@@ -1,5 +1,8 @@
 module winshelldata;
 
+abi os2386;
+
+
 (*** OS2.INI Access functions ****************************************)
 
 function PrfQueryProfileInt(in hini: HINI;

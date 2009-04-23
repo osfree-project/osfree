@@ -1,5 +1,8 @@
 module dosnls;
 
+abi os2386;
+
+
    type COUNTRYCODE=structure   (* ctryc *)
              country: ULONG;
              codepage: ULONG;

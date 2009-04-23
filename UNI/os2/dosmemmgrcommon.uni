@@ -1,5 +1,7 @@
 module dosmemmgrcommon;
 
+abi os2386;
+
    (*** Memory management *)
 
    function DosAliasMem(in  pb: PVOID;

@@ -1,5 +1,8 @@
 module bsedos;
 
+abi os2386;
+
+
 (************************************************************************
 * CCHMAXPATH is the maximum fully qualified path name length including  *
 * the drive letter, colon, backslashes and terminating NULL.            *

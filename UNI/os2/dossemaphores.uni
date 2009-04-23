@@ -1,5 +1,7 @@
 module dossemaphores;
 
+abi os2386;
+
 
 uses hevdef;
 

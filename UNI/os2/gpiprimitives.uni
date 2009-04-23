@@ -1,5 +1,8 @@
 module gpiprimitives;
 
+abi os2386;
+
+
    (* mode for GpiSetAttrMode *)
 constant AM_ERROR                     = (-1);
 constant AM_PRESERVE                  =   0;

@@ -1,3 +1,6 @@
+abi os2386;
+
+
    /* Processor state (used by DosGetProcessorStatus and DosSetProcessorStatus) */
    #define PROC_OFFLINE    0x00000000      /* processor is offline */
    #define PROC_ONLINE     0x00000001      /* processor is online */

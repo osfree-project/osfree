@@ -1,5 +1,7 @@
 module dosresources;
 
+abi os2386;
+
 
 function DosGetResource(in hmod: HMODULE;
                                     in idType: ULONG;

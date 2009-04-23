@@ -1,5 +1,8 @@
 module dosdatetime;
 
+abi os2386;
+
+
 (*   #define DosTimerAsync   DosAsyncTimer
    #define DosTimerStart   DosStartTimer
    #define DosTimerStop    DosStopTimer *)

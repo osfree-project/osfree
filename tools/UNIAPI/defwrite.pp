@@ -117,6 +117,7 @@ begin
   begin
     Result:=AbiGet(TPasElement(FAbiList.AbiList[i]).Name+'.abi', Symbol);
     If Result.Name=Symbol then break;
+    Result.Name:='';
   end;
 end;
 
@@ -125,6 +126,7 @@ var
   ABI: TAbi;
 begin
   ABI:=MultiAbiGet(AProc.Name);
+  if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
   if ABI.ImportName='' then
     wrtln('++'+AProc.Name+'.'+ABI.DLL+'.'+ABI.Ordinal)
   else

@@ -1,5 +1,8 @@
 module os2def;
 
+abi os2386;
+
+
 type BYTE   = T_BYTE; (* 8bit *)
 type UCHAR  = T_BYTE; (* 8bit *)
 type USHORT = T_WORD; (* 16bit *)

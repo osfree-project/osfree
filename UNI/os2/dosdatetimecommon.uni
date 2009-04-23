@@ -1,5 +1,8 @@
 module dosdatetimecommon;
 
+abi os2386;
+
+
    (*** Time support *)
 
    type DATETIME=structure      (* date *)

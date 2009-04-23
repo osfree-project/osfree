@@ -1,5 +1,8 @@
 module dosprocesscommon;
 
+abi os2386;
+
+
 (* General services *)
 function DosBeep(in freq: ULONG; in dur: ULONG): APIRET;
 

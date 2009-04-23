@@ -1,5 +1,8 @@
 module dosmisc;
 
+abi os2386;
+
+
    (* definitions for DosSearchPath control word *)
    constant DSP_IMPLIEDCUR          =1; (* current dir will be searched first *)
    constant DSP_PATHREF             =2; (* from env.variable *)

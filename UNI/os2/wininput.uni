@@ -1,5 +1,8 @@
 module wininput;
 
+abi os2386;
+
+
 function WinSetCapture(in hwndDesktop: HWND;
                                   in hwnd: HWND): BOOL;
 

@@ -1,5 +1,7 @@
 module dosdevioctl;
 
+abi os2386;
+
 uses bsedos default;
 
 end.
