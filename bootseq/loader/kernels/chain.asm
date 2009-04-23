@@ -54,6 +54,8 @@ ext_params struc
 force_chs        db               ?
 drive            db               ?
 part             db               3 dup (?)
+BootPart         db               ?
+BootDev          db               ?
 disk_addr_pkt    disk_addr_packet <>
 
 ;
@@ -64,14 +66,12 @@ jump             dw               ?
 force_lba1       db               ?
 oemid            db               8 dup (?)
 bpb              bios_parameters_block <>
-pad              db               (512 - 2 - 40h - 2 - (size bios_parameters_block - 8 - 3)) dup (?)
-BootPart         db               ?
-BootDev          db               ?
+pad              db               (512 - 2 - 40h - 0 - (size bios_parameters_block) - 8 - 3) dup (?)
 parttable        db               40h      dup (?)
 bootsig          dw               0aa55h
 ext_params ends
 
-EXT_PARAMS_OFFS  equ (2 + 4 + size (disk_addr_packet))
+EXT_PARAMS_OFFS  equ (2 + 3 + 2 + size (disk_addr_packet))
 
                 ;
                 ; A macro to check if a partition is extended
@@ -149,7 +149,7 @@ real_start:
 
         cli                                        ; Disable interrupts
         mov  ss, ax                                ;
-        mov  sp, 0ffffh                            ; to above the ext_params
+        mov  sp, bp                            ; to above the ext_params
         sti                                        ; Enable interrupts
 
         mov  ds, ax
@@ -198,6 +198,7 @@ use_lba:
 use_chs:
         mov  bl, 1
 switchBootDrv:
+
         mov  [bp].force_chs, bl
 
         ; dl      --> drive we booted from (set by BIOS when control is given to MBR code)
@@ -228,6 +229,13 @@ switchBootDrv:
         mov dword ptr [di + 8], 0                  ; LBA
 
         call ReadSec                               ; Load the MBR of the HDD we continue booting from
+
+        ;xor  eax, eax
+        ;mov  ds,  ax
+        ;mov  es,  ax
+        ;mov  di,  0x7dbe
+        lea  di, [bp].parttable
+
 searchPartition:
         ;
         ; Now let's search partition descriptor in MBR or EBR
@@ -254,15 +262,15 @@ findExtended:   ; 1st find extended partition in PT
         add  di, 10h
         loop findExtended
 
-        jmp  part_not_found                      ; Ext. part. not found, panic
+        jmp  part_not_found                        ; Ext. part. not found, panic
 extendedFound:                                             ; Ext part. found
         mov  cx, ax                                ; Set loop counter to logical part. number
         mov  eax, [di + 8]
 
         call ReadSec                               ; Read 1st EBR into scratch sector
 
-searchEBR:                                                 ; find the EBR of needed partition
-        lea  di, [bp].parttable                         ; si --> partition table of EBR
+searchEBR:                                         ; find the EBR of needed partition
+        lea  di, [bp].parttable                    ; si --> partition table of EBR
 
         jcxz ebrFound
 
@@ -281,7 +289,8 @@ skip:
         call ReadSec                               ; Read the next EBR
         jmp  searchEBR
 ebrFound:                                                  ; It is a EBR of our partition, let's take part. descriptor
-        add  dword ptr [di + 8], eax                 ; dx:ax --> beginning of our partition
+        ;add  dword ptr [di + 8], eax                 ; dx:ax --> beginning of our partition
+        add  eax, dword ptr [di + 8]
 
         mov  bx, 1                                 ; Logical partition condition is TRUE
 
@@ -301,7 +310,7 @@ primaryPart:
         mov  bx, 0                                 ; Logical partition condition is FALSE
 bootFound:
         ; Boot partition found                     ; ds:si --> Part. descriptor of boot partition
-        call ReadSec                               ; Read bootsector into 0x7c0:0x0
+        ;call ReadSec                               ; Read bootsector into 0x7c0:0x0
 
         test bx, bx
         jz   nofix_hiddensecs
@@ -310,7 +319,11 @@ bootFound:
         ; Fix hiddensectors value if booting from logical partition
         ;
 
-        add  dword ptr [bp].bpb.hidden_secs, eax
+        xor  bx, bx
+        mov  ds, bx       
+        mov  si, 0x7c00 - EXT_PARAMS_OFFS
+ 
+        mov  dword ptr [si].bpb.hidden_secs, eax
 
 nofix_hiddensecs:
         ;
@@ -318,13 +331,13 @@ nofix_hiddensecs:
         ;
 
         mov  dl, [bp].drive
-        mov  byte ptr [bp].bpb.disk_num, dl
+        mov  byte ptr [si].bpb.disk_num, dl
 
         mov  bl, [bp].part
         inc  bl
         inc  bl
         or   bl, 80h
-        mov  [bp].bpb.log_drive, bl
+        mov  [si].bpb.log_drive, bl
 
         ;mov  eax, dword ptr [bp].drive
         ;mov  [bp].drivepart, eax
@@ -337,7 +350,6 @@ no_hiddensecs:
         ;call err
                 
         retf                                       ; "return" to bootsector
-
 
 err_read:
         mov  al, 'R'
@@ -412,6 +424,7 @@ ReadSecLBA proc near
         ;            al = 0 if success,
         ;            error code otherwise
 
+        
         lea  si, [bp].disk_addr_pkt                ; disk address packet
 
         mov  word ptr [si].pkt_size, 10h           ; size of packet absolute starting address
@@ -421,9 +434,10 @@ ReadSecLBA proc near
         mov  dword ptr [si].starting_block + 4, 0  ;
 
         mov  word ptr [si].num_blocks, 1           ; number of blocks to transfer
-        mov  word ptr [si].buffer, 7c00h           ; offset of disk read buffer = 0x7c00
-        mov  word ptr [si].buffer + 2, 0           ; segment of disk read buffer at 0x0
-        mov  ah, 42h
+        mov  word ptr [si].buffer, 8000h           ; offset of disk read buffer = 0x7c00
+        mov  word ptr [si].buffer + 2, 9000h       ; segment of disk read buffer at 0x0
+
+        mov  ax, 4200h
 
         int  13h
 lb2:
@@ -457,6 +471,55 @@ ReadSecCHS proc near
 
         ret
 ReadSecCHS endp
+
+up1:
+        mov     bx, 1
+        mov     ah, 0Eh
+        int     10h             ; display a byte
+
+message:
+        lodsb
+        or      al, al
+        jne     up1              ; if not end of string, jmp to display
+        ret
+
+;
+; printhex[248]: Write a hex number in (AL, AX, EAX) to the console
+;
+
+printhex2:
+        pusha
+        rol     eax, 24
+        mov     cx, 2
+        jmp     pp1
+printhex4:
+        pusha
+        rol     eax, 16
+        mov     cx, 4
+        jmp     pp1
+printhex8:
+        pusha
+        mov     cx, 8
+pp1:
+        rol     eax, 4
+        push    eax
+        and     al, 0Fh
+        cmp     al, 10
+        jae     high1
+low1:
+        add     al, '0'
+        jmp     pp2
+high1:
+        add     al, 'A' - 10
+pp2:
+        mov     bx, 0001h
+        mov     ah, 0Eh
+        int     10h              ; display a char
+        pop     eax
+        loop    pp1
+        popa
+
+        ret
 
 
 gateA20_rm:

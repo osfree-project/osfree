@@ -6,7 +6,8 @@
 
 PROJ      = win
 DESC      = Win16 main file
-srcfiles  = $(p)WinMain$(e) &
+srcfiles  = &
+$(p)WinMain$(e) &
 $(p)TwinRT.res$(e) &
 $(p)IsBinary$(e) &
 $(p)TwinDeflib$(e) &
@@ -144,20 +145,21 @@ $(p)WindowDC$(e) &
 $(p)WindowProps$(e) &
 $(p)Dialog$(e) &
 $(p)PrintManager$(e) &
-$(p)Comm$(e) &
-$(p)WinHelp$(e)
+$(p)WinHelp$(e) &
+$(p)Comm$(e)
 
 #$(p)make_thunk$(e) &
 
 
-
-ADD_COPT=-I..\include
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)dos
 
 # defines additional options for C compiler
 
 !include $(%ROOT)/mk/appsdos.mk
 
-$(p)TwinRT.res.$(e): $(p)TwinRT.res.c
+.c: $(PATH)
 
-$(p)TwinRT.res.c: TwinRT.rc
-   winrc -I..\include -I. TwinRT.rc -o $(p)TwinRT.res.c
+$(PATH)TwinRT.res.obj: $(PATH)TwinRT.res.c
+
+$(PATH)TwinRT.res.c: $(MYDIR)TwinRT.rc
+   winrc -I$(MYDIR)..$(SEP)include -I. $< -o $^@

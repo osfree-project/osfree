@@ -69,6 +69,11 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+
+#ifdef __WATCOMC__
+#include <io.h>
+#endif
+
 #include <string.h>
 
 #include "WinConfig.h"
