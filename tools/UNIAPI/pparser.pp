@@ -42,6 +42,7 @@ resourcestring
   SParserArrayTypeSyntaxError = 'Syntax error in array type';
   SParserInterfaceTokenError = 'Invalid token in interface section of unit';
   SParserInvalidTypeDef = 'Invalid type definition';
+  SParserNoDirection = 'Argument direction not set';
 
 type
   TPasTreeContainer = class
@@ -802,17 +803,17 @@ begin
 
     NextToken;
 
-	while CurToken = tkAlias do
-	begin
-	  UnitName:=UnitName+'|'+ExpectIdentifier; 
+        while CurToken = tkAlias do
+        begin
+          UnitName:=UnitName+'|'+ExpectIdentifier;
       NextToken;
-	end;
-	
-	if CurToken = tkDefault then
-	begin
-	  UnitName:='!'+UnitName; 
+        end;
+
+        if CurToken = tkDefault then
+        begin
+          UnitName:='!'+UnitName;
       NextToken;
-	end;
+        end;
 
     if CurToken = tkSemicolon then
     begin
@@ -1368,7 +1369,7 @@ begin
         ArgType.AddRef;
       Arg.Value := Value;
       Args.Add(Arg);
-      If Access = argDefault then WriteLn('WARNING: Argument ', Args.Count, ' direction is not set in line ', Scanner.CurRow, '! This will be error in future versions of tool.');
+      If Access = argDefault then ParseExc(SParserNoDirection);
     end;
 
     ArgNames.Free;

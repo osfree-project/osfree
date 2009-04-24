@@ -19,7 +19,7 @@ constant QUE_NOCONVERT_ADDRESS =0;
 constant QUE_CONVERT_ADDRESS   =4;
 
 
-function  DosCreatePipe(out hfRead:  HFILE; 
+function  DosCreatePipe(out hfRead:  HFILE;
                         out hfWrite: HFILE;
                         in  cb:      ULONG): APIRET;
 

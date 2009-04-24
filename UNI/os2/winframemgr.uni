@@ -119,4 +119,3 @@ constant SC_NEXTWINDOW              = $8010;
 
 
 end.
-

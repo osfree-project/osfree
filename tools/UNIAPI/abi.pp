@@ -5,7 +5,7 @@ interface
 
 var
   rootpath: string;
-  
+
 type
   TAbiType=(AbiDynamicLibrary, AbiStaticLibrary, AbiInterrupt);
 
@@ -14,18 +14,18 @@ type
     Name: ShortString;
     CallingConvertion: ShortString;
     case AbiType: TAbiType of
-    AbiDynamicLibrary: 
+    AbiDynamicLibrary:
     (
       DLL: ShortString;
       ImportLibrary: ShortString;
       Ordinal: ShortString;
       ImportName: ShortString;
     );
-    AbiStaticLibrary: 
+    AbiStaticLibrary:
     (
       LibraryName: ShortString;
     );
-    AbiInterrupt: 
+    AbiInterrupt:
     (
       InterruptNumber: ShortString;
       Argument1: ShortString;
@@ -98,6 +98,7 @@ begin
     Result.CallingConvertion:='';
     Result.DLL:='';
   end;
+//  WriteLn('found ', result.name, ' for ', symbolname);
   Close(F);
 end;
 

@@ -4,7 +4,7 @@ abi os2386;
 
 (**** Dialog Manager *)
 
-   (**** Dialog Manager COMMON subsection *)
+(**** Dialog Manager COMMON subsection *)
 
 function WinGetDlgMsg(in hwndDlg: HWND;
                                  out pqmsg: QMSG): BOOL;

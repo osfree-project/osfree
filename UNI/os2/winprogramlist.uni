@@ -2,8 +2,6 @@ module winprogramlist;
 
 abi os2386;
 
-
-
       (*** maximum path length *********************************************)
       constant MAXPATHL= 128;
 
@@ -188,4 +186,3 @@ abi os2386;
       function WinTerminateApp(in happ: HAPP): BOOL;
 
 end.
-

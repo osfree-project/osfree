@@ -207,8 +207,6 @@ var
 begin
   PrepareDeclSection('type');
   wrt(AClass.Name + ' = ');
-  if AClass.IsPacked then
-     wrt('packed ');                      // 12/04/04 - Dave - Added
   case AClass.ObjKind of
     okObject: wrt('object');
     okClass: wrt('class');

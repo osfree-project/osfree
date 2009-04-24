@@ -2,7 +2,6 @@ module wininputcommon;
 
 abi os2386;
 
-
 constant FC_NOSETFOCUS            = $0001;
 constant FC_NOBRINGTOTOP          = FC_NOSETFOCUS;
 constant FC_NOLOSEFOCUS           = $0002;

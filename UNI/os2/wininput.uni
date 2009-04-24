@@ -2,7 +2,6 @@ module wininput;
 
 abi os2386;
 
-
 function WinSetCapture(in hwndDesktop: HWND;
                                   in hwnd: HWND): BOOL;
 
@@ -10,11 +9,11 @@ function WinQueryCapture(in hwndDesktop: HWND): HWND;
 
 function WinCheckInput(in hab: HAB): BOOL;
 
-   (*** Mouse input messages ***********************************************)
-   constant  WM_MOUSEFIRST           = $0070;
-   constant  WM_MOUSELAST            = $0079;
-   constant  WM_BUTTONCLICKFIRST     = $0071;
-   constant  WM_BUTTONCLICKLAST      = $0079;
+(*** Mouse input messages ***********************************************)
+constant  WM_MOUSEFIRST           = $0070;
+constant  WM_MOUSELAST            = $0079;
+constant  WM_BUTTONCLICKFIRST     = $0071;
+constant  WM_BUTTONCLICKLAST      = $0079;
 constant  WM_MOUSEMOVE               = $0070;
 
 constant  WM_BUTTON1DOWN             = $0071;
@@ -24,54 +23,54 @@ constant  WM_BUTTON1DBLCLK           = $0073;
 constant  WM_BUTTON2DOWN             = $0074;
 constant  WM_BUTTON2UP               = $0075;
 constant  WM_BUTTON2DBLCLK           = $0076;
-   constant  WM_BUTTON3DOWN          = $0077;
-   constant  WM_BUTTON3UP            = $0078;
-   constant  WM_BUTTON3DBLCLK        = $0079;
+constant  WM_BUTTON3DOWN          = $0077;
+constant  WM_BUTTON3UP            = $0078;
+constant  WM_BUTTON3DBLCLK        = $0079;
 
-   constant  WM_MOUSEMAP             = $007D;
+constant  WM_MOUSEMAP             = $007D;
 
-   constant  WM_EXTMOUSEFIRST        = $0410;
-   constant  WM_EXTMOUSELAST         = $0419;
+constant  WM_EXTMOUSEFIRST        = $0410;
+constant  WM_EXTMOUSELAST         = $0419;
 
-   constant  WM_CHORD                = $0410;
-   constant  WM_BUTTON1MOTIONSTART   = $0411;
-   constant  WM_BUTTON1MOTIONEND     = $0412;
-   constant  WM_BUTTON1CLICK         = $0413;
-   constant  WM_BUTTON2MOTIONSTART   = $0414;
-   constant  WM_BUTTON2MOTIONEND     = $0415;
-   constant  WM_BUTTON2CLICK         = $0416;
-   constant  WM_BUTTON3MOTIONSTART   = $0417;
-   constant  WM_BUTTON3MOTIONEND     = $0418;
-   constant  WM_BUTTON3CLICK         = $0419;
+constant  WM_CHORD                = $0410;
+constant  WM_BUTTON1MOTIONSTART   = $0411;
+constant  WM_BUTTON1MOTIONEND     = $0412;
+constant  WM_BUTTON1CLICK         = $0413;
+constant  WM_BUTTON2MOTIONSTART   = $0414;
+constant  WM_BUTTON2MOTIONEND     = $0415;
+constant  WM_BUTTON2CLICK         = $0416;
+constant  WM_BUTTON3MOTIONSTART   = $0417;
+constant  WM_BUTTON3MOTIONEND     = $0418;
+constant  WM_BUTTON3CLICK         = $0419;
 
-      (* Messages = $041A - = $041F are reserved *)
+   (* Messages = $041A - = $041F are reserved *)
 
-   constant  WM_MOUSETRANSLATEFIRST  = $0420;
-   constant  WM_MOUSETRANSLATELAST   = $0428;
+constant  WM_MOUSETRANSLATEFIRST  = $0420;
+constant  WM_MOUSETRANSLATELAST   = $0428;
 
-   constant  WM_BEGINDRAG            = $0420;
-   constant  WM_ENDDRAG              = $0421;
-   constant  WM_SINGLESELECT         = $0422;
-   constant  WM_OPEN                 = $0423;
-   constant  WM_CONTEXTMENU          = $0424;
-   constant  WM_CONTEXTHELP          = $0425;
-   constant  WM_TEXTEDIT             = $0426;
-   constant  WM_BEGINSELECT          = $0427;
-   constant  WM_ENDSELECT            = $0428;
-   constant  WM_PICKUP               = $0429;
+constant  WM_BEGINDRAG            = $0420;
+constant  WM_ENDDRAG              = $0421;
+constant  WM_SINGLESELECT         = $0422;
+constant  WM_OPEN                 = $0423;
+constant  WM_CONTEXTMENU          = $0424;
+constant  WM_CONTEXTHELP          = $0425;
+constant  WM_TEXTEDIT             = $0426;
+constant  WM_BEGINSELECT          = $0427;
+constant  WM_ENDSELECT            = $0428;
+constant  WM_PICKUP               = $0429;
 
-   constant  WM_PENFIRST             = $04C0;
-   constant  WM_PENLAST              = $04FF;
-   constant  WM_MMPMFIRST            = $0500;
-   constant  WM_MMPMLAST             = $05FF;
-   constant  WM_STDDLGFIRST          = $0600;
-   constant  WM_STDDLGLAST           = $065F;
+constant  WM_PENFIRST             = $04C0;
+constant  WM_PENLAST              = $04FF;
+constant  WM_MMPMFIRST            = $0500;
+constant  WM_MMPMLAST             = $05FF;
+constant  WM_STDDLGFIRST          = $0600;
+constant  WM_STDDLGLAST           = $065F;
 
-      (* Messages = $0BD0 - = $0BFF are reserved *)
-      (* for bidirectional language support.   *)
+   (* Messages = $0BD0 - = $0BFF are reserved *)
+   (* for bidirectional language support.   *)
 
-   constant   WM_BIDI_FIRST           = $0BD0;
-   constant   WM_BIDI_LAST            = $0BFF;
+constant   WM_BIDI_FIRST           = $0BD0;
+constant   WM_BIDI_LAST            = $0BFF;
 
 
 function WinQueryFocus(in hwndDesktop: HWND): HWND;
@@ -212,14 +211,14 @@ constant  VK_BLK2                    = $41;
 
 constant  VK_MENU                  =  VK_F10;
 
-   constant  VK_DBCSFIRST            = $0080;
-   constant  VK_DBCSLAST             = $00ff;
+constant  VK_DBCSFIRST            = $0080;
+constant  VK_DBCSLAST             = $00ff;
 
-      (* VK_ vluaes = $E0 - = $FF are reserved   *)
-      (* for bidirectional language support.   *)
+   (* VK_ vluaes = $E0 - = $FF are reserved   *)
+   (* for bidirectional language support.   *)
 
-   constant  VK_BIDI_FIRST           = $E0;
-   constant  VK_BIDI_LAST            = $FF;
+constant  VK_BIDI_FIRST           = $E0;
+constant  VK_BIDI_LAST            = $FF;
 
 
 constant  VK_USERFIRST               = $0100;
@@ -239,12 +238,11 @@ function WinSetKeyboardStateTable(in hwndDesktop: HWND;
                                                in fSet: BOOL): BOOL;
 
 
-      (* Journal Notification messages  *)
-   constant  WM_JOURNALNOTIFY           = $007c;
+   (* Journal Notification messages  *)
+constant  WM_JOURNALNOTIFY           = $007c;
 
-      (*** Define the valid commands (lParm1) for journal notify message *)
-   constant  JRN_QUEUESTATUS            = $00000001;
-   constant  JRN_PHYSKEYSTATE           = $00000002;
+   (*** Define the valid commands (lParm1) for journal notify message *)
+constant  JRN_QUEUESTATUS            = $00000001;
+constant  JRN_PHYSKEYSTATE           = $00000002;
 
 end.
-

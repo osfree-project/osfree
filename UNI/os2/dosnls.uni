@@ -35,31 +35,31 @@ abi os2386;
    #define DosSetProcCp    DosSetProcessCp
 *)
 
-function DosQueryCtryInfo(in  cb: ULONG; 
-						  in  pcc: PCOUNTRYCODE; 
-						  out pci: COUNTRYINFO; 
-						  out pcbActual: ULONG): APIRET;
+function DosQueryCtryInfo(in  cb: ULONG;
+                                                  in  pcc: PCOUNTRYCODE;
+                                                  out pci: COUNTRYINFO;
+                                                  out pcbActual: ULONG): APIRET;
 
-function DosQueryDBCSEnv(in  cb: ULONG; 
-						 in  pcc: PCOUNTRYCODE; 
-						 out pBuf: CHAR): APIRET;
+function DosQueryDBCSEnv(in  cb: ULONG;
+                                                 in  pcc: PCOUNTRYCODE;
+                                                 out pBuf: CHAR): APIRET;
 
-function DosMapCase(in    cb: ULONG; 
-					in    pcc: PCOUNTRYCODE; 
-					inout pch: PCHAR): APIRET;
+function DosMapCase(in    cb: ULONG;
+                                        in    pcc: PCOUNTRYCODE;
+                                        inout pch: PCHAR): APIRET;
 
-function DosQueryCollate(in  cb: ULONG; 
-						 in  pcc: PCOUNTRYCODE; 
-						 out pch: CHAR; 
-						 out pcch: ULONG): APIRET;
+function DosQueryCollate(in  cb: ULONG;
+                                                 in  pcc: PCOUNTRYCODE;
+                                                 out pch: CHAR;
+                                                 out pcch: ULONG): APIRET;
 
-function DosQueryCp(in  cb: ULONG; 
-					out arCP: ULONG; 
-					out pcCP: ULONG): APIRET;
+function DosQueryCp(in  cb: ULONG;
+                                        out arCP: ULONG;
+                                        out pcCP: ULONG): APIRET;
 
-function DosGetCp(in  cb: ULONG; 
-				  out arCP: ULONG; 
-				  out pcCP: ULONG): APIRET;
+function DosGetCp(in  cb: ULONG;
+                                  out arCP: ULONG;
+                                  out pcCP: ULONG): APIRET;
 
 function DosSetProcessCp(in cp: ULONG): APIRET;
 

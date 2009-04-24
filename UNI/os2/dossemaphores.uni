@@ -78,4 +78,3 @@ uses hevdef;
                                          out pflAttr: ULONG): APIRET;
 
 end.
-

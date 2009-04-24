@@ -2,7 +2,6 @@ module devcommon;
 
 abi os2386;
 
-
 constant CAPS_FAMILY                  = 0;
 constant CAPS_IO_CAPS                 = 1;
 constant CAPS_TECHNOLOGY              = 2;
@@ -163,4 +162,3 @@ function DevPostDeviceModes(in a: HAB; inout b: DRIVDATA; in c: PCSZ; in d:PCSZ;
 function DevQueryCaps(in a:HDC; in b:LONG; in c:LONG; out d: LONG): BOOL;
 
 end;
-

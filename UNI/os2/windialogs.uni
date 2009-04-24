@@ -117,4 +117,3 @@ function WinCreateDlg(in hwndParent: HWND;
 
 
 end.
-

@@ -98,4 +98,3 @@ function DosQueryAppType(in  pszName: PCSZ;
                          out pFlags: PULONG): APIRET;
 
 end.
-

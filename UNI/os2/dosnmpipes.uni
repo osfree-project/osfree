@@ -1,8 +1,8 @@
 (****************************************************************************************)
-(* Module: DOSNMPIPES 																	*)
-(* 																						*)
-(* Named Pipes Support 																	*)
-(* 																						*)
+(* Module: DOSNMPIPES                                                                                                                                   *)
+(*                                                                                                                                                                              *)
+(* Named Pipes Support                                                                                                                                  *)
+(*                                                                                                                                                                              *)
 (****************************************************************************************)
 
 module dosnmpipes;
@@ -12,7 +12,7 @@ abi os2386;
 
    (*** Data structures used with named pipes ***)
 
-   type  HPIPE=LHANDLE;     
+   type  HPIPE=LHANDLE;
    type  PHPIPE=^HPIPE;
 
    type AVAILDATA=structure              (* AVAILDATA *)

@@ -1,8 +1,13 @@
 module winswitchlistcommon;
 
+<<<<<<< .mine
+abi os2386;
+
+=======
 abi os2386;
 
 
+>>>>>>> .r704
       type SWCNTRL=structure
               hwnd: HWND;
               hwndIcon: HWND;

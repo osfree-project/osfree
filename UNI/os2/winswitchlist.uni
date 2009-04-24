@@ -20,8 +20,8 @@ abi os2386;
 
       function WinCreateSwitchEntry(in hab: HAB; in pswctlSwitchData: PSWCNTRL): HSWITCH;
 
-      function WinQuerySessionTitle(in hab: HAB; 
-				in usSession: ULONG;
+      function WinQuerySessionTitle(in hab: HAB;
+                                in usSession: ULONG;
                                             in pszTitle: PCSZ;
                                             in usTitlelen: ULONG): ULONG;
 

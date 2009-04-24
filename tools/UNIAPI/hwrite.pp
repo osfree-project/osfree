@@ -28,7 +28,7 @@ type
     IsStartOfLine: Boolean;
     Indent, CurDeclSection: string;
     DeclSectionStack: TList;
-    FAbiList: TPasSection; 
+    FAbiList: TPasSection;
     procedure IncIndent;
     procedure DecIndent;
     procedure IncDeclSectionLevel;
@@ -247,7 +247,7 @@ begin
   WrtLn( '#ifndef NEAR');
   WrtLn( '#define NEAR');
   WrtLn( '#endif');
-  
+
   WrtLn;
   WriteSection(AModule.InterfaceSection);
   Indent := '';
@@ -280,30 +280,30 @@ begin
 
   for i := 0 to ASection.Declarations.Count - 1 do
     WriteElement(TPasElement(ASection.Declarations[i]));
-  
+
   if ASection.UsesList.Count > 0 then
   begin
     for i := 0 to ASection.UsesList.Count - 1 do
     begin
-	  UsesName:=TPasElement(ASection.UsesList[i]).Name;
+          UsesName:=TPasElement(ASection.UsesList[i]).Name;
 
-	  While pos('|',UsesName)>0 do
-	  begin
-	    BaseName:=Copy(UsesName, 1, Pos('|', UsesName)-1);
-		If BaseName[1]='!' then Delete(BaseName, 1, 1);
-	    Alias:=Copy(UsesName, LastPos('|', UsesName)+1, Length(UsesName)-LastPos('|', UsesName));
-		Delete(UsesName, LastPos('|', UsesName), Length(UsesName)-LastPos('|', UsesName)+1);
+          While pos('|',UsesName)>0 do
+          begin
+            BaseName:=Copy(UsesName, 1, Pos('|', UsesName)-1);
+                If BaseName[1]='!' then Delete(BaseName, 1, 1);
+            Alias:=Copy(UsesName, LastPos('|', UsesName)+1, Length(UsesName)-LastPos('|', UsesName));
+                Delete(UsesName, LastPos('|', UsesName), Length(UsesName)-LastPos('|', UsesName)+1);
         wrtln('#ifdef INCL_'+upcase(Alias));
         wrtln('#define INCL_'+upcase(BaseName));
         wrtln('#endif');
-	  end;
-	  
-	  If UsesName[1]='!' then
-	  begin
-		Delete(UsesName, 1, 1);
+          end;
+
+          If UsesName[1]='!' then
+          begin
+                Delete(UsesName, 1, 1);
         wrtln('#define INCL_'+upcase(UsesName));
-	  end;
-	  
+          end;
+
       wrtln('#ifdef INCL_'+upcase(UsesName));
       wrtln('  #include <'+UsesName+'.h>');
       wrtln('#endif');
@@ -334,8 +334,6 @@ var
 begin
   PrepareDeclSection('type');
   wrt(AClass.Name + ' = ');
-  if AClass.IsPacked then
-     wrt('packed ');                      // 12/04/04 - Dave - Added
   case AClass.ObjKind of
     okObject: wrt('object');
     okClass: wrt('class');
@@ -435,8 +433,7 @@ begin
   end;
 
   ABI:=MultiAbiGet(AProc.Name);
-  if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
-
+  If ABI.Name='' then raise Exception.Create('ABI not found for '+AProc.Name);
   wrt(' '+ABI.CallingConvertion+' '+AProc.Name);
 
   if Assigned(AProc.ProcType) and (AProc.ProcType.Args.Count > 0) then
@@ -652,11 +649,7 @@ var
   i: Integer;
   Variable: TPasVariable;
 begin
-  if not (AElement.Parent is TPasVariant) then
-    if AElement.IsPacked then
-      wrt('packed struct')
-    else
-      wrt('struct ');
+  if not (AElement.Parent is TPasVariant) then wrt('struct ');
 
   wrtln('_'+AElement.Name+' {');
 

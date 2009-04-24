@@ -2,21 +2,20 @@ module winwindowmgrcommon;
 
 abi os2386;
 
-
-       function WinRegisterClass(in hab: HAB;
+function WinRegisterClass(in hab: HAB;
                                      in pszClassName: PCSZ;
                                      in pfnWndProc: PFNWP;
                                      in flStyle: ULONG;
                                      in cbWindowData: ULONG): BOOL;
 
-    function WinDefWindowProc(in hwnd: HWND;
+function WinDefWindowProc(in hwnd: HWND;
                                       in msg: ULONG;
                                       in mp1: MPARAM;
                                       in mp2: MPARAM): MRESULT;
 
-       function WinDestroyWindow(in hwnd: HWND): BOOL;
+function WinDestroyWindow(in hwnd: HWND): BOOL;
 
-       function WinShowWindow(in hwnd: HWND;
+function WinShowWindow(in hwnd: HWND;
                                    in fShow: BOOL): BOOL;
 
        function WinQueryWindowRect(in hwnd: HWND;
@@ -93,4 +92,3 @@ abi os2386;
        function WinQueryAnchorBlock(in hwnd: HWND): HAB;
 
 end.
-

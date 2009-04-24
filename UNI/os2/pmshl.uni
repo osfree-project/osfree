@@ -8,6 +8,8 @@
 
 module pmshl;
 
+abi os2386;
+
 
    (*** common types, constants and function declarations ******************)
 
@@ -34,7 +36,7 @@ constant HINI_USER=HINI_USERPROFILE;
 constant HINI_SYSTEM=HINI_SYSTEMPROFILE;
 
 
-type PRFPROFILE=structure    
+type PRFPROFILE=structure
         cchUserName: ULONG;
         pszUserName: PSZ;
         cchSysName: ULONG;

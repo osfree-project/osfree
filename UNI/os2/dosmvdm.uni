@@ -24,7 +24,7 @@ abi os2386;
    function DosQueryDOSProperty(in sgid: SGID;
                                 in pszName: PSZ;
                                 in cb: ULONG;
-                                out pch: CHAR): APIRET; 
+                                out pch: CHAR): APIRET;
 
    function DosSetDOSProperty(in sgid: SGID;
                               in pszName: PSZ;

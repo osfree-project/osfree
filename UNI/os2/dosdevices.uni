@@ -2,7 +2,6 @@ module dosdevices;
 
 abi os2386;
 
-
 constant DEVINFO_PRINTER =0;
 constant DEVINFO_RS232 =1;
 constant DEVINFO_FLOPPY= 2;

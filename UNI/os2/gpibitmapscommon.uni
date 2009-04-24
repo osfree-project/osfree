@@ -2,7 +2,7 @@ module gpibitmapscommon;
 
 abi os2386;
 
-   (* raster operations defined for GpiBitBlt *)
+(* raster operations defined for GpiBitBlt *)
 constant ROP_SRCCOPY                = $00CC;
 constant ROP_SRCPAINT               = $00EE;
 constant ROP_SRCAND                 = $0088;

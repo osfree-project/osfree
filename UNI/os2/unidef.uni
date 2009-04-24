@@ -408,4 +408,3 @@ constant CT_CTYPE2   = 8;    (* Win32 compat bidi            *)
 constant CT_CTYPE3   = 9;    (* Win32 compat extended        *)
 
 end.
-

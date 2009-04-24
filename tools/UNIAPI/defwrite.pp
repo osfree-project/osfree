@@ -102,7 +102,7 @@ var
 begin
 
   FAbiList:=ASection;
-  
+
   for i := 0 to ASection.Declarations.Count - 1 do
     WriteElement(TPasElement(ASection.Declarations[i]));
 

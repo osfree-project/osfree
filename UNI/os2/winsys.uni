@@ -2,8 +2,7 @@ module winsys;
 
 abi os2386;
 
-
-   (*** System values *)
+(*** System values *)
 
 function WinQuerySysValue(in hwndDesktop: HWND;
                                   in iSysValue: LONG): LONG;

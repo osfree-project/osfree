@@ -176,7 +176,6 @@ type
     function ElementTypeName: string; override;
     function GetDeclaration(full : boolean) : string; override;
     IndexRange : string;
-    IsPacked : Boolean;          // 12/04/04 - Dave - Added
     ElType: TPasType;
   end;
 
@@ -230,7 +229,6 @@ type
     destructor Destroy; override;
     function ElementTypeName: string; override;
     function GetDeclaration(full : boolean) : string; override;
-    IsPacked: Boolean;
     Members: TList;     // array of TPasVariable elements
     VariantName: string;
     VariantType: TPasType;
@@ -247,7 +245,6 @@ type
     function ElementTypeName: string; override;
     ObjKind: TPasObjKind;
     AncestorType: TPasType;     // TPasClassType or TPasUnresolvedTypeRef
-    IsPacked: Boolean;        // 12/04/04 - Dave - Added
     Members: TList;     // array of TPasElement objects
   end;
 
@@ -786,7 +783,6 @@ end;
 constructor TPasClassType.Create(const AName: string; AParent: TPasElement);
 begin
   inherited Create(AName, AParent);
-  IsPacked := False;                     // 12/04/04 - Dave - Added
   Members := TList.Create;
 end;
 
@@ -1121,8 +1117,6 @@ end;
 function TPasArrayType.GetDeclaration (full : boolean) : string;
 begin
   Result:='Array['+IndexRange+'] of ';
-  If IsPacked then
-     Result := 'packed '+Result;      // 12/04/04 Dave - Added
   If Assigned(Eltype) then
     Result:=Result+ElType.Name
   else
@@ -1229,8 +1223,6 @@ begin
   T:=TstringList.Create;
   Try
     Temp:='record';
-    If IsPacked then
-      Temp:='packed '+Temp;
     If Full then
       Temp:=Name+' = '+Temp;
     S.Add(Temp);

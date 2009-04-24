@@ -1,5 +1,8 @@
 module dosresourcescommon;
 
+abi os2386;
+
+
    (*** Resource support *)
 
    (* Predefined resource types *)

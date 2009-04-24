@@ -6,6 +6,9 @@
 
 module pmdef;
 
+abi os2386;
+
+
 type POINTL=structure
     x: LONG;
     y: LONG;

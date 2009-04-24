@@ -326,11 +326,11 @@ function DosProtectSetFileLocksL(in hFile: HFILE;
                                  in fhFileHandleLockID: FHLOCK): APIRET;
 
 (* Function is obsoled. Use DosCancelLockRequestL instead. *)
-function DosCancelLockRequest(in hFile: HFILE; 
+function DosCancelLockRequest(in hFile: HFILE;
                               in  pflLock: PFILELOCK): APIRET;
 
 (* Large File Support >2GB *)
-function DosCancelLockRequestL(in hFile: HFILE; 
+function DosCancelLockRequestL(in hFile: HFILE;
                                in pflLock: PFILELOCKL): APIRET;
 
 
@@ -628,7 +628,7 @@ function  DosProtectWrite(in  hFile: HFILE;
                           out pcbActual: ULONG;
                           in  fhFileHandleLockID: FHLOCK): APIRET;
 
-function    DosListIO(in  ulCmdMode: ULONG;  
+function    DosListIO(in  ulCmdMode: ULONG;
                       in  ulNumentries: ULONG;
                       out pListIO: LISTIO): APIRET;
 
@@ -992,4 +992,3 @@ function  DosProtectEnumAttribute(in    ulRefType:ULONG;
    constant ENUMEA_REFTYPE_MAX     = ENUMEA_REFTYPE_PATH;
 
 end.
-

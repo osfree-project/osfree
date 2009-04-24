@@ -32,7 +32,7 @@ function DosQueryProcType(in hmod: HMODULE;
                           in pszName: PSZ;
                           out pulproctype: ULONG): APIRET;
 
-(* Undocumented function *)						  
+(* Undocumented function *)
 function DosQueryModFromEIP(in phMod: ^HMODULE;
                             in pObjNum: ^ULONG;
                             in BuffLen: ULONG;

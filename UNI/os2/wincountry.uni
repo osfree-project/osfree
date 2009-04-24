@@ -58,4 +58,3 @@ constant WCS_LT                    = 2;
 constant WCS_GT                    = 3;
 
 end.
-
