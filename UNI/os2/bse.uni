@@ -9,8 +9,9 @@ module bse;
 uses cdeftypes2 default;
 
 uses base;
+uses doserrors;
 uses dosdevioctl;
 uses bsedev;
-uses bsedos alias ordinals default;
+uses bseord alias ordinals default;
 
 end.

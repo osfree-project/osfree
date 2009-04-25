@@ -1,3 +1,11 @@
+_PFN                                        TYPE APIENTRY
+_NPFN                                       TYPE APIENTRY
+_ERR                                        TYPE APIENTRY
+FNTHREAD                                    TYPE APIENTRY
+FNWP                                        TYPE APIENTRY
+FNEXITLIST                                  TYPE APIENTRY
+DosGetMessage                               LIB APIENTRY OS2386
+DosQueryMessageCP                           LIB APIENTRY OS2386
 NLS16CONVERTBIDINUMERICS                    DLL APIENTRY BDCALLS  1    OS2386
 NLS16CONVERTBIDISTRING                      DLL APIENTRY BDCALLS  2    OS2386
 NLS16INTSETBIDIATT                          DLL APIENTRY BDCALLS  3    OS2386
@@ -259,8 +267,10 @@ DosSetCp                                    DLL APIENTRY DOSCALLS 288  OS2386
 DosSetProcessCp                             DLL APIENTRY DOSCALLS 289  OS2386
 DosStopTimer                                DLL APIENTRY DOSCALLS 290  OS2386
 DosQueryCp                                  DLL APIENTRY DOSCALLS 291  OS2386
+DosGetCp                                    DLL APIENTRY DOSCALLS 291  OS2386 DosQueryCp
 DosSetDateTime                              DLL APIENTRY DOSCALLS 292  OS2386
 DosExitList                                 DLL APIENTRY DOSCALLS 296  OS2386
+DosAliasMem                                 DLL APIENTRY DOSCALLS 298  OS2386
 DosAllocMem                                 DLL APIENTRY DOSCALLS 299  OS2386
 DosAllocSharedMem                           DLL APIENTRY DOSCALLS 300  OS2386
 DosGetNamedSharedMem                        DLL APIENTRY DOSCALLS 301  OS2386
@@ -269,6 +279,7 @@ DosGiveSharedMem                            DLL APIENTRY DOSCALLS 303  OS2386
 DosFreeMem                                  DLL APIENTRY DOSCALLS 304  OS2386
 DosSetMem                                   DLL APIENTRY DOSCALLS 305  OS2386
 DosQueryMem                                 DLL APIENTRY DOSCALLS 306  OS2386
+DosQueryMemState                            DLL APIENTRY DOSCALLS 307  OS2386
 DosOpenVDD                                  DLL APIENTRY DOSCALLS 308  OS2386
 DosRequestVDD                               DLL APIENTRY DOSCALLS 309  OS2386
 DosCloseVDD                                 DLL APIENTRY DOSCALLS 310  OS2386
@@ -311,6 +322,7 @@ DosWaitThread                               DLL APIENTRY DOSCALLS 349  OS2386
 DosAsyncTimer                               DLL APIENTRY DOSCALLS 350  OS2386
 DosStartTimer                               DLL APIENTRY DOSCALLS 351  OS2386
 DosGetResource                              DLL APIENTRY DOSCALLS 352  OS2386
+DosGetResource2                             DLL APIENTRY DOSCALLS 352  OS2386 DosGetResource
 DosFreeResource                             DLL APIENTRY DOSCALLS 353  OS2386
 DosSetExceptionHandler                      DLL APIENTRY DOSCALLS 354  OS2386
 DosUnsetExceptionHandler                    DLL APIENTRY DOSCALLS 355  OS2386
@@ -361,6 +373,8 @@ DosForceSystemDump                          DLL APIENTRY DOSCALLS 444  OS2386
 DosAllocThreadLocalMemory                   DLL APIENTRY DOSCALLS 454  OS2386
 DosFreeThreadLocalMemory                    DLL APIENTRY DOSCALLS 455  OS2386
 DosVerifyPidTid                             DLL APIENTRY DOSCALLS 460  OS2386
+DosQueryThreadAffinity                      DLL APIENTRY DOSCALLS 563  OS2386
+DosSetThreadAffinity                        DLL APIENTRY DOSCALLS 564  OS2386
 DosQueryResourceSize                        DLL APIENTRY DOSCALLS 572  OS2386
 DOS16QUERYRESOURCESIZE                      DLL APIENTRY DOSCALLS 573  OS2386
 DOS16PMSEMWAIT                              DLL APIENTRY DOSCALLS 574  OS2386
@@ -1080,12 +1094,14 @@ PrfQueryProfileSize                         DLL APIENTRY PMSHAPI  101  OS2386
 PrfOpenProfile                              DLL APIENTRY PMSHAPI  102  OS2386
 PrfCloseProfile                             DLL APIENTRY PMSHAPI  103  OS2386
 PrfRemoveProgram                            DLL APIENTRY PMSHAPI  104  OS2386
+PrfCreateGroup                              DLL APIENTRY PMSHAPI  105  OS2386
 PrfDestroyGroup                             DLL APIENTRY PMSHAPI  106  OS2386
 PrfQueryProfile                             DLL APIENTRY PMSHAPI  107  OS2386
 PrfReset                                    DLL APIENTRY PMSHAPI  108  OS2386
 PrfAddProgram                               DLL APIENTRY PMSHAPI  109  OS2386
 PrfChangeProgram                            DLL APIENTRY PMSHAPI  110  OS2386
 PrfQueryDefinition                          DLL APIENTRY PMSHAPI  111  OS2386
+PrfQueryProgramHandle                       DLL APIENTRY PMSHAPI  112  OS2386
 PrfQueryProgramTitles                       DLL APIENTRY PMSHAPI  113  OS2386
 PrfQueryProfileInt                          DLL APIENTRY PMSHAPI  114  OS2386
 PrfQueryProfileString                       DLL APIENTRY PMSHAPI  115  OS2386
@@ -1105,6 +1121,7 @@ WinQueryTaskTitle                           DLL APIENTRY PMSHAPI  128  OS2386
 WinRemoveSwitchEntry                        DLL APIENTRY PMSHAPI  129  OS2386
 WinTerminateApp                             DLL APIENTRY PMSHAPI  130  OS2386
 WinSwitchToProgram                          DLL APIENTRY PMSHAPI  131  OS2386
+PrfQueryProgramCategory                     DLL APIENTRY PMSHAPI  132  OS2386
 WinSwitchProgramRegister                    DLL APIENTRY PMSHAPI  156  OS2386
 SplQmOpen                                   DLL APIENTRY PMSPL    301  OS2386
 SplQmStartDoc                               DLL APIENTRY PMSPL    302  OS2386
@@ -1481,3 +1498,7 @@ UniStrFromUcs                               DLL APIENTRY UCONV    11   OS2386
 UniStrToUcs                                 DLL APIENTRY UCONV    12   OS2386
 _UniMalloc                                  DLL APIENTRY UCONV    13   OS2386
 _UniFree                                    DLL APIENTRY UCONV    14   OS2386
+WinQueryControlColors                       DLL APIENTRY PMMERGE  5470 OS2386
+WinSetControlColors                         DLL APIENTRY PMMERGE  5471 OS2386
+WinLockupSystem                             DLL APIENTRY PMWP     283  OS2386
+WinUnlockSystem                             DLL APIENTRY PMWP     282  OS2386

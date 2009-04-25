@@ -7,13 +7,16 @@ var
   rootpath: string;
 
 type
-  TAbiType=(AbiDynamicLibrary, AbiStaticLibrary, AbiInterrupt);
+  TAbiType=(AbiDynamicLibrary, AbiStaticLibrary, AbiInterrupt, AbiTypeDef);
 
 type
   TABI=record
     Name: ShortString;
     CallingConvertion: ShortString;
     case AbiType: TAbiType of
+    AbiTypeDef:
+    (
+    );
     AbiDynamicLibrary:
     (
       DLL: ShortString;
@@ -89,6 +92,19 @@ begin
         Result.ImportLibrary:=S;
         Result.ImportName:='';
       end;
+    end else
+    if T='TYPE' then
+    begin
+      Result.AbiType:=AbiTypeDef;
+      Result.CallingConvertion:=Copy(S, 1, Pos(' ', S)-1);
+      Delete(S, 1, Pos(' ', S));
+      While Copy(S, 1, 1)=' ' do Delete(S, 1, 1);
+      Result.LibraryName:=S;
+    end else
+    if T='LIB' then
+    begin
+      Result.AbiType:=AbiStaticLibrary;
+      Result.LibraryName:=S;
     end;
     If Result.Name=SymbolName then break;
   end;

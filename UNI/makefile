@@ -42,6 +42,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)kbd.h &
      $(OUT)$(SEP)os2$(SEP)mou.h &
      $(OUT)$(SEP)os2$(SEP)bseerr.h &
+     $(OUT)$(SEP)os2$(SEP)doserrors.h &
      $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
      $(OUT)$(SEP)os2$(SEP)dosexcptfunc.h &
      $(OUT)$(SEP)os2$(SEP)basemid.h &
@@ -56,6 +57,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dossesmgr.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgr.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h &
+     $(OUT)$(SEP)os2$(SEP)dosmemmgr.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosprocess.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphores.h &
@@ -121,7 +123,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
 
 os2libs: $(LIBOUT)sub32.lib &
-         .symbolic
+	 .symbolic
 
 $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
  uni2h.exe -edef $< $^*.def
@@ -182,6 +184,8 @@ $(OUT)$(SEP)os2$(SEP)dosnls.h: os2$(SEP)dosnls.uni
 
 $(OUT)$(SEP)os2$(SEP)dosqueues.h: os2$(SEP)dosqueues.uni
 
+$(OUT)$(SEP)os2$(SEP)doserrors.h: os2$(SEP)doserrors.uni
+
 $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)dosfilemgr.uni
@@ -197,6 +201,8 @@ $(OUT)$(SEP)os2$(SEP)dosdevices.h: os2$(SEP)dosdevices.uni
 $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h: os2$(SEP)dosdatetimecommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)dosfilemgrcommon.uni
+
+$(OUT)$(SEP)os2$(SEP)dosmemmgr.h: os2$(SEP)dosmemmgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h: os2$(SEP)dosmemmgrcommon.uni
 
