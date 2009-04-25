@@ -5,7 +5,7 @@
 
 PROJ     = ufat
 DESC     = FAT utility filesystem library
-srcfiles = $(p)util$(e)
+srcfiles = $(p)sys$(e) $(p)dummies$(e)
 ADD_COPT = -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment   type DATA shared
 DLL     = 1
