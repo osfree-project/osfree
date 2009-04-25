@@ -230,10 +230,6 @@ switchBootDrv:
 
         call ReadSec                               ; Load the MBR of the HDD we continue booting from
 
-        ;xor  eax, eax
-        ;mov  ds,  ax
-        ;mov  es,  ax
-        ;mov  di,  0x7dbe
         lea  di, [bp].parttable
 
 searchPartition:

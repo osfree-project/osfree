@@ -276,7 +276,19 @@ get_user_input(int *item, int *shift)
         *shift -= menu_width;
         return 1;
       }
-      case 0x11b: // esc
+      case 0x3e00: // F4
+      case 0x1245: // E
+      case 0x1265: // e
+      {
+        if (state == 0)
+        {
+          t->cls();
+          state = 2;
+          //for (ii = 0; ii < 0x1000; ii++) ;
+        }
+        return 0;
+      }
+      case 0x11b:  // esc
       {
         int ii;
         if (state == 0) 
@@ -635,6 +647,52 @@ void cmdline(int item, int shift)
   //for (ii = 0; ii < 0x1000; ii++) ;
 }
 
+void menued(int item, int shift)
+{
+  int  ch;
+  int  n;
+  int  i;
+  char *p;
+  script_t *sc;
+
+  n = item + 1;
+  sc = menu_first;
+
+  // find a menu item and execute corresponding script
+  while (n)
+  {
+    n--;
+    if (!n) 
+    { /* (sc->scr, sc->num) */
+      p = sc->scr;
+      for (i = 0; i < sc->num; i++)
+      {
+        printf("%s\r\n", p);
+        while (*p++) ;
+      }
+    }
+    sc = sc->next;
+  }
+
+  while (1)
+  {
+    ch = t->getkey();
+    if (ch == 0x11b) break; // esc
+    switch (ch)
+    {
+      default:
+        printf("%c", ch & 0xff);
+    }
+  }
+
+  t->cls();
+  state = 0;
+  show_background_screen();
+  draw_menu(item, shift);
+  //for (ii = 0; ii < 0x1000; ii++) ;
+}
+
+
 int
 exec_menu(void)
 {
@@ -652,10 +710,13 @@ exec_menu(void)
         do {
           draw_menu(item, shift);
         }   while (get_user_input(&item, &shift));
-        if (state == 1) continue; // if we got here by pressing Esc key
+        if (state) continue; // if we got here by pressing Esc key
         break;                    // otherwise, if Enter key pressed
       case 1: // cmd line
         cmdline(item, shift);
+        continue;
+      case 2: // menu editor
+        menued(item, shift);
         continue;
       default:
         break;

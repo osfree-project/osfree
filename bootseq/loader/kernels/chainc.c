@@ -148,7 +148,7 @@ void cmain(void)
       cdrom_drive = boot_drive;
 
     // set I13X flag, if appropriate
-    if (s = grub_strstr(kernel_cmdline, "--lba"))
+    if (s = grub_strstr(kernel_cmdline, "--i13x"))
     {
       if (geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
       {
