@@ -197,7 +197,9 @@ DOS16GLOBALINFO                             DLL APIENTRY DOSCALLS 217  OS2386
 DosSetFileInfo                              DLL APIENTRY DOSCALLS 218  OS2386
 DosSetPathInfo                              DLL APIENTRY DOSCALLS 219  OS2386
 DosSetDefaultDisk                           DLL APIENTRY DOSCALLS 220  OS2386
+DosSelectDisk                               DLL APIENTRY DOSCALLS 220  OS2386 DosSetDefaultDisk
 DosSetFHState                               DLL APIENTRY DOSCALLS 221  OS2386
+DosSetFHandState                            DLL APIENTRY DOSCALLS 221  OS2386 DosSetFHState
 DosSetFSInfo                                DLL APIENTRY DOSCALLS 222  OS2386
 DosQueryPathInfo                            DLL APIENTRY DOSCALLS 223  OS2386
 DosQueryHType                               DLL APIENTRY DOSCALLS 224  OS2386
@@ -231,6 +233,7 @@ DosSetNPipeSem                              DLL APIENTRY DOSCALLS 251  OS2386
 DosTransactNPipe                            DLL APIENTRY DOSCALLS 252  OS2386
 DosWaitNPipe                                DLL APIENTRY DOSCALLS 253  OS2386
 DosResetBuffer                              DLL APIENTRY DOSCALLS 254  OS2386
+DosBufReset                                 DLL APIENTRY DOSCALLS 254  OS2386 DosResetBuffer
 DosSetCurrentDir                            DLL APIENTRY DOSCALLS 255  OS2386
 DosSetFilePtr                               DLL APIENTRY DOSCALLS 256  OS2386
 DosClose                                    DLL APIENTRY DOSCALLS 257  OS2386

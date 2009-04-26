@@ -65,6 +65,6 @@ function  DosQueryMem(in  pb: PVOID;
 (*   #define DOSSUBUNSET     DosSubUnsetMem *)
    function  DosSubUnsetMem(in pbBase: PVOID): APIRET;
 
-uses bsememf;
+uses bsememf default;
 
 end.

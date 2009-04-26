@@ -129,7 +129,7 @@ function  MouGetEventMask (out pfsEvents: USHORT;
                                           in hmou: HMOU): USHORT;
 
 function  MouSetEventMask (in pfsEvents: PUSHORT;
-                                          out hmou: HMOU): USHORT;
+                                          in hmou: HMOU): USHORT;
 
    (* structure for MouGet/SetScaleFact() *)
 type  SCALEFACT=structure   (* mousc *)

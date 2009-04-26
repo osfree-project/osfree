@@ -7,4 +7,6 @@ constant EAT_APPTYP_NOPMW      =  $03;            (* Not Window compatible *)
 constant EAT_APPTYP_EXETYPE    =  $03;            (* EXE type mask *)
 (* constant EAT_APPTYP_RESERVED  =   not EAT_APPTYP_EXETYPE; *)
 
+uses dosfilemgrcommon default;
+
 end.

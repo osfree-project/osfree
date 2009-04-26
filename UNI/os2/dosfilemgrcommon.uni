@@ -736,19 +736,16 @@ function    DosListIO(in  ulCmdMode: ULONG;
    constant DosFindFirst2   DosFindFirst
    constant DosQFHandState  DosQueryFHState
    constant DosProtectQFHandState  DosProtectQueryFHState
-   constant DosSetFHandState  DosSetFHState
    constant DosProtectSetFHandState  DosProtectSetFHState
    constant DosQHandType    DosQueryHType
    constant DosQFSAttach    DosQueryFSAttach
    constant DosNewSize      DosSetFileSize
    constant DosProtectNewSize  DosProtectSetFileSize
-   constant DosBufReset     DosResetBuffer
    constant DosChgFilePtr   DosSetFilePtr
    constant DosProtectChgFilePtr   DosProtectSetFilePtr
    constant DosMkDir        DosCreateDir
    constant DosMkDir2       DosCreateDir
    constant DosRmDir        DosDeleteDir
-   constant DosSelectDisk   DosSetDefaultDisk
    constant DosQCurDisk     DosQueryCurrentDisk
    constant DosChDir        DosSetCurrentDir
    constant DosQCurDir      DosQueryCurrentDir
@@ -775,6 +772,9 @@ function  DosProtectQueryFHState(in  hFile: HFILE;
 
 function  DosSetFHState(in hFile: HFILE;
                         in mode: ULONG): APIRET;
+
+function  DosSetFHandState(in hFile: HFILE;
+                           in mode: ULONG): APIRET;
 
 function  DosProtectSetFHState(in hFile: HFILE;
                                in mode: ULONG;
@@ -840,6 +840,8 @@ function   DosProtectSetFileSizeL(in hFile:HFILE;
 
 function  DosResetBuffer(in hFile: HFILE): APIRET;
 
+function  DosBufReset(in hFile: HFILE): APIRET;
+
 function  DosSetFilePtr(in  hFile: HFILE;
                         in  ib: LONG;
                         in  method: ULONG;
@@ -888,6 +890,8 @@ function  DosCreateDir(in pszDirName: PCSZ;
 function  DosDeleteDir(in pszDir:PCSZ): APIRET;
 
 function  DosSetDefaultDisk(in disknum:ULONG): APIRET;
+
+function  DosSelectDisk(in disknum:ULONG): APIRET;
 
 function  DosQueryCurrentDisk(out pdisknum: ULONG;
                               out plogical: ULONG): APIRET;
@@ -992,3 +996,27 @@ function  DosProtectEnumAttribute(in    ulRefType:ULONG;
    constant ENUMEA_REFTYPE_MAX     = ENUMEA_REFTYPE_PATH;
 
 end.
+
+
+#define DosChDir       DosSetCurrentDir
+#define DosChgFilePtr  DosSetFilePtr
+#define DosFindFirst2  DosFindFirst
+#define DosMkDir       DosCreateDir
+#define DosMkDir2      DosCreateDir
+#define DosNewSize     DosSetFileSize
+#define DosOpen2       DosOpen
+#define DosProtectChgFilePtr DosProtectSetFilePtr
+#define DosProtectQFileInfo DosProtectQueryFileInfo
+#define DosProtectQFHandState DosProtectQueryFHState
+#define DosProtectNewSize DosProtectSetFileSize
+#define DosProtectSetFHandState DosProtectSetFHState
+#define DosQCurDir     DosQueryCurrentDir
+#define DosQCurDisk    DosQueryCurrentDisk
+#define DosQFileInfo   DosQueryFileInfo
+#define DosQFHandState DosQueryFHState
+#define DosQFSAttach   DosQueryFSAttach
+#define DosQFSInfo     DosQueryFSInfo
+#define DosQHandType   DosQueryHType
+#define DosQPathInfo   DosQueryPathInfo
+#define DosQVerify     DosQueryVerify
+#define DosRmDir       DosDeleteDir

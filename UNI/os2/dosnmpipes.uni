@@ -12,6 +12,8 @@ abi os2386;
 
    (*** Data structures used with named pipes ***)
 
+      type  HSEM=ULONG;
+      type PHSEM=^HSEM;
    type  HPIPE=LHANDLE;
    type  PHPIPE=^HPIPE;
 

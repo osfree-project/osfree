@@ -35,12 +35,14 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)bsedos.h &
      $(OUT)$(SEP)os2$(SEP)bsedev.h &
      $(OUT)$(SEP)os2$(SEP)hevdef.h &
+     $(OUT)$(SEP)os2$(SEP)dos.h &
      $(OUT)$(SEP)os2$(SEP)dosdevices.h &
      $(OUT)$(SEP)os2$(SEP)bsesub.h &
      $(OUT)$(SEP)os2$(SEP)sub.h &
      $(OUT)$(SEP)os2$(SEP)vio.h &
      $(OUT)$(SEP)os2$(SEP)kbd.h &
      $(OUT)$(SEP)os2$(SEP)mou.h &
+     $(OUT)$(SEP)os2$(SEP)win.h &
      $(OUT)$(SEP)os2$(SEP)bseerr.h &
      $(OUT)$(SEP)os2$(SEP)doserrors.h &
      $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -59,7 +61,9 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgr.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h &
+     $(OUT)$(SEP)os2$(SEP)dosmonitors.h &
      $(OUT)$(SEP)os2$(SEP)dosprocess.h &
+     $(OUT)$(SEP)os2$(SEP)dosprofile.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphores.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphorescommon.h &
      $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h &
@@ -83,6 +87,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
+     $(OUT)$(SEP)os2$(SEP)winaccelerators.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgr.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
@@ -166,9 +171,15 @@ $(OUT)$(SEP)os2$(SEP)kbd.h: os2$(SEP)kbd.uni
 
 $(OUT)$(SEP)os2$(SEP)mou.h: os2$(SEP)mou.uni
 
+$(OUT)$(SEP)os2$(SEP)dos.h: os2$(SEP)dos.uni
+
+$(OUT)$(SEP)os2$(SEP)win.h: os2$(SEP)win.uni
+
 $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h: os2$(SEP)dosprocesscommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosprocess.h: os2$(SEP)dosprocess.uni
+
+$(OUT)$(SEP)os2$(SEP)dosprofile.h: os2$(SEP)dosprofile.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmisc.h: os2$(SEP)dosmisc.uni
 
@@ -203,6 +214,8 @@ $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h: os2$(SEP)dosdatetimecommon.uni
 $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)dosfilemgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmemmgr.h: os2$(SEP)dosmemmgr.uni
+
+$(OUT)$(SEP)os2$(SEP)dosmonitors.h: os2$(SEP)dosmonitors.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h: os2$(SEP)dosmemmgrcommon.uni
 
@@ -259,6 +272,8 @@ $(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)winclipboard.uni
 $(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)winclipboarddde.uni
 
 $(OUT)$(SEP)os2$(SEP)wininput.h: os2$(SEP)wininput.uni
+
+$(OUT)$(SEP)os2$(SEP)winaccelerators.h: os2$(SEP)winaccelerators.uni
 
 $(OUT)$(SEP)os2$(SEP)wininputcommon.h: os2$(SEP)wininputcommon.uni
 

@@ -3,6 +3,10 @@ module dosqueues;
 
 abi os2386;
 
+uses hevdef default;
+
+type  HSEM=ULONG;
+type PHSEM=^HSEM;
 
 type HQUEUE=LHANDLE;
 type PHQUEUE=^HQUEUE;

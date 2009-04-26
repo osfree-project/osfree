@@ -3,12 +3,22 @@ module dossemaphores;
 abi os2386;
 
 
-uses hevdef;
+uses hevdef default;
 
+      type  HSEM=ULONG;
+      type PHSEM=^HSEM;
    type      HMTX=ULONG;            (* hmtx *)
    type  PHMTX=^HMTX;
    type      HMUX=ULONG;            (* hmux *)
    type  PHMUX=^HMUX;
+
+   type SEMRECORD=structure      (* psr *)
+              hsemCur: HSEM;
+              ulUser: ULONG;
+   end;
+   type PSEMRECORD=^SEMRECORD;
+
+uses dossemaphorescommon;
 
    function  DosCreateEventSem (in  pszName: PCSZ;
                                         out phev: HEV;

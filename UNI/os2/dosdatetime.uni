@@ -3,9 +3,13 @@ module dosdatetime;
 abi os2386;
 
 
+
 (*   #define DosTimerAsync   DosAsyncTimer
    #define DosTimerStart   DosStartTimer
    #define DosTimerStop    DosStopTimer *)
+
+         type  HSEM=ULONG;
+      type PHSEM=^HSEM;
 
    type HTIMER=LHANDLE;
    type PHTIMER=^HTIMER;
@@ -19,5 +23,7 @@ abi os2386;
                                    out phtimer: HTIMER): APIRET;
 
    function   DosStopTimer(in htimer: HTIMER): APIRET;
+
+uses dosdatetimecommon default;
 
 end.

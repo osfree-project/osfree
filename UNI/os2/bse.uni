@@ -8,10 +8,18 @@ module bse;
 (* workaround of unimplemented uni2h feature *)
 uses cdeftypes2 default;
 
+uses bsedos default;
 uses base;
 uses doserrors;
 uses dosdevioctl;
 uses bsedev;
+uses bsesub;
+uses dosprocess;
+uses dos;
+uses kbd;
+uses vio;
+uses mou;
 uses bseord alias ordinals default;
+uses dosnls;
 
 end.
