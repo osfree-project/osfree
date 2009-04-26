@@ -10,7 +10,8 @@
 */
 
 #define INCL_DOSERRORS
-#include <osfree.h> /* system header */
+//#include <osfree.h> /* system header */
+#include <os2.h>
 
 /* C standard library headers */
 #include <malloc.h>
@@ -38,6 +39,7 @@ int main (int argc, char* argv[], char* envp[])
   int i;          /* counter and etc.. */
   APIRET rc;
   ULONG ulAvailableDisks;
+  char **p;
 
   /* check if user wants info from us (/? or -?) */
   if (argc>1)

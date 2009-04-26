@@ -14,7 +14,8 @@
 
 #define INCL_DOSERRORS
 #define INCL_DOSMISC
-#include <osfree.h>
+//#include <osfree.h>
+#include <os2.h>
 
 /* C standard library headers */
 #include <string.h>

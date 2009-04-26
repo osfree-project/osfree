@@ -11,7 +11,8 @@
 */
 
 #define INCL_DOSERRORS
-#include <osfree.h>  /* system header */
+//#include <osfree.h>  /* system header */
+#include <os2.h>
 #include <cmd_shared.h> /* comand line tools' shared functions and defines */
 
 /* C standard library headers */
@@ -45,10 +46,10 @@ int main (int argc, char* argv[], char* envp[])
    return NO_ERROR;
  };
 
-  if ((argc!=2) || (argc!=3) || (argv[1][1]!=':'))
+  if ((argc!=2) && (argc!=3) && (argv[1][1]!=':'))
   {
-   cmd_ShowSystemMessage(MSG_BAD_SYNTAX,0L);
-   return cmd_ERROR_EXIT;
+    cmd_ShowSystemMessage(MSG_BAD_SYNTAX,0L);
+    return cmd_ERROR_EXIT;
   };
 
  strncpy(disk,argv[1],2);

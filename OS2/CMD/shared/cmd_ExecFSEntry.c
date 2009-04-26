@@ -13,7 +13,8 @@
 
 #define INCL_DOSMODULEMGR
 #define INCL_DOSERRORS
-#include <osfree.h>
+//#include <osfree.h>
+#include <os2.h>
 #include <cmd_shared.h> /* command line tools' shared functions */
 
 /* C standard library headers */
@@ -59,8 +60,8 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
   PSZ pszUtilDllName=NULL;
   HMODULE hUtilDllHandle;
   UCHAR LoadError[256] =""; /* area for load failure information */
-  char _far16 * _far16 * newargv; /* 16bit pointers for argv and envp */
-  char _far16 * _far16 * newenvp;
+  char  _far16 * _far16 *newargv; /* 16bit pointers for argv and envp */
+  char  _far16 * _far16 *newenvp;
 
 
 /*!
@@ -111,28 +112,41 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
 
   /* unfortunatelly we need to convert current argv and envp, to 16bit
      pointers */
-  newargv= (char _far16 * _far16 *)malloc(ulArgc*sizeof(char _far16*));
+  newargv = malloc(ulArgc*sizeof(char _far16 *));
 
   for (i=0;i<ulArgc;i++)
-    newargv[i]=MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
+    newargv[i] = MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
 
     /* get number of envs */
-  for (ulEnvpCount=0;environ[ulEnvpCount];ulEnvpCount++);
+  for (ulEnvpCount = 0; environ[ulEnvpCount]; ulEnvpCount++) ;
 
-  newenvp= (char _far16 * _far16 *)malloc((ulEnvpCount+1)*sizeof(char _far16*));
+  //printf("ulEnvpCount = %d\n", ulEnvpCount);
 
-  for (i=0;i<ulEnvpCount;i++)
-    newenvp[i]=MAKE16P(SELECTOROF(environ[i]),OFFSETOF(environ[i]));
+  newenvp = malloc((ulEnvpCount + 1)*sizeof(char _far16 *));
+
+  for (i = 0; i < ulEnvpCount; i++) 
+  {
+    newenvp[i] = MAKE16P(SELECTOROF(environ[i]),OFFSETOF(environ[i]));
+    //printf("newenvp[%d] = 0x%x\n", i, newenvp[i]);
+  }
 
   newenvp[ulEnvpCount]=NULL;
 
   if (fVerbose)
      cmd_ShowSystemMessage(cmd_MSG_FSUTIL_HAS_STARTED,1L,"%s",pszFSName);
 
-//  rc=func16((short)ulArgc, newargv, newenvp);
+  func16 = pvFSEntry;
+  
+  newargv = MAKE16P(SELECTOROF(newargv), OFFSETOF(newargv));
+  newenvp = MAKE16P(SELECTOROF(newenvp), OFFSETOF(newenvp));
 
-  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
-//  rc=pvFSEntry((short)ulArgc, newargv, newenvp);
+  //rc=func16((short)ulArgc, newargv, newenvp);
+  //printf("newargv = 0x%x, newenvp = 0x%x\n", newargv, newenvp);
+
+  rc=func16((short)ulArgc, argv, envp);
+
+//  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
+//  rc=(pvFSEntry)((short)ulArgc, newargv, newenvp);
 
   DosFreeModule(hUtilDllHandle);
   free(pszUtilDllName);

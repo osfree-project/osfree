@@ -11,7 +11,8 @@
 */
 
 #define INCL_DOSERRORS
-#include <osfree.h> /* system header */
+//#include <osfree.h> /* system header */
+#include <os2.h>
 #include <cmd_shared.h> /* comand line tools' shared functions and defines*/
 
 /* C standard library headers */
