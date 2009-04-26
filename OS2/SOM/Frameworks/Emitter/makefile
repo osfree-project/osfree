@@ -5,7 +5,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = Compiler Emitters
+DIRS = Emitters
 
 !include $(%ROOT)/mk/all.mk
 
