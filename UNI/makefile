@@ -88,6 +88,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winaccelerators.h &
+     $(OUT)$(SEP)os2$(SEP)winload.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgr.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
@@ -246,6 +247,8 @@ $(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)winswitchlist.uni
 $(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h: os2$(SEP)winswitchlistcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)winframemgr.h: os2$(SEP)winframemgr.uni
+
+$(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)winload.uni
 
 $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)winframemgrcommon.uni
 

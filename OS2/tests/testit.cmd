@@ -63,4 +63,5 @@ do_all: procedure
     call do_test test19
     call do_test test20
     call do_test test21
+    call do_test test22
 return 0

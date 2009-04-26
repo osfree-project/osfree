@@ -19,6 +19,7 @@ uses winlistboxes default;
 uses winload default;
 uses winmenus default;
 uses winmessagemgr default;
+uses winmessagemgrcommon default;
 uses winmle default;
 uses winpalette default;
 uses winpointers default;

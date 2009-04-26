@@ -1,4 +1,4 @@
- - unimplemented:
+implemented functions:
 
 WinLoadLibrary
 WinDeleteLibrary
