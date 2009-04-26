@@ -40,10 +40,13 @@ char*
 g_strdup_vprintf (const char *format,
                   va_list      args)
 {
-  char string[1024*1024];
+  char string[1024*10];
+
+  printf(__FUNCTION__ "0\n");
+
+  vsprintf(&string, format, args);
 
   printf(__FUNCTION__ "1\n");
-  vsprintf(&string, format, args);
 
   return string;
 }
@@ -55,9 +58,15 @@ g_strdup_printf (const char *format,
   char *buffer;
   va_list args;
 
+  printf(__FUNCTION__ "0\n");
+
   va_start (args, format);
+  printf(__FUNCTION__ "1\n");
   buffer = g_strdup_vprintf (format, args);
+  printf(__FUNCTION__ "2\n");
   va_end (args);
+
+  printf(__FUNCTION__ "3\n");
 
   return buffer;
 }
@@ -368,8 +377,10 @@ int IDL_parse_filename (const char *filename, const char *cpp_args,
 
         cmd = g_strdup_printf (fmt, filename);
 
+        printf(__FUNCTION__ "3\n");
+
         free (wd);
-        printf("3\n");
+        printf("4\n");
 
 #else
         s = tmpnam (NULL);

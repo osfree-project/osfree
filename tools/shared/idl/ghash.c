@@ -140,8 +140,10 @@ g_hash_table_lookup_node (GHashTable    *hash_table,
    */
   if (hash_table->key_equal_func)
     {
+  printf("table_lookup_node 3.5\n");
       while ((node = *node_ptr))
         {
+  printf("table_lookup_node 3.6\n");
           if (node->key_hash == hash_value &&
               hash_table->key_equal_func (node->key, key))
             break;
@@ -149,6 +151,7 @@ g_hash_table_lookup_node (GHashTable    *hash_table,
   printf("table_lookup_node 4\n");
 
           node_ptr = &(*node_ptr)->next;
+  printf("table_lookup_node 4.1\n");
         }
     }
   else

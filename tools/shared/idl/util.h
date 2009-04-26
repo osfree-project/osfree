@@ -32,7 +32,7 @@
 #elif defined(HAVE_WCSTR_H)
 #  include <wcstr.h>
 #endif
-#include <libIDL/IDL.h>
+#include <IDL.h>
 
 /* Internal parse flags */
 #define IDLFP_PROPERTIES        (1UL << 0)
