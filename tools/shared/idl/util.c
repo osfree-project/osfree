@@ -42,6 +42,7 @@ g_strdup_vprintf (const char *format,
 {
   char string[1024*1024];
 
+  printf(__FUNCTION__ "1\n");
   vsprintf(&string, format, args);
 
   return string;
@@ -3801,4 +3802,3 @@ IDL_tree_is_recursive (IDL_tree tree, void * dummy)
 
         return info.recursive;
 }
-

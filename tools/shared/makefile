@@ -4,7 +4,7 @@
 
 32_BITS  = 1
 
-DIRS = z
+DIRS = z idl
 
 !include $(%ROOT)/mk/all.mk
 
