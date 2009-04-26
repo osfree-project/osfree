@@ -2,6 +2,8 @@ module winaccelerators;
 
 abi os2386;
 
+type HACCEL=LHANDLE;
+
 constant AF_CHAR       = $0001;
 constant AF_VIRTUALKEY = $0002;
 constant AF_SCANCODE   = $0004;
