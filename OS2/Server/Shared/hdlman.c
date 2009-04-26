@@ -62,7 +62,7 @@ ULONG hdlNew(ULONG ulTypeId, PVOID pObject)
                             * sizeof(HDLITEM) );
       if ( pasListNew == NULL )
       {
-        free( pasListNew );
+        SysRWMutexUnlockWrite( &rwmtxList );
         return (ULONG)(-1);
       }
 
