@@ -42,7 +42,7 @@ COPT      = $(C_DEFS) $(ADD_COPT) &
             -i=$(PATH)  -i=$(PATH)..
 #            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
-C16OPT    = -nt=_TEXT16 -nd=D
+C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
 #
 # Tools:
@@ -241,6 +241,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 .o16: $(PATH)
 
 .c:   $(PATH)
+
+.c16: $(MYDIR)
 
 .h:   $(PATH)
 

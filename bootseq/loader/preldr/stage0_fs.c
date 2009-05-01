@@ -114,6 +114,8 @@ void fsys_by_num(int n, char *buf);
 
 char lb[80];
 
+struct geometry geom;
+
 // string table size;
 #define STRTBL_LEN 0x800
 /* String table */
@@ -140,12 +142,17 @@ _Packed struct {
     char **fsys_list;
   } mufsd;
   struct {
-    char name[0x18];
+    char name[0x20];
     int  base;
     // char multiboot;
   } loader;
   struct {
-    char name[0x18];
+    char name[0x20];
+    int  base;
+    // char multiboot;
+  } extloader;
+  struct {
+    char name[0x20];
     int  base;
   } mini;
   struct {
@@ -156,7 +163,7 @@ _Packed struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
-} conf = {0x80, 2, {0, fsys_list}, {"/os2ldr", 0x10000},
+} conf = {0x80, 2, {0, fsys_list}, {"/boot/loader/freeldr.mdl", 0x20000}, {"/os2ldr", 0x10000},
           {"/os2boot", 0x7c0}, {0, term_list},};
 
 char *preldr_path = "/boot/loader/"; // freeldr path
@@ -1015,6 +1022,27 @@ int process_cfg_line1(char *line)
 
      return 1;
    }
+   else if (!grub_strcmp(section, "extloader"))
+   {
+     /* [loader] section */
+     if (abbrev(line, "name", 4)) {
+       line = strip(skip_to(1, line));
+       grub_strncpy(conf.extloader.name, line, sizeof(conf.extloader.name));
+     }
+     else if (abbrev(line, "base", 4))
+     {
+       line = strip(skip_to(1, line));
+       if (safe_parse_maxint(&line, &n))
+         conf.extloader.base = n;
+       else
+         panic("process_cfg_line: incorrect extloader load base value!", "");
+     }
+     else
+     {
+     }
+
+     return 1;
+   }
    else if (!grub_strcmp(section, "minifsd"))
    {
      /* [minifsd] section */
@@ -1191,6 +1219,114 @@ void reloc(char *base, char *rel_file, unsigned long shift)
   }
 }
 
+void set_ftable (int which_ldr)
+{
+  int   ldrlen;
+  int   mfslen;
+  int   ldrbase;
+  int   mfsbase;
+  char  *fn;
+  int   rc; 
+  char  *buf;
+  int   files;
+  bios_parameters_block *bpb;
+  
+  if (which_ldr)
+  { 
+    fn = conf.extloader.name;
+    ldrbase = conf.extloader.base;
+  }
+  else 
+  {
+    fn = conf.loader.name;
+    ldrbase = conf.loader.base;
+  }
+  mfsbase = conf.mini.base;
+
+  /* load os2ldr */
+  rc = freeldr_open(fn);
+
+  buf = (char *)(ldrbase);
+
+  if (rc) {
+    ldrlen = freeldr_read(buf, -1);
+  } else {
+    panic("Can't open loader file: ", fn);
+  }
+
+  /* load minifsd */
+  fn = conf.mini.name;
+  if (*fn) { // is minifsd needed?
+    rc = freeldr_open(fn);
+
+    buf = (char *)(mfsbase);
+
+    if (rc) {
+      mfslen = freeldr_read(buf, -1);
+    } else {
+      panic("Can't open minifsd filename: ", fn);
+    }
+  }
+
+  /* set boot flags */
+  boot_flags = BOOTFLAG_MICROFSD;
+
+  files = 2;
+  if (*fn) { // if minifsd present
+    files++;
+    boot_flags |=  BOOTFLAG_MINIFSD;
+  }
+
+  /* set filetable */
+  ft.ft_cfiles = files;
+  ft.ft_ldrseg = ldrbase >> 4;
+  ft.ft_ldrlen = ldrlen; // 0x3800;
+  ft.ft_museg  = (EXT_BUF_BASE + EXT_LEN - 0x10000) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
+                                         // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
+  ft.ft_mulen  = 0x10000;     // It is empirically found maximal value
+  ft.ft_mfsseg = mfsbase >> 4;    // 0x7c;
+  ft.ft_mfslen = mfslen;  // 0x95f0;
+  ft.ft_ripseg = 0; // 0x800;   // end of mfs
+  ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
+
+  ft.ft_muOpen.seg       = STAGE0_BASE >> 4;
+  ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
+
+  ft.ft_muRead.seg       = STAGE0_BASE >> 4;
+  ft.ft_muRead.off       = (unsigned short)(&mu_Read);
+
+  ft.ft_muClose.seg      = STAGE0_BASE >> 4;
+  ft.ft_muClose.off      = (unsigned short)(&mu_Close);
+
+  ft.ft_muTerminate.seg  = STAGE0_BASE >> 4;
+  ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
+
+  /* set BPB */
+  bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
+
+  if (boot_drive == cdrom_drive) { // booting from CDROM drive
+    // fill fake BPB
+    grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
+
+    bpb->sect_size  = 0x800;
+    bpb->clus_size  = 0x40;
+    bpb->n_sect_ext = geom.total_sectors; // 0x30d;
+    bpb->media_desc = 0xf8;
+    bpb->track_size = 0x3f;
+    bpb->heads_cnt  = 0xff;
+    bpb->marker     = 0x29;
+  }
+
+  bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
+  bpb->log_drive   = conf.driveletter; // 0x92;
+  bpb->hidden_secs = part_start;
+
+  //bpb->disk_num    = 0x3;
+  //bpb->log_drive   = 0x48;
+  //bpb->marker      = 0x41;
+  //bpb->vol_ser_no  = 0x00000082;
+}
+
 #endif
 
 int init(void)
@@ -1198,11 +1334,9 @@ int init(void)
 #ifndef STAGE1_5
   char cfg[0x20];
   char str[0x80];
-  int files;
   char *s;
   unsigned long ldrlen = 0, mfslen = 0;
   unsigned long ldrbase;
-  bios_parameters_block *bpb;
   unsigned short *p;
   unsigned long  *q;
   struct desc *z;
@@ -1212,10 +1346,8 @@ int init(void)
 #else
   extern char preldr[];
 #endif
-  char *fn;
-  int  rc; 
-  char *buf;
-  struct geometry geom;
+  int    rc;
+  char   *buf;
 
   gateA20(1);
 
@@ -1279,25 +1411,6 @@ int init(void)
   /* use putchar() implementation through term blackbox */
   use_term = 1;
 
-  // empty keyboard buffer
-  //while (t->checkkey() != -1) ;
-
-  if (conf.multiboot == 2)
-  {
-    printf("multiboot = (y)es/(n)o?: ");
-
-    do {
-      key = t->getkey() & 0xff;
-    } while (key != 'y' && key != 'Y' && key != 'n' && key != 'N');
-
-    if (key == 'N' || key == 'n')
-      conf.multiboot = 0;
-    else
-      conf.multiboot = 1;
-
-    printf("\r\n");
-  }
-
   if (!grub_strcmp(conf.loader.name, "default"))
   {
     if (conf.multiboot)
@@ -1306,88 +1419,15 @@ int init(void)
       grub_strcpy(conf.loader.name, "/os2ldr\0");
   }
 
-  /* Show config params */ /*
-  printmsg("\r\nConfig parameters:");
-  printmsg("\r\ndriveletter = "); printb(conf.driveletter);
-  printmsg("\r\nmultiboot = ");   printb(conf.multiboot);
-  printmsg("\r\nmufsd.ignorecase = ");   printb(conf.mufsd.ignorecase);
-  printmsg("\r\nFilesys: ");
-  for (i = 0; i < FSYS_MAX && conf.mufsd.fsys_list[i]; i++) {
-    printmsg(conf.mufsd.fsys_list[i]);
-    printmsg(" ");
-  }
-  printmsg("\r\nloader.name = "); printmsg(conf.loader.name);
-  printmsg("\r\nloader.base = "); printd(conf.loader.base);
-  printmsg("\r\nmini.name = "); printmsg(conf.mini.name);
-  printmsg("\r\nmini.base = "); printd(conf.mini.base);
-  printmsg("\r\n");
-  for (i = 0; i < MAX_ALIAS; i++) {
-    s = conf.alias[i].name;
-    if (!s) break;
-    printmsg(s);
-    printmsg("=");
-    s = conf.alias[i].alias;
-    printmsg(s);
-    printmsg("\r\n");
-  }
-  for (i = 0; i < num_term; i++)
-  {
-    printmsg(conf.term.term_list[i]);
-    printmsg("\r\n");
-  }
-  printd(conf.term._default);
-  __asm {
-    cli
-    hlt
-  }       */
+  if (conf.extloader.name)
+    freeldr_open(conf.extloader.name);
+  else
+    freeldr_open(conf.loader.name);
 
-  /* load os2ldr */
-  fn = conf.loader.name;
-  rc = freeldr_open(fn);
-  //printf("o ret %d\r\n", rc);
-  //printmsg("freeldr_open(\"");
-  //printmsg(fn);
-  //printmsg("\") returned: ");
-  //printd(rc);
-
-  buf = (char *)(conf.loader.base);
-
-  if (rc) {
-    ldrlen = freeldr_read(buf, -1);
-    //printf("r 0x%x %d cnt %d\r\n", buf, -1, ldrlen);
-    //printmsg("\r\nfreeldr_read() returned size: ");
-    //printd(ldrlen);
-    //printmsg("\r\n");
-  } else {
-    panic("Can't open loader file: ", fn);
-  }
-
-  /* load minifsd */
-  fn = conf.mini.name;
-  if (*fn) { // is minifsd needed?
-    rc = freeldr_open(fn);
-    //printf("o ret %d\r\n", rc);
-    //printmsg("freeldr_open(\"");
-    //printmsg(fn);
-    //printmsg("\") returned: ");
-    //printd(rc);
-
-    buf = (char *)(conf.mini.base);
-
-    if (rc) {
-      mfslen = freeldr_read(buf, -1);
-      //printf("r 0x%x %d cnt %d\r\n", buf, -1, mfslen);
-      //printmsg("\r\nfreeldr_read() returned size: ");
-      //printd(mfslen);
-      //printmsg("\r\n");
-    } else {
-      panic("Can't open minifsd filename: ", fn);
-    }
-  }
+  /* size of the loader */
+  ldrlen  = filemax;
 
   printf("mem_lower=0x%x\r\n", mem_lower);
-  //printmsg("mem_lower=");
-  //printd(mem_lower);
 
   /* calculate highest available address
      -- os2ldr base or top of low memory  */
@@ -1399,14 +1439,12 @@ int init(void)
      44544 bytes, 44544 >> 12 == 0xa      */
   if (k == 0x57) i++; // one page more
 
-  if (!conf.multiboot) // os2ldr
+  if (!conf.multiboot || conf.extloader.name) // os2ldr
     ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
   else                 // multiboot loader
     ldrbase =  mem_lower << KSHIFT;
 
   printf("ldr base 0x%x\r\n", ldrbase);
-  //printmsg("\r\n");
-  //printd(ldrbase);
 
   /* the correction shift added while relocating */
   relshift = ldrbase - (PREFERRED_BASE + 0x10000);
@@ -1519,63 +1557,8 @@ int init(void)
     lgdt fword ptr [eax]
   }
 
-  /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD;
-
-  files = 2;
-  if (*fn) { // if minifsd present
-    files++;
-    boot_flags |=  BOOTFLAG_MINIFSD;
-  }
-
-  /* set filetable */
-  ft.ft_cfiles = files;
-  ft.ft_ldrseg = conf.loader.base >> 4;
-  ft.ft_ldrlen = ldrlen; // 0x3800;
-  ft.ft_museg  = (EXT_BUF_BASE + EXT_LEN - 0x10000) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
-                                         // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
-  ft.ft_mulen  = 0x10000;     // It is empirically found maximal value
-  ft.ft_mfsseg = conf.mini.base >> 4;    // 0x7c;
-  ft.ft_mfslen = mfslen;  // 0x95f0;
-  ft.ft_ripseg = 0; // 0x800;   // end of mfs
-  ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
-
-  ft.ft_muOpen.seg       = STAGE0_BASE >> 4;
-  ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
-
-  ft.ft_muRead.seg       = STAGE0_BASE >> 4;
-  ft.ft_muRead.off       = (unsigned short)(&mu_Read);
-
-  ft.ft_muClose.seg      = STAGE0_BASE >> 4;
-  ft.ft_muClose.off      = (unsigned short)(&mu_Close);
-
-  ft.ft_muTerminate.seg  = STAGE0_BASE >> 4;
-  ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
-
-  /* set BPB */
-  bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
-
-  if (boot_drive == cdrom_drive) { // booting from CDROM drive
-    // fill fake BPB
-    grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
-
-    bpb->sect_size  = 0x800;
-    bpb->clus_size  = 0x40;
-    bpb->n_sect_ext = geom.total_sectors; // 0x30d;
-    bpb->media_desc = 0xf8;
-    bpb->track_size = 0x3f;
-    bpb->heads_cnt  = 0xff;
-    bpb->marker     = 0x29;
-  }
-
-  bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
-  bpb->log_drive   = conf.driveletter; // 0x92;
-  bpb->hidden_secs = part_start;
-
-  //bpb->disk_num    = 0x3;
-  //bpb->log_drive   = 0x48;
-  //bpb->marker      = 0x41;
-  //bpb->vol_ser_no  = 0x00000082;
+  /* Set filetable values */
+  set_ftable(0);
 
   /* Init terminal */
   init_term();
@@ -1598,6 +1581,10 @@ int init(void)
       // esi ==  pointer to BPB
       mov  esi, BOOTSEC_BASE + 0xb
 
+      //push ldr_base
+      
+      //retn
+
       // magic in eax
       mov  eax, BOOT_MAGIC
 
@@ -1605,9 +1592,12 @@ int init(void)
       mov  ebx, l2
 
       push ldr_base
-      //int 3h
-      retn
+
+      call [esp]
+      add  esp, 4
     }
+    /* Set filetable values for os2ldr */
+    set_ftable(1);
   }
 
 #else

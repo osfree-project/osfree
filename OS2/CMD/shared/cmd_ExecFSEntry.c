@@ -26,6 +26,7 @@
 /* this one is from cmd_FSEntry16.c */
 USHORT _far16 _pascal FSENTRY16(void *, short, char _far16 * _far16 *, char _far16 * _far16 *);
 
+ULONG DosFlatToSel(ULONG);
 
 /*!
   Executes an entry from FS utility dll
@@ -49,8 +50,8 @@ USHORT _far16 _pascal FSENTRY16(void *, short, char _far16 * _far16 *, char _far
 
 APIRET16 (* APIENTRY16 func16)(short, char _far16 * _far16 *, char _far16 * _far16 *);
 
-APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
-                       ULONG ulArgc, PSZ argv[],PSZ envp[])
+APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
+                       ULONG ulArgc, char **argv, char **envp)
 {
   APIRET rc;
   ULONG ulType;
@@ -62,7 +63,7 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
   UCHAR LoadError[256] =""; /* area for load failure information */
   char  _far16 * _far16 *newargv; /* 16bit pointers for argv and envp */
   char  _far16 * _far16 *newenvp;
-
+  ULONG p;
 
 /*!
   @todo add exception handling; failure of execution fs entry point can blow
@@ -114,36 +115,39 @@ APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
      pointers */
   newargv = malloc(ulArgc*sizeof(char _far16 *));
 
-  for (i=0;i<ulArgc;i++)
-    newargv[i] = MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
-
+  for (i = 0; i < ulArgc; i++)
+  {
+    p = (ULONG)DosFlatToSel((ULONG)argv[i]);
+    newargv[i] = (char  _far16 *)p; //MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
+  }
     /* get number of envs */
   for (ulEnvpCount = 0; environ[ulEnvpCount]; ulEnvpCount++) ;
 
   //printf("ulEnvpCount = %d\n", ulEnvpCount);
 
-  newenvp = malloc((ulEnvpCount + 1)*sizeof(char _far16 *));
+  //newenvp = malloc((ulEnvpCount + 1)*sizeof(char _far16 *));
 
-  for (i = 0; i < ulEnvpCount; i++) 
-  {
-    newenvp[i] = MAKE16P(SELECTOROF(environ[i]),OFFSETOF(environ[i]));
+  //for (i = 0; i < ulEnvpCount; i++) 
+  //{
+  //  p = (ULONG)DosFlatToSel((ULONG)environ[i]);
+  //  newenvp[i] = (char  _far16 *)p; // MAKE16P(SELECTOROF(environ[i]),OFFSETOF(environ[i]));
     //printf("newenvp[%d] = 0x%x\n", i, newenvp[i]);
-  }
+  //}
 
-  newenvp[ulEnvpCount]=NULL;
+  //newenvp[ulEnvpCount] = NULL;
 
   if (fVerbose)
      cmd_ShowSystemMessage(cmd_MSG_FSUTIL_HAS_STARTED,1L,"%s",pszFSName);
 
   func16 = pvFSEntry;
   
-  newargv = MAKE16P(SELECTOROF(newargv), OFFSETOF(newargv));
-  newenvp = MAKE16P(SELECTOROF(newenvp), OFFSETOF(newenvp));
+  newargv = (char  _far16 * _far16 *)DosFlatToSel((ULONG)argv); //MAKE16P(SELECTOROF(newargv), OFFSETOF(newargv));
+  //newenvp = (char  _far16 * _far16 *)DosFlatToSel((ULONG)newenvp); //MAKE16P(SELECTOROF(newenvp), OFFSETOF(newenvp));
 
   //rc=func16((short)ulArgc, newargv, newenvp);
   //printf("newargv = 0x%x, newenvp = 0x%x\n", newargv, newenvp);
 
-  rc=func16((short)ulArgc, argv, envp);
+  rc=func16((short)ulArgc, newargv, 0);
 
 //  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
 //  rc=(pvFSEntry)((short)ulArgc, newargv, newenvp);

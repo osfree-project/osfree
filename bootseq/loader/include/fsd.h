@@ -10,10 +10,12 @@
 #define PAGEMASK  (MEMPAGE - 1)
 
 #define MFS_BASE  0x7c0 // minifsd base
-#define LDR_BASE  0x10000 // os2ldr base
+#define OS2LDR_BASE  0x10000 // os2ldr base
+#define LDR_BASE  0x20000 // freeldr base
 
 #define MFS_SEG  0x7c // minifsd segment
-#define LDR_SEG  0x1000 // os2ldr segment
+#define OS2LDR_SEG  0x1000 // os2ldr segment
+#define LDR_SEG  0x2000 // freeldr segment
 
 #define PREFERRED_BASE  0x6f000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
 #define BOOT_PART_TABLE  (0x70000 + SHIFT) //

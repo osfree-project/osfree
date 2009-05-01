@@ -821,7 +821,7 @@ KernelLoader(void)
     //  hlt
     //}
 
-    multi_boot();
+    boot_func(0, 2);
   }
 }
 

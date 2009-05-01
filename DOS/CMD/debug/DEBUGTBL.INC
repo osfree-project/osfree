@@ -336,9 +336,9 @@ agroups	dw	131,128,442,255,455,254,246,257,256,198,143,208,210,192
 ;	This is the list of assembler mnemonics.
 
 mnlist:
-	mne 0000h, "AA", "A"+80h
-	mne 0003h, "AA", "D"+80h
-	mne 0007h, "AA", "M"+80h
+	mne <0000h, "AA", "A"+80h>
+	mne <0003h, "AA", "D"+80h>
+	mne <0007h, "AA", "M"+80h>
 	mne 000bh, "AA", "S"+80h
 	mne 000eh, "AD", "C"+80h
 	mne 001ch, "AD", "D"+80h

@@ -14,5 +14,6 @@ ADD_LINKOPT = debug all
 #STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 STACKSIZE = 40960
 OPTIONS = MIXED1632
+IMPORTS = DosFlatToSel_ DOSCALLS.425
 
 !include $(%ROOT)/mk/appsos2.mk

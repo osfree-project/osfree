@@ -342,6 +342,7 @@ endif
         ;
         ; pass structures to os2ldr
         ;
+        xor  eax, eax
         mov  eax, offset _TEXT:boot_flags - STAGE0_BASE
         ; set bootflags
         mov  dx, [eax]
@@ -363,7 +364,7 @@ endif
         mov  eax, BOOT_MAGIC
 
         ; return to os2ldr
-        push LDR_SEG
+        push OS2LDR_SEG
         push 0
         retf
 

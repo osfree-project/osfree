@@ -23,7 +23,10 @@
 #define cmd_FS_RECOVER "RECOVER"
 #define cmd_FS_SYS     "SYS"
 
-APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
-                       ULONG argc, PSZ argv[],PSZ envp[]);
+//APIRET cmd_ExecFSEntry(PSZ pszFSName,PSZ pszEntryName,BOOL fVerbose,
+//                       ULONG argc, PSZ argv[],PSZ envp[]);
+
+APIRET cmd_ExecFSEntry(char *pszFSName, char *pszEntryName, BOOL fVerbose,
+                       ULONG argc, char **argv, char **envp);
 
 #endif /* _CMD_EXECFSENTRY_H_ */

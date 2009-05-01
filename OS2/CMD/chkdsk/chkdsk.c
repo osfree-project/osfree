@@ -32,7 +32,7 @@
         reported as hdd - dunno should we do the same???
   @todo add exception handling (ctrl+c/brak) and returning correct rc then
 */
-int main (int argc, char* argv[], char* envp[])
+int main (int argc, char **argv, char *envp)
 {
   PSZ pszFSName;  /* FS Name */
   PSZ disk="   ";
@@ -77,7 +77,7 @@ int main (int argc, char* argv[], char* envp[])
 
   cmd_ShowSystemMessage(cmd_MSG_TYPE_OF_FS_IS,1L,"%s",pszFSName);
 
-  rc=cmd_ExecFSEntry(pszFSName,cmd_FS_CHKDSK,TRUE,argc,argv,envp);
+  rc = cmd_ExecFSEntry(pszFSName, cmd_FS_CHKDSK, TRUE, argc, argv, argv);
 
   free(pszFSName);
   return rc;

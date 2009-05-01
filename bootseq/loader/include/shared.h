@@ -687,6 +687,9 @@ void __cdecl big_linux_boot (void); //__attribute__ ((noreturn));
 /* booting a multiboot executable */
 void multi_boot (void); //__attribute__ ((noreturn));
 
+/* return to pre-loader to execute os2ldr */
+void return_to_preldr (void);
+
 /* If LINEAR is nonzero, then set the Intel processor to linear mode.
    Otherwise, bit 20 of all memory accesses is always forced to zero,
    causing a wraparound effect for bugwards compatibility with the

@@ -99,11 +99,11 @@ use_lba:
                 ;call  err
                 ;jmp   short $
 
-                mov   al, 'T'
-                call  err
-                jmp   short $
+                ;mov   al, 'T'
+                ;call  err
+                ;jmp   short $
 
-if 0
+if 1
 
                 mov   word ptr [bp].force_chs, si
                 mov   byte ptr [bp].drive, dl

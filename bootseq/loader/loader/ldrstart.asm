@@ -13,6 +13,7 @@ public ft
 public bpb
 public boot_drive
 public multi_boot_
+public return_to_preldr_
 public oldstack
 public loader_stack_top
 
@@ -47,7 +48,7 @@ _STACK   ends
 
 _TEXT segment dword public 'CODE' use32
 
-      org LDR_BASE
+      org  LDR_BASE
 
 VIDEO_BUF  equ 0b8000h
 
@@ -65,6 +66,7 @@ ok:
 
       ; set loader stack
       mov  oldstack, esp
+      mov  oldframe, ebp
       mov  esp, offset DGROUP:loader_stack_top
       mov  ebp, esp
 
@@ -74,7 +76,15 @@ ok:
 
       cli
       hlt
+      
+      int 3
 ;      jmp     $
+
+return_to_preldr_:
+      mov  esp, oldstack
+      mov  ebp, oldframe
+
+      ret
 
 multi_boot_:
       ;
@@ -132,6 +142,7 @@ boot_drive    dd   0
 
 errmsg        db   "No boot magic in EAX, panic...",13,10,0
 oldstack      dd   0
+oldframe      dd   0
 
 start endp
 

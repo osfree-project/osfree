@@ -28,6 +28,8 @@
 kernel_t kernel_type;
 grub_error_t errnum;
 
+int os2ldr = 0;
+
 /* The address for Multiboot command-line buffer.  */
 static char *mb_cmdline;
 
@@ -1259,6 +1261,9 @@ static struct builtin builtin_root =
 int
 boot_func(char *arg, int flags)
 {
+  if (os2ldr)
+    return_to_preldr();
+
   multi_boot();
 
   return 0;
@@ -1389,6 +1394,24 @@ static struct builtin builtin_screen =
   "highlighted foreground color."
 };
 
+int
+os2ldr_func(char *arg, int flags)
+{
+  os2ldr++;
+  printf("Loading OS/2\r\n");
+
+  return 0;
+}
+
+static struct builtin builtin_os2ldr =
+{
+  "os2ldr",
+  os2ldr_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "os2ldr",
+  "Return control to os2ldr"
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1406,5 +1429,6 @@ struct builtin *builtins[] = {
   &builtin_width,
   &builtin_height,
   &builtin_screen,
+  &builtin_os2ldr,
   0    
 };

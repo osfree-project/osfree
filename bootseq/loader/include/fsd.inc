@@ -10,10 +10,12 @@ PAGESHIFT       equ 12
 PAGEMASK        equ (MEMPAGE - 1)
 
 MFS_BASE        equ 0x7c0                 ; minifsd base
-LDR_BASE        equ 0x10000               ; os2ldr base
+OS2LDR_BASE     equ 0x10000               ; os2ldr base
+LDR_BASE        equ 0x20000               ; freeldr base
 
 MFS_SEG         equ 0x7c                  ; minifsd segment
-LDR_SEG         equ 0x1000                ; os2ldr segment
+OS2LDR_SEG      equ 0x1000                ; os2ldr segment
+LDR_SEG         equ 0x2000                ; freeldr segment
 
 ; multiboot kernel load base
 KERN_BASE       equ 0x800000
