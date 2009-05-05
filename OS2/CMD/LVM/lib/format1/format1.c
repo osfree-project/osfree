@@ -43,7 +43,7 @@ static int _check_vgs(struct list *pvs, int *partial)
 	 * This means an active VG won't be affected if disks are inserted
 	 * bearing an exported VG with the same name.
 	 */
-	list_iterate_items(dl, pvs) {
+	list_iterate_items(dl, struct disk_list, pvs) {
 		if (first_time) {
 			exported = dl->pvd.pv_status & VG_EXPORTED;
 			first_time = 0;
@@ -240,7 +240,7 @@ static int _flatten_vg(struct format_instance *fid, struct dm_pool *mem,
 	struct pv_list *pvl;
 	struct disk_list *data;
 
-	list_iterate_items(pvl, &vg->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 		if (!(data = _flatten_pv(fid, mem, vg, pvl->pv, dev_dir))) {
 			stack;
 			return 0;

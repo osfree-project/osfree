@@ -67,10 +67,12 @@
 #define EXPORTED_TAG "PV_EXP"	/* Identifier for exported PV */
 #define IMPORTED_TAG "PV_IMP"	/* Identifier for imported PV */
 
+#pragma pack(1)
+
 struct data_area {
 	uint32_t base;
 	uint32_t size;
-} __attribute__ ((packed));
+}; // __attribute__ ((packed));
 
 struct pv_disk {
 	int8_t id[2];
@@ -95,7 +97,7 @@ struct pv_disk {
 
 	/* only present on version == 2 pv's */
 	uint32_t pe_start;
-} __attribute__ ((packed));
+}; // __attribute__ ((packed));
 
 struct lv_disk {
 	int8_t lv_name[NAME_LEN];
@@ -119,7 +121,7 @@ struct lv_disk {
 	uint32_t lv_allocation;
 	uint32_t lv_io_timeout;	/* for future use */
 	uint32_t lv_read_ahead;
-} __attribute__ ((packed));
+}; // __attribute__ ((packed));
 
 struct vg_disk {
 	int8_t vg_uuid[ID_LEN];	/* volume group UUID */
@@ -139,16 +141,20 @@ struct vg_disk {
 	uint32_t pe_total;	/* total of physical extents */
 	uint32_t pe_allocated;	/* allocated physical extents */
 	uint32_t pvg_total;	/* physical volume groups FU */
-} __attribute__ ((packed));
+}; // __attribute__ ((packed));
 
 struct pe_disk {
 	uint16_t lv_num;
 	uint16_t le_num;
-} __attribute__ ((packed));
+}; // __attribute__ ((packed));
+
+#pragma pack()
+
+#pragma pack(8)
 
 struct uuid_list {
 	struct list list;
-	char uuid[NAME_LEN] __attribute((aligned(8)));
+	char uuid[NAME_LEN]; // __attribute((aligned(8)));
 };
 
 struct lvd_list {
@@ -161,12 +167,14 @@ struct disk_list {
 	struct dm_pool *mem;
 	struct device *dev;
 
-	struct pv_disk pvd __attribute((aligned(8)));
-	struct vg_disk vgd __attribute((aligned(8)));
-	struct list uuids __attribute((aligned(8)));
-	struct list lvds __attribute((aligned(8)));
-	struct pe_disk *extents __attribute((aligned(8)));
+	struct pv_disk pvd; // __attribute((aligned(8)));
+	struct vg_disk vgd; // __attribute((aligned(8)));
+	struct list uuids;  // __attribute((aligned(8)));
+	struct list lvds;   // __attribute((aligned(8)));
+	struct pe_disk *extents; // __attribute((aligned(8)));
 };
+
+#pragma pack()
 
 /*
  * Layout constants.

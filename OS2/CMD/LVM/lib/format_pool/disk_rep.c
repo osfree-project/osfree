@@ -36,7 +36,7 @@ static int __read_pool_disk(const struct format_type *fmt, struct device *dev,
 			    struct dm_pool *mem, struct pool_list *pl,
 			    const char *vg_name)
 {
-	char buf[512] __attribute((aligned(8)));
+	char buf[512]; // __attribute((aligned(8)));
 
 	/* FIXME: Need to check the cache here first */
 	if (!dev_read(dev, UINT64_C(0), 512, buf)) {
@@ -56,10 +56,11 @@ static int __read_pool_disk(const struct format_type *fmt, struct device *dev,
 static void _add_pl_to_list(struct list *head, struct pool_list *data)
 {
 	struct pool_list *pl;
+        uint32_t pad;
 
-	list_iterate_items(pl, head) {
+	list_iterate_items(pl, struct pool_list, head) {
 		if (id_equal(&data->pv_uuid, &pl->pv_uuid)) {
-			char uuid[ID_LEN + 7] __attribute((aligned(8)));
+			char uuid[ID_LEN + 7]; // __attribute((aligned(8)));
 
 			id_write_format(&pl->pv_uuid, uuid, ID_LEN + 7);
 
@@ -82,9 +83,10 @@ int read_pool_label(struct pool_list *pl, struct labeller *l,
 		    struct device *dev, char *buf, struct label **label)
 {
 	struct lvmcache_info *info;
+        uint32_t pad;
 	struct id pvid;
 	struct id vgid;
-	char uuid[ID_LEN + 7] __attribute((aligned(8)));
+	char uuid[ID_LEN + 7]; // __attribute((aligned(8)));
 	struct pool_disk *pd = &pl->pd;
 
 	pool_label_in(pd, buf);
@@ -257,7 +259,7 @@ static int _read_vg_pds(const struct format_type *fmt, struct dm_pool *mem,
 		return 0;
 	}
 
-	list_iterate_items(info, &vginfo->infos) {
+	list_iterate_items(info, struct lvmcache_info, &vginfo->infos) {
 		if (info->dev &&
 		    !(pl = read_pool_disk(fmt, info->dev, mem, vginfo->vgname)))
 			    break;

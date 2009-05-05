@@ -31,7 +31,7 @@ int import_pool_vg(struct volume_group *vg, struct dm_pool *mem, struct list *pl
 {
 	struct pool_list *pl;
 
-	list_iterate_items(pl, pls) {
+	list_iterate_items(pl, struct pool_list, pls) {
 		vg->extent_count +=
 		    ((pl->pd.pl_blocks) / POOL_PE_SIZE);
 
@@ -83,7 +83,7 @@ int import_pool_lvs(struct volume_group *vg, struct dm_pool *mem, struct list *p
 	list_init(&lv->segments);
 	list_init(&lv->tags);
 
-	list_iterate_items(pl, pls) {
+	list_iterate_items(pl, struct pool_list, pls) {
 		lv->size += pl->pd.pl_blocks;
 
 		if (lv->name)
@@ -128,7 +128,7 @@ int import_pool_pvs(const struct format_type *fmt, struct volume_group *vg,
 	struct pv_list *pvl;
 	struct pool_list *pl;
 
-	list_iterate_items(pl, pls) {
+	list_iterate_items(pl, struct pool_list, pls) {
 		if (!(pvl = dm_pool_zalloc(mem, sizeof(*pvl)))) {
 			log_error("Unable to allocate pv list structure");
 			return 0;
@@ -292,7 +292,7 @@ int import_pool_segments(struct list *lvs, struct dm_pool *mem,
 	uint32_t le_cur = 0;
 	int i;
 
-	list_iterate_items(lvl, lvs) {
+	list_iterate_items(lvl, struct lv_list, lvs) {
 		lv = lvl->lv;
 
 		if (lv->status & SNAPSHOT)

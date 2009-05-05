@@ -382,7 +382,7 @@ static int _line_append(struct output_line *outline, const char *fmt, ...)
 	return 1;
 }
 
-#define line_append(args...) do {if (!_line_append(outline, args)) {return_0;}} while (0)
+#define line_append(args,...) do {if (!_line_append(outline, args)) {return_0;}} while (0)
 
 static int _line_end(struct output_line *outline)
 {

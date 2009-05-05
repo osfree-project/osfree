@@ -242,7 +242,7 @@ static int _add_alias(struct device *dev, const char *path)
 	}
 
 	/* Is name already there? */
-	list_iterate_items(strl, &dev->aliases) {
+	list_iterate_items(strl, struct str_list, &dev->aliases) {
 		if (!strcmp(strl->str, path)) {
 			log_debug("%s: Already in device cache", path);
 			return 1;
@@ -457,10 +457,10 @@ static void _full_scan(int dev_scan)
 	if (_cache.has_scanned && !dev_scan)
 		return;
 
-	list_iterate_items(dl, &_cache.dirs)
+	list_iterate_items(dl, struct dir_list, &_cache.dirs)
 		_insert_dir(dl->dir);
 
-	list_iterate_items(dl, &_cache.files)
+	list_iterate_items(dl, struct dir_list, &_cache.files)
 		_insert_file(dl->dir);
 
 	_cache.has_scanned = 1;

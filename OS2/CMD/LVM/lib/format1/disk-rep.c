@@ -248,7 +248,7 @@ static int _read_uuids(struct disk_list *data)
 {
 	unsigned num_read = 0;
 	struct uuid_list *ul;
-	char buffer[NAME_LEN] __attribute((aligned(8)));
+	char buffer[NAME_LEN]; // __attribute((aligned(8)));
 	uint64_t pos = data->pvd.pv_uuidlist_on_disk.base;
 	uint64_t end = pos + data->pvd.pv_uuidlist_on_disk.size;
 
@@ -435,7 +435,7 @@ static void _add_pv_to_list(struct list *head, struct disk_list *data)
 	struct pv_disk *pvd;
 	struct disk_list *diskl;
 
-	list_iterate_items(diskl, head) {
+	list_iterate_items(diskl, struct disk_list, head) {
 		pvd = &diskl->pvd;
 		if (!strncmp((char *)data->pvd.pv_uuid, (char *)pvd->pv_uuid,
 			     sizeof(pvd->pv_uuid))) {
@@ -472,7 +472,7 @@ int read_pvs_in_vg(const struct format_type *fmt, const char *vg_name,
 	/* Fast path if we already saw this VG and cached the list of PVs */
 	if (vg_name && (vginfo = vginfo_from_vgname(vg_name, NULL)) &&
 	    vginfo->infos.n) {
-		list_iterate_items(info, &vginfo->infos) {
+		list_iterate_items(info, struct lvmcache_info, &vginfo->infos) {
 			dev = info->dev;
 			if (dev && !(data = read_disk(fmt, dev, mem, vg_name)))
 				break;
@@ -532,7 +532,7 @@ static int _write_uuids(struct disk_list *data)
 	uint64_t pos = data->pvd.pv_uuidlist_on_disk.base;
 	uint64_t end = pos + data->pvd.pv_uuidlist_on_disk.size;
 
-	list_iterate_items(ul, &data->uuids) {
+	list_iterate_items(ul, struct uuid_list, &data->uuids) {
 		if (pos >= end) {
 			log_error("Too many uuids to fit on %s",
 				  dev_name(data->dev));
@@ -580,7 +580,7 @@ static int _write_lvs(struct disk_list *data)
 		return 0;
 	}
 
-	list_iterate_items(ll, &data->lvds) {
+	list_iterate_items(ll, struct lvd_list, &data->lvds) {
 		offset = sizeof(struct lv_disk) * ll->lvd.lv_number;
 		if (offset + sizeof(struct lv_disk) > data->pvd.lv_on_disk.size) {
 			log_error("lv_number %d too large", ll->lvd.lv_number);
@@ -729,7 +729,7 @@ int write_disks(const struct format_type *fmt, struct list *pvs)
 {
 	struct disk_list *dl;
 
-	list_iterate_items(dl, pvs) {
+	list_iterate_items(dl, struct disk_list, pvs) {
 		if (!(_write_all_pvd(fmt, dl)))
 			fail;
 

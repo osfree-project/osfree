@@ -234,7 +234,7 @@ const char *display_size(struct cmd_context *cmd, uint64_t size)
 
 void pvdisplay_colons(struct physical_volume *pv)
 {
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 
 	if (!pv)
 		return;
@@ -265,7 +265,7 @@ void pvdisplay_segments(struct physical_volume *pv)
 	if (pv->pe_size)
 		log_print("--- Physical Segments ---");
 
-	list_iterate_items(pvseg, &pv->segments) {
+	list_iterate_items(pvseg, struct pv_segment, &pv->segments) {
 		log_print("Physical extent %u to %u:",
 			  pvseg->pe, pvseg->pe + pvseg->len - 1);
 
@@ -287,9 +287,9 @@ void pvdisplay_segments(struct physical_volume *pv)
 
 /* FIXME Include label fields */
 void pvdisplay_full(struct cmd_context *cmd, struct physical_volume *pv,
-		    void *handle __attribute((unused)))
+		    void *handle) // __attribute((unused)))
 {
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 	const char *size;
 
 	uint32_t pe_free;
@@ -346,12 +346,12 @@ void pvdisplay_full(struct cmd_context *cmd, struct physical_volume *pv,
 	return;
 }
 
-int pvdisplay_short(struct cmd_context *cmd __attribute((unused)),
-		    struct volume_group *vg __attribute((unused)),
+int pvdisplay_short(struct cmd_context *cmd, // __attribute((unused)),
+		    struct volume_group *vg, // __attribute((unused)),
 		    struct physical_volume *pv,
-		    void *handle __attribute((unused)))
+		    void *handle) // __attribute((unused)))
 {
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 
 	if (!pv)
 		return 0;
@@ -394,11 +394,11 @@ void lvdisplay_colons(struct logical_volume *lv)
 }
 
 int lvdisplay_full(struct cmd_context *cmd, struct logical_volume *lv,
-		   void *handle __attribute((unused)))
+		   void *handle) // __attribute((unused)))
 {
 	struct lvinfo info;
 	int inkernel, snap_active = 0;
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 	struct lv_segment *snap_seg = NULL;
 	float snap_percent;	/* fused, fsize; */
 
@@ -423,7 +423,7 @@ int lvdisplay_full(struct cmd_context *cmd, struct logical_volume *lv,
 	if (lv_is_origin(lv)) {
 		log_print("LV snapshot status     source of");
 
-		list_iterate_items_gen(snap_seg, &lv->snapshot_segs,
+		list_iterate_items_gen(snap_seg, struct lv_segment, &lv->snapshot_segs,
 				       origin_list) {
 			if (inkernel &&
 			    (snap_active = lv_snapshot_percent(snap_seg->cow,
@@ -541,7 +541,7 @@ int lvdisplay_segments(struct logical_volume *lv)
 
 	log_print("--- Segments ---");
 
-	list_iterate_items(seg, &lv->segments) {
+	list_iterate_items(seg, struct lv_segment, &lv->segments) {
 		log_print("Logical extent %u to %u:",
 			  seg->le, seg->le + seg->len - 1);
 
@@ -555,7 +555,7 @@ int lvdisplay_segments(struct logical_volume *lv)
 	return 1;
 }
 
-void vgdisplay_extents(struct volume_group *vg __attribute((unused)))
+void vgdisplay_extents(struct volume_group *vg) // __attribute((unused)))
 {
 	return;
 }
@@ -564,7 +564,7 @@ void vgdisplay_full(struct volume_group *vg)
 {
 	uint32_t access;
 	uint32_t active_pvs;
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 
 	if (vg->status & PARTIAL_VG)
 		active_pvs = list_size(&vg->pvs);
@@ -643,7 +643,7 @@ void vgdisplay_colons(struct volume_group *vg)
 {
 	uint32_t active_pvs;
 	const char *access;
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 
 	if (vg->status & PARTIAL_VG)
 		active_pvs = list_size(&vg->pvs);
@@ -709,7 +709,7 @@ void display_formats(struct cmd_context *cmd)
 {
 	struct format_type *fmt;
 
-	list_iterate_items(fmt, &cmd->formats) {
+	list_iterate_items(fmt, struct format_type, &cmd->formats) {
 		log_print("%s", fmt->name);
 	}
 }
@@ -718,7 +718,7 @@ void display_segtypes(struct cmd_context *cmd)
 {
 	struct segment_type *segtype;
 
-	list_iterate_items(segtype, &cmd->segtypes) {
+	list_iterate_items(segtype, struct segment_type, &cmd->segtypes) {
 		log_print("%s", segtype->name);
 	}
 }

@@ -584,7 +584,7 @@ int dev_read_circular(struct device *dev, uint64_t offset, size_t len,
 	if (!len2)
 		return 1;
 
-	if (!dev_read(dev, offset2, len2, buf + len)) {
+	if (!dev_read(dev, offset2, len2, (char *)buf + len)) {
 		log_error("Circular read from %s failed",
 			  dev_name(dev));
 		return 0;
@@ -637,7 +637,8 @@ int dev_write(struct device *dev, uint64_t offset, size_t len, void *buffer)
 int dev_set(struct device *dev, uint64_t offset, size_t len, int value)
 {
 	size_t s;
-	char buffer[4096] __attribute((aligned(8)));
+        uint32_t pad;
+	char buffer[4096]; // __attribute((aligned(8)));
 
 	if (!dev_open(dev)) {
 		stack;

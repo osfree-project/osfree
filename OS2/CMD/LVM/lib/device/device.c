@@ -26,6 +26,7 @@
 #define PART_MAGIC_OFFSET UINT64_C(0x1FE)
 #define PART_OFFSET UINT64_C(0x1BE)
 
+#pragma pack(1)
 struct partition {
         uint8_t boot_ind;
         uint8_t head;
@@ -37,7 +38,9 @@ struct partition {
         uint8_t end_cyl;
         uint32_t start_sect;
         uint32_t nr_sects;
-} __attribute__((packed));
+}; // __attribute__((packed));
+
+#pragma pack()
 
 static int _is_partitionable(struct device *dev)
 {

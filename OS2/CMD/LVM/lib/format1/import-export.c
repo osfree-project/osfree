@@ -406,7 +406,7 @@ int export_extents(struct disk_list *dl, uint32_t lv_num,
 	struct lv_segment *seg;
 	uint32_t pe, s;
 
-	list_iterate_items(seg, &lv->segments) {
+	list_iterate_items(seg, struct lv_segment, &lv->segments) {
 		for (s = 0; s < seg->area_count; s++) {
 			if (!(seg->segtype->flags & SEG_FORMAT1_SUPPORT)) {
 				log_error("Segment type %s in LV %s: "
@@ -442,7 +442,7 @@ int import_pvs(const struct format_type *fmt, struct dm_pool *mem,
 	struct pv_list *pvl;
 
 	*count = 0;
-	list_iterate_items(dl, pvds) {
+	list_iterate_items(dl, struct disk_list, pvds) {
 		if (!(pvl = dm_pool_zalloc(mem, sizeof(*pvl))) ||
 		    !(pvl->pv = dm_pool_alloc(mem, sizeof(*pvl->pv)))) {
 			stack;
@@ -494,8 +494,8 @@ int import_lvs(struct dm_pool *mem, struct volume_group *vg, struct list *pvds)
 	struct lvd_list *ll;
 	struct lv_disk *lvd;
 
-	list_iterate_items(dl, pvds) {
-		list_iterate_items(ll, &dl->lvds) {
+	list_iterate_items(dl, struct disk_list, pvds) {
+		list_iterate_items(ll, struct lvd_list, &dl->lvds) {
 			lvd = &ll->lvd;
 
 			if (!find_lv(vg, (char *)lvd->lv_name) &&
@@ -540,7 +540,7 @@ int export_lvs(struct disk_list *dl, struct volume_group *vg,
 	}
 	memset(dl->extents, 0, len);
 
-	list_iterate_items(ll, &vg->lvs) {
+	list_iterate_items(ll, struct lv_list, &vg->lvs) {
 		if (ll->lv->status & SNAPSHOT)
 			continue;
 
@@ -600,8 +600,8 @@ int import_snapshots(struct dm_pool *mem, struct volume_group *vg,
 
 	/* build an index of lv numbers */
 	memset(lvs, 0, sizeof(lvs));
-	list_iterate_items(dl, pvds) {
-		list_iterate_items(ll, &dl->lvds) {
+	list_iterate_items(dl, struct disk_list, pvds) {
+		list_iterate_items(ll, struct lvd_list, &dl->lvds) {
 			lvd = &ll->lvd;
 
 			lvnum = lvd->lv_number;
@@ -624,8 +624,8 @@ int import_snapshots(struct dm_pool *mem, struct volume_group *vg,
 	/*
 	 * Now iterate through yet again adding the snapshots.
 	 */
-	list_iterate_items(dl, pvds) {
-		list_iterate_items(ll, &dl->lvds) {
+	list_iterate_items(dl, struct disk_list, pvds) {
+		list_iterate_items(ll, struct lvd_list, &dl->lvds) {
 			lvd = &ll->lvd;
 
 			if (!(lvd->lv_access & LV_SNAPSHOT))
@@ -661,7 +661,7 @@ int export_uuids(struct disk_list *dl, struct volume_group *vg)
 	struct uuid_list *ul;
 	struct pv_list *pvl;
 
-	list_iterate_items(pvl, &vg->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 		if (!(ul = dm_pool_alloc(dl->mem, sizeof(*ul)))) {
 			stack;
 			return 0;
@@ -684,7 +684,7 @@ void export_numbers(struct list *pvds, struct volume_group *vg)
 	struct disk_list *dl;
 	int pv_num = 1;
 
-	list_iterate_items(dl, pvds)
+	list_iterate_items(dl, struct disk_list, pvds)
 		dl->pvd.pv_number = pv_num++;
 }
 
@@ -696,11 +696,11 @@ void export_pv_act(struct list *pvds)
 	struct disk_list *dl;
 	int act = 0;
 
-	list_iterate_items(dl, pvds)
+	list_iterate_items(dl, struct disk_list, pvds)
 		if (dl->pvd.pv_status & PV_ACTIVE)
 			act++;
 
-	list_iterate_items(dl, pvds)
+	list_iterate_items(dl, struct disk_list, pvds)
 		dl->vgd.pv_act = act;
 }
 
@@ -715,7 +715,7 @@ int export_vg_number(struct format_instance *fid, struct list *pvds,
 		return 0;
 	}
 
-	list_iterate_items(dl, pvds)
+	list_iterate_items(dl, struct disk_list, pvds)
 		dl->vgd.vg_number = vg_num;
 
 	return 1;

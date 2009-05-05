@@ -45,7 +45,7 @@ int get_free_vg_number(struct format_instance *fid, struct dev_filter *filter,
 
 	memset(numbers, 0, sizeof(numbers));
 
-	list_iterate_items(dl, &all_pvs) {
+	list_iterate_items(dl, struct disk_list, &all_pvs) {
 		if (!*dl->pvd.vg_name || !strcmp((char *)dl->pvd.vg_name, candidate_vg))
 			continue;
 

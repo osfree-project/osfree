@@ -46,7 +46,7 @@ struct pv_header {
 
         /* NULL-terminated list of data areas followed by */
         /* NULL-terminated list of metadata area headers */
-        struct disk_locn disk_areas_xl[0];      /* Two lists */
+        struct disk_locn disk_areas_xl[1]; //[0];      /* Two lists */
 }; //__attribute__ ((packed));
 #pragma pack()
 
@@ -70,7 +70,7 @@ struct mda_header {
         uint64_t start;         /* Absolute start byte of mda_header */
         uint64_t size;          /* Size of metadata area */
 
-        struct raw_locn raw_locns[0];   /* NULL-terminated list */
+        struct raw_locn raw_locns[1]; //[0];   /* NULL-terminated list */
 }; //__attribute__ ((packed));
 #pragma pack()
 

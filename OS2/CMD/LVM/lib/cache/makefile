@@ -4,14 +4,14 @@
 # author, date
 #
 
-PROJ     = label
-srcfiles = $(p)label$(e)
-ADD_COPT = -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
-           -i=$(MYDIR)..$(SEP)datastruct -i=$(MYDIR)..$(SEP)misc -i=$(MYDIR)..$(SEP)config -i=$(MYDIR)..$(SEP)commands &
+PROJ     = cache
+srcfiles = $(p)lvmcache$(e)
+ADD_COPT = -i=$(MYDIR)..$(SEP)datastruct -i=$(MYDIR)..$(SEP)misc -i=$(MYDIR)..$(SEP)config -i=$(MYDIR)..$(SEP)commands &
            -i=$(MYDIR)..$(SEP)log -i=$(MYDIR)..$(SEP)metadata -i=$(MYDIR)..$(SEP)device -i=$(MYDIR)..$(SEP)uuid &
-           -i=$(MYDIR)..$(SEP)display -i=$(MYDIR)..$(SEP)format_text -i=$(MYDIR)..$(SEP)activate -i=$(MYDIR)..$(SEP)mm &
+           -i=$(MYDIR)..$(SEP)display -i=$(MYDIR)..$(SEP)activate -i=$(MYDIR)..$(SEP)activate -i=$(MYDIR)..$(SEP)mm &
            -i=$(MYDIR)..$(SEP)locking -i=$(MYDIR)..$(SEP)cache -i=$(MYDIR)..$(SEP)label -i=$(MYDIR)..$(SEP)filters &
-           -i=$(MYDIR)..$(SEP)activate -bd
+           -i=$(MYDIR)..$(SEP)format_text -i=$(MYDIR)..$(SEP)format_pool -i=$(MYDIR)..$(SEP)format1 -i=$(MYDIR)..$(SEP)activate &
+           -bd
 TARGETS  = $(PATH)$(PROJ).lib
 DEST =
 

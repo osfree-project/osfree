@@ -4,8 +4,8 @@
 # author, date
 #
 
-PROJ     = label
-srcfiles = $(p)label$(e)
+PROJ     = format_pool
+srcfiles = $(p)disk_rep$(e) $(p)format_pool$(e) $(p)import_export$(e) $(p)pool_label$(e)
 ADD_COPT = -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
            -i=$(MYDIR)..$(SEP)datastruct -i=$(MYDIR)..$(SEP)misc -i=$(MYDIR)..$(SEP)config -i=$(MYDIR)..$(SEP)commands &
            -i=$(MYDIR)..$(SEP)log -i=$(MYDIR)..$(SEP)metadata -i=$(MYDIR)..$(SEP)device -i=$(MYDIR)..$(SEP)uuid &

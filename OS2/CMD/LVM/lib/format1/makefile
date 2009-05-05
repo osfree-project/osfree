@@ -4,8 +4,9 @@
 # author, date
 #
 
-PROJ     = label
-srcfiles = $(p)label$(e)
+PROJ     = format1
+srcfiles = $(p)disk-rep$(e) $(p)format1$(e) $(p)import-export$(e) $(p)import-extents$(e) &
+           $(p)layout$(e) $(p)lvm1-label$(e) $(p)vg_number$(e)
 ADD_COPT = -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
            -i=$(MYDIR)..$(SEP)datastruct -i=$(MYDIR)..$(SEP)misc -i=$(MYDIR)..$(SEP)config -i=$(MYDIR)..$(SEP)commands &
            -i=$(MYDIR)..$(SEP)log -i=$(MYDIR)..$(SEP)metadata -i=$(MYDIR)..$(SEP)device -i=$(MYDIR)..$(SEP)uuid &

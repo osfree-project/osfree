@@ -23,9 +23,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-static int _text_can_handle(struct labeller *l __attribute((unused)),
+static int _text_can_handle(struct labeller *l, // __attribute((unused)),
 			    void *buf,
-			    uint64_t sector __attribute((unused)))
+			    uint64_t sector) // __attribute((unused)))
 {
 	struct label_header *lh = (struct label_header *) buf;
 
@@ -50,7 +50,7 @@ static int _text_write(struct label *label, void *buf)
 
 	strncpy((char *)lh->type, label->type, sizeof(label->type));
 
-	pvhdr = (struct pv_header *) ((void *) buf + xlate32(lh->offset_xl));
+	pvhdr = (struct pv_header *) ((char *) buf + xlate32(lh->offset_xl));
 	info = (struct lvmcache_info *) label->info;
 	pvhdr->device_size_xl = xlate64(info->device_size);
 	memcpy(pvhdr->pv_uuid, &info->dev->pvid, sizeof(struct id));
@@ -58,7 +58,7 @@ static int _text_write(struct label *label, void *buf)
 	pvh_dlocn_xl = &pvhdr->disk_areas_xl[0];
 
 	/* List of data areas (holding PEs) */
-	list_iterate_items(da, &info->das) {
+	list_iterate_items(da, struct data_area_list, &info->das) {
 		pvh_dlocn_xl->offset = xlate64(da->disk_locn.offset);
 		pvh_dlocn_xl->size = xlate64(da->disk_locn.size);
 		pvh_dlocn_xl++;
@@ -70,7 +70,7 @@ static int _text_write(struct label *label, void *buf)
 	pvh_dlocn_xl++;
 
 	/* List of metadata area header locations */
-	list_iterate_items(mda, &info->mdas) {
+	list_iterate_items(mda, struct metadata_area, &info->mdas) {
 		mdac = (struct mda_context *) mda->metadata_locn;
 
 		if (mdac->area.dev != info->dev)
@@ -181,7 +181,7 @@ void del_mdas(struct list *mdas)
 	}
 }
 
-static int _text_initialise_label(struct labeller *l __attribute((unused)),
+static int _text_initialise_label(struct labeller *l, // __attribute((unused)),
 				  struct label *label)
 {
 	strncpy(label->type, LVM2_LABEL, sizeof(label->type));
@@ -204,7 +204,7 @@ static int _text_read(struct labeller *l, struct device *dev, void *buf,
 	uint32_t vgstatus;
 	char *creation_host;
 
-	pvhdr = (struct pv_header *) ((void *) buf + xlate32(lh->offset_xl));
+	pvhdr = (struct pv_header *) ((char *) buf + xlate32(lh->offset_xl));
 
 	if (!(info = lvmcache_add(l, (char *)pvhdr->pv_uuid, dev, NULL, NULL, 0)))
 		return_0;
@@ -236,7 +236,7 @@ static int _text_read(struct labeller *l, struct device *dev, void *buf,
 		dlocn_xl++;
 	}
 
-	list_iterate_items(mda, &info->mdas) {
+	list_iterate_items(mda, struct metadata_area, &info->mdas) {
 		mdac = (struct mda_context *) mda->metadata_locn;
 		if ((vgname = vgname_from_mda(info->fmt, &mdac->area, 
 					      &vgid, &vgstatus, &creation_host)) &&
@@ -251,7 +251,7 @@ static int _text_read(struct labeller *l, struct device *dev, void *buf,
 	return 1;
 }
 
-static void _text_destroy_label(struct labeller *l __attribute((unused)),
+static void _text_destroy_label(struct labeller *l, // __attribute((unused)),
 				struct label *label)
 {
 	struct lvmcache_info *info = (struct lvmcache_info *) label->info;

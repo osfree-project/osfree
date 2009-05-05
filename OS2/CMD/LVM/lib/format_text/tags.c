@@ -29,7 +29,7 @@ int print_tags(struct list *tags, char *buffer, size_t size)
 		return 0;
 	}
 
-	list_iterate_items(sl, tags) {
+	list_iterate_items(sl, struct str_list, tags) {
 		if (!first) {
 			if (!emit_to_buffer(&buffer, &size, ", ")) {
 				stack;

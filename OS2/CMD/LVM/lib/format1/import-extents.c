@@ -55,7 +55,7 @@ static struct dm_hash_table *_create_lv_maps(struct dm_pool *mem,
 		return NULL;
 	}
 
-	list_iterate_items(ll, &vg->lvs) {
+	list_iterate_items(ll, struct lv_list, &vg->lvs) {
 		if (ll->lv->status & SNAPSHOT)
 			continue;
 
@@ -86,7 +86,7 @@ static int _fill_lv_array(struct lv_map **lvs,
 
 	memset(lvs, 0, sizeof(*lvs) * MAX_LV);
 
-	list_iterate_items(ll, &dl->lvds) {
+	list_iterate_items(ll, struct lvd_list, &dl->lvds) {
 		if (!(lvm = dm_hash_lookup(maps, strrchr((char *)ll->lvd.lv_name, '/')
 					+ 1))) {
 			log_err("Physical volume (%s) contains an "
@@ -113,7 +113,7 @@ static int _fill_maps(struct dm_hash_table *maps, struct volume_group *vg,
 	struct pe_disk *e;
 	uint32_t i, lv_num, le;
 
-	list_iterate_items(dl, pvds) {
+	list_iterate_items(dl, struct disk_list, pvds) {
 		pv = find_pv(vg, dl->dev);
 		e = dl->extents;
 

@@ -50,7 +50,7 @@ int lvmcache_init(void)
 	return 1;
 }
 
-void lvmcache_lock_vgname(const char *vgname, int read_only __attribute((unused)))
+void lvmcache_lock_vgname(const char *vgname, int read_only) // __attribute((unused)))
 {
 	if (!_lock_hash && !lvmcache_init()) {
 		log_error("Internal cache initialisation failed");
@@ -114,7 +114,7 @@ const struct format_type *fmt_from_vgname(const char *vgname, const char *vgid)
 	struct list *devh, *tmp;
 	struct list devs;
 	struct device_list *devl;
-	char vgid_found[ID_LEN + 1] __attribute((aligned(8)));
+	char vgid_found[ID_LEN + 1]; // __attribute((aligned(8)));
 
 	if (!(vginfo = vginfo_from_vgname(vgname, vgid)))
 		return NULL;
@@ -122,7 +122,7 @@ const struct format_type *fmt_from_vgname(const char *vgname, const char *vgid)
 	/* This function is normally called before reading metadata so
  	 * we check cached labels here. Unfortunately vginfo is volatile. */
 	list_init(&devs);
-	list_iterate_items(info, &vginfo->infos) {
+	list_iterate_items(info, struct lvmcache_info, &vginfo->infos) {
 		if (!(devl = dm_malloc(sizeof(*devl)))) {
 			log_error("device_list element allocation failed");
 			return NULL;
@@ -151,7 +151,8 @@ const struct format_type *fmt_from_vgname(const char *vgname, const char *vgid)
 struct lvmcache_vginfo *vginfo_from_vgid(const char *vgid)
 {
 	struct lvmcache_vginfo *vginfo;
-	char id[ID_LEN + 1] __attribute((aligned(8)));
+        uint32_t pad;
+	char id[ID_LEN + 1]; // __attribute((aligned(8)));
 
 	if (!_vgid_hash || !vgid)
 		return NULL;
@@ -186,7 +187,8 @@ const char *vgname_from_vgid(struct dm_pool *mem, const char *vgid)
 struct lvmcache_info *info_from_pvid(const char *pvid)
 {
 	struct lvmcache_info *info;
-	char id[ID_LEN + 1] __attribute((aligned(8)));
+        uint32_t pad;
+	char id[ID_LEN + 1]; // __attribute((aligned(8)));
 
 	if (!_pvid_hash || !pvid)
 		return NULL;
@@ -254,7 +256,7 @@ int lvmcache_label_scan(struct cmd_context *cmd, int full_scan)
 	_has_scanned = 1;
 
 	/* Perform any format-specific scanning e.g. text files */
-	list_iterate_items(fmt, &cmd->formats) {
+	list_iterate_items(fmt, struct format_type, &cmd->formats) {
 		if (fmt->ops->scan && !fmt->ops->scan(fmt))
 			goto out;
 	}
@@ -279,7 +281,7 @@ struct list *lvmcache_get_vgids(struct cmd_context *cmd, int full_scan)
 		return NULL;
 	}
 
-	list_iterate_items(vginfo, &_vginfos) {
+	list_iterate_items(vginfo, struct lvmcache_vginfo, &_vginfos) {
 		if (!str_list_add(cmd->mem, vgids, 
 				  dm_pool_strdup(cmd->mem, vginfo->vgid))) {
 			log_error("strlist allocation failed");
@@ -302,7 +304,7 @@ struct list *lvmcache_get_vgnames(struct cmd_context *cmd, int full_scan)
 		return NULL;
 	}
 
-	list_iterate_items(vginfo, &_vginfos) {
+	list_iterate_items(vginfo, struct lvmcache_vginfo, &_vginfos) {
 		if (!str_list_add(cmd->mem, vgnames, 
 				  dm_pool_strdup(cmd->mem, vginfo->vgname))) {
 			log_error("strlist allocation failed");
@@ -328,7 +330,7 @@ struct list *lvmcache_get_pvids(struct cmd_context *cmd, const char *vgname,
 	if (!(vginfo = vginfo_from_vgname(vgname, vgid)))
 		return pvids;
 
-	list_iterate_items(info, &vginfo->infos) {
+	list_iterate_items(info, struct lvmcache_info, &vginfo->infos) {
 		if (!str_list_add(cmd->mem, pvids, 
 				  dm_pool_strdup(cmd->mem, info->dev->pvid))) {
 			log_error("strlist allocation failed");
@@ -476,8 +478,9 @@ static int _insert_vginfo(struct lvmcache_vginfo *new_vginfo, const char *vgid,
 			  struct lvmcache_vginfo *primary_vginfo)
 {
 	struct lvmcache_vginfo *last_vginfo = primary_vginfo;
-	char uuid_primary[64] __attribute((aligned(8)));
-	char uuid_new[64] __attribute((aligned(8)));
+        uint32_t pad;
+	char uuid_primary[64]; // __attribute((aligned(8)));
+	char uuid_new[64];     // __attribute((aligned(8)));
 	int use_new = 0;
 	
 	/* Pre-existing VG takes precedence. Unexported VG takes precedence. */
@@ -710,11 +713,11 @@ int lvmcache_update_vg(struct volume_group *vg)
 {
 	struct pv_list *pvl;
 	struct lvmcache_info *info;
-	char pvid_s[ID_LEN + 1] __attribute((aligned(8)));
+	char pvid_s[ID_LEN + 1]; // __attribute((aligned(8)));
 
 	pvid_s[sizeof(pvid_s) - 1] = '\0';
 
-	list_iterate_items(pvl, &vg->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 		strncpy(pvid_s, (char *) &pvl->pv->id, sizeof(pvid_s) - 1);
 		/* FIXME Could pvl->pv->dev->pvid ever be different? */
 		if ((info = info_from_pvid(pvid_s)) &&
@@ -734,7 +737,8 @@ struct lvmcache_info *lvmcache_add(struct labeller *labeller, const char *pvid,
 {
 	struct label *label;
 	struct lvmcache_info *existing, *info;
-	char pvid_s[ID_LEN + 1] __attribute((aligned(8)));
+        uint32_t pad;
+	char pvid_s[ID_LEN + 1]; // __attribute((aligned(8)));
 
 	if (!_vgname_hash && !lvmcache_init()) {
 		log_error("Internal cache initialisation failed");
@@ -862,7 +866,7 @@ static void _lvmcache_destroy_vgnamelist(struct lvmcache_vginfo *vginfo)
 	} while ((vginfo = next));
 }
 
-static void _lvmcache_destroy_lockname(int present __attribute((unused)))
+static void _lvmcache_destroy_lockname(int present) // __attribute((unused)))
 {
 	/* Nothing to do */
 }

@@ -116,6 +116,7 @@ static int _read_pv(struct format_instance *fid, struct dm_pool *mem,
 	struct physical_volume *pv;
 	struct pv_list *pvl;
 	struct config_node *cn;
+        uint32_t pad;
 	uint64_t size;
 
 	if (!(pvl = dm_pool_zalloc(mem, sizeof(*pvl))) ||
@@ -149,7 +150,7 @@ static int _read_pv(struct format_instance *fid, struct dm_pool *mem,
 	 * Convert the uuid into a device.
 	 */
 	if (!(pv->dev = device_from_pvid(fid->fmt->cmd, &pv->id))) {
-		char buffer[64] __attribute((aligned(8)));
+		char buffer[64]; // __attribute((aligned(8)));
 
 		if (!id_write_format(&pv->id, buffer, sizeof(buffer)))
 			log_error("Couldn't find device.");
@@ -248,7 +249,7 @@ static void _insert_segment(struct logical_volume *lv, struct lv_segment *seg)
 {
 	struct lv_segment *comp;
 
-	list_iterate_items(comp, &lv->segments) {
+	list_iterate_items(comp, struct lv_segment, &lv->segments) {
 		if (comp->le > seg->le) {
 			list_add(&comp->list, &seg->list);
 			return;

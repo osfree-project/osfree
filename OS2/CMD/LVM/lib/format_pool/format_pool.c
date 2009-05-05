@@ -38,7 +38,7 @@ static struct user_subpool *_build_usp(struct list *pls, struct dm_pool *mem,
 	 * FIXME: Need to do some checks here - I'm tempted to add a
 	 * user_pool structure and build the entire thing to check against.
 	 */
-	list_iterate_items(pl, pls) {
+	list_iterate_items(pl, struct pool_list, pls) {
 		*sps = pl->pd.pl_subpools;
 		if (!usp && (!(usp = dm_pool_zalloc(mem, sizeof(*usp) * (*sps))))) {
 			log_error("Unable to allocate %d subpool structures",
