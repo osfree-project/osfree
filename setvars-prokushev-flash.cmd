@@ -1,1 +1,1 @@
-\osfree\regina\regina setvars-prokushev-flash.rex
+\osfree\regina\rexx setvars-prokushev-flash.rex

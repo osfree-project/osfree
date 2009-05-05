@@ -87,6 +87,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
+     $(OUT)$(SEP)os2$(SEP)winatom.h &
      $(OUT)$(SEP)os2$(SEP)winaccelerators.h &
      $(OUT)$(SEP)os2$(SEP)winload.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
@@ -109,6 +110,9 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)winhooks.h &
      $(OUT)$(SEP)os2$(SEP)wintimer.h &
      $(OUT)$(SEP)os2$(SEP)wincountry.h &
+     $(OUT)$(SEP)os2$(SEP)wincursors.h &
+     $(OUT)$(SEP)os2$(SEP)windde.h &
+     $(OUT)$(SEP)os2$(SEP)windesktop.h &
      $(OUT)$(SEP)os2$(SEP)winentryfields.h &
      $(OUT)$(SEP)os2$(SEP)windialogs.h &
      $(OUT)$(SEP)os2$(SEP)windialogscommon.h &
@@ -250,6 +254,10 @@ $(OUT)$(SEP)os2$(SEP)winframemgr.h: os2$(SEP)winframemgr.uni
 
 $(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)winload.uni
 
+$(OUT)$(SEP)os2$(SEP)winatom.h: os2$(SEP)winatom.uni
+
+$(OUT)$(SEP)os2$(SEP)wincursors.h: os2$(SEP)wincursors.uni
+
 $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)winframemgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pmwp.uni
@@ -261,6 +269,10 @@ $(OUT)$(SEP)shared$(SEP)rexxsaa.h: shared$(SEP)rexxsaa.uni
 $(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)winprogramlist.uni
 
 $(OUT)$(SEP)os2$(SEP)winsys.h: os2$(SEP)winsys.uni
+
+$(OUT)$(SEP)os2$(SEP)windde.h: os2$(SEP)windde.uni
+
+$(OUT)$(SEP)os2$(SEP)windesktop.h: os2$(SEP)windesktop.uni
 
 $(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)winwindowmgrcommon.uni
 

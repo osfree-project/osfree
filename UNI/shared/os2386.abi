@@ -1181,10 +1181,7 @@ WIN16DEFAVIOWINDOWPROC                      DLL APIENTRY PMVIOP   30   OS2386
 SeamlessRegisterObject                      DLL APIENTRY PMVIOP   50   OS2386
 SeamlessActivateWindow                      DLL APIENTRY PMVIOP   51   OS2386
 SeamlessRegisterAssocObj                    DLL APIENTRY PMVIOP   55   OS2386
-WinCreateCursor                             DLL APIENTRY PMWIN    98   OS2386
 KbdPacket                                   DLL APIENTRY PMWIN    174  OS2386
-WinAddAtom                                  DLL APIENTRY PMWIN    235  OS2386
-WinSetDesktopBkgnd                          DLL APIENTRY PMWIN    318  OS2386
 WinAddAtom                                  DLL APIENTRY PMWIN    700  OS2386
 WinAlarm                                    DLL APIENTRY PMWIN    701  OS2386
 WinBeginEnumWindows                         DLL APIENTRY PMWIN    702  OS2386
