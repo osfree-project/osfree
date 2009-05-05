@@ -15,10 +15,10 @@
 
 #include "tools.h"
 
-static int vgck_single(struct cmd_context *cmd __attribute((unused)),
+static int vgck_single(struct cmd_context *cmd, // __attribute((unused)),
 		       const char *vg_name,
 		       struct volume_group *vg, int consistent,
-		       void *handle __attribute((unused)))
+		       void *handle) // __attribute((unused)))
 {
 	if (!vg) {
 		log_error("Volume group \"%s\" not found", vg_name);

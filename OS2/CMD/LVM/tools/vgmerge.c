@@ -93,10 +93,10 @@ static int _vgmerge_single(struct cmd_context *cmd, const char *vg_name_to,
 	}
 
 	/* Check no conflicts with LV names */
-	list_iterate_items(lvl1, &vg_to->lvs) {
+	list_iterate_items(lvl1, struct lv_list, &vg_to->lvs) {
 		char *name1 = lvl1->lv->name;
 
-		list_iterate_items(lvl2, &vg_from->lvs) {
+		list_iterate_items(lvl2, struct lv_list, &vg_from->lvs) {
 			char *name2 = lvl2->lv->name;
 
 			if (!strcmp(name1, name2)) {
@@ -110,7 +110,7 @@ static int _vgmerge_single(struct cmd_context *cmd, const char *vg_name_to,
 	}
 
 	/* Check no PVs are constructed from either VG */
-	list_iterate_items(pvl, &vg_to->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg_to->pvs) {
 		if (pv_uses_vg(pvl->pv, vg_from)) {
 			log_error("Physical volume %s might be constructed "
 				  "from same volume group %s.",
@@ -119,7 +119,7 @@ static int _vgmerge_single(struct cmd_context *cmd, const char *vg_name_to,
 		}
 	}
 
-	list_iterate_items(pvl, &vg_from->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg_from->pvs) {
 		if (pv_uses_vg(pvl->pv, vg_to)) {
 			log_error("Physical volume %s might be constructed "
 				  "from same volume group %s.",
@@ -147,11 +147,12 @@ static int _vgmerge_single(struct cmd_context *cmd, const char *vg_name_to,
 	vg_to->pv_count += vg_from->pv_count;
 
 	/* Fix up LVIDs */
-	list_iterate_items(lvl1, &vg_to->lvs) {
+	list_iterate_items(lvl1, struct lv_list, &vg_to->lvs) {
 		union lvid *lvid1 = &lvl1->lv->lvid;
-		char uuid[64] __attribute((aligned(8)));
+                uint32_t pad;
+		char uuid[64]; // __attribute((aligned(8)));
 
-		list_iterate_items(lvl2, &vg_from->lvs) {
+		list_iterate_items(lvl2, struct lv_list, &vg_from->lvs) {
 			union lvid *lvid2 = &lvl2->lv->lvid;
 
                 	if (id_equal(&lvid1->id[1], &lvid2->id[1])) {

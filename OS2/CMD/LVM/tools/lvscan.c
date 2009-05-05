@@ -16,7 +16,7 @@
 #include "tools.h"
 
 static int lvscan_single(struct cmd_context *cmd, struct logical_volume *lv,
-			 void *handle __attribute((unused)))
+			 void *handle) // __attribute((unused)))
 {
 	struct lvinfo info;
 	int lv_total = 0;
@@ -32,7 +32,7 @@ static int lvscan_single(struct cmd_context *cmd, struct logical_volume *lv,
 
 	inkernel = lv_info(cmd, lv, &info, 1) && info.exists;
 	if (lv_is_origin(lv)) {
-		list_iterate_items_gen(snap_seg, &lv->snapshot_segs,
+		list_iterate_items_gen(snap_seg, struct lv_segment, &lv->snapshot_segs,
 				       origin_list) {
 			if (inkernel &&
 			    (snap_active = lv_snapshot_percent(snap_seg->cow,

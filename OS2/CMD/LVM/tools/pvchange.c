@@ -18,7 +18,7 @@
 /* FIXME Locking.  PVs in VG. */
 
 static int _pvchange_single(struct cmd_context *cmd, struct physical_volume *pv,
-			    void *handle __attribute((unused)))
+			    void *handle) // __attribute((unused)))
 {
 	struct volume_group *vg = NULL;
 	struct pv_list *pvl;
@@ -29,7 +29,7 @@ static int _pvchange_single(struct cmd_context *cmd, struct physical_volume *pv,
 	const char *pv_name = dev_name(pv_dev(pv));
 	const char *tag = NULL;
 	const char *orig_vg_name;
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 
 	int consistent = 1;
 	int allocatable = 0;
@@ -271,7 +271,7 @@ int pvchange(struct cmd_context *cmd, int argc, char **argv)
 			return ECMD_FAILED;
 		}
 
-		list_iterate_items(pvl, pvslist) {
+		list_iterate_items(pvl, struct pv_list, pvslist) {
 			total++;
 			done += _pvchange_single(cmd, pvl->pv, NULL);
 		}

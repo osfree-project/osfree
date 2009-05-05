@@ -358,7 +358,7 @@ static int lvconvert_mirrors(struct cmd_context * cmd, struct logical_volume * l
 			/* FIXME Share code with lvcreate */
 
 			/* FIXME Why is this restriction here?  Fix it! */
-			list_iterate_items(seg, &lv->segments) {
+			list_iterate_items(seg, struct lv_segment, &lv->segments) {
 				if (seg_is_striped(seg) && seg->area_count > 1) {
 					log_error("Mirrors of striped volumes are not yet supported.");
 					return 0;

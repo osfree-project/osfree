@@ -18,7 +18,7 @@
 
 static int _remove_pv(struct volume_group *vg, struct pv_list *pvl)
 {
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 
 	if (vg->pv_count == 1) {
 		log_error("Volume Groups must always contain at least one PV");
@@ -166,8 +166,12 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 	unsigned s;
 	uint32_t mimages, remove_log;
 	int list_unsafe, only_mirror_images_found;
-	LIST_INIT(lvs_changed);
+	//LIST_INIT(lvs_changed);
+        struct list lvs_changed;
 	only_mirror_images_found = 1;
+
+        lvs_changed.n = &lvs_changed;
+        lvs_changed.p = &lvs_changed;
 
 	/* Deactivate & remove necessary LVs */
       restart_loop:
@@ -177,7 +181,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 		lv = list_item(lvh, struct lv_list)->lv;
 
 		/* Are any segments of this LV on missing PVs? */
-		list_iterate_items(seg, &lv->segments) {
+		list_iterate_items(seg, struct lv_segment, &lv->segments) {
 			for (s = 0; s < seg->area_count; s++) {
 				if (seg_type(seg, s) != AREA_PV)
 					continue;
@@ -261,7 +265,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 		}
 
 		/* Remove lost mirror images from mirrors */
-		list_iterate_items(lvl, &vg->lvs) {
+		list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 			mirrored_seg = first_seg(lvl->lv);
 			if (!seg_is_mirrored(mirrored_seg))
 				continue;
@@ -270,7 +274,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 			remove_log = 0;
 
 			for (s = 0; s < mirrored_seg->area_count; s++) {
-				list_iterate_items_safe(lvl2, lvlt, &lvs_changed) {
+				list_iterate_items_safe(lvl2, lvlt, struct lv_list, &lvs_changed) {
 					if (seg_type(mirrored_seg, s) != AREA_LV ||
 					    lvl2->lv != seg_lv(mirrored_seg, s))
 						continue;
@@ -283,7 +287,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 			}
 
 			if (mirrored_seg->log_lv) {
-				list_iterate_items(seg, &mirrored_seg->log_lv->segments) {
+				list_iterate_items(seg, struct lv_segment, &mirrored_seg->log_lv->segments) {
 					/* FIXME: The second test shouldn't be required */
 					if ((seg->segtype ==
 					     get_segtype_from_string(vg->cmd, "error"))) {
@@ -325,7 +329,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 
 		/* Deactivate error LVs */
 		if (!test_mode()) {
-			list_iterate_items_safe(lvl, lvlt, &lvs_changed) {
+			list_iterate_items_safe(lvl, lvlt, struct lv_list, &lvs_changed) {
 				log_verbose("Deactivating (if active) logical volume %s",
 					    lvl->lv->name);
 
@@ -344,7 +348,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 		}
 
 		/* Remove remaining LVs */
-		list_iterate_items(lvl, &lvs_changed) {
+		list_iterate_items(lvl, struct lv_list, &lvs_changed) {
 			log_verbose("Removing LV %s from VG %s", lvl->lv->name,
 				    lvl->lv->vg->name);
 				/* Skip LVs already removed by mirror code */
@@ -362,7 +366,7 @@ static int _make_vg_consistent(struct cmd_context *cmd, struct volume_group *vg)
 /* Or take pv_name instead? */
 static int _vgreduce_single(struct cmd_context *cmd, struct volume_group *vg,
 			    struct physical_volume *pv,
-			    void *handle __attribute((unused)))
+			    void *handle) // __attribute((unused)))
 {
 	struct pv_list *pvl;
 	const char *name = dev_name(pv_dev(pv));

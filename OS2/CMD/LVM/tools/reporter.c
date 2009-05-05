@@ -16,9 +16,10 @@
 #include "tools.h"
 #include "report.h"
 
-static int _vgs_single(struct cmd_context *cmd __attribute((unused)),
+static int _vgs_single(struct cmd_context *cmd, // __attribute((unused)),
 		       const char *vg_name, struct volume_group *vg,
-		       int consistent __attribute((unused)), void *handle)
+		       int consistent, // __attribute((unused)), 
+                       void *handle)
 {
 	if (!vg) {
 		log_error("Volume group %s not found", vg_name);
@@ -45,7 +46,7 @@ static int _lvs_single(struct cmd_context *cmd, struct logical_volume *lv,
 	return ECMD_PROCESSED;
 }
 
-static int _segs_single(struct cmd_context *cmd __attribute((unused)),
+static int _segs_single(struct cmd_context *cmd, // __attribute((unused)),
 			struct lv_segment *seg, void *handle)
 {
 	if (!report_object(handle, seg->lv->vg, seg->lv, NULL, seg, NULL))

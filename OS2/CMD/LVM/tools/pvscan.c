@@ -20,9 +20,9 @@ int vg_max_name_len = 0;
 
 static void _pvscan_display_single(struct cmd_context *cmd,
 				   struct physical_volume *pv,
-				   void *handle __attribute((unused)))
+				   void *handle) // __attribute((unused)))
 {
-	char uuid[64] __attribute((aligned(8)));
+	char uuid[64]; // __attribute((aligned(8)));
 	unsigned vg_name_len = 0;
 
 	char pv_tmp_name[NAME_LEN] = { 0, };
@@ -97,8 +97,8 @@ static void _pvscan_display_single(struct cmd_context *cmd,
 	return;
 }
 
-int pvscan(struct cmd_context *cmd, int argc __attribute((unused)),
-	   char **argv __attribute((unused)))
+int pvscan(struct cmd_context *cmd, int argc, // __attribute((unused)),
+	   char **argv)                       // __attribute((unused)))
 {
 	int new_pvs_found = 0;
 	int pvs_found = 0;
@@ -132,7 +132,7 @@ int pvscan(struct cmd_context *cmd, int argc __attribute((unused)),
 		return ECMD_FAILED;
 
 	/* eliminate exported/new if required */
-	list_iterate_items(pvl, pvslist) {
+	list_iterate_items(pvl, struct pv_list, pvslist) {
 		pv = pvl->pv;
 
 		if ((arg_count(cmd, exported_ARG)
@@ -164,7 +164,7 @@ int pvscan(struct cmd_context *cmd, int argc __attribute((unused)),
 
 	/* find maximum pv name length */
 	pv_max_name_len = vg_max_name_len = 0;
-	list_iterate_items(pvl, pvslist) {
+	list_iterate_items(pvl, struct pv_list, pvslist) {
 		pv = pvl->pv;
 		len = strlen(dev_name(pv_dev(pv)));
 		if (pv_max_name_len < len)
@@ -176,7 +176,7 @@ int pvscan(struct cmd_context *cmd, int argc __attribute((unused)),
 	pv_max_name_len += 2;
 	vg_max_name_len += 2;
 
-	list_iterate_items(pvl, pvslist)
+	list_iterate_items(pvl, struct pv_list, pvslist)
 	    _pvscan_display_single(cmd, pvl->pv, NULL);
 
 	if (!pvs_found) {

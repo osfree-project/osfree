@@ -18,7 +18,7 @@
 #include "xlate.h"
 
 #include <sys/stat.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 
 /* From linux/drivers/md/dm-log.c */
 #define MIRROR_MAGIC 0x4D695272
@@ -178,7 +178,7 @@ int process_each_lv_in_vg(struct cmd_context *cmd, struct volume_group *vg,
 		process_all = 1;
 	}
 
-	list_iterate_items(lvl, &vg->lvs) {
+	list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 		if (lvl->lv->status & SNAPSHOT)
 			continue;
 
@@ -339,7 +339,7 @@ int process_each_lv(struct cmd_context *cmd, int argc, char **argv,
 		}
 	}
 
-	list_iterate_items(strl, vgnames) {
+	list_iterate_items(strl, struct str_list, vgnames) {
 		vgname = strl->str;
 		if (!vgname || !*vgname)
 			continue;	/* FIXME Unnecessary? */
@@ -382,7 +382,7 @@ int process_each_lv(struct cmd_context *cmd, int argc, char **argv,
 
 		tags_arg = &tags;
 		list_init(&lvnames);	/* LVs to be processed in this VG */
-		list_iterate_items(sll, &arg_lvnames) {
+		list_iterate_items(sll, struct str_list, &arg_lvnames) {
 			const char *vg_name = sll->str;
 			const char *lv_name = strchr(vg_name, '/');
 
@@ -427,7 +427,7 @@ int process_each_segment_in_pv(struct cmd_context *cmd,
 	int ret_max = 0;
 	int ret;
 
-	list_iterate_items(pvseg, &pv->segments) {
+	list_iterate_items(pvseg, struct pv_segment, &pv->segments) {
 		ret = process_single(cmd, vg, pvseg, handle);
 		if (ret > ret_max)
 			ret_max = ret;
@@ -449,7 +449,7 @@ int process_each_segment_in_lv(struct cmd_context *cmd,
 	int ret_max = 0;
 	int ret;
 
-	list_iterate_items(seg, &lv->segments) {
+	list_iterate_items(seg, struct lv_segment, &lv->segments) {
 		ret = process_single(cmd, seg, handle);
 		if (ret > ret_max)
 			ret_max = ret;
@@ -573,7 +573,7 @@ int process_each_vg(struct cmd_context *cmd, int argc, char **argv,
 			log_error("No volume groups found");
 			return ret_max;
 		}
-		list_iterate_items(sl, vgids) {
+		list_iterate_items(sl, struct str_list, vgids) {
 			vgid = sl->str;
 			if (!vgid || !(vg_name = vgname_from_vgid(cmd->mem, vgid)) ||
 			    !*vg_name)
@@ -586,7 +586,7 @@ int process_each_vg(struct cmd_context *cmd, int argc, char **argv,
 				return ret_max;
 		}
 	} else {
-		list_iterate_items(sl, vgnames) {
+		list_iterate_items(sl, struct str_list,  vgnames) {
 			vg_name = sl->str;
 			if (!vg_name || !*vg_name)
 				continue;	/* FIXME Unnecessary? */
@@ -613,7 +613,7 @@ int process_each_pv_in_vg(struct cmd_context *cmd, struct volume_group *vg,
 	int ret = 0;
 	struct pv_list *pvl;
 
-	list_iterate_items(pvl, &vg->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 		if (tags && !list_empty(tags) &&
 		    !str_list_match_list(tags, &pvl->pv->tags)) {
 			continue;
@@ -737,7 +737,7 @@ int process_each_pv(struct cmd_context *cmd, int argc, char **argv,
 		}
 		if (!list_empty(&tags) && (vgnames = get_vgs(cmd, 0)) &&
 		    !list_empty(vgnames)) {
-			list_iterate_items(sll, vgnames) {
+			list_iterate_items(sll, struct str_list, vgnames) {
 				if (!(vg = vg_read(cmd, sll->str, NULL, &consistent))) {
 					log_error("Volume group \"%s\" not found", sll->str);
 					ret_max = ECMD_FAILED;
@@ -779,7 +779,7 @@ int process_each_pv(struct cmd_context *cmd, int argc, char **argv,
 			if (!(pvslist = get_pvs(cmd)))
 				return ECMD_FAILED;
 
-			list_iterate_items(pvl, pvslist) {
+			list_iterate_items(pvl, struct pv_list, pvslist) {
 				ret = process_single(cmd, NULL, pvl->pv,
 						     handle);
 				if (ret > ret_max)
@@ -889,7 +889,7 @@ static int _add_pe_range(struct dm_pool *mem, const char *pvname,
 		  " on %s", start, count, pvname);
 
 	/* Ensure no overlap with existing areas */
-	list_iterate_items(per, pe_ranges) {
+	list_iterate_items(per, struct pe_range, pe_ranges) {
 		if (((start < per->start) && (start + count - 1 >= per->start))
 		    || ((start >= per->start) &&
 			(per->start + per->count - 1) >= start)) {
@@ -1005,7 +1005,7 @@ static int _create_pv_entry(struct dm_pool *mem, struct pv_list *pvl,
 		return 1;
 	}
 
-	list_iterate_items(pvl2, r)
+	list_iterate_items(pvl2, struct pv_list, r)
 		if (pvl->pv->dev == pvl2->pv->dev) {
 			new_pvl = pvl2;
 			break;
@@ -1065,7 +1065,7 @@ struct list *create_pv_list(struct dm_pool *mem, struct volume_group *vg, int ar
 				log_error("Skipping invalid tag %s", tagname);
 				continue;
 			}
-			list_iterate_items(pvl, &vg->pvs) {
+			list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 				if (str_list_match_item(&pvl->pv->tags,
 							tagname)) {
 					if (!_create_pv_entry(mem, pvl, NULL,
@@ -1119,7 +1119,7 @@ struct list *clone_pv_list(struct dm_pool *mem, struct list *pvsl)
 	}
 	list_init(r);
 
-	list_iterate_items(pvl, pvsl) {
+	list_iterate_items(pvl, struct pv_list,  pvsl) {
 		if (!(new_pvl = dm_pool_zalloc(mem, sizeof(*new_pvl)))) {
 			log_error("Unable to allocate physical volume list.");
 			return NULL;
@@ -1201,7 +1201,7 @@ int validate_vg_name(struct cmd_context *cmd, const char *vg_name)
 	return 1;
 }
 
-int generate_log_name_format(struct volume_group *vg __attribute((unused)),
+int generate_log_name_format(struct volume_group *vg, // __attribute((unused)),
 			     const char *lv_name, char *buffer, size_t size)
 {
 	if (dm_snprintf(buffer, size, "%s_mlog", lv_name) < 0) {
@@ -1353,7 +1353,7 @@ struct logical_volume *create_mirror_log(struct cmd_context *cmd,
 	}
 
 	/* Temporary tag mirror log */
-	list_iterate_items(sl, tags)
+	list_iterate_items(sl, struct str_list, tags)
 		if (!str_list_add(cmd->mem, &log_lv->tags, sl->str)) {
 			log_error("Aborting. Unable to tag mirror log.");
 			goto error;
@@ -1384,7 +1384,7 @@ struct logical_volume *create_mirror_log(struct cmd_context *cmd,
 		goto error;
 	}
 
-	list_iterate_items(sl, tags)
+	list_iterate_items(sl, struct str_list, tags)
 		if (!str_list_del(&log_lv->tags, sl->str))
 			log_error("Failed to remove tag %s from mirror log.",
 				  sl->str);

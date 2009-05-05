@@ -148,7 +148,7 @@ static struct logical_volume *_set_up_pvmove_lv(struct cmd_context *cmd,
 	list_init(*lvs_changed);
 
 	/* Find segments to be moved and set up mirrors */
-	list_iterate_items(lvl, &vg->lvs) {
+	list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 		lv = lvl->lv;
 		if ((lv == lv_mirr) ||
 		    (lv_name && strcmp(lv->name, lv_name)))

@@ -17,7 +17,7 @@
 
 static int vgconvert_single(struct cmd_context *cmd, const char *vg_name,
 			    struct volume_group *vg, int consistent,
-			    void *handle __attribute((unused)))
+			    void *handle) // __attribute((unused)))
 {
 	struct physical_volume *pv, *existing_pv;
 	struct logical_volume *lv;
@@ -83,7 +83,7 @@ static int vgconvert_single(struct cmd_context *cmd, const char *vg_name,
 
 	/* Attempt to change any LVIDs that are too big */
 	if (cmd->fmt->features & FMT_RESTRICTED_LVIDS) {
-		list_iterate_items(lvl, &vg->lvs) {
+		list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 			lv = lvl->lv;
 			if (lv->status & SNAPSHOT)
 				continue;
@@ -104,7 +104,7 @@ static int vgconvert_single(struct cmd_context *cmd, const char *vg_name,
 	if (active)
 		return ECMD_FAILED;
 
-	list_iterate_items(pvl, &vg->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 		existing_pv = pvl->pv;
 
 		pe_start = pv_pe_start(existing_pv);

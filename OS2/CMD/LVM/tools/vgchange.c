@@ -24,7 +24,7 @@ static int _monitor_lvs_in_vg(struct cmd_context *cmd,
 	int lv_active;
 	int count = 0;
 
-	list_iterate_items(lvl, &vg->lvs) {
+	list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 		lv = lvl->lv;
 
 		if (!lv_info(cmd, lv, &info, 0))
@@ -59,7 +59,7 @@ static int _activate_lvs_in_vg(struct cmd_context *cmd,
 	const char *pvname;
 	int count = 0;
 
-	list_iterate_items(lvl, &vg->lvs) {
+	list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 		lv = lvl->lv;
 
 		/* Only request activation of snapshot origin devices */
@@ -256,7 +256,7 @@ static int _vgchange_clustered(struct cmd_context *cmd,
 	}
 
 	if (clustered) {
-        	list_iterate_items(lvl, &vg->lvs) {
+        	list_iterate_items(lvl, struct lv_list, &vg->lvs) {
                 	if (lv_is_origin(lvl->lv) || lv_is_cow(lvl->lv)) {
 				log_error("Volume group %s contains snapshots "
 					  "that are not yet supported.",
@@ -473,7 +473,7 @@ static int _vgchange_tag(struct cmd_context *cmd, struct volume_group *vg,
 	return ECMD_PROCESSED;
 }
 
-static int _vgchange_uuid(struct cmd_context *cmd __attribute((unused)),
+static int _vgchange_uuid(struct cmd_context *cmd, // __attribute((unused)),
 			  struct volume_group *vg)
 {
 	struct lv_list *lvl;
@@ -492,7 +492,7 @@ static int _vgchange_uuid(struct cmd_context *cmd __attribute((unused)),
 		return ECMD_FAILED;
 	}
 
-	list_iterate_items(lvl, &vg->lvs) {
+	list_iterate_items(lvl, struct lv_list, &vg->lvs) {
 		memcpy(&lvl->lv->lvid, &vg->id, sizeof(vg->id));
 	}
 
@@ -508,7 +508,7 @@ static int _vgchange_uuid(struct cmd_context *cmd __attribute((unused)),
 
 static int vgchange_single(struct cmd_context *cmd, const char *vg_name,
 			   struct volume_group *vg, int consistent,
-			   void *handle __attribute((unused)))
+			   void *handle) // __attribute((unused)))
 {
 	int r = ECMD_FAILED;
 

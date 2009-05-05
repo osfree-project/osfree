@@ -49,7 +49,7 @@ static int _lv_is_in_vg(struct volume_group *vg, struct logical_volume *lv)
 {
 	struct lv_list *lvl;
 
-	list_iterate_items(lvl, &vg->lvs)
+	list_iterate_items(lvl, struct lv_list, &vg->lvs)
 		if (lv == lvl->lv)
 			 return 1;
 
@@ -78,7 +78,7 @@ static int _move_lvs(struct volume_group *vg_from, struct volume_group *vg_to)
 		/* Ensure all the PVs used by this LV remain in the same */
 		/* VG as each other */
 		vg_with = NULL;
-		list_iterate_items(seg, &lv->segments) {
+		list_iterate_items(seg, struct lv_segment, &lv->segments) {
 			for (s = 0; s < seg->area_count; s++) {
 				/* FIXME Check AREA_LV too */
 				if (seg_type(seg, s) != AREA_PV)
@@ -142,7 +142,7 @@ static int _move_snapshots(struct volume_group *vg_from,
 		if (!(lv->status & SNAPSHOT))
 			continue;
 
-		list_iterate_items(seg, &lv->segments) {
+		list_iterate_items(seg, struct lv_segment, &lv->segments) {
 			cow_from = _lv_is_in_vg(vg_from, seg->cow);
 			origin_from = _lv_is_in_vg(vg_from, seg->origin);
 

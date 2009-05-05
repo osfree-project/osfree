@@ -17,7 +17,7 @@
 
 static int vgremove_single(struct cmd_context *cmd, const char *vg_name,
 			   struct volume_group *vg, int consistent,
-			   void *handle __attribute((unused)))
+			   void *handle) // __attribute((unused)))
 {
 	struct physical_volume *pv;
 	struct pv_list *pvl;
@@ -49,7 +49,7 @@ static int vgremove_single(struct cmd_context *cmd, const char *vg_name,
 	}
 
 	/* init physical volumes */
-	list_iterate_items(pvl, &vg->pvs) {
+	list_iterate_items(pvl, struct pv_list, &vg->pvs) {
 		pv = pvl->pv;
 		log_verbose("Removing physical volume \"%s\" from "
 			    "volume group \"%s\"", dev_name(pv_dev(pv)), vg_name);

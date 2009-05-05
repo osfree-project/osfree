@@ -16,7 +16,7 @@
 #include "tools.h"
 
 static int _pvdisplay_single(struct cmd_context *cmd,
-			     struct volume_group *vg __attribute((unused)),
+			     struct volume_group *vg, // __attribute((unused)),
 			     struct physical_volume *pv, void *handle)
 {
 	struct pv_list *pvl;

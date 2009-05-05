@@ -546,7 +546,7 @@ static int lvchange_tag(struct cmd_context *cmd, struct logical_volume *lv,
 }
 
 static int lvchange_single(struct cmd_context *cmd, struct logical_volume *lv,
-			   void *handle __attribute((unused)))
+			   void *handle) // __attribute((unused)))
 {
 	int doit = 0;
 	int archived = 0;

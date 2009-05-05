@@ -67,7 +67,7 @@ int vgrename(struct cmd_context *cmd, int argc, char **argv)
 		return ECMD_FAILED;
 	}
 
-	list_iterate_items(sl, vgids) {
+	list_iterate_items(sl, struct str_list, vgids) {
 		vgid = sl->str;
 		if (!vgid || !(vg_name = vgname_from_vgid(NULL, vgid)) || !*vg_name)
 			continue;
