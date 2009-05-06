@@ -21,7 +21,7 @@ p                = bt_
 e                =
 bbx              = $+$(kernels)$-
 
-linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)cmdline$(e) $(p)wrap$(e)
+linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) $(p)cmdline$(e) $(p)wrap$(e)
 
 chain_OBJS    = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                 $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
@@ -33,6 +33,8 @@ ufsd_OBJS     = $(p)ufsd$(e) $(p)ufsdc$(e)
 
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)
+
+ADD_COPT = -dOS2
 
 !     ifeq basename bt_linux
 #t = -c

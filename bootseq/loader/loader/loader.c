@@ -817,7 +817,7 @@ KernelLoader(void)
     //printf("&mbi=0x%x", m);
 
     //__asm {
-    //  cli
+    //  sti
     //  hlt
     //}
 
@@ -835,7 +835,7 @@ cmain(void)
 
   //printf("!!!\r\n");
   //__asm {
-  //  cli
+  //  sti
   //  hlt
   //}
 

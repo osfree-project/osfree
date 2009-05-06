@@ -32,6 +32,8 @@ public big_linux_boot
 public linux_boot
 public stop
 
+public outstr_
+
 _TEXT16  segment dword public 'CODE'  use16
 _TEXT16  ends
 _TEXT    segment dword public 'CODE'  use32
@@ -99,7 +101,7 @@ linux_setup_seg dw      0
         ;
 
 hard_stop:
-        cli
+        sti
         hlt
 
 stop_flop:
@@ -150,7 +152,7 @@ entry:
 
         ; copy realmode part of boot_linux at REAL_BASE
         cld
-        mov     ecx, 0x80
+        mov     ecx, 0x100
         mov     esi, KERN_BASE
         mov     edi, REAL_BASE
 
@@ -159,24 +161,48 @@ entry:
         call    cmain
 
         ; We should not return here
-        cli
+        sti
         hlt
 ;        jmp     $
 
 stop:
+        lea   eax, errmsg
+        call  outstr_
+
+        sti
+        hlt
+        jmp   $
+
+outstr_:
+        mov   esi, eax
         cld
-        lea   esi, errmsg
-        mov   edi, VIDEO_BUF
+        mov   edi, screenpos
+        ;mov   edi, VIDEO_BUF
         mov   ah, 02h  ; attribute
 loop1:
         lodsb          ; symbol
+
+        cmp  al, 0ah
+        jne  write
+
+        mov  eax, edi
+        sub  eax, VIDEO_BUF
+        mov  ebx, 80 * 2
+        div  bx
+        and  eax, 0ffffh      ; get remainder
+        sub  edi, eax
+        add  edi, ebx
+
+        mov  ah, 02h
+        lodsb
+write:
         stosw
         test  al, al   ; copy a string to video buffer
         jnz   loop1
 
-        cli
-        hlt
-;        jmp   $
+        mov   dword ptr ds:screenpos, edi
+
+        ret
 
 set_gdt:
         ; set 16-bit segment (_TEXT16) base
@@ -266,7 +292,7 @@ big_linux_boot:
         add     esp, 4
 
         ; we should not return here
-        cli
+        sti
         hlt
 
 ;
@@ -291,10 +317,14 @@ linux_text_len        dd  0
 linux_data_tmp_addr   dd  0
 linux_data_real_addr  dd  0
 
-errmsg  db  "This is not a multiboot loader or no LIP module!",0
+_TEXT    ends
 
+_DATA    segment dword public 'DATA'  use32
+
+screenpos  dd   VIDEO_BUF
+errmsg     db   "This is not a multiboot loader or no LIP module!",0
 oldgdtdesc gdtr <>
 
-_TEXT    ends
+_DATA    ends
 
          end entry

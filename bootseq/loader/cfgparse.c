@@ -50,7 +50,7 @@ void panic(char *msg, char *file)
   printf(file);
 
   __asm {
-    cli
+    sti
     hlt
   }
 }

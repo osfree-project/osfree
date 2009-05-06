@@ -38,10 +38,13 @@ grub_error_t errnum;
 lip2_t *l;
 struct term_entry *t;
 
+int printk(const char *fmt, ...);
+
 void init(void)
 {
 
 }
+
 
 int kernel_ldr(void)
 {
@@ -105,7 +108,7 @@ int kernel_ldr(void)
       if (! big_linux
           && text_len > linux_data_real_addr - (char *) LINUX_ZIMAGE_ADDR)
         {
-          grub_printf (" linux 'zImage' kernel too big, try 'make bzImage'\n");
+          printk (" linux 'zImage' kernel too big, try 'make bzImage'\n");
           errnum = ERR_WONT_FIT;
         }
       else if (linux_data_real_addr + LINUX_SETUP_MOVE_SIZE
@@ -113,9 +116,9 @@ int kernel_ldr(void)
         errnum = ERR_WONT_FIT;
       else
         {
-          grub_printf ("   [Linux-%s, setup=0x%x, size=0x%x]\r\n",
+          printk ("   [Linux-%s, setup=0x%x, size=0x%x]\n",
                        (big_linux ? "bzImage" : "zImage"), data_len, text_len);
-
+          
           /* Video mode selection support. What a mess!  */
           /* NOTE: Even the word "mess" is not still enough to
              represent how wrong and bad the Linux video support is,
@@ -347,7 +350,7 @@ int initrd_ldr(void)
   moveto -= 0x10000;
   memmove ((void *) RAW_ADDR (moveto), (void *) cur_addr, len);
 
-  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\r\n", moveto, len);
+  printk ("   [Linux-initrd @ 0x%x, 0x%x bytes]\n", moveto, len);
 
   /* FIXME: Should check if the kernel supports INITRD.  */
   lh->ramdisk_image = RAW_ADDR (moveto);
@@ -377,6 +380,8 @@ int loader(void)
   return 1;
 }
 
+/*
+
 int check_lip(char *mods_addr, unsigned long mods_count)
 {
   struct mod_list *mod;
@@ -392,7 +397,7 @@ int check_lip(char *mods_addr, unsigned long mods_count)
     if (*((unsigned long *)l) == LIP2_MAGIC)
     {
       t = l->u_termctl(-1);
-      printf("boot_linux started\r\n");
+      printk("boot_linux started\n");
       return 1;
     }
     else
@@ -401,6 +406,8 @@ int check_lip(char *mods_addr, unsigned long mods_count)
 
   return 0;
 }
+
+*/
 
 void cmain(void)
 {
@@ -419,14 +426,14 @@ void cmain(void)
   kernel_size = mod->mod_end - mod->mod_start;
   kernel_cmdline = (char *)mod->cmdline;
 
-  if (mods_count < 2)
+  if (mods_count < 1)
     stop();
   else
   {
-    if (!check_lip(mods_addr, mods_count))
-      stop();
+    //if (!check_lip(mods_addr, mods_count))
+    //  stop();
 
-    if (mods_count > 2)
+    if (mods_count > 1)
     {
       ++mod;
 
@@ -443,10 +450,10 @@ void cmain(void)
 
   if (loader())
   {
-    //printf("loader() finished\r\n");
+    //printk("loader() finished\n");
 
     //__asm {
-    //  cli
+    //  sti
     //  hlt
     //}
 
@@ -457,6 +464,6 @@ void cmain(void)
   }
   else
   {
-    printf("Error loading linux!\r\n");
+    printk("Error loading linux!\n");
   }
 }

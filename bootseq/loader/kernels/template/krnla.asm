@@ -90,7 +90,7 @@ base               dd      REAL_BASE
                    ;
 
 hard_stop:
-        cli
+        sti
         hlt
 
 stop_flop:
@@ -164,7 +164,7 @@ entry:
                    call    cmain                                     ; call 32-bit C entry point
 
                    ; We should not return here                       ;
-                   cli                                               ; hang
+                   sti                                               ; hang
                    hlt                                               ; machine
                    jmp     $                                         ;
 
@@ -179,7 +179,7 @@ loop1:
                    test    al, al   ; copy a string to video buffer
                    jnz     loop1
 
-                   cli                                               ;
+                   sti                                               ;
                    hlt                                               ; hang machine
                    jmp     $                                         ;
 
@@ -210,7 +210,7 @@ set_gdt:
 
 
                    ; we should not return here
-                   cli
+                   sti
                    hlt
 
                    ;

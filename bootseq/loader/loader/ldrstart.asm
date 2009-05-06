@@ -74,7 +74,7 @@ ok:
 
       call cmain
 
-      cli
+      sti
       hlt
       
       int 3
@@ -110,7 +110,7 @@ multi_boot_:
 
       call    dword ptr [ebp]
 
-      cli
+      sti
       hlt
 ;      jmp     $
 ;
@@ -127,7 +127,7 @@ loop1:
       test    al, al
       jnz     loop1    ; copy a string to video buffer
 
-      cli
+      sti
       hlt
 ;      jmp     $
 

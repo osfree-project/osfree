@@ -1461,24 +1461,24 @@ int init(void)
 
   __asm {
     /* move 16-bit stack to the place of former uFSD buffer */
-    std  // copy in backward direction
-    mov  esi, EXT_BUF_BASE - 4
-    mov  edi, EXT_BUF_BASE + EXT_LEN - 4
-    add  edi, relshift
-    mov  ecx, EXT_BUF_BASE
-    xor  eax, eax
-    mov  ax,  ds:[RMSTACK]      // 16-bit stack SP
-    add  eax, STAGE0_BASE       // base + SP == stack top phys address
+    //std  // copy in backward direction
+    //mov  esi, EXT_BUF_BASE - 4
+    //mov  edi, EXT_BUF_BASE + EXT_LEN - 4
+    //add  edi, relshift
+    //mov  ecx, EXT_BUF_BASE
+    //xor  eax, eax
+    //mov  ax,  ds:[RMSTACK]      // 16-bit stack SP
+    //add  eax, STAGE0_BASE       // base + SP == stack top phys address
     // now we got stack top phys address in EAX
-    sub  ecx, eax               // stack length in bytes
-    add  ecx, 3                 // round up to a multiple of 4
-    shr  ecx, 2                 // and / 4 to get size in 32-bit words
-    rep  movsd                  // move stack up
+    //sub  ecx, eax               // stack length in bytes
+    //add  ecx, 3                 // round up to a multiple of 4
+    //shr  ecx, 2                 // and / 4 to get size in 32-bit words
+    //rep  movsd                  // move stack up
     // adjust SP to EXT_LEN bytes
-    xor  eax, eax
-    mov  ax, ds:[RMSTACK]       // SP former value
-    add  ax, EXT_LEN
-    mov  ds:[RMSTACK], ax       // adjusted SP value
+    //xor  eax, eax
+    //mov  ax, ds:[RMSTACK]       // SP former value
+    //add  ax, EXT_LEN
+    //mov  ds:[RMSTACK], ax       // adjusted SP value
     // relocation shift
     mov  eax, relshift
     /* switch 32-bit stack to the place of relocation */
@@ -1611,12 +1611,12 @@ int init(void)
     rc = freeldr_read(buf, -1);
     if (!rc) {
       __asm {
-        cli
+        sti
         hlt
       }
     }
   } else __asm {
-    cli
+    sti
     hlt
   }
 

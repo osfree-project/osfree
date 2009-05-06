@@ -50,7 +50,7 @@ _TEXT16 segment dword public 'CODE' use16
 ifndef STAGE1_5
 
 hard_stop:
-        cli
+        sti
         hlt
 
 stop_flop:

@@ -537,7 +537,7 @@ ft2:    mov     dl, ah
         retf
 
 hard_stop:
-        cli
+        sti
         hlt
 
 stop_flop:
@@ -603,7 +603,7 @@ entry:
         call    cmain
 
         ; We should not return here
-        cli
+        sti
         hlt
 ;        jmp     $
 
@@ -625,7 +625,7 @@ loop1:
         test  al, al   ; copy a string to video buffer
         jnz   loop1
 
-        cli
+        sti
         hlt
 ;        jmp   $
 
@@ -686,7 +686,7 @@ start_kernel:
         ;ret
 
         ; we should not return here
-        cli
+        sti
         hlt
 
 ;

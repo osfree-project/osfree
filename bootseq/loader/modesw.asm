@@ -101,7 +101,8 @@ protmode:
         mov  fs, ax
         mov  gs, ax
 
-	mov  ax, PSEUDO_RM_SSEG
+	;mov  ax, PSEUDO_RM_SSEG
+        mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
         ; do a far call to a 32-bit segment
         push esi
@@ -134,7 +135,8 @@ realmode:
         mov  fs,  ax
         mov  gs,  ax
 
-	mov  eax, STAGE0_BASE
+	;mov  eax, STAGE0_BASE
+        mov  eax, base
 	shr  eax, 4 
         mov  ss,  ax
         ; Restore interrupts
@@ -168,7 +170,7 @@ rmode_switch proc far
         mov  fs, ax
         mov  gs, ax
 
-	mov  eax, STAGE0_BASE
+	mov  eax, base
 	shr  eax, 4
         mov  ss, ax
 
@@ -206,7 +208,8 @@ rmode1:
         mov  fs, ax
         mov  gs, ax
 
-	mov  ax, PSEUDO_RM_SSEG
+	;mov  ax, PSEUDO_RM_SSEG
+        mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
         ; do a far jump to load a
         ; protected mode 16-bit CS
@@ -299,9 +302,11 @@ endif
         mov  dword ptr ds:[PROTSTACK], eax
 
 	mov  ax, word ptr ds:[RMSTACK + 2]
+        ;mov  ax, PSEUDO_RM_DSEG
 	mov  ss, ax
 	xor  eax, eax
         mov  ax, word ptr ds:[RMSTACK]
+        ;mov  ax,  0e000h
         mov  esp, eax
 
         ; Set up selectors
@@ -343,11 +348,16 @@ endif
         mov  eax, esp
         mov  dword ptr ds:[PROTSTACK], eax
 
-	mov  ax, word ptr ds:[RMSTACK + 2]
-	mov  ss, ax
-	xor  eax, eax
-	mov  ax, word ptr ds:[RMSTACK]
-        mov  esp, eax
+;ifndef MB_KERN ; not in multiboot kernels
+;	mov  ax, word ptr ds:[RMSTACK + 2]
+;	mov  ss, ax
+;else
+        mov  ax, PSEUDO_RM_DSEG
+        mov  ss, ax
+ 
+;endif
+;        mov  esp, eax
+        mov  esp, 0e000h
 
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -372,10 +382,10 @@ endif
         mov  fs, ax
         mov  gs, ax
 
-	mov  ax, ss
-	mov  word ptr ds:[RMSTACK + 2], ax
-        mov  ax, sp
-        mov  word ptr ds:[RMSTACK], ax
+	;mov  ax, ss
+	;mov  word ptr ds:[RMSTACK + 2], ax
+        ;mov  ax, sp
+        ;mov  word ptr ds:[RMSTACK], ax
 
         mov  ax, PROT_MODE_DSEG
         mov  ss, ax
