@@ -26,6 +26,8 @@
 #include "activate.h"
 #include "pv_alloc.h"
 
+#include <libdevmapper.h>
+
 static const char *_striped_name(const struct lv_segment *seg)
 {
 	return (seg->area_count == 1) ? "linear" : seg->segtype->name;

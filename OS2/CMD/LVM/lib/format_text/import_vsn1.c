@@ -24,6 +24,8 @@
 #include "segtype.h"
 #include "text_import.h"
 
+#include <libdevmapper.h>
+
 typedef int (*section_fn) (struct format_instance * fid, struct dm_pool * mem,
 			   struct volume_group * vg, struct config_node * pvn,
 			   struct config_node * vgn,

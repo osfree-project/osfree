@@ -20,6 +20,8 @@
 #include "lvm-file.h"
 #include "memlock.h"
 
+#include "libdevmapper.h"
+
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -46,7 +48,7 @@ static int _mk_dir(const char *dev_dir, const char *vg_name)
                 return 1;
 
         log_very_verbose("Creating directory %s", vg_path);
-        if (mkdir(vg_path, 0777)) {
+        if (mkdir(vg_path)) { //, 0777)) {
                 log_sys_error("mkdir", vg_path);
                 return 0;
         }

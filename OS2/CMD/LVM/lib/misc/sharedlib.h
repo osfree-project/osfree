@@ -17,7 +17,7 @@
 #define _LVM_SHAREDLIB_H
 
 #include "config.h"
-#include <dlfcn.h>
+//#include <dlfcn.h>
 
 void get_shared_library_path(struct cmd_context *cmd, const char *libname,
 			     char *path, size_t path_len);

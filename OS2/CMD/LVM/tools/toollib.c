@@ -18,7 +18,12 @@
 #include "xlate.h"
 
 #include <sys/stat.h>
-//#include <sys/wait.h>
+
+#ifdef __WATCOMC__
+#include <malloc.h>
+#else
+#include <sys/wait.h>
+#endif
 
 /* From linux/drivers/md/dm-log.c */
 #define MIRROR_MAGIC 0x4D695272

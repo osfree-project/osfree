@@ -20,6 +20,8 @@
 #include "display.h"
 #include "segtype.h"
 
+#include <libdevmapper.h>
+
 /*
  * After much thought I have decided it is easier,
  * and probably no less efficient, to convert the

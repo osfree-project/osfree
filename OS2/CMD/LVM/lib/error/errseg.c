@@ -25,6 +25,8 @@
 #include "activate.h"
 #include "str_list.h"
 
+#include <libdevmapper.h>
+
 static const char *_errseg_name(const struct lv_segment *seg)
 {
 	return seg->segtype->name;

@@ -22,6 +22,8 @@
 
 #include "disk_rep.h"
 
+#include <libdevmapper.h>
+
 /* FIXME: memcpy might not be portable */
 #define CPIN_8(x, y, z) {memcpy((x), (y), (z));}
 #define CPOUT_8(x, y, z) {memcpy((y), (x), (z));}

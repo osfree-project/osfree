@@ -11,9 +11,9 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)datastruct -i=$(MYDIR)..$(SEP)misc -i=$(MYDIR)..$(
            -i=$(MYDIR)..$(SEP)display -i=$(MYDIR)..$(SEP)activate -i=$(MYDIR)..$(SEP)activate -i=$(MYDIR)..$(SEP)mm &
            -i=$(MYDIR)..$(SEP)locking -i=$(MYDIR)..$(SEP)cache -i=$(MYDIR)..$(SEP)label -i=$(MYDIR)..$(SEP)filters &
            -i=$(MYDIR)..$(SEP)format_text -i=$(MYDIR)..$(SEP)format_pool -i=$(MYDIR)..$(SEP)format1 -i=$(MYDIR)..$(SEP)activate &
-           -bd
+           -i=$(MYDIR)..$(SEP)..$(SEP)devmapper$(SEP)lib -bd
 TARGETS  = $(PATH)$(PROJ).lib
-DEST =
+DEST = none
 
 !include $(%ROOT)/mk/libsos2.mk
 

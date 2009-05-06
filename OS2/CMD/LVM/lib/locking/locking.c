@@ -39,7 +39,7 @@ static volatile sig_atomic_t _handler_installed;
 static struct sigaction _oldhandler;
 static int _oldmasked;
 
-static void _catch_sigint(int unused __attribute__((unused)))
+static void _catch_sigint(int unused) // __attribute__((unused)))
 {
 	_sigint_caught = 1;
 }
@@ -118,7 +118,7 @@ void sigint_restore(void)
 	sigaction(SIGINT, &_oldhandler, NULL);
 }
 
-static void _block_signals(int flags __attribute((unused)))
+static void _block_signals(int flags) // __attribute((unused)))
 {
 	sigset_t set;
 
@@ -333,7 +333,7 @@ static int _lock_vol(struct cmd_context *cmd, const char *resource, int flags)
 
 int lock_vol(struct cmd_context *cmd, const char *vol, int flags)
 {
-	char resource[258] __attribute((aligned(8)));
+	char resource[258]; // __attribute((aligned(8)));
 
 	switch (flags & LCK_SCOPE_MASK) {
 	case LCK_VG:

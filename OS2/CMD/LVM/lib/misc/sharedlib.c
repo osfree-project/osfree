@@ -19,9 +19,14 @@
 #include "sharedlib.h"
 #include "toolcontext.h"
 
+#include "libdevmapper.h"
+
 #include <limits.h>
 #include <sys/stat.h>
+
+#ifndef __WATCOMC__
 #include <dlfcn.h>
+#endif
 
 void get_shared_library_path(struct cmd_context *cmd, const char *libname,
 			     char *path, size_t path_len)

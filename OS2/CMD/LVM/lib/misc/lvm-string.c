@@ -16,6 +16,8 @@
 #include "lib.h"
 #include "lvm-string.h"
 
+#include "libdevmapper.h"
+
 #include <ctype.h>
 
 int emit_to_buffer(char **buffer, size_t *size, const char *fmt, ...)

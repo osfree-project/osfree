@@ -29,6 +29,12 @@
 #include "porting.h"
 #endif
 
+#ifdef __WATCOMC__
+#include <malloc.h>
+#endif
+
+#include <libdevmapper.h>
+
 #include <stddef.h>
 #include <sys/socket.h>
 #include <sys/un.h>

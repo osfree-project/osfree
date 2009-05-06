@@ -19,6 +19,8 @@
 #include "str_list.h"
 #include "lvm-string.h"
 
+#include <libdevmapper.h>
+
 int print_tags(struct list *tags, char *buffer, size_t size)
 {
 	struct str_list *sl;

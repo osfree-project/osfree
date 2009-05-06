@@ -22,10 +22,18 @@
 #include "lvm-file.h"
 #include "toolcontext.h"
 
-#include <dirent.h>
+#include <libdevmapper.h>
+
 #include <unistd.h>
 #include <sys/stat.h>
+
+#ifdef __WATCOMC__
+#include <direct.h>
+#else
+#include <dirent.h>
 #include <sys/file.h>
+#endif
+
 #include <fcntl.h>
 #include <time.h>
 

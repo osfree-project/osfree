@@ -16,6 +16,8 @@
 #include "lib.h"
 #include "btree.h"
 
+#include "libdevmapper.h"
+
 struct node {
 	uint32_t key;
 	struct node *l, *r, *p;

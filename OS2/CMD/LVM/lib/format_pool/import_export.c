@@ -25,6 +25,8 @@
 #include "display.h"
 #include "segtype.h"
 
+#include <libdevmapper.h>
+
 /* This file contains only imports at the moment... */
 
 int import_pool_vg(struct volume_group *vg, struct dm_pool *mem, struct list *pls)

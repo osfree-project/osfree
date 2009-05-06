@@ -20,6 +20,8 @@
 #include "disk_rep.h"
 #include "pool_label.h"
 
+#include <libdevmapper.h>
+
 #include <sys/stat.h>
 #include <fcntl.h>
 

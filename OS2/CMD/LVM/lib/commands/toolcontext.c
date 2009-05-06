@@ -37,6 +37,8 @@
 #include "dev-cache.h"
 #include "archiver.h"
 
+#include "libdevmapper.h"
+
 #ifdef HAVE_LIBDL
 #include "sharedlib.h"
 #endif

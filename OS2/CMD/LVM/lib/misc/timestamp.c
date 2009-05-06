@@ -21,6 +21,8 @@
 #include "lib.h"
 #include <stdlib.h>
 
+#include "libdevmapper.h"
+
 #include "timestamp.h"
 
 /*

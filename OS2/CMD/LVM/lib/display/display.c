@@ -20,6 +20,8 @@
 #include "toolcontext.h"
 #include "segtype.h"
 
+#include <libdevmapper.h>
+
 #define SIZE_BUF 128
 
 typedef enum { SIZE_LONG = 0, SIZE_SHORT = 1, SIZE_UNIT = 2 } size_len_t;

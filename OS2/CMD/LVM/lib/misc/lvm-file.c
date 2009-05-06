@@ -19,9 +19,14 @@
 
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/file.h>
 #include <fcntl.h>
+
+#ifdef __WATCOMC__
+#include <direct.h>
+#else
+#include <sys/file.h>
 #include <dirent.h>
+#endif
 
 /*
  * Creates a temporary filename, and opens a descriptor to the
@@ -151,7 +156,7 @@ static int _create_dir_recursive(const char *dir)
 	while ((s = strchr(s, '/')) != NULL) {
 		*s = '\0';
 		if (*orig) {
-			rc = mkdir(orig, 0777);
+			rc = mkdir(orig); //, 0777);
 			if (rc < 0 && errno != EEXIST) {
 				if (errno != EROFS)
 					log_sys_error("mkdir", orig);
@@ -164,7 +169,7 @@ static int _create_dir_recursive(const char *dir)
 	dm_free(orig);
 
 	/* Create final directory */
-	rc = mkdir(dir, 0777);
+	rc = mkdir(dir); //, 0777);
 	if (rc < 0 && errno != EEXIST) {
 		if (errno != EROFS)
 			log_sys_error("mkdir", dir);

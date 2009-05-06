@@ -23,6 +23,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <libdevmapper.h>
+
+#ifdef __WATCOMC__
+#include <malloc.h>
+#endif
+
 struct pfilter {
 	char *file;
 	struct dm_hash_table *devices;

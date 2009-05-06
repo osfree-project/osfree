@@ -24,6 +24,8 @@
 #include "display.h"
 #include "segtype.h"
 
+#include <libdevmapper.h>
+
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
@@ -418,7 +420,7 @@ struct alloc_handle {
         struct list *parallel_areas;    /* PVs to avoid */
 
         struct alloced_area log_area;   /* Extent used for log */
-        struct list alloced_areas[1] //[0];   /* Lists of areas in each stripe */
+        struct list alloced_areas[1]; //[0];   /* Lists of areas in each stripe */
 };
 
 static uint32_t calc_area_multiple(const struct segment_type *segtype,

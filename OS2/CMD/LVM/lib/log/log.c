@@ -19,6 +19,8 @@
 #include "lvm-string.h"
 #include "defaults.h"
 
+#include <libdevmapper.h>
+
 #include <stdarg.h>
 
 #ifdef HAVE_SYSLOG_H

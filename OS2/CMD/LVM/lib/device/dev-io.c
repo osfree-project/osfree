@@ -21,11 +21,18 @@
 #include "memlock.h"
 #include "locking.h"
 
+#include "libdevmapper.h"
+
 #include <limits.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+
+#ifdef __WATCOMC__
+#include <io.h>
+#include <malloc.h>
+#endif
 
 #ifdef linux
 #  define u64 uint64_t		/* Missing without __KERNEL__ */
@@ -57,7 +64,7 @@ static LIST_INIT(_open_devices);
  * The standard io loop that keeps submitting an io until it's
  * all gone.
  *---------------------------------------------------------------*/
-static int _io(struct device_area *where, void *buffer, int should_write)
+static int _io(struct device_area *where, char *buffer, int should_write)
 {
 	int fd = dev_fd(where->dev);
 	ssize_t n = 0;
@@ -161,7 +168,7 @@ static void _widen_region(unsigned int block_size, struct device_area *region,
 		result->size += block_size - delta;
 }
 
-static int _aligned_io(struct device_area *where, void *buffer,
+static int _aligned_io(struct device_area *where, char *buffer,
 		       int should_write)
 {
 	void *bounce;
@@ -475,7 +482,7 @@ int dev_test_excl(struct device *dev)
 	return r;
 }
 
-static void _close(struct device *dev)
+static void __close(struct device *dev)
 {
 	if (close(dev->fd))
 		log_sys_error("close", dev_name(dev));
@@ -521,7 +528,7 @@ static int _dev_close(struct device *dev, int immediate)
 	     (!(info = info_from_pvid(dev->pvid)) ||
 	      !info->vginfo ||
 	      !vgname_is_locked(info->vginfo->vgname))))
-		_close(dev);
+		__close(dev);
 
 	return 1;
 }
@@ -544,7 +551,7 @@ void dev_close_all(void)
 	list_iterate_safe(doh, doht, &_open_devices) {
 		dev = list_struct_base(doh, struct device, open_list);
 		if (dev->open_count < 1)
-			_close(dev);
+			__close(dev);
 	}
 }
 

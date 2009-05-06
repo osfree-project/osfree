@@ -23,6 +23,8 @@
 #include "memlock.h"
 #include "str_list.h"
 
+#include "libdevmapper.h"
+
 static struct dm_hash_table *_pvid_hash = NULL;
 static struct dm_hash_table *_vgid_hash = NULL;
 static struct dm_hash_table *_vgname_hash = NULL;

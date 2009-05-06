@@ -21,6 +21,8 @@
 #include "lvmcache.h"
 #include "toolcontext.h"
 
+#include <libdevmapper.h>
+
 #include <unistd.h>
 
 struct archive_params {

@@ -16,6 +16,8 @@
 #include "lib.h"
 #include "str_list.h"
 
+#include "libdevmapper.h"
+
 struct list *str_list_create(struct dm_pool *mem)
 {
         struct list *sl;

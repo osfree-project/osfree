@@ -19,6 +19,8 @@
 #include "filter.h"
 #include "lvmcache.h"
 
+#include <libdevmapper.h>
+
 #include <fcntl.h>
 
 #define fail do {stack; return 0;} while(0)

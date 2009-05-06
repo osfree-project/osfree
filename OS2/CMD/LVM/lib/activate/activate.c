@@ -29,6 +29,8 @@
 #include "filter.h"
 #include "segtype.h"
 
+#include "libdevmapper.h"
+
 #include <limits.h>
 #include <fcntl.h>
 #include <unistd.h>

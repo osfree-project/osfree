@@ -18,6 +18,8 @@
 #include "pv_alloc.h"
 #include "toolcontext.h"
 
+#include <libdevmapper.h>
+
 static struct pv_segment *_alloc_pv_segment(struct dm_pool *mem,
                                             struct physical_volume *pv,
                                             uint32_t pe, uint32_t len,

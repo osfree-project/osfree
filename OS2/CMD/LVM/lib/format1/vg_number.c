@@ -16,6 +16,8 @@
 #include "lib.h"
 #include "disk-rep.h"
 
+#include <libdevmapper.h>
+
 /*
  * FIXME: Quick hack.  We can use caching to
  * prevent a total re-read, even so vg_number

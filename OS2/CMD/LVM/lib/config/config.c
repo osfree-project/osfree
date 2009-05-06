@@ -21,6 +21,8 @@
 #include "toolcontext.h"
 #include "lvm-string.h"
 
+#include "libdevmapper.h"
+
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>

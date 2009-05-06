@@ -21,6 +21,8 @@
 #include "segtype.h"
 #include "text_export.h"
 
+#include <libdevmapper.h>
+
 #include <stdarg.h>
 #include <time.h>
 #include <sys/utsname.h>

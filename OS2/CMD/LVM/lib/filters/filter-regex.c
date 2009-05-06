@@ -17,6 +17,8 @@
 #include "filter-regex.h"
 #include "device.h"
 
+#include <libdevmapper.h>
+
 struct rfilter {
 	struct dm_pool *mem;
 	dm_bitset_t accept;
@@ -153,7 +155,7 @@ static int _accept_p(struct dev_filter *f, struct device *dev)
 	struct rfilter *rf = (struct rfilter *) f->private;
 	struct str_list *sl;
 
-	list_iterate_items(sl, &dev->aliases) {
+	list_iterate_items(sl, struct str_list, &dev->aliases) {
 		m = dm_regex_match(rf->engine, sl->str);
 
 		if (m >= 0) {

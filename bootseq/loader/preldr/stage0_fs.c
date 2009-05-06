@@ -1024,7 +1024,7 @@ int process_cfg_line1(char *line)
    }
    else if (!grub_strcmp(section, "extloader"))
    {
-     /* [loader] section */
+     /* [extloader] section */
      if (abbrev(line, "name", 4)) {
        line = strip(skip_to(1, line));
        grub_strncpy(conf.extloader.name, line, sizeof(conf.extloader.name));
@@ -1419,7 +1419,7 @@ int init(void)
       grub_strcpy(conf.loader.name, "/os2ldr\0");
   }
 
-  if (conf.extloader.name)
+  if (*conf.extloader.name)
     freeldr_open(conf.extloader.name);
   else
     freeldr_open(conf.loader.name);
@@ -1439,7 +1439,7 @@ int init(void)
      44544 bytes, 44544 >> 12 == 0xa      */
   if (k == 0x57) i++; // one page more
 
-  if (!conf.multiboot || conf.extloader.name) // os2ldr
+  if (!conf.multiboot || *conf.extloader.name) // os2ldr
     ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
   else                 // multiboot loader
     ldrbase =  mem_lower << KSHIFT;

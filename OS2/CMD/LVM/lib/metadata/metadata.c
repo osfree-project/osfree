@@ -26,6 +26,8 @@
 #include "display.h"
 #include "locking.h"
 
+#include <libdevmapper.h>
+
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #ifndef MAX

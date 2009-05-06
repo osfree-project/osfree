@@ -24,6 +24,8 @@
 #include "lvm-string.h"
 #include "activate.h"
 
+#include <libdevmapper.h>
+
 static const char *_zero_name(const struct lv_segment *seg)
 {
         return seg->segtype->name;

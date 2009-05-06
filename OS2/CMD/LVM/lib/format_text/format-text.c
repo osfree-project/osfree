@@ -30,14 +30,22 @@
 #include "memlock.h"
 #include "lvmcache.h"
 
+#include <libdevmapper.h>
+
 #ifdef __OS2__
 #include "porting.h"
 #endif
 
 #include <unistd.h>
-#include <sys/file.h>
 #include <limits.h>
+
+#ifdef __WATCOMC__
+#include <direct.h>
+#else
 #include <dirent.h>
+#include <sys/file.h>
+#endif
+
 #include <ctype.h>
 
 #define FMT_TEXT_NAME "lvm2"
@@ -1251,7 +1259,7 @@ static int _mda_setup(const struct format_type *fmt,
 
                 if (!dev_set((struct device *) pv->dev, start1,
                              (size_t) (mda_size1 >
-                                       wipe_size ? : mda_size1), 0)) {
+                                       wipe_size ? wipe_size : mda_size1), 0)) {
                         log_error("Failed to wipe new metadata area");
                         return 0;
                 }
@@ -1296,7 +1304,7 @@ static int _mda_setup(const struct format_type *fmt,
                              mda_size2)) return 0;
                 if (!dev_set(pv->dev, start2,
                              (size_t) (mda_size1 >
-                                       wipe_size ? : mda_size1), 0)) {
+                                       wipe_size ? wipe_size : mda_size1), 0)) {
                         log_error("Failed to wipe new metadata area");
                         return 0;
                 }
@@ -1315,7 +1323,7 @@ static int _text_pv_write(const struct format_type *fmt, struct physical_volume 
         struct lvmcache_info *info;
         struct mda_context *mdac;
         struct metadata_area *mda;
-        char buf[MDA_HEADER_SIZE] __attribute((aligned(8)));
+        char buf[MDA_HEADER_SIZE]; // __attribute((aligned(8)));
         struct mda_header *mdah = (struct mda_header *) buf;
         uint64_t adjustment;
 
@@ -1521,7 +1529,7 @@ static int _text_pv_read(const struct format_type *fmt, const char *pv_name,
         return 1;
 }
 
-static void _text_destroy_instance(struct format_instance *fid __attribute((unused)))
+static void _text_destroy_instance(struct format_instance *fid) // __attribute((unused)))
 {
         return;
 }
@@ -1904,6 +1912,7 @@ static int _add_dir(const char *dir, struct list *dir_list)
 static int _get_config_disk_area(struct cmd_context *cmd,
                                  struct config_node *cn, struct list *raw_list)
 {
+        char buffer[64]; // __attribute((aligned(8)));
         struct device_area dev_area;
         char *id_str;
         struct id id;
@@ -1940,7 +1949,7 @@ static int _get_config_disk_area(struct cmd_context *cmd,
         }
 
         if (!(dev_area.dev = device_from_pvid(cmd, &id))) {
-                char buffer[64] __attribute((aligned(8)));
+                //char buffer[64] __attribute((aligned(8)));
 
                 if (!id_write_format(&id, buffer, sizeof(buffer)))
                         log_err("Couldn't find device.");

@@ -20,6 +20,8 @@
 #include "xlate.h"
 #include "lvmcache.h"
 
+#include <libdevmapper.h>
+
 #include <sys/stat.h>
 #include <fcntl.h>
 

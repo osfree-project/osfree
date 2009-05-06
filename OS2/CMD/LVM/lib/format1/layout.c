@@ -16,6 +16,8 @@
 #include "lib.h"
 #include "disk-rep.h"
 
+#include <libdevmapper.h>
+
 /*
  * Only works with powers of 2.
  */

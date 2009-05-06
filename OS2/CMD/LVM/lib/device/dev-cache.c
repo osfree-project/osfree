@@ -21,9 +21,16 @@
 #include "filter-persistent.h"
 #include "toolcontext.h"
 
+#include "libdevmapper.h"
+
 #include <unistd.h>
 #include <sys/param.h>
+
+#ifdef __WATCOMC__
+#include <direct.h>
+#else
 #include <dirent.h>
+#endif
 
 struct dev_iter {
 	struct btree_iter *current;
@@ -32,7 +39,7 @@ struct dev_iter {
 
 struct dir_list {
 	struct list list;
-	char dir[0];
+	char dir[1];
 };
 
 static struct {

@@ -12,7 +12,7 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)datastruct -i=$(MYDIR)..$(SEP)misc -i=$(MYDIR)..$(
            -i=$(MYDIR)..$(SEP)locking -i=$(MYDIR)..$(SEP)cache -i=$(MYDIR)..$(SEP)label -i=$(MYDIR)..$(SEP)filters &
            -i=$(MYDIR)..$(SEP)activate -bd
 TARGETS  = $(PATH)$(PROJ).lib
-DEST =
+DEST = none
 
 !include $(%ROOT)/mk/libsos2.mk
 

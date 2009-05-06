@@ -24,6 +24,8 @@
 #include "format_pool.h"
 #include "pool_label.h"
 
+#include <libdevmapper.h>
+
 #define FMT_POOL_NAME "pool"
 
 /* Must be called after pvs are imported */

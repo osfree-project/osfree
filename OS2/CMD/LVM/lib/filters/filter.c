@@ -21,7 +21,14 @@
 #include "metadata.h"
 #include "activate.h"
 
+#include <libdevmapper.h>
+
+#ifdef __WATCOMC__
+#include <direct.h>
+#else
 #include <dirent.h>
+#endif
+
 #include <unistd.h>
 #include <ctype.h>
 #include <fcntl.h>

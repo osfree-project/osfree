@@ -329,10 +329,11 @@ nofix_hiddensecs:
         mov  dl, [bp].drive
         mov  byte ptr [si].bpb.disk_num, dl
 
-        mov  bl, [bp].part
-        inc  bl
-        inc  bl
-        or   bl, 80h
+        ;mov  bl, [bp].part
+        ;inc  bl
+        ;inc  bl
+        ;or   bl, 80h
+        mov  bl, 81h
         mov  [si].bpb.log_drive, bl
 
         ;mov  eax, dword ptr [bp].drive

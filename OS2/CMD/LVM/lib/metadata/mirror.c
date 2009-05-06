@@ -24,6 +24,8 @@
 #include "str_list.h"
 #include "locking.h"    /* FIXME Should not be used in this file */
 
+#include <libdevmapper.h>
+
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif

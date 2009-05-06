@@ -24,6 +24,8 @@
 #include "str_list.h"
 #include "lvmcache.h"
 
+#include <libdevmapper.h>
+
 struct lvm_report_object {
         struct volume_group *vg;
         struct logical_volume *lv;

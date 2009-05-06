@@ -27,8 +27,15 @@
 #include "filter.h"
 #include "activate.h"
 
+#include "libdevmapper.h"
+
 #include <limits.h>
+
+#ifdef __WATCOMC__
+#include <direct.h>
+#else
 #include <dirent.h>
+#endif
 
 #define MAX_TARGET_PARAMSIZE 50000
 #define UUID_PREFIX "LVM-"
@@ -287,7 +294,7 @@ static int _status_run(const char *name, const char *uuid,
 static int _status(const char *name, const char *uuid,
                    unsigned long long *start, unsigned long long *length,
                    char **type, uint32_t type_size, char **params,
-                   uint32_t param_size) __attribute__ ((unused));
+                   uint32_t param_size); // __attribute__ ((unused));
 
 static int _status(const char *name, const char *uuid,
                    unsigned long long *start, unsigned long long *length,
@@ -825,7 +832,7 @@ static int _add_segment_to_dtree(struct dev_manager *dm,
         struct lv_segment *seg_present;
 
         /* Ensure required device-mapper targets are loaded */
-        seg_present = find_cow(seg->lv) ? : seg;
+        seg_present = find_cow(seg->lv) ? find_cow(seg->lv) : seg;
 
         log_debug("Checking kernel supports %s segment type for %s%s%s",
                   seg_present->segtype->name, seg->lv->name,
@@ -1147,7 +1154,7 @@ int dev_manager_device_uses_vg(struct device *dev,
 {
         struct dm_tree *dtree;
         struct dm_tree_node *root;
-        char dlid[sizeof(UUID_PREFIX) + sizeof(struct id) - 1] __attribute((aligned(8)));
+        char dlid[sizeof(UUID_PREFIX) + sizeof(struct id) - 1]; // __attribute((aligned(8)));
         int r = 1;
 
         if (!(dtree = dm_tree_create())) {

@@ -13,7 +13,7 @@ ADD_COPT = -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
            -i=$(MYDIR)..$(SEP)locking -i=$(MYDIR)..$(SEP)cache -i=$(MYDIR)..$(SEP)label -i=$(MYDIR)..$(SEP)filters &
            -i=$(MYDIR)..$(SEP)activate -bd
 TARGETS  = $(PATH)$(PROJ).lib
-DEST =
+DEST = none
 
 !include $(%ROOT)/mk/libsos2.mk
 

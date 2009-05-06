@@ -23,6 +23,8 @@
 #include "format1.h"
 #include "segtype.h"
 
+#include <libdevmapper.h>
+
 #define FMT_LVM1_NAME "lvm1"
 
 /* VG consistency checks */

@@ -27,6 +27,8 @@
 #include "porting.h"
 #endif
 
+#include <libdevmapper.h>
+
 #include <unistd.h>
 
 /* FIXME Allow for larger labels?  Restricted to single sector currently */

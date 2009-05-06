@@ -26,6 +26,8 @@
 #include "pv_alloc.h"
 #include "display.h"
 
+#include <libdevmapper.h>
+
 #include <time.h>
 
 static int _check_vg_name(const char *name)
