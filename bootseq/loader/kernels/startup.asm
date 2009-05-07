@@ -64,9 +64,8 @@ start:
 
                    ; emulate 32-bit call instruction
                    ; to 32-bit entry point
-                   ;db   0e8h
-                   ;dd   offset _TEXT:entry - 5
-                   jmp     real_start
+                   db   0e8h
+                   dd   offset _TEXT:entry - 5
 
                    org     start + 10h
 
@@ -109,92 +108,7 @@ _mbhdr          multiboot_header  <_magic,_flags,_checksum,__mbhdr,__start,__exe
 
                    org     start + 100h
 real_start:
-                   ; set up initial stack
-                   mov     ax, 4000h
-
-                   cli
-                   mov     ss, ax
-                   mov     sp, 0ffffh
-                   sti
-
-                   push    ds
-                   push    es
-                   push    si
-                   push    di
-                   push    dx
-
-                   mov     ax, 1000h
-                   mov     cs, ax
-                   mov     ds, ax
-
-                   ; We're started at the address 0x10000 like standard os2ldr
-                   ; copy startup at 0x90000
-                   push    ds
-                   push    es
-
-                   cld
-
-                   mov     ax, 1000h
-                   mov     ds, ax
-
-                   mov     ax, 9000h
-                   mov     es, ax
-
-                   xor     si, si
-                   xor     di, di
-
-                   lea     bx, sizes
-                   mov     cx, [bx].startup_size
-
-                   rep     movsb
-
-                   pop     es
-                   pop     ds
-
-                   ; jump to the address of relocation
-                   push    ax
-                   push    reloc
-                   retf
-reloc:
-                   mov     ax, cs
-                   mov     ds, ax
-                   mov     es, ax
-
-                   ; copy os2ldr at 1000h
-                   cld
-
-                   mov     ax, 1000h
-                   mov     es, ax
-
-                   lea     bx, sizes
-                   shl     eax, 4
-                   add     eax, [bx].startup_size
-                   add     eax, [bx].microfsd_size
-                   add     eax, [bx].minifsd_size
-                   mov     ecx, [bx].os2ldr_size
-                   mov     edx, eax
-                   and     edx, 0fh
-                   shr     eax, 4
-
-                   mov     ds, ax
-                   mov     si, dx
-                   xor     di, di
-
-                   add     ecx, 3
-                   shr     ecx, 2
-
-                   rep     movsd
-
-                   pop     dx
-                   pop     di
-                   pop     si
-                   pop     es
-                   pop     ds
-
-                   ; pass control to os2ldr
-                   push    1000h
-                   push    0
-                   retf
+                   
 _TEXT16  ends
 
 _TEXT    segment dword public 'CODE'  use32
@@ -207,6 +121,15 @@ entry0:
                    ; 32-bit entry point. Invokes by multiboot
                    ; loader from multiboot header
                    ;
+
+
+ufsd_start:
+; here uFSD image begins
+include ufsd.inc
+; here it ends
+; its size
+ufsd_size          dd $ - ufsd_start
+
 entry:
                    cmp   eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
                    jne   stop                                        ; is present in eax
@@ -219,15 +142,10 @@ entry:
 
                    ; copy bt_os2 parts at REAL_BASE (below 1 Mb)
                    cld                                               ; move forward
-                   mov     esi, KERN_BASE                            ; begin of startup
-                   mov     edx, offset _TEXT16:sizes                 ;
-                   add     edx, esi
-                   add     esi, [edx]                                ; got copied part start address
-                   mov     ecx, [edx].microfsd_size                  ; 16-bit part size
-                   add     ecx, [edx].minifsd_size                   ;
-                   add     ecx, [edx].os2ldr_size                    ; copied part size in bytes
-                   add     ecx, 3                                    ; divide by 4
-                   shr     ecx, 2                                    ; to find size in dwords
+                   mov     esi, ufsd_start                           ; begin of startup
+		   mov     ecx, ufsd_size
+		   shr     ecx, 2
+		   inc     ecx
                    mov     edi, REAL_BASE                            ; copy to
 
                    rep     movsd                                     ; copy
@@ -256,13 +174,12 @@ loop1:
                    hlt                                               ; hang machine
                    jmp     $                                         ;
 
-
-errmsg             db "This is not a multiboot loader or no LIP module!",0
+errmsg             db   "This is not a multiboot loader or no LIP module!",0
 
 oldgdtdesc         gdtr <>
 
-init_              label near
-cmain_             label near
+init_:
+cmain_:
 
 _TEXT    ends
 

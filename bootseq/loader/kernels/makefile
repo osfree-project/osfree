@@ -12,13 +12,16 @@
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
-kernels          = $(p)linux$(e) $(p)chain$(e) $(p)startup$(e) $(p)ufsd$(e)
+header           = $(p)ufsd.inc
+kernels          = $(p)linux$(e) $(p)chain$(e) $(p)ufsd$(e) $(i) $(p)bootos2$(e)
 
 msw              = $(p)modesw-npc$(e) $(p)modesw-npl$(e)
 
 # filesys without $(p) and $(e):
-p                = bt_
+
+p                = 
 e                =
+i                =
 bbx              = $+$(kernels)$-
 
 linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) $(p)cmdline$(e) $(p)wrap$(e)
@@ -27,48 +30,57 @@ chain_OBJS    = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                 $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
                 $(p)..$(SEP)preldr$(SEP)bios$(e)
 
-startup_OBJS      = $(p)startup$(e)
+bootos2_OBJS      = $(p)startup$(e)
 
 ufsd_OBJS     = $(p)ufsd$(e) $(p)ufsdc$(e)
 
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)
 
-ADD_COPT = -dOS2
+ADD_COPT   = -dOS2
+ADD_ASMOPT = -i=$(PATH)
+CLEAN_ADD  = ufsd.inc
 
-!     ifeq basename bt_linux
+!     ifeq basename linux
 #t = -c
 OBJS                    = $(linux_OBJS) $(common_OBJS)
-!else ifeq basename bt_chain
+!else ifeq basename chain
 #t = -h
 OBJS                    = $(chain_OBJS) $(common_OBJS)
-!else ifeq basename bt_startup
+!else ifeq basename bootos2
 #t = -o
-OBJS                    = $(startup_OBJS) $(common_OBJS)
-!else ifeq basename bt_ufsd
+OBJS                    = $(bootos2_OBJS) $(common_OBJS)
+!else ifeq basename ufsd
 OBJS                    = $(ufsd_OBJS)
 !endif
 
+!ifeq basename ufsd
+MOD_BASE         = REL_BASE
+!else
 MOD_BASE         = KERN_BASE
+!endif
+
 DEST             = boot$(SEP)loader
 
 !include $(%ROOT)/mk/loader.mk
 
 # note that PATH is changed in loader.mk,
 # so it must be included before this place:
-p            = $(PATH)bt_
+p            = $(PATH)
 e            = .rel
+i            =
 rels         = $+$(kernels)$-
 
-p            = $(PATH)bt_
+p            = $(PATH)
 e            = .mdl
-TARGETS      = $+$(kernels)$- $(rels) $(PATH)bt_os2.mdl
+i            = $(PATH)ufsd.inc
+TARGETS      = $+$(kernels)$- $(rels)
 
 files     = $(bbx)
 
 p =
 e = .asm
-spec_SRCS = $+$(kernels) $(msw)$-
+spec_SRCS = $+$(kernels) $(msw)$- startup.asm
 
 F =
 
@@ -94,7 +106,7 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .$(SO): $(PATH)..
 .$(O):  $(PATH)..$(SEP)preldr
 .$(SO): $(PATH)..$(SEP)preldr
-
+.inc:   $(PATH)
 
 $(PATH)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
  $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
@@ -120,14 +132,5 @@ $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
  $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
-$(PATH)ufsd: $(PATH)bt_ufsd.mdl
- $(CUT) 0 0x200 $[@ >$^@
-
-$(PATH)bt_os2.mdl: $(PATH)bt_startup.mdl $(PATH)bt_ufsd.mdl $(PATH)os2boot $(PATH)os2ldr
- $(REXX) mkbundle.cmd $< $^@
-
-$(PATH)os2boot: $(MYDIR)os2boot
- $(CP) $< $^@
-
-$(PATH)os2ldr: $(MYDIR)os2ldr
- $(CP) $< $^@
+$(PATH)ufsd.inc: $(PATH)ufsd.mdl
+ $(REXX) mkheader.cmd $< $^@
