@@ -453,7 +453,7 @@ void cmain(void)
     //printk("loader() finished\n");
 
     //__asm {
-    //  sti
+    //  cli
     //  hlt
     //}
 

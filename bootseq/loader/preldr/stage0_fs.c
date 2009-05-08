@@ -431,6 +431,24 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       };
+    case PARM_PART_START:
+      {
+        if (action == ACT_GET)
+          *val = part_start;
+        else
+          part_start = *val;
+
+        return 0;
+      };
+    case PARM_PART_LENGTH:
+      {
+        if (action == ACT_GET)
+          *val = part_length;
+        else
+          part_length = *val;
+
+        return 0;
+      };
     case PARM_MBI:
       {
         if (action == ACT_GET)

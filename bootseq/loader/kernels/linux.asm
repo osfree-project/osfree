@@ -101,7 +101,7 @@ linux_setup_seg dw      0
         ;
 
 hard_stop:
-        sti
+        cli
         hlt
 
 stop_flop:
@@ -161,7 +161,7 @@ entry:
         call    cmain
 
         ; We should not return here
-        sti
+        cli
         hlt
 ;        jmp     $
 
@@ -169,7 +169,7 @@ stop:
         lea   eax, errmsg
         call  outstr_
 
-        sti
+        cli
         hlt
         jmp   $
 
@@ -292,7 +292,7 @@ big_linux_boot:
         add     esp, 4
 
         ; we should not return here
-        sti
+        cli
         hlt
 
 ;

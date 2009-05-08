@@ -28,6 +28,8 @@
 #include "fsys.h"
 #include "fsd.h"
 #include <lip.h>
+#include <bpb.h>
+#include <lvm_data.h>
 
 #pragma aux entry_addr "*"
 #pragma aux m          "*"
@@ -36,7 +38,9 @@ static int cur_addr;
 entry_func entry_addr;
 static struct mod_list mll[99];
 static int linux_mem_size;
+bios_parameters_block *bpb;
 
+unsigned long part_start;
 unsigned long current_drive;
 unsigned long current_partition;
 unsigned long saved_drive;
@@ -642,6 +646,127 @@ create_lip_module(lip2_t **l)
 
   /* increment number of modules included */
   m->mods_count++;
+}
+
+/* Determine a drive letter through DLA tables */
+int dla(void)
+{
+  char buf[0x210];
+  unsigned long    part;
+  unsigned long    sec;
+  struct geometry  *geo;
+  DLA_Table_Sector *dlat;
+  DLA_Entry *dlae;
+  char *p;
+ 
+  u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
+  u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
+
+  part = (current_partition >> 16) & 0xff;
+
+  // get drive geometry
+  u_diskctl(BIOSDISK_GEO, current_drive, geo, 0, 0, 0);
+
+  if (part <= 3) // primary partition
+    sec = geo->sectors - 1;
+  else // logical partition
+    sec = part_start - 1;
+
+  p = buf;
+  /* make a pointer 16-byte aligned */
+  p = (char *)(((int)p >> 4) << 4);
+  if (p < buf) p += 0x10;
+
+  // read DLAT sector
+  u_diskctl(BIOSDISK_READ, current_drive, geo, sec, 1, (int)p);
+
+  dlat = (DLA_Table_Sector *)p;
+
+  if (dlat->DLA_Signature1 == DLA_TABLE_SIGNATURE1 &&
+      dlat->DLA_Signature2 == DLA_TABLE_SIGNATURE2)
+  {
+    dlae = (DLA_Entry *)dlat->DLA_Array;
+    if (part <= 3) dlae += part; // for primary partitions
+    return grub_toupper(dlae->Drive_Letter);
+  }
+
+  return 'C';
+}
+
+int
+create_bs_module(char *module)
+{
+  int len;
+  unsigned int size;
+  char *parm;
+  char drv;
+
+  /* if we are supposed to load on 4K boundaries */
+  cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
+
+  if (u_open (module, &size))
+    return 0;
+
+  //u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filemax);
+
+  if ((cur_addr + size) >= (1024*(1024+m->mem_upper)))
+    {
+      printf("Want to load module to 0x%x len 0x%x but only have 0x%x RAM\r\n",
+             cur_addr, size, 1024*(1024+m->mem_upper));
+      errnum = ERR_BADMODADDR;
+      u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
+      u_close ();
+      return 0;
+    }
+
+  printf("cur_addr=0x%x\r\n", cur_addr);
+
+  len = u_read ((char *) cur_addr, size);
+
+  printf("read 0x%x bytes\r\n", len);
+
+  if (! len)
+    {
+      u_close ();
+      return 0;
+    }
+
+  printf ("   [Bs-module @ 0x%x, 0x%x bytes]\r\n", cur_addr, len);
+
+  /* these two simply need to be set if any modules are loaded at all */
+  m->flags |= MB_INFO_MODS;
+  m->mods_addr = (int) mll;
+
+  mll[m->mods_count].mod_start = cur_addr;
+  bpb = (bios_parameters_block *)(cur_addr + 0xb);
+
+  cur_addr += len;
+  mll[m->mods_count].mod_end = cur_addr;
+  mll[m->mods_count].pad = 0;
+
+  /* increment number of modules included */
+  m->mods_count++;
+
+  u_close ();
+
+  u_parm(PARM_PART_START, ACT_GET, (unsigned int *)&part_start);
+
+  bpb->hidden_secs = part_start;
+
+  parm = grub_strstr(module, "--drv");
+
+  if (parm)
+  {
+    parm = skip_to(1, parm);
+    drv = grub_toupper(*parm);
+  }
+  else
+    drv = dla();
+
+  drv = (drv - 'C') + 0x80;  
+  bpb->log_drive = drv;
+
+  return 1;
 }
 
 void

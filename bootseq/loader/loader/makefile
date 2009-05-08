@@ -37,7 +37,7 @@ rels         = $+$(ldrfiles)$-
 
 p            = $(PATH)
 e            = .mdl
-TARGETS      = $+$(ldrfiles)$- $(rels)
+TARGETS      = $+$(ldrfiles)$- # $(rels)
 
 files     = $(bbx)
 
@@ -59,3 +59,6 @@ $(PATH)..$(SEP)cfgparse-l.$(O): $(MYDIR)..$(SEP)cfgparse.c
 
 $(PATH)..$(SEP)cfgparse-l.$(SO): $(MYDIR)..$(SEP)cfgparse.c
  $(CC) -dLOADER $(COPT) -fr=$^*.err -fo=$^@ $[@
+
+qwe: .symbolic
+ $(SAY) $(COPT)

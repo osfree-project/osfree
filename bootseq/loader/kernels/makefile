@@ -4,6 +4,8 @@
 # valerius, 2006/10/30
 #
 
+DIRS = ufsd
+
 #
 # $+ switches on and $- switches off
 # immediate macros substitution
@@ -54,11 +56,7 @@ OBJS                    = $(bootos2_OBJS) $(common_OBJS)
 OBJS                    = $(ufsd_OBJS)
 !endif
 
-!ifeq basename ufsd
-MOD_BASE         = REL_BASE
-!else
 MOD_BASE         = KERN_BASE
-!endif
 
 DEST             = boot$(SEP)loader
 
@@ -74,7 +72,7 @@ rels         = $+$(kernels)$-
 p            = $(PATH)
 e            = .mdl
 i            = $(PATH)ufsd.inc
-TARGETS      = $+$(kernels)$- $(rels)
+TARGETS      = subdirs $+$(kernels)$- # $(rels)
 
 files     = $(bbx)
 
@@ -89,8 +87,6 @@ base = 0x8000
 !else ifeq basename chain
 base = 0x90000
 !else ifeq basename startup
-base = 0x90000
-!else ifeq basename ufsd
 base = 0x90000
 !endif
 
@@ -132,5 +128,5 @@ $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
  $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
-$(PATH)ufsd.inc: $(PATH)ufsd.mdl
+$(PATH)ufsd.inc: $(PATH)ufsd$(SEP)ufsd.mdl
  $(REXX) mkheader.cmd $< $^@

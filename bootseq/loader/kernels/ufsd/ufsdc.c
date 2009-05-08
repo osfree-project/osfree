@@ -2,8 +2,12 @@
  *
  */
 
+#include <shared.h>
+
 /* multiboot structure pointer */
-char *m;
+struct multiboot_info *m;
+
+#pragma aux m "*"
 
 void init (void)
 {

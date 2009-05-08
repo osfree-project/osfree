@@ -158,366 +158,10 @@ real_start:
         mov   edx, ebx 
         shr   edx, 24                              ; extract drive number
 
-        mov   eax, ebx
-        and   eax, 0ffffffh                      ; extract partition number
-
-        cmp   eax, 0x00ffffffh
-        je    no_hiddensecs
-
-        shr   eax, 16
-
-        cmp   eax, 0ffh
-        jne   skip1
-        xor   eax, eax
-        jmp   short detect_lba_chs
-skip1:
-        inc   eax
-        mov   esi, eax
-detect_lba_chs:
-        ;
-        ; Test if LBA
-        ; is supported
-        ;
-
-        mov  ah, 41h                               ; try 41h of int 13h
-        mov  bx, 55aah                             ; (probe if LBA is available)
-        int  13h
-
-        jc   short use_chs
-        cmp  bx, 0aa55h
-        jne  short use_chs
-        cmp  ah, 21h                               ; is EDD 1.1 supported?
-        jb   short use_chs                         ;
-        and  cx, 1                                 ; check bit 0 of cx register,
-        jz   short use_chs                         ; if set then int13 ext disk read
-                                                           ; functions are supported
-use_lba:
-.386
-        mov  bl, 0
-        jmp  short switchBootDrv
-use_chs:
-        mov  bl, 1
-switchBootDrv:
-
-        mov  [bp].force_chs, bl
-
-        ; dl      --> drive we booted from (set by BIOS when control is given to MBR code)
-        ; BootDev --> drive to continue booting from (set in MBR sector field)
-
-        lea  di, [bp].parttable                         ; di --> parttable at 0x0:0x7c00 + 0x1be, si = 0x1be
-
-        ;
-        ; From here, ds:si address partition table entry
-        ; for current partition
-        ;
-
-        ; Choose hard disk to continue booting from
-        ; and load its MBR into scratch sector
-
-        mov  [bp].drive, dl
-        mov  eax, esi
-        mov  byte ptr [bp].BootPart, al
-
-        ;
-        ; descriptor of the MBR of hard disk to continue load from
-        ; in the format of Partition table partition descriptor,
-        ; pointed by ds:si:
-        ;
-
-        mov  byte ptr [di + 1], 0                  ; Head 0
-        mov  word ptr [di + 2], 1h                 ; Cyl  0, Sec 1 (like ch = 00, cl = 01 in int 13h)
-        mov dword ptr [di + 8], 0                  ; LBA
-
-        call ReadSec                               ; Load the MBR of the HDD we continue booting from
-
-        lea  di, [bp].parttable
-
-searchPartition:
-        ;
-        ; Now let's search partition descriptor in MBR or EBR
-        ;
-
-        mov  cx, 4                                 ; number of entries in parttable
-
-        mov  al, byte ptr [bp].BootPart                 ; now ax = BootPart
-        cbw                                        ; (partition to continue booting from)
-
-selectPart:
-        ; Find the selected partition
-        ; (with number in BootPart)
-
-        cmp  ax, 4
-        jbe  primaryPart
-
-        sub  ax, 5                                 ; BootPart is now the number of logical part. beginning from 0
-logicalPart:
-
-findExtended:   ; 1st find extended partition in PT
-
-        check_ext extendedFound                    ; If partition is extended, goto extendedFound
-        add  di, 10h
-        loop findExtended
-
-        jmp  part_not_found                        ; Ext. part. not found, panic
-extendedFound:                                             ; Ext part. found
-        mov  cx, ax                                ; Set loop counter to logical part. number
-        mov  eax, [di + 8]
-
-        call ReadSec                               ; Read 1st EBR into scratch sector
-
-searchEBR:                                         ; find the EBR of needed partition
-        lea  di, [bp].parttable                    ; si --> partition table of EBR
-
-        jcxz ebrFound
-
-        dec  cx
-        
-        add  di, 10h                               ; ds:si --> reference to the next EBR
-
-newEbrFound:                                               ; found a reference to the next EBR
-        add  dword ptr [di + 8], eax               ; now
-                                                           ; dword ptr [di + 8] --> beginning of the next EBR
-
-        test cx, cx                                ;
-        jnz  skip                                  ; Save the beginning of
-        mov  eax, [di + 8]
-skip:
-        call ReadSec                               ; Read the next EBR
-        jmp  searchEBR
-ebrFound:                                                  ; It is a EBR of our partition, let's take part. descriptor
-        ;add  dword ptr [di + 8], eax                 ; dx:ax --> beginning of our partition
-        add  eax, dword ptr [di + 8]
-
-        mov  bx, 1                                 ; Logical partition condition is TRUE
-
-        ;
-        ; now ds:si --> descriptor, pointing to the beginning of the needed logical partition
-        ;
-
-        jmp  bootFound                             ;
-primaryPart:
-        ; Find primary partition MBR PT entry
-
-        dec  ax
-        mov  bh, 10h
-        mul  bh
-        add  di, ax
-
-        mov  bx, 0                                 ; Logical partition condition is FALSE
-bootFound:
-        ; Boot partition found                     ; ds:si --> Part. descriptor of boot partition
-        ;call ReadSec                               ; Read bootsector into 0x7c0:0x0
-
-        test bx, bx
-        jz   nofix_hiddensecs
-
-        ;
-        ; Fix hiddensectors value if booting from logical partition
-        ;
-
-        xor  bx, bx
-        mov  ds, bx       
-        mov  si, 0x7c00 - EXT_PARAMS_OFFS
- 
-        mov  dword ptr [si].bpb.hidden_secs, eax
-
-nofix_hiddensecs:
-        ;
-        ; Fix diskNum and logDrive values
-        ;
-
-        mov  dl, [bp].drive
-        mov  byte ptr [si].bpb.disk_num, dl
-
-        ;mov  bl, [bp].part
-        ;inc  bl
-        ;inc  bl
-        ;or   bl, 80h
-        mov  bl, 81h
-        mov  [si].bpb.log_drive, bl
-
-        ;mov  eax, dword ptr [bp].drive
-        ;mov  [bp].drivepart, eax
-
-no_hiddensecs:
         push 0                                     ; zero ds
         push 7c00h                                 ;
 
-        ;mov  al, 'J'
-        ;call err
-                
         retf                                       ; "return" to bootsector
-
-err_read:
-        mov  al, 'R'
-        jmp  short Err
-part_not_found:
-        mov  al, 'P'
-Err:
-        mov  ah, 0eh
-        xor  bx, bx
-        int  10h
-
-        jmp  short $
-
-;
-; ReadSec:
-;
-;               Reads a sector
-;               at the beginning of the partition,
-;               corresponding to the partition table entry at ds:[si]
-;               to scratch sector  at 0x7c0:0x0.
-;
-;               es:di --> current partition table entry
-;
-
-ReadSec proc near
-        mov  dl, [bp].drive                        ; Drive Number
-
-        cmp  byte ptr [bp].force_chs, 0            ; LBA or CHS?
-        jnz  chs
-lba:
-        pushad
-        call ReadSecLBA                            ; Read by LBA
-        popad
-
-        jc   short chs                             ; if LBA fails, fallback to CHS
-
-        ret
-chs:
-        pushad
-        call ReadSecCHS                            ; Read by CHS
-        popad
-
-        jc   short err_read
-return_lb:
-        ret
-ReadSec endp
-
-
-;
-; ReadSecLBA:
-;
-;               Reads a sector
-;               using LBA,
-;               to 0x7c0:0x0
-;               at the beginning of the partition,
-;               described by part table entry at ds:[si]
-;
-;               es:di --> partition table entry
-;
-
-ReadSecLBA proc near
-        ;
-        ; int 13h 42h function
-        ; Input:
-        ;
-        ;            ah = 42h
-        ;            dl = drive number
-        ;            ds:si = pointer to disk address packet
-        ;
-        ; Returns:
-        ;
-        ;            al = 0 if success,
-        ;            error code otherwise
-
-        
-        lea  si, [bp].disk_addr_pkt                ; disk address packet
-
-        mov  word ptr [si].pkt_size, 10h           ; size of packet absolute starting address
-
-        mov  eax, [di + 8]                         ;
-        mov  dword ptr [si].starting_block, eax    ; LBA of the 1st
-        mov  dword ptr [si].starting_block + 4, 0  ;
-
-        mov  word ptr [si].num_blocks, 1           ; number of blocks to transfer
-        mov  word ptr [si].buffer, 8000h           ; offset of disk read buffer = 0x7c00
-        mov  word ptr [si].buffer + 2, 9000h       ; segment of disk read buffer at 0x0
-
-        mov  ax, 4200h
-
-        int  13h
-lb2:
-        ret
-
-ReadSecLBA endp
-
-
-;
-; ReadSecCHS:
-;
-;               Reads a sector
-;               using CHS,
-;               to 0x7c0:0x0
-;               at the beginning of the partition,
-;               described by part table entry at ds:[si]
-;
-;               ds:si --> partition descriptor in PT
-;
-
-ReadSecCHS proc near
-        ;
-        ; phys disk no. in dl
-        mov  cx, word ptr [di + 2]                 ; cyl. and sector
-        mov  dh, byte ptr [di + 1]                 ; head no.
-
-        mov  bx, 7c00h
-
-        mov  ax, 0201h                             ; ah = 2 -- function and al = 1 -- count of sectors
-        int  13h                                   ; read one sector at 0x7c0:0x0
-
-        ret
-ReadSecCHS endp
-
-up1:
-        mov     bx, 1
-        mov     ah, 0Eh
-        int     10h             ; display a byte
-
-message:
-        lodsb
-        or      al, al
-        jne     up1              ; if not end of string, jmp to display
-        ret
-
-;
-; printhex[248]: Write a hex number in (AL, AX, EAX) to the console
-;
-
-printhex2:
-        pusha
-        rol     eax, 24
-        mov     cx, 2
-        jmp     pp1
-printhex4:
-        pusha
-        rol     eax, 16
-        mov     cx, 4
-        jmp     pp1
-printhex8:
-        pusha
-        mov     cx, 8
-pp1:
-        rol     eax, 4
-        push    eax
-        and     al, 0Fh
-        cmp     al, 10
-        jae     high1
-low1:
-        add     al, '0'
-        jmp     pp2
-high1:
-        add     al, 'A' - 10
-pp2:
-        mov     bx, 0001h
-        mov     ah, 0Eh
-        int     10h              ; display a char
-        pop     eax
-        loop    pp1
-        popa
-
-        ret
-
 
 gateA20_rm:
         mov     ax, 2400h
@@ -537,7 +181,7 @@ ft2:    mov     dl, ah
         retf
 
 hard_stop:
-        sti
+        cli
         hlt
 
 stop_flop:
@@ -603,7 +247,7 @@ entry:
         call    cmain
 
         ; We should not return here
-        sti
+        cli
         hlt
 ;        jmp     $
 
@@ -625,7 +269,7 @@ loop1:
         test  al, al   ; copy a string to video buffer
         jnz   loop1
 
-        sti
+        cli
         hlt
 ;        jmp   $
 
@@ -686,7 +330,7 @@ start_kernel:
         ;ret
 
         ; we should not return here
-        sti
+        cli
         hlt
 
 ;

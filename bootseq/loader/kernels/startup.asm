@@ -155,7 +155,7 @@ entry:
                    ret
 
                    ; We should not return here                       ;
-                   sti                                               ; hang
+                   cli                                               ; hang
                    hlt                                               ; machine
                    jmp     $                                         ;
 
@@ -170,7 +170,7 @@ loop1:
                    test    al, al   ; copy a string to video buffer
                    jnz     loop1
 
-                   sti                                               ;
+                   cli                                               ;
                    hlt                                               ; hang machine
                    jmp     $                                         ;
 

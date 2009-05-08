@@ -13,12 +13,12 @@
 # are defined
 !define WRAPPERS
 
-CLEAN_ADD = *.mdl *.rel *.sob *.lob
+CLEAN_ADD = *.mdl *.rel *.sob *.lob $(CLEAN_ADD)
 
 32_BITS      = 1       # Use 32-bit C compiler
 DEFINES      = -dNO_DECOMPRESSION # -dSTAGE1_5 -dNO_BLOCK_FILES -dOS2 -d__WATCOM__
-ADD_COPT     += -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
-ADD_ASMOPT   += $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
+ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
+ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. $(ADD_ASMOPT)
 
 !ifndef DEST
 DEST         = boot

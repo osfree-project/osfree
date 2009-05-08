@@ -371,7 +371,7 @@ print_char:
         jmp   next_char
 
 halt_system:
-        sti
+        cli
         hlt
         ;ret
 

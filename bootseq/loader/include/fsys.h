@@ -103,11 +103,13 @@ struct pmif
 #define PARM_SAVED_DRIVE           5
 #define PARM_SAVED_PARTITION       6
 #define PARM_SAVED_SLICE           7
-#define PARM_MBI                   8
-#define PARM_ERRNUM                9
-#define PARM_FILEPOS              10
-#define PARM_FILEMAX              11
-#define PARM_EXTENDED_MEMORY      12
+#define PARM_PART_START            8
+#define PARM_PART_LENGTH           9
+#define PARM_MBI                  10
+#define PARM_ERRNUM               11
+#define PARM_FILEPOS              12
+#define PARM_FILEMAX              13
+#define PARM_EXTENDED_MEMORY      14
 
 #pragma aux u_open   "*"
 #pragma aux u_read   "*"

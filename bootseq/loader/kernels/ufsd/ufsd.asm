@@ -7,8 +7,8 @@
 name microfsd
 
 public realmode_init
+public m
 
-extrn  _m          :dword
 extrn  init_       :near
 extrn  cmain_      :near
 
@@ -32,7 +32,7 @@ start:
                    ; emulate 32-bit call instruction
                    ; to 32-bit entry point
                    db   0e8h
-                   dd   offset _TEXT:entry - 5
+                   dd   (entry - entry0 - 5)
 
                    org     start + 10h
 
@@ -56,7 +56,7 @@ realmode_init:
                    mov     ah, 0Eh
                    int     10h                                       ; display a byte
 
-                   sti
+                   cli
                    hlt
                    jmp     $
 _TEXT16  ends
@@ -75,12 +75,12 @@ entry:
                    cmp   eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
                    jne   stop                                        ; is present in eax
 
-                   mov   _m, ebx                                      ; save multiboot structure address
+                   mov   ds:m, ebx                                   ; save multiboot structure address
 
 		   call  cmain_
 
                    ; We should not return here                       ;
-                   sti                                               ; hang
+                   cli                                               ; hang
                    hlt                                               ; machine
                    jmp     $                                         ;
 
@@ -95,7 +95,7 @@ loop1:
                    test    al, al   ; copy a string to video buffer
                    jnz     loop1
 
-                   sti                                               ;
+                   cli                                               ;
                    hlt                                               ; hang machine
                    jmp     $                                         ;
 
@@ -104,8 +104,14 @@ errmsg             db   "This is not a multiboot loader or no LIP module!",0
 oldgdtdesc         gdtr <>
 
 _TEXT    ends
+
 _DATA    segment dword public 'DATA'  use32
+
+; mbi structure pointer
+m        dd   ?
+
 _DATA    ends
+
 CONST    segment dword public 'DATA'  use32
 CONST    ends
 CONST2   segment dword public 'DATA'  use32

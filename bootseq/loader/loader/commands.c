@@ -44,6 +44,7 @@ static char *mb_cmdline;
 
 extern lip2_t *l;
 void create_lip_module(lip2_t **l);
+int create_bs_module(char *arg);
 
 extern int default_item;
 int  menu_timeout;
@@ -574,6 +575,26 @@ static struct builtin builtin_lipmodule =
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
   "lipmodule", 
   "Create a module with LIP table in it"
+};
+
+/* bs mod */
+int
+bsmodule_func (char *arg, int flags)
+{
+  if (!create_bs_module(arg))
+    return 1;
+
+  return 0;
+}
+
+static struct builtin builtin_bsmodule =
+{
+  "bsmodule",
+  bsmodule_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "bsmodule <file>", 
+  "Create a module with bootsector and fix BPB table in it,"
+  "so correct hiddensectors and boot drive letter are set."
 };
 
 /* vbeset MODE */
@@ -1417,6 +1438,7 @@ struct builtin *builtins[] = {
   &builtin_module,
   &builtin_modaddr,
   &builtin_lipmodule,
+  &builtin_bsmodule,
   &builtin_vbeset,
   &builtin_set,
   &builtin_toggle,
