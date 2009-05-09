@@ -648,6 +648,43 @@ create_lip_module(lip2_t **l)
   m->mods_count++;
 }
 
+/*
+  Name  : CRC-32
+  Poly  : 0x04C11DB7	x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 
+                       + x^10 + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1
+  Init  : 0xFFFFFFFF
+  Revert: true
+  XorOut: 0xFFFFFFFF
+  Check : 0xCBF43926 ("123456789")
+  MaxLen: 268 435 455 байт (2 147 483 647 бит) - обнаружение
+   одинарных, двойных, пакетных и всех нечетных ошибок
+
+  (Got from russian wikipedia, http://ru.wikipedia.org/wiki/CRC32)
+  and corrected ;) 
+*/
+unsigned long crc32(unsigned char *buf, unsigned long len)
+{
+    unsigned long crc_table[256];
+    unsigned long crc;
+    int i, j; 
+
+    for (i = 0; i < 256; i++)
+    {
+        crc = i;
+        for (j = 0; j < 8; j++)
+            crc = crc & 1 ? (crc >> 1) ^ 0xEDB88320UL : crc >> 1;
+ 
+        crc_table[i] = crc;
+    };
+ 
+    crc = 0xFFFFFFFFUL;
+ 
+    while (len--) 
+      crc = crc_table[(crc ^ *buf++) & 0xff] ^ ((crc >> 8) & 0x00ffffffL);
+
+    return crc;
+}
+
 /* Determine a drive letter through DLA tables */
 int dla(void)
 {
@@ -657,7 +694,8 @@ int dla(void)
   struct geometry  *geo;
   DLA_Table_Sector *dlat;
   DLA_Entry *dlae;
-  char *p;
+  char *p, *q;
+  unsigned long CRC32, CRC;
  
   u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
   u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
@@ -685,9 +723,19 @@ int dla(void)
   if (dlat->DLA_Signature1 == DLA_TABLE_SIGNATURE1 &&
       dlat->DLA_Signature2 == DLA_TABLE_SIGNATURE2)
   {
-    dlae = (DLA_Entry *)dlat->DLA_Array;
-    if (part <= 3) dlae += part; // for primary partitions
-    return grub_toupper(dlae->Drive_Letter);
+    /* Calculate DLAT CRC */
+    CRC = dlat->DLA_CRC;
+    /* zero-out CRC field and unused sector space */
+    dlat->DLA_CRC = 0;
+    memset(p + sizeof(DLA_Table_Sector), 0, 0x200 - sizeof(DLA_Table_Sector));
+    CRC32 = crc32(p, 0x200);
+    if (CRC == CRC32) // crc ok
+    {
+      /* Get and parse partition DLAT entry */
+      dlae = (DLA_Entry *)dlat->DLA_Array;
+      if (part <= 3) dlae += part; // for primary partitions
+      return grub_toupper(dlae->Drive_Letter);
+    }
   }
 
   return 'C';
