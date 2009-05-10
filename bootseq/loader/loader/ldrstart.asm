@@ -33,8 +33,6 @@ CONST    segment dword public 'DATA'  use32
 CONST    ends
 CONST2   segment dword public 'DATA'  use32
 CONST2   ends
-_BSS     segment dword public 'BSS'   use32
-_BSS     ends
 _end1    segment dword public 'DATA'  use32
 align 4
 exe_end:
@@ -52,7 +50,7 @@ _end4    ends
 _STACK   segment dword public 'STACK' use32
 _STACK   ends
 
-DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_STACK ;,_end1,_end2,_end3,_end4
+DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_end1,_end2,_end3,_end4,_STACK
 
 _STACK   segment dword public 'STACK' use32
 LDR_STACK_SIZE equ 8000h
@@ -88,15 +86,15 @@ ok:
       mov  ebp, esp
 
       ; clear bss
-      ;cld
-      ;xor  eax, eax
-      ;lea  edi, exe_end
-      ;lea  ecx, bss_end
-      ;sub  ecx, edi
-      ;shr  ecx, 2
-      ;inc  ecx
+      cld
+      xor  eax, eax
+      lea  edi, exe_end
+      lea  ecx, bss_end
+      sub  ecx, edi
+      shr  ecx, 2
+      inc  ecx
 
-      ;rep  stosd
+      rep  stosd
 
       assume cs:_TEXT
 

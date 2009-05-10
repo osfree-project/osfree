@@ -231,8 +231,8 @@ entry:
         mov   byte ptr boot_drive, dl
 
         ; set up stack
-        ;cli
-        ;mov   esp, 0x70000
+        cli
+        mov   esp, 0x70000
         ;sti
    
         call  set_gdt

@@ -9,6 +9,7 @@ DESC     = A mini file system driver
 srcfiles = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e)
 # linking dll file
 DLL     = 1
+32_BITS = 0
 EXPORTS = &
 #  Optional
 #   FS_ALLOCATEPAGESPACE,

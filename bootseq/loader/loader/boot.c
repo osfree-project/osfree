@@ -691,7 +691,9 @@ unsigned long crc32(unsigned char *buf, unsigned long len)
     return crc;
 }
 
-/* Determine a drive letter through DLA tables */
+/*  Determine a drive letter through DLA tables 
+ *  (DLA stands for Drive Letter Assignment)
+ */
 int dla(char *driveletter)
 {
   unsigned long    part;
@@ -702,6 +704,7 @@ int dla(char *driveletter)
 
   u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
   u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
+  u_parm(PARM_PART_START, ACT_GET, (unsigned int *)&part_start);
 
   part = (current_partition >> 16) & 0xff;
 
@@ -753,7 +756,7 @@ int dla(char *driveletter)
 int
 get_dlat_info(char *part)
 {
-  char drv[2];
+  char drv[3];
 
   if (root_func(part, 0x2))
   {
@@ -764,7 +767,7 @@ get_dlat_info(char *part)
   if (dla(drv)) // DLA table present
   {
     printf("\r\nDLA table found for %s\r\n", part);
-    drv[1] = '\0';
+    drv[1] = ':'; drv[2] = '\0';
   }
   else
   {

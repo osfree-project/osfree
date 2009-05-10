@@ -145,8 +145,9 @@ entry:
         mov   m, ebx
 
         ; set up stack
-        ;cli
-        ;mov   esp, LINUX_SETUP_STACK
+        cli
+        mov   esp, 8000h - 4
+        mov   ebp, esp
         ;sti
 
         call  set_gdt
