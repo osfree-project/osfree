@@ -51,6 +51,8 @@ void init(void)
 
 }
 
+/*
+
 int check_lip(char *mods_addr, unsigned long mods_count)
 {
   struct mod_list *mod;
@@ -75,6 +77,8 @@ int check_lip(char *mods_addr, unsigned long mods_count)
 
   return 0;
 }
+
+*/
 
 void kernel_ldr(char *kernel, unsigned long kernel_len)
 {
@@ -127,8 +131,9 @@ void cmain(void)
     stop();
   else
   {
-    if (check_lip(mods_addr, mods_count))
-       lip_module_present = 1;
+    //if (check_lip(mods_addr, mods_count))
+    //   lip_module_present = 1;
+    lip_module_present = 0;
 
     kernel = (char *)mod->mod_start;
     kernel_len = mod->mod_end - mod->mod_start;
@@ -154,6 +159,10 @@ void cmain(void)
       {
         char *p;
         p = (char *)(0x30000);
+        /* clear space after I13X flag place to make happy
+           IBM's bootsectors, which don't clear unused parts
+           of LBA packet, which is located here */
+        memset(p, 0, 0x20);
         grub_strcpy(p, "I13X"); // I13X
       }
     }

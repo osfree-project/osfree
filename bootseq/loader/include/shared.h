@@ -967,6 +967,8 @@ void bsd_boot (kernel_t type, int bootdev, char *arg);
 kernel_t load_image (char *kernel, char *arg, kernel_t suggested_type,
                      unsigned long load_flags);
 
+int get_dlat_info(char *part);
+
 int load_module (char *module, char *arg);
 int load_initrd (char *initrd);
 void set_load_addr (int addr);

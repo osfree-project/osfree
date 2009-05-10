@@ -34,6 +34,10 @@
 #pragma aux entry_addr "*"
 #pragma aux m          "*"
 
+char buff[0x210];
+DLA_Table_Sector *dlat;
+DLA_Entry *dlae;
+
 static int cur_addr;
 entry_func entry_addr;
 static struct mod_list mll[99];
@@ -54,6 +58,8 @@ char *linux_data_tmp_addr;
 unsigned long linux_text_len;
 
 grub_error_t errnum = ERR_NONE;
+
+int root_func(char *arg, int flags);
 
 /*
  *  The next two functions, 'load_image' and 'load_module', are the building
@@ -686,37 +692,37 @@ unsigned long crc32(unsigned char *buf, unsigned long len)
 }
 
 /* Determine a drive letter through DLA tables */
-int dla(void)
+int dla(char *driveletter)
 {
-  char buf[0x210];
   unsigned long    part;
   unsigned long    sec;
-  struct geometry  *geo;
-  DLA_Table_Sector *dlat;
-  DLA_Entry *dlae;
-  char *p, *q;
-  unsigned long CRC32, CRC;
- 
+  struct geometry  geo;
+  char *p;
+  unsigned long CRC32, crc; 
+
   u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
   u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
 
   part = (current_partition >> 16) & 0xff;
 
   // get drive geometry
-  u_diskctl(BIOSDISK_GEO, current_drive, geo, 0, 0, 0);
+  u_diskctl(BIOSDISK_GEO, current_drive, &geo, 0, 0, 0);
 
   if (part <= 3) // primary partition
-    sec = geo->sectors - 1;
+    sec = geo.sectors - 1;
   else // logical partition
     sec = part_start - 1;
 
-  p = buf;
+  p = buff;
+
   /* make a pointer 16-byte aligned */
   p = (char *)(((int)p >> 4) << 4);
-  if (p < buf) p += 0x10;
+  if (p < buff) p += 0x10;
+
+  memset(p, 0, 0x200);
 
   // read DLAT sector
-  u_diskctl(BIOSDISK_READ, current_drive, geo, sec, 1, (int)p);
+  u_diskctl(BIOSDISK_READ, current_drive, &geo, sec, 1, (int)p);
 
   dlat = (DLA_Table_Sector *)p;
 
@@ -724,21 +730,66 @@ int dla(void)
       dlat->DLA_Signature2 == DLA_TABLE_SIGNATURE2)
   {
     /* Calculate DLAT CRC */
-    CRC = dlat->DLA_CRC;
+    crc = dlat->DLA_CRC;
     /* zero-out CRC field and unused sector space */
     dlat->DLA_CRC = 0;
     memset(p + sizeof(DLA_Table_Sector), 0, 0x200 - sizeof(DLA_Table_Sector));
     CRC32 = crc32(p, 0x200);
-    if (CRC == CRC32) // crc ok
+    dlat->DLA_CRC = crc; // return back
+    if (crc == CRC32)    // crc ok
     {
       /* Get and parse partition DLAT entry */
       dlae = (DLA_Entry *)dlat->DLA_Array;
       if (part <= 3) dlae += part; // for primary partitions
-      return grub_toupper(dlae->Drive_Letter);
+      *driveletter = grub_toupper(dlae->Drive_Letter);      
+
+      return 1;
     }
   }
 
-  return 'C';
+  return 0;
+}
+
+int
+get_dlat_info(char *part)
+{
+  char drv[2];
+
+  if (root_func(part, 0x2))
+  {
+    printf("No such partition: %s\r\n", part);
+    return 1;
+  }
+
+  if (dla(drv)) // DLA table present
+  {
+    printf("\r\nDLA table found for %s\r\n", part);
+    drv[1] = '\0';
+  }
+  else
+  {
+    printf("\r\nNo DLAT present for %s\r\n", part);
+    return 1;
+  }
+
+  printf("  DLAT sector crc: 0x%x\r\n"
+         "  Disk serial number: 0x%x\r\n"
+         "  Boot disk serial number: 0x%x\r\n"
+         "  Install flags: 0x%x\r\n"
+         "  Cylinders: 0x%x, Heads: 0x%x, Sectors: 0x%x"
+         "  Disk name: %s\r\n"
+         "  Partition serial number: 0x%x\r\n"
+         "  Partition size: 0x%x, Partition start: 0x%x\r\n"
+         "  On boot manager menu: %s, Installable: %s, driveletter: %s\r\n"
+         "  Volume name: %s\r\n"
+         "  Partition name: %s\r\n",
+         dlat->DLA_CRC, dlat->Disk_Serial_Number, dlat->Boot_Disk_Serial_Number,
+         dlat->Install_Flags, dlat->Cylinders, dlat->Heads_Per_Cylinder, dlat->Sectors_Per_Track,
+         dlat->Disk_Name, dlae->Partition_Serial_Number, dlae->Partition_Size, dlae->Partition_Start,
+         dlae->On_Boot_Manager_Menu ? "yes" : "no", dlae->Installable ? "yes" : "no",
+         drv[0] ? drv : "none", dlae->Partition_Name, dlae->Volume_Name);
+
+  return 0;
 }
 
 int
@@ -754,8 +805,6 @@ create_bs_module(char *module)
 
   if (u_open (module, &size))
     return 0;
-
-  //u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filemax);
 
   if ((cur_addr + size) >= (1024*(1024+m->mem_upper)))
     {
@@ -809,7 +858,9 @@ create_bs_module(char *module)
     drv = grub_toupper(*parm);
   }
   else
-    drv = dla();
+    dla(&drv);
+
+  if ('A' > drv || drv > 'Z') drv = 'C';
 
   drv = (drv - 'C') + 0x80;  
   bpb->log_drive = drv;

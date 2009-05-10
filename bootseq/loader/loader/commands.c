@@ -26,7 +26,7 @@
 
 /* The type of kernel loaded.  */
 kernel_t kernel_type;
-grub_error_t errnum;
+extern grub_error_t errnum;
 
 int os2ldr = 0;
 
@@ -578,6 +578,7 @@ static struct builtin builtin_lipmodule =
 };
 
 /* bs mod */
+
 int
 bsmodule_func (char *arg, int flags)
 {
@@ -596,6 +597,7 @@ static struct builtin builtin_bsmodule =
   "Create a module with bootsector and fix BPB table in it,"
   "so correct hiddensectors and boot drive letter are set."
 };
+
 
 /* vbeset MODE */
 int
@@ -1433,6 +1435,21 @@ static struct builtin builtin_os2ldr =
   "Return control to os2ldr"
 };
 
+int
+dlat_func(char *arg, int flags)
+{
+  return get_dlat_info(arg);
+}
+
+static struct builtin builtin_dlat =
+{
+  "dlat",
+  dlat_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "dlat <partition>",
+  "Get/set LVM DLAT info"
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1452,5 +1469,6 @@ struct builtin *builtins[] = {
   &builtin_height,
   &builtin_screen,
   &builtin_os2ldr,
+  &builtin_dlat,
   0    
 };

@@ -144,11 +144,12 @@ entry:
         ; save multiboot structure address
         mov   m, ebx
 
-        call  set_gdt
+        ; set up stack
+        ;cli
+        ;mov   esp, LINUX_SETUP_STACK
+        ;sti
 
-        ; set stack
-        ;mov   esp, stack_top
-        ; at the moment, we use loader stack
+        call  set_gdt
 
         ; copy realmode part of boot_linux at REAL_BASE
         cld
