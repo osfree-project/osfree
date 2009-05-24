@@ -11,6 +11,8 @@ public   printmsg
 public   printb
 public   printw
 public   printd
+public   printhex2
+public   printhex4
 public   printhex8
 public   printhex4
 public   printhex2

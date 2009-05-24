@@ -12,13 +12,13 @@ public mu_Read
 public mu_Close
 public mu_Terminate
 
+extrn printhex4         :far
+
 endif
 
 public preldr_ds
 public preldr_ss_sp
 public preldr_es
-
-extrn printhex4         :far
 
 extrn filemax           :dword
 extrn call_pm           :near
