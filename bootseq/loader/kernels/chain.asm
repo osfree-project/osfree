@@ -29,10 +29,16 @@ extrn m               :dword
 extrn lip_module_present :byte
 ;extrn grub_printf_    :near
 
+extrn _boot_cs        :dword
+extrn _boot_ip        :dword
+extrn ___ebx          :dword
+extrn ___edx          :dword
+
 public base
 public force_lba
 public stop
 public start_kernel
+public start1
 ;public printk
 
 ;
@@ -155,11 +161,13 @@ real_start:
         mov  ds, ax
         mov  es, ax
 
-        mov   edx, ebx 
-        shr   edx, 24                              ; extract drive number
+        mov  eax, offset _TEXT:_boot_cs - KERN_BASE
+        mov  eax, [eax]
+        push ax                                    ; push CS
 
-        push 0                                     ; zero ds
-        push 7c00h                                 ;
+        mov  eax, offset _TEXT:_boot_ip - KERN_BASE
+        mov  eax, [eax]
+        push ax                                    ; push IP
 
         retf                                       ; "return" to bootsector
 
@@ -242,12 +250,15 @@ entry:
         ; at the moment, we use loader stack
 
         ; copy realmode part of boot_chain at REAL_BASE
-        cld
-        mov     ecx, 0x100
-        mov     esi, KERN_BASE
-        mov     edi, REAL_BASE
+        ;cld
+        ;mov     ecx, exe_end
+        ;sub     ecx, start1
+        ;shr     ecx, 2
+        ;inc     ecx
+        ;mov     esi, KERN_BASE
+        ;mov     edi, REAL_BASE
 
-        rep     movsd
+        ;rep     movsd
 
         call    cmain
 
@@ -324,7 +335,25 @@ start_kernel:
         call gateA20
         add  eax, 4
 
-        mov  ebx, ldr_drive
+        cmp  ___edx, 0xffffffff
+        jnz  load_edx
+        mov  edx, ldr_drive
+        shr   edx, 24                              ; extract drive number
+        jmp  skip_loading_edx
+load_edx:
+
+        mov  edx, ___edx
+skip_loading_edx:
+
+        cmp  ___ebx, 0xffffffff
+
+        jnz  load_ebx
+        jmp  skip_loading_ebx
+load_ebx:
+
+        mov  ebx, ___ebx
+skip_loading_ebx:
+
         mov  eax, REAL_BASE
         shl  eax, 12
         mov  ax, offset _TEXT16:start

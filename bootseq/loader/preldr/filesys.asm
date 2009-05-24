@@ -18,6 +18,8 @@ public preldr_ds
 public preldr_ss_sp
 public preldr_es
 
+extrn printhex4         :far
+
 extrn filemax           :dword
 extrn call_pm           :near
 extrn freeldr_open      :near
@@ -86,6 +88,12 @@ mu_Open proc far
 
         ; char far *pName
         mov  ebx, dword ptr [bp + 06h]
+
+        mov  si, ds
+        call printhex4
+ 
+        xor  ax, ax
+        int  16h
 
         switch_to_preldr
 

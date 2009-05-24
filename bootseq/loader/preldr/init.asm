@@ -48,7 +48,9 @@ extrn   mu_Read      :far
 extrn   mu_Close     :far
 extrn   mu_Terminate :far
 
-extrn   printhex8    :near
+extrn   printhex8    :far
+extrn   printhex4    :far
+extrn   printhex2    :far
 
 endif
 
@@ -231,6 +233,23 @@ skip_reloc_stage0:
         xor  ax, ax
 
         rep  stosb
+ 
+        push es
+ 
+        ; clear BSS of uFSD
+        mov  bx, 7c00h
+        mov  es, bx
+        xor  bx, bx
+        mov  edi, dword ptr es:[bx + 2] ; bss start
+        ; now es:di->bss
+        mov  ecx, dword ptr es:[bx + 6] ; bss end
+        sub  ecx, edi
+        ; now ecx contains bss length
+        xor  eax, eax
+
+        rep  stosb
+
+        pop  es
 
         ; relocate boot sector to safe place
         push ds
@@ -366,6 +385,7 @@ endif
         ; return to os2ldr
         push OS2LDR_SEG
         push 0
+
         retf
 
 ;else

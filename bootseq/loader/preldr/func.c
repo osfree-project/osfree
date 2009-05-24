@@ -163,6 +163,7 @@ int set_fsys(char *fsname)
   char *s;
   int  rc;
   int  fst;
+  int  start, len;
 
   //saved_fsys_type     = fsys_type;
   //saved_current_drive = current_drive;
@@ -188,6 +189,11 @@ int set_fsys(char *fsname)
     rc = freeldr_read(buf, -1);
   else
     panic("can't open filesystem: ", fsname);
+
+  /* clear the BSS of the uFSD */
+  start = *((unsigned long *)(buf + 2));
+  len   = *((unsigned long *)(buf + 6)) - start;
+  memset((void *)start, 0, len);
 
   //printmsg("uFSD file read, size: %d\r\n", rc);
   //printd(rc);

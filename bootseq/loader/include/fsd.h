@@ -17,6 +17,10 @@
 #define OS2LDR_SEG  0x1000 // os2ldr segment
 #define LDR_SEG  0x2000 // freeldr segment
 
+// ; multiboot kernel load base
+#define KERN_BASE   0x800000
+#define REL_BASE    0x90000
+
 #define PREFERRED_BASE  0x6f000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
 #define BOOT_PART_TABLE  (0x70000 + SHIFT) //
 #define FSYS_BUFLEN  0x8000

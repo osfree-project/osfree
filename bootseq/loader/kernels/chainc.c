@@ -11,6 +11,8 @@
 #pragma aux ldr_drive            "*"
 //#pragma aux printk               "*"
 #pragma aux lip_module_present   "*"
+#pragma aux start1               "*"
+#pragma aux bss_end              "*"
 
 //#include <string.h>
 //#include <ctype.h>
@@ -18,6 +20,7 @@
 #include <lip.h>
 #include "fsys.h"
 #include "term.h"
+#include "fsd.h"
 
 // BootPart address. Here we copy 
 // ((current_partion & 0xff0000) >> 12)
@@ -45,6 +48,17 @@ unsigned long cdrom_drive;
 unsigned long saved_drive;
 unsigned long saved_partition;
 
+
+unsigned long load_addr = 0;
+unsigned long load_segment = -1;
+unsigned long load_offset = -1;
+unsigned long __ebx = -1;
+unsigned long __edx = -1;
+int boot_cs = 0;
+int boot_ip = 0x7c00;
+
+extern unsigned long start1;
+extern unsigned long bss_end;
 
 void init(void)
 {
@@ -88,9 +102,6 @@ void kernel_ldr(char *kernel, unsigned long kernel_len)
     printf("kernel loaded @ 0x%x, len = %u\r\n", kernel, kernel_len);
   }
 
-  // Copy kernel
-  grub_memmove((char *)BOOTSEC_LOCATION, kernel, kernel_len);
-
   // Get boot_drive value
   //u_parm(PARM_BOOT_DRIVE, ACT_GET, (unsigned int *)&boot_drive);
   //u_parm(PARM_CDROM_DRIVE, ACT_GET, (unsigned int *)&cdrom_drive);
@@ -116,6 +127,7 @@ void cmain(void)
   char *s, *kernel_cmdline;
   int force = 0;
   unsigned char ch, *p;
+  int n;
 
   boot_part  = (boot_drive >> 8) << 8;
   boot_drive = boot_drive & 0xff;
@@ -138,6 +150,45 @@ void cmain(void)
     kernel = (char *)mod->mod_start;
     kernel_len = mod->mod_end - mod->mod_start;
     kernel_cmdline = (char *)mod->cmdline;
+
+    if (s = grub_strstr(cmdline, "--load-segment"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, (int *)&load_segment);
+    }
+
+    if (s = grub_strstr(cmdline, "--load-offset"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, (int *)&load_offset);
+    }
+
+    if (s = grub_strstr(cmdline, "--boot-cs"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, &boot_cs);
+    }
+
+    if (s = grub_strstr(cmdline, "--boot-ip"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, &boot_ip);
+    }
+
+    if (s = grub_strstr(cmdline, "--ebx"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, (int *)&__ebx);
+    }
+
+    if (s = grub_strstr(cmdline, "--edx"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, (int *)&__edx);
+    }
+
+    // Copy myself to conventional memory
+    grub_memmove((char *)REL_BASE, (char *)KERN_BASE, (int)&bss_end - (int)KERN_BASE);
 
     if (lip_module_present) printf("cmdline=%s\r\n", cmdline);
 
@@ -185,7 +236,15 @@ void cmain(void)
     p  = (unsigned char *)BOOTPART_ADDR;
     *p = ch;
     ldr_drive = current_partition | (ldr_drive << 24);
-  
+
+    if (load_segment != -1 && load_offset != -1) 
+      load_addr = (load_segment << 4) + load_offset;
+
+    if (!load_addr) load_addr = BOOTSEC_LOCATION;
+
+    // Copy kernel
+    grub_memmove((char *)load_addr, kernel, kernel_len);
+
     kernel_ldr(kernel, kernel_len);
   }
 }

@@ -102,7 +102,7 @@ protmode:
         mov  gs, ax
 
 	;mov  ax, PSEUDO_RM_SSEG
-        mov  ax, PSEUDO_RM_DSEG
+        ;mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
         ; do a far call to a 32-bit segment
         push esi
@@ -136,8 +136,8 @@ realmode:
         mov  gs,  ax
 
 	;mov  eax, STAGE0_BASE
-        mov  eax, base
-	shr  eax, 4 
+        ;mov  eax, base
+	;shr  eax, 4 
         mov  ss,  ax
         ; Restore interrupts
         sti
@@ -301,8 +301,8 @@ endif
         mov  eax, esp
         mov  dword ptr ds:[PROTSTACK], eax
 
-	mov  ax, word ptr ds:[RMSTACK + 2]
-        ;mov  ax, PSEUDO_RM_DSEG
+	;mov  ax, word ptr ds:[RMSTACK + 2]
+        mov  ax, PSEUDO_RM_DSEG
 	mov  ss, ax
 	xor  eax, eax
         mov  ax, word ptr ds:[RMSTACK]

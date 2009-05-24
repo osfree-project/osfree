@@ -144,12 +144,12 @@ _Packed struct {
   struct {
     char name[0x20];
     int  base;
-    // char multiboot;
+    int  len;
   } loader;
   struct {
     char name[0x20];
     int  base;
-    // char multiboot;
+    int  len;
   } extloader;
   struct {
     char name[0x20];
@@ -163,7 +163,7 @@ _Packed struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
-} conf = {0x80, 2, {0, fsys_list}, {"/boot/loader/freeldr.mdl", 0x20000}, {"/os2ldr", 0x10000},
+} conf = {0x80, 2, {0, fsys_list}, {"/boot/loader/freeldr.mdl", 0x20000, 0xf}, {"/os2ldr", 0x10000, 0xf},
           {"/os2boot", 0x7c0}, {0, term_list},};
 
 char *preldr_path = "/boot/loader/"; // freeldr path
@@ -1034,6 +1034,14 @@ int process_cfg_line1(char *line)
        else
          panic("process_cfg_line: incorrect loader load base value!", "");
      }
+     else if (abbrev(line, "len", 3))
+     {
+       line = strip(skip_to(1, line));
+       if (safe_parse_maxint(&line, &n))
+         conf.loader.len = n;
+       else
+         panic("process_cfg_line: incorrect loader length value!", "");
+     }
      else
      {
      }
@@ -1054,6 +1062,14 @@ int process_cfg_line1(char *line)
          conf.extloader.base = n;
        else
          panic("process_cfg_line: incorrect extloader load base value!", "");
+     }
+     else if (abbrev(line, "len", 3))
+     {
+       line = strip(skip_to(1, line));
+       if (safe_parse_maxint(&line, &n))
+         conf.extloader.len = n;
+       else
+         panic("process_cfg_line: incorrect extloader length value!", "");
      }
      else
      {
@@ -1299,9 +1315,9 @@ void set_ftable (int which_ldr)
   ft.ft_cfiles = files;
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen; // 0x3800;
-  ft.ft_museg  = (EXT_BUF_BASE + EXT_LEN - 0x10000) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
+  ft.ft_museg  = (SCRATCHADDR + 0x1000) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
                                          // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
-  ft.ft_mulen  = 0x10000;     // It is empirically found maximal value
+  ft.ft_mulen  = 0xd000; // 0x10000;     // It is empirically found maximal value
   ft.ft_mfsseg = mfsbase >> 4;    // 0x7c;
   ft.ft_mfslen = mfslen;  // 0x95f0;
   ft.ft_ripseg = 0; // 0x800;   // end of mfs
@@ -1354,10 +1370,10 @@ int init(void)
   char str[0x80];
   char *s;
   unsigned long ldrlen = 0, mfslen = 0;
-  unsigned long ldrbase;
   unsigned short *p;
   unsigned long  *q;
   struct desc *z;
+  unsigned long ldrbase;
   unsigned long base;
   int i, k, l;
   int key;
@@ -1437,40 +1453,56 @@ int init(void)
       grub_strcpy(conf.loader.name, "/os2ldr\0");
   }
 
-  if (*conf.extloader.name)
-    freeldr_open(conf.extloader.name);
-  else
-    freeldr_open(conf.loader.name);
+  printf("mem_lower=0x%x\r\n", mem_lower);
+
+  //if (*conf.extloader.name)
+  //  freeldr_open(conf.extloader.name);
+  //else
+  //  freeldr_open(conf.loader.name);
 
   /* size of the loader */
-  ldrlen  = filemax;
-
-  printf("mem_lower=0x%x\r\n", mem_lower);
+  //ldrlen  = filemax;
 
   /* calculate highest available address
      -- os2ldr base or top of low memory  */
 
-  k = ldrlen >> (PAGESHIFT - 3);
-  i = k >> 3;
+  //k = ldrlen >> (PAGESHIFT - 3);
+  //i = k >> 3;
 
   /* special case: os2ldr of aurora sized
      44544 bytes, 44544 >> 12 == 0xa      */
-  if (k == 0x57) i++; // one page more
+  //if (k == 0x57) i++; // one page more
 
-  if (!conf.multiboot || *conf.extloader.name) // os2ldr
-    ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
-  else                 // multiboot loader
-    ldrbase =  mem_lower << KSHIFT;
+  //if (!conf.multiboot || *conf.extloader.name) // os2ldr
+  //  ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - (i + 3)) << PAGESHIFT;
+  //else                 // multiboot loader
+  //  ldrbase =  mem_lower << KSHIFT;
+
+  if (*conf.extloader.name)
+    ldrlen = conf.extloader.len;
+  else
+    ldrlen = conf.loader.len;
+
+  /* calculate highest available address
+     -- os2ldr base or top of low memory  */
+
+  if (!conf.multiboot || *conf.extloader.name) //os2ldr
+    ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - ldrlen) << PAGESHIFT;
+  else
+    ldrbase = mem_lower << KSHIFT;
+
+  //if (mem_lower == 0x280) ldrbase = 0x91000;
+  //if (mem_lower == 0x27e) ldrbase = 0x90000;
 
   printf("ldr base 0x%x\r\n", ldrbase);
 
   /* the correction shift added while relocating */
-  relshift = ldrbase - (PREFERRED_BASE + 0x10000);
+  relshift = ldrbase - (PREFERRED_BASE + 0x10000) - 0x1000;
 
   /* move preldr and its data */
-  grub_memmove((char *)(ldrbase - 0x10000),
-               (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
-               0x10000);
+  grub_memmove((char *)(ldrbase - 0x10000 - 0x1000),
+               (char *)(PREFERRED_BASE), // (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
+               0xd000);
 
   /* move uFSD */
   grub_memmove((char *)(EXT3HIBUF_BASE),
@@ -1629,12 +1661,12 @@ int init(void)
     rc = freeldr_read(buf, -1);
     if (!rc) {
       __asm {
-        sti
+        cli
         hlt
       }
     }
   } else __asm {
-    sti
+    cli
     hlt
   }
 

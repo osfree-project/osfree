@@ -12,6 +12,8 @@ public   printb
 public   printw
 public   printd
 public   printhex8
+public   printhex4
+public   printhex2
 
 endif
 
