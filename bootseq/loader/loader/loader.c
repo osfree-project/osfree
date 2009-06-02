@@ -47,7 +47,7 @@ int screen_bg_color_hl = 0;
 int screen_fg_color_hl = 7;
 
 int num_items = 0;
-int scrollnum = 0;
+static int scrollnum = 0;
 
 void show_background_screen(void);
 void draw_menu(int item, int shift);
@@ -178,7 +178,7 @@ process_cfg_line1(char *line)
           return 0;
         }
         return 1;
-      } 
+      }
     }
   }
 
@@ -291,7 +291,7 @@ get_user_input(int *item, int *shift)
       case 0x11b:  // esc
       {
         int ii;
-        if (state == 0) 
+        if (state == 0)
         {
           state++;
           t->cls();
@@ -306,6 +306,9 @@ get_user_input(int *item, int *shift)
       }
       default:
        {
+         t->gotoxy(SCREEN_WIDTH - 7, SCREEN_HEIGHT - 2);
+         t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
+                     (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
          printf("0x%x\r\n", c);
          return 1;
        }
@@ -319,9 +322,8 @@ get_user_input(int *item, int *shift)
 
 void show_background_screen(void)
 {
-  int i;
-  char *s1 = "--== FreeLdr ver. 0.0.2. ==--";
-  char *s2 = "(c) osFree project, 2008 Jun 23. licensed under GNU GPL v.2";
+  int i, j;
+  char *s1 = "±±±±±±±±±±±±±± FreeLdr v.0.0.3, (c) osFree project, 2009 May 28 ±±±±±±±±±±±±±±";
   int  l, n;
 
   t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
@@ -332,46 +334,54 @@ void show_background_screen(void)
 
   /* draw the frame */
 
-  t->gotoxy(1, 0);
-  t->putchar(0xda);
-  for (i = 0; i < 80 - 4; i++) t->putchar(0xc4);
-  t->putchar(0xbf);
+  t->gotoxy(0, 0); t->putchar('É');
+  for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Í');
+  t->gotoxy(SCREEN_WIDTH - 1, 0); t->putchar('»');
 
-
-  for (i = 0; i < 25 - 2; i++)
+  for (i = 0; i < SCREEN_HEIGHT - 2; i++)
   {
-    t->gotoxy(1,  1 + i); t->putchar(0xb3);
-    t->gotoxy(78, 1 + i); t->putchar(0xb3);
+    t->gotoxy(0,  1 + i); t->putchar('º');
+    t->gotoxy(SCREEN_WIDTH - 1, 1 + i); t->putchar('º');
   }
 
-  t->gotoxy(1, 24);
-  t->putchar(0xc0);
+  t->gotoxy(0, SCREEN_HEIGHT - 1); t->putchar('È');
 
-  for (i = 0; i < 80 - 4; i++) t->putchar(0xc4);
+  for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Í');
 
-  t->gotoxy(78, 24);
-  t->putchar(0xd9);
-
-  t->setcolor(0x75, 7);
+  t->gotoxy(SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1); t->putchar('¼');
 
   /* header line */
-  t->gotoxy(4, 0);
+  t->gotoxy(1, 1);
   l = grub_strlen(s1);
-  n = (80 - 8 - l) / 2;
+  n = (SCREEN_WIDTH - 2 - l) / 2;
   for (i = 0; i < n; i++) t->putchar(' ');
   for (i = 0; i < l; i++) t->putchar(s1[i]);
-  for (i = n + l; i < 80 - 8; i++) t->putchar(' ');
+  for (i = n + l; i < SCREEN_WIDTH - 2; i++) t->putchar(' ');
 
-  /* footer line */
-  t->gotoxy(4, 24);
-  for(i = 0; i < 80 - 8; i++) t->putchar(' ');
+  /* the underline */
+  t->gotoxy(0, 2);
+  t->putchar('Ç');
+  for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Ä');
+  t->putchar('¶');
 
-  /* copyright */
-  t->gotoxy(5, 24);
-  printf("%s", s2);
+  /* background pattern */
+  for (i = 0; i < SCREEN_HEIGHT - 4; i++)
+  {
+    t->gotoxy(1, 3 + i);
+    for (j = 0; j < SCREEN_WIDTH - 2; j++)
+    {
+      t->putchar('±');
+    }
+  }
 
-  t->setcolor((char)foreground_color    | ((char)background_color << 4),
-              (char)foreground_color_hl | ((char)background_color_hl << 4));
+  /* status line and help */
+  t->gotoxy(0, SCREEN_HEIGHT - 3);
+  t->putchar('Ç');
+  for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Ä');
+  t->putchar('¶');
+
+  t->gotoxy(1, SCREEN_HEIGHT - 2);
+  printf(" F1 Help, Esc Console, F4 Edit ");
 }
 
 void
@@ -398,6 +408,8 @@ void draw_menu(int item, int shift)
   char spc[0x80];
   char buf[0x100];
   char *p;
+  int  x0, y0;
+  int  offset;
 
   //t->setcolorstate(COLOR_STATE_NORMAL);
 
@@ -409,7 +421,13 @@ void draw_menu(int item, int shift)
   t->setcolor((char)foreground_color    | ((char)background_color << 4),
               (char)foreground_color_hl | ((char)background_color_hl << 4));
 
-  t->gotoxy(12, 5);
+  if (menu_width  > SCREEN_WIDTH  - 4) menu_width  = SCREEN_WIDTH  - 4;
+  if (menu_height > SCREEN_HEIGHT - 8) menu_height = SCREEN_HEIGHT - 8;
+
+  x0 = (SCREEN_WIDTH  - menu_width)  / 2 - 1;
+  y0 = (SCREEN_HEIGHT - menu_height) / 2 - 1;
+
+  t->gotoxy(x0, y0);
   l = 0;
   buf[l++] = 0xda;
   while (l < menu_width) buf[l++] = 0xc4;
@@ -418,9 +436,10 @@ void draw_menu(int item, int shift)
 
   grub_memset(buf, 0, sizeof(buf));
 
-  if (item + 2 > menu_height) scrollnum = item + 1 - menu_height;
+  if (item > menu_height - 2) scrollnum = (item - (menu_height - 1));
   if (item == num_items + 1)  scrollnum = 0;
   if (!item) scrollnum = 0;
+
 
   sc = menu_first;
 
@@ -442,7 +461,7 @@ void draw_menu(int item, int shift)
   {
     j = scrollnum + i;
 
-    t->gotoxy(12, 6 + i);
+    t->gotoxy(x0, y0 + i + 1);
 
     printf("%c ", 0xb3);
 
@@ -475,7 +494,7 @@ void draw_menu(int item, int shift)
     //i++;
   }
 
-  t->gotoxy(12, 6 + i);
+  t->gotoxy(x0, y0 + i + 1);
   l = 0;
   buf[l++] = 0xc0;
   while (l < menu_width) buf[l++] = 0xc4;
@@ -490,7 +509,7 @@ void draw_menu(int item, int shift)
 void showpath(void)
 {
   printf("\r\n[%s] ", path);
-  promptlen = strlen(path) + 3; 
+  promptlen = strlen(path) + 3;
   t->setcursor(5);
 }
 
@@ -503,8 +522,8 @@ char *getcmd(int key)
   int p;
 
   memset(cmdbuf, 0, sizeof(cmdbuf));
- 
-  do 
+
+  do
   {
     switch (ch)
     {
@@ -540,7 +559,7 @@ char *getcmd(int key)
            if ((pos >> 8) <= promptlen) pos = ((promptlen) << 8) | (pos & 0xff);
            if (cur <= 0) cur = 0;
            if (ind <= 0) ind = 0;
-           p = cur; 
+           p = cur;
            while (*(cmdbuf + p) = *(cmdbuf + p + 1)) p++;
            cmdbuf[p++] = '\0';
            t->gotoxy(promptlen, pos & 0xff);
@@ -555,7 +574,7 @@ char *getcmd(int key)
          if ((pos >> 8) < promptlen + ind)
          {
            ind--;
-           p = cur; 
+           p = cur;
            while (*(cmdbuf + p) = *(cmdbuf + p + 1)) p++;
            cmdbuf[p++] = '\0';
            t->gotoxy(promptlen, pos & 0xff);
@@ -594,7 +613,7 @@ char *getcmd(int key)
          ch = 0x0;
          continue;
        case 0x11b:  // esc key
-         break;   
+         break;
        case 0x1c0d: // enter key
          cmdbuf[ind++] = '\0';
          return cmdbuf;
@@ -626,7 +645,7 @@ void cmdline(int item, int shift)
 
   //printf("cmdline!\r\n");
 
-  while (1) 
+  while (1)
   {
     showpath();
     ch = t->getkey();
@@ -636,9 +655,9 @@ void cmdline(int item, int shift)
       printf("\r\n%s\r\n", cmd);
       exec_cmd(cmd);
     }
-    else 
+    else
       break;
-  } 
+  }
 
   t->cls();
   state = 0;
@@ -662,7 +681,7 @@ void menued(int item, int shift)
   while (n)
   {
     n--;
-    if (!n) 
+    if (!n)
     { /* (sc->scr, sc->num) */
       p = sc->scr;
       for (i = 0; i < sc->num; i++)
@@ -722,7 +741,7 @@ exec_menu(void)
         break;
     }
     break;
-  } 
+  }
 
   return item;
 }
@@ -760,13 +779,13 @@ exec_cfg(char *cfg)
   // boot scripts and menu items
   menu_len = 0; config_len = 0;
   process_cfg_line = process_cfg_line1;
-    
+
   // clear variable store
   memset(variable_list, 0, sizeof(variable_list));
-   
+
   rc = process_cfg(cfg);
-  
-  if (!rc) 
+
+  if (!rc)
     return 0;
   else if (rc == -1)
     panic("exec_cfg(): Error processing config file: ", cfg);

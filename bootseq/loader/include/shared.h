@@ -97,12 +97,12 @@ extern char *grub_scratch_mem;
    includes the area into which Stage 1.5 and Stage 1 are loaded, but
    that's no problem.  */
 //#define MB_CMDLINE_BUF          RAW_ADDR (0x2000)
-#define MB_CMDLINE_BUF          RAW_ADDR (0x62000)
+#define MB_CMDLINE_BUF          RAW_ADDR (0x52000)
 #define MB_CMDLINE_BUFLEN       0x6000
 
 /* The buffer for the password.  */
 //#define PASSWORD_BUF            RAW_ADDR (0x78000)
-#define PASSWORD_BUF            RAW_ADDR (0x685a0)
+#define PASSWORD_BUF            RAW_ADDR (0x585a0)
 #define PASSWORD_BUFLEN         0x200
 
 /* THe buffer for the filename of "/boot/grub/default".  */

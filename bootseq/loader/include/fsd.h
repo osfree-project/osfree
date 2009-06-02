@@ -21,8 +21,8 @@
 #define KERN_BASE   0x800000
 #define REL_BASE    0x90000
 
-#define PREFERRED_BASE  0x6f000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
-#define BOOT_PART_TABLE  (0x70000 + SHIFT) //
+#define PREFERRED_BASE  0x5f000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
+#define BOOT_PART_TABLE  (0x60000 + SHIFT) //
 #define FSYS_BUFLEN  0x8000
 
 // ;
@@ -39,27 +39,27 @@
 #define NEW_STACK_SP  0x3fe000 // stack
 #define STACKLEN  0x4000
 
-// ;STACK_SP        equ (0x74800 + SHIFT)     ; stack
+// ;STACK_SP        equ (0x64800 + SHIFT)     ; stack
 // ;
-// ;EXT1LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer1
-// ;EXT2LOBUF_BASE  equ 0x74800               ; blackbox low memory buffer2
-// ;EXT3LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer3
-// ;TERMLO_BASE     equ 0x74800               ; terminal blackbox base (low)
-// ;BOOTSEC_BASE    equ (0x74c00 + SHIFT)     ; bootsector relocation base
-// ;STAGE0_BASE     equ (0x74e00 + SHIFT)     ; Stage0 load base
-// ;EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
+// ;EXT1LOBUF_BASE  equ 0x64400               ; blackbox low memory buffer1
+// ;EXT2LOBUF_BASE  equ 0x64800               ; blackbox low memory buffer2
+// ;EXT3LOBUF_BASE  equ 0x64400               ; blackbox low memory buffer3
+// ;TERMLO_BASE     equ 0x64800               ; terminal blackbox base (low)
+// ;BOOTSEC_BASE    equ (0x64c00 + SHIFT)     ; bootsector relocation base
+// ;STAGE0_BASE     equ (0x64e00 + SHIFT)     ; Stage0 load base
+// ;EXT_BUF_BASE    equ (0x6c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-#define STACK_SP  (0x73800 + SHIFT) // stack
+#define STACK_SP  (0x63800 + SHIFT) // stack
 
-#define EXT1LOBUF_BASE  0x73400 // blackbox low memory buffer1
-#define EXT2LOBUF_BASE  0x73800 // blackbox low memory buffer2
-#define EXT3LOBUF_BASE  0x73c00 // blackbox low memory buffer3
-#define TERMLO_BASE  0x73800 // terminal blackbox base (low)
-#define BOOTSEC_BASE  (0x73c00 + SHIFT) // bootsector relocation base
-#define STAGE0_BASE  (0x73e00 + SHIFT) // Stage0 load base
-#define EXT_BUF_BASE  (0x7c000 + SHIFT) // buffer for extensions (blackboxes) (size: 0x2800 bytes)
+#define EXT1LOBUF_BASE  0x63400 // blackbox low memory buffer1
+#define EXT2LOBUF_BASE  0x63800 // blackbox low memory buffer2
+#define EXT3LOBUF_BASE  0x63c00 // blackbox low memory buffer3
+#define TERMLO_BASE  0x63800 // terminal blackbox base (low)
+#define BOOTSEC_BASE  (0x63c00 + SHIFT) // bootsector relocation base
+#define STAGE0_BASE  (0x63e00 + SHIFT) // Stage0 load base
+#define EXT_BUF_BASE  (0x6c000 + SHIFT) // buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-#define SCRATCHADDR  (0x6f000 + SHIFT) // 512-byte scratch area
+#define SCRATCHADDR  (0x5f000 + SHIFT) // 512-byte scratch area
 #define BUFFERADDR  SCRATCHADDR + 0x200 //
 #define BUFFERLEN  0xe00 // 0x7e00
 
@@ -67,7 +67,6 @@
 #define EXTLO_LEN  0x400 // low portion
 #define EXT2LEN  0x5000
 #define STAGE0_LEN  (EXT_BUF_BASE - STAGE0_BASE)
-// ;STAGE0_LEN      equ (0x7f000 + SHIFT - STAGE0_BASE)
 
 #define FSYS_MAX  0x20 // max number of filesystems
 #define BOOT_MAGIC  0x2BADB002 // extended boot info magic

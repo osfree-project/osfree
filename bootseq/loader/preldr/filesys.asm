@@ -89,12 +89,6 @@ mu_Open proc far
         ; char far *pName
         mov  ebx, dword ptr [bp + 06h]
 
-        mov  si, ds
-        call printhex4
- 
-        xor  ax, ax
-        int  16h
-
         switch_to_preldr
 
         ; convert far ptr in ebx to
@@ -103,7 +97,7 @@ mu_Open proc far
         shr  ecx, 16
         shl  ecx, 4
         and  ebx, 0ffffh
-	;and  ecx, 0fffffh
+        ;and  ecx, 0fffffh
         add  ebx, ecx
 
         ; switch to PM and call muOpen
@@ -174,7 +168,7 @@ mu_Read proc far
         shr  edx, 16
         mov  eax, ebx
         and  eax, 0ffffh
-	;and  edx, 0ffffh
+        ;and  edx, 0ffffh
 
         switch_to_ldr
 

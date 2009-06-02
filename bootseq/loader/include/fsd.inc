@@ -21,9 +21,9 @@ LDR_SEG         equ 0x2000                ; freeldr segment
 KERN_BASE       equ 0x800000
 REL_BASE        equ 0x90000
 
-PREFERRED_BASE  equ 0x6f000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
+PREFERRED_BASE  equ 0x5f000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
                                           ; when loaded initially without relocation)
-BOOT_PART_TABLE equ (0x70000 + SHIFT)     ;
+BOOT_PART_TABLE equ (0x60000 + SHIFT)     ;
 FSYS_BUFLEN     equ 0x8000
 
 ;
@@ -40,27 +40,27 @@ TERM_BASE         equ 0x3ec000            ; EXT3HIBUF_BASE
 NEW_STACK_SP    equ 0x3fe000              ; stack
 STACKLEN        equ 0x4000
 
-;STACK_SP        equ (0x74800 + SHIFT)     ; stack
+;STACK_SP        equ (0x64800 + SHIFT)     ; stack
 ;
-;EXT1LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer1
-;EXT2LOBUF_BASE  equ 0x74800               ; blackbox low memory buffer2
-;EXT3LOBUF_BASE  equ 0x74400               ; blackbox low memory buffer3
-;TERMLO_BASE     equ 0x74800               ; terminal blackbox base (low)
-;BOOTSEC_BASE    equ (0x74c00 + SHIFT)     ; bootsector relocation base
-;STAGE0_BASE     equ (0x74e00 + SHIFT)     ; Stage0 load base
-;EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
+;EXT1LOBUF_BASE  equ 0x64400               ; blackbox low memory buffer1
+;EXT2LOBUF_BASE  equ 0x64800               ; blackbox low memory buffer2
+;EXT3LOBUF_BASE  equ 0x64400               ; blackbox low memory buffer3
+;TERMLO_BASE     equ 0x64800               ; terminal blackbox base (low)
+;BOOTSEC_BASE    equ (0x64c00 + SHIFT)     ; bootsector relocation base
+;STAGE0_BASE     equ (0x64e00 + SHIFT)     ; Stage0 load base
+;EXT_BUF_BASE    equ (0x6c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-STACK_SP        equ (0x73800 + SHIFT)     ; stack
+STACK_SP        equ (0x63800 + SHIFT)     ; stack
 
-EXT1LOBUF_BASE  equ 0x73400               ; blackbox low memory buffer1
-EXT2LOBUF_BASE  equ 0x73800               ; blackbox low memory buffer2
-EXT3LOBUF_BASE  equ 0x73c00               ; blackbox low memory buffer3
-TERMLO_BASE     equ 0x73800               ; terminal blackbox base (low)
-BOOTSEC_BASE    equ (0x73c00 + SHIFT)     ; bootsector relocation base
-STAGE0_BASE     equ (0x73e00 + SHIFT)     ; Stage0 load base
-EXT_BUF_BASE    equ (0x7c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
+EXT1LOBUF_BASE  equ 0x63400               ; blackbox low memory buffer1
+EXT2LOBUF_BASE  equ 0x63800               ; blackbox low memory buffer2
+EXT3LOBUF_BASE  equ 0x63c00               ; blackbox low memory buffer3
+TERMLO_BASE     equ 0x63800               ; terminal blackbox base (low)
+BOOTSEC_BASE    equ (0x63c00 + SHIFT)     ; bootsector relocation base
+STAGE0_BASE     equ (0x63e00 + SHIFT)     ; Stage0 load base
+EXT_BUF_BASE    equ (0x6c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-SCRATCHADDR     equ (0x6f000 + SHIFT)     ; 512-byte scratch area
+SCRATCHADDR     equ (0x5f000 + SHIFT)     ; 512-byte scratch area
 BUFFERADDR      equ SCRATCHADDR + 0x200   ;
 BUFFERLEN       equ 0xe00                ; 0x7e00
 
@@ -68,7 +68,6 @@ EXT_LEN         equ 0x3000                ; extension (blackbox) buffer size
 EXTLO_LEN       equ 0x400                 ; low portion
 EXT2LEN         equ 0x5000
 STAGE0_LEN      equ (EXT_BUF_BASE - STAGE0_BASE)
-;STAGE0_LEN      equ (0x7f000 + SHIFT - STAGE0_BASE)
 
 FSYS_MAX        equ 0x20                  ; max number of filesystems
 BOOT_MAGIC      equ 0x2BADB002            ; extended boot info magic
