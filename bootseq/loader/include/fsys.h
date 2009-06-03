@@ -73,8 +73,8 @@ u_msg (char *s);
 void __cdecl
 u_setlip (lip2_t *l);
 
-vbe_mode_set(struct vbe_controller *controller, int mode_number, 
-             struct vbe_mode *mode, unsigned int *pmif_segoff, 
+vbe_mode_set(struct vbe_controller *controller, int mode_number,
+             struct vbe_mode *mode, unsigned int *pmif_segoff,
              unsigned int *pmif_len);
 
 /* VBE control functions */
@@ -110,6 +110,8 @@ struct pmif
 #define PARM_FILEPOS              12
 #define PARM_FILEMAX              13
 #define PARM_EXTENDED_MEMORY      14
+#define PARM_PREFIX               15
+#define PARM_LDRLEN               16
 
 #pragma aux u_open   "*"
 #pragma aux u_read   "*"

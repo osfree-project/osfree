@@ -556,7 +556,7 @@ static struct builtin builtin_modaddr =
   "modaddr",
   modaddr_func,
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
-  "modaddr ADDRESS", 
+  "modaddr ADDRESS",
   "Set the load address for the next Multiboot module to ADDRESS"
 };
 
@@ -573,7 +573,7 @@ static struct builtin builtin_lipmodule =
   "lipmodule",
   lipmodule_func,
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
-  "lipmodule", 
+  "lipmodule",
   "Create a module with LIP table in it"
 };
 
@@ -593,7 +593,7 @@ static struct builtin builtin_bsmodule =
   "bsmodule",
   bsmodule_func,
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
-  "bsmodule <file>", 
+  "bsmodule <file>",
   "Create a module with bootsector and fix BPB table in it,"
   "so correct hiddensectors and boot drive letter are set."
 };
@@ -1420,8 +1420,31 @@ static struct builtin builtin_screen =
 int
 os2ldr_func(char *arg, int flags)
 {
+  char *s, *se, *r;
+  char bf[0x200];
+  int  n;
+
   os2ldr++;
   printf("Loading OS/2\r\n");
+
+  if (s = strstr(arg, "--prefix"))
+  {
+    s  = skip_to(1, s); // pointer to beginning of the prefix
+    se = skip_to(1, s); // pointer to the end of the prefix
+    r = se - 1;
+    if (*r == ' ') se--;
+    grub_strncpy(bf, s, se - s);
+    n = se - s;
+    bf[n] = '\0';
+    u_parm(PARM_PREFIX, ACT_SET, (unsigned int *)bf);
+  }
+
+  if (s = strstr(arg, "--ldrlen"))
+  {
+    s = skip_to(1, s);
+    safe_parse_maxint(&s, &n);
+    u_parm(PARM_LDRLEN, ACT_SET, (unsigned int *)&n);
+  }
 
   return 0;
 }
@@ -1470,5 +1493,5 @@ struct builtin *builtins[] = {
   &builtin_screen,
   &builtin_os2ldr,
   &builtin_dlat,
-  0    
+  0
 };

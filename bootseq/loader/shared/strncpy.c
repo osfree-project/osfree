@@ -16,6 +16,7 @@ grub_strncpy (char *dest, const char *src, int n)
     dest[i] = src[i];
     if (!src[i]) break;
   }
+  dest[n] = '\0';
 
   return dest;
 }
