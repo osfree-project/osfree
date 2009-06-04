@@ -628,7 +628,8 @@ int redir_file(char *file)
   char buf[0x200];
 
   grub_strncpy(buf, file, strlen(file));
-  for (q = buf; *q && q - buf < 0x200; q++) *q = grub_toupper(*q);
+  for (q = buf; *q && q - buf < 0x200; q++)
+    *q = grub_toupper(*q);
 
   while (*p)
   {
@@ -1310,11 +1311,11 @@ void __cdecl set_addr (void)
 
     printf("mem_lower=0x%x\r\n", mem_lower);
 
-    /* calculate highest available address
-       -- os2ldr base or top of low memory  */
     ldrlen = (ldrlen + 0x1280 + 0x1000 + 0xfff) >> PAGESHIFT;
-  }
+  } /* os2ldr stack size--^       ^----arena info size  */
 
+  /* calculate highest available address
+     -- os2ldr base or top of low memory  */
   if (!conf.multiboot || *conf.extloader.name) // os2ldr
     ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - ldrlen) << PAGESHIFT;
   else
