@@ -143,6 +143,8 @@ type APIRET16=USHORT;
 type APIRET32=ULONG;
 
 type PSZ=^T_CHAR;
+type SZ=T_CHAR;
+
 type NPSZ=^T_CHAR;
 type PCH=^T_CHAR;
 type PCCH=PCH;

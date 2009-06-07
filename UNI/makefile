@@ -88,6 +88,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winatom.h &
+     $(OUT)$(SEP)os2$(SEP)winmenus.h &
      $(OUT)$(SEP)os2$(SEP)winaccelerators.h &
      $(OUT)$(SEP)os2$(SEP)winload.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
@@ -97,6 +98,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)winwindowmgr.h &
      $(OUT)$(SEP)os2$(SEP)winclipboarddde.h &
      $(OUT)$(SEP)os2$(SEP)winprogramlist.h &
+     $(OUT)$(SEP)os2$(SEP)winframectls.h &
      $(OUT)$(SEP)os2$(SEP)winframemgr.h &
      $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)winshelldata.h &
@@ -112,12 +114,16 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wincountry.h &
      $(OUT)$(SEP)os2$(SEP)wincursors.h &
      $(OUT)$(SEP)os2$(SEP)windde.h &
+     $(OUT)$(SEP)os2$(SEP)winmle.h &
+     $(OUT)$(SEP)os2$(SEP)winpalette.h &
+     $(OUT)$(SEP)os2$(SEP)winpointers.h &
      $(OUT)$(SEP)os2$(SEP)windesktop.h &
      $(OUT)$(SEP)os2$(SEP)winentryfields.h &
      $(OUT)$(SEP)os2$(SEP)windialogs.h &
      $(OUT)$(SEP)os2$(SEP)windialogscommon.h &
      $(OUT)$(SEP)os2$(SEP)winbuttons.h &
      $(OUT)$(SEP)os2$(SEP)winlistboxes.h &
+     $(OUT)$(SEP)os2$(SEP)pmhelp.h &
      $(OUT)$(SEP)os2$(SEP)pmgpi.h &
      $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &
      $(OUT)$(SEP)os2$(SEP)gpilcids.h &
@@ -244,6 +250,8 @@ $(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
 
 $(OUT)$(SEP)os2$(SEP)pmstddlg.h: os2$(SEP)pmstddlg.uni
 
+$(OUT)$(SEP)os2$(SEP)pmhelp.h: os2$(SEP)pmhelp.uni
+
 $(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)winstdbook.uni
 
 $(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)winswitchlist.uni
@@ -252,11 +260,17 @@ $(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h: os2$(SEP)winswitchlistcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)winframemgr.h: os2$(SEP)winframemgr.uni
 
+$(OUT)$(SEP)os2$(SEP)winframectls.h: os2$(SEP)winframectls.uni
+
 $(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)winload.uni
+
+$(OUT)$(SEP)os2$(SEP)winpalette.h: os2$(SEP)winpalette.uni
 
 $(OUT)$(SEP)os2$(SEP)winatom.h: os2$(SEP)winatom.uni
 
 $(OUT)$(SEP)os2$(SEP)wincursors.h: os2$(SEP)wincursors.uni
+
+$(OUT)$(SEP)os2$(SEP)winpointers.h: os2$(SEP)winpointers.uni
 
 $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)winframemgrcommon.uni
 
@@ -271,6 +285,8 @@ $(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)winprogramlist.uni
 $(OUT)$(SEP)os2$(SEP)winsys.h: os2$(SEP)winsys.uni
 
 $(OUT)$(SEP)os2$(SEP)windde.h: os2$(SEP)windde.uni
+
+$(OUT)$(SEP)os2$(SEP)winmle.h: os2$(SEP)winmle.uni
 
 $(OUT)$(SEP)os2$(SEP)windesktop.h: os2$(SEP)windesktop.uni
 
@@ -293,6 +309,8 @@ $(OUT)$(SEP)os2$(SEP)winaccelerators.h: os2$(SEP)winaccelerators.uni
 $(OUT)$(SEP)os2$(SEP)wininputcommon.h: os2$(SEP)wininputcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)winshelldata.h: os2$(SEP)winshelldata.uni
+
+$(OUT)$(SEP)os2$(SEP)winmenus.h: os2$(SEP)winmenus.uni
 
 $(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)winerrors.uni
 

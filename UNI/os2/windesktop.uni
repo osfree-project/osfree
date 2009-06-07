@@ -20,7 +20,7 @@ type DESKTOP=structure
     lTileCount: LONG;
     szFile: array[260] of CHAR;
 end;
-type PDESKTOP=^PDESKTOP;
+type PDESKTOP=^DESKTOP;
 
 function WinSetDesktopBkgnd(in a: HWND; in b: PDESKTOP): HBITMAP;
 function WinQueryDesktopBkgnd(in a: HWND; in b: PDESKTOP): BOOL;
