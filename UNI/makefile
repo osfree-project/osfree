@@ -124,6 +124,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)winbuttons.h &
      $(OUT)$(SEP)os2$(SEP)winlistboxes.h &
      $(OUT)$(SEP)os2$(SEP)pmhelp.h &
+     $(OUT)$(SEP)os2$(SEP)winhelp.h &
      $(OUT)$(SEP)os2$(SEP)pmgpi.h &
      $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &
      $(OUT)$(SEP)os2$(SEP)gpilcids.h &
@@ -251,6 +252,8 @@ $(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
 $(OUT)$(SEP)os2$(SEP)pmstddlg.h: os2$(SEP)pmstddlg.uni
 
 $(OUT)$(SEP)os2$(SEP)pmhelp.h: os2$(SEP)pmhelp.uni
+
+$(OUT)$(SEP)os2$(SEP)winhelp.h: os2$(SEP)winhelp.uni
 
 $(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)winstdbook.uni
 
