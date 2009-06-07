@@ -30,6 +30,7 @@ workaround: cdeftypes2.h
 os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)os2def.h &
      $(OUT)$(SEP)os2$(SEP)bse.h &
+     $(OUT)$(SEP)os2$(SEP)base.h &
      $(OUT)$(SEP)os2$(SEP)bseord.h &
      $(OUT)$(SEP)os2$(SEP)bsememf.h &
      $(OUT)$(SEP)os2$(SEP)bsedos.h &
@@ -154,6 +155,7 @@ $(OUT)$(SEP)os2$(SEP)os2def.h: os2$(SEP)os2def.uni
 
 ### OS/2 Personality base API
 $(OUT)$(SEP)os2$(SEP)bse.h: os2$(SEP)bse.uni
+$(OUT)$(SEP)os2$(SEP)base.h: os2$(SEP)base.uni
 
 ### OS/2 Personality base DOS API ordinals
 $(OUT)$(SEP)os2$(SEP)bsedos.h: os2$(SEP)bsedos.uni
