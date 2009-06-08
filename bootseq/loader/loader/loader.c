@@ -267,13 +267,15 @@ get_user_input(int *item, int *shift)
       case 0x7400: // ctrl-right
       case 0x5:    // end
       {
-        *shift += menu_width;
+        *shift += 10;
+        if (*shift >= 2 * menu_width) *shift = menu_width;
         return 1;
       }
       case 0x7300: // ctrl-left
       case 0x1:    // home
       {
-        *shift -= menu_width;
+        *shift -= 10;
+        if (*shift < 0) *shift = 0;
         return 1;
       }
       case 0x3e00: // F4
@@ -730,7 +732,7 @@ exec_menu(void)
           draw_menu(item, shift);
         }   while (get_user_input(&item, &shift));
         if (state) continue; // if we got here by pressing Esc key
-        break;                    // otherwise, if Enter key pressed
+        break;               // otherwise, if Enter key pressed
       case 1: // cmd line
         cmdline(item, shift);
         continue;

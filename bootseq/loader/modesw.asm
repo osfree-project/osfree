@@ -49,7 +49,7 @@ include mb_etc.inc
 ;else
 ;     ; other blackboxes
 ;endif
-;  
+;
 ;else
 ;  BASE    equ REAL_BASE
 ;endif
@@ -101,7 +101,7 @@ protmode:
         mov  fs, ax
         mov  gs, ax
 
-	;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ax, PSEUDO_RM_SSEG
         ;mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
         ; do a far call to a 32-bit segment
@@ -135,9 +135,9 @@ realmode:
         mov  fs,  ax
         mov  gs,  ax
 
-	;mov  eax, STAGE0_BASE
+        ;mov  eax, STAGE0_BASE
         ;mov  eax, base
-	;shr  eax, 4 
+        ;shr  eax, 4
         mov  ss,  ax
         ; Restore interrupts
         sti
@@ -170,8 +170,8 @@ rmode_switch proc far
         mov  fs, ax
         mov  gs, ax
 
-	mov  eax, base
-	shr  eax, 4
+        mov  eax, base
+        shr  eax, 4
         mov  ss, ax
 
         ; do a far jump to reload a
@@ -180,8 +180,8 @@ rmode_switch proc far
         push rmode1
         retf
 rmode1:
-	; enable interrupts
-	sti
+        ; enable interrupts
+        sti
 
         ; Now we are in a real mode
         ; call a function with address in ebp
@@ -194,8 +194,8 @@ rmode1:
         call dword ptr [bp]
         add  sp, 4
 
-	; disable interrupts
-	cli
+        ; disable interrupts
+        cli
 
         ; Switcch back to protected mode
         mov  eax, cr0
@@ -208,7 +208,7 @@ rmode1:
         mov  fs, ax
         mov  gs, ax
 
-	;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ax, PSEUDO_RM_SSEG
         mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
         ; do a far jump to load a
@@ -260,8 +260,8 @@ pmode   proc far
         mov  fs, ax
         mov  gs, ax
 
-	mov  ax, ss
-	mov  word ptr ds:[RMSTACK + 2], ax
+        mov  ax, ss
+        mov  word ptr ds:[RMSTACK + 2], ax
 
         mov  ax, PROT_MODE_DSEG
         mov  ss, ax
@@ -273,16 +273,16 @@ pmode   proc far
         mov  esp, eax
 
 ifndef STAGE1_5
-	mov  al, byte ptr idt_initted
-	cmp  al, 0
-	jz   not_initted
+        mov  al, byte ptr idt_initted
+        cmp  al, 0
+        jz   not_initted
 
-	call set_pm_idt
-	;mov  byte ptr idt_initted, 1
-	jmp  call_func
+        call set_pm_idt
+        ;mov  byte ptr idt_initted, 1
+        jmp  call_func
 
 not_initted:
-	call idt_init
+        call idt_init
 endif
 
 call_func:
@@ -291,20 +291,20 @@ call_func:
         push  ebp
         call  fword ptr ss:[esp]
         add   esp, 6
-	;add   esp, 14
+        ;add   esp, 14
 
 ifndef STAGE1_5
-	call set_rm_idt
+        call set_rm_idt
 endif
 
         ; Save protected mode stack
         mov  eax, esp
         mov  dword ptr ds:[PROTSTACK], eax
 
-	;mov  ax, word ptr ds:[RMSTACK + 2]
+        ;mov  ax, word ptr ds:[RMSTACK + 2]
         mov  ax, PSEUDO_RM_DSEG
-	mov  ss, ax
-	xor  eax, eax
+        mov  ss, ax
+        xor  eax, eax
         mov  ax, word ptr ds:[RMSTACK]
         ;mov  ax,  0e000h
         mov  esp, eax
@@ -316,7 +316,7 @@ endif
         mov  fs, ax
         mov  gs, ax
 
-	;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ax, PSEUDO_RM_SSEG
         ;mov  ss, ax
 
         xor  eax, eax
@@ -340,7 +340,7 @@ call_rm proc near
         mov  ebp, dword ptr [ebp + 8]
 
 ifndef STAGE1_5
-	call set_rm_idt
+        call set_rm_idt
 endif
 
         ; set segment registers
@@ -349,15 +349,19 @@ endif
         mov  dword ptr ds:[PROTSTACK], eax
 
 ;ifndef MB_KERN ; not in multiboot kernels
-;	mov  ax, word ptr ds:[RMSTACK + 2]
-;	mov  ss, ax
+;       mov  ax, word ptr ds:[RMSTACK + 2]
+;       mov  ss, ax
 ;else
         mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
- 
+
 ;endif
 ;        mov  esp, eax
-        mov  esp, 0e000h
+        mov  esp, 8000h
+
+        ; Get real mode stack
+        ;mov  sp, word ptr ds:[RMSTACK]
+
 
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -365,7 +369,7 @@ endif
         mov  fs, ax
         mov  gs, ax
 
-	;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ax, PSEUDO_RM_SSEG
         ;mov  ss, ax
         ; call 16-bit function
         mov  ax, PSEUDO_RM_CSEG
@@ -382,8 +386,8 @@ endif
         mov  fs, ax
         mov  gs, ax
 
-	;mov  ax, ss
-	;mov  word ptr ds:[RMSTACK + 2], ax
+        ;mov  ax, ss
+        ;mov  word ptr ds:[RMSTACK + 2], ax
         ;mov  ax, sp
         ;mov  word ptr ds:[RMSTACK], ax
 
@@ -393,7 +397,7 @@ endif
         mov  esp, dword ptr ds:[PROTSTACK]
 
 ifndef STAGE1_5
-	call set_pm_idt
+        call set_pm_idt
 endif
         pop  ebp
 
@@ -406,28 +410,28 @@ ifndef STAGE1_5
 ; set protect mode IDT
 ;
 set_pm_idt:
-	; store realmode idt
-	;mov   eax, IDTR_OLD
-	;sidt  fword ptr [eax]
+        ; store realmode idt
+        ;mov   eax, IDTR_OLD
+        ;sidt  fword ptr [eax]
 
-	mov   eax, IDTR
-	lidt  fword ptr [eax]
+        mov   eax, IDTR
+        lidt  fword ptr [eax]
 
-	ret
+        ret
 
 ;
 ; set realmode IDT
 ;
 set_rm_idt:
-	; store protmode idt
-	;mov   eax, IDTR
-	;sidt  fword ptr [eax]
+        ; store protmode idt
+        ;mov   eax, IDTR
+        ;sidt  fword ptr [eax]
 
-	; set realmode idt
-	mov   eax, IDTR_OLD
-	lidt  fword ptr [eax]
+        ; set realmode idt
+        mov   eax, IDTR_OLD
+        lidt  fword ptr [eax]
 
-	ret
+        ret
 
 endif
 
@@ -518,10 +522,10 @@ address dd    ?
         dw    ?
 
 ;; A flag which defines, that IDT is initted or not
-;idt_initted	db	0
+;idt_initted    db      0
 
-;idtr		gdtr	<>
-;idtr_old	gdtr	<>
+;idtr           gdtr    <>
+;idtr_old       gdtr    <>
 
 _DATA   ends
 
