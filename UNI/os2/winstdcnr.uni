@@ -1,3 +1,5 @@
+module winstdcnr;
+
 constant CFA_IGNORE       = $80000000;
 constant CRA_IGNORE       = $00008000;
 constant CRA_SOURCE       = $00004000;
@@ -194,29 +196,29 @@ constant CM_SETGRIDINFO               = $0354;
 constant CM_QUERYGRIDINFO             = $0355;
 constant CM_SNAPTOGRID                = $0356;
 
-constant CN_DRAGAFTER    101;
-constant CN_DRAGLEAVE    102;
-constant CN_DRAGOVER     103;
-constant CN_DROP         104;
-constant CN_DROPHELP     105;
-constant CN_ENTER        106;
-constant CN_INITDRAG     107;
-constant CN_EMPHASIS     108;
-constant CN_KILLFOCUS    109;
-constant CN_SCROLL       110;
-constant CN_QUERYDELTA   111;
-constant CN_SETFOCUS     112;
-constant CN_REALLOCPSZ   113;
-constant CN_BEGINEDIT    114;
-constant CN_ENDEDIT      115;
-constant CN_COLLAPSETREE 116;
-constant CN_EXPANDTREE   117;
-constant CN_HELP         118;
-constant CN_CONTEXTMENU  119;
-constant CN_VERIFYEDIT   134;
-constant CN_PICKUP       135;
-constant CN_DROPNOTIFY   136;
-constant CN_GRIDRESIZED  137;
+constant CN_DRAGAFTER   = 101;
+constant CN_DRAGLEAVE   = 102;
+constant CN_DRAGOVER    = 103;
+constant CN_DROP        = 104;
+constant CN_DROPHELP    = 105;
+constant CN_ENTER       = 106;
+constant CN_INITDRAG    = 107;
+constant CN_EMPHASIS    = 108;
+constant CN_KILLFOCUS   = 109;
+constant CN_SCROLL      = 110;
+constant CN_QUERYDELTA  = 111;
+constant CN_SETFOCUS    = 112;
+constant CN_REALLOCPSZ  = 113;
+constant CN_BEGINEDIT   = 114;
+constant CN_ENDEDIT     = 115;
+constant CN_COLLAPSETREE= 116;
+constant CN_EXPANDTREE  = 117;
+constant CN_HELP        = 118;
+constant CN_CONTEXTMENU = 119;
+constant CN_VERIFYEDIT  = 134;
+constant CN_PICKUP      = 135;
+constant CN_DROPNOTIFY  = 136;
+constant CN_GRIDRESIZED = 137;
 
 constant PMERR_NOFILTERED_ITEMS          = $1f02;
 constant PMERR_COMPARISON_FAILED         = $1f03;
@@ -353,88 +355,103 @@ type FIELDINFOINSERT=structure
 end;
 type PFIELDINFOINSERT=^FIELDINFOINSERT;
 
-typedef struct _RECORDINSERT {
-    ULONG       cb;
-    PRECORDCORE pRecordOrder;
-    PRECORDCORE pRecordParent;
-    ULONG       fInvalidateRecord;
-    ULONG       zOrder;
-    ULONG       cRecordsInsert;
-} RECORDINSERT, *PRECORDINSERT;
+type RECORDINSERT=structure
+           cb: ULONG;
+           pRecordOrder: PRECORDCORE;
+           pRecordParent: PRECORDCORE;
+           fInvalidateRecord: ULONG;
+           zOrder: ULONG;
+           cRecordsInsert: ULONG;
+end;
+type PRECORDINSERT=^RECORDINSERT;
 
-typedef struct _QUERYRECFROMRECT {
-    ULONG cb;
-    RECTL rect;
-    ULONG fsSearch;
-} QUERYRECFROMRECT, *PQUERYRECFROMRECT;
+type QUERYRECFROMRECT=structure
+     cb: ULONG;
+     rect: RECTL;
+     fsSearch: ULONG;
+end;
+type PQUERYRECFROMRECT=^QUERYRECFROMRECT;
 
-typedef struct _QUERYRECORDRECT {
-    ULONG       cb;
-    PRECORDCORE pRecord;
-    ULONG       fRightSplitWindow;
-    ULONG       fsExtent;
-} QUERYRECORDRECT, *PQUERYRECORDRECT;
+type QUERYRECORDRECT=structure
+           cb: ULONG;
+     pRecord: PRECORDCORE;
+           fRightSplitWindow: ULONG;
+           fsExtent: ULONG;
+end;
+type PQUERYRECORDRECT=^QUERYRECORDRECT;
 
-typedef struct _SEARCHSTRING {
-    ULONG cb;
-    PSZ   pszSearch;
-    ULONG fsPrefix;
-    ULONG fsCaseSensitive;
-    ULONG usView;
-} SEARCHSTRING, *PSEARCHSTRING;
+type SEARCHSTRING=structure
+     cb: ULONG;
+     pszSearch: PSZ;
+     fsPrefix: ULONG;
+     fsCaseSensitive: ULONG;
+     usView: ULONG;
+end;
+type PSEARCHSTRING=^SEARCHSTRING;
 
-typedef struct _CNRDRAGINFO {
-    PDRAGINFO   pDragInfo;
-    PRECORDCORE pRecord;
-} CNRDRAGINFO, *PCNRDRAGINFO;
+type CNRDRAGINFO=structure
+       pDragInfo: PDRAGINFO;
+     pRecord: PRECORDCORE;
+end;
+type PCNRDRAGINFO=^CNRDRAGINFO;
 
-typedef struct _CNRLAZYDRAGINFO {
-    PDRAGINFO   pDragInfo;
-    PRECORDCORE pRecord;
-    HWND        hwndTarget;
-} CNRLAZYDRAGINFO, *PCNRLAZYDRAGINFO;
+type CNRLAZYDRAGINFO=structure
+       pDragInfo: PDRAGINFO;
+       pRecord: PRECORDCORE;
+       hwndTarget: HWND;
+end;
+type PCNRLAZYDRAGINFO=^CNRLAZYDRAGINFO;
 
-typedef struct _NOTIFYRECORDEMPHASIS {
-    HWND        hwndCnr;
-    PRECORDCORE pRecord;
-    ULONG       fEmphasisMask;
-} NOTIFYRECORDEMPHASIS, *PNOTIFYRECORDEMPHASIS;
+type NOTIFYRECORDEMPHASIS=structure
+            hwndCnr: HWND;
+     pRecord: PRECORDCORE;
+           fEmphasisMask: ULONG;
+end;
+type PNOTIFYRECORDEMPHASIS=^NOTIFYRECORDEMPHASIS;
 
-typedef struct _NOTIFYRECORDENTER {
-    HWND        hwndCnr;
-    ULONG       fKey;
-    PRECORDCORE pRecord;
-} NOTIFYRECORDENTER, *PNOTIFYRECORDENTER;
+type NOTIFYRECORDENTER=structure
+            hwndCnr: HWND;
+           fKey: ULONG;
+     pRecord: PRECORDCORE;
+end;
+type PNOTIFYRECORDENTER=^NOTIFYRECORDENTER;
 
-typedef struct _NOTIFYDELTA {
-    HWND  hwndCnr;
-    ULONG fDelta;
-} NOTIFYDELTA, *PNOTIFYDELTA;
+type NOTIFYDELTA=structure
+      hwndCnr: HWND;
+     fDelta: ULONG;
+end;
+type PNOTIFYDELTA=^NOTIFYDELTA;
 
-typedef struct _NOTIFYSCROLL {
-    HWND  hwndCnr;
-    LONG  lScrollInc;
-    ULONG fScroll;
-} NOTIFYSCROLL, *PNOTIFYSCROLL;
+type NOTIFYSCROLL=structure
+      hwndCnr: HWND;
+      lScrollInc: LONG;
+      fScroll: ULONG;
+end;
+type PNOTIFYSCROLL=^NOTIFYSCROLL;
 
-typedef struct _CNREDITDATA {
-    ULONG       cb;
-    HWND        hwndCnr;
-    PRECORDCORE pRecord;
-    PFIELDINFO  pFieldInfo;
-    PSZ         *ppszText;
-    ULONG       cbText;
-    ULONG       id;
-} CNREDITDATA, *PCNREDITDATA;
+type CNREDITDATA=structure
+           cb: ULONG;
+            hwndCnr: HWND;
+     pRecord: PRECORDCORE;
+      pFieldInfo: PFIELDINFO;
+             ppszText: ^PSZ;
+           cbText: ULONG;
+           id: ULONG;
+end;
+type PCNREDITDATA=^CNREDITDATA;
 
-typedef struct _OWNERBACKGROUND {
-    HWND  hwnd;
-    HPS   hps;
-    RECTL rclBackground;
-    LONG  idWindow;
-} OWNERBACKGROUND, *POWNERBACKGROUND;
+type OWNERBACKGROUND=structure
+      hwnd: HWND;
+       hps: HPS;
+     rclBackground: RECTL;
+      idWindow: LONG;
+end;
+type POWNERBACKGROUND=^OWNERBACKGROUND;
 
-typedef struct _CNRDRAWITEMINFO {
-    PRECORDCORE pRecord;
-    PFIELDINFO  pFieldInfo;
-} CNRDRAWITEMINFO, *PCNRDRAWITEMINFO;
+type CNRDRAWITEMINFO=structure
+     pRecord: PRECORDCORE;
+      pFieldInfo: PFIELDINFO;
+end;
+type PCNRDRAWITEMINFO=^CNRDRAWITEMINFO;
+
+end;

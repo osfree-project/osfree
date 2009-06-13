@@ -1,0 +1,216 @@
+module winstddrag;
+
+abi os2386;
+
+constant PMERR_NOT_DRAGGING     = $1f00;
+constant PMERR_ALREADY_DRAGGING = $1f01;
+
+constant MSGF_DRAG = $0010;
+
+constant DM_DROP             = $032f;
+constant DM_DRAGOVER         = $032e;
+constant DM_DRAGLEAVE        = $032d;
+constant DM_DROPHELP         = $032c;
+constant DM_ENDCONVERSATION  = $032b;
+constant DM_PRINT            = $032a;
+constant DM_RENDER           = $0329;
+constant DM_RENDERCOMPLETE   = $0328;
+constant DM_RENDERPREPARE    = $0327;
+constant DM_DRAGFILECOMPLETE = $0326;
+constant DM_EMPHASIZETARGET  = $0325;
+constant DM_DRAGERROR        = $0324;
+constant DM_FILERENDERED     = $0323;
+constant DM_RENDERFILE       = $0322;
+constant DM_DRAGOVERNOTIFY   = $0321;
+constant DM_PRINTOBJECT      = $0320;
+constant DM_DISCARDOBJECT    = $031f;
+constant DM_DROPNOTIFY       = $031e;
+
+constant DRT_ASM     = 'Assembler Code';
+constant DRT_BASIC   = 'BASIC Code';
+constant DRT_BINDATA = 'Binary Data';
+constant DRT_BITMAP  = 'Bitmap';
+constant DRT_C       = 'C Code';
+constant DRT_COBOL   = 'COBOL Code';
+constant DRT_DLL     = 'Dynamic Link Library';
+constant DRT_DOSCMD  = 'DOS Command File';
+constant DRT_EXE     = 'Executable';
+constant DRT_FORTRAN = 'FORTRAN Code';
+constant DRT_ICON    = 'Icon';
+constant DRT_LIB     = 'Library';
+constant DRT_METAFILE= 'Metafile';
+constant DRT_OS2CMD  = 'OS/2 Command File';
+constant DRT_PASCAL  = 'Pascal Code';
+constant DRT_RESOURCE= 'Resource File';
+constant DRT_TEXT    = 'Plain Text';
+constant DRT_UNKNOWN = 'Unknown';
+
+constant DOR_NODROP    = $0000;
+constant DOR_DROP      = $0001;
+constant DOR_NODROPOP  = $0002;
+constant DOR_NEVERDROP = $0003;
+
+constant DO_COPYABLE                = $0001;
+constant DO_MOVEABLE                = $0002;
+constant DO_LINKABLE                = $0004;
+constant DO_CREATEABLE              = $0008;
+constant DO_CREATEPROGRAMOBJECTABLE = $0010;
+
+constant DC_OPEN            = $0001;
+constant DC_REF             = $0002;
+constant DC_GROUP           = $0004;
+constant DC_CONTAINER       = $0008;
+constant DC_PREPARE         = $0010;
+constant DC_REMOVEABLEMEDIA = $0020;
+
+constant DO_DEFAULT             = $BFFE;
+constant DO_UNKNOWN             = $BFFF;
+constant DO_COPY                = $0010;
+constant DO_MOVE                = $0020;
+constant DO_LINK                = $0018;
+constant DO_CREATE              = $0040;
+constant DO_CREATEPROGRAMOBJECT = $0080;
+
+constant DGS_DRAGINPROGRESS     = $0001;
+constant DGS_LAZYDRAGINPROGRESS = $0002;
+
+constant DMFL_TARGETSUCCESSFUL = $0001;
+constant DMFL_TARGETFAIL       = $0002;
+constant DMFL_NATIVERENDER     = $0004;
+constant DMFL_RENDERRETRY      = $0008;
+constant DMFL_RENDEROK         = $0010;
+constant DMFL_RENDERFAIL       = $0020;
+
+constant DRG_ICON        = $00000001;
+constant DRG_BITMAP      = $00000002;
+constant DRG_POLYGON     = $00000004;
+constant DRG_STRETCH     = $00000008;
+constant DRG_TRANSPARENT = $00000010;
+constant DRG_CLOSED      = $00000020;
+constant DRG_MINIBITMAP  = $00000040;
+
+constant DME_IGNOREABORT    =1;
+constant DME_IGNORECONTINUE =2;
+constant DME_REPLACE        =3;
+constant DME_RETRY          =4;
+
+constant DF_MOVE       = $0001;
+constant DF_SOURCE     = $0002;
+constant DF_SUCCESSFUL = $0004;
+
+constant DRR_SOURCE =1;
+constant DRR_TARGET =2;
+constant DRR_ABORT  =3;
+
+constant DFF_MOVE   =1;
+constant DFF_COPY   =2;
+constant DFF_DELETE =3;
+
+constant WM_DRAGFIRST = $0310;
+constant WM_DRAGLAST  = $032f;
+
+type HSTR=LHANDLE;
+
+type DRAGITEM=structure
+       hwndItem: HWND;
+      ulItemID: ULONG;
+       hstrType: HSTR;
+       hstrRMF: HSTR;
+       hstrContainerName: HSTR;
+       hstrSourceName: HSTR;
+       hstrTargetName: HSTR;
+       cxOffset: SHORT;
+       cyOffset: SHORT;
+       fsControl: USHORT;
+       fsSupportedOps: USHORT;
+end;
+type PDRAGITEM=^DRAGITEM;
+
+type DRAGINFO=structure
+    cbDraginfo: ULONG;
+    cbDragitem: USHORT;
+    usOperation: USHORT;
+    hwndSource: HWND;
+    xDrop: SHORT;
+    yDrop: SHORT;
+    cditem: USHORT;
+    usReserved: USHORT;
+end;
+type PDRAGINFO=^DRAGINFO;
+
+type DRAGIMAGE=structure
+    cb: USHORT;
+    cptl: USHORT;
+    hImage: LHANDLE;
+    sizlStretch: SIZEL;
+    fl: ULONG;
+    cxOffset: SHORT;
+    cyOffset: SHORT;
+end;
+type PDRAGIMAGE=^DRAGIMAGE;
+
+type DRAGTRANSFER=structure
+         cb: ULONG;
+         hwndClient: HWND;
+         pditem: PDRAGITEM;
+         hstrSelectedRMF: HSTR;
+         hstrRenderToName: HSTR;
+         ulTargetInfo: ULONG;
+         usOperation: USHORT;
+         fsReply: USHORT;
+end;
+type PDRAGTRANSFER=^DRAGTRANSFER;
+
+type RENDERFILE=structure
+       hwndDragFiles: HWND;
+       hstrSource: HSTR;
+       hstrTarget: HSTR;
+       fMove: USHORT;
+       usRsvd: USHORT;
+end;
+type PRENDERFILE=^RENDERFILE;
+
+BOOL      APIENTRY DrgAcceptDroppedFiles(HWND,PCSZ,PCSZ,ULONG,ULONG);
+BOOL      APIENTRY DrgAccessDraginfo(PDRAGINFO);
+PDRAGINFO APIENTRY DrgAllocDraginfo(ULONG);
+PDRAGTRANSFER APIENTRY DrgAllocDragtransfer(ULONG);
+HSTR      APIENTRY DrgAddStrHandle(PCSZ);
+BOOL      APIENTRY DrgCancelLazyDrag(VOID);
+BOOL      APIENTRY DrgDeleteDraginfoStrHandles(PDRAGINFO);
+BOOL      APIENTRY DrgDeleteStrHandle(HSTR);
+HWND      APIENTRY DrgDrag(HWND,PDRAGINFO,PDRAGIMAGE,ULONG,LONG,PVOID);
+BOOL      APIENTRY DrgDragFiles(HWND,PCSZ*,PCSZ*,PCSZ*,ULONG,HPOINTER,ULONG,BOOL,ULONG);
+BOOL      APIENTRY DrgFreeDraginfo(PDRAGINFO);
+BOOL      APIENTRY DrgFreeDragtransfer(PDRAGTRANSFER);
+HPS       APIENTRY DrgGetPS(HWND);
+BOOL      APIENTRY DrgLazyDrag(HWND, PDRAGINFO, PDRAGIMAGE, ULONG, PVOID);
+BOOL      APIENTRY DrgLazyDrop(HWND, ULONG, PPOINTL);
+BOOL      APIENTRY DrgPostTransferMsg(HWND,ULONG,PDRAGTRANSFER,ULONG,ULONG,BOOL);
+BOOL      APIENTRY DrgPushDraginfo(PDRAGINFO, HWND);
+PDRAGINFO APIENTRY DrgQueryDraginfoPtr(PDRAGINFO);
+PDRAGINFO APIENTRY DrgQueryDraginfoPtrFromHwnd(HWND);
+PDRAGINFO APIENTRY DrgQueryDraginfoPtrFromDragitem(PDRAGITEM);
+BOOL      APIENTRY DrgQueryDragitem(PDRAGINFO,ULONG,PDRAGITEM,ULONG);
+ULONG     APIENTRY DrgQueryDragitemCount(PDRAGINFO);
+PDRAGITEM APIENTRY DrgQueryDragitemPtr(PDRAGINFO,ULONG);
+ULONG     APIENTRY DrgQueryDragStatus(VOID);
+ULONG     APIENTRY DrgQueryFormat(PDRAGITEM, PCSZ, ULONG, PCSZ, ULONG);
+BOOL      APIENTRY DrgQueryNativeRMF(PDRAGITEM,ULONG,PCHAR);
+ULONG     APIENTRY DrgQueryNativeRMFLen(PDRAGITEM);
+ULONG     APIENTRY DrgQueryStrName(HSTR,ULONG,PCSZ);
+ULONG     APIENTRY DrgQueryStrNameLen(HSTR);
+BOOL      APIENTRY DrgQueryTrueType(PDRAGITEM,ULONG,PCSZ);
+ULONG     APIENTRY DrgQueryTrueTypeLen(PDRAGITEM);
+PDRAGINFO APIENTRY DrgReallocDraginfo (PDRAGINFO, ULONG);
+BOOL      APIENTRY DrgReleasePS(HPS);
+MRESULT   APIENTRY DrgSendTransferMsg(HWND,ULONG,MPARAM,MPARAM);
+BOOL      APIENTRY DrgSetDragitem(PDRAGINFO,PDRAGITEM,ULONG,ULONG);
+BOOL      APIENTRY DrgSetDragImage(PDRAGINFO,PDRAGIMAGE,ULONG,PVOID);
+BOOL      APIENTRY DrgSetDragPointer(PDRAGINFO, HPOINTER);
+BOOL      APIENTRY DrgVerifyTypeSet(PDRAGITEM,PCSZ,ULONG,PCSZ);
+BOOL      APIENTRY DrgVerifyNativeRMF(PDRAGITEM, PCSZ);
+BOOL      APIENTRY DrgVerifyRMF(PDRAGITEM, PCSZ, PCSZ);
+BOOL      APIENTRY DrgVerifyTrueType(PDRAGITEM, PCSZ);
+BOOL      APIENTRY DrgVerifyType(PDRAGITEM, PCSZ);
+
+end.

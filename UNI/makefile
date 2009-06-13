@@ -75,6 +75,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h &
      $(OUT)$(SEP)os2$(SEP)pm.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
+     $(OUT)$(SEP)os2$(SEP)pmbase.h &
      $(OUT)$(SEP)os2$(SEP)pmdev.h &
      $(OUT)$(SEP)os2$(SEP)devcommon.h &
      $(OUT)$(SEP)os2$(SEP)pmshl.h &
@@ -84,14 +85,21 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)pmwin.h &
      $(OUT)$(SEP)os2$(SEP)pmstddlg.h &
      $(OUT)$(SEP)os2$(SEP)winstdbook.h &
+     $(OUT)$(SEP)os2$(SEP)winstddlgs.h &
      $(OUT)$(SEP)os2$(SEP)winsys.h &
+     $(OUT)$(SEP)os2$(SEP)winhprogram.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
+     $(OUT)$(SEP)os2$(SEP)wincircularslider.h &
+     $(OUT)$(SEP)os2$(SEP)winstdcnr.h &
+     $(OUT)$(SEP)os2$(SEP)wintrackrect.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
      $(OUT)$(SEP)os2$(SEP)winatom.h &
+     $(OUT)$(SEP)os2$(SEP)winthunkapi.h &
      $(OUT)$(SEP)os2$(SEP)winmenus.h &
      $(OUT)$(SEP)os2$(SEP)winaccelerators.h &
      $(OUT)$(SEP)os2$(SEP)winload.h &
+     $(OUT)$(SEP)os2$(SEP)winstddrag.h &
      $(OUT)$(SEP)os2$(SEP)winclipboard.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgr.h &
      $(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h &
@@ -115,16 +123,23 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wincountry.h &
      $(OUT)$(SEP)os2$(SEP)wincursors.h &
      $(OUT)$(SEP)os2$(SEP)windde.h &
+     $(OUT)$(SEP)os2$(SEP)winstatics.h &
      $(OUT)$(SEP)os2$(SEP)winmle.h &
+     $(OUT)$(SEP)os2$(SEP)wintypes.h &
+     $(OUT)$(SEP)os2$(SEP)pmtypes.h &
      $(OUT)$(SEP)os2$(SEP)winpalette.h &
      $(OUT)$(SEP)os2$(SEP)winpointers.h &
      $(OUT)$(SEP)os2$(SEP)windesktop.h &
      $(OUT)$(SEP)os2$(SEP)winentryfields.h &
      $(OUT)$(SEP)os2$(SEP)windialogs.h &
      $(OUT)$(SEP)os2$(SEP)windialogscommon.h &
+     $(OUT)$(SEP)os2$(SEP)winrectangles.h &
+     $(OUT)$(SEP)os2$(SEP)winscrollbars.h &
      $(OUT)$(SEP)os2$(SEP)winbuttons.h &
      $(OUT)$(SEP)os2$(SEP)winlistboxes.h &
      $(OUT)$(SEP)os2$(SEP)pmhelp.h &
+     $(OUT)$(SEP)os2$(SEP)pmsei.h &
+     $(OUT)$(SEP)os2$(SEP)winei.h &
      $(OUT)$(SEP)os2$(SEP)winhelp.h &
      $(OUT)$(SEP)os2$(SEP)pmgpi.h &
      $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &
@@ -247,6 +262,8 @@ $(OUT)$(SEP)os2$(SEP)hevdef.h: os2$(SEP)hevdef.uni
 
 $(OUT)$(SEP)os2$(SEP)pm.h: os2$(SEP)pm.uni
 
+$(OUT)$(SEP)os2$(SEP)pmbase.h: os2$(SEP)pmbase.uni
+
 $(OUT)$(SEP)os2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
 
 $(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
@@ -257,7 +274,27 @@ $(OUT)$(SEP)os2$(SEP)pmhelp.h: os2$(SEP)pmhelp.uni
 
 $(OUT)$(SEP)os2$(SEP)winhelp.h: os2$(SEP)winhelp.uni
 
+$(OUT)$(SEP)os2$(SEP)pmtypes.h: os2$(SEP)pmtypes.uni
+
+$(OUT)$(SEP)os2$(SEP)wintypes.h: os2$(SEP)wintypes.uni
+
+$(OUT)$(SEP)os2$(SEP)winstddrag.h: os2$(SEP)winstddrag.uni
+
+$(OUT)$(SEP)os2$(SEP)wincircularslider.h: os2$(SEP)wincircularslider.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdcnr.h: os2$(SEP)winstdcnr.uni
+
+$(OUT)$(SEP)os2$(SEP)winstatics.h: os2$(SEP)winstatics.uni
+
+$(OUT)$(SEP)os2$(SEP)winrectangles.h: os2$(SEP)winrectangles.uni
+
+$(OUT)$(SEP)os2$(SEP)winscrollbars.h: os2$(SEP)winscrollbars.uni
+
 $(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)winstdbook.uni
+
+$(OUT)$(SEP)os2$(SEP)winsei.h: os2$(SEP)winsei.uni
+
+$(OUT)$(SEP)os2$(SEP)pmsei.h: os2$(SEP)pmsei.uni
 
 $(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)winswitchlist.uni
 
@@ -271,9 +308,13 @@ $(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)winload.uni
 
 $(OUT)$(SEP)os2$(SEP)winpalette.h: os2$(SEP)winpalette.uni
 
+$(OUT)$(SEP)os2$(SEP)winstddlgs.h: os2$(SEP)winstddlgs.uni
+
 $(OUT)$(SEP)os2$(SEP)winatom.h: os2$(SEP)winatom.uni
 
 $(OUT)$(SEP)os2$(SEP)wincursors.h: os2$(SEP)wincursors.uni
+
+$(OUT)$(SEP)os2$(SEP)wintrackrect.h: os2$(SEP)wintrackrect.uni
 
 $(OUT)$(SEP)os2$(SEP)winpointers.h: os2$(SEP)winpointers.uni
 
@@ -334,6 +375,10 @@ $(OUT)$(SEP)os2$(SEP)picerrors.h: os2$(SEP)picerrors.uni
 $(OUT)$(SEP)os2$(SEP)winhooks.h: os2$(SEP)winhooks.uni
 
 $(OUT)$(SEP)os2$(SEP)wintimer.h: os2$(SEP)wintimer.uni
+
+$(OUT)$(SEP)os2$(SEP)winthunkapi.h: os2$(SEP)winthunkapi.uni
+
+$(OUT)$(SEP)os2$(SEP)winhprogram.h: os2$(SEP)winhprogram.uni
 
 $(OUT)$(SEP)os2$(SEP)wincountry.h: os2$(SEP)wincountry.uni
 
