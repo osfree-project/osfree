@@ -2,6 +2,8 @@ module winprogramlist;
 
 abi os2386;
 
+uses winhprogram default;
+
       (*** maximum path length *********************************************)
       constant MAXPATHL= 128;
 

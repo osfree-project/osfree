@@ -1,4 +1,6 @@
 module win;
+uses pmbase default;
+uses winhprogram default;
 uses winmessagemgr default;
 uses winmessagemgrcommon default;
 uses winaccelerators default;

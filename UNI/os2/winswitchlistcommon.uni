@@ -2,6 +2,8 @@ module winswitchlistcommon;
 
 abi os2386;
 
+uses winhprogram default;
+
 type SWCNTRL=structure
         hwnd: HWND;
         hwndIcon: HWND;

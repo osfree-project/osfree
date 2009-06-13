@@ -2,6 +2,7 @@ module winframemgr;
 
 abi os2386;
 
+uses pmbase default;
 
 function WinFlashWindow(in hwndFrame: HWND;
                                  in fFlash: BOOL): BOOL;
