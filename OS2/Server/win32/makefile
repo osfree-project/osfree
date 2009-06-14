@@ -3,8 +3,8 @@
 
 ARCH = $(%SERVERENV)
 PROJ = os2server_$(ARCH)
-srcfiles = $(p)io$(e) $(p)mmap$(e) &
-           $(p)native_dynlink$(e)
+srcfiles = $(p)io$(e) $(p)mmap$(e) 
+#           $(p)native_dynlink$(e)
 
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
