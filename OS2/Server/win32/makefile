@@ -1,13 +1,5 @@
 # Makefile for common shared libs
 
-# $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)lx$(e) &
-# $(p)shared$(SEP)ixfmgr$(SEP)ne$(SEP)ne$(e) &
-# $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)fixuplx$(e) &
-# $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)loadobjlx$(e) &
-# $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)modlx$(e) &
-# $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)execlx$(e) &
-# $(p)shared$(SEP)ixfmgr$(SEP)lx$(SEP)debuglx$(e) &
-
 
 ARCH = $(%SERVERENV)
 PROJ = os2server_$(ARCH)

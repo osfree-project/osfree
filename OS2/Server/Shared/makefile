@@ -16,7 +16,7 @@ $(p)cfgparser$(e) &
 #$(p)processlx$(e) &
 $(p)processmgr$(e) &
 #$(p)handlemgr$(e) &
-$(p)hdlman$(e) &
+#$(p)hdlman$(e) &
 $(p)ixfmgr_lx_fixuplx$(e) &
 $(p)ixfmgr_lx_loadobjlx$(e) &
 $(p)ixfmgr_lx_execlx$(e) &
