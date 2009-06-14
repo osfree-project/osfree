@@ -39,8 +39,8 @@ ASM_DEFS  = -zq -d__WATCOM__
 #
 COPT      = $(C_DEFS) $(ADD_COPT) &
             -i=$(MYDIR) -i=$(MYDIR).. &
-            -i=$(PATH)  -i=$(PATH)..
-#            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
+            -i=$(PATH)  -i=$(PATH).. &
+            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 

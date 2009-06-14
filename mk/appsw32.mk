@@ -51,6 +51,7 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM win32 $(dllopts)
  @%append $^@ NAME $^*
+ @%append $^@ ru console
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)

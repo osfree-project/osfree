@@ -15,7 +15,7 @@ RCOPT =               -i=$(%ROOT)$(SEP)build$(SEP)include &
 
 ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%WATCOM)$(SEP)h &
-#                  until UniAPI modules will be ready
+#                  until UniAPI modules will be ready &
 #                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
