@@ -5,7 +5,7 @@ abi os2386;
 uses pmbase;
 uses pmshl;
 uses winwindowmgr;
-uses winwindowmgrcommon;
+uses winwindowmgrcommon default;
 uses winmessagemgr;
 uses winmessagemgrcommon;
 uses winclipboard;

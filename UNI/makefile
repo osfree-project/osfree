@@ -44,6 +44,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)kbd.h &
      $(OUT)$(SEP)os2$(SEP)mou.h &
      $(OUT)$(SEP)os2$(SEP)win.h &
+     $(OUT)$(SEP)os2$(SEP)winsei.h &
      $(OUT)$(SEP)os2$(SEP)bseerr.h &
      $(OUT)$(SEP)os2$(SEP)doserrors.h &
      $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -86,11 +87,16 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)pmstddlg.h &
      $(OUT)$(SEP)os2$(SEP)winstdbook.h &
      $(OUT)$(SEP)os2$(SEP)winstddlgs.h &
+     $(OUT)$(SEP)os2$(SEP)winstdfile.h &
+     $(OUT)$(SEP)os2$(SEP)winstdslider.h &
+     $(OUT)$(SEP)os2$(SEP)winstdspin.h &
+     $(OUT)$(SEP)os2$(SEP)winstdvalset.h &
      $(OUT)$(SEP)os2$(SEP)winsys.h &
      $(OUT)$(SEP)os2$(SEP)winhprogram.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
      $(OUT)$(SEP)os2$(SEP)wincircularslider.h &
      $(OUT)$(SEP)os2$(SEP)winstdcnr.h &
+     $(OUT)$(SEP)os2$(SEP)winstdfont.h &
      $(OUT)$(SEP)os2$(SEP)wintrackrect.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
      $(OUT)$(SEP)shared$(SEP)rexxsaa.h &
@@ -292,6 +298,14 @@ $(OUT)$(SEP)os2$(SEP)winscrollbars.h: os2$(SEP)winscrollbars.uni
 
 $(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)winstdbook.uni
 
+$(OUT)$(SEP)os2$(SEP)winstdfont.h: os2$(SEP)winstdfont.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdvalset.h: os2$(SEP)winstdvalset.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdspin.h: os2$(SEP)winstdspin.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdslider.h: os2$(SEP)winstdslider.uni
+
 $(OUT)$(SEP)os2$(SEP)winsei.h: os2$(SEP)winsei.uni
 
 $(OUT)$(SEP)os2$(SEP)pmsei.h: os2$(SEP)pmsei.uni
@@ -309,6 +323,8 @@ $(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)winload.uni
 $(OUT)$(SEP)os2$(SEP)winpalette.h: os2$(SEP)winpalette.uni
 
 $(OUT)$(SEP)os2$(SEP)winstddlgs.h: os2$(SEP)winstddlgs.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdfile.h: os2$(SEP)winstdfile.uni
 
 $(OUT)$(SEP)os2$(SEP)winatom.h: os2$(SEP)winatom.uni
 
