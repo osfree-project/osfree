@@ -21,10 +21,12 @@
 #ifndef PROCESSLX_H
 #define PROCESSLX_H
 
+#define INCL_BASE
 #define INCL_DOS
 #define INCL_BSEDOS
 #define INCL_DOSPROCESS
 #include <os2.h>
+
 
 #include <memmgr.h>
 #include <modmgr.h>

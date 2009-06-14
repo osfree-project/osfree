@@ -30,6 +30,7 @@
 */
 
 #define INCL_DOS
+#define INCL_BASE
 #define INCL_BSEDOS
 #define INCL_DOSEXCEPTIONS
 #define INCL_DOSPROCESS
