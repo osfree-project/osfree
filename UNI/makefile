@@ -96,6 +96,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)wininput.h &
      $(OUT)$(SEP)os2$(SEP)wincircularslider.h &
      $(OUT)$(SEP)os2$(SEP)winstdcnr.h &
+     $(OUT)$(SEP)os2$(SEP)winstdcontainer.h &
      $(OUT)$(SEP)os2$(SEP)winstdfont.h &
      $(OUT)$(SEP)os2$(SEP)wintrackrect.h &
      $(OUT)$(SEP)os2$(SEP)wininputcommon.h &
@@ -289,6 +290,8 @@ $(OUT)$(SEP)os2$(SEP)winstddrag.h: os2$(SEP)winstddrag.uni
 $(OUT)$(SEP)os2$(SEP)wincircularslider.h: os2$(SEP)wincircularslider.uni
 
 $(OUT)$(SEP)os2$(SEP)winstdcnr.h: os2$(SEP)winstdcnr.uni
+
+$(OUT)$(SEP)os2$(SEP)winstdcontainer.h: os2$(SEP)winstdcontainer.uni
 
 $(OUT)$(SEP)os2$(SEP)winstatics.h: os2$(SEP)winstatics.uni
 

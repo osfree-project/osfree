@@ -356,4 +356,11 @@ type FATTRS=structure
   end;
 type PFATTRS=^FATTRS;
 
+(* structure for size parameters e.g. for GpiCreatePS *)
+type SIZEL=structure            (* sizl *)
+    cx: LONG;
+    cy: LONG;
+  end;
+type PSIZEL=^SIZEL;
+
 end.

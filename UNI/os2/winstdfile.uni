@@ -57,7 +57,7 @@ constant FDM_VALIDATE =(WM_USER+41);
 constant FDM_ERROR    =(WM_USER+42);
 
 type APSZ=array[1] of PSZ ;
-type PAPSZ=^PAPSZ;
+type PAPSZ=^APSZ;
 
 type FILEDLG=structure
        cbSize: ULONG;

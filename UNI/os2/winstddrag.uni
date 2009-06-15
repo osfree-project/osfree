@@ -199,7 +199,7 @@ function DrgQueryNativeRMF(in a: PDRAGITEM; in b: ULONG; in c: PCHAR): BOOL;
 function DrgQueryNativeRMFLen(in a: PDRAGITEM): ULONG;
 function DrgQueryStrName(in a: HSTR; in b: ULONG; in c: PCSZ): ULONG;
 function DrgQueryStrNameLen(in a: HSTR): ULONG;
-function DrgQueryTrueType(in a: PDRAGITEM; in a: ULONG; in b: PCSZ): BOOL;
+function DrgQueryTrueType(in a: PDRAGITEM; in b: ULONG; in c: PCSZ): BOOL;
 function DrgQueryTrueTypeLen(in a: PDRAGITEM): ULONG;
 function DrgReallocDraginfo(in a: PDRAGINFO; in b: ULONG): PDRAGINFO;
 function DrgReleasePS(in a: HPS): BOOL;

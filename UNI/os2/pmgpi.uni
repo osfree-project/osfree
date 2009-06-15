@@ -15,12 +15,6 @@ type  FIXED88=USHORT;  (* fx88 *)
 type FIXED114=USHORT; (* fx114 *)
 
 
-(* structure for size parameters e.g. for GpiCreatePS *)
-type SIZEL=structure            (* sizl *)
-    cx: LONG;
-    cy: LONG;
-  end;
-type PSIZEL=^SIZEL;
 
 (* return code on GpiQueryLogColorTable,GpiQueryRealColors and GpiQueryPel *)
 constant CLR_NOINDEX              =    (-254);

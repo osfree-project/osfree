@@ -9,7 +9,7 @@ uses winwindowmgrcommon default;
 uses winmessagemgr;
 uses winmessagemgrcommon;
 uses winclipboard;
-uses winclipboarddde;
+uses winclipboarddde default;
 uses winframemgrcommon;
 uses winframemgr;
 uses winsys;
