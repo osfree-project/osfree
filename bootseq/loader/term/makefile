@@ -31,7 +31,7 @@ t = -h
 OBJS                    = $(common_OBJS) $(p)hercules$(e) $(p)console$(e) $(p)modesw-npt$(e)
 !else ifeq basename serial
 t = -s
-OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)tparm$(e) $(p)modesw-npt$(e)
+OBJS                    = $(common_OBJS) $(p)serial$(e) $(p)terminfo$(e) $(p)cmdline$(e) $(p)tparm$(e) $(p)modesw-npt$(e)
 !else ifeq basename graphics
 t = -g
 OBJS                    = $(common_OBJS) $(p)graphics$(e) $(p)vmode$(e) $(p)console$(e) $(p)modesw-npt$(e)
@@ -53,6 +53,8 @@ e            = .mdl
 TARGETS      = $+$(blackboxes)$- $(rels)
 
 files     = $(bbx)
+
+.c: $(MYDIR)..
 
 p =
 e =

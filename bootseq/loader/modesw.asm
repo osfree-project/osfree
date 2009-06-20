@@ -197,7 +197,7 @@ rmode1:
         ; disable interrupts
         cli
 
-        ; Switcch back to protected mode
+        ; Switch back to protected mode
         mov  eax, cr0
         or   al, 1
         mov  cr0, eax
@@ -357,7 +357,15 @@ endif
 
 ;endif
 ;        mov  esp, eax
+
+ifdef MB_KERN
+extrn   stack_bottom   :byte
+        ; setup stack
+        mov  eax, offset _TEXT:stack_bottom - REL1_BASE
+        mov  esp, eax
+else
         mov  esp, 8000h
+endif
 
         ; Get real mode stack
         ;mov  sp, word ptr ds:[RMSTACK]
@@ -456,19 +464,26 @@ PROT_MODE_DSEG  equ 10h
 
 ; 16-bit selectors
 PSEUDO_RM_SSEG  equ 28h
-ifndef NO_PROT
-; selectors for real-mode part of pre-loader
-PSEUDO_RM_CSEG  equ 18h
-PSEUDO_RM_DSEG  equ 20h
-else
+
 ifdef BLACKBOX
 ; selectors for real-mode part of blackboxes
 PSEUDO_RM_CSEG  equ 30h
 PSEUDO_RM_DSEG  equ 38h
 else
+ifdef MB_KERN
 ; selectors for real-mode part of multiboot kernels
 PSEUDO_RM_CSEG  equ 40h
 PSEUDO_RM_DSEG  equ 48h
+else
+ifndef NO_PROT
+; selectors for real-mode part of pre-loader
+PSEUDO_RM_CSEG  equ 18h
+PSEUDO_RM_DSEG  equ 20h
+else
+; selectors for real-mode part of multiboot kernels
+PSEUDO_RM_CSEG  equ 40h
+PSEUDO_RM_DSEG  equ 48h
+endif
 endif
 endif
 

@@ -500,6 +500,8 @@ got_ascii:
 
 
 idt_init:
+        pushad
+
         cld
         mov   ecx, 20h
         mov   edi, IDT_ADDR     ; IDT start
@@ -526,6 +528,8 @@ initted:
         mov   [eax].g_limit, 20h * 8 - 1
         mov   [eax].g_base, IDT_ADDR
         lidt  fword ptr [eax]
+
+        popad
 
         ret
 

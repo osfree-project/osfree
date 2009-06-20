@@ -1,7 +1,7 @@
 /*  terminal blackbox init
  *  (setting term_entry)
  */
- 
+
 #include "term.h"
 #include "fsd.h"
 #include "lip.h"
@@ -31,7 +31,7 @@ int __cdecl console_checkkey (void);
 int __cdecl console_getkey (void);
 #pragma aux console_checkkey "*"
 #pragma aux console_getkey   "*"
-#endif 
+#endif
 
 int    (*pdevread)      (int sector, int byte_offset, int byte_len, char *buf);
 int    (*prawread)      (int drive, int sector, int byte_offset, int byte_len, char *buf);
@@ -159,6 +159,7 @@ void init(lip1_t *l, struct term_entry *te, unsigned int shift)
   te->setcolorstate = &serial_setcolorstate;
   te->setcolor      = 0;
   te->setcursor     = 0;
+  te->init          = &serial_init;
 #else
 #ifdef TERM_GRAPHICS
   te->flags         = TERM_NEED_INIT;

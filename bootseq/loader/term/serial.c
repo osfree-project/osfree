@@ -34,6 +34,8 @@ static int serial_y;
 
 static int keep_track = 1;
 
+extern grub_error_t *perrnum;
+
 
 /* Hardware-dependent definitions.  */
 
@@ -67,15 +69,15 @@ inb (unsigned short port)
 {
   unsigned char value;
 
-  //asm volatile ("inb	%w1, %0" : "=a" (value) : "Nd" (port));
-  //asm volatile ("outb	%%al, $0x80" : : );
+  //asm volatile ("inb  %w1, %0" : "=a" (value) : "Nd" (port));
+  //asm volatile ("outb %%al, $0x80" : : );
   __asm {
     mov dx, port
     in  al, dx
     out 80h, al
     mov value, al
   }
-  
+
   return value;
 }
 
@@ -83,8 +85,8 @@ inb (unsigned short port)
 static inline void
 outb (unsigned short port, unsigned char value)
 {
-  //asm volatile ("outb	%b0, %w1" : : "a" (value), "Nd" (port));
-  //asm volatile ("outb	%%al, $0x80" : : );
+  //asm volatile ("outb %b0, %w1" : : "a" (value), "Nd" (port));
+  //asm volatile ("outb %%al, $0x80" : : );
   __asm {
     mov dx, port
     mov al, value
@@ -113,8 +115,8 @@ serial_hw_put (int c)
   while ((inb (serial_hw_port + UART_LSR) & UART_EMPTY_TRANSMITTER) == 0)
     {
       if (--timeout == 0)
-	/* There is something wrong. But what can I do?  */
-	return;
+        /* There is something wrong. But what can I do?  */
+        return;
     }
 
   outb (serial_hw_port + UART_TX, c);
@@ -132,7 +134,7 @@ serial_hw_get_port (int unit)
 {
   /* The BIOS data area.  */
   const unsigned short *addr = (const unsigned short *) 0x0400;
-  
+
   return addr[unit];
 }
 
@@ -145,32 +147,32 @@ serial_hw_get_port (int unit)
    macros.  */
 int
 serial_hw_init (unsigned short port, unsigned int speed,
-		int word_len, int parity, int stop_bit_len)
+                int word_len, int parity, int stop_bit_len)
 {
   int i;
   unsigned short div = 0;
   unsigned char status = 0;
-  
+
   /* Turn off the interrupt.  */
   outb (port + UART_IER, 0);
 
   /* Set DLAB.  */
   outb (port + UART_LCR, UART_DLAB);
-  
+
   /* Set the baud rate.  */
   for (i = 0; i < sizeof (divisor_tab) / sizeof (divisor_tab[0]); i++)
     if (divisor_tab[i].speed == speed)
       {
-	div = divisor_tab[i].div;
-	break;
+        div = divisor_tab[i].div;
+        break;
       }
-  
+
   if (div == 0)
     return 0;
-  
+
   outb (port + UART_DLL, div & 0xFF);
   outb (port + UART_DLH, div >> 8);
-  
+
   /* Set the line status.  */
   status |= parity | word_len | stop_bit_len;
   outb (port + UART_LCR, status);
@@ -183,7 +185,7 @@ serial_hw_init (unsigned short port, unsigned int speed,
 
   /* Store the port number.  */
   serial_hw_port = port;
-  
+
   /* Drain the input buffer.  */
   while (serial_checkkey () != -1)
     (void) serial_getkey ();
@@ -193,44 +195,44 @@ serial_hw_init (unsigned short port, unsigned int speed,
   for (i = 0; term_table[i].name; i++)
     if (grub_strcmp (term_table[i].name, "serial") == 0)
       {
-	term_table[i].flags &= ~TERM_NEED_INIT;
-	break;
+        term_table[i].flags &= ~TERM_NEED_INIT;
+        break;
       } */
 
   /* FIXME: should check if the serial terminal was found.  */
-  
+
   return 1;
 }
 #endif /* ! GRUB_UTIL */
 
 
-/*		Table of Serial Terminal Escape Sequences
+/*              Table of Serial Terminal Escape Sequences
  *=======================================================================
- *  Key		 ANSI		VT100 extension		VT220 extension
- * ---------	-------		---------------		---------------
- * Up arrow	<Esc>[A
- * Down arrow	<Esc>[B
- * Right arrow	<Esc>[C
- * Left arrow	<Esc>[D
- * F1		<Esc>Op	
- * F2		<Esc>Oq	
- * F3		<Esc>Or	
- * F4		<Esc>Os	
- * F5		<Esc>Ot	
- * F6		<Esc>Ou		<Esc>[17~		<Esc>[17~
- * F7		<Esc>Ov		<Esc>[18~		<Esc>[18~
- * F8		<Esc>Ow		<Esc>[19~		<Esc>[19~
- * F9		<Esc>Ox		<Esc>[20~		<Esc>[20~
- * F10		<Esc>Oy		<Esc>[21~		<Esc>[21~
- * F11		<Esc>Oz		<Esc>[23~		<Esc>[23~
- * F12		<Esc>Oa		<Esc>[24~		<Esc>[24~
- * Home							<Esc>[1~
- * End							<Esc>[4~
- * Insert						<Esc>[2~
- * Delete						<Esc>[3~
- * Page Up						<Esc>[5~
- * Page Down						<Esc>[6~
- * Shift-Tab			<Esc>[Z			<Esc>[0Z
+ *  Key          ANSI           VT100 extension         VT220 extension
+ * ---------    -------         ---------------         ---------------
+ * Up arrow     <Esc>[A
+ * Down arrow   <Esc>[B
+ * Right arrow  <Esc>[C
+ * Left arrow   <Esc>[D
+ * F1           <Esc>Op
+ * F2           <Esc>Oq
+ * F3           <Esc>Or
+ * F4           <Esc>Os
+ * F5           <Esc>Ot
+ * F6           <Esc>Ou         <Esc>[17~               <Esc>[17~
+ * F7           <Esc>Ov         <Esc>[18~               <Esc>[18~
+ * F8           <Esc>Ow         <Esc>[19~               <Esc>[19~
+ * F9           <Esc>Ox         <Esc>[20~               <Esc>[20~
+ * F10          <Esc>Oy         <Esc>[21~               <Esc>[21~
+ * F11          <Esc>Oz         <Esc>[23~               <Esc>[23~
+ * F12          <Esc>Oa         <Esc>[24~               <Esc>[24~
+ * Home                                                 <Esc>[1~
+ * End                                                  <Esc>[4~
+ * Insert                                               <Esc>[2~
+ * Delete                                               <Esc>[3~
+ * Page Up                                              <Esc>[5~
+ * Page Down                                            <Esc>[6~
+ * Shift-Tab                    <Esc>[Z                 <Esc>[0Z
  */
 
 /* Generic definitions.  */
@@ -245,13 +247,13 @@ serial_translate_key_sequence (void)
   }
   three_code_table[] =
     {
-      {'A', KEY_UP/*16*/},		/* Up arrow */
-      {'B', KEY_DOWN/*14*/},		/* Down arrow */
-      {'C', KEY_RIGHT/*6*/},		/* Right arrow */
-      {'D', KEY_LEFT/*2*/},		/* Left arrow */
-      {'F', KEY_END/*5*/},		/* End */
-      {'H', KEY_HOME/*1*/},		/* Home */
-      {'4', KEY_DC/*4*/}		/* Delete */
+      {'A', KEY_UP/*16*/},              /* Up arrow */
+      {'B', KEY_DOWN/*14*/},            /* Down arrow */
+      {'C', KEY_RIGHT/*6*/},            /* Right arrow */
+      {'D', KEY_LEFT/*2*/},             /* Left arrow */
+      {'F', KEY_END/*5*/},              /* End */
+      {'H', KEY_HOME/*1*/},             /* Home */
+      {'4', KEY_DC/*4*/}                /* Delete */
     };
 
   const struct
@@ -261,30 +263,30 @@ serial_translate_key_sequence (void)
   }
   four_code_table[] =
     {
-      {('1' | ('~' << 8)), KEY_HOME/*1*/},	/* Home */
-      {('3' | ('~' << 8)), KEY_DC/*4*/},	/* Delete */
-      {('5' | ('~' << 8)), KEY_PPAGE/*7*/},	/* Page Up */
-      {('6' | ('~' << 8)), KEY_NPAGE/*3*/},	/* Page Down */
+      {('1' | ('~' << 8)), KEY_HOME/*1*/},      /* Home */
+      {('3' | ('~' << 8)), KEY_DC/*4*/},        /* Delete */
+      {('5' | ('~' << 8)), KEY_PPAGE/*7*/},     /* Page Up */
+      {('6' | ('~' << 8)), KEY_NPAGE/*3*/},     /* Page Down */
     };
-  
+
   /* The buffer must start with ``ESC [''.  */
   if (*((unsigned short *) input_buf) != ('\e' | ('[' << 8)))
     return;
-  
+
   if (npending >= 3)
     {
       int i;
 
       for (i = 0;
-	   i < sizeof (three_code_table) / sizeof (three_code_table[0]);
-	   i++)
-	if (three_code_table[i].key == input_buf[2])
-	  {
-	    *(short *)input_buf = three_code_table[i].ascii;
-	    npending--;//npending -= 2;
-	    grub_memmove (input_buf + 2/*1*/, input_buf + 3, npending - 2/*1*/);
-	    return;
-	  }
+           i < sizeof (three_code_table) / sizeof (three_code_table[0]);
+           i++)
+        if (three_code_table[i].key == input_buf[2])
+          {
+            *(short *)input_buf = three_code_table[i].ascii;
+            npending--;//npending -= 2;
+            grub_memmove (input_buf + 2/*1*/, input_buf + 3, npending - 2/*1*/);
+            return;
+          }
     }
 
   if (npending >= 4)
@@ -293,19 +295,19 @@ serial_translate_key_sequence (void)
       short key = *((short *) (input_buf + 2));
 
       for (i = 0;
-	   i < sizeof (four_code_table) / sizeof (four_code_table[0]);
-	   i++)
-	if (four_code_table[i].key == key)
-	  {
-	    *(short *)input_buf = four_code_table[i].ascii;
-	    npending -= 2/*3*/;
-	    grub_memmove (input_buf + 2/*1*/, input_buf + 4, npending - 2/*1*/);
-	    return;
-	  }
+           i < sizeof (four_code_table) / sizeof (four_code_table[0]);
+           i++)
+        if (four_code_table[i].key == key)
+          {
+            *(short *)input_buf = four_code_table[i].ascii;
+            npending -= 2/*3*/;
+            grub_memmove (input_buf + 2/*1*/, input_buf + 4, npending - 2/*1*/);
+            return;
+          }
     }
 }
-    
-static int
+
+static int __cdecl
 fill_input_buf (int nowait)
 {
   int i;
@@ -316,47 +318,47 @@ fill_input_buf (int nowait)
 
       c = serial_hw_fetch ();
       if (c >= 0)
-	{
-	  input_buf[npending++] = c;
+        {
+          input_buf[npending++] = c;
 
-	  /* Reset the counter to zero, to wait for the same interval.  */
-	  i = 0;
-	}
-      
+          /* Reset the counter to zero, to wait for the same interval.  */
+          i = 0;
+        }
+
       if (nowait)
-	break;
+        break;
     }
 
   /* Translate some key sequences.  */
   serial_translate_key_sequence ();
-	  
+
   return npending;
 }
 
 /* The serial version of getkey.  */
-int
+int __cdecl
 serial_getkey (void)
 {
   int c;
-  
+
   while (! fill_input_buf (0))
     ;
 
   npending--;
   if ((c = input_buf[0]))
-	grub_memmove (input_buf, input_buf + 1, npending);
+        grub_memmove (input_buf, input_buf + 1, npending);
   else
   {
-	npending--;
-	c = *(unsigned short *)input_buf;
-	grub_memmove (input_buf, input_buf + 2, npending);
+        npending--;
+        c = *(unsigned short *)input_buf;
+        grub_memmove (input_buf, input_buf + 2, npending);
   }
-  
+
   return c;
 }
 
 /* The serial version of checkkey.  */
-int
+int __cdecl
 serial_checkkey (void)
 {
   if (fill_input_buf (1))
@@ -366,7 +368,7 @@ serial_checkkey (void)
 }
 
 /* The serial version of grub_putchar.  */
-void
+void __cdecl
 serial_putchar (int c)
 {
   /* Keep track of the cursor.  */
@@ -375,103 +377,103 @@ serial_putchar (int c)
 #if 0
       /* The serial terminal doesn't have VGA fonts.  */
       switch (c)
-	{
-	case DISP_UL:
-	  c = ACS_ULCORNER;
-	  break;
-	case DISP_UR:
-	  c = ACS_URCORNER;
-	  break;
-	case DISP_LL:
-	  c = ACS_LLCORNER;
-	  break;
-	case DISP_LR:
-	  c = ACS_LRCORNER;
-	  break;
-	case DISP_HORIZ:
-	  c = ACS_HLINE;
-	  break;
-	case DISP_VERT:
-	  c = ACS_VLINE;
-	  break;
-	case DISP_LEFT:
-	  c = ACS_LARROW;
-	  break;
-	case DISP_RIGHT:
-	  c = ACS_RARROW;
-	  break;
-	case DISP_UP:
-	  c = ACS_UARROW;
-	  break;
-	case DISP_DOWN:
-	  c = ACS_DARROW;
-	  break;
-	default:
-	  break;
-	}
+        {
+        case DISP_UL:
+          c = ACS_ULCORNER;
+          break;
+        case DISP_UR:
+          c = ACS_URCORNER;
+          break;
+        case DISP_LL:
+          c = ACS_LLCORNER;
+          break;
+        case DISP_LR:
+          c = ACS_LRCORNER;
+          break;
+        case DISP_HORIZ:
+          c = ACS_HLINE;
+          break;
+        case DISP_VERT:
+          c = ACS_VLINE;
+          break;
+        case DISP_LEFT:
+          c = ACS_LARROW;
+          break;
+        case DISP_RIGHT:
+          c = ACS_RARROW;
+          break;
+        case DISP_UP:
+          c = ACS_UARROW;
+          break;
+        case DISP_DOWN:
+          c = ACS_DARROW;
+          break;
+        default:
+          break;
+        }
 #endif
-      
+
       switch (c)
-	{
-	case '\r':
-	  serial_x = 0;
-	  break;
-	  
-	case '\n':
-	  serial_y++;
-	  break;
-	  
-	case '\b':
-	case 127:
-	  if (serial_x > 0)
-	    serial_x--;
-	  break;
-	  
-	case '\a':
-	  break;
-	  
-	default:
-	  if (serial_x >= 79)
-	    {
-	      serial_putchar ('\r');
-	      serial_putchar ('\n');
-	    }
-	  serial_x++;
-	  break;
-	}
+        {
+        case '\r':
+          serial_x = 0;
+          break;
+
+        case '\n':
+          serial_y++;
+          break;
+
+        case '\b':
+        case 127:
+          if (serial_x > 0)
+            serial_x--;
+          break;
+
+        case '\a':
+          break;
+
+        default:
+          if (serial_x >= 79)
+            {
+              serial_putchar ('\r');
+              serial_putchar ('\n');
+            }
+          serial_x++;
+          break;
+        }
     }
-  
+
   serial_hw_put (c);
 }
 
-int
+int __cdecl
 serial_getxy (void)
 {
   return (serial_x << 8) | serial_y;
 }
 
-void
+void __cdecl
 serial_gotoxy (int x, int y)
 {
   keep_track = 0;
   ti_cursor_address (x, y);
   keep_track = 1;
-  
+
   serial_x = x;
   serial_y = y;
 }
 
-void
+void __cdecl
 serial_cls (void)
 {
   keep_track = 0;
   ti_clear_screen ();
   keep_track = 1;
-  
+
   serial_x = serial_y = 0;
 }
 
-void
+void __cdecl
 serial_setcolorstate (color_state state)
 {
   keep_track = 0;
@@ -487,6 +489,141 @@ serial_setcolorstate (color_state state)
 void u_msg(char *s)
 {
   //grub_putstr(s);
+}
+
+
+int __cdecl
+serial_init(char *arg)
+{
+  unsigned short port = serial_hw_get_port (0);
+  unsigned int speed = 9600;
+  int word_len = UART_8BITS_WORD;
+  int parity = UART_NO_PARITY;
+  int stop_bit_len = UART_1_STOP_BIT;
+
+  /* Process GNU-style long options.
+     FIXME: We should implement a getopt-like function, to avoid
+     duplications.  */
+  while (1)
+    {
+      if (grub_memcmp (arg, "--unit=", sizeof ("--unit=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--unit=") - 1;
+          int unit;
+
+          if (! safe_parse_maxint (&p, &unit))
+            return 1;
+
+          if (unit < 0 || unit > 3)
+            {
+              *perrnum = ERR_DEV_VALUES;
+              return 1;
+            }
+
+          port = serial_hw_get_port (unit);
+        }
+      else if (grub_memcmp (arg, "--speed=", sizeof ("--speed=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--speed=") - 1;
+          int num;
+
+          if (! safe_parse_maxint (&p, &num))
+            return 1;
+
+          speed = (unsigned int) num;
+        }
+      else if (grub_memcmp (arg, "--port=", sizeof ("--port=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--port=") - 1;
+          int num;
+
+          if (! safe_parse_maxint (&p, &num))
+            return 1;
+
+          port = (unsigned short) num;
+        }
+      else if (grub_memcmp (arg, "--word=", sizeof ("--word=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--word=") - 1;
+          int len;
+
+          if (! safe_parse_maxint (&p, &len))
+            return 1;
+
+          switch (len)
+            {
+            case 5: word_len = UART_5BITS_WORD; break;
+            case 6: word_len = UART_6BITS_WORD; break;
+            case 7: word_len = UART_7BITS_WORD; break;
+            case 8: word_len = UART_8BITS_WORD; break;
+            default:
+              *perrnum = ERR_BAD_ARGUMENT;
+              return 1;
+            }
+        }
+      else if (grub_memcmp (arg, "--stop=", sizeof ("--stop=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--stop=") - 1;
+          int len;
+
+          if (! safe_parse_maxint (&p, &len))
+            return 1;
+
+          switch (len)
+            {
+            case 1: stop_bit_len = UART_1_STOP_BIT; break;
+            case 2: stop_bit_len = UART_2_STOP_BITS; break;
+            default:
+              *perrnum = ERR_BAD_ARGUMENT;
+              return 1;
+            }
+        }
+      else if (grub_memcmp (arg, "--parity=", sizeof ("--parity=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--parity=") - 1;
+
+          if (grub_memcmp (p, "no", sizeof ("no") - 1) == 0)
+            parity = UART_NO_PARITY;
+          else if (grub_memcmp (p, "odd", sizeof ("odd") - 1) == 0)
+            parity = UART_ODD_PARITY;
+          else if (grub_memcmp (p, "even", sizeof ("even") - 1) == 0)
+            parity = UART_EVEN_PARITY;
+          else
+            {
+              *perrnum = ERR_BAD_ARGUMENT;
+              return 1;
+            }
+        }
+# ifdef GRUB_UTIL
+      /* In the grub shell, don't use any port number but open a tty
+         device instead.  */
+      else if (grub_memcmp (arg, "--device=", sizeof ("--device=") - 1) == 0)
+        {
+          char *p = arg + sizeof ("--device=") - 1;
+          char dev[256];        /* XXX */
+          char *q = dev;
+
+          while (*p && ! isspace (*p))
+            *q++ = *p++;
+
+          *q = 0;
+          serial_set_device (dev);
+        }
+# endif /* GRUB_UTIL */
+      else
+        break;
+
+      arg = skip_to (0, arg);
+    }
+
+  /* Initialize the serial unit.  */
+  if (! serial_hw_init (port, speed, word_len, parity, stop_bit_len))
+    {
+      *perrnum = ERR_BAD_ARGUMENT;
+      return 1;
+    }
+
+  return 0;
 }
 
 //#endif /* SUPPORT_SERIAL */

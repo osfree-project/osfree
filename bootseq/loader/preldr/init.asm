@@ -101,7 +101,7 @@ real_start:
         ; Set segment registers
         ; to CS value, set stack
         ; to the end of this segment
-        xor  eax, eax        
+        xor  eax, eax
         xor  ebx, ebx
         mov  ax,  cs
         shl  eax, 4
@@ -116,9 +116,9 @@ rel0:
         shr  eax, 4
         push ax
         push bx
-        ; now ax:bx is the rel1 address, and ax:0 is the 
+        ; now ax:bx is the rel1 address, and ax:0 is the
         ; beginning of the executable
-        retf   
+        retf
 rel1:
         mov  bx, ds
         mov  cx, es
@@ -222,34 +222,34 @@ skip_reloc_ufsd:
 
 skip_reloc_stage0:
         ; clear BSS
-        mov  ecx, offset _TEXT:bss_end
-        mov  eax, offset _TEXT:exe_end
-        sub  ecx, eax    ; BSS length
-        mov  ebx, STAGE0_BASE
-        sub  eax, ebx
-        shr  ebx, 4
-        mov  es, bx
-        mov  edi, eax
-        xor  ax, ax
+        ;mov  ecx, offset _TEXT:bss_end
+        ;mov  eax, offset _TEXT:exe_end
+        ;sub  ecx, eax    ; BSS length
+        ;mov  ebx, STAGE0_BASE
+        ;sub  eax, ebx
+        ;shr  ebx, 4
+        ;mov  es, bx
+        ;mov  edi, eax
+        ;xor  ax, ax
 
-        rep  stosb
- 
-        push es
- 
+        ;rep  stosb
+
+        ;push es
+
         ; clear BSS of uFSD
-        mov  bx, 7c00h
-        mov  es, bx
-        xor  bx, bx
-        mov  edi, dword ptr es:[bx + 2] ; bss start
+        ;mov  bx, 7c00h
+        ;mov  es, bx
+        ;xor  bx, bx
+        ;mov  edi, dword ptr es:[bx + 2] ; bss start
         ; now es:di->bss
-        mov  ecx, dword ptr es:[bx + 6] ; bss end
-        sub  ecx, edi
+        ;mov  ecx, dword ptr es:[bx + 6] ; bss end
+        ;sub  ecx, edi
         ; now ecx contains bss length
-        xor  eax, eax
+        ;xor  eax, eax
 
-        rep  stosb
+        ;rep  stosb
 
-        pop  es
+        ;pop  es
 
         ; relocate boot sector to safe place
         push ds

@@ -92,7 +92,7 @@ check_int13_extensions_rm proc far
       jnz     uu2
 
 uu1:
-      xor     bl, bl                                  
+      xor     bl, bl
 uu2:
       ; back to protected mode
       retf
@@ -156,8 +156,8 @@ biosdisk_int13_extensions proc near
         ; ax
         mov     bx, [ebp + 8h]
         ; enter real mode
-ifdef REAL_BASE
-        mov     eax, REAL_BASE
+ifdef REL1_BASE
+        mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
 endif
@@ -215,8 +215,8 @@ biosdisk_standard proc near
         mov     al, [ebp + 1ch]
         mov     di, ax
         ; enter real mode
-ifdef REAL_BASE
-        mov     eax, REAL_BASE
+ifdef REL1_BASE
+        mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
 endif
@@ -259,8 +259,8 @@ check_int13_extensions proc near
         ; drive
         mov     dl, [ebp + 8]
         ; enter real mode
-ifdef REAL_BASE
-        mov     eax, REAL_BASE
+ifdef REL1_BASE
+        mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
 endif
@@ -298,8 +298,8 @@ get_diskinfo_standard proc near
         ; drive
         mov     dl, [ebp + 8]
         ; enter real mode
-ifdef REAL_BASE
-        mov     eax, REAL_BASE
+ifdef REL1_BASE
+        mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
 endif

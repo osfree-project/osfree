@@ -20,6 +20,7 @@
 #include <lip.h>
 #include <filesys.h>
 #include <shared.h>
+#include <serial.h>
 
 #include "fsd.h"
 #include "fsys.h"
@@ -29,6 +30,8 @@ kernel_t kernel_type;
 extern grub_error_t errnum;
 
 int os2ldr = 0;
+
+extern struct term_entry *t;
 
 /* The address for Multiboot command-line buffer.  */
 static char *mb_cmdline;
@@ -1473,6 +1476,30 @@ static struct builtin builtin_dlat =
   "Get/set LVM DLAT info"
 };
 
+/* serial */
+int
+serial_func (char *arg, int flags)
+{
+  t = u_termctl(2);
+
+  return t->init(arg);
+}
+
+static struct builtin builtin_serial =
+{
+  "serial",
+  serial_func,
+  BUILTIN_MENU | BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "serial [--unit=UNIT] [--port=PORT] [--speed=SPEED] [--word=WORD] [--parity=PARITY] [--stop=STOP] [--device=DEV]",
+  "Initialize a serial device. UNIT is a digit that specifies which serial"
+  " device is used (e.g. 0 == COM1). If you need to specify the port number,"
+  " set it by --port. SPEED is the DTE-DTE speed. WORD is the word length,"
+  " PARITY is the type of parity, which is one of `no', `odd' and `even'."
+  " STOP is the length of stop bit(s). The option --device can be used only"
+  " in the grub shell, which specifies the file name of a tty device. The"
+  " default values are COM1, 9600, 8N1."
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1493,5 +1520,6 @@ struct builtin *builtins[] = {
   &builtin_screen,
   &builtin_os2ldr,
   &builtin_dlat,
+  &builtin_serial,
   0
 };

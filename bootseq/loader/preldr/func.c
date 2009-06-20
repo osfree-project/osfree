@@ -191,9 +191,9 @@ int set_fsys(char *fsname)
     panic("can't open filesystem: ", fsname);
 
   /* clear the BSS of the uFSD */
-  start = *((unsigned long *)(buf + 2));
-  len   = *((unsigned long *)(buf + 6)) - start;
-  memset((void *)start, 0, len);
+  //start = *((unsigned long *)(buf + 2));
+  //len   = *((unsigned long *)(buf + 6)) - start;
+  //memset((void *)start, 0, len);
 
   //printmsg("uFSD file read, size: %d\r\n", rc);
   //printd(rc);
@@ -383,10 +383,10 @@ open_device (void)
 {
   if (open_partition ())
     attempt_mount ();
-  
+
   if (errnum != ERR_NONE)
     return 0;
-  
+
   return 1;
 
   //return open_partition() && attempt_mount();

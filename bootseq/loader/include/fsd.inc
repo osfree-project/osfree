@@ -20,6 +20,7 @@ LDR_SEG         equ 0x2000                ; freeldr segment
 ; multiboot kernel load base
 KERN_BASE       equ 0x800000
 REL_BASE        equ 0x90000
+REL1_BASE       equ (0x90000 + SHIFT)
 
 PREFERRED_BASE  equ 0x5f000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
                                           ; when loaded initially without relocation)

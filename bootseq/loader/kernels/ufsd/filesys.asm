@@ -5,14 +5,10 @@
 
 name filesys
 
-ifndef STAGE1_5
-
 public mu_Open
 public mu_Read
 public mu_Close
 public mu_Terminate
-
-endif
 
 public preldr_ds
 public preldr_ss_sp
@@ -20,14 +16,10 @@ public preldr_es
 
 extrn filemax           :dword
 extrn call_pm           :near
-extrn freeldr_open      :near
-extrn freeldr_read      :near
-
-ifndef STAGE1_5
-extrn freeldr_seek      :near
-endif
-
-extrn freeldr_close     :near
+extrn ufs_open          :near
+extrn ufs_read          :near
+extrn ufs_seek          :near
+extrn ufs_close         :near
 
 .386p
 
@@ -68,10 +60,6 @@ endm
 
 _TEXT16 segment dword public 'CODE' use16
 
-
-ifndef STAGE1_5
-
-
 ;
 ; Open file using MicroFSD
 ;
@@ -95,7 +83,7 @@ mu_Open proc far
         shr  ecx, 16
         shl  ecx, 4
         and  ebx, 0ffffh
-	;and  ecx, 0fffffh
+        ;and  ecx, 0fffffh
         add  ebx, ecx
 
         ; switch to PM and call muOpen
@@ -166,7 +154,7 @@ mu_Read proc far
         shr  edx, 16
         mov  eax, ebx
         and  eax, 0ffffh
-	;and  edx, 0ffffh
+        ;and  edx, 0ffffh
 
         switch_to_ldr
 
@@ -206,8 +194,6 @@ ldr_ds       dw 0
 ldr_ss_sp    dd 0
 ldr_es       dw 0
 
-endif
-
 preldr_ds    dw 0
 preldr_ss_sp dd 0
 preldr_es    dw 0
@@ -218,12 +204,9 @@ _TEXT16 ends
 _TEXT   segment dword public 'CODE' use32
 
 
-ifndef STAGE1_5
-
-
 muOpen proc near
        mov  eax, ebx
-       call freeldr_open
+       call ufs_open
 
        cmp  eax, 0
        jnz  noerr2
@@ -240,7 +223,7 @@ muOpen endp
 
 muRead proc near
        mov  eax, ebx
-       call freeldr_seek
+       call ufs_seek
 
        cmp  ecx, 0
        jnz  later1
@@ -248,7 +231,7 @@ muRead proc near
 later1:
        mov  eax, edx
        mov  edx, ecx
-       call freeldr_read
+       call ufs_read
 
        mov  ebx, eax
 
@@ -256,13 +239,10 @@ later1:
 muRead endp
 
 muClose proc near
-       call freeldr_close
+       call ufs_close
 
        ret
 muClose endp
-
-
-endif
 
 
 _TEXT   ends

@@ -13,14 +13,18 @@ include mb_info.inc
 include mb_header.inc
 include mb_etc.inc
 
+extrn cmain_          :near
 extrn exe_end         :near
 extrn bss_end         :near
+
+public rel_start
+public ufsd_start
+public ufsd_size
 
 public stop
 public base
 
-public init_
-public cmain_
+public m
 
 _16BIT_SIZE equ 100h                                                 ; 16-bit part size
 
@@ -108,7 +112,7 @@ _mbhdr          multiboot_header  <_magic,_flags,_checksum,__mbhdr,__start,__exe
 
                    org     start + 100h
 real_start:
-                   
+
 _TEXT16  ends
 
 _TEXT    segment dword public 'CODE'  use32
@@ -130,28 +134,65 @@ include ufsd.inc
 ; its size
 ufsd_size          dd $ - ufsd_start
 
+mfsd_start:
+; here mFSD image begins
+include mfsd.inc
+; here it ends
+; its size
+mfsd_size          dd $ - mfsd_start
+
+rel_start:
+; here mFSD reloc. info begins
+include urel.inc
+; here it ends
+; its size
+rel_size           dd $ - rel_start
+
 entry:
                    cmp   eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
                    jne   stop                                        ; is present in eax
 
-                   ;mov   m, ebx                                      ; save multiboot structure address
+                   mov   ds:m, ebx                                   ; save multiboot structure address
 
                    ; set stack
                    ;mov   esp, stack_top
                    ; at the moment, we use loader stack
 
-                   ; copy bt_os2 parts at REAL_BASE (below 1 Mb)
-                   cld                                               ; move forward
-                   mov     esi, ufsd_start                           ; begin of startup
-		   mov     ecx, ufsd_size
-		   shr     ecx, 2
-		   inc     ecx
-                   mov     edi, REAL_BASE                            ; copy to
+                   ; copy bootos2 parts at REL_BASE (below 1 Mb)
+                   ;cld                                               ; move forward
+                   ;mov     esi, ufsd_start                           ; begin of startup
+                   ;mov     ecx, ufsd_size
+                   ;shr     ecx, 2
+                   ;inc     ecx
+                   ;mov     edi, REL1_BASE                            ; copy to
 
-                   rep     movsd                                     ; copy
+                   ;rep     movsd                                     ; copy
+
+                   ; copy mFSD at 0x7c0
+                   mov     esi, mfsd_start
+                   mov     ecx, mfsd_size
+                   shr     ecx, 2
+                   inc     ecx
+                   mov     edi, 0x7c0
+
+                   rep     movsd
+
+                   push    eax
+
+                   call    cmain_
+.386p
+                   ; pass mfsd_size to uFSD emulator
+                   mov     esi, eax                                  ; uFSD copying address
+                   add     esi, 0x20                                 ; mfs_len address in uFSD emulator
+                   mov     edx, mfsd_size
+                   mov     [esi], edx
+
+                   mov     edx, eax
+
+                   pop     eax
 
                    ; start microfsd emulator
-                   push    REAL_BASE
+                   push    edx
                    ret
 
                    ; We should not return here                       ;
@@ -178,9 +219,12 @@ errmsg             db   "This is not a multiboot loader or no LIP module!",0
 
 oldgdtdesc         gdtr <>
 
-init_:
-cmain_:
-
 _TEXT    ends
+
+_DATA    segment dword public 'DATA'  use32
+
+m        dd  ?
+
+_DATA    ends
 
          end entry

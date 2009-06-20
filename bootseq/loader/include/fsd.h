@@ -20,6 +20,7 @@
 // ; multiboot kernel load base
 #define KERN_BASE   0x800000
 #define REL_BASE    0x90000
+#define REL1_BASE   (0x90000 + SHIFT)
 
 #define PREFERRED_BASE  0x5f000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
 #define BOOT_PART_TABLE  (0x60000 + SHIFT) //

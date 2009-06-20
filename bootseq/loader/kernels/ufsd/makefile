@@ -16,20 +16,21 @@ kernels          = $(p)ufsd$(e)
 
 # filesys without $(p) and $(e):
 
-p                = 
+p                =
 e                =
 i                =
 bbx              = $+$(kernels)$-
 
-ufsd_OBJS     = $(p)ufsd$(e) $(p)ufsdc$(e)
-common_OBJS      = $(p)..$(SEP)..$(SEP)end$(e)
+ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
+                   $(p)biosdisk$(e) $(p)bios$(e)
+common_OBJS      = $(p)end$(e)
 
-ADD_COPT   = -dOS2 -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
-ADD_ASMOPT = -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT   = -dOS2 -dMB_KERN -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_ASMOPT = -dOS2 -dMB_KERN -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 
 OBJS             = $(ufsd_OBJS) $(common_OBJS)
 
-MOD_BASE         = REL_BASE
+MOD_BASE         = REL1_BASE
 
 DEST             = none
 
@@ -45,7 +46,7 @@ rels         = $+$(kernels)$-
 p            = $(PATH)
 e            = .mdl
 i            = $(PATH)ufsd.inc
-TARGETS      = subdirs $+$(kernels)$- # $(rels)
+TARGETS      = subdirs $+$(kernels)$- $(rels)
 
 files     = $(bbx)
 
@@ -63,10 +64,8 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=$$(SHIFT)
 defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 !endif
 
-.$(O):  $(PATH).
-.$(SO): $(PATH).
-.$(O):  $(PATH)..
-.$(SO): $(PATH)..
-.$(O):  $(PATH)..$(SEP)preldr
-.$(SO): $(PATH)..$(SEP)preldr
-.inc:   $(PATH)
+
+.asm:   $(MYDIR)..$(SEP)..$(SEP)preldr
+.c:     $(MYDIR)..$(SEP)..$(SEP)preldr
+.asm:   $(MYDIR)..$(SEP)..
+.c:     $(MYDIR)..$(SEP)..

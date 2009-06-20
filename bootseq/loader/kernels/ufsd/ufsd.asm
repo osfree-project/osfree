@@ -6,20 +6,36 @@
 
 name microfsd
 
-public realmode_init
 public m
+public base
+public realmode_init
 
-extrn  init_       :near
-extrn  cmain_      :near
+public boot_flags
+public boot_drive
+public ft
+
+public stack_bottom
+public force_lba
+
+extrn  init_        :near
+extrn  cmain_       :near
+extrn  call_rm      :near
+extrn  gdtdesc      :fword
+
+extrn  preldr_ds    :word
+extrn  preldr_ss_sp :dword
+extrn  preldr_es    :word
 
 .386p
 
 include fsd.inc
 include struc.inc
 include mb_info.inc
+include loader.inc
+include bpb.inc
 
-BASE1              equ     REL_BASE - 0x10000
-_16BIT_SIZE        equ     300
+BASE1              equ     REL1_BASE - 0x10000
+_16BIT_SIZE        equ     0x600
 VIDEO_BUF          equ     0xb8000
 
 _TEXT16  segment dword public 'CODE' use16
@@ -36,9 +52,12 @@ start:
 
                    org     start + 10h
 
-base               dd      REAL_BASE
+base               dd      REL1_BASE
 
                    org     start + 20h
+
+mfs_len            dd      ?
+force_lba          db      0
 
                    ;
                    ; end of header
@@ -51,14 +70,41 @@ real_start:
 
                    org     start + 200h
 realmode_init:
-                   mov     al, 'q'
-                   mov     bx, 1
-                   mov     ah, 0Eh
-                   int     10h                                       ; display a byte
+                   ; save pre-loader segment registers and stack
+                   mov  ax, ds
+                   mov  word ptr preldr_ds, ax
+                   mov  ax, es
+                   mov  word ptr preldr_es, ax
+                   mov  ax, sp
+                   mov  word ptr preldr_ss_sp, ax
+                   mov  ax, ss
+                   mov  word ptr preldr_ss_sp + 2, ax
 
-                   cli
-                   hlt
-                   jmp     $
+                   ;
+                   ; pass structures to os2ldr
+                   ;
+                   xor  eax, eax
+                   mov  eax, offset _TEXT:boot_flags - REL1_BASE
+                   ; set bootflags
+                   mov  dx, [eax]
+
+                   ; set bootdrive
+                   mov  eax, offset _TEXT:boot_drive - REL1_BASE
+                   mov  dl, [eax]
+
+                   mov  edi, offset _TEXT:ft - REL1_BASE
+
+                   ; set BPB
+                   mov  eax, REL1_BASE - 200h
+                   shr  eax, 4
+                   mov  ds,  ax
+                   mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
+
+                   ; return to os2ldr
+                   push OS2LDR_SEG
+                   push 0
+
+                   retf
 _TEXT16  ends
 
 _TEXT    segment dword public 'CODE'  use32
@@ -72,12 +118,28 @@ entry0:
                    ; loader from multiboot header
                    ;
 entry:
-                   cmp   eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
-                   jne   stop                                        ; is present in eax
 
-                   mov   ds:m, ebx                                   ; save multiboot structure address
+                   cmp     eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
+                   jne     stop                                        ; is present in eax
 
-		   call  cmain_
+                   ; setup stack
+                   mov     esp, PM_STACK_INIT
+
+                   mov     ds:m, ebx                                   ; save multiboot structure address
+
+                   call    set_gdt
+
+                   ; 32-bit uFSD init
+                   call    cmain_
+
+                   ; enter real mode
+                   mov     eax, REL1_BASE
+                   shl     eax, 12
+                   mov     ax,  offset _TEXT16:realmode_init
+                   push    eax
+                   xor     eax, eax
+                   call    call_rm
+                   add     esp, 4
 
                    ; We should not return here                       ;
                    cli                                               ; hang
@@ -99,28 +161,80 @@ loop1:
                    hlt                                               ; hang machine
                    jmp     $                                         ;
 
+set_gdt:
+                   ; set 16-bit segment (_TEXT16) base
+                   ; in GDT for protected mode
+
+                   ; fix gdt descriptors base
+                   mov  ebx, GDT_ADDR
+                   mov  eax, REL1_BASE
+                   mov  [ebx][8*8].ds_baselo, ax
+                   mov  [ebx][9*8].ds_baselo, ax
+                   ror  eax, 16
+                   mov  [ebx][8*8].ds_basehi1, al
+                   mov  [ebx][9*8].ds_basehi1, al
+                   ror  eax, 8
+                   mov  [ebx][8*8].ds_basehi2, al
+                   mov  [ebx][9*8].ds_basehi2, al
+
+                   ; fill GDT descriptor
+                   mov  ebx, offset _TEXT:gdtdesc
+                   mov  eax, GDT_ADDR
+                   mov  [ebx].g_base, eax
+
+                   lgdt fword ptr [ebx]
+
+                   ret
+
 errmsg             db   "This is not a multiboot loader or no LIP module!",0
 
 oldgdtdesc         gdtr <>
+
+boot_flags         dw 0         ; <-- DX
+boot_drive         dd 0         ; <-- DL
+ft                 FileTable <>
 
 _TEXT    ends
 
 _DATA    segment dword public 'DATA'  use32
 
-; mbi structure pointer
-m        dd   ?
+m        dd  ?
 
 _DATA    ends
 
+_TEXT16  segment dword public 'CODE'  use16
+_TEXT16  ends
+_TEXT    segment dword public 'CODE'  use32
+_TEXT    ends
+_DATA    segment dword public 'DATA'  use32
+_DATA    ends
 CONST    segment dword public 'DATA'  use32
 CONST    ends
 CONST2   segment dword public 'DATA'  use32
 CONST2   ends
+_end1    segment dword public 'DATA'  use32
+_end1    ends
+_end2    segment dword public 'DATA'  use32
+_end2    ends
 _BSS     segment dword public 'BSS'   use32
 _BSS     ends
+_end3    segment dword public 'BSS'   use32
+_end3    ends
+_end4    segment dword public 'BSS'   use32
+_end4    ends
+
+; protected mode stack size
+PM_STACK_SIZE    equ   2000h
+PM_STACK_INIT    equ   REL1_BASE - 200h
+; real mode stack size
+STACK_SIZE       equ   1000h
+
 _STACK   segment dword public 'STACK' use32
+stack_top:
+         db STACK_SIZE dup (?)
+stack_bottom:
 _STACK   ends
 
-DGROUP   group _TEXT,_DATA,CONST,CONST2,_DATA,_BSS,_STACK
+DGROUP   group _TEXT,_DATA,CONST,CONST2,_end1,_end2,_BSS,_end3,_end4,_STACK
 
          end entry

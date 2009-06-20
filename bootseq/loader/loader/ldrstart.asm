@@ -86,15 +86,15 @@ ok:
       mov  ebp, esp
 
       ; clear bss
-      cld
-      xor  eax, eax
-      lea  edi, exe_end
-      lea  ecx, bss_end
-      sub  ecx, edi
-      shr  ecx, 2
-      inc  ecx
+      ;cld
+      ;xor  eax, eax
+      ;lea  edi, exe_end
+      ;lea  ecx, bss_end
+      ;sub  ecx, edi
+      ;shr  ecx, 2
+      ;inc  ecx
 
-      rep  stosd
+      ;rep  stosd
 
       assume cs:_TEXT
 
@@ -102,7 +102,7 @@ ok:
 
       cli
       hlt
-      
+
       int 3
 ;      jmp     $
 

@@ -19,7 +19,7 @@
  */
 
 #ifndef GRUB_TERM_HEADER
-#define GRUB_TERM_HEADER	1
+#define GRUB_TERM_HEADER        1
 
 /* These are used to represent the various color states we use */
 typedef enum
@@ -50,13 +50,13 @@ typedef enum
    NULL.  */
 
 /* Set when input characters shouldn't be echoed back.  */
-#define TERM_NO_ECHO		(1 << 0)
+#define TERM_NO_ECHO            (1 << 0)
 /* Set when the editing feature should be disabled.  */
-#define TERM_NO_EDIT		(1 << 1)
+#define TERM_NO_EDIT            (1 << 1)
 /* Set when the terminal cannot do fancy things.  */
-#define TERM_DUMB		(1 << 2)
+#define TERM_DUMB               (1 << 2)
 /* Set when the terminal needs to be initialized.  */
-#define TERM_NEED_INIT		(1 << 16)
+#define TERM_NEED_INIT          (1 << 16)
 
 struct term_entry
 {
@@ -85,7 +85,8 @@ struct term_entry
   void __cdecl (*setcolor) (int normal_color, int highlight_color); //, int helptext_color, int heading_color);
   /* Turn on/off the cursor.  */
   int __cdecl (*setcursor) (int on);
-
+  /* Set terminal initial params */
+  int __cdecl (*init) (char *args);
   /* function to start a terminal */
   int __cdecl (*startup) (void);
   /* function to use to shutdown a terminal */
@@ -100,7 +101,7 @@ extern struct term_entry *current_term;
 
 #endif /* ! STAGE1_5 */
 
-#ifdef  TERM_CONSOLE
+//#ifdef  TERM_CONSOLE
 /* The console stuff.  */
 extern int __cdecl console_current_color;
 void __cdecl console_putchar (int c);
@@ -122,9 +123,9 @@ int __cdecl console_setcursor (int on);
 #pragma aux console_setcolorstate "*"
 #pragma aux console_setcolor      "*"
 #pragma aux console_setcursor     "*"
-#endif
+//#endif
 
-#ifdef TERM_SERIAL
+//#ifdef TERM_SERIAL
 void __cdecl serial_putchar (int c);
 int __cdecl serial_checkkey (void);
 int __cdecl serial_getkey (void);
@@ -132,6 +133,7 @@ int __cdecl serial_getxy (void);
 void __cdecl serial_gotoxy (int x, int y);
 void __cdecl serial_cls (void);
 void __cdecl serial_setcolorstate (color_state state);
+int  __cdecl serial_init (char *arg);
 #pragma aux serial_putchar       "*_"
 #pragma aux serial_checkkey      "*_"
 #pragma aux serial_getkey        "*_"
@@ -139,9 +141,10 @@ void __cdecl serial_setcolorstate (color_state state);
 #pragma aux serial_gotoxy        "*_"
 #pragma aux serial_cls           "*_"
 #pragma aux serial_setcolorstate "*_"
-#endif
+#pragma aux serial_init          "*_"
+//#endif
 
-#ifdef TERM_HERCULES
+//#ifdef TERM_HERCULES
 void __cdecl hercules_putchar (int c);
 int __cdecl console_checkkey (void);
 int __cdecl console_getkey (void);
@@ -160,11 +163,11 @@ int __cdecl hercules_setcursor (int on);
 //#pragma aux hercules_setcolorstate "*"
 //#pragma aux hercules_setcolor      "*"
 //#pragma aux hercules_setcursor     "*"
-#endif
+//#endif
 
 #endif /* ! GRUB_TERM_HEADER */
 
-#ifdef TERM_GRAPHICS
+//#ifdef TERM_GRAPHICS
 extern int foreground, background, border, graphics_inited;
 
 void __cdecl graphics_set_splash(char *splashfile);
@@ -176,7 +179,7 @@ int __cdecl graphics_getxy(void);
 void __cdecl graphics_gotoxy(int x, int y);
 void __cdecl graphics_cls(void);
 void __cdecl graphics_setcolorstate (color_state state);
-void __cdecl graphics_setcolor (int normal_color, int highlight_color, int helptext_color, int heading_color);
+void __cdecl graphics_setcolor (int normal_color, int highlight_color); //, int helptext_color, int heading_color);
 int __cdecl graphics_setcursor (int on);
 int __cdecl graphics_init(void);
 void __cdecl graphics_end(void);
@@ -195,4 +198,7 @@ void __cdecl graphics_set_palette(int idx, int red, int green, int blue);
 #pragma aux graphics_setcursor     "*_"
 #pragma aux graphics_init          "*_"
 #pragma aux graphics_end           "*_"
-#endif /* SUPPORT_GRAPHICS */
+#pragma aux graphics_set_palette   "*_"
+#pragma aux set_videomode          "*_"
+
+//#endif /* SUPPORT_GRAPHICS */

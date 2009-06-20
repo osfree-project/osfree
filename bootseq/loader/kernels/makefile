@@ -21,7 +21,7 @@ msw              = $(p)modesw-npc$(e) $(p)modesw-npl$(e)
 
 # filesys without $(p) and $(e):
 
-p                = 
+p                =
 e                =
 i                =
 bbx              = $+$(kernels)$-
@@ -32,7 +32,7 @@ chain_OBJS    = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                 $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
                 $(p)..$(SEP)preldr$(SEP)bios$(e)
 
-bootos2_OBJS      = $(p)startup$(e)
+bootos2_OBJS      = $(p)startup$(e) $(p)bootos2$(e)
 
 ufsd_OBJS     = $(p)ufsd$(e) $(p)ufsdc$(e)
 
@@ -41,7 +41,7 @@ common_OBJS      = $(p)..$(SEP)end$(e)
 
 ADD_COPT   = -dOS2
 ADD_ASMOPT = -i=$(PATH)
-CLEAN_ADD  = ufsd.inc
+CLEAN_ADD  = ufsd.inc mfsd.inc urel.inc
 
 !     ifeq basename linux
 #t = -c
@@ -128,5 +128,15 @@ $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
  $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
+$(PATH)bootos2.mdl: $(PATH)ufsd.inc $(PATH)mfsd.inc $(PATH)urel.inc
+
 $(PATH)ufsd.inc: $(PATH)ufsd$(SEP)ufsd.mdl
+ $(REXX) mkheader.cmd $< $^@
+
+$(PATH)mfsd.inc: $(MYDIR)os2boot
+ $(REXX) mkheader.cmd $< $^@
+
+.rel: $(PATH)ufsd
+
+$(PATH)urel.inc: $(PATH)ufsd$(SEP)ufsd.rel
  $(REXX) mkheader.cmd $< $^@

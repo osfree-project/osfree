@@ -846,12 +846,16 @@ KernelLoader(void)
   }
 }
 
+int
+serial_func (char *arg, int flags);
+
 void
 cmain(void)
 {
   /* Get mbi structure address from pre-loader */
   u_parm(PARM_MBI, ACT_GET, (unsigned int *)&m);
   // init terminal
+  //serial_func("--unit=0 --speed=115200", 2);
   t = u_termctl(-1);
 
   //printf("!!!\r\n");
