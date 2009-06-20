@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = ufsd
+DIRS = ufsd mFSD
 
 #
 # $+ switches on and $- switches off
@@ -128,15 +128,16 @@ $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
  $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
+.rel: $(PATH)ufsd
+#.dll: $(PATH)mFSD
+
 $(PATH)bootos2.mdl: $(PATH)ufsd.inc $(PATH)mfsd.inc $(PATH)urel.inc
 
 $(PATH)ufsd.inc: $(PATH)ufsd$(SEP)ufsd.mdl
  $(REXX) mkheader.cmd $< $^@
 
-$(PATH)mfsd.inc: $(MYDIR)os2boot
+$(PATH)mfsd.inc: $(PATH)mFSD$(SEP)mfs.dll
  $(REXX) mkheader.cmd $< $^@
-
-.rel: $(PATH)ufsd
 
 $(PATH)urel.inc: $(PATH)ufsd$(SEP)ufsd.rel
  $(REXX) mkheader.cmd $< $^@

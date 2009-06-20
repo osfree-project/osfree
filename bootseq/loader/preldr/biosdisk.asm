@@ -156,10 +156,14 @@ biosdisk_int13_extensions proc near
         ; ax
         mov     bx, [ebp + 8h]
         ; enter real mode
-ifdef REL1_BASE
+ifdef REAL_BASE
+        mov     eax, REAL_BASE
+else
+ifdef MB_KERN
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
+endif
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:biosdisk_int13_extensions_rm
@@ -215,10 +219,14 @@ biosdisk_standard proc near
         mov     al, [ebp + 1ch]
         mov     di, ax
         ; enter real mode
-ifdef REL1_BASE
+ifdef REAL_BASE
+        mov     eax, REAL_BASE
+else
+ifdef MB_KERN
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
+endif
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:biosdisk_standard_rm
@@ -259,10 +267,14 @@ check_int13_extensions proc near
         ; drive
         mov     dl, [ebp + 8]
         ; enter real mode
-ifdef REL1_BASE
+ifdef REAL_BASE
+        mov     eax, REAL_BASE
+else
+ifdef MB_KERN
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
+endif
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:check_int13_extensions_rm
@@ -298,10 +310,14 @@ get_diskinfo_standard proc near
         ; drive
         mov     dl, [ebp + 8]
         ; enter real mode
-ifdef REL1_BASE
+ifdef REAL_BASE
+        mov     eax, REAL_BASE
+else
+ifdef MB_KERN
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
+endif
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:get_diskinfo_standard_rm
