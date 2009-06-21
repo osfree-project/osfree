@@ -6,7 +6,7 @@
 
 PROJ     = mfs
 DESC     = A mini file system driver
-srcfiles = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e) # $(p)end$(e)
+srcfiles = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e) $(p)end$(e)
 ADD_LINKOPT = option nod segment type DATA preload segment type CODE preload
 # linking dll file
 DLL      = 1
@@ -68,7 +68,8 @@ IMPORTS = &
     FSH_IOBOOST FSHELPER.52, &
     FSH_QUERYSERVERTHREAD FSHELPER.53, &
     FSH_QUERYOPLOCK FSHELPER.54, &
-    FSH_EXTENDTIMESLICE FSHELPER.55
+    FSH_EXTENDTIMESLICE FSHELPER.55, &
+    MFSH_SYSCTL FSHELPER.56
 EXPORTS  = &
 # Optional
 #   FS_ALLOCATEPAGESPACE, &
