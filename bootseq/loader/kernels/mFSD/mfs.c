@@ -31,9 +31,9 @@ int far pascal _loadds MFS_INIT(
     unsigned long far *pMiniFSD,        /* pMiniFSD     */
     unsigned long far *dump             /* dump address */
 ) {
-    char far *msg = "MBI:mFSD hello world!";
+    char far *msg = "MBI: mFSD hello world!";
 
-    MFSH_INTERR(msg, 18);
+    MFSH_INTERR(msg, 23);
 
     return NO_ERROR;
 }
@@ -58,19 +58,3 @@ int far pascal _loadds MFS_TERM(void) {
 
     return NO_ERROR;
 }
-
-/*
-int small_code_ = 0;
-
-int _cstart(void)
-{
-  return 0;
-}
-
-int __STK (void)
-{
-  return 0;
-}
-
-#pragma aux __STK "*"
- */

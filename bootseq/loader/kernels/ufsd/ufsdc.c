@@ -177,7 +177,7 @@ void cmain (void)
   p = (unsigned long *)(REL1_BASE + 0x20); // an address of mfs_len in the header
 
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD;
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO;
 
   if (m->flags & MB_INFO_BOOTDEV)
   {
