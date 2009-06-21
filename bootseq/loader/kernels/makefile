@@ -26,15 +26,15 @@ e                =
 i                =
 bbx              = $+$(kernels)$-
 
-linux_OBJS    = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) $(p)cmdline$(e) $(p)wrap$(e)
+linux_OBJS       = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) $(p)cmdline$(e) $(p)wrap$(e)
 
-chain_OBJS    = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
-                $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
-                $(p)..$(SEP)preldr$(SEP)bios$(e)
+chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
+                   $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
+                   $(p)..$(SEP)preldr$(SEP)bios$(e)
 
-bootos2_OBJS      = $(p)startup$(e) $(p)bootos2$(e)
+bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e)
 
-ufsd_OBJS     = $(p)ufsd$(e) $(p)ufsdc$(e)
+ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
 
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)

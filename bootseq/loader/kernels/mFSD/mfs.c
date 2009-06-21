@@ -7,20 +7,23 @@
 #define INCL_NOPMAPI
 #include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
+//#include <string.h>
 //#include <ifs.h>
 
-int far pascal MFS_CHGFILEPTR(
+int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
+
+int far pascal _loadds MFS_CHGFILEPTR(
     unsigned long  offset,              /* offset       */
     unsigned short type                 /* type         */
 ) {
     return NO_ERROR;
 }
 
-int far pascal MFS_CLOSE(void) {
+int far pascal _loadds MFS_CLOSE(void) {
     return NO_ERROR;
 }
 
-int far pascal MFS_INIT(
+int far pascal _loadds MFS_INIT(
     void far *bootdata,                 /* bootdata     */
     char far *number,                   /* number io    */
     long far *vectorripl,               /* vectorripl   */
@@ -28,10 +31,14 @@ int far pascal MFS_INIT(
     unsigned long far *pMiniFSD,        /* pMiniFSD     */
     unsigned long far *dump             /* dump address */
 ) {
+    char far *msg = "mFSD hello world!";
+
+    //MFSH_INTERR(msg, 18);
+
     return NO_ERROR;
 }
 
-int far pascal MFS_OPEN(
+int far pascal _loadds MFS_OPEN(
     char far *name,                     /* name         */
     unsigned long far *size             /* size         */
 ) {
@@ -51,3 +58,15 @@ int far pascal _loadds MFS_TERM(void) {
 
     return NO_ERROR;
 }
+
+int small_code_ = 0;
+
+void __STK(void)
+{
+}
+
+void _cstart(void)
+{
+}
+
+#pragma aux __STK "*"

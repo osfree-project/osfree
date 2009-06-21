@@ -9,6 +9,28 @@
 
 //#include <ifs.h>
 
+#pragma aux FS_NAME         "*"
+#pragma aux FS_ATTRIBUTE    "*"
+#pragma aux FS_MPSAFEFLAGS2 "*"
+
+char FS_NAME[]                     = "MBI";
+unsigned long FS_ATTRIBUTE         = 0;
+unsigned long long FS_MPSAFEFLAGS2 = 0x41LL;
+
+/*
+FS_ATTRIBUTE dd 00000000000000000000000000101100b
+;                                         | ||||
+;                  large file support  ---+ ||||
+;                     level 7 requests -----+|||
+;                 lock notifications   ------+||
+;                     UNC support      -------+|
+;                     remote FSD       --------+
+FS_NAME                 db      'JFS',0
+FS_MPSAFEFLAGS2         dd      41h, 0         ; 01h = don't get r0 spinlock
+                                                 ; 40h = don't acquire subsys spinlock
+                                            ; FS_MPSAFEFLAGS2 is an array of 64 bits
+ */
+
 #if 0
 int far pascal FS_ALLOCATEPAGESPACE(
                                     struct sffsi far *psffsi,       /* ptr to fs independent SFT */
