@@ -207,6 +207,10 @@ void cmain (void)
   ft.ft_ripseg = 0;
   ft.ft_riplen = 0;
 
+  // pass mbi structure address to mFSD
+  p  = (unsigned long *)(0x7c0 + *p - 4);
+  *p = (unsigned long)m;
+
   p = (unsigned long *)(REL1_BASE + 0x10); // an address of base in the header
 
   ft.ft_muOpen.seg       = (*p) >> 4;

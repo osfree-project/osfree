@@ -5,11 +5,10 @@
 name start
 
 public mbi
-public pad
 
+public _small_code_
 public _cstart_
 public __STK
-public _small_code_
 
 _TEXT    segment dword public 'CODE'  use16
 _TEXT    ends
@@ -24,7 +23,8 @@ DGROUP   group CONST,CONST2,_DATA
 
 _TEXT    segment dword public 'CODE'  use16
 
-__STK:
+.286p
+
 _cstart_:
          ret
 
@@ -33,14 +33,12 @@ _TEXT    ends
 
 _DATA    segment dword public 'DATA'  use16
 
-pad  label byte
-;include aaa.inc
-
 align 4
 
 _small_code_  dd 0
 
-mbi           dd  11111111h
+; must be the last dword in the executable
+mbi           dd  0
 
 _DATA    ends
 

@@ -10,7 +10,13 @@
 //#include <string.h>
 //#include <ifs.h>
 
+extern unsigned long mbi;
+
+#pragma aux mbi "*"
+
 int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
+void serout(char *s);
+int kprintf(const char *format, ...);
 
 int far pascal _loadds MFS_CHGFILEPTR(
     unsigned long  offset,              /* offset       */
@@ -31,9 +37,8 @@ int far pascal _loadds MFS_INIT(
     unsigned long far *pMiniFSD,        /* pMiniFSD     */
     unsigned long far *dump             /* dump address */
 ) {
-    char far *msg = "MBI: mFSD hello world!";
-
-    MFSH_INTERR(msg, 23);
+    //MFSH_INTERR(msg, 23);
+    kprintf("Hello MBI minifsd, mbi = 0x%lx\n", mbi);
 
     return NO_ERROR;
 }

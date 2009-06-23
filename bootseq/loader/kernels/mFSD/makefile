@@ -4,16 +4,18 @@
 # author, date
 #
 
-PROJ     = mfs
-DESC     = A mini file system driver
-srcfiles = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e) $(p)end$(e)
+PROJ        = mbi
+DESC        = A multiboot info mini-FSD
+srcfiles    = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e) $(p)serial$(e) $(p)vsprintf$(e) &
+              $(p)istable$(e) $(p)div$(e) $(p)end$(e)
+ADD_COPT    = -dOS2 -dMINIFSD -2 -mc -zu -ecc -r -s -zdp -ze -zq -oe
 ADD_LINKOPT = option nod segment type DATA preload segment type CODE preload
 # linking dll file
-DLL      = 1
-32_BITS  = 0
-DLLOPT   = initglobal
-OPTIONS  = manyautodata
-IMPORTS = &
+DLL         = 1
+32_BITS     = 0
+DLLOPT      = initglobal
+OPTIONS     = manyautodata
+IMPORTS     = &
     FSH_SEGALLOC FSHELPER.1, &
     FSH_SEGFREE FSHELPER.2, &
     FSH_SEGREALLOC FSHELPER.3, &
@@ -70,7 +72,7 @@ IMPORTS = &
     FSH_QUERYOPLOCK FSHELPER.54, &
     FSH_EXTENDTIMESLICE FSHELPER.55, &
     MFSH_SYSCTL FSHELPER.56
-EXPORTS  = &
+EXPORTS     = &
 # Optional
 #   FS_ALLOCATEPAGESPACE, &
     FS_ATTACH, &
@@ -127,6 +129,6 @@ EXPORTS  = &
     MFS_READ, &
     MFS_TERM
 
-DEST = os2
+DEST        =
 
 !include $(%ROOT)/mk/appsos2v1.mk

@@ -133,11 +133,11 @@ $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
 
 $(PATH)bootos2.mdl: $(PATH)ufsd.inc $(PATH)mfsd.inc $(PATH)urel.inc
 
-$(PATH)ufsd.inc: $(PATH)ufsd$(SEP)ufsd.mdl
+$(PATH)ufsd.inc: $(PATH)ufsd$(SEP)mbi.mdl
  $(REXX) mkheader.cmd $< $^@
 
-$(PATH)mfsd.inc: $(PATH)mFSD$(SEP)mfs.dll
+$(PATH)mfsd.inc: $(PATH)mFSD$(SEP)mbi.dll
  $(REXX) mkheader.cmd $< $^@
 
-$(PATH)urel.inc: $(PATH)ufsd$(SEP)ufsd.rel
+$(PATH)urel.inc: $(PATH)ufsd$(SEP)mbi.rel
  $(REXX) mkheader.cmd $< $^@

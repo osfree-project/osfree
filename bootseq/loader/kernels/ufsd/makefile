@@ -12,7 +12,7 @@
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
-kernels          = $(p)ufsd$(e)
+kernels          = $(p)mbi$(e)
 
 # filesys without $(p) and $(e):
 
