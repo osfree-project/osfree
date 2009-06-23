@@ -9,7 +9,7 @@
 */
 
 #define INCL_DOSMISC
-#define INCL_ERRORS
+#define INCL_DOSERRORS
 #include <os2.h>
 
 #include <stdio.h>
@@ -42,7 +42,7 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
 
 */
 
-APIRET APIENTRY DosInsertMessage(PCHAR *  pTable, ULONG cTable, const PSZ pszMsg, ULONG cbMsg, PCHAR pBuf, ULONG cbBuf, PULONG pcbMsg)
+APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, const PSZ pszMsg, ULONG cbMsg, PCHAR pBuf, ULONG cbBuf, PULONG pcbMsg)
 {
   // Check arguments
   if (!pcbMsg) return ERROR_INVALID_PARAMETER;               // No result size variable
@@ -130,4 +130,3 @@ APIRET APIENTRY      DosTrueGetMessage(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0;
 }
-

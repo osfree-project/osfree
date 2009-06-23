@@ -1,6 +1,8 @@
 #include <stdio.h>
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
+#define INCL_DOSSEMAPHORES
+#define INCL_DOSDATETIMECOMMON
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
@@ -2562,7 +2564,7 @@ APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
 
 APIRET APIENTRY  DosListIOL(LONG CmdMODE,
                             LONG NumEntries,
-                            PLISTIO pListIO)
+                            PLISTIOL pListIO)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }

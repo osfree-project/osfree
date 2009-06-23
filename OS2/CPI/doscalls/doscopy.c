@@ -14,7 +14,8 @@
 */
 //#define INCL_OS2DEF
 #define INCL_DOSFILEMGR
-#define INCL_ERRORS
+#define INCL_DOSMEMMGR
+#define INCL_DOSERRORS
 #include <os2.h>
 
 #include <string.h>
@@ -427,5 +428,3 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
     return CopyFile(pszOld, pszNew, ulOptions); // @todo pass options
   };
 }
-
-

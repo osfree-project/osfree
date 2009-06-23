@@ -8,7 +8,7 @@ module dosexceptions;
    constant SIG_UNSETFOCUS = 0;
    constant SIG_SETFOCUS   = 1;
 
-   uses bsexcpt;
+   uses bsexcpt default;
    uses dosexcptfunc;
 
 

@@ -816,11 +816,12 @@ function  DosFSCtl(in    pData: PVOID;
                    inout pcbData: ULONG;
                    in    pParms: PVOID;
                    in    cbParms: ULONG;
-                   inout pcbParms: PULONG;
+                   inout pcbParms: ULONG;
                    in    xfunction: ULONG;
                    in    pszRoute: PCSZ;
                    in    hFile: HFILE;
                    in    method: ULONG): APIRET;
+
 
 function  DosSetFileSize(in hFile: HFILE;
                          in cbSize: ULONG): APIRET;

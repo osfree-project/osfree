@@ -36,7 +36,7 @@ uses dossemaphores;
 uses dossesmgr;
 uses dosmemmgrcommon;
 uses dosprocesscommon;
-uses dosfilemgrcommon;
+uses dosfilemgrcommon default;
 uses dossemaphorescommon;
 uses dosdatetimecommon;
 uses dosresourcescommon;
