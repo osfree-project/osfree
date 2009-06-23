@@ -24,7 +24,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <ctype.h>
-#include <os2errcodes.h>
 
 #include <io.h>
 #include "cfgparser.h"

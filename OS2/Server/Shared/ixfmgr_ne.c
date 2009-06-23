@@ -1,7 +1,6 @@
 #define INCL_ERRORS
 #include <os2.h>
 
-#include <os2errcodes.h>
 
 #ifndef ENEWHDR
   #define ENEWHDR 0x3c

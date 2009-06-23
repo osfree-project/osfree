@@ -228,7 +228,7 @@ begin
   WrtLn( '#define FALSE 0');
   WrtLn( '#endif');
   WrtLn;
-  WrtLn( '#ifndef VIOD');
+  WrtLn( '#ifndef VOID');
   WrtLn( '#define VOID void');
   WrtLn( '#endif');
   WrtLn;

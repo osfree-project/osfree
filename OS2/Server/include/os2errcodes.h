@@ -6,7 +6,7 @@
    INCL_ERRORS set.
 */
 
-#if defined(__WIN32__) || defined(__LINUX__)
+#if defined(__LINUX__)
 #define INCL_ERRORS
 #include <os2/bseerr.h>
 #endif

@@ -772,7 +772,9 @@ constant ALLOWED_ACKNOWLEDGE             = $0010;
 constant ALLOWED_DISPATCH                = $8000;
 constant ALLOWED_REGDUMP                 = $0020;
 constant ALLOWED_DETACHED                = ALLOWED_DISPATCH;
-constant ALLOWED_RESERVED                = not (ALLOWED_FAIL or ALLOWED_ABORT or ALLOWED_RETRY or ALLOWED_IGNORE or ALLOWED_ACKNOWLEDGE)
+constant ALLOWED_RESERVED                = not (ALLOWED_FAIL or ALLOWED_ABORT or ALLOWED_RETRY or ALLOWED_IGNORE or ALLOWED_ACKNOWLEDGE);
+
+
 
 constant I24_OPERATION                  = $01;
 constant I24_AREA                       = $06;
