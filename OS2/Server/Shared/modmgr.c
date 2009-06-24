@@ -294,7 +294,7 @@ int lcase(char* dest, const char* src)
         return *dest - *src;
 }
 
-        /* Register a module with the name. */
+/* Register a module with the name. */
 struct module_rec *
 register_module(const char * name, void * mod_struct)
 {
@@ -329,7 +329,7 @@ register_module(const char * name, void * mod_struct)
 #endif
 
 /* On L4/Fiasco there is problems with opendir/open/close and such (not implemented) */
-#ifndef L4API_l4v2 
+#ifndef L4API_l4v2
 typedef struct dirent tdirentry;
 
 /*
@@ -422,7 +422,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
         strcat(p_buf, str_buf); /* Case corrected for file, Needed on Linux. */
     }
     #endif
-    
+
     f = fopen(p_buf, "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
     if(f)
     {

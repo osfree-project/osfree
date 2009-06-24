@@ -63,8 +63,8 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
   int fixup_size;
 
 
-//        io_printf("\n---------List of fixup data ------------- '%p'", rlc);
-//        io_printf("\n");
+        io_printf("\n---------List of fixup data ------------- '%p'", rlc);
+        io_printf("\n");
         io_printf("   %02X    %02X   src off = %04X   ", rlc->nr_stype, rlc->nr_flags, get_srcoff_cnt1_rlc(rlc));
 
         if((rlc->nr_flags & NRRTYP) == NRRINT)

@@ -5,14 +5,14 @@
    Dedicated to JESUS CHRIST, my lord and savior
    Version: 0.12
    Copyright 2007 by Sascha Schmidt and the osFree Project
-   This is free software under the terms of GPL v2
+   This is free software under the terms of GPL v2 or later
 
    parses the systems config.sys file during bootup
 
   @author Sascha Schmidt <sascha.schmidt@asamnet.de>
 
 */
-#define INCL_ERRORS
+#define INCL_DOSERRORS
 #include <os2.h>
 
 
@@ -69,29 +69,39 @@ char *options_list[]={"AUTOFAIL","BUFFERS","CLOCKSCALE","CLOSEFILES",
 "DEBUGIXFMGR"};
 
 
-/**********************************************************************
- * init_options() sets the default values in the options structure    *
- **********************************************************************/
-unsigned long cfg_init_options()
+/*! @brief Sets the default values in the options structure
+
+
+    @return
+      NO_ERROR                  Server finished successfully
+      ERROR_INVALID_PARAMETER   Invalid CONFIG.SYS settings
+
+*/
+
+unsigned long CfgInitOptions()
 {
-        char * p;
+  char * p;
 
-        options.autofail=0;
-        options.dllbasing=1;
+  options.autofail=0;
+  options.dllbasing=1;
 
-        if(!(p=(char *)malloc(3))) error("init_options: memory could not be allocated!");
-        strcpy(p,"YES");
-        options.iopl=p;
-        options.ldrstackopt=1;
-        options.maxwait=3;
-        options.mode_id=0;
-        options.pauseonerror=1;
-        options.priority=1;
-        options.priority_disk_io=1;
-        options.reipl=0;
-        options.protshell=NULL;
-        options.debugmodmgr=0;
-        return(1);
+  if(!(p=(char *)malloc(3)))
+  {
+    error("init_options: memory could not be allocated!");
+    return ERROR_INVALID_PARAMETER;
+  }
+  strcpy(p,"YES");
+  options.iopl=p;
+  options.ldrstackopt=1;
+  options.maxwait=3;
+  options.mode_id=0;
+  options.pauseonerror=1;
+  options.priority=1;
+  options.priority_disk_io=1;
+  options.reipl=0;
+  options.protshell=NULL;
+  options.debugmodmgr=0;
+  return NO_ERROR;
 }
 
 /**********************************************************************
@@ -99,7 +109,7 @@ unsigned long cfg_init_options()
  * parses it, puts the content to the array it belongs to and returns.*
  * On error it returns NULL                                           *
  **********************************************************************/
-unsigned long cfg_parse_line(char line[], int len)
+unsigned long CfgParseLine(char line[], int len)
 {
   int count=0,i=0;
   int helper=0;
@@ -110,7 +120,7 @@ unsigned long cfg_parse_line(char line[], int len)
     for(count=0;count<strlen(type[i].name);count++){
     /* Compares line and type[i].name and breaks on a
      * difference */
-     
+
       if(toupper(line[count])!=type[i].name[count]) {
               break;
       }
@@ -494,7 +504,7 @@ unsigned long cfg_parse_line(char line[], int len)
  * cleanup() does what it name says: It cleans up ;-) It frees the    *
  * memory, the program used.                                          *
  **********************************************************************/
-unsigned long cfg_cleanup()
+unsigned long CfgCleanup()
 {
 int i=0,j;
 
@@ -534,7 +544,7 @@ int warn(char *msg)
 }
 
 /*! @todo Add check for exceed MAXLENGTH */
-unsigned long cfg_parse_config(void * addr, int size)
+unsigned long CfgParseConfig(void * addr, int size)
 {
     int  off = 0;         // Current offset in CONFIG.SYS memory area
     char line[MAXLENGTH]; // here I store the lines I read
@@ -549,7 +559,7 @@ unsigned long cfg_parse_config(void * addr, int size)
       if (c=='\r'||c=='\n')
       {
         line[len]='\0';
-        if(!cfg_parse_line(line,len)) error("parse: an error occured\n");
+        if(!CfgParseLine(line,len)) error("parse: an error occured\n");
         len=0;
       } else {
         len++;
@@ -560,14 +570,13 @@ unsigned long cfg_parse_config(void * addr, int size)
   return 0;
 };
 
-unsigned long cfg_getenv(char * name, char ** value)
+unsigned long CfgGetenv(char * name, char ** value)
 {
   unsigned long i;
   unsigned long j;
 
   for(i=0;i<type[2].ip;i++)
   {
-    //printf("%s\n", type[2].sp[i]);
     for(j=0;j<strlen(type[2].sp[i]);j++)
     {
       if(type[2].sp[i][j]!=toupper(name[j]))

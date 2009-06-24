@@ -34,11 +34,8 @@
 #define INCL_BSEDOS
 #define INCL_DOSEXCEPTIONS
 #define INCL_DOSPROCESS
-#define INCL_ERRORS
+#define INCL_DOSERRORS
 #include <os2.h>
-
-// Actually, os2 errors included in os2.h if INCL_ERRORS defined
-//#include <os2errcodes.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -87,15 +84,15 @@ int main(int argc, const char **argv)
   void *addr;           // Pointer to CONFIG.SYS in memory
   unsigned long size;   // Size of CONFIG.SYS in memory
 
-  io_printf(" osFree OS/2 Personality Server\n");
-  
+  io_printf("osFree OS/2 Personality Server\n");
+
   #if defined(L4API_l4v2)
   init_globals();
   l4_test_mem_alloc();
   #endif
 
   // Initialize initial values from CONFIG.SYS
-  rc=cfg_init_options();
+  rc=CfgInitOptions();
 
   /* Initializes the module list. Keeps info about which dlls an process have loaded and
      has linked to it (Only support for LX dlls so far). The head of the linked list is
@@ -111,7 +108,7 @@ int main(int argc, const char **argv)
   }
 
   // Parse CONFIG.SYS in memory
-  rc=cfg_parse_config(addr, size);
+  rc=CfgParseConfig(addr, size);
 
   // Remove CONFIG.SYS from memory
   //    rc=memmgr_free(addr, size);
@@ -141,14 +138,14 @@ int main(int argc, const char **argv)
 //     fn_ptr = get_entry((struct LX_module *)found_module, 387,
 //                      &ret_flags, &ret_offset, &ret_obj, &ret_modord, &ret_type);
 //     io_printf("fn_ptr: %p, ret_type:%d\n", fn_ptr, ret_type);
-    
+
     // Load and execute shell
     rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
     if(rc) io_printf("execute error: %d ('%s')\n", rc, options.protshell);
   }
 
   // Clean up config data
-  rc=cfg_cleanup();
+  rc=CfgCleanup();
 
   io_printf("OS/2 Server ended\n");
 

@@ -71,9 +71,8 @@ extern struct types {
 }type[];
 
 // Function prototypes
-unsigned long cfg_init_options(void);
-unsigned long cfg_parse_line(char *, int);
-unsigned long cfg_cleanup(void);
-unsigned long cfg_parse_config(void * addr, int size);
-unsigned long cfg_getenv(char * name, char ** value);
-
+unsigned long CfgInitOptions(void);
+unsigned long CfgParseLine(char *, int);
+unsigned long CfgCleanup(void);
+unsigned long CfgParseConfig(void * addr, int size);
+unsigned long CfgGetenv(char * name, char ** value);

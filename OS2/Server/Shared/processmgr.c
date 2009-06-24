@@ -491,7 +491,7 @@ unsigned long find_path(char * name, char * full_path_name)
   char *sep="/";
   char *psep=";";
 
-  cfg_getenv("PATH", &path);
+  CfgGetenv("PATH", &path);
 
   p = path - 1;
 

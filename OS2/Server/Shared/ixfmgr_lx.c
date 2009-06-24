@@ -43,11 +43,25 @@ unsigned long LXIdentify(void * addr, unsigned long size)
 
 unsigned long LXLoad(void * addr, unsigned long size, void ** lx_exe_mod)
 {
+  long module_counter;
+  char buf[256];
+
+  printf("test1\n");
+
   *lx_exe_mod = malloc(sizeof(struct LX_module));
 
-  if(load_lx_stream((char*)addr, size, (struct LX_module *)(*lx_exe_mod))) /* A file from a buffer.*/
+  /* A file from a buffer.*/
+  if(load_lx_stream((char*)addr, size, (struct LX_module *)(*lx_exe_mod)))
   {
-    load_dll_code_obj_lx((struct LX_module *)(*lx_exe_mod)); /* Load all objects in dll.*/
+    for (module_counter=1;
+         module_counter<((struct LX_module*)(*lx_exe_mod))->lx_head_e32_exe->e32_impmodcnt+1;
+         module_counter++)
+    {
+      printf("%d=%s\n",module_counter,get_imp_mod_name((struct LX_module *)(*lx_exe_mod), module_counter/*, &buf, sizeof(buf)*/));
+    }
+
+    /* Load all objects in dll.*/
+    load_dll_code_obj_lx((struct LX_module *)(*lx_exe_mod));
   }
   return NO_ERROR;
 }

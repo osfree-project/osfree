@@ -21,8 +21,8 @@
 
 struct module_rec {
         char * mod_name;      /* Name of module. */
-        void * module_struct; /* Pointer to LX_module. */
-        void *next;               /* Next element or NULL at end. */
+        void * module_struct; /* Pointer to module. */
+        void *next;           /* Next element or NULL at end. */
         int load_status;      /* Status variable to check for recursion in loading state.
                                  A one means it is being loaded and zero it is done. */
 };
@@ -104,4 +104,3 @@ APIRET16 APIENTRY16 Dos16QueryModFromCS(SEL, PQMRESULT);
 #endif
 
 #endif
-

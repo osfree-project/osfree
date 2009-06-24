@@ -468,13 +468,26 @@ struct r32_rlc * get_fixup_rec_tbl_obj(struct LX_module * lx_mod, int offs){
         return (struct r32_rlc *) &lx_mod->fixup_section[offs + offs_to_reloc_struct];
 }
 
-        /* Get's a name (pascal string) from Import Module Table at index in mod_idx.*/
-char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx) {
-        int offs_mod_table = lx_mod->lx_head_e32_exe->e32_impmod -
-                                                     lx_mod->lx_head_e32_exe->e32_fpagetab;
-        int c_len = lx_mod->fixup_section[offs_mod_table];
-        c_len = c_len;
-        return &lx_mod->fixup_section[offs_mod_table];
+/* Get's a name (pascal string) from Import Module Table at index in mod_idx.*/
+char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx)
+{
+  char * mod_name;
+  long i;
+
+  int offs_mod_table = lx_mod->lx_head_e32_exe->e32_impmod -
+                     lx_mod->lx_head_e32_exe->e32_fpagetab;
+
+  mod_name=(&lx_mod->fixup_section[offs_mod_table]);
+
+  for (i=0;
+       i!=(mod_idx-1);
+       i++)
+  {
+    printf("%d\n",(char)*mod_name);
+    mod_name=mod_name+(char)*mod_name+1;
+  }
+
+  return mod_name;
 }
 
 
@@ -924,4 +937,3 @@ char * get_module_name_res_name_tbl_entry(struct LX_module * lx_mod) {
         /*}*/
         return (char *)&lx_mod->loader_section[offs_res_name_table + entry_lenghts];
 }
-
