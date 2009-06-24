@@ -21,7 +21,7 @@ p                    =
 e                    =
 bbx                  = $+$(blackboxes)$-
 
-#ADD_COPT             = -dSTAGE1_5
+ADD_COPT             = -s # -dSTAGE1_5
 
 !ifeq T ntfs_nocomp
 ALIASES              = ntfs_nocomp_mount_=ntfs_mount_, &
@@ -29,7 +29,7 @@ ALIASES              = ntfs_nocomp_mount_=ntfs_mount_, &
                        ntfs_nocomp_read_=ntfs_read_
 !endif
 
-common_SRCS          = start.asm dummy.asm fsys.c
+common_SRCS          = start.asm fsys.c dummy.asm
 common_OBJS          = $(p)start$(e) $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 

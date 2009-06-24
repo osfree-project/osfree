@@ -149,14 +149,95 @@ ufs_close (void)
 {
 }
 
+/*  Relocate mbi structure to
+ *  the safe place
+ */
+void mbi_reloc(void)
+{
+  int                   i;
+  unsigned long         size;
+  struct mod_list       *mod;
+  struct multiboot_info *mbi_new;
+  struct mod_list       *mod_new;
+  unsigned long         cur_addr;
+  char                  *p;
+
+  mod = (struct mod_list *)m->mods_addr;
+
+  // find the address of modules end
+
+  // pointer to the last module in the list
+  mod += m->mods_count - 1;
+
+  // last module end
+  p = (char *)mod->mod_end;
+
+  // skip a string after a module (cmdline, if one)
+  while (*p++) ;
+
+  mbi_new = (struct multiboot_info *)(((unsigned long)(p + 0xf)) & 0xfffffff0);
+  memmove(mbi_new, m, sizeof(struct multiboot_info));
+  m = mbi_new;
+
+  // relocate mods after mbi
+  if (m->flags & MB_INFO_MODS)
+  {
+    cur_addr = (((unsigned long)((char *)m + sizeof(struct multiboot_info))) + 0xf) & 0xfffffff0;
+    size = sizeof(struct mod_list) * m->mods_count;
+    memmove((char *)cur_addr, (char *)m->mods_addr, size);
+    m->mods_addr = (unsigned long)cur_addr;
+
+    // relocate mods command lines
+    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xf) & 0xfffffff0;
+    for (i = 0, mod = (struct mod_list *)m->mods_addr; i < m->mods_count; i++, mod++, cur_addr += size)
+    {
+      size = strlen((char *)mod->cmdline);
+      memmove((char *)cur_addr, (char *)mod->cmdline, size);
+      //mod->cmdline = cur_addr;
+    }
+  }
+
+  // relocate memmap
+  if (m->flags & MB_INFO_MEM_MAP)
+  {
+    cur_addr = (cur_addr + 0xf) & 0xfffffff0;
+    size = m->mmap_length;
+    memmove((char *)cur_addr, (char *)m->mmap_addr, size);
+    m->mmap_addr = cur_addr;
+  }
+
+  // relocate drives info
+  if (m->flags & MB_INFO_DRIVE_INFO)
+  {
+    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xf) & 0xfffffff0;
+    size = m->drives_length;
+    memmove((char *)cur_addr, (char *)m->drives_addr, size);
+    m->drives_addr = cur_addr;
+  }
+
+  // relocate the boot loader name
+  if (m->flags & MB_INFO_BOOT_LOADER_NAME)
+  {
+    p = (char *)m->boot_loader_name;
+    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xf) & 0xfffffff0;
+    size = strlen(p);
+    strcpy((char *)cur_addr, p);
+    m->boot_loader_name = cur_addr;
+  }
+}
+
 void cmain (void)
 {
-  int  ldrbase;
-  int  ldrlen;
+  int  ldrbase, mfsbase = 0;
+  int  ldrlen, mfslen = 0;
   char *buf;
   unsigned long *p;
+  unsigned long q;
   struct geometry geom;
   bios_parameters_block *bpb;
+
+  // relocate mbi info after all modules
+  mbi_reloc();
 
   // load os2ldr
   if (ufs_open("OS2LDR"))
@@ -164,6 +245,14 @@ void cmain (void)
     ldrbase = 0x10000;
     buf = (char *)ldrbase;
     ldrlen = ufs_read(buf, -1);
+  }
+
+  // load os2boot (if it exists)
+  if (ufs_open("OS2BOOT"))
+  {
+    mfsbase = 0x7c0;
+    buf = (char *)mfsbase;
+    mfslen = ufs_read(buf, -1);
   }
 
   // read a bootsector. there must be "*bootsec*"
@@ -177,7 +266,7 @@ void cmain (void)
   p = (unsigned long *)(REL1_BASE + 0x20); // an address of mfs_len in the header
 
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO;
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
 
   if (m->flags & MB_INFO_BOOTDEV)
   {
@@ -195,21 +284,28 @@ void cmain (void)
     cdrom_drive = boot_drive;
 
   /* set filetable */
-  ft.ft_cfiles = 3;
+  ft.ft_cfiles = 4;
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
   ft.ft_museg  = (REL1_BASE - 0x200 - 0x2000) >> 4;
-
   ft.ft_mulen  = (unsigned long)&stack_bottom - REL1_BASE + 0x200 + 0x2000;
+
   ft.ft_mfsseg = 0x7c0 >> 4;
   ft.ft_mfslen = *p;
-  ft.ft_ripseg = 0;
-  ft.ft_riplen = 0;
+
+  // if alternative os2boot is specified
+  if (mfsbase && mfslen) ft.ft_mfslen = mfslen;
+
+  // where to place RIPL data
+  q = (0x7c0 + *p + 0xf) & 0xfffffff0;
+
+  ft.ft_ripseg = q >> 4;
+  ft.ft_riplen = 4;
 
   // pass mbi structure address to mFSD
-  p  = (unsigned long *)(0x7c0 + *p - 4);
-  *p = (unsigned long)m;
+  // as RIPL data
+  *((unsigned long *)q) = (unsigned long) m;
 
   p = (unsigned long *)(REL1_BASE + 0x10); // an address of base in the header
 

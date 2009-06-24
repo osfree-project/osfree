@@ -121,12 +121,6 @@ _TEXT    segment dword public 'CODE'  use32
 entry0:
                    ; start of 32-bit part
                    org     BASE1 + _16BIT_SIZE + 100h
-                   ;
-                   ; 32-bit entry point. Invokes by multiboot
-                   ; loader from multiboot header
-                   ;
-
-
 ufsd_start:
 ; here uFSD image begins
 include ufsd.inc
@@ -142,11 +136,16 @@ include mfsd.inc
 mfsd_size          dd $ - mfsd_start
 
 rel_start:
-; here mFSD reloc. info begins
+; here uFSD reloc. info begins
 include urel.inc
 ; here it ends
 ; its size
 rel_size           dd $ - rel_start
+
+                   ;
+                   ; 32-bit entry point. Invokes by multiboot
+                   ; loader from multiboot header
+                   ;
 
 entry:
                    cmp   eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
@@ -193,6 +192,7 @@ entry:
 
                    ; start microfsd emulator
                    push    edx
+
                    ret
 
                    ; We should not return here                       ;

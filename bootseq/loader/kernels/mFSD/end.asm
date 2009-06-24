@@ -4,7 +4,7 @@
 
 name start
 
-public mbi
+;public mbi
 
 public _small_code_
 public _cstart_
@@ -33,12 +33,12 @@ _TEXT    ends
 
 _DATA    segment dword public 'DATA'  use16
 
-align 4
+;align 4
 
 _small_code_  dd 0
 
 ; must be the last dword in the executable
-mbi           dd  0
+;mbi           dd  0
 
 _DATA    ends
 
