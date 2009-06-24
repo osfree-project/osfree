@@ -22,6 +22,7 @@ unsigned short mods_sel;
 
 unsigned long filemax;
 unsigned long filepos;
+unsigned long filebase;
 char far *fileaddr;
 
 #pragma aux mbi "*"
@@ -44,6 +45,17 @@ int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
 void serout(char *s);
 int kprintf(const char *format, ...);
 
+// refresh fileaddr value with
+// filepos change
+void advance_ptr(void)
+{
+    MFSH_UNPHYSTOVIRT(sel1);
+
+    // convert module cmdline phys addr to char far *
+    MFSH_PHYSTOVIRT(filebase + filepos, 0xffff, &sel1);
+    fileaddr = (char far *)MAKEP(sel1, 0);
+}
+
 int far pascal _loadds MFS_CHGFILEPTR(
     unsigned long  offset,              /* offset       */
     unsigned short type                 /* type         */
@@ -62,6 +74,7 @@ int far pascal _loadds MFS_CHGFILEPTR(
     default:
       return 1;
     }
+    advance_ptr();
 
     return NO_ERROR;
 }
@@ -140,8 +153,8 @@ int far pascal _loadds MFS_OPEN(
     char far buf1[0x100];
     char far buf2[0x100];
     struct mod_list far *mod;
-    char far *s;
     char far *p, far *q;
+    char far *s;
     int  n;
 
     kprintf("**** MFS_OPEN(\"%s\")", name);
@@ -195,6 +208,7 @@ int far pascal _loadds MFS_OPEN(
     s = (char far *)MAKEP(sel1, 0);
 
     fileaddr = s;
+    filebase = mod->mod_start;
 
     *size = filemax;
     kprintf(" succeeded\n");
@@ -215,9 +229,10 @@ int far pascal _loadds MFS_READ(
 
   if (fileaddr && data && *length)
   {
-    fmemmove(data, fileaddr + filepos, *length);
+    fmemmove(data, fileaddr, *length);
     filepos += *length;
   }
+  advance_ptr();
 
   return NO_ERROR;
 }
