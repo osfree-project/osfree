@@ -22,11 +22,11 @@ i                =
 bbx              = $+$(kernels)$-
 
 ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
-                   $(p)biosdisk$(e) $(p)bios$(e)
+                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)bios$(e)
 common_OBJS      = $(p)end$(e)
 
-ADD_COPT   = -dOS2 -dMB_KERN -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
-ADD_ASMOPT = -dOS2 -dMB_KERN -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT   = -dOS2 -dMB_KERN -dMINIFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_ASMOPT = -dOS2 -dMB_KERN -dMINIFSD -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 
 OBJS             = $(ufsd_OBJS) $(common_OBJS)
 

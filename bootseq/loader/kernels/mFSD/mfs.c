@@ -12,6 +12,14 @@
 //#include <string.h>
 //#include <ifs.h>
 
+#define CHECKRC \
+    if (rc) \
+    {       \
+      kprintf("MFSH_PHYSTOVIRT() failed, @%s, line #%lu\n", \
+              __FILE__, __LINE__); \
+      return 1; \
+    }
+
 extern unsigned long mbi;
 struct multiboot_info far *mbi_far;
 struct mod_list far *mods_addr;
@@ -24,6 +32,9 @@ unsigned long filemax;
 unsigned long filepos;
 unsigned long filebase;
 char far *fileaddr;
+
+// our command line
+char far cmdline[0x400];
 
 #pragma aux mbi "*"
 
@@ -51,7 +62,7 @@ void advance_ptr(void)
 {
     MFSH_UNPHYSTOVIRT(sel1);
 
-    // convert module cmdline phys addr to char far *
+    // convert file read point phys addr to char far *
     MFSH_PHYSTOVIRT(filebase + filepos, 0xffff, &sel1);
     fileaddr = (char far *)MAKEP(sel1, 0);
 }
@@ -59,7 +70,8 @@ void advance_ptr(void)
 int far pascal _loadds MFS_CHGFILEPTR(
     unsigned long  offset,              /* offset       */
     unsigned short type                 /* type         */
-) {
+)
+{
     kprintf("**** MFS_CHGFILEPTR\n");
 
     switch (type)
@@ -69,8 +81,10 @@ int far pascal _loadds MFS_CHGFILEPTR(
       break;
     case 1:
       filepos += offset;
+      break;
     case 2:
       filepos = filemax - offset;
+      break;
     default:
       return 1;
     }
@@ -87,11 +101,11 @@ int far pascal _loadds MFS_INIT(
     unsigned long far *pMiniFSD,        /* pMiniFSD     */
     unsigned long far *dump             /* dump address */
 ) {
-    int i;
+    int i, rc;
     unsigned long  mbi;
     struct mod_list far *mod;
-    unsigned short sl;
-    char far *p;
+    unsigned short sl, sl1;
+    char far *p, far *q;
 
     kprintf("**** MFS_INIT\n");
     kprintf("Hello MBI minifsd!\n");
@@ -103,45 +117,52 @@ int far pascal _loadds MFS_INIT(
     // mbi physical address
     mbi = *((unsigned long far *)bootdata);
 
-    kprintf("mbi phys. address: 0x%lx\n", mbi);
+    kprintf("mbi phys. address: 0x%08lx\n", mbi);
 
     // get GDT selector to mbi structure
-    MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
-
+    rc = MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
+    CHECKRC
     kprintf("allocated mbi selector: 0x%04x\n", sel);
-
     mbi_far = (struct multiboot_info far *)MAKEP(sel, 0);
     kprintf("mem_lower = %lu Kb, mem_upper = %lu Mb\n",
             mbi_far->mem_lower, mbi_far->mem_upper >> 10);
     kprintf("boot_device = 0x%08lx\n", mbi_far->boot_device);
-    kprintf("kernel cmdline = 0x%08lx\n", mbi_far->cmdline);
+
+    kprintf("kernel cmdline @0x%08lx\n", mbi_far->cmdline);
+    rc = MFSH_PHYSTOVIRT(mbi_far->cmdline, 0xffff, &sl1);
+    CHECKRC
+    q = (char far *)MAKEP(sl1, 0);
+    fmemmove(cmdline, q, fstrlen(q));
+    kprintf("cmdline = %s\n", cmdline);
+    MFSH_UNPHYSTOVIRT(sl1);
+
     kprintf("mods_count = %lu, mods_addr = 0x%08lx\n",
             mbi_far->mods_count, mbi_far->mods_addr);
     kprintf("syms = 0x%lx\n", mbi_far->syms);
-    kprintf("mmap_length = 0x%lu, mmap_addr = 0x%lx\n",
+    kprintf("mmap_length = 0x%lu, mmap_addr = 0x%08lx\n",
             mbi_far->mmap_length, mbi_far->mmap_addr);
-    kprintf("drives_length = 0x%lu, drives_addr = 0x%lx\n",
+    kprintf("drives_length = 0x%lu, drives_addr = 0x%08lx\n",
             mbi_far->drives_length, mbi_far->drives_addr);
     kprintf("config_table = 0x%08lx\n", mbi_far->config_table);
-    kprintf("boot_loader_name @0x%lx\n",
+    kprintf("boot_loader_name @0x%08lx\n",
             mbi_far->boot_loader_name);
 
-    if (!MFSH_PHYSTOVIRT(mbi_far->mods_addr, sizeof(struct mod_list) * mbi_far->mods_count, &mods_sel))
+    rc = MFSH_PHYSTOVIRT(mbi_far->mods_addr, sizeof(struct mod_list) * mbi_far->mods_count, &mods_sel);
+    CHECKRC
+    kprintf("allocated mods selector: 0x%04x\n", mods_sel);
+    mods_addr  = MAKEP(mods_sel, 0);
+    mods_count = mbi_far->mods_count;
+    mod = (struct mod_list far *)mods_addr;
+    kprintf("mods cmd lines: \n");
+    for (i = 0; i < mods_count; i++, mod++)
     {
-      kprintf("allocated mods selector: %u\n", mods_sel);
-      mods_addr  = MAKEP(mods_sel, 0);
-      mods_count = mbi_far->mods_count;
-
-      mod = (struct mod_list far *)mods_addr;
-      kprintf("mods cmd lines: \n");
-      for (i = 0; i < mods_count; i++, mod++)
-      {
-        MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sl);
-        p = MAKEP(sl, 0);
-        kprintf("%u: %s\n", i, p);
-        MFSH_UNPHYSTOVIRT(sl);
-      }
+      rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sl);
+      CHECKRC
+      p = MAKEP(sl, 0);
+      kprintf("%u: %s\n", i, p);
+      MFSH_UNPHYSTOVIRT(sl);
     }
+
 
     return NO_ERROR;
 }
@@ -149,13 +170,14 @@ int far pascal _loadds MFS_INIT(
 int far pascal _loadds MFS_OPEN(
     char far *name,                     /* name         */
     unsigned long far *size             /* size         */
-) {
+)
+{
     char far buf1[0x100];
     char far buf2[0x100];
     struct mod_list far *mod;
     char far *p, far *q;
     char far *s;
-    int  n;
+    int  n, rc;
 
     kprintf("**** MFS_OPEN(\"%s\")", name);
 
@@ -170,7 +192,8 @@ int far pascal _loadds MFS_OPEN(
       for (n = 0; n < mods_count; n++)
       {
         // convert module cmdline phys addr to char far *
-        MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sel1);
+        rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sel1);
+        CHECKRC
         s = (char far *)MAKEP(sel1, 0);
 
         // copy to buffers
@@ -180,40 +203,41 @@ int far pascal _loadds MFS_OPEN(
         // deallocate a selector
         MFSH_UNPHYSTOVIRT(sel1);
 
-      // make it uppercase
-      for (p = buf1; *p; p++) *p = toupper(*p);
-      for (p = buf2; *p; p++) *p = toupper(*p);
+        // make it uppercase
+        for (p = buf1; *p; p++) *p = toupper(*p);
+        for (p = buf2; *p; p++) *p = toupper(*p);
 
-      p = strip(buf1); q = strip(buf2);
+        p = strip(buf1); q = strip(buf2);
 
-      if (fstrstr(p, q))
-        break;
+        if (fstrstr(p, q))
+          break;
 
-      mod++;
-    };
+        mod++;
+      };
 
-    // we have gone through all mods, and no given filename
-    if (n == mods_count)
-    {
-      kprintf(" failed!\n");
-      return -1;
+      // we have gone through all mods, and no given filename
+      if (n == mods_count)
+      {
+        kprintf(" failed!\n");
+        return -1;
+      }
+
+      // filename found
+      filepos  = 0;
+      filemax  = mod->mod_end - mod->mod_start;
+
+      // convert module cmdline phys addr to char far *
+      rc = MFSH_PHYSTOVIRT(mod->mod_start, 0xffff, &sel1);
+      CHECKRC
+      s = (char far *)MAKEP(sel1, 0);
+
+      fileaddr = s;
+      filebase = mod->mod_start;
+
+      *size = filemax;
+      kprintf(" succeeded\n");
+      return NO_ERROR;
     }
-
-    // filename found
-    filepos  = 0;
-    filemax  = mod->mod_end - mod->mod_start;
-
-    // convert module cmdline phys addr to char far *
-    MFSH_PHYSTOVIRT(mod->mod_start, 0xffff, &sel1);
-    s = (char far *)MAKEP(sel1, 0);
-
-    fileaddr = s;
-    filebase = mod->mod_start;
-
-    *size = filemax;
-    kprintf(" succeeded\n");
-    return NO_ERROR;
-  }
 
   kprintf(" failed!\n");
   return -1;
@@ -221,11 +245,14 @@ int far pascal _loadds MFS_OPEN(
 
 int far pascal _loadds MFS_READ(
     char far *data,             /* data         */
-    unsigned long far *length  /* length       */
+    unsigned short far *length   /* length       */
 )
 {
   kprintf("**** MFS_READ\n");
-  kprintf("buf = 0x%08lx, length = %lx\n", data, *length);
+  kprintf("buf = 0x%04x:0x%04x,",
+          (unsigned long)data >> 16,
+          (unsigned long)data & 0xffff);
+  kprintf(" length = %u\n", *length);
 
   if (fileaddr && data && *length)
   {
@@ -240,8 +267,11 @@ int far pascal _loadds MFS_READ(
 int far pascal _loadds MFS_CLOSE(void) {
     kprintf("**** MFS_CLOSE\n");
 
-    if (sel1) MFSH_UNPHYSTOVIRT(sel1);
-    sel1 = 0;
+    if (sel1)
+    {
+      MFSH_UNPHYSTOVIRT(sel1);
+      sel1 = 0;
+    }
 
     return NO_ERROR;
 }

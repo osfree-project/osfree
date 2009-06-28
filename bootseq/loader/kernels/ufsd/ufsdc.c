@@ -45,6 +45,8 @@ unsigned long cdrom_drive;
 #pragma aux mu_Terminate "*"
 #pragma aux stack_bottom "*"
 
+int kprintf(const char *format, ...);
+
 void init (void)
 {
 
@@ -76,6 +78,8 @@ ufs_open (char *filename)
   char *p, *q;
   int  n;
 
+  kprintf("**** ufs_open(\"%s\") = ", filename);
+
   memset(buf1, 0, sizeof(buf1));
   memset(buf2, 0, sizeof(buf2));
 
@@ -106,37 +110,48 @@ ufs_open (char *filename)
 
     // we have gone through all mods, and no given filename
     if (n == mods_count)
+    {
+      kprintf("0\n");
       return 0;
+    }
 
     // filename found
     filepos  = 0;
     filemax  = mod->mod_end - mod->mod_start;
     fileaddr = mod->mod_start;
 
+    kprintf("1\n");
     return 1;
   }
 
+  kprintf("0\n");
   return 0;
 }
 
 int
 ufs_read (char *buf, int len)
 {
+  kprintf("**** ufs_read(\"0x%08x, %ld\") = ", buf, len);
+
   if (fileaddr && buf && len)
   {
     if (len == -1) len = filemax;
 
     memmove(buf, (char *)fileaddr + filepos, len);
 
+    kprintf("%lu\n", len);
     return len;
   }
 
+  kprintf("0\n");
   return 0;
 }
 
 int
 ufs_seek (int offset)
 {
+  kprintf("**** ufs_seek(\"%ld\")\n", offset);
+
   if (offset > filemax || offset < 0)
     return -1;
 
@@ -147,6 +162,7 @@ ufs_seek (int offset)
 void
 ufs_close (void)
 {
+  kprintf("**** ufs_close()\n");
 }
 
 /*  Relocate mbi structure to
@@ -175,32 +191,39 @@ void mbi_reloc(void)
   // skip a string after a module (cmdline, if one)
   while (*p++) ;
 
-  mbi_new = (struct multiboot_info *)(((unsigned long)(p + 0xf)) & 0xfffffff0);
-  memmove(mbi_new, m, sizeof(struct multiboot_info));
-  m = mbi_new;
+  cur_addr = (((unsigned long)(p + 0xfff)) & 0xfffff000);
+  size = sizeof(struct multiboot_info);
+  memmove((char *)cur_addr, m, size);
+  m = (struct multiboot_info *)cur_addr;
+
+  // relocate a kernel command line
+  cur_addr = (((unsigned long)(cur_addr + size)) + 0xfff) & 0xfffff000;
+  size = strlen((char *)m->cmdline) + 1;
+  memmove((char *)cur_addr, (char *)m->cmdline, size);
+  m->cmdline = cur_addr;
 
   // relocate mods after mbi
   if (m->flags & MB_INFO_MODS)
   {
-    cur_addr = (((unsigned long)((char *)m + sizeof(struct multiboot_info))) + 0xf) & 0xfffffff0;
+    cur_addr = (((unsigned long)(cur_addr + size)) + 0xfff) & 0xfffff000;
     size = sizeof(struct mod_list) * m->mods_count;
     memmove((char *)cur_addr, (char *)m->mods_addr, size);
-    m->mods_addr = (unsigned long)cur_addr;
+    m->mods_addr = cur_addr;
 
     // relocate mods command lines
-    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xf) & 0xfffffff0;
-    for (i = 0, mod = (struct mod_list *)m->mods_addr; i < m->mods_count; i++, mod++, cur_addr += size)
+    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xfff) & 0xfffff000;
+    for (i = 0, mod = (struct mod_list *)m->mods_addr; i < m->mods_count; i++, cur_addr += size, mod++)
     {
-      size = strlen((char *)mod->cmdline);
+      size = strlen((char *)mod->cmdline) + 1;
       memmove((char *)cur_addr, (char *)mod->cmdline, size);
-      //mod->cmdline = cur_addr;
+      mod->cmdline = cur_addr;
     }
   }
 
   // relocate memmap
   if (m->flags & MB_INFO_MEM_MAP)
   {
-    cur_addr = (cur_addr + 0xf) & 0xfffffff0;
+    cur_addr = (cur_addr + 0xfff) & 0xfffff000;
     size = m->mmap_length;
     memmove((char *)cur_addr, (char *)m->mmap_addr, size);
     m->mmap_addr = cur_addr;
@@ -209,7 +232,7 @@ void mbi_reloc(void)
   // relocate drives info
   if (m->flags & MB_INFO_DRIVE_INFO)
   {
-    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xf) & 0xfffffff0;
+    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xfff) & 0xfffff000;
     size = m->drives_length;
     memmove((char *)cur_addr, (char *)m->drives_addr, size);
     m->drives_addr = cur_addr;
@@ -219,7 +242,7 @@ void mbi_reloc(void)
   if (m->flags & MB_INFO_BOOT_LOADER_NAME)
   {
     p = (char *)m->boot_loader_name;
-    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xf) & 0xfffffff0;
+    cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xfff) & 0xfffff000;
     size = strlen(p);
     strcpy((char *)cur_addr, p);
     m->boot_loader_name = cur_addr;
@@ -236,7 +259,10 @@ void cmain (void)
   struct geometry geom;
   bios_parameters_block *bpb;
 
+  kprintf("**** Hello MBI microfsd!\n");
+
   // relocate mbi info after all modules
+  kprintf("Relocating MBI info...\n");
   mbi_reloc();
 
   // load os2ldr

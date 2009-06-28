@@ -656,7 +656,7 @@ create_lip_module(lip2_t **l)
 
 /*
   Name  : CRC-32
-  Poly  : 0x04C11DB7	x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 
+  Poly  : 0x04C11DB7    x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11
                        + x^10 + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1
   Init  : 0xFFFFFFFF
   Revert: true
@@ -666,32 +666,32 @@ create_lip_module(lip2_t **l)
    одинарных, двойных, пакетных и всех нечетных ошибок
 
   (Got from russian wikipedia, http://ru.wikipedia.org/wiki/CRC32)
-  and corrected ;) 
+  and corrected ;)
 */
 unsigned long crc32(unsigned char *buf, unsigned long len)
 {
     unsigned long crc_table[256];
     unsigned long crc;
-    int i, j; 
+    int i, j;
 
     for (i = 0; i < 256; i++)
     {
         crc = i;
         for (j = 0; j < 8; j++)
             crc = crc & 1 ? (crc >> 1) ^ 0xEDB88320UL : crc >> 1;
- 
+
         crc_table[i] = crc;
     };
- 
+
     crc = 0xFFFFFFFFUL;
- 
-    while (len--) 
+
+    while (len--)
       crc = crc_table[(crc ^ *buf++) & 0xff] ^ ((crc >> 8) & 0x00ffffffL);
 
     return crc;
 }
 
-/*  Determine a drive letter through DLA tables 
+/*  Determine a drive letter through DLA tables
  *  (DLA stands for Drive Letter Assignment)
  */
 int dla(char *driveletter)
@@ -700,7 +700,7 @@ int dla(char *driveletter)
   unsigned long    sec;
   struct geometry  geo;
   char *p;
-  unsigned long CRC32, crc; 
+  unsigned long CRC32, crc;
 
   u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
   u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
@@ -744,7 +744,7 @@ int dla(char *driveletter)
       /* Get and parse partition DLAT entry */
       dlae = (DLA_Entry *)dlat->DLA_Array;
       if (part <= 3) dlae += part; // for primary partitions
-      *driveletter = grub_toupper(dlae->Drive_Letter);      
+      *driveletter = grub_toupper(dlae->Drive_Letter);
 
       return 1;
     }
@@ -865,7 +865,7 @@ create_bs_module(char *module)
 
   if ('A' > drv || drv > 'Z') drv = 'C';
 
-  drv = (drv - 'C') + 0x80;  
+  drv = (drv - 'C') + 0x80;
   bpb->log_drive = drv;
 
   return 1;
