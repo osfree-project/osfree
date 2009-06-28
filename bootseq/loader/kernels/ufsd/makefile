@@ -69,3 +69,5 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .c:     $(MYDIR)..$(SEP)..$(SEP)preldr
 .asm:   $(MYDIR)..$(SEP)..
 .c:     $(MYDIR)..$(SEP)..
+.c:     $(MYDIR)..
+

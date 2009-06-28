@@ -132,3 +132,5 @@ EXPORTS     = &
 DEST        =
 
 !include $(%ROOT)/mk/appsos2v1.mk
+
+.c: $(MYDIR)..

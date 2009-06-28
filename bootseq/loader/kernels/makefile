@@ -26,7 +26,9 @@ e                =
 i                =
 bbx              = $+$(kernels)$-
 
-linux_OBJS       = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) $(p)cmdline$(e) $(p)wrap$(e)
+linux_OBJS       = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) &
+                   $(p)cmdline$(e) $(p)istable$(e) $(p)serial$(e) $(p)vsprintf$(e) &
+                   $(p)wrap$(e)
 
 chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                    $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
@@ -39,7 +41,7 @@ ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)
 
-ADD_COPT   = -dOS2
+ADD_COPT   = -dOS2 -dMINIFSD
 ADD_ASMOPT = -i=$(PATH)
 CLEAN_ADD  = ufsd.inc mfsd.inc urel.inc
 

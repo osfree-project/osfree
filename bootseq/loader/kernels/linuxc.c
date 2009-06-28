@@ -38,7 +38,7 @@ grub_error_t errnum;
 lip2_t *l;
 struct term_entry *t;
 
-int printk(const char *fmt, ...);
+int kprintf(const char *fmt, ...);
 
 void init(void)
 {
@@ -108,7 +108,7 @@ int kernel_ldr(void)
       if (! big_linux
           && text_len > linux_data_real_addr - (char *) LINUX_ZIMAGE_ADDR)
         {
-          printk (" linux 'zImage' kernel too big, try 'make bzImage'\n");
+          kprintf (" linux 'zImage' kernel too big, try 'make bzImage'\n");
           errnum = ERR_WONT_FIT;
         }
       else if (linux_data_real_addr + LINUX_SETUP_MOVE_SIZE
@@ -116,9 +116,9 @@ int kernel_ldr(void)
         errnum = ERR_WONT_FIT;
       else
         {
-          printk ("   [Linux-%s, setup=0x%x, size=0x%x]\n",
+          kprintf ("   [Linux-%s, setup=0x%x, size=0x%x]\n",
                        (big_linux ? "bzImage" : "zImage"), data_len, text_len);
-          
+
           /* Video mode selection support. What a mess!  */
           /* NOTE: Even the word "mess" is not still enough to
              represent how wrong and bad the Linux video support is,
@@ -350,7 +350,7 @@ int initrd_ldr(void)
   moveto -= 0x10000;
   memmove ((void *) RAW_ADDR (moveto), (void *) cur_addr, len);
 
-  printk ("   [Linux-initrd @ 0x%x, 0x%x bytes]\n", moveto, len);
+  kprintf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\n", moveto, len);
 
   /* FIXME: Should check if the kernel supports INITRD.  */
   lh->ramdisk_image = RAW_ADDR (moveto);
@@ -397,7 +397,7 @@ int check_lip(char *mods_addr, unsigned long mods_count)
     if (*((unsigned long *)l) == LIP2_MAGIC)
     {
       t = l->u_termctl(-1);
-      printk("boot_linux started\n");
+      kprintf("boot_linux started\n");
       return 1;
     }
     else
@@ -450,7 +450,7 @@ void cmain(void)
 
   if (loader())
   {
-    //printk("loader() finished\n");
+    //kprintf("loader() finished\n");
 
     //__asm {
     //  cli
@@ -464,6 +464,6 @@ void cmain(void)
   }
   else
   {
-    printk("Error loading linux!\n");
+    kprintf("Error loading linux!\n");
   }
 }
