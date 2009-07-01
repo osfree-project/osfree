@@ -20,15 +20,19 @@ extrn ufs_open          :near
 extrn ufs_read          :near
 extrn ufs_seek          :near
 extrn ufs_close         :near
+extrn com_outchar       :near
 
 .386p
 
 switch_to_preldr macro
+        push ax
         mov  ax,  ds
         mov  cs:ldr_ds, ax
         mov  ax,  es
         mov  cs:ldr_es, ax
         mov  ax, sp
+        inc  ax                                  ; skip ax in stack
+        inc  ax                                  ;
         mov  word ptr cs:ldr_ss_sp, ax
         mov  ax, ss
         mov  word ptr cs:ldr_ss_sp + 2, ax
@@ -37,23 +41,28 @@ switch_to_preldr macro
         mov  ds,  ax
         mov  ax,  cs:preldr_es
         mov  es,  ax
+        pop  ax
         lss  sp,  cs:preldr_ss_sp
 endm
 
 switch_to_ldr macro
-        mov  bx, ds
-        mov  preldr_ds, bx
-        mov  bx, es
-        mov  preldr_es, bx
-        mov  bx, sp
-        mov  word ptr preldr_ss_sp, bx
-        mov  bx, ss
-        mov  word ptr preldr_ss_sp + 2, bx
+        push ax
+        mov  ax, ds
+        mov  preldr_ds, ax
+        mov  ax, es
+        mov  preldr_es, ax
+        mov  ax, sp
+        inc  ax                                  ; skip ax in stack
+        inc  ax                                  ;
+        mov  word ptr preldr_ss_sp, ax
+        mov  ax, ss
+        mov  word ptr preldr_ss_sp + 2, ax
 
-        mov  bx, ldr_ds
-        mov  ds, bx
-        mov  bx, ldr_es
-        mov  es, bx
+        mov  ax, ldr_ds
+        mov  ds, ax
+        mov  ax, ldr_es
+        mov  es, ax
+        pop  ax
         lss  sp, ldr_ss_sp
 endm
 
@@ -72,6 +81,9 @@ mu_Open proc far
         push bp
         mov  bp, sp
 
+        push ebx
+        push ecx
+
         ; char far *pName
         mov  ebx, dword ptr [bp + 06h]
 
@@ -86,11 +98,17 @@ mu_Open proc far
         ;and  ecx, 0fffffh
         add  ebx, ecx
 
+        mov  al, 'o'
+        call com_outchar
+
         ; switch to PM and call muOpen
         mov  eax, offset _TEXT:muOpen
         push eax
         call call_pm
         add  sp, 4
+
+        mov  al, 'e'
+        call com_outchar
 
         cmp  ebx, 0
         jz   noerr1
@@ -111,6 +129,9 @@ nok1:
         pop  di
         pop  es
 
+        pop  ecx
+        pop  ebx
+
         pop  bp
 
         retf
@@ -126,6 +147,9 @@ mu_Open endp
 mu_Read proc far
         push bp
         mov  bp, sp
+
+        push ebx
+        push ecx
 
         ; long loffseek
         mov  ebx, dword ptr [bp + 06h]
@@ -144,10 +168,16 @@ mu_Read proc far
         and  edx, 0ffffh
         add  edx, eax
 
+        mov  al, 'r'
+        call com_outchar
+
         mov  eax, offset _TEXT:muRead
         push eax
         call call_pm
         add  sp, 4
+
+        mov  al, 'e'
+        call com_outchar
 
         ; ebx (count of bytes read) -> dx:ax
         mov  edx, ebx
@@ -157,6 +187,9 @@ mu_Read proc far
         ;and  edx, 0ffffh
 
         switch_to_ldr
+
+        pop  ecx
+        pop  ebx
 
         pop  bp
 
@@ -171,10 +204,16 @@ mu_Read endp
 mu_Close proc far
         switch_to_preldr
 
+        mov  al, 'c'
+        call com_outchar
+
         mov  eax, offset _TEXT:muClose
         push eax
         call call_pm
         add  sp, 4
+
+        mov  al, 'e'
+        call com_outchar
 
         switch_to_ldr
 
@@ -187,6 +226,12 @@ mu_Close endp
 ;
 
 mu_Terminate proc far
+        mov  al, 't'
+        call com_outchar
+
+        mov  al, 'e'
+        call com_outchar
+
         retf
 mu_Terminate endp
 

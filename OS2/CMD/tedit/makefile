@@ -17,8 +17,8 @@ OBJ8 = $(p)os2eas$(e) $(p)mygetopt$(e)
 OBJX = $(XTRAOBJ)
 srcfiles = $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJX)
 
-ADD_COPT = -i=..$(SEP)include -dOS2 -dUSE_OS2REXX # -dSTDC_HEADERS -dPROTO -dOS2 -zz -oneatx -ei -zq -mf
-ADD_LINKOPT = LIB rexx,pdcurses
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -dOS2 -dUSE_OS2REXX # -dSTDC_HEADERS -dPROTO -dOS2 -zz -oneatx -ei -zq -mf
+ADD_LINKOPT = LIB rexx,pdcurses,os2386,clib3r
 STACK=65536
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 INSTALL_ADD = 1

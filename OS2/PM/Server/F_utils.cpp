@@ -19,7 +19,8 @@
 #include <sys/timeb.h>
 
 
-DATETIME
+//DATETIME
+time_t
 getCurrentTime(void)
 {
     struct _timeb timebuffer;

@@ -32,9 +32,14 @@ extern int _FreePM_shutting_down;      /* 0 */
 extern int _FreePM_FatalInProgress;    /* 0 */
 
 /* time variables */
-extern DATETIME _FreePM_curtime;         /* 0 */
-extern DATETIME _FreePM_current_time;
-extern DATETIME _FreePM_start;
+//extern DATETIME _FreePM_curtime;         /* 0 */
+//extern DATETIME _FreePM_current_time;
+//extern DATETIME _FreePM_start;
+
+extern time_t _FreePM_curtime;         /* 0 */
+extern time_t _FreePM_current_time;
+extern time_t _FreePM_start;
+
 extern double _FreePM_current_dtime;  /* 0. */
 
 

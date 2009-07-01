@@ -142,6 +142,8 @@ realmode:
         ; Restore interrupts
         sti
         ; Restore stack frame
+        and  ebp, 0ffffh
+
         pop  bp
         ; Return
         ret

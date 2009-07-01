@@ -15,3 +15,6 @@ OPTIONS  = caseexact
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 
 !include $(%ROOT)/mk/appsos2.mk
+
+qwe: .symbolic
+ $(SAY) $(COPT)

@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <builtin.h>
+#include <time.h>
 #include "FreePM.hpp"
 
 #include "F_hab.hpp"

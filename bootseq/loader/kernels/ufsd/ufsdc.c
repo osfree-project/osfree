@@ -7,6 +7,10 @@
 #include <bpb.h>
 
 #include "fsd.h"
+#include "serial.h"
+
+int serial_init (unsigned short port, unsigned int speed,
+                int word_len, int parity, int stop_bit_len);
 
 extern mu_Open;
 extern mu_Read;
@@ -46,6 +50,7 @@ unsigned long cdrom_drive;
 #pragma aux stack_bottom "*"
 
 int kprintf(const char *format, ...);
+void comout(unsigned short port, unsigned char c);
 
 void init (void)
 {
@@ -131,7 +136,7 @@ ufs_open (char *filename)
 int
 ufs_read (char *buf, int len)
 {
-  kprintf("**** ufs_read(\"0x%08x, %ld\") = ", buf, len);
+  kprintf("**** ufs_read(0x%08x, %ld) = ", buf, len);
 
   if (fileaddr && buf && len)
   {
@@ -258,12 +263,27 @@ void cmain (void)
   unsigned long q;
   struct geometry geom;
   bios_parameters_block *bpb;
+  int port = 0;
+  char *pp;
+  int  i;
+
+  // if "--serial=..." specified on the command line
+  if ((m->flags & MB_INFO_CMDLINE) && (pp = strstr((char *)m->cmdline, "--serial")))
+  {
+    pp = skip_to(1, pp);
+    safe_parse_maxint(&pp, &port);
+  }
+
+  // init serial port
+  if (port) serial_init(port, 9600, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
 
   kprintf("**** Hello MBI microfsd!\n");
+  kprintf("comport = 0x%x\n", port);
 
   // relocate mbi info after all modules
   kprintf("Relocating MBI info...\n");
   mbi_reloc();
+  kprintf("done.\n");
 
   // load os2ldr
   if (ufs_open("OS2LDR"))
@@ -272,6 +292,11 @@ void cmain (void)
     buf = (char *)ldrbase;
     ldrlen = ufs_read(buf, -1);
   }
+
+  //kprintf("|");
+  //for (i = 0; i < filemax; i++)
+  //  comout(port, buf[i]);
+  //kprintf("|");
 
   // load os2boot (if it exists)
   if (ufs_open("OS2BOOT"))
@@ -294,6 +319,7 @@ void cmain (void)
   /* set boot flags */
   boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
 
+/*
   if (m->flags & MB_INFO_BOOTDEV)
   {
     boot_drive = m->boot_device >> 24;
@@ -308,7 +334,7 @@ void cmain (void)
     cdrom_drive = GRUB_INVALID_DRIVE;
   else
     cdrom_drive = boot_drive;
-
+ */
   /* set filetable */
   ft.ft_cfiles = 4;
   ft.ft_ldrseg = ldrbase >> 4;
@@ -348,7 +374,7 @@ void cmain (void)
   ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
   /* set BPB */
-  bpb = (bios_parameters_block *)(REL1_BASE - 0x200 + 0xb);
+/*  bpb = (bios_parameters_block *)(REL1_BASE - 0x200 + 0xb);
 
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
     // fill fake BPB
@@ -366,7 +392,7 @@ void cmain (void)
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
   bpb->log_drive   = 0; //conf.driveletter; // 0x92;
   bpb->hidden_secs = 0; //part_start;
-
+ */
   //bpb->disk_num    = 0x3;
   //bpb->log_drive   = 0x48;
   //bpb->marker      = 0x41;

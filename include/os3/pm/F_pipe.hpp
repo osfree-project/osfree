@@ -6,9 +6,14 @@
 #include <builtin.h>
 #include <stdio.h>
 #include <string.h>
-#include <FreePM.hpp>
-#include <bsedos.h>
-#include <bseerr.h>
+//#include <FreePM.hpp>
+
+//#include <bsedos.h>
+//#include <bseerr.h>
+
+//#define INCL_DOSERRORS
+//#define INCL_DOSMNPIPES
+//#include <os2.h>
 
 #define FREEPM_BASE_PIPE_NAME        "\\PIPE\\FREEPM"  /* Base pipe name */
 
@@ -20,6 +25,9 @@
 #define SERVER_MODE              1
 #define CLIENT_MODE              2
 
+// temporary added (while UniAPI don't work yet)
+#define NP_WMESG                   0x0400 /* write messages          */
+#define NP_RMESG                   0x0100 /* read as messages        */
 
 #define REMOTE_PIPE              2
 #define DISCON_MODE              3

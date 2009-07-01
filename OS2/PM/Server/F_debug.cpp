@@ -64,7 +64,7 @@ static char strOldLogTime[32]="";
     va_start(args1, format);
     va_start(args2, format);
     va_start(args3, format);
-    strcpy(strLogTime,debugLogTime(_FreePM_curtime));
+    strcpy(strLogTime, (char *)debugLogTime((time_t)_FreePM_curtime));
     if(strcmp(strLogTime,strOldLogTime) || DebugCount < 1)
     {  snprintf(f, BUFSIZ, "%i %s|%s",DebugCount ,strLogTime, format);
        strcpy(strOldLogTime,strLogTime);

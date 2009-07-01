@@ -3255,11 +3255,11 @@ BOOL doshCreateLogFilename(PSZ pszBuf,             // out: fully qualified filen
                            BOOL fAllowBootDrive)   // in: allow creating log files on boot drive?
 {
     CHAR    szBoot[] = "?:";
-#if __cplusplus             // stupid OS/2 C++ prototypes
-    PCSZ     pszLogDir;
-#else
-    PSZ     pszLogDir;
-#endif
+//#ifdef __cplusplus             // stupid OS/2 C++ prototypes
+//    PCSZ     pszLogDir;
+//#else
+      PSZ     pszLogDir;
+//#endif
     if (DosScanEnv("LOGFILES",      // new eCS 1.1 setting
                    &pszLogDir))
     {

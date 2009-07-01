@@ -3,6 +3,8 @@
  *
  */
 
+#define MAXINT     0x7FFF
+
 void far *
 fmemset (void far *start, int c, int len)
 {
@@ -74,6 +76,15 @@ toupper (int c)
 }
 
 int
+tolower (int c)
+{
+  if (c >= 'A' && c <= 'Z')
+    return (c + ('a' - 'A'));
+
+  return c;
+}
+
+int
 isspace (int c)
 {
   switch (c)
@@ -121,6 +132,88 @@ fstrstr (const char far *s1, const char far *s2)
 
       if (tmp > s2 && ! *tmp)
         return (char far *) s1;
+
+      s1++;
+    }
+
+  return 0;
+}
+
+int
+safe_parse_maxint (char **str_ptr, int *myint_ptr)
+{
+  char *ptr = *str_ptr;
+  int myint = 0;
+  int mult = 10, found = 0;
+
+  /*
+   *  Is this a hex number?
+   */
+  if (*ptr == '0' && tolower (*(ptr + 1)) == 'x')
+    {
+      ptr += 2;
+      mult = 16;
+    }
+
+  while (1)
+    {
+      /* A bit tricky. This below makes use of the equivalence:
+         (A >= B && A <= C) <=> ((A - B) <= (C - B))
+         when C > B and A is unsigned.  */
+      unsigned int digit;
+
+      digit = tolower (*ptr) - '0';
+      if (digit > 9)
+        {
+          digit -= 'a' - '0';
+          if (mult == 10 || digit > 5)
+            break;
+          digit += 10;
+        }
+
+      found = 1;
+      if (myint > ((MAXINT - digit) / mult))
+        {
+          // = ERR_NUMBER_OVERFLOW;
+#ifndef STAGE1_5
+          //u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
+#endif
+          return 0;
+        }
+      myint = (myint * mult) + digit;
+      ptr++;
+    }
+
+  if (!found)
+    {
+      //errnum = ERR_NUMBER_PARSING;
+#ifndef STAGE1_5
+      //u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
+#endif
+      return 0;
+    }
+
+  *str_ptr = ptr;
+  *myint_ptr = myint;
+
+  return 1;
+}
+
+char *
+strstr (const char *s1, const char *s2)
+{
+  while (*s1)
+    {
+      const char *ptr, *tmp;
+
+      ptr = s1;
+      tmp = s2;
+
+      while (*tmp && *ptr == *tmp)
+        ptr++, tmp++;
+
+      if (tmp > s2 && ! *tmp)
+        return (char *) s1;
 
       s1++;
     }

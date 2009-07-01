@@ -28,4 +28,4 @@ TARGETS = subdirs $(PATH)$(PROJ).exe
 TARGET = all
 
 qwe: .SYMBOLIC
- $(SAY) $(LINKOPT)
+ $(SAY) $(COPT)

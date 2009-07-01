@@ -17,6 +17,10 @@ public ft
 public stack_bottom
 public force_lba
 
+public com_outchar
+public port
+
+extrn  kprintf_     :near
 extrn  init_        :near
 extrn  cmain_       :near
 extrn  call_rm      :near
@@ -57,6 +61,7 @@ base               dd      REL1_BASE
                    org     start + 20h
 
 mfs_len            dd      ?
+port               dw      0
 force_lba          db      0
 
                    ;
@@ -89,22 +94,49 @@ realmode_init:
                    mov  dx, [eax]
 
                    ; set bootdrive
-                   mov  eax, offset _TEXT:boot_drive - REL1_BASE
-                   mov  dl, [eax]
+                   ;mov  eax, offset _TEXT:boot_drive - REL1_BASE
+                   ;mov  dl, [eax]
 
                    mov  edi, offset _TEXT:ft - REL1_BASE
 
                    ; set BPB
-                   mov  eax, REL1_BASE - 200h
-                   shr  eax, 4
-                   mov  ds,  ax
-                   mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
+                   ;mov  eax, REL1_BASE - 200h
+                   ;shr  eax, 4
+                   ;mov  ds,  ax
+                   ;mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
+
+                   and  ebp, 0ffffh
 
                    ; return to os2ldr
                    push OS2LDR_SEG
                    push 0
 
                    retf
+
+                   ; output a char to commport
+                   ; Input:
+                   ; al == char
+com_outchar:
+                   pusha
+                   ; wait while comport is ready
+                   mov  bl, al
+loo1:
+                   mov  dx, port
+                   add  dx, 5
+                   in   al, dx
+                   out  80h, al
+                   test al, 20h
+                   jz   loo1
+
+                   ; output a char
+                   mov  dx, port
+                   mov  al, bl
+                   out  dx, al
+                   out  80h, al
+
+                   popa
+
+                   ret
 _TEXT16  ends
 
 _TEXT    segment dword public 'CODE'  use32

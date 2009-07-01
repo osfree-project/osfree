@@ -7,7 +7,7 @@
 PROJ        = mbi
 DESC        = A multiboot info mini-FSD
 srcfiles    = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e) $(p)serial$(e) $(p)vsprintf$(e) &
-              $(p)istable$(e) $(p)div$(e) $(p)libc$(e) $(p)end$(e)
+              $(p)istable$(e) $(p)div$(e) $(p)libc$(e) $(p)cmdline$(e) $(p)end$(e)
 ADD_COPT    = -dOS2 -dMINIFSD -2 -mc -zu -ecc -r -s -zdp -ze -zq -oe -i=$(MYDIR)..$(SEP)..$(SEP)include
 ADD_LINKOPT = option nod segment type DATA preload segment type CODE preload
 # linking dll file
@@ -134,3 +134,4 @@ DEST        =
 !include $(%ROOT)/mk/appsos2v1.mk
 
 .c: $(MYDIR)..
+.c: $(MYDIR)..$(SEP)..

@@ -8,8 +8,8 @@
 
 32_BITS = 0
 
-ADD_COPT = -bt=os2 -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x $(ADD_COPT)
-ADD_LINKOPT = lib clibs.lib,os2.lib
+ADD_COPT    = $(ADD_COPT) -d__OS2__ -bt=os2 -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x
+ADD_LINKOPT = $(ADD_LINKOPT) OPTION REDEFSOK # lib clibs.lib,os2.lib
 
 !ifndef DEST
 DEST     = os2
@@ -19,10 +19,13 @@ DEST     = os2
 
 !ifdef DLL
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
-dllopt = dll
+dllopts = dll
+!ifdef DLLOPT
+dllopts += $(DLLOPT)
+!endif
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
-dllopt =
+dllopts =
 !endif
 RCOPT    = -bt=os2 -i=$(MYDIR) -i=$(PATH)
 
@@ -32,7 +35,7 @@ deps = $(RESOURCE)
 
 $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
  @%create $^@
- @%append $^@ SYSTEM os2 $(dllopt)
+ @%append $^@ SYSTEM os2 $(dllopts)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef STACKSIZE

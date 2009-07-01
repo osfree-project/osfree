@@ -8,6 +8,7 @@
 #include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
 #include <mb_info.h>
+#include "serial.h"
 
 //#include <string.h>
 //#include <ifs.h>
@@ -19,6 +20,9 @@
               __FILE__, __LINE__); \
       return 1; \
     }
+
+int serial_init (unsigned short port, unsigned int speed,
+                int word_len, int parity, int stop_bit_len);
 
 extern unsigned long mbi;
 struct multiboot_info far *mbi_far;
@@ -34,7 +38,7 @@ unsigned long filebase;
 char far *fileaddr;
 
 // our command line
-char far cmdline[0x400];
+char cmdline[0x400];
 
 #pragma aux mbi "*"
 
@@ -46,6 +50,9 @@ int toupper (int c);
 int isspace (int c);
 char far *strip(char far *s);
 char far *fstrstr (const char far *s1, const char far *s2);
+char *strstr (const char *s1, const char *s2);
+char *skip_to (int after_equal, char *cmdline);
+int safe_parse_maxint (char **str_ptr, int *myint_ptr);
 
 int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
 int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
@@ -106,36 +113,45 @@ int far pascal _loadds MFS_INIT(
     struct mod_list far *mod;
     unsigned short sl, sl1;
     char far *p, far *q;
-
-    kprintf("**** MFS_INIT\n");
-    kprintf("Hello MBI minifsd!\n");
-
-    kprintf("RIPL data address: 0x%04x:0x%04x\n",
-            ((unsigned long)bootdata >> 16),
-            ((unsigned long)bootdata & 0xffff));
+    int port = 0;
+    char *pp;
 
     // mbi physical address
     mbi = *((unsigned long far *)bootdata);
-
-    kprintf("mbi phys. address: 0x%08lx\n", mbi);
-
     // get GDT selector to mbi structure
     rc = MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
     CHECKRC
-    kprintf("allocated mbi selector: 0x%04x\n", sel);
     mbi_far = (struct multiboot_info far *)MAKEP(sel, 0);
-    kprintf("mem_lower = %lu Kb, mem_upper = %lu Mb\n",
-            mbi_far->mem_lower, mbi_far->mem_upper >> 10);
-    kprintf("boot_device = 0x%08lx\n", mbi_far->boot_device);
 
-    kprintf("kernel cmdline @0x%08lx\n", mbi_far->cmdline);
     rc = MFSH_PHYSTOVIRT(mbi_far->cmdline, 0xffff, &sl1);
     CHECKRC
     q = (char far *)MAKEP(sl1, 0);
     fmemmove(cmdline, q, fstrlen(q));
-    kprintf("cmdline = %s\n", cmdline);
     MFSH_UNPHYSTOVIRT(sl1);
 
+    // if "--serial=..." specified on the command line
+    if ((mbi_far->flags & MB_INFO_CMDLINE) && (pp = strstr(cmdline, "--serial")))
+    {
+      pp = skip_to(1, pp);
+      safe_parse_maxint(&pp, &port);
+    }
+
+    // init serial port
+    serial_init(port, 9600, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
+
+    kprintf("**** MFS_INIT\n");
+    kprintf("Hello MBI minifsd!\n");
+    kprintf("comport = 0x%x\n", port);
+    kprintf("RIPL data address: 0x%04x:0x%04x\n",
+            ((unsigned long)bootdata >> 16),
+            ((unsigned long)bootdata & 0xffff));
+    kprintf("mbi phys. address: 0x%08lx\n", mbi);
+    kprintf("allocated mbi selector: 0x%04x\n", sel);
+    kprintf("mem_lower = %lu Kb, mem_upper = %lu Mb\n",
+            mbi_far->mem_lower, mbi_far->mem_upper >> 10);
+    kprintf("boot_device = 0x%08lx\n", mbi_far->boot_device);
+    kprintf("kernel cmdline @0x%08lx\n", mbi_far->cmdline);
+    kprintf("cmdline = %s\n", cmdline);
     kprintf("mods_count = %lu, mods_addr = 0x%08lx\n",
             mbi_far->mods_count, mbi_far->mods_addr);
     kprintf("syms = 0x%lx\n", mbi_far->syms);
@@ -154,6 +170,7 @@ int far pascal _loadds MFS_INIT(
     mods_count = mbi_far->mods_count;
     mod = (struct mod_list far *)mods_addr;
     kprintf("mods cmd lines: \n");
+    
     for (i = 0; i < mods_count; i++, mod++)
     {
       rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sl);
@@ -248,11 +265,10 @@ int far pascal _loadds MFS_READ(
     unsigned short far *length   /* length       */
 )
 {
-  kprintf("**** MFS_READ\n");
-  kprintf("buf = 0x%04x:0x%04x,",
+  kprintf("**** MFS_READ(0x%04x:0x%04x, ",
           (unsigned long)data >> 16,
           (unsigned long)data & 0xffff);
-  kprintf(" length = %u\n", *length);
+  kprintf("%u)\n", *length);
 
   if (fileaddr && data && *length)
   {

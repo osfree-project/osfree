@@ -22,7 +22,8 @@ i                =
 bbx              = $+$(kernels)$-
 
 ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
-                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)bios$(e)
+                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) &
+                   $(p)cmdline$(e) $(p)bios$(e)
 common_OBJS      = $(p)end$(e)
 
 ADD_COPT   = -dOS2 -dMB_KERN -dMINIFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include

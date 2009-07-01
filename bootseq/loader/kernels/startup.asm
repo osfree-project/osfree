@@ -16,6 +16,7 @@ include mb_etc.inc
 extrn cmain_          :near
 extrn exe_end         :near
 extrn bss_end         :near
+extrn kprintf_        :near
 
 public rel_start
 public ufsd_start
@@ -177,6 +178,7 @@ entry:
                    rep     movsd
 
                    push    eax
+                   push    ebx
 
                    call    cmain_
 .386p
@@ -186,8 +188,28 @@ entry:
                    mov     edx, mfsd_size
                    mov     [esi], edx
 
+                   push    eax
+
+                   ; show progress
+                   mov     ebx, eax
+                   push    ebx
+                   push    edx
+                   lea     eax, mid_msg
+                   push    eax
+                   call    kprintf_
+                   add     esp, 12
+
+                   pop     eax
+
                    mov     edx, eax
 
+                   push    edx
+                   lea     eax, pass_msg
+                   push    eax
+                   call    kprintf_
+                   add     esp, 8
+
+                   pop     ebx
                    pop     eax
 
                    ; start microfsd emulator
@@ -223,7 +245,10 @@ _TEXT    ends
 
 _DATA    segment dword public 'DATA'  use32
 
-m        dd  ?
+m                  dd   ?
+mid_msg            db   "cmain() finished.",10
+                   db   "mFSD size: %lu, uFSD base: 0x%lx",10,0
+pass_msg           db   "passing control to uFSD @ 0x%x",10,10,0
 
 _DATA    ends
 
