@@ -129,7 +129,7 @@ EXPORTS     = &
     MFS_READ, &
     MFS_TERM
 
-DEST        =
+DEST        = none
 
 !include $(%ROOT)/mk/appsos2v1.mk
 

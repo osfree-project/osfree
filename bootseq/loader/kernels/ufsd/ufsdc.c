@@ -32,6 +32,7 @@ int filepos;
 int fileaddr;
 
 unsigned long cdrom_drive;
+char drvletter;
 
 #pragma aux m            "*"
 #pragma aux filemax      "*"
@@ -197,15 +198,18 @@ void mbi_reloc(void)
   while (*p++) ;
 
   cur_addr = (((unsigned long)(p + 0xfff)) & 0xfffff000);
+  //kprintf("mods end: 0x%08lx\n", cur_addr);
   size = sizeof(struct multiboot_info);
   memmove((char *)cur_addr, m, size);
   m = (struct multiboot_info *)cur_addr;
+  //kprintf("mbi new: 0x%08lx\n", m);
 
   // relocate a kernel command line
   cur_addr = (((unsigned long)(cur_addr + size)) + 0xfff) & 0xfffff000;
   size = strlen((char *)m->cmdline) + 1;
   memmove((char *)cur_addr, (char *)m->cmdline, size);
   m->cmdline = cur_addr;
+  //kprintf("cmdline: 0x%08lx\n", cur_addr);
 
   // relocate mods after mbi
   if (m->flags & MB_INFO_MODS)
@@ -214,6 +218,7 @@ void mbi_reloc(void)
     size = sizeof(struct mod_list) * m->mods_count;
     memmove((char *)cur_addr, (char *)m->mods_addr, size);
     m->mods_addr = cur_addr;
+    //kprintf("mods_addr: 0x%08lx\n", cur_addr);
 
     // relocate mods command lines
     cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xfff) & 0xfffff000;
@@ -222,6 +227,7 @@ void mbi_reloc(void)
       size = strlen((char *)mod->cmdline) + 1;
       memmove((char *)cur_addr, (char *)mod->cmdline, size);
       mod->cmdline = cur_addr;
+      //kprintf("mods[%u] = %s\n", i, cur_addr);
     }
   }
 
@@ -232,6 +238,7 @@ void mbi_reloc(void)
     size = m->mmap_length;
     memmove((char *)cur_addr, (char *)m->mmap_addr, size);
     m->mmap_addr = cur_addr;
+    //kprintf("mmap_addr: 0x%08lx\n", cur_addr);
   }
 
   // relocate drives info
@@ -241,6 +248,7 @@ void mbi_reloc(void)
     size = m->drives_length;
     memmove((char *)cur_addr, (char *)m->drives_addr, size);
     m->drives_addr = cur_addr;
+    //kprintf("drives_addr: 0x%08lx\n", cur_addr);
   }
 
   // relocate the boot loader name
@@ -251,6 +259,7 @@ void mbi_reloc(void)
     size = strlen(p);
     strcpy((char *)cur_addr, p);
     m->boot_loader_name = cur_addr;
+    //kprintf("boot_loader_name: %s\n", cur_addr);
   }
 }
 
@@ -267,11 +276,20 @@ void cmain (void)
   char *pp;
   int  i;
 
-  // if "--serial=..." specified on the command line
-  if ((m->flags & MB_INFO_CMDLINE) && (pp = strstr((char *)m->cmdline, "--serial")))
+  if (m->flags & MB_INFO_CMDLINE)
   {
-    pp = skip_to(1, pp);
-    safe_parse_maxint(&pp, &port);
+    // if "--serial=..." specified on the command line
+    if (pp = strstr((char *)m->cmdline, "--serial"))
+    {
+      pp = skip_to(1, pp);
+      safe_parse_maxint(&pp, &port);
+    }
+
+    if (pp = strstr((char *)m->cmdline, "--drive"))
+    {
+      pp = skip_to(1, pp);
+      drvletter = grub_toupper(pp[0]);
+    }
   }
 
   // init serial port
@@ -293,11 +311,6 @@ void cmain (void)
     ldrlen = ufs_read(buf, -1);
   }
 
-  //kprintf("|");
-  //for (i = 0; i < filemax; i++)
-  //  comout(port, buf[i]);
-  //kprintf("|");
-
   // load os2boot (if it exists)
   if (ufs_open("OS2BOOT"))
   {
@@ -311,15 +324,14 @@ void cmain (void)
   if (ufs_open("*bootsec*"))
   {
     buf = (char *)(REL1_BASE - 0x200);
-    ufs_read(buf, -1);
+    ufs_read(buf, 512);
   }
 
   p = (unsigned long *)(REL1_BASE + 0x20); // an address of mfs_len in the header
 
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO; // | BOOTFLAG_RIPL;
 
-/*
   if (m->flags & MB_INFO_BOOTDEV)
   {
     boot_drive = m->boot_device >> 24;
@@ -334,9 +346,9 @@ void cmain (void)
     cdrom_drive = GRUB_INVALID_DRIVE;
   else
     cdrom_drive = boot_drive;
- */
+
   /* set filetable */
-  ft.ft_cfiles = 4;
+  ft.ft_cfiles = 3; // 4;
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
@@ -346,17 +358,17 @@ void cmain (void)
   ft.ft_mfsseg = 0x7c0 >> 4;
   ft.ft_mfslen = *p;
 
+  ft.ft_ripseg = 0; // ((0x7c0 + *p + 0xf) & 0xfffffff0) >> 4;
+  ft.ft_riplen = 0; // 4;
+
   // if alternative os2boot is specified
   if (mfsbase && mfslen) ft.ft_mfslen = mfslen;
 
-  // where to place RIPL data
-  q = (0x7c0 + *p + 0xf) & 0xfffffff0;
-
-  ft.ft_ripseg = q >> 4;
-  ft.ft_riplen = 4;
+  // where to place mbi pointer
+  q = 0x7c0 + *p - 4;
 
   // pass mbi structure address to mFSD
-  // as RIPL data
+  // as a variable at its end
   *((unsigned long *)q) = (unsigned long) m;
 
   p = (unsigned long *)(REL1_BASE + 0x10); // an address of base in the header
@@ -374,7 +386,7 @@ void cmain (void)
   ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
   /* set BPB */
-/*  bpb = (bios_parameters_block *)(REL1_BASE - 0x200 + 0xb);
+  bpb = (bios_parameters_block *)(REL1_BASE - 0x200 + 0xb);
 
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
     // fill fake BPB
@@ -390,9 +402,9 @@ void cmain (void)
   }
 
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
-  bpb->log_drive   = 0; //conf.driveletter; // 0x92;
-  bpb->hidden_secs = 0; //part_start;
- */
+  bpb->log_drive   = 0x80 + (drvletter - 'C'); // u:;
+  //bpb->hidden_secs = 0; //part_start;
+
   //bpb->disk_num    = 0x3;
   //bpb->log_drive   = 0x48;
   //bpb->marker      = 0x41;

@@ -220,3 +220,80 @@ strstr (const char *s1, const char *s2)
 
   return 0;
 }
+
+int
+strlen (const char *str)
+{
+   int len = 0;
+
+  while (*str++)
+    len++;
+
+  return len;
+}
+
+void *
+memset (void *start, int c, int len)
+{
+  char *p = start;
+
+  while (len -- > 0)
+    *p ++ = c;
+
+  return start;
+}
+
+void *
+memmove (void *_to, const void *_from, int _len)
+{
+  char *from = (char *)_from;
+  char *to   = _to;
+
+  if (from == to)
+  {
+    return( to );
+  }
+  if ( from < to  &&  from + _len > to )
+  {
+    to += _len;
+    from += _len;
+    while( _len != 0 )
+    {
+      *--to = *--from;
+      _len--;
+    }
+  }
+  else
+  {
+    while( _len != 0 )
+    {
+      *to++ = *from++;
+      _len--;
+    }
+  }
+
+  return( to );
+}
+
+char *
+strcpy (char *dest, const char *src)
+{
+  memmove (dest, src, strlen (src) + 1);
+  return dest;
+}
+
+int
+strcmp (const char *s1, const char *s2)
+{
+  while (*s1 || *s2)
+    {
+      if (*s1 < *s2)
+        return -1;
+      else if (*s1 > *s2)
+        return 1;
+      s1 ++;
+      s2 ++;
+    }
+
+  return 0;
+}

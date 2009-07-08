@@ -41,7 +41,7 @@
 
 include struct.inc
 
-_TEXT   segment dword public 'CODE'  use16
+_TEXT   segment byte public 'CODE'  use16
 
 public __I4M
 public __U4M

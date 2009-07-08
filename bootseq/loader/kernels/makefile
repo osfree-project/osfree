@@ -31,8 +31,8 @@ linux_OBJS       = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$
                    $(p)wrap$(e)
 
 chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
-                   $(p)chainc$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)..$(SEP)setdev$(e) &
-                   $(p)..$(SEP)preldr$(SEP)bios$(e)
+                   $(p)chainc$(e) $(p)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)setdev$(e) &
+                   $(p)bios$(e)
 
 bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)serial$(e) $(p)vsprintf$(e) $(p)istable$(e) &
                    $(p)cmdline$(e)
@@ -99,13 +99,19 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=$$(SHIFT)
 defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 !endif
 
-.$(O):  $(PATH).
-.$(SO): $(PATH).
-.$(O):  $(PATH)..
-.$(SO): $(PATH)..
-.$(O):  $(PATH)..$(SEP)preldr
-.$(SO): $(PATH)..$(SEP)preldr
-.inc:   $(PATH)
+.c:   $(MYDIR)
+
+.c:   $(MYDIR)..
+
+.c:   $(MYDIR)..$(SEP)preldr
+
+.asm: $(MYDIR)
+
+.asm: $(MYDIR)..
+
+.asm: $(MYDIR)..$(SEP)preldr
+
+.inc: $(PATH)
 
 $(PATH)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
  $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@

@@ -24,7 +24,11 @@
 int serial_init (unsigned short port, unsigned int speed,
                 int word_len, int parity, int stop_bit_len);
 
+extern char FS_NAME[12];
 extern unsigned long mbi;
+
+unsigned char drvletter;
+
 struct multiboot_info far *mbi_far;
 struct mod_list far *mods_addr;
 unsigned long mods_count;
@@ -40,7 +44,9 @@ char far *fileaddr;
 // our command line
 char cmdline[0x400];
 
-#pragma aux mbi "*"
+#pragma aux mbi             "*"
+#pragma aux FS_NAME         "*"
+
 
 void far *fmemset (void far *start, int c, int len);
 int fstrlen (const char far *str);
@@ -53,8 +59,13 @@ char far *fstrstr (const char far *s1, const char far *s2);
 char *strstr (const char *s1, const char *s2);
 char *skip_to (int after_equal, char *cmdline);
 int safe_parse_maxint (char **str_ptr, int *myint_ptr);
+int strlen (const char *str);
+int strcmp (const char *s1, const char *s2);
+char *strcpy (char *dest, const char *src);
+void *memmove (void *_to, const void *_from, int _len);
 
 int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
+int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
 int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
                                unsigned short usLen,
                                unsigned short far *pusSel);
@@ -75,7 +86,7 @@ void advance_ptr(void)
 }
 
 int far pascal _loadds MFS_CHGFILEPTR(
-    unsigned long  offset,              /* offset       */
+    long  offset,                       /* offset       */
     unsigned short type                 /* type         */
 )
 {
@@ -90,7 +101,7 @@ int far pascal _loadds MFS_CHGFILEPTR(
       filepos += offset;
       break;
     case 2:
-      filepos = filemax - offset;
+      filepos = filemax + offset;
       break;
     default:
       return 1;
@@ -109,15 +120,16 @@ int far pascal _loadds MFS_INIT(
     unsigned long far *dump             /* dump address */
 ) {
     int i, rc;
-    unsigned long  mbi;
     struct mod_list far *mod;
     unsigned short sl, sl1;
     char far *p, far *q;
     int port = 0;
-    char *pp;
+    char *pp, *r;
+    char panic_msg[] = "MBI:mbi uninitialized, panic!\n";
 
-    // mbi physical address
-    mbi = *((unsigned long far *)bootdata);
+    if (mbi == 0xffffffff)
+      MFSH_INTERR(panic_msg, strlen(panic_msg));
+
     // get GDT selector to mbi structure
     rc = MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
     CHECKRC
@@ -129,11 +141,32 @@ int far pascal _loadds MFS_INIT(
     fmemmove(cmdline, q, fstrlen(q));
     MFSH_UNPHYSTOVIRT(sl1);
 
-    // if "--serial=..." specified on the command line
-    if ((mbi_far->flags & MB_INFO_CMDLINE) && (pp = strstr(cmdline, "--serial")))
+    if (mbi_far->flags & MB_INFO_CMDLINE)
     {
-      pp = skip_to(1, pp);
-      safe_parse_maxint(&pp, &port);
+      // if "--serial=..." specified on the command line
+      if (pp = strstr(cmdline, "--serial"))
+      {
+        pp = skip_to(1, pp);
+        safe_parse_maxint(&pp, &port);
+      }
+
+      if (pp = strstr(cmdline, "--ifs"))
+      {
+        pp = skip_to(1, pp);
+        // find name end
+        for (r = pp; *r && *r != ' '; r++) ;
+        memmove(FS_NAME, pp, r - pp);
+        FS_NAME[r - pp] = '\0';
+        // make FS_NAME uppercase
+        r = FS_NAME;
+        while (*r) *r++ = toupper(*r);
+      }
+
+      if (pp = strstr(cmdline, "--drive"))
+      {
+        pp = skip_to(1, pp);
+        drvletter = toupper(pp[0]);
+      }
     }
 
     // init serial port
@@ -142,6 +175,8 @@ int far pascal _loadds MFS_INIT(
     kprintf("**** MFS_INIT\n");
     kprintf("Hello MBI minifsd!\n");
     kprintf("comport = 0x%x\n", port);
+    kprintf("ifs: %s\n", FS_NAME);
+    kprintf("drive letter: %c\n", drvletter);
     kprintf("RIPL data address: 0x%04x:0x%04x\n",
             ((unsigned long)bootdata >> 16),
             ((unsigned long)bootdata & 0xffff));
@@ -170,7 +205,7 @@ int far pascal _loadds MFS_INIT(
     mods_count = mbi_far->mods_count;
     mod = (struct mod_list far *)mods_addr;
     kprintf("mods cmd lines: \n");
-    
+
     for (i = 0; i < mods_count; i++, mod++)
     {
       rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sl);
@@ -180,19 +215,21 @@ int far pascal _loadds MFS_INIT(
       MFSH_UNPHYSTOVIRT(sl);
     }
 
+    rc = MFSH_SETBOOTDRIVE(drvletter - 'A'); // u:
+    kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
 
     return NO_ERROR;
 }
 
 int far pascal _loadds MFS_OPEN(
     char far *name,                     /* name         */
-    unsigned long far *size             /* size         */
+    long far *size             /* size         */
 )
 {
     char far buf1[0x100];
     char far buf2[0x100];
     struct mod_list far *mod;
-    char far *p, far *q;
+    char far *p, far *q, far *l;
     char far *s;
     int  n, rc;
 
@@ -200,6 +237,16 @@ int far pascal _loadds MFS_OPEN(
 
     fmemset(buf1, 0, sizeof(buf1));
     fmemset(buf2, 0, sizeof(buf2));
+
+    // get GDT selector to mbi structure
+    rc = MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
+    CHECKRC
+    mbi_far = (struct multiboot_info far *)MAKEP(sel, 0);
+
+    // get mods selector
+    rc = MFSH_PHYSTOVIRT(mbi_far->mods_addr, sizeof(struct mod_list) * mbi_far->mods_count, &mods_sel);
+    CHECKRC
+    mods_addr  = MAKEP(mods_sel, 0);
 
     if (mbi_far->flags & MB_INFO_MODS) // If there are modules
     {
@@ -220,13 +267,17 @@ int far pascal _loadds MFS_OPEN(
         // deallocate a selector
         MFSH_UNPHYSTOVIRT(sel1);
 
+        // translate '/' to '\' in command line
+        for (p = buf1; *p; p++) if (*p == '/') *p = '\\';
+
         // make it uppercase
         for (p = buf1; *p; p++) *p = toupper(*p);
         for (p = buf2; *p; p++) *p = toupper(*p);
 
         p = strip(buf1); q = strip(buf2);
+        l = strstr(p, q);                     /* (cd)/os2/boot/bvhvga.dll bvhvga; (hd0,0)0+0x200 *bootsec* */
 
-        if (fstrstr(p, q))
+        if (l && ((p + strlen(p)) == (l + strlen(q))))
           break;
 
         mod++;
@@ -283,11 +334,9 @@ int far pascal _loadds MFS_READ(
 int far pascal _loadds MFS_CLOSE(void) {
     kprintf("**** MFS_CLOSE\n");
 
-    if (sel1)
-    {
-      MFSH_UNPHYSTOVIRT(sel1);
-      sel1 = 0;
-    }
+    if (sel1)     MFSH_UNPHYSTOVIRT(sel1);
+    if (mods_sel) MFSH_UNPHYSTOVIRT(mods_sel);
+    if (sel)      MFSH_UNPHYSTOVIRT(sel);
 
     return NO_ERROR;
 }
@@ -295,8 +344,6 @@ int far pascal _loadds MFS_CLOSE(void) {
 int far pascal _loadds MFS_TERM(void) {
 
     kprintf("**** MFS_TERM\n");
-    MFSH_UNPHYSTOVIRT(mods_sel);
-    MFSH_UNPHYSTOVIRT(sel);
 
     return NO_ERROR;
 }

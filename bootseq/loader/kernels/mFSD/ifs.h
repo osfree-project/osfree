@@ -47,6 +47,8 @@ struct cdfsd {
 
 /* file system independent - file instance */
 
+#pragma pack(1)
+
 struct sffsi {
     unsigned long   sfi_mode;       /* access/sharing mode */
     unsigned short  sfi_hVPB;       /* volume info. */
@@ -70,6 +72,8 @@ struct sffsi {
     unsigned long   sfi_pPVDBFil;   /* performance counter data block pointer */
     unsigned char   sfi_DOSattr;    /* DOS file attributes D/S/A/H/R */
 };
+
+#pragma pack()
 
 /* file system dependent - file instance */
 

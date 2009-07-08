@@ -94,16 +94,16 @@ realmode_init:
                    mov  dx, [eax]
 
                    ; set bootdrive
-                   ;mov  eax, offset _TEXT:boot_drive - REL1_BASE
-                   ;mov  dl, [eax]
+                   mov  eax, offset _TEXT:boot_drive - REL1_BASE
+                   mov  dl, [eax]
 
                    mov  edi, offset _TEXT:ft - REL1_BASE
 
                    ; set BPB
-                   ;mov  eax, REL1_BASE - 200h
-                   ;shr  eax, 4
-                   ;mov  ds,  ax
-                   ;mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
+                   mov  eax, REL1_BASE - 200h
+                   shr  eax, 4
+                   mov  ds,  ax
+                   mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
 
                    and  ebp, 0ffffh
 

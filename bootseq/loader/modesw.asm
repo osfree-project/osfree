@@ -31,8 +31,8 @@ endif
 endif
 
 public  __CHK
-public  __I8LS
-public  __U8RS
+;public  __I8LS
+;public  __U8RS
 
 include fsd.inc
 include struc.inc
@@ -447,11 +447,11 @@ endif
 
 __CHK:
         ret  4
-__I8LS:
-        ret
-
-__U8RS:
-        ret
+;__I8LS:
+;        ret
+;
+;__U8RS:
+;        ret
 
 _TEXT   ends
 

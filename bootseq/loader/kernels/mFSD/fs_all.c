@@ -8,111 +8,293 @@
 #define INCL_NOPMAPI
 #include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
-//#include <ifs.h>
+#include "ifs.h"
 
-int far pascal FS_INIT(
-                          char                  *szParm,
-                          unsigned long         DevHelp,
+char hellomsg[] = "Hello stage2!\n";
+unsigned long DevHlp;
+
+int kprintf(const char *format, ...);
+void advance_ptr(void);
+
+int open_files = 0;
+extern unsigned long filemax;
+extern unsigned long filepos;
+extern unsigned long filebase;
+
+char *strcpy (char *dest, const char *src);
+void *memset (void *start, int c, int len);
+
+int far pascal _loadds MFS_OPEN(char far *pszName, unsigned long far *pulSize);
+int far pascal _loadds MFS_READ(char far *pcData,  unsigned short far *pusLength);
+
+void far pascal FSH_GETVOLPARM(unsigned short hVPB,
+                               struct vpfsi far * far *ppVPBfsi,
+                               struct vpfsd far * far *ppVPBfsd);
+int  far pascal FSH_DEVIOCTL(unsigned short flag,
+                             unsigned long hDev,
+                             unsigned short sfn,
+                             unsigned short cat,
+                             unsigned short func,
+                             char far *pParm,
+                             unsigned short cbParm,
+                             char far *pData,
+                             unsigned short cbData);
+
+#pragma aux FS_NAME         "*"
+#pragma aux FS_ATTRIBUTE    "*"
+#pragma aux FS_MPSAFEFLAGS2 "*"
+
+char FS_NAME[12];
+unsigned long FS_ATTRIBUTE         = 0x0L;
+unsigned long long FS_MPSAFEFLAGS2 = 0x0LL;
+
+/*
+FS_ATTRIBUTE dd 00000000000000000000000000101100b
+;                                         | ||||
+;                  large file support  ---+ ||||
+;                     level 7 requests -----+|||
+;                 lock notifications   ------+||
+;                     UNC support      -------+|
+;                     remote FSD       --------+
+FS_NAME                 db      'JFS',0
+FS_MPSAFEFLAGS2         dd      41h, 0         ; 01h = don't get r0 spinlock
+                                                 ; 40h = don't acquire subsys spinlock
+                                            ; FS_MPSAFEFLAGS2 is an array of 64 bits
+ */
+
+int far pascal _loadds FS_INIT(
+                          char              *szParm,
+                          unsigned long     DevHelp,
                           unsigned long far *pMiniFSD
                          )
 {
-    return NO_ERROR;
+  kprintf("**** FS_INIT\n");
+  kprintf(hellomsg);
+
+  DevHlp = DevHelp;
+
+  return NO_ERROR;
 }
 
 
-int far pascal FS_READ(
-                          struct sffsi   *psffsi,
-                          union  sffsd   *psffsd,
-                          char           *pData,
-                          unsigned short *pLen,
-                          unsigned short  IOflag
+int far pascal _loadds FS_READ(
+                          struct sffsi   far *psffsi,
+                          struct sffsd   far *psffsd,
+                          char           far *pData,
+                          unsigned short far *pLen,
+                          unsigned short     IOflag
                          )
 {
-    return NO_ERROR;
+  int rc;
+
+  kprintf("**** FS_READ\n");
+
+  filemax = psffsi->sfi_size;
+  filepos = psffsi->sfi_position;
+  filebase = *((unsigned long far *)psffsd);
+  advance_ptr();
+
+  if (rc = MFS_READ(pData, pLen))
+  {
+    kprintf("MFS_READ failed, rc = %u\n", rc);
+  }
+
+  return rc;
 }
 
-int far pascal FS_CHGFILEPTR(
+int far pascal _loadds FS_CHGFILEPTR(
                             struct sffsi far *psffsi,
-                            union  sffsd far *psffsd,
-                            long                 offset,
-                            unsigned short       type,
-                            unsigned short       IOflag
+                            struct sffsd far *psffsd,
+                            long             offset,
+                            unsigned short   type,
+                            unsigned short   IOflag
                            )
 {
-    return NO_ERROR;
+  long off;
+
+  kprintf("**** FS_CHGFILEPTR - offset=%ld, type=%u\n", offset, type);
+
+  switch (type)
+  {
+  case 0: // from the beginning
+    off = offset;
+    break;
+  case 1: // relative to current file pointer
+    off = psffsi->sfi_position + offset;
+    break;
+  case 2: // relative to the end of file
+    off = psffsi->sfi_size + offset;
+    break;
+  default:
+    return ERROR_INVALID_PARAMETER;
+  }
+
+  psffsi->sfi_position = off;
+
+  filemax = psffsi->sfi_size;
+  filepos = psffsi->sfi_position;
+  filebase = *((unsigned long far *)psffsd);
+  advance_ptr();
+
+  kprintf("FS_CHGFILEPTR: sfi_size = %lu\n", psffsi->sfi_size);
+  kprintf("FS_CHGFILEPTR: sfi_position = %lu\n", psffsi->sfi_position);
+
+  return NO_ERROR;
 }
 
-int far pascal FS_CLOSE(
-                       unsigned short          type,
-                       unsigned short          IOflag,
-                       struct sffsi    far *psffsi,
-                       union  sffsd    far *psffsd
+int far pascal _loadds FS_CLOSE(
+                       unsigned short    type,
+                       unsigned short    IOflag,
+                       struct sffsi  far *psffsi,
+                       struct sffsd  far *psffsd
                       )
 {
+    kprintf("**** FS_CLOSE\n");
+    open_files--;
+    memset(psffsd, 0, sizeof(struct sffsd));
+
     return NO_ERROR;
 }
 
-void far pascal FS_EXIT(
+void far pascal _loadds FS_EXIT(
                        unsigned short uid,
                        unsigned short pid,
                        unsigned short pdb
                       )
 {
-    //printf("FS_EXIT( uid = %u pid = %u pdb = %u )", uid, pid, pdb);
+    kprintf("**** FS_EXIT\n");
 }
 
-int far pascal FS_IOCTL(
+int far pascal _loadds FS_IOCTL(
                            struct sffsi   far *psffsi,
-                           union  sffsd   far *psffsd,
-                           unsigned short         cat,
-                           unsigned short         func,
+                           struct sffsd   far *psffsd,
+                           unsigned short     cat,
+                           unsigned short     func,
                            char           far *pParm,
-                           unsigned short         lenParm,
+                           unsigned short     lenParm,
                            unsigned       far *pParmLenInOut,
                            char           far *pData,
-                           unsigned short         lenData,
+                           unsigned short     lenData,
                            unsigned       far *pDataLenInOut
                           )
 {
-    return NO_ERROR;
+  int           rc;
+  struct vpfsi *pvpfsi;
+  struct vpfsd *pvpfsd;
+
+  kprintf("**** FS_IOCTL: cat = 0x%x, func = 0x%x\n", cat, func);
+
+  FSH_GETVOLPARM(psffsi->sfi_hVPB, &pvpfsi, &pvpfsd);
+  if ((rc = FSH_DEVIOCTL(
+                         0,
+                         pvpfsi->vpi_hDEV,
+                         psffsi->sfi_selfsfn,
+                         cat,
+                         func,
+                         pParm,
+                         lenParm,
+                         pData,
+                         lenData
+                        )) == NO_ERROR) {
+  // nothing
+  } else {
+      kprintf("FS_IOCTL: FSH_DEVIOCTL returned %d", rc);
+  }
+
+  if (pDataLenInOut) {
+    *pDataLenInOut = lenData;
+  }
+  if (pParmLenInOut) {
+    *pParmLenInOut = lenParm;
+  }
+
+  return rc;
 }
 
-int far pascal FS_MOUNT(
-                           unsigned short         flag,
+int far pascal _loadds FS_MOUNT(
+                           unsigned short     flag,
                            struct vpfsi   far *pvpfsi,
-                           union  vpfsd   far *pvpfsd,
-                           unsigned short        hVPB,
+                           struct vpfsd   far *pvpfsd,
+                           unsigned short     hVPB,
                            char           far *pBoot
                           )
 {
-    return NO_ERROR;
+  kprintf("**** FS_MOUNT\n");
+
+  if (flag)
+    return ERROR_NOT_SUPPORTED;
+
+  memset(pvpfsd, 0, sizeof(struct vpfsd));
+  pvpfsi->vpi_vid = 0x12345678;
+  strcpy(pvpfsi->vpi_text, "MBI_TEST");
+
+  return NO_ERROR;
 }
 
-int far pascal FS_OPENCREATE(
+int far pascal _loadds file_open(char far *name,
+             unsigned long far *size,
+             struct sffsi far *psffsi,
+             struct sffsd far *psffsd)
+{
+  char far *p = name;
+
+  if (p[1] == ':' && p[2] == '\\') p = p + 2;
+
+  if (!MFS_OPEN(p, size))
+  {
+    psffsi->sfi_tstamp = 3; // ST_SCREAT | ST_PCREAT
+    psffsi->sfi_cdate  = 0x1e21; // от балды
+    psffsi->sfi_adate  = 0x1e21; //
+    psffsi->sfi_mdate  = 0x1e21; //
+    *((unsigned long far *)psffsd) = filebase; // save base physical address of the file in memory
+    psffsi->sfi_size = *size;
+    psffsi->sfi_position = 0;
+    psffsi->sfi_DOSattr = FILE_ARCHIVED | FILE_READONLY;
+    open_files++;
+  }
+  else
+    return ERROR_FILE_NOT_FOUND;
+
+  return NO_ERROR;
+}
+
+int far pascal _loadds FS_OPENCREATE(
                                 struct cdfsi   far *pcdfsi,
                                 struct cdfsd   far *pcdfsd,
                                 char           far *pName,
-                                unsigned short         iCurDirEnd,
+                                unsigned short     iCurDirEnd,
                                 struct sffsi   far *psffsi,
-                                union  sffsd   far *psffsd,
-                                unsigned long          ulOpenMode,
-                                unsigned short         openflag,
+                                struct sffsd   far *psffsd,
+                                unsigned long      ulOpenMode,
+                                unsigned short     openflag,
                                 unsigned short far *pAction,
-                                unsigned short         attr,
+                                unsigned short     attr,
                                 char           far *pEABuf,
                                 unsigned short far *pfgenFlag
                                )
 {
-    return NO_ERROR;
+  unsigned long size;
+  int rc;
+
+  kprintf("**** FS_OPENCREATE(\"%s\")\n", pName);
+
+  if (ulOpenMode & OPEN_FLAGS_DASD) // opening whole drive for a direct read
+  {
+    kprintf("OPEN_FLAGS_DASD set\n");
+    if (pName[1] == ':' && pName[2] == '\\' && pName[3] == '\0') // like "C:\"
+      rc = file_open("*bootsec*", &size, psffsi, psffsd);
+  }
+  else // ordinary opening
+    rc = file_open(pName, &size, psffsi, psffsd);
+
+  return rc;
 }
 
-int far pascal FS_PROCESSNAME(
-                                 char *pNameBuf
+int far pascal _loadds FS_PROCESSNAME(
+                                 char far *pNameBuf
                                 )
 {
-    return NO_ERROR;
-}
+    kprintf("**** FS_PROCESSNAME(\"%s\")\n", pNameBuf);
 
-void main (void)
-{
+    return NO_ERROR;
 }

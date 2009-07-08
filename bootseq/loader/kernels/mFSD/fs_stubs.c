@@ -9,30 +9,8 @@
 
 //#include <ifs.h>
 
-#pragma aux FS_NAME         "*"
-#pragma aux FS_ATTRIBUTE    "*"
-#pragma aux FS_MPSAFEFLAGS2 "*"
-
-char FS_NAME[]                     = "MBI";
-unsigned long FS_ATTRIBUTE         = 0;
-unsigned long long FS_MPSAFEFLAGS2 = 0x41LL;
-
-/*
-FS_ATTRIBUTE dd 00000000000000000000000000101100b
-;                                         | ||||
-;                  large file support  ---+ ||||
-;                     level 7 requests -----+|||
-;                 lock notifications   ------+||
-;                     UNC support      -------+|
-;                     remote FSD       --------+
-FS_NAME                 db      'JFS',0
-FS_MPSAFEFLAGS2         dd      41h, 0         ; 01h = don't get r0 spinlock
-                                                 ; 40h = don't acquire subsys spinlock
-                                            ; FS_MPSAFEFLAGS2 is an array of 64 bits
- */
-
 #if 0
-int far pascal FS_ALLOCATEPAGESPACE(
+int far pascal _loadds FS_ALLOCATEPAGESPACE(
                                     struct sffsi far *psffsi,       /* ptr to fs independent SFT */
                                     struct sffsd far *psffsd,       /* ptr to fs dependent SFT         */
                                     unsigned long        ulSize,       /* new size                         */
@@ -43,7 +21,7 @@ int far pascal FS_ALLOCATEPAGESPACE(
 }
 
 
-int far pascal FS_DOPAGEIO(
+int far pascal _loadds FS_DOPAGEIO(
                               struct sffsi         far *psffsi,
                               struct sffsd         far *psffsd,
                               struct PageCmdHeader far *pPageCmdList
@@ -52,7 +30,7 @@ int far pascal FS_DOPAGEIO(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_OPENPAGEFILE(
+int far pascal _loadds FS_OPENPAGEFILE(
                                   unsigned long far *pFlags,
                                   unsigned long far *pcMaxReq,
                                   char          far *pName,
@@ -68,7 +46,7 @@ int far pascal FS_OPENPAGEFILE(
 }
 #endif
 
-int far pascal FS_SETSWAP(
+int far pascal _loadds FS_SETSWAP(
                              struct sffsi far *psffsi,
                              struct sffsd far *psffsd
                             )
@@ -77,7 +55,7 @@ int far pascal FS_SETSWAP(
 }
 
 #if 0
-int far pascal FS_VERIFYUNCNAME(
+int far pascal _loadds FS_VERIFYUNCNAME(
                                    unsigned short     flag,
                                    char           far *pName
                                   )
@@ -86,7 +64,7 @@ int far pascal FS_VERIFYUNCNAME(
 }
 #endif
 
-int far pascal FS_CANCELLOCKREQUEST(
+int far pascal _loadds FS_CANCELLOCKREQUEST(
                                    struct sffsi    far *psffsi,        /* psffsi        */
                                    struct sffsd    far *psffsd,        /* psffsd        */
                                    struct filelock far *pLockRange        /* pLockRang        */
@@ -95,7 +73,7 @@ int far pascal FS_CANCELLOCKREQUEST(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_FILELOCKS(
+int far pascal _loadds FS_FILELOCKS(
                                struct sffsi    far *psffsi,
                                struct sffsd    far *psffsd,
                                struct filelock far *pUnLockRange,
@@ -108,7 +86,7 @@ int far pascal FS_FILELOCKS(
 }
 
 
-int far pascal FS_FILEIO(
+int far pascal _loadds FS_FILEIO(
                             struct sffsi   far *psffsi,
                             struct sffsd   far *psffsd,
                             char           far *cbCmdList,
@@ -121,7 +99,7 @@ int far pascal FS_FILEIO(
 }
 
 
-int far pascal FS_ATTACH(
+int far pascal _loadds FS_ATTACH(
                          unsigned short       flag,        /* flag                */
                          char           far *pDev,        /* pDev                */
                          struct vpfsd   far *pvpfsd, /* if remote drive
@@ -140,7 +118,7 @@ int far pascal FS_ATTACH(
 }
 
 
-int far pascal FS_NMPIPE(
+int far pascal _loadds FS_NMPIPE(
                             struct sffsi   far *psffsi,
                             struct sffsd   far *psffsd,
                             unsigned short         OpType,
@@ -152,7 +130,7 @@ int far pascal FS_NMPIPE(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_FINDNOTIFYCLOSE(
+int far pascal _loadds FS_FINDNOTIFYCLOSE(
                                      unsigned short handle
                                     )
 {
@@ -160,7 +138,7 @@ int far pascal FS_FINDNOTIFYCLOSE(
 }
 
 
-int far pascal FS_FINDNOTIFYFIRST(
+int far pascal _loadds FS_FINDNOTIFYFIRST(
                                      struct cdfsi   far *pcdfsi,
                                      struct cdfsd   far *pcdfsd,
                                      char           far *pName,
@@ -177,7 +155,7 @@ int far pascal FS_FINDNOTIFYFIRST(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_FINDNOTIFYNEXT(
+int far pascal _loadds FS_FINDNOTIFYNEXT(
                                     unsigned short         handle,
                                     char           far *pData,
                                     unsigned short         cbData,
@@ -189,7 +167,7 @@ int far pascal FS_FINDNOTIFYNEXT(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_COMMIT(
+int far pascal _loadds FS_COMMIT(
                             unsigned short         type,
                             unsigned short         IOflag,
                             struct sffsi   far *psffsi,
@@ -199,7 +177,7 @@ int far pascal FS_COMMIT(
     return NO_ERROR;
 }
 
-int far pascal FS_COPY(
+int far pascal _loadds FS_COPY(
                           unsigned short         flag ,
                           struct cdfsi   far *pcdfsi,
                           struct cdfsd   far *pcdfsd,
@@ -216,7 +194,7 @@ int far pascal FS_COPY(
 
 
 
-int far pascal FS_DELETE(
+int far pascal _loadds FS_DELETE(
                             struct cdfsi   far *pcdfsi,
                             struct cdfsd   far *pcdfsd,
                             char           far *pFile,
@@ -226,7 +204,7 @@ int far pascal FS_DELETE(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_FLUSHBUF(
+int far pascal _loadds FS_FLUSHBUF(
                               unsigned short hVPB,
                               unsigned short flag
                              )
@@ -234,7 +212,7 @@ int far pascal FS_FLUSHBUF(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_MOVE(
+int far pascal _loadds FS_MOVE(
                           struct cdfsi   far *pcdfsi,
                           struct cdfsd   far *pcdfsd,
                           char           far *pSrc,
@@ -247,7 +225,7 @@ int far pascal FS_MOVE(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_NEWSIZE(
+int far pascal _loadds FS_NEWSIZE(
                              struct sffsi   far *psffsi,
                              struct sffsd   far *psffsd,
                              unsigned long          len,
@@ -257,7 +235,7 @@ int far pascal FS_NEWSIZE(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_SHUTDOWN(
+int far pascal _loadds FS_SHUTDOWN(
                               unsigned short usType,
                               unsigned long ulReserved
                              )
@@ -265,7 +243,7 @@ int far pascal FS_SHUTDOWN(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_WRITE(
+int far pascal _loadds FS_WRITE(
                            struct sffsi   far *psffsi,
                            struct sffsd   far *psffsd,
                            char           far *pData,
@@ -277,7 +255,7 @@ int far pascal FS_WRITE(
 }
 
 
-int far pascal FS_MKDIR(
+int far pascal _loadds FS_MKDIR(
                            struct cdfsi   far *pcdfsi,
                            struct cdfsd   far *pcdfsd,
                            char           far *pName,
@@ -289,7 +267,7 @@ int far pascal FS_MKDIR(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_RMDIR(
+int far pascal _loadds FS_RMDIR(
                            struct cdfsi   far *pcdfsi,
                           struct cdfsd   far *pcdfsd,
                            char           far *pName,
@@ -300,7 +278,7 @@ int far pascal FS_RMDIR(
 }
 
 
-int     far pascal FS_FINDFIRST(
+int     far pascal _loadds FS_FINDFIRST(
                                struct cdfsi   far *pcdfsi,
                                struct cdfsd   far *pcdfsd,
                                char           far *pName,
@@ -318,7 +296,7 @@ int     far pascal FS_FINDFIRST(
     return ERROR_NOT_SUPPORTED;
 }
 
-int     far pascal FS_FINDCLOSE(
+int     far pascal _loadds FS_FINDCLOSE(
                                struct fsfsi far *pfsfsi,
                                struct fsfsd far *pfsfsd
                               )
@@ -327,7 +305,7 @@ int     far pascal FS_FINDCLOSE(
 }
 
 
-int far pascal FS_FINDFROMNAME(
+int far pascal _loadds FS_FINDFROMNAME(
                                   struct fsfsi   far *pfsfsi,
                                   struct fsfsd   far *pfsfsd,
                                   char           far *pData,
@@ -342,7 +320,7 @@ int far pascal FS_FINDFROMNAME(
     return ERROR_NOT_SUPPORTED;
 }
 
-int     far pascal  FS_FINDNEXT(
+int     far pascal _loadds  FS_FINDNEXT(
                                struct fsfsi   far *pfsfsi,
                                struct fsfsd   far *pfsfsd,
                                char           far *pData,
@@ -357,7 +335,7 @@ int     far pascal  FS_FINDNEXT(
 
 
 
-int far pascal FS_FILEINFO(
+int far pascal _loadds FS_FILEINFO(
                               unsigned short         flag,
                               struct sffsi   far *psffsi,
                               struct sffsd   far *psffsd,
@@ -373,7 +351,7 @@ int far pascal FS_FILEINFO(
 
 
 
-int far pascal FS_PATHINFO(
+int far pascal _loadds FS_PATHINFO(
                               unsigned short         flag,
                               struct cdfsi   far *pcdfsi,
                               struct cdfsd   far *pcdfsd,
@@ -388,7 +366,7 @@ int far pascal FS_PATHINFO(
 }
 
 
-int far pascal FS_FSCTL(
+int far pascal _loadds FS_FSCTL(
                            union argdat   far *pArgdat,
                            unsigned short         iArgType,
                            unsigned short         func,
@@ -404,7 +382,7 @@ int far pascal FS_FSCTL(
 }
 
 
-int far pascal FS_FILEATTRIBUTE(
+int far pascal _loadds FS_FILEATTRIBUTE(
                                    unsigned short         flag,
                                    struct cdfsi   far *pcdfsi,
                                    struct cdfsd   far *pcdfsd,
@@ -417,7 +395,7 @@ int far pascal FS_FILEATTRIBUTE(
 }
 
 
-int far pascal FS_FSINFO(
+int far pascal _loadds FS_FSINFO(
                             unsigned short         flag,
                             unsigned short         hVPB,
                             char           far *pData,
@@ -428,7 +406,7 @@ int far pascal FS_FSINFO(
     return ERROR_NOT_SUPPORTED;
 }
 
-int far pascal FS_CHDIR(
+int far pascal _loadds FS_CHDIR(
                        unsigned short         flag,
                        struct cdfsi   far *pcdfsi,
                        struct cdfsd   far *pcdfsd,
