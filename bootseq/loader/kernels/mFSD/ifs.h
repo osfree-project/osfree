@@ -8,6 +8,8 @@
 #define _FS_PTR   far *             // This is no longer necessary with MSVC : -Gx- assumes data is FAR, I'll cleanup this later !
 #define _FS_RET   int
 
+#pragma pack(1)
+
 /* file system independent - volume parameters */
 
 struct vpfsi {
@@ -47,8 +49,6 @@ struct cdfsd {
 
 /* file system independent - file instance */
 
-#pragma pack(1)
-
 struct sffsi {
     unsigned long   sfi_mode;       /* access/sharing mode */
     unsigned short  sfi_hVPB;       /* volume info. */
@@ -73,8 +73,6 @@ struct sffsi {
     unsigned char   sfi_DOSattr;    /* DOS file attributes D/S/A/H/R */
 };
 
-#pragma pack()
-
 /* file system dependent - file instance */
 
 struct sffsd {
@@ -93,4 +91,4 @@ struct fsfsd {
         char            fsd_work[24];   /* work area */
 };
 
-
+#pragma pack()

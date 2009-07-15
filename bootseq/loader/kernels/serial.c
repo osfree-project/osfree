@@ -64,6 +64,17 @@ outb (unsigned short port, unsigned char value)
   }
 }
 
+void comwait(unsigned short port)
+{
+  while (!(inb(port + 5) & 0x20)) ; // wait while comport is ready
+}
+
+void comout(unsigned short port, unsigned char c)
+{
+  comwait(port);
+  outb(port, c);
+}
+
 void serout(unsigned short port, char *s)
 {
   char *p = s;
@@ -72,22 +83,15 @@ void serout(unsigned short port, char *s)
 
   while (*p)
   {
-    while (!(inb(port + 5) & 0x20)); // wait while comport is ready
-    outb(port, *p++);
+    if (*p == '\n')
+    {
+      comout(port, '\r');
+      comout(port, '\n');
+    }
+    else
+      comout(port, *p);
+    p++;
   }
-  if (*p == '\n')
-  {
-    while (!(inb(port + 5) & 0x20)); // wait while comport is ready
-    outb(port, '\r');
-    while (!(inb(port + 5) & 0x20)); // wait while comport is ready
-    outb(port, '\n');
-  }
-}
-
-void comout(unsigned short port, unsigned char c)
-{
-  while (!(inb(port + 5) & 0x20)) ;
-  outb(port, c);
 }
 
 int

@@ -25,7 +25,34 @@ int serial_init (unsigned short port, unsigned int speed,
                 int word_len, int parity, int stop_bit_len);
 
 extern char FS_NAME[12];
+
 extern unsigned long mbi;
+
+unsigned short FlatR0CS;
+unsigned short FlatR0DS;
+
+char mount_name[] = "FS_MOUNT";
+char open_name[]  = "FS_OPENCREATE";
+
+#pragma pack(1)
+
+struct p48
+{
+  unsigned long  off;
+  unsigned short sel;
+};
+
+#pragma pack()
+
+int _cdecl _loadds GetFlatSelectors(void);
+int _cdecl _loadds GetProcAddr(char far *fpszModName,
+                               unsigned short cchModName,
+                               char far *fpszProcName,
+                               unsigned char cchProcName,
+                               struct p48 far *fp48EP);
+int _cdecl _loadds GetModule(char far *fpszModName,
+                             unsigned short cchModName,
+                             struct p48 far *fpMte48);
 
 unsigned char drvletter;
 
@@ -44,9 +71,13 @@ char far *fileaddr;
 // our command line
 char cmdline[0x400];
 
-#pragma aux mbi             "*"
-#pragma aux FS_NAME         "*"
-
+#pragma aux mbi              "*"
+#pragma aux FS_NAME          "*"
+#pragma aux FlatR0CS         "*"
+#pragma aux FlatR0DS         "*"
+#pragma aux GetFlatSelectors "*"
+#pragma aux GetProcAddr      "*"
+#pragma aux GetModule        "*"
 
 void far *fmemset (void far *start, int c, int len);
 int fstrlen (const char far *str);
@@ -126,6 +157,13 @@ int far pascal _loadds MFS_INIT(
     int port = 0;
     char *pp, *r;
     char panic_msg[] = "MBI:mbi uninitialized, panic!\n";
+
+    // mbi as RIPL data
+    //mbi = *((unsigned long far *)bootdata);
+
+    //__asm {
+    //  int 3
+    //}
 
     if (mbi == 0xffffffff)
       MFSH_INTERR(panic_msg, strlen(panic_msg));
@@ -341,9 +379,38 @@ int far pascal _loadds MFS_CLOSE(void) {
     return NO_ERROR;
 }
 
-int far pascal _loadds MFS_TERM(void) {
+int far pascal _loadds MFS_TERM(void)
+{
+  struct p48 p, q;
+  int rc;
 
-    kprintf("**** MFS_TERM\n");
+  kprintf("**** MFS_TERM\n");
+  kprintf("hello stage3!\n");
+  // Get FLAT selectors
+  if (!GetFlatSelectors())
+    kprintf("FlatR0CS = 0x%x, FlatR0DS = 0x%x\n", FlatR0CS, FlatR0DS);
+  else
+    kprintf("Flat selectors not found.\n");
 
-    return NO_ERROR;
+  // Get FS_MOUNT address
+  if (!GetProcAddr(FS_NAME,
+              strlen(FS_NAME),
+              mount_name,
+              strlen(mount_name),
+              &p))
+    kprintf("IFS FS_MOUNT addr: 0x%04x:0x%08lx\n", p.sel, p.off);
+  else
+    kprintf("IFS FS_MOUNT addr not found.\n");
+
+  // Get FS_OPENCREATE address
+  if (!GetProcAddr(FS_NAME,
+              strlen(FS_NAME),
+              open_name,
+              strlen(open_name),
+              &q))
+    kprintf("IFS FS_OPENCREATE addr: 0x%04x:0x%08lx\n", q.sel, q.off);
+  else
+    kprintf("IFS FS_OPENCREATE addr not found.\n");
+
+  return NO_ERROR;
 }

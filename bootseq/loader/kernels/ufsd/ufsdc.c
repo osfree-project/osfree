@@ -347,8 +347,10 @@ void cmain (void)
   else
     cdrom_drive = boot_drive;
 
+  //boot_drive = 0x80;
+
   /* set filetable */
-  ft.ft_cfiles = 3; // 4;
+  ft.ft_cfiles = 3; //4;
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
@@ -358,7 +360,10 @@ void cmain (void)
   ft.ft_mfsseg = 0x7c0 >> 4;
   ft.ft_mfslen = *p;
 
-  ft.ft_ripseg = 0; // ((0x7c0 + *p + 0xf) & 0xfffffff0) >> 4;
+  // where to place mbi pointer
+  //q = (0x7c0 + *p + 0xf) & 0xfffffff0;
+
+  ft.ft_ripseg = 0; // q >> 4;
   ft.ft_riplen = 0; // 4;
 
   // if alternative os2boot is specified

@@ -17,6 +17,9 @@ int kprintf(const char *format, ...);
 void advance_ptr(void);
 
 int open_files = 0;
+unsigned long volsize = 0;
+unsigned long secsize = 0;
+unsigned short hVPB   = 0;
 extern unsigned long filemax;
 extern unsigned long filepos;
 extern unsigned long filebase;
@@ -27,19 +30,29 @@ void *memset (void *start, int c, int len);
 int far pascal _loadds MFS_OPEN(char far *pszName, unsigned long far *pulSize);
 int far pascal _loadds MFS_READ(char far *pcData,  unsigned short far *pusLength);
 
+int  far pascal FSH_DOVOLIO    (unsigned short operation,
+                               unsigned short fAllowed,
+                               unsigned short hVPB,
+                               char far *pData,
+                               unsigned short far *pcSec,
+                               unsigned long iSec);
 void far pascal FSH_GETVOLPARM(unsigned short hVPB,
                                struct vpfsi far * far *ppVPBfsi,
                                struct vpfsd far * far *ppVPBfsd);
-int  far pascal FSH_DEVIOCTL(unsigned short flag,
-                             unsigned long hDev,
-                             unsigned short sfn,
-                             unsigned short cat,
-                             unsigned short func,
-                             char far *pParm,
-                             unsigned short cbParm,
-                             char far *pData,
-                             unsigned short cbData);
+int  far pascal FSH_DEVIOCTL  (unsigned short flag,
+                               unsigned long hDev,
+                               unsigned short sfn,
+                               unsigned short cat,
+                               unsigned short func,
+                               char far *pParm,
+                               unsigned short cbParm,
+                               char far *pData,
+                               unsigned short cbData);
+int  far pascal FSH_PROBEBUF  (unsigned short operation,
+                               char far *pdata,
+                               unsigned short cbData);
 
+#pragma aux DevHlp          "*"
 #pragma aux FS_NAME         "*"
 #pragma aux FS_ATTRIBUTE    "*"
 #pragma aux FS_MPSAFEFLAGS2 "*"
@@ -51,11 +64,11 @@ unsigned long long FS_MPSAFEFLAGS2 = 0x0LL;
 /*
 FS_ATTRIBUTE dd 00000000000000000000000000101100b
 ;                                         | ||||
-;                  large file support  ---+ ||||
-;                     level 7 requests -----+|||
+;                 large file support   ---+ ||||
+;                 level 7 requests     -----+|||
 ;                 lock notifications   ------+||
-;                     UNC support      -------+|
-;                     remote FSD       --------+
+;                 UNC support          -------+|
+;                 remote FSD           --------+
 FS_NAME                 db      'JFS',0
 FS_MPSAFEFLAGS2         dd      41h, 0         ; 01h = don't get r0 spinlock
                                                  ; 40h = don't acquire subsys spinlock
@@ -91,13 +104,53 @@ int far pascal _loadds FS_READ(
 
   filemax = psffsi->sfi_size;
   filepos = psffsi->sfi_position;
-  filebase = *((unsigned long far *)psffsd);
-  advance_ptr();
 
-  if (rc = MFS_READ(pData, pLen))
+  kprintf("sfi_size = %lu, sfi_position = %lu\n", filemax, filepos);
+  kprintf("buf = 0x%08lx, size = %u\n", pData, *pLen);
+  //kprintf("1\n");
+
+  if (*((unsigned long far *)(psffsd + 1))) // direct read flag
   {
-    kprintf("MFS_READ failed, rc = %u\n", rc);
+    //kprintf("2\n");
+    if (!FSH_PROBEBUF(1, pData, *pLen))
+    {
+      unsigned short cbSec = *pLen / secsize;
+      if (rc = FSH_DOVOLIO(8,                    // return errors directly, don't use harderr daemon
+                           1 + 2 + 4,            // ABORT | RETRY | FAIL
+                           hVPB,
+                           pData,
+                           &cbSec,
+                           filepos / secsize))
+        kprintf("FSH_DOVOLIO failed, rc = %u\n", rc);
+      else
+      {
+        //kprintf("3\n");
+        kprintf("FSH_DOVOLIO(buf = 0x%08lx, len = %u, start = %lu sectors) succeeded\n",
+                pData,
+                cbSec,
+                filepos / secsize);
+        *pLen = cbSec * secsize;
+        kprintf("%u bytes read\n", *pLen);
+        filepos += *pLen;
+        psffsi->sfi_position = filepos;
+        rc = NO_ERROR;
+      }
+    }
+    else
+    {
+      kprintf("FS_READ: FSH_PROBEBUF failed!\n");
+      rc = 1;
+    }
   }
+  else
+  {
+    //kprintf("4\n");
+    filebase = *((unsigned long far *)psffsd);
+    advance_ptr();
+    if (rc = MFS_READ(pData, pLen))
+      kprintf("MFS_READ failed, rc = %u\n", rc);
+  }
+  //kprintf("5\n");
 
   return rc;
 }
@@ -133,8 +186,11 @@ int far pascal _loadds FS_CHGFILEPTR(
 
   filemax = psffsi->sfi_size;
   filepos = psffsi->sfi_position;
-  filebase = *((unsigned long far *)psffsd);
-  advance_ptr();
+  if (!*((unsigned long far *)(psffsd + 1))) // direct read flag
+  {
+    filebase = *((unsigned long far *)psffsd);
+    advance_ptr();
+  }
 
   kprintf("FS_CHGFILEPTR: sfi_size = %lu\n", psffsi->sfi_size);
   kprintf("FS_CHGFILEPTR: sfi_position = %lu\n", psffsi->sfi_position);
@@ -227,6 +283,9 @@ int far pascal _loadds FS_MOUNT(
   memset(pvpfsd, 0, sizeof(struct vpfsd));
   pvpfsi->vpi_vid = 0x12345678;
   strcpy(pvpfsi->vpi_text, "MBI_TEST");
+  secsize = pvpfsi->vpi_bsize;
+  volsize = pvpfsi->vpi_totsec * secsize;
+  kprintf("volume size: %lu bytes, sector size: 0x%x\n", volsize, secsize);
 
   return NO_ERROR;
 }
@@ -282,10 +341,23 @@ int far pascal _loadds FS_OPENCREATE(
   {
     kprintf("OPEN_FLAGS_DASD set\n");
     if (pName[1] == ':' && pName[2] == '\\' && pName[3] == '\0') // like "C:\"
-      rc = file_open("*bootsec*", &size, psffsi, psffsd);
+    {
+      *((unsigned long far *)(psffsd + 1)) = 1; // direct read flag
+      psffsi->sfi_size = volsize;
+      psffsi->sfi_position = 0;
+      hVPB = psffsi->sfi_hVPB;
+      open_files++;
+      //rc = file_open("*bootsec*", &size, psffsi, psffsd);
+      kprintf("sfi_size = %lu\n", volsize);
+      kprintf("hVPB: 0x%04x\n", hVPB);
+      rc = NO_ERROR;
+    }
   }
   else // ordinary opening
+  {
     rc = file_open(pName, &size, psffsi, psffsd);
+    *((unsigned long far *)(psffsd + 1)) = 0; // direct read flag
+  }
 
   return rc;
 }
@@ -294,7 +366,7 @@ int far pascal _loadds FS_PROCESSNAME(
                                  char far *pNameBuf
                                 )
 {
-    kprintf("**** FS_PROCESSNAME(\"%s\")\n", pNameBuf);
+  kprintf("**** FS_PROCESSNAME(\"%s\")\n", pNameBuf);
 
-    return NO_ERROR;
+  return NO_ERROR;
 }
