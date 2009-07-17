@@ -30,6 +30,7 @@ struct linux_kernel_header *lh;
 int len;
 unsigned long moveto;
 unsigned long max_addr;
+char debug = 0;
 
 unsigned int data_len, text_len;
 unsigned int cur_addr;
@@ -141,7 +142,7 @@ int kernel_ldr(void)
                   vid_mode = LINUX_VID_MODE_EXTENDED;
                 else if (substring ("ask", value) < 1)
                   vid_mode = LINUX_VID_MODE_ASK;
-                else if (safe_parse_maxint (&value, &vid_mode))
+                else if (safe_parse_maxint (&value, (long *)&vid_mode))
                   ;
                 else
                   {
@@ -164,7 +165,7 @@ int kernel_ldr(void)
               {
                 char *value = mem + 4;
 
-                safe_parse_maxint (&value, &linux_mem_size);
+                safe_parse_maxint (&value, (long *)&linux_mem_size);
                 switch (errnum)
                   {
                   case ERR_NUMBER_OVERFLOW:

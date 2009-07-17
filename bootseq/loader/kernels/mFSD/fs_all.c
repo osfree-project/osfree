@@ -9,6 +9,9 @@
 #include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
 #include "ifs.h"
+#include "struct.h"
+
+extern char boot[0x800];
 
 char hellomsg[] = "Hello stage2!\n";
 unsigned long DevHlp;
@@ -20,12 +23,38 @@ int open_files = 0;
 unsigned long volsize = 0;
 unsigned long secsize = 0;
 unsigned short hVPB   = 0;
+struct dpb far *pdpb  = 0; // pointer to our DPB
+
+#pragma pack(1)
+
+struct save_item
+{
+  struct cdfsi far *pcdfsi;
+  struct cdfsd far *pcdfsd;
+  struct sffsi far *psffsi;
+  struct sffsd far *psffsd;
+  unsigned long ulOpenMode;
+  unsigned short usOpenFlag;
+  char pName[0x3a];
+};
+
+#pragma pack()
+
+extern unsigned char drvletter;
+
+extern char save_map[0x80]; // open files indicate area
+extern struct save_item save_area[0x80];
+extern struct save_item *save_pos;
+extern int save_index;
+
 extern unsigned long filemax;
 extern unsigned long filepos;
 extern unsigned long filebase;
 
+void *memmove (void *_to, const void *_from, int _len);
 char *strcpy (char *dest, const char *src);
 void *memset (void *start, int c, int len);
+int strlen (const char *str);
 
 int far pascal _loadds MFS_OPEN(char far *pszName, unsigned long far *pulSize);
 int far pascal _loadds MFS_READ(char far *pcData,  unsigned short far *pusLength);
@@ -51,6 +80,8 @@ int  far pascal FSH_DEVIOCTL  (unsigned short flag,
 int  far pascal FSH_PROBEBUF  (unsigned short operation,
                                char far *pdata,
                                unsigned short cbData);
+void far pascal FSH_INTERR(char far *pMsg,
+                           unsigned short cbMsg);
 
 #pragma aux DevHlp          "*"
 #pragma aux FS_NAME         "*"
@@ -61,19 +92,11 @@ char FS_NAME[12];
 unsigned long FS_ATTRIBUTE         = 0x0L;
 unsigned long long FS_MPSAFEFLAGS2 = 0x0LL;
 
-/*
-FS_ATTRIBUTE dd 00000000000000000000000000101100b
-;                                         | ||||
-;                 large file support   ---+ ||||
-;                 level 7 requests     -----+|||
-;                 lock notifications   ------+||
-;                 UNC support          -------+|
-;                 remote FSD           --------+
-FS_NAME                 db      'JFS',0
-FS_MPSAFEFLAGS2         dd      41h, 0         ; 01h = don't get r0 spinlock
-                                                 ; 40h = don't acquire subsys spinlock
-                                            ; FS_MPSAFEFLAGS2 is an array of 64 bits
- */
+char read_panic[] = "Error reading boot sector from the boot drive!\n";
+struct devcaps devcaps;
+char volchars[0x20];
+struct vpfsi far *pVPfsi;
+struct vpfsd far *pVPfsd;
 
 int far pascal _loadds FS_INIT(
                           char              *szParm,
@@ -109,10 +132,10 @@ int far pascal _loadds FS_READ(
   kprintf("buf = 0x%08lx, size = %u\n", pData, *pLen);
   //kprintf("1\n");
 
-  if (*((unsigned long far *)(psffsd + 1))) // direct read flag
+  if (*((unsigned long far *)psffsd + 1)) // direct read flag
   {
     //kprintf("2\n");
-    if (!FSH_PROBEBUF(1, pData, *pLen))
+    if (!(rc = FSH_PROBEBUF(1, pData, *pLen)))
     {
       unsigned short cbSec = *pLen / secsize;
       if (rc = FSH_DOVOLIO(8,                    // return errors directly, don't use harderr daemon
@@ -130,7 +153,7 @@ int far pascal _loadds FS_READ(
                 cbSec,
                 filepos / secsize);
         *pLen = cbSec * secsize;
-        kprintf("%u bytes read\n", *pLen);
+        kprintf("%u butes read\n", *pLen);
         filepos += *pLen;
         psffsi->sfi_position = filepos;
         rc = NO_ERROR;
@@ -139,7 +162,7 @@ int far pascal _loadds FS_READ(
     else
     {
       kprintf("FS_READ: FSH_PROBEBUF failed!\n");
-      rc = 1;
+      //rc = 1;
     }
   }
   else
@@ -148,7 +171,10 @@ int far pascal _loadds FS_READ(
     filebase = *((unsigned long far *)psffsd);
     advance_ptr();
     if (rc = MFS_READ(pData, pLen))
+    {
       kprintf("MFS_READ failed, rc = %u\n", rc);
+      psffsi->sfi_position = filepos;
+    }
   }
   //kprintf("5\n");
 
@@ -184,12 +210,12 @@ int far pascal _loadds FS_CHGFILEPTR(
 
   psffsi->sfi_position = off;
 
-  filemax = psffsi->sfi_size;
-  filepos = psffsi->sfi_position;
-  if (!*((unsigned long far *)(psffsd + 1))) // direct read flag
+  //filemax = psffsi->sfi_size;
+  //filepos = psffsi->sfi_position;
+  if (!*((unsigned long far *)psffsd + 1)) // direct read flag
   {
     filebase = *((unsigned long far *)psffsd);
-    advance_ptr();
+    //advance_ptr();
   }
 
   kprintf("FS_CHGFILEPTR: sfi_size = %lu\n", psffsi->sfi_size);
@@ -205,11 +231,14 @@ int far pascal _loadds FS_CLOSE(
                        struct sffsd  far *psffsd
                       )
 {
-    kprintf("**** FS_CLOSE\n");
-    open_files--;
-    memset(psffsd, 0, sizeof(struct sffsd));
+  kprintf("**** FS_CLOSE\n");
 
-    return NO_ERROR;
+  save_index = *((unsigned long *)psffsd + 2);
+  save_map[save_index] = 0;
+  memset(psffsd, 0, sizeof(struct sffsd));
+  open_files--;
+
+  return NO_ERROR;
 }
 
 void far pascal _loadds FS_EXIT(
@@ -254,7 +283,7 @@ int far pascal _loadds FS_IOCTL(
                         )) == NO_ERROR) {
   // nothing
   } else {
-      kprintf("FS_IOCTL: FSH_DEVIOCTL returned %d", rc);
+      kprintf("FS_IOCTL: FSH_DEVIOCTL returned %u\n", rc);
   }
 
   if (pDataLenInOut) {
@@ -275,6 +304,9 @@ int far pascal _loadds FS_MOUNT(
                            char           far *pBoot
                           )
 {
+  unsigned short cbSec = 1;
+  int rc;
+
   kprintf("**** FS_MOUNT\n");
 
   if (flag)
@@ -286,6 +318,44 @@ int far pascal _loadds FS_MOUNT(
   secsize = pvpfsi->vpi_bsize;
   volsize = pvpfsi->vpi_totsec * secsize;
   kprintf("volume size: %lu bytes, sector size: 0x%x\n", volsize, secsize);
+  pdpb = (struct dpb far *)pvpfsi->vpi_hDEV;
+  kprintf("DPB addr: pvpfsi->vpi_hDEV = 0x%08lx\n", pdpb);
+  //boot = pBoot;
+
+  memset(boot, 0, sizeof(boot));
+  rc = FSH_DOVOLIO(8,               // return errors directly, not through harderr daemon
+                   1 + 2 + 4 + 8,   // ABORT | RETRY | FAIL | IGNORE
+                   hVPB,
+                   boot,
+                   &cbSec,
+                   0);
+  kprintf("FSH_DOVOLIO: rc = 0x%x\n", rc);
+  if (rc) FSH_INTERR(read_panic, strlen(read_panic));
+  kprintf("read %u sectors\n", cbSec);
+
+  //FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
+  //pdpb = (struct dpb far *)pvpfsi->vpi_hDEV;
+  //kprintf("DPB addr: pvpfsi->vpi_hDEV = 0x%08lx\n", pdpb);
+  kprintf("vpi_pDCS = 0x%08lx, vpi_pVCS = 0x%08lx\n",
+          pvpfsi->vpi_pDCS,
+          pvpfsi->vpi_pVCS);
+
+  if (drvletter == 'A' + pdpb->dpb_drive)
+  {
+    // save devcaps structure to the safe place
+    memmove(&devcaps, pvpfsi->vpi_pDCS, sizeof(struct devcaps));
+    // save volume characteristics
+    memmove(&volchars, pvpfsi->vpi_pVCS, sizeof(volchars));
+    pVPfsi = pvpfsi; pVPfsd = pvpfsd;
+
+    boot[25] = 0x80; boot[26] = 0x80;
+    boot[31] = 0x12; boot[30] = 0x34; boot[29] = 0x56; boot[28] = 0x78;
+    strcpy(boot + 32, "MBI_TEST");
+    strcpy(boot + 43, FS_NAME);
+  }
+
+  // zero out open files indicate area
+  memset(save_map, 0, sizeof(save_map));
 
   return NO_ERROR;
 }
@@ -333,7 +403,8 @@ int far pascal _loadds FS_OPENCREATE(
                                )
 {
   unsigned long size;
-  int rc;
+  char msg_toomany[] = "Open file limit exceeded!\n";
+  int rc, i;
 
   kprintf("**** FS_OPENCREATE(\"%s\")\n", pName);
 
@@ -342,12 +413,11 @@ int far pascal _loadds FS_OPENCREATE(
     kprintf("OPEN_FLAGS_DASD set\n");
     if (pName[1] == ':' && pName[2] == '\\' && pName[3] == '\0') // like "C:\"
     {
-      *((unsigned long far *)(psffsd + 1)) = 1; // direct read flag
+      *((unsigned long far *)psffsd + 1) = 1; // direct read flag
       psffsi->sfi_size = volsize;
       psffsi->sfi_position = 0;
       hVPB = psffsi->sfi_hVPB;
       open_files++;
-      //rc = file_open("*bootsec*", &size, psffsi, psffsd);
       kprintf("sfi_size = %lu\n", volsize);
       kprintf("hVPB: 0x%04x\n", hVPB);
       rc = NO_ERROR;
@@ -356,7 +426,31 @@ int far pascal _loadds FS_OPENCREATE(
   else // ordinary opening
   {
     rc = file_open(pName, &size, psffsi, psffsd);
-    *((unsigned long far *)(psffsd + 1)) = 0; // direct read flag
+    *((unsigned long far *)psffsd + 1) = 0; // direct read flag
+  }
+
+  if (!rc) // if a file is successfully opened
+  {
+    // search for a 1st unused file save area
+    for (save_index = 0; save_map[save_index]; save_index++) ;
+
+    // if too many open files -- panic
+    if (save_index > 0x80)
+      FSH_INTERR(msg_toomany, strlen(msg_toomany));
+
+    save_pos = save_area + save_index;
+
+    // save open file info
+    save_map[save_index] = 1;
+    save_pos->pcdfsi = pcdfsi;
+    save_pos->pcdfsd = pcdfsd;
+    save_pos->psffsi = psffsi;
+    save_pos->psffsd = psffsd;
+    save_pos->ulOpenMode = ulOpenMode;
+    save_pos->usOpenFlag = openflag;
+    memmove(save_pos->pName, pName, 0x3a);
+
+    *((unsigned long *)psffsd + 2) = save_index;
   }
 
   return rc;

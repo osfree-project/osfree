@@ -21,8 +21,10 @@ extern unsigned long ufsd_start;
 /* uFSD size                   */
 extern unsigned long ufsd_size;
 
+char debug = 0;
+
 int kprintf(const char *format, ...);
-int serial_init (unsigned short port, unsigned int speed,
+int serial_init (long port, long speed,
                 int word_len, int parity, int stop_bit_len);
 
 void init (void)
@@ -64,16 +66,28 @@ int cmain(void)
   unsigned int uFSD_base;
   char *p;
   unsigned short *d;
-  int  port;
+  long port = 0x3f8;
+  long speed = 9600;
 
-  if (p = strstr((char *)m->cmdline, "--serial"))
+  if (p = strstr((char *)m->cmdline, "--debug"))
+  {
+    debug = 1;
+  }
+
+  if (p = strstr((char *)m->cmdline, "--port"))
   {
     p = skip_to(1, p);
     safe_parse_maxint(&p, &port);
   }
 
+  if (p = strstr((char *)m->cmdline, "--speed"))
+  {
+    p = skip_to(1, p);
+    safe_parse_maxint(&p, &speed);
+  }
+
   // init serial port
-  serial_init(port, 9600, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
+  serial_init(port, speed, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
 
   kprintf("Hello MBI OS/2 booter!\n");
   kprintf("comport = 0x%x\n", port);
@@ -92,6 +106,10 @@ int cmain(void)
   // save port value in 16-bit area in uFSD header
   d  = (unsigned short *)(uFSD_base + 0x24);
   *d = port;
+
+  // save debug flag into the same area
+  d = (unsigned short *)(uFSD_base + 0x26);
+  *((char *)d) = debug;
 
   // fixup uFSD
   reloc((char *)uFSD_base, (char *)&rel_start, relshift);

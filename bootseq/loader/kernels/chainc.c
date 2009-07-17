@@ -22,7 +22,7 @@
 #include "term.h"
 #include "fsd.h"
 
-// BootPart address. Here we copy 
+// BootPart address. Here we copy
 // ((current_partion & 0xff0000) >> 12)
 #define BOOTPART_ADDR (0x7c00 + 0x200 - 0x44)
 
@@ -154,37 +154,37 @@ void cmain(void)
     if (s = grub_strstr(cmdline, "--load-segment"))
     {
       s = skip_to(1, s);
-      safe_parse_maxint(&s, (int *)&load_segment);
+      safe_parse_maxint(&s, (long *)&load_segment);
     }
 
     if (s = grub_strstr(cmdline, "--load-offset"))
     {
       s = skip_to(1, s);
-      safe_parse_maxint(&s, (int *)&load_offset);
+      safe_parse_maxint(&s, (long *)&load_offset);
     }
 
     if (s = grub_strstr(cmdline, "--boot-cs"))
     {
       s = skip_to(1, s);
-      safe_parse_maxint(&s, &boot_cs);
+      safe_parse_maxint(&s, (long *)&boot_cs);
     }
 
     if (s = grub_strstr(cmdline, "--boot-ip"))
     {
       s = skip_to(1, s);
-      safe_parse_maxint(&s, &boot_ip);
+      safe_parse_maxint(&s, (long *)&boot_ip);
     }
 
     if (s = grub_strstr(cmdline, "--ebx"))
     {
       s = skip_to(1, s);
-      safe_parse_maxint(&s, (int *)&__ebx);
+      safe_parse_maxint(&s, (long *)&__ebx);
     }
 
     if (s = grub_strstr(cmdline, "--edx"))
     {
       s = skip_to(1, s);
-      safe_parse_maxint(&s, (int *)&__edx);
+      safe_parse_maxint(&s, (long *)&__edx);
     }
 
     // Copy myself to conventional memory
@@ -237,7 +237,7 @@ void cmain(void)
     *p = ch;
     ldr_drive = current_partition | (ldr_drive << 24);
 
-    if (load_segment != -1 && load_offset != -1) 
+    if (load_segment != -1 && load_offset != -1)
       load_addr = (load_segment << 4) + load_offset;
 
     if (!load_addr) load_addr = BOOTSEC_LOCATION;

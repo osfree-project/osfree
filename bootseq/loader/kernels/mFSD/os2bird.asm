@@ -3,7 +3,7 @@
 ; Copyleft (c) Knut St. Osmundsen
 ; modified for osFree project
 ; by Valery V. Sedletski
-; (Entry table parsing for NE
+; (Entry table and STE parsing for NE
 ; format modules added)
 ;
 
@@ -17,8 +17,6 @@ extrn _kprintf     :near
 public GetFlatSelectors
 public GetProcAddr
 public GetModule
-
-;include ldr.inc
 
 SAS_selector          equ   70h
 SAS_CBSIG             equ   4
@@ -63,14 +61,24 @@ mte_usecnt      dw      ?
 mte_modname     db      8 dup (?)
 MTE ends
 
+STE struc
+ste_offset      dw      ?
+ste_size        dw      ?
+ste_flags       dw      ?
+ste_minsiz      dw      ?
+ste_seghdl      dw      ?
+ste_selector    dw      ?
+ste_fixups      dd      ?
+STE ends
+
 OTE struc
 ote_size        dd      ?
 ote_base        dd      ?
 ote_flags       dd      ?
 ote_pagemap     dd      ?
 ote_mapsize     dd      ?
-ote_sel DW      ?
-ote_hob DW      ?
+ote_sel         dw      ?
+ote_hob         dw      ?
 OTE ends
 
 SMTE struc
@@ -819,10 +827,33 @@ skip2:
 
 objcnt_ok:
     mov     eax, [eax].smte_objtab
+
+    push    ds
+    pushad
+
+    push    eax
+    mov     ax, fs
+    mov     ds, ax
+    push    ds
+    lea     ax, DGROUP:obj_msg
+    push    ax
+    call    _kprintf
+    add     sp, 8
+
+    popad
+    pop     ds
+
     push    eax
     push    edx
     xor     eax, eax
+    cmp     byte ptr fs:ne_flag, 1      ; !!!!!
+    jz      ne3
+lx3:
     mov     ax, size OTE
+    jmp     skip3
+ne3:
+    mov     ax, size STE
+skip3:                                  ; !!!!!
     dec     cx                          ; 1-based!
     mul     cx
     mov     ecx, eax
@@ -843,8 +874,14 @@ objcnt_ok:
     int     3                           ; someone have messed with bh!!!
 
 obj_1:
+    cmp     byte ptr fs:ne_flag, 1
+    jz      ne4
+lx4:
     mov     cx, [eax].ote_sel
-    jmp storeptr
+    jmp     storeptr
+ne4:
+    mov     cx, [eax].ste_selector
+    jmp     storeptr
 
 obj_3:
     add     edx, [eax].ote_base
@@ -928,6 +965,7 @@ off_msg       db  "entry offset: 0x%08lx",13,10,0
 sto_msg       db  "cnt&type: 0x%04x, sel: 0x%04x",13,10,0
 ne_msg        db  "this is an NE executable",13,10,0
 cx_msg        db  "CX = %u",13,10,0
+obj_msg       db  "obj table @ 0x%08lx",13,10,0
 
 ne_flag       db  0
 

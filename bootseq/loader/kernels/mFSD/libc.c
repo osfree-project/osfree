@@ -140,11 +140,11 @@ fstrstr (const char far *s1, const char far *s2)
 }
 
 int
-safe_parse_maxint (char **str_ptr, int *myint_ptr)
+safe_parse_maxint (char **str_ptr, long *myint_ptr)
 {
   char *ptr = *str_ptr;
-  int myint = 0;
-  int mult = 10, found = 0;
+  long myint = 0;
+  long mult = 10, found = 0;
 
   /*
    *  Is this a hex number?

@@ -46,6 +46,7 @@ _TEXT   segment byte public 'CODE'  use16
 public __I4M
 public __U4M
 public __U4D
+public __I4D
 
 __I4M:
 __U4M:
@@ -261,6 +262,56 @@ donediv:                        ; now quotient in si, remainder in dx;ax
         pop     si              ; restore registers
         pop     bp              ; ...
 
+        ret                     ; and return
+
+
+__I4D:
+        or      dx,dx           ; check sign of dividend
+        js      divneg          ; handle case where dividend < 0
+        or      cx,cx           ; check sign of divisor
+        jns     __U4D           ; jump if positive  24-jan-00
+
+;       js      notU4D          ; easy case if it is also positive
+
+;       ; dividend >= 0, divisor >= 0
+;       docall  __U4D           ; - ...
+;       ret                     ; - ...
+
+        ; dividend >= 0, divisor < 0
+notU4D: neg     cx              ; take positive value of divisor
+        neg     bx              ; ...
+        sbb     cx,0            ; ...
+        call   far ptr __U4D           ; do unsigned division
+        neg     dx              ; negate quotient
+        neg     ax              ; ...
+        sbb     dx,0            ; ...
+        ret                     ; and return
+
+divneg:                         ; dividend is negative
+        neg     dx              ; take absolute value of dividend
+        neg     ax              ; ...
+        sbb     dx,0            ; ...
+        or      cx,cx           ; check sign of divisor
+        jns     negres          ; negative result if divisor > 0
+
+        ; dividend < 0, divisor < 0
+        neg     cx              ; negate divisor too
+        neg     bx              ; ...
+        sbb     cx,0            ; ...
+        call far ptr  __U4D           ; and do unsigned division
+        neg     cx              ; negate remainder
+        neg     bx              ; ...
+        sbb     cx,0            ; ...
+        ret                     ; and return
+
+        ; dividend < 0, divisor >= 0
+negres: call far ptr  __U4D           ; do unsigned division
+        neg     cx              ; negate remainder
+        neg     bx              ; ...
+        sbb     cx,0            ; ...
+        neg     dx              ; negate quotient
+        neg     ax              ; ...
+        sbb     dx,0            ; ...
         ret                     ; and return
 
 _TEXT   ends

@@ -23,6 +23,7 @@ struct divisor
 
 /* Store the port number of a serial unit.  */
 static unsigned short serial_hw_port = 0;
+extern char debug;
 
 /* The table which lists common configurations.  */
 static struct divisor divisor_tab[] =
@@ -71,6 +72,9 @@ void comwait(unsigned short port)
 
 void comout(unsigned short port, unsigned char c)
 {
+  if (!debug)
+    return;
+
   comwait(port);
   outb(port, c);
 }
@@ -79,7 +83,7 @@ void serout(unsigned short port, char *s)
 {
   char *p = s;
 
-  if (!port) return;
+  if (!debug) return;
 
   while (*p)
   {
@@ -95,12 +99,15 @@ void serout(unsigned short port, char *s)
 }
 
 int
-serial_init (unsigned short port, unsigned int speed,
-                int word_len, int parity, int stop_bit_len)
+serial_init (long port, long speed,
+             int word_len, int parity, int stop_bit_len)
 {
   int i;
   unsigned short div = 0;
   unsigned char status = 0;
+
+  if (!debug)
+    return 0;
 
   /* Turn off the interrupt.  */
   outb (port + UART_IER, 0);
@@ -156,6 +163,12 @@ serial_init (unsigned short port, unsigned int speed,
 int kprintf(const char *format, ...)
 {
   va_list arg;
+
+  if (!debug)
+    return 1;
+
+  if (!serial_hw_port)
+    return 1;
 
   va_start(arg, format);
   vsprintf(buf, format, arg);

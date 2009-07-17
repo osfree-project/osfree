@@ -19,6 +19,7 @@ public force_lba
 
 public com_outchar
 public port
+public _debug
 
 extrn  kprintf_     :near
 extrn  init_        :near
@@ -62,6 +63,7 @@ base               dd      REL1_BASE
 
 mfs_len            dd      ?
 port               dw      0
+_debug              db      0
 force_lba          db      0
 
                    ;
@@ -117,6 +119,9 @@ realmode_init:
                    ; Input:
                    ; al == char
 com_outchar:
+                   cmp  _debug, 0
+                   jz   exitXX
+
                    pusha
                    ; wait while comport is ready
                    mov  bl, al
@@ -135,7 +140,7 @@ loo1:
                    out  80h, al
 
                    popa
-
+exitXX:
                    ret
 _TEXT16  ends
 

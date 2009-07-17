@@ -9,7 +9,7 @@
 #include "fsd.h"
 #include "serial.h"
 
-int serial_init (unsigned short port, unsigned int speed,
+int serial_init (long port, long speed,
                 int word_len, int parity, int stop_bit_len);
 
 extern mu_Open;
@@ -33,6 +33,8 @@ int fileaddr;
 
 unsigned long cdrom_drive;
 char drvletter;
+
+extern char debug;
 
 #pragma aux m            "*"
 #pragma aux filemax      "*"
@@ -272,20 +274,32 @@ void cmain (void)
   unsigned long q;
   struct geometry geom;
   bios_parameters_block *bpb;
-  int port = 0;
+  long port = 0x3f8;
+  long speed = 9600;
   char *pp;
   int  i;
 
   if (m->flags & MB_INFO_CMDLINE)
   {
+    if (pp = strstr((char *)m->cmdline, "--debug"))
+    {
+      debug = 1;
+    }
+
     // if "--serial=..." specified on the command line
-    if (pp = strstr((char *)m->cmdline, "--serial"))
+    if (pp = strstr((char *)m->cmdline, "--port"))
     {
       pp = skip_to(1, pp);
       safe_parse_maxint(&pp, &port);
     }
 
-    if (pp = strstr((char *)m->cmdline, "--drive"))
+    if (pp = strstr((char *)m->cmdline, "--speed"))
+    {
+      pp = skip_to(1, pp);
+      safe_parse_maxint(&pp, &speed);
+    }
+
+    if (pp = strstr((char *)m->cmdline, "--hd"))
     {
       pp = skip_to(1, pp);
       drvletter = grub_toupper(pp[0]);
@@ -293,7 +307,7 @@ void cmain (void)
   }
 
   // init serial port
-  if (port) serial_init(port, 9600, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
+  serial_init(port, speed, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
 
   kprintf("**** Hello MBI microfsd!\n");
   kprintf("comport = 0x%x\n", port);
