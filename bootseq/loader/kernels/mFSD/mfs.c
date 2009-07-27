@@ -26,13 +26,17 @@ int serial_init (long port, long speed,
 		int word_len, int parity, int stop_bit_len);
 
 extern char FS_NAME[12];
+extern unsigned long FS_ATTRIBUTE;
 extern struct dpb far *pdpb; // pointer to our DPB
 extern unsigned short hVPB;
 extern int open_files;
-extern unsigned long mbi;
+
+unsigned long mbi;
 
 unsigned short FlatR0CS;
 unsigned short FlatR0DS;
+
+unsigned long far *p_minifsd;
 
 char debug = 0;
 
@@ -54,7 +58,16 @@ struct save_item
 
 #pragma pack()
 
-//char far *boot;
+struct mfsdata {
+  char buf[128];
+} mfsdata;
+
+struct ripl {
+  unsigned long long sig;
+} ripl;
+
+char fs_module[12];
+
 char boot[0x800];
 char save_map[0x80]; // open files indicate area
 struct save_item save_area[0x80];
@@ -85,6 +98,7 @@ int _cdecl _loadds GetProcAddr(char far *fpszModName,
 int _cdecl _loadds GetModule(char far *fpszModName,
 			     unsigned short cchModName,
 			     struct p48 far *fpMte48);
+int _cdecl _loadds GetDPBHead(void far * far *addr);
 
 unsigned char drvletter = 0;
 unsigned char cd_drvletter = 0;
@@ -111,6 +125,8 @@ char cmdline[0x400];
 #pragma aux GetFlatSelectors "*"
 #pragma aux GetProcAddr      "*"
 #pragma aux GetModule	     "*"
+#pragma aux GetDPBHead	     "*"
+#pragma aux FS_ATTRIBUTE     "*"
 
 void far *fmemset (void far *start, int c, int len);
 int fstrlen (const char far *str);
@@ -138,6 +154,8 @@ int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
 void far pascal FSH_GETVOLPARM(unsigned short hVPB,
 			       struct vpfsi far * far *ppVPBfsi,
 			       struct vpfsd far * far *ppVPBfsd);
+int far pascal MFSH_SEGFREE(unsigned short usSel);
+
 void far pascal FSH_INTERR(char far *pMsg,
 			   unsigned short cbMsg);
 int far pascal FSH_DOVOLIO(unsigned short operation,
@@ -146,6 +164,8 @@ int far pascal FSH_DOVOLIO(unsigned short operation,
 			   char far *pData,
 			   unsigned short far *pcSec,
 			   unsigned long iSec);
+int far pascal FSH_FINDDUPHVPB(unsigned short hVPB,
+			       unsigned short far *phVPB);
 
 typedef int far pascal (*mount_t)(unsigned short flag,
 				  struct vpfsi far *pvpfsi,
@@ -208,7 +228,7 @@ int far pascal _loadds MFS_CHGFILEPTR(
 int far pascal _loadds MFS_INIT(
     void far *bootdata, 		/* bootdata	*/
     char far *number,			/* number io	*/
-    long far *vectorripl,		/* vectorripl	*/
+    struct ripl far * far *vectorripl,	/* vectorripl	*/
     void far *bpb,			/* bpb		*/
     unsigned long far *pMiniFSD,	/* pMiniFSD	*/
     unsigned long far *dump		/* dump address */
@@ -223,19 +243,20 @@ int far pascal _loadds MFS_INIT(
     char panic_msg[] = "MBI:mbi uninitialized, panic!\n";
 
     // mbi as RIPL data
-    //mbi = *((unsigned long far *)bootdata);
+    mbi = *((unsigned long far *)bootdata);
 
-    //__asm {
-    //	int 3
-    //}
+    // free a segment used for RIPL data
+    if (bootdata) MFSH_SEGFREE(SELECTOROF(bootdata));
 
-    if (mbi == 0xffffffff)
+    if (!mbi)
       MFSH_INTERR(panic_msg, strlen(panic_msg));
 
     // get GDT selector to mbi structure
     rc = MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
     CHECKRC
     mbi_far = (struct multiboot_info far *)MAKEP(sel, 0);
+
+    if (!mbi_far->cmdline) MFSH_INTERR(panic_msg, strlen(panic_msg));
 
     rc = MFSH_PHYSTOVIRT(mbi_far->cmdline, 0xffff, &sl1);
     CHECKRC
@@ -263,15 +284,24 @@ int far pascal _loadds MFS_INIT(
 	safe_parse_maxint(&pp, &speed);
       }
 
-      if (pp = strstr(cmdline, "--ifs"))
+      if (pp = strstr(cmdline, "--fs"))
       {
 	pp = skip_to(1, pp);
 	// find name end
 	for (r = pp; *r && *r != ' '; r++) ;
 	memmove(FS_NAME, pp, r - pp);
 	FS_NAME[r - pp] = '\0';
-	// make FS_NAME uppercase
-	r = FS_NAME;
+      }
+
+      if (pp = strstr(cmdline, "--module"))
+      {
+	pp = skip_to(1, pp);
+	// find name end
+	for (r = pp; *r && *r != ' '; r++) ;
+	memmove(fs_module, pp, r - pp);
+	fs_module[r - pp] = '\0';
+	// make name uppercase
+	r = fs_module;
 	while (*r) *r++ = toupper(*r);
       }
 
@@ -281,11 +311,34 @@ int far pascal _loadds MFS_INIT(
 	drvletter = toupper(pp[0]);
       }
 
-      if (pp = strstr(cmdline, "--cd"))
-      {
-	pp = skip_to(1, pp);
-	cd_drvletter = toupper(pp[0]);
-      }
+      //if (pp = strstr(cmdline, "--cd"))
+      //{
+      //  pp = skip_to(1, pp);
+      //  cd_drvletter = toupper(pp[0]);
+      //}
+    }
+
+    //debug = 1;
+    //port = 0x3f8;
+    //speed = 115200;
+    //strcpy(FS_NAME, "CDFS");
+    //strcpy(fs_module, "CDFSD");
+    //drvletter = 'C';
+
+    memset(&mfsdata, 0, sizeof(struct mfsdata));
+    *pMiniFSD = (unsigned long)&mfsdata;
+
+    if (!strcmp(FS_NAME, "JFS") ||
+	!strcmp(FS_NAME, "FAT32"))
+      **((unsigned long far * far *)pMiniFSD) = 0x1961;
+    else if (!strcmp(FS_NAME, "ext2"))
+      *pMiniFSD = 0x4147;
+    else if (!strcmp(FS_NAME, "CDFS"))
+    {
+      // if booting from a CDROM, use remote boot
+      // attach one remote drive
+      *number = 1;
+      FS_ATTRIBUTE |= 0x1;
     }
 
     // init serial port
@@ -293,6 +346,7 @@ int far pascal _loadds MFS_INIT(
 
     kprintf("**** MFS_INIT\n");
     kprintf("Hello MBI minifsd!\n");
+
     kprintf("comport = 0x%x\n", port);
     kprintf("ifs: %s\n", FS_NAME);
     kprintf("drive letter: %c\n", drvletter);
@@ -334,8 +388,10 @@ int far pascal _loadds MFS_INIT(
       MFSH_UNPHYSTOVIRT(sl);
     }
 
-    rc = MFSH_SETBOOTDRIVE(drvletter - 'A'); // u:
+    rc = MFSH_SETBOOTDRIVE(drvletter - 'A'); // t:
     kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
+
+    //*FS_NAME = 0;
 
     return NO_ERROR;
 }
@@ -394,6 +450,10 @@ int far pascal _loadds MFS_OPEN(
 	for (p = buf2; *p; p++) *p = toupper(*p);
 
 	p = strip(buf1); q = strip(buf2);
+
+	//if (q[1] == ':') q += 2; // skip drive letter
+
+	//kprintf("p: %s\n", p);
 
 	if (*p == '(')
 	{
@@ -482,18 +542,36 @@ int far pascal _loadds MFS_TERM(void)
   struct p48 p48;
   open_t  p_open  = 0;
   mount_t p_mount = 0;
-  unsigned char drv;
+  mount_t p_mount1 = 0;
+  //unsigned char drv;
   struct vpfsi far *pvpfsi = 0;
   struct vpfsd far *pvpfsd = 0;
+  struct vpfsi far *pvpfsi1 = 0;
+  struct vpfsd far *pvpfsd1 = 0;
   int rc;
+  unsigned short hVPB1;
   unsigned short usAction;
   unsigned short flags;
   char msg_erropen[] = "Error reopening file!\n";
   struct cdfsi cdfsi;
   char far *pBoot = 0;
+  char str[0x3a];
+  char fs_name[12];
+  char *r;
+  void far *dpbhead;
+  unsigned short new_hVPB;
+  char c, d;
+  struct dpb far *pdpb1 = 0;
+
+//  int (far pascal far *CallBack)
+//	(struct sffsd far *, PVOID );
 
   kprintf("**** MFS_TERM\n");
   kprintf("hello stage3!\n");
+
+  //rc = MFSH_SETBOOTDRIVE('U' - 'A'); // u:
+  //kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
+
   // Get FLAT selectors
   if (!GetFlatSelectors())
     kprintf("FlatR0CS = 0x%x, FlatR0DS = 0x%x\n", FlatR0CS, FlatR0DS);
@@ -501,8 +579,8 @@ int far pascal _loadds MFS_TERM(void)
     kprintf("Flat selectors not found.\n");
 
   // Get FS_MOUNT address
-  if (!GetProcAddr(FS_NAME,
-	      strlen(FS_NAME),
+  if (!GetProcAddr(fs_module,
+	      strlen(fs_module),
 	      mount_name,
 	      strlen(mount_name),
 	      &p48))
@@ -515,8 +593,8 @@ int far pascal _loadds MFS_TERM(void)
     kprintf("IFS FS_MOUNT addr not found.\n");
 
   // Get FS_OPENCREATE address
-  if (!GetProcAddr(FS_NAME,
-	      strlen(FS_NAME),
+  if (!GetProcAddr(fs_module,
+	      strlen(fs_module),
 	      open_name,
 	      strlen(open_name),
 	      &p48))
@@ -536,23 +614,36 @@ int far pascal _loadds MFS_TERM(void)
   kprintf("p_mount = 0x%08lx\n", p_mount);
   kprintf("p_open  = 0x%08lx\n", p_open);
 
-  kprintf("Our hVPB: 0x%04x\n", hVPB);
+  kprintf("hard disk partition hVPB: 0x%04x\n", hVPB);
+
+  hVPB1 = hVPB;
   FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
-  pdpb = (struct dpb far *)pvpfsi->vpi_hDEV;
 
-  drv = drvletter;
-  if (drv != cd_drvletter) drv = cd_drvletter;
+  GetDPBHead(&dpbhead);
+  kprintf("dpbhead = 0x%08lx\n", dpbhead);
 
-  // search for boot drive hVPB in DPB structures
-  while (pdpb) {
-    kprintf("pdpb = 0x%08lx\n", pdpb);
-    hVPB = pdpb->dpb_hVPB;
-    kprintf("drive: %c:, hVPB: 0x%04x\n", 'a' + pdpb->dpb_drive, hVPB);
-    if ('A' + pdpb->dpb_drive == drv) break;
+  pdpb = (struct dpb far *)dpbhead;
+
+  while (1)
+  {
+    kprintf("drive: %c:, pdpb = 0x%08lx, ", 'a' + pdpb->dpb_drive, pdpb);
+    kprintf("hVPB: 0x%04x\n", pdpb->dpb_hVPB);
+    if (pdpb->dpb_drive == 'c' - 'a')  pdpb1 = pdpb;
+    //if (pdpb->dpb_drive == 'v' - 'a')  pdpb1 = pdpb;
+    if ((int)pdpb->dpb_next_dpb == -1) break;
     pdpb = pdpb->dpb_next_dpb;
-  };
+  }
+  pdpb = pdpb1;
+  kprintf("pdpb = 0x%08lx\n", pdpb);
+  hVPB = pdpb->dpb_hVPB;
+  cd_drvletter = 'A' + pdpb->dpb_drive;
+  kprintf("boot drive: %c:, its hVPB: 0x%04x\n", cd_drvletter, hVPB);
 
-  if (drvletter == 'A' + pdpb->dpb_drive)
+  //if (!FSH_FINDDUPHVPB(hVPB, &new_hVPB)) hVPB = new_hVPB;
+  //kprintf("hVPB: 0x%04x\n", hVPB);
+
+  FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
+  if (drvletter == cd_drvletter)  // if booting from a harddrive
   {
     pvpfsi->vpi_pDCS = &devcaps;
     pvpfsi->vpi_pVCS = &volchars;
@@ -563,13 +654,50 @@ int far pascal _loadds MFS_TERM(void)
 	  pvpfsi->vpi_pDCS,
 	  pvpfsi->vpi_pVCS);
 
+  memset(pvpfsd, 0, sizeof(struct vpfsd));
+
+  //FS_ATTRIBUTE = 1;
+  //c = pvpfsi1->vpi_unit;
+  //d = pvpfsi1->vpi_drive;
+  //memmove(pvpfsi1, pvpfsi, sizeof(struct vpfsi));
+  //pvpfsi1->vpi_unit  = c;
+  //pvpfsi1->vpi_drive = d;
+  //pdpb->dpb_unit  = c;
+  //pdpb->dpb_drive = d;
+  //pdpb->dpb_hVPB  = hVPB1;
+  //strcpy(pvpfsi1->vpi_text, pvpfsi->vpi_text);
+
+  ////pdpb->dpb_drive	= 'c' - 'a';
+  ////pvpfsi->vpi_drive = 'c' - 'a';
+
+  kprintf("vpi_vid    = 0x%08lx\n", pvpfsi->vpi_vid);
+  kprintf("vpi_hDEV   = 0x%08lx\n", pvpfsi->vpi_hDEV);
+  kprintf("vpi_bsize  = 0x%04x\n", pvpfsi->vpi_bsize);
+  kprintf("vpi_totsec = 0x%08lx\n", pvpfsi->vpi_totsec);
+  kprintf("vpi_trksec = 0x%04x\n", pvpfsi->vpi_trksec);
+  kprintf("vpi_nhead  = 0x%04x\n", pvpfsi->vpi_nhead);
+  kprintf("vpi_text   = %s\n", pvpfsi->vpi_text);
+  kprintf("vpi_pDCS   = 0x%08lx\n", pvpfsi->vpi_pDCS);
+  kprintf("vpi_pVCS   = 0x%08lx\n", pvpfsi->vpi_pVCS);
+  kprintf("vpi_drive  = %c:\n", 'a' + pvpfsi->vpi_drive);
+  kprintf("vpi_unit   = %01u\n", pvpfsi->vpi_unit);
+
+  //*FS_NAME = 0;
+
   // call the FS_MOUNT entry point of the IFS:
-  rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, pBoot);
-  kprintf("FS_MOUNT rc = %u\n", rc);
+  kprintf("ifs FS_MOUNT()");
+  rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
   if (rc)
+  {
+    kprintf(" failed, rc = %u\n", rc);
     __asm{
       int 3
     };
+  }
+  else
+    kprintf(" = %u\n", rc);
+
+  kprintf("open_files = %u\n", open_files);
 
   // reopen by an IFS all files open by minifsd
   for (save_index = 0; save_index < 0x80; save_index++)
@@ -580,9 +708,18 @@ int far pascal _loadds MFS_TERM(void)
       // zero out cdfsi buffer
       memset(&cdfsi, 0, sizeof(struct cdfsi));
       cdfsi.cdi_hVPB = hVPB;
+      // change hVPB of 'fake bootdrive' to hVPB of a real one
+      save_pos->psffsi->sfi_hVPB = hVPB;
+
+      strcpy(str, save_pos->pName);
+      // change a 'fake bootdrive' drv letter to a CD drv letter
+      if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
+      //*str = 'U';
+
+      kprintf("ifs FS_OPENCREATE(\"%s\")", str);
       if(!(rc = (*p_open)(&cdfsi,
 			  save_pos->pcdfsd,
-			  save_pos->pName,
+			  str,
 			  0,
 			  save_pos->psffsi,
 			  save_pos->psffsd,
@@ -592,10 +729,10 @@ int far pascal _loadds MFS_TERM(void)
 			  0,
 			  0,
 			  &flags)))
-	kprintf("FS_OPENCREATE(\"%s\") = %u\n", save_pos->pName, rc);
+	kprintf(" = %u\n", rc);
       else
       {
-	kprintf("FS_OPENCREATE(\"%s\") failed, rc = %u\n", save_pos->pName, rc);
+	kprintf(" failed, rc = %u\n", rc);
 	__asm {
 	  int 3
 	}
@@ -603,6 +740,7 @@ int far pascal _loadds MFS_TERM(void)
       }
     }
   }
+
 
   return NO_ERROR;
 }

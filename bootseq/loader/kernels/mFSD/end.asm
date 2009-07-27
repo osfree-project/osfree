@@ -4,7 +4,7 @@
 
 name start
 
-public mbi
+;public mbi
 
 public _small_code_
 public _cstart_
@@ -38,7 +38,7 @@ align 4
 _small_code_  dd 0
 
 ; must be the last dword in the executable
-mbi           dd  0ffffffffh
+;mbi           dd  0ffffffffh
 
 _DATA    ends
 

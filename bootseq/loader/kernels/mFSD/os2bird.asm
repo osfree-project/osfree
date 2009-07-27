@@ -17,6 +17,7 @@ extrn _kprintf     :near
 public GetFlatSelectors
 public GetProcAddr
 public GetModule
+public GetDPBHead
 
 SAS_selector          equ   70h
 SAS_CBSIG             equ   4
@@ -33,6 +34,15 @@ SAS_RAS_data    dw      ?
 SAS_file_data   dw      ?
 SAS_info_data   dw      ?
 SAS ends
+
+SAS_dd_section struc
+SAS_dd_bimodal_chain  dw ?
+SAS_dd_real_chain     dw ?
+SAS_dd_DPB_segment    dw ?
+SAS_dd_CDA_anchor_p   dw ?
+SAS_dd_CDA_anchor_r   dw ?
+SAS_dd_FSC            dw ?
+SAS_dd_section ends
 
 SAS_vm_section struc
 SAS_vm_arena    dd      ?
@@ -734,6 +744,11 @@ entfound:
     popad
     pop     ds
 
+    cmp     byte ptr fs:ne_flag, 1
+    jnz     skip00
+    mov     bh, 1
+
+skip00:
     and     bh, 0fh
     cmp     bh, 1
     je      ent_1
@@ -941,6 +956,38 @@ return3:
 
     ret
 GetProcAddr endp
+
+;
+; int __cdecl GetDPBHead(void far * far *addr);
+;
+GetDPBHead proc near
+    push    bp
+    mov     bp, sp
+
+    push    es
+    push    bx
+
+    mov     bx, SAS_selector
+    mov     es, bx
+    xor     bx, bx
+
+    mov     bx, es:[bx].SAS_dd_data
+    mov     ax, es:[bx].SAS_dd_DPB_segment
+
+    les     bx, ss:[bp + 4]             ; pointer to where to store the 16:16 pointer
+    mov     es:[bx + 2], ax
+    mov     ax, 0x12
+    mov     es:[bx], ax
+
+    xor     ax, ax
+
+    pop     bx
+    pop     es
+
+    pop     bp
+
+    ret
+GetDPBHead endp
 
 _TEXT    ends
 

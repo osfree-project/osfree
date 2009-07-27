@@ -344,7 +344,7 @@ void cmain (void)
   p = (unsigned long *)(REL1_BASE + 0x20); // an address of mfs_len in the header
 
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO; // | BOOTFLAG_RIPL;
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
 
   if (m->flags & MB_INFO_BOOTDEV)
   {
@@ -364,7 +364,7 @@ void cmain (void)
   //boot_drive = 0x80;
 
   /* set filetable */
-  ft.ft_cfiles = 3; //4;
+  ft.ft_cfiles = 4;
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
@@ -375,16 +375,16 @@ void cmain (void)
   ft.ft_mfslen = *p;
 
   // where to place mbi pointer
-  //q = (0x7c0 + *p + 0xf) & 0xfffffff0;
+  q = (0x7c0 + *p + 0xf) & 0xfffffff0;
 
-  ft.ft_ripseg = 0; // q >> 4;
-  ft.ft_riplen = 0; // 4;
+  ft.ft_ripseg = q >> 4;
+  ft.ft_riplen = 4;
 
   // if alternative os2boot is specified
   if (mfsbase && mfslen) ft.ft_mfslen = mfslen;
 
   // where to place mbi pointer
-  q = 0x7c0 + *p - 4;
+  //q = 0x7c0 + *p - 4;
 
   // pass mbi structure address to mFSD
   // as a variable at its end
@@ -421,7 +421,7 @@ void cmain (void)
   }
 
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
-  bpb->log_drive   = 0x80 + (drvletter - 'C'); // u:;
+  bpb->log_drive   = 0x80 + (drvletter - 'C'); // c:;
   //bpb->hidden_secs = 0; //part_start;
 
   //bpb->disk_num    = 0x3;

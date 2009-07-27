@@ -9,6 +9,8 @@
 
 //#include <ifs.h>
 
+int kprintf(const char *format, ...);
+
 #if 0
 int far pascal _loadds FS_ALLOCATEPAGESPACE(
                                     struct sffsi far *psffsi,       /* ptr to fs independent SFT */
@@ -94,25 +96,6 @@ int far pascal _loadds FS_FILEIO(
                             unsigned short far *poError,
                             unsigned short         IOflag
                            )
-{
-    return ERROR_NOT_SUPPORTED;
-}
-
-
-int far pascal _loadds FS_ATTACH(
-                         unsigned short       flag,        /* flag                */
-                         char           far *pDev,        /* pDev                */
-                         struct vpfsd   far *pvpfsd, /* if remote drive
-                                                           struct vpfsd far *
-                                                           else if remote device
-                                                                  null ptr (0L)    */
-                         struct cdfsd   far *pcdfsd,        /* if remote drive
-                                                           struct cdfsd far *
-                                                          else
-                                                          struct devfsd far * */
-                         char           far *pParm,        /* pParm        */
-                         unsigned short far *pLen        /* pLen                */
-                        )
 {
     return ERROR_NOT_SUPPORTED;
 }

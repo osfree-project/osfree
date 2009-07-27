@@ -574,7 +574,7 @@ extern void (*disk_read_func) (int, int, int);
 
 #ifndef STAGE1_5
 /* The flag for debug mode.  */
-extern int debug;
+//extern int debug;
 #endif /* STAGE1_5 */
 
 extern unsigned long current_drive;
@@ -888,7 +888,7 @@ int get_cmdline (char *prompt, char *cmdline, int maxlen,
 int substring (const char *s1, const char *s2);
 int nul_terminate (char *str);
 int get_based_digit (int c, int base);
-int safe_parse_maxint (char **str_ptr, int *myint_ptr);
+int safe_parse_maxint (char **str_ptr, long *myint_ptr);
 int memcheck (int start, int len);
 void grub_putstr (const char *str);
 

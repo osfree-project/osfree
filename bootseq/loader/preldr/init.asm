@@ -120,6 +120,13 @@ rel0:
         ; beginning of the executable
         retf
 rel1:
+        pusha
+        mov     al, '['
+        mov     bx, 1
+        mov     ah, 0Eh
+        int     10h
+        popa
+
         mov  bx, ds
         mov  cx, es
 
@@ -341,11 +348,25 @@ reloc:
         ; enable A20 address line
         ;call EnableA20Line
 
+        pusha
+        mov     al, '*'
+        mov     bx, 1
+        mov     ah, 0Eh
+        int     10h
+        popa
+
         ; call 32-bit protected mode init
         mov  eax, offset _TEXT:init
         push eax
         call call_pm
         add  sp, 4
+
+        pusha
+        mov     al, ']'
+        mov     bx, 1
+        mov     ah, 0Eh
+        int     10h
+        popa
 
 ifndef STAGE1_5
         ; save pre-loader segment registers and stack

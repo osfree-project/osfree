@@ -133,7 +133,7 @@ set_device (char *device)
                 current_drive = cdrom_drive;
               else
                 {
-                  safe_parse_maxint (&device, (int *) &current_drive);
+                  safe_parse_maxint (&device, (long *) &current_drive);
 
                   disk_choice = 0;
                   if (ch == 'h')
@@ -163,7 +163,7 @@ set_device (char *device)
               current_partition = 0;
 
               if (!(current_drive & 0x80)
-                  || !safe_parse_maxint (&device, (int *) &current_partition)
+                  || !safe_parse_maxint (&device, (long *) &current_partition)
                   || current_partition > 254)
                 {
                   errnum = ERR_DEV_FORMAT;

@@ -113,6 +113,16 @@ realmode_init:
                    push OS2LDR_SEG
                    push 0
 
+                   pusha
+
+                   mov    al, '*'
+                   xor    bx, bx
+                   mov    ah, 0eh ; ah=0eh -- function
+
+                   int    10h
+
+                   popa
+
                    retf
 
                    ; output a char to commport
