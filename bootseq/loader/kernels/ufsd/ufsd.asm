@@ -21,10 +21,13 @@ public com_outchar
 public port
 public _debug
 
+public _small_code_
+
 extrn  kprintf_     :near
 extrn  init_        :near
 extrn  cmain_       :near
 extrn  call_rm      :near
+extrn  idt_init     :near
 extrn  gdtdesc      :fword
 
 extrn  preldr_ds    :word
@@ -63,7 +66,7 @@ base               dd      REL1_BASE
 
 mfs_len            dd      ?
 port               dw      0
-_debug              db      0
+_debug             db      0
 force_lba          db      0
 
                    ;
@@ -152,6 +155,9 @@ loo1:
                    popa
 exitXX:
                    ret
+
+_small_code_  dd 0
+
 _TEXT16  ends
 
 _TEXT    segment dword public 'CODE'  use32
@@ -174,7 +180,10 @@ entry:
 
                    mov     ds:m, ebx                                   ; save multiboot structure address
 
+                   ; setup GDT
                    call    set_gdt
+                   ; setup IDT
+                   call    idt_init
 
                    ; 32-bit uFSD init
                    call    cmain_
@@ -206,15 +215,35 @@ loop1:
 
                    cli                                               ;
                    hlt                                               ; hang machine
-                   jmp     $                                         ;
+                   jmp     $                                         ;                          s
 
 set_gdt:
-                   ; set 16-bit segment (_TEXT16) base
-                   ; in GDT for protected mode
-
                    ; fix gdt descriptors base
                    mov  ebx, GDT_ADDR
                    mov  eax, REL1_BASE
+                   ; FLAT DS and CS
+                   mov  [ebx][1*8].ds_limit, 0xffff
+                   mov  [ebx][2*8].ds_limit, 0xffff
+
+                   mov  [ebx][1*8].ds_baselo, 0
+                   mov  [ebx][2*8].ds_baselo, 0
+
+                   mov  [ebx][1*8].ds_basehi1, 0
+                   mov  [ebx][2*8].ds_basehi1, 0
+
+                   mov  [ebx][1*8].ds_basehi2, 0
+                   mov  [ebx][2*8].ds_basehi2, 0
+
+                   mov  [ebx][1*8].ds_acclo, 0x9a
+                   mov  [ebx][2*8].ds_acclo, 0x92
+
+                   mov  [ebx][1*8].ds_acchi, 0xcf
+                   mov  [ebx][2*8].ds_acchi, 0xcf
+
+                   ; pseudo RM DS and CS
+                   mov  [ebx][8*8].ds_limit, 0xffff
+                   mov  [ebx][9*8].ds_limit, 0xffff
+
                    mov  [ebx][8*8].ds_baselo, ax
                    mov  [ebx][9*8].ds_baselo, ax
                    ror  eax, 16
@@ -224,10 +253,17 @@ set_gdt:
                    mov  [ebx][8*8].ds_basehi2, al
                    mov  [ebx][9*8].ds_basehi2, al
 
+                   mov  [ebx][8*8].ds_acclo, 0x9e
+                   mov  [ebx][9*8].ds_acclo, 0x92
+
+                   mov  [ebx][8*8].ds_acchi, 0
+                   mov  [ebx][9*8].ds_acchi, 0
+
                    ; fill GDT descriptor
                    mov  ebx, offset _TEXT:gdtdesc
                    mov  eax, GDT_ADDR
                    mov  [ebx].g_base, eax
+                   mov  [ebx].g_limit, 10*8 - 1
 
                    lgdt fword ptr [ebx]
 
@@ -251,6 +287,12 @@ _DATA    ends
 
 _TEXT16  segment dword public 'CODE'  use16
 _TEXT16  ends
+__DATA  segment dword public 'DATA'  use16
+__DATA  ends
+_CONST  segment dword public 'DATA'  use16
+_CONST  ends
+_CONST2  segment dword public 'DATA'  use16
+_CONST2  ends
 _TEXT    segment dword public 'CODE'  use32
 _TEXT    ends
 _DATA    segment dword public 'DATA'  use32
@@ -282,6 +324,7 @@ stack_top:
 stack_bottom:
 _STACK   ends
 
+DGROUP16 group _TEXT16,__DATA,_CONST,_CONST2
 DGROUP   group _TEXT,_DATA,CONST,CONST2,_end1,_end2,_BSS,_end3,_end4,_STACK
 
          end entry

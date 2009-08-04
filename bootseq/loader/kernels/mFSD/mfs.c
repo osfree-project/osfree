@@ -5,7 +5,7 @@
 
 #define INCL_DOSERRORS
 #define INCL_NOPMAPI
-#include <os2.h>		// From the "Developer Connection Device Driver Kit" version 2.0
+#include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
 #include <mb_info.h>
 #include "serial.h"
@@ -16,14 +16,14 @@
 
 #define CHECKRC \
     if (rc) \
-    {	    \
+    {       \
       kprintf("MFSH_PHYSTOVIRT() failed, @%s, line #%lu\n", \
-	      __FILE__, __LINE__); \
+              __FILE__, __LINE__); \
       return 1; \
     }
 
 int serial_init (long port, long speed,
-		int word_len, int parity, int stop_bit_len);
+                int word_len, int parity, int stop_bit_len);
 
 extern char FS_NAME[12];
 extern unsigned long FS_ATTRIBUTE;
@@ -40,8 +40,8 @@ unsigned long far *p_minifsd;
 
 char debug = 0;
 
-char mount_name[] = "FS_MOUNT";
-char open_name[]  = "FS_OPENCREATE";
+char mount_name[] = "FS_MOUNT";      // "FSD_Mount";
+char open_name[]  = "FS_OPENCREATE"; // "FSD_OpenCreate";
 
 #pragma pack(1)
 
@@ -57,6 +57,8 @@ struct save_item
 };
 
 #pragma pack()
+
+long dummy = 0;
 
 struct mfsdata {
   char buf[128];
@@ -91,13 +93,13 @@ struct p48
 
 int _cdecl _loadds GetFlatSelectors(void);
 int _cdecl _loadds GetProcAddr(char far *fpszModName,
-			       unsigned short cchModName,
-			       char far *fpszProcName,
-			       unsigned char cchProcName,
-			       struct p48 far *fp48EP);
+                               unsigned short cchModName,
+                               char far *fpszProcName,
+                               unsigned char cchProcName,
+                               struct p48 far *fp48EP);
 int _cdecl _loadds GetModule(char far *fpszModName,
-			     unsigned short cchModName,
-			     struct p48 far *fpMte48);
+                             unsigned short cchModName,
+                             struct p48 far *fpMte48);
 int _cdecl _loadds GetDPBHead(void far * far *addr);
 
 unsigned char drvletter = 0;
@@ -118,14 +120,14 @@ char far *fileaddr;
 // our command line
 char cmdline[0x400];
 
-#pragma aux mbi 	     "*"
-#pragma aux FS_NAME	     "*"
-#pragma aux FlatR0CS	     "*"
-#pragma aux FlatR0DS	     "*"
+#pragma aux mbi              "*"
+#pragma aux FS_NAME          "*"
+#pragma aux FlatR0CS         "*"
+#pragma aux FlatR0DS         "*"
 #pragma aux GetFlatSelectors "*"
 #pragma aux GetProcAddr      "*"
-#pragma aux GetModule	     "*"
-#pragma aux GetDPBHead	     "*"
+#pragma aux GetModule        "*"
+#pragma aux GetDPBHead       "*"
 #pragma aux FS_ATTRIBUTE     "*"
 
 void far *fmemset (void far *start, int c, int len);
@@ -148,42 +150,42 @@ void *memset (void *start, int c, int len);
 int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
 int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
 int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
-			       unsigned short usLen,
-			       unsigned short far *pusSel);
+                               unsigned short usLen,
+                               unsigned short far *pusSel);
 int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
 void far pascal FSH_GETVOLPARM(unsigned short hVPB,
-			       struct vpfsi far * far *ppVPBfsi,
-			       struct vpfsd far * far *ppVPBfsd);
+                               struct vpfsi far * far *ppVPBfsi,
+                               struct vpfsd far * far *ppVPBfsd);
 int far pascal MFSH_SEGFREE(unsigned short usSel);
 
 void far pascal FSH_INTERR(char far *pMsg,
-			   unsigned short cbMsg);
+                           unsigned short cbMsg);
 int far pascal FSH_DOVOLIO(unsigned short operation,
-			   unsigned short fAllowed,
-			   unsigned short hVPB,
-			   char far *pData,
-			   unsigned short far *pcSec,
-			   unsigned long iSec);
+                           unsigned short fAllowed,
+                           unsigned short hVPB,
+                           char far *pData,
+                           unsigned short far *pcSec,
+                           unsigned long iSec);
 int far pascal FSH_FINDDUPHVPB(unsigned short hVPB,
-			       unsigned short far *phVPB);
+                               unsigned short far *phVPB);
 
 typedef int far pascal (*mount_t)(unsigned short flag,
-				  struct vpfsi far *pvpfsi,
-				  struct vpfsd far *pvpfsd,
-				  unsigned short hVPB,
-				  char far *pBoot);
+                                  struct vpfsi far *pvpfsi,
+                                  struct vpfsd far *pvpfsd,
+                                  unsigned short hVPB,
+                                  char far *pBoot);
 typedef int far pascal (*open_t)(struct cdfsi far *pcdfsi,
-				 struct cdfsd far *pcdfsd,
-				 char far *pName,
-				 unsigned short iCurDirEnd,
-				 struct sffsi far *psffsi,
-				 struct sffsd far *psffsd,
-				 unsigned long ulOpenMode,
-				 unsigned short usOpenFlag,
-				 unsigned short far *pusAction,
-				 unsigned short usAttr,
-				 char far *pcEABuf,
-				 unsigned short far *pfgenflag);
+                                 struct cdfsd far *pcdfsd,
+                                 char far *pName,
+                                 unsigned short iCurDirEnd,
+                                 struct sffsi far *psffsi,
+                                 struct sffsd far *psffsd,
+                                 unsigned long ulOpenMode,
+                                 unsigned short usOpenFlag,
+                                 unsigned short far *pusAction,
+                                 unsigned short usAttr,
+                                 char far *pcEABuf,
+                                 unsigned short far *pfgenflag);
 
 void serout(char *s);
 int kprintf(const char *format, ...);
@@ -200,8 +202,8 @@ void advance_ptr(void)
 }
 
 int far pascal _loadds MFS_CHGFILEPTR(
-    long  offset,			/* offset	*/
-    unsigned short type 		/* type 	*/
+    long  offset,                       /* offset       */
+    unsigned short type                 /* type         */
 )
 {
     kprintf("**** MFS_CHGFILEPTR\n");
@@ -226,12 +228,12 @@ int far pascal _loadds MFS_CHGFILEPTR(
 }
 
 int far pascal _loadds MFS_INIT(
-    void far *bootdata, 		/* bootdata	*/
-    char far *number,			/* number io	*/
-    struct ripl far * far *vectorripl,	/* vectorripl	*/
-    void far *bpb,			/* bpb		*/
-    unsigned long far *pMiniFSD,	/* pMiniFSD	*/
-    unsigned long far *dump		/* dump address */
+    void far *bootdata,                 /* bootdata     */
+    char far *number,                   /* number io    */
+    struct ripl far * far *vectorripl,  /* vectorripl   */
+    void far *bpb,                      /* bpb          */
+    unsigned long far *pMiniFSD,        /* pMiniFSD     */
+    unsigned long far *dump             /* dump address */
 ) {
     int i, rc;
     struct mod_list far *mod;
@@ -268,47 +270,47 @@ int far pascal _loadds MFS_INIT(
     {
       if (pp = strstr(cmdline, "--debug"))
       {
-	debug = 1;
+        debug = 1;
       }
 
       // if "--serial=..." specified on the command line
       if (pp = strstr(cmdline, "--port"))
       {
-	pp = skip_to(1, pp);
-	safe_parse_maxint(&pp, &port);
+        pp = skip_to(1, pp);
+        safe_parse_maxint(&pp, &port);
       }
 
       if (pp = strstr(cmdline, "--speed"))
       {
-	pp = skip_to(1, pp);
-	safe_parse_maxint(&pp, &speed);
+        pp = skip_to(1, pp);
+        safe_parse_maxint(&pp, &speed);
       }
 
       if (pp = strstr(cmdline, "--fs"))
       {
-	pp = skip_to(1, pp);
-	// find name end
-	for (r = pp; *r && *r != ' '; r++) ;
-	memmove(FS_NAME, pp, r - pp);
-	FS_NAME[r - pp] = '\0';
+        pp = skip_to(1, pp);
+        // find name end
+        for (r = pp; *r && *r != ' '; r++) ;
+        memmove(FS_NAME, pp, r - pp);
+        FS_NAME[r - pp] = '\0';
       }
 
       if (pp = strstr(cmdline, "--module"))
       {
-	pp = skip_to(1, pp);
-	// find name end
-	for (r = pp; *r && *r != ' '; r++) ;
-	memmove(fs_module, pp, r - pp);
-	fs_module[r - pp] = '\0';
-	// make name uppercase
-	r = fs_module;
-	while (*r) *r++ = toupper(*r);
+        pp = skip_to(1, pp);
+        // find name end
+        for (r = pp; *r && *r != ' '; r++) ;
+        memmove(fs_module, pp, r - pp);
+        fs_module[r - pp] = '\0';
+        // make name uppercase
+        r = fs_module;
+        while (*r) *r++ = toupper(*r);
       }
 
       if (pp = strstr(cmdline, "--hd"))
       {
-	pp = skip_to(1, pp);
-	drvletter = toupper(pp[0]);
+        pp = skip_to(1, pp);
+        drvletter = toupper(pp[0]);
       }
 
       //if (pp = strstr(cmdline, "--cd"))
@@ -329,10 +331,8 @@ int far pascal _loadds MFS_INIT(
     *pMiniFSD = (unsigned long)&mfsdata;
 
     if (!strcmp(FS_NAME, "JFS") ||
-	!strcmp(FS_NAME, "FAT32"))
+        !strcmp(FS_NAME, "FAT32"))
       **((unsigned long far * far *)pMiniFSD) = 0x1961;
-    else if (!strcmp(FS_NAME, "ext2"))
-      *pMiniFSD = 0x4147;
     else if (!strcmp(FS_NAME, "CDFS"))
     {
       // if booting from a CDROM, use remote boot
@@ -351,25 +351,25 @@ int far pascal _loadds MFS_INIT(
     kprintf("ifs: %s\n", FS_NAME);
     kprintf("drive letter: %c\n", drvletter);
     kprintf("RIPL data address: 0x%04x:0x%04x\n",
-	    ((unsigned long)bootdata >> 16),
-	    ((unsigned long)bootdata & 0xffff));
+            ((unsigned long)bootdata >> 16),
+            ((unsigned long)bootdata & 0xffff));
     kprintf("mbi phys. address: 0x%08lx\n", mbi);
     kprintf("allocated mbi selector: 0x%04x\n", sel);
     kprintf("mem_lower = %lu Kb, mem_upper = %lu Mb\n",
-	    mbi_far->mem_lower, mbi_far->mem_upper >> 10);
+            mbi_far->mem_lower, mbi_far->mem_upper >> 10);
     kprintf("boot_device = 0x%08lx\n", mbi_far->boot_device);
     kprintf("kernel cmdline @0x%08lx\n", mbi_far->cmdline);
     kprintf("cmdline = %s\n", cmdline);
     kprintf("mods_count = %lu, mods_addr = 0x%08lx\n",
-	    mbi_far->mods_count, mbi_far->mods_addr);
+            mbi_far->mods_count, mbi_far->mods_addr);
     kprintf("syms = 0x%lx\n", mbi_far->syms);
     kprintf("mmap_length = 0x%lu, mmap_addr = 0x%08lx\n",
-	    mbi_far->mmap_length, mbi_far->mmap_addr);
+            mbi_far->mmap_length, mbi_far->mmap_addr);
     kprintf("drives_length = 0x%lu, drives_addr = 0x%08lx\n",
-	    mbi_far->drives_length, mbi_far->drives_addr);
+            mbi_far->drives_length, mbi_far->drives_addr);
     kprintf("config_table = 0x%08lx\n", mbi_far->config_table);
     kprintf("boot_loader_name @0x%08lx\n",
-	    mbi_far->boot_loader_name);
+            mbi_far->boot_loader_name);
 
     rc = MFSH_PHYSTOVIRT(mbi_far->mods_addr, sizeof(struct mod_list) * mbi_far->mods_count, &mods_sel);
     CHECKRC
@@ -397,8 +397,8 @@ int far pascal _loadds MFS_INIT(
 }
 
 int far pascal _loadds MFS_OPEN(
-    char far *name,			/* name 	*/
-    long far *size	       /* size	       */
+    char far *name,                     /* name         */
+    long far *size             /* size         */
 )
 {
     char far buf1[0x100];
@@ -430,57 +430,57 @@ int far pascal _loadds MFS_OPEN(
       // search for a given filename
       for (n = 0; n < mods_count; n++)
       {
-	// convert module cmdline phys addr to char far *
-	rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sel1);
-	CHECKRC
-	s = (char far *)MAKEP(sel1, 0);
+        // convert module cmdline phys addr to char far *
+        rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sel1);
+        CHECKRC
+        s = (char far *)MAKEP(sel1, 0);
 
-	// copy to buffers
-	fstrcpy(buf1, s);
-	fstrcpy(buf2, name);
+        // copy to buffers
+        fstrcpy(buf1, s);
+        fstrcpy(buf2, name);
 
-	// deallocate a selector
-	MFSH_UNPHYSTOVIRT(sel1);
+        // deallocate a selector
+        MFSH_UNPHYSTOVIRT(sel1);
 
-	// translate '/' to '\' in command line
-	for (p = buf1; *p; p++) if (*p == '/') *p = '\\';
+        // translate '/' to '\' in command line
+        for (p = buf1; *p; p++) if (*p == '/') *p = '\\';
 
-	// make it uppercase
-	for (p = buf1; *p; p++) *p = toupper(*p);
-	for (p = buf2; *p; p++) *p = toupper(*p);
+        // make it uppercase
+        for (p = buf1; *p; p++) *p = toupper(*p);
+        for (p = buf2; *p; p++) *p = toupper(*p);
 
-	p = strip(buf1); q = strip(buf2);
+        p = strip(buf1); q = strip(buf2);
 
-	//if (q[1] == ':') q += 2; // skip drive letter
+        //if (q[1] == ':') q += 2; // skip drive letter
 
-	//kprintf("p: %s\n", p);
+        //kprintf("p: %s\n", p);
 
-	if (*p == '(')
-	{
-	  while (*p && *p != ')') p++;
-	  p++;
-	}
+        if (*p == '(')
+        {
+          while (*p && *p != ')') p++;
+          p++;
+        }
 
-	if (!strcmp(p, q))   // with starting '\\'
-	    break;
+        if (!strcmp(p, q))   // with starting '\\'
+            break;
 
-	if (*p == '\\') p++;
+        if (*p == '\\') p++;
 
-	if (!strcmp(p, q))   // without starting '\\'
-	    break;
+        if (!strcmp(p, q))   // without starting '\\'
+            break;
 
-	//l = strstr(p, q); /* (cd)/os2/boot/bvhvga.dll bvhvga; (hd0,0)0+0x200 *bootsec* */
-	//if (l && ((p + strlen(p)) == (l + strlen(q))))
-	//    break;
+        //l = strstr(p, q); /* (cd)/os2/boot/bvhvga.dll bvhvga; (hd0,0)0+0x200 *bootsec* */
+        //if (l && ((p + strlen(p)) == (l + strlen(q))))
+        //    break;
 
-	mod++;
+        mod++;
       };
 
       // we have gone through all mods, and no given filename
       if (n == mods_count)
       {
-	kprintf(" failed!\n");
-	return ERROR_FILE_NOT_FOUND;
+        kprintf(" failed!\n");
+        return ERROR_FILE_NOT_FOUND;
       }
 
       // filename found
@@ -505,13 +505,13 @@ int far pascal _loadds MFS_OPEN(
 }
 
 int far pascal _loadds MFS_READ(
-    char far *data,		/* data 	*/
-    unsigned short far *length	 /* length	 */
+    char far *data,             /* data         */
+    unsigned short far *length   /* length       */
 )
 {
   kprintf("**** MFS_READ(0x%04x:0x%04x, ",
-	  (unsigned long)data >> 16,
-	  (unsigned long)data & 0xffff);
+          (unsigned long)data >> 16,
+          (unsigned long)data & 0xffff);
   kprintf("%u)\n", *length);
 
   if (fileaddr && data && *length)
@@ -530,9 +530,9 @@ int far pascal _loadds MFS_READ(
 int far pascal _loadds MFS_CLOSE(void) {
     kprintf("**** MFS_CLOSE\n");
 
-    if (sel1)	  MFSH_UNPHYSTOVIRT(sel1);
+    if (sel1)     MFSH_UNPHYSTOVIRT(sel1);
     if (mods_sel) MFSH_UNPHYSTOVIRT(mods_sel);
-    if (sel)	  MFSH_UNPHYSTOVIRT(sel);
+    if (sel)      MFSH_UNPHYSTOVIRT(sel);
 
     return NO_ERROR;
 }
@@ -552,8 +552,10 @@ int far pascal _loadds MFS_TERM(void)
   unsigned short hVPB1;
   unsigned short usAction;
   unsigned short flags;
+  char msg_errmount[] = "Error mounting the disk!\n";
   char msg_erropen[] = "Error reopening file!\n";
   struct cdfsi cdfsi;
+  struct cdfsd cdfsd;
   char far *pBoot = 0;
   char str[0x3a];
   char fs_name[12];
@@ -562,9 +564,6 @@ int far pascal _loadds MFS_TERM(void)
   unsigned short new_hVPB;
   char c, d;
   struct dpb far *pdpb1 = 0;
-
-//  int (far pascal far *CallBack)
-//	(struct sffsd far *, PVOID );
 
   kprintf("**** MFS_TERM\n");
   kprintf("hello stage3!\n");
@@ -580,10 +579,10 @@ int far pascal _loadds MFS_TERM(void)
 
   // Get FS_MOUNT address
   if (!GetProcAddr(fs_module,
-	      strlen(fs_module),
-	      mount_name,
-	      strlen(mount_name),
-	      &p48))
+              strlen(fs_module),
+              mount_name,
+              strlen(mount_name),
+              &p48))
   {
     *((unsigned short *)&p_mount) = (unsigned short)p48.off;
     *((unsigned short *)(&p_mount) + 1) = p48.sel;
@@ -594,10 +593,10 @@ int far pascal _loadds MFS_TERM(void)
 
   // Get FS_OPENCREATE address
   if (!GetProcAddr(fs_module,
-	      strlen(fs_module),
-	      open_name,
-	      strlen(open_name),
-	      &p48))
+              strlen(fs_module),
+              open_name,
+              strlen(open_name),
+              &p48))
   {
     *((unsigned short *)&p_open) = (unsigned short)p48.off;
     *((unsigned short *)(&p_open) + 1) = p48.sel;
@@ -606,9 +605,6 @@ int far pascal _loadds MFS_TERM(void)
   else
   {
     kprintf("IFS FS_OPENCREATE addr not found.\n");
-    __asm {
-      int 3
-    }
   }
 
   kprintf("p_mount = 0x%08lx\n", p_mount);
@@ -628,7 +624,7 @@ int far pascal _loadds MFS_TERM(void)
   {
     kprintf("drive: %c:, pdpb = 0x%08lx, ", 'a' + pdpb->dpb_drive, pdpb);
     kprintf("hVPB: 0x%04x\n", pdpb->dpb_hVPB);
-    if (pdpb->dpb_drive == 'c' - 'a')  pdpb1 = pdpb;
+    if (pdpb->dpb_drive == drvletter - 'A')  pdpb1 = pdpb;
     //if (pdpb->dpb_drive == 'v' - 'a')  pdpb1 = pdpb;
     if ((int)pdpb->dpb_next_dpb == -1) break;
     pdpb = pdpb->dpb_next_dpb;
@@ -651,8 +647,8 @@ int far pascal _loadds MFS_TERM(void)
   }
 
   kprintf("vpi_pDCS = 0x%08lx, vpi_pVCS = 0x%08lx\n",
-	  pvpfsi->vpi_pDCS,
-	  pvpfsi->vpi_pVCS);
+          pvpfsi->vpi_pDCS,
+          pvpfsi->vpi_pVCS);
 
   memset(pvpfsd, 0, sizeof(struct vpfsd));
 
@@ -667,7 +663,7 @@ int far pascal _loadds MFS_TERM(void)
   //pdpb->dpb_hVPB  = hVPB1;
   //strcpy(pvpfsi1->vpi_text, pvpfsi->vpi_text);
 
-  ////pdpb->dpb_drive	= 'c' - 'a';
+  ////pdpb->dpb_drive   = 'c' - 'a';
   ////pvpfsi->vpi_drive = 'c' - 'a';
 
   kprintf("vpi_vid    = 0x%08lx\n", pvpfsi->vpi_vid);
@@ -690,9 +686,7 @@ int far pascal _loadds MFS_TERM(void)
   if (rc)
   {
     kprintf(" failed, rc = %u\n", rc);
-    __asm{
-      int 3
-    };
+    FSH_INTERR(msg_errmount, strlen(msg_errmount));
   }
   else
     kprintf(" = %u\n", rc);
@@ -714,29 +708,28 @@ int far pascal _loadds MFS_TERM(void)
       strcpy(str, save_pos->pName);
       // change a 'fake bootdrive' drv letter to a CD drv letter
       if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
-      //*str = 'U';
 
+      kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
+              save_pos->ulOpenMode & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+              save_pos->usOpenFlag);
       kprintf("ifs FS_OPENCREATE(\"%s\")", str);
       if(!(rc = (*p_open)(&cdfsi,
-			  save_pos->pcdfsd,
-			  str,
-			  0,
-			  save_pos->psffsi,
-			  save_pos->psffsd,
-			  save_pos->ulOpenMode,
-			  save_pos->usOpenFlag,
-			  &usAction,		 //dummy address
-			  0,
-			  0,
-			  &flags)))
-	kprintf(" = %u\n", rc);
+                          &cdfsd,
+                          str,
+                          -1, // not 0 -- needed by ext2_os2.ifs
+                          save_pos->psffsi,
+                          save_pos->psffsd,
+                          save_pos->ulOpenMode & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+                          save_pos->usOpenFlag,
+                          &usAction,             //dummy address
+                          0,
+                          0,
+                          &flags)))
+        kprintf(" = %u\n", rc);
       else
       {
-	kprintf(" failed, rc = %u\n", rc);
-	__asm {
-	  int 3
-	}
-	FSH_INTERR(msg_erropen, strlen(msg_erropen));
+        kprintf(" failed, rc = %u\n", rc);
+        FSH_INTERR(msg_erropen, strlen(msg_erropen));
       }
     }
   }

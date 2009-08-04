@@ -14,8 +14,8 @@ grub_memmove (void *_to, const void *_from, int _len)
     char *from = (char *)_from;
     char *to   = _to;
 
-    if (grub_memcheck ((unsigned long)(_to), _len))
-    {
+    //if (grub_memcheck ((unsigned long)(_to), _len))
+    //{
         if ( from == to )
         {
             return( to );
@@ -38,7 +38,7 @@ grub_memmove (void *_to, const void *_from, int _len)
                 _len--;
             }
         }
-    }
+    //}
 
     return( to );
 }

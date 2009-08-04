@@ -488,11 +488,6 @@ int far pascal _loadds FS_OPENCREATE(
 
     *((unsigned long *)psffsd + 2) = save_index;
   }
-  //if (strstr(pName, "msg.dll") ||
-  //    strstr(pName, "MSG.DLL"))
-  //{
-  //  FS_ATTRIBUTE = 1;
-  //}
 
 
   return rc;
@@ -510,23 +505,23 @@ int far pascal _loadds FS_PROCESSNAME(
   if (strstr(pNameBuf, "msg.dll") ||
       strstr(pNameBuf, "MSG.DLL"))
   {
+    // msg.dll is loading after CDFS.IFS. At this point
+    // we need to access a CD drive letter. So, we 'transform'
+    // to the 'local' IFS by changing FS_ATTRIBUTE
     drvflag = 1;
-    FS_ATTRIBUTE = 0;
-    //rc = MFSH_SETBOOTDRIVE('U' - 'A'); // u:
-    //kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
+    FS_ATTRIBUTE &= ~0x1; // clear 'remote fs' bit
 
     kprintf("FS_PROCESSNAME: %s\n", pNameBuf);
   }
   if (drvflag) pNameBuf[0] = 'V';
 
-
   return NO_ERROR;
 }
 
 int far pascal _loadds FS_ATTACH(
-                         unsigned short       flag,        /* flag                */
-                         char           far *pDev,        /* pDev                */
-                         struct vpfsd   far *pvpfsd, /* if remote drive
+                         unsigned short     flag,        /* flag                */
+                         char           far *pDev,       /* pDev                */
+                         struct vpfsd   far *pvpfsd,     /* if remote drive
                                                            struct vpfsd far *
                                                            else if remote device
                                                                   null ptr (0L)    */
@@ -534,7 +529,7 @@ int far pascal _loadds FS_ATTACH(
                                                            struct cdfsd far *
                                                           else
                                                           struct devfsd far * */
-                         char           far *pParm,        /* pParm        */
+                         char           far *pParm,      /* pParm        */
                          unsigned short far *pLen        /* pLen                */
                         )
 {
@@ -545,5 +540,4 @@ int far pascal _loadds FS_ATTACH(
   oncecntr++;
 
   return NO_ERROR;
-  //return ERROR_NOT_SUPPORTED;
 }

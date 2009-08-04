@@ -21,6 +21,8 @@ extrn kprintf_        :near
 public rel_start
 public ufsd_start
 public ufsd_size
+public mfsd_start
+public mfsd_size
 
 public stop
 public base
@@ -169,16 +171,15 @@ entry:
                    ;rep     movsd                                     ; copy
 
                    ; copy mFSD at 0x7c0
-                   mov     esi, mfsd_start
-                   mov     ecx, mfsd_size
-                   shr     ecx, 2
-                   inc     ecx
-                   mov     edi, 0x7c0
-
-                   rep     movsd
+                   ;mov     esi, mfsd_start
+                   ;mov     ecx, mfsd_size
+                   ;shr     ecx, 2
+                   ;inc     ecx
+                   ;mov     edi, 0x7c0
+                   ;
+                   ;rep     movsd
 
                    push    eax
-                   push    ebx
 
                    call    cmain_
 .386p
@@ -209,8 +210,9 @@ entry:
                    call    kprintf_
                    add     esp, 8
 
-                   pop     ebx
                    pop     eax
+
+                   mov     ebx, ds:m
 
                    ; start microfsd emulator
                    push    edx
