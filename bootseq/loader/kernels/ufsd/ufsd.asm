@@ -183,7 +183,7 @@ entry:
                    ; setup GDT
                    call    set_gdt
                    ; setup IDT
-                   call    idt_init
+                   ;call    idt_init
 
                    ; 32-bit uFSD init
                    call    cmain_
