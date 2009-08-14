@@ -30,7 +30,7 @@ api_DosWrite(HFILE hFile, PVOID pBuffer,
   char buf[0x100];
 
   if (hFile != 1) return ERROR_INVALID_HANDLE;
-  memcpy(buf, pBuffer, cbWrite);
+  memcpy(buf, pBuffer, cbWrite+1);
   buf[cbWrite] = '\0';
 
   io_printf("%s", buf);

@@ -1,12 +1,15 @@
-# $Id: makefile,v 1.3 2004/08/21 14:49:22 prokushev Exp $
-#
 # Makefile for common shared libs
 
 32_BITS  = 1
 
+PROJ = tools_shared
 DIRS = z idl
+LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib $(%ROOT)build$(SEP)lib$(SEP)idl.lib
 
-!include $(%ROOT)/mk/all.mk
+TARGETS  = subdirs $(PATH)$(PROJ).lib
+TARGET   = all
 
-TARGETS=subdirs
-TARGET=all
+!include $(%ROOT)/mk/libs.mk
+
+$(PATH)$(PROJ).lib: $(LIBS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

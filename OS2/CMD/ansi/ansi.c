@@ -16,7 +16,7 @@
 #define INCL_DOSERRORS
 #define INCL_VIO
 
-#include <osfree.h>             // Include file for osfree
+#include <os2.h>                // Include file for os/2
 #include <cmd_shared.h>         // Include file for cmd tools
 #include <string.h>
 
@@ -106,4 +106,3 @@ int main (int argc, char* argv[], char* envp[])
          }
   return (rc);
 }
-

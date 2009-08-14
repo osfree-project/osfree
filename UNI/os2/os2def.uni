@@ -7,12 +7,12 @@ type BYTE   = T_BYTE; (* 8bit *)
 type UCHAR  = T_BYTE; (* 8bit *)
 type USHORT = T_WORD; (* 16bit *)
 type ULONG  = T_DWORD; (* 32bit *)
-type SHORT  = T_LONG16; (* 16bit *)
-type LONG   = T_LONG32; (* 32bit *)
+type SHORT  = T_INT16; (* 16bit *)
+type LONG   = T_INT32; (* 32bit *)
 type WORD   = T_WORD; (* 16bit *)
 type DWORD  = T_DWORD; (* 32bit *)
 
-type INT   = T_LONG32;
+type INT   = T_INT32;
 type UINT  = T_DWORD;
 type CHAR  = T_CHAR;
 

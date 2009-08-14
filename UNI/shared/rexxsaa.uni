@@ -27,7 +27,7 @@ constant RXAUTOBUFLEN     =    256;
 
 type RXSYSEXIT=structure            (* syse *)
       sysexit_name: PSZ;                  (* subcom enviro for sysexit  *)
-      sysexit_code: T_LONG32;                 (* sysexit function code      *)
+      sysexit_code: T_INT32;                 (* sysexit function code      *)
   end;
 
 type PRXSYSEXIT=^RXSYSEXIT;         (* pointer to a RXSYSEXIT     *)
@@ -260,15 +260,15 @@ constant RXMACRO_NOT_INIT           =9;  (* API not initialized         *)
 (***    Main Entry Point to the REXXSAA Interpreter *)
 
 
-function RexxStart(in  ArgC: T_LONG32;                        (* Num of args passed to rexx *)
+function RexxStart(in  ArgC: T_INT32;                        (* Num of args passed to rexx *)
                    in  ArgV: PRXSTRING;                    (* Array of args passed to rex *)
                    in  Path: PCSZ;                          (* [d:][path] filename[.ext]  *)
                    in  Storage: PRXSTRING;                    (* Loc of rexx proc in memory *)
                    in  Env: PCSZ;                          (* ASCIIZ initial environment.*)
-                   in  Typ: T_LONG3232;                        (* type (command,subrtn,funct) *)
+                   in  Typ: T_INT32;                        (* type (command,subrtn,funct) *)
                    in  SysExit: PRXSYSEXIT;                   (* SysExit env. names &  codes *)
                    out RetCode: SHORT;                       (* Ret code from if numeric   *)
-                   out RetValue: RXSTRING): T_LONG3232;                  (* Retvalue from the rexx proc *)
+                   out RetValue: RXSTRING): T_INT32;                  (* Retvalue from the rexx proc *)
 
 
 (***    Subcommand Interface *)
@@ -491,9 +491,9 @@ type RXTRCTST_PARM=structure        (* tst *)
 
 
 (* This type simplifies coding of an Exit handler.                *)
-type RexxExitHandler=function(in a: T_LONG3232;
-                              in b: T_LONG3232;
-                              in c: PEXIT): T_LONG3232;
+type RexxExitHandler=function(in a: T_INT32;
+                              in b: T_INT32;
+                              in c: PEXIT): T_INT32;
 
 (***      RexxRegisterExitDll - Register a system exit. *)
 

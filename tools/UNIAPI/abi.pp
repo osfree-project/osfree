@@ -104,6 +104,9 @@ begin
     if T='LIB' then
     begin
       Result.AbiType:=AbiStaticLibrary;
+      Result.CallingConvertion:=Copy(S, 1, Pos(' ', S)-1);
+      Delete(S, 1, Pos(' ', S));
+      While Copy(S, 1, 1)=' ' do Delete(S, 1, 1);
       Result.LibraryName:=S;
     end;
     If Result.Name=SymbolName then break;

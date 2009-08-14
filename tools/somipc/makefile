@@ -9,7 +9,9 @@ DESC = SOM Compiler IPC
 #defines object file names in format objname.$(O)
 srcfiles = $(p)somipc$(e)
 # defines additional options for C compiler
-ADD_COPT    = -i=$(%ROOT)$(SEP)tools$(SEP)include -sg
-ADD_LINKOPT = lib libidl
+ADD_COPT    = -d2 -i=$(%ROOT)$(SEP)tools$(SEP)include -sg
+ADD_LINKOPT = lib tools_shared
+DEBUG = 1
+
 
 !include $(%ROOT)/mk/tools.mk

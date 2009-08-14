@@ -767,13 +767,6 @@ APIRET APIENTRY  DosRead(HFILE hFile,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY  DosWrite(HFILE hFile,
-                          PVOID pBuffer,
-                          ULONG cbWrite,
-                          PULONG pcbActual)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
 APIRET APIENTRY DosExecPgm(PCHAR pObjname,
                            LONG cbObjname,
@@ -2456,11 +2449,6 @@ APIRET APIENTRY DosQueryExtLIBPATH(const PSZ pszExtLIBPATH, ULONG flags)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosPM16SemRst(void)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
 APIRET APIENTRY      DosSysCtl(void)
 {
   printf(__FUNCTION__ " not implemented yet\n");
@@ -2587,7 +2575,7 @@ APIRET  APIENTRY        DosCreateThread2(PTHREADCREATE ptc)
   return 0; }
 
 APIRET APIENTRY DosEditName(ULONG metalevel,
-                            PSZ pszSource,
+                            PCSZ pszSource,
                             PSZ pszEdit,
                             PSZ pszTarget,
                             ULONG cbTarget)

@@ -4,17 +4,18 @@
 Intro
 -----
 
-In all versions of OS/2 some core API's (VIO, MOU, MON and KBD) still 16-bit. Exists 2 32-bit
-API versions for IA-32 OS/2. One is EMXWRAP which actually provides only wrappers to 16-bit
-functions (but no thunking support required from compiler side) and con1632.dll. We selected
-first ABI because it is more known. con1632.dll only known in one application. If you require
+In all versions of OS/2 some core API's (VIO, MOU, MON and KBD) still 16-bit.
+Exists 2 32-bit API versions for IA-32 OS/2. One is EMXWRAP which actually
+provides only wrappers to 16-bit functions (but no thunking support required
+from compiler side) and con1632.dll. We selected first ABI because it is more
+known. con1632.dll only known in one application. If you require
 support for con1632.dll ABI please contact us or implement it by yourself.
 
 Implementation
 --------------
 
-All osFree applications links to emxwrap.dll. As result such applications works fine on original
-OS/2. osFree module manager replaces emxwrap.dll import entry to sub32.dll. sub32.dll has same
-ABI as emxwrap.dll so under osFree all works as expected too. As result we still have full binary
+All osFree applications links to emxwrap.dll. As result such applications
+works fine on original OS/2. osFree module manager replaces emxwrap.dll
+import entry to sub32.dll. sub32.dll has same ABI as emxwrap.dll so under
+osFree all works as expected too. As result we still have full binary
 compatibility for both OS/2 and osFree.
-

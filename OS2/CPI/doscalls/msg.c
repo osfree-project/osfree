@@ -42,7 +42,7 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
 
 */
 
-APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, const PSZ pszMsg, ULONG cbMsg, PCHAR pBuf, ULONG cbBuf, PULONG pcbMsg)
+APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMsg, ULONG cbMsg, PCHAR pBuf, ULONG cbBuf, PULONG pcbMsg)
 {
   // Check arguments
   if (!pcbMsg) return ERROR_INVALID_PARAMETER;               // No result size variable

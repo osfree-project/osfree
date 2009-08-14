@@ -12,14 +12,14 @@ if os = 'OS/2'       then del = 'del '
 else if os = 'WIN32' then del = 'del '
 else del = 'rm -f '
 
-if stream(header, 'c', 'query exist') \= '' then del || header
+if stream(header, 'c', 'query exists') \= '' then del || header
 
 if binary = '' then do
   say 'You must supply a valid binary file and output file!'
   exit -1
 end
 
-rc   = stream(binary, 'c', 'query exist')
+rc   = stream(binary, 'c', 'query exists')
 
 if rc = '' then do
   say 'You must supply a valid binary file!'

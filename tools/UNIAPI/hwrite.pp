@@ -151,15 +151,15 @@ begin
   if S='T_BYTE' then Result:='unsigned char' else
   if S='T_WORD' then Result:='unsigned short' else
   if S='T_DWORD' then Result:='unsigned long' else
-  if S='T_LONG16' then Result:='short' else
-  if S='T_LONG32' then Result:='long';
+  if S='T_INT16' then Result:='short' else
+  if S='T_INT32' then Result:='long';
 end;
 
 procedure THWriter.WriteType(AType: TPasType; ATypeDecl: boolean);
 begin
   if ATypeDecl then wrt('typedef ');
   if AType.ClassType = TPasUnresolvedTypeRef then
-    wrt(AType.Name)
+    wrt(ConvertToCType(AType.Name))
   else if AType.ClassType = TPasClassType then
     WriteClass(TPasClassType(AType))
   else if AType.ClassType = TPasPointerType then
@@ -170,13 +170,13 @@ begin
     end else begin
       if ATypeDecl then wrt('void * ');
     end;
-    wrt(TPasAliasType(AType).Name);
+    wrt(ConvertToCType(TPasAliasType(AType).Name));
     if (not ATypeDecl) and (TPasAliasType(AType).Name='') and Assigned(TPasPointerType(AType).DestType) then wrt(ConvertToCType(TPasPointerType(AType).DestType.Name)+' * ');
     if ATypeDecl then wrtln(';');
   end else if AType.ClassType = TPasAliasType then
   begin
     if ATypeDecl then Wrt(ConvertToCType(TPasAliasType(AType).DestType.Name)+' ');
-    wrt(TPasAliasType(AType).Name);
+    wrt(ConvertToCType(TPasAliasType(AType).Name));
     if ATypeDecl then WrtLn(';');
   end else if AType.ClassType = TPasRecordType then
   begin

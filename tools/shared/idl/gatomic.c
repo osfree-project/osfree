@@ -920,12 +920,12 @@ void
 void *
 (g_atomic_pointer_get) (volatile void * *atomic)
 {
-  return g_atomic_pointer_get (atomic);
+  return (void *)g_atomic_pointer_get (atomic);
 }
 
 void
 (g_atomic_pointer_set) (volatile void * *atomic,
-                        void *           newval)
+                        void *  newval)
 {
   g_atomic_pointer_set (atomic, newval);
 }

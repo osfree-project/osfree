@@ -17,12 +17,17 @@ DEST     = ..$(SEP)build$(SEP)lib
 !include $(%ROOT)/mk/all.mk
 
 # makes library $(library) from object files $(OBJS)
-library: $(OBJS)
+library: $(OBJS) $(LIBS)
  $(SAY) Creating library $(library)...
 !ifndef NODELETE
  -@if exist $(library) @$(DC) $(library)
 !endif
+!ifdef OBJS
  @$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
+!endif
+!ifdef LIBS
+ @$(LIB) $(LIBOPT) $(library).tmp1 +$(LIBS) $(LOG)
+!endif
 !ifdef OBJS16
  @$(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG)
  @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2

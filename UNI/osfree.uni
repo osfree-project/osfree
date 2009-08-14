@@ -9,9 +9,7 @@
 
 module osfree;
 
-(* This is temporary workaround of unimplementet default modifiers *)
-
-uses os2;
+uses os2 default;
 uses dos;
 
 end.
