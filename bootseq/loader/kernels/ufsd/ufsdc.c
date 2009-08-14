@@ -12,6 +12,8 @@
 int serial_init (long port, long speed,
                 int word_len, int parity, int stop_bit_len);
 
+int assign_drvletter (char *mode);
+
 extern mu_Open;
 extern mu_Read;
 extern mu_Close;
@@ -33,6 +35,7 @@ int fileaddr;
 
 unsigned long cdrom_drive;
 char drvletter;
+char mode[5];
 
 extern char debug;
 
@@ -51,6 +54,8 @@ extern char debug;
 #pragma aux mu_Close     "*"
 #pragma aux mu_Terminate "*"
 #pragma aux stack_bottom "*"
+
+int toupper (int c);
 
 int kprintf(const char *format, ...);
 void comout(unsigned short port, unsigned char c);
@@ -185,7 +190,7 @@ void cmain (void)
   bios_parameters_block *bpb;
   long port = 0x3f8;
   long speed = 9600;
-  char *pp;
+  char *pp, *r;
   int  i;
 
   if (m->flags & MB_INFO_CMDLINE)
@@ -208,10 +213,16 @@ void cmain (void)
       safe_parse_maxint(&pp, &speed);
     }
 
-    if (pp = strstr((char *)m->cmdline, "--hd"))
+    if (pp = strstr((char *)m->cmdline, "--drv"))
     {
       pp = skip_to(1, pp);
-      drvletter = grub_toupper(pp[0]);
+      // find name end
+      for (r = pp; *r && *r != ' '; r++) ;
+      memmove(mode, pp, r - pp);
+      mode[r - pp] = '\0';
+      // make name uppercase
+      r = mode;
+      while (*r) *r++ = toupper(*r);
     }
   }
 
@@ -220,6 +231,15 @@ void cmain (void)
 
   kprintf("**** Hello MBI microfsd!\n");
   kprintf("comport = 0x%x\n", port);
+
+  // set a drive letter according the DLAT info or AUTO algorithm
+  if (pp)
+  {
+    drvletter = assign_drvletter(mode);
+    // correct the command line according the drive letter got
+    pp[0] = (char)drvletter;
+    for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
+  }
 
   // load os2ldr
   if (ufs_open("OS2LDR"))

@@ -72,6 +72,8 @@ int  far pascal FSH_DOVOLIO    (unsigned short operation,
                                char far *pData,
                                unsigned short far *pcSec,
                                unsigned long iSec);
+int far pascal FSH_FINDDUPHVPB(unsigned short hVPB,
+                               unsigned short far *phVPB);
 void far pascal FSH_GETVOLPARM(unsigned short hVPB,
                                struct vpfsi far * far *ppVPBfsi,
                                struct vpfsd far * far *ppVPBfsd);
@@ -311,6 +313,7 @@ int far pascal _loadds FS_MOUNT(
                           )
 {
   unsigned short cbSec = 1;
+  unsigned short old_hVPB;
   int rc;
 
   kprintf("**** FS_MOUNT\n");
@@ -322,6 +325,15 @@ int far pascal _loadds FS_MOUNT(
     kprintf("mounting a DASD partition...\n");
   else
     kprintf("the drive is remounted.\nmounting a real boot partition...\n");
+
+  kprintf("hVPB = 0x%04x\n", hVPB);
+  if (!FSH_FINDDUPHVPB(hVPB, &old_hVPB))
+  {
+    //hVPB = old_hVPB;
+    //FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
+    kprintf("found a dup hVPB = 0x%04x\n", old_hVPB);
+    return NO_ERROR;
+  }
 
   memset(pvpfsd, 0, sizeof(struct vpfsd));
 

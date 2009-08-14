@@ -19,12 +19,12 @@
     /*
      * IBM C/C++ Compiler and Tools Version 3.6.5 main directory.
      */
-    sCxxMain    = 'f:\vacpp\v3.65_os2';
+    sCxxMain    = 'f:\dev\vac365';
 
     /*
      * Microsoft C v6.0a main directory.
      */
-    sMSCMain    = 'f:\DDK_os2\200204\toolkits\msc60';
+    sMSCMain    = 'f:\ddktools\toolkits\msc60';
 
 
     fRm = 0;

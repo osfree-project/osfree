@@ -22,7 +22,7 @@ i                =
 bbx              = $+$(kernels)$-
 
 ufsd_OBJS        = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
-                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) &
+                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)rawread$(e) &
                    $(p)cmdline$(e) $(p)bios$(e)
 common_OBJS      = $(p)end$(e)
 
@@ -47,7 +47,7 @@ rels         = $+$(kernels)$-
 p            = $(PATH)
 e            = .mdl
 i            = $(PATH)ufsd.inc
-TARGETS      = subdirs obj16 $+$(kernels)$- $(rels)
+TARGETS      = subdirs $+$(kernels)$- $(rels)
 
 files     = $(bbx)
 
@@ -64,9 +64,6 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=$$(SHIFT)
 !else
 defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 !endif
-
-obj16: .SYMBOLIC
- $(MAKE) $(MAKEOPT) -f $(MYDIR)makefile16 all1
 
 .asm:   $(MYDIR)..$(SEP)..$(SEP)preldr
 .c:     $(MYDIR)..$(SEP)..$(SEP)preldr

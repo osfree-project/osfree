@@ -203,10 +203,12 @@ C16FLAGS= /G2s /Zlp /PLM /W3 /c -nologo $(DBG_C16FLAGS)
 #-------------------------------------------------------------------------
 
 .asm{$(O)}.obj:
-        $(AS) $(AFLAGS) $(AINC) $<,$@;
+        $(AS) $(AFLAGS) $(AINC) $<
+
+#        $(AS) $(AFLAGS) $(AINC) $<,$@;
 
 .asm.lst:
-        $(AS) -l -n $(AFLAGS) $(AINC) $<,nul,$@;
+        $(AS) -l -n $(AFLAGS) $(AINC) $<,$(@B).lst,$(@B).crf;
 
 .c{$(O)}.obj:
         $(CC) $(CFLAGS) /Fo$@ /Fa$(O)\$(@B).lst $<

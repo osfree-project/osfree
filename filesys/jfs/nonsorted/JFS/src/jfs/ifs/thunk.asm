@@ -483,6 +483,8 @@ newArgVar  szParm,DWORD,,,,32
 
 ;;              int     3
 
+                ;int     3
+
                 EnterProc       ,,alignesp
                 movzx   ebp,bp
 
@@ -497,6 +499,8 @@ newArgVar  szParm,DWORD,,,,32
 ;;      Save the address of DevHelp
                 mov     eax, devHlp
                 mov     dhrouter, eax
+
+                ;int     3
 
 ;;      Get size of physical memory
                 CCall32 DosQuerySysInfo <17,17,FLAToffset MemorySize,4> cdecl
@@ -517,6 +521,8 @@ okay            label   near
                 call    dword ptr dhrouter
                 jc      noParams                ;; maybe should fail?
 
+                ;int     3
+
                 CCALL32 _parse_args@4 <eax>
 
 noParams        label   near
@@ -525,6 +531,8 @@ noParams        label   near
                 ; set up the proper data segment to call into autocheck
                 mov     ax, _DATA
                 mov     ds, ax
+
+                ;int     3 ;;;; vs
 
                 CCALL   _autocheck
 

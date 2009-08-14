@@ -61,9 +61,9 @@ SRC_NL_RELATIVE = mri\$(NLV)\$(SUBSYS)\$(SUBSYS_RELATIVE)
 # Refer to Nmake documentation, if you have any questions about MAKEDIR
 #------------------------------------------------------------------------------
 
-ROOT            = $(MAKEDIR:\src\jfs\ifs=)
+ROOT            = $(MAKEDIR:src\jfs\ifs=)
 !if "$(ROOT)" == "$(MAKEDIR)"
-ROOT            = $(MAKEDIR:\SRC\JFS\IFS=)
+ROOT            = $(MAKEDIR:SRC\JFS\IFS=)
 !endif
 !if "$(ROOT)" == "$(MAKEDIR)"
 !error Problem setting "ROOT"! Make sure current working directory is either all\
@@ -203,7 +203,9 @@ C16FLAGS= /G2s /Zlp /PLM /W3 /c -nologo $(DBG_C16FLAGS)
 #-------------------------------------------------------------------------
 
 .asm{$(O)}.obj:
-        $(AS) $(AFLAGS) $(AINC) $<,$@;
+        $(AS) $(AFLAGS) $(AINC) $<
+
+#        $(AS) $(AFLAGS) $(AINC) $<,$@;
 
 .asm.lst:
         $(AS) -l -n $(AFLAGS) $(AINC) $<,nul,$@;

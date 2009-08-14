@@ -307,7 +307,7 @@ int far pascal _loadds MFS_INIT(
         while (*r) *r++ = toupper(*r);
       }
 
-      if (pp = strstr(cmdline, "--hd"))
+      if (pp = strstr(cmdline, "--drv"))
       {
         pp = skip_to(1, pp);
         drvletter = toupper(pp[0]);

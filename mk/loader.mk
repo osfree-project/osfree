@@ -109,7 +109,7 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 !endif
  @%append $^@ LIBPATH $(BLD)lib
  @%append $^@ LIBRARY ldr_shared.lib
- @for %%i in ($(OBJS)) do @%append $^@ FILE %%i
+ @for %%i in ($(OBJS))   do @%append $^@ FILE %%i
 
 .c:   $(MYDIR)
 
