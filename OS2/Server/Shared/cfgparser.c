@@ -66,7 +66,8 @@ char *options_list[]={"AUTOFAIL","BUFFERS","CLOCKSCALE","CLOSEFILES",
 "VME","WORKPLACE_NATIVE","WORKPLACE_PRIMARY_CP","WORKPLACE_PROCESS","WP_OBJHANDLE",
 // Debugging options
 "DEBUGMODMGR",
-"DEBUGIXFMGR"};
+"DEBUGIXFMGR",
+"DEBUGPRCMGR"};
 
 
 /*! @brief Sets the default values in the options structure
@@ -101,6 +102,8 @@ unsigned long CfgInitOptions()
   options.reipl=0;
   options.protshell=NULL;
   options.debugmodmgr=0;
+  options.debugixfmgr=0;
+  options.debugprcmgr=0;
   return NO_ERROR;
 }
 
@@ -489,6 +492,12 @@ unsigned long CfgParseLine(char line[], int len)
                   options.debugixfmgr=0;
           }
           else options.debugixfmgr=1;
+          break;
+        case 57:// DEBUGPRCMGR
+          if(toupper(line[0])=='N'&&toupper(line[1])=='O') {
+                  options.debugprcmgr=0;
+          }
+          else options.debugprcmgr=1;
           break;
       default:
           io_printf("Oh, well, this should not occure. Please note down the following to lines:\n%s\n%s\n",options_list[i],line);

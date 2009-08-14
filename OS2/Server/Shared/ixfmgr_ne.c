@@ -28,7 +28,7 @@ unsigned long NEIdentify(void * addr, unsigned long size)
   return ERROR_BAD_FORMAT;
 }
 
-unsigned long NELoad(void * addr, unsigned long size, void ** Module)
+unsigned long NELoad(void * addr, unsigned long size, void * ixfModule)
 {
   return ERROR_BAD_FORMAT;
 }

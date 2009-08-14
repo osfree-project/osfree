@@ -38,6 +38,8 @@
 #include <io.h>
 
 
+extern struct module_rec module_root; /* Root for module list.*/
+
 /*ULONG     pib_ulpid;      Process identifier.
   ULONG     pib_ulppid;     Parent process identifier.
   ULONG     pib_hmte;       Module handle of executable program.
@@ -406,27 +408,41 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   #define buf_size 4096
   char buf[buf_size+1];
   char *p_buf = (char *) &buf;
+  unsigned long module_counter;
+  unsigned long imports_counter;
+  unsigned long hmod;
+  UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from ModLoadModule */
+  int relative_jmp;
+  struct module_rec * prev;
+
+  if (options.debugprcmgr) io_printf(__FUNCTION__": Loading executable %s\n", pName);
 
   // Try to load file (consider fully-qualified name specified)
   rc=io_load_file(pName, &addr, &size);
-  if (rc) // if error then
+  if (rc!=NO_ERROR) // if error then
   {
     // Searches for module name and returns the full path in the buffer p_buf.
     rc=find_path(pName, p_buf);
     if (!rc) rc=io_load_file(p_buf, &addr, &size);
   }
-  if (rc) return rc;
+  if (rc!=NO_ERROR)
+  {
+    io_printf(__FUNCTION__": Can't find %s module\n", pName);
+    return rc;
+  }
 
   rc=IXFIdentifyModule(addr, size, &ixfModule);
-  if (rc)
+  if (rc!=NO_ERROR)
   {
+    io_printf(__FUNCTION__": Error identifing %s module\n", pName);
     return rc;
   }
 
   // Load module
   rc=IXFLoadModule(addr, size, &ixfModule);
-  if (rc)
+  if (rc!=NO_ERROR)
   {
+    io_printf(__FUNCTION__": Error loading %s module\n", pName);
     return rc;
   }
 
@@ -436,25 +452,79 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   /* Register the exe with the module table. With the complete path. */
   /* @todo Is we really need to register executable??? Don't see any reason */
   // @todo extract filename only because can be fullname with path
-  register_module(pName, &ixfModule);
+  ModRegister(pName, &ixfModule);
+
+  // Load import modules
+  for (module_counter=1;
+       module_counter<ixfModule.cbModules+1;
+       module_counter++)
+  {
+    rc=ModLoadModule(uchLoadError, sizeof(uchLoadError),
+                              ixfModule.Modules[module_counter-1], (unsigned long *)&hmod);
+    if (rc!=NO_ERROR)
+    {
+      io_printf(__FUNCTION__": Error loading %s module\n", ixfModule.Modules[module_counter-1]);
+      return rc;
+    }
+  }
 
   // Fixup module
   rc=IXFFixupModule(&ixfModule);
-  if (rc)
+  if (rc!=NO_ERROR)
   {
+    io_printf(__FUNCTION__": Error %s module fixup\n", pName);
     return rc;
+  }
+
+  // Link module (import table resolving)
+  for (imports_counter=1;
+       imports_counter<ixfModule.cbFixups+1;
+       imports_counter++)
+  {
+    prev = (struct module_rec *) module_root.next;
+    while(prev)
+    {
+      if(strcasecmp(ixfModule.Fixups[imports_counter-1].ImportEntry.ModuleName, prev->mod_name)==0)
+      {
+        if(prev->load_status == LOADING)
+        {
+          hmod=NULL;
+          return ERROR_ACCESS_DENIED; // @todo Need more accurate code
+        }
+        // @todo use handles here
+        hmod=(unsigned long)prev->module_struct;
+        break;
+      }
+      prev = (struct module_rec *) prev->next;
+    }
+
+
+    ModQueryProcAddr(hmod,
+                     ixfModule.Fixups[imports_counter-1].ImportEntry.Ordinal,
+                     ixfModule.Fixups[imports_counter-1].ImportEntry.FunctionName,
+                     &(ixfModule.Fixups[imports_counter-1].ImportEntry.Address));
+
+    /* Is the EXE module placed under the DLL module in memory? */
+    if((ixfModule.Fixups[imports_counter-1].SrcAddress) < (ixfModule.Fixups[imports_counter-1].ImportEntry.Address))
+    {
+      relative_jmp = (int)(ixfModule.Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule.Fixups[imports_counter-1].SrcAddress);
+    } else {
+      relative_jmp = 0xffffffff-((int)(ixfModule.Fixups[imports_counter-1].SrcAddress) - (int)(ixfModule.Fixups[imports_counter-1].ImportEntry.Address))-3;
+    }
+    *((int *) ixfModule.Fixups[imports_counter-1].SrcAddress) = relative_jmp;
+
   }
 
   /* Print info about used memory loaded modules. */
   //print_used_mem(&tiny_process->root_mem_area);
   if(rc == NO_ERROR) {
     /* Starts to execute the process. */
-    io_printf("Executing exe...\n");
+    if (options.debugprcmgr) io_printf("Executing exe...\n");
     #if defined(L4API_l4v2)
     l4_exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
     #endif
     exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
-    io_printf("Done executing exe.\n");
+    if (options.debugprcmgr) io_printf("Done executing exe.\n");
   }
 
   PrcDestroy(tiny_process); /* Removes the process.
@@ -478,6 +548,8 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       See also other error codes
 
 */
+
+//APIRET APIENTRY DosSearchPath(ULONG,PCSZ,PCSZ,PBYTE,ULONG);
 
 unsigned long find_path(char * name, char * full_path_name)
 {

@@ -65,6 +65,7 @@ struct LX_module {
         size_t (* lx_fread)(void *ptr, size_t size, size_t nmemb, struct LX_module * lx_mod);
 };
 
+
         /* An earlier experiment with a modified struct r32_rlc. */
 struct r32_rlc_8bit_ord                      // Relocation item
 {
@@ -99,9 +100,6 @@ size_t lx_fread_disk_file(void *ptr, size_t size, size_t nmemb, struct LX_module
 struct LX_module * load_lx(FILE* fh, struct LX_module * lx_mod);
 
 
-/* Read in the header for the file from a memory buffer.
-   ALso an constructor for struct LX_module. */
-struct LX_module * load_lx_stream(char * stream_fh, int str_size, struct LX_module * lx_mod);
 
 
 /* Get an object from Object Table. */

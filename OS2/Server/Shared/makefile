@@ -21,6 +21,7 @@ $(p)ixfmgr_lx_fixuplx$(e) &
 $(p)ixfmgr_lx_loadobjlx$(e) &
 $(p)ixfmgr_lx_execlx$(e) &
 $(p)ixfmgr_lx$(e) &
+$(p)ixfmgr_lx_load$(e) &
 $(p)ixfmgr_lx_debuglx$(e) &
 $(p)ixfmgr_lx_modlx$(e) &
 $(p)ixfmgr_ne$(e)

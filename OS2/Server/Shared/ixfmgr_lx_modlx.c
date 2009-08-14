@@ -28,17 +28,7 @@
 #include "cfgparser.h"
 #include "modmgr.h"
 
-#ifndef ENEWHDR
-  #define ENEWHDR 0x3c
-#endif
-/*
-const int TRUE = 1;
-const int FALSE = 0; */
 
-
-int load_lx_module_header(struct LX_module * lx_mod);
-int load_lx_loader_section(struct LX_module * lx_mod);
-int load_lx_fixup_section(struct LX_module * lx_mod);
 struct o32_obj *
     get_data_stack(struct LX_module * lx_mod);
 int get_data_stack_num(struct LX_module * lx_mod);
@@ -142,10 +132,10 @@ load_lx(FILE* fh, struct LX_module * lx_mod)
         fseek(fh, 0, SEEK_SET);
 
 
-        if(load_lx_module_header(lx_mod)) {
+        if(LXLoadHeader(lx_mod)) {
                 //io_printf("Succeeded to load LX header.\n");
-                load_lx_loader_section(lx_mod);
-                load_lx_fixup_section(lx_mod);
+                LXLoadLoaderSection(lx_mod);
+                LXLoadFixupSection(lx_mod);
         }
         else {
                 io_printf("Could not load LX header!!!!\n");
@@ -155,37 +145,6 @@ load_lx(FILE* fh, struct LX_module * lx_mod)
         return lx_mod;
 }
 
-/* Reads in the lx header from the buffer pointed at stram_fh with the size of
-   str_size.
-   Constructor for buffer based file.
-*/
-
-struct LX_module *
-load_lx_stream(char * stream_fh, int str_size, struct LX_module * lx_mod) {
-        lx_mod->lx_fseek = &lx_fseek_stream; /* Copy functionpointer which does fseek on
-                                                memory buffer. An attempt to streamline
-                                                access to booth disk files and memory buffers.*/
-        lx_mod->lx_fread = &lx_fread_stream;
-        lx_mod->lx_file_stream = stream_fh;
-        lx_mod->lx_stream_size = str_size;
-        lx_mod->lx_stream_pos = 0;
-        lx_mod->lx_head_e32_exe = 0;
-        lx_mod->offs_lx_head = 0;
-
-        lx_mod->fh = 0; /* No filehandle to a disk file is used. */
-
-        if(load_lx_module_header(lx_mod)) {
-                //io_printf("Succeeded to load LX header.\n");
-                load_lx_loader_section(lx_mod);
-                load_lx_fixup_section(lx_mod);
-        }
-        else {
-                io_printf("Could not load LX header!!!!\n");
-                return 0;
-        }
-
-        return lx_mod;
-}
 
 /*
 #include <sys/mman.h>
@@ -227,106 +186,6 @@ Några OS/2 exe-filer:
 
 */
 
-
-
-  /* Läser in huvudet på lxfilen. Testar först om den har en DOS stub (MZ eller ZM) i början och
-     sen om den har en giltig LX signatur. */
-  /* Testar först om det är en giltig fil och laddar huvudet på lxfilen. */
-  /* Två alternativ av LX finns. En med en DOS-header och sen LX-header.
-     Även rena LX-filer finns, men är inte så vanliga. */
-int load_lx_module_header(struct LX_module * lx_mod)
-{
-  char exe_sig[2];
-  struct e32_exe * lx_e32_exe;
-  int lx_module_header_offset=0;
-  struct exe hdr;
-
-  lx_mod->lx_fseek(lx_mod, 0, SEEK_SET);
-  lx_mod->lx_fread(&exe_sig, sizeof(exe_sig), 1, lx_mod);
-
-  if(((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')) ||
-     ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')))
-  {
-    /* Found DOS stub. */
-
-    lx_mod->lx_fseek(lx_mod, ENEWHDR, SEEK_SET);
-
-    lx_mod->lx_fread(&lx_module_header_offset, sizeof(lx_module_header_offset), 1, lx_mod);
-
-    lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
-
-    lx_mod->lx_fread(&exe_sig, 1, sizeof(exe_sig), lx_mod);
-
-    lx_mod->offs_lx_head = lx_module_header_offset;
-    if (options.debugmodmgr)
-    {
-      lx_mod->lx_fseek(lx_mod, 0, SEEK_SET);
-      lx_mod->lx_fread(&hdr, sizeof(hdr), 1, lx_mod);
-      dump_header_mz(hdr);
-    }
-  }
-
-  if(lx_module_header_offset == 0) {
-    //io_printf(" Not an MZ/ZM Dos exe. MZ=%d ZM=%d %c%c\n",
-    //   ((exe_sig[0] == 'M') && (exe_sig[1] == 'Z')),
-    //   ((exe_sig[0] == 'Z') && (exe_sig[1] == 'M')), exe_sig[0], exe_sig[1] );
-    //io_printf("LX header offset: %d \n", lx_module_header_offset);
-    lx_module_header_offset = 0;
-    lx_mod->offs_lx_head = lx_module_header_offset;
-  }
-
-  if((exe_sig[0] == 'L') && (exe_sig[1] == 'X')) {
-    //io_printf("Valid LX header.\n");
-
-    lx_e32_exe = (struct e32_exe *) malloc(sizeof(struct e32_exe));
-
-    //int storlek = sizeof(struct e32_exe);
-    //io_printf("Läser %d bytes av LX header.\n", storlek);
-
-    lx_mod->lx_fseek(lx_mod, lx_module_header_offset, SEEK_SET);
-
-    lx_mod->lx_fread(lx_e32_exe, sizeof(struct e32_exe), 1, lx_mod);
-
-    lx_mod->lx_head_e32_exe = lx_e32_exe;
-
-    if (options.debugmodmgr)
-    {
-      dump_header_lx(*lx_e32_exe);
-    }
-    E32_MFLAGS(*lx_e32_exe);
-    return TRUE;
-  } else {
-    io_printf("Invalid LX file !!!! (%c%c)\n", exe_sig[0], exe_sig[1]);
-    return FALSE;
-  }
-
-  return FALSE;
-}
-
-
-
-/* Reads loader section from file, it's place is in the header. */
-int load_lx_loader_section(struct LX_module * lx_mod)
-{
-  lx_mod->lx_fseek(lx_mod, lx_mod->offs_lx_head + lx_mod->lx_head_e32_exe->e32_objtab, SEEK_SET);
-
-  //io_printf("Reads Loader Section.\n");
-  lx_mod->loader_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_ldrsize);
-
-  lx_mod->lx_fread(lx_mod->loader_section,  lx_mod->lx_head_e32_exe->e32_ldrsize,1, lx_mod);
-  return TRUE;
-}
-
-
-
-        /* Reads fixup part. */
-int load_lx_fixup_section(struct LX_module * lx_mod)
-{
-  lx_mod->fixup_section = (char *) malloc(lx_mod->lx_head_e32_exe->e32_fixupsize);
-
-  lx_mod->lx_fread(lx_mod->fixup_section,  lx_mod->lx_head_e32_exe->e32_fixupsize,1, lx_mod);
-  return TRUE;
-}
 
 
 /*    unsigned long       e32_startobj;    Object # for instruction pointer
@@ -427,9 +286,6 @@ get_obj_map(struct LX_module * lx_mod, unsigned  int nr) {
 }
 
 
-
-
-
 int get_ldrsize(struct LX_module * lx_mod) {
         return lx_mod->lx_head_e32_exe->e32_ldrsize;
 }
@@ -483,7 +339,6 @@ char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx)
        i!=(mod_idx-1);
        i++)
   {
-    printf("%d\n",(char)*mod_name);
     mod_name=mod_name+(char)*mod_name+1;
   }
 

@@ -30,6 +30,7 @@
 #include <modmgr.h>
 #include <fixuplx.h>
 #include <io.h>
+#include "cfgparser.h"
 
 /* Small descriptions of possible fixups. (1=variable size, 2=optional fields)
 
@@ -62,27 +63,28 @@ void print_struct_r32_rlc_info(struct r32_rlc * rlc)
   int source_type_mask;
   int fixup_size;
 
+  if (!options.debugixfmgr) return;
 
-        io_printf("\n---------List of fixup data ------------- '%p'", rlc);
-        io_printf("\n");
-        io_printf("   %02X    %02X   src off = %04X   ", rlc->nr_stype, rlc->nr_flags, get_srcoff_cnt1_rlc(rlc));
+  io_printf("\n---------List of fixup data ------------- '%p'", rlc);
+  io_printf("\n");
+  io_printf("   %02X    %02X   src off = %04X   ", rlc->nr_stype, rlc->nr_flags, get_srcoff_cnt1_rlc(rlc));
 
-        if((rlc->nr_flags & NRRTYP) == NRRINT)
-                io_printf("object #    = %02d   ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
-        else
-                io_printf("mod ord #   = %02d   ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
+  if((rlc->nr_flags & NRRTYP) == NRRINT)
+          io_printf("object #    = %02d   ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
+  else
+          io_printf("mod ord #   = %02d   ",   get_mod_ord1_rlc(rlc), get_mod_ord1_rlc(rlc));
 
-        if((rlc->nr_flags & NRRORD) == NRRORD)
-                io_printf("import ord #     = %02d\n", get_imp_ord1_rlc(rlc));
-        if((rlc->nr_flags & NRRNAM) == NRRNAM)
-                io_printf("import name      = %s\n", get_imp_name_rlc(rlc));
+  if((rlc->nr_flags & NRRORD) == NRRORD)
+          io_printf("import ord #     = %02d\n", get_imp_ord1_rlc(rlc));
+  if((rlc->nr_flags & NRRNAM) == NRRNAM)
+          io_printf("import name      = %s\n", get_imp_name_rlc(rlc));
 
-        if(((rlc->nr_flags & NRRTYP) == NRRINT) && (source_type_mask != NRSSEG))
-                io_printf("target off       = %04X\n", get_imp_ord1_rlc(rlc));
-//                io_printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
+  if(((rlc->nr_flags & NRRTYP) == NRRINT) && (source_type_mask != NRSSEG))
+          io_printf("target off       = %04X\n", get_imp_ord1_rlc(rlc));
+//          io_printf("  trgoff1,2: %4.d (0x%.4x)  \n", get_imp_ord1_rlc(rlc), get_imp_ord1_rlc(rlc));
 
-        source_type_mask = rlc->nr_stype & NRSTYP;
-        /*if(source_type_mask == NRSTYP)
+  source_type_mask = rlc->nr_stype & NRSTYP;
+  /*if(source_type_mask == NRSTYP)
                 io_printf("    0x0F: Source type mask.\n"); */
 #if 0
         if(source_type_mask == NRSBYT)
@@ -400,7 +402,7 @@ int get_additive_rlc(struct r32_rlc * rlc)
           /*3*/ additive_offs = get_SRC_FLAGS_size()  + get_srcoff_cnt1_size(rlc)+
                                   get_ord1_entry_size(rlc);
         }
-        io_printf(" additive_offs: %d (0x%x)\n", additive_offs, additive_offs);
+        if (options.debugixfmgr) io_printf(" additive_offs: %d (0x%x)\n", additive_offs, additive_offs);
         additive_val=0;
         additive_size = get_additive_size(rlc);
         uint_rlc = (unsigned long int)rlc;

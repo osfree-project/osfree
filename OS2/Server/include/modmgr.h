@@ -32,7 +32,7 @@ void dump_header_lx(struct e32_exe hdr);
 void print_detailed_module_table(void);
 void print_module_table(void);
 
-struct module_rec * register_module(const char * name, void * mod_struct);
+struct module_rec * ModRegister(const char * name, void * mod_struct);
 
 unsigned long ModInitialize(void);
 
@@ -86,20 +86,6 @@ APIRET APIENTRY  DosQueryModFromEIP(HMODULE *phMod,
    #define HW_CFG_OEM_ABIOS        0x00000020
    #define HW_CFG_PENTIUM_CPU      0x00000040
 
-APIRET  APIENTRY DosQueryABIOSSupport(ULONG reserved);
-
-
-   /* structure returned by DosQueryModFromCS */
-
-   typedef struct _QMRESULT { /* qmres */
-      USHORT seg;
-      USHORT hmte;
-      CHAR   name[CCHMAXPATH];
-   } QMRESULT;
-   typedef QMRESULT * PQMRESULT;
-
-
-APIRET16 APIENTRY16 Dos16QueryModFromCS(SEL, PQMRESULT);
 
 #endif
 

@@ -36,4 +36,3 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
 
   return ERROR_FILE_NOT_FOUND;
 }
-

@@ -59,6 +59,7 @@ typedef struct {
         int wp_objhandle;       // =n
         short int debugmodmgr;     // =NO
         short int debugixfmgr;     // =NO
+        short int debugprcmgr;     // =NO
 } cfg_opts;
 
 extern cfg_opts options;

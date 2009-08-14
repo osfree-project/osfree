@@ -8,6 +8,8 @@
 #define INCL_ERRORS
 #include <os2.h>
 
+#include <io.h>
+#include <cfgparser.h>
 #include <ixfmgr.h>
 #include <lx.h>
 #include <ne.h>
@@ -41,6 +43,7 @@ unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixf
     {
       ixfModule->Load=IXFHandlers[i].Load;
       ixfModule->Fixup=IXFHandlers[i].Fixup;
+      if (options.debugixfmgr) io_printf(__FUNCTION__": Format of module identified\n");
       break;
     }
   }
@@ -49,10 +52,14 @@ unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixf
 
 unsigned long IXFLoadModule(void * addr, unsigned long size, IXFModule * ixfModule)
 {
-  return ixfModule->Load(addr, size, &ixfModule->FormatStruct);
+  if (options.debugixfmgr) io_printf(__FUNCTION__": Loading module.\n");
+  return ixfModule->Load(addr, size, ixfModule);
 }
 
 unsigned long IXFFixupModule(IXFModule * ixfModule)
 {
-  return ixfModule->Fixup(ixfModule->FormatStruct);
+  unsigned long rc;
+  if (options.debugixfmgr) io_printf(__FUNCTION__": Fixing up module\n");
+  rc=ixfModule->Fixup(ixfModule->FormatStruct);
+  return rc;
 }

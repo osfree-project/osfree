@@ -93,15 +93,25 @@ int main(int argc, const char **argv)
 
   // Initialize initial values from CONFIG.SYS
   rc=CfgInitOptions();
+  if (rc!=NO_ERROR)
+  {
+    io_printf("Can't initialize CONFIG.SYS parser\n");
+    return rc;
+  }
 
   /* Initializes the module list. Keeps info about which dlls an process have loaded and
      has linked to it (Only support for LX dlls so far). The head of the linked list is
      declared as a global inside dynlink.c */
   rc=ModInitialize();
+  if (rc!=NO_ERROR)
+  {
+    io_printf("Can't initialize module manager\n");
+    return rc;
+  }
 
   // Load CONFIG.SYS into memory
   rc=io_load_file("config.sys", &addr, &size);
-  if (rc)
+  if (rc!=NO_ERROR)
   {
     io_printf("Can't load CONFIG.SYS\n");
     return rc;
@@ -109,6 +119,11 @@ int main(int argc, const char **argv)
 
   // Parse CONFIG.SYS in memory
   rc=CfgParseConfig(addr, size);
+  if (rc!=NO_ERROR)
+  {
+    io_printf("Error parse CONFIG.SYS\n");
+    return rc;
+  }
 
   // Remove CONFIG.SYS from memory
   //    rc=memmgr_free(addr, size);
@@ -141,11 +156,16 @@ int main(int argc, const char **argv)
 
     // Load and execute shell
     rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
-    if(rc) io_printf("execute error: %d ('%s')\n", rc, options.protshell);
+    if(rc!=NO_ERROR) io_printf("Error execute: %d ('%s')\n", rc, options.protshell);
   }
 
   // Clean up config data
   rc=CfgCleanup();
+  if (rc!=NO_ERROR)
+  {
+    io_printf("CONFIG.SYS parser cleanup error.\n");
+    return rc;
+  }
 
   io_printf("OS/2 Server ended\n");
 
