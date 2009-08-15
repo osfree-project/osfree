@@ -2,10 +2,13 @@
   #define INCL_DOSPROCESS       /* Process and thread values */
   #define INCL_DOS
   #define INCL_DOSERRORS        /* DOS error values          */
+  #define INCL_DOSMISC          /* DOS error values          */
   #define INCL_DOSFILEMGR
+  #define INCL_BASE
+  #define INCL_BSESUB
   #define INCL_KBD
   #define INCL_VIO
-  #include <osfree.h>
+  #include <os2.h>
 #else
 
   #include <l4/os2/kal.h>

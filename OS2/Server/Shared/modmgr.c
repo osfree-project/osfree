@@ -321,10 +321,11 @@ unsigned long ModLoadModule(char *          pszName,
                      ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName,
                      &(ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
 
+    io_printf("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
     /* Is the EXE module placed under the DLL module in memory? */
     if((ixfModule->Fixups[imports_counter-1].SrcAddress) < (ixfModule->Fixups[imports_counter-1].ImportEntry.Address))
     {
-      relative_jmp = (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule->Fixups[imports_counter-1].SrcAddress);
+      relative_jmp = (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule->Fixups[imports_counter-1].SrcAddress)-4;
     } else {
       relative_jmp = 0xffffffff-((int)(ixfModule->Fixups[imports_counter-1].SrcAddress) - (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address))-3;
     }
@@ -363,12 +364,20 @@ unsigned long ModInitialize(void)
   ixf->Load=NULL;
   ixf->Fixup=NULL;
   ixf->FormatStruct=NULL;
-  ixf->cbEntries=3;
+  ixf->cbEntries=5;
   ixf->Entries=malloc(sizeof(IXFMODULEENTRY)*ixf->cbEntries);
   ixf->Entries[2].FunctionName="KalWrite";
   ixf->Entries[2].Address=&api_DosWrite;
   ixf->Entries[2].ModuleName=NULL;
   ixf->Entries[2].Ordinal=0;
+  ixf->Entries[3].FunctionName="KalExit";
+  ixf->Entries[3].Address=&api_DosExit;
+  ixf->Entries[3].ModuleName=NULL;
+  ixf->Entries[3].Ordinal=0;
+  ixf->Entries[4].FunctionName="KalQuerySysInfo";
+  ixf->Entries[4].Address=&api_DosQuerySysInfo;
+  ixf->Entries[4].ModuleName=NULL;
+  ixf->Entries[4].Ordinal=0;
   ixf->cbModules=0;
   ixf->Modules=NULL;
   ixf->cbFixups=0;

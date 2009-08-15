@@ -10,8 +10,8 @@ srcfiles = $(p)msg$(e) &
 	   $(p)doscopy$(e) &
 	   $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
-ADD_COPT = #-i=$(%ROOT)build$(SEP)include$(SEP)os2 -i=. # -i=..\include
-ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
+ADD_COPT = -s
+ADD_LINKOPT  = op internalrelocs op nod lib clib3r.lib segment   type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata

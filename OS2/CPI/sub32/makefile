@@ -8,7 +8,7 @@
 
 PROJ        = sub32
 DESC        = Base Subsystems API
-srcfiles    = $(p)emx_revision$(e)
+srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e)
 ADD_COPT    = -i=..\include
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
@@ -45,8 +45,11 @@ OPTIONS = manyautodata #This is required because each application has
 #          MOUINITREAL  	DOSCALLS.744, &
 #          MOUGETTHRESHOLD      DOSCALLS.722, &
 #          MOUSETTHRESHOLD      DOSCALLS.728
-EXPORTS =   VioGetAnsi  		.103, &
-	    VioSetAnsi  		.105
+EXPORTS = &
+#VioGetAnsi     	     .103, &
+#            VioSetAnsi 		 .105, &
+	    VioWrtTTY   		.119, &
+	    KbdStringIn 		.209
 
 #  EMX_REVISION.1 RESIDENT, &
 #  WinDefAVioWindowProc        .30, &
@@ -62,7 +65,6 @@ EXPORTS =   VioGetAnsi  		.103, &
 #  VioWrtCharStr	       .113, &
 #  VioSetCurPos 	       .115, &
 #  VioScrUnLock 	       .118, &
-#  VioWrtTTY    	       .119, &
 #  VioGetMode   	       .121, &
 #  VioSetMode   	       .122, &
 #  VioScrLock   	       .123, &
@@ -111,7 +113,6 @@ EXPORTS =   VioGetAnsi  		.103, &
 #  KbdSetCp     	       .205, &
 #  KbdSynch     	       .207, &
 #  KbdRegister  	       .208, &
-#  KbdStringIn  	       .209, &
 #  KbdGetStatus 	       .210, &
 #  KbdSetStatus 	       .211, &
 #  KbdGetFocus  	       .212, &

@@ -459,16 +459,6 @@ APIRET APIENTRY DosEnterCritSec(VOID)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY DosExitCritSec(VOID)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
-
-VOID APIENTRY DosExit(ULONG action,
-                      ULONG result)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-}
 
 APIRET APIENTRY DosKillProcess(ULONG action,
                                PID pid)
@@ -1177,11 +1167,6 @@ APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
   return 0;
 }
 
-APIRET APIENTRY DosQuerySysInfo(ULONG iStart, ULONG iLast, PVOID pBuf, ULONG cbBuf)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0;
-}
 
 APIRET APIENTRY DosWaitThread(PTID ptid,
                               ULONG option)
@@ -2582,3 +2567,9 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
+
+APIRET APIENTRY DosExitCritSec(VOID)
+{
+  printf(__FUNCTION__ " not implemented yet\n");
+  return 0;
+}

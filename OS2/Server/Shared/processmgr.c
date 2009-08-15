@@ -507,10 +507,11 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     /* Is the EXE module placed under the DLL module in memory? */
     if((ixfModule.Fixups[imports_counter-1].SrcAddress) < (ixfModule.Fixups[imports_counter-1].ImportEntry.Address))
     {
-      relative_jmp = (int)(ixfModule.Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule.Fixups[imports_counter-1].SrcAddress);
+      relative_jmp = (int)(ixfModule.Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule.Fixups[imports_counter-1].SrcAddress)-4;
     } else {
       relative_jmp = 0xffffffff-((int)(ixfModule.Fixups[imports_counter-1].SrcAddress) - (int)(ixfModule.Fixups[imports_counter-1].ImportEntry.Address))-3;
     }
+    io_printf("src=%x, dst=%x, rel=%d\n",(ixfModule.Fixups[imports_counter-1].SrcAddress) , (ixfModule.Fixups[imports_counter-1].ImportEntry.Address), relative_jmp);
     *((int *) ixfModule.Fixups[imports_counter-1].SrcAddress) = relative_jmp;
 
   }

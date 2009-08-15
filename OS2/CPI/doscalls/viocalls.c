@@ -1,3 +1,4 @@
+/*
   WinDefAVioWindowProc        .30, &
   VioEndPopUp                 .101, &
   VioGetPhysBuf               .102, &
@@ -13,7 +14,6 @@
   VioWrtCharStr               .113, &
   VioSetCurPos                .115, &
   VioScrUnLock                .118, &
-  VioWrtTTY                   .119, &
   VioGetMode                  .121, &
   VioSetMode                  .122, &
   VioScrLock                  .123, &
@@ -56,3 +56,4 @@
   VioShowPS                   .166, &
   VioGlobalReg                .170, &
   VioCheckCharType            .175, &
+*/

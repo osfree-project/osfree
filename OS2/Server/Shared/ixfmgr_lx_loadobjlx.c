@@ -197,6 +197,7 @@ void apply_internal_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rl
 
   unsigned long int * ptr_source; // Address to fixup
   int srcoff_cnt1;
+  int addit;
   int object1;
   int trgoffs;
   struct o32_obj * target_object;
@@ -207,6 +208,7 @@ void apply_internal_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rl
   srcoff_cnt1 = get_srcoff_cnt1_rlc(min_rlc);
   object1 = get_mod_ord1_rlc(min_rlc); /* On the same offset as Object1. */
   trgoffs = get_trgoff_size(min_rlc);
+  addit = get_additive_rlc(min_rlc);
 
   target_object = get_obj(lx_exe_mod, object1);
   vm_start_target_obj = target_object->o32_base;
@@ -214,6 +216,8 @@ void apply_internal_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rl
   /* Get address of target offset and put in source offset. */
   vm_target = vm_start_target_obj + get_imp_ord1_rlc(min_rlc)/*trgoffs*/;
   vm_source = vm_start_of_page + srcoff_cnt1;
+
+  io_printf("source=%x, target=%x, addit=%d\n", vm_source, vm_target, addit);
 
   ptr_source = (unsigned long int *)vm_source;
   *ptr_source = vm_target;
