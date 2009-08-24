@@ -9,7 +9,7 @@
 PROJ        = sub32
 DESC        = Base Subsystems API
 srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e)
-ADD_COPT    = -i=..\include
+ADD_COPT    = -i=..\include -s
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
@@ -48,8 +48,8 @@ OPTIONS = manyautodata #This is required because each application has
 EXPORTS = &
 #VioGetAnsi     	     .103, &
 #            VioSetAnsi 		 .105, &
-	    VioWrtTTY   		.119, &
-	    KbdStringIn 		.209
+	    VioWrtTTY   		.119 #, &
+#            KbdStringIn		 .209
 
 #  EMX_REVISION.1 RESIDENT, &
 #  WinDefAVioWindowProc        .30, &

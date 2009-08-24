@@ -218,7 +218,7 @@ int get_obj_map_num(struct LX_module * lx_mod) {
 struct o32_obj *
 get_code(struct LX_module * lx_mod) {
         if(lx_mod->lx_head_e32_exe->e32_startobj == 0) {
-                io_printf("Invalid start object for code ==0\n");
+                if (options.debugixfmgr) io_printf("Invalid start object for code ==0\n");
                 return (struct o32_obj *)0;
         }
         return get_obj(lx_mod, lx_mod->lx_head_e32_exe->e32_startobj);
@@ -241,7 +241,7 @@ struct o32_obj *
 get_data_stack(struct LX_module * lx_mod) {
         if((lx_mod->lx_head_e32_exe->e32_stackobj == 0) ||
                 (lx_mod->lx_head_e32_exe->e32_stackobj > get_obj_num(lx_mod))) {
-                io_printf("Invalid data/stack object ==%lu, max=%lu\n",
+                  if (options.debugixfmgr) io_printf("Invalid data/stack object ==%lu, max=%lu\n",
                                 lx_mod->lx_head_e32_exe->e32_stackobj,
                                 get_obj_num(lx_mod));
                 return (struct o32_obj *)0;

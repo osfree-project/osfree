@@ -223,155 +223,20 @@ void l4_exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc)
 
         void * main_ptr = (void *)eip;
         void * data_mmap = (void *)stack_obj->o32_base;
-        
+
         l4_taskid_t taskid;
 
         int task_status = l4ts_allocate_task2(&taskid);
-        int r = l4ts_create_task( &taskid,  main_ptr,  data_mmap, 
-                                  0, 0, 
+        int r = l4ts_create_task( &taskid,  main_ptr,  data_mmap,
+                                  0, 0,
                                   L4ENV_DEFAULT_PRIO, "MyOSFreeTask", 0);
                         /* getmodulename(lx_exe_mod) */
        /* l4ts_create_task(l4_taskid_t *taskid, l4_addr_t entry, l4_addr_t stack,
-                 l4_uint32_t mcp,  const l4_taskid_t *pager, 
+                 l4_uint32_t mcp,  const l4_taskid_t *pager,
                  l4_int32_t prio,  const char *resname, l4_uint32_t flags); */
 }
 
 #endif /* L4API_l4v2 */
-
-
-void exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc)
-{
-
-                void * my_execute;
-                unsigned long int tmp_data_mmap;
-                unsigned long int tmp_ptr_data_mmap_16;
-                unsigned long int tmp_ptr_data_mmap_21;
-                unsigned int esp_data;
-                unsigned int ebp_data;
-                unsigned long int tmp_ptr_data_mmap;
-
-
-        struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
-
-        struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
-
-        unsigned long eip = get_eip(lx_exe_mod) + kod_obj->o32_base;
-        unsigned long esp = get_esp(lx_exe_mod);
-
-        void * main_ptr = (void *)eip;
-        void * data_mmap = (void *)stack_obj->o32_base;
-
-        my_execute = /*(int (*)()) (void*)*/ main_ptr;
-
-                //io_printf("Executing LX program**********************\n");
-                tmp_data_mmap = (unsigned long int) data_mmap;
-                tmp_data_mmap += esp - 8;
-                //io_printf(" (esp+data_mmap-8) %lu (0x%lx)\n", (tmp_data_mmap), (tmp_data_mmap) );
-                //io_printf(" Sätter esp=0x%lx, ebp=0x%lx \n", (tmp_data_mmap), (tmp_data_mmap));
-                //io_printf(" my_execute: %p, eip: 0x%lx \n", my_execute, get_eip(lx_exe_mod));
-
-                /* DosPutMessage(1, 6, "Hello\n"); */
-                esp_data=0;
-                ebp_data=0;
-
-                /* Kopierar esp till variabeln esp_data. esp_data är en ut-variabel.*/
-                /*asm("movl %%esp, %[esp_data]"
-                                        : [esp_data]  "=m" (esp_data): );
-                asm("movl %%ebp, %[ebp_data]"
-                                        : [ebp_data]  "=m" (ebp_data): ); */
-
-                #ifdef __WATCOMC__
-                _asm {
-                     mov esp_data, esp
-                     mov ebp_data, ebp
-                     }
-                #elif   1
-                /* Save the registers ebp and esp. */
-                asm("movl %%esp, %[esp_data] \n"
-                        "movl %%ebp, %[ebp_data]"
-                                        : [ebp_data]  "=m" (ebp_data),
-                                          [esp_data]  "=m" (esp_data)  );
-                #endif
-                /*unsigned int main_int = (unsigned int) *((char *)main_ptr);*/
-
-                /* Put the values of ebp and esp in our new stack. */
-                tmp_ptr_data_mmap = (unsigned long int)data_mmap;
-                tmp_ptr_data_mmap += esp-4;
-                (*((unsigned long int *)(tmp_ptr_data_mmap)))   = esp_data;
-
-                tmp_ptr_data_mmap = (unsigned long int)data_mmap;
-                tmp_ptr_data_mmap += esp-8;
-                (*((unsigned long int *)(tmp_ptr_data_mmap)))   = ebp_data;
-
-                /* Kopiera de nya värdena för esp, ebp och my_execute till temp register.
-                   Kanske EAX, EBX, ECX. Uppdatera esp och ebp. Anropa sen funktionen my_execute
-                   med call EAX nånting.
-                   Efter funktionen har körts? Var finns den gamla esp och ebp? ebp minus nånting
-                   eller plus nånting? Ta reda på det och kopiera till temp register och sen
-                   uppdatera esp och ebp igen.
-                */
-                tmp_ptr_data_mmap = (unsigned long int)data_mmap;
-                tmp_ptr_data_mmap += esp-12;
-                esp_data = tmp_ptr_data_mmap;
-                ebp_data = tmp_ptr_data_mmap;
-
-                tmp_ptr_data_mmap_16 = (unsigned long int)data_mmap;
-                tmp_ptr_data_mmap_16 += esp-16;
-
-                tmp_ptr_data_mmap_21 = (unsigned long int)data_mmap;
-                tmp_ptr_data_mmap_21 += esp-21;
-
-                #ifdef __WATCOMC__
-
-_asm{
-                        mov eax, esp_data ;
-                        mov ebx, ebp_data ;
-                        mov ecx, my_execute ;
-                        mov edx, ebp ; Copy ebp to edx. Base pointer for this functions local variables.*/
-                        mov esp, eax ; Copy eax to esp. Stack pointer*/
-                        mov ebp, ebx ;
-                                     ;                   /* We have changed the stack so it now points to out LX image.*/
-                        push edx     ; /* Put the value of our ebp on our new stack*/
-                        call ecx     ; /* "call *%%ecx \n"  Call our main() */                /* "push $0xff \n" */
-};
-                #elif 1
-                /* Kopierar variabeln esp_data till esp! esp_data är en in-variabel.*/
-                asm("movl %[esp_data], %%eax \n"    /* Put old esp in eax */
-                        "movl %[ebp_data], %%ebx \n"    /* Put old ebp in ebx */
-                        "movl %[my_execute], %%ecx \n"
-
-                        "movl %%ebp, %%edx \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/
-                        "movl %%eax, %%esp \n" /* Copy eax to esp. Stack pointer*/
-                        "movl %%ebx, %%ebp \n"
-                                                        /* We have changed the stack so it now points to out LX image.*/
-                        "push %%edx \n" /* Put the value of our ebp on our new stack*/
-                                                                                                                /* "push $0xff \n" */
-                        "call *%%ecx \n" /* Call our main() */
-                                        :
-                                          :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
-                                           [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
-                                           [my_execute] "m" (my_execute) );
-        #endif
-                /* OBS! Stacken är ändrad här !!!!! */
-                /* Funkar inte, my_execute är en variabel med en pekare i stacken som
-                 inte kan läsas efter att stacken ändrats! Baseras på ebp!
-                 Alla värden måste läsas in i register och sen placeras på rätt
-                 ställen. */
-
-                 #ifdef __WATCOMC__
-                 _asm{   pop ebp ; Restore base pointer so we don't crash as soon we access local variables.
-                         pop ebx
-                         pop ebx
-                     }
-                #elif 1
-                 int tcc_bugg_;
-                asm("pop %%ebp \n"  /* Restore base pointer so we don't crash as soon we access local variables.*/
-                    "pop %%ebx \n"
-                    "pop %%ebx \n"
-                                        : /*: [tcc_bugg_] "m" (tcc_bugg_)*/ );
-                #endif
-
-}
 
 
 

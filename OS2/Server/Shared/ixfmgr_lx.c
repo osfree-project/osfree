@@ -20,11 +20,19 @@
 #include "fixuplx.h"
 #include "cfgparser.h"
 
+#define ISDLL(ixf) (E32_MFLAGS(*((struct LX_module *)(ixf->FormatStruct))->lx_head_e32_exe) & E32MODMASK) == E32MODDLL
+
 // Prototypes
 unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule);
 unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule);
 unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
                                 struct o32_obj * lx_obj, int *ret_rc);
+void dump_header_mz(struct exe hdr);
+void dump_header_lx(struct e32_exe hdr);
+
+/* Read in the header for the file from a memory buffer.
+   ALso an constructor for struct LX_module. */
+struct LX_module * LXLoadStream(char * stream_fh, int str_size, struct LX_module * lx_mod);
 
 
 unsigned long LXIdentify(void * addr, unsigned long size)
@@ -59,6 +67,8 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
   long module_counter;
   char buf[256];
   IXFModule *ixf;
+  struct o32_obj * code;
+  struct o32_obj * stack;
 
   ixf=(IXFModule*)ixfModule;
 
@@ -95,6 +105,24 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
 
     /* Convert entry table to BFF format for DLL */
     convert_fixup_table_to_BFF(ixf);
+
+    /* Set entry point */
+    code=((struct o32_obj *) get_code((struct LX_module *)(ixf->FormatStruct)));
+    if (code==NULL)
+    {
+      ixf->EntryPoint=NULL;
+    } else {
+      ixf->EntryPoint = get_eip((struct LX_module *)(ixf->FormatStruct)) + code->o32_base;
+    }
+
+    stack=((struct o32_obj *) get_data_stack((struct LX_module *)(ixf->FormatStruct)));
+    if (stack==NULL)
+    {
+      ixf->Stack=NULL;
+    } else {
+      ixf->Stack = get_esp((struct LX_module *)(ixf->FormatStruct)) + stack->o32_base;
+    }
+
   }
   return NO_ERROR;
 }
@@ -189,6 +217,10 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
   /* Count number of entries */
   while (1)
   {
+    if (entry_table->b32_cnt == 0) {
+        break; /* end of table*/
+    }
+
     switch(entry_table->b32_type) {
       case EMPTY:;
       case ENTRYFWD:;
@@ -199,9 +231,6 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
     }
 
 
-    if (entry_table->b32_cnt == 0) {
-        break; /* end of table*/
-    }
 
 /* Unused Entry, just skip over them.*/
     if (entry_table->b32_type == EMPTY)
@@ -245,6 +274,11 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
 
   while (1)
   {
+    if (entry_table->b32_cnt == 0) {
+        ixfModule->cbEntries--;
+        break; /* end of table */
+    }
+
     switch(entry_table->b32_type) {
       case EMPTY:;
       case ENTRYFWD:;
@@ -255,13 +289,12 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
     }
 
 
-    if (entry_table->b32_cnt == 0) {
-        ixfModule->cbEntries--;
-        break; /* end of table */
-    }
 
-    io_printf("number of entries in bundle %d\n",entry_table->b32_cnt);
-    io_printf("type = %d\n",entry_table->b32_type);
+    if (options.debugixfmgr)
+    {
+      io_printf("number of entries in bundle %d\n",entry_table->b32_cnt);
+      io_printf("type = %d\n",entry_table->b32_type);
+    }
 
     /* Unused Entry, just skip over them.*/
     if (entry_table->b32_type == EMPTY)

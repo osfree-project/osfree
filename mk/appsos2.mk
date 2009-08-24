@@ -15,6 +15,10 @@ RCOPT = &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
 
 
+!ifeq DLL 1
+ADD_COPT   =          $(ADD_COPT) -bd
+!endif
+
 ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%WATCOM)$(SEP)h &
 #                  until UniAPI modules will be ready &

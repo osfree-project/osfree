@@ -267,32 +267,6 @@ unsigned long ModLoadModule(char *          pszName,
     free(ixfModule);
     return rc;
   }
-  else
-  { /*
-    if (!strcmp(pszModname, "KAL"))
-    {
-      IXFMODULEENTRY *e;
-      char *name;
-      int  ord;
-      APIRET APIENTRY (*func) ();
-
-      e = ixfModule->Entries;
-      ord  = e->Ordinal;
-      name = e->FunctionName;
-      if (!strcmp(name, "KalInit") && ord == 1)
-      {
-        func = e->Address;
-        func(entry_Table);
-        io_printf("KalInit() found and called @ 0x%x\n", func);
-      }
-      else
-      {
-        io_printf("No KalInit.1 function in KAL.dll, fatal!");
-        rc = ERROR_INVALID_FUNCTION;
-      }
-    } */
-  }
-
 
   // Link module (import table resolving)
   for (imports_counter=1;
@@ -321,7 +295,7 @@ unsigned long ModLoadModule(char *          pszName,
                      ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName,
                      &(ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
 
-    io_printf("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
+    if (options.debugmodmgr) io_printf("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
     /* Is the EXE module placed under the DLL module in memory? */
     if((ixfModule->Fixups[imports_counter-1].SrcAddress) < (ixfModule->Fixups[imports_counter-1].ImportEntry.Address))
     {
@@ -364,7 +338,7 @@ unsigned long ModInitialize(void)
   ixf->Load=NULL;
   ixf->Fixup=NULL;
   ixf->FormatStruct=NULL;
-  ixf->cbEntries=5;
+  ixf->cbEntries=4;
   ixf->Entries=malloc(sizeof(IXFMODULEENTRY)*ixf->cbEntries);
   ixf->Entries[2].FunctionName="KalWrite";
   ixf->Entries[2].Address=&api_DosWrite;
@@ -374,14 +348,12 @@ unsigned long ModInitialize(void)
   ixf->Entries[3].Address=&api_DosExit;
   ixf->Entries[3].ModuleName=NULL;
   ixf->Entries[3].Ordinal=0;
-  ixf->Entries[4].FunctionName="KalQuerySysInfo";
-  ixf->Entries[4].Address=&api_DosQuerySysInfo;
-  ixf->Entries[4].ModuleName=NULL;
-  ixf->Entries[4].Ordinal=0;
   ixf->cbModules=0;
   ixf->Modules=NULL;
   ixf->cbFixups=0;
   ixf->Fixups=NULL;
+  ixf->Stack=NULL;
+  ixf->EntryPoint=NULL;
 
   new_module_el = ModRegister("KAL", ixf);
   new_module_el->load_status = DONE_LOADING;
@@ -775,8 +747,6 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
     }
     ptr_fixup_code = (int *) i_offs_to_fix_in_exe;
     *ptr_fixup_code = relative_jmp;
-    //io_printf("Patched address: %p \n", ptr_fixup_code);
-    //io_printf("Content of patched address: %d \n", *ptr_fixup_code);
   }
 
   return 1;

@@ -25,7 +25,7 @@
 
 void main(void)
 {
-    char *str1 = "First string";
+    char *str1 = "VioWrtTTY test";
 
     /* write some strings */
     VioWrtTTY(str1, strlen(str1), 0);

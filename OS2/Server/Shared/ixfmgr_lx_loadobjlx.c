@@ -217,7 +217,7 @@ void apply_internal_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rl
   vm_target = vm_start_target_obj + get_imp_ord1_rlc(min_rlc)/*trgoffs*/;
   vm_source = vm_start_of_page + srcoff_cnt1;
 
-  io_printf("source=%x, target=%x, addit=%d\n", vm_source, vm_target, addit);
+  if (options.debugixfmgr) io_printf("source=%x, target=%x, addit=%d\n", vm_source, vm_target, addit);
 
   ptr_source = (unsigned long int *)vm_source;
   *ptr_source = vm_target;

@@ -102,11 +102,11 @@ typedef struct _TIB {
 typedef TIB *PTIB;
 
 
- 
+
 struct _RESULTCODES {
     ULONG codeTerminate;
     ULONG codeResult;
-}; 
+};
 typedef struct _RESULTCODES RESULTCODES;
 typedef struct _RESULTCODES *PRESULTCODES;
 
@@ -159,9 +159,10 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  struct _RESULTCODES *pRes, /*PRESULTCODES */
                                  char * pName);
 
+void exec_lx(IXFModule * ixfModule, struct t_os2process * proc);
+
 #ifdef __cplusplus
 };
 #endif
 
 #endif
-

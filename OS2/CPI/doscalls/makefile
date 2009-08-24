@@ -8,17 +8,18 @@ PROJ     = doscalls
 DESC     = Control Program API
 srcfiles = $(p)msg$(e) &
 	   $(p)doscopy$(e) &
+	   $(p)dosquerysysinfo$(e) &
 	   $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s
-ADD_LINKOPT  = op internalrelocs op nod lib clib3r.lib segment   type DATA shared
+ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
 DLL     = 1
-DLLOPT  = initglobal
-OPTIONS = manyautodata
+DLLOPT  = initinstance terminstance
+#OPTIONS = manyautodata
 IMPORTS = DosFSCtl        KAL.2, &
 	  DosWrite        KAL.3, &
-	  DosExit         KAL.4, &
-	  DosQuerySysInfo KAL.5
+	  DosExit         KAL.4
+
 EXPORTS = &
      DosICreateThread       .1, &
      DosIExecPgm	    .4, &
@@ -704,6 +705,3 @@ EXPORTS = &
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
-
-qwe: .symbolic
- @echo $(COPT)

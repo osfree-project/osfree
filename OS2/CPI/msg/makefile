@@ -6,7 +6,7 @@
 PROJ     = msg
 DESC     = Message files API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=..$(SEP)include -s
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal

@@ -511,7 +511,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     } else {
       relative_jmp = 0xffffffff-((int)(ixfModule.Fixups[imports_counter-1].SrcAddress) - (int)(ixfModule.Fixups[imports_counter-1].ImportEntry.Address))-3;
     }
-    io_printf("src=%x, dst=%x, rel=%d\n",(ixfModule.Fixups[imports_counter-1].SrcAddress) , (ixfModule.Fixups[imports_counter-1].ImportEntry.Address), relative_jmp);
+    if (options.debugprcmgr) io_printf("src=%x, dst=%x, rel=%d\n",(ixfModule.Fixups[imports_counter-1].SrcAddress) , (ixfModule.Fixups[imports_counter-1].ImportEntry.Address), relative_jmp);
     *((int *) ixfModule.Fixups[imports_counter-1].SrcAddress) = relative_jmp;
 
   }
@@ -524,7 +524,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     #if defined(L4API_l4v2)
     l4_exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
     #endif
-    exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
+    exec_lx(&ixfModule, tiny_process);
     if (options.debugprcmgr) io_printf("Done executing exe.\n");
   }
 
@@ -586,4 +586,254 @@ unsigned long find_path(char * name, char * full_path_name)
   StrTokRestore(&st);
 
   return ERROR_FILE_NOT_FOUND;
+}
+
+
+void exec_lx(IXFModule * ixfModule, struct t_os2process * proc)
+{
+  void * my_execute;
+  unsigned long int tmp_ptr_data_mmap_16;
+  unsigned long int tmp_ptr_data_mmap_21;
+  unsigned int esp_data;
+  unsigned int ebp_data;
+  unsigned long int tmp_ptr_data_mmap;
+  unsigned long module_counter;
+
+  unsigned long esp = (unsigned long)(ixfModule->Stack);
+
+
+  // Load import modules
+  for (module_counter=0;
+       module_counter<ixfModule->cbModules;
+       module_counter++)
+  {
+    PrcInitializeModule(ixfModule->Modules[module_counter], (void *)esp);
+  }
+
+        my_execute = (void *)(ixfModule->EntryPoint);
+
+
+                esp_data=0;
+                ebp_data=0;
+
+
+                #ifdef __WATCOMC__
+                _asm {
+                     mov esp_data, esp
+                     mov ebp_data, ebp
+                     }
+                #elif   1
+                /* Save the registers ebp and esp. */
+                asm("movl %%esp, %[esp_data] \n"
+                        "movl %%ebp, %[ebp_data]"
+                                        : [ebp_data]  "=m" (ebp_data),
+                                          [esp_data]  "=m" (esp_data)  );
+                #endif
+                /*unsigned int main_int = (unsigned int) *((char *)main_ptr);*/
+
+                /* Put the values of ebp and esp in our new stack. */
+                tmp_ptr_data_mmap = esp-4;
+                (*((unsigned long int *)(tmp_ptr_data_mmap)))   = esp_data;
+
+                tmp_ptr_data_mmap = esp-8;
+                (*((unsigned long int *)(tmp_ptr_data_mmap)))   = ebp_data;
+
+                /* Kopiera de nya v¤rdena fær esp, ebp och my_execute till temp register.
+                   Kanske EAX, EBX, ECX. Uppdatera esp och ebp. Anropa sen funktionen my_execute
+                   med call EAX n¥nting.
+                   Efter funktionen har kærts? Var finns den gamla esp och ebp? ebp minus n¥nting
+                   eller plus n¥nting? Ta reda p¥ det och kopiera till temp register och sen
+                   uppdatera esp och ebp igen.
+                */
+                tmp_ptr_data_mmap = esp-12;
+                esp_data = tmp_ptr_data_mmap;
+                ebp_data = tmp_ptr_data_mmap;
+
+                tmp_ptr_data_mmap_16 = esp-16;
+
+                tmp_ptr_data_mmap_21 = esp-21;
+
+                #ifdef __WATCOMC__
+
+_asm{
+                        mov eax, esp_data ;
+                        mov ebx, ebp_data ;
+                        mov ecx, my_execute ;
+                        mov edx, ebp ; Copy ebp to edx. Base pointer for this functions local variables.*/
+                        mov esp, eax ; Copy eax to esp. Stack pointer*/
+                        mov ebp, ebx ;
+                                     ;                   /* We have changed the stack so it now points to out LX image.*/
+                        push edx     ; /* Put the value of our ebp on our new stack*/
+                        call ecx     ; /* "call *%%ecx \n"  Call our main() */                /* "push $0xff \n" */
+};
+                #elif 1
+                /* Kopierar variabeln esp_data till esp! esp_data ¤r en in-variabel.*/
+                asm("movl %[esp_data], %%eax \n"    /* Put old esp in eax */
+                        "movl %[ebp_data], %%ebx \n"    /* Put old ebp in ebx */
+                        "movl %[my_execute], %%ecx \n"
+
+                        "movl %%ebp, %%edx \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/
+                        "movl %%eax, %%esp \n" /* Copy eax to esp. Stack pointer*/
+                        "movl %%ebx, %%ebp \n"
+                                                        /* We have changed the stack so it now points to out LX image.*/
+                        "push %%edx \n" /* Put the value of our ebp on our new stack*/
+                                                                                                                /* "push $0xff \n" */
+                        "call *%%ecx \n" /* Call our main() */
+                                        :
+                                          :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
+                                           [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
+                                           [my_execute] "m" (my_execute) );
+        #endif
+                /* OBS! Stacken ¤r ¤ndrad h¤r !!!!! */
+                /* Funkar inte, my_execute ¤r en variabel med en pekare i stacken som
+                 inte kan l¤sas efter att stacken ¤ndrats! Baseras p¥ ebp!
+                 Alla v¤rden m¥ste l¤sas in i register och sen placeras p¥ r¤tt
+                 st¤llen. */
+
+                 #ifdef __WATCOMC__
+                 _asm{   pop ebp ; Restore base pointer so we don't crash as soon we access local variables.
+                         pop ebx
+                         pop ebx
+                     }
+                #elif 1
+                 int tcc_bugg_;
+                asm("pop %%ebp \n"  /* Restore base pointer so we don't crash as soon we access local variables.*/
+                    "pop %%ebx \n"
+                    "pop %%ebx \n"
+                                        : /*: [tcc_bugg_] "m" (tcc_bugg_)*/ );
+                #endif
+
+}
+
+void PrcInitializeModule(PSZ pszModule, unsigned long esp)
+{
+  unsigned long module_counter;
+  IXFModule * ixfModule;
+  void * my_execute;
+  unsigned long int tmp_ptr_data_mmap_16;
+  unsigned long int tmp_ptr_data_mmap_21;
+  unsigned int esp_data;
+  unsigned int ebp_data;
+  unsigned long int tmp_ptr_data_mmap;
+  struct module_rec * prev;
+
+  return; // Temporary disabled initialization
+
+  prev = (struct module_rec *) module_root.next;
+  while(prev)
+  {
+    if(strcasecmp(pszModule, prev->mod_name)==0)
+    {
+      // @todo use handles here
+      ixfModule=(IXFModule *)prev->module_struct;
+      break;
+    }
+    prev = (struct module_rec *) prev->next;
+  }
+
+
+  // Load import modules
+  for (module_counter=0;
+       module_counter<ixfModule->cbModules;
+       module_counter++)
+  {
+    PrcInitializeModule(ixfModule->Modules[module_counter], (void *)esp);
+  }
+
+
+  if (ixfModule->EntryPoint==NULL) return;
+
+  my_execute = (void *)(ixfModule->EntryPoint);
+
+
+  esp_data=0;
+  ebp_data=0;
+
+
+                #ifdef __WATCOMC__
+                _asm {
+                     mov esp_data, esp
+                     mov ebp_data, ebp
+                     }
+                #elif   1
+                /* Save the registers ebp and esp. */
+                asm("movl %%esp, %[esp_data] \n"
+                        "movl %%ebp, %[ebp_data]"
+                                        : [ebp_data]  "=m" (ebp_data),
+                                          [esp_data]  "=m" (esp_data)  );
+                #endif
+                /*unsigned int main_int = (unsigned int) *((char *)main_ptr);*/
+
+                /* Put the values of ebp and esp in our new stack. */
+                tmp_ptr_data_mmap = esp-4;
+                (*((unsigned long int *)(tmp_ptr_data_mmap)))   = esp_data;
+
+                tmp_ptr_data_mmap = esp-8;
+                (*((unsigned long int *)(tmp_ptr_data_mmap)))   = ebp_data;
+
+                /* Kopiera de nya v¤rdena fær esp, ebp och my_execute till temp register.
+                   Kanske EAX, EBX, ECX. Uppdatera esp och ebp. Anropa sen funktionen my_execute
+                   med call EAX n¥nting.
+                   Efter funktionen har kærts? Var finns den gamla esp och ebp? ebp minus n¥nting
+                   eller plus n¥nting? Ta reda p¥ det och kopiera till temp register och sen
+                   uppdatera esp och ebp igen.
+                */
+                tmp_ptr_data_mmap = esp-12;
+                esp_data = tmp_ptr_data_mmap;
+                ebp_data = tmp_ptr_data_mmap;
+
+                tmp_ptr_data_mmap_16 = esp-16;
+
+                tmp_ptr_data_mmap_21 = esp-21;
+
+                #ifdef __WATCOMC__
+
+_asm{
+                        mov eax, esp_data ;
+                        mov ebx, ebp_data ;
+                        mov ecx, my_execute ;
+                        mov edx, ebp ; Copy ebp to edx. Base pointer for this functions local variables.*/
+                        mov esp, eax ; Copy eax to esp. Stack pointer*/
+                        mov ebp, ebx ;
+                                     ;                   /* We have changed the stack so it now points to out LX image.*/
+                        push edx     ; /* Put the value of our ebp on our new stack*/
+                        call ecx     ; /* "call *%%ecx \n"  Call our main() */                /* "push $0xff \n" */
+};
+                #elif 1
+                /* Kopierar variabeln esp_data till esp! esp_data ¤r en in-variabel.*/
+                asm("movl %[esp_data], %%eax \n"    /* Put old esp in eax */
+                        "movl %[ebp_data], %%ebx \n"    /* Put old ebp in ebx */
+                        "movl %[my_execute], %%ecx \n"
+
+                        "movl %%ebp, %%edx \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/
+                        "movl %%eax, %%esp \n" /* Copy eax to esp. Stack pointer*/
+                        "movl %%ebx, %%ebp \n"
+                                                        /* We have changed the stack so it now points to out LX image.*/
+                        "push %%edx \n" /* Put the value of our ebp on our new stack*/
+                                                                                                                /* "push $0xff \n" */
+                        "call *%%ecx \n" /* Call our main() */
+                                        :
+                                          :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
+                                           [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
+                                           [my_execute] "m" (my_execute) );
+        #endif
+                /* OBS! Stacken ¤r ¤ndrad h¤r !!!!! */
+                /* Funkar inte, my_execute ¤r en variabel med en pekare i stacken som
+                 inte kan l¤sas efter att stacken ¤ndrats! Baseras p¥ ebp!
+                 Alla v¤rden m¥ste l¤sas in i register och sen placeras p¥ r¤tt
+                 st¤llen. */
+
+                 #ifdef __WATCOMC__
+                 _asm{   pop ebp ; Restore base pointer so we don't crash as soon we access local variables.
+                         pop ebx
+                         pop ebx
+                     }
+                #elif 1
+                 int tcc_bugg_;
+                asm("pop %%ebp \n"  /* Restore base pointer so we don't crash as soon we access local variables.*/
+                    "pop %%ebx \n"
+                    "pop %%ebx \n"
+                                        : /*: [tcc_bugg_] "m" (tcc_bugg_)*/ );
+                #endif
+
 }
