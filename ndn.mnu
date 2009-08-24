@@ -1,0 +1,23 @@
+>1 Commit changes to repository
+   @cls
+   @set lang=en_US
+   @cls
+   @svn commit -m"%3"
+>1 Show file content diff
+   @cls
+   @set lang=ru_Ru
+   @cd ..
+   @svn diff osfree > current-diff.diff
+>1 Show files diff
+   @cls
+   @set lang=ru_Ru
+   @svn status > current-files-diff.diff
+>1 Update working copy
+   @cls
+   @set lang=ru_Ru
+   @svn up
+>1 Check out changes
+   @cls
+   @set lang=ru_Ru
+   @cd ..
+   @svn checkout https://osfree.svn.sourceforge.net/svnroot/osfree
