@@ -1,0 +1,861 @@
+                  WHATSNEW.TXT -- February 2003
+
+                          JP Software Inc.
+                            P.O. Box 328
+                     Chestertown, MD 21620, USA
+
+                           (410) 810-8818
+                         fax (410) 810-0026
+
+                       Email sales@jpsoft.com
+		           support@jpsoft.com
+                        Web http://jpsoft.com
+
+
+
+NEW VERSION OVERVIEW - 4DOS 7.50, 4NT 5.0, Take Command 5.0
+-----------------------------------------------------------
+
+Since the last major release we've added over 180 new features, commands,
+switches, variables, and other enhancements to 4DOS, 4NT, and Take Command!
+
+This is a summary of the bug and compatibility fixes and new features.  For
+complete details, see the online help or the reference manual.
+
+
+Bug & Compatibility Fixes:
+-------------------------
+
+    Fixed a (rare) problem when a command group exceeds the maximum
+      command buffer size (511 characters in 4DOS, 4095 characters
+      in 4NT / TC32).
+ 
+    Fixed a problem when pasting extremely long lines into the command 
+      buffer with Ctrl-V.
+
+    Fixed a problem with filename completion when the file has a
+      path and the first character is '@' (i.e., "dir @c:\<tab>").
+
+    Fixed a problem with multiple F8's (Shift-Tabs) leaving
+      directory handles open.
+
+    Fixed a problem when append redirecting from an empty clipboard.
+
+    Fixed a problem with time ranges when wrapping at midnight.
+
+    Fixed a problem with reversed date ranges when also specifying
+      times (i.e., /[d-14@09:00,1-1-80@00:00]).
+
+    Fixed a problem with file exclusions with LFN names that contain
+      embedded whitespace.
+
+    Fixed a problem with file exclusions when excluding subdirectories
+      with commands that process subdirectories using a /S switch.
+      (The subdirectory would be excluded from the current directory
+      processing, but its files & subdirectories would still be
+      processed.)
+
+    Fixed a problem with multiple file exclusions.
+
+    4DOS - fixed a problem with JPSTREE.IDX being truncated when adding
+      or deleting directories when JPSTREE.IDX is > 64K.
+
+    4NT / TC - changed the "get disk stats" call (used by DIR, DEL, and
+      MOVE) to use a different (undocumented) Windows API to get NTFS
+      info.  (The previously used API would cause inexplicable slowdowns
+      on a few systems.)
+      
+    4NT / TC - changed the startup code to only inherit the batch debugging
+      flag when called from a batch file with debugging enabled.
+      
+    4NT / TC (ASCII versions) - fixed some problems with storing non-ASCII 
+      characters in the environment.
+
+    4NT / TC - worked around a problem with the default registry entry
+      for .EML file associations (Outlook Express).
+
+    4NT / TC - changed %~ variable behavior to match CMD.EXE's when
+      the argument is %0 (i.e., %~f0).  (CMD.EXE will return the fully
+      expanded filename then, including the extension, but will not
+      return the extension for %0 unless it was entered on the command
+      line.  Note that all other arguments (%1 - %nn) will not display
+      an extension regardless unless it was entered on the command line.)
+
+    4NT / TC - changed the behavior of a %~$PATH:1 variable to
+      return an empty string if the file referenced by %1 is not
+      found in the path (for compatibility with CMD.EXE).
+  
+    4NT / TC - fixed a problem with executing a file whose associated
+      .EXE lacks a pathname in the registry.
+
+    4NT / TC - fixed a problem with setting Windows for certain non-
+      English languages causing some internal commands not to be found.
+
+    4NT / TC - fixed a problem with displaying system error messages 
+      in some non-US locales.
+
+    4NT - fixed a problem with the window resizing when piping to
+      a secondary copy of 4NT if you have a WindowState setting 
+      in 4NT.INI.
+      
+    4NT - fixed an incompatibility with RoboType.
+
+    @EXECSTR - fixed a problem with temp directories with embedded
+      whitespace in the name.
+      
+    @INIREAD (4DOS) - fixed a problem with empty keys.
+
+    @LFN - made a change to allow a (technically improper syntax)
+      trailing \ in the filename.
+
+    @WORD - fixed a problem with leading whitespace before a negative
+      number.
+
+    ATTRIB - fixed a problem with file lists.
+
+    CDD - fixed a problem with /D when the root directory for the
+      specified drive(s) wasn't saved in JPSTREE.IDX.
+
+    COPY (4NT / TC) - changed the file date/time comparisons
+      to avoid problems when copying between file systems with
+      different time resolutions (i.e., FAT32 <-> NTFS).
+
+    COPY (4NT / TC) - fixed a problem when copying files that
+      another app has partially locked.
+ 
+    DELAY (4NT) - now allows a ^C when /B is specified.
+      (Previously it would break out of the DELAY as soon as the
+      Control key was pressed.)
+
+    DETACH (TC) - fixed a problem with the DETACH'd copy of TC starting
+      in the foreground.
+
+    DIR (4DOS) - fixed a formatting problem with /T: when the file
+      has a date of "0".  Also fixed a problem with /X when on a
+      non-Win9x system with LFN support enabled (Win95LFN=Yes).
+      Also fixed a problem when combining /J and /S in non-LFN
+      environments.
+
+    ECHO - changed to allow a leading /? on the line without invoking
+      the online help.  (Note that a /? by itself will still invoke
+      the help.)
+
+    FFIND - fixed a problem when redirecting a line > 4095 characters.
+
+    FFIND - fixed a memory leak when using the /F switch.
+
+    FOR (4NT / TC) - fixed a problem with the %~.. variables
+      when the FOR variable character is the same as one of the
+      expanded %~ characters.
+
+    FOR - fixed a problem with /R and multiple file exclusions (i.e.,
+      "for /[!*.txt *.doc] /r ...").
+
+    FOR - fixed a problem with an escaped ')' in the argument list.
+
+    IF - fixed a problem with EXIST and an empty quoted filename.
+      Also fixed a problem with EXIST and filenames with appended
+      device names (i.e., "if exist c:\windows\nul ...").
+
+    INKEY (4NT / TC) - improved /W accuracy for long waits.  Also fixed
+      a problem with combining /C and /W.
+
+    INKPUT (4NT / TC) - improved /W accuracy for long waits.
+
+    KEYSTACK (4DOS) - fixed a problem with attempting to send a
+      too-long line (>255 characters).
+
+    LIST (4NT) - fixed a problem with losing the last few lines
+      in the scrollback buffer when the screen is cleared.
+
+    MOVE (4NT / TC) - changed the file date/time comparisons
+      to avoid problems when moving between file systems with
+      different time resolutions (i.e., FAT32 <-> NTFS).
+
+    OPTION (4DOS) - fixed a problem if you don't have a 4DOS.INI
+      file before calling OPTION.
+      
+    REN (4NT / TC) - fixed a problem with renaming FTP files via
+      IFTP if the rename was in a subdirectory.
+
+    SELECT (4NT) - fixed a problem with losing the last few lines
+      in the scrollback buffer when the screen is cleared.
+
+    SET - fixed a problem with single back quotes in the variable
+      arguments.
+
+    SHORTCUT (4NT / TC) - fixed a problem with specifying a minimized
+      window.
+
+    START (4NT / TC) - fixed a problem with executing a file whose
+      associated .EXE lacks a pathname in the registry.  Also fixed
+      a problem with /WAIT not returning the exit code of the app
+      in ERRORLEVEL (%?).
+
+    START (TC) - fixed a problem with /CMSTDIO.
+
+    TOUCH (4NT / TC) - fixed a problem with the seconds field being
+      divided by 2.  (Note that the resolution on FAT volumes is limited
+      by the OS - create time resolution is 10 milliseconds, write time
+      resolution is 2 seconds, and access time resolution is one day.)
+
+
+New Features:
+-------------
+
+    4NT / TC - now have Unicode versions.  Unlike CMD.EXE, 4NT and
+      TC support Unicode files everywhere they support ASCII files:
+      LIST, TYPE, batch files, etc.
+
+    Ctrl-F1 will display help for the word at the cursor (or immediately
+      to the left of the cursor if it is at the end of the line or on a 
+     space or tab).
+
+    Encrypted compressed batch file execution support is now included
+      in all versions.  (Previously it was only available in the runtime
+      versions of 4DOS, 4NT, and TC.  The ability to encrypt batch files
+      is still only available in the runtime versions.)
+
+    There is a new startup switch:
+
+	/LF - local function list (default is global).  See FUNCTION in
+           the new command list below.
+
+    4NT / TC - FTP support has been improved.  FTP is now faster, and
+      supports subdirectory processing (for example, COPY /S).  Firewall
+      support has also been enhanced (see the section on new .INI directives).
+
+    4NT - now supports ANSI escape sequences.  You can select ANSI support
+      in the Colors page of the Options dialog, or with the ANSI=Yes 4NT.INI
+      directive.
+	  
+    4DOS / 4NT - now support marking text with the keyboard.  The marking
+      keys are:
+
+	Shift-Left
+	Shift-Right
+	Shift-Home (mark from beginning of line to cursor)
+	Shift-End (mark from cursor to end of line)
+	Ctl-Shift-Left - mark word to left
+	Ctl-Shift-Right - mark word to right
+	Ctrl-Y - copy the marked text to the clipboard
+
+    4NT / TC - the maximum filename & path size is now 2047 characters.
+      Windows theoretically limits (but doesn't enforce) filenames to 260 
+      chars including the path, but it's possible (particularly with long 
+      URLs) to exceed that.
+
+    TC - the batch debugger now displays the current line number.
+
+    TC - added a "Print" button to the Find Files dialog.
+
+    4NT / TC - when executing an .EXE file (Win32 console or gui), 4NT 
+      and TC will now look for the program name in the registry under
+      "App Paths", and will insert the "Path" value (if it exists) to 
+      the beginning of the PATH in the environment inherited by the app.
+    
+    4NT / TC (Unicode versions only) - now support the /U(nicode) startup 
+      switch (from CMD.EXE.)  If 4NT or Take Command are started with the
+      /U switch, the output of internal commands to a pipe or redirected
+      to a file will be in Unicode.
+
+    TC - now displays the current CPU usage (0 - 100%) on the status line.
+
+    TC - Added "Functions..." (see new commands) to the Utilities menu to
+      allow function editing in the dialog.
+ 
+    TC - the context (right click) popup menu has two additional
+      options: "Paste+Run" that pastes the clipboard text and appends
+      a CR to execute it immediately; and Copy+Paste+Run that copies
+      the highlighted text, pastes it, and executes it.
+
+    TC - enabled support for non-Western Scripts in the Font dialog.
+
+    4NT / TC - enhanced alias expansion (^F) to expand aliases
+      in multiple or compound commands.
+
+    4NT / TC - made a change to allow a @ character in an FTP
+      username (i.e., "ftp://user@here:password@myserver.com").
+
+    4NT / TC - added support for some peculiar new CMD.EXE syntax:
+
+      %var:string1=string2%    Substitutes the second string for
+                               all instances of the first string
+                               in the variable.
+
+      %var:~x[,y]%             Gets the substring starting at the
+                               xth character position (base 0) and
+                               continuing for y characters.  If y
+                               is not specified, returns the
+                               remainder of the string.  If x is
+                               negative, starts from the end of the
+                               string.
+
+    4NT / TC - the attribute selection characters (/A:...) have been 
+      enhanced to include the extended NTFS attributes:
+
+	T - Temporary file
+	P - Sparse file
+	R - Reparse point
+	C - Compressed file
+	O - Offline
+	I - Not content indexed
+	E - Encrypted
+
+    4DOS - now supports the %* syntax from CMD.EXE / 4NT / TC.  (This
+      is the same as a "%1$" -- it returns all of the arguments.)
+
+
+New .INI directives:
+--------------------
+
+    CopyPrompt=Yes|NO - if set to Yes, will prompt before overwriting an
+      existing file if the COPY or MOVE is being performed at the command
+      prompt (i.e., not in a batch file).  This duplicates the behavior
+      of later versions of COMMAND.COM and CMD.EXE.
+
+    FirewallHost (4NT / TC) - server name of firewall for FTP & HTTP
+      commands.
+
+    FirewallUser (4NT / TC) - user name if firewall requires
+      authentication.
+
+    FirewallPassword (4NT / TC) - password if user name required.
+
+    FirewallType (4NT / TC) - type of firewall:
+
+	0 - None
+	1 - Tunnel
+	2 - SOCKS4
+	3 - SOCKS5
+
+    Function (4DOS) - the function list size.
+
+    HistDups Off | First | Last - history duplicate entry control.  See
+      also the new HISTORY /N option.
+
+	Off -   save everything to the history
+	First - if the new entry matches an older entry in the history,
+                keep the old entry and delete the new one.
+	Last -  if the new entry matches an older one in the history,
+                keep the new entry and delete the old one.
+
+    LocalFunctions=yes|NO - if YES, functions are loaded into local
+      memory and not shared between shells.
+
+    MailServer (4NT / TC) - local SMTP server used for outgoing mail.
+      If MailServer is not set, SENDMAIL attempts to get the mail host name
+      from the registry.
+
+    MailAddress (4NT / TC) - email address of user.  If MailAddress
+      is not set, SENDMAIL attempts to get the address from the registry.
+
+    MailPort (4NT / TC) - SMTP port # to use (default is 25).
+
+    MailPassword (4NT / TC) - Password if your SMTP server requires
+      authentication.
+
+    MailUser (4NT / TC) - User name if your SMTP server requires
+      authentication.
+
+    PassiveFTP=Yes|NO (4NT / TC) - sets passive mode if required by
+      local configuration (firewall).
+
+    Proxy (4NT / TC) - name of HTTP proxy server.
+
+    ProxyPort (4NT / TC) - port # to use (default is 80).
+
+    TimeServer (4NT / TC) - name of internet time server (see TIME /S).
+      The default is "clock.psu.edu".
+
+    UMBFunction=yes|NO (4DOS) - load functions into UMBs.
+
+
+New Internal Variables:
+-----------------------
+
+    %_ACSTATUS (4NT / TC) - returns the AC power status (0 = offline,
+	1 = online, or "unknown").
+
+    %_BATTERY (4NT / TC) - returns the battery charge status.  This is one
+        or more of the following values:
+
+	1 = High 
+	2 = Low 
+	4 = Critical 
+	8 = Charging 
+	128 = No battery 
+	unknown 
+
+    %_BATTERYLIFE (4NT / TC) - returns the number of seconds of battery
+      life remaining, or "unknown".
+
+    %_BATTERYPERCENT (4NT / TC) - returns the percentage of battery charge
+      remaining (0 - 100, or "unknown").
+
+    %_BUILD - returns the internal 4DOS / 4NT / Take Command build number.
+
+    %_CMDLINE - returns the current command line.  This is most useful inside
+      key aliases.  If you specify it on the command line, you will get the
+      contents of the command line with the %_cmdline name removed.
+
+    %_CPUUSAGE (4NT / TC) - returns the current CPU usage, in percent
+      (0 - 100).
+
+    %_ECHO - returns the current echo state.  (There are two ECHO states, one
+      for the command line and one for batch files.)
+
+    %_FTPERROR (4NT / TC) - returns the last FTP error.
+
+    %_HWPROFILE (4NT / TC) - returns the name of the current Windows hardware 
+      profile.
+
+    %_IP - changed to return a space-delimited list of available IP addresses
+      (for people with more than one NIC).
+
+    %_ISODATE - return the current date in ISO (yyyy-mm-dd) format.
+
+
+New / Changed Variable Functions:
+---------------------------------
+
+    (4NT & TC) - The variable functions that use the "b|B|k|K|m|M" syntax 
+      now also accept "g" (billion bytes), "G" (gigabytes), "t" (trillion
+      bytes), and "T" (terabytes).  (That should hold everyone until the 
+      next upgrade!)
+
+    @CAPS - capitalizes the first letter of each word in the string.
+
+    @CEILING (4NT / TC) - returns a value representing the smallest integer 
+      that is greater than or equal to the specified floating point number.
+      
+    @CONVERT (4NT / TC) - now supports 64-bit integers.
+
+    @CRC32 - returns the CRC32 for the specified file.
+
+    @EVAL (4NT / TC) - now supports a number of functions:
+
+      log(x) - natural logarithm
+      log10(x) - log 10
+      exp(x) - exponential
+      sin(x) - sine
+      asin(x) - arcsine
+      sinh(x) - hyperbolic sine
+      cos(x) - cosine
+      acos(x) - arccosine
+      cosh(x) - hyperbolic cosine
+      tan(x) - tangent
+      atan(x) - arctangent
+      tanh(x) - hyperbolic tangent
+
+      For example:
+
+	echo %@eval[tan(1.0)+sin(0.7*5)]
+
+      The arguments to the functions can also reference additional functions.
+      There is also a new constant "pi".  For example:
+
+	echo %@eval[pi * (3**2)]
+	
+      @EVAL also now supports 64-bit hex integers in 4NT & TC.
+
+    @FIELD - like @WORD, but it will not scan past multiple delimiter 
+      characters.  This allows you to use it when you have empty "fields"
+      in a string.  For example:
+
+	@field[",",3,a,,b,c,d] - returns "c" where @word returns "d".
+	
+    @FILEOPEN - the second argument ("read", "write", "append") can be 
+      shortened to a single letter ("r", "w", or "a").
+
+    @FLOOR (4NT / TC) - returns a value representing the largest integer 
+      that is less than or equal to the specified floating point number.
+
+    @FUNCTION - returns the value of the specified user-defined function.
+
+    @INDEX - now accepts an optional third parameter to specify the offset
+      of additional matches.  For example:
+
+	@index[abcdeabcde,cd,2] - returns "7" for the offset of the second
+	                          match.
+
+      An offset of 0 will return the total number of matches.  A negative 
+      offset will search from right to left.
+
+    @LEFT - a negative offset will return all but the rightmost "n" 
+      characters.  For example:
+
+	@left[-4,jpsoft] - returns "jp".
+
+    @PING (4NT / TC) - pings the specified host and returns the response 
+      time in milliseconds.  The syntax is:
+
+	@PING[host[,timeout[,packetsize]]]
+
+      where "host" is the IP address, timeout is the maximum time to wait
+      (in seconds), and packetsize is the size of the data packet sent to
+      the host as the ping request.  Timeout defaults to 5 seconds, and
+      packetsize defaults to 64 bytes.  Minimum packet size is 8 bytes.
+      If the request times out, @PING returns -1.
+
+    @REGQUERY (4NT / TC) - added support for the REG_QWORD (and 
+      REG_QWORD_LITTLE_ENDIAN) type.  Also, if the specified value name
+      doesn't exist, REGQUERY will now return -1 rather than
+      generating an error message and aborting.
+
+    @REGSET (4NT / TC) - added support for the REG_QWORD type.
+
+    @REGSETENV (4NT / TC) - added support for the REG_QWORD type.
+
+    @RIGHT - a negative offset will return all but the leftmost "n" characters.
+      For example:
+
+	@right[-2,jpsoft] - returns "soft".
+
+    @VERINFO (4NT / TC) - returns the version info for the specified file.  
+      The format is:
+
+	@verinfo[filename[,info[,language]]]
+
+      The second (optional) parameter specifies the desired information.  If
+      it is not specified, @VERINFO defaults to "FileVersion".  The third 
+      (optional) parameter specifies the language/codepage pair (in hex).  
+      The default is 040904E4 (English).
+
+    @WINSYSTEM (4NT / TC) - return or set system-wide parameters.  The syntax
+      is:
+
+	@WINSYSTEM[parameter[,n]] 
+
+      where "n" is the value to set.
+
+
+Updated Commands:
+-----------------
+
+    ALIAS - /R will read from STDIN if there is no filename argument and input
+      is redirected.
+
+    ASSOC (4NT / TC) - added the /R(ead from file) switch.
+
+    CDD - if you have the CompleteHidden .INI directive set, a CDD /S
+      will now index hidden subdirectories.
+	
+    COPY - A /E will now suppress the "Can't copy file to itself"
+      error message, provided the copy isn't appending to the target.
+      There are also three new switches for COPY:
+
+	/G - display the percent copied
+	/J - (4NT / TC) - copy the file in restartable mode
+	/O - only copy the file if the target doesn't exist
+
+    DEL (4NT / TC) - will not attempt to send network files to the recycle
+      bin unless specifically requested.
+      
+    DIR (4NT / TC) - a DIR /S will now search hidden subdirectories,
+      to match CMD.EXE behavior.
+
+    DIR (4NT / TC) - added two new options:
+
+	/Q - display the file/directory owner (compatible with CMD.EXE)
+	/: - display stream names and sizes
+
+    DO - added two new options:
+
+	/A[:rhsad] - allows you to select the filenames in a "DO x IN ..."
+        statement by their attributes. 
+
+	/L(ist) - specifies that the arguments in a "DO x IN ..." statement
+	are text, not filenames.  The arguments will be assigned (left to
+	right) to the DO variable on each pass through the loop.  The syntax
+	is:
+
+		DO x IN /L ...
+
+    ENDLOCAL - now allows you to "export" variables from inside a SETLOCAL.
+      Variable names following the ENDLOCAL command will not be restored
+      from the copy of the environment saved by SETLOCAL.  For example:
+
+	setlocal
+	set test=abcd
+	endlocal test
+
+      will preserve "test=abcd" in the environment.
+
+    ESET (4NT / TC) - has four new options:
+
+	/D - edit registry "default" variable
+	/S - edit registry "system" variable
+	/U - edit registry "user" variable
+	/V - edit registry "volatile" variable
+
+    EVENTLOG (4NT / TC) - added a new option:
+
+      /Stext - specifies the eventlog entry source.  For example:
+
+	eventlog /sCompiling /E Your message here.
+
+    FFIND - added two new options:
+
+      /N(ot) - reverse the meaning of the search.  Specifying /N will
+	also set /B; i.e., searches are on a file-by-file basis.  (You
+	can't return all of the lines in a file that don't match the search
+	string.)
+      /U - only display the summary
+
+    FTYPE (4NT / TC) - added the /R(ead from file) switch.
+	
+    GLOBAL - the /I option will now also continue operation when
+      GLOBAL chan't change to a directory (i.e., if the user doesn't
+      have rights to that directory).  GLOBAL /I will ignore that
+      directory (and its subdirectories) and continue with the
+      next directory.
+
+    HISTORY - added the /N(o duplicates) switch to remove duplicate
+      entries (oldest first) from the history list.
+
+    IF - added the ISFUNCTION test to check for the existence of a 
+      user-defined function (see FUNCTION in the new commands list).
+
+    IFTP (4NT / TC) - saves the server name so when you execute a command
+      with an FTP argument, the server name and the path/file name will be 
+      displayed.  Also, if you enter a password of "*", you will be 
+      prompted to enter a password (which will appear on the screen as *'s).
+      There is also a new option:
+
+	/S(end) - sends the following command to the FTP server
+
+    LIST (4NT / TC) - now supports up to 4095-character lines.  Searches
+      are also substantially faster.
+
+    MOVE - A /E will now suppress the "Can't copy file to itself"
+      error message.  There are also four new switches for MOVE:
+
+	/G - display the percent copied
+	/J - (4NT / TC) - copy the file in restartable mode
+	/O - don't MOVE unless the target doesn't exist
+	/W - if the MOVE is to a different drive, this will
+ 	     overwrite the old file with 0's before deleting
+	     it (like DEL /W).
+
+    MSGBOX (4NT / TC) - added seven new options:
+
+	/1 - make the first button the default
+	/2 - make the second button (if any) the default
+	/3 - make the third button (if any) the default
+	/I - display an icon consisting of a lowercase letter i in a circle 
+             in the message box
+	/Q - display a question-mark icon in the message box
+	/S - display a stop-sign icon in the message box
+	/W - display an exclamation-point icon in the message box
+    
+    OPTION (4NT / TC) - now has an "Internet" page, for setting
+      .INI directives such as Proxy, Firewall, etc.
+
+      Also enabled the @inifile option to read an .INI file.
+      The syntax is:
+
+	option @inifile
+
+    PROMPT - added new metachars:
+	
+      $J - Displays the date in "yyyy-mm-dd" (ISO) format.
+      $U - The current user.  (In 4DOS, it displays the value of
+	   the environment variable "LOGINNAME".)
+      $W - The current directory, in a shortened format.  If the
+	   current directory is the root or a first level subdirectory,
+	   it is displayed as-is.  If it is second level or deeper,
+	   the path is truncated in the display.
+
+    PROMPT - will now look for the environment variable "TITLEPROMPT",
+      and use its contents to build a prompt in the title bar.  Note
+      that 4DOS is limited to 79 characters in the title bar.  4NT
+      and Take Command are limited to 127 characters or less (this 
+      varies by OS).
+		
+    RD (4NT / TC) - will now delete hidden directories, for
+      compatibility with CMD.EXE.
+
+    REBOOT (4NT / TC) - added the /P(oweroff) option.
+
+    SENDMAIL (4NT / TC) - changed from MAPI to SMTP.  (MAPI had too
+      many bugs & performance problems.)  This means you can no longer
+      send MAPI mail (prefixed with an "MS:".)  You can still send
+      Internet mail.  You can specify multiple destinations by enclosing
+      the comma-delimited string in double quotes.  SENDMAIL also has
+      new switches:
+
+	/A filename
+
+      will send "filename" as an attachment to the message.  Note that
+      "/A filename" must immediately follow the SENDMAIL command name.
+
+	/V(erbose) - show all the interaction between the client and
+        the server, except for message header and body transfers.
+
+    SET (4NT / TC) - has four new options:
+
+	/D - set registry "default" variable
+	/S - set registry "system" variable
+	/U - set registry "user" variable
+	/V - set registry "volatile" variable
+
+      SET also no longer sets the (external) ERRORLEVEL (for compatibility 
+      with CMD.EXE's changed behavior).  SET /R will read from STDIN if there 
+      is no filename argument and input is redirected.
+
+    SETLOCAL - now supports nested SETLOCALs.  SETLOCAL can be nested 16 deep
+      in 4NT & TC and 8 deep in 4DOS.  Also, see ENDLOCAL for the new
+      "exported" variables feature.
+
+    START (4NT / TC) - added a new option:
+
+	/FS - start the app in full screen mode.
+
+      4NT & TC will also now look for the program name in the "App Paths"
+      registry, and will insert the "Path" value (if it exists) to the
+      beginning of the PATH in the environment inherited by the app. 
+
+    TASKLIST (4NT / TC) - now displays the task list sorted by PID.
+
+    TIME (4NT / TC) - has a new option:
+
+      /S [server] - set the date & time from the specified internet 
+                    time server.  If no server is specified, TIME uses
+                    "clock.psu.edu".
+
+    TIMER - now supports time intervals greater than 1 day.
+
+    TOUCH - You can now preserve the existing date or time by entering
+      a /D (for date) or /T (for time) with no argument.  TOUCH will
+      still use the current date if no /D is specified and the current
+      time with no /T.  TOUCH has two new options:
+
+	/N(othing) - do everything but actually change the date/time.
+	/S(ubdirectory) - touch matching files in subdirectories.
+
+    UNSET (4NT / TC) - has four new options:
+
+	/D - delete registry "default" variable
+	/S - delete registry "system" variable
+	/U - delete registry "user" variable
+	/V - delete registry "volatile" variable
+
+      UNSET /R will read from STDIN if there is no filename argument
+      and input is redirected.
+
+    VOL (4NT / TC) - added support for returning the volume info
+      for UNC names.
+
+    WHICH - if the command is an abbreviated alias, WHICH will display the
+      full name; i.e.:
+
+	[c:\] alias opt*ions *options
+	[c:'] which opt
+	opt*ion is an alias : *options
+
+    WINDOW (4NT / TC) - added three new options:
+
+	FS - switch the 4NT window to full screen mode.
+	TRAY - minimize the 4NT or Take Command window to the tray.
+	WIN - switch the 4NT window to windowed mode.
+
+
+New Commands:
+-------------
+
+    FUNCTION - create a user-defined variable function.  The syntax is the
+      same as ALIAS:
+
+	FUNCTION [/P /R filename] name=value
+
+      Variables in the function value are numbered from %0 to %255, and are
+      replaced with the matching argument when the function is called.  %0 is
+      the function name; %1 is the first argument.  For example:
+
+	function leftmost `%@left[1,%1]`
+
+      will return the leftmost character in the string.
+
+      FUNCTION /R will read from STDIN if there is no filename argument
+      and input is redirected.
+
+    HEAD - output the first part of a file to STDOUT.  The syntax is:
+
+      HEAD [/A:[[-]rhsda] /Cn[b|k|m] /I\"text\" /Nn /P /Q /V] file...
+
+	/A:(ttribute select)
+	/C (number of bytes)
+	/I (match description)
+	/N(umber of lines)")
+	/P(ause)
+	/Q(uiet)
+	/V(erbose)
+
+      The /C option accepts a b, k, or m at the end of the number.  b is
+      the number of 512-byte blocks, k the number of kilobytes, and m the
+      number of megabytes.
+
+    MKLNK (4NT / TC) - create an NTFS hard link (Windows 2000 and XP only).
+      The syntax is:
+
+	MKLNK [/D] source [target]
+
+		/D(elete a link)
+
+    RECYCLE (4NT / TC) - new command to display the recycle bin status
+      or to delete files from the recycle bin.  The syntax is:
+
+	RECYCLE [/DEQP] [drives]
+
+		/D(elete)
+		/E (no error messages)
+		/Q (uiet)
+		/P(rompt before deleting)
+
+      If you don't specify any drives (or paths), RECYCLE will display
+      (or delete) everything in the recycle bin for the local fixed 
+      and removable (non-CD-ROM) drives.
+
+    SNPP (4NT / TC) - Send messages to alphanumeric pagers through standard
+      Internet Paging Gateways.The syntax is:
+
+	SNPP server pager-id message
+  
+    TAIL - output the last part of a file to STDOUT.  The syntax is:
+
+      TAIL [/A:[[-]rhsda] /Cn[b|k|m] /F /I\"text\" /Nn /P /Q /V] file...
+
+	/A:(ttribute select)
+	/C (number of bytes)
+	/F(ollow file)
+	/I (match description)
+	/N(umber of lines)")
+	/P(ause)
+	/Q(uiet)
+	/V(erbose)
+
+	The /C option accepts a b, k, or m at the end of the number.  b is
+	the number of 512-byte blocks, k the number of kilobytes, and m the
+	number of megabytes.
+
+    UNFUNCTION - remove a user-defined variable function.  The syntax is
+      the same as UNALIAS.
+
+	UNFUNCTION [/Q /R filename] name...
+	  or
+	UNFUNCTION *
+
+
+LEGAL STUFF
+-----------
+
+    Copyright 2003, JP Software Inc., All Rights Reserved.  Published by JP
+    Software Inc., P.O. Box 328, Chestertown, MD 21620, USA
+    Phone 410-810-8818, Fax 410-810-0026.
+
+    Take Command and 4DOS are registered trademarks of JP Software Inc.
+    4DOS and 4NT are JP Software Inc.'s trademarks for its family of
+    character-mode command processors.  JP Software, jpsoft.com, and all JP
+    Software designs and logos are also trademarks of JP Software Inc. Other
+    product and company names are trademarks of their respective owners.

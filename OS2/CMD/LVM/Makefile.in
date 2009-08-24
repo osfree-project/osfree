@@ -1,0 +1,70 @@
+#
+# Copyright (C) 2001-2004 Sistina Software, Inc. All rights reserved.
+# Copyright (C) 2004 Red Hat, Inc. All rights reserved.
+#
+# This file is part of the LVM2.
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions
+# of the GNU General Public License v.2.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+SUBDIRS = doc include man scripts
+
+ifeq ("@INTL@", "yes")
+  SUBDIRS += po
+endif
+
+SUBDIRS += lib tools daemons
+
+ifeq ("@DMEVENTD@", "yes")
+  SUBDIRS += dmeventd
+endif
+
+ifeq ($(MAKECMDGOALS),distclean)
+  SUBDIRS += daemons/clvmd \
+	     dmeventd \
+	     lib/format1 \
+	     lib/format_pool \
+	     lib/locking \
+	     lib/mirror \
+	     lib/snapshot \
+	     po \
+	     test/mm test/device test/format1 test/regex test/filters
+  DISTCLEAN_TARGETS += lib/misc/configure.h
+endif
+
+include make.tmpl
+
+daemons: lib
+lib: include
+tools: lib
+dmeventd: tools
+po: tools daemons dmeventd
+
+ifeq ("@INTL@", "yes")
+lib.pofile: include.pofile
+tools.pofile: lib.pofile
+daemons.pofile: lib.pofile
+dmeventd.pofile: tools.pofile
+po.pofile: tools.pofile daemons.pofile dmeventd.pofile
+pofile: po.pofile
+endif
+
+ifneq ("@CFLOW_CMD@", "")
+tools.cflow: lib.cflow
+cflow: tools.cflow
+endif
+
+ifneq ("@CSCOPE_CMD@", "")
+cscope.out: tools
+	@CSCOPE_CMD@ -b -R
+all: cscope.out
+endif

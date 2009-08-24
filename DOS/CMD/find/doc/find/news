@@ -1,0 +1,40 @@
+This is the release history for FIND:
+-------------------------------------------------------------------------
+
+Ver 2.9: Adjusted KITTEN to fit my needs better (Eric Auer).
+
+Ver 2.7: Added support for NLS in case-insensitivity, changed from
+ cats to kitten library, removed getopt, made binary smaller, fixed
+ a bug in backslash processing (Eric Auer). Same for version 2.8.
+
+Ver 2.6: Fixed bug 1423 (FIND does not use filename paths).  This now
+ stores the drive, cwd before using findfirst/findnext.  Some code
+ cleanup is now needed, so future versions may make this code fix
+ easier to read.
+
+Ver 2.5c: Added new find.hu by Nagy Daniel.  Minor updates to docs,
+ renamed the makefile to makefile.bc.
+
+Ver 2.5b: Wording change in find.c and nls/find.en : the program does not
+ count occurrences of the string, it counts lines that contain the string
+
+Ver 2.5a: added find.de, contributed by achim_sondermann
+
+Ver 2.5: Added find.sv, contributed by Martin Str|mberg <ams@ludd.luth.se>
+
+Ver 2.4: Patch applied as suggested by Jörg Jenderek: returns 0
+ for a successful searches and an error level of 1 for no findings and
+ an error level 2 for errors like syntax errors.
+
+Ver 2.3: Patch to find.c, contributed by Pertti Karppinen
+ <pjka@iki.fi>.  Also updated several docs to use correct URLs that
+ have changed since version 2.2.
+
+Ver 2.2: Added find.lv, contributed by Neons <neons_lv@inbox.lv>
+
+Ver 2.1: added find.ru, contributed by Ilya Vasilyev <arvi@online.ru>
+
+Ver 2: added international support using "Cats" library
+
+Ver 1: First version, released as part of the FreeDOS Utilities
+ package in 1994.

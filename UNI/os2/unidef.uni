@@ -1,0 +1,410 @@
+module unidef;
+
+abi os2386;
+
+
+(* compiler dependent include files *)
+#include <stddef.h>             (* define size_t and wchar_t types *)
+#include <time.h>               (* define tm struct *)
+
+(* ULS include files *)
+#include <os2def.h>
+#include <ulserrno.h>           (* uls return code defs *)
+#include <errcmpat.h>
+#include <ulsitem.h>            (* define LocaleItem type *)
+
+(*
+ * ulsBool Type
+ *)
+type ulsBool=int;
+
+(*
+ * UniChar Type
+ *)
+type UniChar=USHORT;
+
+(*
+ * LocaleObject Type
+ *)
+type LocaleObject=PVOID;
+
+(*
+ * LocaleToken Type
+ *)
+type LocaleToken=UINT;
+
+(*
+ * AttrObject Type
+ *)
+type AttrObject=PVOID;
+
+(*
+ * XformObject type
+ *)
+type XformObject=PVOID;
+
+(*
+ * LocaleSpecType Values
+ *)
+constant UNI_TOKEN_POINTER      = 1;
+constant UNI_MBS_STRING_POINTER = 2;
+constant UNI_UCS_STRING_POINTER = 3;
+
+(*
+ * Locale Types
+ *)
+constant UNI_SYSTEM_LOCALES     = 1;
+constant UNI_USER_LOCALES       = 2;
+
+(*
+ * Categories
+ *)
+
+constant LANG         =(-2);
+constant LC_ALL       =(-1);
+constant LC_COLLATE   = 0;
+constant LC_CTYPE     = 1;
+constant LC_NUMERIC   = 2;
+constant LC_MONETARY  = 3;
+constant LC_TIME      = 4;
+constant LC_MESSAGES  = 5;
+
+constant N_LC_CATEGORIES = 6;     (* Number of categories                   *)
+constant ULS_LNAMEMAX    = 32;    (* Maxlen of locale name (including null) *)
+
+(*
+ * UniLconv locale conventions structure
+ *)
+type UNILCONV=structucre
+   decimal_point: ^UniChar;      (* non-monetary decimal point           *)
+   thousands_sep: ^UniChar;      (* non-monetary thousands separator     *)
+   grouping: ^short;           (* non-monetary size of grouping        *)
+   int_curr_symbol: ^UniChar;    (* int'l currency symbol and separator  *)
+   currency_symbol: ^UniChar;    (* local  currency symbol               *)
+   mon_decimal_point: ^UniChar;  (* monetary decimal point               *)
+   mon_thousands_sep: ^UniChar;  (* monetary thousands separator         *)
+   mon_grouping: ^short;       (* monetary size of grouping            *)
+   positive_sign: ^UniChar;      (* non-negative values sign             *)
+   negative_sign: ^UniChar;      (* negative values sign                 *)
+   int_frac_digits: short;     (* no of fractional digits int currency *)
+   frac_digits: short;         (* no of fractional digits loc currency *)
+   p_cs_precedes: short;       (* nonneg curr sym 1-precedes,0-succeeds*)
+   p_sep_by_space: short;      (* nonneg curr sym 1-space,0-no space   *)
+   n_cs_precedes: short;       (* neg curr sym 1-precedes,0-succeeds   *)
+   n_sep_by_space: short;      (* neg curr sym 1-space 0-no space      *)
+   p_sign_posn: short;         (* positioning of nonneg monetary sign  *)
+   n_sign_posn: short;         (* positioning of negative monetary sign*)
+   os2_mondecpt: short;        (* os2 curr sym positioning             *)
+   reserved: short;
+   debit_sign: ^UniChar;         (* non-neg-valued monetary sym - "DB"   *)
+   credit_sign: ^UniChar;        (* negative-valued monetary sym - "CR"  *)
+   left_parenthesis: ^UniChar;   (* negative-valued monetary sym - "("   *)
+   right_parenthesis: ^UniChar;  (* negative-valued monetary sym - ")"   *)
+end;
+
+(*
+ * Locale Management Function Prototypes
+ *)
+function UniCreateLocaleObject (locale_spec_type: int;  locale_spec: PVOID;
+                            locale_object_ptr: LocaleObject ): int;
+function UniQueryLocaleObject  (locale_object: LocaleObject; category: int;
+                            locale_spec_type: int; locale_spec_ptr: ^PVOID ): int;
+function UniFreeLocaleObject   ( locale_object: LocaleObject ): int;
+function UniFreeMem            ( memory_ptr: PVOID ): int;
+function UniLocaleStrToToken   ( locale_string_type: int; locale_string: PVOID;
+                            locale_token_ptr: ^LocaleToken ): int;
+function UniLocaleTokenToStr   ( locale_token: LocaleToken;
+                             locale_string_type: int; locale_string_ptr:^PVOID ): int;
+
+(*
+ * Locale Information Function Prototypes
+ *)
+function UniQueryLocaleInfo ( locale_object: LocaleObject;
+                         unilconv_addr_ptr: ^^UNILCONV ): int;
+function UniFreeLocaleInfo ( unilconv_addr: ^UNILCONV ): int;
+int     CALLCONV UniQueryLocaleItem ( constant LocaleObject locale_object,
+                         LocaleItem item,
+                         UniChar **info_item_addr_ptr );
+int     CALLCONV UniQueryLocaleValue ( constant LocaleObject locale_object,
+                         LocaleItem item,
+                         int *info_item);
+
+(*
+ * Date and Time Function Prototypes
+ *)
+size_t       CALLCONV UniStrftime ( constant LocaleObject locale_object,
+                       UniChar *ucs, size_t maxsize,
+                       constant UniChar *format, constant struct tm *time_ptr );
+UniChar    * CALLCONV UniStrptime ( constant LocaleObject locale_object,
+                       constant UniChar *buf, constant UniChar *format,
+                       struct tm *time_ptr );
+
+(*
+ * Monetary Formatting Function Prototype
+ *)
+int          CALLCONV UniStrfmon  ( constant LocaleObject locale_object,
+                       UniChar *ucs, size_t maxsize,
+                       constant UniChar *format, ... );
+
+(*
+ * String/Character Function Prototypes
+ *)
+UniChar    * CALLCONV UniStrcat  ( UniChar *ucs1, constant UniChar *ucs2 );
+UniChar    * CALLCONV UniStrchr  ( constant UniChar *ucs, UniChar uc );
+int          CALLCONV UniStrcmp  ( constant UniChar *ucs1, constant UniChar *ucs2 );
+UniChar    * CALLCONV UniStrcpy  ( UniChar *ucs1, constant UniChar *ucs2 );
+size_t       CALLCONV UniStrcspn ( constant UniChar *ucs1, constant UniChar *ucs2 );
+size_t       CALLCONV UniStrlen  ( constant UniChar *ucs1 );
+UniChar    * CALLCONV UniStrncat ( UniChar *ucs1, constant UniChar *ucs2, size_t n );
+int          CALLCONV UniStrncmp ( constant UniChar *ucs1, constant UniChar *ucs2, size_t n );
+UniChar    * CALLCONV UniStrncpy ( UniChar *ucs1, constant UniChar *ucs2, size_t n );
+UniChar    * CALLCONV UniStrpbrk ( constant UniChar *ucs1, constant UniChar *ucs2 );
+UniChar    * CALLCONV UniStrrchr ( constant UniChar *ucs, UniChar uc );
+size_t       CALLCONV UniStrspn  ( constant UniChar *ucs1, constant UniChar *ucs2 );
+UniChar    * CALLCONV UniStrstr  ( constant UniChar *ucs1, constant UniChar *ucs2 );
+UniChar    * CALLCONV UniStrtok  ( UniChar *ucs1, constant UniChar *ucs2 );
+
+
+(*
+ * Character Attribute Function Prototypes
+ *)
+int   CALLCONV UniCreateAttrObject ( constant LocaleObject locale_object,
+                           constant UniChar *attr_name,
+                           AttrObject *attr_object_ptr );
+int   CALLCONV UniQueryCharAttr    ( AttrObject attr_object, UniChar uc );
+int   CALLCONV UniScanForAttr      ( AttrObject attr_object, constant UniChar *ucs,
+                           size_t num_elems, ulsBool inverse_op,
+                           size_t *offset_ptr );
+int   CALLCONV UniFreeAttrObject   ( AttrObject attr_object );
+int   CALLCONV UniQueryAlnum       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryAlpha       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryBlank       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryCntrl       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryDigit       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryGraph       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryLower       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryPrint       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryPunct       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQuerySpace       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryUpper       ( constant LocaleObject loc, UniChar uc );
+int   CALLCONV UniQueryXdigit      ( constant LocaleObject loc, UniChar uc );
+
+
+(*
+ * String Transformation Function Prototypes
+ *)
+int   CALLCONV UniCreateTransformObject ( constant LocaleObject locale_object,
+                                constant UniChar *xtype,
+                                XformObject *xform_object_ptr );
+int   CALLCONV UniTransformStr          ( XformObject xform_object,
+                                constant UniChar *inp_buf, int *inp_size,
+                                UniChar *out_buf, int *out_size );
+int   CALLCONV UniFreeTransformObject   ( XformObject xform_object );
+UniChar   CALLCONV UniTransLower        ( constant LocaleObject locale_object, UniChar uc );
+UniChar   CALLCONV UniTransUpper        ( constant LocaleObject locale_object, UniChar uc );
+
+(*
+ * String Conversion Function Prototypes
+ *)
+int   CALLCONV UniStrtod  ( constant LocaleObject locale_object, constant UniChar *ucs,
+                  UniChar **end_ptr, double *result_ptr );
+int   CALLCONV UniStrtol  ( constant LocaleObject locale_object, constant UniChar *ucs,
+                  UniChar **end_ptr, int base, long int *result_ptr );
+int   CALLCONV UniStrtoul ( constant LocaleObject locale_object, constant UniChar *ucs,
+                  UniChar **end_ptr, int base, unsigned long int *result_ptr );
+
+(*
+ * String Comparison Function Prototypes
+ *)
+int      CALLCONV UniStrcoll  ( constant LocaleObject locale_object,
+                     constant UniChar *ucs1, constant UniChar *ucs2 );
+size_t   CALLCONV UniStrxfrm  ( constant LocaleObject locale_object,
+                     UniChar *ucs1, constant UniChar *ucs2, size_t n );
+int      CALLCONV UniStrcmpi  ( constant LocaleObject locale_object,
+                     constant UniChar *ucs1, constant UniChar *ucs2 );
+int      CALLCONV UniStrncmpi ( constant LocaleObject locale_object,
+                     constant UniChar *ucs1, constant UniChar *ucs2, constant size_t n );
+
+(*
+ * Unicode Case Mapping Function Prototypes
+ *)
+UniChar   CALLCONV UniToupper ( UniChar uc );
+UniChar   CALLCONV UniTolower ( UniChar uc );
+UniChar * CALLCONV UniStrupr  ( UniChar * ucs );
+UniChar * CALLCONV UniStrlwr  ( UniChar * ucs );
+
+
+int CALLCONV UniMapCtryToLocale( unsigned long Country,
+                                 UniChar *LocaleName, size_t n );
+
+(*
+ * Functions for user locales.  These are designed to be externalizable,
+ * and are used by WPShell, but are currently private functions.
+ * These functions are in ulx.c
+ *)
+int CALLCONV UniSetUserLocaleItem(UniChar * locale, int item, int type, void * value);
+int CALLCONV UniMakeUserLocale(UniChar * name, UniChar * basename);
+int CALLCONV UniDeleteUserLocale(UniChar * locale);
+int CALLCONV UniCompleteUserLocale(void);
+int CALLCONV UniQueryLocaleList(int, UniChar *, int);
+int CALLCONV UniQueryLanguageName(UniChar *lang, UniChar *isolang,
+                                  UniChar **infoitem);
+int CALLCONV UniQueryCountryName(UniChar *country, UniChar *isolang,
+                                  UniChar **infoitem);
+
+
+(*
+ * Typedef for QueryCharType and UniQueryStringType indexed
+ *)
+typedef struct {
+    USHORT  itype;        (* CTYPE1 - xpg4 attributes     *)
+    CHAR    bidi;         (* CTYPE2 - Bidi attributes     *)
+    CHAR    charset;      (* CHARSET- Character set       *)
+    USHORT  extend;       (* CTYPE3 - Extended attributes *)
+    USHORT  codepage;     (* Codepage mask (CCP)          *)
+} UNICTYPE;
+
+
+(*
+ * Locale independent character classification
+ *)
+int   CALLCONV UniQueryChar          ( UniChar uc, ULONG attr);
+ULONG CALLCONV UniQueryAttr          ( UniChar * name);
+ULONG CALLCONV UniQueryStringType    ( UniChar * ustr, int size, USHORT * outstr, int kind );
+UNICTYPE * CALLCONV UniQueryCharType ( UniChar uchr);
+ULONG CALLCONV UniQueryCharTypeTable ( ULONG * count, UNICTYPE * * unictype);
+int   CALLCONV UniQueryNumericValue  ( UniChar   uc);
+
+(*
+ * Character type constants
+ *)
+constant CT_UPPER           = $0001;      (* Upper case alphabetic character *)
+constant CT_LOWER           = $0002;      (* Lower case alphabetic character *)
+constant CT_DIGIT           = $0004;      (* Digits 0-9                      *)
+constant CT_SPACE           = $0008;      (* White space and line ends       *)
+constant CT_PUNCT           = $0010;      (* Punctuation marks               *)
+constant CT_CNTRL           = $0020;      (* Control and format characters   *)
+constant CT_BLANK           = $0040;      (* Space and tab                   *)
+constant CT_XDIGIT          = $0080;      (* Hex digits                      *)
+constant CT_ALPHA           = $0100;      (* Letters and linguistic marks    *)
+constant CT_ALNUM           = $0200;      (* Alphanumeric                    *)
+constant CT_GRAPH           = $0400;      (* All except controls and space   *)
+constant CT_PRINT           = $0800;      (* Everything except controls      *)
+constant CT_NUMBER          = $1000;      (* Integral number                 *)
+constant CT_SYMBOL          = $2000;      (* Symbol                          *)
+constant CT_ASCII           = $8000;      (* In standard ASCII set           *)
+
+(*
+ * Define the Win32 equivalent ames for the bits
+ *)
+constant C1_UPPER   = CT_UPPER;
+constant C1_LOWER   = CT_LOWER;
+constant C1_DIGIT   = CT_DIGIT;
+constant C1_SPACE   = CT_SPACE;
+constant C1_PUNCT   = CT_PUNCT;
+constant C1_CNTRL   = CT_CNTRL;
+constant C1_BLANK   = CT_BLANK;
+constant C1_XDIGIT  = CT_XDIGIT;
+constant C1_ALPHA   = CT_ALPHA;
+
+(*
+ * Define types used in the unicode layout function.
+ *)
+constant C2_NOTAPPLICABLE     = $00;      (*    - Not a character             *)
+constant C2_LEFTTORIGHT       = $01;      (* L  - Left to Right               *)
+constant C2_RIGHTTOLEFT       = $02;      (* R  - Right to Left               *)
+constant C2_EUROPENUMBER      = $03;      (* EN - European number             *)
+constant C2_EUROPESEPARATOR   = $04;      (* ES - European separator          *)
+constant C2_EUROPETERMINATOR  = $05;      (* ET - European terminator         *)
+constant C2_ARABICNUMBER      = $06;      (* AN - Arabic number               *)
+constant C2_COMMONSEPARATOR   = $07;      (* CS - Common separator            *)
+constant C2_BLOCKSEPARATOR    = $08;      (* B  - Block separator             *)
+constant C2_WHITESPACE        = $0A;      (* WS - Whitespace                  *)
+constant C2_OTHERNEUTRAL      = $0B;      (* ON - Other neutral               *)
+constant C2_MIRRORED          = $0C;      (* M  - Symetrical   (not Win32)    *)
+
+
+(*
+ * Define the character set values.  For alphabetics this defines the
+ * lingusitic group.  For symbols and punctuation this defines some
+ * subtypes.
+ *)
+constant CHS_NONCHAR       = $00;
+constant CHS_OTHER         = $01;
+constant CHS_LATIN         = $02;
+constant CHS_CYRILLIC      = $03;
+constant CHS_ARABIC        = $04;
+constant CHS_GREEK         = $05;
+constant CHS_HEBREW        = $06;
+constant CHS_THAI          = $07;
+constant CHS_KATAKANA      = $08;
+constant CHS_HIRAGANA      = $09;
+constant CHS_HANGUEL       = $0a;
+constant CHS_BOPOMOFO      = $0b;
+constant CHS_DEVANAGARI    = $0c;
+constant CHS_TELUGU        = $0d;
+constant CHS_BENGALI       = $0e;
+constant CHS_GUJARATI      = $0f;
+constant CHS_GURMUKHI      = $10;
+constant CHS_TAMIL         = $11;
+constant CHS_LAO           = $12;
+
+constant CHS_PUNCTSTART    = $20;
+constant CHS_PUNCTEND      = $21;
+constant CHS_DINGBAT       = $22;
+constant CHS_MATH          = $23;
+constant CHS_APL           = $24;
+constant CHS_ARROW         = $25;
+constant CHS_BOX           = $26;
+constant CHS_DASH          = $27;
+constant CHS_CURRENCY      = $28;
+constant CHS_FRACTION      = $29;
+constant CHS_LINESEP       = $2a;
+constant CHS_USERDEF       = $2b;
+
+(*
+ * Define typed for extensions to the POSIX types based on the Win32
+ * text processing types.  These duplicate some of the other information
+ * in the CT and CHS areas.
+ *)
+constant C3_NONSPACING     = $0001;       (* Nonspacing mark       *)
+constant C3_DIACRITIC      = $0002;       (* Diacritic mark        *)
+constant C3_NSDIACRITIC    = $0003;
+constant C3_VOWELMARK      = $0004;       (* Vowel mark            *)
+constant C3_NSVOWEL        = $0005;
+constant C3_SYMBOL         = $0008;       (* Symbol (see CT_SYMBOL)*)
+constant C3_KATAKANA       = $0010;       (* Katakana character    *)
+constant C3_HIRAGANA       = $0020;       (* Hiragana character    *)
+constant C3_HALFWIDTH      = $0040;       (* Half-width varient    *)
+constant C3_FULLWIDTH      = $0080;       (* Full-width varient    *)
+constant C3_IDEOGRAPH      = $0100;       (* Kanji/Han character   *)
+constant C3_KASHIDA        = $0200;       (* Arabic enlonger       *)
+constant C3_ALPHA          = $8000;       (* Alphabetic            *)
+constant C3_MASK           = $83FF;       (* Mask for Win32 bits   *)
+
+(*
+ * Define containing codepage for UGL codepages
+ *)
+constant CCP_437           = $0001;       (* US PC                 *)
+constant CCP_850           = $0002;       (* Multilingual PC       *)
+constant CCP_SYMB          = $0004;       (* PostScript Symbol     *)
+constant CCP_1252          = $0008;       (* Windows Latin 1       *)
+constant CCP_1250          = $0010;       (* Windows Latin 2       *)
+constant CCP_1251          = $0020;       (* Windows Cyrillic      *)
+constant CCP_1254          = $0040;       (* Windows Turkish       *)
+constant CCP_1257          = $0080;       (* Windows Baltic        *)
+
+(*
+ * Kind of data return for UniQueryStringType
+ *)
+constant CT_ITYPE    = 1;
+constant CT_BIDI     = 2;
+constant CT_CHARSET  = 3;
+constant CT_EXTENDED = 4;
+constant CT_CODEPAGE = 5;
+constant CT_INDEX    = 6;
+constant CT_CTYPE1   = 7;    (* Win32 compat xpg4            *)
+constant CT_CTYPE2   = 8;    (* Win32 compat bidi            *)
+constant CT_CTYPE3   = 9;    (* Win32 compat extended        *)
+
+end.

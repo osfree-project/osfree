@@ -1,0 +1,22 @@
+This file explains the features of Regina that are disabled when Regina
+is run in "restricted" mode.
+
+Restricted mode is used in situations where you need to guarantee that
+the author of a Rexx program is unable to affect the user's environment.
+Situations where a restricted mode is applicable include, using Regina as
+a database procedural language, or as language plugin for a Web browser.
+
+Features of Regina that are disabled in restricted mode are:
+  - LINEOUT, CHAROUT BIFs
+  - POPEN BIF
+  - "OPEN WRITE", "OPEN BOTH" subcommands of STREAM BIF
+  - The "built-in" environments eg. SYSTEM, CMD or PATH of ADDRESS command
+  - Setting the value of a variable in the external environment with
+    VALUE BIF.
+  - Calling external functions
+  - RXFUNCADD BIF
+
+To run Regina in restricted mode, you can start the Regina interpreter
+from the command line with the '-r' switch, or when using the Rexx SAA API,
+"ORing", RESTRICTED_REXX to the CallType parameter of RexxStart() function.
+

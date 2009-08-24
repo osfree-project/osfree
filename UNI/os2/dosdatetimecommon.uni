@@ -1,0 +1,25 @@
+module dosdatetimecommon;
+
+abi os2386;
+
+
+   (*** Time support *)
+
+   type DATETIME=structure      (* date *)
+         hours: UCHAR;
+         minutes: UCHAR;
+         seconds: UCHAR;
+         hundredths: UCHAR;
+         day: UCHAR;
+         month: UCHAR;
+         year: USHORT;
+         timezone: SHORT;
+         weekday: UCHAR;
+   end;
+   type PDATETIME=^DATETIME;
+
+   function   DosGetDateTime(out pdt: DATETIME): APIRET;
+
+   function   DosSetDateTime(in pdt: PDATETIME): APIRET;
+
+end.

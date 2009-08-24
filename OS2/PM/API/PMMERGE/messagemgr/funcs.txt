@@ -1,0 +1,31 @@
+- implemented:
+
+      WinInitialize
+      WinTerminate
+      WinCreateMsgQueue
+      WinDestroyMsgQueue
+      WinQueryQueueInfo
+      WinGetMsg
+      WinPeekMsg
+      WinPostMsg
+      WinSendMsg
+      WinDispatchMsg
+      WinRegisterUserMsg
+
+- not implemented:
+
+      WinCancelShutdown
+      WinBroadcastMsg
+      WinGetDlgMsg
+      WinInSendMsg
+      WinPostQueueMsg
+      WinQueryMsgPos
+      WinQueryMsgTime
+      WinQueryQueueStatus
+      WinSendDlgItemMsg
+      WinSetClassMsgInterest
+      WinSetMsgInterest
+      WinSetMsgMode
+      WinSetSynchroMode
+      WinWaitMsg
+

@@ -1,0 +1,8 @@
+
+WIN_OPENLOG="/tmp/log"
+export WIN_OPENLOG
+
+LD_LIBRARY_PATH=$PWD/win
+export LD_LIBRARY_PATH
+
+alias win=$PWD/win/xwin

@@ -1,0 +1,18 @@
+0.0:Affiche le contenu d'un texte page par page
+0.1:Usage
+0.2:commande
+0.3:fichier
+0.4:Touches disponibles
+0.5:Nn
+0.6:Fichier suivant
+0.7:Qq
+0.8:Quitter le programme
+0.9:Espace
+0.10:Page suivante
+1.0:Option inconnue
+1.1:Fichier non-existant
+1.2:Ouverture du fichier impossible
+2.0:Plus
+2.1:<STDIN>
+
+1.3:l'option /Tabs doit etre /T1..9 (par defaut 4)

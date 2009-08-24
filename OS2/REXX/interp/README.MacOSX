@@ -1,0 +1,32 @@
+This file explains how to setup Regina on MacOS X.
+
+This only applies to MacOS X 10.1 or 10.2
+
+1) To enable Regina to load external function packages, you need to
+   download and install the "dlcompat" package. The source is available
+   from the "fink" project at http://fink.sf.net, but I had to change
+   1 line of the code to get it to compile. Therefore I've made the
+   source available from the Regina downloads page.
+   The version I have used and tested is in dlcompat-20020929.tar.gz
+   You can get a pre-compiled "dlcompat" package from:
+   http://prdownloads.sourceforge.net/regina-rexx/dlcompat-20020929.zip
+   but this pre-compiled binary will only work if you have root access
+   and can install it in /usr/local. The source is available from:
+   http://prdownloads.sourceforge.net/regina-rexx/dlcompat-20020929.tar.gz
+2) Either build dlcompat from source and follow the instructions in
+   the README, or unzip dlcompat-20020929.zip into /usr/local
+3) If you have root access on your machine, move the libdl* file(s)
+   to /usr/local/lib. If you don't have root access, I suggest you move
+   the libdl* file(s) to $HOME/lib.
+4) Add the directory you moved the libdl* file(s) to, to the DYLD_LIBRARY_PATH
+   environment variable.
+   Assuming you have moved the files into $HOME/lib...
+   eg. export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/lib
+4) If you plan on building Regina yourself, move dlfcn.h into either
+   /usr/local/include or $HOME/include depending on whether you have root
+   access or not.
+5) To build Regina yourself, you will need to specify:
+   --with-dlfcnincdir=$HOME/include --with-dlfcnlibdir=$HOME/lib
+   as parameters to the configure script if you couldn't move the libdl*
+   file(s) and dlfcn.h to /usr/local/lib and /usr/local/include
+   respectively.

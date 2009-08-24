@@ -1,0 +1,19 @@
+NAME         Bindemo2
+
+DESCRIPTION  'Bindemo2 Dynamic Linking Sample Application'
+
+EXETYPE      WINDOWS
+
+STUB         'WINSTUB.EXE'
+
+CODE         PRELOAD MOVEABLE DISCARDABLE
+DATA         PRELOAD MOVEABLE MULTIPLE
+
+HEAPSIZE     1024
+
+EXPORTS
+    BinDemoWndProc  @1
+
+IMPORTS
+    Shell.ShellAbout
+

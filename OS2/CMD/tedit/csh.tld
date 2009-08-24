@@ -1,0 +1,72 @@
+*
+* This file contains the THE Language Definition for C Shell
+* It is based heavily on Kedit's KLD file format.
+*
+* Name = *CSH
+*
+:case
+  respect
+:string
+  single backslash
+  double backslash
+:identifier  
+  [a-zA-Z_] [a-zA-Z0-9_]
+:header
+  line #! column 1
+:keyword
+  alias
+  bg
+  break
+  breaksw
+  case
+  cd
+  chdir
+  continue
+  default
+  default
+  dirs
+  echo
+  else
+  end
+  endif
+  endsw
+  eval
+  exec
+  exit
+  fg
+  foreach
+  glob
+  goto
+  hashstat
+  history
+  if
+  jobs
+  kill
+  limit
+  login
+  logout
+  nice
+  nohup
+  notify
+  onintr
+  popd
+  pushd
+  rehash
+  repeat
+  set
+  setenv
+  shift
+  source
+  stop
+  suspend
+  switch
+  then
+  time
+  umask
+  unalias
+  unhash
+  unlimit
+  unset
+  unsetenv
+  wait
+  while

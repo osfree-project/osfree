@@ -1,0 +1,21 @@
+;
+; rexx.def
+;
+LIBRARY REXX INITINSTANCE
+DESCRIPTION 'REXX.DLL forwarder for Regina'
+DATA    MULTIPLE NONSHARED
+
+STACKSIZE   81920
+
+EXPORTS
+       REXXSTART          =RexxStart @1              RESIDENTNAME
+       REXXVARIABLEPOOL   =RexxVariablePool @2       RESIDENTNAME
+       REXXSETHALT        =RexxSetHalt @3            RESIDENTNAME
+       REXXSETTRACE       =RexxSetTrace @4           RESIDENTNAME
+       REXXRESETTRACE     =RexxResetTrace @5         RESIDENTNAME
+       RXTRACERESET       =RexxResetTrace @6         RESIDENTNAME
+       RXBREAKCLEANUP     =RxBreakCleanup @7         RESIDENTNAME
+       RXVAR              =RexxVariablePool @8       RESIDENTNAME
+       REXXSAA            =RexxSAA @9                RESIDENTNAME
+       RXHALTSET          =RexxSetHalt @10           RESIDENTNAME
+       RXTRACESET         =RexxSetTrace @11          RESIDENTNAME

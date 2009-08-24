@@ -1,0 +1,61 @@
+This is the release history for MORE:
+
+ver 4.3 Imre
+	added long file name support
+
+ver 4.2 tom
+	fixed bug in kittenopen ??
+
+ver 4.1 jeremy
+	fixed bug in kittenopen
+
+Ver 4.0: tom:
+
+	fixed hang on CtrlBreak (ignored) (bug 1609)
+	is now able to survive CTTY COM1 (we had long discussions about that)
+	handles screensize dynamically (bug #1639)  
+	expands tabs (bug 1639)
+	doesn't ask for next file, if MORE'ing a single file
+	CATS replaced by KITTEN
+	executable size reduced by factor 2
+	
+
+
+Ver 3.4h: Updated more.sv by Martin Stromberg.  Also, two patches by
+ Martin Stromberg: added return(0) to keep compiler happy, was using
+ wrong message number in catalog for "Next page".  Added correct ^C
+ handling, fixed keypress().
+
+Ver 3.4g: New more.hu by Nagy Daniel.  Fixed bug 1115 - can't read
+ from stdin.  Fixed bug 1116 - doesn't count wrapped lines.
+
+Ver 3.4f: Updated more.de by Achim Sondermann.  Added more.nl by Bernd
+ Blaauw.
+
+Ver 3.4e: Updated more.de by Achim Sondermann.
+
+Ver 3.4d: Space is now mentioned in "MORE/?" as an "Available Key",
+ per Martin Stromberg.  This adds strings 0.9 and 0.10 in NLS\MORE.EN
+
+Ver 3.4c: Added entries to more.sv by Martin Stromberg
+
+Ver 3.4b: Corrected entry 2.0 in more.de, by achim_sondermann
+
+Ver 3.4a: Added a new German translation file (more.de) by Florian
+ Xaver.  I think Florian's translation is more correct.
+
+Ver 3.4: Implemented suggestion by Martin Stromberg to allow user to
+ immediately quit MORE, or to jump to next file.
+
+Ver 3.3.1: Added more.sv, by Martin Stromberg <ams@ludd.luth.se>
+
+Ver 3.3: added more.de by michael.kallas@web.de
+
+Ver 3.2: added more.lv, by Neons <neons_lv@inbox.lv>
+
+Ver 3: added international support using "Cats" library
+
+Ver 2: re-write to be cleaner code
+
+Ver 1: First version, released as part of the FreeDOS Utilities
+ package in 1994.

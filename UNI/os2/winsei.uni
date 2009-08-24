@@ -1,0 +1,5 @@
+module winsei;
+
+uses pmsei default;
+
+end.

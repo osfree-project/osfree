@@ -1,0 +1,28 @@
+# Makefile for FreeDOS EDLIN
+# uses Borland C/C++ 3.1 - may also work with other Borland-like compilers
+
+CC=bcc
+CFLAGS=-mc -DHAVE_CONFIG_H
+LDFLAGS=
+LDLIBS=
+
+SOURCES=defines.c dynstr.c edlib.c edlin.c 
+OBJ=$(SOURCES:.c=.obj)
+EXE=edlin.exe
+
+all: edlin.exe
+
+edlin.exe: $(OBJ) config.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -e$(EXE) $(OBJ) $(LDLIBS)
+
+config.h:
+	-copy config-h.bc config.h
+
+clean:
+	-del *.obj
+
+realclean: clean
+	-del config.h
+
+distclean: realclean
+	-del $(EXE)

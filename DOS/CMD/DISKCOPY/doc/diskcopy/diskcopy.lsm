@@ -1,0 +1,14 @@
+Begin3
+Title:            diskcopy
+Version:          beta 0.94
+Entered-date:     05AUG2004
+Description:      copy one disk or image file to an other
+Keywords:         freedos,disk,diskcopy,copy
+Author:           "Imre Leber" <imre.leber@worldonline.be>
+Maintained-by:    "Imre Leber" <imre.leber@worldonline.be>
+Primary-site:     http://users.pandora.be/imre/FreeDOS/
+Alternative-site: http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/diskcopy/
+Original-site:    
+Platforms:        dos
+Copying-policy:   GPL
+End

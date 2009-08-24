@@ -1,0 +1,13 @@
+JoinEA = (
+    joinfilename        = "$(DEST)MINSTALL.EXE" (MAXPATH)
+    joineafilename      = "$(DEST)MINSTALL.EAS" (MAXPATH)
+ )
+ -> DosSetPathInfo on EA
+
+JoinLongNameEA = (
+    JoinLongName        = "Sound Bites" (MAXPATH)
+    JoinLongFileName    = "$(DIR)9" (MAXPATH)
+    JoinEALongFileName  = "$(DEST)soundt.eas" (MAXPATH)
+ )
+ -> DosSetPathInfo on EA
+ & generate Long-Name for File or Path

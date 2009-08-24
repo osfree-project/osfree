@@ -1,0 +1,18 @@
+- implemented:
+
+      WinRegisterClass
+      WinCreateWindow
+      WinCreateStdWindow
+      WinDefWindowProc
+      WinDestroyWindow
+      WinSetActiveWindow
+
+- not implemented:
+
+      WinCalcFrameRect
+      WinCreateFrameControls
+      WinQueryClassInfo
+      WinQueryClassName
+      WinSubclassWindow
+
+

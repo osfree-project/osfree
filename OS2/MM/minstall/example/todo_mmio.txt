@@ -1,0 +1,101 @@
+
+mmioInstall = (
+  mmioFourCC        = "MP3 "
+  mmioDllName       = "C:\\MMOS2\\DLL\\mmiomp3.dll" (MAXPATH)
+  mmioDllEntryPoint = "IOProc_Entry" (32)
+  mmioFlags         = 0x00000000L
+  mmioExtendLen     = 0x00000010L
+  mmioMediaType     = 0x00000002L
+  mmioIOProcType    = 0x00000002L
+  mmioDefExt        = "MP3" (4)
+ )
+
+-> MMINIFILEINFO
+   mmioIniFileHandler (&MMINIFILEINFO, MMIO_INSTALLPROC);
+   MMIO_SUCCESS
+
+
+mmioCodecDelete =
+   (
+   mmioDelLength         = 404L
+   mmioDelFourCC         = "AVI "
+   mmioDelDllName        = "ULCOASYM" (MAXPATH)
+   mmioDelDllEntryPoint  = "CodecEntry" (32)
+   mmioDelCompTypeFcc    = "ULTI"
+   mmioDelCompSubType    = 0L
+   mmioDelMediaType      = 0x40L
+   mmioDelFlags          = 0L
+   mmioDelCapsFlags      = 0x308001L
+   mmioDelHWName         = "" (32)
+   mmioDelMaxSrcBuf      = 0L
+   mmioDelSyncMethod      = 2L
+   mmioDelReserved1      = 0L
+   mmioDelXAlign         = 8L
+   mmioDelYAlign         = 8L
+   mmioDelSpecInfo       = "" (8)
+   )
+
+mmioCodec1Install =
+   (
+   mmio1Length         = 404L
+   mmio1FourCC         = "WAVE"
+   mmio1DllName        = "$(DEST)IMAADPCM.DLL" (MAXPATH)
+   mmio1DllEntryPoint  = "WaveCodecEntry" (32)
+   mmio1CompTypeInt    = 2L
+   mmio1CompSubType    = 0L
+   mmio1MediaType      = 0x02L
+   mmio1Flags          = 0L
+   mmio1CapsFlags      = 0x40003L
+   mmio1HWName         = "" (32)
+   mmio1MaxSrcBuf      = 0L
+   mmio1SyncMethod     = 0L
+   mmio1Reserved1      = 0L
+   mmio1XAlign         = 0L
+   mmio1YAlign         = 0L
+   mmio1SpecInfo       = "" (8)
+   )
+ -> Installs a CODEC using the ulCodecCompType field?!?!
+
+mmioCodec2Install =
+   (
+   mmio2Length         = 404L
+    -> ULONG ulStructLen (!?!?!?!?!?!)
+   mmio2FourCC         = "AVI "
+    -> FOURCC fcc
+   mmio2DllName        = "$(DEST)INDEOR31.DLL"
+    -> CHAR szDLLName[DLLNAME_SIZE] (MAXPATH)
+   mmio2DllEntryPoint  = "Indeo31Proc"
+    -> CHAR szProcName[PROCNAME_SIZE] (32)
+   mmio2CompTypeFcc    = "IV31"
+    -> ULONG ulCompressType
+   mmio2CompSubType    = 0L
+    -> ULONG ulCompressSubType
+   mmio2MediaType      = 0x40L       /* MMIOOS2.H: 0x40 is Digital Video. */
+    -> ULONG ulMediaType
+   mmio2Flags          = 0L
+    -> ULONG ulFlags
+   mmio2CapsFlags      = 0x010E1C02L /* MMIOOS2.H: CODEC_* capabilities.  */
+    -> ULONG ulCapsFlags
+   mmio2HWName         = "" (32)
+    -> CHAR szHWID[CODEC_HW_NAME_SIZE]
+   mmio2MaxSrcBuf      = 0L
+    -> ULONG ulMaxSrcBufLen
+   mmio2SyncMethod     = 2L
+    -> ULONG ulSyncMethod
+   mmio2Reserved1      = 0x39565559L /* FOURCC_YUV9 (YUV9) */
+    -> ULONG ulReserved1
+   mmio2XAlign         = 8L
+    -> ULONG ulXalignment
+   mmio2YAlign         = 8L
+    -> ULONG ulYalignment
+   mmio2SpecInfo       = "" (8)
+    -> ULONG ulSpecInfo[CODEC_INFO_SIZE]
+   )
+
+ -> Installs a CODEC using the fccCodecCompType[5] field?!?!
+
+ - mmioIniFileCODEC (CODECINIFILEINFO, ulFlags)
+    -> MMOS2-APG.INF
+
+   MMIO_INSTALLPROC
+   MMIO_REMOVEPROC

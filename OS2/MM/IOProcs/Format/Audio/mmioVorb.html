@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HyperText Markup Language//EN">
+<HTML LANG="EN-CA">
+<HEAD PROFILE="http://purl.org/dc/elements/1.1/">
+<LINK TITLE="Russell&#8217;s Email Address" HREF="mailto:roconnor@math.berkeley.edu" REV="Made">
+<LINK TITLE="Russell O&#8217;Connor" HREF="http://www.math.berkeley.edu/~roconnor/" REL="Home">
+<LINK TITLE="Russell&#8217;s Style Sheet" HREF="http://www.math.berkeley.edu/~roconnor/roconnor.css" REL="Stylesheet" TYPE="text/css">
+<STYLE TYPE="text/css">.todo {color: red}</STYLE>
+<TITLE>Vorbis Multimedia IOProc for OS/2 - 0.3.2</TITLE>
+</HEAD>
+<BODY>
+<H1>Vorbis Multimedia IOProc for OS/2 - 0.3.2</H1>
+<P><A TITLE="Vorbis Multimedia IOProc for OS/2 - 0.3.2 " HREF="http://www.math.berkeley.edu/~roconnor/MMAudioPak/mmioVorb.html">MMIOVorbis
+0.3.2</A> is
+an MMIOProc for OS/2 that allows OS/2&#8217;s multimedia system to play
+<A TITLE="xiph.org: Ogg Vorbis" HREF="http://www.xiph.org/ogg/vorbis/">Ogg Vorbis</A>
+files.
+
+</P>
+<P>This IOProc supports translated read, traslated seek, and translated write operations.
+
+</P>
+<P>Ogg Vorbis decoding is done by <A TITLE="xiph.org: Ogg Vorbis" HREF="http://www.xiph.org/ogg/vorbis/">libvorbis</A>.
+
+</P>
+<P>Included is a example program called <CODE>bitrate</CODE> that prints the bitrate of an
+Ogg Vorbis file. Also an encoder called <CODE>convert</CODE> that converts any MMOS/2 readable
+file into an Ogg Vorbis file.
+
+</P>
+<H2>Download</H2>
+<P>MMIOVorbis is part of the <A HREF="http://www.math.berkeley.edu/~roconnor/MMAudioPak/">MMAudio Pak</A>
+When installing MMAudio Pak you can select which IOProcs to install.
+
+</P>
+<H2>Requirements</H2>
+<P>MMIOVorbis requires the <A HREF="http://hobbes.nmsu.edu/cgi-bin/h-browse?sh=1&amp;dir=/pub/os2/dev/emx/v0.9d">EMX
+runtime</A>.
+
+</P>
+<H2>Bugs and Known Issues</H2>
+<P>MMIOVorbis does not support Ogg Vorbii that change audio parameters, such as sample rate
+and number of channels, in the middle of the data.
+
+</P>
+<H2>To Do</H2>
+<UL>
+<LI>If requested I would consider adding support for untranslated Vorbii access.</LI>
+<LI>The Ogg must be separated from the Vorbis.  Ogg is a container format, like RIFF, and 
+MMOS/2&#8217;s compound file format support should be used here.  This separation would
+allow MMOS/2 to support the Ogg FLAC format.</LI>
+<LI>Decode using Tremor instead of libVorbis.</LI>
+</UL>
+<H2>Changes</H2>
+<UL>
+<LI>Changes from 0.3.1 to 0.3.2 (2003-08-31)
+<UL>
+<LI>Encoder can encode 8 bit and mono files.</LI>
+</UL></LI>
+<LI>Changes from 0.3 to 0.3.1 (2003-02-23)
+<UL>
+<LI>Encoder now uses provided bitrates.</LI>
+<LI>Replaced how bitrate queries are made.</LI>
+</UL></LI>
+<LI>Changes from 0.2 to 0.3 (2002-08-28)
+<UL>
+<LI>Added uninstaller.</LI>
+<LI>Added limited use-at-own-risk Ogg Vorbis encoder.</LI>
+<LI>Updated from 1.0rc2 ogg and vorbis libraries to 1.0.</LI>
+</UL></LI>
+<LI>Changes from 0.1.1 to 0.2 (2002-02-14)
+<UL>
+<LI>Skips errors in Ogg Vorbii files instead of halting.</LI>
+<LI>Removed Ogg Vorbii encoding code that never worked anyway.</LI>
+</UL></LI>
+<LI>Changes from 0.1 to 0.1.1 (2002-01-10)
+<UL>
+<LI>Install now automatically associates OGG extension with Digital
+Audio.</LI>
+</UL></LI>
+</UL>
+<H2>Programming with mmioVorbis</H2>
+<P>Vorbis encoding is done with libvorbisenc.  libvorbisenc requires 
+quite a large amount of stack space to operate, so be sure to give
+it adequte stack space when compiling a program that uses mmioVorbis.
+If you are going to run the encoder in a separate thread, then be
+sure that you use DosCreateThread with adequate stack space:
+
+</P>
+<PRE CLASS="code">DosCreateThread(&amp;tidX,
+                (PFNTHREAD)xtest,
+                0U,
+                CREATE_READY | STACK_COMMITED,
+                65536);  // 1048576</PRE>
+<H2>Legal Stuff</H2>
+<DIV CLASS="legal"><P>This program is Copyright © 2001-2003 by Xiphophorus and Russell
+O&#8217;Connor.
+
+</P><P>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+</P><UL>
+<LI>Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+</LI>
+<LI>Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+</LI>
+<LI>Neither the name of the Xiphophorus nor the names of its contributors
+may be used to endorse or promote products derived from this software
+without specific prior written permission.</LI>
+</UL>
+
+<P>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</P></DIV>
+<H3>Confused?</H3>
+<P>This would be all public domain if I could have it my way.</P>
+<HR>
+<DIV><ADDRESS><A HREF="http://www.math.berkeley.edu/~roconnor/">Russell O&#8217;Connor</A>: <A TITLE="Russell&#8217;s Email Address" HREF="mailto:roconnor@math.berkeley.edu" REV="made">roconnor@math.berkeley.edu</A></ADDRESS></DIV>
+</BODY>
+</HTML>

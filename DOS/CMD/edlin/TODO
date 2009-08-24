@@ -1,0 +1,64 @@
+LIST OF THINGS TO WORK ON
+
+* F2 and F3
+
+The only missing features of MS edlin are the handling of these control keys
+when editing lines.  The reason I haven't done anything to this section is
+because I want FreeDOS edlin to work as well under Linux as it does under
+FreeDOS, and handling of special keys is more difficult (and different) under
+Linux because I figure I'd probably have to throw in a termcap handler or
+something similar.
+
+* Error handling
+
+The error handling in edlin is grubby at best. I would like to see it worked
+on.
+
+* Internationalization of outputted messages.
+
+To speed internationalization, all the output messages are in msgs.h.
+Internationalization should just be a matter of copying a particular
+file to msgs.h and voila, instant internationalization!
+
+I eventually want to get translations of all the languages in which it is
+possible to use the ISO 8859-1 character set. The following is a status
+list:
+
+LANGUAGE                STATUS
+========                ======
+Afrikaans (af)          not done
+Basque (eu)             done
+Catalan (ca)            not done
+Danish (da)             draft
+Dutch (nl)              done
+English (en)            done
+Faeroese (fo)           not done
+Finnish (fi)            draft
+French (fr)             done
+Galician (gl)           not done
+German (de)             done
+Icelandic (is)          draft
+Irish (ga)              not done
+Italian (it)            done
+Norwegian (no)          draft
+Portuguese (pt)         done
+Scottish (gd)           not done
+Spanish (es)            done
+Swedish (sv)            draft
+
+The following is not one of the above, but there is a port for it:
+
+Japanese (ja)           done
+
+In the above, "not done" means that I don't have a translation, "draft" means
+that I produced a mechanical translation that hasn't been checked by a native
+speaker, and "done" means that the translation has been checked by a native
+speaker and thus should be more stable than draft.
+
+In addition to the above languages, I would like to get translations in
+widely-known constructed and science fiction languages such as J.R.R.
+Tolkien's Middle Earth Elven, Loglan, Lojban, and of course, Klingon from
+"Star Trek".
+
+Gregory Pietsch, 2005-11-15
+

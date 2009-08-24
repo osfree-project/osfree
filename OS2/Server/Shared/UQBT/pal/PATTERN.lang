@@ -1,0 +1,173 @@
+This document describes the language used to specify instruction
+patterns. These patterns are used to capture any sequence of
+instructions that are considered interesting (or idiomatic) in the
+context of some kind of analysis.
+
+Our immediate use is to decode caller/callee prologues and
+epilogues. We want to be able to type these patterns so that we know
+exactly what type of logue they are (e.g. caller prologue, callee
+epilogue etc). As such, these types are hard coded into the language
+for now but only as a matter of convenience.
+
+The first section in a pattern spec is an optional macro declaration
+section. This corresponds to the `names' construct in the SLED
+language in that we can give architecture meaningful names to operands
+of instructions. For example, the macro section below declare
+meaningful names for the registers used to represent the stack pointer
+and frame pointer respectively on the SPARC architecture:
+
+  NAMES
+    SP = 14
+    FP = 30
+
+The second part of a pattern spec is the actual pattern definitions
+themselves. Once again we adhering to the SLED language while adding
+some more constructs. A pattern definition is best explained with
+examples. First, we give the definition of a caller prologue on SPARC
+for a call to a procedure that returns a struct:
+
+  CALLER_PROLOGUE struct_call addr, imm22 IS
+    call__(addr);
+    <32>;
+    UNIMP(imm22)
+
+The first line is the signature of the pattern and declares the type
+(i.e. CALLER_PROLOGUE), name (struct_call) and parameters (addr,
+imm22) of the pattern. Each pattern name must be unique. Parameter
+names need only be unique within a single pattern definition. As
+these parameters are given their values from the subsequent
+combination of SLED constructors, each parameter must be used as an
+operand of at least one of these constructors. The value of a
+parameter may also be assigned by a default value as in `<param> =
+<value>' in the signature. This will be the returned value when a
+parameter is only used as an operand in optional parts of the
+definition. If this is the case, then the parameter must have a
+default value.
+
+The base unit of a definition is the application of a SLED-like
+constructor or a size specification. The latter is a positive number
+enclosed by `<' and `>'. What this means is that we don't care what
+the next x bytes are where x is the number specified. This assumes of
+course that a byte is the smallest addressable unit on any machine.
+
+The subsequent lines (i.e. everything following `IS') define what
+combination of SLED constructors the currently pattern is equivalent
+to. A definition is one or more constructors joined together in
+sequence with `;', in alternation with `|'. Additionally, a
+constructor (or combination of constructors) can be declared optional
+by enclosing it with `{' and `}' or grouped using `[' and `]'.
+Finally, a simple constructor or a group can be matched multiple
+times by appending an `*' to it. To record the number of matches
+made, an identifier can be appended to the asterisk and this
+identifier must be one of the parameters of the pattern. Furthermore,
+the cardinality of the match must be constrained by specifying a
+range after the asterisk (and identifier is there is one). A range is
+either a low high pair joined by `..' (where the low limit must be
+greater than 0 and the high limit must be greater than the low limit)
+and surrounded by `<' and `>' or a single number (greater than zero)
+surrounded by `<' and `>'.
+
+In the above example, we have a constructor application followed by a
+size specification followed by a constructor application. Given that
+we assume the user of this language is also familiar with SLED, the
+constructor applications should be self-explanatory.
+
+As a more interesting example, consider the following definition of an
+x86 callee epilogue (the lines have been numbered to simplify the
+following explanation):
+
+     CALLEE_EPILOGUE ret_movs m, regs IS
+(1)    { MOVrmod ($EAX, E(Disp8(?,$EBP))) };
+(2)    { LEAod ($ESP, Disp8(?,$EBP)) };
+(3)    [ MOVrmod ($EBX, E( Disp8(?,$EBP))) |
+(4)      MOVrmod ($ESI, E( Disp8(?,$EBP))) |
+(5)      MOVrmod ($EDI, E( Disp8(?,$EBP))) ] * regs <0..3>;
+(6)    [ LEAVE () | [ MOVrmod ($ESP, Reg($EBP)); POPod ($EBP) ]];
+(7)    [ RET () | RET.Iw (m) ]
+
+Line (1) specifies an optional constructor application. What's more
+it shows that the operands of a constructor application may
+themselves be a constructor application. When an operand is specified
+by a constructor application such as this, it may be nested. Each
+constructor in a nesting of constructors (apart from the inner most
+constructor), can only have one operand which must itself be a nested
+constructor. The inner most constructor can have any number of
+operands with the only constraint being that none of them can be
+constructors.
+
+Lines (3) to (5) show a grouped set of constructors which can be
+matched between 0 and 3 times. The number of times it is matched will
+be saved in the pattern parameter `regs'.
+
+Line (6) shows an alternation between a simple constructor
+application and a sequence of constructor applications. This means
+that either the simple constructor must be matched OR the sequence of
+constructors must be matched.
+
+Finally, for the purpose of CSR analysis, the order in which the
+patterns are defined establishes what to do in the case where a
+callee has more than one epilogue. If a matched epilogue, e2, is
+lower in the order (i.e. defined first) than the current epilogue,
+e1, for the callee, then e2 replaces e1.
+
+Constraints
+===========
+
+There are a number of constraints the must be adhered to when writing
+a definition. In time, all of these should be enforced by semantic
+analysis in the parser. The reason they have not been done yet is that
+a lot of extra work will be required to do this semantic analysis.
+At the moment, the parser is not aware of the graph-like nature of a
+matching expression and thus has no concept of paths through this
+graph. To do the required checking, we need to have this graph and do
+DFA analysis on it.
+
+For now, we just note whether or not a given constraint is enforced.
+
+1) (*not enforced yet*) A parameter must have a default value if
+there is at least one path through the matching expression that
+either has no use of it as an operand or every use is in an optional
+part. E.g.:
+
+    CALLEE_PROLOGUE no_struct_ptr stack=0, regs IS
+        PUSHod ($EBP);
+        MOVrmod ($EBP, Reg($ESP));
+        { SUBiodb (Reg ($ESP), stack) };
+        [ PUSHod ($ESI) |
+          PUSHod ($EBX) |
+          PUSHod ($EDI) ] *regs <0..3>
+
+`stack' is only used as an operand in an optional part as so it must be
+given a default value.
+
+2) Local variables are declared implicityly. That is, when a variable
+is used for the first time on a path in the matching graph and it
+is not a parameter, it is implicitly declared as a local. For example,
+the following (ficticious) pattern definition:
+
+    CALLEE_PROLOGUE big_save stack IS
+        [ ADD (reg, imode(stack), reg) | ADD(reg, rmode(?),reg) ];
+        SAVE ($SP, rmode(reg), $SP)
+
+corresponds to this match graph:
+
+                            |
+              ______________V______________
+             /                             \
+            |                               |
+            V                               V
+   ADD (reg,imode(stack),reg)      ADD(reg,rmode(?),reg)
+            |                               |
+            |                               |
+             \_____________________________/
+                            |
+                            V
+                SAVE ($SP, rmode(reg), $SP)
+
+The first use of `reg' in ADD on both the LHS and RHS of the graph should
+declare it as well as set its value. The second use (as the 3rd
+operand of ADD) should be as a fixed value. This completely
+unimplemented at the moment. Currently, the first *lexical* use of a
+local (e.g. `reg' as first parameter to ADD on the LHS) is the
+implicit declaration. What's more, all uses of both locals and
+parameters are treated as non-fixed uses.

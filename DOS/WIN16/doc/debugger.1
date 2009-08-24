@@ -1,0 +1,268 @@
+INTRODUCTION
+
+The internal debugger is built-in to the Willows library.  It allows the
+user to set breakpoints, examine or change memory, examine or change 
+processor registers, or execute specific functions.  The following sections
+describe some of the common operations.
+
+ENTERING THE DEBUGGER
+
+The internal debugger is invoked when any of the following things occurs:
+
+	- SIGINT is sent to the process.  This happens whenever ^C is
+	  pressed in the window that was used to start the application.
+
+	- A general protection fault (GPF) occurs.
+
+	- A breakpoint or memorypoint is invoked.
+
+	- The file .windbginit exists in the current directory.
+
+The first three cases cause the debugger to display a prompt and wait for
+the user to issue commands.  In the last case, commands are read and executed
+from the file .windbginit until the end of file is reached.
+
+VALUES AND EXPRESSIONS
+
+Addresses may accessed symbolically.  All global functions and variables in
+the library and native application are available to the user.  Also, any
+exported function and variable names in binary libraries and applications
+are available to the user.  Finally, the user is able define new symbols
+at the debugger command line.
+
+For example:
+
+	To set a break point at the library function SendMessage:
+
+	    break SendMessage
+
+	To set a break point at the window procedure in MS Solitaire:
+
+	    break sol.solwndproc
+
+	To create a new symbol that is identical to sol.solwndproc and then
+	set the same breakpoint as the previous example:
+
+	    set swp = sol.solwndproc
+	    break swp
+
+Addresses may also be entered numerically as linear addresses in the native
+address space or as a segment:offset pair.
+
+For example:
+
+	To set a breakpoint add linear address 16:
+
+	    break 0x10
+	    break 16
+
+	To set a breakpoint at offset 16 in segment 0x127:
+
+	    break 127:10
+
+It is important to note that all numbers are enter in decimal by default
+except when entered as a segment offset pair.
+
+The debugger also supports expressions.  
+
+For example, to set a breakpoint at 100 bytes into MS Solitaire's window
+procedure:
+
+	break sol.solwndproc + 100
+
+The following table lists the expression operators that are accepted by the
+debugger:
+
+	OPERATOR	MEANING
+	--------	-------
+	x + y		add x and y
+	x - y		subtract y from x
+	x * y		multiply x and y
+	x / y		divide x by y
+	x = y		1 if x equals y, 0 otherwise
+	x != y		1 if x does not equal y, 0 otherwise
+	( x )		parentheses are used to force precedence
+	*x		the 32-bit value stored at address x
+	-x		2's complement of x
+	!		logical not of x
+	"string"	address of memory containing the string
+	.		the current value of cs:ip
+
+The contents of the registers may used.  The following special symbols
+may be used to access the registers: $pc, $sp, $eip, $esp, $ebp, $eax,
+$ebx, $ecx, $edx, $esi, $edi, $es, $ds, $cs, $ss.
+
+Finally, any expression may use the return value from a function.
+
+For example, to determine which window currently has focus:
+
+	print GetFocus()
+
+RUNNING AND STOPPING
+
+The debugger supports breakpoints and memorypoints.  Breakpoints cause
+execution of the program to stop when the instruction at the breakpoint
+address is executed.  Memorypoints cause the execution of the program
+to stop when the memorypoint address is read or written.  To set a breakpoint,
+use the "break" command.
+
+For example, to set a breakpoint at the library function SendMessage:
+
+	break SendMessage
+
+Memorypoints require that an additional kernel module to be loaded before
+the feature may be used.  This module is supplied in source form and is
+in the source directory src/modules/bp.  In that directory, issue the
+make command to build the module bp.o.  After that is completed, install
+the module using the command: 
+
+	insmod bp.o
+
+You must be the superuser to issue the previous command.  After the module 
+bp.o is installed in the kernel, memorypoints may be set.
+
+For example, to stop when the variable x is accessed:
+
+	mp x
+
+You may disable and enable breakpoints and memorypoints using the commands:
+
+	enable bp NUM
+	enable mp NUM
+	disable bp NUM
+	disable mp NUM
+
+Number is the number that the debugger assigned to the breakpoint or
+memorypoint.  The command, "info break", will give you a listing of
+all the breakpointpoints and memorypoints.
+
+Additionally, breakpoints may have conditions attached to them.
+
+For example, to stop at breakpoint 1 only if the contents of AVariable 
+has the value 10:
+
+	condition 1 *AVariable = 10
+
+To resume execution, you may use one of four commands.  "c" or "cont"
+stands for continue and resumes execution of the program until the
+next breakpoint or memorypoint.  "s" or "step" cause the next instruction
+to be executed.  "n" or "next" is similar to step, but if the next instruction
+is a "call" instruction, execution is continued until the call returns.
+Finally, "trace" allows you to watch every single instruction as it executes.
+
+You may also force execution of a library or native application function.
+
+For example, to execute the solitaire program:
+
+	WinExec("sol.exe", 0)
+
+EXAMINING THE STACK
+
+The command bt is used to display a stack backtrace.  This command follows
+the stack frames back to the original one.  At each stack frame, it indicates
+The return address and frame address.
+
+EXAMINING MEMORY
+
+Two commands, print and x are available to examine memory.  x displays
+the contents of the address specified and print displays the address.
+Thus the following two commands are the same:
+
+	print *address
+	x address
+
+Each command allows the specification of a modifier that determines how
+the memory should be interpreted.  
+
+For example:
+
+	To display the contents of "VariableA" as a byte:
+
+	    x/b VariableA
+
+	To display the contents of "VariableA" as a 16-bit word:
+
+	    x/w VariableA
+
+	To display the contents of "VariableA" as a 32-bit long word:
+
+	    x/x VariableA
+
+	To display the next ten instructions after the current address:
+
+	    x/10i .
+
+The last example of the previous group shows that you can specify a count
+as well as a format for dumping memory contents.  The following table lists
+all of the format specifiers:
+
+	SPECIFIER	MEANING
+	---------	-------
+	x		hexidecimal 32-bit longwords
+	d		decimal 32-bit longwords
+	w		hexidecimal 16-bit words
+	b		hexidecimal 8-bit byte
+	i		instructions
+	s		string
+	c		ASCII character
+
+EXAMINING TABLES AND REGISTERS
+
+The info command displays a variety of information.  To display the contents
+of all of the CPU registers when the program stopped:
+
+	info reg
+
+To examine the contents of the LDT:
+
+	info segments
+
+To list all of the modules currently loaded:
+
+	info modules
+
+To list all of the exported entrypoints in the module "mymodule"
+
+	info modules exports mymodule all
+
+To list the exported entrypoints in module "mymodule" that have symbolic
+names:
+
+	info modules exports mymodule
+
+ALTERING
+
+You may alter the contents of a memory location or a register using the "set"
+command.
+
+To alter the contents of the EAX register:
+
+	set $eax = 10
+
+To alter the 32-bit longword at address 127:0:
+
+	set *127:0 = 10
+
+To alter the 32-bit longword at the address of the symbol MyVariable
+
+	set MyVariable = 10
+
+ALIASES
+
+Aliases are ways of defining a new command from old commands.
+
+For example, to define a command that list the next 20 instructions after
+the current program address:
+
+	alias xpc x/20i .
+
+Aliases are implemented as a simple text substitution.  Thus,
+
+	alias xb x/16b
+	xb AVariable
+
+is the same as,
+
+	x/16b AVariable
+'\"	MultiPort, Inc. - Aug 1995
+'\"	#ident	"@(#)debugger.txt	1.1 :/users/sccs/src/doc/s.debugger.txt 8/25/95 14:00:21"

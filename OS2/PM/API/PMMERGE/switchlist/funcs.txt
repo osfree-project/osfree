@@ -1,0 +1,16 @@
+ 
+ Related Functions 
+
+      WinAddSwitchEntry 
+      WinChangeSwitchEntry 
+      WinCreateSwitchEntry 
+      WinQuerySessionTitle 
+      WinQuerySwitchEntry 
+      WinQuerySwitchHandle 
+      WinQuerySwitchList 
+      WinQueryTaskSizePos 
+      WinQueryTaskTitle 
+      WinRemoveSwitchEntry 
+      WinSwitchToProgram 
+  
+

@@ -1,0 +1,16 @@
+
+
+Library	SOUND
+
+Segments
+
+HEAPSIZE  1024
+
+EXPORTS
+	OpenSound 		@1
+	CloseSound		@2
+	SetVoiceQueueSize	@3
+	SetVoiceNote		@4
+	SetVoiceAccent		@5
+	StartSound		@9
+	 StopSound		@10

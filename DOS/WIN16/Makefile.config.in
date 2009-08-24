@@ -1,0 +1,37 @@
+
+#
+# Makefile.config
+#
+# Bootstrap the makefile CONFIGURATION variables
+#
+# TWINDIR		where is the source tree
+# TARGET		what OS are we running on 
+# TWINCPU		what CPU are we running on
+# TWINOPT		Debug or Release configuration
+# TWIN_APISIZE		16 or 32 bits
+# TWINLIB		where are libraries installed
+# TWINBIN		where are executables installed
+
+TWINDIR=@prefix@
+TARGET=@host_os@
+
+TWINCPU=@TWINCPU@
+
+#
+# TWINOPT=Debug   implies debugging information included
+#        =Release implies full optimization
+# TWIN_APISIZE=   implies 16bit library
+#             =32 implies 32bit library:w!
+#
+#
+TWINOPT=@TWINOPT@
+TWIN_APISIZE=@TWIN_APISIZE@
+
+TWINLIB=@prefix@/$(TWINOPT)/lib
+TWINBIN=@prefix@/$(TWINOPT)/bin
+
+#
+# Now load the makefile MAKEFILE variables
+#
+
+include @prefix@/makeinclude/Makefile.rules

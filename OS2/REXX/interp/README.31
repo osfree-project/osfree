@@ -1,0 +1,101 @@
+                         Regina 3.1
+                        5 April 2003
+
+Changes in this release (from 3.0.1)
+------------------------------------
+o Changed behaviour of non-strict comparitors WRT white space. In previous
+  versions of Regina a variable containing say, only spaces and one containing
+  only tab characters, would be equal in a non-strict comparison like "=".
+  ANSI 7.4.7 states that only spaces (ASCII x20) are stripped from the expressions
+  on each side of the comparitor. With OPTIONS STRICT_ANSI the ANSI semantics are
+  always used. A new OPTION; STRICT_WHITE_SPACE_COMPARISONS, has been provided
+  to enable the new ANSI behaviour, without being restricted by all the other STRICT_ANSI
+  limitations. It is recommended that code be changed and tested with
+  STRICT_WHITE_SPACE_COMPARISONS as future versions of Regina will
+  default to the ANSI behaviour. Reported in SourceForge bug 594674.
+o A new feature called "static dynamic loading" has been included.  This feature allows
+  supported external function packages to be statically linked when building Regina.
+  This serves two purposes: 1. where the underlying operating system does not support
+  dynamic loading of executable code; eg QNX4, DOS, and 2) where it is desirable to
+  ensure that a particular version of an external function package is being used.
+  See README.STATIC for more information on this.
+o When building Regina from source, the thread-safe version of the Regina shared
+  library (or DLL) is always built where the thread-safe version is supported. The
+  thread-safe version of the Regina library will be named; libregina_ts.so or reginats.dll
+  depending on the platform.
+o Mac OSX is now fully supported WRT dynamic loading of external function pacakges. See
+  README.MacOSX for more details.
+o The memory debugger; Electric Fence can now be used when building debug the version
+  of Regina on Un*x platforms. Use --enable-efence as a parameter to configure script.
+o ADDRESS WITH should now be fully functional. External queues can also be addressed
+  in WITH FIFO/LIFO clause.
+o SourceForge bug numbers fixed: 481482, 499163, 554384, 574683, 577401, 577634, 592393,
+  595293, 594553, 653214, 657345, 656356, 646902, 657377
+o SEEK relative (forwards) now works in STREAM BIF.
+o You can now create and execute tokenised Rexx code from the rexx and regina executables.
+  See the -c and -e command-line switches.
+  Removed reginac and rexxc executables as they are no longer required.
+o Clean up rexxsaa.h and remove EXIT typedef.
+o ADDRESS WITH OUTPUT or ERROR STEM no longer raises a NOVALUE condition.
+o Descriptions of errors via STREAM( fn, 'D' ) under Win32, now return more
+  meaningful errors.
+o The LOSTDIGITS condition has now been implemented. This is the last major item specified
+  in the ANSI Standard that Regina did not support. As a result, the supported language
+  level of Regina (as reported in PARSE VERSION) will now report 5.00.
+o Fixes for building under HP-UX and AIX.
+o With the addition of LOSTDIGITS, Regina now supports Rexx Language Level 5.00; ie
+  ANSI.
+o Addition of RexxCallBack() API function. This API call allows an API program to call
+  an internal procedure in the currently running Rexx program, with parameters and to
+  return a value to the API application.
+o Finished ADDRESS WITH to support FIFO/LIFO (Florian)
+o rxstack and rxqueue rewritten (Florian)
+o Add support for statically linking external function packages.
+  Platforms that don't support dynamic loading capabilities can now
+  statically link external function packages (provided they offer the
+  support). Most useful on platforms like QNX4, DOS.
+o Staf Verhaegen added many ARexx BIFs:
+  B2C,BITCHG,BITCLR,BITCOMP,BITSET,BITTST,C2B,COMPRESS,EXISTS,EXPORT,FREESPACE,
+  GETSPACE,HASH,IMPORT,RANDU,READCH,READLN,SEEK,SHOW,STORAGE,TRIM,UPPER,WRITECH,
+  WRITELN. These are available by default on Amiga and AROS, but to use these
+  new BIFs on other platforms you need to specify the AREXX_BIFS OPTION.
+o Added new OPTION; AREXX_SEMANTICS. This specified that the ARexx semantics for
+  the OPEN, CLOSE and EOF BIFs should be used rather than the old Regina semantics.
+  As the old Regina BIFs, OPEN, CLOSE and EOF have been deprecated in recent version
+  of Regina, a future version of Regina will remove this new option and the ARexx
+  semantics will become the default.
+o Regina's parsing code has been cleaned up.
+  ***** Breakage Alert *****
+  One of the most significant changes is that the valid Regina syntax of: 
+  CALL FUNC(a,b) is now invalid. 
+o All options of STREAM SEEK should now be functional.
+o Added new OPTION; BROKEN_ADDRESS_COMMAND to cater for code written for
+  other Rexx interpreters that have a "broken" implementation of ADDRESS
+  COMMAND (or CMD), that assumes that internal command processor commands
+  can be run by ADDRESS COMMAND. With this OPTION set, Regina treats ADDRESS
+  COMMAND (or CMD) the same as SYSTEM.
+o Also merged PATH and CMD/COMMAND environments for ADDRESS. Now all 3 work the
+  same as ADDRESS PATH.  What this means is that the executbale to be run, will
+  be looked for in the PATH environment variable, instead of the full path to the
+  command having to be specified.
+
+Changed in 3.0.1 (windows release)
+----------------------------------
+o Changed "pause at end" behaviour. Now need to specify -p switch if you want
+  the "pause at end" message to appear.
+o Fixed bug with Win9x/WinMe not running external commands correctly.
+o Fixed bug with ADDRESS...WITH OUTPUT FIFO ''
+o Fixed a bug with a crash of rxstack.
+o Renamed rexx.1 man page to regina.1 and changed contents to reflect "regina"
+o Default behaviour of Win32 Installshield package is to NOT install
+  rxstack by default. Also added a security note.
+o Default behaviour of Linux RPM is to NOT install machine startup/shutdown
+  scripts for rxstack.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  M.Hessling@qut.edu.au  http://www.lightlink.com/hessling/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL
+* Maintainer of PDCurses: Public Domain Curses and, Regina Rexx interpreter
+* Use Rexx ? join the Rexx Language Association: http://www.rexxla.org
+------------------------------------------------------------------------

@@ -1,0 +1,19 @@
+
+ProfileData = (
+   ini = "$(DIR)0\\MIDITYPE.INI" (MAXPATH)
+   appname = "MidiTypes" (255)
+   keyname = "General MIDI" (255)
+   dll = "$(DEST)MIPMINI.DLL" (MAXPATH)
+   id = 121L
+   )
+ -> PrfWriteProfileData
+
+ProfileString =
+   (
+   inis = "hini_user" -> HINI_USERPROFILE (as handle)
+   or inis = "hini_system" -> HINI_SYSTEMPROFILE (as handle)
+   appnames = "PM_Fonts" (255)
+   keynames = "MMPMDIG" (255)
+   datas = "$(DEST)MMPMDIG.FON" (MAXPATH)
+   )
+ -> PrfWriteProfileString

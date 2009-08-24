@@ -1,0 +1,16 @@
+                UQBT Help
+
+This graphical interface allows you to invoke the UQBT 
+translator on a machine for which there is a precompiled
+version of the translator. Current supported machines are: 
+	Sparc
+	Pentium
+	JVM
+
+Translators have been instantiated for: 
+	Sparc to Sparc
+	Sparc to Pentium
+	Pentium to Sparc
+	Pentium to Pentium
+	Sparc to JVM
+

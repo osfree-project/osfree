@@ -1,0 +1,116 @@
+//Microsoft App Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////
+//
+// From TEXTINCLUDE 2
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+CLIPTEXTMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New",                        IDM_NEW, GRAYED
+        MENUITEM "&Open...",                    IDM_OPEN, GRAYED
+        MENUITEM "&Save",                       IDM_SAVE, GRAYED
+        MENUITEM "Save &As...",                 IDM_SAVEAS, GRAYED
+        MENUITEM "&Print",                      IDM_PRINT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_EXIT
+        MENUITEM SEPARATOR
+        MENUITEM "&About Cliptext...",          IDM_ABOUT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tAlt+BkSp",             IDM_UNDO, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tShift+Del",             IDM_CUT
+        MENUITEM "&Copy\tCtrl+Ins",             IDM_COPY
+        MENUITEM "&Paste\tShift+Ins",           IDM_PASTE, GRAYED
+        MENUITEM "&Delete\tDel",                IDM_CLEAR, GRAYED
+    END
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+CLIPTEXTACC ACCELERATORS 
+BEGIN
+    VK_BACK,        IDM_UNDO,               VIRTKEY,ALT
+    VK_DELETE,      IDM_CUT,                VIRTKEY,SHIFT
+    VK_INSERT,      IDM_COPY,               VIRTKEY,CONTROL
+    VK_INSERT,      IDM_PASTE,              VIRTKEY,SHIFT
+    VK_DELETE,      IDM_CLEAR,              VIRTKEY,SHIFT
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+ABOUTBOX DIALOG DISCARDABLE  22, 17, 144, 75
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About ClipText"
+BEGIN
+    CTEXT           "Willows Twin",-1,0,5,144,8
+    CTEXT           "Cliptext Application",-1,0,14,144,8
+    CTEXT           "Version 3.0",-1,0,34,144,8
+    DEFPUSHBUTTON   "OK",IDOK,53,59,32,14,WS_GROUP
+END
+
+#ifdef APSTUDIO_INVOKED
+//////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // APSTUDIO_INVOKED
+
+#ifndef APSTUDIO_INVOKED
+////////////////////////////////////////////////////////////////////////////////
+//
+// From TEXTINCLUDE 3
+//
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

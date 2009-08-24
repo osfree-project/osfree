@@ -1,0 +1,468 @@
+//Microsoft App Studio generated resource script.
+//
+#include "twhlprc.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+TWINHELP MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...",                    IDM_OPEN
+        MENUITEM "",                            2048
+        MENUITEM "&Print Topic",                1103, GRAYED
+        MENUITEM "P&rint Setup...",             1104, GRAYED
+        MENUITEM "",                            2048
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Copy...",                    1203, GRAYED
+        MENUITEM "",                            2048
+        MENUITEM "&Annotate...",                1202, GRAYED
+    END
+    POPUP "Book&mark"
+    BEGIN
+        MENUITEM "&Define...",                  1301, GRAYED
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&How to Use Help",            ID_HOWTOUSEHELP
+        MENUITEM "Always On &Top",              IDM_ALWAYSONTOP
+        MENUITEM SEPARATOR
+        MENUITEM "&About Help...",              IDM_ABOUT
+    END
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+TWINHELP ACCELERATORS MOVEABLE PURE 
+BEGIN
+    VK_F1,          ID_HOWTOUSEHELP,        VIRTKEY,NOINVERT
+    VK_INSERT,      1201,                   VIRTKEY,CONTROL, NOINVERT
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+101                     BITMAP  MOVEABLE PURE   "BMP101.BMP"
+102                     BITMAP  PRELOAD MOVEABLE PURE "BMP102.BMP"
+5101                    BITMAP  PRELOAD MOVEABLE PURE "BMP5101.BMP"
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_HAND                CURSOR  PRELOAD DISCARDABLE "HAND.CUR"
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+DLG_COPYTEXT DIALOG DISCARDABLE  10, 28, 264, 122
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Copy"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "&Select text to copy to the Clipboard.",100,6,4,230,8,
+                    NOT WS_GROUP
+    EDITTEXT        102,6,18,214,100,ES_MULTILINE | ES_NOHIDESEL | 
+                    WS_VSCROLL | WS_HSCROLL | WS_GROUP
+    DEFPUSHBUTTON   "&Copy",1,224,18,34,14
+    PUSHBUTTON      "Cancel",2,224,36,34,14
+END
+
+DLG_FILEOPEN DIALOG DISCARDABLE  50, 30, 192, 130
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Open"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "File&name:",-1,6,7,33,12
+    EDITTEXT        101,41,5,89,12,ES_AUTOHSCROLL | WS_GROUP
+    LTEXT           "Directory:",-2,6,19,35,12
+    LTEXT           "",104,41,19,76,12
+    LTEXT           "&Files:",117,6,32,32,10
+    LISTBOX         102,6,44,60,80,LBS_SORT | WS_VSCROLL | WS_GROUP | 
+                    WS_TABSTOP
+    LTEXT           "&Directories:",119,72,32,54,10
+    LISTBOX         103,72,44,60,80,LBS_SORT | WS_VSCROLL | WS_GROUP | 
+                    WS_TABSTOP
+    DEFPUSHBUTTON   "OK",1,136,4,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",2,136,21,50,14,WS_GROUP
+END
+
+DLG_PRINTSET DIALOG DISCARDABLE  16, 16, 186, 78
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Print Setup"
+FONT 8, "Helv"
+BEGIN
+    DEFPUSHBUTTON   "OK",1,142,15,40,14
+    PUSHBUTTON      "Cancel",2,142,33,40,14
+    PUSHBUTTON      "&Setup...",103,142,58,40,14
+    LTEXT           "&Printer:",104,4,4,32,10,NOT WS_GROUP
+    LISTBOX         105,4,16,134,58,LBS_SORT | WS_VSCROLL | WS_GROUP | 
+                    WS_TABSTOP
+END
+
+DLG_PRINTING DIALOG DISCARDABLE  20, 20, 180, 50
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Print Topic"
+FONT 8, "Helv"
+BEGIN
+    CTEXT           "Printing ",3,4,10,172,17,SS_NOPREFIX
+    DEFPUSHBUTTON   "Cancel",2,74,28,32,14,WS_GROUP
+END
+
+DLG_ABOUT DIALOG DISCARDABLE  20, 20, 207, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About TwinHelp"
+FONT 8, "Helv"
+BEGIN
+    ICON            "TWINHELP",IDC_STATIC,18,9,18,20
+    LTEXT           "Willows .HLP Help File Viewer",IDC_STATIC,58,9,132,10,
+                    SS_NOPREFIX | NOT WS_GROUP
+    LTEXT           "Copyright \251 1995 Willows Software",IDC_STATIC,58,22,
+                    137,10,SS_NOPREFIX | NOT WS_GROUP
+    DEFPUSHBUTTON   "OK",1,84,48,40,14
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,0,40,208,1
+END
+
+DLG_BOOKGO DIALOG DISCARDABLE  19, 17, 178, 106
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Bookmark"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "&Go To Bookmark:",105,4,2,132,10,NOT WS_GROUP
+    LISTBOX         103,4,14,126,90,LBS_SORT | WS_VSCROLL | WS_GROUP | 
+                    WS_TABSTOP
+    DEFPUSHBUTTON   "OK",1,135,14,40,14
+    PUSHBUTTON      "Cancel",2,135,31,40,14
+END
+
+DLG_SEARCH DIALOG DISCARDABLE  21, 17, 223, 193
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Search"
+FONT 8, "Helv"
+BEGIN
+    EDITTEXT        IDC_EDITKEYWORD,5,26,213,12,ES_AUTOHSCROLL | WS_GROUP | 
+                    0x1000
+    LISTBOX         IDC_KEYWORDS,11,38,207,58,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_SEARCHTOPIC,4,131,214,66,WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Go To Topic",IDC_SEARCHGOTO,164,109,54,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,164,6,54,14
+    LTEXT           "Type a key&word, or select one from the list",109,4,5,
+                    141,9
+    LTEXT           "below, and then select one of its topics.",-1,4,14,141,
+                    9
+    LTEXT           "Select a &topic and then press the",110,4,109,135,10
+    CONTROL         "",0,"Static",SS_BLACKFRAME,0,102,223,1
+    LTEXT           """Go To Topic"" button.",112,4,118,131,9
+    DEFPUSHBUTTON   "Button1",IDC_DEFBUTTON,500,500,10,10,NOT WS_TABSTOP
+END
+
+DLG_BOOKDEF DIALOG DISCARDABLE  22, 17, 205, 96
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Bookmark Define"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "&Bookmark Name:",106,4,5,88,10
+    EDITTEXT        102,4,17,150,14
+    LISTBOX         103,4,34,150,58,LBS_SORT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",1,160,17,40,14
+    PUSHBUTTON      "Cancel",2,160,35,40,14
+    PUSHBUTTON      "&Delete",104,160,53,40,14
+END
+
+DLG_ANNOTATE DIALOG DISCARDABLE  22, 17, 171, 129
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Annotate"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "&Annotation:",105,4,3,64,10
+    EDITTEXT        102,4,14,123,111,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_NOHIDESEL | WS_VSCROLL
+    PUSHBUTTON      "&Save",1,133,14,34,14
+    PUSHBUTTON      "Cancel",2,133,32,34,14
+    PUSHBUTTON      "&Delete",104,133,50,34,14
+    PUSHBUTTON      "&Copy",115,133,76,34,14
+    PUSHBUTTON      "&Paste",116,133,94,34,14
+END
+
+DLG_HISTORY DIALOG DISCARDABLE  18, 18, 130, 85
+STYLE WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "TwinHelp History"
+FONT 8, "Helv"
+BEGIN
+    LISTBOX         IDC_HISTORY,0,0,130,85,LBS_HASSTRINGS | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+TWINHELP                ICON    PRELOAD DISCARDABLE "TWINHELP.ICO"
+#ifdef APSTUDIO_INVOKED
+//////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "twhlprc.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include <windows.h>\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // APSTUDIO_INVOKED
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    8001                    " Help - "
+    8002                    "winhelp.hlp"
+    8003                    "Help"
+    8004                    "shell.dll"
+    8010                    "Lesson not supported by this version of Help."
+    8011                    "Help file has changed."
+    IDS_ERRORTITLE          "Help Error"
+    IDS_BADCOMMAND          "Unrecognized or unsupported help command encountered."
+    IDS_WINDOWCREATE        "Cannot create the help window."
+    IDS_MEMORYALLOC         "Cannot allocate the necessary amount of memory.  Close another application and try the operation again."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    7024                    "Unable to change menu item binding."
+    7025                    "Unable to enable/disable menu item."
+    7026                    "Unable to add accelerator."
+    7027                    "Unable to enable/disable button."
+    7028                    "Cannot execute second macro while first is in process."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    7008                    "Bad prototype for routine."
+    7009                    "Unable to add button."
+    7010                    "Missing ')'"
+    7011                    "Missing colon or semicolon."
+    7012                    "Illegal return type."
+    7013                    "Syntax error."
+    7014                    "Mismatch return type."
+    7015                    "Undefined variable."
+    7016                    "Problem executing macro."
+    7018                    "Unable to delete button."
+    7019                    "Unable to modify button."
+    7020                    "Unable to add popup menu."
+    7021                    "Unable to add menu item."
+    7022                    "Unable to execute menu command."
+    7023                    "Unable to delete menu item."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    7001                    "Routine not found."
+    7003                    "',' expected"
+    7004                    "Parameter type wrong."
+    7005                    "Missing end quote."
+    7006                    "Bad routine name."
+    7007                    "Binding too long."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    5001                    "Disk is full."
+    5002                    "File read/write failure;\rAssure correct disk is in the drive."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    4003                    "No printer selected.  Use Print Setup."
+    4004                    "No printers installed;\ruse Control Panel to install printers."
+    4005                    "Cannot find printer or printer driver."
+    4006                    "Unable to print."
+    4007                    "Insufficient memory to print."
+    4008                    "Insufficient disk space to print."
+    4009                    "Unable to setup printer."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    3008                    "Annotations are damaged;\rplease exit WinHelp, delete %s and recreate annotations."
+    3011                    "Help file does not contain keywords."
+    3012                    "Invalid keyword."
+    3013                    "This file contains magic bytes which\rare not readable by this version of WinHelp."
+    3015                    "Invalid path specification."
+    3017                    "Path not found."
+    3018                    "Insufficient memory for dialog box."
+    3019                    "Pasted text too long;\rexcess has been cut from annotation."
+    3020                    "Topic too long to edit copy selection and excess was trimmed.\rUse CTRL+INS while viewing to copy entire topic."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    3001                    "Annotations damaged;\rplease exit WinHelp, delete %s and recreate annotations."
+    3002                    "Cannot write annotations;\rdelete one or more files from the disk."
+    3003                    "Annotations damaged;\rplease exit WinHelp, delete %s and recreate annotations."
+    3004                    "Cannot create or modify annotations;\rplease exit WinHelp and remove the Read Only attribute for %s."
+    3005                    "Cannot delete existing annotation."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDS_CONTENTS_BUTTON     "&Contents"
+    IDS_SEARCH_BUTTON       "&Search"
+    IDS_NEXT_BUTTON         "&>>"
+    IDS_PREV_BUTTON         "&<<"
+    IDS_HISTORY_BUTTON      "His&tory"
+    IDS_BACK_BUTTON         "&Back"
+    2110                    "&How to Use Help"
+    2111                    "Always on &Top"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    2016                    "WINHELP"
+    IDS_DEFAULTTITLE        "Windows Help"
+    2018                    "Help Files (*.HLP)"
+    2019                    "Microsoft Help"
+    2020                    "Open"
+    2021                    "We're Help"
+    2023                    "Printing ""%s"""
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    2001                    "&More..."
+    2002                    "&Open..."
+    2003                    "Close"
+    2004                    "Bookmark does not exist."
+    2005                    "Cannot create bookmark;\rremove the Read Only attribute for .BMK files."
+    2006                    "Cannot create bookmark file."
+    2007                    "Bookmark with this name already exists."
+    2008                    "Bookmarks are damaged;\rplease exit WinHelp and delete WINHELP.BMK."
+    2009                    "(untitled)"
+    2011                    " on "
+    2013                    "Windows Help"
+    2014                    "Unable to display picture."
+    2015                    "*.hlp"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    1008                    "Help On Help not available;\rrerun Setup."
+    1010                    "Unable to run the specified file."
+    1011                    "Help application corrupt;\rreinstall WINHELP.EXE."
+    1012                    "Invalid drive."
+    1013                    "Too many titles;\rdisplaying first 400."
+    1014                    "Bad Window Class, ignored."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    1000                    "DONT USE"
+    IDS_BADFILEOPEN         "Cannot open the Help file."
+    1002                    "Help topic does not exist."
+    1003                    "Cannot print;\rrun Control Panel to install and set up printers."
+    1005                    "Cannot copy to Clipboard;\rclose one or more Windows applications and try again."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    2                       "Out of memory."
+    3                       "Help is unavailable while printers are being set up from Windows Help."
+    4                       "Help is unavailable while printing from Windows Help."
+    IDS_NOTOPICTITLE        ">> Untitled Topic <<"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_LOADACCEL           "Cannot load the accelerator table."
+    IDS_CREATEBAR           "Cannot create the help window's button bar."
+    IDS_BADFILEREAD         "Cannot read from the Help file."
+    IDS_FINDINTERNALFILE    "Cannot find a file that is internal to the Help file."
+    IDS_WRONGCOMPILER       "The specified Help file was compiled with an older version of the Help Compiler that is not supported by TwinHelp.  Please recompile the Help file with a newer version of the Help Compiler."
+    IDS_BADFILETYPE         "This file is not a valid Help file."
+    IDS_COMPRESSERROR       "Problem encountered while decompressing Help file's information."
+    IDS_CTXOMAP             "Requested topic number cannot be located in the Help file."
+    IDS_MAXTOPICS           "Cannot display new topic.  Maximum number of topics are currently being displayed."
+    IDS_HISTORYWND          "Cannot create a window to display the history information."
+    IDS_BADFORMATCODE       "Unrecognized topic display code found in the the Help file.  Some topic information may not be displayed."
+    IDS_BADPICTCOMPRESS     "Cannot decompress one of the topic's pictures."
+    IDS_UNSUPPORTPICT       "Unsupported picture type found in the topic."
+    IDS_BADSHED             "Unsupported bitmap hotspot found in topic."
+    IDS_DEFAULTFILTER       "Help Files (*.HLP)&*.hlp&"
+    IDS_BADKEYTABLE         "No search information available for specified search key value."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BADKEYDATA          "Cannot locate topic data associated with the keyword."
+    CANTSTARTMACROENGINE    "Cannot start the macro support system.  TwinHelp will not be able to process any of the macro commands located in the Help file."
+    CANTSTARTACCELSYS       "Cannot start the accelerator support system.  TwinHelp will not be able to process any of the accelerator macro commands located in the Help file."
+    ACCELALREADYEXISTS      "The Help file tried to create an accelerator that already exists.  TwinHelp ignored the request."
+    BTNALREADYEXISTS        "The Help file tried to create a new button with an ID that is already being used by an existing button.  The new button could not be created."
+    MENUALREADYEXISTS       "The Help file tried to create a new menu entry with an ID that is already being used by an existing menu entry. The new menu entry could not be created."
+    CANTCREATEMENU          "The Help file tried to create a new menu entry but the System would not allow its creation."
+    MENUDOESNOTEXIST        "The Help file tried to add a new menu item to a menu.  TwinHelp could not find the requested menu . The new menu item could not be created."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MACROPARSINGERROR   "Unsupported or incorrect Help file macro encountered.  The macro will not executed by TwinHelp."
+END
+
+
+#ifndef APSTUDIO_INVOKED
+////////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,156 @@
+/****************************************************************************
+*
+*    ListView.rc
+*    @(#)listview.rc	1.1: /users/sccs/src/samples/listview/s.listview.rc 12/18/96 16:44:54
+*
+*    PURPOSE: Demonstrates the use of the new list view control in Chicago
+*
+****************************************************************************/
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "listview.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+APP_ICON                ICON    DISCARDABLE     "listview.ico"
+BELLEVUE                ICON    DISCARDABLE     "BEL.ICO"
+SEATTLE                 ICON    DISCARDABLE     "SEA.ICO"
+REDMOND                 ICON    DISCARDABLE     "red.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+LISTVIEWMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "Large &Icon View",            IDM_LARGEICON
+        MENUITEM "&Small Icon View",            IDM_SMALLICON
+        MENUITEM "&List View",                  IDM_LISTVIEW
+        MENUITEM "&Details View",               IDM_REPORTVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "Command"
+    BEGIN
+        MENUITEM "Get Count per Page",          IDM_GETCOUNTPERPAGE
+        MENUITEM "Get Origin",                  IDM_GETORIGIN
+        MENUITEM "Get Select Count",            IDM_GETSELCOUNT
+        MENUITEM "Get Select Item Rect",        IDM_GETITEMRECT
+        MENUITEM "Ensure Select Item Visible",  IDM_ENSVISIBLE
+        POPUP "Auto Arrange"
+        BEGIN
+            MENUITEM "Left",                        IDM_ALIGNLEFT
+            MENUITEM "Top",                         IDM_ALIGNTOP
+        END
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About...",                   IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+ABOUTBOX DIALOG DISCARDABLE  160, 78, 144, 77
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About Listview Sample"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "OK",IDOK,54,51,40,14
+    LTEXT           "Listview Sample",-1,28,17,92,8
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""listview.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ADDRESS             "Address"
+    IDS_CITY                "City"
+    IDS_PRICE               "Price"
+    IDS_BEDS                "Bedrooms"
+    IDS_BATHS               "Bathrooms"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

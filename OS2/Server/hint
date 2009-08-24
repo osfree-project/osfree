@@ -1,0 +1,57 @@
+Функции SysRWMutex*() можно спокойно заменить на осевые мьютексы или вот
+мой код:
+
+typedef struct _RWMTX {
+  HMTX		hMtx;
+  HEV		hEV;
+  ULONG		ulReadLocks;
+} RWMTX, *PRWMTX;
+
+VOID SysRWMutexCreate(PRWMTX psRWMtx)
+{
+  SysMutexCreate( &psRWMtx->hMtx );
+  SysEventCreate( &psRWMtx->hEV );
+  psRWMtx->ulReadLocks = 0;
+}
+
+VOID SysRWMutexDestroy(PRWMTX psRWMtx)
+{
+  SysMutexDestroy( psRWMtx->hMtx );
+  SysEventDestroy( psRWMtx->hEV );
+}
+
+VOID SysRWMutexLockWrite(PRWMTX psRWMtx)
+{
+  while( 1 )
+  {
+    SysMutexLock( psRWMtx->hMtx );
+    if ( psRWMtx->ulReadLocks == 0 )
+      break;
+    SysMutexUnlock( psRWMtx->hMtx );
+
+    SysEventWait( psRWMtx->hEV, SEM_INDEFINITE_WAIT );
+    SysEventReset( psRWMtx->hEV );
+  }
+}
+
+VOID SysRWMutexUnlockWrite(PRWMTX psRWMtx)
+{
+  SysMutexUnlock( psRWMtx->hMtx );
+  SysEventPost( psRWMtx->hEV );
+}
+
+VOID SysRWMutexLockRead(PRWMTX psRWMtx)
+{
+  SysMutexLock( psRWMtx->hMtx );
+  psRWMtx->ulReadLocks++;
+  SysMutexUnlock( psRWMtx->hMtx );
+}
+
+VOID SysRWMutexUnlockRead(PRWMTX psRWMtx)
+{
+  SysMutexLock( psRWMtx->hMtx );
+  if ( psRWMtx->ulReadLocks > 0 )
+    psRWMtx->ulReadLocks--;
+  SysMutexUnlock( psRWMtx->hMtx );
+  SysEventPost( psRWMtx->hEV );
+}

@@ -1,0 +1,54 @@
+Many thanks to whose projects:
+
+Regina REXX - our Classic REXX replacement http://regina-rexx.sourceforge.net/index.html
+
+THE - our TEDIT replacement http://hessling-editor.sourceforge.net/index.html
+
+And lot of other things from Mark Hessling. His products allowed us not to reinvent the wheel.
+
+OS2Linux project as a base for CPI implementation on top of Fiasco microkernel.
+
+FreePM project as base of PM reimplementation
+
+DROPS as base of most Personality Neutral Servers.
+
+L4Linux as Linux personality core.
+
+osFree/CMD project as base for most of command line tools
+
+FreeLDR project which was evolved in full featured kernel loader.
+
+GRUB which was good codebase for FreeLDR project.
+
+MTDORB used as SOM CPP base.
+
+GBM used as core of Image Format I/O Procedures
+
+JPGIO used as core of Image Format I/O Procedures
+
+ZLIB used in many parts
+
+LIBPNG used in many parts
+
+LIBJPEG used in many parts
+
+GDLIB used in FreePM
+
+LIBTIFF used in many parts
+
+Fiasco reused as microkernel
+
+PParser from FPK used as UNI2H tool base
+
+TWIN library as win16 base
+
+MINSTALL by KIEWITZ
+
+MMImage Pak as Image File Format I/O Procedures
+
+MMAudio Pak 2 as Audio File Format I/O Procedures
+
+FreeDos parts as DOS subsystem base
+
+Ralf Brown documentation (Interrupt list). Great source of DOS and DOS VM information.
+

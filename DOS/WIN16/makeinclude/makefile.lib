@@ -1,0 +1,36 @@
+#####################################################################
+#  @(#)makefile.lib	1.15 
+#
+#  Copyright (c) 1997, Willows Software Inc.  All rights reserved.
+#
+#  Makefile used for building shared libraries (DLL equivalents).
+#
+#####################################################################
+
+DLL_RSRC = $(resource)
+
+.c.o:
+	$(DLL_CC) $(DLL_CCOPT) $(CFLAGS) -c $<
+
+.cpp.o:
+	$(DLL_CC) $(DLL_CCOPT) $(CFLAGS) -c $<
+
+all:	$(project).$(DLL_EXT)
+
+$(project).$(DLL_EXT):   $(components)
+	$(DLL_LD) $(DLL_LDOPT) $(TWIN_WINLIB) \
+	-L$(TWINDIR)/win -o $(project).$(DLL_EXT) $(components) $(libraries) $(linklibs) $(DLL_LDLIB) 
+	cp $(project).$(DLL_EXT) $(TWINDIR)/win/$(project).$(DLL_EXT)
+
+$(resource).res.c: $(resource).rc $(resource_depend)
+	$(RC) $(TWIN_IFLAGS) $(resource_flags) -o $@ $(resource).rc
+
+clean: $(localclean)
+	echo rm -f *.o $(project).$(DLL_EXT) $(project).a $(components) $(resource).res.c core
+	rm -f *.o $(project).$(DLL_EXT) $(project).a $(components) $(resource).res.c core
+
+clobber: clean
+
+$(resource).res.o: $(resource).res.c
+	$(DLL_CC) $(DLL_CCOPT) $(CFLAGS) -c $(resource).res.c
+

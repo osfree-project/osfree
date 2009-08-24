@@ -1,0 +1,11 @@
+os3-os2-rexx -a 1 -c..\..\bin\os2
+dll\regina.dll
+dll\rexx.dll
+dll\rexxapi.dll
+dll\rexxutil.dll
+dll\rexxmath.dll
+dll\rxmath.dll
+rexxtry.cmd
+rxxmath.cmd
+rxxmathi.cmd
+-s os2-rexx.wis

@@ -1,0 +1,235 @@
+.TH ASSIGN 1 "08 August 1995"
+..		$Id: DEUTSCH.NRO 1.1 1997/01/27 08:09:37 ska Rel ska $
+..    Assign a drive letter to a different drive
+..    Copyright (C) 1995  Steffen Kaiser
+.. 
+..    This program is free software; you can redistribute it and/or modify
+..    it under the terms of the GNU General Public License as published by
+..    the Free Software Foundation; either version 2 of the License, or
+..    (at your option) any later version.
+.. 
+..    This program is distributed in the hope that it will be useful,
+..    but WITHOUT ANY WARRANTY; without even the implied warranty of
+..    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+..    GNU General Public License for more details.
+.. 
+..    You should have received a copy of the GNU General Public License
+..    along with this program; if not, write to the Free Software
+..    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.. 
+.SH NAME
+assign - Leitet ein Laufwerk in ein anderes Laufwerk um
+
+.SH SYNOPSIS
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] /
+.cb
+.ct ?
+.br
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] /
+.cb
+.ct status
+.br
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] /
+.cb
+.ct u
+.br
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] [{ 
+.cb
+lw1
+.ct [:]=
+.cb
+.ct lw2
+.ct [:] }]
+
+.SH DESCRIPTION
+.cu
+Assign
+leitet Zugriffe auf ein Laufwerk an ein anderes Laufwerk
+weiter. Das beeinflu·t nur die Laufwerksbuchstaben, jedoch nicht den
+Pfadanteil, was 
+.cu
+Assign
+von 
+.cu
+Subst
+unterscheidet, z.B.:
+.br
+Mit den aktuellen Pfaden "C:\FREEDOS" und "B:\TEMP" und nach den
+Kommandos "assign B=C" und "cd C:\", zeigt der Pfad "B:" ebenfalls nach
+"C:\".
+.br
+Wohingegen nach den Kommandos "subst B: ." und "cd C:\", der Pfad "B:"
+immernoch nach "C:\FREEDOS" zeigt.
+
+Da dieses Programm kein TSR ist, sollten Sie es nicht mittels "LOADHIGH"
+oder "LH" laden.
+.SH OPTIONS
+.IP /? 
+Zeigt einn kleinen Hilfebildschirm an.
+.IP /SHADOW
+Diese Option versteckt den residenten Tail von 
+.cu
+Assign
+vor
+allzuleichtem Entdecktwerden. Das beinhaltet:
+.br
+1) Der den residenten Teil enthaltenen Speicherblock wird als
+Teil des Systems markiert.
+.br
+2) Der Installationstest liefert "Nicht installed, jedoch nicht
+erlaubt zu installieren" zurÅck, und nicht "Installiert" bzw.
+"Nicht installiert".
+.br
+
+Falls der residente Teil mit dieser Option installiert wurde, erzeugen
+alle weiteren Rufe von 
+.cu
+Assign
+eine Warnung, wenn die Option fehlt.
+Die Aktion wird trotzallem ausgefÅhrt.
+
+Diese Option kann bis zu 
+.cb
+/SH
+abgekÅrzt werden.
+.IP /STATUS
+Zeigt alle umgewiesenen Laufwerksbuchstaben in folgender Form an:
+.br
+lw1: => lw2:
+.br
+wobei das Laufwerk 
+.cb
+lw1
+in das Laufwerk 
+.cb
+lw2
+umgesetzt
+wird.
+
+Falls keine Umweisung besteht, wird auch nichts angezeigt.
+
+Ist der residente Teil noch nicht geladen, wird er auch nicht
+geladen.
+
+Diese Option kann bis zu 
+.cb
+/S
+abgekÅrzt werden.
+.IP /u
+Entfernt eine zuvor installierte Kopie von 
+.cu
+Assign
+.ct .
+.IP "lw1[:]=lw2[:]"
+Dies definiert, da· Laufwerk 
+.cb
+lw1
+zukÅnftig zum Laufwerk 
+.cb
+lw2
+zeigen soll. Die Doppelpunkte ':' sind optional. Zwischen den
+Laufwerksbuchstaben, den Doppelpunkten und dem Gleichheitszeichen sind
+keine Leerzeichen erlaubt.
+
+Falls der residente Teil noch nicht geladen ist, wird er ohne
+weitere Notiz geladen.
+.IP /m
+Bestimmt, da· der residente Teil, falls mîglich, im UMB Bereich angelegt
+werden.
+.IP "ohne Option"
+Falls weder 
+.cb
+/STATUS
+noch 
+.cb
+/u
+noch eine Umleitung auf der Kommandozeile
+angegeben ist, werden alle Umleitungen gelîscht. Als Resultat zeigen
+wieder alle Laufwerksbuchstaben auf sich selbst.
+.SH "KNOWN BUGS"
+.IP o
+Da 
+.cu
+Assign
+kein TSR ist, kann ein Laden mit
+"LOADHIGH" oder "LH" fehlschlagen. Mîchten Sie den residenten Teil
+hochladen, mÅssen Sie die Option 
+.cb
+/m
+verwenden.
+.IP o
+Aus KompatibilitÑtsgrÅnden zum Original-
+.cu
+.ct Assign
+folgen die Optionen
+.cb
+/STATUS
+und 
+.cb
+/SHADOW
+nicht dem Standard fÅr Optionen.
+.IP o
+SpÑter installierte TSRs oder ein zweiter Kommandoprozessor (Shell)
+kînnen das Entfernen von 
+.cu
+Assign
+verhindern. In diesem Fall
+verbleibt 
+.cu
+Assign
+weiterhin aktiv im Speicher. Um Auswirkungen
+zu unterbinden, sollten Sie 
+.cb
+ASSIGN
+ohne Argument aufrufen.
+.IP o
+Einige Shells verhindern, da·
+.ul
+ASSIGN
+seine residente Kopie im Speicher wiederfindet, wenn
+.ul
+ASSIGN
+von einer sekundÑren Shell installiert wird.
+.SH "SEE ALSO"
+Subst, Join
+.ne 8
+.SH CONTRIBUTERS
+.ce 6
+Steffen Kaiser
+Mittelstra·e 112/B115
+53757 Sankt Augustin - Menden
+Deutschland - Germany
+
+e-mail: Steffen.Kaiser@@FH-Rhein-Sieg.DE

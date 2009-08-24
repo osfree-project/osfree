@@ -1,0 +1,8 @@
+.AUTODEPEND
+
+CFG_DEPENDENCIES = cmd.mak
+
+!include "..\config.mak"
+
+all: $(CFG) cmds.lib
+

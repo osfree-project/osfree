@@ -1,0 +1,16 @@
+ 
+ Related Functions 
+
+      WinCloseClipbrd 
+      WinEmptyClipbrd 
+      WinEnumClipbrdFmts 
+      WinOpenClipbrd 
+      WinQueryClipbrdData 
+      WinQueryClipbrdFmtInfo 
+      WinQueryClipbrdOwner 
+      WinQueryClipbrdViewer 
+      WinSetClipbrdData 
+      WinSetClipbrdOwner 
+      WinSetClipbrdViewer 
+  
+

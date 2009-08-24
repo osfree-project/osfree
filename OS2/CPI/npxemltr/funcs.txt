@@ -1,0 +1,3 @@
+NPXFPDataSize           NPXFPDataSize
+NPXNPHandler            NPXNPHandler 
+NPXpfnLocalHandler      Trap7Handler 

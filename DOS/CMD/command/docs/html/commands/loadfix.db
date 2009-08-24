@@ -1,0 +1,15 @@
+name: LOADFIX
+de: Load an external program above the first 64KB memory
+see: LOADHIGH CALL
+
+SYNOPSIS:
+EBNF: LOADFIX program [{ argument }]
+
+Loads and executes an exepacked program, that would abort execution
+with the error message "Packed file corrupt" otherwise.
+
+<P><EM>Attention:</EM> This command is not available in the
+XMS-only variant of FreeCOM!
+
+EXAMPLE:
+CMD: LOADFIX program.exe

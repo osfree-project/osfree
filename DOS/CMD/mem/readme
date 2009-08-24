@@ -1,0 +1,32 @@
+MEM
+===
+
+Displays the amount of used and free memory in your system.
+
+NOTES
+-----
+Displaying memory status:  FreeDOS displays extended memory only if you have
+memory installed above the 1MB boundary.  FreeDOS displays expanded memory
+only if it conforms to version 4.0 of the Lotus/Intel/Microsoft Expanded
+Memory Specification (LIM EMS).
+
+Allocating extended memory:  To allocate both Interrupt 15h memory and XMS
+memory, use the int15 switch when you load FD(X)XMS.SYS, HIMEM.EXE or HIMEM.SYS.
+
+Different types of memory
+-------------------------
+Total conventional memory is the amount of memory on your computer up to the
+first 640K.  Free Conventional Memory is the amount of conventional memory
+FreeDOS has for operating your computer, including the memory it needs for
+itself.
+
+Total EMS memory is the amount of expanded memory on your computer.  Free EMS
+memory is the amount of expanded memory available to programs.  If you use
+EMM386 to simulate expanded memory, that memory appears in these two values.
+
+Available XMS memory is memory managed by an extended-memory manager such as
+HIMEM.SYS, and available to programs that can use it.
+
+Known bugs
+----------
+See the bugs.txt file.

@@ -1,0 +1,22 @@
+layer3.lo : \
+ layer3.c config.h global.h H:\emx\include\stdlib.h \
+ H:\emx\include\malloc.h H:\emx\include\string.h \
+ H:\emx\include\assert.h H:\emx\include\limits.h fixed.h bit.h \
+ stream.h frame.h timer.h huffman.h layer3.h rq_table.dat imdct_s.dat
+layer3.c :
+config.h :
+global.h :
+H:\emx\include\stdlib.h :
+H:\emx\include\malloc.h :
+H:\emx\include\string.h :
+H:\emx\include\assert.h :
+H:\emx\include\limits.h :
+fixed.h :
+bit.h :
+stream.h :
+frame.h :
+timer.h :
+huffman.h :
+layer3.h :
+rq_table.dat :
+imdct_s.dat :

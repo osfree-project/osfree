@@ -1,0 +1,437 @@
+
+\chapter{The Code Expander -- A Retargetable Backend}
+\label{ch-expander}
+%-------------------------------------------------------------------------------
+
+{\small
+\begin{flushright}
+Design: Manel, Cristina, Brian;
+Documentation: Manel;
+Implementation: Manel [Apr 01]
+\end{flushright} 
+}
+
+This chapter describes the design and implementation of a retargetable backend
+for the UQBT framework.
+The objective of this backend is to be able to abstract a significant part of the work 
+that is currently being replicated on the different backends (the low-level C backend,
+the JVM backend), into an abstract class, and to implement subclasses that 
+only focus on the particular details of code generation for the different targets.
+
+The ultimate goal for this work is to take the HRTL-based representation and be
+able to {\em expand} it into an RTL-based representation.
+This approach is general enough to generate machine code, high-level language
+code, and other representations that may be interesting to be generated. 
+
+
+\section{Design and Implementation}
+\label{sec-expander}
+%-------------------------------------------------------------------------------
+
+\psfigbegin{figures/expander.eps}{10cm}
+\psfigend{expander}{Retargetable Backend scheme.}
+
+Figure~\ref{expander} shows the proposed view of the retargetable backend; 
+where the code expander is an abstract class which gets implemented in 
+different ways by subclasses that emit code for a variety of target 
+architectures or languages.  (Aside: this diagram needs to be upgraded 
+so that the class relationships are not shown here but elsewhere). 
+The abstract class {\em Code Expander} (CE) is the core of the retargetable 
+backend).
+
+The CE is an abstract class that implements all the common tasks that need to
+be done when translating from the HRTL representation into a particular target
+(e.g.: SPARC machine code, low level C, JVM bytecodes, etc).
+The main features of the CE are as follows:
+
+\begin{description}
+\item[Highly retargetable.]
+The CE can be easily retargeted to different backends.
+As the CE is general enough, there is no limitation in order to implement new
+CE subclasses for generating code for a new target.
+This is because all the details about the target must be included into the CE
+subclass.
+The CE does not assume any restriction about the target.
+
+\item[Easily reusable.]
+The code generation phase is completely driven by the CE.
+When implementing new subclasses, users only needs to be worried about ``filling in'' 
+the abstract methods that belong to the CE interface,
+as well as all the information related to the code generation target.
+
+\item[Different levels of abstraction allowed.]
+As the CE is general enough, it is possible to build a hierarchy of subclasses
+in order to join the common tasks that need to be done when generating code for
+a group of targets.
+For instance, in Figure~\ref{expander}, there is a subclass of the
+CE called {\em Machine Code Generation}.
+This is an unique subclass that is able to deal with all the common tasks that
+need to be done when generating machine code, no matter what the target
+machine is (e.g. SPARC, PA-RISC, Pentium, etc).
+Different subclasses of the ``general CE subclass'' are in charge of the
+real code generation for every particular architecture.
+\end{description}
+
+Note that this retargetable backend does not include an optimization 
+phase when generating code. 
+We assume that a different framework takes care of the unoptimized code that
+the UQBT backend is generating (e.g. a C compiler from generated {\tt .c}
+files, a SPARC postoptimizer from generated ELF {\tt .o} files, etc).
+However, it is always possible to include an optimization phase into a subclass
+of the CE.  No limitation on optimizations is imposed on the retargetable
+backend.
+
+
+\subsection{Code Expander}
+%-------------------------------------------------------------------------------
+
+The {\em Code Expander} (CE) is the core of the retargetable backend.
+The CE is an abstract class that implements all the common tasks that need to be
+performed when translating from the HRTL representation into a particular target.
+The actions taken by the CE are at function level, by calling the method
+{\tt expandFunction}.
+The program should declare a CE object for every function in the HRTL
+representation of the source binary.
+
+The CE class is target independent, which means that it does not need to be
+re-implemented again.
+The tasks performed by the CE are as follows:
+
+\begin{itemize}
+\item
+Collecting all the information that may be need by the target-dependent part of
+the backend (CE subclasses).
+This task includes, for instance, collecting information about the number of
+registers, symbolic variables, parameters and temporals used in the function.
+In the case that some necessary information for a particular target is not 
+collected by the CE, the whole HRTL representation is available to collect the
+information in the subclass implementation.
+
+\item
+Parsing and decomposing the HRTL representation, calling to the target-dependent
+implementation for generating code and for getting/setting {\em locations}.
+A location is a mapping between an HRTL subexpression and an {\em entity} of the
+target (e.g. a machine register, a memory location, a stream of characters, etc).
+The management of locations will be explained in the next section (\ref{sec-CE-subclasses}),
+but the CE is in charge of decomposing the HRTL into locations.
+
+\item
+Calling the target-dependent emitting functions to actually emit the code that 
+needs to be generated.
+The methods for location management as well as the code emitting are
+{\em virtual} methods for the CE class.
+This means that they must be implemented in the CE subclasses.
+\end{itemize}
+
+When a complete function has been expanded using the CE (and also the
+corresponding code has been generated), the CE caller may invoke the
+{\tt generateFile} method.
+This is also a virtual method that generates a file containing the code
+generated previously.
+As it is a virtual method, it needs to be implemented in the CE subclass.
+Then, calling this method may have the effect of generating a {\tt .o} file,
+a {\tt .c} file, or simply copy the generated code into a buffer in memory.
+The April 2001 implementation includes generation of code into an ELF .o file.
+
+Finally, the CE's static method {\tt getExpInstance} has been included into
+the CE interface in order to get the correct instance for a particular CE
+subclass implementation at runtime.
+This method returns an object of a particular subclass based on a character
+received as a parameter.
+This character acts as an identifier to choose the desired subclass.
+
+
+\subsection{Code Expander subclasses}
+\label{sec-CE-subclasses}
+%-------------------------------------------------------------------------------
+
+When retargeting the CE to a new target, a subclass of the CE must be declared.
+The CE subclasses need to implement all the things that need to be done
+when generating code for that particular target.
+
+The CE subclasses are target-dependent, which means that a new CE subclass
+needs to be implemented for every new target.
+The tasks performed by the subclasses CE are as follows:
+
+\begin{itemize}
+\item
+Using all the information that the CE collected in order to generate the
+target code.
+In the case that some necessary information for a particular target is not 
+collected by the CE, the whole HRTL representation is available to collect the
+information in the subclass implementation.
+
+\item
+Management of {\em locations}, which are mappings between a HRTL expression
+and an {\em entity} of the target (e.g. a machine register, a memory location,
+an stream of characters, etc).
+The CE gets/sets locations for HRTL subexpressions, but the CE subclass 
+is in charge of ``mapping'' every HRTL subexpression into a target entity.
+For instance, in a single HRTL assignment, the location for the
+right hand side (RHS) of the assignment is the target location where
+the RHS is stored in the target machine (e.g. a register).
+In the same way, the location for the left hand side (LHS) of the assignment is
+the target location where the target maps the LHS (e.g. a position in
+the function's local stack).
+The CE subclass returns location identifiers to the CE functions that
+``do not make sense'' to the CE, but make for the CE subclass (i.e. are 
+target-dependent).
+
+\item
+Dealing with the complete code generation phase.
+This means that the CE subclasses implement all the CE virtual functions to actually 
+generate the code for the particular target that the CE subclass is being retargeted to.
+Also, the CE subclass has to deal with type/size data, calling convention,
+cross-endianess and all the details that are target-dependent.
+\end{itemize}
+
+The CE subclasses are target-dependent.
+However, when retargeting the CE, a hierarchy of classes can be created.
+For instance, in Figure~\ref{expander}, there is a subclass of the
+CE called {\em Machine Code Generation}.
+This is an unique subclass that is able to deal with all the common tasks that
+need to be done when generating machine code, no matter for what target
+(e.g. SPARC, PA-RISC, Pentium, etc).
+Then, different subclasses of this ``general CE subclass'' are in charge of the
+real code generation for every particular architecture.
+
+
+\section{A SPARC code generator}
+%-------------------------------------------------------------------------------
+
+The CE has been implemented and retargeted to a SPARC V8 code generator.
+The NJMC toolkit has been used to generate the encoder routines from the
+SLED SPARC specification files (see Chapter~\ref{ch-njmcencoding} for some 
+information about this encoding}.
+Therefore, the SPARC code generator is a subclass of a ``general'' code 
+generator that uses the NJMC framework, which is subclass of the CE.
+
+The SPARC code generator maps all the HRTL registers and symbolic variables
+into the function stack.
+Also, it builds a dictionary of {\em locations}, to find out when the
+code generator is dealing with SPARC locations (registers, memory positions
+on the stack) or HRTL locations (subexpressions, source registers or
+symbolic variables).
+The mapping information is the following:
+
+\begin{itemize}
+\item
+Locations {\tt 0..63}: SPARC register file
+\item
+Locations {\tt 128..255}: source registers, that is, register of the original
+source architecture.
+\item
+Locations {\tt 256..383}: symbolic variables
+\item
+Locations {\tt 384..511}: special registers (condition codes, etc).
+\item
+Locations {\tt 512..575}: output parameters (past the sixth) on SPARC.
+\item
+Locations {\tt 576} and above: special values (memory, constant, etc).
+\end{itemize}
+
+Table~\ref{tab-add} shows an example about the sequence of actions taken
+by the CE and the SPARC code generator when processing the expression
+{\tt r3 := r0 + 1}.
+
+\centerfigbegin
+{\small
+\begin{tabular}{|l|l|}
+\hline
+ {\em Code expander} & {\em SPARC code generator} \\
+\hline
+\hline
+ \verb#RHS := processExpr('r0+1')      # & \verb## \\
+ \verb#  lc1 := processExpr('r0')      # & \verb## \\
+ \verb#    return getLocation('r0')    # & \verb#return '%fp+120'# \\
+ \verb#  lc1 := fetch(lc1)             # & \verb#emit 'ld [%fp+120],%l0# \\
+ \verb#                                # & \verb#return '%l0'# \\
+ \verb#  lc2 := processExpr('1')       # & \verb## \\
+ \verb#    return getLocation('1')     # & \verb#return constant(1)# \\
+ \verb#  lc2 := fetch(lc2)             # & \verb#emit 'mv 1,%l1'# \\
+ \verb#                                # & \verb#return '%l1'# \\
+ \verb#  return emitBinOp(lc1,'+',lc2) # & \verb#emit 'add %l0,%l1,%l2'# \\
+ \verb#                                # & \verb#return '%l2'# \\
+ \verb#LHS := processExpr('r3')        # & \verb## \\
+ \verb#  return getLocation('r3')      # & \verb#return '%fp+128'# \\
+ \verb#emitAssign(LHS,RHS)             # & \verb#emit 'st %l2,[%fp+128]# \\
+\hline
+\end{tabular}
+}
+\centerfigend{tab-add}{Sequence of actions for an add operation.}
+
+First of all, the CE processes the RHS of the expression, which is the
+add operation.
+This is made by a recursive CE method called {\tt processExpr} that processes
+a general HRTL expression.
+Then, the method processes every operand of the binary operation separately,
+getting locations and values from them.
+In the example, it is easy to see the actions taken by the SPARC code generator,
+which basically returns locations where the operands are located in the
+target machine, as well as emit SPARC code to process the expression.
+
+When the RHS has been processed, the CE processes the LHS.
+Note that now there is no need to get the value of the LHS location,
+because we want only to store information into this location
+(the RHS value).
+The sequence of actions ends with the assignment, which is translated into
+a store operation of the computed value (the addition) into the location
+where {\tt r3} has been mapped by the SPARC code generator (\texttt{\%fp+128}).
+
+
+\subsection{Status}
+
+The SPARC code generator is able to deal with interesting things,
+like cross-endian accesses or complete SPARC calling convention.
+However it does not able to deal with neither floating point computation nor
+64-bit data.
+
+Also, the generator is not complete, which means that there are some translations 
+from HRTL semantic strings into SPARC code which are not implemented yet.
+However, it is very easy to complete the generator by just adding the right
+translation to every entry. 
+
+
+\subsection{Example: factorial}
+%-------------------------------------------------------------------------------
+
+In this section we show a complete example of how the SPARC code generator works.
+The example is with the C implementation of the ``factorial'' function.
+The C code is as follows:
+
+\begin{verbatim}
+int fact (int x)
+{
+    if (x >= 2)
+        return fact(x - 1) * x;
+    else
+        return 1;
+}
+\end{verbatim}
+
+The C code is compiled with the GNU gcc compiler, on a SPARC V8 machine,
+to obtain the following assembler representation: 
+
+\begin{verbatim}
+.fact: save   %sp, -112, %sp
+       cmp    %i0, 1
+       bg     .L1
+       nop
+       ba     .L2
+       mov    1, %i0
+.L1:   call   .fact
+       add    %i0, -1, %o0
+       call   .umul
+       mov    %i0, %o1
+       mov    %o0, %i0
+.L2:   ret
+       restore
+\end{verbatim}
+
+When UQBT processes the binary file containing the SPARC machine code of the
+factorial function, it builds a HRTL representation of the machine code.
+This high level representation looks like this:
+
+\begin{verbatim}
+.fact (r24):
+       tmp := r24
+       v7  := 1
+       v6  := tmp
+       r0  := r24 - 1
+       JCOND (v6 > v7) .L1
+       r24 := 1
+       JUMP .L2
+.L1:   tmp := r24
+       r8  := r24 - 1
+       r8  := CALL .fact(r8)
+       r9  := r24
+       r8  := r8 * r9
+       r24 := r8
+.L2:   r8  := r24
+       RET r8
+\end{verbatim}
+
+UQBT performs some analyses that are able to remove delayed branches
+and reconstruct the semantics of the source machine calling convention.
+This can be easily seen in the previous HRTL code.
+Also, it is interesting to note that the code has a lot of redundancy that
+the analysis phases of UQBT inserted.
+This is because there is no optimization phase introduced by UQBT
+at the HRTL level.
+
+After the HRTL representation of the program has been generated, UQBT calls
+to the SPARC code generator, and generates the following code: 
+
+\begin{verbatim}
+.fact: save    %sp, -232, %sp
+        ...
+       ld      [%fp-128], %l0
+       ld      [%fp-132], %l1
+       cmp     %l0, %l1
+       mov     1, %l2
+       bg      .t1
+       nop
+       clr     %l2
+.t1:   cmp     %l2, %g0
+       bne     .L1
+       nop
+        ...
+.L1:    ...
+       ld      [%fp-120], %o0
+       call    .fact
+       nop
+       st      %o0, [%fp-120]
+        ...
+.L2:    ...
+       ld      [%fp-120], %l0
+       ret
+       restore %l0, %g0, %o0
+\end{verbatim}
+
+As the generated code is too large, only the code from the {\em if} comparison
+and the code from the recursive call are shown.
+Looking at this code, there are some important things that need
+to be pointed out:
+
+\begin{itemize}
+\item
+All the source register and symbolic variables are mapped by the generator
+on the local stack, as {\em local variables} (all references use negative offsets 
+from the SPARC frame pointer).
+Also the original function stack is mapped in the target's stack frame, 
+hence the new stack frame is larger than the original one..
+Figure~\ref{eg-fact-sparcstack} shows the stack for the factorial program.
+
+\psfigbegin{figures/stkfrm-sparc.eps}{10cm}
+\psfigend{eg-fact-sparcstack}{Stack layout for the factorial function}
+
+\item
+The code generated for the compare and branch is clearly redundant.
+In a comparison, {\em true} or {\em false} values are generated as a result of
+the comparison, and the actual branch is based on this result.
+As the SPARC V8 instruction set does not have conditional move instructions,
+an intermediate label (and, of course, an additional branch) is needed.
+
+\item
+Delay slots are nullified, so that a post optimizer does not need to perform
+any complex analysis about delayed branches, and can schedule useful code
+on a delay slot.
+\end{itemize}
+
+The generated code is very inefficient, because code generation is performed 
+one HRTL instruction at time and there is no optimization phase involved.
+However, a post-link time optimizer should be able to easily optimize this
+code just applying some classical optimizations like:
+
+\begin{itemize}
+\item Redundancy elimination,
+\item Dead code elimination,
+\item Branch propagation,
+\item Constant propagation,
+\item Stack compaction,
+\item Register re-allocation and
+\item Code scheduling.
+\end{itemize}
+
+The resulting optimized code should be very similar to the original one.
+

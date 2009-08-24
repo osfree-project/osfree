@@ -1,0 +1,45 @@
+
+Porting Issues
+
+1	Do NOT define STRICT.  It current includes some 16 bit 
+		definitions that clash with our 32 bit definitions.
+
+2	Structure Packing.
+	2.1	If available, do not use Pragma PACK on risc platforms.  
+		The structure elements should be double word aligned, or you
+		will get memory faults.
+
+	
+	2.2	Be cautious of assertions of the type 
+		
+		if (! sizeof(struct something) == CONSTANT)
+
+		The sizes of structures have probably grown to accomodate 32
+		bit longs and ints.
+
+3	Pointer Alignment.  Make sure to have double word aligned pointers. 
+		Also byte stream data that contains packed structures must
+		be extracted byte by byte, do not cast odd addresses to a
+		pointer to a larger object.
+
+4	Big/Little Endian.  The library is written native to the target 
+		platform.  Binary data should not be assumed to be Intel
+		Format.  A portable set of routines should be used to extract
+		data when it is available across multiple platforms.
+
+5	VarArgs.  Use caution with variable argument lists that may not be
+		portable, or assume the incorrect size of the underlying data.  
+
+6	ANSI C++ Comments.  You cannot use // style comments on normal C code.
+		Use the dtu/dos2unix utilities to move sources across, giving
+		a cleaner resulting source file.
+
+7	DLL Shared Library.  This version of the Willows Library is statically
+		linked to each application.  If multiple DLL's are used, they
+		should all bne linked into a single monolithic library.
+
+8	Name Space Collision. We do use some names that may be available to
+		applications.  We are removing these from the library.  
+		
+
+	

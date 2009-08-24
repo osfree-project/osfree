@@ -1,0 +1,16 @@
+
+Library	DDEML
+
+Segments
+
+HEAPSIZE  1024
+
+EXPORTS
+	DdeInitialize		@2	
+	DdeUninitialize		@3
+	DdePostAdvise		@13
+	DdeCreateStringHandle 	@21
+	DdeFreeStringHandle 	@22
+	DdeKeepStringHandle 	@24
+	DdeEnableCallback 	@26
+	DdeNameService 		@27

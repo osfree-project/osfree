@@ -1,0 +1,1152 @@
+
+/*  The BASE.SCR change file for MMPM2.INI  */
+
+/* The basic syntax is KEYWORD = one of (STRING, NUMBER, ARRAY)      */
+/* All keywords are unique.                                          */
+
+/***
+    #define CO_FAILIFEXISTS       0
+    #define CO_REPLACEIFEXISTS    1
+    #define CO_UPDATEIFEXISTS     2
+***/
+
+WPObject =
+   (
+   WPClassName   = "WPFolder"
+   WPTitle       = "多媒體"
+   WPSetupString = "ICONFILE=$(DEST)MMPMFLDR.ICO;ICONNFILE=1,$(DEST)MMPMFLD2.ICO;OBJECTID=<MMPM2_FOLDER>"
+   WPLocation    = "<WP_PROGRAMSFOLDER>"
+   WPFlags       = 2L
+   )
+
+WPObject =
+   (
+   WPClassName   = "WPFolder"
+   WPTitle       = "多媒體模版"
+   WPSetupString = "ICONFILE=$(DEST)WPTEMPS.ICO;ICONNFILE=1,$(DEST)WPTEMPS2.ICO;OBJECTID=<MMPM2_MMTEMPLATEFOLDER>"
+   WPLocation    = "<WP_TEMPS>"
+   WPFlags       = 2L
+   )
+
+JoinEA =
+    (
+    joinfilename        = "$(DIR)9"
+    joineafilename      = "$(DEST)sounds.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "音效集"
+    JoinLongFileName    = "$(DIR)9"
+    JoinEALongFileName  = "$(DEST)soundt.eas"
+    )
+
+JoinEA =
+    (
+    joinfilename        = "$(DIR)29"
+    joineafilename      = "$(DEST)sounds.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "桌上管理程式音響"
+    JoinLongFileName    = "$(DIR)29"
+    JoinEALongFileName  = "$(DEST)soundt.eas"
+    )
+
+JoinEA =
+    (
+    joinfilename        = "$(DIR)30"
+    joineafilename      = "$(DEST)sounds.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "Garden 音響"
+    JoinLongFileName    = "$(DIR)30"
+    JoinEALongFileName  = "$(DEST)soundt.eas"
+    )
+
+JoinEA =
+    (
+    joinfilename        = "$(DIR)31"
+    joineafilename      = "$(DEST)sounds.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "Ocean 音響"
+    JoinLongFileName    = "$(DIR)31"
+    JoinEALongFileName  = "$(DEST)soundt.eas"
+    )
+
+JoinEA =
+    (
+    joinfilename        = "$(DIR)32"
+    joineafilename      = "$(DEST)sounds.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "空間音響"
+    JoinLongFileName    = "$(DIR)32"
+    JoinEALongFileName  = "$(DEST)soundt.eas"
+    )
+
+JoinEA =
+    (
+    joinfilename        = "$(DIR)26"
+    joineafilename      = "$(DEST)images.eas"
+    )
+
+JoinEA =
+    (
+    joinfilename        = "$(BOOT):\\OS2\\bitmap"
+    joineafilename      = "$(DEST)images.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "位元圖形"
+    JoinLongFileName    = "$(BOOT):\\OS2\\bitmap"
+    JoinEALongFileName  = "$(DEST)bitmapt.eas"
+    )
+
+JoinLongNameEA =
+    (
+    JoinLongName        = "影像"
+    JoinLongFileName    = "$(DIR)26"
+    JoinEALongFileName  = "$(DEST)imaget.eas"
+    )
+
+WPObject =
+   (
+   WPClassName   = "WPProgram"
+   WPTitle       = "多媒體\n應用程式 安裝"
+   WPSetupString = "EXENAME=$(DEST)MINSTALL.EXE;PROGTYPE=PM;STARTUPDIR=$(DIR)0;OBJECTID=<MMPM2_MINSTALL>"
+   WPLocation    = "<WP_INSTREMFOLDER>"
+   WPFlags       = 1L
+   )
+
+WPObject =
+    (
+    WPClassName   = "WPProgram"
+    WPTitle       = "Multimedia\nWith REXX"
+    WPSetupString = "EXENAME=\\OS2\\VIEW.EXE;PROGTYPE=PM;PARAMETERS=$(DEST)MCIREXX.INF;OBJECTID=<MCIREXX_INF>"
+    WPLocation    = "<WP_REFCMDFOLDER>"
+    WPFlags       = 1L
+    )
+
+WPObject =
+   (
+   WPClassName   = "WPShadow"
+   WPTitle       = "SndShadow"
+   WPSetupString = "SHADOWID=<WP_SOUND>;OBJECTID=<MMPM2_SNDSHAD>"
+   WPLocation    = "<MMPM2_FOLDER>"
+   WPFlags       = 2L
+   )
+
+WPObject =
+   (
+   WPClassName   = "WPShadow"
+   WPTitle       = "SoundsShadow"
+   WPSetupString = "SHADOWID=$(DIR)9;OBJECTID=<MMPM2_SOUNDS>"
+   WPLocation    = "<MMPM2_FOLDER>"
+   WPFlags       = 1L
+   )
+
+WPObject =
+   (
+   WPClassName   = "WPShadow"
+   WPTitle       = "ImagesShadow"
+   WPSetupString = "SHADOWID=$(DIR)26;OBJECTID=<MMPM2_IMAGES>"
+   WPLocation    = "<MMPM2_FOLDER>"
+   WPFlags       = 1L
+   )
+
+WPObject =
+   (
+   WPClassName   = "WPShadow"
+   WPTitle       = "BitmapShadow"
+   WPSetupString = "SHADOWID=$(BOOT):\\OS2\\bitmap;OBJECTID=<MMPM2_BITMAP>"
+   WPLocation    = "<MMPM2_FOLDER>"
+   WPFlags       = 1L
+   )
+    /**************************************************************/
+    /*   SPI                                                      */
+    /**************************************************************/
+
+SpiInstall =
+    (
+    SpiDllName = "$(DEST)SSMRES.DLL"
+    )
+
+
+    /**************************************************************/
+    /*    Speaker                                                 */
+    /**************************************************************/
+
+MciInstallDrv =
+    (
+    DrvInstallName     = "SPEAKER"
+    DrvDeviceType      = 13
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "1"
+    DrvProductInfo     = "SPEAKER"
+    DrvMCDDriver       = ""
+    DrvVSDDriver       = ""
+    DrvPDDName         = ""
+    DrvMCDTable        = ""
+    DrvVSDTable        = ""
+    DrvShareType       = 1
+    DrvResourceName    = "SPEAKER"
+    DrvResourceUnits   = 0
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+
+    /**************************************************************/
+    /*        Headphone                                           */
+    /**************************************************************/
+
+MciInstallDrv =
+    (
+    DrvInstallName     = "HEADPHONE"
+    DrvDeviceType      = 14
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "1"
+    DrvProductInfo     = "HEADPHONE"
+    DrvMCDDriver       = ""
+    DrvVSDDriver       = ""
+    DrvPDDName         = ""
+    DrvMCDTable        = ""
+    DrvVSDTable        = ""
+    DrvShareType       = 1
+    DrvResourceName    = "HEADPHONE"
+    DrvResourceUnits   = 0
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+
+    /**************************************************************/
+    /*       Microphone                                           */
+    /**************************************************************/
+
+MciInstallDrv =
+    (
+    DrvInstallName     = "MICROPHONE"
+    DrvDeviceType      = 15
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "1"
+    DrvProductInfo     = "MICROPHONE"
+    DrvMCDDriver       = ""
+    DrvVSDDriver       = ""
+    DrvPDDName         = ""
+    DrvMCDTable        = ""
+    DrvVSDTable        = ""
+    DrvShareType       = 1
+    DrvResourceName    = "MICROPHONE"
+    DrvResourceUnits   = 0
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+
+    /**************************************************************/
+    /*       Connectors                                           */
+    /**************************************************************/
+
+MciInstallConn =
+    (
+    ConnInstallName="SPEAKER"
+    ConnArray[1]=
+         (
+            (
+            ConnType=15
+            ConnInstallTo=""
+            ConnIndexTo=0
+            )
+         )
+    )
+
+MciInstallConn =
+    (
+    ConnInstallName="HEADPHONE"
+    ConnArray[1]=
+         (
+            (
+            ConnType=15
+            ConnInstallTo=""
+            ConnIndexTo=0
+            )
+         )
+    )
+
+MciInstallConn =
+    (
+    ConnInstallName="MICROPHONE"
+    ConnArray[1]=
+         (
+            (
+            ConnType=16
+            ConnInstallTo=""
+            ConnIndexTo=0
+            )
+         )
+    )
+
+    /**************************************************************/
+    /*       FILTERS                                              */
+    /**************************************************************/
+
+MciInstallDrv =
+    (
+    DrvInstallName     = "IBMFILTER01"
+    DrvDeviceType      = 18
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "2.0"
+    DrvProductInfo     = "IBM Mapper"
+    DrvMCDDriver       = "FILTMCD"
+    DrvVSDDriver       = "IBMMAP"
+    DrvPDDName         = ""
+    DrvMCDTable        = "MDM"
+    DrvVSDTable        = ""
+    DrvShareType       = 3
+    DrvResourceName    = "Filter1"
+    DrvResourceUnits   = 10
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+MciInstallParm =
+    (
+    ParmInstallName   = "IBMFILTER01"
+    ParmString        = "Mapper"
+    )
+
+MciInstallAlias =
+   (
+   AliasInstallName  = "IBMFILTER01"
+   AliasString       = "MAPPER"
+   )
+
+MciInstallDrv =
+    (
+    DrvInstallName     = "IBMFILTER02"
+    DrvDeviceType      = 18
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "2.0"
+    DrvProductInfo     = "IMA CODEC"
+    DrvMCDDriver       = "FILTMCD"
+    DrvVSDDriver       = "IMAFILT"
+    DrvPDDName         = ""
+    DrvMCDTable        = "MDM"
+    DrvVSDTable        = ""
+    DrvShareType       = 3
+    DrvResourceName    = "Filter2"
+    DrvResourceUnits   = 10
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+MciInstallParm =
+    (
+    ParmInstallName   = "IBMFILTER02"
+    ParmString        = "IMAADPCMFilter"
+    )
+
+MciInstallAlias =
+   (
+   AliasInstallName  = "IBMFILTER02"
+   AliasString       = "IMACODEC"
+   )
+
+MciInstallDrv =
+    (
+    DrvInstallName     = "IBMFILTER03"
+    DrvDeviceType      = 18
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "2.0"
+    DrvProductInfo     = "Microsoft CODEC"
+    DrvMCDDriver       = "FILTMCD"
+    DrvVSDDriver       = "MSFILT"
+    DrvPDDName         = ""
+    DrvMCDTable        = "MDM"
+    DrvVSDTable        = ""
+    DrvShareType       = 3
+    DrvResourceName    = "Filter3"
+    DrvResourceUnits   = 10
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+MciInstallParm =
+    (
+    ParmInstallName   = "IBMFILTER03"
+    ParmString        = "MSADPCMFilter"
+    )
+
+MciInstallAlias =
+   (
+   AliasInstallName  = "IBMFILTER03"
+   AliasString       = "MSCODEC"
+   )
+
+/***
+MciInstallDrv =
+    (
+    DrvInstallName     = "IBMFILTER04"
+    DrvDeviceType      = 18
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "2.0"
+    DrvProductInfo     = "IBM Echo"
+    DrvMCDDriver       = "FILTMCD"
+    DrvVSDDriver       = "ECHOFLT"
+    DrvPDDName         = ""
+    DrvMCDTable        = "MDM"
+    DrvVSDTable        = ""
+    DrvShareType       = 3
+    DrvResourceName    = "Filter4"
+    DrvResourceUnits   = 10
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+MciInstallParm =
+    (
+    ParmInstallName   = "IBMFILTER04"
+    ParmString        = "Echo"
+    )
+
+MciInstallAlias =
+   (
+   AliasInstallName  = "IBMFILTER04"
+   AliasString       = "ECHO"
+   )
+***/
+
+/***
+MciInstallDrv =
+    (
+    DrvInstallName     = "IBMFILTER05"
+    DrvDeviceType      = 18
+    DrvDeviceFlag      = 02L
+    DrvVersionNumber   = "2.0"
+    DrvProductInfo     = "IBM Soft Synth"
+    DrvMCDDriver       = "FILTMCD"
+    DrvVSDDriver       = "SYNTH"
+    DrvPDDName         = ""
+    DrvMCDTable        = "MDM"
+    DrvVSDTable        = ""
+    DrvShareType       = 3
+    DrvResourceName    = "Filter5"
+    DrvResourceUnits   = 10
+    DrvClassArray[1]  =
+         (
+              ( DrvClassNumber = 1 )
+         )
+    )
+
+MciInstallParm =
+    (
+    ParmInstallName   = "IBMFILTER05"
+    ParmString        = "MIDI"
+    )
+
+MciInstallAlias =
+   (
+   AliasInstallName  = "IBMFILTER05"
+   AliasString       = "SYNTH"
+   )
+***/
+
+    /*********************************************/
+    /*         Join EAs                          */
+    /*********************************************/
+
+JoinEA =
+    (
+    joinfilename        = "$(DEST)MINSTALL.EXE"
+    joineafilename      = "$(DEST)MINSTALL.EAS"
+    )
+
+WPObject =
+   (
+   WPClassName   = "WPProgram"
+   WPTitle       = "多媒體\n設定"
+   WPSetupString = "EXENAME=$(DEST)STPM.EXE;PROGTYPE=PM;STARTUPDIR=$(DIR)0;OBJECTID=<MMPM2_SETUP>"
+   WPLocation    = "<WP_CONFIG>"
+   WPFlags       = 1L
+   )
+
+ProfileData =
+   (
+   ini = "$(DIR)0\\MIDITYPE.INI"
+   appname = "MidiTypes"
+   keyname = "General MIDI"
+   dll = "$(DEST)MIPMINI.DLL"
+   id = 121L
+   )
+
+ProfileData =
+   (
+   ini = "$(DIR)0\\MIDITYPE.INI"
+   appname = "MidiTypes"
+   keyname = "M-AUDIO"
+   dll = "$(DEST)MIPMINI.DLL"
+   id = 120L
+   )
+
+ProfileData =
+   (
+   ini = "$(DIR)0\\MIDITYPE.INI"
+   appname = "MidiTypes"
+   keyname = "M-AUDIO - General MIDI"
+   dll = "$(DEST)MIPMINI.DLL"
+   id = 121L
+   )
+
+ProfileData =
+   (
+   ini = "$(DIR)0\\MIDITYPE.INI"
+   appname = "MidiTypes"
+   keyname = "Soundblaster"
+   dll = "$(DEST)MIPMINI.DLL"
+   id = 122L
+   )
+
+
+    /**************************************************************/
+    /*       IO PROC stuff - note that this order is important    */
+    /**************************************************************/
+mmioInstall =
+   (
+   mmioFourCC        = "PCD "
+   mmioDllName       = "$(DEST)pcdio.DLL"
+   mmioDllEntryPoint = "PCDIOProc_Entry"
+   mmioFlags         = 65L
+   mmioExtendLen     = 16L                   /* Always 16 for now */
+   mmioMediaType     = 1L                    /* 1 = Image - defined in mmio.h */
+   mmioIOProcType    = 2L                    /* 2 = File Format */
+   mmioDefExt        = "PCD"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "RDIB"
+   mmioDllName       = "$(DEST)RDIBPROC.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 251L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "DIB"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "AVCI"
+   mmioDllName       = "$(DEST)AVCIIOPR.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 65L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "_IM"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "MMOT"
+   mmioDllName       = "$(DEST)MMOTPROC.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 251L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "VID"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "AVCA"
+   mmioDllName       = "$(DEST)AVCAPROC.DLL"
+   mmioDllEntryPoint = "AVCAIOProc"
+   mmioFlags         = 201L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 2L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "_AU"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "VOC "
+   mmioDllName       = "$(DEST)SNDBLAST.DLL"
+   mmioDllEntryPoint = "SNDBLASTioproc"
+   mmioFlags         = 65L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 2L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "VOC"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "WI30"
+   mmioDllName       = "$(DEST)WI30PROC.DLL"
+   mmioDllEntryPoint = "WI30BITMAPIOPROC"
+   mmioFlags         = 251L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "BMP"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "OS13"
+   mmioDllName       = "$(DEST)OS13PROC.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 251L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "BMP"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "OS20"
+   mmioDllName       = "$(DEST)OS20PROC.DLL"
+   mmioDllEntryPoint = "OS20BITMAPIOPROC"
+   mmioFlags         = 251L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "BMP"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "MPEG"
+   mmioDllName       = "$(DEST)MPGIO.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 4161L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 256L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "MPG"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "flic"
+   mmioDllName       = "$(DEST)AUTOPROC.DLL"
+   mmioDllEntryPoint = "AutoProc"
+   mmioFlags         = 4160L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 256L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "FLC"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "fli "
+   mmioDllName       = "$(DEST)AUTOPROC.DLL"
+   mmioDllEntryPoint = "AutoProc"
+   mmioFlags         = 4160L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 256L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "FLI"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "MIDI"
+   mmioDllName       = "$(DEST)MIDIIO.DLL"
+   mmioDllEntryPoint = "MIDIIOProc"
+   mmioFlags         = 255L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 4L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "MID"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "AVI "
+   mmioDllName       = "$(DEST)AVIO.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 350272L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 256L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "AVI"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "WAVE"
+   mmioDllName       = "$(DEST)WAVEPROC.DLL"
+   mmioDllEntryPoint = "WAVEIOProc"
+   mmioFlags         = 4095L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 2L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "WAV"
+   )
+
+mmioInstall =
+   (
+   mmioFourCC        = "JPEG"
+   mmioDllName       = "$(DEST)JPEGIO.DLL"
+   mmioDllEntryPoint = "IOProc_Entry"
+   mmioFlags         = 67L
+   mmioExtendLen     = 16L
+   mmioMediaType     = 1L
+   mmioIOProcType    = 2L
+   mmioDefExt        = "JPG"
+   )
+
+    /*********************************************/
+    /*MMViewer IO procs for opendoc              */
+    /*********************************************/
+mmioInstall =
+        (
+        mmioFourCC        = "AIFF"
+        mmioDllName       = "$(DEST)AIFFPROC.DLL"
+        mmioDllEntryPoint = "AIFFIOProc"
+        mmioFlags         = 65L
+        mmioExtendLen     = 16L
+        mmioMediaType     = 2L
+        mmioIOProcType    = 2L
+        mmioDefExt        = "AIF"
+        )
+
+
+
+ mmioInstall =
+        (
+        mmioFourCC        = "IFF "
+        mmioDllName       = "$(DEST)AIFFPROC.DLL"
+        mmioDllEntryPoint = "IFFIOProc"
+        mmioFlags         = 65L
+        mmioExtendLen     = 16L
+        mmioMediaType     = 2L
+        mmioIOProcType    = 2L
+        mmioDefExt        = "IFF"
+        )
+
+
+
+ /* INI Change control file to update the MMPMMMIO.INI file */
+
+mmioInstall =
+
+        (
+        mmioFourCC        = "GIFC"
+         mmioDllName       = "$(DEST)GIFPROC.DLL"
+        mmioDllEntryPoint = "GIFCIOProc"
+        mmioFlags         = 67L                   /* Always 0 for now */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "GIF"
+        )
+
+
+
+ /* INI Change control file to update the MMPMMMIO.INI file */
+
+mmioInstall =
+        (
+        mmioFourCC        = "PCXC"
+        mmioDllName       = "$(DEST)PCXPROC.DLL"
+        mmioDllEntryPoint = "PCXCIOProc"
+        mmioFlags         = 67L                   /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "PCX"
+        )
+
+
+
+mmioInstall =
+        (
+        mmioFourCC        = "SND "
+        mmioDllName       = "$(DEST)AIFFPROC.DLL"
+        mmioDllEntryPoint = "SNDIOProc"
+        mmioFlags         = 67L
+        mmioExtendLen     = 16L
+        mmioMediaType     = 2L
+        mmioIOProcType    = 2L
+        mmioDefExt        = "SND"
+        )
+
+mmioInstall =
+        (
+        mmioFourCC        = "AU  "
+        mmioDllName       = "$(DEST)AIFFPROC.DLL"
+        mmioDllEntryPoint = "SNDIOProc"
+        mmioFlags         = 67L
+        mmioExtendLen     = 16L
+        mmioMediaType     = 2L
+        mmioIOProcType    = 2L
+        mmioDefExt        = "AU"
+        )
+
+
+
+ /* INI Change control file to update the MMPMMMIO.INI file */
+
+mmioInstall =
+        (
+        mmioFourCC        = "TGAC"
+        mmioDllName       = "$(DEST)TGAPROC.DLL"
+        mmioDllEntryPoint = "TGACIOProc"
+        mmioFlags         = 67L                   /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image - defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TGA"
+        )
+
+
+
+mmioInstall =
+        (
+        mmioFourCC        = "TGAU"
+        mmioDllName       = "$(DEST)TGAPROC.DLL"
+        mmioDllEntryPoint = "TGAUIOProc"
+        mmioFlags         = 67L                    /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+         mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TGA"
+        )
+
+
+
+ /* INI Change control file to update the MMPMMMIO.INI file */
+
+mmioInstall =
+        (
+        mmioFourCC        = "TFIC"
+        mmioDllName       = "$(DEST)TIFPROC.DLL"
+        mmioDllEntryPoint = "TFICIOProc"
+        mmioFlags         = 67L                   /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TIF"
+        )
+
+
+
+mmioInstall =
+        (
+        mmioFourCC        = "TFIU"
+        mmioDllName       = "$(DEST)TIFPROC.DLL"
+        mmioDllEntryPoint = "TFIUIOProc"
+        mmioFlags         = 67L                    /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TIF"
+        )
+
+
+
+mmioInstall =
+        (
+        mmioFourCC        = "TFMC"
+        mmioDllName       = "$(DEST)TIFPROC.DLL"
+        mmioDllEntryPoint = "TFMCIOProc"
+        mmioFlags         = 67L                    /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TIF"
+        )
+
+
+
+mmioInstall =
+        (
+        mmioFourCC        = "TFMU"
+        mmioDllName       = "$(DEST)TIFPROC.DLL"
+        mmioDllEntryPoint = "TFMUIOProc"
+        mmioFlags         = 67L                   /* Always 0 for now    */
+        mmioExtendLen     = 16L                   /* Always 16 for now */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TIF"
+        )
+
+
+
+mmioInstall =
+        (
+        mmioFourCC        = "TFFC"
+        mmioDllName       = "$(DEST)TIFPROC.DLL"
+        mmioDllEntryPoint = "TFFCIOProc"
+        mmioFlags         = 67L                    /* Always 0 for now     */
+        mmioExtendLen     = 16L                   /* Always 16 for now  */
+        mmioMediaType     = 1L                    /* 1 = Image -defined in mmio.h */
+        mmioIOProcType    = 2L                    /* 2 = File Format */
+        mmioDefExt        = "TIF"
+        )
+
+ProfileString =
+   (
+   inis = "hini_user"
+   appnames = "PM_Fonts"
+   keynames = "MMPMDIG"
+   datas = "$(DEST)MMPMDIG.FON"
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMDataFile"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMImage"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMAudio"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMVideo"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMMIDI"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMTarga"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMTIFF"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMGIF"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMPCX"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMPhotoCD"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMAVC"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMMMotion"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMDIB"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMDevice"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMCDDevice"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMLVDDevice"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMVolume"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMVOC"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MM_AU"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMAIF"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMIFF"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMSNDF"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMAVI"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMFLI"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMMPG"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMMOV"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMJPG"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMWAV"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMFolder"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMBitmap"
+   WPDllName = "MMBIT"
+   WPReplaceClass = "WPBitmap"
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMShadow"
+   WPDllName = "MMSHD"
+   WPReplaceClass = "WPShadow"
+   )
+
+WPClass =
+   (
+   WPClassNameNew = "MMFinder"
+   WPDllName = "MMPARTS"
+   WPReplaceClass = ""
+   )
+
+/* end of base.scr */

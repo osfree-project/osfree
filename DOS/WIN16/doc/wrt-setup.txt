@@ -1,0 +1,178 @@
+
+Configuring Willows Twin Software for MS Applications.
+
+This is the first of a multi-part message, that will describe how to configure 
+the Willows twin software to run MS Applications.  Although a specific 
+configuration will be described, the same procedures can be modified to run
+in other configurations.  In this message, I discuss specifically configuring
+xwin to run ms applications from a linux partition dedicated to dos/windows.
+
+Configuration
+
+In this example, I have a linux partition with the windows executables that I
+want to run.  I have chosen to NOT use the 'real' windows directory, but to
+have a windows directory in the unix file system.  This allows me to avoid
+writing to the 'real' windows directory, and modifying any 'real' files.  The
+next version of this example will actually use the real directory, and show
+how to map the logical C: and D: drives to their DOS counterparts.
+
+Setup
+
+The essential parts to run the Willows Twin Emulator, xwin, are a version of
+xwin for your platform, the shared library libtwin.so, in either the debug
+or optimized flavors and a Twin Configuration file, twinrc.  As described in
+the Getting Started Guide, you may need to configure your system to run xwin
+by setting up the dynamic loader, in the case of linux it is /lib/ld.so.
+
+I have configured ld.so to recognize where libtwin.so actually lives, but on
+most machines, you can also use the environment variable LD_LIBRARY_PATH as
+a colon separated list of directories that ld.so should search to find dynamic
+libraries.  Once xwin runs you have passed the first milestone, and are now
+ready to start configuring it to run your windows applications.
+
+Configure
+
+The key to configuring Willows TWIN software is to setup a twin configuration
+file, and make it accessible to xwin.  The rules for finding the file are
+1) use the file designated by TWINRC, 2) use the file twinrc in the current 
+directory, and 3) use the file .twinrc in the users home directory.  For this 
+discussion, I have setup my own private twinrc file in my home directory.  The  
+file contains the following lines...
+
+	[boot]
+	control=0x1001
+	windows=/windows
+	openpath=/willows/bin/win:/willows/bin/demo:/dos/windows:.
+
+	[xdos]
+	C:=/
+	D:=/willows/bin
+
+In this twinrc file, control set to 0x1001 means to print verbose xwin startup
+information, the 1 bit, and do NOT map the current drive to a dos logical 
+drive, the 0x1000 bit.  This is important to MS applications that expect to be
+in a specific location.  The second line, windows=/windows is the windows 
+directory that I will use when running xwin.  This is where common help files, 
+and shared data will exist.  It is also where the 'system' directory is located
+which will contain all shared dll's.  The third line, openpath, says where to
+look to find windows executables, for instance if you run 'xwin sol', this 
+would allow us to find sol.exe in the /dos/windows directory.
+
+In the next section, I have configured the dos emulation library to find drive
+C: as the root directory, and drive D: as the /willows/bin directory.  It is
+important to note that if I have, for instance, winword in the dos partition,
+it would be in the /dos/winword directory, or, C:/dos/winword, while it was
+installed as C:/winword.  This is a major issue, that causes most of the 
+issues, specifically, because the registration database thinks its in one
+place while it is in another.  For willows, I copy the win.ini file from windows
+and the setup.reg file from /dos/winword, and put them in my windows directory,
+/windows. (Note: I also created the directory /windows/system).
+
+Win.ini
+
+This file needs to have an entry in it to disable truetype fonts, mine has...
+
+# This section is used by print drivers, specifically, pscript.drv. It
+# will try to use truetype fonts, and fail, if this is not set to 0.
+#
+[TrueType]
+TTEnable=0
+
+Otherwise, the win.ini file is exactly what it was under windows, including
+printer setup etc.
+
+Setup.reg
+
+The setup.reg file is an ascii version of what windows loads into the 
+registration database.  We keep it in the setup.reg file, and load it as
+needed.  Since I have copied the file to my own private windows directory,
+I will modify all references to winword and excel, (and powerpoint and any
+other applications that I have) to reflect their 'new' locations.  This is
+very important, and will lead to 'NOT ENOUGH MEMORY' errors if not done.
+
+Windows and System Directory
+
+In my windows directory, I have the following files...
+> ls /windows
+setup.reg      system/	      win.ini
+
+In my system directory, I have the following files...
+
+> ls /windows/system
+compobj.dll@   ole2disp.dll@  sdm.dll@       typelib.dll@
+ole2.dll@      ole2nls.dll@   storage.dll@   w32sys.dll@
+
+NOTE! The are all symbolically linked to the 'real' versions in my windows
+system directory, /dos/windows/system.
+
+Running the Programs...
+
+In my case, I can now change directory to /dos/winword, and run winword
+> win winword
+Windows Directory:      /windows
+System Directory:       /windows/system
+X11 Configuration
+--------------------
+Display:        ncd:0.0
+Vendor:         Network Computing Devices Inc.
+Mode:           Syncronous
+Hostname:       t4900ct
+XDOS Configuration
+------------------
+C:      /       (native file system)
+LASTDRIVE = C
+DRIVES    = 1
+BOOTDRIVE = C
+ROOTDRIVE = 3
+MEMORY    = 640Kb
+EXTENDED  = 15360Kb
+FILES     = 100
+Twin Debugger enabled...
+LoadModule: /dos/winword/winword.exe
+LoadModule: /dos/winword/wwintl.dll
+LoadModule: /windows/system/sdm.dll
+LoadModule: /windows/system/storage.dll
+LoadModule: /windows/system/compobj.dll
+LoadModule: /windows/system/w32sys.dll
+LoadModule: /windows/system/ole2.dll
+LoadModule: /windows/system/ole2disp.dll
+LoadModule: /windows/system/ole2nls.dll
+*** Failed to load library pscript.drv***
+
+The last line failed to load the pscript.drv driver, because I had not
+copied it to my /windows directory.
+
+Trouble Shooting
+
+If you still have problems, use the following checklist.
+
+1) does it work without your printer driver installed?
+
+2) have you modified all entries in setup.reg to reflect the new location
+   of where the files are?
+
+3) have you added the [truetype] line to your win.ini file?
+
+4) does xwin run with no arguements?
+
+5) are you modifying and using the right twin configuration file, ie. there
+   is not a twinrc file in the directory where your apps reside?
+
+6) there is a /tmp directory, and you have C: mapped to /?
+
+7) does openpath have : separator?
+
+Futures...
+
+The next issue will consider how to use the setup.reg file as is without
+changing it, ie. mapping C: to /dos, and making all entries in setup.reg
+point to C:/winword.  Also, I will describe the printer configuration 
+so that you can actually print!
+
+If this has helped, or you need more help, send me mail and I will try to
+revise it accordingly.
+
+Rob Farnum				Willows Software
+408.777.1823				robf@willows.com
+408.777.1827 fax			http://www.willows.com
+

@@ -1,0 +1,14 @@
+asgn_tsr.asm Resident portion of ASSIGN
+assign.1     Documentation of ASSIGN in English in NROFF format
+assign.1g    Documentation of ASSIGN in German in NROFF format
+assign.c     Transident portion of ASSIGN
+bugs         Known bugs section
+compile.bat  compile with Micro C
+deutsch.msg  German message definition file
+deutsch.nro  German documentation in NRO format
+english.msg  English message definition file
+english.nro  English documentation in NRO format
+files        This file
+history      Change log
+makefile     Makefile for DMake
+notes        Notes how to compile SWSUBST

@@ -1,0 +1,43 @@
+What is it?
+
+This is a stripped-down version of GNU finger 1.37 --- the client
+only, to be precise --- which is provided as  a  replacement  for
+the finger.exe that comes with OS/2 IAK/tcp/ip. The latter unfor-
+tunately doesn't offer the '-l' option, amongst other things.
+
+
+In order to make this thing more or  less  stable,  a  number  of
+things had to be taken out, such as the support for faces. In ad-
+dition, I haven't included support for `long' (i.e. --lotstotype)
+options,  as  I  can't  see the point in having them with a small
+utility like this one.
+
+
+If you compile it with the -DINFO_IS_DEFAULT switch it will start
+up  in  `long  info'  mode  (not a good idea in my view, but then
+again, who am I?).  If you don't like the current appearance, re-
+compile it with -DERROR_HANDLER for more conventional feedback.
+
+
+Under  emx/gcc  0.9c it compiles with a few warnings, which to my
+mind are harmless (the usual incompatible pointer type blah,  and
+a few others ...)
+
+
+Also  included is the `safe_finger' utility from SATAN, which ba-
+sically acts as a wrapper for finger.  This program needs to know
+the  location of finger.exe (specified in sf.h). I you don't have
+sed, you'll have to edit this by hand.
+
+Rights, licences etc:
+
+As stipulated by the originators of the sources (i.e. GPL for the
+GNU stuff, no idea regarding safe_finger).
+
+Suggestions  and bugfixes can be sent to <olafz@gold.ac.uk>, com-
+plaints are best directed at your favourite airline.
+
+
+To  install,  type  `configure', followed by `make', and see what
+happens.
+

@@ -1,0 +1,6 @@
+LIBRARY DLL
+DESCRIPTION 'test1'
+EXPORTS Test1Function1
+EXPORTS Test1Function2
+EXPORTS Test1LoadFuncs
+EXPORTS Test1DropFuncs

@@ -1,0 +1,330 @@
+
+
+Library Porting Issues
+
+The following outline details the issues when porting the library to alternative
+platforms.  The issues for unix systems, intel and risc are detailed, as are
+the issues detailed by other platforms.
+
+1.0 Unix Operating Systems
+
+	1.1 Intel Based
+
+		1.1.1   Direct Execution
+
+			One of the methods supported by the TWIN library is 
+			called direct execution.  This lets windows libraries
+			and applications be executed directly, with no 
+			interpreting of instructions.  If access to the LDT
+			is not allowed, the interpreter used by risc processors
+			can be used to execute applications, albeit slowly.
+
+		1.1.2	dlopen/dlsym function
+
+			This function allows us to load a shared library at
+			run-time, even though it was not explicitly linked into
+			an application at compile time.  We have emulation 
+			routines for this call that allow alternate methods to
+			be used to dynamically load a shared library.  A key
+			point is that we need to bind its module definition
+			table in, and call its initialization routine when it
+			is loaded, even for those shared libraries that are
+			linked in at compile time.  The dlsym routine is used
+			by the debugger to identify symbols using the built-in
+			debugger.
+		
+		1.1.3	Assembler
+
+			There is a piece of assembler code that is used to
+			allow us to jump back and forth between 16 and 32 code
+			segments.  This code may need to be modified for your
+			assembler.  There are two other places that assembler
+			code is used by the library, one in interface thunks
+			that assist in the interface between 16 and 32 bit
+			code segments.  The code here is pre-coded, and canned
+			and does not need to be modified.  The last place that
+			is affected is in the SETJMP/LONGJMP buffers, where
+			we modify the stack and instruction pointers to support
+			multi-tasking within the library.  This code needs to
+			be verified in a new port.
+
+		1.1.4	LDT Management
+
+			We use a version of the sysi86 call found in both 
+			SCO and UnixWare.  An emulation of this exists for
+			linux.  The key is to be able to allocate an ldt entry,
+			and set its appropriate fields, 16/32, code/data and
+			size.  We also need to be able to free ldt entries.
+
+		1.1.5	Interrupts
+
+			Windows applications run in 16bit protected mode.  These
+			applications can do an interrupt, usually int 21.  The
+			operating system may give us the interrupt in a variety
+			of forms, usually as a SIGSEGV.  We need to be able to
+			intercept it, execute it, and resume execution after
+			the interrupt.
+
+		1.1.6	Graphics and Window Management
+
+			All GDI graphics calls eventually reach down to the
+			driver to do the low level graphics calls.  We have a
+			set of routines to handle these calls with X11.  Since
+			GDI and the Window Management functions in USER are
+			tightly coupled, there are a number of functions in
+			the driver to handle creating/deleting and managing
+			windows.
+
+		1.1.7	ELF based
+
+			Although not strictly required, it helps when building
+			shared libraries.  No special setup is required to 
+			dynamically link an application, and no address spaces
+			need to be reserved ahead of time.  This is important
+			because of the dynamic loading of libraries at run-time.
+
+		1.1.8   Dos File System
+
+			The library currently maps all int21 file functions to
+			the mfs, (Multi-File System) driver.  This abstraction
+			allows various underlying file systems to emulate the
+			dos filesystem.  Support for mapping directories to
+			drives is supported, as is direct access to a floppy
+			or pseudo-disk.
+	
+	1.2 Risc Based
+	
+		1.2.1	Interpreted Execution
+
+			This is how the library executes existing applications
+			and libraries.  The interpreter supports 32 overrides,
+			and 32 bit registers.  32 bit code segments are not
+			currently supported.
+
+		1.2.2	dlopen/dlsym function
+
+			see 1.1.2 above
+
+		1.2.3   Assembler
+
+			see 1.2.3 above, no assembler is used in the 
+			interpreter, but do exist in both thunks and the
+			SETJMP/LONGJMP buffers.
+
+		1.2.4 	LDT Management
+
+			LDT support is emulated by software.  No special 
+			hardware support is required.
+
+		1.2.5	Interrupts
+
+			No special support is needed, it is emulated in 
+			software.
+
+		1.2.6	Graphics and Window Management
+
+			see 1.1.6 above.
+
+		1.2.7	ELF based
+
+			see 1.1.7 above.
+
+		1.2.8	Dos File System
+
+			see 1.1.8 above.
+
+2.0 Non-Unix Operating Systems
+
+	2.1 Macintosh
+
+		2.1.1	Interpreted Execution
+
+			This uses the same interpreter as 1.2.1.
+
+		2.1.2	dlopen/dlsym function
+
+			Shared library support is not included at this time.
+
+		2.1.3   Assembler
+
+			see 1.1.3 above.
+
+		2.1.4 	LDT Management
+
+			see 1.2.4 above.
+
+		2.1.5	Interrupts
+
+			see 1.2.5 above.
+
+		2.1.6	Graphics and Window Management
+
+			A set of graphics and window managment routines have
+			been written that provide all the needed functions.
+			(additional work needs to be done to readback pixel
+			values from the screen)
+
+		2.1.7	ELF based
+
+			Shared library support is not included yet, and will
+			have to support PIC when it is done.
+
+		2.1.8	Dos File System
+
+			Netware supports the dos file system, so direct access
+			to it is supported.
+
+	2.2 OS/2
+
+		2.2.1	Direct Execution
+		
+			Intel based OS/2 should be able to execute windows
+			code directly.
+			
+		2.2.2	dlopen/dlsym function
+
+			An interface to the system LoadLibrary() routine will
+			need to be layered on top of this.
+
+		2.2.3   Assembler
+	
+			similar assembler issues may arise.
+
+		2.2.4 	LDT Management
+
+			Access to the LDT is required to allocate code and
+			data segments.
+
+		2.2.5	Interrupts
+
+			Access to interrupts, perhaps through SetInterrupt.
+
+		2.2.6	Graphics and Window Management
+
+			A mapping between the graphics systems needs to be
+			made, accounting for the reversed coordinate system.
+
+		2.2.7	ELF based
+
+			Not relevent.
+
+		2.2.8	Dos File System
+
+			See 2.1.8
+
+	2.3 Netware
+
+		2.3.1	Direct Execution
+
+			Intel based netware should support direct execution.
+
+		2.3.2	dlopen/dlsym function
+
+			Dynamic loading is not yet supported, and must be
+			layered on the code here.
+
+		2.3.3   Assembler
+
+			similar assembler issues may arise.
+			
+		2.3.4 	LDT Management
+
+			For direct execution, access to the LDT is required.
+
+		2.3.5	Interrupts
+
+			The ability to field interrupts is needed.
+
+		2.3.6	Graphics and Window Management
+
+			Currently, we are using an X server ported to netware.
+
+		2.3.7	ELF based
+
+			Not an issue.
+
+	2.4 General 
+
+		2.4.1	Interpreted/Direct Execution
+
+			For intel machines, we can usually find a way to 
+			execute code directly
+
+		2.4.2	dlopen/dlsym function
+
+			The code here provides a general way to load shared
+			libraries and access variables. The emulation code
+			is used for ibm and hpux and can be adopted as needed.
+
+		2.4.3   Assembler
+
+			A thunk is needed for each processor type, most major
+			cpu types already exist.
+
+		2.4.4 	LDT Management
+
+			This is only an issue with intel hardware.
+
+		2.4.5	Interrupts
+
+			This is only an issue with intel hardware.
+
+		2.4.6	Graphics and Window Management
+
+			We have both mac and x11 drivers, additional ones can
+			be derived.
+
+		2.4.7	ELF based
+
+			Not required strictly, but is part of dynamic linking.
+
+		2.4.8	Dos File System
+
+			See 2.1.8
+
+3.0 Accelerators
+
+	3.1	x86 hardware cards
+
+		The direct execution and interpreter hook into the library 
+		identically.  If access to an x86 is available, is would be
+		possible to significantly increase the speed of windows 
+		applications.  The ability to start/stop and interrupt the
+		hardware, with the ability to read/write shared memory.
+
+
+	3.2	dynamic translation
+
+		Like direct execution, a dynamic accelerator can improve the
+		speed of the simple interpreter.  The interface would be the
+		same as either direct or interpreter.
+
+	3.3	shared memory
+
+		Shared memory is an X11 feature that could be used to transfer
+		bitmaps and images between the application and server.  No
+		special work has been done, but this could boost the performance
+		by quite a bit.
+
+4.0 Hardware Emulation
+
+	4.1	Serial boards
+
+		A generic serial port driver for unix has been developed that
+		should be adaptable to any platform.
+
+	4.2	Parallel ports
+
+		The library does not read/write to the parallel port directly,
+		but though the writespool function.  On unix this can be 
+		configured to pipe to another process, such as a printer daemon.
+
+	4.3	WinSock
+		
+		A mapping from winsock to a standard berkeley style sockets has
+		been done, that should be modifiable to any platform.
+
+	4.4	Bios/System Timers
+
+		No work has been done to emulate these yet.
+

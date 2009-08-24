@@ -1,0 +1,6 @@
+module winstdcnr;
+
+uses winstddrag;
+uses winstdcontainer;
+
+end;

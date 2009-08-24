@@ -1,0 +1,1717 @@
+Version 3.1 13-Aug-02
+
+ --- Bug fixes:
+     o Fix bug with QUERY ECOLOUR on Win32 platform.
+     o Entering a shifted character in response to FILLBOX command
+       on X11 port resulted in incorrect values being inserted.
+     o Fixed compilation errors on platforms that don't have KEY_MOUSE
+       in curses.h
+     o Fixed compile error on AIX when using REXX/6000.
+     o Fixed bug with SET MARGINS; second parameter did not allow '*'
+       to be specified.
+     o Fixed bug with ZONE command when only the first parameter was
+       supplied.
+     o Fixed small bug with identification of magic numbers in new
+       files when the first line was copied into the file.
+     o Changed limit on number of files that can be edited from 256 to
+       2,147,483,647
+     o Fixed bug with sorting a file with only 1 line.
+     o When two different files are displayed as a result of SCREEN
+       command, and COPY BLOCK (box block) is performed, block in
+       source window does not get reset. Now fixed.
+     o Changed HTML TLD comment terminator from "-->" to ">"
+     o Fixed bug introduced in 3.0; QUERY and EXTRACT would not recognise
+       abbreviated keywords. eg. QUERY ARB would fail and you needed to use
+       QUERY ARBCHAR.
+     o When editing a symbolic link, unless BACKUP INPLACE is ON, the
+       symbolic link was lost. This is now fixed.
+     o Display of pending prefix indicator in STATAREA now clear.
+     o Added workaround for bug in AIX curses, where the cursor would
+       move down one line when typing text into the last displayed column and
+       the screen autoscrolled.
+     o Fix for column position being calculated as a negative value on
+       some platforms, resulting in scrolling to the left beyond column 1.
+     o X11 port of THE more stable on startup (with PDCurses 2.5)
+     o Fix bug with changing file name, path or extension when run in
+       batch mode.
+     o Fix bug with resizing of THE window to a small number of columns;
+       still potential crashes if the window is resized to < 10 columns.
+     o Functions: focuseof() and focustof() returned the wrong value when on the
+       command line and the curos was last on a line other that 'top-of-file'
+       or 'bottom-of-file'.
+     o Fix error with wrong command being repeated (with REPEAT) command in
+       a macro.
+     o Minor changes to deregister dynamic functions like parser.1() so that
+       Object Rexx 2.2 on Linux does not leak shared memory and cause THE to
+       crash.
+     o Fix bug with syntax highlighting for LABELS.
+     o Comments delimiters defined in TLD files can now be specified as 
+       case-insensitive.
+     o Fixed bug with GET CLIP: under Win32.  Now doesn't crash after
+       multiple uses of GET CLIP:
+     o Use of ALT keyword on :function definitions in a TLD file did not
+       work.
+     o Remove limit on 20 directories in MACROPATH; now no effective limit.
+     o Fixed Rexx/Trans DLL on Win32 platforms that caused THE to not work
+       with Object Rexx on Win2K and XP.
+     o Allow CMATCH command to be executed from a batch command.
+     o Disallow CURSOR HOME from a batch command.
+     o Allow C-C, C-S and similar commands in OS/2 port (fix to PDCurses)
+     o Fix bug with SET TRAILING and empty file.
+     o Allow more flexible specification of hex and decimal strings in targets.
+       /   x'3e2d' /  is now identified as a valid hex string target (with
+       HEX ON of course). Bug #531800
+ --- Changed commands or behaviour:
+     o Any ECOLOUR character can be used in the 'alternate' colour specifier
+       for 'keywords' in a TLD definition. Previously, only the 'alternate'
+       characters 1 through 9 were allowed.
+     o Added optional targets on EXTRACT PENDING command.
+     o Color on X11 port now behaves differently with PDCurses 2.5 and
+       above.  "Bold" colors are now drawn in the same font, but in a
+       brighter color.  This means that any monospaced font can be used;
+       there is no need to have an equivalent bold font.
+     o "Blink" color "modifiers" on X11 port now displays background in
+       bright color.
+     o Added extra color "modifier"; italic on X11 port. To display text in
+       italics, you must have a normal font and italic font of the same size.
+     o Cursor on X11 port can now be set to blink with PDCurses 2.5 and
+       above. 
+     o The "find" family of commands can now be run without the mandatory
+       string parameter.  Like LOCATE, these commands can use the string
+       used in the last "find" command if no parameter specified.
+     o [SET] COLOUR and [SET] ECOLOUR have options to turn on or off display
+       modifiers like BOLD, BLINK etc.  These can be set for individual
+       colour specifications or for all colour specifications.
+     o Profile files specified with the -p command line switch will use
+       the same mechanism for locating the file as is done with the THE
+       MACRO command. ie THE_MACRO_PATH=/usr/local/THE set and mymacro.the
+       is in /usr/local/THE; the -p mymacro will find
+       /usr/local/THE/mymacro.the
+     o When setting variables via EXTRACT with Regina, THE now uses direct
+       setting rather than symbolic setting of variables. Should be no user
+       effect.
+     o POPUP command now returns POPUP.2 which contains the item number selected
+       or 0 if nothing selected and POPUP.3 which is the item number of the line
+       last highlighted.
+     o POPUP command now has no effective limit on what can be poped up. If the
+       number of lines or columns is too large for the size of the screen,
+       scrolling is now enabled.
+     o SET FULLFNAME now switches between displaying the fully qualified filename
+       of the current file and the FNAME omponent of the file.
+     o Rewrote build.the macro to use POPUP command and to not stay in the macro
+       after the build is executed.
+     o Number of lines in SET MSGLINE can be specified as * to indicate as
+       many lines as will fit on the screen. The number of lines argument
+       is now validated against the screen size and starting line argument.
+       A new CLEAR argument is also provided to clear the msgline contents.
+     o Slight change with syntax highlighting; brackets are not coloured
+       if there is no MATCH heading in the associated TLD file or if
+       SET HEADER MATCH OFF is set.
+     o New optional specification for coloring functions not specified
+       explicitely.
+     o Minor changes to syntax highlighting of numbers.
+     o SCHANGE now executes the previous arguments when no arguments are
+       specified.
+ --- New features:
+     o Support for GNU Regular Expressions in LOCATE and ALL commands. Command
+       syntax is LOCATE Regexp /RE/ and ALL Regexp /RE/ respectively.
+     o Added new SET REGEXP command to allow specification of which Regular
+       Expression syntax that is to be used in targets.
+     o Added new Appendix (7) for explaining some details of Regular Expressions.
+     o New command line option; "1" for X11 port. This runs THE in
+       "single window mode". What this means is that every time THE 
+       is started, it checks to see if THE is already in "single window
+       mode" for the curent user, with the same optional filename supplied.
+       If so, the file or files requested to be edited on the command line are 
+       sent to the running instance and are added to that instances ring.
+       Values from command line of -l, -c and -r passed to server and applied
+       to the file being edited.
+       Works on Unix with XCurses and ncurses.
+     o Added SYNONYM command. Not a full implementation yet; doesn't
+       support parameter reordering.
+     o Add support for Rexx/Trans on Unix and OS/2 platforms.
+     o Added new command SET EQUIVCHAR to set a character to be used
+       in parameters that would normally take '=' to specify a value
+       from the current file or view. Default value is '='.
+     o All SET commands can now use EQUIVCHAR where appropriate.
+     o Any command parameter that specifies a filename can use the
+       EQUIVCHAR to specify portions of the filename.
+     o Ports of THE now available for Amiga, BeOS, AtheOS, Linux/390
+       and Mac OSX.
+     o Added QUERY/EXTRACT NBSCOPE; number of lines in scope.
+     o Added EXTRACT FIELDWORD to return the current word in the current
+       field.
+     o Added new command, REDIT, to discard the changes to the current
+       file and reload it back into the ring retaining the current
+       location.
+     o Added BOUNDMARK, a new SET command, and associated QUERY/EXTRACT
+       and COLOR setting.  BOUNDMARK displays vertical lines between
+       characters indicating columnar areas like ZONE or TABS.  Only
+       significant on X11 port of THE with PDCurses 2.5 or above.
+     o Implementation of :number, :column and :postcompare headers
+       in a TLD file.
+     o Added initial COBOL, MAKE and OPL TLD files in the distribution.
+     o New command; SET HEADER, to turn on or off portions of the
+       current syntax highlighting.
+     o Added optional Common User Access (CUA) commands to allow
+       THE to behave in a manner consistent with the CUA definition.
+       New commands; SOS CUADELBACK, SOS CUADELCHAR.
+       Changed commands; CURSOR now has a CUA option for UP, DOWN, LEFT,
+       and RIGHT. enter command now has optional CUA option.
+       MARK command also has a CUA option to mark a CUA block, which is
+       like a STREAM block, but acts like the CUA mark.
+       See the sample cua.the macro for setting up THE to work like a CUA
+       editor.
+     o Added new config.the macro. It is a GUI configuration tool for THE
+       but is incomplete at this stage. This requires Rexx/Tk 1.2 or above
+       to work.
+     o Added new sample macro; tags.the. This is intended to be used with
+       Exuberant Ctags.
+     o Added new sample macro; nl.tld. This displays a POPUP with all the
+       named lines in the file and moves the cursor to the selected line.
+     o Added new sample macro; complete.the. This macro provides code
+       completion for Rexx and C languages. Should be easy to extend it
+       for other languages.
+     o Added new colour setting capabilities; CPREFIX and CGAP. These are
+       equivalent to PREFIX and GAP respectively, but relate to the current
+       line.
+     o Added THIGHLIGHT support; RESET, SET/MOD/QUERY/EXTRACT THIGHLIGHT, and
+       [SET] COLOUR THIGHLIGHT.
+       THIGHLIGHT displays found string or RE targets in the colour specified
+       by [SET] COLOUR THIGHLIGHT.  Also string targets in SCHANGE command
+       also displayed in thighlight colour.
+     o Added [SET] TRAILING to change behaviour of trailing blanks in
+       files. 
+     o Added preliminary compatibility mode for ISPF.
+       Changes include SET COMPAT, display of "TABS>", "COLS>" in prefix
+       area for tabs and cols indicator lines.
+       The changes are incomplete.
+     o Added new command; CURSOR GOTO. This is similar to CURSOR FILE, but
+       will move the cursor the the specified line/column even if they are
+       not in view.
+     o Added new SET command; TARGETSAVE. This allows you to specify which target 
+       types are saved for subsequent calls to the LOCATE command without any
+       parameters. By default; SET TARGETTYPE ALL, the LOCATE command without any 
+       parameters, locates the last target irrespective of the type of target. 
+       This is the current behaviour.  With SET TARGETTYPE STRING then
+       the only target saved will be one that has a string target component.
+       ie. if you executed LOCATE /fred/ then LOCATE :3 then LOCATE, the final
+       LOCATE will look for /fred/ NOT :3
+     o Added new SET command; PAGEWRAP. This allows the user to specify if
+       FORWARD and BACKWARD commands wrap to the bottom and top of files
+       automatically or not.
+     o Added new SOS command; SOS CURSORSHIFT. Similar to SOS CURSORADJ but
+       shifts text to the right of the cursor to the cursor position.
+     o Added QUERY/EXTRACT EFILEID to return the original filename of the current
+       file.
+     o Added QUERY/EXTRACT LASTOP to return the last operand specified for
+       various commands.
+     o Added SET FILETABS, TABFILE command and SET COLOUR/COLOR FILETABS and
+       FILETABSDIV. FILETABS allows for a single-line window displayed at the
+       top of the screen containing the filenames of all files (except the
+       current file) in the ring. Clicking the mouse on a filename makes it the
+       current file.
+     o Added new prefix commands for all compatibility modes:
+         +---------------
+         LC - lowercase line(s)
+         UC - uppercase line(s)
+         LCC - lowercase block
+         UCC - uppercase block
+         ( - shift left column(s) within zone
+         ) - shift left column(s) within zone
+         (( - shift left column block within zone
+         )) - shift left column block within zone
+         Not implemented yet...
+         O - overlay line(s) - same as OVERLAYBOX (except ISPF mode)
+         OO - overlay block(s) - same as OVERLAYBOX (except ISPF mode)
+         +---------------
+     o Added or modified prefix commands for ISPF compatibility mode:
+         +---------------
+         A - after target
+         B - before target
+         R - repeat line(s)
+         RR - repeat block
+         O - overlay line(s) - (ISPF behaviour)
+         OO - overlay block(s) - (ISPF behaviour)
+         COLS - column indicator line
+         TABS - tabs indicator line
+         BOUNDS - bounds indicator line
+         +---------------
+
+Version 3.0 16-Jan-00
+
+ --- Bug fixes:
+     o Fix bug with QUERY RING; not all files were displayed depending
+       on MSGLINE setting.
+     o Implied extract functions for RING now work for all files in the
+       ring. Thus if you have 20 files in the ring ring.20() will return
+       the details about the 20th file in the ring.  If you close one
+       file ring.20() will result in an error.
+     o Fixed some formatting errors in the generated HTML documentation.
+     o Allow 'C' as mouse button action (click) in DEFINE command. eg
+       DEFINE CLB in FILEAREA... (click left button). Not all curses
+       libraries support this.
+     o Fixed bug in COPY BLOCK of line block from one file to another.
+       Sometimes after the copy, any CHANGE command with BLOCK as target
+       would fail.
+ --- Changed commands or behaviour:
+     o [SET] MACROPATH can now take the string PATH as an option. This
+       sets the search path for macro files to be the system PATH as
+       specified in the PATH environment variable.
+     o When using PDCurses and ncurses, the colours "grey"/"gray" and
+       "white" have been swapped.  Thus white is now brighter than grey.
+     o Remove restriction on the use of '/' as the only delimiter
+       character for EXTRACT command.
+     o Fixed bug in locating a string when SET WRAP ON and the focus line
+       has had changes made to it.
+ --- New features:
+     o Syntax highlighting!
+       Added support for syntax highlighting, modeled on KEDIT for Windows
+       syntax highlighting.  Commands added: [SET] COLOURING/COLORING,
+       [SET] AUTOCOLOUR/AUTOCOLOR, [SET] PARSER, [SET] ECOLOUR/ECOLOR.
+       New appendix in documentation to explain how syntax highlighting 
+       works and the format of language definition files.
+       Also added AUTOCOLOR, AUTOCOLOUR, COLORING, COLOURING, ECOLOR, 
+       ECOLOUR, and PARSER to QUERY/EXTRACT commands.
+     o Added [SET] CTLCHAR and support in [SET] RESERVED to allow reserved
+       lines to be displayed in different colours.
+     o Added new command line switch; -q, to suppress the message that is
+       displayed when error messages are displayed from execution of the
+       profile file.
+     o Started a FAQ.
+     o Added the following valid key names; SHIFT-L, SHIFT-R, CONTROL-L,
+       CONTROL-R, ALT-L, ALT-R.  These correspond to pressing the
+       equivalent modifier keys by themselves.  The CONTROL-R should be
+       useful for XEDIT users!  Note that not all platforms support the
+       return of key events when pressing the modifier keys by themselves.
+       Also be careful with assigning commands to the modifier keys and
+       then using the modifier keys to modify other keys; as some
+       curses implementations will ALWAYS return a modifier key event 
+       followed by the "normal", modified key press.
+     o Added [SET] LINEFLAG command to change the characteristics of a
+       line.
+     o Added POPUP, DIALOG and ALERT commands.
+     o Added extra [SET] COLOR options for ALERT and DIALOG commands.
+     o When used with PDCurses 2.4 (non-beta version), the X11 port of THE
+       has a new switch command line; -X. This allows the specification of 
+       both standard X11 switches, such as "-iconic", "-display" as well as
+       XCurses-specific switches such as "-colorBlack" which correspond to
+       the XCurses resources that can be set via .Xdefaults file.
+     o Added optional specification of soft label key format.
+     o Added SET COMPAT KEDITW (Kedit for Windows) and default colours.
+
+Version 2.8 31-Jul-99
+
+ --- Bug fixes:
+     o Fixed a bug with THE functions returning a value > 255 characters.
+     o THE incorrectly executed the profile file against a file edited
+       from within the profile file.
+     o EXTRACT /GETENV would always return an invalid value.
+     o If the current directory were changed from within the edit session,
+       the new directory was not being used when determining the path when
+       editing a file.
+     o EDITV LIST now shows full variable name.
+     o THE now registers its external functions in both upper and lower case.
+       This is done to cater for Rexx interpreters that are sensitive about
+       case with external functions; noteably REXX/imc (Patch by Ian Collier)
+     o Files edited on AFS mounted file systems under HP-UX should now work.
+     o Fixed bug with SPLIT and JOIN commands when run from the command line;
+       the current line was advanced incorrectly.
+     o Fixed bug with "ls ~"; now returns correct directory listing.
+     o SOS DELLINE will now save the line being changed before it deletes
+       it. This is done so that if you happen to be typing the line and
+       delete it before moving off the line, RECOVER will get it back
+       correctly.
+     o The first() boolean function was defined incorrectly.  It was
+       essentially defined to be the same as leftedge().  It now correctly
+       reports 0 if on the left edge of the FILEAREA, but VERSHIFT is
+       > 0.
+     o CURSOR CMDLINE col; now positions the cursor at the specified
+       column correctly, when the command is run from the command line or
+       from a macro run from the command line.
+     o STREAM blocks support added for COPY and MOVE. Still to do: PUT.
+     o When autosaving files as a result of a trapped signal, turn off the
+       signal handler, and only save files that have outstanding changes.
+     o DEL -* when the current line is more than half way down the file
+       used to leave one line undeleted which should have been deleted.
+     o COPY -* to a target now works correctly.
+     o Don't execute the profile file against a file when that file is 
+       already in the ring.
+     o Fixed bug with allowing pseudo files to be saved.
+     o Fixed the error that indicates that line 0 is longer than the maximum
+       line length. Now correctly indicates line 1.
+     o Fixed crash when MOVE BLOCK is execute when there is no marked block.
+ --- Changed commands or behaviour:
+     o Added new default mouse button behaviour; 
+       DEFINE A-PLB in FILEAREA BACKWARD
+       DEFINE A-PRB in FILEAREA FORWARD
+     o OSREDIR now returns the error from the command executed.
+     o READV KEY now recognises mouse events.
+     o HIT also now recognises mouse key definitions.
+     o The last target value used by the LOCATE command without any
+       parameters, is not changed by LOCATE commands run from within
+       a macro.
+     o PUT command now valid in readonly mode.
+     o In XEDIT compatibility mode, reserved lines are not copied to a file
+       when that file is brought into the ring.
+     o Lines with a pending prefix command are now not displayed as a
+       result the ALL command unless the line contents match the target in
+       the ALL command.
+     o Allow XX,X and S prefix commands in readonly file.
+ --- New features:
+     o Added a new SET command; READONLY. This has the same effect as the
+       -r command line switch, but only affects those files that were
+       read into THE as readonly files. Option FORCE forces ANY file to be
+       readonly.
+     o Added SET TOFEOF command, to turn on or off the display of the
+       top-of-file and bottom-of-file lines.
+     o Added new macro; build.the. This is a more sophisticated attempt
+       at an IDE in THE than compile.the.  See also setbuild.the.
+     o The pseudo-file CLIP: can be used in place of the filename 
+       argument in the PUT and GET commands.  This functionality
+       available on OS/2, Win32 and X11 ports of THE with version
+       2.4 and above of PDCurses. "CLIP:" is the system clipboard or
+       equivalent (selection under X11).
+     o Added INPLACE option to SET BACKUP. This option preserves all
+       system file attributes of the edited file. The original file is
+       emptied BEFORE the new contents are written. Thus there is a chance
+       that you will lose your file, but the file retains all of its original
+       attributes.
+     o Added mouse support for ncurses-based ports of THE. Note that
+       ncurses does not support mouse movement, so dragging the mouse
+       to mark a line or box block does not work.
+     o Ports of THE using ncurses now resize correctly if the terminal
+       resizes  and issues a SIGWINCH interrupt.  QNX pterm works fine, 
+       but xterm and nxterm need an extra keystroke to refresh the screen
+       correctly. (Only tested with ncurses 4.2). (I believe this is
+       a "feature" of ncurses).
+     o Added TAG command to highlight all lines that contain a target.
+       Similar to ALL, but all lines are displayed and tagged lines are
+       shown in a different colour.
+     o Added optional line/column specifiers to MARK command allowing the
+       user to explicitly specify the dimensions of a marked block.
+     o Added new QUERY option; REXX to return version details of Rexx
+       interpreter being used by THE.  Output is identical to Rexx command
+       PARSE VERSION.
+     o THE now works on QNX.
+
+
+Version 2.7 27-Dec-98
+
+ --- Bug fixes:
+     o On some systems, THE would crash after the first several 
+       keystrokes.
+     o On some systems, blank lines would match every string target.
+     o Printing blank lines sometimes produce junk.
+     o Version information on WinNT was incorrect, as was some 
+       documentation files.
+     o Use of OSREDIR command in profile file when suspended on Unix
+       would cause THE to stop.
+     o Compilation errors with non-ANSI compilers fixed.
+     o Included extra HTML documentation courtesy of Franz-Josef Wirtz.
+     o Re-released 16bit Windows THEdit shareware package.
+
+Version 2.6 14-Nov-98
+
+ --- Bug fixes:
+     o The screen would not be refreshed as a result of issuing Rexx
+       commands via THE's REXX command. It now does.
+     o The implied extract functions; colour.n() (not the color.n()
+       functions) were failing.
+     o SLK display line was not being refreshed when it was overwritten.
+     o SLK OFF was unsupported despite the documentation saying it was.
+     o EXTRACT FMODE would return "1" instead of the drive letter.
+     o The first row of the message line was not being cleared after 
+       a QUERY command on some platforms.
+     o THE would not compile on AIX 4.2 with "standard" curses, due 
+       to some changes in IBM's curses code.
+     o Under some Unix platforms, THE would crash on exit when an
+       error or warning message was displayed.
+     o Return code from SET ETMODE ON|OFF with no following parameters
+       now returns correct value; 0.
+     o Column commands such as CINSERT, CAPPEND would leave a nul
+       character, 0x00 at the end of the line.
+     o The fix in 2.5.2 for editing a file from the DIR.DIR file, 
+       when the file is a symbolic link, didn't work when the symbolic
+       link was an absolute path.
+     o Fixed MARK STREAM command. STREAM blocks now supported for
+       following commands: LOWER, UPPER, FILLBOX, DELETE, CHANGE.
+       Still to do, COPY and MOVE.
+     o inblock() function now works for STREAM blocks.
+     o SOS TABWORDB and SOS TABWORDF now respect SET WORD ALPHANUM.
+     o Printing under OS/2 should now work.
+     o THE now configures correctly on HP-UX 11.0.
+ --- Changed commands or behaviour:
+     o When UNTAA is ON, the default value for certain commands like
+       DELETE, REPEAT etc. is 1.  This resulted in unexpected and
+       undesirable behaviour.  Commands that have an explicit default
+       of 1, now have an explicit default of +1, to overcome the UNTAA
+       behaviour. Thanks to Arthur Poole for pointing this out.
+     o A small performance increase should be expected for
+       Rexx commands assigned to function keys, using the DEFINE key
+       REXX commands...
+       In previous versions, THE would pass the source specified as an
+       "instore" macro and ignore the returned, tokenised code.  THE
+       now saves the tokenised code and passes this to the Rexx
+       interpreter.  The first time the key is pressed may in fact be
+       slightly slower, but subsequent executions should be faster.
+       How much of a performance increase you get depends on how
+       efficient your Rexx interpreter's parsing abilities are.
+     o Extended curses support now only allowed for AIX 3.x.  As AIX 4.1
+       and above now has System V curses, this is the prefered curses
+       library for the character mode version of THE.
+     o The Rexx indicator of the STATUSAREA, which used to be a space
+       or 'R' to indicate if Rexx support was enabled has been changed
+       slightly.  When Rexx support is enabled, instead of 'R' being
+       displayed, one of the following characters is displayed to 
+       indicate which Rexx interpreter support THE was compiled with.
+       Values are:
+         +---------------
+         R - Regina
+         O - Object or OS/2 Rexx
+         Q - Quercus Personal Rexx
+         W - Enterprise WinRexx
+         I - Rexx/imc
+         U - uni-REXX
+         6 - REXX/6000
+         T - Rexx/Trans (Rexx Translation package)
+         +---------------
+     o FILLBOX now allowed for LINE BLOCKS.
+     o What constitues a word with the MARK WORD and DELETE WORD
+       commands has now changed.  It now matches the SOS TABWORDF
+       definition of a word.
+     o READV now sets 4 Rexx variables, the new fourth value is the
+       shift status associated with the key being pressed.
+     o A new optional parameter has been added to the MACRO command.
+       Specifying this; a '?', enables Rexx macros to be interactively
+       traced with TRACE ? in the macro file.  In previous versions,
+       this was the default for MACRO, but it involved a significant
+       processing overhead.  Now, Rexx command files assigned to keys
+       should execute quicker.
+ --- New features:
+     o Added new SET command; CLEARERRORKEY. This enables you to
+       specify which particular key clears the message line. Default
+       behaviour is that any key pressed will clear the message line.
+       Also added CLEARERRORKEY to query/extract/modify.
+     o Added query/extract/modify for DIRINCLUDE.
+     o Added new SET command; TIMECHECK. This enables you to
+       specify if THE checks the timestamp of a file when you SAVE or
+       FILE it.  If TIMECHECK is ON and the modification time of the
+       file has changed, THE will not save the file.  You can force the
+       save of the file with SSAVE or FFILE.
+       Also added TIMECHECK to query/extract/modify.
+     o The PRINT command in Win32 now can specify fonts, font size,
+       paper orientation etc.
+     o New command line options; -l and -c.  These specify the starting
+       current line and column respectively for all files edited from
+       the OS command line.
+     o A new SET command has been included; STATOPT.  This controls
+       what internal variables are displayed on the status line. Any
+       value that can be obtained via the implied extract functionality
+       can be displayed.  eg the default options displayed are NBFILE.1
+       and WIDTH.1.
+     o Added new boolean functions ALT, ALTKEY, CTRL and SHIFT.
+     o Added EXTRACT LASTKEY
+     o Added KEDIT command.
+     o THE now allows stdin as a profile file.  When specifying
+       the profile file on the OS command line with -p, the filename
+       is '-'.  Thus; the -p - file_to_edit takes macro commands from
+       stdin.  This feature is only allowed when the -b (run in batch)
+       switch is also specified!!
+       This feature is useful for porting XEDIT/REXX programs like:
+         +---------------
+         /* CMS */
+         queue 'top'
+         queue 'c/this/that/ all'
+         queue 'file'
+         'X THIS FILE A'
+         +---------------
+
+       The equivalent for THE with Regina is:
+         +---------------
+         /* THE/Regina */
+         queue 'top'
+         queue 'c/this/that/ all'
+         queue 'file'
+         'LIFO> the -b -p - this.file'
+         +---------------
+
+Version 2.5.2 31-Jul-98
+
+ --- Bug fixes:
+     o Fixed problem with unaligned access problems on 64bit machines.
+     o Also fixed a few compiler warnings.
+     o Editing a file from the DIR.DIR file, when the file is a symbolic
+       link, now correctly edits the file pointed to by the symbolic
+       link.
+ --- Changed commands or behaviour:
+     o STATUS command now displays in 6 columns.  On 25 row screens some
+       status information was likely to be lost.
+
+Version 2.5.1 28-Jul-98
+
+ --- Bug fixes:
+     o Fixed problem with compiling without Rexx support.
+     o Fixed the Win32 port mouse support.  Mouse support would only
+       work until a Rexx macro or an operating system command was 
+       called and then mouse support would be disabled.
+     o Fixed bug in COMPAT XEDIT mode where the behaviour of the
+       "enter" command in the FILEAREA would behave like INPUT command
+       rather than SOS ADDLINE/LINEADD.
+     o Fixed bug in display of cursor when in insert mode under 
+       several platforms.
+ --- Changed commands or behaviour:
+     o SOS ADDLINE/LINEADD under COMPAT XEDIT now works more like
+       XEDIT.
+
+
+Version 2.5 30-Jun-98
+
+ --- Bug fixes:
+     o Fixed problem with DIR or THE/XEDIT/EDIT command in a profile. 
+       THE would go into an infinite loop.
+     o LSCREEN values were not available as implied extract functions.
+     o Specifying 0 for row or column with CURSOR SCREEN/ESCREEN now 
+       causes an error.
+     o lastmsg.1 not being set when MSGMODE is OFF
+     o fixed bug with SET AUTOSAVE in profile
+     o fixed cursor positioning bug when an "edit" command was issued
+       for a file already in the ring from a macro or key
+     o fixed error with alteration counts not being reset when saving
+       a file under AFS.
+     o ALL command on a file with no lines caused THE to crash
+     o return codes from THE macros called by other macros should now
+       be returned
+     o EXTRACT /INBLOCK/ now correct for all marked blocks (except STREAM)
+     o CINSERT will now insert spaces.
+     o implied extract functions, such as alt.1(), will fail if called when
+       no files are in the ring.
+     o EXTRACT RESERVED did not include attribute modifiers when run on
+       mono monitor.
+     o Fixed error with ACLs under HPUX where if the file system did
+       not support ACLs, files could not be saved.
+     o Fixed error in PRESERVE/RESTORE where changes to the layout of
+       the displayed screen were not being restored.
+     o Made changes to support API changes in Regina 0.08c.
+     o SET COMPAT would reset ALT settings.
+     o A command consisting of blanks returns an error; now simply
+       ignored.
+     o With STAY OFF, PUT now moves the current line to the target 
+       line if in COMPAT XEDIT(feel) mode.
+     o EXTRACT /CURSOR with cursor in prefix area, now returns the
+       file's line number in cursor.3.
+     o THE can now handle messages via MSG and EMSG commands > 160 
+       characters.
+     o Fixed problem with dir() boolean function to return correct
+       value.
+     o EXTRACT /RING in COMPAT XEDIT(feel) now returns the number of
+       files in the ring in ring.1. For COMPAT THE and KEDIT the number
+       of files is returned in in ring.0.
+     o With HEX ON, LOCATE /x'00' would match every line in the file.
+     o When an attempt to edit a file with a line width > the current
+       WIDTH setting, THE would not close the file. On some platforms
+       this meant that file was no longer accessible until the edit
+       session was ended.
+     o Under Unix, THE now attempts to preserve the file's user and 
+       group ownership ids. This should work fine for the file's
+       owner and for root, but probably won't for other users.
+     o Use of interactive trace in a THE macro would not work under
+       OS/2, DOS or WIN32. Should now.
+     o Commands that are very long, particularly those issued from 
+       macros used to crash THE. Now they shouldn't.
+     o Fixed behaviour of CMATCH in COMPAT XEDIT mode.
+     o Fixed bug in COMPRESS command.
+     o Corrected SOS DELLINE and SOS ADDLINE behaviour when issued on
+       cmdline.
+     o In COMPAT XEDIT, SET TABSIN caused the current line to be moved
+       to the bottom of the file.
+     o THE now compiles on Digital Unix 4.0
+     o In COMPAT XEDIT mode, THE would allow characters from the prefix
+       area to display in the gap between the prefix area and the filearea.
+     o THE now removes multiple, consecutive slashes from a filename.
+       eg. /usr///include//stdio.h is now interpreted as 
+           /usr/include/stdio.h
+     o Fixed typo in INSTALL file --with--curseslibdir changed to
+       --with-curseslibdir
+     o Fixed an error with EXTRACT. If a space appears before the first
+       item name to extract, an error was displayed and the last item
+       was not extracted.
+     o Use of UPPER or LOWER commands did not set the LINEFLAG to
+       changed.
+     o An invalid hexidecimal or decimal value in a string target now
+       only results in one error message, rather than one per line of
+       the file.
+     o The OS family of commands now return the return code from the
+       operating system command.
+     o The definitions and behaviour of CURSOR SCREEN/ESCREEN row col
+       were reversed.
+     o Fixed cursor positioning problems with SOS DELLINE when the
+       *** Bottom of File *** line was the current line.
+     o Any commands that saved a file with a different name to the
+       file being edited; eg PUT, SAVE and FILE, always kept the same
+       attributes as the original.  This has been changed so that any
+       new file takes on default attributes (and ownerships) as would
+       a new file.
+     o Several documentation corrections, particularly in the HTML
+       source. Thanks to Franz-Josef Wirtz for reporting these.
+     o Fixed error with SET COLOR. The NONDISP colour would always get
+       changed.
+     o Fixed a problem with unknown keys, such as decimal 226 (A-B),
+       using ncurses.  These now can be assigned commands with DEFINE
+       (eg. DEFINE \226 TOP) and will display their correct assignment
+       when using SHOWKEY.
+     o Trailing spaces on the command line will now be passed to macros.
+     o Fixed a bug on some System V R4 curses and ncurses, where the 
+       cursor would disappear after toggling the INSERTMODE to ON.  This
+       was caused by a lack of the terminal's capability to display the
+       cursor in a high visibility mode, instead it would not display
+       it at all.
+ --- New features:
+     o Added new SET commands; FILENAME, FNAME, FEXT, FTYPE, FMODE 
+       and FPATH.
+     o Added COLOR option to EXTRACT and QUERY commands.
+     o Added WIDTH display to status area.
+     o Added [SET] SLK to allow user to define soft label keys.
+     o Added SLK to [SET] COLOR.
+     o Added new command line option; -k to enable soft label keys
+       support.
+     o HTML'd the HISTORY file.
+     o Added [SET] WRAP
+     o Added [SET] WORD
+     o Added [SET] WIDTH
+       This enables the maximum width of a line to be set within an
+       edit session.
+     o Added [SET] FULLFNAME to specify if the file's fully-qualified
+       filename is displayed on the IDLINE or the name of the file
+       as entered by the user is displayed.  This command may change to
+       include settings for whether the file's fully-qualified name is
+       used when writing the file.
+     o On Unix platforms, if THE suffers a core dump, THE will attempt 
+       to autosave all files that are currently open. (Thanks to Ian
+       Collier for this good suggestion)
+     o Added a new SET command; UNTAA. This is an ancronym for 
+       "Unsigned Numerical Targets Are Absolute". This SET command
+       affects ALL numerical targets, not just the LOCATE command!
+     o Added SET COLOR/COLOUR GAP to enable the colour of the gap
+       between the prefix area and the filearea to be specified. By
+       default, COMPAT XEDIT will display the gap in the same colour
+       as the filearea, COMPAT THE in the same colour as the prefix
+       area.
+     o Added [SET] DEFSORT command to specify how files should be
+       sorted in the DIR.DIR file. Also added DEFSORT as a valid
+       option for EXTRACT.
+     o Added EDITV command for setting and retrieving persistent macro
+       variables.
+     o Added SET SPAN, SPILL and TRUNC.  They don't do anything yet.
+     o Added REXX command to allow Rexx instructions to be run from
+       the command line.
+     o Included the Regina memory management routines into THE to
+       increase its performance.
+     o Added SOS PASTECMDLINE SETTAB INSTAB STARTBLOCK and ENDBLOCK.
+     o Added EXTRACT FIELD.
+     o Added shadow() boolean function to determine if the cursor is
+       on a shadow line.
+     o Under Win95/NT, THE can now use Object Rexx, Personal Rexx,
+       Enterprise Rexx and uni-REXX interpreters in addition to the 
+       default interpreter, Regina.
+     o Added support for uni-REXX 2.7.0 under Unix.
+     o Added QUERY and EXTRACT COLOUR (alternate spelling for COLOR)
+     o Added [SET] UNDOING to enable the saving of changed lines to
+       be avoided. This makes large changes or deletes slightly quicker
+       at the expense of not being able to RECOVER those lines affected
+       while UNDOING ON is in effect.
+ --- Changed commands or behaviour:
+     o EXTRACT RESERVED format has now changed. Originally the format 
+       of the returned string was:
+         +---------------
+         line-number foreground background modifier text...
+         eg. -1 red white normal This is a reserved line
+         +---------------
+       The new format of the returned string is:
+         line-number modifier [modifier[...]] foreground on background text...
+         +---------------
+         eg. -1 red on white This is a reserved line
+             -2 bold reverse white on black This is a reserved line
+         +---------------
+       This new format now ensures that the contents of the reserved line
+       can be extracted from the returned value. The following example
+       is guaranteed to work on colour or mono displays.
+         +---------------
+         Parse Var reserved.1 . 'on' . text
+         +---------------
+     o Added FULL as optional parameter to LEFT and RIGHT commands.
+     o Changed the behaviour of cursor movement in COMPAT XEDIT to be
+       more consistent.
+     o Slight change in the way THE determines the name of a macro to
+       execute.  Assuming the value of MACROEXT is "the" and you have
+       a macro called fred.the in the current directory, then the
+       following commands are equivalent:
+         +---------------
+         ====> macro fred
+         ====> macro fred.the
+         ====> fred          /* assumes IMPMACRO is ON */
+         ====> fred.the      /* assumes IMPMACRO is ON */
+         +---------------
+       In previous versions, THE would always append the MACROEXT, so
+       macro fred.the would attempt to find the file fred.the.the.
+     o There is now only one help file; called THE_Help.txt rather
+       than one for each platform/terminal type.  THE_Help.txt replaces
+       the *.hlp files.  The only difference between these files was the
+       default key definitions.  These are now in the one table.
+     o Changed the comm.the and uncomm.the sample programs to support
+       HTML comments.
+     o Changed the match.the sample program to support LaTex begin/end
+       pairs.
+     o Added [Column|CURSOR] options to SPLIT and JOIN commands.
+     o Inserting of lines greater than WIDTH setting, either via INPUT
+       or JOIN are now truncated, and the message "Truncated" displayed.
+     o Blank lines are now saved for use with RECOVER command.
+     o With the addition of the SET FNAME, FILENAME etc commands, it
+       was necessary to change the value returned for EXTRACT /FNAME.
+       Prior to this release, EXTRACT /FNAME returned the full filename
+       of the current file.  EXTRACT /FNAME in this release, returns
+       the filename portion of the full file name; excluding the file's
+       extension.  To achieve the same functionality as before, use
+       EXTRACT /FILENAME.
+     o Added a new make target; help. This builds the THE_Help.txt
+       from the source code.
+     o QUERY command now ignores the current setting of MSGLINE and
+       displays all lines without scrolling, provided they all fit
+       on the screen!
+     o SET POINT did not allow numeric values. Now SET POINT .12
+       works as expected.
+     o Removed extraneaous screen displays in CANCEL, CCANCEL and 
+       SOS EDIT commands.
+     o File dates displayed in a DIR.DIR listing now have 4 digits.
+       The result of this is that file names now start in column 38
+       instead of 36.  If you have any macros that rely on this
+       position, they will need to be changed.
+     o In previous versions, the setting of SET MSGMODE for a new view
+       of a file would be obtained from the setting of the view from
+       which the file was edited.  Thus if MSGMODE was OFF in the current
+       file, and another file was edited, then the value of MSGMODE for
+       this file would also be OFF.  This has now changed so that the
+       the default setting of MSGMODE will be ON irrespective of the
+       setting of MSGMODE in the current file.  Obviously, if SET
+       MSGMODE OFF is in your profile and SET REPROFILE is ON, then
+       the new file will have a MSGMODE of OFF.
+     o Fiddled around with the colours GREY (and GRAY) and WHITE to
+       try to get WHITE not be BOLD WHITE and GREY to be BOLD BLACK.
+     o Added OFF option to SET TABS to turn off all tab settings.
+     o The COMPAT command has changed slightly when the third parameter
+       is not supplied (function key compatibility).  Previously, if the
+       parameter was not supplied, the default key mapping for the
+       current compatibility mode would reset, removing any customised
+       key definitions.  The behaviour now is to leave any key
+       definitions intact.
+
+Version 2.4 01-Feb-97
+
+ --- Bug fixes:
+     o Fixed problem with key defined as SOS DOPREFIX EXECUTE
+       and supplied l.the prefix macro.
+     o SPLIT command issued with cursor after the end of line
+       now does not core dump.
+     o SOS EDIT on blank line now no longer core dumps.
+     o Fixed bug with "the -h" on OS/2.
+     o Fixed major problems with PRINT command; it ignored
+       effect of SET SELECT. Also corrected printing of marked
+       blocks to only print the contents of the block.  ZONE
+       settings are also noew respected for the PRINT command.
+     o Fixed various documentation bugs principally in EXTRACT
+       section.
+     o SORT command did not respect SCOPE; now does.
+     o SHIFT command now respects a marked block.
+     o Fixed some problems with cursor positioning in prefix area when
+       the prefix area includes a gap; as in COMPAT XEDIT.
+ --- New features:
+     o First release of port for DOS with VCPI.  This executable
+       also runs as an OS/2 program.
+
+Version 2.3 17-Dec-96
+
+ --- Bug fixes:
+     o Fixed syntax error with [SET] ARBCHAR, now allows specification
+       of ON or OFF without optional arbchar characters.
+     o Fixed cursor positioning errors with DUPLICATE and COPY BLOCK
+       when new focus line would not be in currently displayed lines.
+     o Fixed multiple key definitions for the "DEL" key. Now each
+       different key that could represent a "delete" key is called a
+       different name; DEL, REMOVE, DC.
+     o Disable [SET] AUTOSAVE on psuedo files.
+     o Change commands with a parameter of '*' for number of occurrences
+       to change, will use the file's line width to determine the maximum
+       number of changes to make rather than 2147483001. The use of the
+       rather large number made it appear that THE was stuck in an infinite 
+       loop.
+     o Fixed bug with HEX string targets.
+     o Fixed bug with segmentation fault caused by:
+         +---------------
+         ====> the file.one
+         ====> statusline off
+         ====> the file.two
+         +---------------
+       This fix also fixes the error where if you have set STATUSLINE OFF
+       and then run SET COMPAT, which turns STATUSLINE ON.
+     o Fixed "feature" with exit codes from Unix commands called from
+       the run_os() function.  All exit codes were multiples of 512.
+     o Fixed bug with CDELETE command, positioning cursor incorrectly
+       on line after deleting characters.
+     o Fixed bug with CAPPEND, CREPLACE and CINSERT which did not allow
+       for leading or trailing spaces in text argument.
+     o Fixed bug with default file types displayed in DIR.DIR file. The
+       documentation for [SET] DIRINCLUDE states that the default is
+       *; ALL file types, but the actual default setting was NORMAL,
+       ARCHIVE and DIRECTORY files.  This caused me an hour of debugging
+       when I couldn't see any files on a CD :-(
+     o Fixed bug with all SET commands that use the M (middle) position
+       specifier. Commands like CURLINE, SCALE, TABLE etc. would core
+       dump under Unix.
+     o Fixed minor bug with error messages displayed for invalid file 
+       name and/or file path.
+     o Fixed a problem with PUT command. If PUT was issued while in a 
+       read-only directory, the temporary file could not be created.
+       The temporary file now is created in a known, writable directory.
+     o A bug with CLOCATE and an absolute target.  If the cursor was
+       located in the filearea and to the right of the current column
+       position, the new current column position as specified by the 
+       absolute target would not be changed.
+     o Fixed a long-standing bug with block prefix commands.  When one
+       block prefix command is entered, and another prefix command (not
+       the other end of the block prefix command), the block prefix
+       command executes as though the other end of the block prefix
+       command was entered.
+     o Fixed bug with [SET] CMDLINE OFF when run from profile file.
+     o Fixed bug with ETMODE default settings when running with XCurses.
+     o Fixed error message that is displayed when READV CMDLINE is called
+       with no command line.
+     o Fixed implied extract functions; position.2() amd position.3().
+       They now produce the correct results.
+     o Fixed core dump when using GET command and file contains lines
+       greater than maximum width.
+     o Worked around bug in ncurses;  the cursor would disappear when
+       in insert mode.
+     o Fixed cosmetic bug when marking a block in one view with an
+       existing marked block in the other view in split screen mode.
+     o Fixed bug with X and XX prefix commands when current line was
+       to be excluded.
+--- New commands:
+     o Added PREVWINDOW command; complement of NEXTWINDOW; to move to
+       the previous file in the ring.
+     o Added [SET] ALT command to allow the alteration counts to be
+       changed.
+     o Added REPEAT command.
+     o Added [SET] MOUSE command and new options to QUERY, EXTRACT
+       and MODIFY commands.
+     o Added [SET] HIGHLIGHT command and new options to QUERY,
+       EXTRACT and MODIFY commands.
+     o Added PRESERVE and RESTORE commands.
+     o Added SET MACRO command.
+     o Added COMPRESS command.
+ --- New features:
+     o Multiple arbchar character matches now work in targets.
+       Thanks to Regis Bossut for implementing this!
+       ARBCHAR support in the CHANGE command still to be done :-(
+     o In mouse-supported ports, Right Button Press on the IDLINE will
+       execute PREVWINDOW command.
+       Also, double-clicking the Left Mouse Button on a file in the
+       DIR.DIR file, will execute SOS EDIT.
+     o In memory REXX macros now supported with optional [REXX] keyword
+       in DEFINE command.  In REXX supported ports, you can now do something
+       like:
+         +---------------
+         ====> define f1 rexx if after() then 'sos firstcol'; else 'sos endchar';
+         +---------------
+       This will then do the same as the SOS STARTENDCHAR command.
+     o Added Win32 platform support. THE now runs as a native, console
+       application under Win95 and WinNT.  The mouse is supported as are
+       long file names.
+     o Added ability to reassign mouse events via the DEFINE command.
+     o Selectable highlighting of lines now available.  It is possible
+       to display selected lines in a diferent colour. See [SET] COLOUR
+       for new HIGHLIGHT and CHIGHLIGHT options.
+     o Changed the file display in DIR.DIR under Unix platforms to show
+       symbolic links as 'ls -l' shows them.
+     o Added support for changing the default behaviour of THE 
+       where the behaviour of XEDIT and KEDIT differ. eg. COVERLAY
+       command.
+     o Added support for ACLs under AIX.
+     o High-order characters in the Latin-1 character set can now be entered
+       with a "compose" key under XCurses port.
+     o THE error messages are written to the pseudo REXXOUTPUT file immediately
+       after the command that caused the error.
+ --- Changed commands or behaviour:
+     o When multiple files are in the ring and you exit from one of these,
+       the file in the ring PRIOR to the file exitted will become the new
+       current file.  The previous behaviour was to make the NEXT file in
+       the ring the current file.  The new behaviour is more intuitive,
+       particularly when editing files from the DIR.DIR file and there are
+       other files in the ring.
+     o QUERY RING has changed to report files in the ring beginning with the
+       current file rather than the first file edited.
+     o Commands that can result in multiple lines being changed, like
+       CHANGE, LOWER, UPPER, etc. will now update the alteration count
+       once per command rather than once per line that has changed.
+     o Added support for the System V compiler under SunOS. If /usr/5bin
+       is in the PATH before running configure THE, and you do not have
+       gcc or acc, then the System V compiler (and curses) will be used.
+     o Allowed greater range of punctuation characters to be used as string
+       target delimiters.
+     o Altered parsing of command line to allow for commands and arguments to
+       abut one another.  This allows for 'next 5' to be specified as 'n5'
+       and also more obscure command syntax like 'upper$fred'; equivalent to
+       existing 'upper /fred'.  The downside of this is that macros which begin
+       with a valid THE command abbreviation, and follow with a delimiter will
+       be treated as a THE command, NOT as an implicit macro. eg. Suppose you
+       have a macro called upp.fred, you have IMPMACRO ON, and you attempt to
+       call that macro from the command line implicitly with ====> upp.fred, THE
+       will attempt to execute the UPPER command with a target of the named line;
+       .fred rather than your macro.
+     o Added support for multiple ?s in ? (retrieve) command.  eg. specifying ??? 
+       will now return the third last command entered on the command line.
+     o The SOS ENDCHAR and SOS STARTENDCHAR commands now work while in the
+       prefix area.
+     o CHANGE command, when the target is a BOX BLOCK, will now change
+       strings within the column bounds of the BOX, rather than all
+       occurrences on the line.
+     o DEFINE command now has option to assign functionality to mouse
+       events.  The syntax for this includes a specification of which
+       THE window the mouse event is to be executed in.  See the
+       default mouse event assignations for valid window names.  These
+       names are a subset of the valid areas that can be changed colour
+       with the [SET] COLOUR command.
+     o SHOW command now displays mouse event assignations.
+     o Added new subcommand to CURSOR; MOUSE.  This command moves the
+       text cursor to the last position that a mouse event occured.
+       This command is intended for use when redefining mouse events.
+     o Added HIGHLIGHT and CHIGHLIGHT options to [SET] COLOUR command.
+     o Added LINEFLAG and INPUTMODE options to QUERY, EXTRACT and STATUS.
+     o Changed the behaviour of the ENTER key while in the FILEAREA.
+       Originally, when INSERTMODE was ON, the ENTER key would add a
+       blank line, and when INSERTMODE was OFF, the ENTER key would
+       simply move down a line.  The behaviour now is determined by the
+       setting of INPUTMODE.  With INPUTMODE OFF, the cursor always moves 
+       down a line.  With INPUTMODE LINE, the default,  a new line is 
+       always added when the ENTER key is pressed.
+       INSERTMODE FULL, which is intended to be be similar to XEDIT
+       power input mode has not been implemented yet.
+     o The CHANGE command can now be run with no parameters, to re-execute
+       the last change done.
+     o Added extra, optional parameters to [SET] COMPAT command.  The first
+       new parameter allows the user to change the feel of THE to mimic
+       the default behaviour of XEDIT, KEDIT or THE.  The second new parameter
+       determines the default function key binding to be used, again
+       compatible with THE, XEDIT or KEDIT.
+       The first parameter of the [SET] COMPAT command determines how THE 
+       will look; the second how THE will feel, and the third the default
+       function key bindings.
+     o Added extra parameters to [SET] PREFIX command to allow the user to
+       specify the width of the prefix area and any gap between the prefix
+       area and the filearea.
+     o With the addition of more punctuation characters as valid target
+       delimiters (including the underscore character '_'), the CONTROL_CHAR
+       command has been renamed to CONTROLCHAR.
+     o Several values returned by EXTRACT now respect XEDIT compatibility
+       when in COMPAT = XEDIT. They are:
+         CURLINE, LINE, LINEFLAG, POINT, SELECT
+     o OVERLAYBOX now supports line blocks.
+     o The A and I prefix commands now move the cursor to the file area.
+
+Version 2.2 26-May-96
+
+ --- Bug fixes:
+     o Fixed a small memory leak when quiting from a file.
+     o Some colours were not behaving consistantly.  This was corrected.
+       eg REVERSE is now BLACK on WHITE, NOT reverse of the current
+       colour. WHITE is now a bright white. The original WHITE is
+       now GREY or GRAY.
+     o Fixed bug with SOS TABWORDB. When the first word in the line
+       started in column 2, the cursor would go to column 1.
+     o Fixed bug with 'EXTRACT /POINT */'. This, or any parameter with
+       arguments, would only work if it was the last parameter in the
+       list of parameters to EXTRACT.
+     o Fixed small bug with MACROPATH.
+     o Fixed [SET] RESERVED to respect spaces after the last attribute
+       specifier. Now it is possible to have spaces preceding the reserved
+       text.
+     o under OS/2 (and probably DOS), when a DISK FULL error occured when
+       writing a file, the file could not be closed and therefore could not
+       be removed while returning the file to its original state.
+     o box commands COPY BLOCK and MOVE BLOCK now respect scope.
+     o Fixed bug with trailing spaces on command line. (Introduced in 2.1)
+     o Fixed bug under HP-UX with ACLs on NFS mounted disks. Files can now
+       be saved, but any ACLs are lost on the original files.
+     o If CURLINE M was in effect, and MOD CURLINE was issued, the response
+       would be SET CURLINE M+0. M+0 is an invalid specification.
+     o SET SCREEN now adjusts CURLINE setting when screen size changes.
+     o MODIFY command would always append a space after the SET command
+       returned.
+     o Fixed problem with setting RESERVED, SCALE, TABL or HEXSHOW lines
+       the same as CURLINE. You get an error if the position is the same
+       as CURLINE.  Similarly it is an error to set CURLINE to a position
+       which is already occupied by one RESERVED, SCALE, TABL or HEXSHOW.
+     o Fixed bug with SET PREFIX OFF when issued from CMDLINE or from PREFIX
+       area.
+     o Fixed bug with macros calling other macros. If an EXTRACT was issued
+       from within one macro after calling another macro, the command would 
+       be rejected.
+     o Fixed bug with REXX macro containing REXX SAY command with no
+       arguments and REXX output captured to a file; a line of junk would be
+       inserted into the REXXOUTPUT file.
+     o Changed output of Q TABS to respond to INCR n if tabs were set with
+       INCR option.
+     o Fixed problem with TABS output from 'STATUS file' to not truncate the
+       tabs string.
+     o Fixed bug with contents of cmdline.3 after EXTRACT /CMDLINE/.
+     o Fixed bug with end() and blank() not returning correct values in
+       certain circumstances.
+     o The retrieve last command command; ? retrieved the wrong command. 
+     o Fixed core dump when attempting to edit a file in a directory
+       that doesn't exist from the OS command line. eg
+         +---------------
+         % the xyx/abc
+         +---------------
+       where the path xyz does not exist
+     o Fixed core dump when issuing SET SCREEN with no operands.
+     o Fixed up CURSOR ESCREEN when issued in split screen mode. It
+       wouldn't move to the correct place.
+     o On some platforms, a core dump would occur when trying to edit a
+       file with lines longer than the maximum line length.
+     o Fixed bug with negative offset paragraph indents.
+     o Fixed bug with CURSOR FILE when display had been scrolled 
+       horizontally.
+     o Editing with split screens is more stable.
+     o PUT now respects SET STAY
+     o REDRAW command now redraws screen correctly.
+     o Fixed problems with moving WORD and COLUMN blocks.
+     o Fixed a bug that showed up in SET COMPAT where the redefinition
+       of the ENTER key would cause a core dump.
+     o Fixed minor bug in parsing various [SET] commands.  More than
+       one space before a parameter would invalidate the parameter.
+ --- New commands:
+     o Added [SET] CURSORSTAY to set the behaviour of the cursor when
+       scrolling the file with FORWARD or BACKWARD.  Originally, with
+       the cursor in the filearea, when a FORWARD or BACKWARD command
+       was executed, the cursor would move to the current line (unless
+       SET COMPAT XEDIT/KEDIT was in effect.  The default behaviour is
+       now to leave the cursor on the same screen line when the file
+       scrolls (CURSORSTAY ON). This command allows for the original
+       behaviour; with COMPAT THE, to be selected.
+     o Added new EXTRACT option; SHOWKEY.  This option allows the macro
+       writer to extract the commands assigned to a key after having run
+       a READV KEY command.
+     o Added a new sample macro; spell.the. This provides spell checking
+       capabilities in THE.  This macro requires International Ispell
+       Version 3.1 or above and REXX support.
+     o Added a new sample macro; demo.the. This macro is a self-running
+       demonstration of THE concepts and commands. It requires REXX
+       support.  Run it via: the -p demo.the demo.txt
+     o Added FIND, FINDUP, FUP, NFIND, NFINDUP and NFUP commands.
+     o Added CLOCATE and CDELETE commands, but with no string targets.
+     o Added COLUMN option to QUERY and EXTRACT commands.
+     o Added BLOCK option to QUERY (already in EXTRACT) command.
+ --- New features:
+     o This release is the first to run as a native X11 application.
+       Features unique to the X11 version include; resizing of the X 
+       window by dragging the window border and mouse support, including 
+       cursor positioning, marking blocks etc.
+     o The method of reading files from the command line and processing
+       the profile file has changed dramatically.  This was done to
+       enable the processing of all commands from the profile file. As
+       a result, a new comand line switch; -b, is required to execute
+       a profile file against a file (or files) in batch mode.  This is
+       particularly necessary when run as a cron job under Unix.
+     o Added new external function; run_os().  This function enables
+       macro writers the ability to run an OS command with stdin coming
+       from a REXX "array", and stdout and stderr going to a REXX "array".
+     o Added [SET] XTERMINAL to specify which program to run when an
+       OS, DOS or ! command is executed without arguments.
+     o The source distribution has been reconfigured with GNU autoconf.
+       This should make configuring on different Unix platforms
+       simpler.
+     o Added APPENDIX 2 to explain how THE handles the keyboard.
+     o Added APPENDIX 3 to document the default mouse behaviour.
+     o Added -u display_length command line switch to allow THE to be 
+       used as a non-line mode editor.
+     o A HTML version of THE reference manual can be generated from the
+       source code.  Run "make html" to build the HTML reference files.
+       Start at index.htm.
+ --- Changed commands or behaviour:
+     o The name of the key associated with the curses KEY_RETURN
+       has been changed from "ENTER" to "RETURN".
+     o Rationalised the naming standard for function keys.  This
+       could break existing profile key definitions. Check APPENDIX 2
+       for details.
+     o Added the optional argument; ALL to SHOWkey. This will
+       create a new "pseudo" file showing all key default key
+       definitions followed by any redefined keys.  The format
+       of the display is suitable for using as a macro to set all
+       key defintions to the state they were in when the 
+       SHOWkey ALL command was issued.
+     o Default for MSGLINE is now ON 2 5 OVERLAY.
+     o Added * OFF option to [SET] RESERVED
+     o Added * option to 'EXTRACT /RESERVED */'
+     o Added TYPEAHEAD to output from STATUS, and allowed it as a valid
+       QUERY and MODIFY option.
+     o Added CMDLINE option to READV command.
+     o Default setting for CURLINE in THE compatibility now M; same as for
+       XEDIT and KEDIT compatibility modes.
+     o Added SCREEN to QUERY, MODIFY, and EXTRACT.
+     o Removed source files: extcurs.c, bsd.c
+     o When displaying 2 views of the one file, both views are updated
+       simultaneously.
+     o Added RING option to QUERY and EXTRACT commands.
+     o Some default key definitions have changed; notably the default
+       assignments for F6, F11, and F12 to be consistent across platforms
+       and because '?' command now works :-)
+     o The CONTROL_CHAR and FILLBOX commands, will now leave the cursor
+       positioned in the file rather than at the end of the message line.
+     o Changed the format of colour specifiers; THE now supports the
+       optional "on" between foreground and background colours.
+       eg: red on blue, is now allowed, as well as: red blue
+     o In XEDIT compatibility mode, it is now possible to move the cursor
+       onto the *** Top of File *** and *** Bottom of File *** lines. This
+       was done to enable the cursor to be moved with the mouse when the
+       mouse is pressed above or below the file limits.
+     o The output from SHOWKEY ALL, now has commands enclosed in double
+       quotes (") instead of single quotes ('). This was done to allow
+       for key definitions that contain hex strings.
+     o Added NONE option to [SET] EOLOUT
+     o Expanded [SET] ETMODE ON to allow for specifying exactly which
+       characters are to be displayed as themselves. This will be
+       beneficial to non-english language users.
+     o Cleaned up the documentation and enabled generation of an HTML
+       version of the THE manual.
+     o Allowed CMATCH command to be executed from command line, and
+       more importantly, from within a macro.
+     o Added optional command to be executed after LOCATE command.
+     o Changed the key mapping significantly to provide the most
+       logical key mapping for commonest keyboards; those with 12
+       function keys. See Appendix 2 for key mappings.
+     o SPLIT, SPLTJOIN and JOIN commands now work from the command
+       line and act from the current focus column.
+     o More performance improvements have been made;
+       LOCATEing a string with a trailing space is up to 7 times faster
+       CHANGEing lines in a large file is also significantly faster.
+
+Version 2.1 24-Jun-95
+
+ --- Bug fixes:
+     o Bug fixed with ALL followed by DEL *
+     o Could not find a named line if the named line was the
+       "Bottom of File" marker.
+     o Fixed cursor positioning errors if [SET] SCALE, TABLINE or
+       RESERVED were executed while in filearea and the cursor was
+       on the line where the scale, tab or reserved line is to be
+       displayed.
+     o copying lines from one file (with SELECT 1 - from ALL) copies
+       lines NOT selected. SCOPE ALL also ignored in copy.
+     o PUT and PUTD did not copy the correct number of lines after ALL
+       command
+     o QUERY TABKEY and SET TABKEY were not consistant. QUERY TABKEY
+       returns settings as per SET TABKEY.
+     o OVERLAYBOX now respects SCOPE
+     o Fixed a core dump bug with implied extract under OSF/1.
+     o Scale line was not displaying past the end of ZONE.
+     o SOS DELWORD now positions the cursor correctly
+     o bug with 'c /x   //' on some systems fixed.
+     o DUPLICATE, when assigned to a key, caused cursor to move
+       strangely
+     o LEFT and RIGHT commands allowed in read-only mode.
+ --- New commands:
+     o Added OSREDIR command.
+     o Added a new sample macro; compile.the. This is a macro that
+       will compile the current C program, and enable the stepping
+       through, backwards and forwards, each error message, making
+       each line associated with an error the focus line. Normal
+       editing is still possible, although slower.
+     o Added CAPPEND,CFIRST,CINSERT,CLAST,COVERLAY,CREPLACE commands.
+     o Added COLUMN option to CURSOR command.
+     o Added LSCREEN option to EXTRACT command.
+ --- New features:
+     o HP-UX version will preserve Access Control Lists (acls) on files
+       if the file is saved with the same name. The directory list
+       (DIR.DIR) also indicates if a file has acls associated with it
+       by displaying a '+' at the end of the file permission string.
+     o The OS/2 version preserves Extended Attributes on files if the
+       file is saved with the same name.
+     o the 'pseudo' files DIR.DIR and REXX.$$$ are now REALLY pseudo
+       files. No actual file is created as a result of the DIR/LS
+       commands or from REXX output. Also the filename details
+       displayed on the idline reflect the contents of the file.
+     o THE can now read Apple Macintosh text files.
+     o Although not strictly a new feature in this release, it should be
+       mentioned that THE will work with both REXX/imc and REXX/6000 on
+       each platform that each of these interpreters is available.
+ --- Changed commands or behaviour:
+     o SOS MAKECURR now correctly does nothing if executed from the
+       command line
+     o Added another option to [SET] EOLOUT; CR, to write out files
+       compatible with the Apple Macintosh.
+     o Several performance improvements have been made:
+       Reading and writing of files is now up to 3 times quicker.
+       Operations towards the end of files with many lines is now
+         quicker.
+     o GET command now has the options, FROMLINE and NUMLINES to read
+       a portion of a file.
+     o Default width reduced from 2048 to 512
+     o all commands should now allow trailing spaces on the command
+       line
+     o Using BSD curses now incurs a penalty; the bottom line of the
+       screen is not used. This is because BSD curses automatically
+       scrolls the screen when a character is displayed in the bottom
+       right corner. Now that THE can be configured to have different
+       portions of the editor displaying on the bottom line, it was
+       easier to reduce the number of lines rather than try to cater
+       for all combinations of configurations.
+     o [SET] TAB can now use specific tab columns as well as INCR and
+       QUERY TAB, and STATUS now display the actual tab columns in
+       effect.
+
+Version 2.0P1 11-Feb-95
+
+ --- Bug fixes:
+     o Fixed cursor positioning error when screen was scrolled to the
+       left using CURSOR LEFT and SET VERIFY n m (where n > 1) was
+       in effect.
+     o Changed MSG and CMSG so they work from within the profile file.
+     o Refresh the screen before accepting keystroke in READV.
+     o Allow minimum abbreviation for BOTTOM command to be B.
+     o Allow minimum abbreviation for [SET] SCALE command to be SCAL.
+     o Fixed problems when using COMPAT command in a profile.
+     o Fixed some problems with prefix macros.
+     o Fixed Extended Curses port so that a screen of other than 80x24
+       is now possible.
+ --- New commands:
+     o Added HIT command.
+     o Added FILE option to CURSOR command.
+     o Added a new sample macro; l.the. This is a prefix macro that
+       can be used as a template for other prefix macros.
+ --- Changed commands or behaviour:
+     o Profile processing. Under Unix, THE now executes a "global"
+       profile file from $THE_HOME_DIR and then the "local" profile
+       file in $HOME.
+     o The order of Line, Col, Size on the IDLINE has changed in XEDIT
+       compatibility mode to Size, Line, Col.
+
+Version 2.0 26-Jan-95
+
+ --- Bug fixes:
+     o Fixed cursor positioning error when screen was an odd number of
+       columns wide.
+     o Fixed problem with previous file's contents and command line
+       remaining displayed when editting another file. (Only reported
+       under AIX).
+     o Changed code again to handle multiple commands on the command
+       line AND to ignore commands issued when no files are in the
+       ring (excluding any 'edit' commands).
+     o Fixed DEFINE to not clear a key defintion until the validation
+       of the new command(s) was complete.
+     o Fixed problem with core dumps when a command was passed to the
+       operating system from within a profile file.
+     o Fixed bug in CURLINE when specfying a negative position. (Due to
+       changing unsigned char to char)
+     o Fixed bug in displaying extended characters in ETMODE.
+     o Fixed bug in executing prefix commands after a TABPRE command.
+     o Fixed bug in SHIFT LEFT when the length of the line being
+       shifted was < first column of ZONE.
+     o Text entered into the main window is displayed with the correct
+       attributes.
+     o Fixed bug in entering prefix commands when in the last column
+       of the prefix area; the cursor would wrap to the next line; now
+       it stays in the last column of the prefix area.
+     o extracting values using an item abbreviation would result in
+       the REXX macro being set to the abbreviation rather than the
+       full name of the item. The full name of the extracted item is
+       now used.
+     o fixed a bug when moving a box block.
+     o SPLIT, JOIN, and SPLTJOIN did not account for any pending
+       prefix commands or marked block.
+     o Changed all references to keyboard return values from short to
+       int. This is for support of DEC OSF/1 platform.
+     o The use of hex strings as an argument to the TEXT command
+       defined to a key, caused problems. ie DEFINE F1 TEXT X'84'
+       was altered after the first use of F1 key.
+ --- New commands:
+     o Added [SET] DISPLAY, SELECT, SHADOW, SCOPE.
+     o Added ALL command.
+     o Added CURSOR command.
+     o Added LEFT, RIGHT and RGTLEFT commands.
+     o Added CURSOR option to EXTRACT command.
+     o Added TABL,SCALE,X,XX,S prefix commands.
+     o Added [SET] RESERved , [SET] SCALE and [SET] TABLine commands.
+     o Added [SET] COMPAT command, to attempt to mimic the default
+       behaviour of XEDIT and KEDIT.
+     o Added extra SOS commands:
+       LEFTEDGE,RIGHTEDGE,PREFIX,QCMND,TABFIELDF,TABFIELDB,
+       FIRSTCHAR,FIRSTCOL,LASTCOL,BOTTOMEDGE,TOPEDGE,CURRENT,
+       MARGINL,MARGINR,PARINDENT,TABB.
+     o Added new macros, rm.the to delete from disk the file on
+       the focus line of the DIR.DIR file, and words.the to count
+       the number of words to a target.
+     o Added COLUMN and WORD options to MARK command.
+     o added READV to enable a REXX macro to obtain keystrokes from THE.
+     o added [SET] TYPEAHEAD, [SET] HEXSHOW commands
+     o added [SET] STATUSLINE, [SET] MSGLINE, [SET] IDLINE commands
+     o added [SET] POSITION command
+ --- Changed commands or behaviour:
+     o Default command for Alt-M/Ctrl-V is now MOVE BLOCK RESET not
+       MOVE BLOCK.
+     o FORward 0 now makes the "Top of File" line the current line.
+     o BACkward 0 now makes the last line of the file the current line.
+     o When the "Bottom of File" line is the current line, FORward
+       will make the "Top of File" line the current line. Similarly
+       for BACkward when on "Top of File".
+     o [SET] CMDline OFF option added.
+     o [SET] ARBchar now supports multiple character matches
+     o In previous versions of THE, any line in a macro file, or
+       profile file, that began with '/*' was treated as a comment
+       line and the line ignored. For implementations of THE without
+       REXX support, execution of a REXX macro caused mayhem. To
+       overcome this situation, any macro file that is used with THE
+       without REXX support must have as its first line the following
+       comment string starting in column 1:
+         +---------------
+         /*NOREXX*/
+         +---------------
+       All other comments throughout the file can be valid REXX
+       comments (ie. start and end with /* */)
+     o A new boolean function incommand() has been added which
+       has the same functionality of the previous command(). The
+       boolean command() function now returns 1 if the command
+       line is on.
+     o Reinstated SOS EXECUTE command.
+     o the valid_target() external function now returns two values;
+       the first line affected by the target and the number of
+       lines affected by the target. If the target is an invalid target
+       ERROR is returned. If the target is valid, but the target is
+       not found, NOTFOUND is returned. Sample macros altered to use
+       new features.
+     o NEXT and UP commands do not support negative relative targets.
+       eg. NEXT -5 , UP -* are now invalid commands. This is to be
+       consistent with XEDIT and KEDIT.
+     o ADD command now can be specified as just "A" and when issued
+       from the command line, moves the cursor to the first blank line
+       added.
+     o The default behaviour of the ENTER key has changed. When the
+       ENTER key is hit while in the prefix area, if there are any
+       pending prefix commands, they are executed, otherwise the cursor
+       is moved to the first line of the next line as it used to do.
+     o [SET] TABSIN ON in the profile file will not increment the
+       ALT count, nor include the changed lines in the recovery list.
+     o The SOS ENDCHAR command was incorrect in that it would move the
+       cursor to the start of a line if the cursor was past the end of
+       the line as well as moving the cursor to the end of the line if
+       it wasn't past the end of the line. The correct behaviour of
+       SOS ENDCHAR is to move to the end of the focus line no matter
+       where the cursor currently is.  For those of you (like me) who
+       are used to the old behaviour of SOS ENDCHAR, a new SOS command;
+       STARTENDCHAR has been added to THE.
+     o [SET] BACKUP now has TEMP and KEEP options.
+     o The FILE command behaviour has been changed. Previous versions
+       would not write out a new version of the file if the alteration
+       count was zero and no filename was specified. FILE now behaves
+       the same as XEDIT and KEDIT.
+     o Added ability to specify individual tab columns in SET TABS
+       command.
+ --- New features:
+     o Changed the method of displaying the screen. This was done to
+       cater for shadow, tab,scale and reserved lines and to increase
+       performance.
+     o Added "-r" command line switch to operate THE in readonly mode.
+       This is a real readonly mode; it is not possible to change the
+       contents of the file.
+     o Repeating targets with boolean operators are now supported.
+     o The targets BLANK and ~BLANK are now supported.
+     o A command can now follow a target on the command line without
+       requiring a linend character separating the target and command.
+         +---------------
+         eg. :3 del
+         is a valid command. You can even enter
+         3 3 3 3
+         on the command line to move the current line 12 lines.
+         +---------------
+     o Colour settings are now stored with the file, so different files
+       can have different colours.
+     o Wordwrap behaves like KEDIT wordwrapping. When the right-most
+       character of the line exceeds the right margin, the last word
+       wraps to the next line.
+     o No limit (apart from available memory) on the number of prefix
+       commands that may be entered. Used to be a limit of 20.
+     o Key names no longer need to be expressed in exact case. C-A and
+       c-a are equivalent. Also, where appropriate, keys have the same
+       name across platforms.
+     o THE now can be compiled with AIX Extended Curses. This enables
+       colour support when run in an aixterm window.
+
+Version 1.5 01-Dec-93
+
+ --- Bug fixes:
+     o It is now possible to issue the commands; EDIT,THE and XEDIT
+       from within a macro or profile file.
+     o [SET] CASE settings now inherited by subsequent files editted.
+     o [SET] CASE now does not reset settings to default if they are
+       not specified; it leaves the values as they were last set.
+     o default value for ZONE end is now the maximum line width not
+       32766 (maximum possible line length)
+     o Bug in CHANGE command.
+       If specifying a trailing space to change a string at the end of
+       a line to null, one too many characters were removed.
+       eg. c/_N // * 1   a line ending in "abc_N" ended up ending
+           in "ab"
+       When changing text at the end of a line and specify more than
+       one space at the end of the target, the target is never found.
+       eg. c/_N  // * 1   a line ending in abc_N will not be found
+       Handling of spaces after the real end of the line handled
+       correctly now.
+     o Fixed a bug on Unix systems where a key that returned nul would
+       execute 'add 1'.
+     o Changed the default handling of 'sos delback' and 'sos delchar'
+       under UNIX.
+       The default key sequences of these keys has been reversed. If you
+       prefer to keep the old definitions, define OLD_DELCHAR_DELBACK on
+       the compile line. This option will disappear in a future version
+       so if you are really attached to the old behaviour, you had
+       better let me know and have a good reason :-) Thanks to Andreas
+       Schott for pointing this out!
+     o Added SRC line to makefile for SystemVR4 block.
+     o The default value for THE_HOME_DIR under Unix is /opt/THE, if
+       SYSVR4 is defined when compiling or /usr/local/THE otherwise. The
+       major change is the uppercasing of THE (THE's correct acronym)
+     o [SET] MACROPATH now sets the correct path value.
+     o Fixed bug with prefix command like 'aa'. The A command would be
+       executed with a large number of lines added or you would get
+       a core dump :-(
+     o After bringing a suspended THE session to the foreground, THE
+       correctly refreshes.
+     o When shelling out, the screen attributes are returned to NORMAL,
+       at least on some platforms;
+     o Fixed the occasional strange behaviour of the command line having
+       some of the contents of the prefix area. (It was VERY obscure!)
+     o SOS DELWORD would increment ALT and not allow SOS UNDO to work.
+     o C-ENTER now valid for DOS and OS/2 versions.
+     o Ignore any command issued from a macro file if no more files are
+       left in the ring.
+     o Changed the method for splitting a path and filename under DOS and
+       OS/2. Hopefully fewer problems with ending up in the wrong
+       directory. This has also worked around the bug in BCOS2.
+     o Reexecute command,= should now reexecute the last statement
+       correctly.
+     o Printing under Unix more than once now works.
+     o Fixed a few bugs with PUT and GET.
+ --- New commands:
+     o Added TERMINAL, LASTMSG, MONITOR, POINT [*], PREFIX [SYNONYM name|*]
+       PENDING, GETENV and BLOCK extract
+       options.
+     o Added REXX macro for summing the contents of a marked BOX block.
+     o Added REXX macro for matching paired words like #ifdef/#endif.
+     o Added SORT command.
+     o Added [SET] LINEND command to support multiple commands on a line.
+     o Added [SET] ETMODE to indicate if extended characters should be
+       displayed. This is designed to handle foreign languages that use
+       the ASCII characters > 127.
+     o Added [SET] NONDisp to specify what character is displayed if
+       extended characters are not to be displayed.
+     o Added [SET] PENDing to assist with writing block prefix macros.
+     o Added [SET] IMPOS/IMPcmscp to allow operating system commands
+       to be executed from the command line without the need to prefix
+       the command with OS or !.
+     o Added COMMAND command (Just for Ian Collier ;-))
+ --- Changed commands:
+     o Added extra argument to [SET] CASE to determine case significance
+       in SORT command.
+     o The order of EXTRACT /VERSION/ and QUERY VERSION options has
+       changed.
+     o BOTTOM command makes the last line of the file the current line
+       instead of the *** Bottom of file *** line.
+     o INPUT [text] command results in the line becoming the current
+       line instead of the previous line, when issued from the command
+       line.
+     o Overhaul of commands that add a new line to fix a few bugs.
+     o STATUS now displays in 3 columns; I was starting to run out of
+       space with 2 columns. The item name is also highlighted.
+     o When compiled with REXX support, [SET] PREFIX now supports
+       prefix synonyms.
+     o PUT and PUTD now work with BLOCK as the target.
+     o [SET] TABKey changed to be simpler.
+     o [SET] ARBchar, TABSIn, TABSOut changed to allow their second
+       parameters to be specified with the OFF option.
+     o STATus command now has optional filename parameter.
+     o [SET] TABS now has 'INCR' as first operand when EXTRACTing or
+       Querying the value.
+     o MODIFY/QUERY of CMDLINE does not contain 2nd operand. This value
+       is only returned as a result of EXTRACT.
+     o There is no need to supply a final '/' with the EXTract command.
+ --- New features:
+     o REXX support for DOS is now available. This version, supplied as
+       a separate archive, contains the THE executable linked with a DOS
+       port of Regina. This version contains a DOS extender, so only runs
+       on 386s or above. This version was compiled with DJGPP, a DOS port
+       of GNU gcc. Included is go32.exe, which is the DOS extender.
+     o By default all THE macros are expected to have a file name ending
+       in ".the". The value for the macro file extension can be changed
+       with the [SET] MACROEXT command. This default extension is only
+       applicable to macros searched for in the THE_MACRO_PATH.
+     o Added defines.h to specify limits which can be safely changed in
+       the source code.
+     o Added ability to execute multiple commands from command line and
+       to assign multiple commands to a key.
+     o Now have the option to display extended ASCII codes on Unix
+       platforms.
+     o Prefix macros can now be executed. Thanks to Dave Rittenhouse
+       (david@ecst.csuchico.edu) for adding this feature.
+     o Prefix synonyms are also definable for REXX macros and standard
+       prefix commands.
+     o THE now compiles and runs with BCOS2.
+     o Added -n command line switch to enable THE to be run without
+       any profile file.
+ --- Warnings:
+     o There is an inconsistancy with Regina 0.05h in that the use of
+       implied extract with some functions will corrupt values in THE.
+       Implied extract functions that have been observed to corrupt, are
+       fname.1() and fpath.1().
+
+Version 1.4 01-Sep-93 (Not officially released)
+
+ --- Bug fixes:
+     o Changed the method for determining the filename of a backup file
+       under OS/2. Originally, if drive type not = FAT, .bak was
+       appended to full file name. Now only if drive type = HPFS is
+       .bak appended.
+     o Alteration count was being set to zero when saving a file and the
+       file could not be saved.
+     o Fixed a few minor bugs in DUPLICATE command.
+ --- New commands:
+     o Added support for semi-colon specifying an absolute line target
+ --- New features:
+     o Added support for ncurses under linux. ncurses still has a bug
+       (I believe) that causes some characters to not be cleared.
+     o emx 0.8g port now has REXX support
+     o DUPLICATE 1 BLOCK assigned to Alt-D (DOS/OS2) and ControlD (UNIX)
+
+Version 1.3 15-Aug-93
+
+ --- Bug fixes:
+     o Fixed bug with line block delete and cursor positioning.
+     o number of files being editted no longer gets out of sync when
+       an attempt to edit a new file is aborted (usually because line
+       is too long)
+     o Fixed bug in uppercase/lowercase when target was "BLOCK".
+     o sos tabwordb, sos tabwordf, and sos delword now correctly go the
+       start/end of the word if that word exceeds the width of the screen.
+ --- New commands:
+     o SOS CURSORAdj
+     o SOS DELWord
+     o [SET] MARgins
+     o [SET] WORDWrap
+     o SPlit
+     o Join
+ --- New features:
+     o Changed the highlighting of "non-printable characters" under Unix.
+     o emx 0.8g compiler support now working (excluding REXX)
+     o wordwrap has been added
+ --- Changes:
+     o The names of environment variables and the location of default
+       help and profile files has changed. See the file appendix.1 or
+       Appendix 1 of the.man for details.
+
+Version 1.2 27-Jun-93 (Not officially released)
+
+ --- Bug fixes:
+     o Previous command line contents were remaining when 'sos undo' was
+       executed on command line.
+     o THE core dumped when a 'DELETE' command was present in a profile file.
+     o THE now displays line numbers > 32k correctly.
+     o Display of long filename in window wider than 80 chars now correct.
+     o [SET] CURLine now works when called from a profile file
+ --- New features:
+     o THE now handles either forward (/) or back (\) slashes in path
+       names and converts them automatically. So you can specify d:/path
+       under DOS and OS/2 or \usr\bin under Unix. All paths are displayed
+       on the idline with the default OS path separator.
+     o added new external function, valid_target() to simplify REXX macros
+     o added new single character indicator on right end status line to
+       indicate if REXX support is present.
+       Meanings of indicators:
+         +---------------
+         First character: (colour support)
+           C - curses library supports colour and so does monitor
+           c - curses library supports colour but monitor doesn't
+           M - curses library does not support colour
+         Second character: (REXX support)
+           R - THE compiled with REXX support
+             - (blank) THE compiled without REXX support
+         +---------------
+
+Version 1.1 17-May-93
+
+ --- Bug fixes:
+     o A file with no end of line character on the last line, the last
+       line would not be included in the file.
+     o Characters that are in blocks retain their highlighting now.
+     o Fixed schange under DOS and OS/2. Cursor is now positioned
+       correctly.
+     o Writing out a file will now produce an error if the disk is
+       full and not write part of the file.
+     o GET and PUT now recognise ~ in Unix version.
+     o PREFIX ON now no longer requires the LEFT|RIGHT option. Defaults
+       to LEFT.
+     o TABPRE (to tab between main and prefix areas) now does nothing
+       if PREFIX is OFF.
+     o 'bleeding' through of one file to another on BSDish systems now
+       fixed.
+ --- New commands:
+     o BOX BLOCK COPY/MOVE/DELETE/FILL/OVERLAY
+     o LINE BLOCK COPY/MOVE/DELETE
+     o FILLBox
+     o sos_makecurr
+     o [SET] DIRInclude
+     o [D]OSNowait/[D]OSQuiet
+     o = (re-execute command)
+     o [SET] CMDArrows
+     o [SET] CMDline
+     o [SET] NEWlines
+     o [SET] MSGMode
+     o [SET] MACROPath
+     o [SET] IMPMACro
+     o [SET] NUMber
+     o [SET] HEX
+     o [SET] CLEARScreen
+     o [SET] Point
+     o [SET] REXXOUTput
+     o [SET] CLOCK
+     o [SET] HEXDISPlay
+     o SOS DOPREfix
+     o the target ALL has been implemented. This is NOT the ALL command.
+     o MACRO - execute commands from a file
+     o UPPercase, LOWercase
+     o SHift
+     o DUPlicate
+     o EXPand
+     o STATus
+     o Query
+     o EMSG
+     o SUSPend
+     o REDRAW
+     o MODIFY
+     o TEXT
+     o prefix commands: a,i,c,m,d,",<,>,/,cc,mm,dd,"",<<,>>,.xxxxx
+ --- Changed commands:
+     o insertmode now requires a parameter: ON|OFF|TOGGLE
+     o spltjoin now correctly aligns the new line under the focus line
+     o sos_* commands have been changed to separate sos commands
+     o REFRESH command now consistant with XEDIT and KEDIT. Use REDRAW
+       for old REFRESH functionality.
+ --- New features:
+     o REXX support under OS/2 and Unix(with Regina 0.05)
+     o argument passing to REXX macros/profiles
+     o EXTRACT
+     o Capture REXX trace and Say output to a file in the ring.
+ --- Commands removed (temporarily)
+     o SCREEN
+
+Version 1.0 16-Aug-92
+
+ --- Released
+     o First release to the unsuspecting public.
+     o Sent to SIMTEL and comp.binaries.os2.

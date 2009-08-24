@@ -1,0 +1,12 @@
+To compile you need:
+1) the message library,
+2) the supplemental library v2.2
+
+Target compilers: Borland C v3.1+; Micro-C v3.13
+
+Modify the path settings in COMPILE.BAT, then run COMPILE.BAT. (requires
+Micro-C)
+
+To compile with Borland C and DMake:
+just set up the programming environment as described within the
+supplemental library, then run DMAKE.

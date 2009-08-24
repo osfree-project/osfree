@@ -1,0 +1,10 @@
+0.0:Zeigt Zeilen einer Datei an, die eine bestimmte Zeichenfolge enthalten
+0.1:Zeigt die Anzahl der Zeilen an, die eine bestimmte Zeichenfolge enthalten
+0.2:Ignoriert Groá- und Kleinschreibung
+0.3:Nummeriert die angezeigten Zeilen, beginnend mit 1
+0.4:Zeigt alle Zeilen an, die eine bestimmte Zeichenfolge NICHT enthalten
+1.0:Datei
+1.1:Zeichenfolge
+2.0:Kann Datei nicht ”ffnen
+2.1:Datei nicht vorhanden
+2.2:Verzeichnis nicht gefunden

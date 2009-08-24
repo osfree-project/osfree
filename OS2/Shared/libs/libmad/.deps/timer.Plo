@@ -1,0 +1,9 @@
+timer.lo : \
+ timer.c config.h global.h H:\emx\include\stdio.h \
+ H:\emx\include\assert.h timer.h
+timer.c :
+config.h :
+global.h :
+H:\emx\include\stdio.h :
+H:\emx\include\assert.h :
+timer.h :

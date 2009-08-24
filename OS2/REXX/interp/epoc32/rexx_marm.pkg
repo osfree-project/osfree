@@ -1,0 +1,46 @@
+;
+; Language list
+;
+; Each new language, add to line starting with & and add a new "Regina Rexx" string to
+; line starting #
+; Then uncomment language filename from last list
+;
+; &IC,RU,HU,DU,SW,DA,FI,NO,IT,FR,PO,SP,GE,AM
+&TU,NO,PO,SP,GE,AM
+;#{"Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx"},(0x101f401f),3,4,0
+#{"Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx","Regina Rexx"},(0x101f401f),3,4,0
+; the Regina Rexx interpreter
+"\epoc32\release\marm\rel\rexx.exe"-"!:\system\apps\Regina\rexx.exe"
+; sample programs
+"..\demo\rexxcps.rexx"-"!:\system\apps\Regina\demo\rexxcps.rexx"
+"..\demo\animal.rexx"-"!:\system\apps\Regina\demo\animal.rexx"
+"..\demo\block.rexx"-"!:\system\apps\Regina\demo\block.rexx"
+"..\demo\dateconv.rexx"-"!:\system\apps\Regina\demo\dateconv.rexx"
+"..\demo\timeconv.rexx"-"!:\system\apps\Regina\demo\timeconv.rexx"
+"..\demo\newstr.rexx"-"!:\system\apps\Regina\demo\newstr.rexx"
+;
+; Language files...
+; AM-en, PO-pt, TU-tr, IC-is, RU-ru, HU-hu, DU-nl,
+; FR-fr, GE-de, SP-es, IT-it, SW-sv, DA-da, NO-no, FI-fi
+;
+{
+"tr.mtb"
+;"is.mtb"
+;"ru.mtb"
+;"hu.mtb"
+;"nl.mtb"
+;"sv.mtb"
+;"da.mtb"
+;"fi.mtb"
+"no.mtb"
+;"it.mtb"
+;"fr.mtb"
+"pt.mtb"
+"es.mtb"
+"de.mtb"
+"en.mtb"
+}-"!:\system\apps\Regina\default.mtb"
+;
+; install stdlib.sis
+;
+@"stdlib.sis",(0x100002c3)

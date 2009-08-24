@@ -1,0 +1,58 @@
+/*
+ *      MDIDemo.rc
+ *
+ *      @(#)mdidemo.rc	1.1 5/3/96 16:27:34 /users/sccs/src/samples/mdidemo/s.mdidemo.rc
+ * 
+ *      MDI Windows Sample Application
+ *     
+ *      resource definitions
+ */
+
+#include "mdidemo.h"
+#include "windows.h"
+
+InitMenu MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About...\tF1",       IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "&New\tF3",            IDM_NEW
+        MENUITEM SEPARATOR              
+        MENUITEM "E&xit\tESC",          IDM_EXIT
+    END
+END
+
+MdiMenu MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About...\tF1",       IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "&New\tF3",            IDM_NEW
+        MENUITEM "&Close",              IDM_CLOSE
+        MENUITEM SEPARATOR              
+        MENUITEM "E&xit\tESC",          IDM_EXIT
+    END 
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade\tShift+F5",  IDM_CASCADE
+        MENUITEM "&Tile\tShift+F4",     IDM_TILE
+        MENUITEM "Arrange &Icons",      IDM_ARRANGE
+        MENUITEM "Close &All",          IDM_CLOSEALL
+    END
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+    BEGIN 
+        MDI_APP_TITLE           "MDI Windows Sample Application"
+    END 
+ 
+RESOURCE ACCELERATORS
+    BEGIN
+        VK_F1,      IDM_ABOUT,          VIRTKEY
+        VK_F3,      IDM_NEW,            VIRTKEY
+        VK_ESCAPE,  IDM_EXIT,           VIRTKEY
+    END
+
+IDI_WILLOWS     ICON    "WILLOWS.ICO"

@@ -1,0 +1,229 @@
+.TH ASSIGN 1 "08 August 1995"
+..		$Id: ENGLISH.NRO 1.1 1997/01/27 08:09:37 ska Rel ska $
+..    Assign a drive letter to a different drive
+..    Copyright (C) 1995  Steffen Kaiser
+.. 
+..    This program is free software; you can redistribute it and/or modify
+..    it under the terms of the GNU General Public License as published by
+..    the Free Software Foundation; either version 2 of the License, or
+..    (at your option) any later version.
+.. 
+..    This program is distributed in the hope that it will be useful,
+..    but WITHOUT ANY WARRANTY; without even the implied warranty of
+..    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+..    GNU General Public License for more details.
+.. 
+..    You should have received a copy of the GNU General Public License
+..    along with this program; if not, write to the Free Software
+..    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.. 
+.SH NAME
+assign - Assign a drive letter to a different drive
+
+.SH SYNOPSIS
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] /
+.cb
+.ct ?
+.br
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] /
+.cb
+.ct status
+.br
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] /
+.cb
+.ct u
+.br
+.cb
+assign
+[/
+.cb
+.ct m
+.ct ] [/
+.cb
+.ct shadow
+.ct ] [{ 
+.cb
+dr1
+.ct [:]=
+.cb
+.ct dr2
+.ct [:] }]
+
+.SH DESCRIPTION
+.cu
+Assign
+maps a drive letter to a different drive. This mapping
+effects only the drive letter, but not the path, what makes
+.cu
+Assign
+different to 
+.cu
+Subst
+.ct , e.g.:
+.br
+With the current working paths "C:\FREEDOS" and "B:\TEMP" after the
+commands "assign B=C" and "cd C:\", the path "B:" also points to
+the directory "C:\".
+.br
+Whereas after the commands "subst B: ." and "cd C:\", the path "B:"
+still points to "C:\FREEDOS".
+
+Because this program is no TSR, do not load it via the "LOADHIGH" or the
+"LH" command.
+.SH OPTIONS
+.IP /? 
+Display a little help screen.
+.IP /SHADOW
+This option hides the resident portion of 
+.cu
+Assign
+from being
+detected easily. That includes:
+.br
+1) The memory block containing the resident portion is marked as
+a part of the system.
+.br
+2) The installation check interrupt returns "Not installed, but
+not allowed to install" rather than "Installed" or "Not installed".
+.br
+
+If the resident portion is installed with this option, but subsequent
+invokations are made without this option, a warning pops up, but
+the action is performed.
+
+The option may be abbreviated down to 
+.cb
+/SH
+.ct .
+.IP /STATUS
+Display all assigned drive letters in the form:
+.br
+dr1: => dr2:
+.br
+where 
+.cb
+dr1
+is the assigned drive letter and 
+.cb
+dr2
+the 
+drive, where dr1 points to.
+
+If there is no assigment at all, no output will be displayed.
+
+This option prevents the loading of the resident portion, if it
+has not already been installed.
+
+The option may be abbreviated down to 
+.cb
+/S
+.ct .
+.IP /u
+Uninstall a previously installed 
+.cu
+Assign
+.ct .
+.IP "dr1[:]=dr2[:]"
+This defines a drive letter assignment, where 
+.cb
+dr1
+shall
+point to 
+.cb
+dr2
+.ct . The colons ":" are optional. There are no
+whitespaces allowed between the drive letters, the colons and
+the equal sign '='.
+
+If the resident portion is not already loaded, it will be loaded
+without further notice.
+.IP /m
+Move the resident portion into the UMB area, if possible. This
+option is ignored, when the resident portion is already installed.
+.IP "no option"
+If there is neither 
+.cb
+/STATUS
+nor 
+.cb
+/u
+nor an assignment
+specified on the command line, all existing assignments are broken, so
+that all letters point to themselfs in result.
+.SH "KNOWN BUGS"
+.IP o
+Because 
+.cu
+Assign
+is no TSR itself, a loading with one of the
+commands "LOADHIGH" or "LH" may fail. If you want to load the
+resident portion high, you must specify the 
+.cb
+/m
+option.
+.IP o
+The options 
+.cb
+/STATUS
+and 
+.cb
+/SHADOW
+do not follow the
+option standard because of compatibly to the original 
+.cu
+Assign
+.ct .
+.IP o
+Later installed TSR's or a secondary command processor (shell) mostly
+prevent the uninstall process. In this case, 
+.cu
+Assign
+is not
+suspended, but remains active in memory. Use 
+.cb
+ASSIGN
+without
+any option to clear the assignment table instead.
+.IP o
+Some shells prevent that
+.ul
+ASSIGN
+finds its resident copy in memory, if
+.ul
+ASSIGN
+is installed from a secondary copy of the shell.
+.SH "SEE ALSO"
+Subst, Join
+.ne 8
+.SH CONTRIBUTERS
+.ce 6
+Steffen Kaiser
+Mittelstraáe 112/B115
+53757 Sankt Augustin - Menden
+Deutschland - Germany
+
+e-mail: Steffen.Kaiser@@FH-Rhein-Sieg.DE

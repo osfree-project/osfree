@@ -1,0 +1,4 @@
+Known bugs:
++ When starting ASSIGN from a secondary shell some shells don't let ASSIGN
+  find its resident copy. It will then load itself more than once into
+  memory or complains about that it is not loaded.

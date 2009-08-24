@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtmll-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+   Copyright (C) IBM Corporation 2003. All Rights Reserved.
+   Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.
+-->
+<head>
+<title>OS/2 Semaphore API Differences</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>OS/2 Semaphore API Differences</h1>
+
+<p>These APIs are included in your application by including the following
+definition in your application source file.</p>
+
+<pre>
+#define INCL_DOSSEMAPHORES
+</pre>
+
+<!--
+  OS/2 Event Semaphore API Differences
+-->
+
+<h2>OS/2 Event Semaphore API Differences</h2>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 event semaphore APIs.</p>
+
+<p>When multiple threads wait for an OS/2 event semaphore to post a single
+post operation to the semaphore will release all the waiting threads.. Under
+the OS/2Linux library there is a one-to-one correspondence between a post
+operation and the release of a single waiting thread. If three threads are
+waiting on an OS/2Linux event semaphore it will take three post operations
+to the semaphore to release all three threads.</p>
+
+<h3>DosCreateEventSem</h3>
+<pre>
+APIRET APIENTRY DosCreateEventSem (PSZ pszName, PHEV phev, ULONG flAttr,
+                                   BOOL32 fState);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosOpenEventSem</h3>
+<pre>
+APIRET APIENTRY DosOpenEventSem (PSZ pszName, PHEV phev);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosCloseEventSem</h3>
+<pre>
+APIRET APIENTRY DosCloseEventSem (HEV hev);
+</pre>
+<ul>
+<li>Not all the specified return codes are used.</li>
+</ul>
+
+<h3>DosResetEventSem</h3>
+<pre>
+APIRET APIENTRY DosResetEventSem (HEV hev, PULONG pulPostCt);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosPostEventSem</h3>
+<pre>
+APIRET APIENTRY DosPostEventSem (HEV hev);
+</pre>
+<ul>
+<li>This function will accept multiple posts without returning an error.</li>
+</ul>
+
+<h3>DosWaitEventSem</h3>
+<pre>
+APIRET APIENTRY DosWaitEventSem (HEV hev, ULONG ulTimeout);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosQueryEventSem</h3>
+<pre>
+APIRET APIENTRY DosQueryEventSem (HEV hev, PULONG pulPostCt);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<!--
+  OS/2 Mutex Semaphore API Differences
+-->
+
+<h2>OS/2 Mutex Semaphore API Differences</h2>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 mutex semaphore APIs.</p>
+
+<h3>DosCreateMutexSem</h3>
+<pre>
+APIRET APIENTRY DosCreateMutexSem (PSZ pszName, PHMTX phmtx, ULONG flAttr,
+                                   BOOL32 fState);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosOpenMutexSem</h3>
+<pre>
+APIRET APIENTRY DosOpenMutexSem (PSZ pszName, PHMTX phmtx);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosCloseMutexSem</h3>
+<pre>
+APIRET APIENTRY DosCloseMutexSem (HMTX hmtx);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosRequestMutexSem</h3>
+<pre>
+APIRET APIENTRY DosRequestMutexSem (HMTX hmtx, ULONG ulTimeout);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosReleaseMutexSem</h3>
+<pre>
+APIRET APIENTRY DosReleaseMutexSem (HMTX hmtx);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosQueryMutexSem</h3>
+<pre>
+APIRET APIENTRY DosQueryMutexSem (HMTX hmtx, PID *ppid, TID *ptid,
+                                  PULONG pulCount);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<!--
+  OS/2 Muxwait Semaphore API Differences
+-->
+
+<h2>OS/2 Muxwait Semaphore API Differences</h2>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 muxwait semaphore APIs.</p>
+
+<h3>DosCreateMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosCreateMuxWaitSem (PSZ pszName, PHMUX phmux,
+                                     ULONG cSemRec, PSEMRECORD pSemRec,
+                                     ULONG flAttr);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosOpenMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosOpenMuxWaitSem (PSZ pszName, PHMUX phmux);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosCloseMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosCloseMuxWaitSem (HMUX hmux)
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosAddMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosAddMuxWaitSem (HMUX hmux, PSEMRECORD pSemRec);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosDeleteMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosDeleteMuxWaitSem (HMUX hmux, HSEM hSem);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosWaitMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosWaitMuxWaitSem (HMUX hmux, ULONG ulTimeout,
+                                   PULONG pulUser);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h3>DosQueryMuxWaitSem</h3>
+<pre>
+APIRET APIENTRY DosQueryMuxWaitSem (HMUX hmux, PULONG pcSemRec,
+                                    PSEMRECORD pSemRec, PULONG pflAttr);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+</body>
+</html>
+

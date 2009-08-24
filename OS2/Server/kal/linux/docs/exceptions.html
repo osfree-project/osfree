@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtmll-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+   Copyright (C) IBM Corporation 2003. All Rights Reserved.
+   Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.
+-->
+<head>
+<title>OS/2 Exception API Differences</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>OS/2 Exception API Differences</h1>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 exception APIs.</p>
+
+<p>These APIs are included in your application by including the following
+definition in your application source file.</p>
+
+<pre>
+#define INCL_DOSEXCEPTIONS
+</pre>
+
+<h2>DosSetExceptionHandler</h2>
+<pre>
+APIRET APIENTRY DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosUnsetExceptionHandler</h2>
+<pre>
+APIRET APIENTRY DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosRaiseException</h2>
+<pre>
+APIRET APIENTRY DosRaiseException(PEXCEPTIONREPORTRECORD pexcept);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSendSignalException</h2>
+<pre>
+APIRET APIENTRY DosSendSignalException(PID pid, ULONG exception);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosUnwindException</h2>
+<pre>
+APIRET APIENTRY DosUnwindException(PEXCEPTIONREGISTRATIONRECORD phandler,
+                                   PVOID pTargetIP,
+                                   PEXCEPTIONREPORTRECORD pERepRec);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetSignalExceptionFocus</h2>
+<pre>
+APIRET APIENTRY DosSetSignalExceptionFocus(BOOL32 flag, PULONG pulTimes);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosEnterMustComplete</h2>
+<pre>
+APIRET APIENTRY DosEnterMustComplete(PULONG pulNesting);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosExitMustComplete</h2>
+<pre>
+APIRET APIENTRY DosExitMustComplete(PULONG pulNesting);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosAcknowledgeSignalException</h2>
+<pre>
+APIRET APIENTRY DosAcknowledgeSignalException(ULONG ulSignalNum);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryThreadContext</h2>
+<pre>
+APIRET APIENTRY DosQueryThreadContext(TID tid, ULONG level, PCONTEXTRECORD pcxt);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+</body>
+</html>
+

@@ -1,0 +1,12 @@
+MEM Bugs
+========
+
+Known Bugs
+----------
+
+(wishlist): No complete MS compatible output and switches ("module", "program", "debug").
+
+Bug Reports
+-----------
+
+Please report any bugs to the FreeDOS bug system at http://www.freedos.org/bugs

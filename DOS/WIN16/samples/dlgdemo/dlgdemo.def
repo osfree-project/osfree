@@ -1,0 +1,17 @@
+NAME	     DlgDemo
+
+DESCRIPTION  'Willows Software Dialog Demonstration'
+
+EXETYPE      WINDOWS
+
+STUB	     'WINSTUB.EXE'
+
+CODE	     PRELOAD MOVEABLE DISCARDABLE
+DATA	     PRELOAD MOVEABLE MULTIPLE
+
+HEAPSIZE     1024
+
+EXPORTS
+	DlgWndProc    @1
+	About	      @2
+	Dialog	      @3

@@ -1,0 +1,115 @@
+Hello hackers and helpers,
+
+This is a small guide to those of you who want to make Regina a better
+program.
+
+contents:
+   1) You want to debug but you can't set breakpoints on functions
+   2) You want to make a bug fix
+   3) You have done a bug fix
+   4) You have added a function which is exported from the library
+   5) You have added a global function or variable
+   6) Your code uses global variables or static variables
+   7) You want to port the multi-threading code
+   8) The code don't work as expected in a multi-threading environment
+   9) Never use exit()
+
+
+1) You want to debug but you can't set breakpoints on functions
+   Add the prefix "__regina_" to the function name. The file wrappers.h
+   wraps global function names to prevent a conflict with user defined
+   names. You should add an entry in this file if you want to add a global
+   function or variable.
+
+2) You want to make a bug fix
+   Great! Do the fix, make a diff (next point) and give a small
+   description and an example, e.g.:
+   >  function DATE has had an Y3K error and will work now:
+   >  /* this has given "22 Nov 3001" instead of "22 Dec 3001" */
+   >  say date(N,30011222,S)
+   This is an example, regina is year 3000 save :-)
+
+   If you want to edit:
+   Don't use the tabulator or let the tab key expand to blanks.
+   If a tabulator key is a must the ONLY indention levels are
+   at 1, 9, 17, ... (every 8)
+
+3) You have done a bug fix
+   The best way to say what you have done is to use diff. diff is
+   a program with many parameters. Try
+   >  diff -u former_file corrected_file
+   and send the output to Mark.
+
+4) You have added a function which is exported from the library
+   This should happen very seldom since the functions names are
+   restricted by the REXX standard.
+   Add a line
+   > GLOBAL_ENTRY_POINT();
+   at the very start of the code of the function.
+
+5) You have added a global function or variable
+   Read 1)
+
+6) Your code uses global variables or static variables
+   This may lead to problems in the multi-threading environment.
+   There are constant values which are harmless:
+   > const char REXX_VERSION[] = "Regina 2000";
+   Changing variables are a problem:
+   > extern int trace_flag;
+   Such a variable will change its value due execution. You can
+   do now three things:
+   1) be SURE that this is not a problem and the variable is
+      global and of the same value in all threads.
+   2) move it to the thread-specific variables if this will
+      match the sense. Think on an execution time counter
+      for an example.
+   3) protect the variable. A typical example is the usage
+      of external or generated code like the parser. It
+      uses its own values. You may change bison/flex or
+      wait until the maintainer changes the code or you
+      surround the access of the code or variable by a
+      THREAD_PROTECT
+      THREAD_UNPROTECT
+      pair. Note the missing semicolon. You must be sure
+      not to call another function which uses a
+      THREAD_PROTECT/UNPROTECT pair. This may lead to a
+      deadlock.
+      Also note that you can't span the protection calls
+      over two functions. You may use a helper function
+      instead or you may save the results in a separate
+      temporary variable. Thus, some typical code looks
+      like:
+      > unsigned char MyToupper(unsigned char c)
+      > {
+      >    static int first = 1;
+      >    static unsigned char ExtendedTranslateSet[256];
+      >    THREAD_PROTECT
+      >    if (first)
+      >       {
+      >          first = 0;
+      >          AskOSforInitializeUppercase(ExtendedTranslateSet);
+      >       }
+      >    THREAD_UNPROTECT
+      >    return(ExtendedTranslateSet[c]);
+      > }
+      A better solution IN THIS CASE may be this:
+      Let ExtendedTranslateSet be a global variable and call
+      "AskOSforInitializeUppercase(ExtendedTranslateSet);" in
+      the function "ReginaInitializeProcess()".
+   Don't forget to wrap the variable name by a "__regina_".
+
+7) You want to port the multi-threading code
+   Your code is highly welcome. Please, drop Mark an email
+   first. There might be somebody in the outer space who has the
+   same idea.
+   You have to build only some few functions and defines.
+   Have a look at mt_posix.* or mt_win32.*. You have to
+   incorporate your changes into the correct makefile and
+   into mt.h.
+
+8) The code don't work as expected in a multi-threading environment
+   Regina don't share variables between threads. You must set/read/destroy
+   variables exactly in that thread which uses it. Two variables with
+   the same name are different in different threads.
+
+9) Never use exit(), use TSD->MTExit().

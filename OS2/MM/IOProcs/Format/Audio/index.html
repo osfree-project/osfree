@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HyperText Markup Language//EN">
+<HTML LANG="EN-CA">
+<HEAD PROFILE="http://purl.org/dc/elements/1.1/">
+<LINK TITLE="Russell&#8217;s Email Address" HREF="mailto:roconnor@math.berkeley.edu" REV="Made">
+<LINK TITLE="Russell O&#8217;Connor" HREF="http://www.math.berkeley.edu/~roconnor/" REL="Home">
+<LINK TITLE="Russell&#8217;s Style Sheet" HREF="http://www.math.berkeley.edu/~roconnor/roconnor.css" REL="Stylesheet" TYPE="text/css">
+<TITLE>MMAudio Pak 2
+ for OS/2</TITLE>
+</HEAD>
+<BODY>
+<H1>MMAudio Pak 2
+ for OS/2</H1>
+<DIV><IMG ALT="" SRC="Player.gif"></DIV>
+<P>The <A HREF="http://www.math.berkeley.edu/~roconnor/MMAudioPak/">MMAudio Pak</A> is a collection of audio IO procedures to extend OS/2&#8217;s multimedia
+
+system.  It presently contains,
+
+</P>
+<UL>
+<LI><A TITLE="MP3 Multimedia IOProc for OS/2 - 0.4.3 " HREF="mmioMP3.html">mmioMP3 0.4.3</A> &#8211; 
+
+an MP3 IOproc
+
+</LI>
+<LI><A TITLE="Vorbis Multimedia IOProc for OS/2 - 0.3.2 " HREF="mmioVorb.html">mmioVorb 0.3.2</A> &#8211; 
+
+an Ogg Vorbis IOproc
+
+</LI>
+<LI><A TITLE="FLAC Multimedia IOProc for OS/2 - 0.3.0 " HREF="mmioFLAC.html">mmioFLAC 0.3.0</A> &#8211;
+
+a FLAC IOproc
+
+</LI>
+</UL>
+<P>Refer to the above documentation for detailed requirements and legal restrictions
+
+on each IOProc.
+
+
+
+</P>
+<H2>What do I get?</H2>
+<P>After installation, these file formats can be played in any OS/2 player.</P>
+<UL>
+<LI>Files can play by double-clicking on the file&#8217;s icon.</LI>
+<LI>Files can play in any Rexx program by using Multimedia calls.</LI>
+<LI>Files can be played with the Rexx program <CODE>PLAY.CMD</CODE>. </LI>
+<LI>Files can be converted to any audio format that
+OS/2 can write, by using <CODE>Convert to</CODE> in the context menu. 
+
+<A HREF="#CWMM">CW-Multimedia classes</A> enhance this feature.</LI>
+<LI>Files can be <A TITLE="Streaming Multimedia Over The Internet using OS/2" HREF="stream.html">streamed over the Internet</A>.</LI>
+</UL>
+<H2>Why not use WarpAMP or PM123?</H2>
+<P><A HREF="http://www.sdg.os2.nu/warpamp.html">WarpAMP</A> and <A HREF="http://www.step.polymtl.ca/~guardia/pm123.php">PM123</A> do not
+integrate with MMOS/2 well.  To control these programs with
+scripts etc., you have to use whatever interface they provide instead of
+the standard interface provided by MMOS/2.  The <A HREF="http://www.reamined.on.ca/doconnor/mmos2/">OS/2 Multimedia
+Infrastructure Project</A> has more information on this subject.
+
+</P>
+<P>Installing MMIOMP3 does not prevent you from using these programs.
+In fact, they can complement each other by having MMIOMP3 providing you
+with standard MMOS/2 interfaces, and WarpAMP or PM123 providing a nice
+user application.
+
+
+</P>
+<H2>Download</H2>
+<P>All IOprocs come in one <A HREF="MMAudioPak.zip">package</A>.
+
+</P>
+<H2>Installation</H2>
+<P>Unzip the package into a temporary directory.  Run
+<CODE>MINSTALL</CODE> and follow the instructions.  
+
+<CODE>MINSTALL</CODE> will allow you to select which IOprocs you wish to install.
+
+
+</P>
+<P>Installation copies the need DLLs into the <CODE>MMOS2</CODE> directory.</P>
+<P>The zip file also contains an uninstall script, and other useful executables that
+
+you might wish to keep around.
+
+
+
+</P>
+<H2>Related Software</H2>
+<P ID="CWMM">You may wish to download 
+
+<A TITLE="CW-Multimedia classes" HREF="http://www.os2world.com/cdwriting/mmclasses/mmclassesmain.htm">CW-Multimedia classes</A>.  It adds extended
+
+WPS support for Ogg Vorbis and MP3 files, as well as acting as a replacement
+
+of the IBM Multimedia WPS classes.
+
+
+
+</P>
+<H2>Acknowledgments</H2>
+<P>Thanks to Klaus Staedtler for publicity.</P>
+<P>Thanks to Chris Wohlgemuth for patches.</P>
+<P>Thanks to <A TITLE="Darwin O&#8217;Connor&#8217;s Home Page" HREF="http://www.reamined.on.ca/doconnor/">Darwin O&#8217;Connor</A> for
+introducing me to MMOS/2 and <A TITLE="EDM/2 - Mutlimedia I/O Procedures" HREF="http://www.edm2.com/0403/mmio.html">MMIOProcs</A>.
+
+</P>
+<HR>
+<DIV><ADDRESS><A HREF="http://www.math.berkeley.edu/~roconnor/">Russell O&#8217;Connor</A>: <A TITLE="Russell&#8217;s Email Address" HREF="mailto:roconnor@math.berkeley.edu" REV="made">roconnor@math.berkeley.edu</A></ADDRESS></DIV>
+</BODY>
+</HTML>

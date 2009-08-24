@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HyperText Markup Language//EN">
+<HTML LANG="EN-CA">
+<HEAD PROFILE="http://purl.org/dc/elements/1.1/">
+<LINK TITLE="Russell&#8217;s Email Address" HREF="mailto:roconnor@math.berkeley.edu" REV="Made">
+<LINK TITLE="Russell O&#8217;Connor" HREF="http://www.math.berkeley.edu/~roconnor/" REL="Home">
+<LINK TITLE="Russell&#8217;s Style Sheet" HREF="http://www.math.berkeley.edu/~roconnor/roconnor.css" REL="Stylesheet" TYPE="text/css">
+<STYLE TYPE="text/css">.todo {color: red}</STYLE>
+<TITLE>MP3 Multimedia IOProc for OS/2 - 0.4.3</TITLE>
+</HEAD>
+<BODY>
+<H1>MP3 Multimedia IOProc for OS/2 - 0.4.3</H1>
+<P><A TITLE="MP3 Multimedia IOProc for OS/2 - 0.4.3 " HREF="http://www.math.berkeley.edu/~roconnor/MMAudioPak/mmioMP3.html">MMIOMP3
+0.4.3</A> is
+an MMIOProc for OS/2 that allows OS/2&#8217;s multimedia system to play
+<ABBR TITLE="MPEG Audio Layer 3">MP3</ABBR> files.
+
+</P>
+<P>This IOProc supports translated read and traslated seek.
+
+</P>
+<P>MP3 decoding is done by <A TITLE="MAD: MPEG Audio Decoder" HREF="http://www.mars.org/home/rob/proj/mpeg/">madlib 0.15.0b</A>.
+
+</P>
+<P>Included is a example program called <CODE>bitrate</CODE> that prints the bitrate of an
+MP3 file. 
+
+</P>
+<H2>Download</H2>
+<P>MMIOMP3 is part of the <A HREF="http://www.math.berkeley.edu/~roconnor/MMAudioPak/">MMAudio Pak</A>
+When installing MMAudio Pak you can select which IOProcs to install.
+
+</P>
+<H2>Requirements</H2>
+<P>MMIOMP3 requires the <A HREF="http://hobbes.nmsu.edu/cgi-bin/h-browse?sh=1&amp;dir=/pub/os2/dev/emx/v0.9d">EMX
+runtime</A>.
+
+</P>
+<H2>Bugs and Known Issues</H2>
+<P>MMIOMP3 can not play MP3s that have RIFF WAVE headers.  These files
+are broken anyways.
+<A TITLE="MPEG Audio Utility" HREF="http://www.maazl.de/projekt/mp3/mp3frame.html">MPEG Audio Utility</A> will remove this kind of junk from
+mp3 files with the <CODE>/s0</CODE> option.
+
+</P>
+<P>MMIOMP3 now estimates the playtime of files; the results may not be exact.
+
+</P>
+<P>If a VBR MP3 files does not have a correct Xing header (and many do not)
+the estimated playtime of the file will probably differ greatly from the actual playtime.
+
+</P>
+<P>There are no plans for adding translated write to the IOProc.
+
+</P>
+<H2>To Do</H2>
+<UL>
+<LI>Dither output, or wait for madlib to support dithering of output.</LI>
+<LI>Read IDv2, and Lame Headers.</LI>
+<LI>Add an option to scan the entire file to return hightly accurate playtime and bitrate data.</LI>
+</UL>
+<H2>Changes</H2>
+<UL>
+<LI>Changes from 0.4.2 to 0.4.3 (2003-08-30)
+<UL>
+<LI>Reads Xing headers.</LI>
+<LI>No longer scans entire file to determine play time.  I use Xing header data or estimate.</LI>
+</UL></LI>
+<LI>Changes from 0.4.1 to 0.4.2 (2003-02-23)
+<UL>
+<LI>Replaced how bitrate queries are made.</LI>
+<LI>Prepared support for reading file extended attributes.</LI>
+<LI>Carefully skips IDv2 headers when identifying an MP3 file.</LI>
+</UL></LI>
+<LI>Changes from 0.4 to 0.4.1 (2002-08-28)
+<UL>
+<LI>Fixed some minor bugs such as context-menu convert.</LI>
+<LI>Added uninstaller.</LI>
+</UL></LI>
+<LI>Changes from 0.3.1 to 0.4 (2002-05-27)
+<UL>
+<LI>Correct time for variable bit rate files that are not remote.</LI>
+<LI>Seeking improved for files that are not remote.</LI>
+<LI>Broke context menu convert.  That convert routine never worked all
+that well.</LI>
+</UL></LI>
+<LI>Changes from 0.3 to 0.3.1 (2002-01-10)
+<UL>
+<LI>Install now automatically associates MP3 extension with Digital
+Audio.</LI>
+</UL></LI>
+<LI>Changes from 0.2 to 0.3 (2001-12-12)
+<UL>
+<LI>Now MP3 waveforms are visible in Audio Editor.</LI>
+<LI>MMIOM_IDENTIFYFILE does not claim that all data is valid mp3.</LI>
+</UL></LI>
+<LI>Changes from 0.1 to 0.2 (2001-11-18)
+<UL>
+<LI>Switched from using <A HREF="http://www.mpg123.com/">mpglib</A> to
+using <A HREF="http://www.mars.org/home/rob/proj/mpeg/">libmad</A>.</LI>
+<LI>Made MP3 file identification somewhat better.</LI>
+</UL></LI>
+</UL>
+<H2>Legal Stuff</H2>
+<DIV CLASS="legal">
+
+<P>This program is Copyright © 2000-2003 by Robert Leslie and Russell
+O&#8217;Connor.
+
+</P><P>This program is free software; you can redistribute it and/or modify
+it under the terms of the <A TITLE="GNU General Public License - GNU Project - Free Software Foundation (FSF)" HREF="http://www.fsf.org/copyleft/gpl.html"><ABBR TITLE="GNU&#8217;s Not Unix">GNU</ABBR> General Public License</A> as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.</P>
+
+<P>This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the <A TITLE="GNU General Public License - GNU Project - Free Software Foundation (FSF)" HREF="http://www.fsf.org/copyleft/gpl.html"><ABBR TITLE="GNU&#8217;s Not Unix">GNU</ABBR> General Public License</A> for
+more details.</P></DIV>
+<H3>Confused?</H3>
+<P>This would be all public domain if I could have it my way.</P>
+<HR>
+<DIV><ADDRESS><A HREF="http://www.math.berkeley.edu/~roconnor/">Russell O&#8217;Connor</A>: <A TITLE="Russell&#8217;s Email Address" HREF="mailto:roconnor@math.berkeley.edu" REV="made">roconnor@math.berkeley.edu</A></ADDRESS></DIV>
+<H2>Secrets</H2>
+<P>Go into <CODE>Multimedia Setup</CODE>.  Look at the <CODE>Digital Audio</CODE>
+tab, and use the + in the corner to find the <CODE>Association</CODE>
+page.  Add MP2 as an new extenstion to play MP2 files.  May work for
+MP1s as well.</P>
+</BODY>
+</HTML>

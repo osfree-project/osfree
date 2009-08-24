@@ -1,0 +1,48 @@
+LIBRARY   TWINHELP
+EXETYPE   WINDOWS
+CODE      PRELOAD MOVEABLE DISCARDABLE
+DATA      PRELOAD MOVEABLE SINGLE
+HEAPSIZE  1024
+EXPORTS
+          WEP PRIVATE
+          TVLibGetInfo       @2
+          TVLibOpenWindow    @3
+          TVLibCloseWindow   @4
+
+          ; Window procedure for help message redirector window.
+          SDKWndProc         
+          OneWindowWndProc
+          
+          ; Window procedure for help window frame.
+          MainWndProc
+
+          ; Main topic window.
+          TopicWndProc
+          
+          ; Popup topic window.
+          PopupWndProc
+
+          ; Main topic window - no scrolling.
+          NoScrollTopicWndProc
+          
+          ; Window procedure for main secondary help window.
+          MainSecWndProc
+          
+          ; Window procedure for main secondary help window.
+          TopicSecWndProc
+          
+          ; Window procedure for About dialog box.
+          AboutDlgProc
+          
+          ; Window procedure for History dialog box.
+          HistoryDlgProc
+
+          ; Window procedure for button bar.
+          ButtonWndProc
+          
+          ; Window procedure fo the search dialog box.
+          SearchDlgProc
+          
+          ; Search dialog's keyword edit control subclassed window proc.
+          EditKeywordWndProc'\"	Willows Software, Inc. - Oct 1995
+'\"	#ident	"@(#)twinhelp.def	1.1 :/users/sccs/src/twinview/twinhelp/s.twinhelp.def 10/11/95 17:08:38"

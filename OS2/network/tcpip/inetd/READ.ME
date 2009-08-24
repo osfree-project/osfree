@@ -1,0 +1,69 @@
+Summary:
+========
+
+This is an inetd package for OS/2 TCP/IP.
+
+Legal Issues:
+=============
+
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ * THE CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Distribution:
+=============
+
+READ.ME            this file
+COPYING            GNU license (for getopt.c, getopt1.c and getopt.h)
+INETD.C            the internet super server ported from BSD to OS/2.
+GETOPT.C           modified GNU getopt.c. See COPYING for GNU license.
+GETOPT1.C          GNU getopt1.c. See COPYING for GNU license.
+SYSLOG.C           syslog functions ported to OS/2, see syslog package.
+PWD.C              Some passwd related files.
+FIX_ENV.C
+FIX_ENV.H
+GETOPT.H           <getopt.h> GNU version ported to OS/2
+PWD.H              <pwd.h>    OS/2 version
+SYSLOG.H           <syslog.h> ported to OS/2
+MAKEFILE           Makefile for IBM CSet++
+INETD.CNF          sample configuration file, must be located in etc
+INETD.EXE          compiled inetd deamon
+INETD.MAN          manual page for inetd with some OS/2 remarks
+
+Requirements:
+=============
+
+This package require the following software to be imstalled:
+
+- OS/2 2.X or 3.0.
+- IBM TCP/IP 2.0 or later.
+
+Installation:
+=============
+
+- Copy all executables into the TCP/IP bin directory.
+- Copy the inetd.cnf into the tcpip etc directory
+- Edit inetd.cnf and setup your own log files
+
+Descriptions:
+=============
+
+inetd.exe is the internet super server deamon. 
+
+inetd [-d] [conffile]
+
+-d              : set debug mode
+conffile        : use alternative config file
+
+Bug Reports:
+============
+
+Please send bug reports and suggestions to:
+Jochen Friedrich <jochen@audio.pfalz.de>

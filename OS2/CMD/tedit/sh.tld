@@ -1,0 +1,45 @@
+*
+* This file contains the THE Language Definition for C/C++
+* It is based heavily on Kedit's KLD file format.
+*
+* Name = *SH
+*
+:case
+  respect
+:string
+  single backslash
+  double backslash
+:identifier
+  [a-zA-Z_] [a-zA-Z0-9_]
+:comment
+  line # any
+:header
+  line #! column 1
+:keyword
+  break alt 4
+  case
+  cd alt 4
+  continue alt 4
+  do
+  done
+  echo alt 4
+  elif
+  else
+  esac
+  eval alt 4
+  exec alt 4
+  exit alt 4
+  export alt 4
+  fi
+  for
+  getopts alt 4
+  if
+  in
+  set alt 4
+  shift alt 4
+  test alt 4
+  then
+  trap alt 4
+  unset alt 4
+  until
+  while

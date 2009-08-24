@@ -1,0 +1,24 @@
+/* 
+ $Id: Credits.txt,v 1.2 2002/09/06 12:25:33 evgen2 Exp $ 
+*/
+/* Credits.txt */
+==============================================================================
+F_debug.cpp
+Taken and adopted from Squid2 lib/debug.cpp,
+originally was 
+lib/debug.c
+
+SQUID Web Proxy Cache        http://www.squid-cache.org/
+
+==============================================================================
+lib/snprintf.cpp:
+Taken from Squid2,
+originally was 
+lib/snprintf.c
+
+Taken from the Apache Server package (www.apache.org).
+
+This product includes software developed by the Apache Group
+for use in the Apache HTTP server project (http://www.apache.org/).
+
+==============================================================================

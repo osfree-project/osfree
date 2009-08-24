@@ -1,0 +1,30 @@
+LIBRARY MINSTALL INITINSTANCE TERMINSTANCE
+DESCRIPTION "@#KIEWITZ:1.04#@Multimedia Installer DLL"
+DATA MULTIPLE NONSHARED
+PROTMODE
+
+IMPORTS
+   CFGSYS.CONFIGSYS_Process
+   CFGSYS.CONFIGSYS_DelayInit
+   CFGSYS.CONFIGSYS_DelayCopyFile
+   CFGSYS.CONFIGSYS_DelayFinalize
+
+EXPORTS
+   MINSTALL_Init                          @  1
+   MINSTALL_InitPackage                   @  2
+   MINSTALL_InstallPackage                @ 10
+   MINSTALL_GetErrorMsgPtr                @ 20
+   MINSTALL_GetErrorMsgCIDCode            @ 21
+   MINSTALL_GetSourcePathPtr              @ 22
+   MINSTALL_GetTargetPathPtr              @ 23
+   MINSTALL_GetPublicGroupArrayPtr        @ 24
+   MINSTALL_GetPublicGroupCustomDataPtr   @ 25
+   MINSTALL_SetPublicGroupCustomData      @ 26
+   MINSTALL_GetPackageTitlePtr            @ 27
+   MINSTALL_GetErrorMsgCIDCodeDescription @ 28
+   MINSTALL_SelectGroup                   @ 40
+   MINSTALL_DeSelectGroup                 @ 41
+   MINSTALL_SetCARDINFOCardCountForGroup  @ 42
+   MINSTALL_GetCARDINFOChoiceForGroup     @ 43
+   MINSTALL_SetCARDINFOChoiceForGroup     @ 44
+   MINSTALL_CleanUp                       @ 99

@@ -1,0 +1,20 @@
+# Italian translation (CP850) based on version 4.0b by Roberto Mariottini
+
+0.0:Visualizza il contenuto di un file di testo una schermatta alla volta
+0.1:Uso
+0.2:comando
+0.3:file
+0.4:Tasti disponibili
+0.5:Nn
+0.6:Prossimo file
+0.7:Qq
+0.8:Esci dal programma
+0.9:Spazio
+0.10:Prossima pagina
+1.0:Non Š un'opzione riconosciuta
+1.1:File non trovato
+1.2:Impossibile aprire il file
+2.0:More
+2.1:<STDIN>
+
+1.3:l'opzione /Tabs deve essere /T1..9 (default 4)

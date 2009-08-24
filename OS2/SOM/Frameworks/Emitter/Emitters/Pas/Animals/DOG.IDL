@@ -1,0 +1,33 @@
+#include "animal.idl"
+
+    interface Dog : Animal
+    {
+      attribute string breed;
+      // The breed of this Dog.
+
+      attribute string color;
+      // The color of this Dog.
+
+#ifdef __SOMIDL__
+      implementation {
+         releaseorder: _get_breed, _set_breed, _get_color, _set_color;
+	
+         //# Class Modifiers
+         functionprefix = dog_;
+         callstyle      = oidl;
+         dllname        = "animals.dll";
+
+         //# Attribute Modifiers
+         breed: noset;
+         color: noset;
+         	
+         //# Method Modifiers
+         _get_genus: override;
+         _get_species: override;
+         display: override;
+         somInit: override;
+         somUninit: override;
+         somDumpSelfInt: override;
+      };
+#endif /* __SOMIDL__ */
+    };

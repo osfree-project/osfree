@@ -1,0 +1,54 @@
+# edlin.it - messages file (Italian version)
+# 
+# Author: Gregory Pietsch
+# 
+# DESCRIPTION:
+# 
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+# 
+# The translation was done by Roberto Mariottini 
+# <roberto.mariottini@primoelectronics.com>.
+# 
+
+1.0:Ss
+1.1: :  \b
+1.2:GIUSTO?  \b
+1.3:Voce errata
+1.4:%s: %lu linea Š stata letta\n
+1.5:%s: %lu linee sono state lette\n
+1.6:%s: %lu linea Š stata scritta\n
+1.7:%s: %lu linee sono state scritte\n
+1.8:%lu:%c%s\n
+1.9:Premi <Invio> per continuare
+1.10:%lu:  \b
+1.11:Non trovato
+1.12:%lu: %s\n
+1.13:\nIl programma edlin ha i seguenti sottocomandi:\n
+1.14:#              modifica una singola linea    [#],[#],#m     sposta un blocco di testo
+1.15:a              aggiungi in coda              [#][,#]p       visualizza il testo
+1.16:[#],[#],#,[#]c copia un blocco di testo      q              esci dal programma
+1.17:[#][,#]d       cancella un blocco di testo   [#][,#][?]r$,$ sostituisci il testo
+1.18:e<>            fine (salva ed esci)          [#][,#][?]s$   ricerca nel testo
+1.19:[#]i           inserisci nuovo testo         [#]t<>         trasferisci da file
+1.20:[#][,#]l       visualizza un blocco di testo [#]w<>         salva il testo\n
+1.21:In cui $ Š una stringa, <> Š un nome di file, 
+1.22:# Š un numero (che pu• essere .=linea corrente, $=ultima linea, o
+1.23:o numero + o - un altro numero).\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:Questo programma Š fornito con ASSOLUTAMENTE NESSUNA GARANZIA.
+1.26:Questo programma Š software libero (free software) e siete liberi
+1.27:di ridistribuirlo alle condizioni della Licenza Generale Pubblica GNU
+1.28:(GNU General Public License) -- versione 2 oppure,
+1.29:a vostra scelta, una qualsiasi versione successiva.\n
+1.30:Memoria esaurita
+1.31:Errore di lunghezza della stringa
+1.32:Errore di posizione della stringa
+1.33:Input non valido dell'utente; ? per aiuto.
+1.34:Nessun nome di file
+1.35:Buffer troppo grande
+1.36:Posizione non valida del buffer
+1.37:ERRORE: %s\n
+
+# END OF FILE 

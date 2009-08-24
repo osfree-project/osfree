@@ -1,0 +1,61 @@
+- implemented:
+
+      WinSetWindowPos
+      WinReleasePS
+      WinGetPS
+
+- stubs:
+
+      WinShowWindow
+      WinQueryWindowRect
+      WinQueryWindowPos
+      WinSetMultWindowPos
+      WinSetOwner
+      WinIsChild
+      WinSetParent
+      WinMultWindowFromIDs
+      WinQueryWindow
+      WinIsWindow
+      WinQueryWindowDC
+      WinWindowFromDC
+      WinWindowFromID
+      WinQueryWindowTextLength
+      WinSetWindowText
+      WinQueryWindowText
+      WinIsWindowVisible
+      WinEnableWindowUpdate
+      WinEnableWindow
+      WinIsWindowEnabled
+      WinEndPaint
+
+- not implemented:
+
+      WinQueryWindowPtr
+      WinQueryWindowULong
+      WinQueryWindowUShort
+      WinSetWindowBits
+      WinSetWindowPtr
+      WinSetWindowULong
+      WinSetWindowUShort
+      WinBeginEnumWindows
+      WinEndEnumWindows
+      WinEnumDlgItem
+      WinGetNextWindow
+      WinBeginPaint
+      WinExcludeUpdateRegion
+      WinGetClipPS
+      WinGetScreenPS
+      WinInvalidateRect
+      WinInvalidateRegion
+      WinIsWindowShowing
+      WinLockVisRegions
+      WinOpenWindowDC
+      WinQueryUpdateRect
+      WinQueryUpdateRegion
+      WinRealizePalette
+      WinUpdateWindow
+      WinValidateRect
+      WinValidateRegion
+
+
+

@@ -1,0 +1,123 @@
+name: dir
+de: Displays the contents of the directory
+see: mkdir, rmdir, chdir
+req: CMD_DIR
+
+SYNOPSIS:
+EBNF: DIR [{ options | pattern }]
+
+<P><CMD>DIR</CMD> displays the contents of direcories and/or
+the attributes of files, whatever the <ARG>pattern</ARG> specifies.
+If no <ARG>pattern</ARG> is specified on command line, the current
+working directory is displayed. The actual information displayed
+depends on the specified options and is explained below.
+<P>A <ARG>pattern</ARG> may contain <A HREF="!:wildcards">wildcards</A>,
+which are expanded against both files and directories. To specify a
+directory is essentially equal to write: <CMD>directory\*.*</CMD>.
+<P>Unlike options patterns are performed in sequence, that means that
+if two patterns are specified, first all entries matching the first one,
+then all entries matching the second one are displayed;
+<FONT SIZE=-1>instead of to display the matching entries intermixed</FONT>.
+
+<P>Before parsing its command line DIR parses any <EM>option</EM> specified
+by the environment variable <OPT>DIRCMD</OPT>.
+
+STD_OPTIONS:
+<UL>
+<LI><OPT>/A</OPT>: (All) Wildcards are matched against System and Hidden
+files, too.
+<LI><OPT>/A**</OPT>: (Attribute) Wildcards are matched against files
+with selected attributes set or clear. The argument
+of the <OPT>/A</OPT> option is a sequence of:
+	<UL>
+	<LI><OPT>?</OPT> meaning: attribute <OPT>?</OPT> must be set, or
+	<LI><OPT>-?</OPT> meaning: attribute <OPT>?</OPT> must not be set.
+	</UL>
+	<P>The following attributes, the <OPT>?</OPT> above, are supported:
+	<UL>
+	<LI><OPT>R</OPT> for: read-only,
+	<LI><OPT>H</OPT> for: hidden,
+	<LI><OPT>S</OPT> for: system,
+	<LI><OPT>D</OPT> for: directory, and
+	<LI><OPT>A</OPT> for: archive.
+	</UL>
+	<P>If the same attribute is specified twice within the same
+	<OPT>/A</OPT> option, the last one superceeds previous ones; if
+	more than one <OPT>/A</OPT> option is specified, the last one
+	superceeds all previous ones.
+<LI><OPT>/B</OPT>: (Bare) Displays the lines with the information of
+files and directories only. The ones displaying the volume label,
+the serial number, totals etc. are suppressed. In combination with
+<OPT>/S</OPT> the absolute path of the files is displayed.
+<LI><OPT>/L</OPT>: (Lower-case) Filenames are displayed in lower-case
+letters rather than capitol ones.
+<LI><OPT>/O</OPT>: (Order default) is a synonym of <OPT>/ONG</OPT>.
+<LI><OPT>/O**</OPT>: (Order) Sort the entries displayed in a specific order.
+	The following sort orders are supported:
+	<UL>
+	<LI><OPT>D</OPT> sort by last modification <B>d</B>ate (earliest first)
+	<LI><OPT>E</OPT> sort by file <B>e</B>xtension
+	<LI><OPT>G</OPT> <B>g</B>roup directories first
+	<LI><OPT>N</OPT> sort by file <B>n</B>ame
+	<LI><OPT>S</OPT> sort by size (smallest first)
+	<LI><OPT>U</OPT> do not sort (<B>u</B>nsorted)
+	</UL>
+	<P>Each sort order, except <OPT>U</OPT>, may be prefixed by
+	a hyphen to reverse the sort order. <OPT>U</OPT> effectively
+	cancels any previous setting or specified sort order, e.g. to
+	override an <OPT>/O</OPT> option from the <OPT>DIRCMD</OPT>
+	environment variable.
+	<P>If the same sort order is specified twice within the same
+	<OPT>/O</OPT> option, the last one superceeds previous ones; if
+	more than one <OPT>/O</OPT> option is specified, the last one
+	superceeds all previous ones.
+	<P><STRONG>Warning</STRONG>: The entries are cached within memory
+	before displaying them; if FreeCOM runs short on memory, to sort is
+	disabled completely or the entries are sorted in chunks only.
+	<BR>Usually DIR can sort well over 1000 entries.
+<LI><OPT>/P</OPT>: (Page) Page the output -- pause the display after
+	issuing one screen-full.
+<LI><OPT>/S</OPT>: (Subdirectories) Recursively display directories.
+<LI><OPT>/W</OPT>: (Wide) Displays five filenames per line and suppress
+the information about the file size, date etc.
+<LI><OPT>/Y</OPT>: (Year) Displays a 4-digit year, rather than just two
+	digits.
+<LI><OPT>/4</OPT>: (4digit Year) is a synonym of <OPT>/Y</OPT>.
+<LI><OPT>/LFN</OPT>: Enables to display long filenames at the end of a
+	line in non-wide mode (<OPT>/W</OPT> not present), if available.
+	<BR>This option is temporarily enabling a <STRONG>TESTING</STRONG>
+	feature and may vanish in a future release of FreeCOM.
+</UL>
+
+EXAMPLES:
+EXAMPLE: 1
+
+CMD: DIR
+Displays the contents of the current directory, but ignore System and
+Hidden files. The output may look like this:
+
+<PRE>
+!!todo!!
+</PRE>
+
+EXAMPLE: 2
+
+CMD: DIR a* bb* *.txt
+First displays all files, that begin with the letter <CMD>A</CMD>; then
+all files, that begin with two letters <CMD>B</CMD>, are displayed and
+at last all files with the extension <CMD>TXT</CMD>.
+
+EXAMPLE: 3
+
+CMD: DIR /w a* b*
+CMD: DIR a* /w b*
+CMD: DIR a* b* /w
+Because the position of options is not significant,
+all these examples behave the same way and display the matching files
+in <EM>wide</EM> or also called <EM>short</EM> form, which may look
+like this:
+
+<PRE>
+!!todo!!
+</PRE>
+

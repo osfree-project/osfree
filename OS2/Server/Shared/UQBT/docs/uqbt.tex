@@ -1,0 +1,271 @@
+
+\documentclass[letter]{book}
+\usepackage{times}
+
+% Change of margins - needs to be before call to fancyheadings
+\textwidth 6.0in
+\oddsidemargin  0.125in 
+\evensidemargin  -0.1875in
+
+% Make paragraph indentation zero and add extra space between paragraphs
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.5em}
+
+% header and footer layout
+\usepackage{inputs/fancyheadings}
+\usepackage{ifthen}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bf\thepage}]{\fancyplain{}{\bf\rightmark}}
+\rhead[\fancyplain{}{\bf\leftmark}]{\fancyplain{}{\bf\thepage}}
+\cfoot{}
+
+% verbatim input of files and postscript files
+\usepackage{verbatim}	% needed for smallverbatim and fnverbatim
+\newenvironment{smallverbatim}{\small\verbatim}{\endverbatim}
+\newenvironment{fnverbatim}{\footnotesize\verbatim}{\endverbatim}
+
+\usepackage{graphics}
+\usepackage{url}
+\usepackage{epsfig}
+
+% for support of Norman's tex file generated using noweb
+\usepackage{inputs/noweb}
+\usepackage{inputs/nchicago}
+\usepackage{array,tabularx,inputs/grammar}
+
+% allow figures of 100% the size of the page (doesn't seem to be working 
+% reliably)
+\renewcommand{\floatpagefraction}{1.0}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{0.0}
+\renewcommand{\textfraction}{0.0}
+
+% try to minimize the number of orphans and widows
+\pretolerance=500
+\tolerance=10000
+\brokenpenalty=10000
+\widowpenalty=10000
+\clubpenalty=10000
+
+% figure commands
+\newcommand{\centerfigbegin}{\begin{figure}[htp] \begin{center}}
+\newcommand{\centerfigend}[2]{{\small \caption{\label{#1} {#2}}} \end{center} \end{figure} }
+
+\newcommand{\psfigbegin}[2]{\begin{figure}[htp] \centerline{\psfig{figure={#1},height={#2}}} }
+\newcommand{\psfigend}[2]{{\small \caption{\label{#1} {#2}}} \end{figure} }
+
+% new latex environments
+\newtheorem{definition}{Definition}
+
+% useful shortcuts 
+\newcommand{\uqbt}{{\bf UQBT}}
+\newcommand{\dcc}{{\bf dcc}}
+\newcommand{\prog}{\texttt{PROG}}
+\newcommand{\proc}{\texttt{PROC}}
+\newcommand{\bb}{\texttt{BB}}
+\newcommand{\rtl}{\texttt{RTL}}
+\newcommand{\wfCFG}{{\em wf}\,CFG}
+\newcommand{\ra}{$\rightarrow$ }
+%\newcommand\hrtl{$\cal{HRTL}$}     % Note: stops latex2html from working!
+%\newcommand{\hrtl}{{\bf HRTL}}     % BTL: should render HRTL the same as RTL
+\newcommand{\hrtl}{\texttt{HRTL}}
+\newcommand{\TM}{\(\mathrm{^{TM}}\)}
+
+\newcommand\bcode{\textit{\textbf{bcode}}}
+
+% don't use the following two as latex2html doesn't understand them
+\newcommand{\enumerateAlpha}{ \makeatletter \renewcommand{\theenumi}{\alph{enumi}} \makeatother }
+\newcommand{\enumerateNumber}{ \makeatletter \renewcommand{\theenumi}{\arabic{enumi}} \makeatother }
+
+\makeindex
+
+
+\begin{document}
+\title{\large \bf The University of Queensland Binary Translator (UQBT) Framework} 
+\author{
+{\bf Principal Investigators} \\
+Cristina Cifuentes \\
+	The University of Queensland \\
+	Sun Microsystems Laboratories \\ \\
+Mike van Emmerik \\
+ 	The University of Queensland \\ \\ 
+Norman Ramsey \\
+	Harvard University \\ \\ 
+Brian Lewis \\
+	Sun Microsystems Laboratories \\ 
+\vspace*{-0.2cm} \\
+{\bf Research Assistants/Summer Scholars/Interns} \\
+	1997: Shane Sendall (Honours student, UQ) \\
+	Dec 97 - Feb 98: Shane Sendall, Doug Simon (UQ) \\
+	1998: David Ung (PhD student, UQ) \\
+	Dec 98 - Feb 99: Ian Walters, Shawn Coyne, Trent Waddington (UQ) \\
+	Jan-Oct 99: Doug Simon, Trent Waddington (UQ) \\
+	1999: Ian Walters (Honours student, UQ) \\ 
+	Dec 99 - Feb 00: Simon Long (UQ) \\
+    Jun-Aug 00: Sameer Gulrajani (Sun) \\ 
+    Jun-Aug 00: Pavan Kumar (Sun) \\ 
+	Dec 00 - Feb 01: Simon Long (UQ) \\
+	Jan-Apr 01: Manel Fernandez (Sun) \\
+    May 01: Nathan Keynes (Sun) \\
+    Aug 01: Bernard Wong (Sun) 
+}
+\date{
+	\vspace*{-0.3cm}
+	\copyright 1996-2001, The University of Queensland \\
+	\copyright 1999-2001, Sun Microsystems, Inc } 
+\maketitle
+
+
+\section*{Abstract}
+Binary translation is a relatively new field of research.  Existing binary
+translators rely on machine-dependent analyses that are written by
+hand.  Such analyses are required to identify procedures, to find the
+code attached to those procedures, to find the targets of indirect
+branches, and to identify call sites and parameters.  Redevelopment
+and hand implementation of such analyses makes it difficult and
+time-consuming to develop binary translators for new platforms.
+
+In contrast, we propose to circumvent these problems by developing a
+machine-independent framework for analyzing binary codes.  The
+framework will include register transfer lists (RTLs)---a
+machine-independent, machine-level representation of the effects of
+instructions---together with machine-independent analyses of code in
+RTL form.  
+
+We are also interested in applying these analyses to the translation of 
+real binary programs on a variety of hardware platforms, including SPARC, 
+x86, and Alpha.  We have developed formal descriptions of the syntax
+and semantics of instructions on the first two platforms, and we plan
+to use the descriptions to derive the machine-dependent components used 
+to translate between binary codes and RTLs.  These automatically
+generated components will be useful not just in binary translators,
+but also in other binary manipulation tools, hence making it easier
+to port them to other architectures.
+
+In the long term, we expect this framework to enable the development
+of new analyses to help improve the quality of automatically
+translated code. 
+
+This report attempts to document the design and implementation of  
+\uqbt, the University of Queensland Binary Translation 
+framework, a retargetable translator for multiplatform operating
+systems. 
+
+We {\em tried} to keep this document up to date.  It has been written 
+throughout the last few years, some chapters are more up-to-date than 
+others. 
+
+
+\section*{Acknowledgments}
+This work has been possible thanks to funding from the Australian
+Research Council (ARC Grant No.A49702762, 1997-99), Sun Microsystems 
+Laboratories (Sponsored by Neil Wilhelm and Mario Wolczko, 1996-2001), and 
+The University of Queensland (Grant No.97/UQNSRG009G, 1997).  
+
+
+% If you want all the documents to be included, set the boolean all to be true. 
+% If you only want certain docs to be included, set it to be false and 
+% manually add the \input{...tex} in the "else" set of brackets {} near the 
+% bottom of the file
+
+\newboolean{all}
+\setboolean{all}{true}
+\ifthenelse{\boolean{all}}
+{
+
+\tableofcontents
+\listoffigures
+
+\input{preface.tex}
+
+\input{howto.tex}
+
+
+\part{Introduction}
+\label{part-introduction}
+
+	\input{intro.tex}
+
+	\input{prevwork.tex}
+
+	\input{framework.tex}
+
+
+\part{The Frontend}
+\label{part-frontend}
+
+	\input{loader.tex}       % binary-file API 
+
+	\input{decoder.tex}      % decoding with NJMC SLED specs
+
+	\input{semantic.tex}     % specification of semantics (SSL)
+
+	\input{ir.tex}           % intermediate representation
+
+
+\part{Analysis}
+\label{part-analysis}
+
+ 	\input{ccmatch.tex}      % matching condition code definitions and uses
+
+  	\input{delay.tex}        % dealing with delayed branches of control 
+
+ 	\input{call.tex}         % procedure abstraction recovery
+
+ 	\input{type.tex}         % type recovery analysis
+
+
+\part{Backends}
+\label{part-backends}
+
+ 	\input{c-backend.tex}    % the C backend
+
+	\input{jvm-back.tex}	 % JVM backend (two different versions) 
+
+	\input{vpo.tex}			 % VPO backends (1998 and 2001)
+
+	\input{expander.tex}     % retargetable back end (Expander class)
+
+ 	\input{rae.tex}			 % assembler encoder using the NJMCTK 
+
+
+\part{Results}
+\label{part-results}
+
+	\input{results.tex}      % results on performance of gen'd binaries
+
+	\input{instantiation.tex} % instantation process to generate new translators
+
+	\input{experience.tex}	 % experience writing new front- and back-ends
+
+	\input{debugging.tex}	 % notes on how to debug translated files
+
+
+\part{Runtime Support}
+\label{part-runtime}
+
+	\input{interpreter.tex}  % interpreter support for static translation
+
+
+\part{Appendix}
+\appendix
+    \input{apdx-config.tex}  % Configuration notes on UQBT (how to compile it)
+
+}{
+
+% This is the "else" set of brackets for the true/false boolean 
+
+	\input{experience.tex}		% experience writing new front- and back-ends
+}
+
+%% Bibliography
+
+%\bibliography{biblio/cristina,biblio/translation,biblio/aliasing,biblio/compilers,biblio/dcc,biblio/se,biblio/ramsey,biblio/manuals,biblio/cs,biblio/ml,biblio/web,biblio/java}
+
+\input{uqbt.bbl}
+\bibliographystyle{alpha}
+
+\end{document}
+

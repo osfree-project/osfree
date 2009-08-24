@@ -1,0 +1,31 @@
+#include "dlldemo.h"
+#include "windows.h"
+
+DLLMENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&LoadLibrary",        IDM_LOAD
+        MENUITEM "&FreeLibrary",        IDM_FREE
+        MENUITEM SEPARATOR              
+        MENUITEM "&About Demo...",      IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",               IDM_EXIT
+    END
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+    BEGIN 
+        DLL_APP_TITLE           "Dynamic Link Library Sample"
+        DLL_IDS_RESOURCE        "dllres" 
+    END 
+ 
+RESOURCE ACCELERATORS
+    BEGIN
+        VK_F1,      IDM_ABOUT,          VIRTKEY
+        VK_F2,      IDM_LOAD,           VIRTKEY
+        VK_F3,      IDM_FREE,           VIRTKEY
+        VK_ESCAPE,  IDM_EXIT,           VIRTKEY
+    END
+
+IDI_WILLOWS     ICON    "willows.ico"

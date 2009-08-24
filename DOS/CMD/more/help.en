@@ -1,0 +1,14 @@
+This is the Help file for MORE:
+
+MORE: Display the contents of a text file one screen at a time
+  This is free software, and you are welcome to redistribute it
+  under the GNU GPL; see the COPYING file for details.
+
+Usage:
+  command ¦ MORE
+  MORE file..
+  MORE < file
+
+Available keys (while viewing a file):
+  N n = Next file
+  Q q = Quit program

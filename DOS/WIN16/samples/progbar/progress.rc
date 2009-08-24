@@ -1,0 +1,166 @@
+/********************************************************************
+*    progress.rc
+*
+*    @(#)progress.rc	1.1: /users/sccs/src/samples/progbar/s.progress.rc 12/18/96 16:22:28
+*
+********************************************************************/
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "progress.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+PROGRESS_ICON           ICON    DISCARDABLE     "progress.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+PROGRESSMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&Start",                      IDM_START
+        MENUITEM "S&top",                       IDM_STOP
+        MENUITEM "Set &Range...",               IDM_SETRANGE
+        MENUITEM "Set Step ...",                IDM_SETSTEP
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About...",                   IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+ABOUTBOX DIALOG DISCARDABLE  160, 78, 144, 77
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About Progress Indicator Sample"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "OK",IDOK,54,51,40,14
+    LTEXT           "Progress Indicator Sample version 1.0",-1,28,17,92,8
+    LTEXT           "written by Nancy Cluts",-1,36,27,76,8,NOT WS_GROUP
+    LTEXT           "Microsoft Developer Network",-1,25,37,99,8,NOT WS_GROUP
+END
+
+SETRANGE DIALOG DISCARDABLE  6, 18, 132, 100
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Range"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDE_MIN,75,16,35,12,ES_AUTOHSCROLL
+    EDITTEXT        IDE_MAX,75,38,32,12,ES_AUTOHSCROLL
+    LTEXT           "Minimum value:",103,18,16,55,8
+    LTEXT           "Maximum value:",104,17,39,53,8
+    PUSHBUTTON      "OK",IDOK,14,68,40,14
+    PUSHBUTTON      "Cancel",IDCANCEL,67,68,40,14
+END
+
+SETSTEP DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Step"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,38,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,98,74,50,14
+    EDITTEXT        IDE_STEP,79,36,35,12,ES_AUTOHSCROLL
+    LTEXT           "New Step",103,39,37,37,8
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""progress.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "SETSTEP", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

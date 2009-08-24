@@ -1,0 +1,245 @@
+2007-06-02 Gregory Pietsch <gpietsch@comcast.net>
+	* Fixed spelling mistakes -- grrr!
+	* ow.bat - changed to reflect new version.
+	* config-h.ow and config-h.bc - regenerated.
+	* Version 2.10c released.
+
+2007-05-29 Gregory Pietsch <gpietsch@comcast.net>
+	* kitten/edlin.eo - New file - A translation of the message strings
+	  into Esperanto. Thanks, rugxulo!
+	* msgs-eo.h - New file - generated from kitten/edlin.eo.
+	* ow.bat - changed to reflect new directory.
+	* Version 2.10b released.
+
+2007-05-28 Gregory Pietsch <gpietsch@comcast.net>
+	* dynarray.h - debugged. Grrrr....
+	* ow.bat - Replaced with new version.
+	* Version 2.10a released.
+
+2007-05-26 Gregory Pietsch <gpietsch@comcast.net>
+	* kitten/edlin.la -- New file - A translation into Latin.
+	* msgs-la.h - New file - generated from kitten/edlin.la.
+	* dynstr.c dynstr.h - New create/destroy functions added.
+	* dynarray.h - Threw lots of #defines in there to placate
+	  the indent program.
+	* Version 2.10 released.
+
+2006-11-26 Gregory Pietsch <gpietsch@comcast.net>
+	* kit2msgs.c -- Added this little filter program.
+	* kitten/edlin.da kitten/edlin.de kitten/edlin.es
+	  kitten/edlin.eu kitten/edlin.fi kitten/edlin.fr
+	  kitten/edlin.is kitten/edlin.it kitten/edlin.ja
+	  kitten/edlin.nl kitten/edlin.no kitten/edlin.pt
+	  kitten/edlin.sv -- Replaced with versions from
+	  the NLS project.
+	* kitten/edlin.pl -- New file - A translation into
+	  Polish (from the NLS project).
+	* msgs-pl.h -- New file. Generated with kit2msgs
+	  from kitten/edlin.pl.
+	* msgs-da.h msgs-de.h msgs-es.h msgs-eu.h msgs-fi.h
+	  msgs-fr.h msgs-is.h msgs-it.h msgs-ja.h msgs-nl.h
+	  msgs-no.h msgs-pt.h msgs-sv.h -- Generated with
+	  kit2msgs from the respective kitten files.
+	* ow.bat -- New file from <rugxulo@gmail.com>. Intended as an
+	  aid to compiling under OpenWatcom.
+	* config-h.bc config-h.ow -- Regenerated.
+	* Version 2.9A released.
+
+2006-10-15 Gregory Pietsch <gpietsch@comcast.net>
+        * edlib.c (insert_block) -- Fixed bug discovered by 
+          Joris van Rantwijk.
+        * Version 2.9 released.
+
+2005-11-15 Gregory Pietsch <gpietsch@comcast.net>
+        * msgs-pt.h kitten/edlin.pt -- Portuguese translations corrected.
+          Thanks, Dutra de Lacerda <dulac@netcabo.pt>!
+
+2005-10-27 Gregory Pietsch <gpietsch@comcast.net>
+        * kitten.c kitten.h kitten/edlin.da kitten/edlin.de
+          kitten/edlin.en kitten/edlin.es kitten/edlin.eu
+          kitten/edlin.fi kitten/edlin.fr kitten/edlin.is 
+          kitten/edlin.it kitten/edlin.ja kitten/edlin.nl
+          kitten/edlin.no kitten/edlin.pt kitten/edlin.sv -- added.
+          catgets.c nl_types.h -- added.
+          msgscats.h -- added.
+          edlin.c -- Modified to add message catalog initialization.
+          All of this is to support message catalogs.  This whole bit
+          was inspired by Blair Campbell, who modified the 2.6 version
+          in his own way to add message catalogs.
+        * malloc.c realloc.c -- added. These are replacements for
+          similarly-named functions in the standard library from
+          the libit project.
+
+2005-07-20 Gregory Pietsch <gpietsch@comcast.net>
+        * Changed the address for the Free Software Foundation in the
+          source files.
+        * COPYING : Got latest version from Free Software Foundation.
+        * dynarray.h dynstr.c : Fixed so that the program compiles cleanly
+          with "gcc -Wall --pedantic". This involved adding a few 
+          parentheses and braces in a few places.
+        * TODO : This file was missing from 2.5. Re-adding it ... grrr!
+        * Version 2.6 released.
+
+2005-04-30 Gregory Pietsch <gpietsch@comcast.net>
+        * dynarray.h : Added comments.
+        * edlib.c : Added functions file_exists, make_bakfile.
+        * Added checks for unistd.h, access, link, rename, and unlink
+          to the configure script.
+        * Version 2.5 released.
+
+2005-01-16 Gregory Pietsch <gpietsch@comcast.net>
+        * Discovered Japanese files were missing from 2.3.  Re-added them...
+          grrr!
+        * Added checks for the iskanji() function and the <jctype.h> header
+          to the configure script.
+        * edlib.c : Modified to include a substitute iskanji() function.
+        * Version 2.4 released.
+
+2004-09-04 Gregory Pietsch <GKP1@flash.net>
+        * Added Japanese port (msgs-ja.h, edlin-ja.htm, edlin-ja.txt)
+          based on work by <minashirojp@yahoo.co.jp>. His work was based
+          on version 2.1.
+        * edlib.c : Modified to include SHIFT_JIS code from the
+          Japanese port.
+        * Version 2.3 released.
+
+2004-08-09 Gregory Pietsch <GKP1@flash.net>
+        * Checked my msgs-de.h file against Eric Auer's msgs-de2.h
+          and fixed an umlaut problem in msgs-de.h.
+        * Version 2.2A released.
+
+2004-05-09 Gregory Pietsch <GKP1@flash.net>
+        * Added Eric Auer's original umlaut-less msgs-de.h as msgs-de2.h.
+        * Added support for decimal escape sequences.
+        * Version 2.2 released.
+
+2003-09-21 Gregory Pietsch <GKP1@flash.net>
+        * Added new version of dynstr.c and dynstr.h.
+        * defines.h defines.c dynarray.h : added.
+        * error.h error.c xmalloc.h xmalloc.c : dropped.
+        * edlin.c edlib.c : modified.
+        * Added patches from Bart Oldeman <bartoldeman@users.sf.net>.
+        * Version 2.1 released.
+
+2003-08-23 Gregory Pietsch <GKP1@flash.net>
+        * Version 2.0C released.
+
+2003-07-14 Gregory Pietsch <GKP1@flash.net>
+        * msgs-nl.h : Got fixed translation of the msgs.h file into
+          Dutch from Bernd Blaauw <bblauw@home.nl>.
+
+2003-06-29 Gregory Pietsch <GKP1@flash.net>
+        * msgs-fi.h : New file -- draft translation of the msgs.h file
+          into Finnish.
+        * msgs-sv.h : New file -- draft translation of the msgs.h file
+          into Swedish.
+        * Version 2.0B released.
+
+2003-06-22 Gregory Pietsch <GKP1@flash.net>
+        * msgs-pt.h : Fixed Portuguese draft.
+        * msgs-eu.h : I asked for it, I got it: a translation of the
+          msgs.h file into Basque! Thanks, Aitor Santamaria Merino!
+        * msgs-de.h : Modified Eric Auer's translation to include umlauts.
+        * TODO : For some reason, this file was missing from 2.0A. Added
+          the status of the internationalization project.
+        * msgs-da.h : New file -- draft translation of the msgs.h file
+          into Danish.
+
+2003-06-19 Gregory Pietsch <GKP1@flash.net>
+        * msgs-no.h : New translation of the msgs.h file into
+          Norwegian. As usual, this is a draft.
+        * msgs-is.h : New translation of the msgs.h file into
+          Icelandic. As usual, this is a draft.
+        * Version 2.0A released.
+
+2003-06-18 Gregory Pietsch <GKP1@flash.net>
+        * msgs-it.h msgs-fr.h : Fixed these files based on
+          e-mails from Maurizio Spagni <flurmy@comune.re.it>,
+          Roberto Mariottini <roberto.mariottini@primaelectronics.com>,
+          Salvo Isaja <salvois@users.sourceforge.net>, and
+          Achille Foulleul <achille.fouilleul@gambro.com>. Thanks
+          everyone for the new translations!
+        * msgs-pt.h : New translation of the message file into
+          Portuguese. As usual, this is a draft.
+
+2003-06-14 Gregory Pietsch <GKP1@flash.net>
+        * msgs-it.h : New translation of the message file into Italian.
+          The usual caveats apply; the translation might not be any good,
+          but who knows?
+        * msgs-es.h : New translation from Aitor SANTAMARIA_MERINO
+          <aitor.sm@wanadoo.es>. This replaces the "broken" Spanish
+          translation.
+        * Makefile.am : Added msgs-it.h into EXTRA_DIST area.
+        * Version 2.0 released.
+
+2003-06-13 Gregory Pietsch <GKP1@flash.net>
+        * msgs-es.h msgs-fr.h : New translations of the message file into
+          Spanish and French, respectively. These translations are broken
+          since my translating abilities aren't very good. Any volunteers?
+        * Renamed program to edlin.
+        * edlin.c : New file - renamed from edline.c.
+        * edlin.htm : New file - renamed from edline.htm.
+        * Makefile.am : Add msgs-es.h and msgs-fr.h into EXTRA_DIST area.
+        * NEWS : Modified.
+
+2003-06-09 Gregory Pietsch <GKP1@flash.net>
+        * msgs-de.h : New file from Eric Auer <eric@CoLi.Uni-SB.DE>. Replaces
+          the broken file I had.
+
+2003-05-30 Gregory Pietsch <GKP1@flash.net>
+        * msgs.h : New file.
+        * msgs-en.h : New file for internationalization.
+        * msgs-de.h : New translation of the msgs.h file into German.
+        * configure.in : version changed.
+        * Makefile.am : Added new files.
+        * edline.c edlib.c error.c : Minor alterations to outputted strings
+          for internationalization.
+        * New version: 1.4 released.
+
+2003-05-13 Gregory Pietsch <GKP1@flash.net>
+        * edline.htm : New file for HTML HELP.
+        * Makefile.am : Added edline.htm in EXTRA_DIST area.
+        * New version: 1.3 released.
+
+2003-05-10 Gregory Pietsch <GKP1@flash.net>
+        * dynstr.c (DSassigncstr): Added.
+        * dynstr.c (DScopy): Dropped; use a combination of DScreate and an
+          explicit DSassigncstr instead.
+        * dynstr.h : Redid prototypes for dynstr.c functions with cproto and
+          incorporated them here.
+        * error.c: Added patch from Michael Kallas.
+
+2003-04-29 Gregory Pietsch <GKP1@flash.net>
+        * configure.in : New test for memcpy() (HAVE_MEMCPY).
+        * dynstr.c : New fallback implementations of memset(), bcmp(),
+          bcopy().
+        * edlib.c : New fallback implementation of strchr().
+        * Makefile.am : include files config-h.bc, config-h.msc, Makefile.bc
+          in EXTRA_DIST area.
+        * New version: 1.2 released.
+
+2003-03-05 Gregory Pietsch <GKP1@flash.net>
+        * Makefile.bc : New file from Jim Hall <jhall@freedos.org>.
+        * config-h.bc : New file.
+        * dynstr.c dynstr.h : New files - renamed from dynstring.c and
+          dynstring.h.
+        * dynstring.c dynstring.h : Deleted.
+        * NEWS : modified.
+        * README : modified to include Borland C++ directions.
+        * dynstr.c (HAVE_BCMP) : include fallback implementation of bcmp().
+        * dynstr.c (HAVE_BCOPY) : include fallback implementation of bcopy().
+        * config.h.in : regenerated.
+        * config-h.msc config-h.bc : new defines for HAVE_BCMP, HAVE_BCOPY, 
+          HAVE_INDEX.
+        * New version: 1.1 released.
+
+2003-03-03 Gregory Pietsch <GKP1@flash.net>
+        * Initial entry.
+        * AUTHORS COPYING ChangeLog INSTALL Makefile.am Makefile.in
+          NEWS README aclocal.m4 config.h.in configure configure.in
+          depcomp dynstring.c dynstring.h edlib.c edlib.h
+          edline.c error.c error.h install-sh missing
+          mkinstalldirs xmalloc.c xmalloc.h : New files.
+        * TODO config-h.msc edline.dsw edline.dsp : New files.
+        * Version 1.0 released.
+

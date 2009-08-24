@@ -1,0 +1,51 @@
+GREGORY PIETSCH'S E-MAIL ADDRESS CHANGED
+
+EWING, NEW JERSEY, February 13, 2005 - Gregory Pietsch's e-mail address has 
+changed from GKP1@flash.net to gpietsch@comcast.net.
+
+-=-=-
+
+EDLIN IN JAPANESE!
+
+EWING, NEW JERSEY, September 4, 2004 - The edlin program now has support
+for the Japanese language.
+
+-=-=-
+
+EDLINE RENAMED TO EDLIN
+
+EWING, NEW JERSEY, June 9, 2003 - Beginning with the new version 2.0, the
+edline program has been renamed to edlin.
+
+On Friday, June 6, 2003, Gregory Pietsch, the maintainer of FreeDOS edline,
+received an e-mail from Jon Abrams, the president of Edline, LLC. His e-mail
+address is <jabrams@edline.com>. Abrams requested that Pietsch modify the
+name of the text editor so that it is no longer identical to the word "edline"
+to avoid confusion.
+
+-=-=-
+
+EDLINE PROGRAM INTERNATIONALIZATION
+
+EWING, NEW JERSEY, May 30, 2003 - Internationalization for the edline program
+is now a matter of translating strings in a header file.
+
+All the outputted strings and format strings for printf() and friends are in
+a file called msgs.h.  All the translator has to do is translate the strings
+in that file into the language of choice.  The msgs.h file has been copied to
+msgs-en.h, so that the English-language messages are saved.
+
+I still have to figure out how to copy a specific language file to msgs.h at
+compile time in the ./configure script, although this should be easy to do
+(crosses fingers here).
+
+-=-=-
+
+UNEMPLOYED PROGRAMMER NEEDS WORK
+
+EWING, NEW JERSEY, March 3, 2003 - Gregory Pietsch, the author of the edline
+line editor, is looking for a job. He has been out of work since June 2001
+and his unemployment benefits have run out.
+
+If you would like to hire Gregory, please send him a note at 
+gpietsch@comcast.net.

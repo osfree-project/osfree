@@ -1,0 +1,538 @@
+module dosprofile;
+
+(*** DosProfile API support *)
+
+abi os2386;
+
+(*** Perfview API support *)
+
+function DosTmrQueryFreq(out pulTmrFreq: ULONG): APIRET;
+
+function DosTmrQueryTime(out pqwTmrTime: QWORD): APIRET;
+
+function DosRegisterPerfCtrs(in pbDataBlk: PBYTE;
+                             in pbTextBlk: PBYTE;
+                             in flFlags: ULONG): APIRET;
+
+(* DosProfile ordinal number *)
+
+constant PROF_ORDINAL       = 133;
+
+(* DosProfile usType *)
+
+constant PROF_SYSTEM         =  0;
+constant PROF_USER           =  1;
+constant PROF_USEDD          =  2;
+constant PROF_KERNEL         =  4;
+constant PROF_VERBOSE        =  8;
+constant PROF_ENABLE         = 16;
+
+(* DosProfile usFunc *)
+
+constant PROF_ALLOC           = 0;
+constant PROF_CLEAR           = 1;
+constant PROF_ON              = 2;
+constant PROF_OFF             = 3;
+constant PROF_DUMP            = 4;
+constant PROF_FREE            = 5;
+
+(* DosProfile tic count granularity (DWORD) *)
+
+constant PROF_SHIFT           = 2;
+
+(* DosProfile module name string length *)
+
+constant PROF_MOD_NAME_SIZE  = 10;
+
+(* DosProfile error code for end of data *)
+
+constant PROF_END_OF_DATA    = 13;
+
+(* defines and structures for DosQuerySysState *)
+
+(* record types *)
+constant QS_PROCESS      = $0001;
+constant QS_SEMAPHORE    = $0002;
+constant QS_MTE          = $0004;
+constant QS_FILESYS      = $0008;
+constant QS_SHMEMORY     = $0010;
+constant QS_DISK         = $0020;
+constant QS_HWCONFIG     = $0040;
+constant QS_NAMEDPIPE    = $0080;
+constant QS_THREAD       = $0100;
+constant QS_MODVER       = $0200;
+
+(* valid EntityList bit settings *)
+constant QS_SUPPORTED  =  (QS_PROCESS or QS_SEMAPHORE or QS_MTE or QS_FILESYS or QS_SHMEMORY or QS_MODVER);
+
+constant QS_END         = 0;       (* last FILESYS record *)
+
+(* Global Record structure
+ * Holds all global system information. Placed first in user buffer
+ *)
+type QSGREC=structure
+                 cThrds: ULONG;
+                 c32SSem: ULONG;
+                 cMFTNodes: ULONG;
+     end;
+type PQSGREC=^QSGREC;
+
+(* Thread Record structure
+ *      Holds all per thread information.
+ *)
+type QSTREC=structure
+        RecType: ULONG;        (* Record Type *)
+        tid: USHORT;            (* thread ID *)
+        slot: USHORT;           (* "unique" thread slot number *)
+        sleepid: ULONG;        (* sleep id thread is sleeping on *)
+        priority: ULONG;       (* thread priority *)
+        systime: ULONG;        (* thread system time *)
+        usertime: ULONG;       (* thread user time *)
+        state: UCHAR;          (* thread state *)
+        pad_ch: UCHAR;
+        pad_sh: USHORT;
+end;
+type PQSTREC=^QSTREC;
+
+(* Process Record structure
+ *      Holds all per process information.
+ *      ________________________________
+ *      |       RecType                 |
+ *      |-------------------------------|
+ *      |       pThrdRec                |----|
+ *      |-------------------------------|    |
+ *      |       pid                     |    |
+ *      |-------------------------------|    |
+ *      |       ppid                    |    |
+ *      |-------------------------------|    |
+ *      |       type                    |    |
+ *      |-------------------------------|    |
+ *      |       stat                    |    |
+ *      |-------------------------------|    |
+ *      |       sgid                    |    |
+ *      |-------------------------------|    |
+ *      |       hMte                    |    |
+ *      |-------------------------------|    |
+ *      |       cTCB                    |    |
+ *      |-------------------------------|    |
+ *      |       c32PSem                 |    |
+ *      |-------------------------------|    |
+ *      |       p32SemRec               |----|---|
+ *      |-------------------------------|    |   |
+ *      |       c16Sem                  |    |   |
+ *      |-------------------------------|    |   |
+ *      |       cLib                    |    |   |
+ *      |-------------------------------|    |   |
+ *      |       cShrMem                 |    |   |
+ *      |-------------------------------|    |   |
+ *      |       cFS                     |    |   |
+ *      |-------------------------------|    |   |
+ *      |       p16SemRec               |----|---|----|
+ *      |-------------------------------|    |   |    |
+ *      |       pLibRec                 |----|---|----|------|
+ *      |-------------------------------|    |   |    |      |
+ *      |       pShrMemRec              |----|---|----|------|----|
+ *      |-------------------------------|    |   |    |      |    |
+ *      |       pFSRec                  |----|---|----|------|----|-----|
+ *      |-------------------------------|    |   |    |      |    |     |
+ *      |       32SemPPRUN[0]           |<---|---|    |      |    |     |
+ *      |          .                    |    |        |      |    |     |
+ *      |          .                    |    |        |      |    |     |
+ *      |          .                    |    |        |      |    |     |
+ *      |       32SemPPRUN[c32PSem-1]   |    |        |      |    |     |
+ *      |-------------------------------|    |        |      |    |     |
+ *      |       16SemIndx[0]            |<---|--------|      |    |     |
+ *      |          .                    |    |               |    |     |
+ *      |          .                    |    |               |    |     |
+ *      |          .                    |    |               |    |     |
+ *      |       16SemIndx[c16Sem-1]     |    |               |    |     |
+ *      |-------------------------------|    |               |    |     |
+ *      |       hmte[0] (or "name str") |<---|---------------|    |     |
+ *      |          .                    |    |                    |     |
+ *      |          .                    |    |                    |     |
+ *      |          .                    |    |                    |     |
+ *      |       hmte[cLib-1]            |    |                    |     |
+ *      |-------------------------------|    |                    |     |
+ *      |       hshmem[0]               |<---|--------------------|     |
+ *      |          .                    |    |                          |
+ *      |          .                    |    |                          |
+ *      |          .                    |    |                          |
+ *      |       hshmem[cShrMem-1]       |    |                          |
+ *      |-------------------------------|    |                          |
+ *      |       fsinfo[0]               |<---|--------------------------|
+ *      |          .                    |    |
+ *      |          .                    |    |
+ *      |          .                    |    |
+ *      |       fsinfo[cFS-1]           |    |
+ *      |-------------------------------|    |
+ *                                      <-----
+ *      NOTE that the process name string will be stored in place of hmtes
+ *              if MTE information is NOT being requested.
+ *      NOTE that following this structure in the user buffer is
+ *              an array c32Sems long of PRUN structures for 32 bit sems
+ *              an array c16Sems long of indices for 16 bit sems
+ *              the process name string
+ *)
+type QSPREC=structure
+                 RecType: ULONG;        (* type of record being processed *)
+                 pThrdRec: PQSTREC;  (* FAR!! * )    (* ptr to thread recs for this proc *)
+                 pid: USHORT;            (* process ID *)
+                 ppid: USHORT;           (* parent process ID *)
+                 type: ULONG;           (* process type *)
+                 stat: ULONG;           (* process status *)
+                 sgid: ULONG;           (* process screen group *)
+                 hMte: USHORT;           (* program module handle for process *)
+                 cTCB: USHORT;           (* # of TCBs in use *)
+                 c32PSem: ULONG;        (* # of private 32-bit sems in use *)
+                 p32SemRec: PVOID; (* FAR!! *)    (* pointer to head of 32bit sem info *)
+                 c16Sem: USHORT;         (* # of 16 bit system sems in use *)
+                 cLib: USHORT;           (* number of runtime linked libraries *)
+                 cShrMem: USHORT;        (* number of shared memory handles *)
+                 cFH: USHORT;            (* number of open files *)
+                                      (* NOTE: cFH is size of active part of *)
+                                      (*       handle table if QS_FILE specified *)
+                 p16SemRec: PUSHORT; (* FAR!! *)    (* pointer to head of 16 bit sem info *)
+                 pLibRec: PUSHORT; (* FAR!! *)       (* ptr to list of runtime libraries *)
+                 pShrMemRec: PUSHORT; (* FAR!! *)    (* ptr to list of shared mem handles *)
+                 pFSRec:  PUSHORT; (* FAR!! *)        (* pointer to list of file handles *)
+                                      (* = $FFFF means it's closed, otherwise *)
+                                      (*       it's an SFN if non-zero *)
+end;
+type PQSPREC=^QSPREC;
+
+(*
+ *      16 bit system semaphore structure
+ *      ________________________________
+ *      |       NextRec                 |----|
+ *      |-------------------------------|    |
+ *      |SysSemData     :               |    |
+ *      |       SysSemOwner             |    |
+ *      |       SysSemFlag              |    |
+ *      |       SysSemRecCnt            |    |
+ *      |       SysSemProcCnt           |    |
+ *      |-------------------------------|    |
+ *      |-------------------------------|    |
+ *      |-------------------------------|    |
+ *      |       SysSemPtr               |    |
+ *      |-------------------------------|    |
+ *      |SysSemName:                    |    |
+ *      |       "pathname"              |    |
+ *      |-------------------------------|    |
+ *                                      <-----
+ *)
+
+
+(* SysSemFlag values *)
+
+constant QS_SYSSEM_WAITING = $01;               (* a thread is waiting on the sem *)
+constant QS_SYSSEM_MUXWAITING = $02;            (* a thread is muxwaiting on the sem *)
+constant QS_SYSSEM_OWNER_DIED = $04;            (* the process/thread owning the sem died *)
+constant QS_SYSSEM_EXCLUSIVE = $08;             (* indicates a exclusive system semaphore *)
+constant QS_SYSSEM_NAME_CLEANUP = $10;          (* name table entry needs to be removed *)
+constant QS_SYSSEM_THREAD_OWNER_DIED = $20;     (* the thread owning the sem died *)
+constant QS_SYSSEM_EXITLIST_OWNER = $40;        (* the exitlist thread owns the sem *)
+
+type QSS16REC=structure
+        NextRec: ULONG;        (* offset to next record in buffer *)
+                                      (* System Semaphore Table Structure *)
+        SysSemOwner: USHORT;   (* thread owning this semaphore *)
+        SysSemFlag: UCHAR;    (* system semaphore flag bit field *)
+        SysSemRefCnt: UCHAR;  (* number of references to this sys sem *)
+        SysSemProcCnt: UCHAR; (* number of requests for this owner *)
+        SysSemPad: UCHAR;     (* pad byte to round structure up to word *)
+        pad_sh: USHORT;
+        SemPtr: USHORT;         (* RMP SysSemPtr field *)
+        SemName: CHAR;        (* start of semaphore name string *)
+  end;
+
+type QSS16HEADREC=structure
+        SRecType: ULONG;       (* offset of SysSemDataTable *)
+        SpNextRec: ULONG;      (* overlays NextRec of 1st qsS16rec_t*)
+        S32SemRec: ULONG;
+        S16TblOff: ULONG;
+        pSem16Rec: ULONG;
+end;
+type PQSS16HEADREC=^QSS16HEADREC;
+
+(*
+ *      System wide Shared Mem information
+ *      ________________________________
+ *      |       MemNextRec              |
+ *      |-------------------------------|
+ *      |       hmem                    |
+ *      |-------------------------------|
+ *      |       sel                     |
+ *      |-------------------------------|
+ *      |       refcnt                  |
+ *      |-------------------------------|
+ *      |       Memname                 |
+ *      |_______________________________|
+ *
+ *)
+type QSMREC=structure
+        MemNextRec: ULONG;       (* offset to next record in buffer *)
+        hmem: USHORT;             (* handle for shared memory *)
+        sel: USHORT;              (* selector *)
+        refcnt: USHORT;           (* reference count *)
+        Memname: CHAR;          (* start of shared memory name string *)
+end;
+type PQSMREC=^QSMREC;
+
+(*
+ *      32 bit system semaphore structure
+ *      ________________________________
+ *      |       pNextRec                |-----------------.
+ *      |-------------------------------|                 |
+ *      |       flags                   |                 |
+ *      |-------------------------------|                 |
+ *      |       pad                     |                 |
+ *      |-------------------------------|                 |
+ *      |       *pName                  |----> pointer to |
+ *      |-------------------------------|      semaphore  |
+ *      |       QSHUN                   |      name       |
+ *      |-------------------------------|                 |
+ *      |       OpenCt                  |                 |
+ *      |-------------------------------|                 |
+ *      |       indexName               |                 |
+ *      |-------------------------------|                 |
+ *      |       blockid                 |                 |
+ *      |-------------------------------|                 |
+ *      |       OpenQ[0]                |                 |
+ *      |-------------------------------|                 |
+ *      |       ...                     |                 |
+ *      |-------------------------------|                 |
+ *      |       OpenQ[OpenCt-1]         |                 |
+ *      |-------------------------------|                 |
+ *      |          .                    |                 |
+ *      |          .                    |                 |
+ *      |          .                    |                 |
+ *      |-------------------------------|<----------------'
+ *      |       pNextRec                |------------------>
+ *      |-------------------------------|
+ *
+ *)
+
+(*
+ *  32- bit Semaphore flags
+ *)
+
+constant QS_DC_SEM_SHARED   = $0001;   (*  Shared Mutex, Event or MUX semaphore *)
+constant QS_DCMW_WAIT_ANY   = $0002;   (*  Wait on any event/mutex to occur *)
+constant QS_DCMW_WAIT_ALL   = $0004;   (*  Wait on all events/mutexs to occur *)
+constant QS_DCM_MUTEX_SEM   = $0008;   (*  Mutex semaphore *)
+constant QS_DCE_EVENT_SEM   = $0010;   (*  Event semaphore *)
+constant QS_DCMW_MUX_SEM    = $0020;   (*  Muxwait semaphore *)
+constant QS_DC_SEM_PM       = $0040;   (*  PM Shared Event Semphore *)
+constant QS_DE_POSTED       = $0040;   (*  event sem is in the posted state *)
+constant QS_DM_OWNER_DIED   = $0080;   (*  The owning process died *)
+constant QS_DMW_MTX_MUX     = $0100;   (*  MUX contains mutex sems *)
+constant QS_DHO_SEM_OPEN    = $0200;   (*  Device drivers have opened this semaphore *)
+constant QS_DE_16BIT_MW     = $0400;   (*  Part of a 16-bit MuxWait *)
+constant QS_DCE_POSTONE     = $0800;   (*  Post one flag event semaphore *)
+constant QS_DCE_AUTORESET   = $1000;   (*  Auto-reset event semaphore *)
+
+type QSOPENQ=structure
+        pidOpener: USHORT;      (* process id of opening process *)
+        OpenCt: USHORT;         (* number of opens for this process *)
+end;
+
+type QSEVENT=structure
+        pMuxQ: PULONG;         (* pointer to the mux queue *)
+        PostCt: USHORT;         (* # of posts *)
+end;
+
+type QSMUTEX=structure
+        pMuxQ: PULONG;         (* pointer to the mux queue *)
+        ReqCt: USHORT;          (* # of requests *)
+        SlotNum: USHORT;        (* slot # of owning thread *)
+end;
+
+type QSMUX=structure
+        pSemRec: PVOID;       (* array of SEMRECORD entries *)
+        cSemRec: USHORT;        (* count of semaphore records *)
+        WaitCt: USHORT;         (* # threads waiting on the mux *)
+end;
+
+
+(*
+type union _QSHUN {
+        QSEVENT         qsSEvt;         * shared event sem *
+        QSMUTEX         qsSMtx;         * shared mutex sem *
+        QSMUX           qsSMux;         * shared mux sem *
+} QSHUN;
+*)
+
+type QSHUN=structure
+        qsSEvt: QSEVENT;         (* shared event sem *)
+        qsSMtx: QSMUTEX;         (* shared mutex sem *)
+        qsSMux: QSMUX;         (* shared mux sem *)
+end;
+
+
+type QSS32REC=structure
+        pNextRec: PVOID;      (* pointer to next record in buffer *)
+        flags: USHORT;          (* QS_xxx flags *)
+        pad_sh: USHORT;
+        pName: PUCHAR;         (* pointer to semaphore name *)
+        qsh: QSHUN;            (* qstate version of SHUN record *)
+        blockid: ULONG;        (* kernel block id *)
+        index: USHORT;          (* low word of sem handle *)
+        OpenCt: USHORT;         (* count of OpenQs *)
+        OpenQ: array[1] of QSOPENQ;       (* variable length array of OpenQs *)
+end;
+type PQSS32REC=^QSS32REC;
+
+(*
+ *      System wide MTE information
+ *      ________________________________
+ *      |       pNextRec                |----|
+ *      |-------------------------------|    |
+ *      |       hmte                    |    |
+ *      |-------------------------------|    |
+ *      |       ctImpMod                |    |
+ *      |-------------------------------|    |
+ *      |       ctObj                   |    |
+ *      |-------------------------------|    |
+ *      |       pObjInfo                |----|----------|
+ *      |-------------------------------|    |          |
+ *      |       pName                   |----|----|     |
+ *      |-------------------------------|    |    |     |
+ *      |       imported module handles |    |    |     |
+ *      |          .                    |    |    |     |
+ *      |          .                    |    |    |     |
+ *      |          .                    |    |    |     |
+ *      |-------------------------------| <--|----|     |
+ *      |       "pathname"              |    |          |
+ *      |-------------------------------| <--|----------|
+ *      |       Object records          |    |
+ *      |       (if requested)          |    |
+ *      |_______________________________|    |
+ *                                      <-----
+ *      NOTE that if the level bit is set to QS_MTE, the base Lib record will be followed
+ *      by a series of object records (QSLOBJREC); one for each object of the
+ *      module.
+ *)
+
+type QSLOBJREC=structure
+        oaddr: ULONG;  (* object address *)
+        osize: ULONG;  (* object size *)
+        oflags: ULONG; (* object flags *)
+end;
+type PQSLOBJREC=^QSLOBJREC;
+
+type QSLREC=structure
+        pNextRec: PVOID; (* FAR!! *)     (* pointer to next record in buffer *)
+        hmte: USHORT;           (* handle for this mte *)
+        fFlat: USHORT;          (* true if 32 bit module *)
+        ctImpMod: ULONG;       (* # of imported modules in table *)
+        ctObj: ULONG;          (* # of objects in module (mte_objcnt)*)
+        pObjInfo: PQSLOBJREC;   (* FAR!! *)   (* pointer to per object info if any *)
+        pName: PUCHAR;(* FAR !! *)         (* -> name string following struc *)
+end;
+type PQSLREC=^QSLREC;
+
+(* Used for 9th bit (Extended Module Data Summary)*)
+type QSEXLREC=structure
+        next: PVOID;  (*  Pointer to next Extended Module Data *)
+        hndmod: USHORT;           (*  Module Handle *)
+        pid: USHORT;              (*  Process ID *)
+        type: USHORT;             (*  Type of Module *)
+        refcnt: ULONG;           (*  Size of reference array *)
+        segcnt: ULONG;           (*  Number of segments in module *)
+        _reserved_: PVOID;
+        name: PUCHAR;  (* FAR!! *)          (*  Pointer to Module Name  *)
+        ModuleVersion: ULONG;    (*  Module version value  *)
+        ShortModName: PUCHAR;(* FAR!! *)    (*  New Pointer to Module short name *)
+        modref: ULONG;           (*  Start of array of handles of module *)
+end;
+
+(*
+ *      System wide FILE information
+ *      ________________________________
+ *      |       RecType                 |
+ *      |-------------------------------|
+ *      |       pNextRec                |-------|
+ *      |-------------------------------|       |
+ *      |       ctSft                   |       |
+ *      |-------------------------------|       |
+ *      |       pSft                    |---|   |
+ *      |-------------------------------|   |   |
+ *      |       name                    |   |   |
+ *      |-------------------------------|<--|   |
+ *      |       qsSft[0]                |       |
+ *      |-------------------------------|       |
+ *      |       ...                     |       |
+ *      |-------------------------------|       |
+ *      |       qsSft[ctSft -1]         |       |
+ *      |_______________________________|       |
+ *      |       name                    |       |
+ *      |_______________________________|       |
+ *                                      <-------|
+ *)
+type QSSFT=structure
+        sfn: USHORT;            (* SFN sf_fsi.sfi_selfSFN *)
+        refcnt: USHORT;         (* sf_ref_count *)
+        flags: USHORT;          (* sf_flags *)
+        flags2: USHORT;         (* sf_flags2 *)
+        mode: USHORT;           (* sf_fsi.sfi_mode - mode of access *)
+        mode2: USHORT;          (* sf_fsi.sfi_mode2 - mode of access *)
+        size: ULONG;           (* sf_fsi.sfi_size *)
+        hVPBL: USHORT;           (* sf_fsi.sfi_hVPB handle of volume *)
+        attr: USHORT;           (* sf_attr *)
+        pad_sh: USHORT;
+end;
+type PQSSFT=^QSSFT;
+
+type QSFREC=structure
+        RecType: ULONG;        (* Record Type *)
+        pNextRec: PVOID;      (* pointer to next record in buffer *)
+        ctSft: ULONG;          (* # sft entries for this MFT entry *)
+        pSft: PQSSFT;          (* -> start of sft entries in buf *)
+end;
+type PQSFREC=^QSFREC;
+
+
+(* Pointer Record Structure
+ *      This structure is the first in the user buffer.
+ *      It contains pointers to heads of record types that are loaded
+ *      into the buffer.
+ *)
+
+type QSPTRREC=structure
+        pGlobalRec: PQSGREC;
+        pProcRec: PQSPREC;      (* ptr to head of process records *)
+        p16SemRec: PQSS16HEADREC;     (* ptr to head of 16 bit sem recds *)
+        p32SemRec: PQSS32REC;     (* ptr to head of 32 bit sem recds *)
+        pMemRec: PQSMREC;       (* ptr to head of shared mem recs *)
+        pLibRec: PQSLREC;       (* ptr to head of mte records *)
+        pShrMemRec: PQSMREC;    (* ptr to head of shared mem records *)
+        pFSRec: PQSFREC;        (* ptr to head of file sys records *)
+end;
+
+function DosQuerySysState(in EntityList: ULONG;
+                          in EntityLevel: ULONG;
+                          in pid: PID;
+                          in tid: TID;
+                          in pDataBuf: PVOID;
+                          in cbBuf: ULONG): APIRET;
+
+function DosAliasPerfCtrs(in ulRangeType: ULONG;
+                          in ulInfo: ULONG;
+                          in ppbRangeStart: ^PBYTE;
+                          in pulRangeSize: ^ULONG): APIRET;
+
+function DosConfigurePerf(in ulEntityType: ULONG;
+                          in ulConfigType: ULONG;
+                          in ulInfo1: ULONG;
+                          in ulInfo2: ULONG;
+                          in pszConfigSpec: PCSZ;
+                          in fExclude: BOOL32): APIRET;
+
+function DosDeconPerf: APIRET;
+
+function DosPerfSysCall(in ulCommand: ULONG;
+                        in ulParm1: ULONG;
+                        in ulParm2: ULONG;
+                        in ulParm3: ULONG): APIRET;
+
+end.

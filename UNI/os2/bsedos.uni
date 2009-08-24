@@ -1,0 +1,48 @@
+module bsedos;
+
+abi os2386;
+
+
+(************************************************************************
+* CCHMAXPATH is the maximum fully qualified path name length including  *
+* the drive letter, colon, backslashes and terminating NULL.            *
+*************************************************************************)
+constant CCHMAXPATH=260;
+
+(************************************************************************
+* CCHMAXPATHCOMP is the maximum individual path component name length   *
+* including a terminating NULL.                                         *
+*************************************************************************)
+constant CCHMAXPATHCOMP=256;
+
+uses dos;
+
+uses dosdatetime;
+uses dosdevices;
+uses dosexceptions;
+uses dosfilemgr;
+uses dosmemmgr;
+uses dosmisc;
+uses dosmodulemgr;
+uses dosmonitors;
+uses dosmvdm;
+uses dosnls;
+uses dosnmpipes;
+uses dosprocess;
+uses dosprofile;
+uses dosqueues;
+uses dosresources;
+uses dossemaphores;
+uses dossesmgr;
+uses dosmemmgrcommon;
+uses dosprocesscommon;
+uses dosfilemgrcommon default;
+uses dossemaphorescommon;
+uses dosdatetimecommon;
+uses dosresourcescommon;
+uses dossesmgrfilemgr; (* Need to move to both areas *)
+uses dosspinlock;
+uses bdcalls;
+
+
+end.

@@ -1,0 +1,1530 @@
+
+\chapter{Decoding of Machine Instructions -- Syntax Parsing}
+\label{ch-decoding}
+
+{\small
+\begin{flushright}
+Design: Cristina; Documentation: Cristina [Feb 00]; Implementation: Cristina, Mike
+\end{flushright} 
+}
+
+
+The New Jersey Machine Code (NJMC) toolkit allows users to write
+machine descriptions of assembly instructions and their associated
+binary representations using the Specification Language
+for Encoding and Decoding (SLED).
+SLED provides for compact specifications of RISC and CISC 
+machines; with 127, 193 and 460 lines of specification for
+the MIPS, SPARC and Pentium respectively. 
+
+The toolkit also provides extra support for encoding of assembly to
+binary code, and decoding of binary to assembly code.
+For decoding purposes, the toolkit provides a \emph{matching} statement 
+which resembles the C \texttt{switch} statement.  
+The toolkit generates C and Modula-3 code from matching statements, 
+hence automating part of the disassembly process.  
+The generated code can be integrated as a module of a binary-decoding 
+application.  This chapter briefly describes the SLED language, its usage 
+for decoding of machine instructions, and the way we have optimised the 
+the code that the toolkit generates.
+
+
+\section{SLED and Decoding of Machine Instructions}
+This section provides a brief description of the SLED language in 
+order to familiarize the reader with the key concepts of the language.
+Readers familiar with the toolkit and its usage should skip this section. 
+A full description of the SLED language is provided in~\cite{Rams97}.
+A complete description of the usage of the toolkit for both
+encoding and decoding purposes is available in the reference 
+manual~\cite{Rams94}.
+
+
+\subsection{SLED Concepts}
+SLED introduces the following concepts to describe binary machine
+instructions:
+\begin{description}
+\item [tokens] represent names for a sequence of bits.  Tokens are 
+	commonly used to represent the bits of one machine instruction
+	or of immediate operands.  A token is given a size, representing
+	the number of bits in the token.
+\item [fields] describe the parts of a token in terms of their name
+	and bit range.  Fields can use little or big endian conventions.
+\item [patterns] describe the possible values in the fields of
+	a token, and names them.  Pattern names can also refer to groups
+	of patterns.
+\item [constructors] describe the mapping between binary and a
+	symbolic assembly-like representation by associating 
+	a list of operands with a pattern.
+\item [equations] describe simple mathematical equations which
+	place constraints on the values of fields used in constructors.
+\item [relocatables] describe operands in constructors that denote 
+	relocatable addresses.
+\end{description}
+
+A partial example of the SPARC SLED specification is given in
+Figure~\ref{fig-sparc-sled}.
+The \texttt{fields} keyword describes the specification of
+a token named \texttt{instruction} of size 32 bits.  The fields
+of that token include: \texttt{op}, \texttt{rd}, and \texttt{rs1}. 
+Each field denotes a sequence of bits of the \texttt{instruction} 
+token it refers to. 
+For example, the \texttt{op} field refers to bits 30 and 31, and
+the \texttt{rs1} field refers to bits 14 to 18.   
+By default, big-endian convention is used.
+
+\centerfigbegin
+\begin{small} 
+\begin{verbatim}
+fields of instruction (32)
+inst 0:31 op 30:31 disp30 0:29 rd 25:29 op2 22:24 imm22 0:21 a 29:29 cond 25:28
+disp22 0:21 op3 19:24 rs1 14:18 i 13:13 asi 5:12 rs2 0:4 simm13 0:12 opf 5:13
+fd 25:29 cd 25:29 fs1 14:18 fs2 0:4 rs1i 14:18 rdi 25:29
+
+patterns
+ [ TABLE_F2 CALL TABLE_F3 TABLE_F4 ] is op  = {0 to 3}
+patterns
+ [ ADD  ADDcc  TADDcc   WRxxx
+   AND  ANDcc  TSUBcc   WRPSR
+   OR   ORcc   TADDccTV WRWIM
+   XOR  XORcc  TSUBccTV WRTBR
+   SUB  SUBcc  MULScc   FPop1
+   ANDN ANDNcc SLL      FPop2
+   ORN  ORNcc  SRL      CPop1
+   XNOR XNORcc SRA      CPop2
+   ADDX ADDXcc RDxxx    JMPL
+   _    _      RDPSR    RETT
+   UMUL UMULcc RDWIM    Ticc
+   SMUL SMULcc RDTBR    FLUSH
+   SUBX SUBXcc _        SAVE
+   _    _      _        RESTORE
+   UDIV UDIVcc _        _
+   SDIV SDIVcc _        _       ] is TABLE_F3 & op3 = {0 to 63 columns 4}
+patterns
+  arith   is ADD | ADDcc | ADDX | ADDXcc | TADDcc | TADDccTV |
+             SUB | SUBcc | SUBX | SUBXcc | TSUBcc | TSUBccTV |
+             MULScc | UMUL | SMUL | UMULcc | SMULcc |
+             UDIV | SDIV | UDIVcc | SDIVcc | SAVE | RESTORE
+
+constructors
+  imode simm13! : reg_or_imm  is  i = 1 & simm13
+  rmode rs2     : reg_or_imm  is  i = 0 & rs2
+constructors
+  arith rs1, reg_or_imm, rd
+relocatable reloc
+constructors
+  call reloc   { reloc = L + 4 * disp30! } is L: CALL & disp30
+\end{verbatim}
+\end{small}
+\centerfigend{fig-sparc-sled}{Partial SLED specification for the SPARC}
+
+The first \texttt{patterns} keyword defines names for 4 patterns: 
+\texttt{TABLE\_F2}, \texttt{CALL}, \texttt{TABLE\_F3}, and 
+\texttt{TABLE\_F4}.  Each of these patterns bind to a value of
+the \texttt{op} field: \texttt{TABLE\_F2} binds to 0, \texttt{CALL}
+binds to 1, \texttt{TABLE\_F3} binds to 2, and \texttt{TABLE\_F4} binds
+to 3.  In this way, the 4 main tables described in the SPARC 
+manual~\cite{Spar92} can be identified.
+The second \texttt{patterns} keyword defines names for each of
+the 64 values that the combination of the \texttt{TABLE\_F3} pattern
+(i.e. \texttt{op} equal to 2) and the field \texttt{op3} can take.  
+Entries labelled \texttt{\_} denote entries without a name; i.e. 
+entries that are not defined in the manual.   
+The third \texttt{patterns} keyword defines the name \texttt{arith} 
+to be any of the patterns in the right-hand side of the \texttt{is} 
+keyword; namely \texttt{ADD}, \texttt{ADDcc}, \texttt{TADDcc}, etc.
+
+The first \texttt{constructor} keyword defines the constructor
+\texttt{reg\_or\_imm} to be one of two modes: immediate (\texttt{imode})
+or register-based (\texttt{rmode}).  The former mode binds 
+the value of the \texttt{i} field to 1, and the latter to 0.
+The former mode returns the 13-bit value \texttt{simm13} signed-extended 
+(the \texttt{!} denotes sign-extension), whereas the latter mode
+returns the value of the \texttt{rs2} field (a register number).
+The second \texttt{constructor} keyword defines the constructor
+\texttt{arith} to require the fields and constructors \texttt{rs1}, 
+\texttt{reg\_or\_imm}, and \texttt{rd} (which stand for first register 
+operand, second register or immediate operand, and destination register). 
+In this definition, it is implied that the bit pattern to be 
+matched is that of the pattern \texttt{arith} and the fields
+\texttt{rs1}, \texttt{reg\_or\_imm}, and \texttt{rd}.  In other
+words, this constructor defines all the arithmetic instructions for
+the SPARC. 
+The last \texttt{constructor} keyword defines the constructor
+\texttt{call}, which takes a relocatable address (denoted by
+\texttt{reloc}).  The relocatable address needs to satisfy the
+equation \texttt{reloc = L + 4 * disp30!}. 
+That is, the relocatable address is equivalent to the sign-extended
+(\texttt{!}) 30-bit displacement (\texttt{disp30}) shifted left by 2 
+(i.e. a 32-bit address where the least two significant bits are 0) plus 
+the current displacement (\texttt{L}).  The value of \texttt{L} is
+obtained at runtime, by checking the address at which the 
+\texttt{CALL} bit pattern is being decoded from.  The \texttt{call}
+constructor is defined as the bit pattern combination of the 
+\texttt{CALL} pattern and the \texttt{disp30} field.
+
+
+\subsection{Decoding Using the New Jersey Machine Code Toolkit}
+The NJMC toolkit uses matching statements to drive the decoding
+of a binary instruction stream.  A matching statement resembles
+a C \texttt{switch} statement, except that only one arm can 
+be matched (the first one to be valid in the instruction 
+stream). 
+A matching statement is identified by the \texttt{match}
+keyword.  Arms of the match are identified by the \texttt{|} symbol, 
+and the left and right-hand sides of the arm are separated by the 
+\texttt{=>} symbol. 
+Figure~\ref{fig-matching} provides an EBNF-like specification of
+the matching statement.  In that specification, \emph{pc} stands 
+for the address to the instruction stream to be decoded, 
+\emph{pattern} stands for the SLED pattern to be matched 
+(including parameters), \emph{equation} stands for any valid
+SLED equation that needs to be valid in conjunction with a 
+particular pattern, and \emph{code} stands for the C or Modula3
+code that the user wants to associate with the matched pattern.
+The keyword \texttt{[name]} is used to return the SLED base
+pattern name for the matched pattern. 
+
+\begin{figure}[htb]
+\texttt{match} pc \texttt{to} \\
+\{\texttt{|} pattern [\{equations\}] [\texttt{[name]}] \texttt{=>} code \} \\
+{[\texttt{else} code]} \\
+\texttt{endmatch}
+{\small \caption{\label{fig-matching}{Matching Statement EBNF Specification}}}
+\end{figure}
+  
+For example, if the patterns \texttt{add} and \texttt{sub} are 
+described in a SLED specification for a particular machine, then 
+the following matching statement displays those names when matched 
+at the binary instruction stream pointed to by the address in \texttt{pc}:
+\begin{verbatim}
+match pc to
+| add (rd, rs1, rs2) => printf ("add\n");
+| sub (rd, rs1, rs2) [name] => printf ("%s\n", name);
+| else                  printf ("other instruction\n");
+endmatch
+\end{verbatim}
+
+The ``arguments'' to the constructor are names that match
+the field names defined with each constructor (in order of
+specification) and return the numerical value of
+that field.  Hence, in the above example, \texttt{rd}, 
+\texttt{rs1} and \texttt{rs2} are integers.  An application
+writer may want to give special semantics to such returned
+integers; for example, displaying the name of the register
+instead of the integer representation of the register.  If
+we assume we have an array of register names called \texttt{reg},
+the above example can be re-written to also display the names of the
+arguments:
+\begin{verbatim}
+match pc to
+| add (rd, rs1, rs2) => printf ("add %s, %s, %s\n", reg[rd], reg[rs1], reg[rs2]);
+| sub (rd, rs1, rs2) [name] => 
+                        printf ("%s %s, %s, %s\n", name, reg[rd], reg[rs1], reg[rs2]);
+| else                  printf ("other instruction\n");
+endmatch
+\end{verbatim}
+
+Matching files are processed by the toolkit to generate C or 
+Modula-3 code that implements the decoding of the instructions
+in the \texttt{match} statement.  
+
+Version 0.5 of the NJMC toolkit makes available an option to
+partly automate the generation of a matching statement for a
+particular SLED specification.  The option \texttt{-dis} generates
+matching statements for the given SLED file(s) and stores them 
+in the filename provided:  \\
+\hspace*{2cm}\texttt{-dis} filename sledfile(s)\\
+In practice, the generated code needs to be modified in order to add 
+relevant procedure names for each main matching statement, 
+as well as remove duplicated arms from the matching statements.
+Note that this option is not currently available in the ML 
+version of the toolkit.
+
+
+\subsubsection{Decoding of RISC Machine Instructions}
+Some of the characteristics of RISC machines include the 
+orthogonality of their instruction sets and the relatively 
+small number of instructions.  Further, the size of each
+instruction is fixed and is equivalent to the word size 
+of the machine.  These characteristics make the writing
+of a SLED spec and decoder easier than for a CISC instruction
+set.
+
+Figure~\ref{fig-sparc-decoder} contains a snippet of code
+for the SPARC decoder; this code was written by hand rather
+than generated automatically.  The main decoding routine is 
+\texttt{decode\_instr}, which decodes one instruction per
+invocation.  The \texttt{pc} argument points to the address
+in memory where the instruction stream to be decoded is located
+at.  The \texttt{uNativeAddr} argument contains the native
+address where the Elf Loader would be expected to load the
+instruction stream, and the \texttt{buf} argument is a buffer
+where the textual assembly representation of this instruction
+will be stored.  The code in this procedure is straight 
+forward, except for the target address of branches and calls.
+Other than the type name \texttt{ADDRESS}, all names in uppercase 
+represent macros used as a shorthand for invoking functions or 
+accessing arrays of strings.
+
+Constructors for branches and calls are defined in the SLED 
+spec as using relocatable addresses.  Therefore, the toolkit
+generates code to return the relocated target address rather
+than the original offset displayed in the instruction.  However,
+due to the fact that the toolkit is using the \texttt{pc} address
+as the address to relocate from, rather than the \texttt{uNativeAddr}
+which it does not know about, the returned target address is 
+wrong; hence the use of a simple equation to transform the target
+address to the right one.   
+
+\centerfigbegin
+{\small
+\begin{verbatim}
+#define RD   (rd_names[rd])
+#define RS1  (rs1_names[rs1])
+#define ROI  (dis_roi(roi))
+#define ADDR (dis_addr(addr))
+
+char *dis_addr(ADDRESS lc) {
+  static char buf[512];
+  match lc to
+  | indirectA(rs1)   => return RS1;
+  | indexA(rs1, rs2) => sprintf(buf, "%s+%s", RS1, RS2);
+  | absoluteA(i)     => sprintf(buf, "%d", i);
+  | dispA(rs1, i)    => sprintf(buf, "%s%s%d", RS1, (int)i < 0 ? "" : "+", i);
+  endmatch
+  return buf;
+}
+
+char *dis_roi(ADDRESS lc) {
+  static char buf[512];
+  match lc to
+  | imode(i)   => sprintf(buf, "%d", i); return buf;
+  | rmode(rs2) => return RS2;
+  endmatch
+}
+
+void decode_instr (ADDRESS pc, ADDRESS uNativeAddr, char *buf)
+{
+  match pc to
+  | NOP =>          sprintf(buf, "nop");
+  | decode_sethi(imm22, rd) =>
+                    sprintf(buf, "sethi %%hi(%s), 0x%x", imm22, RD);
+  ...
+  | alu (rs1, roi, rd) [name] =>
+                    sprintf(buf, "%s %s, %s, %s", name, RS1, ROI, RD);
+  | branch^a (tgt, a) [name] =>
+                    sprintf(buf, "%s 0x%08x (%d) ; a = %d", name,
+                           tgt-pc+uNativeAddr, tgt-pc, a);
+  | call (tgt) =>   sprintf(buf, "call 0x%08x", tgt-pc+uNativeAddr);
+  | JMPL (addr, rd) [name] =>
+                    sprintf(buf, "jmpl %s, %s", ADDR, RD);
+  ...
+  | inst = n =>     sprintf(buf, ".word 0x%08x", n);
+  endmatch        
+\end{verbatim}
+}
+\centerfigend{fig-sparc-decoder}{Snippet Code for a SPARC Decoder}
+
+The functions \texttt{dis\_addr} and \texttt{dis\_roi} implement
+the matching of an effective address, and a register or immediate 
+operand, respectively.  
+In the former function, an effective address is defined as being
+one of 4 cases, namely, indirect, indexed, absolute, or displacement.
+In the latter function, a register or immediate is either of those
+two options, which can also be matched against the SLED spec.
+Both functions return a buffer with the assembly version of 
+the bits matched.
+
+The toolkit provides support for generating the names of registers
+based on the names used for patterns in the SLED spec.  In a SLED
+spec, any name values given for fields with the \texttt{fieldinfo}
+keyword can be retrieved automatically by the toolkit in an array 
+of strings.  The command line option \\
+\hspace*{2cm}\texttt{-lc-pat-names} \\
+generates a header and data declaration file (.h and .c) with the
+names of all strings found in a SLED spec.  In our previous 
+example, the names for \texttt{rs1\_names} and \texttt{rd\_names} 
+were generated by the toolkit in a separate file and imported into
+the decoder (aka matcher) file.
+
+In order for the toolkit to fetch instructions from the bit stream
+addressed by \texttt{pc} in the previous example, a fetch routine
+needs to be provided by the tool writer.  In the case of SPARC, 
+all fetches will be 32 bits as all instructions are 32 bits, hence
+a \texttt{fetch\_word} function needs to be made available.  Suitable
+code for such a function is:
+\begin{verbatim}
+static ADDRESS fetch_word(ADDRESS lc) {
+  return *(ADDRESS *)lc;
+}
+\end{verbatim}
+where \texttt{ADDRESS} is a 32-bit type.  Information about the name
+of this function, the type of the address field, and address 
+conversions need to be specified in an auxiliary spec.  For the 
+SPARC decoder, the interface to the instruction stream is as 
+follows:
+\begin{verbatim}
+address type is "unsigned"
+address to integer using "%a"
+address add using "%a+%o"
+fetch 32 using "fetch_word(%a)"
+\end{verbatim} 
+
+Norman believes that in order to get the right relocated address 
+out of branches and calls, that the \texttt{address to integer} 
+option needs to be changed to something like this: \\ 
+\hspace*{2cm}\texttt{address to integer using "\%a - uNativeAddr + pc"} \\
+In practice, this has not worked yet, and I have not tried it lately.
+
+
+\subsubsection{Decoding of CISC Machine Instructions}
+Amongst the characteristics of CISC machines are the lack of 
+orthogonality in their instruction sets, the large numbers of
+machine instructions, and the variable length size for 
+instructions.  Further, assembly names are often overloaded.
+These characteristics make the writing of SLED specs for CISC
+machines harder; nevertheless, the language is expressive 
+enough.  
+
+Figure~\ref{fig-cisc-sled} contains part of the SLED code for
+the x86 instruction set.  The complexity of the instruction 
+set can be seen in terms of the number of different \texttt{field}
+definitions, the complex names used to distinguish overloaded
+instruction names, and the variety of values available on the
+right hand side of constructors.  Further, the addressing modes
+(\texttt{Eaddr} and \texttt{Mem}) account for 10 possible 
+combinations.
+
+\centerfigbegin
+{\small
+\begin{verbatim}
+fields of opcodet (8) row 4:7 col 0:2 page 3:3
+    sr4 3:5 sr16 0:2 r16 0:2 r8 0:2
+fields of modrm (8) mod 6:7 reg_opcode 3:5 r_m 0:2
+fields of I8   (8) i8  0:7
+
+patterns
+arith is any of [ ADD OR
+                  ADC SBB
+                  AND SUB
+                  XOR CMP ], which is row = {0 to 3} & page = [0 1]
+[ Eb.Gb Ew.Gw Gb.Eb Gw.Ew AL.Ib AX.Iw ] is col = {0 to 5}
+
+patterns
+  arithI    is any of [ ADDi ORi ADCi SBBi ANDi SUBi XORi CMPi ],
+            which is (Eb.Ib | Ew.Iw | Ew.Ib); reg_opcode = {0 to 7} ...
+
+relocatable d a
+constructors
+  Indir    [reg] : Mem { reg != 4, reg != 5 } is mod = 0 & r_m = reg
+  Disp8   d[reg] : Mem { reg != 4 }           is mod = 1 & r_m = reg; i8  = d
+  Disp32  d[reg] : Mem { reg != 4 }           is mod = 2 & r_m = reg; i32 = d
+  Abs32   a      : Eaddr                      is mod = 0 & r_m = 5;   i32 = a
+  Reg     reg    : Eaddr                      is mod = 3 & r_m = reg
+  Index    [base][index * ss] : Mem { index != 4, base != 5 } is
+                        mod = 0 & r_m = 4; index & base     & ss
+  Index8  d[base][index * ss] : Mem { index != 4 } is
+                        mod = 1 & r_m = 4; index & base     & ss; i8  = d
+  Index32 d[base][index * ss] : Mem { index != 4 } is
+                        mod = 2 & r_m = 4; index & base     & ss; i32 = d
+  ShortIndex    d[index * ss] : Mem { index != 4 } is
+                        mod = 0 & r_m = 4; index & base = 5 & ss; i32 = d
+  E Mem : Eaddr is Mem
+
+constructors
+  arith^"iAL"    i8           is      arith & AL.Ib ; i8
+  arith^"iAX"    i16          is      arith & AX.Iw; i16
+  arith^"mrb"    Eaddr, reg8! is      arith & Eb.Gb; Eaddr & reg_opcode = reg8 ...
+  arith^"mrw"    Eaddr, reg!  is      arith & Ew.Gw; Eaddr & reg_opcode = reg ...
+  arith^"rmb"    reg8!, Eaddr is      arith & Gb.Eb; Eaddr & reg_opcode = reg8 ...
+  arith^"rmw"    reg!, Eaddr  is      arith & Gw.Ew; Eaddr & reg_opcode = reg ...
+  arithI^"wb"    Eaddr, i8!   is      (Ew.Ib; Eaddr) & arithI; i8
+  arithI^"b"     Eaddr, i8    is      (Eb.Ib; Eaddr) & arithI; i8
+  arithI^"w"     Eaddr, i16   is      (Ew.Iw; Eaddr) & arithI; i16
+\end{verbatim}
+}
+\centerfigend{fig-cisc-sled}{Partial SLED Spec for the x86 Instruction Set}
+
+The partial decoder in Figure~\ref{fig-cisc-decoder} illustrates
+matching statements used to decode the x86 instruction set.
+The code was mostly generated automatically by the toolkit, with 
+manual editing performed in order to remove redundant arms from the 
+matching statements, separation of nesting of matching statements, and 
+creation of function prototypes.
+The matching statement for \texttt{decode\_instr} makes use of 
+the optional \texttt{[deltaPC]} notation, the effect of which
+is to store the number of bytes that were parsed in the \texttt{deltaPC}
+variable.  This is needed by a decoder of CISC instructions as
+the instruction length is variable and a multiple of 1 byte.
+In the code provided, the address of the host instruction stream
+and that of the native address are given in 32-bit quantities, 
+which means that 4 bytes can potentially be fetch, although any
+one particular instruction may only be 1 or 2 bytes.  We use the
+returned \texttt{deltaPC} value to update the host pointer by 
+the necessary amount.
+
+Characteristics of the generated code include the abstraction 
+of the assembly print and file descriptor used---\texttt{asmprint}
+and \texttt{asmprintfd} respectively.  These can be defined in
+any suitable way in the tool writer's code; in our case, we defined
+them as \texttt{fprintf} and \texttt{stdout} respectively.
+The toolkit also generates functions to print signed and unsigned
+integer values, dependeing on their size; for example, 
+\texttt{print\_signed\_i8} to print an 8-bit signed integer. 
+Functions to print registers may depend on the context of 
+the instruction; i.e. the register number may be that of a 
+byte, 2-byte or 4-byte register, which equates to different 
+ascii representation of registers (e.g. \texttt{AL} or \texttt{AX}
+or \texttt{EAX}).  In this case, the toolkit generates code to
+print the decimal value of the register (i.e. 1, 2 or 4).  
+I modified this function manually to display 32-bit registers 
+for disassembly purposes -- this code is not correct for all
+cases and can be corrected by passing an extra argument to the
+print function with the size of the register operand.  
+    
+\centerfigbegin
+{\small
+\begin{verbatim} 
+#define asmprintf fprintf   // printf function
+#define asmprintfd stdout   // print directly to stdout
+
+static void print_Eaddr (unsigned pc) {
+    match pc to
+    | Abs32 (a) =>
+            asmprintf (asmprintfd, "%d", a);
+    | E (mem) =>
+            print_Mem (mem);
+    | Reg (reg) =>
+            asmprintf (asmprintfd, "%s", print_unsigned_r32(reg));
+    endmatch
+}
+
+static void print_signed_reg(int reg) { 
+  static char *r32_names[] = {
+    "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI",
+  };
+  asmprintf(asmprintfd, "%s", r32_names[reg]);
+//  asmprintf(asmprintfd, "%d", reg);
+}
+
+static void print_signed_i8(int /* [-128..127] */ i8) {
+  asmprintf(asmprintfd, "%d", i8);
+}
+
+unsigned decode_instr (unsigned pc, unsigned uNativeAddr)
+{ unsigned deltaPC;     // # of bytes parsed by decoder
+
+  match [deltaPC] pc to
+  | ADDrmw(reg, Eaddr) =>
+      asmprintf(asmprintfd, "%s", "ADDrmw ");
+      print_signed_reg(reg);
+      asmprintf(asmprintfd, "%s", ", ");
+      print_Eaddr(Eaddr);
+  | ADDrmb(reg8, Eaddr) =>
+      asmprintf(asmprintfd, "%s", "ADDrmb ");
+      print_signed_reg(reg8);
+      asmprintf(asmprintfd, "%s", ", ");
+      print_Eaddr(Eaddr);
+      asmprintf(asmprintfd, "\n");
+  | ADDiw(Eaddr, i16) =>
+      asmprintf(asmprintfd, "%s", "ADDiw ");
+      print_Eaddr(Eaddr);
+      asmprintf(asmprintfd, "%s", ", ");
+      print_signed_i16(i16);
+  | ADDiAL(i8) =>
+      asmprintf(asmprintfd, "%s", "ADDiAL ");
+      print_signed_i8(i8);
+      asmprintf(asmprintfd, "\n");
+  ...
+  endmatch
+  return deltaPC;
+}
+\end{verbatim}
+}
+\centerfigend{fig-cisc-decoder}{Snippet Code for an x86 Decoder}
+
+For CISC machines, the toolkit will need to fetch bits in different
+byte granularities.  For x86, 1, 2 or 4 bytes may need to be fetched
+at any point in time.  This information, along with address information,
+is stored in the instruction stream interface file, as follows:
+\begin{verbatim}
+fetch 8 using "getByte(%a)"
+fetch 16 using "get2Bytes(%a)"
+fetch 32 using "get4Bytes(%a)"
+address type is "unsigned"
+address add using "(unsigned)%a + %o"
+address to integer using "%a"
+\end{verbatim}
+And the user is required to provide the implementation for the
+functions \texttt{getByte}, \texttt{get2Bytes} and \texttt{get4Bytes}.
+
+
+\subsection{Cost of Decoding Machine Instructions}
+\emph{Some experimentation in this area was done in 
+1998 in order to determine bottlenecks in the generated
+code and store it in a different way.  The work was 
+never finished and neither Norman nor Cristina had
+the time to make changes.}
+
+The current NJMC implementation for generating C code from 
+matching files is to use a decision tree for all options 
+available in a \texttt{match} statement.  In these decision 
+trees, every option is inline expanded.  The tree is then
+turned into a DAG and only at leaf nodes are \texttt{goto}
+statements used.  In the generated code, \texttt{switch}
+statements are used for the different options in the decision
+tree.
+
+The main problem for performance of the current generated code
+seems to be that the code is too large to fit into the icache. 
+This implies that there is too much inlining being done in the
+code.  Possible optimizations that can be done to reduce this
+penalty are:
+\begin{itemize}
+\item recognize common subexpressions and create procedures for them,
+\item convert some of the \texttt{switch} statements into 
+      table-driven lookup statements, and 
+\item choose an appropriate numbering scheme to eliminate the 
+      table lookup (e.g. $\lambda x \bullet x$ or 
+      $\lambda x \bullet x \ll 20 \, | \, 17$) in order to cheaply
+      compute the equivalent table lookup. 
+\end{itemize}
+
+In the case of SPARC, the table-driven implementation may
+look like a small decision tree (with 4 branches for the 
+main 4 cases, and one of them with extra branches), and 
+decision tables for the $n$ decision trees removed. 
+
+
+\section{Recovery of Jump Table Case Statements from Binary Code}
+
+One of the fundamental problems with the analysis of binary  
+(executable) code is that of recognizing, in a machine-independent way,
+the target addresses of n-conditional branches implemented via a jump 
+table.  Without these addresses, the decoding of the machine 
+instructions for a given procedure is incomplete,
+leading to imprecise analysis of the code.
+
+The standard method of decoding machine code involves following
+all reachable paths from the entry point~\cite{Site93,Cifu95}.
+This method does not give a complete coverage of the text space
+in the presence of indirect transfers of control such as indexed
+jumps and indirect calls.  A common technique used to overcome
+this problem is the use of patterns.  A pattern is generated
+for a particular compiler to cater for the way in which the
+compiler, or family of compilers, generate code for an indexed jump.
+This technique is extensively used as most tools deal with a
+particular set of compilers; for example, TracePoint only processes
+Windows binaries generated by the Microsoft C++ compiler~\cite{Trac97}.
+In the presence of optimized code, patterns do not tend to work
+very effectively, even when the code is generated by a compiler
+known to the pattern recognizer.
+
+In this section we discuss our technique for recovering
+jump tables and their target addresses in a machine and compiler
+independent way.  The technique is based on slicing and copy
+propagation.  The assembly code of a procedure that contains an
+indexed jump is transformed into a normal form which allows us to
+determine where the jump table is located and what information it 
+contains (e.g. offsets from the table or absolute addresses).
+
+The presented technique has been implemented and tested on SPARC and 
+Pentium code generated by C, C++, Fortran and Pascal compilers.
+Our tests show that up to 90\% more of the code in a text segment can
+be found by using this technique, when compared against the 
+standard method of decoding.
+The technique was developed as part of our resourceable and retargetable 
+binary translation framework UQBT; however, it is also suitable for other
+binary-manipulation and analysis tools such as binary profilers, 
+instrumentors and decompilers.
+
+
+\subsection{Compiler Code Generation for N-Conditional Branches}
+\label{sec-codegen}
+
+N-conditional branches were first suggested by Wirth and Hoare in
+1966~\cite{Wirt66,Wran74} as a useful extension to the Algol language.
+An n-conditional branch allows a programming language to determine
+one of $n$ branches in the code.
+This extension was implemented in Algol 68 in a form that allowed
+its use as a statement or an expression.  In other words,
+the result of the \texttt{case} statement could be assigned to a variable.
+This high-level statement has evolved to the well known \texttt{switch}
+statement in C and the \texttt{case} statement in Pascal, where labels
+are used for the different arms of the conditional branch, and a
+default arm is allowed, as per Figure~\ref{fig-eg}.  The C code
+shows the indexed variable \texttt{num} which is tested against the values
+in the range 2 to 7 for individual actions, and if not successful,
+defaults to the last \texttt{default} action.
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+#include <stdio.h>
+int main()
+{ int num;
+    printf("Input a number, please: ");
+    scanf("%d", &num);
+    switch(num) {
+        case 2:
+            printf("Two!\n"); break;
+        case 3: 
+            printf("Three!\n"); break; 
+        ...
+        case 7:
+            printf("Seven!\n"); break;
+        default:
+            printf("Other!\n"); break;
+    }
+   return 0;
+}
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg}{Sample switch program written in the C language.}
+
+Although not commonly documented in compiler textbooks, compiler
+writers generate different types of machine code for n-conditional
+branches.  These ways of generating n-conditional branches are
+determined by talking to compiler writers or reverse engineering
+executable code.  Several techniques for generating n-conditional branches
+from a compiler were documented in the 1970s and 1980s, when optimization 
+for space and speed was an important issue.
+The most common techniques are described here based on~\cite{Sale81}.
+
+The simplest way of generating code for an n-conditional branch is
+as a {\em linear sequence} of comparisons against each arm in the
+statement.  This form is efficient for a small number of arms,
+typically 4 or less.
+A more sophisticated technique is the {\em if-tree}, where the
+selection is accomplished by a nested set of comparisons organized
+into a tree.
+The most common implementation is a {\em jump table}, which may
+hold labels or offsets from a particular label.   This implementation
+requires a range test to determine the membership of values on
+the table.  Although jump tables are the fastest method when there
+are many arms in the n-conditional branch, jump tables are space-wise
+inefficient if the case values are sparse.
+In such cases, a search tree is the most convenient implementation.
+When the arms of the n-conditional branch are sparse but yet can
+be clustered in ranges, a common technique used is to combine
+search trees and jump tables to implement each cluster of
+values~\cite{Henn82,Fras91}.
+This section deals with the issue of recovering code from generated
+\emph{jump tables}, in such a way that the target addresses of an
+indexed jump are determined.
+%This paper does not attempt to recover high-level n-conditional 
+%branch statements, but rather the information necessary to translate 
+%an indirect branch indexing a jump table.
+
+For an n-conditional branch implemented using a jump
+table, an indexed table is set up with addresses or offsets for each
+of the cases of the branch.  The table itself is located in a read-only
+data section, or mixed in with the text section.
+In the interest of efficiency, range tests for such jump tables
+need to be concise.  The most common way of doing both tests is as
+follows~\cite{Bern85}:
+
+\begin{small}
+\begin{verbatim}
+  k <- case_selector - lower_bound
+  compare k with (upper_bound - lower_bound)
+  if unsigned_greater goto out_of_range
+  assertion: lower_bound <= case_selector <= upper_bound
+\end{verbatim}
+\end{small}
+
+If the case selector value is within the bounds of the upper and
+lower bounds, an offset into the jump table is calculated based on
+the size of each entry in the table; typically 4 bytes for a 32-bit machine.
+Based on the addressing modes available to a machine, either an
+indirect jump on the address of the table plus the offset, or an
+indexed jump on the same values is generated.  The machine then
+continues execution at the target of the indirect/indexed jump. 
+
+Retargetable compilers also use these techniques.  A brief
+description for the code generation of an indirect jump through
+a jump table for a retargetable C compiler is given in~\cite{Fras95}
+by the following specification:
+
+\begin{small}
+\begin{verbatim}
+if t1 < v[l] goto lolab  ; l=lower bound
+if t1 > v[u] goto hilab  ; u=upper bound
+goto *table[t1-v[l]]
+\end{verbatim}
+\end{small}
+
+Overall, compiler writers use a variety of heuristics to determine
+which code to generate for a given n-conditional branch based on
+the addressing modes and instructions available on the target machine.
+It is also common for a compiler to have more than one way of emitting
+code for such a construct, based on the number of arms in the
+conditional branch and the sparseness of the values in such arms.
+
+
+\subsection{Examples of Existing Indexed Jumps in Binary Code}
+\label{sec-egs}
+
+We present examples of Pentium and SPARC code that
+make use of jump tables.  The examples aim to familiarize
+the reader with a variety of ways of encoding an n-conditional branch in
+assembly code, as well as to show the degree of complexity of such code.
+The assembly code for the examples was generated by the Unix
+utility \texttt{dis}.  This disassembler uses the convention of
+placing the destination operand on the right of the instruction.
+The examples show annotated native Pentium and SPARC assembly code, 
+and where relevant, the address for the assembly instructions or the 
+indexed table.  The annotations were included in these examples 
+for ease of readability; they are not part of the produced disassembly. 
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+movl -8(%ebp),%eax           ! Read index variable
+subl $0x2,%eax               ! Minus lower bound
+cmpl $0x5,%eax               ! Check upper bound
+ja   0xffffffd9 <80489dc>    ! Exit; out of range
+jmp  *0x8048a0c(,%eax,4)     ! Indexed, scaled jump
+
+8048a0c:  64 89 04 08        ! Table of addresses
+8048a10:  78 89 04 08        ! to code handling
+8048a14:  8c 89 04 08        ! the various switch
+8048a18:  a0 89 04 08        ! cases
+...
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg1}{Pentium assembly code for sample switch program, 
+	produced by the Sun cc compiler.}
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+ld    [%fp - 20], %o0        ! Read index variable
+add   %o0, -2, %o1           ! Minus lower bound
+cmp   %o1, 5                 ! Check upper bound
+bgu   0x10980                ! Exit if out of range
+sethi %hi(0x10800), %o0      ! Set table address
+or    %o0, 0x108, %o0        ! (continued)
+sll   %o1, 2, %o1            ! Multiply by 4
+ld    [%o0 + %o1], %o0       ! Fetch from table
+jmp   %o0                    ! Jump
+nop
+
+10908:  0x1091c              ! Table of pointers
+1090c:  0x10930
+10910:  0x10944
+10914:  0x10958
+...
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg2}{SPARC assembly code for sample switch program, 
+	produced by the Sun cc compiler.}
+
+The first two examples in Figures~\ref{fig-eg1} and \ref{fig-eg2}
+were generated by the \texttt{cc} compiler on a Solaris Pentium and
+SPARC machine respectively, from the sample program in Figure~\ref{fig-eg}. 
+In Figure~\ref{fig-eg1}, register \texttt{eax} is used as the index
+variable; its value is read from a local variable on the stack
+(\texttt{[ebp-8]}, the case selector).  The lower bound and the range 
+of the table are checked (2 and 5 respectively); the code exits if the value
+of the index  variable is out of bounds.  If within bounds,
+an indexed scaled jump on (\texttt{eax*4}) is performed, offset from
+the start of the indexed table at \texttt{0x8048a0c}.
+The contents of the values of the table are of addresses; each is
+displayed in little-endian format.
+
+Figure~\ref{fig-eg2} performs the same logical steps as Figure~\ref{fig-eg1}
+using SPARC assembly code, where indexed jumps do not exist but indirect
+jumps on registers are allowed.
+In the example, the indexed variable is initially in \texttt{o0}, which
+gets set from a local variable on the stack (\texttt{[fp-20]}, the case
+selector).
+The lower bound is computed and the indexed variable is set to \texttt{o1}.
+The range of the table is checked; if out of bounds, the code exits to
+address \texttt{0x10980}.  If within bounds, the address of the table
+is computed to \texttt{o0} (by the \texttt{sethi} and \texttt{or}
+instructions), the indexed register is multiplied by 4 to get the
+right 4-byte offset into the indexed table, and the value of the
+table (\texttt{o0}) indexed at \texttt{o1} is fetched into \texttt{o0}.
+A jump to \texttt{o0} is then performed.
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+18524:  ld           [%fp - 20], %o0   ! Read indexed variable
+18528:  sub          %o0, 67, %o0      ! Subtract lower bound
+1852c:  cmp          %o0, 53           ! Compare with range-1
+18530:  sethi        %hi(0x18800), %o2 ! Set upper table addr
+18534:  bgu          0x18804           ! Exit if out of range
+18538:  nop
+1853c:  or           %o2, 108, %o2     ! Set lower table addr
+18540:  srl          %o0, 4, %o1       ! Hash...
+18544:  sll          %o1, 1, %o1       ! ...
+18548:  add          %o1, %o0, %o1     ! ...function
+1854c:  and          %o1, 15, %o1      ! Modulo 16
+18550:  sll          %o1, 3, %o4       ! Multiply by 8
+18554:  ld           [%o4 + %o2], %o3  ! First entry in table
+18558:  cmp          %o3, %o0          ! Compare keys
+1855c:  be           0x1885c           ! Branch if matched
+18560:  cmp          %o3, -1           ! Unused entry?
+18564:  be           0x18804           ! Yes, exit
+18568:  nop                            ! (delay slot)
+1856c:  add          %o4, 8, %o4       ! No, linear probe
+18570:  and          %o4, 120, %o4     ! with wraparound
+18574:  ba           0x18554           ! Continue lookup
+18578:  nop
+
+1885c:  add          %o4, %o2, %o4     ! Point to first entry
+18860:  ld           [%o4 + 4], %o0    ! Load second entry
+18864:  jmp          %o0               ! Jump there
+18868:  nop
+
+! Each entry is a (key value, code address) pair
+1886c:  0x0
+18870:  0x187b4         ! Case 'C'+0
+18874:  0xffffffff      ! Unused entries have -1 (i.e. 0xffffff) as 
+                        ! the first entry
+18878:  0x18804         
+1887c:  0x10
+18880:  0x185b8         ! Case 'C'+0x10 = 'S'
+18884:  0x2f
+18888:  0x18630         ! Case 'C'+0x2f = 'r'
+...
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg3}{SPARC assembly code from the vi program, produced
+	by the Sun cc version 2.0.1 compiler.}
+
+Figure~\ref{fig-eg3} presents a SPARC example that uses a hash function
+to determine how to index into the table.  The code comes from the
+Solaris 2.5 \texttt{vi} program.  The index variable is set as \texttt{o0},
+and it is normalized by subtracting its lower bound.  The range of
+the table is checked; if the value is out of range, a jump to the
+end of the case statement is performed (\texttt{0x18804}).
+If within bounds, the table's address is set in register \texttt{o2}.
+The indexed register is hashed into \texttt{o1} and multiplied by
+8 (into \texttt{o4}) to get the right offset into the table (as the
+table contains two 4-byte entries per case).
+A word is loaded from the table into register \texttt{o3} and its
+value is compared against the hash function key (the normalized
+index variable \texttt{o0}).  If the
+value matches, the code jumps to address \texttt{0x1885c}, where
+a second word is read from the table into \texttt{o0}, and a register
+jump is performed to that address.
+In the case where the value fetched from the table does not match the
+key, an end-of-hashing comparison is performed against the value
+\texttt{-1}.
+If \texttt{-1} is found, the code exits (\texttt{0x18804}), otherwise, the
+indexed register (\texttt{o4}) is set to point to the next value
+in the table (wrapping the offset into the table from the end
+of the table to the start) and the process is repeated at
+address \texttt{0x18554}.
+Note that this table contains 2 entries per case; the first one
+is the normalized index value, and the second one is the target address for
+the code associated with that case entry. 
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+8057d90:  movb   38(%eax),%al       ! Get struct member
+8057d93:  testb  $0x2,%al           ! Test bit
+8057d95:  setne  %edx               ! To boolean
+8057d98:  andl   $0xff,%edx         ! To byte
+8057d9e:  testb  $0x4,%al           ! Test another bit
+8057da0:  setne  %ecx
+8057da3:  andl   $0xff,%ecx         ! Save in cl
+8057da9:  testb  $0x8,%al           ! Test third bit
+8057dab:  setne  %eax
+8057dae:  andl   $0xff,%eax         ! Save in al
+8057db3:  shll   $0x2,%edx          ! To bit 2 
+8057db6:  shll   %ecx               ! To bit 1 
+8057db8:  orl    %edx,%ecx          ! Combine these two  
+8057dba:  orl    %eax,%ecx          ! Combine all three
+8057dbc:  cmpl   $0x7,%ecx          ! Upper bound compare
+8057dbf:  jbe    0x280 <8058045>    ! Branch if in range
+...
+8058045:  jmp    *0805f5e8(,%ecx,4) ! Table jump 
+...
+805f5e8:  f8 7d 05 08               ! table of addresses of code to 
+805f5ec:  01 80 05 08               ! handle switch cases
+...                    
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg4}{Pentium assembly code from the m88ksim program, produced
+	by the Sun cc version 4.2 compiler.}
+
+Our last example, Figure~\ref{fig-eg4}, is from the \texttt{m88ksim} 
+SPEC95 benchmark suite.  This example shows 3 groups of tests on bits of a
+field within a structure, which get stored in registers \texttt{edx},
+\texttt{ecx} and \texttt{eax}.  The three partial results are
+then or'd together to get the resultant indexed variable in register
+\texttt{ecx}.  The upper bound is checked (7) and, if within bounds,
+a branch to address \texttt{0x8058045} is taken, where an
+indexed branch is made on the contents of register \texttt{ecx}, scaled 
+by the right amount (4), and the table address.
+Note that the branch (\texttt{jbe}) is the opposite of that
+normally found in \texttt{switch} statements (i.e. \texttt{ja}).
+This illustrates the danger of relying on patterns of instruction
+to recover indexed branch targets; such a piece of code could not
+be well specified in a pattern.  For the interested reader, this 
+code was produced from the C macro in Figure~\ref{fig-eg4'}.
+The appendix illustrates more examples.
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+#define FPSIZE(ir)    ((((ir->p->flgs.dest_64) ? 1 : 0) << 2) | \
+                      (((ir->p->flgs.sl_64) ? 1 : 0) << 1) | \
+                      ((ir->p->flgs.s2_64) ? 1 : 0))
+
+    switch (FPSIZE(ir)) {
+      case SSS: /* other code */
+      /* other cases */
+    }
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg4'}{C source code for example in Figure~\ref{fig-eg4}}
+
+
+\subsection{Our Technique}
+\label{sec-tech}
+We have developed a technique to recover jump table branches
+from disassembled code.  The technique is architecture, compiler
+and language independent, and has been tested on CISC and RISC
+machines with a variety of languages and compilers (or unknown
+compiler, when dealing with precompiled executables).
+Development of general techniques is an aim in our work as analysis
+of executable code should not rely on particular compiler
+knowledge; this knowledge prevents the techniques from working with
+code generated by other compilers, and in most cases, for other
+machines.
+
+There are 3 steps to our technique:
+\begin{enumerate}
+\item Slice the code at the indexed/indirect register jump,
+\item Perform copy propagation to recover pseudo high-level
+	statements, and
+\item Check against indexed branch normal forms to determine
+	the type of jump table.
+\end{enumerate}
+
+
+\subsubsection*{Slicing of Binary Code}
+\label{sec-slice}
+Our executable code analysis framework allows for the disassembly
+of the code into an intermediate representation composed of
+register transfer lists (RTL)~\cite{Cifu98c} and control
+flow graphs for each decoded procedure in the program.
+The RTL describes the effects of machine instructions in terms of register
+transfers, and is general enough to support RISC and CISC machine
+descriptions.
+
+When an indexed or indirect jump is decoded, we create an intraprocedural
+backward slice of the disassembled binary code~\cite{Cifu97d}.
+Slicing occurs by following the transitive closure of registers
+and condition codes that are used in a given expression.
+The stop criterion for a given register along a path is when that
+register is loaded from memory (i.e. from a local variable, a
+procedure argument, or a global variable), it is returned by another
+function, or it reaches the start of the procedure without being defined
+(and hence it is a register parameter set by the caller).
+
+For the purposes of determining jump tables, we have an
+extra stop criterion: if the lower bound of the indexed jump is
+found, and other relevant information has been found, no more slicing 
+is performed.
+Of course, this condition is not always satisfied as indexed tables
+whose first entry corresponds to the register being zero do not need 
+to check for the lower bound.  In such cases,
+the slice finishes by means of the other stop conditions.
+In the case of slices across calls, we stop if the register is
+returned by the call (i.e. \texttt{eax} on Pentium or \texttt{o0} on
+SPARC); in other cases we assume registers are preserved across
+calls and continue slicing.  This is a heuristic that works well
+in practice and is used rarely.  The heuristic
+works when the machine code conforms to the operating system's
+application binary interface~\cite{Unix90}.
+
+For example, for Figure~\ref{fig-eg1}, the following slice is
+created using RTL notation:
+
+\begin{small}
+\begin{verbatim}
+(1)  eax = m[ebp-8]
+(2)  eax = eax - 2
+(3)  ZF = (eax - 5) = 0 ? 1 : 0
+(4)  CF = (~eax@31 & 5@31) | ((eax-5)@31 & (~eax@31 | 5@31))
+(5)  PC = (~CF & ~ZF) = 1 ? <exit> : <step 6> 
+(6)  PC = m[0x8048a0c + eax * 4] 
+\end{verbatim}
+\end{small}
+Register \texttt{ebp} points to the stack, therefore indexed variable
+\texttt{eax} fetches a value from the local memory for that procedure.
+The indexed register is normalized by subtracting the lower bound (2)
+and its range is checked against 5 (the difference between the upper
+and lower bounds).  If within bounds, an indexed jump is performed 
+at statement 6.
+
+In our implementation, when the slice reaches a subtraction, it is assumed
+that the subtraction is defining the lower bound of the switch variable's
+values.
+
+\subsubsection{Copy Propagation}
+Once a slice has been computed, we perform copy propagation
+on registers and condition codes.  This is a common technique
+used in reverse engineering when recovering higher-level statements
+from more elementary ones, such as assembly code~\cite{Cifu96,Cifu98h}
+and COBOL code~\cite{Huan98}.
+
+As per \cite{Cifu98h}, a definition of a register $r$ at instruction $i$
+in terms of a set of $a_k$ registers, $r = f_1(\{a_k\},i)$, can be copy 
+propagated at the use of that register on another instruction
+$j$, $s = f_2(\{r,\ldots\},j)$, if the definition at $i$ is
+the unique definition of $r$ that reaches $j$ along all paths in
+the program, and no register $a_k$ has been redefined along that
+path.  The resulting instruction at $j$ would then look as follows: 
+
+\hspace*{2cm}  $s = f_2(\{f_1(\{a_k\},i),\ldots\},j)$   
+
+and the need for the instruction at $i$ would disappear.
+The previous relationship is partly captured by the definition-use (du)
+and use-definition (ud) chains of an instruction: a use of a register is
+uniquely defined if it is only reached by one instruction, that is,
+its ud chain set has only one element.
+This relationship is known as the $r\mbox{-clear}_{i \rightarrow j}$
+relationship for register $r$.  More formally,
+
+$$
+\begin{array}{ll}
+s = f_2(\{f_1(\{a_k\},i),\ldots\},j) \mbox{ iff } & |ud(r,j)| = 1 \, \wedge \\
+  & ud(r,j)=i \  \wedge \\
+  & j \in du(r,i) \, \wedge \\
+  & \forall a_k \, \bullet \, a_k\mbox{-clear}_{i \rightarrow j} \\
+\end{array}
+$$
+
+Note that this definition does not place a restriction on the
+number of uses of the definition of $r$ at $i$.  Hence, if the
+number of elements on $du(r,i)$ is $n$, instruction $i$ can
+potentially be substituted into $n$ different instructions $j_k$,
+provided they satisfy the $r\mbox{-clear}_{i \rightarrow j_k}$
+property.
+
+In our example of Figure~\ref{fig-eg1}, the application of
+copy propagation to the slice found in Section~\ref{sec-slice}
+gives the following pseudo high-level statements:
+
+\begin{small}
+\begin{verbatim}
+(3)  jcond ([ebp-8] > 7) <exit>
+(4)  jmp [0x8048a0c + ([ebp-8] - 2) * 4]
+\end{verbatim}
+\end{small}
+
+where \texttt{jcond} stands for conditional jump and \texttt{jmp} 
+stands for unconditional jump.  Statement 3 checks if the case
+selector is outside the bounds of the jump, and statement 4 
+performs a jump to the content (i.e. an address) of memory location 
+\texttt{0x8048a0c + ([ebp-8] - 2) * 4}.  
+
+
+\subsubsection{Normal Form Comparison}
+Our previous example can be rewritten in the following way: 
+
+\hspace*{0.5cm} jcond (var $>$ num$_u$) X  \\
+\hspace*{0.5cm} jmp [T + (var - num$_l$) * w] 
+
+where var is a local variable, for example \texttt{[ebp-8]},
+num$_u$ is the upper bound for the n-conditional branch, for example 
+\texttt{7}, num$_l$ is the lower bound of the n-conditional branch,
+for example \texttt{2}, T is the indexed table's address (and
+is of type address), for example \texttt{0x8048a0c}, and w is
+a constant equivalent to the size of the word of the machine; 4 in
+this example.
+Based on this information, we can infer that the number of elements
+in the indexed table is num$_u$ - num$_l$ + 1, for a total of 6 in the
+example.  The example also shows that the elements of the indexed table 
+are labels (i.e. addresses) as the jump is to the target address loaded
+from the address at {\small \texttt{0x8048a0c + ([ebp-8] - 2) * 4} }.
+
+\centerfigbegin
+{\small
+\begin{tabular}{|l|l|l|} \hline
+Type 	& Normal Form	& Types of $<$expr$>$ allowed \\ \hline
+A		& jcond (r[v] $>$ num$_u$) X
+		& {r[v]} \\
+		& jmp [T + $<$expr$>$ * w]
+		& {r[v] - num$_l$} \\
+		&						
+		& {((r[v] - num$_l$) $<<$ 24) $>>$ 24)} \\ \hline
+O		& jcond (r[v] $>$ num$_u$) X
+		& {r[v]} \\
+		& jmp [T + $<$expr$>$ * w] + T \emph{or}
+		& {r[v] - num$_l$} \\
+		& jmp PC + [PC + ($<$expr$>$ * w + k)]
+		& {((r[v] - num$_l$) $<<$ 24) $>>$ 24)} \\ 
+		& jmp PC + [PC + ($<$expr$>$ * w + k)] + k 
+		& {((r[v] - num$_l$) $<<$ 24) $>>$ 24)} \\ \hline
+H		& jcond (r[v] $>$ num$_u$) X
+		& {((r[v] - num$_l$) $>>$ s) + }  \\
+		& 
+		& {(r[v] - num$_l$)} \\
+		& jmp [T + (($<$expr$>$ \& mask) * 2*w) + w]
+		& {((r[v] - num$_l$) $>>$ 2*w) + }  \\ 
+		&
+		& {((r[v] - num$_l$) $>>$ 2) + }  \\
+		&
+		& {(r[v] - num$_l$)} \\ \hline
+\end{tabular}
+}
+\centerfigend{fig-nf}{Normal forms for n-conditional code after analysis}
+
+The previous example only shows one of several normal forms that
+are used to encode n-conditional branches using a jump table.  
+We call the previous normal form type A.
+Figure~\ref{fig-nf} shows the 3 different normal forms that
+we have identified in executable code that runs on SPARC and Pentium.
+Normal form A (address) is for indexed tables that contain labels as
+their values.
+Normal form O (offset) is for indexed tables that contain offsets from
+the start of the table $T$ to the code of each case.
+Normal form H (hashing) contains labels or offsets in the indexed table.
+Form O can also be found in a position independent version as well.
+Normal form H contains pairs ($<$value$>$,$<$address$>$) at each entry into
+the jump table.
+
+In our 4 examples of Figures~\ref{fig-eg1} to \ref{fig-eg4}, we find
+the following normal forms, respectively:
+
+\begin{itemize}
+\item {\small \begin{verbatim}
+jcond (r[24] > 5) 0x80489dc
+jmp [0x8048a0c + (r[24] * 4)]
+	\end{verbatim} 
+	$\Rightarrow$ normal form A}
+
+\item {\small \begin{verbatim}
+jcond (r[9] > 5) 0x10980
+jmp [0x10908 + (r[9] * 4)]
+	\end{verbatim} 
+	$\Rightarrow$ normal form A}
+
+\item {\small \begin{verbatim}
+jcond ((r[8] - 67) > 53) 0x18804
+jmp [0x1886c + (((((((r[8] - 67) >> 4) << 1) + (r[8] - 67)) & 15) << 3)]
+	\end{verbatim} 
+	$\Rightarrow$ normal form H}
+
+\item {\small \begin{verbatim}
+jcond (((al < 2 ? 1:0) & 0xff) << 2 | ((al < 4 ? 1:0) & 0xff) << 1 |
+       ((al < 8 ? 1:0) & 0xff) > 7) 0x8057dc5
+jmp [0x805f5eb + (((al < 2 ? 1:0) & 0xff) * 4 | ((al < 4 ? 1:0) & 0xff) * 2 |
+     ((al < 8 ? 1:0) & 0xff)) * 4]
+	\end{verbatim} 
+	$\Rightarrow$ normal form A}
+\end{itemize}
+
+Examples of form O are given in the appendix to this chapter.
+
+
+\subsection{Experimental Results}
+\label{sec-results}
+
+We tested the technique for recovery of jump table branches  
+on Pentium and SPARC binaries in a Solaris environment.  The following 
+integer SPEC95 benchmark programs were used for testing:
+\begin{itemize}
+\item go: artificial intelligence; plays the game of Go
+\item m88ksim: Motorola 88K chip simulator; runs test program
+\item gcc: GNU C compiler; builds SPARC code
+\item compress: compresses and decompresses a file in memory
+\item li: LISP interpreter
+\item ijpeg: graphic compression and decompression
+\item perl: manipulates strings (anagrams) and prime numbers in Perl
+\item vortex: a database program
+\end{itemize}
+All benchmark programs were compiled with the Sun cc compiler
+version 4.2 on a Solaris 2.6 machine using standard SPEC optimizations 
+(i.e. -O4 on SPARC and -O on Pentium). 
+We also include results for the \texttt{awk} script interpreter
+utility, and the \texttt{vi} text editor (on both Solaris 2.5 and
+2.6).  These programs are part of the Unix OS.
+
+\centerfigbegin
+{\small
+\begin{tabular}{|l|l|l|l|c|} \hline
+Benchmark 	& A		& O		& H		& Unknown \\ \hline
+awk 		& 0		& 2		& 0		& 0 \\
+vi (2.5)	& 10 	& 1 	& 9		& 0 \\
+vi 			& 0		& 13	& 0		& 1 \\
+go			& 0		& 5		& 0		& 0 \\
+m88ksim		& 0		& 10	& 0		& 2 \\
+gcc			& 0		& 153	& 0		& 1 \\
+compress	& 0		& 0		& 0		& 0 \\
+li			& 0		& 3		& 0		& 0 \\
+ijpeg		& 0		& 3		& 0		& 1 \\
+perl		& 0		& 32	& 0		& 0 \\
+vortex		& 0		& 21	& 0		& 0 \\ \hline
+total		& 10 	& 243 	& 9 	& 5 \\ \hline
+\end{tabular}
+}
+\centerfigend{fig-benchSparc}{Number of indexed jumps for SPARC
+	benchmark programs}
+
+\centerfigbegin
+{\small
+\begin{tabular}{|l|l|l|l|c|} \hline
+Benchmark 	& A		& O		& H		& Unknown \\ \hline
+awk 		& 6		& 0		& 0		& 0 \\
+vi 			& 12	& 0		& 0		& 2 \\
+go			& 5		& 0		& 0		& 0 \\
+m88ksim		& 17	& 0		& 0		& 0 \\
+gcc			& 207	& 0 	& 0		& 5 \\
+compress	& 0		& 0		& 0		& 0 \\
+li			& 3		& 0		& 0		& 0 \\
+ijpeg		& 7		& 0		& 0		& 0 \\
+perl		& 36	& 0		& 0		& 1 \\
+vortex		& 13	& 0		& 0		& 6 \\ \hline
+total		& 306 	& 0 	& 0 	& 14 \\ \hline
+\end{tabular}
+}
+\centerfigend{fig-benchPentium}{Number of indexed jumps for Pentium
+	benchmark programs}
+
+Figure~\ref{fig-benchSparc} and \ref{fig-benchPentium} show the
+number of indexed jumps found in each benchmark program,
+the classification of such indexed jumps into the 3 normal
+forms (A, O and H), and any unknown types.
+In the case of SPARC code, most indexed jump tables are of form
+O, which means that the indexed table stores offsets from the
+start of the table to the destination target address.
+In the case of Pentium code, almost all indexed jump tables are
+of form A, meaning that the table contains the target addresses
+for each of the entries in the \texttt{case} statement.
+Unknown entries show the number of jump tables that were not 
+recovered by this technique.  These are normally due to 
+highly optimized code that relies on indirect function calls, 
+or on enumerated types which do not do any bounds checking. 
+
+The primary motivation for this work was to increase our
+coverage of decoded code in an executable program.
+We measured the coverage obtained from our technique using
+the size in bytes of the text segment(s) of the program,
+compared to the number of bytes decoded and the number of
+bytes in jump tables.  The figures do not necessarily
+add up to 100\% due to unreachable code during the decoding
+phase.  Also, in the case of SPARC, we duplicate some
+instructions in order to remove delayed branch instructions;
+this duplication is counted twice in our model, leading
+to slightly over 100\% coverage in rare cases.
+Figure~\ref{fig-covSparc} and \ref{fig-covPentium} show the
+results of our coverage analysis.
+The results show that when indexed tables are present in the
+program, up to 90\% more of the code can be reached by decoding such
+tables correctly.
+
+\centerfigbegin
+{\small
+\begin{tabular}{|l|c|c|c|} \hline
+Program	& w/o analysis & with analysis	& difference \\ \hline
+awk 		& 22\%	& 64\%		& 42\% \\
+vi (2.5)	& 24\%	& 93\%		& 69\% \\
+vi 			& 30\% 	& 95\%		& 65\% \\
+go			& 91\% 	& 100\%		& 9\% \\
+m88ksim		& 37\% 	& 69\%		& 32\% \\
+gcc			& 58\%	& 89\%		& 31\% \\
+compress	& 91\%	& 91\%		& 0\% \\
+li			& 33\%	& 36\%		& 3\% \\
+ijpeg		& 20\%	& 22\%		& 2\% \\
+perl		& 10\%	& 99\%		& 89\% \\
+vortex		& 70\%	& 79\%		& 9\% \\ \hline
+\end{tabular}
+}
+\centerfigend{fig-covSparc}{Coverage of code for SPARC benchmarks}
+
+\centerfigbegin
+{\small
+\begin{tabular}{|l|c|c|c|} \hline
+Program	& w/o analysis & with analysis	& difference \\ \hline
+awk 		& 22\%	& 65\%		& 43\% \\
+vi 			& 28\%	& 88\%		& 60\% \\
+go			& 89\%	& 99\%		& 10\% \\
+m88ksim		& 36\%	& 73\%		& 37\% \\
+gcc			& 52\%	& 86\%		& 34\% \\
+compress	& 84\%	& 84\%		& 0\% \\
+li			& 24\%	& 26\%		& 2\% \\
+ijpeg		& 18\%	& 20\%		& 2\% \\
+perl		& 9\%	& 99\%		& 90\% \\
+vortex		& 68\%	& 75\%		& 7\% \\ \hline
+\end{tabular}
+}
+\centerfigend{fig-covPentium}{Coverage of code for Pentium benchmarks}
+
+The \texttt{li} and \texttt{ijpeg} programs show a small coverage of their 
+code sections.  This is due to indirect calls on registers which 
+are not yet analysed in our framework to determine their target 
+addresses.  
+In the case of \texttt{ijpeg}, a large percentage of the procedures are 
+reached only via indirect calls, hence they are never decoded.
+In the context of our binary translation framework,
+we rely on an interpreter to process such code at runtime.
+
+
+\subsection{Previous Work}
+\label{sec-prevwork}
+
+Not much work has been published in the literature on recovery
+of indexed jump targets.  These techniques tend to be ad hoc
+and tailored to a specific platform or compiler, and tend to rely
+on pattern matching.
+
+The qpt binary profiler is a tool to profile and trace code on
+MIPS and SPARC platforms.  Profiling and tracing is done by
+instrumenting the executable code.
+Jump tables are detected by relying on the way in which
+the compiler generated code for the jump,
+mainly by expecting the table to be in the data segment in the
+case of MIPS or in the code segment, immediately after the
+indirect jump, on the SPARC.  The end of the table is found by
+examining the instructions prior to the indirect jump and
+determining the table's size; alternatively, the text space is
+scanned until an invalid address is met~\cite{Laru94}.
+
+The dcc decompiler is an experimental tool for decompiling
+80286 DOS executables into C code.  The method used in this tool was
+that of pattern matching against known patterns generated by
+several compilers on a DOS machine~\cite{Cifu95}.
+
+EEL is an executable editing library for RISC machines.  Slicing
+is used to determine the instructions that affect the computation
+of the indirect jump and determine the jump table.  No
+precise method is given.  Measurements on the success of this
+technique on SPARC using the SPEC92 benchmarks reveal that 100\%
+recovery of indexed jumps is achieved for code compiled by the gcc
+and the Sun Fortran compilers, and 89\% for the SunPro compilers.
+The recovery ratio was measured by counting the number of indirect
+jumps expected and recovered~\cite{Laru95}.
+
+IDA Pro, a disassembler for numerous machines, makes use of undocumented 
+techniques to determine which compiler was used to compile the original source
+program~\cite{Ida97}.  IDA Pro's recovery of jump tables is
+good but their technique has not been documented in the literature.
+
+Our techniques compare favourably with those of other tools.
+They have been tested extensively with code generated from
+different compilers on both CISC and RISC machines, indicating
+the generality and machine independence of the technique.
+
+
+\subsection{Appendix}
+ Figures~\ref{fig-eg5} and \ref{fig-eg6} illustrate two examples
+ of form O from SPARC code.
+ The former contains an indexed table of offsets from the table
+ to the code that handles each individual switch case.
+ The latter also contains an indexed table of offsets from the
+ table to the code, however, the way the address of the table
+ is calculated is position independent code (via the call
+ to \texttt{.+8}, which produces the side effect of setting the
+ \texttt{o7} register with the current program counter).
+ 
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+10a58:  0x0009c             ! Indexed table
+10a5c:  0x000dc             ! of offsets
+10a60:  0x000fc
+10a64:  0x0011c
+...
+ 
+  sethi %hi(0x10800), %l1   ! Set table address
+  add   %l1, 0x258, %l1     ! into %l1
+  ...
+  ld    [%fp - 4], %l0      ! Read idx variable
+  sub   %l0, 2, %o0         ! Subtract min val
+  cmp   %o0, 5              ! Cmp with range-1
+  bgu   0x10b14             ! Exit if out of range
+  sll   %o0, 2, %o0         ! Multiply by 4
+  ld    [%o0 + %l1], %o0    ! Fetch from table
+  jmp   %o0 + %l1           ! Jump to table+offset
+  nop                       ! Delay slot instr
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg5}{Form O example for SPARC assembly code.}
+ 
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+  ldsb  [%l6], %o0        ! Get switch var
+  clr   %i3               ! (Not relevant)
+  sub   %o0, 2, %o0       ! Subtract min value
+  cmp   %o0, 54           ! Cmp with range-1
+  bgu   0x44acc           ! Exit if out of range
+  sll   %o0, 2, %o0       ! Multiply by 4
+43eb8: 
+  call  .+8               ! Set %o7 = pc
+  sethi %hi(0x0), %g1     ! Set %g1 = 0x0001c
+  or    %g1, 0x1c, %g1    !  
+  add   %o0, %g1, %o0     ! %o0 = 0x43eb8 + 0x1c
+                          !     = 0x43ed4
+  ld    [%o7 + %o0], %o0  ! Fetch from table
+  jmp   %o7 + %o0         ! Jump to table+offset
+  nop                     ! Delay slot instr
+ 
+43ed4:  0x0021c           ! Table of offsets from
+43ed8:  0x00af4           ! call instr to case code 
+43edc:  0x000f8           ! e.g. 0x43eb8 + 0x00f8
+                          !      = 0x43fb0
+43ee0:  0x008d0
+...
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg6}{Form O example for SPARC assembly code (vi 2.5) 
+	using position independent code.  Offsets are relative to 
+	the address of the call instruction.}
+
+
+\centerfigbegin
+\begin{small}
+\begin{verbatim}
+
+4233c:
+ call     .+8                   ! Set %o7 = pc
+ sethi    %hi(0xfffffc00), %o2  ! %o2 = -1024
+ ldsb     [%i5], %o0            ! %o0 = <expr>
+ add      %o2, 736, %o2         ! %o2 = -288
+ add      %o2, %o7, %o2         ! %o2 = pc-288 
+ sub      %o0, 2, %o0           ! Subtract min value
+ mov      %o1, %o7              ! (Not relevant)
+ mov      %o2, %o1              ! %o1 = <expr>
+ cmp      %o0, 54               ! Cmp with range-1
+ add      %l1, 1, %l1           ! (Not relevant)
+ bgu      0x42f58               ! Exit if out of range
+ sll      %o0, 2, %o0           ! Multiply <expr> by 4
+ ld       [%o0 + %o1], %o0      ! Fetch from table
+ jmp      %o0 + %o1             ! Jump to table+off
+ nop                            ! Delay slot instr
+
+(288 bytes earlier than the call instruction):
+ 4221c:   0x298                 ! Table of offsets from
+ 42220:   0xd3c                 ! table to case code
+ 42228:   0x15c                 ! e.g. 0x4221c + 0x15c
+                                !      = 0x42378
+ 4222C:   0x8fc
+ ...
+\end{verbatim}
+\end{small}
+\centerfigend{fig-eg7}{A different form O example for SPARC 
+assembly code, also using position independent code.  This
+code is generated from the same source code as the example in 
+Figure~\ref{fig-eg6}, but with a different version of the
+compiler.  Offsets are relative to the start of the table.}
+
+

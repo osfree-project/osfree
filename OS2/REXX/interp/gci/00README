@@ -1,0 +1,69 @@
+Hi!
+
+The current code may run on various platforms with various interpreters.
+Try it and enjoy.
+
+Various platforms have been tested. Each has two separate system support files.
+Copy and change a pair of them and check embedded.h for a different system.
+
+You don't have to do much more than starting the compilation process. Check
+the used makefiles in case of troubles.
+That't it.
+
+These are the current system support files:
+
+system                                       | compile with
+---------------------------------------------+---------------------------------
+Win 32bit using VC on i86/32 compatibles:    | nmake -f Makefile.vc
+Linux using GNU C on i86/32 compatibles:     | make
+Linux using GNU C on AMD/64 compatibles:     | make
+Linux using GNU C on Alpha compatibles:      | make
+Mac OS X using GNU C on PPC compatibles:     | make
+OS/2 using EMX on i86/32 compatibles:        | make -f Makefile.emx
+OS/2 using OpenWatcom on i86/32 compatibles: | wmake -f Makefile.wcc
+SunOS using GNU C on some sparc compatibles: | make
+
+*******************************************************************************
+*******************************************************************************
+*******************************************************************************
+
+This version is a Rexx library version. Therefore the RxFuncDrop won't
+run. Use GciFuncDrop instead; RxFuncDrop will work for builtin GCI support
+only. If you want to migrate it into a REXX interpreters core you have to
+change embedded.h and you have to create a new bridge file. Both can be
+obtained from the current Regina release for an example. You can start
+with embedded.h and gci_rexxbridge.c, of course.
+
+*****
+
+Debugging can be enabled in a script by setting the system environment variable
+"_GCI_DUMP" to some value, e.g.
+        set _GCI_DUMP=1
+or
+        export _GCI_DUMP=1
+
+Debugging must have been enabled while compiling, too.
+
+*****
+
+GCI uses a special technique to allow both calling conventions stdcall and
+cdecl to run with each others name. Don't rely on it in different
+implementations.
+
+*****
+
+The Rexx variable GCI_RC will hold informations about the success of the
+execution of the call. The variable is resetted on each call to RxDefineFunc,
+GciFuncDrop and the called functions. Its format is
+<error code> ": " <description> [ ": " <error location> ]
+
+Using GCI as an external package has the disadvantage of a restricted
+signalling. The single signal that can be thrown is "syntax error". The signal
+may or may not be thrown, always look at the variable GCI_RC.
+
+*****
+
+Have a look at the example Rexx script gci-try.rexx
+
+Cheers, Florian
+florian@grosse-coosmann.de

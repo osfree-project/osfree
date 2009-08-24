@@ -1,0 +1,20 @@
+
+
+Platform specific makefile constants
+
+This directory contains the script to build the Makefile.$(TARGET) and
+the Makeinclude.$(TARGET)-$(CPU) files, the Makefile.version file, and
+the Makefiles necessary to build both applications and libraries, 
+makefile.inc, makefile.lib and makefile32.lib.
+
+Makefile.version			# version numbers for library build
+Makefile.$(TARGET)			# Makefile for $TARGET
+Makeinclude.$(TARGET)-$(CPU)		# Makeinclude file for $TARGET
+
+makefile				# template for building makefile
+makefile.inc				# used to build 16bit applications
+makefile.lib				# used to build 16bit libraries
+makefile32.inc				# used to build 32bit applications
+makefile32.lib				# used to build 32bit libraries
+
+setup					# script to build new TARGET makefiles

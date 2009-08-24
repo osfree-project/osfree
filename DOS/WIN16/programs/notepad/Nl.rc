@@ -1,0 +1,117 @@
+/*
+ *  Notepad (Dutch resources)
+ *
+ *  Copyright 2003 Hans Leidekker
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+LANGUAGE LANG_DUTCH, SUBLANG_NEUTRAL
+
+MAIN_MENU MENU
+{
+ POPUP "&Bestand" {
+  MENUITEM "&Nieuw",		     CMD_NEW
+  MENUITEM "&Openen...\tCtrl+O",	     CMD_OPEN
+  MENUITEM "O&pslaan\tCtrl+S",	     CMD_SAVE
+  MENUITEM "Ops&laan als...",	     CMD_SAVE_AS
+  MENUITEM SEPARATOR
+  MENUITEM "&Afdrukken...\tCtrl+P",	     CMD_PRINT
+  MENUITEM "Pagina-in&stelling...",  CMD_PAGE_SETUP
+  MENUITEM "Printerinstellingen...", CMD_PRINTER_SETUP
+  MENUITEM SEPARATOR
+  MENUITEM "&Afsluiten",             CMD_EXIT
+ }
+POPUP "Be&werken" {
+  MENUITEM "&Ongedaan maken\tCtrl+Z",    CMD_UNDO
+  MENUITEM SEPARATOR
+  MENUITEM "K&nippen\tCtrl+X",           CMD_CUT
+  MENUITEM "&Kopiëren\tCtrl+C",          CMD_COPY
+  MENUITEM "&Plakken\tCtrl+V",           CMD_PASTE
+  MENUITEM "&Verwijderen\tDel",          CMD_DELETE
+  MENUITEM SEPARATOR
+  MENUITEM "&Alles selecteren\tCtrl+A",  CMD_SELECT_ALL
+  MENUITEM "Tijd/&datum\tF5",            CMD_TIME_DATE
+  MENUITEM SEPARATOR
+  MENUITEM "A&utomatische terugloop",    CMD_WRAP
+  MENUITEM "&Lettertype instellen...",   CMD_FONT
+ }
+POPUP "&Zoeken" {
+  MENUITEM "&Zoeken...\tCtrl+Z",       CMD_SEARCH
+  MENUITEM "&Volgende zoeken\tF3",  CMD_SEARCH_NEXT
+ }
+POPUP "&Help" {
+  MENUITEM "&Help-onderwerpen",  CMD_HELP_CONTENTS
+  MENUITEM "&Zoeken...",         CMD_HELP_SEARCH
+  MENUITEM "&Hulp bij Help",     CMD_HELP_ON_HELP
+  MENUITEM SEPARATOR
+  MENUITEM "&About Notepad", CMD_HELP_ABOUT_NOTEPAD
+ }
+}
+
+/* Dialog `Page setup' */
+
+DIALOG_PAGESETUP DIALOG 0, 0, 225, 95
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Shell Dlg"
+CAPTION "Pagina-instelling"
+{
+LTEXT    "&Koptekst:",  0x140,   10, 07, 40, 15
+EDITTEXT IDC_PAGESETUP_HEADERVALUE,   60, 05,110, 12, WS_BORDER | WS_TABSTOP
+LTEXT    "&Voettekst:",  0x142,   10, 24, 40, 15
+EDITTEXT IDC_PAGESETUP_FOOTERVALUE,   60, 22,110, 12, WS_BORDER | WS_TABSTOP
+
+GROUPBOX "&Marges (millimeter):",  0x144,  10, 43,160, 45
+LTEXT    "Li&nks:",        0x145,   20, 55, 30, 10, WS_CHILD
+EDITTEXT IDC_PAGESETUP_LEFTVALUE,     50, 55, 35, 11, WS_CHILD | WS_BORDER | WS_TABSTOP
+LTEXT    "&Boven:",         0x148,    20, 73, 30, 10, WS_CHILD
+EDITTEXT IDC_PAGESETUP_TOPVALUE,      50, 73, 35, 11, WS_CHILD | WS_BORDER | WS_TABSTOP
+LTEXT    "&Rechts:",       0x14B, 100, 55, 30, 10, WS_CHILD
+EDITTEXT IDC_PAGESETUP_RIGHTVALUE,   130, 55, 35, 11, WS_CHILD | WS_BORDER | WS_TABSTOP
+LTEXT    "&Onder:",      0x14E,100, 73, 30, 10, WS_CHILD
+EDITTEXT IDC_PAGESETUP_BOTTOMVALUE,  130, 73, 35, 11, WS_CHILD | WS_BORDER | WS_TABSTOP
+
+DEFPUSHBUTTON "OK",        IDOK,               180,  3, 40, 15, WS_TABSTOP
+PUSHBUTTON    "Annuleren", IDCANCEL,               180, 21, 40, 15, WS_TABSTOP
+PUSHBUTTON    "&Help",     IDHELP,               180, 39, 40, 15, WS_TABSTOP
+}
+
+STRINGTABLE DISCARDABLE
+{
+STRING_PAGESETUP_HEADERVALUE,   "&f"
+STRING_PAGESETUP_FOOTERVALUE,   "Pagina &p"
+
+STRING_NOTEPAD,                                 "Kladblok"
+STRING_ERROR,                                   "FOUT"
+STRING_WARNING,                                 "WAARSCHUWING"
+STRING_INFO,                                    "Informatie"
+
+STRING_UNTITLED,                                "(naamloos)"
+
+STRING_ALL_FILES,                               "Alle bestanden (*.*)"
+STRING_TEXT_FILES_TXT,                          "Tekstbestanden (*.txt)"
+
+STRING_TOOLARGE,                                "Het bestand '%s' is te groot voor Kladblok.\n \
+Gebruik een andere editor."
+STRING_NOTEXT,                                  "U heeft geen tekst ingevoerd. \
+\nType uw tekst en probeer het nogmaals"
+STRING_DOESNOTEXIST,                            "Het bestand '%s'\nbestaat niet\n\n \
+Wilt u een nieuw bestand maken?"
+STRING_NOTSAVED,                                "Het bestand '%s'\nis gewijzigd\n\n \
+Wilt u de wijzigingen opslaan?"
+STRING_NOTFOUND,                                "'%s' kan niet worden gevonden."
+STRING_OUT_OF_MEMORY,                           "Onvoldoende geheugen. \
+\nSluit een of meer applicaties om de hoeveelheid\nbeschikbaar geheugen te vergroten."
+}

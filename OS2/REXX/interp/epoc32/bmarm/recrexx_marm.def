@@ -1,0 +1,3 @@
+; /EPOC32/GCC/BIN/dlltool.exe --output-def ../../EPOC32/BUILD/PDF/MARMD/REL/RECPDF.def ../../EPOC32/BUILD/PDF/MARMD/REL/RECPDF.in
+EXPORTS
+	CreateRecognizer__Fv @ 1 NONAME

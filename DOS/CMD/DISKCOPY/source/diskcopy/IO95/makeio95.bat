@@ -1,0 +1,1 @@
+@if not exist io95.lib make

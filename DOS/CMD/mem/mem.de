@@ -1,0 +1,92 @@
+# fatal errors
+0.0:Speicher voll, %ld bytes zu wenig.\n
+0.1:Speicherkette zerstîrt! (konnte UMBs nicht einklinken)\n
+0.2:UMB Kette beschÑdigt, erreicht nicht Ende des DOS RAM bei %dk. Last=0x%x.\n
+0.3:MCB Kette hat loses Ende (kein Z MCB am Ende, sondern %c bei 0x%x).\n
+0.4:Unbekannte Option: %s\/? zeigt Hilfe\n
+# misc messages
+1.0:Unbekanntes Betriebssystem
+1.1:%lu bytes\n
+1.2:(%s bytes)\n
+1.3: (%7s bytes)\n
+# memory types
+2.0:Speicherart        Total      Belegt      Frei\n
+#   ----------------  --------   --------   --------
+2.1:Konventionell
+2.2:Hoch
+2.3:Reserviert
+2.4:Extended (XMS)
+2.5:Gesamt
+2.6:Gesamt unter 1 MB
+2.7:Expanded (EMS) gesamt
+2.8:Expanded (EMS) frei
+2.9:Grîsstes ausfÅhrbares Programm
+2.10:Grîsster freier UMB
+2.11:%s verwendet die HMA.\n
+# block types
+3.0:
+3.1:frei
+3.2:System Code
+3.3:System Daten
+3.4:Programm
+3.5:Umgebung
+3.6:Daten
+3.7:reserviert
+3.8:Treiber
+3.9:IFS
+# classify msgs
+4.0:\nModule im ersten MB:\n\n
+4.1:  Name           Total         Konventioneller    Oberer Speicher\n
+#     --------  ----------------   ----------------   ----------------
+4.2:SYSTEM
+4.3:Frei
+4.4:\nSegment  Grîsse      Name         Typ\n
+#     ------- --------  ----------  -------------
+4.5:\n   Adresse     Attr    Name       Programm\n
+#      -----------  ------ ----------  ----------
+# EMS stuff
+5.0:Interner EMS Fehler.\n
+5.1: Kein EMS Treiber geladen.\n
+5.2:\nEMS Treiber Version
+5.3:EMS Seitenrahmen
+5.4:EMS Speicher gesamt
+5.5:EMS Speicher frei
+5.6:Handles gesamt
+5.7:Handles frei
+5.8:\n  Handle  Seiten   Grîsse      Name\n
+#      -------- ------  --------   ----------
+# XMS stuff
+6.0:Kein XMS Treiber geladen.\n
+6.1:\nTeste XMS Speicher...\n
+6.2:Interner XMS Fehler.\n
+6.3:INT 2F AX=4309 unterstÅtzt\n
+6.4:XMS Version
+6.5:XMS Treiber Version
+6.6:HMA Status
+6.7:existiert
+6.8:existiert nicht
+6.9:A20 Zustand
+6.10:offen
+6.11:geschlossen
+6.12:Freier XMS Speicher
+6.13:Grîsster freier XMS Block
+6.14:Freie Handles
+6.15: Block   Handle    Grîsse    Locks\n
+#    ------- --------  --------  -------
+6.16:Freier oberer Speicher
+6.17:Grîsster oberer Speicherblock
+6.18:Keine UMBs verfÅgbar\n
+# help message
+7.0:FreeDOS MEM Version %d.%d\n
+7.1:Zeigt Informationen zur Speicherbelegung im System.
+7.2:Syntax: MEM [/E] [/F] [/C] [/D] [/U] [/X] [/P] [/?]
+7.3:/E  Zeigt Informationen Åber Expanded Memory (EMS)
+7.4:/F  Liste aller Speicherblîcke
+7.5:/C  Klassifiziert die Module im ersten MB
+7.6:/D  Liste aller GerÑtetreiber
+7.7:/U  Liste der Programme im konventionellen und oberen Speicher
+7.8:/X  Zeigt Informationen Åber Extended Memory (XMS)
+7.9:/P  Wartet nach jedem Bildschirm voll Text auf einen Tastendruck
+7.10:/?  Zeigt diesen Hilfetext
+8.0:\nMit <Enter> nÑchsten Schirm anzeigen oder mit <Esc> abbrechen . . .
+

@@ -1,0 +1,5 @@
+module wintypes;
+
+uses pmtypes default;
+
+end.

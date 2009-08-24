@@ -1,0 +1,203 @@
+/* @(#)TViewApp.rc	1.3 15:04:12 1/8/97 /users/sccs/src/samples/treeview/s.TViewApp.rc */
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "TViewApp.h"
+#include "commctrl.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_IMAGELIST           BITMAP  DISCARDABLE     "trview.bmp"
+IDB_ITEMSTATE           BITMAP  DISCARDABLE     "itemstat.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_WILLOWS             ICON    DISCARDABLE     "willows.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Tree View",                   IDM_TREEVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "Select Item",                 IDM_SELECTITEM
+        MENUITEM "Set Indent  (+2)",            IDM_SETINDENT
+        MENUITEM "Edit Item",                   IDM_EDITITEM
+        POPUP "End Edit "
+        BEGIN
+            MENUITEM "Save",                        IDM_ENDEDITSAVE
+            MENUITEM "No Save",                     IDM_ENDEDITNOSAVE
+        END
+        MENUITEM "Sort Children",               IDM_SORTCHILDREN
+        MENUITEM "Sort Children CallBack",      IDM_SORTCHILDRENCB
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_FILEEXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About HeirList...",          IDM_HELPABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDR_ABOUTDLG DIALOG DISCARDABLE  22, 18, 144, 75
+STYLE DS_MODALFRAME | WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "TreeView Sample Application",-1,38,5,64,17
+    CTEXT           "Willows Softawre",-1,38,25,64,8
+    CTEXT           "12950 Saratoga Ave.,Suite A",-1,5,35,132,9
+    ICON            IDI_WILLOWS,-1,9,9,18,20
+    DEFPUSHBUTTON   "OK",IDOK,53,59,32,14,WS_GROUP
+    CTEXT           "Saratoga, CA 95070",-1,6,45,132,9
+END
+
+ID_HEIRDLG DIALOG DISCARDABLE  0, 0, 184, 243
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,127,222,50,14
+    CONTROL         "Custom1",IDC_TREEVIEW,"SysTreeView32",WS_TABSTOP | 0xb,
+                    25,21,131,188
+END
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""TViewApp.h""\r\n"
+    "#include ""commctrl.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    ID_HEIRDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 217
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 236
+    END
+
+    IDD_TEST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 291
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 215
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ROOTITEM1           "Root Item 1"
+    IDS_ROOTITEM2           "Root Item 2"
+    IDS_ROOTITEM3           "Root Item 3"
+    IDS_ROOTITEM4           "Root Item 4"
+    IDS_ROOTITEM5           "Root item 5"
+    IDS_ROOTITEM6           "Root Item 6"
+    IDS_ROOTITEM7           "Root Item 7"
+    IDS_ROOTITEM8           "Root Item 8"
+    IDS_ROOTITEM9           "Root Item 9"
+    IDS_KID10               "Text "
+    IDS_KID11               "Text retrieved "
+    IDS_KID12               "Text retrieved by "
+    IDS_KID13               "Text retrieved by specifying"
+    IDS_KID14               "Text retrieved by specifying LPSTR_TEXTCALLBACK"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_KID15               "Also LPSTR_TEXTCALLBACK"
+    IDS_KID16               "Level 2 Child, text retrieved by CallBack"
+    IDS_KID17               "Level 2 Child, Named Julius"
+    IDS_KID18               "For the soul thereis never birth nor death..."
+    IDS_KID19               "It is not slain when the body is slain. Lord Krishna, Bhagavad"
+    IDS_KID20               "My guiding star always is, Get hold of portable property."
+    IDS_KID21               "John Huffam in Great Expectations, by Charles Dickens"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

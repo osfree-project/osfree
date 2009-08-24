@@ -1,0 +1,133 @@
+/*  
+ *   Find specified file offset 
+ *   inside second file and 
+ *   determine its size.
+ *   It's purpose to be called
+ *   from REXX scripts:
+ *   
+ *   parse value findfile("file1 file2") with offset size
+ *   For this, this script must be on PATH
+ */
+
+parse arg args
+
+args = strip(args, 'B', '"')
+parse var args mufsd image
+
+/* Determine system type */
+parse source sys .
+
+/* System-dependent variables */
+if sys = 'OS/2'    | sys = 'DOS'     |, 
+   sys = 'WINDOWS' | sys = 'Windows' |, 
+   sys = 'WINNT'   | sys = 'NT'   then do
+  sys = 'OS/2'
+end; else
+if sys = 'UNIX'    | sys = 'Linux'   |,
+   sys = 'LINUX'   then do
+  sys = 'UNIX'
+end
+
+if mufsd = '' | image = '' then do
+  say 'Syntax:'
+  say 'findfile <file1> <file2>'
+  exit -1
+end
+
+if stream(mufsd, 'c', 'query exists') = '' then do
+   say 'File 'mufsd' does not exist!'
+   exit -1
+end
+
+call stream image, 'c', 'open read'
+call stream mufsd, 'c', 'open read'
+
+size  = 512
+q     = 1
+pos   = 1
+
+buf   = charin(image, pos, size)
+start = charin(mufsd,   q, size)
+s     = substr(start, 1, 1)
+
+i     = size
+EOF   = 0
+mupos = 0
+do until EOF
+
+  do until EOF
+    p     = pos(s, buf)
+    if p > 0 then leave
+    pos   = pos + size
+
+    buf   = charin(image, pos, size)
+    if length(buf) < size then do
+      EOF = 1
+      p   = pos(s, buf)
+      leave
+    end
+  end
+
+  if EOF & p <= 0 then do
+    mupos = 0
+    leave
+  end
+  
+  pos = pos + p - 1
+  buf = charin(image, pos, size)
+
+  if  length(buf) < size
+  then EOF = 1
+
+  do until EOF
+
+    do i = 1 to length(buf)
+      if substr(buf, i, 1) \= substr(start, i, 1)
+      then
+        leave
+    end
+
+    if i = size + 1 then do 
+      if mupos = 0 then
+         mupos = pos
+      q     = q + size
+      pos   = pos + size
+      buf   = charin(image, pos, size)
+      start = charin(mufsd,   q, size)
+      s     = substr(start, 1, 1)
+      if length(buf)   < size |, 
+         length(start) < size
+      then 
+        EOF = 1
+    end
+    else do
+      p   = pos(s, buf, i)
+      if p > 0 then pos = pos + p - 1
+      else pos = pos + 1
+      leave
+    end  
+ 
+  end
+
+  if EOF then
+    leave
+
+end
+
+call stream mufsd, 'c', 'close'
+call stream image, 'c', 'close'
+
+musize = stream(mufsd, 'c', 'query size')
+musize = (musize % 512)
+if musize // 512 > 0 then
+   musize = musize + 1
+
+mupos  = d2x(mupos % 512)
+musize = d2x(musize)
+
+if sys = 'OS/2' then
+  return mupos musize
+else do
+  say mupos
+  say musize
+end

@@ -1,0 +1,396 @@
+.TH regina 1
+.SH Name
+regina \- The Regina Rexx Interpreter
+.SH Syntax
+.B regina
+[
+.I options
+] [
+.I script
+[
+.I scriptparams
+]]
+
+.B rexx
+[
+.I script
+[
+.I scriptparams
+]]
+.SH Description
+.B regina
+will read the file named as
+.I script
+and will assume the contents of that file to be a Rexx program and
+will interpret that program. Any parameters following 
+.I script
+will be interpreted as the parameters to the Rexx program. If
+.I script
+is not specified, the Rexx program to interpret will be read
+from standard input, and interpretation will start when the whole
+program has been read.
+
+If `\-' is specified as
+.I script
+then the script will be read from standard input.
+
+The
+.B regina
+executable supports the use of external function packages written
+to the SAA API, and called with the
+.B rxfuncadd
+BIF.
+
+The
+.B rexx
+executable does
+.B not
+support the use of external function packages written
+to the SAA API, but executes slightly faster than the
+.B regina
+executable.
+
+.SH Options
+.
+.IP \-tx
+Sets tracing of the program to the option(s); "x" specified. Any
+.B TRACE
+commands in the program will be ignored.
+If you want to run your program with tracing set to "Intermediate",
+you can use the option
+.B -ti.
+If only
+.B -t
+is specified, "All" is the trace mode set.
+Multiple tracing options can be specified. eg. To specify "intermediate",
+"interactive" tracing, specify
+.B -ti -t?.
+
+.IP \-i
+Starts Regina in interactive mode. No script will be executed.
+
+.IP \-v
+Displays Regina version and exits.
+
+.IP \-a
+Changes the way that arguments passed on the command line are made
+available to the called Rexx program. With this switch each parameter on the
+command line is available as a seperate argument, rather then the normal
+behaviour of only making the combined command line arguments available as one
+internal argument.
+
+.IP \-p
+Relevant only on Win32 platforms. Results in a `Press ENTER key to exit...'
+prompt to be displayed at the end of execution. This is useful when a Rexx
+program is run from Explorer.
+
+.IP \-c
+.I Compiles
+the specified
+.I script
+to a tokenised image and writes the image to an output file which is the
+the only other parameter allowed to be supplied.
+
+.IP \-e
+Executes the specified
+.I script
+as a tokenised image. All other switches above are allowed.
+The tokenised image is not allowed to be supplied via stdin.
+
+
+.SH Built-ins
+Below is a list of all the standard built-in functions in Rexx. For a
+more complete description of each function, see the documentation
+accompanying Regina.
+
+.IP ABBREV(long,short[,length])
+Returns `1' or 0', depending on whether 
+.I short
+is an abbreviation of
+.I long
+, or at least 
+.I length
+characters.
+
+.IP ABS(number)
+Returns the absolute value of 
+.I number.
+
+.IP ADDRESS()
+Returns the name of the current environment.
+
+.IP ARG([argno[,option]])
+Without parameters, it returns the number of parameters. If only
+`argno' is specified, it must be a number, and that parameter is
+returned. `Option' can be `E', `N' or `O', and then either `0' or
+`1' is returned, depending on whether the numbered parameter existed
+or was ommitted. The option `N' is the same as not specifying an
+option.
+
+.IP B2X(binstring)
+Converts the bin-string `binstring' to a hex-string.
+
+.IP BITAND(string1[,[string2][,padchar]])
+Returns a string which is the bitwise AND of its two first parameters.
+The shorter string is padded with `padchar'.
+
+.IP BITOR(string1[,[string2][,padchar]])
+Like `BITAND' but uses logical OR.
+
+.IP BITXOR(string1[,[string2][,padchar]])
+Like `BITAND' but uses logical XOR.
+
+.IP C2D(string[,length])
+Converts the character string `string' to a decimal number. `Length'
+specifies the number of characters in `string' to convert.
+
+.IP C2X(string)
+Converts the character string `string' to a hex-string.
+
+.IP CENTER(string,length[,padchar])
+.IP CENTRE(string,length[,padchar])
+Centers `string' in a string of `length' characters, using `padchar'
+for padding, if neccessary.
+
+.IP CHARIN([streamid][,[start][,length]])
+Read `length' (default is 1)
+characters from an input stream (default is the standard input
+stream), optionally starting at position `start' (default is the
+current read position).
+
+.IP CHANGESTR(string1,string,string2)
+Changes all occurrences of `string1' in the string `string'
+to `string2'.
+
+.IP CHAROUT([streamid][,[string][,start]])
+Writes `stream' to an output stream (default is the standard output
+stream), starting at position `start' (default is the current write
+position).
+
+.IP CHARS([streamid])
+Returns the number of characters left in the input stream (default is
+the standard input stream).
+
+.IP COMPARE(string1,string2[,padchar])
+Returns `0' or `1', depending on whether the two strings are equal.
+The shorter string is padded with `padchar', or space if padchar is
+ommitted.
+
+.IP CONDITION([option])
+Performs various operations on streams, see other documentation.
+
+.IP COPIES(string,copies)
+Returns `copies' copies of the string `string'.
+
+.IP COUNTSTR(string1,string)
+Returns the number of occurrences of `string1' in the string `string'.
+
+.IP DATATYPE(string[,option])
+Returns the datatype of `string': `NUM' if it is a number, `LIT' if it
+is as valid literal that does not have a variable value, `VAR' if it
+is a variable, and `BAD' otherwise. If `option' is specified, it must
+be one of these four, and then `0' or `1' is returned, depending on
+whether `string' is of the named type.
+
+.IP DATE([option-out,[date,[option-in]]])
+Returns the date, in various formats, which can be Base, Century,
+Days, European, Month, Normal, Ordered, Standard, USA, UnixTime, or Weekday.
+Can also be used to convert a date `date' from one format `option-in'
+to another; `option-out'.
+
+.IP DELSTR(string,start[,length])
+Deletes the substring of `string' starting at position `start' and
+having a length of `length' (default is the rest of the string).
+
+.IP DELWORD(string,start[,length])
+Deletes `length' words (default is the rest of the string) from
+`string', starting at word number `start'
+
+.IP DIGITS()
+Returns the current setting of NUMERIC DIGITS.
+
+.IP D2C(integer[,length])
+Converts the decimal number `integer' to a character string of length
+`length'.
+
+.IP D2X(integer[,length])
+Converts the decimal number `integer' to a hex-string of length
+`length'.
+
+.IP ERRORTEXT(errno)
+Returns the error text associated with error number `errno'.
+'errno' can specify a sub-error number in the format n.n. eg. 40.1
+
+.IP FORM()
+Returns the current setting of NUMERIC FORM.
+
+.IP FORMAT(number[,[before][,[after][,[expp][,[expt]]]]])
+Formats `number' into a string having `before' digits before and
+`after' digits after the decimal point. The `expp' and `expt' governs
+how and when to use exponential form.
+
+.IP FUZZ()
+Returns the current setting of NUMERIC FUZZ.
+
+.IP INSERT(string1,string2[,position[,length[,padchar]]])
+Inserts `string1' into `string2' at position `position' and with a
+length of `length'.
+
+.IP LASTPOS(needle,haystack[,start])
+Seeks for `needle' in `haystack', from the end towards the start.
+
+.IP LEFT(string,length[,padchar])
+Returns the `length' leftmost characters in `string'
+
+.IP LENGTH(string)
+Returns the number of characters in `string'.
+
+.IP LINEIN([streamid][,[line][,count]])
+Reads a line from an input stream (default is the standard input
+stream), optionally starting at `line'. If `count' is zero, no reading
+is performed (only repositioning).
+
+.IP LINEOUT([streamid][,[string][,line]])
+Writes the line `string' to an output stream (default is the standard
+output stream, optionally starting at `line'.
+
+.IP LINES([streamid])
+Returns the number of complete lines left in an input stream.
+
+.IP MAX(number1[,number2]...)
+Returns the maximum of its parameters.
+
+.IP MIN(number[,number]...)
+Returns the minimum of its parameters.
+
+.IP OVERLAY(string1,string2[,[start][,[length][,padchar]]])
+Overwrites `string2' with contents of `string1'.
+
+.IP POS(needle,haystack[,start])
+Seeks for first occurrence of `needle' in `haystack'.
+
+.IP QUEUED()
+Returns the number of lines in the external data queue (stack).
+
+.IP RANDOM(max)
+.IP RANDOM([min][,[max][,seed]])
+
+Returns a random number in the range `min' to `max' (default is 0 and
+100000).
+
+.IP REVERSE(string)
+Reverses the order of the characters in `string'.
+
+.IP RIGHT(string,length[,padchar])
+Returns the `length' rightmost characters in `string'.
+
+.IP rxfuncadd(external,library,internal)
+Loads an external function called; `internal' residing in the
+`library' shared library. `external' is the name of the function
+as known to the interpreter.
+
+.IP SIGN(number)
+Returns `-1', `0', or `1', depending on the sign of `number'.
+
+.IP SOURCELINE([lineno])
+Returns the number of lines in the source for the current script, or
+the line specified by `lineno'.
+
+.IP SPACE(string[,[length][,padchar]])
+Transform any sequence of spaces in `string' into exactly `length'
+spaces, and strips off leading and trailing spaces.
+
+.IP STREAM(streamid[,option[,command]])
+Returns infomation about a stream, valid options are `Command',
+`Description', and `State'. See other documentation for more
+information.
+
+.IP STRIP(string[,[option][,char]])
+Strips leading and trailing `char's off `string'. `Option' can be
+Leading, Trailing, or Both.
+
+.IP SUBSTR(string,start[,[length][,padchar]])
+Returns the substring of `string' starting at `start' and having
+length `length'.
+
+.IP SUBWORD(string,start[,length])
+Returns a subsequence of `length' words from `string' starting at `start'.
+
+.IP SYMBOL(name)
+Test whether `name' is a numbol, variable, literal.
+
+.IP TIME([option-out,[time,[option-in]]])
+Returns the time, options are Civil, Elapsed, Hours, Long, Minutes,
+Normal, Reset, and Seconds.
+Can also be used to convert a time `time' from one format `option-in'
+to another; `option-out'.
+
+.IP TRACE([setting])
+Returns the current trace setting, and optionally sets a new one.
+
+.IP TRANSLATE(string[,[tableout][,[tablein][,padchar]]])
+Translates characters in `string' from `tablein' to `tableout'.
+
+.IP TRUNC(number[,length])
+Truncates `number' to `length' decimals.
+
+.IP VALUE(symbol[,[value],[pool]])
+Returns the value of `symbol', optionally setting it to `value'
+afterwards.
+
+.IP VERIFY(string,ref[,[option][,start]])
+Verifies that `strings' consists of characters from `ref', and returns
+the first character that does not match. `Option' can be Match or
+Nomatch.
+
+.IP WORD(string,wordno)
+Returns word number `wordno' in `string'.
+
+.IP WORDINDEX(string,wordno)
+Returns the character position of word nun
+
+.IP WORDLENGTH(string,wordno)
+Returns the length of word number `wordno' in `string'.
+
+.IP WORDPOS(phrase,string[,start])
+Returns the word position of the start of `phrase' in `string'.
+
+.IP WORDS(string)
+Returns the number of words in `string'.
+
+.IP XRANGE([start][,end])
+Returns in alphabetic order all the characters in the character set
+from the character `start' to the character `end'.
+
+.IP X2B(hexstring)
+Converts the hex-string `hexstring' to a bin-string.
+
+.IP X2C(hexstring)
+Converts the hex-string `hexstring' to a character string.
+
+.IP X2D(hexstring[,length])
+Converts the `length' rightmost characters
+of the hex-string `hexstring' to a decimal number.
+
+
+
+.SH Copyright
+The Regina Rexx interpreter is distributed under the GNU Library
+General Public License, see the file `COPYING-LIB' in the source code
+distribution.
+
+.SH Author
+Anders Christensen, University of Trondheim, Norway
+<anders@pvv.unit.no>.
+
+.SH Maintainer
+Changes to Regina since 0.07a, Mark Hessling
+<M.Hessling@qut.edu.au>
+with significant assistance from Florian Grosse-Coosmann.
+
+.SH See Also
+There are several good reference books on Rexx. The most famous is
+"The Rexx Language" by Mike Cowlishaw.
+Visit http://www.rexxla.org (The Rexx Language Association) for any Rexx
+related information.
+

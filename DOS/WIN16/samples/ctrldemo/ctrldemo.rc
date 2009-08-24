@@ -1,0 +1,235 @@
+//Microsoft Developer Studio generated resource script.
+// @(#)ctrldemo.rc	1.2 10/23/96 13:50:35 /users/sccs/src/samples/ctrldemo/s.ctrldemo.rc
+//
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "resource.h"
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TOOLBAR             BITMAP  DISCARDABLE     "toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+WINMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About Demo...",              IDM_ABOUT
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Controls"
+    BEGIN
+        MENUITEM "&UpDown Demo",                IDM_UPDOWN
+        MENUITEM "&Property Sheet Demo",        IDM_PROPSHEET
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "WILLOWS.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+RESOURCE ACCELERATORS MOVEABLE PURE 
+BEGIN
+    VK_F1,          IDM_ABOUT,              VIRTKEY 
+    VK_ESCAPE,      IDM_EXIT,               VIRTKEY 
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_UPDOWNTEST DIALOG DISCARDABLE  0, 0, 232, 143
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Up Down Spin Button Control"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,18,115,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,81,115,50,14
+    EDITTEXT        IDE_BUDDY,83,38,58,14,ES_AUTOHSCROLL
+END
+
+IDD_TAB1 DIALOG DISCARDABLE  0, 0, 300, 150
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Page 1"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Check Boxes",IDC_STATIC,22,17,103,93
+    CONTROL         "Check1",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,30,35,90,15
+    PUSHBUTTON      "Button1",IDC_BUTTON1,145,45,50,14
+    PUSHBUTTON      "Button2",IDC_BUTTON2,145,70,50,14
+    LTEXT           "Property Sheet Page 1 ",IDC_STATIC,165,15,79,8
+    CONTROL         "Check2",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,30,50,90,15
+    CONTROL         "Check3",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,30,65,90,15
+    CONTROL         "Check4",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,30,80,90,15
+    PUSHBUTTON      "Button3",IDC_BUTTON3,215,45,50,14
+    PUSHBUTTON      "Button4",IDC_BUTTON4,215,70,50,14
+END
+
+IDD_TAB2 DIALOG DISCARDABLE  0, 0, 300, 150
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Page 2"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_LIST1,30,49,87,71,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "List Box",IDC_STATIC,61,36,29,8
+    COMBOBOX        IDC_COMBO1,151,63,107,21,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Combo Box",IDC_STATIC,179,47,43,8
+    LTEXT           "Property Sheet Page 2",IDC_STATIC,115,19,76,8
+END
+
+IDD_TAB3 DIALOG DISCARDABLE  0, 0, 300, 151
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Page 3"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Radio1",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,205,35,
+                    70,15
+    CONTROL         "Radio2",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,205,50,
+                    70,15
+    CONTROL         "Radio3",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,205,65,
+                    70,15
+    CONTROL         "Radio4",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,205,80,
+                    70,15
+    GROUPBOX        "Radio Buttons",IDC_STATIC,190,10,100,110
+    LTEXT           "Property Sheet Page 3",IDC_STATIC,45,11,72,8
+    PUSHBUTTON      "Button1",IDC_BUTTON5,115,40,50,14
+    PUSHBUTTON      "Button2",IDC_BUTTON6,115,70,50,14
+    EDITTEXT        IDC_EDIT1,20,35,75,80,ES_AUTOHSCROLL
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resrc1.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""resource.h""\r\n"
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""commctrl.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TAB1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 143
+    END
+
+    IDD_TAB2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 143
+    END
+
+    IDD_TAB3, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 144
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDS_TITLE               "CtrlDemo Windows Application"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

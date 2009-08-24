@@ -1,0 +1,45 @@
+Q. I'm used to XEDIT. How do I make THE look and feel like XEDIT.
+A. THE has a compatibility mode for both XEDIT and KEDIT. The best
+   thing to do to get either look and feel (and then tailor them to your
+   taste), is to add the SET COMPAT XEDIT XEDIT XEDIT command as the first
+   line in your profile file. FOr KEDIT, replace all XEDIT with KEDIT in the
+   SET COMPAT command above.
+
+Q. How do I get the cursor into the filearea from the command line ?
+A. That depends on the compatibility mode you are running in and the
+   terminal you are executing THE on.  If running in XEDIT compatibility
+   mode, the arrow keys and the TAB key should move you around the screen
+   as though you are running on a block mode terminal. In other compatibiltiy
+   modes, the key defined as "cursor home" or "cursor home save" will toggle
+   between the filearea and the command line. On DOS, Win32, OS/2 and X11
+   the key defined is the HOME key.
+
+Q. How do I run THE using Un*x's "magic number" feature ?
+A. An example is easier, assume the file is named; aaa:
+   +------------------
+   #!/usr/local/bin/the -qbp
+   'msg Hello from THE!'
+   'qq'
+   Return
+   +------------------
+   This will run THE in batch mode treating all commands after the line
+   starting with #! as THE commands.  The file(s) edited are those passed
+   as parameters to 'aaa'
+
+Q. I've built THE on AIX 4.2/4.3 using the IBM supplied curses and THE does
+   a couple of strange things:
+   1) a couple of the colors seem to be switched
+   2) when the FILEAREA scrolls horizontally (because I've moved the cursor
+      past the edge of the screen), the cursor moves down one line.
+A. Simple answer is IBM has broken their curses library!
+   1) Since THE 3.0, a test is done in the configure script to check for
+      this problem, and correct it. The problem recurs if you have applied
+      PTF U461962 which corrects APARs IX83417 or IX64346. This PTF was
+      supplied in fileset bos.terminfo.ibm.data.4.3.2.1.
+      If the colors are broken, either add -DHAVE_BROKEN_COLORS in the
+      generated Makefile (if it isn't there), or remove it if it is.
+      Thanks to Klaus Wolkersdorfer for supplying this information.
+   2) AIX curses is broken! Use ncurses or XCurses if possible or get IBM
+      to fix their code ;-)
+      (Update for THE 3.1) A workaround has been written to fix this.
+

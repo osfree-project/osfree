@@ -1,0 +1,54 @@
+# edlin.eo - Esperanto-language messages file
+#
+# Author: Gregory Pietsch
+# Translated by Rugxulo/Anthony Williams
+#
+# DESCRIPTION:
+#
+# This file contains #defines for all the message strings in edlin.
+# For internationalization fun, just translate the messages in this
+# file.
+#
+# The strings were generated using ESR's cstrings program and moved
+# here.
+
+1.0:Jj
+1.1:\040:\040
+1.2:Cxu bonege?\040
+1.3:Eraro dum redaktado
+1.4:%s: %lu linio legita\n
+1.5:%s: %lu linioj legitaj\n
+1.6:%s: %lu linio skribita\n
+1.7:%s: %lu linioj skribitaj\n
+1.8:%lu:%c%s\n
+1.9:Klaku <Linio-fino>-n por dauxrigi
+1.10:%lu:\040
+1.11:Netrovebla
+1.12:%lu: %s\n
+1.13:\nedlin subtenas la jenajn funkciojn:\n
+1.14:#                 redaktu linion        [#],[#],#m        movu
+1.15:a                 postskribu linion     [#][,#]p          foliumu
+1.16:[#],[#],#,[#]c    kopiu                 q                 cxesu
+1.17:[#][,#]d          forjxetu              [#][,#][?]r$,$    anstatauxigi
+1.18:e<>               skribu kaj cxesu      [#][,#][?]s$      sercxu
+1.19:[#]i              antauxskribu          [#]t<>            transigu
+1.20:[#][,#]l          numerigu / list       [#]w<>            skribu\n
+1.21:$ en suprajxo signifas frazon, <> signifas dosieron,
+1.22:# signifas numeron (aux .=nuntempa linio, aux $=finfina linio,
+1.23:aux ecx + plus aux - minus iun alian numeron).\n
+1.24:, copyright (c) 2003 Gregory Pietsch
+1.25:Cxi tiu programo havas PRECIZE NENIAN GARANTION.
+1.26:Cxi tiu programo estas libera, do bonvene uzu laux GNU
+1.27:Gxenerala Publika Permesila -- GPL v2, aux pli aktuala eldono de tiu
+1.28:
+1.29:
+1.30:Tro malmulte da memoro trovita
+1.31:ERARO: linia vasteco
+1.32:ERARO: linia loko
+1.33:Mistajpon, uzu ? por akiru helpon
+1.34:dosieron ne trovitan
+1.35:ERARO: teksujon tro grandegan
+1.36:ERARO: neuzeblan teksujan lokon
+1.37:ERARO: %s\n
+
+# END OF FILE

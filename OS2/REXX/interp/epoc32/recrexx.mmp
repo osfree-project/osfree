@@ -1,0 +1,39 @@
+// RECREXX.MMP
+//
+// Copyright (c) 2001 Mark Hessling
+//
+// based on RECPDF.MMP:
+// Copyright (c) 2000 Sander van der Wal
+//
+// $Id: recrexx.mmp,v 1.1 2001/07/29 06:21:58 mark Exp $
+//
+
+TARGET        recrexx.mdl
+TARGETTYPE    DLL
+TARGETPATH    \System\Recogs\
+
+UID           0x10000c07 0x101f401e
+UNICODEUID    0x10003a19 0x101f401e
+
+PROJECT       regina\epoc32
+SUBPROJECT    recrexx
+SYSTEMINCLUDE \epoc32\include
+
+SOURCE        RexxFileRecognizer.cpp
+
+DOCUMENT      recrexx.mmp
+
+LIBRARY       EUSER.LIB APMIME.LIB
+
+#if defined(WINS)
+DEFFILE       recrexx_wins.def
+#else if defined(MARM)
+DEFFILE       recrexx_marm.def
+#endif
+
+START WINS
+BASEADDRESS   0x70800000
+END
+
+START MARM
+END

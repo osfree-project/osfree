@@ -1,0 +1,5 @@
+x. function aliases in dosfilemgrcommon.uni
+x. ABI keyword must be removed from UNI and pointef via command line.
+Such approach allows to correctly generate binary interfaces for
+multitarget libraries like REXX, PDCurses, etc.
+x. union implementation

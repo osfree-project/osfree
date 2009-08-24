@@ -1,0 +1,83 @@
+# This section describes how we abstract away from stack and frame
+# relative addresses. The goal is to treat both in terms of a fixed
+# address for a given procedure. To do this, we firstly require that
+# the abstract fixed (or frame) pointer (AFP) is given a name
+# (typically "%afp", but the only requirement is that it isn't the
+# name of any other named register from the source machine). Secondly,
+# it must be initialised to the register that represents the stack
+# pointer on the source machine (e.g. %sp or %esp). Conceptually this
+# initialisation occurs after execution of the relevant callee
+# prologue or upon entry to the procedure if it doesn't have such a
+# prologue. As an example, consider the following procedure:
+#
+#   save  %sp, simm13, %sp
+#   st    %i1, [%fp + 72]
+#   ...
+#   st    %i5, [%sp + 92]
+#   ...
+#
+# The first instruction will be matched by callee_epilogue1 and so the
+# initialisation of the AFP (on SPARC) will mean that the above code
+# is conceptually equivalent to:
+#
+#   save  %sp, simm13, %sp
+#   %afp  := %sp
+#   st    %i1, [%fp + 72]
+#   ...
+#   st    %i5, [%sp + 92]
+#   ...
+#
+# The third (and optional) part of this section is to specify which
+# other register uses and definitions should be replaced by
+# equivalent uses of the AFP (e.g. the frame pointer). This part is
+# specified in terms of the callee prologues and has the following
+# form:
+#
+#   <reg> -> <exp> { where <exp> contains only constants, AFP and
+#                   (optionally) parameters of the relevant prologue}
+#
+# Forward substituting all occurences of %sp and %fp, the above
+# example now becomes:
+#
+#   callee_prologue1 simm13
+#   st    %i1, [%afp - simm13 + 72]
+#   ...
+#   st    %i5, [%afp + 92]
+
+
+# This section specifies the valid locations that can be used for
+# parameter passing (i.e. from the caller's perspective).
+
+
+# This section specifies the valid locations that can be used for
+# parameter receiving. There is a separate parameter specification
+# for each possible view of the same locations.
+
+        # This specifies where the address of a returned struct union or
+    	# quad-precision is found. This space is allocated by the caller.
+        # If this location is used in a callee, then it is recovered as
+        # the first parameter.
+        AGGREGATE
+
+        # This enumerates the registers that are used for parameters in
+        # the order they will be used
+        REGISTERS
+
+        # Specifies the stack locations that may be used. BASE is the
+        # position in the stack from which considered stack locations are
+        # relative. ALIGN is the size and direction of the increments from
+        # the base at which locations to be considered are found. ORDER
+        # specifies how locations matched by this stack specification are
+        # to be sorted. The offset from the base is the key for sorting.
+        # Increasing order means that locations with smaller offsets from
+        # the base are considered to be earlier (potential) parameter
+        # locations than locations with larger offsets.
+        STACK
+
+# This section specifies the location(s) used for returning values.
+# There is a separate return specification for each possible view of
+# the same locations.
+RETURNS
+
+
+

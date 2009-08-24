@@ -1,0 +1,12 @@
+module dosfilemgr;
+
+constant EAT_APPTYP_PMAPI      =  $00;            (* Uses PM API *)
+constant EAT_APPTYP_DOS        =  $01;            (* DOS APP *)
+constant EAT_APPTYP_PMW        =  $02;            (* Window compatible *)
+constant EAT_APPTYP_NOPMW      =  $03;            (* Not Window compatible *)
+constant EAT_APPTYP_EXETYPE    =  $03;            (* EXE type mask *)
+(* constant EAT_APPTYP_RESERVED  =   not EAT_APPTYP_EXETYPE; *)
+
+uses dosfilemgrcommon default;
+
+end.

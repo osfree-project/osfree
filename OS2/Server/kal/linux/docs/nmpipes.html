@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtmll-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+   Copyright (C) IBM Corporation 2003. All Rights Reserved.
+   Copyright (C) W. David Ashley 2004, 2005. All Rights Reserved.
+-->
+<head>
+<title>OS/2 Named Pipe API Differences</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>OS/2 NLS API Differences</h1>
+
+<p>The following describes the implementation differences between the OS2Linux
+library and the real OS/2 Named Pipe APIs.</p>
+
+<p>These APIs are included in your application by including the following
+definition in your application source file.</p>
+
+<pre>
+#define INCL_DOSNMPIPES
+</pre>
+
+<h2>DosCreateNPipe</h2>
+<pre>
+APIRET APIENTRY DosCreateNPipe(PSZ pszName, PHPIPE pHpipe, ULONG openmode,
+                               ULONG pipemode, ULONG cbInbuf, ULONG cbOutbuf,
+                               ULONG msec);
+</pre>
+<ul>
+<li>Pipes are always opened in byte mode. Message mode is not supported.</li>
+<li>The argument <i>pipemode</i> is ignored for function but saved for
+DosQueryFHState.</li>
+<li>The argument <i>cbInbuf</i> and <i>cbOutbuf</i> are ignored.</li>
+<li>The argument <i>openmode</i> is ignored.</li>
+<li>The argument <i>msec</i> is ignored.</li>
+</ul>
+
+<h2>DosConnectNPipe</h2>
+<pre>
+APIRET APIENTRY DosConnectNPipe(HPIPE hpipe);
+</pre>
+<ul>
+<li>No need to do anything here except check for valid pipe handle.</li>
+</ul>
+
+<h2>DosDisConnectNPipe</h2>
+<pre>
+APIRET APIENTRY DosDisConnectNPipe(HPIPE hpipe);
+</pre>
+<ul>
+<li>No need to do anything here except check for valid pipe handle.</li>
+</ul>
+
+<h2>DosTransactNPipe</h2>
+<pre>
+APIRET APIENTRY DosTransactNPipe(HPIPE hpipe, PVOID pOutbuf, ULONG cbOut,
+                                 PVOID pInbuf, ULONG cbIn, PULONG pcbRead);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosCallNPipe</h2>
+<pre>
+APIRET APIENTRY DosCallNPipe(PSZ pszName, PVOID pInbuf, ULONG cbIn,
+                             PVOID pOutbuf, ULONG cbOut, PULONG pcbActual,
+                             ULONG msec);
+</pre>
+<ul>
+<li>The argument <i>msec</i> is ignored.</li>
+</ul>
+
+<h2>DosQueryNPHState</h2>
+<pre>
+APIRET APIENTRY DosQueryNPHState(HPIPE hpipe, PULONG pState);
+</pre>
+<ul>
+<li>This function returns mostly static values.</li>
+</ul>
+
+<h2>DosWaitNPipe</h2>
+<pre>
+APIRET APIENTRY DosWaitNPipe(PSZ pszName, ULONG msec);
+</pre>
+<ul>
+<li>None.</li>
+</ul>
+
+<h2>DosSetNPipeSem</h2>
+<pre>
+APIRET APIENTRY DosSetNPipeSem(HPIPE hpipe, HSEM hsem, ULONG key);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosPeekNPipe</h2>
+<pre>
+APIRET APIENTRY DosPeekNPipe(HPIPE hpipe, PVOID pBuf, ULONG cbBuf,
+                             PULONG pcbActual, PAVAILDATA pAvail,
+                             PULONG pState);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryNPipeInfo</h2>
+<pre>
+APIRET APIENTRY DosQueryNPipeInfo(HPIPE hpipe, ULONG infolevel, PVOID pBuf,
+                                  ULONG cbBuf);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosQueryNPipeSemState</h2>
+<pre>
+APIRET APIENTRY DosQueryNPipeSemState(HSEM hsem, PPIPESEMSTATE pnpss,
+                                      ULONG cbBuf);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosRawReadNPipe</h2>
+<pre>
+APIRET APIENTRY DosRawReadNPipe(PSZ pszName, ULONG cb, PULONG pLen,
+                                PVOID pBuf);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosRawWriteNPipe</h2>
+<pre>
+APIRET APIENTRY DosRawWriteNPipe(PSZ pszName, ULONG cb);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+<h2>DosSetNPHState</h2>
+<pre>
+APIRET APIENTRY DosSetNPHState(HPIPE hpipe, ULONG state);
+</pre>
+<ul>
+<li>This function is not supported and always returns ERROR_ACCESS_DENIED.</li>
+</ul>
+
+</body>
+</html>
+

@@ -1,0 +1,123 @@
+LIBRARY kee
+EXPORTS
+
+
+
+
+
+
+
+        KernAllocSpinLock               @10
+        KernFreeSpinLock                @11
+        KernAcquireSpinLock             @12
+        KernReleaseSpinLock             @13
+
+
+
+
+
+
+        KernAllocMutexLock              @20
+        KernFreeMutexLock               @21
+        KernRequestSharedMutex          @22
+        KernReleaseSharedMutex          @23
+        KernTryRequestSharedMutex       @24
+        KernRequestExclusiveMutex       @25
+        KernReleaseExclusiveMutex       @26
+        KernTryRequestExclusiveMutex    @27
+
+
+        KernBlock                       @30
+        KernWakeup                      @31
+
+
+
+
+
+
+
+
+        KernThunkStackTo16              @40
+        KernThunkStackTo32              @41
+        KernSerialize16BitDD            @42
+        KernUnserialize16BitDD          @43
+        KernArmHook                     @44
+        KernAllocateContextHook         @45
+
+
+
+
+        KernCopyIn                      @50
+        KernCopyOut                     @51
+
+
+
+
+
+
+
+
+        KernVMAlloc                     @60
+        KernVMFree                      @61
+        KernVMLock                      @62
+        KernVMUnlock                    @63
+        KernLinToPageList               @64
+        KernVMSetMem                    @65
+        KernSelToFlat                   @66
+
+
+
+        DYNAPI32_END_add3               @70
+
+
+
+
+
+
+
+
+
+        KernRASSysTrace                 @80
+        KernPerfSysTrace                @81
+
+
+
+
+
+
+
+
+        ; dd 280h                         @43
+        ; dd 1BFF0000h                    @44
+        ; dd 4C7Eh                        @45
+        _TKSSBase                       @93
+        ; dd 10000h                       @94
+
+
+
+
+
+        KernLockFile                    @100
+        KernUnLockFile                  @101
+        KernGetFileSize                 @102
+        KernTestFileCache               @103
+        KernReadFileAt                  @104
+        KernReadFileAtCache             @105
+        KernReturnFileCache             @106
+
+
+
+
+
+
+
+
+
+
+
+
+
+        KernCreateUconvObject           @120
+        KernStrFromUcs                  @121
+        KernStrToUcs                    @122
+

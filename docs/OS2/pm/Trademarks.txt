@@ -1,0 +1,17 @@
+/* 
+ $Id: Trademarks.txt,v 1.2 2002/09/06 12:25:33 evgen2 Exp $ 
+*/
+ 
+ The following terms are trademarks of the International Business Machines Corporation in the United States and/or other countries: 
+
+ 
+ IBM
+ OS/2
+ Operating System/2
+ Presentation Manager 
+ WIN-OS/2
+ Workplace Shell 
+ 
+ 
+ Other trademarks are trademarks of their respective companies. 
+

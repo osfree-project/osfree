@@ -1,0 +1,89 @@
+% chicago.sty -- adjunct to Chicago bibliography style
+
+% put citations in parentheses, not brackets
+
+\newif\if@bracketyear\@bracketyearfalse
+\newif\if@bracketcitation\@bracketcitationtrue
+\newif\if@suppressauthor\@suppressauthorfalse
+\newif\if@suppressyear\@suppressyearfalse
+% real work of \@cite is done in \authoryear
+
+\def\@cite#1#2{\relax
+  \if@bracketcitation(\fi
+  {#1}%
+  \if@tempswa, #2\fi
+  \if@bracketcitation)\fi}
+
+\def\authoryear#1#2{%
+  \gdef\@citea{; }%
+  \if@suppressauthor\else#1\fi
+  \if@suppressauthor\else\if@suppressyear\else~\fi\fi
+  \if@suppressyear\else\if@bracketyear(\fi#2\if@bracketyear)\fi\fi
+}
+
+% short citations available with `\authorcite{...}' to produce `Knuth (1973)'
+% normal citations `\cite{...}' to produce `(Knuth 1973)'
+% cite year only with `\yearcite{...}' to produce `(1973)'
+ 
+\let\base@cite=\cite
+
+\def\cite{%
+  \leavevmode\@suppressyearfalse\@bracketyearfalse
+             \@bracketcitationtrue\@suppressauthorfalse\base@cite}
+\def\authorcite{%
+  \leavevmode\@suppressyearfalse\@bracketyeartrue
+             \@bracketcitationfalse\@suppressauthorfalse\base@cite}
+\let\citeN\authorcite % for compatibiliary with standard chicago.sty
+\def\yearcite{%
+  \leavevmode\@suppressyearfalse\@bracketyeartrue
+             \@bracketcitationfalse\@suppressauthortrue\base@cite}
+\let\citeyear=\yearcite % for compatibiliary with standard chicago.sty
+
+\def\citeANP{%
+  \leavevmode\@suppressyeartrue
+             \@bracketcitationfalse\@suppressauthorfalse\base@cite}
+
+\newcommand\opencite[1]{{\let\hbox=\nohbox\cite{#1}}}
+\newcommand\openciteN[1]{{\let\hbox=\nohbox\citeN{#1}}}
+
+
+\def\@biblabel#1{\relax\ignorespaces}
+
+
+\@ifundefined{chapter}{\let\chicago@bibstart=\section
+                       \def\chicago@bibcontents{\addcontentsline{toc}{section}}}%
+                      {\let\chicago@bibstart=\chapter
+                       \def\chicago@bibcontents{\addcontentsline{toc}{chapter}}}
+
+%\@ifundefined{open@bibtrue}{\newif\ifopen@bib\open@bibtrue}{}
+% broken in this {\LaTeX}
+\ifx\open@bibtrue\undefined
+  \newif\ifopen@bib\open@bibtrue
+\fi 
+
+\newcommand{\openbib}{\open@bibtrue}
+\newcommand{\closedbib}{\open@bibfalse}
+\newcommand{\bibfont}{\normalsize}
+
+\newcommand\chicagorefs{References}
+
+\def\thebibliography#1{\chicago@bibstart*{\chicagorefs\@mkboth
+  {\uppercase{\chicagorefs}}{\uppercase{\chicagorefs}}}%
+  \nobreak\chicago@bibcontents{\chicagorefs}%
+  \nobreak\list{\relax}{\labelwidth=0pt\leftmargin=2em
+    \labelsep=0pt
+    \advance\leftmargin\labelsep
+    \usecounter{enumi}}
+    \ifopen@bib
+      \def\newblock{\par}
+    \else 
+      \def\newblock{\hskip .11em plus .33em minus .07em }
+    \fi
+    \listparindent=2em \parsep=0pt\parskip=0pt
+    \sloppy\clubpenalty4000\widowpenalty4000
+    \@bracketyearfalse
+    \sfcode`\.=1000\relax\def\baselinestretch{1.0}\small\bibfont\nobreak}
+
+\let\endthebibliography=\endlist
+
+

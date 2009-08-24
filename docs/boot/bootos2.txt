@@ -1,0 +1,70 @@
+Multiboot OS/2 booter description.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OS/2 booter (bootos2.mdl) is the multiboot kernel which can be used with FreeLdr
+as well as GRUB. It is intended for booting OS/2 using these bootloaders. OS/2
+booter loads all needed files to memory (they are specified as multiboot modules)
+and then installs special micro- and minifsd which read files from memory by requests
+of os2ldr and os2krnl. So, you can think of it as an mbi (multiboot info) micro-
+and minifsd which boot OS/2 from a special FS-like structure in memory. So, it
+is like a yet another memdisk technology for booting OS/2. (Or a technology
+similar to a memfiles, preloaded to memory by OS/4 kernel). The difference from
+a Veit Kannegieser's memdisk is that OS/2 does not boot from emulated memory drive
+but a boot drive letter is assigned to a real boot drive (a CD, a flash disk or alike)
+but not a memdrive.
+
+The limitation now is that this is a IFS-only booting solution, so you cannot use it for
+booting using in-kernel FAT filesystem. As a workaround, you can use vfat-os2.ifs
+filesystem (unfortunately, it is unstable, but currently, it has no stable replacement).
+
+Syntax:
+
+kernel $(DRV)\boot\loader\bootos2.mdl [options]
+
+where options are the following
+
+--debug       switches on commport debug
+
+--port=<...>  specifies a commport base address. For example, '--port=0x3f8'
+
+--speed=<...> specifies a commport speed, for example, '--port=115200'
+
+--drv=<drive letter|dlat|auto> specifies a drive letter assignment.
+
+a) '--drv=u:'     means to assign an 'u:' drive letter to the boot drive
+b) '--drv=auto'   is intended for booting with danidasd.dmd. When using this
+                  assignment mode, uFSD scans all available drives for supported
+                  partitions and finds the 1st available drive letter. This drive
+                  letter is assigned to the boot drive. This mode is mainly intended
+                  for booting from flash drive using danidasd.dmd. The flash drive
+                  is usually a removable drive. There is a limitation of danidasd
+                  that a removable drives are assigned a drive letters immediately
+                  after the fixed drives, and no unused drive letters allowed between
+                  fixed and removable drives.
+c) '--drv=dlat'   is intended for booting when usind os2lvm.dmd. In this mode,
+                  a drive letter is taken from the LVM DLAT info and assigned
+                  to a boot drive. This is mainly intended for booting from
+                  fixed drives.
+
+--fs=<FS name>            specifies a Filesystem name. FS name is a value of a FS_NAME
+                          exported symbol of an IFS. A value of FS name of miniFSD must
+                          exactly match a value of the same symbol in the IFS.
+
+--module=<module name>    specifies a boot IFS module name. An IFS is a dynamic link
+                          library which has predefined entry points. As any DLL, IFS
+                          has its module name which length cannot exceed 8 characters.
+
+A table of known FS and module names for different IFS'es:
+
+FS            | module                 | FS name
+----------------------------------------------------------
+fat32.ifs     | FAT32                  | FAT32
+hpfs.ifs      | HPFS                   | HPFS
+jfs.ifs       | JFS                    | JFS
+ext2-os2.ifs  | EXT2-OS2               | ext2
+vfat-os2.ifs  | VFAT-OS2               | vfat
+cdfs.ifs      | CDFS (CDFSD for debug) | CDFS
+ntfs.ifs      | NTFS                   | NTFS
+---------------------------------------------------------
+Note: a FS name and module name are case-sensitive!
+

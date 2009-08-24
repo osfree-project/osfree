@@ -1,0 +1,58 @@
+;
+; rexxapi.def
+;
+LIBRARY REXXAPI INITINSTANCE
+DESCRIPTION 'REXXAPI.DLL forwarder for Regina'
+DATA    MULTIPLE NONSHARED
+
+STACKSIZE   81920
+
+EXPORTS
+       REXXCREATEQUEUE         =RexxCreateQueue                 @1     RESIDENTNAME
+       REXXDELETEQUEUE         =RexxDeleteQueue                 @2     RESIDENTNAME
+       REXXADDQUEUE            =RexxAddQueue                    @3     RESIDENTNAME
+       REXXPULLQUEUE           =RexxPullQueue                   @4     RESIDENTNAME
+       REXXQUERYQUEUE          =RexxQueryQueue                  @5     RESIDENTNAME
+       REXXREGISTERSUBCOMDLL   =RexxRegisterSubcomDll           @6     RESIDENTNAME
+       REXXREGISTERSUBCOMEXE   =RexxRegisterSubcomExe           @7     RESIDENTNAME
+       REXXQUERYSUBCOM         =RexxQuerySubcom                 @8     RESIDENTNAME
+       REXXDEREGISTERSUBCOM    =RexxDeregisterSubcom            @9     RESIDENTNAME
+       REXXLOADSUBCOM          =RexxLoadSubcom                  @10    RESIDENTNAME
+       REXXREGISTEREXITDLL     =RexxRegisterExitDll             @11    RESIDENTNAME
+       REXXREGISTEREXITEXE     =RexxRegisterExitExe             @12    RESIDENTNAME
+       REXXDEREGISTEREXIT      =RexxDeregisterExit              @13    RESIDENTNAME
+       REXXQUERYEXIT           =RexxQueryExit                   @14    RESIDENTNAME
+       REXXCALLEXIT            =RexxCallExit                    @15    RESIDENTNAME
+       REXXCALLSUBCOM          =RexxCallSubcom                  @16    RESIDENTNAME
+       REXXREGISTERFUNCTIONDLL =RexxRegisterFunctionDll         @17    RESIDENTNAME
+       REXXREGISTERFUNCTIONEXE =RexxRegisterFunctionExe         @18    RESIDENTNAME
+       REXXDEREGISTERFUNCTION  =RexxDeregisterFunction          @19    RESIDENTNAME
+       REXXQUERYFUNCTION       =RexxQueryFunction               @20    RESIDENTNAME
+       REXXCALLFUNCTION        =RexxCallFunction                @21    RESIDENTNAME
+       REXXADDMACRO            =RexxAddMacro                    @22    RESIDENTNAME
+       REXXDROPMACRO           =RexxDropMacro                   @23    RESIDENTNAME
+       REXXCLEARMACROSPACE     =RexxClearMacroSpace             @24    RESIDENTNAME
+       REXXLOADMACROSPACE      =RexxLoadMacroSpace              @25    RESIDENTNAME
+       REXXQUERYMACRO          =RexxQueryMacro                  @26    RESIDENTNAME
+       REXXREORDERMACRO        =RexxReorderMacro                @27    RESIDENTNAME
+       REXXSAVEMACROSPACE      =RexxSaveMacroSpace              @28    RESIDENTNAME
+       REXXEXECUTEMACROFUNCTION=RexxExecuteMacroFunction        @29    RESIDENTNAME
+       RXMACROLOAD             =RexxLoadMacroSpace              @30    RESIDENTNAME
+       RXMACROSAVE             =RexxSaveMacroSpace              @31    RESIDENTNAME
+       RXSUBCOMLOAD            =RexxLoadSubcom                  @32    RESIDENTNAME
+       RXMACRODROP             =RexxDropMacro                   @33    RESIDENTNAME
+       RXEXITQUERY             =RexxCallExit                    @34    RESIDENTNAME
+       RXMACROERASE            =RexxClearMacroSpace             @35    RESIDENTNAME
+       RXSUBCOMDROP            =RexxDeregisterSubcom            @36    RESIDENTNAME
+       RXMACROQUERY            =RexxQueryMacro                  @37    RESIDENTNAME
+       RXMACROCHANGE           =RexxReorderMacro                @38    RESIDENTNAME
+       RXSUBCOMQUERY           =RexxQuerySubcom                 @39    RESIDENTNAME
+       RXFUNCTIONCALL          =RexxCallFunction                @40    RESIDENTNAME
+       RXEXITREGISTER          =RexxRegisterExitExe             @41    RESIDENTNAME
+       RXMACROREORDER          =RexxReorderMacro                @42    RESIDENTNAME
+       RXSUBCOMEXECUTE         =RexxCallSubcom                  @43    RESIDENTNAME
+       RXSUBCOMREGISTER        =RexxRegisterSubcomExe           @44    RESIDENTNAME
+       RXFUNCTIONQUERY         =RexxQueryFunction               @45    RESIDENTNAME
+       RXFUNCTIONREGISTER      =RexxRegisterFunctionExe         @46    RESIDENTNAME
+       RXEXITDROP              =RexxDeregisterExit              @47    RESIDENTNAME
+       RXFUNCTIONDEREGISTER    =RexxDeregisterFunction          @48    RESIDENTNAME

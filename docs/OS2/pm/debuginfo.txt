@@ -1,0 +1,17 @@
+/* 
+ $Id: debuginfo.txt,v 1.5 2003/07/17 20:21:38 evgen2 Exp $ 
+*/
+
+DEBUG: section 0     Debug Routines 
+DEBUG: section 1     main server 	main client
+DEBUG: section 2     server WND manager 
+DEBUG: section 3     client Window manager
+DEBUG: section 4     client HAB manager
+DEBUG: section 5     server hab manager
+DEBUG: section 6     General functions for Create/Destroy/Show/Move windows 
+DEBUG: section 7     Server session class
+DEBUG: section 8     server class FreePM_DeskTop
+DEBUG: section 9     presentation space manager
+DEBUG: section 10    GPI functions of FreePM
+DEBUG: section 11    Device context manager
+DEBUG: section 12    library API functions

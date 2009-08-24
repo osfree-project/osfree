@@ -1,0 +1,60 @@
+Ú[ lxLite ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ[ Version 1.3.3 ]¿
+Ã Copyright 1996,97 by FRIENDS software     Ã    All rights   ´
+Ã Copyright 2001,03 by Max Alekseyev        À     reserved    Ù
+À Processing file BDCALL32.DLL Ã Module type:   DLL, Per-process Init, Per-process Term
+Ã Required CPU:        i80386   Version:               2.02
+Ã Page size:             4096   Page shift:               4
+Ã Objects:                 13   Resources:                0
+Ã Imported entries:         1   Debug info,b:             0
+Ã Start obj:EIP:   1:00000000   Stack obj:ESP:   0:00000000
+Ã Module name: bdcall32
+Ã Description: OS/2 Bidirectional Language APIs. (C) 1992 IBM Corp.
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã 00000 Á bdcall32
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Non-Resident Names Table
+Ã Index Â Name ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00000 ³ OS/2 Bidirectional Language APIs. (C) 1992 IBM Corp.
+³ 00001 ³ NLS_16CONVERTBIDINUMERICS
+³ 00002 ³ NLS_16CONVERTBIDISTRING
+³ 00007 ³ NLS_16INVERSESTRING
+³ 00009 ³ NLS_16EDITSHAPE
+³ 00010 ³ NLS_16SHAPEBIDISTRING
+³ 00014 ³ NlsConvertBidiNumerics
+³ 00015 ³ NlsConvertBidiString
+³ 00020 ³ NlsInverseString
+³ 00022 ³ NlsEditShape
+³ 00023 ³ NlsShapeBidiString
+³ 00050 ³ RC_16BIDIATTR
+³ 00100 ³ Set_Round_Trip
+³ 00206 ³ layout_32_object_create
+³ 00207 ³ layout_32_object_destroy
+³ 00208 ³ layout_32_object_transform
+³ 00209 ³ layout_32_object_editshape
+³ 00210 ³ layout_32_object_setvalues
+Ã 00211 Á layout_32_object_getvalues
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Ã Module Entry Table
+Ã Index Â Entry Type Â Entry AttributesÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+³ 00001 ³   16:16    ³ 4:0000, Exp, Shr
+³ 00002 ³   16:16    ³ 5:0000, Exp, Shr
+³ 00007 ³   16:16    ³ 6:0000, Exp, Shr
+³ 00009 ³   16:16    ³ 8:0000, Exp, Shr
+³ 00010 ³   16:16    ³ 7:0000, Exp, Shr
+³ 00014 ³    0:32    ³ 1:00003C2C, Exp, Shr
+³ 00015 ³    0:32    ³ 1:00003EAC, Exp, Shr
+³ 00020 ³    0:32    ³ 1:0000475C, Exp, Shr
+³ 00022 ³    0:32    ³ 1:000050A8, Exp, Shr
+³ 00023 ³    0:32    ³ 1:00004B64, Exp, Shr
+³ 00050 ³   16:16    ³ 3:0000, Exp, Shr
+³ 00100 ³    0:32    ³ 1:00008CD4, Exp, Shr
+³ 00206 ³    0:32    ³ 1:000007AC, Exp, Shr
+³ 00207 ³    0:32    ³ 1:00000AB8, Exp, Shr
+³ 00208 ³    0:32    ³ 1:00000EEC, Exp, Shr
+³ 00209 ³    0:32    ³ 1:00001018, Exp, Shr
+³ 00210 ³    0:32    ³ 1:00000B9C, Exp, Shr
+Ã 00211 Á    0:32    Á 1:00000C64, Exp, Shr
+
+À´Done

@@ -1,0 +1,56 @@
+Ъ[ lxLite ]ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДВ[ Version 1.3.3 ]ї
+Г Copyright 1996,97 by FRIENDS software     Г    All rights   ґ
+Г Copyright 2001,03 by Max Alekseyev        А     reserved    Щ
+А Processing file PMPIC.DLL Г Module type:   DLL
+Г Required CPU:        i80386   Version:               2.02
+Г Page size:             4096   Page shift:               9
+Г Objects:                  4   Resources:                0
+Г ObjTable offs:     000000C4   ResTable offs:     00000000
+Г MapTable offs:     00000124   DirTable offs:     00000000
+Г N-Res Names offs:  0000B800   N-Res Names size:  00000066
+Г ImportProc offs:   00000785   EntryTable offs:   000001B5
+Г Imported entries:         8   Debug info,b:             0
+Г Start obj:EIP:   1:00008010   Stack obj:ESP:   0:00000000
+Г Module name: pmpic
+Г Description: PMPIC Dynalink
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Resident Names Table
+Г Index В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г 00000 Б pmpic
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Non-Resident Names Table
+Г Index В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+і 00000 і PMPIC Dynalink
+і 00001 і PicPrint
+і 00002 і PicIchg
+і 00003 і Pif2Met
+і 00004 і PrfPif2Met
+і 00011 і Pic32Print
+і 00012 і Pic32Ichg
+Г 00013 Б Prf32Pif2Met
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Imported Modules Table
+Г Index В Offs В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+і 00001 і 00000 і DOSCALLS
+і 00002 і 00009 і PMGPI
+і 00003 і 00015 і PMWIN
+і 00004 і 00021 і NLS
+і 00005 і 00025 і PMSHAPI
+і 00006 і 00033 і PMSPL
+і 00007 і 00039 і PMMERGE
+Г 00008 Б 00047 Б MSG
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Imported Procedures Table
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г -= Empty =-
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Module Entry Table
+Г Index В Entry Type В Entry AttributesДДДДДДДДДДДДДДДДДДДДД
+і 00001 і   16:16    і 2:0014, Exp, Shr, (PICPRINT)
+і 00002 і   16:16    і 2:0028, Exp, Shr, (PICICHG)
+і 00003 і   16:16    і 2:0000, Exp, Shr, (PIF2MET)
+і 00004 і   16:16    і 2:003C, Exp, Shr, (PRFPIF2MET)
+і 00011 і    0:32    і 1:00000AD4, Exp, Shr, (PicPrint)
+і 00012 і    0:32    і 1:0000416C, Exp, Shr, (PicIchg)
+Г 00013 Б    0:32    Б 1:000043C4, Exp, Shr, (PrfPif2Met)
+АґDone

@@ -1,0 +1,38 @@
+Ъ[ lxLite ]ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДВ[ Version 1.3.3 ]ї
+Г Copyright 1996,97 by FRIENDS software     Г    All rights   ґ
+Г Copyright 2001,03 by Max Alekseyev        А     reserved    Щ
+А Processing file PMATM.DLL Г Module type:   DLL, Per-process Init, Per-process Term
+Г Required CPU:        i80386   Version:               2.02
+Г Page size:             4096   Page shift:               2
+Г Objects:                  5   Resources:                3
+Г ObjTable offs:     000000C4   ResTable offs:     000003A4
+Г MapTable offs:     0000013C   DirTable offs:     00000000
+Г N-Res Names offs:  00036C10   N-Res Names size:  00000047
+Г ImportProc offs:   00007054   EntryTable offs:   000003F4
+Г Imported entries:         2   Debug info,b:             0
+Г Start obj:EIP:   1:0000633C   Stack obj:ESP:   0:00000000
+Г Module name: pmatm
+Г Description: OS/2 ATM IFI FONT DRIVER  (C) Copyright IBM Corporation 1988, 1991.
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Resident Names Table
+Г Index В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+і 00000 і pmatm
+Г 00001 Б FONT_DRIVER_DISPATCH_TABLE
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Non-Resident Names Table
+Г Index В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г 00000 Б OS/2 ATM IFI FONT DRIVER  (C) Copyright IBM Corporation 1988, 1991.
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Imported Modules Table
+Г Index В Offs В Name ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+і 00001 і 00000 і PMMERGE
+Г 00002 Б 00008 Б DOSCALLS
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Imported Procedures Table
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г -= Empty =-
+ГДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
+Г Module Entry Table
+Г Index В Entry Type В Entry AttributesДДДДДДДДДДДДДДДДДДДДД
+Г 00001 Б    0:32    Б 4:00004F1C, Exp, Shr
+АґDone

@@ -1,0 +1,16 @@
+#include "dog.idl"
+    interface BigDog : Dog
+    {
+#ifdef __SOMIDL__
+      implementation {
+         //# Class Modifiers
+         functionprefix = bigdog_;
+         callstyle      = oidl;
+         dllname        = "animals.dll";
+
+         //# Method Modifiers
+         talk: override;
+      };
+#endif /* __SOMIDL__ */
+    };
+

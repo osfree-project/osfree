@@ -1,0 +1,120 @@
+#### reserved to condition for example yes, no, quit     ####
+0.0:J
+0.1:N
+#### Space reserved to file diskcopy.c                   ####
+1.0:Ungltige Laufwerksangabe oder keine Diskette.
+1.1:Fehler beim Lesen der Konfigurationsdatei.
+1.2:Ungltiger Schalter:
+1.3:Zu viele Parameter:
+1.4:Die Datei ist schreibgeschzt! 
+1.5:kopiert nach
+1.6:Datei nicht gefunden:
+1.7:Die Datei existiert bereits!
+1.8:Legen Sie die Quelldiskette in Laufwerk
+1.9:Drcken Sie eine beliebige Taste um fortzufahren . . .
+1.10:Die Diskette ist nicht bereit!
+1.11:Kann die Abbild-Datei nicht ”ffnen.
+1.12:Auf der Zieldiskette ist nicht gengend Speicherplatz vorhanden!
+1.13:Fehler beim ™ffnen der Abbild-Datei:
+1.14:Es ist nicht gengend freier Arbeitsspeicher fr den Kopiervorgang vorhanden.
+1.15:benutze
+1.16:tempor„re Datei.
+1.17:Lese die Quelldiskette . . .
+1.18:Diskettenfehler beim Lesen von Sektor
+1.19:Schreibe Abbild-Datei.
+1.20:Unerwarteter Fehler im Arbeitsspeicher.
+1.21:Legen Sie die Zieldiskette in Laufwerk
+1.22:Die Diskette hat nicht dieselbe Kapazit„t wie das Original.
+1.23:Legen Sie eine Diskette mit der richtigen Kapazit„t in Laufwerk
+1.24:ein oder drcken Sie STRG-C um abzubrechen.
+1.25:Schreibe auf die Zieldiskette im Laufwerk . . .
+1.26:Lese die Abbild-Datei.
+1.27:Diskettenfehler beim Schreiben auf Sektor
+1.28:M”chten Sie eine weitere Kopie von dieser Diskette erstellen?
+1.29:Abbild-Datei (J/N)?
+1.30:Diskette (J/N)?
+1.31:M”chten Sie eine weitere Diskette kopieren (J/N)?
+1.32:Die Abbild-Datei kann nicht kopiert werden.
+1.33:Fehler beim Lesen der Abbild-Datei.
+1.34:Erstelle Abbild-Datei . . .
+1.35:Schreibe Abbild-Datei . . .
+1.36:Fehler beim Schreiben der Abbild-Datei.
+1.37:Fehler beim Vergleichen im Sektor
+1.38:šberprfe . . .
+1.39:benutze šberprfung
+1.40:Die Seriennummer des Datentr„gers ist
+1.41:Sektor 0 nicht schreibbar! Schreibgeschützt?
+#### text is "Warning: options % doesn't do anything!"   ####
+2.0:Warnung: Option
+2.1:ist nicht wirksam!
+#### text is "Problem copying % to %"                    ####
+3.0:Fehler beim Kopieren von
+3.1:nach
+#### text is "Copying % clusters, % sectors per cluster, ####
+#### % bytes per sector.\n Drive size is % bytes"        ####
+4.0:Kopieren von
+4.1:Clustern
+4.2:Sektoren pro Cluster
+4.3:Bytes pro Sektor.
+4.4:Die relevante Laufwerksgr”áe betr„gt
+4.5:Bytes.
+5.0:Die Gr”áe des Zwischenspeichers betr„gt
+5.1:Bytes.
+#### Space reserved to file parser.c                     ####
+#### Text is "Syntax error on line % in                  ####
+#### configuration file"                                 ####
+6.0:Syntax Fehler in Zeile
+6.1:der Konfigurationsdatei
+6.2:Wortbedeutungsfehler in der Konfigurationsdatei
+6.3:geben Sie nicht mehr als ein '=' ein
+#### Don't translate the following uppercase words!      ####
+6.4:Bitte geben Sie YES oder NO ein
+6.5:Bitte geben Sie NEVER oder ALWAYS ein
+6.6:Bitte geben Sie RECOVERY oder NORMAL ein
+6.7:Bitte geben Sie FAST oder FULL ein
+6.8:Bitte geben Sie UPDATE oder LEAVE ein
+#### Space reserver to file recovery.c                   ####
+6.10:Fehler beim Lesen der Diskette, lese erneut...
+6.11:Unlesbarer Sektor bei Position
+#### Space reserved to file tdrvcpy.c                    ####
+7.0:Legen Sie die Quelldiskette in Laufwerk
+7.1:Legen Sie die Zieldiskette in Laufwerk
+7.2:Drcken Sie eine beliebige Taste um fortzufahren...
+7.3:Ungltige Quell-Laufwerksangabe oder keine Diskette.
+7.4:Ungltige Ziel-Laufwerksangabe oder keine Diskette.
+7.5:Die Diskette hat nicht dieselbe Kapazit„t wie das Original.
+7.6:Fehler: nicht gengend freier Arbeitsspeicher.
+7.7:Diskettenfehler beim Lesen von Sektor
+7.8:Diskettenfehler beim Schreiben auf Sektor
+7.9:M”chten Sie eine weitere Diskette kopieren?
+8.0:Legen Sie eine Diskette mit der richtigen Kapazit„t in Laufwerk
+8.1:oder
+8.2:ein oder drcken Sie STRG-C um abzubrechen.
+9.0:Kopiere
+9.1:Cluster
+9.2:Sektoren pro Cluster
+9.3:Bytes pro Sektor.
+9.4:Die relevante Laufwerksgr”áe betr„gt
+9.5:Bytes.
+9.6:Kopiere . . .
+9.7:šberprfe . . .
+### Place reserved for the strings in the help screen ###
+9.50:Kopiert eine Diskette oder Abbild-Datei auf eine weitere Diskette/Abbild-Datei.
+9.51:von
+9.52:Quelle
+9.53:Ziel
+9.54:Quelle: Laufwerk oder Abbild-Datei, die gelesen wird.
+9.55:Ziel:   Laufwerk oder Abbild-Datei, die geschrieben wird.
+9.56:Akustische Warnung bei Eingabeaufforderung ausgeben.
+9.57:šberprft Lese- und Schreibvorg„nge.
+9.58:Benutzt ausschlieálich das RAM als Zwischenspeicher.
+9.59:Zeigt Arbeitsspeicherauslastung an.
+9.60:šberscheibt die Ziel-Abbild-Datei, falls sie bereits existiert.
+9.61:Beendet Diskcopy automatisch.
+9.62:Nimmt an, dass sich bereits eine Diskette im Laufwerk befindet.
+9.63:Wechselt in den Diskettenwiederherstellungs-Modus.
+9.64:Schnelles Diskcopy (kopiert nur belegte Sektoren)
+9.65:Ein Minuszeichen nach einer Option deaktiviert diese.
+9.66:Sie k”nnen dasselbe Laufwerk als Quelle und Ziel angeben.
+9.67:Unwirksam, fr Kompatibilit„t mit MS-DOS.
+9.68:Fragt nicht nach der Zieldiskette, falls die Abbild-Datei auf dieselbe Diskette geschrieben werden soll.

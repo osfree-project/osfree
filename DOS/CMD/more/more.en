@@ -1,0 +1,18 @@
+0.0:Display the contents of a text file one screen at a time
+0.1:Usage
+0.2:command
+0.3:file
+0.4:Available keys
+0.5:Nn
+0.6:Next file
+0.7:Qq
+0.8:Quit program
+0.9:Space
+0.10:Next page
+1.0:Not a recognized option
+1.1:No such file
+1.2:Cannot open file
+2.0:More
+2.1:<STDIN>
+
+1.3:option /Tabs must be /T1..9 (default 4)

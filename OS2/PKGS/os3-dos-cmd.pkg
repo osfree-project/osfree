@@ -1,0 +1,18 @@
+os3-dos-cmd -a 1 -c..\..\bin\os2\mdos
+attrib.exe
+basic.com
+basic.exe
+basica.com
+find.exe
+gwbasic.exe
+help.bat
+label.exe
+mem.exe
+more.exe
+os2stub.exe
+subst.exe
+winos2\windemo.exe
+winos2\winver.exe
+winos2\progman.exe
+xcopy.exe
+-s dos-cmd.wis

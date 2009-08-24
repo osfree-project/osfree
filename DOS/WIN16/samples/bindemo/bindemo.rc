@@ -1,0 +1,38 @@
+/*
+ *      BinDemo.rc
+ *
+ *      @(#)bindemo.rc	1.1 5/9/96 11:03:15 /users/sccs/src/samples/bindemo/s.bindemo.rc
+ * 
+ *      Dynamic Linking Sample Application
+ *
+ *      Resource definitions
+ */
+
+#include "windows.h"
+#include "bindemo.h"
+
+BinDemoIcon ICON    "willows.ico"
+
+BinDemoMenu MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About...",       IDM_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "&Exit",           IDM_EXIT
+    END
+    POPUP "&Cards"
+    BEGIN
+        MENUITEM "&Clubs",          IDM_CLUBS
+        MENUITEM "&Diamonds",       IDM_DIAMONDS
+        MENUITEM "&Hearts",         IDM_HEARTS
+        MENUITEM "&Spades",         IDM_SPADES
+        MENUITEM "&Backsides",      IDM_BACKSIDES
+    END
+    POPUP "&Size"
+    BEGIN
+        MENUITEM "&50 %",           IDM_SMALL
+        MENUITEM "&100 %",          IDM_NORMAL
+        MENUITEM "&200 %",          IDM_LARGE
+    END
+END

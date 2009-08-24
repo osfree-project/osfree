@@ -1,0 +1,78 @@
+
+                       =====================================
+                          Martin Kiewitz's MINSTALL v1.04
+                       =====================================
+
+                         Released under LGPL v3 on 8.3.2008
+
+                        Written and (c) by Martin Kiewitz
+                            Dedicated to Gerd Kiewitz
+-------------------------------------------------------------------------------
+
+  ============
+  | FOREWORD |
+  ============
+  
+        I did this replacement for OS/2s MINSTALL in the year 2002. The original
+         MINSTALL is really buggy, crashes on lots of issues and so forth. I needed
+         around 2 weeks to get about 90% of it done, sadly it wasn't released to
+         the public up until 2-3 years later. Also it wasn't even tested on many packages, so
+         there were a couple of compatibility issues (and I bet there are still some
+         left). I was quite frustrated, because I always told to make some testing.
+
+        Anyway, the biggest problem in writing a replacement for MINSTALL was that
+         the IBM documentation has some inaccuracies in it and also original MINSTALL
+         has also some undocumented features, which I needed to find out (later that
+         was).
+
+        I made some fixes later (based on v1.00) and I don't even know if those changes
+         were released to the public. I don't have time for support, so I'm releasing
+         MINSTALL under LGPL. Perhaps someone out there wants to tweak some things.
+
+        MINSTALL was concepted as being a CLI-program and an actual MINSTALL API, so
+         that doing a GUI installer would have been possible. The API was never documented
+         due lack of time, anyway it's not that complicated. Just look into MINSTALL.C
+         and you should find it out.
+         
+        MINSTALL checks all scripts for formatting/logic errors and reports them in a
+         hopefully useful manner. So it may also get used for testing new installation
+         scripts.
+
+        I also needed to write a GENIN.DLL-stub, because some installs use that DLL directly
+         and IBM's original GENIN.DLL would install parts of the package a
+         second time including icons. It's really just a stub with one extra export, so
+         that MINSTALL.DLL is able to detect it.
+
+        My MINSTALL/CLI supports the original CID functionality including support for original
+         MINSTALL-created scripts and my new script format.
+
+        There are also some tweaks for base MMOS/2 installation. Most of them are documented
+         within the source, so just look into it.
+         
+        I'm releasing the source-code under LGPLv3, so that commercial installers may use MINSTALL.DLL
+         as well. The source should be complete, I also included some helper functions in stdcode.rar.
+         
+  ===========
+  | LICENSE |
+  ===========
+
+   This file is part of MINSTALL/CLI for OS/2 / eComStation
+
+   MINSTALL is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+   MINSTALL/CLI is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+    along with MINSTALL/CLI.  If not, see <http://www.gnu.org/licenses/>.
+
+  ===========
+  | CONTACT |
+  ===========
+
+        kiewitz (AT) klinikum (MINUS) konstanz (DOT) de

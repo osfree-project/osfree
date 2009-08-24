@@ -1,0 +1,63 @@
+ATTRIB v2.1. Copyright (c) 1998-2003
+Release date: 2002/07/01
+
+
+License
+-------
+
+ATTRIB is released under the terms of the GNU General Public License
+(GPL). For further information please read the file COPYING.
+
+
+Errorlevels
+-----------
+
+For each event ATTRIB returns an appropriate exit code which can be used
+in "if errorlevel" statements in batch files:
+
+	0  completion successful;
+	   /? option used.
+	1  error to change attribute(s) of file(s).
+	2  no matching file(s) found for target(s).
+	3  error open file(s), pointed in /@ option(s).
+	4  error(s) in command line.
+
+Higher errorlevels should absorb lower errorlevels (for example, if there
+are errors to change attributes and no matching targets for other
+argument, then 2 will be returned). Example of using errorlevels:
+
+	attrib -r *.dat>nul
+	if errorlevel 1 if not errorlevel 2 goto noaccess
+
+
+Compiling
+---------
+
+ATTRIB source tested with Borland C++ 3.1. To compile ATTRIB run cc.bat
+batch file. To compile or delete temporary files, the MAKE utility also
+can be used (see makefile).
+
+
+Known problems
+--------------
+
+None known at now.
+
+
+Credits
+-------
+
+Phil Brutsche: the original author.
+Brian Reifsnyder: new maintainer as of 2001.
+David Lindauer: added subdirectory support.
+Arkady V.Belousov <ark@mos.ru>: bugfixes, optimizations and features.
+
+Joergen Ibsen / Jibz <jibz@hotmail.com>: author of aPACK (an excellent
+  executable packing program).
+
+
+Contacts
+--------
+
+mailto:reifsnyderb@mindspring.com
+http://www.23cc.com/free-fdisk/

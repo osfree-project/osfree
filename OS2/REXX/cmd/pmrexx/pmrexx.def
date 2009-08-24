@@ -1,0 +1,18 @@
+
+NAME    PMREXX WINDOWAPI
+
+DESCRIPTION 'OS/2 Presentation Manager Program'
+
+STUB    'OS2STUB.EXE'
+
+DATA    MULTIPLE
+
+STACKSIZE   16384
+HEAPSIZE    8192
+
+PROTMODE
+
+IMPORTS
+
+  PMREXXIO.RexxCreateIOWindow
+  PMREXXIO.RexxDestroyIOWindow

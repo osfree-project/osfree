@@ -1,0 +1,5 @@
+module dosmemmgr;
+
+uses dosmemmgrcommon default;
+
+end.

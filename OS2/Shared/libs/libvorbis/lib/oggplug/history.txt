@@ -1,0 +1,26 @@
+
+OggPlay.dll
+===========
+
+1.00  Sofiya(sofiya@din.or.jp)
+
+    - First public release
+
+
+1.01  Sofiya(sofiya@din.or.jp)
+
+    - Support PM123 Beta 2
+
+
+1.03  Sofiya(sofiya@din.or.jp)
+
+    - Support PM123 Beta 3
+    - Fixed some memory leak.
+
+
+1.04  Brian Havard
+
+    - Fix handling of non-CD sample rate stereo files in time display.
+    - Add Stop flag & logic to prevent hangs when stopping & restarting a track.
+    - Fix handling of errors opening the file in decoder_fileinfo()
+    - Update PM123 PDK.

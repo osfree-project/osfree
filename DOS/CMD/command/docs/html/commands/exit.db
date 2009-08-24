@@ -1,0 +1,8 @@
+name: EXIT
+de: Terminate shell
+
+SYNOPSIS:
+EBNF: EXIT
+
+Terminates the currently running shell, unless FreeCOM had been started with
+the <OPT>/P</OPT> option. In this case, EXIT works like CANCEL.

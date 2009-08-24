@@ -1,0 +1,49 @@
+Debugging an Application
+
+1) Run-Time Tracing
+	Using the DEBUG/TRACE version of the library allows tracing and
+	debugging information to be collected.  The DEBUG/TRACE facility
+	is enabled by setting the environment variable, WIN_OPENLOG. This
+	variable has 2 parts, the trace file and the trace flags.  An 
+	example of setting it is:
+
+	WIN_OPENLOG="trace.out -1" export WIN_OPENLOG
+
+	In this example, (note the quotes around both parts), verbose debugging
+	information will be syncronously written to the file trace.out. The -1 
+	sets the DEBUG/ TRACE flag to enable all output to be logged to the log
+	file. This is the most extensive debugging and tracing supported and 
+	will generate a very large log file.  The filename parameter may be set
+	to -, to redirect output to stderr, this will show the debug output as
+	it occurs.
+
+	The logging flag, -1 in the above example, is a bit mask that enables
+	various parts of the debugging output.  The low 4 bits determine what
+	type of logging will be enabled, the next 8 bits manage which run-time
+	logging information is enabled, while the remaining 20 bits enable 
+	different subsytems within the library independently.  Refer to the
+	faq dealing with run-time tracing and debug for further information.
+
+2) Programmatic interface to Run-Time Tracing
+
+	Applications can access the Run-Time Tracing facility through the 
+	use of a set of macros that are available when the file Log.h is
+	included.  The basic macro is of the form:
+
+	LOGSTR((0x200,"Handle = %x\n",hWnd));
+
+	This form allows a variable format string and arguments similar to
+	printf, and can be compiled in or out by defining DEBUG during compile.
+	Only messages that match the environment variable WIN_OPENLOG at runtime
+	will be enabled and displayed in the logfile.
+
+3) Examples:
+
+	WIN_OPENLOG="- -1" export WIN_OPENLOG
+	Log all calls from all modules, output to standard error.
+
+	WIN_OPENLOG="trace.out 0x240" export WIN_OPENLOG
+	Log only messages matching the pattern 0x240.  The output
+	will be written to the file trace.out.
+
+

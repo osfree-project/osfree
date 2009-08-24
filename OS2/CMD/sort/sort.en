@@ -1,0 +1,12 @@
+2.0:Invalid parameter\r\n
+0.0:    SORT [/R] [/+num] [/?]\r\n
+0.1:    /R    Reverse order\r\n
+0.2:    /N    Enable NLS support\r\n
+0.3:    /+num start sorting with column num, 1 based\r\n
+0.4:    /?    help\r\n
+2.1:Error reading NLS collate table\r\n
+2.2:Only DOS 3.3 or newer supports NLS!\r\n
+2.3:SORT: Can't open file 
+2.4: for read\r\n
+2.5:SORT: Insufficient memory\r\n
+2.6:SORT: number of records exceeds maximum\r\n

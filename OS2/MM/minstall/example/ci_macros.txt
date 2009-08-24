@@ -1,0 +1,8 @@
+*PATH* Indicates the path where MMPM/2 is installed (for example, c:\MMOS2) .
+*ORD* Indicates the device ordinal of this adapter.
+ -> ulNumber of SYSINFO (MCI)
+*SEQ* Indicates the sequential number of this adapter. For example, if the user installs two IBM audio adapters, the first will have a number of 1 and the second a number of 2.
+*PDD* Indicates the PDDName of this adapter.
+*VAL* Indicates the values that the user gives when prompted by the installation program. You can have more than one of these tokens if the user is asked for more than one item.
+Note: Later in the CARDINFO.RC file, you specify which questions the installation program should ask.
+*SPEC* Indicates special values passed from your adapter-specific DLL. 

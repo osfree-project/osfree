@@ -1,0 +1,60 @@
+/*
+ * Copyright (C) 2001, Sun Microsystems, Inc
+ *
+ * See the file "LICENSE.TERMS" for information on usage and
+ * redistribution of this file, and for a DISCLAIMER OF ALL
+ * WARRANTIES.
+ *
+ */
+
+/*==============================================================================
+* FILE:       arm_linux.link
+* OVERVIEW:   This is the prototype linux linker script file (or a copy of it)
+*             used to build ARM Linux binaries with the data sections at the
+*             correct (i.e., original) addresses. The start addresses of the
+*             sections in this file are strings starting with "$", e.g.
+*             $ dstartro for the start of the read only data section; these
+*             strings are changed to the actual values using linker.sed and
+*             the "sed" stream editing tool.
+*
+* Copyright (C) 2001, Sun Microsystems, Inc
+*============================================================================*/
+SEARCH_DIR(/usr/arm-linux/lib);
+
+MEMORY {
+        RO (ra)  : ORIGIN = 0x9000000, LENGTH = 16M
+        RW (rwa) : ORIGIN = 0xa000000, LENGTH = 16M
+}
+
+SECTIONS {
+  . = 0x08000000;
+  .interp               : { *(.interp) } >RO
+  .note.ABI-tag         : { *(.note.ABI-tag) } >RO
+  .hash                 : { *(.hash) } >RO
+  .dynsym               : { *(.dynsym) } >RO
+  .dynstr               : { *(.dynstr) } >RO
+  .gnu.version          : { *(.gnu.version) } >RO
+  .gnu.version_r        : { *(.gnu.version_r) } >RO
+  .rel.got              : { *(.rel.got) } >RO
+  .rel.plt              : { *(.rel.plt) } >RO
+  .init                 : { * (.init) } >RO
+  .plt                  : { *(.plt) } >RO
+  .text                 : { * (.text) } >RO
+  .fini                 : { * (.fini) } >RO
+  .rodata               : { *(.rodata) } >RO
+  .data                 : { *(.data) } >RW
+  .eh_frame             : { *(.eh_frame) } >RW
+  .ctors                : { *(.ctors) } >RW
+  .dtors                : { *(.dtors) } >RW
+  .got                  : { *(.got.plt) *(.got) } >RW	/* Very important! */
+  .dynamic              : { *(.dynamic) }
+  .bss                  : { *(.bss) *(COMMON) } >RW
+  .stab                 : { *(.stab) }
+  .stabstr              : { *(.stabstr) }
+  .comment              : { *(.comment) }
+  .note                 : { *(.note) }
+  .uqbt.code   0x$cstart    : { *(.uqbt.code) }
+  .uqbt.rodata 0x$dstartro  : { *(.uqbt.rodata) }
+  .uqbt.data   0x$dstartrw  : { *(.uqbt.data) }
+}
+

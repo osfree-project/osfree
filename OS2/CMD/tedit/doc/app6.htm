@@ -1,0 +1,1195 @@
+<HTML>
+<HEAD><TITLE>THE Reference - Appendix 6</TITLE></HEAD>
+<BODY BGCOLOR="#F1EDD1" LINK = "#0000FF" VLINK = "#FF0022" ALINK = "#808000">
+<CENTER> <img WIDTH="64" HEIGHT="64" HSPACE="20" SRC="the64.gif" ALT="THE"> </CENTER>
+<P>
+
+<A NAME="APPENDIX6"></A>
+<H2> APPENDIX 6 - THE BY TASKS</H2>
+<HR>
+Back to to <A HREF = "index.htm#TOC"> Table of Contents </A>
+<p>
+
+This appendix gives an overview, how general concepts are reflected by
+various THE commands, settings, key bindings etc.
+<p>
+<A NAME="TOPICS">Topics:</A>
+<ul>
+<li><A HREF="app6.htm#help">Getting Help</A>
+<li><A HREF="app6.htm#status">Querying/ Changing Status</A>
+<li><A HREF="app6.htm#move">Moving Around</A>
+<li><A HREF="app6.htm#scroll">Scrolling</A>
+<li><A HREF="app6.htm#delete">Inserting, Deleting and Recovering</A>
+<li><A HREF="app6.htm#search">Searching, Replacing, Bookmarking</A>
+<li><A HREF="app6.htm#mark">Block Marked Regions</A>
+<li><A HREF="app6.htm#file">File Handling</A>
+<li><A HREF="app6.htm#printing">Printing</A>
+<li><A HREF="app6.htm#fold">Folding (Partial Views)</A>
+<li><A HREF="app6.htm#windows">Windows</A>
+<li><A HREF="app6.htm#os">Operating System</A>
+<li><A HREF="app6.htm#command">Command Line</A>
+<li><A HREF="app6.htm#prefix">Prefix Area</A>
+<li><A HREF="app6.htm#macros">Macros</A>
+<li><A HREF="app6.htm#keys">Keys</A>
+<li><A HREF="app6.htm#misc">Miscellaneous</A>
+</ul>
+<P>
+Notation for keys: C- control modifier, A- Alt modifier, S- shift
+modifier, X- either A- or C- modifier (depending on operating system)
+<p>
+Note on set commands and functions: functions, which can refer to
+status infos which can be modified directly with set are not mentioned
+explicitly.
+
+<A NAME="help"></A>
+<h4>Getting Help</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD valign=top>
+F1 (help)<br>
+</TD>
+<TD valign=top>
+<A HREF="comm.htm#HELP">help</A><br>
+</TD>
+<TD valign=top>
+<A HREF="commset.htm#SETBEEP">set/<A HREF="query.htm#BEEP">extract</A> beep<br>
+<A HREF="commset.htm#SETCLOCK">set/<A HREF="query.htm#CLOCK">extract</A> clock<br>
+<A HREF="commset.htm#SETHEXDISPLAY">set/<A HREF="query.htm#HEXDISPLAY">extract</A> hexdisplay<br>
+<A HREF="commset.htm#SETHEXSHOW">set/<A HREF="query.htm#HEXSHOW">extract</A> hexshow<br>
+<A HREF="commset.htm#SETHIGHLIGHT">set/<A HREF="query.htm#HIGHLIGHT">extract</A> highlight<br>
+<A HREF="commset.htm#SETIDLINE">set/<A HREF="query.htm#IDLINE">extract</A> idline<br>
+<A HREF="commset.htm#SETMSGLINE">set/<A HREF="query.htm#MSGLINE">extract</A> msgline<br>
+<A HREF="commset.htm#SETMSGMODE">set/<A HREF="query.htm#MSGMODE">extract</A> msgmode<br>
+<A HREF="commset.htm#SETNUMBER">set/<A HREF="query.htm#NUMBER">extract</A> number<br>
+<A HREF="commset.htm#SETPOSITION">set/<A HREF="query.htm#POSITION">extract</A> position<br>
+<A HREF="commset.htm#SETPREFIX">set/<A HREF="query.htm#PREFIX">extract</A> prefix<br>
+<A HREF="commset.htm#SETRESERVED">set/<A HREF="query.htm#RESERVED">extract</A> reserved<br>
+<A HREF="commset.htm#SETREXXOUTPUT">set/<A HREF="query.htm#REXXOUTPUT">extract</A> rexxoutput<br>
+<A HREF="commset.htm#SETSCALE">set/<A HREF="query.htm#SCALE">extract</A> scale<br>
+<A HREF="commset.htm#SETSLK">set</A> slk<br>
+<A HREF="commset.htm#SETSTATOPT">set</A> statopt<br>
+<A HREF="commset.htm#SETSTATUSLINE">set/<A HREF="query.htm#STATUSLINE">extract</A> statusline<br>
+<A HREF="commset.htm#SETTABLINE">set/<A HREF="query.htm#TABLINE">extract</A> tabline<br>
+</TD>
+<TD valign=top>
+<br>
+</TD>
+<TD valign=top>
+<br>
+</TD>
+<TD valign=top>
+TABL<br>
+SCALE<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+
+<A NAME="status"></A>
+<h4>Querying/ Changing Status</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#EDITV">editv</A><br>
+<A HREF="comm.htm#EXTRACT">extract</A><br>
+<A HREF="comm.htm#MODIFY">modify</A><br>
+<A HREF="comm.htm#PRESERVE">preserve</A><br>
+<A HREF="comm.htm#QUERY">query</A><br>
+<A HREF="comm.htm#RESTORE">restore</A><br>
+<A HREF="comm.htm#SET">set</A><br>
+<A HREF="comm.htm#SHOWKEY">showkey</A><br>
+<A HREF="comm.htm#STATUS">status</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCLEARERRORKEY">set/<A HREF="query.htm#CLEARERRORKEY">extract</A> clearerrorkey<br>
+<A HREF="query.htm#GETENV">extract</A> getenv<br>
+<A HREF="query.htm#LASTKEY">extract</A> lastkey<br>
+<A HREF="query.htm#LASTMSG">extract</A> lastmsg<br>
+<A HREF="query.htm#LASTRC">extract</A> lastrc<br>
+<A HREF="commset.htm#SETMSGLINE">set/<A HREF="query.htm#MSGLINE">extract</A> msgline<br>
+<A HREF="commset.htm#SETMSGMODE">set/<A HREF="query.htm#MSGMODE">extract</A> msgmode<br>
+<A HREF="query.htm#SHOWKEY">extract</A> showkey<br>
+<A HREF="commset.htm#SETSTATOPT">set</A> statopt<br>
+<A HREF="commset.htm#SETSTATUSLINE">set/<A HREF="query.htm#STATUSLINE">extract</A> statusline<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#LASTMSG">lastmsg.1()</A><br>
+<A HREF="query.htm#LASTRC">lastrc.1()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="move"></A>
+<h4>Moving Around</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR><TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+PGUP (backward 1)<br>
+PGDN (forward 1)<br>
+C-PGUP (backward *)<br>
+C-PGDN (forward *, top?)<br>
+CURU (cursor up)<br>
+CURD (cursor down)<br>
+CURL (cursor left)<br>
+CURR (cursor right)<br>
+C-CURL,F18 (sos tabwordb)<br>
+C-CURR,F19 (sos tabwordf)<br>
+HOME (cursor home)<br>
+END (sos startendchar)<br>
+TAB,C-I (sos tabf)<br>
+S-TAB (sos tabb)<br>
+C-A (sos cursoradj)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#BACKWARD">backward</A><br>
+<A HREF="comm.htm#BOTTOM">bottom</A><br>
+<A HREF="comm.htm#CFIRST">cfirst</A><br>
+<A HREF="comm.htm#CLAST">clast</A><br>
+<A HREF="comm.htm#CURSOR">cursor</A><br>
+<A HREF="comm.htm#DOWN">down</A><br>
+<A HREF="comm.htm#FORWARD">forward</A><br>
+<A HREF="comm.htm#NEXT">next</A><br>
+<A HREF="comm.htm#TOP">top</A><br>
+<A HREF="comm.htm#UP">up</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#COLUMN">extract</A> column<br>
+<A HREF="query.htm#CURLINE">extract</A> curline<br>
+<A HREF="query.htm#CURSOR">extract</A> cursor<br>
+<A HREF="commset.htm#SETCURSORSTAY">set/<A HREF="query.htm#CURSORSTAY">extract</A> cursorstay<br>
+<A HREF="query.htm#EOF">extract</A> eof<br>
+<A HREF="query.htm#LINE">extract</A> line<br>
+<A HREF="commset.htm#SETMARGINS">set/<A HREF="query.htm#MARGINS">extract</A> margins<br>
+<A HREF="query.htm#POSITION">extract</A> position<br>
+<A HREF="commset.htm#SETTABKEY">set/<A HREF="query.htm#TABKEY">extract</A> tabkey<br>
+<A HREF="commset.htm#SETTABS">set/<A HREF="query.htm#TABS">extract</A> tabs<br>
+<A HREF="query.htm#TOF">extract</A> tof<br>
+<A HREF="commset.htm#SETWORD">set/<A HREF="query.htm#WORD">extract</A> word<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSBLOCKEND">sos blockend</A><br>
+<A HREF="commsos.htm#SOSBLOCKSTART">sos blockstart</A><br>
+<A HREF="commsos.htm#SOSBOTTOMEDGE">sos bottomedge</A><br>
+<A HREF="commsos.htm#SOSCURRENT">sos current</A><br>
+<A HREF="commsos.htm#SOSCURSORADJ">sos cursoradj</A><br>
+<A HREF="commsos.htm#SOSENDCHAR">sos endchar</A><br>
+<A HREF="commsos.htm#SOSFIRSTCHAR">sos firstchar</A><br>
+<A HREF="commsos.htm#SOSFIRSTCOL">sos firstcol</A><br>
+<A HREF="commsos.htm#SOSLASTCOL">sos lastcol</A><br>
+<A HREF="commsos.htm#SOSLEFTEDGE">sos leftedge</A><br>
+<A HREF="commsos.htm#SOSMARGINL">sos marginl</A><br>
+<A HREF="commsos.htm#SOSMARGINR">sos marginr</A><br>
+<A HREF="commsos.htm#SOSPARINDENT">sos parindent</A><br>
+<A HREF="commsos.htm#SOSPREFIX">sos prefix</A><br>
+<A HREF="commsos.htm#SOSQCMND">sos qcmnd</A><br>
+<A HREF="commsos.htm#SOSRIGHTEDGE">sos rightedge</A><br>
+<A HREF="commsos.htm#SOSSETTAB">sos settab</A><br>
+<A HREF="commsos.htm#SOSSTARTENDCHAR">sos startendchar</A><br>
+<A HREF="commsos.htm#SOSTABB">sos tabb</A><br>
+<A HREF="commsos.htm#SOSTABF">sos tabf</A><br>
+<A HREF="commsos.htm#SOSTABFIELDB">sos tabfieldb</A><br>
+<A HREF="commsos.htm#SOSTABFIELDF">sos tabfieldf</A><br>
+<A HREF="commsos.htm#SOSTABWORDB">sos tabwordb</A><br>
+<A HREF="commsos.htm#SOSTABWORDF">sos tabwordf</A><br>
+<A HREF="commsos.htm#SOSTOPEDGE">sos topedge</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#AFTER()">after()</A><br>
+<A HREF="query.htm#BEFORE()">before()</A><br>
+<A HREF="query.htm#BOTTOMEDGE()">bottomedge()</A><br>
+<A HREF="query.htm#END()">end()</A><br>
+<A HREF="query.htm#EOF()">eof()</A><br>
+<A HREF="query.htm#FIRST()">first()</A><br>
+<A HREF="query.htm#FOCUSEOF()">focuseof()</A><br>
+<A HREF="query.htm#FOCUSTOF()">focustof()</A><br>
+<A HREF="query.htm#INCOMMAND()">incommand()</A><br>
+<A HREF="query.htm#INPREFIX()">inprefix()</A><br>
+<A HREF="query.htm#LEFTEDGE()">leftedge()</A><br>
+<A HREF="query.htm#RIGHTEDGE()">rightedge()</A><br>
+<A HREF="query.htm#TOF()">tof()</A><br>
+<A HREF="query.htm#TOPEDGE()">topedge()</A><br>
+<A HREF="query.htm#COLUMN">column.1()</A><br>
+<A HREF="query.htm#CURLINE">curline.2()</A><br>
+<A HREF="query.htm#CURSOR">cursor.3()</A><br>
+<A HREF="query.htm#CURSOR">cursor.4()</A><br>
+<A HREF="query.htm#CURSOR">cursor.7()</A><br>
+<A HREF="query.htm#CURSOR">cursor.8()</A><br>
+<A HREF="query.htm#LINE">line.1()</A><br>
+<A HREF="query.htm#POSITION">position.2()</A><br>
+<A HREF="query.htm#POSITION">position.3()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="scroll"></A>
+<h4>Scrolling</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR><TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+F5 (sos makecurr)
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#BACKWARD">backward</A><br>
+<A HREF="comm.htm#FORWARD">forward</A><br>
+<A HREF="comm.htm#LEFT">left</A><br>
+<A HREF="comm.htm#RGTLEFT">rgtleft</A><br>
+<A HREF="comm.htm#RIGHT">right</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCURSORSTAY">set/<A HREF="query.htm#CURSORSTAY">extract</A> cursorstay<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSMAKECURR">sos makecurr</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#VERONE()">verone()</A><br>
+<A HREF="query.htm#VERSHIFT">vershift.1()</A><br>
+</TD>
+<TD VALIGN=TOP>
+/ (sos makecurr)
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="delete"></A>
+<h4>Inserting, Deleting and Recovering</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR><TD VALIGN=TOP>
+ESC,C-Q (sos undo)<br>
+F4 (sos addline 1)<br>
+F8 recover<br>
+F9 (sos delline 1)<br>
+F10 (splitjoin)<br>
+F11 (controlchar)<br>
+BKSP... (sos delback)<br>
+INS (insertmode toggle)<br>
+DEL, C-H... (sos delchar)<br>
+C-END, C-E (sos delend)<br>
+X-F (join aligned)<br>
+X-S (split aligned)<br>
+X-W (sos delword)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#ADD">add</A><br>
+<A HREF="comm.htm#CAPPEND">cappend</A><br>
+<A HREF="comm.htm#CDELETE">cdelete</A><br>
+<A HREF="comm.htm#CINSERT">cinsert</A><br>
+<A HREF="comm.htm#COMPRESS">compress</A><br>
+<A HREF="comm.htm#CONTROLCHAR">controlchar</A><br>
+<A HREF="comm.htm#COVERLAY">coverlay</A><br>
+<A HREF="comm.htm#DELETE">delete</A><br>
+<A HREF="comm.htm#DUPLICATE">duplicate</A><br>
+<A HREF="comm.htm#ENTER">enter</A><br>
+<A HREF="comm.htm#EXPAND">expand</A><br>
+<A HREF="comm.htm#INPUT">input</A><br>
+<A HREF="comm.htm#JOIN">join</A><br>
+<A HREF="comm.htm#RECOVER">recover</A><br>
+<A HREF="comm.htm#SHIFT">shift</A><br>
+<A HREF="comm.htm#SPLIT">split</A><br>
+<A HREF="comm.htm#SPLTJOIN">spltjoin</A><br>
+<A HREF="comm.htm#TEXT">text</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCASE">set/<A HREF="query.htm#CASE">extract</A> case<br>
+<A HREF="query.htm#CURLINE">extract</A> curline<br>
+<A HREF="commset.htm#SETINPUTMODE">set/<A HREF="query.htm#INPUTMODE">extract</A> inputmode<br>
+<A HREF="commset.htm#SETINSERTMODE">set/<A HREF="query.htm#INSERTMODE">extract</A> insertmode<br>
+<A HREF="query.htm#LINEFLAG">extract</A> lineflag<br>
+<A HREF="commset.htm#SETMARGINS">set/<A HREF="query.htm#MARGINS">extract</A> margins<br>
+<A HREF="commset.htm#SETNEWLINES">set/<A HREF="query.htm#NEWLINES">extract</A> newlines<br>
+<A HREF="commset.htm#SETTABS">set/<A HREF="query.htm#TABS">extract</A> tabs<br>
+<A HREF="commset.htm#SETTABSIN">set/<A HREF="query.htm#TABSIN">extract</A> tabsin<br>
+<A HREF="commset.htm#SETTABSOUT">set/<A HREF="query.htm#TABSOUT">extract</A> tabsout<br>
+<A HREF="commset.htm#SETUNDOING">set/<A HREF="query.htm#UNDOING">extract</A> undoing<br>
+<A HREF="commset.htm#SETWORD">set/<A HREF="query.htm#WORD">extract</A> word<br>
+<A HREF="commset.htm#SETWORDWRAP">set/<A HREF="query.htm#WORDWRAP">extract</A> wordwrap<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSADDLINE">sos addline</A><br>
+<A HREF="commsos.htm#SOSDELBACK">sos delback</A><br>
+<A HREF="commsos.htm#SOSDELCHAR">sos delchar</A><br>
+<A HREF="commsos.htm#SOSDELEND">sos delend</A><br>
+<A HREF="commsos.htm#SOSDELLINE">sos delline</A><br>
+<A HREF="commsos.htm#SOSDELWORD">sos delword</A><br>
+<A HREF="commsos.htm#SOSINSTAB">sos instab</A><br>
+<A HREF="commsos.htm#SOSLINEADD">sos lineadd</A><br>
+<A HREF="commsos.htm#SOSLINEDEL">sos linedel</A><br>
+<A HREF="commsos.htm#SOSUNDO">sos undo</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#MODIFIABLE()">modifiable()</A><br>
+<A HREF="query.htm#CURLINE">curline.3()</A><br>
+<A HREF="query.htm#LINEFLAG">lineflag.1()</A><br>
+<A HREF="query.htm#LINEFLAG">lineflag.2()</A><br>
+</TD>
+<TD VALIGN=TOP>
+&quot; (duplicate)<br>
+&gt; (shift right)<br>
+&lt; (shift left)<br>
+a (add)<br>
+c (copy)<br>
+d (delete)<br>
+f (insert following)<br>
+i (add)<br>
+m (move)<br>
+p (insert prior)<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="search"></A>
+<h4>Searching, Replacing, Bookmarking</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR><TD VALIGN=TOP>
+S-F1 (locate)<br>
+F7 (cmatch)<br>
+C-F11 (point .a)<br>
+C-F12 (locate .a)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#ALL">all</A><br>
+<A HREF="comm.htm#CHANGE">change</A><br>
+<A HREF="comm.htm#CLOCATE">clocate</A><br>
+<A HREF="comm.htm#CMATCH">cmatch</A><br>
+<A HREF="comm.htm#CREPLACE">creplace</A><br>
+<A HREF="comm.htm#FIND">find</A><br>
+<A HREF="comm.htm#FINDUP">findup</A><br>
+<A HREF="comm.htm#LOCATE">locate</A><br>
+<A HREF="comm.htm#LOWERCASE">lowercase</A><br>
+<A HREF="comm.htm#NFIND">nfind</A><br>
+<A HREF="comm.htm#NFINDUP">nfindup</A><br>
+<A HREF="comm.htm#REPLACE">replace</A><br>
+<A HREF="comm.htm#SCHANGE">schange</A><br>
+<A HREF="comm.htm#SORT">sort</A><br>
+<A HREF="comm.htm#TOASCII">toascii</A><br>
+<A HREF="comm.htm#UPPERCASE">uppercase</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETARBCHAR">set/<A HREF="query.htm#ARBCHAR">extract</A> arbchar<br>
+<A HREF="commset.htm#SETCASE">set/<A HREF="query.htm#CASE">extract</A> case<br>
+<A HREF="commset.htm#SETHEX">set/<A HREF="query.htm#HEX">extract</A> hex<br>
+<A HREF="query.htm#LINEFLAG">extract</A> lineflag<br>
+<A HREF="commset.htm#SETPOINT">set/<A HREF="query.htm#POINT">extract</A> point<br>
+<A HREF="commset.htm#SETSCOPE">set/<A HREF="query.htm#SCOPE">extract</A> scope</A><br>
+<A HREF="commset.htm#SETSPAN">set</A> span<br>
+<A HREF="commset.htm#SETSPILL">set</A> spill<br>
+<A HREF="commset.htm#SETSTAY">set/<A HREF="query.htm#STAY">extract</A> stay<br>
+<A HREF="commset.htm#SETTRUNC">set</A> trunc<br>
+<A HREF="commset.htm#SETUNTAA">set/<A HREF="query.htm#UNTAA">extract</A> untaa<br>
+<A HREF="commset.htm#SETWRAP">set/<A HREF="query.htm#WRAP">extract</A> wrap<br>
+<A HREF="commset.htm#SETZONE">set/<A HREF="query.htm#ZONE">extract</A> zone<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#LINEFLAG">lineflag.2()</A><br>
+<A HREF="query.htm#VALID_TARGET(TARGET[,ANYTHING])">valid_target()</A><br>
+</TD>
+<TD VALIGN=TOP>
+.a (set point)
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="mark"></A>
+<h4>Block Marked Regions</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+X-K (copy block)<br>
+X-B (mark box)<br>
+X-C (copy block reset)<br>
+X-D (duplicate 1 block)<br>
+X-F (fillbox)<br>
+X-G (delete block)<br>
+X-L (mark line)<br>
+A-M, C-V (move block reset)<br>
+X-O (overlay box)<br>
+X-U (reset block)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#COPY">copy</A><br>
+<A HREF="comm.htm#FILLBOX">fillbox</A><br>
+<A HREF="comm.htm#LOWERCASE">lowercase</A><br>
+<A HREF="comm.htm#MARK">mark</A><br>
+<A HREF="comm.htm#MOVE">move</A><br>
+<A HREF="comm.htm#OVERLAYBOX">overlaybox</A><br>
+<A HREF="comm.htm#PUT">put</A><br>
+<A HREF="comm.htm#PUTD">putd</A><br>
+<A HREF="comm.htm#RESET">reset</A><br>
+<A HREF="comm.htm#UPPERCASE">uppercase</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETINSERTMODE">set/<A HREF="query.htm#INSERTMODE">extract</A> insertmode (?)<br>
+<A HREF="commset.htm#SETWORD">set/<A HREF="query.htm#WORD">extract</A> word<br>
+<A HREF="query.htm#BLOCK">extract block</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSBLOCKEND">sos blockend</A><br>
+<A HREF="commsos.htm#SOSBLOCKSTART">sos blockstart</A><br>
+<A HREF="commsos.htm#SOSPASTECMDLINE">sos pastecmdline</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#BLOCK()">block()</A><br>
+<A HREF="query.htm#INBLOCK()">inblock()</A><br>
+<A HREF="query.htm#BLOCK">block.1()</A><br>
+<A HREF="query.htm#BLOCK">block.2()</A><br>
+<A HREF="query.htm#BLOCK">block.3()</A><br>
+<A HREF="query.htm#BLOCK">block.4()</A><br>
+<A HREF="query.htm#BLOCK">block.5()</A><br>
+<A HREF="query.htm#BLOCK">block.6()</A><br>
+</TD>
+<TD VALIGN=TOP>
+&quot;&quot; (duplicate)<br>
+&gt;&gt; (shift right)<br>
+&lt;&lt; (shift left)<br>
+cc (copy)<br>
+dd (delete)<br>
+f (insert following)<br>
+mm (move)<br>
+p (insert prior)<br>
+xx (all BLOCK)<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="file"></A>
+<h4>File handling</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR><TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH></TR>
+<TR>
+<TD VALIGN=TOP>
+F3 (file)<br>
+S-F3,F13 (qquit)<br>
+X-X (sos edit)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#CANCEL">cancel</A><br>
+<A HREF="comm.htm#CCANCEL">ccancel</A><br>
+<A HREF="comm.htm#DIRECTORY">directory</A><br>
+<A HREF="comm.htm#EDIT">edit</A><br>
+<A HREF="comm.htm#FFILE">ffile</A><br>
+<A HREF="comm.htm#FILE">file</A><br>
+<A HREF="comm.htm#GET">get</A><br>
+<A HREF="comm.htm#KEDIT">kedit</A><br>
+<A HREF="comm.htm#LS">ls</A><br>
+<A HREF="comm.htm#PUT">put</A><br>
+<A HREF="comm.htm#PUTD">putd</A><br>
+<A HREF="comm.htm#QQUIT">qquit</A><br>
+<A HREF="comm.htm#QUIT">quit</A><br>
+<A HREF="comm.htm#SAVE">save</A><br>
+<A HREF="comm.htm#SSAVE">ssave</A><br>
+<A HREF="comm.htm#THE">the</A><br>
+<A HREF="comm.htm#XEDIT">xedit</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETALT">set/</A><A HREF="query.htm#ALT">extract</A> alt<br>
+<A HREF="commset.htm#SETAUTOSAVE">set/</A><A HREF="query.htm#AUTOSAVE">extract</A> autosave<br>
+<A HREF="commset.htm#SETBACKUP">set/</A><A HREF="query.htm#BACKUP">extract</A> backup<br>
+<A HREF="query.htm#BLOCK">extract</A> block<br>
+<A HREF="commset.htm#SETDEFSORT">set/</A><A HREF="query.htm#DEFSORT">extract</A> defsort<br>
+<A HREF="query.htm#DIRFILEID">extract</A> dirfileid<br>
+<A HREF="commset.htm#SETDIRINCLUDE">set/</A><A HREF="query.htm#DIRINCLUDE">extract</A> dirinclude<br>
+<A HREF="commset.htm#SETEOLOUT">set/</A><A HREF="query.htm#EOLOUT">extract</A> eolout<br>
+<A HREF="commset.htm#SETFEXT">set/</A><A HREF="query.htm#FEXT">extract</A> fext<br>
+<A HREF="commset.htm#SETFILENAME">set/</A><A HREF="query.htm#FILENAME">extract</A> filename<br>
+<A HREF="query.htm#FILESTATUS">extract</A> filestatus<br>
+<A HREF="commset.htm#SETFMODE">set/</A><A HREF="query.htm#FMODE">extract</A> fmode<br>
+<A HREF="commset.htm#SETFNAME">set/</A><A HREF="query.htm#FNAME">extract</A> fname<br>
+<A HREF="commset.htm#SETFPATH">set/</A><A HREF="query.htm#FPATH">extract</A> fpath<br>
+<A HREF="query.htm#FTYPE">extract</A> ftype<br>
+<A HREF="commset.htm#SETFULLFNAME">set/</A><A HREF="query.htm#FULLFNAME">extract</A> fullfname<br>
+<A HREF="commset.htm#SETIDLINE">set/</A><A HREF="query.htm#IDLINE">extract</A> idline<br>
+<A HREF="query.htm#NBFILE">extract</A> nbfile<br>
+<A HREF="query.htm#RING">extract</A> ring<br>
+<A HREF="query.htm#SIZE">extract</A> size<br>
+<A HREF="commset.htm#SETTABS">set/</A><A HREF="query.htm#TABS">extract</A> tabs<br>
+<A HREF="commset.htm#SETTABSIN">set/</A><A HREF="query.htm#TABSIN">extract</A> tabsin<br>
+<A HREF="commset.htm#SETTABSOUT">set/</A><A HREF="query.htm#TABSOUT">extract</A> tabsout<br>
+<A HREF="commset.htm#SETTIMECHECK">set/</A><A HREF="query.htm#TIMECHECK">extract</A> timecheck<br>
+<A HREF="commset.htm#SETUNDOING">set/</A><A HREF="query.htm#UNDOING">extract</A> undoing<br>
+<A HREF="commset.htm#SETWIDTH">set/</A><A HREF="query.htm#WIDTH">extract</A> width<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSEDIT">sos edit</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#ALT">alt()</A><br>
+<A HREF="query.htm#DIR()">dir()</A><br>
+<A HREF="query.htm#BLOCK">block.6()</A><br>
+<A HREF="query.htm#DIRFILEID">dirfileid.1()</A><br>
+<A HREF="query.htm#DIRFILEID">dirfileid.2()</A><br>
+<A HREF="query.htm#NBFILE">nbfile.1()</A><br>
+<A HREF="query.htm#RING">ring.1()</A><br>
+<A HREF="query.htm#RING">ring.n()</A><br>
+<A HREF="query.htm#SIZE">size.1()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="printing"></A>
+<h4>Printing</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP><A HREF="comm.htm#PRINT">print</A><br></TD>
+<TD VALIGN=TOP><A HREF="commset.htm#SETPRINTER">set/<A HREF="query.htm#PRINTER">extract</A> printer<br></TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="fold"></A>
+<h4>Folding (Partial Views)</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#ALL">all</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETDISPLAY">set/<A HREF="query.htm#DISPLAY">extract</A> display</A><br>
+<A HREF="commset.htm#SETSCOPE">set/<A HREF="query.htm#SCOPE">extract</A> scope</A><br>
+<A HREF="commset.htm#SETSELECT">set/<A HREF="query.htm#SELECT">extract</A> select</A><br>
+<A HREF="commset.htm#SETSHADOW">set/<A HREF="query.htm#SHADOW">extract</A> shadow<br>
+<A HREF="commset.htm#SETVERIFY">set/<A HREF="query.htm#VERIFY">extract</A> verify</A><br>
+<A HREF="commset.htm#SETZONE">set/<A HREF="query.htm#ZONE">extract</A> zone</A><br>
+<A HREF="query.htm#LINEFLAG">extract lineflag</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#LINEFLAG">lineflag.3()</A><br>
+<A HREF="query.htm#SHADOW()">shadow()</A><br>
+</TD>
+<TD VALIGN=TOP>
+s (all)<br>
+x (all LINE)<br>
+xx (all BLOCK)<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="windows"></A>
+<h4>Windows</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+F2 (nextwindow)<br>
+F12,PLUS... (tabpre)<br>
+HOME (cursor home)<br>
+C-R (redraw)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#CURSOR">cursor</A><br>
+<A HREF="comm.htm#EDIT">edit</A><br>
+<A HREF="comm.htm#KEDIT">kedit</A><br>
+<A HREF="comm.htm#NEXTWINDOW">nextwindow</A><br>
+<A HREF="comm.htm#PREVWINDOW">prevwindow</A><br>
+<A HREF="comm.htm#REDRAW">redraw</A><br>
+<A HREF="comm.htm#REFRESH">refresh</A><br>
+<A HREF="comm.htm#TABPRE">tabpre</A><br>
+<A HREF="comm.htm#THE">the</A><br>
+<A HREF="comm.htm#XEDIT">xedit</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCLOCK">set/<A HREF="query.htm#CLOCK">extract</A> clock<br>
+<A HREF="commset.htm#SETCOLOUR">set/<A HREF="query.htm#COLOUR">extract</A> colour<br>
+<A HREF="commset.htm#SETCOMPAT">set/<A HREF="query.htm#COMPAT">extract</A> compat<br>
+<A HREF="commset.htm#SETCMDLINE">set/<A HREF="query.htm#CMDLINE">extract</A> cmdline<br>
+<A HREF="commset.htm#SETCURLINE">set/<A HREF="query.htm#CURLINE">extract</A> curline<br>
+<A HREF="query.htm#CURSOR">extract</A> cursor<br>
+<A HREF="commset.htm#SETHEXDISPLAY">set/<A HREF="query.htm#HEXDISPLAY">extract</A> hexdisplay<br>
+<A HREF="commset.htm#SETHEXSHOW">set/<A HREF="query.htm#HEXSHOW">extract</A> hexshow<br>
+<A HREF="commset.htm#SETIDLINE">set/<A HREF="query.htm#IDLINE">extract</A> idline<br>
+<A HREF="query.htm#LSCREEN">extract</A> lscreen<br>
+<A HREF="commset.htm#SETPOSITION">set/<A HREF="query.htm#POSITION">extract</A> position<br>
+<A HREF="commset.htm#SETPREFIX">set/<A HREF="query.htm#PREFIX">extract</A> prefix<br>
+<A HREF="commset.htm#SETPSCREEN">set</A> pscreen<br>
+<A HREF="commset.htm#SETRESERVED">set/<A HREF="query.htm#RESERVED">extract</A> reserved<br>
+<A HREF="commset.htm#SETSCREEN">set/<A HREF="query.htm#SCREEN">extract</A> screen<br>
+<A HREF="commset.htm#SETSCALE">set/<A HREF="query.htm#SCALE">extract</A> scale<br>
+<A HREF="commset.htm#SETSHADOW">set/<A HREF="query.htm#SHADOW">extract</A> shadow<br>
+<A HREF="commset.htm#SETSLK">set</A> slk<br>
+<A HREF="commset.htm#SETSTATOPT">set/<A HREF="query.htm#STATOPT">extract</A> statopt<br>
+<A HREF="commset.htm#SETSTATUSLINE">set/<A HREF="query.htm#STATUSLINE">extract</A> statusline<br>
+<A HREF="commset.htm#SETTABKEY">set/<A HREF="query.htm#TABKEY">extract</A> tabkey<br>
+<A HREF="commset.htm#SETTABLINE">set/<A HREF="query.htm#TABLINE">extract</A> tabline<br>
+<A HREF="commset.htm#SETVERIFY">set/<A HREF="query.htm#VERIFY">extract</A> verify<br>
+<A HREF="query.htm#VERSHIFT">extract</A> vershift<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSBOTTOMEDGE">sos bottomedge</A><br>
+<A HREF="commsos.htm#SOSEXECUTE">sos execute</A><br>
+<A HREF="commsos.htm#SOSLEFTEDGE">sos leftedge</A><br>
+<A HREF="commsos.htm#SOSPASTECMDLINE">sos pastecmdline</A><br>
+<A HREF="commsos.htm#SOSPREFIX">sos prefix</A><br>
+<A HREF="commsos.htm#SOSQCMND">sos qcmnd</A><br>
+<A HREF="commsos.htm#SOSRIGHTEDGE">sos rightedge</A><br>
+<A HREF="commsos.htm#SOSTABFIELDF">sos tabfieldf</A><br>
+<A HREF="commsos.htm#SOSTABFIELDB">sos tabfieldb</A><br>
+<A HREF="commsos.htm#SOSTOPEDGE">sos topedge</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#BOTTOMEDGE()">bottomedge()</A><br>
+<A HREF="query.htm#LEFTEDGE()">leftedge()</A><br>
+<A HREF="query.htm#INPREFIX()">inprefix()</A><br>
+<A HREF="query.htm#INCOMMAND()">incommand()</A><br>
+<A HREF="query.htm#RIGHTEDGE()">rightedge()</A><br>
+<A HREF="query.htm#SHADOW()">shadow()</A><br>
+<A HREF="query.htm#TOPEDGE()">topedge()</A><br>
+<A HREF="query.htm#CURLINE">curline.2()</A><br>
+<A HREF="query.htm#CURSOR">cursor.1()</A><br>
+<A HREF="query.htm#CURSOR">cursor.2()</A><br>
+<A HREF="query.htm#CURSOR">cursor.5()</A><br>
+<A HREF="query.htm#CURSOR">cursor.6()</A><br>
+<A HREF="query.htm#LSCREEN">lscreen.1()</A><br>
+<A HREF="query.htm#LSCREEN">lscreen.2()</A><br>
+<A HREF="query.htm#LSCREEN">lscreen.3()</A><br>
+<A HREF="query.htm#LSCREEN">lscreen.4()</A><br>
+<A HREF="query.htm#LSCREEN">lscreen.5()</A><br>
+<A HREF="query.htm#LSCREEN">lscreen.6()</A><br>
+<A HREF="query.htm#VERSHIFT">vershift.1()</A><br>
+</TD>
+<TD VALIGN=TOP>
+/ (make current)<br>
+TABL<br>
+SCALE<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="os"></A>
+<h4>Operating System</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+X-X (sos edit)<br>
+C-Z (suspend)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#EXCLAIMARK">!</A><br>
+<A HREF="comm.htm#DIRECTORY">directory</A><br>
+<A HREF="comm.htm#DOS">dos</A><br>
+<A HREF="comm.htm#DOSNOWAIT">dosnowait</A><br>
+<A HREF="comm.htm#DOSQUIET">dosquiet</A><br>
+<A HREF="comm.htm#LS">ls</A><br>
+<A HREF="comm.htm#OS">os</A><br>
+<A HREF="comm.htm#OSNOWAIT">osnowait</A><br>
+<A HREF="comm.htm#OSQUIET">osquiet</A><br>
+<A HREF="comm.htm#OSREDIR">osredir</A><br>
+<A HREF="comm.htm#SUSPEND">suspend</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETDEFSORT">set/<A HREF="query.htm#DEFSORT">extract</A> defsort</A><br>
+<A HREF="commset.htm#SETDIRINCLUDE">set/<A HREF="query.htm#DIRINCLUDE">extract</A> dirinclude</A><br>
+<A HREF="query.htm#GETENV">extract</A> getenv<br>
+<A HREF="commset.htm#SETIMPCMSCP">set</A> impcmscp</A><br>
+<A HREF="commset.htm#SETIMPOS">set/<A HREF="query.htm#IMPOS">extract</A> impos</A><br>
+<A HREF="query.htm#VERSION">extract</A> version<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSEDIT">sos edit</A><br></TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#VERSION">version.3()</A><br>
+<A HREF="query.htm#RUN_OS(COMMAND[,STDIN_STEM[,STDOUT_STEM[,STDERR_STEM]]])">run_os()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="command"></A>
+<h4>Command Line</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+ESC,C-Q (sos undo)<br>
+F6 (?)<br>
+F12,PLUS... (tabpre)<br>
+HOME (cursor home)<br>
+ENTER (enter)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#QUESTIONMARK">?</A><br>
+<A HREF="comm.htm#EQUALSIGN">=</A><br>
+<A HREF="comm.htm#AMPERSAND">&</A><br>
+<A HREF="comm.htm#CMSG">cmsg</A><br>
+<A HREF="comm.htm#COMMAND">command</A><br>
+<A HREF="comm.htm#ENTER">enter</A><br>
+<A HREF="comm.htm#INPUT">input</A><br>
+<A HREF="comm.htm#NOMSG">nomsg</A><br>
+<A HREF="comm.htm#READV">readv cmdline</A><br>
+<A HREF="comm.htm#REPEAT">repeat</A><br>
+<A HREF="comm.htm#REXX">rexx</A><br>
+<A HREF="comm.htm#SOS">sos</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCMDARROWS">set/<A HREF="query.htm#CMDARROWS">extract</A> cmdarrows<br>
+<A HREF="commset.htm#SETCMDLINE">set/<A HREF="query.htm#CMDLINE">extract</A> cmdline<br>
+<A HREF="query.htm#LASTRC">extract</A> lastrc<br>
+<A HREF="commset.htm#SETLINEND">set/<A HREF="query.htm#LINEND">extract</A> linend<br>
+<A HREF="commset.htm#SETMACRO">set/<A HREF="query.htm#MACRO">extract</A> macro<br>
+<A HREF="commset.htm#SETSCOPE">set/<A HREF="query.htm#SCOPE">extract</A> scope<br>
+<A HREF="commset.htm#SETSYNONYM">set</A> synonym<br>
+<A HREF="commset.htm#SETTABKEY">set/<A HREF="query.htm#TABKEY">extract</A> tabkey<br>
+<A HREF="commset.htm#SETTRUNC">set</A> trunc<br>
+<A HREF="commset.htm#SETZONE">set/<A HREF="query.htm#ZONE">extract</A> zone<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSEXECUTE">sos execute</A><br>
+<A HREF="commsos.htm#SOSPASTECMDLINE">sos pastecmdline</A><br>
+<A HREF="commsos.htm#SOSQCMND">sos qcmnd</A><br>
+<A HREF="commsos.htm#SOSTABFIELDF">sos tabfieldf</A><br>
+<A HREF="commsos.htm#SOSTABFIELDB">sos tabfieldb</A><br>
+<A HREF="commsos.htm#SOSUNDO">sos undo</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#COMMAND()">command()</A><br>
+<A HREF="query.htm#INCOMMAND()">incommand()</A><br>
+<A HREF="query.htm#LASTRC">lastrc.1()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="prefix"></A>
+<h4>Prefix Area</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+ENTER,C-M (enter)<br>
+F12,PLUS... (tabpre)<br>
+HOME (cursor home)<br>
+NUMENTER,C-P (sos doprefix)<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#EQUALSIGN">=</A><br>
+<A HREF="comm.htm#ENTER">[enter]</A><br>
+<A HREF="comm.htm#TABPRE">[tabpre]</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETNUMBER">set/<A HREF="query.htm#NUMBER">extract</A> number<br>
+<A HREF="commset.htm#SETPENDING">set/<A HREF="query.htm#PENDING">extract</A> pending<br>
+<A HREF="commset.htm#SETPREFIX">set/<A HREF="query.htm#PREFIX">extract</A> prefix<br>
+<A HREF="commset.htm#SETSYNONYM">set</A> synonym<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commsos.htm#SOSDOPREFIX">sos doprefix</A><br>
+<A HREF="commsos.htm#SOSPREFIX">sos prefix</A><br>
+<A HREF="commsos.htm#SOSTABFIELDF">sos tabfieldf</A><br>
+<A HREF="commsos.htm#SOSTABFIELDB">sos tabfieldb</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#INPREFIX()">inprefix()</A><br>
+<A HREF="query.htm#PENDING">pending.1()</A><br>
+<A HREF="query.htm#PENDING">pending.2()</A><br>
+<A HREF="query.htm#PENDING">pending.3()</A><br>
+<A HREF="query.htm#PENDING">pending.4()</A><br>
+<A HREF="query.htm#PREFIX">prefix.1()</A><br>
+<A HREF="query.htm#PREFIX">prefix.n()</A><br>
+</TD>
+<TD VALIGN=TOP>
+a (add)<br>
+c, cc (copy)<br>
+d, dd (delete)<br>
+f (insert following)<br>
+i (insert)<br>
+m, mm (move)<br>
+p (insert prior)<br>
+s (all)<br>
+x, xx (exclude)<br>
+/ (make current)<br>
+&quot;,&quot;&quot; (duplicate)<br>
+&gt;,&gt;&gt; (shift right)<br>
+&lt;,&lt;&lt; (shift left)<br>
+.a (bookmark)<br>
+TABL<br>
+SCALE<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="macros"></A>
+<h4>Macros</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#CMSG">cmsg</A><br>
+<A HREF="comm.htm#EDITV">editv</A><br>
+<A HREF="comm.htm#EMSG">emsg</A><br>
+<A HREF="comm.htm#ENTER">enter</A><br>
+<A HREF="comm.htm#HIT">hit</A><br>
+<A HREF="comm.htm#MACRO">macro</A><br>
+<A HREF="comm.htm#MSG">msg</A><br>
+<A HREF="comm.htm#NOMSG">nomsg</A><br>
+<A HREF="comm.htm#NOP">nop</A><br>
+<A HREF="comm.htm#PRESERVE">preserve</A><br>
+<A HREF="comm.htm#READV">readv</A><br>
+<A HREF="comm.htm#REFRESH">refresh</A><br>
+<A HREF="comm.htm#RESET">reset</A><br>
+<A HREF="comm.htm#RESTORE">restore</A><br>
+<A HREF="comm.htm#REXX">rexx</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCLEARERRORKEY">set/<A HREF="query.htm#CLEARERRORKEY">extract</A> clearerrorkey<br>
+<A HREF="commset.htm#SETCMDARROWS">set/<A HREF="query.htm#CMDARROWS">extract</A> cmdarrows<br>
+<A HREF="commset.htm#SETCOMPAT">set/<A HREF="query.htm#COMPAT">extract</A> compat<br>
+<A HREF="commset.htm#SETCURLINE">set/<A HREF="query.htm#CURLINE">extract</A> curline<br>
+<A HREF="commset.htm#SETIMPMACRO">set/<A HREF="query.htm#IMPMACRO">extract</A> impmacro<br>
+<A HREF="query.htm#LASTKEY">extract</A> lastkey<br>
+<A HREF="query.htm#LASTMSG">extract</A> lastmsg<br>
+<A HREF="query.htm#LASTRC">extract</A> lastrc<br>
+<A HREF="commset.htm#SETMACRO">set/<A HREF="query.htm#MACRO">extract</A> macro<br>
+<A HREF="commset.htm#SETMACROEXT">set/<A HREF="query.htm#MACROEXT">extract</A> macroext<br>
+<A HREF="commset.htm#SETMACROPATH">set/<A HREF="query.htm#MACROPATH">extract</A> macropath<br>
+<A HREF="commset.htm#SETMSGLINE">set/<A HREF="query.htm#MSGLINE">extract</A> msgline<br>
+<A HREF="commset.htm#SETMSGMODE">set/<A HREF="query.htm#MSGMODE">extract</A> msgmode<br>
+<A HREF="commset.htm#SETREPROFILE">set/<A HREF="query.htm#REPROFILE">extract</A> reprofile<br>
+<A HREF="commset.htm#SETREXXOUTPUT">set/<A HREF="query.htm#REXXOUTPUT">extract</A> rexxoutput<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#ALTKEY()">altkey()</A><br>
+<A HREF="query.htm#BATCH()">batch()</A><br>
+<A HREF="query.htm#CTRL()">ctrl()</A><br>
+<A HREF="query.htm#INITIAL()">initial()</A><br>
+<A HREF="query.htm#LASTMSG">lastmsg.1()</A><br>
+<A HREF="query.htm#LASTRC">lastrc.1()</A><br>
+<A HREF="query.htm#SHIFT()">shift()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="keys"></A>
+<h4>Keys</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+SPACE<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="comm.htm#CMATCH">cmatch</A><br>
+<A HREF="comm.htm#CONTROLCHAR">controlchar</A><br>
+<A HREF="comm.htm#DEFINE">define</A><br>
+<A HREF="comm.htm#ENTER">enter</A><br>
+<A HREF="comm.htm#HIT">hit</A><br>
+<A HREF="comm.htm#READV">readv</A><br>
+<A HREF="comm.htm#RESET">reset</A><br>
+<A HREF="comm.htm#SHOWKEY">showkey</A><br>
+<A HREF="comm.htm#SOS">sos</A><br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCLEARERRORKEY">set/<A HREF="query.htm#CLEARERRORKEY">extract</A> clearerrorkey<br>
+<A HREF="commset.htm#SETCMDARROWS">set/<A HREF="query.htm#CMDARROWS">extract</A> cmdarrows<br>
+<A HREF="commset.htm#SETCOMPAT">set/<A HREF="query.htm#COMPAT">extract</A> compat<br>
+<A HREF="query.htm#LASTKEY">extract</A> lastkey<br>
+<A HREF="commset.htm#SETSLK">set</A> slk<br>
+<A HREF="commset.htm#SETTYPEAHEAD">set/<A HREF="query.htm#TYPEAHEAD">extract</A> typeahead<br>
+<A HREF="query.htm#SHOWKEY">extract</A> showkey<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#ALTKEY()">altkey()</A><br>
+<A HREF="query.htm#CTRL()">ctrl()</A><br>
+<A HREF="query.htm#SHIFT()">shift()</A><br>
+<A HREF="query.htm#SHOWKEY">showkey.1()</A><br>
+<A HREF="query.htm#SHOWKEY">showkey.n()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+<A NAME="misc"></A>
+<h4>Miscellaneous</h4>
+<CENTER>
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2>
+<TR>
+<TH><A HREF="quickref.htm#DEFAULTKEYASSIGNMENTS">keys</A></TH>
+<TH><A HREF="comm.htm">command</A></TH>
+<TH><A HREF="commset.htm#SETCOMMANDREFERENCE">set command</A></TH>
+<TH><A HREF="commsos.htm#SOSCOMMANDREFERENCE">sos command</A></TH>
+<TH><A HREF="query.htm#BOOLEANFUNCTIONS">function</A></TH>
+<TH><A HREF="quickref.htm#PREFIXCOMMANDS">prefix</A></TH>
+</TR>
+<TR>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="commset.htm#SETCLEARSCREEN">set/<A HREF="query.htm#CLEARSCREEN">extract</A> clearscreen<br>
+<A HREF="commset.htm#SETETMODE">set/<A HREF="query.htm#ETMODE">extract</A> etmode<br>
+<A HREF="commset.htm#SETMOUSE">set/<A HREF="query.htm#MOUSE">extract</A> mouse<br>
+<A HREF="commset.htm#SETNONDISP">set/<A HREF="query.htm#NONDISP">extract</A> nondisp<br>
+<A HREF="commset.htm#SETXTERMINAL">set/<A HREF="query.htm#XTERMINAL">extract</A> xterminal<br>
+<A HREF="query.htm#LENGTH">extract length</A><br>
+<A HREF="query.htm#MONITOR">extract monitor</A><br>
+<A HREF="query.htm#TERMINAL">extract terminal</A><br>
+<A HREF="query.htm#VERSION">extract version</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+<TD VALIGN=TOP>
+<A HREF="query.htm#BLANK()">blank()</A><br>
+<A HREF="query.htm#CURRENT()">current()</A><br>
+<A HREF="query.htm#SPACECHAR()">spacechar()</A><br>
+<A HREF="query.htm#LENGTH">length.1()</A><br>
+<A HREF="query.htm#MONITOR">monitor.1()</A><br>
+<A HREF="query.htm#MONITOR">monitor.2()</A><br>
+<A HREF="query.htm#TERMINAL">terminal.1()</A><br>
+<A HREF="query.htm#VERSION">version.1()</A><br>
+<A HREF="query.htm#VERSION">version.2()</A><br>
+<A HREF="query.htm#VERSION">version.4()</A><br>
+</TD>
+<TD VALIGN=TOP>
+<br>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<A HREF="app6.htm#TOPICS">Back to topics list.</A><p>
+<p>
+
+
+<HR>
+<small>
+The Hessling Editor is Copyright &copy; <A HREF = "http://www.lightlink.com/hessling/">Mark Hessling</A>, 1990-1998
+<ADDRESS>&lt;<A HREF = "mailto:M.Hessling@qut.edu.au">M.Hessling@qut.edu.au</A>&gt;</ADDRESS>
+<BR>Last changed on: 31 Oct 1998 by Franz-Josef Wirtz <ADDRESS>&lt;<A HREF =
+"mailto:fw@ecotopia.oche.de">fw@ecotopia.oche.de</A>&gt;</ADDRESS>
+</small>
+<HR>
+Return to <A HREF = "index.htm#TOC"> Table of Contents </A><BR>
+</BODY> </HTML>

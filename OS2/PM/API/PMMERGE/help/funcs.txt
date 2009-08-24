@@ -1,0 +1,11 @@
+ 
+ Related Functions 
+
+      WinAssociateHelpInstance 
+      WinCreateHelpInstance 
+      WinCreateHelpTable 
+      WinDestroyHelpInstance 
+      WinLoadHelpTable 
+      WinQueryHelpInstance 
+  
+

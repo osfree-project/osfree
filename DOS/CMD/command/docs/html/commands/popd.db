@@ -1,0 +1,18 @@
+name: POPD
+de: Change back to the last pushed directory
+see: POPD DIRS CD CDD
+req: CMD_CDD CMD_POPD
+
+SYNOPSIS:
+<OL>
+<LI>
+EBNF: POPD
+<LI>
+EBNF: POPD '*'
+</OL>
+
+<P>The first variant changes the current directory back to the one,
+in which the last PUSHD command was executed.
+
+<P>The second one clears all entries of the directory stack, but does
+not change the current directory.

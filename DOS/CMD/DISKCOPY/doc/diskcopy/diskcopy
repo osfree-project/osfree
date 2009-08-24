@@ -1,0 +1,604 @@
+                               === Diskcopy ===
+
+Version.
+--------
+
+This is the documentation for FreeDOS diskcopy beta 0.94. This version is
+a candidate for version 1 and contains all the planned features for
+diskcopy. These include:
+
+- disk copies for any disk using FAT12 with a disk size which is a multiple of
+  16Kb for example 160 Kb, 180 Kb, 320 Kb, 360 Kb, 720 Kb, 1.44 Mb and 2.88Mb
+  disks.
+- use of XMS, EMS, swap files and main memory for disk copies.
+- full verification of reads and writes
+- image file support (full as well as small image files).
+- mouse button support.
+- rawrite compatibility.
+- disk error recovery mode.
+- ini file support for easier configuration.
+- ini cache file support for fastest configuration file reads.
+- fast diskcopy (only copy sectors that are realy filled).
+- multi language support.
+- long file name support.
+- update of serial number.
+- diskcopy can be compiled using only freely available software. 
+- guaranteed to run in FreeDOS (DOS-C)
+
+New in this version.
+--------------------
+
+Fixed: "diskcopy gives no error message when you copy to a write protected 
+diskette. There are only failure message such as cannot write on sector xy."
+
+Now better fixed: diskcopy continues by asking the user for a new disk.
+
+Authors.
+--------
+
+Mathew Stanford (original version).
+
+Imre Leber (imre.leber@worldonline.be).
+
+License.
+--------
+Diskcopy is distributed under the terms of the GNU General Public License
+(see COPYING for details).
+
+The XMS and EMS public domain routines by Cliff Rhodes have been translated 
+to nasm by Imre Leber and the assembly versions have been put under the 
+GNU General Public License by Imre Leber.
+
+The file drvtypes.asm is a nasm translation of a pascal source file. Since
+this file has been given to me by Ralph Quint this file remains under the 
+public domain.
+
+The two libraries used are cats and io95. Cats is written by Jim Hall 
+(jhall@freedos.org) and io95 is written by Steffen Kaiser 
+(Steffen.Kaiser@fh-rhein-seig.de). Both libraries are released under
+the GNU LGPL.
+
+Multilanguage support was first added by Wladimir y Jimenez B, the german 
+translation was done by Achim Sondermann and Nagy Daniel.
+
+The original version of free diskcopy has been written by Matthew Stanford,
+who personally asked me to work on it further.
+
+Purpose.
+--------
+Diskcopy is a free implementation of the MS-DOS utility with the same name.
+It currently supports disk copies for almost any diskette type including
+160 Kb, 180 Kb, 320 Kb, 360 Kb, 720 Kb, 1.2 MB, 1.44 MB and 2.88 MB disks,
+using XMS, EMS, buffers or swap file. On top of that diskcopy supports the
+use of image files.
+
+Syntax and usage.
+-----------------
+The syntax for diskcopy is as follows:
+
+Diskcopy <source><destination>[/a][/v][/m][/i][/o][/1][/x][/d][/r][/f][/?]
+
+The parameters are to be interpreted as:
+
+source:      drive or image file to copy from.
+destination: drive or image file to copy to.
+
+/a : give an audible warning for user action.
+
+     This option gives a beep each time user action is required.
+
+/v : verify reads and writes.
+
+     With this option enabled reads and writes are verified. Notice that
+     using this option takes twice as long as without it. The DOS verify 
+     flag is not influenced by this option.
+
+/m : only use memory for disk copy.
+
+     With this option only memory is used for the diskcopy, meaning either
+     XMS, EMS or buffers.
+
+/i : show memory usage (informative).
+
+     Tells you which kind of memory is used.
+
+/o : overwrite destination, if it already exists (in case of an image file).
+
+     When you want to make an image file of a floppy disk and a file with
+     that name already exists the program refuses to overwrite the file.
+     With this option you can change this behaviour and force an overwrite
+     of existing files.
+
+/x : always automatically exit.
+
+     This switch makes sure the program always exit. You will most likely
+     notice this at the end of the program. If you use this switch the 
+     program will no longer ask you wether you want another copy of the disk
+     or wether you want another copy of the disk.
+
+/d : assume disk already in drive.
+
+     This switch is used to speed up disk copying. The program will not
+     ask you to insert the source or destination diskette if possible.
+
+/r : go into error recovery mode.
+
+     Sometimes part of a disk is unreadable, but everything else is still
+     valid. In those cases you might want to copy the disk to a new disk,
+     while recovering as much data as possible. Using this switch you can 
+     force diskcopy to scan more effectively for media errors on the disk 
+     and recover more of the disk than is possible without the switch.
+     
+     This option is not available, if you compile diskcopy to always be
+     in error recovery mode (see also further).
+
+/f : perform fast diskcopy (only copy filled sectors).
+
+     using this option only the sectors which are filled are copied resulting
+     in a much faster way of making a disk copy. Notice however that the
+     copy of the target disk in this case is not exactly the same as that of
+     the original. All files on the disk will however be identical to those
+     on the original disk.
+
+     This option is also used to make small image files. These image files
+     will then contain only the information of sectors which contain data. 
+     If you write the image file back to a disk the disk will not be identical
+     to the first disk, but all files will be the same.
+
+/t : don't ask target disk if copying image file to same disk.
+
+     When copying an image file to the same disk as the one that is being 
+     copied, the program normally asks to insert a new disk. When using
+     this option the image file is directly written to the disk without 
+     asking for an other disk.
+
+/1 : this option doesn't do anything but has been included for MS-DOS
+     compatibility.
+
+/? : displays the help screen.
+
+The character for the options (the '/') actually depends on the DOS switch
+character. If you have changed it to an other character than '/', you can 
+use that character instead (but this is not required).
+
+Because there is now support for a configuration file, options set in the
+configuration file can be cleared by using a minus sign (-) after the option.
+
+compile time options.
+---------------------
+
+There are two compile time options that can be chosen to select different
+ways in which diskcopy works. The options can be set in the makefile for
+the source by changing the comments of the following four lines:
+
+#hlpoptions =             
+hlpoptions = -DDEF_HELP
+
+recoptions = 
+#recoptions = -DALL_RECOVERY_MODE
+
+These two lines contain defines that can be turned on or off, the meaning
+is as follows:
+
+hlpotions = [-DDEF_HELP]
+
+        This define changes the behaviour of diskcopy when there are no 
+        parameters. The default is to show the help on the screen. By
+        changing the define you can get the more MS-DOS like message
+
+                Invalid drive specification or non removable media.
+
+        which was used in earlier versions of diskcopy.
+
+recoptions = [-DALL_RECOVERY_MODE]
+
+        This define changes the way recovery mode is selected. Normally 
+        recovery mode is only selected when the user uses the /r switch.
+        When using this define diskcopy is always in recovery mode and
+        the /r switch is no longer valid and results in a warning.
+
+Image files.
+------------
+
+Image files are files that contain the contents of a floppy disk in raw 
+format. These files can contain all the data of the disk or only the 
+information needed to rebuild the files of the original disk.
+
+The main advatage of image files is that one can save the contents of a
+floppy on a different medium, like a CD-ROM or a hard disk and recreate 
+the disk only when you need it.
+
+Image files also make it possible to distribute image files through the
+internet.
+
+To make an image file the following command can be used:
+
+     diskcopy a: example.img
+
+To rewrite the contents to a different floppy disk you can do the following:
+
+     diskcopy example.img a:
+
+For reasons of closure it is allso possible to copy image files with 
+diskcopy, as follows:
+
+     diskcopy example1.img example2.img
+
+but this is (almost) the same as copy example1.img example2.img.
+
+As said there are two kinds of image files. The first kind being a full
+representation of the disk. This kind is the default and is generated when:
+- the .ini file doesn't contain the option "SPEED = FULL", or
+- the /f option is not used and/or the /f- option is used
+
+The second kind only copies the relevant parts of the disk resulting in a 
+potentially much smaller image file. This image file is generated when:
+- the .ini file contains the option "SPEED = FULL", or
+- the option /f is used and/or the /f- option is not used.
+
+Examples:
+
+    Generate a full image file:
+        
+        No option "SPEED = FULL" in ini file:
+                diskcopy a: example1.img 
+        
+        Making sure that a full image file is generated:
+                diskcopy a: example1.img /f-
+    
+    Generate a small image file:
+
+        Option "SPEED = FULL" used in ini file:
+                diskcopy a: example1.img 
+        
+        Making sure that a small image file is generated:
+                diskcopy a: example1.img /f
+
+The /f option (or the SPEED= option in the .ini file) makes no difference
+when copying the image file back to a disk. Diskcopy can find out by itself
+what kind of image file is used.
+
+When writing an image file to the same disk as the one which is copied,
+it is assumed that a small image file needed to be created. This is
+because a long image file would have never fitted on the disk.
+
+Also writing an image file to the same disk is done in two parts. First 
+everything is written into memory. Then the user is asked to insert a
+second disk. Then the data is written to the newly inserted disk. If
+you want to copy a file to the same disk as where the copy came from,
+use:
+  
+    - the /t switch: don't ask target disk if copying to same disk; or
+    - set ASKTDISK to NO in the .ini file
+   
+Rawrite compatibility.
+----------------------
+The image files supported by diskcopy are now also compatible with rawrite
+image files (commonly used with linux distributions and the FreeDOS 
+distribution). 
+
+Diskcopy can thus be used to create the images for use with rawrite. There
+is only one thing to notice here. Because diskcopy uses DOS to find out the
+disk sizes for the diskettes it can only work with FAT. Reading from non DOS
+disks is impossible. 
+
+On the other hand writing to a disk formatted to use FAT is possible no
+matter what the image file itself contains. If there is an other file system
+on the diskette format a: /q can be use before writing an image file to
+the diskette.
+
+Windows compatibility.
+----------------------
+Because diskcopy only uses DOS to copy disks it can be used to write in a
+DOS box under windows without having to lock the drives first. Any boot 
+sector will be written correctly so that the disk will be bootable.
+
+Diskcopy fully supports long file names. To support long file names a driver
+does however need to be loaded. For FreeDOS LFNDOS and DOSLFN are available.
+Under windows NT you can use NTLFN. See 
+http://www.cybertrails.com/~fys/longfile.htm for more information concerning
+these drivers and where to get them.
+
+Under windows 95 or 98 the driver is included directly in the operating system
+and no special driver is needed.
+
+Diskcopy.ini file.
+------------------
+In order to facilitate using diskcopy you can optionally create a 
+diskcopy.ini file to store the options you use often.
+
+The structure of a diskcopy.ini is pretty standard:
+
+There are three headers for the selection of options:
+
+        [- OPTION -]
+
+and
+
+        [- MEMORY-]
+
+and 
+
+        [- GENERATE -]
+
+which form blocks containing option statements. 
+
+(The "-" in "[-" and "-]" is optional)
+
+Option statements are of the form:
+
+        LVALUE = RVALUE
+
+where the "=" and the RVALUE are optional (if the RVALUE is not entered
+nothing happens). 
+
+The option statements that can be used in a [- OPTION -] block are:
+
+audible = YES 
+audible = NO
+        
+        turns the audible warning before user action on or off.
+
+verify = YES
+verify = NO
+
+        turns verification on or off.
+
+askdisk = YES
+askdisk = NO
+
+        determines wether a disk is asked to be inserted.
+
+asktdisk = YES
+asktdisk = NO
+
+     When copying an image file to the same disk as the one that is being 
+     copied, the program normally asks to insert a new disk. When setting
+     this option to NO the image file is directly written directly to the
+     disk without asking for an other disk.
+
+informative = YES
+informative = NO
+
+        determines wether the memory type is shown.
+
+overwrite = ALWAYS
+overwrite = NEVER     
+
+        determines wether to overwrite the destination, if the destination
+        is an image file.
+
+autoexit = YES
+autoexit = NO
+
+        determines wether the program should automatically exit.
+
+mode = RECOVERY
+mode = NORMAL
+
+        determines wether the program should allways be in recovery mode
+        or not.
+
+The option statements that can be used in a [- MEMORY -] block are:
+
+XMS = YES
+XMS = NO
+
+        determines wether XMS memory can be used.
+
+EMS = YES
+EMS = NO
+
+        determines wether EMS memory can be used.
+
+DISK = YES
+DISK = NO
+
+        determines wether a swap file can be used.
+
+SPEED = FULL
+SPEED = FAST
+
+        perform fast disk copy or generate small image files if 
+        "SPEED = FAST" is used
+
+SERIALNUMBER = LEAVE
+SERIALNUMBER = UPDATE
+
+        when setting this option to LEAVE the serial number is not updated.
+        when setting it to UPDATE the serial number is updated.
+
+The option statement that can be used in a [- GENERATE -] block is:
+
+USEDATFILE = YES
+USEDATFILE = NO
+
+        determines wether a compiled ini file should be generated 
+        (see further).
+
+The diskcopy.ini file is looked up in the following places and in the 
+following order:
+
+1) the environment variable "dkcpini" can point to a directory where 
+   the diskcopy.ini file is located. If no diskcopy.ini file is found 
+   or the directory does not exist the search is continued.
+2) the executable's directory.
+3) the current directory.
+
+Notes: 1) DOS shoudn't be case sensitive so diskcopy isn't either.
+       2) command line options overwrite the options in the diskcopy.ini 
+          file.
+
+Compiled ini file.
+------------------
+
+In a previous version of diskcopy the .ini file had to be interpreted each
+time the program is used. 
+
+An .ini file is by definition a file that is written once for many uses. 
+Therefore the speed of reading an .ini file can  be increased by generating 
+a seperate file containing that contains only the essential information 
+contained in an .ini file and using that file as long as the .ini file has 
+not changed.
+
+By using a simple entry in the .ini file such a file is generated with the
+name diskcopy.dat. The entry is:
+
+USEDATFILE = YES 
+USEDATFILE = NO
+
+When the option is set to YES a diskcopy.dat file is generated whenever 
+the .ini file is changed. 
+
+That the .ini file is newer is checked using the normal way by looking at 
+the file time. (This is thus the same method used by the make utility).
+
+A few checks are build in to ensure that any file with the name diskcopy.dat
+is realy a diskcopy generated file. If the file is not valid it will not be
+used. The file, however, can be overwritten when generating a new 
+diskcopy.dat file.
+
+Multi language support
+----------------------
+
+FreeDOS diskcopy has multi language support. To change to an other language
+then the default language (english) you should use two enviroment
+variables:
+ 
+ nlspath = <path>
+        This environment variable should point to the directory where
+        your multi language files are located.
+
+ lang = <language code>
+        This environment variable defines the code for the language
+        you want to use.
+
+These two variables point to a file called:
+
+  <nlspath>\diskcopy.<lang>
+  
+For example:
+
+  c:\freedos\nls\diskcopy.en
+
+If you installed the FreeDOS distribution you should already have files
+in this directory. 
+
+An other method exist of using nlspath and lang to point to directories
+like:
+
+  <nlspath>\<lang>\diskcopy
+
+For example:
+
+  c:\freedos\nls\en\diskcopy
+
+Notice that this file does not have an extension.
+
+The currently supported languages are dutch, german and english. If you want
+support for an other language you should translate the strings in the 
+diskcopy.en file. You can do this without changing the sources.
+
+If you do translate the language file. Please send them to me 
+(imre.leber@worldonline.be). Jim Hall will probably also accept these files
+you can reach him at jhall@freedos.org. 
+
+Examples.
+---------
+
+Diskcopy a: a: /a /i
+
+    Copy a floppy disk from a: to a:, give a beep before user action and show
+    memory usage.
+
+Diskcopy a: example.img
+
+    Copy the contents of the floppy disk in drive a: to the image file
+    example.img.
+
+Diskcopy example.img a:
+
+    Copy the contents of the file example.img to the floppy disk in drive a:
+
+Diskcopy example1.img example2.img
+
+    Copy the file example1.img to the file example2.img. 
+
+Diskcopy a: a: /a-
+
+    Copy the contents of the disk in drive a: to another disk in drive a:,
+    making sure there is no beep for user action.
+
+Diskcopy a: a:a /f
+
+    Create a small image file of drive a: on drive a:
+
+    Notice that in this case:
+    - The program can give an out of memory error if the entire contents
+      can not be copied in one time.
+    - The resulting file "a" is not included in the image file.
+
+Diskcopy a:a a:, or identically: diskcopy a:a a: /f
+
+    Copy the image file "a" on drive a: to drive a:
+
+    Notice that in this case:
+    - The user will be asked to insert a new floppy.
+
+Diskcopy a:a a: /t
+
+    Copy the image file "a" on drive a: to drive a:
+
+    Notice that in this case:
+    - The contents of drive a: is overwritten. So the image file is gone too!
+
+                                    *
+                                   * *
+
+The following example shows the defaults for a diskcopy.ini file (using 
+these values is the same as not using a diskcopy.ini file at all).
+
+        [- MEMORY -]
+        DISK  = YES             # SWAP file allowed  
+        XMS   = YES             # XMS allowed
+        EMS   = YES             # EMS allowed
+
+        [- OPTIONS -]
+        AUDIBLE      = NO       # don't use a beep before asking for input
+        VERIFY       = NO       # don't verify read and writes
+        INFORMATIVE  = NO       # don't show memory usage
+        OVERWRITE    = NEVER    # never overwrite an existing file
+        AUTOEXIT     = NO       # don't automatically exit
+        MODE         = NORMAL   # not in recovery mode
+        ASKDISK      = YES      # ask for a disk before copying
+        SPEED        = FULL     # copy all sectors
+        ASKTDISK     = YES      # ask for a disk when creating an image file
+                                # on the same disk
+
+        [- GENERATION -]
+        USEDATFILE   = NO       # Use the DAT file 
+
+Another example illustrating the more liberal syntaxis is:
+        
+        [- MEMORY ]
+        EMS   = YES
+
+        [ OPTIONS -]
+        AUDIBLE       NO
+        VeRiFy       = NO
+        INFORMATIVE
+        OVERWRITE    = NeVeR
+        AUTOEXIT     #= NO
+        MODE         =# NORMAL
+        #ASKDISK      = YES
+        
+        [ MEMORY ]
+        DISK  = YES
+        XMS   = YES
+
+
+Planned improvements.
+---------------------
+
+None, it is stable and works under FreeDOS. And it is already to large for 
+most people.

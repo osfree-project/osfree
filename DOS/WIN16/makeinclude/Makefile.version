@@ -1,0 +1,13 @@
+########################################################################
+#	@(#)Makefile.version	1.18 	3/13/97 16:05:04
+#
+#	Baseline version information.
+#
+#	Copyright (c) 1995, Willows Software Inc.  All rights reserved.
+#
+########################################################################
+
+
+VERSION=3
+PATCHLEVEL=1
+ALPHA=0

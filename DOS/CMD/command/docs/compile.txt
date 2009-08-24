@@ -1,0 +1,87 @@
+Compile notes:
+
+NOTE: Use NASM version 0.98.35 or later!
+
+There is a more detailed description located here:
+http://freedos.sourceforge.net/freecom/build48.html
+
+1) Setup TC++ v1.01 (see www.freedos.org, Links page for a reference to
+Borland's museum site).
+2) Configure CONFIG.MAK (see below)
+3) Configure CONFIG.H   (see there)
+4) Run BUILD.BAT**
+(Some newer MAKE variants may require a space between the -f option
+ and the makefile name. On trouble try to fix BUILD.BAT.)
+
+** BUILD.BAT accepts to following options:
+C> BUILD.BAT [-r] [clean] [xms-swap] [language]
+-r		Rebuilt (clean previous files before proceed)
+clean	remove *.COM, *.OBJ, *.LIB etc. files, then exit
+xms-swap	create FreeCOM with XMS-Only Swap support
+language	sets the specified language as the default build language
+
+You will find two executables in the FreeCOM directory:
+SHELL\COMMAND.EXE and COMMAND.COM.
+The .COM file is the stand-alone application, which includes the
+strings etc, whereas COMMAND.EXE is the pure executable without the
+strings table for instance.
+
+NOTE: A message like "Fatal: command line too long" was always caused
+during my tests by an invalid settings in CONFIG.MAK, esp. CC_BASE_PATH
+and NAMS!
+
+CONFIG.MAK
+
+This is the central file to tweak options and environment settings
+regarding of your compiler.
+
+CC_BASE_PATH
+base path (aka "root") of Turbo C++ v1.01, usually it is sufficient to
+modify this macro and all files (headers and libraries) and programs
+(C compiler and linker) will be found. If not, check the macros at the
+end of the file and/or the useage of $(LIBPATH) within COMMAND.MAK or
+STRINGS.MAK respectively.
+
+SUPPL_INC_PATH / SUPPL_LIB_PATH
+To compile this version of command.com, you have to add the SUPPL library.
+SUPPL_INC_PATH points to the directory with all the header files, whereas
+SUPPL_LIB_PATH contains the pre-compiled library (SUPPL_S.LIB). Due to
+popular demand, a variant of SUPPL is integrated into the FreeCOM release
+and both settings are pre-configured so that the BUILD.BAT script will
+pick up the library automatically. Note: See the SUPPL\README.TXT file,
+if you wish to NOT use the integrated SUPPL variant.
+
+
+Update NASM and NASMFLAGS as needed.
+
+SHELL_MMODEL
+is the memory model used to compile the shell. It should be Small (s),
+unless you want to include debugging support; use Large (l) in such case.
+
+$(CFG): $(CFG_DEPENDENCIES)
+This rule is used to create the default option file for the compiler.
+It should set the header and library search paths and the memory
+model, disable floating
+point arethmetics (as it is not used by FreeCOM). The default char
+type should be unsigned. There are no known specific alignment
+or optimization settings, configure as you wish.
+
+===
+
+[this step is optional, recommended to just use included mini SUPPL library]
+To compile the SUPPL library as well do this:
++ download the source code from where SUPPL\README.TXT points to
++ use one of the COMPILER\* preparations -or-
+  : DEL cfg*.*
+  : DEL STRBOOL*.*
+  : DEL t.c
+  : CALL MKDYNSRC.BAT
+  : compile all remaining *.c files
+  : check if it is necessary to meddle with any of the assembly files
+    and compile them if needed
+  : archive all created object files -- usually named .OBJ or .O --
+    into a library named SUPPL_#, where # is S for Small memory
+    model or L for Large.
++ copy all the INCLUDE\*.H files and the library from the SUPPL release
+  into FREECOM\SUPPL -or-
+  update CONFIG.MAK to let SUPPL_???_PATH point to the SUPPL directory

@@ -1,0 +1,1217 @@
+.*
+.* gbmdlg.scr - Help for Gbm file formats dialog
+.*
+.* Important: Only edit the original .SCR file.
+.* If this file is not by the filename given above, then it has been put
+.* through IPFCPREP and so will be regenerated next MAKE.
+.*
+.imd gbmdlgrc.h
+.*...vgbmdlgrc\46\h:0:
+:userdoc.
+.*...sprolog:0:
+:prolog.
+:title.GbmDlg Help
+:author.Andy Key, Heiko Nitzsche
+:eprolog.
+.*...e
+:toc.
+:body.
+.*...sHID_GBM_FILEDLG   \45\ Bitmap File dialog:0:
+:h1 res=&HID_GBM_FILEDLG..Bitmap File dialog
+:i1 id=gbmfile.Bitmap File dialog
+:p.This dialog allows you to load a bitmap from a file, or save a bitmap to
+a file.
+Filenames and directories may be selected from the listboxes via the
+keyboard or the mouse, just like in any other File dialog.
+:p.You can handle bitmap files of a variety of different formats.
+For example,  OS/2 Bitmaps, CompuServe GIF files, ZSoft PCX files
+and many others.
+:p.To see an extensive list of the level of support for the various
+bitmap formats, and the format specific options available in each, see the
+:link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+section of this help.
+:p.You can select which files are listed in the files listbox using the
+:hp2.Bitmap filetype filter:ehp2. combo box.
+You can pick, :hp2.<All files>:ehp2.,
+:hp2.<All GBM supported files>:ehp2. and various :hp2.<Format>:ehp2.s.
+:p.The program will look at the :hp2.file extension:ehp2. and determine
+the format of the file and use the relevant bitmap file handling code.
+:p.The :hp2.Optional bitmap format specific options:ehp2. field allows you
+to specify a string which is used to give hints to the relevant bitmap file
+handling code. For example, you can tell the GIF file reader to ignore
+corrupt data and return how far it got by giving the ":hp9.errok:ehp9."
+option.
+.*...e
+.*...sHID_GBM_SUPPORT   \45\ Bitmap file format support:0:
+:h1 res=&HID_GBM_SUPPORT..Bitmap file format support
+:i1 id=gbmsupp.Bitmap file format support
+:p.This program uses the :hp2.Generalised Bitmap Module:ehp2..
+This peice of code can read and write a variety of bitmap formats.
+The application program is unaware of the file format of any bitmaps, and
+is just presented with the bitmap data in a single standard way.
+:p.Some bitmap formats allow additional :hp2.options:ehp2. to be supplied
+and these options are listed highlighted like :hp9.this:ehp9..
+:p.This section fully defines the level of support &colon.-
+:p.
+Formats supported are &colon.
+:sl.
+:li.:link reftype=hd res=&HID_GBM_BITMAP..OS/2 / Windows Bitmap:elink.
+:li.:link reftype=hd res=&HID_GBM_GIF..CompuServe Graphics Interchange Format:elink.
+:li.:link reftype=hd res=&HID_GBM_PCX..ZSoft PC Paintbrush Image Format:elink.
+:li.:link reftype=hd res=&HID_GBM_TIFF..Microsoft/Aldus Tagged Image File Format:elink.
+:li.:link reftype=hd res=&HID_GBM_TARGA..Truevision Targa/Vista:elink.
+:li.:link reftype=hd res=&HID_GBM_ILBM..Amiga IFF / ILBM Interleaved Bitmap Format:elink.
+:li.:link reftype=hd res=&HID_GBM_YUV12C..YUV12C M-Motion Frame Buffer:elink.
+:li.:link reftype=hd res=&HID_GBM_PBITMAP..Portable Bit-map:elink.
+:li.:link reftype=hd res=&HID_GBM_GREYMAP..Portable Greyscale-map:elink.
+:li.:link reftype=hd res=&HID_GBM_PIXMAP..Portable Pixel-map:elink.
+:li.:link reftype=hd res=&HID_GBM_ANYMAP..Portable Anymap:elink.
+:li.:link reftype=hd res=&HID_GBM_PNG..Portable Network Graphics:elink.
+:li.:link reftype=hd res=&HID_GBM_KIPS..IBM KIPS:elink.
+:li.:link reftype=hd res=&HID_GBM_IAX..IBM Image Access eXecutive:elink.
+:li.:link reftype=hd res=&HID_GBM_XBITMAP..X Windows Bitmap:elink.
+:li.:link reftype=hd res=&HID_GBM_XPIXMAP..X Windows PixMap:elink.
+:li.:link reftype=hd res=&HID_GBM_SPRITE..RiscOS Sprite:elink.
+:li.:link reftype=hd res=&HID_GBM_PSEG..IBM Printer Page Segment:elink.
+:li.:link reftype=hd res=&HID_GBM_GEMRAS..GEM Raster:elink.
+:li.:link reftype=hd res=&HID_GBM_PORTRAIT..Portrait:elink.
+:li.:link reftype=hd res=&HID_GBM_JPEG..JPEG Interchange File Format:elink.
+:li.:link reftype=hd res=&HID_GBM_OTHERS..Others:elink.
+:esl.
+:p.The :link reftype=hd res=&HID_GBM_FILEDLG..Bitmap File Dialog:elink.
+can handle bitmaps in any of the formats documented above.
+.*...e
+.*...sHID_GBM_BITMAP    \45\   OS\47\2 \47\ Windows bitmap:0:
+:h2 res=&HID_GBM_BITMAP..OS/2 / Windows bitmap
+:i2 refid=gbmsupp.OS/2 / Windows bitmap
+:p.The following file extensions
+:xmp.
+  .BMP .VGA .BGA .RLE .DIB .RL4 .RL8
+:exmp.
+are recognised as OS/2 1.1, 1.2, 2.0, Windows 3.x or
+Windows NT/2000/XP bitmaps.
+:p.:hp2.Input:ehp2.
+:p.The bitmap support will read any of the above if uncompressed,
+run-length compressed (RLE4, RLE8, RLE24) or Windows MultiMedia
+bitmaps (RGB, BITFIELDS: 16 and 32bpp).
+:p.CCITT G3 MH Fax and OS/2 Huffman 1D compressed files can't be read.
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file is an OS/2 bitmap-array file to specify which
+bitmap in the array to read (default N=0 - the first in the array).
+:dt.:hp9.inv:ehp9.
+:dd.Causes the palette to get inverted after reading.
+Provided to allow for inconsistencies between Windows and OS/2 programs in
+how the palette of 1bpp files should be interpreted.
+:dt.:hp9.invb:ehp9.
+:dd.Causes the bitmap bits to get inverted after reading.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.The this module can write both OS/2 1.1 and OS/2 2.0 / Windows 3.0 style
+bitmaps.
+:p.By default OS/2 2.0 or Windows 3.0 bitmaps are written.
+:p.The OS/2 2.0 / Windows 3.0 style of bitmaps written are written with a
+header size (cbFix) of 40, which is compatible with both Windows 3.0 and
+OS/2 2.0.
+:dl compact tsize=7 break=all.
+:dt.:hp9.1.1:ehp9.
+:dd.Causes the bitmap to be written OS/2 1.1 style.
+:dt.:hp9.2.0:ehp9. or :hp9.win:ehp9.
+:dd.Causes the bitmap to be written OS/2 2.0 / Windows 3.0 style.
+:dt.:hp9.inv:ehp9.
+:dd.Causes the palette to get inverted before written.
+Provided to allow for inconsistencies between Windows and OS/2 programs in
+how the palette of 1bpp files should be interpreted.
+:dt.:hp9.invb:ehp9.
+:dd.Causes the bitmap bits to get inverted before written.
+:dt.:hp9.darkfg:ehp9.
+:dd.This is probably the best option to use when writing 1bpp bitmaps.
+It ensures that the darkest colour is represented in the file as 1's
+(and is therefore the foreground), and when the bitmap is reloaded, this
+will come out black.
+:dt.:hp9.lightfg:ehp9.
+:dd.As darkfg, but the lightest colour is stored as 1's.
+:edl.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_GIF       \45\   CompuServe Graphics Interchange Format:0:
+:h2 res=&HID_GBM_GIF..CompuServe Graphics Interchange Format
+:i2 refid=gbmsupp.CompuServe Graphics Interchange Format
+:p.The following file extension
+:xmp.
+  .GIF
+:exmp.
+is recognised as a GIF file.
+:p.:hp2.Input:ehp2.
+:p.1 bpp GIF files are read as 1 bpp data.
+.br
+2, 3 and 4 bit GIF files are read and returned as 4 bpp data.
+.br
+5, 6, 7 and 8 bit GIF files are read and returned as 8 bpp data.
+
+:p.GIF files provide no support for 24 bpp images.
+:p.Both :hp2.GIF87a:ehp2. and :hp2.GIF89a:ehp2. level files may be read.
+:p.The code will correctly handle deferred clear-codes in the LZW data
+stream.
+Files with these often break earlier programs that claim to load GIF files.
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used to specify which image in the GIF file to read (default N=0).
+:dt.:hp9.errok:ehp9.
+:dd.If a corrupted or truncated GIF file is encountered, normally an error
+is returned.
+With this option, as much data as was decoded before the error is returned,
+and no error occurs.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.The :hp2.GIF87a:ehp2. style of GIF files are written, and since the
+GIF standard is backwardly compatible, all programs that claim to load GIF
+files should handle the output generated by this program.
+:p.The exception to this is that if the :hp2.transcol:ehp2. option is used
+a :hp2.GIF89a:ehp2. style file will be written.
+:p.This program does not generate GIF files with deferred-clear-codes, as
+these have been shown to break many older GIF readers.
+:dl compact tsize=7 break=all.
+:dt.:hp9.xscreen=N:ehp9.,:hp9.yscreen=N:ehp9.
+:dd.Specifies what values to put in these fields of the GIF file header.
+The default is the image size.
+:dt.:hp9.background=N:ehp9.
+:dd.Specifies what background colour index to write in the GIF file header.
+The default is 0.
+:dt.:hp9.xpos=N:ehp9.,:hp9.ypos=N:ehp9.
+:dd.Specifies what values to put in these fields in the GIF file header.
+The defaults are 0 and 0.
+:dt.:hp9.transcol=N:ehp9.
+:dd.Specifies that index N designates a transparent colour.
+This option is useful for when you wish to embed GIF files in HTML documents.
+Using this option causes a GIF89a file to be written because the
+Graphics Extension Block holding the transparency information is a part of
+the GIF89a spec., and not the GIF87a.
+:dt.:hp9.transcol=edge:ehp9.
+:dd.As above, except transparent colour is the colour of the first pixel
+in the bitmap.
+:dt.:hp9.ilace:ehp9.
+:dd.Causes the GIF file to be written interlaced, which can be good for those
+GIF files referenced from HTML documents.
+:edl.
+:p.This code correctly handles 1bpp GIF files.
+Some programs make incorrect assumptions about the initial LZW code table size
+in the 1bpp case, and so fall over.
+UBU is/was guilty of this.
+:p.This code has been tested on a wide selection of files from a wide
+variety of sources.
+It has been tested against the output of public domain PPMTOGIF.EXE,
+and tested for compatibility with UNIX X Windows xloadimage and xv.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+:p.GIF and 'Graphics Interchange Format' are trademarks (tm) of
+Compuserve, Incorporated, an H&amp.R Block Company.
+.*...e
+.*...sHID_GBM_PCX       \45\   ZSoft PC Paintbrush Image Format:0:
+:h2 res=&HID_GBM_PCX..ZSoft PC Paintbrush Image Format
+:i2 refid=gbmsupp.ZSoft PC Paintbrush Image Format
+:p.The following file extensions
+:xmp.
+  .PCX .PCC
+:exmp.
+are recognised as a Paintbrush file.
+:p.Only a subset of the possible planes/bits-per-plane combinations are
+supported.
+:p.:hp2.Input:ehp2.
+:p.This program reads 1,4,8 and 24 bpp files.
+:p.The run-length encoding scheme is supported.
+:p.Compressed runs of pixels are not supposed to straddle scan lines.
+Some other applications violate this rule.
+By default, if this code finds that a run of pixels is longer than the scan
+line, it will use the leftover pixels on the next scan line.
+Some images will not load properly, as they require the loading
+program to discard those pixels in the run that extend beyond the end
+of the scan line.
+This behaviour can be enabled using the :hp9.trunc:ehp9. option.
+:p.:hp2.Output:ehp2.
+:p.This program writes 1,4,8 and 24 bpp files, using run-length compression.
+:p.It will always ensure run-lengths of pixels do not straddle scan lines.
+:p.This code has been tested on some PC Paintbrush originated .PCX files.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_TIFF      \45\   Microsoft\47\Aldus Tagged Image File Format:0:
+:h2 res=&HID_GBM_TIFF..Microsoft/Aldus Tagged Image File Format
+:i2 refid=gbmsupp.Microsoft/Aldus Tagged Image File Format
+:p.The following file extensions
+:xmp.
+  .TIF .TIFF
+:exmp.
+are recognised as TIFF files.
+:p.:hp2.Input:ehp2.
+:p.:hp2.Standard formats (backward compatible):ehp2.
+:p. Reads  1 bpp black/white and colour palette/gray level files.
+.br
+ Reads  2 bpp colour palette/gray level files and presents them as  4 bpp.
+.br
+ Reads  4 bpp colour palette/gray level files and presents them as  4 bpp.
+.br
+ Reads  8 bpp colour palette/gray level files and presents them as  8 bpp.
+.br
+ Reads 16 bpp colour palette/gray level files and presents them as 24 bpp.
+.br
+ Reads 24 bpp colour files and presents them as 24 bpp.
+.br
+ Reads 32 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
+.br
+ Reads 48 bpp colour files and presents them as 24 bpp.
+.br
+ Reads 64 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
+.br
+ Reads CMYK ( 8 bit per channel) files and presents them as 24 bpp RGB (strip encoded only).
+.br
+ Reads CMYK (16 bit per channel) files and presents them as 24 bpp RGB (strip encoded only).
+
+:p.:hp2.Extended formats (not backward compatible, import option ext_bpp required):ehp2.
+:p. Reads 16 bpp colour palette/gray level files and presents them as 48 bpp (strip encoded only).
+.br
+ Reads 32 bpp colour files (RGB + alpha channel) and presents them as 32 bpp.
+.br
+ Reads 48 bpp colour files and presents them as 48 bpp (strip encoded only).
+.br
+ Reads 64 bpp colour files (RGB + alpha channel) and presents them as 64 bpp (strip encoded only).
+.br
+ Reads CMYK (16 bit per channel) files and presents them as 48 bpp RGB (strip encoded only).
+
+:p.:hp2.Handling of alpha channel:ehp2.
+:p.If the bitmap contains an associated alpha channel (pre-multiplied alpha), the alpha
+channel values are not separately returned. In this case a provided background color
+is ignored.
+If the bitmap contains an unaccociated alpha channel (not pre-multiplied alpha), the
+alpha channel is returned separately unless the client requests that it has to be
+calculated against the provided background color.
+In the case the ext_bpp option is not specified and the bitmap contains an unassociated
+alpha channel, the alpha channel is only calculated against the background color if
+a background color has been specified by the client. Otherwise the alpha channel data
+is ignored.
+
+:p.The depth of the alpha channel must in all cases match with the depth of all RGB channels.
+
+:p.:hp2.Supports the compression schemes:ehp2.
+uncompressed, LZW, PackBits, ThunderScan, NeXT, JPEG, CCITT, Deflate, Adobe Deflate.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file contains more than one image to specify which
+image to read (default N=0 - the first).
+:dt.:hp9.back_rgb=R_G_B:ehp9.
+:dd.Defines the background color as RGB values for mixing with alpha channel.
+(only interpreted for bitmaps with unassociated alpha channel, R_G_B 0..65535 each)
+:dt.:hp9.ext_bpp:ehp9.
+:dd.Allow extended color depths (also with alpha channel). Extended color depths (> 24 bpp)
+have to be supported by the application. If ext_bpp is not specified, bitmaps with
+> 24 bpp will be downsampled to 24 bpp.
+:edl.
+
+:p.:hp2.Output:ehp2.
+:p.Writes 1, 4, 8, 24, 32 (24 bpp + alpha), 48, 64 (48 bpp + alpha) bpp RGB files.
+:p.This program usually writes uncompressed data.
+The depth of the alpha channel must in all cases match with the depth of all RGB channels.
+
+:p.:hp2.Handling of alpha channel:ehp2.
+:p.GBM allows writing of unassociated alpha channel information for 32 and 64 bpp.
+It can also associate separately provided alpha channel information by
+pre-multiplying a specified background color against the RGB channels (option back_rgb).
+If the alpha channel has already been associated (pre-multiplied), color depths
+of 24 and 48 bpp should be used when writing RGB bitmaps.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.back_rgb=R_G_B:ehp9.
+:dd.Can specify background color as RGB for associating alpha channel
+  (the alpha channel is preserved in the bitmap file, R_G_B 0..65535 each)
+:dt.:hp9.artist=TEXT:ehp9.
+:dd.Causes an :hp2.Artist:ehp2. tag to be added with text TEXT.
+:dt.:hp9.lzw:ehp9.
+:dd.Asks GBM to use LZW compression.
+:dt.:hp9.software=TEXT:ehp9.
+:dd.Causes the :hp2.Software:ehp2. tag to be added with text TEXT.
+:dt.:hp9.make=TEXT:ehp9.
+:dd.Causes the :hp2.Make:ehp2. tag to be added with text TEXT.
+:dt.:hp9.model=TEXT:ehp9.
+:dd.Causes the :hp2.Model:ehp2. tag to be added with text TEXT.
+:dt.:hp9.host=TEXT:ehp9.
+:dd.Causes the :hp2.Host:ehp2. tag to be added with text TEXT.
+:dt.:hp9.documentname=TEXT:ehp9.
+:dd.Causes the :hp2.DocumentName:ehp2. tag to be added with text TEXT.
+:dt.:hp9.pagename=TEXT:ehp9.
+:dd.Causes the :hp2.PageName:ehp2. tag to be added with text TEXT.
+:dt.:hp9.imagedescription=TEXT:ehp9.
+:dd.Causes the :hp2.ImageDescription:ehp2. tag to be added with text TEXT.
+:dt.:hp9.pal1bpp:ehp9.
+:dd.Causes 1 bpp data to be written as a palettised file, with 2 palette
+entries. By default b/w bitmaps are automatically detected and written.
+If a non-b/w bitmap is detected it is written palettised.
+This option has been preserved for backward compatibility only.
+:dt.:hp9.lzw:ehp9.
+:dd.Activates LZW compression.
+:dt.:hp9.lzw_pred_hor:ehp9.
+:dd.Activates LZW compression with horizontal predictor.
+:dt.:hp9.packbits:ehp9.
+:dd.Activates PackBits compression.
+:dt.:hp9.deflate:ehp9.
+:dd.Activates Deflate compression (ZIP, Adobe compatibel).
+:dt.:hp9.deflate_comp=N:ehp9.
+:dd.Defines the compression level for Deflate compression
+(default: 6, N=1..9 none to max. compression).
+:dt.:hp9.jpeg:ehp9.
+:dd.Activates JPEG compression (lossy).
+:dt.:hp9.jpeg_quality=N:ehp9.
+:dd.Defines the quality for the JPEG compression (default: 75, N=0..100).
+:dt.:hp9.ccittrle:ehp9.
+:dd.Activates CCITT modified Huffman RLE Encoding (only for 1 bit/pixel).
+:dt.:hp9.ccittfax3:ehp9.
+:dd.Activates CCITT group 3 fax encoding (only for 1 bit/pixel).
+:dt.:hp9.ccittfax4:ehp9.
+:dd.Activates CCITT group 4 fax encoding (only for 1 bit/pixel).
+:dt.:hp9.strip_size=N:ehp9.
+:dd.Defines the strip size. (N=4,8,16,32,64 kBytes, default: 16)
+:edl.
+:p.None of the TEXT tags must contain white spaces.
+
+:p.GBM can be compiled up either with or without support for TIF.
+If you don't see TIF amongst the list of supported file formats on the
+File dialog box, then you are using a GBM.DLL without support.
+:p.The TIF support for GBM is provided by the libraries Libtiff, ZLib
+and IJG JPEG6B. All of them are Open Source.
+They may be freely used provided their usage is credited (hence its use in GBM,
+and this paragraph in the online help).
+:p.The code to interface GBM to Libtiff has been written by Heiko Nitzsche.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_TARGA     \45\   Truevision Targa\47\Vista bitmap:0:
+:h2 res=&HID_GBM_TARGA..Truevision Targa/Vista bitmap
+:i2 refid=gbmsupp.Truevision Targa/Vista bitmap
+:p.The following file extensions
+:xmp.
+  .TGA .VST .AFI
+:exmp.
+are recognised as Targa/Vista files.
+:p.This code can read the uncompressed or run-length compressed Targa/Vista
+formats. It will write uncompressed files.
+
+:p.:hp2.Input:ehp2.
+:p.:hp2.Standard formats (backward compatible):ehp2.
+:p. Reads  8 bpp colour palette/greyscale files and presents them as 8 bpp.
+.br
+ Reads 16 bpp RGB files and presents them as 24 bpp.
+.br
+ Reads 24 bpp colour files and presents them as 24 bpp.
+.br
+ Reads 32 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
+
+:p.:hp2.Extended formats (not backward compatible, import option ext_bpp required):ehp2.
+:p. Reads 32 bpp colour files (RGB + alpha channel) and presents them as 32 bpp.
+
+:p.This code will read files with both top-left-origin and bottom-left-origin.
+Not all Targa readers correctly handle bottom-left-origin files.
+Horizontally flipped Targas will be read as well.
+:p.When reading 16 bpp files (which are 5 red + 5 green + 5 blue + 1 alpha),
+they are loaded and presented as 24 bpp bitmaps with only the top 5 bits of
+each of the 8 bit bytes valid. The bottom 3 bits are zero.
+:p.When reading 32 bpp files (which are 8 red + 8 green + 8 blue + 8 alpha),
+the alpha channel is ignored or provided when option ext_bpp was specified.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.ext_bpp:ehp9.
+:dd.Allow extended color depths (also with alpha channel). Extended color depths (> 24 bpp)
+have to be supported by the application. If ext_bpp is not specified, bitmaps with
+> 24 bpp will be downsampled to 24 bpp.
+:edl.
+
+:p.:hp2.Output:ehp2.
+:dl compact tsize=7 break=all.
+:dt.:hp9.yup:ehp9. and :hp9.ydown:ehp9.
+:dd.Causes the data to be written in bottom-left-origin or top-left-origin
+form. The default is bottom-left-origin.
+:dt.:hp9.16:ehp9.
+:dd.If the data is 24 bpp, then the 16 flag causes only the most significant
+5 bits of the red, green and blue to be written in a 16 bit pixel. An existing
+alpha channel is ignored. This option is only valid for 24 and 32 bpp data.
+:dt.:hp9.24:ehp9.
+:dd.Writes the data as 24 bpp. An existing alpha channel is ignored.
+This option is only valid for 24 and 32 bpp data.
+(default: 24, when source data is 24 bit)
+:dt.:hp9.32:ehp9.
+:dd.If the data is 24 bpp, then the 32 flag causes the data to be padded with
+8 zero bits of alpha channel to make a 32 bit pixel. If there is a real alpha
+channel provided (32 bpp data), its data is used.
+This option is only valid for 24 and 32 bpp data.
+(default: 32, when source data is 32 bit)
+:edl.
+:p.8 bit data is always written out as a colour mapped file.
+
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_ILBM      \45\   Amiga IFF \47\ ILBM Interleaved bitmap format:0:
+:h2 res=&HID_GBM_ILBM..Amiga IFF / ILBM Interleaved bitmap format
+:i2 refid=gbmsupp.Amiga IFF / ILBM Interleaved bitmap format
+:p.The following file extensions
+:xmp.
+  .IFF .LBM
+:exmp.
+are recognised as interleaved bitmap files.
+:p.Normally ILBM files are 1,2,3,4 or 5 bpp,
+because the early Amigas supported upto 32 colours at once.
+6,7, 8 and 24 bpp files are also found nowadays too.
+:p.:hp2.Extra-HalfBrite:ehp2., or :hp2.EHB:ehp2. is a mode where N
+colours have palette entries, but the file may contain 2*N colours.
+The second set of N colours are half the brightness of the first half.
+In this way, for example, 64 colours may be displayed on an early Amiga.
+:p.:hp2.Hold-And-Modify:ehp2., or :hp2.HAM:ehp2. is a type of screen format
+where each pixel is either one of a small number of colours in a palette,
+or is held the same as the pixel to its left except that either the red,
+green or blue is modified.
+In this way a much larger range of colours can be displayed.
+:p.HAM modes sometimes have fringes down the vertical edges of
+shapes in the picture, as sometimes it is necessary to modify the lefthand
+pixel several times to get to the desired colour, if a suitable entry is
+not in the palette.
+:p.:hp2.HAM6:ehp2. is a HAM mode where there are 16 base palette
+entries and a possible maximum of 4096 colours.
+This is found on early Amigas.
+:p.:hp2.HAM8:ehp2. is a HAM mode where there are 64 base palette
+entries and a full 24 bit range of colours.
+Also because of the larger palette, fringing is less than in HAM6.
+This mode is present on later Amigas.
+:p.:hp2.Sliced-Hold-And-Modify:ehp2., or :hp2.SHAM:ehp2. is a mode where
+the palette is changed on every (or every other) scan line.
+This also helps reduce fringing compared to normal HAM6.
+SHAM is actually sliced HAM6, and might really be called SHAM6, and
+SHAM8 is not known to exist.
+:p.:hp2.Input:ehp2.
+:p.This code can read files that contain uncompressed or RLE compressed
+data.
+:p.1 bpp files can be read ok.
+.br
+2,3 and 4 bpp files are read and returned as 4 bpp data.
+.br
+5,6,7 and 8 bpp files are read and returned as 8 bpp data.
+.br
+24 bpp files are read and returned as 24 bpp data.
+.br
+EHB images can be read and are returned as 8 bpp data.
+.br
+HAM6, HAM8 and SHAM files can be read and are returned as 24 bpp data.
+.br
+Only the :hp2.BMHD:ehp2., :hp2.CMAP:ehp2., :hp2.CAMG:ehp2. and
+:hp2.BODY:ehp2. chunks are used when reading the file.
+:p.:hp2.Output:ehp2.
+:p.This code can write 1, 4, 8 and 24 bpp files.
+:p.24 bpp files can also be written in HAM6 form.
+This loses quality, but, is still better than a normal 8 bpp file.
+:p.This code writes RLE compressed data, as this usually results in
+much smaller files.
+:p.Only the :hp2.BMHD:ehp2., :hp2.CMAP:ehp2. and :hp2.BODY:ehp2. chunks
+are written to the file.
+When writing HAM data, a :hp2.CAMG:ehp2. chunk is written also.
+:p.You can optionally override parts of the BMHD header.
+:dl compact tsize=7 break=all.
+:dt.:hp9.ham6:ehp9.
+:dd.Means write 24 bpp data in HAM6 format, rather than as a true
+24 bpp file.
+:dt.:hp9.xpos=N:ehp9.,:hp9.ypos=N:ehp9.
+:dd.Overrides the origin information in the file. Defaults are 0,0.
+:dt.:hp9.transcol=N:ehp9.
+:dd.Overrides the transparent colour field. Default is 0.
+:dt.:hp9.xaspect=N:ehp9.,:hp9.yaspect=N:ehp9.
+:dd.Overrides the aspect ratio information. Defaults are 1,1.
+This header information is not always honored by ILBM readers.
+:dt.:hp9.xscreen=N:ehp9.,:hp9.yscreen=N:ehp9.
+:dd.Overrides the screen size information.
+This is not often used by ILBM readers.
+The default is the image size.
+:edl.
+:p.Note that when some early programs try to load an >5 bpp ILBM file,
+they can switch to a 32 colour (5 bpp mode) and only read the 5 least
+significant planes of the file. This generally looks bad.
+:p.This support has been tested using a large range of sample files.
+But, some sample files supplied to the author have yet to be loaded.
+In particular some (24bpp?) DCTV originated files are not yet understood.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_YUV12C    \45\   YUV12C M\45\Motion Frame Buffer:0:
+:h2 res=&HID_GBM_YUV12C..YUV12C M-Motion Frame Buffer
+:i2 refid=gbmsupp.YUV12C M-Motion Frame Buffer
+:p.The following file extension
+:xmp.
+  .VID
+:exmp.
+is recognised as a YUV12C file.
+:p.Although YUV12C files contain 12 bit YUV encoded colour image data,
+this code pretends they contain 24 bit RGB encoded colour data.
+:p.:hp2.Input:ehp2.
+:p.The files are converted from YUV to RGB data before the data is
+presented to the program.
+:p.:hp2.Output:ehp2.
+:p.The RGB data is converted to YUV when it is written to disk.
+:p.YUV12C files must be a multiple of 4 pixels wide.
+When trying to write a bitmap that is not a multiple of 4 pixels wide, this
+code truncates the last 1, 2 or 3 pixels left over.
+:dl compact tsize=7 break=all.
+:dt.:hp9.xpos=N:ehp9.,:hp9.ypos=N:ehp9.
+:dd.Overrides the origin information in the file. Defaults are 0,0.
+:edl.
+:p.This support has been tested using the M-Control Program 2.0,
+Browser sample application.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_PBITMAP   \45\   Portable Bit\45\map:0:
+:h2 res=&HID_GBM_PBITMAP..Portable Bit-map
+:i2 refid=gbmsupp.Portable Bit-map
+:p.The following file extension
+:xmp.
+  .PBM
+:exmp.
+is recognised as a Bit-map file.
+:p.The Binary :hp2.P4:ehp2. form as well as the ASCII :hp2.P1:ehp2. form of this format is supported.
+:p.These files hold :hp2.no palette:ehp2. information.
+:p.:hp2.Input:ehp2.
+:p.The files are returned as a black/white 1 bit image.
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file contains more than one image to specify which
+image to read (default N=0 - the first).
+:dt.:hp9.invb:ehp9.
+:dd.Invert the data bits on input.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.1 bpp image data are written as black/white bitmaps.
+:dl compact tsize=7 break=all.
+:dt.:hp9.invb:ehp9.
+:dd.Invert the data bits on output.
+:dt.:hp9.ascii:ehp9.
+:dd.Write ASCII form P1 (default is binary form P4)
+:dt.:hp9.comment=TEXT:ehp9.
+:dd.Write additonal comment
+:edl.
+
+:p.Credit for this codec to Heiko Nitzsche.
+
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_GREYMAP   \45\   Portable Greyscale\45\map:0:
+:h2 res=&HID_GBM_GREYMAP..Portable Greyscale-map
+:i2 refid=gbmsupp.Portable Greyscale-map
+:p.The following file extension
+:xmp.
+  .PGM
+:exmp.
+is recognised as a Greymap file.
+:p.The Binary :hp2.P5:ehp2. form as well as the ASCII :hp2.P2:ehp2. form of this format is supported.
+:p.These files hold :hp2.no palette:ehp2. information.
+:p.:hp2.Input:ehp2.
+:p.The files are returned as an 8 bit image with a greyscale palette.
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file contains more than one image to specify which
+image to read (default N=0 - the first).
+:edl.
+:p.:hp2.Output:ehp2.
+:p.Normally 8 bpp image data as the greyscale equivelent of the bitmap data.
+:dl compact tsize=7 break=all.
+:dt.:hp9.r:ehp9.,:hp9.g:ehp9.,:hp9.b:ehp9. or :hp9.k:ehp9.
+:dd.Forces the red,green or blue component of the image to be written, or
+alternatively to write the greyscale equivelent (the default).
+:dt.:hp9.ascii:ehp9.
+:dd.Write ASCII form P2 (default is binary form P5)
+:dt.:hp9.comment=TEXT:ehp9.
+:dd.Write additonal comment
+:edl.
+
+:p.Credit for this codec to Jef Poskanzer and Heiko Nitzsche.
+
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_PIXMAP    \45\   Portable Pixel\45\map:0:
+:h2 res=&HID_GBM_PIXMAP..Portable Pixel-map
+:i2 refid=gbmsupp.Portable Pixel-map
+:p.The following file extension
+:xmp.
+  .PPM
+:exmp.
+is recognised as a Pixel-map file.
+:p.The Binary :hp2.P6:ehp2. form as well as the ASCII :hp2.P3:ehp2. form of this format is supported.
+:p.The Portable Pixel-map format is only capable of holding 24 and 48 bpp RGB data,
+and this code fully supports this.
+:p.:hp2.Input:ehp2.
+:p.:hp2.Standard formats (backward compatible):ehp2.
+:p. Reads 24 bpp RGB colour files and presents them as 24 bpp.
+.br
+ Reads 48 bpp RGB colour files and presents them as 24 bpp.
+
+:p.:hp2.Extended formats (not backward compatible, import option ext_bpp required):ehp2.
+:p. Reads 48 bpp RGB colour files and presents them as 48 bpp.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file contains more than one image to specify which
+image to read (default N=0 - the first).
+:dt.:hp9.ext_bpp:ehp9.
+:dd.Allow extended color depths (also with alpha channel). Extended color depths (> 24 bpp)
+have to be supported by the application. If ext_bpp is not specified, bitmaps with
+> 24 bpp will be downsampled to 24 bpp.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.The program writes 24 and 48 bpp RGB colour files.
+:dl compact tsize=7 break=all.
+:dt.:hp9.ascii:ehp9.
+:dd.Write ASCII form P1 (default is binary form P4)
+:dt.:hp9.comment=TEXT:ehp9.
+:dd.Write additonal comment
+:edl.
+
+:p.Credit for this codec to Heiko Nitzsche.
+
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_ANYMAP   \45\   Portable Anymap:0:
+:h2 res=&HID_GBM_ANYMAP..Portable Anymap
+:i2 refid=gbmsupp.Portable Anymap
+:p.The following file extension
+:xmp.
+  .PNM
+:exmp.
+is recognised as an Anymap file.
+:p.The Binary :hp2.P4,P5,P6:ehp2. forms as well as the ASCII :hp2.P1,P2,P3:ehp2. forms
+of this format are supported. PNM is not a format on its own but rather a consolidation
+of the formats PBM, PGM and PPM.
+:p.These files hold :hp2.no palette:ehp2. information.
+:p.:hp2.Input:ehp2.
+:p.:hp2.Standard formats (backward compatible):ehp2.
+:p. Reads  1 bpp black/white files.
+.br
+ Reads  8 bpp greyscale files.
+.br
+ Reads 24 bpp RGB colour files and presents them as 24 bpp.
+.br
+ Reads 48 bpp RGB colour files and presents them as 24 bpp.
+
+:p.:hp2.Extended formats (not backward compatible, import option ext_bpp required):ehp2.
+:p. Reads 48 bpp RGB colour files and presents them as 48 bpp.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file contains more than one image to specify which
+image to read (default N=0 - the first).
+:dt.:hp9.invb:ehp9. (1 bpp only)
+:dd.Invert the data bits on input.
+:dt.:hp9.ext_bpp:ehp9.
+:dd.Allow extended color depths (also with alpha channel). Extended color depths (> 24 bpp)
+have to be supported by the application. If ext_bpp is not specified, bitmaps with
+> 24 bpp will be downsampled to 24 bpp.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.1 bpp black/white, 8 bpp greyscale and 24/48 bpp RGB files can be written.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.invb:ehp9. (1 bpp only)
+:dd.Invert the data bits on output.
+:dt.:hp9.r:ehp9.,:hp9.g:ehp9.,:hp9.b:ehp9. or :hp9.k:ehp9. (8 bpp only)
+:dd.Forces the red,green or blue component of the image to be written, or
+alternatively to write the greyscale equivelent (the default).
+:dt.:hp9.ascii:ehp9.
+:dd.Write ASCII form P1 (default is binary form P4)
+:dt.:hp9.comment=TEXT:ehp9.
+:dd.Write additonal comment
+:edl.
+
+:p.Credit for this codec to Heiko Nitzsche.
+
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_PNG       \45\   Portable Network Graphics Format:0:
+:h2 res=&HID_GBM_PNG..Portable Network Graphics Format
+:i2 refid=gbmsupp.Portable Network Graphics Format
+:p.The following file extension
+:xmp.
+  .PNG
+:exmp.
+is recognized as a PNG file.
+:p.Credit for file format to Heiko Nitzsche.
+:p.:hp2.Input:ehp2.
+:p.:hp2.Standard formats (backward compatible):ehp2.
+:p. Reads  1 bpp black/white and colour palette/gray level files.
+.br
+ Reads  2 bpp colour palette/gray level files and presents them as  4 bpp.
+.br
+ Reads  4 bpp colour palette/gray level files and presents them as  4 bpp.
+.br
+ Reads  8 bpp colour palette/gray level files and presents them as  8 bpp.
+.br
+ Reads 16 bpp gray level files and presents them as 24 bpp.
+.br
+ Reads 32 bpp gray level files (16 bit gray + alpha channel) and presents them as 24 bpp.
+.br
+ Reads 24 bpp colour files and presents them as 24 bpp.
+.br
+ Reads 32 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
+.br
+ Reads 48 bpp colour files and presents them as 24 bpp.
+.br
+ Reads 64 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
+
+:p.:hp2.Extended formats (not backward compatible, import option ext_bpp required):ehp2.
+:p. Reads 16 bpp gray level files and presents them as 48 bpp.
+.br
+ Reads 32 bpp gray level files (16 bit gray + alpha channel) and presents them as 64 bpp.
+.br
+ Reads 32 bpp colour files (RGB + alpha channel) and presents them as 32 bpp.
+.br
+ Reads 48 bpp colour files and presents them as 48 bpp.
+.br
+ Reads 64 bpp colour files (RGB + alpha channel) and presents them as 64 bpp.
+
+:p.:hp2.Handling of alpha channel:ehp2.
+:p.PNG alpha channel is always unassociated (not pre-multiplied alpha).
+The alpha channel is returned separately unless the client requests that it has
+to be calculated against the provided background color.
+In the case the ext_bpp option is not specified and the bitmap contains an alpha
+channel, the alpha channel is only calculated against the background color if a
+background color has been specified by the client or is provided by the bitmap.
+Otherwise the alpha channel data is ignored.
+
+:p.The depth of the alpha channel must in all cases match with the depth of all RGB channels.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.gamma=N:ehp9.
+:dd.Defines the screen gamma value.
+(Default N=2.2.)
+:dt.:hp9.back_rgb=R_G_B:ehp9.
+:dd.Default background colour for all bitmap types.
+If the bitmap has a background associated, it is replaced by the specified color.
+(R_G_B: 0..65535 each)
+:dt.:hp9.ignore_back:ehp9.
+:dd.Ignore a bitmap provided background.
+This is helpful if the alpha channel should be preserved and the bitmap rendered by the
+application against a textured background.
+:dt.:hp9.ext_bpp:ehp9.
+:dd.Allow extended color depths (also with alpha channel). Extended color depths (> 24 bpp)
+have to be supported by the application. If ext_bpp is not specified, bitmaps with
+> 24 bpp will be downsampled to 24 bpp.
+:edl.
+
+:p.:hp2.Output:ehp2.
+:p.This program writes 1, 4, 8, 24, 32 (24 bpp + alpha), 48, 64 (48 bpp + alpha) bpp RGB files.
+The depth of the alpha channel must in all cases match with the depth of all RGB channels.
+
+:p.:hp2.Handling of alpha channel:ehp2.
+:p.GBM allows writing of unassociated alpha channel information for 32 and 64 bpp.
+If the alpha channel has already been associated (pre-multiplied), color depths
+of 24 and 48 bpp should be used when writing RGB bitmaps.
+If a full alpha channel is provided, transparency cannot be specified additionally.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.ilace:ehp9.
+:dd.Causes the PNG file to be written interlaced, which can be good for those
+PNG files referenced from HTML documents.
+:dt.:hp9.gamma=N:ehp9.
+:dd.Defines the bitmap gamma value in the file header.
+:dt.:hp9.back_index=N:ehp9.
+:dd.Defines the index of the background colour of palette bitmaps in the file header.
+:dt.:hp9.back_rgb=R_G_B:ehp9.
+:dd.Defines the background colour of RGB bitmaps in the file header.
+The alpha channel is preserved in the bitmap file. (24/32 bpp: 0..255, 48/64 bpp: 0..65535)
+:dt.:hp9.transparency=N:ehp9.
+:dd.Defines the transparency of palette bitmaps in the file header.
+(0..255, opaque to fully transparent)
+This option is useful for when you wish to embed PNG files in HTML documents.
+:dt.:hp9.transcol_rgb=R_G_B:ehp9.
+:dd.Defines the transparency colour of RGB bitmaps.
+This option is useful for when you wish to embed PNG files in HTML documents.
+(only for bitmap without alpha channel, R_G_B, 24/32 bpp: 0..255, 48/64 bpp: 0..65535)
+:dt.:hp9.compression=N:ehp9.
+:dd.Defines the compression level. (default=6, 0..9, no compression to max)
+:edl.
+:p.GBM can be compiled up either with or without support for PNG.
+If you don't see PNG amongst the list of supported file formats on the
+File Open dialog box, then you are using a GBM.DLL without support.
+:p.The PNG support for GBM is provided by the official PNG reference library
+Libpng. Libpng is OSI (Open Source Initiative) certified Open Source Software.
+The compression algorithms are provided Zlib library.
+They may be freely used provided their usage is credited (hence its use in GBM,
+and this paragraph in the online help).
+:p.The code to interface GBM to Libpng has been written by Heiko Nitzsche.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_KIPS      \45\   IBM KIPS:0:
+:h2 res=&HID_GBM_KIPS..IBM KIPS
+:i2 refid=gbmsupp.IBM KIPS
+:p.The following file extension
+:xmp.
+  .KPS
+:exmp.
+is recognised as a IBM KIPS file.
+:p.The .KPS file is not enough to define a KIPS image.
+:p.The palette is stored in either an associated
+:hp2..PAL:ehp2. or :hp2..KPL:ehp2. file.
+:p.:hp2.Input:ehp2.
+:dl compact tsize=7 break=all.
+:dt.:hp9.pal:ehp9. or :hp9.kpl:ehp9.
+:dd.Tells this code to look for a .PAL or a .KPL file to find the palette
+(default is .PAL)
+:edl.
+:p.:hp2.Output:ehp2.
+:dl compact tsize=7 break=all.
+:dt.:hp9.pal:ehp9. or :hp9.kpl:ehp9.
+:dd.Tells this code to write  a .PAL or a .KPL file containing the palette.
+(default is .PAL)
+:edl.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_IAX       \45\   IBM Image Access eXecutive:0:
+:h2 res=&HID_GBM_IAX..IBM Image Access eXecutive
+:i2 refid=gbmsupp.IBM Image Access eXecutive
+:p.The following file extension
+:xmp.
+  .IAX
+:exmp.
+is recognised as a IAX file.
+:p.This image format does not include a palette or a file header.
+In particular, the image file size cannot be determined from the file!
+This code assumes an image width of 512 pixels, and determines the image
+height by dividing the file size by the width.
+:p.The data is presented as a greyscale.
+:p.:hp2.Input:ehp2.
+:dl compact tsize=7 break=all.
+:dt.:hp9.r:ehp9.,:hp9.g:ehp9.,:hp9.b:ehp9. or :hp9.k:ehp9.
+:dd.Forces the image to be read as shades of red, green, blue or grey
+(the default).
+:dt.:hp9.width=N:ehp9.
+:dd.Overrides the default assumption that the image width is 512 pixels.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.Normally 8 bpp image data as the greyscale equivelent of the bitmap data.
+:dl compact tsize=7 break=all.
+:dt.:hp9.r:ehp9.,:hp9.g:ehp9.,:hp9.b:ehp9. or :hp9.k:ehp9.
+:dd.Forces the red,green or blue component of the image to be written, or
+alternatively to write the greyscale equivelent (the default).
+:edl.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_XBITMAP   \45\   X Windows Bitmap:0:
+:h2 res=&HID_GBM_XBITMAP..X Windows Bitmap
+:i2 refid=gbmsupp.X Windows Bitmap
+:p.The following file extension
+:xmp.
+  .XBM
+:exmp.
+is recognised as a X Bitmap file.
+:p.X Bitmap files are ASCII text files, that look to be directly source
+include-able in C programs.
+:p.This program is very generous in its parsing of the files.
+:p.This program supports X10 and X11 1bpp bitmaps.
+Some .XBM files with text strings inside have been encountered.
+These looked to be sprites or icons and are not supported.
+:p.When reading X Bitmaps, 1's are returned as black, 0's as white.
+.br
+When writing X bitmaps, the darkest colour is written as 1's, the lightest as 0's.
+:p.This code has been tested on some .XBM files.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_XPIXMAP   \45\   X Windows PixMap:0:
+:h2 res=&HID_GBM_XPIXMAP..X Windows PixMap
+:i2 refid=gbmsupp.X Windows PixMap
+:p.The following file extension
+:xmp.
+  .XPM
+:exmp.
+is recognised as a X PixMap file.
+:p.X PixMap files are ASCII text files, that look to be directly source
+include-able in C programs (XPM1, XPM2C, XPM3). There exists also a simple
+XPM2 subformat that is a simplified version without any C cource code
+elements. Only the formats XPM2 and XPM3 without extensions are supported by GBM.
+XPM3 data is not syntactically checked when reading, so there might be files that
+cannot be read.
+
+:p.:hp2.Input:ehp2.
+:p. Reads RGB files with hex or with X11 symbolic colour names. Each colour channel can have
+4, 8, or 16 bit resolution. Transparency is supported.
+
+:p.:hp2.Standard formats (backward compatible):ehp2.
+:p. Depending on the number of colours the bitmap data is presented as 1,4,8 or 24 bpp.
+
+:p.:hp2.Extended formats (not backward compatible, import option ext_bpp required):ehp2.
+:p. Depending on the number of colours the bitmap data is presented as 1,4,8,24,32,48 or 64 bpp.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.back_rgb=R_G_B:ehp9.
+:dd.Defines the background color as RGB values.
+(R_G_B: R_G_B 0..65535 each)
+:dt.:hp9.ext_bpp:ehp9.
+:dd.Allow extended color depths (also with alpha channel). Extended color depths (> 24 bpp)
+have to be supported by the application. If ext_bpp is not specified, bitmaps with
+> 24 bpp will be downsampled to 24 bpp.
+:edl.
+
+:p.:hp2.Output:ehp2.
+:p.Writes RGB files with 1,4,8 or 24 bpp.
+
+:dl compact tsize=7 break=all.
+:dt.:hp9.xpm2:ehp9.
+:dd.Write XPM2 format (default is XPM3)
+:dt.:hp9.transcol=N:ehp9.
+:dd.Specifies that index N designates a transparent colour.
+:dt.:hp9.transcol_rgb=R_G_B:ehp9.
+:dd.Defines the transparency colour of RGB bitmaps.
+(R_G_B, 24 bpp: 0..255)
+:edl.
+
+:p.Credit for this codec to Heiko Nitzsche.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_SPRITE    \45\   RiscOS Sprite:0:
+:h2 res=&HID_GBM_SPRITE..RiscOS Sprite
+:i2 refid=gbmsupp.RiscOS Sprite
+:p.The following file extensions
+:xmp.
+  .SPR .SPRITE
+:exmp.
+are recognised as a RiscOS sprite file.
+Technically, due to the way the RiscOS works, files don't have extensions.
+But for convenience, I have arbitrarily said .SPR, to allow sprites to fit in
+with all the other image formats.
+:p.:hp2.Input:ehp2.
+:p.This code will read 1,2,4 and 8 bpp files.
+2bpp files will be expanded to 4bpp on reading.
+:p.Sprite files can contain an image, or an image and a mask plane.
+This code will ignore the mask plane.
+:p.If no palette is present in the file, GBM will assume a default palette
+similar to that used by the RiscOS Wimp.
+:p.There is a limitation in that the :hp2.first-bit:ehp2. field of the
+sprite header must be a multiple of 8 (highly likely).
+:dl compact tsize=7 break=all.
+:dt.:hp9.index=N:ehp9.
+:dd.Can be used if the file contains more than one sprite to specify which
+sprite in the file to read (default N=0 - the first in the file).
+:edl.
+:p.:hp2.Output:ehp2.
+:p.This code will write 1,4 and 8bpp files.
+br.
+A palette will be written into the file.
+.br
+Only the image plane is written, ie&colon. no mask plane.
+:p.When outputting 8bpp bitmaps, the usual wierd Archimedes palette is written
+and the bitmap data is :hp2.mapped to this palette:ehp2..
+This is because the Archimedes cannot support arbitrary 256 colour palettes.
+The VIDC chip only has 16 palette registers, with 16 fixed overrides on
+(or shades of) each.
+:p.GBM writes 16 palette entries to the file.
+Sprite files can be found with 64 palette entries (with 4 overrides on each).
+However, it is seen that these 64 palette entries are actually just 16 entries
+with the 4 overrides on each. Hence this is equivelent to 16 entries with 16
+overrides, except some of the overrides are explicitly stored in the file.
+:p.Tested reading 4bpp sprites with no palette.
+.br
+Tested reading 8bpp sprites with no palette and with 64 entry palette.
+:p.Sprites generated by GBM have been loaded on RiscOS.
+Remember&colon. Use SetType to change type of file from PC-file to Sprite,
+by SetType option of filer menu or "*SetType <filename> Sprite".
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_PSEG      \45\   IBM Printer Page Segment:0:
+:h2 res=&HID_GBM_PSEG..IBM Printer Page Segment
+:i2 refid=gbmsupp.IBM Printer Page Segment
+:p.The following file extensions
+:xmp.
+  .PSE .PSEG .PSEG38PP .PSEG3820
+:exmp.
+are recognised as PSEG files.
+:p.PSEG files are used as a way to include image data in SCRIPT documents.
+:p.PSEG files only contain 1bpp data, which is always ink on paper, ie&colon.
+black on white.
+:p.:hp2.Input:ehp2.
+:p.PSEG files should be downloaded from the host in binary mode.
+No EBCDIC/ASCII conversion should be used in the download process.
+:p.The palette is always returned as black 1's on white 0's, because PSEG
+files do not include any palette.
+:dl compact tsize=7 break=all.
+:dt.:hp9.fixrec:ehp9.
+:dd.Some PSEG files have been observed to have shorter records than specified
+in the length field (2nd and 3rd bytes) of a record.
+Although this doesn't matter when on VM, it can confuse non-VM readers, such
+as GBM.
+GBM can be told to attempt to compensate for this corrupt record structure
+using the fixrec option.
+:edl.
+:p.:hp2.Output:ehp2.
+:p.When writing PSEG files, any colour palette is lost.
+:p.The resulting file is a binary file and should be uploaded to a VM machine
+as such.
+No EBCDIC/ASCII conversion should be used.
+However, on a VM host, the record structure of a PSEG is necessary for
+it to be correctly interpreted by the VM tools.
+On non VM systems, files do not have a record structure.
+Therefore after uploading, the PSEG files must be 'fixed'.
+You need a tool, like FIXL3820 EXEC to do this.
+Basically, each PSEG files record starts with a 0x5a character, and this can
+be used to delineate records.
+:p.PSEG files are a multiple of 8 pixels wide, so this code writes a file
+with the width the next multiple of 8 pixels wide.
+The right edge is padded with white pixels.
+:dl compact tsize=7 break=all.
+:dt.:hp9.scalex=X:ehp9., :hp9.scaley=Y:ehp9.
+:dd.Change the scale factor(s) in the header from their default of 1000.
+:dt.:hp9.double:ehp9.
+:dd.This option doubles the value of the scale factors.
+:dt.:hp9.pelx=X:ehp9., :hp9.pely=Y:ehp9.
+:dd.Change the pixel size field(s) in the header from their default of 2400,
+which means 2400 pixels per 10 inches.
+For example 3000 would therefore mean 300 dpi.
+:edl.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_GEMRAS    \45\   GEM Raster:0:
+:h2 res=&HID_GBM_GEMRAS..GEM Raster
+:i2 refid=gbmsupp.GEM Raster
+:p.The following file extension
+:xmp.
+  .IMG
+:exmp.
+is recognised as a GEM Raster file.
+:p.The GEM Raster file format is an old format, found primarily on the Atari
+platform.
+:p.It has a basic flavor in which &colon.-
+:sl.
+:li.1 bpp bitmaps can only be black and white.
+:li.4 bpp bitmaps can only use a fixed 'standard' palette, or be greyscale.
+:li.2,3,5,6,7 and 8 bpp bitmaps can only be greyscale.
+:li.24 bpp bitmaps are not supported.
+:esl.
+:p.In addition there are XIMG extensions to the format &colon.-
+:sl.
+:li.1-8 bpp bitmaps can contain a palette.
+:li.24 bpp bitmaps are now allowed.
+:esl.
+:p.:hp2.Input:ehp2.
+:p.This code can read all of the above, with the usual proviso that 2 and 3
+bpp are rounded up to 4 bpp, and 5,6 and 7 bpp are rounded up to 8.
+:p.:hp2.Output:ehp2.
+:p.GBM will write all the above formats, and where there are choices,
+the following options can be used &colon.-
+:dl compact tsize=7 break=all.
+:dt.:hp9.grey:ehp9.
+:dd.GBM writes 4 bpp files by mapping them to the standard palette by
+default.
+The non default behaviour of mapping to a grayscale can be enabled by this
+flag.
+:dt.:hp9.pal:ehp9.
+:dd.When writing 4 or 8 bpp files, this option tells GBM to write an XIMG
+format file with the palette included.
+:dt.:hp9.pixw=N:ehp9.,:hp9.pixh=N:ehp9.
+:dd.This overrides the default pixel dimensions in the header.
+The default is 85 by 85 microns.
+:edl.
+:p.Note that Image Alchemy 17 appears to assume a different standard 16 colour
+palette when converting to GEM Raster format.
+This disagrees with :hp2.all:ehp2. the testcase images currently encountered.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_PORTRAIT  \45\   Portrait:0:
+:h2 res=&HID_GBM_PORTRAIT..Portrait
+:i2 refid=gbmsupp.Portrait
+:p.The following file extension
+:xmp.
+  .CVP
+:exmp.
+is recognised as Portrait file.
+:p.These files hold a single 512x512 24bpp RGB image.
+Some photographers in Germany hand you a disk containing a .CVP file
+when you get your passport pictures taken.
+You can return later with the disk and get further prints made.
+:p.Now with GBM supporting this format, you can convert to and from other
+file formats and use paintbox programs to remove those ugly pimples...
+:p.Pixels are not square in this file format, so images when loaded appear
+horizontally stretched.
+GBM leaves it up to the user to rescale the image to look nice.
+Scaling horizontally by a factor somewhere between 0.75 and 0.8 gives a
+pleasing effect.
+:p.Of course, it is important to remember that Portrait files only hold
+512x512 images, and if you take an image from elsewhere and convert to
+Portrait, the image will be printed thinner at the photographers due to
+this non-square-pixel problem.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_JPEG      \45\   JPEG:0:
+:h2 res=&HID_GBM_JPEG..JPEG Interchange File Format
+:i2 refid=gbmsupp.JPEG Interchange File Format
+:p.The following file extensions
+:xmp.
+  .JPG .JPEG .JPE
+:exmp.
+are recognised as JPEG files.
+:p.Technically it is the JFIF type of JPEG files which are supported.
+:p.8 bpp (greyscale), 24 bpp (YUV) and 32 bpp (YCCK, CMYK) files may be read.
+.br
+8 bpp (greyscale) and 24 bpp (YUV) files may be written.
+:p.:hp2.Output:ehp2.
+:p.Bitmaps can be written with varying degrees of quality
+(ie: degrees of lossyness of the compression).
+They can also be written in a simple progressive manner.
+:dl compact tsize=7 break=all.
+:dt.:hp9.quality=Q:ehp9.
+:dd.Causes the file to be written at quality Q, where Q is a rather
+arbitrary measure.
+Q can be in the range 0 to 100, with a reasonable default of 75.
+:dt.:hp9.smooth=S:ehp9.
+:dd.Causes the file to be written smoothed by factor S.
+S can be in the range 0 to 100, while 0 (default) means no smoothing.
+:dt.:hp9.optimize:ehp9.
+:dd.Cause the file to be written as optimized JPEG. This can reduce the resulting
+file size but increases the calculation time.
+:dt.:hp9.prog:ehp9.
+:dd.Causes the file to be written as a progressive JPEG.
+:dt.:hp9.r:ehp9.,:hp9.g:ehp9.,:hp9.b:ehp9. or :hp9.k:ehp9.
+:dd.Forces the red,green or blue component of the image to be written, or
+alternatively to write the greyscale equivelent (the default).
+:dt.:hp9.comment=TEXT:ehp9.
+:dd.Write additonal comment
+:edl.
+:p.GBM can be compiled up either with or without support for JPEG.
+If you don't see JPEG amongst the list of supported file formats on the
+File Open dialog box, then you are using a GBM.DLL without support.
+:p.The JPEG support for GBM is provided by the Independant JPEG Groups
+JPEGLIB library, version 6b.
+It may be freely used provided the IJG are credited (hence its use in GBM,
+and this paragraph in the online help).
+:p.The code to interface GBM to IJG 6b was written by
+Mark Lisowski. I (Heiko Nitzsche) have written the extensions that allow GBM
+to read YCCK/CMYK and write 8bpp greyscale JPEGs.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+.*...sHID_GBM_OTHERS    \45\   Others:0:
+:h2 res=&HID_GBM_OTHERS..Others
+:i2 refid=gbmsupp.Others
+:p.Support for all the bitmap file formats may be added at any time,
+without application writers being aware of it.
+:p.Any new formats will be listed in the dialog filetype combobox,
+although the help may not (yet) have an entry for them.
+:p.The :link reftype=hd res=&HID_GBM_SUPPORT..Bitmap file format support:elink.
+help panel lists other supported file formats.
+.*...e
+:index.
+:euserdoc.
+

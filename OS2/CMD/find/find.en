@@ -1,0 +1,10 @@
+0.0:Prints all lines of a file that contain a string
+0.1:Count the number of lines that contain string
+0.2:Ignore case
+0.3:Number the displayed lines, starting at 1
+0.4:Print lines that do not contain the string
+1.0:file
+1.1:string
+2.0:Cannot open file
+2.1:No such file
+2.2:Cannot change to directory
