@@ -438,7 +438,12 @@ set_rm_idt:
         ;sidt  fword ptr [eax]
 
         ; set realmode idt
+        ;mov   eax, IDTR_OLD
+        ;lidt  fword ptr [eax]
+
         mov   eax, IDTR_OLD
+        mov   [eax].g_limit, 400h
+        mov   [eax].g_base, 0
         lidt  fword ptr [eax]
 
         ret

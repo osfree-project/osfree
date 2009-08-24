@@ -81,6 +81,7 @@ set files=os2ldr os2ldr.msg os2ldr.ini os2boot os2dump os2krnl config.sys
 
 @del %imgdir%\osfree.iso
 @%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-info-table -boot-load-size 4 -iso-level 3 -relaxed-filenames -r -J -joliet-long -l -D -N -U -allow-lowercase -no-iso-translate -v -x .DS_Store -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd
+rem @%mkisofs% -b boot/isolinux/isolinux.bin -c boot/isolinux/bootcat.bin -no-emul-boot -boot-info-table -boot-load-size 4 -iso-level 3 -relaxed-filenames -r -J -joliet-long -l -D -N -U -allow-lowercase -no-iso-translate -v -x .DS_Store -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd
 rem -eltorito-alt-boot -b floppies/os2boot.img  -allow-lowercase -no-iso-translate -U -D
 rem  -b boot.img -no-emul-boot -boot-load-seg 1984 -boot-load-size 4 -iso-level 2 -J -joliet-long -l -D -relaxed-filenames -N -V WinXP -v -x .DS_Store -o ../WinXP.iso .
 

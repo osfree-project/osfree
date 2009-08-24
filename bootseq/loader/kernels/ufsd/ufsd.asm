@@ -23,6 +23,7 @@ public _debug
 
 public _small_code_
 
+extrn  idt_initted  :byte
 extrn  kprintf_     :near
 extrn  init_        :near
 extrn  cmain_       :near
@@ -183,7 +184,7 @@ entry:
                    ; setup GDT
                    call    set_gdt
                    ; setup IDT
-                   ;call    idt_init
+                   call    idt_init
 
                    ; 32-bit uFSD init
                    call    cmain_

@@ -206,25 +206,25 @@ int far pascal _loadds MFS_CHGFILEPTR(
     unsigned short type                 /* type         */
 )
 {
-    kprintf("**** MFS_CHGFILEPTR\n");
+  kprintf("**** MFS_CHGFILEPTR\n");
 
-    switch (type)
-    {
-    case 0:
-      filepos = offset;
-      break;
-    case 1:
-      filepos += offset;
-      break;
-    case 2:
-      filepos = filemax + offset;
-      break;
-    default:
-      return 1;
-    }
-    advance_ptr();
+  switch (type)
+  {
+  case 0:
+    filepos = offset;
+    break;
+  case 1:
+    filepos += offset;
+    break;
+  case 2:
+    filepos = filemax + offset;
+    break;
+  default:
+    return 1;
+  }
+  advance_ptr();
 
-    return NO_ERROR;
+  return NO_ERROR;
 }
 
 int far pascal _loadds MFS_INIT(
@@ -243,6 +243,7 @@ int far pascal _loadds MFS_INIT(
     long speed = 9600;
     char *pp, *r;
     char panic_msg[] = "MBI:mbi uninitialized, panic!\n";
+    unsigned short selector;
 
     // mbi as RIPL data
     mbi = *((unsigned long far *)bootdata);
@@ -263,7 +264,7 @@ int far pascal _loadds MFS_INIT(
     rc = MFSH_PHYSTOVIRT(mbi_far->cmdline, 0xffff, &sl1);
     CHECKRC
     q = (char far *)MAKEP(sl1, 0);
-    fmemmove(cmdline, q, fstrlen(q));
+    memmove(cmdline, q, strlen(q));
     MFSH_UNPHYSTOVIRT(sl1);
 
     if (mbi_far->flags & MB_INFO_CMDLINE)
@@ -347,6 +348,14 @@ int far pascal _loadds MFS_INIT(
     kprintf("**** MFS_INIT\n");
     kprintf("Hello MBI minifsd!\n");
 
+    __asm {
+      mov  ax, cs
+      mov  selector, ax
+    }
+    p = (char far *)MAKEP(selector, 0);
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+    kprintf("\n");
+
     kprintf("comport = 0x%x\n", port);
     kprintf("ifs: %s\n", FS_NAME);
     kprintf("drive letter: %c\n", drvletter);
@@ -392,6 +401,14 @@ int far pascal _loadds MFS_INIT(
     kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
 
     //*FS_NAME = 0;
+
+    __asm {
+      mov  ax, cs
+      mov  selector, ax
+    }
+    p = (char far *)MAKEP(selector, 0);
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+    kprintf("\n");
 
     return NO_ERROR;
 }

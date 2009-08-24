@@ -106,6 +106,8 @@ check_int13_extensions_rm endp
 ;
 
 get_diskinfo_standard_rm proc far
+      mov    bh, dl
+      and    bh, 7fh          ; clear HDD bit
       mov    ah, 8
       int    13h              ; do the operation
       ; check if successful
@@ -114,6 +116,17 @@ get_diskinfo_standard_rm proc far
       ; bogus BIOSes may not return an error number
       test   cl, 3fh          ; 0 sectors means no disk
       jnz    f1               ; if non-zero, then succeed
+
+      pusha
+      mov    al, dl
+      add    al, 30h
+      xor    bx, bx
+      mov    ah, 0eh ; ah=0eh -- function
+      int    10h
+      popa
+
+      cmp    dl, bh           ; dl == number of drives
+      jae    f1               ; if non-zero, then succeed
       ; XXX 0x60 is one of the unused error numbers
       mov    ah, 60h
 f1:

@@ -515,14 +515,14 @@ hloop:
         inc   ebx
         loop  hloop
 
-        mov   al, byte ptr idt_initted
-        cmp   al, 0
-        jnz   initted
+        ;mov   al, byte ptr idt_initted
+        ;cmp   al, 0
+        ;jnz   initted
 
-        mov   eax, IDTR_OLD
-        sidt  fword ptr [eax]
+        ;mov   eax, IDTR_OLD
+        ;sidt  fword ptr [eax]
 
-        mov   byte ptr idt_initted, 1
+        ;mov   byte ptr idt_initted, 1
 initted:
         mov   eax, IDTR
         mov   [eax].g_limit, 20h * 8 - 1

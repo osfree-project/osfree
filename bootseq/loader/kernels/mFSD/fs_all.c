@@ -113,10 +113,22 @@ int far pascal _loadds FS_INIT(
                           unsigned long far *pMiniFSD
                          )
 {
+  unsigned short selector;
+  char far *p;
+  int i;
+
   kprintf("**** FS_INIT\n");
   kprintf(hellomsg);
 
   DevHlp = DevHelp;
+
+  __asm {
+    mov  ax, cs
+    mov  selector, ax
+  }
+  p = (char far *)MAKEP(selector, 0);
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+  kprintf("\n");
 
   return NO_ERROR;
 }
@@ -314,9 +326,20 @@ int far pascal _loadds FS_MOUNT(
 {
   unsigned short cbSec = 1;
   unsigned short old_hVPB;
+  unsigned short selector;
+  char far *p;
   int rc;
+  int i;
 
   kprintf("**** FS_MOUNT\n");
+
+  __asm {
+    mov  ax, cs
+    mov  selector, ax
+  }
+  p = (char far *)MAKEP(selector, 0);
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+  kprintf("\n");
 
   if (flag)
     return ERROR_NOT_SUPPORTED;

@@ -35,7 +35,7 @@ int fileaddr;
 
 unsigned long cdrom_drive;
 char drvletter;
-char mode[5];
+char mode[12];
 
 extern char debug;
 
@@ -90,6 +90,7 @@ ufs_open (char *filename)
   char buf2[0x100];
   char *p, *q;
   int  n;
+  int  i;
 
   kprintf("**** ufs_open(\"%s\") = ", filename);
 
@@ -125,6 +126,7 @@ ufs_open (char *filename)
     if (n == mods_count)
     {
       kprintf("0\n");
+      for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
       return 0;
     }
 
@@ -134,16 +136,19 @@ ufs_open (char *filename)
     fileaddr = mod->mod_start;
 
     kprintf("1\n");
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
     return 1;
   }
 
   kprintf("0\n");
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
   return 0;
 }
 
 int
 ufs_read (char *buf, int len)
 {
+  int i;
   kprintf("**** ufs_read(0x%08x, %ld) = ", buf, len);
 
   if (fileaddr && buf && len)
@@ -153,29 +158,42 @@ ufs_read (char *buf, int len)
     memmove(buf, (char *)fileaddr + filepos, len);
 
     kprintf("%lu\n", len);
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+    kprintf("\n");
     return len;
   }
 
   kprintf("0\n");
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  kprintf("\n");
+
   return 0;
 }
 
 int
 ufs_seek (int offset)
 {
+  int i;
   kprintf("**** ufs_seek(\"%ld\")\n", offset);
 
   if (offset > filemax || offset < 0)
     return -1;
 
   filepos = offset;
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  kprintf("\n");
+
   return offset;
 }
 
 void
 ufs_close (void)
 {
+  int i;
   kprintf("**** ufs_close()\n");
+
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  kprintf("\n");
 }
 
 
@@ -213,6 +231,7 @@ void cmain (void)
       safe_parse_maxint(&pp, &speed);
     }
 
+    memset(mode, 0, sizeof(mode));
     if (pp = strstr((char *)m->cmdline, "--drv"))
     {
       pp = skip_to(1, pp);
@@ -233,13 +252,12 @@ void cmain (void)
   kprintf("comport = 0x%x\n", port);
 
   // set a drive letter according the DLAT info or AUTO algorithm
-  if (pp)
-  {
-    drvletter = assign_drvletter(mode);
-    // correct the command line according the drive letter got
-    pp[0] = (char)drvletter;
-    for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
-  }
+  drvletter = assign_drvletter(mode);
+
+  // correct the command line according the drive letter got
+  pp[0] = (char)drvletter;
+  pp[1] = ':';
+  for (i = 2; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
 
   // load os2ldr
   if (ufs_open("OS2LDR"))
@@ -352,4 +370,7 @@ void cmain (void)
   //bpb->log_drive   = 0x48;
   //bpb->marker      = 0x41;
   //bpb->vol_ser_no  = 0x00000082;
+
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  kprintf("\n");
 }
