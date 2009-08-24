@@ -1,6 +1,0 @@
-
-
-find /willows |grep .exe$ |while read f
-do echo $f
-   whead -j $f  2>/dev/null |grep $1
-done 

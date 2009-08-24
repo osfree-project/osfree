@@ -1,1 +1,0 @@
-Use bwBasic as core or use FreeBasic with only -lang qb option?

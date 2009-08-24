@@ -1,5 +1,0 @@
-#include "pm.h"
-#include "sysicons.h"
-rcinclude sysicons.dlg
-
-ICON 1 sysicons.ico

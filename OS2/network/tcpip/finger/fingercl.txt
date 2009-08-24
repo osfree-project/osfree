@@ -1,2 +1,0 @@
-Adaptation of GNU finger 1.37 client for OS/2. Requires emx. Also included is 
-safe_finger (from SATAN-1.1.1).

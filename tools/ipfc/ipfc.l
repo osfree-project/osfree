@@ -1,7 +1,0 @@
-
-%%
-
-":" result:=TAGSTART;
-"." result:=TAGEND;
-
-%%

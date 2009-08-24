@@ -1,9 +1,0 @@
- 
- Related Functions 
-
-      WinCreateCursor 
-      WinDestroyCursor 
-      WinQueryCursorInfo 
-      WinShowCursor 
-  
-

@@ -1,4 +1,0 @@
-NAME sysIcons WINDOWAPI
-EXETYPE OS2
-DESCRIPTION "System icons manager"
-STUB "..\lxLite\stub_min.bin"

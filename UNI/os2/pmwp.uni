@@ -1,7 +1,0 @@
-module pmwp;
-
-type HOBJECT=LHANDLE;
-
-end.
-
-

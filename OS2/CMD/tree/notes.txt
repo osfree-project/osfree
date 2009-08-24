@@ -1,8 +1,0 @@
-1. Did not replicate the annoying <beep> after an erroneous parameter (other
-   OS/2 command line tools do not produce such beeps).
-2. There's new sytnax for tree command (@todo: change oso*.txt!):
-
- tree [starting_dir] [/f]
-
- where starting_dir can be drive letter only (eg d:), or full path, where
- tree should start displaying directory structure

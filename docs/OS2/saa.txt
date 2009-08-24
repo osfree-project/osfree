@@ -1,5 +1,0 @@
-SAA
-===
-
-At the present time no strict SAA support. And, most probably, nether been. But if you need this
-then add it.

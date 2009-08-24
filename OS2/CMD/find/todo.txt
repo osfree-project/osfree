@@ -1,3 +1,0 @@
-0. replace open/read/close function with DosOpen, DosRead, DosClose.
-1. replace findfirst/findnext/findclose with DosFindFirst/DosFindNext/DosFindClose.
-2. replace cat library with MSG API, move NLS files to OSO*.MSG

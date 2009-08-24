@@ -1,8 +1,0 @@
-option modname=Listbox
-format os2 lx dll initinstance terminstance
-option description 'WATCOM List Box DLL'
-segment class 'code' loadoncall executeread noiopl nonconforming
-segment class 'data' loadoncall readwrite noiopl nonshared
-option manyautodata
-option protmode
-export fRegisterListBox.1

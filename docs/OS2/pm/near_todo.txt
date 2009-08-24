@@ -1,8 +1,0 @@
-0. make test client-server OpenGL programm work
-========================
-1. make to draw single Frame window (frame border+client window+titlebar+
-placeholders for system menu and Min/max/restore menu buttons)
-2. make possible Frame window mode with mouse
-3. make possible to draw two Frame windows with two clients,
-   select active window, set focus, set window TOP, etc.
-4. Draw pure text in client window

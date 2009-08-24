@@ -1,5 +1,0 @@
-module winstddlgs;
-
-uses pmstddlg default;
-
-end.

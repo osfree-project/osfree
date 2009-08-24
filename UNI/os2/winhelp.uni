@@ -1,5 +1,0 @@
-module winhelp;
-
-uses pmhelp default;
-
-end.

@@ -1,5 +1,0 @@
-SpiInstall = (
-    SpiDllName = "$(DEST)SSMRES.DLL" (MAXPATH)
- )
-
-?? -> Extern

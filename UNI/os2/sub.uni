@@ -1,7 +1,0 @@
-module sub;
-
-uses kbd;
-uses mou;
-uses vio;
-
-end.
