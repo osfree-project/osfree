@@ -1,0 +1,25 @@
+            UQBT - Retargetable Binary Translation
+
+Staff: 
+    Cristina Cifuentes, PI (1996-2001)
+    Mike Van Emmerik (1997-2001)
+    Brian Lewis (2000-2001)
+
+Research Assistants:
+    Nathan Keynes (Jan-Jul 2001)
+    Manel Fernandez (Jan-Apr 2001)
+    Sameer Gulrajani (Summer 2000)
+    Doug Simon (Jan-Aug 99)
+    Trent Waddington (Jan-Sep 99)
+    Ian Walters, Shawn Coyle (Summer 98-99)
+    Shane Sendall, Doug Simon (Summer 97-98)
+
+Design Support: 
+    Norman Ramsey (1997-9)
+
+User Interface:
+    Design: Robin Jeffries (Jan 2000) 
+    Tcl/Tk implementation: 
+         Cristina Cifuentes (Jan 2000)
+         Brian Lewis (Apr 2001)
+

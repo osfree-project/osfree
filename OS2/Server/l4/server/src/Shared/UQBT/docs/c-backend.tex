@@ -1,0 +1,199 @@
+
+\chapter{The C Back End}
+\label{ch-cbackend}
+
+{\small
+\begin{flushright}
+Design: Mike, Trent, Cristina. Implementation: Mike. 
+Documentation: Mike [Nov 01], Cristina
+\end{flushright}
+}
+
+We have experimented with different backends for \uqbt.  
+In 1998 we started with an \rtl\ optimizer and chose VPO for 
+this task.  VPO~\cite{Beni88} is a retargetable optimizer
+of register transfers.  VPO's interfaces were clearly 
+specified throughout 1998 as part of the Compiler 
+Infrastructure Project~\cite{Vpo98}. This work is described 
+in Section~\ref{sec-vpo}, which refers to work done in 
+April 1998 and may no longer be current.  
+We successfully interfaced to VPO and optimized 
+SPARC-based programs.  However, the specs for Pentium
+code were not available when we needed to test Pentium
+based translations, so the focus changed to using off the shelf C
+compilers as the UQBT optimiser. 
+In 2001 we revisited the VPO backend and used it to optimize 
+code for several target platforms, this work is described in 
+Chapter~\ref{ch-vpobackend}.
+
+The main optimizer that we have used throughout 1998-2001 has 
+been via a C interface, i.e., we use a C compiler as an optimizer 
+and generate low-level C code out of our \hrtl\ .
+We have experimented with Sun's cc and GNU's gcc compilers 
+and have obtained results with both on SPARC and Pentium 
+platforms (see Chapter~\ref{ch-results} for 1999 results).  
+The type of code that we generate is low-level 
+C code, in that all control transfer is in the form of goto's,
+it uses a lot of casting and is hard to read.  
+
+The C backend makes extensive use of the \texttt{Translate} class. The main
+reason for this is to prevent the need for passing around many parameters,
+e.g. the stream (\texttt{os}), current procedure \texttt{proc}, and so on.
+
+
+\section{The Current Type and Casting}
+
+C operators are somewhat polymorphic. For example, the right shift operator
+(\texttt{>>}) means either ``shift right arithmetic'' or ``shift right logical''
+depending on the type of the operands (signed integer or unsigned integer
+respectively). This contrasts with RTS, which uses different operators for
+these two cases. The only way to ``tell'' the C compiler to perform one or the
+other right shift operation is to cast the operands correctly. All integer
+registers and variables are declared as signed, and are cast to unsigned as
+needed. In general, it is necessary to be aware at all times of the
+current type of an operand (which could be a primitive such as a register,
+variable, or constant, or it could be a more complex expression), and
+the type that the C compiler is going to assume that an operand is.
+When these differ, a cast is required.
+
+As an example, consider this simple assignment:
+\begin{verbatim}
+000125b8 *32* v0 := v0 >>A 24
+\end{verbatim}
+
+The right shift arithmetic operator can be specified in C by ensuring that the
+first operand (\texttt{v0}) is unsigned. Since \texttt{v0} will be declared
+as a signed integer, it will have to be cast.
+The way that this works is that the expression
+emitter (\texttt{Translate::processExpr}) (and many other back end functions)
+take a parameter called \texttt{cType}, which is the ``current'' or
+``expected'' type. For \texttt{idShiftR} and other ``unsigned'' operators,
+the current type is forced to unsigned before being passed to
+\texttt{processExpr}. (\texttt{idshiftR} is unusual in that it only requires
+the first operand to be unsigned; other ``unsigned'' operators require
+both operands to be unsigned). When \texttt{processExpr} recurses to process
+the first operand (\texttt{v0}), it compares \texttt{cType} with the type
+of \texttt{v0}, and finds a mismatch. A cast is therefore emitted.
+
+There are two types of cast used in the backend. One is just a ``regular''
+cast, e.g. \texttt{(unsigned)v0}. The other is referred to as a ``heavy
+duty cast''; e.g. \texttt{*(unsigned int*)\&v0}. The latter can be understood
+by reading it from right to left. We start with \texttt{v0}, of type ``int'',
+then take its address, resulting in ``pointer to int''.
+This is then cast to ``pointer to unsigned
+int''; finally this is dereferenced to yield ``unsigned int''. The advantage
+of the ``heavy duty cast'' is that it is possible to cast from almost anything
+to almost anything else, e.g. \texttt{*(int*)\&f8} is of type \texttt{int},
+even though f8 may be declared as type \texttt{float}. It is often important
+to do this, because in changing types with a conventional cast, C will often
+perform a \emph{conversion} operation. All conversions in RTL are explicit,
+so the implicit conversion will usually result in unwanted semantics.
+
+As an example, consider the translation of a Sparc \texttt{itof}
+instruction. This instruction takes a bit pattern from a \emph{floating
+point} register, interprets the pattern as an integer, converts it to a
+floating point bit pattern, and writes this to the destination floating
+point register. Let's say we are converting \%f2 to \%f3. Both \%f2 and
+\%f3 are declared as floating point variables in the C output. To perform
+the conversion, we need code like this:
+\begin{verbatim}
+  f3 = (float) *(int*)&f2;
+\end{verbatim}
+This code contains both a conventional (left) and a heavy duty (right) cast.
+The heavy duty cast is needed to convince the C compiler to treat the bit
+pattern in f2 as an integer. The conventional cast casues the conversion,
+which in this case is the desired semantics. Note that the following would
+not work:
+\begin{verbatim}
+  f3 = (float) (int)f2;
+\end{verbatim}
+The compiler would first convert f2 from float to integer, then back to float
+again. The result is wrong, because the bit pattern in f2 is not in floating
+point format to start with.
+
+Note that heavy duty casts should not be used when there is a change of size
+of the operand. Consider a big endian target machine, e.g. Sparc. Suppose that
+r8 contains the value 5. Thus, \texttt{(int)r8} has the value 5, as expected.
+However, \texttt{*(char*)\&r8} has the value 0! This is because the heavy
+duty cast assumes that the address of a pointer does not change when the
+object it points to changes. This is simply not valid for big endian
+machines.
+
+Semantic strings, which are used throughout UQBT to represent expressions,
+have a single \texttt{Type} object, representing the type of the overall
+expression. Whenever \texttt{SemStr::getSubExpr()} is called, the newly
+created semantic string has the correct type for the subexpression. For
+example, the overall type for the expression \texttt{itof(32, 64, r[24]}
+is float64, but the subexpression (\texttt{r[24]}) is of type int32.
+ 
+
+\section{Overlapping registers}
+
+Many architectures have registers that have subsets that can be referenced
+by name. For example, parts of the pentium register \texttt{\%eax} can be
+referenced as \texttt{\%ax} (lower 16 bits), \texttt{\%al} (lower 8 bits),
+and as \texttt{\%ah} (bits 8-15). UQBT has separate names for these register
+parts, but obviously changing one register has to have the appropriate
+effect on other registers. To complicate matters, the C representation for
+these overlapped registers depends on the endianness of the source and target
+machines.
+
+Class \texttt{Overlap} (in \texttt{backend/common/overlap.cc}) handles these
+complexities. It has methods to initialise itself (including the reading
+of information from the \texttt{.ssl} file),
+a method to record the use of registers, and methods for emitting C code
+(both to declare the overlapping registers, and to emit code appropriate to
+a particular register).
+
+There is an extra pass through the procedure (\texttt{Translate::firstPass()})
+whose main job is to find which registers are used by the procedure. This
+information (kept in the instance member regNumbers, a set of integers) is
+used to declare as a union only those overlapped registers that are needed
+for this procedure. (Although there is little if any overhead in declaring
+all possible overlaps, there would be very significant clutter in the output C
+file).
+
+For example, consider a pentium source program where register \texttt{\%eax}
+(only) is accessed as both 32 bits and 8 bits. The 32 bit register happens
+to be \texttt{r[24]}, and the 8 bit register happens to be \texttt{r[8]}.
+The following C code declares these registers:
+\begin{verbatim}
+union {
+        int32 i24;
+        struct {
+                int16 dummy1;
+                int16 h0;
+        } h;
+        struct {
+                int8 dummy2;
+                int8 dummy3;
+                int8 b12;
+                int8 b8;
+        } b;
+} i24;
+\end{verbatim}
+When used as a 32 bit register, \texttt{\%eax} is referenced as
+\texttt{i24.i24}. When used as 8 bits, it is referenced as
+\texttt{i24.b.b8}. These locations can be assigned to, or used as values
+in expressions.
+
+Note that in this example, the target is a big endian machine (pentium is a
+little endian machine). If the target was a little endian machine, the order
+of the int16 and int8 elements in structs h and b would be reversed, to keep
+h0 and b8 at the least significant end. This is automatically handled by
+\texttt{class Overlap}.
+
+The information needed by \texttt{class Overlap} is found in the \texttt{.ssl}
+file. For example, in 80386.ssl, we see
+\begin{verbatim}
+[ %eax, %ecx, %edx, %ebx,
+  %esp, %ebp, %esi, %edi ][32] -> 24..31,
+%ax[16] -> 0 SHARES %eax@[0..15],
+...
+%al[8]  -> 8 SHARES %ax@[0..7],
+...
+%ah[8]  -> 12 SHARES %ax@[8..15],
+...
+\end{verbatim}
+
+

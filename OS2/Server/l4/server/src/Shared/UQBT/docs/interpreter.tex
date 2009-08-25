@@ -1,0 +1,178 @@
+
+\chapter{Interpreter}
+\label{ch-interpreter}
+
+{\small
+\begin{flushright}
+Design Ian; Documentation: Ian; Implementation; Ian [Feb 99]
+\end{flushright}
+}
+
+{\em This chapter has not been updated to include Ian's work 
+during 1999 on the interpreter, which was based on the ideas 
+described herein.  In early 2001, Nathan Keynes implemented a 
+new interpreter based on the SLED and SSL specifications we 
+had for existing machines.  The interpreter was automatically 
+generated from such specs and run quite well.}  
+
+One of the problems when doing binary translation is identifying what
+parts of the program are code, as opposed to data.  This is important
+as the code needs to be translated, but translating the data will
+cause incorrect destination code as tables used by the program will be
+damaged and the data may translate into nonsense.  
+
+Identifying code difficult when a register jump is encountered.  Other
+kinds of control transfer will aid in giving entry points into code,
+but some jumps will go to a destination indicated in a register, and
+the possible contents of that register may not be easily determined by
+analysis.  Because of this there is no way to ensure that all the code
+has been translated when statically translating.
+
+A solution to this problem is to include an interpreter so that when
+control transfers to some code that has not been translated the
+interpreter can handle the semantic actions that need to take place in
+the program until control transfers back to translated code.
+
+
+\section{Interpreter Design}
+The main considerations in the design of the interpreter was
+retargetability and to take advantage of existing code from the rest of
+the project.  The result of these considerations lead to the
+interpreter working with Medium level RTL's as provided in the static
+translation code.
+
+Interpreting medium level RTL's results in a more simplified Virtual
+machine requirement while still avoiding attempting to optimise the
+code, or try and match the instructions to the target machine.  The
+downside is that there is still a lot of computation/analysis in
+getting the RTLs to the Medium stage.  It requires the decoding of the
+instructions, the creation of the Basic blocks and possible
+re-ordering of instructions due to delay slots and the elimination of
+special registers, such as the sparc's ``Current Window Pointer''.  It
+may be possible to interpret Low Level RTLs however this would mean a
+far more complicated virtual machine, and may be too difficult to
+implement the required re-targetability into such a design.
+
+\subsection{Virtual Machine Design} 
+The Structure of the virtual machine is currently a set of four flags
+including Carry, Zero, Negative and ?? v, I am not sure what this one
+is ??.  For the register set of the machine a space in memory is
+allocated and a map of registers contain address pointers which point
+to the memory allocated for the contents of the register.  This is
+done so that the Virtual machine can handle overlapping registers such
+as ``ax, al, ah'' and the sparc's floating point registers.
+
+The initialisation of the interpreter takes three passes over the map
+of registers.  The first pass is to calculate the amount of memory
+that will be required.  The second pass is to set registers with no
+explicit sharing information.  This includes registers that share
+values with other registers, but are the first register declared for
+the address.  The last iteration over the register map sets up the
+pointers for the registers with explicit sharing information.
+
+To handle temporary register the virtual machine allocates space for
+each temporary register in encounters as it encounters them.
+
+\subsection{Class Interface}
+
+\begin{description}
+\item [Interpreter: $\rightarrow$ Interpreter].
+	Default constructor for the Interpreter classs.
+
+\item [init: (RTInstDict) $\rightarrow$ nil].
+	Initialisation routine for the Interpreter.  MUST initialise
+	the Interpreter object before any other operations are applied
+	to it.  Cannot ``re-initialise'' the interpreter until after
+	the destructor has been called..  The RTInstDict should
+	already be parsed and initialised with the information from
+	the relevant SSL file.  The constructor allocates the space
+	needed for the Virtual Machine and initialises the Virtual
+	Registers to contain 0.
+
+\item [~Interpreter: $\rightarrow$ nil].
+	This is the destructor for the Interpreter class.  It frees
+	memory allocated in the constructor.
+
+\item [apply: (RTList) $\rightarrow$ int].
+	This function will apply the RTList to the state of the
+	virtual machine.  The integer returned will indicate control
+	flow information, however this is yet to be implemented
+
+\item [evaluate: (SemStr *x, int *y) $\rightarrow$ void *].
+	This function will evaluate the semantic string, performing
+	operations and retrieving register values, and place the
+	result at the memory location pointed to by the returned void
+	pointer.  If the string evaluates to the contents of a
+	register, the function will return a pointer to the registers
+	value, and not copy
+
+\end{description}
+
+\subsection{Remaining Work}
+Some aspects of the interpreter remain incomplete for various reasons.
+These aspects include floating point operations, control flow
+transfers and integration into translated code.  
+
+The floating point operations should be easily integrateded, however
+due inate differences between working with floats and integers, it may
+be prudent to implment them in an evaluatefloat function rather than
+within the existing evaluate function.
+
+Control flow transfers will be done through special RTLs, to
+hopefully reduce the amount of processing for flag operations.
+
+The integration of the interpreter should only be done after static
+interpretation test have been completed.  Issues involved are defining
+a standard process for specifiying register mappings at interpreter
+entry points, and also catering for easy transition out of the
+interpreter.  Entry points into the intepreter are well defined and
+easily spotted.  Any register jump that eludes analysis will be a
+point when the interpreter will be launched.  Hence leading up to
+theses points it is a rather simple matter of implementing the
+standard mapping so that the interpreter will be able to easisly
+absorb the current state of the machine.  However the interpreter
+could re-enter translated code at almost any point.  Futher more if
+any worthwhile optomisation is applied to the translated code the
+register mapping is not necissaraly intact.  The interpreter should in
+these cases continue interpreting through translated code until it
+reaches a point where register mappings would be known.  This is most
+likely to be easily implemented at a return from the proceedure as
+many of the registers have standard uses at this time.
+
+\subsection{Other Approaches}
+There are other approaches that could have been taken to handle
+untranslated code at run time.  Two alturnatives considered include a
+variation on the interpreter and ``Guess'' translation.
+
+One variation of the interpreter involves placing the effort of
+retargetablility away from the interpretation of the code and onto the
+creation of the Virtual machine.  This would involve setting up a
+process which would create a virtual machine based on the
+specification for the machine, mirroring every aspect of that machine
+from constant value registers to delay instructions.  Benifits of this
+approach would be a basic increase in the speed of the interpreter as
+less work would go into translating instructions, but rather creating
+a virtual machine (ONCE) that could handle the instruction in there
+initial state.  The shortfall comes in implementing a retargetable
+Virtaual machine generator.  While there are complete machine
+specifications, creating a process to handle some of the featurs of
+the machine automatacly is by no means a simple task.  If this type of
+interpreter is investigated, I would suggest a section in the ssl file
+that gave a ``between instructions action'' so that the more difficult
+or strange aspects of the virtual machine could be specified as a set
+of instructions to be executed between interpreting instructions to
+maintain the state of the machine.
+
+The other approach is to translate all of the program space as if it
+was code.  When not sure if a segment of data is really code or not,
+the un-translated data is placed in the translated program but the
+data is translated as if it was code and placed elsewhere.  If during
+execution this saved translated code could then be used instead of
+having to translate the source.  This approach however is impractical
+as not all instruction sets are open to this approach, (x86's variable
+length instructions) and many of the same problems with register
+mapping would still exist.  If these problems could be overcome this
+may represent a fast and efficient way of solving the untranslated
+code problem.
+
+

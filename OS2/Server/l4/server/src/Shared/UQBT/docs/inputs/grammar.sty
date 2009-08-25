@@ -1,0 +1,100 @@
+\newcommand{\lit}{\begingroup\catcode`\_=12\relax\dolit}
+\newcommand{\dolit}[1]{\texttt{\textup{#1}}\endgroup}
+\newcommand{\term}[1]{\textsl{#1}}
+\newcommand{\nt}[1]{\textit{#1}}
+\newcommand\litbar{\texttt{|}}
+% now the metasymbols
+\newcommand{\produces}{\mbox{$\Rightarrow$}}
+\newcommand{\gdelim}{\big}
+\newcommand{\vbar}{\mbox{$\gdelim|$}}
+\newcommand{\makevbar}{}
+{\catcode`\|=\active \gdef\makevbar{\begingroup\catcode`\|=\active \let|=\vbar}}
+\newcommand{\sequence}{\makevbar\dosequence}
+\newcommand{\optional}{\makevbar\dooptional}
+\newcommand{\alternate}{\makevbar\doalternate}
+\newcommand{\dosequence}[1]{\mbox{$\gdelim\{$}#1\mbox{$\gdelim\}$}\endgroup}
+\newcommand{\dooptional}[1]{\mbox{$\gdelim[$}#1\mbox{$\gdelim]$}\endgroup}
+\newcommand{\doalternate}[1]{\mbox{$\gdelim($}#1\mbox{$\gdelim)$}\endgroup}
+% \specindex is used to index stuff in the specification -- I'll have
+% to read up on makeindex to get the font to come out right.
+\newcommand{\indexlit}{\begingroup\catcode`\_=12\relax\doindexlit}
+\newcommand{\doindexlit}[1]{\index{#1@\protect\lit{#1}}\endgroup}
+\newcommand{\indexedlit}{\begingroup\catcode`\_=12\relax\doindexedlit}
+\newcommand{\doindexedlit}[1]{\index{#1@\protect\lit{#1}}\dolit{#1}}
+\newcommand{\indexnt}[1]{\index{#1@\protect\nt{#1}}}
+\newcommand{\indexednt}[1]{\nt{#1}\indexnt{#1}}
+%
+\newcommand{\libindex}[1]{\index{#1@\protect\lit{#1}}}
+%
+\newcommand\commentstart{\relax}  % was \#~
+%\newcommand{\comment}[1]{\commentstart #1}
+\newcommand{\lbr}{}
+\newcommand{\rbr}{}
+\chardef\lbr`\{
+\chardef\rbr`\}
+
+% Now for productions in the grammar: In the production environment, |
+% is active.
+
+\newcommand\productionvbar{\mbox{$|$}}
+\newcommand\productionor{\\&\productionvbar&}
+\newcommand\makeproductionvbar{}
+{\catcode`\|=\active 
+ \gdef\makeproductionvbar{\catcode`\|=\active \let|=\productionor}}
+
+\newdimen\productionindent
+\productionindent=0pt
+
+\let\productionsize=\normalsize
+\newcommand\@productionstart[1]{% start of production environment
+			       % parameter is {\TeX} for `symbol ::=='
+  \list{}{\leftmargin=\productionindent}%
+  \productionsize\makeproductionvbar
+%   \renewcommand\arraystretch{1.10}
+   \item[]\begin{tabular}{l
+                  @{\hspace{0.5\tabcolsep}}c@{\hspace{0.5\tabcolsep}}
+                  l
+                  >{\commentstart}l}%
+   #1}
+
+\newcommand\@wideproductionstart[1]{%
+ \indexednt{#1}&\produces&}
+
+\newdimen\narrowproductionindent
+\narrowproductionindent=10pt
+\advance\narrowproductionindent by -\tabcolsep
+\newcommand\@narrowproductionstart[1]{%
+    \hbox to \narrowproductionindent{%
+         \indexednt{#1}\hspace{0.5\tabcolsep}\produces\hss}&&\\
+  &&}
+
+\newenvironment{production}[1]
+%  {\list{}{\leftmargin=\parindent}
+  {\@productionstart{\@wideproductionstart{#1}}}
+  {\\\end{tabular}\endlist}
+\newenvironment{production*}[1]
+%  {\list{}{\leftmargin=\parindent}
+  {\@productionstart{\@narrowproductionstart{#1}}}
+  {\\\end{tabular}\endlist}
+\newenvironment{oldproduction}[1]
+%  {\list{}{\leftmargin=\parindent}
+  {\list{}{\leftmargin=\productionindent}
+   \productionsize\makeproductionvbar
+%   \renewcommand\arraystretch{1.10}
+   \item[]\begin{tabular}{l
+                   @{\hspace{0.5\tabcolsep}}c@{\hspace{0.5\tabcolsep}}
+                   l
+                   >{\commentstart}l}%
+   \indexednt{#1}&\produces&
+%	& &
+	}
+  {\\\end{tabular}\endlist}
+
+% insert \productionglue between two consecutive production
+% environments
+
+\newcommand\productionglue{\vskip -1.2\baselineskip\relax}
+\renewcommand\productionglue{\kern -1.2\baselineskip\relax}
+
+
+
