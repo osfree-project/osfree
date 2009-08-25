@@ -1,4 +1,0 @@
-NAME chcase WINDOWCOMPAT
-EXETYPE OS2
-DESCRIPTION "Change character case in filenames utility for OS/2"
-STUB "..\lxLite\stub_min.bin"
