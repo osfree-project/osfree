@@ -1,0 +1,12 @@
+#define idMAINWINDOW                100
+#define idICONLIST                  101
+#define idICONNAME                  102
+#define idBUTCHANGE                 103
+#define idBUTUNDO                   104
+#define idBUTDEFAULT                105
+#define idBUTQUIT                   106
+#define idSTOREDIRECT               107
+#define idSTOREINDIRECT             108
+#define idBUTEDIT                   109
+#define idICONBORDER                110
+#define idBUTLOADSET                111

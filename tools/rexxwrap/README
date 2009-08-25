@@ -1,0 +1,174 @@
+                            Rexx/Wrapper 2.4
+
+Rexx/Wrapper is a tool that wraps a Rexx source file, or tokenised code
+into an executable program.
+The Rexx source code can be optionally compressed and encoded to ensure
+that the original Rexx code cannot be viewed (unless you have the original
+encryption key).
+
+To use Rexx/Wrapper you need two extra bits of software:
+1) A supported Rexx interpreter
+2) A supported C compiler
+
+The Rexx interpreter that is linked with the executable must be capable
+of executing an "instore" Rexx macro via the SAA API.
+The Rexx interpreter used to build the executable wrapper can be different
+to the interpreter used to run the executable program.
+If wrapping tokenised code, then the Rexx interpreter that creates the
+tokenised code, MUST be the same interpreter that runs the tokenised code.
+
+All suppliers of Rexx interpreters provide access to their interpreter
+via a shared or dynamic library. This means that it is not possible to
+build a completely stand-alone executable; you will always have to include
+the shared or dynamic library with the executable built with Rexx/Wrapper.
+
+There is one exception to this rule; Regina.  Regina also provides a
+static library, which means you can link your program with Regina's static
+library, and you will get a completely stand-alone executable.
+
+There is a catch however with using the Regina static library :-(. The
+Rexx program that you wrap, cannot dynamically load an external function
+package.  This is because the Regina static library does not (and cannot)
+support the dynamic loading of external functions.  External functions, by
+their very nature, require the presence of a dynamic or shared library to
+operate.
+
+Rexx/Wrapper supports all C compilers that support ANSI prototypes.
+Rexx/Wrapper will not work with older K&R C Compilers.
+
+For a list of the supported C compilers for the current platform, run
+rexxwrap.cmd with the '-help' switch and see the list below.
+
+How to use Rexx/Wrapper
+=======================
+To build an executable from a Rexx program, run the supplied rexxwrap.cmd
+program.  This can be run two ways.
+
+The first is by supplying all switches and parameters on the command line.
+Running rexxwrap.cmd with the '-help' switch will display the required switches
+and parameters.
+The second way to run rexxwrap.cmd, is without any parameters.  You are then
+prompted for each parameter value.  On subsequent executions of rexxwrap.cmd,
+the previous values you supplied are provided as defaults, and you simply have
+to press the Enter key to accept these default value.
+
+All replies are stored in a file in the current directory; 'rexxwrap.prm'.
+Once you have answered all prompts and are happy with the responses
+you can execute rexxwrap.cmd with the -d switch, which will run rexxwrap.cmd
+without prompting, using the values in 'rexxwrap.prm'.
+
+An example session using the prompt method and REXX/imc is shown below:
+
+------------------------------ start of sample -----------------------------
+[mark@beaver imc]$ /tmp/rexx-imc*/rexx ../rexxwrap.cmd
+Program Name(-program) [rexxcps]
+Rexx filename(-rexxfiles) [../rexxcps/demo/rexxcps.rexx] ../../Regina-0.08h/demo/rexxcps.rexx
+Rexx interpreter(-interpreter) [rexximc]
+Compiler(-compiler) [gcc]
+Rexx Interpreter Library(-intlib) [/tmp/rexx-imc-1.7/librexx.so]
+Rexx Interpreter Header File Directory(-intincdir) [/tmp/rexx-imc-1.7]
+Rexx/Wrapper Source Directory(-srcdir) [..]
+Encrypt source: yes/no(-encrypt) [yes]
+Compress source: yes/no(-compress) [yes]
+Running configure script...
+creating cache ./config.cache
+updating cache ./config.cache
+creating ./config.status
+creating configur
+creating config.h
+Compiling DES modules...rand_key set_key str2key ecb_enc cbc_cksm des_enc
+Compiling ZLIB modules...compress uncompr deflate inflate adler32 zutil trees ifblock infcodes inftrees infutil inffast
+Compiling intbuild.c...
+Linking intbuild...
+Running intbuild to produce rexxcps.c...
+The generated key for this program is: tlxNhsju
+If you need to dump the original code from the rexxcps executable, run:
+ rexxcps '--key=tlxNhsju'
+Compiling rexxcps.c...
+Linking rexxcps
+Done! rexxcps built successfully
+[mark@beaver imc]$ ./rexxcps
+----- REXXCPS 2.1 -- Measuring REXX clauses/second -----
+ REXX version is: REXX/imc-beta-1.7 4.00 8 Feb 1999
+       System is: UNIX
+       Averaging: 10 measures of 30 iterations
+
+     Performance: 68430 REXX clauses per second
+
+------------------------------ end of sample -----------------------------
+
+Win32 Platform Notes:
+====================
+
+Most of the compilers on the windows platform produce libraries that are
+incompatible with one another. If using Regina, it is better to build the Regina
+libraries with the compiler you are using to wrap your Rexx code.
+However its not as simple as this :-( For example, it is possible to wrap a
+Rexx program with the Borland Compiler, using the regina.lib built for the
+Borland compiler, and the resulting program will run with the regina.dll built
+with the Microsoft Compiler.
+
+The standard binary distribution of Regina for Win32 is built with the Microsoft
+Compiler.
+
+Supported C compilers:
+=====================
+Rexx/Wrapper supports the following C compilers:
+
+Unix
+----
+Any commercial ANSI C compiler and GNU C; cc, c89, gcc, egcs, xlc
+GNU C compilers - start at:
+http://gcc.gnu.org/
+
+OS/2
+----
+EMX - Available from:
+ftp://ftp.leo.org/pub/comp/os/os2/leo/gnu/emx+gcc/
+ftp://ftp-os2.cdrom.com/pub/os2/emx09d/
+
+Open Watcom:
+http://www.openwatcom.org
+
+DOS/VCPI
+--------
+EMX - OS/2 hosted - see above for location
+
+DOS/DPMI
+--------
+DJGPP - Available from:
+http://delorie.com/djgpp/
+
+WIN32
+-----
+CygnusWin32 - Available from:
+http://sourceware.cygnus.com/cygnus/
+http://www.xraylith.wisc.edu/~khan/software/gnu-win32/
+
+MingW32 - Available from:
+http://www.xraylith.wisc.edu/~khan/software/gnu-win32/
+
+lcc-win32 Available from:
+http://www.cs.virginia.edu/~lcc-win32/
+
+Borland C++ 5.5:
+http://www.borland.com/bcppbuilder/freecompiler/
+
+Open Watcom:
+http://www.openwatcom.org
+
+Commercial compilers:
+Microsoft Visual C++ 5.0+
+Watcom C/C++ 10.6+
+
+QNX
+---
+Watcom C/C++ 10.6
+
+Acknowlegements
+===============
+All compression code in the zlib directory is Copyright (C) 1995-1998
+Jean-loup Gailly and Mark Adler.
+
+All encryption code in the des directory is Copyright (C) 1995-1997
+Eric Young (eay@cryptsoft.com).
