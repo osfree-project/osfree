@@ -27,7 +27,7 @@ PROJ = $(PROJ0)$(EXE_SUF)
 
 DESC = OS/2 Personality Server
 DEST = .
-DIRS = kal Shared $(ARCH) test
+DIRS = kal Shared $(ARCH)
 srcfiles = $(p)main$(e)
 # defines additional options for C compiler
 INSTALL_ADD = 1

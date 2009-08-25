@@ -28,7 +28,9 @@ DIRS = test01 &
        test21 &
        test22 &
        test23 &
-       test24
+       test24 &
+       test25 &
+       test26
 
 !include $(%ROOT)/mk/all.mk
 
