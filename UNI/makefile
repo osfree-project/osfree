@@ -65,6 +65,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosmonitors.h &
      $(OUT)$(SEP)os2$(SEP)dosprocess.h &
+     $(OUT)$(SEP)os2$(SEP)dosdevioctl.h &
      $(OUT)$(SEP)os2$(SEP)dosprofile.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphores.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphorescommon.h &
@@ -228,6 +229,8 @@ $(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)dosmvdm.uni
 $(OUT)$(SEP)os2$(SEP)dossesmgr.h: os2$(SEP)dossesmgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dosnls.h: os2$(SEP)dosnls.uni
+
+$(OUT)$(SEP)os2$(SEP)dosdevioctl.h: os2$(SEP)dosdevioctl.uni
 
 $(OUT)$(SEP)os2$(SEP)dosqueues.h: os2$(SEP)dosqueues.uni
 

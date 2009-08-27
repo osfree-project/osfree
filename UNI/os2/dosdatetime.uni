@@ -24,6 +24,24 @@ abi os2386;
 
    function   DosStopTimer(in htimer: HTIMER): APIRET;
 
-uses dosdatetimecommon default;
+   (*** Time support *)
+
+   type DATETIME=structure      (* date *)
+         hours: UCHAR;
+         minutes: UCHAR;
+         seconds: UCHAR;
+         hundredths: UCHAR;
+         day: UCHAR;
+         month: UCHAR;
+         year: USHORT;
+         timezone: SHORT;
+         weekday: UCHAR;
+   end;
+
+   type PDATETIME=^DATETIME;
+
+   function   DosGetDateTime(out pdt: DATETIME): APIRET;
+
+   function   DosSetDateTime(in pdt: PDATETIME): APIRET;
 
 end.
