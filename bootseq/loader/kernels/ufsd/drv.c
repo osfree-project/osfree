@@ -10,6 +10,7 @@ int grub_strcmp (const char *s1, const char *s2);
 int grub_memcmp (const char *s1, const char *s2, int n);
 int kprintf(const char *format, ...);
 int rawread (int drive, int sector, int byte_offset, int byte_len, char *buf);
+int get_disk_type(int driveno, int *status);
 
 #define PART_TABLE_OFFSET 0x1be
 
@@ -20,8 +21,10 @@ extern struct multiboot_info *m;
 
 // danidasd supported partition types
 char default_part_types[] = {
-  0x01, 0x04, 0x06, 0x07, 0x0b, 0x0c, 0x0e, 0x35, 0x83, 0
+  0x01, 0x04, 0x06, 0x07, 0x0b, 0x0c, 0x0e, 0
 };
+
+char part_types[0x20];
 
 // get the number of drive letters for supported partitions
 // on the drive with BIOS drive number 'diskno'
@@ -49,7 +52,7 @@ int get_num_parts(int diskno)
     if (pte[4] == 0x5 || pte[4] == 0xf)
       ext = pte;
     else // if part type is supported
-      for (p = default_part_types; *p; p++) if (pte[4] == *p)
+      for (p = part_types; *p; p++) if (pte[4] == *p)
       {
         kprintf("found a supported partition of type: 0x%02x\n", pte[4]);
         parts++;
@@ -81,7 +84,7 @@ int get_num_parts(int diskno)
       if (pte[4] == 0x5 || pte[4] == 0xf)
         ext = pte;
       else // if part type is supported
-        for (p = default_part_types; *p; p++) if (pte[4] == *p)
+        for (p = part_types; *p; p++) if (pte[4] == *p)
         {
           kprintf("found a supported partition of type: 0x%02x\n", pte[4]);
           parts++;
@@ -100,7 +103,9 @@ int assign_auto(void)
   int n, i = 0, l;
   int len;
   int diskno;
-  int num_letters = 0;
+  int num_letters = -1;
+  int status;
+  int rc;
   struct drive_info *drives[16];
   unsigned short *pport;
   unsigned char fixed_disks;
@@ -121,15 +126,18 @@ int assign_auto(void)
     drv = (struct drive_info *)m->drives_addr;
     len = m->drives_length;
 
-    while (len > 0)
+    for (; len > 0; len -= drv->size,
+         drv = (struct drive_info *)((char *)drv + drv->size))
     {
       diskno = drv->drive_number;
+      if ((diskno & 0x7f) + 1 > fixed_disks) continue;
       n = get_num_parts(diskno);
-      if (diskno != 0x80) num_letters += n;
+      rc = get_disk_type(diskno, &status);
+      if (!rc && (status == 0x3)) num_letters += n; // if it is a harddisk
+      // when booting from removable, add its drv. letter
+      if (!rc && (status == 0x2) && !(diskno & 0x7f)) num_letters++;
       kprintf("drive: %x, num of partitions: %u\n", diskno, n);
-      i++;
-      len -= drv->size;
-      drv = (struct drive_info *)((char *)drv + drv->size);
+      kprintf("rc = %lu, status=0x%lx\n", rc, status);
     }
   }
 
@@ -153,7 +161,7 @@ int assign_drvletter (char *mode)
   int letter = 'C';
 
   kprintf("mode=%s\n", mode);
-  
+
   if (!*mode) // if mode is not set
   {
     // set defaults

@@ -128,7 +128,7 @@ int far pascal _loadds FS_INIT(
   }
   p = (char far *)MAKEP(selector, 0);
   //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
-  for (i = 0; i < 0x2c77; i++) kprintf("0x%02x,", p[i]);
+  //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", p[i]);
   kprintf("\n");
 
   return NO_ERROR;

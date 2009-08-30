@@ -17,6 +17,7 @@ public ft
 public stack_bottom
 public force_lba
 
+public get_disk_type_
 public com_outchar
 public port
 public _debug
@@ -157,6 +158,29 @@ loo1:
 exitXX:
                    ret
 
+get_disk_type_rm:
+                   push ecx
+
+                   mov  dx, bx
+                   mov  ax, 15ffh
+                   mov  cx, 0ffffh
+
+                   int  13h
+
+                   xor  ebx, ebx
+                   xor  edx, edx
+                   mov  bl, ah
+                   jc   err1
+                   mov  dl, 0
+                   jmp  ret1
+err1:
+                   mov  dl, 1
+
+ret1:
+                   pop  ecx
+
+                   retf
+
 _small_code_  dd 0
 
 _TEXT16  ends
@@ -267,6 +291,35 @@ set_gdt:
                    mov  [ebx].g_limit, 10*8 - 1
 
                    lgdt fword ptr [ebx]
+
+                   ret
+
+                   ;
+                   ; int check_disk(int driveno, int *status);
+                   ;
+                   ; (check if the BIOS drive number is valid)
+                   ;
+get_disk_type_:
+                   push ebx
+                   push ecx
+                   push edx
+
+                   mov  ebx, eax
+                   mov  ecx, edx
+
+                   mov     eax, REL1_BASE
+                   shl     eax, 12
+                   mov     ax,  offset _TEXT16:get_disk_type_rm
+                   push    eax
+                   call    call_rm
+                   add     esp, 4
+
+                   mov  eax, edx    ; return code
+                   mov  [ecx], ebx  ; status/error code
+
+                   pop  edx
+                   pop  ecx
+                   pop  ebx
 
                    ret
 

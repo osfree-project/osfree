@@ -29,6 +29,9 @@ where options are the following
 
 --speed=<...> specifies a commport speed, for example, '--port=115200'
 
+The standard comport parameters for bootos2 are: 8 bits, no parity, 1 stop bit. The default
+port is 0x3f8. The default port speed is 9600 baud.
+
 --drv=<drive letter|dlat|auto> specifies a drive letter assignment.
 
 a) '--drv=u:'     means to assign an 'u:' drive letter to the boot drive

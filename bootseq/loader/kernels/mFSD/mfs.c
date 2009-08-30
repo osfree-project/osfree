@@ -353,8 +353,8 @@ int far pascal _loadds MFS_INIT(
       mov  selector, ax
     }
     p = (char far *)MAKEP(selector, 0);
-    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
-    for (i = 0; i < 0x2c78; i++) kprintf("0x%02x,", *(p + i));
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+    //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", *(p + i));
     kprintf("\n");
 
     kprintf("comport = 0x%x\n", port);
@@ -428,8 +428,8 @@ int far pascal _loadds MFS_OPEN(
 
     kprintf("**** MFS_OPEN(\"%s\")", name);
 
-    fmemset(buf1, 0, sizeof(buf1));
-    fmemset(buf2, 0, sizeof(buf2));
+    memset(buf1, 0, sizeof(buf1));
+    memset(buf2, 0, sizeof(buf2));
 
     // get GDT selector to mbi structure
     rc = MFSH_PHYSTOVIRT(mbi, sizeof(struct multiboot_info), &sel);
@@ -454,8 +454,8 @@ int far pascal _loadds MFS_OPEN(
         s = (char far *)MAKEP(sel1, 0);
 
         // copy to buffers
-        fstrcpy(buf1, s);
-        fstrcpy(buf2, name);
+        strcpy(buf1, s);
+        strcpy(buf2, name);
 
         // deallocate a selector
         MFSH_UNPHYSTOVIRT(sel1);
@@ -534,7 +534,7 @@ int far pascal _loadds MFS_READ(
 
   if (fileaddr && data && *length)
   {
-    fmemmove(data, fileaddr, *length);
+    memmove(data, fileaddr, *length);
     filepos += *length;
   }
   else

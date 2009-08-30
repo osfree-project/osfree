@@ -29,6 +29,9 @@ extern stack_bottom;
 /* multiboot structure pointer */
 extern struct multiboot_info *m;
 
+extern char default_part_types[];
+extern char part_types[];
+
 int filemax;
 int filepos;
 int fileaddr;
@@ -126,7 +129,8 @@ ufs_open (char *filename)
     if (n == mods_count)
     {
       kprintf("0\n");
-      for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+      //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+      //kprintf("\n");
       return 0;
     }
 
@@ -136,12 +140,14 @@ ufs_open (char *filename)
     fileaddr = mod->mod_start;
 
     kprintf("1\n");
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+    //kprintf("\n");
     return 1;
   }
 
   kprintf("0\n");
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //kprintf("\n");
   return 0;
 }
 
@@ -158,14 +164,14 @@ ufs_read (char *buf, int len)
     memmove(buf, (char *)fileaddr + filepos, len);
 
     kprintf("%lu\n", len);
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-    kprintf("\n");
+    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+    //kprintf("\n");
     return len;
   }
 
   kprintf("0\n");
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-  kprintf("\n");
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //kprintf("\n");
 
   return 0;
 }
@@ -180,8 +186,8 @@ ufs_seek (int offset)
     return -1;
 
   filepos = offset;
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-  kprintf("\n");
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //kprintf("\n");
 
   return offset;
 }
@@ -192,8 +198,8 @@ ufs_close (void)
   int i;
   kprintf("**** ufs_close()\n");
 
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-  kprintf("\n");
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //kprintf("\n");
 }
 
 
@@ -202,11 +208,12 @@ void cmain (void)
   int  ldrbase, mfsbase = 0;
   int  ldrlen, mfslen = 0;
   char *buf;
+  char type[8];
   unsigned long *p;
   unsigned long q;
   struct geometry geom;
   bios_parameters_block *bpb;
-  long port = 0x3f8;
+  long port = 0x3f8, t;
   long speed = 9600;
   char *pp, *r;
   int  i;
@@ -231,6 +238,26 @@ void cmain (void)
       safe_parse_maxint(&pp, &speed);
     }
 
+    if (pp = strstr((char *)m->cmdline, "--pt"))
+    {
+      pp = skip_to(1, pp);
+      // copy default partition types
+      for (r = default_part_types, i = 0; *r; r++, i++) part_types[i] = *r;
+      // copy partition types specified on the command line
+      while (i <= 0x20)
+      {
+        // find part type end
+        for (r = pp; *r && *r != ' ' && *r != ','; r++) ;
+        //memmove(type, pp, r - pp);
+        //type[r - pp] = '\0';
+        safe_parse_maxint(&pp, &t);
+        part_types[i++] = t;
+        if (!*r || *r == ' ') break;
+        pp = r + 1;
+      }
+      part_types[i] = '\0';
+    }
+
     memset(mode, 0, sizeof(mode));
     if (pp = strstr((char *)m->cmdline, "--drv"))
     {
@@ -251,13 +278,16 @@ void cmain (void)
   kprintf("**** Hello MBI microfsd!\n");
   kprintf("comport = 0x%x\n", port);
 
+  kprintf("part_types=");
+  for (r = part_types; *r; r++) kprintf("0x%02x,", *r);
+  kprintf("\n");
+
   // set a drive letter according the DLAT info or AUTO algorithm
   drvletter = assign_drvletter(mode);
 
   // correct the command line according the drive letter got
   pp[0] = (char)drvletter;
-  pp[1] = ':';
-  for (i = 2; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
+  for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
 
   // load os2ldr
   if (ufs_open("OS2LDR"))
@@ -371,6 +401,6 @@ void cmain (void)
   //bpb->marker      = 0x41;
   //bpb->vol_ser_no  = 0x00000082;
   //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-  for (i = 0; i < 0x2c77; i++) kprintf("0x%02x,", *((char *)(0x7c0 + i)));
-  kprintf("\n");
+  //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", *((char *)(0x7c0 + i)));
+  //kprintf("\n");
 }
