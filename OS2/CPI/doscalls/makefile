@@ -26,9 +26,12 @@ ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 #OPTIONS = manyautodata
-IMPORTS = DosFSCtl        KAL.2, &
-	  DosWrite        KAL.3, &
-	  DosExit         KAL.4
+IMPORTS = DosFSCtl        KAL.KalFSCtl.2, &
+	  DosWrite        KAL.KalWrite.3, &
+	  DosExit         KAL.KalExit .4, &
+	  DosOpenL        KAL.KalOpenL.5, &
+	  DosWrite        KAL.KalWrite.6, &
+	  DosClose        KAL.KalClose.7
 
 EXPORTS = &
      DosICreateThread       .1, &
