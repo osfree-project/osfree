@@ -684,17 +684,6 @@ APIRET APIENTRY  DosSetFileSize(HFILE hFile,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY  DosOpen(PCSZ     pszFileName,
-                         PHFILE pHf,
-                         PULONG pulAction,
-                         ULONG  cbFile,
-                         ULONG  ulAttribute,
-                         ULONG  fsOpenFlags,
-                         ULONG  fsOpenMode,
-                         PEAOP2 peaop2)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
 APIRET APIENTRY  DosQueryCurrentDir(ULONG disknum,
                                     PBYTE pBuf,
@@ -1513,14 +1502,6 @@ APIRET APIENTRY      DosIODelayCnt(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY DosSetFileLocks(HFILE hFile,
-                                PFILELOCK pflUnlock,
-                                PFILELOCK pflLock,
-                                ULONG timeout,
-                                ULONG flags)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
 APIRET APIENTRY DosCancelLockRequest(HFILE hFile,
                                      PFILELOCK pflLock)
@@ -2333,18 +2314,6 @@ APIRET APIENTRY  DosProtectEnumAttribute(ULONG ulRefType,
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY  DosProtectOpen(PCSZ  pszFileName,
-                                PHFILE phf,
-                                PULONG pulAction,
-                                ULONG cbFile,
-                                ULONG ulAttribute,
-                                ULONG fsOpenFlags,
-                                ULONG fsOpenMode,
-                                PEAOP2 peaop2,
-                                PFHLOCK pfhFileHandleLockID)
-{
-  printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
 
 APIRET APIENTRY  DosProtectClose(HFILE hFile,
                                  FHLOCK fhFileHandleLockID)
