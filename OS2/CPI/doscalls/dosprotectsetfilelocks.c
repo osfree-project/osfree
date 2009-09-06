@@ -2,11 +2,11 @@
 #define INCL_ERRORS
 #include <os2.h>
 
-APIRET APIENTRY DosSetFileLocks(HFILE hFile,
-                                PFILELOCK pflUnlock,
-                                PFILELOCK pflLock,
-                                ULONG timeout,
-                                ULONG flags)
+APIRET APIENTRY DosProtectSetFileLocks(HFILE hFile,
+                                       PFILELOCK pflUnlock,
+                                       PFILELOCK pflLock,
+                                       ULONG timeout, ULONG flags,
+                                       FHLOCK fhFileHandleLockID)
 {
   FILELOCKL flUnlockL;
   FILELOCKL flLockL;
@@ -25,5 +25,5 @@ APIRET APIENTRY DosSetFileLocks(HFILE hFile,
   flLockL.lRange.ulLo=pflLock->lRange;
   flLockL.lRange.ulHi=0;
 
-  return DosSetFileLocksL(hFile, &flUnlockL, &flLockL, timeout, flags);
+  return DosProtectSetFileLocksL(hFile, &flUnlockL, &flLockL, timeout, flags, fhFileHandleLockID);
 }

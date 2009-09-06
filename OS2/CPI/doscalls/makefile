@@ -8,9 +8,16 @@ PROJ     = doscalls
 DESC     = Control Program API
 srcfiles = $(p)msg$(e) &
 	   $(p)doscopy$(e) &
+	   $(p)doscancellockrequest$(e) &
 	   $(p)dosopen$(e) &
+	   $(p)doslistio$(e) &
+	   $(p)dossetfileptr$(e) &
+	   $(p)dossetfilesize$(e) &
 	   $(p)dossetfilelocks$(e) &
 	   $(p)dosprotectopen$(e) &
+	   $(p)dosprotectsetfileptr$(e) &
+	   $(p)dosprotectsetfilesize$(e) &
+	   $(p)dosprotectsetfilelocks$(e) &
 	   $(p)dosquerysysinfo$(e) &
 	   $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
