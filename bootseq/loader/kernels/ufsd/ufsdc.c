@@ -9,6 +9,8 @@
 #include "fsd.h"
 #include "serial.h"
 
+int scrprintf(const char *format, ...);
+
 int serial_init (long port, long speed,
                 int word_len, int parity, int stop_bit_len);
 
@@ -83,6 +85,29 @@ char *strip(char *s)
   return p;
 }
 
+char *lastpos(const char *s1, const char *s2)
+{
+  const char *s = s1 + strlen(s1) - strlen(s2);
+
+  while (s >= s1)
+    {
+      const char *ptr, *tmp;
+
+      ptr = s;
+      tmp = s2;
+
+      while (*tmp && *ptr == *tmp)
+        ptr++, tmp++;
+
+      if (tmp > s2 && ! *tmp)
+        return (char *) s;
+
+      s--;
+    }
+
+  return 0;
+}
+
 int
 ufs_open (char *filename)
 {
@@ -91,7 +116,7 @@ ufs_open (char *filename)
   struct mod_list *mod;
   char buf1[0x100];
   char buf2[0x100];
-  char *p, *q;
+  char *p, *q, *l;
   int  n;
   int  i;
 
@@ -113,14 +138,30 @@ ufs_open (char *filename)
       strcpy(buf1, (char *)mod->cmdline);
       strcpy(buf2, filename);
 
+      // translate '/' to '\' in command line
+      for (p = buf1; *p; p++) if (*p == '/') *p = '\\';
+
       // make it uppercase
       for (p = buf1; *p; p++) *p = grub_toupper(*p);
       for (p = buf2; *p; p++) *p = grub_toupper(*p);
 
       p = strip(buf1); q = strip(buf2);
 
-      if (strstr(p, q))
-        break;
+      // skip a disk/partition
+      if (*p == '(')
+      {
+        while (*p && *p != ')') p++;
+        p++;
+      }
+
+      // skip a driveletter
+      if (q[1] == ':') q += 2;
+      if (*q == '\\')  q++;
+      if (*p == '\\')  p++;
+
+      l = lastpos(p, q);
+      if (l && ((p + strlen(p)) == (l + strlen(q))) && (l == p || l[-1] == ' '))
+          break;
 
       mod++;
     };
@@ -248,10 +289,7 @@ void cmain (void)
       {
         // find part type end
         for (r = pp; *r && *r != ' ' && *r != ','; r++) ;
-        //memmove(type, pp, r - pp);
-        //type[r - pp] = '\0';
-        safe_parse_maxint(&pp, &t);
-        part_types[i++] = t;
+        if (safe_parse_maxint(&pp, &t)) part_types[i++] = t;
         if (!*r || *r == ' ') break;
         pp = r + 1;
       }
@@ -282,12 +320,7 @@ void cmain (void)
   for (r = part_types; *r; r++) kprintf("0x%02x,", *r);
   kprintf("\n");
 
-  // set a drive letter according the DLAT info or AUTO algorithm
-  drvletter = assign_drvletter(mode);
-
-  // correct the command line according the drive letter got
-  pp[0] = (char)drvletter;
-  for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
+  kprintf("boot_device=%x\n", m->boot_device);
 
   // load os2ldr
   if (ufs_open("OS2LDR"))
@@ -327,6 +360,15 @@ void cmain (void)
     boot_drive = 0xff;
   }
 
+  // set a drive letter according the DLAT info or AUTO algorithm
+  kprintf("assing_drvletter() entered\n");
+  drvletter = assign_drvletter(mode);
+  kprintf("assing_drvletter() exited\n");
+
+  // correct the command line according the drive letter got
+  pp[0] = (char)drvletter;
+  for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
+
   if (get_diskinfo (boot_drive, &geom)
     || ! (geom.flags & BIOSDISK_FLAG_CDROM))
     cdrom_drive = GRUB_INVALID_DRIVE;
@@ -340,7 +382,7 @@ void cmain (void)
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
-  ft.ft_museg  = (REL1_BASE - 0x200 - 0x2000) >> 4;
+  ft.ft_museg  = (REL1_BASE - 0x200 - 0x2000 - 0x1000) >> 4;
   ft.ft_mulen  = (unsigned long)&stack_bottom - REL1_BASE + 0x200 + 0x2000;
 
   ft.ft_mfsseg = 0x7c0 >> 4;

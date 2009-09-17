@@ -137,7 +137,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
               return KERNEL_TYPE_NONE;
             }
           type = KERNEL_TYPE_MULTIBOOT;
-          str2 = "Multiboot";
+          str2 = "kernel-mboot";
           break;
         }
     }
@@ -239,7 +239,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   m->syms.a.addr = 0;
   m->syms.a.pad = 0;
 
-  printf ("   [%s-%s", str2, str);
+  printf ("   * %s-%s: '%s'", str2, str, kernel);
 
   str = "";
 
@@ -498,7 +498,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
   if (! errnum)
     {
-      printf (", entry=0x%x]\r\n", (unsigned) entry_addr);
+      printf (", entry=0x%x\r\n", (unsigned) entry_addr);
 
       /* If the entry address is physically different from that of the ELF
          header, correct it here.  */
@@ -558,11 +558,11 @@ load_module (char *module, char *arg)
       return 0;
     }
 
-  printf("cur_addr=0x%x\r\n", cur_addr);
+  //printf("cur_addr=0x%x\r\n", cur_addr);
 
   len = u_read ((char *) cur_addr, size);
 
-  printf("read 0x%x bytes\r\n", len);
+  //printf("read 0x%x bytes\r\n", len);
 
   if (! len)
     {
@@ -570,7 +570,7 @@ load_module (char *module, char *arg)
       return 0;
     }
 
-  printf ("   [Multiboot-module @ 0x%x, 0x%x bytes]\r\n", cur_addr, len);
+  printf ("   * mod '%s' @ 0x%x, 0x%x bytes\r\n", module, cur_addr, len);
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;
@@ -602,7 +602,7 @@ create_vbe_module(void *ctrl_info, int ctrl_info_len,
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
-  printf ("   [VESA %d.%d info @ 0x%x, 0x%x bytes]\r\n",
+  printf ("   * VESA %d.%d info @ 0x%x, 0x%x bytes\r\n",
       version >> 8, version & 0xFF,
       cur_addr, ctrl_info_len + mode_info_len);
 
@@ -630,7 +630,7 @@ create_lip_module(lip2_t **l)
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
-  printf("   [Lip-module @ 0x%x, 0x%x bytes]\r\n",
+  printf("   * lip-mod @ 0x%x, 0x%x bytes\r\n",
          cur_addr, sizeof(lip2_t));
 
   lip2_len = sizeof(lip2_t);
@@ -819,11 +819,11 @@ create_bs_module(char *module)
       return 0;
     }
 
-  printf("cur_addr=0x%x\r\n", cur_addr);
+  //printf("cur_addr=0x%x\r\n", cur_addr);
 
   len = u_read ((char *) cur_addr, size);
 
-  printf("read 0x%x bytes\r\n", len);
+  //printf("read 0x%x bytes\r\n", len);
 
   if (! len)
     {
@@ -831,7 +831,7 @@ create_bs_module(char *module)
       return 0;
     }
 
-  printf ("   [Bs-module @ 0x%x, 0x%x bytes]\r\n", cur_addr, len);
+  printf ("   * bs-mod @ 0x%x, 0x%x bytes\r\n", cur_addr, len);
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;

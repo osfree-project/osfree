@@ -122,14 +122,14 @@ int far pascal _loadds FS_INIT(
 
   DevHlp = DevHelp;
 
-  __asm {
-    mov  ax, cs
-    mov  selector, ax
-  }
-  p = (char far *)MAKEP(selector, 0);
+  //__asm {
+  //  mov  ax, cs
+  //  mov  selector, ax
+  //}
+  //p = (char far *)MAKEP(selector, 0);
   //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
   //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", p[i]);
-  kprintf("\n");
+  //kprintf("\n");
 
   return NO_ERROR;
 }
@@ -334,13 +334,13 @@ int far pascal _loadds FS_MOUNT(
 
   kprintf("**** FS_MOUNT\n");
 
-  __asm {
-    mov  ax, cs
-    mov  selector, ax
-  }
-  p = (char far *)MAKEP(selector, 0);
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
-  kprintf("\n");
+  //__asm {
+  //  mov  ax, cs
+  //  mov  selector, ax
+  //}
+  //p = (char far *)MAKEP(selector, 0);
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+  //kprintf("\n");
 
   if (flag)
     return ERROR_NOT_SUPPORTED;
@@ -549,7 +549,7 @@ int far pascal _loadds FS_PROCESSNAME(
 
     kprintf("FS_PROCESSNAME: %s\n", pNameBuf);
   }
-  if (drvflag) pNameBuf[0] = 'V';
+  //if (drvflag) pNameBuf[0] = 'V';
 
   return NO_ERROR;
 }

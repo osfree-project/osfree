@@ -611,7 +611,7 @@ u_termctl(int termno)
 
   if (blackbox_load(term, 2, &trm))
   {
-    printf("terminal loaded\r\n");
+    printf("\r\nterminal loaded\r\n");
     if (trm.flags == TERM_NEED_INIT)
       trm.startup();
   }
@@ -660,9 +660,9 @@ freeldr_open (char *filename)
    if (*filename == '(' && (p = strstr(filename + 1, ")")) &&
       (p - filename < 9) && strlen(filename) == p - filename + 1)
    {
-     printf("rt %s\r\n", filename);
+     //printf("rt %s\r\n", filename);
      rc = mkroot(filename);
-     if (rc) printf(" failed!\r\n");
+     //if (rc) printf(" failed!\r\n");
      return !rc;
    }
 
@@ -708,7 +708,7 @@ freeldr_open (char *filename)
        grub_strcpy(buf + i0, filename);
      }
 
-     printf("o %s", buf);
+     //printf("o %s", buf);
      //u_msg("o ");
      //u_msg(filename);
      //u_msg("\r\n");
@@ -747,10 +747,10 @@ freeldr_open (char *filename)
        }
      }
 
-     if (!rc)
-       printf(" fail!");
+     //if (!rc)
+     //  printf(" fail!");
 
-     printf("\r\n");
+     //printf("\r\n");
 
      return rc;
    }
@@ -764,7 +764,7 @@ freeldr_read (char *buf, int len)
 {
    int rc;
 #ifndef STAGE1_5
-   printf("r 0x%x %d", buf, len);
+   //printf("r 0x%x %d", buf, len);
    if (filetab_ptr)
    {
      // use 16-bit uFSD
@@ -777,7 +777,7 @@ freeldr_read (char *buf, int len)
      rc = grub_read(buf, len);
    }
 #ifndef STAGE1_5
-   printf(" sz %d\r\n", rc);
+   //printf(" sz %d\r\n", rc);
 #endif
    return rc;
 }
@@ -1601,6 +1601,7 @@ int init(void)
   grub_strcpy(cfg, preldr_path);
   grub_strcpy(cfg + rc, cfg_file);
 
+
   /* parse config file */
   process_cfg_line = process_cfg_line1;
   if (!(rc = process_cfg(cfg)))
@@ -1611,6 +1612,7 @@ int init(void)
   {
     panic("Load error!", "");
   }
+
 
   relshift = 0;
   //init_term();
@@ -1646,6 +1648,7 @@ int init(void)
   if (conf.multiboot == 1) {
     /* return to loader from protected mode */
     unsigned long ldr_base = conf.loader.base;
+    printf("]");
 
     __asm {
       mov  dx, boot_flags

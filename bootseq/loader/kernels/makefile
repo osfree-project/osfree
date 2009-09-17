@@ -42,7 +42,7 @@ ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)
 
-ADD_COPT   = -dOS2 -dMINIFSD
+ADD_COPT   = -dOS2 -dMINIFSD -dMB_KERN
 ADD_ASMOPT = -i=$(PATH)
 CLEAN_ADD  = ufsd.inc mfsd.inc urel.inc
 
@@ -114,28 +114,22 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .inc: $(PATH)
 
 $(PATH)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)modesw-npl.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
-
-$(PATH)modesw-npo.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)modesw-npc.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)modesw-npl.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x8000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
-
-$(PATH)modesw-npo.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- $(ASM) -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- $(ASM) -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ $(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .rel: $(PATH)ufsd
 #.dll: $(PATH)mFSD

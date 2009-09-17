@@ -164,6 +164,10 @@ rmode_switch proc far
         mov  eax, cr0
         and  al,  0feh
         mov  cr0, eax
+
+;ifndef STAGE1_5
+;        call set_rm_idt
+;endif
         ; set segment registers
         mov  eax, base
         shr  eax, 4
@@ -203,6 +207,10 @@ rmode1:
         mov  eax, cr0
         or   al, 1
         mov  cr0, eax
+
+;ifndef STAGE1_5
+;        call set_pm_idt
+;endif
         ; load segment registers
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -269,8 +277,12 @@ pmode   proc far
         mov  ss, ax
 
         ; Get protected mode stack
+;ifdef MICROFSD
+;extrn   __sp     :word
+;        mov  ds:__sp, sp
+;else
         mov  word ptr ds:[RMSTACK], sp
-
+;endif
         mov  eax, dword ptr ds:[PROTSTACK]
         mov  esp, eax
 
@@ -306,8 +318,14 @@ endif
         ;mov  ax, word ptr ds:[RMSTACK + 2]
         mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
+
         xor  eax, eax
+
+;ifdef MICRFSD
+;        mov  ax, ds:__sp
+;else
         mov  ax, word ptr ds:[RMSTACK]
+;endif
         ;mov  ax,  0e000h
         mov  esp, eax
 
@@ -344,7 +362,6 @@ call_rm proc near
 ifndef STAGE1_5
         call set_rm_idt
 endif
-
         ; set segment registers
         ; and switch stack to 16-bit
         mov  eax, esp
@@ -360,17 +377,27 @@ endif
 ;endif
 ;        mov  esp, eax
 
-ifdef MB_KERN
+ifdef MICROFSD
 extrn   stack_bottom   :byte
+extrn   __sp           :word
+        xor  eax, eax
+        mov  ax, ds:__sp
+        test ax, ax
+        jnz  restor
         ; setup stack
         mov  eax, offset _TEXT:stack_bottom - REL1_BASE
+restor:
         mov  esp, eax
 else
+ifdef MB_KERN
         mov  esp, 8000h
-endif
-
+else
         ; Get real mode stack
-        ;mov  sp, word ptr ds:[RMSTACK]
+        xor  eax, eax
+        mov  ax, word ptr ds:[RMSTACK]
+        mov  esp, eax
+endif
+endif
 
 
         mov  ax, PSEUDO_RM_DSEG
@@ -400,7 +427,9 @@ endif
         ;mov  word ptr ds:[RMSTACK + 2], ax
         ;mov  ax, sp
         ;mov  word ptr ds:[RMSTACK], ax
-
+ifdef   MICROFSD
+        mov  ds:__sp, sp
+endif
         mov  ax, PROT_MODE_DSEG
         mov  ss, ax
 
@@ -477,7 +506,7 @@ ifdef BLACKBOX
 PSEUDO_RM_CSEG  equ 30h
 PSEUDO_RM_DSEG  equ 38h
 else
-ifdef MB_KERN
+ifdef MICROFSD
 ; selectors for real-mode part of multiboot kernels
 PSEUDO_RM_CSEG  equ 40h
 PSEUDO_RM_DSEG  equ 48h

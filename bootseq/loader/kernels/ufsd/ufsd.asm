@@ -6,6 +6,7 @@
 
 name microfsd
 
+public __sp
 public m
 public base
 public realmode_init
@@ -196,7 +197,6 @@ entry0:
                    ; loader from multiboot header
                    ;
 entry:
-
                    cmp     eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
                    jne     stop                                        ; is present in eax
 
@@ -295,7 +295,7 @@ set_gdt:
                    ret
 
                    ;
-                   ; int check_disk(int driveno, int *status);
+                   ; int get_disk_type(int driveno, int *status);
                    ;
                    ; (check if the BIOS drive number is valid)
                    ;
@@ -336,6 +336,7 @@ _TEXT    ends
 _DATA    segment dword public 'DATA'  use32
 
 m        dd  ?
+__sp     dw  0
 
 _DATA    ends
 

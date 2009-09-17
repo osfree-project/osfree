@@ -822,7 +822,7 @@ KernelLoader(void)
   char *cfg = "/boot/loader/boot.cfg";
   int rc;
 
-  printf("Kernel loader started.\r\n");
+  printf("\r\nKernel loader started.\r\n");
 
   // exec the config file
   rc = exec_cfg(cfg);

@@ -172,7 +172,7 @@ biosdisk_int13_extensions proc near
 ifdef REAL_BASE
         mov     eax, REAL_BASE
 else
-ifdef MB_KERN
+ifdef MICROFSD
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
@@ -235,7 +235,7 @@ biosdisk_standard proc near
 ifdef REAL_BASE
         mov     eax, REAL_BASE
 else
-ifdef MB_KERN
+ifdef MICROFSD
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
@@ -283,7 +283,7 @@ check_int13_extensions proc near
 ifdef REAL_BASE
         mov     eax, REAL_BASE
 else
-ifdef MB_KERN
+ifdef MICROFSD
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE
@@ -326,7 +326,7 @@ get_diskinfo_standard proc near
 ifdef REAL_BASE
         mov     eax, REAL_BASE
 else
-ifdef MB_KERN
+ifdef MICROFSD
         mov     eax, REL1_BASE
 else
         mov     eax, STAGE0_BASE

@@ -31,6 +31,7 @@ ifndef STAGE1_5
 
 message:
         cld
+        push    ds
         push    ebx
         push    esi
         ; convert FLAT pointer in esi
@@ -55,6 +56,7 @@ mess1:
 
         pop     esi
         pop     ebx
+        pop     ds
 
         retf
 
@@ -120,13 +122,18 @@ printmsg proc near
         ;mov     esi, [ebp + 8]
         mov     esi, eax
         ; enter real mode
+ifdef MICROFSD
+        mov     eax, REL1_BASE
+else
         mov     eax, STAGE0_BASE
+endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:message
         push    eax
         xor     eax, eax
         call    call_rm
         add     esp, 4
+
         pop     esi
 
         ;pop     ebp
@@ -146,7 +153,11 @@ printb  proc near
         ;mov     esi, [ebp + 8]
         mov     esi, eax
         ; enter real mode
+ifdef MICROFSD
+        mov     eax, REL1_BASE
+else
         mov     eax, STAGE0_BASE
+endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:printhex2
         push    eax
@@ -172,7 +183,11 @@ printw  proc near
         ;mov     esi, [ebp + 8]
         mov     esi, eax
         ; enter real mode
+ifdef MICROFSD
+        mov     eax, REL1_BASE
+else
         mov     eax, STAGE0_BASE
+endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:printhex4
         push    eax
@@ -198,7 +213,11 @@ printd  proc near
         ;mov     esi, [ebp + 8]
         mov     esi, eax
         ; enter real mode
+ifdef MICROFSD
+        mov     eax, REL1_BASE
+else
         mov     eax, STAGE0_BASE
+endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:printhex8
         push    eax

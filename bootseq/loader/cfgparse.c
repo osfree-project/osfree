@@ -148,6 +148,7 @@ int process_cfg(char *cfg)
     printf("Cannot open config file!\r\n");
     return 0;
   }
+
   u_close();
 
   //grub_memset(s, 0, sizeof(s));
@@ -169,7 +170,7 @@ int process_cfg(char *cfg)
       printf("process_cfg(): read returned zero bytes\r\n");
       return 0;
     }
-    
+
     sz -= rd;
     bytes_read += rd;
 

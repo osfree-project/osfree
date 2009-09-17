@@ -190,6 +190,29 @@ typedef int far pascal (*open_t)(struct cdfsi far *pcdfsi,
 void serout(char *s);
 int kprintf(const char *format, ...);
 
+char *lastpos(const char *s1, const char *s2)
+{
+  const char *s = s1 + strlen(s1) - strlen(s2);
+
+  while (s >= s1)
+    {
+      const char *ptr, *tmp;
+
+      ptr = s;
+      tmp = s2;
+
+      while (*tmp && *ptr == *tmp)
+        ptr++, tmp++;
+
+      if (tmp > s2 && ! *tmp)
+        return (char *) s;
+
+      s--;
+    }
+
+  return 0;
+}
+
 // refresh fileaddr value with
 // filepos change
 void advance_ptr(void)
@@ -353,7 +376,7 @@ int far pascal _loadds MFS_INIT(
       mov  selector, ax
     }
     p = (char far *)MAKEP(selector, 0);
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
     //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", *(p + i));
     kprintf("\n");
 
@@ -408,7 +431,7 @@ int far pascal _loadds MFS_INIT(
       mov  selector, ax
     }
     p = (char far *)MAKEP(selector, 0);
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
+    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1387 + i));
     kprintf("\n");
 
     return NO_ERROR;
@@ -469,27 +492,21 @@ int far pascal _loadds MFS_OPEN(
 
         p = strip(buf1); q = strip(buf2);
 
-        //if (q[1] == ':') q += 2; // skip drive letter
-
-        //kprintf("p: %s\n", p);
-
+        // skip a disk/partition
         if (*p == '(')
         {
           while (*p && *p != ')') p++;
           p++;
         }
 
-        if (!strcmp(p, q))   // with starting '\\'
+        // skip a driveletter
+        if (q[1] == ':') q += 2;
+        if (*q == '\\')  q++;
+        if (*p == '\\')  p++;
+
+        l = lastpos(p, q);
+        if (l && ((p + strlen(p)) == (l + strlen(q))) && (l == p || l[-1] == ' '))
             break;
-
-        if (*p == '\\') p++;
-
-        if (!strcmp(p, q))   // without starting '\\'
-            break;
-
-        //l = strstr(p, q); /* (cd)/os2/boot/bvhvga.dll bvhvga; (hd0,0)0+0x200 *bootsec* */
-        //if (l && ((p + strlen(p)) == (l + strlen(q))))
-        //    break;
 
         mod++;
       };
@@ -728,7 +745,7 @@ int far pascal _loadds MFS_TERM(void)
       if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
 
       kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
-              save_pos->ulOpenMode & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+              save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
               save_pos->usOpenFlag);
       kprintf("ifs FS_OPENCREATE(\"%s\")", str);
       if(!(rc = (*p_open)(&cdfsi,
@@ -737,7 +754,7 @@ int far pascal _loadds MFS_TERM(void)
                           -1, // not 0 -- needed by ext2_os2.ifs
                           save_pos->psffsi,
                           save_pos->psffsd,
-                          save_pos->ulOpenMode & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+                          save_pos->ulOpenMode,  // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
                           save_pos->usOpenFlag,
                           &usAction,             //dummy address
                           0,
