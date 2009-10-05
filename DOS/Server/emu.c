@@ -42,20 +42,6 @@
 
 #include "config.h"
 
-#ifndef __ELF__
-/*
- * DANG_BEGIN_FUNCTION jmp_emulate
- *
- * description: This function allows the startup program `dos` to know how to
- * call the emulate function by way of the dll headers. Always make sure
- * that this line is the first of emu.c and link emu.o as the first object
- * file to the lib
- *
- * DANG_END_FUNCTION
- */
-__asm__("___START___: jmp _emulate\n");
-#endif
-
 #include <stdio.h>
 #ifndef __OS2__
 #include <termios.h>
@@ -132,12 +118,7 @@ __asm__("___START___: jmp _emulate\n");
 #include "keyb_server.h"
 #include "keyb_clients.h"
 
-#ifdef USE_SBEMU
-#include "sound.h"
-#endif
-#ifdef X86_EMULATOR
 #include "cpu-emu.h"
-#endif
 
 sigjmp_buf NotJEnv;
 
@@ -247,9 +228,6 @@ void do_liability_disclaimer_prompt(int dosboot, int prompt)
   char *disclaimer_file_name;
   static char text[] =
   "\nWelcome to DOSEMU "VERSTR", a DOS emulator"
-#ifdef __linux__
-    " for Linux"
-#endif
   ".\nCopyright (C) 1992-2006 the 'DOSEMU-Development-Team'.\n"
   "This program is  distributed  in  the  hope that it will be useful,\n"
   "but  WITHOUT  ANY  WARRANTY;   without even the implied warranty of\n"
@@ -319,13 +297,8 @@ void do_liability_disclaimer_prompt(int dosboot, int prompt)
  * DANG_END_FUNCTION
  *
  */
-#ifdef __ELF__
-int
-main(int argc, char **argv)
-#else
 int
 emulate(int argc, char **argv)
-#endif
 {
     char *signalstack[16384];
     int e;
@@ -343,8 +316,6 @@ emulate(int argc, char **argv)
         _exit(1);               /* just in case */
     }
 
-                setlocale(LC_ALL,"");
-
     /* NOW! it is safe to touch the priv code.  */
     priv_init();  /* This must come first! */
 
@@ -352,7 +323,7 @@ emulate(int argc, char **argv)
      * we pre-filter some dangerous options and delete them
      * from the arguments list
      */
-    secure_option_preparse(&argc, argv);
+    //secure_option_preparse(&argc, argv);
 
     /* This has to come next:
      * Parse dosemu.users _before_ any argument usage to catch
@@ -360,16 +331,16 @@ emulate(int argc, char **argv)
      * Additionally, we check a non-suid root condition, if dosemu.user
      * says so and exit if needed.
      */
-    parse_dosemu_users();
+    //parse_dosemu_users();
 
     /* the transposal of (config_|stdio_)init allows the addition of -o */
     /* to specify a debug out filename, if you're wondering */
 
-    get_time_init();            /* debug can use CPUtime */
-    io_select_init();
-    port_init();                /* setup port structures, before config! */
-    version_init();             /* Check the OS version */
-    config_init(argc, argv);    /* parse the commands & config file(s) */
+    //get_time_init();            /* debug can use CPUtime */
+    //io_select_init();
+    //port_init();                /* setup port structures, before config! */
+    //version_init();             /* Check the OS version */
+    //config_init(argc, argv);    /* parse the commands & config file(s) */
 #ifdef X86_EMULATOR
 #ifdef DONT_DEBUG_BOOT          /* cpuemu only */
     memcpy(&debug_save, &debug, sizeof(debug));
@@ -379,20 +350,17 @@ emulate(int argc, char **argv)
 #endif
 #endif
 #endif
-    get_time_init();
-    stdio_init();               /* initialize stdio & open debug file */
+    //get_time_init();
+    //stdio_init();               /* initialize stdio & open debug file */
     print_version();            /* log version information */
-    module_init();
-    time_setting_init();        /* get the startup time */
+    //module_init();
+    //time_setting_init();        /* get the startup time */
     cpu_setup();                /* setup the CPU */
-    pci_setup();
-    device_init();              /* priv initialization of video etc. */
-    extra_port_init();          /* setup ports dependent on config */
+    //pci_setup();
+    //device_init();              /* priv initialization of video etc. */
+    //extra_port_init();          /* setup ports dependent on config */
     SIG_init();                 /* priv part of the signal init */
-    pkt_priv_init();
-
-    /* here we include the hooks to possible plug-ins */
-    #include "plugin_init.h"
+    //pkt_priv_init();
 
     if (config.exitearly) {
       dbug_printf("Leaving DOS before booting\n");
@@ -421,18 +389,18 @@ emulate(int argc, char **argv)
     if (!config.X)
         install_dos(0);
 
-    HMA_init();                 /* HMA can only be done now after mapping
-                                   is initialized*/
+    //HMA_init();                 /* HMA can only be done now after mapping
+    //                               is initialized*/
     memory_init();              /* initialize the memory contents */
     /* iodev_init() can load plugins, like SDL, that can spawn a thread.
      * This must be done before initializing signals, or problems ensue.
      * This also must be done when the signals are blocked, so after
      * the io_select_init(), which right now blocks the signals. */
-    iodev_init();               /* initialize devices */
+    //iodev_init();               /* initialize devices */
     signal_init();              /* initialize sig's & sig handlers */
-    ems_init();                 /* initialize ems */
-    xms_init();                 /* initialize xms */
-    dpmi_setup();
+    //ems_init();                 /* initialize ems */
+    //xms_init();                 /* initialize xms */
+    //dpmi_setup();
 
     if (not_use_sigio)
         k_printf("Atleast 1 NON-SIGIO file handle in use.\n");
@@ -445,7 +413,7 @@ emulate(int argc, char **argv)
 #ifdef USE_MHPDBG
     mhp_debug(DBG_INIT, 0, 0);
 #endif
-    timer_interrupt_init();     /* start sending int 8h int signals */
+    //timer_interrupt_init();     /* start sending int 8h int signals */
 
     /* remap conventional memory just before booting */
     mmap_mapping(MAPPING_LOWMEM, 0, config.mem_size * 1024,
