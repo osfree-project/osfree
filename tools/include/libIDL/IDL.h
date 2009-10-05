@@ -24,12 +24,14 @@
 #ifndef __IDL_H
 #define __IDL_H
 
-#ifdef __OS2__
-#include <os2.h>
-#else
-#define TRUE 1
-#define FALSE 0
+#ifndef TRUE
+  #define TRUE 1
 #endif
+
+#ifndef FALSE
+  #define FALSE 0
+#endif
+
 #include "gtypes.h"
 //#include "gquark.h"
 //#include "gthread.h"

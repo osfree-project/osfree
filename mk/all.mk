@@ -39,7 +39,7 @@ ASM_DEFS  = -zq -d__WATCOM__
 #
 COPT      = $(C_DEFS) $(ADD_COPT) &
             -i=$(MYDIR) -i=$(MYDIR).. &
-            -i=$(PATH)  -i=$(PATH).. 
+            -i=$(PATH)  -i=$(PATH)..
 #            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
@@ -65,7 +65,7 @@ LINKER    = @wlink
 # don't add the following option to all.mk
 # -----op internalrelocs----
 # as it breaks all non-LX executables, for ex., bootsectors
-LINKOPT   = op q libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
+LINKOPT   = libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
 
 LIB       = @wlib
 LIBOPT    = -q -n -fo
@@ -358,8 +358,8 @@ install: build
  @$(MAKE) $(MAKEOPT) install_pre
 !endif
 !ifneq DEST
- $(MDHIER) $(DEST)
- @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
+ -$(MDHIER) $(DEST)
+ for %i in ($(TARGETS)) do if exist %i $(CP) %i $(DEST)
 !endif
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add

@@ -38,3 +38,8 @@
 //#include "Si.rc"
 //#include "Tr.rc"
 //#include "Zh.rc"
+
+PROGMAN_ICON_INDEX ICON DISCARDABLE progman.ico
+1  ICON DISCARDABLE group.ico
+GROUP_ICON_INDEX   ICON DISCARDABLE group.ico
+//#define DEFAULT_ICON_INDEX 7

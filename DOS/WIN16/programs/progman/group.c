@@ -18,8 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#define WIN32_LEAN_AND_MEAN
-
 #include <stdio.h>
 #include <string.h>
 #include "windows.h"
@@ -66,7 +64,7 @@ ATOM GROUP_RegisterGroupWinClass(void)
   class.cbClsExtra    = 0;
   class.cbWndExtra    = sizeof(int);
   class.hInstance     = Globals.hInstance;
-  class.hIcon         = LoadIcon (0, IDI_WINLOGO);
+  class.hIcon         = Globals.hGroupIcon;
   class.hCursor       = LoadCursor (0, IDC_ARROW);
   class.hbrBackground = GetStockObject (WHITE_BRUSH);
   class.lpszMenuName  = 0;

@@ -416,13 +416,13 @@ MAIN_MENU MENU LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 {
  POPUP "&File" {
    MENUITEM "&New...",              PM_NEW
-   MENUITEM "O&pen\tEnter",             PM_OPEN
+   MENUITEM "&Open\tEnter",             PM_OPEN
    MENUITEM "&Move...\tF7",             PM_MOVE,      GRAYED
    MENUITEM "&Copy...\tF8",             PM_COPY,      GRAYED
    MENUITEM "&Delete\tEntf",           PM_DELETE
    MENUITEM "&Attributes...\tAlt+Enter",       PM_ATTRIBUTES
    MENUITEM SEPARATOR
-   MENUITEM "&Execute...",          PM_EXECUTE
+   MENUITEM "&Run...",          PM_EXECUTE
    MENUITEM SEPARATOR
    MENUITEM "E&xit Windows...",             PM_EXIT
  }

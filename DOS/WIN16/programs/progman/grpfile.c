@@ -19,12 +19,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#define WIN32_LEAN_AND_MEAN
-
 #include "windows.h"
-//#include "wine/winuser16.h"
 #include "progman.h"
 #include "mmsystem.h"
+
+#include "grpfile.h"
+
+#include <malloc.h>
+#include <string.h>
 
 #define MALLOCHUNK 1000
 
@@ -35,7 +37,7 @@
 #define PUT_SHORT(buffer, i, s)\
   (((buffer)[(i)] = (s) & 0xff, (buffer)[(i)+1] = ((s) >> 8) & 0xff))
 
-static BOOL   GRPFILE_ReadFileToBuffer(LPCSTR, HLOCAL*, int*);
+static BOOL   GRPFILE_ReadFileToBuffer(LPCSTR, LPSTR*, int*);
 static HLOCAL GRPFILE_ScanGroup(LPCSTR, int, LPCSTR, BOOL);
 static HLOCAL GRPFILE_ScanProgram(LPCSTR, int, LPCSTR, int,
                                   LPCSTR, HLOCAL,LPCSTR);
@@ -54,8 +56,8 @@ static VOID GRPFILE_ModifyFileName(LPSTR lpszNewName, LPCSTR lpszOrigName,
   lstrcpyn(lpszNewName, lpszOrigName, nSize);
   lpszNewName[nSize-1] = '\0';
   if (!bModify) return;
-  if (!lstrcmpi(lpszNewName + strlen(lpszNewName) - 4, ".grp"))
-    lpszNewName[strlen(lpszNewName) - 1] = '\0';
+  if (!lstrcmpi(lpszNewName + lstrlen(lpszNewName) - 4, ".grp"))
+    lpszNewName[lstrlen(lpszNewName) - 1] = '\0';
 }
 
 /***********************************************************************
@@ -68,7 +70,8 @@ HLOCAL GRPFILE_ReadGroupFile(LPCSTR lpszPath)
   char   szPath_gr[MAX_PATHNAME_LEN];
   BOOL   bFileNameModified = FALSE;
   OFSTRUCT dummy;
-  HLOCAL hBuffer, hGroup;
+  HLOCAL hGroup;
+  LPSTR  buffer;
   int    size;
 
   /* if `.gr' file exists use that */
@@ -80,19 +83,19 @@ HLOCAL GRPFILE_ReadGroupFile(LPCSTR lpszPath)
     }
 
   /* Read the whole file into a buffer */
-  if (!GRPFILE_ReadFileToBuffer(lpszPath, &hBuffer, &size))
+  if (!GRPFILE_ReadFileToBuffer(lpszPath, &buffer, &size))
     {
       MAIN_MessageBoxIDS_s(IDS_GRPFILE_READ_ERROR_s, lpszPath, IDS_ERROR, MB_YESNO);
       return(0);
     }
 
   /* Interpret buffer */
-  hGroup = GRPFILE_ScanGroup(LocalLock(hBuffer), size,
+  hGroup = GRPFILE_ScanGroup(buffer, size,
                              lpszPath, bFileNameModified);
   if (!hGroup)
     MAIN_MessageBoxIDS_s(IDS_GRPFILE_READ_ERROR_s, lpszPath, IDS_ERROR, MB_YESNO);
 
-  LocalFree(hBuffer);
+  _ffree(buffer);
 
   return(hGroup);
 }
@@ -102,49 +105,44 @@ HLOCAL GRPFILE_ReadGroupFile(LPCSTR lpszPath)
  *           GRPFILE_ReadFileToBuffer
  */
 
-static BOOL GRPFILE_ReadFileToBuffer(LPCSTR path, HLOCAL *phBuffer,
+static BOOL GRPFILE_ReadFileToBuffer(LPCSTR path, LPSTR *buffer,
                                      int *piSize)
 {
   UINT    len, size;
-  LPSTR  buffer;
   HLOCAL hBuffer, hNewBuffer;
   HFILE  file;
 
   file=_lopen(path, OF_READ);
   if (file == HFILE_ERROR) return FALSE;
 
-  size = 0;
-  hBuffer = LocalAlloc(LMEM_FIXED, size + MALLOCHUNK + 1);
-  if (!hBuffer) return FALSE;
-  buffer = LocalLock(hBuffer);
 
-  while ((len = _lread(file, buffer + size, MALLOCHUNK))
+  size = 0;
+  *buffer = _fmalloc(size + MALLOCHUNK + 1);
+  if (!hBuffer) return FALSE;
+
+  while ((len = _lread(file, (*buffer) + size, MALLOCHUNK))
          == MALLOCHUNK)
     {
       size += len;
-      hNewBuffer = LocalReAlloc(hBuffer, size + MALLOCHUNK + 1,
-                                LMEM_FIXED);
-      if (!hNewBuffer)
+      *buffer = _frealloc(*buffer, size + MALLOCHUNK + 1);
+      if (!(*buffer))
         {
-          LocalFree(hBuffer);
+          _ffree(*buffer);
           return FALSE;
         }
-      hBuffer = hNewBuffer;
-      buffer = LocalLock(hBuffer);
     }
 
   _lclose(file);
 
   if (len == (UINT)HFILE_ERROR)
     {
-      LocalFree(hBuffer);
+      _ffree(*buffer);
       return FALSE;
     }
 
   size += len;
-  buffer[size] = 0;
+  (*buffer)[size] = 0;
 
-  *phBuffer = hBuffer;
   *piSize   = size;
   return TRUE;
 }
@@ -164,6 +162,9 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
   int     x, y, width, height, iconx, icony, nCmdShow;
   int     number_of_programs;
   BOOL    bOverwriteFileOk;
+  struct tagGROUPHEADER * header;
+
+  header=(struct tagGROUPHEADER *)buffer;
 
   if (buffer[0] != 'P' || buffer[1] != 'M') return(0);
   if (buffer[2] == 'C' && buffer[3] == 'C')
@@ -176,19 +177,21 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
 
   /* checksum = GET_USHORT(buffer, 4)   (ignored) */
 
-  extension = buffer + GET_USHORT(buffer, 6);
+  extension = buffer + header->cbGroup; //GET_USHORT(buffer, 6);
   if (extension == buffer + size) extension = 0;
   else if (extension + 6 > buffer + size) return(0);
 
-  nCmdShow = GET_USHORT(buffer,  8);
-  x        = GET_SHORT(buffer,  10);
-  y        = GET_SHORT(buffer,  12);
-  width    = GET_USHORT(buffer, 14);
-  height   = GET_USHORT(buffer, 16);
-  iconx    = GET_SHORT(buffer,  18);
-  icony    = GET_SHORT(buffer,  20);
-  lpszName = buffer + GET_USHORT(buffer, 22);
+
+  nCmdShow = header->nCmdShow; //GET_USHORT(buffer,  8);
+  x        = header->rcNormal.left;//GET_SHORT(buffer,  10);
+  y        = header->rcNormal.top;//GET_SHORT(buffer,  12);
+  width    = header->rcNormal.right;//GET_USHORT(buffer, 14);
+  height   = header->rcNormal.bottom;//GET_USHORT(buffer, 16);
+  iconx    = header->ptMin.x;//GET_SHORT(buffer,  18);
+  icony    = header->ptMin.y;//GET_SHORT(buffer,  20);
+  lpszName = buffer + header->pName;//GET_USHORT(buffer, 22);
   if (lpszName >= buffer + size) return(0);
+
 
   /* unknown bytes 24 - 31 ignored */
   /*
@@ -206,8 +209,15 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
                           TRUE);
   if (!hGroup) return(0);
 
-  number_of_programs = GET_USHORT(buffer, 32);
-  if (2 * number_of_programs + 34 > size) return(0);
+
+
+  number_of_programs = header->cItems;//GET_USHORT(buffer, 32);
+  if (2 * number_of_programs + 34 > size)
+  {
+  //!!! THis is number of items in array not number of programs in group!
+    MessageBox(Globals.hMainWnd, "1", "debug", MB_YESNO);
+//    return(0);
+  }
   for (i=0, seqnum=0; i < number_of_programs; i++, seqnum++)
     {
       LPCSTR program_ptr = buffer + GET_USHORT(buffer, 34 + 2*i);
@@ -220,6 +230,7 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
           return(0);
         }
     }
+
 
   /* FIXME shouldn't be necessary */
   GROUP_ShowGroupWindow(hGroup);
@@ -286,6 +297,7 @@ static HLOCAL GRPFILE_ScanProgram(LPCSTR buffer, int size,
 
   if (iconANDbits_ptr + iconANDsize > buffer + size ||
       iconXORbits_ptr + iconXORsize > buffer + size) return(0);
+
 
   hIcon = CreateIcon( Globals.hInstance, iconinfo.nWidth, iconinfo.nHeight,
                       iconinfo.bPlanes, iconinfo.bBitsPerPixel,

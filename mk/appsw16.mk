@@ -7,7 +7,7 @@
 !define __appsw16_mk__
 
 ADD_COPT = -bt=windows $(ADD_COPT)
-ADD_LINKOPT = lib clibs.lib,windows.lib
+ADD_LINKOPT = lib clibs.lib,windows.lib,shell.lib
 
 !ifndef DEST
 DEST     = os2$(SEP)mdos$(SEP)winos2
@@ -16,10 +16,10 @@ DEST     = os2$(SEP)mdos$(SEP)winos2
 !include $(%ROOT)/mk/all.mk
 
 !ifdef DLL
-TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).dll
 dllopt = dll
 !else
-TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).exe
 dllopt =
 !endif
 RCOPT    = -bt=windows -i=$(MYDIR) -i=$(PATH)
@@ -33,6 +33,12 @@ $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
  @%append $^@ SYSTEM windows $(dllopt)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+!ifdef DEBUG
+ @%append $^@ DEBUG $(DEBUG)
+!endif
+!ifdef HEAPSIZE
+ @%append $^@ OPTION HEAP=$(HEAPSIZE)
+!endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif
@@ -50,9 +56,6 @@ $(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
 !endif
 !ifdef ALIASES
  alias $(ALIASES)
-!endif
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
 !endif
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)

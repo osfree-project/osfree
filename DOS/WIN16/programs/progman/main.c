@@ -50,7 +50,7 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdline, int show
   MSG      msg;
 
   Globals.lpszIniFile         = "progman.ini";
-  Globals.lpszIcoFile         = "progman.ico";
+  Globals.lpszIcoFile         = "progman.exe";
 
   Globals.hInstance           = hInstance;
   Globals.hGroups             = 0;
@@ -62,14 +62,14 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdline, int show
   Globals.bMinOnRun =
     GetPrivateProfileInt("Settings", "MinOnRun", 0, Globals.lpszIniFile);
   Globals.bSaveSettings =
-    GetPrivateProfileInt("Settings", "SaveSettings", 0, Globals.lpszIniFile);
+    GetPrivateProfileInt("Settings", "SaveSettings", 1, Globals.lpszIniFile);
 
   /* Load default icons */
-  Globals.hMainIcon    = ExtractIcon(Globals.hInstance, Globals.lpszIcoFile, 0);
-  Globals.hGroupIcon   = ExtractIcon(Globals.hInstance, Globals.lpszIcoFile, 0);
-  Globals.hDefaultIcon = ExtractIcon(Globals.hInstance, Globals.lpszIcoFile, 0);
+  Globals.hMainIcon    = ExtractIcon(Globals.hInstance, Globals.lpszIcoFile, PROGMAN_ICON_INDEX);
+  Globals.hGroupIcon   = ExtractIcon(Globals.hInstance, Globals.lpszIcoFile, GROUP_ICON_INDEX);
+  Globals.hDefaultIcon = ExtractIcon(Globals.hInstance, Globals.lpszIcoFile, DEFAULT_ICON_INDEX);
   if (!Globals.hMainIcon)    Globals.hMainIcon = LoadIcon(0, MAKEINTRESOURCE(DEFAULTICON));
-  if (!Globals.hGroupIcon)   Globals.hGroupIcon = LoadIcon(0, MAKEINTRESOURCE(DEFAULTICON));
+  if (!Globals.hGroupIcon)   Globals.hGroupIcon = LoadIcon(Globals.hInstance, MAKEINTRESOURCE(GROUP_ICON_INDEX));
   if (!Globals.hDefaultIcon) Globals.hDefaultIcon = LoadIcon(0, MAKEINTRESOURCE(DEFAULTICON));
 
   /* Register classes */
