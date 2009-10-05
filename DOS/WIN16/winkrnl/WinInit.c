@@ -1,6 +1,6 @@
-/*    
-	WinNat.c	2.51
-    	Copyright 1997 Willows Software, Inc. 
+/*
+        WinNat.c        2.51
+        Copyright 1997 Willows Software, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public License as
@@ -20,11 +20,11 @@ Cambridge, MA 02139, USA.
 
 For more information about the Willows Twin Libraries.
 
-	http://www.willows.com	
+        http://www.willows.com
 
 To send email to the maintainer of the Willows Twin Libraries.
 
-	mailto:twin@willows.com 
+        mailto:twin@willows.com
 
  */
 
@@ -49,9 +49,9 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include "Module.h"
 
 /****************************************************************/
-/*								*/
-/* imported stuff 						*/
-/*								*/
+/*                                                              */
+/* imported stuff                                               */
+/*                                                              */
 /****************************************************************/
 
 extern MODULETAB TWIN_ModuleTable[256];
@@ -81,9 +81,9 @@ TWINLIBCALLBACKPROC DrvEntry;
 #endif
 
 /****************************************************************/
-/*								*/
-/* exported stuff						*/
-/*								*/
+/*                                                              */
+/* exported stuff                                               */
+/*                                                              */
 /****************************************************************/
 
 /* this is exported to people like MFC */
@@ -93,8 +93,8 @@ LPARAM GetCompatibilityFlags(UINT);
 LPARAM SetCompatibilityFlags(int);
 
 /* these are the major entry/exit points of library */
-BOOL   		TWIN_LibExit(int,DWORD);	
-LPMODULETAB    	TWIN_LibEntry(char *,ENTRYTAB *,MODULEDSCR *);
+BOOL            TWIN_LibExit(int,DWORD);
+LPMODULETAB     TWIN_LibEntry(char *,ENTRYTAB *,MODULEDSCR *);
 
 //int __argc;
 //char **__argv;
@@ -105,106 +105,30 @@ static LPSTR SetCommandLine(int, char **);
 DWORD TWIN_DriverCaps;
 
 /****************************************************************/
-/*								*/
-/* implementation 						*/
-/*								*/
+/*                                                              */
+/* implementation                                               */
+/*                                                              */
 /****************************************************************/
 
-static BOOL
-TWIN_InitSystem(void)
-{
-    static bInit = FALSE;
-    UINT uiCompatibility;
-    TWINDRVCONFIG DrvConfig;
-
-    if (!bInit) {
-	/*
-	 *  Protect against multiple calls and recursive calls.  Various
-	 *  API locations can make a call to us, in addition to the
-	 *  normal startup path through main().  This is so that the
-	 *  API's that require this initialization can be called from
-	 *  constructors in the OWL and MFC libraries.  The API's must
-	 *  in turn call us, so make sure we only initialize once.
-	 */
-	bInit = TRUE;
-	
-	/* Initialize the filesystem code */
-	InitFileSystem();
-
-	/* this initializes loadable software devices */
-	TWIN_InitLSD();
-
-	/* this gets low-level driver connections etc. */
-	uiCompatibility = GetCompatibilityFlags(0);
-	DrvConfig.dwDoubleClickTime = GetTwinInt(WCP_DBLCLICK);
-	DrvConfig.lpDrvCallback = &TWIN_DrvCallback;
-
-	PrivateInitDriver(MAKELONG(DSUBSYSTEM_INIT,DSUB_INITSYSTEM),
-		uiCompatibility,1,&DrvConfig);
-
-	/* set system metrics */
-	/* we should set menu height, rather than hardcode at 25 */
-	/* The rule of thumb is MULDIV(fontsize,7,4) 	     */
-	/* Where fontsize is the actual font size, not points    */
-	/* SetSystemMetrics(SM_CYCAPTION,7*12/4); */
-
-        SetSystemMetrics(SM_CXSCREEN,DrvConfig.nScreenWidth);
-	SetSystemMetrics(SM_CYSCREEN,DrvConfig.nScreenHeight);
-	SetSystemMetrics(SM_CXFULLSCREEN,DrvConfig.nScreenHeight);
-	SetSystemMetrics(SM_CYFULLSCREEN,DrvConfig.nScreenHeight-
-				GetSystemMetrics(SM_CYCAPTION));
-
-	/* this initializes DC cache */
-	GdiInitDC();
-
-	/* this initializes the system color table */
-	InitSysColors();
-
-	/* this initializes MFS layer */
-	MFS_INIT();
-
-	/* this initializes the binary machinery */
-	TWIN_InitializeBinaryCode();
-    }
-    return bInit;
-}
-
-BOOL TWIN_InitDriver()
-{
-#ifdef DRVTAB
-    if ( DrvEntryTab == NULL ) {
-	if ( (DrvEntryTab = (TWINDRVSUBPROC **) DriverBootstrap()) == (TWINDRVSUBPROC **)NULL ) {
-#else
-    if ( DrvEntry == NULL) {
-	if ( (DrvEntry = DriverBootstrap()) == NULL) {
-#endif
-	    return FALSE;
-	}
-
-	(void)TWIN_InitSystem();
-    }
-
-    return TRUE;
-}
 
 int
 LoadTwinModDscr(int argc,char **argv, ENTRYTAB *LibInitTab,
-		MODULEDSCR *ModDscrApp)
+                MODULEDSCR *ModDscrApp)
 {
-	int  rc;
-	LPMODULETAB mdt;
-	char *lpCmd;
+        int  rc;
+        LPMODULETAB mdt;
+        char *lpCmd;
 
         lpCmd = SetCommandLine(argc,argv);
 
-    	/* Use argv[0] as the module name, rather than hard coded "module" */
-    	if(( argv != NULL) &&  (argv[0] != NULL))
-	    ModDscrApp->name = argv[0];	
+        /* Use argv[0] as the module name, rather than hard coded "module" */
+        if(( argv != NULL) &&  (argv[0] != NULL))
+            ModDscrApp->name = argv[0];
 
-	mdt = TWIN_LibEntry(lpCmd,LibInitTab,ModDscrApp);
+        mdt = TWIN_LibEntry(lpCmd,LibInitTab,ModDscrApp);
 
         rc = (BOOL)InternalLoadLibrary(ILL_APPL|ILL_DSCR,lpCmd,(LPARAM)&mdt[0]);
-	return rc;
+        return rc;
 }
 
 LPMODULETAB
@@ -213,14 +137,14 @@ TWIN_LibEntry( char *lpCmd,ENTRYTAB *LibInitTab, MODULEDSCR *ModDscrApp)
     LPMODULETAB mdt;
 
     if ( !TWIN_InitDriver() )
-	return 0;
+        return 0;
 
     TWIN_DriverCaps = PrivateInitDriver(MAKELONG(DSUBSYSTEM_GETCAPS,DSUB_INITDRIVER),0,0,0);
 
     InitTwinLibraries(LibInitTab);
 
-    TWIN_ModuleTable[0].flags = 0;      	/* flags for module */
-    TWIN_ModuleTable[0].dscr = ModDscrApp;	/* ptr to mod descriptor */
+    TWIN_ModuleTable[0].flags = 0;              /* flags for module */
+    TWIN_ModuleTable[0].dscr = ModDscrApp;      /* ptr to mod descriptor */
 
     mdt = ReadAppDscrTable(lpCmd);
 
@@ -232,60 +156,60 @@ TWIN_LibExit(int bExit,DWORD dwreturn)
 {
 #ifdef WINMALLOC_CHECK
         logstr(LF_LOG,"Delete Stock Objects\n");
-	TWIN_DeleteStockObjects ();
+        TWIN_DeleteStockObjects ();
 
         logstr(LF_LOG,"Dumping GDI\n");
-	TWIN_DumpGdiObjects ();
+        TWIN_DumpGdiObjects ();
 #endif
 
-	PrivateInitDriver(MAKELONG(DSUBSYSTEM_INIT,DSUB_INITSYSTEM),0,0,0);
+        PrivateInitDriver(MAKELONG(DSUBSYSTEM_INIT,DSUB_INITSYSTEM),0,0,0);
 
 #ifdef WINMALLOC_CHECK
         logstr(LF_LOG,"Cleanup GlobalAlloc\n");
-	TWIN_HandleCleanup();
+        TWIN_HandleCleanup();
 
-	/* lets dump our memory chain */
+        /* lets dump our memory chain */
         logstr(LF_LOG,"Check Memory Allocation\n");
 #ifdef DRIVERMALLOCS
-	(void) DrvMallocInfo(0, 0, 0, 0);
+        (void) DrvMallocInfo(0, 0, 0, 0);
 #else
-	(void) WinMallocInfo(0, 0, 0, 0);
+        (void) WinMallocInfo(0, 0, 0, 0);
 #endif
 
-	/* lets free our memory chain */
-	TWIN_FreeAllMemory();
+        /* lets free our memory chain */
+        TWIN_FreeAllMemory();
 
 #endif
-    	if(bExit)
-		exit(dwreturn);
+        if(bExit)
+                exit(dwreturn);
 
-	return(TRUE);   
+        return(TRUE);
 }
 
 
 void WINAPI
 FatalExit(int Code)
 {
-	ExitWindows(Code,0);
+        ExitWindows(Code,0);
 }
 
 void
 OldExitWindows(void)
 {
-	ExitWindows(0,0);
+        ExitWindows(0,0);
 }
 
 BOOL WINAPI
 ExitWindows(DWORD dwreturn,UINT reserved)
 {
-	if(reserved == 0) {
-#ifdef	LATER
-	/* according to definition we have to send WM_QUERYENDSESSION
-	   to notify all apps; if all apps agree, send them WM_ENDSESSION
-	   before finally shutting down */
+        if(reserved == 0) {
+#ifdef  LATER
+        /* according to definition we have to send WM_QUERYENDSESSION
+           to notify all apps; if all apps agree, send them WM_ENDSESSION
+           before finally shutting down */
 #endif
-	}
-	return TWIN_LibExit(1,dwreturn);	
+        }
+        return TWIN_LibExit(1,dwreturn);
 }
 
 void WINAPI
@@ -294,12 +218,12 @@ FatalAppExit(UINT wAction,LPCSTR lpText)
     static int flag;
 
     APISTR((LF_APICALL,"FatalAppExit(UINT=%x,LPCSTR=%s)\n",
-	wAction,lpText));
+        wAction,lpText));
 
     /* this is in case of a double fault, do not repeat... */
     if(flag && GetTwinInt(WCP_FATAL)) {
-	flag++;
-	MessageBox(0,lpText,0,MB_ICONSTOP|MB_OK);
+        flag++;
+        MessageBox(0,lpText,0,MB_ICONSTOP|MB_OK);
     }
 
     DeleteTask(0);
@@ -310,8 +234,8 @@ void
 DebugBreak()
 {
 #if defined(DEBUG) && !defined(TWIN_INTERP_NOT_SUPPORTED)
-	extern void debuggerbreak(void);
-	debuggerbreak();
+        extern void debuggerbreak(void);
+        debuggerbreak();
 #endif
 }
 
@@ -337,7 +261,7 @@ LPARAM
 GetCompatibilityFlags(UINT uID)
 {
     if ( Compatibility < 0 )
-	Compatibility = GetTwinInt(WCP_CONTROL);
+        Compatibility = GetTwinInt(WCP_CONTROL);
 
     return (LPARAM)Compatibility;
 }
@@ -348,7 +272,7 @@ SetCompatibilityFlags(int NewCompatibility)
     int OldCompatibility = GetCompatibilityFlags(0);
 
     if ( NewCompatibility >= 0 )
-	Compatibility = NewCompatibility;
+        Compatibility = NewCompatibility;
 
     return (LPARAM)OldCompatibility;
 }
@@ -360,7 +284,7 @@ SetCommandLine(int argc, char **argv)
 {
     int nCount,nLen;
     LPSTR lpCmd;
-    
+
     argc = DrvGetCommandLine(argc, &argv);
 
     __argc = argc;
@@ -372,19 +296,19 @@ SetCommandLine(int argc, char **argv)
     }
 
     for (nCount = 0, nLen = 0; nCount < __argc; nCount ++)
-	nLen += strlen(__argv[nCount]) + 1;
+        nLen += strlen(__argv[nCount]) + 1;
 
     lpCmd = WinMalloc(nLen + 1);
     if (__argv[0])
-    	strcpy(lpCmd, __argv[0]);
+        strcpy(lpCmd, __argv[0]);
     else
-    	lpCmd[0] = '\0';
+        lpCmd[0] = '\0';
 
     if (__argc > 1) {
-	for (nCount = 1; nCount < __argc; nCount++) {
-	    strcat(lpCmd, " ");
-	    strcat(lpCmd, __argv[nCount]);
-	}
+        for (nCount = 1; nCount < __argc; nCount++) {
+            strcat(lpCmd, " ");
+            strcat(lpCmd, __argv[nCount]);
+        }
     }
 
     return lpCmd;

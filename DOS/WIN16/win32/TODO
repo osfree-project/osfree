@@ -1,8 +1,0 @@
-
-
-do we have the right entry point, and if so, why does it crash?
-
-we do seem to be able to execute code, but why mov 0x0000,eax?
-should that be patched to be baseaddress?
-
-what function is called?  is it legitimate?
