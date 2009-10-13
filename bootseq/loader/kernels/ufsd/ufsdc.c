@@ -122,6 +122,12 @@ ufs_open (char *filename)
 
   kprintf("**** ufs_open(\"%s\") = ", filename);
 
+  if (!strcmp(filename, "OS2LDR.MSG"))
+  {
+    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+    kprintf("\n\n\n");
+  }
+
   memset(buf1, 0, sizeof(buf1));
   memset(buf2, 0, sizeof(buf2));
 
@@ -170,8 +176,8 @@ ufs_open (char *filename)
     if (n == mods_count)
     {
       kprintf("0\n");
-      //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-      //kprintf("\n");
+      for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+      kprintf("\n");
       return 0;
     }
 
@@ -181,14 +187,14 @@ ufs_open (char *filename)
     fileaddr = mod->mod_start;
 
     kprintf("1\n");
-    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-    //kprintf("\n");
+    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+    kprintf("\n");
     return 1;
   }
 
   kprintf("0\n");
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-  //kprintf("\n");
+  for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+  kprintf("\n");
   return 0;
 }
 
@@ -205,13 +211,13 @@ ufs_read (char *buf, int len)
     memmove(buf, (char *)fileaddr + filepos, len);
 
     kprintf("%lu\n", len);
-    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
     //kprintf("\n");
     return len;
   }
 
   kprintf("0\n");
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
   //kprintf("\n");
 
   return 0;
@@ -227,7 +233,7 @@ ufs_seek (int offset)
     return -1;
 
   filepos = offset;
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
+  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
   //kprintf("\n");
 
   return offset;
@@ -239,10 +245,32 @@ ufs_close (void)
   int i;
   kprintf("**** ufs_close()\n");
 
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
-  //kprintf("\n");
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+  kprintf("\n");
 }
 
+
+/* Change all occurences of '!' symbol
+   in config.sys to a boot drive letter */
+void
+patch_cfgsys(void)
+{
+  int i;
+  char *cfg;
+
+  if (ufs_open("CONFIG.SYS"))
+  {
+    cfg = (char *)fileaddr;
+
+    for (i = 0; i < filemax; i++)
+    {
+      if (cfg[i] == '!')
+        cfg[i] = drvletter;
+    }
+
+    ufs_close();
+  }
+}
 
 void cmain (void)
 {
@@ -361,9 +389,12 @@ void cmain (void)
   }
 
   // set a drive letter according the DLAT info or AUTO algorithm
-  kprintf("assing_drvletter() entered\n");
+  kprintf("assign_drvletter() entered\n");
   drvletter = assign_drvletter(mode);
-  kprintf("assing_drvletter() exited\n");
+  kprintf("assign_drvletter() exited\n");
+
+  /* Patch the config.sys file with boot drive letter */
+  patch_cfgsys();
 
   // correct the command line according the drive letter got
   pp[0] = (char)drvletter;
@@ -442,7 +473,7 @@ void cmain (void)
   //bpb->log_drive   = 0x48;
   //bpb->marker      = 0x41;
   //bpb->vol_ser_no  = 0x00000082;
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x1781 + i)));
   //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", *((char *)(0x7c0 + i)));
-  //kprintf("\n");
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+  kprintf("\n");
 }

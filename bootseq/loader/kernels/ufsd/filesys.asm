@@ -48,22 +48,22 @@ endm
 switch_to_ldr macro
         push ax
         mov  ax, ds
-        mov  preldr_ds, ax
+        mov  cs:preldr_ds, ax
         mov  ax, es
-        mov  preldr_es, ax
+        mov  cs:preldr_es, ax
         mov  ax, sp
         inc  ax                                  ; skip ax in stack
         inc  ax                                  ;
-        mov  word ptr preldr_ss_sp, ax
+        mov  word ptr cs:preldr_ss_sp, ax
         mov  ax, ss
-        mov  word ptr preldr_ss_sp + 2, ax
+        mov  word ptr cs:preldr_ss_sp + 2, ax
 
-        mov  ax, ldr_ds
+        mov  ax, cs:ldr_ds
         mov  ds, ax
-        mov  ax, ldr_es
+        mov  ax, cs:ldr_es
         mov  es, ax
         pop  ax
-        lss  sp, ldr_ss_sp
+        lss  sp, cs:ldr_ss_sp
 endm
 
 
@@ -87,6 +87,22 @@ mu_Open proc far
         ; char far *pName
         mov  ebx, dword ptr [bp + 06h]
 
+        push bx
+
+        mov  al, '='
+        call com_outchar
+
+        xor  ax, ax
+        mov  gs, ax
+        mov  bx, 1f41h
+        mov  al, byte ptr gs:[bx]
+        call com_outchar
+
+        mov  al, '='
+        call com_outchar
+
+        pop  bx
+
         switch_to_preldr
 
         ; convert far ptr in ebx to
@@ -101,6 +117,22 @@ mu_Open proc far
         mov  al, 'o'
         call com_outchar
 
+        push bx
+
+        mov  al, '-'
+        call com_outchar
+
+        xor  ax, ax
+        mov  gs, ax
+        mov  bx, 1f41h
+        mov  al, byte ptr gs:[bx]
+        call com_outchar
+
+        mov  al, '-'
+        call com_outchar
+
+        pop  bx
+
         ; switch to PM and call muOpen
         mov  eax, offset _TEXT:muOpen
         push eax
@@ -109,6 +141,22 @@ mu_Open proc far
 
         mov  al, 'e'
         call com_outchar
+
+        push bx
+
+        mov  al, '+'
+        call com_outchar
+
+        xor  ax, ax
+        mov  gs, ax
+        mov  bx, 1f41h
+        mov  al, byte ptr gs:[bx]
+        call com_outchar
+
+        mov  al, '+'
+        call com_outchar
+
+        pop  bx
 
         cmp  ebx, 0
         jz   noerr1

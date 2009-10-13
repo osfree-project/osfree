@@ -18,8 +18,8 @@ int mem_upper = 16384;
 int filepos;
 int filemax;
 
-void (*disk_read_func) (int, int, int);
-void (*disk_read_hook) (int, int, int);
+void (*disk_read_func) (int, int, int) = 0;
+void (*disk_read_hook) (int, int, int) = 0;
 
 extern unsigned long current_drive;
 extern int           fsmax;

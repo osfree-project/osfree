@@ -85,13 +85,47 @@ real_start:
 realmode_init:
                    ; save pre-loader segment registers and stack
                    mov  ax, ds
-                   mov  word ptr preldr_ds, ax
+                   mov  word ptr cs:preldr_ds, ax
                    mov  ax, es
-                   mov  word ptr preldr_es, ax
+                   mov  word ptr cs:preldr_es, ax
                    mov  ax, sp
-                   mov  word ptr preldr_ss_sp, ax
+                   mov  word ptr cs:preldr_ss_sp, ax
                    mov  ax, ss
-                   mov  word ptr preldr_ss_sp + 2, ax
+                   mov  word ptr cs:preldr_ss_sp + 2, ax
+
+                   push ebx
+
+                   mov  al, '|'
+                   call com_outchar
+
+                   xor  ax, ax
+                   mov  gs, ax
+                   mov  bx, 1f41h
+                   mov  al, byte ptr gs:[bx]
+                   call com_outchar
+
+                   mov  al, ';'
+                   call com_outchar
+
+                   push cx
+
+                   mov  ebx, dword ptr cs:preldr_ss_sp
+                   mov  cx, 8
+lp1:
+                   mov  al, bl
+                   and  al, 0fh
+                   add  al, 30h
+                   call com_outchar
+                   ror  ebx, 4
+
+                   loop lp1
+
+                   pop  cx
+
+                   mov  al, '|'
+                   call com_outchar
+
+                   pop  ebx
 
                    ;
                    ; pass structures to os2ldr

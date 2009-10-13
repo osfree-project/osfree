@@ -67,12 +67,12 @@ int get_num_parts(int diskno)
   int parts = 0;
   unsigned long ext_start = 0;
   unsigned long part_start = 0;
+  int primaries = 0;
 
   memset(buf, 0, sizeof(buf));
 
   // read the Partition table
   rawread(diskno, 0, PART_TABLE_OFFSET, 0x40, buf);
-  //kprintf("errnum=0x%x", errnum);
 
   // dump PT
   for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
@@ -89,7 +89,8 @@ int get_num_parts(int diskno)
       for (p = part_types; *p; p++) if (pte[4] == *p)
       {
         kprintf("found a supported partition of type: 0x%02x\n", pte[4]);
-        parts++;
+        primaries++;
+        if (primaries == 1) parts++;
       }
   }
 
@@ -106,7 +107,6 @@ int get_num_parts(int diskno)
     kprintf("part_start=%lu\n", part_start);
     // read EBR
     rawread(diskno, part_start, PART_TABLE_OFFSET, 0x40, buf);
-    //kprintf("errnum=0x%x", errnum);
 
     // dump PT
     for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
@@ -244,11 +244,12 @@ int dla(char *driveletter)
   for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
   kprintf("\n");
 
+  ext = 0;
   act = 0;
+  pte = buf;
+
   if (!part_no)
   {
-    pte = buf;
-    ext = 0;
     // a loop by the number of primary partitions
     for (i = 0; i < 4; i++, pte += 0x10, parts++)
     {
@@ -264,8 +265,12 @@ int dla(char *driveletter)
         }
     }
   }
-
-  if (!act) // if active partition is not found
+  else if (part_no < 5) // primary partition
+  {
+    pte += 0x10 * (part_no - 1);
+    part_start   = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
+  }
+  else // logical partition
   {
     parts = 4;
     pte = ext;
@@ -394,10 +399,6 @@ int assign_drvletter (char *mode)
   }
 
   kprintf("letter = %c:\r\n", letter);
-  //__asm {
-  //  cli
-  //  hlt
-  //}
 
   return letter;
 }
