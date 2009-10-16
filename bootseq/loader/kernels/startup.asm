@@ -13,6 +13,7 @@ include mb_info.inc
 include mb_header.inc
 include mb_etc.inc
 
+extrn callback        :near
 extrn cmain_          :near
 extrn exe_end         :near
 extrn bss_end         :near
@@ -214,6 +215,8 @@ entry:
 
                    mov     ebx, ds:m
 
+                   ; pass config.sys callback address
+                   lea     ecx, callback
                    ; start microfsd emulator
                    push    edx
 

@@ -413,6 +413,8 @@ void draw_menu(int item, int shift)
   int  x0, y0;
   int  offset;
 
+  //item--;
+
   //t->setcolorstate(COLOR_STATE_NORMAL);
 
   // background
@@ -715,13 +717,13 @@ void menued(int item, int shift)
 
 
 int
-exec_menu(void)
+exec_menu(item, shift)
 {
   //int cont = 1;  // continuation flag
-  int item;      // selected menu item
-  int shift = 0; // horiz. scrolling menu shift
+  //int item;      // selected menu item
+  //int shift = 0; // horiz. scrolling menu shift
 
-  item = default_item;
+  //item = default_item;
 
   for (;;)
   {
@@ -767,8 +769,11 @@ exec_script(char *script, int n)
 int
 exec_cfg(char *cfg)
 {
+  int i;
   int rc;
+  int itm;
   int item = -1; // menu item number
+  int shift = 0;
   char *line, *p;
   script_t *sc;
 
@@ -789,28 +794,50 @@ exec_cfg(char *cfg)
 
   if (!rc)
     return 0;
-  else if (rc == -1)
-    panic("exec_cfg(): Error processing config file: ", cfg);
+  else if (rc == -1) // something went wrong during boot script execution
+  {
+    //panic("exec_cfg(): Error processing config file: ", cfg);
+    // show cmd line
+    cmdline(0, 0);
+    printf("\r\nError processing config file: %s\r\n", cfg);
+    return 0;
+  }
 
   // starting point 0 instead of 1
   num_items--;
+
+  item = 0; shift = 0;
+
+restart_menu:
 
   // show screen header, border and status line
   show_background_screen();
 
   // show a menu and let the user choose a menu item
-  item = exec_menu();
+  item = exec_menu(item, shift);
+  item--;
 
   sc = menu_first;
   t->cls();
 
+  itm = item + 1;
   // find a menu item and execute corresponding script
-  while (item)
+  while (itm)
   {
-    item--;
-    if (!item) rc = exec_script(sc->scr, sc->num);
-    if (!rc) return 0;
-    sc = sc->next;
+    itm--;
+    if (!itm)
+    {
+      rc = exec_script(sc->scr, sc->num);
+      if (!rc)
+      {
+        //for (i = 0; i < 1000; i++) ;
+        printf("Loading failed, press any key...\r\n");
+        t->getkey();
+        goto restart_menu;
+      }
+    }
+    else
+      sc = sc->next;
   }
 
   return 1;
@@ -821,33 +848,26 @@ KernelLoader(void)
 {
   char *cfg = "/boot/loader/boot.cfg";
   int rc;
+  int i;
 
   printf("\r\nKernel loader started.\r\n");
 
   // exec the config file
-  rc = exec_cfg(cfg);
-  if (!rc)
-  {
-    printf("Error processing loader config file!\r\n");
-  }
-  else
-  {
-    // launch a multiboot kernel
-
-    //printf("entry_addr=0x%x", entry_addr);
-    //printf("&mbi=0x%x", m);
-
-    //__asm {
-    //  cli
-    //  hlt
-    //}
-
-    boot_func(0, 2);
-  }
+  //while (1)
+  //{
+    rc = exec_cfg(cfg);
+    if (!rc)
+    {
+    //  printf("Error executing the boot script!\r\n");
+    //  for (i = 0; i < 1000; i++) ;
+    }
+    else
+    {
+      // launch a multiboot kernel
+      boot_func(0, 2);
+    }
+  //}
 }
-
-int
-serial_func (char *arg, int flags);
 
 void
 cmain(void)

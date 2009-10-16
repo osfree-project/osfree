@@ -1,7 +1,7 @@
 @echo off
 
 set WATCOM=f:\dev\watcom15
-set ROOT=f:\var\src\os2\svn\osfree
+set ROOT=f:\var\src\os2\svn\osfree\trunk
 
 set TKPATH=f:\os2tk45
 set FPPATH=f:\dev\pp
@@ -19,8 +19,8 @@ set LIB=%WATCOM%\lib286;%WATCOM%\lib286\dos
 rem IBM Classic REXX
 rem set OS_REXX=Classic
 rem IBM OREXX
-rem set OS_REXX=Object              
+rem set OS_REXX=Object
 rem Regina REXX
-rem set OS_REXX   = Regina              
+rem set OS_REXX   = Regina
 rem Special case
-set OS_REXX=c:\regina\rexx.exe 
+set OS_REXX=c:\regina\rexx.exe

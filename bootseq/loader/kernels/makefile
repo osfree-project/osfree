@@ -34,7 +34,7 @@ chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                    $(p)chainc$(e) $(p)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)setdev$(e) &
                    $(p)bios$(e)
 
-bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)serial$(e) $(p)vsprintf$(e) $(p)istable$(e) &
+bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)cfgsys$(e) $(p)serial$(e) $(p)vsprintf$(e) $(p)istable$(e) &
                    $(p)cmdline$(e)
 
 ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)

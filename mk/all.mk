@@ -359,7 +359,7 @@ install: build
 !endif
 !ifneq DEST
  -$(MDHIER) $(DEST)
- for %i in ($(TARGETS)) do if exist %i $(CP) %i $(DEST)
+ @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
 !endif
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add

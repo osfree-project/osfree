@@ -25,6 +25,7 @@ public _debug
 
 public _small_code_
 
+extrn  callback     :dword
 extrn  idt_initted  :byte
 extrn  kprintf_     :near
 extrn  init_        :near
@@ -238,6 +239,9 @@ entry:
                    mov     esp, PM_STACK_INIT
 
                    mov     ds:m, ebx                                   ; save multiboot structure address
+
+                   mov     ebx, offset _TEXT:callback
+                   mov     [ebx], ecx
 
                    ; setup GDT
                    call    set_gdt

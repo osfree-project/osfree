@@ -16,6 +16,11 @@ int serial_init (long port, long speed,
 
 int assign_drvletter (char *mode);
 
+/* Config.sys preprocessor/editor callback */
+void (*callback)(unsigned long addr,
+                 unsigned long size,
+                 char drvletter);
+
 extern mu_Open;
 extern mu_Read;
 extern mu_Close;
@@ -59,6 +64,7 @@ extern char debug;
 #pragma aux mu_Close     "*"
 #pragma aux mu_Terminate "*"
 #pragma aux stack_bottom "*"
+#pragma aux callback     "*"
 
 int toupper (int c);
 
@@ -249,25 +255,14 @@ ufs_close (void)
   kprintf("\n");
 }
 
-
-/* Change all occurences of '!' symbol
-   in config.sys to a boot drive letter */
 void
 patch_cfgsys(void)
 {
-  int i;
-  char *cfg;
-
   if (ufs_open("CONFIG.SYS"))
   {
-    cfg = (char *)fileaddr;
-
-    for (i = 0; i < filemax; i++)
-    {
-      if (cfg[i] == '!')
-        cfg[i] = drvletter;
-    }
-
+    /* Call config.sys preprocessor/editor
+       routine outside microfsd            */
+    callback(fileaddr, filemax, drvletter);
     ufs_close();
   }
 }
@@ -377,7 +372,9 @@ void cmain (void)
   p = (unsigned long *)(REL1_BASE + 0x20); // an address of mfs_len in the header
 
   /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD | BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
+  boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD;
+
+  if (!mfslen) boot_flags |= BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
 
   if (m->flags & MB_INFO_BOOTDEV)
   {
@@ -409,7 +406,12 @@ void cmain (void)
   //boot_drive = 0x80;
 
   /* set filetable */
-  ft.ft_cfiles = 4;
+
+  if (!mfslen)
+    ft.ft_cfiles = 4;
+  else
+    ft.ft_cfiles = 3;
+
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
@@ -417,23 +419,28 @@ void cmain (void)
   ft.ft_mulen  = (unsigned long)&stack_bottom - REL1_BASE + 0x200 + 0x2000;
 
   ft.ft_mfsseg = 0x7c0 >> 4;
-  ft.ft_mfslen = *p;
 
-  // where to place mbi pointer
-  q = (0x7c0 + *p + 0xf) & 0xfffffff0;
+  if (!mfslen)
+  {
+    // where to place mbi pointer
+    q = (0x7c0 + *p + 0xf) & 0xfffffff0;
+    ft.ft_mfslen = *p;
+    ft.ft_ripseg = q >> 4;
+    ft.ft_riplen = 4;
+    // where to place mbi pointer
+    //q = 0x7c0 + *p - 4;
 
-  ft.ft_ripseg = q >> 4;
-  ft.ft_riplen = 4;
-
-  // if alternative os2boot is specified
-  if (mfsbase && mfslen) ft.ft_mfslen = mfslen;
-
-  // where to place mbi pointer
-  //q = 0x7c0 + *p - 4;
-
-  // pass mbi structure address to mFSD
-  // as a variable at its end
-  *((unsigned long *)q) = (unsigned long) m;
+    // pass mbi structure address to mFSD
+    // as a variable at its end
+    *((unsigned long *)q) = (unsigned long) m;
+  }
+  else
+  {
+    // if alternative os2boot is specified
+    ft.ft_mfslen = mfslen;
+    ft.ft_ripseg = 0;
+    ft.ft_riplen = 0;
+  }
 
   p = (unsigned long *)(REL1_BASE + 0x10); // an address of base in the header
 
