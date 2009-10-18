@@ -310,6 +310,7 @@ get_user_input(int *item, int *shift)
         item_save = *item;
         shift_save = *shift;
         ++*item;
+
         return 0;
       }
       case 0xe08:  // backspace
@@ -318,9 +319,11 @@ get_user_input(int *item, int *shift)
         if (menu_nest_lvl > 0)
         {
           menu_nest_lvl--;
-          *item = *shift = 0;
-          exec_cfg(prev_cfg, item_save, shift_save);
-          //memset(prev_cfg, 0, sizeof(prev_cfg));
+          *item = -1; /* no selected item on menu exit */
+          *shift = 0;
+          //exec_cfg(prev_cfg, item_save, shift_save);
+          strcpy(curr_cfg, prev_cfg);
+          memset(prev_cfg, 0, sizeof(prev_cfg));
           //item_save = *item;
           //shift_save = *shift;
           //item_save = shift_save = 0;
@@ -744,6 +747,7 @@ void menued(int item, int shift)
 int
 exec_menu(item, shift)
 {
+  int t = 0;
   //int cont = 1;  // continuation flag
   //int item;      // selected menu item
   //int shift = 0; // horiz. scrolling menu shift
@@ -757,8 +761,9 @@ exec_menu(item, shift)
       case 0: // menu
         do {
           draw_menu(item, shift);
-        }   while (get_user_input(&item, &shift));
+        }   while ((t = get_user_input(&item, &shift)) && (t != -1));
         if (state) continue; // if we got here by pressing Esc key
+        if (t == -1) return -1;
         break;               // otherwise, if Enter key pressed
       case 1: // cmd line
         cmdline(item, shift);
@@ -791,20 +796,9 @@ exec_script(char *script, int n)
   return 1;
 }
 
-int
-exec_cfg(char *cfg, int menu_item, int menu_shift)
+void
+init_vars(void)
 {
-  int i;
-  int rc;
-  int itm;
-  int item; // menu item number
-  int shift;
-  char *line, *p;
-  script_t *scr;
-  char buf[0x200];
-
-  strcpy(buf, cfg);
-
   memset((char *)menu_items, 0, menu_len);
   memset((char *)config_lines, 0, config_len);
 
@@ -818,13 +812,25 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
   sc = 0;
   sc_prev = 0;
 
-  strcpy(prev_cfg, curr_cfg);
-  strcpy(curr_cfg, buf);
-
   /* set default menu width and height */
   width_func("68", 2);
   height_func("15", 2);
+}
 
+int
+exec_cfg(char *cfg, int menu_item, int menu_shift)
+{
+  int i;
+  int rc;
+  int itm;
+  int item; // menu item number
+  int shift;
+  char *line, *p;
+  script_t *scr;
+  char buf[0x100];
+
+  strcpy(buf, cfg);
+  init_vars();
   rc = process_cfg(buf);
 
   if (!rc)
@@ -849,7 +855,14 @@ restart_menu:
   show_background_screen();
 
   // show a menu and let the user choose a menu item
-  item = exec_menu(item, shift);
+  if ((item = exec_menu(item, shift)) == -1)
+  {
+    //item = menu_item;
+    //shift = menu_shift;
+    init_vars();
+    return 0;
+  }
+
   item--;
 
   scr = menu_first;
@@ -863,6 +876,7 @@ restart_menu:
     if (!itm)
     {
       rc = exec_script(scr->scr, scr->num);
+      //printf("exec_script() exited\r\n");
       if (!rc)
       {
         //for (i = 0; i < 1000; i++) ;
@@ -904,9 +918,10 @@ KernelLoader(void)
   memset(variable_list, 0, sizeof(variable_list));
   item_save = shift_save = 0;
   process_cfg_line = process_cfg_line1;
+  strcpy(curr_cfg, cfg);
+  exec_cfg(curr_cfg, 0, 0);
 
-  rc = exec_cfg(cfg, 0, 0);
-  // launch a multiboot kernel
+  /* launch a multiboot kernel */
   boot_func(0, 2);
 }
 

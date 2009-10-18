@@ -63,6 +63,12 @@ extern int screen_fg_color;
 extern int screen_bg_color_hl;
 extern int screen_fg_color_hl;
 
+extern char prev_cfg[0x100];
+extern char curr_cfg[0x100];
+
+extern int item_save  = 0;
+extern int shift_save = 0;
+
 int exec_cfg(char *cfg, int menu_item, int menu_shift);
 
 int abbrev(char *s1, char *s2, int n);
@@ -1548,7 +1554,18 @@ static struct builtin builtin_write =
 int
 configfile_func (char *arg, int flags)
 {
-  exec_cfg(arg, 0, 0);
+  char buf[0x100];
+  int  itm = 0, shft = 0;
+
+  strcpy(prev_cfg, curr_cfg);
+  strcpy(buf, arg);
+  strcpy(curr_cfg, buf);
+
+  while (!exec_cfg(curr_cfg, itm, shft))
+  {
+    itm = item_save;
+    shft = shift_save;
+  }
 
   return 0;
 }
