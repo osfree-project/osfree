@@ -63,6 +63,8 @@ extern int screen_fg_color;
 extern int screen_bg_color_hl;
 extern int screen_fg_color_hl;
 
+int exec_cfg(char *cfg);
+
 int abbrev(char *s1, char *s2, int n);
 int lipmodule_func (char *arg, int flags);
 
@@ -1500,6 +1502,66 @@ static struct builtin builtin_serial =
   " default values are COM1, 9600, 8N1."
 };
 
+/* write */
+int
+write_func (char *arg, int flags)
+{
+  int  addr;
+  unsigned long val;
+  char *str, *s, *p;
+
+  safe_parse_maxint(&arg, &addr);
+  p = (char *)addr;
+  str = skip_to(0, arg);
+
+  if (*str == '"') /* it's a string */
+  {
+    /* next '"' occurence position */
+    if (s = strstr(str + 1, "\""))
+    {
+      memmove(p, str + 1, s - str - 1);
+      p[s - str - 1] = '\0';
+      return 0;
+    }
+  }
+  else
+  {
+    if (safe_parse_maxint(&str, &val))
+    {
+      *((unsigned long *)p) = val;
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+static struct builtin builtin_write =
+{
+  "write",
+  write_func,
+  BUILTIN_MENU | BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "write <addr> <string>",
+  "write a string or hex number at specified phys address."
+};
+
+int
+configfile_func (char *arg, int flags)
+{
+  exec_cfg(arg);
+
+  return 0;
+}
+
+static struct builtin builtin_configfile =
+{
+  "configfile",
+  configfile_func,
+  BUILTIN_MENU | BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "configfile <config file>",
+  "Load and execute a config file."
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1521,5 +1583,7 @@ struct builtin *builtins[] = {
   &builtin_os2ldr,
   &builtin_dlat,
   &builtin_serial,
+  &builtin_write,
+  &builtin_configfile,
   0
 };

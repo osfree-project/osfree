@@ -458,7 +458,7 @@ void cmain (void)
 
   /* set BPB */
   bpb = (bios_parameters_block *)(REL1_BASE - 0x200 + 0xb);
-
+  /*
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
     // fill fake BPB
     grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
@@ -470,7 +470,7 @@ void cmain (void)
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
     bpb->marker     = 0x29;
-  }
+  } */
 
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
   bpb->log_drive   = 0x80 + (drvletter - 'C'); // c:;

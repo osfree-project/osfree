@@ -43,7 +43,7 @@ rem for %%i in (%files%) do if exist %%i move ..\..\..\cd\boot\freeldr\fsd\%%i .
 
 cd boot
 @move bootblk ..\..\..\..\cd\boot
-set files=preldr0.mdl preldr0.rel preldr.ini freeldr.mdl freeldr.rel boot.cfg bt_linux.mdl bt_linux.rel ^
+set files=preldr0.mdl preldr0.rel freeldr.mdl freeldr.rel *.ini *.cfg bt_linux.mdl bt_linux.rel ^
     bt_chain.mdl bt_chain.rel bt_disk.mdl bt_disk.rel bt_os2.mdl bt_os2.rel bt_bsd.mdl bt_bsd.rel
 @for %%i in (%files%) do if exist loader\%%i copy loader\%%i  ..\..\..\..\cd\boot\loader
 

@@ -89,16 +89,6 @@ int  menu_cnt, menu_len = 0;
 char *config_lines;
 int  config_len = 0;
 
-char cmdbuf[0x200];
-char path[] = "freeldr";
-static int promptlen;
-
-#define SCREEN_WIDTH  80
-#define SCREEN_HEIGHT 25
-
-extern int menu_width;
-extern int menu_height;
-
 typedef struct script script_t;
 // a structure corresponding to a
 // boot script or menu item
@@ -112,6 +102,22 @@ typedef struct script
 } script_t;
 
 script_t *menu_first, *menu_last;
+
+static int  section = 0;
+static script_t *sc = 0, *sc_prev = 0;
+
+char curr_cfg[0x100];
+char prev_cfg[0x100];
+
+char cmdbuf[0x200];
+char path[] = "freeldr";
+static int promptlen;
+
+#define SCREEN_WIDTH  80
+#define SCREEN_HEIGHT 25
+
+extern int menu_width;
+extern int menu_height;
 
 int process_cfg(char *cfg);
 
@@ -127,8 +133,6 @@ process_cfg_line1(char *line)
   int    i;
   char   *s, *p;
   char   *title; // current menu item title
-  static int  section = 0;
-  static script_t *sc = 0, *sc_prev = 0;
   struct builtin **b;
 
   if (!*line) return 1;
@@ -301,6 +305,12 @@ get_user_input(int *item, int *shift)
         }
         return 0;
       }
+      case 0xe08:  // backspace
+      {
+        /* return to the previous config */
+        exec_cfg(prev_cfg);
+        return 0;
+      }
       case 0x1c0d: // enter
       {
         ++*item;
@@ -427,6 +437,8 @@ void draw_menu(int item, int shift)
 
   if (menu_width  > SCREEN_WIDTH  - 4) menu_width  = SCREEN_WIDTH  - 4;
   if (menu_height > SCREEN_HEIGHT - 8) menu_height = SCREEN_HEIGHT - 8;
+
+  if (menu_height > num_items) menu_height = num_items + 1;
 
   x0 = (SCREEN_WIDTH  - menu_width)  / 2 - 1;
   y0 = (SCREEN_HEIGHT - menu_height) / 2 - 1;
@@ -775,22 +787,28 @@ exec_cfg(char *cfg)
   int item = -1; // menu item number
   int shift = 0;
   char *line, *p;
-  script_t *sc;
+  script_t *scr;
+  char buf[0x200];
 
-  config_lines = (char *)m->drives_addr + m->drives_length; // (char *)(0x100000);
+  strcpy(buf, cfg);
 
-  // exec global commands in config file
-  // and copy config file to memory as
-  // a string table (strings delimited by zeroes)
-  // and make script_t structures list for
-  // boot scripts and menu items
-  menu_len = 0; config_len = 0;
-  process_cfg_line = process_cfg_line1;
+  memset((char *)menu_items, 0, menu_len);
+  memset((char *)config_lines, 0, config_len);
 
-  // clear variable store
-  memset(variable_list, 0, sizeof(variable_list));
+  menu_first = menu_last = 0;
+  num_items = 0;
 
-  rc = process_cfg(cfg);
+  menu_len = 0;
+  config_len = 0;
+
+  section = 0;
+  sc = 0;
+  sc_prev = 0;
+
+  strcpy(prev_cfg, curr_cfg);
+  strcpy(curr_cfg, buf);
+
+  rc = process_cfg(buf);
 
   if (!rc)
     return 0;
@@ -799,7 +817,7 @@ exec_cfg(char *cfg)
     //panic("exec_cfg(): Error processing config file: ", cfg);
     // show cmd line
     cmdline(0, 0);
-    printf("\r\nError processing config file: %s\r\n", cfg);
+    printf("\r\nError processing config file: %s\r\n", buf);
     return 0;
   }
 
@@ -817,7 +835,7 @@ restart_menu:
   item = exec_menu(item, shift);
   item--;
 
-  sc = menu_first;
+  scr = menu_first;
   t->cls();
 
   itm = item + 1;
@@ -827,7 +845,7 @@ restart_menu:
     itm--;
     if (!itm)
     {
-      rc = exec_script(sc->scr, sc->num);
+      rc = exec_script(scr->scr, scr->num);
       if (!rc)
       {
         //for (i = 0; i < 1000; i++) ;
@@ -837,7 +855,7 @@ restart_menu:
       }
     }
     else
-      sc = sc->next;
+      scr = scr->next;
   }
 
   return 1;
@@ -852,21 +870,23 @@ KernelLoader(void)
 
   printf("\r\nKernel loader started.\r\n");
 
-  // exec the config file
-  //while (1)
-  //{
-    rc = exec_cfg(cfg);
-    if (!rc)
-    {
-    //  printf("Error executing the boot script!\r\n");
-    //  for (i = 0; i < 1000; i++) ;
-    }
-    else
-    {
-      // launch a multiboot kernel
-      boot_func(0, 2);
-    }
-  //}
+  config_lines = (char *)m->drives_addr + m->drives_length; // (char *)(0x100000);
+  menu_len = 0; config_len = 0;
+
+  // exec global commands in config file
+  // and copy config file to memory as
+  // a string table (strings delimited by zeroes)
+  // and make script_t structures list for
+  // boot scripts and menu items
+
+  // clear variable store
+  memset(variable_list, 0, sizeof(variable_list));
+
+  process_cfg_line = process_cfg_line1;
+
+  rc = exec_cfg(cfg);
+  // launch a multiboot kernel
+  boot_func(0, 2);
 }
 
 void
@@ -874,15 +894,7 @@ cmain(void)
 {
   /* Get mbi structure address from pre-loader */
   u_parm(PARM_MBI, ACT_GET, (unsigned int *)&m);
-  // init terminal
-  //serial_func("--unit=0 --speed=115200", 2);
+  /* init terminal */
   t = u_termctl(-1);
-
-  //printf("!!!\r\n");
-  //__asm {
-  //  cli
-  //  hlt
-  //}
-
   KernelLoader();
 }

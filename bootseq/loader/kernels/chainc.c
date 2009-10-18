@@ -118,7 +118,7 @@ void cmain(void)
 {
   char *mods_addr;
   int mods_count;
-  struct mod_list *mod;
+  struct mod_list *mod, *bootblk;
   struct geometry geom;
 
   char *cmdline;
@@ -127,7 +127,7 @@ void cmain(void)
   char *s, *kernel_cmdline;
   int force = 0;
   unsigned char ch, *p;
-  int n;
+  int n, i;
 
   boot_part  = (boot_drive >> 8) << 8;
   boot_drive = boot_drive & 0xff;
@@ -244,6 +244,16 @@ void cmain(void)
 
     // Copy kernel
     grub_memmove((char *)load_addr, kernel, kernel_len);
+
+    if (mods_count >= 2)
+    {
+      for (i = 0; i < mods_count; i++, mod++)
+      if (!strcmp((char *)mod->cmdline, "*bootsec*"))
+      {
+        /* if "*bootsec*" line is in the command line */
+        memmove((char *)0x7c00, (char *)mod->mod_start, mod->mod_end - mod->mod_start);
+      }
+    }
 
     kernel_ldr(kernel, kernel_len);
   }
