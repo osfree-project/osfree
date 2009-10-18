@@ -68,21 +68,19 @@ int (*process_cfg_line)(char *line);
 
 extern entry_func entry_addr;
 
+int width_func (char *arg, int flags);
+int height_func (char *arg, int flags);
 int boot_func (char *arg, int flags);
-int root_func (char *arg, int flags);
-int kernel_func (char *arg, int flags);
-int module_func (char *arg, int flags);
-int modaddr_func (char *arg, int flags);
-int lipmodule_func (char *arg, int flags);
-int vbeset_func (char *arg, int flags);
-int set_func (char *arg, int flags);
-int varexpand_func (char *arg, int flags);
+int exec_cfg(char *cfg, int menu_item, int menu_shift);
 
 void panic(char *msg, char *file);
 int  abbrev(char *s1, char *s2, int n);
 char *strip(char *s);
 char *trim(char *s);
 char *wordend(char *s);
+
+int item_save  = 0;
+int shift_save = 0;
 
 char *menu_items = (char *)MENU_BUF;
 int  menu_cnt, menu_len = 0;
@@ -106,8 +104,9 @@ script_t *menu_first, *menu_last;
 static int  section = 0;
 static script_t *sc = 0, *sc_prev = 0;
 
-char curr_cfg[0x100];
 char prev_cfg[0x100];
+char curr_cfg[0x100];
+int  menu_nest_lvl = 0;
 
 char cmdbuf[0x200];
 char path[] = "freeldr";
@@ -305,16 +304,30 @@ get_user_input(int *item, int *shift)
         }
         return 0;
       }
+      case 0x1c0d: // enter
+      {
+        menu_nest_lvl++;
+        item_save = *item;
+        shift_save = *shift;
+        ++*item;
+        return 0;
+      }
       case 0xe08:  // backspace
       {
         /* return to the previous config */
-        exec_cfg(prev_cfg);
-        return 0;
-      }
-      case 0x1c0d: // enter
-      {
-        ++*item;
-        return 0;
+        if (menu_nest_lvl > 0)
+        {
+          menu_nest_lvl--;
+          *item = *shift = 0;
+          exec_cfg(prev_cfg, item_save, shift_save);
+          //memset(prev_cfg, 0, sizeof(prev_cfg));
+          //item_save = *item;
+          //shift_save = *shift;
+          //item_save = shift_save = 0;
+          return 0;
+        }
+        else
+          return 1;
       }
       default:
        {
@@ -779,13 +792,13 @@ exec_script(char *script, int n)
 }
 
 int
-exec_cfg(char *cfg)
+exec_cfg(char *cfg, int menu_item, int menu_shift)
 {
   int i;
   int rc;
   int itm;
-  int item = -1; // menu item number
-  int shift = 0;
+  int item; // menu item number
+  int shift;
   char *line, *p;
   script_t *scr;
   char buf[0x200];
@@ -808,6 +821,10 @@ exec_cfg(char *cfg)
   strcpy(prev_cfg, curr_cfg);
   strcpy(curr_cfg, buf);
 
+  /* set default menu width and height */
+  width_func("68", 2);
+  height_func("15", 2);
+
   rc = process_cfg(buf);
 
   if (!rc)
@@ -824,7 +841,7 @@ exec_cfg(char *cfg)
   // starting point 0 instead of 1
   num_items--;
 
-  item = 0; shift = 0;
+  item = menu_item; shift = menu_shift;
 
 restart_menu:
 
@@ -871,7 +888,11 @@ KernelLoader(void)
   printf("\r\nKernel loader started.\r\n");
 
   config_lines = (char *)m->drives_addr + m->drives_length; // (char *)(0x100000);
+
   menu_len = 0; config_len = 0;
+
+  memset(prev_cfg, 0, sizeof(prev_cfg));
+  memset(curr_cfg, 0, sizeof(curr_cfg));
 
   // exec global commands in config file
   // and copy config file to memory as
@@ -881,10 +902,10 @@ KernelLoader(void)
 
   // clear variable store
   memset(variable_list, 0, sizeof(variable_list));
-
+  item_save = shift_save = 0;
   process_cfg_line = process_cfg_line1;
 
-  rc = exec_cfg(cfg);
+  rc = exec_cfg(cfg, 0, 0);
   // launch a multiboot kernel
   boot_func(0, 2);
 }

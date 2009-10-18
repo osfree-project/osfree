@@ -63,7 +63,7 @@ extern int screen_fg_color;
 extern int screen_bg_color_hl;
 extern int screen_fg_color_hl;
 
-int exec_cfg(char *cfg);
+int exec_cfg(char *cfg, int menu_item, int menu_shift);
 
 int abbrev(char *s1, char *s2, int n);
 int lipmodule_func (char *arg, int flags);
@@ -1548,7 +1548,7 @@ static struct builtin builtin_write =
 int
 configfile_func (char *arg, int flags)
 {
-  exec_cfg(arg);
+  exec_cfg(arg, 0, 0);
 
   return 0;
 }
