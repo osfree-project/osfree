@@ -1,3 +1,5 @@
+#define INCL_PM
+#define INCL_WIN
 #include <os2.h>
 
 ULONG APIENTRY WinDlgBox(const HWND hwndParent, const HWND hwndOwner, const PFNWP pfnDlgProc, const HMODULE hmod, const ULONG idDlg, const PVOID pCreateParams)
@@ -7,5 +9,7 @@ ULONG APIENTRY WinDlgBox(const HWND hwndParent, const HWND hwndOwner, const PFNW
 
   ULONG ulReply = WinProcessDlg(hwndDlg);
 
-  WinDestroyWindow(hwnd);
+  WinDestroyWindow(hwndDlg);
+
+  return ulReply;
 }
