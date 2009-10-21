@@ -94,39 +94,39 @@ realmode_init:
                    mov  ax, ss
                    mov  word ptr cs:preldr_ss_sp + 2, ax
 
-                   push ebx
+                   ;push ebx
 
-                   mov  al, '|'
-                   call com_outchar
+                   ;mov  al, '|'
+                   ;call com_outchar
 
-                   xor  ax, ax
-                   mov  gs, ax
-                   mov  bx, 1f41h
-                   mov  al, byte ptr gs:[bx]
-                   call com_outchar
+                   ;xor  ax, ax
+                   ;mov  gs, ax
+                   ;mov  bx, 1f41h
+                   ;mov  al, byte ptr gs:[bx]
+                   ;call com_outchar
 
-                   mov  al, ';'
-                   call com_outchar
+                   ;mov  al, ';'
+                   ;call com_outchar
 
-                   push cx
+                   ;push cx
 
-                   mov  ebx, dword ptr cs:preldr_ss_sp
-                   mov  cx, 8
-lp1:
-                   mov  al, bl
-                   and  al, 0fh
-                   add  al, 30h
-                   call com_outchar
-                   ror  ebx, 4
+                   ;mov  ebx, dword ptr cs:preldr_ss_sp
+                   ;mov  cx, 8
+;lp1:
+                   ;mov  al, bl
+                   ;and  al, 0fh
+                   ;add  al, 30h
+                   ;call com_outchar
+                   ;ror  ebx, 4
 
-                   loop lp1
+                   ;loop lp1
 
-                   pop  cx
+                   ;pop  cx
 
-                   mov  al, '|'
-                   call com_outchar
+                   ;mov  al, '|'
+                   ;call com_outchar
 
-                   pop  ebx
+                   ;pop  ebx
 
                    ;
                    ; pass structures to os2ldr

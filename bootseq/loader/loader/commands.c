@@ -66,6 +66,8 @@ extern int screen_fg_color_hl;
 extern char prev_cfg[0x100];
 extern char curr_cfg[0x100];
 
+extern int goodmenu;
+extern int num_items;
 extern int item_save  = 0;
 extern int shift_save = 0;
 
@@ -1555,17 +1557,28 @@ int
 configfile_func (char *arg, int flags)
 {
   char buf[0x100];
-  int  itm = 0, shft = 0;
+  int  item = 0, shift = 0;
+  int  rc;
+
+  if (!*arg) *arg = 'q'; // something != NULL
 
   strcpy(prev_cfg, curr_cfg);
   strcpy(buf, arg);
   strcpy(curr_cfg, buf);
 
-  while (!exec_cfg(curr_cfg, itm, shft))
-  {
-    itm = item_save;
-    shft = shift_save;
-  }
+  //while (!(rc = exec_cfg(curr_cfg, item, shift)))
+  //{
+  //  item  = item_save;
+  //  shift = shift_save;
+  //}
+
+  //if (rc == -1)
+  //{
+  //  /* if cannot open config file */
+  //  goodmenu = 0;
+  //  item = shift = 0;
+  //  return 1;
+  //}
 
   return 0;
 }
@@ -1577,6 +1590,32 @@ static struct builtin builtin_configfile =
   BUILTIN_MENU | BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
   "configfile <config file>",
   "Load and execute a config file."
+};
+
+int
+print_func(char *arg, int flags)
+{
+  printf("%s\r\n", var_sprint_buf(arg, &flags));
+  return 0;
+}
+
+static struct builtin builtin_print =
+{
+  "print",
+  print_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "print \"string with vars\"",
+  "Print a string which may contain variables. Variables are enclosed"
+  " in $( and ) (like \"make\")."
+};
+
+static struct builtin builtin_echo =
+{
+  "echo",
+  print_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "echo \"string with vars\"",
+  "Alias for \"print\"."
 };
 
 struct builtin *builtins[] = {
@@ -1602,5 +1641,7 @@ struct builtin *builtins[] = {
   &builtin_serial,
   &builtin_write,
   &builtin_configfile,
+  &builtin_print,
+  &builtin_echo,
   0
 };

@@ -14,6 +14,7 @@
 #include "fsd.h"
 #include "term.h"
 
+extern kernel_t kernel_type;
 extern lip2_t *l;
 extern bios_parameters_block *bpb;
 extern FileTable ft;
@@ -32,6 +33,7 @@ struct term_entry *t;
 
 static char state = 0;
 
+int  goodmenu = 1;
 int  default_item = -1;
 
 /* menu colors */
@@ -192,7 +194,7 @@ process_cfg_line1(char *line)
 int
 exec_line(char *line)
 {
-  int i;
+  int i, rc;
   char *p, *s = line;
   struct builtin **b;
 
@@ -321,6 +323,7 @@ get_user_input(int *item, int *shift)
           menu_nest_lvl--;
           *item = -1; /* no selected item on menu exit */
           *shift = 0;
+          state = 0;
           //exec_cfg(prev_cfg, item_save, shift_save);
           strcpy(curr_cfg, prev_cfg);
           memset(prev_cfg, 0, sizeof(prev_cfg));
@@ -356,7 +359,7 @@ void show_background_screen(void)
 
   t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
               (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
-  t->cls();
+  //t->cls();
 
   t->setcolorstate(COLOR_STATE_NORMAL);
 
@@ -439,6 +442,8 @@ void draw_menu(int item, int shift)
   int  x0, y0;
   int  offset;
 
+  if (!goodmenu) return;
+
   //item--;
 
   //t->setcolorstate(COLOR_STATE_NORMAL);
@@ -500,11 +505,12 @@ void draw_menu(int item, int shift)
     // show highlighted menu string in inverse color
     if (j == item) invert_colors(&foreground_color, &background_color);
 
-    sprintf(s, "%d", j);
-    l = grub_strlen(s);
-    if (l == 1) grub_strcat(str, " ", s);
-    if (l == 2) grub_strcpy(str, s);
-    sprintf(buf, "%s%s. %s", spc, str, sc->title);
+    //sprintf(s, "%d", j);
+    //l = grub_strlen(s);
+    //if (l == 1) grub_strcat(str, " ", s);
+    //if (l == 2) grub_strcpy(str, s);
+    //sprintf(buf, "%s%s. %s", spc, str, sc->title);
+    sprintf(buf, "%s %s", spc, sc->title);
 
     p = buf + m;
     l = grub_strlen(p);
@@ -671,9 +677,10 @@ int exec_cmd(char *cmd)
 void cmdline(int item, int shift)
 {
   int  ii;
+  int  rc;
   char exitflag = 0;
   char *cmd;
-  int  ch;
+  int  ch = 0;
 
   //printf("cmdline!\r\n");
 
@@ -692,10 +699,7 @@ void cmdline(int item, int shift)
   }
 
   t->cls();
-  state = 0;
-  show_background_screen();
-  draw_menu(item, shift);
-  //for (ii = 0; ii < 0x1000; ii++) ;
+  state = 3; // exit
 }
 
 void menued(int item, int shift)
@@ -738,9 +742,6 @@ void menued(int item, int shift)
 
   t->cls();
   state = 0;
-  show_background_screen();
-  draw_menu(item, shift);
-  //for (ii = 0; ii < 0x1000; ii++) ;
 }
 
 
@@ -759,18 +760,23 @@ exec_menu(item, shift)
     switch (state)
     {
       case 0: // menu
+        show_background_screen();
         do {
           draw_menu(item, shift);
         }   while ((t = get_user_input(&item, &shift)) && (t != -1));
-        if (state) continue; // if we got here by pressing Esc key
-        if (t == -1) return -1;
-        break;               // otherwise, if Enter key pressed
+        if (state) continue;    // if we got here by pressing Esc key
+        if (t == -1) return -1; // exit to the previous menu
+        break;                  // otherwise, if Enter key pressed
       case 1: // cmd line
         cmdline(item, shift);
         continue;
       case 2: // menu editor
         menued(item, shift);
         continue;
+      case 3: // exit to exec_cfg
+        item = -2;
+        state = 0;
+        break;
       default:
         break;
     }
@@ -784,11 +790,12 @@ int
 exec_script(char *script, int n)
 {
   char *line = script;
-  int  i;
+  int  i, rc;
 
   for (i = 0; i < n; i++)
   {
-    if (!exec_line(line)) return 0;
+    rc = exec_line(line);
+    if (rc != 1) return rc;
     // next line
     while (*line++) ;
   }
@@ -828,20 +835,25 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
   char *line, *p;
   script_t *scr;
   char buf[0x100];
+  char *ccfg;
 
   strcpy(buf, cfg);
   init_vars();
-  rc = process_cfg(buf);
 
-  if (!rc)
-    return 0;
-  else if (rc == -1) // something went wrong during boot script execution
+  goodmenu = 1;
+  rc = process_cfg(buf);
+  if (!rc)           // can't read config file
+  {
+    printf("\r\nError opening/reading config file: %s\r\n", buf);
+    state = 1; // go to command line
+  }
+  else if (rc == -1) // something went wrong during global commands execution
   {
     //panic("exec_cfg(): Error processing config file: ", cfg);
     // show cmd line
-    cmdline(0, 0);
+    //cmdline(0, 0);
     printf("\r\nError processing config file: %s\r\n", buf);
-    return 0;
+    state = 1; // go to command line
   }
 
   // starting point 0 instead of 1
@@ -849,19 +861,26 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
 
   item = menu_item; shift = menu_shift;
 
+  if (item > num_items) item = 0;
+  if (!item) item = default_item;
+
 restart_menu:
 
   // show screen header, border and status line
   show_background_screen();
 
+  ccfg = curr_cfg;
   // show a menu and let the user choose a menu item
-  if ((item = exec_menu(item, shift)) == -1)
-  {
-    //item = menu_item;
-    //shift = menu_shift;
-    init_vars();
+  item = exec_menu(item, shift);
+
+  if (item == -1) // return to the previous menu
+    return 1;
+
+  if (item == -2 && strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
+    return 2;
+
+  if (item == -2)
     return 0;
-  }
 
   item--;
 
@@ -875,27 +894,33 @@ restart_menu:
     itm--;
     if (!itm)
     {
-      rc = exec_script(scr->scr, scr->num);
-      //printf("exec_script() exited\r\n");
-      if (!rc)
+      ccfg = curr_cfg;
+      if (!exec_script(scr->scr, scr->num))
       {
-        //for (i = 0; i < 1000; i++) ;
         printf("Loading failed, press any key...\r\n");
         t->getkey();
         goto restart_menu;
       }
+      if (strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
+        return 2;
     }
     else
       scr = scr->next;
   }
 
-  return 1;
+  /* launch a multiboot kernel */
+  if (kernel_type != KERNEL_TYPE_NONE)
+    boot_func(0, 2);
+
+  return 0;
 }
 
 void
 KernelLoader(void)
 {
   char *cfg = "/boot/loader/boot.cfg";
+  int item = 0;
+  int shift = 0;
   int rc;
   int i;
 
@@ -903,26 +928,51 @@ KernelLoader(void)
 
   config_lines = (char *)m->drives_addr + m->drives_length; // (char *)(0x100000);
 
-  menu_len = 0; config_len = 0;
-
-  memset(prev_cfg, 0, sizeof(prev_cfg));
-  memset(curr_cfg, 0, sizeof(curr_cfg));
-
   // exec global commands in config file
   // and copy config file to memory as
   // a string table (strings delimited by zeroes)
   // and make script_t structures list for
   // boot scripts and menu items
-
   // clear variable store
+
   memset(variable_list, 0, sizeof(variable_list));
   item_save = shift_save = 0;
-  process_cfg_line = process_cfg_line1;
-  strcpy(curr_cfg, cfg);
-  exec_cfg(curr_cfg, 0, 0);
 
-  /* launch a multiboot kernel */
-  boot_func(0, 2);
+  process_cfg_line = process_cfg_line1;
+
+  menu_len = 0; config_len = 0;
+  memset(prev_cfg, 0, sizeof(prev_cfg));
+  memset(curr_cfg, 0, sizeof(curr_cfg));
+  strcpy(curr_cfg, cfg);
+
+  while (1)
+  {
+    if (!*curr_cfg) strcpy(curr_cfg, cfg);
+
+    rc = exec_cfg(curr_cfg, item, shift);
+
+    switch (rc)
+    {
+    case 0: // script execution is successful, but no kernel loaded
+      item = item_save;
+      shift = shift_save;
+      continue;
+    case 1: // return to the previous menu
+      item  = item_save;
+      shift = shift_save;
+      continue;
+    case 2: // configfile
+      item_save = item;
+      shift_save = shift;
+      item = 0;
+      shift = 0;
+      continue;
+    default:
+      item = item_save;
+      shift = shift_save;
+      continue;
+    }
+  }
 }
 
 void

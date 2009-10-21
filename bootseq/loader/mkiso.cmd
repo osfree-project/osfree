@@ -35,17 +35,13 @@ set dirs=cd cd\boot cd\boot\loader cd\boot\loader\fsd ^
          cd\boot\loader\term cd\l4 cd\pns cd\os3 cd\l4ka
 @for %%i in (%dirs%) do if not exist %%i mkdir %%i
 
-cd osfree\trunk\bin
-
-rem @move ..\..\cd\boot\freeldr\fsd\preldr0.rel ..\..\..\cd\boot\freeldr
-rem set files=serial.rel hercules.rel console.rel
-rem for %%i in (%files%) do if exist %%i move ..\..\..\cd\boot\freeldr\fsd\%%i ..\..\..\cd\boot\freeldr\term
-
-cd boot
+cd osfree\trunk\bin\boot
 @move bootblk ..\..\..\..\cd\boot
-set files=preldr0.mdl preldr0.rel freeldr.mdl freeldr.rel *.ini *.cfg bt_linux.mdl bt_linux.rel ^
-    bt_chain.mdl bt_chain.rel bt_disk.mdl bt_disk.rel bt_os2.mdl bt_os2.rel bt_bsd.mdl bt_bsd.rel
-@for %%i in (%files%) do if exist loader\%%i copy loader\%%i  ..\..\..\..\cd\boot\loader
+cd loader
+set files=preldr0.mdl preldr0.rel freeldr.mdl freeldr.rel linux.mdl ^
+    chain.mdl disk.mdl bootos2.mdl bsd.mdl *.cfg *.ini
+@for %%i in (%files%) do if exist %%i copy %%i  ..\..\..\..\..\cd\boot\loader
+cd ..
 
 @copy loader\fsd\* ..\..\..\..\cd\boot\loader\fsd
 @copy loader\term\* ..\..\..\..\cd\boot\loader\term
@@ -82,3 +78,5 @@ set files=os2ldr os2ldr.msg os2ldr.ini os2boot os2dump os2krnl config.sys
 @%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -no-iso-translate -iso-level 3 -r -J -U -D -allow-lowercase -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd
 rem -eltorito-alt-boot -b floppies/os2boot.img
 cd %cwd%
+
+:end

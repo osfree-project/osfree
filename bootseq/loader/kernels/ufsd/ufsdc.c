@@ -302,11 +302,11 @@ void cmain (void)
       safe_parse_maxint(&pp, &speed);
     }
 
+    // copy default partition types
+    for (r = default_part_types, i = 0; *r; r++, i++) part_types[i] = *r;
     if (pp = strstr((char *)m->cmdline, "--pt"))
     {
       pp = skip_to(1, pp);
-      // copy default partition types
-      for (r = default_part_types, i = 0; *r; r++, i++) part_types[i] = *r;
       // copy partition types specified on the command line
       while (i <= 0x20)
       {
@@ -316,8 +316,8 @@ void cmain (void)
         if (!*r || *r == ' ') break;
         pp = r + 1;
       }
-      part_types[i] = '\0';
     }
+    part_types[i] = '\0';
 
     memset(mode, 0, sizeof(mode));
     if (pp = strstr((char *)m->cmdline, "--drv"))
