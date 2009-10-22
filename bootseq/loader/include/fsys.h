@@ -112,6 +112,7 @@ struct pmif
 #define PARM_EXTENDED_MEMORY      14
 #define PARM_PREFIX               15
 #define PARM_LDRLEN               16
+#define PARM_BUF_DRIVE            17
 
 #pragma aux u_open   "*"
 #pragma aux u_read   "*"

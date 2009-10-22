@@ -419,6 +419,15 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       };
+    case PARM_BUF_DRIVE:
+      {
+        if (action == ACT_GET)
+          *val = buf_drive;
+        else
+          buf_drive = *val;
+
+        return 0;
+      };
     case PARM_SAVED_PARTITION:
       {
         if (action == ACT_GET)

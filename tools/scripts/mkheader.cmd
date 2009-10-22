@@ -5,7 +5,7 @@
 parse arg binary header
 parse source os .
 
-/* a number of byter in single 'db' string */
+/* a number of bytes in single 'db' string */
 chunksize = 20
 
 if os = 'OS/2'       then del = 'del '

@@ -29,8 +29,6 @@
 kernel_t kernel_type;
 extern grub_error_t errnum;
 
-int os2ldr = 0;
-
 extern struct term_entry *t;
 
 /* The address for Multiboot command-line buffer.  */
@@ -66,7 +64,6 @@ extern int screen_fg_color_hl;
 extern char prev_cfg[0x100];
 extern char curr_cfg[0x100];
 
-extern int goodmenu;
 extern int num_items;
 extern int item_save  = 0;
 extern int shift_save = 0;
@@ -1297,8 +1294,18 @@ static struct builtin builtin_root =
 int
 boot_func(char *arg, int flags)
 {
-  if (os2ldr)
+
+  switch (kernel_type)
+  {
+  case KERNEL_TYPE_NONE:
+    return 1;
+  case KERNEL_TYPE_OS2LDR:
     return_to_preldr();
+  case KERNEL_TYPE_MULTIBOOT:
+    ;
+  default:
+    ;
+  }
 
   multi_boot();
 
@@ -1437,7 +1444,7 @@ os2ldr_func(char *arg, int flags)
   char bf[0x200];
   int  n;
 
-  os2ldr++;
+  kernel_type = KERNEL_TYPE_OS2LDR;
   printf("Loading OS/2\r\n");
 
   if (s = strstr(arg, "--prefix"))
@@ -1565,20 +1572,6 @@ configfile_func (char *arg, int flags)
   strcpy(prev_cfg, curr_cfg);
   strcpy(buf, arg);
   strcpy(curr_cfg, buf);
-
-  //while (!(rc = exec_cfg(curr_cfg, item, shift)))
-  //{
-  //  item  = item_save;
-  //  shift = shift_save;
-  //}
-
-  //if (rc == -1)
-  //{
-  //  /* if cannot open config file */
-  //  goodmenu = 0;
-  //  item = shift = 0;
-  //  return 1;
-  //}
 
   return 0;
 }

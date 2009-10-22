@@ -33,7 +33,6 @@ struct term_entry *t;
 
 static char state = 0;
 
-int  goodmenu = 1;
 int  default_item = -1;
 
 /* menu colors */
@@ -291,7 +290,6 @@ get_user_input(int *item, int *shift)
         {
           t->cls();
           state = 2;
-          //for (ii = 0; ii < 0x1000; ii++) ;
         }
         return 0;
       }
@@ -302,15 +300,14 @@ get_user_input(int *item, int *shift)
         {
           state++;
           t->cls();
-          //for (ii = 0; ii < 0x1000; ii++) ;
         }
         return 0;
       }
       case 0x1c0d: // enter
       {
         menu_nest_lvl++;
-        item_save = *item;
-        shift_save = *shift;
+        //item_save = *item;
+        //shift_save = *shift;
         ++*item;
 
         return 0;
@@ -321,16 +318,11 @@ get_user_input(int *item, int *shift)
         if (menu_nest_lvl > 0)
         {
           menu_nest_lvl--;
-          *item = -1; /* no selected item on menu exit */
-          *shift = 0;
           state = 0;
-          //exec_cfg(prev_cfg, item_save, shift_save);
           strcpy(curr_cfg, prev_cfg);
           memset(prev_cfg, 0, sizeof(prev_cfg));
-          //item_save = *item;
-          //shift_save = *shift;
-          //item_save = shift_save = 0;
-          return 0;
+
+          return -1;
         }
         else
           return 1;
@@ -354,7 +346,7 @@ get_user_input(int *item, int *shift)
 void show_background_screen(void)
 {
   int i, j;
-  char *s1 = "北北北北北北北 FreeLdr v.0.0.3, (c) osFree project, 2009 May 28 北北北北北北北";
+  char *s1 = "北北北北北北北 FreeLdr v.0.0.4, (c) osFree project, 2009 Oct 22 北北北北北北北";
   int  l, n;
 
   t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
@@ -441,8 +433,6 @@ void draw_menu(int item, int shift)
   char *p;
   int  x0, y0;
   int  offset;
-
-  if (!goodmenu) return;
 
   //item--;
 
@@ -765,7 +755,8 @@ exec_menu(item, shift)
           draw_menu(item, shift);
         }   while ((t = get_user_input(&item, &shift)) && (t != -1));
         if (state) continue;    // if we got here by pressing Esc key
-        if (t == -1) return -1; // exit to the previous menu
+        if (t == -1)            // exit to the previous menu
+          item = -1;
         break;                  // otherwise, if Enter key pressed
       case 1: // cmd line
         cmdline(item, shift);
@@ -836,24 +827,22 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
   script_t *scr;
   char buf[0x100];
   char *ccfg;
+  unsigned long drv;
 
   strcpy(buf, cfg);
   init_vars();
 
-  goodmenu = 1;
   rc = process_cfg(buf);
+
   if (!rc)           // can't read config file
   {
     printf("\r\nError opening/reading config file: %s\r\n", buf);
-    state = 1; // go to command line
+    state = 1;       // go to command line
   }
   else if (rc == -1) // something went wrong during global commands execution
   {
-    //panic("exec_cfg(): Error processing config file: ", cfg);
-    // show cmd line
-    //cmdline(0, 0);
     printf("\r\nError processing config file: %s\r\n", buf);
-    state = 1; // go to command line
+    state = 1;       // go to command line
   }
 
   // starting point 0 instead of 1
@@ -866,10 +855,7 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
 
 restart_menu:
 
-  // show screen header, border and status line
-  show_background_screen();
-
-  ccfg = curr_cfg;
+  //ccfg = curr_cfg;
   // show a menu and let the user choose a menu item
   item = exec_menu(item, shift);
 
@@ -879,7 +865,7 @@ restart_menu:
   if (item == -2 && strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
     return 2;
 
-  if (item == -2)
+  if (item == - 2)
     return 0;
 
   item--;
@@ -898,6 +884,11 @@ restart_menu:
       if (!exec_script(scr->scr, scr->num))
       {
         printf("Loading failed, press any key...\r\n");
+        kernel_type = KERNEL_TYPE_NONE; /* invalidate */
+        errnum = 0;
+        drv = 0xff;
+        u_parm(PARM_BUF_DRIVE, ACT_SET, (int *)&drv);
+        u_parm(PARM_ERRNUM, ACT_SET, (int *)&errnum);
         t->getkey();
         goto restart_menu;
       }
@@ -909,24 +900,24 @@ restart_menu:
   }
 
   /* launch a multiboot kernel */
-  if (kernel_type != KERNEL_TYPE_NONE)
-    boot_func(0, 2);
+  boot_func(0, 2);
 
   return 0;
 }
 
 void
-KernelLoader(void)
+KernelLoader(char **script)
 {
   char *cfg = "/boot/loader/boot.cfg";
+  char **cmd;
   int item = 0;
   int shift = 0;
   int rc;
-  int i;
+  int i, n = 0;
 
   printf("\r\nKernel loader started.\r\n");
 
-  config_lines = (char *)m->drives_addr + m->drives_length; // (char *)(0x100000);
+  config_lines = (char *)m->drives_addr + m->drives_length;
 
   // exec global commands in config file
   // and copy config file to memory as
@@ -941,15 +932,28 @@ KernelLoader(void)
   process_cfg_line = process_cfg_line1;
 
   menu_len = 0; config_len = 0;
+
   memset(prev_cfg, 0, sizeof(prev_cfg));
   memset(curr_cfg, 0, sizeof(curr_cfg));
-  strcpy(curr_cfg, cfg);
 
   while (1)
   {
     if (!*curr_cfg) strcpy(curr_cfg, cfg);
 
-    rc = exec_cfg(curr_cfg, item, shift);
+    if (script)
+    {
+      for (cmd = script; *cmd; cmd++)
+        if (!exec_line(*cmd))
+        {
+          printf("Boot script failed, press any key...\r\n");
+          t->getkey();
+          rc = -1;
+          break;
+        }
+      script = 0;
+    }
+    else
+      rc = exec_cfg(curr_cfg, item, shift);
 
     switch (rc)
     {
@@ -968,19 +972,19 @@ KernelLoader(void)
       shift = 0;
       continue;
     default:
-      item = item_save;
-      shift = shift_save;
+      item = 0;
+      shift = 0;
       continue;
     }
   }
 }
 
 void
-cmain(void)
+cmain(char **script)
 {
   /* Get mbi structure address from pre-loader */
   u_parm(PARM_MBI, ACT_GET, (unsigned int *)&m);
   /* init terminal */
   t = u_termctl(-1);
-  KernelLoader();
+  KernelLoader(script);
 }

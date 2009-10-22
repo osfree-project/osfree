@@ -43,7 +43,7 @@ size1 = stream(file1, 'c', 'query size')
 size2 = stream(file2, 'c', 'query size')
 
 if size1 \= size2 then do
-  call charout stderr, 'Error: sizes of two files don''t equal!' || crlf
+  call charout stderr, 'Error: sizes of two files aren''t equal!' || crlf
   signal quit
 end
 

@@ -98,6 +98,7 @@ ok:
 
       assume cs:_TEXT
 
+      xor eax, eax
       call cmain
 
       cli

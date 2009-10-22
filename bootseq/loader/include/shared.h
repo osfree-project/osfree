@@ -818,7 +818,8 @@ typedef enum
   KERNEL_TYPE_BIG_LINUX,        /* Big Linux.  */
   KERNEL_TYPE_FREEBSD,          /* FreeBSD.  */
   KERNEL_TYPE_NETBSD,           /* NetBSD.  */
-  KERNEL_TYPE_CHAINLOADER       /* Chainloader.  */
+  KERNEL_TYPE_CHAINLOADER,      /* Chainloader.  */
+  KERNEL_TYPE_OS2LDR            /* os2ldr. */
 }
 kernel_t;
 

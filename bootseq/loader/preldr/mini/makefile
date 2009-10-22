@@ -6,7 +6,7 @@
 
 #
 # $+ switches on and $- switches off
-# immediate macros substitution
+# the immediate macros substitution
 #
 
 DEST             =  boot$(SEP)loader
