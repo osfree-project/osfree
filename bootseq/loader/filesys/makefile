@@ -14,7 +14,7 @@
 #
 blackboxes           = $(p)fat$(e) $(p)ext2fs$(e) $(p)jfs$(e) $(p)iso9660$(e) $(p)reiserfs$(e) &
                        $(p)minix$(e) $(p)ufs2$(e) $(p)vstafs$(e) $(p)ffs$(e) $(p)xfs$(e) $(p)ntfs$(e) &
-                       $(p)ntfs_nocomp$(e)
+                       $(p)ntfs_nocomp$(e) $(p)hpfs$(e)
 
 # filesys without $(p) and $(e):
 p                    =

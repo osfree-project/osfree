@@ -881,10 +881,10 @@ void setlip1(lip1_t *l1)
   //l->lip_memcheck = 0; //&grub_memcheck;
   l1->lip_memset   = &grub_memset;
   l1->lip_memmove  = &grub_memmove;
-  l1->lip_strcpy   = 0; //&grub_strcpy;
-  l1->lip_strcmp   = 0; //&grub_strcmp;
+  l1->lip_strcpy   = &grub_strcpy;
+  l1->lip_strcmp   = &grub_strcmp;
   l1->lip_memcmp   = &grub_memcmp;
-  l1->lip_strlen   = 0; //&grub_strlen;
+  l1->lip_strlen   = &grub_strlen;
   l1->lip_isspace  = &grub_isspace;
   l1->lip_tolower  = &grub_tolower;
 
@@ -1280,7 +1280,7 @@ void reloc(char *base, char *rel_file, unsigned long shift)
     // buf = (char *)(EXT2BUF_BASE);
     rc  = freeldr_read(buf, -1);
   } else {
-    panic("Can't open .rel file:", rel_file);
+    panic("Can't open .rel file: ", rel_file);
   }
 
   /* number of reloc items */
@@ -1644,6 +1644,13 @@ int init(void)
 
   /* fixup uFSD */
   reloc((char *)(EXT3HIBUF_BASE), str, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+
+  /* call uFSD init (set linkage) */
+  //if (!filetab_ptr)
+  //{
+  //  fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
+  //  fsd_init(l1);
+  //}
 
   /* Init terminal */
   init_term();

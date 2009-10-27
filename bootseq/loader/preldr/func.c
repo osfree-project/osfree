@@ -381,8 +381,10 @@ attempt_mount (void)
 int
 open_device (void)
 {
-  if (open_partition ())
-    attempt_mount ();
+  //if (open_partition ())
+  //  attempt_mount ();
+  if (!open_partition () || !attempt_mount ())
+    return 0;
 
   if (errnum != ERR_NONE)
     return 0;

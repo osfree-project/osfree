@@ -214,7 +214,7 @@ jfs_mount (void)
 {
         struct jfs_superblock super;
 
-        if ((*ppart_length) < MINJFS >> SECTOR_BITS
+        if (*ppart_length < MINJFS >> SECTOR_BITS
             || !(*pdevread) (SUPER1_OFF >> SECTOR_BITS, 0,
                          sizeof(struct jfs_superblock), (char *)&super)
             || (super.s_magic != JFS_MAGIC)
@@ -250,10 +250,11 @@ jfs_read (char *buf, int len)
                         toread = (endofcur >= endpos)
                                   ? len : (endofcur - *pfilepos);
 
-                        disk_read_func = disk_read_hook;
+                        //disk_read_func = disk_read_hook;
+                        disk_read_func = NULL;
                         (*pdevread) (addressXAD (xad) << jfs.bdlog,
                                  *pfilepos - (offset << jfs.l2bsize), toread, buf);
-                        disk_read_func = NULL;
+                        //disk_read_func = NULL;
 
                         buf += toread;
                         len -= toread;
@@ -363,12 +364,12 @@ jfs_dir (char *dirname)
 
                         cmp = (!*dirname) ? -1 : substring (dirname, namebuf);
 #ifndef STAGE1_5
-                        if (print_possibilities && ch != '/'
-                            && cmp <= 0) {
-                                if (print_possibilities > 0)
-                                        print_possibilities = -print_possibilities;
-                                //print_a_completion (namebuf);
-                        } else
+//                        if (print_possibilities && ch != '/'
+//                            && cmp <= 0) {
+//                                if (print_possibilities > 0)
+//                                        print_possibilities = -print_possibilities;
+//                                print_a_completion (namebuf);
+//                        } else
 #endif
                         if (cmp == 0) {
                                 parent_inum = inum;

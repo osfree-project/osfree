@@ -64,8 +64,8 @@ _TEXT    segment dword public 'CODE'  use32
 ;           org EXT_BUF_BASE + 40h
 fsd_init:
          jmp  real_start
-__bss_start     dd (exe_end - 0x7c000)
-__bss_end       dd (bss_end - 0x7c000)
+__bss_start     dd (exe_end - EXT_BUF_BASE)
+__bss_end       dd (bss_end - EXT_BUF_BASE)
 real_start:
 _TEXT    ends
 

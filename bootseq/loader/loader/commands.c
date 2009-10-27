@@ -1564,7 +1564,6 @@ int
 configfile_func (char *arg, int flags)
 {
   char buf[0x100];
-  int  item = 0, shift = 0;
   int  rc;
 
   if (!*arg) *arg = 'q'; // something != NULL

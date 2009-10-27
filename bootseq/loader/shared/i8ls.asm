@@ -28,9 +28,10 @@
 ;*               DESCRIBE IT HERE!
 ;*
 ;*****************************************************************************
+
+include mdef.inc
 include struct.inc
 
-.386p
 ;========================================================================
 ;==     Name:           I8S                                            ==
 ;==     Operation:      integer eight byte shift                       ==
@@ -45,14 +46,11 @@ include struct.inc
 ; At present, the following routines ignore what is in ECX.
 
 
-name        i8s
+        modstart        i8s
 
-_TEXT   segment dword public 'CODE'  use32
+        xdefp   __U8RS
 
-public __U8RS
-
-__U8RS:
-        assume cs:_TEXT
+        defpe   __U8RS
 
         mov     ecx,ebx         ; get shift-count into cl
         and     cl,03fH         ; get mod 64 shift count
@@ -67,13 +65,13 @@ L1:
         sub     ecx,020H        ; knock off 32-bits of shifting
         xor     edx,edx         ; zero extend result
         shr     eax,cl
-
         ret
 
-public __I8RS
+        endproc __U8RS
 
-__I8RS:
-        assume cs:_TEXT
+        xdefp   __I8RS
+
+        defpe   __I8RS
 
         mov     ecx,ebx         ; get shift-count into cl
         and     cl,03fH         ; get mod 64 shift count
@@ -81,7 +79,6 @@ __I8RS:
         jnz     L2
         shrd    eax,edx,cl
         sar     edx,cl
-
         ret                     ; and return!!!
 
 L2:
@@ -89,15 +86,15 @@ L2:
         sub     cl,020H         ; knock off 32-bits of shifting
         sar     edx,31          ; sign extend hi-word
         sar     eax,cl          ; shift remaining part
-
         ret
 
-public __I8LS
-public __U8LS
+        endproc __I8RS
 
-__I8LS:
-__U8LS:
-        assume cs:_TEXT
+        xdefp   __I8LS
+        xdefp   __U8LS
+
+        defpe   __I8LS
+        defpe   __U8LS
 
         mov     ecx,ebx         ; get shift-count into cl
         and     cl,03fH         ; get mod 64 shift count
@@ -105,7 +102,6 @@ __U8LS:
         jnz     L3
         shld    edx,eax,cl
         shl     eax,cl
-
         ret                     ; and return!!!
 
 L3:
@@ -113,9 +109,9 @@ L3:
         sub     cl,020H         ; knock off 32-bits of shifting
         xor     eax,eax         ; lo 32 bits are now zero
         shl     edx,cl          ; shift remaining part
-
         ret                     ; and return!!!
 
-_TEXT   ends
-
+        endproc __U8LS
+        endproc __I8LS
+        endmod
         end

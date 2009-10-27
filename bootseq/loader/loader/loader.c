@@ -306,8 +306,6 @@ get_user_input(int *item, int *shift)
       case 0x1c0d: // enter
       {
         menu_nest_lvl++;
-        //item_save = *item;
-        //shift_save = *shift;
         ++*item;
 
         return 0;
@@ -736,7 +734,7 @@ void menued(int item, int shift)
 
 
 int
-exec_menu(item, shift)
+exec_menu(int item, int shift)
 {
   int t = 0;
   //int cont = 1;  // continuation flag
@@ -756,7 +754,7 @@ exec_menu(item, shift)
         }   while ((t = get_user_input(&item, &shift)) && (t != -1));
         if (state) continue;    // if we got here by pressing Esc key
         if (t == -1)            // exit to the previous menu
-          item = -1;
+          item |= 0x80000000;
         break;                  // otherwise, if Enter key pressed
       case 1: // cmd line
         cmdline(item, shift);
@@ -765,7 +763,7 @@ exec_menu(item, shift)
         menued(item, shift);
         continue;
       case 3: // exit to exec_cfg
-        item = -2;
+        item |= 0x40000000;
         state = 0;
         break;
       default:
@@ -848,10 +846,11 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
   // starting point 0 instead of 1
   num_items--;
 
-  item = menu_item; shift = menu_shift;
-
-  if (item > num_items) item = 0;
+  if (menu_item) item = menu_item;
   if (!item) item = default_item;
+  if (item > num_items) item = num_items;
+
+  shift = menu_shift;
 
 restart_menu:
 
@@ -859,14 +858,17 @@ restart_menu:
   // show a menu and let the user choose a menu item
   item = exec_menu(item, shift);
 
-  if (item == -1) // return to the previous menu
+  if (item & 0x80000000) // return to the previous menu
+  {
+    item &= ~0x80000000; // clear flag in upper bits
     return 1;
+  }
 
-  if (item == -2 && strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
-    return 2;
-
-  if (item == - 2)
+  if (item & 0x40000000)
+  {
+    item &= ~0x40000000; // clear flag in upper bits
     return 0;
+  }
 
   item--;
 
@@ -887,13 +889,17 @@ restart_menu:
         kernel_type = KERNEL_TYPE_NONE; /* invalidate */
         errnum = 0;
         drv = 0xff;
-        u_parm(PARM_BUF_DRIVE, ACT_SET, (int *)&drv);
-        u_parm(PARM_ERRNUM, ACT_SET, (int *)&errnum);
+        u_parm(PARM_BUF_DRIVE, ACT_SET, (unsigned *)&drv);
+        u_parm(PARM_ERRNUM, ACT_SET, (unsigned *)&errnum);
         t->getkey();
         goto restart_menu;
       }
       if (strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
+      {
+        //item = item_save;
+        //shift = shift_save;
         return 2;
+      }
     }
     else
       scr = scr->next;
@@ -958,12 +964,8 @@ KernelLoader(char **script)
     switch (rc)
     {
     case 0: // script execution is successful, but no kernel loaded
-      item = item_save;
-      shift = shift_save;
       continue;
     case 1: // return to the previous menu
-      item  = item_save;
-      shift = shift_save;
       continue;
     case 2: // configfile
       item_save = item;
