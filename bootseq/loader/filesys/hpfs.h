@@ -4,6 +4,7 @@
  *  HPFS structures by Chris Smith, 1993
  *
  *  a little bit modified by Mikulas Patocka, 1998-1999
+ *  This header is got from the Linux kernel
  */
 
 /* The paper
@@ -112,22 +113,22 @@ struct hpfs_spare_block
   unsigned magic;                       /* f991 1849 */
   unsigned magic1;                      /* fa52 29c5, more magic? */
 
-  unsigned dirty: 1;                    /* 0 clean, 1 "improperly stopped" */
+  unsigned short dirty: 1;                    /* 0 clean, 1 "improperly stopped" */
   /*unsigned flag1234: 4;*/             /* unknown flags */
-  unsigned sparedir_used: 1;            /* spare dirblks used */
-  unsigned hotfixes_used: 1;            /* hotfixes used */
-  unsigned bad_sector: 1;               /* bad sector, corrupted disk (???) */
-  unsigned bad_bitmap: 1;               /* bad bitmap */
-  unsigned fast: 1;                     /* partition was fast formatted */
-  unsigned old_wrote: 1;                /* old version wrote to partion */
-  unsigned old_wrote_1: 1;              /* old version wrote to partion (?) */
-  unsigned install_dasd_limits: 1;      /* HPFS386 flags */
-  unsigned resynch_dasd_limits: 1;
-  unsigned dasd_limits_operational: 1;
-  unsigned multimedia_active: 1;
-  unsigned dce_acls_active: 1;
-  unsigned dasd_limits_dirty: 1;
-  unsigned flag67: 2;
+  unsigned short sparedir_used: 1;            /* spare dirblks used */
+  unsigned short hotfixes_used: 1;            /* hotfixes used */
+  unsigned short bad_sector: 1;               /* bad sector, corrupted disk (???) */
+  unsigned short bad_bitmap: 1;               /* bad bitmap */
+  unsigned short fast: 1;                     /* partition was fast formatted */
+  unsigned short old_wrote: 1;                /* old version wrote to partion */
+  unsigned short old_wrote_1: 1;              /* old version wrote to partion (?) */
+  unsigned short install_dasd_limits: 1;      /* HPFS386 flags */
+  unsigned short resynch_dasd_limits: 1;
+  unsigned short dasd_limits_operational: 1;
+  unsigned short multimedia_active: 1;
+  unsigned short dce_acls_active: 1;
+  unsigned short dasd_limits_dirty: 1;
+  unsigned short flag67: 2;
   unsigned char mm_contlgulty;
   unsigned char unused;
 
@@ -293,7 +294,7 @@ struct hpfs_dirent {
   unsigned short archive: 1;                  /* dos attrib */
   unsigned short not_8x3: 1;                  /* name is not 8.3 */
   unsigned short flag15: 1;
-  
+
   fnode_secno fnode;                    /* fnode giving allocation info */
   time32_t write_date;                  /* mtime */
   unsigned file_size;                   /* file length, bytes */
@@ -338,32 +339,32 @@ struct bplus_internal_node
 
 struct bplus_header
 {
-  unsigned hbff: 1;     /* high bit of first free entry offset */
-  unsigned flag1: 1;
-  unsigned flag2: 1;
-  unsigned flag3: 1;
-  unsigned flag4: 1;
-  unsigned fnode_parent: 1;             /* ? we're pointed to by an fnode,
+  unsigned char hbff: 1;     /* high bit of first free entry offset */
+  unsigned char flag1: 1;
+  unsigned char flag2: 1;
+  unsigned char flag3: 1;
+  unsigned char flag4: 1;
+  unsigned char fnode_parent: 1;             /* ? we're pointed to by an fnode,
                                            the data btree or some ea or the
                                            main ea bootage pointer ea_secno */
                                         /* also can get set in fnodes, which
                                            may be a chkdsk glitch or may mean
                                            this bit is irrelevant in fnodes,
                                            or this interpretation is all wet */
-  unsigned binary_search: 1;            /* suggest binary search (unused) */
-  unsigned internal: 1;                 /* 1 -> (internal) tree of anodes
+  unsigned char binary_search: 1;            /* suggest binary search (unused) */
+  unsigned char internal: 1;                 /* 1 -> (internal) tree of anodes
                                            0 -> (leaf) list of extents */
   unsigned char fill[3];
   unsigned char n_free_nodes;           /* free nodes in following array */
   unsigned char n_used_nodes;           /* used nodes in following array */
   unsigned short first_free;            /* offset from start of header to
                                            first free node in array */
-  //union {
-  //  struct bplus_internal_node internal[1]; /* (internal) 2-word entries giving
-  //                                             subtree pointers */
-  //  struct bplus_leaf_node external[1];     /* (external) 3-word entries giving
-  //                                             sector runs */
-  //} u;
+  union {
+    struct bplus_internal_node internal[1]; /* (internal) 2-word entries giving
+                                               subtree pointers */
+    struct bplus_leaf_node external[1];     /* (external) 3-word entries giving
+                                               sector runs */
+  } u;
 };
 
 /* fnode: root of allocation b+ tree, and EA's */
@@ -390,28 +391,28 @@ struct fnode
   secno ea_secno;                       /* first sector of disk-resident ea's*/
   unsigned short ea_size_s;             /* length of fnode-resident ea's */
 
-  unsigned flag0: 1;
-  unsigned ea_anode: 1;                 /* 1 -> ea_secno is an anode */
-  unsigned flag2: 1;
-  unsigned flag3: 1;
-  unsigned flag4: 1;
-  unsigned flag5: 1;
-  unsigned flag6: 1;
-  unsigned flag7: 1;
-  unsigned dirflag: 1;                  /* 1 -> directory.  first & only extent
+  unsigned short flag0: 1;
+  unsigned short ea_anode: 1;                 /* 1 -> ea_secno is an anode */
+  unsigned short flag2: 1;
+  unsigned short flag3: 1;
+  unsigned short flag4: 1;
+  unsigned short flag5: 1;
+  unsigned short flag6: 1;
+  unsigned short flag7: 1;
+  unsigned short dirflag: 1;                  /* 1 -> directory.  first & only extent
                                            points to dnode. */
-  unsigned flag9: 1;
-  unsigned flag10: 1;
-  unsigned flag11: 1;
-  unsigned flag12: 1;
-  unsigned flag13: 1;
-  unsigned flag14: 1;
-  unsigned flag15: 1;
+  unsigned short flag9: 1;
+  unsigned short flag10: 1;
+  unsigned short flag11: 1;
+  unsigned short flag12: 1;
+  unsigned short flag13: 1;
+  unsigned short flag14: 1;
+  unsigned short flag15: 1;
 
   struct bplus_header btree;            /* b+ tree, 8 extents or 12 subtrees */
   union {
-    struct bplus_leaf_node external[8];
-    struct bplus_internal_node internal[12];
+    struct bplus_leaf_node external[7];      // 8-1  because 1 counted in the header
+    struct bplus_internal_node internal[11]; // 12-1 because 1 counted in the header
   } u;
 
   unsigned file_size;                   /* file length, bytes */
@@ -443,8 +444,8 @@ struct anode
 
   struct bplus_header btree;            /* b+tree, 40 extents or 60 subtrees */
   union {
-    struct bplus_leaf_node external[40];
-    struct bplus_internal_node internal[60];
+    struct bplus_leaf_node external[39];     // 40-1 because 1 counted in the header
+    struct bplus_internal_node internal[59]; // 60-1 because 1 counted in the header
   } u;
 
   unsigned fill[3];                     /* unused */
@@ -472,12 +473,12 @@ struct extended_attribute
                                            where real value starts */
   unsigned anode: 1;                    /* 1 -> sector is an anode
                                            that points to fragmented value */
-  unsigned flag2: 1;
-  unsigned flag3: 1;
-  unsigned flag4: 1;
-  unsigned flag5: 1;
-  unsigned flag6: 1;
-  unsigned needea: 1;                   /* required ea */
+  unsigned char flag2: 1;
+  unsigned char flag3: 1;
+  unsigned char flag4: 1;
+  unsigned char flag5: 1;
+  unsigned char flag6: 1;
+  unsigned char needea: 1;                   /* required ea */
   unsigned char namelen;                /* length of name, bytes */
   unsigned short valuelen;              /* length of value, bytes */
   unsigned char name[1];
