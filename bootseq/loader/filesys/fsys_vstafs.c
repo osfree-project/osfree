@@ -83,7 +83,7 @@ vstafs_readdir (long sector)
       return 0;
     }
 
-  a = FILE_INFO->blocks;
+  a = (struct alloc *)FILE_INFO->blocks;
   curr_ext = 0;
   (*pdevread) (a[curr_ext].a_start, 0, 512, (char *) DIRECTORY_BUF);
   current_direntry = 11;
@@ -200,7 +200,7 @@ vstafs_read (char *addr, int len)
 
   get_file_info (f_sector);
   size = FILE_INFO->len-VSTAFS_START_DATA;
-  a = FILE_INFO->blocks;
+  a = (struct alloc *)FILE_INFO->blocks;
 
   if (*pfilepos > 0)
     {

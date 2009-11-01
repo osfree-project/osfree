@@ -79,6 +79,8 @@ static struct xfs_info xfs;
 #define XFS_INO_AGINO_BITS      (xfs.agblklog + xfs.inopblog)
 #define XFS_INO_AGNO_BITS       xfs.agnolog
 
+int xfs_read (char *buf, int len);
+
 static inline xfs_agblock_t
 agino2agbno (xfs_agino_t agino)
 {
@@ -265,7 +267,7 @@ init_extents (void)
 
         switch (icore.di_format) {
         case XFS_DINODE_FMT_EXTENTS:
-                xfs.xt = inode->di_u.di_bmx;
+                xfs.xt = (struct xfs_bmbt_rec_32 *)inode->di_u.di_bmx;
                 xfs.nextents = le32 (icore.di_nextents);
                 break;
         case XFS_DINODE_FMT_BTREE:

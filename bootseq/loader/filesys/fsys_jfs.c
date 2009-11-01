@@ -83,7 +83,7 @@ first_extent (dinode_t *di)
                 do {
                         (*pdevread) (addressXAD (jfs.xad) << jfs.bdlog, 0,
                                  sizeof(xtpage_t), (char *)xtpage);
-                        jfs.xad = &xtpage->xad[2];
+                        jfs.xad = (struct xad *)&xtpage->xad[2];
                 } while (!(xtpage->header.flag & BT_LEAF));
                 jfs.xlastindex = xtpage->header.nextindex;
         }
@@ -100,7 +100,7 @@ next_extent (void)
                          sizeof(xtpage_t), (char *)xtpage);
                 jfs.xlastindex = xtpage->header.nextindex;
                 jfs.xindex = XTENTRYSTART;
-                jfs.xad = &xtpage->xad[XTENTRYSTART];
+                jfs.xad = (struct xad *)&xtpage->xad[XTENTRYSTART];
         } else {
                 return NULL;
         }
@@ -301,7 +301,7 @@ jfs_dir (char *dirname)
                                 return 0;
                         }
                         if (di_size < (di_mode & INLINEEA ? 256 : 128)) {
-                                (*pgrub_memmove) (linkbuf, inode->di_fastsymlink, di_size);
+                                (*pgrub_memmove) (linkbuf, (char *)inode->di_fastsymlink, di_size);
                                 n = di_size;
                         } else if (di_size < JFS_PATH_MAX - 1) {
                                 *pfilepos = 0;

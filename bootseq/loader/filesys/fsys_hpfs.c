@@ -61,32 +61,35 @@ hpfs_mount (void)
   return 1;
 }
 
-/* reads len bytes from filepos and returns number of bytes read */
+/* read len bytes from filepos and return number of bytes read */
 int
 hpfs_read (char *buf, int len)
 {
-  struct bplus_header *btree;
+  struct bplus_header *btree, *btree0;
   unsigned sec, length, l;
   char *pos;
   int i, n, boff;
 
   btree = (struct bplus_header *)(&(FNODE->btree));
+  btree0 = btree;
+  length = 0; pos = buf;
 
-  while (btree)
+  for (;;)
   {
+    n = btree->n_used_nodes;
+
     if (btree->internal) /* internal b+-tree nodes inside an fnode */
     {
-      /* let's get file root anode */
-
+      for (i = 0; i < n; i++)
+        if ((btree->u.internal[i].file_secno << 9) > *pfilepos + length)
+          break;
     }
     else /* leaves only */
     {
-      n = btree->n_used_nodes;
-      length = 0; pos = buf;
       for (i = 0; i < n; i++)
       {
         /* skip extents until filepos become inside the extent */
-        if ((btree->u.external[i].file_secno + btree->u.external[i].length) << 9 <= *pfilepos)
+        if ((btree->u.external[i].file_secno + btree->u.external[i].length) << 9 <= *pfilepos + length)
           continue;
 
         /* start and size of an extent */
@@ -110,6 +113,18 @@ hpfs_read (char *buf, int len)
           return length;
       }
     }
+
+    /* navigate b+ tree up/down */
+    if (i < n) /* one level down */
+      sec = btree->u.internal[i].down;
+    else       /* one level up */
+      sec = ANODE->up;
+
+    if (!(*pdevread)(sec, 0, sizeof(struct anode), (char *)ANODE)
+        || ANODE->magic != ANODE_MAGIC)
+      return 0;
+
+    btree = (struct bplus_header *)(&ANODE->btree);
   }
 
   return length;
@@ -136,7 +151,6 @@ hpfs_dir (char *dirname)
 
   while (*dirname == '/') /* loop through path components */
   {
-//  next_path_component:
     if (FNODE->btree.internal) /* internal nodes */
     {
       *perrnum = ERR_FILE_NOT_FOUND;
@@ -224,7 +238,7 @@ hpfs_dir (char *dirname)
 int
 hpfs_embed (int *start_sector, int needed_sectors)
 {
-  if (needed_sectors > 16
+  if (needed_sectors > 15
       || !(*pdevread) (16, 0, sizeof(struct hpfs_super_block), (char *)SUPER)
       || (SUPER->magic != SB_MAGIC)
       || (SUPER->version != 2))

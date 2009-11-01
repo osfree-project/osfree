@@ -889,10 +889,10 @@ int ntfs_mount (void)
     printf("spc=%x mft_record=%x:%x\n", spc, *(__s64 *)(sb+0x30));
 #endif
 
-    if (!(*pdevread) (mft_record*spc, 0, mft_record_size, mmft->mft))
+    if (!(*pdevread) (mft_record*spc, 0, mft_record_size, (char *)(mmft->mft)))
         return 0;                       /* Cannot read superblock */
 
-    if(!fixup_record( mmft->mft, "FILE", mft_record_size))
+    if(!fixup_record((char *)mmft->mft, "FILE", mft_record_size))
         return 0;
 
 #ifndef NO_ALTERNATE_DATASTREAM
@@ -926,7 +926,7 @@ loop:
 #ifdef DEBUG_NTFS
     printf("dirname=%s\n", dirname);
 #endif
-    if(!read_mft_record(path_ino[depth], cmft->mft, 0))
+    if(!read_mft_record(path_ino[depth], (char *)cmft->mft, 0))
     {
 #ifdef DEBUG_NTFS
         printf("MFT error 1\n");

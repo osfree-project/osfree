@@ -172,7 +172,7 @@ iso9660_dir (char *dirname)
   unsigned int rr_len;
   unsigned char rr_flag;
 
-  idr = &PRIMDESC->root_directory_record;
+  idr = (struct iso_directory_record *)&PRIMDESC->root_directory_record;
   INODE->file_start = 0;
 
   do

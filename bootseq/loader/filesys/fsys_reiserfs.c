@@ -651,7 +651,7 @@ reiserfs_mount (void)
 #endif /* REISERDEBUG */
 
   /* Clear node cache. */
-  (*pgrub_memset) (INFO->blocks, 0, sizeof (INFO->blocks));
+  (*pgrub_memset) ((char *)(INFO->blocks), 0, sizeof (INFO->blocks));
 
   if (super.s_blocksize < FSYSREISER_MIN_BLOCKSIZE
       || super.s_blocksize > FSYSREISER_MAX_BLOCKSIZE
