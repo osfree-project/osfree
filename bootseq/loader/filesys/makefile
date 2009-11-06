@@ -21,7 +21,7 @@ p                    =
 e                    =
 bbx                  = $+$(blackboxes)$-
 
-ADD_COPT             = -s # -dSTAGE1_5
+ADD_COPT             = -s -j # -dSTAGE1_5
 
 !ifeq T ntfs_nocomp
 ALIASES              = ntfs_nocomp_mount_=ntfs_mount_, &

@@ -17,7 +17,7 @@ STAGE0_OBJS   =    $(p)segord$(e) $(p)init$(e) $(p)modesw$(e) $(p)asmcode$(e) $(
                    $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) $(p)setdev$(e) $(p)dskaccess$(e) $(p)part$(e) &
                    $(p)bios$(e) $(p)end$(e)
 
-ADD_COPT         = -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT         = -s -j -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include
 ADD_ASMOPT       = -dSTAGE1_5 -dNO_BLOCK_FILES -i=$(MYDIR)..$(SEP)..$(SEP)include
 !define ALIASES  init_=_init
 MOD_BASE         = STAGE0_BASE

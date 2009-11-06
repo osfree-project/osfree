@@ -66,13 +66,16 @@ int
 hpfs_read (char *buf, int len)
 {
   struct bplus_header *btree, *btree0;
-  unsigned sec, length, l;
+  unsigned sec;
+  int l, length, read;
   char *pos;
-  int i, n, boff;
+  int i, n, boff, b, p, sl;
 
   btree = (struct bplus_header *)(&(FNODE->btree));
   btree0 = btree;
-  length = 0; pos = buf;
+  length = len;
+  read = 0;
+  pos = buf;
 
   for (;;)
   {
@@ -81,7 +84,7 @@ hpfs_read (char *buf, int len)
     if (btree->internal) /* internal b+-tree nodes inside an fnode */
     {
       for (i = 0; i < n; i++)
-        if ((btree->u.internal[i].file_secno << 9) > *pfilepos + length)
+        if ((btree->u.internal[i].file_secno << 9) > *pfilepos)
           break;
     }
     else /* leaves only */
@@ -89,28 +92,37 @@ hpfs_read (char *buf, int len)
       for (i = 0; i < n; i++)
       {
         /* skip extents until filepos become inside the extent */
-        if ((btree->u.external[i].file_secno + btree->u.external[i].length) << 9 <= *pfilepos + length)
+        if ((btree->u.external[i].file_secno + btree->u.external[i].length) << 9 <= *pfilepos)
           continue;
 
         /* start and size of an extent */
         /* starting disk sector                         */
         sec  = btree->u.external[i].disk_secno;
         /* the number of bytes in extent before filepos */
-        boff = *pfilepos - (btree->u.external[i].file_secno << 9);
-        /* amount to read inside an extent              */
-        l    = (btree->u.external[i].length << 9) - boff;
 
-        if (len < l)
-          l = len;
+        /* distance of filepos from extent start */
+        l = *pfilepos - (btree->u.external[i].file_secno << 9);
+
+        b = (l >> 9) << 9;
+        boff = l - b;
+
+        /* length until an extent end */
+        l = (btree->u.external[i].length << 9) - l;
+        sec += (b >> 9);
+
+        if (length < l)
+          l = length;
 
         if (!(*pdevread)(sec, boff, l, pos))
-          return length;
+           return read;
 
-        length += l;
+        length -= l;
+        read   += l;
         pos    += l;
+        *pfilepos += l;
 
-        if (length >= len)
-          return length;
+        if (!length)
+          return read;
       }
     }
 
@@ -127,14 +139,14 @@ hpfs_read (char *buf, int len)
     btree = (struct bplus_header *)(&ANODE->btree);
   }
 
-  return length;
+  return read;
 }
 
 int
 hpfs_dir (char *dirname)
 {
   unsigned sec;
-  struct hpfs_dirent *dirent;
+  static struct hpfs_dirent *dirent;
   dnode_secno down;
   char fn[0x100];
   char filename[0x100];
@@ -148,6 +160,9 @@ hpfs_dir (char *dirname)
     *perrnum = ERR_FILE_NOT_FOUND;
     return 0;
   }
+
+  if (*dirname != '/')
+    return 0;
 
   while (*dirname == '/') /* loop through path components */
   {

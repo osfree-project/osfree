@@ -1,7 +1,7 @@
-/* vim: set sw=4 :*/
 /*
- *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 1999  Free Software Foundation, Inc.
+ *  NTFS file system driver for GRUB
+ *
+ *  Copyright (C) 2007 Bean (bean123@126.com)
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,36 +19,16 @@
  */
 
 /*
- * Samuel Leo <samuel@_.remove.me._szonline.net>
  * Limitations:
- * 1. Only 32 bit size support
- * 2. don't support >1k MFT record size, >16k INDEX record size
- * 3. don't support recursive at_attribute_list
- * 4. don't support compressed attribute other than Datastream
- * 5. all MFT's at_attribute_list must resident at first run list
- * 6. don't support journaling
- * 7. don't support EFS encryption
- * 8. don't support mount point and junction
+ *  1. Don't support >1K MFT record size, >4K INDEX record size
+ *  2. Don't support encrypted file
+ *  3. Don't support >4K non-resident attribute list and $BITMAP
+ *
  */
+
 #if defined(fsys_ntfs) || defined(FSYS_NTFS)
 
 int print_possibilities = 0;
-
-//#define DEBUG_NTFS 1
-
-/*
-#define NO_ATTRIBUTE_LIST 1
-   totally disable at_attribute_list support,
-   if no compressed/fragment file and MFT,
-   not recommended
-#define NO_NON_RESIDENT_ATTRIBUTE_LIST 1
-   disable non-resident at_attribute_list support,
-   if no huge compressed/fragment file and MFT
-#define NO_NTFS_DECOMPRESSION 1
-   disable ntfs compressed file support
-#define NO_ALTERNATE_DATASTREAM 1
-   disable ntfs alternate datastream support
-*/
 
 #include "shared.h"
 #include "filesys.h"
@@ -57,37 +37,11 @@ int print_possibilities = 0;
 #include "misc.h"
 #include "fsd.h"
 
-#ifdef STAGE1_5
-/* safe turn off non-resident attribute list if MFT fragments < 4000 */
-//#define NO_NON_RESIDENT_ATTRIBUTE_LIST 1
-#define NO_NTFS_DECOMPRESSION 1
+//#define NTFS_DEBUG    1
+
+#ifdef FS_UTIL
+#include "fsutil.h"
 #endif
-
-#define MAX_MFT_RECORD_SIZE 1024
-#define MAX_INDEX_RECORD_SIZE 16384
-#define MAX_INDEX_BITMAP_SIZE 4096
-#define DECOMP_DEST_BUFFER_SIZE 16384
-#define DECOMP_SOURCE_BUFFER_SIZE (8192+2)
-#define MAX_DIR_DEPTH 64
-
-/* sizes are always in bytes, BLOCK values are always in DEV_BSIZE (sectors) */
-#define DEV_BSIZE 512
-
-/* include/linux/fs.h */
-#define BLOCK_SIZE      512
-
-#define WHICH_SUPER 1
-#define SBLOCK (WHICH_SUPER * BLOCK_SIZE / DEV_BSIZE)   /* = 2 */
-
-/* include/asm-i386/type.h */
-typedef signed char __s8;
-typedef unsigned char __u8;
-typedef signed short __s16;
-typedef unsigned short __u16;
-typedef signed int __s32;
-typedef unsigned int __u32;
-typedef signed long long __s64;
-typedef unsigned long long __u64;
 
 #define FILE_MFT      0
 #define FILE_MFTMIRR  1
@@ -101,1052 +55,1510 @@ typedef unsigned long long __u64;
 #define FILE_QUOTA    9
 #define FILE_UPCASE  10
 
-#define at_standard_information 0x10
-#define at_attribute_list       0x20
-#define at_filename             0x30
-#define at_security_descriptor  0x50
-#define at_data                 0x80
-#define at_index_root           0x90
-#define at_index_allocation     0xa0
-#define at_bitmap               0xb0
-#define at_symlink              0xc0
+#define AT_STANDARD_INFORMATION 0x10
+#define AT_ATTRIBUTE_LIST       0x20
+#define AT_FILENAME             0x30
+#define AT_OBJECT_ID            0x40
+#define AT_SECURITY_DESCRIPTOR  0x50
+#define AT_VOLUME_NAME          0x60
+#define AT_VOLUME_INFORMATION   0x70
+#define AT_DATA                 0x80
+#define AT_INDEX_ROOT           0x90
+#define AT_INDEX_ALLOCATION     0xA0
+#define AT_BITMAP               0xB0
+#define AT_SYMLINK              0xC0
+#define AT_EA_INFORMATION       0xD0
+#define AT_EA                   0xE0
 
-#define NONAME  ""
-#define ATTR_NORMAL     0
-#define ATTR_COMPRESSED 1
-#define ATTR_RESIDENT   2
-#define ATTR_ENCRYPTED  16384
-#define ATTR_SPARSE     32768
+#define ATTR_READ_ONLY          0x1
+#define ATTR_HIDDEN             0x2
+#define ATTR_SYSTEM             0x4
+#define ATTR_ARCHIVE            0x20
+#define ATTR_DEVICE             0x40
+#define ATTR_NORMAL             0x80
+#define ATTR_TEMPORARY          0x100
+#define ATTR_SPARSE             0x200
+#define ATTR_REPARSE            0x400
+#define ATTR_COMPRESSED         0x800
+#define ATTR_OFFLINE            0x1000
+#define ATTR_NOT_INDEXED        0x2000
+#define ATTR_ENCRYPTED          0x4000
+#define ATTR_DIRECTORY          0x10000000
+#define ATTR_INDEX_VIEW         0x20000000
 
-typedef struct run_list {
-        char *start;
-        char *ptr;
-        int svcn;
-        int evcn;
-        int vcn;
-        int cnum0;
-        int cnum;
-        int clen;
-} RUNL;
+#define FLAG_COMPRESSED         1
+#define FLAG_ENCRYPTED          0x4000
+#define FLAG_SPARSE             0x8000
 
-typedef struct ntfs_mft_record {
-        char mft[MAX_MFT_RECORD_SIZE];
-        char mft2[MAX_MFT_RECORD_SIZE];
-        int attr_type;
-        char *attr_name;
-        int attr_flag;
-        int attr_size;
-        char *attr;
-        int attr_len;
-        RUNL runl;
-        char *attr_list;
-        int attr_list_len;
-        int attr_list_size;
-        int attr_list_off;
-        char attr_list_buf[2*BLOCK_SIZE];
-        RUNL attr_list_runl;
-} MFTR;
+#define BLK_SHR         9
 
+#define MAX_MFT         (1024 >> BLK_SHR)
+#define MAX_IDX         (16384 >> BLK_SHR)
 
-#define index_data      ((char *)FSYS_BUF)
-#define bitmap_data     ((__u8 *)(FSYS_BUF+MAX_INDEX_RECORD_SIZE))
-#define dcdbuf  ((__u8 *)index_data)
-#define dcsbuf  (bitmap_data)
-#define dcend   (dcsbuf+DECOMP_SOURCE_BUFFER_SIZE)
-#define fnbuf ((char *)(bitmap_data+MAX_INDEX_BITMAP_SIZE))
-#define mmft    ((MFTR *)dcend)
-#define cmft    ((MFTR *)(dcend+sizeof(MFTR)))
-#define mft_run ((RUNL *)(dcend+2*sizeof(MFTR)))
-#define path_ino ((int *)(dcend+2*sizeof(MFTR)+sizeof(RUNL)))
-#define cluster16 (path_ino+MAX_DIR_DEPTH)
-#define index16 cluster16[16]
-#define blocksize cluster16[17]
-#define clustersize cluster16[18]
-#define mft_record_size cluster16[19]
-#define index_record_size cluster16[20]
-#define dcvcn cluster16[21]
-#define dcoff cluster16[22]
-#define dclen cluster16[23]
-#define dcrem cluster16[24]
-#define dcslen cluster16[25]
-#define dcsptr ((__u8 *)cluster16[26])
-#define is_ads_completion cluster16[27]
+#define valueat(buf,ofs,type)   *((type*)(((char*)buf)+ofs))
 
-static int read_mft_record(int mftno, char *mft, int self);
-static int read_attribute(MFTR *mftr, int offset, char *buf, int len, RUNL *from_rl);
-static int get_next_run(RUNL *runl);
+#define AF_ALST         1
+#define AF_GPOS         2
 
-static inline int
-nsubstring (char *s1, char *s2)
+#define RF_COMP         1
+#define RF_CBLK         2
+#define RF_BLNK         4
+
+#define set_aflag(a,b)  if (b) attr_flg|=(a); else attr_flg&=~(a);
+#define get_aflag(a)    (attr_flg & (a))
+
+#define set_rflag(a,b)  if (b) ctx->flags|=(a); else ctx->flags&=~(a);
+#define get_rflag(a)    (ctx->flags & (a))
+
+static unsigned long mft_size,idx_size,spc,blocksize,mft_start;
+
+typedef struct {
+  int flags;
+  unsigned long target_vcn,curr_vcn,next_vcn,curr_lcn;
+  unsigned long vcn_offset;
+  char *mft,*cur_run;
+} read_ctx;
+
+#define NAME_BUF        ((char *)(FSYS_BUF))    /* 4096 bytes */
+#define mmft            ((char *)((FSYS_BUF)+4096))
+#define cmft            (mmft+1024+1024+4096)
+#define sbuf            (cmft+1024+1024+4096)
+#define cbuf            (sbuf+4096)
+
+#define attr_flg        valueat(cur_mft,0,unsigned short)
+
+#define attr_cur        valueat(cur_mft,2,unsigned short)
+#define attr_nxt        valueat(cur_mft,4,unsigned short)
+#define attr_end        valueat(cur_mft,6,unsigned short)
+
+#define save_pos        valueat(cur_mft,8,unsigned long)
+
+#define emft_buf        (cur_mft+1024)
+#define edat_buf        (cur_mft+2048)
+
+#define ofs2ptr(a)      (cur_mft+(a))
+#define ptr2ofs(a)      ((unsigned short)((a)-cur_mft))
+
+#ifdef NTFS_DEBUG
+#define dbg_printf      printf
+#else
+#define dbg_printf      if (0) printf
+#endif
+//#ifndef STAGE1_5
+//#define dbg_printf    if (((unsigned long)debug) >= 0x7FFFFFFF) printf
+//#else
+//#define dbg_printf    if (0) printf
+//#endif /* STAGE1_5 */
+
+typedef unsigned short UniChar;
+
+static void
+uni2ansi (UniChar *uni, char *ansi, int len)
 {
-    while (tolower(*s1) == tolower(*s2))
+        for (; len; len--, uni++)
+                *ansi++ = (*uni & 0xff80) ? '?' : *(char *)uni;
+}
+
+static int fixup(char* buf,int len,char* magic)
+{
+  int ss;
+  char *pu;
+  unsigned us;
+
+  if (valueat(buf,0,unsigned long)!=valueat(magic,0,unsigned long))
     {
-        /* The strings match exactly. */
-        if (! *(s1++))
-            return 0;
-        s2 ++;
+      dbg_printf("%s label not found\n",magic);
+      return 0;
     }
 
-    /* S1 is a substring of S2. */
-    if (*s1 == 0)
-        return -1;
-
-    /* S1 isn't a substring. */
-    return 1;
-}
-
-static int fixup_record(char *record, char *magic, int size)
-{
-    int start, count, offset;
-    __u16 fixup;
-
-    if(*(int *)record != *(int *)magic)
-        return 0;
-    start=*(__u16 *)(record+4);
-    count=*(__u16 *)(record+6);
-    count--;
-    if(size && blocksize*count != size)
-        return 0;
-    fixup = *(__u16 *)(record+start);
-    start+=2;
-    offset=blocksize-2;
-    while(count--){
-        if(*(__u16 *)(record+offset)!=fixup)
-            return 0;
-        *(__u16 *)(record+offset) = *(__u16 *)(record+start);
-        start+=2;
-        offset+=blocksize;
+  ss=valueat(buf,6,unsigned short)-1;
+  if (ss*blocksize!=len*512)
+    {
+      dbg_printf("Size not match %d!=%d\n",ss*blocksize,len*512);
+      return 0;
     }
-    return 1;
-}
-
-static void rewind_run_list( RUNL *runl) {
-    runl->vcn = runl->svcn;
-    runl->ptr = runl->start;
-    runl->cnum0 = 0;
-    runl->cnum = 0;
-    runl->clen = 0;
-}
-
-static int get_next_run(RUNL *runl){
-    int t, n, v;
-
-#ifdef DEBUG_NTFS
-    printf("get_next_run: s=%d e=%d c=%d start=%x ptr=%x\n",
-           runl->svcn, runl->evcn, runl->vcn, runl->start, runl->ptr);
-#endif
-
-    runl->vcn += runl->clen;
-    if(runl->vcn > runl->evcn) {
-        return 0;
-    }
-
-    t = *(runl->ptr)++;
-    n = t&0xf;
-    runl->clen = 0; v = 1;
-    while(n--) {
-        runl->clen += v * *((__u8 *)runl->ptr)++;
-        v <<= 8;
-    }
-    n = (t>>4)&0xf;
-    if(n==0)
-        runl->cnum = 0;
-    else {
-        int c = 0;
-        v = 1;
-        while(n--) {
-            c += v * *((__u8 *)runl->ptr)++;
-            v <<= 8;
+  pu=buf+valueat(buf,4,unsigned short);
+  us=valueat(pu,0,unsigned short);
+  buf-=2;
+  while (ss>0)
+    {
+      buf+=blocksize;
+      pu+=2;
+      if (valueat(buf,0,unsigned short)!=us)
+        {
+          dbg_printf("Fixup signature not match\n");
+          return 0;
         }
-        if(c & (v>>1)) c -= v;
-        runl->cnum0 += c;
-        runl->cnum = runl->cnum0;
+      valueat(buf,0,unsigned short)=valueat(pu,0,unsigned short);
+      ss--;
     }
-#ifdef DEBUG_NTFS
-    printf("got_next_run: t=%x cluster %x len %x vcn=%x ecn=%x\n",
-        t, runl->cnum, runl->clen, runl->vcn, runl->evcn);
-#endif
-    return 1;
+  return 1;
 }
 
-#ifndef NO_ATTRIBUTE_LIST
-static void init_run_list(char *attr, int len, RUNL *runl) {
-    int allocated;
+static int read_mft(char* cur_mft,unsigned long mftno);
+static int read_attr(char* cur_mft,char* dest,unsigned long ofs,unsigned long len,int cached); //,unsigned long write);
+static int read_data(char* cur_mft,char* pa,char* dest,unsigned long ofs,unsigned long len,int cached); //,unsigned long write);
 
-    runl->svcn = *(__u32 *)(attr+0x10); /* only support 32 bit */
-    runl->evcn = *(__u32 *)(attr+0x18); /* only support 32 bit */
-    runl->start = attr + *(__u16 *)(attr+0x20);
-    allocated = *(__u32 *)(attr+0x28);
-    if(!runl->evcn) runl->evcn = (allocated - 1) / clustersize;
-#ifdef DEBUG_NTFS
-    printf("size %d allocated=%d inited=%d cegin=%x csize=%d vcn=%d-%d\n",
-            /*attr_size*/ *(__u32 *)(attr+0x30),
-            /*allocated*/ *(__u32 *)(attr+0x28),
-            /*attr_inited*/ *(__u32 *)(attr+0x38),
-            /*cengin*/ *(__u16 *)(attr+0x22),
-            /*csize*/ *(__u16 *)(attr+0x40),
-            runl->svcn, runl->evcn);
-#endif
-    rewind_run_list(runl);
+static void init_attr(char* cur_mft)
+{
+  attr_flg=0;
+  attr_nxt=ptr2ofs(cur_mft+valueat(cur_mft,0x14,unsigned short));
+  attr_end=0;
 }
-#endif
 
+static char* find_attr(char* cur_mft,unsigned char attr)
+{
+  char* pa;
 
-static int find_attribute(char *mft, int type, char *name, char **attr, int *size, int *len, int *flag) {
-    int t, l, r, n, i, namelen;
-    unsigned short *attr_name;
+  if (get_aflag(AF_ALST))
+    {
+back:
+      while (attr_nxt<attr_end)
+        {
+          attr_cur=attr_nxt;
+          pa=ofs2ptr(attr_cur);
+          attr_nxt+=valueat(pa,4,unsigned short);
+          if (((unsigned char)*pa==attr) || (attr==0))
+            {
+              char *new_pos;
 
-    n = strlen(name);
-    r = mft_record_size - *(__u16 *)(mft+0x14);
-    mft += *(__u16 *)(mft+0x14);
-    while( (t = *(__s32 *)mft) != -1 ) {
-        l = *(__u32 *)(mft+4);
-        if(l>r) break;
-#ifdef DEBUG_NTFS
-        printf("type = %x len = %d namelen=%d resident=%d compresed=%d attrno=%d\n",
-                t, l,
-                /*namelen*/ *(mft+9),
-                //name = (__u16 *)(mft + *(__u16 *)(mft+10)),
-                /*resident */ (*(mft+8) == 0),
-                /*compressed*/ *(__u16 *)(mft+12),
-                /*attrno*/ *(__u16 *)(mft+14));
-#endif
-        namelen = *(mft+9);
-        if(t == type) {
-#ifndef STAGE1_5
-#ifndef NO_ALTERNATE_DATASTREAM
-            if(is_ads_completion && type == at_data) {
-                if(namelen && namelen >= n &&
-                   (!*(mft+8)/*resident*/ || !*(__u32 *)(attr+0x10)/*svcn==0*/))
+              if (cur_mft==mmft)
                 {
-                    for(i=0, attr_name=(__u16 *)(mft + *(__u16 *)(mft+10)); i < n; i++)
-                        if(tolower(name[i]) != tolower(attr_name[i]))
-                            break;
-                    if(i >= n) {
-                        for(; i < namelen; i++)
-                            name[i] = attr_name[i];
-                        name[i] = '\0';
-                        if(print_possibilities > 0)
-                            print_possibilities = -print_possibilities;
-                        //print_a_completion(fnbuf);
-                        name[n] = '\0';
+                  if ((! (*pdevread)(valueat(pa,0x10,unsigned long),0,512,emft_buf)) ||
+                      (! (*pdevread)(valueat(pa,0x14,unsigned long),0,512,emft_buf+512)))
+                    {
+                      dbg_printf("Read Error\n");
+                      return NULL;
                     }
-                }
-            } else
-#endif
-#endif
-                if(namelen == n) {
 
-                for(i=0, attr_name=(__u16 *)(mft + *(__u16 *)(mft+10)); i<n; i++)
-                    if(tolower(name[i]) != tolower(attr_name[i]))
-                        break;
-                if(i>=n) {
-                    if(flag) *flag = *(__u16 *)(mft+12);
-                    if(*(mft+8) == 0) {
-                        if(flag) *flag |= ATTR_RESIDENT;
-#ifdef DEBUG_NTFS
-                        printf("resident data at %x size %x indexed=%d\n",
-                               /*data*/ *(__u16 *)(mft+0x14),
-                               /*attr_size*/ *(__u16 *)(mft+0x10),
-                               /*indexed*/ *(__u16 *)(mft+0x16));
-#endif
-                        if(attr) *attr = mft + *(__u16 *)(mft+0x14);
-                        if(size) *size = *(__u16 *)(mft+0x10);
-                        if(len) *len = *(__u16 *)(mft+0x10);
-                    } else {
-                        if(attr) *attr = mft;
-                        if(size) *size = *(__u32 *)(mft+0x30);
-                        if(len) *len = l;
+                  if (! fixup(emft_buf,mft_size,"FILE"))
+                    {
+                      dbg_printf("Invalid MFT at 0x%X\n",valueat(pa,0x10,unsigned long));
+                      return NULL;
                     }
-                    return 1;
                 }
+              else
+                {
+                  if (! read_mft(emft_buf,valueat(pa,0x10,unsigned long)))
+                    return NULL;
+                }
+
+              new_pos=&emft_buf[valueat(emft_buf,0x14,unsigned short)];
+              while ((unsigned char)*new_pos!=0xFF)
+                {
+                  if (((unsigned char)*new_pos==(unsigned char)*pa) &&
+                      (valueat(new_pos,0xE,unsigned short)==valueat(pa,0x18,unsigned short)))
+                    {
+                      return new_pos;
+                    }
+                  new_pos+=valueat(new_pos,4,unsigned long);
+                }
+              dbg_printf("Can\'t find 0x%X in attribute list\n",(unsigned char)*pa);
+              return NULL;
             }
         }
-        mft += l;
-        r -= l;
+      return NULL;
     }
-    return 0;
-}
-
-#ifndef NO_ATTRIBUTE_LIST
-static __u32 get_next_attribute_list(MFTR *mftr, int *size) {
-    int l, t, mftno;
-#ifdef DEBUG_NTFS
-    printf("get_next_attribute_list: type=%x\n",mftr->attr_type);
-#endif
-again:
-    while(mftr->attr_list_len>0x14) {
-        t = *(__u32 *)(mftr->attr_list + 0);
-        l = *(__u16 *)(mftr->attr_list + 4);
-#ifdef DEBUG_NTFS
-        printf("attr_list type=%x len=%x remain=%x\n", t, l, mftr->attr_list_len);
-#endif
-        if(l==0 || l>mftr->attr_list_len) return 0;
-        mftno = *(__u32 *)(mftr->attr_list + 0x10);
-        mftr->attr_list_len -= l;
-        mftr->attr_list += l;
-        if(t==mftr->attr_type)
-        {
-#ifdef DEBUG_NTFS
-        printf("attr_list mftno=%x\n", mftno);
-#endif
-            if(read_mft_record(mftno, mftr->mft2, (mftr==mmft))==0)
-                break;
-            if(find_attribute(mftr->mft2, mftr->attr_type, mftr->attr_name,
-                        &mftr->attr, size, &mftr->attr_len, &mftr->attr_flag))
-                return 1;
-        }
-    }
-#ifndef NO_NON_RESIDENT_ATTRIBUTE_LIST
-    if(mftr->attr_list_off < mftr->attr_list_size) {
-        int len = mftr->attr_list_size - mftr->attr_list_off;
-        if(len > BLOCK_SIZE) len = BLOCK_SIZE;
-
-        if(mftr->attr_list_len)
-            (*grub_memmove)(mftr->attr_list_buf, mftr->attr_list, mftr->attr_list_len);
-        mftr->attr_list = mftr->attr_list_buf;
-
-        if(read_attribute( NULL, mftr->attr_list_off,
-                        mftr->attr_list_buf + mftr->attr_list_len,
-                        len, &mftr->attr_list_runl) != len)
-        {
-#ifdef DEBUG_NTFS
-            printf("CORRUPT NON-RESIDENT ATTRIBUTE_LIST\n");
-#endif
-            /* corrupt */
-            *perrnum = ERR_FSYS_CORRUPT;
-            mftr->attr_list_size = 0;
-            mftr->attr_len = 0;
-            mftr->attr_list = NULL;
-            return 0;
-        }
-
-        mftr->attr_list_len += len;
-        mftr->attr_list_off += len;
-        goto again;
-    }
-#endif
-    mftr->attr_list = NULL;
-    return 0;
-}
-#endif
-
-static int search_attribute( MFTR *mftr, int type, char *name)
-{
-#ifdef DEBUG_NTFS
-    printf("searching attribute %x <%s>\n", type, name);
-#endif
-
-    mftr->attr_type = type;
-    mftr->attr_name = name;
-    mftr->attr_list = NULL;
-    mftr->attr_list_len = 0;
-    mftr->attr_list_size = 0;
-    mftr->attr_list_off = 0;
-    dcrem = dclen = 0;
-
-#ifndef NO_ATTRIBUTE_LIST
-    if(find_attribute(mftr->mft, at_attribute_list, NONAME,
-                      &mftr->attr_list, &mftr->attr_list_size,
-                      &mftr->attr_list_len, &mftr->attr_list_off)) {
-        if(mftr->attr_list_off&ATTR_RESIDENT) {
-            /* resident at_attribute_list */
-            mftr->attr_list_size = 0;
-#ifdef DEBUG_NTFS
-            printf("resident attribute_list len=%x\n", mftr->attr_list_len);
-#endif
-        } else {
-#ifdef DEBUG_NTFS
-            printf("non-resident attribute_list len=%x size=%x\n",
-                   mftr->attr_list_len, mftr->attr_list_size);
-#endif
-#ifndef NO_NON_RESIDENT_ATTRIBUTE_LIST
-            init_run_list(mftr->attr_list, mftr->attr_list_len, &mftr->attr_list_runl);
-            if(get_next_run(&mftr->attr_list_runl)==0 ||
-               mftr->attr_list_runl.cnum==0)
-                mftr->attr_list_size = 0;
-#endif
-            mftr->attr_list = NULL;
-            mftr->attr_list_len = 0;
-        }
-    }
-#endif
-
-    if(find_attribute(mftr->mft, type, name,
-                      &mftr->attr, &mftr->attr_size, &mftr->attr_len,
-                      &mftr->attr_flag)
-#ifndef NO_ATTRIBUTE_LIST
-       || get_next_attribute_list(mftr, &mftr->attr_size)
-#endif
-       )
+  pa=ofs2ptr(attr_nxt);
+  while ((unsigned char)*pa!=0xFF)
     {
-#ifndef NO_ATTRIBUTE_LIST
-        if(!(mftr->attr_flag&ATTR_RESIDENT)){
-            init_run_list(mftr->attr, mftr->attr_len, &mftr->runl);
-            if(get_next_run(&mftr->runl)==0) {
-                mftr->attr_flag |= ATTR_RESIDENT;
-                mftr->attr_len = 0;
+      attr_cur=attr_nxt;
+      attr_nxt+=valueat(pa,4,unsigned long);
+      if ((unsigned char)*pa==AT_ATTRIBUTE_LIST)
+        attr_end=attr_cur;
+      if (((unsigned char)*pa==attr) || (attr==0))
+        return pa;
+      pa=ofs2ptr(attr_nxt);
+    }
+  if (attr_end)
+    {
+      pa=ofs2ptr(attr_end);
+      if (pa[8])
+        {
+          int n;
+
+          n = (valueat(pa,0x30,unsigned long) + 511) & (~511);
+          if (n>4096)
+            {
+              dbg_printf("Non-resident attribute list too large\n");
+              return NULL;
+            }
+          attr_cur=attr_end;
+          if (! read_data(cur_mft,pa,edat_buf,0,n,0)) //, 0xedde0d90))
+            {
+              dbg_printf("Fail to read non-resident attribute list\n");
+              return NULL;
+            }
+          attr_nxt=ptr2ofs(edat_buf);
+          attr_end=ptr2ofs(edat_buf+valueat(pa,0x30,unsigned long));
+        }
+      else
+        {
+          attr_nxt=attr_end+valueat(pa,0x14,unsigned short);
+          attr_end=attr_end+valueat(pa,4,unsigned long);
+        }
+      set_aflag(AF_ALST,1);
+      while (attr_nxt<attr_end)
+        {
+          pa=ofs2ptr(attr_nxt);
+          if (((unsigned char)*pa==attr) || (attr==0))
+            break;
+          attr_nxt+=valueat(pa,4,unsigned long);
+        }
+      if (attr_nxt>=attr_end)
+        return NULL;
+
+      if ((cur_mft==mmft) && (attr==AT_DATA))
+        {
+          unsigned short new_pos;
+
+          set_aflag(AF_GPOS,1);
+          attr_cur=attr_nxt;
+          pa=ofs2ptr(attr_cur);
+          valueat(pa,0x10,unsigned long)=mft_start;
+          valueat(pa,0x14,unsigned long)=mft_start+1;
+          new_pos=attr_nxt+valueat(pa,4,unsigned short);
+          while (new_pos<attr_end)
+            {
+              pa=ofs2ptr(new_pos);
+              if ((unsigned char)*pa!=attr)
+                break;
+              if (! read_attr(cur_mft,pa+0x10,valueat(pa,0x10,unsigned long)*(mft_size << BLK_SHR),mft_size << BLK_SHR,0)) //, 0xedde0d90))
+                return NULL;
+              new_pos+=valueat(pa,4,unsigned short);
+            }
+          attr_nxt=attr_cur;
+          set_aflag(AF_GPOS,0);
+        }
+      goto back;
+    }
+  return NULL;
+}
+
+static char* locate_attr(char* cur_mft,unsigned char attr)
+{
+  char* pa;
+
+  init_attr(cur_mft);
+  if ((pa=find_attr(cur_mft,attr))==NULL)
+    return NULL;
+  if (! get_aflag(AF_ALST))
+    {
+      while (1)
+        {
+          if ((pa=find_attr(cur_mft,attr))==NULL)
+            break;
+          if (get_aflag(AF_ALST))
+            return pa;
+        }
+      init_attr(cur_mft);
+      pa=find_attr(cur_mft,attr);
+    }
+  return pa;
+}
+
+static char* read_run_data(char* run,int nn,unsigned long* val,int sig)
+{
+  unsigned long r, v;
+
+  r = 0;
+  v = 1;
+
+  while (nn--)
+    {
+      r += v * (*(unsigned char *)(run++));
+      v <<= 8;
+    }
+
+  if ((sig) && (r & (v>>1)))
+    r -=v;
+
+  *val=r;
+  return run;
+}
+
+static char* read_run_list(read_ctx* ctx,char* run)
+{
+  int c1,c2;
+  unsigned long val;
+
+back:
+  c1=((unsigned char)(*run) & 0xF);
+  c2=((unsigned char)(*run) >> 4);
+  if (! c1)
+    {
+      char *cur_mft;
+
+      cur_mft=ctx->mft;
+      if ((cur_mft) && (get_aflag(AF_ALST)))
+        {
+          void (*save_hook)(int, int, int);
+
+          save_hook=disk_read_func;
+          disk_read_func=NULL;
+          run=find_attr(cur_mft,(unsigned char)*ofs2ptr(attr_cur));
+          disk_read_func=save_hook;
+          if (run)
+            {
+              if (run[8]==0)
+                {
+                  dbg_printf("$DATA should be non-resident\n");
+                  return NULL;
+                }
+              run+=valueat(run,0x20,unsigned short);
+              ctx->curr_lcn=0;
+              goto back;
             }
         }
-#endif
+      dbg_printf("Run list overflow\n");
+      return NULL;
+    }
+  run=read_run_data(run+1,c1,&val,0);   // length of current VCN
+  ctx->curr_vcn=ctx->next_vcn;
+  ctx->next_vcn+=val;
+  run=read_run_data(run,c2,&val,1);     // offset to previous LCN
+  ctx->curr_lcn+=val;
+  set_rflag(RF_BLNK,(val==0));
+  return run;
+}
 
+static unsigned long comp_table[16][2];
+static int comp_head,comp_tail,cbuf_ofs,cbuf_vcn;
+
+static int decomp_nextvcn(void)
+{
+  if (comp_head>=comp_tail)
+    {
+      dbg_printf("C1\n");
+      return 0;
+    }
+  if (! (*pdevread)((comp_table[comp_head][1]-(comp_table[comp_head][0]-cbuf_vcn))*spc,0,spc << BLK_SHR,cbuf))
+    {
+      dbg_printf("Read Error\n");
+      return 0;
+    }
+  cbuf_vcn++;
+  if ((cbuf_vcn>=comp_table[comp_head][0]))
+    comp_head++;
+  cbuf_ofs=0;
+  return 1;
+}
+
+static int decomp_getch(void)
+{
+  if (cbuf_ofs>=(spc << BLK_SHR))
+    {
+      if (! decomp_nextvcn())
+        return 0;
+    }
+  return (unsigned char)cbuf[cbuf_ofs++];
+}
+
+// Decompress a block (4096 bytes)
+static int decomp_block(char* dest)
+{
+  unsigned short flg;
+  short cnt;
+
+  flg=decomp_getch();
+  flg+=decomp_getch()*256;
+  cnt=(flg & 0xFFF)+1;
+
+  if (dest)
+    {
+      if (flg & 0x8000)
+        {
+          unsigned long bits,copied,tag;
+
+          bits=copied=tag=0;
+          while (cnt > 0)
+            {
+              if (copied > 4096)
+                {
+                  dbg_printf("B1\n");
+                  return 0;
+                }
+              if (! bits)
+                {
+                  tag = decomp_getch();
+                  bits = 8;
+                  cnt--;
+                  if (cnt<=0)
+                    break;
+                }
+              if (tag & 1)
+                {
+                  unsigned long i, len, delta, code, lmask, dshift;
+
+                  code=decomp_getch();
+                  code+=decomp_getch()*256;
+                  cnt-=2;
+
+                  if (! copied)
+                    {
+                      dbg_printf("B2\n");
+                      return 0;
+                    }
+
+                  for (i = copied - 1, lmask = 0xFFF, dshift = 12; i >= 0x10; i >>= 1)
+                    {
+                      lmask >>= 1;
+                      dshift--;
+                    }
+
+                  delta = code >> dshift;
+                  len = (code & lmask) + 3;
+
+                  for (i = 0; i < len; i++)
+                    {
+                      dest[copied] = dest[copied - delta - 1];
+                      copied++;
+                    }
+                } else
+                  {
+                    dest[copied++] = decomp_getch();
+                    cnt--;
+                  }
+              tag >>= 1;
+              bits--;
+            }
+          return 1;
+        }
+      else
+        {
+          if (cnt!=4096)
+            {
+              dbg_printf("B3\n");
+              return 0;
+            }
+        }
+    }
+
+  while (cnt>0)
+    {
+      int n;
+
+      n=(spc << BLK_SHR) - cbuf_ofs;
+      if (n>cnt)
+        n=cnt;
+      if ((dest) && (n))
+        {
+          memcpy(dest,&cbuf[cbuf_ofs],n);
+          dest+=n;
+        }
+      cnt-=n;
+      cbuf_ofs+=n;
+      if ((cnt) && (! decomp_nextvcn()))
+        return 0;
+    }
+  return 1;
+}
+
+static int read_block(read_ctx* ctx, char* buf, int num, int len) //, unsigned long write)
+{
+  if (get_rflag(RF_COMP))
+  {
+      int cpb=(8/spc);
+
+      //if (write == 0x900ddeed)
+      //  {
+      //          grub_printf ("Fatal: Cannot write compressed file.\n");
+      //          return 0;
+      //  }
+
+      while (num)
+        {
+          int nn;
+
+          if ((ctx->target_vcn & 0xF)==0)
+            {
+              if (comp_head!=comp_tail)
+                {
+                  dbg_printf("A1\n");
+                  return 0;
+                }
+              comp_head=comp_tail=0;
+              cbuf_vcn=ctx->target_vcn;
+              cbuf_ofs=(spc<<BLK_SHR);
+              if (ctx->target_vcn>=ctx->next_vcn)
+                {
+                  ctx->cur_run=read_run_list(ctx,ctx->cur_run);
+                  if (ctx->cur_run==NULL)
+                    return 0;
+                }
+              while (ctx->target_vcn+16>ctx->next_vcn)
+                {
+                  if (get_rflag(RF_BLNK))
+                    break;
+                  comp_table[comp_tail][0]=ctx->next_vcn;
+                  comp_table[comp_tail][1]=ctx->curr_lcn + ctx->next_vcn - ctx->curr_vcn;
+                  comp_tail++;
+                  ctx->cur_run=read_run_list(ctx,ctx->cur_run);
+                  if (ctx->cur_run==NULL)
+                    return 0;
+                }
+              //if (ctx->target_vcn+16<ctx->next_vcn)
+              //  {
+              //    dbg_printf("A2\n");
+              //    return 0;
+              //  }
+            }
+
+          nn=(16 - (ctx->target_vcn & 0xF)) / cpb;
+          if (nn>num)
+            nn=num;
+          num-=nn;
+
+          if (get_rflag(RF_BLNK))
+            {
+              ctx->target_vcn+=nn * cpb;
+              if (comp_tail==0)
+                {
+                  if (buf)
+                    {
+                      memset(buf,0,nn*4096);
+                      buf+=nn*4096;
+                    }
+                }
+              else
+                {
+                  while (nn)
+                    {
+                      if (! decomp_block(buf))
+                        return 0;
+                      if (buf)
+                        buf+=4096;
+                      nn--;
+                    }
+                }
+            }
+          else
+            {
+              nn*=cpb;
+              while ((comp_head<comp_tail) && (nn))
+                {
+                  int tt;
+
+                  tt=comp_table[comp_head][0] - ctx->target_vcn;
+                  if (tt>nn)
+                    tt=nn;
+                  ctx->target_vcn+=tt;
+                  if (buf)
+                    {
+                      if (! (*pdevread)((comp_table[comp_head][1]-(comp_table[comp_head][0] - ctx->target_vcn))*spc,0,tt*(spc << BLK_SHR),buf)) //, 0xedde0d90))
+                        {
+                          dbg_printf("Read Error\n");
+                          return 0;
+                        }
+                      buf+=tt*(spc << BLK_SHR);
+                    }
+                  nn-=tt;
+                  if (ctx->target_vcn>=comp_table[comp_head][0])
+                    comp_head++;
+                }
+              if (nn)
+                {
+                  if (buf)
+                    {
+                      if (! (*pdevread)((ctx->target_vcn - ctx->curr_vcn + ctx->curr_lcn)*spc,0,nn*(spc << BLK_SHR),buf))
+                        {
+                          dbg_printf("Read Error\n");
+                          return 0;
+                        }
+                      buf+=nn*(spc << BLK_SHR);
+                    }
+                  ctx->target_vcn+=nn;
+                }
+            }
+        }
+  }
+  else
+  {
+      while (num)
+      {
+          int nn, ss;
+
+          nn = (ctx->next_vcn - ctx->target_vcn) * spc - ctx->vcn_offset;
+
+          if (nn > num)
+              nn = num;
+
+          if (len && nn)
+          {
+                if (get_rflag (RF_BLNK))
+                {
+                        //if (write == 0x900ddeed)
+                        //{
+                        //        grub_printf ("Fatal: Cannot write NULL blocks.\n");
+                        //        return 0;
+                        //}
+                        if (buf)
+                                memset(buf, 0, nn << BLK_SHR);
+                }
+                else
+                {
+                        unsigned long s = (ctx->target_vcn - ctx->curr_vcn + ctx->curr_lcn) * spc + ctx->vcn_offset;
+                        unsigned long o = 0;
+
+                        //if (write != 0x900ddeed)
+                                len = (nn << BLK_SHR);
+                        if (len == -1)
+                                len = (nn << BLK_SHR);
+                        else if (len < 0)
+                        {
+                                len = -len;
+                                if (len >= 512)
+                                        return 0;
+                                o = 512 - len;
+                        }
+                        if (! (*pdevread)(s, o, len, buf)) //, write))
+                        {
+                                dbg_printf("Read/Write Error\n");
+                                return 0;
+                        }
+                }
+                if (buf)
+                        buf += (nn << BLK_SHR);
+          }
+          ss = ctx->target_vcn * spc + ctx->vcn_offset + nn;
+          ctx->target_vcn = ss / spc;
+          ctx->vcn_offset = ss % spc;
+          num -= nn;
+          if (num == 0)
+                break;
+
+          if (ctx->target_vcn >= ctx->next_vcn)
+          {
+                ctx->cur_run = read_run_list (ctx, ctx->cur_run);
+                if (ctx->cur_run == NULL)
+                        return 0;
+          }
+      }
+  }
+  return 1;
+}
+
+static int read_data(char* cur_mft,char* pa,char* dest,unsigned long ofs,unsigned long len,int cached) //,unsigned long write)
+{
+    unsigned long vcn, blk_size;
+    read_ctx cc, *ctx;
+    int ret;
+
+    if (len == 0)
+        return 1;
+
+    ctx = &cc;
+
+    if (pa[8] == 0)
+    {
+        //if (write == 0x900ddeed)        /* write */
+        //{
+        //        grub_printf ("Fatal: Cannot write resident/small file! Enlarge it to 2KB and try again.\n");
+        //        return 0;
+        //}
+        if (ofs + len > valueat(pa,0x10,unsigned long))
+        {
+                dbg_printf("Read out of range\n");
+                return 0;
+        }
+        if (dest)
+                memcpy (dest, pa + valueat(pa,0x14,unsigned long) + ofs, len);
         return 1;
     }
 
-    mftr->attr_type = 0;
-    return 0;
-}
+    ctx->mft = cur_mft;
+    set_rflag(RF_COMP, valueat(pa,0xC,unsigned short) & FLAG_COMPRESSED);
+    ctx->cur_run = pa + valueat(pa,0x20,unsigned short);
+    blk_size = (get_rflag(RF_COMP)) ? 4096 : 512;
 
-static int get_run( RUNL *rl, int vcn, int *clp, int *lenp) {
-    if(rl->evcn < vcn)
-        return 0;
-
-    if(rl->vcn > vcn) {
-        rewind_run_list(rl);
-        get_next_run(rl);
-    }
-
-    while(rl->vcn+rl->clen <= vcn)
+    if ((get_rflag(RF_COMP)) && (! cached))
     {
-        if(get_next_run(rl)==0)
-            return 0;
-    }
-
-    if(clp) *clp = rl->cnum == 0 ? 0 : rl->cnum + vcn - rl->vcn;
-    if(lenp) *lenp = rl->clen - vcn + rl->vcn;
-    return 1;
-}
-
-static int search_run(MFTR *mftr, int vcn) {
-
-    if( mftr->attr==NULL && !search_attribute(mftr, mftr->attr_type, mftr->attr_name))
+        dbg_printf("Attribute can\'t be compressed\n");
         return 0;
-
-    if(mftr->runl.svcn > vcn)
-        search_attribute(mftr, mftr->attr_type, mftr->attr_name);
-
-#ifdef NO_ATTRIBUTE_LIST
-    if(mftr->runl.evcn < vcn)
-        return 0;
-#else
-    while(mftr->runl.evcn < vcn) {
-        if(get_next_attribute_list(mftr, NULL)==0) {
-            mftr->attr = NULL;
-            return 0;
-        }
-        init_run_list(mftr->attr, mftr->attr_len, &mftr->runl);
-        if(get_next_run(&mftr->runl)==0) {
-            mftr->attr = NULL;
-            return 0;
-        }
-    }
-#endif
-
-    return 1;
-}
-
-static int read_attribute(MFTR *mftr, int offset, char *buf, int len, RUNL *from_rl) {
-    int vcn;
-    int cnum, clen;
-    int done = 0;
-    int n;
-    RUNL *rl;
-
-    if(!from_rl && (mftr->attr_flag & ATTR_RESIDENT)) {
-        /* resident attribute */
-        if(offset > mftr->attr_len)
-            return 0;
-        if(offset+len > mftr->attr_len)
-            len = mftr->attr_len - offset;
-        (*pgrub_memmove)( buf, mftr->attr + offset, len);
-        return len;
     }
 
-    vcn = offset / clustersize;
-    offset %= clustersize;
-
-    while(len>0) {
-        if(from_rl)
-            rl = from_rl;
-        else if(search_run(mftr, vcn) == 0)
-            break;
-        else
-            rl = &mftr->runl;
-        if(get_run(rl, vcn, &cnum, &clen) == 0)
-            break;
-        if(cnum==0 && from_rl)
-            break;
-        n = clen * clustersize - offset;
-        if(n > len) n = len;
-        if(cnum==0) {
-            (*pgrub_memset)( buf, 0, n);
-        } else if(!(*pdevread)(cnum*(clustersize>>9)+(offset>>9), offset&0x1ff, n, buf))
-            break;
-
-        buf += n;
-        vcn += (offset+n)/clustersize;
-        done += n;
-        offset = 0;
-        len -= n;
-    }
-    return done;
-}
-
-static int read_mft_record(int mftno, char *mft, int self){
-#ifdef DEBUG_NTFS
-    printf("Reading MFT record: mftno=%d\n", mftno);
-#endif
-    if( read_attribute( mmft, mftno * mft_record_size,
-            mft, mft_record_size, self?mft_run:NULL) != mft_record_size)
-        return 0;
-    if(!fixup_record( mft, "FILE", mft_record_size))
-        return 0;
-    return 1;
-}
-
-#ifndef NO_NTFS_DECOMPRESSION
-static int get_16_cluster(MFTR *mftr, int vcn) {
-    int n = 0, cnum, clen;
-    while(n < 16 && search_run(mftr, vcn) && get_run(&mftr->runl, vcn, &cnum, &clen) && cnum) {
-        if(clen > 16 - n)
-            clen = 16 - n;
-        vcn += clen;
-        while(clen--)
-            cluster16[n++] = cnum++;
-    }
-    cluster16[n] = 0;
-    return n;
-}
-
-static inline int compressed_block_size( unsigned char *src ) {
-    return 3 + (*(__u16 *)src & 0xfff);
-}
-
-static int decompress_block(unsigned char *dest, unsigned char *src) {
-    int head;
-    int copied=0;
-    unsigned char *last;
-    int bits;
-    int tag=0;
-
-    /* high bit indicates that compression was performed */
-    if(!(*(__u16 *)src & 0x8000)) {
-        (*pgrub_memmove)(dest,src+2,0x1000);
-        return 0x1000;
-    }
-
-    if((head = *(__u16 *)src & 0xFFF)==0)
-        /* block is not used */
-        return 0;
-
-    src += 2;
-    last = src+head;
-    bits = 0;
-
-    while(src<=last)
+    if (cached) // && write != 0x900ddeed)  /* read */
     {
-        if(copied>4096)
+        if ((ofs & (~(blk_size - 1))) == save_pos)
         {
-#ifdef DEBUG_NTFS
-            printf("decompress error 1\n");
-#endif
-            *perrnum = ERR_FSYS_CORRUPT;
-            return 0;
+                int n;
+
+                //if (write == 0x900ddeed)      /* write */
+                //{
+                //      grub_printf ("Fatal: Cannot write file with save_pos!\n");
+                //      return 0;
+                //}
+                n = blk_size - (ofs - save_pos);
+                if (n > len)
+                    n = len;
+
+                if (dest)
+                {
+//                      if (write == 0x900ddeed)        /* write */
+//                      memcpy (sbuf + ofs - save_pos, dest, n);
+//                      else
+                        memcpy (dest, sbuf + ofs - save_pos, n);
+                }
+                if (n == len)
+                        return 1;
+
+                if (dest)
+                        dest += n;
+                len -= n;
+                ofs += n;
         }
-        if(!bits){
-            tag=*(__u8 *)src;
-            bits=8;
-            src++;
-            if(src>last)
-                break;
-        }
-        if(tag & 1){
-            int i,len,delta,code,lmask,dshift;
-            code = *(__u16 *)src;
-            src+=2;
-            if(!copied)
-            {
-#ifdef DEBUG_NTFS
-                printf("decompress error 2\n");
-#endif
-                *perrnum = ERR_FSYS_CORRUPT;
+    }
+
+    if (get_rflag(RF_COMP))
+    {
+        vcn = ctx->target_vcn = (ofs / 4096) * (8 / spc);
+        ctx->vcn_offset = 0;
+        ctx->target_vcn &= ~0xF;
+        comp_head = comp_tail = 0;
+    }
+    else
+    {
+        vcn = ctx->target_vcn = (ofs >> BLK_SHR) / spc;
+        ctx->vcn_offset = (ofs >> BLK_SHR) % spc;
+    }
+
+    ctx->next_vcn = valueat(pa,0x10,unsigned long);
+    ctx->curr_lcn = 0;
+    while (ctx->next_vcn <= ctx->target_vcn)
+    {
+        ctx->cur_run = read_run_list (ctx, ctx->cur_run);
+        if (ctx->cur_run == NULL)
                 return 0;
-            }
-            for(i=copied-1,lmask=0xFFF,dshift=12;i>=0x10;i>>=1)
-            {
-                lmask >>= 1;
-                dshift--;
-            }
-            delta = code >> dshift;
-            len = (code & lmask) + 3;
-            for(i=0; i<len; i++)
-            {
-                dest[copied]=dest[copied-delta-1];
-                copied++;
-            }
-        } else
-            dest[copied++]=*(__u8 *)src++;
-        tag>>=1;
-        bits--;
     }
 
-    return copied;
-}
-#endif
+    if (get_aflag(AF_GPOS))
+    {
+        unsigned long tmp1, tmp2;
 
-int ntfs_read(char *buf, int len){
-    int ret;
-#ifdef STAGE1_5
-/* stage2 can't be resident/compressed/encrypted files,
- * but does sparse flag, cause stage2 never sparsed
- */
-    if((cmft->attr_flag&~ATTR_SPARSE) != ATTR_NORMAL)
-        return 0;
-    disk_read_func = disk_read_hook;
-    ret = read_attribute(cmft, *pfilepos, buf, len, 0);
-    disk_read_func = NULL;
-    *pfilepos += ret;
-#else
-
-#ifndef NO_NTFS_DECOMPRESSION
-    int off;
-    int vcn;
-    int size;
-#endif
-
-    if(len<=0 || *pfilepos > cmft->attr_size || (cmft->attr_flag&ATTR_ENCRYPTED))
-        return 0;
-
-    if(*pfilepos+len > cmft->attr_size)
-        len = cmft->attr_size - *pfilepos;
-
-    if((cmft->attr_flag&(ATTR_COMPRESSED|ATTR_RESIDENT)) != ATTR_COMPRESSED) {
-        if(cmft->attr_flag==ATTR_NORMAL)
-            disk_read_func = disk_read_hook;
-        ret = read_attribute(cmft, *pfilepos, buf, len, 0);
-        if(cmft->attr_flag==ATTR_NORMAL)
-            disk_read_func = NULL;
-        *pfilepos += ret;
-        return ret;
+        tmp2 = tmp1 = (ctx->target_vcn - ctx->curr_vcn + ctx->curr_lcn) * spc + ctx->vcn_offset;
+        tmp2++;
+        if (dest)
+        {
+                valueat(dest,0,unsigned long) = tmp1;
+                valueat(dest,4,unsigned long) = tmp2;
+        }
+        if (tmp2 == (ctx->next_vcn - ctx->curr_vcn + ctx->curr_lcn) * spc)
+        {
+                ctx->cur_run = read_run_list (ctx, ctx->cur_run);
+                if (ctx->cur_run == NULL)
+                        return 0;
+                if (dest)
+                        valueat(dest,4,unsigned long) = ctx->curr_lcn * spc;
+        }
+        return 1;
     }
+
+    if ((vcn > ctx->target_vcn) &&
+        (! read_block (ctx, NULL, ((vcn - ctx->target_vcn) * spc) / 8, 0))) //, 0xedde0d90)))
+        return 0;
 
     ret = 0;
 
-#ifndef NO_NTFS_DECOMPRESSION
-    /* NTFS don't support compression if cluster size > 4k */
-    if(clustersize > 4096) {
-        *perrnum = ERR_FSYS_CORRUPT;
-        return 0;
+    if ((cached) && (valueat(pa,0xC,unsigned short) & (FLAG_COMPRESSED + FLAG_SPARSE))==0)
+        disk_read_func = disk_read_hook;
+    //else if (write == 0x900ddeed)       /* write */
+    //{
+    //    grub_printf("Fatal: Cannot write compressed or sparse file!\n");
+    //    goto fail;
+    //}
+
+    if (ofs % blk_size)
+    {
+        unsigned long t, n, o;
+
+        if (! cached)
+        {
+                dbg_printf("Invalid range\n");
+                goto fail;
+        }
+
+        o = ofs % blk_size;
+        n = blk_size - o;
+        if (n > len)
+            n = len;
+
+        if (dest) // && write == 0x900ddeed)        /* write */
+                memcpy (&sbuf[o], dest, n);
+
+        t = ctx->target_vcn * (spc << BLK_SHR);
+        //if (! read_block (ctx, sbuf, 1, -1, 0xedde0d90))      /* read */
+        //if (! read_block (ctx, (write == 0x900ddeed ? &sbuf[o] : sbuf), 1, -n)), write))  /* read/write */
+        if (! read_block (ctx, sbuf, 1, -1))
+                goto fail;
+
+        //if (write != 0x900ddeed)        /* read */
+        {
+                save_pos = t;
+                if (dest)
+                {
+                        //if (write == 0x900ddeed)      /* write */
+                        //{
+                        //    if (grub_memcmp (dest, &sbuf[o], n) == 0)
+                        //      goto next;
+                        //    memcpy (&sbuf[o], dest, n);
+                        //    if (! read_block (ctx, sbuf, 1, -1, write))       /* write */
+                        //      goto fail;
+                        //    goto next;
+                        //}
+                        memcpy(dest, &sbuf[o], n);
+                }
+        }
+//next:
+        if (n == len)
+                goto done;
+        if (dest)
+                dest += n;
+        len -= n;
     }
 
-    while(len > 0){
-        if(*pfilepos >= dcoff && *pfilepos < (dcoff+dclen)) {
-            size = dcoff + dclen - *pfilepos;
-            if(size > len) size = len;
-            (*pgrub_memmove)( buf, dcdbuf + *pfilepos - dcoff, size);
-            *pfilepos += size;
-            len -= size;
-            ret += size;
-            if(len==0)
-                return ret;
-            buf += size;
+    if (! read_block (ctx, dest, len / blk_size, -1)) //, write)) /* read/write */
+        goto fail;
+
+    if (dest)
+        dest += (len / blk_size) * blk_size;
+
+    len = len % blk_size;
+
+    if (len)
+    {
+        unsigned long t;
+
+        if (! cached)
+        {
+                dbg_printf("Invalid range\n");
+                goto fail;
         }
 
-        vcn = *pfilepos / clustersize / 16;
-        vcn *= 16;
-        off = *pfilepos % (16 * clustersize);
-        if( dcvcn != vcn || *pfilepos < dcoff)
-            dcrem = 0;
+        if (dest) // && write == 0x900ddeed)        /* write */
+                memcpy (sbuf, dest, len);
 
-        if(dcrem) {
-            int head;
+        t = ctx->target_vcn * (spc << BLK_SHR);
+        if (! read_block (ctx, sbuf, 1, len)) //, write))    /* read/write */
+                goto fail;
 
-            /* reading source */
-            if(dcslen < 2 || compressed_block_size(dcsptr) > dcslen) {
-                if(cluster16[index16]==0) {
-                    *perrnum = ERR_FSYS_CORRUPT;
-                    return ret;
+        //if (write != 0x900ddeed)        /* read */
+        {
+                save_pos = t;
+                if (dest)
+                {
+                        //if (write == 0x900ddeed)      /* write */
+                        //{
+                        //      if (grub_memcmp (dest, sbuf, len) == 0)
+                        //              goto done;
+                        //      memcpy (sbuf, dest, len);
+                        //      if (! read_block (ctx, sbuf, 1, -1, write))     /* write */
+                        //              goto fail;
+                        //      goto done;
+                        //}
+                        memcpy (dest, sbuf, len);
                 }
-                if(dcslen)
-                    (*pgrub_memmove)(dcsbuf, dcsptr, dcslen);
-                dcsptr = dcsbuf;
-                while((dcslen+clustersize) < DECOMP_SOURCE_BUFFER_SIZE) {
-                    if(cluster16[index16]==0)
-                        break;
-                    if(!(*pdevread)(cluster16[index16]*(clustersize>>9), 0, clustersize, dcsbuf+dcslen))
-                        return ret;
-                    dcslen += clustersize;
-                    index16++;
-                }
-            }
-            /* flush destination */
-            dcoff += dclen;
-            dclen = 0;
-
-            while(dcrem && dclen < DECOMP_DEST_BUFFER_SIZE &&
-                  dcslen >= 2 && (head=compressed_block_size(dcsptr)) <= dcslen) {
-                size = decompress_block(dcdbuf+dclen, dcsptr);
-                if(dcrem>=0x1000 && size!=0x1000) {
-                    *perrnum = ERR_FSYS_CORRUPT;
-                    return ret;
-                }
-                dcrem -= size;
-                dclen += size;
-                dcsptr += head;
-                dcslen -= head;
-            }
-            continue;
-        }
-        dclen = dcrem = 0;
-        switch(get_16_cluster(cmft, vcn)) {
-        case 0:
-            /* sparse */
-            size = 16 * clustersize - off;
-            if( len < size )
-                size = len;
-#ifndef STAGE1_5
-            (*pgrub_memset)( buf, 0, size);
-#endif
-            *pfilepos += size;
-            len -= size;
-            ret += size;
-            buf += size;
-            break;
-
-        case 16:
-            /* uncompressed */
-            index16 = off / clustersize;
-            off %= clustersize;
-            while(index16 < 16) {
-                size = clustersize - off;
-                if( len < size )
-                    size = len;
-                if(!(*pdevread)(cluster16[index16]*(clustersize>>9)+(off>>9), off&0x1ff, size, buf))
-                    return ret;
-                *pfilepos += size;
-                len -= size;
-                ret += size;
-                if(len==0)
-                    return ret;
-                off = 0;
-                buf += size;
-                index16++;
-            }
-            break;
-
-        default:
-            index16 = 0;
-            dcvcn = vcn;
-            dcoff = vcn * clustersize;
-            dcrem = *pfilemax - dcoff;
-            if(dcrem > 16 * clustersize)
-                dcrem = 16 * clustersize;
-            dcsptr = dcsbuf;
-            dcslen = 0;
         }
     }
-#endif
-#endif
+done:
+    ret = 1;
+fail:
+    disk_read_func = NULL;
     return ret;
+}
+
+static int read_attr(char* cur_mft,char* dest,unsigned long ofs,unsigned long len,int cached) //, unsigned long write)
+{
+  unsigned short save_cur;
+  unsigned char attr;
+  char* pp;
+  int ret;
+
+  save_cur=attr_cur;
+  attr_nxt=attr_cur;
+  attr=valueat(ofs2ptr(attr_nxt),0,unsigned char);
+  if (get_aflag(AF_ALST))
+    {
+      unsigned short new_pos;
+      unsigned long vcn;
+
+      vcn=ofs / (spc<<BLK_SHR);
+      new_pos=attr_nxt+valueat(ofs2ptr(attr_nxt),4,unsigned short);
+      while (new_pos<attr_end)
+        {
+          char *pa;
+
+          pa=ofs2ptr(new_pos);
+          if (*pa!=attr)
+            break;
+          if (valueat(pa,8,unsigned long)>vcn)
+            break;
+          attr_nxt=new_pos;
+          new_pos+=valueat(pa,4,unsigned short);
+        }
+    }
+  pp=find_attr(cur_mft,attr);
+  ret=(pp)?read_data(cur_mft,pp,dest,ofs,len,cached):0; //,write):0;
+  attr_cur=save_cur;
+  return ret;
+}
+
+static int read_mft(char* buf,unsigned long mftno)
+{
+  if (! read_attr(mmft,buf,mftno*(mft_size << BLK_SHR),mft_size << BLK_SHR,0)) //, 0xedde0d90))
+    {
+      dbg_printf("Read MFT 0x%X fails\n",mftno);
+      return 0;
+    }
+  return fixup(buf,mft_size,"FILE");
+}
+
+static int init_file(char* cur_mft,unsigned long mftno)
+{
+  unsigned short flag;
+
+  if (! read_mft(cur_mft,mftno))
+    goto error;
+
+  flag=valueat(cur_mft,0x16,unsigned short);
+  if ((flag & 1)==0)
+    {
+      dbg_printf("MFT 0x%X is not in use\n",mftno);
+      goto error;
+    }
+  if (flag & 2)
+    *pfilemax=0;
+  else
+    {
+      char *pa;
+
+      pa=locate_attr(cur_mft,AT_DATA);
+      if (pa==NULL)
+        {
+          dbg_printf("No $DATA in MFT 0x%X\n",mftno);
+          goto error;
+        }
+
+      if (! pa[8])
+        *pfilemax=valueat(pa,0x10,unsigned long);
+      else
+        *pfilemax=valueat(pa,0x30,unsigned long);
+
+      if (! get_aflag(AF_ALST))
+        attr_end=0;             // Don't jump to attribute list
+    }
+
+  *pfilepos=0;
+  save_pos=1;
+  return 1;
+error:
+  *perrnum=ERR_FSYS_CORRUPT;
+  return 0;
+}
+
+static int list_file(char* cur_mft,char *fn,char *pos)
+{
+  char *np;
+  unsigned char *utf8 = (unsigned char *)(NAME_BUF);
+  int i,ns,len;
+
+  len=strlen(fn);
+  while (1)
+    {
+      if (pos[0xC] & 2)                 // end signature
+        break;
+      np=pos+0x52;
+      ns=valueat(np,-2,unsigned char);
+      uni2ansi((unsigned short *)np, utf8, ns);
+      if (((print_possibilities) && (ns>=len)) ||
+          ((! print_possibilities) && (ns==len)))
+        {
+          for (i=0;i<len;i++)
+            if (tolower(fn[i])!=tolower(utf8[i]/*np[i*2]*/))
+              break;
+          if (i>=len)
+            {
+              if (print_possibilities)
+                {
+                  if ((i) || ((utf8[0]!='$') && ((utf8[0]!='.') || (ns!=1))))
+                    {
+#ifndef STAGE1_5
+                      if (print_possibilities>0)
+                        print_possibilities=-print_possibilities;
+#endif
+//                    for (i=1;i<ns;i++)
+//                      np[i]=np[i*2];
+//                    np[ns]=0;
+#ifdef FS_UTIL
+                      //print_completion_ex(utf8,valueat(pos,0,unsigned long),valueat(pos,0x40,unsigned long),(valueat(pos,0x48,unsigned long) & ATTR_DIRECTORY)?FS_ATTR_DIRECTORY:0);
+#else
+                      //print_a_completion((char *)utf8);
+#endif
+                    }
+                }
+              else
+                {
+                  if (valueat(pos,4,unsigned short))
+                    {
+                      dbg_printf("64-bit MFT number\n");
+                      return 0;
+                    }
+                  return init_file(cur_mft,valueat(pos,0,unsigned long));
+                }
+            }
+        }
+      pos+=valueat(pos,8,unsigned short);
+    }
+  return -1;
+}
+
+static int scan_dir(char* cur_mft,char *fn)
+{
+  unsigned char *bitmap;
+  char *cur_pos;
+  int bitmap_len,ret;
+
+  if ((valueat(cur_mft,0x16,unsigned short) & 2)==0)
+    {
+      *perrnum=ERR_FILE_NOT_FOUND;
+      return 0;
+    }
+
+  init_attr(cur_mft);
+  while (1)
+    {
+      if ((cur_pos=find_attr(cur_mft,AT_INDEX_ROOT))==NULL)
+        {
+          dbg_printf("No $INDEX_ROOT\n");
+          goto error;
+        }
+
+      // Resident, Namelen=4, Offset=0x18, Flags=0x00
+      // Name="$I30"
+      if ((valueat(cur_pos,8,unsigned long)!=0x180400) ||
+          (valueat(cur_pos,0x18,unsigned long)!=0x490024) ||
+          (valueat(cur_pos,0x1C,unsigned long)!=0x300033))
+        continue;
+      cur_pos+=valueat(cur_pos,0x14,unsigned short);
+      if (*cur_pos!=0x30)       // Not filename index
+        continue;
+      break;
+    }
+
+  cur_pos+=0x10;                // Skip index root
+  ret=list_file(cur_mft,fn,cur_pos+valueat(cur_pos,0,unsigned short));
+  if (ret>=0)
+    goto done;
+
+  bitmap=NULL;
+  bitmap_len=0;
+  init_attr(cur_mft);
+  while ((cur_pos=find_attr(cur_mft,AT_BITMAP))!=NULL)
+    {
+      int ofs=(unsigned char)cur_pos[0xA];
+      // Namelen=4, Name="$I30"
+      if ((cur_pos[9]==4) &&
+          (valueat(cur_pos,ofs,unsigned long)==0x490024) &&
+          (valueat(cur_pos,ofs+4,unsigned long)==0x300033))
+        {
+          if (cur_pos[8]==0)
+            {
+              bitmap_len=valueat(cur_pos,0x10,unsigned long);
+              if (bitmap_len>4096)
+                {
+                  dbg_printf("Resident $BITMAP too large\n");
+                  goto error;
+                }
+              bitmap=(unsigned char*)cbuf;
+              memcpy((char *)bitmap,(char *)(cur_pos+valueat(cur_pos,0x14,unsigned short)),bitmap_len);
+              break;
+            }
+          if (valueat(cur_pos,0x28,unsigned long)>4096)
+            {
+              dbg_printf("Non-resident $BITMAP too large\n");
+              goto error;
+            }
+          bitmap=(unsigned char*)cbuf;
+          bitmap_len=valueat(cur_pos,0x30,unsigned long);
+          if (! read_data(cur_mft,cur_pos,cbuf,0,valueat(cur_pos,0x28,unsigned long),0)) //, 0xedde0d90))
+            {
+              dbg_printf("Fails to read non-resident $BITMAP\n");
+              goto error;
+            }
+          break;
+        }
+    }
+
+  cur_pos=locate_attr(cur_mft,AT_INDEX_ALLOCATION);
+  while (cur_pos!=NULL)
+    {
+      // Non-resident, Namelen=4, Offset=0x40, Flags=0
+      // Name="$I30"
+      if ((valueat(cur_pos,8,unsigned long)==0x400401) &&
+          (valueat(cur_pos,0x40,unsigned long)==0x490024) &&
+          (valueat(cur_pos,0x44,unsigned long)==0x300033))
+        break;
+      cur_pos=find_attr(cur_mft,AT_INDEX_ALLOCATION);
+    }
+
+  if ((! cur_pos) && (bitmap))
+    {
+      dbg_printf("$BITMAP without $INDEX_ALLOCATION\n");
+      goto error;
+    }
+
+  if (bitmap)
+    {
+      unsigned long v,i;
+
+      v=1;
+      for (i=0;i<bitmap_len*8;i++)
+        {
+          if (*bitmap & v)
+            {
+              if ((! read_attr(cur_mft,sbuf,i*(idx_size<<BLK_SHR),(idx_size<<BLK_SHR),0)) || //, 0xedde0d90)) ||
+                  (! fixup(sbuf,idx_size,"INDX")))
+                goto error;
+              ret=list_file(cur_mft,fn,&sbuf[0x18+valueat(sbuf,0x18,unsigned short)]);
+              if (ret>=0)
+                goto done;
+            }
+          v<<=1;
+          if (v >= 0x100)
+            {
+              v=1;
+              bitmap++;
+            }
+        }
+    }
+
+  ret=(print_possibilities<0);
+
+done:
+  if (! ret)
+    *perrnum = ERR_FILE_NOT_FOUND;
+
+  return ret;
+
+error:
+  *perrnum = ERR_FSYS_CORRUPT;
+  return 0;
 }
 
 int ntfs_mount (void)
 {
-    char *sb = (char *)FSYS_BUF;
-    int mft_record;
-    int spc;
-
-  if (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
-       && (*pcurrent_slice != /*PC_SLICE_TYPE_NTFS*/7)
-       && (*pcurrent_slice != /*PC_SLICE_TYPE_NTFS*/0x17))
-      return 0;
-
-    if (!(*pdevread) (0, 0, 512, (char *) FSYS_BUF))
-        return 0;                       /* Cannot read superblock */
-
-    if(sb[3]!='N' || sb[4]!='T' || sb[5]!='F' || sb[6]!='S')
-        return 0;
-    blocksize = *(__u16 *)(sb+0xb);
-    spc = *(unsigned char *)(sb+0xd);
-    clustersize = spc * blocksize;
-    mft_record_size = *(char *)(sb+0x40);
-    index_record_size = *(char *)(sb+0x44);
-    if(mft_record_size>0)
-        mft_record_size *= clustersize;
-    else
-        mft_record_size = 1 << (-mft_record_size);
-
-    index_record_size *= clustersize;
-    mft_record = *(__u32 *)(sb+0x30); /* only support 32 bit */
-    spc = clustersize / 512;
-
-    if(mft_record_size > MAX_MFT_RECORD_SIZE || index_record_size > MAX_INDEX_RECORD_SIZE) {
-        /* only support 1k MFT record, 4k INDEX record */
-        return 0;
-    }
-
-#ifdef DEBUG_NTFS
-    printf("spc=%x mft_record=%x:%x\n", spc, *(__s64 *)(sb+0x30));
-#endif
-
-    if (!(*pdevread) (mft_record*spc, 0, mft_record_size, (char *)(mmft->mft)))
-        return 0;                       /* Cannot read superblock */
-
-    if(!fixup_record((char *)mmft->mft, "FILE", mft_record_size))
-        return 0;
-
-#ifndef NO_ALTERNATE_DATASTREAM
-    is_ads_completion = 0;
-#endif
-    if(!search_attribute(mmft, at_data, NONAME)) return 0;
-
-    *mft_run = mmft->runl;
-
-    *path_ino = FILE_ROOT;
-
-    return 1;
-}
-
-int
-ntfs_dir (char *dirname)
-{
-    char *rest, ch;
-    int namelen;
-    int depth = 0;
-    int chk_sfn = 1;
-    int flag = 0;
-    int record_offset;
-    int my_index_record_size;
-    unsigned char *index_entry = 0, *entry, *index_end;
-    int i;
-
-    /* main loop to find desired directory entry */
-loop:
-
-#ifdef DEBUG_NTFS
-    printf("dirname=%s\n", dirname);
-#endif
-    if(!read_mft_record(path_ino[depth], (char *)cmft->mft, 0))
-    {
-#ifdef DEBUG_NTFS
-        printf("MFT error 1\n");
-#endif
-        *perrnum = ERR_FSYS_CORRUPT;
-        return 0;
-    }
-
-    /* if we have a real file (and we're not just printing possibilities),
-       then this is where we want to exit */
-
-    if (!*dirname || (*pgrub_isspace) (*dirname) || *dirname==':')
-    {
-#ifndef STAGE1_5
-#ifndef NO_ALTERNATE_DATASTREAM
-        if (*dirname==':' && print_possibilities) {
-            char *tmp;
-
-            /* preparing ADS name completion */
-            for(tmp = dirname; *tmp != '/'; tmp--);
-            for(tmp++, rest=fnbuf; *tmp && !isspace(*tmp); *rest++ = *tmp++)
-                if(*tmp==':') dirname = rest;
-            *rest++ = '\0';
-
-            is_ads_completion = 1;
-            search_attribute(cmft, at_data, dirname+1);
-            is_ads_completion = 0;
-
-            if(*perrnum==0) {
-                if(print_possibilities < 0)
-                    return 1;
-                *perrnum = ERR_FILE_NOT_FOUND;
-            }
-            return 0;
-        }
-#endif
-#endif
-
-        if (*dirname==':') dirname++;
-        for (rest = dirname; (ch = *rest) && !(*pgrub_isspace) (ch); rest++);
-        *rest = 0;
-
-        if (!search_attribute(cmft, at_data, dirname)) {
-            *perrnum = *(dirname-1)==':'?ERR_FILE_NOT_FOUND:ERR_BAD_FILETYPE;
-            *rest = ch;
-            return 0;
-        }
-        *rest = ch;
-
-        *pfilemax = cmft->attr_size;
-        return 1;
-    }
-
-    if(depth >= (MAX_DIR_DEPTH-1)) {
-        *perrnum = ERR_FSYS_CORRUPT;
-        return 0;
-    }
-
-    /* continue with the file/directory name interpretation */
-
-    while (*dirname == '/')
-        dirname++;
-
-    for (rest = dirname; (ch = *rest) && !(*pgrub_isspace) (ch) && ch != '/' && ch != ':'; rest++);
-
-    *rest = 0;
-
-    if (!search_attribute(cmft, at_index_root, "$I30"))
-    {
-        *perrnum = ERR_BAD_FILETYPE;
-        return 0;
-    }
-
-    read_attribute(cmft, 0, fnbuf, 16, 0);
-    my_index_record_size = *(__u32 *)(fnbuf+8);
-
-    if(my_index_record_size > MAX_INDEX_RECORD_SIZE) {
-        *perrnum = ERR_FSYS_CORRUPT;
-        return 0;
-    }
-
-#ifdef DEBUG_NTFS
-    printf("index_record_size=%x\n", my_index_record_size);
-#endif
-
-    if(cmft->attr_size > MAX_INDEX_RECORD_SIZE) {
-        *perrnum = ERR_FSYS_CORRUPT;
-        return 0;
-    }
-    read_attribute(cmft, 0, index_data, cmft->attr_size, 0);
-    index_end = index_data + cmft->attr_size;
-    index_entry = index_data + 0x20;
-    record_offset = -1;
-
-#ifndef STAGE1_5
-    if (print_possibilities && ch != '/' && ch != ':' && !*dirname)
-    {
-        print_possibilities = -print_possibilities;
-        /* fake '.' for empty directory */
-        //print_a_completion (".");
-    }
-#endif
-
-    if (search_attribute(cmft, at_bitmap, "$I30")) {
-        if(cmft->attr_size > MAX_INDEX_BITMAP_SIZE) {
-            *perrnum = ERR_FSYS_CORRUPT;
-            return 0;
-        }
-
-        read_attribute(cmft, 0, bitmap_data, cmft->attr_size, 0);
-
-        if (search_attribute(cmft, at_index_allocation, "$I30")==0) {
-            *perrnum = ERR_FSYS_CORRUPT;
-            return 0;
-        }
-
-        for(record_offset = 0; record_offset*my_index_record_size<cmft->attr_size; record_offset++){
-            int bit = 1 << (record_offset&3);
-            int byte = record_offset>>3;
-#ifdef DEBUG_NTFS
-            printf("record_offset=%x\n", record_offset);
-#endif
-            if((bitmap_data[byte]&bit))
-                break;
-        }
-
-        if(record_offset*my_index_record_size>=cmft->attr_size) record_offset = -1;
-    }
-
-    do
-    {
-        entry = index_entry; index_entry += *(__u16 *)(entry+8);
-        if(entry+0x50>=index_entry||entry>=index_end||
-           index_entry>=index_end||(entry[0x12]&2)){
-            if(record_offset < 0 ||
-               !read_attribute(cmft, record_offset*my_index_record_size, index_data, my_index_record_size, 0)){
-                if (!*perrnum)
-                {
-                    if (print_possibilities < 0)
-                    {
 #if 0
-                        putchar ('\n');
-#endif
-                        return 1;
-                    }
-
-                    *perrnum = ERR_FILE_NOT_FOUND;
-                    *rest = ch;
-                }
-
-                return 0;
-            }
-            if(!fixup_record( index_data, "INDX", my_index_record_size))
-            {
-#ifdef DEBUG_NTFS
-                printf("index error\n");
-#endif
-                *perrnum = ERR_FSYS_CORRUPT;
-                return 0;
-            }
-            entry = index_data + 0x18 + *(__u16 *)(index_data+0x18);
-            index_entry = entry + *(__u16 *)(entry+8);
-            index_end = index_data + my_index_record_size - 0x52;
-            for(record_offset++; record_offset*my_index_record_size<cmft->attr_size; record_offset++){
-                int bit = 1 << (record_offset&3);
-                int byte = record_offset>>3;
-                if((bitmap_data[byte]&bit)) break;
-            }
-            if(record_offset*my_index_record_size>=cmft->attr_size) record_offset = -1;
-#ifdef DEBUG_NTFS
-            printf("record_offset=%x\n", record_offset);
-#endif
-        }
-        flag = entry[0x51];
-        path_ino[depth+1] = *(__u32 *)entry;
-        if(path_ino[depth+1] < 16)
-            continue;
-        namelen = entry[0x50];
-        //if(index_data[0x48]&2) printf("hidden file\n");
-#ifndef STAGE1_5
-        /* skip short file name */
-        if( flag == 2 && print_possibilities && ch != '/' && ch != ':' )
-            continue;
+  if (((current_drive & 0x80) || (current_slice != 0))
+      && (current_slice != 7) && (current_slice != 0x17))
+    return 0;
 #endif
 
-        for( i = 0, entry+=0x52; i < namelen; i++, entry+=2 )
-        {
-            int c = *(__u16 *)entry;
-            if(c==' '||c>=0x100)
-                fnbuf[i] = '_';
-            else
-                fnbuf[i] = c;
-        }
-        fnbuf[namelen] = 0;
-#ifdef DEBUG_NTFS
-        printf("FLAG: %d  NAME: %s  inum=%d\n", flag,fnbuf,path_ino[depth+1]);
+  if (! (*pdevread) (0, 0, 512, mmft)) //, 0xedde0d90))
+    return 0;
+
+#if 0
+  if (valueat(mmft,3,unsigned long)!=0x5346544E)
+    return 0;
 #endif
 
-        //uncntrl(fnbuf);
+  blocksize=valueat(mmft,0xb,unsigned short);
 
-        chk_sfn = nsubstring(dirname,fnbuf);
-#ifndef STAGE1_5
-        if (print_possibilities && ch != '/' && ch != ':'
-            && (!*dirname || chk_sfn <= 0))
-        {
-            if (print_possibilities > 0)
-                print_possibilities = -print_possibilities;
-            //print_a_completion (fnbuf);
-        }
-#endif /* STAGE1_5 */
+  if (blocksize != 512)
+    return 0;
+
+  spc=(blocksize*valueat(mmft,0xd,unsigned char)) >> BLK_SHR;
+
+  if (!spc || (128 % spc))
+    return 0;
+
+  if (valueat(mmft,0x10,unsigned long) != 0)
+    return 0;
+
+  if (mmft[0x14] != 0)
+    return 0;
+
+  if (valueat(mmft,0x16,unsigned short) != 0)
+    return 0;
+
+  if ((unsigned short)(valueat(mmft,0x18,unsigned short) - 1) > 62)
+    return 0;
+
+  if ((unsigned short)(valueat(mmft,0x1A,unsigned short) - 1) > 255)
+    return 0;
+
+  if (valueat(mmft,0x20,unsigned long) != 0)
+    return 0;
+
+  if (mmft[0x44]>0)
+    idx_size=spc*mmft[0x44];
+  else
+    idx_size=1<<(-mmft[0x44]-BLK_SHR);
+
+  if (mmft[0x40]>0)
+    mft_size=spc*mmft[0x40];
+  else
+    mft_size=1<<(-mmft[0x40]-BLK_SHR);
+
+  mft_start=spc*valueat(mmft,0x30,unsigned long);
+
+  if ((mft_size>MAX_MFT) || (idx_size>MAX_IDX))
+    return 0;
+
+  if (! (*pdevread)(mft_start,0,mft_size << BLK_SHR,mmft)) //, 0xedde0d90))
+    return 0;
+
+  if (! fixup(mmft,mft_size,"FILE"))
+    return 0;
+
+  if (! locate_attr(mmft,AT_DATA))
+    {
+      dbg_printf("No $DATA in master MFT\n");
+      return 0;
     }
-    while (chk_sfn != 0 ||
-           (print_possibilities && ch != '/' && ch != ':'));
-
-    *(dirname = rest) = ch;
-
-    depth++;
-
-    /* go back to main loop at top of function */
-    goto loop;
+  return 1;
 }
+
+int ntfs_dir (char *dirname)
+{
+  int ret;
+#ifndef STAGE1_5
+  int is_print=print_possibilities;
+#endif
+
+  *pfilepos = *pfilemax = 0;
+
+  if (*dirname=='/')
+    dirname++;
+#ifndef STAGE1_5
+  if ((*dirname=='#') && (dirname[1]>='0') && (dirname[1]<='9'))
+    {
+      int mftno;
+
+      dirname++;
+      if (! safe_parse_maxint((char **)&dirname, (long *)&mftno))
+        return 0;
+      return init_file(cmft,mftno);
+    }
+#endif
+
+  if (! init_file(cmft,FILE_ROOT))
+    return 0;
+
+  ret=0;
+
+  while (1)
+    {
+      char *next, ch;
+
+      /* skip to next slash or end of filename (space) */
+      for (next = dirname; (ch = *next) && ch != '/' && !isspace (ch); next++)
+      {
+        if (ch == '\\')
+        {
+                next++;
+                if (! (ch = *next))
+                        break;
+        }
+      }
+
+      *next = 0;
+#ifndef STAGE1_5
+      print_possibilities=(ch=='/')?0:is_print;
+#endif
+
+      ret=scan_dir(cmft,dirname);
+
+      *next=ch;
+
+      if (! ret)
+        break;
+
+      if (ch=='/')
+        dirname=next+1;
+      else
+        break;
+    }
+
+#ifndef STAGE1_5
+  print_possibilities=is_print;
+#endif
+  return ret;
+}
+
+unsigned long ntfs_read(char *buf, unsigned long len) //, unsigned long write)
+{
+  char *cur_mft;
+
+  cur_mft=cmft;
+  if (valueat(cur_mft,0x16,unsigned short) & 2)
+    goto error;
+
+  if (disk_read_hook)
+    save_pos=1;
+
+  if (! read_attr(cmft,buf,*pfilepos,len,1)) //,write))
+    goto error;
+
+  *pfilepos+=len;
+  return len;
+
+error:
+  *perrnum=ERR_FSYS_CORRUPT;
+  return 0;
+}
+
+#ifdef FS_UTIL
+
+void ntfs_info(int level)
+{
+  dbg_printf("blocksize: %u\nspc: %u\nmft_size: %u\nidx_size: %u\nmft_start: 0x%X\n",
+             blocksize,spc,mft_size,idx_size,mft_start);
+}
+
+int ntfs_inode_read(char* buf)
+{
+  if (buf)
+    memcpy(buf,cmft,mft_size<<BLK_SHR);
+  return mft_size<<BLK_SHR;
+}
+
+static char* attr2str(unsigned char attr)
+{
+  switch (attr) {
+  case AT_STANDARD_INFORMATION:
+    return "$STANDARD_INFORMATION";
+  case AT_ATTRIBUTE_LIST:
+    return "$ATTRIBUTE_LIST";
+  case AT_FILENAME:
+    return "$FILENAME";
+  case AT_OBJECT_ID:
+    return "$OBJECT_ID";
+  case AT_SECURITY_DESCRIPTOR:
+    return "$SECURITY_DESCRIPTOR";
+  case AT_VOLUME_NAME:
+    return "$VOLUME_NAME";
+  case AT_VOLUME_INFORMATION:
+    return "$VOLUME_INFORMATION";
+  case AT_DATA:
+    return "$DATA";
+  case AT_INDEX_ROOT:
+    return "$INDEX_ROOT";
+  case AT_INDEX_ALLOCATION:
+    return "$INDEX_ALLOCATION";
+  case AT_BITMAP:
+    return "$BITMAP";
+  case AT_SYMLINK:
+    return "$SYMLINK";
+  case AT_EA_INFORMATION:
+    return "$EA_INFORMATION";
+  case AT_EA:
+    return "$EA";
+  }
+  return "$UNKNOWN";
+}
+
+static void print_name(char* s,int len)
+{
+  int i;
+
+  for (i=0;i<len;i++)
+    putchar(s[i*2]);
+}
+
+void print_runlist(char *run)
+{
+  read_ctx ctx;
+  int first;
+
+  memset(&ctx,0,sizeof(ctx));
+  first=1;
+  while (run=read_run_list(&ctx,run))
+    {
+      if (first)
+        first=0;
+      else
+        putchar(',');
+      if (ctx.flags & RF_BLNK)
+        printf("(+%d)",(ctx.next_vcn-ctx.curr_vcn)*spc);
+      else
+        printf("%d+%d",ctx.curr_lcn*spc,(ctx.next_vcn-ctx.curr_vcn)*spc);
+      if (*run==0)
+        break;
+    }
+  printf("\n");
+}
+
+void ntfs_inode_info(int level)
+{
+  char *cur_mft,*pos;
+  int first;
+
+  cur_mft=cmft;
+  printf("Type: %s\n",(valueat(cur_mft,0x16,unsigned short) & 2)?"Directory":"File");
+  if (valueat(cur_mft,0x20,unsigned long))
+    printf("Base: 0x%X\n",valueat(cur_mft,0x20,unsigned long));
+  printf("Attr:\n");
+
+  first=1;
+  init_attr(cur_mft);
+  while ((pos=find_attr(cur_mft,0))!=NULL)
+    {
+      unsigned long fg;
+
+      if (get_aflag(AF_ALST))
+        {
+          if (first)
+            {
+              printf("Attr List:\n");
+              first=0;
+            }
+        }
+      printf("  %s (0x%X) ",attr2str(*pos),(unsigned char)*pos);
+
+      printf((pos[8])?"(nr":"(r");
+
+      fg=valueat(pos,0xC,unsigned short);
+      if (fg & FLAG_COMPRESSED)
+        printf(",c");
+      if (fg & FLAG_ENCRYPTED)
+        printf(",e");
+      if (fg & FLAG_SPARSE)
+        printf(",s");
+
+      if (get_aflag(AF_ALST))
+        {
+          printf(",mft=0x%X",valueat(ofs2ptr(attr_cur),0x10,unsigned long));
+          if (pos[8])
+            printf(",vcn=0x%X",valueat(ofs2ptr(attr_cur),0x8,unsigned long));
+        }
+
+      if (pos[9])
+        {
+          printf(",nm=");
+          print_name(pos+valueat(pos,0xA,unsigned short),pos[9]);
+        }
+
+      printf(",sz=%d",valueat(pos,((pos[8])?0x30:0x10),unsigned long));
+
+      printf(")\n");
+      if ((pos[8]) && (! get_aflag(AF_ALST)))
+        {
+          printf("    ");
+          print_runlist(pos+valueat(pos,0x20,unsigned short));
+        }
+      switch ((unsigned char)pos[0]) {
+      case AT_FILENAME:
+        pos+=valueat(pos,0x14,unsigned short);
+        if (pos[0x40])
+          {
+            printf("    ");
+            print_name(pos+0x42,(unsigned char)pos[0x40]);
+            printf("\n");
+          }
+        break;
+      }
+    }
+}
+
+#endif
 
 #endif /* FSYS_NTFS */

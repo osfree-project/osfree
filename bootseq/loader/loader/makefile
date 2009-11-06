@@ -14,7 +14,7 @@ LDR_OBJS         = $(p)ldrstart$(e) $(p)loader$(e) $(p)..$(SEP)wrap$(e) $(p)comm
 
 MOD_BASE         = LDR_BASE
 DEST             = boot$(SEP)loader
-
+ADD_COPT         = -s -j
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
