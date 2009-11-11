@@ -206,7 +206,10 @@ static void
 uni2ansi (UniChar *uni, char *ansi, int len)
 {
         for (; len; len--, uni++)
-                *ansi++ = (*uni & 0xff80) ? '?' : *(char *)uni;
+        {
+          //if (*uni == 0xff) continue;
+          *ansi++ = (*uni & 0xff80) ? '?' : *(char *)uni;
+        }
 }
 
 int
@@ -346,10 +349,10 @@ jfs_dir (char *dirname)
                                 uni2ansi (de->name, namebuf, namlen);
                                 namebuf[namlen] = 0;
                         } else {
-                                uni2ansi (de->name, namebuf, DTLHDRDATALEN);
+                                uni2ansi (de->name, namebuf, DTLHDRDATALEN + 2);
                                 ptr = namebuf;
-                                ptr += DTLHDRDATALEN;
-                                namlen -= DTLHDRDATALEN;
+                                ptr += DTLHDRDATALEN + 2;
+                                namlen -= DTLHDRDATALEN + 2;
                                 ds = next_dslot (de->next);
                                 while (ds->next != -1) {
                                         uni2ansi (ds->name, ptr, DTSLOTDATALEN);

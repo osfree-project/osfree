@@ -160,9 +160,10 @@ struct offset_v2
    * number, we return EEXIST.  High order bit is 0 always
    */
   //__u64 k_offset:60;
-  __u64 k_offset1:32;
-  __u64 k_offset2:28;
-  __u64 k_type: 4;
+  //__u64 k_type:4;
+  __u32 k_offset1;
+  __u32 k_offset2:28;
+  __u32 k_type: 4;
 };
 
 
@@ -228,7 +229,7 @@ struct item_head
 
 #define IH_KEY_OFFSET(ih) ((ih)->ih_version == ITEM_VERSION_1 \
                            ? (ih)->ih_key.u.v1.k_offset \
-                           : ((ih)->ih_key.u.v2.k_offset1 & (0xffffffff) + (__u64)((ih)->ih_key.u.v2.k_offset2 & 0x0fffffff) << 32))
+                           : ((ih)->ih_key.u.v2.k_offset1) | ((__u64)((ih)->ih_key.u.v2.k_offset2) & 0x0fffffff) << 32)
 
 
 #define IH_KEY_ISTYPE(ih, type) ((ih)->ih_version == ITEM_VERSION_1 \
@@ -397,8 +398,9 @@ log2 (unsigned long word)
   l = word;
 
   __asm {
-     bsf   eax, l
-     mov   l,   eax
+    mov  eax, l
+    bsf  eax, eax
+    mov  l,   eax
   }
 
   return l;

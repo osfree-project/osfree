@@ -23,24 +23,26 @@ int print_possibilities = 0;
 #define   DNODE ((struct dnode *)(FSYS_BUF + 1536))
 #define   ANODE ((struct anode *)(DNODE + 2048))
 
-int
-strncmp (char *s1, char *s2, int n)
+/* OS/2 character sort order (without national ones) */
+static char order[] = "!#$%&'()+,-.0123456789;=@abcdefghijklmnopqrstuvwxyz[]^`{}~_";
+
+static int
+strocmp (char *s1, char *s2)
 {
   char *p = s1;
   char *q = s2;
-  int  i = n;
+  int u, v;
 
-  while (i)
+  while (*p || *q)
   {
-    if (*p < *q)
+    u = grub_index(*p, order);
+    v = grub_index(*q, order);
+    if (u < v)
       return -1;
-    else
-    if (*p > *q)
+    if (u > v)
       return 1;
-    else
-    {
-      p++; q++; i--;
-    }
+    p++;
+    q++;
   }
 
   return 0;
@@ -49,9 +51,11 @@ strncmp (char *s1, char *s2, int n)
 int
 hpfs_mount (void)
 {
+  char *c = (char *)BOOT->sig_hpfs;
+
   if  ((*pcurrent_slice != 0x07)
       || !(*pdevread) (0, 0, sizeof(struct hpfs_boot_block), (char *)BOOT)
-      || (strncmp ((char *)BOOT->sig_hpfs, "HPFS", 4))
+      || c[0] != 'H' || c[1] != 'P' || c[2] != 'F' || c[3] !=  'S'
       || (BOOT->sig_28h != 0x28)
       || !(*pdevread) (16, 0, sizeof(struct hpfs_super_block), (char *)SUPER)
       || (SUPER->magic != SB_MAGIC)
@@ -194,7 +198,7 @@ hpfs_dir (char *dirname)
     {
       (*pgrub_memmove) (filename, dirent->name, dirent->namelen);
       filename[dirent->namelen] = '\0';
-      n = (*pgrub_strcmp) (fn, filename);
+      n = strocmp (fn, filename);
       if (!n)
       {
         /* name found */
