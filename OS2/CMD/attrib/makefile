@@ -1,7 +1,6 @@
 #
 # A Makefile for ATTRIB
 # (c) osFree project,
-# author, date
 #
 
 PROJ = attrib

@@ -1,0 +1,93 @@
+setboot is a Linux and DOS utility for OS/2 Boot Manager users.  It reboots
+to a specified OS or partition.  It's useless if you don't use Boot Manager.
+
+	   OS/2				Linux or DOS
+
+	SETBOOT /IBD:C			setboot c:
+	SETBOOT /IBA:DOS		setboot dos
+
+Other SETBOOT options are not supported by setboot -- it just selects
+the system to load at the next boot and that's it.
+
+
+=== Building ==============================
+
+    1. edit the script "setboot" to use the rebooting method of
+       your choice -- reboot(1) or shutdown(1), whatever flags you like
+
+    2. make install BINDIR=/usr/local/bin  (e.g.)
+
+
+=== Using ==============================
+
+'setboot' 	with no args lists the boot manager menu.
+		DO THIS FIRST TO SEE IF IT CAN READ YOUR SETUP CORRECTLY
+
+'setboot X:' 	reboots from OS/2 drive letter X.  Case is ignored.
+
+'setboot xxxx'	reboots from menu choice xxxx.  Case is ignored,
+		and unique abbrevs are ok.
+
+
+=== Installing under DOS ==============================
+
+    C>copy setboot.exe d:\bin      (e.g.)
+
+
+=== Using under DOS ==============================
+
+  C>setboot	with no args lists the boot manager menu
+		DO THIS FIRST TO SEE IF IT CAN READ YOUR SETUP CORRECTLY
+
+  C>setboot linux     	(or whatever, see above)
+  C>CTRL+ALT+DEL
+
+The following 4dos alias will run setboot and then reboot the machine:
+
+  c>alias setboot d:\bin\setboot %& && reboot
+
+setboot.exe can reboot the machine itself.  If you use this feature,
+>>NOTE<< that disk caches must be flushed or file corruption will occur.
+setboot.exe does a disk reset (INT 21/AH=0D) which, by convention, tells
+disk caches to sync.  It has NOT been widely tested, and probably not
+all disk caches work this way.  Be very cautious if you use this feature.
+
+But to get to the point, the syntax is
+
+  C>setboot /b linux
+
+To be prudent, use this in a .BAT that first flushes the disk cache:
+
+  MEGACACHE /FLUSH
+  SETBOOT /B %1
+
+
+=== Footnote: on floppy boots ==============================
+
+Your BIOS setup screen may contain an option like 'Boot Sequence C:,A:'.
+
+This option is very nice -- if you use it you will never accidentally
+boot from a forgotten floppy, which might contain a malicious boot
+sector.
+
+However, it is a bit of a pain when you actually do want to boot off a
+floppy.  Boot Manager is no help.  LILO is.
+
+To make it easy to boot from floppies, add something like this to
+/etc/lilo/config:
+
+    other = /dev/fd0H1440
+      label = A:
+      loader = /etc/lilo/chain.b
+      unsafe
+    other = /dev/fd1h1200
+      label = B:
+      loader = /etc/lilo/any_b.b
+      unsafe
+
+Use whatever /dev/fdxynnnn names are appropriate for your hardware.
+If you don't have any_b.b lying around, just omit the B: entry, or
+if you really want it, the LILO source Makefile will build any_b.b.
+
+Then to boot from a floppy, select Linux from the Boot Manager menu,
+hold down Shift to get a boot: prompt, and type A:.

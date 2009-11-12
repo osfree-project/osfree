@@ -1,5 +1,6 @@
 /* find.c */
 
+/* Copyright (C) 2009, osFree.org */
 /* Copyright (C) 1994-2002, Jim Hall <jhall@freedos.org> */
 
 /*
@@ -39,12 +40,12 @@
 
 #include "find_str.h"                   /* find_str() back-end */
 
-#include "kitten.h"                     /* Kitten message library */
+/* Show usage */
 
-
-/* Functions */
-
-void usage (nl_catd cat);
+void usage()
+{
+  cmd_ShowSystemMessage(cmd_MSG_FIND_HELP,0L);
+}
 
 
 /* Main program */
@@ -70,12 +71,7 @@ int main (int argc, char* argv[], char* envp[])
 
   /* FILE *pfile; */                    /* file pointer */
   int thefile;                          /* file handler */
-  nl_catd cat;                          /* message catalog */
   struct find_t ffblk;                   /* findfirst, findnext block */
-
-  /* Message catalog */
-
-  cat = catopen ("find", 0);
 
   /* Scan the command line */
   c = 1; /* argv[0] is the path of the exectutable! */
@@ -105,8 +101,7 @@ int main (int argc, char* argv[], char* envp[])
             break;
 
           default:
-            usage (cat);
-            catclose (cat);
+            usage();
             exit (2);           /* syntax error .. return errorlevel 2 */
             break;
 
@@ -121,8 +116,7 @@ int main (int argc, char* argv[], char* envp[])
     {
       /* No string? */
       /* printf("no string"); */
-      usage (cat);
-      catclose (cat);
+      usage ();
       exit (1);
     }
   else
@@ -193,8 +187,7 @@ int main (int argc, char* argv[], char* envp[])
               /* We were not able to find a file. Display a message and
                  set the exit status. */
 
-              s = catgets (cat, 2, 1, "No such file");
-              fprintf(stderr,"FIND: %s:%s\r\n", argv[i], s);
+              cmd_ShowSystemMessage(MSG_FILE_NOT_FOUND, 0L);
             }
 
           while (!done)
@@ -212,8 +205,7 @@ int main (int argc, char* argv[], char* envp[])
 
               if (chdir (thiscwd) < 0) {
                   if (strcmp(thiscwd, ".")) {
-                  s = catgets (cat, 2, 2, "Cannot change to directory");
-                  fprintf (stderr, "FIND: %s: %s\n", argv[i], s);
+                    cmd_ShowSystemMessage(1103, 0L);
                   }
               };
 
@@ -228,8 +220,7 @@ int main (int argc, char* argv[], char* envp[])
                 }
               else
                 {
-                  s = catgets (cat, 2, 0, "Cannot open file");
-                  fprintf (stderr,"FIND: %s: %s\n", argv[i], s);
+                  cmd_ShowSystemMessage(MSG_FILE_NOT_FOUND, 0L);
                 }
 
               /* return the cwd */
@@ -251,9 +242,6 @@ int main (int argc, char* argv[], char* envp[])
 
   _dos_findclose (&ffblk);
 
-  catclose (cat);
-
-
  /* RETURN: If the string was found at least once, returns 0.
   * If the string was not found at all, returns 1.
   * (Note that find_str.c returns the exact opposite values.)
@@ -263,15 +251,3 @@ int main (int argc, char* argv[], char* envp[])
   return (ret ? 0 : 1);
 
 }
-
-
-#define strWrite(st) printf("%s",st);
-
-/* Show usage */
-
-void
-usage (nl_catd cat)
-{
-  cmd_ShowSystemMessage(cmd_MSG_FIND_HELP,0L);
-}
-
