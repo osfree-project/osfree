@@ -19,8 +19,8 @@ extern unsigned long install_partition;
 #pragma aux boot_drive        "*"
 #pragma aux install_partition "*"
 
-unsigned long current_drive;
-unsigned long current_partition;
+unsigned long current_drive = -1;
+unsigned long current_partition = -1;
 int           current_slice;
 unsigned long part_start;
 unsigned long part_length;

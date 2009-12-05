@@ -244,7 +244,7 @@ skip_reloc_stage0:
         ;push es
 
         ; clear BSS of uFSD
-        ;mov  bx, 7c00h
+        ;mov  bx, 6c00h
         ;mov  es, bx
         ;xor  bx, bx
         ;mov  edi, dword ptr es:[bx + 2] ; bss start

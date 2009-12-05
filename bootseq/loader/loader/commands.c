@@ -25,10 +25,13 @@
 #include "fsd.h"
 #include "fsys.h"
 
+#define SCREEN_WIDTH  80
+#define SCREEN_HEIGHT 25
+
 /* The type of kernel loaded.  */
 kernel_t kernel_type;
 extern grub_error_t errnum;
-
+extern struct builtin *builtins[];
 extern struct term_entry *t;
 
 /* The address for Multiboot command-line buffer.  */
@@ -1610,6 +1613,96 @@ static struct builtin builtin_echo =
   "Alias for \"print\"."
 };
 
+int
+prompt_func(char *arg, int flags)
+{
+  printf("%s\r\n", var_sprint_buf(arg, &flags));
+  printf("Press any key when ready...\r\n");
+  t->getkey();
+  return 0;
+}
+
+static struct builtin builtin_prompt =
+{
+  "prompt",
+  prompt_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "Output a message and wait for a key",
+  "Output a message and wait for a key"
+};
+
+int
+help_func(char *arg, int flags)
+{
+  struct builtin **b;
+  char flag = 0;
+  char str[0x100];
+  char buf[0x800];
+  char *p;
+  int  x = 0, y = 0;
+
+  if (!*arg)
+  {
+    *buf = '\0';
+    for (b = builtins; *b; b++)
+    {
+      grub_sprintf(str, "%s\r\n", (*b)->short_doc);
+      grub_strcat(buf, buf, str);
+    }
+    x = 0; y = 0;
+    t->cls();
+    p = buf;
+    while (*p && ((p - buf) < (strlen(buf) / 2)))
+    {
+      while (*p && ((p - buf) < (strlen(buf) / 2)) && x < SCREEN_WIDTH / 2 - 1)
+      {
+        t->putchar(*p++); x++;
+      }
+      x = 0; y++;
+      t->gotoxy(x, y);
+    }
+/*    x = SCREEN_WIDTH / 2 + 1; y = 0;
+    for (; *p; p++)
+    {
+      t->putchar(*p); x++;
+      if ((p - buf) % (SCREEN_WIDTH / 2 - 1) == 0)
+      {
+        x = SCREEN_WIDTH / 2 + 1; y++;
+        t->gotoxy(x, y);
+      }
+    }   */
+  }
+  else
+  {
+    for (b = builtins; *b; b++)
+      if (abbrev(arg, (*b)->name, strlen((*b)->name)))
+      {
+        flag = 1;
+        break;
+      }
+    if (flag)
+    {
+      printf("\r\n%s\r\n", arg);
+      printf("%s\r\n", (*b)->long_doc);
+    }
+    else
+      printf("No such command!\r\n");
+  }
+
+  return 0;
+}
+
+static struct builtin builtin_help =
+{
+  "help",
+  help_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "Get help",
+  "Outputs a long help screen for a command, if a name is"
+  "specified. Otherwise, it outputs a short description"
+  "for each command"
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1635,5 +1728,7 @@ struct builtin *builtins[] = {
   &builtin_configfile,
   &builtin_print,
   &builtin_echo,
+  &builtin_prompt,
+  &builtin_help,
   0
 };

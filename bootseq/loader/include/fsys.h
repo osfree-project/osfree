@@ -39,6 +39,7 @@ int grub_strlen (const char *s);
 int grub_isspace (int c);
 int grub_tolower (int c);
 void grub_printf (const char *format,...);
+char *ltoa(int n, char *buf, int radix);
 int substring (const char *s1, const char *s2);
 int grub_pos (const char c, const char *s);
 int devread (int sector, int byte_offset, int byte_len, char *buf);
@@ -113,6 +114,7 @@ struct pmif
 #define PARM_PREFIX               15
 #define PARM_LDRLEN               16
 #define PARM_BUF_DRIVE            17
+#define PARM_AT_DRIVE             18
 
 #pragma aux u_open   "*"
 #pragma aux u_read   "*"

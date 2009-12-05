@@ -6,6 +6,7 @@
 
 extern unsigned long current_drive;
 extern unsigned long current_partition;
+extern char at_drive[16];
 
 #ifndef STAGE1_5
 

@@ -31,6 +31,13 @@ extern int menu_timeout;
 struct multiboot_info *m;
 struct term_entry *t;
 
+unsigned char at_drive[16];
+
+/* string table */
+#define BUFLEN 0x800
+char strtab[BUFLEN];
+char *strpos = strtab;
+
 static char state = 0;
 
 int  default_item = -1;
@@ -89,21 +96,32 @@ char *config_lines;
 int  config_len = 0;
 
 typedef struct script script_t;
+typedef struct string string_t;
 // a structure corresponding to a
 // boot script or menu item
 typedef struct script
 {
-  char *scr;      // a pointer to a script itself
+  string_t *scr;  // a pointer to a script itself
   int  num;       // number of commands in boot script
   char *title;    // menu title
   script_t *next; // next item
   script_t *prev; // previous item
 } script_t;
 
+/* a string list structure */
+typedef struct string
+{
+  char *s;        // a null-terminated string
+  char last;      // whether it is the last string in series of strings
+  string_t *next; // next list item
+  string_t *prev; // previous list item
+} string_t;
+
 script_t *menu_first, *menu_last;
 
 static int  section = 0;
 static script_t *sc = 0, *sc_prev = 0;
+static string_t *st = 0, *st_prev = 0;
 
 char prev_cfg[0x100];
 char curr_cfg[0x100];
@@ -126,12 +144,43 @@ void init(lip2_t *l)
 
 }
 
+char *
+macro_subst(char *path)
+{
+  char *p, *q, *r;
+  char *macro = "(@)";
+  char *s = strpos;
+  int  l = strlen(at_drive);
+  int  m = strlen(macro);
+  int  k;
+
+  p = q = r = path - 1;
+  while (1)
+  {
+    r = strstr(q + 1, macro);
+    if (r) p = r; else p = q + 1 + strlen(q + 1);
+    k = p - q - 1;
+
+    grub_strncpy(s, q + 1, k);
+
+    if (r) grub_strcat(s, s, at_drive);
+    else break;
+
+    s = s + l + k;
+    q = p + m - 1;
+  }
+  s = strpos;
+  strpos = s + strlen(s);
+
+  return s;
+}
+
 int
 process_cfg_line1(char *line)
 {
   int    n;
   int    i;
-  char   *s, *p;
+  char   *s, *p, *q;
   char   *title; // current menu item title
   struct builtin **b;
 
@@ -163,28 +212,23 @@ process_cfg_line1(char *line)
   {
     s = line;
     p = config_lines;
+    q = menu_items;
+    st = (string_t *)((char *)q + menu_len);
+    st->prev = st_prev;
+    if (st_prev) st_prev->next = st;
+    st->next = 0;
+    menu_len += sizeof(string_t);
     // if this is a 1st command
-    if (!sc->num) sc->scr = p + config_len;
+    if (!sc->num) sc->scr = st;
+    st_prev = st;
+    st->s = p + config_len;
+    st->last = 1;
     sc->num++;
     // copy a line to buffer
     while (p[config_len++] = *s++) ;
   }
   else
-  {
-    for (b = builtins; *b; b++)
-    {
-      if (abbrev(line, (*b)->name, strlen((*b)->name)))
-      {
-        line = skip_to(1, line);
-        if (((*b)->func)(line, 0x2))
-        {
-          printf("Error occured during execution of %s\r\n", (*b)->name);
-          return 0;
-        }
-        return 1;
-      }
-    }
-  }
+    return exec_line(line);
 
   return 1;
 }
@@ -209,7 +253,10 @@ exec_line(char *line)
     if (abbrev(line, (*b)->name, strlen((*b)->name)))
     {
       line = skip_to(1, line);
-      if (((*b)->func)(line, 0x2))
+      /* substitute macros, like '(@)' for a bootdrive */
+      s = macro_subst(line);
+      strpos = s;
+      if (((*b)->func)(s, 0x2))
       {
         printf("Error occured during execution of %s\r\n", (*b)->name);
         return 0;
@@ -427,7 +474,7 @@ void draw_menu(int item, int shift)
   char s[4];
   char str[4];
   char spc[0x80];
-  char buf[0x100];
+  unsigned char buf[0x100];
   char *p;
   int  x0, y0;
   int  offset;
@@ -498,9 +545,9 @@ void draw_menu(int item, int shift)
     //if (l == 1) grub_strcat(str, " ", s);
     //if (l == 2) grub_strcpy(str, s);
     //sprintf(buf, "%s%s. %s", spc, str, sc->title);
-    sprintf(buf, "%s %s", spc, sc->title);
+    sprintf((char *)buf, "%s %s", spc, sc->title);
 
-    p = buf + m;
+    p = (char *)buf + m;
     l = grub_strlen(p);
 
     while (l > menu_width - 3) p[l--] = '\0';
@@ -707,7 +754,7 @@ void menued(int item, int shift)
     n--;
     if (!n)
     { /* (sc->scr, sc->num) */
-      p = sc->scr;
+      p = sc->scr->s;
       for (i = 0; i < sc->num; i++)
       {
         printf("%s\r\n", p);
@@ -776,17 +823,28 @@ exec_menu(int item, int shift)
 }
 
 int
-exec_script(char *script, int n)
+exec_script(script_t *script)
 {
-  char *line = script;
+  string_t *line = script->scr;
   int  i, rc;
+  char buf[0x800];
+  char last;
+  int  l;
 
-  for (i = 0; i < n; i++)
+
+  for (i = 0; i < script->num; i++)
   {
-    rc = exec_line(line);
+    *buf = '\0';
+    /* concat lines */
+    do {
+      grub_strcat(buf, buf, line->s);
+      last = line->last;
+      // next line
+      line = line->next;
+    } while (!last);
+
+    rc = exec_line(buf);
     if (rc != 1) return rc;
-    // next line
-    while (*line++) ;
   }
 
   return 1;
@@ -883,7 +941,7 @@ restart_menu:
     if (!itm)
     {
       ccfg = curr_cfg;
-      if (!exec_script(scr->scr, scr->num))
+      if (!exec_script(scr))
       {
         printf("Loading failed, press any key...\r\n");
         kernel_type = KERNEL_TYPE_NONE; /* invalidate */
@@ -986,6 +1044,8 @@ cmain(char **script)
 {
   /* Get mbi structure address from pre-loader */
   u_parm(PARM_MBI, ACT_GET, (unsigned int *)&m);
+  /* get a boot drive value */
+  u_parm(PARM_AT_DRIVE, ACT_GET, (unsigned int *)at_drive);
   /* init terminal */
   t = u_termctl(-1);
   KernelLoader(script);

@@ -24,6 +24,13 @@ void (*disk_read_hook) (int, int, int) = 0;
 extern unsigned long current_drive;
 extern int           fsmax;
 
+#ifndef STAGE1_5
+
+extern char *strpos;
+extern char at_drive[16];
+
+#endif
+
 extern grub_error_t errnum;
 int print_possibilities;
 
@@ -40,6 +47,10 @@ unsigned long   saved_part_start;
 unsigned long   saved_part_length;
 unsigned long   saved_filemax;
 unsigned long   saved_filepos;
+
+extern unsigned long saved_drive;
+extern unsigned long saved_partition;
+extern unsigned long cdrom_drive;
 
 int debug = 0;
 struct geometry buf_geom;
@@ -207,11 +218,11 @@ int set_fsys(char *fsname)
 
   // fixup the loaded filesystem
   reloc(buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
-  printmsg("fs relocated\r\n");
+  //printmsg("fs relocated\r\n");
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);
   grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(buf), EXT_LEN);
-  printmsg("fs moved\r\n");
+  //printmsg("fs moved\r\n");
   //fsys_type = saved_fsys_type;
   //current_drive = saved_current_drive;
   //current_partition = saved_current_partition;
@@ -481,7 +492,7 @@ setup_part (char *filename)
         open_partition ();
       else
 # endif /* ! NO_BLOCK_FILES */
-        open_device2 ();
+        open_device ();
     }
 
 #endif /* ! STAGE1_5 */
@@ -500,7 +511,6 @@ setup_part (char *filename)
 }
 
 
-
 /*
  *  This is the generic file open function.
  */
@@ -511,9 +521,12 @@ grub_open (char *filename)
 #define buf_size 1500
 //const int buf_size = 1500;
   const char *try_filenames[] = { "menu.lst", "m" };
+
   char fn[buf_size]; /* arbitrary... */
   char *filename_orig = filename;
   int trycount = 0;
+
+  strpos = filename;
 
   //if (grub_strlen(filename) > buf_size)
   //  {

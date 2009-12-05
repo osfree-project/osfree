@@ -116,6 +116,8 @@ char lb[80];
 
 struct geometry geom;
 
+char at_drive[16];
+
 // string table size;
 #define STRTBL_LEN 0x800
 /* String table */
@@ -649,6 +651,37 @@ int redir_file(char *file)
   }
 
   return 0;
+}
+
+char *
+macro_subst(char *path)
+{
+  char *p, *q, *r;
+  char *macro = "(@)";
+  char *s = strpos;
+  int  l = strlen(at_drive);
+  int  m = strlen(macro);
+  int  k;
+
+  p = q = r = path - 1;
+  while (1)
+  {
+    r = strstr(q + 1, macro);
+    if (r) p = r; else p = q + 1 + strlen(q + 1);
+    k = p - q - 1;
+
+    grub_strncpy(s, q + 1, k);
+
+    if (r) grub_strcat(s, s, at_drive);
+    else break;
+
+    s = s + l + k;
+    q = p + m - 1;
+  }
+  s = strpos;
+  strpos = s + strlen(s);
+
+  return s;
 }
 
 #endif
@@ -1540,6 +1573,60 @@ void set_ftable (int which_ldr)
   //bpb->vol_ser_no  = 0x00000082;
 }
 
+void determine_boot_drive(void)
+{
+  unsigned long drv;
+  char buf[4];
+  char c = 0;
+
+  memset(at_drive, 0, sizeof(at_drive));
+
+  if (current_drive == cdrom_drive && cdrom_drive != 0xff)
+  {
+    /* cd-rom */
+    grub_strcpy(at_drive, "(cd");
+    c = 0;
+  }
+  else if (current_drive & 0x80)
+  {
+    /* hard disk */
+    grub_strcpy(at_drive, "(hd");
+    c = 1;
+  }
+  else
+  {
+    /* floppy disk */
+    grub_strcpy(at_drive, "(fd");
+    c = 2;
+  }
+
+  /* clear high bits */
+  drv = current_drive & 0xff;
+  /* clear hard disk bit */
+  drv = drv & ~0x80;
+
+  if (c)
+  {
+    grub_strcat(at_drive, at_drive, ltoa(drv, buf, 10));
+    /* shift and clear high bits */
+    drv = (current_partition >> 16) & 0xff;
+    if (drv != 0xff)
+    {
+      grub_strcat(at_drive, at_drive, ",");
+      grub_strcat(at_drive, at_drive, ltoa(drv, buf, 10));
+      drv = (current_partition >> 8) & 0xff;
+      if (drv != 0xff)
+      {
+        /* a sub-partition */
+        buf[0] = 'a' + drv;
+        buf[1] = '\0';
+        grub_strcat(at_drive, at_drive, buf);
+      }
+    }
+  }
+  grub_strcat(at_drive, at_drive, ")");
+}
+
 #endif
 
 int init(void)
@@ -1587,6 +1674,8 @@ int init(void)
 #else
   cdrom_drive = GRUB_INVALID_DRIVE;
 #endif
+  current_drive = boot_drive;
+  current_partition = 0xffffff;
 
   /* setting LIP */
   setlip();
@@ -1613,6 +1702,7 @@ int init(void)
 
   /* parse config file */
   process_cfg_line = process_cfg_line1;
+
   if (!(rc = process_cfg(cfg)))
   {
     panic("Error parsing loader config file!", cfg);
@@ -1622,6 +1712,8 @@ int init(void)
     panic("Load error!", "");
   }
 
+  /* determine a drive string for '@' config file macro */
+  determine_boot_drive();
 
   relshift = 0;
   //init_term();

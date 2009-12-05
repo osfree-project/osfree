@@ -857,6 +857,7 @@ char *grub_strcat (char *dest, const char *src1, const char *src2);
 int grub_index(char c, char *s);
 char *grub_strncpy (char *dest, const char *src, int n);
 int grub_aton(char *h);
+char *ltoa(int n, char *buf, int radix);
 
 
 #ifndef GRUB_UTIL

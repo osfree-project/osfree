@@ -30,9 +30,9 @@
  *  Shared BIOS/boot data.
  */
 
-unsigned long saved_drive;
-unsigned long saved_partition;
-unsigned long cdrom_drive;
+unsigned long saved_drive = -1;
+unsigned long saved_partition = -1;
+unsigned long cdrom_drive = -1;
 
 /*
  *  Error code stuff.
