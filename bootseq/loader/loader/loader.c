@@ -144,37 +144,6 @@ void init(lip2_t *l)
 
 }
 
-char *
-macro_subst(char *path)
-{
-  char *p, *q, *r;
-  char *macro = "()";
-  char *s = strpos;
-  int  l = strlen(at_drive);
-  int  m = strlen(macro);
-  int  k;
-
-  p = q = r = path - 1;
-  while (1)
-  {
-    r = strstr(q + 1, macro);
-    if (r) p = r; else p = q + 1 + strlen(q + 1);
-    k = p - q - 1;
-
-    grub_strncpy(s, q + 1, k);
-
-    if (r) grub_strcat(s, s, at_drive);
-    else break;
-
-    s = s + l + k;
-    q = p + m - 1;
-  }
-  s = strpos;
-  strpos = s + strlen(s);
-
-  return s;
-}
-
 int
 process_cfg_line1(char *line)
 {
@@ -252,9 +221,9 @@ exec_line(char *line)
   {
     if (abbrev(line, (*b)->name, strlen((*b)->name)))
     {
-      line = skip_to(1, line);
+      s = skip_to(1, line);
       /* substitute macros, like '(@)' for a bootdrive */
-      s = macro_subst(line);
+      //s = macro_subst(line);
       strpos = s;
       if (((*b)->func)(s, 0x2))
       {
@@ -1049,7 +1018,7 @@ cmain(char **script)
   /* Get mbi structure address from pre-loader */
   u_parm(PARM_MBI, ACT_GET, (unsigned int *)&m);
   /* get a boot drive value */
-  u_parm(PARM_AT_DRIVE, ACT_GET, (unsigned int *)at_drive);
+  //u_parm(PARM_AT_DRIVE, ACT_GET, (unsigned int *)at_drive);
   /* init terminal */
   t = u_termctl(-1);
   KernelLoader(script);
