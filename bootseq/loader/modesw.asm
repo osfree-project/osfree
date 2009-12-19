@@ -24,6 +24,10 @@ public  call_rm
 
 ifndef  NO_PROT
 public  call_pm
+ifndef  MICROFSD
+extrn   rs           :dword
+extrn   relshift16   :dword
+endif
 ifndef STAGE1_5
 extrn   idt_init     :near
 extrn   idt_initted  :byte
@@ -77,16 +81,35 @@ call_pm proc near
         ; Save stack frame
         push bp
         mov  bp, sp
+
+        push esi
+
         ; Disable interrupts
         cli
+
+ifndef  MICROFSD
+        mov  edi, rs
+        mov  esi, relshift16
+
         ; Load GDTR
+        mov  eax, 0x640
+        push eax
+        mov  ax, 2fh
+        push ax
+
+        lgdt fword ptr ss:[esp]
+        add  sp, 6
+else
         mov  eax, offset _TEXT:gdtdesc
         sub  eax, base
         lgdt fword ptr [eax]
+endif
+
         ; Enable protected mode
         mov  eax, cr0
         or   eax, 1
         mov  cr0, eax
+
         ; Do a far jump to 16-bit segment
         ; to switch to protected mode
         mov  ax, PSEUDO_RM_CSEG
@@ -101,19 +124,39 @@ protmode:
         mov  fs, ax
         mov  gs, ax
 
-        ;mov  ax, PSEUDO_RM_SSEG
-        ;mov  ax, PSEUDO_RM_DSEG
+ifdef  MICROFSD
+        mov  ax, PSEUDO_RM_DSEG
+else
+ifdef  MB_KERN
+        mov  ax, PSEUDO_RM_DSEG
+else
+        mov  ax, PSEUDO_RM_SSEG
+endif
+endif
         mov  ss, ax
+
         ; do a far call to a 32-bit segment
-        push esi
+
+ifndef  MICROFSD
+        mov  eax, esi
+endif
         mov  esi, offset _TEXT:address
         sub  esi, base
+ifndef  MICROFSD
+        add  esi, eax
+        add  edi, eax
+endif
         mov  ax,  PROT_MODE_CSEG
         mov  word ptr  [esi + 4], ax
+
         mov  eax, offset _TEXT:pmode
+ifndef  MICROFSD
+        add  eax, edi
+endif
         mov  dword ptr [esi], eax
         mov  ebp,  dword ptr [bp + 4]
         mov  eax, esi
+
         pop  esi
 
         call fword ptr [eax]
@@ -122,6 +165,7 @@ protmode:
         mov  eax, cr0
         and  al,  0feh
         mov  cr0, eax
+
         ; long jump to 16-bits entry point
         mov  eax, base
         shr  eax, 4
@@ -130,7 +174,7 @@ protmode:
         retf
 realmode:
         ; Set up segments
-        mov  ds,  ax
+        ;mov  ds,  ax
         mov  es,  ax
         mov  fs,  ax
         mov  gs,  ax
@@ -138,7 +182,23 @@ realmode:
         ;mov  eax, STAGE0_BASE
         ;mov  eax, base
         ;shr  eax, 4
+ifndef MICROFSD
+ifndef MB_KERN
+        shl  eax, 16
+        mov  ds,  ax
+        mov  ax,  word ptr ds:[RMSTACK + 2]
         mov  ss,  ax
+        shr  eax, 16
+endif
+endif
+        mov  ds,  ax
+ifdef  MICROFSD
+        mov  ss,  ax
+else
+ifdef  MB_KERN
+        mov  ss,  ax
+endif
+endif
         ; Restore interrupts
         sti
         ; Restore stack frame
@@ -171,14 +231,27 @@ rmode_switch proc far
         ; set segment registers
         mov  eax, base
         shr  eax, 4
-        mov  ds, ax
+
         mov  es, ax
         mov  fs, ax
         mov  gs, ax
 
-        mov  eax, base
-        shr  eax, 4
+ifdef  MICROFSD
+        mov  ds, ax
         mov  ss, ax
+else
+ifdef  MB_KERN
+        mov  ds, ax
+        mov  ss, ax
+else
+        shl  eax, 16
+        mov  ds,  ax
+        mov  ax,  word ptr ds:[RMSTACK + 2]
+        mov  ss,  ax
+        shr  eax, 16
+        mov  ds,  ax
+endif
+endif
 
         ; do a far jump to reload a
         ; real mode CS
@@ -218,9 +291,17 @@ rmode1:
         mov  fs, ax
         mov  gs, ax
 
-        ;mov  ax, PSEUDO_RM_SSEG
+ifdef MICROFSD
         mov  ax, PSEUDO_RM_DSEG
+else
+ifdef MB_KERN
+        mov  ax, PSEUDO_RM_DSEG
+else
+        mov  ax, PSEUDO_RM_SSEG
+endif
+endif
         mov  ss, ax
+
         ; do a far jump to load a
         ; protected mode 16-bit CS
         mov  ax, PSEUDO_RM_CSEG
@@ -270,24 +351,40 @@ pmode   proc far
         mov  fs, ax
         mov  gs, ax
 
-        mov  ax, ss
-        mov  word ptr ds:[RMSTACK + 2], ax
-
         mov  ax, PROT_MODE_DSEG
         mov  ss, ax
 
+        ;cli
+        ;hlt
+
         ; Get protected mode stack
-;ifdef MICROFSD
-;extrn   __sp     :word
-;        mov  ds:__sp, sp
-;else
-        mov  word ptr ds:[RMSTACK], sp
-;endif
+ifdef  MICROFSD
+extrn   __sp     :word
+        mov  ds:__sp, sp
+        ;mov  word ptr ds:[RMSTACK], sp
+        ;mov  ax, ss
+        ;mov  word ptr ds:[RMSTACK + 2], ax
         mov  eax, dword ptr ds:[PROTSTACK]
         mov  esp, eax
+else
+ifdef  MB_KERN
+        mov  word ptr ds:[RMSTACK], sp
+        ;mov  ax, ss
+        ;mov  word ptr ds:[RMSTACK + 2], ax
+        mov  eax, dword ptr ds:[PROTSTACK]
+        mov  esp, eax
+else
+        xor  eax, eax
+        mov  ax, word ptr ds:[RMSTACK + 2]
+        shl  eax, 4
+        add  esp, eax
+endif
+endif
 
 ifndef STAGE1_5
-        mov  al, byte ptr idt_initted
+        mov  eax, offset _TEXT:idt_initted
+        ;add  eax, edi
+        mov  al, byte ptr [eax]
         cmp  al, 0
         jz   not_initted
 
@@ -304,30 +401,57 @@ call_func:
         push  cs
         push  ebp
         call  fword ptr ss:[esp]
-        add   esp, 6
-        ;add   esp, 14
+        ;;add   esp, 6
+        add   esp, 12
+
+        ;cli
+        ;hlt
 
 ifndef STAGE1_5
         call set_rm_idt
 endif
 
         ; Save protected mode stack
-        mov  eax, esp
-        mov  dword ptr ds:[PROTSTACK], eax
+        ;;mov  eax, esp
+        ;mov  dword ptr ds:[PROTSTACK], eax
 
         ;mov  ax, word ptr ds:[RMSTACK + 2]
+        ;mov  ax, PSEUDO_RM_DSEG
+
+ifdef  MICROFSD
         mov  ax, PSEUDO_RM_DSEG
         mov  ss, ax
 
+        ;mov  eax, esp
+        ;mov  dword ptr ds:[PROTSTACK], eax
         xor  eax, eax
+        ;mov  ax, word ptr ds:[RMSTACK]
+        mov  ax, ds:__sp
+        mov  esp, eax
+else
+ifdef  MB_KERN
+        mov  ax, PSEUDO_RM_DSEG
+        mov  ss, ax
 
-;ifdef MICRFSD
-;        mov  ax, ds:__sp
-;else
+        ;mov  eax, esp
+        ;mov  dword ptr ds:[PROTSTACK], eax
+        xor  eax, eax
         mov  ax, word ptr ds:[RMSTACK]
+        mov  esp, eax
+else
+        mov  ax, PSEUDO_RM_SSEG
+        mov  ss, ax
+
+        xor  eax, eax
+        mov  ax, word ptr ds:[RMSTACK + 2]
+        shl  eax, 4
+        sub  esp, eax
+endif
+endif
+        ;;and  esp, 0ffffh
+        ;;mov  ax, word ptr ds:[RMSTACK]
 ;endif
         ;mov  ax,  0e000h
-        mov  esp, eax
 
         ; Set up selectors
         mov  ax, PSEUDO_RM_DSEG
@@ -364,20 +488,26 @@ ifndef STAGE1_5
 endif
         ; set segment registers
         ; and switch stack to 16-bit
-        mov  eax, esp
-        mov  dword ptr ds:[PROTSTACK], eax
+        ;;mov  eax, esp
+        ;;mov  dword ptr ds:[PROTSTACK], eax
 
 ;ifndef MB_KERN ; not in multiboot kernels
 ;       mov  ax, word ptr ds:[RMSTACK + 2]
 ;       mov  ss, ax
 ;else
-        mov  ax, PSEUDO_RM_DSEG
-        mov  ss, ax
 
 ;endif
 ;        mov  esp, eax
+        ;mov  ax, PSEUDO_RM_SSEG
+        ;mov  ss, ax
 
 ifdef MICROFSD
+        mov  ax, PSEUDO_RM_DSEG
+        mov  ss, ax
+
+        mov  eax, esp
+        mov  dword ptr ds:[PROTSTACK], eax
+
 extrn   stack_bottom   :byte
 extrn   __sp           :word
         xor  eax, eax
@@ -388,17 +518,26 @@ extrn   __sp           :word
         mov  eax, offset _TEXT:stack_bottom - REL1_BASE
 restor:
         mov  esp, eax
+
 else
 ifdef MB_KERN
+        mov  ax, PSEUDO_RM_DSEG
+        mov  ss, ax
+
+        mov  eax, esp
+        mov  dword ptr ds:[PROTSTACK], eax
         mov  esp, 8000h
 else
+        mov  ax, PSEUDO_RM_SSEG
+        mov  ss, ax
+
         ; Get real mode stack
         xor  eax, eax
-        mov  ax, word ptr ds:[RMSTACK]
-        mov  esp, eax
+        mov  ax, word ptr ds:[RMSTACK + 2]
+        shl  eax, 4
+        sub  esp, eax
 endif
 endif
-
 
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -427,13 +566,26 @@ endif
         ;mov  word ptr ds:[RMSTACK + 2], ax
         ;mov  ax, sp
         ;mov  word ptr ds:[RMSTACK], ax
-ifdef   MICROFSD
-        mov  ds:__sp, sp
-endif
+
         mov  ax, PROT_MODE_DSEG
         mov  ss, ax
 
-        mov  esp, dword ptr ds:[PROTSTACK]
+ifdef   MICROFSD
+        mov  ds:__sp, sp
+        mov  eax, dword ptr ds:[PROTSTACK]
+        mov  esp, eax
+else
+ifdef   MB_KERN
+        mov  eax, dword ptr ds:[PROTSTACK]
+        mov  esp, eax
+else
+        ;;mov  esp, dword ptr ds:[PROTSTACK]
+        xor  eax, eax
+        mov  ax, word ptr ds:[RMSTACK + 2]
+        shl  eax, 4
+        add  esp, eax
+endif
+endif
 
 ifndef STAGE1_5
         call set_pm_idt

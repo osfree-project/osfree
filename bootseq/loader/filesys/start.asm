@@ -13,6 +13,42 @@ public   bss_end
 public   bss_start
 public   bss_len
 
+public   _disk_read_func
+public   _disk_read_hook
+public   _pdevread
+public   _prawread
+public   _psubstring
+public   _pgrub_memcmp
+public   _pgrub_memmove
+public   _pgrub_memset
+public   _pgrub_strcmp
+public   _pgrub_isspace
+public   _pgrub_tolower
+public   _pgrub_read
+public   _pmem_lower
+public   _pmem_upper
+
+; filesystem common variables
+public   _pfilepos
+public   _pfilemax
+
+; disk buffer parameters
+public   _pbuf_drive
+public   _pbuf_track
+public   _pbuf_geom
+
+public   _perrnum
+
+public   _psaved_drive
+public   _psaved_partition
+
+public   _pcurrent_drive
+public   _pcurrent_partition
+public   _pcurrent_slice
+public   _ppart_start
+public   _ppart_length
+public   _pfsmax
+
 include fsd.inc
 ;include fsname.inc
 
@@ -66,6 +102,44 @@ fsd_init:
          jmp  real_start
 __bss_start     dd (exe_end - EXT_BUF_BASE)
 __bss_end       dd (bss_end - EXT_BUF_BASE)
+
+           org EXT_BUF_BASE + 0x18
+_disk_read_func  dd 0
+_disk_read_hook  dd 0
+_pdevread        dd 0
+_prawread        dd 0
+_psubstring      dd 0
+_pgrub_memcmp    dd 0
+_pgrub_memmove   dd 0
+_pgrub_memset    dd 0
+_pgrub_strcmp    dd 0
+_pgrub_isspace   dd 0
+_pgrub_tolower   dd 0
+_pgrub_read      dd 0
+_pmem_lower      dd 0
+_pmem_upper      dd 0
+
+; filesystem common variables
+_pfilepos        dd 0
+_pfilemax        dd 0
+
+; disk buffer parameters
+_pbuf_drive      dd 0
+_pbuf_track      dd 0
+_pbuf_geom       dd 0
+
+_perrnum         dd 0
+
+_psaved_drive    dd 0
+_psaved_partition dd 0
+
+_pcurrent_drive  dd 0
+_pcurrent_partition dd 0
+_pcurrent_slice  dd 0
+_ppart_start     dd 0
+_ppart_length    dd 0
+_pfsmax          dd 0
+
 real_start:
 _TEXT    ends
 

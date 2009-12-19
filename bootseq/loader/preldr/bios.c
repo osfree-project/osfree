@@ -59,18 +59,19 @@ biosdisk (int read, int drive, struct geometry *geometry,
           int sector, int nsec, int segment)
 {
   int err;
+#pragma pack(1)
+  struct disk_address_packet
+  {
+    unsigned char length;
+    unsigned char reserved;
+    unsigned short blocks;
+    unsigned long buffer;
+    unsigned long long block;
+  } dap; //__attribute__ ((packed)) dap;
+#pragma pack()
 
   if (geometry->flags & BIOSDISK_FLAG_LBA_EXTENSION)
     {
-      _Packed struct disk_address_packet
-      {
-        unsigned char length;
-        unsigned char reserved;
-        unsigned short blocks;
-        unsigned long buffer;
-        unsigned long long block;
-      } dap; //__attribute__ ((packed)) dap;
-
       /* XXX: Don't check the geometry by default, because some buggy
          BIOSes don't return the number of total sectors correctly,
          even if they have working LBA support. Hell.  */

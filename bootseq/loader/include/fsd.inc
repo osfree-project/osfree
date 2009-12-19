@@ -22,14 +22,15 @@ KERN_BASE       equ 0x800000
 REL_BASE        equ 0x90000
 REL1_BASE       equ (0x90000 + SHIFT)
 
-PREFERRED_BASE  equ 0x5f000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
+PREFERRED_BASE  equ 0x5e000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
                                           ; when loaded initially without relocation)
-BOOT_PART_TABLE equ (0x60000 + SHIFT)     ;
+BOOT_PART_TABLE equ (0x5f000 + SHIFT)     ;
 FSYS_BUFLEN     equ 0x8000
 
 ;
 ; buffers at the end of 3rd megabyte
 ;
+PRELDR_BASE       equ 0x3d0000            ; final location of a pre-loader
 FSYS_BUF          equ 0x3e0000            ;
 EXT1HIBUF_BASE    equ 0x3e8000            ; blackbox high memory buffer1
 EXT2HIBUF_BASE    equ 0x3ec000            ; blackbox high memory buffer2
@@ -59,11 +60,11 @@ EXT3LOBUF_BASE  equ 0x63c00               ; blackbox low memory buffer3
 TERMLO_BASE     equ 0x63800               ; terminal blackbox base (low)
 BOOTSEC_BASE    equ (0x63c00 + SHIFT)     ; bootsector relocation base
 STAGE0_BASE     equ (0x63e00 + SHIFT)     ; Stage0 load base
-EXT_BUF_BASE    equ (0x6c000 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
+EXT_BUF_BASE    equ (0x73e00 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-SCRATCHADDR     equ (0x5f000 + SHIFT)     ; 512-byte scratch area
+SCRATCHADDR     equ (0x5e000 + SHIFT)     ; 512-byte scratch area
 BUFFERADDR      equ SCRATCHADDR + 0x200   ;
-BUFFERLEN       equ 0xe00                ; 0x7e00
+BUFFERLEN       equ 0xe00                 ; 0x7e00
 
 EXT_LEN         equ 0x3000                ; extension (blackbox) buffer size
 EXTLO_LEN       equ 0x400                 ; low portion

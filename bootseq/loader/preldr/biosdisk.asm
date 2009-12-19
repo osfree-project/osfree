@@ -16,6 +16,12 @@ public get_diskinfo_standard
 extrn  call_rm       :near
 extrn  force_lba     :byte
 
+ifndef MICROFSD
+ifndef REAL_BASE
+extrn  stage0base   :dword
+endif
+endif
+
 include fsd.inc
 
 _TEXT16 segment dword public 'CODE' use16
@@ -159,9 +165,9 @@ biosdisk_int13_extensions proc near
 
         ; compute the address of disk_address_packet
         mov     eax, [ebp + 10h]
-        mov     si, ax
-        xor     ax, ax
+        mov     esi, eax
         shr     eax, 4
+        and     esi, 0fh
         mov     cx, ax          ; save the segment to cx
 
         ; drive
@@ -175,7 +181,8 @@ else
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
 endif
         shl     eax, 12
@@ -238,7 +245,8 @@ else
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
 endif
         shl     eax, 12
@@ -286,7 +294,8 @@ else
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
 endif
         shl     eax, 12
@@ -329,7 +338,8 @@ else
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
 endif
         shl     eax, 12

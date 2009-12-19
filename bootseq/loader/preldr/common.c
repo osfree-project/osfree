@@ -34,10 +34,13 @@ unsigned long saved_drive = -1;
 unsigned long saved_partition = -1;
 unsigned long cdrom_drive = -1;
 
+extern unsigned long stage0base;
+
 /*
  *  Error code stuff.
  */
 
+#pragma aux stage0base "*"
 #pragma aux errnum "*"
 grub_error_t errnum = ERR_NONE;
 
@@ -321,7 +324,7 @@ init_bios_info (void)
   /* Get the APM BIOS table.  */
   get_apm_info ();
   if (apm_bios_info.version)
-    mbi.apm_table = (unsigned long) (&apm_bios_info) + STAGE0_BASE;
+    mbi.apm_table = (unsigned long) (&apm_bios_info) + stage0base;
 
   /*
    *  Initialize other Multiboot Info flags.

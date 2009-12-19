@@ -13,6 +13,8 @@ public mu_Close
 public mu_Terminate
 
 extrn printhex4         :far
+extrn rs                :dword
+extrn base              :dword
 
 endif
 
@@ -32,6 +34,8 @@ endif
 extrn freeldr_close     :near
 
 .386p
+
+include fsd.inc
 
 switch_to_preldr macro
         mov  ax,  ds
@@ -86,6 +90,9 @@ mu_Open proc far
         push bp
         mov  bp, sp
 
+        push es
+        push edi
+
         ; char far *pName
         mov  ebx, dword ptr [bp + 06h]
 
@@ -100,8 +107,16 @@ mu_Open proc far
         ;and  ecx, 0fffffh
         add  ebx, ecx
 
+        ; setup 'shift' to pre-loader
+        mov  eax, ds:[0x8]
+        sub  eax, ds:[0x3c]
+        sub  eax, PRELDR_BASE
+        neg  eax
+        mov  edi, eax
+
         ; switch to PM and call muOpen
         mov  eax, offset _TEXT:muOpen
+        add  eax, edi
         push eax
         call call_pm
         add  sp, 4
@@ -117,12 +132,11 @@ noerr1:
 nok1:
         switch_to_ldr
 
-        push es
-        push di
         les  di, dword ptr [bp + 0ah]
         mov  es:[di], edx ; size
         xor  dx, dx
-        pop  di
+
+        pop  edi
         pop  es
 
         pop  bp
@@ -158,7 +172,15 @@ mu_Read proc far
         and  edx, 0ffffh
         add  edx, eax
 
+        ; setup 'shift' to pre-loader
+        mov  eax, ds:[0x8]
+        sub  eax, ds:[0x3c]
+        sub  eax, PRELDR_BASE
+        neg  eax
+        mov  edi, eax
+
         mov  eax, offset _TEXT:muRead
+        add  eax, edi
         push eax
         call call_pm
         add  sp, 4
@@ -185,7 +207,15 @@ mu_Read endp
 mu_Close proc far
         switch_to_preldr
 
+        ; setup 'shift' to pre-loader
+        mov  eax, ds:[0x8]
+        sub  eax, ds:[0x3c]
+        sub  eax, PRELDR_BASE
+        neg  eax
+        mov  edi, eax
+
         mov  eax, offset _TEXT:muClose
+        add  eax, edi
         push eax
         call call_pm
         add  sp, 4

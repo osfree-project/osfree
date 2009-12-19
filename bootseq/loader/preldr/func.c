@@ -492,7 +492,7 @@ setup_part (char *filename)
         open_partition ();
       else
 # endif /* ! NO_BLOCK_FILES */
-        open_device ();
+        open_device (); // !2
     }
 
 #endif /* ! STAGE1_5 */
@@ -525,8 +525,6 @@ grub_open (char *filename)
   char fn[buf_size]; /* arbitrary... */
   char *filename_orig = filename;
   int trycount = 0;
-
-  strpos = filename;
 
   //if (grub_strlen(filename) > buf_size)
   //  {

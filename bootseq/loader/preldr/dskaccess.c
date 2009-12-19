@@ -18,6 +18,9 @@ extern int buf_track;
 extern void (*disk_read_func) (int, int, int);
 extern void (*disk_read_hook) (int, int, int);
 
+extern unsigned long scratchaddr;
+extern unsigned long bufferaddr;
+
 #if 0
 
 #ifndef u_diskctl
@@ -109,7 +112,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
       soff = sector % sectors_per_vtrack;
       track = sector - soff;
       num_sect = sectors_per_vtrack - soff;
-      bufaddr = ((char *) BUFFERADDR
+      bufaddr = ((char *) bufferaddr
                  + (soff << sector_size_bits) + byte_offset);
 
       if (track != buf_track)
@@ -125,11 +128,11 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
             {
               read_start = sector;
               read_len = num_sect;
-              bufaddr = (char *) BUFFERADDR + byte_offset;
+              bufaddr = (char *) bufferaddr + byte_offset;
             }
 
           bios_err = biosdisk (BIOSDISK_READ, drive, &buf_geom,
-                               read_start, read_len, BUFFERADDR >> 4);
+                               read_start, read_len, bufferaddr >> 4);
           if (bios_err)
             {
               buf_track = -1;
@@ -144,33 +147,33 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
                    */
                   if (slen > num_sect
                       || biosdisk (BIOSDISK_READ, drive, &buf_geom,
-                                   sector, slen, BUFFERADDR >> 4))
+                                   sector, slen, bufferaddr >> 4))
                     errnum = ERR_READ;
 
-                  bufaddr = (char *) BUFFERADDR + byte_offset;
+                  bufaddr = (char *) bufferaddr + byte_offset;
                 }
             }
           else
             buf_track = track;
 
           if ((buf_track == 0 || sector == 0)
-              && (PC_SLICE_TYPE (BUFFERADDR, 0) == PC_SLICE_TYPE_EZD
-                  || PC_SLICE_TYPE (BUFFERADDR, 1) == PC_SLICE_TYPE_EZD
-                  || PC_SLICE_TYPE (BUFFERADDR, 2) == PC_SLICE_TYPE_EZD
-                  || PC_SLICE_TYPE (BUFFERADDR, 3) == PC_SLICE_TYPE_EZD))
+              && (PC_SLICE_TYPE (bufferaddr, 0) == PC_SLICE_TYPE_EZD
+                  || PC_SLICE_TYPE (bufferaddr, 1) == PC_SLICE_TYPE_EZD
+                  || PC_SLICE_TYPE (bufferaddr, 2) == PC_SLICE_TYPE_EZD
+                  || PC_SLICE_TYPE (bufferaddr, 3) == PC_SLICE_TYPE_EZD))
             {
               /* This is a EZD disk map sector 0 to sector 1 */
               if (buf_track == 0 || slen >= 2)
                 {
                   /* We already read the sector 1, copy it to sector 0 */
-                  memmove ((char *) BUFFERADDR,
-                           (char *) BUFFERADDR + buf_geom.sector_size,
+                  memmove ((char *) bufferaddr,
+                           (char *) bufferaddr + buf_geom.sector_size,
                            buf_geom.sector_size);
                 }
               else
                 {
                   if (biosdisk (BIOSDISK_READ, drive, &buf_geom,
-                                1, 1, BUFFERADDR >> 4))
+                                1, 1, bufferaddr >> 4))
                     errnum = ERR_READ;
                 }
             }
@@ -219,22 +222,22 @@ rawwrite (int drive, int sector, char *buf)
 {
   if (sector == 0)
     {
-      if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, SCRATCHADDR >> 4))
+      if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, scratchaddr >> 4))
         {
           errnum = ERR_WRITE;
           return 0;
         }
 
-      if (PC_SLICE_TYPE (SCRATCHADDR, 0) == PC_SLICE_TYPE_EZD
-          || PC_SLICE_TYPE (SCRATCHADDR, 1) == PC_SLICE_TYPE_EZD
-          || PC_SLICE_TYPE (SCRATCHADDR, 2) == PC_SLICE_TYPE_EZD
-          || PC_SLICE_TYPE (SCRATCHADDR, 3) == PC_SLICE_TYPE_EZD)
+      if (PC_SLICE_TYPE (scratchaddr, 0) == PC_SLICE_TYPE_EZD
+          || PC_SLICE_TYPE (scratchaddr, 1) == PC_SLICE_TYPE_EZD
+          || PC_SLICE_TYPE (scratchaddr, 2) == PC_SLICE_TYPE_EZD
+          || PC_SLICE_TYPE (scratchaddr, 3) == PC_SLICE_TYPE_EZD)
         sector = 1;
     }
 
-  memmove ((char *) SCRATCHADDR, buf, SECTOR_SIZE);
+  memmove ((char *) scratchaddr, buf, SECTOR_SIZE);
   if (biosdisk (BIOSDISK_WRITE, drive, &buf_geom,
-                sector, 1, SCRATCHADDR >> 4))
+                sector, 1, scratchaddr >> 4))
     {
       errnum = ERR_WRITE;
       return 0;

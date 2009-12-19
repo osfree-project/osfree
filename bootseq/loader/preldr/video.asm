@@ -21,6 +21,10 @@ endif
 
 extrn    call_rm       :near
 
+ifndef MICROFSD
+extrn    stage0base   :dword
+endif
+
 .386
 
 include fsd.inc
@@ -125,7 +129,8 @@ printmsg proc near
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:message
@@ -156,7 +161,8 @@ printb  proc near
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:printhex2
@@ -186,7 +192,8 @@ printw  proc near
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:printhex4
@@ -216,7 +223,8 @@ printd  proc near
 ifdef MICROFSD
         mov     eax, REL1_BASE
 else
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
 endif
         shl     eax, 12
         mov     ax,  offset _TEXT16:printhex8

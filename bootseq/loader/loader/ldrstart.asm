@@ -20,9 +20,10 @@ public loader_stack_top
 public   exe_end
 public   bss_end
 
-.386
+.386p
 
 include fsd.inc
+include struc.inc
 include mb_etc.inc
 
 _TEXT    segment dword public 'CODE'  use32
@@ -47,19 +48,19 @@ bss_end:
 _end3    ends
 _end4    segment dword public 'BSS'   use32
 _end4    ends
-_STACK   segment dword public 'STACK' use32
-_STACK   ends
+;_STACK   segment dword public 'STACK' use32
+;_STACK   ends
 
-DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_end1,_end2,_end3,_end4,_STACK
+DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_end1,_end2,_end3,_end4
 
-_STACK   segment dword public 'STACK' use32
-LDR_STACK_SIZE equ 8000h
-public loader_stack_top
-public loader_stack_bottom
+;_STACK   segment dword public 'STACK' use32
+;LDR_STACK_SIZE equ 8000h
+;public loader_stack_top
+;public loader_stack_bottom
 ;                        db 3 dup (?)
-loader_stack_bottom     db LDR_STACK_SIZE dup (?)
-loader_stack_top        label byte
-_STACK   ends
+;loader_stack_bottom     db LDR_STACK_SIZE dup (?)
+;loader_stack_top        label byte
+;_STACK   ends
 
 _TEXT segment dword public 'CODE' use32
 
@@ -82,8 +83,14 @@ ok:
       ; set loader stack
       mov  oldstack, esp
       mov  oldframe, ebp
-      mov  esp, offset DGROUP:loader_stack_top
-      mov  ebp, esp
+      ;mov  esp, offset DGROUP:loader_stack_top
+      ;mov  ebp, esp
+
+      ;xor  eax, eax
+      ;mov  ax, 3000h
+      ;mov  word ptr ds:[RMSTACK + 2], ax
+
+      ;call set_gdt
 
       ; clear bss
       ;cld
@@ -106,6 +113,31 @@ ok:
 
       int 3
 ;      jmp     $
+
+
+set_gdt:
+        ; copy GDT
+        mov  ebx, GDT_ADDR
+
+        ; set 16-bit segment (_TEXT16) base
+        ; in GDT for protected mode
+        shl  eax, 4
+
+        mov  [ebx][5*8].ds_baselo, ax
+        ror  eax, 16
+        mov  [ebx][5*8].ds_basehi1, al
+        ror  eax, 8
+        mov  [ebx][5*8].ds_basehi2, al
+
+        ; fill GDT descriptor
+        mov  ebx, offset _TEXT:gdtdesc
+        mov  eax, GDT_ADDR
+        mov  [ebx].g_base, eax
+        mov  [ebx].g_limit, 10*8 - 1
+
+        lgdt fword ptr [ebx]
+
+        ret
 
 return_to_preldr_:
       mov  esp, oldstack
@@ -166,6 +198,8 @@ ft            dd   0
 bpb           dd   0
 ; boot drive
 boot_drive    dd   0
+
+gdtdesc gdtr  <9, ?>
 
 errmsg        db   "No boot magic in EAX, panic...",13,10,0
 oldstack      dd   0

@@ -25,15 +25,20 @@ void gateA20(int);
 
 int  num_fsys = 0;
 
+unsigned long stage0base;
+unsigned long scratchaddr;    // 512-byte scratch area
+unsigned long bufferaddr;
+
 extern int mem_lower;
 extern int mem_upper;
+
+#pragma aux stage0base      "*"
 
 #ifndef STAGE1_5
 extern unsigned char use_term;
 
 extern unsigned long extended_memory;
 #pragma aux extended_memory "*"
-
 #pragma aux mu_Open_wr      "*"
 #pragma aux mu_Read_wr      "*"
 #pragma aux mu_Close_wr     "*"
@@ -65,9 +70,6 @@ unsigned int relshift;
 
 #pragma aux mbi "*"
 #pragma aux extended_memory "*"
-#pragma aux linux_data_real_addr "*"
-#pragma aux linux_data_tmp_addr "*"
-#pragma aux linux_text_len "*"
 
 #pragma aux install_filesys "*"
 
@@ -530,6 +532,15 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       };
+    case PARM_AT_DRIVE:
+      {
+        if (action == ACT_GET)
+          strcpy((char *)val, at_drive);
+        else
+          strcpy(at_drive, (char *)val);
+
+        return 0;
+      }
     default:
       ;
   }
@@ -651,37 +662,6 @@ int redir_file(char *file)
   }
 
   return 0;
-}
-
-char *
-macro_subst(char *path)
-{
-  char *p, *q, *r;
-  char *macro = "(@)";
-  char *s = strpos;
-  int  l = strlen(at_drive);
-  int  m = strlen(macro);
-  int  k;
-
-  p = q = r = path - 1;
-  while (1)
-  {
-    r = strstr(q + 1, macro);
-    if (r) p = r; else p = q + 1 + strlen(q + 1);
-    k = p - q - 1;
-
-    grub_strncpy(s, q + 1, k);
-
-    if (r) grub_strcat(s, s, at_drive);
-    else break;
-
-    s = s + l + k;
-    q = p + m - 1;
-  }
-  s = strpos;
-  strpos = s + strlen(s);
-
-  return s;
 }
 
 #endif
@@ -1329,8 +1309,9 @@ void reloc(char *base, char *rel_file, unsigned long shift)
 void __cdecl set_addr (void)
 {
   struct desc *z;
-  unsigned long ldrbase;
+  unsigned long ldrbase, preldr_size;
   unsigned long base;
+  unsigned long *basep;
   int i, k;
 
   if (!grub_strcmp(conf.loader.name, "default"))
@@ -1366,11 +1347,25 @@ void __cdecl set_addr (void)
   printf("ldr base 0x%x\r\n", ldrbase);
 
   /* the correction shift added while relocating */
-  relshift = ldrbase - (PREFERRED_BASE + 0x10000);
+  //relshift = ldrbase - (PREFERRED_BASE + 0x10000);
+  preldr_size = 0x1000 + 0x4e00 + 0x2000;
+  /* int 13h buf--^  stack--^  preldr--^ (low) */
+  relshift = ldrbase - (PREFERRED_BASE + preldr_size);
+
+  scratchaddr += relshift;
+  bufferaddr  += relshift;
 
   /* move preldr and its data */
-  grub_memmove((char *)(ldrbase - 0x10000),
-               (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
+  //grub_memmove((char *)(ldrbase - 0x10000),
+  //             (char *)(EXT_BUF_BASE + EXT_LEN - 0x10000),
+  //             0x10000);
+  /* move lower part to the end of conventional memory */
+  grub_memmove((char *)(ldrbase - preldr_size),
+               (char *)(PREFERRED_BASE),
+               preldr_size);
+  /* move upper part to high memory */
+  grub_memmove((char *)(PRELDR_BASE),
+               (char *)(stage0base),
                0x10000);
 
   __asm {
@@ -1382,7 +1377,7 @@ void __cdecl set_addr (void)
     //mov  ecx, EXT_BUF_BASE
     //xor  eax, eax
     //mov  ax,  ds:[RMSTACK]      // 16-bit stack SP
-    //add  eax, STAGE0_BASE       // base + SP == stack top phys address
+    //add  eax, stage0base       // base + SP == stack top phys address
     // now we got stack top phys address in EAX
     //sub  ecx, eax               // stack length in bytes
     //add  ecx, 3                 // round up to a multiple of 4
@@ -1396,18 +1391,28 @@ void __cdecl set_addr (void)
     // relocation shift
     mov  eax, relshift
     /* switch 32-bit stack to the place of relocation */
-    add  esp,   eax
-    add  ebp,   eax
+    add  esp, eax
+    //add  ebp,   eax
     /* fixup words in 32-bit stack */
-    add  [esp], eax
-    add  [esp + 8],    eax
-    add  [esp + 0xc],  eax
-    add  [esp + 0x10], eax
+    add  [esp], eax          // ebp on return from init()
+    //add  [esp + 8],    eax
+    //add  [esp + 0xc],  eax
+
+    /*  */
+    mov  eax, PRELDR_BASE
+    lea  edx, stage0base
+    sub  eax, [edx]
+    add  [esp + 0x10], eax       // return addr of set_addr()
+
+    mov  eax, relshift
     add  [esp + 0xb8], eax
-    add  [esp + 0xcc], eax
     add  [esp + 0xd0], eax
     add  [esp + 0xd8], eax
     add  [esp + 0xdc], eax
+    add  [esp + 0xec], eax
+    /* fix up stack base */
+    shr  eax, 4
+    add  word ptr ds:[RMSTACK + 2], ax
   }
 
   printf("rel shift 0x%x\r\n", relshift);
@@ -1420,15 +1425,27 @@ void __cdecl set_addr (void)
   use_term = 0;
 
   /* fixup preldr */
-  reloc((char *)(STAGE0_BASE  + relshift), "/boot/loader/preldr0.rel", relshift);
+  //reloc((char *)(STAGE0_BASE  + relshift), "/boot/loader/preldr0.rel", relshift);
+  reloc((char *)(PRELDR_BASE), "/boot/loader/preldr0.rel", PRELDR_BASE - stage0base);
 
   /* jump to relocated pre-loader */
-  jmp_reloc(relshift);
+  //jmp_reloc(relshift);
+  jmp_reloc(PRELDR_BASE - stage0base);
   /* now we are at the place of relocation */
 
   /* disable use of terminal blackbox
      before it gets re-initted (new preldr copy) */
   use_term = 0;
+
+  stage0base  += relshift;
+  /* fixup base in preldr header */
+  basep  = (unsigned long *)((char *)stage0base + 0x8);
+  *basep += relshift;
+  /* copy relshift to preldr header */
+  basep  = (unsigned long *)((char *)stage0base + 0x38);
+  *basep =  PRELDR_BASE - stage0base;
+  basep  = (unsigned long *)((char *)stage0base + 0x3c);
+  *basep =  relshift;
 
   idt_init();
 
@@ -1448,12 +1465,20 @@ void __cdecl set_addr (void)
   z = (struct desc *)GDT_ADDR;
 
   /* fix bases of gdt descriptors */
-  base = STAGE0_BASE;
-  for (i =  3; i < 6; i++) {
+  //base = STAGE0_BASE;
+  base = (ldrbase - 0x2000);
+  /* fix 16-bit DS and CS descriptors */
+  for (i = 3; i < 5; i++) {
     (z + i)->ds_baselo  = base & 0xffff;
     (z + i)->ds_basehi1 = (base & 0xff0000) >> 16;
     (z + i)->ds_basehi2 = (base & 0xff000000) >> 24;
   }
+  /* fix 16-bit SS descriptor */
+  //i++;
+  base -= 0x1060 << 4;
+  (z + i)->ds_baselo  = base & 0xffff;
+  (z + i)->ds_basehi1 = (base & 0xff0000) >> 16;
+  (z + i)->ds_basehi2 = (base & 0xff000000) >> 24;
 
   // GDT base
   gdtdesc.g_base = GDT_ADDR;
@@ -1475,6 +1500,7 @@ void set_ftable (int which_ldr)
   int   rc;
   char  *buf;
   int   files;
+  char *old_ft_addr;
   bios_parameters_block *bpb;
 
   if (which_ldr)
@@ -1527,29 +1553,29 @@ void set_ftable (int which_ldr)
   ft.ft_cfiles = files;
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen; // 0x3800;
-  ft.ft_museg  = (SCRATCHADDR) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
+  ft.ft_museg  = (scratchaddr) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
                                          // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
-  ft.ft_mulen  = 0x10000; // 0x10000;     // It is empirically found maximal value
+  ft.ft_mulen  = 0x1000 + 0x4e00 + 0x2000; // 0x10000;     // It is empirically found maximal value
   ft.ft_mfsseg = mfsbase >> 4;    // 0x7c;
   ft.ft_mfslen = mfslen;  // 0x95f0;
   ft.ft_ripseg = 0; // 0x800;   // end of mfs
   ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
 
-  ft.ft_muOpen.seg       = (STAGE0_BASE) >> 4;
+  ft.ft_muOpen.seg       = (stage0base) >> 4;
   ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
 
-  ft.ft_muRead.seg       = (STAGE0_BASE) >> 4;
+  ft.ft_muRead.seg       = (stage0base) >> 4;
   ft.ft_muRead.off       = (unsigned short)(&mu_Read);
 
-  ft.ft_muClose.seg      = (STAGE0_BASE) >> 4;
+  ft.ft_muClose.seg      = (stage0base) >> 4;
   ft.ft_muClose.off      = (unsigned short)(&mu_Close);
 
-  ft.ft_muTerminate.seg  = (STAGE0_BASE) >> 4;
+  ft.ft_muTerminate.seg  = (stage0base) >> 4;
   ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
   /* set BPB */
-  bpb = (bios_parameters_block *)(BOOTSEC_BASE + 0xb);
-  /*
+  bpb = (bios_parameters_block *)(stage0base - 0x200 + 0xb);
+
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
     // fill fake BPB
     grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
@@ -1561,17 +1587,23 @@ void set_ftable (int which_ldr)
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
     bpb->marker     = 0x29;
-  } */
+  }
 
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
   bpb->log_drive   = conf.driveletter; // 0x92;
   bpb->hidden_secs = part_start;
+
+  /* copy filetable down to 1st megabyte */
+  old_ft_addr = (char *)(&ft) - (PRELDR_BASE - stage0base);
+  memmove(old_ft_addr, &ft, sizeof(FileTable));
 
   //bpb->disk_num    = 0x3;
   //bpb->log_drive   = 0x48;
   //bpb->marker      = 0x41;
   //bpb->vol_ser_no  = 0x00000082;
 }
+
+#if 1
 
 void determine_boot_drive(void)
 {
@@ -1628,6 +1660,7 @@ void determine_boot_drive(void)
 }
 
 #endif
+#endif
 
 int init(void)
 {
@@ -1648,6 +1681,10 @@ int init(void)
 #endif
   int    rc;
   char   *buf;
+
+  stage0base  = STAGE0_BASE;
+  scratchaddr = SCRATCHADDR;
+  bufferaddr  = BUFFERADDR;
 
   gateA20(1);
 
@@ -1713,7 +1750,7 @@ int init(void)
   }
 
   /* determine a drive string for '@' config file macro */
-  determine_boot_drive();
+  //determine_boot_drive();
 
   relshift = 0;
   //init_term();
@@ -1740,9 +1777,12 @@ int init(void)
   /* call uFSD init (set linkage) */
   //if (!filetab_ptr)
   //{
-  //  fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
-  //  fsd_init(l1);
+    fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
+    fsd_init(l1);
   //}
+
+  // backup uFSD
+  grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
 
   /* Init terminal */
   init_term();
@@ -1750,7 +1790,7 @@ int init(void)
   /* Init info in mbi structure */
   init_bios_info();
 
-  /* Set filetable values */
+  /* Set filetable values (freeldr.mdl) */
   set_ftable(0);
 
   if (conf.multiboot == 1) {

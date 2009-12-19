@@ -17,6 +17,7 @@ public  mu_Terminate_wr
 
 extrn   filetab_ptr16      :dword
 extrn   call_rm            :near
+extrn   stage0base        :dword
 
 _TEXT16 segment dword public 'CODE' use16
 
@@ -102,7 +103,8 @@ mu_Open_wr proc near
         mov  edx, ecx
 
         ; switch to PM and call muOpen
-        mov  eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl  eax, 12
         mov  ax, offset _TEXT16:muOpen_wr
         push eax
@@ -143,7 +145,8 @@ mu_Read_wr proc near
         ; unsigned long cbBuf
         mov  edx, dword ptr [ebp + 10h]
 
-        mov  eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl  eax, 12
         mov  ax, offset _TEXT16:muRead_wr
         push eax
@@ -162,7 +165,8 @@ mu_Read_wr endp
 ; mu_Close_wr(void);
 ;
 mu_Close_wr proc near
-        mov  eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl  eax, 12
         mov  ax, offset _TEXT16:muClose_wr
         push eax
@@ -177,7 +181,8 @@ mu_Close_wr endp
 ; mu_Terminate_wr(void);
 ;
 mu_Terminate_wr proc near
-        mov  eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl  eax, 12
         mov  ax, offset _TEXT16:muTerminate_wr
         push eax

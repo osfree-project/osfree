@@ -242,7 +242,7 @@ entry:
         cli
         mov   esp, 0x70000
         ;sti
-   
+
         call  set_gdt
 
         ; set stack

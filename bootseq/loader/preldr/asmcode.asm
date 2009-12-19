@@ -9,6 +9,7 @@ include fsd.inc
 
 extrn   call_rm             :near
 extrn   bss_end             :near
+extrn   stage0base         :dword
 
 public gateA20
 
@@ -168,7 +169,8 @@ ifndef STAGE1_5
 ;  hang at this point!
 ;
 stop:
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:hard_stop
         push    eax
@@ -184,7 +186,8 @@ stop:
 ;
 stop_floppy:
         pusha
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:stop_flop
         push    eax
@@ -208,7 +211,8 @@ get_memsize:
 
         mov     ebx, [esp + 0ch]
 
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:get_memsize_rm
         push    eax
@@ -236,7 +240,8 @@ get_eisamemsize:
         push    ebp
         push    ebx
 
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:get_eisamemsize_rm
         push    eax
@@ -272,7 +277,8 @@ gateA20:
         push    ebp
         mov     edx, [esp + 8]
 
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:gateA20_rm
         push    eax
@@ -384,7 +390,8 @@ get_mmap_entry:
         mov     edx, 534d4150h
 
         ; enter real mode
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:get_mmap_entry_rm
         push    eax
@@ -420,7 +427,8 @@ get_rom_config_table:
         xor     ebx, ebx
 
         ; enter real mode
-        mov     eax, STAGE0_BASE
+        mov     eax, offset _TEXT:stage0base
+        mov     eax, [eax]
         shl     eax, 12
         mov     ax,  offset _TEXT16:get_rom_config_table_rm
         push    eax
@@ -434,7 +442,7 @@ get_rom_config_table:
 
         pop     ebx
         pop     ebp
-        
+
         ret
 endif
 

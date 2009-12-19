@@ -74,6 +74,12 @@ $(PATH)..$(SEP)func.$(LO): $(MYDIR)..$(SEP)func.c
 $(PATH)..$(SEP)func.$(SO): $(MYDIR)..$(SEP)func.c
  $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
 
+#$(PATH)segord.$(O): $(MYDIR)segord.asm
+# $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+#
+#$(PATH)segord.$(SO): $(MYDIR)segord.asm
+# $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+
 $(PATH)..$(SEP)cfgparse.$(O): $(MYDIR)..$(SEP)cfgparse.c
 
 $(PATH)..$(SEP)cfgparse.$(SO): $(MYDIR)..$(SEP)cfgparse.c

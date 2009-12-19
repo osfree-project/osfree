@@ -19,6 +19,8 @@ public  force_lba
 
 public  filetab_ptr
 public  filetab_ptr16
+public  relshift16
+public  rs
 
 public  _text16_begin
 extrn   _text16_end  :dword
@@ -94,6 +96,10 @@ install_part       dd    0ffffffh
 install_fsys       db    "iso9660"
                    db    9 dup (0)
 
+                   org   38h
+rs                 dd    0
+relshift16         dd    0
+
 ;padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
 ;pad           db    padsize dup (0)
                    org   40h
@@ -152,6 +158,8 @@ rel1:
         mov  eax, offset _TEXT:bpb_ptr - STAGE0_BASE
         mov  word ptr [eax + 2], bx
         mov  word ptr [eax], si
+
+        mov  rs, 0
 
         cmp  dh, 0
         jz   non_16bit_ufsd
@@ -288,26 +296,28 @@ reloc:
 
         cli
 
+        sub  ax, 1060h       ; 0x1000 + 0x20
         mov  ss, ax
-        mov  sp, STAGE0_LEN
+        mov  sp, 0ffffh
 
         sti
 
         ; init stack position variables
         push ds
 
-        xor  ax, ax
-        mov  ds, ax
-        mov  eax, PROTSTACK
-        mov  dword ptr [eax], PROTSTACKINIT
+        xor  bx, bx
+        mov  ds, bx
+        mov  ebx, PROTSTACK
+        mov  dword ptr [ebx], PROTSTACKINIT
+        mov  word ptr ds:[RMSTACK + 2], ax
 
         pop  ds
 
         ; copy GDT
         push es
 
-        xor  ax, ax
-        mov  es, ax
+        xor  bx, bx
+        mov  es, bx
 
         cld
         mov  cx, 0x180
@@ -320,18 +330,21 @@ reloc:
 
         ; set 16-bit segment (_TEXT16) base
         ; in GDT for protected mode
-        mov  eax, STAGE0_BASE
+        mov  ebx, STAGE0_BASE
+        shl  eax, 4
 
-        mov  es:[di][3*8].ds_baselo, ax
-        mov  es:[di][4*8].ds_baselo, ax
+        mov  es:[di][3*8].ds_baselo, bx
+        mov  es:[di][4*8].ds_baselo, bx
         mov  es:[di][5*8].ds_baselo, ax
         ror  eax, 16
-        mov  es:[di][3*8].ds_basehi1, al
-        mov  es:[di][4*8].ds_basehi1, al
+        ror  ebx, 16
+        mov  es:[di][3*8].ds_basehi1, bl
+        mov  es:[di][4*8].ds_basehi1, bl
         mov  es:[di][5*8].ds_basehi1, al
         ror  eax, 8
-        mov  es:[di][3*8].ds_basehi2, al
-        mov  es:[di][4*8].ds_basehi2, al
+        ror  ebx, 8
+        mov  es:[di][3*8].ds_basehi2, bl
+        mov  es:[di][4*8].ds_basehi2, bl
         mov  es:[di][5*8].ds_basehi2, al
 
         pop  es
@@ -340,6 +353,8 @@ reloc:
         mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
         mov  eax, GDT_ADDR
         mov  [bx].g_base, eax
+
+        lgdt fword ptr [ebx]
 
 ;ifndef STAGE1_5
         ; get available memory
@@ -355,6 +370,7 @@ reloc:
         int     10h
         popa
 
+        ;xor edi, edi
         ; call 32-bit protected mode init
         mov  eax, offset _TEXT:init
         push eax
@@ -394,8 +410,10 @@ endif
         mov  edi, offset _TEXT:ft - STAGE0_BASE
 
         ; set BPB
-        mov  eax, BOOTSEC_BASE
-        shr  eax, 4
+        ;mov  eax, BOOTSEC_BASE
+        ;shr  eax, 4
+        mov  ax,  ds
+        sub  ax,  20h
         mov  ds,  ax
         mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
 

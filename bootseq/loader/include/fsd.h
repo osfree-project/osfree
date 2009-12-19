@@ -22,13 +22,14 @@
 #define REL_BASE    0x90000
 #define REL1_BASE   (0x90000 + SHIFT)
 
-#define PREFERRED_BASE  0x5f000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
-#define BOOT_PART_TABLE  (0x60000 + SHIFT) //
+#define PREFERRED_BASE  0x5e000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
+#define BOOT_PART_TABLE  (0x5f000 + SHIFT) //
 #define FSYS_BUFLEN  0x8000
 
 // ;
 // ; buffers at the end of 3rd megabyte
 // ;
+#define PRELDR_BASE  0x3d0000 // final location of a pre-loader
 #define FSYS_BUF  0x3e0000 //
 #define EXT1HIBUF_BASE  0x3e8000 // blackbox high memory buffer1
 #define EXT2HIBUF_BASE  0x3ec000 // blackbox high memory buffer2
@@ -56,12 +57,12 @@
 #define EXT2LOBUF_BASE  0x63800 // blackbox low memory buffer2
 #define EXT3LOBUF_BASE  0x63c00 // blackbox low memory buffer3
 #define TERMLO_BASE  0x63800 // terminal blackbox base (low)
-#define BOOTSEC_BASE  (0x63c00 + SHIFT) // bootsector relocation base
-#define STAGE0_BASE  (0x63e00 + SHIFT) // Stage0 load base
-#define EXT_BUF_BASE  (0x6c000 + SHIFT) // buffer for extensions (blackboxes) (size: 0x2800 bytes)
+#define BOOTSEC_BASE (0x63c00 + SHIFT) // bootsector relocation base
+#define STAGE0_BASE  (0x63e00 + SHIFT)  // Stage0 load base
+#define EXT_BUF_BASE  (0x73e00 + SHIFT) // buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-#define SCRATCHADDR  (0x5f000 + SHIFT) // 512-byte scratch area
-#define BUFFERADDR  SCRATCHADDR + 0x200 //
+#define SCRATCHADDR  (0x5e000 + SHIFT) // 512-byte scratch area
+#define BUFFERADDR  (SCRATCHADDR + 0x200) //
 #define BUFFERLEN  0xe00 // 0x7e00
 
 #define EXT_LEN  0x3000 // extension (blackbox) buffer size

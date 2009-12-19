@@ -11,6 +11,8 @@
 
 #ifndef STAGE1_5
 
+extern unsigned long scratchaddr;
+
 /* The boot device.  */
 static int bootdev;
 int bsd_evil_hack;
@@ -96,7 +98,7 @@ set_bootdev (int hdbias)
   if ((saved_drive & 0x80) && cur_part_addr)
     {
       if (rawread (saved_drive, cur_part_offset,
-                   0, SECTOR_SIZE, (char *) SCRATCHADDR))
+                   0, SECTOR_SIZE, (char *) scratchaddr))
         {
           char *dst, *src;
 
@@ -104,7 +106,7 @@ set_bootdev (int hdbias)
              XXX: We cannot use grub_memmove because BOOT_PART_TABLE
              (0x07be) is less than 0x1000.  */
           dst = (char *) BOOT_PART_TABLE;
-          src = (char *) SCRATCHADDR + BOOTSEC_PART_OFFSET;
+          src = (char *) scratchaddr + BOOTSEC_PART_OFFSET;
           while (dst < (char *) BOOT_PART_TABLE + BOOTSEC_PART_LENGTH)
             *dst++ = *src++;
 

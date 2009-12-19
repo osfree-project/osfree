@@ -1,4 +1,4 @@
- /*
+/*
  *
  *
  */
@@ -14,46 +14,43 @@ extern int  fs_mount(void);
 extern int  fs_read(char *buf, int len);
 extern int  fs_dir(char *dirname);
 
-void (*disk_read_func) (int, int, int);
-void (*disk_read_hook) (int, int, int);
+extern void (*disk_read_func) (int, int, int);
+extern void (*disk_read_hook) (int, int, int);
 
-int    (*pdevread)      (int sector, int byte_offset, int byte_len, char *buf);
-int    (*prawread)      (int drive, int sector, int byte_offset, int byte_len, char *buf);
-int    (*psubstring)    (const char *s1, const char *s2);
-int    (*pgrub_memcmp)  (const char *s1, const char *s2, int n);
-void * (*pgrub_memmove) (void *_to, const void *_from, int _len);
-void * (*pgrub_memset)  (void *start, int c, int len);
-int    (*pgrub_strcmp)  (const char *, const char *);
-int    (*pgrub_isspace) (int c);
-int    (*pgrub_tolower) (int c);
-int    (*pgrub_read)    (char *buf, int len);
+extern int    (*pdevread)      (int sector, int byte_offset, int byte_len, char *buf);
+extern int    (*prawread)      (int drive, int sector, int byte_offset, int byte_len, char *buf);
+extern int    (*psubstring)    (const char *s1, const char *s2);
+extern int    (*pgrub_memcmp)  (const char *s1, const char *s2, int n);
+extern void * (*pgrub_memmove) (void *_to, const void *_from, int _len);
+extern void * (*pgrub_memset)  (void *start, int c, int len);
+extern int    (*pgrub_strcmp)  (const char *, const char *);
+extern int    (*pgrub_isspace) (int c);
+extern int    (*pgrub_tolower) (int c);
+extern int    (*pgrub_read)    (char *buf, int len);
 
-int  *pmem_lower;
-int  *pmem_upper;
+extern int  *pmem_lower;
+extern int  *pmem_upper;
 
 /* filesystem common variables */
-int  *pfilepos;
-int  *pfilemax;
+extern int  *pfilepos;
+extern int  *pfilemax;
 
 /* disk buffer parameters */
-int             *pbuf_drive;
-int             *pbuf_track;
-struct geometry *pbuf_geom;
+extern int             *pbuf_drive;
+extern int             *pbuf_track;
+extern struct geometry *pbuf_geom;
 
-grub_error_t    *perrnum;
+extern grub_error_t    *perrnum;
 
-unsigned long *psaved_drive;
-unsigned long *psaved_partition;
+extern unsigned long *psaved_drive;
+extern unsigned long *psaved_partition;
 
-unsigned long *pcurrent_drive;
-unsigned long *pcurrent_partition;
-int           *pcurrent_slice;
-unsigned long *ppart_start;
-unsigned long *ppart_length;
-int           *pfsmax;
-
-//int      debug = 0;
-struct geometry *pbuf_geom;
+extern unsigned long *pcurrent_drive;
+extern unsigned long *pcurrent_partition;
+extern int           *pcurrent_slice;
+extern unsigned long *ppart_start;
+extern unsigned long *ppart_length;
+extern int           *pfsmax;
 
 int __cdecl
 init(lip1_t *l)

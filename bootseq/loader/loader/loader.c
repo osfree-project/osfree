@@ -148,7 +148,7 @@ char *
 macro_subst(char *path)
 {
   char *p, *q, *r;
-  char *macro = "(@)";
+  char *macro = "()";
   char *s = strpos;
   int  l = strlen(at_drive);
   int  m = strlen(macro);
@@ -901,66 +901,70 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
     state = 1;       // go to command line
   }
 
-  // starting point 0 instead of 1
-  num_items--;
-
-  if (menu_item) item = menu_item;
-  if (!item) item = default_item;
-  if (item > num_items) item = num_items;
-
-  shift = menu_shift;
-
-restart_menu:
-
-  //ccfg = curr_cfg;
-  // show a menu and let the user choose a menu item
-  item = exec_menu(item, shift);
-
-  if (item & 0x80000000) // return to the previous menu
+  /* If there are items, then show a menu and choose an item */
+  if (num_items)
   {
-    item &= ~0x80000000; // clear flag in upper bits
-    return 1;
-  }
+    // starting point 0 instead of 1
+    num_items--;
 
-  if (item & 0x40000000)
-  {
-    item &= ~0x40000000; // clear flag in upper bits
-    return 0;
-  }
+    if (menu_item) item = menu_item;
+    if (!item) item = default_item;
+    if (item > num_items) item = num_items;
 
-  item--;
+    shift = menu_shift;
 
-  scr = menu_first;
-  t->cls();
+  restart_menu:
 
-  itm = item + 1;
-  // find a menu item and execute corresponding script
-  while (itm)
-  {
-    itm--;
-    if (!itm)
+    //ccfg = curr_cfg;
+    // show a menu and let the user choose a menu item
+    item = exec_menu(item, shift);
+
+    if (item & 0x80000000) // return to the previous menu
     {
-      ccfg = curr_cfg;
-      if (!exec_script(scr))
-      {
-        printf("Loading failed, press any key...\r\n");
-        kernel_type = KERNEL_TYPE_NONE; /* invalidate */
-        errnum = 0;
-        drv = 0xff;
-        u_parm(PARM_BUF_DRIVE, ACT_SET, (unsigned *)&drv);
-        u_parm(PARM_ERRNUM, ACT_SET, (unsigned *)&errnum);
-        t->getkey();
-        goto restart_menu;
-      }
-      if (strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
-      {
-        //item = item_save;
-        //shift = shift_save;
-        return 2;
-      }
+      item &= ~0x80000000; // clear flag in upper bits
+      return 1;
     }
-    else
-      scr = scr->next;
+
+    if (item & 0x40000000)
+    {
+      item &= ~0x40000000; // clear flag in upper bits
+      return 0;
+    }
+
+    item--;
+
+    scr = menu_first;
+    t->cls();
+
+    itm = item + 1;
+    // find a menu item and execute corresponding script
+    while (itm)
+    {
+      itm--;
+      if (!itm)
+      {
+        ccfg = curr_cfg;
+        if (!exec_script(scr))
+        {
+          printf("Loading failed, press any key...\r\n");
+          kernel_type = KERNEL_TYPE_NONE; /* invalidate */
+          errnum = 0;
+          drv = 0xff;
+          u_parm(PARM_BUF_DRIVE, ACT_SET, (unsigned *)&drv);
+          u_parm(PARM_ERRNUM, ACT_SET, (unsigned *)&errnum);
+          t->getkey();
+          goto restart_menu;
+        }
+        if (strcmp(ccfg, curr_cfg)) // configfile issued (determined by cfg change)
+        {
+          //item = item_save;
+          //shift = shift_save;
+          return 2;
+        }
+      }
+      else
+        scr = scr->next;
+    }
   }
 
   /* launch a multiboot kernel */
