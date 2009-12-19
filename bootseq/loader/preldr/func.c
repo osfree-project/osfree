@@ -492,7 +492,7 @@ setup_part (char *filename)
         open_partition ();
       else
 # endif /* ! NO_BLOCK_FILES */
-        open_device2 (); // !2
+        open_device2 (); // 2
     }
 
 #endif /* ! STAGE1_5 */

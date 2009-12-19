@@ -1676,9 +1676,8 @@ int init(void)
   unsigned long base;
   int i, k, l;
   int key;
-#else
-  extern char preldr[];
 #endif
+  extern char preldr[];
   int    rc;
   char   *buf;
 
@@ -1732,10 +1731,10 @@ int init(void)
 #ifndef STAGE1_5
 
   /* build config filename */
+  grub_memmove(cfg, "()", 2); /* boot partition number */
   rc = grub_strlen(preldr_path);
-  grub_strcpy(cfg, preldr_path);
-  grub_strcpy(cfg + rc, cfg_file);
-
+  grub_strcpy(cfg + 2, preldr_path);
+  grub_strcpy(cfg + rc + 2, cfg_file);
 
   /* parse config file */
   process_cfg_line = process_cfg_line1;
