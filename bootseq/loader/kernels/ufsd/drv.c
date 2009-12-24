@@ -222,11 +222,10 @@ int dla(char *driveletter)
   char buf[0x40];
   char buff[0x220];
   char part_no = 0;
-  unsigned long    part;
   unsigned long    sec;
   struct geometry  geo;
   unsigned long CRC32, crc;
-  char *pte, *p, *ext, *act;
+  char *pte, *p, *ext;
   int i;
   int parts = 1;
   unsigned long ext_start = 0;
@@ -237,7 +236,7 @@ int dla(char *driveletter)
 
   memset(buf, 0, sizeof(buf));
   rawread(boot_drive, 0, PART_TABLE_OFFSET, 0x40, buf);
-  rawread(boot_drive, 0, PART_TABLE_OFFSET - 2, 1, &part_no);
+  part_no = (m->boot_device >> 16) & 0xff;
   kprintf("part_no=%u\n", part_no);
 
   // dump PT
@@ -245,38 +244,29 @@ int dla(char *driveletter)
   kprintf("\n");
 
   ext = 0;
-  act = 0;
   pte = buf;
 
-  if (!part_no)
+  if (part_no < 4) // primary partition
   {
-    // a loop by the number of primary partitions
-    for (i = 0; i < 4; i++, pte += 0x10, parts++)
-    {
-      if (pte[4] == 0x5 || pte[4] == 0xf)
-        ext = pte;
-      else // if part type is supported
-        if (pte[0] == 0x80)
-        {
-          kprintf("found active partition of type: 0x%02x\n", pte[4]);
-          part_start   = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
-          act = pte;
-          break;
-        }
-    }
-  }
-  else if (part_no < 5) // primary partition
-  {
-    pte += 0x10 * (part_no - 1);
+    pte += 0x10 * part_no;
     part_start   = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
   }
   else // logical partition
   {
-    parts = 4;
+    parts = 3;
+    ext = 0;
+    for (i = 0; i < 4; i++, pte += 0x10)
+    {
+      if (pte[4] == 0x5 || pte[4] == 0xf)
+      {
+        ext = pte;
+        break;
+      }
+    }
     pte = ext;
     while (pte) // while partition does exist
     {
-      part_start   = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
+      part_start = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
 
       if (!ext_start)
         ext_start = part_start;
@@ -285,7 +275,7 @@ int dla(char *driveletter)
 
       if (parts == part_no) break;
 
-      kprintf("part_start=%lu\n", part_start);
+      kprintf("part_start=%u\n", part_start);
       // read EBR
       rawread(boot_drive, part_start, PART_TABLE_OFFSET, 0x40, buf);
 
@@ -306,15 +296,14 @@ int dla(char *driveletter)
     }
   }
 
-  parts--;
-
   // get drive geometry
   get_diskinfo(boot_drive, &geo);
 
-  if (parts <= 3) // primary partition
+  // DLAT info sector
+  if (part_no < 4) // primary partition
     sec = geo.sectors - 1;
   else // logical partition
-    sec = part_start - 1;
+    sec = part_start + geo.sectors - 1;
 
   p = buff;
 
@@ -343,7 +332,7 @@ int dla(char *driveletter)
     {
       /* Get and parse partition DLAT entry */
       dlae = (DLA_Entry *)dlat->DLA_Array;
-      if (part <= 3) dlae += part; // for primary partitions
+      if (part_no < 4) dlae += part_no; // for primary partitions
       *driveletter = grub_toupper(dlae->Drive_Letter);
 
       return 1;

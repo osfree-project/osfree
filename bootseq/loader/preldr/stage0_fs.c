@@ -532,7 +532,7 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       };
-/*    case PARM_AT_DRIVE:
+    case PARM_AT_DRIVE:
       {
         if (action == ACT_GET)
           strcpy((char *)val, at_drive);
@@ -540,7 +540,7 @@ u_parm (int parm, int action, unsigned int *val)
           strcpy(at_drive, (char *)val);
 
         return 0;
-      } */
+      }
     default:
       ;
   }
@@ -664,37 +664,6 @@ int redir_file(char *file)
   return 0;
 }
 
-char *
-macro_subst(char *s, char *path)
-{
-  char *p, *q, *r;
-  char *macro = "()";
-  //char *s = strpos;
-  int  l = strlen(at_drive);
-  int  m = strlen(macro);
-  int  k;
-
-  p = q = r = path - 1;
-  while (1)
-  {
-    r = strstr(q + 1, macro);
-    if (r) p = r; else p = q + 1 + strlen(q + 1);
-    k = p - q - 1;
-
-    grub_strncpy(s, q + 1, k);
-
-    if (r) grub_strcat(s, s, at_drive);
-    else break;
-
-    s = s + l + k;
-    q = p + m - 1;
-  }
-  s = strpos;
-  strpos = s + strlen(s);
-
-  return s;
-}
-
 #endif
 
 int
@@ -751,12 +720,10 @@ freeldr_open (char *filename)
        grub_strncpy(buf + l + 1, filename, k);
        buf[l + k + 1] = '\0';
      }
-     else if (*filename == '(')
-       macro_subst(buf, filename);
      else
      {
        /* prepend "/" to filename */
-       if (*filename != '/') {
+       if (*filename != '/' && *filename != '(') {
          buf[0] = '/';
          i0 = 1;
        }
@@ -1743,7 +1710,7 @@ int init(void)
 #else
   cdrom_drive = GRUB_INVALID_DRIVE;
 #endif
-  current_drive = boot_drive;
+  current_drive = GRUB_INVALID_DRIVE;
   current_partition = 0xffffff;
 
   /* setting LIP */
@@ -1764,10 +1731,10 @@ int init(void)
 #ifndef STAGE1_5
 
   /* build config filename */
-  grub_memmove(cfg, "()", 2); /* boot partition number */
+  //grub_memmove(cfg, "()", 2); /* boot partition number */
   rc = grub_strlen(preldr_path);
-  grub_strcpy(cfg + 2, preldr_path);
-  grub_strcpy(cfg + rc + 2, cfg_file);
+  grub_strcpy(cfg, preldr_path);
+  grub_strcpy(cfg + rc, cfg_file);
 
   /* parse config file */
   process_cfg_line = process_cfg_line1;
@@ -1782,7 +1749,7 @@ int init(void)
   }
 
   /* determine a drive string for '@' config file macro */
-  //determine_boot_drive();
+  determine_boot_drive();
 
   relshift = 0;
   //init_term();

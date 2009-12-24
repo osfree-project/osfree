@@ -30,9 +30,9 @@
  *  Shared BIOS/boot data.
  */
 
-unsigned long saved_drive = -1;
-unsigned long saved_partition = -1;
-unsigned long cdrom_drive = -1;
+unsigned long saved_drive; // = -1;
+unsigned long saved_partition; // = -1;
+unsigned long cdrom_drive; // = -1;
 
 extern unsigned long stage0base;
 

@@ -241,7 +241,7 @@ int set_fsys(char *fsname)
   fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
 
-  printmsg("fs initted\r\n");
+  printmsg(".\r\n");
   //printd(fsys_type);
   //printmsg("\r\n");
 
